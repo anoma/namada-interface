@@ -1,0 +1,15 @@
+
+{
+    "cSpell.words": [
+        "testid"
+    ],
+    "workbench.colorCustomizations": {
+        "[monokai]": {
+            "symbolIcon.namespaceForeground": "#ff0000"
+        },
+        "activityBar.background": "#081018",
+        "titleBar.activeBackground": "#081018",
+        "titleBar.activeForeground": "#1e5388"
+    },
+    "window.title": "anoma-cli"
+}
