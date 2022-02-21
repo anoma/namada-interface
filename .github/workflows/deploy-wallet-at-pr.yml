@@ -33,5 +33,5 @@ jobs:
         run: |
           curl --header "Content-Type: application/json" \
           --request POST \
-          --data '{"message":"There is a new deployment for a PR https://pull-request-${{ github.event.number }}--wallet-preview-heliax-dev.netlify.app/"}' \
+          --data '{"message":"There is a new deployment for a PR https://pull-request-${{ github.event.number }}--wallet-preview-heliax-dev.netlify.app \n \n the PR is at https://github.com/heliaxdev/anoma-apps/pull/${{ github.event.number }}"}' \
           ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
