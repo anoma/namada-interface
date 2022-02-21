@@ -34,4 +34,5 @@ jobs:
         uses: distributhor/workflow-webhook@v2
         env:
           webhook_url: ${{ secrets.NETLIFY_ACCESS_TOKEN_WALLET_PREVIEW }}
+          webhook_secret: "Not needed"
           data: '{ "message": "There is a new deployment at https://wallet-preview-heliax-dev.netlify.app/" }'
