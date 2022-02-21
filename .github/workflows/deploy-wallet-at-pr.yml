@@ -30,12 +30,7 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_ACCESS_TOKEN_WALLET_PREVIEW }}
           NETLIFY_SITE_ID: 2380782e-9b20-477a-bc27-b4e9d05e16f3
       - name: Slack Notification
-        uses: tokorom/action-slack-incoming-webhook@main
+        uses: distributhor/workflow-webhook@v2
         env:
-          INCOMING_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
-        with:
-          text: ""
-          attachments: |
-            {
-              "message": "There is a new deployment relating to a PR: https://pull-request-${{ github.event.number }}--wallet-preview-heliax-dev.netlify.app/"
-            }
+          webhook_url: ${{ secrets.NETLIFY_ACCESS_TOKEN_WALLET_PREVIEW }}
+          data: '{ "message": "There is a new deployment relating to a PR: https://pull-request-${{ github.event.number }}--wallet-preview-heliax-dev.netlify.app/" }'
