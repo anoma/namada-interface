@@ -6,13 +6,13 @@
 # Install dependencies
 yarn install
 
-# Build wasm library dependency
+# Build wasm library dependency (this is required before running the app)
 yarn wasm:build
 
-# Start project in development mode
+# Start app in development mode
 yarn start
 
-# Start project in development mode, specifying a `REACT_APP_LOCAL`
+# Start app in development mode, specifying a `REACT_APP_LOCAL`
 # environment variable (useful for switching defaults between a local
 # ledger and a testnet):
 yarn start:local
