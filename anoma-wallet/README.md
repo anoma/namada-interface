@@ -46,10 +46,10 @@ yarn build
 │   ├── anoma             # Wasm-generated source
 │   ├── rpc
 │   │   ├── RpcClient.ts  # RPC HTTP and WebSocket library
+│   │   ├── types.ts      # RPC Request/Response types
 │   └── tx
 │       └── Transfer.ts   # Transfer transaction library
 ├── schema                # Borsh schema for deserializing abci_query types
-├── types                 # Additional TypeScript definitions
 └── utils
     ├── helpers           # Utility helper functions
     └── theme             # Theme utilities
