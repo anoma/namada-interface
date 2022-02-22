@@ -52,7 +52,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
           <HelpIconContainer>
             <Icon iconName={IconName.HelpCircle} />
           </HelpIconContainer>
-          <HelpTextContainer>Helpddd</HelpTextContainer>
+          <HelpTextContainer>Help</HelpTextContainer>
         </HelpButton>
         <ColorModeContainer>
           <Toggle
