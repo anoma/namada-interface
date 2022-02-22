@@ -22,7 +22,7 @@ export interface BroadcastSyncResponse extends JsonRpcSuccessResponse {
 export type SubscriptionParams = {
   onBroadcast: (response: BroadcastSyncResponse) => void;
   onNext: (txEvent: SubscriptionEvent) => void;
-  onError: (error: any) => void;
+  onError: (error: Error) => void;
   onComplete: () => void;
 };
 
@@ -30,7 +30,7 @@ export interface SubscriptionEvents extends SubscriptionEvent {
   events: NewBlockEvents;
 }
 
-export interface NewBlockEvents extends Record<TxResponse, string> {}
+export type NewBlockEvents = Record<TxResponse, string>;
 
 export type JsonCompatibleArray = (string | number | boolean)[];
 export type JsonCompatibleDictionary = {

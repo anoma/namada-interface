@@ -10,7 +10,7 @@ import { ThemeProvider } from "styled-components/macro";
 import { darkColors, lightColors, Theme } from "utils/theme";
 
 // this sets the dark/light colors to theme
-const getTheme = (isLightMode: boolean) => {
+const getTheme = (isLightMode: boolean): Theme => {
   const colors = isLightMode ? lightColors : darkColors;
   const theme: Theme = {
     themeConfigurations: {

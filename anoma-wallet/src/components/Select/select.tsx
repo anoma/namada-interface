@@ -12,7 +12,7 @@ type Props<T = string | number> = {
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void | Promise<void>;
 };
 
-function Select<T>({ value, data, onChange }: Props<T>) {
+function Select<T>({ value, data, onChange }: Props<T>): JSX.Element {
   return (
     <StyledSelect onChange={onChange} value={`${value}`}>
       {data.map((option: Option<T>) => (

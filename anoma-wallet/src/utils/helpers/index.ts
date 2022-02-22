@@ -5,10 +5,10 @@ import { JsonCompatibleArray, JsonCompatibleDictionary } from "lib/rpc/types";
 /**
  * Race a promise against a timeout
  */
-export const promiseWithTimeout = <T = any>(
+export const promiseWithTimeout = <T = unknown>(
   promise: Promise<T>,
-  timeout: number = 4000
-) => {
+  timeout = 4000
+): { promise: Promise<T>; timeoutId: number } => {
   let timeoutId: ReturnType<typeof setTimeout> | number = -1;
   const timeoutPromise = new Promise<T>((_, reject) => {
     timeoutId = setTimeout(() => {
@@ -39,14 +39,14 @@ const MICRO_FACTOR = 1000000; // 1,000,000
 /**
  * Amount to Micro
  */
-export const amountToMicro = (amount: number) => {
+export const amountToMicro = (amount: number): number => {
   return amount * MICRO_FACTOR;
 };
 
 /**
  * Amount from Micro
  */
-export const amountFromMicro = (micro: number) => {
+export const amountFromMicro = (micro: number): number => {
   return micro / MICRO_FACTOR;
 };
 

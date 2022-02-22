@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 export enum TokenType {
   XAN,
   BTC,

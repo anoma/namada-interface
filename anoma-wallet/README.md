@@ -26,6 +26,15 @@ yarn start:local
 
 # Build production release:
 yarn build
+
+# Run ESLint
+yarn lint
+
+# Run ESLint fix
+yarn lint:fix
+
+# Run tests
+yarn test
 ```
 
 [ [Table of Contents](#table-of-contents) ]

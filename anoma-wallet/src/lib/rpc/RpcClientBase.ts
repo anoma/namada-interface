@@ -37,11 +37,11 @@ abstract class RpcClientBase {
     this._wsProtocol = wsProtocol;
   }
 
-  protected get httpEndpoint() {
+  protected get httpEndpoint(): string {
     return `${this._protocol}://${this._network}:${this._port}`;
   }
 
-  protected get wsEndpoint() {
+  protected get wsEndpoint(): string {
     return `${this._wsProtocol}://${this._network}:${this._port}`;
   }
 }

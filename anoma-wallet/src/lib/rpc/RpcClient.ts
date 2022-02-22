@@ -4,11 +4,11 @@ import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import { BinaryReader, deserialize } from "borsh";
 import { Buffer } from "buffer";
 
-import RpcClientBase from "./RpcClientBase";
-import { AbciResponse, SubscriptionParams } from "./types";
 import { schemaAmount, TokenAmount } from "schema";
 import { amountFromMicro, createJsonRpcRequest } from "utils/helpers";
 import { TxResponse } from "constants/";
+import { AbciResponse, SubscriptionParams } from "./types";
+import RpcClientBase from "./RpcClientBase";
 
 class RpcClient extends RpcClientBase {
   public async queryBalance(token: string, owner?: string): Promise<number> {
@@ -19,7 +19,8 @@ class RpcClient extends RpcClientBase {
     try {
       const jsonRpcSuccessResponse: JsonRpcSuccessResponse =
         await client.execute(request);
-      const response: AbciResponse = jsonRpcSuccessResponse.result.response;
+      const { response }: { response: AbciResponse } =
+        jsonRpcSuccessResponse.result;
       if (response.code === 1) {
         return -2;
       }
@@ -27,7 +28,7 @@ class RpcClient extends RpcClientBase {
       const decoded = deserialize(schemaAmount, TokenAmount, valueAsByteArray);
       return amountFromMicro(decoded.micro.toNumber());
     } catch (e) {
-      return Promise.reject(-1);
+      return Promise.reject(e);
     }
   }
 
@@ -58,14 +59,15 @@ class RpcClient extends RpcClientBase {
     try {
       const jsonRpcSuccessResponse: JsonRpcSuccessResponse =
         await client.execute(request);
-      const response: AbciResponse = jsonRpcSuccessResponse.result.response;
+      const { response }: { response: AbciResponse } =
+        jsonRpcSuccessResponse.result;
       // borsh serialises true to 1 which in base64 is AQ==
       if (response.code === 0 && response && response.value === "AQ==") {
         return true;
       }
       return false;
     } catch (e) {
-      return Promise.reject(false);
+      return Promise.reject(e);
     }
   }
 
@@ -74,32 +76,30 @@ class RpcClient extends RpcClientBase {
     tx: Uint8Array,
     { onBroadcast, onNext, onError, onComplete }: SubscriptionParams
   ): Promise<WebsocketClient | undefined> {
-    if (tx) {
-      try {
-        const queries = [`tm.event='NewBlock'`, `${TxResponse.Hash}='${hash}'`];
-        const client = new WebsocketClient(this.wsEndpoint, onError);
+    try {
+      const queries = [`tm.event='NewBlock'`, `${TxResponse.Hash}='${hash}'`];
+      const client = new WebsocketClient(this.wsEndpoint, onError);
 
-        client
-          .execute(
-            createJsonRpcRequest("broadcast_tx_sync", { tx: toBase64(tx) })
-          )
-          .then(onBroadcast)
-          .catch(onError);
+      client
+        .execute(
+          createJsonRpcRequest("broadcast_tx_sync", { tx: toBase64(tx) })
+        )
+        .then(onBroadcast)
+        .catch(onError);
 
-        client
-          .listen(
-            createJsonRpcRequest("subscribe", { query: queries.join(" AND ") })
-          )
-          .addListener({
-            next: onNext,
-            error: onError,
-            complete: onComplete,
-          });
+      client
+        .listen(
+          createJsonRpcRequest("subscribe", { query: queries.join(" AND ") })
+        )
+        .addListener({
+          next: onNext,
+          error: onError,
+          complete: onComplete,
+        });
 
-        return client;
-      } catch (e) {
-        Promise.reject(e);
-      }
+      return client;
+    } catch (e) {
+      return Promise.reject(e);
     }
   }
 }

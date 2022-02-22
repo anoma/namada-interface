@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 export enum Wasm {
   InitAccount = "tx_init_account.d585e8bd57a45a3941342c04fa50de276e198e8833e0f8fdc0216a8baadd6a4f.wasm",
   InitValidator = "tx_init_validator.7ab3888a7b75b6e09e562c5895acb9ddb891ceba51d72c53fa4a4b6bb9e84b81.wasm",

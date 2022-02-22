@@ -8,9 +8,12 @@
     "@cosmjs/tendermint-rpc": "^0.27.1",
     "bn.js": "^5.2.0",
     "borsh": "^0.7.0",
+    "buffer": "^6.0.3",
+    "path": "^0.12.7",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-scripts": "5.0.0",
+    "stream": "^0.0.2",
     "styled-components": "^5.3.3",
     "typescript": "^4.5.5",
     "wasm-react-scripts": "^5.0.2",
@@ -19,10 +22,12 @@
   "scripts": {
     "start": "npx wasm-react-scripts start",
     "start:local": "REACT_APP_LOCAL=\"true\" yarn start",
+    "wasm:build": "wasm-pack build ../anoma-lib/ --out-dir ../anoma-wallet/src/lib/anoma --out-name anoma --target web",
     "build": "yarn wasm:build && npx wasm-react-scripts build",
+    "lint": "npx eslint src --ext .ts,.tsx",
+    "lint:fix": "yarn lint -- --fix",
     "test": "npx wasm-react-scripts test",
-    "eject": "npx react-scripts eject",
-    "wasm:build": "wasm-pack build ../anoma-lib/ --out-dir ../anoma-wallet/src/lib/anoma --out-name anoma --target web"
+    "eject": "npx react-scripts eject"
   },
   "eslintConfig": {
     "extends": [

@@ -1,9 +1,10 @@
+import { ComponentType } from "react";
 import { ReactComponent as HelpCircleDark } from "./assets/help-circle-dark.svg";
 import { ReactComponent as MoonDark } from "./assets/moon-dark.svg";
 import { ReactComponent as SunDark } from "./assets/sun-dark.svg";
 
 import { IconName, IconSize } from "./types";
-import { ComponentType } from "react";
+
 import { IconContainer, StyledIcon } from "./icon.components";
 
 export type ImageProps = {
@@ -29,7 +30,7 @@ const icons: Record<IconName, ComponentType> = {
  * stroke and fill colors can be overriden if need be, in addition the parent css
  * can style them
  */
-export const Icon = (props: ImageProps) => {
+export const Icon = (props: ImageProps): JSX.Element => {
   const {
     iconName,
     iconSize = IconSize.M,
