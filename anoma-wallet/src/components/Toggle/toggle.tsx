@@ -1,31 +1,26 @@
-import { ToggleCircle, ToggleContainer, ToggleText } from "./styledComponents";
+import { ToggleCircle, ToggleContainer } from "./toggle.components";
 
 export type ToggleProps = {
+  // indicates whether it is enabled/disabled. checked = enabled
   checked: boolean;
+  // cb for when clicked
   onClick: () => void;
-  id?: string;
-
-  isDisabled?: boolean;
-
-  dataTestId?: string;
-
+  // custom element to be placed in circle when enabled
   circleElementEnabled?: JSX.Element;
+  // custom element to be placed in circle when disabled
   circleElementDisabled?: JSX.Element;
 };
 
+/**
+ * a component to indicate true/false
+ */
 const Toggle: React.FunctionComponent<ToggleProps> = (props: ToggleProps) => {
-  const {
-    checked,
-    onClick,
-    dataTestId,
-    circleElementEnabled,
-    circleElementDisabled,
-  } = props;
+  const { checked, onClick, circleElementEnabled, circleElementDisabled } =
+    props;
   const circleElement = checked ? circleElementEnabled : circleElementDisabled;
   // TODO: animate the change of circleElement
   return (
     <ToggleContainer
-      data-testid={dataTestId}
       role="switch"
       aria-checked={checked}
       checked={checked}

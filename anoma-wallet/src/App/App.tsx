@@ -6,11 +6,11 @@ import {
   MainSectionContainer,
   TopSection,
 } from "./styledComponents";
-import { ThemeProvider } from "styled-components";
-import { darkColors, lightColors, Theme } from "../utils/theme";
+import { ThemeProvider } from "styled-components/macro";
+import { darkColors, lightColors, Theme } from "utils/theme";
 
+// this sets the dark/light colors to theme
 const getTheme = (isLightMode: boolean) => {
-  console.log(isLightMode, "isLightMode");
   const colors = isLightMode ? lightColors : darkColors;
   const theme: Theme = {
     themeConfigurations: {

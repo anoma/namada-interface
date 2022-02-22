@@ -4,8 +4,8 @@ import {
   HeadlineSectionContainer,
   Headline,
   BodyTextContainer,
-} from "./styledComponents";
-import { Image, ImageName } from "../../components/Image";
+} from "./mainSection.components";
+import { Image, ImageName } from "components/Image";
 
 function MainSection(): JSX.Element {
   return (

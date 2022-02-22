@@ -1,15 +1,13 @@
-
 {
-    "cSpell.words": [
-        "testid"
-    ],
     "workbench.colorCustomizations": {
         "[monokai]": {
             "symbolIcon.namespaceForeground": "#ff0000"
         },
-        "activityBar.background": "#081018",
-        "titleBar.activeBackground": "#081018",
-        "titleBar.activeForeground": "#1e5388"
+        "activityBar.background": "#007d3b",
+        "activityBar.activeForeground": "1e5388",
+        "titleBar.activeBackground": "#007d3b",
+        "titleBar.activeForeground": "#fff",
+        "activityBar.foreground": "#fff",
     },
-    "window.title": "anoma-cli"
+    "window.title": "anoma-wallet"
 }
