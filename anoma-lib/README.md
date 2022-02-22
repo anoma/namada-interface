@@ -34,21 +34,20 @@ In general, we should probably make use of the following conventions:
 
 - Any "type" that needs to be wrapped can live here (I'm using the same naming convention as the original, and we should probably keeps these consistent so these are easy to reason about):
   ```bash
-  # types module
-  /types
-    /address.rs     # wrapper for an anoma type
-    /keypair.rs     # wrapper for an anoma type
-    /tx.rs          # wrapper for an anoma type
-    /wrapper.rs     # wrapper for an anoma type
-    /transaction.rs # Generic transaction type
-    /mod.rs
-  # Top-level files:
-  transfer.rs # Specific type of transaction (transfers)
-  lib.rs
-  util.rs
+  src/
+  ├── lib.rs
+  ├── transfer.rs         # Constructs a transfer transaction
+  ├── types
+  │   ├── address.rs      # Wraps an anoma type
+  │   ├── keypair.rs      # Wraps an anoma type
+  │   ├── mod.rs
+  │   ├── transaction.rs  # Generic transaction type
+  │   ├── tx.rs           # Wraps an anoma type
+  │   └── wrapper.rs      # Wraps an anoma type
+  └── utils.rs
   ```
 - We can then create a top-level type with functionality, and serialize it to something easy to parse on the front-end. For example, we can create our own `Transfer` type in `transfer.rs`, which constructs a transfer transaction and returns the final result in a tuple containing the `hash` and the `bytes` of the signed transaction. `transfer.rs` currently contains the logic for constructing this type of transaction (`token::Transfer`), but we can easily add others that follow the same principle, such as `init-account.rs`, `withdraw.rs`, etc. The similarities between transactions has been abstracted out into `types/transaction.rs`, which is a generic transaction accepting a `keypair`, `tx_code`, `data`, `token`, etc., from which to construct, wrap and sign a transaction (`proto::Tx` and `types::transaction::WrapperTx`).
-- Note that the `Keypair` and `Address` structs also bind wasm functionality that is useful on their own, outside of transactions (such as serialization from a JS object, `generate_mnemonic`, address from keypair, etc).
+- Note that the `Keypair` and `Address` structs also bind wasm functionality that are useful on their own, outside of transactions (such as serialization from a JS object, `generate_mnemonic`, address from keypair, etc).
 - Of course, this can be expanded to suit our needs, and doesn't necessarily need to serve only as an interface to `anoma`. We can put any wasm-related functionality here to share with any of our web/app projects.
 
 [ [Table of Contents](#table-of-contents) ]
