@@ -36,19 +36,18 @@ In general, we should probably make use of the following conventions:
   ```bash
   # types module
   /types
-    /address.rs
-    /keypair.rs
-    /tx.rs
-    /wrapper.rs
+    /address.rs     # wrapper for an anoma type
+    /keypair.rs     # wrapper for an anoma type
+    /tx.rs          # wrapper for an anoma type
+    /wrapper.rs     # wrapper for an anoma type
+    /transaction.rs # Generic transaction type
     /mod.rs
   # Top-level files:
-  transfer.rs
+  transfer.rs # Specific type of transaction (transfers)
   lib.rs
   util.rs
   ```
-- We can then create a top-level type with functionality, and serialize it to something easy to parse on the front-end. For example, we can create our own `Transfer` type in `transfer.rs`, which constructs a transfer transaction and returns the final result in a tuple containing the `hash` and the `bytes` of the signed transaction. `transfer.rs` currently contains the logic for constructing this type of transaction, but we can easily add others that follow the same principle, such as `init-account.rs`, `withdraw.rs`, etc. Perhaps we could abstract out the (`hash`, `bytes`) tuple structure to be reused by any type of transaction (as this portion remains the same, giving the client exactly what it needs to not only broadcast that transaction, but subscribe to the `applied.hash` value matching the inner `tx_hash` in `WrapperTx`). When we add the next transaction type to our project, it would be worth considering how to abstract any similarities to a central, reusable type (maybe a generic transaction type that takes a `keypair`, `code` and `data` bytes, and handles signing, returning the serialized hash and bytes?) Also note that the primary difference between different transactions is:
-  - The `code` value which is the pre-built transaction wasm in a byte array
-  - The `data` value, which is first constructed with something like `token::Transfer` before being signed and passed as a byte array
+- We can then create a top-level type with functionality, and serialize it to something easy to parse on the front-end. For example, we can create our own `Transfer` type in `transfer.rs`, which constructs a transfer transaction and returns the final result in a tuple containing the `hash` and the `bytes` of the signed transaction. `transfer.rs` currently contains the logic for constructing this type of transaction (`token::Transfer`), but we can easily add others that follow the same principle, such as `init-account.rs`, `withdraw.rs`, etc. The similarities between transactions has been abstracted out into `types/transaction.rs`, which is a generic transaction accepting a `keypair`, `tx_code`, `data`, `token`, etc., from which to construct, wrap and sign a transaction (`proto::Tx` and `types::transaction::WrapperTx`).
 - Note that the `Keypair` and `Address` structs also bind wasm functionality that is useful on their own, outside of transactions (such as serialization from a JS object, `generate_mnemonic`, address from keypair, etc).
 - Of course, this can be expanded to suit our needs, and doesn't necessarily need to serve only as an interface to `anoma`. We can put any wasm-related functionality here to share with any of our web/app projects.
 
