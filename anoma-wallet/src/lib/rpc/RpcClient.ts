@@ -5,7 +5,7 @@ import { BinaryReader, deserialize } from "borsh";
 import { Buffer } from "buffer";
 
 import RpcClientBase from "./RpcClientBase";
-import { AbciResponse, SubscriptionParams, Tx } from "types";
+import { AbciResponse, SubscriptionParams } from "./types";
 import { schemaAmount, TokenAmount } from "schema";
 import { amountFromMicro, createJsonRpcRequest } from "utils/helpers";
 import { TxResponse } from "constants/";
@@ -71,7 +71,7 @@ class RpcClient extends RpcClientBase {
 
   public async broadcastTx(
     hash: string,
-    tx: Tx,
+    tx: Uint8Array,
     { onBroadcast, onNext, onError, onComplete }: SubscriptionParams
   ): Promise<WebsocketClient | undefined> {
     if (tx) {

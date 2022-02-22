@@ -1,6 +1,6 @@
 import { JsonRpcRequest } from "@cosmjs/json-rpc";
 import { fromHex } from "@cosmjs/encoding";
-import { JsonCompatibleArray, JsonCompatibleDictionary } from "types";
+import { JsonCompatibleArray, JsonCompatibleDictionary } from "lib/rpc/types";
 
 /**
  * Race a promise against a timeout

@@ -26,8 +26,6 @@ export type SubscriptionParams = {
   onComplete: () => void;
 };
 
-export type Tx = Uint8Array | undefined;
-
 export interface SubscriptionEvents extends SubscriptionEvent {
   events: NewBlockEvents;
 }
@@ -38,5 +36,3 @@ export type JsonCompatibleArray = (string | number | boolean)[];
 export type JsonCompatibleDictionary = {
   [key: string]: string | JsonCompatibleArray;
 };
-
-export type MnemonicSize = 12 | 24;
