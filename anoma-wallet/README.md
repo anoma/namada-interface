@@ -1,5 +1,12 @@
 # anoma-wallet
 
+This subdirectory of the `anoma-apps` repo contains the React app for `anoma-wallet`.
+
+## Table of Contents
+
+- [Usage](#usage)
+- [Overview](#overview)
+
 ## Usage
 
 ```bash
@@ -20,3 +27,32 @@ yarn start:local
 # Build production release:
 yarn build
 ```
+
+[ [Table of Contents](#table-of-contents) ]
+
+## Overview
+
+```bash
+# Directory structure rough outline for anoma-wallet/src:
+.
+├── App                   # Main React app and layouts
+├── components            # React Components
+├── constants
+│   ├── tokens.ts         # Token addresses
+│   ├── tx.ts             # TxResponse events
+│   └── wasm.ts           # Wasm source constants
+├── lib
+│   ├── AnomaClient.ts    # Main interface to anoma wasm library
+│   ├── anoma             # Wasm-generated source
+│   ├── rpc
+│   │   ├── RpcClient.ts  # RPC HTTP and WebSocket library
+│   └── tx
+│       └── Transfer.ts   # Transfer transaction library
+├── schema                # Borsh schema for deserializing abci_query types
+├── types                 # Additional TypeScript definitions
+└── utils
+    ├── helpers           # Utility helper functions
+    └── theme             # Theme utilities
+```
+
+[ [Table of Contents](#table-of-contents) ]
