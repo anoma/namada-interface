@@ -6,7 +6,8 @@ use anoma::types::{token};
 use borsh::BorshSerialize;
 use wasm_bindgen::prelude::*;
 
-pub struct Transfer;
+#[wasm_bindgen]
+pub struct Transfer(Transaction);
 
 #[wasm_bindgen]
 impl Transfer {
