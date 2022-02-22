@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { ThemeContext } from "styled-components";
+import { ThemeContext } from "styled-components/macro";
 
 import { ReactComponent as LogoDark } from "./assets/logo-dark.svg";
 import { ReactComponent as LogoLight } from "./assets/logo-light.svg";
@@ -7,33 +7,13 @@ import { ReactComponent as LogoMinimalDark } from "./assets/logo-minimal-dark.sv
 import { ReactComponent as LogoMinimalLight } from "./assets/logo-minimal-light.svg";
 import { ImageName } from "./types";
 import { ComponentType } from "react";
-import { ImageContainer, StyledImage } from "./styledComponents";
+import { ImageContainer, StyledImage } from "./image.components";
 
 export interface ImageProps {
   imageName: ImageName;
+  // free css overrides
   styleOverrides?: React.CSSProperties;
-  dataTestId?: string;
 }
-
-// this would be nice and I thought that it should work, but it doesn't
-// type Images = {
-//   [key in `${ImageName.Logo}_${ColorMode.Dark}`]: ComponentType;
-// };
-// const images: Images = {
-//   [`${ImageName.Logo}_${ColorMode.Dark}`]: LogoDark,
-//   [`${ImageName.Logo}_${ColorMode.Light}`]: LogoLight,
-//   [`${ImageName.LogoMinimal}_${ColorMode.Dark}`]: LogoDark,
-//   [`${ImageName.LogoMinimal}_${ColorMode.Light}`]: LogoLight,
-// };
-//
-// or just
-//
-// const images: Record<`${ImageName}_${ColorMode}`, ComponentType> = {
-//   [`${ImageName.Logo}_${ColorMode.Dark}`]: LogoDark,
-//   [`${ImageName.Logo}_${ColorMode.Light}`]: LogoLight,
-//   [`${ImageName.LogoMinimal}_${ColorMode.Dark}`]: LogoDark,
-//   [`${ImageName.LogoMinimal}_${ColorMode.Light}`]: LogoLight,
-// };
 
 // dark theme images
 const imagesDark: Record<ImageName, ComponentType> = {
@@ -47,6 +27,7 @@ const imagesLight: Record<ImageName, ComponentType> = {
   [ImageName.LogoMinimal]: LogoMinimalLight,
 };
 
+// gives the images based on color mode
 const getImageByTypeAndMode = (imageName: ImageName, isLightMode: boolean) => {
   if (isLightMode) {
     return imagesLight[imageName];
@@ -54,15 +35,21 @@ const getImageByTypeAndMode = (imageName: ImageName, isLightMode: boolean) => {
   return imagesDark[imageName];
 };
 
+/**
+ * Image is very similar to Icon component, but I think its still justified to have it separately as it:
+ * 1. unlikely need any color overriding from consumer.
+ * 2. Is not styled based on color mode
+ * 3. might need more free size overriding.
+ */
 export const Image = (props: ImageProps) => {
-  const { imageName, dataTestId, styleOverrides = {} } = props;
+  const { imageName, styleOverrides = {} } = props;
   const themeContext = useContext(ThemeContext);
   const { isLightMode } = themeContext.themeConfigurations;
   const ImageByType = getImageByTypeAndMode(imageName, isLightMode);
 
   return (
     <ImageContainer style={styleOverrides}>
-      <StyledImage as={ImageByType} data-testid={dataTestId} />
+      <StyledImage as={ImageByType} />
     </ImageContainer>
   );
 };

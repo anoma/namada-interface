@@ -1,7 +1,7 @@
 import React from "react";
-import { Image, ImageName } from "../../components/Image";
-import { Icon, IconName } from "../../components/Icon";
-import { Toggle } from "../../components/Toggle";
+import { Image, ImageName } from "components/Image";
+import { Icon, IconName } from "components/Icon";
+import { Toggle } from "components/Toggle";
 import {
   TopNavigationContainer,
   LeftSection,
@@ -10,24 +10,31 @@ import {
   HelpIconContainer,
   HelpTextContainer,
   ColorModeContainer,
-} from "./styledComponents";
+} from "./topNavigation.components";
 
 type TopNavigationProps = {
+  // this is for the toggle
   isLightMode: boolean;
+  // cb for telling parent to change hte color in context
   setIsLightMode: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
+// top nav of the app, this is likely always visible.
 function TopNavigation(props: TopNavigationProps): JSX.Element {
   const { isLightMode, setIsLightMode } = props;
   const circleElementEnabled = (
-    <Icon iconName={IconName.Sun} strokeColor="#17171d" />
+    <Icon iconName={IconName.Sun} strokeColorOverride="#17171d" />
   );
   const circleElementDisabled = (
-    <Icon iconName={IconName.Moon} strokeColor="#17171d" fillColor="#17171d" />
+    <Icon
+      iconName={IconName.Moon}
+      strokeColorOverride="#17171d"
+      fillColorOverride="#17171d"
+    />
   );
 
   return (
-    <TopNavigationContainer className="App">
+    <TopNavigationContainer>
       <LeftSection>
         <Image
           imageName={ImageName.Logo}

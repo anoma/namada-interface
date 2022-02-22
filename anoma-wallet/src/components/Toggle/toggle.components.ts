@@ -1,20 +1,14 @@
-import styled, { keyframes } from "styled-components";
+import styled from "styled-components/macro";
 
+// TODO: connect the theme colors to these
 const BACKGROUND_ENABLED = "#F4C54F";
 const BACKGROUND_DISABLE = "#E8E8F2";
-
-const COLOR_ENABLED = "#011F43";
 const COLOR_DISABLED = "#011F43";
 
-const CIRCLE_BACKGROUND_COLOR_ENABLED_DARK = COLOR_DISABLED;
 const CIRCLE_BACKGROUND_COLOR_ENABLED_LIGHT = "white";
 const CIRCLE_BACKGROUND_COLOR_DISABLED_DARK = "white";
-const CIRCLE_BACKGROUND_COLOR_DISABLED_LIGHT = "white";
-
-const CIRCLE_BORDER_COLOR_ENABLED_DARK = COLOR_DISABLED;
 const CIRCLE_BORDER_COLOR_ENABLED_LIGHT = "transparent";
 const CIRCLE_BORDER_COLOR_DISABLED_DARK = COLOR_DISABLED;
-const CIRCLE_BORDER_COLOR_DISABLED_LIGHT = "transparent";
 
 const COMPONENT_WIDTH_PIXELS = 60;
 const CIRCLE_DIAMETER_PIXELS = 30;
@@ -40,15 +34,6 @@ export const ToggleContainer = styled.button<{
     props.checked ? BACKGROUND_ENABLED : BACKGROUND_DISABLE};
   transition: ${transition};
   cursor: pointer;
-`;
-
-export const ToggleText = styled.span`
-  color: ${COLOR_DISABLED};
-  display: flex;
-  flex: 1;
-  justify-content: space-around;
-  padding-top: 2px;
-  text-transform: uppercase;
 `;
 
 export const ToggleCircle = styled.div<{
