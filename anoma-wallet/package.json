@@ -23,7 +23,7 @@
     "start": "npx wasm-react-scripts start",
     "start:local": "REACT_APP_LOCAL=\"true\" yarn start",
     "wasm:build": "wasm-pack build ../anoma-lib/ --out-dir ../anoma-wallet/src/lib/anoma --out-name anoma --target web",
-    "build": "yarn wasm:build && npx wasm-react-scripts build",
+    "build": "npx wasm-react-scripts build",
     "lint": "npx eslint src --ext .ts,.tsx",
     "lint:fix": "yarn lint -- --fix",
     "test": "npx wasm-react-scripts test",
