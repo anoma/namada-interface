@@ -1,4 +1,4 @@
-import wasm, {
+import init, {
   Address,
   Keypair,
   Transfer,
@@ -21,7 +21,6 @@ class AnomaClient {
   public readonly generateMnemonic = generate_mnemonic;
 
   public async init(): Promise<AnomaClient> {
-    const init = await wasm;
     const { memory } = await init();
     this.memory = memory;
     return this;
