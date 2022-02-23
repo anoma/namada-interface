@@ -28,7 +28,10 @@ const imagesLight: Record<ImageName, ComponentType> = {
 };
 
 // gives the images based on color mode
-const getImageByTypeAndMode = (imageName: ImageName, isLightMode: boolean) => {
+const getImageByTypeAndMode = (
+  imageName: ImageName,
+  isLightMode: boolean
+): ComponentType => {
   if (isLightMode) {
     return imagesLight[imageName];
   }
@@ -36,12 +39,13 @@ const getImageByTypeAndMode = (imageName: ImageName, isLightMode: boolean) => {
 };
 
 /**
- * Image is very similar to Icon component, but I think its still justified to have it separately as it:
+ * Image is very similar to Icon component, but I think its still justified to have
+ * it separately as it:
  * 1. unlikely need any color overriding from consumer.
  * 2. Is not styled based on color mode
  * 3. might need more free size overriding.
  */
-export const Image = (props: ImageProps) => {
+export const Image = (props: ImageProps): JSX.Element => {
   const { imageName, styleOverrides = {} } = props;
   const themeContext = useContext(ThemeContext);
   const { isLightMode } = themeContext.themeConfigurations;
