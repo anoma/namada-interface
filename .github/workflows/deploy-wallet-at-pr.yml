@@ -10,6 +10,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: wasm-pack
+        uses: jetli/wasm-pack-action@v0.3.0
+
       - name: Install dependencies
         working-directory: ./anoma-wallet
         run: npm install
