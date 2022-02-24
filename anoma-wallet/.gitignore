@@ -4,3 +4,6 @@
 /.pnp
 .pnp.js
 /build
+/lib/anoma/.gitignore
+/lib/anoma/README.md
+/lib/anoma/LICENSE*

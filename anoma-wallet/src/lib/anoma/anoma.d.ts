@@ -26,6 +26,20 @@ export enum PhraseSize {
   N12,
   N24,
 }
+export class Account {
+  free(): void;
+/**
+* @param {any} serialized_keypair
+* @param {string} token
+* @param {number} epoch
+* @param {number} fee_amount
+* @param {number} gas_limit
+* @param {Uint8Array} tx_code
+* @param {Uint8Array} vp_code
+* @returns {any}
+*/
+  static init(serialized_keypair: any, token: string, epoch: number, fee_amount: number, gas_limit: number, tx_code: Uint8Array, vp_code: Uint8Array): any;
+}
 /**
 */
 export class Address {
@@ -88,8 +102,6 @@ export class Signature {
 */
   static deserialize(encoded: Uint8Array): Signature;
 }
-/**
-*/
 export class Transfer {
   free(): void;
 /**
@@ -133,10 +145,10 @@ export interface InitOutput {
   readonly signature_deserialize: (a: number, b: number, c: number) => void;
   readonly sign: (a: number, b: number, c: number, d: number) => void;
   readonly verify_signature: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
+  readonly account_init: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number) => void;
   readonly __wbg_tx_free: (a: number) => void;
-  readonly __wbg_wrappertx_free: (a: number) => void;
   readonly run: () => void;
-  readonly __wbg_transfer_free: (a: number) => void;
+  readonly __wbg_wrappertx_free: (a: number) => void;
   readonly transfer_new: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number) => void;
   readonly __wbg_address_free: (a: number) => void;
   readonly address_encoded: (a: number, b: number) => void;
