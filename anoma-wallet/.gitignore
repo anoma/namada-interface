@@ -1,9 +1,11 @@
-
 # dependencies
 /node_modules
 /.pnp
 .pnp.js
 /build
+
+# Ignore parts of the lib/anoma artifact
+# Everything else will be tracked in repo to speed up CI builds
 /lib/anoma/.gitignore
 /lib/anoma/README.md
 /lib/anoma/LICENSE*
