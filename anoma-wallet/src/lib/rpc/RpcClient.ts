@@ -1,18 +1,17 @@
-import { HttpClient, WebsocketClient } from "@cosmjs/tendermint-rpc";
+import { HttpClient } from "@cosmjs/tendermint-rpc";
 import { JsonRpcSuccessResponse } from "@cosmjs/json-rpc";
-import { fromBase64, toBase64 } from "@cosmjs/encoding";
+import { fromBase64 } from "@cosmjs/encoding";
 import { BinaryReader, deserialize } from "borsh";
 import { Buffer } from "buffer";
 
+import RpcClientBase from "./RpcClientBase";
 import { schemaAmount, TokenAmount } from "schema";
 import { amountFromMicro, createJsonRpcRequest } from "utils/helpers";
-import { TxResponse } from "constants/";
-import { AbciResponse, SubscriptionParams } from "./types";
-import RpcClientBase from "./RpcClientBase";
+import { AbciResponse } from "./types";
 
 class RpcClient extends RpcClientBase {
   public async queryBalance(token: string, owner?: string): Promise<number> {
-    const client = new HttpClient(this.httpEndpoint);
+    const client = new HttpClient(this.endpoint);
     const path = `value/#${token}/balance/#${owner}`;
     const request = createJsonRpcRequest("abci_query", [path, "", "0", false]);
 
@@ -33,7 +32,7 @@ class RpcClient extends RpcClientBase {
   }
 
   public async queryEpoch(): Promise<number> {
-    const client = new HttpClient(this.httpEndpoint);
+    const client = new HttpClient(this.endpoint);
     const path = "epoch";
     const request = createJsonRpcRequest("abci_query", [path, "", "0", false]);
 
@@ -52,7 +51,7 @@ class RpcClient extends RpcClientBase {
   }
 
   public async isKnownAddress(address: string): Promise<boolean> {
-    const client = new HttpClient(this.httpEndpoint);
+    const client = new HttpClient(this.endpoint);
     const path = `has_key/#${address}/?`;
     const request = createJsonRpcRequest("abci_query", [path, "", "0", false]);
 
@@ -66,38 +65,6 @@ class RpcClient extends RpcClientBase {
         return true;
       }
       return false;
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  }
-
-  public async broadcastTx(
-    hash: string,
-    tx: Uint8Array,
-    { onBroadcast, onNext, onError, onComplete }: SubscriptionParams
-  ): Promise<WebsocketClient | undefined> {
-    try {
-      const queries = [`tm.event='NewBlock'`, `${TxResponse.Hash}='${hash}'`];
-      const client = new WebsocketClient(this.wsEndpoint, onError);
-
-      client
-        .execute(
-          createJsonRpcRequest("broadcast_tx_sync", { tx: toBase64(tx) })
-        )
-        .then(onBroadcast)
-        .catch(onError);
-
-      client
-        .listen(
-          createJsonRpcRequest("subscribe", { query: queries.join(" AND ") })
-        )
-        .addListener({
-          next: onNext,
-          error: onError,
-          complete: onComplete,
-        });
-
-      return client;
     } catch (e) {
       return Promise.reject(e);
     }

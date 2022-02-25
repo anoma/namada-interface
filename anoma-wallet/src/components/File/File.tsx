@@ -1,10 +1,11 @@
 import React, { useRef } from "react";
 import { StyledDiv, StyledButton, StyledSpan } from "./file.component";
 
-type InputProps = {
+type FileProps = {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   file: File | null;
-  prompt: string;
+  prompt?: string;
+  buttonText?: string;
   styleOverrides?: {
     container?: React.CSSProperties;
     button?: React.CSSProperties;
@@ -12,8 +13,14 @@ type InputProps = {
   };
 };
 
-const File = (props: InputProps): JSX.Element => {
-  const { onChange, file, prompt = "Select file", styleOverrides = {} } = props;
+const File = (props: FileProps): JSX.Element => {
+  const {
+    onChange,
+    file,
+    prompt = "Select file",
+    buttonText = "Browse",
+    styleOverrides = {},
+  } = props;
   const { container, span, button } = styleOverrides;
   const name = file?.name || prompt;
   const ref = useRef<HTMLInputElement>(null);
@@ -34,7 +41,7 @@ const File = (props: InputProps): JSX.Element => {
         {name}
       </StyledSpan>
       <StyledButton onClick={handleClick} style={button}>
-        Browse
+        {buttonText}
       </StyledButton>
     </StyledDiv>
   );
