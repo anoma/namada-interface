@@ -1,5 +1,5 @@
 import { AnomaClient } from "lib";
-import { TxWasm, VpWasm } from "constants/";
+import { Tokens, TokenType, TxWasm, VpWasm } from "constants/";
 import { hexToKeypair } from "utils/helpers";
 
 class Account {
@@ -23,11 +23,11 @@ class Account {
   }
 
   public async initialize({
-    token,
+    token = Tokens[TokenType.XAN].address,
     secret,
     epoch,
   }: {
-    token: string;
+    token?: string;
     secret: string;
     epoch: number;
   }): Promise<{ hash: string; bytes: Uint8Array }> {

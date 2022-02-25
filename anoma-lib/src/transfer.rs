@@ -4,10 +4,10 @@ use crate::types::{
 };
 use anoma::types::token;
 use borsh::BorshSerialize;
-use serde::{Serialize,Deserialize};
+use serde::{Serialize, Deserialize};
 use wasm_bindgen::prelude::*;
 
-#[derive(Serialize,Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Transfer(pub Transaction);
 
 #[wasm_bindgen]

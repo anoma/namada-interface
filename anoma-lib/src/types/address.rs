@@ -1,7 +1,7 @@
 use crate::types::keypair::Keypair;
 use anoma::types::{
-    address::{Address as AnomaAddress,ImplicitAddress},
-    key::ed25519::{PublicKey,PublicKeyHash},
+    address::{Address as AnomaAddress, ImplicitAddress},
+    key::ed25519::{PublicKey, PublicKeyHash},
 };
 use wasm_bindgen::prelude::*;
 

@@ -8,7 +8,7 @@ use anoma::types::{
     key::ed25519::PublicKey,
 };
 use borsh::BorshSerialize;
-use serde::{Serialize,Deserialize};
+use serde::{Serialize, Deserialize};
 use wasm_bindgen::prelude::*;
 
 #[derive(Serialize,Deserialize)]

@@ -4,7 +4,7 @@ use anoma::types::key::ed25519::{
     PublicKey as NativePublicKey,
     Signature as NativeSignature,
 };
-use borsh::{BorshDeserialize,BorshSerialize};
+use borsh::{BorshDeserialize, BorshSerialize};
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 
