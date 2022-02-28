@@ -1,6 +1,0 @@
-dist
-node_modules
-public
-**/*.bs.js
-src/loadReactRefresh.js
-tailwind.config.js
