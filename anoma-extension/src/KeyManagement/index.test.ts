@@ -1,6 +1,8 @@
 import { Mnemonic, MnemonicLength } from ".";
 import { KeyPair, KeyPairType, StorageValue } from "./KeyPair";
 
+const PASSWORD = "aaa";
+
 test("mnemonic should have correct length", () => {
   const mnemonic1 = new Mnemonic(MnemonicLength.Twelve);
   expect(mnemonic1.value.split(" ")).toHaveLength(12);
@@ -10,14 +12,16 @@ test("mnemonic should have correct length", () => {
 });
 
 test("key pair should be able to be generated from mnemonic", () => {
-  const mnemonic1 = new Mnemonic(MnemonicLength.Twelve);
-  const keyPair1 = KeyPair.fromMnemonic(mnemonic1);
-  expect(mnemonic1.value.split(" ")).toHaveLength(12);
+  const mnemonic = new Mnemonic(MnemonicLength.Twelve);
+  const keyPair = KeyPair.fromMnemonic(mnemonic);
+  expect(keyPair.getStorageValue().keyPairType).toEqual(KeyPairType.Raw);
 });
 
 test("key pair should be able to be generated from mnemonic with encryption", () => {
-  const mnemonic1 = new Mnemonic(MnemonicLength.Twelve);
-  const keyPair1 = KeyPair.fromMnemonic(mnemonic1, KeyPairType.Raw);
+  const mnemonic = new Mnemonic(MnemonicLength.Twelve);
+
+  const keyPair = KeyPair.fromMnemonic(mnemonic, PASSWORD);
+  expect(keyPair.getStorageValue().keyPairType).toEqual(KeyPairType.Encrypted);
 });
 
 test("key pair should be able to be generated from storage value", () => {
@@ -26,8 +30,8 @@ test("key pair should be able to be generated from storage value", () => {
       "unencrypted:20000000f9e3191d096de7449f03fbfd03031f6b7ec23f1a048a53cbdb545c115a3b293e2000000095b922ce1f3b69b60dd8949867be8694703509ef8a20ec83e436aa08a22edda4",
     keyPairType: KeyPairType.Raw,
   };
-  const keyPair1 = KeyPair.fromStorageValue(storageValue, KeyPairType.Raw);
-  console.log(keyPair1, "storageValue");
+  const keyPair = KeyPair.fromStorageValue(storageValue, KeyPairType.Raw);
+  console.log(keyPair.getStorageValue(), "storageValue");
   expect(true).toBeTruthy();
 });
 
@@ -38,13 +42,11 @@ test("key pair should be able to be generated from encrypted storage value", () 
     keyPairType: KeyPairType.Encrypted,
   };
 
-  const password = "aaa";
-
   const keyPair1 = KeyPair.fromStorageValue(
     storageValue,
     KeyPairType.Encrypted,
-    password
+    PASSWORD
   );
-  console.log(keyPair1, "storageValue");
+
   expect(true).toBeTruthy();
 });

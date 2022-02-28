@@ -621,19 +621,15 @@ module.exports.__wbindgen_string_new = function(arg0, arg1) {
     return addHeapObject(ret);
 };
 
-module.exports.__wbg_log_5b2fc58232a506f6 = function(arg0, arg1) {
-    console.log(getStringFromWasm0(arg0, arg1));
+module.exports.__wbindgen_is_object = function(arg0) {
+    const val = getObject(arg0);
+    var ret = typeof(val) === 'object' && val !== null;
+    return ret;
 };
 
 module.exports.__wbindgen_object_clone_ref = function(arg0) {
     var ret = getObject(arg0);
     return addHeapObject(ret);
-};
-
-module.exports.__wbindgen_is_object = function(arg0) {
-    const val = getObject(arg0);
-    var ret = typeof(val) === 'object' && val !== null;
-    return ret;
 };
 
 module.exports.__wbindgen_is_null = function(arg0) {

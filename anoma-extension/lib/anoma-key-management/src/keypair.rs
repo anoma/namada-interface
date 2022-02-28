@@ -92,9 +92,6 @@ impl Keypair {
 
     #[wasm_bindgen]
     pub fn from_js_value_to_pointer(js_data: JsValue) -> Result<Keypair, JsValue> {
-        console_log!("6");
-        console_log!("{:?}", js_data.to_owned());
-        // serde_wasm_bindgen::from_value(js_data.).map_err(|err| JsValue::from_str(&err.to_string()))
         serde_wasm_bindgen::from_value(js_data).map_err(|err| JsValue::from_str(&err.to_string()))
     }
 
