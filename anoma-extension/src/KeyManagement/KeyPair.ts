@@ -2,9 +2,11 @@ import { Keypair as WasmKeypair } from "./lib/anoma_wasm.js";
 import { Mnemonic } from "./Mnemonic";
 
 const ENCRYPTED_KEY_PREFIX = "encrypted:";
-const UNENCRYPTED_KEY_PREFIX = "unencrypted:";
 const UNENCRYPTED_KEYS_PREFIX = "20000000";
 
+// this is the string that represents unencrypted KeyPair
+// format is this:
+// unencrypted:20000000secretKey20000000publicKey
 type UnencryptedStorageValueKeyWithPrefix =
   `${typeof UNENCRYPTED_KEYS_PREFIX}${string}`;
 
@@ -19,12 +21,12 @@ export enum KeyPairType {
 }
 
 type KeyPairAsJsValue = {
-  public: Uint8Array;
   secret: Uint8Array;
+  public: Uint8Array;
 };
 
-type StorageValueEncrypted = `encrypted:${string}`;
-type StorageValueUnencrypted = `unencrypted:${string}`;
+export type StorageValueEncrypted = `encrypted:${string}`;
+export type StorageValueUnencrypted = `unencrypted:${string}`;
 export type StorageValue =
   | {
       value: StorageValueEncrypted;
@@ -69,7 +71,6 @@ export class KeyPair {
 
   // Constructs a KeyPair from mnemonic
   // if password
-
   static fromMnemonic(mnemonic: Mnemonic, password: string): KeyPair;
 
   static fromMnemonic(mnemonic: Mnemonic): KeyPair;
@@ -113,34 +114,72 @@ export class KeyPair {
     password: string
   );
 
+  // TODO: remove the KeyPairType from here and derive from the string
   static fromStorageValue(
     storageValue: StorageValue,
     keyPairType: KeyPairType,
     password?: string
-  ) {
+  ): KeyPair {
     const self = new KeyPair();
     self.keyPairType = keyPairType;
     self.storageValue = storageValue;
-
     // the KeyPair is to be persisted either Encrypted or Raw (unencrypted)
-    if (storageValue.keyPairType === KeyPairType.Raw) {
-      const keyPairPointer = self.unencryptedStorageValueToKeyPair(
-        storageValue.value
-      );
-      self.keyPairPointer = keyPairPointer;
-    } else {
-      const keyPairPointer = self.encryptedStorageValueToKeyPair(
-        storageValue.value,
-        password
-      );
-      self.keyPairPointer = keyPairPointer;
+    try {
+      if (storageValue.keyPairType === KeyPairType.Raw) {
+        const keyPairPointer = self.unencryptedStorageValueToKeyPair(
+          storageValue.value
+        );
+        self.keyPairPointer = keyPairPointer;
+      } else {
+        const keyPairPointer = self.encryptedStorageValueToKeyPair(
+          storageValue.value,
+          password
+        );
+        self.keyPairPointer = keyPairPointer;
+      }
+      return self;
+    } catch (error) {
+      throw new Error(error);
     }
-
-    return self;
   }
+
+  // turns a storage value string to StorageValue object
+  // "unencrypted:20000000f9e3191d096... -> StorageValue
+  // "encrypted:ec5d6c48eb2e27423533f... -> StorageValue
+  static storageValueStringToStorageValue = (
+    storageValueString: string
+  ): StorageValue => {
+    let storageValue: StorageValue;
+    if (storageValueString.startsWith("unencrypted:")) {
+      storageValue = {
+        value: storageValueString as StorageValueUnencrypted,
+        keyPairType: KeyPairType.Raw,
+      };
+    } else if (storageValueString.startsWith("encrypted:")) {
+      storageValue = {
+        value: storageValueString as StorageValueEncrypted,
+        keyPairType: KeyPairType.Encrypted,
+      };
+    }
+    return storageValue;
+  };
 
   getStorageValue = (): StorageValue => {
     return this.storageValue;
+  };
+
+  getPublicKeyAsHex = (password?: string) => {
+    const keyPairAsJsValue: KeyPairAsJsValue =
+      this.keyPairPointer.from_pointer_to_js_value();
+
+    return toHex(keyPairAsJsValue.public);
+  };
+
+  getSecretKeyAsHex = (password?: string) => {
+    const keyPairAsJsValue: KeyPairAsJsValue =
+      this.keyPairPointer.from_pointer_to_js_value();
+
+    return toHex(keyPairAsJsValue.secret);
   };
 
   // packing the process of turning a string containing a KeyPair to WasmKeypair
@@ -157,19 +196,12 @@ export class KeyPair {
       UNENCRYPTED_KEYS_PREFIX
     );
 
-    // const publicKeyAsByteArray: Uint8Array = new Uint8Array(
-    //   Buffer.from(publicKeyAsHex)
-    // );
-    // const secretKeyAsByteArray: Uint8Array = new Uint8Array(
-    //   Buffer.from(secretKeyAsHex)
-    // );
-
     const publicKeyAsByteArray: Uint8Array = fromHex(publicKeyAsHex);
     const secretKeyAsByteArray: Uint8Array = fromHex(secretKeyAsHex);
 
     const keyPairAsJsValue: KeyPairAsJsValue = {
-      public: publicKeyAsByteArray,
       secret: secretKeyAsByteArray,
+      public: publicKeyAsByteArray,
     };
 
     // use conversion in wasm
@@ -177,7 +209,9 @@ export class KeyPair {
       const keyPairPointer =
         WasmKeypair.from_js_value_to_pointer(keyPairAsJsValue);
       return keyPairPointer;
-    } catch (error) {}
+    } catch (error) {
+      throw error;
+    }
   };
 
   // packing the process of turning a string containing an unencrypted
@@ -193,12 +227,19 @@ export class KeyPair {
 
     // construct the type that reflects KeyPair type in js world
     const encryptedKeyPairAsByteArray = fromHex(valueWithStrippedPrefix);
-    const unencryptedKeyPair = WasmKeypair.decrypt_with_password(
-      encryptedKeyPairAsByteArray,
-      password
-    );
+    try {
+      const unencryptedKeyPair = WasmKeypair.decrypt_with_password(
+        encryptedKeyPairAsByteArray,
+        password
+      );
 
-    return unencryptedKeyPair;
+      if (typeof unencryptedKeyPair === "undefined") {
+        throw new Error("could not decrypt the key pair with given password");
+      }
+      return unencryptedKeyPair;
+    } catch (error) {
+      throw error;
+    }
   };
 
   // getter for self as KeyPair string, this is only for unencrypted
