@@ -1,6 +1,8 @@
 import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { TopNavigation } from "./TopNavigation";
 import { MainSection } from "./MainSection";
+import { KeyManagement } from "./KeysManagement";
 import {
   AppContainer,
   MainSectionContainer,
@@ -25,19 +27,24 @@ function App(): JSX.Element {
   const [isLightMode, setIsLightMode] = React.useState(true);
   const theme = getTheme(isLightMode);
   return (
-    <ThemeProvider theme={theme}>
-      <AppContainer>
-        <TopSection>
-          <TopNavigation
-            isLightMode={isLightMode}
-            setIsLightMode={setIsLightMode}
-          />
-        </TopSection>
-        <MainSectionContainer>
-          <MainSection />
-        </MainSectionContainer>
-      </AppContainer>
-    </ThemeProvider>
+    <BrowserRouter>
+      <ThemeProvider theme={theme}>
+        <AppContainer>
+          <TopSection>
+            <TopNavigation
+              isLightMode={isLightMode}
+              setIsLightMode={setIsLightMode}
+            />
+          </TopSection>
+          <MainSectionContainer>
+            <Routes>
+              <Route path="/" element={<MainSection />} />
+              <Route path="/key-management" element={<KeyManagement />} />
+            </Routes>
+          </MainSectionContainer>
+        </AppContainer>
+      </ThemeProvider>
+    </BrowserRouter>
   );
 }
 

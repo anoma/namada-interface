@@ -9,6 +9,11 @@ type Colors = {
   border: string;
   borderShadow: string;
   textPrimary: string;
+  yellow1: string;
+  yellow1Hover: string;
+  buttonBorder: string;
+  buttonShadow: string;
+  buttonShadowHover: string;
 };
 
 export type Theme = {
@@ -23,6 +28,11 @@ export const darkColors: Colors = {
   border: "#727273",
   borderShadow: "#727273",
   textPrimary: "#ffffff",
+  yellow1: "#F5DD81",
+  yellow1Hover: "#ffdc55",
+  buttonBorder: "#CEB44F",
+  buttonShadow: "#CEB44F",
+  buttonShadowHover: "#CEB44F",
 };
 
 export const lightColors: Colors = {
@@ -32,4 +42,9 @@ export const lightColors: Colors = {
   border: "#002046",
   borderShadow: "#002046",
   textPrimary: "#002046",
+  yellow1: "#EEAF02",
+  yellow1Hover: "#f8bf24",
+  buttonBorder: "#002046",
+  buttonShadow: "#002046",
+  buttonShadowHover: "#002046",
 };

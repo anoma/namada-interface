@@ -2,6 +2,11 @@ import { ComponentType } from "react";
 import { ReactComponent as HelpCircleDark } from "./assets/help-circle-dark.svg";
 import { ReactComponent as MoonDark } from "./assets/moon-dark.svg";
 import { ReactComponent as SunDark } from "./assets/sun-dark.svg";
+import { ReactComponent as Key } from "./assets/key.svg";
+import { ReactComponent as ChevronUp } from "./assets/chevron-up.svg";
+import { ReactComponent as ChevronRight } from "./assets/chevron-right.svg";
+import { ReactComponent as ChevronDown } from "./assets/chevron-down.svg";
+import { ReactComponent as ChevronLeft } from "./assets/chevron-left.svg";
 
 import { IconName, IconSize } from "./types";
 
@@ -23,6 +28,11 @@ const icons: Record<IconName, ComponentType> = {
   [IconName.HelpCircle]: HelpCircleDark,
   [IconName.Moon]: MoonDark,
   [IconName.Sun]: SunDark,
+  [IconName.Key]: Key,
+  [IconName.ChevronUp]: ChevronUp,
+  [IconName.ChevronRight]: ChevronRight,
+  [IconName.ChevronDown]: ChevronDown,
+  [IconName.ChevronLeft]: ChevronLeft,
 };
 
 /**
