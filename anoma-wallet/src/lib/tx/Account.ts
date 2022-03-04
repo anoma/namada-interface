@@ -1,6 +1,6 @@
 import { AnomaClient } from "lib";
 import { Tokens, TokenType, TxWasm, VpWasm } from "constants/";
-import { hexToKeypair } from "utils/helpers";
+import Keypair from "lib/Keypair";
 
 class Account {
   private _txCode: Uint8Array | undefined;
@@ -24,18 +24,27 @@ class Account {
 
   public async initialize({
     token = Tokens[TokenType.XAN].address,
-    secret,
+    publicKey,
+    privateKey,
     epoch,
   }: {
     token?: string;
-    secret: string;
+    publicKey: string;
+    privateKey: string;
     epoch: number;
   }): Promise<{ hash: string; bytes: Uint8Array }> {
     // Generate a Keypair struct:
-    const keypair = this._client?.keypair.deserialize(hexToKeypair(secret));
+    const keypair = new Keypair({
+      public: publicKey,
+      private: privateKey,
+    });
+
+    const nativeKeypair = await Keypair.toNativeKeypair(
+      keypair.toSerializable()
+    );
 
     return await this._client?.account.init(
-      keypair?.serialize(), // Serialized Keypair
+      nativeKeypair.serialize(), // Serialized Keypair
       token, // token address string
       epoch, // Epoch
       0, // Gas limit multiplier

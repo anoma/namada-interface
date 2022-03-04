@@ -1,6 +1,7 @@
-import { amountToMicro, hexToKeypair } from "utils/helpers";
+import { amountToMicro } from "utils/helpers";
 import { AnomaClient } from "lib";
 import { TxWasm } from "constants/";
+import Keypair from "lib/Keypair";
 
 class Transfer {
   private _txCode: Uint8Array | undefined;
@@ -18,22 +19,31 @@ class Transfer {
     source,
     target,
     token,
-    secret,
+    publicKey,
+    privateKey,
     epoch,
     amount,
   }: {
     source: string;
     target: string;
     token: string;
-    secret: string;
+    publicKey: string;
+    privateKey: string;
     epoch: number;
     amount: number;
   }): Promise<{ hash: string; bytes: Uint8Array }> {
     // Generate a Keypair struct:
-    const keypair = this._client?.keypair.deserialize(hexToKeypair(secret));
+    const keypair = new Keypair({
+      public: publicKey,
+      private: privateKey,
+    });
+
+    const nativeKeypair = await Keypair.toNativeKeypair(
+      keypair.toSerializable()
+    );
 
     return await this._client?.transfer.new(
-      keypair?.serialize(), // Serialized Keypair
+      nativeKeypair.serialize(), // Serialized Keypair
       source, // source address string
       target, // target address string
       token, // token address string

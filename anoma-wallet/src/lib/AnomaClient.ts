@@ -23,8 +23,11 @@ class AnomaClient {
   public readonly generateMnemonic = generate_mnemonic;
 
   public async init(): Promise<AnomaClient> {
-    const { memory } = await init();
-    this.memory = memory;
+    const _init = typeof init === "function" ? init : null;
+    if (_init) {
+      const { memory } = await _init.apply(null);
+      this.memory = memory;
+    }
     return this;
   }
 }
