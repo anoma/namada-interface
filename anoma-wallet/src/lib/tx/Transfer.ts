@@ -38,9 +38,7 @@ class Transfer {
       private: privateKey,
     });
 
-    const nativeKeypair = await Keypair.toNativeKeypair(
-      keypair.toSerializable()
-    );
+    const nativeKeypair = await keypair.toNativeKeypair();
 
     return await this._client?.transfer.new(
       nativeKeypair.serialize(), // Serialized Keypair

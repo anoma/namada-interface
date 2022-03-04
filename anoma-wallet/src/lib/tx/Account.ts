@@ -39,9 +39,7 @@ class Account {
       private: privateKey,
     });
 
-    const nativeKeypair = await Keypair.toNativeKeypair(
-      keypair.toSerializable()
-    );
+    const nativeKeypair = await keypair.toNativeKeypair();
 
     return await this._client?.account.init(
       nativeKeypair.serialize(), // Serialized Keypair

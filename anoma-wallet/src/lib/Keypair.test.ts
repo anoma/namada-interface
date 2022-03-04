@@ -8,13 +8,13 @@ const KEYPAIR = {
 
 test("Keypair should be able to be serialized to a native type", async () => {
   const keypair = new Keypair(KEYPAIR);
-  const nativeKeypair = await Keypair.toNativeKeypair(keypair.toSerializable());
+  const nativeKeypair = await keypair.toNativeKeypair();
   expect(nativeKeypair).toEqual({ ptr: 1245256 });
 });
 
 test("Keypair should be able to return a serializable keypair type", () => {
   const keypair = new Keypair(KEYPAIR);
-  const serializable = keypair.toSerializable();
+  const { serializable } = keypair;
   expect(serializable).toEqual({
     public: new Uint8Array([
       87, 37, 18, 169, 91, 25, 13, 97, 91, 25, 135, 247, 7, 37, 114, 166, 73,

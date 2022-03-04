@@ -13,29 +13,30 @@ export type SerializableKeypair = {
 };
 
 class Keypair {
-  private _public: string;
-  private _private: string;
+  private _public: Uint8Array;
+  private _private: Uint8Array;
 
   constructor(args: KeypairArgs) {
-    this._public = args.public;
-    this._private = args.private;
+    this._public = fromHex(args.public);
+    this._private = fromHex(args.private);
   }
 
-  public toSerializable(): SerializableKeypair {
+  public get serializable(): SerializableKeypair {
     return {
-      public: fromHex(this._public),
-      secret: fromHex(this._private),
+      public: this._public,
+      secret: this._private,
     };
   }
+
   /**
-   *
    * Convert to native Anoma keypair
    */
-  public static async toNativeKeypair(
-    serializableKeypair: SerializableKeypair
-  ): Promise<NativeKeypair> {
+  public async toNativeKeypair(): Promise<NativeKeypair> {
     const { keypair } = await new AnomaClient().init();
-    return keypair.deserialize(serializableKeypair);
+    return keypair.deserialize({
+      public: this._public,
+      secret: this._private,
+    });
   }
 }
 
