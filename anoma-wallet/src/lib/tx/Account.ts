@@ -47,7 +47,7 @@ class Account {
       epoch, // Epoch
       0, // Gas limit multiplier
       0, // Fee amount
-      this._txCode || new Uint8Array(), // tx_init_account wasm byte array
+      this._txCode || new Uint8Array(),
       this._vpCode || new Uint8Array()
     );
   }
