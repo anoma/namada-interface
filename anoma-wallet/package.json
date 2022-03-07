@@ -23,10 +23,11 @@
     "start": "npx wasm-react-scripts start",
     "start:local": "REACT_APP_LOCAL=\"true\" yarn start",
     "wasm:build": "wasm-pack build ../anoma-lib/ --out-dir ../anoma-wallet/src/lib/anoma --out-name anoma --target web",
+    "wasm:build:node": "wasm-pack build ../anoma-lib/ --out-dir ../anoma-wallet/src/lib/anoma --out-name anoma --target nodejs",
     "build": "npx wasm-react-scripts build",
     "lint": "npx eslint src --ext .ts,.tsx",
     "lint:fix": "yarn lint -- --fix",
-    "test": "npx wasm-react-scripts test",
+    "test": "yarn wasm:build:node && npx wasm-react-scripts test",
     "eject": "npx react-scripts eject"
   },
   "eslintConfig": {
@@ -66,6 +67,7 @@
     "eslint-plugin-jsx-a11y": "^6.5.1",
     "eslint-plugin-react": "^7.28.0",
     "eslint-plugin-react-hooks": "^4.3.0",
+    "jest-fetch-mock": "^3.0.3",
     "prettier": "^2.5.1"
   }
 }

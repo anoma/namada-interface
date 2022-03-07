@@ -1,24 +1,20 @@
-type Protocol = "http" | "https";
-type WSProtocol = "ws" | "wss";
+type Protocol = "http" | "https" | "ws" | "wss";
 
 export type RpcClientInitArgs = {
   network: string;
   port: number;
-  protocol: Protocol;
-  wsProtocol: WSProtocol;
+  protocol?: Protocol;
 };
 
 abstract class RpcClientBase {
   private _network: string;
   private _port: number;
   private _protocol: string;
-  private _wsProtocol: string;
 
-  constructor({ network, port, protocol, wsProtocol }: RpcClientInitArgs) {
+  constructor({ network, port = 26657, protocol = "http" }: RpcClientInitArgs) {
     this._network = network;
     this._port = port;
     this._protocol = protocol;
-    this._wsProtocol = wsProtocol;
   }
 
   public set network(network: string) {
@@ -33,16 +29,8 @@ abstract class RpcClientBase {
     this._protocol = protocol;
   }
 
-  public set wsProtocol(wsProtocol: string) {
-    this._wsProtocol = wsProtocol;
-  }
-
-  protected get httpEndpoint(): string {
+  protected get endpoint(): string {
     return `${this._protocol}://${this._network}:${this._port}`;
-  }
-
-  protected get wsEndpoint(): string {
-    return `${this._wsProtocol}://${this._network}:${this._port}`;
   }
 }
 

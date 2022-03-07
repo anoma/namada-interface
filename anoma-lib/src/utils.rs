@@ -1,4 +1,4 @@
-use chrono::{TimeZone,Utc};
+use chrono::{TimeZone, Utc};
 use anoma::types::time::DateTimeUtc;
 extern crate js_sys;
 

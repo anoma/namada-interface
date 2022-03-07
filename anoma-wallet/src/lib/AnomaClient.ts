@@ -1,11 +1,4 @@
-import init, {
-  Address,
-  Keypair,
-  Transfer,
-  verify_signature,
-  sign,
-  generate_mnemonic,
-} from "lib/anoma";
+import init, { Address, Keypair, Transfer, Account } from "lib/anoma";
 
 class AnomaClient {
   public memory: WebAssembly.Memory | null = null;
@@ -14,15 +7,16 @@ class AnomaClient {
   public readonly address = Address;
   public readonly keypair = Keypair;
   public readonly transfer = Transfer;
-
-  // Imported Methods
-  public readonly verifySignature = verify_signature;
-  public readonly sign = sign;
-  public readonly generateMnemonic = generate_mnemonic;
+  public readonly account = Account;
 
   public async init(): Promise<AnomaClient> {
-    const { memory } = await init();
+    const _init =
+      typeof init === "function"
+        ? init
+        : () => Promise.resolve({ memory: null });
+    const { memory } = await _init();
     this.memory = memory;
+
     return this;
   }
 }
