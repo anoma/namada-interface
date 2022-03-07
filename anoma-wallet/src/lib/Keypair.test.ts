@@ -10,7 +10,7 @@ describe("Keypair wasm and class methods", () => {
   test("Keypair should be able to be serialized to a native type", async () => {
     const keypair = new Keypair(KEYPAIR);
     const nativeKeypair = await keypair.toNativeKeypair();
-    expect(nativeKeypair).toEqual({ ptr: 1245256 });
+    expect(nativeKeypair).toEqual({ ptr: 1179720 });
   });
 
   test("Keypair should be able to return a serializable keypair type", () => {
