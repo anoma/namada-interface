@@ -14,31 +14,33 @@ const PRIVATE_KEY =
 const PUBLIC_KEY =
   "A57281E1DD9FD39EC3E8A162A1643CA7C836C0F2DAE3BEF1412A3A61A2FDE1A7";
 
-beforeEach(() => {
-  fetchMock.resetMocks();
-});
-
-test("Transfer should return a byte array and a hash", async () => {
-  const client = await new Transfer().init();
-
-  fetchMock.mockResponseOnce(() => {
-    return Promise.resolve(
-      JSON.stringify({
-        arrayBuffer: Buffer.from(new Uint8Array([])),
-      })
-    );
+describe("Transfer wasm and class methods", () => {
+  beforeEach(() => {
+    fetchMock.resetMocks();
   });
 
-  const { hash, bytes } = await client.makeTransfer({
-    amount: 1,
-    epoch: 1,
-    privateKey: PRIVATE_KEY,
-    publicKey: PUBLIC_KEY,
-    source: SOURCE,
-    target: TARGET,
-    token: TOKEN,
-  });
+  test("Transfer should return a byte array and a hash", async () => {
+    const client = await new Transfer().init();
 
-  expect(hash.length).toBe(64);
-  expect(bytes.length).toBe(605);
+    fetchMock.mockResponseOnce(() => {
+      return Promise.resolve(
+        JSON.stringify({
+          arrayBuffer: Buffer.from(new Uint8Array([])),
+        })
+      );
+    });
+
+    const { hash, bytes } = await client.makeTransfer({
+      amount: 1,
+      epoch: 1,
+      privateKey: PRIVATE_KEY,
+      publicKey: PUBLIC_KEY,
+      source: SOURCE,
+      target: TARGET,
+      token: TOKEN,
+    });
+
+    expect(hash.length).toBe(64);
+    expect(bytes.length).toBe(605);
+  });
 });

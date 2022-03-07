@@ -10,28 +10,30 @@ const PRIVATE_KEY =
 const PUBLIC_KEY =
   "A57281E1DD9FD39EC3E8A162A1643CA7C836C0F2DAE3BEF1412A3A61A2FDE1A7";
 
-beforeEach(() => {
-  fetchMock.resetMocks();
-});
-
-test("Account initialization should return a byte array and a hash", async () => {
-  const client = await new Account().init();
-
-  fetchMock.mockResponseOnce(() => {
-    return Promise.resolve(
-      JSON.stringify({
-        arrayBuffer: Buffer.from(new Uint8Array([])),
-      })
-    );
+describe("Account wasm and class methods", () => {
+  beforeEach(() => {
+    fetchMock.resetMocks();
   });
 
-  const { hash, bytes } = await client.initialize({
-    epoch: 1,
-    privateKey: PRIVATE_KEY,
-    publicKey: PUBLIC_KEY,
-    token: TOKEN,
-  });
+  test("Account initialization should return a byte array and a hash", async () => {
+    const client = await new Account().init();
 
-  expect(hash.length).toBe(64);
-  expect(bytes.length).toBe(501);
+    fetchMock.mockResponseOnce(() => {
+      return Promise.resolve(
+        JSON.stringify({
+          arrayBuffer: Buffer.from(new Uint8Array([])),
+        })
+      );
+    });
+
+    const { hash, bytes } = await client.initialize({
+      epoch: 1,
+      privateKey: PRIVATE_KEY,
+      publicKey: PUBLIC_KEY,
+      token: TOKEN,
+    });
+
+    expect(hash.length).toBe(64);
+    expect(bytes.length).toBe(501);
+  });
 });
