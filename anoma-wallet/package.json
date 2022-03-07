@@ -2,6 +2,9 @@
   "name": "anoma-wallet",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "dependencies": {
     "@cosmjs/encoding": "^0.27.1",
     "@cosmjs/json-rpc": "^0.27.1",

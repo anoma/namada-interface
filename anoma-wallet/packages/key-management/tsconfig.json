@@ -1,0 +1,8 @@
+{
+  "target": "es5",
+    "compilerOptions": {
+      "types": ["jest", "node"],
+    },
+    "include": ["src"],
+    "outDir": "./build"
+  }
