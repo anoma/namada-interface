@@ -22,7 +22,7 @@ class Account {
   }
 
   public async initialize({
-    token = Tokens[TokenType.XAN].address,
+    token = Tokens[TokenType.BTC].address || "",
     publicKey,
     privateKey,
     epoch,
