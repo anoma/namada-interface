@@ -1,4 +1,4 @@
-import { Mnemonic, MnemonicLength } from ".";
+import { Mnemonic, MnemonicLength } from "./Mnemonic";
 import { KeyPair, KeyPairType, StorageValue } from "./KeyPair";
 
 // unencrypted keys
@@ -37,6 +37,18 @@ test("key pair should be able to be generated from mnemonic with encryption", ()
 
   const keyPair = KeyPair.fromMnemonic(mnemonic, PASSWORD);
   expect(keyPair.getStorageValue().keyPairType).toEqual(KeyPairType.Encrypted);
+});
+
+test("key pair from a certain mnemonic should be repeatable", () => {
+  const mnemonic_test = Mnemonic.fromString(
+    "safe tortoise bridge pumpkin pigeon brother design that tide prepare trade elephant"
+  );
+  const firstKeyPair = KeyPair.fromMnemonic(mnemonic_test, PASSWORD);
+  const secondKeyPair = KeyPair.fromMnemonic(mnemonic_test, PASSWORD);
+
+  expect(firstKeyPair.getStorageValue().value).toEqual(
+    secondKeyPair.getStorageValue().value
+  );
 });
 
 test("key pair should be able to be generated from storage value", () => {
