@@ -1,10 +1,10 @@
-import { AnomaClient } from ".";
-import { Keypair as NativeKeypair } from "lib/anoma";
 import { fromHex } from "@cosmjs/encoding";
+import { AnomaClient } from "lib";
+import { Keypair as NativeKeypair } from "lib/anoma";
 
 type KeypairArgs = {
   public: string;
-  private: string;
+  secret: string;
 };
 
 export type SerializableKeypair = {
@@ -13,18 +13,18 @@ export type SerializableKeypair = {
 };
 
 class Keypair {
-  private _public: Uint8Array;
-  private _private: Uint8Array;
+  private _public: string;
+  private _secret: string;
 
   constructor(args: KeypairArgs) {
-    this._public = fromHex(args.public);
-    this._private = fromHex(args.private);
+    this._public = args.public;
+    this._secret = args.secret;
   }
 
   public get serializable(): SerializableKeypair {
     return {
-      public: this._public,
-      secret: this._private,
+      public: fromHex(this._public),
+      secret: fromHex(this._secret),
     };
   }
 
@@ -33,10 +33,7 @@ class Keypair {
    */
   public async toNativeKeypair(): Promise<NativeKeypair> {
     const { keypair } = await new AnomaClient().init();
-    return keypair.deserialize({
-      public: this._public,
-      secret: this._private,
-    });
+    return keypair.deserialize(this.serializable);
   }
 }
 

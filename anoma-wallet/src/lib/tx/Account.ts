@@ -36,7 +36,7 @@ class Account {
     // Generate a Keypair struct:
     const keypair = new Keypair({
       public: publicKey,
-      private: privateKey,
+      secret: privateKey,
     });
 
     const nativeKeypair = await keypair.toNativeKeypair();
