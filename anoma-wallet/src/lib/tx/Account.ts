@@ -1,6 +1,5 @@
-import { AnomaClient } from "lib";
+import { AnomaClient, Keypair } from "lib";
 import { Tokens, TokenType, TxWasm, VpWasm } from "constants/";
-import Keypair from "lib/Keypair";
 
 class Account {
   private _txCode: Uint8Array | undefined;
@@ -47,8 +46,8 @@ class Account {
       epoch, // Epoch
       0, // Gas limit multiplier
       0, // Fee amount
-      this._txCode || new Uint8Array(),
-      this._vpCode || new Uint8Array()
+      this._txCode || new Uint8Array(), // Transaction wasm
+      this._vpCode || new Uint8Array() // Validity-Predicate wasm
     );
   }
 }

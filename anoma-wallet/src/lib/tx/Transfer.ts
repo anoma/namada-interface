@@ -1,7 +1,6 @@
 import { amountToMicro } from "utils/helpers";
-import { AnomaClient } from "lib";
+import { AnomaClient, Keypair } from "lib";
 import { TxWasm } from "constants/";
-import Keypair from "lib/Keypair";
 
 class Transfer {
   private _txCode: Uint8Array | undefined;
@@ -49,7 +48,7 @@ class Transfer {
       epoch, // Epoch
       0, // Gas limit multiplier
       0, // Fee amount
-      this._txCode || new Uint8Array() // tx_transfer wasm byte array
+      this._txCode || new Uint8Array() // Transaction wasm
     );
   }
 }
