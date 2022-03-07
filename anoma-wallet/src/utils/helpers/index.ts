@@ -1,5 +1,4 @@
 import { JsonRpcRequest } from "@cosmjs/json-rpc";
-import { fromHex } from "@cosmjs/encoding";
 import { JsonCompatibleArray, JsonCompatibleDictionary } from "lib/rpc/types";
 
 /**
@@ -18,19 +17,6 @@ export const promiseWithTimeout = <T = unknown>(
   return {
     promise: Promise.race([promise, timeoutPromise]),
     timeoutId,
-  };
-};
-
-/**
- * Convert a hex keypair to a serializable keypair object
- */
-export const hexToKeypair = (
-  keypair: string
-): { secret: Uint8Array; public: Uint8Array } => {
-  const [, priv, pub] = keypair.split("20000000");
-  return {
-    secret: fromHex(priv),
-    public: fromHex(pub),
   };
 };
 

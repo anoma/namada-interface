@@ -1,13 +1,13 @@
-import { amountToMicro, hexToKeypair } from "utils/helpers";
-import { AnomaClient } from "lib";
-import { Wasm } from "constants/";
+import { amountToMicro } from "utils/helpers";
+import { AnomaClient, Keypair } from "lib";
+import { TxWasm } from "constants/";
 
 class Transfer {
   private _txCode: Uint8Array | undefined;
   private _client: AnomaClient | undefined;
 
   public async init(): Promise<Transfer> {
-    const results = await fetch(`/wasm/${Wasm.Transfer}`);
+    const results = await fetch(`/wasm/${TxWasm.Transfer}`);
     const wasm = await results.arrayBuffer();
     this._txCode = new Uint8Array(wasm);
     this._client = await new AnomaClient().init();
@@ -18,22 +18,29 @@ class Transfer {
     source,
     target,
     token,
-    secret,
+    publicKey,
+    privateKey,
     epoch,
     amount,
   }: {
     source: string;
     target: string;
     token: string;
-    secret: string;
+    publicKey: string;
+    privateKey: string;
     epoch: number;
     amount: number;
   }): Promise<{ hash: string; bytes: Uint8Array }> {
     // Generate a Keypair struct:
-    const keypair = this._client?.keypair.deserialize(hexToKeypair(secret));
+    const keypair = new Keypair({
+      public: publicKey,
+      secret: privateKey,
+    });
+
+    const nativeKeypair = await keypair.toNativeKeypair();
 
     return await this._client?.transfer.new(
-      keypair?.serialize(), // Serialized Keypair
+      nativeKeypair.serialize(), // Serialized Keypair
       source, // source address string
       target, // target address string
       token, // token address string
@@ -41,7 +48,7 @@ class Transfer {
       epoch, // Epoch
       0, // Gas limit multiplier
       0, // Fee amount
-      this._txCode || new Uint8Array() // tx_transfer wasm byte array
+      this._txCode || new Uint8Array() // Transaction wasm
     );
   }
 }

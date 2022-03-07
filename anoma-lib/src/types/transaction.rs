@@ -4,8 +4,8 @@ use crate::types::{
     tx::Tx,
     wrapper::WrapperTx,
 };
-use anoma::types::{key};
-use serde::{Serialize,Deserialize};
+use anoma::types::key;
+use serde::{Serialize, Deserialize};
 use wasm_bindgen::prelude::*;
 
 #[derive(Serialize, Deserialize)]
