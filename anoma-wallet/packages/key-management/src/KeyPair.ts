@@ -1,4 +1,5 @@
 import { Keypair as WasmKeypair } from "./lib/anoma_wasm.js";
+import { Buffer } from "buffer";
 import { Mnemonic } from "./Mnemonic";
 
 const ENCRYPTED_KEY_PREFIX = "encrypted:";
@@ -265,6 +266,7 @@ export class KeyPair {
     this.encryptedKeyPair = this.keyPairPointer.encrypt_with_password(password);
 
     // encode to hex string for persisting in the client
+
     const encryptedKeyPairAsHex = Buffer.from(this.encryptedKeyPair).toString(
       "hex"
     );

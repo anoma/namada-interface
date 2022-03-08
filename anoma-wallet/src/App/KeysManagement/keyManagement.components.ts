@@ -34,6 +34,7 @@ export const HeadlineSectionContainer = styled.section`
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
   margin: 60px 0 0 0;
 `;
 

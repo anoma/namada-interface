@@ -8,30 +8,26 @@ import {
   Headline,
 } from "./keyManagement.components";
 
-import {
-  KeyPair,
-  Mnemonic,
-  MnemonicLength,
-} from "@anoma-wallet/key-management";
-// } from "../../../node_modules/@anoma-wallet/key-management";
-
+import { Mnemonic, MnemonicLength } from "@anoma-wallet/key-management";
 import { useNavigate } from "react-router-dom";
 import { Button } from "components/Button";
 import { Icon, IconName } from "components/Icon";
 
-// const mnemonic = new Mnemonic(MnemonicLength.TwentyFour);
-// const keyPair = KeyPair.fromMnemonic(mnemonic);
-// const publicKey = keyPair.getPublicKeyAsHex();
-// const secretKey = keyPair.getSecretKeyAsHex();
 function KeyManagement(): JSX.Element {
   const [publicKey, setPublicKey] = React.useState("");
   const [secretKey, setSecretKey] = React.useState("");
+  const [mnemonic, setMnemonic] = React.useState("");
   React.useEffect(() => {
-    const mnemonic = new Mnemonic(MnemonicLength.TwentyFour);
-    const keyPair = KeyPair.fromMnemonic(mnemonic);
+    const init = async (): Promise<void> => {
+      const mnemonic = await Mnemonic.fromMnemonic(MnemonicLength.TwentyFour);
+      setMnemonic(mnemonic.value);
+    };
+    init();
 
-    setPublicKey(keyPair.getPublicKeyAsHex());
-    setSecretKey(keyPair.getSecretKeyAsHex());
+    // const mnemonic = new Mnemonic(MnemonicLength.TwentyFour);
+    // const keyPair = KeyPair.fromMnemonic(mnemonic);
+    // setPublicKey(keyPair.getPublicKeyAsHex());
+    // setSecretKey(keyPair.getSecretKeyAsHex());
   }, []);
   const navigate = useNavigate();
   const themeContext = useContext(ThemeContext);
@@ -55,8 +51,7 @@ function KeyManagement(): JSX.Element {
       </TopSection>
       <HeadlineSectionContainer>
         <Headline>Key Management</Headline>
-        <p>{publicKey}</p>
-        <p>{secretKey}</p>
+        <p>{mnemonic}</p>
       </HeadlineSectionContainer>
     </MainSectionContainer>
   );

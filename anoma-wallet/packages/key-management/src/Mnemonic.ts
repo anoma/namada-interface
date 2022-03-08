@@ -1,4 +1,4 @@
-import { generate_mnemonic } from "./lib/anoma_wasm.js";
+import init, { generate_mnemonic } from "./lib/anoma_wasm.js";
 
 export enum MnemonicLength {
   Twelve = 12,
@@ -6,7 +6,7 @@ export enum MnemonicLength {
 }
 
 export class Mnemonic {
-  readonly value: string;
+  value: string;
   constructor(length: MnemonicLength, mnemonicFromString?: string) {
     if (mnemonicFromString) {
       this.value = mnemonicFromString;
@@ -14,6 +14,20 @@ export class Mnemonic {
     }
     this.value = generate_mnemonic(length);
   }
+
+  static fromMnemonic = async (
+    length: MnemonicLength,
+    mnemonicFromString?: string
+  ) => {
+    await init();
+    const self = new Mnemonic(length);
+    if (mnemonicFromString) {
+      self.value = mnemonicFromString;
+      return self;
+    }
+    self.value = generate_mnemonic(length);
+    return self;
+  };
 
   static fromString(fromString: string) {
     let mnemonicLength: MnemonicLength;
