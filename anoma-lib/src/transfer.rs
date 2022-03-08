@@ -2,12 +2,13 @@ use crate::types::{
     address::Address,
     transaction::Transaction,
 };
-use anoma::types::{token};
+use anoma::types::token;
 use borsh::BorshSerialize;
+use serde::{Serialize, Deserialize};
 use wasm_bindgen::prelude::*;
 
-#[wasm_bindgen]
-pub struct Transfer(Transaction);
+#[derive(Serialize, Deserialize)]
+pub struct Transfer(pub Transaction);
 
 #[wasm_bindgen]
 impl Transfer {
@@ -40,7 +41,7 @@ impl Transfer {
             .expect("Encoding unsigned transfer shouldn't fail");
 
         // Return serialized Transaction
-        Ok(JsValue::from_serde(&Transaction::new(
+        Ok(JsValue::from_serde(&Transfer(Transaction::new(
             serialized_keypair,
             token,
             epoch,
@@ -48,6 +49,6 @@ impl Transfer {
             gas_limit,
             tx_code,
             data
-        ).unwrap()).unwrap())
+        ).unwrap())).unwrap())
     }
 }
