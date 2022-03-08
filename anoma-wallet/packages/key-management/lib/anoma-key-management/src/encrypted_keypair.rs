@@ -1,14 +1,7 @@
-use std::fmt::Display;
-use std::rc::Rc;
-use std::str::FromStr;
-
 use anoma::types::key::ed25519::Keypair;
 use borsh::{BorshDeserialize, BorshSerialize};
 use orion::{aead, kdf};
-use serde::{Deserialize, Serialize};
 use thiserror::Error;
-
-// use super::read_password;
 
 #[allow(missing_docs)]
 #[derive(Debug, Error)]
@@ -19,8 +12,6 @@ pub enum DecryptionError {
     DecryptionError,
     #[error("Unable to deserialize the keypair")]
     DeserializingError,
-    #[error("Asked not to decrypt")]
-    NotDecrypting,
 }
 
 /// An encrypted keypair stored in a wallet

@@ -1,3 +1,2 @@
-pub mod address;
+pub mod encrypted_keypair;
 pub mod keypair;
-pub mod transaction;
