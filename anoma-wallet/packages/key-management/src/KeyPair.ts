@@ -1,4 +1,4 @@
-import { Keypair as WasmKeypair } from "./lib/anoma_wasm.js";
+import init, { Keypair as WasmKeypair } from "./lib/anoma_wasm.js";
 import { Buffer } from "buffer";
 import { Mnemonic } from "./Mnemonic";
 
@@ -110,21 +110,22 @@ export class KeyPair {
   static fromStorageValue(
     storageValue: StorageValue,
     keyPairType: KeyPairType.Raw
-  ): KeyPair;
+  ): Promise<KeyPair>;
 
   // factory for a KeyPair from a encrypted storage value
   static fromStorageValue(
     storageValue: StorageValue,
     keyPairType: KeyPairType.Encrypted,
     password: string
-  ): KeyPair;
+  ): Promise<KeyPair>;
 
   // TODO: remove the KeyPairType, it's redundant, instead derive the info from the storage value string
-  static fromStorageValue(
+  static async fromStorageValue(
     storageValue: StorageValue,
     keyPairType: KeyPairType,
     password?: string
-  ): KeyPair {
+  ): Promise<KeyPair> {
+    await init();
     const self = new KeyPair();
     self.keyPairType = keyPairType;
     self.storageValue = storageValue;

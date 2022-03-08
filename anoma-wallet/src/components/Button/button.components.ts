@@ -13,6 +13,7 @@ export const ButtonContainer = styled.button`
   border: 2px solid ${(props) => props.theme.colors.buttonBorder};
   border-bottom: solid 4px ${(props) => props.theme.colors.buttonShadow};
   height: 50px;
+  min-height: 50px;
   min-width: 48px;
   border-radius: 999px;
   transition: ${transition};
