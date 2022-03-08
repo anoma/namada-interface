@@ -13,14 +13,8 @@ describe("Accounts class", () => {
     const child1 = accounts.new(symbol);
     const child2 = accounts.new(symbol);
 
-    expect(child1.secret).toBe(
-      "196333f1a97e7377acc1464bfb2b9f943953cd06b7bf11986784abcb1cfa13be"
-    );
-
-    expect(child2.secret).toBe(
-      "4842036c5cf0f7f55c2825a16567e7d360888f17ca7fedbb34189191798a7d67"
-    );
-
+    expect(child1.secret).toBe("3Tn2kt9c96AX8nqZR5LV2iWg6bWu1a8mHpWz5d7qat1o");
+    expect(child2.secret).toBe("H7W2wHC2ogC2vMW8Xqk8cDJdxgwwqMjBx6723rDb8bP3");
     expect(accounts.accounts[type].length).toBe(2);
   });
 

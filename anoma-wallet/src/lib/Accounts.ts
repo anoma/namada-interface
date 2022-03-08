@@ -1,4 +1,5 @@
-import { fromBase64, toHex } from "@cosmjs/encoding";
+import { fromBase64 } from "@cosmjs/encoding";
+import * as bs58 from "bs58";
 import { Tokens, TokenType } from "constants/";
 import AnomaClient from "./AnomaClient";
 
@@ -33,19 +34,21 @@ class Accounts {
     }
 
     const index = this._accounts[type].length;
+    const path = Accounts.makePath(type);
+
     const childAccount = this._client?.account.derive(
       this._mnemonic,
       "", // Password ???
-      Accounts.makePath(type, 0, 0, index),
-      `${index}`
+      path,
+      index
     );
 
     const { secret, address, public_key } = childAccount;
 
     const child = {
-      secret: toHex(new Uint8Array(secret)),
-      address: toHex(fromBase64(address)),
-      public: toHex(fromBase64(public_key)),
+      secret: bs58.encode(new Uint8Array(secret)), // 32
+      address: bs58.encode(address), // 20
+      public: bs58.encode(fromBase64(public_key)), // 64
     };
 
     this._accounts[type].push(child);
@@ -61,13 +64,12 @@ class Accounts {
     return this._client?.account.seed_from_mnemonic(this._mnemonic, "");
   }
 
-  public static makePath(
-    type: number,
-    account: number,
-    change: number,
-    index: number
-  ): string {
-    return `m/44'/${type}'/${account}'/${change}/${index}`;
+  // Create a path similar to: m/44'/0'/0'/0
+  // NOTE:
+  // 0 = 0
+  // 0' = 2147483648
+  public static makePath(type = 0, account = 0, change = 0): string {
+    return `m/44'/${type}'/${account}'/${change}`;
   }
 }
 

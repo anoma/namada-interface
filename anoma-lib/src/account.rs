@@ -27,7 +27,7 @@ pub struct Account(pub Transaction);
 #[derive(Serialize, Deserialize)]
 pub struct ChildAccount {
     secret: [u8; 32],
-    address: String,
+    address: [u8; 20],
     public_key: String,
 }
 
@@ -70,6 +70,7 @@ impl Account {
     pub fn seed_from_mnemonic(phrase: String, password: String) -> JsValue {
         let mnemonic = Mnemonic::from_phrase(phrase, Language::English).unwrap();
         let seed = Seed::new(&mnemonic, &password);
+        // Return the seed in hexadecimal format
         JsValue::from(format!("{:X}", seed))
     }
 
@@ -78,7 +79,7 @@ impl Account {
         phrase: String,
         password: String,
         path: String,
-        child: String) -> Result<JsValue, JsValue> {
+        child: u32) -> Result<JsValue, JsValue> {
         // Validates mnemonic phrase
         let mnemonic = Mnemonic::from_phrase(phrase, Language::English).unwrap();
         let seed = Seed::new(&mnemonic, &password);
@@ -87,8 +88,10 @@ impl Account {
         let derivation_path: DerivationPath = IntoDerivationPath::into(&*path)
             .expect("Should create a DerivationPath type");
 
+        web_sys::console::log_1(&JsValue::from(&format!("{:?}", derivation_path)));
+
         let ext = ExtendedPrivKey::derive(seed, derivation_path).unwrap();
-        let child_ext = ext.child(ChildNumber::from_str(&child).unwrap()).unwrap();
+        let child_ext = ext.child(ChildNumber::from_str(&format!("{}", child)).unwrap()).unwrap();
 
         let secret_key = SecretKey::from_raw(&child_ext.secret()).unwrap();
         let public_key = secret_key.public();
@@ -97,7 +100,7 @@ impl Account {
 
         let child_account = ChildAccount {
             secret: child_ext.secret(),
-            address: base64::encode(address),
+            address: *address,
             public_key: base64::encode(public),
         };
 

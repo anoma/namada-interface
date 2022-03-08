@@ -192,13 +192,6 @@ function passArray8ToWasm0(arg, malloc) {
     WASM_VECTOR_LEN = arg.length;
     return ptr;
 }
-
-function _assertClass(instance, klass) {
-    if (!(instance instanceof klass)) {
-        throw new Error(`expected instance of ${klass.name}`);
-    }
-    return instance.ptr;
-}
 /**
 */
 export function run() {
@@ -207,6 +200,13 @@ export function run() {
 
 function getArrayU8FromWasm0(ptr, len) {
     return getUint8Memory0().subarray(ptr / 1, ptr / 1 + len);
+}
+
+function _assertClass(instance, klass) {
+    if (!(instance instanceof klass)) {
+        throw new Error(`expected instance of ${klass.name}`);
+    }
+    return instance.ptr;
 }
 
 function handleError(f, args) {
@@ -280,7 +280,7 @@ export class Account {
     * @param {string} phrase
     * @param {string} password
     * @param {string} path
-    * @param {string} child
+    * @param {number} child
     * @returns {any}
     */
     static derive(phrase, password, path, child) {
@@ -292,9 +292,7 @@ export class Account {
             var len1 = WASM_VECTOR_LEN;
             var ptr2 = passStringToWasm0(path, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
             var len2 = WASM_VECTOR_LEN;
-            var ptr3 = passStringToWasm0(child, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-            var len3 = WASM_VECTOR_LEN;
-            wasm.account_derive(retptr, ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3);
+            wasm.account_derive(retptr, ptr0, len0, ptr1, len1, ptr2, len2, child);
             var r0 = getInt32Memory0()[retptr / 4 + 0];
             var r1 = getInt32Memory0()[retptr / 4 + 1];
             var r2 = getInt32Memory0()[retptr / 4 + 2];
@@ -639,6 +637,9 @@ async function init(input) {
         } finally {
             wasm.__wbindgen_free(arg0, arg1);
         }
+    };
+    imports.wbg.__wbg_log_fbd13631356d44e4 = function(arg0) {
+        console.log(getObject(arg0));
     };
     imports.wbg.__wbg_getRandomValues_99bbe8a65f4aef87 = function() { return handleError(function (arg0, arg1) {
         getObject(arg0).getRandomValues(getObject(arg1));

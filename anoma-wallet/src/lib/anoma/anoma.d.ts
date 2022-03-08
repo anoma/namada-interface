@@ -28,10 +28,10 @@ export class Account {
 * @param {string} phrase
 * @param {string} password
 * @param {string} path
-* @param {string} child
+* @param {number} child
 * @returns {any}
 */
-  static derive(phrase: string, password: string, path: string, child: string): any;
+  static derive(phrase: string, password: string, path: string, child: number): any;
 }
 /**
 */
@@ -103,11 +103,7 @@ export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly account_init: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number) => void;
   readonly account_seed_from_mnemonic: (a: number, b: number, c: number, d: number) => number;
-  readonly account_derive: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => void;
-  readonly __wbg_address_free: (a: number) => void;
-  readonly address_encoded: (a: number, b: number) => void;
-  readonly address_from_keypair: (a: number) => number;
-  readonly address_decode: (a: number, b: number, c: number) => void;
+  readonly account_derive: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number) => void;
   readonly run: () => void;
   readonly __wbg_tx_free: (a: number) => void;
   readonly __wbg_wrappertx_free: (a: number) => void;
@@ -116,6 +112,10 @@ export interface InitOutput {
   readonly keypair_deserialize: (a: number, b: number) => void;
   readonly keypair_to_bytes: (a: number, b: number) => void;
   readonly transfer_new: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number) => void;
+  readonly __wbg_address_free: (a: number) => void;
+  readonly address_encoded: (a: number, b: number) => void;
+  readonly address_from_keypair: (a: number) => number;
+  readonly address_decode: (a: number, b: number, c: number) => void;
   readonly rustsecp256k1_v0_4_1_context_create: (a: number) => number;
   readonly rustsecp256k1_v0_4_1_context_destroy: (a: number) => void;
   readonly rustsecp256k1_v0_4_1_default_illegal_callback_fn: (a: number, b: number) => void;
