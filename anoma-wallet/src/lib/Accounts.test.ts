@@ -7,15 +7,30 @@ const MNEMONIC_24 =
 describe("Accounts class", () => {
   test("It should derive a child pub/priv key from mnemonic", async () => {
     const accounts = await new Accounts(MNEMONIC_24).init();
-    const child1 = accounts.new("BTC");
-    const child2 = accounts.new("BTC");
+    const type = 0;
+    const symbol = "BTC";
 
-    expect(child1.xpriv).toBe(
+    const child1 = accounts.new(symbol);
+    const child2 = accounts.new(symbol);
+
+    expect(child1.secret).toBe(
       "196333f1a97e7377acc1464bfb2b9f943953cd06b7bf11986784abcb1cfa13be"
     );
 
-    expect(child2.xpriv).toBe(
+    expect(child2.secret).toBe(
       "4842036c5cf0f7f55c2825a16567e7d360888f17ca7fedbb34189191798a7d67"
+    );
+
+    expect(accounts.accounts[type].length).toBe(2);
+  });
+
+  test("It should return a hexadecimal seed from mnemonic phrase", async () => {
+    const accounts = await new Accounts(MNEMONIC_24).init();
+    const { seed } = accounts;
+
+    expect(seed).toBe(
+      // eslint-disable-next-line max-len
+      "B240A0A82144543F0089791D422F7B244026A0EC5D26359DA9772A99BC50D195335CFBA896DC464EE61098A055F87352B77E60703AEEE63F59EF00FAA3A9A6AE"
     );
   });
 });

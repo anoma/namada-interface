@@ -18,6 +18,12 @@ export class Account {
 */
   static init(serialized_keypair: any, token: string, epoch: number, fee_amount: number, gas_limit: number, tx_code: Uint8Array, vp_code: Uint8Array): any;
 /**
+* @param {string} phrase
+* @param {string} password
+* @returns {any}
+*/
+  static seed_from_mnemonic(phrase: string, password: string): any;
+/**
 * Derive a child account
 * @param {string} phrase
 * @param {string} password
@@ -96,7 +102,13 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly account_init: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number) => void;
+  readonly account_seed_from_mnemonic: (a: number, b: number, c: number, d: number) => number;
   readonly account_derive: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => void;
+  readonly __wbg_address_free: (a: number) => void;
+  readonly address_encoded: (a: number, b: number) => void;
+  readonly address_from_keypair: (a: number) => number;
+  readonly address_decode: (a: number, b: number, c: number) => void;
+  readonly run: () => void;
   readonly __wbg_tx_free: (a: number) => void;
   readonly __wbg_wrappertx_free: (a: number) => void;
   readonly __wbg_keypair_free: (a: number) => void;
@@ -104,11 +116,10 @@ export interface InitOutput {
   readonly keypair_deserialize: (a: number, b: number) => void;
   readonly keypair_to_bytes: (a: number, b: number) => void;
   readonly transfer_new: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number) => void;
-  readonly __wbg_address_free: (a: number) => void;
-  readonly address_encoded: (a: number, b: number) => void;
-  readonly address_from_keypair: (a: number) => number;
-  readonly address_decode: (a: number, b: number, c: number) => void;
-  readonly run: () => void;
+  readonly rustsecp256k1_v0_4_1_context_create: (a: number) => number;
+  readonly rustsecp256k1_v0_4_1_context_destroy: (a: number) => void;
+  readonly rustsecp256k1_v0_4_1_default_illegal_callback_fn: (a: number, b: number) => void;
+  readonly rustsecp256k1_v0_4_1_default_error_callback_fn: (a: number, b: number) => void;
   readonly __wbindgen_malloc: (a: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number) => number;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;

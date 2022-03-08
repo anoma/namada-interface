@@ -1,9 +1,11 @@
-import { toHex } from "@cosmjs/encoding";
+import { fromBase64, toHex } from "@cosmjs/encoding";
 import { Tokens, TokenType } from "constants/";
 import AnomaClient from "./AnomaClient";
 
 type ChildAccount = {
-  xpriv: string;
+  secret: string;
+  address: string;
+  public: string;
 };
 
 type AccountType = {
@@ -33,18 +35,30 @@ class Accounts {
     const index = this._accounts[type].length;
     const childAccount = this._client?.account.derive(
       this._mnemonic,
-      "",
+      "", // Password ???
       Accounts.makePath(type, 0, 0, index),
       `${index}`
     );
 
+    const { secret, address, public_key } = childAccount;
+
     const child = {
-      xpriv: toHex(new Uint8Array(childAccount.xpriv.secret)),
+      secret: toHex(new Uint8Array(secret)),
+      address: toHex(fromBase64(address)),
+      public: toHex(fromBase64(public_key)),
     };
 
     this._accounts[type].push(child);
 
     return child;
+  }
+
+  public get accounts(): AccountType {
+    return this._accounts;
+  }
+
+  public get seed(): string {
+    return this._client?.account.seed_from_mnemonic(this._mnemonic, "");
   }
 
   public static makePath(

@@ -13,22 +13,22 @@ use wasm_bindgen::prelude::*;
 use std::str::FromStr;
 
 use bip0039::{Mnemonic, Seed, Language};
+use ethsign::SecretKey;
 use tiny_hderive::{
     bip32::ExtendedPrivKey,
     bip44::{ChildNumber, DerivationPath, IntoDerivationPath},
 };
 
+extern crate base64;
+
 #[derive(Serialize,Deserialize)]
 pub struct Account(pub Transaction);
 
 #[derive(Serialize, Deserialize)]
-pub struct ExtPrivKey {
-    secret: [u8; 32],
-}
-
-#[derive(Serialize, Deserialize)]
 pub struct ChildAccount {
-    xpriv: ExtPrivKey,
+    secret: [u8; 32],
+    address: String,
+    public_key: String,
 }
 
 #[wasm_bindgen]
@@ -67,6 +67,12 @@ impl Account {
         ).unwrap())).unwrap())
     }
 
+    pub fn seed_from_mnemonic(phrase: String, password: String) -> JsValue {
+        let mnemonic = Mnemonic::from_phrase(phrase, Language::English).unwrap();
+        let seed = Seed::new(&mnemonic, &password);
+        JsValue::from(format!("{:X}", seed))
+    }
+
     /// Derive a child account
     pub fn derive(
         phrase: String,
@@ -84,10 +90,15 @@ impl Account {
         let ext = ExtendedPrivKey::derive(seed, derivation_path).unwrap();
         let child_ext = ext.child(ChildNumber::from_str(&child).unwrap()).unwrap();
 
+        let secret_key = SecretKey::from_raw(&child_ext.secret()).unwrap();
+        let public_key = secret_key.public();
+        let address = public_key.address();
+        let public = &public_key.bytes();
+
         let child_account = ChildAccount {
-            xpriv: ExtPrivKey {
-                secret: child_ext.secret(),
-            }
+            secret: child_ext.secret(),
+            address: base64::encode(address),
+            public_key: base64::encode(public),
         };
 
         Ok(JsValue::from_serde(&child_account).unwrap())
