@@ -8,7 +8,12 @@ import {
   Headline,
 } from "./keyManagement.components";
 
-import { Mnemonic, MnemonicLength } from "@anoma-wallet/key-management";
+import {
+  Mnemonic,
+  MnemonicLength,
+  KeyPair,
+  KeyPairType,
+} from "@anoma-wallet/key-management";
 import { useNavigate } from "react-router-dom";
 import { Button } from "components/Button";
 import { Icon, IconName } from "components/Icon";
@@ -20,6 +25,9 @@ function KeyManagement(): JSX.Element {
   React.useEffect(() => {
     const init = async (): Promise<void> => {
       const mnemonic = await Mnemonic.fromMnemonic(MnemonicLength.TwentyFour);
+      const keyPair = KeyPair.fromMnemonic(mnemonic);
+      setPublicKey(keyPair.getPublicKeyAsHex());
+      setSecretKey(keyPair.getSecretKeyAsHex());
       setMnemonic(mnemonic.value);
     };
     init();
@@ -52,6 +60,8 @@ function KeyManagement(): JSX.Element {
       <HeadlineSectionContainer>
         <Headline>Key Management</Headline>
         <p>{mnemonic}</p>
+        <p style={{ overflowWrap: "anywhere" }}>{publicKey}</p>
+        <p style={{ overflowWrap: "anywhere" }}>{secretKey}</p>
       </HeadlineSectionContainer>
     </MainSectionContainer>
   );

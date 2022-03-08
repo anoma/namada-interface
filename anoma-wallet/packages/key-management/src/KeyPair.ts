@@ -57,18 +57,21 @@ export type StorageValue =
  */
 export class KeyPair {
   // indicates whether the KeyPair os encrypted or not
-  keyPairType: KeyPairType;
+  // https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-7.html#strict-class-initialization
+  // using this as we init with factory and not with a constructor
+  // doing this for all fields
+  keyPairType!: KeyPairType;
 
   // this is the value that is being stored in the wallet file
   // unencrypted:20000000f9e3191...
   // encrypted:ec5d6c48eb2e27423...
-  private storageValue: StorageValue;
+  private storageValue!: StorageValue;
 
   // This is the pointer to the wasm KeyPair
-  private keyPairPointer: WasmKeypair;
+  private keyPairPointer!: WasmKeypair;
 
   // byte array representation of the encrypted KeyPair (redundant here?)
-  private encryptedKeyPair: Uint8Array;
+  private encryptedKeyPair!: Uint8Array;
 
   // Constructs a KeyPair from mnemonic
   // if password
@@ -90,7 +93,8 @@ export class KeyPair {
         keyPairType: self.keyPairType,
       };
       self.storageValue = storageValue;
-    } else {
+    } else if (password) {
+      // note we have actually figured out that we have a password here, this is just to satisfy ts
       const keyPairEncryptedAsHex = self.encryptWithPassword(password);
       const storageValue: StorageValue = {
         keyPairType: self.keyPairType,
@@ -102,20 +106,20 @@ export class KeyPair {
     return self;
   }
 
-  // constructor for an unencrypted storage value
+  // factory for an unencrypted storage value
   static fromStorageValue(
     storageValue: StorageValue,
     keyPairType: KeyPairType.Raw
-  );
+  ): KeyPair;
 
-  // constructor for a KeyPair from a encrypted storage value
+  // factory for a KeyPair from a encrypted storage value
   static fromStorageValue(
     storageValue: StorageValue,
     keyPairType: KeyPairType.Encrypted,
     password: string
-  );
+  ): KeyPair;
 
-  // TODO: remove the KeyPairType from here and derive from the string
+  // TODO: remove the KeyPairType, it's redundant, instead derive the info from the storage value string
   static fromStorageValue(
     storageValue: StorageValue,
     keyPairType: KeyPairType,
@@ -131,7 +135,7 @@ export class KeyPair {
           storageValue.value
         );
         self.keyPairPointer = keyPairPointer;
-      } else {
+      } else if (password) {
         const keyPairPointer = self.encryptedStorageValueToKeyPair(
           storageValue.value,
           password
@@ -140,7 +144,8 @@ export class KeyPair {
       }
       return self;
     } catch (error) {
-      throw new Error(error);
+      const errorAsString = String(error) || "unknown error";
+      throw new Error(errorAsString);
     }
   }
 
@@ -149,34 +154,35 @@ export class KeyPair {
   // "encrypted:ec5d6c48eb2e27423533f... -> StorageValue
   static storageValueStringToStorageValue = (
     storageValueString: string
-  ): StorageValue => {
+  ): StorageValue | undefined => {
     let storageValue: StorageValue;
     if (storageValueString.startsWith("unencrypted:")) {
       storageValue = {
         value: storageValueString as StorageValueUnencrypted,
         keyPairType: KeyPairType.Raw,
       };
+      return storageValue;
     } else if (storageValueString.startsWith("encrypted:")) {
       storageValue = {
         value: storageValueString as StorageValueEncrypted,
         keyPairType: KeyPairType.Encrypted,
       };
+      return storageValue;
     }
-    return storageValue;
   };
 
   getStorageValue = (): StorageValue => {
     return this.storageValue;
   };
 
-  getPublicKeyAsHex = (password?: string) => {
+  getPublicKeyAsHex = () => {
     const keyPairAsJsValue: KeyPairAsJsValue =
       this.keyPairPointer.from_pointer_to_js_value();
 
     return toHex(keyPairAsJsValue.public);
   };
 
-  getSecretKeyAsHex = (password?: string) => {
+  getSecretKeyAsHex = () => {
     const keyPairAsJsValue: KeyPairAsJsValue =
       this.keyPairPointer.from_pointer_to_js_value();
 
@@ -266,7 +272,6 @@ export class KeyPair {
     this.encryptedKeyPair = this.keyPairPointer.encrypt_with_password(password);
 
     // encode to hex string for persisting in the client
-
     const encryptedKeyPairAsHex = Buffer.from(this.encryptedKeyPair).toString(
       "hex"
     );
@@ -274,53 +279,11 @@ export class KeyPair {
   };
 }
 
-// utils for encodeing/decoding hex
-const HEX_STRINGS = "0123456789abcdef";
-const MAP_HEX = {
-  0: 0,
-  1: 1,
-  2: 2,
-  3: 3,
-  4: 4,
-  5: 5,
-  6: 6,
-  7: 7,
-  8: 8,
-  9: 9,
-  a: 10,
-  b: 11,
-  c: 12,
-  d: 13,
-  e: 14,
-  f: 15,
-  A: 10,
-  B: 11,
-  C: 12,
-  D: 13,
-  E: 14,
-  F: 15,
-};
-
 // Fast Uint8Array to hex
-function toHex(bytes) {
-  return Array.from(bytes || [])
-    .map((b: any) => HEX_STRINGS[b >> 4] + HEX_STRINGS[b & 15])
-    .join("");
+function toHex(bytes: Uint8Array) {
+  return Buffer.from(bytes).toString("hex");
 }
 
-// Mimics Buffer.from(x, 'hex') logic
-// Stops on first non-hex string and returns
-// https://github.com/nodejs/node/blob/v14.18.1/src/string_bytes.cc#L246-L261
-function fromHex(hexString) {
-  const bytes = new Uint8Array(Math.floor((hexString || "").length / 2));
-  let i;
-  for (i = 0; i < bytes.length; i++) {
-    const a = MAP_HEX[hexString[i * 2]];
-    const b = MAP_HEX[hexString[i * 2 + 1]];
-    if (a === undefined || b === undefined) {
-      break;
-    }
-    bytes[i] = (a << 4) | b;
-  }
-  return i === bytes.length ? bytes : bytes.slice(0, i);
+function fromHex(hexString: string): Uint8Array {
+  return Buffer.from(hexString, "hex");
 }
