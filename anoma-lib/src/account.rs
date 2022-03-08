@@ -10,12 +10,30 @@ use anoma::types::{
 use borsh::BorshSerialize;
 use serde::{Serialize, Deserialize};
 use wasm_bindgen::prelude::*;
+use std::str::FromStr;
+
+use bip0039::{Mnemonic, Seed, Language};
+use tiny_hderive::{
+    bip32::ExtendedPrivKey,
+    bip44::{ChildNumber, DerivationPath, IntoDerivationPath},
+};
 
 #[derive(Serialize,Deserialize)]
 pub struct Account(pub Transaction);
 
+#[derive(Serialize, Deserialize)]
+pub struct ExtPrivKey {
+    secret: [u8; 32],
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct ChildAccount {
+    xpriv: ExtPrivKey,
+}
+
 #[wasm_bindgen]
 impl Account {
+    /// Initialize an account on the Ledger
     pub fn init(
         serialized_keypair: JsValue,
         token: String,
@@ -47,5 +65,31 @@ impl Account {
             tx_code,
             data
         ).unwrap())).unwrap())
+    }
+
+    /// Derive a child account
+    pub fn derive(
+        phrase: String,
+        password: String,
+        path: String,
+        child: String) -> Result<JsValue, JsValue> {
+        // Validates mnemonic phrase
+        let mnemonic = Mnemonic::from_phrase(phrase, Language::English).unwrap();
+        let seed = Seed::new(&mnemonic, &password);
+        let seed: &[u8] = seed.as_bytes();
+
+        let derivation_path: DerivationPath = IntoDerivationPath::into(&*path)
+            .expect("Should create a DerivationPath type");
+
+        let ext = ExtendedPrivKey::derive(seed, derivation_path).unwrap();
+        let child_ext = ext.child(ChildNumber::from_str(&child).unwrap()).unwrap();
+
+        let child_account = ChildAccount {
+            xpriv: ExtPrivKey {
+                secret: child_ext.secret(),
+            }
+        };
+
+        Ok(JsValue::from_serde(&child_account).unwrap())
     }
 }

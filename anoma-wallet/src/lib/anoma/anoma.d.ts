@@ -6,6 +6,7 @@ export function run(): void;
 export class Account {
   free(): void;
 /**
+* Initialize an account on the Ledger
 * @param {any} serialized_keypair
 * @param {string} token
 * @param {number} epoch
@@ -16,6 +17,15 @@ export class Account {
 * @returns {any}
 */
   static init(serialized_keypair: any, token: string, epoch: number, fee_amount: number, gas_limit: number, tx_code: Uint8Array, vp_code: Uint8Array): any;
+/**
+* Derive a child account
+* @param {string} phrase
+* @param {string} password
+* @param {string} path
+* @param {string} child
+* @returns {any}
+*/
+  static derive(phrase: string, password: string, path: string, child: string): any;
 }
 /**
 */
@@ -85,6 +95,8 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
+  readonly account_init: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number) => void;
+  readonly account_derive: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => void;
   readonly __wbg_tx_free: (a: number) => void;
   readonly __wbg_wrappertx_free: (a: number) => void;
   readonly __wbg_keypair_free: (a: number) => void;
@@ -96,7 +108,6 @@ export interface InitOutput {
   readonly address_encoded: (a: number, b: number) => void;
   readonly address_from_keypair: (a: number) => number;
   readonly address_decode: (a: number, b: number, c: number) => void;
-  readonly account_init: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number) => void;
   readonly run: () => void;
   readonly __wbindgen_malloc: (a: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number) => number;
