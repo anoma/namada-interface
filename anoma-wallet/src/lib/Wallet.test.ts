@@ -44,18 +44,41 @@ describe("Wallet class", () => {
     );
   });
 
-  test("Wallet should produce the correct BIP32 Root Key and extended keys", async () => {
+  test("Wallet should produce the correct BIP32 Root Key", async () => {
     const wallet = await new Wallet(MNEMONIC_24, "BTC").init();
-    const { root_key, xpriv, xpub } = wallet.serialized;
+    const { root_key } = wallet.serialized;
 
+    // Bip32 Root Key
     expect(root_key).toBe(
       // eslint-disable-next-line max-len
       "xprv9s21ZrQH143K2nNmvrGtqZCbH6yQuqeH3r8vnQwpREXdvUYn6q52CcLryyzXn7fP6CLqct57zWGdXaYWwPTZh6DhdSeriaNSD8FNZpjCjYC"
     );
+  });
+
+  test("Wallet should generate the correct Account Extended Keys", async () => {
+    const wallet = await new Wallet(MNEMONIC_24, "BTC").init();
+    const { xpriv, xpub } = wallet.account;
+
+    expect(xpriv).toBe(
+      // eslint-disable-next-line max-len
+      "xprv9xg3gheKiCPMDqi2SQcAKxJeseeZA9axa44mpErUcgYaU8bLitnb9MpD84K2xF6Ju2kkWtNKP1PvvvAiq8aN3CwR58pJjdWQXQRa769U6sJ"
+    );
+    expect(xpub).toBe(
+      // eslint-disable-next-line max-len
+      "xpub6BfQ6DBDYZweSKnVYS9Ah6FPRgV3ZcJowGzNcdG6B25ZLvvVGS6qhA8gyMbqewueUu4sLk2CEPUwFTst1UMcyfm83VQUAQFLXC3AxRLXTEL"
+    );
+  });
+
+  test("Wallet should generate the correct BIP32 Extended Keys", async () => {
+    const wallet = await new Wallet(MNEMONIC_24, "BTC").init();
+    const { xpriv, xpub } = wallet.extended;
+
+    // Bip32 Extended Private Key
     expect(xpriv).toBe(
       // eslint-disable-next-line max-len
       "xprv9zjJ1S9riY38bWqL7oGqdXi6r5E35grYZSxiyQB1zwBey3PJXo4wXZhv19YDL7Km23wzG3PCnNdUGsntEcFrVFqNoKYD5NA2tYZTvgt9Fjx"
     );
+    // Bip32 Extended Public Key
     expect(xpub).toBe(
       // eslint-disable-next-line max-len
       "xpub6DieQwgkYubRozuoDpoqzfeqQ74XV9aPvftKmnadZGidqqiT5LPC5N2PrS8KYaoLMk851qkp3JbnveTtmSXRGyoRwhT5QSMiko3mek4ZsWH"

@@ -3,10 +3,11 @@
 export const memory: WebAssembly.Memory;
 export function __wbg_wallet_free(a: number): void;
 export function __wbg_bip32keys_free(a: number): void;
-export function wallet_new(a: number, b: number, c: number, d: number, e: number, f: number): number;
-export function wallet_serialize(a: number, b: number): void;
+export function wallet_new(a: number, b: number, c: number, d: number): number;
 export function wallet_derive(a: number, b: number, c: number, d: number, e: number, f: number): void;
-export function wallet_make_extended_keys(a: number, b: number, c: number, d: number): number;
+export function wallet_make_extended_keys(a: number, b: number, c: number): number;
+export function wallet_serialize(a: number, b: number): void;
+export function wallet_extended_keys(a: number, b: number, c: number, d: number): void;
 export function __wbg_address_free(a: number): void;
 export function address_encoded(a: number, b: number): void;
 export function address_from_keypair(a: number): number;

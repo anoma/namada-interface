@@ -5,22 +5,20 @@ import AnomaClient, { WalletType } from "./AnomaClient";
 
 type WalletData = {
   root_key: string;
-  xpriv: string;
-  xpub: string;
   seed: number[];
   phrase: string;
   password: string;
 };
 
-type ChildAccount = {
+type Bip32Keys = {
   xpriv: string;
   xpub: string;
-  privateKey: string;
-  publicKey: string;
+  privateKey?: string;
+  publicKey?: string;
 };
 
 type AccountType = {
-  [type: number]: ChildAccount[];
+  [type: number]: Bip32Keys[];
 };
 
 class Wallet {
@@ -37,18 +35,16 @@ class Wallet {
   public async init(): Promise<Wallet> {
     const anoma = await new AnomaClient().init();
 
-    this._wallet = anoma.wallet.new(
-      this._mnemonic,
-      "",
-      Wallet.makePath({ type: Tokens[this._token].type })
-    );
+    this._wallet = anoma.wallet.new(this._mnemonic, "");
     return this;
   }
 
   /**
    * Derive a new child account using mnemonic
+   * NOTE: A "child" account is represented as a
+   * set of Bip32 keys derived from our root account
    */
-  public new(isHardened = true): ChildAccount {
+  public new(isHardened = true): Bip32Keys {
     const { type } = Tokens[this._token];
     if (!this._accounts[type]) {
       this._accounts[type] = [];
@@ -65,7 +61,7 @@ class Wallet {
       public_key: publicKey,
     } = childAccount;
 
-    const child: ChildAccount = {
+    const child: Bip32Keys = {
       xpriv,
       xpub,
       privateKey: bs58.encode(privateKey),
@@ -78,16 +74,56 @@ class Wallet {
   }
 
   /**
+   * Get Bip32 Extended Private and Public keys
+   */
+  public get extended(): Bip32Keys {
+    const path = Wallet.makePath({
+      type: Tokens[this._token].type,
+    });
+    const { xpriv, xpub }: Bip32Keys = this._wallet?.extended_keys(path);
+
+    return {
+      xpriv,
+      xpub,
+    };
+  }
+
+  /**
+   * Get Account Extended Keys
+   */
+  public get account(): Bip32Keys {
+    const path = Wallet.makePath({
+      type: Tokens[this._token].type,
+      change: null,
+    });
+    const { xpriv, xpub }: Bip32Keys = this._wallet?.extended_keys(path);
+
+    return {
+      xpriv,
+      xpub,
+    };
+  }
+  /**
    * Get all accounts from instance
    */
   public get accounts(): AccountType {
     return this._accounts;
   }
 
+  /**
+   * Get serialized Wallet struct
+   * - root_key
+   * - seed
+   * - phrase
+   * - password
+   */
   public get serialized(): WalletData {
     return this._wallet?.serialize();
   }
 
+  /**
+   * Get seed as hexadecimal value
+   */
   public get seed(): string {
     const wallet = this._wallet?.serialize();
     return toHex(new Uint8Array(wallet.seed));
@@ -104,8 +140,18 @@ class Wallet {
    * 0 = 0,
    * 0' = 2147483648
    */
-  public static makePath({ type = 0, account = 0, change = 0 }): string {
-    return `m/44'/${type}'/${account}'/${change}`;
+  public static makePath({
+    type = 0,
+    account = 0,
+    change = 0,
+  }: {
+    type: number;
+    account?: number;
+    change?: number | null;
+  }): string {
+    return `m/44'/${type}'/${account}'${
+      change !== null ? "/" + change + "" : ""
+    }`;
   }
 }
 

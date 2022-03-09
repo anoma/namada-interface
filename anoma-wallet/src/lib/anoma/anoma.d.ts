@@ -88,15 +88,9 @@ export class Wallet {
 /**
 * @param {string} phrase
 * @param {string} password
-* @param {string} path
 * @returns {Wallet}
 */
-  static new(phrase: string, password: string, path: string): Wallet;
-/**
-* Get serialized Wallet
-* @returns {any}
-*/
-  serialize(): any;
+  static new(phrase: string, password: string): Wallet;
 /**
 * Derive a child account
 * @param {string} path
@@ -106,11 +100,21 @@ export class Wallet {
   derive(path: string, child: string): any;
 /**
 * Derive extended keys from a seed and a path
-* @param {Uint8Array} seed
 * @param {string} path
 * @returns {Bip32Keys}
 */
-  static make_extended_keys(seed: Uint8Array, path: string): Bip32Keys;
+  make_extended_keys(path: string): Bip32Keys;
+/**
+* Get serialized Wallet
+* @returns {any}
+*/
+  serialize(): any;
+/**
+* Serializable extended keys
+* @param {string} path
+* @returns {any}
+*/
+  extended_keys(path: string): any;
 }
 /**
 */
@@ -124,10 +128,11 @@ export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly __wbg_wallet_free: (a: number) => void;
   readonly __wbg_bip32keys_free: (a: number) => void;
-  readonly wallet_new: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
-  readonly wallet_serialize: (a: number, b: number) => void;
+  readonly wallet_new: (a: number, b: number, c: number, d: number) => number;
   readonly wallet_derive: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
-  readonly wallet_make_extended_keys: (a: number, b: number, c: number, d: number) => number;
+  readonly wallet_make_extended_keys: (a: number, b: number, c: number) => number;
+  readonly wallet_serialize: (a: number, b: number) => void;
+  readonly wallet_extended_keys: (a: number, b: number, c: number, d: number) => void;
   readonly __wbg_address_free: (a: number) => void;
   readonly address_encoded: (a: number, b: number) => void;
   readonly address_from_keypair: (a: number) => number;

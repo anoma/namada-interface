@@ -1,14 +1,12 @@
 use serde::{Serialize, Deserialize};
 use bip0039::{Mnemonic, Seed, Language};
-use bip32::{self, Prefix, XPrv};
+use bip32::{Prefix, XPrv};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 #[derive(Serialize, Deserialize)]
 pub struct Wallet {
     root_key: String,
-    xpriv: String,
-    xpub: String,
     seed: Vec<u8>,
     phrase: String,
     password: String,
@@ -27,8 +25,7 @@ pub struct Bip32Keys {
 impl Wallet {
     pub fn new(
         phrase: String,
-        password: String,
-        path: String) -> Wallet {
+        password: String) -> Wallet {
 
         let mnemonic = Mnemonic::from_phrase(&phrase, Language::English).unwrap();
         let seed = Seed::new(&mnemonic, &password);
@@ -38,41 +35,29 @@ impl Wallet {
         let root_xprv = XPrv::new(&seed);
         let root_xprv_str = root_xprv.unwrap().to_string(Prefix::XPRV).to_string();
 
-        // BIP32 Extended Keys (Private/Public)
-        let keys = Wallet::make_extended_keys(seed, path);
-
         Wallet {
             phrase,
             password,
             seed: seed.to_vec(),
             root_key: root_xprv_str,
-            xpriv: keys.xpriv,
-            xpub: keys.xpub,
         }
     }
 
-    /// Get serialized Wallet
-    #[wasm_bindgen]
-    pub fn serialize(&self) -> Result<JsValue, JsValue> {
-        Ok(JsValue::from_serde(&self).unwrap())
-    }
-
     /// Derive a child account
-    #[wasm_bindgen]
     pub fn derive(
         &self,
         path: String,
         child: String) -> Result<JsValue, JsValue> {
 
-        let seed: &[u8] = &self.seed;
         let path = format!("{}/{}", &path, &child);
-        let child_account = Wallet::make_extended_keys(seed, path);
+        let child_account = &self.make_extended_keys(path);
 
         Ok(JsValue::from_serde(&child_account).unwrap())
     }
 
     /// Derive extended keys from a seed and a path
-    pub fn make_extended_keys(seed: &[u8], path: String) -> Bip32Keys {
+    pub fn make_extended_keys(&self, path: String) -> Bip32Keys {
+        let seed: &[u8] = &self.seed;
         // BIP32 Extended Private Key
         let xprv = XPrv::derive_from_path(&seed, &path.parse().unwrap()).unwrap();
         let xprv_str = xprv.to_string(Prefix::XPRV).to_string();
@@ -87,5 +72,16 @@ impl Wallet {
             private_key: xprv.private_key().to_bytes().to_vec(),
             public_key: xpub.public_key().to_bytes().to_vec()
         }
+    }
+
+    /// Get serialized Wallet
+    pub fn serialize(&self) -> Result<JsValue, JsValue> {
+        Ok(JsValue::from_serde(&self).expect("Wallet should serialize correctly"))
+    }
+
+    /// Serializable extended keys
+    pub fn extended_keys(&self, path: String) -> Result<JsValue, JsValue> {
+        let keys = &self.make_extended_keys(path);
+        Ok(JsValue::from_serde(&keys).unwrap())
     }
 }
