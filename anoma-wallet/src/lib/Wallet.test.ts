@@ -5,17 +5,17 @@ const MNEMONIC_24 =
   // eslint-disable-next-line max-len
   "caught pig embody hip goose like become worry face oval manual flame pizza steel viable proud eternal speed chapter sunny boat because view bullet";
 
-describe("Accounts class", () => {
+describe("Wallet class", () => {
   test("It should derive a child pub/priv key from mnemonic", async () => {
-    const accounts = await new Wallet(MNEMONIC_24, "BTC").init();
+    const wallet = await new Wallet(MNEMONIC_24, "BTC").init();
     const type = 0;
 
-    const child1 = accounts.new();
-    const child2 = accounts.new();
+    const child1 = wallet.new();
+    const child2 = wallet.new();
 
     expect(child1.secret).toBe("F4bWCLdKybk4DGtphKo1DCKTVQTryEzMMcLFGmatNUhW");
     expect(child2.secret).toBe("EeRD8M8ShT1gkDiT7xQTz8CzpakoX9CHhgJdRWWshLQC");
-    expect(accounts.accounts[type].length).toBe(2);
+    expect(wallet.accounts[type].length).toBe(2);
   });
 
   test("It should return a hexadecimal seed from mnemonic phrase", async () => {
@@ -27,7 +27,7 @@ describe("Accounts class", () => {
     );
   });
 
-  test("makePath should return a correct base derivation path", () => {
+  test("Wallet.makePath should return a correct base derivation path", () => {
     const expectedBtc = "m/44'/0'/0'/0";
     const pathBtc = Wallet.makePath({ type: Tokens["BTC"].type });
     expect(pathBtc).toBe(expectedBtc);
