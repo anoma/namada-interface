@@ -17,21 +17,6 @@ export class Account {
 * @returns {any}
 */
   static init(serialized_keypair: any, token: string, epoch: number, fee_amount: number, gas_limit: number, tx_code: Uint8Array, vp_code: Uint8Array): any;
-/**
-* @param {string} phrase
-* @param {string} password
-* @returns {any}
-*/
-  static seed_from_mnemonic(phrase: string, password: string): any;
-/**
-* Derive a child account
-* @param {string} phrase
-* @param {string} password
-* @param {string} path
-* @param {string} child
-* @returns {any}
-*/
-  static derive(phrase: string, password: string, path: string, child: string): any;
 }
 /**
 */
@@ -93,6 +78,30 @@ export class Tx {
 }
 /**
 */
+export class Wallet {
+  free(): void;
+/**
+* @param {string} phrase
+* @param {string} password
+* @param {string} path
+* @returns {Wallet}
+*/
+  static new(phrase: string, password: string, path: string): Wallet;
+/**
+* Get deserialized Wallet
+* @returns {any}
+*/
+  serialize(): any;
+/**
+* Derive a child account
+* @param {string} path
+* @param {string} child
+* @returns {any}
+*/
+  derive(path: string, child: string): any;
+}
+/**
+*/
 export class WrapperTx {
   free(): void;
 }
@@ -101,10 +110,12 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
-  readonly account_init: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number) => void;
-  readonly account_seed_from_mnemonic: (a: number, b: number, c: number, d: number) => number;
-  readonly account_derive: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => void;
+  readonly __wbg_wallet_free: (a: number) => void;
+  readonly wallet_new: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
+  readonly wallet_serialize: (a: number, b: number) => void;
+  readonly wallet_derive: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
   readonly run: () => void;
+  readonly account_init: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number) => void;
   readonly __wbg_tx_free: (a: number) => void;
   readonly __wbg_wrappertx_free: (a: number) => void;
   readonly __wbg_keypair_free: (a: number) => void;

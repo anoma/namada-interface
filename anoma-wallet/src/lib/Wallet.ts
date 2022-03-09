@@ -1,7 +1,7 @@
 import { toHex } from "@cosmjs/encoding";
 import * as bs58 from "bs58";
 import { Tokens, TokenType } from "constants/";
-import AnomaClient from "./AnomaClient";
+import AnomaClient, { WalletType } from "./AnomaClient";
 
 type ChildAccount = {
   secret: string;
@@ -13,46 +13,49 @@ type AccountType = {
   [type: number]: ChildAccount[];
 };
 
-class Accounts {
+class Wallet {
   private _mnemonic: string;
   private _client: AnomaClient | undefined;
+  private _wallet: WalletType | undefined;
   private _accounts: AccountType = {};
+  private _token: TokenType;
 
-  constructor(mnemonic: string) {
+  constructor(mnemonic: string, token: TokenType) {
     this._mnemonic = mnemonic;
+    this._token = token;
   }
 
-  public async init(): Promise<Accounts> {
+  public async init(): Promise<Wallet> {
     this._client = await new AnomaClient().init();
+
+    this._wallet = this._client.wallet.new(
+      this._mnemonic,
+      "",
+      Wallet.makePath({ type: Tokens[this._token].type })
+    );
     return this;
   }
 
   /**
    * Derive a new child account using mnemonic
    */
-  public new(token: TokenType, isHardened = true): ChildAccount {
-    const { type } = Tokens[token];
+  public new(isHardened = true): ChildAccount {
+    const { type } = Tokens[this._token];
     if (!this._accounts[type]) {
       this._accounts[type] = [];
     }
 
     const index = `${this._accounts[type].length}${isHardened ? "'" : ""}`;
-    const path = Accounts.makePath({ type });
+    const path = Wallet.makePath({ type });
 
-    const childAccount = this._client?.account.derive(
-      this._mnemonic,
-      "", // Password ???
-      path,
-      index
-    );
-
-    const { secret, address, public_key, xpriv } = childAccount;
+    const childAccount = this._wallet?.derive(path, index);
+    console.log({ childAccount });
+    const { secret, address, public_key } = childAccount;
 
     const child = {
       secret: bs58.encode(secret), // 32
       address: bs58.encode(address), // 20
       public: toHex(public_key), // 64
-      xpriv: bs58.encode(xpriv), // 32
     };
 
     this._accounts[type].push(child);
@@ -67,29 +70,29 @@ class Accounts {
     return this._accounts;
   }
 
-  /**
-   * Get the hexadecimal seed produced by the mnemonic
-   */
+  public get serialized(): WalletType {
+    return this._wallet?.serialize();
+  }
+
   public get seed(): string {
-    return this._client?.account.seed_from_mnemonic(this._mnemonic, "");
+    const wallet = this._wallet?.serialize();
+    return toHex(new Uint8Array(wallet.seed));
   }
 
   /**
    * Creates a derivation path: m/44'/0'/0'/0
    * The index is later passed to the wasm to generate sub-accounts:
-   * - m/44'/0'/0'/0/0
-   * - m/44'/0'/0'/0/1
-   * - m/44'/0'/0'/0/2, etc.
+   * - m/44'/0'/0'/0/0'
+   * - m/44'/0'/0'/0/1'
+   * - m/44'/0'/0'/0/2', etc.
    *
    * NOTE:
    * 0 = 0,
    * 0' = 2147483648
    */
   public static makePath({ type = 0, account = 0, change = 0 }): string {
-    // NOTE: We are forcing purpose, coin_type, and account to use
-    // prime (0', etc.) here:
     return `m/44'/${type}'/${account}'/${change}`;
   }
 }
 
-export default Accounts;
+export default Wallet;

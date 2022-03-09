@@ -1,10 +1,12 @@
 /* tslint:disable */
 /* eslint-disable */
 export const memory: WebAssembly.Memory;
-export function account_init(a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number): void;
-export function account_seed_from_mnemonic(a: number, b: number, c: number, d: number): number;
-export function account_derive(a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number): void;
+export function __wbg_wallet_free(a: number): void;
+export function wallet_new(a: number, b: number, c: number, d: number, e: number, f: number): number;
+export function wallet_serialize(a: number, b: number): void;
+export function wallet_derive(a: number, b: number, c: number, d: number, e: number, f: number): void;
 export function run(): void;
+export function account_init(a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number): void;
 export function __wbg_tx_free(a: number): void;
 export function __wbg_wrappertx_free(a: number): void;
 export function __wbg_keypair_free(a: number): void;
