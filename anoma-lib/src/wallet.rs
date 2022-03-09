@@ -54,14 +54,7 @@ impl Wallet {
     /// Get serialized Wallet
     #[wasm_bindgen]
     pub fn serialize(&self) -> Result<JsValue, JsValue> {
-        Ok(JsValue::from_serde(&Wallet {
-            root_key: self.root_key.clone(),
-            xpriv: self.xpriv.clone(),
-            xpub: self.xpub.clone(),
-            seed: self.seed.clone(),
-            phrase: self.phrase.clone(),
-            password: self.password.clone()
-        }).unwrap())
+        Ok(JsValue::from_serde(&self).unwrap())
     }
 
     /// Derive a child account

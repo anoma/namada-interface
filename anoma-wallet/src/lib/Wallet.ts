@@ -25,7 +25,6 @@ type AccountType = {
 
 class Wallet {
   private _mnemonic: string;
-  private _client: AnomaClient | undefined;
   private _wallet: WalletType | undefined;
   private _accounts: AccountType = {};
   private _token: TokenType;
@@ -36,9 +35,9 @@ class Wallet {
   }
 
   public async init(): Promise<Wallet> {
-    this._client = await new AnomaClient().init();
+    const anoma = await new AnomaClient().init();
 
-    this._wallet = this._client.wallet.new(
+    this._wallet = anoma.wallet.new(
       this._mnemonic,
       "",
       Wallet.makePath({ type: Tokens[this._token].type })
