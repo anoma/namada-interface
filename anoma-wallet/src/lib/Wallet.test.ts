@@ -13,8 +13,12 @@ describe("Wallet class", () => {
     const child1 = wallet.new();
     const child2 = wallet.new();
 
-    expect(child1.secret).toBe("F4bWCLdKybk4DGtphKo1DCKTVQTryEzMMcLFGmatNUhW");
-    expect(child2.secret).toBe("EeRD8M8ShT1gkDiT7xQTz8CzpakoX9CHhgJdRWWshLQC");
+    expect(child1.publicKey).toBe(
+      "02ac3900403f7d59537edb3694abbdb7f9d334f4fe64ba27dc6b41dc7e298d0dc6"
+    );
+    expect(child2.publicKey).toBe(
+      "02a2bfde72171d5e78f23e9bf91a3a40493ba0685281afaa93f9d8222dec923d80"
+    );
     expect(wallet.accounts[type].length).toBe(2);
   });
 

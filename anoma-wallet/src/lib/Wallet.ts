@@ -4,9 +4,10 @@ import { Tokens, TokenType } from "constants/";
 import AnomaClient, { WalletType } from "./AnomaClient";
 
 type ChildAccount = {
-  secret: string;
-  address: string;
-  public: string;
+  xpriv: string;
+  xpub: string;
+  signingKey: string;
+  publicKey: string;
 };
 
 type AccountType = {
@@ -28,11 +29,7 @@ class Wallet {
   public async init(): Promise<Wallet> {
     this._client = await new AnomaClient().init();
 
-    this._wallet = this._client.wallet.new(
-      this._mnemonic,
-      "",
-      Wallet.makePath({ type: Tokens[this._token].type })
-    );
+    this._wallet = this._client.wallet.new(this._mnemonic, "");
     return this;
   }
 
@@ -49,13 +46,13 @@ class Wallet {
     const path = Wallet.makePath({ type });
 
     const childAccount = this._wallet?.derive(path, index);
-    console.log({ childAccount });
-    const { secret, address, public_key } = childAccount;
+    const { xpriv, xpub, signing_key, public_key } = childAccount;
 
-    const child = {
-      secret: bs58.encode(secret), // 32
-      address: bs58.encode(address), // 20
-      public: toHex(public_key), // 64
+    const child: ChildAccount = {
+      xpriv,
+      xpub,
+      signingKey: bs58.encode(signing_key),
+      publicKey: toHex(public_key),
     };
 
     this._accounts[type].push(child);

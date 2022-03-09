@@ -12,7 +12,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 anoma = { git = "https://github.com/anoma/anoma", tag  = "v0.4.0", features = ["rand", "ferveo-tpke"] }
-bip39 = "1.0.1"
+bip32 = "0.3.0"
 bip0039 = "0.6.0"
 borsh = "0.9.0"
 ed25519-dalek = {version = "1.0.1", default-features = false, features = ["rand", "u64_backend", "serde"]}
@@ -29,9 +29,6 @@ wasm-bindgen = { version = "0.2.78", features = ["serde-serialize"] }
 console_error_panic_hook = "0.1.7"
 js-sys = "0.3.5"
 chrono = "0.4.0"
-tiny-hderive = "0.3.0"
-ethsign = "0.8.0"
-base64 = "0.13.0"
 
 [dependencies.web-sys]
 version = "0.3"

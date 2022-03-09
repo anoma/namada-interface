@@ -1,20 +1,13 @@
 use serde::{Serialize, Deserialize};
 use wasm_bindgen::prelude::*;
-use std::str::FromStr;
-
 use bip0039::{Mnemonic, Seed, Language};
-use ethsign::SecretKey;
-use tiny_hderive::{
-    bip32::ExtendedPrivKey,
-    bip44::{ChildNumber, DerivationPath, IntoDerivationPath},
-};
-
-extern crate base64;
+use bip32::{self, Prefix, XPrv};
 
 #[wasm_bindgen]
 #[derive(Serialize, Deserialize)]
 pub struct Wallet {
-    xpriv: [u8; 32],
+    // xpriv: [u8; 32],
+    xpriv: String,
     seed: Vec<u8>,
     phrase: String,
     password: String,
@@ -22,8 +15,9 @@ pub struct Wallet {
 
 #[derive(Serialize, Deserialize)]
 pub struct ChildAccount {
-    secret: [u8; 32],
-    address: [u8; 20],
+    xpriv: String,
+    xpub: String,
+    signing_key: Vec<u8>,
     public_key: Vec<u8>,
 }
 
@@ -31,24 +25,21 @@ pub struct ChildAccount {
 impl Wallet {
     pub fn new(
         phrase: String,
-        password: String,
-        path: String) -> Wallet {
+        password: String) -> Wallet {
 
         let mnemonic = Mnemonic::from_phrase(&phrase, Language::English).unwrap();
         let seed = Seed::new(&mnemonic, &password);
 
-        let derivation_path: DerivationPath = IntoDerivationPath::into(&*path)
-            .expect("Should create a DerivationPath type");
-
         let seed: &[u8] = seed.as_bytes();
-        let ext = ExtendedPrivKey::derive(seed, derivation_path)
-            .expect("Should be able to derive Extended Private Key");
+
+        let root_xprv = XPrv::new(&seed);
+        let root_xprv_str = root_xprv.unwrap().to_string(Prefix::XPRV).to_string();
 
         Wallet {
             phrase,
             password,
             seed: seed.to_vec(),
-            xpriv: ext.secret()
+            xpriv: root_xprv_str,
         }
     }
 
@@ -56,7 +47,7 @@ impl Wallet {
     #[wasm_bindgen]
     pub fn serialize(&self) -> Result<JsValue, JsValue> {
         Ok(JsValue::from_serde(&Wallet {
-            xpriv: self.xpriv,
+            xpriv: self.xpriv.clone(),
             seed: self.seed.clone(),
             phrase: self.phrase.clone(),
             password: self.password.clone()
@@ -69,26 +60,25 @@ impl Wallet {
         &self,
         path: String,
         child: String) -> Result<JsValue, JsValue> {
-        // Validates mnemonic phrase
-
-        let derivation_path: DerivationPath = IntoDerivationPath::into(&*path)
-            .expect("Should create a DerivationPath type");
-
-        web_sys::console::log_1(&JsValue::from(&format!("{:?}", derivation_path)));
 
         let seed: &[u8] = &self.seed;
-        let ext = ExtendedPrivKey::derive(seed, derivation_path).unwrap();
-        let child_ext = ext.child(ChildNumber::from_str(&child).unwrap()).unwrap();
+        let path = format!("{}/{}", &path, &child);
 
-        let secret_key = SecretKey::from_raw(&child_ext.secret()).unwrap();
-        let public_key = secret_key.public();
-        let address = public_key.address();
-        let public = &public_key.bytes();
+        // Child - Private
+        // BIP32 Extended Private Key
+        let child_xprv = XPrv::derive_from_path(&seed, &path.parse().unwrap()).unwrap();
+        let child_xprv_str = child_xprv.to_string(Prefix::XPRV).to_string();
+
+        // Child - Public
+        // BIP32 Extended Public Key
+        let child_xpub = child_xprv.public_key();
+        let child_xpub_str = child_xpub.to_string(Prefix::XPUB);
 
         let child_account = ChildAccount {
-            secret: child_ext.secret(),
-            address: *address,
-            public_key: public.to_vec(),
+            xpriv: child_xprv_str,
+            xpub: child_xpub_str,
+            signing_key: child_xprv.private_key().to_bytes().to_vec(),
+            public_key: child_xpub.public_key().to_bytes().to_vec()
         };
 
         Ok(JsValue::from_serde(&child_account).unwrap())

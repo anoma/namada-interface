@@ -83,12 +83,11 @@ export class Wallet {
 /**
 * @param {string} phrase
 * @param {string} password
-* @param {string} path
 * @returns {Wallet}
 */
-  static new(phrase: string, password: string, path: string): Wallet;
+  static new(phrase: string, password: string): Wallet;
 /**
-* Get deserialized Wallet
+* Get serialized Wallet
 * @returns {any}
 */
   serialize(): any;
@@ -111,11 +110,15 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly __wbg_wallet_free: (a: number) => void;
-  readonly wallet_new: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
+  readonly wallet_new: (a: number, b: number, c: number, d: number) => number;
   readonly wallet_serialize: (a: number, b: number) => void;
   readonly wallet_derive: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
-  readonly run: () => void;
+  readonly __wbg_address_free: (a: number) => void;
+  readonly address_encoded: (a: number, b: number) => void;
+  readonly address_from_keypair: (a: number) => number;
+  readonly address_decode: (a: number, b: number, c: number) => void;
   readonly account_init: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number) => void;
+  readonly run: () => void;
   readonly __wbg_tx_free: (a: number) => void;
   readonly __wbg_wrappertx_free: (a: number) => void;
   readonly __wbg_keypair_free: (a: number) => void;
@@ -123,14 +126,6 @@ export interface InitOutput {
   readonly keypair_deserialize: (a: number, b: number) => void;
   readonly keypair_to_bytes: (a: number, b: number) => void;
   readonly transfer_new: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number) => void;
-  readonly __wbg_address_free: (a: number) => void;
-  readonly address_encoded: (a: number, b: number) => void;
-  readonly address_from_keypair: (a: number) => number;
-  readonly address_decode: (a: number, b: number, c: number) => void;
-  readonly rustsecp256k1_v0_4_1_context_create: (a: number) => number;
-  readonly rustsecp256k1_v0_4_1_context_destroy: (a: number) => void;
-  readonly rustsecp256k1_v0_4_1_default_illegal_callback_fn: (a: number, b: number) => void;
-  readonly rustsecp256k1_v0_4_1_default_error_callback_fn: (a: number, b: number) => void;
   readonly __wbindgen_malloc: (a: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number) => number;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
