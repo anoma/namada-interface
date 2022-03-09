@@ -30,6 +30,7 @@
     "wasm:build": "wasm-pack build ../anoma-lib/ --out-dir ../anoma-wallet/src/lib/anoma --out-name anoma --target web",
     "wasm:build:node": "wasm-pack build ../anoma-lib/ --out-dir ../anoma-wallet/src/lib/anoma --out-name anoma --target nodejs",
     "build": "npx wasm-react-scripts build",
+    "build-with-craco": "craco build",
     "lint": "npx eslint src --ext .ts,.tsx",
     "lint:fix": "yarn lint -- --fix",
     "test": "yarn wasm:build:node && npx wasm-react-scripts test",
