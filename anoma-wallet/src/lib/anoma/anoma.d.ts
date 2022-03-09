@@ -28,10 +28,10 @@ export class Account {
 * @param {string} phrase
 * @param {string} password
 * @param {string} path
-* @param {number} child
+* @param {string} child
 * @returns {any}
 */
-  static derive(phrase: string, password: string, path: string, child: number): any;
+  static derive(phrase: string, password: string, path: string, child: string): any;
 }
 /**
 */
@@ -103,7 +103,7 @@ export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly account_init: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number) => void;
   readonly account_seed_from_mnemonic: (a: number, b: number, c: number, d: number) => number;
-  readonly account_derive: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number) => void;
+  readonly account_derive: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => void;
   readonly run: () => void;
   readonly __wbg_tx_free: (a: number) => void;
   readonly __wbg_wrappertx_free: (a: number) => void;

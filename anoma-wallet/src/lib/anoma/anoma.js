@@ -280,7 +280,7 @@ export class Account {
     * @param {string} phrase
     * @param {string} password
     * @param {string} path
-    * @param {number} child
+    * @param {string} child
     * @returns {any}
     */
     static derive(phrase, password, path, child) {
@@ -292,7 +292,9 @@ export class Account {
             var len1 = WASM_VECTOR_LEN;
             var ptr2 = passStringToWasm0(path, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
             var len2 = WASM_VECTOR_LEN;
-            wasm.account_derive(retptr, ptr0, len0, ptr1, len1, ptr2, len2, child);
+            var ptr3 = passStringToWasm0(child, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            var len3 = WASM_VECTOR_LEN;
+            wasm.account_derive(retptr, ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3);
             var r0 = getInt32Memory0()[retptr / 4 + 0];
             var r1 = getInt32Memory0()[retptr / 4 + 1];
             var r2 = getInt32Memory0()[retptr / 4 + 2];

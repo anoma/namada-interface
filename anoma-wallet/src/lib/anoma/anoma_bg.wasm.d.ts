@@ -3,7 +3,7 @@
 export const memory: WebAssembly.Memory;
 export function account_init(a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number): void;
 export function account_seed_from_mnemonic(a: number, b: number, c: number, d: number): number;
-export function account_derive(a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number): void;
+export function account_derive(a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number): void;
 export function run(): void;
 export function __wbg_tx_free(a: number): void;
 export function __wbg_wrappertx_free(a: number): void;
