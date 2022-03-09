@@ -40,9 +40,11 @@ class Wallet {
   }
 
   /**
-   * Derive a new child account using mnemonic
+   * Derive a new child account using mnemonic. This
+   * uses hardened address by default.
+   *
    * NOTE: A "child" account is represented as a
-   * set of Bip32 keys derived from our root account
+   * set of Bip32 keys derived from our root account.
    */
   public new(isHardened = true): Bip32Keys {
     const { type } = Tokens[this._token];
@@ -74,6 +76,22 @@ class Wallet {
   }
 
   /**
+   * Get Account Extended Keys
+   */
+  public get account(): Bip32Keys {
+    const path = Wallet.makePath({
+      type: Tokens[this._token].type,
+      change: null,
+    });
+    const { xpriv, xpub }: Bip32Keys = this._wallet?.extended_keys(path);
+
+    return {
+      xpriv,
+      xpub,
+    };
+  }
+
+  /**
    * Get Bip32 Extended Private and Public keys
    */
   public get extended(): Bip32Keys {
@@ -89,21 +107,6 @@ class Wallet {
   }
 
   /**
-   * Get Account Extended Keys
-   */
-  public get account(): Bip32Keys {
-    const path = Wallet.makePath({
-      type: Tokens[this._token].type,
-      change: null,
-    });
-    const { xpriv, xpub }: Bip32Keys = this._wallet?.extended_keys(path);
-
-    return {
-      xpriv,
-      xpub,
-    };
-  }
-  /**
    * Get all accounts from instance
    */
   public get accounts(): AccountType {
@@ -111,18 +114,14 @@ class Wallet {
   }
 
   /**
-   * Get serialized Wallet struct
-   * - root_key
-   * - seed
-   * - phrase
-   * - password
+   * Get serialized Wallet struct data
    */
   public get serialized(): WalletData {
     return this._wallet?.serialize();
   }
 
   /**
-   * Get seed as hexadecimal value
+   * Get seed as a hexadecimal value
    */
   public get seed(): string {
     const wallet = this._wallet?.serialize();
@@ -135,6 +134,9 @@ class Wallet {
    * - m/44'/0'/0'/0/0'
    * - m/44'/0'/0'/0/1'
    * - m/44'/0'/0'/0/2', etc.
+   *
+   * "change" can be nullified if wanting to generate Account-level
+   * keys, e.g., a path of m/44'/0'/0'
    *
    * NOTE:
    * 0 = 0,
