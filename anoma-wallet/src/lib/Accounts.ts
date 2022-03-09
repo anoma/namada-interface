@@ -37,7 +37,7 @@ class Accounts {
     }
 
     const index = `${this._accounts[type].length}${isHardened ? "'" : ""}`;
-    const path = Accounts.makePath(type);
+    const path = Accounts.makePath({ type });
 
     const childAccount = this._client?.account.derive(
       this._mnemonic,
@@ -82,10 +82,10 @@ class Accounts {
    * - m/44'/0'/0'/0/2, etc.
    *
    * NOTE:
-   * 0 = 0
+   * 0 = 0,
    * 0' = 2147483648
    */
-  public static makePath(type = 0, account = 0, change = 0): string {
+  public static makePath({ type = 0, account = 0, change = 0 }): string {
     // NOTE: We are forcing purpose, coin_type, and account to use
     // prime (0', etc.) here:
     return `m/44'/${type}'/${account}'/${change}`;

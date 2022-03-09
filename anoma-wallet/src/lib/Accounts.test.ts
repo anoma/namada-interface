@@ -31,15 +31,19 @@ describe("Accounts class", () => {
 
   test("makePath should return a correct base derivation path", () => {
     const expectedBtc = "m/44'/0'/0'/0";
-    const pathBtc = Accounts.makePath(Tokens["BTC"].type);
+    const pathBtc = Accounts.makePath({ type: Tokens["BTC"].type });
     expect(pathBtc).toBe(expectedBtc);
 
     const expectedEth = "m/44'/60'/0'/0";
-    const pathEth = Accounts.makePath(Tokens["ETH"].type);
+    const pathEth = Accounts.makePath({ type: Tokens["ETH"].type });
     expect(pathEth).toBe(expectedEth);
 
     const expected = "m/44'/60'/1'/1";
-    const path = Accounts.makePath(Tokens["ETH"].type, 1, 1);
+    const path = Accounts.makePath({
+      type: Tokens["ETH"].type,
+      account: 1,
+      change: 1,
+    });
     expect(path).toBe(expected);
   });
 });
