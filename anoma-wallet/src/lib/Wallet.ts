@@ -1,12 +1,21 @@
 import { toHex } from "@cosmjs/encoding";
-import * as bs58 from "bs58";
+import bs58 from "bs58";
 import { Tokens, TokenType } from "constants/";
 import AnomaClient, { WalletType } from "./AnomaClient";
+
+type WalletData = {
+  root_key: string;
+  xpriv: string;
+  xpub: string;
+  seed: number[];
+  phrase: string;
+  password: string;
+};
 
 type ChildAccount = {
   xpriv: string;
   xpub: string;
-  signingKey: string;
+  privateKey: string;
   publicKey: string;
 };
 
@@ -29,7 +38,11 @@ class Wallet {
   public async init(): Promise<Wallet> {
     this._client = await new AnomaClient().init();
 
-    this._wallet = this._client.wallet.new(this._mnemonic, "");
+    this._wallet = this._client.wallet.new(
+      this._mnemonic,
+      "",
+      Wallet.makePath({ type: Tokens[this._token].type })
+    );
     return this;
   }
 
@@ -46,13 +59,18 @@ class Wallet {
     const path = Wallet.makePath({ type });
 
     const childAccount = this._wallet?.derive(path, index);
-    const { xpriv, xpub, signing_key, public_key } = childAccount;
+    const {
+      xpriv,
+      xpub,
+      private_key: privateKey,
+      public_key: publicKey,
+    } = childAccount;
 
     const child: ChildAccount = {
       xpriv,
       xpub,
-      signingKey: bs58.encode(signing_key),
-      publicKey: toHex(public_key),
+      privateKey: bs58.encode(privateKey),
+      publicKey: toHex(publicKey),
     };
 
     this._accounts[type].push(child);
@@ -67,7 +85,7 @@ class Wallet {
     return this._accounts;
   }
 
-  public get serialized(): WalletType {
+  public get serialized(): WalletData {
     return this._wallet?.serialize();
   }
 
