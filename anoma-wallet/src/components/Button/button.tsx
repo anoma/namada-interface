@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { ContainedAltButton, ContainedButton, OutlinedButton, SmallButton } from "./button.component";
+import { ContainedAltButton, ContainedButton, OutlinedButton, SmallButton } from "./button.components";
 import { ButtonStyle } from "./types"
 
 export type ButtonProps = {

@@ -22,6 +22,7 @@ export const TextInput = styled.input<{ error: boolean }>`
 `;
 
 export const TextAreaInput = styled.textarea<{ error: boolean }>`
+  background-color: transparent;
   border-width: 2px;
   border-color: ${(props) =>
     props.error

@@ -1,5 +1,5 @@
 import { ChangeEventHandler } from "react";
-import { ErrorTooltip, Label, TextAreaInput, TextInput } from "./input.component";
+import { ErrorTooltip, Label, TextAreaInput, TextInput } from "./input.components";
 import { InputVariants } from "./types"
 
 export type InputProps = {
