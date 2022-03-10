@@ -14,6 +14,7 @@ export const MainSectionContainer = styled.div`
   height: 620px;
   width: 480px;
   border-radius: 24px;
+  overflow-x: hidden;
   ${(props) =>
     props.theme.themeConfigurations.isLightMode
       ? `border: solid 4px ${props.theme.colors.border}`
@@ -28,7 +29,7 @@ export const TopSection = styled.section`
   justify-content: start;
   width: 100%;
   align-items: center;
-  margin: 36px 0 30px 0;
+  margin: 0px 0 24px 0;
 `;
 
 export const TopSectionHeaderContainer = styled.section`
@@ -81,4 +82,11 @@ export const StyledTextArea = styled.textarea`
   outline-style: none;
   color: ${(props) => props.theme.colors.textPrimary};
   resize: none;
+`;
+
+export const RouteContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 `;

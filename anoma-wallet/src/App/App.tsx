@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { TopNavigation } from "./TopNavigation";
 import { MainSection } from "./MainSection";
-import { KeyManagement } from "./KeysManagement";
+import { AccountCreation } from "./AccountCreation";
 import {
   AppContainer,
   MainSectionContainer,
@@ -39,7 +39,7 @@ function App(): JSX.Element {
           <MainSectionContainer>
             <Routes>
               <Route path="/" element={<MainSection />} />
-              <Route path="/key-management" element={<KeyManagement />} />
+              <Route path="/account-creation/*" element={<AccountCreation />} />
             </Routes>
           </MainSectionContainer>
         </AppContainer>

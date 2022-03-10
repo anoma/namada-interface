@@ -49,7 +49,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
         {/* keys button */}
         <HelpButton
           onClick={() => {
-            navigate(`/key-management`);
+            navigate(`/account-creation`);
           }}
         >
           <HelpIconContainer>
