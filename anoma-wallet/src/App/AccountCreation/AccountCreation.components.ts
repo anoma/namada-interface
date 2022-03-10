@@ -1,5 +1,5 @@
 import styled from "styled-components/macro";
-
+import { motion } from "framer-motion";
 export const MainSectionContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -24,12 +24,17 @@ export const MainSectionContainer = styled.div`
   transition: background-color 0.3s linear;
 `;
 
+export const MotionContainer = styled(motion.div)`
+  height: 100%;
+  box-sizing: border-box;
+  padding: 0 0 64px 0;
+`;
 export const TopSection = styled.section`
   display: flex;
   justify-content: start;
-  width: 100%;
   align-items: center;
-  margin: 0px 0 24px 0;
+  width: 100%;
+  margin: 32px 0;
 `;
 
 export const TopSectionHeaderContainer = styled.section`
@@ -89,4 +94,5 @@ export const RouteContainer = styled.div`
   justify-content: center;
   align-items: center;
   width: 100%;
+  height: 100%;
 `;

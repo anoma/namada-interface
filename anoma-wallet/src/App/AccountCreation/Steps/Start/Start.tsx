@@ -1,14 +1,32 @@
-function Start(): JSX.Element {
+import { Button } from "components/Button";
+import {
+  StartViewContainer,
+  StartViewUpperPartContainer,
+  Header1,
+  BodyText,
+} from "./Start.components";
+type StartViewProps = {
+  onCtaClick: () => void;
+  onCtaHover: () => void;
+};
+
+function Start(props: StartViewProps): JSX.Element {
+  const { onCtaClick, onCtaHover } = props;
   return (
-    <div>
-      <h1>Start</h1>
-      <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Enim augue
-        aenean facilisi placerat laoreet sem faucibus curabitur. Posuere ut
-        porttitor eu auctor eu. Aenean faucibus non eleifend neque ullamcorper
-        viverra amet.
-      </p>
-    </div>
+    <StartViewContainer>
+      <StartViewUpperPartContainer>
+        <Header1>Create a new account</Header1>
+        <BodyText>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Enim augue
+          aenean facilisi placerat laoreet sem faucibus curabitur. Posuere ut
+          porttitor eu auctor eu. Aenean faucibus non eleifend neque ullamcorper
+          viverra amet.
+        </BodyText>
+      </StartViewUpperPartContainer>
+      <Button onClick={onCtaClick} onHover={onCtaHover}>
+        Create an Account
+      </Button>
+    </StartViewContainer>
   );
 }
 

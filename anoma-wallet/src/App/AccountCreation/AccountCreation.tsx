@@ -19,6 +19,7 @@ import {
   TopSectionButtonContainer,
   Headline,
   RouteContainer,
+  MotionContainer,
 } from "./AccountCreation.components";
 
 import {
@@ -114,14 +115,14 @@ const AnimatedTransition = (props: {
 }): JSX.Element => {
   const { children, elementKey, animationFromRightToLeft } = props;
   return (
-    <motion.div
+    <MotionContainer
       key={elementKey}
-      initial={{ opacity: 0, x: (animationFromRightToLeft ? 1 : -1) * 600 }}
+      initial={{ opacity: 0, x: (animationFromRightToLeft ? 1 : -1) * 450 }}
       animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: (animationFromRightToLeft ? -1 : 1) * 600 }}
+      exit={{ opacity: 0, x: (animationFromRightToLeft ? -1 : 1) * 450 }}
     >
-      <div style={{ width: "100%" }}>{children}</div>
-    </motion.div>
+      {children}
+    </MotionContainer>
   );
 };
 
@@ -142,17 +143,27 @@ function AccountCreation(): JSX.Element {
     navigate(`${accountCreationSteps[stepIndex]}`);
   }, []);
 
+  const navigateToNext = (): void => {
+    if (stepIndex >= accountCreationSteps.length - 1) return;
+    setStepIndex((stepIndex) => stepIndex + 1);
+    navigate(`${accountCreationSteps[stepIndex + 1]}`);
+  };
+
+  const navigateToPrevious = (): void => {
+    if (stepIndex === 0) return;
+    setStepIndex((stepIndex) => {
+      return stepIndex - 1;
+    });
+    navigate(`${accountCreationSteps[stepIndex - 1]}`);
+  };
+
   return (
     <MainSectionContainer>
       <TopSection>
         <TopSectionButtonContainer>
           <Button
             onClick={() => {
-              if (stepIndex === 0) return;
-              setStepIndex((stepIndex) => {
-                return stepIndex - 1;
-              });
-              navigate(`${accountCreationSteps[stepIndex - 1]}`);
+              navigateToPrevious();
             }}
             onHover={() => {
               setAnimationFromRightToLeft(false);
@@ -165,15 +176,11 @@ function AccountCreation(): JSX.Element {
             />
           </Button>
         </TopSectionButtonContainer>
-        <TopSectionHeaderContainer>
-          <Headline>Account Creation</Headline>
-        </TopSectionHeaderContainer>
+        <TopSectionHeaderContainer></TopSectionHeaderContainer>
         <TopSectionButtonContainer>
           <Button
             onClick={() => {
-              if (stepIndex >= accountCreationSteps.length - 1) return;
-              setStepIndex((stepIndex) => stepIndex + 1);
-              navigate(`${accountCreationSteps[stepIndex + 1]}`);
+              navigateToNext();
             }}
             onHover={() => {
               setAnimationFromRightToLeft(true);
@@ -197,7 +204,14 @@ function AccountCreation(): JSX.Element {
                   elementKey={AccountCreationStep.Start}
                   animationFromRightToLeft={animationFromRightToLeft}
                 >
-                  <Start />
+                  <Start
+                    onCtaClick={() => {
+                      navigateToNext();
+                    }}
+                    onCtaHover={() => {
+                      setAnimationFromRightToLeft(true);
+                    }}
+                  />
                 </AnimatedTransition>
               }
             />

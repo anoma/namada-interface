@@ -16,6 +16,7 @@ export const ButtonContainer = styled.button`
   min-height: 50px;
   min-width: 48px;
   border-radius: 999px;
+  font-weight: 600;
   transition: ${transition};
   &:hover {
     background-color: ${(props) => props.theme.colors.yellow1Hover};
