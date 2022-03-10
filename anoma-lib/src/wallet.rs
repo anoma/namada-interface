@@ -43,20 +43,8 @@ impl Wallet {
         }
     }
 
-    /// Derive a child account
-    pub fn derive(
-        &self,
-        path: String,
-        child: String) -> Result<JsValue, JsValue> {
-
-        let path = format!("{}/{}", &path, &child);
-        let child_account = &self.make_extended_keys(path);
-
-        Ok(JsValue::from_serde(&child_account).unwrap())
-    }
-
     /// Derive extended keys from a seed and a path
-    pub fn make_extended_keys(&self, path: String) -> Bip32Keys {
+    pub fn derive(&self, path: String) -> Bip32Keys {
         let seed: &[u8] = &self.seed;
         // BIP32 Extended Private Key
         let xprv = XPrv::derive_from_path(&seed, &path.parse().unwrap()).unwrap();
@@ -81,7 +69,7 @@ impl Wallet {
 
     /// Serializable extended keys
     pub fn extended_keys(&self, path: String) -> Result<JsValue, JsValue> {
-        let keys = &self.make_extended_keys(path);
+        let keys = &self.derive(path);
         Ok(JsValue::from_serde(&keys).unwrap())
     }
 }

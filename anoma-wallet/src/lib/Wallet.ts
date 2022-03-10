@@ -21,15 +21,22 @@ type AccountType = {
   [type: number]: Bip32Keys[];
 };
 
+type Path = {
+  type: number;
+  account?: number;
+  change?: number;
+  index?: string;
+};
+
 class Wallet {
   private _mnemonic: string;
   private _wallet: WalletType | undefined;
   private _accounts: AccountType = {};
-  private _token: TokenType;
+  private _tokenType: TokenType;
 
   constructor(mnemonic: string, token: TokenType) {
     this._mnemonic = mnemonic;
-    this._token = token;
+    this._tokenType = token;
   }
 
   public async init(): Promise<Wallet> {
@@ -47,15 +54,15 @@ class Wallet {
    * set of Bip32 keys derived from our root account.
    */
   public new(isHardened = true): Bip32Keys {
-    const { type } = Tokens[this._token];
+    const { type } = Tokens[this._tokenType];
     if (!this._accounts[type]) {
       this._accounts[type] = [];
     }
 
     const index = `${this._accounts[type].length}${isHardened ? "'" : ""}`;
-    const path = Wallet.makePath({ type });
+    const path = Wallet.makePath({ type, index });
 
-    const childAccount = this._wallet?.derive(path, index);
+    const childAccount = this._wallet?.extended_keys(path);
     const {
       xpriv,
       xpub,
@@ -80,8 +87,7 @@ class Wallet {
    */
   public get account(): Bip32Keys {
     const path = Wallet.makePath({
-      type: Tokens[this._token].type,
-      change: null,
+      type: Tokens[this._tokenType].type,
     });
     const { xpriv, xpub }: Bip32Keys = this._wallet?.extended_keys(path);
 
@@ -96,7 +102,8 @@ class Wallet {
    */
   public get extended(): Bip32Keys {
     const path = Wallet.makePath({
-      type: Tokens[this._token].type,
+      type: Tokens[this._tokenType].type,
+      change: 0,
     });
     const { xpriv, xpub }: Bip32Keys = this._wallet?.extended_keys(path);
 
@@ -145,15 +152,18 @@ class Wallet {
   public static makePath({
     type = 0,
     account = 0,
-    change = 0,
-  }: {
-    type: number;
-    account?: number;
-    change?: number | null;
-  }): string {
-    return `m/44'/${type}'/${account}'${
-      change !== null ? "/" + change + "" : ""
-    }`;
+    change,
+    index,
+  }: Path): string {
+    let path = `m/44'/${type}'/${account}'`;
+
+    if (index) {
+      path += `/${change ? change : 0}/${index}`;
+    } else if (typeof change === "number") {
+      path += `/${change}`;
+    }
+
+    return path;
   }
 }
 

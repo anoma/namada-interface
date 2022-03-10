@@ -522,39 +522,14 @@ export class Wallet {
         return Wallet.__wrap(ret);
     }
     /**
-    * Derive a child account
-    * @param {string} path
-    * @param {string} child
-    * @returns {any}
-    */
-    derive(path, child) {
-        try {
-            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            var ptr0 = passStringToWasm0(path, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-            var len0 = WASM_VECTOR_LEN;
-            var ptr1 = passStringToWasm0(child, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-            var len1 = WASM_VECTOR_LEN;
-            wasm.wallet_derive(retptr, this.ptr, ptr0, len0, ptr1, len1);
-            var r0 = getInt32Memory0()[retptr / 4 + 0];
-            var r1 = getInt32Memory0()[retptr / 4 + 1];
-            var r2 = getInt32Memory0()[retptr / 4 + 2];
-            if (r2) {
-                throw takeObject(r1);
-            }
-            return takeObject(r0);
-        } finally {
-            wasm.__wbindgen_add_to_stack_pointer(16);
-        }
-    }
-    /**
     * Derive extended keys from a seed and a path
     * @param {string} path
     * @returns {Bip32Keys}
     */
-    make_extended_keys(path) {
+    derive(path) {
         var ptr0 = passStringToWasm0(path, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         var len0 = WASM_VECTOR_LEN;
-        var ret = wasm.wallet_make_extended_keys(this.ptr, ptr0, len0);
+        var ret = wasm.wallet_derive(this.ptr, ptr0, len0);
         return Bip32Keys.__wrap(ret);
     }
     /**

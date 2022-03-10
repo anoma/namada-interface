@@ -87,11 +87,11 @@ describe("Wallet class", () => {
 
   test("Wallet.makePath should return a correct base derivation path", () => {
     const expectedBtc = "m/44'/0'/0'/0";
-    const pathBtc = Wallet.makePath({ type: Tokens["BTC"].type });
+    const pathBtc = Wallet.makePath({ type: Tokens["BTC"].type, change: 0 });
     expect(pathBtc).toBe(expectedBtc);
 
     const expectedEth = "m/44'/60'/0'/0";
-    const pathEth = Wallet.makePath({ type: Tokens["ETH"].type });
+    const pathEth = Wallet.makePath({ type: Tokens["ETH"].type, change: 0 });
     expect(pathEth).toBe(expectedEth);
 
     const expected = "m/44'/60'/1'/1";
