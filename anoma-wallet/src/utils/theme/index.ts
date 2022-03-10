@@ -22,6 +22,11 @@ type Colors = {
   buttonHover2: string;
   buttonHover3: string;
   buttonTextSmall: string;
+  inputText: string;
+  inputBorder: string;
+  inputPlaceholder: string;
+  inputError: string;
+  inputFocus: string;
 };
 
 export type Theme = {
@@ -49,6 +54,11 @@ export const darkColors: Colors = {
   buttonHover2: "#9A851F",
   buttonHover3: "#747477",
   buttonTextSmall: "#F5DD81",
+  inputBorder: "#727273",
+  inputText: "#e8e8e8",
+  inputPlaceholder: "#a2a2a5",
+  inputError: "#CF6679",
+  inputFocus: "#F5DD81",
 };
 
 export const lightColors: Colors = {
@@ -71,4 +81,9 @@ export const lightColors: Colors = {
   buttonHover2: "#f5cf67",
   buttonHover3: "#7f97b2",
   buttonTextSmall: "#EEAF02",
+  inputBorder: "#011F43",
+  inputText: "#011F43",
+  inputPlaceholder: "#8F9FB2",
+  inputError: "#EC4236",
+  inputFocus: "#2A517E",
 };
