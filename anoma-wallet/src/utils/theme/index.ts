@@ -9,6 +9,7 @@ type Colors = {
   border: string;
   borderShadow: string;
   textPrimary: string;
+  textSecondary: string;
   yellow1: string;
   yellow1Hover: string;
   buttonBorder: string;
@@ -28,7 +29,8 @@ export const darkColors: Colors = {
   background3: "#ffffff",
   border: "#727273",
   borderShadow: "#727273",
-  textPrimary: "#ffffff",
+  textPrimary: "#727273",
+  textSecondary: "#8F9FB2",
   yellow1: "#F5DD81",
   yellow1Hover: "#ffdc55",
   buttonBorder: "#CEB44F",
@@ -44,6 +46,7 @@ export const lightColors: Colors = {
   border: "#002046",
   borderShadow: "#002046",
   textPrimary: "#002046",
+  textSecondary: "#8F9FB2",
   yellow1: "#EEAF02",
   yellow1Hover: "#f8bf24",
   buttonBorder: "#002046",

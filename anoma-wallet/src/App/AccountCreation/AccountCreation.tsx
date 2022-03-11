@@ -9,26 +9,18 @@ import {
   Completion,
 } from "./Steps";
 import { AccountCreationStep, accountCreationSteps } from "./types";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { useContext } from "react";
 import { ThemeContext } from "styled-components";
 import {
   MainSectionContainer,
   TopSection,
   TopSectionHeaderContainer,
-  ContentContainer,
   TopSectionButtonContainer,
-  Headline,
   RouteContainer,
   MotionContainer,
 } from "./AccountCreation.components";
 
-import {
-  Mnemonic,
-  MnemonicLength,
-  KeyPair,
-  KeyPairType,
-} from "@anoma-wallet/key-management";
 import { Button } from "components/Button";
 import { Icon, IconName } from "components/Icon";
 
@@ -138,6 +130,8 @@ function AccountCreation(): JSX.Element {
   const [accountCreationDetails, setAccountCreationDetails] = React.useState(
     defaultAccountCreationDetails
   );
+
+  const [seedPhrase, setSeedPhrase] = React.useState<string[]>();
 
   const themeContext = useContext(ThemeContext);
   const navigate = useNavigate();
@@ -267,7 +261,17 @@ function AccountCreation(): JSX.Element {
                   elementKey={AccountCreationStep.SeedPhrase}
                   animationFromRightToLeft={animationFromRightToLeft}
                 >
-                  <SeedPhrase />
+                  <SeedPhrase
+                    accountCreationDetails={accountCreationDetails}
+                    defaultSeedPhrase={seedPhrase}
+                    onConfirmSavingOfSeedPhrase={(seedPhrase: string[]) => {
+                      setSeedPhrase(seedPhrase);
+                      navigateToNext();
+                    }}
+                    onCtaHover={() => {
+                      setAnimationFromRightToLeft(true);
+                    }}
+                  />
                 </AnimatedTransition>
               }
             />

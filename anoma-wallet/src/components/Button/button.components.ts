@@ -28,3 +28,27 @@ export const ButtonContainer = styled.button`
     cursor: default;
   }
 `;
+
+export const ButtonContainerText = styled.button`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 0 16px;
+  background: none;
+  cursor: pointer;
+  border: none;
+  height: 32px;
+  min-height: 32px;
+  min-width: 48px;
+  border-radius: 4px;
+  font-weight: 600;
+  transition: ${transition};
+  &:hover {
+    background-color: ${(props) => `${props.theme.colors.yellow1Hover}21`};
+  }
+  &:disabled {
+    background-color: ${(props) => props.theme.colors.buttonDisabledBackground};
+    cursor: default;
+  }
+`;
