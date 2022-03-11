@@ -3,6 +3,7 @@ import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import {
   Start,
   AccountInformation,
+  AccountCreationDetails,
   SeedPhrase,
   SeedPhraseConfirmation,
   Completion,
@@ -127,9 +128,21 @@ const AnimatedTransition = (props: {
 };
 
 function AccountCreation(): JSX.Element {
+  // account details defaults
+  const defaultAccountCreationDetails: AccountCreationDetails = {
+    seedPhraseLength: "12",
+    accountName: "",
+  };
+
+  // account details
+  const [accountCreationDetails, setAccountCreationDetails] = React.useState(
+    defaultAccountCreationDetails
+  );
+
   const themeContext = useContext(ThemeContext);
   const navigate = useNavigate();
   const [stepIndex, setStepIndex] = React.useState(0);
+
   // [1] <- |[2]| <- [3]
   const [animationFromRightToLeft, setAnimationFromRightToLeft] =
     React.useState(true);
@@ -177,7 +190,7 @@ function AccountCreation(): JSX.Element {
           </Button>
         </TopSectionButtonContainer>
         <TopSectionHeaderContainer></TopSectionHeaderContainer>
-        <TopSectionButtonContainer>
+        <TopSectionButtonContainer style={{ opacity: "0.05" }}>
           <Button
             onClick={() => {
               navigateToNext();
@@ -222,7 +235,28 @@ function AccountCreation(): JSX.Element {
                   elementKey={AccountCreationStep.AccountDetails}
                   animationFromRightToLeft={animationFromRightToLeft}
                 >
-                  <AccountInformation />
+                  <AccountInformation
+                    accountCreationDetails={accountCreationDetails}
+                    onSetAccountCreationDetails={(
+                      accountCreationDetailsDelta
+                    ) => {
+                      setAccountCreationDetails((accountCreationDetails) => {
+                        return {
+                          ...accountCreationDetails,
+                          ...accountCreationDetailsDelta,
+                        };
+                      });
+                    }}
+                    onSubmitAccountCreationDetails={(
+                      accountCreationDetails
+                    ) => {
+                      setAccountCreationDetails(accountCreationDetails);
+                      navigateToNext();
+                    }}
+                    onCtaHover={() => {
+                      setAnimationFromRightToLeft(true);
+                    }}
+                  />
                 </AnimatedTransition>
               }
             />

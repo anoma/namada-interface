@@ -23,4 +23,8 @@ export const ButtonContainer = styled.button`
     border: 2px solid ${(props) => props.theme.colors.buttonShadowHover};
     border-bottom: solid 4px ${(props) => props.theme.colors.buttonShadowHover};
   }
+  &:disabled {
+    background-color: ${(props) => props.theme.colors.buttonDisabledBackground};
+    cursor: default;
+  }
 `;

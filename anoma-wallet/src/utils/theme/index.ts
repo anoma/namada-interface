@@ -14,6 +14,7 @@ type Colors = {
   buttonBorder: string;
   buttonShadow: string;
   buttonShadowHover: string;
+  buttonDisabledBackground: string;
 };
 
 export type Theme = {
@@ -33,6 +34,7 @@ export const darkColors: Colors = {
   buttonBorder: "#CEB44F",
   buttonShadow: "#CEB44F",
   buttonShadowHover: "#CEB44F",
+  buttonDisabledBackground: "#c7c7c7",
 };
 
 export const lightColors: Colors = {
@@ -47,4 +49,5 @@ export const lightColors: Colors = {
   buttonBorder: "#002046",
   buttonShadow: "#002046",
   buttonShadowHover: "#002046",
+  buttonDisabledBackground: "#c7c7c7",
 };

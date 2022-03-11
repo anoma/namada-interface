@@ -5,6 +5,7 @@ export type ButtonProps = {
   // cb for when clicked
   onClick: () => void;
   onHover?: () => void;
+  disabled?: boolean;
   style?: CSSProperties;
   children?: React.ReactNode;
 };
@@ -20,6 +21,7 @@ const Button: React.FunctionComponent<ButtonProps> = (props: ButtonProps) => {
     },
     children,
     style,
+    disabled,
   } = props;
 
   return (
@@ -32,6 +34,7 @@ const Button: React.FunctionComponent<ButtonProps> = (props: ButtonProps) => {
         onHover();
       }}
       style={style}
+      disabled={disabled}
     >
       {children}
     </ButtonContainer>
