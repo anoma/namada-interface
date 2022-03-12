@@ -27,6 +27,8 @@ type Colors = {
   inputPlaceholder: string;
   inputError: string;
   inputFocus: string;
+  wordchip: string;
+  wordchipText: string;
 };
 
 export type Theme = {
@@ -59,6 +61,8 @@ export const darkColors: Colors = {
   inputPlaceholder: "#a2a2a5",
   inputError: "#CF6679",
   inputFocus: "#F5DD81",
+  wordchip: "#727273",
+  wordchipText: "#e8e8e8",
 };
 
 export const lightColors: Colors = {
@@ -86,4 +90,6 @@ export const lightColors: Colors = {
   inputPlaceholder: "#8F9FB2",
   inputError: "#EC4236",
   inputFocus: "#2A517E",
+  wordchip: "#8F9FB2",
+  wordchipText: "#011F43",
 };
