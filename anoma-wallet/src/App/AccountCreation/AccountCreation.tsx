@@ -1,6 +1,12 @@
 import React from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import {
+  KeyPair,
+  KeyPairType,
+  Mnemonic,
+  MnemonicLength,
+} from "@anoma-wallet/key-management";
+import {
   Start,
   AccountInformation,
   AccountCreationDetails,
@@ -25,81 +31,6 @@ import { Button } from "components/Button";
 import { Icon, IconName } from "components/Icon";
 
 const LOCAL_STORAGE_STORAGE_VALUE_KEY = "localStorageStorageValue";
-
-// function AccountCreation_(): JSX.Element {
-//   const [publicKey, setPublicKey] = React.useState("");
-//   const [secretKey, setSecretKey] = React.useState("");
-//   const [mnemonic, setMnemonic] = React.useState("");
-//   const [storageValue, setStorageValue] = React.useState("");
-//   React.useEffect(() => {
-//     const init = async (): Promise<void> => {
-//       let keyPair;
-//       const persistedStorageValue = localStorage.getItem(
-//         LOCAL_STORAGE_STORAGE_VALUE_KEY
-//       );
-//       if (persistedStorageValue) {
-//         const storageValue = KeyPair.storageValueStringToStorageValue(
-//           persistedStorageValue
-//         );
-//         if (storageValue?.keyPairType === KeyPairType.Encrypted) {
-//           const passwordToDecrypt =
-//             prompt("Please a password to decrypt the keys") || "";
-
-//           try {
-//             keyPair = await KeyPair.fromStorageValue(
-//               storageValue,
-//               KeyPairType.Encrypted,
-//               passwordToDecrypt
-//             );
-//           } catch {
-//             setStorageValue(storageValue.value);
-//             setPublicKey("You provided wrong password");
-//             setSecretKey("You provided wrong password");
-//             return;
-//           }
-//         } else if (storageValue) {
-//           keyPair = await KeyPair.fromStorageValue(
-//             storageValue,
-//             KeyPairType.Raw
-//           );
-//         } else {
-//           return;
-//         }
-//       } else {
-//         const mnemonic = await Mnemonic.fromMnemonic(MnemonicLength.TwentyFour);
-//         // we need a password to encrypt the value
-//         const passwordToEncrypt =
-//           prompt("Please enter a password to encrypt the keys") || "";
-//         keyPair = KeyPair.fromMnemonic(mnemonic, passwordToEncrypt);
-//         setMnemonic(mnemonic.value);
-//       }
-
-//       const keyPairStorageString = keyPair.getStorageValue();
-
-//       localStorage.setItem(
-//         LOCAL_STORAGE_STORAGE_VALUE_KEY,
-//         keyPairStorageString.value
-//       );
-
-//       // setMnemonic(mnemonic.value);
-//       setStorageValue(keyPairStorageString.value);
-//       if (keyPair) {
-//         setPublicKey(keyPair.getPublicKeyAsHex());
-//         setSecretKey(keyPair.getSecretKeyAsHex());
-//       } else {
-//         setPublicKey("could not encrypt");
-//         setSecretKey("could not encrypt");
-//       }
-//     };
-//     init();
-//   }, []);
-//   const navigate = useNavigate();
-//   const themeContext = useContext(ThemeContext);
-//   const backButtonIconStrokeColor = themeContext.themeConfigurations.isLightMode
-//     ? themeContext.colors.border
-//     : "black";
-//   return (<div></div>);
-// }
 
 const AnimatedTransition = (props: {
   children: React.ReactNode;
@@ -130,12 +61,11 @@ function AccountCreation(): JSX.Element {
   const [accountCreationDetails, setAccountCreationDetails] = React.useState(
     defaultAccountCreationDetails
   );
-
   const [seedPhrase, setSeedPhrase] = React.useState<string[]>();
-
+  const [stepIndex, setStepIndex] = React.useState(0);
+  const isLastIndex = accountCreationSteps.length - 1 === stepIndex;
   const themeContext = useContext(ThemeContext);
   const navigate = useNavigate();
-  const [stepIndex, setStepIndex] = React.useState(0);
 
   // [1] <- |[2]| <- [3]
   const [animationFromRightToLeft, setAnimationFromRightToLeft] =
@@ -168,38 +98,28 @@ function AccountCreation(): JSX.Element {
     <MainSectionContainer>
       <TopSection>
         <TopSectionButtonContainer>
-          <Button
-            onClick={() => {
-              navigateToPrevious();
-            }}
-            onHover={() => {
-              setAnimationFromRightToLeft(false);
-            }}
-            style={{ padding: "0" }}
-          >
-            <Icon
-              iconName={IconName.ChevronLeft}
-              strokeColorOverride={backButtonIconStrokeColor}
-            />
-          </Button>
+          {!isLastIndex && (
+            <Button
+              onClick={() => {
+                if (stepIndex === 0) {
+                  navigate("/");
+                }
+                navigateToPrevious();
+              }}
+              onHover={() => {
+                setAnimationFromRightToLeft(false);
+              }}
+              style={{ padding: "0" }}
+            >
+              <Icon
+                iconName={IconName.ChevronLeft}
+                strokeColorOverride={backButtonIconStrokeColor}
+              />
+            </Button>
+          )}
         </TopSectionButtonContainer>
         <TopSectionHeaderContainer></TopSectionHeaderContainer>
-        <TopSectionButtonContainer style={{ opacity: "0.05" }}>
-          <Button
-            onClick={() => {
-              navigateToNext();
-            }}
-            onHover={() => {
-              setAnimationFromRightToLeft(true);
-            }}
-            style={{ padding: "0" }}
-          >
-            <Icon
-              iconName={IconName.ChevronRight}
-              strokeColorOverride={backButtonIconStrokeColor}
-            />
-          </Button>
-        </TopSectionButtonContainer>
+        <TopSectionButtonContainer></TopSectionButtonContainer>
       </TopSection>
       <RouteContainer>
         <AnimatePresence exitBeforeEnter>
@@ -282,7 +202,42 @@ function AccountCreation(): JSX.Element {
                   elementKey={AccountCreationStep.SeedPhraseConfirmation}
                   animationFromRightToLeft={animationFromRightToLeft}
                 >
-                  <SeedPhraseConfirmation />
+                  <SeedPhraseConfirmation
+                    seedPhrase={seedPhrase || []}
+                    onConfirmSeedPhrase={() => {
+                      navigateToNext();
+
+                      // TODO
+                      // likely best to move the key creation to the loading of
+                      // the completion screen so that the user do not get the
+                      // bad UX by seeing a noticeable delay
+
+                      if (
+                        accountCreationDetails.password &&
+                        accountCreationDetails.seedPhraseLength
+                      ) {
+                        const mnemonicLength =
+                          accountCreationDetails.seedPhraseLength.length === 12
+                            ? MnemonicLength.Twelve
+                            : MnemonicLength.TwentyFour;
+
+                        const mnemonic: Mnemonic = new Mnemonic(
+                          mnemonicLength,
+                          seedPhrase?.join(" ")
+                        );
+
+                        const keyPair = KeyPair.fromMnemonic(
+                          mnemonic,
+                          accountCreationDetails.password
+                        );
+
+                        console.log(keyPair.getStorageValue());
+                      }
+                    }}
+                    onCtaHover={() => {
+                      setAnimationFromRightToLeft(true);
+                    }}
+                  />
                 </AnimatedTransition>
               }
             />
@@ -293,7 +248,14 @@ function AccountCreation(): JSX.Element {
                   elementKey={AccountCreationStep.Completion}
                   animationFromRightToLeft={animationFromRightToLeft}
                 >
-                  <Completion />
+                  <Completion
+                    onClickDone={() => {
+                      navigate("/");
+                    }}
+                    onClickSeeAccounts={() => {
+                      navigate("/");
+                    }}
+                  />
                 </AnimatedTransition>
               }
             />

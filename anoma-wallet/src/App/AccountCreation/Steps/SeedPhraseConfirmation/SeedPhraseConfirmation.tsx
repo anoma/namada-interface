@@ -1,14 +1,81 @@
-function SeedPhraseConfirmation(): JSX.Element {
+import React from "react";
+import { Button } from "components/Button";
+import {
+  AccountInformationViewContainer,
+  AccountInformationViewUpperPartContainer,
+  AccountInformationForm,
+  Header1,
+  Header3,
+  Header5,
+  BodyText,
+  Input,
+  InputFeedback,
+  InputContainer,
+  ButtonContainer,
+  RecoveryPhraseLengthRadioButton,
+  RecoveryPhraseLengthRadioButtonContainer,
+  RecoveryPhraseLengthRadioButtonsContainer,
+  RecoveryPhraseLengthContainer,
+} from "./SeedPhraseConfirmation.components";
+
+type SeedPhraseConfirmationProps = {
+  seedPhrase: string[];
+  onCtaHover: () => void;
+  onConfirmSeedPhrase: () => void;
+};
+
+function SeedPhraseConfirmation(
+  props: SeedPhraseConfirmationProps
+): JSX.Element {
+  const { seedPhrase, onCtaHover, onConfirmSeedPhrase } = props;
+  const seedPhraseLength = seedPhrase.length;
+  const [verificationInput, setVerificationInput] = React.useState("");
+  const [indexToConfirm, setIndexToConfirm] = React.useState(-1);
+
+  React.useEffect(() => {
+    setIndexToConfirm(Math.floor(Math.random() * seedPhraseLength));
+  }, []);
+
+  console.log(indexToConfirm);
   return (
-    <div>
-      <h1>SeedPhraseConfirmation</h1>
-      <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Enim augue
-        aenean facilisi placerat laoreet sem faucibus curabitur. Posuere ut
-        porttitor eu auctor eu. Aenean faucibus non eleifend neque ullamcorper
-        viverra amet.
-      </p>
-    </div>
+    <AccountInformationViewContainer>
+      {/* header */}
+      <AccountInformationViewUpperPartContainer>
+        <Header1>Verify Phrase</Header1>
+      </AccountInformationViewUpperPartContainer>
+
+      {/* form */}
+      <AccountInformationForm>
+        {/* description */}
+        <BodyText>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Enim augue
+          aenean facilisi placerat laoreet sem faucibus{" "}
+        </BodyText>
+
+        {/* seed verification */}
+        <InputContainer>
+          <Header5>Word #{indexToConfirm + 1}</Header5>
+          <Input
+            onChange={(event) => {
+              setVerificationInput(event.target.value);
+            }}
+          />
+        </InputContainer>
+
+        {/* submit */}
+        <ButtonContainer>
+          <Button
+            onClick={() => {
+              onConfirmSeedPhrase();
+            }}
+            disabled={verificationInput !== seedPhrase[indexToConfirm]}
+            onHover={onCtaHover}
+          >
+            Verify
+          </Button>
+        </ButtonContainer>
+      </AccountInformationForm>
+    </AccountInformationViewContainer>
   );
 }
 

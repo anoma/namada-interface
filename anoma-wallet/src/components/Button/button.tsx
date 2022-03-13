@@ -1,5 +1,9 @@
 import { CSSProperties } from "styled-components";
-import { ButtonContainer, ButtonContainerText } from "./button.components";
+import {
+  ButtonContainer,
+  ButtonContainerText,
+  ButtonContainerOutline,
+} from "./button.components";
 
 export enum Variant {
   regular,
@@ -33,7 +37,11 @@ const Button: React.FunctionComponent<ButtonProps> = (props: ButtonProps) => {
   } = props;
 
   const ButtonVariant =
-    variant === Variant.text ? ButtonContainerText : ButtonContainer;
+    variant === Variant.text
+      ? ButtonContainerText
+      : variant === Variant.outline
+      ? ButtonContainerOutline
+      : ButtonContainer;
 
   return (
     <ButtonVariant

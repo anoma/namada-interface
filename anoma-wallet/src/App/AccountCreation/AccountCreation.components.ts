@@ -47,8 +47,9 @@ export const TopSectionHeaderContainer = styled.section`
 export const TopSectionButtonContainer = styled.section`
   display: flex;
   justify-content: center;
-  width: 48px;
   align-items: center;
+  width: 48px;
+  min-height: 50px;
 `;
 
 export const ContentContainer = styled.section`
