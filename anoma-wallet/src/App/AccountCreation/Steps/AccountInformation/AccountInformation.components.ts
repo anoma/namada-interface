@@ -12,14 +12,17 @@ export const Header1 = styled.h1`
   margin: 8px 0;
   color: ${(props) => props.theme.colors.textPrimary};
 `;
+
 export const Header3 = styled.h3`
   margin: 8px 0;
   color: ${(props) => props.theme.colors.textPrimary};
 `;
+
 export const Header5 = styled.h5`
   margin: 8px 0;
   color: ${(props) => props.theme.colors.textPrimary};
 `;
+
 export const BodyText = styled.p`
   font-weight: 300;
   color: ${(props) => props.theme.colors.textPrimary};
@@ -30,19 +33,13 @@ export const AccountInformationViewUpperPartContainer = styled.div`
   flex-direction: column;
   align-items: center;
 `;
+
 export const AccountInformationForm = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
 
   width: 100%;
-`;
-
-export const RecoveryPhrase = styled.div`
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  padding: 48px 0;
 `;
 
 export const ButtonContainer = styled.div`
@@ -65,6 +62,7 @@ export const InputContainer = styled.div`
   height: 92px;
   margin: 0 0 24px;
 `;
+
 export const InputFeedback = styled.span`
   font-size: 12px;
   color: red;

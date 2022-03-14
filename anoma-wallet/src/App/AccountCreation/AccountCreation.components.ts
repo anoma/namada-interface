@@ -1,5 +1,6 @@
 import styled from "styled-components/macro";
 import { motion } from "framer-motion";
+
 export const MainSectionContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -50,44 +51,6 @@ export const TopSectionButtonContainer = styled.section`
   align-items: center;
   width: 48px;
   min-height: 50px;
-`;
-
-export const ContentContainer = styled.section`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  margin: 0 0 32px;
-
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-`;
-
-export const Headline = styled.h1`
-  color: ${(props) => props.theme.colors.textPrimary};
-  font-size: 30px;
-  font-weight: bold;
-`;
-
-export const BodyText = styled.span`
-  color: ${(props) => props.theme.colors.textPrimary};
-  margin: 8px 0;
-`;
-
-export const StyledTextArea = styled.textarea`
-  box-sizing: border-box;
-  width: 100%;
-  min-height: 84px;
-  padding: 8px;
-  margin: 8px 0;
-  border: 1px solid ${(props) => props.theme.colors.textPrimary};
-  background-color: ${(props) => props.theme.colors.background2};
-  border-radius: 4px;
-  outline-color: transparent;
-  outline-style: none;
-  color: ${(props) => props.theme.colors.textPrimary};
-  resize: none;
 `;
 
 export const RouteContainer = styled.div`

@@ -137,7 +137,6 @@ const SeedPhrase = (props: AccountInformationViewProps): JSX.Element => {
           {/* copy seed phrase */}
           <Button
             onClick={() => {
-              console.log("export1");
               textToClipboard(seedPhraseAsArray.join(","));
             }}
             variant={Variant.text}

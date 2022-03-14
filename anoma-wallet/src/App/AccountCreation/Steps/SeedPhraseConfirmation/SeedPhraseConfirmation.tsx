@@ -5,17 +5,11 @@ import {
   AccountInformationViewUpperPartContainer,
   AccountInformationForm,
   Header1,
-  Header3,
   Header5,
   BodyText,
   Input,
-  InputFeedback,
   InputContainer,
   ButtonContainer,
-  RecoveryPhraseLengthRadioButton,
-  RecoveryPhraseLengthRadioButtonContainer,
-  RecoveryPhraseLengthRadioButtonsContainer,
-  RecoveryPhraseLengthContainer,
 } from "./SeedPhraseConfirmation.components";
 
 type SeedPhraseConfirmationProps = {

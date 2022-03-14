@@ -7,7 +7,6 @@ import {
 } from "App/types";
 import {
   KeyPair,
-  KeyPairType,
   Mnemonic,
   MnemonicLength,
 } from "@anoma-wallet/key-management";
