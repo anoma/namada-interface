@@ -1,5 +1,6 @@
-import { ChangeEventHandler } from "react";
-import { ErrorTooltip, Label, TextAreaInput, TextInput } from "./input.components";
+import { Icon, IconName } from "components/Icon";
+import { ChangeEventHandler, useState } from "react";
+import { ErrorTooltip, IconContainer, Label, PasswordContainer, TextAreaInput, TextInput } from "./input.components";
 import { InputVariants } from "./types"
 
 export type InputProps = {
@@ -11,10 +12,11 @@ export type InputProps = {
 }
 
 export const Input = (props: InputProps): JSX.Element => {
+    const [passwordShown, setPasswordShown] = useState(false);
+    const togglePasswordShown = (): void => setPasswordShown(!passwordShown);
+
     switch (props.variant) {
         case InputVariants.Text:
-            console.log(props.error)
-            console.log(!!props.error)
             return (
                 <Label>
                     {props.label}
@@ -34,6 +36,23 @@ export const Input = (props: InputProps): JSX.Element => {
                     onChange={props.onChangeCallback} /><br />
                     <ErrorTooltip>{props.error}</ErrorTooltip>
                 </Label>
+            )
+        case InputVariants.Password:
+            return (
+               <Label>
+                   {props.label}
+                   <PasswordContainer>
+                        <TextInput
+                            error={!!props.error} 
+                            placeholder={props.placeholder} 
+                            onChange={props.onChangeCallback} 
+                            type={passwordShown ? "text" : "password"} />
+                        <IconContainer onClick={(_) => togglePasswordShown()} >
+                            <Icon iconName={passwordShown ?
+                                IconName.Eye : IconName.EyeHidden}/>
+                        </IconContainer> 
+                   </PasswordContainer>
+               </Label>
             )
     }
 }

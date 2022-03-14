@@ -53,3 +53,15 @@ export const ErrorTooltip = styled.span`
   color: ${(props) => props.theme.colors.inputError};
   font-weight: 400;
 `;
+
+export const PasswordContainer = styled.div`
+  position: relative;
+  display: flex;
+`;
+
+export const IconContainer = styled.span`
+  position: absolute;
+  top: 38%;
+  right: 16px;
+  cursor: pointer;
+`;
