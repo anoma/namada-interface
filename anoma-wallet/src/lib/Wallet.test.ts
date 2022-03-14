@@ -1,5 +1,7 @@
 import { Tokens } from "constants/";
 import Wallet from "./Wallet";
+import AnomaClient from "./AnomaClient";
+import { fromHex, toHex } from "@cosmjs/encoding";
 
 const MNEMONIC_24 =
   // eslint-disable-next-line max-len
@@ -122,5 +124,25 @@ describe("Wallet class", () => {
 
     expect(publicKey).toBe("o3vH5artnxqVVJw4NnBAs5qZMrXELqJqqp3P4KbK7ERs");
     expect(privateKey).toBe("F4bWCLdKybk4DGtphKo1DCKTVQTryEzMMcLFGmatNUhW");
+  });
+
+  test("ed25519 keypair can be serialized from derived account", async () => {
+    const { keypair } = await new AnomaClient().init();
+    const wallet = await new Wallet(MNEMONIC_24, "BTC").init();
+    const child = wallet.new(0);
+    const { secret, public: pub } = child;
+
+    const deserializedKeypair = keypair.deserialize({
+      secret: fromHex(secret),
+      public: fromHex(pub),
+    });
+    const serializedKeypair = deserializedKeypair.serialize();
+
+    expect(toHex(serializedKeypair.public)).toBe(
+      "ab39c3edf24f6ee00138a2d10595f4e5abbddac2ee80922e4aef55dc76efc9fa"
+    );
+    expect(toHex(serializedKeypair.secret)).toBe(
+      "d0ef5f5af3b148b0e902a5c79a6b5e85e5d67582d43fd1e25a1e46d20d1d6d91"
+    );
   });
 });

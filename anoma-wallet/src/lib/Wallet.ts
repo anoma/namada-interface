@@ -10,6 +10,8 @@ export type DerivedAccount = {
   wif: string;
   privateKey: string | Uint8Array;
   publicKey: string | Uint8Array;
+  secret: string;
+  public: string;
 };
 
 export type ExtendedKeys = {
@@ -38,6 +40,9 @@ type DerivedAccountData = {
   wif: string;
   private_key: Uint8Array;
   public_key: Uint8Array;
+  // ed25519 secret & public
+  secret: Uint8Array;
+  public: Uint8Array;
 };
 
 class Wallet {
@@ -81,6 +86,8 @@ class Wallet {
       wif,
       private_key: privateKey,
       public_key: publicKey,
+      secret,
+      public: pk,
     } = childAccount;
 
     let encodedPrivateKey;
@@ -108,6 +115,8 @@ class Wallet {
       wif,
       privateKey: encodedPrivateKey,
       publicKey: encodedPublicKey,
+      secret: toHex(secret),
+      public: toHex(pk),
     };
 
     return child;

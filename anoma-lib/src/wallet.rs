@@ -24,6 +24,8 @@ pub struct DerivedAccount {
     wif: String,
     private_key: Vec<u8>,
     public_key: Vec<u8>,
+    secret: Vec<u8>,
+    public: Vec<u8>,
 }
 
 #[wasm_bindgen]
@@ -75,11 +77,18 @@ impl Wallet {
         let prv = PrivateKey::from_slice(&prv_bytes, Network::Bitcoin).unwrap();
         let key = prv.to_wif();
 
+        // ed25519 keypair
+        let secret = ed25519_dalek::SecretKey::from_bytes(prv_bytes)
+            .expect("Could not create secret from bytes");
+        let public = ed25519_dalek::PublicKey::from(&secret);
+
         DerivedAccount {
             address: address.to_string(),
             wif: key.to_string(),
             private_key: xprv.private_key().to_bytes().to_vec(),
-            public_key: xpub.public_key().to_bytes().to_vec()
+            public_key: xpub.public_key().to_bytes().to_vec(),
+            secret: secret.to_bytes().to_vec(),
+            public: public.to_bytes().to_vec(),
         }
     }
 
