@@ -8,8 +8,8 @@ const MNEMONIC_24 =
 describe("Wallet class", () => {
   test("It should derive the correct public keys from mnemonic", async () => {
     const walletBtc = await new Wallet(MNEMONIC_24, "BTC").init();
-    const child1 = walletBtc.new();
-    const child2 = walletBtc.new();
+    const child1 = walletBtc.new(0);
+    const child2 = walletBtc.new(1);
 
     expect(child1.publicKey).toBe(
       "02ac3900403f7d59537edb3694abbdb7f9d334f4fe64ba27dc6b41dc7e298d0dc6"
@@ -17,12 +17,11 @@ describe("Wallet class", () => {
     expect(child2.publicKey).toBe(
       "02a2bfde72171d5e78f23e9bf91a3a40493ba0685281afaa93f9d8222dec923d80"
     );
-    expect(walletBtc.accounts[Tokens["BTC"].type].length).toBe(2);
 
     const walletEth = await new Wallet(MNEMONIC_24, "ETH").init();
-    const child3 = walletEth.new();
-    const child4 = walletEth.new();
-    const child5 = walletEth.new();
+    const child3 = walletEth.new(0);
+    const child4 = walletEth.new(1);
+    const child5 = walletEth.new(2);
 
     expect(child3.publicKey).toBe(
       "0332331c814be320962dcfeea877e489b0c34c4ab72ac8970c42fb7fedc5e0c437"
@@ -33,7 +32,20 @@ describe("Wallet class", () => {
     expect(child5.publicKey).toBe(
       "038a6d7ef037260bf6f362e0c530b041d99be2c3283e529f18a5e5e76875cd052a"
     );
-    expect(walletEth.accounts[Tokens["ETH"].type].length).toBe(3);
+  });
+
+  test("Derives the correct addresses and private key WIFs from mnemonic", async () => {
+    const wallet = await new Wallet(MNEMONIC_24, "BTC").init();
+    const child1 = wallet.new(0);
+    const child2 = wallet.new(1);
+    const { address: address1, wif: wif1 } = child1;
+    const { address: address2, wif: wif2 } = child2;
+
+    expect(address1).toBe("1Lj43YSQ47b22oRL37LBEmEeMC7nLT3fEb");
+    expect(wif1).toBe("L4DrSoPAR7tNrfx91GGejYiGnzEYWfvBhg7BmeLeUPs6QEzpzM6g");
+
+    expect(address2).toBe("17cwJyBe3WMVZwdyMbuZcxX3zcVR4By7h6");
+    expect(wif2).toBe("L41p9JoMKCuiF3ro4cihMusszpCCrENM36NWFoEo3sKGeSq9epvH");
   });
 
   test("Wallet should return correct BIP39 hexadecimal seed from mnemonic", async () => {

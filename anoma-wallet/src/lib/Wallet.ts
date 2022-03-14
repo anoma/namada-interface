@@ -1,5 +1,4 @@
 import { toHex } from "@cosmjs/encoding";
-import bs58 from "bs58";
 import { Tokens, TokenType } from "constants/";
 import AnomaClient, { WalletType } from "./AnomaClient";
 
@@ -13,12 +12,10 @@ type WalletData = {
 type Bip32Keys = {
   xpriv: string;
   xpub: string;
+  address?: string;
+  wif?: string;
   privateKey?: string;
   publicKey?: string;
-};
-
-type AccountType = {
-  [type: number]: Bip32Keys[];
 };
 
 type Path = {
@@ -31,7 +28,6 @@ type Path = {
 class Wallet {
   private _mnemonic: string;
   private _wallet: WalletType | undefined;
-  private _accounts: AccountType = {};
   private _tokenType: TokenType;
 
   constructor(mnemonic: string, token: TokenType) {
@@ -53,19 +49,19 @@ class Wallet {
    * NOTE: A "child" account is represented as a
    * set of Bip32 keys derived from our root account.
    */
-  public new(isHardened = true): Bip32Keys {
+  public new(index: number, isHardened = true): Bip32Keys {
     const { type } = Tokens[this._tokenType];
-    if (!this._accounts[type]) {
-      this._accounts[type] = [];
-    }
-
-    const index = `${this._accounts[type].length}${isHardened ? "'" : ""}`;
-    const path = Wallet.makePath({ type, index });
+    const path = Wallet.makePath({
+      type,
+      index: `${index}${isHardened ? "'" : ""}`,
+    });
 
     const childAccount = this._wallet?.extended_keys(path);
     const {
       xpriv,
       xpub,
+      address,
+      wif,
       private_key: privateKey,
       public_key: publicKey,
     } = childAccount;
@@ -73,11 +69,11 @@ class Wallet {
     const child: Bip32Keys = {
       xpriv,
       xpub,
-      privateKey: bs58.encode(privateKey),
+      address,
+      wif,
+      privateKey: toHex(privateKey),
       publicKey: toHex(publicKey),
     };
-
-    this._accounts[type].push(child);
 
     return child;
   }
@@ -111,13 +107,6 @@ class Wallet {
       xpriv,
       xpub,
     };
-  }
-
-  /**
-   * Get all accounts from instance
-   */
-  public get accounts(): AccountType {
-    return this._accounts;
   }
 
   /**
@@ -164,6 +153,20 @@ class Wallet {
     }
 
     return path;
+  }
+
+  /**
+   * Switch instance to a different token
+   */
+  public set tokenType(tokenType: TokenType) {
+    this._tokenType = tokenType;
+  }
+
+  /**
+   * Switch instance to a different mnemonic
+   */
+  public set mnemonic(mnemonic: string) {
+    this._mnemonic = mnemonic;
   }
 }
 
