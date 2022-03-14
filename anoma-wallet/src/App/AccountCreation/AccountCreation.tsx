@@ -1,5 +1,6 @@
 import React from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { TopLevelRoute } from "App/types";
 import {
   KeyPair,
   KeyPairType,
@@ -14,7 +15,7 @@ import {
   SeedPhraseConfirmation,
   Completion,
 } from "./Steps";
-import { AccountCreationStep, accountCreationSteps } from "./types";
+import { AccountCreationRoute, accountCreationSteps } from "./types";
 import { AnimatePresence } from "framer-motion";
 import { useContext } from "react";
 import { ThemeContext } from "styled-components";
@@ -77,8 +78,17 @@ function AccountCreation(): JSX.Element {
     : "black";
 
   React.useEffect(() => {
-    navigate(`${accountCreationSteps[stepIndex]}`);
-  }, []);
+    if (
+      window.location.pathname ===
+      `${TopLevelRoute.AccountCreation}/${AccountCreationRoute.Initiate}`
+    ) {
+      setAccountCreationDetails(defaultAccountCreationDetails);
+      setStepIndex(0);
+      setSeedPhrase([]);
+      navigate(AccountCreationRoute.Start);
+      // navigate(`${accountCreationSteps[stepIndex]}`);
+    }
+  });
 
   const navigateToNext = (): void => {
     if (stepIndex >= accountCreationSteps.length - 1) return;
@@ -125,10 +135,10 @@ function AccountCreation(): JSX.Element {
         <AnimatePresence exitBeforeEnter>
           <Routes location={location} key={location.pathname}>
             <Route
-              path={`/${AccountCreationStep.Start}`}
+              path={`/${AccountCreationRoute.Start}`}
               element={
                 <AnimatedTransition
-                  elementKey={AccountCreationStep.Start}
+                  elementKey={AccountCreationRoute.Start}
                   animationFromRightToLeft={animationFromRightToLeft}
                 >
                   <Start
@@ -143,10 +153,10 @@ function AccountCreation(): JSX.Element {
               }
             />
             <Route
-              path={`/${AccountCreationStep.AccountDetails}`}
+              path={`/${AccountCreationRoute.AccountDetails}`}
               element={
                 <AnimatedTransition
-                  elementKey={AccountCreationStep.AccountDetails}
+                  elementKey={AccountCreationRoute.AccountDetails}
                   animationFromRightToLeft={animationFromRightToLeft}
                 >
                   <AccountInformation
@@ -175,10 +185,10 @@ function AccountCreation(): JSX.Element {
               }
             />
             <Route
-              path={`/${AccountCreationStep.SeedPhrase}`}
+              path={`/${AccountCreationRoute.SeedPhrase}`}
               element={
                 <AnimatedTransition
-                  elementKey={AccountCreationStep.SeedPhrase}
+                  elementKey={AccountCreationRoute.SeedPhrase}
                   animationFromRightToLeft={animationFromRightToLeft}
                 >
                   <SeedPhrase
@@ -196,10 +206,10 @@ function AccountCreation(): JSX.Element {
               }
             />
             <Route
-              path={`/${AccountCreationStep.SeedPhraseConfirmation}`}
+              path={`/${AccountCreationRoute.SeedPhraseConfirmation}`}
               element={
                 <AnimatedTransition
-                  elementKey={AccountCreationStep.SeedPhraseConfirmation}
+                  elementKey={AccountCreationRoute.SeedPhraseConfirmation}
                   animationFromRightToLeft={animationFromRightToLeft}
                 >
                   <SeedPhraseConfirmation
@@ -242,10 +252,10 @@ function AccountCreation(): JSX.Element {
               }
             />
             <Route
-              path={`/${AccountCreationStep.Completion}`}
+              path={`/${AccountCreationRoute.Completion}`}
               element={
                 <AnimatedTransition
-                  elementKey={AccountCreationStep.Completion}
+                  elementKey={AccountCreationRoute.Completion}
                   animationFromRightToLeft={animationFromRightToLeft}
                 >
                   <Completion

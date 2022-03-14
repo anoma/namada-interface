@@ -52,3 +52,7 @@ export const ColorModeContainer = styled.div`
   justify-content: end;
   align-items: center;
 `;
+
+export const LogoContainer = styled.div`
+  cursor: pointer;
+`;

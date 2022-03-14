@@ -1,5 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { TopLevelRoute } from "App/types";
+import { AccountCreationRoute } from "App/AccountCreation/types";
 import { Image, ImageName } from "components/Image";
 import { Icon, IconName } from "components/Icon";
 import { Toggle } from "components/Toggle";
@@ -11,6 +13,7 @@ import {
   HelpIconContainer,
   HelpTextContainer,
   ColorModeContainer,
+  LogoContainer,
 } from "./topNavigation.components";
 
 type TopNavigationProps = {
@@ -38,10 +41,16 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
   return (
     <TopNavigationContainer>
       <LeftSection>
-        <Image
-          imageName={ImageName.Logo}
-          styleOverrides={{ maxWidth: "128px" }}
-        />
+        <LogoContainer
+          onClick={() => {
+            navigate(`${TopLevelRoute.Home}`);
+          }}
+        >
+          <Image
+            imageName={ImageName.Logo}
+            styleOverrides={{ maxWidth: "128px" }}
+          />
+        </LogoContainer>
       </LeftSection>
 
       <RightSection>
@@ -49,7 +58,9 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
         {/* keys button */}
         <HelpButton
           onClick={() => {
-            navigate(`/account-creation`);
+            navigate(
+              `${TopLevelRoute.AccountCreation}/${AccountCreationRoute.Initiate}`
+            );
           }}
         >
           <HelpIconContainer>
