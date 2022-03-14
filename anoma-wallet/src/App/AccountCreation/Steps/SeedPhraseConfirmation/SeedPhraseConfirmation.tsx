@@ -36,7 +36,6 @@ function SeedPhraseConfirmation(
     setIndexToConfirm(Math.floor(Math.random() * seedPhraseLength));
   }, []);
 
-  console.log(indexToConfirm);
   return (
     <AccountInformationViewContainer>
       {/* header */}

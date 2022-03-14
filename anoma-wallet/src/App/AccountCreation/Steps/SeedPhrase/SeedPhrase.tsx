@@ -122,7 +122,6 @@ const SeedPhrase = (props: AccountInformationViewProps): JSX.Element => {
           {/* download seed phrase */}
           <Button
             onClick={() => {
-              console.log("export1");
               textToDownload(
                 seedPhraseAsArray
                   .map((word, index) => `${index + 1} ${word}`)

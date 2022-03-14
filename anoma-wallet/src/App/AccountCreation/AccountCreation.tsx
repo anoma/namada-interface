@@ -1,6 +1,10 @@
 import React from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import { TopLevelRoute } from "App/types";
+import {
+  TopLevelRoute,
+  LOCAL_STORAGE_MASTER_KEY_PAIR_STORAGE_VALUE,
+  LOCAL_STORAGE_MASTER_KEY_PAIR_ALIAS,
+} from "App/types";
 import {
   KeyPair,
   KeyPairType,
@@ -30,8 +34,6 @@ import {
 
 import { Button } from "components/Button";
 import { Icon, IconName } from "components/Icon";
-
-const LOCAL_STORAGE_STORAGE_VALUE_KEY = "localStorageStorageValue";
 
 const AnimatedTransition = (props: {
   children: React.ReactNode;
@@ -86,7 +88,6 @@ function AccountCreation(): JSX.Element {
       setStepIndex(0);
       setSeedPhrase([]);
       navigate(AccountCreationRoute.Start);
-      // navigate(`${accountCreationSteps[stepIndex]}`);
     }
   });
 
@@ -117,6 +118,8 @@ function AccountCreation(): JSX.Element {
                 navigateToPrevious();
               }}
               onHover={() => {
+                // TODO this trick does not help when the user clicks browsers
+                // back button. might need some trickery where we still set it after the click
                 setAnimationFromRightToLeft(false);
               }}
               style={{ padding: "0" }}
@@ -224,7 +227,8 @@ function AccountCreation(): JSX.Element {
 
                       if (
                         accountCreationDetails.password &&
-                        accountCreationDetails.seedPhraseLength
+                        accountCreationDetails.seedPhraseLength &&
+                        accountCreationDetails.accountName
                       ) {
                         const mnemonicLength =
                           accountCreationDetails.seedPhraseLength.length === 12
@@ -241,7 +245,19 @@ function AccountCreation(): JSX.Element {
                           accountCreationDetails.password
                         );
 
-                        console.log(keyPair.getStorageValue());
+                        window.localStorage.setItem(
+                          LOCAL_STORAGE_MASTER_KEY_PAIR_ALIAS,
+                          accountCreationDetails.accountName
+                        );
+
+                        window.localStorage.setItem(
+                          LOCAL_STORAGE_MASTER_KEY_PAIR_STORAGE_VALUE,
+                          keyPair.getStorageValue().value
+                        );
+                      } else {
+                        alert(
+                          "something is wrong with the KeyPair creation 🤨"
+                        );
                       }
                     }}
                     onCtaHover={() => {
