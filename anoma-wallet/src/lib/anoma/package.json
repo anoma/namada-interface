@@ -17,6 +17,7 @@
     "LICENSE_APACHE",
     "LICENSE_MIT"
   ],
-  "main": "anoma.js",
-  "types": "anoma.d.ts"
+  "module": "anoma.js",
+  "types": "anoma.d.ts",
+  "sideEffects": false
 }

@@ -114,4 +114,13 @@ describe("Wallet class", () => {
     });
     expect(path).toBe(expected);
   });
+
+  test("Can override the default encoding for private/public keys", async () => {
+    const wallet = await new Wallet(MNEMONIC_24, "BTC").init();
+    const child = wallet.new(0, "base58");
+    const { publicKey, privateKey } = child;
+
+    expect(publicKey).toBe("o3vH5artnxqVVJw4NnBAs5qZMrXELqJqqp3P4KbK7ERs");
+    expect(privateKey).toBe("F4bWCLdKybk4DGtphKo1DCKTVQTryEzMMcLFGmatNUhW");
+  });
 });

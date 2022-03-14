@@ -1,7 +1,30 @@
 import { toHex } from "@cosmjs/encoding";
+import base58 from "bs58";
 import { Tokens, TokenType } from "constants/";
 import AnomaClient, { WalletType } from "./AnomaClient";
 
+type Encoding = "hex" | "base58" | null;
+
+export type DerivedAccount = {
+  address: string;
+  wif: string;
+  privateKey: string | Uint8Array;
+  publicKey: string | Uint8Array;
+};
+
+export type ExtendedKeys = {
+  xpriv: string;
+  xpub: string;
+};
+
+type PathOptions = {
+  type: number;
+  account?: number;
+  change?: number;
+  index?: string;
+};
+
+// Serialized Wallet data from WASM
 type WalletData = {
   root_key: string;
   seed: number[];
@@ -9,20 +32,12 @@ type WalletData = {
   password: string;
 };
 
-type Bip32Keys = {
-  xpriv: string;
-  xpub: string;
-  address?: string;
-  wif?: string;
-  privateKey?: string;
-  publicKey?: string;
-};
-
-type Path = {
-  type: number;
-  account?: number;
-  change?: number;
-  index?: string;
+// Serialized Derived Account data from WASM
+type DerivedAccountData = {
+  address: string;
+  wif: string;
+  private_key: Uint8Array;
+  public_key: Uint8Array;
 };
 
 class Wallet {
@@ -49,43 +64,62 @@ class Wallet {
    * NOTE: A "child" account is represented as a
    * set of Bip32 keys derived from our root account.
    */
-  public new(index: number, isHardened = true): Bip32Keys {
+  public new(
+    index: number,
+    encoding: Encoding = "hex",
+    isHardened = true
+  ): DerivedAccount {
     const { type } = Tokens[this._tokenType];
     const path = Wallet.makePath({
       type,
       index: `${index}${isHardened ? "'" : ""}`,
     });
 
-    const childAccount = this._wallet?.extended_keys(path);
+    const childAccount: DerivedAccountData = this._wallet?.account(path);
     const {
-      xpriv,
-      xpub,
       address,
       wif,
       private_key: privateKey,
       public_key: publicKey,
     } = childAccount;
 
-    const child: Bip32Keys = {
-      xpriv,
-      xpub,
+    let encodedPrivateKey;
+    let encodedPublicKey;
+
+    switch (encoding) {
+      case "hex": {
+        encodedPrivateKey = toHex(privateKey);
+        encodedPublicKey = toHex(publicKey);
+        break;
+      }
+      case "base58": {
+        encodedPrivateKey = base58.encode(privateKey);
+        encodedPublicKey = base58.encode(publicKey);
+        break;
+      }
+      default: {
+        encodedPrivateKey = privateKey;
+        encodedPublicKey = publicKey;
+      }
+    }
+
+    const child: DerivedAccount = {
       address,
       wif,
-      privateKey: toHex(privateKey),
-      publicKey: toHex(publicKey),
+      privateKey: encodedPrivateKey,
+      publicKey: encodedPublicKey,
     };
 
     return child;
   }
 
   /**
-   * Get Account Extended Keys
+   * Get Account Extended Private and Public Keys
    */
-  public get account(): Bip32Keys {
-    const path = Wallet.makePath({
-      type: Tokens[this._tokenType].type,
-    });
-    const { xpriv, xpub }: Bip32Keys = this._wallet?.extended_keys(path);
+  public get account(): ExtendedKeys {
+    const { type } = Tokens[this._tokenType];
+    const path = Wallet.makePath({ type });
+    const { xpriv, xpub }: ExtendedKeys = this._wallet?.extended_keys(path);
 
     return {
       xpriv,
@@ -96,12 +130,13 @@ class Wallet {
   /**
    * Get Bip32 Extended Private and Public keys
    */
-  public get extended(): Bip32Keys {
+  public get extended(): ExtendedKeys {
+    const { type } = Tokens[this._tokenType];
     const path = Wallet.makePath({
-      type: Tokens[this._tokenType].type,
+      type,
       change: 0,
     });
-    const { xpriv, xpub }: Bip32Keys = this._wallet?.extended_keys(path);
+    const { xpriv, xpub }: ExtendedKeys = this._wallet?.extended_keys(path);
 
     return {
       xpriv,
@@ -126,12 +161,12 @@ class Wallet {
 
   /**
    * Creates a derivation path: m/44'/0'/0'/0
-   * The index is later passed to the wasm to generate sub-accounts:
+   * The index can be passed to the wasm to generate sub-accounts:
    * - m/44'/0'/0'/0/0'
    * - m/44'/0'/0'/0/1'
    * - m/44'/0'/0'/0/2', etc.
    *
-   * "change" can be nullified if wanting to generate Account-level
+   * "change" can be omitted if wanting to generate Account-level
    * keys, e.g., a path of m/44'/0'/0'
    *
    * NOTE:
@@ -143,7 +178,7 @@ class Wallet {
     account = 0,
     change,
     index,
-  }: Path): string {
+  }: PathOptions): string {
     let path = `m/44'/${type}'/${account}'`;
 
     if (index) {
@@ -153,20 +188,6 @@ class Wallet {
     }
 
     return path;
-  }
-
-  /**
-   * Switch instance to a different token
-   */
-  public set tokenType(tokenType: TokenType) {
-    this._tokenType = tokenType;
-  }
-
-  /**
-   * Switch instance to a different mnemonic
-   */
-  public set mnemonic(mnemonic: string) {
-    this._mnemonic = mnemonic;
   }
 }
 

@@ -19,13 +19,18 @@ pub struct Wallet {
 
 #[wasm_bindgen]
 #[derive(Serialize, Deserialize)]
-pub struct Bip32Keys {
-    xpriv: String,
-    xpub: String,
+pub struct DerivedAccount {
     address: String,
     wif: String,
     private_key: Vec<u8>,
     public_key: Vec<u8>,
+}
+
+#[wasm_bindgen]
+#[derive(Serialize, Deserialize)]
+pub struct ExtendedKeys {
+    xpriv: String,
+    xpub: String,
 }
 
 #[wasm_bindgen]
@@ -35,7 +40,7 @@ impl Wallet {
         password: String) -> Wallet {
 
         let mnemonic = Mnemonic::from_str(&phrase).unwrap();
-        let seed = mnemonic.to_seed(None);
+        let seed = mnemonic.to_seed(Some(&password));
         let seed_bytes: &[u8] = &seed.0.to_vec();
 
         // BIP32 Root Key
@@ -50,8 +55,36 @@ impl Wallet {
         }
     }
 
-    /// Derive extended keys from a seed and a path
-    pub fn derive(&self, path: String) -> Bip32Keys {
+    /// Derive account from a seed and a path
+    pub fn derive(&self, path: String) -> DerivedAccount {
+        let seed: &[u8] = &self.seed;
+
+        // BIP32 Extended Private Key
+        let xprv = XPrv::derive_from_path(&seed, &path.parse().unwrap()).unwrap();
+
+        // BIP32 Extended Public Key
+        let xpub = xprv.public_key();
+
+        // Address - Public Key to p2pkh (compressed)
+        let pub_bytes: &[u8] = &xpub.public_key().clone().to_bytes().to_vec();
+        let pk = PublicKey::from_slice(pub_bytes);
+        let address = Address::p2pkh(&pk.unwrap(), Network::Bitcoin);
+
+        // Private Key to WIF (Wallet Import Format)
+        let prv_bytes: &[u8] = &xprv.private_key().clone().to_bytes().to_vec();
+        let prv = PrivateKey::from_slice(&prv_bytes, Network::Bitcoin).unwrap();
+        let key = prv.to_wif();
+
+        DerivedAccount {
+            address: address.to_string(),
+            wif: key.to_string(),
+            private_key: xprv.private_key().to_bytes().to_vec(),
+            public_key: xpub.public_key().to_bytes().to_vec()
+        }
+    }
+
+    /// Get extended keys from path
+    pub fn get_extended_keys(&self, path: String) -> ExtendedKeys {
         let seed: &[u8] = &self.seed;
 
         // BIP32 Extended Private Key
@@ -62,23 +95,9 @@ impl Wallet {
         let xpub = xprv.public_key();
         let xpub_str = xpub.to_string(Prefix::XPUB);
 
-        // Address - Public Key to p2pkh (comppressed)
-        let pub_bytes: &[u8] = &xpub.public_key().clone().to_bytes().to_vec();
-        let pk = PublicKey::from_slice(pub_bytes);
-        let address = Address::p2pkh(&pk.unwrap(), Network::Bitcoin);
-
-        // Private Key to WIF (Wallet Import Format)
-        let prv_bytes: &[u8] = &xprv.private_key().clone().to_bytes().to_vec();
-        let prv = PrivateKey::from_slice(&prv_bytes, Network::Bitcoin).unwrap();
-        let key = prv.to_wif();
-
-        Bip32Keys {
+        ExtendedKeys {
             xpriv: xprv_str,
             xpub: xpub_str,
-            address: address.to_string(),
-            wif: key.to_string(),
-            private_key: xprv.private_key().to_bytes().to_vec(),
-            public_key: xpub.public_key().to_bytes().to_vec()
         }
     }
 
@@ -89,6 +108,12 @@ impl Wallet {
 
     /// Get serialized extended keys
     pub fn extended_keys(&self, path: String) -> Result<JsValue, JsValue> {
+        let keys = &self.get_extended_keys(path);
+        Ok(JsValue::from_serde(&keys).unwrap())
+    }
+
+    /// Get serialized derived account
+    pub fn account(&self, path: String) -> Result<JsValue, JsValue> {
         let keys = &self.derive(path);
         Ok(JsValue::from_serde(&keys).unwrap())
     }
