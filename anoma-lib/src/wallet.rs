@@ -5,7 +5,7 @@ use bitcoin::{
     ecdsa::PublicKey,
     network::constants::Network
 };
-use bitcoin_wallet::mnemonic::Mnemonic;
+use bip0039::{Mnemonic, Seed, Language};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -41,18 +41,18 @@ impl Wallet {
         phrase: String,
         password: String) -> Wallet {
 
-        let mnemonic = Mnemonic::from_str(&phrase).unwrap();
-        let seed = mnemonic.to_seed(Some(&password));
-        let seed_bytes: &[u8] = &seed.0.to_vec();
+        let mnemonic = Mnemonic::from_phrase(&phrase, Language::English).unwrap();
+        let seed = Seed::new(&mnemonic, &password);
+        let seed: &[u8] = seed.as_bytes();
 
         // BIP32 Root Key
-        let root_xprv = XPrv::new(&seed_bytes);
+        let root_xprv = XPrv::new(&seed);
         let root_xprv_str = root_xprv.unwrap().to_string(Prefix::XPRV).to_string();
 
         Wallet {
             phrase,
             password,
-            seed: seed_bytes.to_vec(),
+            seed: seed.to_vec(),
             root_key: root_xprv_str,
         }
     }

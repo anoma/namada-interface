@@ -1,7 +1,7 @@
+import { fromHex, toHex } from "@cosmjs/encoding";
 import { Tokens } from "constants/";
 import Wallet from "./Wallet";
 import AnomaClient from "./AnomaClient";
-import { fromHex, toHex } from "@cosmjs/encoding";
 
 const MNEMONIC_24 =
   // eslint-disable-next-line max-len
@@ -132,6 +132,7 @@ describe("Wallet class", () => {
     const child = wallet.new(0);
     const { secret, public: pub } = child;
 
+    // The following will fail if there is a signature error:
     const deserializedKeypair = keypair.deserialize({
       secret: fromHex(secret),
       public: fromHex(pub),
