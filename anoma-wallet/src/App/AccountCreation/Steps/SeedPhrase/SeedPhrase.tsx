@@ -47,21 +47,6 @@ const mnemonicLengthToEnum = (seedPhraseLength: string): MnemonicLength => {
   }
 };
 
-// this starts a download of a file with the passed in content
-// TODO: check the security of this, nothing stays in DOM?
-const textToDownload = (content: string, filename: string): void => {
-  const element = document.createElement("a");
-  element.setAttribute(
-    "href",
-    "data:text/plain;charset=utf-8," + encodeURIComponent(content)
-  );
-  element.setAttribute("download", filename);
-  element.style.display = "none";
-  document.body.appendChild(element);
-  element.click();
-  document.body.removeChild(element);
-};
-
 // saves the content to clipboard
 const textToClipboard = (content: string): void => {
   navigator.clipboard.writeText(content);
@@ -119,21 +104,6 @@ const SeedPhrase = (props: AccountInformationViewProps): JSX.Element => {
         </SeedPhraseContainer>
 
         <ExportSeedPhraseButtonsContainer>
-          {/* download seed phrase */}
-          <Button
-            onClick={() => {
-              textToDownload(
-                seedPhraseAsArray
-                  .map((word, index) => `${index + 1} ${word}`)
-                  .join("\n"),
-                "seed_phrase.txt"
-              );
-            }}
-            variant={Variant.text}
-          >
-            Download backup
-          </Button>
-
           {/* copy seed phrase */}
           <Button
             onClick={() => {

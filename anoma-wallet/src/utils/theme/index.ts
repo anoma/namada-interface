@@ -6,6 +6,7 @@ type Colors = {
   background1: string;
   background2: string;
   background3: string;
+  titleColor: string;
   border: string;
   borderShadow: string;
   textPrimary: string;
@@ -16,6 +17,8 @@ type Colors = {
   buttonShadow: string;
   buttonShadowHover: string;
   buttonDisabledBackground: string;
+  buttonDisabledBorder: string;
+  buttonOutlineStyleHoverBackground: string;
 };
 
 export type Theme = {
@@ -27,6 +30,7 @@ export const darkColors: Colors = {
   background1: "#17171d",
   background2: "#242427",
   background3: "#ffffff",
+  titleColor: "#ffffff",
   border: "#727273",
   borderShadow: "#727273",
   textPrimary: "#727273",
@@ -37,12 +41,15 @@ export const darkColors: Colors = {
   buttonShadow: "#CEB44F",
   buttonShadowHover: "#CEB44F",
   buttonDisabledBackground: "#c7c7c7",
+  buttonDisabledBorder: "#747474",
+  buttonOutlineStyleHoverBackground: "#393939",
 };
 
 export const lightColors: Colors = {
   background1: "#ffffff",
   background2: "#ffffff",
   background3: "#ffffff",
+  titleColor: "#011F43",
   border: "#002046",
   borderShadow: "#002046",
   textPrimary: "#002046",
@@ -53,4 +60,6 @@ export const lightColors: Colors = {
   buttonShadow: "#002046",
   buttonShadowHover: "#002046",
   buttonDisabledBackground: "#c7c7c7",
+  buttonDisabledBorder: "#747474",
+  buttonOutlineStyleHoverBackground: "#ffeaaf",
 };

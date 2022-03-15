@@ -24,7 +24,7 @@ export const AccountInformationForm = styled.div`
 
 export const Header1 = styled.h1`
   margin: 8px 0;
-  color: ${(props) => props.theme.colors.textPrimary};
+  color: ${(props) => props.theme.colors.titleColor};
 `;
 
 export const BodyText = styled.p`
@@ -48,7 +48,7 @@ export const SeedPhraseCard = styled.div`
   padding: 2px 8px;
   margin: 4px;
   box-sizing: border-box;
-  color: ${(props) => props.theme.colors.textPrimary};
+  color: ${(props) => props.theme.colors.titleColor};
 `;
 
 export const SeedPhraseContainer = styled.div`

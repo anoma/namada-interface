@@ -10,7 +10,7 @@ export const AccountInformationViewContainer = styled.div`
 
 export const Header1 = styled.h1`
   margin: 8px 0;
-  color: ${(props) => props.theme.colors.textPrimary};
+  color: ${(props) => props.theme.colors.titleColor};
 `;
 
 export const Header5 = styled.h5`
@@ -30,8 +30,18 @@ export const AccountInformationViewUpperPartContainer = styled.div`
 export const AccountInformationForm = styled.div`
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   align-items: flex-start;
+  height: 100%;
+  width: 100%;
+`;
 
+export const DescriptionAndInputContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  height: 100%;
   width: 100%;
 `;
 
@@ -39,7 +49,7 @@ export const ButtonContainer = styled.div`
   display: flex;
   justify-content: center;
   width: 100%;
-  padding: 48px 0;
+  padding: 24px 0;
 `;
 
 export const Input = styled.input`

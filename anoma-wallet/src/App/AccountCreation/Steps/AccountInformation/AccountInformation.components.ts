@@ -10,17 +10,17 @@ export const AccountInformationViewContainer = styled.div`
 
 export const Header1 = styled.h1`
   margin: 8px 0;
-  color: ${(props) => props.theme.colors.textPrimary};
+  color: ${(props) => props.theme.colors.titleColor};
 `;
 
 export const Header3 = styled.h3`
   margin: 8px 0;
-  color: ${(props) => props.theme.colors.textPrimary};
+  color: ${(props) => props.theme.colors.titleColor};
 `;
 
 export const Header5 = styled.h5`
   margin: 8px 0;
-  color: ${(props) => props.theme.colors.textPrimary};
+  color: ${(props) => props.theme.colors.titleColor};
 `;
 
 export const BodyText = styled.p`
@@ -46,7 +46,7 @@ export const ButtonContainer = styled.div`
   display: flex;
   justify-content: center;
   width: 100%;
-  padding: 48px 0;
+  padding: 24px 0;
 `;
 
 export const Input = styled.input`
@@ -60,7 +60,6 @@ export const Input = styled.input`
 export const InputContainer = styled.div`
   width: 100%;
   height: 92px;
-  margin: 0 0 24px;
 `;
 
 export const InputFeedback = styled.span`
@@ -68,7 +67,13 @@ export const InputFeedback = styled.span`
   color: red;
 `;
 
-export const RecoveryPhraseLengthRadioButton = styled.input``;
+export const RecoveryPhraseLengthRadioButton = styled.input`
+  color: ${(props) => props.theme.colors.titleColor};
+`;
+
+export const RadioButtonLabel = styled.label`
+  color: ${(props) => props.theme.colors.titleColor};
+`;
 
 export const RecoveryPhraseLengthRadioButtonContainer = styled.div`
   display: flex;

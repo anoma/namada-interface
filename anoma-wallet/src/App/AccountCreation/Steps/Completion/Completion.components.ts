@@ -10,7 +10,7 @@ export const StartViewContainer = styled.div`
 
 export const Header1 = styled.h1`
   margin: 8px 0;
-  color: ${(props) => props.theme.colors.textPrimary};
+  color: ${(props) => props.theme.colors.titleColor};
 `;
 
 export const BodyText = styled.p`

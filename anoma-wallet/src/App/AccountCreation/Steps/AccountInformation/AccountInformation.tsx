@@ -12,6 +12,7 @@ import {
   InputFeedback,
   InputContainer,
   ButtonContainer,
+  RadioButtonLabel,
   RecoveryPhraseLengthRadioButton,
   RecoveryPhraseLengthRadioButtonContainer,
   RecoveryPhraseLengthRadioButtonsContainer,
@@ -90,7 +91,7 @@ const AccountInformation = (
                 }}
                 checked={seedPhraseLength === "12"}
               />
-              <label htmlFor="seedPhraseLength">12</label>
+              <RadioButtonLabel htmlFor="seedPhraseLength">12</RadioButtonLabel>
             </RecoveryPhraseLengthRadioButtonContainer>
 
             <RecoveryPhraseLengthRadioButtonContainer>
@@ -105,7 +106,7 @@ const AccountInformation = (
                   });
                 }}
               />
-              <label htmlFor="seedPhraseLength">24</label>
+              <RadioButtonLabel htmlFor="seedPhraseLength">24</RadioButtonLabel>
             </RecoveryPhraseLengthRadioButtonContainer>
           </RecoveryPhraseLengthRadioButtonsContainer>
         </RecoveryPhraseLengthContainer>

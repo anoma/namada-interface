@@ -25,6 +25,9 @@ export const ButtonContainer = styled.button`
   }
   &:disabled {
     background-color: ${(props) => props.theme.colors.buttonDisabledBackground};
+    border: 2px solid ${(props) => props.theme.colors.buttonDisabledBorder};
+    border-bottom: solid 4px
+      ${(props) => props.theme.colors.buttonDisabledBorder};
     cursor: default;
   }
 `;
@@ -64,6 +67,7 @@ export const ButtonContainerOutline = styled.button`
   transition: ${transition};
   &:hover {
     background-color: ${(props) => props.theme.colors.yellow1Hover};
+
     border: 2px solid ${(props) => props.theme.colors.buttonShadowHover};
     border-bottom: solid 4px ${(props) => props.theme.colors.buttonShadowHover};
   }
@@ -82,6 +86,7 @@ export const ButtonContainerText = styled.button`
   background: none;
   cursor: pointer;
   border: none;
+  color: ${(props) => props.theme.colors.titleColor};
   height: 32px;
   min-height: 32px;
   min-width: 48px;
@@ -89,7 +94,8 @@ export const ButtonContainerText = styled.button`
   font-weight: 600;
   transition: ${transition};
   &:hover {
-    background-color: ${(props) => `${props.theme.colors.yellow1Hover}21`};
+    background-color: ${(props) =>
+      props.theme.colors.buttonOutlineStyleHoverBackground};
   }
   &:disabled {
     background-color: ${(props) => props.theme.colors.buttonDisabledBackground};

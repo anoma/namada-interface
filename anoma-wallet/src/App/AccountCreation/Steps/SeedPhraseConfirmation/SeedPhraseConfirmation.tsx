@@ -4,6 +4,7 @@ import {
   AccountInformationViewContainer,
   AccountInformationViewUpperPartContainer,
   AccountInformationForm,
+  DescriptionAndInputContainer,
   Header1,
   Header5,
   BodyText,
@@ -39,22 +40,23 @@ function SeedPhraseConfirmation(
 
       {/* form */}
       <AccountInformationForm>
-        {/* description */}
-        <BodyText>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Enim augue
-          aenean facilisi placerat laoreet sem faucibus{" "}
-        </BodyText>
+        <DescriptionAndInputContainer>
+          {/* description */}
+          <BodyText>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Enim augue
+            aenean facilisi placerat laoreet sem faucibus{" "}
+          </BodyText>
 
-        {/* seed verification */}
-        <InputContainer>
-          <Header5>Word #{indexToConfirm + 1}</Header5>
-          <Input
-            onChange={(event) => {
-              setVerificationInput(event.target.value);
-            }}
-          />
-        </InputContainer>
-
+          {/* seed verification */}
+          <InputContainer>
+            <Header5>Word #{indexToConfirm + 1}</Header5>
+            <Input
+              onChange={(event) => {
+                setVerificationInput(event.target.value);
+              }}
+            />
+          </InputContainer>
+        </DescriptionAndInputContainer>
         {/* submit */}
         <ButtonContainer>
           <Button
