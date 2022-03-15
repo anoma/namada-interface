@@ -4,48 +4,54 @@ import { ErrorTooltip, IconContainer, Label, PasswordContainer, TextAreaInput, T
 import { InputVariants } from "./types"
 
 export type InputProps = {
-    variant: InputVariants;
+    variant?: InputVariants;
     label: string;
     error?: string;
     onChangeCallback?: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>
     placeholder?: string;
 }
 
-export const Input = (props: InputProps): JSX.Element => {
+export const Input = ({
+    variant = InputVariants.Text,
+    label,
+    error,
+    onChangeCallback,
+    placeholder
+    }: InputProps): JSX.Element => {
     const [passwordShown, setPasswordShown] = useState(false);
     const togglePasswordShown = (): void => setPasswordShown(!passwordShown);
 
-    switch (props.variant) {
+    switch (variant) {
         case InputVariants.Text:
             return (
                 <Label>
-                    {props.label}
+                    {label}
                     <div>
-                        <TextInput error={!!props.error} 
-                        onChange={props.onChangeCallback}
-                        placeholder={props.placeholder} /><br />
-                        <ErrorTooltip>{props.error}</ErrorTooltip>
+                        <TextInput error={!!error} 
+                        onChange={onChangeCallback}
+                        placeholder={placeholder} /><br />
+                        <ErrorTooltip>{error}</ErrorTooltip>
                     </div>
                 </Label>
             )
         case InputVariants.Textarea:
             return (
                 <Label>
-                    {props.label}<br />
-                    <TextAreaInput error={!!props.error} 
-                    onChange={props.onChangeCallback} /><br />
-                    <ErrorTooltip>{props.error}</ErrorTooltip>
+                    {label}<br />
+                    <TextAreaInput error={!!error} 
+                    onChange={onChangeCallback} /><br />
+                    <ErrorTooltip>{error}</ErrorTooltip>
                 </Label>
             )
         case InputVariants.Password:
             return (
                <Label>
-                   {props.label}
+                   {label}
                    <PasswordContainer>
                         <TextInput
-                            error={!!props.error} 
-                            placeholder={props.placeholder} 
-                            onChange={props.onChangeCallback} 
+                            error={!!error} 
+                            placeholder={placeholder} 
+                            onChange={onChangeCallback} 
                             type={passwordShown ? "text" : "password"} />
                         <IconContainer onClick={(_) => togglePasswordShown()} >
                             <Icon iconName={passwordShown ?

@@ -1,2 +1,2 @@
 export { Button } from "./button";
-export { ButtonStyle } from "./types";
+export { ButtonVariant } from "./types";

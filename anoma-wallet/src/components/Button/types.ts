@@ -1,4 +1,4 @@
-export enum ButtonStyle {
+export enum ButtonVariant {
   Outlined,
   Contained,
   ContainedAlternative,

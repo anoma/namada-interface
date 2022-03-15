@@ -6,6 +6,10 @@ import {
   BodyTextContainer,
 } from "./mainSection.components";
 import { Image, ImageName } from "components/Image";
+import { Input } from "components/Input/input";
+import { InputVariants } from "components/Input";
+import { Button, ButtonVariant } from "components/Button";
+import { Wordchip } from "components/WordChip";
 
 function MainSection(): JSX.Element {
   return (
@@ -22,6 +26,7 @@ function MainSection(): JSX.Element {
         porttitor eu auctor eu. Aenean faucibus non eleifend neque ullamcorper
         viverra amet.{" "}
       </BodyTextContainer>
+      <Input label="senha"/>
     </MainSectionContainer>
   );
 }

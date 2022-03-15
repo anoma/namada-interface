@@ -3,11 +3,12 @@ import { NumberContainer, TextContainer, WordChipContainer } from "./wordchip.co
 export type WordchipProps = {
     number: string;
     text: string;
+    style?: React.CSSProperties;
 }
 
 export const Wordchip = (props: WordchipProps): JSX.Element => {
     return (
-    <WordChipContainer>
+    <WordChipContainer style={props.style}>
         <NumberContainer>{props.number}</NumberContainer>
         <TextContainer>{props.text}</TextContainer>
     </WordChipContainer>
