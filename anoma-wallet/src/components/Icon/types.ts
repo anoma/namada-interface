@@ -4,6 +4,8 @@ export enum IconName {
   HelpCircle,
   Moon,
   Sun,
+  EyeHidden,
+  Eye,
 }
 
 export enum IconSize {

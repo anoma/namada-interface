@@ -2,6 +2,8 @@ import { ComponentType } from "react";
 import { ReactComponent as HelpCircleDark } from "./assets/help-circle-dark.svg";
 import { ReactComponent as MoonDark } from "./assets/moon-dark.svg";
 import { ReactComponent as SunDark } from "./assets/sun-dark.svg";
+import { ReactComponent as EyeDark } from "./assets/eye-dark.svg";
+import { ReactComponent as EyeHiddenDark } from "./assets/eye-hidden-dark.svg"
 
 import { IconName, IconSize } from "./types";
 
@@ -23,6 +25,8 @@ const icons: Record<IconName, ComponentType> = {
   [IconName.HelpCircle]: HelpCircleDark,
   [IconName.Moon]: MoonDark,
   [IconName.Sun]: SunDark,
+  [IconName.Eye]: EyeDark,
+  [IconName.EyeHidden]: EyeHiddenDark,
 };
 
 /**
