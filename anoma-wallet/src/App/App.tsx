@@ -1,7 +1,9 @@
 /* eslint-disable max-len */
 import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { TopNavigation } from "./TopNavigation";
 import { MainSection } from "./MainSection";
+import { AccountCreation } from "./AccountCreation";
 import {
   AppContainer,
   MainSectionContainer,
@@ -26,19 +28,24 @@ function App(): JSX.Element {
   const [isLightMode, setIsLightMode] = React.useState(true);
   const theme = getTheme(isLightMode);
   return (
-    <ThemeProvider theme={theme}>
-      <AppContainer>
-        <TopSection>
-          <TopNavigation
-            isLightMode={isLightMode}
-            setIsLightMode={setIsLightMode}
-          />
-        </TopSection>
-        <MainSectionContainer>
-          <MainSection />
-        </MainSectionContainer>
-      </AppContainer>
-    </ThemeProvider>
+    <BrowserRouter>
+      <ThemeProvider theme={theme}>
+        <AppContainer>
+          <TopSection>
+            <TopNavigation
+              isLightMode={isLightMode}
+              setIsLightMode={setIsLightMode}
+            />
+          </TopSection>
+          <MainSectionContainer>
+            <Routes>
+              <Route path="/" element={<MainSection />} />
+              <Route path="/account-creation/*" element={<AccountCreation />} />
+            </Routes>
+          </MainSectionContainer>
+        </AppContainer>
+      </ThemeProvider>
+    </BrowserRouter>
   );
 }
 

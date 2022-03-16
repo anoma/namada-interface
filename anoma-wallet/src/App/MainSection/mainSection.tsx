@@ -14,7 +14,7 @@ function MainSection(): JSX.Element {
         <Image imageName={ImageName.LogoMinimal} />
       </ImageSectionContainer>
       <HeadlineSectionContainer>
-        <Headline> SUPER TITLE LINE 1</Headline>
+        <Headline>Welcome to Anoma Wallet</Headline>
       </HeadlineSectionContainer>
       <BodyTextContainer>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Enim augue

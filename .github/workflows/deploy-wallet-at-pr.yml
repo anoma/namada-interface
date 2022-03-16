@@ -12,11 +12,11 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./anoma-wallet
-        run: npm install
+        run: CI=false yarn
 
       - name: build the site
         working-directory: ./anoma-wallet
-        run: CI=false npm run build
+        run: CI=false yarn build-with-craco
 
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v1.2.3
