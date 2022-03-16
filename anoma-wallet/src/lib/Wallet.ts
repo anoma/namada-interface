@@ -1,7 +1,7 @@
 import { toHex } from "@cosmjs/encoding";
 import base58 from "bs58";
 import { Tokens, TokenType } from "constants/";
-import AnomaClient, { Result, WalletType } from "./AnomaClient";
+import AnomaClient, { Result, ResultType, WalletType } from "./AnomaClient";
 
 type Encoding = "hex" | "base58" | null;
 
@@ -80,8 +80,12 @@ class Wallet {
       index: `${index}${isHardened ? "'" : ""}`,
     });
 
-    const childAccount: DerivedAccountData =
-      this._wallet?.account(path)[Result.Ok];
+    const result: Result<DerivedAccountData> = this._wallet?.account(path);
+    const error = result[ResultType.Err];
+
+    if (error) {
+      throw new Error(error);
+    }
 
     const {
       address,
@@ -90,7 +94,7 @@ class Wallet {
       public_key: publicKey,
       secret,
       public: pk,
-    } = childAccount;
+    } = result[ResultType.Ok];
 
     let encodedPrivateKey;
     let encodedPublicKey;
@@ -130,8 +134,15 @@ class Wallet {
   public get account(): ExtendedKeys {
     const { type } = Tokens[this._tokenType];
     const path = Wallet.makePath({ type });
-    const { xpriv, xpub }: ExtendedKeys =
-      this._wallet?.extended_keys(path)[Result.Ok];
+
+    const result: Result<ExtendedKeys> = this._wallet?.extended_keys(path);
+    const error = result[ResultType.Err];
+
+    if (error) {
+      throw new Error(error);
+    }
+
+    const { xpriv, xpub }: ExtendedKeys = result[ResultType.Ok];
 
     return {
       xpriv,
@@ -148,8 +159,15 @@ class Wallet {
       type,
       change: 0,
     });
-    const { xpriv, xpub }: ExtendedKeys =
-      this._wallet?.extended_keys(path)[Result.Ok];
+
+    const result: Result<ExtendedKeys> = this._wallet?.extended_keys(path);
+    const error = result[ResultType.Err];
+
+    if (error) {
+      throw new Error(error);
+    }
+
+    const { xpriv, xpub }: ExtendedKeys = result[ResultType.Ok];
 
     return {
       xpriv,
