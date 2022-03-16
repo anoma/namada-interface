@@ -39,7 +39,7 @@ impl Account {
         };
         let data = data.try_to_vec().expect("Encoding tx data shouldn't fail");
 
-        Ok(JsValue::from_serde(&Account(Transaction::new(
+        let transaction = match Transaction::new(
             serialized_keypair,
             token,
             epoch,
@@ -47,6 +47,12 @@ impl Account {
             gas_limit,
             tx_code,
             data
-        ).unwrap())).unwrap())
+        ) {
+            Ok(transaction) => transaction,
+            Err(error) => return Err(error)
+        };
+    
+        // Return serialized Transaction
+        Ok(JsValue::from_serde(&Account(transaction)).unwrap())
     }
 }

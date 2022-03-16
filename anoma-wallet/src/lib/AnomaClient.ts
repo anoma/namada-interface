@@ -1,5 +1,11 @@
 import init, { Address, Keypair, Transfer, Account, Wallet } from "lib/anoma";
 
+// Utility enum for handling Result responses from wasm:
+export enum Result {
+  Ok = "Ok",
+  Err = "Err",
+}
+
 class AnomaClient {
   public memory: WebAssembly.Memory | null = null;
 

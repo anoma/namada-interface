@@ -40,8 +40,7 @@ impl Transfer {
             .try_to_vec()
             .expect("Encoding unsigned transfer shouldn't fail");
 
-        // Return serialized Transaction
-        Ok(JsValue::from_serde(&Transfer(Transaction::new(
+        let transaction = match Transaction::new(
             serialized_keypair,
             token,
             epoch,
@@ -49,6 +48,12 @@ impl Transfer {
             gas_limit,
             tx_code,
             data
-        ).unwrap())).unwrap())
+        ) {
+            Ok(transaction) => transaction,
+            Err(error) => return Err(error)
+        };
+    
+        // Return serialized Transaction
+        Ok(JsValue::from_serde(&Transfer(transaction)).unwrap())
     }
 }

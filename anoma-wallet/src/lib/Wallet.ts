@@ -1,7 +1,7 @@
 import { toHex } from "@cosmjs/encoding";
 import base58 from "bs58";
 import { Tokens, TokenType } from "constants/";
-import AnomaClient, { WalletType } from "./AnomaClient";
+import AnomaClient, { Result, WalletType } from "./AnomaClient";
 
 type Encoding = "hex" | "base58" | null;
 
@@ -80,7 +80,9 @@ class Wallet {
       index: `${index}${isHardened ? "'" : ""}`,
     });
 
-    const childAccount: DerivedAccountData = this._wallet?.account(path);
+    const childAccount: DerivedAccountData =
+      this._wallet?.account(path)[Result.Ok];
+
     const {
       address,
       wif,
@@ -128,7 +130,8 @@ class Wallet {
   public get account(): ExtendedKeys {
     const { type } = Tokens[this._tokenType];
     const path = Wallet.makePath({ type });
-    const { xpriv, xpub }: ExtendedKeys = this._wallet?.extended_keys(path);
+    const { xpriv, xpub }: ExtendedKeys =
+      this._wallet?.extended_keys(path)[Result.Ok];
 
     return {
       xpriv,
@@ -145,7 +148,8 @@ class Wallet {
       type,
       change: 0,
     });
-    const { xpriv, xpub }: ExtendedKeys = this._wallet?.extended_keys(path);
+    const { xpriv, xpub }: ExtendedKeys =
+      this._wallet?.extended_keys(path)[Result.Ok];
 
     return {
       xpriv,
