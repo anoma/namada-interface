@@ -31,7 +31,7 @@ import {
   MotionContainer,
 } from "./AccountCreation.components";
 
-import { Button } from "components/Button";
+import { Button } from "components/ButtonTemporary";
 import { Icon, IconName } from "components/Icon";
 
 const AnimatedTransition = (props: {

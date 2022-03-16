@@ -1,4 +1,4 @@
-import { Button, Variant } from "components/Button";
+import { Button, Variant } from "components/ButtonTemporary";
 import { Image, ImageName } from "components/Image";
 import {
   StartViewContainer,

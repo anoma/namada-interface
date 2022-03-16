@@ -1,6 +1,6 @@
 import React from "react";
 import { Mnemonic, MnemonicLength } from "@anoma-wallet/key-management";
-import { Button, Variant } from "components/Button";
+import { Button, Variant } from "components/ButtonTemporary";
 import {
   AccountInformationViewContainer,
   AccountInformationViewUpperPartContainer,
