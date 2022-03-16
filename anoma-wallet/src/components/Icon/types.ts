@@ -9,6 +9,8 @@ export enum IconName {
   ChevronRight,
   ChevronDown,
   ChevronLeft,
+  EyeHidden,
+  Eye,
 }
 
 export enum IconSize {
