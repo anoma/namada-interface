@@ -33,7 +33,7 @@ bitcoin = "0.27.1"
 
 [dependencies.web-sys]
 version = "0.3"
-features = [ "console", "FileReader", "Window" ]
+features = [ "console" ]
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.13"
