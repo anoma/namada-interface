@@ -6,6 +6,7 @@ type Colors = {
   background1: string;
   background2: string;
   background3: string;
+  titleColor: string;
   border: string;
   borderShadow: string;
   textPrimary: string;
@@ -29,6 +30,15 @@ type Colors = {
   inputFocus: string;
   wordchip: string;
   wordchipText: string;
+  textSecondary: string;
+  yellow1: string;
+  yellow1Hover: string;
+  buttonBorder: string;
+  buttonShadow: string;
+  buttonShadowHover: string;
+  buttonDisabledBackground: string;
+  buttonDisabledBorder: string;
+  buttonOutlineStyleHoverBackground: string;
 };
 
 export type Theme = {
@@ -40,9 +50,9 @@ export const darkColors: Colors = {
   background1: "#17171d",
   background2: "#242427",
   background3: "#ffffff",
+  titleColor: "#ffffff",
   border: "#727273",
   borderShadow: "#727273",
-  textPrimary: "#ffffff",
   buttonText1: "#F5DD81",
   buttonText2: "#17171D",
   buttonText3: "#17171D",
@@ -63,12 +73,23 @@ export const darkColors: Colors = {
   inputFocus: "#F5DD81",
   wordchip: "#727273",
   wordchipText: "#e8e8e8",
+  textPrimary: "#727273",
+  textSecondary: "#8F9FB2",
+  yellow1: "#F5DD81",
+  yellow1Hover: "#ffdc55",
+  buttonBorder: "#CEB44F",
+  buttonShadow: "#CEB44F",
+  buttonShadowHover: "#CEB44F",
+  buttonDisabledBackground: "#c7c7c7",
+  buttonDisabledBorder: "#747474",
+  buttonOutlineStyleHoverBackground: "#393939",
 };
 
 export const lightColors: Colors = {
   background1: "#ffffff",
   background2: "#ffffff",
   background3: "#ffffff",
+  titleColor: "#011F43",
   border: "#002046",
   borderShadow: "#002046",
   textPrimary: "#002046",
@@ -92,4 +113,13 @@ export const lightColors: Colors = {
   inputFocus: "#2A517E",
   wordchip: "#8F9FB2",
   wordchipText: "#011F43",
+  textSecondary: "#8F9FB2",
+  yellow1: "#EEAF02",
+  yellow1Hover: "#f8bf24",
+  buttonBorder: "#002046",
+  buttonShadow: "#002046",
+  buttonShadowHover: "#002046",
+  buttonDisabledBackground: "#c7c7c7",
+  buttonDisabledBorder: "#747474",
+  buttonOutlineStyleHoverBackground: "#ffeaaf",
 };

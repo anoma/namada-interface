@@ -4,6 +4,11 @@ export enum IconName {
   HelpCircle,
   Moon,
   Sun,
+  Key,
+  ChevronUp,
+  ChevronRight,
+  ChevronDown,
+  ChevronLeft,
   EyeHidden,
   Eye,
 }
