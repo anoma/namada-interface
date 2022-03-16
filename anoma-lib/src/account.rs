@@ -16,6 +16,7 @@ pub struct Account(pub Transaction);
 
 #[wasm_bindgen]
 impl Account {
+    /// Initialize an account on the Ledger
     pub fn init(
         serialized_keypair: JsValue,
         token: String,

@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { TopNavigation } from "./TopNavigation";

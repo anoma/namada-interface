@@ -6,6 +6,7 @@ export function run(): void;
 export class Account {
   free(): void;
 /**
+* Initialize an account on the Ledger
 * @param {any} serialized_keypair
 * @param {string} token
 * @param {number} epoch
@@ -35,6 +36,16 @@ export class Address {
 * @returns {string}
 */
   readonly encoded: string;
+}
+/**
+*/
+export class DerivedAccount {
+  free(): void;
+}
+/**
+*/
+export class ExtendedKeys {
+  free(): void;
 }
 /**
 */
@@ -77,6 +88,46 @@ export class Tx {
 }
 /**
 */
+export class Wallet {
+  free(): void;
+/**
+* @param {string} phrase
+* @param {string} password
+* @returns {Wallet}
+*/
+  static new(phrase: string, password: string): Wallet;
+/**
+* Derive account from a seed and a path
+* @param {string} path
+* @returns {DerivedAccount}
+*/
+  derive(path: string): DerivedAccount;
+/**
+* Get extended keys from path
+* @param {string} path
+* @returns {ExtendedKeys}
+*/
+  get_extended_keys(path: string): ExtendedKeys;
+/**
+* Get serialized Wallet
+* @returns {any}
+*/
+  serialize(): any;
+/**
+* Get serialized extended keys
+* @param {string} path
+* @returns {any}
+*/
+  extended_keys(path: string): any;
+/**
+* Get serialized derived account
+* @param {string} path
+* @returns {any}
+*/
+  account(path: string): any;
+}
+/**
+*/
 export class WrapperTx {
   free(): void;
 }
@@ -85,6 +136,21 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
+  readonly __wbg_wallet_free: (a: number) => void;
+  readonly __wbg_derivedaccount_free: (a: number) => void;
+  readonly __wbg_extendedkeys_free: (a: number) => void;
+  readonly wallet_new: (a: number, b: number, c: number, d: number) => number;
+  readonly wallet_derive: (a: number, b: number, c: number) => number;
+  readonly wallet_get_extended_keys: (a: number, b: number, c: number) => number;
+  readonly wallet_serialize: (a: number, b: number) => void;
+  readonly wallet_extended_keys: (a: number, b: number, c: number, d: number) => void;
+  readonly wallet_account: (a: number, b: number, c: number, d: number) => void;
+  readonly __wbg_address_free: (a: number) => void;
+  readonly address_encoded: (a: number, b: number) => void;
+  readonly address_from_keypair: (a: number) => number;
+  readonly address_decode: (a: number, b: number, c: number) => void;
+  readonly account_init: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number) => void;
+  readonly run: () => void;
   readonly __wbg_tx_free: (a: number) => void;
   readonly __wbg_wrappertx_free: (a: number) => void;
   readonly __wbg_keypair_free: (a: number) => void;
@@ -92,12 +158,10 @@ export interface InitOutput {
   readonly keypair_deserialize: (a: number, b: number) => void;
   readonly keypair_to_bytes: (a: number, b: number) => void;
   readonly transfer_new: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number) => void;
-  readonly __wbg_address_free: (a: number) => void;
-  readonly address_encoded: (a: number, b: number) => void;
-  readonly address_from_keypair: (a: number) => number;
-  readonly address_decode: (a: number, b: number, c: number) => void;
-  readonly account_init: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number) => void;
-  readonly run: () => void;
+  readonly rustsecp256k1_v0_4_1_context_create: (a: number) => number;
+  readonly rustsecp256k1_v0_4_1_context_destroy: (a: number) => void;
+  readonly rustsecp256k1_v0_4_1_default_illegal_callback_fn: (a: number, b: number) => void;
+  readonly rustsecp256k1_v0_4_1_default_error_callback_fn: (a: number, b: number) => void;
   readonly __wbindgen_malloc: (a: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number) => number;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;

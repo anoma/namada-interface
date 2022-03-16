@@ -16,7 +16,7 @@ jobs:
 
       - name: build the site
         working-directory: ./anoma-wallet
-        run: CI=false yarn build-with-craco
+        run: CI=false yarn build
 
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v1.2.3

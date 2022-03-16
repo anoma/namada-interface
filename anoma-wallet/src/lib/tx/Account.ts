@@ -1,5 +1,5 @@
 import { AnomaClient, Keypair } from "lib";
-import { Tokens, TokenType, TxWasm, VpWasm } from "constants/";
+import { Tokens, TxWasm, VpWasm } from "constants/";
 
 class Account {
   private _txCode: Uint8Array | undefined;
@@ -22,7 +22,7 @@ class Account {
   }
 
   public async initialize({
-    token = Tokens[TokenType.XAN].address,
+    token = Tokens["BTC"].address || "",
     publicKey,
     privateKey,
     epoch,
