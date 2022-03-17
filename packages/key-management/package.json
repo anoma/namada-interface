@@ -2,7 +2,12 @@
   "name": "@anoma-wallet/key-management",
   "version": "0.1.0",
   "type": "module",
+  "license": "MIT",
   "main": "./index.ts",
+  "scripts": {
+    "wasm:buld:node": "./scripts/build-test.sh",
+    "test": "yarn wasm:build:node && yarn jest"
+  },
   "devDependencies": {
     "jest": "^27.5.1",
     "ts-jest": "^27.1.3",

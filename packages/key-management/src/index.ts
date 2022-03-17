@@ -1,3 +1,2 @@
 export { Mnemonic, MnemonicLength } from "./Mnemonic";
-export { KeyPair, KeyPairType } from "./KeyPair";
-export { WalletFileManager } from "./WalletFile";
+export { KeyPair, KeyPairType, StorageValue } from "./KeyPair";

@@ -1,3 +1,3 @@
 {
-  "files": ["src/Keypair.ts", "src/Mnemonic.ts"]
+  "files": ["./src/KeyPair.ts", "./src/Mnemonic.ts"]
 }

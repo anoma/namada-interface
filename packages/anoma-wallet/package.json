@@ -2,6 +2,7 @@
   "name": "anoma-wallet",
   "version": "0.1.0",
   "main": "./src/index.ts",
+  "license": "MIT",
   "dependencies": {
     "@anoma-apps/anoma-lib": "0.1.0",
     "@anoma-wallet/key-management": "0.1.0",
@@ -25,13 +26,14 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "craco start",
+    "start": "yarn wasm:build && craco start",
     "start:local": "REACT_APP_LOCAL=\"true\" yarn start",
-    "build": "./build.sh && craco build",
+    "build": "yarn wasm:build && craco build",
     "lint": "npx eslint src --ext .ts,.tsx",
     "lint:fix": "yarn lint -- --fix",
-    "wasm:build": "./build.sh",
-    "test": "./build_test.sh && npx create-react-scripts test",
+    "wasm:build": "./scripts/build.sh",
+    "wasm:build:node": "./scripts/build-test.sh",
+    "test": "yarn wasm:build:node && npx create-react-scripts test",
     "eject": "npx react-scripts eject"
   },
   "eslintConfig": {
