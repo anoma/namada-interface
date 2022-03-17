@@ -164,3 +164,56 @@ export class Wallet {
 export class WrapperTx {
   free(): void;
 }
+
+export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
+
+export interface InitOutput {
+  readonly memory: WebAssembly.Memory;
+  readonly __wbg_wallet_free: (a: number) => void;
+  readonly __wbg_derivedaccount_free: (a: number) => void;
+  readonly __wbg_extendedkeys_free: (a: number) => void;
+  readonly wallet_new: (a: number, b: number, c: number, d: number, e: number) => void;
+  readonly wallet_derive: (a: number, b: number, c: number, d: number) => void;
+  readonly wallet_get_extended_keys: (a: number, b: number, c: number, d: number) => void;
+  readonly wallet_serialize: (a: number, b: number) => void;
+  readonly wallet_extended_keys: (a: number, b: number, c: number, d: number) => void;
+  readonly wallet_account: (a: number, b: number, c: number, d: number) => void;
+  readonly transfer_new: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number) => void;
+  readonly account_init: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number) => void;
+  readonly __wbg_publickey_free: (a: number) => void;
+  readonly __wbg_keypair_free: (a: number) => void;
+  readonly generate_mnemonic: (a: number, b: number) => void;
+  readonly keypair_from_mnemonic: (a: number, b: number, c: number) => number;
+  readonly keypair_from_pointer_to_js_value: (a: number) => number;
+  readonly keypair_from_js_value_to_pointer: (a: number, b: number) => void;
+  readonly keypair_encrypt_with_password: (a: number, b: number, c: number, d: number) => void;
+  readonly keypair_decrypt_with_password: (a: number, b: number, c: number, d: number) => number;
+  readonly keypair_to_bytes: (a: number, b: number) => void;
+  readonly __wbg_address_free: (a: number) => void;
+  readonly address_encoded: (a: number, b: number) => void;
+  readonly address_from_keypair: (a: number) => number;
+  readonly address_decode: (a: number, b: number, c: number) => void;
+  readonly run: () => void;
+  readonly __wbg_tx_free: (a: number) => void;
+  readonly __wbg_wrappertx_free: (a: number) => void;
+  readonly rustsecp256k1_v0_4_1_context_create: (a: number) => number;
+  readonly rustsecp256k1_v0_4_1_context_destroy: (a: number) => void;
+  readonly rustsecp256k1_v0_4_1_default_illegal_callback_fn: (a: number, b: number) => void;
+  readonly rustsecp256k1_v0_4_1_default_error_callback_fn: (a: number, b: number) => void;
+  readonly __wbindgen_malloc: (a: number) => number;
+  readonly __wbindgen_realloc: (a: number, b: number, c: number) => number;
+  readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
+  readonly __wbindgen_free: (a: number, b: number) => void;
+  readonly __wbindgen_exn_store: (a: number) => void;
+  readonly __wbindgen_start: () => void;
+}
+
+/**
+* If `module_or_path` is {RequestInfo} or {URL}, makes a request and
+* for everything else, calls `WebAssembly.instantiate` directly.
+*
+* @param {InitInput | Promise<InitInput>} module_or_path
+*
+* @returns {Promise<InitOutput>}
+*/
+export default function init (module_or_path?: InitInput | Promise<InitInput>): Promise<InitOutput>;

@@ -78,6 +78,7 @@ function AccountCreation(): JSX.Element {
     ? themeContext.colors.border
     : "black";
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(() => {
     if (
       window.location.pathname ===
@@ -118,7 +119,8 @@ function AccountCreation(): JSX.Element {
               }}
               onHover={() => {
                 // TODO this trick does not help when the user clicks browsers
-                // back button. might need some trickery where we still set it after the click
+                // back button. might need some trickery where we still set it
+                // after the click
                 setAnimationFromRightToLeft(false);
               }}
               style={{ padding: "0" }}
@@ -216,7 +218,7 @@ function AccountCreation(): JSX.Element {
                 >
                   <SeedPhraseConfirmation
                     seedPhrase={seedPhrase || []}
-                    onConfirmSeedPhrase={() => {
+                    onConfirmSeedPhrase={async () => {
                       navigateToNext();
 
                       // TODO
@@ -239,7 +241,7 @@ function AccountCreation(): JSX.Element {
                           seedPhrase?.join(" ")
                         );
 
-                        const keyPair = KeyPair.fromMnemonic(
+                        const keyPair = await KeyPair.fromMnemonic(
                           mnemonic,
                           accountCreationDetails.password
                         );

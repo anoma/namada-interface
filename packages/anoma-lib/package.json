@@ -4,7 +4,7 @@
   "type": "module",
   "main": "./index.ts",
   "scripts": {
-    "wasm:build": "wasm-pack build ./lib --out-dir ../src/lib/anoma --out-name anoma --target bundler",
+    "wasm:build": "wasm-pack build ./lib --out-dir ../src/lib/anoma --out-name anoma --target web",
     "wasm:build:node": "wasm-pack build ./lib --out-dir ../src/lib/anoma --out-name anoma --target nodejs"
   },
   "devDependencies": {

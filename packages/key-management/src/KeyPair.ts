@@ -1,4 +1,4 @@
-import { Keypair as WasmKeypair } from "@anoma-apps/anoma-lib";
+import { AnomaClient, Keypair as WasmKeypair } from "@anoma-apps/anoma-lib";
 import { toHex, fromHex } from "@cosmjs/encoding";
 import { Buffer } from "buffer";
 import { Mnemonic } from "./Mnemonic";
@@ -79,13 +79,17 @@ export class KeyPair {
 
   // Constructs a KeyPair from mnemonic
   // if password
-  static fromMnemonic(mnemonic: Mnemonic, password: string): KeyPair;
+  static fromMnemonic(mnemonic: Mnemonic, password: string): Promise<KeyPair>;
 
-  static fromMnemonic(mnemonic: Mnemonic): KeyPair;
+  static fromMnemonic(mnemonic: Mnemonic): Promise<KeyPair>;
 
-  static fromMnemonic(mnemonic: Mnemonic, password?: string): KeyPair {
+  static async fromMnemonic(
+    mnemonic: Mnemonic,
+    password?: string
+  ): Promise<KeyPair> {
     const self = new KeyPair();
-    const keyPairPointer = WasmKeypair.from_mnemonic(mnemonic.value, 1);
+    const { keypair } = await new AnomaClient().init();
+    const keyPairPointer = keypair.from_mnemonic(mnemonic.value, 1);
 
     self.keyPairPointer = keyPairPointer;
     self.keyPairType = password ? KeyPairType.Encrypted : KeyPairType.Raw;

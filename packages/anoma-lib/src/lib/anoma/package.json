@@ -13,7 +13,6 @@
   "files": [
     "anoma_bg.wasm",
     "anoma.js",
-    "anoma_bg.js",
     "anoma.d.ts",
     "LICENSE_APACHE",
     "LICENSE_MIT"

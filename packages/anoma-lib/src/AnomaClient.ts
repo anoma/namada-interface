@@ -1,12 +1,11 @@
-import {
+import init, {
   Address,
   Keypair,
   Transfer,
   Account,
   Wallet,
   generate_mnemonic,
-} from "./lib/anoma/anoma";
-import { memory } from "./lib/anoma/anoma_bg.wasm";
+} from "./lib/anoma";
 
 export enum ResultType {
   Ok = "Ok",
@@ -19,7 +18,7 @@ export type Result<T> = {
 };
 
 class AnomaClient {
-  public memory: WebAssembly.Memory = memory;
+  public memory: WebAssembly.Memory | null = null;
 
   public readonly address = Address;
   public readonly keypair = Keypair;
@@ -30,6 +29,14 @@ class AnomaClient {
   public readonly generateMnemonic = generate_mnemonic;
 
   public async init(): Promise<AnomaClient> {
+    // Support setting wasm-pack target to "nodejs" (for testing)
+    const _init =
+      typeof init === "function"
+        ? init
+        : () => Promise.resolve({ memory: null });
+
+    const { memory } = await _init();
+    this.memory = memory;
     return this;
   }
 }
