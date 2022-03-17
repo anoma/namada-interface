@@ -1,0 +1,37 @@
+import {
+  Address,
+  Keypair,
+  Transfer,
+  Account,
+  Wallet,
+  generate_mnemonic,
+} from "./lib/anoma/anoma";
+import { memory } from "./lib/anoma/anoma_bg.wasm";
+
+export enum ResultType {
+  Ok = "Ok",
+  Err = "Err",
+}
+
+export type Result<T> = {
+  Ok: T;
+  Err: string | undefined;
+};
+
+class AnomaClient {
+  public memory: WebAssembly.Memory = memory;
+
+  public readonly address = Address;
+  public readonly keypair = Keypair;
+  public readonly transfer = Transfer;
+  public readonly account = Account;
+  public readonly wallet = Wallet;
+
+  public readonly generateMnemonic = generate_mnemonic;
+
+  public async init(): Promise<AnomaClient> {
+    return this;
+  }
+}
+
+export default AnomaClient;

@@ -1,0 +1,1 @@
+cd ../anoma-lib && yarn wasm:build
