@@ -2,6 +2,7 @@
   "name": "anoma-wallet",
   "version": "0.1.0",
   "main": "./src/index.ts",
+  "type": "commonjs",
   "license": "MIT",
   "dependencies": {
     "@anoma-apps/anoma-lib": "0.1.0",

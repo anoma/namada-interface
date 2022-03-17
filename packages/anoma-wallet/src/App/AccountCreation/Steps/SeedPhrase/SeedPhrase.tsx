@@ -76,6 +76,7 @@ const SeedPhrase = (props: AccountInformationViewProps): JSX.Element => {
     };
     if (defaultSeedPhrase?.length && defaultSeedPhrase?.length > 0) return;
     createMnemonic();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -119,12 +120,6 @@ const SeedPhrase = (props: AccountInformationViewProps): JSX.Element => {
         <ButtonContainer>
           <Button
             onClick={() => {
-              if (!isSubmitButtonDisabled) {
-                const accountCreationDetailsToSubmit: AccountCreationDetails = {
-                  ...accountCreationDetails,
-                };
-              }
-
               onConfirmSavingOfSeedPhrase(seedPhraseAsArray);
             }}
             onHover={onCtaHover}

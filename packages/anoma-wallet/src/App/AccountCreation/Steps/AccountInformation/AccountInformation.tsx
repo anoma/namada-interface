@@ -163,7 +163,7 @@ const AccountInformation = (
             onChange={(event) => {
               setPassword2(event.target.value);
             }}
-            onFocus={(event) => {
+            onFocus={() => {
               setPassword1Feedback("");
               setPassword2Feedback("");
             }}

@@ -1,5 +1,4 @@
 import { AnomaClient } from "@anoma-apps/anoma-lib";
-import { generate_mnemonic } from "@anoma-apps/anoma-lib/src/lib/anoma";
 
 export enum MnemonicLength {
   Twelve = 12,
@@ -7,26 +6,28 @@ export enum MnemonicLength {
 }
 
 export class Mnemonic {
-  value: string;
+  value = "";
   constructor(length: MnemonicLength, mnemonicFromString?: string) {
     if (mnemonicFromString) {
       this.value = mnemonicFromString;
       return;
     }
-    this.value = generate_mnemonic(length);
+    Mnemonic.fromMnemonic(length).then(
+      (mnemonic) => (this.value = mnemonic.value)
+    );
   }
 
   static fromMnemonic = async (
     length: MnemonicLength,
     mnemonicFromString?: string
   ): Promise<Mnemonic> => {
-    await new AnomaClient().init();
+    const { generateMnemonic } = await new AnomaClient().init();
     const self = new Mnemonic(length);
     if (mnemonicFromString) {
       self.value = mnemonicFromString;
       return self;
     }
-    self.value = generate_mnemonic(length);
+    self.value = generateMnemonic(length);
     return self;
   };
 
