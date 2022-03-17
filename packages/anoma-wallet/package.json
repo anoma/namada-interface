@@ -29,7 +29,7 @@
   "scripts": {
     "start": "craco start",
     "start:local": "REACT_APP_LOCAL=\"true\" yarn start",
-    "build": "yarn wasm:build && craco build",
+    "build": "craco build",
     "lint": "npx eslint src --ext .ts,.tsx",
     "lint:fix": "yarn lint -- --fix",
     "wasm:build": "./scripts/build.sh",
