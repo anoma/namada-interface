@@ -26,7 +26,9 @@ describe("Keypair wasm and class methods", () => {
     const nativeKeypair = await keypair.toNativeKeypair();
 
     expect(Object.keys(nativeKeypair)).toEqual(expect.arrayContaining(props));
-    expect(nativeKeypair.serialize()).toEqual(SERIALIZABLE_KEYPAIR);
+    expect(nativeKeypair.from_pointer_to_js_value()).toEqual(
+      SERIALIZABLE_KEYPAIR
+    );
     expect(nativeKeypair.to_bytes().length).toBe(64);
     // Pointer should be nullified after to_bytes() is called
     expect(nativeKeypair).toEqual({ ptr: 0 });
@@ -43,7 +45,7 @@ describe("Keypair wasm and class methods", () => {
     const { keypair } = await new AnomaClient().init();
 
     // Now, we have access to the static method "deserialize"
-    const deserialized = keypair.deserialize(SERIALIZABLE_KEYPAIR);
+    const deserialized = keypair.from_js_value_to_pointer(SERIALIZABLE_KEYPAIR);
     expect(Object.keys(deserialized)).toEqual(expect.arrayContaining(props));
   });
 });

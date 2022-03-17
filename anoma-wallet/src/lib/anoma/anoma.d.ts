@@ -1,8 +1,19 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
+* @param {number} size
+* @returns {string}
+*/
+export function generate_mnemonic(size: number): string;
+/**
 */
 export function run(): void;
+/**
+*/
+export enum PhraseSize {
+  N12,
+  N24,
+}
 export class Account {
   free(): void;
 /**
@@ -52,18 +63,40 @@ export class ExtendedKeys {
 export class Keypair {
   free(): void;
 /**
+* @param {string} mnemonic
+* @param {number} iterations
+* @returns {Keypair}
+*/
+  static from_mnemonic(mnemonic: string, iterations: number): Keypair;
+/**
 * @returns {any}
 */
-  serialize(): any;
+  from_pointer_to_js_value(): any;
 /**
 * @param {any} js_data
 * @returns {Keypair}
 */
-  static deserialize(js_data: any): Keypair;
+  static from_js_value_to_pointer(js_data: any): Keypair;
+/**
+* @param {string} password
+* @returns {Uint8Array}
+*/
+  encrypt_with_password(password: string): Uint8Array;
+/**
+* @param {Uint8Array} encrypted_key_pair_data
+* @param {string} password
+* @returns {Keypair | undefined}
+*/
+  static decrypt_with_password(encrypted_key_pair_data: Uint8Array, password: string): Keypair | undefined;
 /**
 * @returns {Uint8Array}
 */
   to_bytes(): Uint8Array;
+}
+/**
+*/
+export class PublicKey {
+  free(): void;
 }
 export class Transfer {
   free(): void;

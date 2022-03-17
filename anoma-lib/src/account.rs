@@ -29,7 +29,7 @@ impl Account {
         let token = Address::decode(token)?;
         let tx_code: Vec<u8> = tx_code.to_vec();
         let vp_code: Vec<u8> = vp_code.to_vec();
-        let keypair = &Keypair::deserialize(serialized_keypair.clone())
+        let keypair = &Keypair::from_js_value_to_pointer(serialized_keypair.clone())
             .expect("Keypair could not be deserialized");
         let public_key = PublicKey::from(keypair.0.public.clone());
 

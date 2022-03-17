@@ -24,7 +24,7 @@ impl Transaction {
         tx_code: Vec<u8>,
         data: Vec<u8>,
     ) -> Result<Transaction, JsValue> {
-        let source_keypair = Keypair::deserialize(serialized_keypair)?;
+        let source_keypair = Keypair::from_js_value_to_pointer(serialized_keypair)?;
         let keypair = key::ed25519::Keypair::from_bytes(&source_keypair.to_bytes())
             .expect("Could not create keypair from bytes");
 

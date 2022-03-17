@@ -133,11 +133,11 @@ describe("Wallet class", () => {
     const { secret, public: pub } = child;
 
     // The following will fail if there is a signature error:
-    const deserializedKeypair = keypair.deserialize({
+    const deserializedKeypair = keypair.from_js_value_to_pointer({
       secret: fromHex(secret),
       public: fromHex(pub),
     });
-    const serializedKeypair = deserializedKeypair.serialize();
+    const serializedKeypair = deserializedKeypair.from_pointer_to_js_value();
 
     expect(toHex(serializedKeypair.public)).toBe(
       "ab39c3edf24f6ee00138a2d10595f4e5abbddac2ee80922e4aef55dc76efc9fa"

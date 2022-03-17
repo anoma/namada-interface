@@ -41,7 +41,7 @@ class Account {
     const nativeKeypair = await keypair.toNativeKeypair();
 
     return await this._client?.account.init(
-      nativeKeypair.serialize(), // Serialized Keypair
+      nativeKeypair.from_pointer_to_js_value(), // Serialized Keypair
       token, // token address string
       epoch, // Epoch
       0, // Gas limit multiplier

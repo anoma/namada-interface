@@ -40,7 +40,7 @@ class Transfer {
     const nativeKeypair = await keypair.toNativeKeypair();
 
     return await this._client?.transfer.new(
-      nativeKeypair.serialize(), // Serialized Keypair
+      nativeKeypair.from_pointer_to_js_value(), // Serialized Keypair
       source, // source address string
       target, // target address string
       token, // token address string
