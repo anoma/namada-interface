@@ -1,5 +1,5 @@
 import { Address, Keypair, Transfer, Account, Wallet } from "lib/anoma";
-import { memory } from "./anoma/anoma_bg.wasm";
+import { memory } from "lib/anoma/anoma_bg.wasm";
 
 export enum ResultType {
   Ok = "Ok",

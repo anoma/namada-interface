@@ -18,7 +18,7 @@ export class Mnemonic {
   static fromMnemonic = async (
     length: MnemonicLength,
     mnemonicFromString?: string
-  ) => {
+  ): Promise<Mnemonic> => {
     await init();
     const self = new Mnemonic(length);
     if (mnemonicFromString) {
@@ -29,7 +29,7 @@ export class Mnemonic {
     return self;
   };
 
-  static fromString(fromString: string) {
+  static fromString(fromString: string): Mnemonic {
     let mnemonicLength: MnemonicLength;
     switch (fromString.split(" ").length) {
       case 12:

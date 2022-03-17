@@ -75,7 +75,7 @@ export class WalletFileManager {
   private generateWalletFileKeys = ():
     | { [key: string]: StorageValueEncrypted | StorageValueUnencrypted }
     | undefined => {
-    let keyPairs = {};
+    const keyPairs = {};
     const keys = Object.getOwnPropertyNames(this.keys);
     if (keys.length === 0) {
       return undefined;

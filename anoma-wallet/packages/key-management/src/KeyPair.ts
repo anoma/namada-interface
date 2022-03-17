@@ -1,4 +1,5 @@
 import init, { Keypair as WasmKeypair } from "./lib/anoma_wasm.js";
+import { toHex, fromHex } from "@cosmjs/encoding";
 import { Buffer } from "buffer";
 import { Mnemonic } from "./Mnemonic";
 
@@ -8,8 +9,7 @@ const UNENCRYPTED_KEYS_PREFIX = "20000000";
 // this is the string that represents unencrypted KeyPair
 // format is this:
 // unencrypted:20000000secretKey20000000publicKey
-type UnencryptedStorageValueKeyWithPrefix =
-  `${typeof UNENCRYPTED_KEYS_PREFIX}${string}`;
+type UnencryptedStorageKey = `${typeof UNENCRYPTED_KEYS_PREFIX}${string}`;
 
 /**
  * This is the KeyPair entry in the wallet. Unlikely there is
@@ -43,7 +43,10 @@ export type StorageValue =
  * keyPairPointer: WasmKeypair This is the pointer to the struct in wasm.
  * This has a counterpart in js side called KeyPairAsJsValue
  *
- * This is the KeyPair containing public and secret keys. It can be constructed from an existing keypair that is being stored as a string. This value is called StorageValue and it can be stored encrypted or unencryted. We can also construct a new KeyPair from a mnemonic.
+ * This is the KeyPair containing public and secret keys. It can be constructed
+ * from an existing keypair that is being stored as a string. This value is called
+ * StorageValue and it can be stored encrypted or unencryted. We can also construct
+ * a new KeyPair from a mnemonic.
  *
  * Constructing KeyPair
  * Mnemonic -> KeyPair
@@ -57,6 +60,7 @@ export type StorageValue =
  */
 export class KeyPair {
   // indicates whether the KeyPair os encrypted or not
+  // eslint-disable-next-line max-len
   // https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-7.html#strict-class-initialization
   // using this as we init with factory and not with a constructor
   // doing this for all fields
@@ -94,7 +98,8 @@ export class KeyPair {
       };
       self.storageValue = storageValue;
     } else if (password) {
-      // note we have actually figured out that we have a password here, this is just to satisfy ts
+      // note we have actually figured out that we have a password here,
+      // this is just to satisfy ts
       const keyPairEncryptedAsHex = self.encryptWithPassword(password);
       const storageValue: StorageValue = {
         keyPairType: self.keyPairType,
@@ -119,7 +124,8 @@ export class KeyPair {
     password: string
   ): Promise<KeyPair>;
 
-  // TODO: remove the KeyPairType, it's redundant, instead derive the info from the storage value string
+  // TODO: remove the KeyPairType, it's redundant, instead derive
+  // the info from the storage value string
   static async fromStorageValue(
     storageValue: StorageValue,
     keyPairType: KeyPairType,
@@ -176,14 +182,14 @@ export class KeyPair {
     return this.storageValue;
   };
 
-  getPublicKeyAsHex = () => {
+  getPublicKeyAsHex = (): string => {
     const keyPairAsJsValue: KeyPairAsJsValue =
       this.keyPairPointer.from_pointer_to_js_value();
 
     return toHex(keyPairAsJsValue.public);
   };
 
-  getSecretKeyAsHex = () => {
+  getSecretKeyAsHex = (): string => {
     const keyPairAsJsValue: KeyPairAsJsValue =
       this.keyPairPointer.from_pointer_to_js_value();
 
@@ -200,7 +206,7 @@ export class KeyPair {
     );
 
     // split to public and secret keys
-    const [_, secretKeyAsHex, publicKeyAsHex] = valueWithStrippedPrefix.split(
+    const [, secretKeyAsHex, publicKeyAsHex] = valueWithStrippedPrefix.split(
       UNENCRYPTED_KEYS_PREFIX
     );
 
@@ -252,7 +258,7 @@ export class KeyPair {
 
   // getter for self as KeyPair string, this is only for unencrypted
   private toKeyPairHexString = ():
-    | `${UnencryptedStorageValueKeyWithPrefix}${UnencryptedStorageValueKeyWithPrefix}`
+    | `${UnencryptedStorageKey}${UnencryptedStorageKey}`
     | undefined => {
     // guard for running this for encrypted
     if (this.keyPairType === KeyPairType.Encrypted) return undefined;
@@ -262,9 +268,11 @@ export class KeyPair {
     const secretKeyAsHex = toHex(keyPairAsJsValue.secret);
 
     // add prefixes and generate the merged value
-    const publicKeyHexWithPrefix: UnencryptedStorageValueKeyWithPrefix = `${UNENCRYPTED_KEYS_PREFIX}${publicKeyAsHex}`;
-    const secretKeyHexWithPrefix: UnencryptedStorageValueKeyWithPrefix = `${UNENCRYPTED_KEYS_PREFIX}${secretKeyAsHex}`;
-    return `${publicKeyHexWithPrefix}${secretKeyHexWithPrefix}`;
+    // eslint-disable-next-line max-len
+    const publicKeyPrefixed: UnencryptedStorageKey = `${UNENCRYPTED_KEYS_PREFIX}${publicKeyAsHex}`;
+    // eslint-disable-next-line max-len
+    const secretKeyPrefixed: UnencryptedStorageKey = `${UNENCRYPTED_KEYS_PREFIX}${secretKeyAsHex}`;
+    return `${publicKeyPrefixed}${secretKeyPrefixed}`;
   };
 
   // turns self to encrypted hex string
@@ -278,13 +286,4 @@ export class KeyPair {
     );
     return encryptedKeyPairAsHex;
   };
-}
-
-// Fast Uint8Array to hex
-function toHex(bytes: Uint8Array) {
-  return Buffer.from(bytes).toString("hex");
-}
-
-function fromHex(hexString: string): Uint8Array {
-  return Buffer.from(hexString, "hex");
 }
