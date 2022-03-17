@@ -1,7 +1,8 @@
 import { toHex } from "@cosmjs/encoding";
 import base58 from "bs58";
 import { Tokens, TokenType } from "constants/";
-import AnomaClient, { Result, ResultType, WalletType } from "./AnomaClient";
+import AnomaClient, { Result, ResultType } from "./AnomaClient";
+import { Wallet as WalletType } from "./anoma";
 
 type Encoding = "hex" | "base58" | null;
 

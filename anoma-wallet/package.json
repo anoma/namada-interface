@@ -28,7 +28,7 @@
   "scripts": {
     "start": "craco start",
     "start:local": "REACT_APP_LOCAL=\"true\" yarn start",
-    "wasm:build": "wasm-pack build ../anoma-lib/ --out-dir ../anoma-wallet/src/lib/anoma --out-name anoma --target web",
+    "wasm:build": "wasm-pack build ../anoma-lib/ --out-dir ../anoma-wallet/src/lib/anoma --out-name anoma",
     "wasm:build:node": "wasm-pack build ../anoma-lib/ --out-dir ../anoma-wallet/src/lib/anoma --out-name anoma --target nodejs",
     "build": "craco build",
     "lint": "npx eslint src --ext .ts,.tsx",

@@ -1,6 +1,6 @@
-import init, { Address, Keypair, Transfer, Account, Wallet } from "lib/anoma";
+import { Address, Keypair, Transfer, Account, Wallet } from "lib/anoma";
+import { memory } from "./anoma/anoma_bg.wasm";
 
-// Utility enum for handling Result responses from wasm:
 export enum ResultType {
   Ok = "Ok",
   Err = "Err",
@@ -12,9 +12,8 @@ export type Result<T> = {
 };
 
 class AnomaClient {
-  public memory: WebAssembly.Memory | null = null;
+  public memory: WebAssembly.Memory = memory;
 
-  // Imported Structs
   public readonly address = Address;
   public readonly keypair = Keypair;
   public readonly transfer = Transfer;
@@ -22,22 +21,8 @@ class AnomaClient {
   public readonly wallet = Wallet;
 
   public async init(): Promise<AnomaClient> {
-    const _init =
-      typeof init === "function"
-        ? init
-        : () => Promise.resolve({ memory: null });
-    const { memory } = await _init();
-    this.memory = memory;
-
     return this;
   }
 }
-
-// Alias types to avoid conflicts with classes
-export type AddressType = Address;
-export type KeypairType = Keypair;
-export type TransferType = Transfer;
-export type AccountType = Account;
-export type WalletType = Wallet;
 
 export default AnomaClient;
