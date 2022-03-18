@@ -244,7 +244,8 @@ function AccountCreation(): JSX.Element {
                     onConfirmSeedPhrase={() => {
                       navigateToNext();
 
-                      // TODO
+                      const getMnemocnic = async () => {
+// TODO
                       // likely best to move the key creation to the loading of
                       // the completion screen so that the user do not get the
                       // bad UX by seeing a noticeable delay
@@ -259,12 +260,9 @@ function AccountCreation(): JSX.Element {
                             ? MnemonicLength.Twelve
                             : MnemonicLength.TwentyFour;
 
-                        const mnemonic: Mnemonic = new Mnemonic(
-                          mnemonicLength,
-                          seedPhrase?.join(" ")
-                        );
+                        const mnemonic: Mnemonic = await Mnemonic.fromMnemonic(mnemonicLength);
 
-                        const keyPair = KeyPair.fromMnemonic(
+                        const keyPair = await KeyPair.fromMnemonic(
                           mnemonic,
                           accountCreationDetails.password
                         );
@@ -273,6 +271,7 @@ function AccountCreation(): JSX.Element {
                           LOCAL_STORAGE_MASTER_KEY_PAIR_ALIAS,
                           accountCreationDetails.accountName
                         );
+
 
                         window.localStorage.setItem(
                           LOCAL_STORAGE_MASTER_KEY_PAIR_STORAGE_VALUE,
@@ -283,6 +282,10 @@ function AccountCreation(): JSX.Element {
                           "something is wrong with the KeyPair creation 🤨"
                         );
                       }
+
+                      };
+
+                      
                     }}
                     onCtaHover={() => {
                       // read the need for this above the hook
