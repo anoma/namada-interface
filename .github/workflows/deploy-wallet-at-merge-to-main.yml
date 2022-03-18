@@ -14,7 +14,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./packages/anoma-wallet
-        run: npm install
+        run: CI=false yarn
 
       - uses: jetli/wasm-pack-action@v0.3.0
         with:
@@ -22,7 +22,7 @@ jobs:
 
       - name: build the site
         working-directory: ./packages/anoma-wallet
-        run: CI=false npm run build
+        run: CI=false yarn build
 
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v1.2.3
