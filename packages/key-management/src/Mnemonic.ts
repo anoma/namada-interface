@@ -7,14 +7,12 @@ export enum MnemonicLength {
 
 export class Mnemonic {
   value = "";
-  constructor(length: MnemonicLength, mnemonicFromString?: string) {
+
+  constructor(mnemonicFromString?: string) {
     if (mnemonicFromString) {
       this.value = mnemonicFromString;
       return;
     }
-    Mnemonic.fromMnemonic(length).then(
-      (mnemonic) => (this.value = mnemonic.value)
-    );
   }
 
   static fromMnemonic = async (
@@ -22,13 +20,11 @@ export class Mnemonic {
     mnemonicFromString?: string
   ): Promise<Mnemonic> => {
     const { generateMnemonic } = await new AnomaClient().init();
-    const self = new Mnemonic(length);
-    if (mnemonicFromString) {
-      self.value = mnemonicFromString;
-      return self;
-    }
-    self.value = generateMnemonic(length);
-    return self;
+    const value = mnemonicFromString
+      ? mnemonicFromString
+      : generateMnemonic(length);
+
+    return new Mnemonic(value);
   };
 
   static fromString(fromString: string): Mnemonic {
@@ -43,7 +39,7 @@ export class Mnemonic {
       default:
         throw new Error("Invalid number of words in the mnemonic");
     }
-    const self = new Mnemonic(mnemonicLength, fromString);
+    const self = new Mnemonic(fromString);
     return self;
   }
 }

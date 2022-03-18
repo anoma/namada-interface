@@ -27,13 +27,13 @@ const PASSWORD = "aaa";
 const WRONG_PASSWORD = "wrongPassword";
 
 test("key pair should be able to be generated from mnemonic", async () => {
-  const mnemonic = new Mnemonic(MnemonicLength.Twelve);
+  const mnemonic = await Mnemonic.fromMnemonic(MnemonicLength.Twelve);
   const keyPair = await KeyPair.fromMnemonic(mnemonic);
   expect(keyPair.getStorageValue().keyPairType).toEqual(KeyPairType.Raw);
 });
 
 test("key pair should be able to be generated from mnemonic with encryption", async () => {
-  const mnemonic = new Mnemonic(MnemonicLength.Twelve);
+  const mnemonic = await Mnemonic.fromMnemonic(MnemonicLength.Twelve);
 
   const keyPair = await KeyPair.fromMnemonic(mnemonic, PASSWORD);
   expect(keyPair.getStorageValue().keyPairType).toEqual(KeyPairType.Encrypted);

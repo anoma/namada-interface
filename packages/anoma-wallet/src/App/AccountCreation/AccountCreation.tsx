@@ -5,11 +5,7 @@ import {
   LOCAL_STORAGE_MASTER_KEY_PAIR_STORAGE_VALUE,
   LOCAL_STORAGE_MASTER_KEY_PAIR_ALIAS,
 } from "App/types";
-import {
-  KeyPair,
-  Mnemonic,
-  MnemonicLength,
-} from "@anoma-wallet/key-management";
+import { KeyPair, Mnemonic } from "@anoma-wallet/key-management";
 import {
   Start,
   AccountInformation,
@@ -231,13 +227,7 @@ function AccountCreation(): JSX.Element {
                         accountCreationDetails.seedPhraseLength &&
                         accountCreationDetails.accountName
                       ) {
-                        const mnemonicLength =
-                          accountCreationDetails.seedPhraseLength.length === 12
-                            ? MnemonicLength.Twelve
-                            : MnemonicLength.TwentyFour;
-
                         const mnemonic: Mnemonic = new Mnemonic(
-                          mnemonicLength,
                           seedPhrase?.join(" ")
                         );
 
