@@ -1,5 +1,5 @@
 {
-  "name": "anoma-wallet",
+  "name": "@anoma-apps/anoma-wallet",
   "version": "0.1.0",
   "main": "./src/index.ts",
   "type": "commonjs",
