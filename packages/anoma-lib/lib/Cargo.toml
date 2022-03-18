@@ -1,0 +1,49 @@
+[package]
+name = "wasm"
+version = "0.1.0"
+authors = ["Justin Evans <jurevans@gmail.com>"]
+edition = "2018"
+description = "The Anoma Wallet Web App"
+repository = "https://github.com/heliaxdev/anoma-apps/anoma-lib/"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+anoma = { git = "https://github.com/anoma/anoma", tag  = "v0.4.0", features = ["rand", "ferveo-tpke"] }
+bip32 = "0.3.0"
+bip39 = "1.0.1"
+bip0039 = "0.6.0"
+bitcoin = "0.27.1"
+borsh = "0.9.0"
+ed25519-dalek = {version = "1.0.1", default-features = false, features = ["rand", "u64_backend", "serde"]}
+serde-wasm-bindgen = "0.3.1"
+serde = { version = "1.0.130", features = ["derive"] }
+getrandom = {version = "0.2.3", features = ["js"]}
+orion = "0.16.0"
+rand = { version = "0.7", features = ["wasm-bindgen"] }
+rand_bip = { version = "0.6", features = ["wasm-bindgen"], package = "rand" }
+rand_core = "0.5"
+rand_chacha = "0.2.2"
+rand_seeder = "0.1.0"
+wasm-bindgen = { version = "0.2.78", features = ["serde-serialize"] }
+console_error_panic_hook = "0.1.7"
+js-sys = "0.3.5"
+chrono = "0.4.0"
+thiserror = "1.0.30"
+
+[dependencies.web-sys]
+version = "0.3"
+features = [ "console" ]
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3.13"
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
+
+[profile.release]
+# Tell `rustc` to optimize for small code size.
+opt-level = "s"
+debug = true
