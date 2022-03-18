@@ -1,5 +1,5 @@
 {
-  "name": "anoma-wallet",
+  "name": "@anoma-apps/anoma-wallet",
   "version": "0.1.0",
   "main": "./src/index.ts",
   "type": "commonjs",
@@ -30,7 +30,7 @@
     "start": "craco start",
     "dev": "yarn wasm:build && yarn start",
     "dev:local": "REACT_APP_LOCAL=\"true\" yarn dev",
-    "build": "npm run wasm:build && craco build",
+    "build": "yarn run wasm:build && craco build",
     "lint": "npx eslint src --ext .ts,.tsx",
     "lint:fix": "yarn lint -- --fix",
     "wasm:build": "./scripts/build.sh",
