@@ -244,48 +244,48 @@ function AccountCreation(): JSX.Element {
                     onConfirmSeedPhrase={() => {
                       navigateToNext();
 
-                      const getMnemocnic = async () => {
-// TODO
-                      // likely best to move the key creation to the loading of
-                      // the completion screen so that the user do not get the
-                      // bad UX by seeing a noticeable delay
+                      const createKeyPair = async (): Promise<void> => {
+                        // TODO
+                        // likely best to move the key creation to the loading of
+                        // the completion screen so that the user do not get the
+                        // bad UX by seeing a noticeable delay
 
-                      if (
-                        accountCreationDetails.password &&
-                        accountCreationDetails.seedPhraseLength &&
-                        accountCreationDetails.accountName
-                      ) {
-                        const mnemonicLength =
-                          accountCreationDetails.seedPhraseLength.length === 12
-                            ? MnemonicLength.Twelve
-                            : MnemonicLength.TwentyFour;
-
-                        const mnemonic: Mnemonic = await Mnemonic.fromMnemonic(mnemonicLength);
-
-                        const keyPair = await KeyPair.fromMnemonic(
-                          mnemonic,
-                          accountCreationDetails.password
-                        );
-
-                        window.localStorage.setItem(
-                          LOCAL_STORAGE_MASTER_KEY_PAIR_ALIAS,
+                        if (
+                          accountCreationDetails.password &&
+                          accountCreationDetails.seedPhraseLength &&
                           accountCreationDetails.accountName
-                        );
+                        ) {
+                          const mnemonicLength =
+                            accountCreationDetails.seedPhraseLength.length ===
+                            12
+                              ? MnemonicLength.Twelve
+                              : MnemonicLength.TwentyFour;
 
+                          const mnemonic: Mnemonic =
+                            await Mnemonic.fromMnemonic(mnemonicLength);
 
-                        window.localStorage.setItem(
-                          LOCAL_STORAGE_MASTER_KEY_PAIR_STORAGE_VALUE,
-                          keyPair.getStorageValue().value
-                        );
-                      } else {
-                        alert(
-                          "something is wrong with the KeyPair creation 🤨"
-                        );
-                      }
+                          const keyPair = await KeyPair.fromMnemonic(
+                            mnemonic,
+                            accountCreationDetails.password
+                          );
 
+                          window.localStorage.setItem(
+                            LOCAL_STORAGE_MASTER_KEY_PAIR_ALIAS,
+                            accountCreationDetails.accountName
+                          );
+
+                          window.localStorage.setItem(
+                            LOCAL_STORAGE_MASTER_KEY_PAIR_STORAGE_VALUE,
+                            keyPair.getStorageValue().value
+                          );
+                        } else {
+                          alert(
+                            "something is wrong with the KeyPair creation 🤨"
+                          );
+                        }
                       };
 
-                      
+                      createKeyPair();
                     }}
                     onCtaHover={() => {
                       // read the need for this above the hook
