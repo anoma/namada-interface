@@ -16,6 +16,10 @@ jobs:
         working-directory: ./packages/anoma-wallet
         run: npm install
 
+      - uses: jetli/wasm-pack-action@v0.3.0
+        with:
+          version: "v0.9.1"
+
       - name: build the site
         working-directory: ./packages/anoma-wallet
         run: CI=false npm run build

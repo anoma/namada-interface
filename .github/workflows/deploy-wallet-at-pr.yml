@@ -14,6 +14,10 @@ jobs:
         working-directory: ./packages/anoma-wallet
         run: CI=false yarn
 
+      - uses: jetli/wasm-pack-action@v0.3.0
+        with:
+          version: "v0.9.1"
+
       - name: build the site
         working-directory: ./packages/anoma-wallet
         run: CI=false yarn build
