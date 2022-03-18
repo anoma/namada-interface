@@ -47,8 +47,8 @@ yarn wasm:build:nodejs
 ## Overview
 
 ```bash
-# Directory structure rough outline for anoma-apps monorepo
-.
+# Directory structure rough outline for anoma-wallet
+./src
 ├── App                   # Main React app and layouts
 ├── components            # React Components
 ├── constants
@@ -57,10 +57,14 @@ yarn wasm:build:nodejs
 │   └── wasm.ts           # Wasm source constants
 ├── lib
 │   ├── rpc
-│   │   ├── RpcClient.ts  # RPC HTTP and WebSocket library
-│   │   ├── types.ts      # RPC Request/Response types
-│   └── tx
-│       └── Transfer.ts   # Transfer transaction library
+│   │   ├── RpcClient.ts    # RPC HTTP library
+│   │   ├── SocketClient.ts # RPC WebSocket library
+│   │   └── types.ts        # RPC Request/Response types
+│   ├── tx
+│   │   ├── Transfer.ts   # Transfer transaction library
+│   │   └── Account.ts    # Account transaction library
+│   ├── Keypair.ts        # Keypair library
+│   └── Wallet.ts         # Wallet library
 ├── schema                # Borsh schema for deserializing abci_query types
 └── utils
     ├── helpers           # Utility helper functions
