@@ -1,5 +1,6 @@
 import { amountToMicro } from "utils/helpers";
-import { AnomaClient, Keypair } from "lib";
+import { AnomaClient } from "@anoma-apps/anoma-lib";
+import Keypair from "lib/Keypair";
 import { TxWasm } from "constants/";
 
 class Transfer {
@@ -40,7 +41,7 @@ class Transfer {
     const nativeKeypair = await keypair.toNativeKeypair();
 
     return await this._client?.transfer.new(
-      nativeKeypair.serialize(), // Serialized Keypair
+      nativeKeypair.from_pointer_to_js_value(), // Serialized Keypair
       source, // source address string
       target, // target address string
       token, // token address string

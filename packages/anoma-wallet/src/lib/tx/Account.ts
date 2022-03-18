@@ -1,4 +1,5 @@
-import { AnomaClient, Keypair } from "lib";
+import { AnomaClient } from "@anoma-apps/anoma-lib";
+import Keypair from "lib/Keypair";
 import { Tokens, TxWasm, VpWasm } from "constants/";
 
 class Account {
@@ -41,7 +42,7 @@ class Account {
     const nativeKeypair = await keypair.toNativeKeypair();
 
     return await this._client?.account.init(
-      nativeKeypair.serialize(), // Serialized Keypair
+      nativeKeypair.from_pointer_to_js_value(), // Serialized Keypair
       token, // token address string
       epoch, // Epoch
       0, // Gas limit multiplier
