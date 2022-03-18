@@ -64,7 +64,6 @@ export const InputContainer = styled.div`
 
 export const InputFeedback = styled.span`
   font-size: 12px;
-  color: red;
 `;
 
 export const RecoveryPhraseLengthRadioButton = styled.input`

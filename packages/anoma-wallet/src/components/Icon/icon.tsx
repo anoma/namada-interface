@@ -8,7 +8,10 @@ import { ReactComponent as ChevronRight } from "./assets/chevron-right.svg";
 import { ReactComponent as ChevronDown } from "./assets/chevron-down.svg";
 import { ReactComponent as ChevronLeft } from "./assets/chevron-left.svg";
 import { ReactComponent as EyeDark } from "./assets/eye-dark.svg";
-import { ReactComponent as EyeHiddenDark } from "./assets/eye-hidden-dark.svg"
+import { ReactComponent as EyeHiddenDark } from "./assets/eye-hidden-dark.svg";
+import { ReactComponent as ThumbsUp } from "./assets/thumbs-up.svg";
+import { ReactComponent as Briefcase } from "./assets/briefcase.svg";
+import { ReactComponent as Settings } from "./assets/settings.svg";
 
 import { IconName, IconSize } from "./types";
 
@@ -37,6 +40,9 @@ const icons: Record<IconName, ComponentType> = {
   [IconName.ChevronLeft]: ChevronLeft,
   [IconName.Eye]: EyeDark,
   [IconName.EyeHidden]: EyeHiddenDark,
+  [IconName.ThumbsUp]: ThumbsUp,
+  [IconName.Briefcase]: Briefcase,
+  [IconName.Settings]: Settings,
 };
 
 /**

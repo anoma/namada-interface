@@ -1,7 +1,7 @@
 import { fromHex, toHex } from "@cosmjs/encoding";
 import { Tokens } from "constants/";
 import Wallet from "./Wallet";
-import { AnomaClient } from "@anoma-apps/anoma-lib";
+import AnomaClient from "./AnomaClient";
 
 const MNEMONIC_24 =
   // eslint-disable-next-line max-len
@@ -133,11 +133,11 @@ describe("Wallet class", () => {
     const { secret, public: pub } = child;
 
     // The following will fail if there is a signature error:
-    const deserializedKeypair = keypair.from_js_value_to_pointer({
+    const deserializedKeypair = keypair.deserialize({
       secret: fromHex(secret),
       public: fromHex(pub),
     });
-    const serializedKeypair = deserializedKeypair.from_pointer_to_js_value();
+    const serializedKeypair = deserializedKeypair.serialize();
 
     expect(toHex(serializedKeypair.public)).toBe(
       "ab39c3edf24f6ee00138a2d10595f4e5abbddac2ee80922e4aef55dc76efc9fa"

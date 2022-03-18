@@ -11,6 +11,9 @@ export enum IconName {
   ChevronLeft,
   EyeHidden,
   Eye,
+  ThumbsUp,
+  Briefcase,
+  Settings,
 }
 
 export enum IconSize {

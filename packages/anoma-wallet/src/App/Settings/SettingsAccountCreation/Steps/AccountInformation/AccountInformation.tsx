@@ -30,19 +30,24 @@ export type AccountCreationDetails = {
 
 // the data of this form
 type AccountInformationViewProps = {
+  // if the user navigates back and forth this might be there
   accountCreationDetails?: AccountCreationDetails;
+
   onSubmitAccountCreationDetails: (
     accountCreationDetails: AccountCreationDetails
   ) => void;
+
   onSetAccountCreationDetails: (
     accountCreationDetails: AccountCreationDetails
   ) => void;
+
+  // read in the parent why we are doing this
   onCtaHover: () => void;
 };
 
 const AccountInformation = (
   props: AccountInformationViewProps
-): JSX.Element => {
+): React.ReactElement => {
   const {
     onSubmitAccountCreationDetails,
     onSetAccountCreationDetails,
@@ -163,7 +168,7 @@ const AccountInformation = (
             onChange={(event) => {
               setPassword2(event.target.value);
             }}
-            onFocus={() => {
+            onFocus={(event) => {
               setPassword1Feedback("");
               setPassword2Feedback("");
             }}

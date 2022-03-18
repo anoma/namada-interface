@@ -9,8 +9,6 @@ export enum AccountCreationRoute {
   SeedPhraseConfirmation = "seed-phrase-confirmation",
   // the last screen to confirm the completion of the flow
   Completion = "completion",
-  // util just to start/reset the flow, not part of the flow
-  Initiate = "initiate",
 }
 
 export const accountCreationSteps = [

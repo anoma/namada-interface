@@ -1,4 +1,4 @@
-import { AnomaClient, Keypair as NativeKeypair } from "@anoma-apps/anoma-lib";
+import AnomaClient from "./AnomaClient";
 import Keypair from "./Keypair";
 
 const KEYPAIR = {
@@ -23,12 +23,10 @@ const props = ["ptr"];
 describe("Keypair wasm and class methods", () => {
   test("Keypair should be able to be serialized to a native type", async () => {
     const keypair = new Keypair(KEYPAIR);
-    const nativeKeypair: NativeKeypair = await keypair.toNativeKeypair();
+    const nativeKeypair = await keypair.toNativeKeypair();
 
     expect(Object.keys(nativeKeypair)).toEqual(expect.arrayContaining(props));
-    expect(nativeKeypair.from_pointer_to_js_value()).toEqual(
-      SERIALIZABLE_KEYPAIR
-    );
+    expect(nativeKeypair.serialize()).toEqual(SERIALIZABLE_KEYPAIR);
     expect(nativeKeypair.to_bytes().length).toBe(64);
     // Pointer should be nullified after to_bytes() is called
     expect(nativeKeypair).toEqual({ ptr: 0 });
@@ -45,7 +43,7 @@ describe("Keypair wasm and class methods", () => {
     const { keypair } = await new AnomaClient().init();
 
     // Now, we have access to the static method "deserialize"
-    const deserialized = keypair.from_js_value_to_pointer(SERIALIZABLE_KEYPAIR);
+    const deserialized = keypair.deserialize(SERIALIZABLE_KEYPAIR);
     expect(Object.keys(deserialized)).toEqual(expect.arrayContaining(props));
   });
 });

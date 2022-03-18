@@ -10,7 +10,9 @@ import {
   ButtonContainer,
 } from "./Completion.components";
 type StartViewProps = {
+  // navigates to the account
   onClickSeeAccounts: () => void;
+  // navigates to the settings
   onClickDone: () => void;
 };
 

@@ -1,11 +1,22 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
+import { ThemeContext } from "styled-components";
+
+import {
+  KeyPair,
+  Mnemonic,
+  MnemonicLength,
+} from "@anoma-wallet/key-management";
+
+import { Button } from "components/ButtonTemporary";
+import { Icon, IconName } from "components/Icon";
 import {
   TopLevelRoute,
   LOCAL_STORAGE_MASTER_KEY_PAIR_STORAGE_VALUE,
   LOCAL_STORAGE_MASTER_KEY_PAIR_ALIAS,
 } from "App/types";
-import { KeyPair, Mnemonic } from "@anoma-wallet/key-management";
+
 import {
   Start,
   AccountInformation,
@@ -15,11 +26,8 @@ import {
   Completion,
 } from "./Steps";
 import { AccountCreationRoute, accountCreationSteps } from "./types";
-import { AnimatePresence } from "framer-motion";
-import { useContext } from "react";
-import { ThemeContext } from "styled-components";
 import {
-  MainSectionContainer,
+  AccountCreationContainer,
   TopSection,
   TopSectionHeaderContainer,
   TopSectionButtonContainer,
@@ -27,14 +35,21 @@ import {
   MotionContainer,
 } from "./AccountCreation.components";
 
-import { Button } from "components/ButtonTemporary";
-import { Icon, IconName } from "components/Icon";
-
-const AnimatedTransition = (props: {
-  children: React.ReactNode;
+type AnimatedTransitionProps = {
   elementKey: string;
+  // the actual page content that slides in/out
+  children: React.ReactElement;
+  // consumer has a logic that decides if the transition is from left to right or the opposite
   animationFromRightToLeft: boolean;
-}): JSX.Element => {
+};
+
+/**
+ * this is a utility to facilitate the animated transitions (slide from side).
+ * This should be extracted to it's own component along the other transition types. TODO
+ */
+const AnimatedTransition = (
+  props: AnimatedTransitionProps
+): React.ReactElement => {
   const { children, elementKey, animationFromRightToLeft } = props;
   return (
     <MotionContainer
@@ -48,6 +63,11 @@ const AnimatedTransition = (props: {
   );
 };
 
+/**
+ * The main purpose of this is to coordinate the flow for creating a new account.
+ * it persist the data and coordinates the logic for animating the transitions
+ * between the screens in the flow.
+ */
 function AccountCreation(): JSX.Element {
   // account details defaults
   const defaultAccountCreationDetails: AccountCreationDetails = {
@@ -55,46 +75,55 @@ function AccountCreation(): JSX.Element {
     accountName: "",
   };
 
-  // account details
+  // We only persist these between the navigating in the flow,
+  // password unlikely as the user could forget it when navigating back and forth
   const [accountCreationDetails, setAccountCreationDetails] = React.useState(
     defaultAccountCreationDetails
   );
   const [seedPhrase, setSeedPhrase] = React.useState<string[]>();
   const [stepIndex, setStepIndex] = React.useState(0);
-  const isLastIndex = accountCreationSteps.length - 1 === stepIndex;
   const themeContext = useContext(ThemeContext);
   const navigate = useNavigate();
 
-  // [1] <- |[2]| <- [3]
+  // this is for keeping tract about to what direction the view will disappear
+  // when the screen is rendered we cannot know if it should leave to left or right
+  // so we can set this by user hovering on next or back buttons
+  // TODO: if user uses the browsers back button we cannot do this correctly
+  // defaults left to right [1] <- |[2]| <- [3]
   const [animationFromRightToLeft, setAnimationFromRightToLeft] =
     React.useState(true);
 
+  // we need the location to figure out if the routes ends with "/initiate"
+  // to indicate a starting of a new flow
   const location = useLocation();
+
+  // info for disabling the back button in the last step
+  const isLastIndex = accountCreationSteps.length - 1 === stepIndex;
+
+  // this is a temp as the designs are not final, coloring SVG icon with this
   const backButtonIconStrokeColor = themeContext.themeConfigurations.isLightMode
     ? themeContext.colors.border
     : "black";
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(() => {
-    if (
-      window.location.pathname ===
-      `${TopLevelRoute.AccountCreation}/${AccountCreationRoute.Initiate}`
-    ) {
-      setAccountCreationDetails(defaultAccountCreationDetails);
-      setStepIndex(0);
-      setSeedPhrase([]);
-      navigate(AccountCreationRoute.Start);
-    }
-  });
+    // at the load we redirect to the first step
+    // this way we do not need to expose the flow routes to outside
+    navigate(AccountCreationRoute.Start);
+  }, []);
 
   const navigateToNext = (): void => {
-    if (stepIndex >= accountCreationSteps.length - 1) return;
     setStepIndex((stepIndex) => stepIndex + 1);
     navigate(`${accountCreationSteps[stepIndex + 1]}`);
   };
 
   const navigateToPrevious = (): void => {
-    if (stepIndex === 0) return;
+    // if we are on the first step and the user clicks back
+    // we leave the whole flow
+    if (stepIndex === 0) {
+      navigate(TopLevelRoute.SettingsAccounts);
+      return;
+    }
+
     setStepIndex((stepIndex) => {
       return stepIndex - 1;
     });
@@ -102,21 +131,16 @@ function AccountCreation(): JSX.Element {
   };
 
   return (
-    <MainSectionContainer>
+    <AccountCreationContainer>
       <TopSection>
         <TopSectionButtonContainer>
           {!isLastIndex && (
             <Button
               onClick={() => {
-                if (stepIndex === 0) {
-                  navigate("/");
-                }
                 navigateToPrevious();
               }}
               onHover={() => {
-                // TODO this trick does not help when the user clicks browsers
-                // back button. might need some trickery where we still set it
-                // after the click
+                // read the need for this above the hook
                 setAnimationFromRightToLeft(false);
               }}
               style={{ padding: "0" }}
@@ -146,6 +170,7 @@ function AccountCreation(): JSX.Element {
                       navigateToNext();
                     }}
                     onCtaHover={() => {
+                      // read the need for this above the hook
                       setAnimationFromRightToLeft(true);
                     }}
                   />
@@ -178,6 +203,7 @@ function AccountCreation(): JSX.Element {
                       navigateToNext();
                     }}
                     onCtaHover={() => {
+                      // read the need for this above the hook
                       setAnimationFromRightToLeft(true);
                     }}
                   />
@@ -199,6 +225,7 @@ function AccountCreation(): JSX.Element {
                       navigateToNext();
                     }}
                     onCtaHover={() => {
+                      // read the need for this above the hook
                       setAnimationFromRightToLeft(true);
                     }}
                   />
@@ -214,7 +241,7 @@ function AccountCreation(): JSX.Element {
                 >
                   <SeedPhraseConfirmation
                     seedPhrase={seedPhrase || []}
-                    onConfirmSeedPhrase={async () => {
+                    onConfirmSeedPhrase={() => {
                       navigateToNext();
 
                       // TODO
@@ -227,11 +254,17 @@ function AccountCreation(): JSX.Element {
                         accountCreationDetails.seedPhraseLength &&
                         accountCreationDetails.accountName
                       ) {
+                        const mnemonicLength =
+                          accountCreationDetails.seedPhraseLength.length === 12
+                            ? MnemonicLength.Twelve
+                            : MnemonicLength.TwentyFour;
+
                         const mnemonic: Mnemonic = new Mnemonic(
+                          mnemonicLength,
                           seedPhrase?.join(" ")
                         );
 
-                        const keyPair = await KeyPair.fromMnemonic(
+                        const keyPair = KeyPair.fromMnemonic(
                           mnemonic,
                           accountCreationDetails.password
                         );
@@ -252,6 +285,7 @@ function AccountCreation(): JSX.Element {
                       }
                     }}
                     onCtaHover={() => {
+                      // read the need for this above the hook
                       setAnimationFromRightToLeft(true);
                     }}
                   />
@@ -267,10 +301,10 @@ function AccountCreation(): JSX.Element {
                 >
                   <Completion
                     onClickDone={() => {
-                      navigate("/");
+                      navigate(TopLevelRoute.SettingsAccounts);
                     }}
                     onClickSeeAccounts={() => {
-                      navigate("/");
+                      navigate(TopLevelRoute.Wallet);
                     }}
                   />
                 </AnimatedTransition>
@@ -279,7 +313,7 @@ function AccountCreation(): JSX.Element {
           </Routes>
         </AnimatePresence>
       </RouteContainer>
-    </MainSectionContainer>
+    </AccountCreationContainer>
   );
 }
 

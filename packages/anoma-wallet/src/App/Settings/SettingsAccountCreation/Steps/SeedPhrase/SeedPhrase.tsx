@@ -28,11 +28,14 @@ export type AccountCreationDetails = {
   password?: string;
 };
 
-// the data of this form
 type AccountInformationViewProps = {
+  // read in the parent why we do this
   onCtaHover: () => void;
+  // go to next screen
   onConfirmSavingOfSeedPhrase: (seedPhraseAsArray: string[]) => void;
+  // depending if first load this might or might not be available
   accountCreationDetails?: AccountCreationDetails;
+  // depending if first load this might or might not be available
   defaultSeedPhrase?: string[];
 };
 
@@ -59,24 +62,27 @@ const SeedPhrase = (props: AccountInformationViewProps): JSX.Element => {
     onConfirmSavingOfSeedPhrase,
     defaultSeedPhrase,
   } = props;
-  const { seedPhraseLength = "12" } = accountCreationDetails || {};
   const defaultSeedPhraseAsString = defaultSeedPhrase?.join(" ");
   const [seedPhrase, setSeedPhrase] = React.useState(
     defaultSeedPhraseAsString || ""
   );
+
   const seedPhraseAsArray = seedPhraseStringToArray(seedPhrase);
   const isSubmitButtonDisabled = seedPhraseAsArray.length === 0;
+  const { seedPhraseLength = "12" } = accountCreationDetails || {};
 
   React.useEffect(() => {
+    // if a mnemonic was passed in we do not generate it again
+    if (defaultSeedPhrase?.length && defaultSeedPhrase?.length > 0) return;
+
     const createMnemonic = async (): Promise<void> => {
       const mnemonic = await Mnemonic.fromMnemonic(
         mnemonicLengthToEnum(seedPhraseLength)
       );
       setSeedPhrase(mnemonic.value);
     };
-    if (defaultSeedPhrase?.length && defaultSeedPhrase?.length > 0) return;
+
     createMnemonic();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -120,6 +126,12 @@ const SeedPhrase = (props: AccountInformationViewProps): JSX.Element => {
         <ButtonContainer>
           <Button
             onClick={() => {
+              if (!isSubmitButtonDisabled) {
+                const accountCreationDetailsToSubmit: AccountCreationDetails = {
+                  ...accountCreationDetails,
+                };
+              }
+
               onConfirmSavingOfSeedPhrase(seedPhraseAsArray);
             }}
             onHover={onCtaHover}
