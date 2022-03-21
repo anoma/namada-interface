@@ -1,2 +1,2 @@
 export { HeadingLevel } from "./types";
-export { Heading } from "./heading.components";
+export { Heading } from "./Heading";

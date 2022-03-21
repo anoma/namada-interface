@@ -1,20 +1,84 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation, NavigateFunction } from "react-router-dom";
 import { TopLevelRoute } from "App/types";
-import { AccountCreationRoute } from "App/AccountCreation/types";
 import { Image, ImageName } from "components/Image";
 import { Icon, IconName } from "components/Icon";
 import { Toggle } from "components/Toggle";
 import {
   TopNavigationContainer,
   LeftSection,
+  MiddleSection,
   RightSection,
-  HelpButton,
-  HelpIconContainer,
-  HelpTextContainer,
+  MenuItem,
+  StakingAndGovernanceMenuItem,
+  MenuItemIconContainer,
+  MenuItemTextContainer,
   ColorModeContainer,
   LogoContainer,
+  OnlyInSmall,
+  OnlyInMedium,
+  TopNavigationContainerRow,
+  TopNavigationContainerSecondRow,
 } from "./topNavigation.components";
+
+/**
+ * this is rendered in one of 2 places depending of the screen size
+ */
+const TopNavigationMenuItems = (props: {
+  navigate: NavigateFunction;
+}): React.ReactElement => {
+  const { navigate } = props;
+  const location = useLocation();
+  return (
+    <>
+      {/* Wallet */}
+      <MenuItem
+        onClick={() => {
+          navigate(`${TopLevelRoute.Wallet}`);
+        }}
+        isSelected={location.pathname === TopLevelRoute.Wallet}
+      >
+        <MenuItemIconContainer>
+          <Icon iconName={IconName.Briefcase} />
+        </MenuItemIconContainer>
+        <MenuItemTextContainer>Wallet</MenuItemTextContainer>
+      </MenuItem>
+
+      {/* Staking & Governance */}
+      <StakingAndGovernanceMenuItem
+        onClick={() => {
+          navigate(`${TopLevelRoute.StakingAndGovernance}`);
+        }}
+        isSelected={location.pathname === TopLevelRoute.StakingAndGovernance}
+      >
+        <MenuItemIconContainer>
+          <Icon iconName={IconName.ThumbsUp} />
+        </MenuItemIconContainer>
+        <MenuItemTextContainer>Staking & Governance</MenuItemTextContainer>
+      </StakingAndGovernanceMenuItem>
+
+      {/* Settings */}
+      {/* The below is not really type safe, but enums do not
+      allow computed strings, so have to figure out something
+      TODO
+      TopLevelRoute {
+        SettingsAccounts = `${TopLevelRoute.Settings}/accounts`
+      }
+      */}
+      <MenuItem
+        onClick={() => {
+          navigate(`${TopLevelRoute.Settings}`);
+        }}
+        isSelected={location.pathname.startsWith(TopLevelRoute.Settings)}
+      >
+        <MenuItemIconContainer>
+          <Icon iconName={IconName.Settings} />
+        </MenuItemIconContainer>
+        <MenuItemTextContainer>Settings</MenuItemTextContainer>
+      </MenuItem>
+    </>
+  );
+};
 
 type TopNavigationProps = {
   // this is for the toggle
@@ -22,7 +86,6 @@ type TopNavigationProps = {
   // cb for telling parent to change hte color in context
   setIsLightMode: React.Dispatch<React.SetStateAction<boolean>>;
 };
-
 // top nav of the app, this is likely always visible.
 function TopNavigation(props: TopNavigationProps): JSX.Element {
   const { isLightMode, setIsLightMode } = props;
@@ -40,56 +103,59 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
 
   return (
     <TopNavigationContainer>
-      <LeftSection>
-        <LogoContainer
-          onClick={() => {
-            navigate(`${TopLevelRoute.Home}`);
-          }}
-        >
-          <Image
-            imageName={ImageName.Logo}
-            styleOverrides={{ maxWidth: "128px" }}
-          />
-        </LogoContainer>
-      </LeftSection>
-
-      <RightSection>
-        {/* TODO: extract to Button component*/}
-        {/* keys button */}
-        <HelpButton
-          onClick={() => {
-            navigate(
-              `${TopLevelRoute.AccountCreation}/${AccountCreationRoute.Initiate}`
-            );
-          }}
-        >
-          <HelpIconContainer>
-            <Icon iconName={IconName.Key} />
-          </HelpIconContainer>
-          <HelpTextContainer>Keys</HelpTextContainer>
-        </HelpButton>
-        {/* help button */}
-        <HelpButton
-          onClick={() => {
-            alert("Help not implemented yet");
-          }}
-        >
-          <HelpIconContainer>
-            <Icon iconName={IconName.HelpCircle} />
-          </HelpIconContainer>
-          <HelpTextContainer>Help</HelpTextContainer>
-        </HelpButton>
-        <ColorModeContainer>
-          <Toggle
-            checked={isLightMode}
+      <TopNavigationContainerRow>
+        <LeftSection>
+          <LogoContainer
             onClick={() => {
-              setIsLightMode((isLightMode) => !isLightMode);
+              navigate(`${TopLevelRoute.Home}`);
             }}
-            circleElementEnabled={circleElementEnabled}
-            circleElementDisabled={circleElementDisabled}
-          />
-        </ColorModeContainer>
-      </RightSection>
+          >
+            <Image
+              imageName={ImageName.Logo}
+              styleOverrides={{ maxWidth: "128px" }}
+            />
+          </LogoContainer>
+        </LeftSection>
+
+        <MiddleSection>
+          <OnlyInMedium>
+            <TopNavigationMenuItems navigate={navigate} />
+          </OnlyInMedium>
+        </MiddleSection>
+
+        <RightSection>
+          {/* TODO: extract to Button component*/}
+
+          {/* help button */}
+          <MenuItem
+            onClick={() => {
+              alert("Help not implemented yet");
+            }}
+            style={{ margin: "0 32px 0" }}
+          >
+            <MenuItemIconContainer>
+              <Icon iconName={IconName.HelpCircle} />
+            </MenuItemIconContainer>
+            <MenuItemTextContainer>Help</MenuItemTextContainer>
+          </MenuItem>
+
+          <ColorModeContainer>
+            <Toggle
+              checked={isLightMode}
+              onClick={() => {
+                setIsLightMode((isLightMode) => !isLightMode);
+              }}
+              circleElementEnabled={circleElementEnabled}
+              circleElementDisabled={circleElementDisabled}
+            />
+          </ColorModeContainer>
+        </RightSection>
+      </TopNavigationContainerRow>
+      <TopNavigationContainerSecondRow>
+        <OnlyInSmall>
+          <TopNavigationMenuItems navigate={navigate} />
+        </OnlyInSmall>
+      </TopNavigationContainerSecondRow>
     </TopNavigationContainer>
   );
 }

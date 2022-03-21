@@ -7,10 +7,11 @@ import {
 } from "./Start.components";
 type StartViewProps = {
   onCtaClick: () => void;
+  // read in parent why we do this
   onCtaHover: () => void;
 };
 
-function Start(props: StartViewProps): JSX.Element {
+function Start(props: StartViewProps): React.ReactElement {
   const { onCtaClick, onCtaHover } = props;
   return (
     <StartViewContainer>
