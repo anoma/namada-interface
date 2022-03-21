@@ -20,10 +20,10 @@ export interface BroadcastSyncResponse extends JsonRpcSuccessResponse {
 }
 
 export type SubscriptionParams = {
-  onBroadcast: (response: BroadcastSyncResponse) => void;
-  onNext: (txEvent: SubscriptionEvent) => void;
-  onError: (error: Error) => void;
-  onComplete: () => void;
+  onBroadcast?: (response: BroadcastSyncResponse) => void;
+  onNext?: (txEvent: SubscriptionEvent) => void;
+  onError?: (error: Error) => void;
+  onComplete?: () => void;
 };
 
 export interface SubscriptionEvents extends SubscriptionEvent {
