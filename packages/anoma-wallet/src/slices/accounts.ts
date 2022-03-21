@@ -18,7 +18,7 @@ const initialState: InitialState = {
   accounts: null,
 };
 
-const stopSlice = createSlice({
+const accountsSlice = createSlice({
   name: "accounts",
   initialState,
   reducers: {
@@ -37,6 +37,6 @@ const stopSlice = createSlice({
   },
 });
 
-const { actions, reducer } = stopSlice;
+const { actions, reducer } = accountsSlice;
 export const { addAccount } = actions;
 export default reducer;
