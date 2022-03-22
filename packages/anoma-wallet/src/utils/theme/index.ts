@@ -88,7 +88,7 @@ export const darkColors: Colors = {
 export const lightColors: Colors = {
   background1: "#ffffff",
   background2: "#ffffff",
-  background3: "#ffffff",
+  background3: "#f2f2f2",
   titleColor: "#011F43",
   border: "#002046",
   borderShadow: "#002046",

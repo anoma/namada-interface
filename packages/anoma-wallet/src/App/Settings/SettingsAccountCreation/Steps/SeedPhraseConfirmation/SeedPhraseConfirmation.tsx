@@ -29,7 +29,6 @@ function SeedPhraseConfirmation(
 
   React.useEffect(() => {
     setIndexToConfirm(Math.floor(Math.random() * seedPhraseLength));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
