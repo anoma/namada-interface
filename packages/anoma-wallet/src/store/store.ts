@@ -1,18 +1,28 @@
-import {
-  Action,
-  configureStore,
-  MiddlewareArray,
-  ThunkAction,
-} from "@reduxjs/toolkit";
+import { Action, configureStore, ThunkAction } from "@reduxjs/toolkit";
+import storage from "redux-persist/lib/storage";
+import { combineReducers } from "redux";
+import { persistReducer } from "redux-persist";
+import thunk from "redux-thunk";
 import { useDispatch } from "react-redux";
 import { accountsReducer } from "slices";
-import { accountsStorageMiddleware } from "store/middleware";
+
+const reducers = combineReducers({
+  accounts: accountsReducer,
+});
+
+const persistConfig = {
+  key: "anoma-wallet",
+  storage,
+  // Only persist data in whitelist:
+  whitelist: ["accounts"],
+};
+
+const persistedReducer = persistReducer(persistConfig, reducers);
 
 const store = configureStore({
-  reducer: {
-    accounts: accountsReducer,
-  },
-  middleware: new MiddlewareArray().concat(accountsStorageMiddleware),
+  reducer: persistedReducer,
+  devTools: process.env.NODE_ENV !== "production",
+  middleware: [thunk],
 });
 
 export type AppStore = typeof store;

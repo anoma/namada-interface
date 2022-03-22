@@ -1,45 +1,39 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-export type Account = {
+export type DerivedAccount = {
   alias: string;
   address: string;
   publicKey: string;
   encryptedSigningKey: string;
   establishedAddress?: string;
+  zip32Address?: string;
 };
 
-type Accounts = {
-  [alias: string]: Account;
+type DerivedAccounts = {
+  [alias: string]: DerivedAccount;
 };
 
 type InitialState = {
-  accounts: Accounts;
+  derived: DerivedAccounts;
 };
 
 const initialState: InitialState = {
-  accounts: {},
+  derived: {},
 };
 
 const accountsSlice = createSlice({
   name: "accounts",
   initialState,
   reducers: {
-    addAccount: (state, action: PayloadAction<Account>) => {
-      const {
-        alias,
-        address,
-        publicKey,
-        establishedAddress,
-        encryptedSigningKey,
-      } = action.payload;
+    addAccount: (state, action: PayloadAction<DerivedAccount>) => {
+      const { alias, address, publicKey, encryptedSigningKey } = action.payload;
 
-      state.accounts = {
-        ...state.accounts,
+      state.derived = {
+        ...state.derived,
         [alias]: {
           alias,
           address,
           publicKey,
-          establishedAddress,
           encryptedSigningKey,
         },
       };
@@ -52,39 +46,55 @@ const accountsSlice = createSlice({
       }>
     ) => {
       const { alias, establishedAddress } = action.payload;
-      state.accounts[alias] = {
-        ...state.accounts[alias],
+      state.derived[alias] = {
+        ...state.derived[alias],
         establishedAddress,
+      };
+    },
+    setZip32Address: (
+      state,
+      action: PayloadAction<{
+        alias: string;
+        zip32Address: string;
+      }>
+    ) => {
+      const { alias, zip32Address } = action.payload;
+      state.derived[alias] = {
+        ...state.derived[alias],
+        zip32Address,
       };
     },
     removeAccount: (state, action: PayloadAction<string>) => {
       const alias = action.payload;
 
-      const { accounts } = state;
-      delete accounts[alias];
-      state.accounts = accounts;
+      const { derived } = state;
+      delete derived[alias];
+      state.derived = derived;
     },
     renameAccount: (state, action: PayloadAction<[string, string]>) => {
       const [previousAlias, newAlias] = action.payload;
 
-      const { accounts } = state;
-      const account = { ...accounts[previousAlias] };
-      delete accounts[previousAlias];
-      accounts[newAlias] = {
+      const { derived } = state;
+      const account = { ...derived[previousAlias] };
+      delete derived[previousAlias];
+      derived[newAlias] = {
         ...account,
         alias: newAlias,
       };
 
-      state.accounts = accounts;
+      state.derived = derived;
     },
   },
 });
 
 const { actions, reducer } = accountsSlice;
+
 export const {
   addAccount,
   setEstablishedAddress,
+  setZip32Address,
   removeAccount,
   renameAccount,
 } = actions;
+
 export default reducer;
