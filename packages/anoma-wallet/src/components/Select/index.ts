@@ -1,1 +1,1 @@
-export { default as Select } from "./select";
+export { default as Select, type Option } from "./Select";

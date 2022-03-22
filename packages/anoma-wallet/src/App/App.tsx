@@ -25,6 +25,7 @@ import {
 } from "./App.components";
 import { ThemeProvider } from "styled-components/macro";
 import { darkColors, lightColors, Theme } from "utils/theme";
+import { AddAccount } from "./AccountOverview/AddAccount";
 
 // this sets the dark/light colors to theme
 const getTheme = (isLightMode: boolean): Theme => {
@@ -90,6 +91,16 @@ function App(): JSX.Element {
                     element={
                       <AnimatedTransition elementKey={TopLevelRoute.Wallet}>
                         <AccountOverview />
+                      </AnimatedTransition>
+                    }
+                  />
+                  <Route
+                    path={TopLevelRoute.WalletAddAccount}
+                    element={
+                      <AnimatedTransition
+                        elementKey={TopLevelRoute.WalletAddAccount}
+                      >
+                        <AddAccount />
                       </AnimatedTransition>
                     }
                   />

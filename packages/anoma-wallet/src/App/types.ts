@@ -3,6 +3,7 @@ const SETTINGS = "";
 export enum TopLevelRoute {
   Home = "/",
   Wallet = "/wallet",
+  WalletAddAccount = "/wallet/add-account",
   StakingAndGovernance = "/staking-and-governance",
   Settings = "/settings",
   SettingsAccounts = "/settings/accounts",
