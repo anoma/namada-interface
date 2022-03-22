@@ -26,6 +26,7 @@ import {
 import { ThemeProvider } from "styled-components/macro";
 import { darkColors, lightColors, Theme } from "utils/theme";
 import { store } from "store";
+import { Provider } from "react-redux";
 
 // this sets the dark/light colors to theme
 const getTheme = (isLightMode: boolean): Theme => {
