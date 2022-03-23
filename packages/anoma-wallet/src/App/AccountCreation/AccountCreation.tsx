@@ -3,17 +3,13 @@ import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { ThemeContext } from "styled-components";
 
-import {
-  KeyPair,
-  Mnemonic,
-  MnemonicLength,
-} from "@anoma-wallet/key-management";
+import { Mnemonic, MnemonicLength } from "@anoma-wallet/key-management";
 
 import { Button } from "components/ButtonTemporary";
 import { Icon, IconName } from "components/Icon";
 import {
   TopLevelRoute,
-  LOCAL_STORAGE_MASTER_KEY_PAIR_STORAGE_VALUE,
+  LOCAL_STORAGE_MASTER_SEED_VALUE,
   LOCAL_STORAGE_MASTER_KEY_PAIR_ALIAS,
 } from "App/types";
 
@@ -254,7 +250,6 @@ function AccountCreation(): JSX.Element {
                         // likely best to move the key creation to the loading of
                         // the completion screen so that the user do not get the
                         // bad UX by seeing a noticeable delay
-
                         if (
                           accountCreationDetails.password &&
                           accountCreationDetails.seedPhraseLength &&
@@ -269,19 +264,16 @@ function AccountCreation(): JSX.Element {
                           const mnemonic: Mnemonic =
                             await Mnemonic.fromMnemonic(mnemonicLength);
 
-                          const keyPair = await KeyPair.fromMnemonic(
-                            mnemonic,
-                            accountCreationDetails.password
-                          );
-
                           window.localStorage.setItem(
                             LOCAL_STORAGE_MASTER_KEY_PAIR_ALIAS,
                             accountCreationDetails.accountName
                           );
 
                           window.localStorage.setItem(
-                            LOCAL_STORAGE_MASTER_KEY_PAIR_STORAGE_VALUE,
-                            keyPair.getStorageValue().value
+                            LOCAL_STORAGE_MASTER_SEED_VALUE,
+                            await mnemonic.toStorageValue(
+                              accountCreationDetails.password
+                            )
                           );
                         } else {
                           alert(

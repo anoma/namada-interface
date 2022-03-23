@@ -1,4 +1,5 @@
 import { AnomaClient } from "@anoma-apps/anoma-lib";
+import { toBase64, fromBase64 } from "@cosmjs/encoding";
 
 export enum MnemonicLength {
   Twelve = 12,
@@ -6,25 +7,23 @@ export enum MnemonicLength {
 }
 
 export class Mnemonic {
-  value = "";
+  value: string;
 
-  constructor(mnemonicFromString?: string) {
-    if (mnemonicFromString) {
-      this.value = mnemonicFromString;
-    }
+  constructor(mnemonicFromString = "") {
+    this.value = mnemonicFromString;
   }
 
-  static fromMnemonic = async (
+  static async fromMnemonic(
     length: MnemonicLength,
     mnemonicFromString?: string
-  ): Promise<Mnemonic> => {
-    const client = await new AnomaClient().init();
+  ): Promise<Mnemonic> {
+    const { mnemonic } = await new AnomaClient().init();
     const value = mnemonicFromString
       ? mnemonicFromString
-      : client.mnemonic.new(length).phrase();
+      : mnemonic.new(length).phrase();
 
     return new Mnemonic(value);
-  };
+  }
 
   static fromString(fromString: string): Mnemonic {
     let mnemonicLength: MnemonicLength;
@@ -40,5 +39,24 @@ export class Mnemonic {
     }
     const self = new Mnemonic(fromString);
     return self;
+  }
+
+  static async fromStorageValue(
+    password: string,
+    encrypted: string
+  ): Promise<Mnemonic> {
+    const { mnemonic } = await new AnomaClient().init();
+    const phrase = mnemonic
+      .from_encrypted(fromBase64(encrypted), password)
+      .phrase();
+
+    return new Mnemonic(phrase);
+  }
+
+  async toStorageValue(password: string): Promise<string> {
+    const { mnemonic } = await new AnomaClient().init();
+    const wasmMnemonic = mnemonic.from_phrase(this.value);
+
+    return toBase64(wasmMnemonic.to_encrypted(password));
   }
 }

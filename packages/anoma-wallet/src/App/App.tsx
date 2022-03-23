@@ -1,6 +1,7 @@
 /* eslint-disable max-len */
 import React from "react";
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+import { Provider } from "react-redux";
 import { AnimatePresence } from "framer-motion";
 
 // internal
@@ -25,6 +26,8 @@ import {
 import { ThemeProvider } from "styled-components/macro";
 import { darkColors, lightColors, Theme } from "utils/theme";
 import { AddAccount } from "./AccountOverview/AddAccount";
+import Login from "./Login/Login";
+import { store } from "store";
 
 // this sets the dark/light colors to theme
 const getTheme = (isLightMode: boolean): Theme => {
@@ -85,6 +88,7 @@ function App(): JSX.Element {
                     </ContentContainer>
                   }
                 >
+                  <Route path={""} element={<Login />} />
                   <Route
                     path={`${TopLevelRoute.AccountCreation}/*`}
                     element={
@@ -99,7 +103,9 @@ function App(): JSX.Element {
                     path={TopLevelRoute.Wallet}
                     element={
                       <AnimatedTransition elementKey={TopLevelRoute.Wallet}>
-                        <AccountOverview />
+                        <Provider store={store}>
+                          <AccountOverview />
+                        </Provider>
                       </AnimatedTransition>
                     }
                   />
@@ -109,7 +115,9 @@ function App(): JSX.Element {
                       <AnimatedTransition
                         elementKey={TopLevelRoute.WalletAddAccount}
                       >
-                        <AddAccount />
+                        <Provider store={store}>
+                          <AddAccount />
+                        </Provider>
                       </AnimatedTransition>
                     }
                   />

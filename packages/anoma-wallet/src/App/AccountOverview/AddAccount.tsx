@@ -10,13 +10,16 @@ import { Button, ButtonVariant } from "components/Button";
 import { TopLevelRoute } from "App/types";
 import { Select, Option } from "components/Select";
 import { Input, InputVariants } from "components/Input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TokenType, Tokens } from "constants/";
+import { useAppDispatch } from "store/store";
+import { addAccount } from "slices";
 
 export const AddAccount = (): JSX.Element => {
   const { derived } = useAppSelector((state) => state.accounts);
   const navigate = useNavigate();
   const [tokenType, setTokenType] = useState<TokenType>("BTC");
+  const dispatch = useAppDispatch();
 
   const tokensData: Option<string>[] = Object.keys(Tokens).map(
     (type: string) => {

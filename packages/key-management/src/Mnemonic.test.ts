@@ -17,7 +17,7 @@ test("Mnemonic class should encrypt and decrypt correctly", async () => {
   const mnemonic12 = mnemonic.new(PHRASE_LENGTH);
   const phrase = mnemonic12.phrase();
   const encrypted = mnemonic12.to_encrypted(PASSWORD);
-  const decrypted = mnemonic12.from_encrypted(encrypted, PASSWORD);
+  const decrypted = mnemonic.from_encrypted(encrypted, PASSWORD);
 
   expect(decrypted.phrase()).toBe(phrase);
   expect(decrypted).not.toEqual(mnemonic12);

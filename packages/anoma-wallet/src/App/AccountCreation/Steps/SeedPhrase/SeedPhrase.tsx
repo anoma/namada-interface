@@ -83,7 +83,7 @@ const SeedPhrase = (props: AccountInformationViewProps): JSX.Element => {
     };
 
     createMnemonic();
-  }, []);
+  }, [defaultSeedPhrase?.length, seedPhraseLength]);
 
   return (
     <AccountInformationViewContainer>
@@ -126,12 +126,6 @@ const SeedPhrase = (props: AccountInformationViewProps): JSX.Element => {
         <ButtonContainer>
           <Button
             onClick={() => {
-              if (!isSubmitButtonDisabled) {
-                const accountCreationDetailsToSubmit: AccountCreationDetails = {
-                  ...accountCreationDetails,
-                };
-              }
-
               onConfirmSavingOfSeedPhrase(seedPhraseAsArray);
             }}
             onHover={onCtaHover}

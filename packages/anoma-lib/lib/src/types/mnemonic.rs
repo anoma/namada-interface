@@ -41,6 +41,12 @@ impl Mnemonic {
         String::from(&self.phrase)
     }
 
+    pub fn from_phrase(phrase: String) -> Mnemonic {
+        Mnemonic {
+            phrase
+        }
+    }
+
     pub fn to_encrypted(&self, password: String) -> Vec<u8> {
         let salt = encryption_salt();
         let encryption_key = encryption_key(&salt, password);
@@ -55,7 +61,7 @@ impl Mnemonic {
         encrypted_data
     }
 
-    pub fn from_encrypted(&self, encrypted: Vec<u8>, password: String) -> Result<Mnemonic, JsValue> {
+    pub fn from_encrypted(encrypted: Vec<u8>, password: String) -> Result<Mnemonic, JsValue> {
         let salt_len = encryption_salt().len();
         let (raw_salt, cipher) = encrypted.split_at(salt_len);
 
