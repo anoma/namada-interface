@@ -8,7 +8,7 @@ export const StyledSelectWrapper = styled.div`
   & > div {
     position: absolute;
     right: 20px;
-    top: 12px;
+    top: 20px;
     pointer-events: none;
   }
 `;
@@ -18,10 +18,9 @@ export const StyledSelect = styled.select`
   -moz-appearance: none;
   appearance: none;
   width: 100%;
-  padding: 4px 0;
-  height: 48px;
+  margin-top: 10px;
+  padding: 0.875em 1em;
   border-radius: 24px;
-  padding: 0 20px;
   background-color: ${(props) =>
     props.theme.themeConfigurations.isLightMode ? "#fff" : "#000"};
   border: ${(props) =>

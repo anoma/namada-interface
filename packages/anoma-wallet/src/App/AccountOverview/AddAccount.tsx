@@ -1,7 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { NavigationContainer } from "components/NavigationContainer";
 import { Heading, HeadingLevel } from "components/Heading";
-import { AccountOverviewContainer } from "./AccountOverview.components";
+import {
+  AccountOverviewContainer,
+  InputContainer,
+} from "./AccountOverview.components";
 import { useAppSelector } from "store";
 import { Button, ButtonVariant } from "components/Button";
 import { TopLevelRoute } from "App/types";
@@ -26,9 +29,7 @@ export const AddAccount = (): JSX.Element => {
     }
   );
 
-  const onTokenSelect = async (
-    e: React.ChangeEvent<HTMLSelectElement>
-  ): Promise<void> => {
+  const onTokenSelect = (e: React.ChangeEvent<HTMLSelectElement>): void => {
     const { value } = e.target;
     setTokenType(value as TokenType);
   };
@@ -45,12 +46,17 @@ export const AddAccount = (): JSX.Element => {
       >
         <Heading level={HeadingLevel.One}>Add Account</Heading>
       </NavigationContainer>
-      <Input variant={InputVariants.Text} label="Account Alias" />
-      <Select
-        data={tokensData}
-        onChange={onTokenSelect}
-        value={tokenType}
-      ></Select>
+      <InputContainer>
+        <Input variant={InputVariants.Text} label="Account Alias" />
+      </InputContainer>
+
+      <InputContainer>
+        <Select
+          data={tokensData}
+          onChange={onTokenSelect}
+          value={tokenType}
+        ></Select>
+      </InputContainer>
       <Button variant={ButtonVariant.Contained}>Add</Button>
     </AccountOverviewContainer>
   );

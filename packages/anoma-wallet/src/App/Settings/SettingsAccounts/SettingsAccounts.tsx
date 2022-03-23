@@ -3,7 +3,7 @@ import { NavigationContainer } from "components/NavigationContainer";
 import { TopLevelRoute } from "App/types";
 import { Heading, HeadingLevel } from "components/Heading";
 import { Button, ButtonVariant } from "components/Button";
-import { AccountCreationRoute } from "App/Settings/SettingsAccountCreation/types";
+
 import {
   SettingsAccountsContainer,
   AccountRows,
@@ -67,7 +67,7 @@ export const SettingsAccounts = (props: SettingsAccountsProps): JSX.Element => {
       <NewAccountButtonContainer>
         <Button
           onClick={() => {
-            navigate(`${TopLevelRoute.SettingsAccountCreation}`);
+            navigate(`${TopLevelRoute.AccountCreation}`);
           }}
           variant={ButtonVariant.Contained}
           style={{ marginLeft: "0" }}

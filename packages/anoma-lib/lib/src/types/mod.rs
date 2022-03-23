@@ -4,3 +4,4 @@ pub mod encrypted_keypair;
 pub mod tx;
 pub mod wrapper;
 pub mod transaction;
+pub mod mnemonic;

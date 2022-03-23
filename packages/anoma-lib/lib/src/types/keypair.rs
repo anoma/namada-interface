@@ -5,31 +5,12 @@ use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
-pub enum PhraseSize {
-    N12 = 12,
-    N24 = 24,
-}
-
-#[wasm_bindgen]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PublicKey(pub(crate) NativePublicKey);
 
 #[wasm_bindgen]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Keypair(pub(crate) NativeKeypair);
-
-#[wasm_bindgen]
-#[allow(dead_code)]
-pub fn generate_mnemonic(size: PhraseSize) -> String {
-    use bip39::{Language, Mnemonic};
-    use rand_bip::prelude::ThreadRng;
-    use rand_bip::thread_rng;
-
-    let mut rng: ThreadRng = thread_rng();
-    Mnemonic::generate_in_with(&mut rng, Language::English, size as usize)
-        .unwrap()
-        .to_string()
-}
 
 impl From<NativeKeypair> for Keypair {
     fn from(native_keypair: NativeKeypair) -> Self {

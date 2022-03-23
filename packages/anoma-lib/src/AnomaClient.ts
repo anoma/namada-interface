@@ -4,7 +4,7 @@ import init, {
   Transfer,
   Account,
   Wallet,
-  generate_mnemonic,
+  Mnemonic,
 } from "./lib/anoma";
 
 export enum ResultType {
@@ -25,8 +25,7 @@ class AnomaClient {
   public readonly transfer = Transfer;
   public readonly account = Account;
   public readonly wallet = Wallet;
-
-  public readonly generateMnemonic = generate_mnemonic;
+  public readonly mnemonic = Mnemonic;
 
   public async init(): Promise<AnomaClient> {
     // Support setting wasm-pack target to "nodejs" (for testing)

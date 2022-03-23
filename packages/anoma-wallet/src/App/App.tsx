@@ -5,15 +5,14 @@ import { AnimatePresence } from "framer-motion";
 
 // internal
 import { TopNavigation } from "./TopNavigation";
-// import { AccountCreation } from "./AccountCreation";
 import { TopLevelRoute } from "./types";
 import {
   Settings,
   SettingsAccounts,
   SettingsWalletSettings,
   SettingsAccountSettings,
-  SettingsAccountCreation,
 } from "./Settings";
+import { AccountCreation } from "./AccountCreation";
 import { StakingAndGovernance } from "./StakingAndGovernance";
 import { AccountOverview } from "./AccountOverview";
 import {
@@ -87,6 +86,16 @@ function App(): JSX.Element {
                   }
                 >
                   <Route
+                    path={`${TopLevelRoute.AccountCreation}/*`}
+                    element={
+                      <AnimatedTransition
+                        elementKey={TopLevelRoute.AccountCreation}
+                      >
+                        <AccountCreation />
+                      </AnimatedTransition>
+                    }
+                  />
+                  <Route
                     path={TopLevelRoute.Wallet}
                     element={
                       <AnimatedTransition elementKey={TopLevelRoute.Wallet}>
@@ -149,16 +158,6 @@ function App(): JSX.Element {
                         elementKey={TopLevelRoute.SettingsWalletSettings}
                       >
                         <SettingsAccountSettings />
-                      </AnimatedTransition>
-                    }
-                  />
-                  <Route
-                    path={`${TopLevelRoute.SettingsAccountCreation}/*`}
-                    element={
-                      <AnimatedTransition
-                        elementKey={TopLevelRoute.SettingsAccountCreation}
-                      >
-                        <SettingsAccountCreation />
                       </AnimatedTransition>
                     }
                   />

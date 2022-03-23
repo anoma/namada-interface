@@ -109,10 +109,15 @@ function AccountCreation(): JSX.Element {
     // at the load we redirect to the first step
     // this way we do not need to expose the flow routes to outside
     navigate(AccountCreationRoute.Start);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const navigateToNext = (): void => {
     setStepIndex((stepIndex) => stepIndex + 1);
+    console.log(
+      { accountCreationSteps, stepIndex },
+      accountCreationSteps[stepIndex + 1]
+    );
     navigate(`${accountCreationSteps[stepIndex + 1]}`);
   };
 
@@ -134,7 +139,7 @@ function AccountCreation(): JSX.Element {
     <AccountCreationContainer>
       <TopSection>
         <TopSectionButtonContainer>
-          {!isLastIndex && (
+          {!isLastIndex && stepIndex !== 0 && (
             <Button
               onClick={() => {
                 navigateToPrevious();

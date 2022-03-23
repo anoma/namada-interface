@@ -1,13 +1,11 @@
-const SETTINGS = "";
-
 export enum TopLevelRoute {
   Home = "/",
+  AccountCreation = "/account-creation",
   Wallet = "/wallet",
   WalletAddAccount = "/wallet/add-account",
   StakingAndGovernance = "/staking-and-governance",
   Settings = "/settings",
   SettingsAccounts = "/settings/accounts",
-  SettingsAccountCreation = "/settings/account-creation",
   SettingsWalletSettings = "/settings/wallet-settings",
   SettingsAccountSettings = "/settings/account-settings",
 }

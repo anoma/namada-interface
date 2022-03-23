@@ -73,7 +73,7 @@ const AccountInformation = (
     <AccountInformationViewContainer>
       {/* header */}
       <AccountInformationViewUpperPartContainer>
-        <Header1>Create an account using file-based keys</Header1>
+        <Header1>Create a master seed</Header1>
       </AccountInformationViewUpperPartContainer>
 
       {/* form */}
@@ -168,7 +168,7 @@ const AccountInformation = (
             onChange={(event) => {
               setPassword2(event.target.value);
             }}
-            onFocus={(event) => {
+            onFocus={() => {
               setPassword1Feedback("");
               setPassword2Feedback("");
             }}

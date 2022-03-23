@@ -11,7 +11,6 @@ export class Mnemonic {
   constructor(mnemonicFromString?: string) {
     if (mnemonicFromString) {
       this.value = mnemonicFromString;
-      return;
     }
   }
 
@@ -19,10 +18,10 @@ export class Mnemonic {
     length: MnemonicLength,
     mnemonicFromString?: string
   ): Promise<Mnemonic> => {
-    const { generateMnemonic } = await new AnomaClient().init();
+    const client = await new AnomaClient().init();
     const value = mnemonicFromString
       ? mnemonicFromString
-      : generateMnemonic(length);
+      : client.mnemonic.new(length).phrase();
 
     return new Mnemonic(value);
   };
