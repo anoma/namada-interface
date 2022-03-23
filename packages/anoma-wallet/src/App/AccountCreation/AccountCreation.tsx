@@ -110,10 +110,6 @@ function AccountCreation(): JSX.Element {
 
   const navigateToNext = (): void => {
     setStepIndex((stepIndex) => stepIndex + 1);
-    console.log(
-      { accountCreationSteps, stepIndex },
-      accountCreationSteps[stepIndex + 1]
-    );
     navigate(`${accountCreationSteps[stepIndex + 1]}`);
   };
 

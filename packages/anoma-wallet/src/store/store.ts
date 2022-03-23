@@ -7,11 +7,11 @@ import thunk from "redux-thunk";
 import { useDispatch } from "react-redux";
 import { accountsReducer } from "slices";
 
+const { REACT_APP_SECRET_KEY = "12345abcde" } = process.env;
+
 const reducers = combineReducers({
   accounts: accountsReducer,
 });
-
-const TEST_SECRET = "asdfasdf";
 
 const persistConfig = {
   key: "anoma-wallet",
@@ -20,7 +20,7 @@ const persistConfig = {
   whitelist: ["accounts"],
   transforms: [
     encryptTransform({
-      secretKey: TEST_SECRET,
+      secretKey: REACT_APP_SECRET_KEY,
       onError: function (error) {
         // Handle the error.
         console.error(error);

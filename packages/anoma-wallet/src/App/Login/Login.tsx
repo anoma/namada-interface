@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { LOCAL_STORAGE_MASTER_SEED_VALUE, TopLevelRoute } from "App/types";
 import { LoginViewContainer } from "./Login.components";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +6,7 @@ import { Input, InputVariants } from "components/Input";
 import { AnomaClient } from "@anoma-apps/anoma-lib";
 import { fromBase64 } from "@cosmjs/encoding";
 import { Button, ButtonVariant } from "components/Button";
+import { AppContext } from "App/App";
 
 const getSeedStorageValue = (): string => {
   return window.localStorage.getItem(LOCAL_STORAGE_MASTER_SEED_VALUE) || "";
@@ -15,6 +16,9 @@ const Login = (): JSX.Element => {
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | undefined>();
+  const context = useContext(AppContext);
+
+  const { updatePassword, updateSeed } = context || {};
 
   useEffect(() => {
     const encrypted = getSeedStorageValue();
@@ -44,6 +48,10 @@ const Login = (): JSX.Element => {
         },
       };
 
+      if (updatePassword && updateSeed) {
+        updatePassword(password);
+        updateSeed(phrase);
+      }
       navigate(TopLevelRoute.Wallet, options);
     } catch (e) {
       setError(`An error has occured: ${e}`);
