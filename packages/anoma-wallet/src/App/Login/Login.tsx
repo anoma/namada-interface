@@ -7,6 +7,9 @@ import { AnomaClient } from "@anoma-apps/anoma-lib";
 import { fromBase64 } from "@cosmjs/encoding";
 import { Button, ButtonVariant } from "components/Button";
 import { AppContext } from "App/App";
+import { aesEncrypt } from "utils/helpers";
+
+const { REACT_APP_SECRET_KEY = "" } = process.env;
 
 const getSeedStorageValue = (): string => {
   return window.localStorage.getItem(LOCAL_STORAGE_MASTER_SEED_VALUE) || "";
@@ -18,7 +21,7 @@ const Login = (): JSX.Element => {
   const [error, setError] = useState<string | undefined>();
   const context = useContext(AppContext);
 
-  const { updatePassword, updateSeed } = context || {};
+  const { updatePassword, updateSeed, setLoggedIn } = context || {};
 
   useEffect(() => {
     const encrypted = getSeedStorageValue();
@@ -48,9 +51,13 @@ const Login = (): JSX.Element => {
         },
       };
 
-      if (updatePassword && updateSeed) {
+      if (updatePassword && updateSeed && setLoggedIn) {
         updatePassword(password);
         updateSeed(phrase);
+
+        const encrypted = aesEncrypt(password, REACT_APP_SECRET_KEY);
+        window.localStorage.setItem("session", encrypted);
+        setLoggedIn();
       }
       navigate(TopLevelRoute.Wallet, options);
     } catch (e) {

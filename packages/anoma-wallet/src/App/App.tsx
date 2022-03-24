@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import React from "react";
+import { useState, createContext } from "react";
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import { Provider } from "react-redux";
 import { AnimatePresence } from "framer-motion";
@@ -64,13 +64,16 @@ type ContextType = {
   password?: string;
   updateSeed?: (seed: string) => void;
   updatePassword?: (password: string) => void;
+  setLoggedIn?: () => void;
 };
-export const AppContext = React.createContext<ContextType | null>(null);
+
+export const AppContext = createContext<ContextType | null>(null);
 
 function App(): JSX.Element {
-  const [isLightMode, setIsLightMode] = React.useState(true);
-  const [seed, setSeed] = React.useState<string | undefined>();
-  const [password, setPassword] = React.useState<string | undefined>();
+  const [isLightMode, setIsLightMode] = useState(true);
+  const [seed, setSeed] = useState<string | undefined>();
+  const [password, setPassword] = useState<string | undefined>();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const updatePassword = (password: string): void => {
     setPassword(password);
@@ -80,17 +83,130 @@ function App(): JSX.Element {
     setSeed(seed);
   };
 
+  const setLoggedIn = (): void => {
+    setIsLoggedIn(true);
+  };
+
   const theme = getTheme(isLightMode);
   const fakeAccounts = [
     "fake1l7dgf0m623ayll8vdyf6n7gxm3tz7mt7x443m0",
     "fakej3n4340m623ayll8vdyf6n7gxm3tz7mt74m5th0",
     "fakelg45lt5m623ayll8vdyf6n7gxm3tz7mtrenrer0",
   ];
+
+  if (isLoggedIn) {
+    return (
+      <BrowserRouter>
+        <ThemeProvider theme={theme}>
+          <AppContext.Provider
+            value={{ seed, password, updateSeed, updatePassword }}
+          >
+            <AppContainer>
+              <TopSection>
+                <TopNavigation
+                  isLightMode={isLightMode}
+                  setIsLightMode={setIsLightMode}
+                />
+              </TopSection>
+              <BottomSection>
+                <AnimatePresence exitBeforeEnter>
+                  <Routes>
+                    <Route
+                      path="/"
+                      element={
+                        <ContentContainer>
+                          <Outlet />
+                        </ContentContainer>
+                      }
+                    >
+                      <Route
+                        path={TopLevelRoute.Wallet}
+                        element={
+                          <AnimatedTransition elementKey={TopLevelRoute.Wallet}>
+                            <Provider store={store}>
+                              <AccountOverview />
+                            </Provider>
+                          </AnimatedTransition>
+                        }
+                      />
+                      <Route
+                        path={TopLevelRoute.WalletAddAccount}
+                        element={
+                          <AnimatedTransition
+                            elementKey={TopLevelRoute.WalletAddAccount}
+                          >
+                            <Provider store={store}>
+                              <AddAccount />
+                            </Provider>
+                          </AnimatedTransition>
+                        }
+                      />
+                      <Route
+                        path={TopLevelRoute.StakingAndGovernance}
+                        element={
+                          <AnimatedTransition
+                            elementKey={TopLevelRoute.StakingAndGovernance}
+                          >
+                            <StakingAndGovernance />
+                          </AnimatedTransition>
+                        }
+                      />
+                      <Route
+                        path={TopLevelRoute.Settings}
+                        element={
+                          <AnimatedTransition
+                            elementKey={TopLevelRoute.Settings}
+                          >
+                            <Settings />
+                          </AnimatedTransition>
+                        }
+                      />
+                      <Route
+                        path={TopLevelRoute.SettingsAccounts}
+                        element={
+                          <AnimatedTransition
+                            elementKey={TopLevelRoute.SettingsAccounts}
+                          >
+                            <SettingsAccounts accounts={fakeAccounts} />
+                          </AnimatedTransition>
+                        }
+                      />
+                      <Route
+                        path={TopLevelRoute.SettingsWalletSettings}
+                        element={
+                          <AnimatedTransition
+                            elementKey={TopLevelRoute.SettingsWalletSettings}
+                          >
+                            <SettingsWalletSettings />
+                          </AnimatedTransition>
+                        }
+                      />
+                      <Route
+                        path={`${TopLevelRoute.SettingsAccountSettings}/:accountAlias`}
+                        element={
+                          <AnimatedTransition
+                            elementKey={TopLevelRoute.SettingsWalletSettings}
+                          >
+                            <SettingsAccountSettings />
+                          </AnimatedTransition>
+                        }
+                      />
+                    </Route>
+                  </Routes>
+                </AnimatePresence>
+              </BottomSection>
+            </AppContainer>
+          </AppContext.Provider>
+        </ThemeProvider>
+      </BrowserRouter>
+    );
+  }
+
   return (
     <BrowserRouter>
       <ThemeProvider theme={theme}>
         <AppContext.Provider
-          value={{ seed, password, updateSeed, updatePassword }}
+          value={{ seed, password, updateSeed, updatePassword, setLoggedIn }}
         >
           <AppContainer>
             <TopSection>
@@ -118,76 +234,6 @@ function App(): JSX.Element {
                           elementKey={TopLevelRoute.AccountCreation}
                         >
                           <AccountCreation />
-                        </AnimatedTransition>
-                      }
-                    />
-                    <Route
-                      path={TopLevelRoute.Wallet}
-                      element={
-                        <AnimatedTransition elementKey={TopLevelRoute.Wallet}>
-                          <Provider store={store}>
-                            <AccountOverview />
-                          </Provider>
-                        </AnimatedTransition>
-                      }
-                    />
-                    <Route
-                      path={TopLevelRoute.WalletAddAccount}
-                      element={
-                        <AnimatedTransition
-                          elementKey={TopLevelRoute.WalletAddAccount}
-                        >
-                          <Provider store={store}>
-                            <AddAccount />
-                          </Provider>
-                        </AnimatedTransition>
-                      }
-                    />
-                    <Route
-                      path={TopLevelRoute.StakingAndGovernance}
-                      element={
-                        <AnimatedTransition
-                          elementKey={TopLevelRoute.StakingAndGovernance}
-                        >
-                          <StakingAndGovernance />
-                        </AnimatedTransition>
-                      }
-                    />
-                    <Route
-                      path={TopLevelRoute.Settings}
-                      element={
-                        <AnimatedTransition elementKey={TopLevelRoute.Settings}>
-                          <Settings />
-                        </AnimatedTransition>
-                      }
-                    />
-                    <Route
-                      path={TopLevelRoute.SettingsAccounts}
-                      element={
-                        <AnimatedTransition
-                          elementKey={TopLevelRoute.SettingsAccounts}
-                        >
-                          <SettingsAccounts accounts={fakeAccounts} />
-                        </AnimatedTransition>
-                      }
-                    />
-                    <Route
-                      path={TopLevelRoute.SettingsWalletSettings}
-                      element={
-                        <AnimatedTransition
-                          elementKey={TopLevelRoute.SettingsWalletSettings}
-                        >
-                          <SettingsWalletSettings />
-                        </AnimatedTransition>
-                      }
-                    />
-                    <Route
-                      path={`${TopLevelRoute.SettingsAccountSettings}/:accountAlias`}
-                      element={
-                        <AnimatedTransition
-                          elementKey={TopLevelRoute.SettingsWalletSettings}
-                        >
-                          <SettingsAccountSettings />
                         </AnimatedTransition>
                       }
                     />

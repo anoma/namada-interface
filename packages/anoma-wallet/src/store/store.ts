@@ -6,8 +6,11 @@ import { encryptTransform } from "redux-persist-transform-encrypt";
 import thunk from "redux-thunk";
 import { useDispatch } from "react-redux";
 import { accountsReducer } from "slices";
+import { aesDecrypt } from "utils/helpers";
 
-const { REACT_APP_SECRET_KEY = "12345abcde" } = process.env;
+const { REACT_APP_SECRET_KEY = "" } = process.env;
+const session = window.localStorage.getItem("session") || "";
+const secretKey = aesDecrypt(session, REACT_APP_SECRET_KEY);
 
 const reducers = combineReducers({
   accounts: accountsReducer,
@@ -20,7 +23,7 @@ const persistConfig = {
   whitelist: ["accounts"],
   transforms: [
     encryptTransform({
-      secretKey: REACT_APP_SECRET_KEY,
+      secretKey,
       onError: function (error) {
         // Handle the error.
         console.error(error);
