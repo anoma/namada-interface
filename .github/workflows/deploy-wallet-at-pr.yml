@@ -3,7 +3,7 @@ on:
   pull_request:
     paths:
       - "packages/anoma-wallet/**"
-      - ".github/workflows"
+      - ".github/workflows/**"
 env:
   CI: false
 jobs:
