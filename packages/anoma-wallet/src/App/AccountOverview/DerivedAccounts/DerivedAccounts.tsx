@@ -16,9 +16,6 @@ const DerivedAccounts = (props: Props): JSX.Element => {
 
   return (
     <DerivedAccountsContainer>
-      {/* Add account */}
-
-      {/* List accounts */}
       <DerivedAccountsList>
         {Object.keys(derived).map((alias: string) => {
           return <DerivedAccountItem key={alias}>{alias}</DerivedAccountItem>;

@@ -2,9 +2,10 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export type DerivedAccount = {
   alias: string;
+  tokenType: string;
   address: string;
   publicKey: string;
-  encryptedSigningKey: string;
+  signingKey: string;
   establishedAddress?: string;
   zip32Address?: string;
 };
@@ -26,15 +27,17 @@ const accountsSlice = createSlice({
   initialState,
   reducers: {
     addAccount: (state, action: PayloadAction<DerivedAccount>) => {
-      const { alias, address, publicKey, encryptedSigningKey } = action.payload;
+      const { alias, tokenType, address, publicKey, signingKey } =
+        action.payload;
 
       state.derived = {
         ...state.derived,
         [alias]: {
           alias,
+          tokenType,
           address,
           publicKey,
-          encryptedSigningKey,
+          signingKey,
         },
       };
     },

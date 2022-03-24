@@ -42,15 +42,6 @@ const Login = (): JSX.Element => {
       const phrase = wasmMnemonic.phrase();
       setError(undefined);
 
-      // This won't work. We need to somehow get phrase and password into
-      // the context of the wallet
-      const options = {
-        state: {
-          phrase,
-          password,
-        },
-      };
-
       if (updatePassword && updateSeed && setLoggedIn) {
         updatePassword(password);
         updateSeed(phrase);
@@ -59,7 +50,7 @@ const Login = (): JSX.Element => {
         window.localStorage.setItem("session", encrypted);
         setLoggedIn();
       }
-      navigate(TopLevelRoute.Wallet, options);
+      navigate(TopLevelRoute.Wallet);
     } catch (e) {
       setError(`An error has occured: ${e}`);
     }
