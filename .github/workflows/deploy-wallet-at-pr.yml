@@ -1,10 +1,12 @@
 name: Deploy wallet preview to netlify at PR and pushes to it
 on:
+  push:
   pull_request:
     paths:
       - "packages/anoma-wallet/**"
       - "packages/anoma-lib/**"
       - "packages/key-management/**"
+      - ".github/workflows/**"
 
 env:
   CI: false
@@ -19,13 +21,10 @@ jobs:
         working-directory: ./packages/anoma-wallet
         run: yarn
 
-      - uses: jetli/wasm-pack-action@v0.3.0
+      - name: Install wasm-pack
+        uses: jetli/wasm-pack-action@v0.3.0
         with:
           version: "v0.10.2"
-
-      - name: build the site
-        working-directory: ./packages/anoma-wallet
-        run: yarn build
 
       - name: Set up environment
         working-directory: ./packages/anoma-wallet
@@ -36,6 +35,10 @@ jobs:
             | openssl base64 \
             | xargs echo "REACT_APP_SECRET_KEY=" \
             | awk '{ gsub(/ /,""); print }' > .env
+
+      - name: build the site
+        working-directory: ./packages/anoma-wallet
+        run: yarn build
 
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v1.2.3
@@ -48,6 +51,7 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_ACCESS_TOKEN_WALLET_PREVIEW }}
           NETLIFY_SITE_ID: 2380782e-9b20-477a-bc27-b4e9d05e16f3
+
       - name: Slack Notification
         run: |
           curl --header "Content-Type: application/json" \
