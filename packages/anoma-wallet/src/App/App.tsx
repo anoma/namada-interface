@@ -1,21 +1,13 @@
 /* eslint-disable max-len */
-import { useState, createContext } from "react";
+import { lazy, useState, createContext, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
-import { Provider } from "react-redux";
 import { AnimatePresence } from "framer-motion";
 
 // internal
 import { TopNavigation } from "./TopNavigation";
 import { TopLevelRoute } from "./types";
-import {
-  Settings,
-  SettingsAccounts,
-  SettingsWalletSettings,
-  SettingsAccountSettings,
-} from "./Settings";
 import { AccountCreation } from "./AccountCreation";
-import { StakingAndGovernance } from "./StakingAndGovernance";
-import { AccountOverview } from "./AccountOverview";
+
 import {
   AppContainer,
   TopSection,
@@ -25,12 +17,10 @@ import {
 } from "./App.components";
 import { ThemeProvider } from "styled-components/macro";
 import { darkColors, lightColors, Theme } from "utils/theme";
-import { AddAccount } from "./AccountOverview/AddAccount";
-import Login from "./Login/Login";
-import { store } from "store";
+import { Login } from "./Login";
 
 // this sets the dark/light colors to theme
-const getTheme = (isLightMode: boolean): Theme => {
+export const getTheme = (isLightMode: boolean): Theme => {
   const colors = isLightMode ? lightColors : darkColors;
   const theme: Theme = {
     themeConfigurations: {
@@ -41,7 +31,7 @@ const getTheme = (isLightMode: boolean): Theme => {
   return theme;
 };
 
-const AnimatedTransition = (props: {
+export const AnimatedTransition = (props: {
   children: React.ReactNode;
   elementKey: string;
 }): JSX.Element => {
@@ -88,19 +78,16 @@ function App(): JSX.Element {
   };
 
   const theme = getTheme(isLightMode);
-  const fakeAccounts = [
-    "fake1l7dgf0m623ayll8vdyf6n7gxm3tz7mt7x443m0",
-    "fakej3n4340m623ayll8vdyf6n7gxm3tz7mt74m5th0",
-    "fakelg45lt5m623ayll8vdyf6n7gxm3tz7mtrenrer0",
-  ];
 
   if (isLoggedIn) {
+    // Lazy-load Routes as the encrypted persistence layer in Redux
+    // requires initialization after a valid password has been entered:
+    const AppRoutes = lazy(() => import("./AppRoutes"));
+
     return (
       <BrowserRouter>
         <ThemeProvider theme={theme}>
-          <AppContext.Provider
-            value={{ seed, password, updateSeed, updatePassword }}
-          >
+          <AppContext.Provider value={{ seed, password }}>
             <AppContainer>
               <TopSection>
                 <TopNavigation
@@ -110,89 +97,9 @@ function App(): JSX.Element {
               </TopSection>
               <BottomSection>
                 <AnimatePresence exitBeforeEnter>
-                  <Routes>
-                    <Route
-                      path="/"
-                      element={
-                        <ContentContainer>
-                          <Outlet />
-                        </ContentContainer>
-                      }
-                    >
-                      <Route
-                        path={TopLevelRoute.Wallet}
-                        element={
-                          <AnimatedTransition elementKey={TopLevelRoute.Wallet}>
-                            <Provider store={store}>
-                              <AccountOverview />
-                            </Provider>
-                          </AnimatedTransition>
-                        }
-                      />
-                      <Route
-                        path={TopLevelRoute.WalletAddAccount}
-                        element={
-                          <AnimatedTransition
-                            elementKey={TopLevelRoute.WalletAddAccount}
-                          >
-                            <Provider store={store}>
-                              <AddAccount />
-                            </Provider>
-                          </AnimatedTransition>
-                        }
-                      />
-                      <Route
-                        path={TopLevelRoute.StakingAndGovernance}
-                        element={
-                          <AnimatedTransition
-                            elementKey={TopLevelRoute.StakingAndGovernance}
-                          >
-                            <StakingAndGovernance />
-                          </AnimatedTransition>
-                        }
-                      />
-                      <Route
-                        path={TopLevelRoute.Settings}
-                        element={
-                          <AnimatedTransition
-                            elementKey={TopLevelRoute.Settings}
-                          >
-                            <Settings />
-                          </AnimatedTransition>
-                        }
-                      />
-                      <Route
-                        path={TopLevelRoute.SettingsAccounts}
-                        element={
-                          <AnimatedTransition
-                            elementKey={TopLevelRoute.SettingsAccounts}
-                          >
-                            <SettingsAccounts accounts={fakeAccounts} />
-                          </AnimatedTransition>
-                        }
-                      />
-                      <Route
-                        path={TopLevelRoute.SettingsWalletSettings}
-                        element={
-                          <AnimatedTransition
-                            elementKey={TopLevelRoute.SettingsWalletSettings}
-                          >
-                            <SettingsWalletSettings />
-                          </AnimatedTransition>
-                        }
-                      />
-                      <Route
-                        path={`${TopLevelRoute.SettingsAccountSettings}/:accountAlias`}
-                        element={
-                          <AnimatedTransition
-                            elementKey={TopLevelRoute.SettingsWalletSettings}
-                          >
-                            <SettingsAccountSettings />
-                          </AnimatedTransition>
-                        }
-                      />
-                    </Route>
-                  </Routes>
+                  <Suspense fallback={<p>Loading</p>}>
+                    <AppRoutes />
+                  </Suspense>
                 </AnimatePresence>
               </BottomSection>
             </AppContainer>

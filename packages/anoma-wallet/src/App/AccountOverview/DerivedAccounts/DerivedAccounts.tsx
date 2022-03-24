@@ -13,7 +13,7 @@ type Props = {
 
 const DerivedAccounts = (props: Props): JSX.Element => {
   const { derived } = props;
-
+  console.log({ derived });
   return (
     <DerivedAccountsContainer>
       <DerivedAccountsList>

@@ -1,0 +1,104 @@
+import { Provider } from "react-redux";
+import { Routes, Route, Outlet } from "react-router-dom";
+import { AccountOverview } from "./AccountOverview";
+import { AddAccount } from "./AccountOverview/AddAccount";
+import { AnimatedTransition } from "./App";
+import { ContentContainer } from "./App.components";
+import {
+  Settings,
+  SettingsAccounts,
+  SettingsAccountSettings,
+  SettingsWalletSettings,
+} from "./Settings";
+import { StakingAndGovernance } from "./StakingAndGovernance";
+import { TopLevelRoute } from "./types";
+import { store } from "store";
+
+const fakeAccounts = [
+  "fake1l7dgf0m623ayll8vdyf6n7gxm3tz7mt7x443m0",
+  "fakej3n4340m623ayll8vdyf6n7gxm3tz7mt74m5th0",
+  "fakelg45lt5m623ayll8vdyf6n7gxm3tz7mtrenrer0",
+];
+
+const AppRoutes = (): JSX.Element => {
+  return (
+    <Provider store={store}>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <ContentContainer>
+              <Outlet />
+            </ContentContainer>
+          }
+        >
+          <Route
+            path={TopLevelRoute.Wallet}
+            element={
+              // eslint-disable-next-line react/jsx-no-undef
+              <AnimatedTransition elementKey={TopLevelRoute.Wallet}>
+                <AccountOverview />
+              </AnimatedTransition>
+            }
+          />
+          <Route
+            path={TopLevelRoute.WalletAddAccount}
+            element={
+              <AnimatedTransition elementKey={TopLevelRoute.WalletAddAccount}>
+                <AddAccount />
+              </AnimatedTransition>
+            }
+          />
+          <Route
+            path={TopLevelRoute.StakingAndGovernance}
+            element={
+              <AnimatedTransition
+                elementKey={TopLevelRoute.StakingAndGovernance}
+              >
+                <StakingAndGovernance />
+              </AnimatedTransition>
+            }
+          />
+          <Route
+            path={TopLevelRoute.Settings}
+            element={
+              <AnimatedTransition elementKey={TopLevelRoute.Settings}>
+                <Settings />
+              </AnimatedTransition>
+            }
+          />
+          <Route
+            path={TopLevelRoute.SettingsAccounts}
+            element={
+              <AnimatedTransition elementKey={TopLevelRoute.SettingsAccounts}>
+                <SettingsAccounts accounts={fakeAccounts} />
+              </AnimatedTransition>
+            }
+          />
+          <Route
+            path={TopLevelRoute.SettingsWalletSettings}
+            element={
+              <AnimatedTransition
+                elementKey={TopLevelRoute.SettingsWalletSettings}
+              >
+                <SettingsWalletSettings />
+              </AnimatedTransition>
+            }
+          />
+          <Route
+            path={`${TopLevelRoute.SettingsAccountSettings}/:accountAlias`}
+            element={
+              <AnimatedTransition
+                elementKey={TopLevelRoute.SettingsWalletSettings}
+              >
+                <SettingsAccountSettings />
+              </AnimatedTransition>
+            }
+          />
+        </Route>
+      </Routes>
+    </Provider>
+  );
+};
+
+export default AppRoutes;

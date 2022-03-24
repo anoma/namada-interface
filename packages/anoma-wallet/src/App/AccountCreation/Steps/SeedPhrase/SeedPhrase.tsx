@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Mnemonic, MnemonicLength } from "@anoma-wallet/key-management";
 import { Button, Variant } from "components/ButtonTemporary";
 import {
@@ -13,6 +13,7 @@ import {
   SeedPhraseIndexLabel,
   ExportSeedPhraseButtonsContainer,
 } from "./SeedPhrase.components";
+import { AppContext } from "App/App";
 
 const seedPhraseStringToArray = (seedPhraseAsString: string): string[] => {
   if (seedPhraseAsString === "") return [];
@@ -62,6 +63,8 @@ const SeedPhrase = (props: AccountInformationViewProps): JSX.Element => {
     onConfirmSavingOfSeedPhrase,
     defaultSeedPhrase,
   } = props;
+  const context = useContext(AppContext) || {};
+  const { updateSeed } = context;
   const defaultSeedPhraseAsString = defaultSeedPhrase?.join(" ");
   const [seedPhrase, setSeedPhrase] = React.useState(
     defaultSeedPhraseAsString || ""
@@ -80,10 +83,14 @@ const SeedPhrase = (props: AccountInformationViewProps): JSX.Element => {
         mnemonicLengthToEnum(seedPhraseLength)
       );
       setSeedPhrase(mnemonic.value);
+      if (updateSeed) {
+        updateSeed(mnemonic.value);
+      }
     };
 
     createMnemonic();
-  }, [defaultSeedPhrase?.length, seedPhraseLength]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <AccountInformationViewContainer>

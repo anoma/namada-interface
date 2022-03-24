@@ -1,5 +1,8 @@
+import { AppContext } from "App/App";
 import { Button, Variant } from "components/ButtonTemporary";
 import { Image, ImageName } from "components/Image";
+import { useContext, useEffect } from "react";
+import { aesEncrypt } from "utils/helpers";
 import {
   StartViewContainer,
   StartViewUpperPartContainer,
@@ -9,6 +12,7 @@ import {
   ButtonsContainer,
   ButtonContainer,
 } from "./Completion.components";
+
 type StartViewProps = {
   // navigates to the account
   onClickSeeAccounts: () => void;
@@ -16,8 +20,20 @@ type StartViewProps = {
   onClickDone: () => void;
 };
 
+const { REACT_APP_SECRET_KEY = "" } = process.env;
+
 const Completion = (props: StartViewProps): JSX.Element => {
   const { onClickDone, onClickSeeAccounts } = props;
+  const context = useContext(AppContext) || {};
+  const { password = "" } = context;
+
+  useEffect(() => {
+    // Log the user in:
+    const encrypted = aesEncrypt(password, REACT_APP_SECRET_KEY);
+    window.localStorage.setItem("session", encrypted);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <StartViewContainer>
       <StartViewUpperPartContainer>

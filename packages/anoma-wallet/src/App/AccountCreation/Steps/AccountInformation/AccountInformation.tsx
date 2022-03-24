@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Button } from "components/ButtonTemporary";
 import {
   AccountInformationViewContainer,
@@ -18,6 +18,7 @@ import {
   RecoveryPhraseLengthRadioButtonsContainer,
   RecoveryPhraseLengthContainer,
 } from "./AccountInformation.components";
+import { AppContext } from "App/App";
 
 // this is being used:
 // to store the data in the parent when editing
@@ -54,7 +55,8 @@ const AccountInformation = (
     onCtaHover,
     accountCreationDetails,
   } = props;
-
+  const context = useContext(AppContext) || {};
+  const { updatePassword } = context;
   // setting these default values if no data was passed
   const { seedPhraseLength = "12", accountName = "" } =
     accountCreationDetails || {};
@@ -139,7 +141,11 @@ const AccountInformation = (
           <Input
             value={password1}
             onChange={(event) => {
-              setPassword1(event.target.value);
+              const { value } = event.target;
+              setPassword1(value);
+              if (updatePassword) {
+                updatePassword(value);
+              }
             }}
             onFocus={() => {
               setPassword1Feedback("");
