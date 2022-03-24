@@ -18,7 +18,14 @@ const DerivedAccounts = (props: Props): JSX.Element => {
     <DerivedAccountsContainer>
       <DerivedAccountsList>
         {Object.keys(derived).map((alias: string) => {
-          return <DerivedAccountItem key={alias}>{alias}</DerivedAccountItem>;
+          const { address } = derived[alias];
+          return (
+            <DerivedAccountItem key={alias}>
+              {alias}
+              <br />
+              {address}
+            </DerivedAccountItem>
+          );
         })}
       </DerivedAccountsList>
     </DerivedAccountsContainer>

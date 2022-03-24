@@ -24,10 +24,15 @@ import { useAppDispatch } from "store/store";
 
 export const AddAccount = (): JSX.Element => {
   const dispatch = useAppDispatch();
-  const { derived } = useAppSelector((state) => state.accounts);
   const navigate = useNavigate();
-  const [alias, setAlias] = useState<string | undefined>();
+
+  const { derived } = useAppSelector((state) => state.accounts);
+  const [alias, setAlias] = useState<string>("");
+  const [aliasError, setAliasError] = useState<string | undefined>();
   const [tokenType, setTokenType] = useState<TokenType>("BTC");
+  const [isInitializing, setIsInitializing] = useState(false);
+  const [error, setError] = useState<string | undefined>();
+
   const context = useContext(AppContext) || {};
   const { seed } = context;
 
@@ -62,10 +67,16 @@ export const AddAccount = (): JSX.Element => {
     return accountsForType.length;
   };
 
-  const validateAlias = (alias: string): boolean => !derived[alias];
+  const validateAlias = (alias: string): boolean =>
+    alias.length > 2 && !derived[alias];
 
   const handleAddClick = async (): Promise<void> => {
-    if (seed && alias && validateAlias(alias)) {
+    if (!alias || !validateAlias(alias)) {
+      return setAliasError("Invalid alias. Choose a different account alias.");
+    }
+
+    if (seed && alias) {
+      setAliasError(undefined);
       const wallet = await new Wallet(seed, tokenType).init();
       const index = getAccountIndex(
         Object.keys(derived).map((key: string) => derived[key]),
@@ -106,6 +117,7 @@ export const AddAccount = (): JSX.Element => {
       const socketClient = new SocketClient({ ...network, protocol: "ws" });
 
       await socketClient.broadcastTx(hash, bytes, {
+        onBroadcast: () => setIsInitializing(true),
         onNext: (subEvent) => {
           const { events }: { events: NewBlockEvents } =
             subEvent as SubscriptionEvents;
@@ -118,7 +130,11 @@ export const AddAccount = (): JSX.Element => {
           navigate(TopLevelRoute.Wallet);
           socketClient.disconnect();
         },
-        onError: (error) => console.error(error),
+        onError: (error) => {
+          console.error(error);
+          setError(error.toString());
+          setIsInitializing(false);
+        },
       });
     }
   };
@@ -137,6 +153,7 @@ export const AddAccount = (): JSX.Element => {
           variant={InputVariants.Text}
           label="Account Alias"
           onChangeCallback={handleAliasChange}
+          error={aliasError}
         />
       </InputContainer>
 
@@ -147,7 +164,13 @@ export const AddAccount = (): JSX.Element => {
           value={tokenType}
         ></Select>
       </InputContainer>
-      <Button variant={ButtonVariant.Contained} onClick={handleAddClick}>
+      {isInitializing && <p>Initializing new account...</p>}
+      {error && <p>{error}</p>}
+      <Button
+        variant={ButtonVariant.Contained}
+        onClick={handleAddClick}
+        disabled={!validateAlias(alias)}
+      >
         Add
       </Button>
     </AccountOverviewContainer>

@@ -19,9 +19,14 @@ const Login = (): JSX.Element => {
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | undefined>();
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const context = useContext(AppContext);
 
-  const { updatePassword, updateSeed, setLoggedIn } = context || {};
+  const {
+    setPassword: setPasswordContext,
+    setSeed,
+    setIsLoggedIn,
+  } = context || {};
 
   useEffect(() => {
     const encrypted = getSeedStorageValue();
@@ -33,6 +38,7 @@ const Login = (): JSX.Element => {
   const handleUnlockClick = async (): Promise<void> => {
     const { mnemonic } = await new AnomaClient().init();
     const encrypted = getSeedStorageValue();
+    setIsLoggingIn(true);
 
     try {
       const wasmMnemonic = mnemonic.from_encrypted(
@@ -42,16 +48,17 @@ const Login = (): JSX.Element => {
       const phrase = wasmMnemonic.phrase();
       setError(undefined);
 
-      if (updatePassword && updateSeed && setLoggedIn) {
-        updatePassword(password);
-        updateSeed(phrase);
+      if (setPasswordContext && setSeed && setIsLoggedIn) {
+        setPasswordContext(password);
+        setSeed(phrase);
 
         const encrypted = aesEncrypt(password, REACT_APP_SECRET_KEY);
         window.localStorage.setItem("session", encrypted);
-        setLoggedIn();
+        setIsLoggedIn();
       }
       navigate(TopLevelRoute.Wallet);
     } catch (e) {
+      setIsLoggingIn(false);
       setError(`An error has occured: ${e}`);
     }
   };
@@ -71,9 +78,14 @@ const Login = (): JSX.Element => {
         onChangeCallback={handlePasswordChange}
         error={error}
       />
-      <Button variant={ButtonVariant.Contained} onClick={handleUnlockClick}>
+      <Button
+        variant={ButtonVariant.Contained}
+        onClick={handleUnlockClick}
+        disabled={!password} // TODO: Improve validation
+      >
         Unlock Wallet
       </Button>
+      {isLoggingIn && <p>Unlocking wallet...</p>}
     </LoginViewContainer>
   );
 };

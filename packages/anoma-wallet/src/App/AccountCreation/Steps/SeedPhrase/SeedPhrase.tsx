@@ -64,7 +64,7 @@ const SeedPhrase = (props: AccountInformationViewProps): JSX.Element => {
     defaultSeedPhrase,
   } = props;
   const context = useContext(AppContext) || {};
-  const { updateSeed } = context;
+  const { setSeed } = context;
   const defaultSeedPhraseAsString = defaultSeedPhrase?.join(" ");
   const [seedPhrase, setSeedPhrase] = React.useState(
     defaultSeedPhraseAsString || ""
@@ -83,8 +83,8 @@ const SeedPhrase = (props: AccountInformationViewProps): JSX.Element => {
         mnemonicLengthToEnum(seedPhraseLength)
       );
       setSeedPhrase(mnemonic.value);
-      if (updateSeed) {
-        updateSeed(mnemonic.value);
+      if (setSeed) {
+        setSeed(mnemonic.value);
       }
     };
 

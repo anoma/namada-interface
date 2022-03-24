@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { lazy, useState, createContext, Suspense } from "react";
+import { lazy, useState, createContext, Suspense, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 
@@ -52,9 +52,9 @@ export const AnimatedTransition = (props: {
 type ContextType = {
   seed?: string;
   password?: string;
-  updateSeed?: (seed: string) => void;
-  updatePassword?: (password: string) => void;
-  setLoggedIn?: () => void;
+  setSeed?: (seed: string) => void;
+  setPassword?: (password: string) => void;
+  setIsLoggedIn?: () => void;
 };
 
 export const AppContext = createContext<ContextType | null>(null);
@@ -64,26 +64,26 @@ function App(): JSX.Element {
   const [seed, setSeed] = useState<string | undefined>();
   const [password, setPassword] = useState<string | undefined>();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  const updatePassword = (password: string): void => {
-    setPassword(password);
-  };
-
-  const updateSeed = (seed: string): void => {
-    setSeed(seed);
-  };
-
-  const setLoggedIn = (): void => {
-    setIsLoggedIn(true);
-  };
-
   const theme = getTheme(isLightMode);
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      const session = window.localStorage.getItem("session");
+
+      if (session) {
+        setIsLoggedIn(true);
+      }
+    }
+  }, [isLoggedIn]);
 
   if (isLoggedIn) {
     // Lazy-load Routes as the encrypted persistence layer in Redux
     // requires initialization after a valid password has been entered:
     const AppRoutes = lazy(() => import("./AppRoutes"));
 
+    /**
+     * Main wallet
+     */
     return (
       <BrowserRouter>
         <ThemeProvider theme={theme}>
@@ -109,11 +109,26 @@ function App(): JSX.Element {
     );
   }
 
+  /**
+   * Unlock Wallet & Create Master Seed flow:
+   */
   return (
     <BrowserRouter>
       <ThemeProvider theme={theme}>
         <AppContext.Provider
-          value={{ seed, password, updateSeed, updatePassword, setLoggedIn }}
+          value={{
+            seed,
+            password,
+            setSeed: (seed) => {
+              setSeed(seed);
+            },
+            setPassword: (password) => {
+              setPassword(password);
+            },
+            setIsLoggedIn: () => {
+              setIsLoggedIn(true);
+            },
+          }}
         >
           <AppContainer>
             <TopSection>

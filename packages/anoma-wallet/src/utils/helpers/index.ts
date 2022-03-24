@@ -74,12 +74,17 @@ export const aesEncrypt = (value: string, password: string): string => {
 export const aesDecrypt = (encrypted: string, password: string): string => {
   const key = CryptoJS.enc.Utf8.parse(password);
   const iv = CryptoJS.enc.Utf8.parse(password);
-  const decrypted = CryptoJS.AES.decrypt(encrypted, key, {
-    keySize: 128 / 8,
-    iv: iv,
-    mode: CryptoJS.mode.CBC,
-    padding: CryptoJS.pad.Pkcs7,
-  });
 
-  return decrypted.toString(CryptoJS.enc.Utf8);
+  try {
+    const decrypted = CryptoJS.AES.decrypt(encrypted, key, {
+      keySize: 128 / 8,
+      iv: iv,
+      mode: CryptoJS.mode.CBC,
+      padding: CryptoJS.pad.Pkcs7,
+    });
+
+    return decrypted.toString(CryptoJS.enc.Utf8);
+  } catch (e) {
+    throw new Error(`Unable to decrypt value: ${e}`);
+  }
 };

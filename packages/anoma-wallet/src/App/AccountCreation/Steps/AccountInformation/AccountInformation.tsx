@@ -56,7 +56,7 @@ const AccountInformation = (
     accountCreationDetails,
   } = props;
   const context = useContext(AppContext) || {};
-  const { updatePassword } = context;
+  const { setPassword } = context;
   // setting these default values if no data was passed
   const { seedPhraseLength = "12", accountName = "" } =
     accountCreationDetails || {};
@@ -143,8 +143,8 @@ const AccountInformation = (
             onChange={(event) => {
               const { value } = event.target;
               setPassword1(value);
-              if (updatePassword) {
-                updatePassword(value);
+              if (setPassword) {
+                setPassword(value);
               }
             }}
             onFocus={() => {
