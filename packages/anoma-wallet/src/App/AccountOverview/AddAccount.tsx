@@ -20,7 +20,7 @@ import {
   setEstablishedAddress,
 } from "slices/accounts";
 import { NewBlockEvents, SubscriptionEvents } from "lib/rpc/types";
-import { useAppDispatch } from "store/store";
+import { useAppDispatch } from "store";
 
 export const AddAccount = (): JSX.Element => {
   const dispatch = useAppDispatch();

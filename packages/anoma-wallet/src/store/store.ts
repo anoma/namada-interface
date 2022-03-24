@@ -12,6 +12,7 @@ const { REACT_APP_SECRET_KEY = "" } = process.env;
 const session = window.localStorage.getItem("session") || "hackmepls";
 const secretKey = aesDecrypt(session, REACT_APP_SECRET_KEY);
 
+console.log({ REACT_APP_SECRET_KEY });
 const reducers = combineReducers({
   accounts: accountsReducer,
 });
