@@ -35,8 +35,8 @@
   },
   "scripts": {
     "start": "craco start",
-    "dev": "yarn wasm:build && yarn start",
-    "dev:local": "REACT_APP_LOCAL=\"true\" yarn dev",
+    "dev": "NODE_ENV=development yarn wasm:build && yarn start",
+    "dev:local": "NODE_ENV=development; REACT_APP_LOCAL=\"true\" yarn dev",
     "build": "yarn run wasm:build && craco build",
     "lint": "npx eslint src --ext .ts,.tsx",
     "lint:fix": "yarn lint -- --fix",

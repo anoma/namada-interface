@@ -7,11 +7,7 @@ import { Mnemonic, MnemonicLength } from "@anoma-wallet/key-management";
 
 import { Button } from "components/ButtonTemporary";
 import { Icon, IconName } from "components/Icon";
-import {
-  TopLevelRoute,
-  LOCAL_STORAGE_MASTER_SEED_VALUE,
-  LOCAL_STORAGE_MASTER_KEY_PAIR_ALIAS,
-} from "App/types";
+import { TopLevelRoute, LOCAL_STORAGE_MASTER_KEY_PAIR_ALIAS } from "App/types";
 
 import {
   Start,
@@ -30,6 +26,8 @@ import {
   RouteContainer,
   MotionContainer,
 } from "./AccountCreation.components";
+import { Session } from "lib";
+import { AppContext } from "App/App";
 
 type AnimatedTransitionProps = {
   elementKey: string;
@@ -65,6 +63,9 @@ const AnimatedTransition = (
  * between the screens in the flow.
  */
 function AccountCreation(): JSX.Element {
+  const context = useContext(AppContext);
+  const { setIsLoggedIn } = context || {};
+
   // account details defaults
   const defaultAccountCreationDetails: AccountCreationDetails = {
     seedPhraseLength: "12",
@@ -260,17 +261,15 @@ function AccountCreation(): JSX.Element {
                           const mnemonic: Mnemonic =
                             await Mnemonic.fromMnemonic(mnemonicLength);
 
+                          // TODO: Is this still necessary? Perhaps this alias should
+                          // get used to initialize a default account?
                           window.localStorage.setItem(
                             LOCAL_STORAGE_MASTER_KEY_PAIR_ALIAS,
                             accountCreationDetails.accountName
                           );
-
-                          window.localStorage.setItem(
-                            LOCAL_STORAGE_MASTER_SEED_VALUE,
-                            await mnemonic.toStorageValue(
-                              accountCreationDetails.password
-                            )
-                          );
+                          const session = new Session();
+                          session.secret = accountCreationDetails.password;
+                          await session.setSeed(mnemonic.value);
                         } else {
                           alert(
                             "something is wrong with the KeyPair creation 🤨"
@@ -300,6 +299,7 @@ function AccountCreation(): JSX.Element {
                       navigate(TopLevelRoute.SettingsAccounts);
                     }}
                     onClickSeeAccounts={() => {
+                      setIsLoggedIn && setIsLoggedIn();
                       navigate(TopLevelRoute.Wallet);
                     }}
                   />

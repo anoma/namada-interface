@@ -11,4 +11,9 @@ export enum TopLevelRoute {
 }
 
 export const LOCAL_STORAGE_MASTER_KEY_PAIR_ALIAS = "accountAlias";
-export const LOCAL_STORAGE_MASTER_SEED_VALUE = "seed";
+
+export enum LocalStorage {
+  MasterKeyPairAlias = "accountAlias",
+  MasterSeedKey = "seed",
+  SessionKey = "session",
+}

@@ -10,10 +10,9 @@ import { Button, ButtonVariant } from "components/Button";
 import { TopLevelRoute } from "App/types";
 import { Select, Option } from "components/Select";
 import { Input, InputVariants } from "components/Input";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { TokenType, Tokens, TxResponse } from "constants/";
-import { AppContext } from "App/App";
-import { Wallet, Account, RpcClient, SocketClient } from "lib";
+import { Wallet, Account, RpcClient, SocketClient, Session } from "lib";
 import {
   addAccount,
   DerivedAccount,
@@ -21,6 +20,8 @@ import {
 } from "slices/accounts";
 import { NewBlockEvents, SubscriptionEvents } from "lib/rpc/types";
 import { useAppDispatch } from "store";
+import { SYMBOLS } from "constants/tokens";
+import Config from "config";
 
 export const AddAccount = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -29,23 +30,18 @@ export const AddAccount = (): JSX.Element => {
   const { derived } = useAppSelector((state) => state.accounts);
   const [alias, setAlias] = useState<string>("");
   const [aliasError, setAliasError] = useState<string | undefined>();
-  const [tokenType, setTokenType] = useState<TokenType>("BTC");
+  const [tokenType, setTokenType] = useState<TokenType>("NAM");
   const [isInitializing, setIsInitializing] = useState(false);
   const [error, setError] = useState<string | undefined>();
 
-  const context = useContext(AppContext) || {};
-  const { seed } = context;
+  const tokensData: Option<string>[] = SYMBOLS.map((symbol: string) => {
+    const token = Tokens[symbol];
 
-  const tokensData: Option<string>[] = Object.keys(Tokens).map(
-    (type: string) => {
-      const token = Tokens[type];
-
-      return {
-        label: `${token.coin} - ${token.symbol}`,
-        value: type,
-      };
-    }
-  );
+    return {
+      label: `${token.coin} - ${token.symbol}`,
+      value: symbol,
+    };
+  });
 
   const handleAliasChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { value } = e.target;
@@ -75,9 +71,11 @@ export const AddAccount = (): JSX.Element => {
       return setAliasError("Invalid alias. Choose a different account alias.");
     }
 
-    if (seed && alias) {
+    const mnemonic = await new Session().seed();
+
+    if (mnemonic && alias) {
       setAliasError(undefined);
-      const wallet = await new Wallet(seed, tokenType).init();
+      const wallet = await new Wallet(mnemonic, tokenType).init();
       const index = getAccountIndex(
         Object.keys(derived).map((key: string) => derived[key]),
         tokenType
@@ -97,10 +95,8 @@ export const AddAccount = (): JSX.Element => {
       );
 
       // Query epoch:
-      const network = {
-        network: "localhost",
-        port: 26657,
-      };
+      const { network, wsNetwork } = new Config();
+
       const rpcClient = new RpcClient(network);
       const epoch = await rpcClient.queryEpoch();
 
@@ -114,7 +110,7 @@ export const AddAccount = (): JSX.Element => {
       });
 
       // Broadcast transaction to ledger:
-      const socketClient = new SocketClient({ ...network, protocol: "ws" });
+      const socketClient = new SocketClient(wsNetwork);
 
       await socketClient.broadcastTx(hash, bytes, {
         onBroadcast: () => setIsInitializing(true),

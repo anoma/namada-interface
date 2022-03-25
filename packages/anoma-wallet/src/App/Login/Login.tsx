@@ -1,19 +1,13 @@
 import { useContext, useEffect, useState } from "react";
-import { LOCAL_STORAGE_MASTER_SEED_VALUE, TopLevelRoute } from "App/types";
+import { TopLevelRoute } from "App/types";
 import { LoginViewContainer } from "./Login.components";
 import { useNavigate } from "react-router-dom";
 import { Input, InputVariants } from "components/Input";
-import { AnomaClient } from "@anoma-apps/anoma-lib";
-import { fromBase64 } from "@cosmjs/encoding";
 import { Button, ButtonVariant } from "components/Button";
 import { AppContext } from "App/App";
-import { aesEncrypt } from "utils/helpers";
+import { Session } from "lib";
 
-const { REACT_APP_SECRET_KEY = "" } = process.env;
-
-const getSeedStorageValue = (): string => {
-  return window.localStorage.getItem(LOCAL_STORAGE_MASTER_SEED_VALUE) || "";
-};
+const session = new Session();
 
 const Login = (): JSX.Element => {
   const navigate = useNavigate();
@@ -22,40 +16,30 @@ const Login = (): JSX.Element => {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const context = useContext(AppContext);
 
-  const {
-    setPassword: setPasswordContext,
-    setSeed,
-    setIsLoggedIn,
-  } = context || {};
+  const { setIsLoggedIn } = context || {};
 
   useEffect(() => {
-    const encrypted = getSeedStorageValue();
-    if (!encrypted) {
-      return navigate(TopLevelRoute.AccountCreation);
-    }
+    const checkMnemonic = async (): Promise<void> => {
+      const encrypted = session.encryptedSeed;
+
+      if (!encrypted) {
+        return navigate(TopLevelRoute.AccountCreation);
+      }
+    };
+
+    checkMnemonic();
   }, [navigate]);
 
   const handleUnlockClick = async (): Promise<void> => {
-    const { mnemonic } = await new AnomaClient().init();
-    const encrypted = getSeedStorageValue();
     setIsLoggingIn(true);
 
     try {
-      const wasmMnemonic = mnemonic.from_encrypted(
-        fromBase64(encrypted),
-        password
-      );
-      const phrase = wasmMnemonic.phrase();
+      session.secret = password;
+      // Will fail if seed cannot be decrypted:
+      await session.seed();
       setError(undefined);
+      setIsLoggedIn && setIsLoggedIn();
 
-      if (setPasswordContext && setSeed && setIsLoggedIn) {
-        setPasswordContext(password);
-        setSeed(phrase);
-
-        const encrypted = aesEncrypt(password, REACT_APP_SECRET_KEY);
-        window.localStorage.setItem("session", encrypted);
-        setIsLoggedIn();
-      }
       navigate(TopLevelRoute.Wallet);
     } catch (e) {
       setIsLoggingIn(false);

@@ -1,15 +1,11 @@
-type Protocol = "http" | "https" | "ws" | "wss";
+import { NetworkConfig, Protocol } from "config";
 
-export type RpcClientInitArgs = {
-  network: string;
-  port: number;
-  protocol?: Protocol;
-};
+export type RpcClientInitArgs = NetworkConfig;
 
 abstract class RpcClientBase {
   private _network: string;
   private _port: number;
-  private _protocol: string;
+  private _protocol: Protocol;
 
   constructor({ network, port = 26657, protocol = "http" }: RpcClientInitArgs) {
     this._network = network;
@@ -25,7 +21,7 @@ abstract class RpcClientBase {
     this._port = port;
   }
 
-  public set protocol(protocol: string) {
+  public set protocol(protocol: Protocol) {
     this._protocol = protocol;
   }
 
