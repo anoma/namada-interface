@@ -30,3 +30,8 @@ export const StyledSelect = styled.select`
   color: ${(props) =>
     props.theme.themeConfigurations.isLightMode ? "#002046" : "#ccc"};
 `;
+
+export const Label = styled.label`
+  font-weight: 500;
+  color: ${(props) => props.theme.colors.inputText};
+`;

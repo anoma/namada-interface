@@ -21,7 +21,7 @@ import {
 import { NewBlockEvents, SubscriptionEvents } from "lib/rpc/types";
 import { useAppDispatch } from "store";
 import { SYMBOLS } from "constants/tokens";
-import Config from "config";
+import { Config } from "config";
 
 export const AddAccount = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -56,12 +56,10 @@ export const AddAccount = (): JSX.Element => {
   const getAccountIndex = (
     accounts: DerivedAccount[],
     tokenType: string
-  ): number => {
-    const accountsForType = accounts.filter(
+  ): number =>
+    accounts.filter(
       (account: DerivedAccount) => account.tokenType === tokenType
-    );
-    return accountsForType.length;
-  };
+    ).length;
 
   const validateAlias = (alias: string): boolean =>
     alias.length > 2 && !derived[alias];
@@ -156,8 +154,9 @@ export const AddAccount = (): JSX.Element => {
       <InputContainer>
         <Select
           data={tokensData}
-          onChange={handleTokenSelect}
+          label={"Select Token"}
           value={tokenType}
+          onChange={handleTokenSelect}
         ></Select>
       </InputContainer>
       {isInitializing && <p>Initializing new account...</p>}
