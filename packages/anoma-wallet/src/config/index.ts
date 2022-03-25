@@ -8,7 +8,7 @@ export type NetworkConfig = {
   protocol: Protocol;
 };
 
-const DEVNET_URL = "testnet-ux.anoma-euw1.heliax.dev:443";
+const DEVNET_URL = "testnet-ux.anoma-euw1.heliax.dev";
 const DEVNET_PORT = 443;
 const DEVNET_PROTOCOL = "https";
 const DEVNET_WS_PROTOCOL = "wss";
