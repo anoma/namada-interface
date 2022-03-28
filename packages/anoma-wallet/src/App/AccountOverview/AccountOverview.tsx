@@ -8,6 +8,7 @@ import { AccountOverviewContainer } from "./AccountOverview.components";
 import { useAppSelector, store } from "store";
 import { DerivedAccounts } from "./DerivedAccounts";
 import { Button, ButtonVariant } from "components/Button";
+import { TopLevelRoute } from "App/types";
 
 const persistor = persistStore(store);
 
@@ -18,15 +19,15 @@ export const AccountOverview = (): JSX.Element => {
   return (
     <AccountOverviewContainer>
       <NavigationContainer>
-        <Heading level={HeadingLevel.One}>AccountOverview</Heading>
+        <Heading level={HeadingLevel.One}>Accounts</Heading>
       </NavigationContainer>
       <Button
         variant={ButtonVariant.Contained}
-        onClick={() => navigate("/wallet/add-account")}
+        onClick={() => navigate(TopLevelRoute.WalletAddAccount)}
       >
         Add Account
       </Button>
-      <PersistGate loading={null} persistor={persistor}>
+      <PersistGate loading={"Loading accounts..."} persistor={persistor}>
         <DerivedAccounts derived={derived} />
       </PersistGate>
     </AccountOverviewContainer>

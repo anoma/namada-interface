@@ -94,7 +94,6 @@ export const AddAccount = (): JSX.Element => {
 
       // Query epoch:
       const { network, wsNetwork } = new Config();
-
       const rpcClient = new RpcClient(network);
       const epoch = await rpcClient.queryEpoch();
 

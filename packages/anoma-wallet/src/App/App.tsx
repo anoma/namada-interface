@@ -69,7 +69,6 @@ function App(): JSX.Element {
   useEffect(() => {
     if (!isLoggedIn) {
       const session = window.localStorage.getItem("session");
-
       if (session) {
         setIsLoggedIn(true);
       }

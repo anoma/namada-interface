@@ -1,8 +1,9 @@
+import { useContext, useEffect } from "react";
 import { AppContext } from "App/App";
 import { Button, Variant } from "components/ButtonTemporary";
 import { Image, ImageName } from "components/Image";
 import { Session } from "lib";
-import { useContext, useEffect } from "react";
+
 import {
   StartViewContainer,
   StartViewUpperPartContainer,

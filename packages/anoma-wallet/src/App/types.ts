@@ -1,8 +1,8 @@
 export enum TopLevelRoute {
   Home = "/",
   AccountCreation = "/account-creation",
-  Wallet = "/wallet",
-  WalletAddAccount = "/wallet/add-account",
+  Wallet = "/",
+  WalletAddAccount = "/add-account",
   StakingAndGovernance = "/staking-and-governance",
   Settings = "/settings",
   SettingsAccounts = "/settings/accounts",
@@ -13,7 +13,7 @@ export enum TopLevelRoute {
 export const LOCAL_STORAGE_MASTER_KEY_PAIR_ALIAS = "accountAlias";
 
 export enum LocalStorage {
-  MasterKeyPairAlias = "accountAlias",
+  Alias = "accountAlias",
   MasterSeedKey = "seed",
   SessionKey = "session",
 }
