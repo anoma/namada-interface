@@ -119,11 +119,9 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
         </LeftSection>
 
         <MiddleSection>
-          {isLoggedIn && (
-            <OnlyInMedium>
-              <TopNavigationMenuItems navigate={navigate} />
-            </OnlyInMedium>
-          )}
+          <OnlyInMedium>
+            {isLoggedIn && <TopNavigationMenuItems navigate={navigate} />}
+          </OnlyInMedium>
         </MiddleSection>
 
         <RightSection>
@@ -170,7 +168,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
       </TopNavigationContainerRow>
       <TopNavigationContainerSecondRow>
         <OnlyInSmall>
-          <TopNavigationMenuItems navigate={navigate} />
+          {isLoggedIn && <TopNavigationMenuItems navigate={navigate} />}
         </OnlyInSmall>
       </TopNavigationContainerSecondRow>
     </TopNavigationContainer>
