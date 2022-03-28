@@ -1,5 +1,4 @@
 import init, {
-  Address,
   Keypair,
   Transfer,
   Account,
@@ -20,7 +19,6 @@ export type Result<T> = {
 class AnomaClient {
   public memory: WebAssembly.Memory | null = null;
 
-  public readonly address = Address;
   public readonly keypair = Keypair;
   public readonly transfer = Transfer;
   public readonly account = Account;

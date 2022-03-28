@@ -1,7 +1,7 @@
 import { fromHex } from "@cosmjs/encoding";
 import { AnomaClient, Keypair as NativeKeypair } from "@anoma-apps/anoma-lib";
 
-export type SerializedKeypair = {
+type KeypairArgs = {
   public: string;
   secret: string;
 };
@@ -15,7 +15,7 @@ class Keypair {
   private _public: string;
   private _secret: string;
 
-  constructor(args: SerializedKeypair) {
+  constructor(args: KeypairArgs) {
     this._public = args.public;
     this._secret = args.secret;
   }

@@ -1,10 +1,11 @@
 use crate::types::{
-    address::Address,
     transaction::Transaction,
 };
-use anoma::types::token;
+use anoma::types::{token, address::Address};
 use borsh::BorshSerialize;
 use serde::{Serialize, Deserialize};
+use std::str::FromStr;
+
 use wasm_bindgen::prelude::*;
 
 #[derive(Serialize, Deserialize)]
@@ -13,7 +14,7 @@ pub struct Transfer(pub Transaction);
 #[wasm_bindgen]
 impl Transfer {
     pub fn new(
-        serialized_keypair: JsValue,
+        secret: String,
         encoded_source: String,
         encoded_target: String,
         token: String,
@@ -23,16 +24,17 @@ impl Transfer {
         gas_limit: u32,
         tx_code: &[u8],
     ) -> Result<JsValue, JsValue> {
-        let source = Address::decode(encoded_source)?;
-        let target = Address::decode(encoded_target)?;
-        let token = Address::decode(token)?;
+        let source = Address::from_str(&encoded_source).unwrap();
+        let target = Address::from_str(&encoded_target).unwrap();
+        let token = Address::from_str(&token).unwrap();
+
         let amount = token::Amount::from(u64::from(amount));
         let tx_code: Vec<u8> = tx_code.to_vec();
 
         let transfer = token::Transfer {
-            source: source.0,
-            target: target.0,
-            token: token.0.clone(),
+            source: source,
+            target: target,
+            token: token.clone(),
             amount,
         };
 
@@ -41,7 +43,7 @@ impl Transfer {
             .expect("Encoding unsigned transfer shouldn't fail");
 
         let transaction = match Transaction::new(
-            serialized_keypair,
+            secret,
             token,
             epoch,
             fee_amount,

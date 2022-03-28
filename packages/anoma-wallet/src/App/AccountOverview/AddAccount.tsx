@@ -102,7 +102,6 @@ export const AddAccount = (): JSX.Element => {
       const anomaAccount = await new Account().init();
       const { hash, bytes } = await anomaAccount.initialize({
         token: Tokens[tokenType].address,
-        publicKey,
         privateKey,
         epoch,
       });

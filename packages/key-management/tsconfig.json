@@ -2,5 +2,5 @@
   "compilerOptions": {
     "esModuleInterop": true
   },
-  "files": ["./src/KeyPair.ts", "./src/Mnemonic.ts"]
+  "files": ["./src/Mnemonic.ts"]
 }

@@ -1,2 +1,2 @@
 export { Mnemonic, MnemonicLength } from "./src/Mnemonic";
-export { KeyPair, KeyPairType } from "./src/KeyPair";
+//export { KeyPair, KeyPairType } from "./src/KeyPair";

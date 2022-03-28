@@ -1,5 +1,5 @@
 [package]
-name = "anoma-lib"
+name = "wasm"
 version = "0.1.0"
 authors = ["Justin Evans <jurevans@gmail.com>"]
 edition = "2021"
@@ -33,10 +33,9 @@ chrono = "0.4.0"
 thiserror = "1.0.30"
 
 [dependencies.anoma]
-git = "https://github.com/anoma/anoma"
-tag = "v0.4.0"
-# tag = "v0.5.0"
-# path = "/home/jurev/dev/anoma/shared"
+# git = "https://github.com/anoma/anoma"
+# tag  = "v0.5.0"
+path = "/home/jurev/dev/anoma/shared"
 features = ["rand", "ferveo-tpke"]
 
 [dependencies.web-sys]
