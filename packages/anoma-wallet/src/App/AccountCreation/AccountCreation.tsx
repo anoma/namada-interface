@@ -269,7 +269,7 @@ function AccountCreation(): JSX.Element {
                           );
                           const session = new Session();
                           session.secret = accountCreationDetails.password;
-                          await session.setSeed(mnemonic.value);
+                          await session.setSeed(mnemonic.phrase);
                         } else {
                           alert(
                             "something is wrong with the KeyPair creation 🤨"

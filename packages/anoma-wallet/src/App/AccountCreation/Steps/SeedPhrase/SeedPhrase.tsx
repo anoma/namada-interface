@@ -82,9 +82,9 @@ const SeedPhrase = (props: AccountInformationViewProps): JSX.Element => {
       const mnemonic = await Mnemonic.fromMnemonic(
         mnemonicLengthToEnum(seedPhraseLength)
       );
-      setSeedPhrase(mnemonic.value);
+      setSeedPhrase(mnemonic.phrase);
       if (setSeed) {
-        setSeed(mnemonic.value);
+        setSeed(mnemonic.phrase);
       }
     };
 

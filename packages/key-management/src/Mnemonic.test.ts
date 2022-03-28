@@ -3,10 +3,10 @@ import { AnomaClient } from "@anoma-apps/anoma-lib";
 
 test("mnemonic should have a correct length", async () => {
   const mnemonic1 = await Mnemonic.fromMnemonic(MnemonicLength.Twelve);
-  expect(mnemonic1.value.split(" ")).toHaveLength(12);
+  expect(mnemonic1.phrase.split(" ")).toHaveLength(12);
 
   const mnemonic2 = await Mnemonic.fromMnemonic(MnemonicLength.TwentyFour);
-  expect(mnemonic2.value.split(" ")).toHaveLength(24);
+  expect(mnemonic2.phrase.split(" ")).toHaveLength(24);
 });
 
 test("Mnemonic class should encrypt and decrypt correctly", async () => {

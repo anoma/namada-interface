@@ -115,10 +115,11 @@ export const AddAccount = (): JSX.Element => {
           const { events }: { events: NewBlockEvents } =
             subEvent as SubscriptionEvents;
           const initializedAccounts = events[TxResponse.InitializedAccounts];
-          const establishedAddress = initializedAccounts[0].replaceAll(
-            /\[|\]|"/g,
-            ""
-          );
+
+          const establishedAddress = initializedAccounts
+            .map((account: string) => JSON.parse(account))
+            .find((account: string[]) => account.length > 0)[0];
+
           dispatch(setEstablishedAddress({ alias, establishedAddress }));
           navigate(TopLevelRoute.Wallet);
           socketClient.disconnect();

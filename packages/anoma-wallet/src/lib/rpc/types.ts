@@ -30,7 +30,7 @@ export interface SubscriptionEvents extends SubscriptionEvent {
   events: NewBlockEvents;
 }
 
-export type NewBlockEvents = Record<TxResponse, string>;
+export type NewBlockEvents = Record<TxResponse, string[]>;
 
 export type JsonCompatibleArray = (string | number | boolean)[];
 export type JsonCompatibleDictionary = {

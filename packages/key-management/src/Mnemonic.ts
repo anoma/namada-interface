@@ -7,27 +7,23 @@ export enum MnemonicLength {
 }
 
 export class Mnemonic {
-  value: string;
+  phrase: string;
 
-  constructor(mnemonicFromString = "") {
-    this.value = mnemonicFromString;
+  constructor(phrase = "") {
+    this.phrase = phrase;
   }
 
   static async fromMnemonic(
     length: MnemonicLength,
-    mnemonicFromString?: string
+    phrase?: string
   ): Promise<Mnemonic> {
     const { mnemonic } = await new AnomaClient().init();
-    const value = mnemonicFromString
-      ? mnemonicFromString
-      : mnemonic.new(length).phrase();
-
-    return new Mnemonic(value);
+    return new Mnemonic(phrase ? phrase : mnemonic.new(length).phrase());
   }
 
-  static fromString(fromString: string): Mnemonic {
+  static fromString(phrase: string): Mnemonic {
     let mnemonicLength: MnemonicLength;
-    switch (fromString.split(" ").length) {
+    switch (phrase.split(" ").length) {
       case 12:
         mnemonicLength = MnemonicLength.Twelve;
         break;
@@ -37,7 +33,7 @@ export class Mnemonic {
       default:
         throw new Error("Invalid number of words in the mnemonic");
     }
-    const self = new Mnemonic(fromString);
+    const self = new Mnemonic(phrase);
     return self;
   }
 
@@ -55,7 +51,7 @@ export class Mnemonic {
 
   async toStorageValue(password: string): Promise<string> {
     const { mnemonic } = await new AnomaClient().init();
-    const wasmMnemonic = mnemonic.from_phrase(this.value);
+    const wasmMnemonic = mnemonic.from_phrase(this.phrase);
 
     return toBase64(wasmMnemonic.to_encrypted(password));
   }

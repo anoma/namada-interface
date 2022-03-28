@@ -15,7 +15,7 @@ class Session {
   public async seed(): Promise<string | undefined> {
     if (this.secret && this._seed) {
       const mnemonic = await Mnemonic.fromStorageValue(this.secret, this._seed);
-      return mnemonic.value;
+      return mnemonic.phrase;
     }
   }
 

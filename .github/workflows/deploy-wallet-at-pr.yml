@@ -20,10 +20,10 @@ jobs:
         working-directory: ./packages/anoma-wallet
         run: yarn
 
-      # - name: Install wasm-pack
-      #   uses: jetli/wasm-pack-action@v0.3.0
-      #   with:
-      #     version: "v0.10.2"
+      - name: Install wasm-pack
+        uses: jetli/wasm-pack-action@v0.3.0
+        with:
+          version: "v0.10.2"
 
       - name: Set up environment
         working-directory: ./packages/anoma-wallet
