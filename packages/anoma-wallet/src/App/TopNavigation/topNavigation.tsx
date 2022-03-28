@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate, useLocation, NavigateFunction } from "react-router-dom";
-import { TopLevelRoute } from "App/types";
+import { LocalStorage, TopLevelRoute } from "App/types";
 import { Image, ImageName } from "components/Image";
 import { Icon, IconName } from "components/Icon";
 import { Toggle } from "components/Toggle";
@@ -54,7 +54,7 @@ const TopNavigationMenuItems = (props: {
         <MenuItemIconContainer>
           <Icon iconName={IconName.ThumbsUp} />
         </MenuItemIconContainer>
-        <MenuItemTextContainer>Staking & Governance</MenuItemTextContainer>
+        <MenuItemTextContainer>Staking &amp; Governance</MenuItemTextContainer>
       </StakingAndGovernanceMenuItem>
 
       {/* Settings */}
@@ -85,10 +85,11 @@ type TopNavigationProps = {
   isLightMode: boolean;
   // cb for telling parent to change hte color in context
   setIsLightMode: React.Dispatch<React.SetStateAction<boolean>>;
+  isLoggedIn?: boolean;
 };
 // top nav of the app, this is likely always visible.
 function TopNavigation(props: TopNavigationProps): JSX.Element {
-  const { isLightMode, setIsLightMode } = props;
+  const { isLightMode, setIsLightMode, isLoggedIn = false } = props;
   const navigate = useNavigate();
   const circleElementEnabled = (
     <Icon iconName={IconName.Sun} strokeColorOverride="#17171d" />
@@ -118,14 +119,30 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
         </LeftSection>
 
         <MiddleSection>
-          <OnlyInMedium>
-            <TopNavigationMenuItems navigate={navigate} />
-          </OnlyInMedium>
+          {isLoggedIn && (
+            <OnlyInMedium>
+              <TopNavigationMenuItems navigate={navigate} />
+            </OnlyInMedium>
+          )}
         </MiddleSection>
 
         <RightSection>
           {/* TODO: extract to Button component*/}
 
+          {isLoggedIn && (
+            <MenuItem
+              onClick={() => {
+                window.localStorage.removeItem(LocalStorage.SessionKey);
+                navigate(TopLevelRoute.Home);
+                window.location.reload();
+              }}
+            >
+              <MenuItemIconContainer>
+                <Icon iconName={IconName.Key} />
+              </MenuItemIconContainer>
+              <MenuItemTextContainer>Lock</MenuItemTextContainer>
+            </MenuItem>
+          )}
           {/* help button */}
           <MenuItem
             onClick={() => {
