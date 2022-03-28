@@ -35,7 +35,7 @@ thiserror = "1.0.30"
 [dependencies.anoma]
 # git = "https://github.com/anoma/anoma"
 # tag  = "v0.5.0"
-path = "/home/jurev/dev/anoma/shared"
+path = "/home/jurev/dev/anoma_v0.5.0/anoma/shared"
 features = ["rand", "ferveo-tpke"]
 
 [dependencies.web-sys]
