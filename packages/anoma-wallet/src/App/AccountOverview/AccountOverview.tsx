@@ -3,10 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { Persistor } from "redux-persist/lib/types";
 import { NavigationContainer } from "components/NavigationContainer";
 import { Heading, HeadingLevel } from "components/Heading";
+import { Button, ButtonVariant } from "components/Button";
 import { AccountOverviewContainer } from "./AccountOverview.components";
 import { useAppSelector } from "store";
 import { DerivedAccounts } from "./DerivedAccounts";
-import { Button, ButtonVariant } from "components/Button";
+import { DerivedAccountsState } from "slices/accounts";
 import { TopLevelRoute } from "App/types";
 
 type Props = {
@@ -14,7 +15,9 @@ type Props = {
 };
 
 export const AccountOverview = ({ persistor }: Props): JSX.Element => {
-  const { derived } = useAppSelector((state) => state.accounts);
+  const { derived } = useAppSelector<DerivedAccountsState>(
+    (state) => state.accounts
+  );
   const navigate = useNavigate();
 
   return (

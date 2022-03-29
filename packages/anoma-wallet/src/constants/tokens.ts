@@ -16,11 +16,11 @@ type Tokens = {
 };
 
 // Declare symbols for tokens we support:
-export const SYMBOLS: TokenType[] = ["NAM", "BTC", "ETH", "DOT"];
+export const Symbols: TokenType[] = ["NAM", "BTC", "ETH", "DOT"];
 
 export const Tokens: Tokens = registeredCoinTypes
   .filter(([, , symbol]) => {
-    return SYMBOLS.indexOf(`${symbol as TokenType}`) > -1;
+    return Symbols.indexOf(`${symbol as TokenType}`) > -1;
   })
   .reduce((tokens: Tokens, coinType: RegisteredCoinType) => {
     const [type, path, symbol, coin, url] = coinType;

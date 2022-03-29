@@ -23,13 +23,11 @@ type Props = {
 };
 
 type Derived = DerivedAccount & { balance: number };
-type DerivedAccounts = Array<Derived>;
 
 const { network } = new Config();
 
-const DerivedAccounts = (props: Props): JSX.Element => {
-  const { derived } = props;
-  const [derivedAccounts, setDerivedAccounts] = useState<DerivedAccounts>([]);
+const DerivedAccounts = ({ derived }: Props): JSX.Element => {
+  const [derivedAccounts, setDerivedAccounts] = useState<Array<Derived>>([]);
   const navigate = useNavigate();
 
   useEffect(() => {

@@ -14,11 +14,11 @@ type DerivedAccounts = {
   [alias: string]: DerivedAccount;
 };
 
-type InitialState = {
+export type DerivedAccountsState = {
   derived: DerivedAccounts;
 };
 
-const initialState: InitialState = {
+const initialState: DerivedAccountsState = {
   derived: {},
 };
 

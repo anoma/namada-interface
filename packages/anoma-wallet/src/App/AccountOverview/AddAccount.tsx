@@ -16,25 +16,27 @@ import { Wallet, Account, RpcClient, SocketClient, Session } from "lib";
 import {
   addAccount,
   DerivedAccount,
+  DerivedAccountsState,
   setEstablishedAddress,
 } from "slices/accounts";
 import { NewBlockEvents, SubscriptionEvents } from "lib/rpc/types";
 import { useAppDispatch } from "store";
-import { SYMBOLS } from "constants/tokens";
+import { Symbols } from "constants/tokens";
 import { Config } from "config";
 
 export const AddAccount = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-
-  const { derived } = useAppSelector((state) => state.accounts);
+  const { derived } = useAppSelector<DerivedAccountsState>(
+    (state) => state.accounts
+  );
   const [alias, setAlias] = useState<string>("");
-  const [aliasError, setAliasError] = useState<string | undefined>();
+  const [aliasError, setAliasError] = useState<string>();
   const [tokenType, setTokenType] = useState<TokenType>("NAM");
   const [isInitializing, setIsInitializing] = useState(false);
-  const [error, setError] = useState<string | undefined>();
+  const [error, setError] = useState<string>();
 
-  const tokensData: Option<string>[] = SYMBOLS.map((symbol: string) => {
+  const tokensData: Option<string>[] = Symbols.map((symbol: string) => {
     const token = Tokens[symbol];
 
     return {

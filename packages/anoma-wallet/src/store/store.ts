@@ -11,19 +11,19 @@ import { encryptTransform } from "redux-persist-transform-encrypt";
 import thunk from "redux-thunk";
 import { accountsReducer } from "slices";
 
-const { REACT_APP_LOCAL, NODE_ENV } = process.env;
-
-// Append to our store name to support multiple environments
-const POSTFIX =
-  NODE_ENV === "development" ? (REACT_APP_LOCAL ? "-local" : "-dev") : "";
-
 const reducers = combineReducers({
   accounts: accountsReducer,
 });
 
 type StoreFactory = (secretKey: string) => EnhancedStore;
 
-const makeStore: StoreFactory = (secretKey: string): EnhancedStore => {
+const makeStore: StoreFactory = (secretKey) => {
+  const { REACT_APP_LOCAL, NODE_ENV } = process.env;
+
+  // Append to our store name to support multiple environments
+  const POSTFIX =
+    NODE_ENV === "development" ? (REACT_APP_LOCAL ? "-local" : "-dev") : "";
+
   const persistConfig = {
     key: `anoma-wallet${POSTFIX}`,
     storage,
@@ -44,7 +44,7 @@ const makeStore: StoreFactory = (secretKey: string): EnhancedStore => {
 
   return configureStore({
     reducer: persistedReducer,
-    devTools: process.env.NODE_ENV !== "production",
+    devTools: NODE_ENV !== "production",
     middleware: [thunk],
   });
 };
