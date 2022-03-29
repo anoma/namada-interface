@@ -1,8 +1,8 @@
+import { useEffect, useState, useReducer } from "react";
 import { useNavigate } from "react-router-dom";
 import { Config } from "config";
 import { Tokens } from "constants/";
 import { RpcClient } from "lib";
-import { useEffect, useState } from "react";
 import { DerivedAccount } from "slices/accounts";
 import {
   DerivedAccountsContainer,
@@ -22,50 +22,88 @@ type Props = {
   };
 };
 
-type Derived = DerivedAccount & { balance: number };
+type Derived = DerivedAccount & { balance?: number };
 
 const { network } = new Config();
+const rpcClient = new RpcClient(network);
+
+const getBalance = async (
+  establishedAddress: string,
+  tokenType: string
+): Promise<number> => {
+  const balance = await rpcClient.queryBalance(
+    `${Tokens[tokenType].address}`,
+    establishedAddress
+  );
+  return balance >= 0 ? balance : 0;
+};
+
+enum BalanceActionTypes {
+  Add = "Add",
+}
+
+type BalanceState = {
+  [alias: string]: number;
+};
+
+type BalanceAction = {
+  type: BalanceActionTypes;
+  payload: { alias: string; balance: number };
+};
+
+const balanceReducer = (
+  state: BalanceState,
+  action: BalanceAction
+): BalanceState => {
+  const { type, payload } = action;
+  const { alias, balance } = payload;
+
+  switch (type) {
+    case BalanceActionTypes.Add:
+      return {
+        ...state,
+        [alias]: balance,
+      };
+    default:
+      return state;
+  }
+};
 
 const DerivedAccounts = ({ derived }: Props): JSX.Element => {
   const [derivedAccounts, setDerivedAccounts] = useState<Array<Derived>>([]);
+  const [balances, dispatch] = useReducer(balanceReducer, {});
   const navigate = useNavigate();
 
   useEffect(() => {
-    const getDerivedAccounts = async (): Promise<void> => {
-      const rpcClient = new RpcClient(network);
-
-      const accounts = await Promise.all(
-        Object.keys(derived).map(async (alias: string): Promise<Derived> => {
-          const { establishedAddress = "", tokenType } = derived[alias];
-
-          const balance = await rpcClient.queryBalance(
-            `${Tokens[tokenType].address}`,
-            establishedAddress
-          );
-
-          return {
-            ...derived[alias],
-            balance: balance >= 0 ? balance : 0,
-          };
-        })
-      );
-
-      setDerivedAccounts(accounts);
-    };
-    getDerivedAccounts();
+    const accounts = Object.keys(derived).map(
+      (alias: string): Derived => derived[alias]
+    );
+    setDerivedAccounts(accounts);
   }, [derived]);
+
+  useEffect(() => {
+    derivedAccounts.forEach(async (account: DerivedAccount) => {
+      const { alias, establishedAddress = "", tokenType } = account;
+      const balance = await getBalance(establishedAddress, tokenType);
+      dispatch({ type: BalanceActionTypes.Add, payload: { alias, balance } });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [derivedAccounts]);
 
   return (
     <DerivedAccountsContainer>
       <DerivedAccountsList>
         {derivedAccounts.map((account: Derived) => {
-          const { alias, tokenType, balance, establishedAddress } = account;
+          const { alias, tokenType, establishedAddress } = account;
+          const balance = balances[alias];
+
           return (
             <DerivedAccountItem key={alias}>
               <DerivedAccountAlias>{alias}</DerivedAccountAlias>
               <DerivedAccountType>{tokenType}</DerivedAccountType>
               <DerivedAccountBalance>
-                <span>Balance:</span> {balance}
+                <span>Balance:</span>{" "}
+                {typeof balance === "number" ? balance : "Loading"}
               </DerivedAccountBalance>
               <DerivedAccountAddress>
                 {establishedAddress}

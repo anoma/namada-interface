@@ -25,16 +25,16 @@ export const DerivedAccountItem = styled.li`
 `;
 
 export const DerivedAccountAlias = styled.div`
-  flex: 1 0 63%;
+  flex: 1 0 61%;
 `;
 
 export const DerivedAccountType = styled.div`
-  flex: 1 0 17%;
+  flex: 1 0 14%;
   font-size: 12px;
 `;
 
 export const DerivedAccountBalance = styled.div`
-  flex: 1 0 20%;
+  flex: 1 0 25%;
   font-weight: bold;
 
   & > span {
