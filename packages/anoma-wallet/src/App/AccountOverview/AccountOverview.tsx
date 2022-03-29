@@ -1,18 +1,19 @@
 import { PersistGate } from "redux-persist/integration/react";
-import { persistStore } from "redux-persist";
 import { useNavigate } from "react-router-dom";
-
+import { Persistor } from "redux-persist/lib/types";
 import { NavigationContainer } from "components/NavigationContainer";
 import { Heading, HeadingLevel } from "components/Heading";
 import { AccountOverviewContainer } from "./AccountOverview.components";
-import { useAppSelector, store } from "store";
+import { useAppSelector } from "store";
 import { DerivedAccounts } from "./DerivedAccounts";
 import { Button, ButtonVariant } from "components/Button";
 import { TopLevelRoute } from "App/types";
 
-const persistor = persistStore(store);
+type Props = {
+  persistor: Persistor;
+};
 
-export const AccountOverview = (): JSX.Element => {
+export const AccountOverview = ({ persistor }: Props): JSX.Element => {
   const { derived } = useAppSelector((state) => state.accounts);
   const navigate = useNavigate();
 

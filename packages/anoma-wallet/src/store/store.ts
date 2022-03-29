@@ -1,11 +1,15 @@
-import { Action, configureStore, ThunkAction } from "@reduxjs/toolkit";
+import {
+  Action,
+  configureStore,
+  EnhancedStore,
+  ThunkAction,
+} from "@reduxjs/toolkit";
 import storage from "redux-persist/lib/storage";
 import { combineReducers } from "redux";
 import { persistReducer } from "redux-persist";
 import { encryptTransform } from "redux-persist-transform-encrypt";
 import thunk from "redux-thunk";
 import { accountsReducer } from "slices";
-import { Session } from "lib";
 
 const { REACT_APP_LOCAL, NODE_ENV } = process.env;
 
@@ -17,31 +21,35 @@ const reducers = combineReducers({
   accounts: accountsReducer,
 });
 
-const persistConfig = {
-  key: `anoma-wallet${POSTFIX}`,
-  storage,
-  // Only persist data in whitelist:
-  whitelist: ["accounts"],
-  transforms: [
-    encryptTransform({
-      secretKey: new Session().secret,
-      onError: function (error) {
-        // Handle the error.
-        console.error(error);
-      },
-    }),
-  ],
+type StoreFactory = (secretKey: string) => EnhancedStore;
+
+const makeStore: StoreFactory = (secretKey: string): EnhancedStore => {
+  const persistConfig = {
+    key: `anoma-wallet${POSTFIX}`,
+    storage,
+    // Only persist data in whitelist:
+    whitelist: ["accounts"],
+    transforms: [
+      encryptTransform({
+        secretKey,
+        onError: function (error) {
+          // Handle the error.
+          console.error(error);
+        },
+      }),
+    ],
+  };
+
+  const persistedReducer = persistReducer(persistConfig, reducers);
+
+  return configureStore({
+    reducer: persistedReducer,
+    devTools: process.env.NODE_ENV !== "production",
+    middleware: [thunk],
+  });
 };
 
-const persistedReducer = persistReducer(persistConfig, reducers);
-
-const store = configureStore({
-  reducer: persistedReducer,
-  devTools: process.env.NODE_ENV !== "production",
-  middleware: [thunk],
-});
-
-export type AppStore = typeof store;
+export type AppStore = ReturnType<typeof makeStore>;
 export type AppState = ReturnType<AppStore["getState"]>;
 export type AppThunk<ReturnType = void> = ThunkAction<
   ReturnType,
@@ -51,4 +59,4 @@ export type AppThunk<ReturnType = void> = ThunkAction<
 >;
 export type AppDispatch = ReturnType<AppStore["dispatch"]>;
 
-export default store;
+export default makeStore;

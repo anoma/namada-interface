@@ -16,7 +16,7 @@ const Login = (): JSX.Element => {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const context = useContext(AppContext);
 
-  const { setIsLoggedIn } = context || {};
+  const { setIsLoggedIn, setPassword: setPasswordContext } = context || {};
 
   useEffect(() => {
     const checkMnemonic = async (): Promise<void> => {
@@ -39,6 +39,7 @@ const Login = (): JSX.Element => {
       await session.seed();
       setError(undefined);
       setIsLoggedIn && setIsLoggedIn();
+      setPasswordContext && setPasswordContext(password);
 
       navigate(TopLevelRoute.Wallet);
     } catch (e) {

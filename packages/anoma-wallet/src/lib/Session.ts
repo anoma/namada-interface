@@ -40,6 +40,12 @@ class Session {
       aesEncrypt(secret, this._key)
     );
   }
+
+  public static logout(callback: () => void): void {
+    window.localStorage.removeItem(LocalStorage.SessionKey);
+    callback();
+    window.location.reload();
+  }
 }
 
 export default Session;

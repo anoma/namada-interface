@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate, useLocation, NavigateFunction } from "react-router-dom";
-import { LocalStorage, TopLevelRoute } from "App/types";
+import { TopLevelRoute } from "App/types";
 import { Image, ImageName } from "components/Image";
 import { Icon, IconName } from "components/Icon";
 import { Toggle } from "components/Toggle";
@@ -20,6 +20,7 @@ import {
   TopNavigationContainerRow,
   TopNavigationContainerSecondRow,
 } from "./topNavigation.components";
+import { Session } from "lib";
 
 /**
  * this is rendered in one of 2 places depending of the screen size
@@ -130,9 +131,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
           {isLoggedIn && (
             <MenuItem
               onClick={() => {
-                window.localStorage.removeItem(LocalStorage.SessionKey);
-                navigate(TopLevelRoute.Home);
-                window.location.reload();
+                Session.logout(() => navigate(TopLevelRoute.Home));
               }}
             >
               <MenuItemIconContainer>
