@@ -4,7 +4,7 @@ on:
     paths:
       - "packages/anoma-wallet/**"
       - "packages/anoma-lib/**"
-      - "packages/key-management/**"
+      - "packages/seed-management/**"
       - ".github/workflows/**"
 
 env:
@@ -25,7 +25,7 @@ jobs:
         with:
           version: "v0.10.2"
 
-      - name: Set up environment
+      - name: Set up environment variables
         working-directory: ./packages/anoma-wallet
         run: |
           tr -dc A-Za-z0-9 </dev/urandom \
