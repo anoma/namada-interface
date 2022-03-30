@@ -1,5 +1,5 @@
 import { Mnemonic } from "@anoma-apps/seed-management";
-import { LocalStorage } from "App/types";
+import { LocalStorageKeys } from "App/types";
 import { aesDecrypt, aesEncrypt } from "utils/helpers";
 
 const { REACT_APP_SECRET_KEY = "" } = process.env;
@@ -9,7 +9,7 @@ class Session {
   private _seed: string;
 
   constructor() {
-    this._seed = window.localStorage.getItem(LocalStorage.MasterSeedKey) || "";
+    this._seed = window.localStorage.getItem(LocalStorageKeys.MasterSeed) || "";
   }
 
   public async seed(): Promise<string | undefined> {
@@ -25,24 +25,24 @@ class Session {
 
   public async setSeed(seed: string): Promise<Session> {
     this._seed = await new Mnemonic(seed).toStorageValue(this.secret);
-    window.localStorage.setItem(LocalStorage.MasterSeedKey, this._seed);
+    window.localStorage.setItem(LocalStorageKeys.MasterSeed, this._seed);
     return this;
   }
 
   public get secret(): string {
-    const session = window.localStorage.getItem(LocalStorage.SessionKey) || "";
+    const session = window.localStorage.getItem(LocalStorageKeys.Session) || "";
     return aesDecrypt(session, this._key);
   }
 
   public set secret(secret: string) {
     window.localStorage.setItem(
-      LocalStorage.SessionKey,
+      LocalStorageKeys.Session,
       aesEncrypt(secret, this._key)
     );
   }
 
   public static logout(callback: () => void): void {
-    window.localStorage.removeItem(LocalStorage.SessionKey);
+    window.localStorage.removeItem(LocalStorageKeys.Session);
     callback();
     window.location.reload();
   }

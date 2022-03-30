@@ -7,7 +7,7 @@ import { Mnemonic, MnemonicLength } from "@anoma-apps/seed-management";
 
 import { Button } from "components/ButtonTemporary";
 import { Icon, IconName } from "components/Icon";
-import { TopLevelRoute, LOCAL_STORAGE_MASTER_KEY_PAIR_ALIAS } from "App/types";
+import { TopLevelRoute, LocalStorageKeys } from "App/types";
 
 import {
   Start,
@@ -264,7 +264,7 @@ function AccountCreation(): JSX.Element {
                           // TODO: Is this still necessary? Perhaps this alias should
                           // get used to initialize a default account?
                           window.localStorage.setItem(
-                            LOCAL_STORAGE_MASTER_KEY_PAIR_ALIAS,
+                            LocalStorageKeys.Alias,
                             accountCreationDetails.accountName
                           );
                           const session = new Session();

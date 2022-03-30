@@ -10,10 +10,8 @@ export enum TopLevelRoute {
   SettingsAccountSettings = "/settings/account-settings",
 }
 
-export const LOCAL_STORAGE_MASTER_KEY_PAIR_ALIAS = "accountAlias";
-
-export enum LocalStorage {
+export enum LocalStorageKeys {
   Alias = "accountAlias",
-  MasterSeedKey = "seed",
-  SessionKey = "session",
+  MasterSeed = "seed",
+  Session = "session",
 }
