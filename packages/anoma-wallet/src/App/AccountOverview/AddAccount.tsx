@@ -47,7 +47,7 @@ export const AddAccount = (): JSX.Element => {
 
   const handleAliasChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { value } = e.target;
-    setAlias(value);
+    setAlias(value.trim());
   };
 
   const handleTokenSelect = (e: React.ChangeEvent<HTMLSelectElement>): void => {
@@ -64,7 +64,7 @@ export const AddAccount = (): JSX.Element => {
     ).length;
 
   const validateAlias = (alias: string): boolean =>
-    alias.length > 2 && !derived[alias];
+    alias.length > 2 && !derived[alias] && alias.match(/^[a-z0-9\s]+$/i);
 
   const handleAddClick = async (): Promise<void> => {
     if (!alias || !validateAlias(alias)) {

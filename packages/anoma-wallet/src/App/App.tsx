@@ -57,12 +57,12 @@ type ContextType = {
   setIsLoggedIn?: () => void;
 };
 
-export const AppContext = createContext<ContextType | null>(null);
+export const AppContext = createContext<ContextType>({});
 
 function App(): JSX.Element {
   const [isLightMode, setIsLightMode] = useState(true);
-  const [seed, setSeed] = useState<string | undefined>();
-  const [password, setPassword] = useState<string | undefined>();
+  const [seed, setSeed] = useState<string>();
+  const [password, setPassword] = useState<string>();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const theme = getTheme(isLightMode);
 

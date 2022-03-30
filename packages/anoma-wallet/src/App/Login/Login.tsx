@@ -12,7 +12,7 @@ const session = new Session();
 const Login = (): JSX.Element => {
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | undefined>();
+  const [error, setError] = useState<string>();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const context = useContext(AppContext);
 
