@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { Mnemonic, MnemonicLength } from "@anoma-wallet/key-management";
+import { Mnemonic, MnemonicLength } from "@anoma-apps/seed-management";
 import { Button, Variant } from "components/ButtonTemporary";
 import {
   AccountInformationViewContainer,

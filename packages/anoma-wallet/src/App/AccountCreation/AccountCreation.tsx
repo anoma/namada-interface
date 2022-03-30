@@ -3,7 +3,7 @@ import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { ThemeContext } from "styled-components";
 
-import { Mnemonic, MnemonicLength } from "@anoma-wallet/key-management";
+import { Mnemonic, MnemonicLength } from "@anoma-apps/seed-management";
 
 import { Button } from "components/ButtonTemporary";
 import { Icon, IconName } from "components/Icon";

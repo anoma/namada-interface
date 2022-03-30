@@ -29,7 +29,7 @@ export const DerivedAccountAlias = styled.div`
 `;
 
 export const DerivedAccountType = styled.div`
-  flex: 1 0 14%;
+  flex: 1 0 12%;
   font-size: 12px;
 `;
 

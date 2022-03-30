@@ -1,4 +1,4 @@
-import { Mnemonic } from "@anoma-wallet/key-management";
+import { Mnemonic } from "@anoma-apps/seed-management";
 import { LocalStorage } from "App/types";
 import { aesDecrypt, aesEncrypt } from "utils/helpers";
 

@@ -22,8 +22,6 @@ type Props = {
   };
 };
 
-type Derived = DerivedAccount & { balance?: number };
-
 const { network } = new Config();
 const rpcClient = new RpcClient(network);
 
@@ -70,19 +68,19 @@ const balanceReducer = (
 };
 
 const DerivedAccounts = ({ derived }: Props): JSX.Element => {
-  const [derivedAccounts, setDerivedAccounts] = useState<Array<Derived>>([]);
+  const [derivedAccounts, setDerivedAccounts] = useState<DerivedAccount[]>([]);
   const [balances, dispatch] = useReducer(balanceReducer, {});
   const navigate = useNavigate();
 
   useEffect(() => {
     const accounts = Object.keys(derived).map(
-      (alias: string): Derived => derived[alias]
+      (alias: string): DerivedAccount => derived[alias]
     );
     setDerivedAccounts(accounts);
   }, [derived]);
 
   useEffect(() => {
-    derivedAccounts.forEach(async (account: DerivedAccount) => {
+    derivedAccounts.forEach(async (account) => {
       const { alias, establishedAddress = "", tokenType } = account;
       const balance = await getBalance(establishedAddress, tokenType);
       dispatch({ type: BalanceActionTypes.Add, payload: { alias, balance } });
@@ -93,7 +91,7 @@ const DerivedAccounts = ({ derived }: Props): JSX.Element => {
   return (
     <DerivedAccountsContainer>
       <DerivedAccountsList>
-        {derivedAccounts.map((account: Derived) => {
+        {derivedAccounts.map((account) => {
           const { alias, tokenType, establishedAddress } = account;
           const balance = balances[alias];
 
