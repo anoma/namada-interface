@@ -1,8 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { TokenType } from "constants/";
 
 export type DerivedAccount = {
   alias: string;
-  tokenType: string;
+  tokenType: TokenType;
   address: string;
   publicKey: string;
   signingKey: string;
