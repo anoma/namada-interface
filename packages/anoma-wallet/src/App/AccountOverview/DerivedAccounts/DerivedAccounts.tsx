@@ -1,7 +1,7 @@
 import { useEffect, useState, useReducer } from "react";
 import { useNavigate } from "react-router-dom";
 import { Config } from "config";
-import { Tokens } from "constants/";
+import { Tokens, TokenType } from "constants/";
 import { RpcClient } from "lib";
 import { DerivedAccount } from "slices/accounts";
 import {
@@ -27,7 +27,7 @@ const rpcClient = new RpcClient(network);
 
 const getBalance = async (
   establishedAddress: string,
-  tokenType: string
+  tokenType: TokenType
 ): Promise<number> => {
   const balance = await rpcClient.queryBalance(
     `${Tokens[tokenType].address}`,

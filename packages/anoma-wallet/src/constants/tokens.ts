@@ -1,7 +1,5 @@
 import { registeredCoinTypes, RegisteredCoinType } from "slip44";
 
-export type TokenType = "NAM" | "BTC" | "ETH" | "DOT";
-
 type TokenInfo = {
   symbol: string;
   type: number;
@@ -11,30 +9,29 @@ type TokenInfo = {
   address?: string;
 };
 
-type Tokens = {
-  [key: string]: TokenInfo;
-};
-
 // Declare symbols for tokens we support:
-export const Symbols: TokenType[] = ["NAM", "BTC", "ETH", "DOT"];
+export const Symbols = ["NAM", "BTC", "ETH", "DOT"] as const;
 
-export const Tokens: Tokens = registeredCoinTypes
+export type TokenType = typeof Symbols[number];
+type Tokens = Record<TokenType, TokenInfo>;
+
+export const Tokens = registeredCoinTypes
   .filter(([, , symbol]) => {
     return Symbols.indexOf(`${symbol as TokenType}`) > -1;
   })
   .reduce((tokens: Tokens, coinType: RegisteredCoinType) => {
-    const [type, path, symbol, coin, url] = coinType;
+    const [type, path, symbol = "", coin, url = ""] = coinType;
 
-    tokens[symbol as TokenType] = {
+    tokens[`${symbol as TokenType}`] = {
       type,
       path,
       symbol,
       coin,
       url,
-    } as TokenInfo;
+    };
 
     return tokens;
-  }, {});
+  }, {} as Tokens);
 
 // Map a few test addresses for now:
 Tokens["NAM"] = {

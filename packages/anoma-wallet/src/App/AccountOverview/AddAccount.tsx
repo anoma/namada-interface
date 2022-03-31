@@ -11,7 +11,7 @@ import { TopLevelRoute } from "App/types";
 import { Select, Option } from "components/Select";
 import { Input, InputVariants } from "components/Input";
 import { useState } from "react";
-import { TokenType, Tokens, TxResponse } from "constants/";
+import { Symbols, TokenType, Tokens, TxResponse } from "constants/";
 import { Wallet, Account, RpcClient, SocketClient, Session } from "lib";
 import {
   addAccount,
@@ -21,7 +21,6 @@ import {
 } from "slices/accounts";
 import { NewBlockEvents, SubscriptionEvents } from "lib/rpc/types";
 import { useAppDispatch } from "store";
-import { Symbols } from "constants/tokens";
 import { Config } from "config";
 
 export const AddAccount = (): JSX.Element => {
@@ -36,7 +35,7 @@ export const AddAccount = (): JSX.Element => {
   const [isInitializing, setIsInitializing] = useState(false);
   const [error, setError] = useState<string>();
 
-  const tokensData: Option<string>[] = Symbols.map((symbol: string) => {
+  const tokensData: Option<string>[] = Symbols.map((symbol: TokenType) => {
     const token = Tokens[symbol];
 
     return {
