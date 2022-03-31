@@ -18,6 +18,7 @@ import {
 import { ThemeProvider } from "styled-components/macro";
 import { darkColors, lightColors, Theme } from "utils/theme";
 import { Login } from "./Login";
+import { DerivedAccount } from "slices/accounts";
 
 // this sets the dark/light colors to theme
 export const getTheme = (isLightMode: boolean): Theme => {
@@ -50,8 +51,11 @@ export const AnimatedTransition = (props: {
 };
 
 type ContextType = {
+  initialAccount?: DerivedAccount;
   seed?: string;
   password?: string;
+  setIsInitializing?: (isInitializing: boolean) => void;
+  setInitialAccount?: (account: DerivedAccount) => void;
   setSeed?: (seed: string) => void;
   setPassword?: (password: string) => void;
   setIsLoggedIn?: () => void;
@@ -64,6 +68,7 @@ function App(): JSX.Element {
   const [seed, setSeed] = useState<string>();
   const [password, setPassword] = useState<string>();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [initialAccount, setInitialAccount] = useState<DerivedAccount>();
   const theme = getTheme(isLightMode);
 
   useEffect(() => {
@@ -86,7 +91,7 @@ function App(): JSX.Element {
     return (
       <BrowserRouter>
         <ThemeProvider theme={theme}>
-          <AppContext.Provider value={{ seed, password }}>
+          <AppContext.Provider value={{ initialAccount, seed, password }}>
             <AppContainer>
               <TopSection>
                 <TopNavigation
@@ -119,15 +124,10 @@ function App(): JSX.Element {
           value={{
             seed,
             password,
-            setSeed: (seed) => {
-              setSeed(seed);
-            },
-            setPassword: (password) => {
-              setPassword(password);
-            },
-            setIsLoggedIn: () => {
-              setIsLoggedIn(true);
-            },
+            setInitialAccount: (account) => setInitialAccount(account),
+            setSeed: (seed) => setSeed(seed),
+            setPassword: (password) => setPassword(password),
+            setIsLoggedIn: () => setIsLoggedIn(true),
           }}
         >
           <AppContainer>

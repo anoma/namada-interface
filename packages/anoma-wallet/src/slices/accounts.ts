@@ -27,8 +27,14 @@ const accountsSlice = createSlice({
   initialState,
   reducers: {
     addAccount: (state, action: PayloadAction<DerivedAccount>) => {
-      const { alias, tokenType, address, publicKey, signingKey } =
-        action.payload;
+      const {
+        alias,
+        tokenType,
+        address,
+        publicKey,
+        signingKey,
+        establishedAddress,
+      } = action.payload;
 
       state.derived = {
         ...state.derived,
@@ -38,6 +44,7 @@ const accountsSlice = createSlice({
           address,
           publicKey,
           signingKey,
+          establishedAddress,
         },
       };
     },

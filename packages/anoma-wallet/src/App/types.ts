@@ -11,7 +11,6 @@ export enum TopLevelRoute {
 }
 
 export enum LocalStorageKeys {
-  Alias = "accountAlias",
   MasterSeed = "seed",
   Session = "session",
 }

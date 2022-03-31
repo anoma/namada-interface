@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { ThemeContext } from "styled-components";
@@ -7,7 +7,7 @@ import { Mnemonic, MnemonicLength } from "@anoma-apps/seed-management";
 
 import { Button } from "components/ButtonTemporary";
 import { Icon, IconName } from "components/Icon";
-import { TopLevelRoute, LocalStorageKeys } from "App/types";
+import { TopLevelRoute } from "App/types";
 
 import {
   Start,
@@ -26,13 +26,17 @@ import {
   RouteContainer,
   MotionContainer,
 } from "./AccountCreation.components";
-import { Session } from "lib";
+import { Account, RpcClient, Session, SocketClient, Wallet } from "lib";
 import { AppContext } from "App/App";
+import { DerivedAccount } from "slices/accounts";
+import { Config } from "config";
+import { Tokens, TxResponse } from "constants/";
+import { NewBlockEvents, SubscriptionEvents } from "lib/rpc/types";
 
 type AnimatedTransitionProps = {
   elementKey: string;
   // the actual page content that slides in/out
-  children: React.ReactElement;
+  children: JSX.Element;
   // consumer has a logic that decides if the transition is from left to right or the opposite
   animationFromRightToLeft: boolean;
 };
@@ -41,9 +45,7 @@ type AnimatedTransitionProps = {
  * this is a utility to facilitate the animated transitions (slide from side).
  * This should be extracted to it's own component along the other transition types. TODO
  */
-const AnimatedTransition = (
-  props: AnimatedTransitionProps
-): React.ReactElement => {
+const AnimatedTransition = (props: AnimatedTransitionProps): JSX.Element => {
   const { children, elementKey, animationFromRightToLeft } = props;
   return (
     <MotionContainer
@@ -57,6 +59,24 @@ const AnimatedTransition = (
   );
 };
 
+const createAccount = async (
+  alias: string,
+  mnemonic: string
+): Promise<DerivedAccount> => {
+  const tokenType = "NAM";
+  const wallet = await new Wallet(mnemonic, tokenType).init();
+  const account = wallet.new(0);
+  const { public: publicKey, secret: signingKey, wif: address } = account;
+
+  return {
+    alias,
+    tokenType,
+    address,
+    publicKey,
+    signingKey,
+  };
+};
+
 /**
  * The main purpose of this is to coordinate the flow for creating a new account.
  * it persist the data and coordinates the logic for animating the transitions
@@ -64,7 +84,7 @@ const AnimatedTransition = (
  */
 function AccountCreation(): JSX.Element {
   const context = useContext(AppContext);
-  const { setIsLoggedIn } = context || {};
+  const { setIsLoggedIn, setInitialAccount } = context;
 
   // account details defaults
   const defaultAccountCreationDetails: AccountCreationDetails = {
@@ -74,11 +94,12 @@ function AccountCreation(): JSX.Element {
 
   // We only persist these between the navigating in the flow,
   // password unlikely as the user could forget it when navigating back and forth
-  const [accountCreationDetails, setAccountCreationDetails] = React.useState(
+  const [accountCreationDetails, setAccountCreationDetails] = useState(
     defaultAccountCreationDetails
   );
-  const [seedPhrase, setSeedPhrase] = React.useState<string[]>();
-  const [stepIndex, setStepIndex] = React.useState(0);
+  const [seedPhrase, setSeedPhrase] = useState<string[]>();
+  const [stepIndex, setStepIndex] = useState(0);
+  const [isInitializing, setIsInitializing] = useState(true);
   const themeContext = useContext(ThemeContext);
   const navigate = useNavigate();
 
@@ -88,7 +109,7 @@ function AccountCreation(): JSX.Element {
   // TODO: if user uses the browsers back button we cannot do this correctly
   // defaults left to right [1] <- |[2]| <- [3]
   const [animationFromRightToLeft, setAnimationFromRightToLeft] =
-    React.useState(true);
+    useState(true);
 
   // we need the location to figure out if the routes ends with "/initiate"
   // to indicate a starting of a new flow
@@ -102,7 +123,7 @@ function AccountCreation(): JSX.Element {
     ? themeContext.colors.border
     : "black";
 
-  React.useEffect(() => {
+  useEffect(() => {
     // at the load we redirect to the first step
     // this way we do not need to expose the flow routes to outside
     navigate(AccountCreationRoute.Start);
@@ -242,7 +263,7 @@ function AccountCreation(): JSX.Element {
                     onConfirmSeedPhrase={() => {
                       navigateToNext();
 
-                      const createKeyPair = async (): Promise<void> => {
+                      const createSeed = async (): Promise<void> => {
                         // TODO
                         // likely best to move the key creation to the loading of
                         // the completion screen so that the user do not get the
@@ -261,23 +282,68 @@ function AccountCreation(): JSX.Element {
                           const mnemonic: Mnemonic =
                             await Mnemonic.fromMnemonic(mnemonicLength);
 
-                          // TODO: Is this still necessary? Perhaps this alias should
-                          // get used to initialize a default account?
-                          window.localStorage.setItem(
-                            LocalStorageKeys.Alias,
-                            accountCreationDetails.accountName
+                          const account = await createAccount(
+                            accountCreationDetails.accountName,
+                            mnemonic.phrase
                           );
+
+                          // Query epoch:
+                          const { network, wsNetwork } = new Config();
+                          const rpcClient = new RpcClient(network);
+                          const epoch = await rpcClient.queryEpoch();
+
+                          // Create init-account transaction:
+                          const anomaAccount = await new Account().init();
+                          const { hash, bytes } = await anomaAccount.initialize(
+                            {
+                              token: Tokens[account.tokenType].address,
+                              privateKey: account.signingKey,
+                              epoch,
+                            }
+                          );
+
+                          // Broadcast transaction to ledger:
+                          const socketClient = new SocketClient(wsNetwork);
+
+                          await socketClient.broadcastTx(hash, bytes, {
+                            onBroadcast: () => setIsInitializing(true),
+                            onNext: (subEvent) => {
+                              const { events }: { events: NewBlockEvents } =
+                                subEvent as SubscriptionEvents;
+                              const initializedAccounts =
+                                events[TxResponse.InitializedAccounts];
+
+                              const establishedAddress = initializedAccounts
+                                .map((account: string) => JSON.parse(account))
+                                .find(
+                                  (account: string[]) => account.length > 0
+                                )[0];
+
+                              setInitialAccount &&
+                                setInitialAccount({
+                                  ...account,
+                                  establishedAddress,
+                                });
+                              setIsInitializing(false);
+                              socketClient.disconnect();
+                            },
+                            onError: (error) => {
+                              setIsInitializing(false);
+                              console.error(error);
+                            },
+                          });
+
                           const session = new Session();
                           session.secret = accountCreationDetails.password;
                           await session.setSeed(mnemonic.phrase);
                         } else {
                           alert(
-                            "something is wrong with the KeyPair creation 🤨"
+                            "something is wrong with the master seed creation 🤨"
                           );
                         }
                       };
 
-                      createKeyPair();
+                      createSeed();
                     }}
                     onCtaHover={() => {
                       // read the need for this above the hook
@@ -295,6 +361,7 @@ function AccountCreation(): JSX.Element {
                   animationFromRightToLeft={animationFromRightToLeft}
                 >
                   <Completion
+                    isInitializing={isInitializing}
                     onClickDone={() => {
                       navigate(TopLevelRoute.SettingsAccounts);
                     }}

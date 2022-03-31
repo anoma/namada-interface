@@ -71,10 +71,12 @@ export const AddAccount = (): JSX.Element => {
       return setAliasError("Invalid alias. Choose a different account alias.");
     }
 
+    setIsInitializing(true);
     const mnemonic = await new Session().seed();
 
     if (mnemonic && alias) {
       setAliasError(undefined);
+
       const wallet = await new Wallet(mnemonic, tokenType).init();
       const index = getAccountIndex(
         Object.keys(derived).map((key: string) => derived[key]),
@@ -111,7 +113,6 @@ export const AddAccount = (): JSX.Element => {
       const socketClient = new SocketClient(wsNetwork);
 
       await socketClient.broadcastTx(hash, bytes, {
-        onBroadcast: () => setIsInitializing(true),
         onNext: (subEvent) => {
           const { events }: { events: NewBlockEvents } =
             subEvent as SubscriptionEvents;
@@ -131,6 +132,8 @@ export const AddAccount = (): JSX.Element => {
           setIsInitializing(false);
         },
       });
+    } else {
+      setIsInitializing(false);
     }
   };
 
@@ -165,7 +168,7 @@ export const AddAccount = (): JSX.Element => {
       <Button
         variant={ButtonVariant.Contained}
         onClick={handleAddClick}
-        disabled={!validateAlias(alias)}
+        disabled={!validateAlias(alias) || isInitializing}
       >
         Add
       </Button>
