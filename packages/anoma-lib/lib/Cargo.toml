@@ -34,8 +34,8 @@ thiserror = "1.0.30"
 
 [dependencies.anoma]
 git = "https://github.com/anoma/anoma"
-tag  = "v0.5.0"
-#path = "/home/YOUR_HOME_DIR/dev/anoma_v0.5.0/anoma/shared"
+# tag  = "v0.5.0"
+branch = "justin/disable-pos-for-wasm-build"
 features = ["rand", "ferveo-tpke"]
 
 [dependencies.web-sys]

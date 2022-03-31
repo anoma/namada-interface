@@ -1,3 +1,1 @@
-src/lib/anoma/.gitignore
-src/lib/anoma/LICENSE_APACHE
-src/lib/anoma/LICENSE_MIT
+./src/lib/anoma/*
