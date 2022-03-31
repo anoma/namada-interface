@@ -5,9 +5,9 @@ export {
 } from "./src/AnomaClient";
 
 export {
-  type Address,
-  Keypair,
+  type Keypair,
   type Transfer,
   type Account,
   type Wallet,
+  type Mnemonic,
 } from "./src/lib/anoma";

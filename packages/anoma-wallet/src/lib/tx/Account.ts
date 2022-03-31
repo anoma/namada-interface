@@ -1,5 +1,4 @@
 import { AnomaClient } from "@anoma-apps/anoma-lib";
-import Keypair from "lib/Keypair";
 import { Tokens, TxWasm, VpWasm } from "constants/";
 
 class Account {
@@ -24,25 +23,15 @@ class Account {
 
   public async initialize({
     token = Tokens["BTC"].address || "",
-    publicKey,
     privateKey,
     epoch,
   }: {
     token?: string;
-    publicKey: string;
     privateKey: string;
     epoch: number;
   }): Promise<{ hash: string; bytes: Uint8Array }> {
-    // Generate a Keypair struct:
-    const keypair = new Keypair({
-      public: publicKey,
-      secret: privateKey,
-    });
-
-    const nativeKeypair = await keypair.toNativeKeypair();
-
     return await this._client?.account.init(
-      nativeKeypair.from_pointer_to_js_value(), // Serialized Keypair
+      privateKey, // Signing key
       token, // token address string
       epoch, // Epoch
       0, // Gas limit multiplier

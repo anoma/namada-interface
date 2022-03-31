@@ -3,7 +3,7 @@
 /.pnp
 .pnp.js
 /build
-
+.env
 # Ignore parts of the lib/anoma artifact
 # Everything else will be tracked in repo to speed up CI builds
 /lib/anoma/.gitignore

@@ -1,21 +1,13 @@
 /* eslint-disable max-len */
-import React from "react";
+import { lazy, useState, createContext, Suspense, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 
 // internal
 import { TopNavigation } from "./TopNavigation";
-// import { AccountCreation } from "./AccountCreation";
 import { TopLevelRoute } from "./types";
-import {
-  Settings,
-  SettingsAccounts,
-  SettingsWalletSettings,
-  SettingsAccountSettings,
-  SettingsAccountCreation,
-} from "./Settings";
-import { StakingAndGovernance } from "./StakingAndGovernance";
-import { AccountOverview } from "./AccountOverview";
+import { AccountCreation } from "./AccountCreation";
+
 import {
   AppContainer,
   TopSection,
@@ -25,9 +17,11 @@ import {
 } from "./App.components";
 import { ThemeProvider } from "styled-components/macro";
 import { darkColors, lightColors, Theme } from "utils/theme";
+import { Login } from "./Login";
+import { DerivedAccount } from "slices/accounts";
 
 // this sets the dark/light colors to theme
-const getTheme = (isLightMode: boolean): Theme => {
+export const getTheme = (isLightMode: boolean): Theme => {
   const colors = isLightMode ? lightColors : darkColors;
   const theme: Theme = {
     themeConfigurations: {
@@ -38,7 +32,7 @@ const getTheme = (isLightMode: boolean): Theme => {
   return theme;
 };
 
-const AnimatedTransition = (props: {
+export const AnimatedTransition = (props: {
   children: React.ReactNode;
   elementKey: string;
 }): JSX.Element => {
@@ -56,106 +50,121 @@ const AnimatedTransition = (props: {
   );
 };
 
+type ContextType = {
+  initialAccount?: DerivedAccount;
+  seed?: string;
+  password?: string;
+  setIsInitializing?: (isInitializing: boolean) => void;
+  setInitialAccount?: (account: DerivedAccount) => void;
+  setSeed?: (seed: string) => void;
+  setPassword?: (password: string) => void;
+  setIsLoggedIn?: () => void;
+};
+
+export const AppContext = createContext<ContextType>({});
+
 function App(): JSX.Element {
-  const [isLightMode, setIsLightMode] = React.useState(true);
+  const [isLightMode, setIsLightMode] = useState(true);
+  const [seed, setSeed] = useState<string>();
+  const [password, setPassword] = useState<string>();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [initialAccount, setInitialAccount] = useState<DerivedAccount>();
   const theme = getTheme(isLightMode);
-  const fakeAccounts = [
-    "fake1l7dgf0m623ayll8vdyf6n7gxm3tz7mt7x443m0",
-    "fakej3n4340m623ayll8vdyf6n7gxm3tz7mt74m5th0",
-    "fakelg45lt5m623ayll8vdyf6n7gxm3tz7mtrenrer0",
-  ];
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      const session = window.localStorage.getItem("session");
+      if (session) {
+        setIsLoggedIn(true);
+      }
+    }
+  }, [isLoggedIn]);
+
+  if (isLoggedIn) {
+    // Lazy-load Routes as the encrypted persistence layer in Redux
+    // requires initialization after a valid password has been entered:
+    const AppRoutes = lazy(() => import("./AppRoutes"));
+
+    /**
+     * Main wallet
+     */
+    return (
+      <BrowserRouter>
+        <ThemeProvider theme={theme}>
+          <AppContext.Provider value={{ initialAccount, seed, password }}>
+            <AppContainer>
+              <TopSection>
+                <TopNavigation
+                  isLightMode={isLightMode}
+                  setIsLightMode={setIsLightMode}
+                  isLoggedIn={isLoggedIn}
+                />
+              </TopSection>
+              <BottomSection>
+                <AnimatePresence exitBeforeEnter>
+                  <Suspense fallback={<p>Loading</p>}>
+                    <AppRoutes />
+                  </Suspense>
+                </AnimatePresence>
+              </BottomSection>
+            </AppContainer>
+          </AppContext.Provider>
+        </ThemeProvider>
+      </BrowserRouter>
+    );
+  }
+
+  /**
+   * Unlock Wallet & Create Master Seed flow:
+   */
   return (
     <BrowserRouter>
       <ThemeProvider theme={theme}>
-        <AppContainer>
-          <TopSection>
-            <TopNavigation
-              isLightMode={isLightMode}
-              setIsLightMode={setIsLightMode}
-            />
-          </TopSection>
-          <BottomSection>
-            <AnimatePresence exitBeforeEnter>
-              <Routes>
-                <Route
-                  path="/"
-                  element={
-                    <ContentContainer>
-                      <Outlet />
-                    </ContentContainer>
-                  }
-                >
+        <AppContext.Provider
+          value={{
+            seed,
+            password,
+            setInitialAccount: (account) => setInitialAccount(account),
+            setSeed: (seed) => setSeed(seed),
+            setPassword: (password) => setPassword(password),
+            setIsLoggedIn: () => setIsLoggedIn(true),
+          }}
+        >
+          <AppContainer>
+            <TopSection>
+              <TopNavigation
+                isLightMode={isLightMode}
+                setIsLightMode={setIsLightMode}
+              />
+            </TopSection>
+            <BottomSection>
+              <AnimatePresence exitBeforeEnter>
+                <Routes>
                   <Route
-                    path={TopLevelRoute.Wallet}
+                    path="/"
                     element={
-                      <AnimatedTransition elementKey={TopLevelRoute.Wallet}>
-                        <AccountOverview />
-                      </AnimatedTransition>
+                      <ContentContainer>
+                        <Outlet />
+                      </ContentContainer>
                     }
-                  />
-                  <Route
-                    path={TopLevelRoute.StakingAndGovernance}
-                    element={
-                      <AnimatedTransition
-                        elementKey={TopLevelRoute.StakingAndGovernance}
-                      >
-                        <StakingAndGovernance />
-                      </AnimatedTransition>
-                    }
-                  />
-                  <Route
-                    path={TopLevelRoute.Settings}
-                    element={
-                      <AnimatedTransition elementKey={TopLevelRoute.Settings}>
-                        <Settings />
-                      </AnimatedTransition>
-                    }
-                  />
-                  <Route
-                    path={TopLevelRoute.SettingsAccounts}
-                    element={
-                      <AnimatedTransition
-                        elementKey={TopLevelRoute.SettingsAccounts}
-                      >
-                        <SettingsAccounts accounts={fakeAccounts} />
-                      </AnimatedTransition>
-                    }
-                  />
-                  <Route
-                    path={TopLevelRoute.SettingsWalletSettings}
-                    element={
-                      <AnimatedTransition
-                        elementKey={TopLevelRoute.SettingsWalletSettings}
-                      >
-                        <SettingsWalletSettings />
-                      </AnimatedTransition>
-                    }
-                  />
-                  <Route
-                    path={`${TopLevelRoute.SettingsAccountSettings}/:accountAlias`}
-                    element={
-                      <AnimatedTransition
-                        elementKey={TopLevelRoute.SettingsWalletSettings}
-                      >
-                        <SettingsAccountSettings />
-                      </AnimatedTransition>
-                    }
-                  />
-                  <Route
-                    path={`${TopLevelRoute.SettingsAccountCreation}/*`}
-                    element={
-                      <AnimatedTransition
-                        elementKey={TopLevelRoute.SettingsAccountCreation}
-                      >
-                        <SettingsAccountCreation />
-                      </AnimatedTransition>
-                    }
-                  />
-                </Route>
-              </Routes>
-            </AnimatePresence>
-          </BottomSection>
-        </AppContainer>
+                  >
+                    <Route path={""} element={<Login />} />
+                    <Route
+                      path={`${TopLevelRoute.AccountCreation}/*`}
+                      element={
+                        <AnimatedTransition
+                          elementKey={TopLevelRoute.AccountCreation}
+                        >
+                          <AccountCreation />
+                        </AnimatedTransition>
+                      }
+                    />
+                  </Route>
+                </Routes>
+              </AnimatePresence>
+            </BottomSection>
+          </AppContainer>
+        </AppContext.Provider>
       </ThemeProvider>
     </BrowserRouter>
   );

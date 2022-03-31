@@ -1,7 +1,5 @@
 import { registeredCoinTypes, RegisteredCoinType } from "slip44";
 
-export type TokenType = "BTC" | "LTC" | "ETH" | "DOT";
-
 type TokenInfo = {
   symbol: string;
   type: number;
@@ -11,32 +9,41 @@ type TokenInfo = {
   address?: string;
 };
 
-type Tokens = {
-  [key: string]: TokenInfo;
-};
-
 // Declare symbols for tokens we support:
-const SYMBOLS = ["BTC", "LTC", "ETH", "DOT"];
+export const Symbols = ["NAM", "BTC", "ETH", "DOT"] as const;
 
-export const Tokens: Tokens = registeredCoinTypes
+export type TokenType = typeof Symbols[number];
+type Tokens = Record<TokenType, TokenInfo>;
+
+export const Tokens = registeredCoinTypes
   .filter(([, , symbol]) => {
-    return SYMBOLS.indexOf(`${symbol}`) > -1;
+    return Symbols.indexOf(`${symbol as TokenType}`) > -1;
   })
   .reduce((tokens: Tokens, coinType: RegisteredCoinType) => {
-    const [type, path, symbol, coin, url] = coinType;
+    const [type, path, symbol = "", coin, url = ""] = coinType;
 
-    tokens[symbol as TokenType] = {
+    tokens[`${symbol as TokenType}`] = {
       type,
       path,
       symbol,
       coin,
       url,
-    } as TokenInfo;
+    };
 
     return tokens;
-  }, {});
+  }, {} as Tokens);
 
 // Map a few test addresses for now:
+Tokens["NAM"] = {
+  type: 123456,
+  path: 2147483651,
+  symbol: "NAM",
+  coin: "Namada",
+  url: "https://anoma.network",
+  address:
+    "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5",
+};
+
 Tokens["BTC"].address =
   "atest1v4ehgw36xdzryve5gsc52veeg5cnsv2yx5eygvp38qcrvd29xy6rys6p8yc5xvp4xfpy2v694wgwcp";
 Tokens["ETH"].address =

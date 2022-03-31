@@ -20,6 +20,7 @@ import {
   TopNavigationContainerRow,
   TopNavigationContainerSecondRow,
 } from "./topNavigation.components";
+import { Session } from "lib";
 
 /**
  * this is rendered in one of 2 places depending of the screen size
@@ -54,7 +55,7 @@ const TopNavigationMenuItems = (props: {
         <MenuItemIconContainer>
           <Icon iconName={IconName.ThumbsUp} />
         </MenuItemIconContainer>
-        <MenuItemTextContainer>Staking & Governance</MenuItemTextContainer>
+        <MenuItemTextContainer>Staking &amp; Governance</MenuItemTextContainer>
       </StakingAndGovernanceMenuItem>
 
       {/* Settings */}
@@ -85,10 +86,11 @@ type TopNavigationProps = {
   isLightMode: boolean;
   // cb for telling parent to change hte color in context
   setIsLightMode: React.Dispatch<React.SetStateAction<boolean>>;
+  isLoggedIn?: boolean;
 };
 // top nav of the app, this is likely always visible.
 function TopNavigation(props: TopNavigationProps): JSX.Element {
-  const { isLightMode, setIsLightMode } = props;
+  const { isLightMode, setIsLightMode, isLoggedIn = false } = props;
   const navigate = useNavigate();
   const circleElementEnabled = (
     <Icon iconName={IconName.Sun} strokeColorOverride="#17171d" />
@@ -119,13 +121,25 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
 
         <MiddleSection>
           <OnlyInMedium>
-            <TopNavigationMenuItems navigate={navigate} />
+            {isLoggedIn && <TopNavigationMenuItems navigate={navigate} />}
           </OnlyInMedium>
         </MiddleSection>
 
         <RightSection>
           {/* TODO: extract to Button component*/}
 
+          {isLoggedIn && (
+            <MenuItem
+              onClick={() => {
+                Session.logout(() => navigate(TopLevelRoute.Home));
+              }}
+            >
+              <MenuItemIconContainer>
+                <Icon iconName={IconName.Key} />
+              </MenuItemIconContainer>
+              <MenuItemTextContainer>Lock</MenuItemTextContainer>
+            </MenuItem>
+          )}
           {/* help button */}
           <MenuItem
             onClick={() => {
@@ -153,7 +167,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
       </TopNavigationContainerRow>
       <TopNavigationContainerSecondRow>
         <OnlyInSmall>
-          <TopNavigationMenuItems navigate={navigate} />
+          {isLoggedIn && <TopNavigationMenuItems navigate={navigate} />}
         </OnlyInSmall>
       </TopNavigationContainerSecondRow>
     </TopNavigationContainer>

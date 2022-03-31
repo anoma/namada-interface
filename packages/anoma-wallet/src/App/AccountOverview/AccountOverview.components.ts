@@ -8,3 +8,13 @@ export const AccountOverviewContainer = styled.div`
   width: 100%;
   height: 100%;
 `;
+
+export const InputContainer = styled.div`
+  width: 100%;
+  justify-content: baseline;
+  padding: 20px;
+
+  input {
+    width: 92%;
+  }
+`;

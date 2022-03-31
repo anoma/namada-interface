@@ -2,6 +2,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { NavigationContainer } from "components/NavigationContainer";
 import { Heading, HeadingLevel } from "components/Heading";
 import { SettingsAccountSettingsContainer } from "./SettingsAccountSettings.components";
+import { useAppSelector } from "store";
+import { DerivedAccount } from "slices/accounts";
 
 type SettingsAccountSettingsParams = {
   // account alias of the account to set up
@@ -14,6 +16,11 @@ type SettingsAccountSettingsParams = {
 export const SettingsAccountSettings = (): JSX.Element => {
   const params = useParams<SettingsAccountSettingsParams>();
   const navigate = useNavigate();
+  const { derived } = useAppSelector((state) => state.accounts);
+
+  const { accountAlias = "" } = params;
+  const account: DerivedAccount = derived[accountAlias];
+
   return (
     <SettingsAccountSettingsContainer>
       <NavigationContainer
@@ -24,13 +31,46 @@ export const SettingsAccountSettings = (): JSX.Element => {
         <Heading level={HeadingLevel.One}>Account Settings</Heading>
       </NavigationContainer>
 
-      <div> {params.accountAlias}</div>
+      {account && (
+        <div style={{ width: "100%" }}>
+          <p>
+            <b>Alias:</b>
+          </p>
+          <p>{account.alias}</p>
+          <p>
+            <b>Token Type:</b>
+          </p>
+          <p>{account.tokenType}</p>
+          <p>
+            <b>Address (WIF):</b>
+          </p>
+          <pre>{account.address}</pre>
+          <p>
+            <b>Established Address:</b>
+          </p>
+          <pre style={{ width: "100%", overflow: "auto" }}>
+            {account.establishedAddress}
+          </pre>
+          <p>
+            <b>Ed25519 Public Key:</b>
+          </p>
+          <pre style={{ width: "100%", overflow: "auto" }}>
+            {account.publicKey}
+          </pre>
+          <p>
+            <b>Ed25519 Signing Key:</b>
+          </p>
+          <pre style={{ width: "100%", overflow: "auto" }}>
+            {account.signingKey}
+          </pre>
+        </div>
+      )}
       <a
         href="https://github.com/anoma/spec/blob/master/src/architecture/namada/web-wallet/user-interfaces.md#accountoverview-1"
         target="_blank"
         rel="noopener noreferrer"
       >
-        SettingsAccountSettings
+        Spec &gt; SettingsAccountSettings
       </a>
     </SettingsAccountSettingsContainer>
   );

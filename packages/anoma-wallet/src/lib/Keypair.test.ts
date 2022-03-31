@@ -26,12 +26,13 @@ describe("Keypair wasm and class methods", () => {
     const nativeKeypair: NativeKeypair = await keypair.toNativeKeypair();
 
     expect(Object.keys(nativeKeypair)).toEqual(expect.arrayContaining(props));
-    expect(nativeKeypair.from_pointer_to_js_value()).toEqual(
-      SERIALIZABLE_KEYPAIR
-    );
+    const jsValue = nativeKeypair.from_pointer_to_js_value();
+
+    expect({
+      secret: new Uint8Array(jsValue.secret),
+      public: new Uint8Array(jsValue.public),
+    }).toEqual(SERIALIZABLE_KEYPAIR);
     expect(nativeKeypair.to_bytes().length).toBe(64);
-    // Pointer should be nullified after to_bytes() is called
-    expect(nativeKeypair).toEqual({ ptr: 0 });
   });
 
   test("Keypair should be able to return a serializable keypair type", () => {

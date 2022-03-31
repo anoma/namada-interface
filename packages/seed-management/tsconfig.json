@@ -1,0 +1,6 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true
+  },
+  "files": ["./src/Mnemonic.ts"]
+}

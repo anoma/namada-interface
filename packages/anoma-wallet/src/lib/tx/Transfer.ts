@@ -1,6 +1,5 @@
 import { amountToMicro } from "utils/helpers";
 import { AnomaClient } from "@anoma-apps/anoma-lib";
-import Keypair from "lib/Keypair";
 import { TxWasm } from "constants/";
 
 class Transfer {
@@ -19,7 +18,6 @@ class Transfer {
     source,
     target,
     token,
-    publicKey,
     privateKey,
     epoch,
     amount,
@@ -27,21 +25,12 @@ class Transfer {
     source: string;
     target: string;
     token: string;
-    publicKey: string;
     privateKey: string;
     epoch: number;
     amount: number;
   }): Promise<{ hash: string; bytes: Uint8Array }> {
-    // Generate a Keypair struct:
-    const keypair = new Keypair({
-      public: publicKey,
-      secret: privateKey,
-    });
-
-    const nativeKeypair = await keypair.toNativeKeypair();
-
     return await this._client?.transfer.new(
-      nativeKeypair.from_pointer_to_js_value(), // Serialized Keypair
+      privateKey, // Signing key
       source, // source address string
       target, // target address string
       token, // token address string

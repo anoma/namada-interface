@@ -11,8 +11,6 @@ const TARGET =
   "atest1v4ehgw36xvcyyvejgvenxs34g3zygv3jxqunjd6rxyeyys3sxy6rwvfkx4qnj33hg9qnvse4lsfctw";
 const PRIVATE_KEY =
   "73BF20F71265056A1ACB3091272929C4FCBEF5DE60D1222428D6A99CEB4EBC21";
-const PUBLIC_KEY =
-  "A57281E1DD9FD39EC3E8A162A1643CA7C836C0F2DAE3BEF1412A3A61A2FDE1A7";
 
 describe("Transfer wasm and class methods", () => {
   beforeEach(() => {
@@ -34,13 +32,12 @@ describe("Transfer wasm and class methods", () => {
       amount: 1,
       epoch: 1,
       privateKey: PRIVATE_KEY,
-      publicKey: PUBLIC_KEY,
       source: SOURCE,
       target: TARGET,
       token: TOKEN,
     });
 
     expect(hash.length).toBe(64);
-    expect(bytes.length).toBe(605);
+    expect(bytes.length).toBe(596);
   });
 });

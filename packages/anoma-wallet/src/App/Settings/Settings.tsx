@@ -11,6 +11,7 @@ import { SettingsContainer } from "./Settings.components";
  */
 export const Settings = (): JSX.Element => {
   const navigate = useNavigate();
+
   return (
     <SettingsContainer>
       <NavigationContainer>

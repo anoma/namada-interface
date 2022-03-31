@@ -1,15 +1,13 @@
-use crate::types::{
-    address::Address,
-    transaction::Transaction,
-    keypair::Keypair,
-};
+use crate::types::transaction::Transaction;
 use anoma::types::{
     transaction::InitAccount,
-    key::ed25519::PublicKey,
+    key::{self, RefTo, common::{SecretKey, PublicKey}},
+    address::Address,
 };
 use borsh::BorshSerialize;
 use serde::{Serialize, Deserialize};
 use wasm_bindgen::prelude::*;
+use std::str::FromStr;
 
 #[derive(Serialize,Deserialize)]
 pub struct Account(pub Transaction);
@@ -18,7 +16,7 @@ pub struct Account(pub Transaction);
 impl Account {
     /// Initialize an account on the Ledger
     pub fn init(
-        serialized_keypair: JsValue,
+        secret: String,
         token: String,
         epoch: u32,
         fee_amount: u32,
@@ -26,12 +24,11 @@ impl Account {
         tx_code: &[u8],
         vp_code: &[u8],
     ) -> Result<JsValue, JsValue> {
-        let token = Address::decode(token)?;
+        let signing_key = SecretKey::Ed25519(key::ed25519::SecretKey::from_str(&secret).unwrap());
+        let token = Address::from_str(&token).unwrap();
         let tx_code: Vec<u8> = tx_code.to_vec();
         let vp_code: Vec<u8> = vp_code.to_vec();
-        let keypair = &Keypair::from_js_value_to_pointer(serialized_keypair.clone())
-            .expect("Keypair could not be deserialized");
-        let public_key = PublicKey::from(keypair.0.public.clone());
+        let public_key = PublicKey::from(signing_key.ref_to());
 
         let data = InitAccount {
             public_key,
@@ -40,7 +37,7 @@ impl Account {
         let data = data.try_to_vec().expect("Encoding tx data shouldn't fail");
 
         let transaction = match Transaction::new(
-            serialized_keypair,
+            secret,
             token,
             epoch,
             fee_amount,
