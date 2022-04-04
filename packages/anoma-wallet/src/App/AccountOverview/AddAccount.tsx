@@ -37,7 +37,6 @@ import { useAppDispatch } from "store";
 import { Config } from "config";
 import { stringToHash } from "utils/helpers";
 
-const { NODE_ENV, REACT_APP_ENV } = process.env;
 const { network, wsNetwork } = new Config();
 const rpcClient = new RpcClient(network);
 const socketClient = new SocketClient(wsNetwork);
@@ -166,7 +165,9 @@ export const AddAccount = (): JSX.Element => {
           dispatch(setEstablishedAddress({ alias, establishedAddress }));
           socketClient.disconnect();
 
-          if (NODE_ENV === "development" || REACT_APP_ENV === "development") {
+          // TODO: Preferably we should set a NODE_ENV variable on Netlify
+          // in testing environments. This is a temporary measure:
+          if (network.network.match(/testnet/)) {
             // LOAD SOME TOKENS FROM FAUCET
             loadFromFaucet(tokenType, establishedAddress, privateKey);
           } else {

@@ -35,11 +35,6 @@ jobs:
             | xargs echo "REACT_APP_SECRET_KEY=" \
             | awk '{ gsub(/ /,""); print }' > .env
 
-      - name: Set Node variables
-        working-directory: ./packages/anoma-wallet
-        run: |
-          echo "\nREACT_APP_ENV=development" >> .env
-
       - name: build the site
         working-directory: ./packages/anoma-wallet
         run: yarn build
