@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { TokenType } from "constants/";
+import { stringToHash } from "utils/helpers";
 
 export type DerivedAccount = {
   alias: string;
@@ -12,7 +13,7 @@ export type DerivedAccount = {
 };
 
 type DerivedAccounts = {
-  [alias: string]: DerivedAccount;
+  [hash: string]: DerivedAccount;
 };
 
 export type DerivedAccountsState = {
@@ -37,9 +38,11 @@ const accountsSlice = createSlice({
         establishedAddress,
       } = action.payload;
 
+      const hash = stringToHash(alias);
+
       state.derived = {
         ...state.derived,
-        [alias]: {
+        [hash]: {
           alias,
           tokenType,
           address,
@@ -57,8 +60,10 @@ const accountsSlice = createSlice({
       }>
     ) => {
       const { alias, establishedAddress } = action.payload;
-      state.derived[alias] = {
-        ...state.derived[alias],
+      const hash = stringToHash(alias);
+
+      state.derived[hash] = {
+        ...state.derived[hash],
         establishedAddress,
       };
     },
@@ -70,25 +75,30 @@ const accountsSlice = createSlice({
       }>
     ) => {
       const { alias, zip32Address } = action.payload;
-      state.derived[alias] = {
-        ...state.derived[alias],
+      const hash = stringToHash(alias);
+
+      state.derived[hash] = {
+        ...state.derived[hash],
         zip32Address,
       };
     },
     removeAccount: (state, action: PayloadAction<string>) => {
       const alias = action.payload;
-
       const { derived } = state;
-      delete derived[alias];
+      const hash = stringToHash(alias);
+
+      delete derived[hash];
       state.derived = derived;
     },
     renameAccount: (state, action: PayloadAction<[string, string]>) => {
       const [previousAlias, newAlias] = action.payload;
-
       const { derived } = state;
-      const account = { ...derived[previousAlias] };
+      const previousHash = stringToHash(previousAlias);
+      const newHash = stringToHash(newAlias);
+
+      const account = { ...derived[previousHash] };
       delete derived[previousAlias];
-      derived[newAlias] = {
+      derived[newHash] = {
         ...account,
         alias: newAlias,
       };

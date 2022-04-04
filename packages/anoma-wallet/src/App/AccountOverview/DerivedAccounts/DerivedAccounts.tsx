@@ -1,4 +1,4 @@
-import { useEffect, useState, useReducer } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Config } from "config";
 import { Tokens, TokenType } from "constants/";
@@ -15,6 +15,9 @@ import {
 } from "./DerivedAccounts.components";
 import { Button, ButtonVariant } from "components/Button";
 import { TopLevelRoute } from "App/types";
+import { useAppDispatch, useAppSelector } from "store";
+import { setBalance } from "slices";
+import { stringToHash } from "utils/helpers";
 
 type Props = {
   derived: {
@@ -36,45 +39,15 @@ const getBalance = async (
   return balance >= 0 ? balance : 0;
 };
 
-enum BalanceActionTypes {
-  Add = "Add",
-}
-
-type BalanceState = {
-  [alias: string]: number;
-};
-
-type BalanceAction = {
-  type: BalanceActionTypes;
-  payload: { alias: string; balance: number };
-};
-
-const balanceReducer = (
-  state: BalanceState,
-  action: BalanceAction
-): BalanceState => {
-  const { type, payload } = action;
-  const { alias, balance } = payload;
-
-  switch (type) {
-    case BalanceActionTypes.Add:
-      return {
-        ...state,
-        [alias]: balance,
-      };
-    default:
-      return state;
-  }
-};
-
 const DerivedAccounts = ({ derived }: Props): JSX.Element => {
   const [derivedAccounts, setDerivedAccounts] = useState<DerivedAccount[]>([]);
-  const [balances, dispatch] = useReducer(balanceReducer, {});
+  const { accountBalances } = useAppSelector((state) => state.balances);
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
     const accounts = Object.keys(derived).map(
-      (alias: string): DerivedAccount => derived[alias]
+      (hash: string): DerivedAccount => derived[hash]
     );
     setDerivedAccounts(accounts);
   }, [derived]);
@@ -82,10 +55,12 @@ const DerivedAccounts = ({ derived }: Props): JSX.Element => {
   useEffect(() => {
     derivedAccounts.forEach(async (account) => {
       const { alias, establishedAddress = "", tokenType } = account;
-      const balance = await getBalance(establishedAddress, tokenType);
-      dispatch({ type: BalanceActionTypes.Add, payload: { alias, balance } });
+      if (!accountBalances[alias]) {
+        const token = await getBalance(establishedAddress, tokenType);
+        const usd = 0; // TODO: Convert token balance to USD
+        dispatch(setBalance({ alias, token, usd }));
+      }
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [derivedAccounts]);
 
   return (
@@ -93,7 +68,8 @@ const DerivedAccounts = ({ derived }: Props): JSX.Element => {
       <DerivedAccountsList>
         {derivedAccounts.map((account) => {
           const { alias, tokenType, establishedAddress } = account;
-          const balance = balances[alias];
+          const hash = stringToHash(alias);
+          const { token: tokenBalance } = accountBalances[hash] || {};
 
           return (
             <DerivedAccountItem key={alias}>
@@ -101,14 +77,14 @@ const DerivedAccounts = ({ derived }: Props): JSX.Element => {
               <DerivedAccountType>{tokenType}</DerivedAccountType>
               <DerivedAccountBalance>
                 <span>Balance:</span>{" "}
-                {typeof balance === "number" ? balance : "Loading"}
+                {typeof tokenBalance === "number" ? tokenBalance : "Loading"}
               </DerivedAccountBalance>
               <DerivedAccountAddress>
                 {establishedAddress}
               </DerivedAccountAddress>
               <Button
                 onClick={() => {
-                  navigate(`${TopLevelRoute.SettingsAccountSettings}/${alias}`);
+                  navigate(`${TopLevelRoute.SettingsAccountSettings}/${hash}`);
                 }}
                 variant={ButtonVariant.Contained}
               >

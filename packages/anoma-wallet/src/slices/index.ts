@@ -6,3 +6,5 @@ export {
   setEstablishedAddress,
   setZip32Address,
 } from "./accounts";
+
+export { default as balancesReducer, setBalance } from "./balances";

@@ -1,6 +1,7 @@
 import * as CryptoJS from "crypto-js";
 import { JsonRpcRequest } from "@cosmjs/json-rpc";
 import { JsonCompatibleArray, JsonCompatibleDictionary } from "lib/rpc/types";
+import base58 from "bs58";
 
 /**
  * Race a promise against a timeout
@@ -87,4 +88,14 @@ export const aesDecrypt = (encrypted: string, password: string): string => {
   } catch (e) {
     throw new Error(`Unable to decrypt value: ${e}`);
   }
+};
+
+/**
+ * Create a short base58 encoded hash of a string.
+ * Useful for creating URL-friendly hashes of storage
+ * values in state.
+ */
+export const stringToHash = (value: string): string => {
+  const hash = CryptoJS.MD5(value);
+  return base58.encode(new Uint8Array(hash.words));
 };

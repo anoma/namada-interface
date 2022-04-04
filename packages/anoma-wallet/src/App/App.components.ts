@@ -13,7 +13,6 @@ export const AppContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   flex-direction: column;
-
   height: 100%;
   width: 100%;
   background-color: ${(props) => props.theme.colors.background1};
@@ -39,7 +38,7 @@ export const BottomSection = styled.section`
 export const ContentContainer = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: top;
   align-items: center;
   // TODO: maybe this is too hacky? maybe there could be just another div
   // behind the main one with transform: translate(-4px, 4px);
@@ -49,7 +48,7 @@ export const ContentContainer = styled.div`
     props.theme.themeConfigurations.isLightMode
       ? "16px 32px 32px"
       : "20px 36px 32px 32px"};
-  height: 620px;
+  min-height: 620px;
   width: 480px;
   border-radius: 24px;
   overflow-x: hidden;

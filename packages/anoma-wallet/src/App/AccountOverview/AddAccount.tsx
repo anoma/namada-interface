@@ -22,6 +22,7 @@ import {
 import { NewBlockEvents, SubscriptionEvents } from "lib/rpc/types";
 import { useAppDispatch } from "store";
 import { Config } from "config";
+import { stringToHash } from "utils/helpers";
 
 export const AddAccount = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -63,7 +64,9 @@ export const AddAccount = (): JSX.Element => {
     ).length;
 
   const validateAlias = (alias: string): boolean =>
-    alias.length > 2 && !derived[alias] && alias.match(/^[a-z0-9\s]+$/i);
+    alias.length > 2 &&
+    !derived[stringToHash(alias)] &&
+    alias.match(/^[a-z0-9\s]+$/i);
 
   const handleAddClick = async (): Promise<void> => {
     if (!alias || !validateAlias(alias)) {

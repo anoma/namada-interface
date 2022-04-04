@@ -9,10 +9,11 @@ import { combineReducers } from "redux";
 import { persistReducer } from "redux-persist";
 import { encryptTransform } from "redux-persist-transform-encrypt";
 import thunk from "redux-thunk";
-import { accountsReducer } from "slices";
+import { accountsReducer, balancesReducer } from "slices";
 
 const reducers = combineReducers({
   accounts: accountsReducer,
+  balances: balancesReducer,
 });
 
 type StoreFactory = (secretKey: string) => EnhancedStore;
