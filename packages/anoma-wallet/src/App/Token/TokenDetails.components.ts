@@ -8,3 +8,10 @@ export const TokenDetailContainer = styled.div`
   width: 100%;
   height: 100%;
 `;
+
+export const ButtonsContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content: space-between;
+`;

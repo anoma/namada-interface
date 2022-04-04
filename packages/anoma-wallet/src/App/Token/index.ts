@@ -1,1 +1,1 @@
-export { default as TokenDetail } from "./TokenDetail";
+export { default as TokenDetails } from "./TokenDetails";

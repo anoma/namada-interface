@@ -11,8 +11,21 @@ import { TopLevelRoute } from "App/types";
 import { Select, Option } from "components/Select";
 import { Input, InputVariants } from "components/Input";
 import { useState } from "react";
-import { Symbols, TokenType, Tokens, TxResponse } from "constants/";
-import { Wallet, Account, RpcClient, SocketClient, Session } from "lib";
+import {
+  Symbols,
+  TokenType,
+  Tokens,
+  TxResponse,
+  FAUCET_ADDRESS,
+} from "constants/";
+import {
+  Wallet,
+  Account,
+  Transfer,
+  RpcClient,
+  SocketClient,
+  Session,
+} from "lib";
 import {
   addAccount,
   DerivedAccount,
@@ -23,6 +36,11 @@ import { NewBlockEvents, SubscriptionEvents } from "lib/rpc/types";
 import { useAppDispatch } from "store";
 import { Config } from "config";
 import { stringToHash } from "utils/helpers";
+
+const { NODE_ENV } = process.env;
+const { network, wsNetwork } = new Config();
+const rpcClient = new RpcClient(network);
+const socketClient = new SocketClient(wsNetwork);
 
 export const AddAccount = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -68,6 +86,32 @@ export const AddAccount = (): JSX.Element => {
     !derived[stringToHash(alias)] &&
     alias.match(/^[a-z0-9\s]+$/i);
 
+  // For development only:
+  const loadFromFaucet = async (
+    tokenType: TokenType,
+    establishedAddress: string,
+    privateKey: string
+  ): Promise<void> => {
+    const epoch = await rpcClient.queryEpoch();
+    const transfer = await new Transfer().init();
+    const { hash: transferHash, bytes: transferBytes } =
+      await transfer.makeTransfer({
+        source: FAUCET_ADDRESS,
+        target: establishedAddress,
+        amount: 10,
+        epoch,
+        privateKey,
+        token: `${Tokens[tokenType].address}`,
+      });
+
+    await socketClient.broadcastTx(transferHash, transferBytes, {
+      onNext: () => {
+        socketClient.disconnect();
+        navigate(TopLevelRoute.Wallet);
+      },
+    });
+  };
+
   const handleAddClick = async (): Promise<void> => {
     if (!alias || !validateAlias(alias)) {
       return setAliasError("Invalid alias. Choose a different account alias.");
@@ -99,8 +143,6 @@ export const AddAccount = (): JSX.Element => {
       );
 
       // Query epoch:
-      const { network, wsNetwork } = new Config();
-      const rpcClient = new RpcClient(network);
       const epoch = await rpcClient.queryEpoch();
 
       // Create init-account transaction:
@@ -112,21 +154,24 @@ export const AddAccount = (): JSX.Element => {
       });
 
       // Broadcast transaction to ledger:
-      const socketClient = new SocketClient(wsNetwork);
-
       await socketClient.broadcastTx(hash, bytes, {
         onNext: (subEvent) => {
           const { events }: { events: NewBlockEvents } =
             subEvent as SubscriptionEvents;
           const initializedAccounts = events[TxResponse.InitializedAccounts];
-
           const establishedAddress = initializedAccounts
             .map((account: string) => JSON.parse(account))
             .find((account: string[]) => account.length > 0)[0];
 
           dispatch(setEstablishedAddress({ alias, establishedAddress }));
-          navigate(TopLevelRoute.Wallet);
           socketClient.disconnect();
+
+          if (NODE_ENV === "development") {
+            // LOAD SOME TOKENS FROM FAUCET
+            loadFromFaucet(tokenType, establishedAddress, privateKey);
+          } else {
+            navigate(TopLevelRoute.Wallet);
+          }
         },
         onError: (error) => {
           console.error(error);

@@ -101,16 +101,16 @@ export const stringToHash = (value: string): string => {
 };
 
 /**
- * Replace a param in a route with a value
+ * Map parameters to a route definition, returning formatted route string
  */
 export const formatRoute = (
   route: string,
-  params: { [key: string]: string }
+  params: { [key: string]: string | number }
 ): string => {
-  let formatted = "";
+  let formatted = route;
 
   for (const param in params) {
-    formatted = route.replace(`:${param}`, params[param]);
+    formatted = formatted.replace(`:${param}`, `${params[param]}`);
   }
 
   return formatted;

@@ -55,7 +55,7 @@ const DerivedAccounts = ({ derived }: Props): JSX.Element => {
   useEffect(() => {
     derivedAccounts.forEach(async (account) => {
       const { alias, establishedAddress = "", tokenType } = account;
-      if (!accountBalances[alias]) {
+      if (!accountBalances[stringToHash(alias)]) {
         const token = await getBalance(establishedAddress, tokenType);
         const usd = 0; // TODO: Convert token balance to USD
         dispatch(setBalance({ alias, token, usd }));
