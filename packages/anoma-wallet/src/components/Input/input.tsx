@@ -1,5 +1,5 @@
 import { Icon, IconName } from "components/Icon";
-import { ChangeEventHandler, useState } from "react";
+import { ChangeEventHandler, FocusEventHandler, useState } from "react";
 import {
   ErrorTooltip,
   IconContainer,
@@ -12,17 +12,21 @@ import { InputVariants } from "./types";
 
 export type InputProps = {
   variant?: InputVariants;
+  value?: string | number;
   label: string;
   error?: string;
   onChangeCallback?: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
+  onFocus?: FocusEventHandler<HTMLInputElement>;
   placeholder?: string;
 };
 
 export const Input = ({
   variant = InputVariants.Text,
+  value = "",
   label,
   error,
   onChangeCallback,
+  onFocus,
   placeholder,
 }: InputProps): JSX.Element => {
   const [passwordShown, setPasswordShown] = useState(false);
@@ -37,6 +41,7 @@ export const Input = ({
             <TextInput
               error={!!error}
               onChange={onChangeCallback}
+              onFocus={onFocus}
               placeholder={placeholder}
             />
             <br />
@@ -63,6 +68,7 @@ export const Input = ({
               error={!!error}
               placeholder={placeholder}
               onChange={onChangeCallback}
+              onFocus={onFocus}
               type={passwordShown ? "text" : "password"}
             />
             <IconContainer onClick={() => togglePasswordShown()}>
@@ -71,6 +77,21 @@ export const Input = ({
               />
             </IconContainer>
           </PasswordContainer>
+          <ErrorTooltip>{error}</ErrorTooltip>
+        </Label>
+      );
+    case InputVariants.Number:
+      return (
+        <Label>
+          {label}
+          <TextInput
+            error={!!error}
+            placeholder={placeholder}
+            type={"number"}
+            value={value}
+            onChange={onChangeCallback}
+            onFocus={onFocus}
+          />
           <ErrorTooltip>{error}</ErrorTooltip>
         </Label>
       );

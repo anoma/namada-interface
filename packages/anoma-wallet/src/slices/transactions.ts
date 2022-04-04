@@ -3,9 +3,10 @@ import { TokenType } from "constants/";
 
 export type Transaction = {
   tokenType: TokenType;
+  appliedHash: string;
   target: string;
   amount: number;
-  timestamp: Date;
+  timestamp: number;
 };
 
 type Transactions = {
@@ -28,11 +29,13 @@ const accountsSlice = createSlice({
       state,
       action: PayloadAction<Transaction & { hash: string }>
     ) => {
-      const { hash, tokenType, amount, target, timestamp } = action.payload;
+      const { hash, tokenType, appliedHash, amount, target, timestamp } =
+        action.payload;
 
       const transactions = state.accountTransactions[hash] || [];
       transactions.push({
         tokenType,
+        appliedHash,
         amount,
         target,
         timestamp,

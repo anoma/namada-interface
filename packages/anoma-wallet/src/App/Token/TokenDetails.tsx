@@ -14,6 +14,8 @@ import { formatRoute, stringToHash } from "utils/helpers";
 import {
   ButtonsContainer,
   TokenDetailContainer,
+  TransactionList,
+  TransactionListItem,
 } from "./TokenDetails.components";
 
 type Props = {
@@ -78,34 +80,28 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
           </Button>
         </ButtonsContainer>
 
-        <div>
-          {/* TRANSACTIONS - TODO */}
-          {transactions.map((transaction, i: number) => {
-            const { tokenType, amount, target, timestamp } = transaction;
-            return (
-              <div key={i}>
-                {Tokens[tokenType].coin}
-                <br />
-                {amount}
-                <br />
-                {target}
-                <br />
-                {timestamp}
-              </div>
-            );
-          })}
-        </div>
-
-        <Button
-          onClick={() => {
-            navigate(
-              formatRoute(TopLevelRoute.SettingsAccountSettings, { hash })
-            );
-          }}
-          variant={ButtonVariant.Contained}
-        >
-          Settings
-        </Button>
+        <Heading level={HeadingLevel.Three}>Transactions</Heading>
+        {transactions.length === 0 && <p>No transactions</p>}
+        {transactions.length > 0 && (
+          <TransactionList>
+            {transactions.map((transaction) => {
+              const { tokenType, appliedHash, amount, timestamp } = transaction;
+              const date = new Date(timestamp);
+              const dateFormatted = `${date.getDate()}/${date.getMonth()}/${date.getFullYear()}
+                       - ${date.getHours()}:${date.getMinutes()}:${date.getMilliseconds()}`;
+              return (
+                <TransactionListItem key={appliedHash}>
+                  <div>
+                    {Tokens[tokenType].symbol} | <strong>{amount}</strong>
+                    <br />
+                    {dateFormatted}
+                  </div>
+                  <Button variant={ButtonVariant.Small}>Details</Button>
+                </TransactionListItem>
+              );
+            })}
+          </TransactionList>
+        )}
       </PersistGate>
     </TokenDetailContainer>
   );

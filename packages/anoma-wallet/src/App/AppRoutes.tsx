@@ -18,6 +18,8 @@ import { useContext, useEffect, useState } from "react";
 import { AppStore } from "store/store";
 import { Session } from "lib";
 import { TokenDetails } from "./Token";
+import { TokenSend } from "./Token/TokenSend";
+import { TokenReceive } from "./Token/TokenReceive";
 
 const fakeAccounts = [
   "fake1l7dgf0m623ayll8vdyf6n7gxm3tz7mt7x443m0",
@@ -85,6 +87,22 @@ const AppRoutes = (): JSX.Element => {
                 element={
                   <AnimatedTransition elementKey={TopLevelRoute.Token}>
                     {persistor && <TokenDetails persistor={persistor} />}
+                  </AnimatedTransition>
+                }
+              />
+              <Route
+                path={TopLevelRoute.TokenSend}
+                element={
+                  <AnimatedTransition elementKey={TopLevelRoute.TokenSend}>
+                    <TokenSend />
+                  </AnimatedTransition>
+                }
+              />
+              <Route
+                path={TopLevelRoute.TokenReceive}
+                element={
+                  <AnimatedTransition elementKey={TopLevelRoute.TokenReceive}>
+                    <TokenReceive />
                   </AnimatedTransition>
                 }
               />

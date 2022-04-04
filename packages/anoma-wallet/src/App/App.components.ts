@@ -38,7 +38,7 @@ export const BottomSection = styled.section`
 export const ContentContainer = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: top;
+  justify-content: start;
   align-items: center;
   // TODO: maybe this is too hacky? maybe there could be just another div
   // behind the main one with transform: translate(-4px, 4px);
