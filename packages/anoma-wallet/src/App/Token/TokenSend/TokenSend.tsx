@@ -10,7 +10,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { DerivedAccountsState } from "slices/accounts";
 import { useAppDispatch, useAppSelector } from "store";
-import { addTransaction, setBalance as setGlobalBalance } from "slices";
+import { addTransaction, setBalance } from "slices";
 import {
   TokenSendContainer,
   TokenSendFormContainer,
@@ -19,6 +19,7 @@ import {
   StatusContainer,
   StatusMessage,
 } from "./TokenSend.components";
+import { BalancesState } from "slices/balances";
 
 type TokenSendParams = {
   hash: string;
@@ -34,7 +35,6 @@ const TokenSend = (): JSX.Element => {
 
   const [target, setTarget] = useState<string>();
   const [amount, setAmount] = useState<number>(0);
-  const [balance, setBalance] = useState<number>(0);
   const [status, setStatus] = useState<string>();
   const [events, setEvents] = useState<
     { gas: number; hash: string } | undefined
@@ -46,6 +46,10 @@ const TokenSend = (): JSX.Element => {
   const { derived } = useAppSelector<DerivedAccountsState>(
     (state) => state.accounts
   );
+  const { accountBalances } = useAppSelector<BalancesState>(
+    (state) => state.balances
+  );
+  const { token: balance } = accountBalances[hash];
   const account = derived[hash];
   const { alias, establishedAddress = "", tokenType } = account;
   const token = Tokens[tokenType];
@@ -65,7 +69,13 @@ const TokenSend = (): JSX.Element => {
     (async () => {
       if (establishedAddress && token.address) {
         const balance = await checkBalance(token.address, establishedAddress);
-        setBalance(balance);
+        dispatch(
+          setBalance({
+            alias,
+            token: balance,
+            usd: 0,
+          })
+        );
       }
     })();
   }, [establishedAddress, token.address]);
@@ -114,8 +124,7 @@ const TokenSend = (): JSX.Element => {
 
           setAmount(0);
           setIsSubmitting(false);
-          setBalance(newBalance);
-          dispatch(setGlobalBalance({ alias, token: newBalance, usd: 0 }));
+          dispatch(setBalance({ alias, token: newBalance, usd: 0 }));
           dispatch(
             addTransaction({
               hash,
@@ -197,6 +206,7 @@ const TokenSend = (): JSX.Element => {
         {status && <StatusMessage>{status}</StatusMessage>}
         {events && (
           <StatusMessage>
+            {/* TODO - Clean this up */}
             <p>
               Gas used: <strong>{events.gas}</strong>
             </p>

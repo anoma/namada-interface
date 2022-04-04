@@ -25,7 +25,7 @@ jobs:
         with:
           version: "v0.10.2"
 
-      - name: Set up environment variables
+      - name: Set up React variables
         working-directory: ./packages/anoma-wallet
         run: |
           tr -dc A-Za-z0-9 </dev/urandom \
@@ -34,6 +34,11 @@ jobs:
             | openssl base64 \
             | xargs echo "REACT_APP_SECRET_KEY=" \
             | awk '{ gsub(/ /,""); print }' > .env
+
+      - name: Set Node variables
+        working-directory: ./packages/anoma-wallet
+        run: |
+          echo "\nNODE_ENV=development" >> .env
 
       - name: build the site
         working-directory: ./packages/anoma-wallet
