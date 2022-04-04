@@ -38,7 +38,7 @@ jobs:
       - name: Set Node variables
         working-directory: ./packages/anoma-wallet
         run: |
-          echo "\nNODE_ENV=development" >> .env
+          echo "\nREACT_APP_ENV=development" >> .env
 
       - name: build the site
         working-directory: ./packages/anoma-wallet

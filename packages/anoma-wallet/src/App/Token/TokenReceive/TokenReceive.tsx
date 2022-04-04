@@ -5,13 +5,13 @@ import { DerivedAccountsState } from "slices/accounts";
 import { useAppSelector } from "store";
 import { TokenReceiveContainer } from "./TokenReceive.components";
 
-type TokenSendParams = {
+type TokenReceiveParams = {
   hash: string;
 };
 
-const TokenSend = (): JSX.Element => {
+const TokenReceive = (): JSX.Element => {
   const navigate = useNavigate();
-  const { hash = "" } = useParams<TokenSendParams>();
+  const { hash = "" } = useParams<TokenReceiveParams>();
   const { derived } = useAppSelector<DerivedAccountsState>(
     (state) => state.accounts
   );
@@ -25,10 +25,10 @@ const TokenSend = (): JSX.Element => {
           navigate(-1);
         }}
       >
-        <Heading level={HeadingLevel.One}>Token Send</Heading>
+        <Heading level={HeadingLevel.One}>Token Receive</Heading>
       </NavigationContainer>
     </TokenReceiveContainer>
   );
 };
 
-export default TokenSend;
+export default TokenReceive;
