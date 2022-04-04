@@ -17,6 +17,7 @@ import { makeStore } from "store";
 import { useContext, useEffect, useState } from "react";
 import { AppStore } from "store/store";
 import { Session } from "lib";
+import { TokenDetail } from "./Token";
 
 const fakeAccounts = [
   "fake1l7dgf0m623ayll8vdyf6n7gxm3tz7mt7x443m0",
@@ -80,6 +81,14 @@ const AppRoutes = (): JSX.Element => {
                 }
               />
               <Route
+                path={TopLevelRoute.Token}
+                element={
+                  <AnimatedTransition elementKey={TopLevelRoute.Token}>
+                    {persistor && <TokenDetail persistor={persistor} />}
+                  </AnimatedTransition>
+                }
+              />
+              <Route
                 path={TopLevelRoute.StakingAndGovernance}
                 element={
                   <AnimatedTransition
@@ -118,7 +127,7 @@ const AppRoutes = (): JSX.Element => {
                 }
               />
               <Route
-                path={`${TopLevelRoute.SettingsAccountSettings}/:accountAlias`}
+                path={TopLevelRoute.SettingsAccountSettings}
                 element={
                   <AnimatedTransition
                     elementKey={TopLevelRoute.SettingsWalletSettings}

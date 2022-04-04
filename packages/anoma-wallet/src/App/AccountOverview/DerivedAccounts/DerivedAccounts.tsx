@@ -17,7 +17,7 @@ import { Button, ButtonVariant } from "components/Button";
 import { TopLevelRoute } from "App/types";
 import { useAppDispatch, useAppSelector } from "store";
 import { setBalance } from "slices";
-import { stringToHash } from "utils/helpers";
+import { formatRoute, stringToHash } from "utils/helpers";
 
 type Props = {
   derived: {
@@ -84,11 +84,11 @@ const DerivedAccounts = ({ derived }: Props): JSX.Element => {
               </DerivedAccountAddress>
               <Button
                 onClick={() => {
-                  navigate(`${TopLevelRoute.SettingsAccountSettings}/${hash}`);
+                  navigate(formatRoute(TopLevelRoute.Token, { hash }));
                 }}
                 variant={ButtonVariant.Contained}
               >
-                Settings
+                Details
               </Button>
             </DerivedAccountItem>
           );

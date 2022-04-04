@@ -99,3 +99,19 @@ export const stringToHash = (value: string): string => {
   const hash = CryptoJS.MD5(value);
   return base58.encode(new Uint8Array(hash.words));
 };
+
+/**
+ * Replace a param in a route with a value
+ */
+export const formatRoute = (
+  route: string,
+  params: { [key: string]: string }
+): string => {
+  let formatted = "";
+
+  for (const param in params) {
+    formatted = route.replace(`:${param}`, params[param]);
+  }
+
+  return formatted;
+};
