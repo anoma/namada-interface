@@ -27,7 +27,7 @@ const TokenReceive = (): JSX.Element => {
   const { establishedAddress = "", alias, tokenType } = derived[hash] || {};
   const { protocol, host } = window.location;
 
-  const text = `${protocol}://${host}${formatRoute(
+  const text = `${protocol}//${host}${formatRoute(
     TopLevelRoute.TokenSendTarget,
     {
       tokenType,
