@@ -1,15 +1,17 @@
-import { Button, ButtonVariant } from "components/Button";
-import { Input, InputVariants } from "components/Input";
+import { useEffect, useState } from "react";
+
 import { Config } from "config";
-import { Tokens } from "constants/";
 import { RpcClient, SocketClient, Transfer } from "lib";
 import { NewBlockEvents, SubscriptionEvents } from "lib/rpc/types";
-import { useEffect, useState } from "react";
 import { addTransaction } from "slices";
 import { DerivedAccountsState } from "slices/accounts";
 import { BalancesState, setBalance } from "slices/balances";
 import { useAppDispatch, useAppSelector } from "store";
 import { amountFromMicro } from "utils/helpers";
+import { Tokens, TxResponse } from "constants/";
+
+import { Button, ButtonVariant } from "components/Button";
+import { Input, InputVariants } from "components/Input";
 import {
   ButtonsContainer,
   InputContainer,
@@ -109,8 +111,8 @@ const TokenSendForm = ({ hash, target: defaultTarget }: Props): JSX.Element => {
           const { events }: { events: NewBlockEvents } =
             subEvent as SubscriptionEvents;
 
-          const gas = parseInt(events["applied.gas_used"][0]);
-          const appliedHash = events["applied.hash"][0];
+          const gas = parseInt(events[TxResponse.GasUsed][0]);
+          const appliedHash = events[TxResponse.Hash][0];
 
           const newBalance = await checkBalance(
             `${token.address}`,

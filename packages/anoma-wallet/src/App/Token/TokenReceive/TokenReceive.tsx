@@ -1,15 +1,17 @@
-import { Heading, HeadingLevel } from "components/Heading";
-import { NavigationContainer } from "components/NavigationContainer";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQRCode } from "next-qrcode";
+
 import { DerivedAccountsState } from "slices/accounts";
 import { useAppSelector } from "store";
+import { formatRoute } from "utils/helpers";
+
+import { Address } from "../Transfers/TransferDetails.components";
 import {
   CanvasContainer,
   TokenReceiveContainer,
 } from "./TokenReceive.components";
-import { Address } from "../Transfers/TransferDetails.components";
-import { formatRoute } from "utils/helpers";
+import { Heading, HeadingLevel } from "components/Heading";
+import { NavigationContainer } from "components/NavigationContainer";
 import { TopLevelRoute } from "App/types";
 
 type TokenReceiveParams = {

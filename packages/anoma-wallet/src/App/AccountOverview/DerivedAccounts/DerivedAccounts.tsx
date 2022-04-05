@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import { Config } from "config";
-import { Tokens, TokenType } from "constants/";
 import { RpcClient } from "lib";
+import { useAppDispatch, useAppSelector } from "store";
 import { DerivedAccount } from "slices/accounts";
+import { setBalance } from "slices";
+import { Tokens, TokenType } from "constants/";
+import { formatRoute, stringToHash } from "utils/helpers";
+import { TopLevelRoute } from "App/types";
+
 import {
   DerivedAccountsContainer,
   DerivedAccountsList,
@@ -14,10 +20,6 @@ import {
   DerivedAccountType,
 } from "./DerivedAccounts.components";
 import { Button, ButtonVariant } from "components/Button";
-import { TopLevelRoute } from "App/types";
-import { useAppDispatch, useAppSelector } from "store";
-import { setBalance } from "slices";
-import { formatRoute, stringToHash } from "utils/helpers";
 
 type Props = {
   derived: {
