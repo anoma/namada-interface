@@ -24,13 +24,13 @@ const TokenReceive = (): JSX.Element => {
     (state) => state.accounts
   );
 
-  const { establishedAddress = "", alias } = derived[hash] || {};
-  const { location } = window;
+  const { establishedAddress = "", alias, tokenType } = derived[hash] || {};
+  const { protocol, host } = window.location;
 
-  const text = `${location.protocol}://${location.host}${formatRoute(
+  const text = `${protocol}://${host}${formatRoute(
     TopLevelRoute.TokenSendTarget,
     {
-      hash,
+      tokenType,
       target: establishedAddress,
     }
   )}`;
@@ -45,6 +45,7 @@ const TokenReceive = (): JSX.Element => {
         <Heading level={HeadingLevel.One}>Token Receive</Heading>
       </NavigationContainer>
       <Heading level={HeadingLevel.Two}>{alias}</Heading>
+      <Heading level={HeadingLevel.Three}>{tokenType}</Heading>
       <CanvasContainer>
         <Canvas
           text={text}
