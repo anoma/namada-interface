@@ -6,6 +6,7 @@ export type Transaction = {
   appliedHash: string;
   target: string;
   amount: number;
+  gas: number;
   timestamp: number;
 };
 
@@ -29,7 +30,7 @@ const accountsSlice = createSlice({
       state,
       action: PayloadAction<Transaction & { hash: string }>
     ) => {
-      const { hash, tokenType, appliedHash, amount, target, timestamp } =
+      const { hash, tokenType, appliedHash, target, amount, gas, timestamp } =
         action.payload;
 
       const transactions = state.accountTransactions[hash] || [];
@@ -37,6 +38,7 @@ const accountsSlice = createSlice({
         tokenType,
         appliedHash,
         amount,
+        gas,
         target,
         timestamp,
       });

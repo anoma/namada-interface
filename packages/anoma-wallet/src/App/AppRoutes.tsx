@@ -20,6 +20,7 @@ import { Session } from "lib";
 import { TokenDetails } from "./Token";
 import { TokenSend } from "./Token/TokenSend";
 import { TokenReceive } from "./Token/TokenReceive";
+import { TransferDetails } from "./Token/Transfers";
 
 const fakeAccounts = [
   "fake1l7dgf0m623ayll8vdyf6n7gxm3tz7mt7x443m0",
@@ -103,6 +104,16 @@ const AppRoutes = (): JSX.Element => {
                 element={
                   <AnimatedTransition elementKey={TopLevelRoute.TokenReceive}>
                     <TokenReceive />
+                  </AnimatedTransition>
+                }
+              />
+              <Route
+                path={TopLevelRoute.TokenTransferDetails}
+                element={
+                  <AnimatedTransition
+                    elementKey={TopLevelRoute.TokenTransferDetails}
+                  >
+                    <TransferDetails />
                   </AnimatedTransition>
                 }
               />

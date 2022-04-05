@@ -10,7 +10,7 @@ import { DerivedAccount, DerivedAccountsState } from "slices/accounts";
 import { BalancesState } from "slices/balances";
 import { TransactionsState } from "slices/transactions";
 import { useAppSelector } from "store";
-import { formatRoute, stringToHash } from "utils/helpers";
+import { formatRoute, stringFromTimestamp, stringToHash } from "utils/helpers";
 import {
   ButtonsContainer,
   TokenDetailContainer,
@@ -41,9 +41,13 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
 
   const account: DerivedAccount = derived[hash] || {};
   const { alias, tokenType } = account;
-  const { token: tokenBalance } = accountBalances[stringToHash(alias)];
-  const token = Tokens[tokenType];
-  const transactions = accountTransactions[hash] || [];
+  const { token: tokenBalance } = accountBalances[stringToHash(alias)] || {};
+  const token = Tokens[tokenType] || {};
+
+  // eslint-disable-next-line prefer-const
+  let transactions =
+    (accountTransactions[hash] && [...accountTransactions[hash]]) || [];
+  transactions.sort((a, b) => b.timestamp - a.timestamp);
 
   return (
     <TokenDetailContainer>
@@ -84,19 +88,30 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
         {transactions.length === 0 && <p>No transactions</p>}
         {transactions.length > 0 && (
           <TransactionList>
-            {transactions.map((transaction) => {
-              const { tokenType, appliedHash, amount, timestamp } = transaction;
-              const date = new Date(timestamp);
-              const dateFormatted = `${date.getDate()}/${date.getMonth()}/${date.getFullYear()}
-                       - ${date.getHours()}:${date.getMinutes()}:${date.getMilliseconds()}`;
+            {transactions.map((transaction, i) => {
+              const { appliedHash, tokenType, amount, timestamp } = transaction;
+              const dateTimeFormatted = stringFromTimestamp(timestamp);
+
               return (
-                <TransactionListItem key={appliedHash}>
+                <TransactionListItem key={i}>
                   <div>
-                    {Tokens[tokenType].symbol} | <strong>{amount}</strong>
+                    {Tokens[tokenType].symbol} - <strong>{amount}</strong>
                     <br />
-                    {dateFormatted}
+                    {dateTimeFormatted}
                   </div>
-                  <Button variant={ButtonVariant.Small}>Details</Button>
+                  <Button
+                    variant={ButtonVariant.Small}
+                    onClick={() => {
+                      navigate(
+                        formatRoute(TopLevelRoute.TokenTransferDetails, {
+                          hash,
+                          appliedHash,
+                        })
+                      );
+                    }}
+                  >
+                    Details
+                  </Button>
                 </TransactionListItem>
               );
             })}

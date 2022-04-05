@@ -115,3 +115,17 @@ export const formatRoute = (
 
   return formatted;
 };
+
+/**
+ * Format a date-time string from a timestamp
+ * NOTE: This is very basic. We might consider a more comprehensive option
+ * such as luxon for formatting more readable timestamps
+ */
+export const stringFromTimestamp = (timestamp: number): string => {
+  const date = new Date(timestamp);
+
+  let dateFormatted = `${date.getMonth()}/${date.getDate()}/${date.getFullYear()}`;
+  dateFormatted += `- ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}.${date.getMilliseconds()}`;
+
+  return dateFormatted;
+};

@@ -20,6 +20,7 @@ import {
   StatusMessage,
 } from "./TokenSend.components";
 import { BalancesState } from "slices/balances";
+import { amountFromMicro } from "utils/helpers";
 
 type TokenSendParams = {
   hash: string;
@@ -49,10 +50,10 @@ const TokenSend = (): JSX.Element => {
   const { accountBalances } = useAppSelector<BalancesState>(
     (state) => state.balances
   );
-  const { token: balance } = accountBalances[hash];
-  const account = derived[hash];
+  const { token: balance } = accountBalances[hash] || {};
+  const account = derived[hash] || {};
   const { alias, establishedAddress = "", tokenType } = account;
-  const token = Tokens[tokenType];
+  const token = Tokens[tokenType] || {};
 
   const checkBalance = async (
     token: string,
@@ -113,7 +114,7 @@ const TokenSend = (): JSX.Element => {
         onNext: async (subEvent) => {
           const { events }: { events: NewBlockEvents } =
             subEvent as SubscriptionEvents;
-          console.log({ events });
+
           const gas = parseInt(events["applied.gas_used"][0]);
           const appliedHash = events["applied.hash"][0];
 
@@ -132,6 +133,7 @@ const TokenSend = (): JSX.Element => {
               tokenType,
               target,
               amount,
+              gas,
               timestamp: new Date().getTime(),
             })
           );
@@ -205,16 +207,16 @@ const TokenSend = (): JSX.Element => {
       <StatusContainer>
         {status && <StatusMessage>{status}</StatusMessage>}
         {events && (
-          <StatusMessage>
-            {/* TODO - Clean this up */}
-            <p>
-              Gas used: <strong>{events.gas}</strong>
-            </p>
-            <p>Applied hash:</p>
-            <p style={{ background: "#ddd", overflowX: "scroll" }}>
+          <>
+            <StatusMessage>
+              Gas used: <strong>{amountFromMicro(events.gas)}</strong>
+              <br />
+              Applied hash:
+            </StatusMessage>
+            <pre style={{ background: "#ddd", overflowX: "scroll" }}>
               {events.hash}
-            </p>
-          </StatusMessage>
+            </pre>
+          </>
         )}
       </StatusContainer>
     </TokenSendContainer>

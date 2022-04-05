@@ -14,6 +14,8 @@ export const TransactionList = styled.ul`
   padding: 0;
   list-style-type: none;
   width: 100%;
+  max-height: 400px;
+  overflow-y: auto;
 `;
 
 export const TransactionListItem = styled.li`
