@@ -198,6 +198,7 @@ export const AddAccount = (): JSX.Element => {
         <Input
           variant={InputVariants.Text}
           label="Account Alias"
+          value={alias}
           onChangeCallback={handleAliasChange}
           error={aliasError}
         />

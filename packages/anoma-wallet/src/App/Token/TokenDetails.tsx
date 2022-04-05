@@ -67,20 +67,22 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
 
         <ButtonsContainer>
           <Button
-            variant={ButtonVariant.Contained}
-            onClick={() => {
-              navigate(formatRoute(TopLevelRoute.TokenSend, { hash }));
-            }}
-          >
-            Send
-          </Button>
-          <Button
-            variant={ButtonVariant.Contained}
+            variant={ButtonVariant.Small}
+            style={{ width: 180 }}
             onClick={() => {
               navigate(formatRoute(TopLevelRoute.TokenReceive, { hash }));
             }}
           >
             Receive
+          </Button>
+          <Button
+            variant={ButtonVariant.Small}
+            style={{ width: 180 }}
+            onClick={() => {
+              navigate(formatRoute(TopLevelRoute.TokenSend, { hash }));
+            }}
+          >
+            Send
           </Button>
         </ButtonsContainer>
 
