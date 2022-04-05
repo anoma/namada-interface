@@ -11,7 +11,16 @@ export const TransferDetailContainer = styled.div`
 
 export const Address = styled.pre`
   background: #ddd;
-  width: 100%;
-  overflow-x: scroll;
+  width: 95%;
+  overflow: auto;
   margin: 0;
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  scrollbar-width: 0;
+  -ms-overflow-style: none;
+
+  ::-webkit-scrollbar {
+    display: none;
+  }
 `;

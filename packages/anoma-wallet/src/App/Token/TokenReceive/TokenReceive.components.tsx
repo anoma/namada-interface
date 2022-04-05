@@ -9,6 +9,13 @@ export const TokenReceiveContainer = styled.div`
   height: 100%;
 `;
 
+export const CanvasContainer = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+`;
+
 export const ButtonsContainer = styled.div`
   display: flex;
   flex-direction: row;

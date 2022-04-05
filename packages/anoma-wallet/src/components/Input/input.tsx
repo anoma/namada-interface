@@ -43,6 +43,7 @@ export const Input = ({
               onChange={onChangeCallback}
               onFocus={onFocus}
               placeholder={placeholder}
+              value={value}
             />
             <br />
             <ErrorTooltip>{error}</ErrorTooltip>

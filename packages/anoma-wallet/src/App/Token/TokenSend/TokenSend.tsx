@@ -24,6 +24,7 @@ import { amountFromMicro } from "utils/helpers";
 
 type TokenSendParams = {
   hash: string;
+  target?: string;
 };
 
 const { network, wsNetwork } = new Config();
@@ -33,8 +34,9 @@ const socketClient = new SocketClient(wsNetwork);
 const TokenSend = (): JSX.Element => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const { hash = "", target: defaultTarget } = useParams<TokenSendParams>();
 
-  const [target, setTarget] = useState<string>();
+  const [target, setTarget] = useState<string | undefined>(defaultTarget);
   const [amount, setAmount] = useState<number>(0);
   const [status, setStatus] = useState<string>();
   const [events, setEvents] = useState<
@@ -43,7 +45,6 @@ const TokenSend = (): JSX.Element => {
   const [isTargetValid, setIsTargetValid] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { hash = "" } = useParams<TokenSendParams>();
   const { derived } = useAppSelector<DerivedAccountsState>(
     (state) => state.accounts
   );
@@ -172,6 +173,7 @@ const TokenSend = (): JSX.Element => {
               const { value } = e.target;
               setTarget(value);
             }}
+            value={target}
             error={isTargetValid ? undefined : "Target is invalid"}
           />
         </InputContainer>

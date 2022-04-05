@@ -100,6 +100,16 @@ const AppRoutes = (): JSX.Element => {
                 }
               />
               <Route
+                path={TopLevelRoute.TokenSendTarget}
+                element={
+                  <AnimatedTransition
+                    elementKey={TopLevelRoute.TokenSendTarget}
+                  >
+                    <TokenSend />
+                  </AnimatedTransition>
+                }
+              />
+              <Route
                 path={TopLevelRoute.TokenReceive}
                 element={
                   <AnimatedTransition elementKey={TopLevelRoute.TokenReceive}>

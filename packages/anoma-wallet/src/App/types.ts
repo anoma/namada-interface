@@ -10,6 +10,7 @@ export enum TopLevelRoute {
   /* TOKENS */
   Token = "/token/:hash",
   TokenSend = "/token/:hash/send",
+  TokenSendTarget = "/token/:hash/send/:target",
   TokenReceive = "/token/:hash/receive",
   TokenTransfers = "/token/:hash/transfers",
   TokenTransferDetails = "/token/:hash/transfers/:appliedHash",
