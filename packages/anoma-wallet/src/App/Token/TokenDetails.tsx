@@ -51,9 +51,10 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
       <PersistGate loading={"Loading token details..."} persistor={persistor}>
         <Heading level={HeadingLevel.Three}>{alias}</Heading>
         <p>
-          Token: {token.coin} - {token.symbol}
+          {token.coin} - {token.symbol}
+          <br />
+          {balance}
         </p>
-        <p>Balance: {balance}</p>
 
         <ButtonsContainer>
           <Button

@@ -44,24 +44,23 @@ const TransferDetail = (): JSX.Element => {
         <Heading level={HeadingLevel.One}>Transfer Details</Heading>
       </NavigationContainer>
       <p>
-        Token: <strong>{tokenType}</strong>
+        <strong>
+          {amount} {tokenType}
+        </strong>
         <br />
-        Applied hash:
+        {dateTimeFormatted}
       </p>
+      <p>Target address:</p>
+      <Address>{target}</Address>
+      <p>Applied hash:</p>
       <Address>{appliedHash}</Address>
       <p>
-        Amount: <strong>{amount}</strong>
-        <br />
         Gas used: <strong>{amountFromMicro(gas)}</strong>
-        <br />
-        Target address:
       </p>
-      <Address>{target}</Address>
       <p>Notes: {memo ? memo : "n/a"}</p>
       <p>
         Shielded transaction?: <strong>{shielded ? "Yes!" : "No"}</strong>
       </p>
-      <p>Time: {dateTimeFormatted}</p>
     </TransferDetailContainer>
   );
 };

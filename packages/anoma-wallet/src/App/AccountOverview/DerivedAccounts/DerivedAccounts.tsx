@@ -10,10 +10,11 @@ import {
   DerivedAccountsContainer,
   DerivedAccountsList,
   DerivedAccountItem,
-  DerivedAccountAddress,
-  DerivedAccountAlias,
   DerivedAccountBalance,
   DerivedAccountType,
+  DerivedAccountInfo,
+  DerivedAccountAlias,
+  DerivedAccountContainer,
 } from "./DerivedAccounts.components";
 import { Button, ButtonVariant } from "components/Button";
 
@@ -40,25 +41,26 @@ const DerivedAccounts = (): JSX.Element => {
         {Object.keys(derived)
           .reverse()
           .map((hash: string) => {
-            const { id, alias, tokenType, establishedAddress, balance } =
-              derived[hash];
+            const { id, alias, tokenType, balance } = derived[hash];
 
             return (
               <DerivedAccountItem key={alias}>
-                <DerivedAccountAlias>{alias}</DerivedAccountAlias>
-                <DerivedAccountType>{tokenType}</DerivedAccountType>
-                <DerivedAccountBalance>
-                  <span>Balance:</span>
-                  {typeof balance === "number" ? balance : "Loading"}
-                </DerivedAccountBalance>
-                <DerivedAccountAddress>
-                  {establishedAddress}
-                </DerivedAccountAddress>
+                <DerivedAccountContainer>
+                  <DerivedAccountInfo>
+                    <DerivedAccountAlias>{alias}</DerivedAccountAlias>
+                    <DerivedAccountType>{tokenType}</DerivedAccountType>
+                  </DerivedAccountInfo>
+
+                  <DerivedAccountBalance>
+                    {typeof balance === "number" ? balance : "Loading"}
+                  </DerivedAccountBalance>
+                </DerivedAccountContainer>
+
                 <Button
                   onClick={() => {
                     navigate(formatRoute(TopLevelRoute.Token, { id }));
                   }}
-                  variant={ButtonVariant.Contained}
+                  variant={ButtonVariant.Small}
                 >
                   Details
                 </Button>
