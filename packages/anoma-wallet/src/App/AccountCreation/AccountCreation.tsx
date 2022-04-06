@@ -4,11 +4,17 @@ import { AnimatePresence } from "framer-motion";
 import { ThemeContext } from "styled-components";
 
 import { Mnemonic, MnemonicLength } from "@anoma-apps/seed-management";
+import { TopLevelRoute } from "App/types";
+import { AccountCreationRoute, accountCreationSteps } from "./types";
+import { Account, RpcClient, Session, SocketClient, Wallet } from "lib";
+import { AppContext } from "App/App";
+import { Config } from "config";
+import { Tokens, TxResponse } from "constants/";
+import { NewBlockEvents, SubscriptionEvents } from "lib/rpc/types";
+import { InitialAccount } from "slices/accounts";
 
 import { Button } from "components/ButtonTemporary";
 import { Icon, IconName } from "components/Icon";
-import { TopLevelRoute } from "App/types";
-
 import {
   Start,
   AccountInformation,
@@ -17,7 +23,6 @@ import {
   SeedPhraseConfirmation,
   Completion,
 } from "./Steps";
-import { AccountCreationRoute, accountCreationSteps } from "./types";
 import {
   AccountCreationContainer,
   TopSection,
@@ -26,11 +31,6 @@ import {
   RouteContainer,
   MotionContainer,
 } from "./AccountCreation.components";
-import { Account, RpcClient, Session, SocketClient, Wallet } from "lib";
-import { AppContext, InitialAccount } from "App/App";
-import { Config } from "config";
-import { Tokens, TxResponse } from "constants/";
-import { NewBlockEvents, SubscriptionEvents } from "lib/rpc/types";
 
 type AnimatedTransitionProps = {
   elementKey: string;
