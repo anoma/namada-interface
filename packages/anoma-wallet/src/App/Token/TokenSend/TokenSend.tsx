@@ -14,7 +14,7 @@ import { Select, Option } from "components/Select";
 import { TokenSendContainer } from "./TokenSend.components";
 
 type TokenSendParams = {
-  hash: string;
+  id: string;
   target: string;
   tokenType: TokenType;
 };
@@ -22,15 +22,17 @@ type TokenSendParams = {
 const TokenSend = (): JSX.Element => {
   const navigate = useNavigate();
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
-  const { hash: defaultHash, target, tokenType } = useParams<TokenSendParams>();
-  const [hash, setHash] = useState<string | undefined>(defaultHash);
+  const { id, target, tokenType } = useParams<TokenSendParams>();
+  const [selectedAccountId, setSelectedAccountId] = useState<
+    string | undefined
+  >(id);
   const [accountsData, setAccounts] = useState<Option<string>[]>();
 
   // Collect any accounts matching tokenType
   const accounts = tokenType
     ? Object.keys(derived)
         .map((hash: string) => ({
-          hash,
+          id: hash,
           alias: derived[hash].alias,
           tokenType: derived[hash].tokenType,
         }))
@@ -38,13 +40,13 @@ const TokenSend = (): JSX.Element => {
     : [];
 
   useEffect(() => {
-    if (!hash && accounts.length > 0) {
+    if (!selectedAccountId && accounts.length > 0) {
       const accountsData = accounts.map((account) => ({
-        value: account.hash,
+        value: account.id,
         label: `${account.alias} (${account.tokenType})`,
       }));
 
-      setHash(accounts[0].hash);
+      setSelectedAccountId(accounts[0].id);
       setAccounts(accountsData);
     }
   }, [accounts]);
@@ -62,9 +64,9 @@ const TokenSend = (): JSX.Element => {
         (accounts.length > 0 ? (
           <Select
             data={accountsData || []}
-            value={hash}
+            value={selectedAccountId}
             label="Select an account to transfer from"
-            onChange={(e) => setHash(e.target.value)}
+            onChange={(e) => setSelectedAccountId(e.target.value)}
           />
         ) : (
           <>
@@ -80,7 +82,9 @@ const TokenSend = (): JSX.Element => {
             </Button>
           </>
         ))}
-      {hash && <TokenSendForm hash={hash} target={target} />}
+      {selectedAccountId && (
+        <TokenSendForm accountId={selectedAccountId} target={target} />
+      )}
     </TokenSendContainer>
   );
 };

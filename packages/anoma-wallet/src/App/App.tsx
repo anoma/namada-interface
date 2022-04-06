@@ -2,12 +2,16 @@
 import { lazy, useState, createContext, Suspense, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
+import { ThemeProvider } from "styled-components/macro";
 
 // internal
-import { TopNavigation } from "./TopNavigation";
+import { InitialAccount } from "slices/accounts";
+import { darkColors, lightColors, Theme } from "utils/theme";
 import { TopLevelRoute } from "./types";
-import { AccountCreation } from "./AccountCreation";
 
+import { TopNavigation } from "./TopNavigation";
+import { AccountCreation } from "./AccountCreation";
+import { Login } from "./Login";
 import {
   AppContainer,
   TopSection,
@@ -15,10 +19,6 @@ import {
   ContentContainer,
   MotionContainer,
 } from "./App.components";
-import { ThemeProvider } from "styled-components/macro";
-import { darkColors, lightColors, Theme } from "utils/theme";
-import { Login } from "./Login";
-import { DerivedAccount } from "slices/accounts";
 
 // this sets the dark/light colors to theme
 export const getTheme = (isLightMode: boolean): Theme => {
@@ -51,11 +51,11 @@ export const AnimatedTransition = (props: {
 };
 
 type ContextType = {
-  initialAccount?: DerivedAccount;
+  initialAccount?: InitialAccount;
   seed?: string;
   password?: string;
   setIsInitializing?: (isInitializing: boolean) => void;
-  setInitialAccount?: (account: DerivedAccount) => void;
+  setInitialAccount?: (account: InitialAccount) => void;
   setSeed?: (seed: string) => void;
   setPassword?: (password: string) => void;
   setIsLoggedIn?: () => void;
@@ -68,7 +68,7 @@ function App(): JSX.Element {
   const [seed, setSeed] = useState<string>();
   const [password, setPassword] = useState<string>();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [initialAccount, setInitialAccount] = useState<DerivedAccount>();
+  const [initialAccount, setInitialAccount] = useState<InitialAccount>();
   const theme = getTheme(isLightMode);
 
   useEffect(() => {

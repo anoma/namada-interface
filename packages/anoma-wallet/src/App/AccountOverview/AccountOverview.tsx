@@ -1,15 +1,17 @@
+import { useContext, useEffect } from "react";
 import { PersistGate } from "redux-persist/integration/react";
 import { useNavigate } from "react-router-dom";
 import { Persistor } from "redux-persist/lib/types";
+
+import { useAppDispatch } from "store";
+import { addAccount } from "slices/accounts";
+import { TopLevelRoute } from "App/types";
+
+import { DerivedAccounts } from "./DerivedAccounts";
 import { NavigationContainer } from "components/NavigationContainer";
 import { Heading, HeadingLevel } from "components/Heading";
 import { Button, ButtonVariant } from "components/Button";
 import { AccountOverviewContainer } from "./AccountOverview.components";
-import { useAppDispatch } from "store";
-import { DerivedAccounts } from "./DerivedAccounts";
-import { addAccount } from "slices/accounts";
-import { TopLevelRoute } from "App/types";
-import { useContext, useEffect } from "react";
 import { AppContext } from "App/App";
 
 type Props = {

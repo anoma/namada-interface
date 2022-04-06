@@ -8,12 +8,12 @@ export enum TopLevelRoute {
   WalletAddAccount = "/add-account",
 
   /* TOKENS */
-  Token = "/token/:hash",
-  TokenSend = "/token/:hash/send",
+  Token = "/token/:id",
+  TokenSend = "/token/:id/send",
   TokenSendTarget = "/token/send/:tokenType/:target",
-  TokenReceive = "/token/:hash/receive",
-  TokenTransfers = "/token/:hash/transfers",
-  TokenTransferDetails = "/token/:hash/transfers/:appliedHash",
+  TokenReceive = "/token/:id/receive",
+  TokenTransfers = "/token/:id/transfers",
+  TokenTransferDetails = "/token/:id/transfers/:appliedHash",
 
   /* STAKING AND GOVERNANCE */
   StakingAndGovernance = "/staking-and-governance",

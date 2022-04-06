@@ -21,22 +21,22 @@ type Props = {
 };
 
 type TokenDetailsParams = {
-  hash: string;
+  id: string;
 };
 
 const TokenDetails = ({ persistor }: Props): JSX.Element => {
   const navigate = useNavigate();
-  const { hash = "" } = useParams<TokenDetailsParams>();
+  const { id = "" } = useParams<TokenDetailsParams>();
   const { derived, transactions: accountTransactions } =
     useAppSelector<AccountsState>((state) => state.accounts);
 
-  const account: DerivedAccount = derived[hash] || {};
+  const account: DerivedAccount = derived[id] || {};
   const { alias, tokenType, balance } = account;
   const token = Tokens[tokenType] || {};
 
   // eslint-disable-next-line prefer-const
   let transactions =
-    (accountTransactions[hash] && [...accountTransactions[hash]]) || [];
+    (accountTransactions[id] && [...accountTransactions[id]]) || [];
   transactions.sort((a, b) => b.timestamp - a.timestamp);
 
   return (
@@ -60,7 +60,7 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
             variant={ButtonVariant.Small}
             style={{ width: 180 }}
             onClick={() => {
-              navigate(formatRoute(TopLevelRoute.TokenReceive, { hash }));
+              navigate(formatRoute(TopLevelRoute.TokenReceive, { id }));
             }}
           >
             Receive
@@ -69,7 +69,7 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
             variant={ButtonVariant.Small}
             style={{ width: 180 }}
             onClick={() => {
-              navigate(formatRoute(TopLevelRoute.TokenSend, { hash }));
+              navigate(formatRoute(TopLevelRoute.TokenSend, { id }));
             }}
           >
             Send
@@ -96,7 +96,7 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
                     onClick={() => {
                       navigate(
                         formatRoute(TopLevelRoute.TokenTransferDetails, {
-                          hash,
+                          id,
                           appliedHash,
                         })
                       );

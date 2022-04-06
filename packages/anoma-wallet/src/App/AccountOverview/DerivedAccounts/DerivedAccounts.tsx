@@ -38,7 +38,7 @@ const DerivedAccounts = (): JSX.Element => {
     <DerivedAccountsContainer>
       <DerivedAccountsList>
         {Object.keys(derived).map((hash: string) => {
-          const { alias, tokenType, establishedAddress, balance } =
+          const { id, alias, tokenType, establishedAddress, balance } =
             derived[hash];
 
           return (
@@ -54,7 +54,7 @@ const DerivedAccounts = (): JSX.Element => {
               </DerivedAccountAddress>
               <Button
                 onClick={() => {
-                  navigate(formatRoute(TopLevelRoute.Token, { hash }));
+                  navigate(formatRoute(TopLevelRoute.Token, { id }));
                 }}
                 variant={ButtonVariant.Contained}
               >

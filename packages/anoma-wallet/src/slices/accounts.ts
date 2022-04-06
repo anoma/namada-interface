@@ -5,6 +5,7 @@ import { RpcClient } from "lib";
 import { stringToHash } from "utils/helpers";
 
 export type DerivedAccount = {
+  id: string;
   alias: string;
   tokenType: TokenType;
   address: string;
@@ -14,6 +15,8 @@ export type DerivedAccount = {
   establishedAddress?: string;
   zip32Address?: string;
 };
+
+export type InitialAccount = Omit<DerivedAccount, "id">;
 
 export type Transaction = {
   tokenType: TokenType;
@@ -45,14 +48,14 @@ const rpcClient = new RpcClient(network);
 export const fetchBalanceByAddress = createAsyncThunk(
   "accounts/fetchBalanceByAddress",
   async (account: DerivedAccount) => {
-    const { alias, establishedAddress, tokenType } = account;
+    const { id, establishedAddress, tokenType } = account;
     const { address: tokenAddress = "" } = Tokens[tokenType];
     const balance = await rpcClient.queryBalance(
       tokenAddress,
       establishedAddress
     );
     return {
-      alias,
+      id,
       balance: balance > 0 ? balance : 0,
     };
   }
@@ -67,7 +70,7 @@ const accountsSlice = createSlice({
   name: "accounts",
   initialState,
   reducers: {
-    addAccount: (state, action: PayloadAction<DerivedAccount>) => {
+    addAccount: (state, action: PayloadAction<InitialAccount>) => {
       const {
         alias,
         tokenType,
@@ -82,6 +85,7 @@ const accountsSlice = createSlice({
       state.derived = {
         ...state.derived,
         [hash]: {
+          id: hash,
           alias,
           tokenType,
           address,
@@ -99,56 +103,58 @@ const accountsSlice = createSlice({
       }>
     ) => {
       const { alias, establishedAddress } = action.payload;
-      const hash = stringToHash(alias);
 
-      state.derived[hash] = {
-        ...state.derived[hash],
-        establishedAddress,
-      };
+      const { id } =
+        Object.values(state.derived).find(
+          (account) => account.alias === alias
+        ) || {};
+
+      if (id) {
+        state.derived[id] = {
+          ...state.derived[id],
+          establishedAddress,
+        };
+      }
     },
     setBalance: (
       state,
-      action: PayloadAction<{ alias: string; balance: number }>
+      action: PayloadAction<{ id: string; balance: number }>
     ) => {
-      const { alias, balance } = action.payload;
-      const hash = stringToHash(alias);
-      state.derived[hash] = {
-        ...state.derived[hash],
+      const { id, balance } = action.payload;
+
+      state.derived[id] = {
+        ...state.derived[id],
         balance,
       };
     },
     setZip32Address: (
       state,
       action: PayloadAction<{
-        alias: string;
+        id: string;
         zip32Address: string;
       }>
     ) => {
-      const { alias, zip32Address } = action.payload;
-      const hash = stringToHash(alias);
+      const { id, zip32Address } = action.payload;
 
-      state.derived[hash] = {
-        ...state.derived[hash],
+      state.derived[id] = {
+        ...state.derived[id],
         zip32Address,
       };
     },
     removeAccount: (state, action: PayloadAction<string>) => {
-      const alias = action.payload;
+      const id = action.payload;
       const { derived } = state;
-      const hash = stringToHash(alias);
 
-      delete derived[hash];
+      delete derived[id];
       state.derived = derived;
     },
     renameAccount: (state, action: PayloadAction<[string, string]>) => {
-      const [previousAlias, newAlias] = action.payload;
+      const [id, newAlias] = action.payload;
       const { derived } = state;
-      const previousHash = stringToHash(previousAlias);
-      const newHash = stringToHash(newAlias);
 
-      const account = { ...derived[previousHash] };
-      delete derived[previousAlias];
-      derived[newHash] = {
+      const account = derived[id];
+
+      derived[id] = {
         ...account,
         alias: newAlias,
       };
@@ -157,10 +163,10 @@ const accountsSlice = createSlice({
     },
     addTransaction: (
       state,
-      action: PayloadAction<Transaction & { hash: string }>
+      action: PayloadAction<Transaction & { id: string }>
     ) => {
       const {
-        hash,
+        id,
         tokenType,
         appliedHash,
         target,
@@ -171,7 +177,7 @@ const accountsSlice = createSlice({
         timestamp,
       } = action.payload;
 
-      const transactions = state.transactions[hash] || [];
+      const transactions = state.transactions[id] || [];
       transactions.push({
         tokenType,
         appliedHash,
@@ -185,16 +191,16 @@ const accountsSlice = createSlice({
 
       state.transactions = {
         ...state.transactions,
-        [hash]: transactions,
+        [id]: transactions,
       };
     },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchBalanceByAddress.fulfilled, (state, action) => {
-      const { alias, balance } = action.payload;
-      const hash = stringToHash(alias);
-      state.derived[hash] = {
-        ...state.derived[hash],
+      const { id, balance } = action.payload;
+
+      state.derived[id] = {
+        ...state.derived[id],
         balance,
       };
     });

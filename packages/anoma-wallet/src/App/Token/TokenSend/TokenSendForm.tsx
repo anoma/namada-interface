@@ -22,7 +22,7 @@ import {
 import { Toggle } from "components/Toggle";
 
 type Props = {
-  hash: string;
+  accountId: string;
   target?: string;
 };
 
@@ -30,7 +30,10 @@ const { network, wsNetwork } = new Config();
 const rpcClient = new RpcClient(network);
 const socketClient = new SocketClient(wsNetwork);
 
-const TokenSendForm = ({ hash, target: defaultTarget }: Props): JSX.Element => {
+const TokenSendForm = ({
+  accountId,
+  target: defaultTarget,
+}: Props): JSX.Element => {
   const dispatch = useAppDispatch();
   const [target, setTarget] = useState<string | undefined>(defaultTarget);
   const [amount, setAmount] = useState<number>(0);
@@ -44,8 +47,14 @@ const TokenSendForm = ({ hash, target: defaultTarget }: Props): JSX.Element => {
   const [isShielded, setIsShielded] = useState(false);
 
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
-  const account = derived[hash] || {};
-  const { alias, establishedAddress = "", tokenType, balance = 0 } = account;
+  const account = derived[accountId] || {};
+  const {
+    id,
+    alias,
+    establishedAddress = "",
+    tokenType,
+    balance = 0,
+  } = account;
   const token = Tokens[tokenType] || {};
 
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
@@ -64,8 +73,12 @@ const TokenSendForm = ({ hash, target: defaultTarget }: Props): JSX.Element => {
     // Validate target address
     (async () => {
       if (target) {
-        const isValid = await rpcClient.isKnownAddress(target);
-        setIsTargetValid(isValid);
+        if (target === establishedAddress) {
+          setIsTargetValid(false);
+        } else {
+          const isValid = await rpcClient.isKnownAddress(target);
+          setIsTargetValid(isValid);
+        }
       }
     })();
   }, [target]);
@@ -97,13 +110,21 @@ const TokenSendForm = ({ hash, target: defaultTarget }: Props): JSX.Element => {
           const gas = parseInt(events[TxResponse.GasUsed][0]);
           const appliedHash = events[TxResponse.Hash][0];
 
+          // Check to see if this is an internal transfer, and update balances
+          // accordingly if so:
+          const targetAccount = Object.values(derived).find(
+            (account) => account.establishedAddress === target
+          );
+          if (targetAccount) {
+            dispatch(fetchBalanceByAddress(targetAccount));
+          }
           dispatch(fetchBalanceByAddress(account));
 
           setAmount(0);
           setIsSubmitting(false);
           dispatch(
             addTransaction({
-              hash,
+              id,
               appliedHash,
               tokenType,
               target,

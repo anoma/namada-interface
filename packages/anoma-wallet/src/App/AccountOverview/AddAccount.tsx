@@ -163,7 +163,10 @@ export const AddAccount = (): JSX.Element => {
             .find((account: string[]) => account.length > 0)[0];
 
           dispatch(
-            setEstablishedAddress({ alias: trimmedAlias, establishedAddress })
+            setEstablishedAddress({
+              alias: trimmedAlias,
+              establishedAddress,
+            })
           );
           socketClient.disconnect();
 

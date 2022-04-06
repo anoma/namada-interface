@@ -27,8 +27,7 @@ import {
   MotionContainer,
 } from "./AccountCreation.components";
 import { Account, RpcClient, Session, SocketClient, Wallet } from "lib";
-import { AppContext } from "App/App";
-import { DerivedAccount } from "slices/accounts";
+import { AppContext, InitialAccount } from "App/App";
 import { Config } from "config";
 import { Tokens, TxResponse } from "constants/";
 import { NewBlockEvents, SubscriptionEvents } from "lib/rpc/types";
@@ -62,7 +61,7 @@ const AnimatedTransition = (props: AnimatedTransitionProps): JSX.Element => {
 const createAccount = async (
   alias: string,
   mnemonic: string
-): Promise<DerivedAccount> => {
+): Promise<InitialAccount> => {
   const tokenType = "NAM";
   const wallet = await new Wallet(mnemonic, tokenType).init();
   const account = wallet.new(0);

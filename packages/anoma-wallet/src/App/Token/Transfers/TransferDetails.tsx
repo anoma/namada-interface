@@ -7,18 +7,18 @@ import { amountFromMicro, stringFromTimestamp } from "utils/helpers";
 import { Address, TransferDetailContainer } from "./TransferDetails.components";
 
 type TransferDetailsParams = {
-  hash: string;
+  id: string;
   appliedHash: string;
 };
 
 const TransferDetail = (): JSX.Element => {
   const navigate = useNavigate();
-  const { hash = "", appliedHash = "" } = useParams<TransferDetailsParams>();
+  const { id = "", appliedHash = "" } = useParams<TransferDetailsParams>();
   const { transactions: accountTransactions } = useAppSelector<AccountsState>(
     (state) => state.accounts
   );
 
-  const transactions = accountTransactions[hash] || [];
+  const transactions = accountTransactions[id] || [];
 
   const {
     tokenType,
