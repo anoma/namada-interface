@@ -7,5 +7,3 @@ export {
   setZip32Address,
   addTransaction,
 } from "./accounts";
-
-export { default as balancesReducer, setBalance } from "./balances";

@@ -7,9 +7,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Persistor } from "redux-persist";
 import { PersistGate } from "redux-persist/integration/react";
 import { DerivedAccount, AccountsState } from "slices/accounts";
-import { BalancesState } from "slices/balances";
 import { useAppSelector } from "store";
-import { formatRoute, stringFromTimestamp, stringToHash } from "utils/helpers";
+import { formatRoute, stringFromTimestamp } from "utils/helpers";
 import {
   ButtonsContainer,
   TokenDetailContainer,
@@ -30,11 +29,9 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
   const { hash = "" } = useParams<TokenDetailsParams>();
   const { derived, transactions: accountTransactions } =
     useAppSelector<AccountsState>((state) => state.accounts);
-  const balances = useAppSelector<BalancesState>((state) => state.balances);
 
   const account: DerivedAccount = derived[hash] || {};
-  const { alias, tokenType } = account;
-  const { token: tokenBalance } = balances[stringToHash(alias)] || {};
+  const { alias, tokenType, balance } = account;
   const token = Tokens[tokenType] || {};
 
   // eslint-disable-next-line prefer-const
@@ -56,7 +53,7 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
         <p>
           Token: {token.coin} - {token.symbol}
         </p>
-        <p>Balance: {tokenBalance}</p>
+        <p>Balance: {balance}</p>
 
         <ButtonsContainer>
           <Button
@@ -83,12 +80,12 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
         {transactions.length === 0 && <p>No transactions</p>}
         {transactions.length > 0 && (
           <TransactionList>
-            {transactions.map((transaction, i) => {
+            {transactions.map((transaction) => {
               const { appliedHash, amount, timestamp } = transaction;
               const dateTimeFormatted = stringFromTimestamp(timestamp);
 
               return (
-                <TransactionListItem key={i}>
+                <TransactionListItem key={`${appliedHash}:${timestamp}`}>
                   <div>
                     <strong>{amount}</strong>
                     <br />

@@ -1,5 +1,7 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { TokenType } from "constants/";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Config } from "config";
+import { Tokens, TokenType } from "constants/";
+import { RpcClient } from "lib";
 import { stringToHash } from "utils/helpers";
 
 export type DerivedAccount = {
@@ -8,6 +10,7 @@ export type DerivedAccount = {
   address: string;
   publicKey: string;
   signingKey: string;
+  balance?: number;
   establishedAddress?: string;
   zip32Address?: string;
 };
@@ -35,6 +38,25 @@ export type AccountsState = {
   derived: DerivedAccounts;
   transactions: Transactions;
 };
+
+const { network } = new Config();
+const rpcClient = new RpcClient(network);
+
+export const fetchBalanceByAddress = createAsyncThunk(
+  "accounts/fetchBalanceByAddress",
+  async (account: DerivedAccount) => {
+    const { alias, establishedAddress, tokenType } = account;
+    const { address: tokenAddress = "" } = Tokens[tokenType];
+    const balance = await rpcClient.queryBalance(
+      tokenAddress,
+      establishedAddress
+    );
+    return {
+      alias,
+      balance: balance > 0 ? balance : 0,
+    };
+  }
+);
 
 const initialState: AccountsState = {
   derived: {},
@@ -82,6 +104,17 @@ const accountsSlice = createSlice({
       state.derived[hash] = {
         ...state.derived[hash],
         establishedAddress,
+      };
+    },
+    setBalance: (
+      state,
+      action: PayloadAction<{ alias: string; balance: number }>
+    ) => {
+      const { alias, balance } = action.payload;
+      const hash = stringToHash(alias);
+      state.derived[hash] = {
+        ...state.derived[hash],
+        balance,
       };
     },
     setZip32Address: (
@@ -155,6 +188,16 @@ const accountsSlice = createSlice({
         [hash]: transactions,
       };
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(fetchBalanceByAddress.fulfilled, (state, action) => {
+      const { alias, balance } = action.payload;
+      const hash = stringToHash(alias);
+      state.derived[hash] = {
+        ...state.derived[hash],
+        balance,
+      };
+    });
   },
 });
 

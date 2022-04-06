@@ -4,8 +4,7 @@ import { Config } from "config";
 import { RpcClient, SocketClient, Transfer } from "lib";
 import { NewBlockEvents, SubscriptionEvents } from "lib/rpc/types";
 import { addTransaction } from "slices";
-import { AccountsState } from "slices/accounts";
-import { BalancesState, setBalance } from "slices/balances";
+import { AccountsState, fetchBalanceByAddress } from "slices/accounts";
 import { useAppDispatch, useAppSelector } from "store";
 import { amountFromMicro } from "utils/helpers";
 import { Tokens, TxResponse } from "constants/";
@@ -45,18 +44,9 @@ const TokenSendForm = ({ hash, target: defaultTarget }: Props): JSX.Element => {
   const [isShielded, setIsShielded] = useState(false);
 
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
-  const balances = useAppSelector<BalancesState>((state) => state.balances);
-  const { token: balance } = balances[hash] || {};
   const account = derived[hash] || {};
-  const { alias, establishedAddress = "", tokenType } = account;
+  const { alias, establishedAddress = "", tokenType, balance = 0 } = account;
   const token = Tokens[tokenType] || {};
-
-  const checkBalance = async (
-    token: string,
-    owner: string
-  ): Promise<number> => {
-    return await rpcClient.queryBalance(token, owner);
-  };
 
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
@@ -65,14 +55,7 @@ const TokenSendForm = ({ hash, target: defaultTarget }: Props): JSX.Element => {
     // Get balance
     (async () => {
       if (establishedAddress && token.address) {
-        const balance = await checkBalance(token.address, establishedAddress);
-        dispatch(
-          setBalance({
-            alias,
-            token: balance,
-            usd: 0,
-          })
-        );
+        dispatch(fetchBalanceByAddress(account));
       }
     })();
   }, [establishedAddress, token.address]);
@@ -114,14 +97,10 @@ const TokenSendForm = ({ hash, target: defaultTarget }: Props): JSX.Element => {
           const gas = parseInt(events[TxResponse.GasUsed][0]);
           const appliedHash = events[TxResponse.Hash][0];
 
-          const newBalance = await checkBalance(
-            `${token.address}`,
-            establishedAddress
-          );
+          dispatch(fetchBalanceByAddress(account));
 
           setAmount(0);
           setIsSubmitting(false);
-          dispatch(setBalance({ alias, token: newBalance, usd: 0 }));
           dispatch(
             addTransaction({
               hash,
