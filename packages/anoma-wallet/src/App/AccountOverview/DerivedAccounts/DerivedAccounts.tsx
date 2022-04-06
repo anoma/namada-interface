@@ -1,4 +1,4 @@
-import { useEffect, memo } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAppDispatch, useAppSelector } from "store";
@@ -72,4 +72,4 @@ const DerivedAccounts = (): JSX.Element => {
   );
 };
 
-export default memo(DerivedAccounts);
+export default DerivedAccounts;

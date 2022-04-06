@@ -15,6 +15,7 @@ import {
   TransactionList,
   TransactionListItem,
 } from "./TokenDetails.components";
+import { Address } from "./Transfers/TransferDetails.components";
 
 type Props = {
   persistor: Persistor;
@@ -31,7 +32,7 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
     useAppSelector<AccountsState>((state) => state.accounts);
 
   const account: DerivedAccount = derived[id] || {};
-  const { alias, tokenType, balance } = account;
+  const { alias, tokenType, balance, establishedAddress } = account;
   const token = Tokens[tokenType] || {};
 
   // eslint-disable-next-line prefer-const
@@ -54,8 +55,11 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
           {token.coin} - {token.symbol}
           <br />
           {balance}
+          <br />
+          Address:
         </p>
 
+        <Address>{establishedAddress}</Address>
         <ButtonsContainer>
           <Button
             variant={ButtonVariant.Small}
