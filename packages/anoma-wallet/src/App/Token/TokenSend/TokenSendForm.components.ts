@@ -2,7 +2,7 @@ import styled from "styled-components/macro";
 
 export const TokenSendFormContainer = styled.div`
   width: 100%;
-  padding: 0;
+  padding: 8px 0;
 
   p {
     padding: 4px 0;
@@ -12,7 +12,7 @@ export const TokenSendFormContainer = styled.div`
 
 export const InputContainer = styled.div`
   width: 100%;
-  padding-bottom: 20px;
+  padding: 20px 0;
 
   &:last-child {
     padding-bottom: 0;

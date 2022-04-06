@@ -23,6 +23,7 @@ const TokenSend = (): JSX.Element => {
   const navigate = useNavigate();
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const { id, target, tokenType } = useParams<TokenSendParams>();
+
   const [selectedAccountId, setSelectedAccountId] = useState<
     string | undefined
   >(id);

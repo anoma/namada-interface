@@ -24,6 +24,8 @@ export const TransactionListItem = styled.li`
   align-items: center;
   width: 100%;
   font-size: 14px;
+  border-bottom: 1px solid #ddd;
+  padding: 20px 0;
 
   & > div {
     flex: 1 0 70%;
@@ -33,8 +35,6 @@ export const TransactionListItem = styled.li`
     flex: 1 0 20%;
     margin: 0;
   }
-  padding-bottom: 8px;
-  border-bottom: 1px solid #ddd;
 
   &:last-child {
     border-bottom: none;
