@@ -6,17 +6,11 @@ type Balance = {
   usd: number;
 };
 
-type AccountBalances = {
+export type BalancesState = {
   [hash: string]: Balance;
 };
 
-export type BalancesState = {
-  accountBalances: AccountBalances;
-};
-
-const initialState: BalancesState = {
-  accountBalances: {},
-};
+const initialState: BalancesState = {};
 
 const balancesSlice = createSlice({
   name: "balances",
@@ -32,7 +26,7 @@ const balancesSlice = createSlice({
     ) => {
       const { alias, token, usd } = action.payload;
       const hash = stringToHash(alias);
-      state.accountBalances[hash] = {
+      state[hash] = {
         token,
         usd,
       };

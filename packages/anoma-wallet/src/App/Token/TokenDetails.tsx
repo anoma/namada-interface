@@ -6,9 +6,8 @@ import { Tokens } from "constants/";
 import { useParams, useNavigate } from "react-router-dom";
 import { Persistor } from "redux-persist";
 import { PersistGate } from "redux-persist/integration/react";
-import { DerivedAccount, DerivedAccountsState } from "slices/accounts";
+import { DerivedAccount, AccountsState } from "slices/accounts";
 import { BalancesState } from "slices/balances";
-import { TransactionsState } from "slices/transactions";
 import { useAppSelector } from "store";
 import { formatRoute, stringFromTimestamp, stringToHash } from "utils/helpers";
 import {
@@ -29,19 +28,13 @@ type TokenDetailsParams = {
 const TokenDetails = ({ persistor }: Props): JSX.Element => {
   const navigate = useNavigate();
   const { hash = "" } = useParams<TokenDetailsParams>();
-  const { derived } = useAppSelector<DerivedAccountsState>(
-    (state) => state.accounts
-  );
-  const { accountBalances } = useAppSelector<BalancesState>(
-    (state) => state.balances
-  );
-  const { accountTransactions } = useAppSelector<TransactionsState>(
-    (state) => state.transactions
-  );
+  const { derived, transactions: accountTransactions } =
+    useAppSelector<AccountsState>((state) => state.accounts);
+  const balances = useAppSelector<BalancesState>((state) => state.balances);
 
   const account: DerivedAccount = derived[hash] || {};
   const { alias, tokenType } = account;
-  const { token: tokenBalance } = accountBalances[stringToHash(alias)] || {};
+  const { token: tokenBalance } = balances[stringToHash(alias)] || {};
   const token = Tokens[tokenType] || {};
 
   // eslint-disable-next-line prefer-const
@@ -91,13 +84,13 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
         {transactions.length > 0 && (
           <TransactionList>
             {transactions.map((transaction, i) => {
-              const { appliedHash, tokenType, amount, timestamp } = transaction;
+              const { appliedHash, amount, timestamp } = transaction;
               const dateTimeFormatted = stringFromTimestamp(timestamp);
 
               return (
                 <TransactionListItem key={i}>
                   <div>
-                    {Tokens[tokenType].symbol} - <strong>{amount}</strong>
+                    <strong>{amount}</strong>
                     <br />
                     {dateTimeFormatted}
                   </div>

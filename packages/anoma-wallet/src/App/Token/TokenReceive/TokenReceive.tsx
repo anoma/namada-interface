@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useQRCode } from "next-qrcode";
 
-import { DerivedAccountsState } from "slices/accounts";
+import { AccountsState } from "slices/accounts";
 import { useAppSelector } from "store";
 import { formatRoute } from "utils/helpers";
 
@@ -22,9 +22,7 @@ const TokenReceive = (): JSX.Element => {
   const { Canvas } = useQRCode();
   const navigate = useNavigate();
   const { hash = "" } = useParams<TokenReceiveParams>();
-  const { derived } = useAppSelector<DerivedAccountsState>(
-    (state) => state.accounts
-  );
+  const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
 
   const { establishedAddress = "", alias, tokenType } = derived[hash] || {};
   const { protocol, host } = window.location;

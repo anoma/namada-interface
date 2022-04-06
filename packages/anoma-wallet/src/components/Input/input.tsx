@@ -55,7 +55,11 @@ export const Input = ({
         <Label>
           {label}
           <br />
-          <TextAreaInput error={!!error} onChange={onChangeCallback} />
+          <TextAreaInput
+            error={!!error}
+            onChange={onChangeCallback}
+            value={value}
+          />
           <br />
           <ErrorTooltip>{error}</ErrorTooltip>
         </Label>

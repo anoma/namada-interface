@@ -13,9 +13,14 @@ export const TextInput = styled.input<{ error: boolean }>`
   font-weight: 500;
   margin-top: 10px;
   padding: 0.875em 1em;
+
   &:focus {
-    border-color: ${(props) => props.theme.colors.inputFocus};
+    border-color: ${(props) =>
+      props.error
+        ? props.theme.colors.inputError
+        : props.theme.colors.inputFocus};
   }
+
   &::placeholder {
     color: ${(props) => props.theme.colors.inputPlaceholder};
   }
@@ -26,17 +31,22 @@ export const TextAreaInput = styled.textarea<{ error: boolean }>`
   border-width: 2px;
   border-color: ${(props) =>
     props.error
-      ? props.theme.colors.inputBorder
-      : props.theme.colors.inputError};
+      ? props.theme.colors.inputError
+      : props.theme.colors.inputBorder};
   border-radius: 12px;
   border-style: solid;
   color: ${(props) => props.theme.colors.inputText};
   font-weight: 500;
   margin-top: 10px;
   padding: 1em;
+
   &:focus {
-    border-color: ${(props) => props.theme.colors.inputFocus};
+    border-color: ${(props) =>
+      props.error
+        ? props.theme.colors.inputError
+        : props.theme.colors.inputFocus};
   }
+
   &::placeholder {
     color: ${(props) => props.theme.colors.inputPlaceholder};
   }

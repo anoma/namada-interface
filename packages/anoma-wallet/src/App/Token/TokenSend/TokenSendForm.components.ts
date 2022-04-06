@@ -9,7 +9,8 @@ export const InputContainer = styled.div`
   width: 100%;
   padding-bottom: 20px;
 
-  input {
+  input,
+  textarea {
     width: 92%;
   }
 `;

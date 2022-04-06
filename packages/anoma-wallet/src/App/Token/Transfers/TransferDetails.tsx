@@ -1,7 +1,7 @@
 import { Heading, HeadingLevel } from "components/Heading";
 import { NavigationContainer } from "components/NavigationContainer";
 import { useNavigate, useParams } from "react-router-dom";
-import { TransactionsState } from "slices/transactions";
+import { AccountsState } from "slices/accounts";
 import { useAppSelector } from "store";
 import { amountFromMicro, stringFromTimestamp } from "utils/helpers";
 import { Address, TransferDetailContainer } from "./TransferDetails.components";
@@ -14,8 +14,8 @@ type TransferDetailsParams = {
 const TransferDetail = (): JSX.Element => {
   const navigate = useNavigate();
   const { hash = "", appliedHash = "" } = useParams<TransferDetailsParams>();
-  const { accountTransactions } = useAppSelector<TransactionsState>(
-    (state) => state.transactions
+  const { transactions: accountTransactions } = useAppSelector<AccountsState>(
+    (state) => state.accounts
   );
 
   const transactions = accountTransactions[hash] || [];
@@ -25,6 +25,8 @@ const TransferDetail = (): JSX.Element => {
     amount,
     gas = 0,
     timestamp = 0,
+    memo,
+    shielded,
     target,
   } = transactions.find(
     (transaction) => transaction.appliedHash === appliedHash
@@ -55,6 +57,10 @@ const TransferDetail = (): JSX.Element => {
         Target address:
       </p>
       <Address>{target}</Address>
+      <p>Notes: {memo ? memo : "n/a"}</p>
+      <p>
+        Shielded transaction?: <strong>{shielded ? "Yes!" : "No"}</strong>
+      </p>
       <p>Time: {dateTimeFormatted}</p>
     </TransferDetailContainer>
   );

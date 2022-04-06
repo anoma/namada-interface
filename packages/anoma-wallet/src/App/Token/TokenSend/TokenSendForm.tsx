@@ -4,7 +4,7 @@ import { Config } from "config";
 import { RpcClient, SocketClient, Transfer } from "lib";
 import { NewBlockEvents, SubscriptionEvents } from "lib/rpc/types";
 import { addTransaction } from "slices";
-import { DerivedAccountsState } from "slices/accounts";
+import { AccountsState } from "slices/accounts";
 import { BalancesState, setBalance } from "slices/balances";
 import { useAppDispatch, useAppSelector } from "store";
 import { amountFromMicro } from "utils/helpers";
@@ -12,6 +12,7 @@ import { Tokens, TxResponse } from "constants/";
 
 import { Button, ButtonVariant } from "components/Button";
 import { Input, InputVariants } from "components/Input";
+import { Label } from "components/Input/input.components";
 import {
   ButtonsContainer,
   InputContainer,
@@ -19,6 +20,7 @@ import {
   StatusMessage,
   TokenSendFormContainer,
 } from "./TokenSendForm.components";
+import { Toggle } from "components/Toggle";
 
 type Props = {
   hash: string;
@@ -33,20 +35,18 @@ const TokenSendForm = ({ hash, target: defaultTarget }: Props): JSX.Element => {
   const dispatch = useAppDispatch();
   const [target, setTarget] = useState<string | undefined>(defaultTarget);
   const [amount, setAmount] = useState<number>(0);
+  const [memo, setMemo] = useState<string>("");
   const [status, setStatus] = useState<string>();
   const [events, setEvents] = useState<
     { gas: number; hash: string } | undefined
   >();
   const [isTargetValid, setIsTargetValid] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isShielded, setIsShielded] = useState(false);
 
-  const { derived } = useAppSelector<DerivedAccountsState>(
-    (state) => state.accounts
-  );
-  const { accountBalances } = useAppSelector<BalancesState>(
-    (state) => state.balances
-  );
-  const { token: balance } = accountBalances[hash] || {};
+  const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
+  const balances = useAppSelector<BalancesState>((state) => state.balances);
+  const { token: balance } = balances[hash] || {};
   const account = derived[hash] || {};
   const { alias, establishedAddress = "", tokenType } = account;
   const token = Tokens[tokenType] || {};
@@ -129,6 +129,8 @@ const TokenSendForm = ({ hash, target: defaultTarget }: Props): JSX.Element => {
               tokenType,
               target,
               amount,
+              memo,
+              shielded: isShielded,
               gas,
               timestamp: new Date().getTime(),
             })
@@ -143,6 +145,11 @@ const TokenSendForm = ({ hash, target: defaultTarget }: Props): JSX.Element => {
       });
     }
   };
+
+  const isMemoValid = (text: string): boolean => {
+    return text.length < 100;
+  };
+
   return (
     <>
       <TokenSendFormContainer>
@@ -177,22 +184,27 @@ const TokenSendForm = ({ hash, target: defaultTarget }: Props): JSX.Element => {
             error={amount <= balance ? undefined : "Invalid amount!"}
           />
         </InputContainer>
+        <InputContainer>
+          <Input
+            variant={InputVariants.Textarea}
+            label="Memo:"
+            value={memo}
+            error={isMemoValid(memo) ? "" : "Must be less than 100 characters"}
+            onChangeCallback={(e) => setMemo(e.target.value)}
+          />
+        </InputContainer>
+        <InputContainer>
+          <Label>Shielded?</Label>
+          <Toggle
+            onClick={() => setIsShielded(!isShielded)}
+            checked={isShielded}
+          />
+          {isShielded && (
+            <p>Transaction will be executed in the shielded pool</p>
+          )}
+        </InputContainer>
       </TokenSendFormContainer>
-      <ButtonsContainer>
-        <Button
-          variant={ButtonVariant.Contained}
-          disabled={
-            amount > balance ||
-            target === "" ||
-            amount === 0 ||
-            !isTargetValid ||
-            isSubmitting
-          }
-          onClick={handleOnSendClick}
-        >
-          Send
-        </Button>
-      </ButtonsContainer>
+
       <StatusContainer>
         {status && <StatusMessage>{status}</StatusMessage>}
         {events && (
@@ -208,6 +220,23 @@ const TokenSendForm = ({ hash, target: defaultTarget }: Props): JSX.Element => {
           </>
         )}
       </StatusContainer>
+
+      <ButtonsContainer>
+        <Button
+          variant={ButtonVariant.Contained}
+          disabled={
+            amount > balance ||
+            target === "" ||
+            amount === 0 ||
+            !isMemoValid(memo) ||
+            !isTargetValid ||
+            isSubmitting
+          }
+          onClick={handleOnSendClick}
+        >
+          Send
+        </Button>
+      </ButtonsContainer>
     </>
   );
 };

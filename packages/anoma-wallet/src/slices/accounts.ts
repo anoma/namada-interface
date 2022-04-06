@@ -12,16 +12,33 @@ export type DerivedAccount = {
   zip32Address?: string;
 };
 
+export type Transaction = {
+  tokenType: TokenType;
+  appliedHash: string;
+  target: string;
+  amount: number;
+  memo?: string;
+  shielded: boolean;
+  gas: number;
+  timestamp: number;
+};
+
 type DerivedAccounts = {
   [hash: string]: DerivedAccount;
 };
 
-export type DerivedAccountsState = {
-  derived: DerivedAccounts;
+type Transactions = {
+  [hash: string]: Transaction[];
 };
 
-const initialState: DerivedAccountsState = {
+export type AccountsState = {
+  derived: DerivedAccounts;
+  transactions: Transactions;
+};
+
+const initialState: AccountsState = {
   derived: {},
+  transactions: {},
 };
 
 const accountsSlice = createSlice({
@@ -105,6 +122,39 @@ const accountsSlice = createSlice({
 
       state.derived = derived;
     },
+    addTransaction: (
+      state,
+      action: PayloadAction<Transaction & { hash: string }>
+    ) => {
+      const {
+        hash,
+        tokenType,
+        appliedHash,
+        target,
+        amount,
+        memo,
+        shielded = false,
+        gas,
+        timestamp,
+      } = action.payload;
+
+      const transactions = state.transactions[hash] || [];
+      transactions.push({
+        tokenType,
+        appliedHash,
+        amount,
+        memo,
+        shielded,
+        gas,
+        target,
+        timestamp,
+      });
+
+      state.transactions = {
+        ...state.transactions,
+        [hash]: transactions,
+      };
+    },
   },
 });
 
@@ -116,6 +166,7 @@ export const {
   setZip32Address,
   removeAccount,
   renameAccount,
+  addTransaction,
 } = actions;
 
 export default reducer;

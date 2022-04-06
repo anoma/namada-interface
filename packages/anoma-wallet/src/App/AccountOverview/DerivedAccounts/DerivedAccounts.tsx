@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, memo } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Config } from "config";
 import { RpcClient } from "lib";
 import { useAppDispatch, useAppSelector } from "store";
-import { DerivedAccount } from "slices/accounts";
+import { AccountsState } from "slices/accounts";
 import { setBalance } from "slices";
 import { Tokens, TokenType } from "constants/";
 import { formatRoute, stringToHash } from "utils/helpers";
@@ -20,12 +20,7 @@ import {
   DerivedAccountType,
 } from "./DerivedAccounts.components";
 import { Button, ButtonVariant } from "components/Button";
-
-type Props = {
-  derived: {
-    [alias: string]: DerivedAccount;
-  };
-};
+import { BalancesState } from "slices/balances";
 
 const { network } = new Config();
 const rpcClient = new RpcClient(network);
@@ -41,37 +36,33 @@ const getBalance = async (
   return balance >= 0 ? balance : 0;
 };
 
-const DerivedAccounts = ({ derived }: Props): JSX.Element => {
-  const [derivedAccounts, setDerivedAccounts] = useState<DerivedAccount[]>([]);
-  const { accountBalances } = useAppSelector((state) => state.balances);
+const DerivedAccounts = (): JSX.Element => {
+  const balances = useAppSelector<BalancesState>((state) => state.balances);
+  const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const accounts = Object.keys(derived).map(
-      (hash: string): DerivedAccount => derived[hash]
-    );
-    setDerivedAccounts(accounts);
-  }, [derived]);
+    const keys = Object.keys(derived);
+    if (keys.length > 0) {
+      keys.forEach(async (key) => {
+        const { alias, establishedAddress = "", tokenType } = derived[key];
 
-  useEffect(() => {
-    derivedAccounts.forEach(async (account) => {
-      const { alias, establishedAddress = "", tokenType } = account;
-      if (!accountBalances[stringToHash(alias)]) {
-        const token = await getBalance(establishedAddress, tokenType);
-        const usd = 0; // TODO: Convert token balance to USD
-        dispatch(setBalance({ alias, token, usd }));
-      }
-    });
-  }, [derivedAccounts]);
+        if (!balances[stringToHash(alias)]) {
+          const token = await getBalance(establishedAddress, tokenType);
+          const usd = 0; // TODO: Convert token balance to USD
+          dispatch(setBalance({ alias, token, usd }));
+        }
+      });
+    }
+  }, [derived]);
 
   return (
     <DerivedAccountsContainer>
       <DerivedAccountsList>
-        {derivedAccounts.map((account) => {
-          const { alias, tokenType, establishedAddress } = account;
-          const hash = stringToHash(alias);
-          const { token: tokenBalance } = accountBalances[hash] || {};
+        {Object.keys(derived).map((hash: string) => {
+          const { alias, tokenType, establishedAddress } = derived[hash];
+          const { token: tokenBalance } = balances[hash] || {};
 
           return (
             <DerivedAccountItem key={alias}>
@@ -100,4 +91,4 @@ const DerivedAccounts = ({ derived }: Props): JSX.Element => {
   );
 };
 
-export default DerivedAccounts;
+export default memo(DerivedAccounts);

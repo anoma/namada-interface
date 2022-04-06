@@ -28,9 +28,9 @@ import {
 } from "lib";
 import {
   addAccount,
-  DerivedAccount,
-  DerivedAccountsState,
   setEstablishedAddress,
+  DerivedAccount,
+  AccountsState,
 } from "slices/accounts";
 import { NewBlockEvents, SubscriptionEvents } from "lib/rpc/types";
 import { useAppDispatch } from "store";
@@ -44,9 +44,7 @@ const socketClient = new SocketClient(wsNetwork);
 export const AddAccount = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { derived } = useAppSelector<DerivedAccountsState>(
-    (state) => state.accounts
-  );
+  const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const [alias, setAlias] = useState<string>("");
   const [aliasError, setAliasError] = useState<string>();
   const [tokenType, setTokenType] = useState<TokenType>("NAM");
@@ -64,7 +62,7 @@ export const AddAccount = (): JSX.Element => {
 
   const handleAliasChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { value } = e.target;
-    setAlias(value.trim());
+    setAlias(value);
   };
 
   const handleTokenSelect = (e: React.ChangeEvent<HTMLSelectElement>): void => {
@@ -97,7 +95,7 @@ export const AddAccount = (): JSX.Element => {
       await transfer.makeTransfer({
         source: FAUCET_ADDRESS,
         target: establishedAddress,
-        amount: 10,
+        amount: 1000,
         epoch,
         privateKey,
         token: `${Tokens[tokenType].address}`,
@@ -112,14 +110,16 @@ export const AddAccount = (): JSX.Element => {
   };
 
   const handleAddClick = async (): Promise<void> => {
-    if (!alias || !validateAlias(alias)) {
+    const trimmedAlias = alias.trim();
+
+    if (!trimmedAlias || !validateAlias(trimmedAlias)) {
       return setAliasError("Invalid alias. Choose a different account alias.");
     }
 
     setIsInitializing(true);
     const mnemonic = await new Session().seed();
 
-    if (mnemonic && alias) {
+    if (mnemonic && trimmedAlias) {
       setAliasError(undefined);
 
       const wallet = await new Wallet(mnemonic, tokenType).init();
@@ -133,7 +133,7 @@ export const AddAccount = (): JSX.Element => {
 
       dispatch(
         addAccount({
-          alias,
+          alias: trimmedAlias,
           tokenType,
           address,
           publicKey,
@@ -162,11 +162,13 @@ export const AddAccount = (): JSX.Element => {
             .map((account: string) => JSON.parse(account))
             .find((account: string[]) => account.length > 0)[0];
 
-          dispatch(setEstablishedAddress({ alias, establishedAddress }));
+          dispatch(
+            setEstablishedAddress({ alias: trimmedAlias, establishedAddress })
+          );
           socketClient.disconnect();
 
           // TODO: Preferably we should set a NODE_ENV variable on Netlify
-          // in testing environments. This is a temporary measure:
+          // to specify testing environments. This is a temporary measure:
           if (network.network.match(/testnet/)) {
             // LOAD SOME TOKENS FROM FAUCET
             loadFromFaucet(tokenType, establishedAddress, privateKey);

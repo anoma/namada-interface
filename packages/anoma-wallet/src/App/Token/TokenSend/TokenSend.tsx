@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { DerivedAccountsState } from "slices/accounts";
+import { AccountsState } from "slices/accounts";
 import { useAppSelector } from "store";
 import { TopLevelRoute } from "App/types";
 import { TokenType } from "constants/";
@@ -21,9 +21,7 @@ type TokenSendParams = {
 
 const TokenSend = (): JSX.Element => {
   const navigate = useNavigate();
-  const { derived } = useAppSelector<DerivedAccountsState>(
-    (state) => state.accounts
-  );
+  const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const { hash: defaultHash, target, tokenType } = useParams<TokenSendParams>();
   const [hash, setHash] = useState<string | undefined>(defaultHash);
   const [accountsData, setAccounts] = useState<Option<string>[]>();
