@@ -20,6 +20,7 @@ import {
   TokenSendFormContainer,
 } from "./TokenSendForm.components";
 import { Toggle } from "components/Toggle";
+import { Address } from "../Transfers/TransferDetails.components";
 
 type Props = {
   accountId: string;
@@ -214,9 +215,7 @@ const TokenSendForm = ({
               <br />
               Applied hash:
             </StatusMessage>
-            <pre style={{ background: "#ddd", overflowX: "scroll" }}>
-              {events.hash}
-            </pre>
+            <Address>{events.hash}</Address>
           </>
         )}
       </StatusContainer>

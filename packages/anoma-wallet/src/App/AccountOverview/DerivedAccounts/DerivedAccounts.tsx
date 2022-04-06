@@ -37,32 +37,34 @@ const DerivedAccounts = (): JSX.Element => {
   return (
     <DerivedAccountsContainer>
       <DerivedAccountsList>
-        {Object.keys(derived).map((hash: string) => {
-          const { id, alias, tokenType, establishedAddress, balance } =
-            derived[hash];
+        {Object.keys(derived)
+          .reverse()
+          .map((hash: string) => {
+            const { id, alias, tokenType, establishedAddress, balance } =
+              derived[hash];
 
-          return (
-            <DerivedAccountItem key={alias}>
-              <DerivedAccountAlias>{alias}</DerivedAccountAlias>
-              <DerivedAccountType>{tokenType}</DerivedAccountType>
-              <DerivedAccountBalance>
-                <span>Balance:</span>{" "}
-                {typeof balance === "number" ? balance : "Loading"}
-              </DerivedAccountBalance>
-              <DerivedAccountAddress>
-                {establishedAddress}
-              </DerivedAccountAddress>
-              <Button
-                onClick={() => {
-                  navigate(formatRoute(TopLevelRoute.Token, { id }));
-                }}
-                variant={ButtonVariant.Contained}
-              >
-                Details
-              </Button>
-            </DerivedAccountItem>
-          );
-        })}
+            return (
+              <DerivedAccountItem key={alias}>
+                <DerivedAccountAlias>{alias}</DerivedAccountAlias>
+                <DerivedAccountType>{tokenType}</DerivedAccountType>
+                <DerivedAccountBalance>
+                  <span>Balance:</span>
+                  {typeof balance === "number" ? balance : "Loading"}
+                </DerivedAccountBalance>
+                <DerivedAccountAddress>
+                  {establishedAddress}
+                </DerivedAccountAddress>
+                <Button
+                  onClick={() => {
+                    navigate(formatRoute(TopLevelRoute.Token, { id }));
+                  }}
+                  variant={ButtonVariant.Contained}
+                >
+                  Details
+                </Button>
+              </DerivedAccountItem>
+            );
+          })}
       </DerivedAccountsList>
     </DerivedAccountsContainer>
   );

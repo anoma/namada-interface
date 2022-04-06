@@ -31,6 +31,7 @@ export const TransactionListItem = styled.li`
 
   & > button {
     flex: 1 0 20%;
+    margin: 0;
   }
   padding-bottom: 8px;
   border-bottom: 1px solid #ddd;
@@ -45,4 +46,8 @@ export const ButtonsContainer = styled.div`
   flex-direction: row;
   width: 100%;
   justify-content: space-between;
+
+  button {
+    margin: 20px 0;
+  }
 `;

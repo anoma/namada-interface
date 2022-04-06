@@ -13,7 +13,7 @@ export const CanvasContainer = styled.div`
   width: 100%;
   display: flex;
   justify-content: center;
-  margin: 20px 0;
+  margin: 20px 0 40px;
 `;
 
 export const ButtonsContainer = styled.div`

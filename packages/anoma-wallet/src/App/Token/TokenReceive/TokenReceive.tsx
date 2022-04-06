@@ -15,13 +15,13 @@ import { NavigationContainer } from "components/NavigationContainer";
 import { TopLevelRoute } from "App/types";
 
 type TokenReceiveParams = {
-  hash: string;
+  id: string;
 };
 
 const TokenReceive = (): JSX.Element => {
   const { Canvas } = useQRCode();
   const navigate = useNavigate();
-  const { hash = "" } = useParams<TokenReceiveParams>();
+  const { id = "" } = useParams<TokenReceiveParams>();
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
 
   const {
@@ -29,7 +29,7 @@ const TokenReceive = (): JSX.Element => {
     alias,
     tokenType,
     balance = 0,
-  } = derived[hash] || {};
+  } = derived[id] || {};
   const { protocol, host } = window.location;
 
   const text = `${protocol}//${host}${formatRoute(

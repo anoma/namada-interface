@@ -1,16 +1,6 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { NavigationContainer } from "components/NavigationContainer";
-import { Heading, HeadingLevel } from "components/Heading";
-import {
-  AccountOverviewContainer,
-  InputContainer,
-} from "./AccountOverview.components";
-import { useAppSelector } from "store";
-import { Button, ButtonVariant } from "components/Button";
-import { TopLevelRoute } from "App/types";
-import { Select, Option } from "components/Select";
-import { Input, InputVariants } from "components/Input";
-import { useState } from "react";
+
 import {
   Symbols,
   TokenType,
@@ -35,11 +25,25 @@ import {
 import { NewBlockEvents, SubscriptionEvents } from "lib/rpc/types";
 import { useAppDispatch } from "store";
 import { Config } from "config";
-import { stringToHash } from "utils/helpers";
+
+import { NavigationContainer } from "components/NavigationContainer";
+import { Heading, HeadingLevel } from "components/Heading";
+import {
+  AccountOverviewContainer,
+  InputContainer,
+} from "./AccountOverview.components";
+
+import { useAppSelector } from "store";
+import { Button, ButtonVariant } from "components/Button";
+import { TopLevelRoute } from "App/types";
+import { Select, Option } from "components/Select";
+import { Input, InputVariants } from "components/Input";
 
 const { network, wsNetwork } = new Config();
 const rpcClient = new RpcClient(network);
 const socketClient = new SocketClient(wsNetwork);
+
+const MIN_ALIAS_LENGTH = 2;
 
 export const AddAccount = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -78,10 +82,26 @@ export const AddAccount = (): JSX.Element => {
       (account: DerivedAccount) => account.tokenType === tokenType
     ).length;
 
+  const aliasExists = (alias: string): boolean =>
+    Object.values(derived).some((account) => account.alias === alias);
+
   const validateAlias = (alias: string): boolean =>
-    alias.length > 2 &&
-    !derived[stringToHash(alias)] &&
-    alias.match(/^[a-z0-9\s]+$/i);
+    alias.length > MIN_ALIAS_LENGTH &&
+    !aliasExists(alias) &&
+    !!alias.match(/^[a-z0-9\-\s]+$/i);
+
+  useEffect(() => {
+    // Ignore length validation for error messages as it's rather obvious
+    if (alias.length > MIN_ALIAS_LENGTH && !validateAlias(alias)) {
+      if (aliasExists(alias)) {
+        setAliasError("Alias already exists. Please choose a different alias.");
+      } else {
+        setAliasError("Invalid characters in alias");
+      }
+    } else {
+      setAliasError(undefined);
+    }
+  }, [alias]);
 
   // For development only:
   const loadFromFaucet = async (
