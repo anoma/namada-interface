@@ -3,7 +3,8 @@ import { LocalStorageKeys } from "App/types";
 import { aesDecrypt, aesEncrypt } from "utils/helpers";
 
 const { REACT_APP_SECRET_KEY = "" } = process.env;
-
+//TODO: REMOVE THE FOLLOWING!!!!
+console.log({ REACT_APP_SECRET_KEY });
 class Session {
   private _key = REACT_APP_SECRET_KEY;
   private _seed: string;
