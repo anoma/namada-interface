@@ -22,7 +22,7 @@ export enum TopLevelRoute {
   Settings = "/settings",
   SettingsAccounts = "/settings/accounts",
   SettingsWalletSettings = "/settings/wallet-settings",
-  SettingsAccountSettings = "/settings/account-settings/:hash",
+  SettingsAccountSettings = "/settings/account-settings/:id",
 }
 
 export enum LocalStorageKeys {

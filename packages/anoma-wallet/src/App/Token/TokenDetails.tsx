@@ -1,6 +1,7 @@
 import { TopLevelRoute } from "App/types";
 import { Button, ButtonVariant } from "components/Button";
 import { Heading, HeadingLevel } from "components/Heading";
+import { Icon, IconName, IconSize } from "components/Icon";
 import { NavigationContainer } from "components/NavigationContainer";
 import { Tokens } from "constants/";
 import { useParams, useNavigate } from "react-router-dom";
@@ -11,6 +12,7 @@ import { useAppSelector } from "store";
 import { formatRoute, stringFromTimestamp } from "utils/helpers";
 import {
   ButtonsContainer,
+  SettingsButton,
   TokenDetailContainer,
   TransactionList,
   TransactionListItem,
@@ -50,7 +52,18 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
         <Heading level={HeadingLevel.One}>Token Details</Heading>
       </NavigationContainer>
       <PersistGate loading={"Loading token details..."} persistor={persistor}>
-        <Heading level={HeadingLevel.Three}>{alias}</Heading>
+        <Heading level={HeadingLevel.Two}>
+          {alias}
+          <SettingsButton
+            onClick={() => {
+              navigate(
+                formatRoute(TopLevelRoute.SettingsAccountSettings, { id })
+              );
+            }}
+          >
+            <Icon iconSize={IconSize.M} iconName={IconName.Settings} />
+          </SettingsButton>
+        </Heading>
         <p>
           {token.coin} - {token.symbol}
           <br />

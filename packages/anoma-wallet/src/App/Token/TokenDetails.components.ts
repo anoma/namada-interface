@@ -41,6 +41,12 @@ export const TransactionListItem = styled.li`
   }
 `;
 
+export const SettingsButton = styled.button`
+  margin: 0 20px;
+  border: none;
+  background: none;
+`;
+
 export const ButtonsContainer = styled.div`
   display: flex;
   flex-direction: row;

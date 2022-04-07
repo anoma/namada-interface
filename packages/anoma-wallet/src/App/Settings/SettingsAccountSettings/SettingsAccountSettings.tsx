@@ -7,7 +7,7 @@ import { DerivedAccount } from "slices/accounts";
 
 type SettingsAccountSettingsParams = {
   // account alias hash of the account to set up
-  hash?: string;
+  id?: string;
 };
 
 /**
@@ -18,8 +18,8 @@ export const SettingsAccountSettings = (): JSX.Element => {
   const navigate = useNavigate();
   const { derived } = useAppSelector((state) => state.accounts);
 
-  const { hash = "" } = params;
-  const account: DerivedAccount = derived[hash];
+  const { id = "" } = params;
+  const account: DerivedAccount = derived[id];
 
   return (
     <SettingsAccountSettingsContainer>
