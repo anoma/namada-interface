@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-import base58 from "bs58";
-import { Buffer } from "buffer";
 
 import { Config } from "config";
 import { RpcClient, SocketClient, Transfer } from "lib";
@@ -26,23 +24,16 @@ import { Address } from "../Transfers/TransferDetails.components";
 
 type Props = {
   accountId: string;
-  target?: string;
+  defaultTarget?: string;
 };
 
 const { network, wsNetwork } = new Config();
 const rpcClient = new RpcClient(network);
 const socketClient = new SocketClient(wsNetwork);
 
-const TokenSendForm = ({
-  accountId,
-  target: defaultTarget,
-}: Props): JSX.Element => {
-  const decodedTarget = defaultTarget
-    ? Buffer.from(base58.decode(defaultTarget)).toString("utf8")
-    : undefined;
-
+const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
   const dispatch = useAppDispatch();
-  const [target, setTarget] = useState<string | undefined>(decodedTarget);
+  const [target, setTarget] = useState<string | undefined>(defaultTarget);
   const [amount, setAmount] = useState<number>(0);
   const [memo, setMemo] = useState<string>("");
   const [status, setStatus] = useState<string>();
