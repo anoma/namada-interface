@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import base58 from "bs58";
-import { Buffer } from "buffer";
 
 import { AccountsState } from "slices/accounts";
 import { useAppSelector } from "store";
@@ -25,10 +23,6 @@ const TokenSend = (): JSX.Element => {
   const navigate = useNavigate();
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const { id, target, tokenType } = useParams<TokenSendParams>();
-
-  const decodedTarget = target
-    ? Buffer.from(base58.decode(target)).toString("utf8")
-    : undefined;
 
   const [selectedAccountId, setSelectedAccountId] = useState<
     string | undefined
@@ -93,10 +87,7 @@ const TokenSend = (): JSX.Element => {
           </>
         ))}
       {selectedAccountId && (
-        <TokenSendForm
-          accountId={selectedAccountId}
-          defaultTarget={decodedTarget}
-        />
+        <TokenSendForm accountId={selectedAccountId} defaultTarget={target} />
       )}
     </TokenSendContainer>
   );

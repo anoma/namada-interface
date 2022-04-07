@@ -1,7 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useQRCode } from "next-qrcode";
-import { Buffer } from "buffer";
-import base58 from "bs58";
 
 import { AccountsState } from "slices/accounts";
 import { useAppSelector } from "store";
@@ -29,15 +27,11 @@ const TokenReceive = (): JSX.Element => {
   const { establishedAddress = "", alias, tokenType } = derived[id] || {};
   const { protocol, host } = window.location;
 
-  const encoded = base58.encode(
-    new Uint8Array(Buffer.from(establishedAddress, "utf8"))
-  );
-
   const text = `${protocol}//${host}${formatRoute(
     TopLevelRoute.TokenSendTarget,
     {
       tokenType,
-      target: encoded,
+      target: establishedAddress,
     }
   )}`;
 
@@ -66,7 +60,6 @@ const TokenReceive = (): JSX.Element => {
           }}
         />
       </CanvasContainer>
-
       <Address>{establishedAddress}</Address>
     </TokenReceiveContainer>
   );
