@@ -53,6 +53,7 @@ export const AddAccount = (): JSX.Element => {
   const [aliasError, setAliasError] = useState<string>();
   const [tokenType, setTokenType] = useState<TokenType>("NAM");
   const [isInitializing, setIsInitializing] = useState(false);
+  const [status, setStatus] = useState("");
   const [error, setError] = useState<string>();
 
   const tokensData: Option<string>[] = Symbols.map((symbol: TokenType) => {
@@ -109,6 +110,7 @@ export const AddAccount = (): JSX.Element => {
     establishedAddress: string,
     privateKey: string
   ): Promise<void> => {
+    setStatus("Loading tokens from faucet");
     const epoch = await rpcClient.queryEpoch();
     const transfer = await new Transfer().init();
     const { hash: transferHash, bytes: transferBytes } =
@@ -122,6 +124,7 @@ export const AddAccount = (): JSX.Element => {
       });
 
     await socketClient.broadcastTx(transferHash, transferBytes, {
+      onBroadcast: () => setStatus("Successfully connected to ledger"),
       onNext: () => {
         socketClient.disconnect();
         navigate(TopLevelRoute.Wallet);
@@ -135,7 +138,7 @@ export const AddAccount = (): JSX.Element => {
     if (!trimmedAlias || !validateAlias(trimmedAlias)) {
       return setAliasError("Invalid alias. Choose a different account alias.");
     }
-
+    setStatus("Initializing new account...");
     setIsInitializing(true);
     const mnemonic = await new Session().seed();
 
@@ -237,7 +240,7 @@ export const AddAccount = (): JSX.Element => {
           onChange={handleTokenSelect}
         ></Select>
       </InputContainer>
-      {isInitializing && <p>Initializing new account...</p>}
+      {isInitializing && <p>{status}</p>}
       {error && <p>{error}</p>}
       <Button
         variant={ButtonVariant.Contained}

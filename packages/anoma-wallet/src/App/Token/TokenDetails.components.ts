@@ -42,7 +42,7 @@ export const TransactionListItem = styled.li`
 `;
 
 export const SettingsButton = styled.button`
-  margin: 0 20px;
+  margin: 0 8px 0 0;
   border: none;
   background: none;
 `;

@@ -24,12 +24,7 @@ const TokenReceive = (): JSX.Element => {
   const { id = "" } = useParams<TokenReceiveParams>();
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
 
-  const {
-    establishedAddress = "",
-    alias,
-    tokenType,
-    balance = 0,
-  } = derived[id] || {};
+  const { establishedAddress = "", alias, tokenType } = derived[id] || {};
   const { protocol, host } = window.location;
 
   const text = `${protocol}//${host}${formatRoute(
@@ -50,9 +45,7 @@ const TokenReceive = (): JSX.Element => {
         <Heading level={HeadingLevel.One}>Token Receive</Heading>
       </NavigationContainer>
       <Heading level={HeadingLevel.Two}>{alias}</Heading>
-      <Heading level={HeadingLevel.Three}>
-        {tokenType}: {balance}
-      </Heading>
+      <Heading level={HeadingLevel.Three}>{tokenType}</Heading>
       <CanvasContainer>
         <Canvas
           text={text}

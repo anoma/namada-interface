@@ -53,23 +53,23 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
       </NavigationContainer>
       <PersistGate loading={"Loading token details..."} persistor={persistor}>
         <Heading level={HeadingLevel.Two}>
-          {alias}
-          <SettingsButton
-            onClick={() => {
-              navigate(
-                formatRoute(TopLevelRoute.SettingsAccountSettings, { id })
-              );
-            }}
-          >
-            <Icon iconSize={IconSize.M} iconName={IconName.Settings} />
-          </SettingsButton>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <SettingsButton
+              onClick={() => {
+                navigate(
+                  formatRoute(TopLevelRoute.SettingsAccountSettings, { id })
+                );
+              }}
+            >
+              <Icon iconSize={IconSize.M} iconName={IconName.Settings} />
+            </SettingsButton>
+            {alias}
+          </div>
         </Heading>
         <p>
-          {token.coin} - {token.symbol}
-          <br />
-          {balance}
-          <br />
-          Address:
+          <strong>
+            {balance} {token.symbol}
+          </strong>
         </p>
 
         <Address>{establishedAddress}</Address>
