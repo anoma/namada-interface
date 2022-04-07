@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import base58 from "bs58";
+import { Buffer } from "buffer";
 
 import { Config } from "config";
 import { RpcClient, SocketClient, Transfer } from "lib";
@@ -35,8 +37,12 @@ const TokenSendForm = ({
   accountId,
   target: defaultTarget,
 }: Props): JSX.Element => {
+  const decodedTarget = defaultTarget
+    ? Buffer.from(base58.decode(defaultTarget)).toString("utf8")
+    : undefined;
+
   const dispatch = useAppDispatch();
-  const [target, setTarget] = useState<string | undefined>(defaultTarget);
+  const [target, setTarget] = useState<string | undefined>(decodedTarget);
   const [amount, setAmount] = useState<number>(0);
   const [memo, setMemo] = useState<string>("");
   const [status, setStatus] = useState<string>();
