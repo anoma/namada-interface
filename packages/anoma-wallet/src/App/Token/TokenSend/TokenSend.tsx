@@ -56,7 +56,10 @@ const TokenSend = (): JSX.Element => {
     <TokenSendContainer>
       <NavigationContainer
         onBackButtonClick={() => {
-          navigate(-1);
+          if (id) {
+            return navigate(-1);
+          }
+          navigate(TopLevelRoute.Wallet);
         }}
       >
         <Heading level={HeadingLevel.One}>Token Send</Heading>
