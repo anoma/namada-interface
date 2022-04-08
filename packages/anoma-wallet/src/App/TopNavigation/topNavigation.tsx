@@ -87,10 +87,11 @@ type TopNavigationProps = {
   // cb for telling parent to change hte color in context
   setIsLightMode: React.Dispatch<React.SetStateAction<boolean>>;
   isLoggedIn?: boolean;
+  logout?: () => void;
 };
 // top nav of the app, this is likely always visible.
 function TopNavigation(props: TopNavigationProps): JSX.Element {
-  const { isLightMode, setIsLightMode, isLoggedIn = false } = props;
+  const { isLightMode, logout, setIsLightMode, isLoggedIn = false } = props;
   const navigate = useNavigate();
   const circleElementEnabled = (
     <Icon iconName={IconName.Sun} strokeColorOverride="#17171d" />
@@ -131,7 +132,8 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
           {isLoggedIn && (
             <MenuItem
               onClick={() => {
-                Session.logout(() => navigate(TopLevelRoute.Home));
+                Session.removeSession();
+                logout && logout();
               }}
             >
               <MenuItemIconContainer>

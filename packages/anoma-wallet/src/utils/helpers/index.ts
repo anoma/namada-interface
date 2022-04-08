@@ -88,3 +88,8 @@ export const aesDecrypt = (encrypted: string, password: string): string => {
     throw new Error(`Unable to decrypt value: ${e}`);
   }
 };
+
+export const getParams = (): { [key: string]: string } => {
+  const urlSearchParams = new URLSearchParams(window.location.search);
+  return Object.fromEntries(urlSearchParams.entries());
+};

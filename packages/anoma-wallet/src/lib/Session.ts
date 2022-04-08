@@ -78,10 +78,8 @@ class Session {
     return this;
   }
 
-  public static logout(callback: () => void): void {
+  public static removeSession(): void {
     window.sessionStorage.removeItem(LocalStorageKeys.Session);
-    callback();
-    window.location.reload();
   }
 }
 

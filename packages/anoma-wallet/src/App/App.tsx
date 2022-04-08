@@ -20,6 +20,7 @@ import { darkColors, lightColors, Theme } from "utils/theme";
 import { Login } from "./Login";
 import { DerivedAccount } from "slices/accounts";
 import { Session } from "lib";
+import Redirect from "./Redirect";
 
 // this sets the dark/light colors to theme
 export const getTheme = (isLightMode: boolean): Theme => {
@@ -98,6 +99,7 @@ function App(): JSX.Element {
                   isLightMode={isLightMode}
                   setIsLightMode={setIsLightMode}
                   isLoggedIn={isLoggedIn}
+                  logout={() => setIsLoggedIn(false)}
                 />
               </TopSection>
               <BottomSection>
@@ -159,6 +161,7 @@ function App(): JSX.Element {
                         </AnimatedTransition>
                       }
                     />
+                    <Route path={"*"} element={<Redirect />} />
                   </Route>
                 </Routes>
               </AnimatePresence>

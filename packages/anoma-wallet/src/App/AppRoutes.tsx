@@ -1,5 +1,5 @@
 import { Provider } from "react-redux";
-import { Routes, Route, Outlet, useNavigate } from "react-router-dom";
+import { Routes, Route, Outlet } from "react-router-dom";
 import { Persistor, persistStore } from "redux-persist";
 import { AccountOverview } from "./AccountOverview";
 import { AddAccount } from "./AccountOverview/AddAccount";
@@ -17,6 +17,7 @@ import { makeStore } from "store";
 import { useEffect, useState } from "react";
 import { AppStore } from "store/store";
 import { Session } from "lib";
+import NotFound from "./NotFound";
 
 const fakeAccounts = [
   "fake1l7dgf0m623ayll8vdyf6n7gxm3tz7mt7x443m0",
@@ -28,11 +29,9 @@ const AppRoutes = ({ password }: { password: string }): JSX.Element => {
   const [store, setStore] = useState<AppStore>();
   const [persistor, setPersistor] = useState<Persistor>();
 
-  const navigate = useNavigate();
-
   useEffect(() => {
     if (password === "") {
-      Session.logout(() => navigate(TopLevelRoute.Home));
+      Session.removeSession();
     } else {
       setStore(makeStore(password));
     }
@@ -125,6 +124,7 @@ const AppRoutes = ({ password }: { password: string }): JSX.Element => {
                   </AnimatedTransition>
                 }
               />
+              <Route path={"*"} element={<NotFound />} />
             </Route>
           </Routes>
         </Provider>
