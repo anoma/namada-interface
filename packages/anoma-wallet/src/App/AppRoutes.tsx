@@ -17,14 +17,11 @@ import { makeStore } from "store";
 import { useEffect, useState } from "react";
 import { AppStore } from "store/store";
 import { Session } from "lib";
-<<<<<<< HEAD
 import { TokenDetails } from "./Token";
 import { TokenSend } from "./Token/TokenSend";
 import { TokenReceive } from "./Token/TokenReceive";
 import { TransferDetails } from "./Token/Transfers";
-=======
 import NotFound from "./NotFound";
->>>>>>> feat/session-improvements
 
 const fakeAccounts = [
   "fake1l7dgf0m623ayll8vdyf6n7gxm3tz7mt7x443m0",

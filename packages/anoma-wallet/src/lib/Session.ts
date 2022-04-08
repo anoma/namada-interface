@@ -19,6 +19,7 @@ class Session {
   constructor(ttl?: number) {
     this._seed = window.localStorage.getItem(LocalStorageKeys.MasterSeed);
     this._ttl = ttl || DEFAULT_SESSION_TTL;
+    this.getSession();
   }
 
   public async getSeed(): Promise<string | undefined> {

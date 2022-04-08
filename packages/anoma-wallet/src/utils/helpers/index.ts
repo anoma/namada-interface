@@ -123,7 +123,11 @@ export const formatRoute = (
 export const stringFromTimestamp = (timestamp: number): string => {
   const datetime = DateTime.fromMillis(timestamp).toLocal();
   return datetime.toLocaleString(DateTime.DATETIME_FULL_WITH_SECONDS);
-  
+};
+
+/**
+ * Get URL params
+ */
 export const getParams = (
   prop?: string
 ): string | { [key: string]: string } => {
