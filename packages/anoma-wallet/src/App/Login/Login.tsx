@@ -42,11 +42,9 @@ const Login = (): JSX.Element => {
       setIsLoggedIn && setIsLoggedIn();
       setPasswordContext && setPasswordContext(password);
 
-      const params = getParams();
-      const redirect = params["redirect"];
-
-      if (redirect) {
-        navigate(redirect);
+      const redirectUrl = getParams("redirect");
+      if (redirectUrl) {
+        navigate(redirectUrl);
       } else {
         navigate(TopLevelRoute.Wallet);
       }

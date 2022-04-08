@@ -30,6 +30,7 @@ const TopNavigationMenuItems = (props: {
 }): React.ReactElement => {
   const { navigate } = props;
   const location = useLocation();
+
   return (
     <>
       {/* Wallet */}
@@ -133,6 +134,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
             <MenuItem
               onClick={() => {
                 Session.removeSession();
+                navigate(`${TopLevelRoute.Home}`);
                 logout && logout();
               }}
             >

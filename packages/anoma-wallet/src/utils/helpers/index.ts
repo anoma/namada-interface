@@ -89,7 +89,10 @@ export const aesDecrypt = (encrypted: string, password: string): string => {
   }
 };
 
-export const getParams = (): { [key: string]: string } => {
+export const getParams = (
+  prop?: string
+): string | { [key: string]: string } => {
   const urlSearchParams = new URLSearchParams(window.location.search);
-  return Object.fromEntries(urlSearchParams.entries());
+  const params = Object.fromEntries(urlSearchParams.entries());
+  return prop ? params[prop] : params;
 };
