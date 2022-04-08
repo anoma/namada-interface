@@ -74,7 +74,7 @@ function App(): JSX.Element {
 
   useEffect(() => {
     const { secret } = new Session().getSession() || {};
-    if (!isLoggedIn && secret) {
+    if (secret) {
       setPassword(secret);
       setIsLoggedIn(true);
     }

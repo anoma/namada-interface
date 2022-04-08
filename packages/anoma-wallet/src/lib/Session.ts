@@ -9,13 +9,17 @@ type SessionType = {
   timestamp: number;
 };
 
+const DEFAULT_SESSION_TTL = 3600000; // One hour
+
 class Session {
   private _key = REACT_APP_SECRET_KEY;
   private _seed: string;
   private _session: SessionType | undefined;
+  private _timeout: number;
 
-  constructor() {
+  constructor(timeout?: number) {
     this._seed = window.localStorage.getItem(LocalStorageKeys.MasterSeed) || "";
+    this._timeout = timeout || DEFAULT_SESSION_TTL;
   }
 
   public async getSeed(): Promise<string | undefined> {
@@ -43,13 +47,20 @@ class Session {
   }
 
   public getSession(): SessionType | undefined {
-    const session =
+    const sessionString =
       window.sessionStorage.getItem(LocalStorageKeys.Session) || "";
 
-    if (session) {
-      this._session = JSON.parse(aesDecrypt(session, this._key));
+    if (sessionString) {
+      const session = JSON.parse(aesDecrypt(sessionString, this._key));
+      const { timestamp } = session;
+
+      if (new Date().getTime() - timestamp > this._timeout) {
+        window.sessionStorage.removeItem(LocalStorageKeys.Session);
+      } else {
+        this._session = session;
+        return this._session;
+      }
     }
-    return this._session;
   }
 
   public setSession(secret: string): Session {
