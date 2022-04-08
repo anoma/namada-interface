@@ -6,6 +6,7 @@ import { Input, InputVariants } from "components/Input";
 import { Button, ButtonVariant } from "components/Button";
 import { AppContext } from "App/App";
 import { Session } from "lib";
+import { getParams } from "utils/helpers";
 
 const session = new Session();
 
@@ -34,14 +35,19 @@ const Login = (): JSX.Element => {
     setIsLoggingIn(true);
 
     try {
-      session.secret = password;
+      session.setSession(password);
       // Will fail if seed cannot be decrypted:
-      await session.seed();
+      await session.getSeed();
       setError(undefined);
       setIsLoggedIn && setIsLoggedIn();
       setPasswordContext && setPasswordContext(password);
 
-      navigate(TopLevelRoute.Wallet);
+      const redirectUrl = getParams("redirect");
+      if (redirectUrl) {
+        navigate(redirectUrl);
+      } else {
+        navigate(TopLevelRoute.Wallet);
+      }
     } catch (e) {
       setIsLoggingIn(false);
       setError(`An error has occured: ${e}`);

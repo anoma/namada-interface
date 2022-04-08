@@ -19,6 +19,8 @@ import {
   ContentContainer,
   MotionContainer,
 } from "./App.components";
+import { Session } from "lib";
+import Redirect from "./Redirect";
 
 // this sets the dark/light colors to theme
 export const getTheme = (isLightMode: boolean): Theme => {
@@ -66,17 +68,16 @@ export const AppContext = createContext<ContextType>({});
 function App(): JSX.Element {
   const [isLightMode, setIsLightMode] = useState(true);
   const [seed, setSeed] = useState<string>();
-  const [password, setPassword] = useState<string>();
+  const [password, setPassword] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [initialAccount, setInitialAccount] = useState<InitialAccount>();
   const theme = getTheme(isLightMode);
 
   useEffect(() => {
-    if (!isLoggedIn) {
-      const session = window.localStorage.getItem("session");
-      if (session) {
-        setIsLoggedIn(true);
-      }
+    const { secret } = new Session().getSession() || {};
+    if (secret) {
+      setPassword(secret);
+      setIsLoggedIn(true);
     }
   }, [isLoggedIn]);
 
@@ -91,19 +92,20 @@ function App(): JSX.Element {
     return (
       <BrowserRouter>
         <ThemeProvider theme={theme}>
-          <AppContext.Provider value={{ initialAccount, seed, password }}>
+          <AppContext.Provider value={{ initialAccount, seed }}>
             <AppContainer>
               <TopSection>
                 <TopNavigation
                   isLightMode={isLightMode}
                   setIsLightMode={setIsLightMode}
                   isLoggedIn={isLoggedIn}
+                  logout={() => setIsLoggedIn(false)}
                 />
               </TopSection>
               <BottomSection>
                 <AnimatePresence exitBeforeEnter>
                   <Suspense fallback={<p>Loading</p>}>
-                    <AppRoutes />
+                    <AppRoutes password={password} />
                   </Suspense>
                 </AnimatePresence>
               </BottomSection>
@@ -159,6 +161,7 @@ function App(): JSX.Element {
                         </AnimatedTransition>
                       }
                     />
+                    <Route path={"*"} element={<Redirect />} />
                   </Route>
                 </Routes>
               </AnimatePresence>

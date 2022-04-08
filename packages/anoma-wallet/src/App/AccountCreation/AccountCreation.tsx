@@ -333,7 +333,7 @@ function AccountCreation(): JSX.Element {
                           });
 
                           const session = new Session();
-                          session.secret = accountCreationDetails.password;
+                          session.setSession(accountCreationDetails.password);
                           await session.setSeed(mnemonic.phrase);
                         } else {
                           alert(

@@ -29,7 +29,7 @@ const Completion = (props: StartViewProps): JSX.Element => {
 
   useEffect(() => {
     // Log the user in:
-    new Session().secret = password;
+    new Session().setSession(password);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

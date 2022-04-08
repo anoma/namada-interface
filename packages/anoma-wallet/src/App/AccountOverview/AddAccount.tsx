@@ -140,7 +140,7 @@ export const AddAccount = (): JSX.Element => {
     }
     setStatus("Initializing new account...");
     setIsInitializing(true);
-    const mnemonic = await new Session().seed();
+    const mnemonic = await new Session().getSeed();
 
     if (mnemonic && trimmedAlias) {
       setAliasError(undefined);

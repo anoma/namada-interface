@@ -10,6 +10,7 @@ import { persistReducer } from "redux-persist";
 import { encryptTransform } from "redux-persist-transform-encrypt";
 import thunk from "redux-thunk";
 import { accountsReducer } from "slices";
+import { LocalStorageKeys } from "App/types";
 
 const reducers = combineReducers({
   accounts: accountsReducer,
@@ -25,7 +26,7 @@ const makeStore: StoreFactory = (secretKey) => {
     NODE_ENV === "development" ? (REACT_APP_LOCAL ? "-local" : "-dev") : "";
 
   const persistConfig = {
-    key: `anoma-wallet${POSTFIX}`,
+    key: `${LocalStorageKeys.Persist}${POSTFIX}`,
     storage,
     // Only persist data in whitelist:
     whitelist: ["accounts"],

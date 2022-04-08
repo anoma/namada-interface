@@ -123,4 +123,11 @@ export const formatRoute = (
 export const stringFromTimestamp = (timestamp: number): string => {
   const datetime = DateTime.fromMillis(timestamp).toLocal();
   return datetime.toLocaleString(DateTime.DATETIME_FULL_WITH_SECONDS);
+  
+export const getParams = (
+  prop?: string
+): string | { [key: string]: string } => {
+  const urlSearchParams = new URLSearchParams(window.location.search);
+  const params = Object.fromEntries(urlSearchParams.entries());
+  return prop ? params[prop] : params;
 };

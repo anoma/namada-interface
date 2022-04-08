@@ -26,6 +26,7 @@ export enum TopLevelRoute {
 }
 
 export enum LocalStorageKeys {
-  MasterSeed = "seed",
-  Session = "session",
+  MasterSeed = "com.anoma.network:seed",
+  Session = "com.anoma.network:session",
+  Persist = "com.anoma.network:state",
 }
