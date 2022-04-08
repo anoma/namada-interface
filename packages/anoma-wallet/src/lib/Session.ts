@@ -52,14 +52,25 @@ class Session {
     );
 
     if (sessionString) {
-      const session = JSON.parse(aesDecrypt(sessionString, this._key));
-      const { timestamp } = session;
+      let decrypted: string;
 
-      if (new Date().getTime() - timestamp > this._ttl) {
-        window.sessionStorage.removeItem(LocalStorageKeys.Session);
-      } else {
-        this._session = session;
-        return this._session;
+      try {
+        decrypted = aesDecrypt(sessionString, this._key);
+      } catch (e) {
+        this._session = undefined;
+        return;
+      }
+
+      if (decrypted) {
+        const session = JSON.parse(decrypted);
+        const { timestamp } = session;
+
+        if (new Date().getTime() - timestamp > this._ttl) {
+          window.sessionStorage.removeItem(LocalStorageKeys.Session);
+        } else {
+          this._session = session;
+          return this._session;
+        }
       }
     }
   }
