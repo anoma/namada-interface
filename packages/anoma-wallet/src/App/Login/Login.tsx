@@ -21,7 +21,7 @@ const Login = (): JSX.Element => {
 
   useEffect(() => {
     const checkMnemonic = async (): Promise<void> => {
-      const encrypted = session.encryptedSeed;
+      const encrypted = new Session().encryptedSeed;
 
       if (!encrypted) {
         return navigate(TopLevelRoute.AccountCreation);

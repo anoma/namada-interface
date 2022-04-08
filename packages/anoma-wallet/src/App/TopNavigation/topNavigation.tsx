@@ -59,14 +59,6 @@ const TopNavigationMenuItems = (props: {
         <MenuItemTextContainer>Staking &amp; Governance</MenuItemTextContainer>
       </StakingAndGovernanceMenuItem>
 
-      {/* Settings */}
-      {/* The below is not really type safe, but enums do not
-      allow computed strings, so have to figure out something
-      TODO
-      TopLevelRoute {
-        SettingsAccounts = `${TopLevelRoute.Settings}/accounts`
-      }
-      */}
       <MenuItem
         onClick={() => {
           navigate(`${TopLevelRoute.Settings}`);
@@ -111,7 +103,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
         <LeftSection>
           <LogoContainer
             onClick={() => {
-              navigate(`${TopLevelRoute.Home}`);
+              navigate(TopLevelRoute.Home);
             }}
           >
             <Image
@@ -134,7 +126,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
             <MenuItem
               onClick={() => {
                 Session.removeSession();
-                navigate(`${TopLevelRoute.Home}`);
+                navigate(TopLevelRoute.Home);
                 logout && logout();
               }}
             >
