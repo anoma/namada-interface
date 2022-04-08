@@ -71,7 +71,7 @@ export const AddAccount = (): JSX.Element => {
     }
 
     setIsInitializing(true);
-    const mnemonic = await new Session().seed();
+    const mnemonic = await new Session().getSeed();
 
     if (mnemonic && alias) {
       setAliasError(undefined);

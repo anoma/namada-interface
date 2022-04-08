@@ -34,9 +34,9 @@ const Login = (): JSX.Element => {
     setIsLoggingIn(true);
 
     try {
-      session.secret = password;
+      session.setSession(password);
       // Will fail if seed cannot be decrypted:
-      await session.seed();
+      await session.getSeed();
       setError(undefined);
       setIsLoggedIn && setIsLoggedIn();
       setPasswordContext && setPasswordContext(password);
