@@ -3,23 +3,22 @@ import { LocalStorageKeys } from "App/types";
 import { aesDecrypt, aesEncrypt } from "utils/helpers";
 
 const { REACT_APP_SECRET_KEY = "" } = process.env;
+const DEFAULT_SESSION_TTL = 3600000; // One hour
 
 type SessionType = {
   secret: string;
   timestamp: number;
 };
 
-const DEFAULT_SESSION_TTL = 3600000; // One hour
-
 class Session {
   private _key = REACT_APP_SECRET_KEY;
-  private _seed: string;
+  private _seed: string | null;
   private _session: SessionType | undefined;
-  private _timeout: number;
+  private _ttl: number;
 
-  constructor(timeout?: number) {
-    this._seed = window.localStorage.getItem(LocalStorageKeys.MasterSeed) || "";
-    this._timeout = timeout || DEFAULT_SESSION_TTL;
+  constructor(ttl?: number) {
+    this._seed = window.localStorage.getItem(LocalStorageKeys.MasterSeed);
+    this._ttl = ttl || DEFAULT_SESSION_TTL;
   }
 
   public async getSeed(): Promise<string | undefined> {
@@ -32,7 +31,7 @@ class Session {
     }
   }
 
-  public get encryptedSeed(): string {
+  public get encryptedSeed(): string | null {
     return this._seed;
   }
 
@@ -47,14 +46,15 @@ class Session {
   }
 
   public getSession(): SessionType | undefined {
-    const sessionString =
-      window.sessionStorage.getItem(LocalStorageKeys.Session) || "";
+    const sessionString = window.sessionStorage.getItem(
+      LocalStorageKeys.Session
+    );
 
     if (sessionString) {
       const session = JSON.parse(aesDecrypt(sessionString, this._key));
       const { timestamp } = session;
 
-      if (new Date().getTime() - timestamp > this._timeout) {
+      if (new Date().getTime() - timestamp > this._ttl) {
         window.sessionStorage.removeItem(LocalStorageKeys.Session);
       } else {
         this._session = session;
