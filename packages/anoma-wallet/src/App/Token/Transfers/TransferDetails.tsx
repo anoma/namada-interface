@@ -25,6 +25,7 @@ const TransferDetail = (): JSX.Element => {
     amount,
     gas = 0,
     timestamp = 0,
+    height = 0,
     memo,
     shielded,
     target,
@@ -56,6 +57,9 @@ const TransferDetail = (): JSX.Element => {
       <Address>{appliedHash}</Address>
       <p>
         Gas used: <strong>{amountFromMicro(gas)}</strong>
+      </p>
+      <p>
+        Block height: <strong>{height}</strong>
       </p>
       <p>Notes: {memo ? memo : "n/a"}</p>
       <p>

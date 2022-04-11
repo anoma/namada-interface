@@ -26,6 +26,7 @@ export type Transaction = {
   memo?: string;
   shielded: boolean;
   gas: number;
+  height: number;
   timestamp: number;
 };
 
@@ -174,6 +175,7 @@ const accountsSlice = createSlice({
         memo,
         shielded = false,
         gas,
+        height,
         timestamp,
       } = action.payload;
 
@@ -185,6 +187,7 @@ const accountsSlice = createSlice({
         memo,
         shielded,
         gas,
+        height,
         target,
         timestamp,
       });

@@ -107,6 +107,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
 
           const gas = parseInt(events[TxResponse.GasUsed][0]);
           const appliedHash = events[TxResponse.Hash][0];
+          const height = parseInt(events[TxResponse.Height][0]);
 
           // Check to see if this is an internal transfer, and update balances
           // accordingly if so:
@@ -130,6 +131,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
               memo,
               shielded: isShielded,
               gas,
+              height,
               timestamp: new Date().getTime(),
             })
           );
