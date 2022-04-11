@@ -5,6 +5,7 @@ export enum IconName {
   Moon,
   Sun,
   Key,
+  Camera,
   ChevronUp,
   ChevronRight,
   ChevronDown,

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import QrReader from "react-qr-reader";
 
 import { Config } from "config";
 import { RpcClient, SocketClient, Transfer } from "lib";
@@ -15,12 +16,15 @@ import { Label } from "components/Input/input.components";
 import {
   ButtonsContainer,
   InputContainer,
+  InputWithButtonContainer,
+  QrReaderContainer,
   StatusContainer,
   StatusMessage,
   TokenSendFormContainer,
 } from "./TokenSendForm.components";
 import { Toggle } from "components/Toggle";
 import { Address } from "../Transfers/TransferDetails.components";
+import { Icon, IconName } from "components/Icon";
 
 type Props = {
   accountId: string;
@@ -43,6 +47,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
   const [isTargetValid, setIsTargetValid] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isShielded, setIsShielded] = useState(false);
+  const [showQrReader, setShowQrReader] = useState(false);
 
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const account = derived[accountId] || {};
@@ -150,6 +155,17 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
     return text.length < 100;
   };
 
+  const handleOnScan = (data: string | null): void => {
+    if (data) {
+      if (data.match(/\/token\/send/)) {
+        const parts = data.split("/");
+        const target = parts[parts.length - 1];
+        setTarget(target);
+        setShowQrReader(false);
+      }
+    }
+  };
+
   return (
     <>
       <TokenSendFormContainer>
@@ -160,16 +176,32 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
           Balance: <strong>{balance}</strong>
         </p>
         <InputContainer>
-          <Input
-            variant={InputVariants.Text}
-            label="Target address:"
-            onChangeCallback={(e) => {
-              const { value } = e.target;
-              setTarget(value);
-            }}
-            value={target}
-            error={isTargetValid ? undefined : "Target is invalid"}
-          />
+          <InputWithButtonContainer>
+            <Input
+              variant={InputVariants.Text}
+              label="Target address:"
+              onChangeCallback={(e) => {
+                const { value } = e.target;
+                setTarget(value);
+              }}
+              value={target}
+              error={isTargetValid ? undefined : "Target is invalid"}
+            />
+            <Button
+              variant={ButtonVariant.Small}
+              onClick={() => setShowQrReader(!showQrReader)}
+            >
+              <Icon iconName={IconName.Camera} />
+            </Button>
+          </InputWithButtonContainer>
+          {showQrReader && (
+            <QrReaderContainer>
+              <QrReader
+                onScan={handleOnScan}
+                onError={(e) => console.error(e)}
+              />
+            </QrReaderContainer>
+          )}
         </InputContainer>
         <InputContainer>
           <Input

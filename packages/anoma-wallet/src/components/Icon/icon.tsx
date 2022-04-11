@@ -3,6 +3,7 @@ import { ReactComponent as HelpCircleDark } from "./assets/help-circle-dark.svg"
 import { ReactComponent as MoonDark } from "./assets/moon-dark.svg";
 import { ReactComponent as SunDark } from "./assets/sun-dark.svg";
 import { ReactComponent as Key } from "./assets/key.svg";
+import { ReactComponent as Camera } from "./assets/camera.svg";
 import { ReactComponent as ChevronUp } from "./assets/chevron-up.svg";
 import { ReactComponent as ChevronRight } from "./assets/chevron-right.svg";
 import { ReactComponent as ChevronDown } from "./assets/chevron-down.svg";
@@ -14,7 +15,6 @@ import { ReactComponent as Briefcase } from "./assets/briefcase.svg";
 import { ReactComponent as Settings } from "./assets/settings.svg";
 
 import { IconName, IconSize } from "./types";
-
 import { IconContainer, StyledIcon } from "./icon.components";
 
 export type ImageProps = {
@@ -34,6 +34,7 @@ const icons: Record<IconName, ComponentType> = {
   [IconName.Moon]: MoonDark,
   [IconName.Sun]: SunDark,
   [IconName.Key]: Key,
+  [IconName.Camera]: Camera,
   [IconName.ChevronUp]: ChevronUp,
   [IconName.ChevronRight]: ChevronRight,
   [IconName.ChevronDown]: ChevronDown,

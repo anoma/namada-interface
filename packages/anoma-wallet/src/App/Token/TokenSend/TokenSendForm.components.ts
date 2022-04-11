@@ -24,6 +24,30 @@ export const InputContainer = styled.div`
   }
 `;
 
+export const InputWithButtonContainer = styled.div`
+  position: relative;
+
+  button {
+    border: none;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    position: absolute;
+    right: 0;
+    top: 30px;
+    background: #fff;
+
+    &:active {
+      background: none;
+      fill: ${(props) => props.theme.colors.buttonBackground2};
+    }
+  }
+`;
+
+export const QrReaderContainer = styled.div`
+  padding-top: 20px;
+`;
+
 export const ButtonsContainer = styled.div`
   width: 100%;
   padding: 0;
