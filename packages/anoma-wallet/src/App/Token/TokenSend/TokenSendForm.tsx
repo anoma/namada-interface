@@ -133,15 +133,17 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
           dispatch(
             addTransaction({
               id,
-              appliedHash,
-              tokenType,
-              target,
-              amount,
-              memo,
-              shielded: isShielded,
-              gas,
-              height,
-              timestamp: new Date().getTime(),
+              transaction: {
+                appliedHash,
+                tokenType,
+                target,
+                amount,
+                memo,
+                shielded: isShielded,
+                gas,
+                height,
+                timestamp: new Date().getTime(),
+              },
             })
           );
           setStatus(`Successfully transferred ${amount} of ${token.symbol}!`);
@@ -166,7 +168,6 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
       const token = parts.pop();
 
       if (token !== tokenType) {
-        // Error
         setQrCodeError("Invalid token for target address!");
         return;
       }

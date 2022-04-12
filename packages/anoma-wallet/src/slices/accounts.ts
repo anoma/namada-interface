@@ -164,33 +164,12 @@ const accountsSlice = createSlice({
     },
     addTransaction: (
       state,
-      action: PayloadAction<Transaction & { id: string }>
+      action: PayloadAction<{ transaction: Transaction; id: string }>
     ) => {
-      const {
-        id,
-        tokenType,
-        appliedHash,
-        target,
-        amount,
-        memo,
-        shielded = false,
-        gas,
-        height,
-        timestamp,
-      } = action.payload;
+      const { id, transaction } = action.payload;
 
       const transactions = state.transactions[id] || [];
-      transactions.push({
-        tokenType,
-        appliedHash,
-        amount,
-        memo,
-        shielded,
-        gas,
-        height,
-        target,
-        timestamp,
-      });
+      transactions.push(transaction);
 
       state.transactions = {
         ...state.transactions,
