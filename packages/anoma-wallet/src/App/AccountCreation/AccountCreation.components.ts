@@ -12,7 +12,6 @@ export const AccountCreationContainer = styled.div`
     props.theme.themeConfigurations.isLightMode ? "0 32px" : "4px 36px 0 32px"};
   height: 100%;
   width: 480px;
-  overflow-x: hidden;
   transition: background-color 0.3s linear;
 `;
 
@@ -20,6 +19,7 @@ export const MotionContainer = styled(motion.div)`
   height: 100%;
   box-sizing: border-box;
 `;
+
 export const TopSection = styled.section`
   display: flex;
   justify-content: start;
@@ -47,7 +47,6 @@ export const RouteContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: scroll;
   width: 100%;
   height: 100%;
 `;

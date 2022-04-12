@@ -12,35 +12,48 @@ export const DerivedAccountsList = styled.ul`
   padding: 0;
 `;
 
+export const DerivedAccountContainer = styled.div`
+  width: 100%;
+`;
+
 export const DerivedAccountItem = styled.li`
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
   margin: 0;
   padding: 20px 0;
   border-bottom: 1px solid #ddd;
+
+  button {
+    margin-top: 0;
+    margin-right: 0;
+  }
 
   &:last-child {
     border-bottom: none;
   }
 `;
 
-export const DerivedAccountAlias = styled.div`
-  flex: 1 0 61%;
+export const DerivedAccountInfo = styled.div`
+  display: flex;
+  justify-content: space-between;
 `;
 
-export const DerivedAccountType = styled.div`
-  flex: 1 0 12%;
+export const DerivedAccountAlias = styled.span`
+  font-size: 14px;
+`;
+
+export const DerivedAccountType = styled.span`
   font-size: 12px;
+  text-align: right;
+  color: #777;
 `;
 
 export const DerivedAccountBalance = styled.div`
-  flex: 1 0 25%;
+  padding: 8px 0;
   font-weight: bold;
-
-  & > span {
-    font-size: 14px;
-    font-weight: normal;
-  }
+  margin-bottom: 0;
 `;
 
 export const DerivedAccountAddress = styled.pre`
@@ -50,6 +63,7 @@ export const DerivedAccountAddress = styled.pre`
   padding: 8px;
   border: 4px solid #ddd;
   border-radius: 8px;
+
   &::-webkit-scrollbar {
     display: none;
   }

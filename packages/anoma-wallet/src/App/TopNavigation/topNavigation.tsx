@@ -30,6 +30,7 @@ const TopNavigationMenuItems = (props: {
 }): React.ReactElement => {
   const { navigate } = props;
   const location = useLocation();
+
   return (
     <>
       {/* Wallet */}
@@ -58,14 +59,6 @@ const TopNavigationMenuItems = (props: {
         <MenuItemTextContainer>Staking &amp; Governance</MenuItemTextContainer>
       </StakingAndGovernanceMenuItem>
 
-      {/* Settings */}
-      {/* The below is not really type safe, but enums do not
-      allow computed strings, so have to figure out something
-      TODO
-      TopLevelRoute {
-        SettingsAccounts = `${TopLevelRoute.Settings}/accounts`
-      }
-      */}
       <MenuItem
         onClick={() => {
           navigate(`${TopLevelRoute.Settings}`);
@@ -87,10 +80,11 @@ type TopNavigationProps = {
   // cb for telling parent to change hte color in context
   setIsLightMode: React.Dispatch<React.SetStateAction<boolean>>;
   isLoggedIn?: boolean;
+  logout?: () => void;
 };
 // top nav of the app, this is likely always visible.
 function TopNavigation(props: TopNavigationProps): JSX.Element {
-  const { isLightMode, setIsLightMode, isLoggedIn = false } = props;
+  const { isLightMode, logout, setIsLightMode, isLoggedIn = false } = props;
   const navigate = useNavigate();
   const circleElementEnabled = (
     <Icon iconName={IconName.Sun} strokeColorOverride="#17171d" />
@@ -109,7 +103,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
         <LeftSection>
           <LogoContainer
             onClick={() => {
-              navigate(`${TopLevelRoute.Home}`);
+              navigate(TopLevelRoute.Home);
             }}
           >
             <Image
@@ -131,7 +125,9 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
           {isLoggedIn && (
             <MenuItem
               onClick={() => {
-                Session.logout(() => navigate(TopLevelRoute.Home));
+                Session.removeSession();
+                navigate(TopLevelRoute.Home);
+                logout && logout();
               }}
             >
               <MenuItemIconContainer>

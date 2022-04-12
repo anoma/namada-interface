@@ -1,122 +1,72 @@
-import { useEffect, useState, useReducer } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Config } from "config";
-import { Tokens, TokenType } from "constants/";
-import { RpcClient } from "lib";
-import { DerivedAccount } from "slices/accounts";
+
+import { useAppDispatch, useAppSelector } from "store";
+import { AccountsState, fetchBalanceByAddress } from "slices/accounts";
+import { formatRoute } from "utils/helpers";
+import { TopLevelRoute } from "App/types";
+
 import {
   DerivedAccountsContainer,
   DerivedAccountsList,
   DerivedAccountItem,
-  DerivedAccountAddress,
-  DerivedAccountAlias,
   DerivedAccountBalance,
   DerivedAccountType,
+  DerivedAccountInfo,
+  DerivedAccountAlias,
+  DerivedAccountContainer,
 } from "./DerivedAccounts.components";
 import { Button, ButtonVariant } from "components/Button";
-import { TopLevelRoute } from "App/types";
 
-type Props = {
-  derived: {
-    [alias: string]: DerivedAccount;
-  };
-};
-
-const { network } = new Config();
-const rpcClient = new RpcClient(network);
-
-const getBalance = async (
-  establishedAddress: string,
-  tokenType: TokenType
-): Promise<number> => {
-  const balance = await rpcClient.queryBalance(
-    `${Tokens[tokenType].address}`,
-    establishedAddress
-  );
-  return balance >= 0 ? balance : 0;
-};
-
-enum BalanceActionTypes {
-  Add = "Add",
-}
-
-type BalanceState = {
-  [alias: string]: number;
-};
-
-type BalanceAction = {
-  type: BalanceActionTypes;
-  payload: { alias: string; balance: number };
-};
-
-const balanceReducer = (
-  state: BalanceState,
-  action: BalanceAction
-): BalanceState => {
-  const { type, payload } = action;
-  const { alias, balance } = payload;
-
-  switch (type) {
-    case BalanceActionTypes.Add:
-      return {
-        ...state,
-        [alias]: balance,
-      };
-    default:
-      return state;
-  }
-};
-
-const DerivedAccounts = ({ derived }: Props): JSX.Element => {
-  const [derivedAccounts, setDerivedAccounts] = useState<DerivedAccount[]>([]);
-  const [balances, dispatch] = useReducer(balanceReducer, {});
+const DerivedAccounts = (): JSX.Element => {
+  const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const accounts = Object.keys(derived).map(
-      (alias: string): DerivedAccount => derived[alias]
-    );
-    setDerivedAccounts(accounts);
-  }, [derived]);
-
-  useEffect(() => {
-    derivedAccounts.forEach(async (account) => {
-      const { alias, establishedAddress = "", tokenType } = account;
-      const balance = await getBalance(establishedAddress, tokenType);
-      dispatch({ type: BalanceActionTypes.Add, payload: { alias, balance } });
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [derivedAccounts]);
+    const keys = Object.keys(derived);
+    if (keys.length > 0) {
+      keys.forEach((key) => {
+        const account = derived[key];
+        if (!account.balance) {
+          dispatch(fetchBalanceByAddress(account));
+        }
+      });
+    }
+  }, []);
 
   return (
     <DerivedAccountsContainer>
       <DerivedAccountsList>
-        {derivedAccounts.map((account) => {
-          const { alias, tokenType, establishedAddress } = account;
-          const balance = balances[alias];
+        {Object.keys(derived)
+          .reverse()
+          .map((hash: string) => {
+            const { id, alias, tokenType, balance } = derived[hash];
 
-          return (
-            <DerivedAccountItem key={alias}>
-              <DerivedAccountAlias>{alias}</DerivedAccountAlias>
-              <DerivedAccountType>{tokenType}</DerivedAccountType>
-              <DerivedAccountBalance>
-                <span>Balance:</span>{" "}
-                {typeof balance === "number" ? balance : "Loading"}
-              </DerivedAccountBalance>
-              <DerivedAccountAddress>
-                {establishedAddress}
-              </DerivedAccountAddress>
-              <Button
-                onClick={() => {
-                  navigate(`${TopLevelRoute.SettingsAccountSettings}/${alias}`);
-                }}
-                variant={ButtonVariant.Contained}
-              >
-                Settings
-              </Button>
-            </DerivedAccountItem>
-          );
-        })}
+            return (
+              <DerivedAccountItem key={alias}>
+                <DerivedAccountContainer>
+                  <DerivedAccountInfo>
+                    <DerivedAccountAlias>{alias}</DerivedAccountAlias>
+                    <DerivedAccountType>{tokenType}</DerivedAccountType>
+                  </DerivedAccountInfo>
+
+                  <DerivedAccountBalance>
+                    {typeof balance === "number" ? balance : "Loading"}
+                  </DerivedAccountBalance>
+                </DerivedAccountContainer>
+
+                <Button
+                  onClick={() => {
+                    navigate(formatRoute(TopLevelRoute.Token, { id }));
+                  }}
+                  variant={ButtonVariant.Small}
+                >
+                  Details
+                </Button>
+              </DerivedAccountItem>
+            );
+          })}
       </DerivedAccountsList>
     </DerivedAccountsContainer>
   );

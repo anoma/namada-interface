@@ -1,9 +1,9 @@
 import { Provider } from "react-redux";
-import { Routes, Route, Outlet, useNavigate } from "react-router-dom";
+import { Routes, Route, Outlet } from "react-router-dom";
 import { Persistor, persistStore } from "redux-persist";
 import { AccountOverview } from "./AccountOverview";
 import { AddAccount } from "./AccountOverview/AddAccount";
-import { AnimatedTransition, AppContext } from "./App";
+import { AnimatedTransition } from "./App";
 import { ContentContainer } from "./App.components";
 import {
   Settings,
@@ -14,9 +14,14 @@ import {
 import { StakingAndGovernance } from "./StakingAndGovernance";
 import { TopLevelRoute } from "./types";
 import { makeStore } from "store";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { AppStore } from "store/store";
 import { Session } from "lib";
+import { TokenDetails } from "./Token";
+import { TokenSend } from "./Token/TokenSend";
+import { TokenReceive } from "./Token/TokenReceive";
+import { TransferDetails } from "./Token/Transfers";
+import NotFound from "./NotFound";
 
 const fakeAccounts = [
   "fake1l7dgf0m623ayll8vdyf6n7gxm3tz7mt7x443m0",
@@ -24,17 +29,13 @@ const fakeAccounts = [
   "fakelg45lt5m623ayll8vdyf6n7gxm3tz7mtrenrer0",
 ];
 
-const AppRoutes = (): JSX.Element => {
-  const context = useContext(AppContext);
-  const password = context?.password || new Session().secret;
+const AppRoutes = ({ password }: { password: string }): JSX.Element => {
   const [store, setStore] = useState<AppStore>();
   const [persistor, setPersistor] = useState<Persistor>();
 
-  const navigate = useNavigate();
-
   useEffect(() => {
     if (password === "") {
-      Session.logout(() => navigate(TopLevelRoute.Home));
+      Session.removeSession();
     } else {
       setStore(makeStore(password));
     }
@@ -80,6 +81,50 @@ const AppRoutes = (): JSX.Element => {
                 }
               />
               <Route
+                path={TopLevelRoute.Token}
+                element={
+                  <AnimatedTransition elementKey={TopLevelRoute.Token}>
+                    {persistor && <TokenDetails persistor={persistor} />}
+                  </AnimatedTransition>
+                }
+              />
+              <Route
+                path={TopLevelRoute.TokenSend}
+                element={
+                  <AnimatedTransition elementKey={TopLevelRoute.TokenSend}>
+                    <TokenSend />
+                  </AnimatedTransition>
+                }
+              />
+              <Route
+                path={TopLevelRoute.TokenSendTarget}
+                element={
+                  <AnimatedTransition
+                    elementKey={TopLevelRoute.TokenSendTarget}
+                  >
+                    <TokenSend />
+                  </AnimatedTransition>
+                }
+              />
+              <Route
+                path={TopLevelRoute.TokenReceive}
+                element={
+                  <AnimatedTransition elementKey={TopLevelRoute.TokenReceive}>
+                    <TokenReceive />
+                  </AnimatedTransition>
+                }
+              />
+              <Route
+                path={TopLevelRoute.TokenTransferDetails}
+                element={
+                  <AnimatedTransition
+                    elementKey={TopLevelRoute.TokenTransferDetails}
+                  >
+                    <TransferDetails />
+                  </AnimatedTransition>
+                }
+              />
+              <Route
                 path={TopLevelRoute.StakingAndGovernance}
                 element={
                   <AnimatedTransition
@@ -118,7 +163,7 @@ const AppRoutes = (): JSX.Element => {
                 }
               />
               <Route
-                path={`${TopLevelRoute.SettingsAccountSettings}/:accountAlias`}
+                path={TopLevelRoute.SettingsAccountSettings}
                 element={
                   <AnimatedTransition
                     elementKey={TopLevelRoute.SettingsWalletSettings}
@@ -127,6 +172,7 @@ const AppRoutes = (): JSX.Element => {
                   </AnimatedTransition>
                 }
               />
+              <Route path={"*"} element={<NotFound />} />
             </Route>
           </Routes>
         </Provider>

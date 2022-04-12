@@ -1,5 +1,7 @@
 import * as CryptoJS from "crypto-js";
 import { JsonRpcRequest } from "@cosmjs/json-rpc";
+import base58 from "bs58";
+import { DateTime } from "luxon";
 import { JsonCompatibleArray, JsonCompatibleDictionary } from "lib/rpc/types";
 
 /**
@@ -87,4 +89,49 @@ export const aesDecrypt = (encrypted: string, password: string): string => {
   } catch (e) {
     throw new Error(`Unable to decrypt value: ${e}`);
   }
+};
+
+/**
+ * Create a short base58 encoded hash of a string.
+ * Useful for creating URL-friendly hashes of storage
+ * values in state.
+ */
+export const stringToHash = (value: string): string => {
+  const hash = CryptoJS.MD5(value);
+  return base58.encode(new Uint8Array(hash.words));
+};
+
+/**
+ * Map parameters to a route definition, returning formatted route string
+ */
+export const formatRoute = (
+  route: string,
+  params: { [key: string]: string | number }
+): string => {
+  let formatted = route;
+
+  for (const param in params) {
+    formatted = formatted.replace(`:${param}`, `${params[param]}`);
+  }
+
+  return formatted;
+};
+
+/**
+ * Format a date-time string from a timestamp
+ */
+export const stringFromTimestamp = (timestamp: number): string => {
+  const datetime = DateTime.fromMillis(timestamp).toLocal();
+  return datetime.toLocaleString(DateTime.DATETIME_FULL_WITH_SECONDS);
+};
+
+/**
+ * Get URL params
+ */
+export const getParams = (
+  prop?: string
+): string | { [key: string]: string } => {
+  const urlSearchParams = new URLSearchParams(window.location.search);
+  const params = Object.fromEntries(urlSearchParams.entries());
+  return prop ? params[prop] : params;
 };

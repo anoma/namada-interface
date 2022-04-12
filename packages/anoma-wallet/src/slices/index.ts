@@ -5,4 +5,6 @@ export {
   renameAccount,
   setEstablishedAddress,
   setZip32Address,
+  addTransaction,
+  fetchBalanceByAddress,
 } from "./accounts";
