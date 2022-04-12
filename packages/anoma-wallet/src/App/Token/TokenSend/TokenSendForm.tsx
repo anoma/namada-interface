@@ -62,6 +62,8 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
   } = account;
   const token = Tokens[tokenType] || {};
 
+  const MAX_MEMO_LENGTH = 100;
+
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
 
@@ -154,7 +156,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
   };
 
   const isMemoValid = (text: string): boolean => {
-    return text.length < 100;
+    return text.length < MAX_MEMO_LENGTH;
   };
 
   const handleOnScan = (data: string | null): void => {
@@ -207,7 +209,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
               {qrCodeError && <QrReaderError>{qrCodeError}</QrReaderError>}
               <QrReader
                 onScan={handleOnScan}
-                onError={(e) => console.error(e)}
+                onError={(e: string) => setQrCodeError(e)}
               />
             </QrReaderContainer>
           )}
@@ -230,7 +232,11 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
             variant={InputVariants.Textarea}
             label="Memo:"
             value={memo}
-            error={isMemoValid(memo) ? "" : "Must be less than 100 characters"}
+            error={
+              isMemoValid(memo)
+                ? ""
+                : `Must be less than ${MAX_MEMO_LENGTH} characters`
+            }
             onChangeCallback={(e) => setMemo(e.target.value)}
           />
         </InputContainer>
