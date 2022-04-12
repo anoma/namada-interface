@@ -1,15 +1,22 @@
+import { useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Persistor } from "redux-persist";
+import { PersistGate } from "redux-persist/integration/react";
+
 import { TopLevelRoute } from "App/types";
+import {
+  DerivedAccount,
+  AccountsState,
+  fetchBalanceByAddress,
+} from "slices/accounts";
+import { useAppDispatch, useAppSelector } from "store";
+import { formatRoute, stringFromTimestamp } from "utils/helpers";
+
 import { Button, ButtonVariant } from "components/Button";
 import { Heading, HeadingLevel } from "components/Heading";
 import { Icon, IconName, IconSize } from "components/Icon";
 import { NavigationContainer } from "components/NavigationContainer";
 import { Tokens } from "constants/";
-import { useParams, useNavigate } from "react-router-dom";
-import { Persistor } from "redux-persist";
-import { PersistGate } from "redux-persist/integration/react";
-import { DerivedAccount, AccountsState } from "slices/accounts";
-import { useAppSelector } from "store";
-import { formatRoute, stringFromTimestamp } from "utils/helpers";
 import {
   ButtonsContainer,
   SettingsButton,
@@ -32,6 +39,7 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
   const { id = "" } = useParams<TokenDetailsParams>();
   const { derived, transactions: accountTransactions } =
     useAppSelector<AccountsState>((state) => state.accounts);
+  const dispatch = useAppDispatch();
 
   const account: DerivedAccount = derived[id] || {};
   const { alias, tokenType, balance, establishedAddress } = account;
@@ -41,6 +49,12 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
   let transactions =
     (accountTransactions[id] && [...accountTransactions[id]]) || [];
   transactions.sort((a, b) => b.timestamp - a.timestamp);
+
+  useEffect(() => {
+    (async () => {
+      dispatch(fetchBalanceByAddress(account));
+    })();
+  }, []);
 
   return (
     <TokenDetailContainer>

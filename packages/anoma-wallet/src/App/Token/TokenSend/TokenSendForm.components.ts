@@ -48,6 +48,10 @@ export const QrReaderContainer = styled.div`
   padding-top: 20px;
 `;
 
+export const QrReaderError = styled.p`
+  color: ${(props) => props.theme.colors.inputError};
+`;
+
 export const ButtonsContainer = styled.div`
   width: 100%;
   padding: 0;

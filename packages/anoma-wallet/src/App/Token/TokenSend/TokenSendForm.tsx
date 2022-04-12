@@ -18,6 +18,7 @@ import {
   InputContainer,
   InputWithButtonContainer,
   QrReaderContainer,
+  QrReaderError,
   StatusContainer,
   StatusMessage,
   TokenSendFormContainer,
@@ -48,6 +49,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isShielded, setIsShielded] = useState(false);
   const [showQrReader, setShowQrReader] = useState(false);
+  const [qrCodeError, setQrCodeError] = useState<string>();
 
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const account = derived[accountId] || {};
@@ -156,13 +158,19 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
   };
 
   const handleOnScan = (data: string | null): void => {
-    if (data) {
-      if (data.match(/\/token\/send/)) {
-        const parts = data.split("/");
-        const target = parts[parts.length - 1];
-        setTarget(target);
-        setShowQrReader(false);
+    if (data && data.match(/\/token\/send/)) {
+      const parts = data.split("/");
+      const target = parts.pop();
+      const token = parts.pop();
+
+      if (token !== tokenType) {
+        // Error
+        setQrCodeError("Invalid token for target address!");
+        return;
       }
+      setQrCodeError(undefined);
+      setTarget(target);
+      setShowQrReader(false);
     }
   };
 
@@ -196,6 +204,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
           </InputWithButtonContainer>
           {showQrReader && (
             <QrReaderContainer>
+              {qrCodeError && <QrReaderError>{qrCodeError}</QrReaderError>}
               <QrReader
                 onScan={handleOnScan}
                 onError={(e) => console.error(e)}
