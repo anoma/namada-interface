@@ -31,16 +31,16 @@ export type Transaction = {
 };
 
 type DerivedAccounts = {
-  [hash: string]: DerivedAccount;
+  [id: string]: DerivedAccount;
 };
 
-type Transactions = {
-  [hash: string]: Transaction[];
+type AccountTransactions = {
+  [accountId: string]: Transaction[];
 };
 
 export type AccountsState = {
   derived: DerivedAccounts;
-  transactions: Transactions;
+  transactions: AccountTransactions;
 };
 
 const { network } = new Config();
@@ -81,12 +81,12 @@ const accountsSlice = createSlice({
         establishedAddress,
       } = action.payload;
 
-      const hash = stringToHash(alias);
+      const id = stringToHash(alias);
 
       state.derived = {
         ...state.derived,
-        [hash]: {
-          id: hash,
+        [id]: {
+          id: id,
           alias,
           tokenType,
           address,
