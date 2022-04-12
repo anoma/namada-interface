@@ -43,11 +43,17 @@ export type AccountsState = {
   transactions: AccountTransactions;
 };
 
+const ACCOUNTS_ACTIONS_BASE = "accounts";
+
+enum AccountThunkActions {
+  FetchBalanceByAddress = "fetchBalanceByAddress",
+}
+
 const { network } = new Config();
 const rpcClient = new RpcClient(network);
 
 export const fetchBalanceByAddress = createAsyncThunk(
-  "accounts/fetchBalanceByAddress",
+  `${ACCOUNTS_ACTIONS_BASE}/${AccountThunkActions.FetchBalanceByAddress}`,
   async (account: DerivedAccount) => {
     const { id, establishedAddress, tokenType } = account;
     const { address: tokenAddress = "" } = Tokens[tokenType];
@@ -68,7 +74,7 @@ const initialState: AccountsState = {
 };
 
 const accountsSlice = createSlice({
-  name: "accounts",
+  name: ACCOUNTS_ACTIONS_BASE,
   initialState,
   reducers: {
     addAccount: (state, action: PayloadAction<InitialAccount>) => {
