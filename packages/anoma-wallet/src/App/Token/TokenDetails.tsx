@@ -123,7 +123,7 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
                 <TransactionListItem key={`${appliedHash}:${timestamp}`}>
                   <div>
                     <strong>
-                      {type ? "Received" : "Sent"} {amount}
+                      {type ? "Sent" : "Received"} {amount} {tokenType}
                     </strong>
                     <br />
                     {dateTimeFormatted}

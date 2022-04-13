@@ -5,8 +5,8 @@ import { Image, ImageName } from "components/Image";
 import { Session } from "lib";
 
 import {
-  StartViewContainer,
-  StartViewUpperPartContainer,
+  CompletionViewContainer,
+  CompletionViewUpperPartContainer,
   ImageContainer,
   Header1,
   BodyText,
@@ -14,7 +14,7 @@ import {
   ButtonContainer,
 } from "./Completion.components";
 
-type StartViewProps = {
+type CompletionViewProps = {
   isInitializing: boolean;
   // navigates to the account
   onClickSeeAccounts: () => void;
@@ -22,7 +22,7 @@ type StartViewProps = {
   onClickDone: () => void;
 };
 
-const Completion = (props: StartViewProps): JSX.Element => {
+const Completion = (props: CompletionViewProps): JSX.Element => {
   const { isInitializing, onClickDone, onClickSeeAccounts } = props;
   const context = useContext(AppContext) || {};
   const { password = "" } = context;
@@ -34,14 +34,14 @@ const Completion = (props: StartViewProps): JSX.Element => {
   }, []);
 
   return (
-    <StartViewContainer>
+    <CompletionViewContainer>
       {isInitializing ? (
         <div>
           <p>Account is being initialized on ledger...</p>
         </div>
       ) : (
         <>
-          <StartViewUpperPartContainer>
+          <CompletionViewUpperPartContainer>
             <ImageContainer>
               <Image imageName={ImageName.SuccessImage} />
             </ImageContainer>
@@ -52,7 +52,7 @@ const Completion = (props: StartViewProps): JSX.Element => {
               maecenas sed bibendum sed velit. Consequat bibendum nibh netus sed
               erat sed.
             </BodyText>
-          </StartViewUpperPartContainer>
+          </CompletionViewUpperPartContainer>
           <ButtonsContainer>
             <ButtonContainer>
               <Button
@@ -69,7 +69,7 @@ const Completion = (props: StartViewProps): JSX.Element => {
           </ButtonsContainer>
         </>
       )}
-    </StartViewContainer>
+    </CompletionViewContainer>
   );
 };
 

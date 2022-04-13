@@ -7,6 +7,7 @@ import {
   DerivedAccount,
   AccountsState,
   submitInitAccountTransaction,
+  loadFromFaucet,
 } from "slices/accounts";
 import { useAppDispatch, useAppSelector } from "store";
 
@@ -20,8 +21,10 @@ import { Button, ButtonVariant } from "components/Button";
 import { TopLevelRoute } from "App/types";
 import { Select, Option } from "components/Select";
 import { Input, InputVariants } from "components/Input";
+import { Config } from "config";
 
 const MIN_ALIAS_LENGTH = 2;
+const { network } = new Config().network;
 
 export const AddAccount = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -103,11 +106,20 @@ export const AddAccount = (): JSX.Element => {
 
       dispatch(
         submitInitAccountTransaction({
-          alias: trimmedAlias,
-          tokenType,
-          address,
-          publicKey,
-          signingKey: privateKey,
+          account: {
+            alias: trimmedAlias,
+            tokenType,
+            address,
+            publicKey,
+            signingKey: privateKey,
+          },
+          callback: (account) => {
+            if (account && network.match(/testnet/)) {
+              dispatch(loadFromFaucet(account));
+            }
+
+            navigate(TopLevelRoute.Wallet);
+          },
         })
       );
     }

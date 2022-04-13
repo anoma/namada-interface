@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Config } from "config";
-import { Tokens, TokenType, TxResponse } from "constants/";
-import { Account, RpcClient, SocketClient } from "lib";
+import { FAUCET_ADDRESS, Tokens, TokenType, TxResponse } from "constants/";
+import { Account, RpcClient, SocketClient, Transfer } from "lib";
 import { stringToHash } from "utils/helpers";
 
 export type DerivedAccount = {
@@ -11,12 +11,12 @@ export type DerivedAccount = {
   address: string;
   publicKey: string;
   signingKey: string;
-  balance?: number;
+  balance: number;
   establishedAddress?: string;
   zip32Address?: string;
 };
 
-export type InitialAccount = Omit<DerivedAccount, "id">;
+export type InitialAccount = Omit<Omit<DerivedAccount, "id">, "balance">;
 
 type DerivedAccounts = {
   [id: string]: DerivedAccount;
@@ -26,6 +26,7 @@ export type AccountsState = {
   derived: DerivedAccounts;
   isAccountInitializing: boolean;
   accountInitializationError?: string;
+  isLoadingFromFaucet: boolean;
 };
 
 const ACCOUNTS_ACTIONS_BASE = "accounts";
@@ -33,6 +34,7 @@ const ACCOUNTS_ACTIONS_BASE = "accounts";
 enum AccountThunkActions {
   FetchBalanceByAddress = "fetchBalanceByAddress",
   SubmitInitAccountTransaction = "submitInitAccountTransaction",
+  LoadFromFaucet = "loadFromFaucet",
 }
 
 const { network, wsNetwork } = new Config();
@@ -57,13 +59,16 @@ export const fetchBalanceByAddress = createAsyncThunk(
 
 export const submitInitAccountTransaction = createAsyncThunk(
   `${ACCOUNTS_ACTIONS_BASE}/${AccountThunkActions.SubmitInitAccountTransaction}`,
-  async (account: InitialAccount) => {
+  async ({
+    account,
+    callback,
+  }: {
+    account: InitialAccount;
+    callback?: (account?: InitialAccount) => void;
+  }) => {
     const { signingKey: privateKey, tokenType } = account;
 
-    // Query epoch:
     const epoch = await rpcClient.queryEpoch();
-
-    // Create init-account transaction:
     const anomaAccount = await new Account().init();
     const { hash, bytes } = await anomaAccount.initialize({
       token: Tokens[tokenType].address,
@@ -81,8 +86,11 @@ export const submitInitAccountTransaction = createAsyncThunk(
       .map((account: string) => JSON.parse(account))
       .find((account: string[]) => account.length > 0)[0];
 
-    if (network.network.match(/testnet/)) {
-      // Load from faucet
+    if (callback) {
+      callback({
+        ...account,
+        establishedAddress,
+      });
     }
 
     return {
@@ -92,9 +100,41 @@ export const submitInitAccountTransaction = createAsyncThunk(
   }
 );
 
+export const loadFromFaucet = createAsyncThunk(
+  `${ACCOUNTS_ACTIONS_BASE}/${AccountThunkActions.LoadFromFaucet}`,
+  async (account: InitialAccount) => {
+    const { establishedAddress, tokenType, signingKey: privateKey } = account;
+    const epoch = await rpcClient.queryEpoch();
+    const { makeTransfer } = await new Transfer().init();
+
+    const { hash, bytes } = await makeTransfer({
+      source: FAUCET_ADDRESS,
+      target: establishedAddress || "",
+      token: Tokens[tokenType].address || "",
+      epoch,
+      amount: 1000,
+      privateKey,
+    });
+
+    await socketClient.broadcastTransaction(bytes);
+    const events = await socketClient.subscribeNewBlock(hash);
+
+    socketClient.disconnect();
+    const code = parseInt(events[TxResponse.Code][0]);
+
+    if (code > 0) {
+      console.warn("Could not load from faucet! Balance will remain at zero");
+      return false;
+    }
+
+    return true;
+  }
+);
+
 const initialState: AccountsState = {
   derived: {},
   isAccountInitializing: false,
+  isLoadingFromFaucet: false,
 };
 
 const accountsSlice = createSlice({
@@ -102,14 +142,8 @@ const accountsSlice = createSlice({
   initialState,
   reducers: {
     addAccount: (state, action: PayloadAction<InitialAccount>) => {
-      const {
-        alias,
-        tokenType,
-        address,
-        publicKey,
-        signingKey,
-        establishedAddress,
-      } = action.payload;
+      const initialAccount = action.payload;
+      const { alias } = initialAccount;
 
       const id = stringToHash(alias);
 
@@ -117,12 +151,8 @@ const accountsSlice = createSlice({
         ...state.derived,
         [id]: {
           id: id,
-          alias,
-          tokenType,
-          address,
-          publicKey,
-          signingKey,
-          establishedAddress,
+          balance: 0,
+          ...initialAccount,
         },
       };
     },
@@ -205,11 +235,13 @@ const accountsSlice = createSlice({
 
     builder.addCase(submitInitAccountTransaction.pending, (state) => {
       state.isAccountInitializing = true;
+      state.isLoadingFromFaucet = false;
       state.accountInitializationError = undefined;
     });
 
     builder.addCase(submitInitAccountTransaction.rejected, (state) => {
       state.isAccountInitializing = false;
+      state.isLoadingFromFaucet = false;
       state.accountInitializationError = "Error initializing account";
     });
 
@@ -217,31 +249,34 @@ const accountsSlice = createSlice({
       submitInitAccountTransaction.fulfilled,
       (state, action: PayloadAction<InitialAccount>) => {
         state.isAccountInitializing = false;
+        state.isLoadingFromFaucet = false;
         state.accountInitializationError = undefined;
-        const {
-          alias,
-          tokenType,
-          address,
-          publicKey,
-          signingKey,
-          establishedAddress,
-        } = action.payload;
+        const account = action.payload;
+        const { alias } = account;
         const id = stringToHash(alias);
 
         state.derived = {
           ...state.derived,
           [id]: {
             id,
-            alias,
-            tokenType,
-            address,
-            publicKey,
-            signingKey,
-            establishedAddress,
+            balance: 0,
+            ...account,
           },
         };
       }
     );
+
+    builder.addCase(loadFromFaucet.pending, (state) => {
+      state.isLoadingFromFaucet = true;
+    });
+
+    builder.addCase(loadFromFaucet.rejected, (state) => {
+      state.isLoadingFromFaucet = false;
+    });
+
+    builder.addCase(loadFromFaucet.fulfilled, (state) => {
+      state.isLoadingFromFaucet = false;
+    });
   },
 });
 
