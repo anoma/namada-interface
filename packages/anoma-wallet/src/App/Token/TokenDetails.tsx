@@ -25,6 +25,7 @@ import {
   TransactionListItem,
 } from "./TokenDetails.components";
 import { Address } from "./Transfers/TransferDetails.components";
+import { TransfersState } from "slices/transfers";
 
 type Props = {
   persistor: Persistor;
@@ -37,8 +38,10 @@ type TokenDetailsParams = {
 const TokenDetails = ({ persistor }: Props): JSX.Element => {
   const navigate = useNavigate();
   const { id = "" } = useParams<TokenDetailsParams>();
-  const { derived, transactions: accountTransactions } =
-    useAppSelector<AccountsState>((state) => state.accounts);
+  const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
+  const { transactions: accountTransactions } = useAppSelector<TransfersState>(
+    (state) => state.transfers
+  );
   const dispatch = useAppDispatch();
 
   const account: DerivedAccount = derived[id] || {};
@@ -113,13 +116,15 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
         {transactions.length > 0 && (
           <TransactionList>
             {transactions.map((transaction) => {
-              const { appliedHash, amount, timestamp } = transaction;
+              const { appliedHash, amount, timestamp, type } = transaction;
               const dateTimeFormatted = stringFromTimestamp(timestamp);
 
               return (
                 <TransactionListItem key={`${appliedHash}:${timestamp}`}>
                   <div>
-                    <strong>{amount}</strong>
+                    <strong>
+                      {type ? "Received" : "Sent"} {amount}
+                    </strong>
                     <br />
                     {dateTimeFormatted}
                   </div>

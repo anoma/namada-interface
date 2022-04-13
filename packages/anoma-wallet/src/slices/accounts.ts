@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Config } from "config";
-import { Tokens, TokenType } from "constants/";
-import { RpcClient } from "lib";
+import { Tokens, TokenType, TxResponse } from "constants/";
+import { Account, RpcClient, SocketClient } from "lib";
 import { stringToHash } from "utils/helpers";
 
 export type DerivedAccount = {
@@ -18,39 +18,26 @@ export type DerivedAccount = {
 
 export type InitialAccount = Omit<DerivedAccount, "id">;
 
-export type Transaction = {
-  tokenType: TokenType;
-  appliedHash: string;
-  target: string;
-  amount: number;
-  memo?: string;
-  shielded: boolean;
-  gas: number;
-  height: number;
-  timestamp: number;
-};
-
 type DerivedAccounts = {
   [id: string]: DerivedAccount;
 };
 
-type AccountTransactions = {
-  [accountId: string]: Transaction[];
-};
-
 export type AccountsState = {
   derived: DerivedAccounts;
-  transactions: AccountTransactions;
+  isAccountInitializing: boolean;
+  accountInitializationError?: string;
 };
 
 const ACCOUNTS_ACTIONS_BASE = "accounts";
 
 enum AccountThunkActions {
   FetchBalanceByAddress = "fetchBalanceByAddress",
+  SubmitInitAccountTransaction = "submitInitAccountTransaction",
 }
 
-const { network } = new Config();
+const { network, wsNetwork } = new Config();
 const rpcClient = new RpcClient(network);
+const socketClient = new SocketClient(wsNetwork);
 
 export const fetchBalanceByAddress = createAsyncThunk(
   `${ACCOUNTS_ACTIONS_BASE}/${AccountThunkActions.FetchBalanceByAddress}`,
@@ -68,9 +55,46 @@ export const fetchBalanceByAddress = createAsyncThunk(
   }
 );
 
+export const submitInitAccountTransaction = createAsyncThunk(
+  `${ACCOUNTS_ACTIONS_BASE}/${AccountThunkActions.SubmitInitAccountTransaction}`,
+  async (account: InitialAccount) => {
+    const { signingKey: privateKey, tokenType } = account;
+
+    // Query epoch:
+    const epoch = await rpcClient.queryEpoch();
+
+    // Create init-account transaction:
+    const anomaAccount = await new Account().init();
+    const { hash, bytes } = await anomaAccount.initialize({
+      token: Tokens[tokenType].address,
+      privateKey,
+      epoch,
+    });
+
+    await socketClient.broadcastTransaction(bytes);
+
+    const events = await socketClient.subscribeNewBlock(hash);
+    socketClient.disconnect();
+
+    const initializedAccounts = events[TxResponse.InitializedAccounts];
+    const establishedAddress = initializedAccounts
+      .map((account: string) => JSON.parse(account))
+      .find((account: string[]) => account.length > 0)[0];
+
+    if (network.network.match(/testnet/)) {
+      // Load from faucet
+    }
+
+    return {
+      ...account,
+      establishedAddress,
+    };
+  }
+);
+
 const initialState: AccountsState = {
   derived: {},
-  transactions: {},
+  isAccountInitializing: false,
 };
 
 const accountsSlice = createSlice({
@@ -168,20 +192,6 @@ const accountsSlice = createSlice({
 
       state.derived = derived;
     },
-    addTransaction: (
-      state,
-      action: PayloadAction<{ transaction: Transaction; id: string }>
-    ) => {
-      const { id, transaction } = action.payload;
-
-      const transactions = state.transactions[id] || [];
-      transactions.push(transaction);
-
-      state.transactions = {
-        ...state.transactions,
-        [id]: transactions,
-      };
-    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchBalanceByAddress.fulfilled, (state, action) => {
@@ -192,6 +202,46 @@ const accountsSlice = createSlice({
         balance,
       };
     });
+
+    builder.addCase(submitInitAccountTransaction.pending, (state) => {
+      state.isAccountInitializing = true;
+      state.accountInitializationError = undefined;
+    });
+
+    builder.addCase(submitInitAccountTransaction.rejected, (state) => {
+      state.isAccountInitializing = false;
+      state.accountInitializationError = "Error initializing account";
+    });
+
+    builder.addCase(
+      submitInitAccountTransaction.fulfilled,
+      (state, action: PayloadAction<InitialAccount>) => {
+        state.isAccountInitializing = false;
+        state.accountInitializationError = undefined;
+        const {
+          alias,
+          tokenType,
+          address,
+          publicKey,
+          signingKey,
+          establishedAddress,
+        } = action.payload;
+        const id = stringToHash(alias);
+
+        state.derived = {
+          ...state.derived,
+          [id]: {
+            id,
+            alias,
+            tokenType,
+            address,
+            publicKey,
+            signingKey,
+            establishedAddress,
+          },
+        };
+      }
+    );
   },
 });
 
@@ -203,7 +253,6 @@ export const {
   setZip32Address,
   removeAccount,
   renameAccount,
-  addTransaction,
 } = actions;
 
 export default reducer;
