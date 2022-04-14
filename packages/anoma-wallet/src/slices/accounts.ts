@@ -4,19 +4,20 @@ import { FAUCET_ADDRESS, Tokens, TokenType, TxResponse } from "constants/";
 import { Account, RpcClient, SocketClient, Transfer } from "lib";
 import { stringToHash } from "utils/helpers";
 
-export type DerivedAccount = {
-  id: string;
+export type InitialAccount = {
   alias: string;
   tokenType: TokenType;
   address: string;
   publicKey: string;
   signingKey: string;
-  balance: number;
   establishedAddress?: string;
   zip32Address?: string;
 };
 
-export type InitialAccount = Omit<Omit<DerivedAccount, "id">, "balance">;
+export type DerivedAccount = InitialAccount & {
+  id: string;
+  balance: number;
+};
 
 type DerivedAccounts = {
   [id: string]: DerivedAccount;
@@ -27,6 +28,7 @@ export type AccountsState = {
   isAccountInitializing: boolean;
   accountInitializationError?: string;
   isLoadingFromFaucet: boolean;
+  newAccountId?: string;
 };
 
 const ACCOUNTS_ACTIONS_BASE = "accounts";
@@ -76,8 +78,7 @@ export const submitInitAccountTransaction = createAsyncThunk(
       epoch,
     });
 
-    await socketClient.broadcastTransaction(bytes);
-
+    await socketClient.broadcastTx(bytes);
     const events = await socketClient.subscribeNewBlock(hash);
     socketClient.disconnect();
 
@@ -116,10 +117,10 @@ export const loadFromFaucet = createAsyncThunk(
       privateKey,
     });
 
-    await socketClient.broadcastTransaction(bytes);
+    await socketClient.broadcastTx(bytes);
     const events = await socketClient.subscribeNewBlock(hash);
-
     socketClient.disconnect();
+
     const code = parseInt(events[TxResponse.Code][0]);
 
     if (code > 0) {
@@ -155,6 +156,9 @@ const accountsSlice = createSlice({
           ...initialAccount,
         },
       };
+    },
+    clearNewAccountId: (state) => {
+      state.newAccountId = undefined;
     },
     setEstablishedAddress: (
       state,
@@ -255,6 +259,7 @@ const accountsSlice = createSlice({
         const { alias } = account;
         const id = stringToHash(alias);
 
+        state.newAccountId = id;
         state.derived = {
           ...state.derived,
           [id]: {
@@ -284,6 +289,7 @@ const { actions, reducer } = accountsSlice;
 
 export const {
   addAccount,
+  clearNewAccountId,
   setEstablishedAddress,
   setZip32Address,
   removeAccount,

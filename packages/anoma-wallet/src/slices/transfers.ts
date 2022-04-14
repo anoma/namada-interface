@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Config } from "config";
-import { Tokens, TokenType, TxResponse } from "constants/";
+import { FAUCET_ADDRESS, Tokens, TokenType, TxResponse } from "constants/";
 import { RpcClient, SocketClient, Transfer } from "lib";
 import { amountFromMicro } from "utils/helpers";
 import { DerivedAccount } from "./accounts";
@@ -55,11 +55,19 @@ type TxTransferArgs = {
   amount: number;
   memo: string;
   shielded: boolean;
+  useFaucet?: boolean;
 };
 
 export const submitTransferTransaction = createAsyncThunk(
   `${TRANSFERS_ACTIONS_BASE}/${TransfersThunkActions.SubmitTransferTransaction}`,
-  async ({ account, target, amount, memo, shielded }: TxTransferArgs) => {
+  async ({
+    account,
+    target,
+    amount,
+    memo,
+    shielded,
+    useFaucet,
+  }: TxTransferArgs) => {
     const {
       id,
       establishedAddress: source = "",
@@ -71,7 +79,7 @@ export const submitTransferTransaction = createAsyncThunk(
     const token = Tokens[tokenType];
 
     const { hash, bytes } = await transfer.makeTransfer({
-      source,
+      source: useFaucet ? FAUCET_ADDRESS : source,
       target,
       token: token.address || "",
       amount,
@@ -79,7 +87,7 @@ export const submitTransferTransaction = createAsyncThunk(
       privateKey,
     });
 
-    await socketClient.broadcastTransaction(bytes);
+    await socketClient.broadcastTx(bytes);
     const events = await socketClient.subscribeNewBlock(hash);
     socketClient.disconnect();
 
@@ -99,7 +107,7 @@ export const submitTransferTransaction = createAsyncThunk(
         gas,
         height,
         timestamp: new Date().getTime(),
-        type: TransferType.Sent,
+        type: useFaucet ? TransferType.Received : TransferType.Sent,
       },
     };
   }

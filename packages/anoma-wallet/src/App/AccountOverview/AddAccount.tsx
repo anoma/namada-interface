@@ -7,7 +7,7 @@ import {
   DerivedAccount,
   AccountsState,
   submitInitAccountTransaction,
-  loadFromFaucet,
+  clearNewAccountId,
 } from "slices/accounts";
 import { useAppDispatch, useAppSelector } from "store";
 
@@ -22,6 +22,7 @@ import { TopLevelRoute } from "App/types";
 import { Select, Option } from "components/Select";
 import { Input, InputVariants } from "components/Input";
 import { Config } from "config";
+import { submitTransferTransaction } from "slices/transfers";
 
 const MIN_ALIAS_LENGTH = 2;
 const { network } = new Config().network;
@@ -29,8 +30,12 @@ const { network } = new Config().network;
 export const AddAccount = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { derived, isAccountInitializing, accountInitializationError } =
-    useAppSelector<AccountsState>((state) => state.accounts);
+  const {
+    derived,
+    isAccountInitializing,
+    accountInitializationError,
+    newAccountId,
+  } = useAppSelector<AccountsState>((state) => state.accounts);
   const [alias, setAlias] = useState<string>("");
   const [aliasError, setAliasError] = useState<string>();
   const [tokenType, setTokenType] = useState<TokenType>("NAM");
@@ -43,6 +48,27 @@ export const AddAccount = (): JSX.Element => {
       value: symbol,
     };
   });
+
+  useEffect(() => {
+    if (newAccountId) {
+      const account = derived[newAccountId];
+      if (network.match(/testnet/)) {
+        dispatch(
+          submitTransferTransaction({
+            account,
+            target: account.establishedAddress || "",
+            amount: 1000,
+            memo: "Initial funds",
+            shielded: false,
+            useFaucet: true,
+          })
+        );
+      }
+
+      dispatch(clearNewAccountId());
+      navigate(TopLevelRoute.Wallet);
+    }
+  }, [derived.length, newAccountId]);
 
   const handleAliasChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { value } = e.target;
@@ -112,13 +138,6 @@ export const AddAccount = (): JSX.Element => {
             address,
             publicKey,
             signingKey: privateKey,
-          },
-          callback: (account) => {
-            if (account && network.match(/testnet/)) {
-              dispatch(loadFromFaucet(account));
-            }
-
-            navigate(TopLevelRoute.Wallet);
           },
         })
       );

@@ -7,7 +7,6 @@ import {
   BroadcastSyncResponse,
   NewBlockEvents,
   SubscriptionEvents,
-  SubscriptionParams,
 } from "./types";
 
 class SocketClient extends RpcClientBase {
@@ -30,45 +29,7 @@ class SocketClient extends RpcClientBase {
     return this._client;
   }
 
-  public async broadcastTx(
-    hash: string,
-    tx: Uint8Array,
-    { onBroadcast, onNext, onError, onComplete }: SubscriptionParams
-  ): Promise<SocketClient> {
-    if (!this._client) {
-      this.connect();
-    }
-
-    try {
-      const queries = [`tm.event='NewBlock'`, `${TxResponse.Hash}='${hash}'`];
-      this.client
-        ?.execute(
-          createJsonRpcRequest("broadcast_tx_sync", { tx: toBase64(tx) })
-        )
-        .then(onBroadcast)
-        .catch(onError);
-
-      this.client
-        ?.listen(
-          createJsonRpcRequest("subscribe", {
-            query: queries.join(" AND "),
-          })
-        )
-        .addListener({
-          next: onNext,
-          error: onError,
-          complete: onComplete,
-        });
-
-      return Promise.resolve(this);
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  }
-
-  public async broadcastTransaction(
-    tx: Uint8Array
-  ): Promise<BroadcastSyncResponse> {
+  public async broadcastTx(tx: Uint8Array): Promise<BroadcastSyncResponse> {
     if (!this._client) {
       this.connect();
     }

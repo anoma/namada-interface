@@ -64,11 +64,11 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
       if (establishedAddress && token.address) {
         dispatch(fetchBalanceByAddress(account));
 
-        // Check for internal transfer, and update target balance if applicable:
+        // Check for internal transfer:
         const targetAccount = Object.values(derived).find(
           (account: DerivedAccount) => account.establishedAddress === target
         );
-
+        /// Fetch target balance if applicable:
         if (targetAccount) {
           dispatch(fetchBalanceByAddress(targetAccount));
         }
@@ -90,7 +90,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
     })();
   }, [target]);
 
-  const handleOnSendClick = async (): Promise<void> => {
+  const handleOnSendClick = (): void => {
     if (target && token.address) {
       dispatch(
         submitTransferTransaction({
@@ -105,6 +105,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
   };
 
   const isMemoValid = (text: string): boolean => {
+    // TODO: Additional memo validation rules?
     return text.length < MAX_MEMO_LENGTH;
   };
 

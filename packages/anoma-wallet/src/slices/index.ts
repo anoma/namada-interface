@@ -1,6 +1,7 @@
 export {
   default as accountsReducer,
   addAccount,
+  clearNewAccountId,
   removeAccount,
   renameAccount,
   setEstablishedAddress,
