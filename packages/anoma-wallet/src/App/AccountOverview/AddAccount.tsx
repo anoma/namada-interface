@@ -3,13 +3,16 @@ import { useNavigate } from "react-router-dom";
 
 import { Symbols, TokenType, Tokens } from "constants/";
 import { Wallet, Session } from "lib";
+import { Config } from "config";
+import { useAppDispatch, useAppSelector } from "store";
 import {
   DerivedAccount,
   AccountsState,
   submitInitAccountTransaction,
   clearNewAccountId,
+  fetchBalanceByAddress,
 } from "slices/accounts";
-import { useAppDispatch, useAppSelector } from "store";
+import { submitTransferTransaction } from "slices/transfers";
 
 import { NavigationContainer } from "components/NavigationContainer";
 import { Heading, HeadingLevel } from "components/Heading";
@@ -21,11 +24,9 @@ import { Button, ButtonVariant } from "components/Button";
 import { TopLevelRoute } from "App/types";
 import { Select, Option } from "components/Select";
 import { Input, InputVariants } from "components/Input";
-import { Config } from "config";
-import { submitTransferTransaction } from "slices/transfers";
 
 const MIN_ALIAS_LENGTH = 2;
-const { network } = new Config().network;
+const { url } = new Config().network;
 
 export const AddAccount = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -52,7 +53,7 @@ export const AddAccount = (): JSX.Element => {
   useEffect(() => {
     if (newAccountId) {
       const account = derived[newAccountId];
-      if (network.match(/testnet/)) {
+      if (url.match(/testnet/)) {
         dispatch(
           submitTransferTransaction({
             account,
@@ -61,6 +62,9 @@ export const AddAccount = (): JSX.Element => {
             memo: "Initial funds",
             shielded: false,
             useFaucet: true,
+            callback: () => {
+              dispatch(fetchBalanceByAddress(account));
+            },
           })
         );
       }

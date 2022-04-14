@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { Persistor } from "redux-persist/lib/types";
 
 import { useAppDispatch, useAppSelector } from "store";
-import { AccountsState, addAccount } from "slices/accounts";
+import { addAccount } from "slices/accounts";
+import { TransfersState } from "slices/transfers";
 import { TopLevelRoute } from "App/types";
 
 import { DerivedAccounts } from "./DerivedAccounts";
@@ -21,8 +22,8 @@ type Props = {
 export const AccountOverview = ({ persistor }: Props): JSX.Element => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { isLoadingFromFaucet } = useAppSelector<AccountsState>(
-    (state) => state.accounts
+  const { isTransferSubmitting } = useAppSelector<TransfersState>(
+    (state) => state.transfers
   );
   const context = useContext(AppContext);
   const { initialAccount } = context;
@@ -44,10 +45,10 @@ export const AccountOverview = ({ persistor }: Props): JSX.Element => {
       >
         Add Account
       </Button>
+      {isTransferSubmitting && <p>Transfer is in progress</p>}
       <PersistGate loading={"Loading accounts..."} persistor={persistor}>
         <DerivedAccounts />
       </PersistGate>
-      {isLoadingFromFaucet && <p>Loading tokens from faucet</p>}
     </AccountOverviewContainer>
   );
 };
