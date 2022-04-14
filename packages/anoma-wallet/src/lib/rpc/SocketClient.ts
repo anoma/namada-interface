@@ -40,6 +40,7 @@ class SocketClient extends RpcClientBase {
           createJsonRpcRequest("broadcast_tx_sync", { tx: toBase64(tx) })
         )
         .then((response: BroadcastSyncResponse) => {
+          this.disconnect();
           return resolve(response);
         })
         .catch((e) => {
@@ -66,6 +67,7 @@ class SocketClient extends RpcClientBase {
           next: (subEvent) => {
             const { events }: { events: NewBlockEvents } =
               subEvent as SubscriptionEvents;
+            this.disconnect();
             return resolve(events);
           },
           error: (e) => {

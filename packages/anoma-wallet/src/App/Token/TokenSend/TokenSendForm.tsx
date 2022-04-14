@@ -4,7 +4,11 @@ import QrReader from "react-qr-reader";
 import { Config } from "config";
 import { RpcClient } from "lib";
 import { AccountsState, fetchBalanceByAddress } from "slices/accounts";
-import { submitTransferTransaction, TransfersState } from "slices/transfers";
+import {
+  clearEvents,
+  submitTransferTransaction,
+  TransfersState,
+} from "slices/transfers";
 
 import { useAppDispatch, useAppSelector } from "store";
 import { Tokens } from "constants/";
@@ -89,6 +93,12 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
       }
     })();
   }, [target]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(clearEvents());
+    };
+  }, []);
 
   const handleOnSendClick = (): void => {
     if (target && token.address) {

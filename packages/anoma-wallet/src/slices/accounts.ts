@@ -95,6 +95,7 @@ export const submitInitAccountTransaction = createAsyncThunk(
     }
 
     return {
+      id: stringToHash(account.alias),
       ...account,
       establishedAddress,
     };
@@ -119,8 +120,6 @@ export const loadFromFaucet = createAsyncThunk(
 
     await socketClient.broadcastTx(bytes);
     const events = await socketClient.subscribeNewBlock(hash);
-    socketClient.disconnect();
-
     const code = parseInt(events[TxResponse.Code][0]);
 
     if (code > 0) {

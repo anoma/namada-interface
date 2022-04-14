@@ -29,6 +29,7 @@ const TransferDetail = (): JSX.Element => {
     memo,
     shielded,
     target,
+    type,
   } = transactions.find(
     (transaction) => transaction.appliedHash === appliedHash
   ) || {};
@@ -46,7 +47,7 @@ const TransferDetail = (): JSX.Element => {
       </NavigationContainer>
       <p>
         <strong>
-          {amount} {tokenType}
+          {type ? "Received" : "Sent"} {amount} {tokenType}
         </strong>
         <br />
         {dateTimeFormatted}

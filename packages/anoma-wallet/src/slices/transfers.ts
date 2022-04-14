@@ -56,6 +56,7 @@ type TxTransferArgs = {
   memo: string;
   shielded: boolean;
   useFaucet?: boolean;
+  callback?: (account?: DerivedAccount) => void;
 };
 
 export const submitTransferTransaction = createAsyncThunk(
@@ -67,6 +68,7 @@ export const submitTransferTransaction = createAsyncThunk(
     memo,
     shielded,
     useFaucet,
+    callback,
   }: TxTransferArgs) => {
     const {
       id,
@@ -89,11 +91,14 @@ export const submitTransferTransaction = createAsyncThunk(
 
     await socketClient.broadcastTx(bytes);
     const events = await socketClient.subscribeNewBlock(hash);
-    socketClient.disconnect();
 
     const gas = amountFromMicro(parseInt(events[TxResponse.GasUsed][0]));
     const appliedHash = events[TxResponse.Hash][0];
     const height = parseInt(events[TxResponse.Height][0]);
+
+    if (callback) {
+      callback(account);
+    }
 
     return {
       id,
@@ -121,7 +126,11 @@ const initialState: TransfersState = {
 const transfersSlice = createSlice({
   name: TRANSFERS_ACTIONS_BASE,
   initialState,
-  reducers: {},
+  reducers: {
+    clearEvents: (state) => {
+      state.events = undefined;
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(submitTransferTransaction.pending, (state) => {
       state.isTransferSubmitting = true;
@@ -163,6 +172,6 @@ const transfersSlice = createSlice({
   },
 });
 
-const { reducer } = transfersSlice;
-
+const { actions, reducer } = transfersSlice;
+export const { clearEvents } = actions;
 export default reducer;
