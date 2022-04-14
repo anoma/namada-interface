@@ -94,6 +94,7 @@ export const submitTransferTransaction = createAsyncThunk(
 
     return {
       id,
+      useFaucet,
       transaction: {
         appliedHash,
         tokenType,
@@ -141,19 +142,26 @@ const transfersSlice = createSlice({
       submitTransferTransaction.fulfilled,
       (
         state,
-        action: PayloadAction<{ id: string; transaction: TransferTransaction }>
+        action: PayloadAction<{
+          id: string;
+          useFaucet: boolean | undefined;
+          transaction: TransferTransaction;
+        }>
       ) => {
-        const { id, transaction } = action.payload;
+        const { id, useFaucet, transaction } = action.payload;
         const { gas, appliedHash } = transaction;
         const transactions = state.transactions[id] || [];
         transactions.push(transaction);
 
         state.isTransferSubmitting = false;
         state.transferError = undefined;
-        state.events = {
-          gas,
-          appliedHash,
-        };
+
+        state.events = !useFaucet
+          ? {
+              gas,
+              appliedHash,
+            }
+          : undefined;
 
         state.transactions = {
           ...state.transactions,

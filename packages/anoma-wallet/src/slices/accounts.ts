@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Config } from "config";
-import { FAUCET_ADDRESS, Tokens, TokenType, TxResponse } from "constants/";
-import { Account, RpcClient, SocketClient, Transfer } from "lib";
+import { Tokens, TokenType, TxResponse } from "constants/";
+import { Account, RpcClient, SocketClient } from "lib";
 import { stringToHash } from "utils/helpers";
 import { submitTransferTransaction } from "./transfers";
 
@@ -38,7 +38,6 @@ const { url } = new Config().network;
 enum AccountThunkActions {
   FetchBalanceByAddress = "fetchBalanceByAddress",
   SubmitInitAccountTransaction = "submitInitAccountTransaction",
-  LoadFromFaucet = "loadFromFaucet",
 }
 
 const { network, wsNetwork } = new Config();
@@ -104,35 +103,6 @@ export const submitInitAccountTransaction = createAsyncThunk(
     }
 
     return initializedAccount;
-  }
-);
-
-export const loadFromFaucet = createAsyncThunk(
-  `${ACCOUNTS_ACTIONS_BASE}/${AccountThunkActions.LoadFromFaucet}`,
-  async (account: InitialAccount) => {
-    const { establishedAddress, tokenType, signingKey: privateKey } = account;
-    const epoch = await rpcClient.queryEpoch();
-    const { makeTransfer } = await new Transfer().init();
-
-    const { hash, bytes } = await makeTransfer({
-      source: FAUCET_ADDRESS,
-      target: establishedAddress || "",
-      token: Tokens[tokenType].address || "",
-      epoch,
-      amount: 1000,
-      privateKey,
-    });
-
-    await socketClient.broadcastTx(bytes);
-    const events = await socketClient.subscribeNewBlock(hash);
-    const code = parseInt(events[TxResponse.Code][0]);
-
-    if (code > 0) {
-      console.warn("Could not load from faucet! Balance will remain at zero");
-      return false;
-    }
-
-    return true;
   }
 );
 
@@ -274,18 +244,6 @@ const accountsSlice = createSlice({
         };
       }
     );
-
-    builder.addCase(loadFromFaucet.pending, (state) => {
-      state.isLoadingFromFaucet = true;
-    });
-
-    builder.addCase(loadFromFaucet.rejected, (state) => {
-      state.isLoadingFromFaucet = false;
-    });
-
-    builder.addCase(loadFromFaucet.fulfilled, (state) => {
-      state.isLoadingFromFaucet = false;
-    });
   },
 });
 
