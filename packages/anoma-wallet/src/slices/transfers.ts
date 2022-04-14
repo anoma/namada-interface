@@ -3,7 +3,7 @@ import { Config } from "config";
 import { FAUCET_ADDRESS, Tokens, TokenType, TxResponse } from "constants/";
 import { RpcClient, SocketClient, Transfer } from "lib";
 import { amountFromMicro } from "utils/helpers";
-import { DerivedAccount } from "./accounts";
+import { DerivedAccount, fetchBalanceByAddress } from "./accounts";
 
 enum TransferType {
   Sent,
@@ -56,20 +56,14 @@ type TxTransferArgs = {
   memo: string;
   shielded: boolean;
   useFaucet?: boolean;
-  callback?: (account?: DerivedAccount) => void;
 };
 
 export const submitTransferTransaction = createAsyncThunk(
   `${TRANSFERS_ACTIONS_BASE}/${TransfersThunkActions.SubmitTransferTransaction}`,
-  async ({
-    account,
-    target,
-    amount,
-    memo,
-    shielded,
-    useFaucet,
-    callback,
-  }: TxTransferArgs) => {
+  async (
+    { account, target, amount, memo, shielded, useFaucet }: TxTransferArgs,
+    thunkApi
+  ) => {
     const {
       id,
       establishedAddress: source = "",
@@ -96,9 +90,7 @@ export const submitTransferTransaction = createAsyncThunk(
     const appliedHash = events[TxResponse.Hash][0];
     const height = parseInt(events[TxResponse.Height][0]);
 
-    if (callback) {
-      callback(account);
-    }
+    thunkApi.dispatch(fetchBalanceByAddress(account));
 
     return {
       id,

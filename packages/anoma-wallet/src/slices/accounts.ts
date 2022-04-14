@@ -3,6 +3,7 @@ import { Config } from "config";
 import { FAUCET_ADDRESS, Tokens, TokenType, TxResponse } from "constants/";
 import { Account, RpcClient, SocketClient, Transfer } from "lib";
 import { stringToHash } from "utils/helpers";
+import { submitTransferTransaction } from "./transfers";
 
 export type InitialAccount = {
   alias: string;
@@ -32,6 +33,7 @@ export type AccountsState = {
 };
 
 const ACCOUNTS_ACTIONS_BASE = "accounts";
+const { url } = new Config().network;
 
 enum AccountThunkActions {
   FetchBalanceByAddress = "fetchBalanceByAddress",
@@ -61,13 +63,7 @@ export const fetchBalanceByAddress = createAsyncThunk(
 
 export const submitInitAccountTransaction = createAsyncThunk(
   `${ACCOUNTS_ACTIONS_BASE}/${AccountThunkActions.SubmitInitAccountTransaction}`,
-  async ({
-    account,
-    callback,
-  }: {
-    account: InitialAccount;
-    callback?: (account?: InitialAccount) => void;
-  }) => {
+  async (account: InitialAccount, thunkApi) => {
     const { signingKey: privateKey, tokenType } = account;
 
     const epoch = await rpcClient.queryEpoch();
@@ -87,18 +83,27 @@ export const submitInitAccountTransaction = createAsyncThunk(
       .map((account: string) => JSON.parse(account))
       .find((account: string[]) => account.length > 0)[0];
 
-    if (callback) {
-      callback({
-        ...account,
-        establishedAddress,
-      });
-    }
-
-    return {
-      id: stringToHash(account.alias),
+    const initializedAccount = {
       ...account,
+      id: stringToHash(account.alias),
+      balance: 0,
       establishedAddress,
     };
+
+    if (url.match(/testnet/)) {
+      thunkApi.dispatch(
+        submitTransferTransaction({
+          account: initializedAccount,
+          target: establishedAddress || "",
+          amount: 1000,
+          memo: "Initial funds",
+          shielded: false,
+          useFaucet: true,
+        })
+      );
+    }
+
+    return initializedAccount;
   }
 );
 
