@@ -2,7 +2,8 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Config } from "config";
 import { FAUCET_ADDRESS, Tokens, TokenType, TxResponse } from "constants/";
 import { RpcClient, SocketClient, Transfer } from "lib";
-import { amountFromMicro } from "utils/helpers";
+import { NewBlockEvents } from "lib/rpc/types";
+import { amountFromMicro, promiseWithTimeout } from "utils/helpers";
 import { DerivedAccount, fetchBalanceByAddress } from "./accounts";
 
 enum TransferType {
@@ -58,11 +59,13 @@ type TxTransferArgs = {
   useFaucet?: boolean;
 };
 
+const LEDGER_TRANFER_TIMEOUT = 10000;
+
 export const submitTransferTransaction = createAsyncThunk(
   `${TRANSFERS_ACTIONS_BASE}/${TransfersThunkActions.SubmitTransferTransaction}`,
   async (
     { account, target, amount, memo, shielded, useFaucet }: TxTransferArgs,
-    thunkApi
+    { dispatch, rejectWithValue }
   ) => {
     const {
       id,
@@ -83,14 +86,30 @@ export const submitTransferTransaction = createAsyncThunk(
       privateKey,
     });
 
-    await socketClient.broadcastTx(bytes);
-    const events = await socketClient.subscribeNewBlock(hash);
+    const { promise, timeoutId } = promiseWithTimeout<NewBlockEvents>(
+      new Promise(async (resolve) => {
+        await socketClient.broadcastTx(bytes);
+        const events = await socketClient.subscribeNewBlock(hash);
+        resolve(events);
+      }),
+      LEDGER_TRANFER_TIMEOUT,
+      "Async actions timed out when communicating with ledger"
+    );
+
+    promise.catch((e) => {
+      socketClient.disconnect();
+      rejectWithValue(e);
+    });
+
+    const events = await promise;
+    socketClient.disconnect();
+    clearTimeout(timeoutId);
 
     const gas = amountFromMicro(parseInt(events[TxResponse.GasUsed][0]));
     const appliedHash = events[TxResponse.Hash][0];
     const height = parseInt(events[TxResponse.Height][0]);
 
-    thunkApi.dispatch(fetchBalanceByAddress(account));
+    dispatch(fetchBalanceByAddress(account));
 
     return {
       id,
@@ -122,6 +141,7 @@ const transfersSlice = createSlice({
   reducers: {
     clearEvents: (state) => {
       state.events = undefined;
+      state.isTransferSubmitting = false;
     },
   },
   extraReducers: (builder) => {
@@ -132,9 +152,9 @@ const transfersSlice = createSlice({
     });
 
     builder.addCase(submitTransferTransaction.rejected, (state, action) => {
-      const { payload: error } = action;
+      const { error } = action;
       state.isTransferSubmitting = false;
-      state.transferError = `${error}`;
+      state.transferError = error.message;
       state.events = undefined;
     });
 

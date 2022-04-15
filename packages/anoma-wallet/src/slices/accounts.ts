@@ -2,7 +2,8 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Config } from "config";
 import { Tokens, TokenType, TxResponse } from "constants/";
 import { Account, RpcClient, SocketClient } from "lib";
-import { stringToHash } from "utils/helpers";
+import { NewBlockEvents } from "lib/rpc/types";
+import { promiseWithTimeout, stringToHash } from "utils/helpers";
 import { submitTransferTransaction } from "./transfers";
 
 export type InitialAccount = {
@@ -29,7 +30,6 @@ export type AccountsState = {
   isAccountInitializing: boolean;
   accountInitializationError?: string;
   isLoadingFromFaucet: boolean;
-  newAccountId?: string;
 };
 
 const ACCOUNTS_ACTIONS_BASE = "accounts";
@@ -43,6 +43,8 @@ enum AccountThunkActions {
 const { network, wsNetwork } = new Config();
 const rpcClient = new RpcClient(network);
 const socketClient = new SocketClient(wsNetwork);
+
+const LEDGER_INIT_ACCOUNT_TIMEOUT = 12000;
 
 export const fetchBalanceByAddress = createAsyncThunk(
   `${ACCOUNTS_ACTIONS_BASE}/${AccountThunkActions.FetchBalanceByAddress}`,
@@ -62,7 +64,7 @@ export const fetchBalanceByAddress = createAsyncThunk(
 
 export const submitInitAccountTransaction = createAsyncThunk(
   `${ACCOUNTS_ACTIONS_BASE}/${AccountThunkActions.SubmitInitAccountTransaction}`,
-  async (account: InitialAccount, thunkApi) => {
+  async (account: InitialAccount, { dispatch, rejectWithValue }) => {
     const { signingKey: privateKey, tokenType } = account;
 
     const epoch = await rpcClient.queryEpoch();
@@ -73,8 +75,23 @@ export const submitInitAccountTransaction = createAsyncThunk(
       epoch,
     });
 
-    await socketClient.broadcastTx(bytes);
-    const events = await socketClient.subscribeNewBlock(hash);
+    const { promise, timeoutId } = promiseWithTimeout<NewBlockEvents>(
+      new Promise(async (resolve) => {
+        await socketClient.broadcastTx(bytes);
+        const events = await socketClient.subscribeNewBlock(hash);
+        resolve(events);
+      }),
+      LEDGER_INIT_ACCOUNT_TIMEOUT,
+      "Async actions timed out when communicating with ledger"
+    );
+
+    promise.catch((e) => {
+      socketClient.disconnect();
+      rejectWithValue(e);
+    });
+
+    const events = await promise;
+    clearTimeout(timeoutId);
     socketClient.disconnect();
 
     const initializedAccounts = events[TxResponse.InitializedAccounts];
@@ -90,7 +107,7 @@ export const submitInitAccountTransaction = createAsyncThunk(
     };
 
     if (url.match(/testnet/)) {
-      thunkApi.dispatch(
+      dispatch(
         submitTransferTransaction({
           account: initializedAccount,
           target: establishedAddress || "",
@@ -130,9 +147,6 @@ const accountsSlice = createSlice({
           ...initialAccount,
         },
       };
-    },
-    clearNewAccountId: (state) => {
-      state.newAccountId = undefined;
     },
     setEstablishedAddress: (
       state,
@@ -200,16 +214,32 @@ const accountsSlice = createSlice({
 
       state.derived = derived;
     },
+    setIsInitializing: (
+      state,
+      action: PayloadAction<{ isInitializing: boolean }>
+    ) => {
+      const { isInitializing = false } = action.payload;
+
+      state.isAccountInitializing = isInitializing;
+    },
+    clearActions: (state) => {
+      state.isAccountInitializing = false;
+      state.isLoadingFromFaucet = false;
+      state.accountInitializationError = undefined;
+    },
   },
   extraReducers: (builder) => {
-    builder.addCase(fetchBalanceByAddress.fulfilled, (state, action) => {
-      const { id, balance } = action.payload;
+    builder.addCase(
+      fetchBalanceByAddress.fulfilled,
+      (state, action: PayloadAction<{ id: string; balance: number }>) => {
+        const { id, balance } = action.payload;
 
-      state.derived[id] = {
-        ...state.derived[id],
-        balance,
-      };
-    });
+        state.derived[id] = {
+          ...state.derived[id],
+          balance,
+        };
+      }
+    );
 
     builder.addCase(submitInitAccountTransaction.pending, (state) => {
       state.isAccountInitializing = true;
@@ -217,10 +247,14 @@ const accountsSlice = createSlice({
       state.accountInitializationError = undefined;
     });
 
-    builder.addCase(submitInitAccountTransaction.rejected, (state) => {
+    builder.addCase(submitInitAccountTransaction.rejected, (state, action) => {
+      const { error } = action;
+
       state.isAccountInitializing = false;
       state.isLoadingFromFaucet = false;
-      state.accountInitializationError = "Error initializing account";
+      state.accountInitializationError = error
+        ? error.message
+        : "Error initializing account";
     });
 
     builder.addCase(
@@ -233,7 +267,6 @@ const accountsSlice = createSlice({
         const { alias } = account;
         const id = stringToHash(alias);
 
-        state.newAccountId = id;
         state.derived = {
           ...state.derived,
           [id]: {
@@ -251,11 +284,11 @@ const { actions, reducer } = accountsSlice;
 
 export const {
   addAccount,
-  clearNewAccountId,
   setEstablishedAddress,
   setZip32Address,
   removeAccount,
   renameAccount,
+  clearActions,
 } = actions;
 
 export default reducer;

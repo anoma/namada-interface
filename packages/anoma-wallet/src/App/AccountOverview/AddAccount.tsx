@@ -8,7 +8,7 @@ import {
   DerivedAccount,
   AccountsState,
   submitInitAccountTransaction,
-  clearNewAccountId,
+  clearActions,
 } from "slices/accounts";
 
 import { NavigationContainer } from "components/NavigationContainer";
@@ -27,12 +27,8 @@ const MIN_ALIAS_LENGTH = 2;
 export const AddAccount = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const {
-    derived,
-    isAccountInitializing,
-    accountInitializationError,
-    newAccountId,
-  } = useAppSelector<AccountsState>((state) => state.accounts);
+  const { derived, isAccountInitializing, accountInitializationError } =
+    useAppSelector<AccountsState>((state) => state.accounts);
   const [alias, setAlias] = useState<string>("");
   const [aliasError, setAliasError] = useState<string>();
   const [tokenType, setTokenType] = useState<TokenType>("NAM");
@@ -47,11 +43,18 @@ export const AddAccount = (): JSX.Element => {
   });
 
   useEffect(() => {
-    if (newAccountId) {
-      dispatch(clearNewAccountId());
+    const newAccount = Object.values(derived).find(
+      (account) => account.alias === alias.trim()
+    );
+
+    if (newAccount) {
       navigate(TopLevelRoute.Wallet);
     }
-  }, [derived.length, newAccountId]);
+
+    return () => {
+      dispatch(clearActions());
+    };
+  }, [derived]);
 
   const handleAliasChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { value } = e.target;

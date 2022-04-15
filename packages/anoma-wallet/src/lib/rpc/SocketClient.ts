@@ -29,10 +29,18 @@ class SocketClient extends RpcClientBase {
     return this._client;
   }
 
-  public async broadcastTx(tx: Uint8Array): Promise<BroadcastSyncResponse> {
+  public async broadcastTx(
+    tx: Uint8Array,
+    callbacks?: {
+      onBroadcast?: (response: BroadcastSyncResponse) => void;
+      onError?: (error: string) => void;
+    }
+  ): Promise<BroadcastSyncResponse> {
     if (!this._client) {
       this.connect();
     }
+
+    const { onBroadcast, onError } = callbacks || {};
 
     return new Promise((resolve, reject) => {
       this.client
@@ -41,18 +49,32 @@ class SocketClient extends RpcClientBase {
         )
         .then((response: BroadcastSyncResponse) => {
           this.disconnect();
+          if (onBroadcast) {
+            onBroadcast(response);
+          }
           return resolve(response);
         })
         .catch((e) => {
+          if (onError) {
+            onError(e);
+          }
           return reject(e);
         });
     });
   }
 
-  public subscribeNewBlock(hash: string): Promise<NewBlockEvents> {
+  public subscribeNewBlock(
+    hash: string,
+    callbacks?: {
+      onNext?: (events: NewBlockEvents) => void;
+      onError?: (e: unknown) => void;
+    }
+  ): Promise<NewBlockEvents> {
     if (!this._client) {
       this.connect();
     }
+
+    const { onNext, onError } = callbacks || {};
 
     const queries = [`tm.event='NewBlock'`, `${TxResponse.Hash}='${hash}'`];
 
@@ -68,9 +90,15 @@ class SocketClient extends RpcClientBase {
             const { events }: { events: NewBlockEvents } =
               subEvent as SubscriptionEvents;
             this.disconnect();
+            if (onNext) {
+              onNext(events);
+            }
             return resolve(events);
           },
           error: (e) => {
+            if (onError) {
+              onError(e);
+            }
             return reject(e);
           },
         });
