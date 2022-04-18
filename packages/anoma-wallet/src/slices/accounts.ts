@@ -82,7 +82,9 @@ export const submitInitAccountTransaction = createAsyncThunk(
         resolve(events);
       }),
       LEDGER_INIT_ACCOUNT_TIMEOUT,
-      "Async actions timed out when communicating with ledger"
+      `Async actions timed out when communicating with ledger after ${
+        LEDGER_INIT_ACCOUNT_TIMEOUT / 1000
+      } seconds`
     );
 
     promise.catch((e) => {

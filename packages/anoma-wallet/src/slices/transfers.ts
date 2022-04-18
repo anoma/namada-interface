@@ -59,7 +59,7 @@ type TxTransferArgs = {
   useFaucet?: boolean;
 };
 
-const LEDGER_TRANFER_TIMEOUT = 10000;
+const LEDGER_TRANSFER_TIMEOUT = 10000;
 
 export const submitTransferTransaction = createAsyncThunk(
   `${TRANSFERS_ACTIONS_BASE}/${TransfersThunkActions.SubmitTransferTransaction}`,
@@ -92,8 +92,10 @@ export const submitTransferTransaction = createAsyncThunk(
         const events = await socketClient.subscribeNewBlock(hash);
         resolve(events);
       }),
-      LEDGER_TRANFER_TIMEOUT,
-      "Async actions timed out when communicating with ledger"
+      LEDGER_TRANSFER_TIMEOUT,
+      `Async actions timed out when communicating with ledger after ${
+        LEDGER_TRANSFER_TIMEOUT / 1000
+      } seconds`
     );
 
     promise.catch((e) => {
