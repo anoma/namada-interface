@@ -6,10 +6,8 @@ import { ThemeContext } from "styled-components";
 import { Mnemonic, MnemonicLength } from "@anoma-apps/seed-management";
 import { TopLevelRoute } from "App/types";
 import { AccountCreationRoute, accountCreationSteps } from "./types";
-import { Account, RpcClient, Session, SocketClient, Wallet } from "lib";
+import { Session, Wallet } from "lib";
 import { AppContext } from "App/App";
-import { Config } from "config";
-import { Tokens, TxResponse } from "constants/";
 import { InitialAccount } from "slices/accounts";
 
 import { Button } from "components/ButtonTemporary";
@@ -285,48 +283,12 @@ function AccountCreation(): JSX.Element {
                             mnemonic.phrase
                           );
 
-                          // Query epoch:
-                          const { network, wsNetwork } = new Config();
-                          const rpcClient = new RpcClient(network);
-                          const epoch = await rpcClient.queryEpoch();
-
-                          // Create init-account transaction:
-                          const anomaAccount = await new Account().init();
-                          const { hash, bytes } = await anomaAccount.initialize(
-                            {
-                              token: Tokens[account.tokenType].address,
-                              privateKey: account.signingKey,
-                              epoch,
-                            }
-                          );
-
-                          // Broadcast transaction to ledger and subscribe to results:
-                          const socketClient = new SocketClient(wsNetwork);
-                          await socketClient.broadcastTx(bytes);
-                          const events = await socketClient.subscribeNewBlock(
-                            hash
-                          );
-                          socketClient.disconnect();
-
-                          const initializedAccounts =
-                            events[TxResponse.InitializedAccounts];
-                          const establishedAddress =
-                            initializedAccounts
-                              .map((account: string) => JSON.parse(account))
-                              .find(
-                                (account: string[]) => account.length > 0
-                              )[0] || "";
-
                           // Establish login session
                           const session = new Session();
                           session.setSession(accountCreationDetails.password);
                           await session.setSeed(mnemonic.phrase);
 
-                          setInitialAccount &&
-                            setInitialAccount({
-                              ...account,
-                              establishedAddress,
-                            });
+                          setInitialAccount && setInitialAccount(account);
 
                           setIsInitializing(false);
                         } else {

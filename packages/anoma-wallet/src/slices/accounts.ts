@@ -19,6 +19,8 @@ export type InitialAccount = {
 export type DerivedAccount = InitialAccount & {
   id: string;
   balance: number;
+  isInitializing?: boolean;
+  accountInitializationError?: string;
 };
 
 type DerivedAccounts = {
@@ -27,9 +29,6 @@ type DerivedAccounts = {
 
 export type AccountsState = {
   derived: DerivedAccounts;
-  isAccountInitializing: boolean;
-  accountInitializationError?: string;
-  isLoadingFromFaucet: boolean;
 };
 
 const ACCOUNTS_ACTIONS_BASE = "accounts";
@@ -64,7 +63,7 @@ export const fetchBalanceByAddress = createAsyncThunk(
 
 export const submitInitAccountTransaction = createAsyncThunk(
   `${ACCOUNTS_ACTIONS_BASE}/${AccountThunkActions.SubmitInitAccountTransaction}`,
-  async (account: InitialAccount, { dispatch, rejectWithValue }) => {
+  async (account: DerivedAccount, { dispatch, rejectWithValue }) => {
     const { signingKey: privateKey, tokenType } = account;
 
     const epoch = await rpcClient.queryEpoch();
@@ -103,7 +102,6 @@ export const submitInitAccountTransaction = createAsyncThunk(
 
     const initializedAccount = {
       ...account,
-      id: stringToHash(account.alias),
       balance: 0,
       establishedAddress,
     };
@@ -127,8 +125,6 @@ export const submitInitAccountTransaction = createAsyncThunk(
 
 const initialState: AccountsState = {
   derived: {},
-  isAccountInitializing: false,
-  isLoadingFromFaucet: false,
 };
 
 const accountsSlice = createSlice({
@@ -216,19 +212,6 @@ const accountsSlice = createSlice({
 
       state.derived = derived;
     },
-    setIsInitializing: (
-      state,
-      action: PayloadAction<{ isInitializing: boolean }>
-    ) => {
-      const { isInitializing = false } = action.payload;
-
-      state.isAccountInitializing = isInitializing;
-    },
-    clearActions: (state) => {
-      state.isAccountInitializing = false;
-      state.isLoadingFromFaucet = false;
-      state.accountInitializationError = undefined;
-    },
   },
   extraReducers: (builder) => {
     builder.addCase(
@@ -243,18 +226,21 @@ const accountsSlice = createSlice({
       }
     );
 
-    builder.addCase(submitInitAccountTransaction.pending, (state) => {
-      state.isAccountInitializing = true;
-      state.isLoadingFromFaucet = false;
-      state.accountInitializationError = undefined;
+    builder.addCase(submitInitAccountTransaction.pending, (state, action) => {
+      const account = action.meta.arg;
+      const { id } = account;
+
+      state.derived[id].isInitializing = true;
+      state.derived[id].accountInitializationError = undefined;
     });
 
     builder.addCase(submitInitAccountTransaction.rejected, (state, action) => {
       const { error } = action;
+      const account = action.meta.arg;
+      const { id } = account;
 
-      state.isAccountInitializing = false;
-      state.isLoadingFromFaucet = false;
-      state.accountInitializationError = error
+      state.derived[id].isInitializing = false;
+      state.derived[id].accountInitializationError = error
         ? error.message
         : "Error initializing account";
     });
@@ -262,9 +248,6 @@ const accountsSlice = createSlice({
     builder.addCase(
       submitInitAccountTransaction.fulfilled,
       (state, action: PayloadAction<InitialAccount>) => {
-        state.isAccountInitializing = false;
-        state.isLoadingFromFaucet = false;
-        state.accountInitializationError = undefined;
         const account = action.payload;
         const { alias } = account;
         const id = stringToHash(alias);
@@ -275,6 +258,8 @@ const accountsSlice = createSlice({
             id,
             balance: 0,
             ...account,
+            isInitializing: false,
+            accountInitializationError: undefined,
           },
         };
       }
@@ -290,7 +275,6 @@ export const {
   setZip32Address,
   removeAccount,
   renameAccount,
-  clearActions,
 } = actions;
 
 export default reducer;

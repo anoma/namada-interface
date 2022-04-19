@@ -45,7 +45,8 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
   const dispatch = useAppDispatch();
 
   const account: DerivedAccount = derived[id] || {};
-  const { alias, tokenType, balance, establishedAddress } = account;
+  const { alias, tokenType, balance, establishedAddress, isInitializing } =
+    account;
   const token = Tokens[tokenType] || {};
 
   // eslint-disable-next-line prefer-const
@@ -89,7 +90,11 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
           </strong>
         </p>
 
-        <Address>{establishedAddress}</Address>
+        {isInitializing ? (
+          <p>Account is initializing...</p>
+        ) : (
+          <Address>{establishedAddress}</Address>
+        )}
         <ButtonsContainer>
           <Button
             variant={ButtonVariant.Small}

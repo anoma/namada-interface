@@ -4,12 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Symbols, TokenType, Tokens } from "constants/";
 import { Wallet, Session } from "lib";
 import { useAppDispatch, useAppSelector } from "store";
-import {
-  DerivedAccount,
-  AccountsState,
-  submitInitAccountTransaction,
-  clearActions,
-} from "slices/accounts";
+import { DerivedAccount, AccountsState, addAccount } from "slices/accounts";
 
 import { NavigationContainer } from "components/NavigationContainer";
 import { Heading, HeadingLevel } from "components/Heading";
@@ -27,11 +22,11 @@ const MIN_ALIAS_LENGTH = 2;
 export const AddAccount = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { derived, isAccountInitializing, accountInitializationError } =
-    useAppSelector<AccountsState>((state) => state.accounts);
+  const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const [alias, setAlias] = useState<string>("");
   const [aliasError, setAliasError] = useState<string>();
   const [tokenType, setTokenType] = useState<TokenType>("NAM");
+  const [isAddingAccount, setIsAddingAccount] = useState(false);
 
   const tokensData: Option<string>[] = Symbols.map((symbol: TokenType) => {
     const token = Tokens[symbol];
@@ -41,20 +36,6 @@ export const AddAccount = (): JSX.Element => {
       value: symbol,
     };
   });
-
-  useEffect(() => {
-    const newAccount = Object.values(derived).find(
-      (account) => account.alias === alias.trim()
-    );
-
-    if (newAccount) {
-      navigate(TopLevelRoute.Wallet);
-    }
-
-    return () => {
-      dispatch(clearActions());
-    };
-  }, [derived]);
 
   const handleAliasChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { value } = e.target;
@@ -101,7 +82,7 @@ export const AddAccount = (): JSX.Element => {
     if (!trimmedAlias || !validateAlias(trimmedAlias)) {
       return setAliasError("Invalid alias. Choose a different account alias.");
     }
-
+    setIsAddingAccount(true);
     const mnemonic = await new Session().getSeed();
 
     if (mnemonic && trimmedAlias) {
@@ -114,17 +95,18 @@ export const AddAccount = (): JSX.Element => {
       );
 
       const account = wallet.new(index);
-      const { public: publicKey, secret: privateKey, wif: address } = account;
+      const { public: publicKey, secret: signingKey, wif: address } = account;
 
       dispatch(
-        submitInitAccountTransaction({
+        addAccount({
           alias: trimmedAlias,
           tokenType,
           address,
           publicKey,
-          signingKey: privateKey,
+          signingKey,
         })
       );
+      navigate(TopLevelRoute.Wallet);
     } else {
       console.error("Could not find mnemonic!");
     }
@@ -157,12 +139,11 @@ export const AddAccount = (): JSX.Element => {
           onChange={handleTokenSelect}
         ></Select>
       </InputContainer>
-      {isAccountInitializing && <p>Initializing Account</p>}
-      {accountInitializationError && <p>{accountInitializationError}</p>}
+
       <Button
         variant={ButtonVariant.Contained}
         onClick={handleAddClick}
-        disabled={!validateAlias(alias) || isAccountInitializing}
+        disabled={!validateAlias(alias) || isAddingAccount}
       >
         Add
       </Button>

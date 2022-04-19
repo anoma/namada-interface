@@ -41,13 +41,16 @@ const DerivedAccounts = (): JSX.Element => {
         {Object.keys(derived)
           .reverse()
           .map((hash: string) => {
-            const { id, alias, tokenType, balance } = derived[hash];
+            const { id, alias, tokenType, balance, isInitializing } =
+              derived[hash];
 
             return (
               <DerivedAccountItem key={alias}>
                 <DerivedAccountContainer>
                   <DerivedAccountInfo>
-                    <DerivedAccountAlias>{alias}</DerivedAccountAlias>
+                    <DerivedAccountAlias>
+                      {alias} {isInitializing && <i>(initializing)</i>}
+                    </DerivedAccountAlias>
                     <DerivedAccountType>{tokenType}</DerivedAccountType>
                   </DerivedAccountInfo>
 
