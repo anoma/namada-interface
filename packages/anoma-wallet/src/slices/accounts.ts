@@ -35,7 +35,7 @@ const ACCOUNTS_ACTIONS_BASE = "accounts";
 const { url } = new Config().network;
 
 enum AccountThunkActions {
-  FetchBalanceByAddress = "fetchBalanceByAddress",
+  FetchBalanceByAccount = "fetchBalanceByAccount",
   SubmitInitAccountTransaction = "submitInitAccountTransaction",
 }
 
@@ -45,8 +45,8 @@ const socketClient = new SocketClient(wsNetwork);
 
 const LEDGER_INIT_ACCOUNT_TIMEOUT = 12000;
 
-export const fetchBalanceByAddress = createAsyncThunk(
-  `${ACCOUNTS_ACTIONS_BASE}/${AccountThunkActions.FetchBalanceByAddress}`,
+export const fetchBalanceByAccount = createAsyncThunk(
+  `${ACCOUNTS_ACTIONS_BASE}/${AccountThunkActions.FetchBalanceByAccount}`,
   async (account: DerivedAccount) => {
     const { id, establishedAddress, tokenType } = account;
     const { address: tokenAddress = "" } = Tokens[tokenType];
@@ -215,7 +215,7 @@ const accountsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(
-      fetchBalanceByAddress.fulfilled,
+      fetchBalanceByAccount.fulfilled,
       (state, action: PayloadAction<{ id: string; balance: number }>) => {
         const { id, balance } = action.payload;
 
@@ -235,8 +235,8 @@ const accountsSlice = createSlice({
     });
 
     builder.addCase(submitInitAccountTransaction.rejected, (state, action) => {
-      const { error } = action;
-      const account = action.meta.arg;
+      const { meta, error } = action;
+      const account = meta.arg;
       const { id } = account;
 
       state.derived[id].isInitializing = false;

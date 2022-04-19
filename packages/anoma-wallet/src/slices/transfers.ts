@@ -4,7 +4,7 @@ import { FAUCET_ADDRESS, Tokens, TokenType, TxResponse } from "constants/";
 import { RpcClient, SocketClient, Transfer } from "lib";
 import { NewBlockEvents } from "lib/rpc/types";
 import { amountFromMicro, promiseWithTimeout } from "utils/helpers";
-import { DerivedAccount, fetchBalanceByAddress } from "./accounts";
+import { DerivedAccount, fetchBalanceByAccount } from "./accounts";
 
 enum TransferType {
   Sent,
@@ -111,7 +111,7 @@ export const submitTransferTransaction = createAsyncThunk(
     const appliedHash = events[TxResponse.Hash][0];
     const height = parseInt(events[TxResponse.Height][0]);
 
-    dispatch(fetchBalanceByAddress(account));
+    dispatch(fetchBalanceByAccount(account));
 
     return {
       id,

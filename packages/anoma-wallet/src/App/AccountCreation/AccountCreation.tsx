@@ -95,7 +95,6 @@ function AccountCreation(): JSX.Element {
   );
   const [seedPhrase, setSeedPhrase] = useState<string[]>();
   const [stepIndex, setStepIndex] = useState(0);
-  const [isInitializing, setIsInitializing] = useState(true);
   const themeContext = useContext(ThemeContext);
   const navigate = useNavigate();
 
@@ -289,8 +288,6 @@ function AccountCreation(): JSX.Element {
                           await session.setSeed(mnemonic.phrase);
 
                           setInitialAccount && setInitialAccount(account);
-
-                          setIsInitializing(false);
                         } else {
                           alert(
                             "something is wrong with the master seed creation 🤨"
@@ -316,7 +313,6 @@ function AccountCreation(): JSX.Element {
                   animationFromRightToLeft={animationFromRightToLeft}
                 >
                   <Completion
-                    isInitializing={isInitializing}
                     onClickDone={() => {
                       navigate(TopLevelRoute.SettingsAccounts);
                     }}

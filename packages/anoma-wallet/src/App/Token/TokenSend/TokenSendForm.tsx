@@ -3,7 +3,7 @@ import QrReader from "react-qr-reader";
 
 import { Config } from "config";
 import { RpcClient } from "lib";
-import { AccountsState, fetchBalanceByAddress } from "slices/accounts";
+import { AccountsState, fetchBalanceByAccount } from "slices/accounts";
 import {
   clearEvents,
   submitTransferTransaction,
@@ -66,7 +66,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
     // Get balance
     (async () => {
       if (establishedAddress && token.address) {
-        dispatch(fetchBalanceByAddress(account));
+        dispatch(fetchBalanceByAccount(account));
 
         // Check for internal transfer:
         const targetAccount = Object.values(derived).find(
@@ -74,7 +74,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
         );
         /// Fetch target balance if applicable:
         if (targetAccount) {
-          dispatch(fetchBalanceByAddress(targetAccount));
+          dispatch(fetchBalanceByAccount(targetAccount));
         }
       }
     })();

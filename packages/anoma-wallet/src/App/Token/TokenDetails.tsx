@@ -7,7 +7,7 @@ import { TopLevelRoute } from "App/types";
 import {
   DerivedAccount,
   AccountsState,
-  fetchBalanceByAddress,
+  fetchBalanceByAccount,
 } from "slices/accounts";
 import { useAppDispatch, useAppSelector } from "store";
 import { formatRoute, stringFromTimestamp } from "utils/helpers";
@@ -56,7 +56,7 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
 
   useEffect(() => {
     (async () => {
-      dispatch(fetchBalanceByAddress(account));
+      dispatch(fetchBalanceByAccount(account));
     })();
   }, []);
 
