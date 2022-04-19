@@ -30,10 +30,8 @@ export const AccountOverview = ({ persistor }: Props): JSX.Element => {
     (state) => state.transfers
   );
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
-
   const context = useContext(AppContext);
   const { initialAccount } = context;
-
   const accounts = Object.values(derived);
 
   // Collect uninitialized accounts
@@ -42,16 +40,20 @@ export const AccountOverview = ({ persistor }: Props): JSX.Element => {
   );
 
   useEffect(() => {
+    // If this is our first account, add it to the store
     if (initialAccount && accounts.length === 0) {
       dispatch(addAccount(initialAccount));
     }
+  }, []);
 
+  useEffect(() => {
+    // Initialize any uninitialized accounts
     if (uninitializedAccounts.length > 0) {
       uninitializedAccounts.forEach((account) => {
         dispatch(submitInitAccountTransaction(account));
       });
     }
-  }, []);
+  }, [uninitializedAccounts]);
 
   return (
     <AccountOverviewContainer>

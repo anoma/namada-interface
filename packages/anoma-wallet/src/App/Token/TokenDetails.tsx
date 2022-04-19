@@ -93,28 +93,30 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
         {isInitializing ? (
           <p>Account is initializing...</p>
         ) : (
-          <Address>{establishedAddress}</Address>
+          <>
+            <Address>{establishedAddress}</Address>
+            <ButtonsContainer>
+              <Button
+                variant={ButtonVariant.Small}
+                style={{ width: 180 }}
+                onClick={() => {
+                  navigate(formatRoute(TopLevelRoute.TokenReceive, { id }));
+                }}
+              >
+                Receive
+              </Button>
+              <Button
+                variant={ButtonVariant.Small}
+                style={{ width: 180 }}
+                onClick={() => {
+                  navigate(formatRoute(TopLevelRoute.TokenSend, { id }));
+                }}
+              >
+                Send
+              </Button>
+            </ButtonsContainer>
+          </>
         )}
-        <ButtonsContainer>
-          <Button
-            variant={ButtonVariant.Small}
-            style={{ width: 180 }}
-            onClick={() => {
-              navigate(formatRoute(TopLevelRoute.TokenReceive, { id }));
-            }}
-          >
-            Receive
-          </Button>
-          <Button
-            variant={ButtonVariant.Small}
-            style={{ width: 180 }}
-            onClick={() => {
-              navigate(formatRoute(TopLevelRoute.TokenSend, { id }));
-            }}
-          >
-            Send
-          </Button>
-        </ButtonsContainer>
 
         <Heading level={HeadingLevel.Three}>Transactions</Heading>
         {transactions.length === 0 && <p>No transactions</p>}

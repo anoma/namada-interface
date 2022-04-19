@@ -247,20 +247,14 @@ const accountsSlice = createSlice({
 
     builder.addCase(
       submitInitAccountTransaction.fulfilled,
-      (state, action: PayloadAction<InitialAccount>) => {
+      (state, action: PayloadAction<DerivedAccount>) => {
         const account = action.payload;
-        const { alias } = account;
-        const id = stringToHash(alias);
+        const { id } = account;
 
-        state.derived = {
-          ...state.derived,
-          [id]: {
-            id,
-            balance: 0,
-            ...account,
-            isInitializing: false,
-            accountInitializationError: undefined,
-          },
+        state.derived[id] = {
+          ...account,
+          isInitializing: false,
+          accountInitializationError: undefined,
         };
       }
     );
