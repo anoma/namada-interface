@@ -57,7 +57,7 @@ type ContextType = {
   seed?: string;
   password?: string;
   setIsInitializing?: (isInitializing: boolean) => void;
-  setInitialAccount?: (account: InitialAccount) => void;
+  setInitialAccount?: (account?: InitialAccount) => void;
   setSeed?: (seed: string) => void;
   setPassword?: (password: string) => void;
   setIsLoggedIn?: () => void;
@@ -92,7 +92,9 @@ function App(): JSX.Element {
     return (
       <BrowserRouter>
         <ThemeProvider theme={theme}>
-          <AppContext.Provider value={{ initialAccount, seed }}>
+          <AppContext.Provider
+            value={{ initialAccount, seed, setInitialAccount }}
+          >
             <AppContainer>
               <TopSection>
                 <TopNavigation

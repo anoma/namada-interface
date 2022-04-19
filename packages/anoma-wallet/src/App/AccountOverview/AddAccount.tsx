@@ -140,6 +140,7 @@ export const AddAccount = (): JSX.Element => {
         ></Select>
       </InputContainer>
 
+      {isAddingAccount && <p>Adding new account...</p>}
       <Button
         variant={ButtonVariant.Contained}
         onClick={handleAddClick}

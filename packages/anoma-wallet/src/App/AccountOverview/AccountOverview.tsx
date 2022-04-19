@@ -31,7 +31,7 @@ export const AccountOverview = ({ persistor }: Props): JSX.Element => {
   );
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const context = useContext(AppContext);
-  const { initialAccount } = context;
+  const { initialAccount, setInitialAccount } = context;
   const accounts = Object.values(derived);
 
   // Collect uninitialized accounts
@@ -44,6 +44,12 @@ export const AccountOverview = ({ persistor }: Props): JSX.Element => {
     if (initialAccount && accounts.length === 0) {
       dispatch(addAccount(initialAccount));
     }
+    return () => {
+      if (setInitialAccount) {
+        // Clean up
+        setInitialAccount();
+      }
+    };
   }, []);
 
   useEffect(() => {
