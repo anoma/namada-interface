@@ -55,9 +55,7 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
   transactions.sort((a, b) => b.timestamp - a.timestamp);
 
   useEffect(() => {
-    (async () => {
-      dispatch(fetchBalanceByAccount(account));
-    })();
+    dispatch(fetchBalanceByAccount(account));
   }, []);
 
   return (
