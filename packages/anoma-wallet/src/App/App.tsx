@@ -54,9 +54,7 @@ export const AnimatedTransition = (props: {
 
 type ContextType = {
   initialAccount?: InitialAccount;
-  seed?: string;
   password?: string;
-  setIsInitializing?: (isInitializing: boolean) => void;
   setInitialAccount?: (account?: InitialAccount) => void;
   setPassword?: (password: string) => void;
   setIsLoggedIn?: () => void;
@@ -90,7 +88,9 @@ function App(): JSX.Element {
     return (
       <BrowserRouter>
         <ThemeProvider theme={theme}>
-          <AppContext.Provider value={{ initialAccount, setInitialAccount }}>
+          <AppContext.Provider
+            value={{ initialAccount, setInitialAccount, password }}
+          >
             <AppContainer>
               <TopSection>
                 <TopNavigation
@@ -103,7 +103,7 @@ function App(): JSX.Element {
               <BottomSection>
                 <AnimatePresence exitBeforeEnter>
                   <Suspense fallback={<p>Loading</p>}>
-                    <AppRoutes password={password} />
+                    <AppRoutes />
                   </Suspense>
                 </AnimatePresence>
               </BottomSection>
