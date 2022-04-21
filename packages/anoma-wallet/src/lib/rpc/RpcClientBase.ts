@@ -3,18 +3,18 @@ import { NetworkConfig, Protocol } from "config";
 export type RpcClientInitArgs = NetworkConfig;
 
 abstract class RpcClientBase {
-  private _network: string;
+  private _url: string;
   private _port: number;
   private _protocol: Protocol;
 
-  constructor({ network, port = 26657, protocol = "http" }: RpcClientInitArgs) {
-    this._network = network;
+  constructor({ url, port = 26657, protocol = "http" }: RpcClientInitArgs) {
+    this._url = url;
     this._port = port;
     this._protocol = protocol;
   }
 
-  public set network(network: string) {
-    this._network = network;
+  public set url(url: string) {
+    this._url = url;
   }
 
   public set port(port: number) {
@@ -26,7 +26,7 @@ abstract class RpcClientBase {
   }
 
   protected get endpoint(): string {
-    return `${this._protocol}://${this._network}:${this._port}`;
+    return `${this._protocol}://${this._url}:${this._port}`;
   }
 }
 

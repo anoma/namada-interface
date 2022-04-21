@@ -3,7 +3,7 @@ import { Routes, Route, Outlet } from "react-router-dom";
 import { Persistor, persistStore } from "redux-persist";
 import { AccountOverview } from "./AccountOverview";
 import { AddAccount } from "./AccountOverview/AddAccount";
-import { AnimatedTransition } from "./App";
+import { AnimatedTransition, AppContext } from "./App";
 import { ContentContainer } from "./App.components";
 import {
   Settings,
@@ -14,7 +14,7 @@ import {
 import { StakingAndGovernance } from "./StakingAndGovernance";
 import { TopLevelRoute } from "./types";
 import { makeStore } from "store";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AppStore } from "store/store";
 import { Session } from "lib";
 import { TokenDetails } from "./Token";
@@ -29,9 +29,12 @@ const fakeAccounts = [
   "fakelg45lt5m623ayll8vdyf6n7gxm3tz7mtrenrer0",
 ];
 
-const AppRoutes = ({ password }: { password: string }): JSX.Element => {
+const AppRoutes = (): JSX.Element => {
   const [store, setStore] = useState<AppStore>();
   const [persistor, setPersistor] = useState<Persistor>();
+
+  const context = useContext(AppContext);
+  const { password = "" } = context;
 
   useEffect(() => {
     if (password === "") {

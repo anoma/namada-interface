@@ -3,8 +3,13 @@ import { PersistGate } from "redux-persist/integration/react";
 import { useNavigate } from "react-router-dom";
 import { Persistor } from "redux-persist/lib/types";
 
-import { useAppDispatch } from "store";
-import { addAccount } from "slices/accounts";
+import { useAppDispatch, useAppSelector } from "store";
+import {
+  AccountsState,
+  addAccount,
+  submitInitAccountTransaction,
+} from "slices/accounts";
+import { TransfersState } from "slices/transfers";
 import { TopLevelRoute } from "App/types";
 
 import { DerivedAccounts } from "./DerivedAccounts";
@@ -21,14 +26,40 @@ type Props = {
 export const AccountOverview = ({ persistor }: Props): JSX.Element => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const { isTransferSubmitting } = useAppSelector<TransfersState>(
+    (state) => state.transfers
+  );
+  const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const context = useContext(AppContext);
-  const { initialAccount } = context;
+  const { initialAccount, setInitialAccount } = context;
+  const accounts = Object.values(derived);
+
+  // Collect uninitialized accounts
+  const uninitializedAccounts = accounts.filter(
+    (account) => !account.establishedAddress && !account.isInitializing
+  );
 
   useEffect(() => {
-    if (initialAccount) {
+    // If this is our first account, add it to the store
+    if (initialAccount && accounts.length === 0) {
       dispatch(addAccount(initialAccount));
     }
-  }, [initialAccount, dispatch]);
+    return () => {
+      if (setInitialAccount) {
+        // Clean up
+        setInitialAccount();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    // Initialize any uninitialized accounts
+    if (uninitializedAccounts.length > 0) {
+      uninitializedAccounts.forEach((account) => {
+        dispatch(submitInitAccountTransaction(account));
+      });
+    }
+  }, [uninitializedAccounts]);
 
   return (
     <AccountOverviewContainer>
@@ -41,6 +72,7 @@ export const AccountOverview = ({ persistor }: Props): JSX.Element => {
       >
         Add Account
       </Button>
+      {isTransferSubmitting && <p>Transfer is in progress</p>}
       <PersistGate loading={"Loading accounts..."} persistor={persistor}>
         <DerivedAccounts />
       </PersistGate>

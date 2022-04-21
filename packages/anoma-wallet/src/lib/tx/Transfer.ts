@@ -21,6 +21,8 @@ class Transfer {
     privateKey,
     epoch,
     amount,
+    gasLimit = 0,
+    feeAmount = 0,
   }: {
     source: string;
     target: string;
@@ -28,6 +30,8 @@ class Transfer {
     privateKey: string;
     epoch: number;
     amount: number;
+    gasLimit?: number;
+    feeAmount?: number;
   }): Promise<{ hash: string; bytes: Uint8Array }> {
     return await this._client?.transfer.new(
       privateKey, // Signing key
@@ -36,8 +40,8 @@ class Transfer {
       token, // token address string
       amountToMicro(amount), // Amount is being sent in micro
       epoch, // Epoch
-      0, // Gas limit multiplier
-      0, // Fee amount
+      gasLimit, // Gas limit multiplier
+      feeAmount, // Fee amount
       this._txCode || new Uint8Array() // Transaction wasm
     );
   }

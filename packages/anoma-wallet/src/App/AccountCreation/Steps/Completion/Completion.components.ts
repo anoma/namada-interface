@@ -1,6 +1,6 @@
 import styled from "styled-components/macro";
 
-export const StartViewContainer = styled.div`
+export const CompletionViewContainer = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -19,7 +19,7 @@ export const BodyText = styled.p`
   color: ${(props) => props.theme.colors.textPrimary};
 `;
 
-export const StartViewUpperPartContainer = styled.div`
+export const CompletionViewUpperPartContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;

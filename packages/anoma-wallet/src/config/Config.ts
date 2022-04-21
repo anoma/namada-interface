@@ -3,7 +3,7 @@ const { REACT_APP_LOCAL } = process.env;
 export type Protocol = "http" | "https" | "ws" | "wss";
 
 export type NetworkConfig = {
-  network: string;
+  url: string;
   port: number;
   protocol: Protocol;
 };
@@ -22,7 +22,7 @@ const LOCALHOST_WS_PROTOCOL = "ws";
 
 export default class Config {
   private _isLocal = !!REACT_APP_LOCAL;
-  private _network = this._isLocal ? LOCALHOST_URL : DEVNET_URL;
+  private _url = this._isLocal ? LOCALHOST_URL : DEVNET_URL;
   private _port = this._isLocal ? LOCALHOST_PORT : DEVNET_PORT;
   private _protocol: Protocol = this._isLocal
     ? LOCALHOST_PROTOCOL
@@ -33,7 +33,7 @@ export default class Config {
 
   public get network(): NetworkConfig {
     return {
-      network: this._network,
+      url: this._url,
       port: this._port,
       protocol: this._protocol,
     };
@@ -41,7 +41,7 @@ export default class Config {
 
   public get wsNetwork(): NetworkConfig {
     return {
-      network: this._network,
+      url: this._url,
       port: this._port,
       protocol: this._wsProtocol,
     };

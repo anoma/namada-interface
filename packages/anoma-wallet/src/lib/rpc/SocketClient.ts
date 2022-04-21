@@ -3,7 +3,11 @@ import { WebsocketClient } from "@cosmjs/tendermint-rpc";
 import RpcClientBase from "./RpcClientBase";
 import { createJsonRpcRequest } from "utils/helpers";
 import { TxResponse } from "../../constants";
-import { SubscriptionParams } from "./types";
+import {
+  BroadcastSyncResponse,
+  NewBlockEvents,
+  SubscriptionEvents,
+} from "./types";
 
 class SocketClient extends RpcClientBase {
   private _client: WebsocketClient | null = null;
@@ -26,23 +30,55 @@ class SocketClient extends RpcClientBase {
   }
 
   public async broadcastTx(
-    hash: string,
     tx: Uint8Array,
-    { onBroadcast, onNext, onError, onComplete }: SubscriptionParams
-  ): Promise<SocketClient> {
+    callbacks?: {
+      onBroadcast?: (response: BroadcastSyncResponse) => void;
+      onError?: (error: string) => void;
+    }
+  ): Promise<BroadcastSyncResponse> {
     if (!this._client) {
       this.connect();
     }
 
-    try {
-      const queries = [`tm.event='NewBlock'`, `${TxResponse.Hash}='${hash}'`];
+    const { onBroadcast, onError } = callbacks || {};
+
+    return new Promise((resolve, reject) => {
       this.client
         ?.execute(
           createJsonRpcRequest("broadcast_tx_sync", { tx: toBase64(tx) })
         )
-        .then(onBroadcast)
-        .catch(onError);
+        .then((response: BroadcastSyncResponse) => {
+          this.disconnect();
+          if (onBroadcast) {
+            onBroadcast(response);
+          }
+          return resolve(response);
+        })
+        .catch((e) => {
+          if (onError) {
+            onError(e);
+          }
+          return reject(e);
+        });
+    });
+  }
 
+  public subscribeNewBlock(
+    hash: string,
+    callbacks?: {
+      onNext?: (events: NewBlockEvents) => void;
+      onError?: (e: unknown) => void;
+    }
+  ): Promise<NewBlockEvents> {
+    if (!this._client) {
+      this.connect();
+    }
+
+    const { onNext, onError } = callbacks || {};
+
+    const queries = [`tm.event='NewBlock'`, `${TxResponse.Hash}='${hash}'`];
+
+    return new Promise((resolve, reject) => {
       this.client
         ?.listen(
           createJsonRpcRequest("subscribe", {
@@ -50,15 +86,23 @@ class SocketClient extends RpcClientBase {
           })
         )
         .addListener({
-          next: onNext,
-          error: onError,
-          complete: onComplete,
+          next: (subEvent) => {
+            const { events }: { events: NewBlockEvents } =
+              subEvent as SubscriptionEvents;
+            this.disconnect();
+            if (onNext) {
+              onNext(events);
+            }
+            return resolve(events);
+          },
+          error: (e) => {
+            if (onError) {
+              onError(e);
+            }
+            return reject(e);
+          },
         });
-
-      return Promise.resolve(this);
-    } catch (e) {
-      return Promise.reject(e);
-    }
+    });
   }
 }
 

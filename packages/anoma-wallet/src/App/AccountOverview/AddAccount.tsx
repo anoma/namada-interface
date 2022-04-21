@@ -1,30 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import {
-  Symbols,
-  TokenType,
-  Tokens,
-  TxResponse,
-  FAUCET_ADDRESS,
-} from "constants/";
-import {
-  Wallet,
-  Account,
-  Transfer,
-  RpcClient,
-  SocketClient,
-  Session,
-} from "lib";
-import {
-  addAccount,
-  setEstablishedAddress,
-  DerivedAccount,
-  AccountsState,
-} from "slices/accounts";
-import { NewBlockEvents, SubscriptionEvents } from "lib/rpc/types";
-import { useAppDispatch } from "store";
-import { Config } from "config";
+import { Symbols, TokenType, Tokens } from "constants/";
+import { Wallet, Session } from "lib";
+import { useAppDispatch, useAppSelector } from "store";
+import { DerivedAccount, AccountsState, addAccount } from "slices/accounts";
 
 import { NavigationContainer } from "components/NavigationContainer";
 import { Heading, HeadingLevel } from "components/Heading";
@@ -32,16 +12,10 @@ import {
   AccountOverviewContainer,
   InputContainer,
 } from "./AccountOverview.components";
-
-import { useAppSelector } from "store";
 import { Button, ButtonVariant } from "components/Button";
 import { TopLevelRoute } from "App/types";
 import { Select, Option } from "components/Select";
 import { Input, InputVariants } from "components/Input";
-
-const { network, wsNetwork } = new Config();
-const rpcClient = new RpcClient(network);
-const socketClient = new SocketClient(wsNetwork);
 
 const MIN_ALIAS_LENGTH = 2;
 
@@ -52,9 +26,7 @@ export const AddAccount = (): JSX.Element => {
   const [alias, setAlias] = useState<string>("");
   const [aliasError, setAliasError] = useState<string>();
   const [tokenType, setTokenType] = useState<TokenType>("NAM");
-  const [isInitializing, setIsInitializing] = useState(false);
-  const [status, setStatus] = useState("");
-  const [error, setError] = useState<string>();
+  const [isAddingAccount, setIsAddingAccount] = useState(false);
 
   const tokensData: Option<string>[] = Symbols.map((symbol: TokenType) => {
     const token = Tokens[symbol];
@@ -104,42 +76,13 @@ export const AddAccount = (): JSX.Element => {
     }
   }, [alias]);
 
-  // For development only:
-  const loadFromFaucet = async (
-    tokenType: TokenType,
-    establishedAddress: string,
-    privateKey: string
-  ): Promise<void> => {
-    setStatus("Loading tokens from faucet");
-    const epoch = await rpcClient.queryEpoch();
-    const transfer = await new Transfer().init();
-    const { hash: transferHash, bytes: transferBytes } =
-      await transfer.makeTransfer({
-        source: FAUCET_ADDRESS,
-        target: establishedAddress,
-        amount: 1000,
-        epoch,
-        privateKey,
-        token: `${Tokens[tokenType].address}`,
-      });
-
-    await socketClient.broadcastTx(transferHash, transferBytes, {
-      onBroadcast: () => setStatus("Successfully connected to ledger"),
-      onNext: () => {
-        socketClient.disconnect();
-        navigate(TopLevelRoute.Wallet);
-      },
-    });
-  };
-
   const handleAddClick = async (): Promise<void> => {
     const trimmedAlias = alias.trim();
 
     if (!trimmedAlias || !validateAlias(trimmedAlias)) {
       return setAliasError("Invalid alias. Choose a different account alias.");
     }
-    setStatus("Initializing new account...");
-    setIsInitializing(true);
+    setIsAddingAccount(true);
     const mnemonic = await new Session().getSeed();
 
     if (mnemonic && trimmedAlias) {
@@ -152,7 +95,7 @@ export const AddAccount = (): JSX.Element => {
       );
 
       const account = wallet.new(index);
-      const { public: publicKey, secret: privateKey, wif: address } = account;
+      const { public: publicKey, secret: signingKey, wif: address } = account;
 
       dispatch(
         addAccount({
@@ -160,56 +103,12 @@ export const AddAccount = (): JSX.Element => {
           tokenType,
           address,
           publicKey,
-          signingKey: privateKey,
+          signingKey,
         })
       );
-
-      // Query epoch:
-      const epoch = await rpcClient.queryEpoch();
-
-      // Create init-account transaction:
-      const anomaAccount = await new Account().init();
-      const { hash, bytes } = await anomaAccount.initialize({
-        token: Tokens[tokenType].address,
-        privateKey,
-        epoch,
-      });
-
-      // Broadcast transaction to ledger:
-      await socketClient.broadcastTx(hash, bytes, {
-        onNext: (subEvent) => {
-          const { events }: { events: NewBlockEvents } =
-            subEvent as SubscriptionEvents;
-          const initializedAccounts = events[TxResponse.InitializedAccounts];
-          const establishedAddress = initializedAccounts
-            .map((account: string) => JSON.parse(account))
-            .find((account: string[]) => account.length > 0)[0];
-
-          dispatch(
-            setEstablishedAddress({
-              alias: trimmedAlias,
-              establishedAddress,
-            })
-          );
-          socketClient.disconnect();
-
-          // TODO: Preferably we should set a NODE_ENV variable on Netlify
-          // to specify testing environments. This is a temporary measure:
-          if (network.network.match(/testnet/)) {
-            // LOAD SOME TOKENS FROM FAUCET
-            loadFromFaucet(tokenType, establishedAddress, privateKey);
-          } else {
-            navigate(TopLevelRoute.Wallet);
-          }
-        },
-        onError: (error) => {
-          console.error(error);
-          setError(error.toString());
-          setIsInitializing(false);
-        },
-      });
+      navigate(TopLevelRoute.Wallet);
     } else {
-      setIsInitializing(false);
+      console.error("Could not find mnemonic!");
     }
   };
 
@@ -240,12 +139,12 @@ export const AddAccount = (): JSX.Element => {
           onChange={handleTokenSelect}
         ></Select>
       </InputContainer>
-      {isInitializing && <p>{status}</p>}
-      {error && <p>{error}</p>}
+
+      {isAddingAccount && <p>Adding new account...</p>}
       <Button
         variant={ButtonVariant.Contained}
         onClick={handleAddClick}
-        disabled={!validateAlias(alias) || isInitializing}
+        disabled={!validateAlias(alias) || isAddingAccount}
       >
         Add
       </Button>

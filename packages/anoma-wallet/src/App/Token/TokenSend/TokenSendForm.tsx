@@ -2,13 +2,16 @@ import { useEffect, useState } from "react";
 import QrReader from "react-qr-reader";
 
 import { Config } from "config";
-import { RpcClient, SocketClient, Transfer } from "lib";
-import { NewBlockEvents, SubscriptionEvents } from "lib/rpc/types";
-import { addTransaction } from "slices";
-import { AccountsState, fetchBalanceByAddress } from "slices/accounts";
+import { RpcClient } from "lib";
+import { AccountsState, fetchBalanceByAccount } from "slices/accounts";
+import {
+  clearEvents,
+  submitTransferTransaction,
+  TransfersState,
+} from "slices/transfers";
+
 import { useAppDispatch, useAppSelector } from "store";
-import { amountFromMicro } from "utils/helpers";
-import { Tokens, TxResponse } from "constants/";
+import { Tokens } from "constants/";
 
 import { Button, ButtonVariant } from "components/Button";
 import { Input, InputVariants } from "components/Input";
@@ -24,42 +27,34 @@ import {
   TokenSendFormContainer,
 } from "./TokenSendForm.components";
 import { Toggle } from "components/Toggle";
-import { Address } from "../Transfers/TransferDetails.components";
 import { Icon, IconName } from "components/Icon";
+import { DerivedAccount } from "slices/accounts";
 
 type Props = {
   accountId: string;
   defaultTarget?: string;
 };
 
-const { network, wsNetwork } = new Config();
+const { network } = new Config();
 const rpcClient = new RpcClient(network);
-const socketClient = new SocketClient(wsNetwork);
 
 const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
   const dispatch = useAppDispatch();
   const [target, setTarget] = useState<string | undefined>(defaultTarget);
   const [amount, setAmount] = useState<number>(0);
   const [memo, setMemo] = useState<string>("");
-  const [status, setStatus] = useState<string>();
-  const [events, setEvents] = useState<
-    { gas: number; hash: string } | undefined
-  >();
+
   const [isTargetValid, setIsTargetValid] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isShielded, setIsShielded] = useState(false);
   const [showQrReader, setShowQrReader] = useState(false);
   const [qrCodeError, setQrCodeError] = useState<string>();
 
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
+  const { isTransferSubmitting, transferError, events } =
+    useAppSelector<TransfersState>((state) => state.transfers);
+
   const account = derived[accountId] || {};
-  const {
-    id,
-    alias,
-    establishedAddress = "",
-    tokenType,
-    balance = 0,
-  } = account;
+  const { alias, establishedAddress = "", tokenType, balance = 0 } = account;
   const token = Tokens[tokenType] || {};
 
   const MAX_MEMO_LENGTH = 100;
@@ -71,10 +66,19 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
     // Get balance
     (async () => {
       if (establishedAddress && token.address) {
-        dispatch(fetchBalanceByAddress(account));
+        dispatch(fetchBalanceByAccount(account));
+
+        // Check for internal transfer:
+        const targetAccount = Object.values(derived).find(
+          (account: DerivedAccount) => account.establishedAddress === target
+        );
+        /// Fetch target balance if applicable:
+        if (targetAccount) {
+          dispatch(fetchBalanceByAccount(targetAccount));
+        }
       }
     })();
-  }, [establishedAddress, token.address]);
+  }, [establishedAddress, token.address, events]);
 
   useEffect(() => {
     // Validate target address
@@ -90,74 +94,28 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
     })();
   }, [target]);
 
-  const handleOnSendClick = async (): Promise<void> => {
+  useEffect(() => {
+    return () => {
+      dispatch(clearEvents());
+    };
+  }, []);
+
+  const handleOnSendClick = (): void => {
     if (target && token.address) {
-      setStatus("Submitting token transfer");
-      setIsSubmitting(true);
-
-      const epoch = await rpcClient.queryEpoch();
-      const transfer = await new Transfer().init();
-      const { hash: txHash, bytes } = await transfer.makeTransfer({
-        source: establishedAddress,
-        target,
-        token: token.address,
-        amount,
-        epoch,
-        privateKey: account.signingKey,
-      });
-
-      socketClient.broadcastTx(txHash, bytes, {
-        onBroadcast: () => {
-          setStatus("Successfully connected to ledger");
-        },
-        onNext: async (subEvent) => {
-          const { events }: { events: NewBlockEvents } =
-            subEvent as SubscriptionEvents;
-
-          const gas = parseInt(events[TxResponse.GasUsed][0]);
-          const appliedHash = events[TxResponse.Hash][0];
-          const height = parseInt(events[TxResponse.Height][0]);
-
-          // Check to see if this is an internal transfer, and update balances
-          // accordingly if so:
-          const targetAccount = Object.values(derived).find(
-            (account) => account.establishedAddress === target
-          );
-          if (targetAccount) {
-            dispatch(fetchBalanceByAddress(targetAccount));
-          }
-          dispatch(fetchBalanceByAddress(account));
-
-          setAmount(0);
-          setIsSubmitting(false);
-          dispatch(
-            addTransaction({
-              id,
-              transaction: {
-                appliedHash,
-                tokenType,
-                target,
-                amount,
-                memo,
-                shielded: isShielded,
-                gas,
-                height,
-                timestamp: new Date().getTime(),
-              },
-            })
-          );
-          setStatus(`Successfully transferred ${amount} of ${token.symbol}!`);
-          setEvents({
-            gas,
-            hash: appliedHash,
-          });
-          socketClient.disconnect();
-        },
-      });
+      dispatch(
+        submitTransferTransaction({
+          account,
+          target,
+          amount,
+          memo,
+          shielded: isShielded,
+        })
+      );
     }
   };
 
   const isMemoValid = (text: string): boolean => {
+    // TODO: Additional memo validation rules?
     return text.length < MAX_MEMO_LENGTH;
   };
 
@@ -254,15 +212,15 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
       </TokenSendFormContainer>
 
       <StatusContainer>
-        {status && <StatusMessage>{status}</StatusMessage>}
+        {transferError && <StatusMessage>{transferError}</StatusMessage>}
+        {isTransferSubmitting && (
+          <StatusMessage>Submitting transfer</StatusMessage>
+        )}
         {events && (
           <>
-            <StatusMessage>
-              Gas used: <strong>{amountFromMicro(events.gas)}</strong>
-              <br />
-              Applied hash:
-            </StatusMessage>
-            <Address>{events.hash}</Address>
+            <StatusMessage>Transfer successful!</StatusMessage>
+            <StatusMessage>Gas used: {events.gas}</StatusMessage>
+            <StatusMessage>Applied hash: {events.appliedHash}</StatusMessage>
           </>
         )}
       </StatusContainer>
@@ -276,7 +234,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
             amount === 0 ||
             !isMemoValid(memo) ||
             !isTargetValid ||
-            isSubmitting
+            isTransferSubmitting
           }
           onClick={handleOnSendClick}
         >

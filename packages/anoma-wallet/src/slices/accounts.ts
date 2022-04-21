@@ -1,59 +1,52 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Config } from "config";
-import { Tokens, TokenType } from "constants/";
-import { RpcClient } from "lib";
-import { stringToHash } from "utils/helpers";
+import { Tokens, TokenType, TxResponse } from "constants/";
+import { Account, RpcClient, SocketClient } from "lib";
+import { NewBlockEvents } from "lib/rpc/types";
+import { promiseWithTimeout, stringToHash } from "utils/helpers";
+import { submitTransferTransaction } from "./transfers";
 
-export type DerivedAccount = {
-  id: string;
+export type InitialAccount = {
   alias: string;
   tokenType: TokenType;
   address: string;
   publicKey: string;
   signingKey: string;
-  balance?: number;
   establishedAddress?: string;
   zip32Address?: string;
 };
 
-export type InitialAccount = Omit<DerivedAccount, "id">;
-
-export type Transaction = {
-  tokenType: TokenType;
-  appliedHash: string;
-  target: string;
-  amount: number;
-  memo?: string;
-  shielded: boolean;
-  gas: number;
-  height: number;
-  timestamp: number;
+export type DerivedAccount = InitialAccount & {
+  id: string;
+  balance: number;
+  isInitializing?: boolean;
+  accountInitializationError?: string;
 };
 
 type DerivedAccounts = {
   [id: string]: DerivedAccount;
 };
 
-type AccountTransactions = {
-  [accountId: string]: Transaction[];
-};
-
 export type AccountsState = {
   derived: DerivedAccounts;
-  transactions: AccountTransactions;
 };
 
 const ACCOUNTS_ACTIONS_BASE = "accounts";
+const { url } = new Config().network;
 
 enum AccountThunkActions {
-  FetchBalanceByAddress = "fetchBalanceByAddress",
+  FetchBalanceByAccount = "fetchBalanceByAccount",
+  SubmitInitAccountTransaction = "submitInitAccountTransaction",
 }
 
-const { network } = new Config();
+const { network, wsNetwork } = new Config();
 const rpcClient = new RpcClient(network);
+const socketClient = new SocketClient(wsNetwork);
 
-export const fetchBalanceByAddress = createAsyncThunk(
-  `${ACCOUNTS_ACTIONS_BASE}/${AccountThunkActions.FetchBalanceByAddress}`,
+const LEDGER_INIT_ACCOUNT_TIMEOUT = 12000;
+
+export const fetchBalanceByAccount = createAsyncThunk(
+  `${ACCOUNTS_ACTIONS_BASE}/${AccountThunkActions.FetchBalanceByAccount}`,
   async (account: DerivedAccount) => {
     const { id, establishedAddress, tokenType } = account;
     const { address: tokenAddress = "" } = Tokens[tokenType];
@@ -68,9 +61,70 @@ export const fetchBalanceByAddress = createAsyncThunk(
   }
 );
 
+export const submitInitAccountTransaction = createAsyncThunk(
+  `${ACCOUNTS_ACTIONS_BASE}/${AccountThunkActions.SubmitInitAccountTransaction}`,
+  async (account: DerivedAccount, { dispatch, rejectWithValue }) => {
+    const { signingKey: privateKey, tokenType } = account;
+
+    const epoch = await rpcClient.queryEpoch();
+    const anomaAccount = await new Account().init();
+    const { hash, bytes } = await anomaAccount.initialize({
+      token: Tokens[tokenType].address,
+      privateKey,
+      epoch,
+    });
+
+    const { promise, timeoutId } = promiseWithTimeout<NewBlockEvents>(
+      new Promise(async (resolve) => {
+        await socketClient.broadcastTx(bytes);
+        const events = await socketClient.subscribeNewBlock(hash);
+        resolve(events);
+      }),
+      LEDGER_INIT_ACCOUNT_TIMEOUT,
+      `Async actions timed out when communicating with ledger after ${
+        LEDGER_INIT_ACCOUNT_TIMEOUT / 1000
+      } seconds`
+    );
+
+    promise.catch((e) => {
+      socketClient.disconnect();
+      rejectWithValue(e);
+    });
+
+    const events = await promise;
+    clearTimeout(timeoutId);
+    socketClient.disconnect();
+
+    const initializedAccounts = events[TxResponse.InitializedAccounts];
+    const establishedAddress = initializedAccounts
+      .map((account: string) => JSON.parse(account))
+      .find((account: string[]) => account.length > 0)[0];
+
+    const initializedAccount = {
+      ...account,
+      balance: 0,
+      establishedAddress,
+    };
+
+    if (url.match(/testnet/)) {
+      dispatch(
+        submitTransferTransaction({
+          account: initializedAccount,
+          target: establishedAddress || "",
+          amount: 1000,
+          memo: "Initial funds",
+          shielded: false,
+          useFaucet: true,
+        })
+      );
+    }
+
+    return initializedAccount;
+  }
+);
+
 const initialState: AccountsState = {
   derived: {},
-  transactions: {},
 };
 
 const accountsSlice = createSlice({
@@ -78,14 +132,8 @@ const accountsSlice = createSlice({
   initialState,
   reducers: {
     addAccount: (state, action: PayloadAction<InitialAccount>) => {
-      const {
-        alias,
-        tokenType,
-        address,
-        publicKey,
-        signingKey,
-        establishedAddress,
-      } = action.payload;
+      const initialAccount = action.payload;
+      const { alias } = initialAccount;
 
       const id = stringToHash(alias);
 
@@ -93,12 +141,8 @@ const accountsSlice = createSlice({
         ...state.derived,
         [id]: {
           id: id,
-          alias,
-          tokenType,
-          address,
-          publicKey,
-          signingKey,
-          establishedAddress,
+          balance: 0,
+          ...initialAccount,
         },
       };
     },
@@ -168,30 +212,52 @@ const accountsSlice = createSlice({
 
       state.derived = derived;
     },
-    addTransaction: (
-      state,
-      action: PayloadAction<{ transaction: Transaction; id: string }>
-    ) => {
-      const { id, transaction } = action.payload;
-
-      const transactions = state.transactions[id] || [];
-      transactions.push(transaction);
-
-      state.transactions = {
-        ...state.transactions,
-        [id]: transactions,
-      };
-    },
   },
   extraReducers: (builder) => {
-    builder.addCase(fetchBalanceByAddress.fulfilled, (state, action) => {
-      const { id, balance } = action.payload;
+    builder.addCase(
+      fetchBalanceByAccount.fulfilled,
+      (state, action: PayloadAction<{ id: string; balance: number }>) => {
+        const { id, balance } = action.payload;
 
-      state.derived[id] = {
-        ...state.derived[id],
-        balance,
-      };
+        state.derived[id] = {
+          ...state.derived[id],
+          balance,
+        };
+      }
+    );
+
+    builder.addCase(submitInitAccountTransaction.pending, (state, action) => {
+      const account = action.meta.arg;
+      const { id } = account;
+
+      state.derived[id].isInitializing = true;
+      state.derived[id].accountInitializationError = undefined;
     });
+
+    builder.addCase(submitInitAccountTransaction.rejected, (state, action) => {
+      const { meta, error } = action;
+      const account = meta.arg;
+      const { id } = account;
+
+      state.derived[id].isInitializing = false;
+      state.derived[id].accountInitializationError = error
+        ? error.message
+        : "Error initializing account";
+    });
+
+    builder.addCase(
+      submitInitAccountTransaction.fulfilled,
+      (state, action: PayloadAction<DerivedAccount>) => {
+        const account = action.payload;
+        const { id } = account;
+
+        state.derived[id] = {
+          ...account,
+          isInitializing: false,
+          accountInitializationError: undefined,
+        };
+      }
+    );
   },
 });
 
@@ -203,7 +269,6 @@ export const {
   setZip32Address,
   removeAccount,
   renameAccount,
-  addTransaction,
 } = actions;
 
 export default reducer;

@@ -5,6 +5,7 @@ export {
   renameAccount,
   setEstablishedAddress,
   setZip32Address,
-  addTransaction,
-  fetchBalanceByAddress,
+  fetchBalanceByAccount,
 } from "./accounts";
+
+export { default as transfersReducer } from "./transfers";

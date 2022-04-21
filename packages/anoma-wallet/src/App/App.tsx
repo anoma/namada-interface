@@ -54,11 +54,8 @@ export const AnimatedTransition = (props: {
 
 type ContextType = {
   initialAccount?: InitialAccount;
-  seed?: string;
   password?: string;
-  setIsInitializing?: (isInitializing: boolean) => void;
-  setInitialAccount?: (account: InitialAccount) => void;
-  setSeed?: (seed: string) => void;
+  setInitialAccount?: (account?: InitialAccount) => void;
   setPassword?: (password: string) => void;
   setIsLoggedIn?: () => void;
 };
@@ -67,7 +64,6 @@ export const AppContext = createContext<ContextType>({});
 
 function App(): JSX.Element {
   const [isLightMode, setIsLightMode] = useState(true);
-  const [seed, setSeed] = useState<string>();
   const [password, setPassword] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [initialAccount, setInitialAccount] = useState<InitialAccount>();
@@ -92,7 +88,9 @@ function App(): JSX.Element {
     return (
       <BrowserRouter>
         <ThemeProvider theme={theme}>
-          <AppContext.Provider value={{ initialAccount, seed }}>
+          <AppContext.Provider
+            value={{ initialAccount, setInitialAccount, password }}
+          >
             <AppContainer>
               <TopSection>
                 <TopNavigation
@@ -105,7 +103,7 @@ function App(): JSX.Element {
               <BottomSection>
                 <AnimatePresence exitBeforeEnter>
                   <Suspense fallback={<p>Loading</p>}>
-                    <AppRoutes password={password} />
+                    <AppRoutes />
                   </Suspense>
                 </AnimatePresence>
               </BottomSection>
@@ -124,10 +122,8 @@ function App(): JSX.Element {
       <ThemeProvider theme={theme}>
         <AppContext.Provider
           value={{
-            seed,
             password,
             setInitialAccount: (account) => setInitialAccount(account),
-            setSeed: (seed) => setSeed(seed),
             setPassword: (password) => setPassword(password),
             setIsLoggedIn: () => setIsLoggedIn(true),
           }}
