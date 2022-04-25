@@ -1,4 +1,4 @@
-import * as CryptoJS from "crypto-js";
+import CryptoJS from "crypto-js";
 import { JsonRpcRequest } from "@cosmjs/json-rpc";
 import base58 from "bs58";
 import { DateTime } from "luxon";
@@ -9,12 +9,16 @@ import { JsonCompatibleArray, JsonCompatibleDictionary } from "lib/rpc/types";
  */
 export const promiseWithTimeout = <T = unknown>(
   promise: Promise<T>,
-  timeout = 4000
-): { promise: Promise<T>; timeoutId: number } => {
+  timeout = 4000,
+  error = "Request timed out"
+): {
+  promise: Promise<T>;
+  timeoutId: number;
+} => {
   let timeoutId: ReturnType<typeof setTimeout> | number = -1;
   const timeoutPromise = new Promise<T>((_, reject) => {
     timeoutId = setTimeout(() => {
-      reject(new Error("Request timed out"));
+      reject(new Error(error));
     }, timeout);
   });
   return {

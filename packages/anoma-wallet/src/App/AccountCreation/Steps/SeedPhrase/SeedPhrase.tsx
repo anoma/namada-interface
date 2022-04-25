@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Mnemonic, MnemonicLength } from "@anoma-apps/seed-management";
 import { Button, Variant } from "components/ButtonTemporary";
 import {
@@ -13,7 +13,6 @@ import {
   SeedPhraseIndexLabel,
   ExportSeedPhraseButtonsContainer,
 } from "./SeedPhrase.components";
-import { AppContext } from "App/App";
 
 const seedPhraseStringToArray = (seedPhraseAsString: string): string[] => {
   if (seedPhraseAsString === "") return [];
@@ -63,8 +62,7 @@ const SeedPhrase = (props: AccountInformationViewProps): JSX.Element => {
     onConfirmSavingOfSeedPhrase,
     defaultSeedPhrase,
   } = props;
-  const context = useContext(AppContext) || {};
-  const { setSeed } = context;
+
   const defaultSeedPhraseAsString = defaultSeedPhrase?.join(" ");
   const [seedPhrase, setSeedPhrase] = React.useState(
     defaultSeedPhraseAsString || ""
@@ -83,9 +81,6 @@ const SeedPhrase = (props: AccountInformationViewProps): JSX.Element => {
         mnemonicLengthToEnum(seedPhraseLength)
       );
       setSeedPhrase(mnemonic.phrase);
-      if (setSeed) {
-        setSeed(mnemonic.phrase);
-      }
     };
 
     createMnemonic();

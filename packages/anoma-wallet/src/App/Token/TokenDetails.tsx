@@ -7,7 +7,7 @@ import { TopLevelRoute } from "App/types";
 import {
   DerivedAccount,
   AccountsState,
-  fetchBalanceByAddress,
+  fetchBalanceByAccount,
 } from "slices/accounts";
 import { useAppDispatch, useAppSelector } from "store";
 import { formatRoute, stringFromTimestamp } from "utils/helpers";
@@ -25,6 +25,7 @@ import {
   TransactionListItem,
 } from "./TokenDetails.components";
 import { Address } from "./Transfers/TransferDetails.components";
+import { TransfersState } from "slices/transfers";
 
 type Props = {
   persistor: Persistor;
@@ -37,12 +38,15 @@ type TokenDetailsParams = {
 const TokenDetails = ({ persistor }: Props): JSX.Element => {
   const navigate = useNavigate();
   const { id = "" } = useParams<TokenDetailsParams>();
-  const { derived, transactions: accountTransactions } =
-    useAppSelector<AccountsState>((state) => state.accounts);
+  const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
+  const { transactions: accountTransactions } = useAppSelector<TransfersState>(
+    (state) => state.transfers
+  );
   const dispatch = useAppDispatch();
 
   const account: DerivedAccount = derived[id] || {};
-  const { alias, tokenType, balance, establishedAddress } = account;
+  const { alias, tokenType, balance, establishedAddress, isInitializing } =
+    account;
   const token = Tokens[tokenType] || {};
 
   // eslint-disable-next-line prefer-const
@@ -51,9 +55,7 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
   transactions.sort((a, b) => b.timestamp - a.timestamp);
 
   useEffect(() => {
-    (async () => {
-      dispatch(fetchBalanceByAddress(account));
-    })();
+    dispatch(fetchBalanceByAccount(account));
   }, []);
 
   return (
@@ -86,40 +88,48 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
           </strong>
         </p>
 
-        <Address>{establishedAddress}</Address>
-        <ButtonsContainer>
-          <Button
-            variant={ButtonVariant.Small}
-            style={{ width: 180 }}
-            onClick={() => {
-              navigate(formatRoute(TopLevelRoute.TokenReceive, { id }));
-            }}
-          >
-            Receive
-          </Button>
-          <Button
-            variant={ButtonVariant.Small}
-            style={{ width: 180 }}
-            onClick={() => {
-              navigate(formatRoute(TopLevelRoute.TokenSend, { id }));
-            }}
-          >
-            Send
-          </Button>
-        </ButtonsContainer>
+        {isInitializing ? (
+          <p>Account is initializing...</p>
+        ) : (
+          <>
+            <Address>{establishedAddress}</Address>
+            <ButtonsContainer>
+              <Button
+                variant={ButtonVariant.Small}
+                style={{ width: 180 }}
+                onClick={() => {
+                  navigate(formatRoute(TopLevelRoute.TokenReceive, { id }));
+                }}
+              >
+                Receive
+              </Button>
+              <Button
+                variant={ButtonVariant.Small}
+                style={{ width: 180 }}
+                onClick={() => {
+                  navigate(formatRoute(TopLevelRoute.TokenSend, { id }));
+                }}
+              >
+                Send
+              </Button>
+            </ButtonsContainer>
+          </>
+        )}
 
         <Heading level={HeadingLevel.Three}>Transactions</Heading>
         {transactions.length === 0 && <p>No transactions</p>}
         {transactions.length > 0 && (
           <TransactionList>
             {transactions.map((transaction) => {
-              const { appliedHash, amount, timestamp } = transaction;
+              const { appliedHash, amount, timestamp, type } = transaction;
               const dateTimeFormatted = stringFromTimestamp(timestamp);
 
               return (
                 <TransactionListItem key={`${appliedHash}:${timestamp}`}>
                   <div>
-                    <strong>{amount}</strong>
+                    <strong>
+                      {type ? "Received" : "Sent"} {amount} {tokenType}
+                    </strong>
                     <br />
                     {dateTimeFormatted}
                   </div>

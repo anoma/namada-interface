@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAppDispatch, useAppSelector } from "store";
-import { AccountsState, fetchBalanceByAddress } from "slices/accounts";
+import { AccountsState, fetchBalanceByAccount } from "slices/accounts";
 import { formatRoute } from "utils/helpers";
 import { TopLevelRoute } from "App/types";
 
@@ -29,7 +29,7 @@ const DerivedAccounts = (): JSX.Element => {
       keys.forEach((key) => {
         const account = derived[key];
         if (!account.balance) {
-          dispatch(fetchBalanceByAddress(account));
+          dispatch(fetchBalanceByAccount(account));
         }
       });
     }
@@ -41,13 +41,16 @@ const DerivedAccounts = (): JSX.Element => {
         {Object.keys(derived)
           .reverse()
           .map((hash: string) => {
-            const { id, alias, tokenType, balance } = derived[hash];
+            const { id, alias, tokenType, balance, isInitializing } =
+              derived[hash];
 
             return (
               <DerivedAccountItem key={alias}>
                 <DerivedAccountContainer>
                   <DerivedAccountInfo>
-                    <DerivedAccountAlias>{alias}</DerivedAccountAlias>
+                    <DerivedAccountAlias>
+                      {alias} {isInitializing && <i>(initializing)</i>}
+                    </DerivedAccountAlias>
                     <DerivedAccountType>{tokenType}</DerivedAccountType>
                   </DerivedAccountInfo>
 

@@ -1,9 +1,9 @@
 import { Heading, HeadingLevel } from "components/Heading";
 import { NavigationContainer } from "components/NavigationContainer";
 import { useNavigate, useParams } from "react-router-dom";
-import { AccountsState } from "slices/accounts";
+import { TransfersState } from "slices/transfers";
 import { useAppSelector } from "store";
-import { amountFromMicro, stringFromTimestamp } from "utils/helpers";
+import { stringFromTimestamp } from "utils/helpers";
 import { Address, TransferDetailContainer } from "./TransferDetails.components";
 
 type TransferDetailsParams = {
@@ -14,8 +14,8 @@ type TransferDetailsParams = {
 const TransferDetail = (): JSX.Element => {
   const navigate = useNavigate();
   const { id = "", appliedHash = "" } = useParams<TransferDetailsParams>();
-  const { transactions: accountTransactions } = useAppSelector<AccountsState>(
-    (state) => state.accounts
+  const { transactions: accountTransactions } = useAppSelector<TransfersState>(
+    (state) => state.transfers
   );
 
   const transactions = accountTransactions[id] || [];
@@ -29,6 +29,7 @@ const TransferDetail = (): JSX.Element => {
     memo,
     shielded,
     target,
+    type,
   } = transactions.find(
     (transaction) => transaction.appliedHash === appliedHash
   ) || {};
@@ -46,7 +47,7 @@ const TransferDetail = (): JSX.Element => {
       </NavigationContainer>
       <p>
         <strong>
-          {amount} {tokenType}
+          {type ? "Received" : "Sent"} {amount} {tokenType}
         </strong>
         <br />
         {dateTimeFormatted}
@@ -56,7 +57,7 @@ const TransferDetail = (): JSX.Element => {
       <p>Applied hash:</p>
       <Address>{appliedHash}</Address>
       <p>
-        Gas used: <strong>{amountFromMicro(gas)}</strong>
+        Gas used: <strong>{gas}</strong>
       </p>
       <p>
         Block height: <strong>{height}</strong>

@@ -6,11 +6,8 @@ import { ThemeContext } from "styled-components";
 import { Mnemonic, MnemonicLength } from "@anoma-apps/seed-management";
 import { TopLevelRoute } from "App/types";
 import { AccountCreationRoute, accountCreationSteps } from "./types";
-import { Account, RpcClient, Session, SocketClient, Wallet } from "lib";
+import { Session, Wallet } from "lib";
 import { AppContext } from "App/App";
-import { Config } from "config";
-import { Tokens, TxResponse } from "constants/";
-import { NewBlockEvents, SubscriptionEvents } from "lib/rpc/types";
 import { InitialAccount } from "slices/accounts";
 
 import { Button } from "components/ButtonTemporary";
@@ -98,7 +95,6 @@ function AccountCreation(): JSX.Element {
   );
   const [seedPhrase, setSeedPhrase] = useState<string[]>();
   const [stepIndex, setStepIndex] = useState(0);
-  const [isInitializing, setIsInitializing] = useState(true);
   const themeContext = useContext(ThemeContext);
   const navigate = useNavigate();
 
@@ -286,55 +282,12 @@ function AccountCreation(): JSX.Element {
                             mnemonic.phrase
                           );
 
-                          // Query epoch:
-                          const { network, wsNetwork } = new Config();
-                          const rpcClient = new RpcClient(network);
-                          const epoch = await rpcClient.queryEpoch();
-
-                          // Create init-account transaction:
-                          const anomaAccount = await new Account().init();
-                          const { hash, bytes } = await anomaAccount.initialize(
-                            {
-                              token: Tokens[account.tokenType].address,
-                              privateKey: account.signingKey,
-                              epoch,
-                            }
-                          );
-
-                          // Broadcast transaction to ledger:
-                          const socketClient = new SocketClient(wsNetwork);
-
-                          await socketClient.broadcastTx(hash, bytes, {
-                            onBroadcast: () => setIsInitializing(true),
-                            onNext: (subEvent) => {
-                              const { events }: { events: NewBlockEvents } =
-                                subEvent as SubscriptionEvents;
-                              const initializedAccounts =
-                                events[TxResponse.InitializedAccounts];
-
-                              const establishedAddress = initializedAccounts
-                                .map((account: string) => JSON.parse(account))
-                                .find(
-                                  (account: string[]) => account.length > 0
-                                )[0];
-
-                              setInitialAccount &&
-                                setInitialAccount({
-                                  ...account,
-                                  establishedAddress,
-                                });
-                              setIsInitializing(false);
-                              socketClient.disconnect();
-                            },
-                            onError: (error) => {
-                              setIsInitializing(false);
-                              console.error(error);
-                            },
-                          });
-
+                          // Establish login session
                           const session = new Session();
                           session.setSession(accountCreationDetails.password);
                           await session.setSeed(mnemonic.phrase);
+
+                          setInitialAccount && setInitialAccount(account);
                         } else {
                           alert(
                             "something is wrong with the master seed creation 🤨"
@@ -360,7 +313,6 @@ function AccountCreation(): JSX.Element {
                   animationFromRightToLeft={animationFromRightToLeft}
                 >
                   <Completion
-                    isInitializing={isInitializing}
                     onClickDone={() => {
                       navigate(TopLevelRoute.SettingsAccounts);
                     }}
