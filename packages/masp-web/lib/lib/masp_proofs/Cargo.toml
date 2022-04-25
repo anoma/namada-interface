@@ -1,0 +1,69 @@
+[package]
+name = "masp_proofs"
+description = "Experimental MASP zk-SNARK circuits and proving APIs, based on zcash_proofs"
+version = "0.5.0"
+authors = [
+    "Jack Grigg <jack@z.cash>",
+    "joe <joe@heliax.dev>",
+]
+homepage = "https://github.com/anoma/masp"
+repository = "https://github.com/anoma/masp"
+readme = "README.md"
+license = "MIT OR Apache-2.0"
+edition = "2018"
+
+[package.metadata.docs.rs]
+all-features = true
+
+[dependencies]
+js-sys = "0.3.5"
+# bellman = { version = "0.11.1", default-features = false, features = ["groth16", "max_level_debug"] }
+bellman = { path = "../bellman-0.11.1", default-features = false, features = ["groth16"] }
+blake2b_simd = "1.0.0"
+bls12_381 = "0.6"
+byteorder = "1"
+directories = { version = "4.0.1", optional = true }
+ff = "0.11"
+group = "0.11"
+itertools = "0.10.1"
+jubjub = "0.8"
+lazy_static = "1"
+minreq = { version = "2", features = ["https"], optional = true }
+rand_core = "0.6"
+wagyu-zcash-parameters = { version = "0.2", optional = true }
+masp_primitives = { version = "0.5", path = "../masp_primitives" }
+zcash_primitives = { git = "https://github.com/zcash/librustzcash", rev = "2425a08" }
+# zcash_proofs = { git = "https://github.com/zcash/librustzcash", rev = "2425a08" }
+# using this as we want to enforce bellman = { path = "../bellman-0.11.1" } to
+# use some custom deps
+zcash_proofs = { path = "../librustzcash/zcash_proofs" }
+
+[dev-dependencies]
+criterion = "0.3"
+rand_xorshift = "0.3"
+
+[features]
+# default = ["local-prover", "multicore"] # this will crash if used as is in wasm
+default = ["local-prover"]
+bundled-prover = ["wagyu-zcash-parameters"]
+download-params = ["minreq"]
+local-prover = ["directories"]
+# multicore = ["bellman/multicore"] # this will crash if used as is in wasm
+
+[lib]
+bench = false
+[[bench]]
+name = "sapling"
+harness = false
+required-features = ["local-prover"]
+
+[[example]]
+name = "get-params-path"
+required-features = ["directories"]
+
+[[example]]
+name = "download-params"
+required-features = ["download-params"]
+
+[badges]
+maintenance = { status = "actively-developed" }
