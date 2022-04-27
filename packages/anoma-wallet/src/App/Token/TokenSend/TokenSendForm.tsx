@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import QrReader from "react-qr-reader";
 
-import { Config } from "config";
+import Config from "config";
 import { RpcClient } from "lib";
 import { AccountsState, fetchBalanceByAccount } from "slices/accounts";
 import {
@@ -35,7 +35,7 @@ type Props = {
   defaultTarget?: string;
 };
 
-const { network } = new Config();
+const { network } = Config.rpc;
 const rpcClient = new RpcClient(network);
 
 const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {

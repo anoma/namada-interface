@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Config } from "config";
+import Config from "config";
 import { Tokens, TokenType, TxResponse } from "constants/";
 import { Account, RpcClient, SocketClient } from "lib";
 import { NewBlockEvents } from "lib/rpc/types";
@@ -32,14 +32,15 @@ export type AccountsState = {
 };
 
 const ACCOUNTS_ACTIONS_BASE = "accounts";
-const { url } = new Config().network;
+const { rpc } = Config;
+const { network, wsNetwork } = rpc;
+const { url } = network;
 
 enum AccountThunkActions {
   FetchBalanceByAccount = "fetchBalanceByAccount",
   SubmitInitAccountTransaction = "submitInitAccountTransaction",
 }
 
-const { network, wsNetwork } = new Config();
 const rpcClient = new RpcClient(network);
 const socketClient = new SocketClient(wsNetwork);
 

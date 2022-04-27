@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Config } from "config";
+import Config from "config";
 import { FAUCET_ADDRESS, Tokens, TokenType, TxResponse } from "constants/";
 import { RpcClient, SocketClient, Transfer } from "lib";
 import { NewBlockEvents } from "lib/rpc/types";
@@ -46,7 +46,7 @@ enum TransfersThunkActions {
   SubmitTransferTransaction = "submitTransferTransaction",
 }
 
-const { network, wsNetwork } = new Config();
+const { network, wsNetwork } = Config.rpc;
 const rpcClient = new RpcClient(network);
 const socketClient = new SocketClient(wsNetwork);
 

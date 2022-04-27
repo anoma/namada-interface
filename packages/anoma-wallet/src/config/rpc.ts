@@ -20,7 +20,7 @@ const LOCALHOST_PORT = 26657;
 const LOCALHOST_PROTOCOL = "http";
 const LOCALHOST_WS_PROTOCOL = "ws";
 
-export default class Config {
+export default class RPCConfig {
   private _isLocal = !!REACT_APP_LOCAL;
   private _url = this._isLocal ? LOCALHOST_URL : DEVNET_URL;
   private _port = this._isLocal ? LOCALHOST_PORT : DEVNET_PORT;
