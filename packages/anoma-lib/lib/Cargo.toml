@@ -31,6 +31,7 @@ console_error_panic_hook = "0.1.7"
 js-sys = "0.3.5"
 chrono = "0.4.0"
 thiserror = "1.0.30"
+prost = "0.9.0"
 
 [dependencies.anoma]
 git = "https://github.com/anoma/anoma"

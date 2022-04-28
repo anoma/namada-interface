@@ -1,17 +1,23 @@
 use crate::types::{
     transaction::Transaction,
 };
-use anoma::types::{
-    token,
-    address::Address,
-    ibc::data::{
-        IbcMessage,
-        FungibleTokenPacketData,
+use anoma::types::address::Address;
+use anoma::ibc::{
+    applications::ics20_fungible_token_transfer::msgs::transfer::MsgTransfer,
+    core::{
+        ics24_host::identifier::{PortId, ChannelId},
+        ics02_client::height::Height,
     },
+    signer::Signer,
+    timestamp::Timestamp,
+    tx_msg::Msg,
 };
-use borsh::BorshSerialize;
+use anoma::ibc_proto::cosmos::base::v1beta1::Coin;
+use crate::utils;
 use serde::{Serialize, Deserialize};
 use std::str::FromStr;
+use core::time::Duration;
+use core::ops::Add;
 
 use wasm_bindgen::prelude::*;
 
@@ -29,33 +35,36 @@ impl IbcTransfer {
         epoch: u32,
         fee_amount: u32,
         gas_limit: u32,
+        source_port: String,
+        source_channel: String,
         tx_code: &[u8],
     ) -> Result<JsValue, JsValue> {
-        let sender = Address::from_str(&sender).unwrap();
-        let receiver = Address::from_str(&receiver).unwrap();
+        let source_port = PortId::from_str(&source_port).unwrap();
+        let source_channel = ChannelId::from_str(&source_channel).unwrap();
+
+        let msg = MsgTransfer {
+            source_port,
+            source_channel,
+            token: Some(Coin { denom: token.clone(), amount: format!("{}", amount) }),
+            sender: Signer::from_str(&sender).unwrap(),
+            receiver: Signer::from_str(&receiver).unwrap(),
+            timeout_height: Height::new(0, 0),
+            timeout_timestamp: Timestamp::from_nanoseconds(
+                utils::get_timestamp().0.timestamp_nanos() as u64
+            )
+                .unwrap()
+                .add(Duration::from_secs(30)).unwrap(),
+        };
+
+        let msg = msg.to_any();
+        let mut tx_data = vec![];
+        prost::Message::encode(&msg, &mut tx_data)
+            .expect("encoding IBC message shouldn't fail");
+
+        let data: Vec<u8> = tx_data;
+
         let token = Address::from_str(&token).unwrap();
-
-        let amount = token::Amount::from(u64::from(amount));
         let tx_code: Vec<u8> = tx_code.to_vec();
-
-        // TODO: Remove the following, replace with IbcMessage
-        let transfer = token::Transfer {
-            source: sender.clone(),
-            target: receiver.clone(),
-            token: token.clone(),
-            amount,
-        };
-
-        let transfer_data = FungibleTokenPacketData {
-            amount: format!("{}", amount),
-            sender: sender.encode(),
-            receiver: receiver.encode(),
-            denomination: String::from("XAN"),
-        };
-
-        let data = transfer
-            .try_to_vec()
-            .expect("Encoding unsigned transfer shouldn't fail");
 
         let transaction = match Transaction::new(
             secret,
