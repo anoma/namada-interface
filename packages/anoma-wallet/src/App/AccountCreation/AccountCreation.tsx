@@ -3,7 +3,6 @@ import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { ThemeContext } from "styled-components";
 
-import { Mnemonic, MnemonicLength } from "@anoma-apps/seed-management";
 import { TopLevelRoute } from "App/types";
 import { AccountCreationRoute, accountCreationSteps } from "./types";
 import { Session, Wallet } from "lib";
@@ -265,27 +264,18 @@ function AccountCreation(): JSX.Element {
                         // bad UX by seeing a noticeable delay
                         if (
                           accountCreationDetails.password &&
-                          accountCreationDetails.seedPhraseLength &&
                           accountCreationDetails.accountName
                         ) {
-                          const mnemonicLength =
-                            accountCreationDetails.seedPhraseLength.length ===
-                            12
-                              ? MnemonicLength.Twelve
-                              : MnemonicLength.TwentyFour;
-
-                          const mnemonic: Mnemonic =
-                            await Mnemonic.fromMnemonic(mnemonicLength);
-
+                          const mnemonic = seedPhrase?.join(" ") || "";
                           const account = await createAccount(
                             accountCreationDetails.accountName,
-                            mnemonic.phrase
+                            mnemonic
                           );
 
                           // Establish login session
                           const session = new Session();
                           session.setSession(accountCreationDetails.password);
-                          await session.setSeed(mnemonic.phrase);
+                          await session.setSeed(mnemonic);
 
                           setInitialAccount && setInitialAccount(account);
                         } else {
