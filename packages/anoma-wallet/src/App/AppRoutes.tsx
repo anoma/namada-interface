@@ -151,7 +151,7 @@ const AppRoutes = (): JSX.Element => {
                   <AnimatedTransition
                     elementKey={TopLevelRoute.SettingsAccounts}
                   >
-                    <SettingsAccounts accounts={fakeAccounts} />
+                    <SettingsAccounts />
                   </AnimatedTransition>
                 }
               />
