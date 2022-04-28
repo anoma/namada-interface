@@ -44,7 +44,7 @@ export const SettingsAccountSettings = (): JSX.Element => {
           setSeedPhrase((seedPhrase || "").split(" "));
           setDisplaySeedPhrase(!displaySeedPhrase);
         })
-        .catch((e) => {
+        .catch(() => {
           alert("The inputed password is invalid. Please try again.");
         });
     } else {

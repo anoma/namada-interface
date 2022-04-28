@@ -19,16 +19,11 @@ import { useAppDispatch, useAppSelector } from "store";
 import { AccountsState } from "slices/accounts";
 import { setAccountID } from "slices/settings";
 
-type SettingsAccountsProps = {
-  // currently selected account alias
-  selectedAccountAlias?: string;
-};
-
 /**
  * Listing all the accounts that are persisted. By clicking one of them the account
  * gets selected to be the current active account. User can initiate a flow to add a new account
  */
-export const SettingsAccounts = (props: SettingsAccountsProps): JSX.Element => {
+export const SettingsAccounts = (): JSX.Element => {
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const accounts = Object.values(derived);
   const dispatch = useAppDispatch();
@@ -58,7 +53,7 @@ export const SettingsAccounts = (props: SettingsAccountsProps): JSX.Element => {
                   : { border: 0 }
               }
               key={account.alias}
-              onClick={(_) => dispatch(setAccountID(account.id))}
+              onClick={() => dispatch(setAccountID(account.id))}
             >
               <AccountAlias>{account.alias}</AccountAlias>
               <AccountNameContainer>
