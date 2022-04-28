@@ -101,7 +101,7 @@ export const submitTransferTransaction = createAsyncThunk(
         resolve(events);
       }),
       LEDGER_TRANSFER_TIMEOUT,
-      `Async actions timed out submitting Token Transfer after ${
+      `Async actions timed out when submitting Token Transfer after ${
         LEDGER_TRANSFER_TIMEOUT / 1000
       } seconds`
     );
@@ -178,7 +178,7 @@ export const submitIbcTransferTransaction = createAsyncThunk(
         resolve(events);
       }),
       LEDGER_TRANSFER_TIMEOUT,
-      `Async actions timed out submitting IBC Transfer after ${
+      `Async actions timed out when submitting IBC Transfer after ${
         LEDGER_TRANSFER_TIMEOUT / 1000
       } seconds`
     );
