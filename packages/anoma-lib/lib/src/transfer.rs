@@ -1,6 +1,4 @@
-use crate::types::{
-    transaction::Transaction,
-};
+use crate::types::transaction::Transaction;
 use anoma::types::{token, address::Address};
 use borsh::BorshSerialize;
 use serde::{Serialize, Deserialize};

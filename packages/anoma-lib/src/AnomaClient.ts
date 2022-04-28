@@ -1,6 +1,7 @@
 import init, {
   Keypair,
   Transfer,
+  IbcTransfer,
   Account,
   Wallet,
   Mnemonic,
@@ -21,6 +22,7 @@ class AnomaClient {
 
   public readonly keypair = Keypair;
   public readonly transfer = Transfer;
+  public readonly ibcTransfer = IbcTransfer;
   public readonly account = Account;
   public readonly wallet = Wallet;
   public readonly mnemonic = Mnemonic;

@@ -1,6 +1,4 @@
-use crate::types::{
-    transaction::Transaction,
-};
+use crate::types::transaction::Transaction;
 use anoma::types::address::Address;
 use anoma::ibc::{
     applications::ics20_fungible_token_transfer::msgs::transfer::MsgTransfer,
