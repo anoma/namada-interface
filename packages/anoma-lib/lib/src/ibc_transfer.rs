@@ -1,4 +1,6 @@
 use crate::types::transaction::Transaction;
+use crate::utils;
+
 use anoma::types::address::Address;
 use anoma::ibc::{
     applications::ics20_fungible_token_transfer::msgs::transfer::MsgTransfer,
@@ -11,7 +13,7 @@ use anoma::ibc::{
     tx_msg::Msg,
 };
 use anoma::ibc_proto::cosmos::base::v1beta1::Coin;
-use crate::utils;
+
 use serde::{Serialize, Deserialize};
 use std::str::FromStr;
 use core::time::Duration;
@@ -77,7 +79,7 @@ impl IbcTransfer {
             Err(error) => return Err(error)
         };
 
-        // Return serialized Transaction
+        // Return serialized IBC Transaction
         Ok(JsValue::from_serde(&IbcTransfer(transaction)).unwrap())
     }
 }
