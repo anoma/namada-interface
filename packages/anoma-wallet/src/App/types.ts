@@ -14,6 +14,7 @@ export enum TopLevelRoute {
   TokenReceive = "/token/:id/receive",
   TokenTransfers = "/token/:id/transfers",
   TokenTransferDetails = "/token/:id/transfers/:appliedHash",
+  TokenIbcTransfer = "/token/:id/ibc-transfer",
 
   /* STAKING AND GOVERNANCE */
   StakingAndGovernance = "/staking-and-governance",

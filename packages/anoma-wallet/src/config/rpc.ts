@@ -1,6 +1,4 @@
-const { REACT_APP_LOCAL } = process.env;
-
-export type Protocol = "http" | "https" | "ws" | "wss";
+import ChainConfig, { Protocol } from "./chain";
 
 export type NetworkConfig = {
   url: string;
@@ -8,28 +6,18 @@ export type NetworkConfig = {
   protocol: Protocol;
 };
 
-// DEVNET defaults
-const DEVNET_URL = "testnet-ux.anoma-euw1.heliax.dev";
-const DEVNET_PORT = 443;
-const DEVNET_PROTOCOL = "https";
-const DEVNET_WS_PROTOCOL = "wss";
+const config = ChainConfig["Namada"];
+const { url, port, protocol, wsProtocol } = config;
 
-// Localhost defaults
-const LOCALHOST_URL = "localhost";
-const LOCALHOST_PORT = 26657;
-const LOCALHOST_PROTOCOL = "http";
-const LOCALHOST_WS_PROTOCOL = "ws";
-
+/**
+ * TODO: This can likely be removed. We will eventually want to switch chains,
+ * and all RPC calls should be made according to that chain's configuration
+ */
 export default class RPCConfig {
-  private _isLocal = !!REACT_APP_LOCAL;
-  private _url = this._isLocal ? LOCALHOST_URL : DEVNET_URL;
-  private _port = this._isLocal ? LOCALHOST_PORT : DEVNET_PORT;
-  private _protocol: Protocol = this._isLocal
-    ? LOCALHOST_PROTOCOL
-    : DEVNET_PROTOCOL;
-  private _wsProtocol: Protocol = this._isLocal
-    ? LOCALHOST_WS_PROTOCOL
-    : DEVNET_WS_PROTOCOL;
+  private _url = url;
+  private _port = port;
+  private _protocol: Protocol = protocol;
+  private _wsProtocol: Protocol = wsProtocol;
 
   public get network(): NetworkConfig {
     return {

@@ -38,11 +38,17 @@ type Props = {
 const { network } = Config.rpc;
 const rpcClient = new RpcClient(network);
 
+export const MAX_MEMO_LENGTH = 100;
+export const isMemoValid = (text: string): boolean => {
+  // TODO: Additional memo validation rules?
+  return text.length < MAX_MEMO_LENGTH;
+};
+
 const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
   const dispatch = useAppDispatch();
   const [target, setTarget] = useState<string | undefined>(defaultTarget);
-  const [amount, setAmount] = useState<number>(0);
-  const [memo, setMemo] = useState<string>("");
+  const [amount, setAmount] = useState(0);
+  const [memo, setMemo] = useState("");
 
   const [isTargetValid, setIsTargetValid] = useState(true);
   const [isShielded, setIsShielded] = useState(false);
@@ -57,8 +63,6 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
   const { alias, establishedAddress = "", tokenType, balance = 0 } = account;
   const token = Tokens[tokenType] || {};
 
-  const MAX_MEMO_LENGTH = 100;
-
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
 
@@ -72,7 +76,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
         const targetAccount = Object.values(derived).find(
           (account: DerivedAccount) => account.establishedAddress === target
         );
-        /// Fetch target balance if applicable:
+        // Fetch target balance if applicable:
         if (targetAccount) {
           dispatch(fetchBalanceByAccount(targetAccount));
         }
@@ -114,11 +118,6 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
     }
   };
 
-  const isMemoValid = (text: string): boolean => {
-    // TODO: Additional memo validation rules?
-    return text.length < MAX_MEMO_LENGTH;
-  };
-
   const handleOnScan = (data: string | null): void => {
     if (data && data.match(/\/token\/send/)) {
       const parts = data.split("/");
@@ -148,7 +147,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
           <InputWithButtonContainer>
             <Input
               variant={InputVariants.Text}
-              label="Target address:"
+              label="Target address"
               onChangeCallback={(e) => {
                 const { value } = e.target;
                 setTarget(value);
@@ -176,7 +175,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
         <InputContainer>
           <Input
             variant={InputVariants.Number}
-            label="Amount:"
+            label="Amount"
             value={amount}
             onChangeCallback={(e) => {
               const { value } = e.target;
@@ -189,7 +188,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
         <InputContainer>
           <Input
             variant={InputVariants.Textarea}
-            label="Memo:"
+            label="Memo (Optional)"
             value={memo}
             error={
               isMemoValid(memo)
