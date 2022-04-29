@@ -7,7 +7,10 @@ import Config from "config";
 
 import { Input, InputVariants } from "components/Input";
 import { isMemoValid, MAX_MEMO_LENGTH } from "../TokenSend/TokenSendForm";
-import { InputContainer } from "../TokenSend/TokenSendForm.components";
+import {
+  ButtonsContainer,
+  InputContainer,
+} from "../TokenSend/TokenSendForm.components";
 import {
   AddChannelButton,
   IBCTransferFormContainer,
@@ -17,6 +20,8 @@ import { TopLevelRoute } from "App/types";
 import { Heading, HeadingLevel } from "components/Heading";
 import { NavigationContainer } from "components/NavigationContainer";
 import { Icon, IconName } from "components/Icon";
+import { Button, ButtonVariant } from "components/Button";
+import { ChannelsState } from "slices/channels";
 
 type UrlParams = {
   id: string;
@@ -27,7 +32,9 @@ const IBCTransfer = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const { id = "" } = useParams<UrlParams>();
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
-
+  const { channelsByChain } = useAppSelector<ChannelsState>(
+    (state) => state.channels
+  );
   const [amount, setAmount] = useState(0);
   const [memo, setMemo] = useState("");
   const [selectedChain, setSelectedChain] = useState("");
@@ -78,6 +85,7 @@ const IBCTransfer = (): JSX.Element => {
           label="Destination Chain"
           onChange={(e) => setSelectedChain(e.target.value)}
         />
+
         <AddChannelButton>
           <Icon iconName={IconName.Plus} />
           <span>Add IBC Transfer Channel</span>
@@ -110,6 +118,16 @@ const IBCTransfer = (): JSX.Element => {
           onChangeCallback={(e) => setMemo(e.target.value)}
         />
       </InputContainer>
+
+      <ButtonsContainer>
+        <Button
+          variant={ButtonVariant.Contained}
+          disabled={amount > balance || amount === 0 || !isMemoValid(memo)}
+          onClick={() => console.log("submit")}
+        >
+          Send
+        </Button>
+      </ButtonsContainer>
     </IBCTransferFormContainer>
   );
 };
