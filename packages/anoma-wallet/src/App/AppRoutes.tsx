@@ -22,6 +22,7 @@ import { TokenSend } from "./Token/TokenSend";
 import { TokenReceive } from "./Token/TokenReceive";
 import { TransferDetails } from "./Token/Transfers";
 import NotFound from "./NotFound";
+import IBCTransfer from "./Token/IBCTransfer/IBCTransfer";
 
 const fakeAccounts = [
   "fake1l7dgf0m623ayll8vdyf6n7gxm3tz7mt7x443m0",
@@ -124,6 +125,16 @@ const AppRoutes = (): JSX.Element => {
                     elementKey={TopLevelRoute.TokenTransferDetails}
                   >
                     <TransferDetails />
+                  </AnimatedTransition>
+                }
+              />
+              <Route
+                path={TopLevelRoute.TokenIbcTransfer}
+                element={
+                  <AnimatedTransition
+                    elementKey={TopLevelRoute.TokenIbcTransfer}
+                  >
+                    <IBCTransfer />
                   </AnimatedTransition>
                 }
               />

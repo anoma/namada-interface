@@ -55,7 +55,9 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
   transactions.sort((a, b) => b.timestamp - a.timestamp);
 
   useEffect(() => {
-    dispatch(fetchBalanceByAccount(account));
+    if (establishedAddress) {
+      dispatch(fetchBalanceByAccount(account));
+    }
   }, []);
 
   return (
@@ -113,6 +115,18 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
                 Send
               </Button>
             </ButtonsContainer>
+            {/* TODO: Only display if this is a valid token account from which to submit an IBC Transfer */}
+            <ButtonsContainer>
+              <Button
+                variant={ButtonVariant.Small}
+                style={{ width: "100%" }}
+                onClick={() => {
+                  navigate(formatRoute(TopLevelRoute.TokenIbcTransfer, { id }));
+                }}
+              >
+                IBC Transfer
+              </Button>
+            </ButtonsContainer>
           </>
         )}
 
@@ -128,7 +142,7 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
                 <TransactionListItem key={`${appliedHash}:${timestamp}`}>
                   <div>
                     <strong>
-                      {type ? "Received" : "Sent"} {amount} {tokenType}
+                      {type} {amount} {tokenType}
                     </strong>
                     <br />
                     {dateTimeFormatted}

@@ -7,9 +7,9 @@ import { amountFromMicro, promiseWithTimeout } from "utils/helpers";
 import { DerivedAccount, fetchBalanceByAccount } from "./accounts";
 
 enum TransferType {
-  Sent,
-  Received,
-  IBC,
+  Sent = "Sent",
+  Received = "Received",
+  IBCTransfer = "IBC Transfer",
 }
 
 export type TransferTransaction = {
@@ -208,7 +208,7 @@ export const submitIbcTransferTransaction = createAsyncThunk(
         gas,
         height,
         timestamp: new Date().getTime(),
-        type: TransferType.IBC,
+        type: TransferType.IBCTransfer,
       },
     };
   }

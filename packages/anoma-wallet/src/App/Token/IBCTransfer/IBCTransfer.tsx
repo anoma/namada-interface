@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { AccountsState, fetchBalanceByAccount } from "slices/accounts";
 import { useAppDispatch, useAppSelector } from "store";
@@ -7,16 +7,26 @@ import { useAppDispatch, useAppSelector } from "store";
 import { Input, InputVariants } from "components/Input";
 import { isMemoValid, MAX_MEMO_LENGTH } from "../TokenSend/TokenSendForm";
 import { InputContainer } from "../TokenSend/TokenSendForm.components";
-import { IBCTransferFormContainer } from "./IBCTransfer.components";
+import {
+  AddChannelButton,
+  IBCTransferFormContainer,
+} from "./IBCTransfer.components";
 import { Select } from "components/Select";
 
 import Config from "config";
+import { TopLevelRoute } from "App/types";
+import { Heading, HeadingLevel } from "components/Heading";
+import { NavigationContainer } from "components/NavigationContainer";
+import { Button } from "components/Button";
+import { Icon, IconName } from "components/Icon";
+import { ButtonVariant } from "components/Button/types";
 
 type UrlParams = {
   id: string;
 };
 
 const IBCTransfer = (): JSX.Element => {
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { id = "" } = useParams<UrlParams>();
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
@@ -26,7 +36,7 @@ const IBCTransfer = (): JSX.Element => {
   const [selectedChain, setSelectedChain] = useState("");
 
   const account = derived[id] || {};
-  const { balance = 0 } = account;
+  const { balance = 0, tokenType } = account;
 
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
@@ -44,10 +54,26 @@ const IBCTransfer = (): JSX.Element => {
       // fetch latest balance
       dispatch(fetchBalanceByAccount(account));
     }
-  }, [account]);
+  }, []);
 
   return (
     <IBCTransferFormContainer>
+      <NavigationContainer
+        onBackButtonClick={() => {
+          if (id) {
+            return navigate(-1);
+          }
+          navigate(TopLevelRoute.Wallet);
+        }}
+      >
+        <Heading level={HeadingLevel.One}>IBC Transfer</Heading>
+      </NavigationContainer>
+      <p>
+        Balance:{" "}
+        <strong>
+          {balance} {tokenType}
+        </strong>
+      </p>
       <InputContainer>
         <Select<string>
           data={selectChainData}
@@ -55,6 +81,10 @@ const IBCTransfer = (): JSX.Element => {
           label="Destination Chain"
           onChange={(e) => setSelectedChain(e.target.value)}
         />
+        <AddChannelButton>
+          <Icon iconName={IconName.Plus} />
+          <span>Add IBC Transfer Channel</span>
+        </AddChannelButton>
       </InputContainer>
       <InputContainer>
         <Input

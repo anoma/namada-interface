@@ -6,12 +6,14 @@ export type NetworkConfig = {
   protocol: Protocol;
 };
 
-const config = ChainConfig["Namada"];
-const { url, port, protocol, wsProtocol } = config;
+const { default: config } = ChainConfig; // Load settings from default chain
+const { url, port, protocol, wsProtocol } = config.network;
 
 /**
- * TODO: This can likely be removed. We will eventually want to switch chains,
- * and all RPC calls should be made according to that chain's configuration
+ * TODO: This config can likely be removed. We will eventually want to allow the
+ * use to select a chains, and all RPC calls should be made according to that chain's
+ * configuration. Instantiating an RpcClient or SocketClient should pass the network
+ * config belonging to the active chain instead of being hard-coded here.
  */
 export default class RPCConfig {
   private _url = url;
