@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { AccountsState, fetchBalanceByAccount } from "slices/accounts";
 import { useAppDispatch, useAppSelector } from "store";
+import Config from "config";
 
 import { Input, InputVariants } from "components/Input";
 import { isMemoValid, MAX_MEMO_LENGTH } from "../TokenSend/TokenSendForm";
@@ -12,14 +13,10 @@ import {
   IBCTransferFormContainer,
 } from "./IBCTransfer.components";
 import { Select } from "components/Select";
-
-import Config from "config";
 import { TopLevelRoute } from "App/types";
 import { Heading, HeadingLevel } from "components/Heading";
 import { NavigationContainer } from "components/NavigationContainer";
-import { Button } from "components/Button";
 import { Icon, IconName } from "components/Icon";
-import { ButtonVariant } from "components/Button/types";
 
 type UrlParams = {
   id: string;
