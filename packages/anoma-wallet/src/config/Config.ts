@@ -9,10 +9,16 @@ export type NetworkConfig = {
 };
 
 // DEVNET defaults
-const DEVNET_URL = "testnet-ux.anoma-euw1.heliax.dev";
-const DEVNET_PORT = 443;
-const DEVNET_PROTOCOL = "https";
-const DEVNET_WS_PROTOCOL = "wss";
+
+const DEVNET_URL = "192.168.2.127";
+const DEVNET_PORT = 36657;
+const DEVNET_PROTOCOL = "http";
+const DEVNET_WS_PROTOCOL = "ws";
+
+// const DEVNET_URL = "testnet-ux.anoma-euw1.heliax.dev";
+// const DEVNET_PORT = 443;
+// const DEVNET_PROTOCOL = "https";
+// const DEVNET_WS_PROTOCOL = "wss";
 
 // Localhost defaults
 const LOCALHOST_URL = "localhost";
