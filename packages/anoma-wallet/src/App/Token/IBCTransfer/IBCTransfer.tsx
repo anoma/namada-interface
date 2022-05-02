@@ -45,7 +45,7 @@ const IBCTransfer = (): JSX.Element => {
   const [selectedChannelId, setSelectedChannel] = useState("");
   const [showAddChannelForm, setShowAddChannelForm] = useState(false);
   const [channelId, setChannelId] = useState<string>();
-
+  const [recipient, setRecipient] = useState<string>();
   const account = derived[id] || {};
   const { balance = 0, tokenType } = account;
 
@@ -85,6 +85,15 @@ const IBCTransfer = (): JSX.Element => {
     }
   };
 
+  const handleSubmit = (): void => {
+    console.log({
+      selectedChainId,
+      selectedChannelId,
+      recipient,
+      amount,
+    });
+  };
+
   return (
     <IBCTransferFormContainer>
       <NavigationContainer
@@ -109,16 +118,15 @@ const IBCTransfer = (): JSX.Element => {
           label="Destination Chain"
           onChange={(e) => setSelectedChain(e.target.value)}
         />
-
-        {channels.length > 0 ? (
+      </InputContainer>
+      <InputContainer>
+        {channels.length > 0 && (
           <Select<string>
             data={selectChannelsData}
             value={selectedChannelId}
             label="IBC Transfer Channel"
             onChange={(e) => setSelectedChannel(e.target.value)}
           />
-        ) : (
-          <p>No IBC Channels</p>
         )}
 
         {!showAddChannelForm && (
@@ -128,11 +136,12 @@ const IBCTransfer = (): JSX.Element => {
           </AddChannelButton>
         )}
       </InputContainer>
+
       {showAddChannelForm && (
         <InputContainer>
           <Input
             variant={InputVariants.Text}
-            label="Channel ID"
+            label="Add Channel ID"
             value={channelId}
             onChangeCallback={(e) => {
               const { value } = e.target;
@@ -141,17 +150,36 @@ const IBCTransfer = (): JSX.Element => {
             onFocus={handleFocus}
             error={amount <= balance ? undefined : "Invalid amount!"}
           />
-          <Button variant={ButtonVariant.Small} onClick={handleAddChannel}>
+          <Button
+            variant={ButtonVariant.Small}
+            style={{ width: 160 }}
+            onClick={handleAddChannel}
+            disabled={!channelId}
+          >
             Add
           </Button>
           <Button
             variant={ButtonVariant.Small}
+            style={{ width: 160 }}
             onClick={() => setShowAddChannelForm(false)}
           >
             Cancel
           </Button>
         </InputContainer>
       )}
+
+      <InputContainer>
+        <Input
+          variant={InputVariants.Text}
+          label="Recipient"
+          value={recipient}
+          onChangeCallback={(e) => {
+            const { value } = e.target;
+            setRecipient(value);
+          }}
+        />
+      </InputContainer>
+
       <InputContainer>
         <Input
           variant={InputVariants.Number}
@@ -183,8 +211,10 @@ const IBCTransfer = (): JSX.Element => {
       <ButtonsContainer>
         <Button
           variant={ButtonVariant.Contained}
-          disabled={amount > balance || amount === 0 || !isMemoValid(memo)}
-          onClick={() => console.log("submit")}
+          disabled={
+            amount > balance || amount === 0 || !isMemoValid(memo) || !recipient
+          }
+          onClick={handleSubmit}
         >
           Send
         </Button>

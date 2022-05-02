@@ -26,9 +26,11 @@ const channelsSlice = createSlice({
       const { chainId, channelId } = action.payload;
 
       const channels = state.channelsByChain[chainId] || [];
-      channels.push(channelId);
 
-      state.channelsByChain[chainId] = channels;
+      if (channels.indexOf(channelId) === -1) {
+        channels.push(channelId);
+        state.channelsByChain[chainId] = channels;
+      }
     },
   },
 });
