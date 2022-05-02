@@ -33,6 +33,7 @@ const channelsSlice = createSlice({
   },
 });
 
-const { reducer } = channelsSlice;
+const { actions, reducer } = channelsSlice;
+export const { addChannel } = actions;
 
 export default reducer;

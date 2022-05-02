@@ -10,10 +10,12 @@ const {
 } = process.env;
 
 const DEFAULT_PORT = 26657;
+const DEFAULT_CHAIN_ID = "anoma-devnet-3.5.64c17effa6be4";
 
 type Chain = {
   id: string;
   name: string;
+  default?: boolean;
   network: {
     url: string;
     port: number;
@@ -25,9 +27,10 @@ type Chain = {
 const ChainConfig: Record<string, Chain> = {};
 
 if (REACT_APP_LOCAL) {
-  ChainConfig.default = {
+  ChainConfig[REACT_APP_LOCAL_CHAIN_ID] = {
     id: REACT_APP_LOCAL_CHAIN_ID,
     name: "Namada - Local",
+    default: true,
     network: {
       url: "localhost",
       port: REACT_APP_LOCAL_CHAIN_PORT
@@ -38,9 +41,10 @@ if (REACT_APP_LOCAL) {
     },
   };
 } else {
-  ChainConfig.default = {
-    id: "anoma-devnet-3.5.64c17effa6be4",
+  ChainConfig[DEFAULT_CHAIN_ID] = {
+    id: DEFAULT_CHAIN_ID,
     name: "Namada - UI/UX Devnet",
+    default: true,
     network: {
       url: "testnet-ux.anoma-euw1.heliax.dev",
       port: 443,

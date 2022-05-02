@@ -6,7 +6,7 @@ export type NetworkConfig = {
   protocol: Protocol;
 };
 
-const { default: config } = ChainConfig; // Load settings from default chain
+const config = Object.values(ChainConfig)[0]; // Load settings from default chain
 const { url, port, protocol, wsProtocol } = config.network;
 
 /**
