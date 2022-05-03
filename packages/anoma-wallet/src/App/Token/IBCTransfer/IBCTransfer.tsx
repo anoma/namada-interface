@@ -38,11 +38,17 @@ const IBCTransfer = (): JSX.Element => {
 
   const { chain } = Config;
   const defaultChain = Object.values(chain)[0];
+  const [selectedChainId, setSelectedChain] = useState(defaultChain.id);
+  const channels = channelsByChain[selectedChainId] || [];
+  const selectChannelsData = channels.map((channel: string) => ({
+    value: channel,
+    label: channel,
+  }));
 
   const [amount, setAmount] = useState(0);
   const [memo, setMemo] = useState("");
-  const [selectedChainId, setSelectedChain] = useState(defaultChain.id);
-  const [selectedChannelId, setSelectedChannel] = useState("");
+
+  const [selectedChannelId, setSelectedChannel] = useState(channels[0]);
   const [showAddChannelForm, setShowAddChannelForm] = useState(false);
   const [channelId, setChannelId] = useState<string>();
   const [recipient, setRecipient] = useState<string>();
@@ -56,12 +62,6 @@ const IBCTransfer = (): JSX.Element => {
   const selectChainData = chains.map(({ id, name }) => ({
     value: id,
     label: name,
-  }));
-
-  const channels = channelsByChain[selectedChainId] || [];
-  const selectChannelsData = channels.map((channel: string) => ({
-    value: channel,
-    label: channel,
   }));
 
   useEffect(() => {
