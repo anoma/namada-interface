@@ -61,7 +61,7 @@ const IBCTransfer = (): JSX.Element => {
   const channels = channelsByChain[selectedChainId] || [];
   const selectChannelsData = channels.map((channel: string) => ({
     value: channel,
-    label: `${chain[selectedChainId].name} - ${channel}`,
+    label: channel,
   }));
 
   useEffect(() => {
