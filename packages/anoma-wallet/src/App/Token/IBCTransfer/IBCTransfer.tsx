@@ -54,8 +54,7 @@ const IBCTransfer = (): JSX.Element => {
 
   const [amount, setAmount] = useState(0);
   const [memo, setMemo] = useState("");
-
-  const [selectedChannelId, setSelectedChannel] = useState("");
+  const [selectedChannelId, setSelectedChannelId] = useState("");
   const [showAddChannelForm, setShowAddChannelForm] = useState(false);
   const [channelId, setChannelId] = useState<string>();
   const [recipient, setRecipient] = useState("");
@@ -85,13 +84,14 @@ const IBCTransfer = (): JSX.Element => {
   }, []);
 
   useEffect(() => {
-    if (selectedChainId) {
+    // Set a default selectedChannelId if none are selected, but channels are available
+    if (selectedChainId && !selectedChannelId) {
       const channels = channelsByChain[selectedChainId];
       if (channels && channels.length > 0) {
-        setSelectedChannel(channels[0]);
+        setSelectedChannelId(channels[0]);
       }
     }
-  }, [selectedChainId]);
+  }, [selectedChainId, channelsByChain]);
 
   const handleAddChannel = (): void => {
     if (channelId) {
@@ -102,7 +102,7 @@ const IBCTransfer = (): JSX.Element => {
         })
       );
       setShowAddChannelForm(false);
-      setSelectedChannel(channelId);
+      setSelectedChannelId(channelId);
       setChannelId("");
     }
   };
@@ -151,7 +151,7 @@ const IBCTransfer = (): JSX.Element => {
             data={selectChannelsData}
             value={selectedChannelId}
             label="IBC Transfer Channel"
-            onChange={(e) => setSelectedChannel(e.target.value)}
+            onChange={(e) => setSelectedChannelId(e.target.value)}
           />
         )}
 

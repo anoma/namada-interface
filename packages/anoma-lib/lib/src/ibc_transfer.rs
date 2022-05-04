@@ -21,6 +21,8 @@ use core::ops::Add;
 
 use wasm_bindgen::prelude::*;
 
+use web_sys;
+
 #[derive(Serialize, Deserialize)]
 pub struct IbcTransfer(pub Transaction);
 
@@ -42,6 +44,9 @@ impl IbcTransfer {
         let source_port = PortId::from_str(&source_port).unwrap();
         let source_channel = ChannelId::from_str(&source_channel).unwrap();
 
+        let timestamp = utils::get_timestamp().0.timestamp_nanos() as u64;
+        let timeout_duration = Duration::from_secs(30);
+
         let msg = MsgTransfer {
             source_port,
             source_channel,
@@ -49,17 +54,21 @@ impl IbcTransfer {
             sender: Signer::from_str(&sender).unwrap(),
             receiver: Signer::from_str(&receiver).unwrap(),
             timeout_height: Height::new(0, 0),
-            timeout_timestamp: Timestamp::from_nanoseconds(
-                utils::get_timestamp().0.timestamp_nanos() as u64
-            )
+            timeout_timestamp: Timestamp::from_nanoseconds(timestamp)
                 .unwrap()
-                .add(Duration::from_secs(30)).unwrap(),
+                .add(timeout_duration).unwrap(),
         };
+
+        // Log msg before encoding
+        web_sys::console::log_1(&JsValue::from_str(&format!("msg: {:?}", &msg)));
 
         let msg = msg.to_any();
         let mut tx_data = vec![];
         prost::Message::encode(&msg, &mut tx_data)
             .expect("encoding IBC message shouldn't fail");
+
+        // Log msg after encoding
+        web_sys::console::log_1(&JsValue::from_str(&format!("msg: {:?}", &msg)));
 
         let data: Vec<u8> = tx_data;
 

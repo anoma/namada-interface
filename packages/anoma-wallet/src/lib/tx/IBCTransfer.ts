@@ -9,6 +9,7 @@ class IBCTransfer {
   public async init(): Promise<IBCTransfer> {
     const results = await fetch(`/wasm/${TxWasm.IBC}`);
     const wasm = await results.arrayBuffer();
+
     this._txCode = new Uint8Array(wasm);
     this._client = await new AnomaClient().init();
     return this;
