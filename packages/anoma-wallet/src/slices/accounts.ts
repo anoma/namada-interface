@@ -107,7 +107,7 @@ export const submitInitAccountTransaction = createAsyncThunk(
       establishedAddress,
     };
 
-    if (url.match(/testnet/)) {
+    if (url.match(/testnet/) || url.match(/localhost/)) {
       dispatch(
         submitTransferTransaction({
           account: initializedAccount,
