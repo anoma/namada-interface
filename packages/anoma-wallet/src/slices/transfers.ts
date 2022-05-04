@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import Config from "config";
 import { FAUCET_ADDRESS, Tokens, TokenType, TxResponse } from "constants/";
+import { stat } from "fs";
 import { RpcClient, SocketClient, Transfer, IBCTransfer } from "lib";
 import { NewBlockEvents } from "lib/rpc/types";
 import { amountFromMicro, promiseWithTimeout } from "utils/helpers";
@@ -37,6 +38,7 @@ type TransferEvents = {
 export type TransfersState = {
   transactions: TransferTransactions;
   isTransferSubmitting: boolean;
+  isIbcTransferSubmitting: boolean;
   transferError?: string;
   events?: TransferEvents;
 };
@@ -65,9 +67,13 @@ type TxTransferArgs = TxArgs & {
   useFaucet?: boolean;
 };
 
-type TxIbcTransferArgs = TxArgs;
+type TxIbcTransferArgs = TxArgs & {
+  channelId: string;
+  portId: string;
+};
 
 const LEDGER_TRANSFER_TIMEOUT = 10000;
+const IBC_TRANSFER_TIMEOUT = 15000;
 
 export const submitTransferTransaction = createAsyncThunk(
   `${TRANSFERS_ACTIONS_BASE}/${TransfersThunkActions.SubmitTransferTransaction}`,
@@ -108,7 +114,7 @@ export const submitTransferTransaction = createAsyncThunk(
 
     promise.catch((e) => {
       socketClient.disconnect();
-      rejectWithValue(e);
+      return rejectWithValue(e);
     });
 
     const events = await promise;
@@ -143,7 +149,15 @@ export const submitTransferTransaction = createAsyncThunk(
 export const submitIbcTransferTransaction = createAsyncThunk(
   `${TRANSFERS_ACTIONS_BASE}/${TransfersThunkActions.SubmitIbcTransferTransaction}`,
   async (
-    { account, target, amount, memo, feeAmount = 0 }: TxIbcTransferArgs,
+    {
+      account,
+      target,
+      amount,
+      memo,
+      feeAmount = 0,
+      channelId,
+      portId,
+    }: TxIbcTransferArgs,
     { rejectWithValue }
   ) => {
     const {
@@ -155,9 +169,6 @@ export const submitIbcTransferTransaction = createAsyncThunk(
     const epoch = await rpcClient.queryEpoch();
     const transfer = await new IBCTransfer().init();
     const token = Tokens[tokenType];
-
-    const { ibc } = Config;
-    const { portId, channelId } = ibc.chains.default;
 
     const { hash, bytes } = await transfer.makeIbcTransfer({
       source,
@@ -177,20 +188,27 @@ export const submitIbcTransferTransaction = createAsyncThunk(
         const events = await socketClient.subscribeNewBlock(hash);
         resolve(events);
       }),
-      LEDGER_TRANSFER_TIMEOUT,
+      IBC_TRANSFER_TIMEOUT,
       `Async actions timed out when submitting IBC Transfer after ${
-        LEDGER_TRANSFER_TIMEOUT / 1000
+        IBC_TRANSFER_TIMEOUT / 1000
       } seconds`
     );
 
     promise.catch((e) => {
       socketClient.disconnect();
-      rejectWithValue(e);
+      return rejectWithValue(e);
     });
 
     const events = await promise;
     socketClient.disconnect();
     clearTimeout(timeoutId);
+
+    const code = events[TxResponse.Code][0];
+    const info = events[TxResponse.Info][0];
+
+    if (code !== "0") {
+      return rejectWithValue(info);
+    }
 
     const gas = amountFromMicro(parseInt(events[TxResponse.GasUsed][0]));
     const appliedHash = events[TxResponse.Hash][0];
@@ -217,6 +235,7 @@ export const submitIbcTransferTransaction = createAsyncThunk(
 const initialState: TransfersState = {
   transactions: {},
   isTransferSubmitting: false,
+  isIbcTransferSubmitting: false,
 };
 
 const transfersSlice = createSlice({
@@ -226,6 +245,9 @@ const transfersSlice = createSlice({
     clearEvents: (state) => {
       state.events = undefined;
       state.isTransferSubmitting = false;
+    },
+    clearErrors: (state) => {
+      state.transferError = undefined;
     },
   },
   extraReducers: (builder) => {
@@ -275,15 +297,15 @@ const transfersSlice = createSlice({
     );
 
     builder.addCase(submitIbcTransferTransaction.pending, (state) => {
-      state.isTransferSubmitting = true;
+      state.isIbcTransferSubmitting = true;
       state.transferError = undefined;
       state.events = undefined;
     });
 
     builder.addCase(submitIbcTransferTransaction.rejected, (state, action) => {
-      const { error } = action;
-      state.isTransferSubmitting = false;
-      state.transferError = error.message;
+      const { error, payload } = action;
+      state.isIbcTransferSubmitting = false;
+      state.transferError = (payload as string) || error.message;
       state.events = undefined;
     });
 
@@ -302,7 +324,7 @@ const transfersSlice = createSlice({
         const transactions = state.transactions[id] || [];
         transactions.push(transaction);
 
-        state.isTransferSubmitting = false;
+        state.isIbcTransferSubmitting = false;
         state.transferError = undefined;
 
         state.events = {
@@ -320,5 +342,5 @@ const transfersSlice = createSlice({
 });
 
 const { actions, reducer } = transfersSlice;
-export const { clearEvents } = actions;
+export const { clearEvents, clearErrors } = actions;
 export default reducer;

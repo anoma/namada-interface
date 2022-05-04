@@ -16,6 +16,7 @@ type Chain = {
   id: string;
   name: string;
   default?: boolean;
+  ibcPortId: string;
   network: {
     url: string;
     port: number;
@@ -31,6 +32,7 @@ if (REACT_APP_LOCAL) {
     id: REACT_APP_LOCAL_CHAIN_ID,
     name: "Namada - Local",
     default: true,
+    ibcPortId: "transfer",
     network: {
       url: "localhost",
       port: REACT_APP_LOCAL_CHAIN_PORT
@@ -45,6 +47,7 @@ if (REACT_APP_LOCAL) {
     id: DEFAULT_CHAIN_ID,
     name: "Namada - UI/UX Devnet",
     default: true,
+    ibcPortId: "transfer",
     network: {
       url: "testnet-ux.anoma-euw1.heliax.dev",
       port: 443,

@@ -22,6 +22,12 @@ import { NavigationContainer } from "components/NavigationContainer";
 import { Icon, IconName } from "components/Icon";
 import { Button, ButtonVariant } from "components/Button";
 import { addChannel, ChannelsState } from "slices/channels";
+import {
+  clearErrors,
+  clearEvents,
+  submitIbcTransferTransaction,
+  TransfersState,
+} from "slices/transfers";
 
 type UrlParams = {
   id: string;
@@ -35,7 +41,8 @@ const IBCTransfer = (): JSX.Element => {
   const { channelsByChain = {} } = useAppSelector<ChannelsState>(
     (state) => state.channels
   );
-
+  const { isIbcTransferSubmitting, transferError } =
+    useAppSelector<TransfersState>((state) => state.transfers);
   const { chain } = Config;
   const defaultChain = Object.values(chain)[0];
   const [selectedChainId, setSelectedChain] = useState(defaultChain.id);
@@ -51,7 +58,7 @@ const IBCTransfer = (): JSX.Element => {
   const [selectedChannelId, setSelectedChannel] = useState(channels[0]);
   const [showAddChannelForm, setShowAddChannelForm] = useState(false);
   const [channelId, setChannelId] = useState<string>();
-  const [recipient, setRecipient] = useState<string>();
+  const [recipient, setRecipient] = useState("");
   const account = derived[id] || {};
   const { balance = 0, tokenType } = account;
 
@@ -64,11 +71,17 @@ const IBCTransfer = (): JSX.Element => {
     label: name,
   }));
 
+  const { ibcPortId: portId = "transfer" } = chain[selectedChainId];
+
   useEffect(() => {
     if (account) {
       // fetch latest balance
       dispatch(fetchBalanceByAccount(account));
     }
+    return () => {
+      dispatch(clearEvents());
+      dispatch(clearErrors());
+    };
   }, []);
 
   const handleAddChannel = (): void => {
@@ -86,12 +99,16 @@ const IBCTransfer = (): JSX.Element => {
   };
 
   const handleSubmit = (): void => {
-    console.log({
-      selectedChainId,
-      selectedChannelId,
-      recipient,
-      amount,
-    });
+    dispatch(
+      submitIbcTransferTransaction({
+        account,
+        amount,
+        memo,
+        target: recipient,
+        channelId: selectedChannelId,
+        portId,
+      })
+    );
   };
 
   return (
@@ -208,11 +225,17 @@ const IBCTransfer = (): JSX.Element => {
         />
       </InputContainer>
 
+      {isIbcTransferSubmitting && <p>Submitting IBC Transfer</p>}
+      {transferError && <p>{transferError}</p>}
       <ButtonsContainer>
         <Button
           variant={ButtonVariant.Contained}
           disabled={
-            amount > balance || amount === 0 || !isMemoValid(memo) || !recipient
+            amount > balance ||
+            amount === 0 ||
+            !isMemoValid(memo) ||
+            !recipient ||
+            isIbcTransferSubmitting
           }
           onClick={handleSubmit}
         >
