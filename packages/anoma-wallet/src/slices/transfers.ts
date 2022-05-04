@@ -1,7 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import Config from "config";
 import { FAUCET_ADDRESS, Tokens, TokenType, TxResponse } from "constants/";
-import { stat } from "fs";
 import { RpcClient, SocketClient, Transfer, IBCTransfer } from "lib";
 import { NewBlockEvents } from "lib/rpc/types";
 import { amountFromMicro, promiseWithTimeout } from "utils/helpers";
