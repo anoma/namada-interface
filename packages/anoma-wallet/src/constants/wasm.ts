@@ -7,7 +7,7 @@ export enum TxWasm {
   Bond = "tx_bond.593d2558f54f20eec9155bc842322a45badf0b75aa9464fd051595f8f382b297.wasm",
   UnBond = "tx_unbond.87e6f0f778717691e33b281d522e68b8048d0012b8a34e43a329b28c8a9780a4.wasm",
   FromIntent = "tx_from_intent.77da29925cf0c61842380f3d231326cf5be26a923ad771a67e68451c8bb0c322.wasm",
-  IBC = "tx_ibc.896fc57daa47e4d83753aa675f2fe769cab3a482520287ddb68f941e682e8cff.wasm",
+  IBC = "tx_ibc.ae984137f519dd3b83d48eb0d52d2151b2a2e3e06db3dffd14959df6f1b4f1c9.wasm",
 }
 
 export enum VpWasm {
