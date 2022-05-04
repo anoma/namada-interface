@@ -55,7 +55,7 @@ const IBCTransfer = (): JSX.Element => {
   const [amount, setAmount] = useState(0);
   const [memo, setMemo] = useState("");
 
-  const [selectedChannelId, setSelectedChannel] = useState(channels[0]);
+  const [selectedChannelId, setSelectedChannel] = useState("");
   const [showAddChannelForm, setShowAddChannelForm] = useState(false);
   const [channelId, setChannelId] = useState<string>();
   const [recipient, setRecipient] = useState("");
@@ -83,6 +83,15 @@ const IBCTransfer = (): JSX.Element => {
       dispatch(clearErrors());
     };
   }, []);
+
+  useEffect(() => {
+    if (selectedChainId) {
+      const channels = channelsByChain[selectedChainId];
+      if (channels && channels.length > 0) {
+        setSelectedChannel(channels[0]);
+      }
+    }
+  }, [selectedChainId]);
 
   const handleAddChannel = (): void => {
     if (channelId) {
