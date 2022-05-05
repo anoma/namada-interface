@@ -1,9 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { AccountsState, fetchBalanceByAccount } from "slices/accounts";
 import { useAppDispatch, useAppSelector } from "store";
 import Config from "config";
+import { AccountsState, fetchBalanceByAccount } from "slices/accounts";
+import { addChannel, ChannelsState } from "slices/channels";
+import {
+  clearErrors,
+  clearEvents,
+  submitIbcTransferTransaction,
+  TransfersState,
+} from "slices/transfers";
 
 import { Input, InputVariants } from "components/Input";
 import { isMemoValid, MAX_MEMO_LENGTH } from "../TokenSend/TokenSendForm";
@@ -21,13 +28,6 @@ import { Heading, HeadingLevel } from "components/Heading";
 import { NavigationContainer } from "components/NavigationContainer";
 import { Icon, IconName } from "components/Icon";
 import { Button, ButtonVariant } from "components/Button";
-import { addChannel, ChannelsState } from "slices/channels";
-import {
-  clearErrors,
-  clearEvents,
-  submitIbcTransferTransaction,
-  TransfersState,
-} from "slices/transfers";
 
 type UrlParams = {
   id: string;
@@ -244,7 +244,8 @@ const IBCTransfer = (): JSX.Element => {
             amount === 0 ||
             !isMemoValid(memo) ||
             !recipient ||
-            isIbcTransferSubmitting
+            isIbcTransferSubmitting ||
+            !selectedChannelId
           }
           onClick={handleSubmit}
         >
