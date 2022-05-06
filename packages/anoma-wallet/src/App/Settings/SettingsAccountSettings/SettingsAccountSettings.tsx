@@ -6,15 +6,9 @@ import { useAppDispatch, useAppSelector } from "store";
 import { DerivedAccount, removeAccount, renameAccount } from "slices/accounts";
 import { Input } from "components/Input";
 import { Button, ButtonVariant } from "components/Button";
-import { useState } from "react";
-import { Session } from "lib";
-import {
-  SeedPhraseCard,
-  SeedPhraseContainer,
-  SeedPhraseIndexLabel,
-} from "App/AccountCreation/Steps/SeedPhrase/SeedPhrase.components";
-import { Select } from "components/Select";
-import { setNetwork } from "slices/settings";
+import { Address } from "App/Token/Transfers/TransferDetails.components";
+import { TopLevelRoute } from "App/types";
+import { InputContainer } from "App/AccountOverview/AccountOverview.components";
 
 type SettingsAccountSettingsParams = {
   // account alias hash of the account to set up
@@ -29,46 +23,19 @@ export const SettingsAccountSettings = (): JSX.Element => {
   const navigate = useNavigate();
   const { derived } = useAppSelector((state) => state.accounts);
   const dispatch = useAppDispatch();
-  const [displaySeedPhrase, setDisplaySeedPhrase] = useState(false);
-  const [seedPhrase, setSeedPhrase] = useState<string[]>([]);
-  const session = new Session();
-
-  const handleDisplaySeedPhrase = (): void => {
-    if (!displaySeedPhrase) {
-      const password = prompt("Please input your password") || "";
-
-      session.setSession(password);
-      session
-        .getSeed()
-        .then((seedPhrase) => {
-          setSeedPhrase((seedPhrase || "").split(" "));
-          setDisplaySeedPhrase(!displaySeedPhrase);
-        })
-        .catch(() => {
-          alert("The inputed password is invalid. Please try again.");
-        });
-    } else {
-      setDisplaySeedPhrase(!displaySeedPhrase);
-    }
-  };
-
-  const handleNetworkSelect = (
-    e: React.ChangeEvent<HTMLSelectElement>
-  ): void => {
-    const { value } = e.target;
-
-    dispatch(setNetwork(value));
-  };
 
   const { id = "" } = params;
   const account: DerivedAccount = derived[id];
 
   const handleDeleteAccount = (): void => {
-    prompt(
-      `Please type in ${account.alias} if you're sure you want to delete this account`
-    ) == account.alias &&
-      dispatch(removeAccount(account.id)) &&
-      navigate(-1);
+    if (
+      prompt(
+        `Please type in ${account.alias} if you're sure you want to delete this account`
+      ) == account.alias
+    ) {
+      dispatch(removeAccount(account.id));
+      navigate(TopLevelRoute.SettingsAccountSettings);
+    }
   };
 
   return (
@@ -82,7 +49,7 @@ export const SettingsAccountSettings = (): JSX.Element => {
       </NavigationContainer>
 
       {account && (
-        <div style={{ width: "100%" }}>
+        <InputContainer>
           <Input
             label="Alias:"
             value={account.alias}
@@ -91,60 +58,26 @@ export const SettingsAccountSettings = (): JSX.Element => {
             }
           />
           <p>
-            <Button
-              variant={ButtonVariant.Contained}
-              style={{ margin: "0" }}
-              onClick={handleDisplaySeedPhrase}
-            >
-              {displaySeedPhrase ? "Hide" : "Display"} seed phrase
-            </Button>
-            {displaySeedPhrase && (
-              <SeedPhraseContainer>
-                {seedPhrase.map((seedPhraseWord, index) => {
-                  return (
-                    <SeedPhraseCard key={seedPhraseWord}>
-                      <SeedPhraseIndexLabel>{`${
-                        index + 1
-                      }`}</SeedPhraseIndexLabel>
-                      {`${seedPhraseWord}`}
-                    </SeedPhraseCard>
-                  );
-                })}
-              </SeedPhraseContainer>
-            )}
-          </p>
-          <p>
             <b>Token Type:</b>
           </p>
           <p>{account.tokenType}</p>
           <p>
-            <b>Address (WIF):</b>
-          </p>
-          <pre>{account.address}</pre>
-          <p>
             <b>Established Address:</b>
           </p>
-          <pre style={{ width: "100%", overflow: "auto" }}>
-            {account.establishedAddress}
-          </pre>
+          {account.establishedAddress ? (
+            <Address>{account.establishedAddress}</Address>
+          ) : (
+            <em>Account not yet initialized</em>
+          )}
           <p>
             <b>Ed25519 Public Key:</b>
           </p>
-          <pre style={{ width: "100%", overflow: "auto" }}>
-            {account.publicKey}
-          </pre>
+          <Address>{account.publicKey}</Address>
           <p>
             <b>Ed25519 Signing Key:</b>
           </p>
-          <pre style={{ width: "100%", overflow: "auto" }}>
-            {account.signingKey}
-          </pre>
-          <Select
-            label="Network"
-            value="default"
-            data={[{ value: "default", label: "Default" }]}
-            onChange={handleNetworkSelect}
-          />
+          <Address>{account.signingKey}</Address>
+
           <Button
             variant={ButtonVariant.ContainedAlternative}
             onClick={handleDeleteAccount}
@@ -152,7 +85,7 @@ export const SettingsAccountSettings = (): JSX.Element => {
           >
             Delete Account
           </Button>
-        </div>
+        </InputContainer>
       )}
     </SettingsAccountSettingsContainer>
   );
