@@ -5,6 +5,7 @@ import { RpcClient, SocketClient, Transfer } from "lib";
 import { NewBlockEvents } from "lib/rpc/types";
 import { amountFromMicro, promiseWithTimeout } from "utils/helpers";
 import { DerivedAccount, fetchBalanceByAccount } from "./accounts";
+
 import { createShieldedTransfer } from "./shieldedTransfer";
 enum TransferType {
   Sent,
