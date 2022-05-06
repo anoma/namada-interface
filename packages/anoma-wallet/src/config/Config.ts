@@ -10,8 +10,8 @@ export type NetworkConfig = {
 
 // DEVNET defaults
 
-const DEVNET_URL = "192.168.2.127";
-const DEVNET_PORT = 36657;
+const DEVNET_URL = "localhost";
+const DEVNET_PORT = 26657;
 const DEVNET_PROTOCOL = "http";
 const DEVNET_WS_PROTOCOL = "ws";
 

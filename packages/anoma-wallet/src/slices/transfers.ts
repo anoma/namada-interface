@@ -5,7 +5,7 @@ import { RpcClient, SocketClient, Transfer } from "lib";
 import { NewBlockEvents } from "lib/rpc/types";
 import { amountFromMicro, promiseWithTimeout } from "utils/helpers";
 import { DerivedAccount, fetchBalanceByAccount } from "./accounts";
-
+import { createShieldedTransfer } from "./shieldedTransfer";
 enum TransferType {
   Sent,
   Received,
@@ -76,15 +76,40 @@ export const submitTransferTransaction = createAsyncThunk(
     const epoch = await rpcClient.queryEpoch();
     const transfer = await new Transfer().init();
     const token = Tokens[tokenType];
-
-    const { hash, bytes } = await transfer.makeTransfer({
+    const transferData = {
       source: useFaucet ? FAUCET_ADDRESS : source,
       target,
       token: token.address || "",
       amount,
       epoch,
       privateKey,
-    });
+    };
+
+    // we get the hash and bytes for the transaction
+    let hash: string;
+    let bytes: Uint8Array;
+
+    if (shielded) {
+      // big TODO: think about the whole concept of how the UX for the shielded
+      // transactions should be.
+      //
+      // if it is shielded we have to first generate it and it will then be included
+      // in regular transaction
+      const shieldedTransaction = await createShieldedTransfer();
+      console.log("shielded tx");
+      console.log(shieldedTransaction, "shieldedTransaction");
+      const hashAndBytes = await transfer.makeShieldedTransfer({
+        ...transferData,
+        shieldedTransaction,
+      });
+      hash = hashAndBytes.hash;
+      bytes = hashAndBytes.bytes;
+    } else {
+      console.log("transparent tx");
+      const hashAndBytes = await transfer.makeTransfer(transferData);
+      hash = hashAndBytes.hash;
+      bytes = hashAndBytes.bytes;
+    }
 
     const { promise, timeoutId } = promiseWithTimeout<NewBlockEvents>(
       new Promise(async (resolve) => {
@@ -137,6 +162,7 @@ const initialState: TransfersState = {
   isTransferSubmitting: false,
 };
 
+// create slice containing reducers and actions for transfer
 const transfersSlice = createSlice({
   name: TRANSFERS_ACTIONS_BASE,
   initialState,
