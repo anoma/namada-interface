@@ -84,7 +84,7 @@ export const SettingsAccounts = (): JSX.Element => {
       <NewAccountButtonContainer>
         <Button
           onClick={() => {
-            navigate(`${TopLevelRoute.WalletAddAccount}`);
+            navigate(TopLevelRoute.WalletAddAccount);
           }}
           variant={ButtonVariant.Contained}
           style={{ marginLeft: "0" }}
