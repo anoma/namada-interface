@@ -15,9 +15,8 @@ import {
   NewAccountButtonContainer,
   AccountAlias,
 } from "./SettingsAccounts.components";
-import { useAppDispatch, useAppSelector } from "store";
+import { useAppSelector } from "store";
 import { AccountsState } from "slices/accounts";
-import { setAccountID } from "slices/settings";
 
 /**
  * Listing all the accounts that are persisted. By clicking one of them the account
@@ -26,7 +25,6 @@ import { setAccountID } from "slices/settings";
 export const SettingsAccounts = (): JSX.Element => {
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const accounts = Object.values(derived);
-  const dispatch = useAppDispatch();
   const currentAccount = useAppSelector(
     (state) => state.settings.selectedAccountID
   );
@@ -53,7 +51,6 @@ export const SettingsAccounts = (): JSX.Element => {
                   : { border: 0 }
               }
               key={account.alias}
-              onClick={() => dispatch(setAccountID(account.id))}
             >
               <AccountAlias>{account.alias}</AccountAlias>
               <AccountNameContainer>

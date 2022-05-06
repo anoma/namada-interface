@@ -52,16 +52,17 @@ export const SettingsWalletSettings = (): JSX.Element => {
     },
   ];
 
+  const currentCurrency = useAppSelector(
+    (state) => state.settings.fiatCurrency
+  );
+
+  /* TODO: Load available Anoma-based networks from config, i.e., Namada */
   const networks: Option<string>[] = [
     {
       label: "Namada",
       value: "Namada",
     },
   ];
-
-  const currentCurrency = useAppSelector(
-    (state) => state.settings.fiatCurrency
-  );
 
   const handleCurrencySelect = (
     e: React.ChangeEvent<HTMLSelectElement>
@@ -130,7 +131,6 @@ export const SettingsWalletSettings = (): JSX.Element => {
       </InputContainer>
 
       <InputContainer>
-        {/* TODO: Load available Anoma-based networks from config, i.e., Namada */}
         <Select
           label={
             <div>
