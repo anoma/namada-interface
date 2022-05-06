@@ -275,7 +275,7 @@ function AccountCreation(): JSX.Element {
                           // Establish login session
                           const session = new Session();
                           session.setSession(accountCreationDetails.password);
-                          await session.setSeed(mnemonic.phrase);
+                          await session.setSeed(mnemonic);
 
                           setInitialAccount && setInitialAccount(account);
                         } else {
