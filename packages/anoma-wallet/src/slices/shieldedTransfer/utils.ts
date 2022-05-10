@@ -26,20 +26,13 @@ const fetchShieldedTransferById = async (
 
 // go through linked transfer and return them in an array
 const fetchShieldedTransfers = async (): Promise<NodeWithNextId[]> => {
-  console.log("fetchShieldedTransfers 1");
   const transfers: NodeWithNextId[] = [];
   const headTransactionId = await fetchShieldedTransferById();
-  console.log(headTransactionId, "fetchShieldedTransfers 2");
   if (headTransactionId) {
-    console.log("fetchShieldedTransfers 2.1");
     transfers.push(headTransactionId);
   }
-  console.log("fetchShieldedTransfers 3");
-  console.log(transfers, "fetchShieldedTransfers 3");
   let latestTransfer: NodeWithNextId = transfers[transfers.length - 1];
-  console.log("fetchShieldedTransfers 4");
   while (latestTransfer.nextTransactionId) {
-    console.log("fetchShieldedTransfers 5");
     const shieldedTransfer: NodeWithNextId | undefined =
       await fetchShieldedTransferById(latestTransfer.nextTransactionId);
     if (shieldedTransfer && shieldedTransfer.node) {
@@ -52,20 +45,20 @@ const fetchShieldedTransfers = async (): Promise<NodeWithNextId[]> => {
   return Promise.resolve(transfers);
 };
 
-const createShieldedTransferUsingTransers = async (
+const createShieldedTransferUsingTransfers = async (
   nodesWithNextId: NodeWithNextId[]
 ): Promise<Uint8Array> => {
   const maspWeb = await MaspWeb.init();
-  await maspWeb.performShieldedTransaction(nodesWithNextId);
-  const placeHolder = new Uint8Array([1, 2, 3]);
-  return Promise.resolve(placeHolder);
+  const shieldedTransaction = await maspWeb.generateShieldedTransaction(
+    nodesWithNextId
+  );
+  return Promise.resolve(shieldedTransaction);
 };
 
-// exposes a simple API for the rest of the app to create ShieldedTransactions
 export const createShieldedTransfer = async (): Promise<Uint8Array> => {
   try {
     const existingShieldedTransfers = await fetchShieldedTransfers();
-    const shieldedTransfer = await createShieldedTransferUsingTransers(
+    const shieldedTransfer = await createShieldedTransferUsingTransfers(
       existingShieldedTransfers
     );
     return Promise.resolve(shieldedTransfer);

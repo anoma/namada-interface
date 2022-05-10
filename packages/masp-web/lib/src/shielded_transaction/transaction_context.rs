@@ -23,7 +23,7 @@ fn fetch_shielded_transactions_by_spending_keys(spending_key: Vec<String>) -> Ve
     //    using masp address
     // 2. loop through linked list as long as there are items
     // 3. return the list in reversed order
-    vec![String::from("transaction-1")]
+    vec![String::from("transaction_1_placeholder")]
 }
 
 // based on set of shielded transactions we create a tx context
@@ -32,9 +32,10 @@ fn create_transaction_context_from_transactions(transactions: Vec<String>) -> Tr
 }
 
 impl TransactionContext {
+    // delete this
     pub fn init_from_spending_key() -> Self {
         // create the shielded transactions context
-        let viewing_keys = vec![String::from("viewing_key_1")];
+        let viewing_keys = vec!["placeholder".to_string()];
         let shielded_transactions = fetch_shielded_transactions_by_spending_keys(viewing_keys);
         let transaction_context =
             create_transaction_context_from_transactions(shielded_transactions);

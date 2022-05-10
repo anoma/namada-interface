@@ -42,9 +42,9 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 type TransactionWithPointerToNext = (Transaction, Option<TxId>);
 
 // utils
-pub fn to_viewing_key(esk: &ExtendedSpendingKey) -> ViewingKey {
-    ExtendedFullViewingKey::from(esk).fvk.vk
-}
+// pub fn to_viewing_key(esk: &ExtendedSpendingKey) -> ViewingKey {
+//     ExtendedFullViewingKey::from(esk).fvk.vk
+// }
 
 pub fn find_valid_diversifier<R: RngCore + CryptoRng>(
     rng: &mut R,
@@ -73,18 +73,10 @@ pub fn perform_shielded_transaction(
     spend_param_bytes: &[u8],
     output_param_bytes: &[u8],
 ) -> Option<Vec<u8>> {
-    // we create these from the string values that the user passed in
-    let payment_address_result = PaymentAddress::from_str(payment_address_as_string.as_str());
-    let payment_address = match payment_address_result {
-        Ok(payment_address) => payment_address,
-        Err(error) => {
-            return None;
-        }
-    };
-    let spending_key_result = ExtendedSpendingKey::from_str("AAA003");
+    let spending_key_result = ExtendedSpendingKey::from_str(spending_key_as_string.as_str());
     let spending_key = match spending_key_result {
         Ok(spending_key) => spending_key,
-        Err(_) => return None,
+        Err(_error) => return None,
     };
 
     // we transform the data to Transactions
@@ -93,22 +85,19 @@ pub fn perform_shielded_transaction(
         Some(transactions) => transactions,
         None => return None,
     };
-
     // now using the transactions we create the transaction context
     let transaction_context =
         load_shielded_transaction_context(transactions, vec![spending_key], vec![]);
     // some details we need for the builder
-    let height = 0u32;
+    let height = 1_000_000u32;
     let consensus_branch_id = BranchId::Sapling;
     let amt: u64 = amount;
     let memo: Option<Memo> = None;
-
     let mut builder = Builder2::<TestNetwork, OsRng>::new(height);
-
     // TOKEN
-    // this is BTC address
+    // this is XAN address
     let token_type_result = Address::decode(
-        "atest1v4ehgw36xdzryve5gsc52veeg5cnsv2yx5eygvp38qcrvd29xy6rys6p8yc5xvp4xfpy2v694wgwcp",
+        "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5",
     );
     let token_type = match token_type_result {
         Ok(token_type) => token_type,
@@ -118,17 +107,15 @@ pub fn perform_shielded_transaction(
     };
     let token_bytes = token_type.try_to_vec().expect("token should serialize");
     let asset_type = AssetType::new(token_bytes.as_ref()).expect("unable to create asset type");
-
     // Transaction fees will be taken care of in the wrapper Transfer
     builder.set_fee(Amount::zero());
     let is_shielded = true;
     if is_shielded {
         let mut val_acc = 0;
+        let lookup_viewing_key = extended_spending_key_to_viewing_key(&spending_key);
+
         // Retrieve the notes that can be spent by this key
-        if let Some(avail_notes) = transaction_context
-            .viewing_keys
-            .get(&to_viewing_key(&spending_key))
-        {
+        if let Some(avail_notes) = transaction_context.viewing_keys.get(&lookup_viewing_key) {
             for note_idx in avail_notes {
                 // No more transaction inputs are required once we have met
                 // the target amount
@@ -177,14 +164,13 @@ pub fn perform_shielded_transaction(
         }
     }
     let local_prover = LocalTxProver::from_bytes(&spend_param_bytes, &output_param_bytes);
+    console_log("building the transaction, just wait this takes time around 1min");
     let transaction_result = builder
         .build(consensus_branch_id, &local_prover)
         .map(|x| Some(x));
-    console_log("perform_shielded_transaction 20");
     match transaction_result {
         Ok(transaction_maybe) => {
             if let Some((transaction, transaction_metadata)) = transaction_maybe {
-                console_log_any(&transaction);
                 return Some(transaction.try_to_vec().unwrap());
             }
             return None;
@@ -324,10 +310,9 @@ pub fn load_shielded_transaction_context(
 ) -> TransactionContext {
     let mut transaction_context = TransactionContext::default();
 
-    // add spending_keys to context viewing_keys
+    // we add spending keys with an empty HashSet
     for spending_key in spending_keys {
         let viewing_key = extended_spending_key_to_viewing_key(&spending_key);
-
         transaction_context
             .viewing_keys
             .entry(viewing_key.into())
@@ -341,10 +326,12 @@ pub fn load_shielded_transaction_context(
 
     // we apply all transactions to the transaction context
     for transaction in transactions {
-        // mutates transaction_context by inserting spent notes ffrom the transaction
+        // mutates transaction_context by inserting spent notes from the transaction
         transaction_context.insert_spent_notes(&transaction);
 
-        // TODO see how to handle a possible failure
+        // in apply_transaction_to_transaction_context we try to
+        // decrypt the notes with the viewing key and add them to the HasmMap
+        // in the context
         let _result =
             apply_transaction_to_transaction_context(transaction, &mut transaction_context);
     }
@@ -353,7 +340,7 @@ pub fn load_shielded_transaction_context(
 }
 
 // This does a couple of things for now:
-// 1. loops through shielded outputs in transction from that try to decrypt Note by
+// 1. loops through shielded outputs in transaction from that try to decrypt Note by
 //    using viewing keys from transaction context
 // 2. then we insert note_position to transaction_context.spent_funds
 //    to render the target note unusable

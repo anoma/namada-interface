@@ -70,7 +70,6 @@ export const aesEncrypt = (value: string, password: string): string => {
     mode: CryptoJS.mode.CBC,
     padding: CryptoJS.pad.Pkcs7,
   });
-
   return encrypted.toString();
 };
 
@@ -88,7 +87,6 @@ export const aesDecrypt = (encrypted: string, password: string): string => {
       mode: CryptoJS.mode.CBC,
       padding: CryptoJS.pad.Pkcs7,
     });
-
     return decrypted.toString(CryptoJS.enc.Utf8);
   } catch (e) {
     throw new Error(`Unable to decrypt value: ${e}`);

@@ -426,11 +426,53 @@ impl BorshSerialize for ExtendedSpendingKey {
     }
 }
 
+// the following is here just for now
+// at this point this whole thing is pretty not in sync with
+// what anoma has since the latest work that has gone into
+// codebase since I started working on this
+const EXT_SPENDING_KEY_HRP: &str = "xsktest";
+use bech32::{FromBase32, ToBase32, Variant};
+use thiserror::Error;
+
+const BECH32M_VARIANT: bech32::Variant = Variant::Bech32m;
+
+#[allow(missing_docs)]
+#[derive(Error, Debug)]
+pub enum DecodeError {
+    #[error("Error decoding address from Bech32m: {0}")]
+    DecodeBech32(bech32::Error),
+    #[error("Error decoding address from base32: {0}")]
+    DecodeBase32(bech32::Error),
+    #[error("Unexpected Bech32m human-readable part {0}, expected {1}")]
+    UnexpectedBech32Prefix(String, String),
+    #[error("Unexpected Bech32m variant {0:?}, expected {BECH32M_VARIANT:?}")]
+    UnexpectedBech32Variant(bech32::Variant),
+    #[error("Invalid address encoding")]
+    InvalidInnerEncoding(std::io::Error),
+}
+
 impl FromStr for ExtendedSpendingKey {
-    type Err = std::io::Error;
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let vec = hex::decode(s).map_err(|x| Error::new(ErrorKind::InvalidData, x))?;
-        Ok(ExtendedSpendingKey::master(vec.as_ref()))
+    type Err = DecodeError;
+
+    fn from_str(string: &str) -> Result<Self, Self::Err> {
+        dbg!(string);
+
+        let (prefix, base32, variant) =
+            bech32::decode(string).map_err(DecodeError::DecodeBech32)?;
+        if prefix != EXT_SPENDING_KEY_HRP {
+            return Err(DecodeError::UnexpectedBech32Prefix(
+                prefix,
+                EXT_SPENDING_KEY_HRP.into(),
+            ));
+        }
+        match variant {
+            BECH32M_VARIANT => {}
+            _ => return Err(DecodeError::UnexpectedBech32Variant(variant)),
+        }
+        let bytes: Vec<u8> = FromBase32::from_base32(&base32).map_err(DecodeError::DecodeBase32)?;
+        Self::read(&mut &bytes[..])
+            .map_err(DecodeError::InvalidInnerEncoding)
+            .map(|x| x)
     }
 }
 
