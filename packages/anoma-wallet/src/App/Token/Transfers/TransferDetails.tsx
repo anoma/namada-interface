@@ -45,7 +45,9 @@ const TransferDetail = (): JSX.Element => {
       </NavigationContainer>
       <p>
         <strong>
-          {type} {amount} {tokenType}
+          {type}
+          <br />
+          {amount} {tokenType}
         </strong>
         <br />
         {dateTimeFormatted}
