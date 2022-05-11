@@ -7,25 +7,22 @@ import { amountFromMicro, promiseWithTimeout } from "utils/helpers";
 import { DerivedAccount, fetchBalanceByAccount } from "./accounts";
 
 enum TransferType {
-  Sent,
-  Received,
+  IBC = "IBC",
+  Shielded = "Shielded",
+  NonShielded = "Non-Shielded",
 }
 
 export type TransferTransaction = {
-  tokenType: TokenType;
-  appliedHash: string;
+  source: string;
   target: string;
-  amount: number;
-  memo?: string;
-  shielded: boolean;
-  gas: number;
-  height: number;
-  timestamp: number;
   type: TransferType;
-};
-
-type TransferTransactions = {
-  [accountId: string]: TransferTransaction[];
+  amount: number;
+  height: number;
+  tokenType: TokenType;
+  gas: number;
+  appliedHash: string;
+  memo: string;
+  timestamp: number;
 };
 
 type TransferEvents = {
@@ -34,7 +31,7 @@ type TransferEvents = {
 };
 
 export type TransfersState = {
-  transactions: TransferTransactions;
+  transactions: TransferTransaction[];
   isTransferSubmitting: boolean;
   transferError?: string;
   events?: TransferEvents;
@@ -69,16 +66,19 @@ export const submitTransferTransaction = createAsyncThunk(
   ) => {
     const {
       id,
-      establishedAddress: source = "",
+      establishedAddress = "",
       tokenType,
       signingKey: privateKey,
     } = account;
+
+    const source = useFaucet ? FAUCET_ADDRESS : establishedAddress;
+
     const epoch = await rpcClient.queryEpoch();
     const transfer = await new Transfer().init();
     const token = Tokens[tokenType];
 
     const { hash, bytes } = await transfer.makeTransfer({
-      source: useFaucet ? FAUCET_ADDRESS : source,
+      source,
       target,
       token: token.address || "",
       amount,
@@ -117,23 +117,23 @@ export const submitTransferTransaction = createAsyncThunk(
       id,
       useFaucet,
       transaction: {
+        source,
+        target,
         appliedHash,
         tokenType,
-        target,
         amount,
         memo,
-        shielded,
         gas,
         height,
         timestamp: new Date().getTime(),
-        type: useFaucet ? TransferType.Received : TransferType.Sent,
+        type: shielded ? TransferType.Shielded : TransferType.NonShielded,
       },
     };
   }
 );
 
 const initialState: TransfersState = {
-  transactions: {},
+  transactions: [],
   isTransferSubmitting: false,
 };
 
@@ -170,10 +170,8 @@ const transfersSlice = createSlice({
           transaction: TransferTransaction;
         }>
       ) => {
-        const { id, useFaucet, transaction } = action.payload;
+        const { useFaucet, transaction } = action.payload;
         const { gas, appliedHash } = transaction;
-        const transactions = state.transactions[id] || [];
-        transactions.push(transaction);
 
         state.isTransferSubmitting = false;
         state.transferError = undefined;
@@ -185,10 +183,7 @@ const transfersSlice = createSlice({
             }
           : undefined;
 
-        state.transactions = {
-          ...state.transactions,
-          [id]: transactions,
-        };
+        state.transactions.push(transaction);
       }
     );
   },
