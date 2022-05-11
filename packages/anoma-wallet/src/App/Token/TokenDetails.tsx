@@ -50,9 +50,13 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
   const token = Tokens[tokenType] || {};
 
   // eslint-disable-next-line prefer-const
-  let transactions =
-    (accountTransactions[id] && [...accountTransactions[id]]) || [];
-  transactions.sort((a, b) => b.timestamp - a.timestamp);
+  const transactions = accountTransactions
+    .filter(
+      (transaction) =>
+        transaction.source === establishedAddress ||
+        transaction.target === establishedAddress
+    )
+    .reverse();
 
   useEffect(() => {
     if (establishedAddress) {
@@ -142,7 +146,10 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
                 <TransactionListItem key={`${appliedHash}:${timestamp}`}>
                   <div>
                     <strong>
-                      {type} {amount} {tokenType}
+                      {transaction.source === establishedAddress
+                        ? "Sent "
+                        : "Received "}
+                      ({type}) {amount} {tokenType}
                     </strong>
                     <br />
                     {dateTimeFormatted}

@@ -13,12 +13,10 @@ type TransferDetailsParams = {
 
 const TransferDetail = (): JSX.Element => {
   const navigate = useNavigate();
-  const { id = "", appliedHash = "" } = useParams<TransferDetailsParams>();
-  const { transactions: accountTransactions } = useAppSelector<TransfersState>(
+  const { appliedHash = "" } = useParams<TransferDetailsParams>();
+  const { transactions } = useAppSelector<TransfersState>(
     (state) => state.transfers
   );
-
-  const transactions = accountTransactions[id] || [];
 
   const {
     tokenType,
@@ -27,7 +25,7 @@ const TransferDetail = (): JSX.Element => {
     timestamp = 0,
     height = 0,
     memo,
-    shielded,
+    source,
     target,
     type,
   } = transactions.find(
@@ -47,11 +45,15 @@ const TransferDetail = (): JSX.Element => {
       </NavigationContainer>
       <p>
         <strong>
-          {type ? "Received" : "Sent"} {amount} {tokenType}
+          {type}
+          <br />
+          {amount} {tokenType}
         </strong>
         <br />
         {dateTimeFormatted}
       </p>
+      <p>Source address:</p>
+      <Address>{source}</Address>
       <p>Target address:</p>
       <Address>{target}</Address>
       <p>Applied hash:</p>
@@ -63,9 +65,6 @@ const TransferDetail = (): JSX.Element => {
         Block height: <strong>{height}</strong>
       </p>
       <p>Notes: {memo ? memo : "n/a"}</p>
-      <p>
-        Shielded transaction?: <strong>{shielded ? "Yes!" : "No"}</strong>
-      </p>
     </TransferDetailContainer>
   );
 };
