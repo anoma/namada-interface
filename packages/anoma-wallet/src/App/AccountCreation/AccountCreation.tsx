@@ -26,6 +26,7 @@ import {
   RouteContainer,
   MotionContainer,
 } from "./AccountCreation.components";
+import { Session } from "lib";
 
 type AnimatedTransitionProps = {
   elementKey: string;
@@ -128,6 +129,15 @@ function AccountCreation({
       return stepIndex - 1;
     });
     navigate(`${accountCreationSteps[stepIndex - 1]}`);
+  };
+
+  // Establish login session abd store mnemonic
+  const setSession = async (
+    mnemonic: string,
+    password: string
+  ): Promise<void> => {
+    const session = new Session().setSession(password);
+    await session.setSeed(mnemonic);
   };
 
   return (
@@ -242,7 +252,11 @@ function AccountCreation({
                 >
                   <SeedPhraseConfirmation
                     seedPhrase={seedPhrase || []}
-                    onConfirmSeedPhrase={() => {
+                    onConfirmSeedPhrase={async () => {
+                      await setSession(
+                        (seedPhrase || []).join(" "),
+                        accountCreationDetails.password || ""
+                      );
                       navigateToNext();
                     }}
                     onCtaHover={() => {

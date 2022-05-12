@@ -1,6 +1,6 @@
 import { Button, Variant } from "components/ButtonTemporary";
 import { Image, ImageName } from "components/Image";
-import { Session, Wallet } from "lib";
+import { Wallet } from "lib";
 
 import {
   CompletionViewContainer,
@@ -44,11 +44,6 @@ const createAccount = async (
   };
 };
 
-// Establish login session abd store mnemonic
-const setSession = (mnemonic: string, password: string): void => {
-  new Session().setSession(password).setSeed(mnemonic);
-};
-
 const Completion = (props: CompletionViewProps): JSX.Element => {
   const { onClickDone, onClickSeeAccounts, mnemonic, password, alias } = props;
 
@@ -59,15 +54,6 @@ const Completion = (props: CompletionViewProps): JSX.Element => {
       (async () => {
         const account = await createAccount(alias, mnemonic);
         dispatch(addAccount(account));
-
-        // setSession is blocking, so delay it until after animation completes.
-        // NOTE: The mnemonic is slow to encrypt, enough to cause the
-        // animation to pause.
-        setTimeout(() => {
-          // TODO: Remove this! This is a hack, and we would be better
-          // off rethinking how session handling is performed:
-          setSession(mnemonic, password);
-        }, 300);
       })();
     }
   }, []);

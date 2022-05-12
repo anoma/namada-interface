@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import { Button } from "components/ButtonTemporary";
 import {
   AccountInformationViewContainer,
@@ -24,10 +24,10 @@ function SeedPhraseConfirmation(
 ): JSX.Element {
   const { seedPhrase, onCtaHover, onConfirmSeedPhrase } = props;
   const seedPhraseLength = seedPhrase.length;
-  const [verificationInput, setVerificationInput] = React.useState("");
-  const [indexToConfirm, setIndexToConfirm] = React.useState(-1);
+  const [verificationInput, setVerificationInput] = useState("");
+  const [indexToConfirm, setIndexToConfirm] = useState(-1);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setIndexToConfirm(Math.floor(Math.random() * seedPhraseLength));
   }, []);
 
