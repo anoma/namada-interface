@@ -21,6 +21,7 @@ import {
 } from "./App.components";
 import { Session } from "lib";
 import Redirect from "./Redirect";
+import makeStore, { AppStore } from "store/store";
 
 // this sets the dark/light colors to theme
 export const getTheme = (isLightMode: boolean): Theme => {
@@ -58,6 +59,8 @@ type ContextType = {
   setInitialAccount?: (account?: InitialAccount) => void;
   setPassword?: (password: string) => void;
   setIsLoggedIn?: () => void;
+  setStore?: (password: string) => void;
+  store?: AppStore;
 };
 
 export const AppContext = createContext<ContextType>({});
@@ -66,7 +69,7 @@ function App(): JSX.Element {
   const [isLightMode, setIsLightMode] = useState(true);
   const [password, setPassword] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [initialAccount, setInitialAccount] = useState<InitialAccount>();
+  const [store, setStore] = useState<AppStore>();
   const theme = getTheme(isLightMode);
 
   useEffect(() => {
@@ -77,7 +80,7 @@ function App(): JSX.Element {
     }
   }, [isLoggedIn]);
 
-  if (isLoggedIn) {
+  if (isLoggedIn && store) {
     // Lazy-load Routes as the encrypted persistence layer in Redux
     // requires initialization after a valid password has been entered:
     const AppRoutes = lazy(() => import("./AppRoutes"));
@@ -88,9 +91,7 @@ function App(): JSX.Element {
     return (
       <BrowserRouter>
         <ThemeProvider theme={theme}>
-          <AppContext.Provider
-            value={{ initialAccount, setInitialAccount, password }}
-          >
+          <AppContext.Provider value={{ password }}>
             <AppContainer>
               <TopSection>
                 <TopNavigation
@@ -103,7 +104,7 @@ function App(): JSX.Element {
               <BottomSection>
                 <AnimatePresence exitBeforeEnter>
                   <Suspense fallback={<p>Loading</p>}>
-                    <AppRoutes />
+                    <AppRoutes store={store} />
                   </Suspense>
                 </AnimatePresence>
               </BottomSection>
@@ -123,9 +124,10 @@ function App(): JSX.Element {
         <AppContext.Provider
           value={{
             password,
-            setInitialAccount: (account) => setInitialAccount(account),
             setPassword: (password) => setPassword(password),
             setIsLoggedIn: () => setIsLoggedIn(true),
+            setStore: (password) => setStore(makeStore(password)),
+            store,
           }}
         >
           <AppContainer>

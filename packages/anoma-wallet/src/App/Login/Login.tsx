@@ -17,7 +17,7 @@ const Login = (): JSX.Element => {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const context = useContext(AppContext);
 
-  const { setIsLoggedIn, setPassword: setPasswordContext } = context || {};
+  const { setIsLoggedIn, setStore } = context || {};
 
   useEffect(() => {
     const checkMnemonic = async (): Promise<void> => {
@@ -40,7 +40,7 @@ const Login = (): JSX.Element => {
       await session.getSeed();
       setError(undefined);
       setIsLoggedIn && setIsLoggedIn();
-      setPasswordContext && setPasswordContext(password);
+      setStore && setStore(password);
 
       const redirectUrl = getParams("redirect");
       if (redirectUrl) {

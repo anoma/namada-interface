@@ -56,7 +56,7 @@ const AccountInformation = (
     accountCreationDetails,
   } = props;
   const context = useContext(AppContext) || {};
-  const { setPassword } = context;
+  const { setPassword, setStore } = context;
   // setting these default values if no data was passed
   const { seedPhraseLength = "12", accountName = "" } =
     accountCreationDetails || {};
@@ -199,6 +199,7 @@ const AccountInformation = (
                   ...accountCreationDetails,
                   password: password1,
                 };
+                setStore && setStore(password1);
                 onSubmitAccountCreationDetails(accountCreationDetailsToSubmit);
               }
             }}

@@ -9,7 +9,7 @@ import {
   submitTransferTransaction,
   TransfersState,
 } from "slices/transfers";
-
+import { DerivedAccount } from "slices/accounts";
 import { useAppDispatch, useAppSelector } from "store";
 import { Tokens } from "constants/";
 
@@ -28,7 +28,7 @@ import {
 } from "./TokenSendForm.components";
 import { Toggle } from "components/Toggle";
 import { Icon, IconName } from "components/Icon";
-import { DerivedAccount } from "slices/accounts";
+import { Address } from "../Transfers/TransferDetails.components";
 
 type Props = {
   accountId: string;
@@ -68,7 +68,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
       if (establishedAddress && token.address) {
         dispatch(fetchBalanceByAccount(account));
 
-        // Check for internal transfer:
+        // Check for internal transfer targets, and update their balance if found:
         const targetAccount = Object.values(derived).find(
           (account: DerivedAccount) => account.establishedAddress === target
         );
@@ -220,7 +220,9 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
           <>
             <StatusMessage>Transfer successful!</StatusMessage>
             <StatusMessage>Gas used: {events.gas}</StatusMessage>
-            <StatusMessage>Applied hash: {events.appliedHash}</StatusMessage>
+            <StatusMessage>
+              Applied hash: <Address>{events.appliedHash}</Address>
+            </StatusMessage>
           </>
         )}
       </StatusContainer>

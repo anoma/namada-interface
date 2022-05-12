@@ -5,9 +5,7 @@ import { ThemeContext } from "styled-components";
 
 import { TopLevelRoute } from "App/types";
 import { AccountCreationRoute, accountCreationSteps } from "./types";
-import { Session, Wallet } from "lib";
 import { AppContext } from "App/App";
-import { InitialAccount } from "slices/accounts";
 
 import { Button } from "components/ButtonTemporary";
 import { Icon, IconName } from "components/Icon";
@@ -27,6 +25,7 @@ import {
   RouteContainer,
   MotionContainer,
 } from "./AccountCreation.components";
+import { Provider } from "react-redux";
 
 type AnimatedTransitionProps = {
   elementKey: string;
@@ -54,24 +53,6 @@ const AnimatedTransition = (props: AnimatedTransitionProps): JSX.Element => {
   );
 };
 
-const createAccount = async (
-  alias: string,
-  mnemonic: string
-): Promise<InitialAccount> => {
-  const tokenType = "NAM";
-  const wallet = await new Wallet(mnemonic, tokenType).init();
-  const account = wallet.new(0);
-  const { public: publicKey, secret: signingKey, wif: address } = account;
-
-  return {
-    alias,
-    tokenType,
-    address,
-    publicKey,
-    signingKey,
-  };
-};
-
 /**
  * The main purpose of this is to coordinate the flow for creating a new account.
  * it persist the data and coordinates the logic for animating the transitions
@@ -79,7 +60,7 @@ const createAccount = async (
  */
 function AccountCreation(): JSX.Element {
   const context = useContext(AppContext);
-  const { setIsLoggedIn, setInitialAccount } = context;
+  const { setIsLoggedIn, store } = context;
 
   // account details defaults
   const defaultAccountCreationDetails: AccountCreationDetails = {
@@ -256,36 +237,6 @@ function AccountCreation(): JSX.Element {
                     seedPhrase={seedPhrase || []}
                     onConfirmSeedPhrase={() => {
                       navigateToNext();
-
-                      const createSeed = async (): Promise<void> => {
-                        // TODO
-                        // likely best to move the key creation to the loading of
-                        // the completion screen so that the user do not get the
-                        // bad UX by seeing a noticeable delay
-                        if (
-                          accountCreationDetails.password &&
-                          accountCreationDetails.accountName
-                        ) {
-                          const mnemonic = seedPhrase?.join(" ") || "";
-                          const account = await createAccount(
-                            accountCreationDetails.accountName,
-                            mnemonic
-                          );
-
-                          // Establish login session
-                          const session = new Session();
-                          session.setSession(accountCreationDetails.password);
-                          await session.setSeed(mnemonic);
-
-                          setInitialAccount && setInitialAccount(account);
-                        } else {
-                          alert(
-                            "something is wrong with the master seed creation 🤨"
-                          );
-                        }
-                      };
-
-                      createSeed();
                     }}
                     onCtaHover={() => {
                       // read the need for this above the hook
@@ -295,25 +246,32 @@ function AccountCreation(): JSX.Element {
                 </AnimatedTransition>
               }
             />
-            <Route
-              path={`/${AccountCreationRoute.Completion}`}
-              element={
-                <AnimatedTransition
-                  elementKey={AccountCreationRoute.Completion}
-                  animationFromRightToLeft={animationFromRightToLeft}
-                >
-                  <Completion
-                    onClickDone={() => {
-                      navigate(TopLevelRoute.SettingsAccounts);
-                    }}
-                    onClickSeeAccounts={() => {
-                      setIsLoggedIn && setIsLoggedIn();
-                      navigate(TopLevelRoute.Wallet);
-                    }}
-                  />
-                </AnimatedTransition>
-              }
-            />
+            {store && (
+              <Route
+                path={`/${AccountCreationRoute.Completion}`}
+                element={
+                  <AnimatedTransition
+                    elementKey={AccountCreationRoute.Completion}
+                    animationFromRightToLeft={animationFromRightToLeft}
+                  >
+                    <Provider store={store}>
+                      <Completion
+                        onClickDone={() => {
+                          navigate(TopLevelRoute.SettingsAccounts);
+                        }}
+                        onClickSeeAccounts={() => {
+                          setIsLoggedIn && setIsLoggedIn();
+                          navigate(TopLevelRoute.Wallet);
+                        }}
+                        seedPhrase={seedPhrase || []}
+                        alias={accountCreationDetails.accountName || ""}
+                        password={accountCreationDetails.password || ""}
+                      />
+                    </Provider>
+                  </AnimatedTransition>
+                }
+              />
+            )}
           </Routes>
         </AnimatePresence>
       </RouteContainer>

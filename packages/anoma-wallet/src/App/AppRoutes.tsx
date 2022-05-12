@@ -3,7 +3,7 @@ import { Routes, Route, Outlet } from "react-router-dom";
 import { Persistor, persistStore } from "redux-persist";
 import { AccountOverview } from "./AccountOverview";
 import { AddAccount } from "./AccountOverview/AddAccount";
-import { AnimatedTransition, AppContext } from "./App";
+import { AnimatedTransition } from "./App";
 import { ContentContainer } from "./App.components";
 import {
   Settings,
@@ -13,10 +13,8 @@ import {
 } from "./Settings";
 import { StakingAndGovernance } from "./StakingAndGovernance";
 import { TopLevelRoute } from "./types";
-import { makeStore } from "store";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { AppStore } from "store/store";
-import { Session } from "lib";
 import { TokenDetails } from "./Token";
 import { TokenSend } from "./Token/TokenSend";
 import { TokenReceive } from "./Token/TokenReceive";
@@ -29,21 +27,12 @@ const fakeAccounts = [
   "fakelg45lt5m623ayll8vdyf6n7gxm3tz7mtrenrer0",
 ];
 
-const AppRoutes = (): JSX.Element => {
-  const [store, setStore] = useState<AppStore>();
+type Props = {
+  store: AppStore | undefined;
+};
+
+const AppRoutes = ({ store }: Props): JSX.Element => {
   const [persistor, setPersistor] = useState<Persistor>();
-
-  const context = useContext(AppContext);
-  const { password = "" } = context;
-
-  useEffect(() => {
-    if (password === "") {
-      Session.removeSession();
-    } else {
-      setStore(makeStore(password));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   useEffect(() => {
     if (store) {
