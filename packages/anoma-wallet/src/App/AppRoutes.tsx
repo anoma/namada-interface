@@ -1,6 +1,6 @@
 import { Provider } from "react-redux";
 import { Routes, Route, Outlet } from "react-router-dom";
-import { Persistor, persistStore } from "redux-persist";
+import { Persistor } from "redux-persist";
 import { AccountOverview } from "./AccountOverview";
 import { AddAccount } from "./AccountOverview/AddAccount";
 import { AnimatedTransition } from "./App";
@@ -13,7 +13,6 @@ import {
 } from "./Settings";
 import { StakingAndGovernance } from "./StakingAndGovernance";
 import { TopLevelRoute } from "./types";
-import { useEffect, useState } from "react";
 import { AppStore } from "store/store";
 import { TokenDetails } from "./Token";
 import { TokenSend } from "./Token/TokenSend";
@@ -29,15 +28,10 @@ const fakeAccounts = [
 
 type Props = {
   store: AppStore;
+  persistor: Persistor;
 };
 
-const AppRoutes = ({ store }: Props): JSX.Element => {
-  const [persistor, setPersistor] = useState<Persistor>();
-
-  useEffect(() => {
-    setPersistor(persistStore(store));
-  }, [store]);
-
+const AppRoutes = ({ store, persistor }: Props): JSX.Element => {
   return (
     <>
       {store && (

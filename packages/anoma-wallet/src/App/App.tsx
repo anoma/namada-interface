@@ -22,6 +22,7 @@ import { Session } from "lib";
 import Redirect from "./Redirect";
 import makeStore, { AppStore } from "store/store";
 import AppRoutes from "./AppRoutes";
+import { Persistor, persistStore } from "redux-persist";
 
 // this sets the dark/light colors to theme
 export const getTheme = (isLightMode: boolean): Theme => {
@@ -58,16 +59,24 @@ function App(): JSX.Element {
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [store, setStore] = useState<AppStore>();
+  const [persistor, setPersistor] = useState<Persistor>();
   const theme = getTheme(isLightMode);
+
+  useEffect(() => {
+    if (store) {
+      setPersistor(persistStore(store));
+    }
+  }, [store]);
 
   useEffect(() => {
     const { secret } = new Session().getSession() || {};
     if (secret) {
       setIsLoggedIn(true);
+      setStore(makeStore(secret));
     }
   }, [isLoggedIn]);
 
-  if (isLoggedIn && store) {
+  if (isLoggedIn && store && persistor) {
     return (
       <BrowserRouter>
         <ThemeProvider theme={theme}>
@@ -82,7 +91,7 @@ function App(): JSX.Element {
             </TopSection>
             <BottomSection>
               <AnimatePresence exitBeforeEnter>
-                <AppRoutes store={store} />
+                <AppRoutes store={store} persistor={persistor} />
               </AnimatePresence>
             </BottomSection>
           </AppContainer>
@@ -120,9 +129,7 @@ function App(): JSX.Element {
                     element={
                       <Login
                         setIsLoggedIn={() => setIsLoggedIn(true)}
-                        setStore={(password: string) =>
-                          setStore(makeStore(password))
-                        }
+                        setStore={(password) => setStore(makeStore(password))}
                       />
                     }
                   />
