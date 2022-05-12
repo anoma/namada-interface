@@ -58,6 +58,7 @@ const createShieldedTransferUsingTransfers = async (
 export const createShieldedTransfer = async (): Promise<Uint8Array> => {
   try {
     const existingShieldedTransfers = await fetchShieldedTransfers();
+    console.log(existingShieldedTransfers.length);
     const shieldedTransfer = await createShieldedTransferUsingTransfers(
       existingShieldedTransfers
     );

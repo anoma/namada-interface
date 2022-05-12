@@ -145,11 +145,13 @@ pub fn perform_shielded_transaction(
                 builder.add_sapling_spend(spending_key.clone(), *diversifier, note, merkle_path);
             }
         }
+        console_log("set the tokens to return");
+        console_log(format!("{}", &val_acc).as_str());
+        console_log(format!("{}", &amt).as_str());
         // If there is change leftover send it back to this spending key
         if val_acc > amt {
-            let vk = spending_key.expsk.proof_generation_key().to_viewing_key();
-
-            let change_pa = vk
+            let viewing_key = spending_key.expsk.proof_generation_key().to_viewing_key();
+            let change_pa = viewing_key
                 .to_payment_address(find_valid_diversifier(&mut OsRng).0)
                 .unwrap();
 

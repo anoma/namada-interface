@@ -89,6 +89,7 @@ export const submitTransferTransaction = createAsyncThunk(
     // we get the hash and bytes for the transaction
     let hash: string;
     let bytes: Uint8Array;
+    console.log(account, "account");
 
     if (shielded) {
       // big TODO: think about the whole concept of how the UX for the shielded
@@ -97,10 +98,15 @@ export const submitTransferTransaction = createAsyncThunk(
       // if it is shielded we have to first generate it and it will then be included
       // in regular transaction
       const shieldedTransaction = await createShieldedTransfer();
-      console.log("shielded tx");
-      console.log(shieldedTransaction, "shieldedTransaction");
-      const hashAndBytes = await transfer.makeShieldedTransfer({
+      const transferDataForMaspTesting = {
         ...transferData,
+        source:
+          "atest1v4ehgw36xaryysfsx5unvve4g5my2vjz89p52sjxxgenzd348yuyyv3hg3pnjs35g5unvde4ca36y5",
+        target:
+          "atest1v4ehgw36xaryysfsx5unvve4g5my2vjz89p52sjxxgenzd348yuyyv3hg3pnjs35g5unvde4ca36y5",
+      };
+      const hashAndBytes = await transfer.makeShieldedTransfer({
+        ...transferDataForMaspTesting,
         shieldedTransaction,
       });
       hash = hashAndBytes.hash;
@@ -114,8 +120,10 @@ export const submitTransferTransaction = createAsyncThunk(
 
     const { promise, timeoutId } = promiseWithTimeout<NewBlockEvents>(
       new Promise(async (resolve) => {
+        console.log("broadcasting tx");
         await socketClient.broadcastTx(bytes);
         const events = await socketClient.subscribeNewBlock(hash);
+        console.log(events);
         resolve(events);
       }),
       LEDGER_TRANSFER_TIMEOUT,

@@ -4,6 +4,8 @@ import init, {
   NodeWithNextId as NodeWithNextIdWasmType,
 } from "./utils/masp-web";
 
+import { transaction2 } from "./persistedShieldedTransferForTestingDeleteThis";
+
 // fetches a file from create react app public/assets/ folder to byte array
 const fetchFromPublicFolderToByteArray = async (
   fileName: string
