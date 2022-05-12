@@ -1,10 +1,12 @@
 import { useState, useEffect, useContext } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { Provider } from "react-redux";
 import { AnimatePresence } from "framer-motion";
 import { ThemeContext } from "styled-components";
 
 import { TopLevelRoute } from "App/types";
 import { AccountCreationRoute, accountCreationSteps } from "./types";
+import { AppStore } from "store/store";
 
 import { Button } from "components/ButtonTemporary";
 import { Icon, IconName } from "components/Icon";
@@ -24,8 +26,6 @@ import {
   RouteContainer,
   MotionContainer,
 } from "./AccountCreation.components";
-import { Provider } from "react-redux";
-import { AppStore } from "store/store";
 
 type AnimatedTransitionProps = {
   elementKey: string;
@@ -270,7 +270,7 @@ function AccountCreation({
                           setIsLoggedIn && setIsLoggedIn();
                           navigate(TopLevelRoute.Wallet);
                         }}
-                        seedPhrase={seedPhrase || []}
+                        mnemonic={(seedPhrase || []).join(" ")}
                         alias={accountCreationDetails.accountName || ""}
                         password={accountCreationDetails.password || ""}
                       />

@@ -21,7 +21,7 @@ type CompletionViewProps = {
   onClickSeeAccounts: () => void;
   // navigates to the settings
   onClickDone: () => void;
-  seedPhrase: string[];
+  mnemonic: string;
   alias: string;
   password: string;
 };
@@ -44,25 +44,32 @@ const createAccount = async (
   };
 };
 
+// Establish login session abd store mnemonic
+const setSession = (mnemonic: string, password: string): void => {
+  new Session().setSession(password).setSeed(mnemonic);
+};
+
 const Completion = (props: CompletionViewProps): JSX.Element => {
-  const { onClickDone, onClickSeeAccounts, seedPhrase, password, alias } =
-    props;
+  const { onClickDone, onClickSeeAccounts, mnemonic, password, alias } = props;
 
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    // Log the user in:
-    new Session().setSession(password);
-    (async () => {
-      const mnemonic = seedPhrase?.join(" ") || "";
-      const account = await createAccount(alias, mnemonic);
+    if (password) {
+      (async () => {
+        const account = await createAccount(alias, mnemonic);
+        dispatch(addAccount(account));
 
-      // Establish login session
-      const session = new Session();
-      session.setSession(password);
-      await session.setSeed(mnemonic);
-      dispatch(addAccount(account));
-    })();
+        // setSession is blocking, so delay it until after animation completes.
+        // NOTE: The mnemonic is slow to encrypt, enough to cause the
+        // animation to pause.
+        setTimeout(() => {
+          // TODO: Remove this! This is a hack, and we would be better
+          // off rethinking how session handling is performed:
+          setSession(mnemonic, password);
+        }, 300);
+      })();
+    }
   }, []);
 
   return (
