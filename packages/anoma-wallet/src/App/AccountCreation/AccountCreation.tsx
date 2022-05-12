@@ -5,7 +5,6 @@ import { ThemeContext } from "styled-components";
 
 import { TopLevelRoute } from "App/types";
 import { AccountCreationRoute, accountCreationSteps } from "./types";
-import { AppContext } from "App/App";
 
 import { Button } from "components/ButtonTemporary";
 import { Icon, IconName } from "components/Icon";
@@ -26,6 +25,7 @@ import {
   MotionContainer,
 } from "./AccountCreation.components";
 import { Provider } from "react-redux";
+import { AppStore } from "store/store";
 
 type AnimatedTransitionProps = {
   elementKey: string;
@@ -53,15 +53,21 @@ const AnimatedTransition = (props: AnimatedTransitionProps): JSX.Element => {
   );
 };
 
+type Props = {
+  setStore: (password: string) => void;
+  setIsLoggedIn: () => void;
+  store: AppStore | undefined;
+};
 /**
  * The main purpose of this is to coordinate the flow for creating a new account.
  * it persist the data and coordinates the logic for animating the transitions
  * between the screens in the flow.
  */
-function AccountCreation(): JSX.Element {
-  const context = useContext(AppContext);
-  const { setIsLoggedIn, store } = context;
-
+function AccountCreation({
+  setStore,
+  setIsLoggedIn,
+  store,
+}: Props): JSX.Element {
   // account details defaults
   const defaultAccountCreationDetails: AccountCreationDetails = {
     seedPhraseLength: "12",
@@ -180,6 +186,7 @@ function AccountCreation(): JSX.Element {
                 >
                   <AccountInformation
                     accountCreationDetails={accountCreationDetails}
+                    setStore={setStore}
                     onSetAccountCreationDetails={(
                       accountCreationDetailsDelta
                     ) => {

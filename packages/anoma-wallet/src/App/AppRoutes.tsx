@@ -28,16 +28,14 @@ const fakeAccounts = [
 ];
 
 type Props = {
-  store: AppStore | undefined;
+  store: AppStore;
 };
 
 const AppRoutes = ({ store }: Props): JSX.Element => {
   const [persistor, setPersistor] = useState<Persistor>();
 
   useEffect(() => {
-    if (store) {
-      setPersistor(persistStore(store));
-    }
+    setPersistor(persistStore(store));
   }, [store]);
 
   return (
