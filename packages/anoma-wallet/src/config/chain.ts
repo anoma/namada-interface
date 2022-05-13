@@ -2,6 +2,7 @@ export type Protocol = "http" | "https" | "ws" | "wss";
 
 const {
   REACT_APP_LOCAL,
+  REACT_APP_LOCAL_LEDGER_ADDRESS,
   REACT_APP_LOCAL_CHAIN_ID = "",
   REACT_APP_LOCAL_CHAIN_PORT,
   // TODO: Potentially add another variable to run in "development" mode
@@ -34,7 +35,7 @@ if (REACT_APP_LOCAL) {
     default: true,
     ibcPortId: "transfer",
     network: {
-      url: "localhost",
+      url: REACT_APP_LOCAL_LEDGER_ADDRESS || "localhost",
       port: REACT_APP_LOCAL_CHAIN_PORT
         ? parseInt(REACT_APP_LOCAL_CHAIN_PORT)
         : DEFAULT_PORT,

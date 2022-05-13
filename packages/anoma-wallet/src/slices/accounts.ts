@@ -89,12 +89,19 @@ export const submitInitAccountTransaction = createAsyncThunk(
 
     promise.catch((e) => {
       socketClient.disconnect();
-      rejectWithValue(e);
+      return rejectWithValue(e);
     });
 
     const events = await promise;
     clearTimeout(timeoutId);
     socketClient.disconnect();
+
+    const code = events[TxResponse.Code][0];
+    const info = events[TxResponse.Info][0];
+
+    if (code !== "0") {
+      return rejectWithValue(info);
+    }
 
     const initializedAccounts = events[TxResponse.InitializedAccounts];
     const establishedAddress = initializedAccounts

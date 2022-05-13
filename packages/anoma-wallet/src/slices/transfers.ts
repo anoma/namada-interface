@@ -119,6 +119,13 @@ export const submitTransferTransaction = createAsyncThunk(
     socketClient.disconnect();
     clearTimeout(timeoutId);
 
+    const code = events[TxResponse.Code][0];
+    const info = events[TxResponse.Info][0];
+
+    if (code !== "0") {
+      return rejectWithValue(info);
+    }
+
     const gas = amountFromMicro(parseInt(events[TxResponse.GasUsed][0]));
     const appliedHash = events[TxResponse.Hash][0];
     const height = parseInt(events[TxResponse.Height][0]);
