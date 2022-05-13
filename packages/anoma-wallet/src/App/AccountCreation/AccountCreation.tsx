@@ -82,6 +82,7 @@ function AccountCreation({
   );
   const [seedPhrase, setSeedPhrase] = useState<string[]>();
   const [stepIndex, setStepIndex] = useState(0);
+
   const themeContext = useContext(ThemeContext);
   const navigate = useNavigate();
 
@@ -135,9 +136,9 @@ function AccountCreation({
   const setSession = async (
     mnemonic: string,
     password: string
-  ): Promise<void> => {
+  ): Promise<Session> => {
     const session = new Session().setSession(password);
-    await session.setSeed(mnemonic);
+    return await session.setSeed(mnemonic);
   };
 
   return (
@@ -254,7 +255,7 @@ function AccountCreation({
                     seedPhrase={seedPhrase || []}
                     onConfirmSeedPhrase={async () => {
                       await setSession(
-                        (seedPhrase || []).join(" "),
+                        (seedPhrase || [])?.join(" "),
                         accountCreationDetails.password || ""
                       );
                       navigateToNext();
@@ -281,7 +282,7 @@ function AccountCreation({
                           navigate(TopLevelRoute.SettingsAccounts);
                         }}
                         onClickSeeAccounts={() => {
-                          setIsLoggedIn && setIsLoggedIn();
+                          setIsLoggedIn();
                           navigate(TopLevelRoute.Wallet);
                         }}
                         mnemonic={(seedPhrase || []).join(" ")}

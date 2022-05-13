@@ -25,11 +25,21 @@ function SeedPhraseConfirmation(
   const { seedPhrase, onCtaHover, onConfirmSeedPhrase } = props;
   const seedPhraseLength = seedPhrase.length;
   const [verificationInput, setVerificationInput] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [indexToConfirm, setIndexToConfirm] = useState(-1);
 
   useEffect(() => {
     setIndexToConfirm(Math.floor(Math.random() * seedPhraseLength));
   }, []);
+
+  useEffect(() => {
+    if (isSubmitting) {
+      // Call after the time it takes to animate the button into a disabled state
+      setTimeout(() => {
+        onConfirmSeedPhrase();
+      }, 300);
+    }
+  }, [isSubmitting]);
 
   return (
     <AccountInformationViewContainer>
@@ -58,12 +68,15 @@ function SeedPhraseConfirmation(
           </InputContainer>
         </DescriptionAndInputContainer>
         {/* submit */}
+        {isSubmitting && <p>Creating master account...</p>}
         <ButtonContainer>
           <Button
             onClick={() => {
-              onConfirmSeedPhrase();
+              setIsSubmitting(true);
             }}
-            disabled={verificationInput !== seedPhrase[indexToConfirm]}
+            disabled={
+              verificationInput !== seedPhrase[indexToConfirm] || isSubmitting
+            }
             onHover={onCtaHover}
           >
             Verify

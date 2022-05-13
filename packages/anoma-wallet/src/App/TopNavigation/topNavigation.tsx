@@ -80,7 +80,7 @@ type TopNavigationProps = {
   // cb for telling parent to change hte color in context
   setIsLightMode: React.Dispatch<React.SetStateAction<boolean>>;
   isLoggedIn?: boolean;
-  logout?: () => void;
+  logout: () => void;
 };
 // top nav of the app, this is likely always visible.
 function TopNavigation(props: TopNavigationProps): JSX.Element {
@@ -127,7 +127,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
               onClick={() => {
                 Session.removeSession();
                 navigate(TopLevelRoute.Home);
-                logout && logout();
+                logout();
               }}
             >
               <MenuItemIconContainer>

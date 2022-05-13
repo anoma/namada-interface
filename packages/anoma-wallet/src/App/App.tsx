@@ -111,6 +111,7 @@ function App(): JSX.Element {
             <TopNavigation
               isLightMode={isLightMode}
               setIsLightMode={setIsLightMode}
+              logout={() => setIsLoggedIn(false)}
             />
           </TopSection>
           <BottomSection>
