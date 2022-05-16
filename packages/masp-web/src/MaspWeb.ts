@@ -4,8 +4,6 @@ import init, {
   NodeWithNextId as NodeWithNextIdWasmType,
 } from "./utils/masp-web";
 
-import { transaction2 } from "./persistedShieldedTransferForTestingDeleteThis";
-
 // fetches a file from create react app public/assets/ folder to byte array
 const fetchFromPublicFolderToByteArray = async (
   fileName: string
@@ -38,7 +36,8 @@ export class MaspWeb {
   };
 
   generateShieldedTransaction = async (
-    nodesWithNextId: NodeWithNextId[]
+    nodesWithNextId: NodeWithNextId[],
+    amount: BigInt
   ): Promise<Uint8Array> => {
     const nodesWithNextIdWasm: NodeWithNextIdWasm[] = nodesWithNextId.map(
       (nodeWithNextId) => {
@@ -58,7 +57,6 @@ export class MaspWeb {
     const paymentAddress =
       "patest1cdrf76r0lv8dyww0mdt7mqrau864xqu7qav54k2zc57kmtmd7jccurkznl36mrvqarhmsnp5phc";
 
-    const amount: BigInt = BigInt(2000000);
     const spendParamBytesAsByteArray = await fetchFromPublicFolderToByteArray(
       "masp-spend.params"
     );

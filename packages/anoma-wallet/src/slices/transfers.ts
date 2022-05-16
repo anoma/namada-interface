@@ -89,7 +89,6 @@ export const submitTransferTransaction = createAsyncThunk(
     // we get the hash and bytes for the transaction
     let hash: string;
     let bytes: Uint8Array;
-    console.log(account, "account");
 
     if (shielded) {
       // big TODO: think about the whole concept of how the UX for the shielded
@@ -97,7 +96,8 @@ export const submitTransferTransaction = createAsyncThunk(
       //
       // if it is shielded we have to first generate it and it will then be included
       // in regular transaction
-      const shieldedTransaction = await createShieldedTransfer();
+      const amountInMicros = amount * 1_000_000;
+      const shieldedTransaction = await createShieldedTransfer(amountInMicros);
       const transferDataForMaspTesting = {
         ...transferData,
         source:

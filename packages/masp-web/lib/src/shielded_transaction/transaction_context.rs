@@ -7,12 +7,12 @@ use zcash_primitives::merkle_tree::{CommitmentTree, IncrementalWitness};
 pub struct TransactionContext {
     pub commitment_tree: CommitmentTree<Node>,
     pub viewing_keys: HashMap<ViewingKey, HashSet<usize>>,
-    pub nullifier_map: HashMap<[u8; 32], usize>,
+    pub nullifier_map: HashMap<[u8; 32], usize>, // Transaction.shielded_spends maps to this
+    pub spent_funds: HashSet<usize>, // lists spent funds locations based on nullifier_map
     pub note_map: HashMap<usize, Note>,
     pub memo_map: HashMap<usize, Memo>,
     pub diversifier_map: HashMap<usize, Diversifier>,
     pub witness_map: HashMap<usize, IncrementalWitness<Node>>,
-    pub spent_funds: HashSet<usize>,
 }
 
 // based on spending key we get all the

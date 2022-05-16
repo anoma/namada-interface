@@ -31,9 +31,9 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly perform_shielded_transaction: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number) => void;
-  readonly decode_transaction_with_next_tx_id: (a: number, b: number, c: number) => void;
   readonly __wbg_nodewithnextid_free: (a: number) => void;
   readonly nodewithnextid_decode_transaction_with_next_tx_id: (a: number, b: number) => number;
+  readonly decode_transaction_with_next_tx_id: (a: number, b: number, c: number) => void;
   readonly rustsecp256k1_v0_4_1_context_create: (a: number) => number;
   readonly rustsecp256k1_v0_4_1_context_destroy: (a: number) => void;
   readonly rustsecp256k1_v0_4_1_default_illegal_callback_fn: (a: number, b: number) => void;
