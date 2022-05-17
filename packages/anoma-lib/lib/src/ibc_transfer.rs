@@ -54,7 +54,7 @@ impl IbcTransfer {
             token: transfer_token,
             sender: Signer::from_str(&sender).unwrap(),
             receiver: Signer::from_str(&receiver).unwrap(),
-            timeout_height: Height::new(0, 10000),
+            timeout_height: Height::new(0, 0),
             // Optionally, set timeout_timestamp to 0 for no timeout, e.g.:
             // timeout_timestamp: Timestamp::none(),
             timeout_timestamp: Timestamp::from_nanoseconds(timestamp_nanos)
