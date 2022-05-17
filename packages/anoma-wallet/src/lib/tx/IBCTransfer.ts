@@ -1,4 +1,3 @@
-import { amountToMicro } from "utils/helpers";
 import { AnomaClient } from "@anoma-apps/anoma-lib";
 import { TxWasm } from "constants/";
 
@@ -43,7 +42,7 @@ class IBCTransfer {
       source, // source address string
       target, // target address string
       token, // token address string
-      amountToMicro(amount), // Amount is being sent in micro
+      amount, // Amount is being sent in micro
       epoch, // Epoch
       gasLimit, // Gas limit multiplier
       feeAmount, // Fee amount

@@ -82,7 +82,6 @@ export const submitTransferTransaction = createAsyncThunk(
       tokenType,
       signingKey: privateKey,
     } = account;
-
     const source = useFaucet ? FAUCET_ADDRESS : establishedAddress;
 
     const epoch = await rpcClient.queryEpoch();
