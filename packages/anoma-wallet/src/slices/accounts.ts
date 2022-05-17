@@ -5,6 +5,7 @@ import { Account, RpcClient, SocketClient } from "lib";
 import { NewBlockEvents } from "lib/rpc/types";
 import { promiseWithTimeout, stringToHash } from "utils/helpers";
 import { submitTransferTransaction } from "./transfers";
+const { REACT_APP_USE_FAUCET } = process.env;
 
 export type InitialAccount = {
   alias: string;
@@ -114,7 +115,7 @@ export const submitInitAccountTransaction = createAsyncThunk(
       establishedAddress,
     };
 
-    if (url.match(/testnet|localhost/)) {
+    if (REACT_APP_USE_FAUCET || url.match(/testnet|localhost|/)) {
       dispatch(
         submitTransferTransaction({
           account: initializedAccount,
