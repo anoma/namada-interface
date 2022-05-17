@@ -13,11 +13,7 @@ use masp_primitives::note_encryption::{try_sapling_note_decryption, Memo};
 use masp_primitives::primitives::{Diversifier, PaymentAddress, ViewingKey};
 use masp_primitives::sapling::Node;
 use masp_primitives::transaction::builder::Builder as Builder2;
-use masp_primitives::transaction::{
-    builder::{self, *},
-    components::Amount,
-    Transaction, TxId,
-};
+use masp_primitives::transaction::{components::Amount, Transaction, TxId};
 use masp_primitives::zip32::{ExtendedFullViewingKey, ExtendedSpendingKey};
 use masp_proofs::prover::LocalTxProver;
 use rand_core::{CryptoRng, OsRng, RngCore};
@@ -25,7 +21,7 @@ use serde::{Deserialize, Serialize};
 use serde_wasm_bindgen;
 use shielded_transaction::TransactionContext;
 use std::collections::HashSet;
-use std::convert::{TryFrom, TryInto};
+use std::convert::TryInto;
 use utils::{console_log, console_log_any};
 use wasm_bindgen::prelude::*;
 use zcash_primitives::merkle_tree::IncrementalWitness;
@@ -70,7 +66,7 @@ pub fn find_valid_diversifier<R: RngCore + CryptoRng>(
 // it returns encoded Transaction as an optional byte array
 // in the current form it just takes care of shielded to shielded transfer
 #[wasm_bindgen]
-pub fn perform_shielded_transaction(
+pub fn create_shielded_transfer(
     shielded_transactions: JsValue,
     spending_key_as_string: String,
     payment_address_as_string: String,
@@ -89,9 +85,7 @@ pub fn perform_shielded_transaction(
     let payment_address_result = PaymentAddress::from_str(payment_address_as_string.as_str());
     let payment_address = match payment_address_result {
         Ok(payment_address) => payment_address,
-        Err(error) => {
-            console_log("error");
-            console_log(error.to_string().as_str());
+        Err(_error) => {
             return None;
         }
     };
@@ -100,27 +94,22 @@ pub fn perform_shielded_transaction(
     // we transform the encoded data to Transactions, these will be persisted and we can further optimise by
     // persisting the spend and note data from these
     let transactions_maybe = nodes_with_next_id_to_transactions(shielded_transactions);
-    let transactions = match transactions_maybe {
+    let mut transactions = match transactions_maybe {
         Some(transactions) => transactions,
         None => return None,
     };
 
-    console_log("transactions");
-    console_log_any(&transactions.len());
-
     // now using the transactions we create the transaction context
     // this is a util that I took from Murisis code. This creates the context so we can later work on it
     // for now we just use spending keys and just one of them. The code can cope with N of them though.
+    transactions.reverse();
     let transaction_context =
         load_shielded_transaction_context(transactions, vec![spending_key], vec![]);
-
-    console_log("&transaction_context.nullifier_map.keys().len()");
-    console_log_any(&transaction_context.nullifier_map.keys().len());
 
     // some details we need for the builder
 
     // just setting this to 1m but i think that in anoma it is always 0, so likely not really used for now
-    let height = 1_000_000u32;
+    let height = 0u32;
     let consensus_branch_id = BranchId::Sapling;
     let memo: Option<Memo> = None;
 
@@ -129,6 +118,7 @@ pub fn perform_shielded_transaction(
     let token_type_result = Address::decode(
         "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5",
     );
+
     let token_type = match token_type_result {
         Ok(token_type) => token_type,
         Err(_error) => {
@@ -145,6 +135,7 @@ pub fn perform_shielded_transaction(
     let _ = builder.set_fee(Amount::zero());
 
     // We will need to cope with cases of transparent -> shielded and shielded -> transparent
+    // in addition to shielded -> shielded
     // so this is just here to remind of that
     let from_shielded_to_shielded = (true, true);
     if from_shielded_to_shielded == (true, true) {
@@ -192,11 +183,6 @@ pub fn perform_shielded_transaction(
             }
         }
 
-        console_log("val_acc");
-        console_log(format!("{}", &val_acc).as_str());
-        console_log("amt");
-        console_log(format!("{}", &amount).as_str());
-
         // If there is change leftover send it back to this spending key
         if val_acc > amount {
             let viewing_key = spending_key.expsk.proof_generation_key().to_viewing_key();
@@ -205,8 +191,6 @@ pub fn perform_shielded_transaction(
                 .unwrap();
 
             let change_amt = val_acc - amount;
-            console_log("change_amt");
-            console_log(format!("{}", &change_amt).as_str());
             let _ = builder.add_sapling_output(
                 Some(spending_key.expsk.ovk),
                 change_pa.clone(),
@@ -217,14 +201,15 @@ pub fn perform_shielded_transaction(
         }
 
         let ovk_opt = Some(spending_key.expsk.ovk);
-        builder.add_sapling_output(ovk_opt, payment_address.into(), asset_type, amount, memo);
+        let _ =
+            builder.add_sapling_output(ovk_opt, payment_address.into(), asset_type, amount, memo);
     }
 
     // we constructed the prover from the files that were passed to this func
     let local_prover = LocalTxProver::from_bytes(&spend_param_bytes, &output_param_bytes);
 
     // will add a spinner or some notification for the user to know that it has not crashed
-    console_log("building the transaction, just wait, this takes around 1 min");
+    console_log("building the transaction, just wait, this can take around 1 min");
 
     // Finally we use the builder to create the transaction
     let transaction_result = builder
@@ -235,7 +220,7 @@ pub fn perform_shielded_transaction(
     // transfer and broadcast to the ledfer
     match transaction_result {
         Ok(transaction_maybe) => {
-            if let Some((transaction, transaction_metadata)) = transaction_maybe {
+            if let Some((transaction, _transaction_metadata)) = transaction_maybe {
                 return Some(transaction.try_to_vec().unwrap());
             }
             return None;
@@ -397,14 +382,13 @@ pub fn load_shielded_transaction_context(
         transaction_context.viewing_keys.entry(viewing_key);
     }
 
-    console_log_any(&transactions.len());
     // we want to persist the locations of all spent notes
     // so we loop through the transactions
     for transaction in transactions {
         // mutates transaction_context by inserting spent notes from the transaction
 
         // in apply_transaction_to_transaction_context we try to
-        // decrypt the notes with the viewing key and add them to the HasmMap
+        // decrypt the notes with the viewing key and add them to the HashMap
         // in the context
         let _result =
             apply_transaction_to_transaction_context(transaction.clone(), &mut transaction_context);
@@ -424,9 +408,6 @@ fn apply_transaction_to_transaction_context(
     transaction: Transaction,
     transaction_context: &mut TransactionContext,
 ) -> Result<usize, ()> {
-    console_log("===== apply_transaction_to_transaction_context =====");
-    console_log("&transaction.txid()");
-    console_log_any(&transaction.txid());
     // transaction has shielded outputs, they are 4.5 Output Descriptions in zcash paper
     // spent note is encoded in transactions as an OutputDescription
     for shielded_output in &(*transaction).shielded_outputs {
@@ -483,10 +464,6 @@ fn apply_transaction_to_transaction_context(
 
                 // let nullifier_of_current_note = nullifier.0.try_into().unwrap();
                 let nullifier_of_current_note = nullifier.0;
-                console_log("&nullifier_of_current_note.nullifier");
-                console_log_any(&viewing_key);
-                console_log_any(&note_position);
-                console_log_any(&nullifier_of_current_note);
                 transaction_context
                     .nullifier_map
                     .insert(nullifier_of_current_note, note_position);
@@ -507,18 +484,4 @@ fn apply_transaction_to_transaction_context(
     }
 
     Ok(transaction_context.commitment_tree.size())
-}
-
-// using the transactions that were fetched:
-// we check all notes from the masp pool to exclude the ones
-// that have been spent by the past transactions
-impl TransactionContext {
-    // inserts the spent notes from the transaction
-    fn insert_spent_notes(self: &mut TransactionContext, transaction: &Transaction) {
-        for shielded_spend in &(*transaction).shielded_spends {
-            if let Some(note_position) = self.nullifier_map.get(&shielded_spend.nullifier) {
-                self.spent_funds.insert(*note_position);
-            }
-        }
-    }
 }

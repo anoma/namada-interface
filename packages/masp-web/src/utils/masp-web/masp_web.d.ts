@@ -9,7 +9,7 @@
 * @param {Uint8Array} output_param_bytes
 * @returns {Uint8Array | undefined}
 */
-export function perform_shielded_transaction(shielded_transactions: any, spending_key_as_string: string, payment_address_as_string: string, amount: BigInt, spend_param_bytes: Uint8Array, output_param_bytes: Uint8Array): Uint8Array | undefined;
+export function create_shielded_transfer(shielded_transactions: any, spending_key_as_string: string, payment_address_as_string: string, amount: BigInt, spend_param_bytes: Uint8Array, output_param_bytes: Uint8Array): Uint8Array | undefined;
 /**
 * @param {Uint8Array} transfer_as_byte_array
 * @returns {string | undefined}
@@ -30,7 +30,7 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
-  readonly perform_shielded_transaction: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number) => void;
+  readonly create_shielded_transfer: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number) => void;
   readonly __wbg_nodewithnextid_free: (a: number) => void;
   readonly nodewithnextid_decode_transaction_with_next_tx_id: (a: number, b: number) => number;
   readonly decode_transaction_with_next_tx_id: (a: number, b: number, c: number) => void;

@@ -1,7 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export const memory: WebAssembly.Memory;
-export function perform_shielded_transaction(a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number): void;
+export function create_shielded_transfer(a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number): void;
 export function __wbg_nodewithnextid_free(a: number): void;
 export function nodewithnextid_decode_transaction_with_next_tx_id(a: number, b: number): number;
 export function decode_transaction_with_next_tx_id(a: number, b: number, c: number): void;

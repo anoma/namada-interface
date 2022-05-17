@@ -1,5 +1,5 @@
 import init, {
-  perform_shielded_transaction,
+  create_shielded_transfer,
   decode_transaction_with_next_tx_id,
   NodeWithNextId as NodeWithNextIdWasmType,
 } from "./utils/masp-web";
@@ -65,7 +65,7 @@ export class MaspWeb {
     );
 
     if (spendParamBytesAsByteArray && outputParamBytesAsByteArray) {
-      const shieldedTransfer = perform_shielded_transaction(
+      const shieldedTransfer = create_shielded_transfer(
         nodesWithNextIdWasm,
         spendingKey,
         paymentAddress,

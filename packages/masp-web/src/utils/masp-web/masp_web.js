@@ -209,7 +209,7 @@ function getArrayU8FromWasm0(ptr, len) {
 * @param {Uint8Array} output_param_bytes
 * @returns {Uint8Array | undefined}
 */
-export function perform_shielded_transaction(shielded_transactions, spending_key_as_string, payment_address_as_string, amount, spend_param_bytes, output_param_bytes) {
+export function create_shielded_transfer(shielded_transactions, spending_key_as_string, payment_address_as_string, amount, spend_param_bytes, output_param_bytes) {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
         const ptr0 = passStringToWasm0(spending_key_as_string, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
@@ -223,7 +223,7 @@ export function perform_shielded_transaction(shielded_transactions, spending_key
         const len3 = WASM_VECTOR_LEN;
         const ptr4 = passArray8ToWasm0(output_param_bytes, wasm.__wbindgen_malloc);
         const len4 = WASM_VECTOR_LEN;
-        wasm.perform_shielded_transaction(retptr, addHeapObject(shielded_transactions), ptr0, len0, ptr1, len1, low2, high2, ptr3, len3, ptr4, len4);
+        wasm.create_shielded_transfer(retptr, addHeapObject(shielded_transactions), ptr0, len0, ptr1, len1, low2, high2, ptr3, len3, ptr4, len4);
         var r0 = getInt32Memory0()[retptr / 4 + 0];
         var r1 = getInt32Memory0()[retptr / 4 + 1];
         let v5;
