@@ -20,6 +20,7 @@ export type IBCTransferAttributes = {
   destinationPort: string;
   timeoutHeight: number;
   timeoutTimestamp: number;
+  chainId: string;
 };
 
 export type TransferTransaction = {
@@ -74,6 +75,7 @@ type TxTransferArgs = TxArgs & {
 };
 
 type TxIbcTransferArgs = TxArgs & {
+  chainId: string;
   channelId: string;
   portId: string;
 };
@@ -172,6 +174,7 @@ export const submitIbcTransferTransaction = createAsyncThunk(
       feeAmount = 0,
       channelId,
       portId,
+      chainId,
     }: TxIbcTransferArgs,
     { rejectWithValue }
   ) => {
@@ -252,6 +255,7 @@ export const submitIbcTransferTransaction = createAsyncThunk(
       timestamp: new Date().getTime(),
       type: TransferType.IBC,
       ibcTransfer: {
+        chainId,
         sourceChannel,
         sourcePort,
         destinationChannel,

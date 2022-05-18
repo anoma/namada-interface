@@ -117,6 +117,7 @@ const IBCTransfer = (): JSX.Element => {
         account,
         amount,
         memo,
+        chainId: selectedChainId,
         target: recipient,
         channelId: selectedChannelId,
         portId,
