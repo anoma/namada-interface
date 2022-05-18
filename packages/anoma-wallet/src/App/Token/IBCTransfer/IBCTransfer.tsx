@@ -17,6 +17,7 @@ import { isMemoValid, MAX_MEMO_LENGTH } from "../TokenSend/TokenSendForm";
 import {
   ButtonsContainer,
   InputContainer,
+  StatusMessage,
 } from "../TokenSend/TokenSendForm.components";
 import {
   AddChannelButton,
@@ -28,6 +29,7 @@ import { Heading, HeadingLevel } from "components/Heading";
 import { NavigationContainer } from "components/NavigationContainer";
 import { Icon, IconName } from "components/Icon";
 import { Button, ButtonVariant } from "components/Button";
+import { Address } from "../Transfers/TransferDetails.components";
 
 type UrlParams = {
   id: string;
@@ -41,7 +43,7 @@ const IBCTransfer = (): JSX.Element => {
   const { channelsByChain = {} } = useAppSelector<ChannelsState>(
     (state) => state.channels
   );
-  const { isIbcTransferSubmitting, transferError } =
+  const { isIbcTransferSubmitting, transferError, events } =
     useAppSelector<TransfersState>((state) => state.transfers);
   const { chain } = Config;
   const defaultChain = Object.values(chain)[0];
@@ -238,6 +240,18 @@ const IBCTransfer = (): JSX.Element => {
 
       {isIbcTransferSubmitting && <p>Submitting IBC Transfer</p>}
       {transferError && <p>{transferError}</p>}
+      {events && (
+        <>
+          <StatusMessage>
+            Successfully submitted IBC transfer! It will take some time for the
+            receiver to see an updated balance.
+          </StatusMessage>
+          <StatusMessage>Gas used: {events.gas}</StatusMessage>
+          <StatusMessage>
+            Applied hash: <Address>{events.appliedHash}</Address>
+          </StatusMessage>
+        </>
+      )}
       <ButtonsContainer>
         <Button
           variant={ButtonVariant.Contained}
