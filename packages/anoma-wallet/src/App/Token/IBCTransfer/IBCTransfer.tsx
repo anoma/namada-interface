@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { useAppDispatch, useAppSelector } from "store";
 import Config from "config";
+import { useAppDispatch, useAppSelector } from "store";
 import { AccountsState, fetchBalanceByAccount } from "slices/accounts";
 import { addChannel, ChannelsState } from "slices/channels";
 import {

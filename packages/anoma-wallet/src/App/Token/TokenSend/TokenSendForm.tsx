@@ -2,16 +2,16 @@ import { useEffect, useState } from "react";
 import QrReader from "react-qr-reader";
 
 import Config from "config";
+import { Tokens } from "constants/";
 import { RpcClient } from "lib";
+import { useAppDispatch, useAppSelector } from "store";
 import { AccountsState, fetchBalanceByAccount } from "slices/accounts";
 import {
   clearEvents,
   submitTransferTransaction,
   TransfersState,
 } from "slices/transfers";
-
-import { useAppDispatch, useAppSelector } from "store";
-import { Tokens } from "constants/";
+import { DerivedAccount } from "slices/accounts";
 
 import { Button, ButtonVariant } from "components/Button";
 import { Input, InputVariants } from "components/Input";
@@ -28,7 +28,7 @@ import {
 } from "./TokenSendForm.components";
 import { Toggle } from "components/Toggle";
 import { Icon, IconName } from "components/Icon";
-import { DerivedAccount } from "slices/accounts";
+import { Address } from "../Transfers/TransferDetails.components";
 
 type Props = {
   accountId: string;
@@ -68,20 +68,18 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
 
   useEffect(() => {
     // Get balance
-    (async () => {
-      if (establishedAddress && token.address) {
-        dispatch(fetchBalanceByAccount(account));
+    if (establishedAddress && token.address) {
+      dispatch(fetchBalanceByAccount(account));
 
-        // Check for internal transfer:
-        const targetAccount = Object.values(derived).find(
-          (account: DerivedAccount) => account.establishedAddress === target
-        );
-        // Fetch target balance if applicable:
-        if (targetAccount) {
-          dispatch(fetchBalanceByAccount(targetAccount));
-        }
+      // Check for internal transfer:
+      const targetAccount = Object.values(derived).find(
+        (account: DerivedAccount) => account.establishedAddress === target
+      );
+      // Fetch target balance if applicable:
+      if (targetAccount) {
+        dispatch(fetchBalanceByAccount(targetAccount));
       }
-    })();
+    }
   }, [establishedAddress, token.address, events]);
 
   useEffect(() => {
@@ -219,7 +217,9 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
           <>
             <StatusMessage>Transfer successful!</StatusMessage>
             <StatusMessage>Gas used: {events.gas}</StatusMessage>
-            <StatusMessage>Applied hash: {events.appliedHash}</StatusMessage>
+            <StatusMessage>
+              Applied hash: <Address>{events.appliedHash}</Address>
+            </StatusMessage>
           </>
         )}
       </StatusContainer>
