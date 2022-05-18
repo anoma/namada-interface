@@ -73,15 +73,17 @@ const IBCTransfer = (): JSX.Element => {
   const { ibcPortId: portId = "transfer" } = chain[selectedChainId];
 
   useEffect(() => {
-    if (account) {
-      // fetch latest balance
-      dispatch(fetchBalanceByAccount(account));
-    }
     return () => {
       dispatch(clearEvents());
       dispatch(clearErrors());
     };
   }, []);
+
+  useEffect(() => {
+    if (account && !isIbcTransferSubmitting) {
+      dispatch(fetchBalanceByAccount(account));
+    }
+  }, [isIbcTransferSubmitting]);
 
   useEffect(() => {
     // Set a default selectedChannelId if none are selected, but channels are available
