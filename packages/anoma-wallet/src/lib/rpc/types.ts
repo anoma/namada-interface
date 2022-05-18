@@ -2,6 +2,7 @@ import { BroadcastTxSyncResponse } from "@cosmjs/tendermint-rpc";
 import { JsonRpcSuccessResponse } from "@cosmjs/json-rpc";
 import { SubscriptionEvent } from "@cosmjs/tendermint-rpc/build/rpcclients";
 import { TxResponse } from "constants/";
+import { IbcTxResponse } from "constants/tx";
 
 export type AbciResponse = {
   code?: number;
@@ -30,7 +31,7 @@ export interface SubscriptionEvents extends SubscriptionEvent {
   events: NewBlockEvents;
 }
 
-export type NewBlockEvents = Record<TxResponse, string[]>;
+export type NewBlockEvents = Record<TxResponse | IbcTxResponse, string[]>;
 
 export type JsonCompatibleArray = (string | number | boolean)[];
 export type JsonCompatibleDictionary = {

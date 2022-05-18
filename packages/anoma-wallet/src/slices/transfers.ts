@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import Config from "config";
 import { FAUCET_ADDRESS, Tokens, TokenType, TxResponse } from "constants/";
+import { IbcTxResponse } from "constants/tx";
 import { RpcClient, SocketClient, Transfer, IBCTransfer } from "lib";
 import { NewBlockEvents } from "lib/rpc/types";
 import { amountFromMicro, promiseWithTimeout } from "utils/helpers";
@@ -11,6 +12,15 @@ enum TransferType {
   Shielded = "Shielded",
   NonShielded = "Non-Shielded",
 }
+
+export type IBCTransferAttributes = {
+  sourceChannel: string;
+  sourcePort: string;
+  destinationChannel: string;
+  destinationPort: string;
+  timeoutHeight: number;
+  timeoutTimestamp: number;
+};
 
 export type TransferTransaction = {
   source: string;
@@ -23,6 +33,7 @@ export type TransferTransaction = {
   appliedHash: string;
   memo: string;
   timestamp: number;
+  ibcTransfer?: IBCTransferAttributes;
 };
 
 type TransferEvents = {
@@ -213,9 +224,20 @@ export const submitIbcTransferTransaction = createAsyncThunk(
       return rejectWithValue(info);
     }
 
+    // Get transaction events
     const gas = amountFromMicro(parseInt(events[TxResponse.GasUsed][0]));
     const appliedHash = events[TxResponse.Hash][0];
     const height = parseInt(events[TxResponse.Height][0]);
+
+    // Get IBC events
+    const sourceChannel = events[IbcTxResponse.SourceChannel][0];
+    const sourcePort = events[IbcTxResponse.SourcePort][0];
+    const destinationChannel = events[IbcTxResponse.DestinationChannel][0];
+    const destinationPort = events[IbcTxResponse.DestinationPort][0];
+    const timeoutHeight = parseInt(events[IbcTxResponse.TimeoutHeight][0]);
+    const timeoutTimestamp = parseInt(
+      events[IbcTxResponse.TimeoutTimestamp][0]
+    );
 
     return {
       appliedHash,
@@ -229,6 +251,14 @@ export const submitIbcTransferTransaction = createAsyncThunk(
       height,
       timestamp: new Date().getTime(),
       type: TransferType.IBC,
+      ibcTransfer: {
+        sourceChannel,
+        sourcePort,
+        destinationChannel,
+        destinationPort,
+        timeoutHeight,
+        timeoutTimestamp,
+      },
     };
   }
 );
