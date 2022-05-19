@@ -1,5 +1,6 @@
 import { Heading, HeadingLevel } from "components/Heading";
 import { NavigationContainer } from "components/NavigationContainer";
+import Config from "config";
 import { useNavigate, useParams } from "react-router-dom";
 import { TransfersState } from "slices/transfers";
 import { useAppSelector } from "store";
@@ -28,9 +29,14 @@ const TransferDetail = (): JSX.Element => {
     source,
     target,
     type,
+    ibcTransfer,
   } = transactions.find(
     (transaction) => transaction.appliedHash === appliedHash
   ) || {};
+
+  const { chainId = "" } = ibcTransfer || {};
+  const chain = Config.chain[chainId] || {};
+  const chainName = chain.name;
 
   const dateTimeFormatted = stringFromTimestamp(timestamp);
 
@@ -56,6 +62,19 @@ const TransferDetail = (): JSX.Element => {
       <Address>{source}</Address>
       <p>Target address:</p>
       <Address>{target}</Address>
+      {chainId && (
+        <>
+          <p>
+            Destination Chain:
+            <br />
+            <strong>
+              {chainName}
+              <br />
+              {chainId}
+            </strong>
+          </p>
+        </>
+      )}
       <p>Applied hash:</p>
       <Address>{appliedHash}</Address>
       <p>
