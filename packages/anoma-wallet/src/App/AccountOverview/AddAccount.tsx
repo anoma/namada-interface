@@ -6,6 +6,8 @@ import { Wallet, Session } from "lib";
 import { useAppDispatch, useAppSelector } from "store";
 import { DerivedAccount, AccountsState, addAccount } from "slices/accounts";
 
+import { Label } from "components/Input/input.components";
+import { Toggle } from "components/Toggle";
 import { NavigationContainer } from "components/NavigationContainer";
 import { Heading, HeadingLevel } from "components/Heading";
 import {
@@ -23,6 +25,7 @@ export const AddAccount = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
+  const [shielded, setShielded] = useState<boolean>(true);
   const [alias, setAlias] = useState<string>("");
   const [aliasError, setAliasError] = useState<string>();
   const [tokenType, setTokenType] = useState<TokenType>("NAM");
@@ -45,6 +48,10 @@ export const AddAccount = (): JSX.Element => {
   const handleTokenSelect = (e: React.ChangeEvent<HTMLSelectElement>): void => {
     const { value } = e.target;
     setTokenType(value as TokenType);
+  };
+
+  const handleShieldedToggling = (): void => {
+    setShielded((shielded) => !shielded);
   };
 
   const getAccountIndex = (
@@ -121,6 +128,10 @@ export const AddAccount = (): JSX.Element => {
       >
         <Heading level={HeadingLevel.One}>Add Account</Heading>
       </NavigationContainer>
+      <InputContainer>
+        <Label>Shielded</Label>
+        <Toggle onClick={handleShieldedToggling} checked={shielded} />
+      </InputContainer>
       <InputContainer>
         <Input
           variant={InputVariants.Text}
