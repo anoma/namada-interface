@@ -47,25 +47,33 @@ const fetchShieldedTransfers = async (): Promise<NodeWithNextId[]> => {
 
 const createShieldedTransferUsingTransfers = async (
   nodesWithNextId: NodeWithNextId[],
-  amount: BigInt
+  amount: BigInt,
+  inputAddress: string,
+  outputAddress: string
 ): Promise<Uint8Array> => {
   const maspWeb = await MaspWeb.init();
   const shieldedTransaction = await maspWeb.generateShieldedTransaction(
     nodesWithNextId,
-    amount
+    amount,
+    inputAddress,
+    outputAddress
   );
   return Promise.resolve(shieldedTransaction);
 };
 
 export const createShieldedTransfer = async (
-  amount: number
+  amount: number,
+  inputAddress: string,
+  outputAddress: string
 ): Promise<Uint8Array> => {
   try {
     const amountAsBigInt = BigInt(amount);
     const existingShieldedTransfers = await fetchShieldedTransfers();
     const shieldedTransfer = await createShieldedTransferUsingTransfers(
       existingShieldedTransfers,
-      amountAsBigInt
+      amountAsBigInt,
+      inputAddress,
+      outputAddress
     );
     return Promise.resolve(shieldedTransfer);
   } catch (error) {
@@ -73,13 +81,13 @@ export const createShieldedTransfer = async (
   }
 };
 
-const createShieldedTransaction = async (
-  amount: number
-): Promise<Uint8Array> => {
-  try {
-    const shieldedTransfer = await createShieldedTransfer(amount);
-    return Promise.resolve(shieldedTransfer);
-  } catch (error) {
-    return Promise.reject(error);
-  }
-};
+// const createShieldedTransaction = async (
+//   amount: number
+// ): Promise<Uint8Array> => {
+//   try {
+//     const shieldedTransfer = await createShieldedTransfer(amount);
+//     return Promise.resolve(shieldedTransfer);
+//   } catch (error) {
+//     return Promise.reject(error);
+//   }
+// };

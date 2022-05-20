@@ -186,16 +186,16 @@ function debugString(val) {
     return className;
 }
 
-const u32CvtShim = new Uint32Array(2);
-
-const uint64CvtShim = new BigUint64Array(u32CvtShim.buffer);
-
 function passArray8ToWasm0(arg, malloc) {
     const ptr = malloc(arg.length * 1);
     getUint8Memory0().set(arg, ptr / 1);
     WASM_VECTOR_LEN = arg.length;
     return ptr;
 }
+
+const u32CvtShim = new Uint32Array(2);
+
+const uint64CvtShim = new BigUint64Array(u32CvtShim.buffer);
 
 function getArrayU8FromWasm0(ptr, len) {
     return getUint8Memory0().subarray(ptr / 1, ptr / 1 + len);
@@ -204,57 +204,37 @@ function getArrayU8FromWasm0(ptr, len) {
 * @param {any} shielded_transactions
 * @param {string} spending_key_as_string
 * @param {string} payment_address_as_string
+* @param {string} token_address
 * @param {BigInt} amount
 * @param {Uint8Array} spend_param_bytes
 * @param {Uint8Array} output_param_bytes
 * @returns {Uint8Array | undefined}
 */
-export function create_shielded_transfer(shielded_transactions, spending_key_as_string, payment_address_as_string, amount, spend_param_bytes, output_param_bytes) {
+export function create_shielded_transfer(shielded_transactions, spending_key_as_string, payment_address_as_string, token_address, amount, spend_param_bytes, output_param_bytes) {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
         const ptr0 = passStringToWasm0(spending_key_as_string, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len0 = WASM_VECTOR_LEN;
         const ptr1 = passStringToWasm0(payment_address_as_string, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len1 = WASM_VECTOR_LEN;
+        const ptr2 = passStringToWasm0(token_address, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len2 = WASM_VECTOR_LEN;
         uint64CvtShim[0] = amount;
-        const low2 = u32CvtShim[0];
-        const high2 = u32CvtShim[1];
-        const ptr3 = passArray8ToWasm0(spend_param_bytes, wasm.__wbindgen_malloc);
-        const len3 = WASM_VECTOR_LEN;
-        const ptr4 = passArray8ToWasm0(output_param_bytes, wasm.__wbindgen_malloc);
+        const low3 = u32CvtShim[0];
+        const high3 = u32CvtShim[1];
+        const ptr4 = passArray8ToWasm0(spend_param_bytes, wasm.__wbindgen_malloc);
         const len4 = WASM_VECTOR_LEN;
-        wasm.create_shielded_transfer(retptr, addHeapObject(shielded_transactions), ptr0, len0, ptr1, len1, low2, high2, ptr3, len3, ptr4, len4);
+        const ptr5 = passArray8ToWasm0(output_param_bytes, wasm.__wbindgen_malloc);
+        const len5 = WASM_VECTOR_LEN;
+        wasm.create_shielded_transfer(retptr, addHeapObject(shielded_transactions), ptr0, len0, ptr1, len1, ptr2, len2, low3, high3, ptr4, len4, ptr5, len5);
         var r0 = getInt32Memory0()[retptr / 4 + 0];
         var r1 = getInt32Memory0()[retptr / 4 + 1];
-        let v5;
+        let v6;
         if (r0 !== 0) {
-            v5 = getArrayU8FromWasm0(r0, r1).slice();
+            v6 = getArrayU8FromWasm0(r0, r1).slice();
             wasm.__wbindgen_free(r0, r1 * 1);
         }
-        return v5;
-    } finally {
-        wasm.__wbindgen_add_to_stack_pointer(16);
-    }
-}
-
-/**
-* @param {Uint8Array} transfer_as_byte_array
-* @returns {string | undefined}
-*/
-export function decode_transaction_with_next_tx_id(transfer_as_byte_array) {
-    try {
-        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        const ptr0 = passArray8ToWasm0(transfer_as_byte_array, wasm.__wbindgen_malloc);
-        const len0 = WASM_VECTOR_LEN;
-        wasm.decode_transaction_with_next_tx_id(retptr, ptr0, len0);
-        var r0 = getInt32Memory0()[retptr / 4 + 0];
-        var r1 = getInt32Memory0()[retptr / 4 + 1];
-        let v1;
-        if (r0 !== 0) {
-            v1 = getStringFromWasm0(r0, r1).slice();
-            wasm.__wbindgen_free(r0, r1 * 1);
-        }
-        return v1;
+        return v6;
     } finally {
         wasm.__wbindgen_add_to_stack_pointer(16);
     }
@@ -387,6 +367,9 @@ async function init(input) {
     };
     imports.wbg.__wbg_set_f1a4ac8f3a605b11 = function(arg0, arg1, arg2) {
         getObject(arg0)[takeObject(arg1)] = takeObject(arg2);
+    };
+    imports.wbg.__wbg_log_aa2d3459529f5a4f = function(arg0, arg1) {
+        console.log(getStringFromWasm0(arg0, arg1));
     };
     imports.wbg.__wbg_getRandomValues_fb6b088efb6bead2 = function() { return handleError(function (arg0, arg1) {
         getObject(arg0).getRandomValues(getObject(arg1));

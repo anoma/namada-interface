@@ -15,48 +15,6 @@ pub struct TransactionContext {
     pub witness_map: HashMap<usize, IncrementalWitness<Node>>,
 }
 
-// based on spending key we get all the
-// likely best to do this in ts side as we are doing all the networking there now
-// can call ts func from here
-fn fetch_shielded_transactions_by_spending_keys(spending_key: Vec<String>) -> Vec<String> {
-    // 1. perform an RPC call to fetch the shielded transactions
-    //    using masp address
-    // 2. loop through linked list as long as there are items
-    // 3. return the list in reversed order
-    vec![String::from("transaction_1_placeholder")]
-}
-
-// based on set of shielded transactions we create a tx context
-fn create_transaction_context_from_transactions(transactions: Vec<String>) -> TransactionContext {
-    TransactionContext::default()
-}
-
-impl TransactionContext {
-    // delete this
-    pub fn init_from_spending_key() -> Self {
-        // create the shielded transactions context
-        let viewing_keys = vec!["placeholder".to_string()];
-        let shielded_transactions = fetch_shielded_transactions_by_spending_keys(viewing_keys);
-        let transaction_context =
-            create_transaction_context_from_transactions(shielded_transactions);
-
-        // additional data
-        let height = String::from("height");
-        let consensus_branch_id = String::from("consensus_branch_id");
-        let amt = String::from("amt");
-        let memo = String::from("memo");
-
-        transaction_context
-    }
-
-    // this is for
-    pub fn update_witness_map(&mut self) {
-        // 1 task
-        // 2 task
-        // 3 task
-    }
-}
-
 impl Default for TransactionContext {
     fn default() -> TransactionContext {
         TransactionContext {

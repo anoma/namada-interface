@@ -90,6 +90,20 @@ export const submitTransferTransaction = createAsyncThunk(
     let hash: string;
     let bytes: Uint8Array;
 
+    // memas-spending-key-5
+    const spendingKey =
+      "xsktest1qqqqqqqqqqqqqqp5testsunq45vj6qgqr75zdu4h2jmuynj3gfd3p42ackctytcvzsmf97xgqz74gysv58xu0l0n77flhyavj4he27fvp96jwf8kkqesu9c95gcyjlwsn4axc2y7l84jfw34dmncs2ua5elg6jyk3lxzkacqfvwevsesftgkcwl483smj6j4glujk6x472qqf6u8ze65ads0fc8msunws09yn3cnxq832f2chqlhf0rhxzwvm72us3s3zmwzg06rhcqt0f54m";
+
+    // ACCOUNT_5_NAME-established
+    const transparentAddress =
+      "atest1v4ehgw368ymyyvfcgye5zwfhg5crjwzz8pzy23fkggenwd35gcc5xw2pxdp5gw2pgyunzw2pdmjf6h";
+    const shieldedInput = false;
+    const inputAddress = shieldedInput ? spendingKey : transparentAddress;
+
+    // memas-payment-address-1
+    const paymentAddress =
+      "patest1cdrf76r0lv8dyww0mdt7mqrau864xqu7qav54k2zc57kmtmd7jccurkznl36mrvqarhmsnp5phc";
+
     if (shielded) {
       // big TODO: think about the whole concept of how the UX for the shielded
       // transactions should be.
@@ -97,11 +111,16 @@ export const submitTransferTransaction = createAsyncThunk(
       // if it is shielded we have to first generate it and it will then be included
       // in regular transaction
       const amountInMicros = amount * 1_000_000;
-      const shieldedTransaction = await createShieldedTransfer(amountInMicros);
+      const shieldedTransaction = await createShieldedTransfer(
+        amountInMicros,
+        inputAddress,
+        paymentAddress
+      );
       const transferDataForMaspTesting = {
         ...transferData,
-        source:
-          "atest1v4ehgw36xaryysfsx5unvve4g5my2vjz89p52sjxxgenzd348yuyyv3hg3pnjs35g5unvde4ca36y5",
+        source: shieldedInput
+          ? "atest1v4ehgw36xaryysfsx5unvve4g5my2vjz89p52sjxxgenzd348yuyyv3hg3pnjs35g5unvde4ca36y5"
+          : transparentAddress,
         target:
           "atest1v4ehgw36xaryysfsx5unvve4g5my2vjz89p52sjxxgenzd348yuyyv3hg3pnjs35g5unvde4ca36y5",
       };
@@ -112,7 +131,6 @@ export const submitTransferTransaction = createAsyncThunk(
       hash = hashAndBytes.hash;
       bytes = hashAndBytes.bytes;
     } else {
-      console.log("transparent tx");
       const hashAndBytes = await transfer.makeTransfer(transferData);
       hash = hashAndBytes.hash;
       bytes = hashAndBytes.bytes;
