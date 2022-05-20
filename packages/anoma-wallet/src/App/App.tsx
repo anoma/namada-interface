@@ -1,11 +1,10 @@
 /* eslint-disable max-len */
-import { lazy, useState, createContext, Suspense, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { ThemeProvider } from "styled-components/macro";
 
 // internal
-import { InitialAccount } from "slices/accounts";
 import { darkColors, lightColors, Theme } from "utils/theme";
 import { TopLevelRoute } from "./types";
 
@@ -21,6 +20,9 @@ import {
 } from "./App.components";
 import { Session } from "lib";
 import Redirect from "./Redirect";
+import makeStore, { AppStore } from "store/store";
+import AppRoutes from "./AppRoutes";
+import { Persistor, persistStore } from "redux-persist";
 
 // this sets the dark/light colors to theme
 export const getTheme = (isLightMode: boolean): Theme => {
@@ -52,63 +54,47 @@ export const AnimatedTransition = (props: {
   );
 };
 
-type ContextType = {
-  initialAccount?: InitialAccount;
-  password?: string;
-  setInitialAccount?: (account?: InitialAccount) => void;
-  setPassword?: (password: string) => void;
-  setIsLoggedIn?: () => void;
-};
-
-export const AppContext = createContext<ContextType>({});
-
 function App(): JSX.Element {
   const [isLightMode, setIsLightMode] = useState(true);
-  const [password, setPassword] = useState("");
+
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [initialAccount, setInitialAccount] = useState<InitialAccount>();
+  const [store, setStore] = useState<AppStore>();
+  const [persistor, setPersistor] = useState<Persistor>();
   const theme = getTheme(isLightMode);
+
+  useEffect(() => {
+    if (store) {
+      setPersistor(persistStore(store));
+    }
+  }, [store]);
 
   useEffect(() => {
     const { secret } = new Session().getSession() || {};
     if (secret) {
-      setPassword(secret);
       setIsLoggedIn(true);
+      setStore(makeStore(secret));
     }
   }, [isLoggedIn]);
 
-  if (isLoggedIn) {
-    // Lazy-load Routes as the encrypted persistence layer in Redux
-    // requires initialization after a valid password has been entered:
-    const AppRoutes = lazy(() => import("./AppRoutes"));
-
-    /**
-     * Main wallet
-     */
+  if (isLoggedIn && store && persistor) {
     return (
       <BrowserRouter>
         <ThemeProvider theme={theme}>
-          <AppContext.Provider
-            value={{ initialAccount, setInitialAccount, password }}
-          >
-            <AppContainer>
-              <TopSection>
-                <TopNavigation
-                  isLightMode={isLightMode}
-                  setIsLightMode={setIsLightMode}
-                  isLoggedIn={isLoggedIn}
-                  logout={() => setIsLoggedIn(false)}
-                />
-              </TopSection>
-              <BottomSection>
-                <AnimatePresence exitBeforeEnter>
-                  <Suspense fallback={<p>Loading</p>}>
-                    <AppRoutes />
-                  </Suspense>
-                </AnimatePresence>
-              </BottomSection>
-            </AppContainer>
-          </AppContext.Provider>
+          <AppContainer>
+            <TopSection>
+              <TopNavigation
+                isLightMode={isLightMode}
+                setIsLightMode={setIsLightMode}
+                isLoggedIn={isLoggedIn}
+                logout={() => setIsLoggedIn(false)}
+              />
+            </TopSection>
+            <BottomSection>
+              <AnimatePresence exitBeforeEnter>
+                <AppRoutes store={store} persistor={persistor} />
+              </AnimatePresence>
+            </BottomSection>
+          </AppContainer>
         </ThemeProvider>
       </BrowserRouter>
     );
@@ -120,50 +106,54 @@ function App(): JSX.Element {
   return (
     <BrowserRouter>
       <ThemeProvider theme={theme}>
-        <AppContext.Provider
-          value={{
-            password,
-            setInitialAccount: (account) => setInitialAccount(account),
-            setPassword: (password) => setPassword(password),
-            setIsLoggedIn: () => setIsLoggedIn(true),
-          }}
-        >
-          <AppContainer>
-            <TopSection>
-              <TopNavigation
-                isLightMode={isLightMode}
-                setIsLightMode={setIsLightMode}
-              />
-            </TopSection>
-            <BottomSection>
-              <AnimatePresence exitBeforeEnter>
-                <Routes>
+        <AppContainer>
+          <TopSection>
+            <TopNavigation
+              isLightMode={isLightMode}
+              setIsLightMode={setIsLightMode}
+              logout={() => setIsLoggedIn(false)}
+            />
+          </TopSection>
+          <BottomSection>
+            <AnimatePresence exitBeforeEnter>
+              <Routes>
+                <Route
+                  path="/"
+                  element={
+                    <ContentContainer>
+                      <Outlet />
+                    </ContentContainer>
+                  }
+                >
                   <Route
-                    path="/"
+                    path={""}
                     element={
-                      <ContentContainer>
-                        <Outlet />
-                      </ContentContainer>
+                      <Login
+                        setIsLoggedIn={() => setIsLoggedIn(true)}
+                        setStore={(password) => setStore(makeStore(password))}
+                      />
                     }
-                  >
-                    <Route path={""} element={<Login />} />
-                    <Route
-                      path={`${TopLevelRoute.AccountCreation}/*`}
-                      element={
-                        <AnimatedTransition
-                          elementKey={TopLevelRoute.AccountCreation}
-                        >
-                          <AccountCreation />
-                        </AnimatedTransition>
-                      }
-                    />
-                    <Route path={"*"} element={<Redirect />} />
-                  </Route>
-                </Routes>
-              </AnimatePresence>
-            </BottomSection>
-          </AppContainer>
-        </AppContext.Provider>
+                  />
+                  <Route
+                    path={`${TopLevelRoute.AccountCreation}/*`}
+                    element={
+                      <AnimatedTransition
+                        elementKey={TopLevelRoute.AccountCreation}
+                      >
+                        <AccountCreation
+                          store={store}
+                          setIsLoggedIn={() => setIsLoggedIn(true)}
+                          setStore={(password) => setStore(makeStore(password))}
+                        />
+                      </AnimatedTransition>
+                    }
+                  />
+                  <Route path={"*"} element={<Redirect />} />
+                </Route>
+              </Routes>
+            </AnimatePresence>
+          </BottomSection>
+        </AppContainer>
       </ThemeProvider>
     </BrowserRouter>
   );

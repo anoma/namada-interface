@@ -1,9 +1,9 @@
 import { Provider } from "react-redux";
 import { Routes, Route, Outlet } from "react-router-dom";
-import { Persistor, persistStore } from "redux-persist";
+import { Persistor } from "redux-persist";
 import { AccountOverview } from "./AccountOverview";
 import { AddAccount } from "./AccountOverview/AddAccount";
-import { AnimatedTransition, AppContext } from "./App";
+import { AnimatedTransition } from "./App";
 import { ContentContainer } from "./App.components";
 import {
   Settings,
@@ -13,38 +13,19 @@ import {
 } from "./Settings";
 import { StakingAndGovernance } from "./StakingAndGovernance";
 import { TopLevelRoute } from "./types";
-import { makeStore } from "store";
-import { useContext, useEffect, useState } from "react";
 import { AppStore } from "store/store";
-import { Session } from "lib";
 import { TokenDetails } from "./Token";
 import { TokenSend } from "./Token/TokenSend";
 import { TokenReceive } from "./Token/TokenReceive";
 import { TransferDetails } from "./Token/Transfers";
 import NotFound from "./NotFound";
 
-const AppRoutes = (): JSX.Element => {
-  const [store, setStore] = useState<AppStore>();
-  const [persistor, setPersistor] = useState<Persistor>();
+type Props = {
+  store: AppStore;
+  persistor: Persistor;
+};
 
-  const context = useContext(AppContext);
-  const { password = "" } = context;
-
-  useEffect(() => {
-    if (password === "") {
-      Session.removeSession();
-    } else {
-      setStore(makeStore(password));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (store) {
-      setPersistor(persistStore(store));
-    }
-  }, [store]);
-
+const AppRoutes = ({ store, persistor }: Props): JSX.Element => {
   return (
     <>
       {store && (

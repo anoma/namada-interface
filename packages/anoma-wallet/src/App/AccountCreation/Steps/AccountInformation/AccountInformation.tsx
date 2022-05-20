@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Button } from "components/ButtonTemporary";
 import {
   AccountInformationViewContainer,
@@ -18,7 +18,6 @@ import {
   RecoveryPhraseLengthRadioButtonsContainer,
   RecoveryPhraseLengthContainer,
 } from "./AccountInformation.components";
-import { AppContext } from "App/App";
 
 // this is being used:
 // to store the data in the parent when editing
@@ -33,7 +32,7 @@ export type AccountCreationDetails = {
 type AccountInformationViewProps = {
   // if the user navigates back and forth this might be there
   accountCreationDetails?: AccountCreationDetails;
-
+  setStore: (password: string) => void;
   onSubmitAccountCreationDetails: (
     accountCreationDetails: AccountCreationDetails
   ) => void;
@@ -50,13 +49,12 @@ const AccountInformation = (
   props: AccountInformationViewProps
 ): React.ReactElement => {
   const {
+    setStore,
     onSubmitAccountCreationDetails,
     onSetAccountCreationDetails,
     onCtaHover,
     accountCreationDetails,
   } = props;
-  const context = useContext(AppContext) || {};
-  const { setPassword } = context;
   // setting these default values if no data was passed
   const { seedPhraseLength = "12", accountName = "" } =
     accountCreationDetails || {};
@@ -143,9 +141,6 @@ const AccountInformation = (
             onChange={(event) => {
               const { value } = event.target;
               setPassword1(value);
-              if (setPassword) {
-                setPassword(value);
-              }
             }}
             onFocus={() => {
               setPassword1Feedback("");
@@ -199,6 +194,7 @@ const AccountInformation = (
                   ...accountCreationDetails,
                   password: password1,
                 };
+                setStore && setStore(password1);
                 onSubmitAccountCreationDetails(accountCreationDetailsToSubmit);
               }
             }}
