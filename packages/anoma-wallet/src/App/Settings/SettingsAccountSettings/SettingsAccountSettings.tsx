@@ -34,7 +34,7 @@ export const SettingsAccountSettings = (): JSX.Element => {
       ) == account.alias
     ) {
       dispatch(removeAccount(account.id));
-      navigate(TopLevelRoute.SettingsAccountSettings);
+      navigate(TopLevelRoute.SettingsAccounts);
     }
   };
 
