@@ -132,7 +132,7 @@ function AccountCreation({
     navigate(`${accountCreationSteps[stepIndex - 1]}`);
   };
 
-  // Establish login session abd store mnemonic
+  // Establish login session and store mnemonic
   const setSession = async (
     mnemonic: string,
     password: string

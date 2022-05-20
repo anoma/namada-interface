@@ -41,7 +41,7 @@ const Login = ({ setIsLoggedIn, setStore }: Props): JSX.Element => {
       await session.getSeed();
       setError(undefined);
       setIsLoggedIn && setIsLoggedIn();
-      setStore && setStore(password);
+      setStore(password);
 
       const redirectUrl = getParams("redirect");
       if (redirectUrl) {
