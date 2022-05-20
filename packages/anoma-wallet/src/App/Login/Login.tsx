@@ -1,23 +1,24 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { TopLevelRoute } from "App/types";
 import { LoginViewContainer } from "./Login.components";
 import { useNavigate } from "react-router-dom";
 import { Input, InputVariants } from "components/Input";
 import { Button, ButtonVariant } from "components/Button";
-import { AppContext } from "App/App";
 import { Session } from "lib";
 import { getParams } from "utils/helpers";
 
 const session = new Session();
 
-const Login = (): JSX.Element => {
+type Props = {
+  setIsLoggedIn: () => void;
+  setStore: (password: string) => void;
+};
+
+const Login = ({ setIsLoggedIn, setStore }: Props): JSX.Element => {
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string>();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const context = useContext(AppContext);
-
-  const { setIsLoggedIn, setPassword: setPasswordContext } = context || {};
 
   useEffect(() => {
     const checkMnemonic = async (): Promise<void> => {
@@ -40,7 +41,7 @@ const Login = (): JSX.Element => {
       await session.getSeed();
       setError(undefined);
       setIsLoggedIn && setIsLoggedIn();
-      setPasswordContext && setPasswordContext(password);
+      setStore(password);
 
       const redirectUrl = getParams("redirect");
       if (redirectUrl) {
