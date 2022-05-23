@@ -1,8 +1,6 @@
-import { useContext, useEffect } from "react";
-import { AppContext } from "App/App";
 import { Button, Variant } from "components/ButtonTemporary";
 import { Image, ImageName } from "components/Image";
-import { Session } from "lib";
+import { Wallet } from "lib";
 
 import {
   CompletionViewContainer,
@@ -14,22 +12,50 @@ import {
   ButtonContainer,
 } from "./Completion.components";
 
+import { addAccount, InitialAccount } from "slices/accounts";
+import { useEffect } from "react";
+import { useAppDispatch } from "store";
+
 type CompletionViewProps = {
   // navigates to the account
   onClickSeeAccounts: () => void;
   // navigates to the settings
   onClickDone: () => void;
+  mnemonic: string;
+  alias: string;
+  password: string;
+};
+
+const createAccount = async (
+  alias: string,
+  mnemonic: string
+): Promise<InitialAccount> => {
+  const tokenType = "NAM";
+  const wallet = await new Wallet(mnemonic, tokenType).init();
+  const account = wallet.new(0);
+  const { public: publicKey, secret: signingKey, wif: address } = account;
+
+  return {
+    alias,
+    tokenType,
+    address,
+    publicKey,
+    signingKey,
+  };
 };
 
 const Completion = (props: CompletionViewProps): JSX.Element => {
-  const { onClickDone, onClickSeeAccounts } = props;
-  const context = useContext(AppContext) || {};
-  const { password = "" } = context;
+  const { onClickDone, onClickSeeAccounts, mnemonic, password, alias } = props;
+
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    // Log the user in:
-    new Session().setSession(password);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (password) {
+      (async () => {
+        const account = await createAccount(alias, mnemonic);
+        dispatch(addAccount(account));
+      })();
+    }
   }, []);
 
   return (

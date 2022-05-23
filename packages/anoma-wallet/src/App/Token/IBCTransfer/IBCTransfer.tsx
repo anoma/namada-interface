@@ -240,7 +240,7 @@ const IBCTransfer = (): JSX.Element => {
       </InputContainer>
 
       {isIbcTransferSubmitting && <p>Submitting IBC Transfer</p>}
-      {transferError && <p>{transferError}</p>}
+      {transferError && <pre style={{ overflow: "auto" }}>{transferError}</pre>}
       {events && (
         <>
           <StatusMessage>
