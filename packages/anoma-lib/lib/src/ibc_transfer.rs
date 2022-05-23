@@ -33,7 +33,7 @@ impl IbcTransfer {
         sender: String,
         receiver: String,
         token: String,
-        amount: u32,
+        amount: f32,
         epoch: u32,
         fee_amount: u32,
         gas_limit: u32,
