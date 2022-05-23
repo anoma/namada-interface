@@ -20,12 +20,6 @@ import { TokenReceive } from "./Token/TokenReceive";
 import { TransferDetails } from "./Token/Transfers";
 import NotFound from "./NotFound";
 
-const fakeAccounts = [
-  "fake1l7dgf0m623ayll8vdyf6n7gxm3tz7mt7x443m0",
-  "fakej3n4340m623ayll8vdyf6n7gxm3tz7mt74m5th0",
-  "fakelg45lt5m623ayll8vdyf6n7gxm3tz7mtrenrer0",
-];
-
 type Props = {
   store: AppStore;
   persistor: Persistor;
@@ -132,7 +126,7 @@ const AppRoutes = ({ store, persistor }: Props): JSX.Element => {
                   <AnimatedTransition
                     elementKey={TopLevelRoute.SettingsAccounts}
                   >
-                    <SettingsAccounts accounts={fakeAccounts} />
+                    <SettingsAccounts />
                   </AnimatedTransition>
                 }
               />

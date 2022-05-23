@@ -34,4 +34,5 @@ export const StyledSelect = styled.select`
 export const Label = styled.label`
   font-weight: 500;
   color: ${(props) => props.theme.colors.inputText};
+  width: 100%;
 `;

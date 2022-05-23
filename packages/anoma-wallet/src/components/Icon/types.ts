@@ -15,6 +15,7 @@ export enum IconName {
   ThumbsUp,
   Briefcase,
   Settings,
+  Info,
 }
 
 export enum IconSize {
