@@ -16,6 +16,7 @@ export enum IconName {
   Briefcase,
   Settings,
   Plus,
+  Info,
 }
 
 export enum IconSize {
