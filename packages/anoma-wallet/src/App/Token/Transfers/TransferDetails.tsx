@@ -34,7 +34,13 @@ const TransferDetail = (): JSX.Element => {
     (transaction) => transaction.appliedHash === appliedHash
   ) || {};
 
-  const { chainId = "" } = ibcTransfer || {};
+  const {
+    chainId = "",
+    sourceChannel,
+    sourcePort,
+    destinationChannel,
+    destinationPort,
+  } = ibcTransfer || {};
   const chain = Config.chain[chainId] || {};
   const chainName = chain.name;
 
@@ -71,6 +77,14 @@ const TransferDetail = (): JSX.Element => {
               {chainName}
               <br />
               {chainId}
+            </strong>
+          </p>
+          <p>
+            IBC Transfer Channel:
+            <br />
+            <strong>
+              {sourceChannel}/{sourcePort} - {destinationChannel}/
+              {destinationPort}
             </strong>
           </p>
         </>
