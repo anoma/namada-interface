@@ -4,7 +4,12 @@ import { useNavigate } from "react-router-dom";
 import { Symbols, TokenType, Tokens } from "constants/";
 import { Wallet, Session } from "lib";
 import { useAppDispatch, useAppSelector } from "store";
+
+// TODO finnish refactoring this
 import { DerivedAccount, AccountsState, addAccount } from "slices/accounts";
+
+import { NewAccountDetails } from "slices/accountsNew";
+import { addAccountToLedger } from "slices/accountsNew/actions";
 
 import { Label } from "components/Input/input.components";
 import { Toggle } from "components/Toggle";
@@ -24,8 +29,10 @@ const MIN_ALIAS_LENGTH = 2;
 export const AddAccount = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
-  const [shielded, setShielded] = useState<boolean>(true);
+  const { derived, isAddingAccountReduxState } = useAppSelector<AccountsState>(
+    (state) => state.accounts
+  );
+  const [isShielded, setIsShielded] = useState<boolean>(true);
   const [alias, setAlias] = useState<string>("");
   const [aliasError, setAliasError] = useState<string>();
   const [tokenType, setTokenType] = useState<TokenType>("NAM");
@@ -51,7 +58,7 @@ export const AddAccount = (): JSX.Element => {
   };
 
   const handleShieldedToggling = (): void => {
-    setShielded((shielded) => !shielded);
+    setIsShielded((isShielded) => !isShielded);
   };
 
   const getAccountIndex = (
@@ -83,7 +90,27 @@ export const AddAccount = (): JSX.Element => {
     }
   }, [alias]);
 
+  // triggers the creation of new account on the ledger. Does both
+  // transparent and shielded
+  const handleAddShieldedAccount = (): void => {
+    const newAccountDetails: NewAccountDetails = {
+      alias: alias.trim(),
+      isShielded: isShielded,
+      tokenType: tokenType,
+    };
+    if (newAccountDetails) {
+      dispatch(addAccountToLedger(newAccountDetails));
+    }
+  };
+
   const handleAddClick = async (): Promise<void> => {
+    // TODO refactor these all together, this is just for now to
+    // develop adding the shielded accounts separately
+    if (isShielded) {
+      handleAddShieldedAccount();
+      return;
+    }
+
     const trimmedAlias = alias.trim();
 
     if (!trimmedAlias || !validateAlias(trimmedAlias)) {
@@ -119,6 +146,7 @@ export const AddAccount = (): JSX.Element => {
     }
   };
 
+  console.log(isAddingAccountReduxState, "isAddingAccountReduxState");
   return (
     <AccountOverviewContainer>
       <NavigationContainer
@@ -130,7 +158,7 @@ export const AddAccount = (): JSX.Element => {
       </NavigationContainer>
       <InputContainer>
         <Label>Shielded</Label>
-        <Toggle onClick={handleShieldedToggling} checked={shielded} />
+        <Toggle onClick={handleShieldedToggling} checked={isShielded} />
       </InputContainer>
       <InputContainer>
         <Input
@@ -151,11 +179,15 @@ export const AddAccount = (): JSX.Element => {
         ></Select>
       </InputContainer>
 
-      {isAddingAccount && <p>Adding new account...</p>}
+      {(isAddingAccountReduxState || isAddingAccount) && (
+        <p>Adding new account...</p>
+      )}
       <Button
         variant={ButtonVariant.Contained}
         onClick={handleAddClick}
-        disabled={!validateAlias(alias) || isAddingAccount}
+        disabled={
+          !validateAlias(alias) || isAddingAccountReduxState || isAddingAccount
+        }
       >
         Add
       </Button>

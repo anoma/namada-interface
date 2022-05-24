@@ -3,13 +3,16 @@ import QrReader from "react-qr-reader";
 
 import { Config } from "config";
 import { RpcClient } from "lib";
-import { AccountsState, fetchBalanceByAccount } from "slices/accounts";
+import {
+  AccountsState,
+  fetchBalanceByAccount,
+  DerivedAccount,
+} from "slices/accounts";
 import {
   clearEvents,
   submitTransferTransaction,
   TransfersState,
 } from "slices/transfers";
-import { DerivedAccount } from "slices/accounts";
 import { useAppDispatch, useAppSelector } from "store";
 import { Tokens } from "constants/";
 

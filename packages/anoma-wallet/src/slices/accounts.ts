@@ -5,6 +5,7 @@ import { Account, RpcClient, SocketClient } from "lib";
 import { NewBlockEvents } from "lib/rpc/types";
 import { promiseWithTimeout, stringToHash } from "utils/helpers";
 import { submitTransferTransaction } from "./transfers";
+import { addAccountReducersToBuilder } from "./accountsNew/reducers";
 
 export type InitialAccount = {
   alias: string;
@@ -28,6 +29,7 @@ type DerivedAccounts = {
 };
 
 export type AccountsState = {
+  isAddingAccountReduxState?: boolean;
   derived: DerivedAccounts;
 };
 
@@ -258,6 +260,9 @@ const accountsSlice = createSlice({
         };
       }
     );
+
+    // TODO merge these all at some point to one place
+    addAccountReducersToBuilder(builder);
   },
 });
 
