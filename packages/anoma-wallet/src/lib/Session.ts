@@ -1,19 +1,19 @@
 import { Mnemonic } from "@anoma-apps/seed-management";
 import { LocalStorageKeys } from "App/types";
+import { hashPassword } from "utils/helpers";
 
 class Session {
   public static async getSeed(secret: string): Promise<string | undefined> {
-    // TODO: Add one-way hashing to provided secret
     const mnemonic = await Mnemonic.fromStorageValue(
-      secret,
+      hashPassword(secret),
       window.localStorage.getItem(LocalStorageKeys.MasterSeed) || ""
     );
     return mnemonic.phrase;
   }
 
   public static async setSeed(seed: string, secret: string): Promise<void> {
-    // TODO: Add one-way hashing to provided secret
-    const seedStorageValue = await new Mnemonic(seed).toStorageValue(secret);
+    const hash = hashPassword(secret);
+    const seedStorageValue = await new Mnemonic(seed).toStorageValue(hash);
     window.localStorage.setItem(LocalStorageKeys.MasterSeed, seedStorageValue);
   }
 

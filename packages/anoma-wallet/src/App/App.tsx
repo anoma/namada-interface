@@ -124,7 +124,7 @@ function App(): JSX.Element {
                     path={""}
                     element={
                       <Login
-                        setLoginPassword={(password) => setPassword(password)}
+                        setPassword={setPassword}
                         setStore={(password) => setStore(makeStore(password))}
                       />
                     }
@@ -137,7 +137,7 @@ function App(): JSX.Element {
                       >
                         <AccountCreation
                           store={store}
-                          setPassword={(password) => setPassword(password)}
+                          setPassword={setPassword}
                           setStore={(password) => setStore(makeStore(password))}
                         />
                       </AnimatedTransition>

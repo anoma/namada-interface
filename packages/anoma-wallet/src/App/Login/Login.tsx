@@ -8,21 +8,19 @@ import { Session } from "lib";
 import { getParams } from "utils/helpers";
 
 type Props = {
-  setLoginPassword: (password: string) => void;
+  setPassword: (password: string) => void;
   setStore: (password: string) => void;
 };
 
-const Login = ({ setLoginPassword, setStore }: Props): JSX.Element => {
+const Login = ({ setPassword, setStore }: Props): JSX.Element => {
   const navigate = useNavigate();
   const [error, setError] = useState<string>();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [password, setPassword] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
 
   useEffect(() => {
     const checkMnemonic = async (): Promise<void> => {
-      const encrypted = Session.encryptedSeed();
-
-      if (!encrypted) {
+      if (!Session.encryptedSeed()) {
         return navigate(TopLevelRoute.AccountCreation);
       }
     };
@@ -35,10 +33,11 @@ const Login = ({ setLoginPassword, setStore }: Props): JSX.Element => {
 
     try {
       // Will fail if seed cannot be decrypted:
-      await Session.getSeed(password);
+      await Session.getSeed(loginPassword);
+
       setError(undefined);
-      setLoginPassword(password);
-      setStore(password);
+      setPassword(loginPassword);
+      setStore(loginPassword);
 
       const redirectUrl = getParams("redirect");
       if (redirectUrl) {
@@ -56,7 +55,7 @@ const Login = ({ setLoginPassword, setStore }: Props): JSX.Element => {
     e: React.ChangeEvent<HTMLInputElement>
   ): void => {
     const { value } = e.target;
-    setPassword(value);
+    setLoginPassword(value);
   };
 
   return (
@@ -70,7 +69,7 @@ const Login = ({ setLoginPassword, setStore }: Props): JSX.Element => {
       <Button
         variant={ButtonVariant.Contained}
         onClick={handleUnlockClick}
-        disabled={!password} // TODO: Improve validation
+        disabled={!loginPassword} // TODO: Improve validation
       >
         Unlock Wallet
       </Button>
