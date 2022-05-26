@@ -7,22 +7,20 @@ import { Button, ButtonVariant } from "components/Button";
 import { Session } from "lib";
 import { getParams } from "utils/helpers";
 
-const session = new Session();
-
 type Props = {
-  setIsLoggedIn: () => void;
+  setLoginPassword: (password: string) => void;
   setStore: (password: string) => void;
 };
 
-const Login = ({ setIsLoggedIn, setStore }: Props): JSX.Element => {
+const Login = ({ setLoginPassword, setStore }: Props): JSX.Element => {
   const navigate = useNavigate();
-  const [password, setPassword] = useState("");
   const [error, setError] = useState<string>();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [password, setPassword] = useState("");
 
   useEffect(() => {
     const checkMnemonic = async (): Promise<void> => {
-      const encrypted = new Session().encryptedSeed;
+      const encrypted = Session.encryptedSeed();
 
       if (!encrypted) {
         return navigate(TopLevelRoute.AccountCreation);
@@ -36,11 +34,10 @@ const Login = ({ setIsLoggedIn, setStore }: Props): JSX.Element => {
     setIsLoggingIn(true);
 
     try {
-      session.setSession(password);
       // Will fail if seed cannot be decrypted:
-      await session.getSeed();
+      await Session.getSeed(password);
       setError(undefined);
-      setIsLoggedIn && setIsLoggedIn();
+      setLoginPassword(password);
       setStore(password);
 
       const redirectUrl = getParams("redirect");

@@ -20,7 +20,6 @@ import {
   TopNavigationContainerRow,
   TopNavigationContainerSecondRow,
 } from "./topNavigation.components";
-import { Session } from "lib";
 
 /**
  * this is rendered in one of 2 places depending of the screen size
@@ -125,7 +124,6 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
           {isLoggedIn && (
             <MenuItem
               onClick={() => {
-                Session.removeSession();
                 navigate(TopLevelRoute.Home);
                 logout();
               }}
