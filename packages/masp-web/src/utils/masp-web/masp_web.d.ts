@@ -12,6 +12,12 @@
 */
 export function create_shielded_transfer(shielded_transactions: any, spending_key_as_string: string, payment_address_as_string: string, token_address: string, amount: BigInt, spend_param_bytes: Uint8Array, output_param_bytes: Uint8Array): Uint8Array | undefined;
 /**
+* @param {string} alias
+* @param {string | undefined} password
+* @returns {any}
+*/
+export function create_shielded_account(alias: string, password?: string): any;
+/**
 */
 export class NodeWithNextId {
   free(): void;
@@ -21,6 +27,15 @@ export class NodeWithNextId {
 */
   static decode_transaction_with_next_tx_id(transfer_as_byte_array: Uint8Array): any;
 }
+export class ShieldedAccount {
+  free(): void;
+/**
+* @param {string} alias
+* @param {string | undefined} password
+* @returns {any}
+*/
+  static new(alias: string, password?: string): any;
+}
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
@@ -28,7 +43,9 @@ export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly __wbg_nodewithnextid_free: (a: number) => void;
   readonly nodewithnextid_decode_transaction_with_next_tx_id: (a: number, b: number) => number;
+  readonly shieldedaccount_new: (a: number, b: number, c: number, d: number) => number;
   readonly create_shielded_transfer: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number) => void;
+  readonly create_shielded_account: (a: number, b: number, c: number, d: number) => number;
   readonly rustsecp256k1_v0_4_1_context_create: (a: number) => number;
   readonly rustsecp256k1_v0_4_1_context_destroy: (a: number) => void;
   readonly rustsecp256k1_v0_4_1_default_illegal_callback_fn: (a: number, b: number) => void;

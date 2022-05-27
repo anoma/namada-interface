@@ -1,6 +1,8 @@
 import init, {
   create_shielded_transfer,
   NodeWithNextId as NodeWithNextIdWasmType,
+  ShieldedAccount,
+  create_shielded_account,
 } from "./utils/masp-web";
 
 // fetches a file from create react app public/assets/ folder to byte array
@@ -68,9 +70,11 @@ export class MaspWeb {
     const spendParamBytesAsByteArray = await fetchFromPublicFolderToByteArray(
       "masp-spend.params"
     );
+
     const outputParamBytesAsByteArray = await fetchFromPublicFolderToByteArray(
       "masp-output.params"
     );
+
     const tokenAddress =
       "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5";
 
@@ -107,5 +111,23 @@ export class MaspWeb {
       nextTransactionId: nodeWithNextIdWasm.next_transaction_id,
     };
     return nodeWithNextId;
+  };
+}
+
+export const createShieldedAccount = (alias: string, password?: string) => {
+  const shieldedAccount = create_shielded_account(alias, password);
+  return shieldedAccount;
+};
+
+export class MaspShieldedAccount {
+  // using this instead of keyworded constructor as we want this to be async
+  // for being able to kickstart the wasm stuff with the call to init()
+  static init = async (): Promise<ShieldedAccount> => {
+    await init();
+    return new ShieldedAccount();
+  };
+
+  createShieldedAccount = () => {
+    console.log("createShieldedAccount");
   };
 }

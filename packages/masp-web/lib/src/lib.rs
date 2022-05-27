@@ -1,5 +1,7 @@
+mod shielded_account;
 mod shielded_transaction;
 
+use shielded_account::ShieldedAccount;
 use shielded_transaction::create_shielded_transfer as create_shielded_transfer_implementation;
 use wasm_bindgen::prelude::*;
 
@@ -22,4 +24,9 @@ pub fn create_shielded_transfer(
         spend_param_bytes,
         output_param_bytes,
     )
+}
+
+#[wasm_bindgen]
+pub fn create_shielded_account(alias: String, password: Option<String>) -> JsValue {
+    ShieldedAccount::new(alias, password)
 }

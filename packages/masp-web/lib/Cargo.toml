@@ -14,22 +14,26 @@ std = ["rand_core/std"]
 
 [dependencies]
 # wasm pack default
+anoma = {package = "anoma", git = "https://github.com/anoma/anoma", rev = "f1afdffd5e43ad4bb448db7bf5bc1e23464350f7"}
+# needed this as it now contains stuff for spending_key, viewing_key and payment_address for masp
+# anoma_with_masp_in_shared = {package = "anoma", git = "https://github.com/anoma/anoma", rev = "f1afdffd5e43ad4bb448db7bf5bc1e23464350f7"}
 console_error_panic_hook = {version = "0.1.6", optional = true}
 js-sys = "0.3.5"
 jubjub = {version = "0.8"}
+# needed this as there as a need to change something by hand, should consolidate to one
+# masp primitives
+masp_primitives = {path = "./lib/masp_primitives", features = ["transparent-inputs"]}
+# this is needed as anoma/shared/masp needs something from here as an input for the into() call
+# src/shielded_account/mod.rs:generate_spending_key
+masp_primitives_from_murisi = {package = "masp_primitives", git = "https://github.com/murisi/masp", branch = "murisi/masp-transaction3"}
+masp_proofs = {path = "./lib/masp_proofs", features = ["bundled-prover", "download-params"]}
+rand = {version = "0.7", features = ["wasm-bindgen"]}
 rand_core = {version = "0.6", default-features = false}
 serde = {version = "1.0.130", features = ["derive"]}
 serde-wasm-bindgen = "0.3.1"
 sha2 = "0.9.3"
-wasm-bindgen = "0.2.63"
+wasm-bindgen = {version = "0.2.63", features = ["serde-serialize"]}
 wee_alloc = {version = "0.4.5", optional = true}
-# masp_proofs = { git = "https://github.com/murisi/masp", branch = "murisi/masp-transaction3", features = ["bundled-prover", "download-params"] }
-anoma = {git = "https://github.com/anoma/anoma", tag = "v0.4.0", features = ["rand", "ferveo-tpke"]}
-masp_proofs = {path = "./lib/masp_proofs", features = ["bundled-prover", "download-params"]}
-
-# masp_primitives = { git = "https://github.com/murisi/masp", branch = "murisi/masp-transaction3", features = ["transparent-inputs"] }
-# masp_primitives = { git = "https://github.com/anoma/masp", branch = "joe/tx", features = ["transparent-inputs"] }
-masp_primitives = {path = "./lib/masp_primitives", features = ["transparent-inputs"]}
 zcash_primitives = {git = "https://github.com/zcash/librustzcash", rev = "2425a08"}
 
 # getrandom is a dep of masp_primitives and needs feature "js"
@@ -49,3 +53,15 @@ opt-level = "s"
 
 [package.metadata.wasm-pack.profile.release]
 wasm-opt = false
+
+[patch.crates-io]
+# TODO backported patch in the noise protocl for <https://github.com/libp2p/rust-libp2p/pull/2264>, blocked on libp2p upgrade <https://github.com/anoma/anoma/pull/751>
+libp2p = {git = "https://github.com/heliaxdev/rust-libp2p.git", rev = "1abe349c231eb307d3dbe03f3ffffc6cf5e9084d"}
+# TODO temp patch for <https://github.com/near/borsh-rs/issues/82>, <https://github.com/near/borsh-rs/issues/84> and more tba.
+borsh = {git = "https://github.com/heliaxdev/borsh-rs.git", rev = "cd5223e5103c4f139e0c54cf8259b7ec5ec4073a"}
+borsh-derive = {git = "https://github.com/heliaxdev/borsh-rs.git", rev = "cd5223e5103c4f139e0c54cf8259b7ec5ec4073a"}
+borsh-derive-internal = {git = "https://github.com/heliaxdev/borsh-rs.git", rev = "cd5223e5103c4f139e0c54cf8259b7ec5ec4073a"}
+borsh-schema-derive-internal = {git = "https://github.com/heliaxdev/borsh-rs.git", rev = "cd5223e5103c4f139e0c54cf8259b7ec5ec4073a"}
+# this is needed as orchard would fail on wasm, and this is being used by
+# masp_primitives_from_murisi
+orchard = {git = "https://github.com/memasdeligeorgakis/orchard", branch = "feat/v0.1.0-beta.1_with_extra_type_annotation"}

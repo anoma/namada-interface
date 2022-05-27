@@ -9,9 +9,11 @@ export const addAccountReducersToBuilder = (
       state.isAddingAccountReduxState = true;
     })
     .addCase(addAccountToLedger.fulfilled, (state, action) => {
+      console.log(action, "action as addAccountToLedger.fulfilled");
       state.isAddingAccountReduxState = false;
     })
     .addCase(addAccountToLedger.rejected, (state, action) => {
+      console.log(action, "action at addAccountToLedger.rejected");
       state.isAddingAccountReduxState = false;
     });
 

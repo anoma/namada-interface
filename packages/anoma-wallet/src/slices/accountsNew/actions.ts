@@ -3,6 +3,7 @@ import { ADD_ACCOUNT_TO_LEDGER, NewAccountDetails } from "./types";
 import { RootState } from "store/store";
 import { Wallet, Session } from "lib";
 import { DerivedAccount, AccountsState } from "slices/accounts";
+import { MaspShieldedAccount, createShieldedAccount } from "@anoma/masp-web";
 
 const getAccountIndex = (
   accounts: DerivedAccount[],
@@ -19,18 +20,17 @@ const getAccountIndex = (
 export const addAccountToLedger = createAsyncThunk(
   ADD_ACCOUNT_TO_LEDGER,
   async (newAccountDetails: NewAccountDetails, thunkAPI) => {
-    const { alias, isShielded, tokenType } = newAccountDetails;
-    const state: RootState = thunkAPI.getState() as RootState;
-    const { derived } = state.accounts;
-
     try {
       // create spending key
       // create payment address based on the spending key
-      return {
-        spendingKey: "spending-key-1",
-        paymentAddress: "payment-address-1",
-      };
+
+      const { alias, isShielded, tokenType } = newAccountDetails;
+      const InitiatedMaspShieldedAccount = await MaspShieldedAccount.init();
+      const shieldedAccount = createShieldedAccount(alias);
+      // const state: RootState = thunkAPI.getState() as RootState;
+      return shieldedAccount;
     } catch (error) {
+      console.log(error, "error");
       Promise.reject(error);
     }
   }
