@@ -30,7 +30,6 @@ import { NavigationContainer } from "components/NavigationContainer";
 import { Icon, IconName } from "components/Icon";
 import { Button, ButtonVariant } from "components/Button";
 import { Address } from "../Transfers/TransferDetails.components";
-import { RpcClient } from "lib";
 
 type UrlParams = {
   id: string;
@@ -97,17 +96,6 @@ const IBCTransfer = (): JSX.Element => {
       }
     }
   }, [selectedChainId, channelsByChain]);
-
-  //TODO: REMOVE
-  useEffect(() => {
-    if (selectedChannelId) {
-      (async () => {
-        const client = new RpcClient({ ...Config.rpc.network, port: 9090 });
-        const isChannelIdValid = await client.queryChannel(selectedChannelId);
-        console.log(`${selectedChannelId} is valid? ${isChannelIdValid}`);
-      })();
-    }
-  }, [selectedChannelId]);
 
   const handleAddChannel = (): void => {
     if (channelId) {
