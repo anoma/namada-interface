@@ -9,9 +9,23 @@ use rand::RngCore;
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 
+#[wasm_bindgen(typescript_custom_section)]
+const ITEXT_STYLE: &'static str = r#"
+type ShieldedAccountType = {
+    viewing_key: string;
+    spending_key: string;
+    payment_address: string;
+}
+"#;
+
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(typescript_type = "ShieldedAccountType")]
+    pub type ShieldedAccountType;
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct ShieldedAccount {
-    alias: String,
     viewing_key: String,
     spending_key: String,
     payment_address: String,
@@ -37,7 +51,13 @@ pub fn find_valid_diversifier<R: RngCore>(rng: &mut R) -> (Diversifier, jubjub::
 #[wasm_bindgen]
 impl ShieldedAccount {
     // utils to transform between ExtendedSpendingKey in masp_primitives and PaymentAddress in anoma/shared/masp
-    fn generate_spending_key() -> ExtendedSpendingKey {
+    fn generate_spending_key_from_seed() -> ExtendedSpendingKey {
+        let mut spend_key = [0; 32];
+        OsRng.fill_bytes(&mut spend_key);
+        masp_primitives_from_murisi::zip32::ExtendedSpendingKey::master(spend_key.as_ref()).into()
+    }
+
+    fn generate_spending_key_from_path() -> ExtendedSpendingKey {
         let mut spend_key = [0; 32];
         OsRng.fill_bytes(&mut spend_key);
         masp_primitives_from_murisi::zip32::ExtendedSpendingKey::master(spend_key.as_ref()).into()
@@ -56,11 +76,21 @@ impl ShieldedAccount {
     }
 
     // generates a struct that contains spending and viewing keys as well as a payment address
-    #[wasm_bindgen]
-    pub fn new(alias: String, password: Option<String>) -> JsValue {
-        // spending key
-        let extended_spending_key = Self::generate_spending_key();
+    pub fn new_master_account(alias: String, seed: String, password: Option<String>) -> JsValue {
+        let extended_spending_key = Self::generate_spending_key_from_seed();
+        Self::new_from_spending_key(alias, extended_spending_key, password)
+    }
 
+    pub fn new_derived_account(alias: String, path: String, password: Option<String>) -> JsValue {
+        let extended_spending_key = Self::generate_spending_key_from_seed();
+        Self::new_from_spending_key(alias, extended_spending_key, password)
+    }
+
+    fn new_from_spending_key(
+        alias: String,
+        extended_spending_key: ExtendedSpendingKey,
+        password: Option<String>,
+    ) -> JsValue {
         // viewing key
         let extended_full_viewing_key = ExtendedFullViewingKey::from(&extended_spending_key.into());
         let extended_viewing_key = Self::generate_viewing_key(extended_full_viewing_key);
@@ -79,7 +109,6 @@ impl ShieldedAccount {
         };
 
         let shielded_account = ShieldedAccount {
-            alias,
             viewing_key: extended_viewing_key.to_string(),
             spending_key: extended_spending_key.to_string(),
             payment_address: payment_address_as_string,

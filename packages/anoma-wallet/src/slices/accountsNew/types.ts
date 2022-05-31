@@ -6,3 +6,9 @@ export type NewAccountDetails = {
   isShielded: boolean;
   tokenType: "NAM" | "BTC" | "ETH" | "DOT";
 };
+
+export type ShieldedAccount = {
+  viewingKey: string;
+  spendingKey: string;
+  paymentAddress: string;
+};

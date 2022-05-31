@@ -2,9 +2,11 @@ import init, {
   create_shielded_transfer,
   NodeWithNextId as NodeWithNextIdWasmType,
   ShieldedAccount,
-  create_shielded_account,
+  ShieldedAccountType,
+  create_master_shielded_account,
+  create_derived_shielded_account,
 } from "./utils/masp-web";
-
+export type { ShieldedAccountType };
 // fetches a file from create react app public/assets/ folder to byte array
 const fetchFromPublicFolderToByteArray = async (
   fileName: string
@@ -50,22 +52,6 @@ export class MaspWeb {
         };
       }
     );
-
-    // TODO: just testing with hard coded values, move to UI
-
-    // memas-spending-key-5
-    // const spendingKey =
-    //   "xsktest1qqqqqqqqqqqqqqp5testsunq45vj6qgqr75zdu4h2jmuynj3gfd3p42ackctytcvzsmf97xgqz74gysv58xu0l0n77flhyavj4he27fvp96jwf8kkqesu9c95gcyjlwsn4axc2y7l84jfw34dmncs2ua5elg6jyk3lxzkacqfvwevsesftgkcwl483smj6j4glujk6x472qqf6u8ze65ads0fc8msunws09yn3cnxq832f2chqlhf0rhxzwvm72us3s3zmwzg06rhcqt0f54m";
-
-    // // ACCOUNT_5_NAME-established
-    // const transparentAddress =
-    //   "atest1v4ehgw368ymyyvfcgye5zwfhg5crjwzz8pzy23fkggenwd35gcc5xw2pxdp5gw2pgyunzw2pdmjf6h";
-    // const shieldedInput = false;
-    // const inputAddress = shieldedInput ? spendingKey : transparentAddress;
-
-    // // memas-payment-address-1
-    // const paymentAddress =
-    //   "patest1cdrf76r0lv8dyww0mdt7mqrau864xqu7qav54k2zc57kmtmd7jccurkznl36mrvqarhmsnp5phc";
 
     const spendParamBytesAsByteArray = await fetchFromPublicFolderToByteArray(
       "masp-spend.params"
@@ -114,13 +100,34 @@ export class MaspWeb {
   };
 }
 
-export const createShieldedAccount = (alias: string, password?: string) => {
-  const shieldedAccount = create_shielded_account(alias, password);
+export const createShieldedMasterAccount = (
+  alias: string,
+  seedPhrase: string,
+  password?: string
+) => {
+  const shieldedAccount = create_master_shielded_account(
+    alias,
+    seedPhrase,
+    password
+  );
+  return shieldedAccount;
+};
+
+export const createShieldedDerivedAccount = (
+  alias: string,
+  path: string,
+  password?: string
+) => {
+  const shieldedAccount = create_derived_shielded_account(
+    alias,
+    path,
+    password
+  );
   return shieldedAccount;
 };
 
 export class MaspShieldedAccount {
-  // using this instead of keyworded constructor as we want this to be async
+  // using this instead of keyword'ed constructor as we want this to be async
   // for being able to kickstart the wasm stuff with the call to init()
   static init = async (): Promise<ShieldedAccount> => {
     await init();

@@ -19,7 +19,9 @@ import {
 import { Button, ButtonVariant } from "components/Button";
 
 const DerivedAccounts = (): JSX.Element => {
-  const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
+  const { derived, shieldedAccounts } = useAppSelector<AccountsState>(
+    (state) => state.accounts
+  );
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -35,14 +37,21 @@ const DerivedAccounts = (): JSX.Element => {
     }
   }, []);
 
+  const shieldedAndTransparentAccounts = { ...derived, ...shieldedAccounts };
   return (
     <DerivedAccountsContainer>
       <DerivedAccountsList>
-        {Object.keys(derived)
+        {Object.keys(shieldedAndTransparentAccounts)
           .reverse()
           .map((hash: string) => {
-            const { id, alias, tokenType, balance, isInitializing } =
-              derived[hash];
+            const {
+              id,
+              alias,
+              tokenType,
+              balance,
+              isInitializing,
+              isShielded,
+            } = shieldedAndTransparentAccounts[hash];
 
             return (
               <DerivedAccountItem key={alias}>
@@ -51,7 +60,10 @@ const DerivedAccounts = (): JSX.Element => {
                     <DerivedAccountAlias>
                       {alias} {isInitializing && <i>(initializing)</i>}
                     </DerivedAccountAlias>
-                    <DerivedAccountType>{tokenType}</DerivedAccountType>
+                    <DerivedAccountType>
+                      {isShielded ? "SHIELDED " : ""}
+                      {tokenType}
+                    </DerivedAccountType>
                   </DerivedAccountInfo>
 
                   <DerivedAccountBalance>

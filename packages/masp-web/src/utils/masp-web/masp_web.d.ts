@@ -13,10 +13,26 @@
 export function create_shielded_transfer(shielded_transactions: any, spending_key_as_string: string, payment_address_as_string: string, token_address: string, amount: BigInt, spend_param_bytes: Uint8Array, output_param_bytes: Uint8Array): Uint8Array | undefined;
 /**
 * @param {string} alias
+* @param {string} seed_phrase
 * @param {string | undefined} password
 * @returns {any}
 */
-export function create_shielded_account(alias: string, password?: string): any;
+export function create_master_shielded_account(alias: string, seed_phrase: string, password?: string): any;
+/**
+* @param {string} alias
+* @param {string} path
+* @param {string | undefined} password
+* @returns {any}
+*/
+export function create_derived_shielded_account(alias: string, path: string, password?: string): any;
+
+type ShieldedAccountType = {
+    viewing_key: string;
+    spending_key: string;
+    payment_address: string;
+}
+
+
 /**
 */
 export class NodeWithNextId {
@@ -31,21 +47,31 @@ export class ShieldedAccount {
   free(): void;
 /**
 * @param {string} alias
+* @param {string} seed
 * @param {string | undefined} password
 * @returns {any}
 */
-  static new(alias: string, password?: string): any;
+  static new_master_account(alias: string, seed: string, password?: string): any;
+/**
+* @param {string} alias
+* @param {string} path
+* @param {string | undefined} password
+* @returns {any}
+*/
+  static new_derived_account(alias: string, path: string, password?: string): any;
 }
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
+  readonly shieldedaccount_new_master_account: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
+  readonly shieldedaccount_new_derived_account: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
+  readonly create_shielded_transfer: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number) => void;
+  readonly create_master_shielded_account: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
+  readonly create_derived_shielded_account: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
   readonly __wbg_nodewithnextid_free: (a: number) => void;
   readonly nodewithnextid_decode_transaction_with_next_tx_id: (a: number, b: number) => number;
-  readonly shieldedaccount_new: (a: number, b: number, c: number, d: number) => number;
-  readonly create_shielded_transfer: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number) => void;
-  readonly create_shielded_account: (a: number, b: number, c: number, d: number) => number;
   readonly rustsecp256k1_v0_4_1_context_create: (a: number) => number;
   readonly rustsecp256k1_v0_4_1_context_destroy: (a: number) => void;
   readonly rustsecp256k1_v0_4_1_default_illegal_callback_fn: (a: number, b: number) => void;

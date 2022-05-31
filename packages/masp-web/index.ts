@@ -1,6 +1,7 @@
 export {
   MaspWeb,
   MaspShieldedAccount,
-  createShieldedAccount,
+  createShieldedMasterAccount,
+  createShieldedDerivedAccount,
 } from "./src/MaspWeb";
-export type { NodeWithNextId } from "./src/MaspWeb";
+export type { NodeWithNextId, ShieldedAccountType } from "./src/MaspWeb";

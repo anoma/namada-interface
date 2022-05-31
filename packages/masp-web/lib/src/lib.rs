@@ -27,6 +27,19 @@ pub fn create_shielded_transfer(
 }
 
 #[wasm_bindgen]
-pub fn create_shielded_account(alias: String, password: Option<String>) -> JsValue {
-    ShieldedAccount::new(alias, password)
+pub fn create_master_shielded_account(
+    alias: String,
+    seed_phrase: String,
+    password: Option<String>,
+) -> JsValue {
+    ShieldedAccount::new_master_account(alias, seed_phrase, password)
+}
+
+#[wasm_bindgen]
+pub fn create_derived_shielded_account(
+    alias: String,
+    path: String,
+    password: Option<String>,
+) -> JsValue {
+    ShieldedAccount::new_derived_account(alias, path, password)
 }

@@ -6,6 +6,7 @@ import { NewBlockEvents } from "lib/rpc/types";
 import { promiseWithTimeout, stringToHash } from "utils/helpers";
 import { submitTransferTransaction } from "./transfers";
 import { addAccountReducersToBuilder } from "./accountsNew/reducers";
+import { ShieldedAccountType } from "@anoma/masp-web";
 
 export type InitialAccount = {
   alias: string;
@@ -15,6 +16,7 @@ export type InitialAccount = {
   signingKey: string;
   establishedAddress?: string;
   zip32Address?: string;
+  isShielded?: boolean;
 };
 
 export type DerivedAccount = InitialAccount & {
@@ -24,13 +26,30 @@ export type DerivedAccount = InitialAccount & {
   accountInitializationError?: string;
 };
 
+// this is what is unique only to the shielded "Accounts"
+// alias is not needed as the whole account is in hash map under the alias
+export type ShieldedKeysAndPaymentAddress = {
+  spendingKey: string;
+  viewingKey: string;
+  paymentAddress: string;
+};
+
+export type ShieldedAccount = DerivedAccount & {
+  shieldedKeysAndPaymentAddress: ShieldedKeysAndPaymentAddress;
+};
+
 type DerivedAccounts = {
   [id: string]: DerivedAccount;
 };
 
+type ShieldedAccounts = {
+  [id: string]: ShieldedAccount;
+};
+
 export type AccountsState = {
-  isAddingAccountReduxState?: boolean;
+  isAddingAccountInReduxState?: boolean;
   derived: DerivedAccounts;
+  shieldedAccounts: ShieldedAccounts;
 };
 
 const ACCOUNTS_ACTIONS_BASE = "accounts";
@@ -125,8 +144,10 @@ export const submitInitAccountTransaction = createAsyncThunk(
   }
 );
 
+// todo these should likely be just one
 const initialState: AccountsState = {
   derived: {},
+  shieldedAccounts: {},
 };
 
 const accountsSlice = createSlice({

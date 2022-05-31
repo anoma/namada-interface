@@ -9,7 +9,7 @@ import { useAppDispatch, useAppSelector } from "store";
 import { DerivedAccount, AccountsState, addAccount } from "slices/accounts";
 
 import { NewAccountDetails } from "slices/accountsNew";
-import { addAccountToLedger } from "slices/accountsNew/actions";
+import { addAccountToLedger, reset } from "slices/accountsNew/actions";
 
 import { Label } from "components/Input/input.components";
 import { Toggle } from "components/Toggle";
@@ -29,9 +29,8 @@ const MIN_ALIAS_LENGTH = 2;
 export const AddAccount = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { derived, isAddingAccountReduxState } = useAppSelector<AccountsState>(
-    (state) => state.accounts
-  );
+  const { derived, isAddingAccountInReduxState } =
+    useAppSelector<AccountsState>((state) => state.accounts);
   const [isShielded, setIsShielded] = useState<boolean>(true);
   const [alias, setAlias] = useState<string>("");
   const [aliasError, setAliasError] = useState<string>();
@@ -59,6 +58,7 @@ export const AddAccount = (): JSX.Element => {
 
   const handleShieldedToggling = (): void => {
     setIsShielded((isShielded) => !isShielded);
+    dispatch(reset());
   };
 
   const getAccountIndex = (
@@ -146,7 +146,7 @@ export const AddAccount = (): JSX.Element => {
     }
   };
 
-  console.log(isAddingAccountReduxState, "isAddingAccountReduxState");
+  console.log(isAddingAccountInReduxState, "isAddingAccountReduxState");
   return (
     <AccountOverviewContainer>
       <NavigationContainer
@@ -179,14 +179,16 @@ export const AddAccount = (): JSX.Element => {
         ></Select>
       </InputContainer>
 
-      {(isAddingAccountReduxState || isAddingAccount) && (
+      {(isAddingAccountInReduxState || isAddingAccount) && (
         <p>Adding new account...</p>
       )}
       <Button
         variant={ButtonVariant.Contained}
         onClick={handleAddClick}
         disabled={
-          !validateAlias(alias) || isAddingAccountReduxState || isAddingAccount
+          !validateAlias(alias) ||
+          isAddingAccountInReduxState ||
+          isAddingAccount
         }
       >
         Add
