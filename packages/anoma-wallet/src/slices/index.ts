@@ -9,3 +9,5 @@ export {
 } from "./accounts";
 
 export { default as transfersReducer } from "./transfers";
+
+export { default as settingsReducer } from "./settings";

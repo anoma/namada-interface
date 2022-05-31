@@ -2,8 +2,13 @@ import { useParams, useNavigate } from "react-router-dom";
 import { NavigationContainer } from "components/NavigationContainer";
 import { Heading, HeadingLevel } from "components/Heading";
 import { SettingsAccountSettingsContainer } from "./SettingsAccountSettings.components";
-import { useAppSelector } from "store";
-import { DerivedAccount } from "slices/accounts";
+import { useAppDispatch, useAppSelector } from "store";
+import { DerivedAccount, removeAccount, renameAccount } from "slices/accounts";
+import { Input } from "components/Input";
+import { Button, ButtonVariant } from "components/Button";
+import { Address } from "App/Token/Transfers/TransferDetails.components";
+import { TopLevelRoute } from "App/types";
+import { InputContainer } from "App/AccountOverview/AccountOverview.components";
 
 type SettingsAccountSettingsParams = {
   // account alias hash of the account to set up
@@ -17,9 +22,21 @@ export const SettingsAccountSettings = (): JSX.Element => {
   const params = useParams<SettingsAccountSettingsParams>();
   const navigate = useNavigate();
   const { derived } = useAppSelector((state) => state.accounts);
+  const dispatch = useAppDispatch();
 
   const { id = "" } = params;
   const account: DerivedAccount = derived[id];
+
+  const handleDeleteAccount = (): void => {
+    if (
+      prompt(
+        `Please type in ${account.alias} if you're sure you want to delete this account`
+      ) == account.alias
+    ) {
+      dispatch(removeAccount(account.id));
+      navigate(TopLevelRoute.SettingsAccounts);
+    }
+  };
 
   return (
     <SettingsAccountSettingsContainer>
@@ -32,46 +49,44 @@ export const SettingsAccountSettings = (): JSX.Element => {
       </NavigationContainer>
 
       {account && (
-        <div style={{ width: "100%" }}>
-          <p>
-            <b>Alias:</b>
-          </p>
-          <p>{account.alias}</p>
+        <InputContainer>
+          <Input
+            label="Alias:"
+            value={account.alias}
+            onChangeCallback={(e) =>
+              dispatch(renameAccount([account.id, e.target.value]))
+            }
+          />
           <p>
             <b>Token Type:</b>
           </p>
           <p>{account.tokenType}</p>
           <p>
-            <b>Address (WIF):</b>
-          </p>
-          <pre>{account.address}</pre>
-          <p>
             <b>Established Address:</b>
           </p>
-          <pre style={{ width: "100%", overflow: "auto" }}>
-            {account.establishedAddress}
-          </pre>
+          {account.establishedAddress ? (
+            <Address>{account.establishedAddress}</Address>
+          ) : (
+            <em>Account not yet initialized</em>
+          )}
           <p>
             <b>Ed25519 Public Key:</b>
           </p>
-          <pre style={{ width: "100%", overflow: "auto" }}>
-            {account.publicKey}
-          </pre>
+          <Address>{account.publicKey}</Address>
           <p>
             <b>Ed25519 Signing Key:</b>
           </p>
-          <pre style={{ width: "100%", overflow: "auto" }}>
-            {account.signingKey}
-          </pre>
-        </div>
+          <Address>{account.signingKey}</Address>
+
+          <Button
+            variant={ButtonVariant.ContainedAlternative}
+            onClick={handleDeleteAccount}
+            style={{ marginLeft: 0 }}
+          >
+            Delete Account
+          </Button>
+        </InputContainer>
       )}
-      <a
-        href="https://github.com/anoma/spec/blob/master/src/architecture/namada/web-wallet/user-interfaces.md#accountoverview-1"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Spec &gt; SettingsAccountSettings
-      </a>
     </SettingsAccountSettingsContainer>
   );
 };

@@ -9,7 +9,7 @@ export type Option<T> = {
 
 type Props<T = string | number> = {
   value: T;
-  label?: string;
+  label?: string | JSX.Element;
   data: Option<T>[];
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void | Promise<void>;
 };

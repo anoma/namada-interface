@@ -3,6 +3,7 @@ import { NavigationContainer } from "components/NavigationContainer";
 import { TopLevelRoute } from "App/types";
 import { Heading, HeadingLevel } from "components/Heading";
 import { Button, ButtonVariant } from "components/Button";
+import { formatRoute } from "utils/helpers";
 
 import {
   SettingsAccountsContainer,
@@ -12,23 +13,24 @@ import {
   AccountNameContainerOverflow,
   AccountButtonContainer,
   NewAccountButtonContainer,
+  AccountAlias,
 } from "./SettingsAccounts.components";
-
-type SettingsAccountsProps = {
-  // currently selected account alias
-  selectedAccountAlias?: string;
-
-  // all persisted account aliases
-  accounts: string[];
-};
+import { useAppSelector } from "store";
+import { AccountsState } from "slices/accounts";
 
 /**
  * Listing all the accounts that are persisted. By clicking one of them the account
  * gets selected to be the current active account. User can initiate a flow to add a new account
  */
-export const SettingsAccounts = (props: SettingsAccountsProps): JSX.Element => {
-  const { accounts } = props;
+export const SettingsAccounts = (): JSX.Element => {
+  const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
+  const accounts = Object.values(derived);
+  const currentAccount = useAppSelector(
+    (state) => state.settings.selectedAccountID
+  );
+
   const navigate = useNavigate();
+
   return (
     <SettingsAccountsContainer>
       <NavigationContainer
@@ -42,17 +44,29 @@ export const SettingsAccounts = (props: SettingsAccountsProps): JSX.Element => {
       <AccountRows>
         {accounts.map((account) => {
           return (
-            <AccountRow key={account}>
+            <AccountRow
+              style={
+                currentAccount == account.id
+                  ? { border: "solid 1px #002046" }
+                  : { border: 0 }
+              }
+              key={account.alias}
+            >
+              <AccountAlias>{account.alias}</AccountAlias>
               <AccountNameContainer>
                 <AccountNameContainerOverflow>
-                  <Heading level={HeadingLevel.Three}>{account}</Heading>
+                  <Heading level={HeadingLevel.Three}>
+                    {account.address}
+                  </Heading>
                 </AccountNameContainerOverflow>
               </AccountNameContainer>
               <AccountButtonContainer>
                 <Button
                   onClick={() => {
                     navigate(
-                      `${TopLevelRoute.SettingsAccountSettings}/${account}`
+                      formatRoute(TopLevelRoute.SettingsAccountSettings, {
+                        id: account.id,
+                      })
                     );
                   }}
                   variant={ButtonVariant.Contained}
@@ -67,7 +81,7 @@ export const SettingsAccounts = (props: SettingsAccountsProps): JSX.Element => {
       <NewAccountButtonContainer>
         <Button
           onClick={() => {
-            navigate(`${TopLevelRoute.AccountCreation}`);
+            navigate(TopLevelRoute.WalletAddAccount);
           }}
           variant={ButtonVariant.Contained}
           style={{ marginLeft: "0" }}

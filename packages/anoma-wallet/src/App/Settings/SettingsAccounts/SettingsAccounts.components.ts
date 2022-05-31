@@ -18,6 +18,7 @@ export const AccountRows = styled.div`
   width: 100%;
   margin: 18px 0 0;
   overflow-y: scroll;
+  padding: 2px;
 `;
 export const AccountRow = styled.div`
   display: flex;
@@ -27,6 +28,11 @@ export const AccountRow = styled.div`
   width: 100%;
   border-radius: 8px;
   margin-bottom: 8px;
+
+  &:hover {
+    background-color: #dedede;
+    cursor: pointer;
+  }
 `;
 
 export const AccountNameContainer = styled.div`
@@ -68,4 +74,9 @@ export const NewAccountButtonContainer = styled.div`
 
   width: 100%;
   margin: 32px 0 0;
+`;
+
+export const AccountAlias = styled.span`
+  font-weight: 600;
+  padding: 8px;
 `;
