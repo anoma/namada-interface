@@ -262,10 +262,14 @@ const accountsSlice = createSlice({
       const account = meta.arg;
       const { id } = account;
 
-      state.derived[id].isInitializing = false;
-      state.derived[id].accountInitializationError = error
-        ? error.message
-        : "Error initializing account";
+      // TODO this is now triggering for the shielded accounts. Once
+      // transparent and shielded are refactored together, check this out
+      if (state.derived[id]) {
+        state.derived[id].isInitializing = false;
+        state.derived[id].accountInitializationError = error
+          ? error.message
+          : "Error initializing account";
+      }
     });
 
     builder.addCase(

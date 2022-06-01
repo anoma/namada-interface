@@ -146,7 +146,6 @@ export const AddAccount = (): JSX.Element => {
     }
   };
 
-  console.log(isAddingAccountInReduxState, "isAddingAccountReduxState");
   return (
     <AccountOverviewContainer>
       <NavigationContainer

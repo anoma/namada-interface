@@ -1,5 +1,13 @@
 import styled from "styled-components/macro";
 
+export const AccountsDetailsNavContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 4px 0 0 0;
+`;
+
 export const TokenDetailContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -43,8 +51,16 @@ export const TransactionListItem = styled.li`
 
 export const SettingsButton = styled.button`
   margin: 0 8px 0 0;
+  padding: 16px;
   border: none;
   background: none;
+
+  border-radius: 4px;
+  transition: all 0.3s;
+  cursor: pointer;
+  &:hover {
+    background-color: #f7f7f7;
+  }
 `;
 
 export const ButtonsContainer = styled.div`
