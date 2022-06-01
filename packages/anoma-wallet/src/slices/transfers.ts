@@ -138,10 +138,8 @@ export const submitTransferTransaction = createAsyncThunk(
 
     const { promise, timeoutId } = promiseWithTimeout<NewBlockEvents>(
       new Promise(async (resolve) => {
-        console.log("broadcasting tx");
         await socketClient.broadcastTx(bytes);
         const events = await socketClient.subscribeNewBlock(hash);
-        console.log(events);
         resolve(events);
       }),
       LEDGER_TRANSFER_TIMEOUT,
