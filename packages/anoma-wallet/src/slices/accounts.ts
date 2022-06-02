@@ -24,6 +24,7 @@ export type DerivedAccount = InitialAccount & {
   balance: number;
   isInitializing?: boolean;
   accountInitializationError?: string;
+  shieldedKeysAndPaymentAddress?: ShieldedKeysAndPaymentAddress;
 };
 
 // this is what is unique only to the shielded "Accounts"
@@ -36,6 +37,15 @@ export type ShieldedKeysAndPaymentAddress = {
 
 export type ShieldedAccount = DerivedAccount & {
   shieldedKeysAndPaymentAddress: ShieldedKeysAndPaymentAddress;
+};
+
+// type predicate to figure out if the account is shielded or transparent
+export const isShieldedAccount = (
+  account: DerivedAccount | ShieldedAccount
+): account is ShieldedAccount => {
+  return (
+    (account as ShieldedAccount).shieldedKeysAndPaymentAddress !== undefined
+  );
 };
 
 type DerivedAccounts = {
@@ -134,7 +144,6 @@ export const submitInitAccountTransaction = createAsyncThunk(
           target: establishedAddress || "",
           amount: 1000,
           memo: "Initial funds",
-          shielded: false,
           useFaucet: true,
         })
       );

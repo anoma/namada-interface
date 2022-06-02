@@ -15,7 +15,7 @@ type TransactionData = {
 
 type ShieldedTransactionData = TransactionData & {
   shieldedTransaction: Uint8Array;
-}
+};
 
 class Transfer {
   private _txCode: Uint8Array | undefined;
@@ -51,13 +51,14 @@ class Transfer {
       this._txCode || new Uint8Array() // Transaction wasm
     );
   }
-  
+
   // this creates a transfer from the passed in data.
   // returns 2 things:
   // 1. hash that is used to observe the inclusion of this transaction
   // 2. bytes that is the transaction, this is broadcasted to the ledger
-  public async makeShieldedTransfer(shieldedTransactionDetails: ShieldedTransactionData): Promise<{ hash: string; bytes: Uint8Array }> {
-    
+  public async makeShieldedTransfer(
+    shieldedTransactionDetails: ShieldedTransactionData
+  ): Promise<{ hash: string; bytes: Uint8Array }> {
     // TODO
     // for now setting gasLimit and feeAmount to constant values
     const {
@@ -82,13 +83,11 @@ class Transfer {
       gasLimit, // Gas limit multiplier
       feeAmount, // Fee amount
       this._txCode || new Uint8Array(), // Transaction wasm
-      shieldedTransaction,
+      shieldedTransaction
     );
 
     return hashAndBytes;
   }
 }
-
-
 
 export default Transfer;

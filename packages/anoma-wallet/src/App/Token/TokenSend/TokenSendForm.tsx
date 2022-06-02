@@ -52,11 +52,14 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
   const [showQrReader, setShowQrReader] = useState(false);
   const [qrCodeError, setQrCodeError] = useState<string>();
 
-  const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
+  const { derived, shieldedAccounts } = useAppSelector<AccountsState>(
+    (state) => state.accounts
+  );
   const { isTransferSubmitting, transferError, events } =
     useAppSelector<TransfersState>((state) => state.transfers);
 
-  const account = derived[accountId] || {};
+  const transparentAndShieldedAccounts = { ...derived, ...shieldedAccounts };
+  const account = transparentAndShieldedAccounts[accountId] || {};
   const { alias, establishedAddress = "", tokenType, balance = 0 } = account;
   const token = Tokens[tokenType] || {};
 
@@ -104,14 +107,13 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
   }, []);
 
   const handleOnSendClick = (): void => {
-    if (target && token.address) {
+    if ((isShielded && target) || (target && token.address)) {
       dispatch(
         submitTransferTransaction({
           account,
           target,
           amount,
           memo,
-          shielded: isShielded,
         })
       );
     }
@@ -231,12 +233,13 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
       </StatusContainer>
 
       <ButtonsContainer>
+        {console.log("reverse this === 0 before commit")}
         <Button
           variant={ButtonVariant.Contained}
           disabled={
             amount > balance ||
             target === "" ||
-            amount === 0 ||
+            // amount === 0 || //
             !isMemoValid(memo) ||
             !isTargetValid ||
             isTransferSubmitting

@@ -4,14 +4,20 @@ import { FAUCET_ADDRESS, Tokens, TokenType, TxResponse } from "constants/";
 import { RpcClient, SocketClient, Transfer } from "lib";
 import { NewBlockEvents } from "lib/rpc/types";
 import { amountFromMicro, promiseWithTimeout } from "utils/helpers";
-import { DerivedAccount, fetchBalanceByAccount } from "./accounts";
+import {
+  DerivedAccount,
+  ShieldedAccount,
+  fetchBalanceByAccount,
+  ShieldedKeysAndPaymentAddress,
+  isShieldedAccount,
+} from "./accounts";
 
 import { createShieldedTransfer } from "./shieldedTransfer";
-enum TransferType {
-  IBC = "IBC",
-  Shielded = "Shielded",
-  NonShielded = "Non-Shielded",
-}
+
+const TRANSFERS_ACTIONS_BASE = "transfers";
+const LEDGER_TRANSFER_TIMEOUT = 10000;
+const MASP_ADDRESS =
+  "atest1v4ehgw36gc6yxvpjxccyzvphxycrxw2xxsuyydesxgcnjs3cg9znwv3cxgmnj32yxy6rssf5tcqjm3";
 
 export type TransferTransaction = {
   source: string;
@@ -26,11 +32,6 @@ export type TransferTransaction = {
   timestamp: number;
 };
 
-type TransferEvents = {
-  gas: number;
-  appliedHash: string;
-};
-
 export type TransfersState = {
   transactions: TransferTransaction[];
   isTransferSubmitting: boolean;
@@ -38,7 +39,16 @@ export type TransfersState = {
   events?: TransferEvents;
 };
 
-const TRANSFERS_ACTIONS_BASE = "transfers";
+enum TransferType {
+  IBC = "IBC",
+  Shielded = "Shielded",
+  NonShielded = "Non-Shielded",
+}
+
+type TransferEvents = {
+  gas: number;
+  appliedHash: string;
+};
 
 enum TransfersThunkActions {
   SubmitTransferTransaction = "submitTransferTransaction",
@@ -48,23 +58,132 @@ const { network, wsNetwork } = new Config();
 const rpcClient = new RpcClient(network);
 const socketClient = new SocketClient(wsNetwork);
 
+// this data is being passed from the UI
 type TxTransferArgs = {
-  account: DerivedAccount;
+  account: DerivedAccount | ShieldedAccount;
   target: string;
   amount: number;
   memo: string;
-  shielded: boolean;
   useFaucet?: boolean;
 };
 
-const LEDGER_TRANSFER_TIMEOUT = 10000;
+// data passed from the UI for a shielded transfer
+type ShieldedTransferData = TxTransferArgs & {
+  account: ShieldedAccount;
+  shieldedKeysAndPaymentAddress: ShieldedKeysAndPaymentAddress;
+};
 
+type TransferHashAndBytes = {
+  transferType: TransferType;
+  transferHash: string;
+  transferAsBytes: Uint8Array;
+};
+
+type TransferData = {
+  source: string;
+  target: string;
+  token: string;
+  amount: number;
+  epoch: number;
+  privateKey: string;
+};
+
+const createShieldedTransaction = async (
+  spendingKey: string,
+  paymentAddress: string,
+  tokenValue: number // 1 ETC, 0.2 ETC, etc. the token value as the user entered it, division by 1_000_000 should have not been performed yet
+): Promise<Uint8Array> => {
+  const transferAmount = tokenValue * 1_000_000;
+  const shieldedTransaction = await createShieldedTransfer(
+    transferAmount,
+    spendingKey,
+    paymentAddress
+  );
+  return Promise.resolve(shieldedTransaction);
+};
+
+// this creates the transfer that is being submitted to the ledger, if the transfer is shielded
+// it will first create the shielded transfer that is included in the "parent" transfer
+const createTransfer = async (
+  transfer: Transfer,
+  sourceAccount: DerivedAccount | ShieldedAccount,
+  transferData: TransferData
+): Promise<TransferHashAndBytes> => {
+  if (isShieldedAccount(sourceAccount)) {
+    const { shieldedKeysAndPaymentAddress } = sourceAccount;
+
+    // we generate the shielded transfer
+    const shieldedTransaction = await createShieldedTransaction(
+      shieldedKeysAndPaymentAddress.spendingKey,
+      transferData.target,
+      transferData.amount
+    );
+
+    // we set the source and target addresses to masp (shielded -> shielded)
+    const transferDataWithMaspAddress = {
+      ...transferData,
+      source: MASP_ADDRESS,
+      target: MASP_ADDRESS,
+    };
+
+    // generate the transfer
+    const hashAndBytes = await transfer.makeShieldedTransfer({
+      ...transferDataWithMaspAddress,
+      shieldedTransaction,
+    });
+
+    return {
+      transferType: TransferType.Shielded,
+      transferHash: hashAndBytes.hash,
+      transferAsBytes: hashAndBytes.bytes,
+    };
+  } else {
+    const hashAndBytes = await transfer.makeTransfer(transferData);
+    return {
+      transferType: TransferType.NonShielded,
+      transferHash: hashAndBytes.hash,
+      transferAsBytes: hashAndBytes.bytes,
+    };
+  }
+};
+
+// this takes care of 4 different variations
+// in transparent transactions we just send source and target to ledger,
+// when funds move between transparent and shielded we move them from
+// users account to masp account, which is the single pool for chain
+// in transparent transfers we additionally need to generate the transfer
+// the source is always spendingKey and target is paymentAddress
+//
+// transparent -> transparent
+// to ledger: account.establishedAddress -> target
+//
+// shielded -> shielded
+// to ledger: maspAddress -> maspAddress
+// to tx generation: shieldedKeysAndPaymentAddress?.spendingKey -> target
+//
+// transparent -> shielded
+// to ledger: account.establishedAddress -> maspAddress
+// tx generation: shieldedKeysAndPaymentAddress?.spendingKey -> target
+//
+// shielded -> transparent
+// to ledger: maspAddress -> ledger: account.establishedAddress
+// to tx generation: shieldedKeysAndPaymentAddress?.spendingKey -> target
+
+// const isShieldedTransfer = (
+//   transferData: TxTransferArgs | ShieldedTransferData
+// ): transferData is ShieldedTransferData => {
+//   return (
+//     (transferData as ShieldedTransferData).shieldedKeysAndPaymentAddress !==
+//     undefined
+//   );
+// };
 export const submitTransferTransaction = createAsyncThunk(
   `${TRANSFERS_ACTIONS_BASE}/${TransfersThunkActions.SubmitTransferTransaction}`,
   async (
-    { account, target, amount, memo, shielded, useFaucet }: TxTransferArgs,
+    txTransferArgs: TxTransferArgs | ShieldedTransferData,
     { dispatch, rejectWithValue }
   ) => {
+    const { account, target, amount, memo, useFaucet } = txTransferArgs;
     const {
       id,
       establishedAddress = "",
@@ -74,10 +193,11 @@ export const submitTransferTransaction = createAsyncThunk(
 
     const source = useFaucet ? FAUCET_ADDRESS : establishedAddress;
 
+    rejectWithValue("TODO remove this");
     const epoch = await rpcClient.queryEpoch();
     const transfer = await new Transfer().init();
-    const token = Tokens[tokenType];
-    const transferData = {
+    const token = Tokens[tokenType]; // TODO refactor, no need for separate Tokens and tokenType
+    const transferData: TransferData = {
       source,
       target,
       token: token.address || "",
@@ -85,61 +205,16 @@ export const submitTransferTransaction = createAsyncThunk(
       epoch,
       privateKey,
     };
-
-    // we get the hash and bytes for the transaction
-    let hash: string;
-    let bytes: Uint8Array;
-
-    // memas-spending-key-5
-    const spendingKey =
-      "xsktest1qqqqqqqqqqqqqqp5testsunq45vj6qgqr75zdu4h2jmuynj3gfd3p42ackctytcvzsmf97xgqz74gysv58xu0l0n77flhyavj4he27fvp96jwf8kkqesu9c95gcyjlwsn4axc2y7l84jfw34dmncs2ua5elg6jyk3lxzkacqfvwevsesftgkcwl483smj6j4glujk6x472qqf6u8ze65ads0fc8msunws09yn3cnxq832f2chqlhf0rhxzwvm72us3s3zmwzg06rhcqt0f54m";
-
-    // ACCOUNT_5_NAME-established
-    const transparentAddress =
-      "atest1v4ehgw368ymyyvfcgye5zwfhg5crjwzz8pzy23fkggenwd35gcc5xw2pxdp5gw2pgyunzw2pdmjf6h";
-    const shieldedInput = false;
-    const inputAddress = shieldedInput ? spendingKey : transparentAddress;
-
-    // memas-payment-address-1
-    const paymentAddress =
-      "patest1cdrf76r0lv8dyww0mdt7mqrau864xqu7qav54k2zc57kmtmd7jccurkznl36mrvqarhmsnp5phc";
-
-    if (shielded) {
-      // big TODO: think about the whole concept of how the UX for the shielded
-      // transactions should be.
-      //
-      // if it is shielded we have to first generate it and it will then be included
-      // in regular transaction
-      const amountInMicros = amount * 1_000_000;
-      const shieldedTransaction = await createShieldedTransfer(
-        amountInMicros,
-        inputAddress,
-        paymentAddress
-      );
-      const transferDataForMaspTesting = {
-        ...transferData,
-        source: shieldedInput
-          ? "atest1v4ehgw36xaryysfsx5unvve4g5my2vjz89p52sjxxgenzd348yuyyv3hg3pnjs35g5unvde4ca36y5"
-          : transparentAddress,
-        target:
-          "atest1v4ehgw36xaryysfsx5unvve4g5my2vjz89p52sjxxgenzd348yuyyv3hg3pnjs35g5unvde4ca36y5",
-      };
-      const hashAndBytes = await transfer.makeShieldedTransfer({
-        ...transferDataForMaspTesting,
-        shieldedTransaction,
-      });
-      hash = hashAndBytes.hash;
-      bytes = hashAndBytes.bytes;
-    } else {
-      const hashAndBytes = await transfer.makeTransfer(transferData);
-      hash = hashAndBytes.hash;
-      bytes = hashAndBytes.bytes;
-    }
-
+    const createdTransfer = await createTransfer(
+      transfer,
+      account,
+      transferData
+    );
+    const { transferHash, transferAsBytes, transferType } = createdTransfer;
     const { promise, timeoutId } = promiseWithTimeout<NewBlockEvents>(
       new Promise(async (resolve) => {
-        await socketClient.broadcastTx(bytes);
-        const events = await socketClient.subscribeNewBlock(hash);
+        await socketClient.broadcastTx(transferAsBytes);
+        const events = await socketClient.subscribeNewBlock(transferHash);
         resolve(events);
       }),
       LEDGER_TRANSFER_TIMEOUT,
@@ -176,7 +251,7 @@ export const submitTransferTransaction = createAsyncThunk(
         gas,
         height,
         timestamp: new Date().getTime(),
-        type: shielded ? TransferType.Shielded : TransferType.NonShielded,
+        type: transferType,
       },
     };
   }
@@ -199,12 +274,14 @@ const transfersSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(submitTransferTransaction.pending, (state) => {
+      console.log("submitTransferTransaction.pending");
       state.isTransferSubmitting = true;
       state.transferError = undefined;
       state.events = undefined;
     });
 
     builder.addCase(submitTransferTransaction.rejected, (state, action) => {
+      console.log("submitTransferTransaction.rejected");
       const { error } = action;
       state.isTransferSubmitting = false;
       state.transferError = error.message;
@@ -221,6 +298,7 @@ const transfersSlice = createSlice({
           transaction: TransferTransaction;
         }>
       ) => {
+        console.log("submitTransferTransaction.fulfilled");
         const { useFaucet, transaction } = action.payload;
         const { gas, appliedHash } = transaction;
 

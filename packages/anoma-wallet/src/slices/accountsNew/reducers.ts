@@ -20,7 +20,8 @@ export const addAccountReducersToBuilder = (
       if (payload) {
         const { shieldedKeysAndAddress, newAccountDetails } = payload;
         const { alias, tokenType } = newAccountDetails;
-        state.shieldedAccounts[alias] = {
+        const uuid = crypto.randomUUID();
+        state.shieldedAccounts[uuid] = {
           shieldedKeysAndPaymentAddress: shieldedKeysAndAddress,
           isShielded: true,
           alias: alias,
@@ -31,7 +32,7 @@ export const addAccountReducersToBuilder = (
           tokenType: tokenType,
           signingKey: "signingKey",
           publicKey: "publicKey",
-          id: alias,
+          id: uuid,
         };
       }
     })

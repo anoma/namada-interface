@@ -12,6 +12,7 @@ import { Heading, HeadingLevel } from "components/Heading";
 import { NavigationContainer } from "components/NavigationContainer";
 import { Select, Option } from "components/Select";
 import { TokenSendContainer } from "./TokenSend.components";
+import { addAbortSignal } from "stream";
 
 type TokenSendParams = {
   id: string;
@@ -21,7 +22,9 @@ type TokenSendParams = {
 
 const TokenSend = (): JSX.Element => {
   const navigate = useNavigate();
-  const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
+  const { derived, shieldedAccounts } = useAppSelector<AccountsState>(
+    (state) => state.accounts
+  );
   const { id, target, tokenType } = useParams<TokenSendParams>();
 
   const [selectedAccountId, setSelectedAccountId] = useState<
@@ -29,9 +32,10 @@ const TokenSend = (): JSX.Element => {
   >(id);
   const [accountsData, setAccounts] = useState<Option<string>[]>();
 
+  const transparentAndShieldedAccounts = { ...derived, ...shieldedAccounts };
   // Collect any accounts matching tokenType
   const accounts = tokenType
-    ? Object.keys(derived)
+    ? Object.keys(transparentAndShieldedAccounts)
         .map((hash: string) => ({
           id: hash,
           alias: derived[hash].alias,
@@ -39,6 +43,7 @@ const TokenSend = (): JSX.Element => {
         }))
         .filter((account) => account.tokenType === tokenType)
     : [];
+  console.log(accounts, "accounts");
 
   useEffect(() => {
     if (!selectedAccountId && accounts.length > 0) {
@@ -51,7 +56,6 @@ const TokenSend = (): JSX.Element => {
       setAccounts(accountsData);
     }
   }, [accounts]);
-
   return (
     <TokenSendContainer>
       <NavigationContainer
