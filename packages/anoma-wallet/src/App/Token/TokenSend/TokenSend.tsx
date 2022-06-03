@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { AccountsState } from "slices/accounts";
+import { TransferType } from "slices/transfers";
 import { useAppSelector } from "store";
 import { TopLevelRoute } from "App/types";
 import { TokenType } from "constants/";
@@ -13,6 +14,29 @@ import { NavigationContainer } from "components/NavigationContainer";
 import { Select, Option } from "components/Select";
 import { TokenSendContainer } from "./TokenSend.components";
 import { addAbortSignal } from "stream";
+import {
+  PAYMENT_ADDRESS_LENGTH,
+  PAYMENT_ADDRESS_PREFIX,
+  ESTABLISHED_ADDRESS_LENGTH,
+  ESTABLISHED_ADDRESS_PREFIX,
+} from "./types";
+
+export const parseTarget = (target: string): TransferType | undefined => {
+  if (
+    target.startsWith(PAYMENT_ADDRESS_PREFIX) &&
+    target.length === PAYMENT_ADDRESS_LENGTH
+  ) {
+    return TransferType.Shielded;
+  } else if (
+    target.startsWith(ESTABLISHED_ADDRESS_PREFIX) &&
+    target.length === ESTABLISHED_ADDRESS_LENGTH
+  ) {
+    return TransferType.NonShielded;
+  }
+
+  // likely we can unify the form errors and return an object describing the error here
+  return undefined;
+};
 
 type TokenSendParams = {
   id: string;

@@ -39,10 +39,10 @@ export type TransfersState = {
   events?: TransferEvents;
 };
 
-enum TransferType {
+export enum TransferType {
   IBC = "IBC",
   Shielded = "Shielded",
-  NonShielded = "Non-Shielded",
+  NonShielded = "Non-Shielded", // TODO: Rename to Transparent
 }
 
 type TransferEvents = {
@@ -105,13 +105,12 @@ const createShieldedTransaction = async (
 // this creates the transfer that is being submitted to the ledger, if the transfer is shielded
 // it will first create the shielded transfer that is included in the "parent" transfer
 const createTransfer = async (
-  transfer: Transfer,
   sourceAccount: DerivedAccount | ShieldedAccount,
   transferData: TransferData
 ): Promise<TransferHashAndBytes> => {
+  const transfer = await new Transfer().init();
   if (isShieldedAccount(sourceAccount)) {
     const { shieldedKeysAndPaymentAddress } = sourceAccount;
-
     // we generate the shielded transfer
     const shieldedTransaction = await createShieldedTransaction(
       shieldedKeysAndPaymentAddress.spendingKey,
@@ -119,6 +118,10 @@ const createTransfer = async (
       transferData.amount
     );
 
+    // TODO, this is just a placeholder to have the Tx go through when when creating the Tx to post to the ledger
+    // check out what the web RUST code does in this regard, likely we can omit this
+    transferData.privateKey =
+      "cf0805f7675f3a17db1769f12541449d53935f50dab8590044f8a4cd3454ec4f";
     // we set the source and target addresses to masp (shielded -> shielded)
     const transferDataWithMaspAddress = {
       ...transferData,
@@ -126,7 +129,7 @@ const createTransfer = async (
       target: MASP_ADDRESS,
     };
 
-    // generate the transfer
+    // generate the transfer that contains the shielded transaction
     const hashAndBytes = await transfer.makeShieldedTransfer({
       ...transferDataWithMaspAddress,
       shieldedTransaction,
@@ -190,12 +193,8 @@ export const submitTransferTransaction = createAsyncThunk(
       tokenType,
       signingKey: privateKey,
     } = account;
-
     const source = useFaucet ? FAUCET_ADDRESS : establishedAddress;
-
-    rejectWithValue("TODO remove this");
     const epoch = await rpcClient.queryEpoch();
-    const transfer = await new Transfer().init();
     const token = Tokens[tokenType]; // TODO refactor, no need for separate Tokens and tokenType
     const transferData: TransferData = {
       source,
@@ -205,11 +204,7 @@ export const submitTransferTransaction = createAsyncThunk(
       epoch,
       privateKey,
     };
-    const createdTransfer = await createTransfer(
-      transfer,
-      account,
-      transferData
-    );
+    const createdTransfer = await createTransfer(account, transferData);
     const { transferHash, transferAsBytes, transferType } = createdTransfer;
     const { promise, timeoutId } = promiseWithTimeout<NewBlockEvents>(
       new Promise(async (resolve) => {
@@ -274,14 +269,12 @@ const transfersSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(submitTransferTransaction.pending, (state) => {
-      console.log("submitTransferTransaction.pending");
       state.isTransferSubmitting = true;
       state.transferError = undefined;
       state.events = undefined;
     });
 
     builder.addCase(submitTransferTransaction.rejected, (state, action) => {
-      console.log("submitTransferTransaction.rejected");
       const { error } = action;
       state.isTransferSubmitting = false;
       state.transferError = error.message;
@@ -298,7 +291,6 @@ const transfersSlice = createSlice({
           transaction: TransferTransaction;
         }>
       ) => {
-        console.log("submitTransferTransaction.fulfilled");
         const { useFaucet, transaction } = action.payload;
         const { gas, appliedHash } = transaction;
 

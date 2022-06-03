@@ -12,6 +12,7 @@ import {
   clearEvents,
   submitTransferTransaction,
   TransfersState,
+  TransferType,
 } from "slices/transfers";
 import { useAppDispatch, useAppSelector } from "store";
 import { Tokens } from "constants/";
@@ -32,7 +33,7 @@ import {
 import { Toggle } from "components/Toggle";
 import { Icon, IconName } from "components/Icon";
 import { Address } from "../Transfers/TransferDetails.components";
-
+import { parseTarget } from "./TokenSend";
 type Props = {
   accountId: string;
   defaultTarget?: string;
@@ -40,6 +41,19 @@ type Props = {
 
 const { network } = new Config();
 const rpcClient = new RpcClient(network);
+
+// if the transfer target is not TransferType.Shielded we perform the validation logic
+const validateAmount = (
+  transferAmount: number,
+  balance: number,
+  targetAddress: string | undefined
+): string | undefined => {
+  const transferTypeBasedOnTarget = targetAddress && parseTarget(targetAddress);
+  if (transferTypeBasedOnTarget === TransferType.Shielded) {
+    return undefined;
+  }
+  return transferAmount <= balance ? undefined : "Invalid amount!";
+};
 
 const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -90,6 +104,19 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
     // Validate target address
     (async () => {
       if (target) {
+        // if the target is PaymentAddress, we toggle the transfer to shielded
+        // TODO: take care of all case
+        const transferTypeBasedOnAddress = parseTarget(target);
+        if (transferTypeBasedOnAddress === TransferType.Shielded) {
+          setIsShielded(true);
+          setIsTargetValid(true);
+          return;
+        } else if (transferTypeBasedOnAddress === TransferType.NonShielded) {
+          setIsShielded(false);
+        } else {
+          setIsShielded(false);
+        }
+        // we dont allow the funds to be sent to source address
         if (target === establishedAddress) {
           setIsTargetValid(false);
         } else {
@@ -105,6 +132,10 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
       dispatch(clearEvents());
     };
   }, []);
+
+  useEffect(() => {
+    console.log(target, "target changed");
+  }, [target]);
 
   const handleOnSendClick = (): void => {
     if ((isShielded && target) || (target && token.address)) {
@@ -188,7 +219,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
               setAmount(parseFloat(`${value}`));
             }}
             onFocus={handleFocus}
-            error={amount <= balance ? undefined : "Invalid amount!"}
+            error={validateAmount(amount, balance, target)}
           />
         </InputContainer>
         <InputContainer>
@@ -237,10 +268,10 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
         <Button
           variant={ButtonVariant.Contained}
           disabled={
-            amount > balance ||
             target === "" ||
+            // amount > balance ||
             // amount === 0 || //
-            !isMemoValid(memo) ||
+            // !isMemoValid(memo) ||
             !isTargetValid ||
             isTransferSubmitting
           }
