@@ -46,8 +46,16 @@ const IBCTransfer = (): JSX.Element => {
   const { isIbcTransferSubmitting, transferError, events } =
     useAppSelector<TransfersState>((state) => state.transfers);
   const { chain } = Config;
-  const defaultChain = Object.values(chain)[0];
-  const [selectedChainId, setSelectedChain] = useState(defaultChain.id);
+  const { ibc } = chain;
+
+  const defaultIbcChain = ibc[0];
+  const [selectedChainId, setSelectedChain] = useState(defaultIbcChain.id);
+
+  const selectChainData = ibc.map((chain) => ({
+    value: chain.id,
+    label: chain.alias,
+  }));
+
   const channels = channelsByChain[selectedChainId] || [];
   const selectChannelsData = channels.map((channel: string) => ({
     value: channel,
@@ -66,13 +74,7 @@ const IBCTransfer = (): JSX.Element => {
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
 
-  const chains = Object.values(chain);
-  const selectChainData = chains.map(({ id, name }) => ({
-    value: id,
-    label: name,
-  }));
-
-  const { ibcPortId: portId = "transfer" } = chain[selectedChainId];
+  const { portId = "transfer" } = defaultIbcChain;
 
   useEffect(() => {
     return () => {

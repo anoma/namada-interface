@@ -41,8 +41,11 @@ const TransferDetail = (): JSX.Element => {
     destinationChannel,
     destinationPort,
   } = ibcTransfer || {};
-  const chain = Config.chain[chainId] || {};
-  const chainName = chain.name;
+
+  const { ibc = [] } = Config.chain;
+
+  const chain = ibc.find((chain) => chain.id === chainId);
+  const chainAlias = chain?.alias;
 
   const dateTimeFormatted = stringFromTimestamp(timestamp);
 
@@ -74,7 +77,7 @@ const TransferDetail = (): JSX.Element => {
             Destination Chain:
             <br />
             <strong>
-              {chainName}
+              {chainAlias}
               <br />
               {chainId}
             </strong>
