@@ -1,15 +1,18 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { defaultChainId } from "config/chain";
 
 const SETTINGS_ACTIONS_BASE = "settings";
 
 export type SettingsState = {
   fiatCurrency: string;
   network: string;
+  activeChainId: string;
 };
 
 const initialState: SettingsState = {
   fiatCurrency: "USD",
   network: "default",
+  activeChainId: defaultChainId,
 };
 
 const settingsSlice = createSlice({

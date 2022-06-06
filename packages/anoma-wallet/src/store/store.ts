@@ -14,6 +14,7 @@ import {
   transfersReducer,
   settingsReducer,
   channelsReducer,
+  chainsReducer,
 } from "slices";
 import { LocalStorageKeys } from "App/types";
 
@@ -22,6 +23,7 @@ const reducers = combineReducers({
   transfers: transfersReducer,
   channels: channelsReducer,
   settings: settingsReducer,
+  chains: chainsReducer,
 });
 
 type StoreFactory = (secretKey: string) => EnhancedStore;
@@ -37,7 +39,7 @@ const makeStore: StoreFactory = (secretKey) => {
     key: `${LocalStorageKeys.Persist}${POSTFIX}`,
     storage,
     // Only persist data in whitelist:
-    whitelist: ["accounts", "transfers", "settings", "channels"],
+    whitelist: ["accounts", "transfers", "settings", "channels", "chains"],
     transforms: [
       encryptTransform({
         secretKey,

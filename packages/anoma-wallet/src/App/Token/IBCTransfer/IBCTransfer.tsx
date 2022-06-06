@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import Config from "config";
 import { useAppDispatch, useAppSelector } from "store";
 import { AccountsState, fetchBalanceByAccount } from "slices/accounts";
 import { addChannel, ChannelsState } from "slices/channels";
@@ -30,6 +29,8 @@ import { NavigationContainer } from "components/NavigationContainer";
 import { Icon, IconName } from "components/Icon";
 import { Button, ButtonVariant } from "components/Button";
 import { Address } from "../Transfers/TransferDetails.components";
+import { ChainsState } from "slices/chains";
+import { SettingsState } from "slices/settings";
 
 type UrlParams = {
   id: string;
@@ -39,19 +40,24 @@ const IBCTransfer = (): JSX.Element => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { id = "" } = useParams<UrlParams>();
+  const { activeChainId } = useAppSelector<SettingsState>(
+    (state) => state.settings
+  );
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const { channelsByChain = {} } = useAppSelector<ChannelsState>(
     (state) => state.channels
   );
   const { isIbcTransferSubmitting, transferError, events } =
     useAppSelector<TransfersState>((state) => state.transfers);
-  const { chain } = Config;
+
+  const chains = useAppSelector<ChainsState>((state) => state.chains);
+  const chain = chains[activeChainId];
   const { ibc } = chain;
 
   const defaultIbcChain = ibc[0];
   const [selectedChainId, setSelectedChain] = useState(defaultIbcChain.id);
 
-  const selectChainData = ibc.map((chain) => ({
+  const selectDestinationChainData = ibc.map((chain) => ({
     value: chain.id,
     label: chain.alias,
   }));
@@ -146,7 +152,7 @@ const IBCTransfer = (): JSX.Element => {
       </p>
       <InputContainer>
         <Select<string>
-          data={selectChainData}
+          data={selectDestinationChainData}
           value={selectedChainId}
           label="Destination Chain"
           onChange={(e) => setSelectedChain(e.target.value)}

@@ -1,4 +1,4 @@
-import ChainConfig, { Protocol } from "./chain";
+import ChainConfig, { defaultChainId, Protocol } from "./chain";
 
 export type NetworkConfig = {
   url: string;
@@ -6,7 +6,7 @@ export type NetworkConfig = {
   protocol: Protocol;
 };
 
-const { url, port, protocol, wsProtocol } = ChainConfig.network;
+const { url, port, protocol, wsProtocol } = ChainConfig[defaultChainId].network;
 
 /**
  * TODO: This config can likely be removed. We will eventually want to allow the
