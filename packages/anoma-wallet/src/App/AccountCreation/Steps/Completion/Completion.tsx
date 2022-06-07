@@ -15,6 +15,7 @@ import {
 import { addAccount, InitialAccount } from "slices/accounts";
 import { useEffect } from "react";
 import { useAppDispatch } from "store";
+import { defaultChainId } from "config/chain";
 
 type CompletionViewProps = {
   // navigates to the account
@@ -27,6 +28,7 @@ type CompletionViewProps = {
 };
 
 const createAccount = async (
+  chainId: string,
   alias: string,
   mnemonic: string
 ): Promise<InitialAccount> => {
@@ -36,6 +38,7 @@ const createAccount = async (
   const { public: publicKey, secret: signingKey, wif: address } = account;
 
   return {
+    chainId,
     alias,
     tokenType,
     address,
@@ -52,7 +55,7 @@ const Completion = (props: CompletionViewProps): JSX.Element => {
   useEffect(() => {
     if (password) {
       (async () => {
-        const account = await createAccount(alias, mnemonic);
+        const account = await createAccount(defaultChainId, alias, mnemonic);
         dispatch(addAccount(account));
       })();
     }

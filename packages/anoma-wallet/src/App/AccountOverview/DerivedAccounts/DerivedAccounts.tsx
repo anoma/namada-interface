@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { useAppDispatch, useAppSelector } from "store";
 import { AccountsState, fetchBalanceByAccount } from "slices/accounts";
+import { SettingsState } from "slices/settings";
 import { formatRoute } from "utils/helpers";
 import { TopLevelRoute } from "App/types";
 
@@ -20,14 +21,17 @@ import { Button, ButtonVariant } from "components/Button";
 
 const DerivedAccounts = (): JSX.Element => {
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
+  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
+  const derivedAccounts = derived[chainId] || {};
+
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const keys = Object.keys(derived);
+    const keys = Object.keys(derivedAccounts);
     if (keys.length > 0) {
       keys.forEach((key) => {
-        const account = derived[key];
+        const account = derived[chainId][key];
         if (!account.balance) {
           dispatch(fetchBalanceByAccount(account));
         }
@@ -38,11 +42,11 @@ const DerivedAccounts = (): JSX.Element => {
   return (
     <DerivedAccountsContainer>
       <DerivedAccountsList>
-        {Object.keys(derived)
+        {Object.keys(derivedAccounts)
           .reverse()
           .map((hash: string) => {
             const { id, alias, tokenType, balance, isInitializing } =
-              derived[hash];
+              derivedAccounts[hash];
 
             return (
               <DerivedAccountItem key={alias}>

@@ -1,17 +1,18 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+import { setFiatCurrency, setNetwork } from "slices/settings";
+import { useAppDispatch, useAppSelector } from "store";
+import { Session } from "lib";
+
 import { NavigationContainer } from "components/NavigationContainer";
 import { Heading, HeadingLevel } from "components/Heading";
 import { SettingsWalletSettingsContainer } from "./SettingsWalletSettings.components";
 import { Tooltip } from "components/Tooltip";
 import { Icon, IconName } from "components/Icon";
 import { Select, Option } from "components/Select";
-import { setFiatCurrency, setNetwork } from "slices/settings";
-import { useAppDispatch, useAppSelector } from "store";
 import { InputContainer } from "App/AccountOverview/AccountOverview.components";
 import { Button, ButtonVariant } from "components/Button";
-import { Session } from "lib";
-import { useState } from "react";
-
 import {
   SeedPhraseCard,
   SeedPhraseContainer,

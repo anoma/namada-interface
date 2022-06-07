@@ -6,13 +6,13 @@ const SETTINGS_ACTIONS_BASE = "settings";
 export type SettingsState = {
   fiatCurrency: string;
   network: string;
-  activeChainId: string;
+  chainId: string;
 };
 
 const initialState: SettingsState = {
   fiatCurrency: "USD",
   network: "default",
-  activeChainId: defaultChainId,
+  chainId: defaultChainId,
 };
 
 const settingsSlice = createSlice({

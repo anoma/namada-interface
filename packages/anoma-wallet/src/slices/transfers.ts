@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import Config from "config";
+import Config, { RPCConfig } from "config";
 import { FAUCET_ADDRESS, Tokens, TokenType, TxResponse } from "constants/";
 import { IbcTxResponse } from "constants/tx";
 import { RpcClient, SocketClient, Transfer, IBCTransfer } from "lib";
@@ -57,11 +57,8 @@ enum TransfersThunkActions {
   SubmitIbcTransferTransaction = "submitIbcTransferTransaction",
 }
 
-const { network, wsNetwork } = Config.rpc;
-const rpcClient = new RpcClient(network);
-const socketClient = new SocketClient(wsNetwork);
-
 type TxArgs = {
+  chainId: string;
   account: DerivedAccount;
   target: string;
   amount: number;
@@ -86,7 +83,15 @@ const IBC_TRANSFER_TIMEOUT = 15000;
 export const submitTransferTransaction = createAsyncThunk(
   `${TRANSFERS_ACTIONS_BASE}/${TransfersThunkActions.SubmitTransferTransaction}`,
   async (
-    { account, target, amount, memo, shielded, useFaucet }: TxTransferArgs,
+    {
+      chainId,
+      account,
+      target,
+      amount,
+      memo,
+      shielded,
+      useFaucet,
+    }: TxTransferArgs,
     { dispatch, rejectWithValue }
   ) => {
     const {
@@ -95,7 +100,14 @@ export const submitTransferTransaction = createAsyncThunk(
       tokenType,
       signingKey: privateKey,
     } = account;
+
     const source = useFaucet ? FAUCET_ADDRESS : establishedAddress;
+
+    const chainConfig = Config.chain[chainId];
+    const { url, port, protocol, wsProtocol } = chainConfig.network;
+    const rpcConfig = new RPCConfig(url, port, protocol, wsProtocol);
+    const rpcClient = new RpcClient(rpcConfig.network);
+    const socketClient = new SocketClient(rpcConfig.wsNetwork);
 
     const epoch = await rpcClient.queryEpoch();
     const transfer = await new Transfer().init();
@@ -183,6 +195,12 @@ export const submitIbcTransferTransaction = createAsyncThunk(
       tokenType,
       signingKey: privateKey,
     } = account;
+    const chainConfig = Config.chain[chainId];
+    const { url, port, protocol, wsProtocol } = chainConfig.network;
+    const rpcConfig = new RPCConfig(url, port, protocol, wsProtocol);
+    const rpcClient = new RpcClient(rpcConfig.network);
+    const socketClient = new SocketClient(rpcConfig.wsNetwork);
+
     const epoch = await rpcClient.queryEpoch();
     const transfer = await new IBCTransfer().init();
     const token = Tokens[tokenType];

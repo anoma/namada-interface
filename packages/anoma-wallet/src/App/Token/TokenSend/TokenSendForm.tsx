@@ -12,6 +12,7 @@ import {
   TransfersState,
 } from "slices/transfers";
 import { DerivedAccount } from "slices/accounts";
+import { SettingsState } from "slices/settings";
 
 import { Button, ButtonVariant } from "components/Button";
 import { Input, InputVariants } from "components/Input";
@@ -35,9 +36,6 @@ type Props = {
   defaultTarget?: string;
 };
 
-const { network } = Config.rpc;
-const rpcClient = new RpcClient(network);
-
 export const MAX_MEMO_LENGTH = 100;
 export const isMemoValid = (text: string): boolean => {
   // TODO: Additional memo validation rules?
@@ -59,9 +57,16 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
   const { isTransferSubmitting, transferError, events } =
     useAppSelector<TransfersState>((state) => state.transfers);
 
-  const account = derived[accountId] || {};
+  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
+  const derivedAccounts = derived[chainId] || {};
+
+  const account = derivedAccounts[accountId] || {};
   const { alias, establishedAddress = "", tokenType, balance = 0 } = account;
   const token = Tokens[tokenType] || {};
+
+  const chainConfig = Config.chain[chainId];
+  const { url, port, protocol } = chainConfig.network;
+  const rpcClient = new RpcClient({ url, port, protocol });
 
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
@@ -72,7 +77,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
       dispatch(fetchBalanceByAccount(account));
 
       // Check for internal transfer:
-      const targetAccount = Object.values(derived).find(
+      const targetAccount = Object.values(derivedAccounts).find(
         (account: DerivedAccount) => account.establishedAddress === target
       );
       // Fetch target balance if applicable:
@@ -106,6 +111,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
     if (target && token.address) {
       dispatch(
         submitTransferTransaction({
+          chainId,
           account,
           target,
           amount,

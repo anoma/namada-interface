@@ -5,6 +5,7 @@ import { Symbols, TokenType, Tokens } from "constants/";
 import { Wallet, Session } from "lib";
 import { useAppDispatch, useAppSelector } from "store";
 import { DerivedAccount, AccountsState, addAccount } from "slices/accounts";
+import { SettingsState } from "slices/settings";
 
 import { NavigationContainer } from "components/NavigationContainer";
 import { Heading, HeadingLevel } from "components/Heading";
@@ -23,10 +24,13 @@ export const AddAccount = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
+  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const [alias, setAlias] = useState<string>("");
   const [aliasError, setAliasError] = useState<string>();
   const [tokenType, setTokenType] = useState<TokenType>("NAM");
   const [isAddingAccount, setIsAddingAccount] = useState(false);
+
+  const derivedAccounts = derived[chainId] || {};
 
   const tokensData: Option<string>[] = Symbols.map((symbol: TokenType) => {
     const token = Tokens[symbol];
@@ -56,7 +60,7 @@ export const AddAccount = (): JSX.Element => {
     ).length;
 
   const aliasExists = (alias: string): boolean =>
-    Object.values(derived).some((account) => account.alias === alias);
+    Object.values(derivedAccounts).some((account) => account.alias === alias);
 
   const validateAlias = (alias: string): boolean =>
     alias.length > MIN_ALIAS_LENGTH &&
@@ -90,7 +94,7 @@ export const AddAccount = (): JSX.Element => {
 
       const wallet = await new Wallet(mnemonic, tokenType).init();
       const index = getAccountIndex(
-        Object.keys(derived).map((key: string) => derived[key]),
+        Object.keys(derivedAccounts).map((key: string) => derivedAccounts[key]),
         tokenType
       );
 
@@ -99,6 +103,7 @@ export const AddAccount = (): JSX.Element => {
 
       dispatch(
         addAccount({
+          chainId,
           alias: trimmedAlias,
           tokenType,
           address,

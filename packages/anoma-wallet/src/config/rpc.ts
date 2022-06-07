@@ -1,26 +1,20 @@
-import ChainConfig, { defaultChainId, Protocol } from "./chain";
+import { Protocol } from "./chain";
 
-export type NetworkConfig = {
+export type Network = {
   url: string;
   port: number;
   protocol: Protocol;
 };
 
-const { url, port, protocol, wsProtocol } = ChainConfig[defaultChainId].network;
-
-/**
- * TODO: This config can likely be removed. We will eventually want to allow the
- * use to select a chains, and all RPC calls should be made according to that chain's
- * configuration. Instantiating an RpcClient or SocketClient should pass the network
- * config belonging to the active chain instead of being hard-coded here.
- */
 export default class RPCConfig {
-  private _url = url;
-  private _port = port;
-  private _protocol: Protocol = protocol;
-  private _wsProtocol: Protocol = wsProtocol;
+  constructor(
+    private _url: string,
+    private _port: number,
+    private _protocol: Protocol,
+    private _wsProtocol: Protocol
+  ) {}
 
-  public get network(): NetworkConfig {
+  public get network(): Network {
     return {
       url: this._url,
       port: this._port,
@@ -28,7 +22,7 @@ export default class RPCConfig {
     };
   }
 
-  public get wsNetwork(): NetworkConfig {
+  public get wsNetwork(): Network {
     return {
       url: this._url,
       port: this._port,

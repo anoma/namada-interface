@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import Config from "config";
+import Config, { RPCConfig } from "config";
 import { Tokens, TokenType, TxResponse } from "constants/";
 import { Account, RpcClient, SocketClient } from "lib";
 import { NewBlockEvents } from "lib/rpc/types";
@@ -8,6 +8,7 @@ import { submitTransferTransaction } from "./transfers";
 const { REACT_APP_USE_FAUCET } = process.env;
 
 export type InitialAccount = {
+  chainId: string;
   alias: string;
   tokenType: TokenType;
   address: string;
@@ -29,34 +30,32 @@ type DerivedAccounts = {
 };
 
 export type AccountsState = {
-  derived: DerivedAccounts;
+  derived: Record<string, DerivedAccounts>;
 };
 
 const ACCOUNTS_ACTIONS_BASE = "accounts";
-const { rpc } = Config;
-const { network, wsNetwork } = rpc;
-const { url } = network;
 
 enum AccountThunkActions {
   FetchBalanceByAccount = "fetchBalanceByAccount",
   SubmitInitAccountTransaction = "submitInitAccountTransaction",
 }
 
-const rpcClient = new RpcClient(network);
-const socketClient = new SocketClient(wsNetwork);
-
 const LEDGER_INIT_ACCOUNT_TIMEOUT = 12000;
 
 export const fetchBalanceByAccount = createAsyncThunk(
   `${ACCOUNTS_ACTIONS_BASE}/${AccountThunkActions.FetchBalanceByAccount}`,
   async (account: DerivedAccount) => {
-    const { id, establishedAddress, tokenType } = account;
+    const { chainId, id, establishedAddress, tokenType } = account;
+    const chainConfig = Config.chain[chainId];
+
+    const rpcClient = new RpcClient(chainConfig.network);
     const { address: tokenAddress = "" } = Tokens[tokenType];
     const balance = await rpcClient.queryBalance(
       tokenAddress,
       establishedAddress
     );
     return {
+      chainId,
       id,
       balance: balance > 0 ? balance : 0,
     };
@@ -66,7 +65,14 @@ export const fetchBalanceByAccount = createAsyncThunk(
 export const submitInitAccountTransaction = createAsyncThunk(
   `${ACCOUNTS_ACTIONS_BASE}/${AccountThunkActions.SubmitInitAccountTransaction}`,
   async (account: DerivedAccount, { dispatch, rejectWithValue }) => {
-    const { signingKey: privateKey, tokenType } = account;
+    const { chainId, signingKey: privateKey, tokenType } = account;
+
+    const chainConfig = Config.chain[chainId];
+    const { url, port, protocol, wsProtocol } = chainConfig.network;
+
+    const rpcConfig = new RPCConfig(url, port, protocol, wsProtocol);
+    const rpcClient = new RpcClient(rpcConfig.network);
+    const socketClient = new SocketClient(rpcConfig.wsNetwork);
 
     const epoch = await rpcClient.queryEpoch();
     const anomaAccount = await new Account().init();
@@ -118,6 +124,7 @@ export const submitInitAccountTransaction = createAsyncThunk(
     if (REACT_APP_USE_FAUCET || url.match(/testnet|localhost|/)) {
       dispatch(
         submitTransferTransaction({
+          chainId,
           account: initializedAccount,
           target: establishedAddress || "",
           amount: 1000,
@@ -142,12 +149,15 @@ const accountsSlice = createSlice({
   reducers: {
     addAccount: (state, action: PayloadAction<InitialAccount>) => {
       const initialAccount = action.payload;
-      const { alias } = initialAccount;
+      const { chainId, alias } = initialAccount;
 
       const id = stringToHash(alias);
+      if (!state.derived[chainId]) {
+        state.derived[chainId] = {};
+      }
 
-      state.derived = {
-        ...state.derived,
+      state.derived[chainId] = {
+        ...state.derived[chainId],
         [id]: {
           id: id,
           balance: 0,
@@ -158,65 +168,58 @@ const accountsSlice = createSlice({
     setEstablishedAddress: (
       state,
       action: PayloadAction<{
+        chainId: string;
         alias: string;
         establishedAddress: string;
       }>
     ) => {
-      const { alias, establishedAddress } = action.payload;
+      const { chainId, alias, establishedAddress } = action.payload;
 
       const { id } =
-        Object.values(state.derived).find(
+        Object.values(state.derived[chainId]).find(
           (account) => account.alias === alias
         ) || {};
 
       if (id) {
-        state.derived[id] = {
-          ...state.derived[id],
+        state.derived[chainId][id] = {
+          ...state.derived[chainId][id],
           establishedAddress,
         };
       }
     },
     setBalance: (
       state,
-      action: PayloadAction<{ id: string; balance: number }>
+      action: PayloadAction<{ chainId: string; id: string; balance: number }>
     ) => {
-      const { id, balance } = action.payload;
+      const { chainId, id, balance } = action.payload;
 
-      state.derived[id] = {
-        ...state.derived[id],
+      state.derived[chainId][id] = {
+        ...state.derived[chainId][id],
         balance,
       };
     },
-    setZip32Address: (
+    removeAccount: (
       state,
-      action: PayloadAction<{
-        id: string;
-        zip32Address: string;
-      }>
+      action: PayloadAction<{ chainId: string; id: string }>
     ) => {
-      const { id, zip32Address } = action.payload;
-
-      state.derived[id] = {
-        ...state.derived[id],
-        zip32Address,
-      };
-    },
-    removeAccount: (state, action: PayloadAction<string>) => {
-      const id = action.payload;
+      const { chainId, id } = action.payload;
       const { derived } = state;
 
-      delete derived[id];
-      state.derived = derived;
+      delete derived[chainId][id];
+      state.derived[chainId] = derived[chainId];
     },
-    renameAccount: (state, action: PayloadAction<[string, string]>) => {
-      const [id, newAlias] = action.payload;
+    renameAccount: (
+      state,
+      action: PayloadAction<{ chainId: string; id: string; alias: string }>
+    ) => {
+      const { chainId, id, alias } = action.payload;
       const { derived } = state;
 
-      const account = derived[id];
+      const account = derived[chainId][id];
 
-      derived[id] = {
+      derived[chainId][id] = {
         ...account,
-        alias: newAlias,
+        alias,
       };
 
       state.derived = derived;
@@ -225,11 +228,14 @@ const accountsSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(
       fetchBalanceByAccount.fulfilled,
-      (state, action: PayloadAction<{ id: string; balance: number }>) => {
-        const { id, balance } = action.payload;
+      (
+        state,
+        action: PayloadAction<{ chainId: string; id: string; balance: number }>
+      ) => {
+        const { chainId, id, balance } = action.payload;
 
-        state.derived[id] = {
-          ...state.derived[id],
+        state.derived[chainId][id] = {
+          ...state.derived[chainId][id],
           balance,
         };
       }
@@ -237,19 +243,19 @@ const accountsSlice = createSlice({
 
     builder.addCase(submitInitAccountTransaction.pending, (state, action) => {
       const account = action.meta.arg;
-      const { id } = account;
+      const { chainId, id } = account;
 
-      state.derived[id].isInitializing = true;
-      state.derived[id].accountInitializationError = undefined;
+      state.derived[chainId][id].isInitializing = true;
+      state.derived[chainId][id].accountInitializationError = undefined;
     });
 
     builder.addCase(submitInitAccountTransaction.rejected, (state, action) => {
       const { meta, error } = action;
       const account = meta.arg;
-      const { id } = account;
+      const { chainId, id } = account;
 
-      state.derived[id].isInitializing = false;
-      state.derived[id].accountInitializationError = error
+      state.derived[chainId][id].isInitializing = false;
+      state.derived[chainId][id].accountInitializationError = error
         ? error.message
         : "Error initializing account";
     });
@@ -258,9 +264,9 @@ const accountsSlice = createSlice({
       submitInitAccountTransaction.fulfilled,
       (state, action: PayloadAction<DerivedAccount>) => {
         const account = action.payload;
-        const { id } = account;
+        const { chainId, id } = account;
 
-        state.derived[id] = {
+        state.derived[chainId][id] = {
           ...account,
           isInitializing: false,
           accountInitializationError: undefined,
@@ -275,7 +281,6 @@ const { actions, reducer } = accountsSlice;
 export const {
   addAccount,
   setEstablishedAddress,
-  setZip32Address,
   removeAccount,
   renameAccount,
 } = actions;

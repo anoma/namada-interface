@@ -5,9 +5,6 @@ const {
   REACT_APP_LOCAL_LEDGER_ADDRESS,
   REACT_APP_LOCAL_CHAIN_PORT,
   REACT_APP_LOCAL_CHAIN_ID,
-  // TODO: Potentially add another variable to run in "development" mode
-  // from Netlify. For now, it will always default to the devnet if not
-  // running a local ledger via `yarn dev:local`
 } = process.env;
 
 const DEFAULT_PORT = 26657;
@@ -18,15 +15,17 @@ type IbcDestination = {
   portId: string;
 };
 
+export type NetworkConfig = {
+  url: string;
+  port: number;
+  protocol: Protocol;
+  wsProtocol: Protocol;
+};
+
 export type Chain = {
   id: string;
   alias: string;
-  network: {
-    url: string;
-    port: number;
-    protocol: Protocol;
-    wsProtocol: Protocol;
-  };
+  network: NetworkConfig;
   ibc: IbcDestination[];
 };
 

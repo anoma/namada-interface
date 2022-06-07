@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { AccountsState } from "slices/accounts";
+import { SettingsState } from "slices/settings";
 import { useAppSelector } from "store";
 import { TopLevelRoute } from "App/types";
 import { TokenType } from "constants/";
@@ -22,6 +23,7 @@ type TokenSendParams = {
 const TokenSend = (): JSX.Element => {
   const navigate = useNavigate();
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
+  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const { id, target, tokenType } = useParams<TokenSendParams>();
 
   const [selectedAccountId, setSelectedAccountId] = useState<
@@ -29,13 +31,15 @@ const TokenSend = (): JSX.Element => {
   >(id);
   const [accountsData, setAccounts] = useState<Option<string>[]>();
 
+  const derivedAccounts = derived[chainId] || {};
+
   // Collect any accounts matching tokenType
   const accounts = tokenType
-    ? Object.keys(derived)
+    ? Object.keys(derivedAccounts)
         .map((hash: string) => ({
           id: hash,
-          alias: derived[hash].alias,
-          tokenType: derived[hash].tokenType,
+          alias: derivedAccounts[hash].alias,
+          tokenType: derivedAccounts[hash].tokenType,
         }))
         .filter((account) => account.tokenType === tokenType)
     : [];

@@ -1,11 +1,9 @@
-import RPCConfig from "./rpc";
 import ChainConfig from "./chain";
 
-export { type NetworkConfig } from "./rpc";
+export { default as RPCConfig, type Network } from "./rpc";
 export { type Protocol } from "./chain";
 
 const Config = {
-  rpc: new RPCConfig(),
   chain: ChainConfig,
 };
 

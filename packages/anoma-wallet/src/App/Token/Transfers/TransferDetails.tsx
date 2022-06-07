@@ -3,7 +3,6 @@ import { NavigationContainer } from "components/NavigationContainer";
 
 import { useNavigate, useParams } from "react-router-dom";
 import { ChainsState } from "slices/chains";
-import { SettingsState } from "slices/settings";
 import { TransfersState } from "slices/transfers";
 import { useAppSelector } from "store";
 import { stringFromTimestamp } from "utils/helpers";
@@ -44,12 +43,8 @@ const TransferDetail = (): JSX.Element => {
     destinationPort,
   } = ibcTransfer || {};
 
-  const { activeChainId } = useAppSelector<SettingsState>(
-    (state) => state.settings
-  );
-
   const chains = useAppSelector<ChainsState>((state) => state.chains);
-  const chain = chains[activeChainId];
+  const chain = chains[chainId];
   const { ibc = [] } = chain || {};
   const destinationChain = ibc.find((chain) => chain.id === chainId);
   const chainAlias = destinationChain?.alias;

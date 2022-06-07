@@ -1,10 +1,13 @@
 import { useNavigate } from "react-router-dom";
-import { NavigationContainer } from "components/NavigationContainer";
 import { TopLevelRoute } from "App/types";
+import { formatRoute } from "utils/helpers";
+import { useAppSelector } from "store";
+import { AccountsState } from "slices/accounts";
+import { SettingsState } from "slices/settings";
+
+import { NavigationContainer } from "components/NavigationContainer";
 import { Heading, HeadingLevel } from "components/Heading";
 import { Button, ButtonVariant } from "components/Button";
-import { formatRoute } from "utils/helpers";
-
 import {
   SettingsAccountsContainer,
   AccountRows,
@@ -15,8 +18,6 @@ import {
   NewAccountButtonContainer,
   AccountAlias,
 } from "./SettingsAccounts.components";
-import { useAppSelector } from "store";
-import { AccountsState } from "slices/accounts";
 
 /**
  * Listing all the accounts that are persisted. By clicking one of them the account
@@ -24,7 +25,9 @@ import { AccountsState } from "slices/accounts";
  */
 export const SettingsAccounts = (): JSX.Element => {
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
-  const accounts = Object.values(derived);
+  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
+
+  const accounts = Object.values(derived[chainId]);
   const currentAccount = useAppSelector(
     (state) => state.settings.selectedAccountID
   );

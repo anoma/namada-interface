@@ -10,6 +10,8 @@ import {
   submitIbcTransferTransaction,
   TransfersState,
 } from "slices/transfers";
+import { ChainsState } from "slices/chains";
+import { SettingsState } from "slices/settings";
 
 import { Input, InputVariants } from "components/Input";
 import { isMemoValid, MAX_MEMO_LENGTH } from "../TokenSend/TokenSendForm";
@@ -29,8 +31,6 @@ import { NavigationContainer } from "components/NavigationContainer";
 import { Icon, IconName } from "components/Icon";
 import { Button, ButtonVariant } from "components/Button";
 import { Address } from "../Transfers/TransferDetails.components";
-import { ChainsState } from "slices/chains";
-import { SettingsState } from "slices/settings";
 
 type UrlParams = {
   id: string;
@@ -40,9 +40,7 @@ const IBCTransfer = (): JSX.Element => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { id = "" } = useParams<UrlParams>();
-  const { activeChainId } = useAppSelector<SettingsState>(
-    (state) => state.settings
-  );
+  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const { channelsByChain = {} } = useAppSelector<ChannelsState>(
     (state) => state.channels
@@ -51,7 +49,7 @@ const IBCTransfer = (): JSX.Element => {
     useAppSelector<TransfersState>((state) => state.transfers);
 
   const chains = useAppSelector<ChainsState>((state) => state.chains);
-  const chain = chains[activeChainId];
+  const chain = chains[chainId];
   const { ibc } = chain;
 
   const defaultIbcChain = ibc[0];
@@ -74,7 +72,7 @@ const IBCTransfer = (): JSX.Element => {
   const [showAddChannelForm, setShowAddChannelForm] = useState(false);
   const [channelId, setChannelId] = useState<string>();
   const [recipient, setRecipient] = useState("");
-  const account = derived[id] || {};
+  const account = derived[chainId][id] || {};
   const { balance = 0, tokenType } = account;
 
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>

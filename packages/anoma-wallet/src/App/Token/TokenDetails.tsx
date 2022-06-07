@@ -9,6 +9,8 @@ import {
   AccountsState,
   fetchBalanceByAccount,
 } from "slices/accounts";
+import { TransfersState } from "slices/transfers";
+import { SettingsState } from "slices/settings";
 import { useAppDispatch, useAppSelector } from "store";
 import { formatRoute, stringFromTimestamp } from "utils/helpers";
 
@@ -25,7 +27,6 @@ import {
   TransactionListItem,
 } from "./TokenDetails.components";
 import { Address } from "./Transfers/TransferDetails.components";
-import { TransfersState } from "slices/transfers";
 
 type Props = {
   persistor: Persistor;
@@ -39,12 +40,14 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
   const navigate = useNavigate();
   const { id = "" } = useParams<TokenDetailsParams>();
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
+  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
+
   const { transactions: accountTransactions } = useAppSelector<TransfersState>(
     (state) => state.transfers
   );
   const dispatch = useAppDispatch();
 
-  const account: DerivedAccount = derived[id] || {};
+  const account: DerivedAccount = derived[chainId][id] || {};
   const { alias, tokenType, balance, establishedAddress, isInitializing } =
     account;
   const token = Tokens[tokenType] || {};
