@@ -5,13 +5,11 @@ const SETTINGS_ACTIONS_BASE = "settings";
 
 export type SettingsState = {
   fiatCurrency: string;
-  network: string;
   chainId: string;
 };
 
 const initialState: SettingsState = {
   fiatCurrency: "USD",
-  network: "default",
   chainId: defaultChainId,
 };
 
@@ -22,14 +20,14 @@ const settingsSlice = createSlice({
     setFiatCurrency: (state, action: PayloadAction<string>) => {
       state.fiatCurrency = action.payload;
     },
-    setNetwork: (state, action: PayloadAction<string>) => {
-      state.network = action.payload;
+    setChainId: (state, action: PayloadAction<string>) => {
+      state.chainId = action.payload;
     },
   },
 });
 
 const { actions, reducer } = settingsSlice;
 
-export const { setFiatCurrency, setNetwork } = actions;
+export const { setFiatCurrency, setChainId } = actions;
 
 export default reducer;

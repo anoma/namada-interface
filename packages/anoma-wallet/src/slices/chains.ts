@@ -1,14 +1,11 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import ChainConfig, { Chain, defaultChainId } from "config/chain";
+import Config, { Chain } from "config";
 
 const CHAINS_ACTIONS_BASE = "channels";
 export type ChainsState = Record<string, Chain>;
 
-const chainsConfig = ChainConfig[defaultChainId];
+const initialState: ChainsState = Config.chain;
 
-const initialState: ChainsState = {
-  [defaultChainId]: chainsConfig,
-};
 const chainsSlice = createSlice({
   name: CHAINS_ACTIONS_BASE,
   initialState,

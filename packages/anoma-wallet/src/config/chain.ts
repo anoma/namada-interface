@@ -32,9 +32,14 @@ export type Chain = {
 export const defaultChainId =
   REACT_APP_LOCAL_CHAIN_ID || "anoma-test.fd58c789bc11e6c6392";
 
+/**
+ * TODO: Load ChainConfig from JSON.
+ * TODO: Only load local configs (REACT_APP_LOCAL_*) if running in "local" mode
+ * The following config is to support all current features, and serve as a segue to
+ * requesting network configurations by other means.
+ */
 const ChainConfig: Record<string, Chain> = {
   [defaultChainId]: {
-    // TODO: Load this from an environment config
     id: defaultChainId,
     alias: "Namada",
     network: {
@@ -45,11 +50,27 @@ const ChainConfig: Record<string, Chain> = {
       protocol: REACT_APP_LOCAL ? "http" : "https",
       wsProtocol: REACT_APP_LOCAL ? "ws" : "wss",
     },
-    // TODO: Load these from an environment config
     ibc: [
       {
         id: "anoma-test.5aa9a964bf8925d4e44",
         alias: "Namada - Local",
+        portId: "transfer",
+      },
+    ],
+  },
+  ["anoma-test.a3f2e831ac21178f5fb"]: {
+    id: "anoma-test.a3f2e831ac21178f5fb",
+    alias: "Anoma Testnet Local",
+    network: {
+      url: "10.7.1.159",
+      port: 27657,
+      protocol: "http",
+      wsProtocol: "ws",
+    },
+    ibc: [
+      {
+        id: "anoma-test.db3b577a0da7edb19ac",
+        alias: "Anoma Fractal Instance",
         portId: "transfer",
       },
     ],

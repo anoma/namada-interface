@@ -13,6 +13,7 @@ import { TransfersState } from "slices/transfers";
 import { SettingsState } from "slices/settings";
 import { useAppDispatch, useAppSelector } from "store";
 import { formatRoute, stringFromTimestamp } from "utils/helpers";
+import { ChainsState } from "slices/chains";
 
 import { Button, ButtonVariant } from "components/Button";
 import { Heading, HeadingLevel } from "components/Heading";
@@ -41,6 +42,8 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
   const { id = "" } = useParams<TokenDetailsParams>();
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
+  const chainConfig = useAppSelector<ChainsState>((state) => state.chains);
+  const { ibc } = chainConfig[chainId];
 
   const { transactions: accountTransactions } = useAppSelector<TransfersState>(
     (state) => state.transfers
@@ -123,17 +126,21 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
               </Button>
             </ButtonsContainer>
             {/* TODO: Only display if this is a valid token account from which to submit an IBC Transfer */}
-            <ButtonsContainer>
-              <Button
-                variant={ButtonVariant.Small}
-                style={{ width: "100%" }}
-                onClick={() => {
-                  navigate(formatRoute(TopLevelRoute.TokenIbcTransfer, { id }));
-                }}
-              >
-                IBC Transfer
-              </Button>
-            </ButtonsContainer>
+            {ibc && Object.values(ibc).length > 0 && (
+              <ButtonsContainer>
+                <Button
+                  variant={ButtonVariant.Small}
+                  style={{ width: "100%" }}
+                  onClick={() => {
+                    navigate(
+                      formatRoute(TopLevelRoute.TokenIbcTransfer, { id })
+                    );
+                  }}
+                >
+                  IBC Transfer
+                </Button>
+              </ButtonsContainer>
+            )}
           </>
         )}
 

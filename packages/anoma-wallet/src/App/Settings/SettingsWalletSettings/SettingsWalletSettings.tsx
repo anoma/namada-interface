@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Chain } from "config/chain";
-import { setFiatCurrency, setNetwork } from "slices/settings";
+import { setFiatCurrency, setChainId, SettingsState } from "slices/settings";
 import { ChainsState } from "slices/chains";
 import { useAppDispatch, useAppSelector } from "store";
 import { Session } from "lib";
@@ -26,7 +26,7 @@ export const SettingsWalletSettings = (): JSX.Element => {
   const navigate = useNavigate();
 
   const chains = useAppSelector<ChainsState>((state) => state.chains);
-
+  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const [displaySeedPhrase, setDisplaySeedPhrase] = useState(false);
   const [seedPhrase, setSeedPhrase] = useState<string[]>([]);
   const [isLoadingSeed, setIsLoadingSeed] = useState(false);
@@ -80,7 +80,7 @@ export const SettingsWalletSettings = (): JSX.Element => {
   ): void => {
     const { value } = e.target;
 
-    dispatch(setNetwork(value));
+    dispatch(setChainId(value));
   };
 
   return (
@@ -144,7 +144,7 @@ export const SettingsWalletSettings = (): JSX.Element => {
               />
             </div>
           }
-          value="default"
+          value={chainId}
           data={networks}
           onChange={handleNetworkSelect}
         />

@@ -27,7 +27,8 @@ export const SettingsAccounts = (): JSX.Element => {
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
 
-  const accounts = Object.values(derived[chainId]);
+  const derivedAccounts = derived[chainId] || {};
+  const accounts = Object.values(derivedAccounts);
   const currentAccount = useAppSelector(
     (state) => state.settings.selectedAccountID
   );
