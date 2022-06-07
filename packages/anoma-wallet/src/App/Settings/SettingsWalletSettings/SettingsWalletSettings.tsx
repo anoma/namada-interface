@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { Chain } from "config/chain";
 import { setFiatCurrency, setNetwork } from "slices/settings";
+import { ChainsState } from "slices/chains";
 import { useAppDispatch, useAppSelector } from "store";
 import { Session } from "lib";
 
@@ -22,9 +24,17 @@ import {
 export const SettingsWalletSettings = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+
+  const chains = useAppSelector<ChainsState>((state) => state.chains);
+
   const [displaySeedPhrase, setDisplaySeedPhrase] = useState(false);
   const [seedPhrase, setSeedPhrase] = useState<string[]>([]);
   const [isLoadingSeed, setIsLoadingSeed] = useState(false);
+
+  const networks = Object.values(chains).map(({ id, alias }: Chain) => ({
+    label: alias,
+    value: id,
+  }));
 
   const handleDisplaySeedPhrase = async (): Promise<void> => {
     if (!displaySeedPhrase) {
@@ -56,14 +66,6 @@ export const SettingsWalletSettings = (): JSX.Element => {
   const currentCurrency = useAppSelector(
     (state) => state.settings.fiatCurrency
   );
-
-  /* TODO: Load available Anoma-based networks from config, i.e., Namada */
-  const networks: Option<string>[] = [
-    {
-      label: "Namada",
-      value: "Namada",
-    },
-  ];
 
   const handleCurrencySelect = (
     e: React.ChangeEvent<HTMLSelectElement>
