@@ -25,6 +25,7 @@ export type NetworkConfig = {
 export type Chain = {
   id: string;
   alias: string;
+  accountIndex: number;
   network: NetworkConfig;
   ibc: IbcDestination[];
 };
@@ -42,6 +43,7 @@ const ChainConfig: Record<string, Chain> = {
   [defaultChainId]: {
     id: defaultChainId,
     alias: "Namada",
+    accountIndex: 0,
     network: {
       url: REACT_APP_LOCAL_LEDGER_ADDRESS || "127.0.0.1",
       port: REACT_APP_LOCAL_CHAIN_PORT
@@ -61,6 +63,7 @@ const ChainConfig: Record<string, Chain> = {
   ["anoma-test.a3f2e831ac21178f5fb"]: {
     id: "anoma-test.a3f2e831ac21178f5fb",
     alias: "Anoma Testnet Local",
+    accountIndex: 999,
     network: {
       url: "10.7.1.159",
       port: 27657,

@@ -17,6 +17,7 @@ import { Button, ButtonVariant } from "components/Button";
 import { TopLevelRoute } from "App/types";
 import { Select, Option } from "components/Select";
 import { Input, InputVariants } from "components/Input";
+import Config from "config";
 
 const MIN_ALIAS_LENGTH = 2;
 
@@ -31,6 +32,7 @@ export const AddAccount = (): JSX.Element => {
   const [isAddingAccount, setIsAddingAccount] = useState(false);
 
   const derivedAccounts = derived[chainId] || {};
+  const { accountIndex } = Config.chain[chainId];
 
   const tokensData: Option<string>[] = Symbols.map((symbol: TokenType) => {
     const token = Tokens[symbol];
@@ -98,7 +100,7 @@ export const AddAccount = (): JSX.Element => {
         tokenType
       );
 
-      const account = wallet.new(index);
+      const account = wallet.new(accountIndex, index);
       const { public: publicKey, secret: signingKey, wif: address } = account;
 
       dispatch(
