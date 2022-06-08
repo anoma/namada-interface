@@ -61,8 +61,9 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
   const transactions = accountTransactions
     .filter(
       (transaction) =>
-        transaction.source === establishedAddress ||
-        transaction.target === establishedAddress
+        (transaction.source === establishedAddress ||
+          transaction.target === establishedAddress) &&
+        transaction.chainId === chainId
     )
     .reverse();
 

@@ -1,5 +1,6 @@
 import { Heading, HeadingLevel } from "components/Heading";
 import { NavigationContainer } from "components/NavigationContainer";
+import Config from "config";
 
 import { useNavigate, useParams } from "react-router-dom";
 import { ChainsState } from "slices/chains";
@@ -21,6 +22,7 @@ const TransferDetail = (): JSX.Element => {
   );
 
   const {
+    chainId: sourceChainId = "",
     tokenType,
     amount,
     gas = 0,
@@ -34,6 +36,8 @@ const TransferDetail = (): JSX.Element => {
   } = transactions.find(
     (transaction) => transaction.appliedHash === appliedHash
   ) || {};
+
+  const sourceChain = Config.chain[sourceChainId];
 
   const {
     chainId = "",
@@ -65,6 +69,8 @@ const TransferDetail = (): JSX.Element => {
           {type}
           <br />
           {amount} {tokenType}
+          <br />
+          {sourceChain.alias}
         </strong>
         <br />
         {dateTimeFormatted}

@@ -24,6 +24,7 @@ export type IBCTransferAttributes = {
 };
 
 export type TransferTransaction = {
+  chainId: string;
   source: string;
   target: string;
   type: TransferType;
@@ -160,6 +161,7 @@ export const submitTransferTransaction = createAsyncThunk(
       id,
       useFaucet,
       transaction: {
+        chainId,
         source,
         target,
         appliedHash,
@@ -261,6 +263,7 @@ export const submitIbcTransferTransaction = createAsyncThunk(
     );
 
     return {
+      chainId,
       appliedHash,
       tokenType,
       source,
