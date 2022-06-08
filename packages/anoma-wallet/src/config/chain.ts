@@ -5,6 +5,7 @@ const {
   REACT_APP_LOCAL_LEDGER_ADDRESS,
   REACT_APP_LOCAL_CHAIN_PORT,
   REACT_APP_LOCAL_CHAIN_ID,
+  REACT_APP_LOCAL_FAUCET,
 } = process.env;
 
 const DEFAULT_PORT = 26657;
@@ -34,6 +35,29 @@ export type Chain = {
 export const defaultChainId =
   REACT_APP_LOCAL_CHAIN_ID || "anoma-test.fd58c789bc11e6c6392";
 
+const CHAIN_A_ID = "anoma-test.a3f2e831ac21178f5fb";
+const CHAIN_B_ID = "anoma-test.db3b577a0da7edb19ac";
+const CHAIN_A_ALIAS = "Anoma Fractal Instance - A";
+const CHAIN_B_ALIAS = "Anoma Fractal Instance - B";
+
+const DEFAULT_IBC_PORT = "transfer";
+
+/**
+ * TODO: Fetch all IBC-enabled chains in ecosystem
+ */
+const ibcEnabledChains = [
+  {
+    id: CHAIN_A_ID,
+    alias: CHAIN_A_ALIAS,
+    portId: DEFAULT_IBC_PORT,
+  },
+  {
+    id: CHAIN_B_ID,
+    alias: CHAIN_B_ALIAS,
+    portId: DEFAULT_IBC_PORT,
+  },
+];
+
 /**
  * TODO: Load ChainConfig from JSON.
  * TODO: Only load local configs (REACT_APP_LOCAL_*) if running in "local" mode
@@ -41,12 +65,14 @@ export const defaultChainId =
  * requesting network configurations by other means.
  */
 const ChainConfig: Record<string, Chain> = {
+  /**
+   * Default chain config
+   */
   [defaultChainId]: {
     id: defaultChainId,
     alias: "Namada",
     accountIndex: 0,
-    faucet:
-      "atest1v4ehgw36xqcnzdpkgdzrw3pcg5crgvf4gfp5g3p4xumrj32xx9rrj3jrxycnxsfeggens3fs5ryrdh",
+    faucet: REACT_APP_LOCAL_FAUCET,
     network: {
       url: REACT_APP_LOCAL_LEDGER_ADDRESS || "127.0.0.1",
       port: REACT_APP_LOCAL_CHAIN_PORT
@@ -55,25 +81,14 @@ const ChainConfig: Record<string, Chain> = {
       protocol: REACT_APP_LOCAL ? "http" : "https",
       wsProtocol: REACT_APP_LOCAL ? "ws" : "wss",
     },
-    ibc: [
-      {
-        id: "anoma-test.a3f2e831ac21178f5fb",
-        alias: "Anoma Fractal Instance - A",
-        portId: "transfer",
-      },
-      {
-        id: "anoma-test.db3b577a0da7edb19ac",
-        alias: "Anoma Fractal Instance - B",
-        portId: "transfer",
-      },
-    ],
+    ibc: ibcEnabledChains,
   },
   /**
    * Example instance config
    */
-  ["anoma-test.a3f2e831ac21178f5fb"]: {
-    id: "anoma-test.a3f2e831ac21178f5fb",
-    alias: "Anoma Fractal Instance - A",
+  [CHAIN_A_ID]: {
+    id: CHAIN_A_ID,
+    alias: CHAIN_A_ALIAS,
     accountIndex: 998,
     faucet:
       "atest1v4ehgw36xqcnzdpkgdzrw3pcg5crgvf4gfp5g3p4xumrj32xx9rrj3jrxycnxsfeggens3fs5ryrdh",
@@ -83,25 +98,14 @@ const ChainConfig: Record<string, Chain> = {
       protocol: "http",
       wsProtocol: "ws",
     },
-    ibc: [
-      {
-        id: "anoma-test.db3b577a0da7edb19ac",
-        alias: "Anoma Fractal Instance - B",
-        portId: "transfer",
-      },
-      {
-        id: "anoma-test.5aa9a964bf8925d4e44",
-        alias: "Namada - Local",
-        portId: "transfer",
-      },
-    ],
+    ibc: ibcEnabledChains.filter((ibcChain) => ibcChain.id !== CHAIN_A_ID),
   },
   /**
    * Example instance config
    */
-  ["anoma-test.db3b577a0da7edb19ac"]: {
-    id: "anoma-test.db3b577a0da7edb19ac",
-    alias: "Anoma Fractal Instance - B",
+  [CHAIN_B_ID]: {
+    id: CHAIN_B_ID,
+    alias: CHAIN_B_ALIAS,
     accountIndex: 999,
     faucet:
       "atest1v4ehgw36gfrrydf4xseyyvjrgs6nvdfjx5myz3pkxce5vd3kgcenxseexpry23jzxqerjvfszfqxng",
@@ -111,18 +115,7 @@ const ChainConfig: Record<string, Chain> = {
       protocol: "http",
       wsProtocol: "ws",
     },
-    ibc: [
-      {
-        id: "anoma-test.a3f2e831ac21178f5fb",
-        alias: "Anoma Fractal Instance - A",
-        portId: "transfer",
-      },
-      {
-        id: "anoma-test.5aa9a964bf8925d4e44",
-        alias: "Namada - Local",
-        portId: "transfer",
-      },
-    ],
+    ibc: ibcEnabledChains.filter((ibcChain) => ibcChain.id !== CHAIN_B_ID),
   },
 };
 
