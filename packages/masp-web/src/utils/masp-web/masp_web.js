@@ -241,6 +241,32 @@ export function create_shielded_transfer(shielded_transactions, spending_key_as_
 }
 
 /**
+* @param {any} shielded_transactions
+* @param {string} spending_key_as_string
+* @param {string} token_address
+* @returns {BigInt | undefined}
+*/
+export function get_shielded_balance(shielded_transactions, spending_key_as_string, token_address) {
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        const ptr0 = passStringToWasm0(spending_key_as_string, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(token_address, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        wasm.get_shielded_balance(retptr, addHeapObject(shielded_transactions), ptr0, len0, ptr1, len1);
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        var r2 = getInt32Memory0()[retptr / 4 + 2];
+        u32CvtShim[0] = r1;
+        u32CvtShim[1] = r2;
+        const n2 = r0 === 0 ? undefined : uint64CvtShim[0];
+        return n2;
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+    }
+}
+
+/**
 * @param {string} alias
 * @param {string} seed_phrase
 * @param {string | undefined} password

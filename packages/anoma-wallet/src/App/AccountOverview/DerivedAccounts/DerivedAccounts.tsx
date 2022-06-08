@@ -1,8 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAppDispatch, useAppSelector } from "store";
 import { AccountsState, fetchBalanceByAccount } from "slices/accounts";
+import { updateShieldedBalances } from "slices/accountsNew";
 import { formatRoute } from "utils/helpers";
 import { TopLevelRoute } from "App/types";
 
@@ -35,6 +36,8 @@ const DerivedAccounts = (): JSX.Element => {
         }
       });
     }
+
+    dispatch(updateShieldedBalances());
   }, []);
 
   const shieldedAndTransparentAccounts = { ...derived, ...shieldedAccounts };

@@ -12,6 +12,13 @@
 */
 export function create_shielded_transfer(shielded_transactions: any, spending_key_as_string: string, payment_address_as_string: string, token_address: string, amount: BigInt, spend_param_bytes: Uint8Array, output_param_bytes: Uint8Array): Uint8Array | undefined;
 /**
+* @param {any} shielded_transactions
+* @param {string} spending_key_as_string
+* @param {string} token_address
+* @returns {BigInt | undefined}
+*/
+export function get_shielded_balance(shielded_transactions: any, spending_key_as_string: string, token_address: string): BigInt | undefined;
+/**
 * @param {string} alias
 * @param {string} seed_phrase
 * @param {string | undefined} password
@@ -65,11 +72,12 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
-  readonly shieldedaccount_new_master_account: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
-  readonly shieldedaccount_new_derived_account: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
   readonly create_shielded_transfer: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number) => void;
+  readonly get_shielded_balance: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
   readonly create_master_shielded_account: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
   readonly create_derived_shielded_account: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
+  readonly shieldedaccount_new_master_account: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
+  readonly shieldedaccount_new_derived_account: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
   readonly __wbg_nodewithnextid_free: (a: number) => void;
   readonly nodewithnextid_decode_transaction_with_next_tx_id: (a: number, b: number) => number;
   readonly rustsecp256k1_v0_4_1_context_create: (a: number) => number;

@@ -30,6 +30,13 @@ use wasm_bindgen::prelude::*;
 use zcash_primitives::merkle_tree::IncrementalWitness;
 
 // this is the top level function when creating shielded transactions
+// it does the following:
+// - turns spending_key_as_string and payment_address_as_string to objects
+// - decrypts the past transactions and reverses their order
+// - creates an object for AssetType
+// - loops through past transactions seeking for notes that can be decrypted and still spent with the current spending key
+// - creates a possible needed return payment for the source of the transfer
+// -
 pub fn create_shielded_transfer(
     // they should be passed in order that they were fetched starting from head-tx as they are reversed here
     shielded_transactions: JsValue,
@@ -186,6 +193,124 @@ pub fn create_shielded_transfer(
             return None;
         }
     };
+}
+
+pub fn get_shielded_balance(
+    // they should be passed in order that they were fetched starting from head-tx as they are reversed here
+    shielded_transactions: JsValue,
+    spending_key_as_string: String,
+    token_address: String,
+) -> Option<u64> {
+    // turning the string parameters to correct types
+    // spending key, could also be transparent address if we are doing transparent -> shielded transfer
+    let spending_key_result = ExtendedSpendingKey::from_str(spending_key_as_string.as_str());
+    let spending_key_maybe = match spending_key_result {
+        Ok(spending_key) => Some(spending_key),
+        Err(_error) => {
+            // TODO replace this placeholder check that we really have a transparent address
+            // the check is fine even done before this func is called
+            if !spending_key_as_string.starts_with("atest") {
+                return None;
+            };
+            None
+        }
+    };
+
+    // transactions
+    let transactions_maybe = nodes_with_next_id_to_transactions(shielded_transactions);
+    let mut transactions = match transactions_maybe {
+        Some(transactions) => transactions,
+        None => return None,
+    };
+
+    // the order where the transactions were fetched stating from head-tx
+    // it would be good to check this out using the head-tx
+    transactions.reverse();
+
+    // asset type
+    let token_address_result = Address::decode(token_address);
+    let token_address = match token_address_result {
+        Ok(token_type) => token_type,
+        Err(_error) => {
+            return None;
+        }
+    };
+    let token_bytes = token_address.try_to_vec().expect("token should serialize");
+    let asset_type = AssetType::new(token_bytes.as_ref()).expect("unable to create asset type");
+
+    // TODO can this be optional in ::Builder::new as we do not need it here
+    let height = 0u32;
+
+    // We initiate the builder
+    let mut builder = Builder2::<TestNetwork, OsRng>::new(height);
+
+    // Transaction fees will be taken care of in the wrapper Transfer
+    let _ = builder.set_fee(Amount::zero());
+
+    if let Some(spending_key) = spending_key_maybe {
+        // we create this context that holds the data that will be needed later, it contains:
+        // notes, spent notes, ...
+        let transaction_context =
+            load_shielded_transaction_context(transactions, vec![spending_key], vec![]);
+        let lookup_viewing_key = extended_spending_key_to_viewing_key(&spending_key);
+
+        // Retrieve the notes that can be spent by this key
+        if let Some(avail_notes) = transaction_context.viewing_keys.get(&lookup_viewing_key) {
+            let total_amount = gather_all_unspent_notes_of_viewing_key(
+                avail_notes,
+                asset_type,
+                &transaction_context,
+                spending_key,
+                &mut builder,
+            );
+            return Some(total_amount);
+        }
+    }
+    None
+}
+
+// "collects" unspent notes that are available for the current spending key
+fn gather_all_unspent_notes_of_viewing_key(
+    avail_notes: &HashSet<usize>,
+    asset_type: AssetType,
+    transaction_context: &TransactionContext,
+    spending_key: ExtendedSpendingKey,
+    builder: &mut Builder2<TestNetwork, OsRng>,
+) -> u64 {
+    let mut val_acc = 0;
+    for note_idx in avail_notes {
+        // once we meet the target amount we can stop collecting unspent notes
+        // if val_acc >= amount {
+        //     break;
+        // }
+
+        // if this note is spent we just continue
+        if transaction_context.spent_funds.contains(note_idx) {
+            continue;
+        }
+
+        // lets get the note from the context that we constructed earlier
+        let note = transaction_context.note_map.get(note_idx).unwrap().clone();
+
+        // if this note is for wrong any different asset type we continue
+        if note.asset_type != asset_type {
+            continue;
+        }
+
+        let merkle_path = transaction_context
+            .witness_map
+            .get(note_idx)
+            .unwrap()
+            .path()
+            .unwrap();
+        let diversifier = transaction_context.diversifier_map.get(note_idx).unwrap();
+        val_acc += note.value;
+
+        // Commit this note to our transaction
+        let _add_sapling_spend_result =
+            builder.add_sapling_spend(spending_key.clone(), *diversifier, note, merkle_path);
+    }
+    val_acc
 }
 
 fn gather_spend_from_notes(

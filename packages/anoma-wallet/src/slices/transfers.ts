@@ -13,6 +13,7 @@ import {
 } from "./accounts";
 
 import { createShieldedTransfer } from "./shieldedTransfer";
+import { updateShieldedBalances } from "./accountsNew";
 
 const TRANSFERS_ACTIONS_BASE = "transfers";
 const LEDGER_TRANSFER_TIMEOUT = 10000;
@@ -232,6 +233,7 @@ export const submitTransferTransaction = createAsyncThunk(
     const height = parseInt(events[TxResponse.Height][0]);
 
     dispatch(fetchBalanceByAccount(account));
+    dispatch(updateShieldedBalances());
 
     return {
       id,

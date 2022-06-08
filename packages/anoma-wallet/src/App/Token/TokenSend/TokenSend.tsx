@@ -67,7 +67,6 @@ const TokenSend = (): JSX.Element => {
         }))
         .filter((account) => account.tokenType === tokenType)
     : [];
-  console.log(accounts, "accounts");
 
   useEffect(() => {
     if (!selectedAccountId && accounts.length > 0) {

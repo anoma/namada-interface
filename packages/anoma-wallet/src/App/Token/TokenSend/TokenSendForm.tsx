@@ -34,6 +34,9 @@ import { Toggle } from "components/Toggle";
 import { Icon, IconName } from "components/Icon";
 import { Address } from "../Transfers/TransferDetails.components";
 import { parseTarget } from "./TokenSend";
+
+const MAX_MEMO_LENGTH = 100;
+
 type Props = {
   accountId: string;
   defaultTarget?: string;
@@ -43,7 +46,7 @@ const { network } = new Config();
 const rpcClient = new RpcClient(network);
 
 // if the transfer target is not TransferType.Shielded we perform the validation logic
-const validateAmount = (
+const isAmountValid = (
   transferAmount: number,
   balance: number,
   targetAddress: string | undefined
@@ -53,6 +56,43 @@ const validateAmount = (
     return undefined;
   }
   return transferAmount <= balance ? undefined : "Invalid amount!";
+};
+
+const isMemoValid = (text: string): boolean => {
+  // TODO: Additional memo validation rules?
+  return text.length < MAX_MEMO_LENGTH;
+};
+
+/**
+ * Validates the form for a correct data. This needs more after containing also the shielded transfers
+ * Spend more time doing proper feedback for the user and priorities when the user has several issues
+ * in the form
+ *
+ * @param target recipient of the transfer
+ * @param amount amount to transfer, in format as the user sees it
+ * @param balance - balance of user
+ * @param memo - description for the payment
+ * @param isTargetValid - pre-validated target, TODO: partly naive and likely better to call from within this function
+ * @param isTransferSubmitting - a flag telling whether this transfer is currently on flight TODO,
+ *                               should be outside of this so we can do more than just disable the button
+ * @returns
+ */
+const isFormValid = (
+  target: string | undefined,
+  amount: number,
+  balance: number,
+  memo: string,
+  isTargetValid: boolean,
+  isTransferSubmitting: boolean
+): boolean => {
+  return (
+    target === "" ||
+    amount > balance ||
+    amount === 0 ||
+    !isMemoValid(memo) ||
+    !isTargetValid ||
+    isTransferSubmitting
+  );
 };
 
 const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
@@ -76,8 +116,6 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
   const account = transparentAndShieldedAccounts[accountId] || {};
   const { alias, establishedAddress = "", tokenType, balance = 0 } = account;
   const token = Tokens[tokenType] || {};
-
-  const MAX_MEMO_LENGTH = 100;
 
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
@@ -133,10 +171,6 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
     };
   }, []);
 
-  useEffect(() => {
-    console.log(target, "target changed");
-  }, [target]);
-
   const handleOnSendClick = (): void => {
     if ((isShielded && target) || (target && token.address)) {
       dispatch(
@@ -148,11 +182,6 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
         })
       );
     }
-  };
-
-  const isMemoValid = (text: string): boolean => {
-    // TODO: Additional memo validation rules?
-    return text.length < MAX_MEMO_LENGTH;
   };
 
   const handleOnScan = (data: string | null): void => {
@@ -219,7 +248,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
               setAmount(parseFloat(`${value}`));
             }}
             onFocus={handleFocus}
-            error={validateAmount(amount, balance, target)}
+            error={isAmountValid(amount, balance, target)}
           />
         </InputContainer>
         <InputContainer>
@@ -264,17 +293,16 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
       </StatusContainer>
 
       <ButtonsContainer>
-        {console.log("reverse this === 0 before commit")}
         <Button
           variant={ButtonVariant.Contained}
-          disabled={
-            target === "" ||
-            // amount > balance ||
-            // amount === 0 || //
-            // !isMemoValid(memo) ||
-            !isTargetValid ||
+          disabled={isFormValid(
+            target,
+            amount,
+            balance,
+            memo,
+            isTargetValid,
             isTransferSubmitting
-          }
+          )}
           onClick={handleOnSendClick}
         >
           Send

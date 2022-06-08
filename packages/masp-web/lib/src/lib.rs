@@ -2,7 +2,10 @@ mod shielded_account;
 mod shielded_transaction;
 
 use shielded_account::ShieldedAccount;
-use shielded_transaction::create_shielded_transfer as create_shielded_transfer_implementation;
+use shielded_transaction::{
+    create_shielded_transfer as create_shielded_transfer_implementation,
+    get_shielded_balance as get_shielded_balance_implementation,
+};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -23,6 +26,19 @@ pub fn create_shielded_transfer(
         amount,
         spend_param_bytes,
         output_param_bytes,
+    )
+}
+
+#[wasm_bindgen]
+pub fn get_shielded_balance(
+    shielded_transactions: JsValue,
+    spending_key_as_string: String,
+    token_address: String,
+) -> Option<u64> {
+    get_shielded_balance_implementation(
+        shielded_transactions,
+        spending_key_as_string,
+        token_address,
     )
 }
 

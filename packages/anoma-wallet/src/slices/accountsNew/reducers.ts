@@ -1,5 +1,10 @@
 import { ActionReducerMapBuilder } from "@reduxjs/toolkit";
-import { addAccountToLedger, reset } from "./actions";
+import {
+  addAccountToLedger,
+  reset,
+  updateShieldedBalances,
+  ShieldedBalancesPayload,
+} from "./actions";
 import reducer from "../accounts";
 export const addAccountReducersToBuilder = (
   builder: ActionReducerMapBuilder<ReturnType<typeof reducer>>
@@ -38,6 +43,19 @@ export const addAccountReducersToBuilder = (
     })
     .addCase(addAccountToLedger.rejected, (state, action) => {
       state.isAddingAccountInReduxState = false;
+    })
+    .addCase(updateShieldedBalances.fulfilled, (state, action) => {
+      const { payload } = action;
+      let shieldedBalances: ShieldedBalancesPayload = {};
+      if (payload) {
+        shieldedBalances = payload;
+      }
+
+      for (const [key, shieldedBalance] of Object.entries(shieldedBalances)) {
+        if (state.shieldedAccounts[key]) {
+          state.shieldedAccounts[key].balance = shieldedBalance;
+        }
+      }
     });
 
   return builder;

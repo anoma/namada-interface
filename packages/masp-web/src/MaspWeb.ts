@@ -1,5 +1,6 @@
 import init, {
   create_shielded_transfer,
+  get_shielded_balance,
   NodeWithNextId as NodeWithNextIdWasmType,
   ShieldedAccount,
   ShieldedAccountType,
@@ -16,6 +17,7 @@ const fetchFromPublicFolderToByteArray = async (
   const dataAsByteArray = new Uint8Array(data);
   return Promise.resolve(dataAsByteArray);
 };
+import { TransactionConfiguration } from "../../anoma-wallet/src/slices/shieldedTransfer";
 
 type NodeWithNextId = {
   node: Uint8Array;
@@ -42,7 +44,8 @@ export class MaspWeb {
     nodesWithNextId: NodeWithNextId[],
     amount: BigInt,
     inputAddress: string,
-    outputAddress: string
+    outputAddress: string,
+    transactionConfiguration: TransactionConfiguration
   ): Promise<Uint8Array> => {
     const nodesWithNextIdWasm: NodeWithNextIdWasm[] = nodesWithNextId.map(
       (nodeWithNextId) => {
@@ -61,8 +64,10 @@ export class MaspWeb {
       "masp-output.params"
     );
 
-    const tokenAddress =
-      "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5";
+    const { nam } = transactionConfiguration.tokenAddresses;
+    const tokenAddress = nam;
+    // const tokenAddress =
+    //   "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5";
 
     if (spendParamBytesAsByteArray && outputParamBytesAsByteArray) {
       const shieldedTransfer = create_shielded_transfer(
@@ -83,8 +88,43 @@ export class MaspWeb {
     }
   };
 
-  createTransaction = () => {
-    console.log("MaspWeb.createTransaction");
+  /**
+   *
+   * @param nodesWithNextId - these are the fetched transactions
+   * @param inputAddress - This is the viewing key/spending key that the balance is being checked for
+   * @returns
+   */
+  getShieldedBalance = async (
+    nodesWithNextId: NodeWithNextId[],
+    inputAddress: string,
+    transactionConfiguration: TransactionConfiguration
+  ): Promise<string> => {
+    const nodesWithNextIdWasm: NodeWithNextIdWasm[] = nodesWithNextId.map(
+      (nodeWithNextId) => {
+        return {
+          node: nodeWithNextId.node,
+          next_transaction_id: nodeWithNextId.nextTransactionId,
+        };
+      }
+    );
+
+    const { nam } = transactionConfiguration.tokenAddresses;
+    const tokenAddress = nam;
+    // const tokenAddress =
+    //   "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5";
+
+    const shieldedBalanceInMicros = get_shielded_balance(
+      nodesWithNextIdWasm,
+      inputAddress,
+      tokenAddress
+    );
+    if (shieldedBalanceInMicros !== undefined) {
+      const shieldedBalance =
+        shieldedBalanceInMicros.valueOf() / BigInt(1_000_000);
+      const shieldedBalanceAsString = shieldedBalance.toString();
+      return Promise.resolve(shieldedBalanceAsString);
+    }
+    return Promise.reject("could not fetch shielded balance");
   };
 
   static decodeTransactionWithNextTxId = (
@@ -132,9 +172,5 @@ export class MaspShieldedAccount {
   static init = async (): Promise<ShieldedAccount> => {
     await init();
     return new ShieldedAccount();
-  };
-
-  createShieldedAccount = () => {
-    console.log("createShieldedAccount");
   };
 }

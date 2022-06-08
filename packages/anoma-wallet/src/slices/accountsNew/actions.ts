@@ -6,12 +6,14 @@ import {
 } from "@reduxjs/toolkit";
 import {
   ADD_ACCOUNT_TO_LEDGER,
+  UPDATE_SHIELDED_BALANCES,
   NewAccountDetails,
   ShieldedAccount,
 } from "./types";
 import { RootState } from "store/store";
 import { Wallet, Session } from "lib";
 import { DerivedAccount, AccountsState } from "slices/accounts";
+import { getShieldedBalance } from "slices/shieldedTransfer";
 import {
   MaspShieldedAccount,
   createShieldedMasterAccount,
@@ -77,5 +79,32 @@ export const addAccountToLedger = createAsyncThunk<
     }
   }
 );
+
+export type ShieldedBalancesPayload = {
+  [accountId: string]: number;
+};
+export const updateShieldedBalances = createAsyncThunk<
+  ShieldedBalancesPayload | undefined,
+  void
+>(UPDATE_SHIELDED_BALANCES, async (_, thunkAPI) => {
+  try {
+    const state = thunkAPI.getState() as RootState;
+    const shieldedAccounts = state.accounts.shieldedAccounts;
+    const shieldedBalances: ShieldedBalancesPayload = {};
+
+    // TODO, is it good to have them all fail if one does, as now?
+    for (const shieldedAccountId of Object.keys(shieldedAccounts)) {
+      const shieldedAccount = shieldedAccounts[shieldedAccountId];
+      const shieldedBalance = await getShieldedBalance(
+        shieldedAccount.shieldedKeysAndPaymentAddress.spendingKey
+      );
+      // TODO unify the types and the location of conversions
+      shieldedBalances[shieldedAccountId] = Number(shieldedBalance);
+    }
+    return Promise.resolve(shieldedBalances);
+  } catch (error) {
+    Promise.reject("error fetching shielded balances");
+  }
+});
 
 export const reset = createAction("reset");
