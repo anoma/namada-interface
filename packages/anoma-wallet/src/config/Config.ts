@@ -10,18 +10,15 @@ export type NetworkConfig = {
 
 // DEVNET defaults
 
-const DEVNET_URL = "localhost";
+// const DEVNET_URL = "3.249.186.101";
+const DEVNET_URL = "54.76.21.80";
 const DEVNET_PORT = 26657;
 const DEVNET_PROTOCOL = "http";
 const DEVNET_WS_PROTOCOL = "ws";
 
-// const DEVNET_URL = "testnet-ux.anoma-euw1.heliax.dev";
-// const DEVNET_PORT = 443;
-// const DEVNET_PROTOCOL = "https";
-// const DEVNET_WS_PROTOCOL = "wss";
-
 // Localhost defaults
-const LOCALHOST_URL = "localhost";
+// const LOCALHOST_URL = "3.249.186.101";
+const LOCALHOST_URL = "54.76.21.80";
 const LOCALHOST_PORT = 26657;
 const LOCALHOST_PROTOCOL = "http";
 const LOCALHOST_WS_PROTOCOL = "ws";
