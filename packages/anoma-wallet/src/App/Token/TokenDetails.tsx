@@ -50,7 +50,9 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
   );
   const dispatch = useAppDispatch();
 
-  const account: DerivedAccount = derived[chainId][id] || {};
+  const derivedAccounts = derived[chainId] || {};
+  const account: DerivedAccount = derivedAccounts[id] || {};
+
   const { alias, tokenType, balance, establishedAddress, isInitializing } =
     account;
   const token = Tokens[tokenType] || {};
