@@ -10,13 +10,11 @@ crate-type = ["cdylib", "rlib"]
 [features]
 default = ["console_error_panic_hook"]
 std = ["rand_core/std"]
-# std = ["ed25519-consensus/std", "rand/std", "rand_core/std"]
 
 [dependencies]
 # wasm pack default
 anoma = {package = "anoma", git = "https://github.com/anoma/anoma", rev = "f1afdffd5e43ad4bb448db7bf5bc1e23464350f7"}
 # needed this as it now contains stuff for spending_key, viewing_key and payment_address for masp
-# anoma_with_masp_in_shared = {package = "anoma", git = "https://github.com/anoma/anoma", rev = "f1afdffd5e43ad4bb448db7bf5bc1e23464350f7"}
 console_error_panic_hook = {version = "0.1.6", optional = true}
 js-sys = "0.3.5"
 jubjub = {version = "0.8"}
