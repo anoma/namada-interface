@@ -1,6 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useQRCode } from "next-qrcode";
 
+import Config from "config";
 import { AccountsState } from "slices/accounts";
 import { SettingsState } from "slices/settings";
 import { useAppSelector } from "store";
@@ -25,16 +26,21 @@ const TokenReceive = (): JSX.Element => {
   const { id = "" } = useParams<TokenReceiveParams>();
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
+
+  const derivedAccounts = derived[chainId] || {};
+  const { accountIndex } = Config.chain[chainId];
+
   const {
     establishedAddress = "",
     alias,
     tokenType,
-  } = derived[chainId][id] || {};
+  } = derivedAccounts[id] || {};
   const { protocol, host } = window.location;
 
   const text = `${protocol}//${host}${formatRoute(
     TopLevelRoute.TokenSendTarget,
     {
+      accountIndex,
       tokenType,
       target: establishedAddress,
     }

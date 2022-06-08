@@ -13,19 +13,29 @@ import { Heading, HeadingLevel } from "components/Heading";
 import { NavigationContainer } from "components/NavigationContainer";
 import { Select, Option } from "components/Select";
 import { TokenSendContainer } from "./TokenSend.components";
+import Config from "config";
 
 type TokenSendParams = {
   id: string;
   target: string;
   tokenType: TokenType;
+  accountIndex?: string;
 };
 
 const TokenSend = (): JSX.Element => {
   const navigate = useNavigate();
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
-  const { id, target, tokenType } = useParams<TokenSendParams>();
+  const {
+    id,
+    target,
+    tokenType,
+    accountIndex = "",
+  } = useParams<TokenSendParams>();
 
+  const chainConfig = Config.chain[chainId];
+
+  const [isAccountValid, setIsAccountValid] = useState(true);
   const [selectedAccountId, setSelectedAccountId] = useState<
     string | undefined
   >(id);
@@ -46,6 +56,11 @@ const TokenSend = (): JSX.Element => {
 
   useEffect(() => {
     if (!selectedAccountId && accounts.length > 0) {
+      if (parseInt(accountIndex) !== chainConfig.accountIndex) {
+        setIsAccountValid(false);
+        return;
+      }
+
       const accountsData = accounts.map((account) => ({
         value: account.id,
         label: `${account.alias} (${account.tokenType})`,
@@ -68,7 +83,11 @@ const TokenSend = (): JSX.Element => {
       >
         <Heading level={HeadingLevel.One}>Token Send</Heading>
       </NavigationContainer>
+      {!isAccountValid && (
+        <p>The scanned address does not exist on this chain!</p>
+      )}
       {target &&
+        isAccountValid &&
         (accounts.length > 0 ? (
           <Select
             data={accountsData || []}

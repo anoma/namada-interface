@@ -1,12 +1,13 @@
-import { Heading, HeadingLevel } from "components/Heading";
-import { NavigationContainer } from "components/NavigationContainer";
-import Config from "config";
-
 import { useNavigate, useParams } from "react-router-dom";
+
+import Config from "config";
 import { ChainsState } from "slices/chains";
 import { TransfersState } from "slices/transfers";
 import { useAppSelector } from "store";
 import { stringFromTimestamp } from "utils/helpers";
+
+import { Heading, HeadingLevel } from "components/Heading";
+import { NavigationContainer } from "components/NavigationContainer";
 import { Address, TransferDetailContainer } from "./TransferDetails.components";
 
 type TransferDetailsParams = {
