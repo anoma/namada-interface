@@ -69,6 +69,7 @@ export const submitInitAccountTransaction = createAsyncThunk(
     const { chainId, signingKey: privateKey, tokenType } = account;
 
     const chainConfig = Config.chain[chainId];
+    const { faucet } = chainConfig;
     const { url, port, protocol, wsProtocol } = chainConfig.network;
 
     const rpcConfig = new RPCConfig(url, port, protocol, wsProtocol);
@@ -131,7 +132,7 @@ export const submitInitAccountTransaction = createAsyncThunk(
           amount: 1000,
           memo: "Initial funds",
           shielded: false,
-          useFaucet: true,
+          faucet,
         })
       );
     }

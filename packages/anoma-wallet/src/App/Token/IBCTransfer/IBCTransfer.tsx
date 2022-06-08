@@ -72,7 +72,9 @@ const IBCTransfer = (): JSX.Element => {
   const [showAddChannelForm, setShowAddChannelForm] = useState(false);
   const [channelId, setChannelId] = useState<string>();
   const [recipient, setRecipient] = useState("");
-  const account = derived[chainId][id] || {};
+
+  const derivedAccounts = derived[chainId] || {};
+  const account = derivedAccounts[id] || {};
   const { balance = 0, tokenType } = account;
 
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>

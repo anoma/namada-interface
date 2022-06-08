@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import Config, { RPCConfig } from "config";
-import { FAUCET_ADDRESS, Tokens, TokenType, TxResponse } from "constants/";
+import { Tokens, TokenType, TxResponse } from "constants/";
 import { IbcTxResponse } from "constants/tx";
 import { RpcClient, SocketClient, Transfer, IBCTransfer } from "lib";
 import { NewBlockEvents } from "lib/rpc/types";
@@ -69,7 +69,7 @@ type TxArgs = {
 
 type TxTransferArgs = TxArgs & {
   shielded: boolean;
-  useFaucet?: boolean;
+  faucet?: string;
 };
 
 type TxIbcTransferArgs = TxArgs & {
@@ -91,7 +91,7 @@ export const submitTransferTransaction = createAsyncThunk(
       amount,
       memo,
       shielded,
-      useFaucet,
+      faucet,
     }: TxTransferArgs,
     { dispatch, rejectWithValue }
   ) => {
@@ -102,7 +102,7 @@ export const submitTransferTransaction = createAsyncThunk(
       signingKey: privateKey,
     } = account;
 
-    const source = useFaucet ? FAUCET_ADDRESS : establishedAddress;
+    const source = faucet || establishedAddress;
 
     const chainConfig = Config.chain[chainId];
     const { url, port, protocol, wsProtocol } = chainConfig.network;
@@ -159,7 +159,7 @@ export const submitTransferTransaction = createAsyncThunk(
 
     return {
       id,
-      useFaucet,
+      faucet,
       transaction: {
         chainId,
         source,
@@ -326,17 +326,17 @@ const transfersSlice = createSlice({
         state,
         action: PayloadAction<{
           id: string;
-          useFaucet: boolean | undefined;
+          faucet: string | undefined;
           transaction: TransferTransaction;
         }>
       ) => {
-        const { useFaucet, transaction } = action.payload;
+        const { faucet, transaction } = action.payload;
         const { gas, appliedHash } = transaction;
 
         state.isTransferSubmitting = false;
         state.transferError = undefined;
 
-        state.events = !useFaucet
+        state.events = !faucet
           ? {
               gas,
               appliedHash,
