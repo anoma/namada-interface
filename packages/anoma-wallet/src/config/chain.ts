@@ -35,8 +35,8 @@ export type Chain = {
 export const defaultChainId =
   REACT_APP_LOCAL_CHAIN_ID || "anoma-test.fd58c789bc11e6c6392";
 
-const CHAIN_A_ID = "anoma-test.a3f2e831ac21178f5fb";
-const CHAIN_B_ID = "anoma-test.db3b577a0da7edb19ac";
+const CHAIN_A_ID = "anoma-test.c50eeb1e32dde7e655b";
+const CHAIN_B_ID = "anoma-test.cbd3b4743df878cb186 ";
 const CHAIN_A_ALIAS = "Anoma Fractal Instance - A";
 const CHAIN_B_ALIAS = "Anoma Fractal Instance - B";
 
@@ -91,7 +91,7 @@ const ChainConfig: Record<string, Chain> = {
     alias: CHAIN_A_ALIAS,
     accountIndex: 998,
     faucet:
-      "atest1v4ehgw36xqcnzdpkgdzrw3pcg5crgvf4gfp5g3p4xumrj32xx9rrj3jrxycnxsfeggens3fs5ryrdh",
+      "atest1v4ehgw36xeprx3zrx3p5zsejx9q5yvf5gg6rysehggerjsj9g9pnqv6zxy6y2s3hgccnysennuy39m",
     network: {
       url: "10.7.1.159",
       port: 27657,
@@ -108,7 +108,7 @@ const ChainConfig: Record<string, Chain> = {
     alias: CHAIN_B_ALIAS,
     accountIndex: 999,
     faucet:
-      "atest1v4ehgw36gfrrydf4xseyyvjrgs6nvdfjx5myz3pkxce5vd3kgcenxseexpry23jzxqerjvfszfqxng",
+      "atest1v4ehgw36ggcrws3exaznwdp3xqcnydfkx9zn2vfe8yuyysf589p5gwfcxscrssfn8yur23jxp95h8m",
     network: {
       url: "10.7.1.147",
       port: 27657,
