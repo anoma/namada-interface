@@ -31,7 +31,7 @@ const DerivedAccounts = (): JSX.Element => {
     const keys = Object.keys(derivedAccounts);
     if (keys.length > 0) {
       keys.forEach((key) => {
-        const account = derived[chainId][key];
+        const account = derivedAccounts[key];
         if (!account.balance) {
           dispatch(fetchBalanceByAccount(account));
         }

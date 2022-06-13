@@ -34,7 +34,8 @@ export const SettingsAccountSettings = (): JSX.Element => {
   const dispatch = useAppDispatch();
 
   const { id = "" } = params;
-  const account: DerivedAccount = derived[chainId][id];
+  const derivedAccounts = derived[chainId] || {};
+  const account: DerivedAccount = derivedAccounts[id] || {};
 
   const handleDeleteAccount = (): void => {
     if (
