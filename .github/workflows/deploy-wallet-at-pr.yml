@@ -25,16 +25,6 @@ jobs:
         with:
           version: "v0.10.2"
 
-      - name: Set up React variables
-        working-directory: ./packages/anoma-wallet
-        run: |
-          tr -dc A-Za-z0-9 </dev/urandom \
-            | head -c 13 \
-            | openssl dgst -binary -sha256 \
-            | openssl base64 \
-            | xargs echo "REACT_APP_SECRET_KEY=" \
-            | awk '{ gsub(/ /,""); print }' > .env
-
       - name: build the site
         working-directory: ./packages/anoma-wallet
         run: yarn build
