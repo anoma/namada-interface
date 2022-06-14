@@ -35,7 +35,7 @@ export type Chain = {
 export const defaultChainId =
   REACT_APP_LOCAL_CHAIN_ID || "anoma-test.fd58c789bc11e6c6392";
 
-const CHAIN_A_ID = "anoma-test.c50eeb1e32dde7e655b";
+const CHAIN_A_ID = "anoma-test.674569aaceffdeaa824";
 const CHAIN_B_ID = "anoma-test.cbd3b4743df878cb186 ";
 const CHAIN_A_ALIAS = "Anoma Fractal Instance - A";
 const CHAIN_B_ALIAS = "Anoma Fractal Instance - B";
@@ -91,7 +91,7 @@ const ChainConfig: Record<string, Chain> = {
     alias: CHAIN_A_ALIAS,
     accountIndex: 998,
     faucet:
-      "atest1v4ehgw36xeprx3zrx3p5zsejx9q5yvf5gg6rysehggerjsj9g9pnqv6zxy6y2s3hgccnysennuy39m",
+      "atest1v4ehgw36gce5vd6xxqc5yv6zgsmrjdph8ycnjs3e89rrqd3exvc5zvpnxvcnwwpng3zrz3p5p9ljrs",
     network: {
       url: "10.7.1.159",
       port: 27657,
