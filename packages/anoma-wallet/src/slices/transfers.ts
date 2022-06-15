@@ -9,7 +9,6 @@ import {
   ShieldedAccount,
   fetchBalanceByAccount,
   ShieldedKeysAndPaymentAddress,
-  isShieldedAccount,
   isShieldedAddress,
 } from "./accounts";
 
@@ -19,7 +18,7 @@ import { updateShieldedBalances } from "./accountsNew";
 const TRANSFERS_ACTIONS_BASE = "transfers";
 const LEDGER_TRANSFER_TIMEOUT = 10000;
 const MASP_ADDRESS =
-  "atest1v4ehgw36gc6yxvpjxccyzvphxycrxw2xxsuyydesxgcnjs3cg9znwv3cxgmnj32yxy6rssf5tcqjm3";
+  "atest1v4ehgw36xaryysfsx5unvve4g5my2vjz89p52sjxxgenzd348yuyyv3hg3pnjs35g5unvde4ca36y5";
 
 export type TransferTransaction = {
   source: string;
@@ -70,20 +69,11 @@ type TxTransferArgs = {
 };
 
 type ShieldedAddress = string;
-type TransparentAddress = string;
-
-type TransferTarget = ShieldedAddress | TransparentAddress;
 
 // data passed from the UI for a shielded transfer
 type ShieldedTransferData = TxTransferArgs & {
   account: ShieldedAccount;
   shieldedKeysAndPaymentAddress: ShieldedKeysAndPaymentAddress;
-  target: ShieldedAddress;
-  targetShieldedAddress: ShieldedAddress;
-};
-
-type ShieldingTransferData = TxTransferArgs & {
-  account: DerivedAccount;
   target: ShieldedAddress;
   targetShieldedAddress: ShieldedAddress;
 };
@@ -138,17 +128,24 @@ const createTransfer = async (
       transferData.amount
     );
 
-    // TODO, this is just a placeholder to have the Tx go through when when creating the Tx to post to the ledger
-    // check out what the web RUST code does in this regard, likely we can omit this
-    transferData.privateKey =
-      "cf0805f7675f3a17db1769f12541449d53935f50dab8590044f8a4cd3454ec4f";
+    // TODO get rid of these hacks, restructure the whole data model representing the transfer
     // we set the source and target addresses to masp (shielded -> shielded)
+    const source = sourceAccount.shieldedKeysAndPaymentAddress
+      ? MASP_ADDRESS
+      : "atest1v4ehgw36xeprzd6zxq6nxv6xxs6rjv6y8qcnjdfnxepn23jygdpn2d3cxgey2vj9xs6rvs2pmklpya";
+
+    if (sourceAccount.shieldedKeysAndPaymentAddress) {
+      transferData.privateKey =
+        "cf0805f7675f3a17db1769f12541449d53935f50dab8590044f8a4cd3454ec4f";
+    }
+
     const transferDataWithMaspAddress = {
       ...transferData,
-      source: MASP_ADDRESS,
+      source: source,
       target: MASP_ADDRESS,
     };
 
+    console.log(transferDataWithMaspAddress, "transferDataWithMaspAddress");
     // generate the transfer that contains the shielded transaction
     const hashAndBytes = await transfer.makeShieldedTransfer({
       ...transferDataWithMaspAddress,

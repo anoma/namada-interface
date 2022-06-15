@@ -39,6 +39,7 @@ export type ShieldedAccount = DerivedAccount & {
   shieldedKeysAndPaymentAddress: ShieldedKeysAndPaymentAddress;
 };
 
+// TODO redundant, refactor the data models
 // type predicate to figure out if the account is shielded or transparent
 export const isShieldedAccount = (
   account: DerivedAccount | ShieldedAccount
