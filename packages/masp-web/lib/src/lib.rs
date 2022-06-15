@@ -11,7 +11,7 @@ use wasm_bindgen::prelude::*;
 #[wasm_bindgen]
 pub fn create_shielded_transfer(
     shielded_transactions: JsValue,
-    spending_key_as_string: String,
+    spending_key_as_string: Option<String>,
     payment_address_as_string: String,
     token_address: String,
     amount: u64,

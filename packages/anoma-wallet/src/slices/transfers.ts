@@ -10,6 +10,7 @@ import {
   fetchBalanceByAccount,
   ShieldedKeysAndPaymentAddress,
   isShieldedAccount,
+  isShieldedAddress,
 } from "./accounts";
 
 import { createShieldedTransfer } from "./shieldedTransfer";
@@ -68,10 +69,23 @@ type TxTransferArgs = {
   useFaucet?: boolean;
 };
 
+type ShieldedAddress = string;
+type TransparentAddress = string;
+
+type TransferTarget = ShieldedAddress | TransparentAddress;
+
 // data passed from the UI for a shielded transfer
 type ShieldedTransferData = TxTransferArgs & {
   account: ShieldedAccount;
   shieldedKeysAndPaymentAddress: ShieldedKeysAndPaymentAddress;
+  target: ShieldedAddress;
+  targetShieldedAddress: ShieldedAddress;
+};
+
+type ShieldingTransferData = TxTransferArgs & {
+  account: DerivedAccount;
+  target: ShieldedAddress;
+  targetShieldedAddress: ShieldedAddress;
 };
 
 type TransferHashAndBytes = {
@@ -90,7 +104,7 @@ type TransferData = {
 };
 
 const createShieldedTransaction = async (
-  spendingKey: string,
+  spendingKey: string | undefined,
   paymentAddress: string,
   tokenValue: number // 1 ETC, 0.2 ETC, etc. the token value as the user entered it, division by 1_000_000 should have not been performed yet
 ): Promise<Uint8Array> => {
@@ -110,11 +124,16 @@ const createTransfer = async (
   transferData: TransferData
 ): Promise<TransferHashAndBytes> => {
   const transfer = await new Transfer().init();
-  if (isShieldedAccount(sourceAccount)) {
-    const { shieldedKeysAndPaymentAddress } = sourceAccount;
-    // we generate the shielded transfer
+  const { target } = transferData;
+  if (isShieldedAddress(target)) {
+    // if the transfer source is shielded
+    const spendingKey =
+      sourceAccount.shieldedKeysAndPaymentAddress?.spendingKey;
+
+    // if this is a shielding transfer, there is no shieldedKeysAndPaymentAddress
+    // in that case we just pass undefined
     const shieldedTransaction = await createShieldedTransaction(
-      shieldedKeysAndPaymentAddress.spendingKey,
+      spendingKey,
       transferData.target,
       transferData.amount
     );

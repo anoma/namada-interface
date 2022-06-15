@@ -85,8 +85,7 @@ impl Transfer {
             }
             Ok(shielded_transaction) => Some(shielded_transaction),
         };
-        log("shielded_transaction_maybe");
-        log(format!("{:?}", &shielded_transaction_maybe).as_str());
+
         let transfer = token::Transfer {
             source,
             target,

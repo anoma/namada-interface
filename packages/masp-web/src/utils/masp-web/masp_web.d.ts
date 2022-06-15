@@ -2,22 +2,22 @@
 /* eslint-disable */
 /**
 * @param {any} shielded_transactions
-* @param {string} spending_key_as_string
+* @param {string | undefined} spending_key_as_string
 * @param {string} payment_address_as_string
 * @param {string} token_address
-* @param {BigInt} amount
+* @param {bigint} amount
 * @param {Uint8Array} spend_param_bytes
 * @param {Uint8Array} output_param_bytes
 * @returns {Uint8Array | undefined}
 */
-export function create_shielded_transfer(shielded_transactions: any, spending_key_as_string: string, payment_address_as_string: string, token_address: string, amount: BigInt, spend_param_bytes: Uint8Array, output_param_bytes: Uint8Array): Uint8Array | undefined;
+export function create_shielded_transfer(shielded_transactions: any, spending_key_as_string: string | undefined, payment_address_as_string: string, token_address: string, amount: bigint, spend_param_bytes: Uint8Array, output_param_bytes: Uint8Array): Uint8Array | undefined;
 /**
 * @param {any} shielded_transactions
 * @param {string} spending_key_as_string
 * @param {string} token_address
-* @returns {BigInt | undefined}
+* @returns {bigint | undefined}
 */
-export function get_shielded_balance(shielded_transactions: any, spending_key_as_string: string, token_address: string): BigInt | undefined;
+export function get_shielded_balance(shielded_transactions: any, spending_key_as_string: string, token_address: string): bigint | undefined;
 /**
 * @param {string} alias
 * @param {string} seed_phrase
@@ -90,6 +90,15 @@ export interface InitOutput {
   readonly __wbindgen_free: (a: number, b: number) => void;
   readonly __wbindgen_exn_store: (a: number) => void;
 }
+
+/**
+* Synchronously compiles the given `bytes` and instantiates the WebAssembly module.
+*
+* @param {BufferSource} bytes
+*
+* @returns {InitOutput}
+*/
+export function initSync(bytes: BufferSource): InitOutput;
 
 /**
 * If `module_or_path` is {RequestInfo} or {URL}, makes a request and

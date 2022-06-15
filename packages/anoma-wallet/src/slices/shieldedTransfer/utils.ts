@@ -10,7 +10,7 @@ const rpcClient = new RpcClient(network);
 // regular transaction
 export const createShieldedTransfer = async (
   amount: number,
-  inputAddress: string,
+  inputAddress: string | undefined,
   outputAddress: string
 ): Promise<Uint8Array> => {
   try {
@@ -82,8 +82,8 @@ const fetchShieldedTransfers = async (): Promise<NodeWithNextId[]> => {
 
 // this augments the actual call with some common data that is not unique to the call
 const createShieldedTransferUsingTransfers = async (
-  amount: BigInt,
-  inputAddress: string,
+  amount: bigint,
+  inputAddress: string | undefined,
   outputAddress: string
 ): Promise<Uint8Array> => {
   const nodesWithNextId = await fetchShieldedTransfers();

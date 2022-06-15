@@ -48,6 +48,10 @@ export const isShieldedAccount = (
   );
 };
 
+export const isShieldedAddress = (address: string): boolean => {
+  return address.startsWith("patest");
+};
+
 type DerivedAccounts = {
   [id: string]: DerivedAccount;
 };

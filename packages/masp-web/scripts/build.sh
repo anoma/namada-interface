@@ -1,6 +1,6 @@
 # chmod +x ./scripts/build.sh
 
-wasm-pack build --target web ./lib
+CC=/opt/homebrew/opt/llvm/bin/clang AR=/opt/homebrew/opt/llvm/bin/llvm-ar wasm-pack build --target web ./lib
 
 # ls -l ./lib/pkg
 

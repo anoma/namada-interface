@@ -40,7 +40,7 @@ use zcash_primitives::merkle_tree::IncrementalWitness;
 pub fn create_shielded_transfer(
     // they should be passed in order that they were fetched starting from head-tx as they are reversed here
     shielded_transactions: JsValue,
-    spending_key_as_string: String,
+    spending_key_as_string: Option<String>,
     payment_address_as_string: String,
     token_address: String,
     amount: u64,
@@ -49,17 +49,23 @@ pub fn create_shielded_transfer(
 ) -> Option<Vec<u8>> {
     // turning the string parameters to correct types
     // spending key, could also be transparent address if we are doing transparent -> shielded transfer
-    let spending_key_result = ExtendedSpendingKey::from_str(spending_key_as_string.as_str());
-    let spending_key_maybe = match spending_key_result {
-        Ok(spending_key) => Some(spending_key),
-        Err(_error) => {
-            // TODO replace this placeholder check that we really have a transparent address
-            // the check is dine even done before this func is called
-            if !spending_key_as_string.starts_with("atest") {
-                return None;
-            };
-            None
-        }
+    let spending_key_maybe = if spending_key_as_string.is_none() {
+        None
+    } else {
+        let spending_key_result =
+            ExtendedSpendingKey::from_str(&spending_key_as_string.as_ref().unwrap().as_str());
+        let spending_key = match spending_key_result {
+            Ok(spending_key) => Some(spending_key),
+            Err(_error) => {
+                // TODO replace this placeholder check that we really have a transparent address
+                // the check is dine even done before this func is called
+                if !spending_key_as_string.unwrap().starts_with("atest") {
+                    return None;
+                };
+                None
+            }
+        };
+        spending_key
     };
 
     // payment address
@@ -152,11 +158,17 @@ pub fn create_shielded_transfer(
         let _ =
             builder.add_sapling_output(ovk_opt, payment_address.into(), asset_type, amount, memo);
     } else {
+        console_log("shielding transfer 1");
         let secp_sk = secp256k1::SecretKey::from_slice(&[0xcd; 32]).expect("secret key");
+        console_log("shielding transfer 2");
         let secp_ctx = secp256k1::Secp256k1::<secp256k1::SignOnly>::gen_new();
+        console_log("shielding transfer 3");
         let secp_pk = secp256k1::PublicKey::from_secret_key(&secp_ctx, &secp_sk).serialize();
+        console_log("shielding transfer 4");
         let hash = ripemd160::Ripemd160::digest(&sha2::Sha256::digest(&secp_pk));
+        console_log("shielding transfer 5");
         let script = TransparentAddress::PublicKey(hash.into()).script();
+        console_log("shielding transfer 6");
         let _adding_transparent_input_result = builder.add_transparent_input(
             secp_sk,
             OutPoint::new([0u8; 32], 0),
@@ -166,6 +178,7 @@ pub fn create_shielded_transfer(
                 script_pubkey: script,
             },
         );
+        let _ = builder.add_sapling_output(None, payment_address.into(), asset_type, amount, memo);
     }
 
     // we constructed the prover from the files that were passed to this func

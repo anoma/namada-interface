@@ -42,8 +42,8 @@ export class MaspWeb {
 
   generateShieldedTransaction = async (
     nodesWithNextId: NodeWithNextId[],
-    amount: BigInt,
-    inputAddress: string,
+    amount: bigint,
+    inputAddress: string | undefined,
     outputAddress: string,
     transactionConfiguration: TransactionConfiguration
   ): Promise<Uint8Array> => {
