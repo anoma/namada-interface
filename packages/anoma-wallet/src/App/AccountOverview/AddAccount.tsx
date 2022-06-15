@@ -21,7 +21,11 @@ import Config from "config";
 
 const MIN_ALIAS_LENGTH = 2;
 
-export const AddAccount = (): JSX.Element => {
+type Props = {
+  password: string;
+};
+
+export const AddAccount = ({ password }: Props): JSX.Element => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
@@ -89,7 +93,7 @@ export const AddAccount = (): JSX.Element => {
       return setAliasError("Invalid alias. Choose a different account alias.");
     }
     setIsAddingAccount(true);
-    const mnemonic = await new Session().getSeed();
+    const mnemonic = await Session.getSeed(password);
 
     if (mnemonic && trimmedAlias) {
       setAliasError(undefined);

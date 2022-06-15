@@ -17,6 +17,7 @@ import {
   chainsReducer,
 } from "slices";
 import { LocalStorageKeys } from "App/types";
+import { hashPassword } from "utils/helpers";
 
 const reducers = combineReducers({
   accounts: accountsReducer,
@@ -28,9 +29,9 @@ const reducers = combineReducers({
 
 type StoreFactory = (secretKey: string) => EnhancedStore;
 
-const makeStore: StoreFactory = (secretKey) => {
+const makeStore: StoreFactory = (secret) => {
   const { REACT_APP_LOCAL, NODE_ENV } = process.env;
-
+  const hash = hashPassword(secret);
   // Append to our store name to support multiple environments
   const POSTFIX =
     NODE_ENV === "development" ? (REACT_APP_LOCAL ? "-local" : "-dev") : "";
@@ -42,7 +43,7 @@ const makeStore: StoreFactory = (secretKey) => {
     whitelist: ["accounts", "transfers", "settings", "channels", "chains"],
     transforms: [
       encryptTransform({
-        secretKey,
+        secretKey: hash,
         onError: function (error) {
           // Handle the error.
           console.error(error);

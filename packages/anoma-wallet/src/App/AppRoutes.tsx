@@ -1,6 +1,7 @@
 import { Provider } from "react-redux";
 import { Routes, Route, Outlet } from "react-router-dom";
 import { Persistor } from "redux-persist";
+
 import { AccountOverview } from "./AccountOverview";
 import { AddAccount } from "./AccountOverview/AddAccount";
 import { AnimatedTransition } from "./App";
@@ -24,9 +25,10 @@ import IBCTransfer from "./Token/IBCTransfer/IBCTransfer";
 type Props = {
   store: AppStore;
   persistor: Persistor;
+  password: string;
 };
 
-const AppRoutes = ({ store, persistor }: Props): JSX.Element => {
+const AppRoutes = ({ store, persistor, password }: Props): JSX.Element => {
   return (
     <>
       {store && (
@@ -55,7 +57,7 @@ const AppRoutes = ({ store, persistor }: Props): JSX.Element => {
                   <AnimatedTransition
                     elementKey={TopLevelRoute.WalletAddAccount}
                   >
-                    <AddAccount />
+                    <AddAccount password={password} />
                   </AnimatedTransition>
                 }
               />
@@ -147,7 +149,7 @@ const AppRoutes = ({ store, persistor }: Props): JSX.Element => {
                   <AnimatedTransition
                     elementKey={TopLevelRoute.SettingsWalletSettings}
                   >
-                    <SettingsWalletSettings />
+                    <SettingsWalletSettings password={password} />
                   </AnimatedTransition>
                 }
               />
