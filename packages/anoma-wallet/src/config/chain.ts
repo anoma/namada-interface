@@ -3,7 +3,7 @@ export type Protocol = "http" | "https" | "ws" | "wss";
 const {
   REACT_APP_LOCAL,
   REACT_APP_LOCAL_LEDGER_ADDRESS,
-  REACT_APP_LOCAL_CHAIN_PORT,
+  REACT_APP_LOCAL_LEDGER_PORT,
   REACT_APP_LOCAL_CHAIN_ID,
   REACT_APP_LOCAL_FAUCET,
 } = process.env;
@@ -75,8 +75,8 @@ const ChainConfig: Record<string, Chain> = {
     faucet: REACT_APP_LOCAL_FAUCET,
     network: {
       url: REACT_APP_LOCAL_LEDGER_ADDRESS || "127.0.0.1",
-      port: REACT_APP_LOCAL_CHAIN_PORT
-        ? parseInt(REACT_APP_LOCAL_CHAIN_PORT)
+      port: REACT_APP_LOCAL_LEDGER_PORT
+        ? parseInt(REACT_APP_LOCAL_LEDGER_PORT)
         : DEFAULT_PORT,
       protocol: REACT_APP_LOCAL ? "http" : "https",
       wsProtocol: REACT_APP_LOCAL ? "ws" : "wss",
