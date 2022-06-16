@@ -132,7 +132,7 @@ const createTransfer = async (
     // we set the source and target addresses to masp (shielded -> shielded)
     const source = sourceAccount.shieldedKeysAndPaymentAddress
       ? MASP_ADDRESS
-      : "atest1v4ehgw36xeprzd6zxq6nxv6xxs6rjv6y8qcnjdfnxepn23jygdpn2d3cxgey2vj9xs6rvs2pmklpya";
+      : sourceAccount.establishedAddress || ""; // we know its there but due to bad data model ts cannot know it, refactor TODO
 
     if (sourceAccount.shieldedKeysAndPaymentAddress) {
       transferData.privateKey =
@@ -145,7 +145,6 @@ const createTransfer = async (
       target: MASP_ADDRESS,
     };
 
-    console.log(transferDataWithMaspAddress, "transferDataWithMaspAddress");
     // generate the transfer that contains the shielded transaction
     const hashAndBytes = await transfer.makeShieldedTransfer({
       ...transferDataWithMaspAddress,

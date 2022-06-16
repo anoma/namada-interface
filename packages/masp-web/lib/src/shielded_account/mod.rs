@@ -1,4 +1,3 @@
-use crate::shielded_transaction::utils::{console_log, console_log_any};
 use anoma::types::masp::{ExtendedSpendingKey, ExtendedViewingKey, PaymentAddress};
 use masp_primitives_from_murisi::primitives::{
     Diversifier, PaymentAddress as PrimitivesPaymentAddress,

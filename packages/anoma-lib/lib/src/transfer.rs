@@ -4,7 +4,6 @@ use borsh::{BorshDeserialize, BorshSerialize};
 use masp_primitives::transaction::Transaction as MaspTransaction;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
-use web_sys::console;
 
 use wasm_bindgen::prelude::*;
 

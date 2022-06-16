@@ -158,17 +158,11 @@ pub fn create_shielded_transfer(
         let _ =
             builder.add_sapling_output(ovk_opt, payment_address.into(), asset_type, amount, memo);
     } else {
-        console_log("shielding transfer 1");
         let secp_sk = secp256k1::SecretKey::from_slice(&[0xcd; 32]).expect("secret key");
-        console_log("shielding transfer 2");
         let secp_ctx = secp256k1::Secp256k1::<secp256k1::SignOnly>::gen_new();
-        console_log("shielding transfer 3");
         let secp_pk = secp256k1::PublicKey::from_secret_key(&secp_ctx, &secp_sk).serialize();
-        console_log("shielding transfer 4");
         let hash = ripemd160::Ripemd160::digest(&sha2::Sha256::digest(&secp_pk));
-        console_log("shielding transfer 5");
         let script = TransparentAddress::PublicKey(hash.into()).script();
-        console_log("shielding transfer 6");
         let _adding_transparent_input_result = builder.add_transparent_input(
             secp_sk,
             OutPoint::new([0u8; 32], 0),
@@ -292,11 +286,6 @@ fn gather_all_unspent_notes_of_viewing_key(
 ) -> u64 {
     let mut val_acc = 0;
     for note_idx in avail_notes {
-        // once we meet the target amount we can stop collecting unspent notes
-        // if val_acc >= amount {
-        //     break;
-        // }
-
         // if this note is spent we just continue
         if transaction_context.spent_funds.contains(note_idx) {
             continue;
