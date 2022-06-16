@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { history, TopLevelRouteGenerator } from "App";
 import { Config } from "config";
 import { FAUCET_ADDRESS, Tokens, TokenType, TxResponse } from "constants/";
 import { RpcClient, SocketClient, Transfer } from "lib";
@@ -200,7 +201,7 @@ export const submitTransferTransaction = createAsyncThunk(
   `${TRANSFERS_ACTIONS_BASE}/${TransfersThunkActions.SubmitTransferTransaction}`,
   async (
     txTransferArgs: TxTransferArgs | ShieldedTransferData,
-    { dispatch, rejectWithValue }
+    { dispatch, rejectWithValue, getState }
   ) => {
     const { account, target, amount, memo, useFaucet } = txTransferArgs;
     const {
@@ -249,6 +250,12 @@ export const submitTransferTransaction = createAsyncThunk(
 
     dispatch(fetchBalanceByAccount(account));
     dispatch(updateShieldedBalances());
+
+    history.push(
+      TopLevelRouteGenerator.createRouteForTokenByTokenId(
+        txTransferArgs.account.id
+      )
+    );
 
     return {
       id,

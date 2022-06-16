@@ -1,6 +1,12 @@
 /* eslint-disable max-len */
 import { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+import {
+  unstable_HistoryRouter as HistoryRouter,
+  Routes,
+  Route,
+  Outlet,
+} from "react-router-dom";
+import { createBrowserHistory } from "history";
 import { AnimatePresence } from "framer-motion";
 import { ThemeProvider } from "styled-components/macro";
 
@@ -23,6 +29,8 @@ import Redirect from "./Redirect";
 import makeStore, { AppStore } from "store/store";
 import AppRoutes from "./AppRoutes";
 import { Persistor, persistStore } from "redux-persist";
+
+export const history = createBrowserHistory({ window });
 
 // this sets the dark/light colors to theme
 export const getTheme = (isLightMode: boolean): Theme => {
@@ -78,7 +86,7 @@ function App(): JSX.Element {
 
   if (isLoggedIn && store && persistor) {
     return (
-      <BrowserRouter>
+      <HistoryRouter history={history}>
         <ThemeProvider theme={theme}>
           <AppContainer>
             <TopSection>
@@ -96,7 +104,7 @@ function App(): JSX.Element {
             </BottomSection>
           </AppContainer>
         </ThemeProvider>
-      </BrowserRouter>
+      </HistoryRouter>
     );
   }
 
@@ -104,7 +112,7 @@ function App(): JSX.Element {
    * Unlock Wallet & Create Master Seed flow:
    */
   return (
-    <BrowserRouter>
+    <HistoryRouter history={history}>
       <ThemeProvider theme={theme}>
         <AppContainer>
           <TopSection>
@@ -155,7 +163,7 @@ function App(): JSX.Element {
           </BottomSection>
         </AppContainer>
       </ThemeProvider>
-    </BrowserRouter>
+    </HistoryRouter>
   );
 }
 

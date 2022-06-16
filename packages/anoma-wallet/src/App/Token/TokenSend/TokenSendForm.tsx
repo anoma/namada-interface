@@ -285,9 +285,8 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
           <>
             <StatusMessage>Transfer successful!</StatusMessage>
             <StatusMessage>Gas used: {events.gas}</StatusMessage>
-            <StatusMessage>
-              Applied hash: <Address>{events.appliedHash}</Address>
-            </StatusMessage>
+            <StatusMessage>Applied hash:</StatusMessage>
+            <Address>{events.appliedHash}</Address>
           </>
         )}
       </StatusContainer>

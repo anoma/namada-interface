@@ -1,15 +1,11 @@
-import {
-  createAsyncThunk,
-  createSlice,
-  PayloadAction,
-  createAction,
-} from "@reduxjs/toolkit";
+import { createAsyncThunk, createAction } from "@reduxjs/toolkit";
 import {
   ADD_ACCOUNT_TO_LEDGER,
   UPDATE_SHIELDED_BALANCES,
   NewAccountDetails,
   ShieldedAccount,
 } from "./types";
+import { history, TopLevelRouteGenerator } from "App";
 import { RootState } from "store/store";
 import { Wallet, Session } from "lib";
 import { DerivedAccount, AccountsState } from "slices/accounts";
@@ -42,7 +38,7 @@ export const addAccountToLedger = createAsyncThunk<
   NewAccountDetails
 >(
   ADD_ACCOUNT_TO_LEDGER,
-  async (newAccountDetails: NewAccountDetails, thunkAPI) => {
+  async (newAccountDetails: NewAccountDetails, _thunkAPI) => {
     try {
       // create spending key
       // create payment address based on the spending key
@@ -71,6 +67,7 @@ export const addAccountToLedger = createAsyncThunk<
           shieldedKeysAndAddress: shieldedAccount,
         };
 
+        history.push(TopLevelRouteGenerator.createRouteForWallet());
         return payload;
       }
       Promise.reject("could not create seed phrase");
