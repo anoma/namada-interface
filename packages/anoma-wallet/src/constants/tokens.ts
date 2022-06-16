@@ -39,7 +39,7 @@ Tokens["NAM"] = {
   path: 2147483651,
   symbol: "NAM",
   coin: "Namada",
-  url: "https://anoma.network",
+  url: "https://anoma.net",
   address:
     "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5",
 };
