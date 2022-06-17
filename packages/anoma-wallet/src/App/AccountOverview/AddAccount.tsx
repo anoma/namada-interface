@@ -9,7 +9,7 @@ import { useAppDispatch, useAppSelector } from "store";
 import { DerivedAccount, AccountsState, addAccount } from "slices/accounts";
 
 import { NewAccountDetails } from "slices/accountsNew";
-import { addAccountToLedger, reset } from "slices/accountsNew/actions";
+import { createShieldedAccount, reset } from "slices/accountsNew/actions";
 
 import { Label } from "components/Input/input.components";
 import { Toggle } from "components/Toggle";
@@ -99,7 +99,7 @@ export const AddAccount = (): JSX.Element => {
       tokenType: tokenType,
     };
     if (newAccountDetails) {
-      dispatch(addAccountToLedger(newAccountDetails));
+      dispatch(createShieldedAccount(newAccountDetails));
     }
   };
 

@@ -33,7 +33,7 @@ type ShieldedKeysAndAddressesWithNewAccountDetails = {
  * Adds an account to the ledger. This takes care of the transparent and shielded
  * accounts.
  */
-export const addAccountToLedger = createAsyncThunk<
+export const createShieldedAccount = createAsyncThunk<
   ShieldedKeysAndAddressesWithNewAccountDetails | undefined,
   NewAccountDetails
 >(

@@ -1,6 +1,6 @@
 import { ActionReducerMapBuilder } from "@reduxjs/toolkit";
 import {
-  addAccountToLedger,
+  createShieldedAccount,
   reset,
   updateShieldedBalances,
   ShieldedBalancesPayload,
@@ -16,10 +16,10 @@ export const addAccountReducersToBuilder = (
       // state where the UI got blocked
       state.isAddingAccountInReduxState = false;
     })
-    .addCase(addAccountToLedger.pending, (state, action) => {
+    .addCase(createShieldedAccount.pending, (state, action) => {
       // state.isAddingAccountInReduxState = true;
     })
-    .addCase(addAccountToLedger.fulfilled, (state, action) => {
+    .addCase(createShieldedAccount.fulfilled, (state, action) => {
       state.isAddingAccountInReduxState = false;
       const payload = action.payload;
       if (payload) {
@@ -41,7 +41,7 @@ export const addAccountReducersToBuilder = (
         };
       }
     })
-    .addCase(addAccountToLedger.rejected, (state, action) => {
+    .addCase(createShieldedAccount.rejected, (state, action) => {
       state.isAddingAccountInReduxState = false;
     })
     .addCase(updateShieldedBalances.fulfilled, (state, action) => {
@@ -56,6 +56,10 @@ export const addAccountReducersToBuilder = (
           state.shieldedAccounts[key].balance = shieldedBalance;
         }
       }
+    })
+    .addCase(updateShieldedBalances.rejected, (_state, _action) => {
+      // TODO
+      // implement this once the notification system is in place
     });
 
   return builder;
