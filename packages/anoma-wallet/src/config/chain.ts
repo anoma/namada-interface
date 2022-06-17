@@ -97,7 +97,7 @@ const ChainConfig: Record<string, Chain> = {
     alias: CHAIN_A_ALIAS,
     accountIndex: 998,
     faucet:
-      "atest1v4ehgw36geqnqdjzgvunzwfcgcu52vfsxpznwse5gcm5x3pjx4qnvsehxdry2v6pxg6nqw2ye0djfx",
+      "atest1v4ehgw36gfprwdekgg6rsdesg3rry3pjx9prqv3exumrg3zzx3q5vv3nx4zr2v6yggurgwp4rzjk2v",
     network: {
       url: "10.7.1.162",
       port: 27657,
@@ -114,7 +114,7 @@ const ChainConfig: Record<string, Chain> = {
     alias: CHAIN_B_ALIAS,
     accountIndex: 999,
     faucet:
-      "atest1v4ehgw36x5uyg3pcx9ryxwf3gymnwvfhxqmnzwfexeqnvsjyxezrqs6xxy6n2sehg4q5xw2r5xdurj",
+      "atest1v4ehgw36xscyvdpcxgenvdf3x5c523j98pqnz3fjgfq5yvp4xpqnvv69x5erzvjzgse5yd3suq5pd0",
     network: {
       url: "10.7.1.162",
       port: 28657,
