@@ -11,6 +11,7 @@ import {
   fetchBalanceByAccount,
   ShieldedKeysAndPaymentAddress,
   isShieldedAddress,
+  isShieldedAccount,
 } from "./accounts";
 
 import { createShieldedTransfer } from "./shieldedTransfer";
@@ -116,7 +117,8 @@ const createTransfer = async (
 ): Promise<TransferHashAndBytes> => {
   const transfer = await new Transfer().init();
   const { target } = transferData;
-  if (isShieldedAddress(target)) {
+
+  if (isShieldedAddress(target) || isShieldedAccount(sourceAccount)) {
     // if the transfer source is shielded
     const spendingKey =
       sourceAccount.shieldedKeysAndPaymentAddress?.spendingKey;
@@ -135,6 +137,10 @@ const createTransfer = async (
       ? MASP_ADDRESS
       : sourceAccount.establishedAddress || ""; // we know its there but due to bad data model ts cannot know it, refactor TODO
 
+    const maspAddressOrEstablishedAddress = isShieldedAddress(target)
+      ? MASP_ADDRESS
+      : target; // we know its there but due to bad data model ts cannot know it, refactor TODO
+
     if (sourceAccount.shieldedKeysAndPaymentAddress) {
       transferData.privateKey =
         "cf0805f7675f3a17db1769f12541449d53935f50dab8590044f8a4cd3454ec4f";
@@ -143,7 +149,7 @@ const createTransfer = async (
     const transferDataWithMaspAddress = {
       ...transferData,
       source: source,
-      target: MASP_ADDRESS,
+      target: maspAddressOrEstablishedAddress,
     };
 
     // generate the transfer that contains the shielded transaction
@@ -167,36 +173,11 @@ const createTransfer = async (
   }
 };
 
-// this takes care of 4 different variations
-// in transparent transactions we just send source and target to ledger,
-// when funds move between transparent and shielded we move them from
-// users account to masp account, which is the single pool for chain
-// in transparent transfers we additionally need to generate the transfer
-// the source is always spendingKey and target is paymentAddress
-//
-// transparent -> transparent
-// to ledger: account.establishedAddress -> target
-//
+// this takes care of 4 different variations of transfers:
 // shielded -> shielded
-// to ledger: maspAddress -> maspAddress
-// to tx generation: shieldedKeysAndPaymentAddress?.spendingKey -> target
-//
 // transparent -> shielded
-// to ledger: account.establishedAddress -> maspAddress
-// tx generation: shieldedKeysAndPaymentAddress?.spendingKey -> target
-//
 // shielded -> transparent
-// to ledger: maspAddress -> ledger: account.establishedAddress
-// to tx generation: shieldedKeysAndPaymentAddress?.spendingKey -> target
-
-// const isShieldedTransfer = (
-//   transferData: TxTransferArgs | ShieldedTransferData
-// ): transferData is ShieldedTransferData => {
-//   return (
-//     (transferData as ShieldedTransferData).shieldedKeysAndPaymentAddress !==
-//     undefined
-//   );
-// };
+// transparent -> transparent
 export const submitTransferTransaction = createAsyncThunk(
   `${TRANSFERS_ACTIONS_BASE}/${TransfersThunkActions.SubmitTransferTransaction}`,
   async (
@@ -251,6 +232,7 @@ export const submitTransferTransaction = createAsyncThunk(
     dispatch(fetchBalanceByAccount(account));
     dispatch(updateShieldedBalances());
 
+    // TODO pass this as a callback from consumer as we might need different behaviors
     history.push(
       TopLevelRouteGenerator.createRouteForTokenByTokenId(
         txTransferArgs.account.id

@@ -2,6 +2,7 @@ use super::transaction_context::TransactionContext;
 use super::transaction_with_next_id::NodeWithNextId;
 use super::utils::{console_log, console_log_any};
 use anoma::types::address::Address;
+use anoma::types::masp::TransferTarget;
 use borsh::{BorshDeserialize, BorshSerialize};
 use ff::PrimeField;
 use group::cofactor::CofactorGroup;
@@ -69,10 +70,12 @@ pub fn create_shielded_transfer(
     };
 
     // payment address
-    let payment_address_result = PaymentAddress::from_str(payment_address_as_string.as_str());
+    let payment_address_result = PaymentAddress::from_str(&payment_address_as_string.as_str());
     let payment_address = match payment_address_result {
         Ok(payment_address) => payment_address,
         Err(_error) => {
+            console_log("payment_address_as_string is not payment address");
+            console_log(payment_address_as_string.as_str());
             return None;
         }
     };
@@ -153,10 +156,6 @@ pub fn create_shielded_transfer(
                 None,
             );
         }
-
-        let ovk_opt = Some(spending_key.expsk.ovk);
-        let _ =
-            builder.add_sapling_output(ovk_opt, payment_address.into(), asset_type, amount, memo);
     } else {
         let secp_sk = secp256k1::SecretKey::from_slice(&[0xcd; 32]).expect("secret key");
         let secp_ctx = secp256k1::Secp256k1::<secp256k1::SignOnly>::gen_new();
@@ -172,7 +171,37 @@ pub fn create_shielded_transfer(
                 script_pubkey: script,
             },
         );
+        let _ = builder.add_sapling_output(
+            None,
+            payment_address.into(),
+            asset_type,
+            amount,
+            memo.clone(),
+        );
+    }
+
+    // shielded output
+    if let Some(_spending_key) = spending_key_maybe {
         let _ = builder.add_sapling_output(None, payment_address.into(), asset_type, amount, memo);
+    } else if false {
+        console_log("it is transparent target");
+        // add transparent target
+        let address = Address::from_str(payment_address_as_string.as_str());
+        let transfer_target = TransferTarget::Address(address.unwrap()); // TODO handle failure case
+                                                                         // let target = ctx.get(&args.target);
+        let transfer_target_encoded = transfer_target
+            .address()
+            .expect("target address should be transparent")
+            .try_to_vec()
+            .expect("target address encoding");
+        let hash =
+            ripemd160::Ripemd160::digest(&sha2::Sha256::digest(transfer_target_encoded.as_ref()));
+
+        let _ = builder.add_transparent_output(
+            &TransparentAddress::PublicKey(hash.into()),
+            asset_type,
+            amount,
+        );
     }
 
     // we constructed the prover from the files that were passed to this func
