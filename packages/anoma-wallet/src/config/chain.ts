@@ -35,6 +35,7 @@ export type Chain = {
 export const defaultChainId =
   REACT_APP_LOCAL_CHAIN_ID || "anoma-test.fd58c789bc11e6c6392";
 
+const DEFAULT_CHAIN_ALIAS = "Namada";
 const CHAIN_A_ID = "anoma-test.7008ac9d0878f8a3396";
 const CHAIN_B_ID = "anoma-test.60261c0596a7c9c2901";
 const CHAIN_A_ALIAS = "Anoma Fractal Instance - A";
@@ -48,7 +49,7 @@ const DEFAULT_IBC_PORT = "transfer";
 const ibcEnabledChains = [
   {
     id: defaultChainId,
-    alias: "Namada (Default)",
+    alias: DEFAULT_CHAIN_ALIAS,
     portId: DEFAULT_IBC_PORT,
   },
   {
@@ -75,7 +76,7 @@ const ChainConfig: Record<string, Chain> = {
    */
   [defaultChainId]: {
     id: defaultChainId,
-    alias: "Namada",
+    alias: DEFAULT_CHAIN_ALIAS,
     accountIndex: 0,
     faucet: REACT_APP_LOCAL_FAUCET,
     network: {
