@@ -70,13 +70,19 @@ pub fn create_shielded_transfer(
     };
 
     // payment address
+    let target_is_transparent_address = payment_address_as_string.starts_with("atest");
     let payment_address_result = PaymentAddress::from_str(&payment_address_as_string.as_str());
     let payment_address = match payment_address_result {
         Ok(payment_address) => payment_address,
         Err(_error) => {
             console_log("payment_address_as_string is not payment address");
             console_log(payment_address_as_string.as_str());
-            return None;
+            if !target_is_transparent_address {
+                return None;
+            }
+            let fake_payment_address =
+                PaymentAddress::from_str("patest1s0hhpsyjj66hw9zjlz4zh7gltcetkrme8xj94ks88t6ckkjxclm66yeveqahndepq57yj4zsjve");
+            fake_payment_address.unwrap()
         }
     };
 
@@ -130,6 +136,7 @@ pub fn create_shielded_transfer(
 
         // Retrieve the notes that can be spent by this key
         if let Some(avail_notes) = transaction_context.viewing_keys.get(&lookup_viewing_key) {
+            // gather_spend_from_notes also puts the spend to the builder
             accumulated_amount = gather_spend_from_notes(
                 avail_notes,
                 amount,
@@ -181,10 +188,7 @@ pub fn create_shielded_transfer(
     }
 
     // shielded output
-    if let Some(_spending_key) = spending_key_maybe {
-        let _ = builder.add_sapling_output(None, payment_address.into(), asset_type, amount, memo);
-    } else if false {
-        console_log("it is transparent target");
+    if target_is_transparent_address {
         // add transparent target
         let address = Address::from_str(payment_address_as_string.as_str());
         let transfer_target = TransferTarget::Address(address.unwrap()); // TODO handle failure case
@@ -202,6 +206,8 @@ pub fn create_shielded_transfer(
             asset_type,
             amount,
         );
+    } else {
+        let _ = builder.add_sapling_output(None, payment_address.into(), asset_type, amount, memo);
     }
 
     // we constructed the prover from the files that were passed to this func

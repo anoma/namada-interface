@@ -141,6 +141,7 @@ const createTransfer = async (
       ? MASP_ADDRESS
       : target; // we know its there but due to bad data model ts cannot know it, refactor TODO
 
+    // TODO remote this placeholder
     if (sourceAccount.shieldedKeysAndPaymentAddress) {
       transferData.privateKey =
         "cf0805f7675f3a17db1769f12541449d53935f50dab8590044f8a4cd3454ec4f";
@@ -152,7 +153,7 @@ const createTransfer = async (
       target: maspAddressOrEstablishedAddress,
     };
 
-    // generate the transfer that contains the shielded transaction
+    // generate the transfer that contains the shielded transaction inside of it
     const hashAndBytes = await transfer.makeShieldedTransfer({
       ...transferDataWithMaspAddress,
       shieldedTransaction,
