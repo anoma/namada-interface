@@ -93,6 +93,8 @@ REACT_APP_CHAIN_B_PORT=28657 # OPTIONAL - Defaults to 28657
 REACT_APP_CHAIN_B_FAUCET=atest1v4ehgw36xscyvdpcxgenvdf3x5c523j98pqnz3fjgfq5yvp4xpqnvv69x5erzvjzgse5yd3suq5pd0
 ```
 
+At a bare minimum, we need to specify a unique chain ID for each IBC chain. Omitting the other values will default to connecting to two localhost chains on ports `27657` and `28657`.
+
 See [IBC Testing Setup](https://hackmd.io/vCawBZZYQYGRxZXeMgIqGw?view) for more information on configuring the Hermes IBC relayer with two Namada chains.
 
 [ [Table of Contents](#table-of-contents) ]
