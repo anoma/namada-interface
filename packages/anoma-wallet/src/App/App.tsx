@@ -24,7 +24,6 @@ import {
   ContentContainer,
   MotionContainer,
 } from "./App.components";
-import { Session } from "lib";
 import Redirect from "./Redirect";
 import makeStore, { AppStore } from "store/store";
 import AppRoutes from "./AppRoutes";
@@ -65,7 +64,7 @@ export const AnimatedTransition = (props: {
 function App(): JSX.Element {
   const [isLightMode, setIsLightMode] = useState(true);
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [password, setPassword] = useState<string>();
   const [store, setStore] = useState<AppStore>();
   const [persistor, setPersistor] = useState<Persistor>();
   const theme = getTheme(isLightMode);
@@ -76,15 +75,7 @@ function App(): JSX.Element {
     }
   }, [store]);
 
-  useEffect(() => {
-    const { secret } = new Session().getSession() || {};
-    if (secret) {
-      setIsLoggedIn(true);
-      setStore(makeStore(secret));
-    }
-  }, [isLoggedIn]);
-
-  if (isLoggedIn && store && persistor) {
+  if (password && store && persistor) {
     return (
       <HistoryRouter history={history}>
         <ThemeProvider theme={theme}>
@@ -93,13 +84,17 @@ function App(): JSX.Element {
               <TopNavigation
                 isLightMode={isLightMode}
                 setIsLightMode={setIsLightMode}
-                isLoggedIn={isLoggedIn}
-                logout={() => setIsLoggedIn(false)}
+                isLoggedIn={!!password}
+                logout={() => setPassword(undefined)}
               />
             </TopSection>
             <BottomSection>
               <AnimatePresence exitBeforeEnter>
-                <AppRoutes store={store} persistor={persistor} />
+                <AppRoutes
+                  store={store}
+                  persistor={persistor}
+                  password={password}
+                />
               </AnimatePresence>
             </BottomSection>
           </AppContainer>
@@ -119,7 +114,7 @@ function App(): JSX.Element {
             <TopNavigation
               isLightMode={isLightMode}
               setIsLightMode={setIsLightMode}
-              logout={() => setIsLoggedIn(false)}
+              logout={() => setPassword(undefined)}
             />
           </TopSection>
           <BottomSection>
@@ -137,7 +132,7 @@ function App(): JSX.Element {
                     path={""}
                     element={
                       <Login
-                        setIsLoggedIn={() => setIsLoggedIn(true)}
+                        setPassword={setPassword}
                         setStore={(password) => setStore(makeStore(password))}
                       />
                     }
@@ -150,13 +145,16 @@ function App(): JSX.Element {
                       >
                         <AccountCreation
                           store={store}
-                          setIsLoggedIn={() => setIsLoggedIn(true)}
+                          setPassword={setPassword}
                           setStore={(password) => setStore(makeStore(password))}
                         />
                       </AnimatedTransition>
                     }
                   />
-                  <Route path={"*"} element={<Redirect />} />
+                  <Route
+                    path={"*"}
+                    element={<Redirect password={password} />}
+                  />
                 </Route>
               </Routes>
             </AnimatePresence>

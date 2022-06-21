@@ -56,7 +56,7 @@ const AnimatedTransition = (props: AnimatedTransitionProps): JSX.Element => {
 
 type Props = {
   setStore: (password: string) => void;
-  setIsLoggedIn: () => void;
+  setPassword: (password: string) => void;
   store: AppStore | undefined;
 };
 /**
@@ -64,11 +64,7 @@ type Props = {
  * it persist the data and coordinates the logic for animating the transitions
  * between the screens in the flow.
  */
-function AccountCreation({
-  setStore,
-  setIsLoggedIn,
-  store,
-}: Props): JSX.Element {
+function AccountCreation({ setStore, setPassword, store }: Props): JSX.Element {
   // account details defaults
   const defaultAccountCreationDetails: AccountCreationDetails = {
     seedPhraseLength: "12",
@@ -130,15 +126,6 @@ function AccountCreation({
       return stepIndex - 1;
     });
     navigate(`${accountCreationSteps[stepIndex - 1]}`);
-  };
-
-  // Establish login session and store mnemonic
-  const setSession = async (
-    mnemonic: string,
-    password: string
-  ): Promise<Session> => {
-    const session = new Session().setSession(password);
-    return await session.setSeed(mnemonic);
   };
 
   return (
@@ -254,7 +241,7 @@ function AccountCreation({
                   <SeedPhraseConfirmation
                     seedPhrase={seedPhrase || []}
                     onConfirmSeedPhrase={async () => {
-                      await setSession(
+                      await Session.setSeed(
                         (seedPhrase || [])?.join(" "),
                         accountCreationDetails.password || ""
                       );
@@ -282,7 +269,7 @@ function AccountCreation({
                           navigate(TopLevelRoute.SettingsAccounts);
                         }}
                         onClickSeeAccounts={() => {
-                          setIsLoggedIn();
+                          setPassword(accountCreationDetails.password || "");
                           navigate(TopLevelRoute.Wallet);
                         }}
                         mnemonic={(seedPhrase || []).join(" ")}

@@ -94,6 +94,14 @@ export const aesDecrypt = (encrypted: string, password: string): string => {
 };
 
 /**
+ * Hash a provided password
+ */
+export const hashPassword = (password: string): string => {
+  const hash = CryptoJS.SHA3(password, { outputLength: 512 });
+  return hash.toString(CryptoJS.enc.Base64);
+};
+
+/**
  * Create a short base58 encoded hash of a string.
  * Useful for creating URL-friendly hashes of storage
  * values in state.

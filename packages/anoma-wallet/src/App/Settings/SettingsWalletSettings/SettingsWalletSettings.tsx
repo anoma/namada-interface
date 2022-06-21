@@ -18,7 +18,11 @@ import {
   SeedPhraseIndexLabel,
 } from "App/AccountCreation/Steps/SeedPhrase/SeedPhrase.components";
 
-export const SettingsWalletSettings = (): JSX.Element => {
+type Props = {
+  password: string;
+};
+
+export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [displaySeedPhrase, setDisplaySeedPhrase] = useState(false);
@@ -28,7 +32,7 @@ export const SettingsWalletSettings = (): JSX.Element => {
   const handleDisplaySeedPhrase = async (): Promise<void> => {
     if (!displaySeedPhrase) {
       setIsLoadingSeed(true);
-      const mnemonic = await new Session().getSeed();
+      const mnemonic = await Session.getSeed(password);
       setIsLoadingSeed(false);
       setSeedPhrase((mnemonic || "").split(" "));
       setDisplaySeedPhrase(!displaySeedPhrase);
