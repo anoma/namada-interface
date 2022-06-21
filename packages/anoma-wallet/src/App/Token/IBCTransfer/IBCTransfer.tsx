@@ -50,14 +50,16 @@ const IBCTransfer = (): JSX.Element => {
 
   const chains = useAppSelector<ChainsState>((state) => state.chains);
   const chain = chains[chainId];
-  const { ibc } = chain;
+  const { ibc = [] } = chain;
 
-  const defaultIbcChain = ibc[0];
-  const [selectedChainId, setSelectedChain] = useState(defaultIbcChain.id);
+  const defaultIbcChain = chains[ibc[0]] || null;
+  const [selectedChainId, setSelectedChain] = useState(
+    defaultIbcChain ? defaultIbcChain.id : ""
+  );
 
-  const selectDestinationChainData = ibc.map((chain) => ({
-    value: chain.id,
-    label: chain.alias,
+  const selectDestinationChainData = ibc.map((chainId) => ({
+    value: chainId,
+    label: chains[chainId].alias,
   }));
 
   const channels = channelsByChain[selectedChainId] || [];

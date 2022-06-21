@@ -51,7 +51,9 @@ const TransferDetail = (): JSX.Element => {
   const chains = useAppSelector<ChainsState>((state) => state.chains);
   const chain = chains[chainId];
   const { ibc = [] } = chain || {};
-  const destinationChain = ibc.find((chain) => chain.id === chainId);
+  const ibcChainId = ibc.find((ibcChainId) => ibcChainId === chainId) || "";
+
+  const destinationChain = chains[ibcChainId];
   const chainAlias = destinationChain?.alias;
 
   const dateTimeFormatted = stringFromTimestamp(timestamp);

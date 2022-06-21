@@ -21,8 +21,6 @@ use core::ops::Add;
 
 use wasm_bindgen::prelude::*;
 
-use web_sys;
-
 #[derive(Serialize, Deserialize)]
 pub struct IbcTransfer(pub Transaction);
 
@@ -61,9 +59,6 @@ impl IbcTransfer {
                 .unwrap()
                 .add(timeout_duration).unwrap(),
         };
-
-        // Log msg before encoding
-        web_sys::console::log_1(&JsValue::from_str(&format!("msg: {:?}", &msg)));
 
         let msg = msg.to_any();
         let mut tx_data = vec![];
