@@ -36,10 +36,12 @@ use zcash_primitives::merkle_tree::IncrementalWitness;
 // - decrypts the past transactions and reverses their order
 // - creates an object for AssetType
 // - loops through past transactions seeking for notes that can be decrypted and still spent with the current spending key
-// - creates a possible needed return payment for the source of the transfer
-// -
+// - uses a builder objects and adds to it:
+//   - spend for the source
+//   - funds for target target
+//   - creates a possible needed return payment for the source of the transfer, because the notes that are used as a source might exceed the transfer amount
 pub fn create_shielded_transfer(
-    // they should be passed in order that they were fetched starting from head-tx as they are reversed here
+    // they should be passed in order that they were fetched starting from head-tx as they are reversed in this function
     shielded_transactions: JsValue,
     spending_key_as_string: Option<String>,
     payment_address_as_string: String,
@@ -49,17 +51,20 @@ pub fn create_shielded_transfer(
     output_param_bytes: &[u8],
 ) -> Option<Vec<u8>> {
     // turning the string parameters to correct types
-    // spending key, could also be transparent address if we are doing transparent -> shielded transfer
+
+    // if the source is shielded spending_key_maybe has a value
     let spending_key_maybe = if spending_key_as_string.is_none() {
         None
     } else {
+        // lets try to generate a spending key
         let spending_key_result =
             ExtendedSpendingKey::from_str(&spending_key_as_string.as_ref().unwrap().as_str());
+
         let spending_key = match spending_key_result {
             Ok(spending_key) => Some(spending_key),
             Err(_error) => {
-                // TODO replace this placeholder check that we really have a transparent address
-                // the check is dine even done before this func is called
+                // TODO
+                // if it is not a spending key and do not start with "atest", then something is wrong
                 if !spending_key_as_string.unwrap().starts_with("atest") {
                     return None;
                 };
@@ -69,24 +74,24 @@ pub fn create_shielded_transfer(
         spending_key
     };
 
-    // payment address
-    let target_is_transparent_address = payment_address_as_string.starts_with("atest");
+    // turn payment address from string to object
     let payment_address_result = PaymentAddress::from_str(&payment_address_as_string.as_str());
-    let payment_address = match payment_address_result {
-        Ok(payment_address) => payment_address,
+    // if target is shielded payment_address_maybe has a value
+    let payment_address_maybe = match payment_address_result {
+        Ok(payment_address) => Some(payment_address),
         Err(_error) => {
             console_log("payment_address_as_string is not payment address");
             console_log(payment_address_as_string.as_str());
+            let target_is_transparent_address = payment_address_as_string.starts_with("atest");
+            // we could not parse the target as payment_address and it neither matches the established address prefix
             if !target_is_transparent_address {
                 return None;
             }
-            let fake_payment_address =
-                PaymentAddress::from_str("patest1s0hhpsyjj66hw9zjlz4zh7gltcetkrme8xj94ks88t6ckkjxclm66yeveqahndepq57yj4zsjve");
-            fake_payment_address.unwrap()
+            None
         }
     };
 
-    // transactions
+    // decode transactions
     let transactions_maybe = nodes_with_next_id_to_transactions(shielded_transactions);
     let mut transactions = match transactions_maybe {
         Some(transactions) => transactions,
@@ -119,13 +124,8 @@ pub fn create_shielded_transfer(
     // Transaction fees will be taken care of in the wrapper Transfer
     let _ = builder.set_fee(Amount::zero());
 
-    // We will need to cope with cases of:
-    // transparent -> shielded
-    // shielded -> shielded
-    // shielded -> transparent
-
-    // either spending_key has a value and we have a shielded input
-    // or it's None and the input is transparent address
+    // handle the source of the transfer
+    // if spending key has a value, the source is shielded
     if let Some(spending_key) = spending_key_maybe {
         // we create this context that holds the data that will be needed later, it contains:
         // notes, spent notes, ...
@@ -164,6 +164,7 @@ pub fn create_shielded_transfer(
             );
         }
     } else {
+        // if spending key is None, the source is transparent
         let secp_sk = secp256k1::SecretKey::from_slice(&[0xcd; 32]).expect("secret key");
         let secp_ctx = secp256k1::Secp256k1::<secp256k1::SignOnly>::gen_new();
         let secp_pk = secp256k1::PublicKey::from_secret_key(&secp_ctx, &secp_sk).serialize();
@@ -178,21 +179,18 @@ pub fn create_shielded_transfer(
                 script_pubkey: script,
             },
         );
-        let _ = builder.add_sapling_output(
-            None,
-            payment_address.into(),
-            asset_type,
-            amount,
-            memo.clone(),
-        );
     }
 
-    // shielded output
-    if target_is_transparent_address {
-        // add transparent target
-        let address = Address::from_str(payment_address_as_string.as_str());
-        let transfer_target = TransferTarget::Address(address.unwrap()); // TODO handle failure case
-                                                                         // let target = ctx.get(&args.target);
+    // handle the target of the transfer
+    // handle shielded address
+    if payment_address_maybe.is_some() {
+        console_log("payment_address_maybe.is_some == true");
+        let payment_address = payment_address_maybe.unwrap();
+        let _ = builder.add_sapling_output(None, payment_address.into(), asset_type, amount, memo);
+    } else {
+        // handle transparent address
+        let target_address = Address::from_str(payment_address_as_string.as_str());
+        let transfer_target = TransferTarget::Address(target_address.unwrap()); // TODO handle failure case
         let transfer_target_encoded = transfer_target
             .address()
             .expect("target address should be transparent")
@@ -200,14 +198,11 @@ pub fn create_shielded_transfer(
             .expect("target address encoding");
         let hash =
             ripemd160::Ripemd160::digest(&sha2::Sha256::digest(transfer_target_encoded.as_ref()));
-
         let _ = builder.add_transparent_output(
             &TransparentAddress::PublicKey(hash.into()),
             asset_type,
             amount,
         );
-    } else {
-        let _ = builder.add_sapling_output(None, payment_address.into(), asset_type, amount, memo);
     }
 
     // we constructed the prover from the files that were passed to this func
