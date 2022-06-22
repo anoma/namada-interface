@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+import Config from "config";
 import { AccountsState } from "slices/accounts";
 import { SettingsState } from "slices/settings";
 import { useAppSelector } from "store";
 import { TopLevelRoute } from "App/types";
 import { TokenType } from "constants/";
+import { formatRoute } from "utils/helpers";
 
 import TokenSendForm from "./TokenSendForm";
 import { Button, ButtonVariant } from "components/Button";
@@ -13,7 +15,6 @@ import { Heading, HeadingLevel } from "components/Heading";
 import { NavigationContainer } from "components/NavigationContainer";
 import { Select, Option } from "components/Select";
 import { TokenSendContainer } from "./TokenSend.components";
-import Config from "config";
 
 type TokenSendParams = {
   id: string;
@@ -76,7 +77,7 @@ const TokenSend = (): JSX.Element => {
       <NavigationContainer
         onBackButtonClick={() => {
           if (id) {
-            return navigate(-1);
+            return navigate(formatRoute(TopLevelRoute.Token, { id }));
           }
           navigate(TopLevelRoute.Wallet);
         }}

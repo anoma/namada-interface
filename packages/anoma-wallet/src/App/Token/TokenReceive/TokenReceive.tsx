@@ -50,7 +50,7 @@ const TokenReceive = (): JSX.Element => {
     <TokenReceiveContainer>
       <NavigationContainer
         onBackButtonClick={() => {
-          navigate(-1);
+          navigate(formatRoute(TopLevelRoute.Token, { id }));
         }}
       >
         <Heading level={HeadingLevel.One}>Token Receive</Heading>

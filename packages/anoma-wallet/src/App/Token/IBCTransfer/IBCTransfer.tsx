@@ -12,6 +12,7 @@ import {
 } from "slices/transfers";
 import { ChainsState } from "slices/chains";
 import { SettingsState } from "slices/settings";
+import { formatRoute } from "utils/helpers";
 
 import { Input, InputVariants } from "components/Input";
 import { isMemoValid, MAX_MEMO_LENGTH } from "../TokenSend/TokenSendForm";
@@ -140,7 +141,7 @@ const IBCTransfer = (): JSX.Element => {
       <NavigationContainer
         onBackButtonClick={() => {
           if (id) {
-            return navigate(-1);
+            return navigate(formatRoute(TopLevelRoute.Token, { id }));
           }
           navigate(TopLevelRoute.Wallet);
         }}

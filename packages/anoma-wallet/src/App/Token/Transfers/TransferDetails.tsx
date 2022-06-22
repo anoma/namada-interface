@@ -4,7 +4,8 @@ import Config from "config";
 import { ChainsState } from "slices/chains";
 import { TransfersState } from "slices/transfers";
 import { useAppSelector } from "store";
-import { stringFromTimestamp } from "utils/helpers";
+import { formatRoute, stringFromTimestamp } from "utils/helpers";
+import { TopLevelRoute } from "App/types";
 
 import { Heading, HeadingLevel } from "components/Heading";
 import { NavigationContainer } from "components/NavigationContainer";
@@ -17,7 +18,7 @@ type TransferDetailsParams = {
 
 const TransferDetail = (): JSX.Element => {
   const navigate = useNavigate();
-  const { appliedHash = "" } = useParams<TransferDetailsParams>();
+  const { appliedHash = "", id = "" } = useParams<TransferDetailsParams>();
   const { transactions } = useAppSelector<TransfersState>(
     (state) => state.transfers
   );
@@ -62,7 +63,7 @@ const TransferDetail = (): JSX.Element => {
     <TransferDetailContainer>
       <NavigationContainer
         onBackButtonClick={() => {
-          navigate(-1);
+          navigate(formatRoute(TopLevelRoute.Token, { id }));
         }}
       >
         <Heading level={HeadingLevel.One}>Transfer Details</Heading>
