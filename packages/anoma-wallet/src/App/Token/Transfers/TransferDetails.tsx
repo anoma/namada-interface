@@ -38,7 +38,7 @@ const TransferDetail = (): JSX.Element => {
     (transaction) => transaction.appliedHash === appliedHash
   ) || {};
 
-  const sourceChain = Config.chain[sourceChainId];
+  const sourceChain = Config.chain[sourceChainId] || {};
 
   const {
     chainId = "",
