@@ -24,32 +24,30 @@ const getAccountIndex = (
   accounts.filter((account: DerivedAccount) => account.tokenType === tokenType)
     .length;
 
+type NewAccountDetailsWithPassword = NewAccountDetails & { password: string };
+
 type ShieldedKeysAndAddressesWithNewAccountDetails = {
   shieldedKeysAndAddress: ShieldedAccount;
   newAccountDetails: NewAccountDetails;
 };
 
 /**
- * Adds an account to the ledger. This takes care of the transparent and shielded
- * accounts.
+ * Creates "shielded accounts" (viewing key, spending key, payment address)
+ * after a successful creation navigates to TopLevelRouteGenerator.createRouteForWallet()
+ * TODO take the followup action such as navigation as a parameter
+ * or at least allow overriding the default
  */
 export const createShieldedAccount = createAsyncThunk<
   ShieldedKeysAndAddressesWithNewAccountDetails | undefined,
-  NewAccountDetails
+  NewAccountDetailsWithPassword
 >(
   ADD_ACCOUNT_TO_LEDGER,
-  async (newAccountDetails: NewAccountDetails, _thunkAPI) => {
+  async (newAccountDetails: NewAccountDetailsWithPassword, _thunkAPI) => {
     try {
-      // create spending key
-      // create payment address based on the spending key
+      // TODO distinguish between master/derived
+      const { alias, password } = newAccountDetails;
+      const mnemonic = await Session.getSeed(password);
 
-      // TODO figure out if this is master or derived
-      const mnemonic = await new Session().getSeed();
-      const derivedPath = "TODO";
-      const { alias, isShielded, tokenType } = newAccountDetails;
-      const InitiatedMaspShieldedAccount = await MaspShieldedAccount.init();
-
-      // either master or derived
       if (mnemonic) {
         const shieldedAccountWithRustFields = createShieldedMasterAccount(
           alias,
@@ -67,6 +65,7 @@ export const createShieldedAccount = createAsyncThunk<
           shieldedKeysAndAddress: shieldedAccount,
         };
 
+        // TODO allow overriding this
         history.push(TopLevelRouteGenerator.createRouteForWallet());
         return payload;
       }

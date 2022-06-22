@@ -103,7 +103,7 @@ export const AddAccount = ({ password }: Props): JSX.Element => {
       tokenType: tokenType,
     };
     if (newAccountDetails) {
-      dispatch(createShieldedAccount(newAccountDetails));
+      dispatch(createShieldedAccount({ ...newAccountDetails, password }));
     }
   };
 

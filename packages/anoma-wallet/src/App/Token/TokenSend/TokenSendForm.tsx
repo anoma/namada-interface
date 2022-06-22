@@ -77,7 +77,7 @@ const isMemoValid = (text: string): boolean => {
  *                               should be outside of this so we can do more than just disable the button
  * @returns
  */
-const isFormValid = (
+const getIsFormInvalid = (
   target: string | undefined,
   amount: number,
   balance: number,
@@ -87,11 +87,30 @@ const isFormValid = (
 ): boolean => {
   return (
     target === "" ||
+    isNaN(amount) ||
     amount > balance ||
     amount === 0 ||
     !isMemoValid(memo) ||
     !isTargetValid ||
     isTransferSubmitting
+  );
+};
+
+/**
+ * gives the description above submit button to make it move obvious for the user
+ * that the transfer might be a shielding/unshielding transfer
+ */
+const AccountSourceTargetDescription = (props: {
+  isShieldedSource: boolean;
+  isShieldedTarget: boolean;
+}): React.ReactElement => {
+  const { isShieldedSource, isShieldedTarget } = props;
+  const source = isShieldedSource ? <b>Shielded</b> : <b>Transparent</b>;
+  const target = isShieldedTarget ? <b>Shielded</b> : <b>Transparent</b>;
+  return (
+    <>
+      {source} → {target}
+    </>
   );
 };
 
@@ -102,7 +121,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
   const [memo, setMemo] = useState<string>("");
 
   const [isTargetValid, setIsTargetValid] = useState(true);
-  const [isShielded, setIsShielded] = useState(false);
+  const [isShieldedTarget, setIsShieldedTarget] = useState(false);
   const [showQrReader, setShowQrReader] = useState(false);
   const [qrCodeError, setQrCodeError] = useState<string>();
 
@@ -114,8 +133,26 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
 
   const transparentAndShieldedAccounts = { ...derived, ...shieldedAccounts };
   const account = transparentAndShieldedAccounts[accountId] || {};
+  const isShieldedSource = account.shieldedKeysAndPaymentAddress ? true : false;
   const { alias, establishedAddress = "", tokenType, balance = 0 } = account;
   const token = Tokens[tokenType] || {};
+  const isFormInvalid = getIsFormInvalid(
+    target,
+    amount,
+    balance,
+    memo,
+    isTargetValid,
+    isTransferSubmitting
+  );
+
+  const accountSourceTargetDescription = isFormInvalid ? (
+    ""
+  ) : (
+    <AccountSourceTargetDescription
+      isShieldedSource={isShieldedSource}
+      isShieldedTarget={isShieldedTarget}
+    />
+  );
 
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
@@ -146,13 +183,13 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
         // TODO: take care of all case
         const transferTypeBasedOnAddress = parseTarget(target);
         if (transferTypeBasedOnAddress === TransferType.Shielded) {
-          setIsShielded(true);
+          setIsShieldedTarget(true);
           setIsTargetValid(true);
           return;
         } else if (transferTypeBasedOnAddress === TransferType.NonShielded) {
-          setIsShielded(false);
+          setIsShieldedTarget(false);
         } else {
-          setIsShielded(false);
+          setIsShieldedTarget(false);
         }
         // we dont allow the funds to be sent to source address
         if (target === establishedAddress) {
@@ -172,7 +209,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
   }, []);
 
   const handleOnSendClick = (): void => {
-    if ((isShielded && target) || (target && token.address)) {
+    if ((isShieldedTarget && target) || (target && token.address)) {
       dispatch(
         submitTransferTransaction({
           account,
@@ -264,16 +301,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
             onChangeCallback={(e) => setMemo(e.target.value)}
           />
         </InputContainer>
-        <InputContainer>
-          <Label>Shielded?</Label>
-          <Toggle
-            onClick={() => setIsShielded(!isShielded)}
-            checked={isShielded}
-          />
-          {isShielded && (
-            <p>Transaction will be executed in the shielded pool</p>
-          )}
-        </InputContainer>
+        <InputContainer>{accountSourceTargetDescription}</InputContainer>
       </TokenSendFormContainer>
 
       <StatusContainer>
@@ -294,14 +322,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
       <ButtonsContainer>
         <Button
           variant={ButtonVariant.Contained}
-          disabled={isFormValid(
-            target,
-            amount,
-            balance,
-            memo,
-            isTargetValid,
-            isTransferSubmitting
-          )}
+          disabled={isFormInvalid}
           onClick={handleOnSendClick}
         >
           Send
