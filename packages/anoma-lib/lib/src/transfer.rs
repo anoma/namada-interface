@@ -30,8 +30,8 @@ impl Transfer {
         let tx_code: Vec<u8> = tx_code.to_vec();
 
         let transfer = token::Transfer {
-            source: source,
-            target: target,
+            source,
+            target,
             token: token.clone(),
             amount,
         };
