@@ -1,7 +1,12 @@
 # chmod +x ./scripts/build.sh
 
+# if the user is on mac this is needed
+if [[ "$OSTYPE" == "darwin"* ]]; then
+# might have to install clang
 CC=/opt/homebrew/opt/llvm/bin/clang AR=/opt/homebrew/opt/llvm/bin/llvm-ar wasm-pack build --target web ./lib
-
+else
+wasm-pack build --target web ./lib
+fi
 # ls -l ./lib/pkg
 
 # these are needed on the first run
