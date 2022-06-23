@@ -80,8 +80,6 @@ pub fn create_shielded_transfer(
     let payment_address_maybe = match payment_address_result {
         Ok(payment_address) => Some(payment_address),
         Err(_error) => {
-            console_log("payment_address_as_string is not payment address");
-            console_log(payment_address_as_string.as_str());
             let target_is_transparent_address = payment_address_as_string.starts_with("atest");
             // we could not parse the target as payment_address and it neither matches the established address prefix
             if !target_is_transparent_address {
@@ -184,7 +182,6 @@ pub fn create_shielded_transfer(
     // handle the target of the transfer
     // handle shielded address
     if payment_address_maybe.is_some() {
-        console_log("payment_address_maybe.is_some == true");
         let payment_address = payment_address_maybe.unwrap();
         let _ = builder.add_sapling_output(None, payment_address.into(), asset_type, amount, memo);
     } else {
