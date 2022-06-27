@@ -1,5 +1,6 @@
 mod shielded_account;
 mod shielded_transaction;
+pub mod utils;
 
 use shielded_account::ShieldedAccount;
 use shielded_transaction::{

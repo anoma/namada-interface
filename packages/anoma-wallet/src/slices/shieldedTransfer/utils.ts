@@ -1,6 +1,6 @@
 import { Config } from "config";
 import { RpcClient } from "lib";
-import { NodeWithNextId, MaspWeb } from "@anoma/masp-web";
+import { NodeWithNextId, getMaspWeb } from "@anoma/masp-web";
 import { TRANSFER_CONFIGURATION, TransactionConfiguration } from "./types";
 
 const { network } = new Config();
@@ -87,7 +87,7 @@ const createShieldedTransferUsingTransfers = async (
   outputAddress: string
 ): Promise<Uint8Array> => {
   const nodesWithNextId = await fetchShieldedTransfers();
-  const maspWeb = await MaspWeb.init();
+  const maspWeb = await getMaspWeb();
   const transactionConfiguration = getTransactionConfiguration();
   const shieldedTransaction = await maspWeb.generateShieldedTransaction(
     nodesWithNextId,
@@ -104,7 +104,7 @@ const getShieldedBalanceUsingTransfers = async (
   inputAddress: string
 ): Promise<string> => {
   const nodesWithNextId = await fetchShieldedTransfers();
-  const maspWeb = await MaspWeb.init();
+  const maspWeb = await getMaspWeb();
   const transactionConfiguration = getTransactionConfiguration();
 
   const shieldedBalance = await maspWeb.getShieldedBalance(

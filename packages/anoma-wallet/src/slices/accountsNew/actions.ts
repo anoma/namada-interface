@@ -7,15 +7,10 @@ import {
 } from "./types";
 import { history, TopLevelRouteGenerator } from "App";
 import { RootState } from "store/store";
-import { Wallet, Session } from "lib";
-import { DerivedAccount, AccountsState } from "slices/accounts";
+import { Session } from "lib";
+import { DerivedAccount } from "slices/accounts";
 import { getShieldedBalance } from "slices/shieldedTransfer";
-import {
-  MaspShieldedAccount,
-  createShieldedMasterAccount,
-  createShieldedDerivedAccount,
-  ShieldedAccountType,
-} from "@anoma/masp-web";
+import { ShieldedAccountType, getMaspWeb } from "@anoma/masp-web";
 
 const getAccountIndex = (
   accounts: DerivedAccount[],
@@ -49,10 +44,12 @@ export const createShieldedAccount = createAsyncThunk<
       const mnemonic = await Session.getSeed(password);
 
       if (mnemonic) {
-        const shieldedAccountWithRustFields = createShieldedMasterAccount(
-          alias,
-          mnemonic
-        ) as ShieldedAccountType;
+        const initialisedMaspWeb = await getMaspWeb();
+        const shieldedAccountWithRustFields =
+          initialisedMaspWeb.createShieldedMasterAccount(
+            alias,
+            mnemonic
+          ) as ShieldedAccountType;
 
         const shieldedAccount = {
           viewingKey: shieldedAccountWithRustFields.viewing_key,

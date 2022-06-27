@@ -31,7 +31,21 @@ type NodeWithNextIdWasm = {
 
 export type { NodeWithNextId };
 
+let initialisedMaspWeb: MaspWeb | undefined;
+
+// this is a util to give the initiated MaspWeb, best to put all func calls under
+// in this class and not static to ensure this is initiated correctly
+export const getMaspWeb = async () => {
+  if (typeof initialisedMaspWeb === "undefined") {
+    initialisedMaspWeb = await new MaspWeb().init();
+    return initialisedMaspWeb;
+  }
+  return initialisedMaspWeb;
+};
+
 export class MaspWeb {
+  public memory: WebAssembly.Memory | null = null;
+
   spendingKey?: string;
   paymentAddress?: string;
 
@@ -39,6 +53,18 @@ export class MaspWeb {
     await init();
     return new MaspWeb();
   };
+
+  public async init(): Promise<MaspWeb> {
+    // Support setting wasm-pack target to "nodejs" (for testing)
+    const _init =
+      typeof init === "function"
+        ? init
+        : () => Promise.resolve({ memory: null });
+
+    const { memory } = await _init();
+    this.memory = memory;
+    return this;
+  }
 
   generateShieldedTransaction = async (
     nodesWithNextId: NodeWithNextId[],
@@ -127,9 +153,7 @@ export class MaspWeb {
     return Promise.reject("could not fetch shielded balance");
   };
 
-  static decodeTransactionWithNextTxId = (
-    byteArray: Uint8Array
-  ): NodeWithNextId => {
+  decodeTransactionWithNextTxId = (byteArray: Uint8Array): NodeWithNextId => {
     const nodeWithNextIdWasm: NodeWithNextIdWasm =
       NodeWithNextIdWasmType.decode_transaction_with_next_tx_id(byteArray);
     const nodeWithNextId: NodeWithNextId = {
@@ -138,33 +162,34 @@ export class MaspWeb {
     };
     return nodeWithNextId;
   };
+
+  createShieldedMasterAccount = (
+    alias: string,
+    seedPhrase: string,
+    password?: string
+  ) => {
+    const passwordOrDefault = password || "no_password_provided";
+    const shieldedAccount = create_master_shielded_account(
+      alias,
+      seedPhrase,
+      passwordOrDefault
+    );
+    return shieldedAccount;
+  };
+
+  createShieldedDerivedAccount = (
+    alias: string,
+    path: string,
+    password?: string
+  ) => {
+    const shieldedAccount = create_derived_shielded_account(
+      alias,
+      path,
+      password
+    );
+    return shieldedAccount;
+  };
 }
-
-export const createShieldedMasterAccount = (
-  alias: string,
-  seedPhrase: string,
-  password?: string
-) => {
-  const shieldedAccount = create_master_shielded_account(
-    alias,
-    seedPhrase,
-    password
-  );
-  return shieldedAccount;
-};
-
-export const createShieldedDerivedAccount = (
-  alias: string,
-  path: string,
-  password?: string
-) => {
-  const shieldedAccount = create_derived_shielded_account(
-    alias,
-    path,
-    password
-  );
-  return shieldedAccount;
-};
 
 export class MaspShieldedAccount {
   // using this instead of keyword'ed constructor as we want this to be async

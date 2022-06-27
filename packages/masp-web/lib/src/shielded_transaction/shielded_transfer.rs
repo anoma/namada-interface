@@ -1,6 +1,6 @@
 use super::transaction_context::TransactionContext;
 use super::transaction_with_next_id::NodeWithNextId;
-use super::utils::{console_log, console_log_any};
+use crate::utils::{console_log, console_log_any};
 use anoma::types::address::Address;
 use anoma::types::masp::TransferTarget;
 use borsh::{BorshDeserialize, BorshSerialize};
