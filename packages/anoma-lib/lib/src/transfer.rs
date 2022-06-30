@@ -34,6 +34,7 @@ impl Transfer {
             target,
             token: token.clone(),
             amount,
+            shielded: None,
         };
 
         let data = transfer
