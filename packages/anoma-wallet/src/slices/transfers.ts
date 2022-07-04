@@ -14,13 +14,15 @@ import {
   isShieldedAccount,
 } from "./accounts";
 
-import { createShieldedTransfer } from "./shieldedTransfer";
+import {
+  createShieldedTransfer,
+  TRANSFER_CONFIGURATION,
+} from "./shieldedTransfer";
 import { updateShieldedBalances } from "./accountsNew";
 
 const TRANSFERS_ACTIONS_BASE = "transfers";
 const LEDGER_TRANSFER_TIMEOUT = 10000;
-const MASP_ADDRESS =
-  "atest1v4ehgw36xaryysfsx5unvve4g5my2vjz89p52sjxxgenzd348yuyyv3hg3pnjs35g5unvde4ca36y5";
+const MASP_ADDRESS = TRANSFER_CONFIGURATION.maspAddress;
 
 export type TransferTransaction = {
   source: string;
@@ -98,13 +100,15 @@ type TransferData = {
 const createShieldedTransaction = async (
   spendingKey: string | undefined,
   paymentAddress: string,
-  tokenValue: number // 1 ETC, 0.2 ETC, etc. the token value as the user entered it, division by 1_000_000 should have not been performed yet
+  tokenValue: number, // 1 ETC, 0.2 ETC, etc. the token value as the user entered it, division by 1_000_000 should have not been performed yet
+  tokenAddress: string
 ): Promise<Uint8Array> => {
   const transferAmount = tokenValue * 1_000_000;
   const shieldedTransaction = await createShieldedTransfer(
     transferAmount,
     spendingKey,
-    paymentAddress
+    paymentAddress,
+    tokenAddress
   );
   return Promise.resolve(shieldedTransaction);
 };
@@ -117,18 +121,22 @@ const createTransfer = async (
 ): Promise<TransferHashAndBytes> => {
   const transfer = await new Transfer().init();
   const { target } = transferData;
-
   if (isShieldedAddress(target) || isShieldedAccount(sourceAccount)) {
     // if the transfer source is shielded
     const spendingKey =
       sourceAccount.shieldedKeysAndPaymentAddress?.spendingKey;
 
+    // TODO add types to this
+    // "NAM", "BTC", ...
+    const tokenType = sourceAccount.tokenType;
+    const tokenAddress = TRANSFER_CONFIGURATION.tokenAddresses[tokenType];
     // if this is a shielding transfer, there is no shieldedKeysAndPaymentAddress
     // in that case we just pass undefined
     const shieldedTransaction = await createShieldedTransaction(
       spendingKey,
       transferData.target,
-      transferData.amount
+      transferData.amount,
+      tokenAddress
     );
 
     // TODO get rid of these hacks, restructure the whole data model representing the transfer
@@ -141,7 +149,7 @@ const createTransfer = async (
       ? MASP_ADDRESS
       : target; // we know its there but due to bad data model ts cannot know it, refactor TODO
 
-    // TODO remote this placeholder
+    // TODO remove this placeholder
     if (sourceAccount.shieldedKeysAndPaymentAddress) {
       transferData.privateKey =
         "cf0805f7675f3a17db1769f12541449d53935f50dab8590044f8a4cd3454ec4f";
@@ -178,7 +186,7 @@ const createTransfer = async (
 // shielded -> shielded
 // transparent -> shielded
 // shielded -> transparent
-// transparent -> transparent
+// transparent -> transparente
 export const submitTransferTransaction = createAsyncThunk(
   `${TRANSFERS_ACTIONS_BASE}/${TransfersThunkActions.SubmitTransferTransaction}`,
   async (

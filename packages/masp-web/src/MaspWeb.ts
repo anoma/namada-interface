@@ -17,7 +17,6 @@ const fetchFromPublicFolderToByteArray = async (
   const dataAsByteArray = new Uint8Array(data);
   return Promise.resolve(dataAsByteArray);
 };
-import { TransactionConfiguration } from "../../anoma-wallet/src/slices/shieldedTransfer";
 
 type NodeWithNextId = {
   node: Uint8Array;
@@ -35,7 +34,7 @@ let initialisedMaspWeb: MaspWeb | undefined;
 
 // this is a util to give the initiated MaspWeb, best to put all func calls under
 // in this class and not static to ensure this is initiated correctly
-export const getMaspWeb = async () => {
+export const getMaspWeb = async (): Promise<MaspWeb> => {
   if (typeof initialisedMaspWeb === "undefined") {
     initialisedMaspWeb = await new MaspWeb().init();
     return initialisedMaspWeb;
@@ -71,7 +70,7 @@ export class MaspWeb {
     amount: bigint,
     inputAddress: string | undefined,
     outputAddress: string,
-    transactionConfiguration: TransactionConfiguration
+    tokenAddress: string
   ): Promise<Uint8Array> => {
     const nodesWithNextIdWasm: NodeWithNextIdWasm[] = nodesWithNextId.map(
       (nodeWithNextId) => {
@@ -89,12 +88,6 @@ export class MaspWeb {
     const outputParamBytesAsByteArray = await fetchFromPublicFolderToByteArray(
       "masp-output.params"
     );
-
-    const { nam } = transactionConfiguration.tokenAddresses;
-    const tokenAddress = nam;
-    // const tokenAddress =
-    //   "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5";
-
     if (spendParamBytesAsByteArray && outputParamBytesAsByteArray) {
       const shieldedTransfer = create_shielded_transfer(
         nodesWithNextIdWasm,
@@ -123,7 +116,7 @@ export class MaspWeb {
   getShieldedBalance = async (
     nodesWithNextId: NodeWithNextId[],
     inputAddress: string,
-    transactionConfiguration: TransactionConfiguration
+    tokenAddress: string
   ): Promise<string> => {
     const nodesWithNextIdWasm: NodeWithNextIdWasm[] = nodesWithNextId.map(
       (nodeWithNextId) => {
@@ -133,11 +126,6 @@ export class MaspWeb {
         };
       }
     );
-
-    const { nam } = transactionConfiguration.tokenAddresses;
-    const tokenAddress = nam;
-    // const tokenAddress =
-    //   "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5";
 
     const shieldedBalanceInMicros = get_shielded_balance(
       nodesWithNextIdWasm,

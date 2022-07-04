@@ -11,14 +11,16 @@ const rpcClient = new RpcClient(network);
 export const createShieldedTransfer = async (
   amount: number,
   inputAddress: string | undefined,
-  outputAddress: string
+  outputAddress: string,
+  tokenAddress: string
 ): Promise<Uint8Array> => {
   try {
     const amountAsBigInt = BigInt(amount);
     const shieldedTransfer = await createShieldedTransferUsingTransfers(
       amountAsBigInt,
       inputAddress,
-      outputAddress
+      outputAddress,
+      tokenAddress
     );
     return Promise.resolve(shieldedTransfer);
   } catch (error) {
@@ -28,11 +30,13 @@ export const createShieldedTransfer = async (
 
 // gives a shielded balance of viewing key/spending key
 export const getShieldedBalance = async (
-  inputAddress: string
+  inputAddress: string,
+  tokenAddress: string
 ): Promise<string> => {
   try {
     const shieldedTransfer = await getShieldedBalanceUsingTransfers(
-      inputAddress
+      inputAddress,
+      tokenAddress
     );
     return Promise.resolve(shieldedTransfer);
   } catch (error) {
@@ -40,16 +44,11 @@ export const getShieldedBalance = async (
   }
 };
 
-const getTransactionConfiguration = (): TransactionConfiguration => {
-  return TRANSFER_CONFIGURATION;
-};
-
 // returns a transaction, nextTransaction tuple by transaction id
 const fetchShieldedTransferById = async (
   transactionId?: string
 ): Promise<NodeWithNextId | undefined> => {
-  const transactionConfiguration = getTransactionConfiguration();
-  const { maspAddress } = transactionConfiguration;
+  const { maspAddress } = TRANSFER_CONFIGURATION;
   const shieldedTransactionId = await rpcClient.queryShieldedTransaction(
     maspAddress,
     transactionId
@@ -84,33 +83,33 @@ const fetchShieldedTransfers = async (): Promise<NodeWithNextId[]> => {
 const createShieldedTransferUsingTransfers = async (
   amount: bigint,
   inputAddress: string | undefined,
-  outputAddress: string
+  outputAddress: string,
+  tokenAddress: string
 ): Promise<Uint8Array> => {
   const nodesWithNextId = await fetchShieldedTransfers();
   const maspWeb = await getMaspWeb();
-  const transactionConfiguration = getTransactionConfiguration();
   const shieldedTransaction = await maspWeb.generateShieldedTransaction(
     nodesWithNextId,
     amount,
     inputAddress,
     outputAddress,
-    transactionConfiguration
+    tokenAddress
   );
   return Promise.resolve(shieldedTransaction);
 };
 
 // this augments the actual call with some common data that is not unique to the call
 const getShieldedBalanceUsingTransfers = async (
-  inputAddress: string
+  inputAddress: string,
+  tokenAddress: string
 ): Promise<string> => {
   const nodesWithNextId = await fetchShieldedTransfers();
   const maspWeb = await getMaspWeb();
-  const transactionConfiguration = getTransactionConfiguration();
 
   const shieldedBalance = await maspWeb.getShieldedBalance(
     nodesWithNextId,
     inputAddress,
-    transactionConfiguration
+    tokenAddress
   );
   return Promise.resolve(shieldedBalance);
 };

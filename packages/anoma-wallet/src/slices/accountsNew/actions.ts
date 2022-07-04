@@ -9,7 +9,10 @@ import { history, TopLevelRouteGenerator } from "App";
 import { RootState } from "store/store";
 import { Session } from "lib";
 import { DerivedAccount } from "slices/accounts";
-import { getShieldedBalance } from "slices/shieldedTransfer";
+import {
+  getShieldedBalance,
+  TRANSFER_CONFIGURATION,
+} from "slices/shieldedTransfer";
 import { ShieldedAccountType, getMaspWeb } from "@anoma/masp-web";
 
 const getAccountIndex = (
@@ -88,8 +91,11 @@ export const updateShieldedBalances = createAsyncThunk<
     // TODO, is it good to have them all fail if one does, as now?
     for (const shieldedAccountId of Object.keys(shieldedAccounts)) {
       const shieldedAccount = shieldedAccounts[shieldedAccountId];
+      const { tokenType } = shieldedAccount;
+      const tokenAddress = TRANSFER_CONFIGURATION.tokenAddresses[tokenType];
       const shieldedBalance = await getShieldedBalance(
-        shieldedAccount.shieldedKeysAndPaymentAddress.spendingKey
+        shieldedAccount.shieldedKeysAndPaymentAddress.spendingKey,
+        tokenAddress
       );
       // TODO unify the types and the location of conversions
       shieldedBalances[shieldedAccountId] = Number(shieldedBalance);
