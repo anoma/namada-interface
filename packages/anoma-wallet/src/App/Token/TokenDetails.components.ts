@@ -49,7 +49,7 @@ export const TransactionListItem = styled.li`
   }
 `;
 
-export const SettingsButton = styled.button`
+export const SettingsButton = styled.button<{ disabled: boolean }>`
   margin: 0 8px 0 0;
   padding: 16px;
   border: none;
@@ -59,8 +59,15 @@ export const SettingsButton = styled.button`
   transition: all 0.3s;
   cursor: pointer;
   &:hover {
-    background-color: #f7f7f7;
+    background-color: ${(props) => (props.disabled ? "" : "#f7f7f7")};
   }
+  & path {
+    stroke-width: 2;
+  }
+  ${(props) =>
+    props.disabled
+      ? "cursor: initial; & path {stroke-width: 2;stroke: grey;}"
+      : ""}
 `;
 
 export const ButtonsContainer = styled.div`

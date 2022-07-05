@@ -126,6 +126,12 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
                 formatRoute(TopLevelRoute.SettingsAccountSettings, { id })
               );
             }}
+            disabled={!!shieldedKeysAndPaymentAddress}
+            title={
+              !!shieldedKeysAndPaymentAddress
+                ? "Account settings for shielded accounts not implemented yet"
+                : ""
+            }
           >
             <Icon iconSize={IconSize.M} iconName={IconName.Settings} />
           </SettingsButton>
