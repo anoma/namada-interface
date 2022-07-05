@@ -21,7 +21,7 @@ import { TokenReceive } from "./Token/TokenReceive";
 import { TransferDetails } from "./Token/Transfers";
 import NotFound from "./NotFound";
 
-    type Props = {
+type Props = {
   store: AppStore;
   persistor: Persistor;
   password: string;
@@ -128,6 +128,7 @@ const AppRoutes = ({ store, persistor, password }: Props): JSX.Element => {
                   <AnimatedTransition
                     elementKey={TopLevelRoute.SettingsAccounts}
                   >
+                    <SettingsAccounts />
                   </AnimatedTransition>
                 }
               />

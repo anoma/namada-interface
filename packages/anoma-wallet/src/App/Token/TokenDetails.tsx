@@ -129,7 +129,7 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
             disabled={!!shieldedKeysAndPaymentAddress}
             title={
               !!shieldedKeysAndPaymentAddress
-                ? "Account settings for shielded accounts not implemented yet"
+                ? "Account settings for shielded accounts are not implemented yet"
                 : ""
             }
           >
