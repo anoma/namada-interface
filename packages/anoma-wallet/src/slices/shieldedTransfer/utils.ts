@@ -66,7 +66,7 @@ const fetchShieldedTransfers = async (): Promise<NodeWithNextId[]> => {
     transfers.push(headTransactionId);
   }
   let latestTransfer: NodeWithNextId = transfers[transfers.length - 1];
-  while (latestTransfer.nextTransactionId) {
+  while (latestTransfer && latestTransfer.nextTransactionId) {
     const shieldedTransfer: NodeWithNextId | undefined =
       await fetchShieldedTransferById(latestTransfer.nextTransactionId);
     if (shieldedTransfer && shieldedTransfer.node) {
