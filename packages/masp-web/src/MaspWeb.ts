@@ -133,8 +133,7 @@ export class MaspWeb {
       tokenAddress
     );
     if (shieldedBalanceInMicros !== undefined) {
-      const shieldedBalance =
-        shieldedBalanceInMicros.valueOf() / BigInt(1_000_000);
+      const shieldedBalance = Number(shieldedBalanceInMicros) / 1_000_000;
       const shieldedBalanceAsString = shieldedBalance.toString();
       return Promise.resolve(shieldedBalanceAsString);
     }
