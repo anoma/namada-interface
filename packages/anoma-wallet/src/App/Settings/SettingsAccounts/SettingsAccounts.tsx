@@ -24,11 +24,17 @@ import {
  * gets selected to be the current active account. User can initiate a flow to add a new account
  */
 export const SettingsAccounts = (): JSX.Element => {
-  const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
+  const { derived, shieldedAccounts } = useAppSelector<AccountsState>(
+    (state) => state.accounts
+  );
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
-
   const derivedAccounts = derived[chainId] || {};
-  const accounts = Object.values(derivedAccounts);
+  const transparentAndShieldedAccounts = {
+    ...derivedAccounts,
+    ...(shieldedAccounts[chainId] || {}),
+  };
+
+  const accounts = Object.values(transparentAndShieldedAccounts);
   const currentAccount = useAppSelector(
     (state) => state.settings.selectedAccountID
   );
@@ -55,12 +61,15 @@ export const SettingsAccounts = (): JSX.Element => {
                   : { border: 0 }
               }
               key={account.alias}
+              disabled={!!account.shieldedKeysAndPaymentAddress}
             >
               <AccountAlias>{account.alias}</AccountAlias>
               <AccountNameContainer>
                 <AccountNameContainerOverflow>
                   <Heading level={HeadingLevel.Three}>
-                    {account.address}
+                    {account.shieldedKeysAndPaymentAddress
+                      ? account.shieldedKeysAndPaymentAddress.paymentAddress
+                      : account.address}
                   </Heading>
                 </AccountNameContainerOverflow>
               </AccountNameContainer>
@@ -73,7 +82,13 @@ export const SettingsAccounts = (): JSX.Element => {
                       })
                     );
                   }}
+                  disabled={!!account.shieldedKeysAndPaymentAddress}
                   variant={ButtonVariant.Contained}
+                  tooltip={
+                    account.shieldedKeysAndPaymentAddress
+                      ? "Account settings for shielded accounts are not implemented yet"
+                      : ""
+                  }
                 >
                   Settings
                 </Button>

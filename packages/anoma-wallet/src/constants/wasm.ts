@@ -13,4 +13,5 @@ export enum TxWasm {
 export enum VpWasm {
   User = "vp_user.c88899094fe7f288e0b96d82a33c1eaf38d36297db59846de0210b0df7d67dd9.wasm",
   Token = "vp_token.33a6fea422141a7742b4d5af8140d77c29a890b7565d971c9f33e6c178de0c6b.wasm",
+  Masp = "vp_masp.2f0318e147709f20ea792f3b8ea8aab75b4d10abf7aa2e4d84131ea585d572e0.wasm",
 }

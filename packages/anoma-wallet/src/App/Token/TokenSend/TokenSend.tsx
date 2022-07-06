@@ -4,10 +4,17 @@ import { useNavigate, useParams } from "react-router-dom";
 import Config from "config";
 import { AccountsState } from "slices/accounts";
 import { SettingsState } from "slices/settings";
+import { TransferType } from "slices/transfers";
 import { useAppSelector } from "store";
 import { TopLevelRoute } from "App/types";
 import { TokenType } from "constants/";
 import { formatRoute } from "utils/helpers";
+import {
+  PAYMENT_ADDRESS_LENGTH,
+  PAYMENT_ADDRESS_PREFIX,
+  ESTABLISHED_ADDRESS_LENGTH,
+  ESTABLISHED_ADDRESS_PREFIX,
+} from "./types";
 
 import TokenSendForm from "./TokenSendForm";
 import { Button, ButtonVariant } from "components/Button";
@@ -15,6 +22,23 @@ import { Heading, HeadingLevel } from "components/Heading";
 import { NavigationContainer } from "components/NavigationContainer";
 import { Select, Option } from "components/Select";
 import { TokenSendContainer } from "./TokenSend.components";
+
+export const parseTarget = (target: string): TransferType | undefined => {
+  if (
+    target.startsWith(PAYMENT_ADDRESS_PREFIX) &&
+    target.length === PAYMENT_ADDRESS_LENGTH
+  ) {
+    return TransferType.Shielded;
+  } else if (
+    target.startsWith(ESTABLISHED_ADDRESS_PREFIX) &&
+    target.length === ESTABLISHED_ADDRESS_LENGTH
+  ) {
+    return TransferType.NonShielded;
+  }
+
+  // likely we can unify the form errors and return an object describing the error here
+  return undefined;
+};
 
 type TokenSendParams = {
   id: string;
@@ -25,7 +49,9 @@ type TokenSendParams = {
 
 const TokenSend = (): JSX.Element => {
   const navigate = useNavigate();
-  const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
+  const { derived, shieldedAccounts } = useAppSelector<AccountsState>(
+    (state) => state.accounts
+  );
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const {
     id,
@@ -41,12 +67,16 @@ const TokenSend = (): JSX.Element => {
     string | undefined
   >(id);
   const [accountsData, setAccounts] = useState<Option<string>[]>();
-
   const derivedAccounts = derived[chainId] || {};
+
+  const transparentAndShieldedAccounts = {
+    ...derivedAccounts,
+    ...(shieldedAccounts[chainId] || {}),
+  };
 
   // Collect any accounts matching tokenType
   const accounts = tokenType
-    ? Object.keys(derivedAccounts)
+    ? Object.keys(transparentAndShieldedAccounts)
         .map((hash: string) => ({
           id: hash,
           alias: derivedAccounts[hash].alias,
@@ -71,7 +101,6 @@ const TokenSend = (): JSX.Element => {
       setAccounts(accountsData);
     }
   }, [accounts]);
-
   return (
     <TokenSendContainer>
       <NavigationContainer

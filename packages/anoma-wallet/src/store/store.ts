@@ -61,6 +61,8 @@ const makeStore: StoreFactory = (secret) => {
   });
 };
 
+export type RootState = ReturnType<typeof reducers>;
+
 export type AppStore = ReturnType<typeof makeStore>;
 export type AppState = ReturnType<AppStore["getState"]>;
 export type AppThunk<ReturnType = void> = ThunkAction<

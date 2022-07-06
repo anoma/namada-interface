@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "store";
 import { AccountsState, fetchBalanceByAccount } from "slices/accounts";
 import { SettingsState } from "slices/settings";
+import { updateShieldedBalances } from "slices/accountsNew";
 import { formatRoute } from "utils/helpers";
 import { TopLevelRoute } from "App/types";
 
@@ -20,7 +21,9 @@ import {
 import { Button, ButtonVariant } from "components/Button";
 
 const DerivedAccounts = (): JSX.Element => {
-  const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
+  const { derived, shieldedAccounts } = useAppSelector<AccountsState>(
+    (state) => state.accounts
+  );
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const derivedAccounts = derived[chainId] || {};
 
@@ -37,16 +40,29 @@ const DerivedAccounts = (): JSX.Element => {
         }
       });
     }
+
+    dispatch(updateShieldedBalances());
   }, []);
+
+  const shieldedAndTransparentAccounts = {
+    ...derivedAccounts,
+    ...(shieldedAccounts[chainId] || {}),
+  };
 
   return (
     <DerivedAccountsContainer>
       <DerivedAccountsList>
-        {Object.keys(derivedAccounts)
+        {Object.keys(shieldedAndTransparentAccounts)
           .reverse()
           .map((hash: string) => {
-            const { id, alias, tokenType, balance, isInitializing } =
-              derivedAccounts[hash];
+            const {
+              id,
+              alias,
+              tokenType,
+              balance,
+              isInitializing,
+              isShielded,
+            } = shieldedAndTransparentAccounts[hash];
 
             return (
               <DerivedAccountItem key={alias}>
@@ -55,7 +71,10 @@ const DerivedAccounts = (): JSX.Element => {
                     <DerivedAccountAlias>
                       {alias} {isInitializing && <i>(initializing)</i>}
                     </DerivedAccountAlias>
-                    <DerivedAccountType>{tokenType}</DerivedAccountType>
+                    <DerivedAccountType>
+                      {isShielded ? "SHIELDED " : ""}
+                      {tokenType}
+                    </DerivedAccountType>
                   </DerivedAccountInfo>
 
                   <DerivedAccountBalance>

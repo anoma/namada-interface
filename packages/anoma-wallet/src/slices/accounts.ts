@@ -5,6 +5,7 @@ import { Account, RpcClient, SocketClient } from "lib";
 import { NewBlockEvents } from "lib/rpc/types";
 import { promiseWithTimeout, stringToHash } from "utils/helpers";
 import { submitTransferTransaction } from "./transfers";
+import { addAccountReducersToBuilder } from "./accountsNew/reducers";
 
 const { REACT_APP_USE_FAUCET } = process.env;
 
@@ -17,6 +18,7 @@ export type InitialAccount = {
   signingKey: string;
   establishedAddress?: string;
   zip32Address?: string;
+  isShielded?: boolean;
 };
 
 export type DerivedAccount = InitialAccount & {
@@ -24,14 +26,47 @@ export type DerivedAccount = InitialAccount & {
   balance: number;
   isInitializing?: boolean;
   accountInitializationError?: string;
+  shieldedKeysAndPaymentAddress?: ShieldedKeysAndPaymentAddress;
+};
+
+// this is what is unique only to the shielded "Accounts"
+// alias is not needed as the whole account is in hash map under the alias
+export type ShieldedKeysAndPaymentAddress = {
+  spendingKey: string;
+  viewingKey: string;
+  paymentAddress: string;
+};
+
+export type ShieldedAccount = DerivedAccount & {
+  shieldedKeysAndPaymentAddress: ShieldedKeysAndPaymentAddress;
+};
+
+// TODO redundant, refactor the data models
+// type predicate to figure out if the account is shielded or transparent
+export const isShieldedAccount = (
+  account: DerivedAccount | ShieldedAccount
+): account is ShieldedAccount => {
+  return (
+    (account as ShieldedAccount).shieldedKeysAndPaymentAddress !== undefined
+  );
+};
+
+export const isShieldedAddress = (address: string): boolean => {
+  return address.startsWith("patest");
 };
 
 type DerivedAccounts = {
   [id: string]: DerivedAccount;
 };
 
+type ShieldedAccounts = {
+  [id: string]: ShieldedAccount;
+};
+
 export type AccountsState = {
+  isAddingAccountInReduxState?: boolean;
   derived: Record<string, DerivedAccounts>;
+  shieldedAccounts: Record<string, ShieldedAccounts>;
 };
 
 const ACCOUNTS_ACTIONS_BASE = "accounts";
@@ -131,7 +166,6 @@ export const submitInitAccountTransaction = createAsyncThunk(
           target: establishedAddress || "",
           amount: 1000,
           memo: "Initial funds",
-          shielded: false,
           faucet,
         })
       );
@@ -141,8 +175,10 @@ export const submitInitAccountTransaction = createAsyncThunk(
   }
 );
 
+// todo these should likely be just one
 const initialState: AccountsState = {
   derived: {},
+  shieldedAccounts: {},
 };
 
 const accountsSlice = createSlice({
@@ -256,10 +292,14 @@ const accountsSlice = createSlice({
       const account = meta.arg;
       const { chainId, id } = account;
 
-      state.derived[chainId][id].isInitializing = false;
-      state.derived[chainId][id].accountInitializationError = error
-        ? error.message
-        : "Error initializing account";
+      // TODO this is now triggering for the shielded accounts. Once
+      // transparent and shielded are refactored together, check this out
+      if (state.derived[chainId][id]) {
+        state.derived[chainId][id].isInitializing = false;
+        state.derived[chainId][id].accountInitializationError = error
+          ? error.message
+          : "Error initializing account";
+      }
     });
 
     builder.addCase(
@@ -275,6 +315,9 @@ const accountsSlice = createSlice({
         };
       }
     );
+
+    // TODO merge these all at some point to one place
+    addAccountReducersToBuilder(builder);
   },
 });
 

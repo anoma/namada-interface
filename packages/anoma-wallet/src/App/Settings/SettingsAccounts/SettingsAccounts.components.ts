@@ -20,7 +20,7 @@ export const AccountRows = styled.div`
   overflow-y: scroll;
   padding: 2px;
 `;
-export const AccountRow = styled.div`
+export const AccountRow = styled.div<{ disabled: boolean }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -30,8 +30,8 @@ export const AccountRow = styled.div`
   margin-bottom: 8px;
 
   &:hover {
-    background-color: #dedede;
-    cursor: pointer;
+    ${(props) =>
+      props.disabled ? "" : "background-color: #dedede;cursor: pointer;"}
   }
 `;
 
