@@ -10,8 +10,8 @@ const MNEMONIC_24 =
 describe("Wallet class", () => {
   test("It should derive the correct public keys from mnemonic", async () => {
     const walletBtc = await new Wallet(MNEMONIC_24, "BTC").init();
-    const child1 = walletBtc.new(0);
-    const child2 = walletBtc.new(1);
+    const child1 = walletBtc.new(0, 0);
+    const child2 = walletBtc.new(0, 1);
 
     expect(child1.publicKey).toBe(
       "02ac3900403f7d59537edb3694abbdb7f9d334f4fe64ba27dc6b41dc7e298d0dc6"
@@ -21,9 +21,9 @@ describe("Wallet class", () => {
     );
 
     const walletEth = await new Wallet(MNEMONIC_24, "ETH").init();
-    const child3 = walletEth.new(0);
-    const child4 = walletEth.new(1);
-    const child5 = walletEth.new(2);
+    const child3 = walletEth.new(0, 0);
+    const child4 = walletEth.new(0, 1);
+    const child5 = walletEth.new(0, 2);
 
     expect(child3.publicKey).toBe(
       "0332331c814be320962dcfeea877e489b0c34c4ab72ac8970c42fb7fedc5e0c437"
@@ -38,8 +38,8 @@ describe("Wallet class", () => {
 
   test("Derives the correct addresses and private key WIFs from mnemonic", async () => {
     const wallet = await new Wallet(MNEMONIC_24, "BTC").init();
-    const child1 = wallet.new(0);
-    const child2 = wallet.new(1);
+    const child1 = wallet.new(0, 0);
+    const child2 = wallet.new(0, 1);
     const { address: address1, wif: wif1 } = child1;
     const { address: address2, wif: wif2 } = child2;
 
@@ -119,7 +119,7 @@ describe("Wallet class", () => {
 
   test("Can override the default encoding for private/public keys", async () => {
     const wallet = await new Wallet(MNEMONIC_24, "BTC").init();
-    const child = wallet.new(0, "base58");
+    const child = wallet.new(0, 0, "base58");
     const { publicKey, privateKey } = child;
 
     expect(publicKey).toBe("o3vH5artnxqVVJw4NnBAs5qZMrXELqJqqp3P4KbK7ERs");
@@ -129,7 +129,7 @@ describe("Wallet class", () => {
   test("ed25519 keypair can be serialized from derived account", async () => {
     const { keypair } = await new AnomaClient().init();
     const wallet = await new Wallet(MNEMONIC_24, "BTC").init();
-    const child = wallet.new(0);
+    const child = wallet.new(0, 0);
     const { secret, public: pub } = child;
 
     // The following will fail if there is a signature error:

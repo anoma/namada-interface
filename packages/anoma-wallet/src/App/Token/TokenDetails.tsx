@@ -10,8 +10,12 @@ import {
   AccountsState,
   fetchBalanceByAccount,
 } from "slices/accounts";
+import { TransfersState } from "slices/transfers";
+import { SettingsState } from "slices/settings";
+import { updateShieldedBalances } from "slices/accountsNew";
 import { useAppDispatch, useAppSelector } from "store";
 import { formatRoute, stringFromTimestamp } from "utils/helpers";
+import { ChainsState } from "slices/chains";
 
 import { Button, ButtonVariant } from "components/Button";
 import { Heading, HeadingLevel } from "components/Heading";
@@ -27,8 +31,6 @@ import {
   AccountsDetailsNavContainer,
 } from "./TokenDetails.components";
 import { Address } from "./Transfers/TransferDetails.components";
-import { TransfersState } from "slices/transfers";
-import { updateShieldedBalances } from "slices/accountsNew";
 
 type Props = {
   persistor: Persistor;
@@ -63,15 +65,20 @@ const getAccountDetails = (
 const TokenDetails = ({ persistor }: Props): JSX.Element => {
   const navigate = useNavigate();
   const { id = "" } = useParams<TokenDetailsParams>();
-  const { derived, shieldedAccounts } = useAppSelector<AccountsState>(
-    (state) => state.accounts
-  );
+  const { derived, shieldedAccounts: shieldedAccountsByChainId } =
+    useAppSelector<AccountsState>((state) => state.accounts);
+  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
+  const chainConfig = useAppSelector<ChainsState>((state) => state.chains);
+  const { ibc } = chainConfig[chainId];
   const { transactions: accountTransactions } = useAppSelector<TransfersState>(
     (state) => state.transfers
   );
   const dispatch = useAppDispatch();
 
-  const accounts = { ...derived, ...shieldedAccounts };
+  const derivedAccounts = derived[chainId] || {};
+  const shieldedAccounts = shieldedAccountsByChainId[chainId] || {};
+  const accounts = { ...derivedAccounts, ...shieldedAccounts };
+
   const account: DerivedAccount = accounts[id] || {};
   const {
     alias,
@@ -83,6 +90,7 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
   } = account;
 
   let shieldedKeysAndPaymentAddress: ShieldedKeysAndPaymentAddress | undefined;
+
   if (shieldedAccounts && shieldedAccounts[id]) {
     shieldedKeysAndPaymentAddress =
       shieldedAccounts[id].shieldedKeysAndPaymentAddress;
@@ -98,8 +106,9 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
   const transactions = accountTransactions
     .filter(
       (transaction) =>
-        transaction.source === establishedAddress ||
-        transaction.target === establishedAddress
+        (transaction.source === establishedAddress ||
+          transaction.target === establishedAddress) &&
+        transaction.chainId === chainId
     )
     .reverse();
 
@@ -178,6 +187,19 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
             Send
           </Button>
         </ButtonsContainer>
+        {ibc && Object.values(ibc).length > 0 && (
+          <ButtonsContainer>
+            <Button
+              variant={ButtonVariant.Small}
+              style={{ width: "100%" }}
+              onClick={() => {
+                navigate(formatRoute(TopLevelRoute.TokenIbcTransfer, { id }));
+              }}
+            >
+              IBC Transfer
+            </Button>
+          </ButtonsContainer>
+        )}
         <Heading level={HeadingLevel.Three}>Transactions</Heading>
         {transactions.length === 0 && <p>No transactions</p>}
         {transactions.length > 0 && (

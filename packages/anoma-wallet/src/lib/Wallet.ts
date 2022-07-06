@@ -75,6 +75,7 @@ class Wallet {
    * set of Bip32 keys derived from our root account.
    */
   public new(
+    account: number,
     index: number,
     encoding: Encoding = "hex",
     isHardened = true
@@ -82,6 +83,7 @@ class Wallet {
     const { type } = Tokens[this._tokenType];
     const path = Wallet.makePath({
       type,
+      account,
       index: `${index}${isHardened ? "'" : ""}`,
     });
 

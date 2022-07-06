@@ -1,17 +1,20 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+import { Chain } from "config/chain";
+import { setFiatCurrency, setChainId, SettingsState } from "slices/settings";
+import { ChainsState } from "slices/chains";
+import { useAppDispatch, useAppSelector } from "store";
+import { Session } from "lib";
+
 import { NavigationContainer } from "components/NavigationContainer";
 import { Heading, HeadingLevel } from "components/Heading";
 import { SettingsWalletSettingsContainer } from "./SettingsWalletSettings.components";
 import { Tooltip } from "components/Tooltip";
 import { Icon, IconName } from "components/Icon";
 import { Select, Option } from "components/Select";
-import { setFiatCurrency, setNetwork } from "slices/settings";
-import { useAppDispatch, useAppSelector } from "store";
 import { InputContainer } from "App/AccountOverview/AccountOverview.components";
 import { Button, ButtonVariant } from "components/Button";
-import { Session } from "lib";
-import { useState } from "react";
-
 import {
   SeedPhraseCard,
   SeedPhraseContainer,
@@ -25,9 +28,17 @@ type Props = {
 export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+
+  const chains = useAppSelector<ChainsState>((state) => state.chains);
+  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const [displaySeedPhrase, setDisplaySeedPhrase] = useState(false);
   const [seedPhrase, setSeedPhrase] = useState<string[]>([]);
   const [isLoadingSeed, setIsLoadingSeed] = useState(false);
+
+  const networks = Object.values(chains).map(({ id, alias }: Chain) => ({
+    label: alias,
+    value: id,
+  }));
 
   const handleDisplaySeedPhrase = async (): Promise<void> => {
     if (!displaySeedPhrase) {
@@ -60,14 +71,6 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
     (state) => state.settings.fiatCurrency
   );
 
-  /* TODO: Load available Anoma-based networks from config, i.e., Namada */
-  const networks: Option<string>[] = [
-    {
-      label: "Namada",
-      value: "Namada",
-    },
-  ];
-
   const handleCurrencySelect = (
     e: React.ChangeEvent<HTMLSelectElement>
   ): void => {
@@ -81,7 +84,7 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
   ): void => {
     const { value } = e.target;
 
-    dispatch(setNetwork(value));
+    dispatch(setChainId(value));
   };
 
   return (
@@ -145,7 +148,7 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
               />
             </div>
           }
-          value="default"
+          value={chainId}
           data={networks}
           onChange={handleNetworkSelect}
         />

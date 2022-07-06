@@ -1,6 +1,6 @@
-import { NetworkConfig, Protocol } from "config";
+import { Network, Protocol } from "config";
 
-export type RpcClientInitArgs = NetworkConfig;
+export type RpcClientInitArgs = Network;
 
 abstract class RpcClientBase {
   private _url: string;

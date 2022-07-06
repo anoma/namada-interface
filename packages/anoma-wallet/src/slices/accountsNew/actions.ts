@@ -8,23 +8,19 @@ import {
 import { history, TopLevelRouteGenerator } from "App";
 import { RootState } from "store/store";
 import { Session } from "lib";
-import { DerivedAccount } from "slices/accounts";
 import {
   getShieldedBalance,
   TRANSFER_CONFIGURATION,
 } from "slices/shieldedTransfer";
 import { ShieldedAccountType, getMaspWeb } from "@anoma/masp-web";
 
-const getAccountIndex = (
-  accounts: DerivedAccount[],
-  tokenType: string
-): number =>
-  accounts.filter((account: DerivedAccount) => account.tokenType === tokenType)
-    .length;
-
-type NewAccountDetailsWithPassword = NewAccountDetails & { password: string };
+type NewAccountDetailsWithPassword = NewAccountDetails & {
+  chainId: string;
+  password: string;
+};
 
 type ShieldedKeysAndAddressesWithNewAccountDetails = {
+  chainId: string;
   shieldedKeysAndAddress: ShieldedAccount;
   newAccountDetails: NewAccountDetails;
 };
@@ -40,10 +36,10 @@ export const createShieldedAccount = createAsyncThunk<
   NewAccountDetailsWithPassword
 >(
   ADD_ACCOUNT_TO_LEDGER,
-  async (newAccountDetails: NewAccountDetailsWithPassword, _thunkAPI) => {
+  async (newAccountDetails: NewAccountDetailsWithPassword) => {
     try {
       // TODO distinguish between master/derived
-      const { alias, password } = newAccountDetails;
+      const { chainId, alias, password } = newAccountDetails;
       const mnemonic = await Session.getSeed(password);
 
       if (mnemonic) {
@@ -61,7 +57,8 @@ export const createShieldedAccount = createAsyncThunk<
         };
 
         const payload: ShieldedKeysAndAddressesWithNewAccountDetails = {
-          newAccountDetails: newAccountDetails,
+          chainId,
+          newAccountDetails,
           shieldedKeysAndAddress: shieldedAccount,
         };
 
@@ -77,16 +74,24 @@ export const createShieldedAccount = createAsyncThunk<
 );
 
 export type ShieldedBalancesPayload = {
-  [accountId: string]: number;
+  chainId: string;
+  shieldedBalances: {
+    [accountId: string]: number;
+  };
 };
+
 export const updateShieldedBalances = createAsyncThunk<
   ShieldedBalancesPayload | undefined,
   void
 >(UPDATE_SHIELDED_BALANCES, async (_, thunkAPI) => {
   try {
     const state = thunkAPI.getState() as RootState;
-    const shieldedAccounts = state.accounts.shieldedAccounts;
-    const shieldedBalances: ShieldedBalancesPayload = {};
+    const { chainId } = state.settings;
+    const shieldedAccounts = state.accounts.shieldedAccounts[chainId];
+    const shieldedBalances: ShieldedBalancesPayload = {
+      chainId,
+      shieldedBalances: {},
+    };
 
     // TODO, is it good to have them all fail if one does, as now?
     for (const shieldedAccountId of Object.keys(shieldedAccounts)) {
@@ -94,11 +99,13 @@ export const updateShieldedBalances = createAsyncThunk<
       const { tokenType } = shieldedAccount;
       const tokenAddress = TRANSFER_CONFIGURATION.tokenAddresses[tokenType];
       const shieldedBalance = await getShieldedBalance(
+        chainId,
         shieldedAccount.shieldedKeysAndPaymentAddress.spendingKey,
         tokenAddress
       );
       // TODO unify the types and the location of conversions
-      shieldedBalances[shieldedAccountId] = Number(shieldedBalance);
+      shieldedBalances.shieldedBalances[shieldedAccountId] =
+        Number(shieldedBalance);
     }
     return Promise.resolve(shieldedBalances);
   } catch (error) {

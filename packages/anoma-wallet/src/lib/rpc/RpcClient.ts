@@ -121,7 +121,27 @@ class RpcClient extends RpcClientBase {
       const json: JsonRpcSuccessResponse = await this._client.execute(request);
       const response: AbciResponse = json.result.response;
       // borsh serialises true to 1 which in base64 is AQ==
-      if (response.code === 0 && response && response.value === "AQ==") {
+      if (response.code === 0 && response.value === "AQ==") {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  public async queryChannel(
+    channelId: string,
+    portId = "transfer"
+  ): Promise<boolean> {
+    const path = `#IBC/channelEnds/ports/${portId}/channels/${channelId}`;
+    const request = createJsonRpcRequest("abci_query", [path, "", "0", false]);
+
+    try {
+      const json: JsonRpcSuccessResponse = await this._client.execute(request);
+      const response: AbciResponse = json.result.response;
+      if (response.code === 0) {
+        // TODO: We are expecting a result encoded as a Protobuf, so it should be handled here:
         return true;
       }
       return false;

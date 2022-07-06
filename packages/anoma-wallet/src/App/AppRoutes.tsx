@@ -20,6 +20,7 @@ import { TokenSend } from "./Token/TokenSend";
 import { TokenReceive } from "./Token/TokenReceive";
 import { TransferDetails } from "./Token/Transfers";
 import NotFound from "./NotFound";
+import IBCTransfer from "./Token/IBCTransfer/IBCTransfer";
 
 type Props = {
   store: AppStore;
@@ -101,6 +102,16 @@ const AppRoutes = ({ store, persistor, password }: Props): JSX.Element => {
                     elementKey={TopLevelRoute.TokenTransferDetails}
                   >
                     <TransferDetails />
+                  </AnimatedTransition>
+                }
+              />
+              <Route
+                path={TopLevelRoute.TokenIbcTransfer}
+                element={
+                  <AnimatedTransition
+                    elementKey={TopLevelRoute.TokenIbcTransfer}
+                  >
+                    <IBCTransfer />
                   </AnimatedTransition>
                 }
               />

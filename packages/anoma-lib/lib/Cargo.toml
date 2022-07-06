@@ -34,6 +34,7 @@ serde-wasm-bindgen = "0.3.1"
 thiserror = "1.0.30"
 wasm-bindgen = {version = "0.2.78", features = ["serde-serialize"]}
 web-sys = {version = "0.3", features = ["console"]}
+prost = "0.9.0"
 
 [patch.crates-io]
 borsh = {git = "https://github.com/heliaxdev/borsh-rs.git", rev = "cd5223e5103c4f139e0c54cf8259b7ec5ec4073a"}

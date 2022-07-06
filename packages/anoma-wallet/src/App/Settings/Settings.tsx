@@ -1,6 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import { NavigationContainer } from "components/NavigationContainer";
+
 import { TopLevelRoute } from "App/types";
+
+import { NavigationContainer } from "components/NavigationContainer";
 import { Button, ButtonVariant } from "components/Button";
 import { Heading, HeadingLevel } from "components/Heading";
 import { SettingsContainer } from "./Settings.components";

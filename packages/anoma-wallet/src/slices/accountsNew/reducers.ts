@@ -1,4 +1,4 @@
-import { ActionReducerMapBuilder } from "@reduxjs/toolkit";
+import { ActionReducerMapBuilder, PayloadAction } from "@reduxjs/toolkit";
 import {
   createShieldedAccount,
   reset,
@@ -10,23 +10,29 @@ export const addAccountReducersToBuilder = (
   builder: ActionReducerMapBuilder<ReturnType<typeof reducer>>
 ): ActionReducerMapBuilder<ReturnType<typeof reducer>> => {
   builder
-    .addCase(reset, (state, action) => {
+    .addCase(reset, (state) => {
       // TODO remove this
       // this is just for debugging as the app stayed in a
       // state where the UI got blocked
       state.isAddingAccountInReduxState = false;
     })
-    .addCase(createShieldedAccount.pending, (state, action) => {
+    .addCase(createShieldedAccount.pending, () => {
       // state.isAddingAccountInReduxState = true;
     })
     .addCase(createShieldedAccount.fulfilled, (state, action) => {
       state.isAddingAccountInReduxState = false;
       const payload = action.payload;
       if (payload) {
-        const { shieldedKeysAndAddress, newAccountDetails } = payload;
+        const { chainId, shieldedKeysAndAddress, newAccountDetails } = payload;
         const { alias, tokenType } = newAccountDetails;
         const uuid = crypto.randomUUID();
-        state.shieldedAccounts[uuid] = {
+
+        if (!state.shieldedAccounts[chainId]) {
+          state.shieldedAccounts[chainId] = {};
+        }
+
+        state.shieldedAccounts[chainId][uuid] = {
+          chainId,
           shieldedKeysAndPaymentAddress: shieldedKeysAndAddress,
           isShielded: true,
           alias: alias,
@@ -41,23 +47,24 @@ export const addAccountReducersToBuilder = (
         };
       }
     })
-    .addCase(createShieldedAccount.rejected, (state, action) => {
+    .addCase(createShieldedAccount.rejected, (state) => {
       state.isAddingAccountInReduxState = false;
     })
-    .addCase(updateShieldedBalances.fulfilled, (state, action) => {
-      const { payload } = action;
-      let shieldedBalances: ShieldedBalancesPayload = {};
-      if (payload) {
-        shieldedBalances = payload;
-      }
+    .addCase(
+      updateShieldedBalances.fulfilled,
+      (state, action: PayloadAction<ShieldedBalancesPayload | undefined>) => {
+        const { chainId = "", shieldedBalances = {} } = action.payload || {};
 
-      for (const [key, shieldedBalance] of Object.entries(shieldedBalances)) {
-        if (state.shieldedAccounts[key]) {
-          state.shieldedAccounts[key].balance = shieldedBalance;
+        const shieldedAccounts = state.shieldedAccounts[chainId];
+
+        for (const [key, shieldedBalance] of Object.entries(shieldedBalances)) {
+          if (shieldedAccounts[key]) {
+            state.shieldedAccounts[chainId][key].balance = shieldedBalance;
+          }
         }
       }
-    })
-    .addCase(updateShieldedBalances.rejected, (_state, _action) => {
+    )
+    .addCase(updateShieldedBalances.rejected, () => {
       // TODO
       // implement this once the notification system is in place
     });

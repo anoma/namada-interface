@@ -1,9 +1,14 @@
-import { Heading, HeadingLevel } from "components/Heading";
-import { NavigationContainer } from "components/NavigationContainer";
 import { useNavigate, useParams } from "react-router-dom";
+
+import Config from "config";
+import { ChainsState } from "slices/chains";
 import { TransfersState } from "slices/transfers";
 import { useAppSelector } from "store";
-import { stringFromTimestamp } from "utils/helpers";
+import { formatRoute, stringFromTimestamp } from "utils/helpers";
+import { TopLevelRoute } from "App/types";
+
+import { Heading, HeadingLevel } from "components/Heading";
+import { NavigationContainer } from "components/NavigationContainer";
 import { Address, TransferDetailContainer } from "./TransferDetails.components";
 
 type TransferDetailsParams = {
@@ -13,12 +18,13 @@ type TransferDetailsParams = {
 
 const TransferDetail = (): JSX.Element => {
   const navigate = useNavigate();
-  const { appliedHash = "" } = useParams<TransferDetailsParams>();
+  const { appliedHash = "", id = "" } = useParams<TransferDetailsParams>();
   const { transactions } = useAppSelector<TransfersState>(
     (state) => state.transfers
   );
 
   const {
+    chainId: sourceChainId = "",
     tokenType,
     amount,
     gas = 0,
@@ -28,9 +34,28 @@ const TransferDetail = (): JSX.Element => {
     source,
     target,
     type,
+    ibcTransfer,
   } = transactions.find(
     (transaction) => transaction.appliedHash === appliedHash
   ) || {};
+
+  const sourceChain = Config.chain[sourceChainId] || {};
+
+  const {
+    chainId = "",
+    sourceChannel,
+    sourcePort,
+    destinationChannel,
+    destinationPort,
+  } = ibcTransfer || {};
+
+  const chains = useAppSelector<ChainsState>((state) => state.chains);
+  const chain = chains[chainId];
+  const { ibc = [] } = chain || {};
+  const ibcChainId = ibc.find((ibcChainId) => ibcChainId === chainId) || "";
+
+  const destinationChain = chains[ibcChainId];
+  const chainAlias = destinationChain?.alias;
 
   const dateTimeFormatted = stringFromTimestamp(timestamp);
 
@@ -38,7 +63,7 @@ const TransferDetail = (): JSX.Element => {
     <TransferDetailContainer>
       <NavigationContainer
         onBackButtonClick={() => {
-          navigate(-1);
+          navigate(formatRoute(TopLevelRoute.Token, { id }));
         }}
       >
         <Heading level={HeadingLevel.One}>Transfer Details</Heading>
@@ -48,6 +73,8 @@ const TransferDetail = (): JSX.Element => {
           {type}
           <br />
           {amount} {tokenType}
+          <br />
+          {sourceChain.alias}
         </strong>
         <br />
         {dateTimeFormatted}
@@ -56,6 +83,27 @@ const TransferDetail = (): JSX.Element => {
       <Address>{source}</Address>
       <p>Target address:</p>
       <Address>{target}</Address>
+      {chainId && (
+        <>
+          <p>
+            Destination Chain:
+            <br />
+            <strong>
+              {chainAlias}
+              <br />
+              {chainId}
+            </strong>
+          </p>
+          <p>
+            IBC Transfer Channel:
+            <br />
+            <strong>
+              {sourceChannel}/{sourcePort} - {destinationChannel}/
+              {destinationPort}
+            </strong>
+          </p>
+        </>
+      )}
       <p>Applied hash:</p>
       <Address>{appliedHash}</Address>
       <p>

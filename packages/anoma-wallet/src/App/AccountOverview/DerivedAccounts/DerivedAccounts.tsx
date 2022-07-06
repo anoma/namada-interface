@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAppDispatch, useAppSelector } from "store";
 import { AccountsState, fetchBalanceByAccount } from "slices/accounts";
+import { SettingsState } from "slices/settings";
 import { updateShieldedBalances } from "slices/accountsNew";
 import { formatRoute } from "utils/helpers";
 import { TopLevelRoute } from "App/types";
@@ -23,14 +24,17 @@ const DerivedAccounts = (): JSX.Element => {
   const { derived, shieldedAccounts } = useAppSelector<AccountsState>(
     (state) => state.accounts
   );
+  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
+  const derivedAccounts = derived[chainId] || {};
+
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const keys = Object.keys(derived);
+    const keys = Object.keys(derivedAccounts);
     if (keys.length > 0) {
       keys.forEach((key) => {
-        const account = derived[key];
+        const account = derivedAccounts[key];
         if (!account.balance) {
           dispatch(fetchBalanceByAccount(account));
         }
@@ -40,7 +44,11 @@ const DerivedAccounts = (): JSX.Element => {
     dispatch(updateShieldedBalances());
   }, []);
 
-  const shieldedAndTransparentAccounts = { ...derived, ...shieldedAccounts };
+  const shieldedAndTransparentAccounts = {
+    ...derivedAccounts,
+    ...(shieldedAccounts[chainId] || {}),
+  };
+
   return (
     <DerivedAccountsContainer>
       <DerivedAccountsList>

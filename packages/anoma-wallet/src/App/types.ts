@@ -18,10 +18,11 @@ export enum TopLevelRoute {
   /* TOKENS */
   Token = "/token/:id",
   TokenSend = "/token/:id/send",
-  TokenSendTarget = "/token/send/:tokenType/:target",
+  TokenSendTarget = "/token/send/:accountIndex/:tokenType/:target",
   TokenReceive = "/token/:id/receive",
   TokenTransfers = "/token/:id/transfers",
   TokenTransferDetails = "/token/:id/transfers/:appliedHash",
+  TokenIbcTransfer = "/token/:id/ibc-transfer",
 
   /* STAKING AND GOVERNANCE */
   StakingAndGovernance = "/staking-and-governance",

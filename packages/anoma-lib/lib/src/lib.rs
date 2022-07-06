@@ -1,6 +1,7 @@
 use wasm_bindgen::prelude::*;
 
 pub mod transfer;
+pub mod ibc_transfer;
 pub mod account;
 pub mod wallet;
 mod utils;

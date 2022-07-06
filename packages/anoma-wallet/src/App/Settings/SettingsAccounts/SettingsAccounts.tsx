@@ -1,10 +1,13 @@
 import { useNavigate } from "react-router-dom";
-import { NavigationContainer } from "components/NavigationContainer";
 import { TopLevelRoute } from "App/types";
+import { formatRoute } from "utils/helpers";
+import { useAppSelector } from "store";
+import { AccountsState } from "slices/accounts";
+import { SettingsState } from "slices/settings";
+
+import { NavigationContainer } from "components/NavigationContainer";
 import { Heading, HeadingLevel } from "components/Heading";
 import { Button, ButtonVariant } from "components/Button";
-import { formatRoute } from "utils/helpers";
-
 import {
   SettingsAccountsContainer,
   AccountRows,
@@ -15,8 +18,6 @@ import {
   NewAccountButtonContainer,
   AccountAlias,
 } from "./SettingsAccounts.components";
-import { useAppSelector } from "store";
-import { AccountsState } from "slices/accounts";
 
 /**
  * Listing all the accounts that are persisted. By clicking one of them the account
@@ -26,9 +27,14 @@ export const SettingsAccounts = (): JSX.Element => {
   const { derived, shieldedAccounts } = useAppSelector<AccountsState>(
     (state) => state.accounts
   );
-  const transparentAndShieldedAccounts = { ...derived, ...shieldedAccounts };
-  const accounts = Object.values(derived);
-  const accounts2 = Object.values(transparentAndShieldedAccounts);
+  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
+  const derivedAccounts = derived[chainId] || {};
+  const transparentAndShieldedAccounts = {
+    ...derivedAccounts,
+    ...(shieldedAccounts[chainId] || {}),
+  };
+
+  const accounts = Object.values(transparentAndShieldedAccounts);
   const currentAccount = useAppSelector(
     (state) => state.settings.selectedAccountID
   );
@@ -46,7 +52,7 @@ export const SettingsAccounts = (): JSX.Element => {
       </NavigationContainer>
 
       <AccountRows>
-        {accounts2.map((account) => {
+        {accounts.map((account) => {
           return (
             <AccountRow
               style={

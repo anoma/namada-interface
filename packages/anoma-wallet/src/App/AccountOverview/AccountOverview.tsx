@@ -5,6 +5,7 @@ import { Persistor } from "redux-persist/lib/types";
 
 import { useAppDispatch, useAppSelector } from "store";
 import { AccountsState, submitInitAccountTransaction } from "slices/accounts";
+import { SettingsState } from "slices/settings";
 import { TransfersState } from "slices/transfers";
 import { TopLevelRoute } from "App/types";
 
@@ -25,7 +26,10 @@ export const AccountOverview = ({ persistor }: Props): JSX.Element => {
     (state) => state.transfers
   );
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
-  const accounts = Object.values(derived);
+  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
+
+  const derivedAccounts = derived[chainId] || {};
+  const accounts = Object.values(derivedAccounts);
 
   // Collect uninitialized accounts
   const uninitializedAccounts = accounts.filter(

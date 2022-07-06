@@ -9,14 +9,22 @@ import { combineReducers } from "redux";
 import { persistReducer } from "redux-persist";
 import { encryptTransform } from "redux-persist-transform-encrypt";
 import thunk from "redux-thunk";
-import { accountsReducer, transfersReducer, settingsReducer } from "slices";
+import {
+  accountsReducer,
+  transfersReducer,
+  settingsReducer,
+  channelsReducer,
+  chainsReducer,
+} from "slices";
 import { LocalStorageKeys } from "App/types";
 import { hashPassword } from "utils/helpers";
 
 const reducers = combineReducers({
   accounts: accountsReducer,
   transfers: transfersReducer,
+  channels: channelsReducer,
   settings: settingsReducer,
+  chains: chainsReducer,
 });
 
 type StoreFactory = (secretKey: string) => EnhancedStore;
@@ -32,7 +40,7 @@ const makeStore: StoreFactory = (secret) => {
     key: `${LocalStorageKeys.Persist}${POSTFIX}`,
     storage,
     // Only persist data in whitelist:
-    whitelist: ["accounts", "transfers", "settings"],
+    whitelist: ["accounts", "transfers", "settings", "channels", "chains"],
     transforms: [
       encryptTransform({
         secretKey: hash,

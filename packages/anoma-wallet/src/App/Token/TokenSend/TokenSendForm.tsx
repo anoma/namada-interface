@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import QrReader from "react-qr-reader";
 
-import { Config } from "config";
+import Config from "config";
+import { Tokens } from "constants/";
 import { RpcClient } from "lib";
 import {
   AccountsState,
@@ -15,11 +16,10 @@ import {
   TransferType,
 } from "slices/transfers";
 import { useAppDispatch, useAppSelector } from "store";
-import { Tokens } from "constants/";
 
 import { Button, ButtonVariant } from "components/Button";
 import { Input, InputVariants } from "components/Input";
-import { Label } from "components/Input/input.components";
+
 import {
   ButtonsContainer,
   InputContainer,
@@ -30,20 +30,21 @@ import {
   StatusMessage,
   TokenSendFormContainer,
 } from "./TokenSendForm.components";
-import { Toggle } from "components/Toggle";
 import { Icon, IconName } from "components/Icon";
 import { Address } from "../Transfers/TransferDetails.components";
 import { parseTarget } from "./TokenSend";
-
-const MAX_MEMO_LENGTH = 100;
+import { SettingsState } from "slices/settings";
 
 type Props = {
   accountId: string;
   defaultTarget?: string;
 };
 
-const { network } = new Config();
-const rpcClient = new RpcClient(network);
+export const MAX_MEMO_LENGTH = 100;
+export const isMemoValid = (text: string): boolean => {
+  // TODO: Additional memo validation rules?
+  return text.length < MAX_MEMO_LENGTH;
+};
 
 // if the transfer target is not TransferType.Shielded we perform the validation logic
 const isAmountValid = (
@@ -56,11 +57,6 @@ const isAmountValid = (
     return undefined;
   }
   return transferAmount <= balance ? undefined : "Invalid amount!";
-};
-
-const isMemoValid = (text: string): boolean => {
-  // TODO: Additional memo validation rules?
-  return text.length < MAX_MEMO_LENGTH;
 };
 
 /**
@@ -117,25 +113,32 @@ const AccountSourceTargetDescription = (props: {
 const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
   const dispatch = useAppDispatch();
   const [target, setTarget] = useState<string | undefined>(defaultTarget);
-  const [amount, setAmount] = useState<number>(0);
-  const [memo, setMemo] = useState<string>("");
+  const [amount, setAmount] = useState(0);
+  const [memo, setMemo] = useState("");
 
   const [isTargetValid, setIsTargetValid] = useState(true);
   const [isShieldedTarget, setIsShieldedTarget] = useState(false);
   const [showQrReader, setShowQrReader] = useState(false);
   const [qrCodeError, setQrCodeError] = useState<string>();
 
+  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const { derived, shieldedAccounts } = useAppSelector<AccountsState>(
     (state) => state.accounts
   );
+  const derivedAccounts = derived[chainId] || {};
+
   const { isTransferSubmitting, transferError, events } =
     useAppSelector<TransfersState>((state) => state.transfers);
 
-  const transparentAndShieldedAccounts = { ...derived, ...shieldedAccounts };
+  const transparentAndShieldedAccounts = {
+    ...derivedAccounts,
+    ...(shieldedAccounts[chainId] || {}),
+  };
   const account = transparentAndShieldedAccounts[accountId] || {};
   const isShieldedSource = account.shieldedKeysAndPaymentAddress ? true : false;
   const { alias, establishedAddress = "", tokenType, balance = 0 } = account;
   const token = Tokens[tokenType] || {};
+
   const isFormInvalid = getIsFormInvalid(
     target,
     amount,
@@ -145,6 +148,9 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
     isTransferSubmitting
   );
 
+  const chainConfig = Config.chain[chainId];
+  const { url, port, protocol } = chainConfig.network;
+  const rpcClient = new RpcClient({ url, port, protocol });
   const accountSourceTargetDescription = isFormInvalid ? (
     ""
   ) : (
@@ -159,20 +165,18 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
 
   useEffect(() => {
     // Get balance
-    (async () => {
-      if (establishedAddress && token.address) {
-        dispatch(fetchBalanceByAccount(account));
+    if (establishedAddress && token.address) {
+      dispatch(fetchBalanceByAccount(account));
 
-        // Check for internal transfer targets, and update their balance if found:
-        const targetAccount = Object.values(derived).find(
-          (account: DerivedAccount) => account.establishedAddress === target
-        );
-        /// Fetch target balance if applicable:
-        if (targetAccount) {
-          dispatch(fetchBalanceByAccount(targetAccount));
-        }
+      // Check for internal transfer:
+      const targetAccount = Object.values(derivedAccounts).find(
+        (account: DerivedAccount) => account.establishedAddress === target
+      );
+      // Fetch target balance if applicable:
+      if (targetAccount) {
+        dispatch(fetchBalanceByAccount(targetAccount));
       }
-    })();
+    }
   }, [establishedAddress, token.address, events]);
 
   useEffect(() => {
@@ -212,6 +216,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
     if ((isShieldedTarget && target) || (target && token.address)) {
       dispatch(
         submitTransferTransaction({
+          chainId,
           account,
           target,
           amount,
@@ -250,7 +255,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
           <InputWithButtonContainer>
             <Input
               variant={InputVariants.Text}
-              label="Target address:"
+              label="Target address"
               onChangeCallback={(e) => {
                 const { value } = e.target;
                 setTarget(value);
@@ -278,7 +283,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
         <InputContainer>
           <Input
             variant={InputVariants.Number}
-            label="Amount:"
+            label="Amount"
             value={amount}
             onChangeCallback={(e) => {
               const { value } = e.target;
@@ -291,7 +296,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
         <InputContainer>
           <Input
             variant={InputVariants.Textarea}
-            label="Memo:"
+            label="Memo (Optional)"
             value={memo}
             error={
               isMemoValid(memo)

@@ -2,6 +2,11 @@ import { Button, Variant } from "components/ButtonTemporary";
 import { Image, ImageName } from "components/Image";
 import { Wallet } from "lib";
 
+import { addAccount, InitialAccount } from "slices/accounts";
+import { useEffect } from "react";
+import { useAppDispatch } from "store";
+import Config, { defaultChainId } from "config";
+
 import {
   CompletionViewContainer,
   CompletionViewUpperPartContainer,
@@ -11,10 +16,6 @@ import {
   ButtonsContainer,
   ButtonContainer,
 } from "./Completion.components";
-
-import { addAccount, InitialAccount } from "slices/accounts";
-import { useEffect } from "react";
-import { useAppDispatch } from "store";
 
 type CompletionViewProps = {
   // navigates to the account
@@ -26,16 +27,21 @@ type CompletionViewProps = {
   password: string;
 };
 
+const defaultChain = Config.chain[defaultChainId];
+const { accountIndex } = defaultChain;
+
 const createAccount = async (
+  chainId: string,
   alias: string,
   mnemonic: string
 ): Promise<InitialAccount> => {
   const tokenType = "NAM";
   const wallet = await new Wallet(mnemonic, tokenType).init();
-  const account = wallet.new(0);
+  const account = wallet.new(accountIndex, 0);
   const { public: publicKey, secret: signingKey, wif: address } = account;
 
   return {
+    chainId,
     alias,
     tokenType,
     address,
@@ -52,7 +58,7 @@ const Completion = (props: CompletionViewProps): JSX.Element => {
   useEffect(() => {
     if (password) {
       (async () => {
-        const account = await createAccount(alias, mnemonic);
+        const account = await createAccount(defaultChainId, alias, mnemonic);
         dispatch(addAccount(account));
       })();
     }

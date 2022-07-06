@@ -5,8 +5,8 @@ import { Symbols, TokenType, Tokens } from "constants/";
 import { Wallet, Session } from "lib";
 import { useAppDispatch, useAppSelector } from "store";
 
-// TODO finnish refactoring this
 import { DerivedAccount, AccountsState, addAccount } from "slices/accounts";
+import { SettingsState } from "slices/settings";
 
 import { NewAccountDetails } from "slices/accountsNew";
 import { createShieldedAccount, reset } from "slices/accountsNew/actions";
@@ -23,6 +23,7 @@ import { Button, ButtonVariant } from "components/Button";
 import { TopLevelRoute } from "App/types";
 import { Select, Option } from "components/Select";
 import { Input, InputVariants } from "components/Input";
+import Config from "config";
 
 const MIN_ALIAS_LENGTH = 2;
 
@@ -35,11 +36,15 @@ export const AddAccount = ({ password }: Props): JSX.Element => {
   const navigate = useNavigate();
   const { derived, isAddingAccountInReduxState } =
     useAppSelector<AccountsState>((state) => state.accounts);
+  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const [isShielded, setIsShielded] = useState<boolean>(true);
   const [alias, setAlias] = useState<string>("");
   const [aliasError, setAliasError] = useState<string>();
   const [tokenType, setTokenType] = useState<TokenType>("NAM");
   const [isAddingAccount, setIsAddingAccount] = useState(false);
+
+  const derivedAccounts = derived[chainId] || {};
+  const { accountIndex } = Config.chain[chainId];
 
   const tokensData: Option<string>[] = Symbols.map((symbol: TokenType) => {
     const token = Tokens[symbol];
@@ -74,7 +79,7 @@ export const AddAccount = ({ password }: Props): JSX.Element => {
     ).length;
 
   const aliasExists = (alias: string): boolean =>
-    Object.values(derived).some((account) => account.alias === alias);
+    Object.values(derivedAccounts).some((account) => account.alias === alias);
 
   const validateAlias = (alias: string): boolean =>
     alias.length > MIN_ALIAS_LENGTH &&
@@ -103,7 +108,9 @@ export const AddAccount = ({ password }: Props): JSX.Element => {
       tokenType: tokenType,
     };
     if (newAccountDetails) {
-      dispatch(createShieldedAccount({ ...newAccountDetails, password }));
+      dispatch(
+        createShieldedAccount({ chainId, ...newAccountDetails, password })
+      );
     }
   };
 
@@ -128,15 +135,16 @@ export const AddAccount = ({ password }: Props): JSX.Element => {
 
       const wallet = await new Wallet(mnemonic, tokenType).init();
       const index = getAccountIndex(
-        Object.keys(derived).map((key: string) => derived[key]),
+        Object.keys(derivedAccounts).map((key: string) => derivedAccounts[key]),
         tokenType
       );
 
-      const account = wallet.new(index);
+      const account = wallet.new(accountIndex, index);
       const { public: publicKey, secret: signingKey, wif: address } = account;
 
       dispatch(
         addAccount({
+          chainId,
           alias: trimmedAlias,
           tokenType,
           address,

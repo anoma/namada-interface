@@ -13,6 +13,7 @@ import { ReactComponent as EyeHiddenDark } from "./assets/eye-hidden-dark.svg";
 import { ReactComponent as ThumbsUp } from "./assets/thumbs-up.svg";
 import { ReactComponent as Briefcase } from "./assets/briefcase.svg";
 import { ReactComponent as Settings } from "./assets/settings.svg";
+import { ReactComponent as PlusCircle } from "./assets/plus-circle.svg";
 import { ReactComponent as Info } from "./assets/info.svg";
 
 import { IconName, IconSize } from "./types";
@@ -45,6 +46,7 @@ const icons: Record<IconName, ComponentType> = {
   [IconName.ThumbsUp]: ThumbsUp,
   [IconName.Briefcase]: Briefcase,
   [IconName.Settings]: Settings,
+  [IconName.Plus]: PlusCircle,
   [IconName.Info]: Info,
 };
 
