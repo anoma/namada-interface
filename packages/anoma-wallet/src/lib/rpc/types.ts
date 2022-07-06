@@ -36,3 +36,11 @@ export type JsonCompatibleArray = (string | number | boolean)[];
 export type JsonCompatibleDictionary = {
   [key: string]: string | JsonCompatibleArray;
 };
+
+// these are the paths that are used as a prefix on ledfer to store data
+
+export enum PathType {
+  Value = "value",
+  Prefix = "prefix",
+  HasKey = "value",
+}

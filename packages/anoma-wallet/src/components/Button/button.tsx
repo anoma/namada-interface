@@ -12,6 +12,7 @@ export type ButtonProps = {
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
   style?: React.CSSProperties;
   disabled?: boolean;
+  tooltip?: string;
 };
 export const Button: React.FC<ButtonProps> = (props): JSX.Element => {
   const {
@@ -20,29 +21,50 @@ export const Button: React.FC<ButtonProps> = (props): JSX.Element => {
     style,
     disabled,
     children,
+    tooltip,
   } = props;
   switch (variant) {
     case ButtonVariant.Contained:
       return (
-        <ContainedButton style={style} onClick={onClick} disabled={disabled}>
+        <ContainedButton
+          style={style}
+          onClick={onClick}
+          disabled={disabled}
+          title={tooltip}
+        >
           {children}
         </ContainedButton>
       );
     case ButtonVariant.ContainedAlternative:
       return (
-        <ContainedAltButton style={style} onClick={onClick} disabled={disabled}>
+        <ContainedAltButton
+          style={style}
+          onClick={onClick}
+          disabled={disabled}
+          title={tooltip}
+        >
           {children}
         </ContainedAltButton>
       );
     case ButtonVariant.Outlined:
       return (
-        <OutlinedButton style={style} onClick={onClick} disabled={disabled}>
+        <OutlinedButton
+          style={style}
+          onClick={onClick}
+          disabled={disabled}
+          title={tooltip}
+        >
           {children}
         </OutlinedButton>
       );
     case ButtonVariant.Small:
       return (
-        <SmallButton style={style} onClick={onClick} disabled={disabled}>
+        <SmallButton
+          style={style}
+          onClick={onClick}
+          disabled={disabled}
+          title={tooltip}
+        >
           {children}
         </SmallButton>
       );

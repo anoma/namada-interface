@@ -1,0 +1,11 @@
+[workspace]
+members = [
+    "masp",
+    "masp_proofs",
+    "masp_primitives"
+]
+
+[profile.release]
+lto = true
+panic = 'abort'
+codegen-units = 1

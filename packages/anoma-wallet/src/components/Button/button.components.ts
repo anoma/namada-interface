@@ -24,6 +24,8 @@ export const OutlinedButton = styled(RoundButton)`
   }
   &:disabled {
     opacity: 30%;
+    cursor: initial;
+    border-color: ${(props) => props.theme.colors.buttonBorder1};
   }
 `;
 
@@ -36,6 +38,8 @@ export const ContainedButton = styled(RoundButton)`
   }
   &:disabled {
     opacity: 30%;
+    cursor: initial;
+    border-color: ${(props) => props.theme.colors.buttonBorder2};
   }
 `;
 
@@ -48,6 +52,8 @@ export const ContainedAltButton = styled(RoundButton)`
   }
   &:disabled {
     opacity: 30%;
+    cursor: initial;
+    border-color: ${(props) => props.theme.colors.buttonBorder3};
   }
 `;
 
@@ -60,5 +66,10 @@ export const SmallButton = styled(Button)`
   &:active {
     background-color: ${(props) => props.theme.colors.buttonTextSmall};
     color: white;
+  }
+  &:disabled {
+    opacity: 30%;
+    cursor: initial;
+    background-color: transparent;
   }
 `;

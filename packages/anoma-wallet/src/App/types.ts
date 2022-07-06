@@ -1,3 +1,11 @@
+export const TopLevelRouteGenerator = {
+  // this creates a route for TopLevelRoute.Token
+  createRouteForTokenByTokenId: (tokenId: string) => `/token/${tokenId}`,
+
+  // this creates a route for TopLevelRoute.Wallet
+  createRouteForWallet: () => TopLevelRoute.Wallet,
+};
+
 export enum TopLevelRoute {
   /* INITIAL ACCOUNT */
   Home = "/",

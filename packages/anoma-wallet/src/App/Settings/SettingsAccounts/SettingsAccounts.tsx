@@ -23,8 +23,12 @@ import { AccountsState } from "slices/accounts";
  * gets selected to be the current active account. User can initiate a flow to add a new account
  */
 export const SettingsAccounts = (): JSX.Element => {
-  const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
+  const { derived, shieldedAccounts } = useAppSelector<AccountsState>(
+    (state) => state.accounts
+  );
+  const transparentAndShieldedAccounts = { ...derived, ...shieldedAccounts };
   const accounts = Object.values(derived);
+  const accounts2 = Object.values(transparentAndShieldedAccounts);
   const currentAccount = useAppSelector(
     (state) => state.settings.selectedAccountID
   );
@@ -42,7 +46,7 @@ export const SettingsAccounts = (): JSX.Element => {
       </NavigationContainer>
 
       <AccountRows>
-        {accounts.map((account) => {
+        {accounts2.map((account) => {
           return (
             <AccountRow
               style={
@@ -51,12 +55,15 @@ export const SettingsAccounts = (): JSX.Element => {
                   : { border: 0 }
               }
               key={account.alias}
+              disabled={!!account.shieldedKeysAndPaymentAddress}
             >
               <AccountAlias>{account.alias}</AccountAlias>
               <AccountNameContainer>
                 <AccountNameContainerOverflow>
                   <Heading level={HeadingLevel.Three}>
-                    {account.address}
+                    {account.shieldedKeysAndPaymentAddress
+                      ? account.shieldedKeysAndPaymentAddress.paymentAddress
+                      : account.address}
                   </Heading>
                 </AccountNameContainerOverflow>
               </AccountNameContainer>
@@ -69,7 +76,13 @@ export const SettingsAccounts = (): JSX.Element => {
                       })
                     );
                   }}
+                  disabled={!!account.shieldedKeysAndPaymentAddress}
                   variant={ButtonVariant.Contained}
+                  tooltip={
+                    account.shieldedKeysAndPaymentAddress
+                      ? "Account settings for shielded accounts are not implemented yet"
+                      : ""
+                  }
                 >
                   Settings
                 </Button>

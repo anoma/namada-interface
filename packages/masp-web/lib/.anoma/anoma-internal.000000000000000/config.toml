@@ -1,0 +1,37 @@
+wasm_dir = "wasm"
+
+[ledger]
+genesis_time = "1970-01-01T00:00:00Z"
+chain_id = "anoma-internal.000000000000000"
+
+[ledger.shell]
+base_dir = ".anoma"
+ledger_address = "127.0.0.1:26658"
+db_dir = "db"
+tendermint_dir = "tendermint"
+
+[ledger.tendermint]
+rpc_address = "127.0.0.1:26657"
+p2p_address = "127.0.0.1:26656"
+p2p_persistent_peers = []
+p2p_pex = true
+p2p_allow_duplicate_ip = false
+consensus_timeout_commit = "1000ms"
+tendermint_mode = "Validator"
+instrumentation_prometheus = false
+instrumentation_prometheus_listen_addr = "127.0.0.1:26661"
+instrumentation_namespace = "anoman_tm"
+
+[intent_gossiper]
+address = "/ip4/0.0.0.0/tcp/26659"
+topics = ["asset_v0"]
+matchmakers_server_addr = "127.0.0.1:26661"
+subscription_filter = "asset_v\\d{1,2}"
+seed_peers = []
+
+[intent_gossiper.discover_peer]
+max_discovery_peers = 16
+kademlia = true
+mdns = false
+
+[matchmaker]
