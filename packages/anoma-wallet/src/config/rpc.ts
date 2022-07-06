@@ -2,14 +2,14 @@ import { Protocol } from "./chain";
 
 export type Network = {
   url: string;
-  port: number;
+  port?: number;
   protocol: Protocol;
 };
 
 export default class RPCConfig {
   constructor(
     private _url: string,
-    private _port: number,
+    private _port: number | undefined,
     private _protocol: Protocol,
     private _wsProtocol: Protocol
   ) {}

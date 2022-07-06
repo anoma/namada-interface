@@ -33,7 +33,7 @@ const {
 
 export type NetworkConfig = {
   url: string;
-  port: number;
+  port?: number;
   protocol: Protocol;
   wsProtocol: Protocol;
 };
@@ -54,7 +54,6 @@ export const defaultChainId =
   "anoma-test.fd58c789bc11e6c6392";
 
 const DEFAULT_URL = "127.0.0.1";
-const DEFAULT_PORT = 26657;
 const DEFAULT_CHAIN_ALIAS = "Namada";
 const DEFAULT_IBC_PORT = "transfer";
 
@@ -122,7 +121,7 @@ if (REACT_APP_CHAIN_A_ID) {
       url: REACT_APP_LOCAL_LEDGER_URL || DEFAULT_URL,
       port: REACT_APP_LOCAL_LEDGER_PORT
         ? parseInt(REACT_APP_LOCAL_LEDGER_PORT)
-        : DEFAULT_PORT,
+        : undefined,
       protocol:
         REACT_APP_LOCAL_LEDGER_PROTOCOL === "https"
           ? REACT_APP_LOCAL_LEDGER_PROTOCOL
