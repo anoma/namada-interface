@@ -1,7 +1,7 @@
 import Config from "config";
 import { RpcClient } from "lib";
 import { NodeWithNextId, getMaspWeb } from "@anoma/masp-web";
-import { TRANSFER_CONFIGURATION, TransactionConfiguration } from "./types";
+import { TRANSFER_CONFIGURATION } from "./types";
 
 // created a shielded transfer that can be submitted to the ledger with a
 // regular transaction

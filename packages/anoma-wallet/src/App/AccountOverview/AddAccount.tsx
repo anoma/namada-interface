@@ -5,7 +5,6 @@ import { Symbols, TokenType, Tokens } from "constants/";
 import { Wallet, Session } from "lib";
 import { useAppDispatch, useAppSelector } from "store";
 
-// TODO finnish refactoring this
 import { DerivedAccount, AccountsState, addAccount } from "slices/accounts";
 import { SettingsState } from "slices/settings";
 
@@ -109,7 +108,9 @@ export const AddAccount = ({ password }: Props): JSX.Element => {
       tokenType: tokenType,
     };
     if (newAccountDetails) {
-      dispatch(createShieldedAccount({ ...newAccountDetails, password }));
+      dispatch(
+        createShieldedAccount({ chainId, ...newAccountDetails, password })
+      );
     }
   };
 
