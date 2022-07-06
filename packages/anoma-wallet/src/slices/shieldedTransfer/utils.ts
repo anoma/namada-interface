@@ -52,6 +52,7 @@ const fetchShieldedTransferById = async (
 ): Promise<NodeWithNextId | undefined> => {
   const { maspAddress } = TRANSFER_CONFIGURATION;
   const { network } = Config.chain[chainId];
+
   const rpcClient = new RpcClient(network);
   const shieldedTransactionId = await rpcClient.queryShieldedTransaction(
     maspAddress,
@@ -74,7 +75,10 @@ const fetchShieldedTransfers = async (
   let latestTransfer: NodeWithNextId = transfers[transfers.length - 1];
   while (latestTransfer && latestTransfer.nextTransactionId) {
     const shieldedTransfer: NodeWithNextId | undefined =
-      await fetchShieldedTransferById(latestTransfer.nextTransactionId);
+      await fetchShieldedTransferById(
+        chainId,
+        latestTransfer.nextTransactionId
+      );
     if (shieldedTransfer && shieldedTransfer.node) {
       transfers.push(shieldedTransfer);
     } else {

@@ -233,10 +233,14 @@ export const submitTransferTransaction = createAsyncThunk(
     const source = faucet || establishedAddress;
 
     const chainConfig = Config.chain[chainId];
-    const { url, port, protocol, wsProtocol } = chainConfig.network;
-    const rpcConfig = new RPCConfig(url, port, protocol, wsProtocol);
-    const rpcClient = new RpcClient(rpcConfig.network);
-    const socketClient = new SocketClient(rpcConfig.wsNetwork);
+
+    const { network } = chainConfig;
+
+    const rpcClient = new RpcClient(network);
+    const socketClient = new SocketClient({
+      ...network,
+      protocol: network.wsProtocol,
+    });
 
     const epoch = await rpcClient.queryEpoch();
     const token = Tokens[tokenType]; // TODO refactor, no need for separate Tokens and tokenType
@@ -248,11 +252,13 @@ export const submitTransferTransaction = createAsyncThunk(
       epoch,
       privateKey,
     };
+
     const createdTransfer = await createTransfer(
       chainId,
       account,
       transferData
     );
+
     const { transferHash, transferAsBytes, transferType } = createdTransfer;
     const { promise, timeoutId } = promiseWithTimeout<NewBlockEvents>(
       new Promise(async (resolve) => {
@@ -336,7 +342,7 @@ export const submitIbcTransferTransaction = createAsyncThunk(
       tokenType,
       signingKey: privateKey,
     } = account;
-    const chainConfig = Config.chain[chainId];
+    const chainConfig = Config.chain[chainId] || {};
     const { url, port, protocol, wsProtocol } = chainConfig.network;
     const rpcConfig = new RPCConfig(url, port, protocol, wsProtocol);
     const rpcClient = new RpcClient(rpcConfig.network);

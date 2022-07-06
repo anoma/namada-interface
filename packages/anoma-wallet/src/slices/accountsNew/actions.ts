@@ -79,6 +79,7 @@ export type ShieldedBalancesPayload = {
     [accountId: string]: number;
   };
 };
+
 export const updateShieldedBalances = createAsyncThunk<
   ShieldedBalancesPayload | undefined,
   void
