@@ -1,15 +1,15 @@
+import { Network } from "./rpc";
+
 export type Protocol = "http" | "https" | "ws" | "wss";
 
 const {} = process.env;
 
 const {
   // Default local ledger config
-  REACT_APP_LOCAL_LEDGER_URL,
-  REACT_APP_LOCAL_LEDGER_PORT,
-  REACT_APP_LOCAL_CHAIN_ID,
-  REACT_APP_LOCAL_FAUCET,
-  REACT_APP_LOCAL_LEDGER_PROTOCOL,
-  REACT_APP_LOCAL_LEDGER_WS_PROTOCOL,
+  REACT_APP_LEDGER_URL,
+  REACT_APP_LEDGER_PORT,
+  REACT_APP_CHAIN_ID,
+  REACT_APP_FAUCET,
   // Alternatively, specify a local IBC chain:
   // IBC - CHAIN A
   REACT_APP_CHAIN_A_ALIAS,
@@ -18,8 +18,6 @@ const {
   REACT_APP_CHAIN_A_PORT,
   REACT_APP_CHAIN_A_FAUCET,
   REACT_APP_CHAIN_A_PORT_ID,
-  REACT_APP_CHAIN_A_PROTOCOL,
-  REACT_APP_CHAIN_A_WS_PROTOCOL,
   // IBC - CHAIN B
   REACT_APP_CHAIN_B_ALIAS,
   REACT_APP_CHAIN_B_ID,
@@ -27,14 +25,9 @@ const {
   REACT_APP_CHAIN_B_PORT,
   REACT_APP_CHAIN_B_FAUCET,
   REACT_APP_CHAIN_B_PORT_ID,
-  REACT_APP_CHAIN_B_PROTOCOL,
-  REACT_APP_CHAIN_B_WS_PROTOCOL,
 } = process.env;
 
-export type NetworkConfig = {
-  url: string;
-  port?: number;
-  protocol: Protocol;
+export type NetworkConfig = Network & {
   wsProtocol: Protocol;
 };
 
@@ -48,88 +41,120 @@ export type Chain = {
   ibc?: string[];
 };
 
-export const defaultChainId =
-  REACT_APP_LOCAL_CHAIN_ID ||
-  REACT_APP_CHAIN_A_ID ||
-  "anoma-test.fd58c789bc11e6c6392";
-
 const DEFAULT_URL = "127.0.0.1";
 const DEFAULT_CHAIN_ALIAS = "Namada";
 const DEFAULT_IBC_PORT = "transfer";
 
-const DEFAULT_CHAIN_A_PORT = 27657;
-const DEFAULT_CHAIN_B_PORT = 28657;
+/**
+ * Remove any characters after whitespace, as well as quotes from env variables
+ * @param env
+ * @returns {string}
+ */
+const sanitize = (env = " "): string => {
+  return env.split(" ")[0].replace(/\"|\'/, "");
+};
+
+/**
+ * Return URL with no prefixed protocol
+ * @param url
+ * @returns {string}
+ */
+const getUrl = (url = ""): string => {
+  return sanitize(url).replace(/http\:\/\/|https\:\/\//, "");
+};
+
+/**
+ * Get the protocol from a URL or return default
+ * @param url
+ * @returns {Protocol}
+ */
+const getUrlProtocol = (url?: string): Protocol => {
+  const prefix = sanitize(url).split(":")[0];
+
+  if (prefix === "https") {
+    return "https";
+  }
+
+  return "http";
+};
+
+// Default chain
+const chainId = sanitize(REACT_APP_CHAIN_ID);
+const url = getUrl(sanitize(REACT_APP_LEDGER_URL));
+const protocol = getUrlProtocol(REACT_APP_LEDGER_URL);
+const wsProtocol: Protocol = protocol === "https" ? "wss" : "ws";
+const faucet = sanitize(REACT_APP_FAUCET);
+const port = parseInt(sanitize(REACT_APP_LEDGER_PORT)) || undefined;
+
+// IBC Chain A
+const chainAId = sanitize(REACT_APP_CHAIN_A_ID);
+const chainAAlias = sanitize(REACT_APP_CHAIN_A_ALIAS) || "IBC - 1";
+const chainAUrl = getUrl(REACT_APP_CHAIN_A_URL) || DEFAULT_URL;
+const chainAPort = parseInt(sanitize(REACT_APP_CHAIN_A_PORT)) || undefined;
+const chainAProtocol = getUrlProtocol(REACT_APP_CHAIN_A_URL);
+const chainAWsProtocol: Protocol = chainAProtocol === "https" ? "wss" : "ws";
+const chainAPortId = sanitize(REACT_APP_CHAIN_A_PORT_ID) || DEFAULT_IBC_PORT;
+const chainAFaucet = sanitize(REACT_APP_CHAIN_A_FAUCET) || undefined;
+
+// IBC Chain B
+const chainBId = sanitize(REACT_APP_CHAIN_B_ID);
+const chainBAlias = sanitize(REACT_APP_CHAIN_B_ALIAS) || "IBC - 1";
+const chainBUrl = getUrl(REACT_APP_CHAIN_B_URL) || DEFAULT_URL;
+const chainBPort = parseInt(sanitize(REACT_APP_CHAIN_B_PORT)) || undefined;
+const chainBProtocol = getUrlProtocol(REACT_APP_CHAIN_B_URL);
+const chainBWsProtocol: Protocol = chainBProtocol === "https" ? "wss" : "ws";
+const chainBPortId = sanitize(REACT_APP_CHAIN_B_PORT_ID) || DEFAULT_IBC_PORT;
+const chainBFaucet = sanitize(REACT_APP_CHAIN_B_FAUCET) || undefined;
+
+export const defaultChainId =
+  chainId || chainAId || "anoma-test.fd58c789bc11e6c6392";
 
 const chains: Chain[] = [];
 
-if (REACT_APP_CHAIN_A_ID) {
+if (chainAId) {
   chains.push({
-    id: REACT_APP_CHAIN_A_ID,
-    alias: REACT_APP_CHAIN_A_ALIAS || "IBC - 1",
+    id: chainAId,
+    alias: chainAAlias,
     accountIndex: 998,
-    faucet: REACT_APP_CHAIN_A_FAUCET,
-    portId: REACT_APP_CHAIN_A_PORT_ID || DEFAULT_IBC_PORT,
+    faucet: chainAFaucet,
+    portId: chainAPortId,
     network: {
-      url: REACT_APP_CHAIN_A_URL || DEFAULT_URL,
-      port: REACT_APP_CHAIN_A_PORT
-        ? parseInt(REACT_APP_CHAIN_A_PORT)
-        : DEFAULT_CHAIN_A_PORT,
-      protocol:
-        REACT_APP_CHAIN_A_PROTOCOL === "https"
-          ? REACT_APP_CHAIN_A_PROTOCOL
-          : "http",
-      wsProtocol:
-        REACT_APP_CHAIN_A_WS_PROTOCOL === "wss"
-          ? REACT_APP_CHAIN_A_WS_PROTOCOL
-          : "ws",
+      url: chainAUrl,
+      port: chainAPort,
+      protocol: chainAProtocol,
+      wsProtocol: chainAWsProtocol,
     },
-    ibc: REACT_APP_CHAIN_B_ID ? [REACT_APP_CHAIN_B_ID] : undefined,
+    ibc: chainBId ? [chainBId] : undefined,
   });
 
-  if (REACT_APP_CHAIN_B_ID) {
+  if (chainBId) {
     chains.push({
-      id: REACT_APP_CHAIN_B_ID,
-      alias: REACT_APP_CHAIN_B_ALIAS || "IBC - 2",
-      accountIndex: 999,
-      faucet: REACT_APP_CHAIN_B_FAUCET,
-      portId: REACT_APP_CHAIN_B_PORT_ID || DEFAULT_IBC_PORT,
+      id: chainBId,
+      alias: chainBAlias,
+      accountIndex: 998,
+      faucet: chainBFaucet,
+      portId: chainBPortId,
       network: {
-        url: REACT_APP_CHAIN_B_URL || DEFAULT_URL,
-        port: REACT_APP_CHAIN_B_PORT
-          ? parseInt(REACT_APP_CHAIN_B_PORT)
-          : DEFAULT_CHAIN_B_PORT,
-        protocol:
-          REACT_APP_CHAIN_B_PROTOCOL === "https"
-            ? REACT_APP_CHAIN_B_PROTOCOL
-            : "http",
-        wsProtocol:
-          REACT_APP_CHAIN_B_WS_PROTOCOL === "wss"
-            ? REACT_APP_CHAIN_B_WS_PROTOCOL
-            : "ws",
+        url: chainBUrl,
+        port: chainBPort,
+        protocol: chainBProtocol,
+        wsProtocol: chainBWsProtocol,
       },
-      ibc: [REACT_APP_CHAIN_A_ID],
+      ibc: [chainAId],
     });
   }
 } else {
   // If no IBC chains specified in .env, you MUST have a default chain config specified for Namada!
   chains.push({
-    id: defaultChainId,
+    id: chainId || defaultChainId,
     alias: DEFAULT_CHAIN_ALIAS,
     accountIndex: 0,
-    faucet: REACT_APP_LOCAL_FAUCET,
+    faucet,
     network: {
-      url: REACT_APP_LOCAL_LEDGER_URL || DEFAULT_URL,
-      port: REACT_APP_LOCAL_LEDGER_PORT
-        ? parseInt(REACT_APP_LOCAL_LEDGER_PORT)
-        : undefined,
-      protocol:
-        REACT_APP_LOCAL_LEDGER_PROTOCOL === "https"
-          ? REACT_APP_LOCAL_LEDGER_PROTOCOL
-          : "http",
-      wsProtocol:
-        REACT_APP_LOCAL_LEDGER_WS_PROTOCOL === "wss"
-          ? REACT_APP_LOCAL_LEDGER_WS_PROTOCOL
-          : "ws",
+      url: url || DEFAULT_URL,
+      port,
+      protocol,
+      wsProtocol,
     },
   });
 }
