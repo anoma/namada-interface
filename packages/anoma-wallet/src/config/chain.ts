@@ -2,8 +2,6 @@ import { Network } from "./rpc";
 
 export type Protocol = "http" | "https" | "ws" | "wss";
 
-const {} = process.env;
-
 const {
   // Default local ledger config
   REACT_APP_LEDGER_URL,
@@ -46,12 +44,22 @@ const DEFAULT_CHAIN_ALIAS = "Namada";
 const DEFAULT_IBC_PORT = "transfer";
 
 /**
- * Remove any characters after whitespace, as well as quotes from env variables
+ * Remove any comments ("#") or quotes
+ * @param url
+ * @returns {string}
+ */
+const stripInvalidCharacters = (url = ""): string => {
+  // Ignore comments and quotes
+  return url.split("#")[0].replace(/\"|\'/, "");
+};
+
+/**
+ * Remove any characters after whitespace
  * @param env
  * @returns {string}
  */
 const sanitize = (env = " "): string => {
-  return env.split(" ")[0].replace(/\"|\'/, "");
+  return stripInvalidCharacters(env).split(" ")[0];
 };
 
 /**
@@ -88,7 +96,8 @@ const port = parseInt(sanitize(REACT_APP_LEDGER_PORT)) || undefined;
 
 // IBC Chain A
 const chainAId = sanitize(REACT_APP_CHAIN_A_ID);
-const chainAAlias = sanitize(REACT_APP_CHAIN_A_ALIAS) || "IBC - 1";
+const chainAAlias =
+  stripInvalidCharacters(REACT_APP_CHAIN_A_ALIAS) || "IBC - 1";
 const chainAUrl = getUrl(REACT_APP_CHAIN_A_URL) || DEFAULT_URL;
 const chainAPort = parseInt(sanitize(REACT_APP_CHAIN_A_PORT)) || undefined;
 const chainAProtocol = getUrlProtocol(REACT_APP_CHAIN_A_URL);
@@ -98,7 +107,8 @@ const chainAFaucet = sanitize(REACT_APP_CHAIN_A_FAUCET) || undefined;
 
 // IBC Chain B
 const chainBId = sanitize(REACT_APP_CHAIN_B_ID);
-const chainBAlias = sanitize(REACT_APP_CHAIN_B_ALIAS) || "IBC - 1";
+const chainBAlias =
+  stripInvalidCharacters(REACT_APP_CHAIN_B_ALIAS) || "IBC - 1";
 const chainBUrl = getUrl(REACT_APP_CHAIN_B_URL) || DEFAULT_URL;
 const chainBPort = parseInt(sanitize(REACT_APP_CHAIN_B_PORT)) || undefined;
 const chainBProtocol = getUrlProtocol(REACT_APP_CHAIN_B_URL);
