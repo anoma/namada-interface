@@ -54,12 +54,12 @@ const stripInvalidCharacters = (url = ""): string => {
 };
 
 /**
- * Remove any characters after whitespace
- * @param env
+ * Remove any characters after whitespace from env value
+ * @param value
  * @returns {string}
  */
-const sanitize = (env = " "): string => {
-  return stripInvalidCharacters(env).split(" ")[0];
+const sanitize = (value = " "): string => {
+  return stripInvalidCharacters(value).split(" ")[0];
 };
 
 /**
@@ -68,7 +68,7 @@ const sanitize = (env = " "): string => {
  * @returns {string}
  */
 const getUrl = (url = ""): string => {
-  return sanitize(url).replace(/http\:\/\/|https\:\/\//, "");
+  return sanitize(url).replace(/^https?\:\/\//, "");
 };
 
 /**
