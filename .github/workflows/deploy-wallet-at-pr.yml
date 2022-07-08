@@ -25,15 +25,13 @@ jobs:
         with:
           version: "v0.10.3"
 
-      - name: Set up environment variables for Netlify
+      - name: build the site
+        working-directory: ./packages/anoma-wallet
+        run: yarn build
         env:
           REACT_APP_CHAIN_ID: "anoma-masp-1.5.32ccad5356012a"
           REACT_APP_LEDGER_URL: "https://d3brk13lbhxfdb.cloudfront.net/anoma-masp-1.5.32ccad5356012a7"
           REACT_APP_FAUCET: "atest1v4ehgw36gc6yxvpjxccyzvphxycrxw2xxsuyydesxgcnjs3cg9znwv3cxgmnj32yxy6rssf5tcqjm3"
-
-      - name: build the site
-        working-directory: ./packages/anoma-wallet
-        run: yarn build
 
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v1.2.3
