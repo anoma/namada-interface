@@ -25,6 +25,13 @@ jobs:
         with:
           version: "v0.10.2"
 
+      - name: Set up environment varuables for Netlify
+        working-directory: ./packages/anoma-wallet
+        run: |
+          echo "REACT_APP_CHAIN_ID=anoma-masp-1.5.32ccad5356012a" > .env \
+            && echo "REACT_APP_LEDGER_URL=https://d3brk13lbhxfdb.cloudfront.net/anoma-masp-1.5.32ccad5356012a7" >> .env \
+            && echo "REACT_APP_FAUCET=atest1v4ehgw36gc6yxvpjxccyzvphxycrxw2xxsuyydesxgcnjs3cg9znwv3cxgmnj32yxy6rssf5tcqjm3" >> .env
+
       - name: build the site
         working-directory: ./packages/anoma-wallet
         run: yarn build
