@@ -11,7 +11,12 @@ import { AnimatePresence } from "framer-motion";
 import { ThemeProvider } from "styled-components/macro";
 
 // internal
-import { darkColors, lightColors, Theme } from "utils/theme";
+import {
+  darkColors,
+  darkColorsLoggedIn,
+  lightColors,
+  Theme,
+} from "utils/theme";
 import { TopLevelRoute } from "./types";
 
 import { TopNavigation } from "./TopNavigation";
@@ -32,8 +37,12 @@ import { Persistor, persistStore } from "redux-persist";
 export const history = createBrowserHistory({ window });
 
 // this sets the dark/light colors to theme
-export const getTheme = (isLightMode: boolean): Theme => {
-  const colors = isLightMode ? lightColors : darkColors;
+export const getTheme = (isLightMode: boolean, isLoggedIn: boolean): Theme => {
+  const colors = isLightMode
+    ? lightColors
+    : isLoggedIn
+    ? darkColorsLoggedIn
+    : darkColors;
   const theme: Theme = {
     themeConfigurations: {
       isLightMode: isLightMode,
@@ -67,7 +76,7 @@ function App(): JSX.Element {
   const [password, setPassword] = useState<string>();
   const [store, setStore] = useState<AppStore>();
   const [persistor, setPersistor] = useState<Persistor>();
-  const theme = getTheme(isLightMode);
+  const theme = getTheme(isLightMode, !!password);
 
   useEffect(() => {
     if (store) {

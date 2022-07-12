@@ -1,4 +1,4 @@
-import { Button } from "components/ButtonTemporary";
+import { Button, ButtonVariant } from "components/Button";
 import {
   StartViewContainer,
   StartViewUpperPartContainer,
@@ -24,8 +24,22 @@ function Start(props: StartViewProps): React.ReactElement {
           viverra amet.
         </BodyText>
       </StartViewUpperPartContainer>
-      <Button onClick={onCtaClick} onHover={onCtaHover}>
-        Create an Account
+      <Button onClick={onCtaClick} variant={ButtonVariant.Contained}>
+        Create an account
+      </Button>
+      <Button
+        onClick={() => null}
+        disabled={true}
+        variant={ButtonVariant.Contained}
+      >
+        Import an account
+      </Button>
+      <Button
+        onClick={() => null}
+        disabled={true}
+        variant={ButtonVariant.Contained}
+      >
+        Connect to Ledger
       </Button>
     </StartViewContainer>
   );

@@ -11,7 +11,6 @@ import {
   RightSection,
   MenuItem,
   StakingAndGovernanceMenuItem,
-  MenuItemIconContainer,
   MenuItemTextContainer,
   ColorModeContainer,
   LogoContainer,
@@ -39,9 +38,6 @@ const TopNavigationMenuItems = (props: {
         }}
         isSelected={location.pathname === TopLevelRoute.Wallet}
       >
-        <MenuItemIconContainer>
-          <Icon iconName={IconName.Briefcase} />
-        </MenuItemIconContainer>
         <MenuItemTextContainer>Wallet</MenuItemTextContainer>
       </MenuItem>
 
@@ -52,9 +48,6 @@ const TopNavigationMenuItems = (props: {
         }}
         isSelected={location.pathname === TopLevelRoute.StakingAndGovernance}
       >
-        <MenuItemIconContainer>
-          <Icon iconName={IconName.ThumbsUp} />
-        </MenuItemIconContainer>
         <MenuItemTextContainer>Staking &amp; Governance</MenuItemTextContainer>
       </StakingAndGovernanceMenuItem>
 
@@ -64,9 +57,6 @@ const TopNavigationMenuItems = (props: {
         }}
         isSelected={location.pathname.startsWith(TopLevelRoute.Settings)}
       >
-        <MenuItemIconContainer>
-          <Icon iconName={IconName.Settings} />
-        </MenuItemIconContainer>
         <MenuItemTextContainer>Settings</MenuItemTextContainer>
       </MenuItem>
     </>
@@ -100,16 +90,19 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
     <TopNavigationContainer>
       <TopNavigationContainerRow>
         <LeftSection>
-          <LogoContainer
-            onClick={() => {
-              navigate(TopLevelRoute.Home);
-            }}
-          >
-            <Image
-              imageName={ImageName.Logo}
-              styleOverrides={{ maxWidth: "128px" }}
-            />
-          </LogoContainer>
+          &nbsp;
+          {isLoggedIn && (
+            <LogoContainer
+              onClick={() => {
+                navigate(TopLevelRoute.Home);
+              }}
+            >
+              <Image
+                imageName={ImageName.Logo}
+                styleOverrides={{ maxWidth: "128px" }}
+              />
+            </LogoContainer>
+          )}
         </LeftSection>
 
         <MiddleSection>
@@ -120,7 +113,6 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
 
         <RightSection>
           {/* TODO: extract to Button component*/}
-
           {isLoggedIn && (
             <MenuItem
               onClick={() => {
@@ -128,25 +120,16 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
                 logout();
               }}
             >
-              <MenuItemIconContainer>
-                <Icon iconName={IconName.Key} />
-              </MenuItemIconContainer>
               <MenuItemTextContainer>Lock</MenuItemTextContainer>
             </MenuItem>
           )}
-          {/* help button */}
-          <MenuItem
-            onClick={() => {
-              alert("Help not implemented yet");
-            }}
-            style={{ margin: "0 32px 0" }}
-          >
-            <MenuItemIconContainer>
-              <Icon iconName={IconName.HelpCircle} />
-            </MenuItemIconContainer>
-            <MenuItemTextContainer>Help</MenuItemTextContainer>
-          </MenuItem>
-
+        </RightSection>
+      </TopNavigationContainerRow>
+      <TopNavigationContainerSecondRow>
+        <OnlyInSmall>
+          {isLoggedIn && <TopNavigationMenuItems navigate={navigate} />}
+        </OnlyInSmall>
+        {isLoggedIn && (
           <ColorModeContainer>
             <Toggle
               checked={isLightMode}
@@ -157,12 +140,31 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
               circleElementDisabled={circleElementDisabled}
             />
           </ColorModeContainer>
-        </RightSection>
-      </TopNavigationContainerRow>
-      <TopNavigationContainerSecondRow>
-        <OnlyInSmall>
-          {isLoggedIn && <TopNavigationMenuItems navigate={navigate} />}
-        </OnlyInSmall>
+        )}
+        {!isLoggedIn && (
+          <>
+            <LogoContainer
+              onClick={() => {
+                navigate(TopLevelRoute.Home);
+              }}
+            >
+              <Image
+                imageName={ImageName.Logo}
+                styleOverrides={{ maxWidth: "128px" }}
+              />
+            </LogoContainer>
+            <ColorModeContainer>
+              <Toggle
+                checked={isLightMode}
+                onClick={() => {
+                  setIsLightMode((isLightMode) => !isLightMode);
+                }}
+                circleElementEnabled={circleElementEnabled}
+                circleElementDisabled={circleElementDisabled}
+              />
+            </ColorModeContainer>
+          </>
+        )}
       </TopNavigationContainerSecondRow>
     </TopNavigationContainer>
   );

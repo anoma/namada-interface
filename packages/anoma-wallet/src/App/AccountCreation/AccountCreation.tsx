@@ -8,7 +8,7 @@ import { TopLevelRoute } from "App/types";
 import { AccountCreationRoute, accountCreationSteps } from "./types";
 import { AppStore } from "store/store";
 
-import { Button } from "components/ButtonTemporary";
+import { Button, ButtonVariant } from "components/Button";
 import { Icon, IconName } from "components/Icon";
 import {
   Start,
@@ -43,11 +43,20 @@ type AnimatedTransitionProps = {
 const AnimatedTransition = (props: AnimatedTransitionProps): JSX.Element => {
   const { children, elementKey, animationFromRightToLeft } = props;
   return (
+    // /* DISABLE FOR NOW */
+    // <MotionContainer
+    //   key={elementKey}
+    //   initial={{ opacity: 0, x: (animationFromRightToLeft ? 1 : -1) * 450 }}
+    //   animate={{ opacity: 1, x: 0 }}
+    //   exit={{ opacity: 0, x: (animationFromRightToLeft ? -1 : 1) * 450 }}
+    // >
+    //   {children}
+    // </MotionContainer>
     <MotionContainer
       key={elementKey}
-      initial={{ opacity: 0, x: (animationFromRightToLeft ? 1 : -1) * 450 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: (animationFromRightToLeft ? -1 : 1) * 450 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
     >
       {children}
     </MotionContainer>
@@ -137,10 +146,11 @@ function AccountCreation({ setStore, setPassword, store }: Props): JSX.Element {
               onClick={() => {
                 navigateToPrevious();
               }}
-              onHover={() => {
-                // read the need for this above the hook
-                setAnimationFromRightToLeft(false);
-              }}
+              // onHover={() => {
+              //   // read the need for this above the hook
+              //   setAnimationFromRightToLeft(false);
+              // }}
+              variant={ButtonVariant.Contained}
               style={{ padding: "0" }}
             >
               <Icon

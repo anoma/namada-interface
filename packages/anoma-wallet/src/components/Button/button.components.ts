@@ -12,7 +12,7 @@ const Button = styled.button`
 
 const RoundButton = styled(Button)`
   border-radius: 200px;
-  border-width: 1px 1px 4px 1px;
+  border-width: 1px;
 `;
 
 export const OutlinedButton = styled(RoundButton)`
