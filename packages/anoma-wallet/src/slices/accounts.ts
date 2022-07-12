@@ -7,8 +7,6 @@ import { promiseWithTimeout, stringToHash } from "utils/helpers";
 import { submitTransferTransaction } from "./transfers";
 import { addAccountReducersToBuilder } from "./accountsNew/reducers";
 
-const { REACT_APP_USE_FAUCET } = process.env;
-
 export type InitialAccount = {
   chainId: string;
   alias: string;
@@ -148,6 +146,8 @@ export const submitInitAccountTransaction = createAsyncThunk(
     }
 
     const initializedAccounts = events[TxResponse.InitializedAccounts];
+
+    // TODO: This is a major bug when initializing multiple accounts!
     const establishedAddress = initializedAccounts
       .map((account: string) => JSON.parse(account))
       .find((account: string[]) => account.length > 0)[0];
@@ -158,7 +158,7 @@ export const submitInitAccountTransaction = createAsyncThunk(
       establishedAddress,
     };
 
-    if (REACT_APP_USE_FAUCET || url.match(/testnet|localhost|/)) {
+    if (faucet) {
       dispatch(
         submitTransferTransaction({
           chainId,

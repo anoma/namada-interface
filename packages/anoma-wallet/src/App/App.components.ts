@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 
 export const MotionContainer = styled(motion.div)`
   display: flex;
+  justify-content: center;
   height: 100%;
   width: 100%;
   box-sizing: border-box;

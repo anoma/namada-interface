@@ -56,8 +56,7 @@ const AccountInformation = (
     accountCreationDetails,
   } = props;
   // setting these default values if no data was passed
-  const { seedPhraseLength = "12", accountName = "" } =
-    accountCreationDetails || {};
+  const { seedPhraseLength = "12" } = accountCreationDetails || {};
 
   // we store passwords locally as we would not like to pass them in
   // when the user switches between the screens
@@ -66,8 +65,7 @@ const AccountInformation = (
   const [password2Feedback, setPassword2Feedback] = React.useState("");
   const [password1Feedback, setPassword1Feedback] = React.useState("");
 
-  const isSubmitButtonDisabled =
-    accountName === "" || password1 === "" || password1 !== password2;
+  const isSubmitButtonDisabled = password1 === "" || password1 !== password2;
 
   return (
     <AccountInformationViewContainer>
@@ -80,7 +78,7 @@ const AccountInformation = (
       <AccountInformationForm>
         {/* seed phrase */}
         <RecoveryPhraseLengthContainer>
-          <Header3>Recovery Phrase</Header3>
+          <Header3>Seed Phrase Length</Header3>
 
           {/* seed phrase */}
           <RecoveryPhraseLengthRadioButtonsContainer>
@@ -121,17 +119,6 @@ const AccountInformation = (
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Enim augue
           aenean facilisi placerat laoreet sem faucibus{" "}
         </BodyText>
-
-        {/* account name */}
-        <InputContainer>
-          <Header5>Account Name</Header5>
-          <Input
-            value={accountName}
-            onChange={(event) => {
-              onSetAccountCreationDetails({ accountName: event.target.value });
-            }}
-          />
-        </InputContainer>
 
         {/* password 1 */}
         <InputContainer>

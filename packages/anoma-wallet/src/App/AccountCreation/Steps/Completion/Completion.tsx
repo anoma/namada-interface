@@ -62,7 +62,6 @@ const Completion = (props: CompletionViewProps): JSX.Element => {
       const tokens = Object.values(Tokens);
       // Create accounts for each supported token:
       tokens.forEach((token) => {
-        console.log({ token, tokens });
         (async () => {
           const account = await createAccount(
             defaultChainId,
