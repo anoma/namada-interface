@@ -3,7 +3,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import Config, { RPCConfig } from "config";
 import { IbcTxResponse } from "constants/tx";
 import { RpcClient, SocketClient, Transfer, IBCTransfer } from "lib";
-import { history, TopLevelRouteGenerator } from "App";
+//import { history, TopLevelRouteGenerator } from "App";
 import { Tokens, TokenType, TxResponse } from "constants/";
 import { NewBlockEvents } from "lib/rpc/types";
 import { amountFromMicro, promiseWithTimeout } from "utils/helpers";
@@ -296,11 +296,11 @@ export const submitTransferTransaction = createAsyncThunk(
     dispatch(updateShieldedBalances());
 
     // TODO pass this as a callback from consumer as we might need different behaviors
-    history.push(
-      TopLevelRouteGenerator.createRouteForTokenByTokenId(
-        txTransferArgs.account.id
-      )
-    );
+    // history.push(
+    //   TopLevelRouteGenerator.createRouteForTokenByTokenId(
+    //     txTransferArgs.account.id
+    //   )
+    // );
 
     return {
       id,

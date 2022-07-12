@@ -17,11 +17,11 @@ import {
 } from "./DerivedAccounts.components";
 
 const DerivedAccounts = (): JSX.Element => {
-  const { derived, shieldedAccounts } = useAppSelector<AccountsState>(
-    (state) => state.accounts
-  );
+  const { derived, shieldedAccounts: allShieldedAccounts } =
+    useAppSelector<AccountsState>((state) => state.accounts);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const derivedAccounts = derived[chainId] || {};
+  const shieldedAccounts = allShieldedAccounts[chainId] || {};
 
   const dispatch = useAppDispatch();
 
@@ -41,7 +41,7 @@ const DerivedAccounts = (): JSX.Element => {
 
   const shieldedAndTransparentAccounts = {
     ...derivedAccounts,
-    ...(shieldedAccounts[chainId] || {}),
+    ...shieldedAccounts,
   };
 
   return (

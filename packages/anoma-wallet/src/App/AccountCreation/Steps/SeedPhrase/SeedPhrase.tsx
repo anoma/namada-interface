@@ -59,7 +59,7 @@ const textToClipboard = (content: string): void => {
 const SeedPhrase = (props: AccountInformationViewProps): JSX.Element => {
   const {
     accountCreationDetails,
-    onCtaHover,
+    //onCtaHover,
     onConfirmSavingOfSeedPhrase,
     defaultSeedPhrase,
   } = props;
@@ -102,7 +102,7 @@ const SeedPhrase = (props: AccountInformationViewProps): JSX.Element => {
         <SeedPhraseContainer>
           {seedPhraseAsArray.map((seedPhraseWord, index) => {
             return (
-              <SeedPhraseCard key={seedPhraseWord}>
+              <SeedPhraseCard key={`${seedPhraseWord}:${index}`}>
                 <SeedPhraseIndexLabel>{`${index + 1}`}</SeedPhraseIndexLabel>
                 {`${seedPhraseWord}`}
               </SeedPhraseCard>

@@ -60,18 +60,26 @@ const Completion = (props: CompletionViewProps): JSX.Element => {
   useEffect(() => {
     if (password) {
       const tokens = Object.values(Tokens);
-      // Create accounts for each supported token:
-      tokens.forEach((token) => {
-        (async () => {
+
+      const defaultToken = tokens.find((token) => token.symbol === "NAM");
+
+      // Create a master account for NAM token
+      (async () => {
+        if (defaultToken) {
           const account = await createAccount(
             defaultChainId,
-            token.symbol as TokenType,
-            token.coin,
+            defaultToken.symbol as TokenType,
+            defaultToken.coin,
             mnemonic
           );
-
           dispatch(addAccount(account));
+        }
+      })();
 
+      // Create shielded accounts for each supported token:
+      // Set timeout is to clear animation
+      setTimeout(() => {
+        tokens.forEach((token) => {
           dispatch(
             createShieldedAccount({
               chainId: defaultChainId,
@@ -80,8 +88,8 @@ const Completion = (props: CompletionViewProps): JSX.Element => {
               tokenType: token.symbol as TokenType,
             })
           );
-        })();
-      });
+        });
+      }, 1000);
     }
   }, []);
 
