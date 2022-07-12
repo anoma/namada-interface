@@ -41,7 +41,7 @@ type AnimatedTransitionProps = {
  * This should be extracted to it's own component along the other transition types. TODO
  */
 const AnimatedTransition = (props: AnimatedTransitionProps): JSX.Element => {
-  const { children, elementKey, animationFromRightToLeft } = props;
+  const { children, elementKey /*, animationFromRightToLeft */ } = props;
   return (
     // /* DISABLE FOR NOW */
     // <MotionContainer

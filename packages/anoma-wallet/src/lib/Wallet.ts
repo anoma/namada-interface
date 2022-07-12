@@ -81,6 +81,7 @@ class Wallet {
     isHardened = true
   ): DerivedAccount {
     const { type } = Tokens[this._tokenType];
+
     const path = Wallet.makePath({
       type,
       account,

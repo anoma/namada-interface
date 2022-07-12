@@ -39,9 +39,9 @@ export const AccountOverview = ({ persistor }: Props): JSX.Element => {
   useEffect(() => {
     // Initialize any uninitialized accounts
     if (uninitializedAccounts.length > 0) {
-      uninitializedAccounts.forEach((account) => {
-        dispatch(submitInitAccountTransaction(account));
-      });
+      // Initialize accounts sequentially
+      // Each rerender will initialize the next in this batch
+      dispatch(submitInitAccountTransaction(uninitializedAccounts[0]));
     }
   }, [uninitializedAccounts]);
 

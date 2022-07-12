@@ -65,7 +65,7 @@ const DerivedAccounts = (): JSX.Element => {
             } = shieldedAndTransparentAccounts[hash];
 
             return (
-              <DerivedAccountItem key={alias}>
+              <DerivedAccountItem key={id}>
                 <DerivedAccountContainer>
                   <DerivedAccountInfo>
                     <DerivedAccountAlias>
@@ -73,12 +73,12 @@ const DerivedAccounts = (): JSX.Element => {
                     </DerivedAccountAlias>
                     <DerivedAccountType>
                       {isShielded ? "SHIELDED " : ""}
-                      {tokenType}
                     </DerivedAccountType>
                   </DerivedAccountInfo>
 
                   <DerivedAccountBalance>
-                    {typeof balance === "number" ? balance : "Loading"}
+                    {typeof balance === "number" ? balance : "Loading"}{" "}
+                    {tokenType}
                   </DerivedAccountBalance>
                 </DerivedAccountContainer>
 

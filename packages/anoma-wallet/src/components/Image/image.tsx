@@ -15,6 +15,7 @@ export interface ImageProps {
   imageName: ImageName;
   // free css overrides
   styleOverrides?: React.CSSProperties;
+  forceLightMode?: boolean;
 }
 
 // dark theme images
@@ -50,10 +51,13 @@ const getImageByTypeAndMode = (
  * 3. might need more free size overriding.
  */
 export const Image = (props: ImageProps): JSX.Element => {
-  const { imageName, styleOverrides = {} } = props;
+  const { imageName, styleOverrides = {}, forceLightMode = false } = props;
   const themeContext = useContext(ThemeContext);
   const { isLightMode } = themeContext.themeConfigurations;
-  const ImageByType = getImageByTypeAndMode(imageName, isLightMode);
+  const ImageByType = getImageByTypeAndMode(
+    imageName,
+    isLightMode || forceLightMode
+  );
 
   return (
     <ImageContainer style={styleOverrides}>

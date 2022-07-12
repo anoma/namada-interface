@@ -16,6 +16,7 @@ import {
   ButtonsContainer,
   ButtonContainer,
 } from "./Completion.components";
+import { Tokens, TokenType } from "constants/";
 
 type CompletionViewProps = {
   // navigates to the account
@@ -32,10 +33,10 @@ const { accountIndex } = defaultChain;
 
 const createAccount = async (
   chainId: string,
+  tokenType: TokenType,
   alias: string,
   mnemonic: string
 ): Promise<InitialAccount> => {
-  const tokenType = "NAM";
   const wallet = await new Wallet(mnemonic, tokenType).init();
   const account = wallet.new(accountIndex, 0);
   const { public: publicKey, secret: signingKey, wif: address } = account;
@@ -51,16 +52,27 @@ const createAccount = async (
 };
 
 const Completion = (props: CompletionViewProps): JSX.Element => {
-  const { onClickDone, onClickSeeAccounts, mnemonic, password, alias } = props;
+  const { onClickSeeAccounts, mnemonic, password } = props;
 
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (password) {
-      (async () => {
-        const account = await createAccount(defaultChainId, alias, mnemonic);
-        dispatch(addAccount(account));
-      })();
+      const tokens = Object.values(Tokens);
+      // Create accounts for each supported token:
+      tokens.forEach((token) => {
+        console.log({ token, tokens });
+        (async () => {
+          const account = await createAccount(
+            defaultChainId,
+            token.symbol as TokenType,
+            token.coin,
+            mnemonic
+          );
+
+          dispatch(addAccount(account));
+        })();
+      });
     }
   }, []);
 

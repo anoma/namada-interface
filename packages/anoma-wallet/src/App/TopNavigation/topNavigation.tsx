@@ -76,16 +76,6 @@ type TopNavigationProps = {
 function TopNavigation(props: TopNavigationProps): JSX.Element {
   const { isLightMode, logout, setIsLightMode, isLoggedIn = false } = props;
   const navigate = useNavigate();
-  const circleElementEnabled = (
-    <Icon iconName={IconName.Sun} strokeColorOverride="#17171d" />
-  );
-  const circleElementDisabled = (
-    <Icon
-      iconName={IconName.Moon}
-      strokeColorOverride="#17171d"
-      fillColorOverride="#17171d"
-    />
-  );
 
   return (
     <TopNavigationContainer>
@@ -101,6 +91,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
               <Image
                 imageName={ImageName.Logo}
                 styleOverrides={{ maxWidth: "128px" }}
+                forceLightMode={true}
               />
             </LogoContainer>
           )}
