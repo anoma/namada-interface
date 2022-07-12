@@ -41,24 +41,25 @@ const TopNavigationMenuItems = (props: {
         <MenuItemTextContainer>Wallet</MenuItemTextContainer>
       </MenuItem>
 
-      {/* Staking & Governance */}
+      {/* Staking */}
       <StakingAndGovernanceMenuItem
         onClick={() => {
           navigate(`${TopLevelRoute.StakingAndGovernance}`);
         }}
         isSelected={location.pathname === TopLevelRoute.StakingAndGovernance}
       >
-        <MenuItemTextContainer>Staking &amp; Governance</MenuItemTextContainer>
+        <MenuItemTextContainer>Staking</MenuItemTextContainer>
       </StakingAndGovernanceMenuItem>
 
-      <MenuItem
+      {/* Governance */}
+      <StakingAndGovernanceMenuItem
         onClick={() => {
-          navigate(`${TopLevelRoute.Settings}`);
+          navigate(`${TopLevelRoute.StakingAndGovernance}`);
         }}
-        isSelected={location.pathname.startsWith(TopLevelRoute.Settings)}
+        isSelected={location.pathname === TopLevelRoute.StakingAndGovernance}
       >
-        <MenuItemTextContainer>Settings</MenuItemTextContainer>
-      </MenuItem>
+        <MenuItemTextContainer>Governance</MenuItemTextContainer>
+      </StakingAndGovernanceMenuItem>
     </>
   );
 };
@@ -130,16 +131,23 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
           {isLoggedIn && <TopNavigationMenuItems navigate={navigate} />}
         </OnlyInSmall>
         {isLoggedIn && (
-          <ColorModeContainer>
-            <Toggle
-              checked={isLightMode}
+          <>
+            <a
               onClick={() => {
-                setIsLightMode((isLightMode) => !isLightMode);
+                navigate(`${TopLevelRoute.Settings}`);
               }}
-              circleElementEnabled={circleElementEnabled}
-              circleElementDisabled={circleElementDisabled}
-            />
-          </ColorModeContainer>
+            >
+              <Icon iconName={IconName.Settings} />
+            </a>
+            <ColorModeContainer>
+              <Toggle
+                checked={isLightMode}
+                onClick={() => {
+                  setIsLightMode((isLightMode) => !isLightMode);
+                }}
+              />
+            </ColorModeContainer>
+          </>
         )}
         {!isLoggedIn && (
           <>
