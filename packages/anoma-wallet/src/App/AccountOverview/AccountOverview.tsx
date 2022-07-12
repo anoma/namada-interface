@@ -52,9 +52,15 @@ export const AccountOverview = ({ persistor }: Props): JSX.Element => {
       </NavigationContainer>
       <Button
         variant={ButtonVariant.Contained}
-        onClick={() => navigate(TopLevelRoute.WalletAddAccount)}
+        onClick={() => navigate(TopLevelRoute.TokenSend)}
       >
-        Add Account
+        Send
+      </Button>
+      <Button
+        variant={ButtonVariant.Contained}
+        onClick={() => navigate(TopLevelRoute.TokenReceive)}
+      >
+        Receive
       </Button>
       {isTransferSubmitting && <p>Transfer is in progress</p>}
       <PersistGate loading={"Loading accounts..."} persistor={persistor}>

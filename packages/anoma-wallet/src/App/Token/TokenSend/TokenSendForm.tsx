@@ -263,12 +263,12 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
               value={target}
               error={isTargetValid ? undefined : "Target is invalid"}
             />
-            <Button
+            {/*<Button
               variant={ButtonVariant.Small}
               onClick={() => setShowQrReader(!showQrReader)}
             >
               <Icon iconName={IconName.Camera} />
-            </Button>
+            </Button>*/}
           </InputWithButtonContainer>
           {showQrReader && (
             <QrReaderContainer>

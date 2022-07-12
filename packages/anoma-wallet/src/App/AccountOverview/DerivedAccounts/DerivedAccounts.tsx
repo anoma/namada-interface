@@ -1,12 +1,9 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 
 import { useAppDispatch, useAppSelector } from "store";
 import { AccountsState, fetchBalanceByAccount } from "slices/accounts";
 import { SettingsState } from "slices/settings";
 import { updateShieldedBalances } from "slices/accountsNew";
-import { formatRoute } from "utils/helpers";
-import { TopLevelRoute } from "App/types";
 
 import {
   DerivedAccountsContainer,
@@ -18,7 +15,6 @@ import {
   DerivedAccountAlias,
   DerivedAccountContainer,
 } from "./DerivedAccounts.components";
-import { Button, ButtonVariant } from "components/Button";
 
 const DerivedAccounts = (): JSX.Element => {
   const { derived, shieldedAccounts } = useAppSelector<AccountsState>(
@@ -28,7 +24,6 @@ const DerivedAccounts = (): JSX.Element => {
   const derivedAccounts = derived[chainId] || {};
 
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
 
   useEffect(() => {
     const keys = Object.keys(derivedAccounts);
@@ -81,15 +76,6 @@ const DerivedAccounts = (): JSX.Element => {
                     {tokenType}
                   </DerivedAccountBalance>
                 </DerivedAccountContainer>
-
-                <Button
-                  onClick={() => {
-                    navigate(formatRoute(TopLevelRoute.Token, { id }));
-                  }}
-                  variant={ButtonVariant.Small}
-                >
-                  Details
-                </Button>
               </DerivedAccountItem>
             );
           })}

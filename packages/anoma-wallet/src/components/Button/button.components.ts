@@ -11,7 +11,7 @@ const Button = styled.button`
 `;
 
 const RoundButton = styled(Button)`
-  border-radius: 20px;
+  border-radius: 200px;
   border-width: 1px;
 `;
 

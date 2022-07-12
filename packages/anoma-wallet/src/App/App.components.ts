@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 export const MotionContainer = styled(motion.div)`
   display: flex;
   height: 100%;
+  width: 100%;
   box-sizing: border-box;
 `;
 
