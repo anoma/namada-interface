@@ -69,7 +69,7 @@ export const SettingsAccounts = (): JSX.Element => {
                   <Heading level={HeadingLevel.Three}>
                     {account.shieldedKeysAndPaymentAddress
                       ? account.shieldedKeysAndPaymentAddress.paymentAddress
-                      : account.address}
+                      : account.establishedAddress}
                   </Heading>
                 </AccountNameContainerOverflow>
               </AccountNameContainer>

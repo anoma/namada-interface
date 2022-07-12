@@ -17,6 +17,7 @@ import {
   ButtonContainer,
 } from "./Completion.components";
 import { Tokens, TokenType } from "constants/";
+import { createShieldedAccount } from "slices/accountsNew/actions";
 
 type CompletionViewProps = {
   // navigates to the account
@@ -71,6 +72,15 @@ const Completion = (props: CompletionViewProps): JSX.Element => {
           );
 
           dispatch(addAccount(account));
+
+          dispatch(
+            createShieldedAccount({
+              chainId: defaultChainId,
+              alias: token.coin,
+              password,
+              tokenType: token.symbol as TokenType,
+            })
+          );
         })();
       });
     }

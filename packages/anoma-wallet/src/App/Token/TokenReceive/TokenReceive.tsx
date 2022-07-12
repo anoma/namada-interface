@@ -1,4 +1,5 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQRCode } from "next-qrcode";
 
 import Config from "config";
@@ -15,26 +16,41 @@ import {
 } from "./TokenReceive.components";
 import { Heading, HeadingLevel } from "components/Heading";
 import { NavigationContainer } from "components/NavigationContainer";
-
-type TokenReceiveParams = {
-  id: string;
-};
+import { Select } from "components/Select";
 
 const TokenReceive = (): JSX.Element => {
   const { Canvas } = useQRCode();
   const navigate = useNavigate();
-  const { id = "" } = useParams<TokenReceiveParams>();
-  const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
+  const { derived, shieldedAccounts: allShieldedAccounts } =
+    useAppSelector<AccountsState>((state) => state.accounts);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
-
+  const [selectedAccountId, setSelectedAccountId] = useState<
+    string | undefined
+  >();
   const derivedAccounts = derived[chainId] || {};
+  const shieldedAccounts = allShieldedAccounts[chainId] || {};
+
   const { accountIndex } = Config.chain[chainId];
+
+  const accounts = { ...derivedAccounts, ...shieldedAccounts };
+  const accountsData = Object.values(accounts).map((account) => ({
+    value: account.id,
+    label: `${account.alias} (${account.tokenType})`,
+  }));
+
+  useEffect(() => {
+    if (!selectedAccountId && accountsData.length > 0) {
+      setSelectedAccountId(accountsData[0].value);
+    }
+  }, [accountsData, selectedAccountId]);
 
   const {
     establishedAddress = "",
+    shieldedKeysAndPaymentAddress,
     alias,
     tokenType,
-  } = derivedAccounts[id] || {};
+  } = accounts[selectedAccountId || ""] || {};
+
   const { protocol, host } = window.location;
 
   const text = `${protocol}//${host}${formatRoute(
@@ -42,7 +58,10 @@ const TokenReceive = (): JSX.Element => {
     {
       accountIndex,
       tokenType,
-      target: establishedAddress,
+      target:
+        establishedAddress ||
+        shieldedKeysAndPaymentAddress?.paymentAddress ||
+        "",
     }
   )}`;
 
@@ -50,13 +69,21 @@ const TokenReceive = (): JSX.Element => {
     <TokenReceiveContainer>
       <NavigationContainer
         onBackButtonClick={() => {
-          navigate(formatRoute(TopLevelRoute.Token, { id }));
+          navigate(TopLevelRoute.Wallet);
         }}
       >
         <Heading level={HeadingLevel.One}>Token Receive</Heading>
       </NavigationContainer>
       <Heading level={HeadingLevel.Two}>{alias}</Heading>
       <Heading level={HeadingLevel.Three}>{tokenType}</Heading>
+      {accountsData.length > 0 && (
+        <Select
+          data={accountsData || []}
+          value={selectedAccountId}
+          label="Select an account to transfer from:"
+          onChange={(e) => setSelectedAccountId(e.target.value)}
+        />
+      )}
       <CanvasContainer>
         <Canvas
           text={text}

@@ -30,7 +30,7 @@ import {
   StatusMessage,
   TokenSendFormContainer,
 } from "./TokenSendForm.components";
-import { Icon, IconName } from "components/Icon";
+//import { Icon, IconName } from "components/Icon";
 import { Address } from "../Transfers/TransferDetails.components";
 import { parseTarget } from "./TokenSend";
 import { SettingsState } from "slices/settings";

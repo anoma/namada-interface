@@ -5,7 +5,6 @@ export const UPDATE_SHIELDED_BALANCES = `${ACCOUNTS_ACTIONS_BASE}/UPDATE_SHIELDE
 
 export type NewAccountDetails = {
   alias: string;
-  isShielded: boolean;
   tokenType: "NAM" | "BTC" | "ETH" | "DOT";
 };
 

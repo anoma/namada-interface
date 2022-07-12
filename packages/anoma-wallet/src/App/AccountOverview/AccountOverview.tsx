@@ -31,13 +31,13 @@ export const AccountOverview = ({ persistor }: Props): JSX.Element => {
   const derivedAccounts = derived[chainId] || {};
   const accounts = Object.values(derivedAccounts);
 
-  // Collect uninitialized accounts
+  // Collect uninitialized transparent accounts
   const uninitializedAccounts = accounts.filter(
     (account) => !account.establishedAddress && !account.isInitializing
   );
 
   useEffect(() => {
-    // Initialize any uninitialized accounts
+    // Initialize any uninitialized transparent accounts
     if (uninitializedAccounts.length > 0) {
       // Initialize accounts sequentially
       // Each rerender will initialize the next in this batch

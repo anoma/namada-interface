@@ -18,7 +18,14 @@ import TokenSendForm from "./TokenSendForm";
 import { Heading, HeadingLevel } from "components/Heading";
 import { NavigationContainer } from "components/NavigationContainer";
 import { Select } from "components/Select";
-import { TokenSendContainer } from "./TokenSend.components";
+import {
+  TokenSendContainer,
+  TokenSendTab,
+  TokenSendTabsGroup,
+  TokenSendContent,
+} from "./TokenSend.components";
+import { Button, ButtonVariant } from "components/Button";
+import { Icon, IconName } from "components/Icon";
 
 export const parseTarget = (target: string): TransferType | undefined => {
   if (
@@ -39,28 +46,36 @@ export const parseTarget = (target: string): TransferType | undefined => {
 
 const TokenSend = (): JSX.Element => {
   const navigate = useNavigate();
-  const { derived, shieldedAccounts } = useAppSelector<AccountsState>(
-    (state) => state.accounts
-  );
+  const { derived, shieldedAccounts: allShieldedAccounts } =
+    useAppSelector<AccountsState>((state) => state.accounts);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
 
   const [selectedAccountId, setSelectedAccountId] = useState<
     string | undefined
   >();
 
-  const derivedAccounts = derived[chainId] || {};
+  const [selectedShieldedAccountId, setSelectedShieldedAccountId] = useState<
+    string | undefined
+  >();
 
-  const transparentAndShieldedAccounts = {
-    ...derivedAccounts,
-    ...(shieldedAccounts[chainId] || {}),
-  };
+  const accounts = derived[chainId] || {};
 
-  const accountsData = Object.values(transparentAndShieldedAccounts).map(
-    (account) => ({
-      value: account.id,
-      label: `${account.alias} (${account.tokenType})`,
+  const shieldedAccounts = allShieldedAccounts[chainId] || {};
+
+  const accountsData = Object.values(accounts).map((account) => ({
+    value: account.id,
+    label: `${account.alias} (${account.tokenType})`,
+  }));
+
+  const shieldedAccountsData = Object.values(shieldedAccounts).map(
+    (shieldedAccount) => ({
+      value: shieldedAccount.id,
+      label: `${shieldedAccount.alias} (${shieldedAccount.tokenType})`,
     })
   );
+
+  const tabs = ["Shielded", "Transparent"];
+  const [activeTab, setActiveTab] = useState(tabs[0]);
 
   useEffect(() => {
     if (!selectedAccountId && accountsData.length > 0) {
@@ -70,23 +85,57 @@ const TokenSend = (): JSX.Element => {
 
   return (
     <TokenSendContainer>
-      <NavigationContainer
-        onBackButtonClick={() => {
-          navigate(TopLevelRoute.Wallet);
-        }}
-      >
-        <Heading level={HeadingLevel.One}>Token Send</Heading>
+      <NavigationContainer>
+        <Heading level={HeadingLevel.One}>Send</Heading>
       </NavigationContainer>
 
-      {accountsData.length > 0 && (
-        <Select
-          data={accountsData || []}
-          value={selectedAccountId}
-          label="Select an account to transfer from:"
-          onChange={(e) => setSelectedAccountId(e.target.value)}
-        />
+      <TokenSendTabsGroup>
+        {tabs.map((tab) => (
+          <TokenSendTab
+            className={tab === activeTab ? "active" : ""}
+            onClick={() => setActiveTab(tab)}
+            key={tab}
+          >
+            {tab}
+          </TokenSendTab>
+        ))}
+      </TokenSendTabsGroup>
+
+      {activeTab === "Shielded" && (
+        <TokenSendContent>
+          {shieldedAccountsData.length > 0 && (
+            <Select
+              data={shieldedAccountsData || []}
+              value={selectedShieldedAccountId}
+              label="Select an account to transfer from:"
+              onChange={(e) => setSelectedShieldedAccountId(e.target.value)}
+            />
+          )}
+        </TokenSendContent>
       )}
-      {selectedAccountId && <TokenSendForm accountId={selectedAccountId} />}
+
+      {activeTab === "Transparent" && (
+        <TokenSendContent>
+          {accountsData.length > 0 && (
+            <Select
+              data={accountsData || []}
+              value={selectedAccountId}
+              label="Select an account to transfer from:"
+              onChange={(e) => setSelectedAccountId(e.target.value)}
+            />
+          )}
+          {selectedAccountId && <TokenSendForm accountId={selectedAccountId} />}
+        </TokenSendContent>
+      )}
+
+      {/* TODO: No button, just chevron with appropriate color! */}
+      <Button
+        onClick={() => navigate(TopLevelRoute.Wallet)}
+        variant={ButtonVariant.Contained}
+        style={{ padding: 4 }}
+      >
+        <Icon iconName={IconName.ChevronLeft} />
+      </Button>
     </TokenSendContainer>
   );
 };
