@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "components/ButtonTemporary";
+import { Button, ButtonVariant } from "components/Button";
 import {
   AccountInformationViewContainer,
   AccountInformationViewUpperPartContainer,
@@ -52,7 +52,7 @@ const AccountInformation = (
     setStore,
     onSubmitAccountCreationDetails,
     onSetAccountCreationDetails,
-    onCtaHover,
+    //onCtaHover,
     accountCreationDetails,
   } = props;
   // setting these default values if no data was passed
@@ -188,6 +188,7 @@ const AccountInformation = (
         {/* submit */}
         <ButtonContainer>
           <Button
+            variant={ButtonVariant.Contained}
             onClick={() => {
               if (!isSubmitButtonDisabled) {
                 const accountCreationDetailsToSubmit: AccountCreationDetails = {
@@ -198,7 +199,6 @@ const AccountInformation = (
                 onSubmitAccountCreationDetails(accountCreationDetailsToSubmit);
               }
             }}
-            onHover={onCtaHover}
             disabled={isSubmitButtonDisabled}
           >
             Create an Account

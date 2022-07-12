@@ -28,8 +28,10 @@ export const Header1 = styled.h1`
 `;
 
 export const BodyText = styled.p`
+  text-align: center;
+  width: 100%;
   font-weight: 300;
-  color: ${(props) => props.theme.colors.textPrimary};
+  color: ${(props) => props.theme.colors.titleColor};
 `;
 
 export const ButtonContainer = styled.div`
@@ -43,12 +45,14 @@ export const SeedPhraseCard = styled.div`
   display: flex;
   align-items: center;
   width: calc(33% - 4px - 4px);
-  border: 1px solid ${(props) => props.theme.colors.textSecondary};
+  background-color: ${(props) => props.theme.colors.wordchip};
+  border: 1px solid ${(props) => props.theme.colors.wordchip};
   border-radius: 4px;
   padding: 2px 8px;
   margin: 4px;
   box-sizing: border-box;
   color: ${(props) => props.theme.colors.titleColor};
+  font-weight: bold;
 `;
 
 export const SeedPhraseContainer = styled.div`
@@ -64,8 +68,22 @@ export const SeedPhraseIndexLabel = styled.span`
 
 export const ExportSeedPhraseButtonsContainer = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
 
   width: 100%;
   padding: 32px 0 16px;
+`;
+
+export const CopyToClipboard = styled.a`
+  text-decoration: underline;
+  padding: 5px;
+  color: ${(props) => props.theme.colors.buttonBackground2};
+  transition: "1 sec";
+  border-radius: 4px;
+
+  &:active {
+    border: 1px solid ${(props) => props.theme.colors.buttonBackground2};
+    color: ${(props) => props.theme.colors.titleColor};
+    background-color: ${(props) => props.theme.colors.buttonBackground2};
+  }
 `;

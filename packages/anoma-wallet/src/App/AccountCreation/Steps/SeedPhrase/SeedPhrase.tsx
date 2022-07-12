@@ -1,6 +1,6 @@
 import React from "react";
 import { Mnemonic, MnemonicLength } from "@anoma-apps/seed-management";
-import { Button, Variant } from "components/ButtonTemporary";
+import { Button, ButtonVariant } from "components/Button";
 import {
   AccountInformationViewContainer,
   AccountInformationViewUpperPartContainer,
@@ -12,6 +12,7 @@ import {
   SeedPhraseContainer,
   SeedPhraseIndexLabel,
   ExportSeedPhraseButtonsContainer,
+  CopyToClipboard,
 } from "./SeedPhrase.components";
 
 const seedPhraseStringToArray = (seedPhraseAsString: string): string[] => {
@@ -91,16 +92,13 @@ const SeedPhrase = (props: AccountInformationViewProps): JSX.Element => {
     <AccountInformationViewContainer>
       {/* header */}
       <AccountInformationViewUpperPartContainer>
-        <Header1>Recovery Phrase</Header1>
+        <Header1>Seed Phrase</Header1>
       </AccountInformationViewUpperPartContainer>
 
       {/* form */}
       <AccountInformationForm>
         {/* description */}
-        <BodyText>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Enim augue
-          aenean facilisi placerat laoreet sem faucibus{" "}
-        </BodyText>
+        <BodyText>Write down your seed phrase.</BodyText>
         <SeedPhraseContainer>
           {seedPhraseAsArray.map((seedPhraseWord, index) => {
             return (
@@ -114,14 +112,14 @@ const SeedPhrase = (props: AccountInformationViewProps): JSX.Element => {
 
         <ExportSeedPhraseButtonsContainer>
           {/* copy seed phrase */}
-          <Button
+          <CopyToClipboard
             onClick={() => {
               textToClipboard(seedPhraseAsArray.join(","));
             }}
-            variant={Variant.text}
+            href="#"
           >
             Copy to clipboard
-          </Button>
+          </CopyToClipboard>
         </ExportSeedPhraseButtonsContainer>
 
         {/* continue */}
@@ -130,8 +128,8 @@ const SeedPhrase = (props: AccountInformationViewProps): JSX.Element => {
             onClick={() => {
               onConfirmSavingOfSeedPhrase(seedPhraseAsArray);
             }}
-            onHover={onCtaHover}
             disabled={isSubmitButtonDisabled}
+            variant={ButtonVariant.Contained}
           >
             I wrote down my mnemonic
           </Button>

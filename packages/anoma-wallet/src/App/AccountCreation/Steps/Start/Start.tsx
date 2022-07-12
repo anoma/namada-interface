@@ -16,7 +16,7 @@ function Start(props: StartViewProps): React.ReactElement {
   return (
     <StartViewContainer>
       <StartViewUpperPartContainer>
-        <Header1>Create a new account</Header1>
+        <Header1>Create Your Account</Header1>
         <BodyText>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Enim augue
           aenean facilisi placerat laoreet sem faucibus curabitur. Posuere ut

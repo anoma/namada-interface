@@ -159,8 +159,6 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
                 onClick={() => {
                   setIsLightMode((isLightMode) => !isLightMode);
                 }}
-                circleElementEnabled={circleElementEnabled}
-                circleElementDisabled={circleElementDisabled}
               />
             </ColorModeContainer>
           </>

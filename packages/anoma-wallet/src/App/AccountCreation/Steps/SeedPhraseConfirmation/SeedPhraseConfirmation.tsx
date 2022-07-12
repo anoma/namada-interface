@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button } from "components/ButtonTemporary";
+import { Button, ButtonVariant } from "components/Button";
 import {
   AccountInformationViewContainer,
   AccountInformationViewUpperPartContainer,
@@ -8,10 +8,10 @@ import {
   Header1,
   Header5,
   BodyText,
-  Input,
   InputContainer,
   ButtonContainer,
 } from "./SeedPhraseConfirmation.components";
+import { Input } from "../AccountInformation/AccountInformation.components";
 
 type SeedPhraseConfirmationProps = {
   seedPhrase: string[];
@@ -52,10 +52,7 @@ function SeedPhraseConfirmation(
       <AccountInformationForm>
         <DescriptionAndInputContainer>
           {/* description */}
-          <BodyText>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Enim augue
-            aenean facilisi placerat laoreet sem faucibus{" "}
-          </BodyText>
+          <BodyText> </BodyText>
 
           {/* seed verification */}
           <InputContainer>
@@ -77,7 +74,7 @@ function SeedPhraseConfirmation(
             disabled={
               verificationInput !== seedPhrase[indexToConfirm] || isSubmitting
             }
-            onHover={onCtaHover}
+            variant={ButtonVariant.Contained}
           >
             Verify
           </Button>

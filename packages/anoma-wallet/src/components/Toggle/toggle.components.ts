@@ -3,16 +3,16 @@ import styled from "styled-components/macro";
 // TODO: connect the theme colors to these
 const BACKGROUND_ENABLED = "#F4C54F";
 const BACKGROUND_DISABLE = "#E8E8F2";
-const COLOR_DISABLED = "#011F43";
+// const COLOR_DISABLED = "#011F43";
 
-const CIRCLE_BACKGROUND_COLOR_ENABLED_LIGHT = "white";
-const CIRCLE_BACKGROUND_COLOR_DISABLED_DARK = "white";
-const CIRCLE_BORDER_COLOR_ENABLED_LIGHT = "transparent";
-const CIRCLE_BORDER_COLOR_DISABLED_DARK = COLOR_DISABLED;
+// const CIRCLE_BACKGROUND_COLOR_ENABLED_LIGHT = "white";
+// const CIRCLE_BACKGROUND_COLOR_DISABLED_DARK = "white";
+// const CIRCLE_BORDER_COLOR_ENABLED_LIGHT = "transparent";
+// const CIRCLE_BORDER_COLOR_DISABLED_DARK = COLOR_DISABLED;
 
-const COMPONENT_WIDTH_PIXELS = 60;
-const CIRCLE_DIAMETER_PIXELS = 30;
-const BORDER_PIXELS = 3;
+const COMPONENT_WIDTH_PIXELS = 40;
+const CIRCLE_DIAMETER_PIXELS = 20;
+const BORDER_PIXELS = 1;
 
 const transition = "all 0.3s ease-in-out";
 export const ToggleContainer = styled.button<{
@@ -30,8 +30,10 @@ export const ToggleContainer = styled.button<{
       : `${COMPONENT_WIDTH_PIXELS - CIRCLE_DIAMETER_PIXELS - BORDER_PIXELS}px`};
   border: none;
   border-radius: 999px;
-  background-color: ${(props) =>
-    props.checked ? BACKGROUND_ENABLED : BACKGROUND_DISABLE};
+  background-color: ${(props) => props.theme.colors.buttonBackground3};
+  /* TODO: Make this work for all toggles, not just theme selection */
+  /* background-color: ${(props) =>
+    props.checked ? BACKGROUND_ENABLED : BACKGROUND_DISABLE}; */
   transition: ${transition};
   cursor: pointer;
 `;
@@ -46,15 +48,7 @@ export const ToggleCircle = styled.div<{
   max-width: ${CIRCLE_DIAMETER_PIXELS}px;
   height: ${CIRCLE_DIAMETER_PIXELS}px;
   border-radius: 50%;
-  border: 2px solid;
-  background-color: ${(props) =>
-    props.checked
-      ? CIRCLE_BACKGROUND_COLOR_ENABLED_LIGHT
-      : CIRCLE_BACKGROUND_COLOR_DISABLED_DARK};
-  border-color: ${(props) =>
-    props.checked
-      ? CIRCLE_BORDER_COLOR_ENABLED_LIGHT
-      : CIRCLE_BORDER_COLOR_DISABLED_DARK};
+  background-color: ${(props) => props.theme.colors.buttonBackground2};
   box-sizing: border-box;
   transition: ${transition};
 `;

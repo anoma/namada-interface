@@ -2,7 +2,7 @@ import styled from "styled-components/macro";
 
 const Button = styled.button`
   padding: 0.75em 1.25em;
-  margin: 0.75em 1.25em;
+  margin: 0.5em 1.25em;
   font-size: 1em;
   border-style: solid;
   text-align: center;
@@ -11,7 +11,7 @@ const Button = styled.button`
 `;
 
 const RoundButton = styled(Button)`
-  border-radius: 200px;
+  border-radius: 20px;
   border-width: 1px;
 `;
 

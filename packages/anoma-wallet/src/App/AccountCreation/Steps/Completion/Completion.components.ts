@@ -27,7 +27,7 @@ export const CompletionViewUpperPartContainer = styled.div`
 
 export const ButtonsContainer = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   width: 100%;
 `;
 

@@ -9,7 +9,7 @@ import { AccountCreationRoute, accountCreationSteps } from "./types";
 import { AppStore } from "store/store";
 
 import { Button, ButtonVariant } from "components/Button";
-import { Icon, IconName } from "components/Icon";
+import { Icon, IconName, IconSize } from "components/Icon";
 import {
   Start,
   AccountInformation,
@@ -142,22 +142,18 @@ function AccountCreation({ setStore, setPassword, store }: Props): JSX.Element {
       <TopSection>
         <TopSectionButtonContainer>
           {!isLastIndex && stepIndex !== 0 && (
-            <Button
+            <a
               onClick={() => {
                 navigateToPrevious();
               }}
-              // onHover={() => {
-              //   // read the need for this above the hook
-              //   setAnimationFromRightToLeft(false);
-              // }}
-              variant={ButtonVariant.Contained}
-              style={{ padding: "0" }}
+              style={{ cursor: "pointer" }}
             >
               <Icon
                 iconName={IconName.ChevronLeft}
-                strokeColorOverride={backButtonIconStrokeColor}
+                strokeColorOverride={themeContext.colors.buttonBackground2}
+                iconSize={IconSize.L}
               />
-            </Button>
+            </a>
           )}
         </TopSectionButtonContainer>
         <TopSectionHeaderContainer></TopSectionHeaderContainer>

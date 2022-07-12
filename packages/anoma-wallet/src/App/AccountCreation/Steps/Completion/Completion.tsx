@@ -1,4 +1,4 @@
-import { Button, Variant } from "components/ButtonTemporary";
+import { Button, ButtonVariant } from "components/Button";
 import { Image, ImageName } from "components/Image";
 import { Wallet } from "lib";
 
@@ -72,24 +72,16 @@ const Completion = (props: CompletionViewProps): JSX.Element => {
         </ImageContainer>
 
         <Header1>You are all set!</Header1>
-        <BodyText>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla
-          maecenas sed bibendum sed velit. Consequat bibendum nibh netus sed
-          erat sed.
-        </BodyText>
+        <BodyText>&nbsp;</BodyText>
       </CompletionViewUpperPartContainer>
       <ButtonsContainer>
         <ButtonContainer>
           <Button
-            onClick={onClickDone}
-            style={{ width: "100%" }}
-            variant={Variant.outline}
+            onClick={onClickSeeAccounts}
+            variant={ButtonVariant.Contained}
           >
             Done
           </Button>
-        </ButtonContainer>
-        <ButtonContainer>
-          <Button onClick={onClickSeeAccounts}>See Account</Button>
         </ButtonContainer>
       </ButtonsContainer>
     </CompletionViewContainer>
