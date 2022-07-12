@@ -60,7 +60,7 @@ export const SettingsAccounts = (): JSX.Element => {
                   ? { border: "solid 1px #002046" }
                   : { border: 0 }
               }
-              key={account.alias}
+              key={account.id}
               disabled={!!account.shieldedKeysAndPaymentAddress}
             >
               <AccountAlias>{account.alias}</AccountAlias>
