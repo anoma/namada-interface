@@ -23,14 +23,13 @@ import { Input, InputVariants } from "components/Input";
 import {
   ButtonsContainer,
   InputContainer,
-  InputWithButtonContainer,
   QrReaderContainer,
   QrReaderError,
   StatusContainer,
   StatusMessage,
   TokenSendFormContainer,
 } from "./TokenSendForm.components";
-//import { Icon, IconName } from "components/Icon";
+
 import { Address } from "../Transfers/TransferDetails.components";
 import { parseTarget } from "./TokenSend";
 import { SettingsState } from "slices/settings";
@@ -252,24 +251,17 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
           Balance: <strong>{balance}</strong>
         </p>
         <InputContainer>
-          <InputWithButtonContainer>
-            <Input
-              variant={InputVariants.Text}
-              label="Target address"
-              onChangeCallback={(e) => {
-                const { value } = e.target;
-                setTarget(value);
-              }}
-              value={target}
-              error={isTargetValid ? undefined : "Target is invalid"}
-            />
-            {/*<Button
-              variant={ButtonVariant.Small}
-              onClick={() => setShowQrReader(!showQrReader)}
-            >
-              <Icon iconName={IconName.Camera} />
-            </Button>*/}
-          </InputWithButtonContainer>
+          <Input
+            variant={InputVariants.Text}
+            label="Target address"
+            onChangeCallback={(e) => {
+              const { value } = e.target;
+              setTarget(value);
+            }}
+            value={target}
+            error={isTargetValid ? undefined : "Target is invalid"}
+          />
+
           {showQrReader && (
             <QrReaderContainer>
               {qrCodeError && <QrReaderError>{qrCodeError}</QrReaderError>}
@@ -291,19 +283,6 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
             }}
             onFocus={handleFocus}
             error={isAmountValid(amount, balance, target)}
-          />
-        </InputContainer>
-        <InputContainer>
-          <Input
-            variant={InputVariants.Textarea}
-            label="Memo (Optional)"
-            value={memo}
-            error={
-              isMemoValid(memo)
-                ? ""
-                : `Must be less than ${MAX_MEMO_LENGTH} characters`
-            }
-            onChangeCallback={(e) => setMemo(e.target.value)}
           />
         </InputContainer>
         <InputContainer>{accountSourceTargetDescription}</InputContainer>
@@ -330,7 +309,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
           disabled={isFormInvalid}
           onClick={handleOnSendClick}
         >
-          Send
+          Continue
         </Button>
       </ButtonsContainer>
     </>

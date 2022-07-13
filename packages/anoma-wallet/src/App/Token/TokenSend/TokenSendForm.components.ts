@@ -20,7 +20,10 @@ export const InputContainer = styled.div`
 
   input,
   textarea {
-    width: 92%;
+    margin: 0;
+    padding: 8px;
+    height: 26px;
+    width: calc(100% - 20px);
   }
 `;
 
@@ -53,12 +56,10 @@ export const QrReaderError = styled.p`
 `;
 
 export const ButtonsContainer = styled.div`
+  display: flex;
+  justify-content: center;
   width: 100%;
   padding: 0;
-
-  button {
-    margin: 20px 0;
-  }
 `;
 
 export const StatusContainer = styled.div`

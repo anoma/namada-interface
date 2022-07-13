@@ -25,6 +25,15 @@ export const TopNavigationContainerSecondRow = styled(
   justify-content: center;
 `;
 
+export const TopNavigationLogoContainer = styled.div`
+  display: flex;
+  width: 100%;
+  max-width: 760px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+`;
+
 const Section = styled.div`
   display: flex;
   justify-content: center;

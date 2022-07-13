@@ -15,14 +15,17 @@ import {
   MenuItemTextContainer,
   ColorModeContainer,
   LogoContainer,
-  OnlyInSmall,
-  OnlyInMedium,
+  // OnlyInSmall,
+  // OnlyInMedium,
   TopNavigationContainerRow,
   TopNavigationContainerSecondRow,
+  TopNavigationLogoContainer,
 } from "./topNavigation.components";
 
 import { AppStore } from "store/store";
 import TopNavigationLoggedIn from "./topNavigationLoggedIn";
+import { SettingsButton } from "./topNavigationLoggedIn.components";
+import { Icon, IconName } from "components/Icon";
 
 /**
  * this is rendered in one of 2 places depending of the screen size
@@ -52,7 +55,7 @@ const TopNavigationMenuItems = (props: {
         }}
         isSelected={location.pathname === TopLevelRoute.StakingAndGovernance}
       >
-        <MenuItemTextContainer>Staking</MenuItemTextContainer>
+        <MenuItemTextContainer>Bridge</MenuItemTextContainer>
       </MenuItem>
 
       {/* Staking */}
@@ -152,7 +155,10 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
           </Provider>
         )}
         {!isLoggedIn && (
-          <>
+          <TopNavigationLogoContainer>
+            <SettingsButton>
+              <Icon iconName={IconName.Settings} />
+            </SettingsButton>
             <LogoContainer
               onClick={() => {
                 navigate(TopLevelRoute.Home);
@@ -160,7 +166,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
             >
               <Image
                 imageName={ImageName.Logo}
-                styleOverrides={{ maxWidth: "128px" }}
+                styleOverrides={{ maxWidth: "300px" }}
               />
             </LogoContainer>
             <ColorModeContainer>
@@ -171,7 +177,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
                 }}
               />
             </ColorModeContainer>
-          </>
+          </TopNavigationLogoContainer>
         )}
       </TopNavigationContainerSecondRow>
     </TopNavigationContainer>

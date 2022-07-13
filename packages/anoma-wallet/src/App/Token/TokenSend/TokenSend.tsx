@@ -120,7 +120,7 @@ const TokenSend = (): JSX.Element => {
             <Select
               data={accountsData || []}
               value={selectedAccountId}
-              label="Select an account to transfer from:"
+              label="Token:"
               onChange={(e) => setSelectedAccountId(e.target.value)}
             />
           )}

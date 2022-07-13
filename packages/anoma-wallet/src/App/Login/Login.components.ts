@@ -6,13 +6,15 @@ export const LoginViewContainer = styled.div`
   justify-content: flex-start;
   align-items: center;
   height: 100%;
-  width: 100%;
+  width: 80%;
+  margin: 40px 0;
+  padding: 20px 0;
 
   & > label {
     width: 100%;
 
     & > div > input {
-      width: 92%;
+      width: 100%;
     }
   }
 `;

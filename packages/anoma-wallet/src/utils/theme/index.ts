@@ -16,6 +16,7 @@ type Colors = {
   buttonBackground1: string;
   buttonBackground2: string;
   buttonBackground3: string;
+  buttonBackground4: string;
   buttonBorder1: string;
   buttonBorder2: string;
   buttonBorder3: string;
@@ -59,6 +60,7 @@ export const darkColors: Colors = {
   buttonBackground1: "#242427",
   buttonBackground2: "#FFFF00",
   buttonBackground3: "#444444",
+  buttonBackground4: "#FFFF00",
   buttonBorder1: "#F5DD81",
   buttonBorder2: "#CEB44F",
   buttonBorder3: "#b9b9bb",
@@ -89,6 +91,7 @@ export const darkColorsLoggedIn: Colors = {
   ...darkColors,
   background1: "#FFFF00",
   background2: "#1F1F1F",
+  buttonBackground4: "#444444",
 };
 
 export const lightColors: Colors = {
@@ -105,6 +108,7 @@ export const lightColors: Colors = {
   buttonBackground1: "#FFFFFF",
   buttonBackground2: "#11DFDF",
   buttonBackground3: "#D9D9D9",
+  buttonBackground4: "#11DFDF",
   buttonBorder1: "#011F43",
   buttonBorder2: "#11DFDF",
   buttonBorder3: "#011F43",
