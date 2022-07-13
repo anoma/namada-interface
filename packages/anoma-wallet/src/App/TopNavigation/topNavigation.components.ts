@@ -75,7 +75,7 @@ export const MenuItem = styled.button<{ isSelected?: boolean }>`
   & path {
     stroke-width: 1;
   }
-  width: 10%;
+  //width: 10%;
   ${(props) => (props.isSelected ? isSelected() : "")}
 `;
 

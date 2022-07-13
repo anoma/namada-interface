@@ -16,6 +16,8 @@ export const DerivedAccountsList = styled.ul`
 
 export const DerivedAccountContainer = styled.div`
   width: 100%;
+  display: flex;
+  justify-content: space-between;
 `;
 
 export const DerivedAccountItem = styled.li`
@@ -55,6 +57,7 @@ export const DerivedAccountBalance = styled.div`
   padding: 8px 0;
   font-weight: bold;
   margin-bottom: 0;
+  width: 200px;
 `;
 
 export const DerivedAccountAddress = styled.pre`
@@ -69,4 +72,11 @@ export const DerivedAccountAddress = styled.pre`
     display: none;
   }
   scrollbar-width: 0;
+`;
+
+export const TokenIcon = styled.img`
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  margin-right: 12px;
 `;

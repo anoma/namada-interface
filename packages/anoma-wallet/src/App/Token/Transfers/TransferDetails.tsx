@@ -1,7 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 
 import Config from "config";
-import { ChainsState } from "slices/chains";
 import { TransfersState } from "slices/transfers";
 import { useAppSelector } from "store";
 import { formatRoute, stringFromTimestamp } from "utils/helpers";
@@ -49,7 +48,7 @@ const TransferDetail = (): JSX.Element => {
     destinationPort,
   } = ibcTransfer || {};
 
-  const chains = useAppSelector<ChainsState>((state) => state.chains);
+  const chains = Config.chain;
   const chain = chains[chainId];
   const { ibc = [] } = chain || {};
   const ibcChainId = ibc.find((ibcChainId) => ibcChainId === chainId) || "";
@@ -63,7 +62,7 @@ const TransferDetail = (): JSX.Element => {
     <TransferDetailContainer>
       <NavigationContainer
         onBackButtonClick={() => {
-          navigate(formatRoute(TopLevelRoute.Token, { id }));
+          navigate(formatRoute(TopLevelRoute.TokenTransfers, { id }));
         }}
       >
         <Heading level={HeadingLevel.One}>Transfer Details</Heading>

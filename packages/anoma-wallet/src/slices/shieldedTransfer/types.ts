@@ -8,6 +8,7 @@ export const CREATE = `${SHIELDED_TRANSACTIONS}/CREATE`;
 export type TransactionConfiguration = {
   tokenAddresses: {
     NAM: string;
+    ATOM: string;
     BTC: string;
     ETH: string;
     DOT: string;
@@ -18,6 +19,7 @@ export type TransactionConfiguration = {
 export const TRANSFER_CONFIGURATION: TransactionConfiguration = {
   tokenAddresses: {
     NAM: Tokens.NAM.address || "",
+    ATOM: Tokens.ATOM.address || "",
     BTC: Tokens.BTC.address || "",
     ETH: Tokens.ETH.address || "",
     DOT: Tokens.DOT.address || "",

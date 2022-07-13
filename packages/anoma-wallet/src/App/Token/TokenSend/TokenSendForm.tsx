@@ -140,7 +140,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
   };
   const account = transparentAndShieldedAccounts[accountId] || {};
   const isShieldedSource = account.shieldedKeysAndPaymentAddress ? true : false;
-  const { alias, establishedAddress = "", tokenType, balance = 0 } = account;
+  const { establishedAddress = "", tokenType, balance = 0 } = account;
   const token = Tokens[tokenType] || {};
 
   const isFormInvalid = getIsFormInvalid(
@@ -249,16 +249,10 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
   return (
     <>
       <TokenSendFormContainer>
-        <p>
-          {alias} ({tokenType})
-        </p>
-        <p>
-          Balance: <strong>{balance}</strong>
-        </p>
         <InputContainer>
           <Input
             variant={InputVariants.Text}
-            label="Target address"
+            label="Recipient"
             onChangeCallback={(e) => {
               const { value } = e.target;
               setTarget(value);

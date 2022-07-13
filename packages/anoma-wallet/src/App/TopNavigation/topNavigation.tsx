@@ -115,7 +115,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
             >
               <Image
                 imageName={ImageName.Logo}
-                styleOverrides={{ maxWidth: "128px" }}
+                styleOverrides={{ maxWidth: "200px" }}
                 forceLightMode={true}
               />
             </LogoContainer>

@@ -7,6 +7,7 @@ import { ReactComponent as LogoMinimalDark } from "./assets/logo-minimal-dark.sv
 import { ReactComponent as LogoMinimalLight } from "./assets/logo-minimal-light.svg";
 import { ReactComponent as SuccessImageDark } from "./assets/success-image.svg";
 import { ReactComponent as SuccessImageLight } from "./assets/success-image.svg";
+
 import { ImageName } from "./types";
 import { ComponentType } from "react";
 import { ImageContainer, StyledImage } from "./image.components";

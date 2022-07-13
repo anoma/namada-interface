@@ -29,6 +29,7 @@ type Props = {
 export const AccountOverview = ({ persistor }: Props): JSX.Element => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+
   const { isTransferSubmitting } = useAppSelector<TransfersState>(
     (state) => state.transfers
   );

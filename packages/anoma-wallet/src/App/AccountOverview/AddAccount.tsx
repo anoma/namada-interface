@@ -104,7 +104,7 @@ export const AddAccount = ({ password }: Props): JSX.Element => {
   const handleAddShieldedAccount = (): void => {
     const newAccountDetails: NewAccountDetails = {
       alias: alias.trim(),
-      tokenType: tokenType,
+      tokenType,
     };
     if (newAccountDetails) {
       dispatch(
