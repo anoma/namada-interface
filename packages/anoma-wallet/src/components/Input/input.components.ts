@@ -8,7 +8,7 @@ export const TextInput = styled.input<{ error: boolean }>`
       ? props.theme.colors.inputError
       : props.theme.colors.inputBorder};
   border-style: solid;
-  border-radius: 100px;
+  border-radius: 8px;
   color: ${(props) => props.theme.colors.inputText};
   font-weight: 500;
   margin-top: 10px;

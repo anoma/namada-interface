@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { PersistGate } from "redux-persist/integration/react";
 import { useNavigate } from "react-router-dom";
 import { Persistor } from "redux-persist/lib/types";
@@ -10,12 +10,15 @@ import { TransfersState } from "slices/transfers";
 import { TopLevelRoute } from "App/types";
 
 import { DerivedAccounts } from "./DerivedAccounts";
-import { NavigationContainer } from "components/NavigationContainer";
 import { Heading, HeadingLevel } from "components/Heading";
 import { Button, ButtonVariant } from "components/Button";
 import {
   AccountOverviewContainer,
   ButtonsWrapper,
+  HeadingContainer,
+  TotalAmount,
+  TotalContainer,
+  TotalHeading,
 } from "./AccountOverview.components";
 import { ButtonsContainer } from "App/AccountCreation/Steps/Completion/Completion.components";
 
@@ -31,6 +34,8 @@ export const AccountOverview = ({ persistor }: Props): JSX.Element => {
   );
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
+
+  const [total, setTotal] = useState(0);
 
   const derivedAccounts = derived[chainId] || {};
   const accounts = Object.values(derivedAccounts);
@@ -51,29 +56,37 @@ export const AccountOverview = ({ persistor }: Props): JSX.Element => {
 
   return (
     <AccountOverviewContainer>
-      <NavigationContainer>
-        <Heading level={HeadingLevel.One}>Accounts</Heading>
-      </NavigationContainer>
-      <ButtonsContainer>
-        <ButtonsWrapper>
-          <Button
-            variant={ButtonVariant.Contained}
-            onClick={() => navigate(TopLevelRoute.TokenSend)}
-          >
-            Send
-          </Button>
-          <Button
-            variant={ButtonVariant.Contained}
-            onClick={() => navigate(TopLevelRoute.TokenReceive)}
-          >
-            Receive
-          </Button>
-        </ButtonsWrapper>
-      </ButtonsContainer>
-
-      {isTransferSubmitting && <p>Transfer is in progress</p>}
       <PersistGate loading={"Loading accounts..."} persistor={persistor}>
-        <DerivedAccounts />
+        <HeadingContainer>
+          <Heading level={HeadingLevel.Four}>Your wallet</Heading>
+        </HeadingContainer>
+        <TotalContainer>
+          <TotalHeading>
+            <Heading level={HeadingLevel.One}>Total Balance</Heading>
+          </TotalHeading>
+          <TotalAmount>{total}</TotalAmount>
+        </TotalContainer>
+
+        <ButtonsContainer>
+          <ButtonsWrapper>
+            <Button
+              variant={ButtonVariant.Contained}
+              onClick={() => navigate(TopLevelRoute.TokenSend)}
+            >
+              Send
+            </Button>
+            <Button
+              variant={ButtonVariant.Contained}
+              onClick={() => navigate(TopLevelRoute.TokenReceive)}
+            >
+              Receive
+            </Button>
+          </ButtonsWrapper>
+        </ButtonsContainer>
+
+        {isTransferSubmitting && <p>Transfer is in progress</p>}
+
+        <DerivedAccounts setTotal={setTotal} />
       </PersistGate>
     </AccountOverviewContainer>
   );

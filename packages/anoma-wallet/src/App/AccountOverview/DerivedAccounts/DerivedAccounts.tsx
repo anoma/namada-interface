@@ -16,7 +16,11 @@ import {
   DerivedAccountContainer,
 } from "./DerivedAccounts.components";
 
-const DerivedAccounts = (): JSX.Element => {
+type Props = {
+  setTotal: (total: number) => void;
+};
+
+const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
   const { derived, shieldedAccounts: allShieldedAccounts } =
     useAppSelector<AccountsState>((state) => state.accounts);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
@@ -45,6 +49,20 @@ const DerivedAccounts = (): JSX.Element => {
     ...derivedAccounts,
     ...shieldedAccounts,
   };
+
+  useEffect(() => {
+    if (Object.values(shieldedAndTransparentAccounts).length > 0) {
+      const total = Object.values(shieldedAndTransparentAccounts).reduce(
+        (acc, account) => {
+          const { balance } = account;
+
+          return acc + balance;
+        },
+        0
+      );
+      setTotal(total);
+    }
+  }, [shieldedAndTransparentAccounts]);
 
   return (
     <DerivedAccountsContainer>

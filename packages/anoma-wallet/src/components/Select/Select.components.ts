@@ -20,13 +20,13 @@ export const StyledSelect = styled.select`
   width: 100%;
   margin-top: 10px;
   padding: 0.875em 1em;
-  border-radius: 24px;
+  border-radius: 8px;
   background-color: ${(props) =>
     props.theme.themeConfigurations.isLightMode ? "#fff" : "#000"};
   border: ${(props) =>
     props.theme.themeConfigurations.isLightMode
-      ? `2px solid ${lightColors.border}`
-      : `2px solid ${darkColors.border}`};
+      ? `2px solid ${lightColors.inputBorder}`
+      : `2px solid ${darkColors.inputBorder}`};
   color: ${(props) =>
     props.theme.themeConfigurations.isLightMode ? "#002046" : "#ccc"};
 `;

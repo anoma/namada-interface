@@ -85,7 +85,7 @@ export const BackButton = styled.a`
     height: 50px;
 
     & > path {
-      stroke: ${(props) => props.theme.colors.buttonBackground4};
+      stroke: ${(props) => props.theme.colors.buttonBackground2};
       stroke-width: 4px;
       stroke-linecap: square;
     }

@@ -51,9 +51,9 @@ const TopNavigationMenuItems = (props: {
       {/* Bridge */}
       <MenuItem
         onClick={() => {
-          navigate(`${TopLevelRoute.StakingAndGovernance}`);
+          navigate(`${TopLevelRoute.Bridge}`);
         }}
-        isSelected={location.pathname === TopLevelRoute.StakingAndGovernance}
+        isSelected={location.pathname === TopLevelRoute.Bridge}
       >
         <MenuItemTextContainer>Bridge</MenuItemTextContainer>
       </MenuItem>

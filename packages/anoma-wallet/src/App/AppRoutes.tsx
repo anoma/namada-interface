@@ -12,6 +12,7 @@ import {
   SettingsAccountSettings,
   SettingsWalletSettings,
 } from "./Settings";
+import { Bridge } from "./Bridge";
 import { StakingAndGovernance } from "./StakingAndGovernance";
 import { TopLevelRoute } from "./types";
 import { AppStore } from "store/store";
@@ -20,7 +21,6 @@ import { TokenSend } from "./Token/TokenSend";
 import { TokenReceive } from "./Token/TokenReceive";
 import { TransferDetails } from "./Token/Transfers";
 import NotFound from "./NotFound";
-import IBCTransfer from "./Token/IBCTransfer/IBCTransfer";
 
 type Props = {
   store: AppStore;
@@ -106,12 +106,10 @@ const AppRoutes = ({ store, persistor, password }: Props): JSX.Element => {
                 }
               />
               <Route
-                path={TopLevelRoute.TokenIbcTransfer}
+                path={TopLevelRoute.Bridge}
                 element={
-                  <AnimatedTransition
-                    elementKey={TopLevelRoute.TokenIbcTransfer}
-                  >
-                    <IBCTransfer />
+                  <AnimatedTransition elementKey={TopLevelRoute.Bridge}>
+                    <Bridge />
                   </AnimatedTransition>
                 }
               />

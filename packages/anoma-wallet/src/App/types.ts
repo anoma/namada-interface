@@ -15,6 +15,9 @@ export enum TopLevelRoute {
   Wallet = "/",
   WalletAddAccount = "/add-account",
 
+  /* BRIDGE */
+  Bridge = "/bridge",
+
   /* TOKENS */
   Token = "/token/:id",
   TokenSend = "/token/send",

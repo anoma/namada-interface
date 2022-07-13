@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { useAppDispatch, useAppSelector } from "store";
 import { AccountsState, fetchBalanceByAccount } from "slices/accounts";
@@ -11,7 +11,6 @@ import {
   TransfersState,
 } from "slices/transfers";
 import { SettingsState } from "slices/settings";
-import { formatRoute } from "utils/helpers";
 
 import { Input, InputVariants } from "components/Input";
 import { isMemoValid, MAX_MEMO_LENGTH } from "../TokenSend/TokenSendForm";
@@ -33,14 +32,9 @@ import { Button, ButtonVariant } from "components/Button";
 import { Address } from "../Transfers/TransferDetails.components";
 import Config from "config";
 
-type UrlParams = {
-  id: string;
-};
-
 const IBCTransfer = (): JSX.Element => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { id = "" } = useParams<UrlParams>();
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const { channelsByChain = {} } = useAppSelector<ChannelsState>(
@@ -77,8 +71,15 @@ const IBCTransfer = (): JSX.Element => {
   const [recipient, setRecipient] = useState("");
 
   const derivedAccounts = derived[chainId] || {};
-  const account = derivedAccounts[id] || {};
-  const { balance = 0, tokenType } = account;
+  const account = Object.values(derivedAccounts)[0] || {};
+  const [selectedAccountId, setSelectedAccountId] = useState(account.id || "");
+
+  const accountsData = Object.values(derivedAccounts).map((account) => ({
+    value: account.id,
+    label: `${account.alias} (${account.tokenType})`,
+  }));
+
+  const { balance = 0, tokenType } = derivedAccounts[selectedAccountId] || {};
 
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
@@ -140,14 +141,17 @@ const IBCTransfer = (): JSX.Element => {
     <IBCTransferFormContainer>
       <NavigationContainer
         onBackButtonClick={() => {
-          if (id) {
-            return navigate(formatRoute(TopLevelRoute.Token, { id }));
-          }
           navigate(TopLevelRoute.Wallet);
         }}
       >
         <Heading level={HeadingLevel.One}>IBC Transfer</Heading>
       </NavigationContainer>
+      <Select
+        data={accountsData || []}
+        value={selectedAccountId}
+        label="Token:"
+        onChange={(e) => setSelectedAccountId(e.target.value)}
+      />
       <p>
         <strong>
           {balance} {tokenType}
@@ -236,20 +240,6 @@ const IBCTransfer = (): JSX.Element => {
         />
       </InputContainer>
 
-      <InputContainer>
-        <Input
-          variant={InputVariants.Textarea}
-          label="Memo (Optional)"
-          value={memo}
-          error={
-            isMemoValid(memo)
-              ? ""
-              : `Must be less than ${MAX_MEMO_LENGTH} characters`
-          }
-          onChangeCallback={(e) => setMemo(e.target.value)}
-        />
-      </InputContainer>
-
       {isIbcTransferSubmitting && <p>Submitting IBC Transfer</p>}
       {transferError && <pre style={{ overflow: "auto" }}>{transferError}</pre>}
       {events && (
@@ -276,7 +266,7 @@ const IBCTransfer = (): JSX.Element => {
           }
           onClick={handleSubmit}
         >
-          Send
+          Continue
         </Button>
       </ButtonsContainer>
     </IBCTransferFormContainer>

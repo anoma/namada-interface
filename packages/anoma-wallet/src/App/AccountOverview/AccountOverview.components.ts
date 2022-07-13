@@ -8,6 +8,19 @@ export const AccountOverviewContainer = styled.div`
   width: 100%;
   height: 100%;
   padding: 0 40px;
+
+  h1 {
+    margin: 0;
+  }
+
+  h4 {
+    margin: 12px 0;
+  }
+
+  h1,
+  h4 {
+    color: ${(props) => props.theme.colors.titleColor};
+  }
 `;
 
 export const InputContainer = styled.div`
@@ -34,4 +47,24 @@ export const ButtonsWrapper = styled.div`
     flex: 1;
     padding: 4px;
   }
+`;
+
+export const TotalContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+`;
+
+export const TotalHeading = styled.div`
+  text-align: left;
+`;
+
+export const TotalAmount = styled.div`
+  text-align: right;
+  color: ${(props) => props.theme.colors.titleColor};
+`;
+
+export const HeadingContainer = styled.div`
+  width: 100%;
 `;

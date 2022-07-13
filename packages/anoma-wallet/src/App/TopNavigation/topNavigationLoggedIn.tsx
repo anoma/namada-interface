@@ -68,6 +68,10 @@ const TopNavigationLoggedIn = ({
           value={chainId}
           data={networks}
           onChange={handleNetworkSelect}
+          style={{
+            borderRadius: 24,
+            height: 36,
+          }}
         />
       </TopNavigationLoggedInSelectContainer>
     </TopNavigationLoggedInContainer>
