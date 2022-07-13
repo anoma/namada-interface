@@ -33,17 +33,17 @@ const Section = styled.div`
 
 export const LeftSection = styled(Section)`
   justify-content: start;
-  width: 15%;
+  width: 25%;
 `;
 
 export const MiddleSection = styled(Section)`
   justify-content: center;
-  width: 70%;
+  width: 50%;
 `;
 
 export const RightSection = styled(Section)`
   justify-content: end;
-  width: 15%;
+  width: 35%;
 `;
 
 const isSelected = (): FlattenSimpleInterpolation => {
@@ -66,14 +66,8 @@ export const MenuItem = styled.button<{ isSelected?: boolean }>`
   & path {
     stroke-width: 1;
   }
-  width: 25%;
+  width: 10%;
   ${(props) => (props.isSelected ? isSelected() : "")}
-`;
-
-export const StakingAndGovernanceMenuItem = styled(MenuItem)`
-  @media only screen and (min-width: 1024px) {
-    min-width: 250px;
-  }
 `;
 
 export const MenuItemTextContainer = styled.div`

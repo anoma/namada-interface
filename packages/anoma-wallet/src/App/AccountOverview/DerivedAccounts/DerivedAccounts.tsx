@@ -36,7 +36,9 @@ const DerivedAccounts = (): JSX.Element => {
       });
     }
 
-    dispatch(updateShieldedBalances());
+    if (Object.values(shieldedAccounts).length > 0) {
+      dispatch(updateShieldedBalances());
+    }
   }, []);
 
   const shieldedAndTransparentAccounts = {

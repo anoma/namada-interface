@@ -1,8 +1,10 @@
 import React from "react";
 import { useNavigate, useLocation, NavigateFunction } from "react-router-dom";
+import { Persistor } from "redux-persist";
+import { Provider } from "react-redux";
+
 import { TopLevelRoute } from "App/types";
 import { Image, ImageName } from "components/Image";
-import { Icon, IconName } from "components/Icon";
 import { Toggle } from "components/Toggle";
 import {
   TopNavigationContainer,
@@ -10,7 +12,6 @@ import {
   MiddleSection,
   RightSection,
   MenuItem,
-  StakingAndGovernanceMenuItem,
   MenuItemTextContainer,
   ColorModeContainer,
   LogoContainer,
@@ -19,6 +20,9 @@ import {
   TopNavigationContainerRow,
   TopNavigationContainerSecondRow,
 } from "./topNavigation.components";
+
+import { AppStore } from "store/store";
+import TopNavigationLoggedIn from "./topNavigationLoggedIn";
 
 /**
  * this is rendered in one of 2 places depending of the screen size
@@ -41,25 +45,35 @@ const TopNavigationMenuItems = (props: {
         <MenuItemTextContainer>Wallet</MenuItemTextContainer>
       </MenuItem>
 
-      {/* Staking */}
-      <StakingAndGovernanceMenuItem
+      {/* Bridge */}
+      <MenuItem
         onClick={() => {
           navigate(`${TopLevelRoute.StakingAndGovernance}`);
         }}
         isSelected={location.pathname === TopLevelRoute.StakingAndGovernance}
       >
         <MenuItemTextContainer>Staking</MenuItemTextContainer>
-      </StakingAndGovernanceMenuItem>
+      </MenuItem>
+
+      {/* Staking */}
+      <MenuItem
+        onClick={() => {
+          navigate(`${TopLevelRoute.StakingAndGovernance}`);
+        }}
+        isSelected={location.pathname === TopLevelRoute.StakingAndGovernance}
+      >
+        <MenuItemTextContainer>Staking</MenuItemTextContainer>
+      </MenuItem>
 
       {/* Governance */}
-      <StakingAndGovernanceMenuItem
+      <MenuItem
         onClick={() => {
           navigate(`${TopLevelRoute.StakingAndGovernance}`);
         }}
         isSelected={location.pathname === TopLevelRoute.StakingAndGovernance}
       >
         <MenuItemTextContainer>Governance</MenuItemTextContainer>
-      </StakingAndGovernanceMenuItem>
+      </MenuItem>
     </>
   );
 };
@@ -70,11 +84,19 @@ type TopNavigationProps = {
   // cb for telling parent to change hte color in context
   setIsLightMode: React.Dispatch<React.SetStateAction<boolean>>;
   isLoggedIn?: boolean;
+  persistor?: Persistor;
+  store?: AppStore;
   logout: () => void;
 };
 // top nav of the app, this is likely always visible.
 function TopNavigation(props: TopNavigationProps): JSX.Element {
-  const { isLightMode, logout, setIsLightMode, isLoggedIn = false } = props;
+  const {
+    isLightMode,
+    logout,
+    setIsLightMode,
+    isLoggedIn = false,
+    store,
+  } = props;
   const navigate = useNavigate();
 
   return (
@@ -98,9 +120,9 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
         </LeftSection>
 
         <MiddleSection>
-          <OnlyInMedium>
-            {isLoggedIn && <TopNavigationMenuItems navigate={navigate} />}
-          </OnlyInMedium>
+          {/* <OnlyInMedium> */}
+          {isLoggedIn && <TopNavigationMenuItems navigate={navigate} />}
+          {/* </OnlyInMedium> */}
         </MiddleSection>
 
         <RightSection>
@@ -118,27 +140,16 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
         </RightSection>
       </TopNavigationContainerRow>
       <TopNavigationContainerSecondRow>
-        <OnlyInSmall>
+        {/* <OnlyInSmall>
           {isLoggedIn && <TopNavigationMenuItems navigate={navigate} />}
-        </OnlyInSmall>
-        {isLoggedIn && (
-          <>
-            <a
-              onClick={() => {
-                navigate(`${TopLevelRoute.Settings}`);
-              }}
-            >
-              <Icon iconName={IconName.Settings} />
-            </a>
-            <ColorModeContainer>
-              <Toggle
-                checked={isLightMode}
-                onClick={() => {
-                  setIsLightMode((isLightMode) => !isLightMode);
-                }}
-              />
-            </ColorModeContainer>
-          </>
+        </OnlyInSmall> */}
+        {isLoggedIn && store && (
+          <Provider store={store}>
+            <TopNavigationLoggedIn
+              isLightMode={isLightMode}
+              setIsLightMode={(isLightMode) => setIsLightMode(isLightMode)}
+            ></TopNavigationLoggedIn>
+          </Provider>
         )}
         {!isLoggedIn && (
           <>

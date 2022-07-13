@@ -10,7 +10,6 @@ import {
   submitIbcTransferTransaction,
   TransfersState,
 } from "slices/transfers";
-import { ChainsState } from "slices/chains";
 import { SettingsState } from "slices/settings";
 import { formatRoute } from "utils/helpers";
 
@@ -32,6 +31,7 @@ import { NavigationContainer } from "components/NavigationContainer";
 import { Icon, IconName } from "components/Icon";
 import { Button, ButtonVariant } from "components/Button";
 import { Address } from "../Transfers/TransferDetails.components";
+import Config from "config";
 
 type UrlParams = {
   id: string;
@@ -49,7 +49,7 @@ const IBCTransfer = (): JSX.Element => {
   const { isIbcTransferSubmitting, transferError, events } =
     useAppSelector<TransfersState>((state) => state.transfers);
 
-  const chains = useAppSelector<ChainsState>((state) => state.chains);
+  const chains = Config.chain;
   const chain = chains[chainId];
   const { ibc = [] } = chain;
 

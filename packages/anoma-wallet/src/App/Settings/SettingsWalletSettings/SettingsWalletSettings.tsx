@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 
 import { Chain } from "config/chain";
 import { setFiatCurrency, setChainId, SettingsState } from "slices/settings";
-import { ChainsState } from "slices/chains";
 import { useAppDispatch, useAppSelector } from "store";
 import { Session } from "lib";
 
@@ -20,6 +19,7 @@ import {
   SeedPhraseContainer,
   SeedPhraseIndexLabel,
 } from "App/AccountCreation/Steps/SeedPhrase/SeedPhrase.components";
+import Config from "config";
 
 type Props = {
   password: string;
@@ -29,7 +29,7 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const chains = useAppSelector<ChainsState>((state) => state.chains);
+  const chains = Object.values(Config.chain);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const [displaySeedPhrase, setDisplaySeedPhrase] = useState(false);
   const [seedPhrase, setSeedPhrase] = useState<string[]>([]);

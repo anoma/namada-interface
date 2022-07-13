@@ -14,7 +14,6 @@ import {
   transfersReducer,
   settingsReducer,
   channelsReducer,
-  chainsReducer,
 } from "slices";
 import { LocalStorageKeys } from "App/types";
 import { hashPassword } from "utils/helpers";
@@ -24,7 +23,6 @@ const reducers = combineReducers({
   transfers: transfersReducer,
   channels: channelsReducer,
   settings: settingsReducer,
-  chains: chainsReducer,
 });
 
 type StoreFactory = (secretKey: string) => EnhancedStore;

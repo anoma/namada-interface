@@ -33,6 +33,7 @@ import Redirect from "./Redirect";
 import makeStore, { AppStore } from "store/store";
 import AppRoutes from "./AppRoutes";
 import { Persistor, persistStore } from "redux-persist";
+import { Provider } from "react-redux";
 
 export const history = createBrowserHistory({ window });
 
@@ -90,12 +91,16 @@ function App(): JSX.Element {
         <ThemeProvider theme={theme}>
           <AppContainer>
             <TopSection>
-              <TopNavigation
-                isLightMode={isLightMode}
-                setIsLightMode={setIsLightMode}
-                isLoggedIn={!!password}
-                logout={() => setPassword(undefined)}
-              />
+              <Provider store={store}>
+                <TopNavigation
+                  isLightMode={isLightMode}
+                  setIsLightMode={setIsLightMode}
+                  isLoggedIn={!!password}
+                  persistor={persistor}
+                  store={store}
+                  logout={() => setPassword(undefined)}
+                />
+              </Provider>
             </TopSection>
             <BottomSection>
               <AnimatePresence exitBeforeEnter>

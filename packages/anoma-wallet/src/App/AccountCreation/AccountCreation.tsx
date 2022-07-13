@@ -8,7 +8,7 @@ import { TopLevelRoute } from "App/types";
 import { AccountCreationRoute, accountCreationSteps } from "./types";
 import { AppStore } from "store/store";
 
-import { Button, ButtonVariant } from "components/Button";
+//import { Button, ButtonVariant } from "components/Button";
 import { Icon, IconName, IconSize } from "components/Icon";
 import {
   Start,
@@ -107,9 +107,9 @@ function AccountCreation({ setStore, setPassword, store }: Props): JSX.Element {
   const isLastIndex = accountCreationSteps.length - 1 === stepIndex;
 
   // this is a temp as the designs are not final, coloring SVG icon with this
-  const backButtonIconStrokeColor = themeContext.themeConfigurations.isLightMode
-    ? themeContext.colors.border
-    : "black";
+  // const backButtonIconStrokeColor = themeContext.themeConfigurations.isLightMode
+  //   ? themeContext.colors.border
+  //   : "black";
 
   useEffect(() => {
     // at the load we redirect to the first step
