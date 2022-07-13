@@ -26,7 +26,6 @@ const TopNavigationLoggedIn = ({
 }: Props): JSX.Element => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  // const chains = useAppSelector<ChainsState>((state) => state.chains);
   const chains = Object.values(Config.chain);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
 

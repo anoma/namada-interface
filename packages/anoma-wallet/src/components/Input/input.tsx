@@ -36,7 +36,7 @@ export const Input = ({
     case InputVariants.Text:
       return (
         <Label>
-          <b>{label}</b>
+          {label}
           <div>
             <TextInput
               error={!!error}

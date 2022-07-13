@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 import { useAppDispatch, useAppSelector } from "store";
 import { AccountsState, fetchBalanceByAccount } from "slices/accounts";
@@ -13,7 +12,6 @@ import {
 import { SettingsState } from "slices/settings";
 
 import { Input, InputVariants } from "components/Input";
-import { isMemoValid, MAX_MEMO_LENGTH } from "../TokenSend/TokenSendForm";
 import {
   ButtonsContainer,
   InputContainer,
@@ -24,16 +22,12 @@ import {
   IBCTransferFormContainer,
 } from "./IBCTransfer.components";
 import { Select } from "components/Select";
-import { TopLevelRoute } from "App/types";
-import { Heading, HeadingLevel } from "components/Heading";
-import { NavigationContainer } from "components/NavigationContainer";
 import { Icon, IconName } from "components/Icon";
 import { Button, ButtonVariant } from "components/Button";
 import { Address } from "../Transfers/TransferDetails.components";
 import Config from "config";
 
 const IBCTransfer = (): JSX.Element => {
-  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
@@ -64,7 +58,6 @@ const IBCTransfer = (): JSX.Element => {
   }));
 
   const [amount, setAmount] = useState(0);
-  const [memo, setMemo] = useState("");
   const [selectedChannelId, setSelectedChannelId] = useState("");
   const [showAddChannelForm, setShowAddChannelForm] = useState(false);
   const [channelId, setChannelId] = useState<string>();
@@ -128,7 +121,6 @@ const IBCTransfer = (): JSX.Element => {
       submitIbcTransferTransaction({
         account,
         amount,
-        memo,
         chainId,
         target: recipient,
         channelId: selectedChannelId,
@@ -139,13 +131,6 @@ const IBCTransfer = (): JSX.Element => {
 
   return (
     <IBCTransferFormContainer>
-      <NavigationContainer
-        onBackButtonClick={() => {
-          navigate(TopLevelRoute.Wallet);
-        }}
-      >
-        <Heading level={HeadingLevel.One}>IBC Transfer</Heading>
-      </NavigationContainer>
       <Select
         data={accountsData || []}
         value={selectedAccountId}
@@ -259,7 +244,6 @@ const IBCTransfer = (): JSX.Element => {
           disabled={
             amount > balance ||
             amount === 0 ||
-            !isMemoValid(memo) ||
             !recipient ||
             isIbcTransferSubmitting ||
             !selectedChannelId
