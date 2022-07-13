@@ -56,10 +56,17 @@ export const QrReaderError = styled.p`
 `;
 
 export const ButtonsContainer = styled.div`
+  position: relative;
   display: flex;
   justify-content: center;
+  align-items: center;
   width: 100%;
   padding: 0;
+
+  & > a {
+    position: absolute;
+    left: 0;
+  }
 `;
 
 export const StatusContainer = styled.div`
@@ -68,4 +75,19 @@ export const StatusContainer = styled.div`
 
 export const StatusMessage = styled.p`
   font-size: 14px;
+`;
+
+export const BackButton = styled.a`
+  display: block;
+
+  & > div > svg {
+    width: 50px;
+    height: 50px;
+
+    & > path {
+      stroke: ${(props) => props.theme.colors.buttonBackground4};
+      stroke-width: 4px;
+      stroke-linecap: square;
+    }
+  }
 `;

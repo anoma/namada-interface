@@ -69,7 +69,7 @@ const DerivedAccounts = (): JSX.Element => {
                       {alias} {isInitializing && <i>(initializing)</i>}
                     </DerivedAccountAlias>
                     <DerivedAccountType>
-                      {isShielded ? "SHIELDED " : ""}
+                      {isShielded ? "Shielded " : "Transparent"}
                     </DerivedAccountType>
                   </DerivedAccountInfo>
 

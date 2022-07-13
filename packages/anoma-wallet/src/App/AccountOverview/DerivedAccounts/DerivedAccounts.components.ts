@@ -10,6 +10,8 @@ export const DerivedAccountsList = styled.ul`
   list-style: none;
   list-style-type: none;
   padding: 0;
+  max-height: 500px; /* TODO: Remove this - set a max height on a main container */
+  overflow: auto;
 `;
 
 export const DerivedAccountContainer = styled.div`
@@ -24,7 +26,7 @@ export const DerivedAccountItem = styled.li`
   margin: 0;
   padding: 20px 0;
   border-bottom: 1px solid #ddd;
-
+  color: ${(props) => props.theme.colors.titleColor};
   button {
     margin-top: 0;
     margin-right: 0;

@@ -7,6 +7,7 @@ export const AccountOverviewContainer = styled.div`
   align-items: center;
   width: 100%;
   height: 100%;
+  padding: 0 40px;
 `;
 
 export const InputContainer = styled.div`
@@ -15,6 +16,22 @@ export const InputContainer = styled.div`
   padding: 20px;
 
   input {
-    width: 92%;
+    width: 96%;
+  }
+`;
+
+export const ButtonsContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+`;
+
+export const ButtonsWrapper = styled.div`
+  display: flex;
+  width: 70%;
+
+  & > button {
+    flex: 1;
+    padding: 4px;
   }
 `;

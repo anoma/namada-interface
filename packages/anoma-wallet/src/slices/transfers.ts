@@ -23,7 +23,7 @@ import {
 import { updateShieldedBalances } from "./accountsNew";
 
 const TRANSFERS_ACTIONS_BASE = "transfers";
-const LEDGER_TRANSFER_TIMEOUT = 10000;
+const LEDGER_TRANSFER_TIMEOUT = 20000;
 const IBC_TRANSFER_TIMEOUT = 15000;
 const MASP_ADDRESS = TRANSFER_CONFIGURATION.maspAddress;
 
@@ -47,7 +47,7 @@ export type TransferTransaction = {
   tokenType: TokenType;
   gas: number;
   appliedHash: string;
-  memo: string;
+  memo?: string;
   timestamp: number;
   ibcTransfer?: IBCTransferAttributes;
 };
@@ -81,7 +81,7 @@ type TxArgs = {
   account: DerivedAccount | ShieldedAccount;
   target: string;
   amount: number;
-  memo: string;
+  memo?: string;
   feeAmount?: number;
 };
 
@@ -222,7 +222,14 @@ export const submitTransferTransaction = createAsyncThunk(
     txTransferArgs: TxTransferArgs | ShieldedTransferData,
     { dispatch, rejectWithValue }
   ) => {
-    const { account, target, amount, memo, faucet, chainId } = txTransferArgs;
+    const {
+      account,
+      target,
+      amount,
+      memo = "",
+      faucet,
+      chainId,
+    } = txTransferArgs;
     const {
       id,
       establishedAddress = "",
@@ -329,7 +336,7 @@ export const submitIbcTransferTransaction = createAsyncThunk(
       account,
       target,
       amount,
-      memo,
+      memo = "",
       feeAmount = 0,
       channelId,
       portId,

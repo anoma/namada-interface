@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 import { AccountsState } from "slices/accounts";
 import { SettingsState } from "slices/settings";
 import { TransferType } from "slices/transfers";
 import { useAppSelector } from "store";
-import { TopLevelRoute } from "App/types";
+
 import {
   PAYMENT_ADDRESS_LENGTH,
   PAYMENT_ADDRESS_PREFIX,
@@ -24,8 +23,6 @@ import {
   TokenSendTabsGroup,
   TokenSendContent,
 } from "./TokenSend.components";
-import { Button, ButtonVariant } from "components/Button";
-import { Icon, IconName } from "components/Icon";
 
 export const parseTarget = (target: string): TransferType | undefined => {
   if (
@@ -45,7 +42,6 @@ export const parseTarget = (target: string): TransferType | undefined => {
 };
 
 const TokenSend = (): JSX.Element => {
-  const navigate = useNavigate();
   const { derived, shieldedAccounts: allShieldedAccounts } =
     useAppSelector<AccountsState>((state) => state.accounts);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
@@ -83,6 +79,12 @@ const TokenSend = (): JSX.Element => {
     }
   }, [accountsData, selectedAccountId]);
 
+  useEffect(() => {
+    if (!selectedShieldedAccountId && shieldedAccountsData.length > 0) {
+      setSelectedShieldedAccountId(shieldedAccountsData[0].value);
+    }
+  }, [shieldedAccountsData, selectedShieldedAccountId]);
+
   return (
     <TokenSendContainer>
       <NavigationContainer>
@@ -104,12 +106,17 @@ const TokenSend = (): JSX.Element => {
       {activeTab === "Shielded" && (
         <TokenSendContent>
           {shieldedAccountsData.length > 0 && (
-            <Select
-              data={shieldedAccountsData || []}
-              value={selectedShieldedAccountId}
-              label="Select an account to transfer from:"
-              onChange={(e) => setSelectedShieldedAccountId(e.target.value)}
-            />
+            <>
+              <Select
+                data={shieldedAccountsData || []}
+                value={selectedShieldedAccountId}
+                label="Token:"
+                onChange={(e) => setSelectedShieldedAccountId(e.target.value)}
+              />
+              {selectedShieldedAccountId && (
+                <TokenSendForm accountId={selectedShieldedAccountId} />
+              )}
+            </>
           )}
         </TokenSendContent>
       )}
@@ -117,25 +124,20 @@ const TokenSend = (): JSX.Element => {
       {activeTab === "Transparent" && (
         <TokenSendContent>
           {accountsData.length > 0 && (
-            <Select
-              data={accountsData || []}
-              value={selectedAccountId}
-              label="Token:"
-              onChange={(e) => setSelectedAccountId(e.target.value)}
-            />
+            <>
+              <Select
+                data={accountsData || []}
+                value={selectedAccountId}
+                label="Token:"
+                onChange={(e) => setSelectedAccountId(e.target.value)}
+              />
+              {selectedAccountId && (
+                <TokenSendForm accountId={selectedAccountId} />
+              )}
+            </>
           )}
-          {selectedAccountId && <TokenSendForm accountId={selectedAccountId} />}
         </TokenSendContent>
       )}
-
-      {/* TODO: No button, just chevron with appropriate color! */}
-      <Button
-        onClick={() => navigate(TopLevelRoute.Wallet)}
-        variant={ButtonVariant.Contained}
-        style={{ padding: 4 }}
-      >
-        <Icon iconName={IconName.ChevronLeft} />
-      </Button>
     </TokenSendContainer>
   );
 };

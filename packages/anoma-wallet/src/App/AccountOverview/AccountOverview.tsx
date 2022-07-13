@@ -13,7 +13,11 @@ import { DerivedAccounts } from "./DerivedAccounts";
 import { NavigationContainer } from "components/NavigationContainer";
 import { Heading, HeadingLevel } from "components/Heading";
 import { Button, ButtonVariant } from "components/Button";
-import { AccountOverviewContainer } from "./AccountOverview.components";
+import {
+  AccountOverviewContainer,
+  ButtonsWrapper,
+} from "./AccountOverview.components";
+import { ButtonsContainer } from "App/AccountCreation/Steps/Completion/Completion.components";
 
 type Props = {
   persistor: Persistor;
@@ -50,18 +54,23 @@ export const AccountOverview = ({ persistor }: Props): JSX.Element => {
       <NavigationContainer>
         <Heading level={HeadingLevel.One}>Accounts</Heading>
       </NavigationContainer>
-      <Button
-        variant={ButtonVariant.Contained}
-        onClick={() => navigate(TopLevelRoute.TokenSend)}
-      >
-        Send
-      </Button>
-      <Button
-        variant={ButtonVariant.Contained}
-        onClick={() => navigate(TopLevelRoute.TokenReceive)}
-      >
-        Receive
-      </Button>
+      <ButtonsContainer>
+        <ButtonsWrapper>
+          <Button
+            variant={ButtonVariant.Contained}
+            onClick={() => navigate(TopLevelRoute.TokenSend)}
+          >
+            Send
+          </Button>
+          <Button
+            variant={ButtonVariant.Contained}
+            onClick={() => navigate(TopLevelRoute.TokenReceive)}
+          >
+            Receive
+          </Button>
+        </ButtonsWrapper>
+      </ButtonsContainer>
+
       {isTransferSubmitting && <p>Transfer is in progress</p>}
       <PersistGate loading={"Loading accounts..."} persistor={persistor}>
         <DerivedAccounts />

@@ -21,6 +21,7 @@ import { Button, ButtonVariant } from "components/Button";
 import { Input, InputVariants } from "components/Input";
 
 import {
+  BackButton,
   ButtonsContainer,
   InputContainer,
   QrReaderContainer,
@@ -33,6 +34,9 @@ import {
 import { Address } from "../Transfers/TransferDetails.components";
 import { parseTarget } from "./TokenSend";
 import { SettingsState } from "slices/settings";
+import { Icon, IconName } from "components/Icon";
+import { useNavigate } from "react-router-dom";
+import { TopLevelRoute } from "App/types";
 
 type Props = {
   accountId: string;
@@ -76,7 +80,7 @@ const getIsFormInvalid = (
   target: string | undefined,
   amount: number,
   balance: number,
-  memo: string,
+  //memo: string,
   isTargetValid: boolean,
   isTransferSubmitting: boolean
 ): boolean => {
@@ -85,7 +89,7 @@ const getIsFormInvalid = (
     isNaN(amount) ||
     amount > balance ||
     amount === 0 ||
-    !isMemoValid(memo) ||
+    //!isMemoValid(memo) ||
     !isTargetValid ||
     isTransferSubmitting
   );
@@ -110,10 +114,11 @@ const AccountSourceTargetDescription = (props: {
 };
 
 const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [target, setTarget] = useState<string | undefined>(defaultTarget);
   const [amount, setAmount] = useState(0);
-  const [memo, setMemo] = useState("");
+  //const [memo, setMemo] = useState("");
 
   const [isTargetValid, setIsTargetValid] = useState(true);
   const [isShieldedTarget, setIsShieldedTarget] = useState(false);
@@ -142,7 +147,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
     target,
     amount,
     balance,
-    memo,
+    //memo,
     isTargetValid,
     isTransferSubmitting
   );
@@ -219,7 +224,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
           account,
           target,
           amount,
-          memo,
+          //memo,
         })
       );
     }
@@ -304,6 +309,9 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
       </StatusContainer>
 
       <ButtonsContainer>
+        <BackButton onClick={() => navigate(TopLevelRoute.Wallet)}>
+          <Icon iconName={IconName.ChevronLeft} />
+        </BackButton>
         <Button
           variant={ButtonVariant.Contained}
           disabled={isFormInvalid}
