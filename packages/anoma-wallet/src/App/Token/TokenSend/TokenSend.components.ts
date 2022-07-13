@@ -30,6 +30,5 @@ export const TokenSendTab = styled.button`
 `;
 
 export const TokenSendContent = styled.div`
-  width: calc(100% - 80px);
-  padding: 0 40px;
+  width: 100%;
 `;

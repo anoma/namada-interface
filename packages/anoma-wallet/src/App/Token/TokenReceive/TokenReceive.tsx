@@ -13,10 +13,12 @@ import { Address } from "../Transfers/TransferDetails.components";
 import {
   CanvasContainer,
   TokenReceiveContainer,
+  ButtonsContainer,
 } from "./TokenReceive.components";
-import { Heading, HeadingLevel } from "components/Heading";
-import { NavigationContainer } from "components/NavigationContainer";
+
 import { Select } from "components/Select";
+import { BackButton } from "../TokenSend/TokenSendForm.components";
+import { Icon, IconName } from "components/Icon";
 
 const TokenReceive = (): JSX.Element => {
   const { Canvas } = useQRCode();
@@ -47,58 +49,55 @@ const TokenReceive = (): JSX.Element => {
   const {
     establishedAddress = "",
     shieldedKeysAndPaymentAddress,
-    alias,
     tokenType,
   } = accounts[selectedAccountId || ""] || {};
 
   const { protocol, host } = window.location;
+  const address =
+    establishedAddress || shieldedKeysAndPaymentAddress?.paymentAddress || "";
 
   const text = `${protocol}//${host}${formatRoute(
     TopLevelRoute.TokenSendTarget,
     {
       accountIndex,
       tokenType,
-      target:
-        establishedAddress ||
-        shieldedKeysAndPaymentAddress?.paymentAddress ||
-        "",
+      target: address,
     }
   )}`;
 
   return (
     <TokenReceiveContainer>
-      <NavigationContainer
-        onBackButtonClick={() => {
-          navigate(TopLevelRoute.Wallet);
-        }}
-      >
-        <Heading level={HeadingLevel.One}>Token Receive</Heading>
-      </NavigationContainer>
-      <Heading level={HeadingLevel.Two}>{alias}</Heading>
-      <Heading level={HeadingLevel.Three}>{tokenType}</Heading>
       {accountsData.length > 0 && (
-        <Select
-          data={accountsData || []}
-          value={selectedAccountId}
-          label="Select an account to transfer from:"
-          onChange={(e) => setSelectedAccountId(e.target.value)}
-        />
+        <>
+          <Select
+            data={accountsData || []}
+            value={selectedAccountId}
+            label="Account:"
+            onChange={(e) => setSelectedAccountId(e.target.value)}
+          />
+          <CanvasContainer>
+            <Canvas
+              text={text}
+              options={{
+                type: "image/jpeg",
+                quality: 0.3,
+                level: "M",
+                color: {
+                  dark: "#222",
+                  light: "#eee",
+                },
+              }}
+            />
+          </CanvasContainer>
+          <Address>{address}</Address>
+        </>
       )}
-      <CanvasContainer>
-        <Canvas
-          text={text}
-          options={{
-            type: "image/jpeg",
-            quality: 0.3,
-            level: "M",
-            color: {
-              dark: "#222",
-              light: "#eee",
-            },
-          }}
-        />
-      </CanvasContainer>
-      <Address>{establishedAddress}</Address>
+
+      <ButtonsContainer>
+        <BackButton onClick={() => navigate(TopLevelRoute.Wallet)}>
+          <Icon iconName={IconName.ChevronLeft} />
+        </BackButton>
+      </ButtonsContainer>
     </TokenReceiveContainer>
   );
 };

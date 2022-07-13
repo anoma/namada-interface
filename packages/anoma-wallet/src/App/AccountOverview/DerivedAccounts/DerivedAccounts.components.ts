@@ -39,16 +39,15 @@ export const DerivedAccountItem = styled.li`
 
 export const DerivedAccountInfo = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
 `;
 
-export const DerivedAccountAlias = styled.span`
+export const DerivedAccountAlias = styled.div`
   font-size: 14px;
 `;
 
-export const DerivedAccountType = styled.span`
+export const DerivedAccountType = styled.div`
   font-size: 12px;
-  text-align: right;
   color: #777;
 `;
 

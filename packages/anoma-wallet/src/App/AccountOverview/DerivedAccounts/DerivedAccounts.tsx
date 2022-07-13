@@ -15,6 +15,8 @@ import {
   DerivedAccountAlias,
   DerivedAccountContainer,
 } from "./DerivedAccounts.components";
+import { Image, ImageName } from "components/Image";
+import { Button, ButtonVariant } from "components/Button";
 
 type Props = {
   setTotal: (total: number) => void;
@@ -83,12 +85,39 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
               <DerivedAccountItem key={id}>
                 <DerivedAccountContainer>
                   <DerivedAccountInfo>
-                    <DerivedAccountAlias>
-                      {alias} {isInitializing && <i>(initializing)</i>}
-                    </DerivedAccountAlias>
-                    <DerivedAccountType>
-                      {isShielded ? "Shielded " : "Transparent"}
-                    </DerivedAccountType>
+                    {/* LOGO - TODO: Set these logos by asset */}
+                    <Button
+                      style={{
+                        padding: 0,
+                        margin: "0 12px 0 0",
+                        height: 36,
+                        width: 36,
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                      variant={ButtonVariant.Contained}
+                    >
+                      <Image
+                        imageName={ImageName.LogoMinimal}
+                        styleOverrides={{
+                          height: 24,
+                          width: 24,
+                          margin: 0,
+                          padding: 0,
+                        }}
+                      />
+                    </Button>
+
+                    <div>
+                      <DerivedAccountAlias>
+                        {alias} {isInitializing && <i>(initializing)</i>}
+                      </DerivedAccountAlias>
+                      <DerivedAccountType>
+                        {isShielded ? "Shielded " : "Transparent"}
+                      </DerivedAccountType>
+                    </div>
                   </DerivedAccountInfo>
 
                   <DerivedAccountBalance>
