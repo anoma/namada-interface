@@ -305,6 +305,8 @@ const TokenSendForm = ({
               <span>Low</span>
               <br />
               &lt; 0.00001 {tokenType}
+              <br />
+              &lt; 0.00001 USD
             </p>
           </Button>
           <Button
@@ -315,6 +317,8 @@ const TokenSendForm = ({
               <span>Medium</span>
               <br />
               &lt; 0.00001 {token.symbol}
+              <br />
+              &lt; 0.00001 USD
             </p>
           </Button>
           <Button
@@ -325,6 +329,8 @@ const TokenSendForm = ({
               <span>High</span>
               <br />
               &lt; 0.00001 {tokenType}
+              <br />
+              &lt; 0.00001 USD
             </p>
           </Button>
         </GasButtonsContainer>

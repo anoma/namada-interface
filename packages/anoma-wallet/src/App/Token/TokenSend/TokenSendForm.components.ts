@@ -67,9 +67,12 @@ export const GasButtonsContainer = styled.div`
 
   button {
     margin: 0 0 20px 0;
-    width: 33%;
-    height: 100px;
+    width: 30%;
+    padding: 4px;
     border-radius: 8px;
+    color: ${(props) => props.theme.colors.titleColor};
+    border-width: 2px;
+    border-color: ${(props) => props.theme.colors.buttonBackground2};
 
     span {
       font-weight: bold;
