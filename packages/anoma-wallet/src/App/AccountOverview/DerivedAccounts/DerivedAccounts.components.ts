@@ -45,7 +45,8 @@ export const DerivedAccountInfo = styled.div`
 `;
 
 export const DerivedAccountAlias = styled.div`
-  font-size: 14px;
+  font-size: 16px;
+  font-weight: bold;
 `;
 
 export const DerivedAccountType = styled.div`
@@ -79,4 +80,27 @@ export const TokenIcon = styled.img`
   height: 36px;
   cursor: pointer;
   margin-right: 12px;
+`;
+
+export const ShieldedLabel = styled.div`
+  color: ${(props) => props.theme.colors.buttonBackground3};
+  font-size: 10px;
+  display: flex;
+  justify-content: center;
+  width: 68px;
+  padding: 0;
+  background-color: ${(props) => props.theme.colors.buttonBackground1};
+  border-radius: 12px;
+  border: 1px solid ${(props) => props.theme.colors.buttonBackground1};
+`;
+
+export const TransparentLabel = styled.div`
+  color: ${(props) => props.theme.colors.background4};
+  font-size: 10px;
+  display: flex;
+  justify-content: center;
+  width: 68px;
+  padding: 0;
+  border-radius: 12px;
+  border: 1px solid ${(props) => props.theme.colors.border};
 `;

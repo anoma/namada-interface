@@ -29,6 +29,7 @@ type Colors = {
   inputPlaceholder: string;
   inputError: string;
   inputFocus: string;
+  inputBackground: string;
   wordchip: string;
   wordchipText: string;
   textSecondary: string;
@@ -40,6 +41,13 @@ type Colors = {
   buttonDisabledBackground: string;
   buttonDisabledBorder: string;
   buttonOutlineStyleHoverBackground: string;
+  tabActiveColor: string;
+  tabActiveBackground: string;
+  tabInactiveColor: string;
+  tabInactiveBackground: string;
+  toggleCircle: string;
+  toggleBackground: string;
+  toggleBorder: string;
 };
 
 export type Theme = {
@@ -57,7 +65,7 @@ export const darkColors: Colors = {
   buttonText1: "#F5DD81",
   buttonText2: "#17171D",
   buttonText3: "#17171D",
-  buttonBackground1: "#242427",
+  buttonBackground1: "#11DFDF",
   buttonBackground2: "#FFFF00",
   buttonBackground3: "#444444",
   buttonBackground4: "#FFFF00",
@@ -73,6 +81,7 @@ export const darkColors: Colors = {
   inputPlaceholder: "#a2a2a5",
   inputError: "#CF6679",
   inputFocus: "#F5DD81",
+  inputBackground: "#3E3E3E",
   wordchip: "#000000",
   wordchipText: "#e8e8e8",
   textPrimary: "#727273",
@@ -85,6 +94,13 @@ export const darkColors: Colors = {
   buttonDisabledBackground: "#c7c7c7",
   buttonDisabledBorder: "#747474",
   buttonOutlineStyleHoverBackground: "#393939",
+  tabActiveColor: "#00FFFF",
+  tabActiveBackground: "#1f1f1f",
+  tabInactiveColor: "#000000",
+  tabInactiveBackground: "#676767",
+  toggleCircle: "#FFFF00",
+  toggleBackground: "#444444",
+  toggleBorder: "#444444",
 };
 
 export const darkColorsLoggedIn: Colors = {
@@ -105,9 +121,9 @@ export const lightColors: Colors = {
   buttonText1: "#011F43",
   buttonText2: "#FFFFFF",
   buttonText3: "#FFFFFF",
-  buttonBackground1: "#FFFFFF",
+  buttonBackground1: "#FFFF00",
   buttonBackground2: "#11DFDF",
-  buttonBackground3: "#D9D9D9",
+  buttonBackground3: "#444444",
   buttonBackground4: "#11DFDF",
   buttonBorder1: "#011F43",
   buttonBorder2: "#11DFDF",
@@ -121,6 +137,7 @@ export const lightColors: Colors = {
   inputPlaceholder: "#8F9FB2",
   inputError: "#EC4236",
   inputFocus: "#2A517E",
+  inputBackground: "#F8F8F8",
   wordchip: "#11DFDF",
   wordchipText: "#011F43",
   textSecondary: "#8F9FB2",
@@ -132,4 +149,11 @@ export const lightColors: Colors = {
   buttonDisabledBackground: "#c7c7c7",
   buttonDisabledBorder: "#747474",
   buttonOutlineStyleHoverBackground: "#ffeaaf",
+  tabActiveColor: "#000",
+  tabActiveBackground: "#fff",
+  tabInactiveColor: "rgba(0, 0, 0, 0.5)",
+  tabInactiveBackground: "#F8F8F8",
+  toggleCircle: "#11DFDF",
+  toggleBackground: "#FFFFFF",
+  toggleBorder: "#DADADA",
 };

@@ -18,6 +18,11 @@ import {
   NewAccountButtonContainer,
   AccountAlias,
 } from "./SettingsAccounts.components";
+import {
+  BackButton,
+  ButtonsContainer,
+} from "App/Token/TokenSend/TokenSendForm.components";
+import { Icon, IconName } from "components/Icon";
 
 /**
  * Listing all the accounts that are persisted. By clicking one of them the account
@@ -43,11 +48,7 @@ export const SettingsAccounts = (): JSX.Element => {
 
   return (
     <SettingsAccountsContainer>
-      <NavigationContainer
-        onBackButtonClick={() => {
-          navigate(TopLevelRoute.Settings);
-        }}
-      >
+      <NavigationContainer>
         <Heading level={HeadingLevel.One}>Accounts</Heading>
       </NavigationContainer>
 
@@ -63,7 +64,10 @@ export const SettingsAccounts = (): JSX.Element => {
               key={account.id}
               disabled={!!account.shieldedKeysAndPaymentAddress}
             >
-              <AccountAlias>{account.alias}</AccountAlias>
+              <AccountAlias>
+                {account.alias}&nbsp;
+                <span>{account.isShielded ? "Shielded" : "Transparent"}</span>
+              </AccountAlias>
               <AccountNameContainer>
                 <AccountNameContainerOverflow>
                   <Heading level={HeadingLevel.Three}>
@@ -97,7 +101,11 @@ export const SettingsAccounts = (): JSX.Element => {
           );
         })}
       </AccountRows>
-      <NewAccountButtonContainer>
+      <NewAccountButtonContainer></NewAccountButtonContainer>
+      <ButtonsContainer>
+        <BackButton onClick={() => navigate(TopLevelRoute.Wallet)}>
+          <Icon iconName={IconName.ChevronLeft} />
+        </BackButton>
         <Button
           onClick={() => {
             navigate(TopLevelRoute.WalletAddAccount);
@@ -107,7 +115,7 @@ export const SettingsAccounts = (): JSX.Element => {
         >
           New Account
         </Button>
-      </NewAccountButtonContainer>
+      </ButtonsContainer>
     </SettingsAccountsContainer>
   );
 };

@@ -18,14 +18,16 @@ export const TokenSendTabsGroup = styled.div`
 `;
 
 export const TokenSendTab = styled.button`
-  color: ${(props) => props.theme.colors.titleColor};
-  background-color: ${(props) => props.theme.colors.background3};
+  color: ${(props) => props.theme.colors.tabInactiveColor};
+  background-color: ${(props) => props.theme.colors.tabInactiveBackground};
   width: 100%;
   border: 0;
   padding: 8px 4px;
+  height: 78px;
 
   &.active {
-    background-color: ${(props) => props.theme.colors.background2};
+    color: ${(props) => props.theme.colors.tabActiveColor};
+    background-color: ${(props) => props.theme.colors.tabActiveBackground};
   }
 `;
 

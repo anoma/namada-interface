@@ -10,7 +10,7 @@ const BACKGROUND_DISABLE = "#E8E8F2";
 // const CIRCLE_BORDER_COLOR_ENABLED_LIGHT = "transparent";
 // const CIRCLE_BORDER_COLOR_DISABLED_DARK = COLOR_DISABLED;
 
-const COMPONENT_WIDTH_PIXELS = 40;
+const COMPONENT_WIDTH_PIXELS = 42;
 const CIRCLE_DIAMETER_PIXELS = 20;
 const BORDER_PIXELS = 1;
 
@@ -28,9 +28,9 @@ export const ToggleContainer = styled.button<{
     props.checked
       ? `${BORDER_PIXELS}px`
       : `${COMPONENT_WIDTH_PIXELS - CIRCLE_DIAMETER_PIXELS - BORDER_PIXELS}px`};
-  border: none;
+  border: 1px solid ${(props) => props.theme.colors.toggleBorder};
   border-radius: 999px;
-  background-color: ${(props) => props.theme.colors.buttonBackground3};
+  background-color: ${(props) => props.theme.colors.toggleBackground};
   /* TODO: Make this work for all toggles, not just theme selection */
   /* background-color: ${(props) =>
     props.checked ? BACKGROUND_ENABLED : BACKGROUND_DISABLE}; */
@@ -47,8 +47,9 @@ export const ToggleCircle = styled.div<{
   width: ${CIRCLE_DIAMETER_PIXELS}px;
   max-width: ${CIRCLE_DIAMETER_PIXELS}px;
   height: ${CIRCLE_DIAMETER_PIXELS}px;
+  border: none;
   border-radius: 50%;
-  background-color: ${(props) => props.theme.colors.buttonBackground2};
+  background-color: ${(props) => props.theme.colors.toggleCircle};
   box-sizing: border-box;
   transition: ${transition};
 `;

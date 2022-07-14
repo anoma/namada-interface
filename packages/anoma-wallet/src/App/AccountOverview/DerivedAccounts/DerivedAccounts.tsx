@@ -16,6 +16,8 @@ import {
   DerivedAccountAlias,
   DerivedAccountContainer,
   TokenIcon,
+  TransparentLabel,
+  ShieldedLabel,
 } from "./DerivedAccounts.components";
 
 // Import PNG images assets
@@ -130,7 +132,6 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
               <DerivedAccountItem key={id}>
                 <DerivedAccountContainer>
                   <DerivedAccountInfo>
-                    {/* LOGO - TODO: Set these logos by asset */}
                     <TokenIcon
                       src={getAssetIconByTheme(tokenType)}
                       onClick={() => {
@@ -144,13 +145,17 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
                         {alias} {isInitializing && <i>(initializing)</i>}
                       </DerivedAccountAlias>
                       <DerivedAccountType>
-                        {isShielded ? "Shielded " : "Transparent"}
+                        {isShielded ? (
+                          <ShieldedLabel>Shielded</ShieldedLabel>
+                        ) : (
+                          <TransparentLabel>Transparent</TransparentLabel>
+                        )}
                       </DerivedAccountType>
                     </div>
                   </DerivedAccountInfo>
 
                   <DerivedAccountBalance>
-                    {typeof balance === "number" ? balance : "Loading"}{" "}
+                    {balance}&nbsp;
                     {tokenType}
                   </DerivedAccountBalance>
                 </DerivedAccountContainer>

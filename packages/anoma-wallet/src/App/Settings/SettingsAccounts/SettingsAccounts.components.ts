@@ -20,6 +20,7 @@ export const AccountRows = styled.div`
   overflow-y: scroll;
   padding: 2px;
 `;
+
 export const AccountRow = styled.div<{ disabled: boolean }>`
   display: flex;
   justify-content: space-between;
@@ -79,4 +80,11 @@ export const NewAccountButtonContainer = styled.div`
 export const AccountAlias = styled.span`
   font-weight: 600;
   padding: 8px;
+  width: 120px;
+
+  span {
+    font-weight: normal;
+    display: block;
+    font-size: 10px;
+  }
 `;

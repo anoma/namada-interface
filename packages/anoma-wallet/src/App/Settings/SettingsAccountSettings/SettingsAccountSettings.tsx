@@ -17,6 +17,11 @@ import { Button, ButtonVariant } from "components/Button";
 import { Address } from "App/Token/Transfers/TransferDetails.components";
 import { TopLevelRoute } from "App/types";
 import { InputContainer } from "App/AccountOverview/AccountOverview.components";
+import {
+  BackButton,
+  ButtonsContainer,
+} from "App/Token/TokenSend/TokenSendForm.components";
+import { Icon, IconName } from "components/Icon";
 
 type SettingsAccountSettingsParams = {
   // account alias hash of the account to set up
@@ -50,58 +55,65 @@ export const SettingsAccountSettings = (): JSX.Element => {
 
   return (
     <SettingsAccountSettingsContainer>
-      <NavigationContainer
-        onBackButtonClick={() => {
-          navigate(-1);
-        }}
-      >
+      <NavigationContainer>
         <Heading level={HeadingLevel.One}>Account Settings</Heading>
       </NavigationContainer>
 
       {account && (
-        <InputContainer>
-          <Input
-            label="Alias:"
-            value={account.alias}
-            onChangeCallback={(e) =>
-              dispatch(
-                renameAccount({
-                  chainId,
-                  id: account.id,
-                  alias: e.target.value,
-                })
-              )
-            }
-          />
-          <p>
-            <b>Token Type:</b>
-          </p>
-          <p>{account.tokenType}</p>
-          <p>
-            <b>Established Address:</b>
-          </p>
-          {account.establishedAddress ? (
-            <Address>{account.establishedAddress}</Address>
-          ) : (
-            <em>Account not yet initialized</em>
-          )}
-          <p>
-            <b>Ed25519 Public Key:</b>
-          </p>
-          <Address>{account.publicKey}</Address>
-          <p>
-            <b>Ed25519 Signing Key:</b>
-          </p>
-          <Address>{account.signingKey}</Address>
+        <>
+          <InputContainer>
+            <Input
+              label="Alias:"
+              value={account.alias}
+              onChangeCallback={(e) =>
+                dispatch(
+                  renameAccount({
+                    chainId,
+                    id: account.id,
+                    alias: e.target.value,
+                  })
+                )
+              }
+            />
+            <p>
+              <b>Token Type:</b>
+            </p>
+            <p>{account.tokenType}</p>
+            <p>
+              <b>Established Address:</b>
+            </p>
+            {account.establishedAddress ? (
+              <Address>{account.establishedAddress}</Address>
+            ) : (
+              <em>Account not yet initialized</em>
+            )}
+            <p>
+              <b>Ed25519 Public Key:</b>
+            </p>
+            <Address>{account.publicKey}</Address>
+            <p>
+              <b>Ed25519 Signing Key:</b>
+            </p>
+            <Address>{account.signingKey}</Address>
+          </InputContainer>
 
-          <Button
-            variant={ButtonVariant.ContainedAlternative}
-            onClick={handleDeleteAccount}
-            style={{ marginLeft: 0 }}
-          >
-            Delete Account
-          </Button>
-        </InputContainer>
+          <ButtonsContainer>
+            <BackButton
+              onClick={() => {
+                navigate(TopLevelRoute.SettingsAccounts);
+              }}
+            >
+              <Icon iconName={IconName.ChevronLeft} />
+            </BackButton>
+            <Button
+              variant={ButtonVariant.ContainedAlternative}
+              onClick={handleDeleteAccount}
+              style={{ marginLeft: 0 }}
+            >
+              Delete Account
+            </Button>
+          </ButtonsContainer>
+        </>
       )}
     </SettingsAccountSettingsContainer>
   );

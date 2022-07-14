@@ -68,6 +68,7 @@ const TopNavigationLoggedIn = ({
           data={networks}
           onChange={handleNetworkSelect}
           style={{
+            borderColor: isLightMode ? undefined : "#444",
             borderRadius: 24,
             height: 36,
           }}

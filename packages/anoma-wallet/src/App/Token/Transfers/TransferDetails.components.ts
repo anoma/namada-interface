@@ -7,6 +7,7 @@ export const TransferDetailContainer = styled.div`
   align-items: start;
   width: 100%;
   height: 100%;
+  color: ${(props) => props.theme.colors.titleColor};
 `;
 
 export const Address = styled.pre`
@@ -19,7 +20,7 @@ export const Address = styled.pre`
   scrollbar-width: 0;
   white-space: pre-wrap;
   word-wrap: break-word;
-
+  color: #444;
   ::-webkit-scrollbar {
     display: none;
   }

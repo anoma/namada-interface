@@ -6,7 +6,6 @@ import { Persistor } from "redux-persist/lib/types";
 import { useAppDispatch, useAppSelector } from "store";
 import { AccountsState, submitInitAccountTransaction } from "slices/accounts";
 import { SettingsState } from "slices/settings";
-import { TransfersState } from "slices/transfers";
 import { TopLevelRoute } from "App/types";
 
 import { DerivedAccounts } from "./DerivedAccounts";
@@ -30,9 +29,6 @@ export const AccountOverview = ({ persistor }: Props): JSX.Element => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const { isTransferSubmitting } = useAppSelector<TransfersState>(
-    (state) => state.transfers
-  );
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
 
@@ -84,9 +80,6 @@ export const AccountOverview = ({ persistor }: Props): JSX.Element => {
             </Button>
           </ButtonsWrapper>
         </ButtonsContainer>
-
-        {isTransferSubmitting && <p>Transfer is in progress</p>}
-
         <DerivedAccounts setTotal={setTotal} />
       </PersistGate>
     </AccountOverviewContainer>

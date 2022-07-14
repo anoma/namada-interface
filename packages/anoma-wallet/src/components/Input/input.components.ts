@@ -1,7 +1,7 @@
 import styled from "styled-components/macro";
 
 export const TextInput = styled.input<{ error: boolean }>`
-  background-color: transparent;
+  background-color: ${(props) => props.theme.colors.inputBackground};
   border-width: 2px;
   border-color: ${(props) =>
     props.error
@@ -27,7 +27,7 @@ export const TextInput = styled.input<{ error: boolean }>`
 `;
 
 export const TextAreaInput = styled.textarea<{ error: boolean }>`
-  background-color: transparent;
+  background-color: ${(props) => props.theme.colors.inputBackground};
   border-width: 2px;
   border-color: ${(props) =>
     props.error

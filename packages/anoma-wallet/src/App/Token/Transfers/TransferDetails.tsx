@@ -9,6 +9,8 @@ import { TopLevelRoute } from "App/types";
 import { Heading, HeadingLevel } from "components/Heading";
 import { NavigationContainer } from "components/NavigationContainer";
 import { Address, TransferDetailContainer } from "./TransferDetails.components";
+import { BackButton } from "../TokenSend/TokenSendForm.components";
+import { Icon, IconName } from "components/Icon";
 
 type TransferDetailsParams = {
   id: string;
@@ -60,11 +62,7 @@ const TransferDetail = (): JSX.Element => {
 
   return (
     <TransferDetailContainer>
-      <NavigationContainer
-        onBackButtonClick={() => {
-          navigate(formatRoute(TopLevelRoute.TokenTransfers, { id }));
-        }}
-      >
+      <NavigationContainer>
         <Heading level={HeadingLevel.One}>Transfer Details</Heading>
       </NavigationContainer>
       <p>
@@ -112,6 +110,15 @@ const TransferDetail = (): JSX.Element => {
         Block height: <strong>{height}</strong>
       </p>
       <p>Notes: {memo ? memo : "n/a"}</p>
+      <div>
+        <BackButton
+          onClick={() =>
+            navigate(formatRoute(TopLevelRoute.TokenTransfers, { id }))
+          }
+        >
+          <Icon iconName={IconName.ChevronLeft} />
+        </BackButton>
+      </div>
     </TransferDetailContainer>
   );
 };

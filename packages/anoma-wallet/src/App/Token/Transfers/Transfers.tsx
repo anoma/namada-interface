@@ -50,7 +50,6 @@ const Transfers = (): JSX.Element => {
   const account: DerivedAccount = accounts[id] || shieldedAccounts[id] || {};
   const { tokenType, establishedAddress } = account;
 
-  // eslint-disable-next-line prefer-const
   const transactions = accountTransactions
     .filter(
       (transaction) =>

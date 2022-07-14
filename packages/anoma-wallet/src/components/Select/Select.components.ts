@@ -21,7 +21,7 @@ export const StyledSelect = styled.select`
   margin-top: 10px;
   padding: 0.875em 1em;
   border-radius: 8px;
-  background-color: ${(props) => props.theme.colors.background2};
+  background-color: ${(props) => props.theme.colors.inputBackground};
   border: ${(props) =>
     props.theme.themeConfigurations.isLightMode
       ? `2px solid ${lightColors.inputBorder}`

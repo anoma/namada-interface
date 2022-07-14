@@ -7,6 +7,7 @@ export const TransfersContainer = styled.div`
   align-items: start;
   width: 100%;
   height: 100%;
+  color: ${(props) => props.theme.colors.titleColor};
 `;
 
 export const TransactionList = styled.ul`
