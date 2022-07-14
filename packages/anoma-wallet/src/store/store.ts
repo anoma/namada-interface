@@ -11,6 +11,7 @@ import { encryptTransform } from "redux-persist-transform-encrypt";
 import thunk from "redux-thunk";
 import {
   accountsReducer,
+  balancesReducer,
   transfersReducer,
   settingsReducer,
   channelsReducer,
@@ -20,6 +21,7 @@ import { hashPassword } from "utils/helpers";
 
 const reducers = combineReducers({
   accounts: accountsReducer,
+  balances: balancesReducer,
   transfers: transfersReducer,
   channels: channelsReducer,
   settings: settingsReducer,
@@ -38,7 +40,7 @@ const makeStore: StoreFactory = (secret) => {
     key: `${LocalStorageKeys.Persist}${POSTFIX}`,
     storage,
     // Only persist data in whitelist:
-    whitelist: ["accounts", "transfers", "settings", "channels", "chains"],
+    whitelist: ["accounts", "balances", "transfers", "settings", "channels"],
     transforms: [
       encryptTransform({
         secretKey: hash,

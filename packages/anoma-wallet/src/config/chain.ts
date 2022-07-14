@@ -181,5 +181,5 @@ const ChainConfig = chains.reduce(
   },
   {}
 );
-console.log({ ChainConfig });
+
 export default ChainConfig;

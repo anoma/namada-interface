@@ -2,13 +2,9 @@ import { useEffect, useState } from "react";
 import QrReader from "react-qr-reader";
 
 import Config from "config";
-import { Tokens } from "constants/";
+import { Tokens, TokenType } from "constants/";
 import { RpcClient } from "lib";
-import {
-  AccountsState,
-  fetchBalanceByAccount,
-  DerivedAccount,
-} from "slices/accounts";
+import { AccountsState } from "slices/accounts";
 import {
   clearEvents,
   submitTransferTransaction,
@@ -37,29 +33,18 @@ import { SettingsState } from "slices/settings";
 import { Icon, IconName } from "components/Icon";
 import { useNavigate } from "react-router-dom";
 import { TopLevelRoute } from "App/types";
+import { BalancesState } from "slices/balances";
 
 type Props = {
   accountId: string;
   defaultTarget?: string;
+  tokenType: TokenType;
 };
 
 export const MAX_MEMO_LENGTH = 100;
 export const isMemoValid = (text: string): boolean => {
   // TODO: Additional memo validation rules?
   return text.length < MAX_MEMO_LENGTH;
-};
-
-// if the transfer target is not TransferType.Shielded we perform the validation logic
-const isAmountValid = (
-  transferAmount: number,
-  balance: number,
-  targetAddress: string | undefined
-): string | undefined => {
-  const transferTypeBasedOnTarget = targetAddress && parseTarget(targetAddress);
-  if (transferTypeBasedOnTarget === TransferType.Shielded) {
-    return undefined;
-  }
-  return transferAmount <= balance ? undefined : "Invalid amount!";
 };
 
 /**
@@ -84,6 +69,7 @@ const getIsFormInvalid = (
   isTargetValid: boolean,
   isTransferSubmitting: boolean
 ): boolean => {
+  console.log({ target, amount, balance, isTargetValid, isTransferSubmitting });
   return (
     target === "" ||
     isNaN(amount) ||
@@ -113,7 +99,11 @@ const AccountSourceTargetDescription = (props: {
   );
 };
 
-const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
+const TokenSendForm = ({
+  accountId,
+  tokenType,
+  defaultTarget,
+}: Props): JSX.Element => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [target, setTarget] = useState<string | undefined>(defaultTarget);
@@ -131,6 +121,10 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
   );
   const derivedAccounts = derived[chainId] || {};
 
+  const balancesState = useAppSelector<BalancesState>(
+    (state) => state.balances
+  );
+  const balances = balancesState[chainId] || {};
   const { isTransferSubmitting, transferError, events } =
     useAppSelector<TransfersState>((state) => state.transfers);
 
@@ -140,7 +134,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
   };
   const account = transparentAndShieldedAccounts[accountId] || {};
   const isShieldedSource = account.shieldedKeysAndPaymentAddress ? true : false;
-  const { establishedAddress = "", tokenType, balance = 0 } = account;
+  const { establishedAddress = "", balance = 0 } = account;
   const token = Tokens[tokenType] || {};
 
   const isFormInvalid = getIsFormInvalid(
@@ -166,22 +160,6 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
 
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
-
-  useEffect(() => {
-    // Get balance
-    if (establishedAddress && token.address) {
-      dispatch(fetchBalanceByAccount(account));
-
-      // Check for internal transfer:
-      const targetAccount = Object.values(derivedAccounts).find(
-        (account: DerivedAccount) => account.establishedAddress === target
-      );
-      // Fetch target balance if applicable:
-      if (targetAccount) {
-        dispatch(fetchBalanceByAccount(targetAccount));
-      }
-    }
-  }, [establishedAddress, token.address, events]);
 
   useEffect(() => {
     // Validate target address
@@ -224,7 +202,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
           account,
           target,
           amount,
-          //memo,
+          token: tokenType,
         })
       );
     }
@@ -244,6 +222,23 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
       setTarget(target);
       setShowQrReader(false);
     }
+  };
+
+  // if the transfer target is not TransferType.Shielded we perform the validation logic
+  const isAmountValid = (
+    id: string,
+    token: TokenType,
+    transferAmount: number,
+    targetAddress: string | undefined
+  ): string | undefined => {
+    const balance = balances[id] ? balances[id][token] : 0;
+    console.log({ transferAmount, balance });
+    const transferTypeBasedOnTarget =
+      targetAddress && parseTarget(targetAddress);
+    if (transferTypeBasedOnTarget === TransferType.Shielded) {
+      return undefined;
+    }
+    return transferAmount <= balance ? undefined : "Invalid amount!";
   };
 
   return (
@@ -281,7 +276,7 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
               setAmount(parseFloat(`${value}`));
             }}
             onFocus={handleFocus}
-            error={isAmountValid(amount, balance, target)}
+            error={isAmountValid(accountId, tokenType, amount, target)}
           />
         </InputContainer>
         <InputContainer>{accountSourceTargetDescription}</InputContainer>

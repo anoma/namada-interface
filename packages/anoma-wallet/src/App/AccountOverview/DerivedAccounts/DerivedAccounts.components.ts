@@ -29,6 +29,7 @@ export const DerivedAccountItem = styled.li`
   padding: 20px 0;
   border-bottom: 1px solid #ddd;
   color: ${(props) => props.theme.colors.titleColor};
+
   button {
     margin-top: 0;
     margin-right: 0;
@@ -73,6 +74,12 @@ export const DerivedAccountAddress = styled.pre`
     display: none;
   }
   scrollbar-width: 0;
+`;
+
+export const NoTokens = styled.div`
+  font-size: 14px;
+  font-weight: bold;
+  color: ${(props) => props.theme.colors.titleColor};
 `;
 
 export const TokenIcon = styled.img`

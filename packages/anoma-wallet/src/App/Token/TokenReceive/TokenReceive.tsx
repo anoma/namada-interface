@@ -40,7 +40,7 @@ const TokenReceive = (): JSX.Element => {
   const accounts = { ...derivedAccounts, ...shieldedAccounts };
   const accountsData = Object.values(accounts).map((account) => ({
     value: account.id,
-    label: `${account.alias} (${account.balance} ${account.tokenType}) - ${
+    label: `${account.alias} - ${
       account.isShielded ? "Shielded" : "Transparent"
     }`,
   }));

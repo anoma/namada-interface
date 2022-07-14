@@ -79,6 +79,7 @@ enum TransfersThunkActions {
 type TxArgs = {
   chainId: string;
   account: DerivedAccount | ShieldedAccount;
+  token: TokenType;
   target: string;
   amount: number;
   memo?: string;
@@ -225,17 +226,13 @@ export const submitTransferTransaction = createAsyncThunk(
     const {
       account,
       target,
+      token: tokenType,
       amount,
       memo = "",
       faucet,
       chainId,
     } = txTransferArgs;
-    const {
-      id,
-      establishedAddress = "",
-      tokenType,
-      signingKey: privateKey,
-    } = account;
+    const { id, establishedAddress = "", signingKey: privateKey } = account;
 
     const source = faucet || establishedAddress;
 
@@ -334,6 +331,7 @@ export const submitIbcTransferTransaction = createAsyncThunk(
   async (
     {
       account,
+      token: tokenType,
       target,
       amount,
       memo = "",
@@ -344,11 +342,7 @@ export const submitIbcTransferTransaction = createAsyncThunk(
     }: TxIbcTransferArgs,
     { rejectWithValue }
   ) => {
-    const {
-      establishedAddress: source = "",
-      tokenType,
-      signingKey: privateKey,
-    } = account;
+    const { establishedAddress: source = "", signingKey: privateKey } = account;
     const chainConfig = Config.chain[chainId] || {};
     const { url, port, protocol, wsProtocol } = chainConfig.network;
     const rpcConfig = new RPCConfig(url, port, protocol, wsProtocol);

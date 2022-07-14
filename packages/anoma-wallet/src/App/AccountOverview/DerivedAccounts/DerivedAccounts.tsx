@@ -1,10 +1,11 @@
 import { useContext, useEffect } from "react";
 
 import { useAppDispatch, useAppSelector } from "store";
-import { AccountsState, fetchBalanceByAccount } from "slices/accounts";
+import { AccountsState } from "slices/accounts";
+import { BalancesState, fetchBalances } from "slices/balances";
 import { SettingsState } from "slices/settings";
 import { updateShieldedBalances } from "slices/accountsNew";
-import { TokenType } from "constants/";
+import { Symbols, Tokens, TokenType } from "constants/";
 
 import {
   DerivedAccountsContainer,
@@ -18,6 +19,7 @@ import {
   TokenIcon,
   TransparentLabel,
   ShieldedLabel,
+  NoTokens,
 } from "./DerivedAccounts.components";
 
 // Import PNG images assets
@@ -32,6 +34,7 @@ import { ThemeContext } from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { TopLevelRoute } from "App/types";
 import { formatRoute } from "utils/helpers";
+import Config from "config";
 
 type Props = {
   setTotal: (total: number) => void;
@@ -68,9 +71,52 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
     useAppSelector<AccountsState>((state) => state.accounts);
 
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
+  const balancesByChainId = useAppSelector<BalancesState>(
+    (state) => state.balances
+  );
+  const chains = Config.chain;
+  const { faucet, alias } = chains[chainId] || {};
+
+  const transparentBalances = balancesByChainId[chainId] || {};
+
+  type TokenBalance = {
+    accountId: string;
+    token: TokenType;
+    label: string;
+    balance: number;
+    isShielded?: boolean;
+    isInitializing?: boolean;
+  };
+
   const derivedAccounts = derived[chainId] || {};
   const shieldedAccounts = allShieldedAccounts[chainId] || {};
   const { isLightMode } = themeContext.themeConfigurations;
+
+  const tokenBalances: TokenBalance[] = [];
+
+  Object.values(derivedAccounts).forEach((account) => {
+    const { id, alias, isShielded, isInitializing } = account;
+
+    const balances = transparentBalances[id] || {};
+
+    Symbols.forEach((symbol) => {
+      const token = Tokens[symbol];
+      const { coin } = token;
+
+      tokenBalances.push({
+        accountId: account.id,
+        balance: balances[symbol || 0],
+        label: `${alias !== "Namada" ? alias + " - " : ""}${coin}`,
+        token: symbol,
+        isShielded,
+        isInitializing,
+      });
+    });
+  });
+
+  const tokens = tokenBalances.filter(
+    (tokenBalance) => tokenBalance.balance > 0
+  );
 
   const getAssetIconByTheme = (symbol: TokenType): string => {
     return isLightMode
@@ -79,16 +125,6 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
   };
 
   useEffect(() => {
-    const keys = Object.keys(derivedAccounts);
-    if (keys.length > 0) {
-      keys.forEach((key) => {
-        const account = derivedAccounts[key];
-        if (!account.balance) {
-          dispatch(fetchBalanceByAccount(account));
-        }
-      });
-    }
-
     if (Object.values(shieldedAccounts).length > 0) {
       dispatch(updateShieldedBalances());
     }
@@ -100,15 +136,21 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
   };
 
   useEffect(() => {
-    if (Object.values(shieldedAndTransparentAccounts).length > 0) {
-      const total = Object.values(shieldedAndTransparentAccounts).reduce(
-        (acc, account) => {
-          const { balance } = account;
+    dispatch(
+      fetchBalances({
+        chainId,
+        accounts: Object.values(derivedAccounts),
+      })
+    );
+  }, [derivedAccounts]);
 
-          return acc + balance;
-        },
-        0
-      );
+  useEffect(() => {
+    if (tokenBalances.length > 0) {
+      const total = tokenBalances.reduce((acc, tokenBalance) => {
+        const { balance } = tokenBalance;
+
+        return acc + balance;
+      }, 0);
       setTotal(total);
     }
   }, [shieldedAndTransparentAccounts]);
@@ -116,52 +158,60 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
   return (
     <DerivedAccountsContainer>
       <DerivedAccountsList>
-        {Object.keys(shieldedAndTransparentAccounts)
-          .reverse()
-          .map((hash: string) => {
-            const {
-              id,
-              alias,
-              tokenType,
-              balance,
-              isInitializing,
-              isShielded,
-            } = shieldedAndTransparentAccounts[hash];
+        {tokens.length === 0 && (
+          <NoTokens>
+            <p>You have no token balances to display on {alias}!</p>
+            {!!faucet && (
+              <p>Funds are currently being loaded from the faucet...</p>
+            )}
+          </NoTokens>
+        )}
+        {tokens.map((tokenBalance) => {
+          const {
+            accountId,
+            token,
+            label,
+            balance,
+            isInitializing,
+            isShielded,
+          } = tokenBalance;
 
-            return (
-              <DerivedAccountItem key={id}>
-                <DerivedAccountContainer>
-                  <DerivedAccountInfo>
-                    <TokenIcon
-                      src={getAssetIconByTheme(tokenType)}
-                      onClick={() => {
-                        navigate(
-                          formatRoute(TopLevelRoute.TokenTransfers, { id })
-                        );
-                      }}
-                    />
-                    <div>
-                      <DerivedAccountAlias>
-                        {alias} {isInitializing && <i>(initializing)</i>}
-                      </DerivedAccountAlias>
-                      <DerivedAccountType>
-                        {isShielded ? (
-                          <ShieldedLabel>Shielded</ShieldedLabel>
-                        ) : (
-                          <TransparentLabel>Transparent</TransparentLabel>
-                        )}
-                      </DerivedAccountType>
-                    </div>
-                  </DerivedAccountInfo>
+          return (
+            <DerivedAccountItem key={`${accountId}-${token}`}>
+              <DerivedAccountContainer>
+                <DerivedAccountInfo>
+                  <TokenIcon
+                    src={getAssetIconByTheme(token)}
+                    onClick={() => {
+                      navigate(
+                        formatRoute(TopLevelRoute.TokenTransfers, {
+                          id: accountId,
+                        })
+                      );
+                    }}
+                  />
+                  <div>
+                    <DerivedAccountAlias>
+                      {label} {isInitializing && <i>(initializing)</i>}
+                    </DerivedAccountAlias>
+                    <DerivedAccountType>
+                      {isShielded ? (
+                        <ShieldedLabel>Shielded</ShieldedLabel>
+                      ) : (
+                        <TransparentLabel>Transparent</TransparentLabel>
+                      )}
+                    </DerivedAccountType>
+                  </div>
+                </DerivedAccountInfo>
 
-                  <DerivedAccountBalance>
-                    {balance}&nbsp;
-                    {tokenType}
-                  </DerivedAccountBalance>
-                </DerivedAccountContainer>
-              </DerivedAccountItem>
-            );
-          })}
+                <DerivedAccountBalance>
+                  {balance}&nbsp;
+                  {token}
+                </DerivedAccountBalance>
+              </DerivedAccountContainer>
+            </DerivedAccountItem>
+          );
+        })}
       </DerivedAccountsList>
     </DerivedAccountsContainer>
   );

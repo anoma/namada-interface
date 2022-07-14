@@ -21,16 +21,22 @@ import {
   AddChannelButton,
   IBCTransferFormContainer,
 } from "./IBCTransfer.components";
-import { Select } from "components/Select";
+import { Option, Select } from "components/Select";
 import { Icon, IconName } from "components/Icon";
 import { Button, ButtonVariant } from "components/Button";
 import { Address } from "../Transfers/TransferDetails.components";
 import Config from "config";
+import { Symbols, Tokens, TokenType } from "constants/";
+import { BalancesState, fetchBalances } from "slices/balances";
 
 const IBCTransfer = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
+  const balancesByChain = useAppSelector<BalancesState>(
+    (state) => state.balances
+  );
+  const balances = balancesByChain[chainId] || {};
   const { channelsByChain = {} } = useAppSelector<ChannelsState>(
     (state) => state.channels
   );
@@ -67,12 +73,50 @@ const IBCTransfer = (): JSX.Element => {
   const account = Object.values(derivedAccounts)[0] || {};
   const [selectedAccountId, setSelectedAccountId] = useState(account.id || "");
 
-  const accountsData = Object.values(derivedAccounts).map((account) => ({
-    value: account.id,
-    label: `${account.alias} (${account.balance} ${account.tokenType})`,
-  }));
+  type AccountTokenData = {
+    id: string;
+    alias: string;
+    balance: number;
+    tokenType: TokenType;
+  };
 
-  const { balance = 0 } = derivedAccounts[selectedAccountId] || {};
+  const tokenBalances = Object.values(derivedAccounts).reduce(
+    (data: AccountTokenData[], account) => {
+      const { id, alias } = account;
+
+      const accountsWithId = Symbols.map((symbol) => {
+        const balance = (balances[id] || {})[symbol] || 0;
+
+        return {
+          id,
+          alias,
+          tokenType: symbol,
+          balance,
+        };
+      });
+
+      return [...data, ...accountsWithId];
+    },
+    []
+  );
+
+  const tokenData: Option<string>[] = tokenBalances
+    .filter((account) => account.balance > 0)
+    .map((account) => {
+      const { id, alias, tokenType, balance } = account;
+      const token = Tokens[tokenType];
+      const { coin } = token;
+
+      return {
+        value: `${id}|${tokenType}`,
+        label: `${
+          alias !== "Namada" ? alias + " - " : ""
+        }${coin} (${balance} ${tokenType})`,
+      };
+    });
+
+  const { balance = 0, tokenType } = derivedAccounts[selectedAccountId] || {};
+  const [token, setToken] = useState<TokenType>(tokenType);
 
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
@@ -92,6 +136,12 @@ const IBCTransfer = (): JSX.Element => {
       const selectedChain = ibc[0];
       setSelectedChainId(selectedChain);
     }
+    dispatch(
+      fetchBalances({
+        chainId,
+        accounts: Object.values(derivedAccounts),
+      })
+    );
   }, [chainId]);
 
   useEffect(() => {
@@ -124,10 +174,20 @@ const IBCTransfer = (): JSX.Element => {
     }
   };
 
+  const handleTokenChange = (e: React.ChangeEvent<HTMLSelectElement>): void => {
+    const { value } = e.target;
+
+    const [accountId, tokenSymbol] = value.split("|");
+
+    setSelectedAccountId(accountId);
+    setToken(tokenSymbol as TokenType);
+  };
+
   const handleSubmit = (): void => {
     dispatch(
       submitIbcTransferTransaction({
         account,
+        token,
         amount,
         chainId,
         target: recipient,
@@ -140,10 +200,10 @@ const IBCTransfer = (): JSX.Element => {
   return (
     <IBCTransferFormContainer>
       <Select
-        data={accountsData || []}
-        value={selectedAccountId}
+        data={tokenData}
+        value={`${selectedAccountId}|${token}`}
         label="Token:"
-        onChange={(e) => setSelectedAccountId(e.target.value)}
+        onChange={handleTokenChange}
       />
       <InputContainer>
         <Select<string>

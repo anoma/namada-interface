@@ -77,26 +77,24 @@ const Completion = (props: CompletionViewProps): JSX.Element => {
             dispatch(addAccount(account));
           })();
         });
-      }
-
-      // Create shielded accounts for each supported token:
-      // Set timeout is to clear animation
-      setTimeout(() => {
-        tokens.forEach((token) => {
+        // Set timeout is to clear animation
+        setTimeout(() => {
           chains.forEach((chain) => {
             (async () => {
               dispatch(
                 createShieldedAccount({
                   chainId: chain.id,
-                  alias: token.coin,
+                  alias: defaultToken.coin,
                   password,
-                  tokenType: token.symbol as TokenType,
+                  tokenType: defaultToken.symbol as TokenType,
                 })
               );
             })();
           });
-        });
-      }, 1000);
+        }, 1000);
+      }
+
+      // Create shielded accounts for each supported token:
     }
   }, []);
 
