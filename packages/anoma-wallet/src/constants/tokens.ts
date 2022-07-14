@@ -10,7 +10,7 @@ type TokenInfo = {
 };
 
 // Declare symbols for tokens we support:
-export const Symbols = ["NAM", "ATOM", "BTC", "ETH", "DOT"] as const;
+export const Symbols = ["NAM", "ATOM", "ETH", "DOT", "BTC"] as const;
 
 export type TokenType = typeof Symbols[number];
 type Tokens = Record<TokenType, TokenInfo>;

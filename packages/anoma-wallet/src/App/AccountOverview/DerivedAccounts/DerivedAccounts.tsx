@@ -20,6 +20,7 @@ import {
   TransparentLabel,
   ShieldedLabel,
   NoTokens,
+  DerivedAccountStatus,
 } from "./DerivedAccounts.components";
 
 // Import PNG images assets
@@ -176,7 +177,8 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
 
         return acc + balance;
       }, 0);
-      setTotal(total);
+      // TODO: Set a constant or make a function to round this to the nth decimal place:
+      setTotal(Math.ceil(total * 10000) / 10000);
     }
   }, [groupedTokens, chainId]);
 
@@ -217,7 +219,12 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
                   />
                   <div>
                     <DerivedAccountAlias>
-                      {label} {isInitializing && <i>(initializing)</i>}
+                      {label}{" "}
+                      {isInitializing && (
+                        <DerivedAccountStatus>
+                          (initializing...)
+                        </DerivedAccountStatus>
+                      )}
                     </DerivedAccountAlias>
                     <DerivedAccountType>
                       {isShielded ? (

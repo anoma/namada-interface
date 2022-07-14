@@ -48,10 +48,16 @@ const TokenReceive = (): JSX.Element => {
   }));
 
   useEffect(() => {
-    if (!selectedAccountId && accountsData.length > 0) {
+    if (!selectedAccountId && accountsData && accountsData.length > 0) {
       setSelectedAccountId(accountsData[0].value);
     }
   }, [accountsData, selectedAccountId]);
+
+  useEffect(() => {
+    if (accountsData[0]) {
+      setSelectedAccountId(accountsData[0].value);
+    }
+  }, [chainId]);
 
   const {
     establishedAddress = "",

@@ -48,6 +48,9 @@ export const DerivedAccountInfo = styled.div`
 export const DerivedAccountAlias = styled.div`
   font-size: 16px;
   font-weight: bold;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 `;
 
 export const DerivedAccountType = styled.div`
@@ -74,6 +77,13 @@ export const DerivedAccountAddress = styled.pre`
     display: none;
   }
   scrollbar-width: 0;
+`;
+
+export const DerivedAccountStatus = styled.span`
+  font-weight: normal;
+  font-size: 12px;
+  padding-left: 8px;
+  color: ${(props) => props.theme.colors.buttonDisabledBackground};
 `;
 
 export const NoTokens = styled.div`
