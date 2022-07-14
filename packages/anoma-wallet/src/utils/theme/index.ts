@@ -48,6 +48,8 @@ type Colors = {
   toggleCircle: string;
   toggleBackground: string;
   toggleBorder: string;
+  headingBackground: string;
+  headingColor: string;
 };
 
 export type Theme = {
@@ -101,6 +103,8 @@ export const darkColors: Colors = {
   toggleCircle: "#FFFF00",
   toggleBackground: "#444444",
   toggleBorder: "#444444",
+  headingBackground: "#2D2D2D",
+  headingColor: "#FFFF00",
 };
 
 export const darkColorsLoggedIn: Colors = {
@@ -156,4 +160,6 @@ export const lightColors: Colors = {
   toggleCircle: "#11DFDF",
   toggleBackground: "#FFFFFF",
   toggleBorder: "#DADADA",
+  headingBackground: "#ECECEC",
+  headingColor: "#000000",
 };

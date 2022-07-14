@@ -70,7 +70,8 @@ const TopNavigationLoggedIn = ({
           style={{
             borderColor: isLightMode ? undefined : "#444",
             borderRadius: 24,
-            height: 36,
+            height: 30,
+            padding: "0 8px",
           }}
         />
       </TopNavigationLoggedInSelectContainer>

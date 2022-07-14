@@ -7,6 +7,7 @@ export const AccountOverviewContainer = styled.div`
   align-items: center;
   width: 100%;
   height: 100%;
+  padding: 0 40px;
 
   h1 {
     margin: 0;
@@ -60,6 +61,8 @@ export const TotalHeading = styled.div`
 `;
 
 export const TotalAmount = styled.div`
+  font-size: 22px;
+  font-weight: bold;
   text-align: right;
   color: ${(props) => props.theme.colors.titleColor};
 `;

@@ -24,6 +24,7 @@ export const TokenSendTab = styled.button`
   border: 0;
   padding: 8px 4px;
   height: 78px;
+  font-size: 18px;
 
   &.active {
     color: ${(props) => props.theme.colors.tabActiveColor};
@@ -33,4 +34,7 @@ export const TokenSendTab = styled.button`
 
 export const TokenSendContent = styled.div`
   width: 100%;
+  padding: 0 40px;
+  margin: 20px 0;
+  box-sizing: border-box;
 `;

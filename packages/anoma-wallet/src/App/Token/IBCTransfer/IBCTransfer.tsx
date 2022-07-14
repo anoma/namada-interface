@@ -69,10 +69,10 @@ const IBCTransfer = (): JSX.Element => {
 
   const accountsData = Object.values(derivedAccounts).map((account) => ({
     value: account.id,
-    label: `${account.alias} (${account.tokenType})`,
+    label: `${account.alias} (${account.balance} ${account.tokenType})`,
   }));
 
-  const { balance = 0, tokenType } = derivedAccounts[selectedAccountId] || {};
+  const { balance = 0 } = derivedAccounts[selectedAccountId] || {};
 
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
@@ -137,11 +137,6 @@ const IBCTransfer = (): JSX.Element => {
         label="Token:"
         onChange={(e) => setSelectedAccountId(e.target.value)}
       />
-      <p>
-        <strong>
-          {balance} {tokenType}
-        </strong>
-      </p>
       <InputContainer>
         <Select<string>
           data={selectDestinationChainData}
@@ -182,7 +177,7 @@ const IBCTransfer = (): JSX.Element => {
             error={amount <= balance ? undefined : "Invalid amount!"}
           />
           <Button
-            variant={ButtonVariant.Small}
+            variant={ButtonVariant.Contained}
             style={{ width: 160 }}
             onClick={handleAddChannel}
             disabled={!channelId}
@@ -190,7 +185,7 @@ const IBCTransfer = (): JSX.Element => {
             Add
           </Button>
           <Button
-            variant={ButtonVariant.Small}
+            variant={ButtonVariant.Contained}
             style={{ width: 160 }}
             onClick={() => setShowAddChannelForm(false)}
           >

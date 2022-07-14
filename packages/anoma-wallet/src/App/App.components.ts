@@ -45,7 +45,7 @@ export const ContentContainer = styled.div`
   // behind the main one with transform: translate(-4px, 4px);
   box-sizing: border-box;
   background-color: ${(props) => props.theme.colors.background2};
-  padding: 16px 40px;
+  padding: 0;
   min-height: 620px;
   width: 100%;
   max-width: 760px;

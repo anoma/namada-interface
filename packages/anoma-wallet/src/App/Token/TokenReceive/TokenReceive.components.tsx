@@ -9,6 +9,13 @@ export const TokenReceiveContainer = styled.div`
   height: 100%;
 `;
 
+export const TokenReceiveContent = styled.div`
+  width: 100%;
+  padding: 0 40px;
+  margin: 20px 0;
+  box-sizing: border-box;
+`;
+
 export const CanvasContainer = styled.div`
   width: 100%;
   display: flex;

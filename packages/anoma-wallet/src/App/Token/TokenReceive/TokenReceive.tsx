@@ -14,11 +14,14 @@ import {
   CanvasContainer,
   TokenReceiveContainer,
   ButtonsContainer,
+  TokenReceiveContent,
 } from "./TokenReceive.components";
 
 import { Select } from "components/Select";
 import { BackButton } from "../TokenSend/TokenSendForm.components";
 import { Icon, IconName } from "components/Icon";
+import { NavigationContainer } from "components/NavigationContainer";
+import { Heading, HeadingLevel } from "components/Heading";
 
 const TokenReceive = (): JSX.Element => {
   const { Canvas } = useQRCode();
@@ -37,7 +40,9 @@ const TokenReceive = (): JSX.Element => {
   const accounts = { ...derivedAccounts, ...shieldedAccounts };
   const accountsData = Object.values(accounts).map((account) => ({
     value: account.id,
-    label: `${account.alias} (${account.tokenType})`,
+    label: `${account.alias} (${account.balance} ${account.tokenType}) - ${
+      account.isShielded ? "Shielded" : "Transparent"
+    }`,
   }));
 
   useEffect(() => {
@@ -67,8 +72,11 @@ const TokenReceive = (): JSX.Element => {
 
   return (
     <TokenReceiveContainer>
+      <NavigationContainer>
+        <Heading level={HeadingLevel.One}>Receive</Heading>
+      </NavigationContainer>
       {accountsData.length > 0 && (
-        <>
+        <TokenReceiveContent>
           <Select
             data={accountsData || []}
             value={selectedAccountId}
@@ -90,14 +98,13 @@ const TokenReceive = (): JSX.Element => {
             />
           </CanvasContainer>
           <Address>{address}</Address>
-        </>
+          <ButtonsContainer>
+            <BackButton onClick={() => navigate(TopLevelRoute.Wallet)}>
+              <Icon iconName={IconName.ChevronLeft} />
+            </BackButton>
+          </ButtonsContainer>
+        </TokenReceiveContent>
       )}
-
-      <ButtonsContainer>
-        <BackButton onClick={() => navigate(TopLevelRoute.Wallet)}>
-          <Icon iconName={IconName.ChevronLeft} />
-        </BackButton>
-      </ButtonsContainer>
     </TokenReceiveContainer>
   );
 };

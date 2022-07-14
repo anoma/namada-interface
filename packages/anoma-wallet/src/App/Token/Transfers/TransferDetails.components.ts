@@ -11,16 +11,17 @@ export const TransferDetailContainer = styled.div`
 `;
 
 export const Address = styled.pre`
-  background: #f7f7f7;
+  color: ${(props) => props.theme.colors.inputText};
+  background-color: ${(props) => props.theme.colors.inputBackground};
   width: 95%;
   overflow: auto;
-  margin: 0;
+  margin: 0 0 20px 0;
   padding: 4px 8px;
   border-radius: 4px;
   scrollbar-width: 0;
   white-space: pre-wrap;
   word-wrap: break-word;
-  color: #444;
+
   ::-webkit-scrollbar {
     display: none;
   }

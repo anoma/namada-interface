@@ -5,7 +5,7 @@ import { Wallet } from "lib";
 import { addAccount, InitialAccount } from "slices/accounts";
 import { useEffect } from "react";
 import { useAppDispatch } from "store";
-import Config, { defaultChainId } from "config";
+import Config from "config";
 
 import {
   CompletionViewContainer,
@@ -29,8 +29,8 @@ type CompletionViewProps = {
   password: string;
 };
 
-const defaultChain = Config.chain[defaultChainId];
-const { accountIndex } = defaultChain;
+const chains = Object.values(Config.chain);
+const { accountIndex } = chains[0];
 
 const createAccount = async (
   chainId: string,
@@ -63,31 +63,38 @@ const Completion = (props: CompletionViewProps): JSX.Element => {
 
       const defaultToken = tokens.find((token) => token.symbol === "NAM");
 
-      // Create a master account for NAM token
-      (async () => {
-        if (defaultToken) {
-          const account = await createAccount(
-            defaultChainId,
-            defaultToken.symbol as TokenType,
-            defaultToken.coin,
-            mnemonic
-          );
-          dispatch(addAccount(account));
-        }
-      })();
+      // Create a master account for NAM token on each chain
+
+      if (defaultToken) {
+        chains.forEach((chain) => {
+          (async () => {
+            const account = await createAccount(
+              chain.id,
+              defaultToken.symbol as TokenType,
+              defaultToken.coin,
+              mnemonic
+            );
+            dispatch(addAccount(account));
+          })();
+        });
+      }
 
       // Create shielded accounts for each supported token:
       // Set timeout is to clear animation
       setTimeout(() => {
         tokens.forEach((token) => {
-          dispatch(
-            createShieldedAccount({
-              chainId: defaultChainId,
-              alias: token.coin,
-              password,
-              tokenType: token.symbol as TokenType,
-            })
-          );
+          chains.forEach((chain) => {
+            (async () => {
+              dispatch(
+                createShieldedAccount({
+                  chainId: chain.id,
+                  alias: token.coin,
+                  password,
+                  tokenType: token.symbol as TokenType,
+                })
+              );
+            })();
+          });
         });
       }, 1000);
     }

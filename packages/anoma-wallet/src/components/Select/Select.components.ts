@@ -7,9 +7,13 @@ export const StyledSelectWrapper = styled.div`
 
   & > div {
     position: absolute;
-    right: 20px;
-    top: 20px;
+    right: 3%;
+    top: 36%;
     pointer-events: none;
+
+    & > svg > path {
+      stroke: ${(props) => props.theme.colors.buttonBackground2};
+    }
   }
 `;
 
