@@ -19,6 +19,7 @@ import { Input, InputVariants } from "components/Input";
 import {
   BackButton,
   ButtonsContainer,
+  GasButtonsContainer,
   InputContainer,
   QrReaderContainer,
   QrReaderError,
@@ -113,6 +114,13 @@ const TokenSendForm = ({
   const [isShieldedTarget, setIsShieldedTarget] = useState(false);
   const [showQrReader, setShowQrReader] = useState(false);
   const [qrCodeError, setQrCodeError] = useState<string>();
+
+  enum GasFee {
+    "Low" = 0.0001,
+    "Medium" = 0.0005,
+    "High" = 0.001,
+  }
+  const [gasFee, setGasFee] = useState<GasFee>(GasFee.Medium);
 
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const { derived, shieldedAccounts } = useAppSelector<AccountsState>(
@@ -287,6 +295,39 @@ const TokenSendForm = ({
           />
         </InputContainer>
         <InputContainer>{accountSourceTargetDescription}</InputContainer>
+
+        <GasButtonsContainer>
+          <Button
+            variant={ButtonVariant.Outlined}
+            onClick={() => setGasFee(GasFee.Low)}
+          >
+            <p>
+              <span>Low</span>
+              <br />
+              &lt; 0.00001 {tokenType}
+            </p>
+          </Button>
+          <Button
+            variant={ButtonVariant.Outlined}
+            onClick={() => setGasFee(GasFee.Medium)}
+          >
+            <p>
+              <span>Medium</span>
+              <br />
+              &lt; 0.00001 {token.symbol}
+            </p>
+          </Button>
+          <Button
+            variant={ButtonVariant.Outlined}
+            onClick={() => setGasFee(GasFee.High)}
+          >
+            <p>
+              <span>High</span>
+              <br />
+              &lt; 0.00001 {tokenType}
+            </p>
+          </Button>
+        </GasButtonsContainer>
       </TokenSendFormContainer>
 
       <StatusContainer>

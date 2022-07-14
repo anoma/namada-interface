@@ -16,8 +16,8 @@ const RoundButton = styled(Button)`
 `;
 
 export const OutlinedButton = styled(RoundButton)`
-  border-color: ${(props) => props.theme.colors.buttonBorder1};
-  background-color: ${(props) => props.theme.colors.buttonBackground1};
+  border-color: ${(props) => props.theme.colors.buttonBorder2};
+  background-color: ${(props) => props.theme.colors.background2};
   color: ${(props) => props.theme.colors.buttonText1};
   &:hover {
     border-color: ${(props) => props.theme.colors.buttonHover1};

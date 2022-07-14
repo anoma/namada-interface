@@ -55,6 +55,28 @@ export const QrReaderError = styled.p`
   color: ${(props) => props.theme.colors.inputError};
 `;
 
+export const GasButtonsContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  font-weight: normal;
+  font-size: 14px;
+
+  button {
+    margin: 0 0 20px 0;
+    width: 33%;
+    height: 100px;
+    border-radius: 8px;
+
+    span {
+      font-weight: bold;
+    }
+  }
+`;
+
 export const ButtonsContainer = styled.div`
   position: relative;
   display: flex;

@@ -178,7 +178,11 @@ const TokenSend = (): JSX.Element => {
               {selectedShieldedAccountId && (
                 <TokenSendForm
                   accountId={selectedShieldedAccountId}
-                  tokenType={token}
+                  tokenType={
+                    shieldedAccounts[selectedShieldedAccountId]
+                      ? shieldedAccounts[selectedShieldedAccountId].tokenType
+                      : token
+                  }
                 />
               )}
             </>

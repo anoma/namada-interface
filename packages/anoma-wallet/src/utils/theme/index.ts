@@ -64,7 +64,7 @@ export const darkColors: Colors = {
   titleColor: "#ffffff",
   border: "#3E3E3E",
   borderShadow: "#727273",
-  buttonText1: "#F5DD81",
+  buttonText1: "#FFFF00",
   buttonText2: "#17171D",
   buttonText3: "#17171D",
   buttonBackground1: "#11DFDF",
