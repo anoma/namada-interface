@@ -86,6 +86,7 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
     balance: number;
     isShielded?: boolean;
     isInitializing?: boolean;
+    isInitial?: boolean;
   };
 
   const derivedAccounts = derived[chainId] || {};
@@ -95,7 +96,7 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
   const tokenBalances: TokenBalance[] = [];
 
   Object.values(derivedAccounts).forEach((account) => {
-    const { id, alias, isShielded, isInitializing } = account;
+    const { id, alias, isShielded, isInitializing, isInitial } = account;
 
     const balances = transparentBalances[id] || {};
 
@@ -110,12 +111,13 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
         token: symbol,
         isShielded,
         isInitializing,
+        isInitial,
       });
     });
   });
 
   const tokens = tokenBalances.filter(
-    (tokenBalance) => tokenBalance.balance > 0
+    (tokenBalance) => tokenBalance.balance > 0 || tokenBalance.isInitial
   );
 
   const getAssetIconByTheme = (symbol: TokenType): string => {

@@ -38,7 +38,9 @@ const TokenReceive = (): JSX.Element => {
   const { accountIndex } = Config.chain[chainId];
 
   const accounts = { ...derivedAccounts, ...shieldedAccounts };
-  const accountsData = Object.values(accounts).map((account) => ({
+  const accountsArray = Object.values(accounts);
+  accountsArray.sort((a) => (a.isShielded ? 0 : 1));
+  const accountsData = Object.values(accountsArray).map((account) => ({
     value: account.id,
     label: `${account.alias} - ${
       account.isShielded ? "Shielded" : "Transparent"

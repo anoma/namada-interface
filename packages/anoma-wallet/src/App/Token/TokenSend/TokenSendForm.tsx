@@ -238,7 +238,7 @@ const TokenSendForm = ({
   ): string | undefined => {
     const account = transparentAndShieldedAccounts[id];
     const balance =
-      account && account.balance ? account.balance : balances[token];
+      (account && account.balance ? account.balance : balances[token]) || 0;
 
     const transferTypeBasedOnTarget =
       targetAddress && parseTarget(targetAddress);
