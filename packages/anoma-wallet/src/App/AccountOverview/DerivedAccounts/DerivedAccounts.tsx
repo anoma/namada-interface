@@ -169,7 +169,7 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
 
   useEffect(() => {
     if (groupedTokens.length > 0) {
-      const total = tokenBalances.reduce((acc, tokenBalance) => {
+      const total = tokens.reduce((acc, tokenBalance) => {
         const { balance = 0 } = tokenBalance;
 
         return acc + balance;
