@@ -17,6 +17,7 @@ export type InitialAccount = {
   establishedAddress?: string;
   zip32Address?: string;
   isShielded?: boolean;
+  isInitial?: boolean;
 };
 
 export type DerivedAccount = InitialAccount & {
@@ -99,7 +100,7 @@ export const fetchBalanceByAccount = createAsyncThunk(
 export const submitInitAccountTransaction = createAsyncThunk(
   `${ACCOUNTS_ACTIONS_BASE}/${AccountThunkActions.SubmitInitAccountTransaction}`,
   async (account: DerivedAccount, { dispatch, rejectWithValue }) => {
-    const { chainId, signingKey: privateKey, tokenType } = account;
+    const { chainId, signingKey: privateKey, tokenType, isInitial } = account;
 
     const chainConfig = Config.chain[chainId];
     const { faucet } = chainConfig;
@@ -158,7 +159,8 @@ export const submitInitAccountTransaction = createAsyncThunk(
       establishedAddress,
     };
 
-    if (faucet) {
+    if (faucet && isInitial) {
+      // Fund initial tokens for testnet users:
       Symbols.forEach((symbol) => {
         dispatch(
           submitTransferTransaction({
@@ -190,7 +192,7 @@ const accountsSlice = createSlice({
   reducers: {
     addAccount: (state, action: PayloadAction<InitialAccount>) => {
       const initialAccount = action.payload;
-      const { chainId, alias } = initialAccount;
+      const { chainId, alias, isInitial } = initialAccount;
 
       const id = stringToHash(alias);
       if (!state.derived[chainId]) {
@@ -200,7 +202,8 @@ const accountsSlice = createSlice({
       state.derived[chainId] = {
         ...state.derived[chainId],
         [id]: {
-          id: id,
+          id,
+          isInitial,
           ...initialAccount,
         },
       };

@@ -130,11 +130,6 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
     }
   }, []);
 
-  const shieldedAndTransparentAccounts = {
-    ...derivedAccounts,
-    ...shieldedAccounts,
-  };
-
   useEffect(() => {
     dispatch(
       fetchBalances({
@@ -144,21 +139,49 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
     );
   }, [derivedAccounts]);
 
+  Object.values(shieldedAccounts).forEach((shieldedAccount) => {
+    const { id, alias, tokenType, isShielded, balance } = shieldedAccount;
+
+    tokens.push({
+      accountId: id,
+      token: tokenType as TokenType,
+      label: alias,
+      balance: balance || 0,
+      isShielded,
+    });
+  });
+
+  /**
+   * I agree that this is probably not the most efficient way of handling grouping:
+   */
+  const groupedTokens = Symbols.reduce(
+    (tokenBalances: TokenBalance[], symbol) => {
+      const tmp: TokenBalance[] =
+        tokens.filter((tokenBalance) => tokenBalance.token == symbol) || [];
+
+      // Sort grouped tokens, prioritizing Shielded token balances:
+      tmp.sort((a: TokenBalance) => (a.isShielded ? 0 : 1));
+      tokenBalances.push(...tmp);
+      return tokenBalances;
+    },
+    []
+  );
+
   useEffect(() => {
-    if (tokenBalances.length > 0) {
+    if (groupedTokens.length > 0) {
       const total = tokenBalances.reduce((acc, tokenBalance) => {
-        const { balance } = tokenBalance;
+        const { balance = 0 } = tokenBalance;
 
         return acc + balance;
       }, 0);
       setTotal(total);
     }
-  }, [shieldedAndTransparentAccounts]);
+  }, [groupedTokens, chainId]);
 
   return (
     <DerivedAccountsContainer>
       <DerivedAccountsList>
-        {tokens.length === 0 && (
+        {groupedTokens.length === 0 && (
           <NoTokens>
             <p>You have no token balances to display on {alias}!</p>
             {!!faucet && (
@@ -166,7 +189,7 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
             )}
           </NoTokens>
         )}
-        {tokens.map((tokenBalance) => {
+        {groupedTokens.map((tokenBalance) => {
           const {
             accountId,
             token,

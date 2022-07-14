@@ -78,10 +78,6 @@ export const SettingsAccountSettings = (): JSX.Element => {
                 }
               />
               <p>
-                <b>Token Type:</b>
-              </p>
-              <p>{account.tokenType}</p>
-              <p>
                 <b>Established Address:</b>
               </p>
               {account.establishedAddress ? (

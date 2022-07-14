@@ -74,7 +74,7 @@ const Completion = (props: CompletionViewProps): JSX.Element => {
               defaultToken.coin,
               mnemonic
             );
-            dispatch(addAccount(account));
+            dispatch(addAccount({ ...account, isInitial: true }));
           })();
         });
         // Set timeout is to clear animation

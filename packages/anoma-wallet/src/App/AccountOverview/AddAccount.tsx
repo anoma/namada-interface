@@ -71,6 +71,9 @@ export const AddAccount = ({ password }: Props): JSX.Element => {
 
   const handleShieldedToggling = (): void => {
     setIsShielded((isShielded) => !isShielded);
+    if (!isShielded) {
+      setTokenType("NAM");
+    }
     dispatch(reset());
   };
 
@@ -181,14 +184,16 @@ export const AddAccount = ({ password }: Props): JSX.Element => {
           />
         </InputContainer>
 
-        <InputContainer>
-          <Select
-            data={tokensData}
-            label={"Select Token"}
-            value={tokenType}
-            onChange={handleTokenSelect}
-          ></Select>
-        </InputContainer>
+        {isShielded && (
+          <InputContainer>
+            <Select
+              data={tokensData}
+              label={"Select Token"}
+              value={tokenType}
+              onChange={handleTokenSelect}
+            ></Select>
+          </InputContainer>
+        )}
 
         {(isAddingAccountInReduxState || isAddingAccount) && (
           <p>Adding new account...</p>

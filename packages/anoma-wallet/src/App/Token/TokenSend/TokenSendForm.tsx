@@ -69,7 +69,6 @@ const getIsFormInvalid = (
   isTargetValid: boolean,
   isTransferSubmitting: boolean
 ): boolean => {
-  console.log({ target, amount, balance, isTargetValid, isTransferSubmitting });
   return (
     target === "" ||
     isNaN(amount) ||
@@ -124,7 +123,8 @@ const TokenSendForm = ({
   const balancesState = useAppSelector<BalancesState>(
     (state) => state.balances
   );
-  const balances = balancesState[chainId] || {};
+  const balancesForChain = balancesState[chainId] || {};
+
   const { isTransferSubmitting, transferError, events } =
     useAppSelector<TransfersState>((state) => state.transfers);
 
@@ -133,9 +133,14 @@ const TokenSendForm = ({
     ...(shieldedAccounts[chainId] || {}),
   };
   const account = transparentAndShieldedAccounts[accountId] || {};
+
   const isShieldedSource = account.shieldedKeysAndPaymentAddress ? true : false;
-  const { establishedAddress = "", balance = 0 } = account;
+  const { establishedAddress = "" } = account;
   const token = Tokens[tokenType] || {};
+
+  const balances = balancesForChain[accountId] || {};
+  const balance =
+    (isShieldedSource ? account.balance : balances[tokenType]) || 0;
 
   const isFormInvalid = getIsFormInvalid(
     target,
@@ -231,8 +236,10 @@ const TokenSendForm = ({
     transferAmount: number,
     targetAddress: string | undefined
   ): string | undefined => {
-    const balance = balances[id] ? balances[id][token] : 0;
-    console.log({ transferAmount, balance });
+    const account = transparentAndShieldedAccounts[id];
+    const balance =
+      account && account.balance ? account.balance : balances[token];
+
     const transferTypeBasedOnTarget =
       targetAddress && parseTarget(targetAddress);
     if (transferTypeBasedOnTarget === TransferType.Shielded) {
@@ -276,7 +283,7 @@ const TokenSendForm = ({
               setAmount(parseFloat(`${value}`));
             }}
             onFocus={handleFocus}
-            error={isAmountValid(accountId, tokenType, amount, target)}
+            error={isAmountValid(account.id, tokenType, amount, target)}
           />
         </InputContainer>
         <InputContainer>{accountSourceTargetDescription}</InputContainer>

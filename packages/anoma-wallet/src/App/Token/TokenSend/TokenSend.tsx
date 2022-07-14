@@ -113,13 +113,15 @@ const TokenSend = (): JSX.Element => {
   const shieldedAccountsData = Object.values(shieldedAccounts).map(
     (shieldedAccount) => ({
       value: shieldedAccount.id,
-      label: `${shieldedAccount.alias} (${shieldedAccount.tokenType})`,
+      label: `${shieldedAccount.alias} (${shieldedAccount.balance} ${shieldedAccount.tokenType})`,
     })
   );
 
   const tabs = ["Shielded", "Transparent"];
   const [activeTab, setActiveTab] = useState(tabs[0]);
-  const { tokenType } = accounts[selectedAccountId || ""] || {};
+  const tokenType = selectedAccountId
+    ? accounts[selectedAccountId].tokenType || "NAM"
+    : "NAM";
   const [token, setToken] = useState<TokenType>(tokenType);
 
   useEffect(() => {
@@ -197,7 +199,7 @@ const TokenSend = (): JSX.Element => {
               {selectedAccountId && (
                 <TokenSendForm
                   accountId={selectedAccountId}
-                  tokenType={"NAM"}
+                  tokenType={token}
                 />
               )}
             </>
