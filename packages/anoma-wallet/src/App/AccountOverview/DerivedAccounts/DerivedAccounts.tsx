@@ -21,6 +21,7 @@ import {
   ShieldedLabel,
   NoTokens,
   DerivedAccountStatus,
+  Status,
 } from "./DerivedAccounts.components";
 
 // Import PNG images assets
@@ -36,6 +37,7 @@ import { useNavigate } from "react-router-dom";
 import { TopLevelRoute } from "App/types";
 import { formatRoute } from "utils/helpers";
 import Config from "config";
+import { TransfersState } from "slices/transfers";
 
 type Props = {
   setTotal: (total: number) => void;
@@ -70,6 +72,10 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
   const themeContext = useContext(ThemeContext);
   const { derived, shieldedAccounts: allShieldedAccounts } =
     useAppSelector<AccountsState>((state) => state.accounts);
+
+  const { isTransferSubmitting } = useAppSelector<TransfersState>(
+    (state) => state.transfers
+  );
 
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const balancesByChainId = useAppSelector<BalancesState>(
@@ -184,15 +190,15 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
 
   return (
     <DerivedAccountsContainer>
+      {groupedTokens.length === 0 && (
+        <NoTokens>
+          <p>You have no token balances to display on {alias}!</p>
+        </NoTokens>
+      )}
+      {isTransferSubmitting && faucet && (
+        <Status>Transferring from testnet faucet to your account...</Status>
+      )}
       <DerivedAccountsList>
-        {groupedTokens.length === 0 && (
-          <NoTokens>
-            <p>You have no token balances to display on {alias}!</p>
-            {!!faucet && (
-              <p>Funds are currently being loaded from the faucet...</p>
-            )}
-          </NoTokens>
-        )}
         {groupedTokens.map((tokenBalance) => {
           const {
             accountId,

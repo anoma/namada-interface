@@ -45,13 +45,13 @@ export const AccountOverview = ({ persistor }: Props): JSX.Element => {
   useEffect(() => {
     // Initialize any uninitialized transparent accounts
     // The number of uninitialized accounts should be 1 at most
+
+    // Initialize accounts sequentially
+    // Each rerender will initialize the next in this batch
+
     if (uninitializedAccounts.length > 0) {
-      // Initialize accounts sequentially
-      // Each rerender will initialize the next in this batch
-      setTimeout(() => {
-        // Set time-out to clear any transitional animations
-        dispatch(submitInitAccountTransaction(uninitializedAccounts[0]));
-      }, 1000);
+      // Set time-out to clear any transitional animations
+      dispatch(submitInitAccountTransaction(uninitializedAccounts[0]));
     }
   }, [uninitializedAccounts]);
 

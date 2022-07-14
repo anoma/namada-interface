@@ -92,6 +92,16 @@ export const NoTokens = styled.div`
   color: ${(props) => props.theme.colors.titleColor};
 `;
 
+export const Status = styled.div`
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: normal;
+  color: ${(props) => props.theme.colors.buttonBorder1};
+`;
+
 export const TokenIcon = styled.img`
   width: 36px;
   height: 36px;
