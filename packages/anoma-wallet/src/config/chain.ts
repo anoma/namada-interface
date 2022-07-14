@@ -125,7 +125,7 @@ if (chainAId) {
   chains.push({
     id: chainAId,
     alias: chainAAlias,
-    accountIndex: 998,
+    accountIndex: 0,
     faucet: chainAFaucet,
     portId: chainAPortId,
     network: {
@@ -141,7 +141,7 @@ if (chainAId) {
     chains.push({
       id: chainBId,
       alias: chainBAlias,
-      accountIndex: 998,
+      accountIndex: 999,
       faucet: chainBFaucet,
       portId: chainBPortId,
       network: {
@@ -181,5 +181,5 @@ const ChainConfig = chains.reduce(
   },
   {}
 );
-
+console.log({ ChainConfig });
 export default ChainConfig;

@@ -31,7 +31,7 @@ export const SettingsButton = styled.a`
 `;
 
 export const TopNavigationLoggedInSelectContainer = styled.div`
-  width: 145px;
+  width: 155px;
 
   & select {
     font-size: 10px;

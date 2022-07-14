@@ -42,7 +42,7 @@ const IBCTransfer = (): JSX.Element => {
   const { ibc = [] } = chain;
 
   const defaultIbcChain = chains[ibc[0]] || null;
-  const [selectedChainId, setSelectedChain] = useState(
+  const [selectedChainId, setSelectedChainId] = useState(
     defaultIbcChain ? defaultIbcChain.id : ""
   );
 
@@ -51,7 +51,7 @@ const IBCTransfer = (): JSX.Element => {
     label: chains[chainId].alias,
   }));
 
-  const channels = channelsByChain[selectedChainId] || ["channel-0"];
+  const channels = (channelsByChain[selectedChainId] || []).sort();
   const selectChannelsData = channels.map((channel: string) => ({
     value: channel,
     label: channel,
@@ -85,6 +85,14 @@ const IBCTransfer = (): JSX.Element => {
       dispatch(clearErrors());
     };
   }, []);
+
+  useEffect(() => {
+    const { ibc = [] } = chains[chainId];
+    if (ibc.length > 0) {
+      const selectedChain = ibc[0];
+      setSelectedChainId(selectedChain);
+    }
+  }, [chainId]);
 
   useEffect(() => {
     if (account && !isIbcTransferSubmitting) {
@@ -142,7 +150,7 @@ const IBCTransfer = (): JSX.Element => {
           data={selectDestinationChainData}
           value={selectedChainId}
           label="Destination Chain"
-          onChange={(e) => setSelectedChain(e.target.value)}
+          onChange={(e) => setSelectedChainId(e.target.value)}
         />
       </InputContainer>
       <InputContainer>

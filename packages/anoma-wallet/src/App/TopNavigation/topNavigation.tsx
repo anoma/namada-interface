@@ -60,9 +60,6 @@ const TopNavigationMenuItems = (props: {
 
       {/* Staking */}
       <MenuItem
-        onClick={() => {
-          navigate(`${TopLevelRoute.StakingAndGovernance}`);
-        }}
         isSelected={location.pathname === TopLevelRoute.StakingAndGovernance}
       >
         <MenuItemTextContainer>Staking</MenuItemTextContainer>
@@ -70,9 +67,6 @@ const TopNavigationMenuItems = (props: {
 
       {/* Governance */}
       <MenuItem
-        onClick={() => {
-          navigate(`${TopLevelRoute.StakingAndGovernance}`);
-        }}
         isSelected={location.pathname === TopLevelRoute.StakingAndGovernance}
       >
         <MenuItemTextContainer>Governance</MenuItemTextContainer>
