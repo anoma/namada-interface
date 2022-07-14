@@ -5,10 +5,13 @@ import { TopLevelRoute } from "App/types";
 import { NavigationContainer } from "components/NavigationContainer";
 import { Button, ButtonVariant } from "components/Button";
 import { Heading, HeadingLevel } from "components/Heading";
-import { SettingsContainer, SettingsContent } from "./Settings.components";
+import {
+  SettingsContainer,
+  SettingsContent,
+  ButtonsContainer,
+} from "./Settings.components";
 import { BackButton } from "App/Token/TokenSend/TokenSendForm.components";
 import { Icon, IconName } from "components/Icon";
-import { ButtonsContainer } from "App/Token/TokenDetails.components";
 
 /**
  * This is the root component for Settings, it contains further screens that are
@@ -20,7 +23,7 @@ export const Settings = (): JSX.Element => {
   return (
     <SettingsContainer>
       <NavigationContainer>
-        <Heading level={HeadingLevel.Two}>Settings</Heading>
+        <Heading level={HeadingLevel.One}>Settings</Heading>
       </NavigationContainer>
 
       <SettingsContent>
@@ -41,12 +44,12 @@ export const Settings = (): JSX.Element => {
         >
           Wallet Settings
         </Button>
-        <ButtonsContainer>
-          <BackButton onClick={() => navigate(TopLevelRoute.Wallet)}>
-            <Icon iconName={IconName.ChevronLeft} />
-          </BackButton>
-        </ButtonsContainer>
       </SettingsContent>
+      <ButtonsContainer>
+        <BackButton onClick={() => navigate(TopLevelRoute.Wallet)}>
+          <Icon iconName={IconName.ChevronLeft} />
+        </BackButton>
+      </ButtonsContainer>
     </SettingsContainer>
   );
 };

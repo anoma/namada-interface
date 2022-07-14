@@ -75,36 +75,39 @@ const TokenReceive = (): JSX.Element => {
       <NavigationContainer>
         <Heading level={HeadingLevel.One}>Receive</Heading>
       </NavigationContainer>
-      {accountsData.length > 0 && (
-        <TokenReceiveContent>
-          <Select
-            data={accountsData || []}
-            value={selectedAccountId}
-            label="Account:"
-            onChange={(e) => setSelectedAccountId(e.target.value)}
-          />
-          <CanvasContainer>
-            <Canvas
-              text={text}
-              options={{
-                type: "image/jpeg",
-                quality: 0.3,
-                level: "M",
-                color: {
-                  dark: "#222",
-                  light: "#eee",
-                },
-              }}
+
+      <TokenReceiveContent>
+        {accountsData.length > 0 && (
+          <>
+            <Select
+              data={accountsData || []}
+              value={selectedAccountId}
+              label="Account:"
+              onChange={(e) => setSelectedAccountId(e.target.value)}
             />
-          </CanvasContainer>
-          <Address>{address}</Address>
-          <ButtonsContainer>
-            <BackButton onClick={() => navigate(TopLevelRoute.Wallet)}>
-              <Icon iconName={IconName.ChevronLeft} />
-            </BackButton>
-          </ButtonsContainer>
-        </TokenReceiveContent>
-      )}
+            <CanvasContainer>
+              <Canvas
+                text={text}
+                options={{
+                  type: "image/jpeg",
+                  quality: 0.3,
+                  level: "M",
+                  color: {
+                    dark: "#222",
+                    light: "#eee",
+                  },
+                }}
+              />
+            </CanvasContainer>
+            <Address>{address}</Address>
+          </>
+        )}
+      </TokenReceiveContent>
+      <ButtonsContainer>
+        <BackButton onClick={() => navigate(TopLevelRoute.Wallet)}>
+          <Icon iconName={IconName.ChevronLeft} />
+        </BackButton>
+      </ButtonsContainer>
     </TokenReceiveContainer>
   );
 };

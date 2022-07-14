@@ -11,6 +11,7 @@ import { NavigationContainer } from "components/NavigationContainer";
 import { Address, TransferDetailContainer } from "./TransferDetails.components";
 import { BackButton } from "../TokenSend/TokenSendForm.components";
 import { Icon, IconName } from "components/Icon";
+import { ButtonsContainer, TransfersContent } from "./Transfers.components";
 
 type TransferDetailsParams = {
   id: string;
@@ -65,52 +66,55 @@ const TransferDetail = (): JSX.Element => {
       <NavigationContainer>
         <Heading level={HeadingLevel.One}>Transfer Details</Heading>
       </NavigationContainer>
-      <p>
-        <strong>
-          {type}
-          <br />
-          {amount} {tokenType}
-          <br />
-          {sourceChain.alias}
-        </strong>
-        <br />
-        {dateTimeFormatted}
-      </p>
-      <p>Source address:</p>
-      <Address>{source}</Address>
-      <p>Target address:</p>
-      <Address>{target}</Address>
-      {chainId && (
-        <>
-          <p>
-            Destination Chain:
+      <TransfersContent>
+        <p>
+          <strong>
+            {type}
             <br />
-            <strong>
-              {chainAlias}
+            {amount} {tokenType}
+            <br />
+            {sourceChain.alias}
+          </strong>
+          <br />
+          {dateTimeFormatted}
+        </p>
+        <p>Source address:</p>
+        <Address>{source}</Address>
+        <p>Target address:</p>
+        <Address>{target}</Address>
+        {chainId && (
+          <>
+            <p>
+              Destination Chain:
               <br />
-              {chainId}
-            </strong>
-          </p>
-          <p>
-            IBC Transfer Channel:
-            <br />
-            <strong>
-              {sourceChannel}/{sourcePort} - {destinationChannel}/
-              {destinationPort}
-            </strong>
-          </p>
-        </>
-      )}
-      <p>Applied hash:</p>
-      <Address>{appliedHash}</Address>
-      <p>
-        Gas used: <strong>{gas}</strong>
-      </p>
-      <p>
-        Block height: <strong>{height}</strong>
-      </p>
-      <p>Notes: {memo ? memo : "n/a"}</p>
-      <div>
+              <strong>
+                {chainAlias}
+                <br />
+                {chainId}
+              </strong>
+            </p>
+            <p>
+              IBC Transfer Channel:
+              <br />
+              <strong>
+                {sourceChannel}/{sourcePort} - {destinationChannel}/
+                {destinationPort}
+              </strong>
+            </p>
+          </>
+        )}
+        <p>Applied hash:</p>
+        <Address>{appliedHash}</Address>
+        <p>
+          Gas used: <strong>{gas}</strong>
+        </p>
+        <p>
+          Block height: <strong>{height}</strong>
+        </p>
+        <p>Notes: {memo ? memo : "n/a"}</p>
+      </TransfersContent>
+
+      <ButtonsContainer>
         <BackButton
           onClick={() =>
             navigate(formatRoute(TopLevelRoute.TokenTransfers, { id }))
@@ -118,7 +122,7 @@ const TransferDetail = (): JSX.Element => {
         >
           <Icon iconName={IconName.ChevronLeft} />
         </BackButton>
-      </div>
+      </ButtonsContainer>
     </TransferDetailContainer>
   );
 };

@@ -18,9 +18,11 @@ import {
   TransactionList,
   TransactionListItem,
   ButtonsContainer,
+  TransfersContent,
 } from "./Transfers.components";
 import { BackButton } from "../TokenSend/TokenSendForm.components";
 import { Icon, IconName } from "components/Icon";
+import { NavigationContainer } from "components/NavigationContainer";
 
 type TokenDetailsParams = {
   id: string;
@@ -65,44 +67,50 @@ const Transfers = (): JSX.Element => {
 
   return (
     <TransfersContainer>
-      <Heading level={HeadingLevel.Three}>Transactions</Heading>
-      {transactions.length === 0 && <p>No transactions</p>}
-      {transactions.length > 0 && (
-        <TransactionList>
-          {transactions.map((transaction) => {
-            const { appliedHash, amount, timestamp, type } = transaction;
-            const dateTimeFormatted = stringFromTimestamp(timestamp);
+      <NavigationContainer>
+        <Heading level={HeadingLevel.One}>Transactions</Heading>
+      </NavigationContainer>
 
-            return (
-              <TransactionListItem key={`${appliedHash}:${timestamp}`}>
-                <div>
-                  <strong>
-                    {transaction.source === establishedAddress
-                      ? "Sent "
-                      : "Received "}
-                    ({type}) {amount} {tokenType}
-                  </strong>
-                  <br />
-                  {dateTimeFormatted}
-                </div>
-                <Button
-                  variant={ButtonVariant.Contained}
-                  onClick={() => {
-                    navigate(
-                      formatRoute(TopLevelRoute.TokenTransferDetails, {
-                        id,
-                        appliedHash,
-                      })
-                    );
-                  }}
-                >
-                  Details
-                </Button>
-              </TransactionListItem>
-            );
-          })}
-        </TransactionList>
-      )}
+      <TransfersContent>
+        {transactions.length === 0 && <p>No transactions</p>}
+        {transactions.length > 0 && (
+          <TransactionList>
+            {transactions.map((transaction) => {
+              const { appliedHash, amount, timestamp, type } = transaction;
+              const dateTimeFormatted = stringFromTimestamp(timestamp);
+
+              return (
+                <TransactionListItem key={`${appliedHash}:${timestamp}`}>
+                  <div>
+                    <strong>
+                      {transaction.source === establishedAddress
+                        ? "Sent "
+                        : "Received "}
+                      ({type}) {amount} {tokenType}
+                    </strong>
+                    <br />
+                    {dateTimeFormatted}
+                  </div>
+                  <Button
+                    variant={ButtonVariant.Contained}
+                    onClick={() => {
+                      navigate(
+                        formatRoute(TopLevelRoute.TokenTransferDetails, {
+                          id,
+                          appliedHash,
+                        })
+                      );
+                    }}
+                  >
+                    Details
+                  </Button>
+                </TransactionListItem>
+              );
+            })}
+          </TransactionList>
+        )}
+      </TransfersContent>
+
       <ButtonsContainer>
         <BackButton onClick={() => navigate(TopLevelRoute.Wallet)}>
           <Icon iconName={IconName.ChevronLeft} />

@@ -13,6 +13,16 @@ export const SettingsContent = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
+  min-height: 450px;
+  padding: 40px;
+  margin: 0 0 20px 0;
+  box-sizing: border-box;
+`;
+
+export const ButtonsContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  width: 100%;
   padding: 0 40px;
   margin: 0 0 20px 0;
   box-sizing: border-box;

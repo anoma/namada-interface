@@ -13,6 +13,7 @@ export const TokenReceiveContent = styled.div`
   width: 100%;
   padding: 0 40px;
   margin: 20px 0;
+  height: 400px;
   box-sizing: border-box;
 `;
 
@@ -27,5 +28,7 @@ export const ButtonsContainer = styled.div`
   display: flex;
   flex-direction: row;
   width: 100%;
-  justify-content: space-between;
+  padding: 0 40px;
+  margin: 20px 0;
+  box-sizing: border-box;
 `;

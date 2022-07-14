@@ -20,12 +20,9 @@ import {
   SeedPhraseIndexLabel,
 } from "App/AccountCreation/Steps/SeedPhrase/SeedPhrase.components";
 import Config from "config";
-import {
-  BackButton,
-  ButtonsContainer,
-} from "App/Token/TokenSend/TokenSendForm.components";
+import { BackButton } from "App/Token/TokenSend/TokenSendForm.components";
 import { TopLevelRoute } from "App/types";
-import { SettingsContent } from "../Settings.components";
+import { ButtonsContainer, SettingsContent } from "../Settings.components";
 
 type Props = {
   password: string;
@@ -158,16 +155,16 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
             onChange={handleNetworkSelect}
           />
         </InputContainer>
-        <ButtonsContainer>
-          <BackButton
-            onClick={() => {
-              navigate(TopLevelRoute.Settings);
-            }}
-          >
-            <Icon iconName={IconName.ChevronLeft} />
-          </BackButton>
-        </ButtonsContainer>
       </SettingsContent>
+      <ButtonsContainer>
+        <BackButton
+          onClick={() => {
+            navigate(TopLevelRoute.Settings);
+          }}
+        >
+          <Icon iconName={IconName.ChevronLeft} />
+        </BackButton>
+      </ButtonsContainer>
     </SettingsWalletSettingsContainer>
   );
 };

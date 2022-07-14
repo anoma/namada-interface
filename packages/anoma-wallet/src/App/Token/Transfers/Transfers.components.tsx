@@ -10,6 +10,14 @@ export const TransfersContainer = styled.div`
   color: ${(props) => props.theme.colors.titleColor};
 `;
 
+export const TransfersContent = styled.div`
+  width: 100%;
+  padding: 20px 40px;
+  margin: 0;
+  box-sizing: border-box;
+  min-height: 450px;
+`;
+
 export const TransactionList = styled.ul`
   margin: 0;
   padding: 0;
@@ -45,4 +53,6 @@ export const TransactionListItem = styled.li`
 export const ButtonsContainer = styled.div`
   display: flex;
   flex-direction: row;
+  padding: 0 40px;
+  margin-bottom: 20px;
 `;

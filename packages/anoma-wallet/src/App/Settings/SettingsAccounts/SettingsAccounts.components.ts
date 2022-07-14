@@ -7,6 +7,7 @@ export const SettingsAccountsContainer = styled.div`
   align-items: center;
   width: 100%;
   height: 100%;
+  max-height: 720px;
 `;
 
 export const AccountRows = styled.div`
@@ -14,7 +15,7 @@ export const AccountRows = styled.div`
   flex-direction: column;
   justify-content: start;
   align-items: center;
-
+  overflow-y: auto;
   width: 100%;
   margin: 18px 0 0;
   overflow-y: scroll;
@@ -40,7 +41,6 @@ export const AccountNameContainer = styled.div`
   display: flex;
   justify-content: start;
   align-items: center;
-
   height: 100%;
   padding: 8px;
   box-sizing: border-box;

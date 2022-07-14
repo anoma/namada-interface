@@ -15,15 +15,19 @@ import { Label } from "components/Input/input.components";
 import { Toggle } from "components/Toggle";
 import { NavigationContainer } from "components/NavigationContainer";
 import { Heading, HeadingLevel } from "components/Heading";
-import {
-  AccountOverviewContainer,
-  InputContainer,
-} from "./AccountOverview.components";
+import { InputContainer } from "./AccountOverview.components";
 import { Button, ButtonVariant } from "components/Button";
 import { TopLevelRoute } from "App/types";
 import { Select, Option } from "components/Select";
 import { Input, InputVariants } from "components/Input";
 import Config from "config";
+import {
+  AddAccountContainer,
+  AddAccountContent,
+  ButtonsContainer,
+} from "./AddAccount.components";
+import { BackButton } from "App/Token/TokenSend/TokenSendForm.components";
+import { Icon, IconName } from "components/Icon";
 
 const MIN_ALIAS_LENGTH = 2;
 
@@ -158,51 +162,54 @@ export const AddAccount = ({ password }: Props): JSX.Element => {
   };
 
   return (
-    <AccountOverviewContainer>
-      <NavigationContainer
-        onBackButtonClick={() => {
-          navigate(TopLevelRoute.Wallet);
-        }}
-      >
+    <AddAccountContainer>
+      <NavigationContainer>
         <Heading level={HeadingLevel.One}>Add Account</Heading>
       </NavigationContainer>
-      <InputContainer>
-        <Label>Shielded</Label>
-        <Toggle onClick={handleShieldedToggling} checked={isShielded} />
-      </InputContainer>
-      <InputContainer>
-        <Input
-          variant={InputVariants.Text}
-          label="Account Alias"
-          value={alias}
-          onChangeCallback={handleAliasChange}
-          error={aliasError}
-        />
-      </InputContainer>
+      <AddAccountContent>
+        <InputContainer>
+          <Label>Shielded</Label>
+          <Toggle onClick={handleShieldedToggling} checked={isShielded} />
+        </InputContainer>
+        <InputContainer>
+          <Input
+            variant={InputVariants.Text}
+            label="Account Alias"
+            value={alias}
+            onChangeCallback={handleAliasChange}
+            error={aliasError}
+          />
+        </InputContainer>
 
-      <InputContainer>
-        <Select
-          data={tokensData}
-          label={"Select Token"}
-          value={tokenType}
-          onChange={handleTokenSelect}
-        ></Select>
-      </InputContainer>
+        <InputContainer>
+          <Select
+            data={tokensData}
+            label={"Select Token"}
+            value={tokenType}
+            onChange={handleTokenSelect}
+          ></Select>
+        </InputContainer>
 
-      {(isAddingAccountInReduxState || isAddingAccount) && (
-        <p>Adding new account...</p>
-      )}
-      <Button
-        variant={ButtonVariant.Contained}
-        onClick={handleAddClick}
-        disabled={
-          !validateAlias(alias) ||
-          isAddingAccountInReduxState ||
-          isAddingAccount
-        }
-      >
-        Add
-      </Button>
-    </AccountOverviewContainer>
+        {(isAddingAccountInReduxState || isAddingAccount) && (
+          <p>Adding new account...</p>
+        )}
+      </AddAccountContent>
+      <ButtonsContainer>
+        <BackButton onClick={() => navigate(TopLevelRoute.SettingsAccounts)}>
+          <Icon iconName={IconName.ChevronLeft} />
+        </BackButton>
+        <Button
+          variant={ButtonVariant.Contained}
+          onClick={handleAddClick}
+          disabled={
+            !validateAlias(alias) ||
+            isAddingAccountInReduxState ||
+            isAddingAccount
+          }
+        >
+          Add
+        </Button>
+      </ButtonsContainer>
+    </AddAccountContainer>
   );
 };
