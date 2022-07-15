@@ -13,6 +13,9 @@ import { Heading, HeadingLevel } from "components/Heading";
 import { Button, ButtonVariant } from "components/Button";
 import {
   AccountOverviewContainer,
+  AccountOverviewContent,
+  AccountTab,
+  AccountTabsContainer,
   ButtonsWrapper,
   HeadingContainer,
   TotalAmount,
@@ -57,35 +60,41 @@ export const AccountOverview = ({ persistor }: Props): JSX.Element => {
 
   return (
     <AccountOverviewContainer>
-      <PersistGate loading={"Loading accounts..."} persistor={persistor}>
-        <HeadingContainer>
-          <Heading level={HeadingLevel.Four}>Your wallet</Heading>
-        </HeadingContainer>
-        <TotalContainer>
-          <TotalHeading>
-            <Heading level={HeadingLevel.One}>Total Balance</Heading>
-          </TotalHeading>
-          <TotalAmount>{total}</TotalAmount>
-        </TotalContainer>
+      <AccountTabsContainer>
+        <AccountTab className={"active"}>Fungible</AccountTab>
+        <AccountTab className={"disabled"}>Non-Fungible</AccountTab>
+      </AccountTabsContainer>
+      <AccountOverviewContent>
+        <PersistGate loading={"Loading accounts..."} persistor={persistor}>
+          <HeadingContainer>
+            <Heading level={HeadingLevel.Four}>Your wallet</Heading>
+          </HeadingContainer>
+          <TotalContainer>
+            <TotalHeading>
+              <Heading level={HeadingLevel.One}>Total Balance</Heading>
+            </TotalHeading>
+            <TotalAmount>{total}</TotalAmount>
+          </TotalContainer>
 
-        <ButtonsContainer>
-          <ButtonsWrapper>
-            <Button
-              variant={ButtonVariant.Contained}
-              onClick={() => navigate(TopLevelRoute.TokenSend)}
-            >
-              Send
-            </Button>
-            <Button
-              variant={ButtonVariant.Contained}
-              onClick={() => navigate(TopLevelRoute.TokenReceive)}
-            >
-              Receive
-            </Button>
-          </ButtonsWrapper>
-        </ButtonsContainer>
-        <DerivedAccounts setTotal={setTotal} />
-      </PersistGate>
+          <ButtonsContainer>
+            <ButtonsWrapper>
+              <Button
+                variant={ButtonVariant.Contained}
+                onClick={() => navigate(TopLevelRoute.TokenSend)}
+              >
+                Send
+              </Button>
+              <Button
+                variant={ButtonVariant.Contained}
+                onClick={() => navigate(TopLevelRoute.TokenReceive)}
+              >
+                Receive
+              </Button>
+            </ButtonsWrapper>
+          </ButtonsContainer>
+          <DerivedAccounts setTotal={setTotal} />
+        </PersistGate>
+      </AccountOverviewContent>
     </AccountOverviewContainer>
   );
 };

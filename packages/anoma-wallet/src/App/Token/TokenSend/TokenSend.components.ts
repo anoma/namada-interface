@@ -26,6 +26,7 @@ export const TokenSendTab = styled.button`
   padding: 8px 4px;
   height: 78px;
   font-size: 18px;
+  cursor: pointer;
 
   &.active {
     color: ${(props) => props.theme.colors.tabActiveColor};
