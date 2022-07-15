@@ -12,8 +12,7 @@ import { AppStore } from "store/store";
 import { Icon, IconName, IconSize } from "components/Icon";
 import {
   Start,
-  AccountInformation,
-  AccountCreationDetails,
+  Password,
   SeedPhrase,
   SeedPhraseConfirmation,
   Completion,
@@ -26,7 +25,7 @@ import {
   RouteContainer,
   MotionContainer,
 } from "./AccountCreation.components";
-import { Session } from "lib";
+import { AccountCreationDetails } from "./Steps/SeedPhrase/SeedPhrase";
 
 type AnimatedTransitionProps = {
   elementKey: string;
@@ -73,7 +72,7 @@ type Props = {
  * it persist the data and coordinates the logic for animating the transitions
  * between the screens in the flow.
  */
-function AccountCreation({ setStore, setPassword, store }: Props): JSX.Element {
+function AccountCreation({ setStore, store, setPassword }: Props): JSX.Element {
   // account details defaults
   const defaultAccountCreationDetails: AccountCreationDetails = {
     seedPhraseLength: "12",
@@ -181,40 +180,7 @@ function AccountCreation({ setStore, setPassword, store }: Props): JSX.Element {
                 </AnimatedTransition>
               }
             />
-            <Route
-              path={`/${AccountCreationRoute.AccountDetails}`}
-              element={
-                <AnimatedTransition
-                  elementKey={AccountCreationRoute.AccountDetails}
-                  animationFromRightToLeft={animationFromRightToLeft}
-                >
-                  <AccountInformation
-                    accountCreationDetails={accountCreationDetails}
-                    setStore={setStore}
-                    onSetAccountCreationDetails={(
-                      accountCreationDetailsDelta
-                    ) => {
-                      setAccountCreationDetails((accountCreationDetails) => {
-                        return {
-                          ...accountCreationDetails,
-                          ...accountCreationDetailsDelta,
-                        };
-                      });
-                    }}
-                    onSubmitAccountCreationDetails={(
-                      accountCreationDetails
-                    ) => {
-                      setAccountCreationDetails(accountCreationDetails);
-                      navigateToNext();
-                    }}
-                    onCtaHover={() => {
-                      // read the need for this above the hook
-                      setAnimationFromRightToLeft(true);
-                    }}
-                  />
-                </AnimatedTransition>
-              }
-            />
+
             <Route
               path={`/${AccountCreationRoute.SeedPhrase}`}
               element={
@@ -246,11 +212,39 @@ function AccountCreation({ setStore, setPassword, store }: Props): JSX.Element {
                 >
                   <SeedPhraseConfirmation
                     seedPhrase={seedPhrase || []}
-                    onConfirmSeedPhrase={async () => {
-                      await Session.setSeed(
-                        (seedPhrase || [])?.join(" "),
-                        accountCreationDetails.password || ""
-                      );
+                    onConfirmSeedPhrase={() => navigateToNext()}
+                    onCtaHover={() => {
+                      // read the need for this above the hook
+                      setAnimationFromRightToLeft(true);
+                    }}
+                  />
+                </AnimatedTransition>
+              }
+            />
+            <Route
+              path={`/${AccountCreationRoute.Password}`}
+              element={
+                <AnimatedTransition
+                  elementKey={AccountCreationRoute.Password}
+                  animationFromRightToLeft={animationFromRightToLeft}
+                >
+                  <Password
+                    accountCreationDetails={accountCreationDetails}
+                    setStore={setStore}
+                    onSetAccountCreationDetails={(
+                      accountCreationDetailsDelta
+                    ) => {
+                      setAccountCreationDetails((accountCreationDetails) => {
+                        return {
+                          ...accountCreationDetails,
+                          ...accountCreationDetailsDelta,
+                        };
+                      });
+                    }}
+                    onSubmitAccountCreationDetails={(
+                      accountCreationDetails
+                    ) => {
+                      setAccountCreationDetails(accountCreationDetails);
                       navigateToNext();
                     }}
                     onCtaHover={() => {
@@ -271,15 +265,8 @@ function AccountCreation({ setStore, setPassword, store }: Props): JSX.Element {
                   >
                     <Provider store={store}>
                       <Completion
-                        onClickDone={() => {
-                          navigate(TopLevelRoute.SettingsAccounts);
-                        }}
-                        onClickSeeAccounts={() => {
-                          setPassword(accountCreationDetails.password || "");
-                          navigate(TopLevelRoute.Wallet);
-                        }}
+                        setPassword={setPassword}
                         mnemonic={(seedPhrase || []).join(" ")}
-                        alias={accountCreationDetails.accountName || ""}
                         password={accountCreationDetails.password || ""}
                       />
                     </Provider>

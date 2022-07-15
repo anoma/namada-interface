@@ -8,6 +8,7 @@ export const AccountCreationContainer = styled.div`
   align-items: center;
   box-sizing: border-box;
   background-color: ${(props) => props.theme.colors.background2};
+  color: ${(props) => props.theme.colors.textPrimary};
   padding: ${(props) =>
     props.theme.themeConfigurations.isLightMode ? "0 32px" : "4px 36px 0 32px"};
   height: 100%;

@@ -11,7 +11,7 @@ import {
   InputContainer,
   ButtonContainer,
 } from "./SeedPhraseConfirmation.components";
-import { Input } from "../AccountInformation/AccountInformation.components";
+import { Input } from "../Password/Password.components";
 
 type SeedPhraseConfirmationProps = {
   seedPhrase: string[];
@@ -22,24 +22,14 @@ type SeedPhraseConfirmationProps = {
 function SeedPhraseConfirmation(
   props: SeedPhraseConfirmationProps
 ): JSX.Element {
-  const { seedPhrase, onCtaHover, onConfirmSeedPhrase } = props;
+  const { seedPhrase, onConfirmSeedPhrase } = props;
   const seedPhraseLength = seedPhrase.length;
   const [verificationInput, setVerificationInput] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [indexToConfirm, setIndexToConfirm] = useState(-1);
 
   useEffect(() => {
     setIndexToConfirm(Math.floor(Math.random() * seedPhraseLength));
   }, []);
-
-  useEffect(() => {
-    if (isSubmitting) {
-      // Call after the time it takes to animate the button into a disabled state
-      setTimeout(() => {
-        onConfirmSeedPhrase();
-      }, 300);
-    }
-  }, [isSubmitting]);
 
   return (
     <AccountInformationViewContainer>
@@ -64,16 +54,13 @@ function SeedPhraseConfirmation(
             />
           </InputContainer>
         </DescriptionAndInputContainer>
-        {/* submit */}
-        {isSubmitting && <p>Creating master account...</p>}
+
         <ButtonContainer>
           <Button
             onClick={() => {
-              setIsSubmitting(true);
+              onConfirmSeedPhrase();
             }}
-            disabled={
-              verificationInput !== seedPhrase[indexToConfirm] || isSubmitting
-            }
+            disabled={verificationInput !== seedPhrase[indexToConfirm]}
             variant={ButtonVariant.Contained}
           >
             Verify

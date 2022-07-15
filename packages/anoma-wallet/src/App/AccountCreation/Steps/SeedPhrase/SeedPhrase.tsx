@@ -58,7 +58,7 @@ const textToClipboard = (content: string): void => {
 
 const SeedPhrase = (props: AccountInformationViewProps): JSX.Element => {
   const {
-    accountCreationDetails,
+    //accountCreationDetails,
     //onCtaHover,
     onConfirmSavingOfSeedPhrase,
     defaultSeedPhrase,
@@ -71,7 +71,7 @@ const SeedPhrase = (props: AccountInformationViewProps): JSX.Element => {
 
   const seedPhraseAsArray = seedPhraseStringToArray(seedPhrase);
   const isSubmitButtonDisabled = seedPhraseAsArray.length === 0;
-  const { seedPhraseLength = "12" } = accountCreationDetails || {};
+  const seedPhraseLength = "12";
 
   React.useEffect(() => {
     // if a mnemonic was passed in we do not generate it again

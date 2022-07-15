@@ -1,6 +1,5 @@
-import { Button, ButtonVariant } from "components/Button";
 import { Image, ImageName } from "components/Image";
-import { Wallet } from "lib";
+import { Session, Wallet } from "lib";
 
 import { addAccount, InitialAccount } from "slices/accounts";
 import { useEffect } from "react";
@@ -13,19 +12,16 @@ import {
   ImageContainer,
   Header1,
   BodyText,
-  ButtonsContainer,
-  ButtonContainer,
 } from "./Completion.components";
 import { Tokens, TokenType } from "constants/";
 import { createShieldedAccount } from "slices/accountsNew/actions";
+import { useNavigate } from "react-router-dom";
+import { TopLevelRoute } from "App/types";
 
 type CompletionViewProps = {
   // navigates to the account
-  onClickSeeAccounts: () => void;
-  // navigates to the settings
-  onClickDone: () => void;
+  setPassword: (password: string) => void;
   mnemonic: string;
-  alias: string;
   password: string;
 };
 
@@ -53,34 +49,37 @@ const createAccount = async (
 };
 
 const Completion = (props: CompletionViewProps): JSX.Element => {
-  const { onClickSeeAccounts, mnemonic, password } = props;
-
+  const { setPassword, mnemonic, password } = props;
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (password) {
-      const tokens = Object.values(Tokens);
+    if (password && mnemonic) {
+      // 1. Encrypt and store Mnemonic
+      // 2. Set up initial accounts
 
-      const defaultToken = tokens.find((token) => token.symbol === "NAM");
+      setTimeout(() => {
+        (async () => {
+          await Session.setSeed(mnemonic, password || "");
+          const tokens = Object.values(Tokens);
 
-      // Create a master account for NAM token on each chain
+          const defaultToken = tokens.find((token) => token.symbol === "NAM");
 
-      if (defaultToken) {
-        chains.forEach((chain) => {
-          (async () => {
-            const account = await createAccount(
-              chain.id,
-              defaultToken.symbol as TokenType,
-              defaultToken.coin,
-              mnemonic
-            );
-            dispatch(addAccount({ ...account, isInitial: true }));
-          })();
-        });
-        // Set timeout is to clear animation
-        setTimeout(() => {
-          chains.forEach((chain) => {
-            (async () => {
+          // Create accounts on each chain
+          if (defaultToken) {
+            chains.forEach((chain) => {
+              (async () => {
+                const account = await createAccount(
+                  chain.id,
+                  defaultToken.symbol as TokenType,
+                  defaultToken.coin,
+                  mnemonic
+                );
+                dispatch(addAccount({ ...account, isInitial: true }));
+              })();
+            });
+
+            chains.forEach((chain) => {
               dispatch(
                 createShieldedAccount({
                   chainId: chain.id,
@@ -89,12 +88,16 @@ const Completion = (props: CompletionViewProps): JSX.Element => {
                   tokenType: defaultToken.symbol as TokenType,
                 })
               );
-            })();
-          });
-        }, 1000);
-      }
+            });
 
-      // Create shielded accounts for each supported token:
+            setTimeout(() => {
+              // Log user into wallet:
+              setPassword(password);
+              navigate(TopLevelRoute.Wallet);
+            }, 3000);
+          }
+        })();
+      }, 1200);
     }
   }, []);
 
@@ -105,19 +108,9 @@ const Completion = (props: CompletionViewProps): JSX.Element => {
           <Image imageName={ImageName.SuccessImage} />
         </ImageContainer>
 
-        <Header1>You are all set!</Header1>
-        <BodyText>&nbsp;</BodyText>
+        <Header1>Creating your wallet</Header1>
+        <BodyText>One moment while your wallet is being created...</BodyText>
       </CompletionViewUpperPartContainer>
-      <ButtonsContainer>
-        <ButtonContainer>
-          <Button
-            onClick={onClickSeeAccounts}
-            variant={ButtonVariant.Contained}
-          >
-            Done
-          </Button>
-        </ButtonContainer>
-      </ButtonsContainer>
     </CompletionViewContainer>
   );
 };

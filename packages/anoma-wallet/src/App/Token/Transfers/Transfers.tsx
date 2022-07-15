@@ -68,7 +68,6 @@ const Transfers = (): JSX.Element => {
     )
     .reverse();
 
-  console.log({ transactions });
   return (
     <TransfersContainer>
       <NavigationContainer>

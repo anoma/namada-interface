@@ -86,7 +86,7 @@ export const darkColors: Colors = {
   inputBackground: "#3E3E3E",
   wordchip: "#000000",
   wordchipText: "#e8e8e8",
-  textPrimary: "#000000",
+  textPrimary: "#FFFFFF",
   textSecondary: "#8F9FB2",
   yellow1: "#F5DD81",
   yellow1Hover: "#ffdc55",
