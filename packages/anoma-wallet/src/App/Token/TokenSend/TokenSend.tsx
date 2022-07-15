@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 
 import { AccountsState } from "slices/accounts";
-import { SettingsState } from "slices/settings";
+import { setChainId, SettingsState } from "slices/settings";
 import { TransferType } from "slices/transfers";
-import { useAppSelector } from "store";
+import { useAppDispatch, useAppSelector } from "store";
 
 import {
   PAYMENT_ADDRESS_LENGTH,
@@ -24,6 +24,8 @@ import {
   TokenSendContent,
 } from "./TokenSend.components";
 import { BalancesState } from "slices/balances";
+import { useParams } from "react-router-dom";
+import Config from "config";
 
 export const parseTarget = (target: string): TransferType | undefined => {
   if (
@@ -42,10 +44,18 @@ export const parseTarget = (target: string): TransferType | undefined => {
   return undefined;
 };
 
+type Params = {
+  accountIndex: string;
+  target: string;
+};
+
 const TokenSend = (): JSX.Element => {
   const { derived, shieldedAccounts: allShieldedAccounts } =
     useAppSelector<AccountsState>((state) => state.accounts);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
+  const { accountIndex, target } = useParams<Params>();
+  const dispatch = useAppDispatch();
+
   const balancesByChain = useAppSelector<BalancesState>(
     (state) => state.balances
   );
@@ -118,11 +128,31 @@ const TokenSend = (): JSX.Element => {
   );
 
   const tabs = ["Shielded", "Transparent"];
-  const [activeTab, setActiveTab] = useState(tabs[0]);
+  let defaultTab = 0;
+
+  if (target && target.startsWith("atest")) {
+    defaultTab = 1;
+  }
+
+  const [activeTab, setActiveTab] = useState(tabs[defaultTab]);
   const tokenType = selectedAccountId
-    ? accounts[selectedAccountId].tokenType || "NAM"
+    ? accounts[selectedAccountId]?.tokenType || "NAM"
     : "NAM";
   const [token, setToken] = useState<TokenType>(tokenType);
+
+  useEffect(() => {
+    if (accountIndex) {
+      const chains = Object.values(Config.chain);
+      const targetChain = chains.find(
+        (chain) => chain.accountIndex === parseInt(accountIndex)
+      );
+      // Token Send should match the target's network, otherwise
+      // transactions will not succeed:
+      if (targetChain && targetChain.id !== chainId) {
+        dispatch(setChainId(targetChain.id));
+      }
+    }
+  }, [accountIndex]);
 
   useEffect(() => {
     if (!selectedAccountId && accountsData.length > 0) {
@@ -183,6 +213,9 @@ const TokenSend = (): JSX.Element => {
                       ? shieldedAccounts[selectedShieldedAccountId].tokenType
                       : token
                   }
+                  defaultTarget={
+                    target?.startsWith("patest") ? target : undefined
+                  }
                 />
               )}
             </>
@@ -204,6 +237,9 @@ const TokenSend = (): JSX.Element => {
                 <TokenSendForm
                   accountId={selectedAccountId}
                   tokenType={token}
+                  defaultTarget={
+                    target?.startsWith("atest") ? target : undefined
+                  }
                 />
               )}
             </>

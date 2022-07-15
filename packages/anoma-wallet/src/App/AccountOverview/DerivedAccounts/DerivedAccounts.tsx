@@ -165,12 +165,17 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
    */
   const groupedTokens = Symbols.reduce(
     (tokenBalances: TokenBalance[], symbol) => {
-      const tmp: TokenBalance[] =
-        tokens.filter((tokenBalance) => tokenBalance.token == symbol) || [];
-
-      // Sort grouped tokens, prioritizing Shielded token balances:
-      tmp.sort((a: TokenBalance) => (a.isShielded ? 0 : 1));
-      tokenBalances.push(...tmp);
+      const shielded: TokenBalance[] =
+        tokens.filter(
+          (tokenBalance) =>
+            tokenBalance.token == symbol && tokenBalance.isShielded
+        ) || [];
+      const transparent: TokenBalance[] =
+        tokens.filter(
+          (tokenBalance) =>
+            tokenBalance.token == symbol && !tokenBalance.isShielded
+        ) || [];
+      tokenBalances.push(...shielded, ...transparent);
       return tokenBalances;
     },
     []

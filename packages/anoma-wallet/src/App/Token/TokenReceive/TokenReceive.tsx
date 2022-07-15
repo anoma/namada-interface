@@ -59,11 +59,8 @@ const TokenReceive = (): JSX.Element => {
     }
   }, [chainId]);
 
-  const {
-    establishedAddress = "",
-    shieldedKeysAndPaymentAddress,
-    tokenType,
-  } = accounts[selectedAccountId || ""] || {};
+  const { establishedAddress = "", shieldedKeysAndPaymentAddress } =
+    accounts[selectedAccountId || ""] || {};
 
   const { protocol, host } = window.location;
   const address =
@@ -73,10 +70,11 @@ const TokenReceive = (): JSX.Element => {
     TopLevelRoute.TokenSendTarget,
     {
       accountIndex,
-      tokenType,
       target: address,
     }
   )}`;
+
+  console.log("QR Code URL", text);
 
   return (
     <TokenReceiveContainer>

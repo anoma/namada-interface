@@ -47,12 +47,12 @@ export const LeftSection = styled(Section)`
 
 export const MiddleSection = styled(Section)`
   justify-content: center;
-  width: 50%;
+  width: 60%;
 `;
 
 export const RightSection = styled(Section)`
   justify-content: end;
-  width: 35%;
+  width: 25%;
 `;
 
 const isSelected = (): FlattenSimpleInterpolation => {
@@ -72,6 +72,8 @@ export const MenuItem = styled.button<{ isSelected?: boolean }>`
   justify-content: center;
   align-items: center;
   margin: 0 16px;
+  color: #000;
+
   & path {
     stroke-width: 1;
   }

@@ -21,7 +21,7 @@ export enum TopLevelRoute {
   /* TOKENS */
   Token = "/token/:id",
   TokenSend = "/token/send",
-  TokenSendTarget = "/token/send/:accountIndex/:tokenType/:target",
+  TokenSendTarget = "/token/send/:accountIndex/:target",
   TokenReceive = "/token/receive",
   TokenTransfers = "/token/:id/transfers",
   TokenTransferDetails = "/token/:id/transfers/:appliedHash",

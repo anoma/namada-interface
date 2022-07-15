@@ -15,8 +15,9 @@ export const AccountRows = styled.div`
   flex-direction: column;
   justify-content: start;
   align-items: center;
-  overflow-y: auto;
+  overflow: auto;
   width: 100%;
+  height: 350px;
   margin: 18px 0 0;
   overflow-y: scroll;
   padding: 2px;

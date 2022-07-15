@@ -106,6 +106,7 @@ const TokenSendForm = ({
 }: Props): JSX.Element => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+
   const [target, setTarget] = useState<string | undefined>(defaultTarget);
   const [amount, setAmount] = useState(0);
   //const [memo, setMemo] = useState("");

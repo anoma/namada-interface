@@ -11,7 +11,27 @@ export const DerivedAccountsList = styled.ul`
   list-style-type: none;
   padding: 0;
   max-height: 500px; /* TODO: Remove this - set a max height on a main container */
-  overflow: auto;
+  overflow-y: auto;
+
+  /* TODO - Refactor this into a common function */
+  /* Custom scrollbar for WebKit-based browsers */
+  &::-webkit-scrollbar {
+    height: 12px;
+    width: 10px;
+    background: ${(props) => props.theme.colors.background2};
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: ${(props) => props.theme.colors.buttonBackground2};
+    border-radius: 1ex;
+    -webkit-border-radius: 1ex;
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.75);
+    -webkit-box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.75);
+  }
+
+  &::-webkit-scrollbar-corner {
+    background: ${(props) => props.theme.colors.background2};
+  }
 `;
 
 export const DerivedAccountContainer = styled.div`
