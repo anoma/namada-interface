@@ -18,6 +18,7 @@ import {
   AccountTabsContainer,
   ButtonsWrapper,
   HeadingContainer,
+  NoAccountsContainer,
   TotalAmount,
   TotalContainer,
   TotalHeading,
@@ -32,7 +33,10 @@ export const AccountOverview = ({ persistor }: Props): JSX.Element => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
+  const { derived, shieldedAccounts } = useAppSelector<AccountsState>(
+    (state) => state.accounts
+  );
+
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
 
   const [total, setTotal] = useState(0);
@@ -46,55 +50,70 @@ export const AccountOverview = ({ persistor }: Props): JSX.Element => {
   );
 
   useEffect(() => {
-    // Initialize any uninitialized transparent accounts
-    // The number of uninitialized accounts should be 1 at most
-
     // Initialize accounts sequentially
     // Each rerender will initialize the next in this batch
-
     if (uninitializedAccounts.length > 0) {
-      // Set time-out to clear any transitional animations
       dispatch(submitInitAccountTransaction(uninitializedAccounts[0]));
     }
   }, [uninitializedAccounts]);
 
   return (
     <AccountOverviewContainer>
-      <AccountTabsContainer>
-        <AccountTab className={"active"}>Fungible</AccountTab>
-        <AccountTab className={"disabled"}>Non-Fungible</AccountTab>
-      </AccountTabsContainer>
-      <AccountOverviewContent>
-        <PersistGate loading={"Loading accounts..."} persistor={persistor}>
+      <PersistGate loading={"Loading accounts..."} persistor={persistor}>
+        <AccountTabsContainer>
+          <AccountTab className={"active"}>Fungible</AccountTab>
+          <AccountTab className={"disabled"}>Non-Fungible</AccountTab>
+        </AccountTabsContainer>
+        <AccountOverviewContent>
           <HeadingContainer>
             <Heading level={HeadingLevel.Four}>Your wallet</Heading>
           </HeadingContainer>
           <TotalContainer>
-            <TotalHeading>
-              <Heading level={HeadingLevel.One}>Total Balance</Heading>
-            </TotalHeading>
-            <TotalAmount>{total}</TotalAmount>
+            {(!derived[chainId] && !shieldedAccounts[chainId] && (
+              <NoAccountsContainer>
+                <p>You have no accounts on this chain!</p>
+
+                <Button
+                  variant={ButtonVariant.Contained}
+                  onClick={() => navigate(TopLevelRoute.WalletAddAccount)}
+                >
+                  Create an Account
+                </Button>
+              </NoAccountsContainer>
+            )) || (
+              <>
+                <TotalHeading>
+                  <Heading level={HeadingLevel.One}>Total Balance</Heading>
+                </TotalHeading>
+                <TotalAmount>{total}</TotalAmount>
+              </>
+            )}
           </TotalContainer>
 
-          <ButtonsContainer>
-            <ButtonsWrapper>
-              <Button
-                variant={ButtonVariant.Contained}
-                onClick={() => navigate(TopLevelRoute.TokenSend)}
-              >
-                Send
-              </Button>
-              <Button
-                variant={ButtonVariant.Contained}
-                onClick={() => navigate(TopLevelRoute.TokenReceive)}
-              >
-                Receive
-              </Button>
-            </ButtonsWrapper>
-          </ButtonsContainer>
+          {derived[chainId] || shieldedAccounts[chainId] ? (
+            <ButtonsContainer>
+              <ButtonsWrapper>
+                <Button
+                  variant={ButtonVariant.Contained}
+                  onClick={() => navigate(TopLevelRoute.TokenSend)}
+                >
+                  Send
+                </Button>
+                <Button
+                  variant={ButtonVariant.Contained}
+                  onClick={() => navigate(TopLevelRoute.TokenReceive)}
+                >
+                  Receive
+                </Button>
+              </ButtonsWrapper>
+            </ButtonsContainer>
+          ) : (
+            <div />
+          )}
+
           <DerivedAccounts setTotal={setTotal} />
-        </PersistGate>
-      </AccountOverviewContent>
+        </AccountOverviewContent>
+      </PersistGate>
     </AccountOverviewContainer>
   );
 };

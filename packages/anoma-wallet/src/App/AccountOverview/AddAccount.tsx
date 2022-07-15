@@ -200,7 +200,7 @@ export const AddAccount = ({ password }: Props): JSX.Element => {
         )}
       </AddAccountContent>
       <ButtonsContainer>
-        <BackButton onClick={() => navigate(TopLevelRoute.SettingsAccounts)}>
+        <BackButton onClick={() => navigate(-1)}>
           <Icon iconName={IconName.ChevronLeft} />
         </BackButton>
         <Button

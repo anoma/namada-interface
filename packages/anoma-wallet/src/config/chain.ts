@@ -8,6 +8,7 @@ const {
   REACT_APP_LEDGER_PORT,
   REACT_APP_CHAIN_ID,
   REACT_APP_FAUCET,
+  REACT_APP_ALIAS,
   // Alternatively, specify a local IBC chain:
   // IBC - CHAIN A
   REACT_APP_CHAIN_A_ALIAS,
@@ -102,6 +103,7 @@ const getUrlProtocol = (url?: string): Protocol => {
 
 // Default chain
 const chainId = sanitize(REACT_APP_CHAIN_ID);
+const alias = stripInvalidCharacters(REACT_APP_ALIAS) || DEFAULT_CHAIN_ALIAS;
 const url = getUrl(sanitize(REACT_APP_LEDGER_URL));
 const protocol = getUrlProtocol(REACT_APP_LEDGER_URL);
 const wsProtocol: Protocol = protocol === "https" ? "wss" : "ws";
@@ -139,7 +141,7 @@ if (chainId) {
   // If no IBC chains specified in .env, you MUST have a default chain config specified for Namada!
   chains.push({
     id: chainId || defaultChainId,
-    alias: DEFAULT_CHAIN_ALIAS,
+    alias,
     accountIndex: 0,
     faucet,
     network: {

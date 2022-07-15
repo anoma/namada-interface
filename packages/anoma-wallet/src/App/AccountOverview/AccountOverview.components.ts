@@ -107,3 +107,14 @@ export const TotalAmount = styled.div`
 export const HeadingContainer = styled.div`
   width: 100%;
 `;
+
+export const NoAccountsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  padding: 20px 0;
+`;

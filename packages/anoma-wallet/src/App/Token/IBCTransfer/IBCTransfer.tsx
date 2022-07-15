@@ -125,7 +125,7 @@ const IBCTransfer = (): JSX.Element => {
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
 
-  const { portId = "transfer" } = defaultIbcChain;
+  const { portId = "transfer" } = defaultIbcChain || {};
 
   useEffect(() => {
     return () => {
@@ -203,127 +203,136 @@ const IBCTransfer = (): JSX.Element => {
 
   return (
     <IBCTransferFormContainer>
-      <Select
-        data={tokenData}
-        value={`${selectedAccountId}|${token}`}
-        label="Token"
-        onChange={handleTokenChange}
-      />
-      <InputContainer>
-        <Select<string>
-          data={selectDestinationChainData}
-          value={selectedChainId}
-          label="Destination Chain"
-          onChange={(e) => setSelectedChainId(e.target.value)}
-        />
-      </InputContainer>
-      <InputContainer>
-        {channels.length > 0 && (
-          <Select<string>
-            data={selectChannelsData}
-            value={selectedChannelId}
-            label="IBC Transfer Channel"
-            onChange={(e) => setSelectedChannelId(e.target.value)}
-          />
-        )}
-
-        {!showAddChannelForm && (
-          <AddChannelButton onClick={() => setShowAddChannelForm(true)}>
-            <Icon iconName={IconName.Plus} />
-            <span>Add IBC Transfer Channel</span>
-          </AddChannelButton>
-        )}
-      </InputContainer>
-
-      {showAddChannelForm && (
-        <InputContainer>
-          <Input
-            variant={InputVariants.Text}
-            label="Add Channel ID"
-            value={channelId}
-            onChangeCallback={(e) => {
-              const { value } = e.target;
-              setChannelId(value);
-            }}
-            onFocus={handleFocus}
-            error={
-              channels.indexOf(`${channelId}`) > -1
-                ? "Channel exists!"
-                : undefined
-            }
-          />
-          <Button
-            variant={ButtonVariant.Contained}
-            style={{ width: 160 }}
-            onClick={handleAddChannel}
-            disabled={!channelId}
-          >
-            Add
-          </Button>
-          <Button
-            variant={ButtonVariant.Contained}
-            style={{ width: 160 }}
-            onClick={() => setShowAddChannelForm(false)}
-          >
-            Cancel
-          </Button>
-        </InputContainer>
+      {!defaultIbcChain && (
+        <p>This chain is not configured to connect over IBC!</p>
       )}
-
-      <InputContainer>
-        <Input
-          variant={InputVariants.Text}
-          label={<p>Recipient</p>}
-          value={recipient}
-          onChangeCallback={(e) => {
-            const { value } = e.target;
-            setRecipient(value);
-          }}
-        />
-      </InputContainer>
-
-      <InputContainer>
-        <Input
-          variant={InputVariants.Number}
-          label={<p>Amount</p>}
-          value={amount}
-          onChangeCallback={(e) => {
-            const { value } = e.target;
-            setAmount(parseFloat(`${value}`));
-          }}
-          onFocus={handleFocus}
-          error={amount <= balance ? undefined : "Invalid amount!"}
-        />
-      </InputContainer>
-
-      {isIbcTransferSubmitting && <p>Submitting IBC Transfer</p>}
-      {transferError && <pre style={{ overflow: "auto" }}>{transferError}</pre>}
-      {events && (
+      {defaultIbcChain && (
         <>
-          <StatusMessage>
-            Successfully submitted IBC transfer! It will take some time for the
-            receiver to see an updated balance.
-          </StatusMessage>
-          <StatusMessage>Gas used: {events.gas}</StatusMessage>
-          <StatusMessage>Applied hash:</StatusMessage>
-          <Address>{events.appliedHash}</Address>
+          <Select
+            data={tokenData}
+            value={`${selectedAccountId}|${token}`}
+            label="Token"
+            onChange={handleTokenChange}
+          />
+          <InputContainer>
+            <Select<string>
+              data={selectDestinationChainData}
+              value={selectedChainId}
+              label="Destination Chain"
+              onChange={(e) => setSelectedChainId(e.target.value)}
+            />
+          </InputContainer>
+          <InputContainer>
+            {channels.length > 0 && (
+              <Select<string>
+                data={selectChannelsData}
+                value={selectedChannelId}
+                label="IBC Transfer Channel"
+                onChange={(e) => setSelectedChannelId(e.target.value)}
+              />
+            )}
+
+            {!showAddChannelForm && (
+              <AddChannelButton onClick={() => setShowAddChannelForm(true)}>
+                <Icon iconName={IconName.Plus} />
+                <span>Add IBC Transfer Channel</span>
+              </AddChannelButton>
+            )}
+          </InputContainer>
+
+          {showAddChannelForm && (
+            <InputContainer>
+              <Input
+                variant={InputVariants.Text}
+                label="Add Channel ID"
+                value={channelId}
+                onChangeCallback={(e) => {
+                  const { value } = e.target;
+                  setChannelId(value);
+                }}
+                onFocus={handleFocus}
+                error={
+                  channels.indexOf(`${channelId}`) > -1
+                    ? "Channel exists!"
+                    : undefined
+                }
+              />
+              <Button
+                variant={ButtonVariant.Contained}
+                style={{ width: 160 }}
+                onClick={handleAddChannel}
+                disabled={!channelId}
+              >
+                Add
+              </Button>
+              <Button
+                variant={ButtonVariant.Contained}
+                style={{ width: 160 }}
+                onClick={() => setShowAddChannelForm(false)}
+              >
+                Cancel
+              </Button>
+            </InputContainer>
+          )}
+
+          <InputContainer>
+            <Input
+              variant={InputVariants.Text}
+              label={<p>Recipient</p>}
+              value={recipient}
+              onChangeCallback={(e) => {
+                const { value } = e.target;
+                setRecipient(value);
+              }}
+            />
+          </InputContainer>
+
+          <InputContainer>
+            <Input
+              variant={InputVariants.Number}
+              label={<p>Amount</p>}
+              value={amount}
+              onChangeCallback={(e) => {
+                const { value } = e.target;
+                setAmount(parseFloat(`${value}`));
+              }}
+              onFocus={handleFocus}
+              error={amount <= balance ? undefined : "Invalid amount!"}
+            />
+          </InputContainer>
+
+          {isIbcTransferSubmitting && <p>Submitting IBC Transfer</p>}
+          {transferError && (
+            <pre style={{ overflow: "auto" }}>{transferError}</pre>
+          )}
+          {events && (
+            <>
+              <StatusMessage>
+                Successfully submitted IBC transfer! It will take some time for
+                the receiver to see an updated balance.
+              </StatusMessage>
+              <StatusMessage>Gas used: {events.gas}</StatusMessage>
+              <StatusMessage>Applied hash:</StatusMessage>
+              <Address>{events.appliedHash}</Address>
+            </>
+          )}
+          <ButtonsContainer>
+            <Button
+              variant={ButtonVariant.Contained}
+              disabled={
+                amount > balance ||
+                amount === 0 ||
+                !recipient ||
+                isIbcTransferSubmitting ||
+                !selectedChannelId
+              }
+              onClick={handleSubmit}
+            >
+              Continue
+            </Button>
+          </ButtonsContainer>
         </>
       )}
-      <ButtonsContainer>
-        <Button
-          variant={ButtonVariant.Contained}
-          disabled={
-            amount > balance ||
-            amount === 0 ||
-            !recipient ||
-            isIbcTransferSubmitting ||
-            !selectedChannelId
-          }
-          onClick={handleSubmit}
-        >
-          Continue
-        </Button>
-      </ButtonsContainer>
     </IBCTransferFormContainer>
   );
 };

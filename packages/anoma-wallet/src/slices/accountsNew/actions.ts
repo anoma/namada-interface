@@ -5,7 +5,7 @@ import {
   NewAccountDetails,
   ShieldedAccount,
 } from "./types";
-//import { history, TopLevelRouteGenerator } from "App";
+import { history, TopLevelRouteGenerator } from "App";
 import { RootState } from "store/store";
 import { Session } from "lib";
 import {
@@ -63,7 +63,7 @@ export const createShieldedAccount = createAsyncThunk<
         };
 
         // TODO allow overriding this
-        //history.push(TopLevelRouteGenerator.createRouteForWallet());
+        history.push(TopLevelRouteGenerator.createRouteForWallet());
         return payload;
       }
       Promise.reject("could not create seed phrase");
