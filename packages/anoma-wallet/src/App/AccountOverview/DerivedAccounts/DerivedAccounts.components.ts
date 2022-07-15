@@ -13,9 +13,14 @@ export const DerivedAccountsList = styled.ul`
   max-height: 400px; /* TODO: Remove this - set a max height on a main container */
   overflow-y: auto;
 
+  /* Custom CSS Scrollbar */
   /* TODO - Refactor this into a common function */
-  /* Custom scrollbar for WebKit-based browsers */
-  /* Firefox custom scrollbar??? */
+  scrollbar-width: 10px;
+  scrollbar-color: ${(props) =>
+    props.theme.colors.buttonBackground2 +
+    " " +
+    props.theme.colors.background2};
+
   &::-webkit-scrollbar {
     height: 12px;
     width: 10px;

@@ -21,9 +21,16 @@ export const AccountRows = styled.div`
   margin: 18px 0 0;
   overflow-y: scroll;
   padding: 2px;
+
+  /* Custom CSS Scrollbar */
+  /* NOTE - Firefox will only show max width on hover, otherwise is thin profile */
   /* TODO - Refactor this into a common function */
-  /* Custom scrollbar for WebKit-based browsers */
-  /* Firefox custom scrollbar??? */
+  scrollbar-width: 10px;
+  scrollbar-color: ${(props) =>
+    props.theme.colors.buttonBackground2 +
+    " " +
+    props.theme.colors.background2};
+
   &::-webkit-scrollbar {
     height: 12px;
     width: 10px;
