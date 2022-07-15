@@ -112,6 +112,7 @@ export const darkColorsLoggedIn: Colors = {
   background1: "#FFFF00",
   background2: "#1F1F1F",
   buttonBackground4: "#444444",
+  textPrimary: "#000000",
 };
 
 export const lightColors: Colors = {
