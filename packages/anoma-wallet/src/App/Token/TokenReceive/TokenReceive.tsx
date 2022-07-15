@@ -37,9 +37,9 @@ const TokenReceive = (): JSX.Element => {
 
   const { accountIndex } = Config.chain[chainId];
 
-  const accounts = { ...derivedAccounts, ...shieldedAccounts };
+  const accounts = { ...shieldedAccounts, ...derivedAccounts };
   const accountsArray = Object.values(accounts);
-  accountsArray.sort((a) => (a.isShielded ? 0 : 1));
+
   const accountsData = Object.values(accountsArray).map((account) => ({
     value: account.id,
     label: `${account.alias} - ${

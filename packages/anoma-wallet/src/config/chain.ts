@@ -86,6 +86,20 @@ const getUrlProtocol = (url?: string): Protocol => {
   return "http";
 };
 
+/**
+ * The .env can currently provide configurations for up to 3 chains:
+ *  - A default chain (No-IBC), and/or:
+ *  - IBC-enabled chain 1
+ *    - This chain will only provide IBC functionality if Chain 2 is defined,
+ *      otherwise will behave as a non-IBC chain
+ *  - IBC-enabled chain 2
+ *    - This will only be loaded if Chain 1 is also defined.
+ *
+ * NOTE: IBC functionality will only be displayed where Chain 1 and Chain 2 exist,
+ * and will automatically include a reference to the other capable chain in it's config,
+ * so the user will see a destination chain.
+ */
+
 // Default chain
 const chainId = sanitize(REACT_APP_CHAIN_ID);
 const url = getUrl(sanitize(REACT_APP_LEDGER_URL));
@@ -121,39 +135,7 @@ export const defaultChainId =
 
 const chains: Chain[] = [];
 
-if (chainAId) {
-  chains.push({
-    id: chainAId,
-    alias: chainAAlias,
-    accountIndex: 0,
-    faucet: chainAFaucet,
-    portId: chainAPortId,
-    network: {
-      url: chainAUrl,
-      port: chainAPort,
-      protocol: chainAProtocol,
-      wsProtocol: chainAWsProtocol,
-    },
-    ibc: chainBId ? [chainBId] : undefined,
-  });
-
-  if (chainBId) {
-    chains.push({
-      id: chainBId,
-      alias: chainBAlias,
-      accountIndex: 999,
-      faucet: chainBFaucet,
-      portId: chainBPortId,
-      network: {
-        url: chainBUrl,
-        port: chainBPort,
-        protocol: chainBProtocol,
-        wsProtocol: chainBWsProtocol,
-      },
-      ibc: [chainAId],
-    });
-  }
-} else {
+if (chainId) {
   // If no IBC chains specified in .env, you MUST have a default chain config specified for Namada!
   chains.push({
     id: chainId || defaultChainId,
@@ -169,9 +151,44 @@ if (chainAId) {
   });
 }
 
+if (chainAId) {
+  chains.push({
+    id: chainAId,
+    alias: chainAAlias,
+    accountIndex: 998,
+    faucet: chainAFaucet,
+    portId: chainAPortId,
+    network: {
+      url: chainAUrl,
+      port: chainAPort,
+      protocol: chainAProtocol,
+      wsProtocol: chainAWsProtocol,
+    },
+    ibc: chainBId ? [chainBId] : undefined,
+  });
+}
+
+if (chainAId && chainBId) {
+  chains.push({
+    id: chainBId,
+    alias: chainBAlias,
+    accountIndex: 999,
+    faucet: chainBFaucet,
+    portId: chainBPortId,
+    network: {
+      url: chainBUrl,
+      port: chainBPort,
+      protocol: chainBProtocol,
+      wsProtocol: chainBWsProtocol,
+    },
+    ibc: [chainAId],
+  });
+}
+
 /**
  * TODO: Load ChainConfig from JSON.
- * This set-up only supports up to 2 chains (with IBC enabled), loaded from .env
+ * This set-up only supports up to 3 chains (one default, two with IBC enabled),
+ * loaded from .env
  */
 const ChainConfig = chains.reduce(
   (config: Record<string, Chain>, chain: Chain) => {

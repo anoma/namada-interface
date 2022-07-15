@@ -71,8 +71,12 @@ export const MenuItem = styled.button<{ isSelected?: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0 16px;
-  color: #000;
+  margin: 0 22px;
+  font-size: 14px;
+
+  &:last-child {
+    margin-right: 0;
+  }
 
   & path {
     stroke-width: 1;
@@ -86,6 +90,11 @@ export const MenuItemTextContainer = styled.div`
   justify-content: center;
   align-items: center;
   margin: 0 16px;
+  &:last-child {
+    margin-right: 0;
+    padding-right: 0;
+  }
+
   color: ${(props) => props.theme.colors.textPrimary};
 `;
 

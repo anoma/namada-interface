@@ -217,6 +217,7 @@ const TokenSendForm = ({
           target,
           amount,
           token: tokenType,
+          feeAmount: gasFee,
         })
       );
     }
