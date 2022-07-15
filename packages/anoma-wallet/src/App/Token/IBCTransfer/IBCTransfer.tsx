@@ -202,7 +202,7 @@ const IBCTransfer = (): JSX.Element => {
       <Select
         data={tokenData}
         value={`${selectedAccountId}|${token}`}
-        label="Token:"
+        label="Token"
         onChange={handleTokenChange}
       />
       <InputContainer>
@@ -265,7 +265,7 @@ const IBCTransfer = (): JSX.Element => {
       <InputContainer>
         <Input
           variant={InputVariants.Text}
-          label="Recipient"
+          label={<p>Recipient</p>}
           value={recipient}
           onChangeCallback={(e) => {
             const { value } = e.target;
@@ -277,7 +277,7 @@ const IBCTransfer = (): JSX.Element => {
       <InputContainer>
         <Input
           variant={InputVariants.Number}
-          label="Amount"
+          label={<p>Amount</p>}
           value={amount}
           onChangeCallback={(e) => {
             const { value } = e.target;

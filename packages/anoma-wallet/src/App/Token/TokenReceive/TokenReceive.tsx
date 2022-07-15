@@ -88,7 +88,7 @@ const TokenReceive = (): JSX.Element => {
             <Select
               data={accountsData || []}
               value={selectedAccountId}
-              label="Account:"
+              label="Account"
               onChange={(e) => setSelectedAccountId(e.target.value)}
             />
             <CanvasContainer>

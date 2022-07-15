@@ -29,6 +29,7 @@ export const TokenSendTab = styled.button`
   cursor: pointer;
 
   &.active {
+    cursor: default;
     color: ${(props) => props.theme.colors.tabActiveColor};
     background-color: ${(props) => props.theme.colors.tabActiveBackground};
   }

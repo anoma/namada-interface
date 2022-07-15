@@ -55,6 +55,11 @@ export const TextAreaInput = styled.textarea<{ error: boolean }>`
 export const Label = styled.label`
   font-weight: 500;
   color: ${(props) => props.theme.colors.inputText};
+
+  & > p {
+    padding: 0 0 4px;
+    margin: 0;
+  }
 `;
 
 export const ErrorTooltip = styled.span`

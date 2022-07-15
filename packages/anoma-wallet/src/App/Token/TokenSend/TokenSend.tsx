@@ -202,7 +202,7 @@ const TokenSend = (): JSX.Element => {
               <Select
                 data={shieldedAccountsData || []}
                 value={selectedShieldedAccountId}
-                label="Token:"
+                label="Token"
                 onChange={(e) => setSelectedShieldedAccountId(e.target.value)}
               />
               {selectedShieldedAccountId && (
@@ -230,7 +230,7 @@ const TokenSend = (): JSX.Element => {
               <Select
                 data={tokenData || []}
                 value={`${selectedAccountId}|${token}`}
-                label="Token:"
+                label="Token"
                 onChange={handleTransparentTokenChange}
               />
               {selectedAccountId && (

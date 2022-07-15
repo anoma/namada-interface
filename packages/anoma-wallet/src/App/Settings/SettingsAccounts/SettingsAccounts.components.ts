@@ -15,12 +15,34 @@ export const AccountRows = styled.div`
   flex-direction: column;
   justify-content: start;
   align-items: center;
-  overflow: auto;
+  overflow-y: auto;
   width: 100%;
   height: 350px;
   margin: 18px 0 0;
   overflow-y: scroll;
   padding: 2px;
+  /* TODO - Refactor this into a common function */
+  /* Custom scrollbar for WebKit-based browsers */
+  /* Firefox custom scrollbar??? */
+  &::-webkit-scrollbar {
+    height: 12px;
+    width: 10px;
+    background: transparent;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: ${(props) => props.theme.colors.buttonBackground2};
+    border-radius: 1ex;
+    -webkit-border-radius: 1ex;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+  }
+
+  &::-webkit-scrollbar-corner {
+    background: ${(props) => props.theme.colors.background2};
+  }
 `;
 
 export const AccountRow = styled.div<{ disabled: boolean }>`

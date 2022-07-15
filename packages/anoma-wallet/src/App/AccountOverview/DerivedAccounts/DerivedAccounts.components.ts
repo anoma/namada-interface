@@ -10,11 +10,12 @@ export const DerivedAccountsList = styled.ul`
   list-style: none;
   list-style-type: none;
   padding: 0;
-  max-height: 500px; /* TODO: Remove this - set a max height on a main container */
+  max-height: 400px; /* TODO: Remove this - set a max height on a main container */
   overflow-y: auto;
 
   /* TODO - Refactor this into a common function */
   /* Custom scrollbar for WebKit-based browsers */
+  /* Firefox custom scrollbar??? */
   &::-webkit-scrollbar {
     height: 12px;
     width: 10px;

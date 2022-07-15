@@ -1,5 +1,5 @@
 import { Icon, IconName } from "components/Icon";
-import { ChangeEventHandler, FocusEventHandler, useState } from "react";
+import React, { ChangeEventHandler, FocusEventHandler, useState } from "react";
 import {
   ErrorTooltip,
   IconContainer,
@@ -13,7 +13,7 @@ import { InputVariants } from "./types";
 export type InputProps = {
   variant?: InputVariants;
   value?: string | number;
-  label: string;
+  label: string | React.ReactNode;
   error?: string;
   onChangeCallback?: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
   onFocus?: FocusEventHandler<HTMLInputElement>;

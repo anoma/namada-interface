@@ -3,13 +3,19 @@ import { darkColors, lightColors } from "utils/theme";
 
 export const StyledSelectWrapper = styled.div`
   position: relative;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
   width: 100%;
+  padding: 12px 0;
+  margin: 0;
 
   & > div {
-    position: absolute;
-    right: 3%;
-    top: 36%;
+    margin: 0;
+    padding: 0;
     pointer-events: none;
+    z-index: 1000;
+    margin-right: 8px;
 
     & > svg > path {
       stroke: ${(props) => props.theme.colors.buttonBackground2};
@@ -22,9 +28,11 @@ export const StyledSelect = styled.select`
   -moz-appearance: none;
   appearance: none;
   width: 100%;
-  margin-top: 10px;
   padding: 0.875em 1em;
   border-radius: 8px;
+  position: absolute;
+  left: 0;
+
   background-color: ${(props) => props.theme.colors.inputBackground};
   border: ${(props) =>
     props.theme.themeConfigurations.isLightMode
@@ -38,4 +46,9 @@ export const Label = styled.label`
   font-weight: 500;
   color: ${(props) => props.theme.colors.inputText};
   width: 100%;
+
+  & > p {
+    padding-bottom: 4px;
+    margin: 0;
+  }
 `;
