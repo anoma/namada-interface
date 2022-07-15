@@ -3,8 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Config from "config";
 import { TransfersState } from "slices/transfers";
 import { useAppSelector } from "store";
-import { formatRoute, stringFromTimestamp } from "utils/helpers";
-import { TopLevelRoute } from "App/types";
+import { stringFromTimestamp } from "utils/helpers";
 
 import { Heading, HeadingLevel } from "components/Heading";
 import { NavigationContainer } from "components/NavigationContainer";
@@ -115,11 +114,7 @@ const TransferDetail = (): JSX.Element => {
       </TransfersContent>
 
       <ButtonsContainer>
-        <BackButton
-          onClick={() =>
-            navigate(formatRoute(TopLevelRoute.TokenTransfers, { id }))
-          }
-        >
+        <BackButton onClick={() => navigate(-1)}>
           <Icon iconName={IconName.ChevronLeft} />
         </BackButton>
       </ButtonsContainer>

@@ -25,6 +25,35 @@ export const TransactionList = styled.ul`
   width: 100%;
   max-height: 400px;
   overflow-y: auto;
+
+  /* Custom CSS Scrollbar */
+  /* NOTE - Firefox will only show max width on hover, otherwise is thin profile */
+  /* TODO - Refactor this into a common function */
+  scrollbar-width: 10px;
+  scrollbar-color: ${(props) =>
+    props.theme.colors.buttonBackground2 +
+    " " +
+    props.theme.colors.background2};
+
+  &::-webkit-scrollbar {
+    height: 12px;
+    width: 10px;
+    background: transparent;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: ${(props) => props.theme.colors.buttonBackground2};
+    border-radius: 1ex;
+    -webkit-border-radius: 1ex;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+  }
+
+  &::-webkit-scrollbar-corner {
+    background: ${(props) => props.theme.colors.background2};
+  }
 `;
 
 export const TransactionListItem = styled.li`
@@ -42,7 +71,7 @@ export const TransactionListItem = styled.li`
 
   & > button {
     flex: 1 0 20%;
-    margin: 0;
+    margin: 0 20px 0 0;
   }
 
   &:last-child {

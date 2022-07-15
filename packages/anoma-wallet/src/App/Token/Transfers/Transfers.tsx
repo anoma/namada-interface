@@ -23,14 +23,16 @@ import {
 import { BackButton } from "../TokenSend/TokenSendForm.components";
 import { Icon, IconName } from "components/Icon";
 import { NavigationContainer } from "components/NavigationContainer";
+import { TokenType } from "constants/";
 
 type TokenDetailsParams = {
   id: string;
+  token: TokenType;
 };
 
 const Transfers = (): JSX.Element => {
   const navigate = useNavigate();
-  const { id = "" } = useParams<TokenDetailsParams>();
+  const { id = "", token } = useParams<TokenDetailsParams>();
   const { derived, shieldedAccounts: shieldedAccountsByChainId } =
     useAppSelector<AccountsState>((state) => state.accounts);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
@@ -61,10 +63,12 @@ const Transfers = (): JSX.Element => {
           transaction.target ===
             (establishedAddress ||
               shieldedKeysAndPaymentAddress?.paymentAddress)) &&
-        transaction.chainId === chainId
+        transaction.chainId === chainId &&
+        transaction.tokenType === token
     )
     .reverse();
 
+  console.log({ transactions });
   return (
     <TransfersContainer>
       <NavigationContainer>

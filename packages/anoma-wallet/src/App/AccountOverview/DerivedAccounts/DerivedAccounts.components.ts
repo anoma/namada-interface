@@ -14,6 +14,7 @@ export const DerivedAccountsList = styled.ul`
   overflow-y: auto;
 
   /* Custom CSS Scrollbar */
+  /* NOTE - Firefox will only show max width on hover, otherwise is thin profile */
   /* TODO - Refactor this into a common function */
   scrollbar-width: 10px;
   scrollbar-color: ${(props) =>

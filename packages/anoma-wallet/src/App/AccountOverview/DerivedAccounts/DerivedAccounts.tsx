@@ -114,7 +114,7 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
       tokenBalances.push({
         accountId: account.id,
         balance: balances[symbol || 0],
-        label: `${alias !== "Namada" ? alias + " - " : ""}${coin}`,
+        label: `${alias !== "Namada" ? alias : coin}`,
         token: symbol,
         isShielded,
         isInitializing,
@@ -224,6 +224,7 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
                       navigate(
                         formatRoute(TopLevelRoute.TokenTransfers, {
                           id: accountId,
+                          token,
                         })
                       );
                     }}

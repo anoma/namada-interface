@@ -28,7 +28,6 @@ import {
   TokenSendFormContainer,
 } from "./TokenSendForm.components";
 
-import { Address } from "../Transfers/TransferDetails.components";
 import { parseTarget } from "./TokenSend";
 import { SettingsState } from "slices/settings";
 import { Icon, IconName } from "components/Icon";
@@ -208,6 +207,13 @@ const TokenSendForm = ({
     };
   }, []);
 
+  useEffect(() => {
+    if (isTransferSubmitting === false) {
+      // Reset amount
+      setAmount(0);
+    }
+  }, [isTransferSubmitting]);
+
   const handleOnSendClick = (): void => {
     if ((isShieldedTarget && target) || (target && token.address)) {
       dispatch(
@@ -350,8 +356,8 @@ const TokenSendForm = ({
           <>
             <StatusMessage>Transfer successful!</StatusMessage>
             <StatusMessage>Gas used: {events.gas}</StatusMessage>
-            <StatusMessage>Applied hash:</StatusMessage>
-            <Address>{events.appliedHash}</Address>
+            {/* <StatusMessage>Applied hash:</StatusMessage>
+            <Address>{events.appliedHash}</Address> */}
           </>
         )}
       </StatusContainer>

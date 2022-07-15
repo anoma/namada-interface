@@ -110,8 +110,10 @@ const TokenSend = (): JSX.Element => {
       return {
         value: `${id}|${tokenType}`,
         label: `${
-          alias !== "Namada" ? alias + " - " : ""
-        }${coin} (${balance} ${tokenType})`,
+          alias !== "Namada"
+            ? alias + " (" + balance + " " + tokenType + ")"
+            : coin + " (" + balance + " " + tokenType + ")"
+        }`,
       };
     });
 
