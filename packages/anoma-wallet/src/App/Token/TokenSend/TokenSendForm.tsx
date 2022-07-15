@@ -302,6 +302,7 @@ const TokenSendForm = ({
           <Button
             variant={ButtonVariant.Outlined}
             onClick={() => setGasFee(GasFee.Low)}
+            className={gasFee === GasFee.Low ? "active" : ""}
           >
             <p>
               <span>Low</span>
@@ -314,6 +315,7 @@ const TokenSendForm = ({
           <Button
             variant={ButtonVariant.Outlined}
             onClick={() => setGasFee(GasFee.Medium)}
+            className={gasFee === GasFee.Medium ? "active" : ""}
           >
             <p>
               <span>Medium</span>
@@ -326,6 +328,7 @@ const TokenSendForm = ({
           <Button
             variant={ButtonVariant.Outlined}
             onClick={() => setGasFee(GasFee.High)}
+            className={gasFee === GasFee.High ? "active" : ""}
           >
             <p>
               <span>High</span>

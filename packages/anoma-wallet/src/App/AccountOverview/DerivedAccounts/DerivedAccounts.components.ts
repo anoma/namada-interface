@@ -18,15 +18,17 @@ export const DerivedAccountsList = styled.ul`
   &::-webkit-scrollbar {
     height: 12px;
     width: 10px;
-    background: ${(props) => props.theme.colors.background2};
+    background: transparent;
+    box-shadow: none;
+    -webkit-box-shadow: none;
   }
 
   &::-webkit-scrollbar-thumb {
     background: ${(props) => props.theme.colors.buttonBackground2};
     border-radius: 1ex;
     -webkit-border-radius: 1ex;
-    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.75);
-    -webkit-box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.75);
+    box-shadow: none;
+    -webkit-box-shadow: none;
   }
 
   &::-webkit-scrollbar-corner {

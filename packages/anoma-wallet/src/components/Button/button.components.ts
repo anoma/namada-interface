@@ -19,6 +19,7 @@ export const OutlinedButton = styled(RoundButton)`
   border-color: ${(props) => props.theme.colors.buttonBorder2};
   background-color: ${(props) => props.theme.colors.background2};
   color: ${(props) => props.theme.colors.buttonText1};
+
   &:hover {
     border-color: ${(props) => props.theme.colors.buttonHover1};
   }
@@ -26,6 +27,11 @@ export const OutlinedButton = styled(RoundButton)`
     opacity: 30%;
     cursor: initial;
     border-color: ${(props) => props.theme.colors.buttonBorder1};
+  }
+
+  &.active {
+    background-color: ${(props) => props.theme.colors.buttonBackground2};
+    color: ${(props) => props.theme.colors.buttonText2};
   }
 `;
 
