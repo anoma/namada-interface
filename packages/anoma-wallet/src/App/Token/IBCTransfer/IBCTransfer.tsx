@@ -115,7 +115,11 @@ const IBCTransfer = (): JSX.Element => {
       };
     });
 
-  const { balance = 0, tokenType } = derivedAccounts[selectedAccountId] || {};
+  const { tokenType } = tokenBalances[0] || {};
+  const balance =
+    tokenBalances.find((balance) => balance.id === selectedAccountId)
+      ?.balance || 0;
+
   const [token, setToken] = useState<TokenType>(tokenType);
 
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
@@ -242,7 +246,11 @@ const IBCTransfer = (): JSX.Element => {
               setChannelId(value);
             }}
             onFocus={handleFocus}
-            error={amount <= balance ? undefined : "Invalid amount!"}
+            error={
+              channels.indexOf(`${channelId}`) > -1
+                ? "Channel exists!"
+                : undefined
+            }
           />
           <Button
             variant={ButtonVariant.Contained}
