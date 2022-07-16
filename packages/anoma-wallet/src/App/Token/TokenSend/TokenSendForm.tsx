@@ -270,7 +270,7 @@ const TokenSendForm = ({
         <InputContainer>
           <Input
             variant={InputVariants.Text}
-            label={<p>Recipient</p>}
+            label={"Recipient"}
             onChangeCallback={(e) => {
               const { value } = e.target;
               setTarget(value);
@@ -292,7 +292,7 @@ const TokenSendForm = ({
         <InputContainer>
           <Input
             variant={InputVariants.Number}
-            label={<p>Amount</p>}
+            label={"Amount"}
             value={amount}
             onChangeCallback={(e) => {
               const { value } = e.target;
