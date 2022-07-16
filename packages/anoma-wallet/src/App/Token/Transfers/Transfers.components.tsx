@@ -10,25 +10,11 @@ export const TransfersContainer = styled.div`
   color: ${(props) => props.theme.colors.titleColor};
 `;
 
-export const TransfersContent = styled.div`
-  width: 100%;
-  padding: 20px 40px;
-  margin: 0;
-  box-sizing: border-box;
-  min-height: 450px;
-`;
-
-export const TransactionList = styled.ul`
-  margin: 0;
-  padding: 0;
-  list-style-type: none;
-  width: 100%;
-  max-height: 400px;
+export const ThemedScrollbarList = styled.ul`
   overflow-y: auto;
 
-  /* Custom CSS Scrollbar */
+  /* Custom CSS Scrollbar for ul tags */
   /* NOTE - Firefox will only show max width on hover, otherwise is thin profile */
-  /* TODO - Refactor this into a common function */
   scrollbar-width: 10px;
   scrollbar-color: ${(props) =>
     props.theme.colors.buttonBackground2 +
@@ -54,6 +40,22 @@ export const TransactionList = styled.ul`
   &::-webkit-scrollbar-corner {
     background: ${(props) => props.theme.colors.background2};
   }
+`;
+
+export const TransfersContent = styled.div`
+  width: 100%;
+  padding: 20px 40px;
+  margin: 0;
+  box-sizing: border-box;
+  min-height: 450px;
+`;
+
+export const TransactionList = styled(ThemedScrollbarList)`
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+  width: 100%;
+  max-height: 400px;
 `;
 
 export const TransactionListItem = styled.li`

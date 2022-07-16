@@ -1,19 +1,9 @@
 import styled from "styled-components/macro";
 
-export const DerivedAccountsContainer = styled.div`
-  width: 100%;
-  height: 100%;
-  font-size: 14px;
-`;
-
-export const DerivedAccountsList = styled.ul`
-  list-style: none;
-  list-style-type: none;
-  padding: 0;
-  max-height: 400px; /* TODO: Remove this - set a max height on a main container */
+export const ThemedScrollbarContainer = styled.div`
   overflow-y: auto;
 
-  /* Custom CSS Scrollbar */
+  /* Custom CSS Scrollbar for div containers*/
   /* NOTE - Firefox will only show max width on hover, otherwise is thin profile */
   /* TODO - Refactor this into a common function */
   scrollbar-width: 10px;
@@ -41,6 +31,19 @@ export const DerivedAccountsList = styled.ul`
   &::-webkit-scrollbar-corner {
     background: ${(props) => props.theme.colors.background2};
   }
+`;
+
+export const DerivedAccountsContainer = styled(ThemedScrollbarContainer)`
+  width: 100%;
+  height: 100%;
+  font-size: 14px;
+`;
+
+export const DerivedAccountsList = styled.ul`
+  list-style: none;
+  list-style-type: none;
+  padding: 0;
+  max-height: 400px; /* TODO: Remove this - set a max height on a main container */
 `;
 
 export const DerivedAccountContainer = styled.div`
