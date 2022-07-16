@@ -82,7 +82,7 @@ export const ButtonsWrapper = styled.div`
 
   & > button {
     flex: 1;
-    padding: 4px;
+    padding: 8px;
   }
 `;
 
@@ -90,22 +90,46 @@ export const TotalContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
-`;
-
-export const TotalHeading = styled.div`
-  text-align: left;
-`;
-
-export const TotalAmount = styled.div`
-  font-size: 22px;
-  font-weight: bold;
-  text-align: right;
-  color: ${(props) => props.theme.colors.titleColor};
 `;
 
 export const HeadingContainer = styled.div`
   width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 8px;
+
+  h4 {
+    font-size: 20px;
+    margin-bottom: 0;
+  }
+`;
+
+export const TotalHeading = styled.div`
+  text-align: left;
+
+  h1 {
+    font-size: 30px;
+  }
+`;
+
+export const TotalAmount = styled.div`
+  display: flex;
+  align-items: flex-end;
+  font-size: 50px;
+  font-weight: bold;
+  padding: 0;
+  text-align: right;
+  color: ${(props) => props.theme.colors.titleColor};
+`;
+
+export const TotalAmountValue = styled.span`
+  margin-bottom: -10px;
+`;
+
+export const TotalAmountFiat = styled.span`
+  font-size: 20px;
+  padding-right: 10px;
 `;
 
 export const NoAccountsContainer = styled.div`
@@ -117,4 +141,5 @@ export const NoAccountsContainer = styled.div`
   align-items: center;
   margin: 0;
   padding: 20px 0;
+  color: ${(props) => props.theme.colors.titleColor};
 `;

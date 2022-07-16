@@ -20,6 +20,8 @@ import {
   HeadingContainer,
   NoAccountsContainer,
   TotalAmount,
+  TotalAmountFiat,
+  TotalAmountValue,
   TotalContainer,
   TotalHeading,
 } from "./AccountOverview.components";
@@ -35,6 +37,9 @@ export const AccountOverview = ({ persistor }: Props): JSX.Element => {
 
   const { derived, shieldedAccounts } = useAppSelector<AccountsState>(
     (state) => state.accounts
+  );
+  const currency = useAppSelector<SettingsState>(
+    (state) => state.settings.fiatCurrency
   );
 
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
@@ -66,29 +71,21 @@ export const AccountOverview = ({ persistor }: Props): JSX.Element => {
         </AccountTabsContainer>
         <AccountOverviewContent>
           <HeadingContainer>
-            <Heading level={HeadingLevel.Four}>Your wallet</Heading>
+            <div>
+              <Heading level={HeadingLevel.Four}>Your wallet</Heading>
+              <TotalHeading>
+                <Heading level={HeadingLevel.One}>Total Balance</Heading>
+              </TotalHeading>
+            </div>
+            <TotalContainer>
+              {(derived[chainId] || shieldedAccounts[chainId]) && (
+                <TotalAmount>
+                  <TotalAmountFiat>{currency}</TotalAmountFiat>
+                  <TotalAmountValue>{total}</TotalAmountValue>
+                </TotalAmount>
+              )}
+            </TotalContainer>
           </HeadingContainer>
-          <TotalContainer>
-            {(!derived[chainId] && !shieldedAccounts[chainId] && (
-              <NoAccountsContainer>
-                <p>You have no accounts on this chain!</p>
-
-                <Button
-                  variant={ButtonVariant.Contained}
-                  onClick={() => navigate(TopLevelRoute.WalletAddAccount)}
-                >
-                  Create an Account
-                </Button>
-              </NoAccountsContainer>
-            )) || (
-              <>
-                <TotalHeading>
-                  <Heading level={HeadingLevel.One}>Total Balance</Heading>
-                </TotalHeading>
-                <TotalAmount>{total}</TotalAmount>
-              </>
-            )}
-          </TotalContainer>
 
           {derived[chainId] || shieldedAccounts[chainId] ? (
             <ButtonsContainer>
@@ -110,7 +107,18 @@ export const AccountOverview = ({ persistor }: Props): JSX.Element => {
           ) : (
             <div />
           )}
+          {!derived[chainId] && !shieldedAccounts[chainId] && (
+            <NoAccountsContainer>
+              <p>You have no accounts on this chain!</p>
 
+              <Button
+                variant={ButtonVariant.Contained}
+                onClick={() => navigate(TopLevelRoute.WalletAddAccount)}
+              >
+                Create an Account
+              </Button>
+            </NoAccountsContainer>
+          )}
           <DerivedAccounts setTotal={setTotal} />
         </AccountOverviewContent>
       </PersistGate>
