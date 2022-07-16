@@ -1,5 +1,9 @@
 import styled from "styled-components/macro";
 
+export const InputWrapper = styled.div`
+  padding: 2px 0;
+`;
+
 export const TextInput = styled.input<{ error: boolean }>`
   background-color: ${(props) => props.theme.colors.inputBackground};
   border-width: 2px;
@@ -53,6 +57,7 @@ export const TextAreaInput = styled.textarea<{ error: boolean }>`
 `;
 
 export const Label = styled.label`
+  font-size: 14px;
   font-weight: 500;
   font-family: "Space Grotesk", sans-serif;
   color: ${(props) => props.theme.colors.inputText};

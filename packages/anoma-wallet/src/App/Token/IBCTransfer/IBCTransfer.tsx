@@ -208,12 +208,15 @@ const IBCTransfer = (): JSX.Element => {
       )}
       {defaultIbcChain && (
         <>
-          <Select
-            data={tokenData}
-            value={`${selectedAccountId}|${token}`}
-            label="Token"
-            onChange={handleTokenChange}
-          />
+          <InputContainer>
+            <Select
+              data={tokenData}
+              value={`${selectedAccountId}|${token}`}
+              label="Token"
+              onChange={handleTokenChange}
+            />
+          </InputContainer>
+
           <InputContainer>
             <Select<string>
               data={selectDestinationChainData}
@@ -278,7 +281,7 @@ const IBCTransfer = (): JSX.Element => {
           <InputContainer>
             <Input
               variant={InputVariants.Text}
-              label={<p>Recipient</p>}
+              label={"Recipient"}
               value={recipient}
               onChangeCallback={(e) => {
                 const { value } = e.target;
@@ -290,7 +293,7 @@ const IBCTransfer = (): JSX.Element => {
           <InputContainer>
             <Input
               variant={InputVariants.Number}
-              label={<p>Amount</p>}
+              label={"Amount"}
               value={amount}
               onChangeCallback={(e) => {
                 const { value } = e.target;
