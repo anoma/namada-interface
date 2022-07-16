@@ -1,5 +1,20 @@
-import styled from "styled-components/macro";
+import styled, { createGlobalStyle } from "styled-components/macro";
 import { motion } from "framer-motion";
+
+type GlobalStyleProps = {
+  isLightMode: boolean;
+  isLoggedIn?: boolean;
+};
+
+// Set global styles for themed control of background color based
+// on whether the user is logged in
+export const GlobalStyles = createGlobalStyle<GlobalStyleProps>`
+  html, body {
+    background-color: ${(props) =>
+      props.isLightMode ? "#ffffff" : props.isLoggedIn ? "#FFFF00" : "#000000"};
+    transition: background-color 0.5s ease;
+  }
+`;
 
 export const MotionContainer = styled(motion.div)`
   display: flex;

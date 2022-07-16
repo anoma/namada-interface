@@ -54,6 +54,7 @@ export const TextAreaInput = styled.textarea<{ error: boolean }>`
 
 export const Label = styled.label`
   font-weight: 500;
+  font-family: "Space Grotesk", sans-serif;
   color: ${(props) => props.theme.colors.inputText};
 
   & > p {

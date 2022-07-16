@@ -32,7 +32,7 @@ export const StyledSelect = styled.select`
   border-radius: 8px;
   position: absolute;
   left: 0;
-
+  font-family: "Space Grotesk", sans-serif;
   background-color: ${(props) => props.theme.colors.inputBackground};
   border: ${(props) =>
     props.theme.themeConfigurations.isLightMode

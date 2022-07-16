@@ -7,6 +7,7 @@ const Button = styled.button`
   border-style: solid;
   text-align: center;
   font-weight: 500;
+  font-family: "Space Grotesk", sans-serif;
   cursor: pointer;
 `;
 

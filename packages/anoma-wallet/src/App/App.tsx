@@ -28,6 +28,7 @@ import {
   BottomSection,
   ContentContainer,
   MotionContainer,
+  GlobalStyles,
 } from "./App.components";
 import Redirect from "./Redirect";
 import makeStore, { AppStore } from "store/store";
@@ -89,6 +90,7 @@ function App(): JSX.Element {
     return (
       <HistoryRouter history={history}>
         <ThemeProvider theme={theme}>
+          <GlobalStyles isLightMode={isLightMode} isLoggedIn={true} />
           <AppContainer>
             <TopSection>
               <Provider store={store}>
@@ -123,6 +125,7 @@ function App(): JSX.Element {
   return (
     <HistoryRouter history={history}>
       <ThemeProvider theme={theme}>
+        <GlobalStyles isLightMode={isLightMode} />
         <AppContainer>
           <TopSection>
             <TopNavigation
