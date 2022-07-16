@@ -16,6 +16,7 @@ export const AddChannelButton = styled.button`
   background: none;
   display: flex;
   align-items: center;
+  font-family: "Space Grotesk", sans-serif;
   cursor: pointer;
 
   & > div > svg > path {
