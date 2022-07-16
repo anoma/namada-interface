@@ -17,6 +17,7 @@ export const SettingsContent = styled.div`
   padding: 40px;
   margin: 0 0 20px 0;
   box-sizing: border-box;
+  color: ${(props) => props.theme.colors.titleColor};
 `;
 
 export const ButtonsContainer = styled.div`

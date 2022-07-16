@@ -60,11 +60,6 @@ export const AccountRow = styled.div<{ disabled: boolean }>`
   width: 100%;
   border-radius: 8px;
   margin-bottom: 8px;
-
-  &:hover {
-    ${(props) =>
-      props.disabled ? "" : "background-color: #dedede;cursor: pointer;"}
-  }
 `;
 
 export const AccountNameContainer = styled.div`

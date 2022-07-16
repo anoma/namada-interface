@@ -131,6 +131,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
                 logout();
               }}
             >
+              <Icon iconName={IconName.Lock} />
               <MenuItemTextContainer>Lock</MenuItemTextContainer>
             </MenuItem>
           )}

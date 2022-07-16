@@ -12,7 +12,7 @@ export const TokenSendFormContainer = styled.div`
 
 export const InputContainer = styled.div`
   width: 100%;
-  padding: 20px 0;
+  padding: 12px 0;
 
   &:last-child {
     padding-bottom: 0;

@@ -80,6 +80,7 @@ export const MenuItem = styled.button<{ isSelected?: boolean }>`
 
   & path {
     stroke-width: 1;
+    fill: ${(props) => props.theme.colors.buttonBackground4};
   }
   //width: 10%;
   ${(props) => (props.isSelected ? isSelected() : "")}
@@ -89,7 +90,8 @@ export const MenuItemTextContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0 16px;
+  margin: 0;
+  padding: 0 4px;
   &:last-child {
     margin-right: 0;
     padding-right: 0;

@@ -41,9 +41,6 @@ export const SettingsAccounts = (): JSX.Element => {
   };
 
   const accounts = Object.values(transparentAndShieldedAccounts);
-  const currentAccount = useAppSelector(
-    (state) => state.settings.selectedAccountID
-  );
 
   const navigate = useNavigate();
 
@@ -58,11 +55,6 @@ export const SettingsAccounts = (): JSX.Element => {
           {accounts.map((account) => {
             return (
               <AccountRow
-                style={
-                  currentAccount == account.id
-                    ? { border: "solid 1px #002046" }
-                    : { border: 0 }
-                }
                 key={account.id}
                 disabled={!!account.shieldedKeysAndPaymentAddress}
               >
