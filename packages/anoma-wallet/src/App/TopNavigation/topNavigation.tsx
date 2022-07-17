@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate, useLocation, NavigateFunction } from "react-router-dom";
 import { Persistor } from "redux-persist";
 import { Provider } from "react-redux";
@@ -21,6 +21,10 @@ import {
   TopNavigationContainerSecondRow,
   TopNavigationLogoContainer,
   MenuButton,
+  MobileMenu,
+  MobileMenuList,
+  MobileMenuListItem,
+  MobileMenuHeader,
 } from "./topNavigation.components";
 
 import { AppStore } from "store/store";
@@ -96,6 +100,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
     store,
   } = props;
   const navigate = useNavigate();
+  const [showMenu, setShowMenu] = useState(false);
 
   return (
     <TopNavigationContainer>
@@ -179,7 +184,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
           {isLoggedIn && (
             <>
               <LeftSection>
-                <MenuButton>
+                <MenuButton onClick={() => setShowMenu(true)}>
                   <Icon iconName={IconName.Menu} />
                 </MenuButton>
               </LeftSection>
@@ -245,6 +250,77 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
             </TopNavigationLogoContainer>
           )}
         </TopNavigationContainerSecondRow>
+        <MobileMenu className={showMenu ? "active" : ""}>
+          <MobileMenuHeader>
+            <MenuButton onClick={() => setShowMenu(false)}>
+              <Icon iconName={IconName.ChevronLeft} />
+            </MenuButton>
+            <LogoContainer
+              onClick={() => {
+                navigate(TopLevelRoute.Home);
+              }}
+            >
+              <Image
+                imageName={ImageName.Logo}
+                styleOverrides={{ maxWidth: "200px" }}
+                forceLightMode={true}
+              />
+            </LogoContainer>
+            <ColorModeContainer>
+              <Toggle
+                checked={isLightMode}
+                onClick={() => {
+                  setIsLightMode((isLightMode) => !isLightMode);
+                }}
+              />
+            </ColorModeContainer>
+          </MobileMenuHeader>
+
+          <MobileMenuList>
+            <MobileMenuListItem>
+              <MenuItem
+                onClick={() => {
+                  setShowMenu(false);
+                  navigate(TopLevelRoute.Home);
+                }}
+              >
+                Wallet
+              </MenuItem>
+            </MobileMenuListItem>
+            <MobileMenuListItem>
+              <MenuItem
+                onClick={() => {
+                  setShowMenu(false);
+                  navigate(TopLevelRoute.Bridge);
+                }}
+              >
+                Bridge
+              </MenuItem>
+            </MobileMenuListItem>
+            <MobileMenuListItem>
+              <MenuItem
+                onClick={() => {
+                  setShowMenu(false);
+                  navigate(TopLevelRoute.Settings);
+                }}
+              >
+                Settings
+              </MenuItem>
+            </MobileMenuListItem>
+            <MobileMenuListItem>
+              <MenuItem
+                onClick={() => {
+                  setShowMenu(false);
+                  navigate(TopLevelRoute.Home);
+                  logout();
+                }}
+              >
+                <Icon iconName={IconName.Lock} />
+                <MenuItemTextContainer>Lock</MenuItemTextContainer>
+              </MenuItem>
+            </MobileMenuListItem>
+          </MobileMenuList>
+        </MobileMenu>
       </OnlyInSmall>
     </TopNavigationContainer>
   );

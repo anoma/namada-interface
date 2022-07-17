@@ -77,6 +77,13 @@ export const MenuItem = styled.button<{ isSelected?: boolean }>`
   align-items: center;
   margin: 0 22px;
   font-size: 14px;
+  box-sizing: border-box;
+
+  @media screen and (max-width: 860px) {
+    padding: 40px 0;
+    height: 100%;
+    justify-content: flex-start;
+  }
 
   &:last-child {
     margin-right: 0;
@@ -147,20 +154,64 @@ export const OnlyInMedium = styled.div`
 
 export const MobileMenu = styled.div`
   display: none;
-  background: ${(props) => props.theme.colors.background2};
+
+  z-index: 2000;
+  margin: 0;
+  box-sizing: border-box;
+  padding: 48px 40px;
 
   &.active {
     display: flex;
+    flex-direction: column;
+    background: ${(props) => props.theme.colors.background2};
     position: fixed;
-    top: 100px;
-    height: 100vh;
+    top: 0;
+    left: 0;
+    height: 100%;
     width: 100%;
   }
 `;
 
-export const MobileMenuList = styled.ul`
+export const MobileMenuHeader = styled.div`
+  display: flex;
   width: 100%;
-  list-style-type: none;
+  justify-content: space-between;
+
+  & div {
+    svg > path {
+      stroke: ${(props) => props.theme.colors.buttonBackground2};
+    }
+  }
+
+  & div:nth-child(2) {
+    svg > path {
+      stroke: ${(props) => props.theme.colors.headingColor};
+      fill: ${(props) => props.theme.colors.headingColor};
+    }
+  }
 `;
 
-export const MobileMenuListItem = styled.li``;
+export const MobileMenuList = styled.ul`
+  height: 100%;
+  width: 100%;
+  list-style-type: none;
+  text-indent: 0;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+`;
+
+export const MobileMenuListItem = styled.li`
+  padding: 0;
+  margin: 0;
+  border-bottom: 1px solid ${(props) => props.theme.colors.buttonBackground4};
+  color: ${(props) => props.theme.colors.headingColor};
+
+  & button > div {
+    color: ${(props) => props.theme.colors.headingColor};
+
+    & > svg > path {
+      fill: ${(props) => props.theme.colors.buttonBackground2};
+    }
+  }
+`;
