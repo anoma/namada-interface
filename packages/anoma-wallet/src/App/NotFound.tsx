@@ -3,7 +3,14 @@ import { TopLevelRoute } from "./types";
 import { Heading, HeadingLevel } from "components/Heading";
 import { Button, ButtonVariant } from "components/Button";
 import { NavigationContainer } from "components/NavigationContainer";
-import { NotFoundContainer } from "./NotFound.components";
+import {
+  NotFoundContainer,
+  NotFoundContent,
+  ButtonsContainer,
+} from "./NotFound.components";
+import { Icon, IconName } from "components/Icon";
+import { BackButton } from "./Token/TokenSend/TokenSendForm.components";
+
 const NotFound = (): JSX.Element => {
   const navigate = useNavigate();
   const handleWalletClick = (): void => {
@@ -11,19 +18,20 @@ const NotFound = (): JSX.Element => {
   };
   return (
     <NotFoundContainer>
-      <NavigationContainer
-        onBackButtonClick={() => {
-          navigate(-1);
-        }}
-      >
+      <NavigationContainer>
         <Heading level={HeadingLevel.One}>Oops!</Heading>
       </NavigationContainer>
-      <div>
+      <NotFoundContent>
         <Heading level={HeadingLevel.One}>Page not found.</Heading>
-        <Button onClick={handleWalletClick} variant={ButtonVariant.Small}>
+        <Button onClick={handleWalletClick} variant={ButtonVariant.Contained}>
           Return to wallet
         </Button>
-      </div>
+      </NotFoundContent>
+      <ButtonsContainer>
+        <BackButton onClick={() => navigate(TopLevelRoute.Wallet)}>
+          <Icon iconName={IconName.ChevronLeft} />
+        </BackButton>
+      </ButtonsContainer>
     </NotFoundContainer>
   );
 };

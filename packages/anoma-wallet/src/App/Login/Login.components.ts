@@ -9,6 +9,7 @@ export const LoginViewContainer = styled.div`
   width: 80%;
   margin: 40px 0;
   padding: 20px 0;
+  color: ${(props) => props.theme.colors.titleColor};
 
   & > label {
     width: 100%;
