@@ -33,6 +33,12 @@ export const AppContainer = styled.div`
   width: 100%;
   background-color: ${(props) => props.theme.colors.background1};
   transition: all 0.3s linear;
+  box-sizing: border-box;
+
+  @media screen and (max-width: 860px) {
+    padding: 0 36px;
+    min-width: 480px;
+  }
 `;
 
 export const TopSection = styled.section`

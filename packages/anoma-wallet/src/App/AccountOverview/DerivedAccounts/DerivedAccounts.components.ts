@@ -37,6 +37,7 @@ export const DerivedAccountsContainer = styled(ThemedScrollbarContainer)`
   width: 100%;
   height: 100%;
   font-size: 14px;
+  margin: 24px 0 36px;
 `;
 
 export const DerivedAccountsList = styled.ul`
@@ -67,6 +68,9 @@ export const DerivedAccountItem = styled.li`
     margin-right: 0;
   }
 
+  &:first-child {
+    padding-top: 0;
+  }
   &:last-child {
     border-bottom: none;
   }
@@ -95,6 +99,11 @@ export const DerivedAccountBalance = styled.div`
   font-weight: bold;
   margin-bottom: 0;
   width: 200px;
+
+  @media screen and (max-width: 860px) {
+    text-align: right;
+    padding-right: 20px;
+  }
 `;
 
 export const DerivedAccountAddress = styled.pre`

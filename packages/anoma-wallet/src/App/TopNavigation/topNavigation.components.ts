@@ -8,8 +8,12 @@ export const TopNavigationContainer = styled.div`
   flex-direction: column;
   width: 100%;
   height: 120px;
-  padding: 32px 32px 0;
+  padding: 40px 0;
   box-sizing: border-box;
+
+  @media screen and (min-width: 860px) {
+    padding: 40px;
+  }
 `;
 
 export const TopNavigationContainerRow = styled.div`
@@ -116,15 +120,47 @@ export const LogoContainer = styled.div`
   cursor: pointer;
 `;
 
+export const MenuButton = styled.button`
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+`;
+
 export const OnlyInSmall = styled.div`
   display: flex;
-  @media only screen and (min-width: 1024px) {
+  flex-direction: column;
+  // @media only screen and (min-width: 1024px) {
+  @media only screen and (min-width: 860px) {
     display: none;
   }
 `;
+
 export const OnlyInMedium = styled.div`
-  display: flex;
-  @media only screen and (max-width: 1024px) {
+  display: block;
+  //@media only screen and (max-width: 1024px) {
+  @media only screen and (max-width: 860px) {
     display: none;
   }
 `;
+
+export const MobileMenu = styled.div`
+  display: none;
+  background: ${(props) => props.theme.colors.background2};
+
+  &.active {
+    display: flex;
+    position: fixed;
+    top: 100px;
+    height: 100vh;
+    width: 100%;
+  }
+`;
+
+export const MobileMenuList = styled.ul`
+  width: 100%;
+  list-style-type: none;
+`;
+
+export const MobileMenuListItem = styled.li``;

@@ -2,7 +2,7 @@ import { setChainId, SettingsState } from "slices/settings";
 
 import { useAppDispatch, useAppSelector } from "store";
 import Config, { Chain } from "config";
-import { ColorModeContainer } from "./topNavigation.components";
+import { ColorModeContainer, OnlyInMedium } from "./topNavigation.components";
 import { Toggle } from "components/Toggle";
 import { useNavigate } from "react-router-dom";
 import { Icon, IconName } from "components/Icon";
@@ -44,23 +44,25 @@ const TopNavigationLoggedIn = ({
 
   return (
     <TopNavigationLoggedInContainer>
-      <TopNavigationLoggedInControlsContainer>
-        <SettingsButton
-          onClick={() => {
-            navigate(`${TopLevelRoute.Settings}`);
-          }}
-        >
-          <Icon iconName={IconName.Settings} />
-        </SettingsButton>
-        <ColorModeContainer>
-          <Toggle
-            checked={isLightMode}
+      <OnlyInMedium>
+        <TopNavigationLoggedInControlsContainer>
+          <SettingsButton
             onClick={() => {
-              setIsLightMode(!isLightMode);
+              navigate(`${TopLevelRoute.Settings}`);
             }}
-          />
-        </ColorModeContainer>
-      </TopNavigationLoggedInControlsContainer>
+          >
+            <Icon iconName={IconName.Settings} />
+          </SettingsButton>
+          <ColorModeContainer>
+            <Toggle
+              checked={isLightMode}
+              onClick={() => {
+                setIsLightMode(!isLightMode);
+              }}
+            />
+          </ColorModeContainer>
+        </TopNavigationLoggedInControlsContainer>
+      </OnlyInMedium>
 
       <TopNavigationLoggedInSelectContainer>
         <Select

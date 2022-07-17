@@ -33,6 +33,10 @@ export const SettingsButton = styled.a`
 export const TopNavigationLoggedInSelectContainer = styled.div`
   width: 155px;
 
+  @media screen and (max-width: 860px) {
+    width: 100%;
+  }
+
   & select {
     font-size: 10px;
   }
