@@ -34,8 +34,7 @@ const TokenReceive = (): JSX.Element => {
   >();
   const derivedAccounts = derived[chainId] || {};
   const shieldedAccounts = allShieldedAccounts[chainId] || {};
-
-  const { accountIndex } = Config.chain[chainId];
+  const { accountIndex } = Config.chain[chainId] || {};
 
   const accounts = { ...shieldedAccounts, ...derivedAccounts };
   const accountsArray = Object.values(accounts);
@@ -73,8 +72,6 @@ const TokenReceive = (): JSX.Element => {
       target: address,
     }
   )}`;
-
-  console.log("QR Code URL", text);
 
   return (
     <TokenReceiveContainer>
