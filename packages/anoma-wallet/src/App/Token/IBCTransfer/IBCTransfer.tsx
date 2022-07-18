@@ -45,7 +45,7 @@ const IBCTransfer = (): JSX.Element => {
 
   const chains = Config.chain;
   const chain = chains[chainId];
-  const { ibc = [] } = chain;
+  const { ibc = [] } = chain || {};
 
   const defaultIbcChain = chains[ibc[0]] || null;
   const [selectedChainId, setSelectedChainId] = useState(
@@ -135,7 +135,7 @@ const IBCTransfer = (): JSX.Element => {
   }, []);
 
   useEffect(() => {
-    const { ibc = [] } = chains[chainId];
+    const { ibc = [] } = chains[chainId] || {};
     if (ibc.length > 0) {
       const selectedChain = ibc[0];
       setSelectedChainId(selectedChain);
