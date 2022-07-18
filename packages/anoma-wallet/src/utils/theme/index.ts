@@ -61,7 +61,7 @@ export type Theme = {
 
 export const darkColors: Colors = {
   background1: "#000000",
-  background2: "#444444",
+  background2: "#1f1f1f",
   background3: "#ffffff",
   titleColor: "#ffffff",
   border: "#1F1F1F",
@@ -105,7 +105,7 @@ export const darkColors: Colors = {
   toggleCircle: "#FFFF00",
   toggleBackground: "#444444",
   toggleBorder: "#444444",
-  headingBackground: "#1F1F1F",
+  headingBackground: "#3E3E3E",
   headingColor: "#FFFF00",
   logoColor: "#FFFF00",
   labelBorder: "#FFFFFF",

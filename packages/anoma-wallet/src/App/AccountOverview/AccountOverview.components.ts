@@ -26,6 +26,7 @@ export const AccountOverviewContent = styled.div`
   width: 100%;
   padding: 0 40px;
   box-sizing: border-box;
+  background-color: ${(props) => props.theme.colors.tabActiveBackground};
 `;
 
 export const AccountTabsContainer = styled.div`
