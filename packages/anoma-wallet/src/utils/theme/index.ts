@@ -50,6 +50,8 @@ type Colors = {
   toggleBorder: string;
   headingBackground: string;
   headingColor: string;
+  logoColor: string;
+  labelBorder: string;
 };
 
 export type Theme = {
@@ -98,21 +100,15 @@ export const darkColors: Colors = {
   buttonOutlineStyleHoverBackground: "#393939",
   tabActiveColor: "#00FFFF",
   tabActiveBackground: "#1f1f1f",
-  tabInactiveColor: "#000000",
+  tabInactiveColor: "rgba(0, 0, 0, 0.5)",
   tabInactiveBackground: "#676767",
   toggleCircle: "#FFFF00",
   toggleBackground: "#444444",
   toggleBorder: "#444444",
   headingBackground: "#2D2D2D",
   headingColor: "#FFFF00",
-};
-
-export const darkColorsLoggedIn: Colors = {
-  ...darkColors,
-  background1: "#FFFF00",
-  background2: "#1F1F1F",
-  buttonBackground4: "#444444",
-  textPrimary: "#000000",
+  logoColor: "#FFFF00",
+  labelBorder: "#FFFFFF",
 };
 
 export const lightColors: Colors = {
@@ -163,4 +159,6 @@ export const lightColors: Colors = {
   toggleBorder: "#DADADA",
   headingBackground: "#ECECEC",
   headingColor: "#000000",
+  logoColor: "#000000",
+  labelBorder: "#DADADA",
 };

@@ -108,7 +108,7 @@ export const MenuItemTextContainer = styled.div`
     padding-right: 0;
   }
 
-  color: ${(props) => props.theme.colors.textPrimary};
+  color: ${(props) => props.theme.colors.logoColor};
 `;
 
 export const MenuItemIconContainer = styled.div`
@@ -125,6 +125,13 @@ export const ColorModeContainer = styled.div`
 
 export const LogoContainer = styled.div`
   cursor: pointer;
+
+  & > div {
+    svg > path {
+      stroke: none;
+      fill: ${(props) => props.theme.colors.logoColor};
+    }
+  }
 `;
 
 export const MenuButton = styled.button`
@@ -133,6 +140,27 @@ export const MenuButton = styled.button`
   background: transparent;
   border: none;
   cursor: pointer;
+
+  & div {
+    svg > path {
+      stroke: ${(props) => props.theme.colors.logoColor};
+      fill: ${(props) => props.theme.colors.logoColor};
+    }
+  }
+`;
+
+export const MenuCloseButton = styled.button`
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  & div {
+    svg > path {
+      stroke: ${(props) => props.theme.colors.logoColor};
+    }
+  }
 `;
 
 export const OnlyInSmall = styled.div`
@@ -163,7 +191,7 @@ export const MobileMenu = styled.div`
   &.active {
     display: flex;
     flex-direction: column;
-    background: ${(props) => props.theme.colors.background2};
+    background: ${(props) => props.theme.colors.background1};
     position: fixed;
     top: 0;
     left: 0;

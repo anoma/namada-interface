@@ -163,12 +163,12 @@ export const ShieldedLabel = styled.div`
 `;
 
 export const TransparentLabel = styled.div`
-  color: ${(props) => props.theme.colors.background4};
+  color: ${(props) => props.theme.colors.titleColor};
   font-size: 10px;
   display: flex;
   justify-content: center;
   width: 68px;
   padding: 0;
   border-radius: 12px;
-  border: 1px solid ${(props) => props.theme.colors.border};
+  border: 1px solid ${(props) => props.theme.colors.labelBorder};
 `;

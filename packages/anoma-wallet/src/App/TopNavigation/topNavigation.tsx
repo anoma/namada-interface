@@ -25,6 +25,7 @@ import {
   MobileMenuList,
   MobileMenuListItem,
   MobileMenuHeader,
+  MenuCloseButton,
 } from "./topNavigation.components";
 
 import { AppStore } from "store/store";
@@ -252,9 +253,9 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
         </TopNavigationContainerSecondRow>
         <MobileMenu className={showMenu ? "active" : ""}>
           <MobileMenuHeader>
-            <MenuButton onClick={() => setShowMenu(false)}>
+            <MenuCloseButton onClick={() => setShowMenu(false)}>
               <Icon iconName={IconName.ChevronLeft} />
-            </MenuButton>
+            </MenuCloseButton>
             <LogoContainer
               onClick={() => {
                 navigate(TopLevelRoute.Home);

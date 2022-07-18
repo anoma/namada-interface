@@ -11,12 +11,7 @@ import { AnimatePresence } from "framer-motion";
 import { ThemeProvider } from "styled-components/macro";
 
 // internal
-import {
-  darkColors,
-  darkColorsLoggedIn,
-  lightColors,
-  Theme,
-} from "utils/theme";
+import { darkColors, lightColors, Theme } from "utils/theme";
 import { TopLevelRoute } from "./types";
 
 import { TopNavigation } from "./TopNavigation";
@@ -39,12 +34,8 @@ import { Provider } from "react-redux";
 export const history = createBrowserHistory({ window });
 
 // this sets the dark/light colors to theme
-export const getTheme = (isLightMode: boolean, isLoggedIn: boolean): Theme => {
-  const colors = isLightMode
-    ? lightColors
-    : isLoggedIn
-    ? darkColorsLoggedIn
-    : darkColors;
+export const getTheme = (isLightMode: boolean): Theme => {
+  const colors = isLightMode ? lightColors : darkColors;
   const theme: Theme = {
     themeConfigurations: {
       isLightMode: isLightMode,
@@ -78,7 +69,7 @@ function App(): JSX.Element {
   const [password, setPassword] = useState<string>();
   const [store, setStore] = useState<AppStore>();
   const [persistor, setPersistor] = useState<Persistor>();
-  const theme = getTheme(isLightMode, !!password);
+  const theme = getTheme(isLightMode);
 
   useEffect(() => {
     if (store) {
@@ -90,7 +81,7 @@ function App(): JSX.Element {
     return (
       <HistoryRouter history={history}>
         <ThemeProvider theme={theme}>
-          <GlobalStyles isLightMode={isLightMode} isLoggedIn={true} />
+          <GlobalStyles isLightMode={isLightMode} />
           <AppContainer>
             <TopSection>
               <Provider store={store}>

@@ -159,8 +159,8 @@ const TokenSendForm = ({
     isTransferSubmitting
   );
 
-  const chainConfig = Config.chain[chainId];
-  const { url, port, protocol } = chainConfig.network;
+  const chainConfig = Config.chain[chainId] || {};
+  const { url, port, protocol } = chainConfig.network || {};
   const rpcClient = new RpcClient({ url, port, protocol });
   const accountSourceTargetDescription = isFormInvalid ? (
     ""
