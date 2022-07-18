@@ -64,19 +64,21 @@ const TopNavigationLoggedIn = ({
         </TopNavigationLoggedInControlsContainer>
       </OnlyInMedium>
 
-      <TopNavigationLoggedInSelectContainer>
-        <Select
-          value={chainId}
-          data={networks}
-          onChange={handleNetworkSelect}
-          style={{
-            borderColor: isLightMode ? undefined : "#444",
-            borderRadius: 24,
-            height: 30,
-            padding: "0 8px",
-          }}
-        />
-      </TopNavigationLoggedInSelectContainer>
+      <OnlyInMedium>
+        <TopNavigationLoggedInSelectContainer>
+          <Select
+            value={chainId}
+            data={networks}
+            onChange={handleNetworkSelect}
+            style={{
+              borderColor: isLightMode ? undefined : "#444",
+              borderRadius: 24,
+              height: 30,
+              padding: "0 8px",
+            }}
+          />
+        </TopNavigationLoggedInSelectContainer>
+      </OnlyInMedium>
     </TopNavigationLoggedInContainer>
   );
 };
