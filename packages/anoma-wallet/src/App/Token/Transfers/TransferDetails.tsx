@@ -11,6 +11,7 @@ import { Address, TransferDetailContainer } from "./TransferDetails.components";
 import { BackButton } from "../TokenSend/TokenSendForm.components";
 import { Icon, IconName } from "components/Icon";
 import { ButtonsContainer, TransfersContent } from "./Transfers.components";
+import { IBCConfig } from "config/chain";
 
 type TransferDetailsParams = {
   id: string;
@@ -19,7 +20,7 @@ type TransferDetailsParams = {
 
 const TransferDetail = (): JSX.Element => {
   const navigate = useNavigate();
-  const { appliedHash = "", id = "" } = useParams<TransferDetailsParams>();
+  const { appliedHash = "" } = useParams<TransferDetailsParams>();
   const { transactions } = useAppSelector<TransfersState>(
     (state) => state.transfers
   );
@@ -53,9 +54,14 @@ const TransferDetail = (): JSX.Element => {
   const chains = Config.chain;
   const chain = chains[chainId];
   const { ibc = [] } = chain || {};
-  const ibcChainId = ibc.find((ibcChainId) => ibcChainId === chainId) || "";
+  const ibcChainConfig: IBCConfig | undefined = ibc.find(
+    (ibcConfig) => ibcConfig.chainId === chainId
+  );
 
-  const destinationChain = chains[ibcChainId];
+  const destinationChain = ibcChainConfig
+    ? chains[ibcChainConfig.chainId]
+    : undefined;
+
   const chainAlias = destinationChain?.alias;
 
   const dateTimeFormatted = stringFromTimestamp(timestamp);

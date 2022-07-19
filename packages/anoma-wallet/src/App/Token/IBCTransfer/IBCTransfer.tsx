@@ -47,14 +47,14 @@ const IBCTransfer = (): JSX.Element => {
   const chain = chains[chainId];
   const { ibc = [] } = chain || {};
 
-  const defaultIbcChain = chains[ibc[0]] || null;
+  const defaultIbcChain = chains[ibc[0]?.chainId] || null;
   const [selectedChainId, setSelectedChainId] = useState(
     defaultIbcChain ? defaultIbcChain.id : ""
   );
 
-  const selectDestinationChainData = ibc.map((chainId) => ({
-    value: chainId,
-    label: chains[chainId].alias,
+  const selectDestinationChainData = ibc.map((ibcChain) => ({
+    value: ibcChain.chainId,
+    label: chains[ibcChain.chainId].alias,
   }));
 
   const channels = (channelsByChain[selectedChainId] || []).sort();
@@ -137,7 +137,7 @@ const IBCTransfer = (): JSX.Element => {
   useEffect(() => {
     const { ibc = [] } = chains[chainId] || {};
     if (ibc.length > 0) {
-      const selectedChain = ibc[0];
+      const selectedChain = ibc[0].chainId;
       setSelectedChainId(selectedChain);
     }
     dispatch(

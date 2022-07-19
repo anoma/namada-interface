@@ -192,9 +192,9 @@ const accountsSlice = createSlice({
   reducers: {
     addAccount: (state, action: PayloadAction<InitialAccount>) => {
       const initialAccount = action.payload;
-      const { chainId, alias, isInitial } = initialAccount;
+      const { chainId, alias, isInitial, address } = initialAccount;
 
-      const id = stringToHash(alias);
+      const id = stringToHash(`${chainId}/${alias}/${address}`);
       if (!state.derived[chainId]) {
         state.derived[chainId] = {};
       }

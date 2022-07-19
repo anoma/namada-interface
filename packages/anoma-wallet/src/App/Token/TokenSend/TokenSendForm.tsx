@@ -117,7 +117,7 @@ const TokenSendForm = ({
 
   enum GasFee {
     "Low" = 0.0001,
-    "Medium" = 0.0005,
+    "Medium" = 0.005,
     "High" = 0.001,
   }
   const [gasFee, setGasFee] = useState<GasFee>(GasFee.Medium);
@@ -313,9 +313,9 @@ const TokenSendForm = ({
             <p>
               <span>Low</span>
               <br />
-              &lt; 0.00001 {tokenType}
+              &lt; 0.0001 {tokenType}
               <br />
-              &lt; 0.00001 USD
+              &lt; 0.0001 USD
             </p>
           </Button>
           <Button
@@ -326,9 +326,9 @@ const TokenSendForm = ({
             <p>
               <span>Medium</span>
               <br />
-              &lt; 0.00001 {token.symbol}
+              &lt; 0.005 {token.symbol}
               <br />
-              &lt; 0.00001 USD
+              &lt; 0.005 USD
             </p>
           </Button>
           <Button
@@ -339,9 +339,9 @@ const TokenSendForm = ({
             <p>
               <span>High</span>
               <br />
-              &lt; 0.00001 {tokenType}
+              &lt; 0.001 {tokenType}
               <br />
-              &lt; 0.00001 USD
+              &lt; 0.001 USD
             </p>
           </Button>
         </GasButtonsContainer>

@@ -47,7 +47,12 @@ const AppRoutes = ({ store, persistor, password }: Props): JSX.Element => {
                 element={
                   // eslint-disable-next-line react/jsx-no-undef
                   <AnimatedTransition elementKey={TopLevelRoute.Wallet}>
-                    {persistor && <AccountOverview persistor={persistor} />}
+                    {persistor && (
+                      <AccountOverview
+                        persistor={persistor}
+                        password={password}
+                      />
+                    )}
                   </AnimatedTransition>
                 }
               />

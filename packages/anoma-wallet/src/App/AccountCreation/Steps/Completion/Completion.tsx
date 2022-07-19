@@ -26,10 +26,10 @@ type CompletionViewProps = {
 };
 
 const chains = Object.values(Config.chain);
-const { accountIndex } = chains[0];
 
 const createAccount = async (
   chainId: string,
+  accountIndex: number,
   tokenType: TokenType,
   alias: string,
   mnemonic: string
@@ -68,9 +68,12 @@ const Completion = (props: CompletionViewProps): JSX.Element => {
           // Create accounts on each chain
           if (defaultToken) {
             chains.forEach((chain) => {
+              const { accountIndex } = chain;
+
               (async () => {
                 const account = await createAccount(
                   chain.id,
+                  accountIndex,
                   defaultToken.symbol as TokenType,
                   defaultToken.coin,
                   mnemonic

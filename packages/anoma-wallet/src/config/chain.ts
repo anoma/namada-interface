@@ -17,6 +17,7 @@ const {
   REACT_APP_CHAIN_A_PORT,
   REACT_APP_CHAIN_A_FAUCET,
   REACT_APP_CHAIN_A_PORT_ID,
+  REACT_APP_CHAIN_A_CHANNEL,
   // IBC - CHAIN B
   REACT_APP_CHAIN_B_ALIAS,
   REACT_APP_CHAIN_B_ID,
@@ -24,10 +25,16 @@ const {
   REACT_APP_CHAIN_B_PORT,
   REACT_APP_CHAIN_B_FAUCET,
   REACT_APP_CHAIN_B_PORT_ID,
+  REACT_APP_CHAIN_B_CHANNEL,
 } = process.env;
 
 export type NetworkConfig = Network & {
   wsProtocol: Protocol;
+};
+
+export type IBCConfig = {
+  chainId: string; // Destination chainId
+  defaultChannel: string; // Default channel which connects source chain to destination
 };
 
 export type Chain = {
@@ -37,12 +44,13 @@ export type Chain = {
   network: NetworkConfig;
   faucet?: string;
   portId?: string;
-  ibc?: string[];
+  ibc?: IBCConfig[];
 };
 
 const DEFAULT_URL = "127.0.0.1";
 const DEFAULT_CHAIN_ALIAS = "Namada";
 const DEFAULT_IBC_PORT = "transfer";
+const DEFAULT_IBC_CHANNEL = "channel-0";
 
 /**
  * Remove any comments ("#") or quotes
@@ -119,6 +127,8 @@ const chainAPort = parseInt(sanitize(REACT_APP_CHAIN_A_PORT)) || undefined;
 const chainAProtocol = getUrlProtocol(REACT_APP_CHAIN_A_URL);
 const chainAWsProtocol: Protocol = chainAProtocol === "https" ? "wss" : "ws";
 const chainAPortId = sanitize(REACT_APP_CHAIN_A_PORT_ID) || DEFAULT_IBC_PORT;
+const chainAChannelId =
+  sanitize(REACT_APP_CHAIN_A_CHANNEL) || DEFAULT_IBC_CHANNEL;
 const chainAFaucet = sanitize(REACT_APP_CHAIN_A_FAUCET) || undefined;
 
 // IBC Chain B
@@ -131,6 +141,8 @@ const chainBProtocol = getUrlProtocol(REACT_APP_CHAIN_B_URL);
 const chainBWsProtocol: Protocol = chainBProtocol === "https" ? "wss" : "ws";
 const chainBPortId = sanitize(REACT_APP_CHAIN_B_PORT_ID) || DEFAULT_IBC_PORT;
 const chainBFaucet = sanitize(REACT_APP_CHAIN_B_FAUCET) || undefined;
+const chainBChannelId =
+  sanitize(REACT_APP_CHAIN_B_CHANNEL) || DEFAULT_IBC_CHANNEL;
 
 export const defaultChainId =
   chainId || chainAId || "anoma-test.fd58c789bc11e6c6392";
@@ -166,7 +178,14 @@ if (chainAId) {
       protocol: chainAProtocol,
       wsProtocol: chainAWsProtocol,
     },
-    ibc: chainBId ? [chainBId] : undefined,
+    ibc: chainBId
+      ? [
+          {
+            chainId: chainBId,
+            defaultChannel: chainBChannelId,
+          },
+        ]
+      : undefined,
   });
 }
 
@@ -183,7 +202,12 @@ if (chainAId && chainBId) {
       protocol: chainBProtocol,
       wsProtocol: chainBWsProtocol,
     },
-    ibc: [chainAId],
+    ibc: [
+      {
+        chainId: chainAId,
+        defaultChannel: chainAChannelId,
+      },
+    ],
   });
 }
 
