@@ -29,14 +29,19 @@ jobs:
         working-directory: ./packages/anoma-wallet
         run: yarn build
         env:
-          REACT_APP_CHAIN_A_ALIAS: Namada Mainnet
-          REACT_APP_CHAIN_A_ID: "anoma-masp-1.5.32ccad5356012a"
-          REACT_APP_CHAIN_A_URL: "https://d3brk13lbhxfdb.cloudfront.net/anoma-masp-1.5.32ccad5356012a7"
+          REACT_APP_ALIAS: "Namada Mainnet"
+          REACT_APP_CHAIN_ID: "anoma-masp-1.5.32ccad5356012a7"
+          REACT_APP_LEDGER_URL: "https://d3brk13lbhxfdb.cloudfront.net/anoma-masp-1.5.32ccad5356012a7"
+          REACT_APP_FAUCET: "atest1v4ehgw36gc6yxvpjxccyzvphxycrxw2xxsuyydesxgcnjs3cg9znwv3cxgmnj32yxy6rssf5tcqjm3"
+          REACT_APP_CHAIN_A_ALIAS: "Namada Instance 1"
+          REACT_APP_CHAIN_A_ID: "anoma-ibc-0.4.5b0d5e5569aa27fb"
+          REACT_APP_CHAIN_A_URL: "https://d3brk13lbhxfdb.cloudfront.net/anoma-ibc-0.4.5b0d5e5569aa27fb"
           REACT_APP_CHAIN_A_FAUCET: "atest1v4ehgw36gc6yxvpjxccyzvphxycrxw2xxsuyydesxgcnjs3cg9znwv3cxgmnj32yxy6rssf5tcqjm3"
-          REACT_APP_CHAIN_B_ALIAS: Anoma Fractal Instance
-          REACT_APP_CHAIN_B_ID: "anoma-test.xxxxxxxxx"
-          REACT_APP_CHAIN_B_URL: "https://d3brk13lbhxfdb.cloudfront.net/anoma-masp-1.5.32ccad5356012a7"
+          REACT_APP_CHAIN_B_ALIAS: "Namada Instance 2"
+          REACT_APP_CHAIN_B_ID: "anoma-ibc-0.5.b574a0d30d21f7ed"
+          REACT_APP_CHAIN_B_URL: "https://d3brk13lbhxfdb.cloudfront.net/anoma-ibc-0.5.b574a0d30d21f7ed"
           REACT_APP_CHAIN_B_FAUCET: "atest1v4ehgw36gc6yxvpjxccyzvphxycrxw2xxsuyydesxgcnjs3cg9znwv3cxgmnj32yxy6rssf5tcqjm3"
+          REACT_APP_CHAIN_B_CHANNEL: "channel-1"
 
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v1.2.3
