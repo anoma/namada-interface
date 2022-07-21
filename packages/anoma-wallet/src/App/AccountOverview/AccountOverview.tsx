@@ -32,6 +32,7 @@ import {
 import { ButtonsContainer } from "App/AccountCreation/Steps/Completion/Completion.components";
 import Config from "config";
 import { Session, Wallet } from "lib";
+import { formatCurrency } from "utils/helpers";
 
 type Props = {
   password: string;
@@ -48,11 +49,10 @@ export const AccountOverview = ({
   const { derived, shieldedAccounts } = useAppSelector<AccountsState>(
     (state) => state.accounts
   );
-  const currency = useAppSelector<SettingsState>(
-    (state) => state.settings.fiatCurrency
-  );
 
-  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
+  const { chainId, fiatCurrency } = useAppSelector<SettingsState>(
+    (state) => state.settings
+  );
   const { faucet, accountIndex } = Config.chain[chainId] || {};
 
   const [total, setTotal] = useState(0);
@@ -129,8 +129,10 @@ export const AccountOverview = ({
             <TotalContainer>
               {(derived[chainId] || shieldedAccounts[chainId]) && (
                 <TotalAmount>
-                  <TotalAmountFiat>{currency}</TotalAmountFiat>
-                  <TotalAmountValue>{total}</TotalAmountValue>
+                  <TotalAmountFiat>{fiatCurrency}</TotalAmountFiat>
+                  <TotalAmountValue>
+                    {formatCurrency(fiatCurrency, total)}
+                  </TotalAmountValue>
                 </TotalAmount>
               )}
             </TotalContainer>

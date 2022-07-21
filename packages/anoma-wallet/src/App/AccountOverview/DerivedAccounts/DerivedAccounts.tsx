@@ -1,11 +1,17 @@
 import { useContext, useEffect } from "react";
+import { ThemeContext } from "styled-components";
+import { useNavigate } from "react-router-dom";
 
+import Config from "config";
 import { useAppDispatch, useAppSelector } from "store";
 import { AccountsState } from "slices/accounts";
 import { BalancesState, fetchBalances } from "slices/balances";
 import { SettingsState } from "slices/settings";
 import { updateShieldedBalances } from "slices/accountsNew";
 import { Symbols, Tokens, TokenType } from "constants/";
+import { formatRoute } from "utils/helpers";
+import { TransfersState } from "slices/transfers";
+import { fetchConversionRates, CoinsState } from "slices/coins";
 
 import {
   DerivedAccountsContainer,
@@ -32,12 +38,7 @@ import AssetEthereumEther from "./assets/asset-ethereum-ether.png";
 import AssetPolkadotDot from "./assets/asset-polkadot-dot.png";
 import AssetBitcoinBtc from "./assets/asset-bitcoin-btc.png";
 
-import { ThemeContext } from "styled-components";
-import { useNavigate } from "react-router-dom";
 import { TopLevelRoute } from "App/types";
-import { formatRoute } from "utils/helpers";
-import Config from "config";
-import { TransfersState } from "slices/transfers";
 
 type Props = {
   setTotal: (total: number) => void;
@@ -76,11 +77,17 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
   const { isTransferSubmitting } = useAppSelector<TransfersState>(
     (state) => state.transfers
   );
-
-  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
+  const { chainId, fiatCurrency } = useAppSelector<SettingsState>(
+    (state) => state.settings
+  );
   const balancesByChainId = useAppSelector<BalancesState>(
     (state) => state.balances
   );
+  const { rates, timestamp } = useAppSelector<CoinsState>(
+    (state) => state.coins
+  );
+
+  const { api } = Config;
   const chains = Config.chain;
   const { faucet, alias } = chains[chainId] || {};
 
@@ -184,14 +191,28 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
   useEffect(() => {
     if (groupedTokens.length > 0) {
       const total = tokens.reduce((acc, tokenBalance) => {
-        const { balance = 0 } = tokenBalance;
+        const { balance = 0, token } = tokenBalance;
+        let fiatBalance = 0;
 
-        return acc + balance;
+        if (rates[token] && rates[token][fiatCurrency]) {
+          fiatBalance = balance * rates[token][fiatCurrency].rate;
+        }
+        return acc + (fiatBalance || balance);
       }, 0);
-      // TODO: Set a constant or make a function to round this to the nth decimal place:
-      setTotal(Math.ceil(total * 10000) / 10000);
+      setTotal(total);
     }
   }, [groupedTokens, chainId]);
+
+  useEffect(() => {
+    if (groupedTokens.length > 0) {
+      const currentTimestamp = Math.floor(Date.now() / 1000);
+      const timeSinceUpdate = currentTimestamp - (timestamp || 0);
+
+      if (!timestamp || timeSinceUpdate > api.cacheTTL) {
+        dispatch(fetchConversionRates());
+      }
+    }
+  }, [timestamp]);
 
   return (
     <DerivedAccountsContainer>
@@ -231,7 +252,7 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
                   />
                   <div>
                     <DerivedAccountAlias>
-                      {label}{" "}
+                      {label}
                       {isInitializing && (
                         <DerivedAccountStatus>
                           (initializing...)
@@ -249,8 +270,7 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
                 </DerivedAccountInfo>
 
                 <DerivedAccountBalance>
-                  {balance}&nbsp;
-                  {token}
+                  {balance} {token}
                 </DerivedAccountBalance>
               </DerivedAccountContainer>
             </DerivedAccountItem>

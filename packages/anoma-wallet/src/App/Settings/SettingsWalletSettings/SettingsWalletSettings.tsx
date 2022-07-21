@@ -5,6 +5,7 @@ import { Chain } from "config/chain";
 import { setFiatCurrency, setChainId, SettingsState } from "slices/settings";
 import { useAppDispatch, useAppSelector } from "store";
 import { Session } from "lib";
+import { Currencies } from "constants/";
 
 import { NavigationContainer } from "components/NavigationContainer";
 import { Heading, HeadingLevel } from "components/Heading";
@@ -55,20 +56,10 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
     }
   };
 
-  const currencies: Option<string>[] = [
-    {
-      label: "USD - US dollar",
-      value: "USD",
-    },
-    {
-      label: "JPY - Japanese yen",
-      value: "JPY",
-    },
-    {
-      label: "EUR - Euro",
-      value: "EUR",
-    },
-  ];
+  const currencies: Option<string>[] = Currencies.map((currency) => ({
+    value: currency.currency,
+    label: `${currency.currency} - ${currency.label}`,
+  }));
 
   const currentCurrency = useAppSelector(
     (state) => state.settings.fiatCurrency
