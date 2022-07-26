@@ -5,7 +5,7 @@ import init, {
   Account,
   Wallet,
   Mnemonic,
-} from "./lib/anoma/anoma";
+} from "./lib/anoma";
 
 export enum ResultType {
   Ok = "Ok",
