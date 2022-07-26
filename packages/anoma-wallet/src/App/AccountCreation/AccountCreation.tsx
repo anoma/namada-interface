@@ -8,7 +8,6 @@ import { TopLevelRoute } from "App/types";
 import { AccountCreationRoute, accountCreationSteps } from "./types";
 import { AppStore } from "store/store";
 
-//import { Button, ButtonVariant } from "components/Button";
 import { Icon, IconName, IconSize } from "components/Icon";
 import {
   Start,
@@ -42,15 +41,6 @@ type AnimatedTransitionProps = {
 const AnimatedTransition = (props: AnimatedTransitionProps): JSX.Element => {
   const { children, elementKey /*, animationFromRightToLeft */ } = props;
   return (
-    // /* DISABLE FOR NOW */
-    // <MotionContainer
-    //   key={elementKey}
-    //   initial={{ opacity: 0, x: (animationFromRightToLeft ? 1 : -1) * 450 }}
-    //   animate={{ opacity: 1, x: 0 }}
-    //   exit={{ opacity: 0, x: (animationFromRightToLeft ? -1 : 1) * 450 }}
-    // >
-    //   {children}
-    // </MotionContainer>
     <MotionContainer
       key={elementKey}
       initial={{ opacity: 0 }}
@@ -105,16 +95,10 @@ function AccountCreation({ setStore, store, setPassword }: Props): JSX.Element {
   // info for disabling the back button in the last step
   const isLastIndex = accountCreationSteps.length - 1 === stepIndex;
 
-  // this is a temp as the designs are not final, coloring SVG icon with this
-  // const backButtonIconStrokeColor = themeContext.themeConfigurations.isLightMode
-  //   ? themeContext.colors.border
-  //   : "black";
-
   useEffect(() => {
     // at the load we redirect to the first step
     // this way we do not need to expose the flow routes to outside
     navigate(AccountCreationRoute.Start);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const navigateToNext = (): void => {

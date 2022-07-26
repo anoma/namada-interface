@@ -3,12 +3,6 @@ import styled from "styled-components/macro";
 // TODO: connect the theme colors to these
 const BACKGROUND_ENABLED = "#F4C54F";
 const BACKGROUND_DISABLE = "#E8E8F2";
-// const COLOR_DISABLED = "#011F43";
-
-// const CIRCLE_BACKGROUND_COLOR_ENABLED_LIGHT = "white";
-// const CIRCLE_BACKGROUND_COLOR_DISABLED_DARK = "white";
-// const CIRCLE_BORDER_COLOR_ENABLED_LIGHT = "transparent";
-// const CIRCLE_BORDER_COLOR_DISABLED_DARK = COLOR_DISABLED;
 
 const COMPONENT_WIDTH_PIXELS = 42;
 const CIRCLE_DIAMETER_PIXELS = 20;

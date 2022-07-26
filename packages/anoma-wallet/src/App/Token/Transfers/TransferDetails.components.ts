@@ -14,7 +14,6 @@ export const Address = styled.pre`
   color: ${(props) => props.theme.colors.inputText};
   background-color: ${(props) => props.theme.colors.inputBackground};
   font-size: 12px;
-  text-align: center;
   margin: 0 0 20px 0;
   padding: 4px 8px;
   border-radius: 4px;
