@@ -1,3 +1,4 @@
+import { ThemedScrollbarContainer } from "App/AccountOverview/DerivedAccounts/DerivedAccounts.components";
 import styled from "styled-components/macro";
 
 export const SettingsAccountsContainer = styled.div`
@@ -7,19 +8,20 @@ export const SettingsAccountsContainer = styled.div`
   align-items: center;
   width: 100%;
   height: 100%;
+  max-height: 720px;
 `;
 
-export const AccountRows = styled.div`
+export const AccountRows = styled(ThemedScrollbarContainer)`
   display: flex;
   flex-direction: column;
   justify-content: start;
   align-items: center;
-
   width: 100%;
+  height: 350px;
   margin: 18px 0 0;
-  overflow-y: scroll;
   padding: 2px;
 `;
+
 export const AccountRow = styled.div<{ disabled: boolean }>`
   display: flex;
   justify-content: space-between;
@@ -28,18 +30,12 @@ export const AccountRow = styled.div<{ disabled: boolean }>`
   width: 100%;
   border-radius: 8px;
   margin-bottom: 8px;
-
-  &:hover {
-    ${(props) =>
-      props.disabled ? "" : "background-color: #dedede;cursor: pointer;"}
-  }
 `;
 
 export const AccountNameContainer = styled.div`
   display: flex;
   justify-content: start;
   align-items: center;
-
   height: 100%;
   padding: 8px;
   box-sizing: border-box;
@@ -48,7 +44,7 @@ export const AccountNameContainer = styled.div`
   overflow: hidden;
   white-space: nowrap;
   border-radius: 8px;
-  background-color: ${(props) => props.theme.colors.background3};
+  background-color: ${(props) => props.theme.colors.headingBackground};
 `;
 
 export const AccountNameContainerOverflow = styled.div`
@@ -79,4 +75,12 @@ export const NewAccountButtonContainer = styled.div`
 export const AccountAlias = styled.span`
   font-weight: 600;
   padding: 8px;
+  width: 120px;
+  color: ${(props) => props.theme.colors.titleColor};
+
+  span {
+    font-weight: normal;
+    display: block;
+    font-size: 10px;
+  }
 `;

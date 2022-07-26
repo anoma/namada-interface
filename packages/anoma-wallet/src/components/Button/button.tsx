@@ -13,12 +13,14 @@ export type ButtonProps = {
   style?: React.CSSProperties;
   disabled?: boolean;
   tooltip?: string;
+  className?: string;
 };
 export const Button: React.FC<ButtonProps> = (props): JSX.Element => {
   const {
     variant = ButtonVariant.Contained,
     onClick,
     style,
+    className,
     disabled,
     children,
     tooltip,
@@ -42,6 +44,7 @@ export const Button: React.FC<ButtonProps> = (props): JSX.Element => {
           onClick={onClick}
           disabled={disabled}
           title={tooltip}
+          className={className ? className : ""}
         >
           {children}
         </ContainedAltButton>
@@ -53,6 +56,7 @@ export const Button: React.FC<ButtonProps> = (props): JSX.Element => {
           onClick={onClick}
           disabled={disabled}
           title={tooltip}
+          className={className ? className : ""}
         >
           {children}
         </OutlinedButton>

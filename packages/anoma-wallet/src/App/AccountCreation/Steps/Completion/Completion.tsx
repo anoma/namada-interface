@@ -1,11 +1,10 @@
-import { Button, Variant } from "components/ButtonTemporary";
 import { Image, ImageName } from "components/Image";
-import { Wallet } from "lib";
+import { Session, Wallet } from "lib";
 
 import { addAccount, InitialAccount } from "slices/accounts";
 import { useEffect } from "react";
 import { useAppDispatch } from "store";
-import Config, { defaultChainId } from "config";
+import Config from "config";
 
 import {
   CompletionViewContainer,
@@ -13,29 +12,28 @@ import {
   ImageContainer,
   Header1,
   BodyText,
-  ButtonsContainer,
-  ButtonContainer,
 } from "./Completion.components";
+import { Tokens, TokenType } from "constants/";
+import { createShieldedAccount } from "slices/accountsNew/actions";
+import { useNavigate } from "react-router-dom";
+import { TopLevelRoute } from "App/types";
 
 type CompletionViewProps = {
   // navigates to the account
-  onClickSeeAccounts: () => void;
-  // navigates to the settings
-  onClickDone: () => void;
+  setPassword: (password: string) => void;
   mnemonic: string;
-  alias: string;
   password: string;
 };
 
-const defaultChain = Config.chain[defaultChainId];
-const { accountIndex } = defaultChain;
+const chains = Object.values(Config.chain);
 
 const createAccount = async (
   chainId: string,
+  accountIndex: number,
+  tokenType: TokenType,
   alias: string,
   mnemonic: string
 ): Promise<InitialAccount> => {
-  const tokenType = "NAM";
   const wallet = await new Wallet(mnemonic, tokenType).init();
   const account = wallet.new(accountIndex, 0);
   const { public: publicKey, secret: signingKey, wif: address } = account;
@@ -51,16 +49,58 @@ const createAccount = async (
 };
 
 const Completion = (props: CompletionViewProps): JSX.Element => {
-  const { onClickDone, onClickSeeAccounts, mnemonic, password, alias } = props;
-
+  const { setPassword, mnemonic, password } = props;
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (password) {
-      (async () => {
-        const account = await createAccount(defaultChainId, alias, mnemonic);
-        dispatch(addAccount(account));
-      })();
+    if (password && mnemonic) {
+      // 1. Encrypt and store Mnemonic
+      // 2. Set up initial accounts
+
+      setTimeout(() => {
+        (async () => {
+          await Session.setSeed(mnemonic, password || "");
+          const tokens = Object.values(Tokens);
+
+          const defaultToken = tokens.find((token) => token.symbol === "NAM");
+
+          // Create accounts on each chain
+          if (defaultToken) {
+            chains.forEach((chain) => {
+              const { accountIndex } = chain;
+
+              (async () => {
+                const account = await createAccount(
+                  chain.id,
+                  accountIndex,
+                  defaultToken.symbol as TokenType,
+                  defaultToken.coin,
+                  mnemonic
+                );
+                dispatch(addAccount({ ...account, isInitial: true }));
+              })();
+            });
+
+            chains.forEach((chain) => {
+              dispatch(
+                createShieldedAccount({
+                  chainId: chain.id,
+                  alias: defaultToken.coin,
+                  password,
+                  tokenType: defaultToken.symbol as TokenType,
+                })
+              );
+            });
+
+            setTimeout(() => {
+              // Log user into wallet:
+              setPassword(password);
+              navigate(TopLevelRoute.Wallet);
+            }, 3000);
+          }
+        })();
+      }, 1200);
     }
   }, []);
 
@@ -71,27 +111,9 @@ const Completion = (props: CompletionViewProps): JSX.Element => {
           <Image imageName={ImageName.SuccessImage} />
         </ImageContainer>
 
-        <Header1>You are all set!</Header1>
-        <BodyText>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla
-          maecenas sed bibendum sed velit. Consequat bibendum nibh netus sed
-          erat sed.
-        </BodyText>
+        <Header1>Creating your wallet</Header1>
+        <BodyText>One moment while your wallet is being created...</BodyText>
       </CompletionViewUpperPartContainer>
-      <ButtonsContainer>
-        <ButtonContainer>
-          <Button
-            onClick={onClickDone}
-            style={{ width: "100%" }}
-            variant={Variant.outline}
-          >
-            Done
-          </Button>
-        </ButtonContainer>
-        <ButtonContainer>
-          <Button onClick={onClickSeeAccounts}>See Account</Button>
-        </ButtonContainer>
-      </ButtonsContainer>
     </CompletionViewContainer>
   );
 };

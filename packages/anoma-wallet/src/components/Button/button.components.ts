@@ -2,23 +2,25 @@ import styled from "styled-components/macro";
 
 const Button = styled.button`
   padding: 0.75em 1.25em;
-  margin: 0.75em 1.25em;
+  margin: 0.5em 1.25em;
   font-size: 1em;
   border-style: solid;
   text-align: center;
   font-weight: 500;
+  font-family: "Space Grotesk", sans-serif;
   cursor: pointer;
 `;
 
 const RoundButton = styled(Button)`
   border-radius: 200px;
-  border-width: 1px 1px 4px 1px;
+  border-width: 1px;
 `;
 
 export const OutlinedButton = styled(RoundButton)`
-  border-color: ${(props) => props.theme.colors.buttonBorder1};
-  background-color: ${(props) => props.theme.colors.buttonBackground1};
+  border-color: ${(props) => props.theme.colors.buttonBorder2};
+  background-color: ${(props) => props.theme.colors.background2};
   color: ${(props) => props.theme.colors.buttonText1};
+
   &:hover {
     border-color: ${(props) => props.theme.colors.buttonHover1};
   }
@@ -26,6 +28,11 @@ export const OutlinedButton = styled(RoundButton)`
     opacity: 30%;
     cursor: initial;
     border-color: ${(props) => props.theme.colors.buttonBorder1};
+  }
+
+  &.active {
+    background-color: ${(props) => props.theme.colors.buttonBackground2};
+    color: ${(props) => props.theme.colors.buttonText2};
   }
 `;
 

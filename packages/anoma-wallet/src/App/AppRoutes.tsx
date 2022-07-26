@@ -12,15 +12,15 @@ import {
   SettingsAccountSettings,
   SettingsWalletSettings,
 } from "./Settings";
+import { Bridge } from "./Bridge";
 import { StakingAndGovernance } from "./StakingAndGovernance";
 import { TopLevelRoute } from "./types";
 import { AppStore } from "store/store";
 import { TokenDetails } from "./Token";
 import { TokenSend } from "./Token/TokenSend";
 import { TokenReceive } from "./Token/TokenReceive";
-import { TransferDetails } from "./Token/Transfers";
+import { TransferDetails, Transfers } from "./Token/Transfers";
 import NotFound from "./NotFound";
-import IBCTransfer from "./Token/IBCTransfer/IBCTransfer";
 
 type Props = {
   store: AppStore;
@@ -47,7 +47,12 @@ const AppRoutes = ({ store, persistor, password }: Props): JSX.Element => {
                 element={
                   // eslint-disable-next-line react/jsx-no-undef
                   <AnimatedTransition elementKey={TopLevelRoute.Wallet}>
-                    {persistor && <AccountOverview persistor={persistor} />}
+                    {persistor && (
+                      <AccountOverview
+                        persistor={persistor}
+                        password={password}
+                      />
+                    )}
                   </AnimatedTransition>
                 }
               />
@@ -96,6 +101,14 @@ const AppRoutes = ({ store, persistor, password }: Props): JSX.Element => {
                 }
               />
               <Route
+                path={TopLevelRoute.TokenTransfers}
+                element={
+                  <AnimatedTransition elementKey={TopLevelRoute.TokenTransfers}>
+                    <Transfers />
+                  </AnimatedTransition>
+                }
+              />
+              <Route
                 path={TopLevelRoute.TokenTransferDetails}
                 element={
                   <AnimatedTransition
@@ -106,12 +119,10 @@ const AppRoutes = ({ store, persistor, password }: Props): JSX.Element => {
                 }
               />
               <Route
-                path={TopLevelRoute.TokenIbcTransfer}
+                path={TopLevelRoute.Bridge}
                 element={
-                  <AnimatedTransition
-                    elementKey={TopLevelRoute.TokenIbcTransfer}
-                  >
-                    <IBCTransfer />
+                  <AnimatedTransition elementKey={TopLevelRoute.Bridge}>
+                    <Bridge />
                   </AnimatedTransition>
                 }
               />

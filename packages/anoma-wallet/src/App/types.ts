@@ -15,12 +15,15 @@ export enum TopLevelRoute {
   Wallet = "/",
   WalletAddAccount = "/add-account",
 
+  /* BRIDGE */
+  Bridge = "/bridge",
+
   /* TOKENS */
   Token = "/token/:id",
-  TokenSend = "/token/:id/send",
-  TokenSendTarget = "/token/send/:accountIndex/:tokenType/:target",
-  TokenReceive = "/token/:id/receive",
-  TokenTransfers = "/token/:id/transfers",
+  TokenSend = "/token/send",
+  TokenSendTarget = "/token/send/:accountIndex/:target",
+  TokenReceive = "/token/receive",
+  TokenTransfers = "/token/:id/transfers/token/:token",
   TokenTransferDetails = "/token/:id/transfers/:appliedHash",
   TokenIbcTransfer = "/token/:id/ibc-transfer",
 

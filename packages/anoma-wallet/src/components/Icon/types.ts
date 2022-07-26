@@ -17,6 +17,8 @@ export enum IconName {
   Settings,
   Plus,
   Info,
+  Lock,
+  Menu,
 }
 
 export enum IconSize {

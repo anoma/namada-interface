@@ -55,8 +55,12 @@ export const Input = styled.input`
   font-size: 16px;
   height: 42px;
   padding: 0 16px;
-  border-radius: 999px;
+  color: ${(props) => props.theme.colors.inputText};
+  background-color: ${(props) => props.theme.colors.background2};
+  border: 1px solid ${(props) => props.theme.colors.buttonBackground2};
+  border-radius: 12px;
 `;
+
 export const InputContainer = styled.div`
   width: 100%;
   height: 92px;

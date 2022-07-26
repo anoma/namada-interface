@@ -3,7 +3,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import Config, { RPCConfig } from "config";
 import { IbcTxResponse } from "constants/tx";
 import { RpcClient, SocketClient, Transfer, IBCTransfer } from "lib";
-import { history, TopLevelRouteGenerator } from "App";
+//import { history, TopLevelRouteGenerator } from "App";
 import { Tokens, TokenType, TxResponse } from "constants/";
 import { NewBlockEvents } from "lib/rpc/types";
 import { amountFromMicro, promiseWithTimeout } from "utils/helpers";
@@ -23,7 +23,7 @@ import {
 import { updateShieldedBalances } from "./accountsNew";
 
 const TRANSFERS_ACTIONS_BASE = "transfers";
-const LEDGER_TRANSFER_TIMEOUT = 10000;
+const LEDGER_TRANSFER_TIMEOUT = 20000;
 const IBC_TRANSFER_TIMEOUT = 15000;
 const MASP_ADDRESS = TRANSFER_CONFIGURATION.maspAddress;
 
@@ -47,7 +47,7 @@ export type TransferTransaction = {
   tokenType: TokenType;
   gas: number;
   appliedHash: string;
-  memo: string;
+  memo?: string;
   timestamp: number;
   ibcTransfer?: IBCTransferAttributes;
 };
@@ -79,9 +79,10 @@ enum TransfersThunkActions {
 type TxArgs = {
   chainId: string;
   account: DerivedAccount | ShieldedAccount;
+  token: TokenType;
   target: string;
   amount: number;
-  memo: string;
+  memo?: string;
   feeAmount?: number;
 };
 
@@ -222,13 +223,16 @@ export const submitTransferTransaction = createAsyncThunk(
     txTransferArgs: TxTransferArgs | ShieldedTransferData,
     { dispatch, rejectWithValue }
   ) => {
-    const { account, target, amount, memo, faucet, chainId } = txTransferArgs;
     const {
-      id,
-      establishedAddress = "",
-      tokenType,
-      signingKey: privateKey,
-    } = account;
+      account,
+      target,
+      token: tokenType,
+      amount,
+      memo = "",
+      faucet,
+      chainId,
+    } = txTransferArgs;
+    const { id, establishedAddress = "", signingKey: privateKey } = account;
 
     const source = faucet || establishedAddress;
 
@@ -296,11 +300,11 @@ export const submitTransferTransaction = createAsyncThunk(
     dispatch(updateShieldedBalances());
 
     // TODO pass this as a callback from consumer as we might need different behaviors
-    history.push(
-      TopLevelRouteGenerator.createRouteForTokenByTokenId(
-        txTransferArgs.account.id
-      )
-    );
+    // history.push(
+    //   TopLevelRouteGenerator.createRouteForTokenByTokenId(
+    //     txTransferArgs.account.id
+    //   )
+    // );
 
     return {
       id,
@@ -327,9 +331,10 @@ export const submitIbcTransferTransaction = createAsyncThunk(
   async (
     {
       account,
+      token: tokenType,
       target,
       amount,
-      memo,
+      memo = "",
       feeAmount = 0,
       channelId,
       portId,
@@ -337,11 +342,7 @@ export const submitIbcTransferTransaction = createAsyncThunk(
     }: TxIbcTransferArgs,
     { rejectWithValue }
   ) => {
-    const {
-      establishedAddress: source = "",
-      tokenType,
-      signingKey: privateKey,
-    } = account;
+    const { establishedAddress: source = "", signingKey: privateKey } = account;
     const chainConfig = Config.chain[chainId] || {};
     const { url, port, protocol, wsProtocol } = chainConfig.network;
     const rpcConfig = new RPCConfig(url, port, protocol, wsProtocol);

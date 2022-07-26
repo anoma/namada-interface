@@ -1,13 +1,11 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import Config, { RPCConfig } from "config";
-import { Tokens, TokenType, TxResponse } from "constants/";
+import { Symbols, Tokens, TokenType, TxResponse } from "constants/";
 import { Account, RpcClient, SocketClient } from "lib";
 import { NewBlockEvents } from "lib/rpc/types";
 import { promiseWithTimeout, stringToHash } from "utils/helpers";
 import { submitTransferTransaction } from "./transfers";
 import { addAccountReducersToBuilder } from "./accountsNew/reducers";
-
-const { REACT_APP_USE_FAUCET } = process.env;
 
 export type InitialAccount = {
   chainId: string;
@@ -19,11 +17,12 @@ export type InitialAccount = {
   establishedAddress?: string;
   zip32Address?: string;
   isShielded?: boolean;
+  isInitial?: boolean;
 };
 
 export type DerivedAccount = InitialAccount & {
   id: string;
-  balance: number;
+  balance?: number;
   isInitializing?: boolean;
   accountInitializationError?: string;
   shieldedKeysAndPaymentAddress?: ShieldedKeysAndPaymentAddress;
@@ -101,7 +100,7 @@ export const fetchBalanceByAccount = createAsyncThunk(
 export const submitInitAccountTransaction = createAsyncThunk(
   `${ACCOUNTS_ACTIONS_BASE}/${AccountThunkActions.SubmitInitAccountTransaction}`,
   async (account: DerivedAccount, { dispatch, rejectWithValue }) => {
-    const { chainId, signingKey: privateKey, tokenType } = account;
+    const { chainId, signingKey: privateKey, tokenType, isInitial } = account;
 
     const chainConfig = Config.chain[chainId];
     const { faucet } = chainConfig;
@@ -148,6 +147,8 @@ export const submitInitAccountTransaction = createAsyncThunk(
     }
 
     const initializedAccounts = events[TxResponse.InitializedAccounts];
+
+    // TODO: This is a major bug when initializing multiple accounts!
     const establishedAddress = initializedAccounts
       .map((account: string) => JSON.parse(account))
       .find((account: string[]) => account.length > 0)[0];
@@ -158,17 +159,21 @@ export const submitInitAccountTransaction = createAsyncThunk(
       establishedAddress,
     };
 
-    if (REACT_APP_USE_FAUCET || url.match(/testnet|localhost|/)) {
-      dispatch(
-        submitTransferTransaction({
-          chainId,
-          account: initializedAccount,
-          target: establishedAddress || "",
-          amount: 1000,
-          memo: "Initial funds",
-          faucet,
-        })
-      );
+    if (faucet && isInitial) {
+      // Fund initial tokens for testnet users:
+      Symbols.forEach((symbol) => {
+        dispatch(
+          submitTransferTransaction({
+            chainId,
+            token: symbol,
+            account: initializedAccount,
+            target: establishedAddress || "",
+            amount: 1000,
+            memo: "Initial funds",
+            faucet,
+          })
+        );
+      });
     }
 
     return initializedAccount;
@@ -187,9 +192,9 @@ const accountsSlice = createSlice({
   reducers: {
     addAccount: (state, action: PayloadAction<InitialAccount>) => {
       const initialAccount = action.payload;
-      const { chainId, alias } = initialAccount;
+      const { chainId, alias, isInitial, address } = initialAccount;
 
-      const id = stringToHash(alias);
+      const id = stringToHash(`${chainId}/${alias}/${address}`);
       if (!state.derived[chainId]) {
         state.derived[chainId] = {};
       }
@@ -197,8 +202,8 @@ const accountsSlice = createSlice({
       state.derived[chainId] = {
         ...state.derived[chainId],
         [id]: {
-          id: id,
-          balance: 0,
+          id,
+          isInitial,
           ...initialAccount,
         },
       };
@@ -229,11 +234,10 @@ const accountsSlice = createSlice({
       state,
       action: PayloadAction<{ chainId: string; id: string; balance: number }>
     ) => {
-      const { chainId, id, balance } = action.payload;
+      const { chainId, id } = action.payload;
 
       state.derived[chainId][id] = {
         ...state.derived[chainId][id],
-        balance,
       };
     },
     removeAccount: (
@@ -270,11 +274,10 @@ const accountsSlice = createSlice({
         state,
         action: PayloadAction<{ chainId: string; id: string; balance: number }>
       ) => {
-        const { chainId, id, balance } = action.payload;
+        const { chainId, id } = action.payload;
 
         state.derived[chainId][id] = {
           ...state.derived[chainId][id],
-          balance,
         };
       }
     );

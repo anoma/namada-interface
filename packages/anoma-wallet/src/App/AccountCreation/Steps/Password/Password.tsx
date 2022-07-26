@@ -1,23 +1,17 @@
 import React from "react";
-import { Button } from "components/ButtonTemporary";
+import { Button, ButtonVariant } from "components/Button";
 import {
   AccountInformationViewContainer,
   AccountInformationViewUpperPartContainer,
   AccountInformationForm,
   Header1,
-  Header3,
   Header5,
   BodyText,
   Input,
   InputFeedback,
   InputContainer,
   ButtonContainer,
-  RadioButtonLabel,
-  RecoveryPhraseLengthRadioButton,
-  RecoveryPhraseLengthRadioButtonContainer,
-  RecoveryPhraseLengthRadioButtonsContainer,
-  RecoveryPhraseLengthContainer,
-} from "./AccountInformation.components";
+} from "./Password.components";
 
 // this is being used:
 // to store the data in the parent when editing
@@ -45,19 +39,13 @@ type AccountInformationViewProps = {
   onCtaHover: () => void;
 };
 
-const AccountInformation = (
-  props: AccountInformationViewProps
-): React.ReactElement => {
+const Password = (props: AccountInformationViewProps): React.ReactElement => {
   const {
     setStore,
     onSubmitAccountCreationDetails,
-    onSetAccountCreationDetails,
-    onCtaHover,
+    //onCtaHover,
     accountCreationDetails,
   } = props;
-  // setting these default values if no data was passed
-  const { seedPhraseLength = "12", accountName = "" } =
-    accountCreationDetails || {};
 
   // we store passwords locally as we would not like to pass them in
   // when the user switches between the screens
@@ -65,73 +53,25 @@ const AccountInformation = (
   const [password2, setPassword2] = React.useState("");
   const [password2Feedback, setPassword2Feedback] = React.useState("");
   const [password1Feedback, setPassword1Feedback] = React.useState("");
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const isSubmitButtonDisabled =
-    accountName === "" || password1 === "" || password1 !== password2;
+  const isSubmitButtonDisabled = password1 === "" || password1 !== password2;
 
   return (
     <AccountInformationViewContainer>
       {/* header */}
       <AccountInformationViewUpperPartContainer>
-        <Header1>Create a master seed</Header1>
+        <Header1>Set a Passcode for your wallet</Header1>
       </AccountInformationViewUpperPartContainer>
 
       {/* form */}
       <AccountInformationForm>
         {/* seed phrase */}
-        <RecoveryPhraseLengthContainer>
-          <Header3>Recovery Phrase</Header3>
-
-          {/* seed phrase */}
-          <RecoveryPhraseLengthRadioButtonsContainer>
-            <RecoveryPhraseLengthRadioButtonContainer>
-              <RecoveryPhraseLengthRadioButton
-                type="radio"
-                name="seedPhraseLength"
-                value={"12"}
-                onChange={(event) => {
-                  onSetAccountCreationDetails({
-                    seedPhraseLength: event.target.value,
-                  });
-                }}
-                checked={seedPhraseLength === "12"}
-              />
-              <RadioButtonLabel htmlFor="seedPhraseLength">12</RadioButtonLabel>
-            </RecoveryPhraseLengthRadioButtonContainer>
-
-            <RecoveryPhraseLengthRadioButtonContainer>
-              <RecoveryPhraseLengthRadioButton
-                type="radio"
-                name="seedPhraseLength"
-                value={"24"}
-                checked={seedPhraseLength === "24"}
-                onChange={(event) => {
-                  onSetAccountCreationDetails({
-                    seedPhraseLength: event.target.value,
-                  });
-                }}
-              />
-              <RadioButtonLabel htmlFor="seedPhraseLength">24</RadioButtonLabel>
-            </RecoveryPhraseLengthRadioButtonContainer>
-          </RecoveryPhraseLengthRadioButtonsContainer>
-        </RecoveryPhraseLengthContainer>
-
         {/* description */}
         <BodyText>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Enim augue
-          aenean facilisi placerat laoreet sem faucibus{" "}
+          <strong>NOT</strong> a replacement for your seed phrase! Use this
+          password to access your wallet in the browser.
         </BodyText>
-
-        {/* account name */}
-        <InputContainer>
-          <Header5>Account Name</Header5>
-          <Input
-            value={accountName}
-            onChange={(event) => {
-              onSetAccountCreationDetails({ accountName: event.target.value });
-            }}
-          />
-        </InputContainer>
 
         {/* password 1 */}
         <InputContainer>
@@ -175,30 +115,39 @@ const AccountInformation = (
             }}
             onBlur={() => {
               if (password2 === "") {
-                setPassword2Feedback("password cannot be empty");
+                setPassword2Feedback("Password cannot be empty");
               }
               if (password1 !== password2) {
-                setPassword2Feedback("passwords are not matching");
+                setPassword2Feedback("Passwords are not matching");
               }
             }}
           />
           <InputFeedback>{password2Feedback}</InputFeedback>
+          {isSubmitting && <p>Initializing wallet store...</p>}
         </InputContainer>
 
         {/* submit */}
         <ButtonContainer>
           <Button
+            variant={ButtonVariant.Contained}
             onClick={() => {
-              if (!isSubmitButtonDisabled) {
+              if (!isSubmitButtonDisabled && !isSubmitting) {
+                setIsSubmitting(true);
                 const accountCreationDetailsToSubmit: AccountCreationDetails = {
                   ...accountCreationDetails,
                   password: password1,
                 };
                 setStore && setStore(password1);
-                onSubmitAccountCreationDetails(accountCreationDetailsToSubmit);
+
+                // Wait a moment for setStore to finish, then navigate
+                // so as not to block animations
+                setTimeout(() => {
+                  onSubmitAccountCreationDetails(
+                    accountCreationDetailsToSubmit
+                  );
+                }, 1200);
               }
             }}
-            onHover={onCtaHover}
             disabled={isSubmitButtonDisabled}
           >
             Create an Account
@@ -209,4 +158,4 @@ const AccountInformation = (
   );
 };
 
-export default AccountInformation;
+export default Password;

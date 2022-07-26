@@ -18,6 +18,12 @@ import {
   NewAccountButtonContainer,
   AccountAlias,
 } from "./SettingsAccounts.components";
+import {
+  BackButton,
+  ButtonsContainer,
+} from "App/Token/TokenSend/TokenSendForm.components";
+import { Icon, IconName } from "components/Icon";
+import { SettingsContent } from "../Settings.components";
 
 /**
  * Listing all the accounts that are persisted. By clicking one of them the account
@@ -35,79 +41,76 @@ export const SettingsAccounts = (): JSX.Element => {
   };
 
   const accounts = Object.values(transparentAndShieldedAccounts);
-  const currentAccount = useAppSelector(
-    (state) => state.settings.selectedAccountID
-  );
 
   const navigate = useNavigate();
 
   return (
     <SettingsAccountsContainer>
-      <NavigationContainer
-        onBackButtonClick={() => {
-          navigate(TopLevelRoute.Settings);
-        }}
-      >
+      <NavigationContainer>
         <Heading level={HeadingLevel.One}>Accounts</Heading>
       </NavigationContainer>
 
-      <AccountRows>
-        {accounts.map((account) => {
-          return (
-            <AccountRow
-              style={
-                currentAccount == account.id
-                  ? { border: "solid 1px #002046" }
-                  : { border: 0 }
-              }
-              key={account.alias}
-              disabled={!!account.shieldedKeysAndPaymentAddress}
-            >
-              <AccountAlias>{account.alias}</AccountAlias>
-              <AccountNameContainer>
-                <AccountNameContainerOverflow>
-                  <Heading level={HeadingLevel.Three}>
-                    {account.shieldedKeysAndPaymentAddress
-                      ? account.shieldedKeysAndPaymentAddress.paymentAddress
-                      : account.address}
-                  </Heading>
-                </AccountNameContainerOverflow>
-              </AccountNameContainer>
-              <AccountButtonContainer>
-                <Button
-                  onClick={() => {
-                    navigate(
-                      formatRoute(TopLevelRoute.SettingsAccountSettings, {
-                        id: account.id,
-                      })
-                    );
-                  }}
-                  disabled={!!account.shieldedKeysAndPaymentAddress}
-                  variant={ButtonVariant.Contained}
-                  tooltip={
-                    account.shieldedKeysAndPaymentAddress
-                      ? "Account settings for shielded accounts are not implemented yet"
-                      : ""
-                  }
-                >
-                  Settings
-                </Button>
-              </AccountButtonContainer>
-            </AccountRow>
-          );
-        })}
-      </AccountRows>
-      <NewAccountButtonContainer>
-        <Button
-          onClick={() => {
-            navigate(TopLevelRoute.WalletAddAccount);
-          }}
-          variant={ButtonVariant.Contained}
-          style={{ marginLeft: "0" }}
-        >
-          New Account
-        </Button>
-      </NewAccountButtonContainer>
+      <SettingsContent>
+        <AccountRows>
+          {accounts.map((account) => {
+            return (
+              <AccountRow
+                key={account.id}
+                disabled={!!account.shieldedKeysAndPaymentAddress}
+              >
+                <AccountAlias>
+                  {account.alias}&nbsp;
+                  <span>{account.isShielded ? "Shielded" : "Transparent"}</span>
+                </AccountAlias>
+                <AccountNameContainer>
+                  <AccountNameContainerOverflow>
+                    <Heading level={HeadingLevel.Three}>
+                      {account.shieldedKeysAndPaymentAddress
+                        ? account.shieldedKeysAndPaymentAddress.paymentAddress
+                        : account.establishedAddress}
+                    </Heading>
+                  </AccountNameContainerOverflow>
+                </AccountNameContainer>
+                <AccountButtonContainer>
+                  <Button
+                    onClick={() => {
+                      navigate(
+                        formatRoute(TopLevelRoute.SettingsAccountSettings, {
+                          id: account.id,
+                        })
+                      );
+                    }}
+                    disabled={!!account.shieldedKeysAndPaymentAddress}
+                    variant={ButtonVariant.Contained}
+                    tooltip={
+                      account.shieldedKeysAndPaymentAddress
+                        ? "Account settings for shielded accounts are not implemented yet"
+                        : ""
+                    }
+                  >
+                    Settings
+                  </Button>
+                </AccountButtonContainer>
+              </AccountRow>
+            );
+          })}
+        </AccountRows>
+        <NewAccountButtonContainer></NewAccountButtonContainer>
+        <ButtonsContainer>
+          <BackButton onClick={() => navigate(TopLevelRoute.Settings)}>
+            <Icon iconName={IconName.ChevronLeft} />
+          </BackButton>
+          <Button
+            onClick={() => {
+              navigate(TopLevelRoute.WalletAddAccount);
+            }}
+            variant={ButtonVariant.Contained}
+            style={{ marginLeft: "0" }}
+          >
+            New Account
+          </Button>
+        </ButtonsContainer>
+      </SettingsContent>
     </SettingsAccountsContainer>
   );
 };

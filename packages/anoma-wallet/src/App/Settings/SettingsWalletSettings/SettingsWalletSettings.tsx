@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 
 import { Chain } from "config/chain";
 import { setFiatCurrency, setChainId, SettingsState } from "slices/settings";
-import { ChainsState } from "slices/chains";
 import { useAppDispatch, useAppSelector } from "store";
 import { Session } from "lib";
 
@@ -20,6 +19,10 @@ import {
   SeedPhraseContainer,
   SeedPhraseIndexLabel,
 } from "App/AccountCreation/Steps/SeedPhrase/SeedPhrase.components";
+import Config from "config";
+import { BackButton } from "App/Token/TokenSend/TokenSendForm.components";
+import { TopLevelRoute } from "App/types";
+import { ButtonsContainer, SettingsContent } from "../Settings.components";
 
 type Props = {
   password: string;
@@ -29,7 +32,7 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const chains = useAppSelector<ChainsState>((state) => state.chains);
+  const chains = Object.values(Config.chain);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const [displaySeedPhrase, setDisplaySeedPhrase] = useState(false);
   const [seedPhrase, setSeedPhrase] = useState<string[]>([]);
@@ -89,70 +92,79 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
 
   return (
     <SettingsWalletSettingsContainer>
-      <NavigationContainer
-        onBackButtonClick={() => {
-          navigate(-1);
-        }}
-      >
+      <NavigationContainer>
         <Heading level={HeadingLevel.One}>Wallet Settings</Heading>
       </NavigationContainer>
 
-      <InputContainer>
-        <Button
-          variant={ButtonVariant.Contained}
-          style={{ margin: "0" }}
-          onClick={handleDisplaySeedPhrase}
-          disabled={isLoadingSeed}
-        >
-          {displaySeedPhrase ? "Hide" : "Display"} seed phrase
-        </Button>
-        {isLoadingSeed && <p>Decrypting Seed Phrase</p>}
-        {displaySeedPhrase && (
-          <SeedPhraseContainer>
-            {seedPhrase.map((seedPhraseWord, index) => {
-              return (
-                <SeedPhraseCard key={seedPhraseWord}>
-                  <SeedPhraseIndexLabel>{`${index + 1}`}</SeedPhraseIndexLabel>
-                  {`${seedPhraseWord}`}
-                </SeedPhraseCard>
-              );
-            })}
-          </SeedPhraseContainer>
-        )}
-      </InputContainer>
-      <InputContainer>
-        <Select
-          data={currencies}
-          label={
-            <div>
-              Fiat Currency
-              <Tooltip
-                anchor={<Icon iconName={IconName.Info} />}
-                tooltipText="Fiat currency in which balances may be displayed."
-              />
-            </div>
-          }
-          value={currentCurrency}
-          onChange={handleCurrencySelect}
-        ></Select>
-      </InputContainer>
+      <SettingsContent>
+        <InputContainer>
+          <Button
+            variant={ButtonVariant.Contained}
+            style={{ margin: "0" }}
+            onClick={handleDisplaySeedPhrase}
+            disabled={isLoadingSeed}
+          >
+            {displaySeedPhrase ? "Hide" : "Display"} seed phrase
+          </Button>
+          {isLoadingSeed && <p>Decrypting Seed Phrase</p>}
+          {displaySeedPhrase && (
+            <SeedPhraseContainer>
+              {seedPhrase.map((seedPhraseWord, index) => {
+                return (
+                  <SeedPhraseCard key={seedPhraseWord}>
+                    <SeedPhraseIndexLabel>{`${
+                      index + 1
+                    }`}</SeedPhraseIndexLabel>
+                    {`${seedPhraseWord}`}
+                  </SeedPhraseCard>
+                );
+              })}
+            </SeedPhraseContainer>
+          )}
+        </InputContainer>
+        <InputContainer>
+          <Select
+            data={currencies}
+            label={
+              <div>
+                Fiat Currency
+                <Tooltip
+                  anchor={<Icon iconName={IconName.Info} />}
+                  tooltipText="Fiat currency in which balances may be displayed."
+                />
+              </div>
+            }
+            value={currentCurrency}
+            onChange={handleCurrencySelect}
+          ></Select>
+        </InputContainer>
 
-      <InputContainer>
-        <Select
-          label={
-            <div>
-              Network
-              <Tooltip
-                anchor={<Icon iconName={IconName.Info} />}
-                tooltipText="Default network from which accounts will be derived."
-              />
-            </div>
-          }
-          value={chainId}
-          data={networks}
-          onChange={handleNetworkSelect}
-        />
-      </InputContainer>
+        <InputContainer>
+          <Select
+            label={
+              <div>
+                Network
+                <Tooltip
+                  anchor={<Icon iconName={IconName.Info} />}
+                  tooltipText="Default network from which accounts will be derived."
+                />
+              </div>
+            }
+            value={chainId}
+            data={networks}
+            onChange={handleNetworkSelect}
+          />
+        </InputContainer>
+      </SettingsContent>
+      <ButtonsContainer>
+        <BackButton
+          onClick={() => {
+            navigate(TopLevelRoute.Settings);
+          }}
+        >
+          <Icon iconName={IconName.ChevronLeft} />
+        </BackButton>
+      </ButtonsContainer>
     </SettingsWalletSettingsContainer>
   );
 };

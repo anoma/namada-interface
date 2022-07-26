@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate, useLocation, NavigateFunction } from "react-router-dom";
+import { Persistor } from "redux-persist";
+import { Provider } from "react-redux";
+
 import { TopLevelRoute } from "App/types";
 import { Image, ImageName } from "components/Image";
-import { Icon, IconName } from "components/Icon";
 import { Toggle } from "components/Toggle";
 import {
   TopNavigationContainer,
@@ -10,8 +12,6 @@ import {
   MiddleSection,
   RightSection,
   MenuItem,
-  StakingAndGovernanceMenuItem,
-  MenuItemIconContainer,
   MenuItemTextContainer,
   ColorModeContainer,
   LogoContainer,
@@ -19,7 +19,19 @@ import {
   OnlyInMedium,
   TopNavigationContainerRow,
   TopNavigationContainerSecondRow,
+  TopNavigationLogoContainer,
+  MenuButton,
+  MobileMenu,
+  MobileMenuList,
+  MobileMenuListItem,
+  MobileMenuHeader,
+  MenuCloseButton,
 } from "./topNavigation.components";
+
+import { AppStore } from "store/store";
+import TopNavigationLoggedIn from "./topNavigationLoggedIn";
+import { SettingsButton } from "./topNavigationLoggedIn.components";
+import { Icon, IconName } from "components/Icon";
 
 /**
  * this is rendered in one of 2 places depending of the screen size
@@ -39,35 +51,31 @@ const TopNavigationMenuItems = (props: {
         }}
         isSelected={location.pathname === TopLevelRoute.Wallet}
       >
-        <MenuItemIconContainer>
-          <Icon iconName={IconName.Briefcase} />
-        </MenuItemIconContainer>
         <MenuItemTextContainer>Wallet</MenuItemTextContainer>
       </MenuItem>
 
-      {/* Staking & Governance */}
-      <StakingAndGovernanceMenuItem
-        onClick={() => {
-          navigate(`${TopLevelRoute.StakingAndGovernance}`);
-        }}
-        isSelected={location.pathname === TopLevelRoute.StakingAndGovernance}
-      >
-        <MenuItemIconContainer>
-          <Icon iconName={IconName.ThumbsUp} />
-        </MenuItemIconContainer>
-        <MenuItemTextContainer>Staking &amp; Governance</MenuItemTextContainer>
-      </StakingAndGovernanceMenuItem>
-
+      {/* Bridge */}
       <MenuItem
         onClick={() => {
-          navigate(`${TopLevelRoute.Settings}`);
+          navigate(`${TopLevelRoute.Bridge}`);
         }}
-        isSelected={location.pathname.startsWith(TopLevelRoute.Settings)}
+        isSelected={location.pathname === TopLevelRoute.Bridge}
       >
-        <MenuItemIconContainer>
-          <Icon iconName={IconName.Settings} />
-        </MenuItemIconContainer>
-        <MenuItemTextContainer>Settings</MenuItemTextContainer>
+        <MenuItemTextContainer>Bridge</MenuItemTextContainer>
+      </MenuItem>
+
+      {/* Staking */}
+      <MenuItem
+        isSelected={location.pathname === TopLevelRoute.StakingAndGovernance}
+      >
+        <MenuItemTextContainer>Staking</MenuItemTextContainer>
+      </MenuItem>
+
+      {/* Governance */}
+      <MenuItem
+        isSelected={location.pathname === TopLevelRoute.StakingAndGovernance}
+      >
+        <MenuItemTextContainer>Governance</MenuItemTextContainer>
       </MenuItem>
     </>
   );
@@ -79,91 +87,242 @@ type TopNavigationProps = {
   // cb for telling parent to change hte color in context
   setIsLightMode: React.Dispatch<React.SetStateAction<boolean>>;
   isLoggedIn?: boolean;
+  persistor?: Persistor;
+  store?: AppStore;
   logout: () => void;
 };
 // top nav of the app, this is likely always visible.
 function TopNavigation(props: TopNavigationProps): JSX.Element {
-  const { isLightMode, logout, setIsLightMode, isLoggedIn = false } = props;
+  const {
+    isLightMode,
+    logout,
+    setIsLightMode,
+    isLoggedIn = false,
+    store,
+  } = props;
   const navigate = useNavigate();
-  const circleElementEnabled = (
-    <Icon iconName={IconName.Sun} strokeColorOverride="#17171d" />
-  );
-  const circleElementDisabled = (
-    <Icon
-      iconName={IconName.Moon}
-      strokeColorOverride="#17171d"
-      fillColorOverride="#17171d"
-    />
-  );
+  const [showMenu, setShowMenu] = useState(false);
 
   return (
     <TopNavigationContainer>
-      <TopNavigationContainerRow>
-        <LeftSection>
-          <LogoContainer
-            onClick={() => {
-              navigate(TopLevelRoute.Home);
-            }}
-          >
-            <Image
-              imageName={ImageName.Logo}
-              styleOverrides={{ maxWidth: "128px" }}
-            />
-          </LogoContainer>
-        </LeftSection>
+      <OnlyInMedium>
+        <TopNavigationContainerRow>
+          <LeftSection>
+            &nbsp;
+            {isLoggedIn && (
+              <LogoContainer
+                onClick={() => {
+                  navigate(TopLevelRoute.Home);
+                }}
+              >
+                <Image
+                  imageName={ImageName.Logo}
+                  styleOverrides={{ maxWidth: "200px" }}
+                  forceLightMode={true}
+                />
+              </LogoContainer>
+            )}
+          </LeftSection>
 
-        <MiddleSection>
-          <OnlyInMedium>
+          <MiddleSection>
             {isLoggedIn && <TopNavigationMenuItems navigate={navigate} />}
-          </OnlyInMedium>
-        </MiddleSection>
+          </MiddleSection>
 
-        <RightSection>
-          {/* TODO: extract to Button component*/}
-
+          <RightSection>
+            {/* TODO: extract to Button component*/}
+            {isLoggedIn && (
+              <MenuItem
+                onClick={() => {
+                  navigate(TopLevelRoute.Home);
+                  logout();
+                }}
+              >
+                <Icon iconName={IconName.Lock} />
+                <MenuItemTextContainer>Lock</MenuItemTextContainer>
+              </MenuItem>
+            )}
+          </RightSection>
+        </TopNavigationContainerRow>
+        <TopNavigationContainerSecondRow>
+          {isLoggedIn && store && (
+            <Provider store={store}>
+              <TopNavigationLoggedIn
+                isLightMode={isLightMode}
+                setIsLightMode={(isLightMode) => setIsLightMode(isLightMode)}
+              ></TopNavigationLoggedIn>
+            </Provider>
+          )}
+          {!isLoggedIn && (
+            <TopNavigationLogoContainer>
+              <SettingsButton>
+                <Icon iconName={IconName.Settings} />
+              </SettingsButton>
+              <LogoContainer
+                onClick={() => {
+                  navigate(TopLevelRoute.Home);
+                }}
+              >
+                <Image
+                  imageName={ImageName.Logo}
+                  styleOverrides={{ maxWidth: "300px" }}
+                />
+              </LogoContainer>
+              <ColorModeContainer>
+                <Toggle
+                  checked={isLightMode}
+                  onClick={() => {
+                    setIsLightMode((isLightMode) => !isLightMode);
+                  }}
+                />
+              </ColorModeContainer>
+            </TopNavigationLogoContainer>
+          )}
+        </TopNavigationContainerSecondRow>
+      </OnlyInMedium>
+      <OnlyInSmall>
+        <TopNavigationContainerRow>
+          &nbsp;
           {isLoggedIn && (
-            <MenuItem
+            <>
+              <LeftSection>
+                <MenuButton onClick={() => setShowMenu(true)}>
+                  <Icon iconName={IconName.Menu} />
+                </MenuButton>
+              </LeftSection>
+              <MiddleSection>
+                <LogoContainer
+                  onClick={() => {
+                    navigate(TopLevelRoute.Home);
+                  }}
+                >
+                  <Image
+                    imageName={ImageName.Logo}
+                    styleOverrides={{ maxWidth: "200px" }}
+                    forceLightMode={true}
+                  />
+                </LogoContainer>
+              </MiddleSection>
+              <RightSection>
+                {isLoggedIn && (
+                  <ColorModeContainer>
+                    <Toggle
+                      checked={isLightMode}
+                      onClick={() => {
+                        setIsLightMode((isLightMode) => !isLightMode);
+                      }}
+                    />
+                  </ColorModeContainer>
+                )}
+              </RightSection>
+            </>
+          )}
+        </TopNavigationContainerRow>
+        <TopNavigationContainerSecondRow>
+          {isLoggedIn && store ? (
+            <Provider store={store}>
+              <TopNavigationLoggedIn
+                isLightMode={isLightMode}
+                setIsLightMode={(isLightMode) => setIsLightMode(isLightMode)}
+              ></TopNavigationLoggedIn>
+            </Provider>
+          ) : (
+            <TopNavigationLogoContainer>
+              <SettingsButton>
+                <Icon iconName={IconName.Settings} />
+              </SettingsButton>
+              <LogoContainer
+                onClick={() => {
+                  navigate(TopLevelRoute.Home);
+                }}
+              >
+                <Image
+                  imageName={ImageName.Logo}
+                  styleOverrides={{ maxWidth: "300px" }}
+                />
+              </LogoContainer>
+              <ColorModeContainer>
+                <Toggle
+                  checked={isLightMode}
+                  onClick={() => {
+                    setIsLightMode((isLightMode) => !isLightMode);
+                  }}
+                />
+              </ColorModeContainer>
+            </TopNavigationLogoContainer>
+          )}
+        </TopNavigationContainerSecondRow>
+        <MobileMenu className={showMenu ? "active" : ""}>
+          <MobileMenuHeader>
+            <MenuCloseButton onClick={() => setShowMenu(false)}>
+              <Icon iconName={IconName.ChevronLeft} />
+            </MenuCloseButton>
+            <LogoContainer
               onClick={() => {
                 navigate(TopLevelRoute.Home);
-                logout();
               }}
             >
-              <MenuItemIconContainer>
-                <Icon iconName={IconName.Key} />
-              </MenuItemIconContainer>
-              <MenuItemTextContainer>Lock</MenuItemTextContainer>
-            </MenuItem>
-          )}
-          {/* help button */}
-          <MenuItem
-            onClick={() => {
-              alert("Help not implemented yet");
-            }}
-            style={{ margin: "0 32px 0" }}
-          >
-            <MenuItemIconContainer>
-              <Icon iconName={IconName.HelpCircle} />
-            </MenuItemIconContainer>
-            <MenuItemTextContainer>Help</MenuItemTextContainer>
-          </MenuItem>
+              <Image
+                imageName={ImageName.Logo}
+                styleOverrides={{ maxWidth: "200px" }}
+                forceLightMode={true}
+              />
+            </LogoContainer>
+            <ColorModeContainer>
+              <Toggle
+                checked={isLightMode}
+                onClick={() => {
+                  setIsLightMode((isLightMode) => !isLightMode);
+                }}
+              />
+            </ColorModeContainer>
+          </MobileMenuHeader>
 
-          <ColorModeContainer>
-            <Toggle
-              checked={isLightMode}
-              onClick={() => {
-                setIsLightMode((isLightMode) => !isLightMode);
-              }}
-              circleElementEnabled={circleElementEnabled}
-              circleElementDisabled={circleElementDisabled}
-            />
-          </ColorModeContainer>
-        </RightSection>
-      </TopNavigationContainerRow>
-      <TopNavigationContainerSecondRow>
-        <OnlyInSmall>
-          {isLoggedIn && <TopNavigationMenuItems navigate={navigate} />}
-        </OnlyInSmall>
-      </TopNavigationContainerSecondRow>
+          <MobileMenuList>
+            <MobileMenuListItem>
+              <MenuItem
+                onClick={() => {
+                  setShowMenu(false);
+                  navigate(TopLevelRoute.Home);
+                }}
+              >
+                Wallet
+              </MenuItem>
+            </MobileMenuListItem>
+            <MobileMenuListItem>
+              <MenuItem
+                onClick={() => {
+                  setShowMenu(false);
+                  navigate(TopLevelRoute.Bridge);
+                }}
+              >
+                Bridge
+              </MenuItem>
+            </MobileMenuListItem>
+            <MobileMenuListItem>
+              <MenuItem
+                onClick={() => {
+                  setShowMenu(false);
+                  navigate(TopLevelRoute.Settings);
+                }}
+              >
+                Settings
+              </MenuItem>
+            </MobileMenuListItem>
+            <MobileMenuListItem>
+              <MenuItem
+                onClick={() => {
+                  setShowMenu(false);
+                  navigate(TopLevelRoute.Home);
+                  logout();
+                }}
+              >
+                <Icon iconName={IconName.Lock} />
+                <MenuItemTextContainer>Lock</MenuItemTextContainer>
+              </MenuItem>
+            </MobileMenuListItem>
+          </MobileMenuList>
+        </MobileMenu>
+      </OnlyInSmall>
     </TopNavigationContainer>
   );
 }

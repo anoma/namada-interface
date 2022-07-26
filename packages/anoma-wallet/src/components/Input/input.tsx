@@ -1,8 +1,9 @@
 import { Icon, IconName } from "components/Icon";
-import { ChangeEventHandler, FocusEventHandler, useState } from "react";
+import React, { ChangeEventHandler, FocusEventHandler, useState } from "react";
 import {
   ErrorTooltip,
   IconContainer,
+  InputWrapper,
   Label,
   PasswordContainer,
   TextAreaInput,
@@ -13,7 +14,7 @@ import { InputVariants } from "./types";
 export type InputProps = {
   variant?: InputVariants;
   value?: string | number;
-  label: string;
+  label: string | React.ReactNode;
   error?: string;
   onChangeCallback?: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
   onFocus?: FocusEventHandler<HTMLInputElement>;
@@ -36,8 +37,8 @@ export const Input = ({
     case InputVariants.Text:
       return (
         <Label>
-          <b>{label}</b>
-          <div>
+          {label}
+          <InputWrapper>
             <TextInput
               error={!!error}
               onChange={onChangeCallback}
@@ -46,21 +47,21 @@ export const Input = ({
               value={value}
             />
             <br />
-            <ErrorTooltip>{error}</ErrorTooltip>
-          </div>
+          </InputWrapper>
+          <ErrorTooltip>{error}</ErrorTooltip>
         </Label>
       );
     case InputVariants.Textarea:
       return (
         <Label>
           {label}
-          <br />
-          <TextAreaInput
-            error={!!error}
-            onChange={onChangeCallback}
-            value={value}
-          />
-          <br />
+          <InputWrapper>
+            <TextAreaInput
+              error={!!error}
+              onChange={onChangeCallback}
+              value={value}
+            />
+          </InputWrapper>
           <ErrorTooltip>{error}</ErrorTooltip>
         </Label>
       );
@@ -89,14 +90,16 @@ export const Input = ({
       return (
         <Label>
           {label}
-          <TextInput
-            error={!!error}
-            placeholder={placeholder}
-            type={"number"}
-            value={value}
-            onChange={onChangeCallback}
-            onFocus={onFocus}
-          />
+          <InputWrapper>
+            <TextInput
+              error={!!error}
+              placeholder={placeholder}
+              type={"number"}
+              value={value}
+              onChange={onChangeCallback}
+              onFocus={onFocus}
+            />
+          </InputWrapper>
           <ErrorTooltip>{error}</ErrorTooltip>
         </Label>
       );

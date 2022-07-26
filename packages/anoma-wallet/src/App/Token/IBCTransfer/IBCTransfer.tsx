@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 
 import { useAppDispatch, useAppSelector } from "store";
 import { AccountsState, fetchBalanceByAccount } from "slices/accounts";
@@ -10,12 +9,9 @@ import {
   submitIbcTransferTransaction,
   TransfersState,
 } from "slices/transfers";
-import { ChainsState } from "slices/chains";
 import { SettingsState } from "slices/settings";
-import { formatRoute } from "utils/helpers";
 
 import { Input, InputVariants } from "components/Input";
-import { isMemoValid, MAX_MEMO_LENGTH } from "../TokenSend/TokenSendForm";
 import {
   ButtonsContainer,
   InputContainer,
@@ -25,65 +21,111 @@ import {
   AddChannelButton,
   IBCTransferFormContainer,
 } from "./IBCTransfer.components";
-import { Select } from "components/Select";
-import { TopLevelRoute } from "App/types";
-import { Heading, HeadingLevel } from "components/Heading";
-import { NavigationContainer } from "components/NavigationContainer";
+import { Option, Select } from "components/Select";
 import { Icon, IconName } from "components/Icon";
 import { Button, ButtonVariant } from "components/Button";
 import { Address } from "../Transfers/TransferDetails.components";
-
-type UrlParams = {
-  id: string;
-};
+import Config from "config";
+import { Symbols, Tokens, TokenType } from "constants/";
+import { BalancesState, fetchBalances } from "slices/balances";
 
 const IBCTransfer = (): JSX.Element => {
-  const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { id = "" } = useParams<UrlParams>();
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
+  const balancesByChain = useAppSelector<BalancesState>(
+    (state) => state.balances
+  );
+  const balances = balancesByChain[chainId] || {};
   const { channelsByChain = {} } = useAppSelector<ChannelsState>(
     (state) => state.channels
   );
   const { isIbcTransferSubmitting, transferError, events } =
     useAppSelector<TransfersState>((state) => state.transfers);
 
-  const chains = useAppSelector<ChainsState>((state) => state.chains);
+  const chains = Config.chain;
   const chain = chains[chainId];
-  const { ibc = [] } = chain;
+  const { ibc = [] } = chain || {};
 
-  const defaultIbcChain = chains[ibc[0]] || null;
-  const [selectedChainId, setSelectedChain] = useState(
+  const defaultIbcChain = chains[ibc[0]?.chainId] || null;
+  const [selectedChainId, setSelectedChainId] = useState(
     defaultIbcChain ? defaultIbcChain.id : ""
   );
 
-  const selectDestinationChainData = ibc.map((chainId) => ({
-    value: chainId,
-    label: chains[chainId].alias,
+  const selectDestinationChainData = ibc.map((ibcChain) => ({
+    value: ibcChain.chainId,
+    label: chains[ibcChain.chainId].alias,
   }));
 
-  const channels = channelsByChain[selectedChainId] || [];
+  const channels = (channelsByChain[selectedChainId] || []).sort();
   const selectChannelsData = channels.map((channel: string) => ({
     value: channel,
     label: channel,
   }));
 
   const [amount, setAmount] = useState(0);
-  const [memo, setMemo] = useState("");
   const [selectedChannelId, setSelectedChannelId] = useState("");
   const [showAddChannelForm, setShowAddChannelForm] = useState(false);
   const [channelId, setChannelId] = useState<string>();
   const [recipient, setRecipient] = useState("");
 
   const derivedAccounts = derived[chainId] || {};
-  const account = derivedAccounts[id] || {};
-  const { balance = 0, tokenType } = account;
+  const account = Object.values(derivedAccounts)[0] || {};
+  const [selectedAccountId, setSelectedAccountId] = useState(account.id || "");
+
+  type AccountTokenData = {
+    id: string;
+    alias: string;
+    balance: number;
+    tokenType: TokenType;
+  };
+
+  const tokenBalances = Object.values(derivedAccounts).reduce(
+    (data: AccountTokenData[], account) => {
+      const { id, alias } = account;
+
+      const accountsWithId = Symbols.map((symbol) => {
+        const balance = (balances[id] || {})[symbol] || 0;
+
+        return {
+          id,
+          alias,
+          tokenType: symbol,
+          balance,
+        };
+      });
+
+      return [...data, ...accountsWithId];
+    },
+    []
+  );
+
+  const tokenData: Option<string>[] = tokenBalances
+    .filter((account) => account.balance > 0)
+    .map((account) => {
+      const { id, alias, tokenType, balance } = account;
+      const token = Tokens[tokenType];
+      const { coin } = token;
+
+      return {
+        value: `${id}|${tokenType}`,
+        label: `${
+          alias !== "Namada" ? alias + " - " : ""
+        }${coin} (${balance} ${tokenType})`,
+      };
+    });
+
+  const { tokenType } = tokenBalances[0] || {};
+  const balance =
+    tokenBalances.find((balance) => balance.id === selectedAccountId)
+      ?.balance || 0;
+
+  const [token, setToken] = useState<TokenType>(tokenType);
 
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
 
-  const { portId = "transfer" } = defaultIbcChain;
+  const { portId = "transfer" } = defaultIbcChain || {};
 
   useEffect(() => {
     return () => {
@@ -91,6 +133,20 @@ const IBCTransfer = (): JSX.Element => {
       dispatch(clearErrors());
     };
   }, []);
+
+  useEffect(() => {
+    const { ibc = [] } = chains[chainId] || {};
+    if (ibc.length > 0) {
+      const selectedChain = ibc[0].chainId;
+      setSelectedChainId(selectedChain);
+    }
+    dispatch(
+      fetchBalances({
+        chainId,
+        accounts: Object.values(derivedAccounts),
+      })
+    );
+  }, [chainId]);
 
   useEffect(() => {
     if (account && !isIbcTransferSubmitting) {
@@ -122,12 +178,21 @@ const IBCTransfer = (): JSX.Element => {
     }
   };
 
+  const handleTokenChange = (e: React.ChangeEvent<HTMLSelectElement>): void => {
+    const { value } = e.target;
+
+    const [accountId, tokenSymbol] = value.split("|");
+
+    setSelectedAccountId(accountId);
+    setToken(tokenSymbol as TokenType);
+  };
+
   const handleSubmit = (): void => {
     dispatch(
       submitIbcTransferTransaction({
         account,
+        token,
         amount,
-        memo,
         chainId,
         target: recipient,
         channelId: selectedChannelId,
@@ -138,147 +203,139 @@ const IBCTransfer = (): JSX.Element => {
 
   return (
     <IBCTransferFormContainer>
-      <NavigationContainer
-        onBackButtonClick={() => {
-          if (id) {
-            return navigate(formatRoute(TopLevelRoute.Token, { id }));
-          }
-          navigate(TopLevelRoute.Wallet);
-        }}
-      >
-        <Heading level={HeadingLevel.One}>IBC Transfer</Heading>
-      </NavigationContainer>
-      <p>
-        <strong>
-          {balance} {tokenType}
-        </strong>
-      </p>
-      <InputContainer>
-        <Select<string>
-          data={selectDestinationChainData}
-          value={selectedChainId}
-          label="Destination Chain"
-          onChange={(e) => setSelectedChain(e.target.value)}
-        />
-      </InputContainer>
-      <InputContainer>
-        {channels.length > 0 && (
-          <Select<string>
-            data={selectChannelsData}
-            value={selectedChannelId}
-            label="IBC Transfer Channel"
-            onChange={(e) => setSelectedChannelId(e.target.value)}
-          />
-        )}
-
-        {!showAddChannelForm && (
-          <AddChannelButton onClick={() => setShowAddChannelForm(true)}>
-            <Icon iconName={IconName.Plus} />
-            <span>Add IBC Transfer Channel</span>
-          </AddChannelButton>
-        )}
-      </InputContainer>
-
-      {showAddChannelForm && (
-        <InputContainer>
-          <Input
-            variant={InputVariants.Text}
-            label="Add Channel ID"
-            value={channelId}
-            onChangeCallback={(e) => {
-              const { value } = e.target;
-              setChannelId(value);
-            }}
-            onFocus={handleFocus}
-            error={amount <= balance ? undefined : "Invalid amount!"}
-          />
-          <Button
-            variant={ButtonVariant.Small}
-            style={{ width: 160 }}
-            onClick={handleAddChannel}
-            disabled={!channelId}
-          >
-            Add
-          </Button>
-          <Button
-            variant={ButtonVariant.Small}
-            style={{ width: 160 }}
-            onClick={() => setShowAddChannelForm(false)}
-          >
-            Cancel
-          </Button>
-        </InputContainer>
+      {!defaultIbcChain && (
+        <p>This chain is not configured to connect over IBC!</p>
       )}
-
-      <InputContainer>
-        <Input
-          variant={InputVariants.Text}
-          label="Recipient"
-          value={recipient}
-          onChangeCallback={(e) => {
-            const { value } = e.target;
-            setRecipient(value);
-          }}
-        />
-      </InputContainer>
-
-      <InputContainer>
-        <Input
-          variant={InputVariants.Number}
-          label="Amount"
-          value={amount}
-          onChangeCallback={(e) => {
-            const { value } = e.target;
-            setAmount(parseFloat(`${value}`));
-          }}
-          onFocus={handleFocus}
-          error={amount <= balance ? undefined : "Invalid amount!"}
-        />
-      </InputContainer>
-
-      <InputContainer>
-        <Input
-          variant={InputVariants.Textarea}
-          label="Memo (Optional)"
-          value={memo}
-          error={
-            isMemoValid(memo)
-              ? ""
-              : `Must be less than ${MAX_MEMO_LENGTH} characters`
-          }
-          onChangeCallback={(e) => setMemo(e.target.value)}
-        />
-      </InputContainer>
-
-      {isIbcTransferSubmitting && <p>Submitting IBC Transfer</p>}
-      {transferError && <pre style={{ overflow: "auto" }}>{transferError}</pre>}
-      {events && (
+      {defaultIbcChain && (
         <>
-          <StatusMessage>
-            Successfully submitted IBC transfer! It will take some time for the
-            receiver to see an updated balance.
-          </StatusMessage>
-          <StatusMessage>Gas used: {events.gas}</StatusMessage>
-          <StatusMessage>Applied hash:</StatusMessage>
-          <Address>{events.appliedHash}</Address>
+          <InputContainer>
+            <Select
+              data={tokenData}
+              value={`${selectedAccountId}|${token}`}
+              label="Token"
+              onChange={handleTokenChange}
+            />
+          </InputContainer>
+
+          <InputContainer>
+            <Select<string>
+              data={selectDestinationChainData}
+              value={selectedChainId}
+              label="Destination Chain"
+              onChange={(e) => setSelectedChainId(e.target.value)}
+            />
+          </InputContainer>
+          <InputContainer>
+            {channels.length > 0 && (
+              <Select<string>
+                data={selectChannelsData}
+                value={selectedChannelId}
+                label="IBC Transfer Channel"
+                onChange={(e) => setSelectedChannelId(e.target.value)}
+              />
+            )}
+
+            {!showAddChannelForm && (
+              <AddChannelButton onClick={() => setShowAddChannelForm(true)}>
+                <Icon iconName={IconName.Plus} />
+                <span>Add IBC Transfer Channel</span>
+              </AddChannelButton>
+            )}
+          </InputContainer>
+
+          {showAddChannelForm && (
+            <InputContainer>
+              <Input
+                variant={InputVariants.Text}
+                label="Add Channel ID"
+                value={channelId}
+                onChangeCallback={(e) => {
+                  const { value } = e.target;
+                  setChannelId(value);
+                }}
+                onFocus={handleFocus}
+                error={
+                  channels.indexOf(`${channelId}`) > -1
+                    ? "Channel exists!"
+                    : undefined
+                }
+              />
+              <Button
+                variant={ButtonVariant.Contained}
+                style={{ width: 160 }}
+                onClick={handleAddChannel}
+                disabled={!channelId}
+              >
+                Add
+              </Button>
+              <Button
+                variant={ButtonVariant.Contained}
+                style={{ width: 160 }}
+                onClick={() => setShowAddChannelForm(false)}
+              >
+                Cancel
+              </Button>
+            </InputContainer>
+          )}
+
+          <InputContainer>
+            <Input
+              variant={InputVariants.Text}
+              label={"Recipient"}
+              value={recipient}
+              onChangeCallback={(e) => {
+                const { value } = e.target;
+                setRecipient(value);
+              }}
+            />
+          </InputContainer>
+
+          <InputContainer>
+            <Input
+              variant={InputVariants.Number}
+              label={"Amount"}
+              value={amount}
+              onChangeCallback={(e) => {
+                const { value } = e.target;
+                setAmount(parseFloat(`${value}`));
+              }}
+              onFocus={handleFocus}
+              error={amount <= balance ? undefined : "Invalid amount!"}
+            />
+          </InputContainer>
+
+          {isIbcTransferSubmitting && <p>Submitting IBC Transfer</p>}
+          {transferError && (
+            <pre style={{ overflow: "auto" }}>{transferError}</pre>
+          )}
+          {events && (
+            <>
+              <StatusMessage>
+                Successfully submitted IBC transfer! It will take some time for
+                the receiver to see an updated balance.
+              </StatusMessage>
+              <StatusMessage>Gas used: {events.gas}</StatusMessage>
+              <StatusMessage>Applied hash:</StatusMessage>
+              <Address>{events.appliedHash}</Address>
+            </>
+          )}
+          <ButtonsContainer>
+            <Button
+              variant={ButtonVariant.Contained}
+              disabled={
+                amount > balance ||
+                amount === 0 ||
+                !recipient ||
+                isIbcTransferSubmitting ||
+                !selectedChannelId
+              }
+              onClick={handleSubmit}
+            >
+              Continue
+            </Button>
+          </ButtonsContainer>
         </>
       )}
-      <ButtonsContainer>
-        <Button
-          variant={ButtonVariant.Contained}
-          disabled={
-            amount > balance ||
-            amount === 0 ||
-            !isMemoValid(memo) ||
-            !recipient ||
-            isIbcTransferSubmitting ||
-            !selectedChannelId
-          }
-          onClick={handleSubmit}
-        >
-          Send
-        </Button>
-      </ButtonsContainer>
     </IBCTransferFormContainer>
   );
 };

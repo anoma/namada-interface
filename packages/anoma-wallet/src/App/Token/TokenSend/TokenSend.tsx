@@ -1,27 +1,31 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 
-import Config from "config";
 import { AccountsState } from "slices/accounts";
-import { SettingsState } from "slices/settings";
+import { setChainId, SettingsState } from "slices/settings";
 import { TransferType } from "slices/transfers";
-import { useAppSelector } from "store";
-import { TopLevelRoute } from "App/types";
-import { TokenType } from "constants/";
-import { formatRoute } from "utils/helpers";
+import { useAppDispatch, useAppSelector } from "store";
+
 import {
   PAYMENT_ADDRESS_LENGTH,
   PAYMENT_ADDRESS_PREFIX,
   ESTABLISHED_ADDRESS_LENGTH,
   ESTABLISHED_ADDRESS_PREFIX,
 } from "./types";
+import { Symbols, Tokens, TokenType } from "constants/";
 
 import TokenSendForm from "./TokenSendForm";
-import { Button, ButtonVariant } from "components/Button";
 import { Heading, HeadingLevel } from "components/Heading";
 import { NavigationContainer } from "components/NavigationContainer";
 import { Select, Option } from "components/Select";
-import { TokenSendContainer } from "./TokenSend.components";
+import {
+  TokenSendContainer,
+  TokenSendTab,
+  TokenSendTabsGroup,
+  TokenSendContent,
+} from "./TokenSend.components";
+import { BalancesState } from "slices/balances";
+import { useParams } from "react-router-dom";
+import Config from "config";
 
 export const parseTarget = (target: string): TransferType | undefined => {
   if (
@@ -40,107 +44,209 @@ export const parseTarget = (target: string): TransferType | undefined => {
   return undefined;
 };
 
-type TokenSendParams = {
-  id: string;
+type Params = {
+  accountIndex: string;
   target: string;
-  tokenType: TokenType;
-  accountIndex?: string;
 };
 
 const TokenSend = (): JSX.Element => {
-  const navigate = useNavigate();
-  const { derived, shieldedAccounts } = useAppSelector<AccountsState>(
-    (state) => state.accounts
-  );
+  const { derived, shieldedAccounts: allShieldedAccounts } =
+    useAppSelector<AccountsState>((state) => state.accounts);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
-  const {
-    id,
-    target,
-    tokenType,
-    accountIndex = "",
-  } = useParams<TokenSendParams>();
+  const { accountIndex, target } = useParams<Params>();
+  const dispatch = useAppDispatch();
 
-  const chainConfig = Config.chain[chainId];
-
-  const [isAccountValid, setIsAccountValid] = useState(true);
+  const balancesByChain = useAppSelector<BalancesState>(
+    (state) => state.balances
+  );
+  const balances = balancesByChain[chainId] || {};
+  const accounts = derived[chainId] || {};
+  const account = Object.values(accounts)[0] || {};
   const [selectedAccountId, setSelectedAccountId] = useState<
     string | undefined
-  >(id);
-  const [accountsData, setAccounts] = useState<Option<string>[]>();
-  const derivedAccounts = derived[chainId] || {};
+  >(account.id);
 
-  const transparentAndShieldedAccounts = {
-    ...derivedAccounts,
-    ...(shieldedAccounts[chainId] || {}),
+  const [selectedShieldedAccountId, setSelectedShieldedAccountId] = useState<
+    string | undefined
+  >();
+
+  const shieldedAccounts = allShieldedAccounts[chainId] || {};
+
+  // TODO: Refactor and improve this:
+  type AccountTokenData = {
+    id: string;
+    alias: string;
+    balance: number;
+    tokenType: TokenType;
   };
 
-  // Collect any accounts matching tokenType
-  const accounts = tokenType
-    ? Object.keys(transparentAndShieldedAccounts)
-        .map((hash: string) => ({
-          id: hash,
-          alias: derivedAccounts[hash].alias,
-          tokenType: derivedAccounts[hash].tokenType,
-        }))
-        .filter((account) => account.tokenType === tokenType)
-    : [];
+  const tokenBalances = Object.values(accounts).reduce(
+    (data: AccountTokenData[], account) => {
+      const { id, alias } = account;
+
+      const accountsWithId: AccountTokenData[] = Symbols.map((symbol) => {
+        const balance = (balances[id] || {})[symbol] || 0;
+
+        return {
+          id,
+          alias,
+          tokenType: symbol,
+          balance,
+        };
+      });
+
+      return [...data, ...accountsWithId];
+    },
+    []
+  );
+
+  const tokenData: Option<string>[] = tokenBalances
+    .filter((account) => account.balance > 0)
+    .map((account) => {
+      const { id, alias, tokenType, balance } = account;
+      const token = Tokens[tokenType];
+      const { coin } = token;
+
+      return {
+        value: `${id}|${tokenType}`,
+        label: `${
+          alias !== "Namada"
+            ? alias + " (" + balance + " " + tokenType + ")"
+            : coin + " (" + balance + " " + tokenType + ")"
+        }`,
+      };
+    });
+
+  const accountsData = Object.values(accounts).map((account) => ({
+    value: account.id,
+    label: `${account.alias} (${account.tokenType})`,
+  }));
+
+  const shieldedAccountsData = Object.values(shieldedAccounts).map(
+    (shieldedAccount) => ({
+      value: shieldedAccount.id,
+      label: `${shieldedAccount.alias} (${shieldedAccount.balance} ${shieldedAccount.tokenType})`,
+    })
+  );
+
+  const tabs = ["Shielded", "Transparent"];
+  let defaultTab = 0;
+
+  if (target && target.startsWith("atest")) {
+    defaultTab = 1;
+  }
+
+  const [activeTab, setActiveTab] = useState(tabs[defaultTab]);
+  const tokenType = selectedAccountId
+    ? accounts[selectedAccountId]?.tokenType || "NAM"
+    : "NAM";
+  const [token, setToken] = useState<TokenType>(tokenType);
 
   useEffect(() => {
-    if (!selectedAccountId && accounts.length > 0) {
-      if (parseInt(accountIndex) !== chainConfig.accountIndex) {
-        setIsAccountValid(false);
-        return;
+    if (accountIndex) {
+      const chains = Object.values(Config.chain);
+      const targetChain = chains.find(
+        (chain) => chain.accountIndex === parseInt(accountIndex)
+      );
+      // Token Send should match the target's network, otherwise
+      // transactions will not succeed:
+      if (targetChain && targetChain.id !== chainId) {
+        dispatch(setChainId(targetChain.id));
       }
-
-      const accountsData = accounts.map((account) => ({
-        value: account.id,
-        label: `${account.alias} (${account.tokenType})`,
-      }));
-
-      setSelectedAccountId(accounts[0].id);
-      setAccounts(accountsData);
     }
-  }, [accounts]);
+  }, [accountIndex]);
+
+  useEffect(() => {
+    if (!selectedAccountId && accountsData.length > 0) {
+      setSelectedAccountId(accountsData[0].value);
+    }
+  }, [accountsData, selectedAccountId]);
+
+  useEffect(() => {
+    if (!selectedShieldedAccountId && shieldedAccountsData.length > 0) {
+      setSelectedShieldedAccountId(shieldedAccountsData[0].value);
+    }
+  }, [shieldedAccountsData, selectedShieldedAccountId]);
+
+  const handleTransparentTokenChange = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ): void => {
+    const { value } = e.target;
+
+    const [accountId, tokenSymbol] = value.split("|");
+
+    setSelectedAccountId(accountId);
+    setToken(tokenSymbol as TokenType);
+  };
+
   return (
     <TokenSendContainer>
-      <NavigationContainer
-        onBackButtonClick={() => {
-          if (id) {
-            return navigate(formatRoute(TopLevelRoute.Token, { id }));
-          }
-          navigate(TopLevelRoute.Wallet);
-        }}
-      >
-        <Heading level={HeadingLevel.One}>Token Send</Heading>
+      <NavigationContainer>
+        <Heading level={HeadingLevel.One}>Send</Heading>
       </NavigationContainer>
-      {!isAccountValid && (
-        <p>The scanned address does not exist on this chain!</p>
-      )}
-      {target &&
-        isAccountValid &&
-        (accounts.length > 0 ? (
-          <Select
-            data={accountsData || []}
-            value={selectedAccountId}
-            label="Select an account to transfer from:"
-            onChange={(e) => setSelectedAccountId(e.target.value)}
-          />
-        ) : (
-          <>
-            <p>
-              You have no accounts associated with <strong>{tokenType}</strong>
-              :(
-            </p>
-            <Button
-              variant={ButtonVariant.Small}
-              onClick={() => navigate(TopLevelRoute.WalletAddAccount)}
-            >
-              Create account
-            </Button>
-          </>
+
+      <TokenSendTabsGroup>
+        {tabs.map((tab) => (
+          <TokenSendTab
+            className={tab === activeTab ? "active" : ""}
+            onClick={() => setActiveTab(tab)}
+            key={tab}
+          >
+            {tab}
+          </TokenSendTab>
         ))}
-      {selectedAccountId && (
-        <TokenSendForm accountId={selectedAccountId} defaultTarget={target} />
+      </TokenSendTabsGroup>
+
+      {activeTab === "Shielded" && (
+        <TokenSendContent>
+          {shieldedAccountsData.length > 0 && (
+            <>
+              <Select
+                data={shieldedAccountsData || []}
+                value={selectedShieldedAccountId}
+                label="Token"
+                onChange={(e) => setSelectedShieldedAccountId(e.target.value)}
+              />
+              {selectedShieldedAccountId && (
+                <TokenSendForm
+                  accountId={selectedShieldedAccountId}
+                  tokenType={
+                    shieldedAccounts[selectedShieldedAccountId]
+                      ? shieldedAccounts[selectedShieldedAccountId].tokenType
+                      : token
+                  }
+                  defaultTarget={
+                    target?.startsWith("patest") ? target : undefined
+                  }
+                />
+              )}
+            </>
+          )}
+        </TokenSendContent>
+      )}
+
+      {activeTab === "Transparent" && (
+        <TokenSendContent>
+          {accountsData.length > 0 && (
+            <>
+              <Select
+                data={tokenData || []}
+                value={`${selectedAccountId}|${token}`}
+                label="Token"
+                onChange={handleTransparentTokenChange}
+              />
+              {selectedAccountId && (
+                <TokenSendForm
+                  accountId={selectedAccountId}
+                  tokenType={token}
+                  defaultTarget={
+                    target?.startsWith("atest") ? target : undefined
+                  }
+                />
+              )}
+            </>
+          )}
+        </TokenSendContent>
       )}
     </TokenSendContainer>
   );

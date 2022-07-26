@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button } from "components/ButtonTemporary";
+import { Button, ButtonVariant } from "components/Button";
 import {
   AccountInformationViewContainer,
   AccountInformationViewUpperPartContainer,
@@ -8,10 +8,10 @@ import {
   Header1,
   Header5,
   BodyText,
-  Input,
   InputContainer,
   ButtonContainer,
 } from "./SeedPhraseConfirmation.components";
+import { Input } from "../Password/Password.components";
 
 type SeedPhraseConfirmationProps = {
   seedPhrase: string[];
@@ -22,24 +22,14 @@ type SeedPhraseConfirmationProps = {
 function SeedPhraseConfirmation(
   props: SeedPhraseConfirmationProps
 ): JSX.Element {
-  const { seedPhrase, onCtaHover, onConfirmSeedPhrase } = props;
+  const { seedPhrase, onConfirmSeedPhrase } = props;
   const seedPhraseLength = seedPhrase.length;
   const [verificationInput, setVerificationInput] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [indexToConfirm, setIndexToConfirm] = useState(-1);
 
   useEffect(() => {
     setIndexToConfirm(Math.floor(Math.random() * seedPhraseLength));
   }, []);
-
-  useEffect(() => {
-    if (isSubmitting) {
-      // Call after the time it takes to animate the button into a disabled state
-      setTimeout(() => {
-        onConfirmSeedPhrase();
-      }, 300);
-    }
-  }, [isSubmitting]);
 
   return (
     <AccountInformationViewContainer>
@@ -52,10 +42,7 @@ function SeedPhraseConfirmation(
       <AccountInformationForm>
         <DescriptionAndInputContainer>
           {/* description */}
-          <BodyText>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Enim augue
-            aenean facilisi placerat laoreet sem faucibus{" "}
-          </BodyText>
+          <BodyText> </BodyText>
 
           {/* seed verification */}
           <InputContainer>
@@ -67,17 +54,14 @@ function SeedPhraseConfirmation(
             />
           </InputContainer>
         </DescriptionAndInputContainer>
-        {/* submit */}
-        {isSubmitting && <p>Creating master account...</p>}
+
         <ButtonContainer>
           <Button
             onClick={() => {
-              setIsSubmitting(true);
+              onConfirmSeedPhrase();
             }}
-            disabled={
-              verificationInput !== seedPhrase[indexToConfirm] || isSubmitting
-            }
-            onHover={onCtaHover}
+            disabled={verificationInput !== seedPhrase[indexToConfirm]}
+            variant={ButtonVariant.Contained}
           >
             Verify
           </Button>

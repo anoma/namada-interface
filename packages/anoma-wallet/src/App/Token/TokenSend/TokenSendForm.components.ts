@@ -12,7 +12,7 @@ export const TokenSendFormContainer = styled.div`
 
 export const InputContainer = styled.div`
   width: 100%;
-  padding: 20px 0;
+  padding: 12px 0;
 
   &:last-child {
     padding-bottom: 0;
@@ -20,7 +20,10 @@ export const InputContainer = styled.div`
 
   input,
   textarea {
-    width: 92%;
+    margin: 0;
+    padding: 8px;
+    height: 26px;
+    width: calc(100% - 20px);
   }
 `;
 
@@ -52,12 +55,42 @@ export const QrReaderError = styled.p`
   color: ${(props) => props.theme.colors.inputError};
 `;
 
+export const GasButtonsContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  font-weight: normal;
+  font-size: 14px;
+
+  button {
+    margin: 0 0 20px 0;
+    width: 30%;
+    padding: 4px;
+    border-radius: 8px;
+    color: ${(props) => props.theme.colors.titleColor};
+    border-width: 2px;
+    border-color: ${(props) => props.theme.colors.buttonBackground2};
+
+    span {
+      font-weight: bold;
+    }
+  }
+`;
+
 export const ButtonsContainer = styled.div`
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 100%;
   padding: 0;
 
-  button {
-    margin: 20px 0;
+  & > a {
+    position: absolute;
+    left: 0;
   }
 `;
 
@@ -67,4 +100,19 @@ export const StatusContainer = styled.div`
 
 export const StatusMessage = styled.p`
   font-size: 14px;
+`;
+
+export const BackButton = styled.a`
+  display: block;
+
+  & > div > svg {
+    width: 50px;
+    height: 50px;
+
+    & > path {
+      stroke: ${(props) => props.theme.colors.buttonBackground2};
+      stroke-width: 4px;
+      stroke-linecap: square;
+    }
+  }
 `;

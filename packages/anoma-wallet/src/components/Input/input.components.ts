@@ -1,14 +1,18 @@
 import styled from "styled-components/macro";
 
+export const InputWrapper = styled.div`
+  padding: 2px 0;
+`;
+
 export const TextInput = styled.input<{ error: boolean }>`
-  background-color: transparent;
+  background-color: ${(props) => props.theme.colors.inputBackground};
   border-width: 2px;
   border-color: ${(props) =>
     props.error
       ? props.theme.colors.inputError
       : props.theme.colors.inputBorder};
   border-style: solid;
-  border-radius: 100px;
+  border-radius: 8px;
   color: ${(props) => props.theme.colors.inputText};
   font-weight: 500;
   margin-top: 10px;
@@ -27,7 +31,7 @@ export const TextInput = styled.input<{ error: boolean }>`
 `;
 
 export const TextAreaInput = styled.textarea<{ error: boolean }>`
-  background-color: transparent;
+  background-color: ${(props) => props.theme.colors.inputBackground};
   border-width: 2px;
   border-color: ${(props) =>
     props.error
@@ -53,8 +57,15 @@ export const TextAreaInput = styled.textarea<{ error: boolean }>`
 `;
 
 export const Label = styled.label`
+  font-size: 14px;
   font-weight: 500;
+  font-family: "Space Grotesk", sans-serif;
   color: ${(props) => props.theme.colors.inputText};
+
+  & > p {
+    padding: 0 0 4px;
+    margin: 0;
+  }
 `;
 
 export const ErrorTooltip = styled.span`

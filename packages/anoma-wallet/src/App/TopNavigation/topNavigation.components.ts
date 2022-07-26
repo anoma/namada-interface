@@ -8,8 +8,12 @@ export const TopNavigationContainer = styled.div`
   flex-direction: column;
   width: 100%;
   height: 120px;
-  padding: 32px 32px 0;
+  padding: 40px 0;
   box-sizing: border-box;
+
+  @media screen and (min-width: 860px) {
+    padding: 40px;
+  }
 `;
 
 export const TopNavigationContainerRow = styled.div`
@@ -25,6 +29,15 @@ export const TopNavigationContainerSecondRow = styled(
   justify-content: center;
 `;
 
+export const TopNavigationLogoContainer = styled.div`
+  display: flex;
+  width: 100%;
+  max-width: 760px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+`;
+
 const Section = styled.div`
   display: flex;
   justify-content: center;
@@ -33,17 +46,17 @@ const Section = styled.div`
 
 export const LeftSection = styled(Section)`
   justify-content: start;
-  width: 15%;
+  width: 25%;
 `;
 
 export const MiddleSection = styled(Section)`
   justify-content: center;
-  width: 70%;
+  width: 60%;
 `;
 
 export const RightSection = styled(Section)`
   justify-content: end;
-  width: 15%;
+  width: 25%;
 `;
 
 const isSelected = (): FlattenSimpleInterpolation => {
@@ -62,26 +75,40 @@ export const MenuItem = styled.button<{ isSelected?: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0 16px;
+  margin: 0 22px;
+  font-size: 14px;
+  box-sizing: border-box;
+
+  @media screen and (max-width: 860px) {
+    padding: 40px 0;
+    height: 100%;
+    justify-content: flex-start;
+  }
+
+  &:last-child {
+    margin-right: 0;
+  }
+
   & path {
     stroke-width: 1;
+    fill: ${(props) => props.theme.colors.buttonBackground4};
   }
-  width: 25%;
+  //width: 10%;
   ${(props) => (props.isSelected ? isSelected() : "")}
-`;
-
-export const StakingAndGovernanceMenuItem = styled(MenuItem)`
-  @media only screen and (min-width: 1024px) {
-    min-width: 250px;
-  }
 `;
 
 export const MenuItemTextContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0 16px;
-  color: ${(props) => props.theme.colors.textPrimary};
+  margin: 0;
+  padding: 0 4px;
+  &:last-child {
+    margin-right: 0;
+    padding-right: 0;
+  }
+
+  color: ${(props) => props.theme.colors.logoColor};
 `;
 
 export const MenuItemIconContainer = styled.div`
@@ -98,17 +125,121 @@ export const ColorModeContainer = styled.div`
 
 export const LogoContainer = styled.div`
   cursor: pointer;
+
+  & > div {
+    svg > path {
+      stroke: none;
+      fill: ${(props) => props.theme.colors.logoColor};
+    }
+  }
+`;
+
+export const MenuButton = styled.button`
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  & div {
+    svg > path {
+      stroke: ${(props) => props.theme.colors.logoColor};
+      fill: ${(props) => props.theme.colors.logoColor};
+    }
+  }
+`;
+
+export const MenuCloseButton = styled.button`
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  & div {
+    svg > path {
+      stroke: ${(props) => props.theme.colors.logoColor};
+    }
+  }
 `;
 
 export const OnlyInSmall = styled.div`
   display: flex;
-  @media only screen and (min-width: 1024px) {
+  flex-direction: column;
+  // @media only screen and (min-width: 1024px) {
+  @media only screen and (min-width: 860px) {
     display: none;
   }
 `;
+
 export const OnlyInMedium = styled.div`
-  display: flex;
-  @media only screen and (max-width: 1024px) {
+  display: block;
+  //@media only screen and (max-width: 1024px) {
+  @media only screen and (max-width: 860px) {
     display: none;
+  }
+`;
+
+export const MobileMenu = styled.div`
+  display: none;
+
+  z-index: 2000;
+  margin: 0;
+  box-sizing: border-box;
+  padding: 48px 40px;
+
+  &.active {
+    display: flex;
+    flex-direction: column;
+    background: ${(props) => props.theme.colors.background1};
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+  }
+`;
+
+export const MobileMenuHeader = styled.div`
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+
+  & div {
+    svg > path {
+      stroke: ${(props) => props.theme.colors.buttonBackground2};
+    }
+  }
+
+  & div:nth-child(2) {
+    svg > path {
+      stroke: ${(props) => props.theme.colors.headingColor};
+      fill: ${(props) => props.theme.colors.headingColor};
+    }
+  }
+`;
+
+export const MobileMenuList = styled.ul`
+  height: 100%;
+  width: 100%;
+  list-style-type: none;
+  text-indent: 0;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+`;
+
+export const MobileMenuListItem = styled.li`
+  padding: 0;
+  margin: 0;
+  border-bottom: 1px solid ${(props) => props.theme.colors.buttonBackground4};
+  color: ${(props) => props.theme.colors.headingColor};
+
+  & button > div {
+    color: ${(props) => props.theme.colors.headingColor};
+
+    & > svg > path {
+      fill: ${(props) => props.theme.colors.buttonBackground2};
+    }
   }
 `;

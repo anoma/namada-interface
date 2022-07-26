@@ -6,6 +6,7 @@ import {
   ShieldedBalancesPayload,
 } from "./actions";
 import reducer from "../accounts";
+
 export const addAccountReducersToBuilder = (
   builder: ActionReducerMapBuilder<ReturnType<typeof reducer>>
 ): ActionReducerMapBuilder<ReturnType<typeof reducer>> => {
@@ -16,8 +17,8 @@ export const addAccountReducersToBuilder = (
       // state where the UI got blocked
       state.isAddingAccountInReduxState = false;
     })
-    .addCase(createShieldedAccount.pending, () => {
-      // state.isAddingAccountInReduxState = true;
+    .addCase(createShieldedAccount.pending, (state) => {
+      state.isAddingAccountInReduxState = true;
     })
     .addCase(createShieldedAccount.fulfilled, (state, action) => {
       state.isAddingAccountInReduxState = false;

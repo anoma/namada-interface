@@ -16,6 +16,7 @@ type Colors = {
   buttonBackground1: string;
   buttonBackground2: string;
   buttonBackground3: string;
+  buttonBackground4: string;
   buttonBorder1: string;
   buttonBorder2: string;
   buttonBorder3: string;
@@ -28,6 +29,7 @@ type Colors = {
   inputPlaceholder: string;
   inputError: string;
   inputFocus: string;
+  inputBackground: string;
   wordchip: string;
   wordchipText: string;
   textSecondary: string;
@@ -39,6 +41,17 @@ type Colors = {
   buttonDisabledBackground: string;
   buttonDisabledBorder: string;
   buttonOutlineStyleHoverBackground: string;
+  tabActiveColor: string;
+  tabActiveBackground: string;
+  tabInactiveColor: string;
+  tabInactiveBackground: string;
+  toggleCircle: string;
+  toggleBackground: string;
+  toggleBorder: string;
+  headingBackground: string;
+  headingColor: string;
+  logoColor: string;
+  labelBorder: string;
 };
 
 export type Theme = {
@@ -47,18 +60,19 @@ export type Theme = {
 };
 
 export const darkColors: Colors = {
-  background1: "#17171d",
-  background2: "#242427",
+  background1: "#000000",
+  background2: "#1f1f1f",
   background3: "#ffffff",
   titleColor: "#ffffff",
-  border: "#727273",
+  border: "#1F1F1F",
   borderShadow: "#727273",
-  buttonText1: "#F5DD81",
+  buttonText1: "#FFFF00",
   buttonText2: "#17171D",
   buttonText3: "#17171D",
-  buttonBackground1: "#242427",
-  buttonBackground2: "#F5DD81",
-  buttonBackground3: "#FFFFFF",
+  buttonBackground1: "#11DFDF",
+  buttonBackground2: "#FFFF00",
+  buttonBackground3: "#444444",
+  buttonBackground4: "#FFFF00",
   buttonBorder1: "#F5DD81",
   buttonBorder2: "#CEB44F",
   buttonBorder3: "#b9b9bb",
@@ -66,14 +80,15 @@ export const darkColors: Colors = {
   buttonHover2: "#9A851F",
   buttonHover3: "#747477",
   buttonTextSmall: "#F5DD81",
-  inputBorder: "#727273",
+  inputBorder: "#FFFF00",
   inputText: "#e8e8e8",
   inputPlaceholder: "#a2a2a5",
   inputError: "#CF6679",
   inputFocus: "#F5DD81",
-  wordchip: "#727273",
+  inputBackground: "#3E3E3E",
+  wordchip: "#000000",
   wordchipText: "#e8e8e8",
-  textPrimary: "#727273",
+  textPrimary: "#FFFFFF",
   textSecondary: "#8F9FB2",
   yellow1: "#F5DD81",
   yellow1Hover: "#ffdc55",
@@ -83,6 +98,17 @@ export const darkColors: Colors = {
   buttonDisabledBackground: "#c7c7c7",
   buttonDisabledBorder: "#747474",
   buttonOutlineStyleHoverBackground: "#393939",
+  tabActiveColor: "#00FFFF",
+  tabActiveBackground: "#1f1f1f",
+  tabInactiveColor: "rgba(0, 0, 0, 0.5)",
+  tabInactiveBackground: "#676767",
+  toggleCircle: "#FFFF00",
+  toggleBackground: "#444444",
+  toggleBorder: "#444444",
+  headingBackground: "#3E3E3E",
+  headingColor: "#FFFF00",
+  logoColor: "#FFFF00",
+  labelBorder: "#FFFFFF",
 };
 
 export const lightColors: Colors = {
@@ -90,28 +116,30 @@ export const lightColors: Colors = {
   background2: "#ffffff",
   background3: "#f2f2f2",
   titleColor: "#011F43",
-  border: "#002046",
+  border: "#DADADA",
   borderShadow: "#002046",
-  textPrimary: "#002046",
+  textPrimary: "#000000",
   buttonText1: "#011F43",
   buttonText2: "#FFFFFF",
   buttonText3: "#FFFFFF",
-  buttonBackground1: "#FFFFFF",
-  buttonBackground2: "#EEAF02",
-  buttonBackground3: "#2A517E",
+  buttonBackground1: "#FFFF00",
+  buttonBackground2: "#11DFDF",
+  buttonBackground3: "#444444",
+  buttonBackground4: "#11DFDF",
   buttonBorder1: "#011F43",
-  buttonBorder2: "#E0A400",
+  buttonBorder2: "#11DFDF",
   buttonBorder3: "#011F43",
   buttonHover1: "#67798e",
   buttonHover2: "#f5cf67",
   buttonHover3: "#7f97b2",
   buttonTextSmall: "#EEAF02",
-  inputBorder: "#011F43",
+  inputBorder: "#11DFDF",
   inputText: "#011F43",
   inputPlaceholder: "#8F9FB2",
   inputError: "#EC4236",
   inputFocus: "#2A517E",
-  wordchip: "#8F9FB2",
+  inputBackground: "#F8F8F8",
+  wordchip: "#11DFDF",
   wordchipText: "#011F43",
   textSecondary: "#8F9FB2",
   yellow1: "#EEAF02",
@@ -122,4 +150,15 @@ export const lightColors: Colors = {
   buttonDisabledBackground: "#c7c7c7",
   buttonDisabledBorder: "#747474",
   buttonOutlineStyleHoverBackground: "#ffeaaf",
+  tabActiveColor: "#000",
+  tabActiveBackground: "#fff",
+  tabInactiveColor: "rgba(0, 0, 0, 0.5)",
+  tabInactiveBackground: "#F8F8F8",
+  toggleCircle: "#11DFDF",
+  toggleBackground: "#FFFFFF",
+  toggleBorder: "#DADADA",
+  headingBackground: "#ECECEC",
+  headingColor: "#000000",
+  logoColor: "#000000",
+  labelBorder: "#DADADA",
 };

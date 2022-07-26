@@ -2,13 +2,9 @@ import { useEffect, useState } from "react";
 import QrReader from "react-qr-reader";
 
 import Config from "config";
-import { Tokens } from "constants/";
+import { Tokens, TokenType } from "constants/";
 import { RpcClient } from "lib";
-import {
-  AccountsState,
-  fetchBalanceByAccount,
-  DerivedAccount,
-} from "slices/accounts";
+import { AccountsState } from "slices/accounts";
 import {
   clearEvents,
   submitTransferTransaction,
@@ -21,42 +17,34 @@ import { Button, ButtonVariant } from "components/Button";
 import { Input, InputVariants } from "components/Input";
 
 import {
+  BackButton,
   ButtonsContainer,
+  GasButtonsContainer,
   InputContainer,
-  InputWithButtonContainer,
   QrReaderContainer,
   QrReaderError,
   StatusContainer,
   StatusMessage,
   TokenSendFormContainer,
 } from "./TokenSendForm.components";
-import { Icon, IconName } from "components/Icon";
-import { Address } from "../Transfers/TransferDetails.components";
+
 import { parseTarget } from "./TokenSend";
 import { SettingsState } from "slices/settings";
+import { Icon, IconName } from "components/Icon";
+import { useNavigate } from "react-router-dom";
+import { TopLevelRoute } from "App/types";
+import { BalancesState } from "slices/balances";
 
 type Props = {
   accountId: string;
   defaultTarget?: string;
+  tokenType: TokenType;
 };
 
 export const MAX_MEMO_LENGTH = 100;
 export const isMemoValid = (text: string): boolean => {
   // TODO: Additional memo validation rules?
   return text.length < MAX_MEMO_LENGTH;
-};
-
-// if the transfer target is not TransferType.Shielded we perform the validation logic
-const isAmountValid = (
-  transferAmount: number,
-  balance: number,
-  targetAddress: string | undefined
-): string | undefined => {
-  const transferTypeBasedOnTarget = targetAddress && parseTarget(targetAddress);
-  if (transferTypeBasedOnTarget === TransferType.Shielded) {
-    return undefined;
-  }
-  return transferAmount <= balance ? undefined : "Invalid amount!";
 };
 
 /**
@@ -77,7 +65,7 @@ const getIsFormInvalid = (
   target: string | undefined,
   amount: number,
   balance: number,
-  memo: string,
+  //memo: string,
   isTargetValid: boolean,
   isTransferSubmitting: boolean
 ): boolean => {
@@ -86,7 +74,7 @@ const getIsFormInvalid = (
     isNaN(amount) ||
     amount > balance ||
     amount === 0 ||
-    !isMemoValid(memo) ||
+    //!isMemoValid(memo) ||
     !isTargetValid ||
     isTransferSubmitting
   );
@@ -110,22 +98,40 @@ const AccountSourceTargetDescription = (props: {
   );
 };
 
-const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
+const TokenSendForm = ({
+  accountId,
+  tokenType,
+  defaultTarget,
+}: Props): JSX.Element => {
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
+
   const [target, setTarget] = useState<string | undefined>(defaultTarget);
   const [amount, setAmount] = useState(0);
-  const [memo, setMemo] = useState("");
+  //const [memo, setMemo] = useState("");
 
   const [isTargetValid, setIsTargetValid] = useState(true);
   const [isShieldedTarget, setIsShieldedTarget] = useState(false);
   const [showQrReader, setShowQrReader] = useState(false);
   const [qrCodeError, setQrCodeError] = useState<string>();
 
+  enum GasFee {
+    "Low" = 0.0001,
+    "Medium" = 0.005,
+    "High" = 0.001,
+  }
+  const [gasFee, setGasFee] = useState<GasFee>(GasFee.Medium);
+
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const { derived, shieldedAccounts } = useAppSelector<AccountsState>(
     (state) => state.accounts
   );
   const derivedAccounts = derived[chainId] || {};
+
+  const balancesState = useAppSelector<BalancesState>(
+    (state) => state.balances
+  );
+  const balancesForChain = balancesState[chainId] || {};
 
   const { isTransferSubmitting, transferError, events } =
     useAppSelector<TransfersState>((state) => state.transfers);
@@ -135,21 +141,26 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
     ...(shieldedAccounts[chainId] || {}),
   };
   const account = transparentAndShieldedAccounts[accountId] || {};
+
   const isShieldedSource = account.shieldedKeysAndPaymentAddress ? true : false;
-  const { alias, establishedAddress = "", tokenType, balance = 0 } = account;
+  const { establishedAddress = "" } = account;
   const token = Tokens[tokenType] || {};
+
+  const balances = balancesForChain[accountId] || {};
+  const balance =
+    (isShieldedSource ? account.balance : balances[tokenType]) || 0;
 
   const isFormInvalid = getIsFormInvalid(
     target,
     amount,
     balance,
-    memo,
+    //memo,
     isTargetValid,
     isTransferSubmitting
   );
 
-  const chainConfig = Config.chain[chainId];
-  const { url, port, protocol } = chainConfig.network;
+  const chainConfig = Config.chain[chainId] || {};
+  const { url, port, protocol } = chainConfig.network || {};
   const rpcClient = new RpcClient({ url, port, protocol });
   const accountSourceTargetDescription = isFormInvalid ? (
     ""
@@ -162,22 +173,6 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
 
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
-
-  useEffect(() => {
-    // Get balance
-    if (establishedAddress && token.address) {
-      dispatch(fetchBalanceByAccount(account));
-
-      // Check for internal transfer:
-      const targetAccount = Object.values(derivedAccounts).find(
-        (account: DerivedAccount) => account.establishedAddress === target
-      );
-      // Fetch target balance if applicable:
-      if (targetAccount) {
-        dispatch(fetchBalanceByAccount(targetAccount));
-      }
-    }
-  }, [establishedAddress, token.address, events]);
 
   useEffect(() => {
     // Validate target address
@@ -212,6 +207,13 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
     };
   }, []);
 
+  useEffect(() => {
+    if (isTransferSubmitting === false) {
+      // Reset amount
+      setAmount(0);
+    }
+  }, [isTransferSubmitting]);
+
   const handleOnSendClick = (): void => {
     if ((isShieldedTarget && target) || (target && token.address)) {
       dispatch(
@@ -220,7 +222,8 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
           account,
           target,
           amount,
-          memo,
+          token: tokenType,
+          feeAmount: gasFee,
         })
       );
     }
@@ -242,34 +245,40 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
     }
   };
 
+  // if the transfer target is not TransferType.Shielded we perform the validation logic
+  const isAmountValid = (
+    id: string,
+    token: TokenType,
+    transferAmount: number,
+    targetAddress: string | undefined
+  ): string | undefined => {
+    const account = transparentAndShieldedAccounts[id];
+    const balance =
+      (account && account.balance ? account.balance : balances[token]) || 0;
+
+    const transferTypeBasedOnTarget =
+      targetAddress && parseTarget(targetAddress);
+    if (transferTypeBasedOnTarget === TransferType.Shielded) {
+      return undefined;
+    }
+    return transferAmount <= balance ? undefined : "Invalid amount!";
+  };
+
   return (
     <>
       <TokenSendFormContainer>
-        <p>
-          {alias} ({tokenType})
-        </p>
-        <p>
-          Balance: <strong>{balance}</strong>
-        </p>
         <InputContainer>
-          <InputWithButtonContainer>
-            <Input
-              variant={InputVariants.Text}
-              label="Target address"
-              onChangeCallback={(e) => {
-                const { value } = e.target;
-                setTarget(value);
-              }}
-              value={target}
-              error={isTargetValid ? undefined : "Target is invalid"}
-            />
-            <Button
-              variant={ButtonVariant.Small}
-              onClick={() => setShowQrReader(!showQrReader)}
-            >
-              <Icon iconName={IconName.Camera} />
-            </Button>
-          </InputWithButtonContainer>
+          <Input
+            variant={InputVariants.Text}
+            label={"Recipient"}
+            onChangeCallback={(e) => {
+              const { value } = e.target;
+              setTarget(value);
+            }}
+            value={target}
+            error={isTargetValid ? undefined : "Target is invalid"}
+          />
+
           {showQrReader && (
             <QrReaderContainer>
               {qrCodeError && <QrReaderError>{qrCodeError}</QrReaderError>}
@@ -283,30 +292,59 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
         <InputContainer>
           <Input
             variant={InputVariants.Number}
-            label="Amount"
+            label={"Amount"}
             value={amount}
             onChangeCallback={(e) => {
               const { value } = e.target;
               setAmount(parseFloat(`${value}`));
             }}
             onFocus={handleFocus}
-            error={isAmountValid(amount, balance, target)}
-          />
-        </InputContainer>
-        <InputContainer>
-          <Input
-            variant={InputVariants.Textarea}
-            label="Memo (Optional)"
-            value={memo}
-            error={
-              isMemoValid(memo)
-                ? ""
-                : `Must be less than ${MAX_MEMO_LENGTH} characters`
-            }
-            onChangeCallback={(e) => setMemo(e.target.value)}
+            error={isAmountValid(account.id, tokenType, amount, target)}
           />
         </InputContainer>
         <InputContainer>{accountSourceTargetDescription}</InputContainer>
+
+        <GasButtonsContainer>
+          <Button
+            variant={ButtonVariant.Outlined}
+            onClick={() => setGasFee(GasFee.Low)}
+            className={gasFee === GasFee.Low ? "active" : ""}
+          >
+            <p>
+              <span>Low</span>
+              <br />
+              &lt; 0.0001 {tokenType}
+              <br />
+              &lt; 0.0001 USD
+            </p>
+          </Button>
+          <Button
+            variant={ButtonVariant.Outlined}
+            onClick={() => setGasFee(GasFee.Medium)}
+            className={gasFee === GasFee.Medium ? "active" : ""}
+          >
+            <p>
+              <span>Medium</span>
+              <br />
+              &lt; 0.005 {token.symbol}
+              <br />
+              &lt; 0.005 USD
+            </p>
+          </Button>
+          <Button
+            variant={ButtonVariant.Outlined}
+            onClick={() => setGasFee(GasFee.High)}
+            className={gasFee === GasFee.High ? "active" : ""}
+          >
+            <p>
+              <span>High</span>
+              <br />
+              &lt; 0.001 {tokenType}
+              <br />
+              &lt; 0.001 USD
+            </p>
+          </Button>
+        </GasButtonsContainer>
       </TokenSendFormContainer>
 
       <StatusContainer>
@@ -318,19 +356,22 @@ const TokenSendForm = ({ accountId, defaultTarget }: Props): JSX.Element => {
           <>
             <StatusMessage>Transfer successful!</StatusMessage>
             <StatusMessage>Gas used: {events.gas}</StatusMessage>
-            <StatusMessage>Applied hash:</StatusMessage>
-            <Address>{events.appliedHash}</Address>
+            {/* <StatusMessage>Applied hash:</StatusMessage>
+            <Address>{events.appliedHash}</Address> */}
           </>
         )}
       </StatusContainer>
 
       <ButtonsContainer>
+        <BackButton onClick={() => navigate(TopLevelRoute.Wallet)}>
+          <Icon iconName={IconName.ChevronLeft} />
+        </BackButton>
         <Button
           variant={ButtonVariant.Contained}
           disabled={isFormInvalid}
           onClick={handleOnSendClick}
         >
-          Send
+          Continue
         </Button>
       </ButtonsContainer>
     </>

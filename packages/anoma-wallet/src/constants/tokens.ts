@@ -10,7 +10,7 @@ type TokenInfo = {
 };
 
 // Declare symbols for tokens we support:
-export const Symbols = ["NAM", "BTC", "ETH", "DOT"] as const;
+export const Symbols = ["NAM", "ATOM", "ETH", "DOT", "BTC"] as const;
 
 export type TokenType = typeof Symbols[number];
 type Tokens = Record<TokenType, TokenInfo>;
@@ -39,14 +39,16 @@ Tokens["NAM"] = {
   path: 2147483651,
   symbol: "NAM",
   coin: "Namada",
-  url: "https://anoma.net",
+  url: "https://namada.net",
   address:
     "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5",
 };
 
-Tokens["BTC"].address =
-  "atest1v4ehgw36xdzryve5gsc52veeg5cnsv2yx5eygvp38qcrvd29xy6rys6p8yc5xvp4xfpy2v694wgwcp";
+Tokens["ATOM"].address =
+  "atest1v4ehgw36gfryydj9g3p5zv3kg9znyd358ycnzsfcggc5gvecgc6ygs2rxv6ry3zpg4zrwdfeumqcz9";
 Tokens["ETH"].address =
   "atest1v4ehgw36xqmr2d3nx3ryvd2xxgmrq33j8qcns33sxezrgv6zxdzrydjrxveygd2yxumrsdpsf9jc2p";
 Tokens["DOT"].address =
   "atest1v4ehgw36gg6nvs2zgfpyxsfjgc65yv6pxy6nwwfsxgungdzrggeyzv35gveyxsjyxymyz335hur2jn";
+Tokens["BTC"].address =
+  "atest1v4ehgw36xdzryve5gsc52veeg5cnsv2yx5eygvp38qcrvd29xy6rys6p8yc5xvp4xfpy2v694wgwcp";
