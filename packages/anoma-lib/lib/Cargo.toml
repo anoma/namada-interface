@@ -4,7 +4,7 @@ description = "The Anoma Wallet Web App"
 edition = "2021"
 license = "MIT"
 name = "wasm"
-repository = "https://github.com/heliaxdev/anoma-apps/anoma-lib/"
+repository = "https://github.com/heliaxdev/namada-interface/anoma-lib/"
 version = "0.1.0"
 
 [lib]
@@ -24,6 +24,7 @@ getrandom = {version = "0.2.3", features = ["js"]}
 js-sys = "0.3.5"
 masp_primitives = {git = "https://github.com/murisi/masp", branch = "murisi/masp-transaction3"}
 orion = "0.16.0"
+prost = "0.9.0"
 rand = {version = "0.7", features = ["wasm-bindgen"]}
 rand_bip = {version = "0.6", features = ["wasm-bindgen"], package = "rand"}
 rand_chacha = "0.2.2"
@@ -34,7 +35,6 @@ serde-wasm-bindgen = "0.3.1"
 thiserror = "1.0.30"
 wasm-bindgen = {version = "0.2.78", features = ["serde-serialize"]}
 web-sys = {version = "0.3", features = ["console"]}
-prost = "0.9.0"
 
 [patch.crates-io]
 borsh = {git = "https://github.com/heliaxdev/borsh-rs.git", rev = "cd5223e5103c4f139e0c54cf8259b7ec5ec4073a"}

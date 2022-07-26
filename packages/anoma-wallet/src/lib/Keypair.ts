@@ -1,5 +1,5 @@
 import { fromHex } from "@cosmjs/encoding";
-import { AnomaClient, Keypair as NativeKeypair } from "@anoma-apps/anoma-lib";
+import { AnomaClient, Keypair as NativeKeypair } from "@namada-interface/anoma-lib";
 
 type KeypairArgs = {
   public: string;

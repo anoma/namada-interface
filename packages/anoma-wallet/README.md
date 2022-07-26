@@ -1,20 +1,22 @@
 # anoma-wallet
 
-This subdirectory of the `anoma-apps` repo contains the React app for `anoma-wallet`.
+This subdirectory of the `namada-interface` repo contains the React app for `anoma-wallet`.
 
 ## Table of Contents
 
-- [Usage](#usage)
-- [Overview](#overview)
-- [Configuration](#configuration)
-  - [Single Local Ledger](#configure-a-single-local-ledger)
-  - [Two IBC-enabled Chains](#configure-with-two-ibc-enabled-chains)
-- [Vocabulary](#vocabulary)
-- [Low Level Functionality](#functionality)
-- [Security Requirements](#requirements)
-- [Adversarial Model](#model)
-- [Approach](#approach)
-- [Workflow](#workflow)
+- [anoma-wallet](#anoma-wallet)
+  - [Table of Contents](#table-of-contents)
+  - [Usage](#usage)
+  - [Configuration](#configuration)
+    - [Configure a single local ledger](#configure-a-single-local-ledger)
+    - [Configure with two IBC-enabled chains](#configure-with-two-ibc-enabled-chains)
+  - [Overview](#overview)
+  - [Vocabulary/ Notations](#vocabulary-notations)
+  - [Low Level Functionality:](#low-level-functionality)
+  - [Security Requirements:](#security-requirements)
+  - [Adversarial Model:](#adversarial-model)
+  - [Approach:](#approach)
+  - [Workflows:](#workflows)
 
 ## Usage
 
@@ -56,7 +58,7 @@ yarn wasm:build:nodejs
 ## Configuration
 
 There are two ways to configure the app to work with a local (or development) environment - with a single ledger, or with two IBC-enabled validators.
-These options are added to a `.env` environment. See [.env.sample](https://github.com/anoma/anoma-apps/blob/main/packages/anoma-wallet/.env.sample) for the full list
+These options are added to a `.env` environment. See [.env.sample](https://github.com/anoma/namada-interface/blob/main/packages/anoma-wallet/.env.sample) for the full list
 of options.
 
 ### Configure a single local ledger

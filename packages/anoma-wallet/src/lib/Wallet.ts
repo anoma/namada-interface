@@ -6,7 +6,7 @@ import {
   Result,
   ResultType,
   Wallet as WalletType,
-} from "@anoma-apps/anoma-lib";
+} from "@namada-interface/anoma-lib";
 
 type Encoding = "hex" | "base58" | null;
 

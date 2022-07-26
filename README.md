@@ -1,9 +1,13 @@
-# anoma-apps
+# namada-interface
 
-This is the `anoma-apps` monorepo. Within it, you will find the following packages:
+<div style="width: 100%; display: flex; justify-content: center; margin-bottom: 32px;">
+    <img style="width: 300px;" src="banner-image.png" />
+</div>
+
+This is the `namada-interface` monorepo. Within it, you will find the code for the web wallet implementation. it contains the following packages:
 
 ```bash
-anoma-apps/
+namada-interface/
 ├── packages/
 │   ├── anoma-wallet/    # Main wallet React App
 │   ├── anoma-lib/       # Rust lib for generating WASM
@@ -15,7 +19,7 @@ anoma-apps/
 Initialize `yarn` by issuing the following command:
 
 ```bash
-# First run this command in the root directory of anoma-apps/:
+# First run this command in the root directory of namada-interface/:
 yarn
 ```
 

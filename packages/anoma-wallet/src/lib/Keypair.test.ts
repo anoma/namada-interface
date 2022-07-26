@@ -1,4 +1,4 @@
-import { AnomaClient, Keypair as NativeKeypair } from "@anoma-apps/anoma-lib";
+import { AnomaClient, Keypair as NativeKeypair } from "@namada-interface/anoma-lib";
 import Keypair from "./Keypair";
 
 const KEYPAIR = {

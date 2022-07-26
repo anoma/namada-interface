@@ -63,7 +63,7 @@ class RpcClient extends RpcClientBase {
 
   // util for creating paths for ledger
   // TODO, use more of this util and expand as needed
-  // https://github.com/heliaxdev/anoma-apps/issues/38#issuecomment-1104968959
+  // https://github.com/heliaxdev/namada-interface/issues/38#issuecomment-1104968959
   createPath = (pathType: PathType, storageKey?: string): string => {
     switch (pathType) {
       case PathType.HasKey:

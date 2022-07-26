@@ -1,4 +1,4 @@
-import { Mnemonic } from "@anoma-apps/seed-management";
+import { Mnemonic } from "@namada-interface/seed-management";
 import { LocalStorageKeys } from "App/types";
 import { hashPassword } from "utils/helpers";
 

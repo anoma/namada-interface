@@ -1,7 +1,7 @@
 import { fromHex, toHex } from "@cosmjs/encoding";
 import { Tokens } from "constants/";
 import Wallet from "./Wallet";
-import { AnomaClient } from "@anoma-apps/anoma-lib";
+import { AnomaClient } from "@namada-interface/anoma-lib";
 
 const MNEMONIC_24 =
   // eslint-disable-next-line max-len

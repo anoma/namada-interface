@@ -2,16 +2,18 @@
 
 ## Table of Contents
 
-- [Usage](#usage)
-- [Development](#development)
-- [Notes](#notes)
+- [anoma-lib](#anoma-lib)
+  - [Table of Contents](#table-of-contents)
+  - [Usage](#usage)
+  - [Development](#development)
+  - [Notes](#notes)
 
 ## Usage
 
 This is the Rust source code for generating WebAssembly. To build this source directly, you can use a command similar to the following:
 
 ```bash
-# Example from within anoma-apps/anoma-wallet
+# Example from within namada-interface/anoma-wallet
 wasm-pack build ../anoma-lib/ --out-dir ../anoma-wallet/src/lib/anoma --out-name anoma --target web
 ```
 

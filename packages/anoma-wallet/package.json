@@ -1,12 +1,12 @@
 {
-  "name": "@anoma-apps/anoma-wallet",
+  "name": "@namada-interface/anoma-wallet",
   "version": "0.1.0",
   "main": "./src/index.ts",
   "type": "commonjs",
   "license": "MIT",
   "dependencies": {
-    "@anoma-apps/anoma-lib": "0.1.0",
-    "@anoma-apps/seed-management": "0.1.0",
+    "@namada-interface/anoma-lib": "0.1.0",
+    "@namada-interface/seed-management": "0.1.0",
     "@anoma/masp-web": "0.1.0",
     "@cosmjs/encoding": "^0.27.1",
     "@cosmjs/json-rpc": "^0.27.1",

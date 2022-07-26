@@ -1,5 +1,5 @@
 import { amountToMicro } from "utils/helpers";
-import { AnomaClient } from "@anoma-apps/anoma-lib";
+import { AnomaClient } from "@namada-interface/anoma-lib";
 import { TxWasm } from "constants/";
 
 type TransactionData = {

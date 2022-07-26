@@ -1,4 +1,4 @@
-import { AnomaClient } from "@anoma-apps/anoma-lib";
+import { AnomaClient } from "@namada-interface/anoma-lib";
 import { Tokens, TxWasm, VpWasm } from "constants/";
 
 class Account {
