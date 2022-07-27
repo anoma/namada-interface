@@ -7,8 +7,9 @@ use std::str::FromStr;
 
 use wasm_bindgen::prelude::*;
 
+#[wasm_bindgen]
 #[derive(Serialize, Deserialize)]
-pub struct Transfer(pub Transaction);
+pub struct Transfer(Transaction);
 
 #[wasm_bindgen]
 extern "C" {
