@@ -82,7 +82,7 @@ function App(): JSX.Element {
       <HistoryRouter history={history}>
         <ThemeProvider theme={theme}>
           <GlobalStyles isLightMode={isLightMode} />
-          <AppContainer>
+          <AppContainer data-testid="AppContainer">
             <TopSection>
               <Provider store={store}>
                 <TopNavigation
@@ -117,7 +117,7 @@ function App(): JSX.Element {
     <HistoryRouter history={history}>
       <ThemeProvider theme={theme}>
         <GlobalStyles isLightMode={isLightMode} />
-        <AppContainer>
+        <AppContainer data-testid="AppContainer">
           <TopSection>
             <TopNavigation
               isLightMode={isLightMode}
