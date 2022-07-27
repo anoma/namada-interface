@@ -7,10 +7,11 @@ use serde::{Serialize, Deserialize};
 use wasm_bindgen::prelude::*;
 use std::str::FromStr;
 
+#[wasm_bindgen]
 #[derive(Serialize, Deserialize)]
 pub struct Transaction {
-    pub hash: String,
-    pub bytes: Vec<u8>,
+    hash: String,
+    bytes: Vec<u8>,
 }
 
 impl Transaction {

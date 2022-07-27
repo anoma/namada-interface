@@ -9,8 +9,9 @@ use serde::{Serialize, Deserialize};
 use wasm_bindgen::prelude::*;
 use std::str::FromStr;
 
+#[wasm_bindgen]
 #[derive(Serialize,Deserialize)]
-pub struct Account(pub Transaction);
+pub struct Account(Transaction);
 
 #[wasm_bindgen]
 impl Account {
