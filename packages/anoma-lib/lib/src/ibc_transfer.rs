@@ -21,8 +21,9 @@ use core::ops::Add;
 
 use wasm_bindgen::prelude::*;
 
+#[wasm_bindgen]
 #[derive(Serialize, Deserialize)]
-pub struct IbcTransfer(pub Transaction);
+pub struct IbcTransfer(Transaction);
 
 #[wasm_bindgen]
 impl IbcTransfer {
