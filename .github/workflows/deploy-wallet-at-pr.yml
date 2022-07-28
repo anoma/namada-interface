@@ -53,7 +53,7 @@ jobs:
         run: |
           curl --header "Content-Type: application/json" \
           --request POST \
-          --data '{"message":"New deployment for a PR\nhttps://pull-request-${{ github.event.number }}--wallet-preview-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
+          --data '{"message":"New deployment for a PR\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
           ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
   test:
     needs: build
@@ -79,7 +79,7 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run Playwright tests
-        run: PLAYWRIGHT_BASE_URL=https://pull-request-${{ github.event.number }}--wallet-preview-heliax-dev.netlify.app yarn playwright test
+        run: PLAYWRIGHT_BASE_URL=https://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app yarn playwright test
       - uses: actions/upload-artifact@v2
         if: always()
         with:
