@@ -15,7 +15,10 @@ jobs:
         with:
           node-version: "14.x"
       - name: Install dependencies
-        run: yarn wasm:build && yarn
+        run: |
+          echo "check location"
+          pwd
+          yarn wasm:build && yarn
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run Playwright tests
