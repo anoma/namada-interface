@@ -1,13 +1,11 @@
 name: Deploy wallet preview to netlify at PR and pushes to it
 on:
   pull_request:
-  # push:
-  # pull_request:
-  #   paths:
-  #     - "packages/anoma-wallet/**"
-  #     - "packages/anoma-lib/**"
-  #     - "packages/seed-management/**"
-  #     - ".github/workflows/**"
+    paths:
+      - "packages/anoma-wallet/**"
+      - "packages/anoma-lib/**"
+      - "packages/seed-management/**"
+      - ".github/workflows/**"
 
 env:
   CI: false
