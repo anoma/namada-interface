@@ -14,7 +14,7 @@ use std::str::FromStr;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize,Deserialize)]
 pub struct Account(Transaction);
 
 #[wasm_bindgen]

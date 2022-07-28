@@ -145,3 +145,25 @@ export const getParams = (
   const params = Object.fromEntries(urlSearchParams.entries());
   return prop ? params[prop] : params;
 };
+
+/**
+ * Format by currency using the user's locale
+ * @param currency
+ * @param value
+ * @returns {string}
+ */
+export const formatCurrency = (currency = "USD", value = 0): string => {
+  const formatter = Intl.NumberFormat(undefined, {
+    style: "currency",
+    currency,
+  });
+
+  return formatter.format(value);
+};
+
+/**
+ * Get timestamp
+ *
+ * @returns {number}
+ */
+export const getTimeStamp = (): number => Math.floor(Date.now() / 1000);

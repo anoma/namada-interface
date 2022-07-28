@@ -11,6 +11,8 @@ import {
   TransfersState,
   TransferType,
 } from "slices/transfers";
+import { BalancesState } from "slices/balances";
+import { CoinsState } from "slices/coins";
 import { useAppDispatch, useAppSelector } from "store";
 
 import { Button, ButtonVariant } from "components/Button";
@@ -27,24 +29,16 @@ import {
   StatusMessage,
   TokenSendFormContainer,
 } from "./TokenSendForm.components";
-
 import { parseTarget } from "./TokenSend";
 import { SettingsState } from "slices/settings";
 import { Icon, IconName } from "components/Icon";
 import { useNavigate } from "react-router-dom";
 import { TopLevelRoute } from "App/types";
-import { BalancesState } from "slices/balances";
 
 type Props = {
   accountId: string;
   defaultTarget?: string;
   tokenType: TokenType;
-};
-
-export const MAX_MEMO_LENGTH = 100;
-export const isMemoValid = (text: string): boolean => {
-  // TODO: Additional memo validation rules?
-  return text.length < MAX_MEMO_LENGTH;
 };
 
 /**
@@ -55,7 +49,6 @@ export const isMemoValid = (text: string): boolean => {
  * @param target recipient of the transfer
  * @param amount amount to transfer, in format as the user sees it
  * @param balance - balance of user
- * @param memo - description for the payment
  * @param isTargetValid - pre-validated target, TODO: partly naive and likely better to call from within this function
  * @param isTransferSubmitting - a flag telling whether this transfer is currently on flight TODO,
  *                               should be outside of this so we can do more than just disable the button
@@ -65,7 +58,6 @@ const getIsFormInvalid = (
   target: string | undefined,
   amount: number,
   balance: number,
-  //memo: string,
   isTargetValid: boolean,
   isTransferSubmitting: boolean
 ): boolean => {
@@ -74,7 +66,6 @@ const getIsFormInvalid = (
     isNaN(amount) ||
     amount > balance ||
     amount === 0 ||
-    //!isMemoValid(memo) ||
     !isTargetValid ||
     isTransferSubmitting
   );
@@ -108,21 +99,26 @@ const TokenSendForm = ({
 
   const [target, setTarget] = useState<string | undefined>(defaultTarget);
   const [amount, setAmount] = useState(0);
-  //const [memo, setMemo] = useState("");
 
   const [isTargetValid, setIsTargetValid] = useState(true);
   const [isShieldedTarget, setIsShieldedTarget] = useState(false);
   const [showQrReader, setShowQrReader] = useState(false);
   const [qrCodeError, setQrCodeError] = useState<string>();
 
+  // TODO: This will likely be calculated per token, as any one of these numbers
+  // will be difference for each token specified:
   enum GasFee {
     "Low" = 0.0001,
-    "Medium" = 0.005,
+    "Medium" = 0.0005,
     "High" = 0.001,
   }
+
   const [gasFee, setGasFee] = useState<GasFee>(GasFee.Medium);
 
-  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
+  const { chainId, fiatCurrency } = useAppSelector<SettingsState>(
+    (state) => state.settings
+  );
+  const { rates } = useAppSelector<CoinsState>((state) => state.coins);
   const { derived, shieldedAccounts } = useAppSelector<AccountsState>(
     (state) => state.accounts
   );
@@ -154,7 +150,6 @@ const TokenSendForm = ({
     target,
     amount,
     balance,
-    //memo,
     isTargetValid,
     isTransferSubmitting
   );
@@ -173,6 +168,29 @@ const TokenSendForm = ({
 
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
+
+  const getFiatForCurrency = (fee: number): number => {
+    const rate =
+      rates[tokenType] && rates[tokenType][fiatCurrency]
+        ? rates[tokenType][fiatCurrency].rate
+        : 1;
+    return Math.ceil(fee * rate * 10000) / 10000;
+  };
+
+  const gasFees = {
+    [GasFee.Low]: {
+      fee: GasFee.Low,
+      fiat: getFiatForCurrency(GasFee.Low),
+    },
+    [GasFee.Medium]: {
+      fee: GasFee.Medium,
+      fiat: getFiatForCurrency(GasFee.Medium),
+    },
+    [GasFee.High]: {
+      fee: GasFee.High,
+      fiat: getFiatForCurrency(GasFee.High),
+    },
+  };
 
   useEffect(() => {
     // Validate target address
@@ -313,9 +331,9 @@ const TokenSendForm = ({
             <p>
               <span>Low</span>
               <br />
-              &lt; 0.0001 {tokenType}
+              &lt; {gasFees[GasFee.Low].fee} {tokenType}
               <br />
-              &lt; 0.0001 USD
+              &lt; {gasFees[GasFee.Low].fiat} {fiatCurrency}
             </p>
           </Button>
           <Button
@@ -326,9 +344,9 @@ const TokenSendForm = ({
             <p>
               <span>Medium</span>
               <br />
-              &lt; 0.005 {token.symbol}
+              &lt; {gasFees[GasFee.Medium].fee} {tokenType}
               <br />
-              &lt; 0.005 USD
+              &lt; {gasFees[GasFee.Medium].fiat} {fiatCurrency}
             </p>
           </Button>
           <Button
@@ -339,9 +357,9 @@ const TokenSendForm = ({
             <p>
               <span>High</span>
               <br />
-              &lt; 0.001 {tokenType}
+              &lt; {gasFees[GasFee.High].fee} {tokenType}
               <br />
-              &lt; 0.001 USD
+              &lt; {gasFees[GasFee.High].fiat} {fiatCurrency}
             </p>
           </Button>
         </GasButtonsContainer>
@@ -356,8 +374,6 @@ const TokenSendForm = ({
           <>
             <StatusMessage>Transfer successful!</StatusMessage>
             <StatusMessage>Gas used: {events.gas}</StatusMessage>
-            {/* <StatusMessage>Applied hash:</StatusMessage>
-            <Address>{events.appliedHash}</Address> */}
           </>
         )}
       </StatusContainer>
