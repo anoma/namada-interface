@@ -1,8 +1,7 @@
 name: run e2e tests
 on:
-  pull_request:
-    paths:
-      - "packages/anoma-wallet/**"
+  push:
+
 jobs:
   test:
     timeout-minutes: 60
