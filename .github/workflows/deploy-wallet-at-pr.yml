@@ -1,5 +1,6 @@
 name: Deploy wallet preview to netlify at PR and pushes to it
 on:
+  pull_request:
   push:
   # pull_request:
   #   paths:
