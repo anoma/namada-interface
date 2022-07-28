@@ -54,7 +54,9 @@ jobs:
           alias: pull-request-${{ github.event.number }}
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_ACCESS_TOKEN_WALLET_PREVIEW }}
-          NETLIFY_SITE_ID: 2380782e-9b20-477a-bc27-b4e9d05e16f3
+          NETLIFY_SITE_ID: 1f548c68-c620-4522-97e0-0d85c08366fb
+          # namada.me
+          # NETLIFY_SITE_ID: 2380782e-9b20-477a-bc27-b4e9d05e16f3
 
       - name: Slack Notification
         run: |
