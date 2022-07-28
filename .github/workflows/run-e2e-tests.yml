@@ -3,10 +3,6 @@ on:
   pull_request:
     paths:
       - "packages/anoma-wallet/**"
-  pull_request:
-    branches: [main]
-    paths:
-      - "packages/anoma-wallet/**"
 jobs:
   test:
     timeout-minutes: 60
