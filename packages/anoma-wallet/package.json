@@ -45,6 +45,7 @@
     "lint": "npx eslint src --ext .ts,.tsx",
     "lint:fix": "yarn lint -- --fix",
     "wasm:build": "./scripts/build.sh",
+    "wasm:build-in-ci": "./scripts/build.sh",
     "wasm:build:node": "./scripts/build-test.sh",
     "test": "yarn wasm:build:node && npx create-react-scripts test",
     "eject": "npx react-scripts eject"
