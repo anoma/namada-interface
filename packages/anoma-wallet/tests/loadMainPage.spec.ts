@@ -6,6 +6,8 @@ const TOGGLE_SELECTOR = "data-testid=Toggle";
 const BACKGROUND_SELECTOR = "data-testid=AppContainer";
 
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
+const NETLIFY_SITE_PROTECTION_PASSWORD =
+  process.env.NETLIFY_SITE_PROTECTION_PASSWORD || "http://localhost:3000";
 
 test("main page loads with correct title and allows changing color mode", async ({
   page,
@@ -14,7 +16,9 @@ test("main page loads with correct title and allows changing color mode", async 
   if (BASE_URL.startsWith("https://pull-request")) {
     console.log(`BASE_URL: ${BASE_URL}`);
     await page.goto(BASE_URL);
-    await (await page.waitForSelector(`[name='password']`)).fill("ethcc2022");
+    await (
+      await page.waitForSelector(`[name='password']`)
+    ).fill(NETLIFY_SITE_PROTECTION_PASSWORD);
     await (await page.waitForSelector(`text=Submit`)).click();
   } else {
     console.log(`BASE_URL: ${BASE_URL}`);
