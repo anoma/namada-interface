@@ -5,11 +5,21 @@ const OUR_MAX_ANIMATION_DURATION = 2000;
 const TOGGLE_SELECTOR = "data-testid=Toggle";
 const BACKGROUND_SELECTOR = "data-testid=AppContainer";
 
+const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
+
 test("main page loads with correct title and allows changing color mode", async ({
   page,
 }) => {
   // load the page
-  await page.goto("http://localhost:3000");
+  if (BASE_URL.startsWith("https://pull-request")) {
+    console.log(`BASE_URL: ${BASE_URL}`);
+    await page.goto(BASE_URL);
+    await (await page.waitForSelector(`[name='password']`)).fill("ethcc2022");
+    await (await page.waitForSelector(`text=Submit`)).click();
+  } else {
+    console.log(`BASE_URL: ${BASE_URL}`);
+    await page.goto(BASE_URL);
+  }
 
   // ensure loading correctly by checking the title
   await expect(page).toHaveTitle("Namada Interface");
