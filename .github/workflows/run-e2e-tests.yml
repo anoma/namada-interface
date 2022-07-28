@@ -12,14 +12,16 @@ jobs:
         with:
           node-version: "14.x"
       - name: Install dependencies
-        run: |
-          yarn wasm:build
-          yarn
+        working-directory: ./packages/anoma-wallet
+        run: yarn wasm:build && yarn
       - name: Install Playwright Browsers
+        working-directory: ./packages/anoma-wallet
         run: npx playwright install --with-deps
       - name: Run Playwright tests
+        working-directory: ./packages/anoma-wallet
         run: yarn playwright test
       - uses: actions/upload-artifact@v2
+        working-directory: ./packages/anoma-wallet
         if: always()
         with:
           name: playwright-report
