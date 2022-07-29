@@ -48,6 +48,8 @@
     "wasm:build-in-ci": "./scripts/build.sh",
     "wasm:build:node": "./scripts/build-test.sh",
     "test": "yarn wasm:build:node && npx create-react-scripts test",
+    "e2e-test": "PLAYWRIGHT_BASE_URL=http://localhost:3000 yarn playwright test",
+    "e2e-test:headed": "PLAYWRIGHT_BASE_URL=http://localhost:3000 yarn playwright test --project=chromium --headed",
     "eject": "npx react-scripts eject"
   },
   "eslintConfig": {
