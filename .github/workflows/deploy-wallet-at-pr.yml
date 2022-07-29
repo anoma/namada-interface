@@ -55,7 +55,7 @@ jobs:
           --request POST \
           --data '{"message":"New deployment for a PR\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
           ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
-  test:
+  E2E-tests:
     needs: build
     timeout-minutes: 60
     runs-on: ubuntu-latest
