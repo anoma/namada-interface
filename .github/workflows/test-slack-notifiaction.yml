@@ -1,0 +1,34 @@
+name: Deploy wallet preview to netlify at PR and pushes to it
+on:
+  pull_request:
+    paths:
+      - "packages/anoma-wallet/**"
+      - "packages/anoma-lib/**"
+      - "packages/seed-management/**"
+      - ".github/workflows/**"
+
+env:
+  CI: false
+jobs:
+  E2E-tests:
+    needs: build
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./packages/anoma-wallet
+    steps:
+      - name: report failure
+        if: always()
+        run: |
+          curl --header "Content-Type: application/json" \
+          --request POST \
+          --data '{"message":"✅ E2E tests succeeded ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nfor a PR\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
+          ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
+      - name: report success
+        if: always()
+        run: |
+          curl --header "Content-Type: application/json" \
+          --request POST \
+          --data '{"message":"🔥⛔️ E2E tests failed ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nfor a PR\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
+          ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
