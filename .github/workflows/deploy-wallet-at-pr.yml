@@ -78,19 +78,19 @@ jobs:
       - name: Run Playwright tests
         id: run-playwright-tests
         run: PLAYWRIGHT_BASE_URL=https://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app NETLIFY_SITE_PROTECTION_PASSWORD=${{ secrets.NETLIFY_SITE_PROTECTION_PASSWORD }} yarn playwright test
-      - name: report failure
-        if: steps.run-playwright-tests.outcome != 'success'
-        run: |
-          curl --header "Content-Type: application/json" \
-          --request POST \
-          --data '{"message":"✅ E2E tests succeeded ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nfor a PR\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
-          ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
       - name: report success
         if: steps.run-playwright-tests.outcome == 'success'
         run: |
           curl --header "Content-Type: application/json" \
           --request POST \
-          --data '{"message":"🔥⛔️ E2E tests failed ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nfor a PR\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
+          --data '{"message":"E2E tests succeeded ✅\n \n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nReview\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
+          ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
+      - name: report failure
+        if: steps.run-playwright-tests.outcome != 'success'
+        run: |
+          curl --header "Content-Type: application/json" \
+          --request POST \
+          --data '{"message":"E2E tests failed ⛔️ \n \n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nReview\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
           ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
       - uses: actions/upload-artifact@v2
         if: always()
