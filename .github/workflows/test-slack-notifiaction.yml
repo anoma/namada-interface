@@ -13,9 +13,6 @@ jobs:
   E2E-tests:
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./packages/anoma-wallet
     steps:
       - name: report success
         run: |
