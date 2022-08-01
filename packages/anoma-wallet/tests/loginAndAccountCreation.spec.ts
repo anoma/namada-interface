@@ -31,6 +31,8 @@ test("user should be able to create an initial account and set up a password", a
       const labelContainer = await label.waitForSelector(`xpath=..`);
       // if we have gone through all it wont be found, let's do a shorter timeout
       const labelContainerHtml = await labelContainer.innerHTML();
+      console.log("labelContainerHtml");
+      console.log(labelContainerHtml);
       return Promise.resolve(labelContainerHtml.split("</span>")[1]);
     } catch {
       return Promise.reject(undefined);
