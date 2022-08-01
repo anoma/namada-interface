@@ -38,6 +38,6 @@ describe("Transfer wasm and class methods", () => {
     });
 
     expect(hash.length).toBe(64);
-    expect(bytes.length).toBe(596);
+    expect(bytes.length).toBe(597);
   });
 });
