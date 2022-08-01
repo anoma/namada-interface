@@ -9,3 +9,6 @@
 /lib/anoma/.gitignore
 /lib/anoma/README.md
 /lib/anoma/LICENSE*
+/test-results/
+/playwright-report/
+/playwright/.cache/

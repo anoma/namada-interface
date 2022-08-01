@@ -5,12 +5,12 @@
   "type": "commonjs",
   "license": "MIT",
   "dependencies": {
-    "@namada-interface/anoma-lib": "0.1.0",
-    "@namada-interface/seed-management": "0.1.0",
     "@anoma/masp-web": "0.1.0",
     "@cosmjs/encoding": "^0.27.1",
     "@cosmjs/json-rpc": "^0.27.1",
     "@cosmjs/tendermint-rpc": "^0.27.1",
+    "@namada-interface/anoma-lib": "0.1.0",
+    "@namada-interface/seed-management": "0.1.0",
     "@reduxjs/toolkit": "^1.8.0",
     "bn.js": "^5.2.0",
     "borsh": "^0.7.0",
@@ -45,8 +45,11 @@
     "lint": "npx eslint src --ext .ts,.tsx",
     "lint:fix": "yarn lint -- --fix",
     "wasm:build": "./scripts/build.sh",
+    "wasm:build-in-ci": "./scripts/build.sh",
     "wasm:build:node": "./scripts/build-test.sh",
     "test": "yarn wasm:build:node && npx create-react-scripts test",
+    "e2e-test": "PLAYWRIGHT_BASE_URL=http://localhost:3000 yarn playwright test",
+    "e2e-test:headed": "PLAYWRIGHT_BASE_URL=http://localhost:3000 yarn playwright test --project=chromium --headed",
     "eject": "npx react-scripts eject"
   },
   "eslintConfig": {
@@ -69,6 +72,7 @@
   },
   "devDependencies": {
     "@craco/craco": "^6.4.3",
+    "@playwright/test": "^1.24.1",
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.3",
     "@testing-library/user-event": "^13.5.0",

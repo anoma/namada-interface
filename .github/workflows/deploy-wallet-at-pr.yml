@@ -45,11 +45,56 @@ jobs:
           alias: pull-request-${{ github.event.number }}
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_ACCESS_TOKEN_WALLET_PREVIEW }}
-          NETLIFY_SITE_ID: 2380782e-9b20-477a-bc27-b4e9d05e16f3
+          NETLIFY_SITE_ID: 1f548c68-c620-4522-97e0-0d85c08366fb
+          # namada.me
+          # NETLIFY_SITE_ID: 2380782e-9b20-477a-bc27-b4e9d05e16f3
 
       - name: Slack Notification
         run: |
           curl --header "Content-Type: application/json" \
           --request POST \
-          --data '{"message":"New deployment for a PR\nhttps://pull-request-${{ github.event.number }}--wallet-preview-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
+          --data '{"message":"New deployment for a PR\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
           ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
+  E2E-tests:
+    needs: build
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./packages/anoma-wallet
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "14.x"
+      - name: Install wasm-pack
+        uses: jetli/wasm-pack-action@v0.3.0
+        with:
+          version: "v0.10.3"
+      - name: Install dependencies
+        run: yarn wasm:build && yarn
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+      - name: Run Playwright tests
+        id: run-playwright-tests
+        run: PLAYWRIGHT_BASE_URL=https://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app NETLIFY_SITE_PROTECTION_PASSWORD=${{ secrets.NETLIFY_SITE_PROTECTION_PASSWORD }} yarn playwright test
+      - name: report success
+        if: steps.run-playwright-tests.outcome == 'success'
+        run: |
+          curl --header "Content-Type: application/json" \
+          --request POST \
+          --data '{"message":"E2E tests succeeded ✅\n \n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nReview\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
+          ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
+      - name: report failure
+        if: steps.run-playwright-tests.outcome != 'success'
+        run: |
+          curl --header "Content-Type: application/json" \
+          --request POST \
+          --data '{"message":"E2E tests failed ⛔️ \n \n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nReview\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
+          ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
+      - uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30

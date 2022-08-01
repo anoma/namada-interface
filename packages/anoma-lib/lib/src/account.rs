@@ -1,13 +1,17 @@
 use crate::types::transaction::Transaction;
 use anoma::types::{
-    transaction::InitAccount,
-    key::{self, RefTo, common::{SecretKey, PublicKey}},
     address::Address,
+    key::{
+        self,
+        common::{PublicKey, SecretKey},
+        RefTo,
+    },
+    transaction::InitAccount,
 };
 use borsh::BorshSerialize;
-use serde::{Serialize, Deserialize};
-use wasm_bindgen::prelude::*;
+use serde::{Deserialize, Serialize};
 use std::str::FromStr;
+use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 #[derive(Serialize,Deserialize)]
@@ -37,19 +41,12 @@ impl Account {
         };
         let data = data.try_to_vec().expect("Encoding tx data shouldn't fail");
 
-        let transaction = match Transaction::new(
-            secret,
-            token,
-            epoch,
-            fee_amount,
-            gas_limit,
-            tx_code,
-            data
-        ) {
-            Ok(transaction) => transaction,
-            Err(error) => return Err(error)
-        };
-    
+        let transaction =
+            match Transaction::new(secret, token, epoch, fee_amount, gas_limit, tx_code, data) {
+                Ok(transaction) => transaction,
+                Err(error) => return Err(error),
+            };
+
         // Return serialized Transaction
         Ok(JsValue::from_serde(&Account(transaction)).unwrap())
     }

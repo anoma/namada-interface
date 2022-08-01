@@ -9,14 +9,20 @@ export type ToggleProps = {
   circleElementEnabled?: JSX.Element;
   // custom element to be placed in circle when disabled
   circleElementDisabled?: JSX.Element;
+  testId?: string;
 };
 
 /**
  * a component to indicate true/false
  */
 const Toggle: React.FunctionComponent<ToggleProps> = (props: ToggleProps) => {
-  const { checked, onClick, circleElementEnabled, circleElementDisabled } =
-    props;
+  const {
+    checked,
+    onClick,
+    circleElementEnabled,
+    circleElementDisabled,
+    testId,
+  } = props;
   const circleElement = checked ? circleElementEnabled : circleElementDisabled;
   // TODO: animate the change of circleElement
   return (
@@ -27,6 +33,7 @@ const Toggle: React.FunctionComponent<ToggleProps> = (props: ToggleProps) => {
       onClick={() => {
         onClick();
       }}
+      data-testid={`Toggle${testId ? `testId-${testId}` : ""}`}
     >
       <ToggleCircle checked={checked}>{circleElement}</ToggleCircle>
     </ToggleContainer>
