@@ -86,7 +86,7 @@ jobs:
           --data '{"message":"E2E tests succeeded ✅\n \n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nReview\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
           ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
       - name: report failure
-        if: steps.run-playwright-tests.outcome != 'success'
+        if: failure() && steps.run-playwright-tests.outcome != 'success'
         run: |
           curl --header "Content-Type: application/json" \
           --request POST \

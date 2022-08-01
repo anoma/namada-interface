@@ -25,30 +25,33 @@ test("user should be able to create an initial account and set up a password", a
   // gets a single seed phrase word by index, returns undefined when one is not found
   const getWordByIndex = async (index: string): Promise<string | undefined> => {
     try {
-      const label = await page.locator(`css=span >> text="${index}"`);
-      const labelContainer = await label.locator(`xpath=..`);
-      // if we have gone through all it wont be found, let's do a shorter timeout
-      const labelContainerHtml = await labelContainer.innerHTML({
+      const label = await page.waitForSelector(`css=span >> text="${index}"`, {
         timeout: 500,
       });
+      const labelContainer = await label.waitForSelector(`xpath=..`);
+      // if we have gone through all it wont be found, let's do a shorter timeout
+      const labelContainerHtml = await labelContainer.innerHTML();
       return Promise.resolve(labelContainerHtml.split("</span>")[1]);
     } catch {
-      return undefined;
+      return Promise.reject(undefined);
     }
   };
 
   // get the seed phrase words to an array
   let words: string[] = [];
   let index = 1;
+
   while (true) {
-    const indexAsString = `${index}`;
-    const seedPhraseWord = await getWordByIndex(indexAsString);
-    if (seedPhraseWord) {
-      const word = seedPhraseWord;
-      words.push(`${word.trim()}`);
-      index++;
-      continue;
-    } else {
+    try {
+      const indexAsString = `${index}`;
+      const seedPhraseWord = await getWordByIndex(indexAsString);
+      if (seedPhraseWord) {
+        const word = seedPhraseWord;
+        words.push(`${word.trim()}`);
+        index++;
+        continue;
+      }
+    } catch {
       break;
     }
   }
@@ -58,11 +61,9 @@ test("user should be able to create an initial account and set up a password", a
     `text=I wrote down my mnemonic`
   );
   await mnemonicButton.click();
-
   // go to enter the seed phrase
   const text = await page.waitForSelector("h5");
   const requestedIndex = (await text.innerHTML()).split("#")[1];
-  expect(true).toEqual(true);
 
   // enter the correct word
   await (
