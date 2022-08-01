@@ -66,6 +66,12 @@ test("user should be able to create an initial account and set up a password", a
   const requestedIndex = (await text.innerHTML()).split("#")[1];
 
   // enter the correct word
+  console.log("words");
+  console.log(words);
+  console.log("requestedIndex");
+  console.log(requestedIndex);
+  console.log("Number(requestedIndex)");
+  console.log(Number(requestedIndex));
   await (
     await page.waitForSelector(`input`)
   ).fill(words[Number(requestedIndex) - 1]);
