@@ -1,15 +1,10 @@
 import { test, expect } from "@playwright/test";
 
-const sleepMs = (ms: number) =>
-  new Promise((resolve) => setTimeout(resolve, ms));
-const OUR_MAX_ANIMATION_DURATION = 2000;
-const TOGGLE_SELECTOR = "data-testid=Toggle";
-const BACKGROUND_SELECTOR = "data-testid=AppContainer";
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
 const NETLIFY_SITE_PROTECTION_PASSWORD =
   process.env.NETLIFY_SITE_PROTECTION_PASSWORD || "";
 
-test.only("user create an initial account and set up a seed phrase", async ({
+test("user should be able to create an initial account and set up a password", async ({
   page,
 }) => {
   // load the page
@@ -23,28 +18,27 @@ test.only("user create an initial account and set up a seed phrase", async ({
     await page.goto(BASE_URL);
   }
 
+  // start the flow
   await (await page.waitForSelector(`text=Create an account`)).click();
 
+  // lets get the seed phrase to an array
+  // gets a single seed phrase word by index, returns undefined when one is not found
   const getWordByIndex = async (index: string): Promise<string | undefined> => {
-    const text = await page.locator("span", {
-      hasText: new RegExp(`^${index}$`, "i"),
-    });
-    if (text) {
-      try {
-        const parent = await text.locator("xpath=..");
-        // this takes a bit but not long, we want to throw if it does not find it
-        const word = await parent?.innerHTML({ timeout: 1500 });
-        // TODO checkout the proper way to do this with the API
-        return Promise.resolve(word.split("</span>")[1]);
-      } catch {
-        return undefined;
-      }
+    try {
+      const label = await page.locator(`css=span >> text="${index}"`);
+      const labelContainer = await label.locator(`xpath=..`);
+      // if we have gone through all it wont be found, let's do a shorter timeout
+      const labelContainerHtml = await labelContainer.innerHTML({
+        timeout: 500,
+      });
+      return Promise.resolve(labelContainerHtml.split("</span>")[1]);
+    } catch {
+      return undefined;
     }
   };
 
-  // get the seed phrase to an array
+  // get the seed phrase words to an array
   let words: string[] = [];
-
   let index = 1;
   while (true) {
     const indexAsString = `${index}`;
@@ -59,12 +53,14 @@ test.only("user create an initial account and set up a seed phrase", async ({
     }
   }
 
-  // go to enter the seed phrase
-  // I wrote down my mnemonic
-  await (await page.waitForSelector(`text=I wrote down my mnemonic`)).click();
+  // ok we wrote down the mnemonic
+  const mnemonicButton = await page.waitForSelector(
+    `text=I wrote down my mnemonic`
+  );
+  await mnemonicButton.click();
 
-  await sleepMs(2000);
-  const text = await page.locator("h5");
+  // go to enter the seed phrase
+  const text = await page.waitForSelector("h5");
   const requestedIndex = (await text.innerHTML()).split("#")[1];
   expect(true).toEqual(true);
 
@@ -73,49 +69,33 @@ test.only("user create an initial account and set up a seed phrase", async ({
     await page.waitForSelector(`input`)
   ).fill(words[Number(requestedIndex) - 1]);
 
-  await (await page.waitForSelector(`text=Verify`)).click();
-  await sleepMs(2000);
+  const verifyButton = await page.waitForSelector(`button >> text=Verify`);
+  await verifyButton.click();
+
+  // set password
+  const createAccountButton = await page.waitForSelector(
+    `text=Create an Account`
+  );
+  // the button should be disabled before we have entered 2 same values
+  expect(await createAccountButton.isDisabled()).toBeTruthy();
+  const password = "aaa";
+  const passwordField = await page.waitForSelector(
+    `text=Create password >> xpath=..`
+  );
+  await (await passwordField.waitForSelector("input")).fill(password);
+  const connfirmPasswordField = await page.waitForSelector(
+    `text=Confirm password >> xpath=..`
+  );
+  // it should still be disabled
+  expect(await createAccountButton.isDisabled()).toBeTruthy();
+  await (await connfirmPasswordField.waitForSelector("input")).fill(password);
+
+  // now it should be enabled
+  expect(await createAccountButton.isDisabled()).toBeFalsy();
+  await createAccountButton.click();
+
+  // ensure creation of an account
+  // could this be flaky if it happens before this notices it?
+  await page.waitForSelector(`text=Creating your wallet`);
+  await page.waitForSelector(`text=Total Balance`);
 });
-
-// test("user can go back and forth in the account initiation process and the seed phrase is being persisted", async ({
-//   page,
-// }) => {
-//   // load the page
-//   if (BASE_URL.startsWith("https://pull-request")) {
-//     await page.goto(BASE_URL);
-//     await (
-//       await page.waitForSelector(`[name='password']`)
-//     ).fill(NETLIFY_SITE_PROTECTION_PASSWORD);
-//     await (await page.waitForSelector(`text=Submit`)).click();
-//   } else {
-//     console.log(`BASE_URL: ${BASE_URL}`);
-//     await page.goto(BASE_URL);
-//   }
-
-//   // ensure loading correctly by checking the title
-//   await expect(page).toHaveTitle("Namada Interface");
-
-//   // lets get the background and check it's color
-//   const appContainer = await page.waitForSelector(BACKGROUND_SELECTOR);
-//   const backgroundColor = await appContainer.evaluate((element) => {
-//     return window
-//       .getComputedStyle(element)
-//       .getPropertyValue("background-color");
-//   });
-
-//   // lets click the dark/light mode toggle
-//   await (await page.waitForSelector(TOGGLE_SELECTOR)).click();
-
-//   // give some time for the animation
-//   await sleep(OUR_MAX_ANIMATION_DURATION);
-
-//   // lets get the color again after click
-//   const backgroundColorAfterToggle = await appContainer.evaluate((element) => {
-//     return window
-//       .getComputedStyle(element)
-//       .getPropertyValue("background-color");
-//   });
-
-//   // and make sure that the background color has changed
-//   expect(backgroundColor).not.toEqual(backgroundColorAfterToggle);
-// });
