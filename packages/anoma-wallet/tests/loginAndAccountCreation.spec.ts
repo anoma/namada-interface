@@ -26,7 +26,7 @@ test("user should be able to create an initial account and set up a password", a
   const getWordByIndex = async (index: string): Promise<string | undefined> => {
     try {
       const label = await page.waitForSelector(`css=span >> text="${index}"`, {
-        timeout: 500,
+        timeout: 10000,
       });
       const labelContainer = await label.waitForSelector(`xpath=..`);
       // if we have gone through all it wont be found, let's do a shorter timeout
