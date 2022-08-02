@@ -3,6 +3,11 @@ import { ChainInfo } from "@keplr-wallet/types";
 import { Chain } from "config";
 import { Tokens, TokenType } from "constants/";
 
+const { REACT_APP_LOCAL, NODE_ENV } = process.env;
+
+const PREFIX = "namada";
+const PREFIX_TESTNET = "atest";
+
 type WindowWithKeplr = Window &
   typeof globalThis & {
     keplr: {
@@ -20,28 +25,79 @@ type WindowWithKeplr = Window &
   };
 
 class Keplr {
+  /**
+   * Pass a chain config into constructor to instantiate, and optionally
+   * override keplr instance for testing
+   * @param _chain
+   * @param _keplr
+   */
   constructor(
     private _chain: Chain,
     private _keplr = (<WindowWithKeplr>window)?.keplr
   ) {}
 
+  /**
+   * Chain accessor get method
+   * @returns {Chain}
+   */
   public get chain(): Chain {
     return this._chain;
   }
 
+  /**
+   * Determine if keplr extension is loaded
+   * @returns {boolean}
+   */
   public detect(): boolean {
     return !!this._keplr?.experimentalSuggestChain;
   }
 
+  /**
+   * Enable connection to Keplr for current chain
+   * @returns {Promise<boolean>}
+   */
+  public async enable(): Promise<boolean> {
+    if (this._keplr) {
+      const { id } = this._chain;
+
+      return this._keplr
+        .enable(id)
+        .then(() => Promise.resolve(true))
+        .catch(() => Promise.reject(false));
+    }
+    return false;
+  }
+
+  /**
+   * Get key for current chain
+   * @returns {Promise<boolean}
+   */
+  public async getKey(): Promise<boolean> {
+    if (this._keplr) {
+      const { id } = this._chain;
+
+      return this._keplr
+        .getKey(id)
+        .then(() => Promise.resolve(true))
+        .catch(() => Promise.reject(false));
+    }
+    return false;
+  }
+
+  /**
+   * Suggest a chain to Keplr extension
+   * @returns {Promise<boolean>}
+   */
   public async suggestChain(): Promise<boolean> {
     if (this._keplr && this._keplr.experimentalSuggestChain) {
-      console.log(this._chain);
       const { id: chainId, alias: chainName, network } = this._chain;
       const { protocol, url, port } = network;
       const rpcUrl = `${protocol}://${url}${port ? ":" + port : ""}`;
       // The following should match our Rest API URL and be added to chain config
       // instead of hard-coding port here:
       const restUrl = `${protocol}://${url}:1317`;
+      const bech32Prefix =
+        REACT_APP_LOCAL || NODE_ENV === "development" ? PREFIX_TESTNET : PREFIX;
 
       const tokenType: TokenType = "ATOM";
       const token = Tokens[tokenType];
@@ -64,20 +120,17 @@ class Keplr {
           coinType: token.type,
         },
         bech32Config: {
-          bech32PrefixAccAddr: "cosmos",
-          // Should the following change to match Namada (e.g., "atest", etc)?
-          bech32PrefixAccPub: "cosmos" + "pub",
-          bech32PrefixValAddr: "cosmos" + "valoper",
-          bech32PrefixValPub: "cosmos" + "valoperpub",
-          bech32PrefixConsAddr: "cosmos" + "valcons",
-          bech32PrefixConsPub: "cosmos" + "valconspub",
+          bech32PrefixAccAddr: bech32Prefix,
+          bech32PrefixAccPub: bech32Prefix + "pub",
+          bech32PrefixValAddr: bech32Prefix + "valoper",
+          bech32PrefixValPub: bech32Prefix + "valoperpub",
+          bech32PrefixConsAddr: bech32Prefix + "valcons",
+          bech32PrefixConsPub: bech32Prefix + "valconspub",
         },
         currencies: [currency],
         feeCurrencies: [currency],
         gasPriceStep: { low: 0.01, average: 0.025, high: 0.03 }, // This is optional!
       };
-
-      console.log({ chainInfo });
 
       return this._keplr
         .experimentalSuggestChain(chainInfo)
@@ -85,30 +138,6 @@ class Keplr {
         .catch(() => Promise.reject(false));
     }
     return Promise.reject(false);
-  }
-
-  public async enable(): Promise<boolean> {
-    if (this._keplr) {
-      const { id } = this._chain;
-
-      return this._keplr
-        .enable(id)
-        .then(() => Promise.resolve(true))
-        .catch(() => Promise.reject(false));
-    }
-    return false;
-  }
-
-  public async getKey(): Promise<boolean> {
-    if (this._keplr) {
-      const { id } = this._chain;
-
-      return this._keplr
-        .getKey(id)
-        .then(() => Promise.resolve(true))
-        .catch(() => Promise.reject(false));
-    }
-    return false;
   }
 }
 

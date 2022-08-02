@@ -42,6 +42,8 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
   const [displaySeedPhrase, setDisplaySeedPhrase] = useState(false);
   const [seedPhrase, setSeedPhrase] = useState<string[]>([]);
   const [isLoadingSeed, setIsLoadingSeed] = useState(false);
+  const [isKeplrAddingChain, setIsKeplrAddingChain] = useState(false);
+  const [isKeplrConnecting, setIsKeplrConnecting] = useState(false);
 
   const networks = Object.values(chains).map(({ id, alias }: Chain) => ({
     label: alias,
@@ -85,11 +87,22 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
     dispatch(setChainId(value));
   };
 
-  const handleKeplrClick = (): void => {
+  const handleKeplrSuggestChainClick = (): void => {
+    setIsKeplrAddingChain(true);
     if (keplr.detect()) {
       (async () => {
-        const results = await keplr.suggestChain();
-        console.log({ results });
+        await keplr.suggestChain();
+        setIsKeplrAddingChain(false);
+      })();
+    }
+  };
+
+  const handleKeplrEnableClick = (): void => {
+    setIsKeplrConnecting(true);
+    if (keplr.detect()) {
+      (async () => {
+        await keplr.enable();
+        setIsKeplrConnecting(false);
       })();
     }
   };
@@ -161,13 +174,24 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
         </InputContainer>
 
         {keplr.detect() && (
-          <Button
-            onClick={handleKeplrClick}
-            variant={ButtonVariant.Outlined}
-            style={{ width: "100%" }}
-          >
-            Connect Keplr Wallet
-          </Button>
+          <>
+            <Button
+              onClick={handleKeplrSuggestChainClick}
+              variant={ButtonVariant.Outlined}
+              style={{ width: "100%" }}
+              disabled={isKeplrAddingChain}
+            >
+              Add Chain to Keplr
+            </Button>
+            <Button
+              onClick={handleKeplrEnableClick}
+              variant={ButtonVariant.Outlined}
+              style={{ width: "100%" }}
+              disabled={isKeplrConnecting}
+            >
+              Connect to Keplr
+            </Button>
+          </>
         )}
       </SettingsContent>
       <ButtonsContainer>
