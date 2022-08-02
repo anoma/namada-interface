@@ -13,24 +13,23 @@ type WindowWithKeplr = Window &
   };
 
 class Keplr {
-  private _suggestChain: SuggestChain | undefined;
-
-  constructor(private _chain: Chain) {
-    const keplr = (<WindowWithKeplr>window)?.keplr;
-    this._suggestChain = keplr?.experimentalSuggestChain;
-  }
+  constructor(
+    private _chain: Chain,
+    private _keplr = (<WindowWithKeplr>window)?.keplr
+  ) {}
 
   public get chain(): Chain {
     return this._chain;
   }
 
   public detect(): boolean {
-    return !!this._suggestChain;
+    return !!this._keplr?.experimentalSuggestChain;
   }
 
   public async suggestChain(): Promise<boolean> {
-    if (this._suggestChain) {
-      const { id, alias, network } = this._chain;
+    if (this._keplr && this._keplr.experimentalSuggestChain) {
+      console.log(this._chain);
+      const { id: chainId, alias: chainName, network } = this._chain;
       const { protocol, url, port } = network;
       const rpcUrl = `${protocol}://${url}${port ? ":" + port : ""}`;
       // The following should match our Rest API URL and be added to chain config
@@ -51,8 +50,8 @@ class Keplr {
       const chainInfo: ChainInfo = {
         rpc: rpcUrl,
         rest: restUrl,
-        chainId: id,
-        chainName: alias,
+        chainId,
+        chainName,
         stakeCurrency: currency,
         bip44: {
           coinType: token.type,
@@ -73,11 +72,12 @@ class Keplr {
 
       console.log({ chainInfo });
 
-      await this._suggestChain(chainInfo);
-
-      return true;
+      return this._keplr
+        .experimentalSuggestChain(chainInfo)
+        .then(() => Promise.resolve(true))
+        .catch(() => Promise.reject(false));
     }
-    return false;
+    return Promise.reject(false);
   }
 }
 

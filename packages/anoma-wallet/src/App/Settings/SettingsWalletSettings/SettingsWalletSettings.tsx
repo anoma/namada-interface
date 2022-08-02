@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Chain } from "config/chain";
 import { setFiatCurrency, setChainId, SettingsState } from "slices/settings";
 import { useAppDispatch, useAppSelector } from "store";
-import { Session } from "lib";
+import { Keplr, Session } from "lib";
 import { Currencies } from "constants/";
 
 import { NavigationContainer } from "components/NavigationContainer";
@@ -35,6 +35,10 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
 
   const chains = Object.values(Config.chain);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
+  const chain = Config.chain[chainId];
+
+  const keplr = new Keplr(chain);
+
   const [displaySeedPhrase, setDisplaySeedPhrase] = useState(false);
   const [seedPhrase, setSeedPhrase] = useState<string[]>([]);
   const [isLoadingSeed, setIsLoadingSeed] = useState(false);
@@ -79,6 +83,15 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
     const { value } = e.target;
 
     dispatch(setChainId(value));
+  };
+
+  const handleKeplrClick = (): void => {
+    if (keplr.detect()) {
+      (async () => {
+        const results = await keplr.suggestChain();
+        console.log({ results });
+      })();
+    }
   };
 
   return (
@@ -146,6 +159,16 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
             onChange={handleNetworkSelect}
           />
         </InputContainer>
+
+        {keplr.detect() && (
+          <Button
+            onClick={handleKeplrClick}
+            variant={ButtonVariant.Outlined}
+            style={{ width: "100%" }}
+          >
+            Connect Keplr Wallet
+          </Button>
+        )}
       </SettingsContent>
       <ButtonsContainer>
         <BackButton
