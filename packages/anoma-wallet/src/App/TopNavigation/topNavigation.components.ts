@@ -235,6 +235,10 @@ export const MobileMenuListItem = styled.li`
   border-bottom: 1px solid ${(props) => props.theme.colors.buttonBackground4};
   color: ${(props) => props.theme.colors.headingColor};
 
+  & button {
+    width: 100%;
+  }
+
   & button > div {
     color: ${(props) => props.theme.colors.headingColor};
 

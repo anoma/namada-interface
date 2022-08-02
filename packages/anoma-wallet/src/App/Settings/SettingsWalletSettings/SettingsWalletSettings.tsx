@@ -87,23 +87,19 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
     dispatch(setChainId(value));
   };
 
-  const handleKeplrSuggestChainClick = (): void => {
+  const handleKeplrSuggestChainClick = async (): Promise<void> => {
     setIsKeplrAddingChain(true);
     if (keplr.detect()) {
-      (async () => {
-        await keplr.suggestChain();
-        setIsKeplrAddingChain(false);
-      })();
+      await keplr.suggestChain();
+      setIsKeplrAddingChain(false);
     }
   };
 
-  const handleKeplrEnableClick = (): void => {
+  const handleKeplrEnableClick = async (): Promise<void> => {
     setIsKeplrConnecting(true);
     if (keplr.detect()) {
-      (async () => {
-        await keplr.enable();
-        setIsKeplrConnecting(false);
-      })();
+      await keplr.enable();
+      setIsKeplrConnecting(false);
     }
   };
 
