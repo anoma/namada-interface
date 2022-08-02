@@ -3,12 +3,19 @@ import { ChainInfo } from "@keplr-wallet/types";
 import { Chain } from "config";
 import { Tokens, TokenType } from "constants/";
 
-type SuggestChain = (chainInfo: ChainInfo) => Promise<void>;
-
 type WindowWithKeplr = Window &
   typeof globalThis & {
     keplr: {
-      experimentalSuggestChain?: SuggestChain;
+      experimentalSuggestChain?: (chainInfo: ChainInfo) => Promise<void>;
+      enable: (chainId: string) => Promise<void>;
+      getKey: (chainId: string) => Promise<{
+        // Name of the selected key store.
+        name: string;
+        algo: string;
+        pubKey: Uint8Array;
+        address: Uint8Array;
+        bech32Address: string;
+      }>;
     };
   };
 
@@ -78,6 +85,30 @@ class Keplr {
         .catch(() => Promise.reject(false));
     }
     return Promise.reject(false);
+  }
+
+  public async enable(): Promise<boolean> {
+    if (this._keplr) {
+      const { id } = this._chain;
+
+      return this._keplr
+        .enable(id)
+        .then(() => Promise.resolve(true))
+        .catch(() => Promise.reject(false));
+    }
+    return false;
+  }
+
+  public async getKey(): Promise<boolean> {
+    if (this._keplr) {
+      const { id } = this._chain;
+
+      return this._keplr
+        .getKey(id)
+        .then(() => Promise.resolve(true))
+        .catch(() => Promise.reject(false));
+    }
+    return false;
   }
 }
 
