@@ -36,7 +36,6 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
   const chains = Object.values(Config.chain);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const chain = Config.chain[chainId];
-
   const keplr = new Keplr(chain);
 
   const [displaySeedPhrase, setDisplaySeedPhrase] = useState(false);

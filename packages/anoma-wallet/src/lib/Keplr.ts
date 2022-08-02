@@ -8,20 +8,22 @@ const { REACT_APP_LOCAL, NODE_ENV } = process.env;
 const PREFIX = "namada";
 const PREFIX_TESTNET = "atest";
 
+export type KeplrExtension = {
+  experimentalSuggestChain: (chainInfo: ChainInfo) => Promise<void>;
+  enable: (chainId: string) => Promise<void>;
+  getKey: (chainId: string) => Promise<{
+    // Name of the selected key store.
+    name: string;
+    algo: string;
+    pubKey: Uint8Array;
+    address: Uint8Array;
+    bech32Address: string;
+  }>;
+};
+
 type WindowWithKeplr = Window &
   typeof globalThis & {
-    keplr: {
-      experimentalSuggestChain: (chainInfo: ChainInfo) => Promise<void>;
-      enable: (chainId: string) => Promise<void>;
-      getKey: (chainId: string) => Promise<{
-        // Name of the selected key store.
-        name: string;
-        algo: string;
-        pubKey: Uint8Array;
-        address: Uint8Array;
-        bech32Address: string;
-      }>;
-    };
+    keplr: KeplrExtension;
   };
 
 class Keplr {
