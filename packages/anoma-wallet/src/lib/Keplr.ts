@@ -11,7 +11,7 @@ const PREFIX_TESTNET = "atest";
 type WindowWithKeplr = Window &
   typeof globalThis & {
     keplr: {
-      experimentalSuggestChain?: (chainInfo: ChainInfo) => Promise<void>;
+      experimentalSuggestChain: (chainInfo: ChainInfo) => Promise<void>;
       enable: (chainId: string) => Promise<void>;
       getKey: (chainId: string) => Promise<{
         // Name of the selected key store.
@@ -49,7 +49,7 @@ class Keplr {
    * @returns {boolean}
    */
   public detect(): boolean {
-    return !!this._keplr?.experimentalSuggestChain;
+    return !!this._keplr;
   }
 
   /**
@@ -62,10 +62,10 @@ class Keplr {
 
       return this._keplr
         .enable(id)
-        .then(() => Promise.resolve(true))
+        .then(() => true)
         .catch(() => Promise.reject(false));
     }
-    return false;
+    return Promise.reject(false);
   }
 
   /**
@@ -78,10 +78,10 @@ class Keplr {
 
       return this._keplr
         .getKey(id)
-        .then(() => Promise.resolve(true))
+        .then(() => true)
         .catch(() => Promise.reject(false));
     }
-    return false;
+    return Promise.reject(false);
   }
 
   /**
@@ -89,7 +89,7 @@ class Keplr {
    * @returns {Promise<boolean>}
    */
   public async suggestChain(): Promise<boolean> {
-    if (this._keplr && this._keplr.experimentalSuggestChain) {
+    if (this._keplr) {
       const { id: chainId, alias: chainName, network } = this._chain;
       const { protocol, url, port } = network;
       const rpcUrl = `${protocol}://${url}${port ? ":" + port : ""}`;
@@ -134,7 +134,7 @@ class Keplr {
 
       return this._keplr
         .experimentalSuggestChain(chainInfo)
-        .then(() => Promise.resolve(true))
+        .then(() => true)
         .catch(() => Promise.reject(false));
     }
     return Promise.reject(false);
