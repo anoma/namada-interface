@@ -1,8 +1,16 @@
 import { ChainInfo, Key, Keplr as IKeplr } from "@keplr-wallet/types";
 import { Chain } from "config";
+
 import Keplr from "./Keplr";
 
-type MockKeplr = Pick<IKeplr, "enable" | "getKey" | "experimentalSuggestChain">;
+type MockKeplr = Pick<
+  IKeplr,
+  "enable" | "getKey" | "experimentalSuggestChain" | "getOfflineSignerAuto"
+>;
+
+type ErrorMessage = {
+  message: string;
+};
 
 /**
  * Mock Chain configuration data
@@ -27,8 +35,7 @@ const mockKey: Key = {
   algo: "algo",
   pubKey: new Uint8Array(),
   address: new Uint8Array(),
-  bech32Address:
-    "atest1v4ehgw36gc6yxvpjxccyzvphxycrxw2xxsuyydesxgcnjs3cg9znwv3cxgmnj32yxy6rssf5tcqjm3",
+  bech32Address: "cosmos1qjnyxraddqgzg91ezty2x3n5t31eur9dsxx4fp",
   isNanoLedger: false,
 };
 
@@ -87,6 +94,15 @@ const mockKeplrExtension: MockKeplr = {
   getKey: async (): Promise<Key> => {
     return mockKey;
   },
+  // We don't have types we can import for OfflineSigner, and we currently only want
+  // to ensure an error is raised if the provided chainId doesn't match the
+  // keplr instance, hence the following any:
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  getOfflineSignerAuto: async (chainId: string): Promise<any> => {
+    if (mockChain.id !== chainId) {
+      throw new Error("Chain not found");
+    }
+  },
 };
 
 const mockKeplr = new Keplr(mockChain, mockKeplrExtension as IKeplr);
@@ -134,5 +150,19 @@ describe("Keplr class", () => {
   test("It should return a chain configuration for inspection", () => {
     const chainConfig = mockKeplr.chain;
     expect(chainConfig).toBe(mockChain);
+  });
+});
+
+describe("Keplr.instance.getOfflineSignerAuto", () => {
+  test("It should throw an error if chain not found", async () => {
+    expect.assertions(2);
+    try {
+      await mockKeplr.instance?.getOfflineSignerAuto(
+        "anoma-test.008d3ba61b7bb1852c9"
+      );
+    } catch (e: unknown) {
+      expect(e).toBeInstanceOf(Error);
+      expect((e as ErrorMessage).message).toEqual("Chain not found");
+    }
   });
 });
