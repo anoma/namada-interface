@@ -9,7 +9,10 @@ import { Currencies } from "constants/";
 
 import { NavigationContainer } from "components/NavigationContainer";
 import { Heading, HeadingLevel } from "components/Heading";
-import { SettingsWalletSettingsContainer } from "./SettingsWalletSettings.components";
+import {
+  ExtensionInfo,
+  SettingsWalletSettingsContainer,
+} from "./SettingsWalletSettings.components";
 import { Tooltip } from "components/Tooltip";
 import { Icon, IconName } from "components/Icon";
 import { Select, Option } from "components/Select";
@@ -168,7 +171,7 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
           />
         </InputContainer>
 
-        {keplr.detect() && (
+        {keplr.detect() ? (
           <>
             <Button
               onClick={handleKeplrSuggestChainClick}
@@ -187,6 +190,10 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
               Connect to Keplr
             </Button>
           </>
+        ) : (
+          <ExtensionInfo>
+            Install the Keplr extension to connect your Wallet
+          </ExtensionInfo>
         )}
       </SettingsContent>
       <ButtonsContainer>

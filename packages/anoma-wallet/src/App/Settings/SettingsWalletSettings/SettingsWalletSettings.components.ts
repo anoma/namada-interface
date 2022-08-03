@@ -8,3 +8,7 @@ export const SettingsWalletSettingsContainer = styled.div`
   width: 100%;
   height: 100%;
 `;
+
+export const ExtensionInfo = styled.p`
+  padding: 20px;
+`;
