@@ -1,4 +1,4 @@
-import { ChainInfo } from "@keplr-wallet/types";
+import { Keplr as KeplrInterface, ChainInfo, Key } from "@keplr-wallet/types";
 
 import { Chain } from "config";
 import { Tokens, TokenType } from "constants/";
@@ -8,24 +8,14 @@ const { REACT_APP_LOCAL, NODE_ENV } = process.env;
 const PREFIX = "namada";
 const PREFIX_TESTNET = "atest";
 
-type KeplrKey = {
-  // Name of the selected key store.
-  name: string;
-  algo: string;
-  pubKey: Uint8Array;
-  address: Uint8Array;
-  bech32Address: string;
-};
-
-export type KeplrExtension = {
-  experimentalSuggestChain: (chainInfo: ChainInfo) => Promise<void>;
-  enable: (chainId: string) => Promise<void>;
-  getKey: (chainId: string) => Promise<KeplrKey>;
-};
+export type KeplrExtension = Pick<
+  KeplrInterface,
+  "enable" | "getKey" | "experimentalSuggestChain"
+>;
 
 type WindowWithKeplr = Window &
   typeof globalThis & {
-    keplr: KeplrExtension;
+    keplr: KeplrInterface | KeplrExtension;
   };
 
 class Keplr {
@@ -83,13 +73,13 @@ class Keplr {
    * Get key for current chain
    * @returns {Promise<boolean}
    */
-  public async getKey(): Promise<KeplrKey> {
+  public async getKey(): Promise<Key> {
     if (this._keplr) {
       const { id } = this._chain;
 
       return this._keplr
         .getKey(id)
-        .then((results) => results)
+        .then((key) => key)
         .catch(() => Promise.reject(false));
     }
     return Promise.reject(false);

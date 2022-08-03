@@ -1,30 +1,6 @@
-import { ChainInfo } from "@keplr-wallet/types";
+import { ChainInfo, Key } from "@keplr-wallet/types";
 import { Chain } from "config";
 import Keplr, { KeplrExtension } from "./Keplr";
-
-/**
- * Mock Keplr extension
- */
-const mockKeplrExtension: KeplrExtension = {
-  enable: async (id: string): Promise<void> => {
-    if (id) {
-      return;
-    }
-    return Promise.reject();
-  },
-  experimentalSuggestChain: async (chainInfo: ChainInfo): Promise<void> => {
-    if (chainInfo) {
-      return;
-    }
-    return Promise.reject();
-  },
-  getKey: async (id: string) => {
-    if (id) {
-      return mockKey;
-    }
-    return Promise.reject();
-  },
-};
 
 /**
  * Mock Chain configuration data
@@ -44,19 +20,20 @@ const mockChain: Chain = {
 /**
  * Mock Keplr key results data
  */
-const mockKey = {
+const mockKey: Key = {
   name: "keyName",
   algo: "algo",
   pubKey: new Uint8Array(),
   address: new Uint8Array(),
   bech32Address:
     "atest1v4ehgw36gc6yxvpjxccyzvphxycrxw2xxsuyydesxgcnjs3cg9znwv3cxgmnj32yxy6rssf5tcqjm3",
+  isNanoLedger: false,
 };
 
 /**
- * Mock Chain Info data for Keplr suggest chain
+ * Mock Chain Info data for Keplr suggest chain functionality
  */
-const mockChainInfo = {
+const mockChainInfo: ChainInfo = {
   rpc: "http://localhost:26657",
   rest: "http://localhost:1317",
   chainId: "anoma-test.fd58c789bc11e6c6392",
@@ -93,6 +70,21 @@ const mockChainInfo = {
     },
   ],
   gasPriceStep: { low: 0.01, average: 0.025, high: 0.03 },
+};
+
+/**
+ * Mock Keplr extension
+ */
+const mockKeplrExtension: KeplrExtension = {
+  enable: async (): Promise<void> => {
+    return;
+  },
+  experimentalSuggestChain: async (): Promise<void> => {
+    return;
+  },
+  getKey: async (): Promise<Key> => {
+    return mockKey;
+  },
 };
 
 const mockKeplr = new Keplr(mockChain, mockKeplrExtension);
