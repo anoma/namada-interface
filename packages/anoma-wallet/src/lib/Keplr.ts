@@ -8,17 +8,19 @@ const { REACT_APP_LOCAL, NODE_ENV } = process.env;
 const PREFIX = "namada";
 const PREFIX_TESTNET = "atest";
 
+type KeplrKey = {
+  // Name of the selected key store.
+  name: string;
+  algo: string;
+  pubKey: Uint8Array;
+  address: Uint8Array;
+  bech32Address: string;
+};
+
 export type KeplrExtension = {
   experimentalSuggestChain: (chainInfo: ChainInfo) => Promise<void>;
   enable: (chainId: string) => Promise<void>;
-  getKey: (chainId: string) => Promise<{
-    // Name of the selected key store.
-    name: string;
-    algo: string;
-    pubKey: Uint8Array;
-    address: Uint8Array;
-    bech32Address: string;
-  }>;
+  getKey: (chainId: string) => Promise<KeplrKey>;
 };
 
 type WindowWithKeplr = Window &
@@ -44,6 +46,13 @@ class Keplr {
    */
   public get chain(): Chain {
     return this._chain;
+  }
+
+  /**
+   * Keplr extension accessor
+   */
+  public get instance(): KeplrExtension {
+    return this._keplr;
   }
 
   /**
@@ -74,13 +83,13 @@ class Keplr {
    * Get key for current chain
    * @returns {Promise<boolean}
    */
-  public async getKey(): Promise<boolean> {
+  public async getKey(): Promise<KeplrKey> {
     if (this._keplr) {
       const { id } = this._chain;
 
       return this._keplr
         .getKey(id)
-        .then(() => true)
+        .then((results) => results)
         .catch(() => Promise.reject(false));
     }
     return Promise.reject(false);
