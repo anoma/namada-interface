@@ -39,7 +39,6 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const chain = Config.chain[chainId];
   const keplr = new Keplr(chain);
-  const offlineSigner = keplr.instance?.getOfflineSigner(chainId);
 
   const [displaySeedPhrase, setDisplaySeedPhrase] = useState(false);
   const [seedPhrase, setSeedPhrase] = useState<string[]>([]);
@@ -76,10 +75,16 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
   );
 
   useEffect(() => {
-    if (offlineSigner) {
-      setIsKeplrChainAdded(true);
-    }
-  }, []);
+    (async () => {
+      try {
+        await keplr.instance?.getOfflineSignerAuto(chainId);
+        setIsKeplrChainAdded(true);
+      } catch (e) {
+        setIsKeplrChainAdded(false);
+        setIsKeplrConnected(false);
+      }
+    })();
+  }, [chainId]);
 
   const handleCurrencySelect = (
     e: React.ChangeEvent<HTMLSelectElement>
@@ -100,20 +105,30 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
   const handleKeplrSuggestChainClick = async (): Promise<void> => {
     setIsKeplrAddingChain(true);
     if (keplr.detect()) {
-      await keplr.suggestChain();
-      setIsKeplrAddingChain(false);
+      try {
+        await keplr.suggestChain();
+        setIsKeplrAddingChain(false);
+      } catch (e) {
+        console.warn(e);
+        setIsKeplrAddingChain(false);
+      }
     }
   };
 
   const handleKeplrEnableClick = async (): Promise<void> => {
     setIsKeplrConnecting(true);
     if (keplr.detect()) {
-      await keplr.enable();
-      const key = await keplr.getKey();
-      if (key) {
-        setIsKeplrConnected(true);
+      try {
+        await keplr.enable();
+        const key = await keplr.getKey();
+        if (key) {
+          setIsKeplrConnected(true);
+        }
+        setIsKeplrConnecting(false);
+      } catch (e) {
+        console.warn(e);
+        setIsKeplrConnecting(false);
       }
-      setIsKeplrConnecting(false);
     }
   };
 
@@ -194,7 +209,7 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
           </Button>
         )}
 
-        {!isKeplrConnected ? (
+        {isKeplrChainAdded && !isKeplrConnected && (
           <Button
             onClick={handleKeplrEnableClick}
             variant={ButtonVariant.Outlined}
@@ -203,7 +218,9 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
           >
             Connect to Keplr
           </Button>
-        ) : (
+        )}
+
+        {isKeplrConnected && (
           <ExtensionInfo>Connected to Keplr Extension</ExtensionInfo>
         )}
 

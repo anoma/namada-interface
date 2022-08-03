@@ -26,18 +26,19 @@ class Keplr {
   ) {}
 
   /**
-   * Chain accessor get method
+   * Keplr extension accessor
+   * @returns {IKeplr | undefined}
+   */
+  public get instance(): IKeplr | undefined {
+    return this._keplr;
+  }
+
+  /**
+   * Chain config accessor
    * @returns {Chain}
    */
   public get chain(): Chain {
     return this._chain;
-  }
-
-  /**
-   * Keplr extension accessor
-   */
-  public get instance(): IKeplr | undefined {
-    return this._keplr;
   }
 
   /**
@@ -56,10 +57,8 @@ class Keplr {
     if (this._keplr) {
       const { id } = this._chain;
 
-      return this._keplr
-        .enable(id)
-        .then(() => true)
-        .catch(() => Promise.reject(false));
+      await this._keplr.enable(id);
+      return true;
     }
     return Promise.reject(false);
   }
@@ -71,11 +70,7 @@ class Keplr {
   public async getKey(): Promise<Key> {
     if (this._keplr) {
       const { id } = this._chain;
-
-      return this._keplr
-        .getKey(id)
-        .then((key) => key)
-        .catch(() => Promise.reject(false));
+      return await this._keplr.getKey(id);
     }
     return Promise.reject(false);
   }
@@ -128,10 +123,8 @@ class Keplr {
         gasPriceStep: { low: 0.01, average: 0.025, high: 0.03 }, // This is optional!
       };
 
-      return this._keplr
-        .experimentalSuggestChain(chainInfo)
-        .then(() => true)
-        .catch(() => Promise.reject(false));
+      await this._keplr.experimentalSuggestChain(chainInfo);
+      return true;
     }
 
     return Promise.reject(false);
