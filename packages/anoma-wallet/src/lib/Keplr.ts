@@ -1,4 +1,4 @@
-import { Keplr as KeplrInterface, ChainInfo, Key } from "@keplr-wallet/types";
+import { Keplr as IKeplr, ChainInfo, Key } from "@keplr-wallet/types";
 
 import { Chain } from "config";
 import { Tokens, TokenType } from "constants/";
@@ -9,13 +9,13 @@ const PREFIX = "namada";
 const PREFIX_TESTNET = "atest";
 
 export type KeplrExtension = Pick<
-  KeplrInterface,
+  IKeplr,
   "enable" | "getKey" | "experimentalSuggestChain"
 >;
 
 type WindowWithKeplr = Window &
   typeof globalThis & {
-    keplr: KeplrInterface | KeplrExtension;
+    keplr: IKeplr | KeplrExtension;
   };
 
 class Keplr {
@@ -122,11 +122,11 @@ class Keplr {
         },
         bech32Config: {
           bech32PrefixAccAddr: bech32Prefix,
-          bech32PrefixAccPub: bech32Prefix + "pub",
-          bech32PrefixValAddr: bech32Prefix + "valoper",
-          bech32PrefixValPub: bech32Prefix + "valoperpub",
-          bech32PrefixConsAddr: bech32Prefix + "valcons",
-          bech32PrefixConsPub: bech32Prefix + "valconspub",
+          bech32PrefixAccPub: `${bech32Prefix}pub`,
+          bech32PrefixValAddr: `${bech32Prefix}valoper`,
+          bech32PrefixValPub: `${bech32Prefix}valoperpub`,
+          bech32PrefixConsAddr: `${bech32Prefix}valcons`,
+          bech32PrefixConsPub: `${bech32Prefix}valconspub`,
         },
         currencies: [currency],
         feeCurrencies: [currency],
@@ -138,6 +138,7 @@ class Keplr {
         .then(() => true)
         .catch(() => Promise.reject(false));
     }
+
     return Promise.reject(false);
   }
 }
