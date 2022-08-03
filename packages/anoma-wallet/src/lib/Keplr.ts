@@ -1,4 +1,9 @@
-import { Keplr as IKeplr, ChainInfo, Key } from "@keplr-wallet/types";
+import {
+  Keplr as IKeplr,
+  ChainInfo,
+  Key,
+  Window as KeplrWindow,
+} from "@keplr-wallet/types";
 
 import { Chain } from "config";
 import { Tokens, TokenType } from "constants/";
@@ -7,16 +12,6 @@ const { REACT_APP_LOCAL, NODE_ENV } = process.env;
 
 const PREFIX = "namada";
 const PREFIX_TESTNET = "atest";
-
-export type KeplrExtension = Pick<
-  IKeplr,
-  "enable" | "getKey" | "experimentalSuggestChain"
->;
-
-type WindowWithKeplr = Window &
-  typeof globalThis & {
-    keplr: IKeplr | KeplrExtension;
-  };
 
 class Keplr {
   /**
@@ -27,7 +22,7 @@ class Keplr {
    */
   constructor(
     private _chain: Chain,
-    private _keplr = (<WindowWithKeplr>window)?.keplr
+    private _keplr = (<KeplrWindow>window)?.keplr
   ) {}
 
   /**
@@ -41,7 +36,7 @@ class Keplr {
   /**
    * Keplr extension accessor
    */
-  public get instance(): KeplrExtension {
+  public get instance(): IKeplr | undefined {
     return this._keplr;
   }
 

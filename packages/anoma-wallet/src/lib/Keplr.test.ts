@@ -1,6 +1,8 @@
-import { ChainInfo, Key } from "@keplr-wallet/types";
+import { ChainInfo, Key, Keplr as IKeplr } from "@keplr-wallet/types";
 import { Chain } from "config";
-import Keplr, { KeplrExtension } from "./Keplr";
+import Keplr from "./Keplr";
+
+type MockKeplr = Pick<IKeplr, "enable" | "getKey" | "experimentalSuggestChain">;
 
 /**
  * Mock Chain configuration data
@@ -75,7 +77,7 @@ const mockChainInfo: ChainInfo = {
 /**
  * Mock Keplr extension
  */
-const mockKeplrExtension: KeplrExtension = {
+const mockKeplrExtension: MockKeplr = {
   enable: async (): Promise<void> => {
     return;
   },
@@ -87,7 +89,7 @@ const mockKeplrExtension: KeplrExtension = {
   },
 };
 
-const mockKeplr = new Keplr(mockChain, mockKeplrExtension);
+const mockKeplr = new Keplr(mockChain, mockKeplrExtension as IKeplr);
 
 describe("Keplr class", () => {
   test("It should detect keplr extension", () => {
@@ -97,7 +99,9 @@ describe("Keplr class", () => {
   });
 
   test("It should invoke suggestChain", async () => {
-    const spy = jest.spyOn(mockKeplr.instance, "experimentalSuggestChain");
+    const spy = mockKeplr.instance
+      ? jest.spyOn(mockKeplr.instance, "experimentalSuggestChain")
+      : null;
     const results = await mockKeplr.suggestChain();
 
     expect(results).toEqual(true);
@@ -106,7 +110,9 @@ describe("Keplr class", () => {
   });
 
   test("It should invoke enable", async () => {
-    const spy = jest.spyOn(mockKeplr.instance, "enable");
+    const spy = mockKeplr.instance
+      ? jest.spyOn(mockKeplr.instance, "enable")
+      : null;
     const results = await mockKeplr.enable();
 
     expect(results).toEqual(true);
@@ -115,7 +121,9 @@ describe("Keplr class", () => {
   });
 
   test("It should invoke getKey", async () => {
-    const spy = jest.spyOn(mockKeplr.instance, "getKey");
+    const spy = mockKeplr.instance
+      ? jest.spyOn(mockKeplr.instance, "getKey")
+      : null;
     const results = await mockKeplr.getKey();
 
     expect(results).toBe(mockKey);
