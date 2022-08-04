@@ -204,7 +204,7 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
           />
         </InputContainer>
 
-        {!isKeplrChainAdded && keplr.detect() && (
+        {keplr.detect() && !isKeplrChainAdded && (
           <Button
             onClick={handleKeplrSuggestChainClick}
             variant={ButtonVariant.Outlined}

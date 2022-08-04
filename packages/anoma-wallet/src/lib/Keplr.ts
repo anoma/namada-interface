@@ -10,8 +10,8 @@ import { Tokens, TokenType } from "constants/";
 
 const { REACT_APP_LOCAL, NODE_ENV } = process.env;
 
-const PREFIX = "namada";
-const PREFIX_TESTNET = "atest";
+const BECH32_PREFIX = "namada";
+const BECH32_PREFIX_TESTNET = "atest";
 const KEPLR_NOT_FOUND = "Keplr extension not found!";
 
 class Keplr {
@@ -43,7 +43,7 @@ class Keplr {
   }
 
   /**
-   * Determine if keplr extension is loaded
+   * Determine if keplr extension exists
    * @returns {boolean}
    */
   public detect(): boolean {
@@ -84,7 +84,7 @@ class Keplr {
 
   /**
    * Get key for current chain
-   * @returns {Promise<boolean}
+   * @returns {Promise<boolean>}
    */
   public async getKey(): Promise<Key> {
     if (this._keplr) {
@@ -107,7 +107,9 @@ class Keplr {
       // instead of hard-coding port here:
       const restUrl = `${protocol}://${url}:1317`;
       const bech32Prefix =
-        REACT_APP_LOCAL || NODE_ENV === "development" ? PREFIX_TESTNET : PREFIX;
+        REACT_APP_LOCAL || NODE_ENV === "development"
+          ? BECH32_PREFIX_TESTNET
+          : BECH32_PREFIX;
 
       const tokenType: TokenType = "ATOM";
       const token = Tokens[tokenType];
