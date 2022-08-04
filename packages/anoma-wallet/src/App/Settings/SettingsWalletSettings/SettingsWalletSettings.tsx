@@ -76,10 +76,16 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
 
   useEffect(() => {
     (async () => {
-      const isChainAdded = await keplr.detectChain();
-      if (isChainAdded) {
-        setIsKeplrChainAdded(true);
-      } else {
+      try {
+        const isChainAdded = await keplr.detectChain();
+        if (isChainAdded) {
+          setIsKeplrChainAdded(true);
+        } else {
+          setIsKeplrChainAdded(false);
+          setIsKeplrConnected(false);
+        }
+      } catch (e) {
+        console.warn(e);
         setIsKeplrChainAdded(false);
         setIsKeplrConnected(false);
       }
@@ -198,7 +204,7 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
           />
         </InputContainer>
 
-        {!isKeplrChainAdded && (
+        {!isKeplrChainAdded && keplr.detect() && (
           <Button
             onClick={handleKeplrSuggestChainClick}
             variant={ButtonVariant.Outlined}
