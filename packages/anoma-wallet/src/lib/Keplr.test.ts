@@ -8,9 +8,7 @@ type MockKeplr = Pick<
   "enable" | "getKey" | "experimentalSuggestChain" | "getOfflineSignerAuto"
 >;
 
-type ErrorMessage = {
-  message: string;
-};
+const KEPLR_ADDED_CHAINS = ["anoma-test.fd58c789bc11e6c6392"];
 
 /**
  * Mock Chain configuration data
@@ -99,8 +97,8 @@ const mockKeplrExtension: MockKeplr = {
   // keplr instance, hence the following any:
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getOfflineSignerAuto: async (chainId: string): Promise<any> => {
-    if (mockChain.id !== chainId) {
-      throw new Error("Chain not found");
+    if (KEPLR_ADDED_CHAINS.indexOf(chainId) < 0) {
+      throw new Error("Chain not found!");
     }
   },
 };
@@ -123,6 +121,7 @@ describe("Keplr class", () => {
     expect(results).toEqual(true);
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith(mockChainInfo);
+    spy?.mockRestore();
   });
 
   test("It should invoke enable", async () => {
@@ -134,6 +133,7 @@ describe("Keplr class", () => {
     expect(results).toEqual(true);
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith(mockChain.id);
+    spy?.mockRestore();
   });
 
   test("It should invoke getKey", async () => {
@@ -145,24 +145,42 @@ describe("Keplr class", () => {
     expect(results).toBe(mockKey);
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith(mockChain.id);
+    spy?.mockRestore();
+  });
+
+  test("It should invoke detectChain", async () => {
+    const spy = mockKeplr.instance
+      ? jest.spyOn(mockKeplr.instance, "getOfflineSignerAuto")
+      : null;
+    const results = await mockKeplr.detectChain();
+
+    expect(results).toEqual(true);
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenLastCalledWith(mockChain.id);
+    spy?.mockRestore();
+  });
+
+  test("It should catch raised error if chainId not found in detectChain", async () => {
+    const invalidChain = { ...mockChain, id: "anoma-ibc-0.4.5b0d5e5569aa27fb" };
+    const mockKeplrInvalidChainId = new Keplr(
+      invalidChain,
+      mockKeplrExtension as IKeplr
+    );
+
+    const spy = mockKeplrInvalidChainId.instance
+      ? jest.spyOn(mockKeplrInvalidChainId.instance, "getOfflineSignerAuto")
+      : null;
+
+    const results = await mockKeplrInvalidChainId.detectChain();
+
+    expect(results).toEqual(false);
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith(invalidChain.id);
+    spy?.mockRestore();
   });
 
   test("It should return a chain configuration for inspection", () => {
     const chainConfig = mockKeplr.chain;
     expect(chainConfig).toBe(mockChain);
-  });
-});
-
-describe("Keplr.instance.getOfflineSignerAuto", () => {
-  test("It should throw an error if chain not found", async () => {
-    expect.assertions(2);
-    try {
-      await mockKeplr.instance?.getOfflineSignerAuto(
-        "anoma-test.008d3ba61b7bb1852c9"
-      );
-    } catch (e: unknown) {
-      expect(e).toBeInstanceOf(Error);
-      expect((e as ErrorMessage).message).toEqual("Chain not found");
-    }
   });
 });

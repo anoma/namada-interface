@@ -12,6 +12,7 @@ const { REACT_APP_LOCAL, NODE_ENV } = process.env;
 
 const PREFIX = "namada";
 const PREFIX_TESTNET = "atest";
+const KEPLR_NOT_FOUND = "Keplr extension not found!";
 
 class Keplr {
   /**
@@ -50,6 +51,24 @@ class Keplr {
   }
 
   /**
+   * Determine if chain has been added to extension. Keplr
+   * will throw an error if chain is not found
+   * @returns {Promise<boolean>}
+   */
+  public async detectChain(): Promise<boolean> {
+    if (this._keplr) {
+      try {
+        await this._keplr.getOfflineSignerAuto(this._chain.id);
+        return true;
+      } catch (e) {
+        console.warn(e);
+        return false;
+      }
+    }
+    return Promise.reject(KEPLR_NOT_FOUND);
+  }
+
+  /**
    * Enable connection to Keplr for current chain
    * @returns {Promise<boolean>}
    */
@@ -60,7 +79,7 @@ class Keplr {
       await this._keplr.enable(id);
       return true;
     }
-    return Promise.reject(false);
+    return Promise.reject(KEPLR_NOT_FOUND);
   }
 
   /**
@@ -72,7 +91,7 @@ class Keplr {
       const { id } = this._chain;
       return await this._keplr.getKey(id);
     }
-    return Promise.reject(false);
+    return Promise.reject(KEPLR_NOT_FOUND);
   }
 
   /**
@@ -127,7 +146,7 @@ class Keplr {
       return true;
     }
 
-    return Promise.reject(false);
+    return Promise.reject(KEPLR_NOT_FOUND);
   }
 }
 

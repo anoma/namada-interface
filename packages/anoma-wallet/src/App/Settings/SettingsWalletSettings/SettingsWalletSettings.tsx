@@ -76,10 +76,10 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
 
   useEffect(() => {
     (async () => {
-      try {
-        await keplr.instance?.getOfflineSignerAuto(chainId);
+      const isChainAdded = await keplr.detectChain();
+      if (isChainAdded) {
         setIsKeplrChainAdded(true);
-      } catch (e) {
+      } else {
         setIsKeplrChainAdded(false);
         setIsKeplrConnected(false);
       }
