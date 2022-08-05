@@ -2,6 +2,9 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import IBCConfig from "config/ibc";
 
+const { REACT_APP_LOCAL, NODE_ENV } = process.env;
+const ENV = REACT_APP_LOCAL || NODE_ENV ? "development" : "production";
+
 export type Channel = string;
 
 type ChannelsByChain = {
@@ -14,7 +17,7 @@ export type ChannelsState = {
 
 const CHANNELS_ACTIONS_BASE = "channels";
 const initialState: ChannelsState = {
-  channelsByChain: IBCConfig.development.reduce(
+  channelsByChain: IBCConfig[ENV].reduce(
     (channelsByChain: ChannelsByChain, ibcConfig) => {
       const { chainId, defaultChannel } = ibcConfig;
       channelsByChain[chainId] = [defaultChannel];

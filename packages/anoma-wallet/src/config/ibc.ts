@@ -9,6 +9,10 @@ type IBCConfigType = {
   production: IBCConfigItem[];
 };
 
+/**
+ * Specify any IBC-enabled chains below per environment. Match the following
+ * definitions to settings in .env:
+ */
 const IBCConfig: IBCConfigType = {
   development: [
     {
@@ -27,7 +31,6 @@ const IBCConfig: IBCConfigType = {
       defaultChannel: "channel-1",
     },
   ],
-
   production: [],
 };
 
