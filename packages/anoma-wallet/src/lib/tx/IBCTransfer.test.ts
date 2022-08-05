@@ -19,8 +19,6 @@ describe("IBCTransfer class", () => {
   });
 
   test("IBCTransfer should return a byte array and a hash", async () => {
-    const client = await new IBCTransfer().init();
-
     fetchMock.mockResponseOnce(() => {
       return Promise.resolve(
         JSON.stringify({
@@ -29,6 +27,7 @@ describe("IBCTransfer class", () => {
       );
     });
 
+    const client = await new IBCTransfer().init();
     const { hash, bytes } = await client.makeIbcTransfer({
       amount: 1,
       epoch: 1,
@@ -41,6 +40,6 @@ describe("IBCTransfer class", () => {
     });
 
     expect(hash.length).toBe(64);
-    expect(bytes.length).toBe(795);
+    expect(bytes.length).toBe(840);
   });
 });

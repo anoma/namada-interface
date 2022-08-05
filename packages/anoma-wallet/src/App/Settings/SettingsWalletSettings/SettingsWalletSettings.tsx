@@ -113,8 +113,10 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
       try {
         setIsKeplrAddingChain(true);
         await keplr.suggestChain();
+        setIsKeplrChainAdded(true);
       } catch (e) {
         console.warn(e);
+        setIsKeplrChainAdded(false);
       } finally {
         setIsKeplrAddingChain(false);
       }
@@ -127,6 +129,7 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
         setIsKeplrConnecting(true);
         await keplr.enable();
         const key = await keplr.getKey();
+
         if (key) {
           setIsKeplrConnected(true);
         }

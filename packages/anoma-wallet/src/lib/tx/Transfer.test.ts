@@ -18,8 +18,6 @@ describe("Transfer wasm and class methods", () => {
   });
 
   test("Transfer should return a byte array and a hash", async () => {
-    const client = await new Transfer().init();
-
     fetchMock.mockResponseOnce(() => {
       return Promise.resolve(
         JSON.stringify({
@@ -28,6 +26,7 @@ describe("Transfer wasm and class methods", () => {
       );
     });
 
+    const client = await new Transfer().init();
     const { hash, bytes } = await client.makeTransfer({
       amount: 1,
       epoch: 1,
@@ -38,6 +37,6 @@ describe("Transfer wasm and class methods", () => {
     });
 
     expect(hash.length).toBe(64);
-    expect(bytes.length).toBe(597);
+    expect(bytes.length).toBe(642);
   });
 });

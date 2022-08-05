@@ -61,7 +61,6 @@ class Keplr {
         await this._keplr.getOfflineSignerAuto(this._chain.id);
         return true;
       } catch (e) {
-        console.warn(e);
         return false;
       }
     }
