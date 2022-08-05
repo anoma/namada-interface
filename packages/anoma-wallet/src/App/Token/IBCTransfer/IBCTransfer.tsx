@@ -54,7 +54,7 @@ const IBCTransfer = (): JSX.Element => {
 
   const selectDestinationChainData = ibc.map((ibcChain) => ({
     value: ibcChain.chainId,
-    label: chains[ibcChain.chainId].alias,
+    label: ibcChain.alias,
   }));
 
   const channels = (channelsByChain[selectedChainId] || []).sort();

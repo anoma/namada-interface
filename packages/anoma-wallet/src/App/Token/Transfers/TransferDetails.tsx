@@ -11,7 +11,7 @@ import { Address, TransferDetailContainer } from "./TransferDetails.components";
 import { BackButton } from "../TokenSend/TokenSendForm.components";
 import { Icon, IconName } from "components/Icon";
 import { ButtonsContainer, TransfersContent } from "./Transfers.components";
-import { IBCConfig } from "config/chain";
+import { IBCConfigItem } from "config/ibc";
 
 type TransferDetailsParams = {
   id: string;
@@ -54,7 +54,7 @@ const TransferDetail = (): JSX.Element => {
   const chains = Config.chain;
   const chain = chains[chainId];
   const { ibc = [] } = chain || {};
-  const ibcChainConfig: IBCConfig | undefined = ibc.find(
+  const ibcChainConfig: IBCConfigItem | undefined = ibc.find(
     (ibcConfig) => ibcConfig.chainId === chainId
   );
 

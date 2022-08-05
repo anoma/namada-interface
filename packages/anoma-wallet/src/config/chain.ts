@@ -1,3 +1,4 @@
+import IBCConfig, { IBCConfigItem } from "./ibc";
 import { Network } from "./rpc";
 
 export type Protocol = "http" | "https" | "ws" | "wss";
@@ -9,6 +10,7 @@ const {
   REACT_APP_CHAIN_ID,
   REACT_APP_FAUCET,
   REACT_APP_ALIAS,
+
   // Alternatively, specify a local IBC chain:
   // IBC - CHAIN A
   REACT_APP_CHAIN_A_ALIAS,
@@ -17,7 +19,7 @@ const {
   REACT_APP_CHAIN_A_PORT,
   REACT_APP_CHAIN_A_FAUCET,
   REACT_APP_CHAIN_A_PORT_ID,
-  REACT_APP_CHAIN_A_CHANNEL,
+
   // IBC - CHAIN B
   REACT_APP_CHAIN_B_ALIAS,
   REACT_APP_CHAIN_B_ID,
@@ -25,16 +27,10 @@ const {
   REACT_APP_CHAIN_B_PORT,
   REACT_APP_CHAIN_B_FAUCET,
   REACT_APP_CHAIN_B_PORT_ID,
-  REACT_APP_CHAIN_B_CHANNEL,
 } = process.env;
 
 export type NetworkConfig = Network & {
   wsProtocol: Protocol;
-};
-
-export type IBCConfig = {
-  chainId: string; // Destination chainId
-  defaultChannel: string; // Default channel which connects source chain to destination
 };
 
 export type Chain = {
@@ -44,13 +40,12 @@ export type Chain = {
   network: NetworkConfig;
   faucet?: string;
   portId?: string;
-  ibc?: IBCConfig[];
+  ibc?: IBCConfigItem[];
 };
 
 const DEFAULT_URL = "127.0.0.1";
 const DEFAULT_CHAIN_ALIAS = "Namada";
 const DEFAULT_IBC_PORT = "transfer";
-const DEFAULT_IBC_CHANNEL = "channel-0";
 
 /**
  * Remove any comments ("#") or quotes
@@ -109,7 +104,7 @@ const getUrlProtocol = (url?: string): Protocol => {
  * so the user will see a destination chain.
  */
 
-// Default chain
+// Default chain (No IBC Configuration)
 const chainId = sanitize(REACT_APP_CHAIN_ID);
 const alias = stripInvalidCharacters(REACT_APP_ALIAS) || DEFAULT_CHAIN_ALIAS;
 const url = getUrl(sanitize(REACT_APP_LEDGER_URL));
@@ -127,9 +122,9 @@ const chainAPort = parseInt(sanitize(REACT_APP_CHAIN_A_PORT)) || undefined;
 const chainAProtocol = getUrlProtocol(REACT_APP_CHAIN_A_URL);
 const chainAWsProtocol: Protocol = chainAProtocol === "https" ? "wss" : "ws";
 const chainAPortId = sanitize(REACT_APP_CHAIN_A_PORT_ID) || DEFAULT_IBC_PORT;
-const chainAChannelId =
-  sanitize(REACT_APP_CHAIN_A_CHANNEL) || DEFAULT_IBC_CHANNEL;
 const chainAFaucet = sanitize(REACT_APP_CHAIN_A_FAUCET) || undefined;
+const chainAIbcChains: IBCConfigItem[] =
+  IBCConfig.development.filter((config) => config.chainId !== chainAId) || [];
 
 // IBC Chain B
 const chainBId = sanitize(REACT_APP_CHAIN_B_ID);
@@ -141,8 +136,8 @@ const chainBProtocol = getUrlProtocol(REACT_APP_CHAIN_B_URL);
 const chainBWsProtocol: Protocol = chainBProtocol === "https" ? "wss" : "ws";
 const chainBPortId = sanitize(REACT_APP_CHAIN_B_PORT_ID) || DEFAULT_IBC_PORT;
 const chainBFaucet = sanitize(REACT_APP_CHAIN_B_FAUCET) || undefined;
-const chainBChannelId =
-  sanitize(REACT_APP_CHAIN_B_CHANNEL) || DEFAULT_IBC_CHANNEL;
+const chainBIbcChains: IBCConfigItem[] =
+  IBCConfig.development.filter((config) => config.chainId !== chainBId) || [];
 
 export const defaultChainId =
   chainId || chainAId || "anoma-test.fd58c789bc11e6c6392";
@@ -178,14 +173,7 @@ if (chainAId) {
       protocol: chainAProtocol,
       wsProtocol: chainAWsProtocol,
     },
-    ibc: chainBId
-      ? [
-          {
-            chainId: chainBId,
-            defaultChannel: chainBChannelId,
-          },
-        ]
-      : undefined,
+    ibc: chainAIbcChains,
   });
 }
 
@@ -202,12 +190,7 @@ if (chainAId && chainBId) {
       protocol: chainBProtocol,
       wsProtocol: chainBWsProtocol,
     },
-    ibc: [
-      {
-        chainId: chainAId,
-        defaultChannel: chainAChannelId,
-      },
-    ],
+    ibc: chainBIbcChains,
   });
 }
 
