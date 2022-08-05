@@ -4,6 +4,7 @@ import {
   UPDATE_SHIELDED_BALANCES,
   NewAccountDetails,
   ShieldedAccount,
+  AccountErrors,
 } from "./types";
 import { history, TopLevelRouteGenerator } from "App";
 import { RootState } from "store/store";
@@ -76,12 +77,12 @@ export const createShieldedAccount = createAsyncThunk<
 export type ShieldedBalancesPayload = {
   chainId: string;
   shieldedBalances: {
-    [accountId: string]: number;
+    [accountId: string]: number | AccountErrors;
   };
 };
 
 export const updateShieldedBalances = createAsyncThunk<
-  ShieldedBalancesPayload | undefined,
+  ShieldedBalancesPayload,
   void
 >(UPDATE_SHIELDED_BALANCES, async (_, thunkAPI) => {
   try {
@@ -93,7 +94,6 @@ export const updateShieldedBalances = createAsyncThunk<
       shieldedBalances: {},
     };
 
-    // TODO, is it good to have them all fail if one does, as now?
     for (const shieldedAccountId of Object.keys(shieldedAccounts)) {
       const shieldedAccount = shieldedAccounts[shieldedAccountId];
       const { tokenType } = shieldedAccount;
@@ -103,13 +103,27 @@ export const updateShieldedBalances = createAsyncThunk<
         shieldedAccount.shieldedKeysAndPaymentAddress.spendingKey,
         tokenAddress
       );
-      // TODO unify the types and the location of conversions
-      shieldedBalances.shieldedBalances[shieldedAccountId] =
-        Number(shieldedBalance);
+
+      // TODO, move the casting with errors to a common place
+      // we attempt to cast the balance to number
+      const shieldedBalanceAsNumber = Number(shieldedBalance);
+      // if the casting failed, we reassign the return value
+      if (
+        typeof shieldedBalanceAsNumber === "number" &&
+        isNaN(shieldedBalanceAsNumber)
+      ) {
+        shieldedBalances.shieldedBalances[shieldedAccountId] =
+          AccountErrors.NonNumericShieldedBalanceReturned;
+      } else {
+        shieldedBalances.shieldedBalances[shieldedAccountId] =
+          shieldedBalanceAsNumber;
+      }
     }
     return Promise.resolve(shieldedBalances);
   } catch (error) {
-    Promise.reject("error fetching shielded balances");
+    return thunkAPI.rejectWithValue(
+      AccountErrors.RetrievingShieldedBalancesFailed
+    );
   }
 });
 
