@@ -2,7 +2,7 @@
   "name": "@namada-interface/anoma-wallet",
   "jest": {
     "moduleNameMapper": {
-      "^@anoma/masp-web": "/Users/memas/development3/35_namada-interface/namada-interface/node_modules/@anoma/masp-web"
+      "^@anoma/masp-web": "<rootDir>/../../node_modules/@anoma/masp-web"
     }
   },
   "version": "0.1.0",
