@@ -4,6 +4,7 @@ import {
   Key,
   Window as KeplrWindow,
 } from "@keplr-wallet/types";
+import { AccountData } from "@cosmjs/proto-signing";
 
 import { Chain } from "config";
 import { Tokens, TokenType } from "constants/";
@@ -14,7 +15,10 @@ const BECH32_PREFIX = "namada";
 const BECH32_PREFIX_TESTNET = "atest";
 const KEPLR_NOT_FOUND = "Keplr extension not found!";
 
+type OfflineSigner = ReturnType<IKeplr["getOfflineSigner"]>;
+
 class Keplr {
+  private _offlineSigner: OfflineSigner | undefined;
   /**
    * Pass a chain config into constructor to instantiate, and optionally
    * override keplr instance for testing
@@ -51,7 +55,7 @@ class Keplr {
   }
 
   /**
-   * Determine if chain has been added to extension. Keplr
+   * Determine if chain has already been added to extension. Keplr
    * will throw an error if chain is not found
    * @returns {Promise<boolean>}
    */
@@ -82,13 +86,44 @@ class Keplr {
   }
 
   /**
-   * Get key for current chain
+   * Get key from Keplr for current chain
    * @returns {Promise<boolean>}
    */
   public async getKey(): Promise<Key> {
     if (this._keplr) {
       const { id } = this._chain;
       return await this._keplr.getKey(id);
+    }
+    return Promise.reject(KEPLR_NOT_FOUND);
+  }
+
+  /**
+   * Get offline signer for current chain
+   * @returns {OfflineSigner}
+   */
+  public get getOfflineSigner(): OfflineSigner {
+    if (this._offlineSigner) {
+      return this._offlineSigner;
+    }
+
+    if (this._keplr) {
+      const { id } = this._chain;
+      this._offlineSigner = this._keplr.getOfflineSigner(id);
+      return this._offlineSigner;
+    }
+    throw new Error(KEPLR_NOT_FOUND);
+  }
+
+  /**
+   * Get accounts from offline signer
+   * @returns {Promise<readonly AccountData[]>}
+   */
+  public async getAccounts(): Promise<readonly AccountData[]> {
+    if (this._keplr) {
+      const { id } = this._chain;
+      await this._keplr.enable(id);
+      const offlineSigner = this.getOfflineSigner;
+      return await offlineSigner.getAccounts();
     }
     return Promise.reject(KEPLR_NOT_FOUND);
   }

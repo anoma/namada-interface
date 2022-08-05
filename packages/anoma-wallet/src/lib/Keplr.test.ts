@@ -92,9 +92,8 @@ const mockKeplrExtension: MockKeplr = {
   getKey: async (): Promise<Key> => {
     return mockKey;
   },
-  // We don't have types we can import for OfflineSigner, and we currently only want
-  // to ensure an error is thrown if the provided chainId doesn't match what is available
-  // in the keplr instance, hence the following any:
+  // We currently only want to ensure that an error is thrown if the provided chainId
+  // doesn't match what is available in the keplr instance, hence the following any:
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getOfflineSignerAuto: async (chainId: string): Promise<any> => {
     if (KEPLR_ADDED_CHAINS.indexOf(chainId) < 0) {
