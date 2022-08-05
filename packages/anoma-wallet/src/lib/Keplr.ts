@@ -5,7 +5,6 @@ import {
   Window as KeplrWindow,
 } from "@keplr-wallet/types";
 import { AccountData } from "@cosmjs/proto-signing";
-
 import { Chain } from "config";
 import { Tokens, TokenType } from "constants/";
 
@@ -14,24 +13,33 @@ const { REACT_APP_LOCAL, NODE_ENV } = process.env;
 const BECH32_PREFIX = "namada";
 const BECH32_PREFIX_TESTNET = "atest";
 const KEPLR_NOT_FOUND = "Keplr extension not found!";
+const DEFAULT_FEATURES: string[] = [];
+const IBC_FEATURE = "ibc-transfer";
 
 type OfflineSigner = ReturnType<IKeplr["getOfflineSigner"]>;
 
 class Keplr {
   private _offlineSigner: OfflineSigner | undefined;
+  private _features: string[] = DEFAULT_FEATURES;
   /**
    * Pass a chain config into constructor to instantiate, and optionally
    * override keplr instance for testing
-   * @param _chain
+   * @param chain
    * @param _keplr
    */
   constructor(
-    private _chain: Chain,
-    private _keplr = (<KeplrWindow>window)?.keplr
-  ) {}
+    public readonly chain: Chain,
+    private readonly _keplr = (<KeplrWindow>window)?.keplr
+  ) {
+    // If chain is ibc-enabled, add relevant feature:
+    const { ibc = [] } = chain;
+    if (ibc.length > 0) {
+      this._features.push(IBC_FEATURE);
+    }
+  }
 
   /**
-   * Keplr extension accessor
+   * Get Keplr extension
    * @returns {IKeplr | undefined}
    */
   public get instance(): IKeplr | undefined {
@@ -39,11 +47,20 @@ class Keplr {
   }
 
   /**
-   * Chain config accessor
-   * @returns {Chain}
+   * Get offline signer for current chain
+   * @returns {OfflineSigner}
    */
-  public get chain(): Chain {
-    return this._chain;
+  public get offlineSigner(): OfflineSigner {
+    if (this._offlineSigner) {
+      return this._offlineSigner;
+    }
+
+    if (this._keplr) {
+      const { id } = this.chain;
+      this._offlineSigner = this._keplr.getOfflineSigner(id);
+      return this._offlineSigner;
+    }
+    throw new Error(KEPLR_NOT_FOUND);
   }
 
   /**
@@ -56,13 +73,13 @@ class Keplr {
 
   /**
    * Determine if chain has already been added to extension. Keplr
-   * will throw an error if chain is not found
+   * will throw an error if chainId is not found
    * @returns {Promise<boolean>}
    */
   public async detectChain(): Promise<boolean> {
     if (this._keplr) {
       try {
-        await this._keplr.getOfflineSignerAuto(this._chain.id);
+        await this._keplr.getOfflineSignerAuto(this.chain.id);
         return true;
       } catch (e) {
         return false;
@@ -77,7 +94,7 @@ class Keplr {
    */
   public async enable(): Promise<boolean> {
     if (this._keplr) {
-      const { id } = this._chain;
+      const { id } = this.chain;
 
       await this._keplr.enable(id);
       return true;
@@ -91,27 +108,10 @@ class Keplr {
    */
   public async getKey(): Promise<Key> {
     if (this._keplr) {
-      const { id } = this._chain;
+      const { id } = this.chain;
       return await this._keplr.getKey(id);
     }
     return Promise.reject(KEPLR_NOT_FOUND);
-  }
-
-  /**
-   * Get offline signer for current chain
-   * @returns {OfflineSigner}
-   */
-  public get getOfflineSigner(): OfflineSigner {
-    if (this._offlineSigner) {
-      return this._offlineSigner;
-    }
-
-    if (this._keplr) {
-      const { id } = this._chain;
-      this._offlineSigner = this._keplr.getOfflineSigner(id);
-      return this._offlineSigner;
-    }
-    throw new Error(KEPLR_NOT_FOUND);
   }
 
   /**
@@ -120,10 +120,7 @@ class Keplr {
    */
   public async getAccounts(): Promise<readonly AccountData[]> {
     if (this._keplr) {
-      const { id } = this._chain;
-      await this._keplr.enable(id);
-      const offlineSigner = this.getOfflineSigner;
-      return await offlineSigner.getAccounts();
+      return await this.offlineSigner.getAccounts();
     }
     return Promise.reject(KEPLR_NOT_FOUND);
   }
@@ -134,7 +131,7 @@ class Keplr {
    */
   public async suggestChain(): Promise<boolean> {
     if (this._keplr) {
-      const { id: chainId, alias: chainName, network } = this._chain;
+      const { id: chainId, alias: chainName, network } = this.chain;
       const { protocol, url, port } = network;
       const rpcUrl = `${protocol}://${url}${port ? ":" + port : ""}`;
       // The following should match our Rest API URL and be added to chain config
@@ -176,6 +173,7 @@ class Keplr {
         currencies: [currency],
         feeCurrencies: [currency],
         gasPriceStep: { low: 0.01, average: 0.025, high: 0.03 }, // This is optional!
+        features: this._features,
       };
 
       await this._keplr.experimentalSuggestChain(chainInfo);

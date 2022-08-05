@@ -23,6 +23,13 @@ const mockChain: Chain = {
     url: "localhost",
     port: 26657,
   },
+  ibc: [
+    {
+      chainId: "gaia",
+      alias: "Cosmos (Gaia)",
+      defaultChannel: "channel-1",
+    },
+  ],
 };
 
 /**
@@ -77,6 +84,7 @@ const mockChainInfo: ChainInfo = {
     },
   ],
   gasPriceStep: { low: 0.01, average: 0.025, high: 0.03 },
+  features: ["ibc-transfer"],
 };
 
 /**
