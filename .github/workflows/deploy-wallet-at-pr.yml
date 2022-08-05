@@ -10,7 +10,7 @@ on:
 env:
   CI: false
 jobs:
-  tests:
+  unit-tests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -26,6 +26,7 @@ jobs:
           version: "v0.10.3"
 
       - name: Run unit tests
+        id: run-unit-tests
         working-directory: ./packages/anoma-wallet
         run: yarn test:coverage
         env:
@@ -35,14 +36,14 @@ jobs:
           REACT_APP_FAUCET: "atest1v4ehgw36gc6yxvpjxccyzvphxycrxw2xxsuyydesxgcnjs3cg9znwv3cxgmnj32yxy6rssf5tcqjm3"
 
       - name: report success
-        if: steps.run-playwright-tests.outcome == 'success'
+        if: steps.run-unit-tests.outcome == 'success'
         run: |
           curl --header "Content-Type: application/json" \
           --request POST \
           --data '{"message":"Unit tests succeeded ✅\n \n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nReview\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
           ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
       - name: report failure
-        if: steps.run-playwright-tests.outcome != 'success'
+        if: steps.run-unit-tests.outcome != 'success'
         run: |
           curl --header "Content-Type: application/json" \
           --request POST \
