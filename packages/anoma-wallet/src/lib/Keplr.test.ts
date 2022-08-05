@@ -106,6 +106,10 @@ const mockKeplrExtension: MockKeplr = {
 const mockKeplr = new Keplr(mockChain, mockKeplrExtension as IKeplr);
 
 describe("Keplr class", () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   test("It should detect keplr extension", () => {
     const isKeplrDetected = mockKeplr.detect();
 
@@ -121,7 +125,6 @@ describe("Keplr class", () => {
     expect(results).toEqual(true);
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith(mockChainInfo);
-    spy?.mockRestore();
   });
 
   test("It should invoke enable", async () => {
@@ -133,7 +136,6 @@ describe("Keplr class", () => {
     expect(results).toEqual(true);
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith(mockChain.id);
-    spy?.mockRestore();
   });
 
   test("It should invoke getKey", async () => {
@@ -145,7 +147,6 @@ describe("Keplr class", () => {
     expect(results).toBe(mockKey);
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith(mockChain.id);
-    spy?.mockRestore();
   });
 
   test("It should invoke detectChain", async () => {
@@ -157,11 +158,13 @@ describe("Keplr class", () => {
     expect(results).toEqual(true);
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenLastCalledWith(mockChain.id);
-    spy?.mockRestore();
   });
 
   test("It should catch thrown error if chainId not found in detectChain", async () => {
-    const invalidChain = { ...mockChain, id: "anoma-ibc-0.4.5b0d5e5569aa27fb" };
+    const invalidChain: Chain = {
+      ...mockChain,
+      id: "anoma-ibc-0.4.5b0d5e5569aa27fb",
+    };
     const mockKeplrInvalidChainId = new Keplr(
       invalidChain,
       mockKeplrExtension as IKeplr
@@ -176,7 +179,6 @@ describe("Keplr class", () => {
     expect(results).toEqual(false);
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith(invalidChain.id);
-    spy?.mockRestore();
   });
 
   test("It should return a chain configuration for inspection", () => {
