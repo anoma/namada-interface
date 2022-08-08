@@ -1,3 +1,9 @@
+import {
+  getUrl,
+  getUrlProtocol,
+  sanitize,
+  stripInvalidCharacters,
+} from "utils/helpers";
 import IBCConfig, { IBCConfigItem } from "./ibc";
 import { Network } from "./rpc";
 
@@ -46,49 +52,6 @@ export type Chain = {
 const DEFAULT_URL = "127.0.0.1";
 const DEFAULT_CHAIN_ALIAS = "Namada";
 const DEFAULT_IBC_PORT = "transfer";
-
-/**
- * Remove any comments ("#") or quotes
- * @param url
- * @returns {string}
- */
-const stripInvalidCharacters = (url = ""): string => {
-  // Ignore comments and quotes
-  return url.split("#")[0].replace(/\"|\'/, "");
-};
-
-/**
- * Remove any characters after whitespace from env value
- * @param value
- * @returns {string}
- */
-const sanitize = (value = " "): string => {
-  return stripInvalidCharacters(value).split(" ")[0];
-};
-
-/**
- * Return URL with no prefixed protocol
- * @param url
- * @returns {string}
- */
-const getUrl = (url = ""): string => {
-  return sanitize(url).replace(/^https?\:\/\//, "");
-};
-
-/**
- * Get the protocol from a URL or return default
- * @param url
- * @returns {Protocol}
- */
-const getUrlProtocol = (url?: string): Protocol => {
-  const prefix = sanitize(url).split(":")[0];
-
-  if (prefix === "https") {
-    return "https";
-  }
-
-  return "http";
-};
 
 /**
  * The .env can currently provide configurations for up to 3 chains:

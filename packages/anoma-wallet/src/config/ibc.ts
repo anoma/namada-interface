@@ -1,3 +1,5 @@
+import { sanitize, stripInvalidCharacters } from "utils/helpers";
+
 export type IBCConfigItem = {
   chainId: string;
   alias: string;
@@ -8,6 +10,13 @@ type IBCConfigType = {
   production: IBCConfigItem[];
 };
 
+const {
+  REACT_APP_CHAIN_A_ID: chainAId,
+  REACT_APP_CHAIN_A_ALIAS: chainAAlias,
+  REACT_APP_CHAIN_B_ID: chainBId,
+  REACT_APP_CHAIN_B_ALIAS: chainBAlias,
+} = process.env;
+
 /**
  * Specify any IBC-enabled chains below per environment. Match the following
  * definitions to settings in .env:
@@ -15,12 +24,16 @@ type IBCConfigType = {
 const IBCConfig: IBCConfigType = {
   development: [
     {
-      chainId: "anoma-test.569195096d4a940e5ee",
-      alias: "Namada - Instance 1",
+      chainId: chainAId ? sanitize(chainAId) : "anoma-test.569195096d4a940e5ee",
+      alias: chainAAlias
+        ? stripInvalidCharacters(chainAAlias)
+        : "Namada - Instance 1",
     },
     {
-      chainId: "anoma-test.aa4a0f246ca97b6a903",
-      alias: "Namada - Instance 2",
+      chainId: chainBId ? sanitize(chainBId) : "anoma-test.aa4a0f246ca97b6a903",
+      alias: chainBAlias
+        ? stripInvalidCharacters(chainBAlias)
+        : "Namada - Instance 2",
     },
     {
       chainId: "gaia",

@@ -3,6 +3,7 @@ import { JsonRpcRequest } from "@cosmjs/json-rpc";
 import base58 from "bs58";
 import { DateTime } from "luxon";
 import { JsonCompatibleArray, JsonCompatibleDictionary } from "lib/rpc/types";
+import { Protocol } from "config";
 
 /**
  * Race a promise against a timeout
@@ -167,3 +168,46 @@ export const formatCurrency = (currency = "USD", value = 0): string => {
  * @returns {number}
  */
 export const getTimeStamp = (): number => Math.floor(Date.now() / 1000);
+
+/**
+ * Remove any comments ("#") or quotes
+ * @param url
+ * @returns {string}
+ */
+export const stripInvalidCharacters = (url = ""): string => {
+  // Ignore comments and quotes
+  return url.split("#")[0].replace(/\"|\'/, "");
+};
+
+/**
+ * Remove any characters after whitespace from env value
+ * @param value
+ * @returns {string}
+ */
+export const sanitize = (value = " "): string => {
+  return stripInvalidCharacters(value).split(" ")[0];
+};
+
+/**
+ * Return URL with no prefixed protocol
+ * @param url
+ * @returns {string}
+ */
+export const getUrl = (url = ""): string => {
+  return sanitize(url).replace(/^https?\:\/\//, "");
+};
+
+/**
+ * Get the protocol from a URL or return default
+ * @param url
+ * @returns {Protocol}
+ */
+export const getUrlProtocol = (url?: string): Protocol => {
+  const prefix = sanitize(url).split(":")[0];
+
+  if (prefix === "https") {
+    return "https";
+  }
+
+  return "http";
+};
