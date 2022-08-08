@@ -20,7 +20,7 @@ type OfflineSigner = ReturnType<IKeplr["getOfflineSigner"]>;
 
 class Keplr {
   private _offlineSigner: OfflineSigner | undefined;
-  private _features: string[] = DEFAULT_FEATURES;
+  private _features: string[] = [];
   /**
    * Pass a chain config into constructor to instantiate, and optionally
    * override keplr instance for testing
@@ -33,6 +33,8 @@ class Keplr {
   ) {
     // If chain is ibc-enabled, add relevant feature:
     const { ibc = [] } = chain;
+    this._features.push(...DEFAULT_FEATURES);
+
     if (ibc.length > 0) {
       this._features.push(IBC_FEATURE);
     }

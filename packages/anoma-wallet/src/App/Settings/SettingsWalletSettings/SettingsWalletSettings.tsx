@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Chain } from "config/chain";
 import { setFiatCurrency, setChainId, SettingsState } from "slices/settings";
@@ -38,7 +38,10 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
   const chains = Object.values(Config.chain);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const chain = Config.chain[chainId];
-  const keplr = new Keplr(chain);
+
+  const keplr = useMemo(() => {
+    return new Keplr(chain);
+  }, [chainId]);
 
   const [displaySeedPhrase, setDisplaySeedPhrase] = useState(false);
   const [seedPhrase, setSeedPhrase] = useState<string[]>([]);
