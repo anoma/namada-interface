@@ -54,6 +54,202 @@ type Colors = {
   labelBorder: string;
 };
 
+type PrimitiveColors = {
+  primary: {
+    main: string;
+    main80: string;
+    main60: string;
+    main40: string;
+    main20: string;
+  };
+  secondary: {
+    main: string;
+    main80: string;
+    main60: string;
+    main40: string;
+    main20: string;
+  };
+  utility: {
+    main: string;
+    main80: string;
+    main60: string;
+    main40: string;
+    main20: string;
+  };
+  utility2: {
+    success: string;
+    warning: string;
+    error: string;
+    highAttention: string;
+    lowAttention: string;
+  };
+};
+
+type BorderRadius = {
+  s: string;
+  m: string;
+};
+
+type Spacers = {
+  horizontal: {
+    xs: string;
+    s: string;
+    m: string;
+    l: string;
+    xl: string;
+    xxl: string;
+  };
+  vertical: {
+    xs: string;
+    s: string;
+    m: string;
+    l: string;
+    xl: string;
+    xxl: string;
+  };
+};
+
+type Type = {
+  size: string;
+  weight: string;
+  fontFamily: string;
+};
+type TypeAndFont = {
+  h1: Type;
+  h2: Type;
+  h3: Type;
+  h4: Type;
+  h5: Type;
+  h6: Type;
+  body: Type;
+};
+
+type _VectorAsset = {};
+type _RasterAsset = {};
+
+type DesignConfiguration = {
+  colors: PrimitiveColors;
+  spacers: Spacers;
+  borderRadius: BorderRadius;
+  typeAndFont: TypeAndFont;
+};
+
+const namadaLightMode: DesignConfiguration = {
+  colors: {
+    primary: {
+      main: "#000000",
+      main80: "#000000",
+      main60: "#000000",
+      main40: "#000000",
+      main20: "#000000",
+    },
+    secondary: {
+      main: "#000000",
+      main80: "#000000",
+      main60: "#000000",
+      main40: "#000000",
+      main20: "#000000",
+    },
+    utility: {
+      main: "#000000",
+      main80: "#000000",
+      main60: "#000000",
+      main40: "#000000",
+      main20: "#000000",
+    },
+    utility2: {
+      success: "",
+      warning: "",
+      error: "",
+      highAttention: "",
+      lowAttention: "",
+    },
+  },
+  spacers: {
+    horizontal: {
+      xs: "aaa",
+      s: "aaa",
+      m: "aaa",
+      l: "aaa",
+      xl: "fff",
+      xxl: "fff",
+    },
+    vertical: {
+      xs: "aaa",
+      s: "aaa",
+      m: "aaa",
+      l: "aaa",
+      xl: "fff",
+      xxl: "fff",
+    },
+  },
+  borderRadius: { s: "12px", m: "24px" },
+  typeAndFont: {
+    body: {
+      fontFamily: "Space Grotesk",
+      size: "48px",
+      weight: "700",
+    },
+    h1: {
+      fontFamily: "Space Grotesk",
+      size: "48px",
+      weight: "700",
+    },
+    h2: {
+      fontFamily: "Space Grotesk",
+      size: "48px",
+      weight: "700",
+    },
+    h3: {
+      fontFamily: "Space Grotesk",
+      size: "48px",
+      weight: "700",
+    },
+    h4: {
+      fontFamily: "Space Grotesk",
+      size: "48px",
+      weight: "700",
+    },
+    h5: {
+      fontFamily: "Space Grotesk",
+      size: "48px",
+      weight: "700",
+    },
+    h6: {
+      fontFamily: "Space Grotesk",
+      size: "48px",
+      weight: "700",
+    },
+  },
+};
+
+const namadaDarkMode: DesignConfiguration = namadaLightMode;
+
+enum Brand {
+  Namada,
+}
+
+const getIsDarkMode = (): boolean => {
+  return true;
+};
+
+const getBrand = (): Brand => {
+  return Brand.Namada;
+};
+
+export const getTheme = (): DesignConfiguration => {
+  // check mode
+  const isDarkMode = getIsDarkMode();
+  // branding mode
+  const brand = getBrand();
+
+  // return the correct theming configuration
+  switch (brand) {
+    case Brand.Namada:
+      return isDarkMode ? namadaDarkMode : namadaLightMode;
+  }
+};
+
 export type Theme = {
   themeConfigurations: ThemeConfigurations;
   colors: Colors;
