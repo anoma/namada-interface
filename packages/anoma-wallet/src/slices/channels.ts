@@ -1,14 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import IBCConfig from "config/ibc";
-
-const { REACT_APP_LOCAL, NODE_ENV } = process.env;
-const ENV = REACT_APP_LOCAL || NODE_ENV ? "development" : "production";
-
 export type Channel = string;
 
 type ChannelsByChain = {
-  [chainId: string]: Channel[];
+  [chainId: string]: Record<string, Channel[]>;
 };
 
 export type ChannelsState = {
@@ -17,14 +12,7 @@ export type ChannelsState = {
 
 const CHANNELS_ACTIONS_BASE = "channels";
 const initialState: ChannelsState = {
-  channelsByChain: IBCConfig[ENV].reduce(
-    (channelsByChain: ChannelsByChain, ibcConfig) => {
-      const { chainId, defaultChannel } = ibcConfig;
-      channelsByChain[chainId] = [defaultChannel];
-      return channelsByChain;
-    },
-    {}
-  ),
+  channelsByChain: {},
 };
 
 const channelsSlice = createSlice({
@@ -33,15 +21,27 @@ const channelsSlice = createSlice({
   reducers: {
     addChannel: (
       state,
-      action: PayloadAction<{ chainId: string; channelId: string }>
+      action: PayloadAction<{
+        chainId: string;
+        channelId: string;
+        destinationChainId: string;
+      }>
     ) => {
-      const { chainId, channelId } = action.payload;
+      const { chainId, channelId, destinationChainId } = action.payload;
 
-      const channels = state.channelsByChain[chainId] || [];
+      if (!state.channelsByChain[chainId]) {
+        state.channelsByChain[chainId] = {};
+      }
+
+      if (!state.channelsByChain[chainId][destinationChainId]) {
+        state.channelsByChain[chainId][destinationChainId] = [];
+      }
+
+      const channels = state.channelsByChain[chainId][destinationChainId];
 
       if (channels.indexOf(channelId) === -1) {
         channels.push(channelId);
-        state.channelsByChain[chainId] = channels;
+        state.channelsByChain[chainId][destinationChainId] = channels;
       }
     },
   },

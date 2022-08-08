@@ -27,7 +27,6 @@ const mockChain: Chain = {
     {
       chainId: "gaia",
       alias: "Cosmos (Gaia)",
-      defaultChannel: "channel-1",
     },
   ],
 };
