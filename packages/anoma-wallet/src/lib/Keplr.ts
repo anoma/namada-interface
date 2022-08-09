@@ -9,9 +9,10 @@ import { Chain } from "config";
 import { Tokens, TokenType } from "constants/";
 
 const { REACT_APP_LOCAL, NODE_ENV } = process.env;
+const DEV_ENV = !!(REACT_APP_LOCAL || NODE_ENV === "development");
 
 const BECH32_PREFIX = "namada";
-const BECH32_PREFIX_TESTNET = "atest";
+const BECH32_PREFIX_TESTNET = "cosmos";
 const KEPLR_NOT_FOUND = "Keplr extension not found!";
 const DEFAULT_FEATURES: string[] = [];
 const IBC_FEATURE = "ibc-transfer";
@@ -136,13 +137,10 @@ class Keplr {
       const { id: chainId, alias: chainName, network } = this.chain;
       const { protocol, url, port } = network;
       const rpcUrl = `${protocol}://${url}${port ? ":" + port : ""}`;
-      // The following should match our Rest API URL and be added to chain config
-      // instead of hard-coding port here:
+      // The following is the Light Client Daemon (LCD) REST address.
+      // TODO: Add LCD restUrl to Chain type and config
       const restUrl = `${protocol}://${url}:1317`;
-      const bech32Prefix =
-        REACT_APP_LOCAL || NODE_ENV === "development"
-          ? BECH32_PREFIX_TESTNET
-          : BECH32_PREFIX;
+      const bech32Prefix = DEV_ENV ? BECH32_PREFIX_TESTNET : BECH32_PREFIX;
 
       const tokenType: TokenType = "ATOM";
       const token = Tokens[tokenType];
@@ -157,7 +155,15 @@ class Keplr {
 
       const chainInfo: ChainInfo = {
         rpc: rpcUrl,
+        /*
+        NOTE: Optionally specify rpcConfig for more granular configuration:
+        rpcConfig: AxiosRequestConfig,
+        */
         rest: restUrl,
+        /*
+        NOTE: Optionally specify restConfig for more granular configuration:
+        rpcConfig: AxiosRequestConfig,
+        */
         chainId,
         chainName,
         stakeCurrency: currency,
@@ -174,8 +180,10 @@ class Keplr {
         },
         currencies: [currency],
         feeCurrencies: [currency],
-        gasPriceStep: { low: 0.01, average: 0.025, high: 0.03 }, // This is optional!
+        // TODO: This should be configured for production:
+        gasPriceStep: { low: 0.01, average: 0.025, high: 0.03 }, // Optional
         features: this._features,
+        beta: DEV_ENV,
       };
 
       await this._keplr.experimentalSuggestChain(chainInfo);
