@@ -1,6 +1,4 @@
 import { RootState } from "./store";
-import { ShieldedAccount } from "slices/accountsNew/types";
-import { CoinsState } from "slices/coins";
 import { TransferType } from "slices/transfers";
 
 export const mockAppState: RootState = {
