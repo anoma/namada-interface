@@ -1,4 +1,3 @@
-import { screen } from "@testing-library/react";
 import ReactTestUtils from "react-dom/test-utils";
 
 describe("ShieldedTransfer", () => {
