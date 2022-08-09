@@ -21,9 +21,9 @@ import { LocalStorageKeys } from "App/types";
 import { hashPassword } from "utils/helpers";
 
 const reducers = combineReducers({
-  accounts: accountsReducer,
+  accounts: accountsReducer || {},
   balances: balancesReducer,
-  transfers: transfersReducer,
+  transfers: transfersReducer || {},
   channels: channelsReducer,
   settings: settingsReducer,
   coins: coinsReducer,
