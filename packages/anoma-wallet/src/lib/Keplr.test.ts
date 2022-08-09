@@ -84,6 +84,7 @@ const mockChainInfo: ChainInfo = {
   ],
   gasPriceStep: { low: 0.01, average: 0.025, high: 0.03 },
   features: ["ibc-transfer"],
+  beta: false,
 };
 
 /**
