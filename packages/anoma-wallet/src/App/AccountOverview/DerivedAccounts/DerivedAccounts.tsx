@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from "store";
 import { AccountsState } from "slices/accounts";
 import { BalancesState, fetchBalances } from "slices/balances";
 import { SettingsState } from "slices/settings";
-import { updateShieldedBalances } from "slices/accountsNew";
+import { updateShieldedBalances } from "slices/AccountsNew";
 import { Symbols, Tokens, TokenType } from "constants/";
 import { formatRoute } from "utils/helpers";
 import { TransfersState } from "slices/transfers";

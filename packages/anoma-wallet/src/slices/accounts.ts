@@ -5,7 +5,7 @@ import { Account, RpcClient, SocketClient } from "lib";
 import { NewBlockEvents } from "lib/rpc/types";
 import { promiseWithTimeout, stringToHash } from "utils/helpers";
 import { submitTransferTransaction } from "./transfers";
-import { addAccountReducersToBuilder } from "./accountsNew/reducers";
+import { addAccountReducersToBuilder } from "./AccountsNew/reducers";
 
 export type InitialAccount = {
   chainId: string;

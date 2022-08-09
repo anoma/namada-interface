@@ -59,7 +59,7 @@ export const addAccountReducersToBuilder = (
         const shieldedAccounts = state.shieldedAccounts[chainId];
 
         for (const [key, shieldedBalance] of Object.entries(shieldedBalances)) {
-          if (shieldedAccounts[key]) {
+          if (shieldedAccounts[key] && typeof shieldedBalance === "number") {
             state.shieldedAccounts[chainId][key].balance = shieldedBalance;
           }
         }

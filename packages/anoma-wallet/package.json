@@ -1,5 +1,10 @@
 {
   "name": "@namada-interface/anoma-wallet",
+  "jest": {
+    "moduleNameMapper": {
+      "^@anoma/masp-web": "<rootDir>/../../node_modules/@anoma/masp-web"
+    }
+  },
   "version": "0.1.0",
   "main": "./src/index.ts",
   "type": "commonjs",
@@ -49,6 +54,7 @@
     "wasm:build-in-ci": "./scripts/build.sh",
     "wasm:build:node": "./scripts/build-test.sh",
     "test": "yarn wasm:build:node && npx create-react-scripts test",
+    "test:coverage": "yarn test --coverage --watchAll=false",
     "e2e-test": "PLAYWRIGHT_BASE_URL=http://localhost:3000 yarn playwright test",
     "e2e-test:headed": "PLAYWRIGHT_BASE_URL=http://localhost:3000 yarn playwright test --project=chromium --headed",
     "eject": "npx react-scripts eject"
@@ -85,6 +91,7 @@
     "@types/react": "^17.0.39",
     "@types/react-dom": "^17.0.11",
     "@types/react-qr-reader": "^2.1.4",
+    "@types/redux-mock-store": "^1.0.3",
     "@types/styled-components": "^5.1.22",
     "babel-plugin-styled-components": "^2.0.3",
     "create-react-scripts": "^0.1.6",
@@ -99,6 +106,7 @@
     "history": "^5.3.0",
     "jest-fetch-mock": "^3.0.3",
     "prettier": "^2.5.1",
+    "redux-mock-store": "^1.5.4",
     "ts-loader": "^9.2.7"
   }
 }

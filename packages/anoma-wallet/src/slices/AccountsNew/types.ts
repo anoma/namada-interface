@@ -13,3 +13,8 @@ export type ShieldedAccount = {
   spendingKey: string;
   paymentAddress: string;
 };
+
+export enum AccountErrors {
+  NonNumericShieldedBalanceReturned = "AccountErrors.NonNumericShieldedBalanceReturned",
+  RetrievingShieldedBalancesFailed = "AccountErrors.RetrievingShieldedBalancesFailed",
+}
