@@ -12,7 +12,7 @@ import {
 } from "slices/accounts";
 import { TransfersState } from "slices/transfers";
 import { SettingsState } from "slices/settings";
-import { updateShieldedBalances } from "slices/AccountsNew_noCaching";
+import { updateShieldedBalances } from "slices/AccountsNew";
 import { useAppDispatch, useAppSelector } from "store";
 import { formatRoute, stringFromTimestamp } from "utils/helpers";
 import { ChainsState } from "slices/chains";

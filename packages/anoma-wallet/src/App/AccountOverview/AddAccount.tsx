@@ -8,11 +8,8 @@ import { useAppDispatch, useAppSelector } from "store";
 import { DerivedAccount, AccountsState, addAccount } from "slices/accounts";
 import { SettingsState } from "slices/settings";
 
-import { NewAccountDetails } from "slices/AccountsNew_noCaching";
-import {
-  createShieldedAccount,
-  reset,
-} from "slices/AccountsNew_noCaching/actions";
+import { NewAccountDetails } from "slices/AccountsNew";
+import { createShieldedAccount, reset } from "slices/AccountsNew/actions";
 
 import { Label } from "components/Input/input.components";
 import { Toggle } from "components/Toggle";
