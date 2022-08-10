@@ -13,7 +13,7 @@ const Button = styled.button`
 
 const RoundButton = styled(Button)`
   border-radius: 200px;
-  border-width: 1px;
+  border: none;
 `;
 
 export const OutlinedButton = styled(RoundButton)`
@@ -37,16 +37,11 @@ export const OutlinedButton = styled(RoundButton)`
 `;
 
 export const ContainedButton = styled(RoundButton)`
-  border-color: ${(props) => props.theme.colors.buttonBorder2};
-  background-color: ${(props) => props.theme.colors.buttonBackground2};
+  background-color: ${(props) => props.theme.colors.primary.main};
   color: ${(props) => props.theme.colors.buttonText2};
-  &:hover {
-    border-color: ${(props) => props.theme.colors.buttonHover2};
-  }
   &:disabled {
     opacity: 30%;
     cursor: initial;
-    border-color: ${(props) => props.theme.colors.buttonBorder2};
   }
 `;
 

@@ -17,8 +17,12 @@ export const AccountOverviewContainer = styled.div`
   }
 
   h1,
-  h4 {
-    color: ${(props) => props.theme.colors.titleColor};
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: ${(props) => props.theme.colors.utility2.main};
   }
 `;
 
@@ -26,7 +30,7 @@ export const AccountOverviewContent = styled.div`
   width: 100%;
   padding: 0 40px;
   box-sizing: border-box;
-  background-color: ${(props) => props.theme.colors.tabActiveBackground};
+  background-color: ${(props) => props.theme.colors.utility1.main80};
 `;
 
 export const AccountTabsContainer = styled.div`
@@ -43,16 +47,16 @@ export const AccountTab = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  color: ${(props) => props.theme.colors.tabInactiveColor};
-  background-color: ${(props) => props.theme.colors.tabInactiveBackground};
+  color: ${(props) => props.theme.colors.utility2.main80};
+  background-color: ${(props) => props.theme.colors.utility1.main60};
   font-size: 14px;
   font-weight: bold;
   cursor: pointer;
 
   &.active {
     cursor: default;
-    color: ${(props) => props.theme.colors.buttonText1};
-    background-color: ${(props) => props.theme.colors.tabActiveBackground};
+    color: ${(props) => props.theme.colors.primary.main};
+    background-color: ${(props) => props.theme.colors.utility1.main80};
   }
 
   &.disabled {
@@ -121,7 +125,7 @@ export const TotalAmount = styled.div`
   font-weight: bold;
   padding: 0;
   text-align: right;
-  color: ${(props) => props.theme.colors.titleColor};
+  color: ${(props) => props.theme.colors.utility2.main};
 `;
 
 export const TotalAmountValue = styled.span`

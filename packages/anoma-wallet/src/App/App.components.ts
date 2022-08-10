@@ -9,7 +9,7 @@ type GlobalStyleProps = {
 // on whether the user is logged in
 export const GlobalStyles = createGlobalStyle<GlobalStyleProps>`
   html, body {
-    background-color: ${(props) => (props.isLightMode ? "#ffffff" : "#000000")};
+    background-color: ${(props) => props.theme.colors.utility1.main};
     transition: background-color 0.5s ease;
   }
 `;
@@ -29,7 +29,7 @@ export const AppContainer = styled.div`
   flex-direction: column;
   height: 100vh;
   width: 100%;
-  background-color: ${(props) => props.theme.colors.background1};
+  background-color: ${(props) => props.theme.colors.utility1.main};
   transition: all 0.3s linear;
   box-sizing: border-box;
 

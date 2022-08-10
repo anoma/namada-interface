@@ -23,10 +23,10 @@ export const TopNavigationLoggedInControlsContainer = styled.div`
 export const SettingsButton = styled.a`
   display: block;
   padding-right: 20px;
-
+  cursor: pointer;
   & > div > svg > path {
     stroke: ${(props) => props.theme.colors.buttonBackground4};
-    fill: ${(props) => props.theme.colors.buttonBackground4};
+    fill: ${(props) => props.theme.colors.primary.main};
   }
 `;
 

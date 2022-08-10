@@ -24,7 +24,7 @@ export const ToggleContainer = styled.button<{
       : `${COMPONENT_WIDTH_PIXELS - CIRCLE_DIAMETER_PIXELS - BORDER_PIXELS}px`};
   border: 1px solid ${(props) => props.theme.colors.toggleBorder};
   border-radius: 999px;
-  background-color: ${(props) => props.theme.colors.toggleBackground};
+  background-color: ${(props) => props.theme.colors.utility1.main60};
   /* TODO: Make this work for all toggles, not just theme selection */
   /* background-color: ${(props) =>
     props.checked ? BACKGROUND_ENABLED : BACKGROUND_DISABLE}; */
@@ -43,7 +43,7 @@ export const ToggleCircle = styled.div<{
   height: ${CIRCLE_DIAMETER_PIXELS}px;
   border: none;
   border-radius: 50%;
-  background-color: ${(props) => props.theme.colors.toggleCircle};
+  background-color: ${(props) => props.theme.colors.primary.main};
   box-sizing: border-box;
   transition: ${transition};
 `;

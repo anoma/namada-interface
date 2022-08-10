@@ -60,7 +60,7 @@ export const Label = styled.label`
   font-size: 14px;
   font-weight: 500;
   font-family: "Space Grotesk", sans-serif;
-  color: ${(props) => props.theme.colors.inputText};
+  color: ${(props) => props.theme.colors.utility2.main};
 
   & > p {
     padding: 0 0 4px;

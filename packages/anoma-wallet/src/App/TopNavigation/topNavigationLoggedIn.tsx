@@ -70,12 +70,6 @@ const TopNavigationLoggedIn = ({
             value={chainId}
             data={networks}
             onChange={handleNetworkSelect}
-            style={{
-              borderColor: isLightMode ? undefined : "#444",
-              borderRadius: 24,
-              height: 30,
-              padding: "0 8px",
-            }}
           />
         </TopNavigationLoggedInSelectContainer>
       </OnlyInMedium>

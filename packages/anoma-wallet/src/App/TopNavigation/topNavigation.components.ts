@@ -90,8 +90,7 @@ export const MenuItem = styled.button<{ isSelected?: boolean }>`
   }
 
   & path {
-    stroke-width: 1;
-    fill: ${(props) => props.theme.colors.buttonBackground4};
+    fill: ${(props) => props.theme.colors.utility2.main60};
   }
   //width: 10%;
   ${(props) => (props.isSelected ? isSelected() : "")}
@@ -108,7 +107,7 @@ export const MenuItemTextContainer = styled.div`
     padding-right: 0;
   }
 
-  color: ${(props) => props.theme.colors.logoColor};
+  color: ${(props) => props.theme.colors.utility2.main60};
 `;
 
 export const MenuItemIconContainer = styled.div`
@@ -129,7 +128,7 @@ export const LogoContainer = styled.div`
   & > div {
     svg > path {
       stroke: none;
-      fill: ${(props) => props.theme.colors.logoColor};
+      fill: ${(props) => props.theme.colors.primary.main};
     }
   }
 `;

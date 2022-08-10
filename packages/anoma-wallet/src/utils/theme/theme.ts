@@ -1,53 +1,53 @@
 type Colors = {
-  background1: string;
-  background2: string;
-  background3: string;
-  titleColor: string;
-  border: string;
-  borderShadow: string;
-  textPrimary: string;
-  buttonText1: string;
-  buttonText2: string;
-  buttonText3: string;
-  buttonBackground1: string;
-  buttonBackground2: string;
-  buttonBackground3: string;
-  buttonBackground4: string;
-  buttonBorder1: string;
-  buttonBorder2: string;
-  buttonBorder3: string;
-  buttonHover1: string;
-  buttonHover2: string;
-  buttonHover3: string;
-  buttonTextSmall: string;
-  inputText: string;
-  inputBorder: string;
-  inputPlaceholder: string;
-  inputError: string;
-  inputFocus: string;
-  inputBackground: string;
-  wordchip: string;
-  wordchipText: string;
-  textSecondary: string;
-  yellow1: string;
-  yellow1Hover: string;
-  buttonBorder: string;
-  buttonShadow: string;
-  buttonShadowHover: string;
-  buttonDisabledBackground: string;
-  buttonDisabledBorder: string;
-  buttonOutlineStyleHoverBackground: string;
-  tabActiveColor: string;
-  tabActiveBackground: string;
-  tabInactiveColor: string;
-  tabInactiveBackground: string;
-  toggleCircle: string;
-  toggleBackground: string;
-  toggleBorder: string;
-  headingBackground: string;
-  headingColor: string;
-  logoColor: string;
-  labelBorder: string;
+  background1?: string;
+  background2?: string;
+  background3?: string;
+  titleColor?: string;
+  border?: string;
+  borderShadow?: string;
+  textPrimary?: string;
+  buttonText1?: string;
+  buttonText2?: string;
+  buttonText3?: string;
+  buttonBackground1?: string;
+  buttonBackground2?: string;
+  buttonBackground3?: string;
+  buttonBackground4?: string;
+  buttonBorder1?: string;
+  buttonBorder2?: string;
+  buttonBorder3?: string;
+  buttonHover1?: string;
+  buttonHover2?: string;
+  buttonHover3?: string;
+  buttonTextSmall?: string;
+  inputText?: string;
+  inputBorder?: string;
+  inputPlaceholder?: string;
+  inputError?: string;
+  inputFocus?: string;
+  inputBackground?: string;
+  wordchip?: string;
+  wordchipText?: string;
+  textSecondary?: string;
+  yellow1?: string;
+  yellow1Hover?: string;
+  buttonBorder?: string;
+  buttonShadow?: string;
+  buttonShadowHover?: string;
+  buttonDisabledBackground?: string;
+  buttonDisabledBorder?: string;
+  buttonOutlineStyleHoverBackground?: string;
+  tabActiveColor?: string;
+  tabActiveBackground?: string;
+  tabInactiveColor?: string;
+  tabInactiveBackground?: string;
+  toggleCircle?: string;
+  toggleBackground?: string;
+  toggleBorder?: string;
+  headingBackground?: string;
+  headingColor?: string;
+  logoColor?: string;
+  labelBorder?: string;
 };
 
 type PrimitiveColors = {
@@ -65,7 +65,14 @@ type PrimitiveColors = {
     main40: string;
     main20: string;
   };
-  utility: {
+  tertiary: {
+    main: string;
+    main80: string;
+    main60: string;
+    main40: string;
+    main20: string;
+  };
+  utility1: {
     main: string;
     main80: string;
     main60: string;
@@ -73,13 +80,20 @@ type PrimitiveColors = {
     main20: string;
   };
   utility2: {
+    main: string;
+    main80: string;
+    main60: string;
+    main40: string;
+    main20: string;
+  };
+  utility3: {
     success: string;
     warning: string;
     error: string;
     highAttention: string;
     lowAttention: string;
   };
-};
+} & Colors;
 
 type BorderRadius = {
   s: string;
@@ -120,46 +134,61 @@ type TypeAndFont = {
   body: Type;
 };
 
-type VectorAsset = {};
+type VectorAsset = Record<string, never>;
 
-type RasterAsset = {};
+type RasterAsset = Record<string, never>;
 
 export type DesignConfiguration = {
   colors: PrimitiveColors;
   spacers: Spacers;
   borderRadius: BorderRadius;
   typeAndFont: TypeAndFont;
+  themeConfigurations: { isLightMode?: boolean };
 };
 
 // NAMADA
 const namadaDarkColors: PrimitiveColors = {
   primary: {
-    main: "#000000",
-    main80: "#000000",
-    main60: "#000000",
-    main40: "#000000",
-    main20: "#000000",
+    main: "#FFFF00",
+    main80: "#FFFF33",
+    main60: "#FFFF66",
+    main40: "#FFFF99",
+    main20: "#FFFFCC",
   },
   secondary: {
-    main: "#000000",
-    main80: "#000000",
-    main60: "#000000",
-    main40: "#000000",
-    main20: "#000000",
+    main: "#11DFDF",
+    main80: "#41E5E5",
+    main60: "#70ECEC",
+    main40: "#A0F2F2",
+    main20: "#CFF9F9",
   },
-  utility: {
-    main: "#000000",
-    main80: "#000000",
-    main60: "#000000",
-    main40: "#000000",
-    main20: "#000000",
+  tertiary: {
+    main: "#11DFDF",
+    main80: "#41E5E5",
+    main60: "#70ECEC",
+    main40: "#A0F2F2",
+    main20: "#CFF9F9",
+  },
+  utility1: {
+    main: "#0e0e0e",
+    main80: "#181818",
+    main60: "#666666",
+    main40: "#999999",
+    main20: "#CCCCCC",
   },
   utility2: {
-    success: "",
-    warning: "",
-    error: "",
-    highAttention: "",
-    lowAttention: "",
+    main: "#FFFFFF",
+    main80: "#CCCCCC",
+    main60: "#999999",
+    main40: "#666666",
+    main20: "#333333",
+  },
+  utility3: {
+    success: "#61C454",
+    warning: "#F5BF50",
+    error: "#ED695D",
+    highAttention: "#FF0000",
+    lowAttention: "#FAFF00",
   },
 };
 
@@ -240,7 +269,7 @@ export type ThemeConfigurations = {
   isLightMode: boolean;
 };
 
-export const getTheme = (): DesignConfiguration => {
+export const getTheme = (isLightMode: boolean): DesignConfiguration => {
   // check mode
   const isDarkMode = getIsDarkMode();
   // branding mode
@@ -254,6 +283,7 @@ export const getTheme = (): DesignConfiguration => {
         spacers: namadaSpacers,
         borderRadius: namadaBorderRadius,
         typeAndFont: namadaTypeAndFont,
+        themeConfigurations: {},
       };
       return namadaTheme;
   }

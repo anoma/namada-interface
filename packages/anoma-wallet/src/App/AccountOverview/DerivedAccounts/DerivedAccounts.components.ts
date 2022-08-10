@@ -60,7 +60,7 @@ export const DerivedAccountItem = styled.li`
   align-items: flex-start;
   margin: 0;
   padding: 20px 0;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid ${(props) => props.theme.colors.utility2.main20};
   color: ${(props) => props.theme.colors.titleColor};
 
   button {
@@ -87,11 +87,12 @@ export const DerivedAccountAlias = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  color: ${(props) => props.theme.colors.utility2.main80};
 `;
 
 export const DerivedAccountType = styled.div`
   font-size: 12px;
-  color: #777;
+  color: ${(props) => props.theme.colors.utility2.main60};
 `;
 
 export const DerivedAccountBalance = styled.div`
@@ -99,6 +100,7 @@ export const DerivedAccountBalance = styled.div`
   font-weight: bold;
   margin-bottom: 0;
   width: 200px;
+  color: ${(props) => props.theme.colors.utility2.main};
 
   @media screen and (max-width: 860px) {
     text-align: right;
@@ -140,7 +142,7 @@ export const Status = styled.div`
   justify-content: center;
   font-size: 12px;
   font-weight: normal;
-  color: ${(props) => props.theme.colors.buttonBorder1};
+  color: ${(props) => props.theme.colors.utility2.main};
 `;
 
 export const TokenIcon = styled.img`
@@ -151,15 +153,14 @@ export const TokenIcon = styled.img`
 `;
 
 export const ShieldedLabel = styled.div`
-  color: ${(props) => props.theme.colors.buttonBackground3};
   font-size: 10px;
   display: flex;
   justify-content: center;
   width: 68px;
   padding: 0;
-  background-color: ${(props) => props.theme.colors.buttonBackground1};
+  background-color: ${(props) => props.theme.colors.secondary.main};
+  color: ${(props) => props.theme.colors.utility1.main};
   border-radius: 12px;
-  border: 1px solid ${(props) => props.theme.colors.buttonBackground1};
 `;
 
 export const TransparentLabel = styled.div`

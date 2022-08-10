@@ -18,7 +18,7 @@ export const StyledSelectWrapper = styled.div`
     margin-right: 8px;
 
     & > svg > path {
-      stroke: ${(props) => props.theme.colors.buttonBackground2};
+      stroke: ${(props) => props.theme.colors.primary.main};
     }
   }
 `;
@@ -33,11 +33,12 @@ export const StyledSelect = styled.select`
   position: absolute;
   left: 0;
   font-family: "Space Grotesk", sans-serif;
-  background-color: ${(props) => props.theme.colors.inputBackground};
-  border: ${(props) =>
-    props.theme.themeConfigurations.isLightMode
-      ? `2px solid ${lightColors.inputBorder}`
-      : `2px solid ${darkColors.inputBorder}`};
+  background-color: ${(props) => props.theme.colors.utility1.main80};
+  border: none;
+  border-radius: 24px;
+  height: 30px;
+  padding: 0 8px 0 16px;
+  cursor: pointer;
   color: ${(props) =>
     props.theme.themeConfigurations.isLightMode ? "#002046" : "#ccc"};
 `;
