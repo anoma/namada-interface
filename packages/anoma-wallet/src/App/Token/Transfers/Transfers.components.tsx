@@ -48,6 +48,7 @@ export const TransfersContent = styled.div`
   margin: 0;
   box-sizing: border-box;
   min-height: 450px;
+  color: ${(props) => props.theme.colors.utility2.main60};
 `;
 
 export const TransactionList = styled(ThemedScrollbarList)`

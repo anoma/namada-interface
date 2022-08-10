@@ -8,6 +8,7 @@ export const IBCTransferFormContainer = styled.div`
   padding: 0 40px;
   margin: 20px 0;
   box-sizing: border-box;
+  color: ${(props) => props.theme.colors.utility2.main60};
 `;
 
 export const AddChannelButton = styled.button`

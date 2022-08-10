@@ -104,13 +104,13 @@ export const StatusMessage = styled.p`
 
 export const BackButton = styled.a`
   display: block;
-
+  cursor: pointer;
   & > div > svg {
     width: 50px;
     height: 50px;
 
     & > path {
-      stroke: ${(props) => props.theme.colors.buttonBackground2};
+      stroke: ${(props) => props.theme.colors.utility2.main60};
       stroke-width: 4px;
       stroke-linecap: square;
     }

@@ -76,7 +76,7 @@ export const AccountAlias = styled.span`
   font-weight: 600;
   padding: 8px;
   width: 120px;
-  color: ${(props) => props.theme.colors.titleColor};
+  color: ${(props) => props.theme.colors.utility2.main80};
 
   span {
     font-weight: normal;

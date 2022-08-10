@@ -69,9 +69,13 @@ export const InputContainer = styled.div`
   width: 100%;
   justify-content: baseline;
   padding: 20px;
-
+  color: ${(props) => props.theme.colors.utility2.main80};
   input {
     width: 96%;
+  }
+
+  pre {
+    background-color: ${(props) => props.theme.colors.utility1.main70};
   }
 `;
 

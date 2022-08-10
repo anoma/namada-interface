@@ -75,6 +75,7 @@ type PrimitiveColors = {
   utility1: {
     main: string;
     main80: string;
+    main70: string;
     main60: string;
     main40: string;
     main20: string;
@@ -172,6 +173,7 @@ const namadaDarkColors: PrimitiveColors = {
   utility1: {
     main: "#0e0e0e",
     main80: "#181818",
+    main70: "#282828",
     main60: "#666666",
     main40: "#999999",
     main20: "#CCCCCC",

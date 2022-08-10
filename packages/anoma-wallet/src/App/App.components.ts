@@ -63,13 +63,12 @@ export const ContentContainer = styled.div`
   // TODO: maybe this is too hacky? maybe there could be just another div
   // behind the main one with transform: translate(-4px, 4px);
   box-sizing: border-box;
-  background-color: ${(props) => props.theme.colors.background2};
+  background-color: ${(props) => props.theme.colors.utility1.main80};
   padding: 0;
   min-height: 620px;
   width: 100%;
   max-width: 760px;
   border-radius: 24px;
   overflow-x: hidden;
-  ${(props) => `border: solid 1px ${props.theme.colors.border}`};
   transition: background-color 0.3s linear;
 `;

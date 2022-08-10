@@ -59,8 +59,9 @@ export const RightSection = styled(Section)`
   width: 25%;
 `;
 
-const isSelected = (): FlattenSimpleInterpolation => {
+const isSelected = (colorInHex: string): FlattenSimpleInterpolation => {
   return css`
+    color: ${colorInHex};
     transition: font-weight 0.1s ease-out, stroke-width 0.1s ease-out;
     font-weight: 700;
     & path {
@@ -78,6 +79,7 @@ export const MenuItem = styled.button<{ isSelected?: boolean }>`
   margin: 0 22px;
   font-size: 14px;
   box-sizing: border-box;
+  color: ${(props) => props.theme.colors.utility2.main60};
 
   @media screen and (max-width: 860px) {
     padding: 40px 0;
@@ -92,8 +94,9 @@ export const MenuItem = styled.button<{ isSelected?: boolean }>`
   & path {
     fill: ${(props) => props.theme.colors.utility2.main60};
   }
-  //width: 10%;
-  ${(props) => (props.isSelected ? isSelected() : "")}
+
+  ${(props) =>
+    props.isSelected ? isSelected(props.theme.colors.utility2.main) : ""}
 `;
 
 export const MenuItemTextContainer = styled.div`
@@ -106,8 +109,6 @@ export const MenuItemTextContainer = styled.div`
     margin-right: 0;
     padding-right: 0;
   }
-
-  color: ${(props) => props.theme.colors.utility2.main60};
 `;
 
 export const MenuItemIconContainer = styled.div`
