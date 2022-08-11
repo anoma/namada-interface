@@ -224,7 +224,6 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
           <Button
             onClick={handleKeplrSuggestChainClick}
             variant={ButtonVariant.Outlined}
-            style={{ width: "100%" }}
             disabled={keplrChainState === KeplrChainState.Adding}
           >
             Add Chain to Keplr
@@ -236,7 +235,6 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
             <Button
               onClick={handleKeplrEnableClick}
               variant={ButtonVariant.Outlined}
-              style={{ width: "100%" }}
               disabled={
                 keplrConnectionState === KeplrConnectionState.Connecting
               }

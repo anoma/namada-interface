@@ -65,6 +65,7 @@ export const InputContainer = styled.div`
   width: 100%;
   justify-content: baseline;
   padding: 20px;
+  box-sizing: border-box;
 
   input {
     width: 96%;
