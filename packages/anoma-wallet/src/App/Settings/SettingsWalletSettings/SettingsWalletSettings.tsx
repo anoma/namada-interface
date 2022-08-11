@@ -43,13 +43,27 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
     return new Keplr(chain);
   }, [chainId]);
 
+  enum KeplrConnectionState {
+    Initial,
+    Connecting,
+    Connected,
+  }
+
+  enum KeplrChainState {
+    Initial,
+    Adding,
+    Added,
+  }
+
   const [displaySeedPhrase, setDisplaySeedPhrase] = useState(false);
   const [seedPhrase, setSeedPhrase] = useState<string[]>([]);
   const [isLoadingSeed, setIsLoadingSeed] = useState(false);
-  const [isKeplrAddingChain, setIsKeplrAddingChain] = useState(false);
-  const [isKeplrChainAdded, setIsKeplrChainAdded] = useState(false);
-  const [isKeplrConnecting, setIsKeplrConnecting] = useState(false);
-  const [isKeplrConnected, setIsKeplrConnected] = useState(false);
+  const [keplrConnectionState, setKeplrConnectionState] = useState(
+    KeplrConnectionState.Initial
+  );
+  const [keplrChainState, setKeplrChainState] = useState(
+    KeplrChainState.Initial
+  );
 
   const networks = Object.values(chains).map(({ id, alias }: Chain) => ({
     label: alias,
@@ -82,15 +96,15 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
       try {
         const isChainAdded = await keplr.detectChain();
         if (isChainAdded) {
-          setIsKeplrChainAdded(true);
+          setKeplrChainState(KeplrChainState.Added);
         } else {
-          setIsKeplrChainAdded(false);
-          setIsKeplrConnected(false);
+          setKeplrChainState(KeplrChainState.Initial);
+          setKeplrConnectionState(KeplrConnectionState.Initial);
         }
       } catch (e) {
         console.warn(e);
-        setIsKeplrChainAdded(false);
-        setIsKeplrConnected(false);
+        setKeplrChainState(KeplrChainState.Initial);
+        setKeplrConnectionState(KeplrConnectionState.Initial);
       }
     })();
   }, [chainId]);
@@ -114,14 +128,12 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
   const handleKeplrSuggestChainClick = async (): Promise<void> => {
     if (keplr.detect()) {
       try {
-        setIsKeplrAddingChain(true);
+        setKeplrChainState(KeplrChainState.Adding);
         await keplr.suggestChain();
-        setIsKeplrChainAdded(true);
+        setKeplrChainState(KeplrChainState.Added);
       } catch (e) {
         console.warn(e);
-        setIsKeplrChainAdded(false);
-      } finally {
-        setIsKeplrAddingChain(false);
+        setKeplrChainState(KeplrChainState.Initial);
       }
     }
   };
@@ -129,17 +141,15 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
   const handleKeplrEnableClick = async (): Promise<void> => {
     if (keplr.detect()) {
       try {
-        setIsKeplrConnecting(true);
+        setKeplrConnectionState(KeplrConnectionState.Connecting);
         await keplr.enable();
         const key = await keplr.getKey();
 
         if (key) {
-          setIsKeplrConnected(true);
+          setKeplrConnectionState(KeplrConnectionState.Connected);
         }
       } catch (e) {
         console.warn(e);
-      } finally {
-        setIsKeplrConnecting(false);
       }
     }
   };
@@ -210,29 +220,32 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
           />
         </InputContainer>
 
-        {keplr.detect() && !isKeplrChainAdded && (
+        {keplr.detect() && keplrChainState !== KeplrChainState.Added && (
           <Button
             onClick={handleKeplrSuggestChainClick}
             variant={ButtonVariant.Outlined}
             style={{ width: "100%" }}
-            disabled={isKeplrAddingChain}
+            disabled={keplrChainState === KeplrChainState.Adding}
           >
             Add Chain to Keplr
           </Button>
         )}
 
-        {isKeplrChainAdded && !isKeplrConnected && (
-          <Button
-            onClick={handleKeplrEnableClick}
-            variant={ButtonVariant.Outlined}
-            style={{ width: "100%" }}
-            disabled={isKeplrConnecting}
-          >
-            Connect to Keplr
-          </Button>
-        )}
+        {keplrChainState === KeplrChainState.Added &&
+          keplrConnectionState !== KeplrConnectionState.Connected && (
+            <Button
+              onClick={handleKeplrEnableClick}
+              variant={ButtonVariant.Outlined}
+              style={{ width: "100%" }}
+              disabled={
+                keplrConnectionState === KeplrConnectionState.Connecting
+              }
+            >
+              Connect to Keplr
+            </Button>
+          )}
 
-        {isKeplrConnected && (
+        {keplrConnectionState == KeplrConnectionState.Connected && (
           <ExtensionInfo>Connected to Keplr Extension</ExtensionInfo>
         )}
 
