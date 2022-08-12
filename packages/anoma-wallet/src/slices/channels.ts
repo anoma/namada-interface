@@ -1,13 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import Config from "config";
-
-const chains = Object.values(Config.chain);
-
 export type Channel = string;
 
 type ChannelsByChain = {
-  [chainId: string]: Channel[];
+  [chainId: string]: Record<string, Channel[]>;
 };
 
 export type ChannelsState = {
@@ -16,15 +12,7 @@ export type ChannelsState = {
 
 const CHANNELS_ACTIONS_BASE = "channels";
 const initialState: ChannelsState = {
-  channelsByChain: chains.reduce((channelsByChain: ChannelsByChain, chain) => {
-    const { id, ibc } = chain;
-
-    if (ibc && ibc.length > 0) {
-      channelsByChain[id] = ibc.map((ibcConfig) => ibcConfig.defaultChannel);
-    }
-
-    return channelsByChain;
-  }, {}),
+  channelsByChain: {},
 };
 
 const channelsSlice = createSlice({
@@ -33,15 +21,27 @@ const channelsSlice = createSlice({
   reducers: {
     addChannel: (
       state,
-      action: PayloadAction<{ chainId: string; channelId: string }>
+      action: PayloadAction<{
+        chainId: string;
+        channelId: string;
+        destinationChainId: string;
+      }>
     ) => {
-      const { chainId, channelId } = action.payload;
+      const { chainId, channelId, destinationChainId } = action.payload;
 
-      const channels = state.channelsByChain[chainId] || [];
+      if (!state.channelsByChain[chainId]) {
+        state.channelsByChain[chainId] = {};
+      }
+
+      if (!state.channelsByChain[chainId][destinationChainId]) {
+        state.channelsByChain[chainId][destinationChainId] = [];
+      }
+
+      const channels = state.channelsByChain[chainId][destinationChainId];
 
       if (channels.indexOf(channelId) === -1) {
         channels.push(channelId);
-        state.channelsByChain[chainId] = channels;
+        state.channelsByChain[chainId][destinationChainId] = channels;
       }
     },
   },
