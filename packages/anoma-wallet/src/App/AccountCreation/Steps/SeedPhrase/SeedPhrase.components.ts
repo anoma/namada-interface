@@ -24,14 +24,14 @@ export const AccountInformationForm = styled.div`
 
 export const Header1 = styled.h1`
   margin: 8px 0;
-  color: ${(props) => props.theme.colors.titleColor};
+  color: ${(props) => props.theme.colors.utility2.main};
 `;
 
 export const BodyText = styled.p`
   text-align: center;
   width: 100%;
   font-weight: 300;
-  color: ${(props) => props.theme.colors.titleColor};
+  color: ${(props) => props.theme.colors.utility2.main80};
 `;
 
 export const ButtonContainer = styled.div`
@@ -45,13 +45,12 @@ export const SeedPhraseCard = styled.div`
   display: flex;
   align-items: center;
   width: calc(33% - 4px - 4px);
-  background-color: ${(props) => props.theme.colors.wordchip};
-  border: 1px solid ${(props) => props.theme.colors.wordchip};
+  background-color: ${(props) => props.theme.colors.utility1.main};
   border-radius: 4px;
-  padding: 2px 8px;
+  padding: 8px 12px;
   margin: 4px;
   box-sizing: border-box;
-  color: ${(props) => props.theme.colors.titleColor};
+  color: ${(props) => props.theme.colors.utility2.main80};
   font-weight: bold;
 `;
 
@@ -63,7 +62,7 @@ export const SeedPhraseContainer = styled.div`
 export const SeedPhraseIndexLabel = styled.span`
   margin: 2px 8px 0 0;
   font-size: 11px;
-  color: ${(props) => props.theme.colors.textSecondary};
+  color: ${(props) => props.theme.colors.utility2.main80};
 `;
 
 export const ExportSeedPhraseButtonsContainer = styled.div`
@@ -77,13 +76,13 @@ export const ExportSeedPhraseButtonsContainer = styled.div`
 export const CopyToClipboard = styled.a`
   text-decoration: underline;
   padding: 5px;
-  color: ${(props) => props.theme.colors.buttonBackground2};
+  color: ${(props) => props.theme.colors.primary.main};
   transition: "1 sec";
   border-radius: 4px;
 
   &:active {
-    border: 1px solid ${(props) => props.theme.colors.buttonBackground2};
-    color: ${(props) => props.theme.colors.titleColor};
-    background-color: ${(props) => props.theme.colors.buttonBackground2};
+    border: 1px solid ${(props) => props.theme.colors.primary.main};
+    color: ${(props) => props.theme.colors.utility2.main80};
+    background-color: ${(props) => props.theme.colors.primary.main};
   }
 `;

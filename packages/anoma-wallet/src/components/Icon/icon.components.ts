@@ -19,7 +19,7 @@ export const StyledIcon = styled.div<{
   // if stroke is passed in we use it, otherwise default
   path {
     stroke: ${(props) =>
-      props.$strokeOverride || props.theme.colors.textPrimary};
+      props.$strokeOverride || props.theme.colors.primary.main80};
   }
 
   // if fill is passed in we use it

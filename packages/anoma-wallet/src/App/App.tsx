@@ -11,7 +11,7 @@ import { AnimatePresence } from "framer-motion";
 import { ThemeProvider } from "styled-components/macro";
 
 // internal
-import { darkColors, lightColors, Theme, getTheme } from "utils/theme";
+import { getTheme } from "utils/theme";
 import { TopLevelRoute } from "./types";
 
 import { TopNavigation } from "./TopNavigation";

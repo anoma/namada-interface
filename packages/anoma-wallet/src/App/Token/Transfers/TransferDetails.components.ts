@@ -7,12 +7,12 @@ export const TransferDetailContainer = styled.div`
   align-items: start;
   width: 100%;
   height: 100%;
-  color: ${(props) => props.theme.colors.titleColor};
+  color: ${(props) => props.theme.colors.utility2.main80};
 `;
 
 export const Address = styled.pre`
-  color: ${(props) => props.theme.colors.inputText};
-  background-color: ${(props) => props.theme.colors.inputBackground};
+  color: ${(props) => props.theme.colors.utility2.main80};
+  background-color: ${(props) => props.theme.colors.utility2.main60};
   font-size: 12px;
   margin: 0 0 20px 0;
   padding: 4px 8px;

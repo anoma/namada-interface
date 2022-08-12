@@ -33,7 +33,7 @@ export const NavigationContainer = (
   const { children, onBackButtonClick } = props;
   const themeContext = useContext(ThemeContext);
   const backButtonIconStrokeColor = themeContext.themeConfigurations.isLightMode
-    ? themeContext.colors.border
+    ? themeContext.colors.utility2.main80
     : "black";
 
   const noButton = typeof onBackButtonClick === "undefined";

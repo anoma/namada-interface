@@ -44,7 +44,7 @@ export const AccountNameContainer = styled.div`
   overflow: hidden;
   white-space: nowrap;
   border-radius: 8px;
-  background-color: ${(props) => props.theme.colors.headingBackground};
+  background-color: ${(props) => props.theme.colors.utility1.main70};
 `;
 
 export const AccountNameContainerOverflow = styled.div`

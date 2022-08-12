@@ -1,5 +1,4 @@
 import styled from "styled-components/macro";
-import { darkColors, lightColors } from "utils/theme";
 
 export const StyledSelectWrapper = styled.div`
   position: relative;
@@ -33,7 +32,7 @@ export const StyledSelect = styled.select`
   position: absolute;
   left: 0;
   font-family: "Space Grotesk", sans-serif;
-  background-color: ${(props) => props.theme.colors.utility1.main80};
+  background-color: ${(props) => props.theme.colors.utility1.main70};
   border: none;
   border-radius: 24px;
   height: 30px;
@@ -46,7 +45,7 @@ export const StyledSelect = styled.select`
 export const Label = styled.label`
   font-size: 14px;
   font-weight: 500;
-  color: ${(props) => props.theme.colors.inputText};
+  color: ${(props) => props.theme.colors.utility2.main60};
   width: 100%;
 
   & > p {

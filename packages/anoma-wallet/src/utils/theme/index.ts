@@ -1,3 +1,3 @@
-export { getTheme, getTheme_old, darkColors, lightColors } from "./theme";
+export { getTheme, getTheme_old } from "./theme";
 
 export type { Theme } from "./theme";

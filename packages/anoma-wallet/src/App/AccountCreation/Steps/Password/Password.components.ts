@@ -10,22 +10,22 @@ export const AccountInformationViewContainer = styled.div`
 
 export const Header1 = styled.h1`
   margin: 8px 0;
-  color: ${(props) => props.theme.colors.titleColor};
+  color: ${(props) => props.theme.colors.utility2.main};
 `;
 
 export const Header3 = styled.h3`
   margin: 8px 0;
-  color: ${(props) => props.theme.colors.titleColor};
+  color: ${(props) => props.theme.colors.utility2.main};
 `;
 
 export const Header5 = styled.h5`
   margin: 8px 0;
-  color: ${(props) => props.theme.colors.titleColor};
+  color: ${(props) => props.theme.colors.utility2.main};
 `;
 
 export const BodyText = styled.p`
   font-weight: 300;
-  color: ${(props) => props.theme.colors.textPrimary};
+  color: ${(props) => props.theme.colors.utility2.main80};
 `;
 
 export const AccountInformationViewUpperPartContainer = styled.div`
@@ -55,15 +55,16 @@ export const Input = styled.input`
   font-size: 16px;
   height: 42px;
   padding: 0 16px;
-  color: ${(props) => props.theme.colors.inputText};
-  background-color: ${(props) => props.theme.colors.background2};
-  border: 1px solid ${(props) => props.theme.colors.buttonBackground2};
+  color: ${(props) => props.theme.colors.utility2.main80};
+  background-color: ${(props) => props.theme.colors.utility1.main80};
+  border: 1px solid ${(props) => props.theme.colors.primary.main};
   border-radius: 12px;
 `;
 
 export const InputContainer = styled.div`
   width: 100%;
   height: 92px;
+  color: ${(props) => props.theme.colors.utility2.main80};
 `;
 
 export const InputFeedback = styled.span`
@@ -71,11 +72,11 @@ export const InputFeedback = styled.span`
 `;
 
 export const RecoveryPhraseLengthRadioButton = styled.input`
-  color: ${(props) => props.theme.colors.titleColor};
+  color: ${(props) => props.theme.colors.utility2.main80};
 `;
 
 export const RadioButtonLabel = styled.label`
-  color: ${(props) => props.theme.colors.titleColor};
+  color: ${(props) => props.theme.colors.utility2.main80};
 `;
 
 export const RecoveryPhraseLengthRadioButtonContainer = styled.div`

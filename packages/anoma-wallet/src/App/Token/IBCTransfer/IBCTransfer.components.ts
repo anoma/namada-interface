@@ -21,10 +21,10 @@ export const AddChannelButton = styled.button`
   cursor: pointer;
 
   & > div > svg > path {
-    fill: ${(props) => props.theme.colors.buttonBackground2};
+    fill: ${(props) => props.theme.colors.primary.main};
   }
   span {
     padding: 12px;
-    color: ${(props) => props.theme.colors.titleColor};
+    color: ${(props) => props.theme.colors.utility2.main};
   }
 `;

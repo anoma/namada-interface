@@ -10,13 +10,13 @@ export const CompletionViewContainer = styled.div`
 
 export const Header1 = styled.h1`
   margin: 8px 0;
-  color: ${(props) => props.theme.colors.titleColor};
+  color: ${(props) => props.theme.colors.utility2.main};
 `;
 
 export const BodyText = styled.p`
   text-align: center;
   font-weight: 300;
-  color: ${(props) => props.theme.colors.textPrimary};
+  color: ${(props) => props.theme.colors.utility2.main80};
 `;
 
 export const CompletionViewUpperPartContainer = styled.div`

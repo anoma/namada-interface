@@ -25,7 +25,7 @@ export const SettingsButton = styled.a`
   padding-right: 20px;
   cursor: pointer;
   & > div > svg > path {
-    stroke: ${(props) => props.theme.colors.buttonBackground4};
+    stroke: ${(props) => props.theme.colors.primary.main};
     fill: ${(props) => props.theme.colors.primary.main};
   }
 `;

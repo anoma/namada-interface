@@ -150,5 +150,5 @@ export const NoAccountsContainer = styled.div`
   align-items: center;
   margin: 0;
   padding: 20px 0;
-  color: ${(props) => props.theme.colors.titleColor};
+  color: ${(props) => props.theme.colors.utility2.main80};
 `;

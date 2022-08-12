@@ -17,28 +17,28 @@ const RoundButton = styled(Button)`
 `;
 
 export const OutlinedButton = styled(RoundButton)`
-  border-color: ${(props) => props.theme.colors.buttonBorder2};
-  background-color: ${(props) => props.theme.colors.background2};
-  color: ${(props) => props.theme.colors.buttonText1};
+  border-color: ${(props) => props.theme.colors.primary.main60};
+  background-color: ${(props) => props.theme.colors.utility1.main80};
+  color: ${(props) => props.theme.colors.utility1.main80};
 
   &:hover {
-    border-color: ${(props) => props.theme.colors.buttonHover1};
+    border-color: ${(props) => props.theme.colors.primary.main80};
   }
   &:disabled {
     opacity: 30%;
     cursor: initial;
-    border-color: ${(props) => props.theme.colors.buttonBorder1};
+    border-color: ${(props) => props.theme.colors.primary.main80};
   }
 
   &.active {
-    background-color: ${(props) => props.theme.colors.buttonBackground2};
-    color: ${(props) => props.theme.colors.buttonText2};
+    background-color: ${(props) => props.theme.colors.primary.main};
+    color: ${(props) => props.theme.colors.utility2.main80};
   }
 `;
 
 export const ContainedButton = styled(RoundButton)`
   background-color: ${(props) => props.theme.colors.primary.main};
-  color: ${(props) => props.theme.colors.buttonText2};
+  color: ${(props) => props.theme.colors.utility1.main80};
   &:disabled {
     opacity: 30%;
     cursor: initial;
@@ -46,16 +46,16 @@ export const ContainedButton = styled(RoundButton)`
 `;
 
 export const ContainedAltButton = styled(RoundButton)`
-  border-color: ${(props) => props.theme.colors.buttonBorder3};
-  background-color: ${(props) => props.theme.colors.buttonBackground3};
-  color: ${(props) => props.theme.colors.buttonText3};
+  border-color: ${(props) => props.theme.colors.primary.main60};
+  background-color: ${(props) => props.theme.colors.primary.main80};
+  color: ${(props) => props.theme.colors.utility1.main80};
   &:hover {
-    border-color: ${(props) => props.theme.colors.buttonHover3};
+    border-color: ${(props) => props.theme.colors.primary.main60};
   }
   &:disabled {
     opacity: 30%;
     cursor: initial;
-    border-color: ${(props) => props.theme.colors.buttonBorder3};
+    border-color: ${(props) => props.theme.colors.primary.main60};
   }
 `;
 
@@ -63,10 +63,10 @@ export const SmallButton = styled(Button)`
   border-width: 1px;
   border-radius: 4px;
   background-color: transparent;
-  border-color: ${(props) => props.theme.colors.buttonTextSmall};
-  color: ${(props) => props.theme.colors.buttonTextSmall};
+  border-color: ${(props) => props.theme.colors.primary.main60};
+  color: ${(props) => props.theme.colors.utility2.main60};
   &:active {
-    background-color: ${(props) => props.theme.colors.buttonTextSmall};
+    background-color: ${(props) => props.theme.colors.primary.main60};
     color: white;
   }
   &:disabled {

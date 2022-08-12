@@ -22,7 +22,7 @@ export const ToggleContainer = styled.button<{
     props.checked
       ? `${BORDER_PIXELS}px`
       : `${COMPONENT_WIDTH_PIXELS - CIRCLE_DIAMETER_PIXELS - BORDER_PIXELS}px`};
-  border: 1px solid ${(props) => props.theme.colors.toggleBorder};
+  border: 1px solid ${(props) => props.theme.colors.utility1.main80};
   border-radius: 999px;
   background-color: ${(props) => props.theme.colors.utility1.main60};
   /* TODO: Make this work for all toggles, not just theme selection */

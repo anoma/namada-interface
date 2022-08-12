@@ -42,7 +42,7 @@ export const InputWithButtonContainer = styled.div`
 
     &:active {
       background: none;
-      fill: ${(props) => props.theme.colors.buttonBackground2};
+      fill: ${(props) => props.theme.colors.primary.main};
     }
   }
 `;
@@ -52,7 +52,7 @@ export const QrReaderContainer = styled.div`
 `;
 
 export const QrReaderError = styled.p`
-  color: ${(props) => props.theme.colors.inputError};
+  color: ${(props) => props.theme.colors.utility3.error};
 `;
 
 export const GasButtonsContainer = styled.div`
@@ -70,9 +70,9 @@ export const GasButtonsContainer = styled.div`
     width: 30%;
     padding: 4px;
     border-radius: 8px;
-    color: ${(props) => props.theme.colors.titleColor};
+    color: ${(props) => props.theme.colors.utility2.main80};
     border-width: 2px;
-    border-color: ${(props) => props.theme.colors.buttonBackground2};
+    border-color: ${(props) => props.theme.colors.utility2.main60};
 
     span {
       font-weight: bold;

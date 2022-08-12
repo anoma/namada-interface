@@ -7,7 +7,7 @@ export const TransfersContainer = styled.div`
   align-items: start;
   width: 100%;
   height: 100%;
-  color: ${(props) => props.theme.colors.titleColor};
+  color: ${(props) => props.theme.colors.utility2.main80};
 `;
 
 export const ThemedScrollbarList = styled.ul`
@@ -17,9 +17,7 @@ export const ThemedScrollbarList = styled.ul`
   /* NOTE - Firefox will only show max width on hover, otherwise is thin profile */
   scrollbar-width: 10px;
   scrollbar-color: ${(props) =>
-    props.theme.colors.buttonBackground2 +
-    " " +
-    props.theme.colors.background2};
+    props.theme.colors.primary.main + " " + props.theme.colors.utility1.main80};
 
   &::-webkit-scrollbar {
     height: 12px;
@@ -30,7 +28,7 @@ export const ThemedScrollbarList = styled.ul`
   }
 
   &::-webkit-scrollbar-thumb {
-    background: ${(props) => props.theme.colors.buttonBackground2};
+    background: ${(props) => props.theme.colors.primary.main};
     border-radius: 1ex;
     -webkit-border-radius: 1ex;
     box-shadow: none;
@@ -38,7 +36,7 @@ export const ThemedScrollbarList = styled.ul`
   }
 
   &::-webkit-scrollbar-corner {
-    background: ${(props) => props.theme.colors.background2};
+    background: ${(props) => props.theme.colors.utility1.main80};
   }
 `;
 

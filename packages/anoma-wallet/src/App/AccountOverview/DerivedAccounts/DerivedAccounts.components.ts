@@ -7,10 +7,7 @@ export const ThemedScrollbarContainer = styled.div`
   /* NOTE - Firefox will only show max width on hover, otherwise is thin profile */
   /* TODO - Refactor this into a common function */
   scrollbar-width: 10px;
-  scrollbar-color: ${(props) =>
-    props.theme.colors.buttonBackground2 +
-    " " +
-    props.theme.colors.background2};
+  scrollbar-color: ${(props) => props.theme.colors.primary.main + " red"};
 
   &::-webkit-scrollbar {
     height: 12px;
@@ -21,7 +18,7 @@ export const ThemedScrollbarContainer = styled.div`
   }
 
   &::-webkit-scrollbar-thumb {
-    background: ${(props) => props.theme.colors.buttonBackground2};
+    background: ${(props) => props.theme.colors.primary.main};
     border-radius: 1ex;
     -webkit-border-radius: 1ex;
     box-shadow: none;
@@ -29,7 +26,7 @@ export const ThemedScrollbarContainer = styled.div`
   }
 
   &::-webkit-scrollbar-corner {
-    background: ${(props) => props.theme.colors.background2};
+    background: red;
   }
 `;
 
@@ -61,7 +58,6 @@ export const DerivedAccountItem = styled.li`
   margin: 0;
   padding: 20px 0;
   border-bottom: 1px solid ${(props) => props.theme.colors.utility2.main20};
-  color: ${(props) => props.theme.colors.titleColor};
 
   button {
     margin-top: 0;
@@ -126,13 +122,13 @@ export const DerivedAccountStatus = styled.span`
   font-weight: normal;
   font-size: 12px;
   padding-left: 8px;
-  color: ${(props) => props.theme.colors.buttonDisabledBackground};
+  color: ${(props) => props.theme.colors.primary.main60};
 `;
 
 export const NoTokens = styled.div`
   font-size: 14px;
   font-weight: bold;
-  color: ${(props) => props.theme.colors.titleColor};
+  background-color: ${(props) => props.theme.colors.utility2.main};
 `;
 
 export const Status = styled.div`
@@ -164,12 +160,12 @@ export const ShieldedLabel = styled.div`
 `;
 
 export const TransparentLabel = styled.div`
-  color: ${(props) => props.theme.colors.titleColor};
+  color: ${(props) => props.theme.colors.utility2.main60};
   font-size: 10px;
   display: flex;
   justify-content: center;
   width: 68px;
   padding: 0;
   border-radius: 12px;
-  border: 1px solid ${(props) => props.theme.colors.labelBorder};
+  border: 1px solid ${(props) => props.theme.colors.utility2.main20};
 `;
