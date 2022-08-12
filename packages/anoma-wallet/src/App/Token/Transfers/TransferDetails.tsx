@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 
-import Config from "config";
+import Config, { Chain } from "config";
 import { TransfersState } from "slices/transfers";
 import { useAppSelector } from "store";
 import { stringFromTimestamp } from "utils/helpers";
@@ -26,7 +26,7 @@ const TransferDetail = (): JSX.Element => {
   );
 
   const {
-    chainId: sourceChainId = "",
+    chainId: sourceChainId,
     tokenType,
     amount,
     gas = 0,
@@ -41,10 +41,11 @@ const TransferDetail = (): JSX.Element => {
     (transaction) => transaction.appliedHash === appliedHash
   ) || {};
 
-  const sourceChain = Config.chain[sourceChainId] || {};
+  const sourceChain: Chain | undefined =
+    (sourceChainId && Config.chain[sourceChainId]) || undefined;
 
   const {
-    chainId = "",
+    chainId,
     sourceChannel,
     sourcePort,
     destinationChannel,
@@ -52,7 +53,7 @@ const TransferDetail = (): JSX.Element => {
   } = ibcTransfer || {};
 
   const chains = Config.chain;
-  const chain = chains[chainId];
+  const chain = chainId && chains[chainId];
   const { ibc = [] } = chain || {};
   const ibcChainConfig: IBCConfigItem | undefined = ibc.find(
     (ibcConfig) => ibcConfig.chainId === chainId
@@ -78,7 +79,7 @@ const TransferDetail = (): JSX.Element => {
             <br />
             {amount} {tokenType}
             <br />
-            {sourceChain.alias}
+            {sourceChain?.alias}
           </strong>
           <br />
           {dateTimeFormatted}
