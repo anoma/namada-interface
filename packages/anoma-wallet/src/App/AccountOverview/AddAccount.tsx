@@ -145,7 +145,7 @@ export const AddAccount = ({ password }: Props): JSX.Element => {
         tokenType
       );
 
-      const account = wallet.new(accountIndex, index);
+      const account = wallet.deriveChildAccount(accountIndex, index);
       const { public: publicKey, secret: signingKey, wif: address } = account;
 
       dispatch(

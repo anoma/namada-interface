@@ -35,7 +35,7 @@ const createAccount = async (
   mnemonic: string
 ): Promise<InitialAccount> => {
   const wallet = await new Wallet(mnemonic, tokenType).init();
-  const account = wallet.new(accountIndex, 0);
+  const account = wallet.deriveChildAccount(accountIndex, 0);
   const { public: publicKey, secret: signingKey, wif: address } = account;
 
   return {
