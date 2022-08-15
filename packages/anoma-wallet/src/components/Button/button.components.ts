@@ -1,4 +1,23 @@
 import styled from "styled-components/macro";
+import { DesignConfiguration } from "utils/theme";
+
+enum ComponentColor {
+  ButtonBackground,
+  ContainedButtonLabelColor,
+}
+
+const getColor = (
+  color: ComponentColor,
+  theme: DesignConfiguration
+): string => {
+  const isDark = theme.themeConfigurations.isLightMode;
+  switch (color) {
+    case ComponentColor.ButtonBackground:
+      return isDark ? theme.colors.primary.main : theme.colors.secondary.main;
+    case ComponentColor.ContainedButtonLabelColor:
+      return isDark ? theme.colors.utility3.black : theme.colors.utility3.black;
+  }
+};
 
 const Button = styled.button`
   padding: 0.75em 1.25em;
@@ -38,9 +57,12 @@ export const OutlinedButton = styled(RoundButton)`
 
 export const ContainedButton = styled(RoundButton)`
   background-color: ${(props) => props.theme.colors.primary.main};
-  color: ${(props) => props.theme.colors.utility1.main80};
+  background-color: ${(props) =>
+    getColor(ComponentColor.ButtonBackground, props.theme)};
+  color: ${(props) =>
+    getColor(ComponentColor.ContainedButtonLabelColor, props.theme)};
   &:disabled {
-    opacity: 30%;
+    opacity: 50%;
     cursor: initial;
   }
 `;

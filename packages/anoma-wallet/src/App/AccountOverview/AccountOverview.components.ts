@@ -1,5 +1,25 @@
 import styled from "styled-components/macro";
+import { DesignConfiguration } from "utils/theme";
 
+enum ComponentColor {
+  TabLabelActive,
+  BackgroundActive,
+}
+
+const getColor = (
+  color: ComponentColor,
+  theme: DesignConfiguration
+): string => {
+  const isDark = theme.themeConfigurations.isLightMode;
+  switch (color) {
+    case ComponentColor.TabLabelActive:
+      return isDark ? theme.colors.primary.main : theme.colors.secondary.main;
+    case ComponentColor.BackgroundActive:
+      return isDark
+        ? theme.colors.utility1.main80
+        : theme.colors.utility3.white;
+  }
+};
 export const AccountOverviewContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -7,7 +27,6 @@ export const AccountOverviewContainer = styled.div`
   align-items: center;
   width: 100%;
   height: 100%;
-
   h1 {
     margin: 0;
   }
@@ -30,7 +49,8 @@ export const AccountOverviewContent = styled.div`
   width: 100%;
   padding: 0 40px;
   box-sizing: border-box;
-  background-color: ${(props) => props.theme.colors.utility1.main80};
+  background-color: ${(props) =>
+    getColor(ComponentColor.BackgroundActive, props.theme)};
 `;
 
 export const AccountTabsContainer = styled.div`
@@ -55,8 +75,9 @@ export const AccountTab = styled.div`
 
   &.active {
     cursor: default;
-    color: ${(props) => props.theme.colors.primary.main};
-    background-color: ${(props) => props.theme.colors.utility1.main80};
+    color: ${(props) => getColor(ComponentColor.TabLabelActive, props.theme)};
+    background-color: ${(props) =>
+      getColor(ComponentColor.BackgroundActive, props.theme)};
   }
 
   &.disabled {

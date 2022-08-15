@@ -1,4 +1,20 @@
 import styled from "styled-components/macro";
+import { DesignConfiguration } from "utils/theme";
+
+enum ComponentColor {
+  NavItem,
+}
+
+const getColor = (
+  color: ComponentColor,
+  theme: DesignConfiguration
+): string => {
+  const isDark = theme.themeConfigurations.isLightMode;
+  switch (color) {
+    case ComponentColor.NavItem:
+      return isDark ? theme.colors.primary.main : theme.colors.secondary.main;
+  }
+};
 
 export const TopNavigationLoggedInContainer = styled.div`
   display: flex;
@@ -25,8 +41,8 @@ export const SettingsButton = styled.a`
   padding-right: 20px;
   cursor: pointer;
   & > div > svg > path {
-    stroke: ${(props) => props.theme.colors.primary.main};
-    fill: ${(props) => props.theme.colors.primary.main};
+    stroke: ${(props) => getColor(ComponentColor.NavItem, props.theme)};
+    fill: ${(props) => getColor(ComponentColor.NavItem, props.theme)};
   }
 `;
 

@@ -42,6 +42,8 @@ type PrimitiveColors = {
     error: string;
     highAttention: string;
     lowAttention: string;
+    black: string;
+    white: string;
   };
 };
 
@@ -137,27 +139,76 @@ const namadaDarkColors: PrimitiveColors = {
     error: "#ED695D",
     highAttention: "#FF0000",
     lowAttention: "#FAFF00",
+    black: "#000000",
+    white: "#FFFFFF",
   },
 };
 
-const namadaLightColors: PrimitiveColors = namadaDarkColors;
+const namadaLightColors: PrimitiveColors = {
+  primary: {
+    main: "#FFFF00",
+    main80: "#CCCC00",
+    main60: "#999900",
+    main40: "#666600",
+    main20: "#333300",
+  },
+  secondary: {
+    main: "#11DFDF",
+    main80: "#41E5E5",
+    main60: "#70ECEC",
+    main40: "#A0F2F2",
+    main20: "#CFF9F9",
+  },
+  tertiary: {
+    main: "#11DFDF",
+    main80: "#41E5E5",
+    main60: "#70ECEC",
+    main40: "#A0F2F2",
+    main20: "#CFF9F9",
+  },
+  utility1: {
+    main: "#FFFFFF",
+    main80: "#F8F8F8",
+    main75: "#F8F8F8",
+    main70: "#F8F8F8",
+    main60: "#F3F3F3",
+    main40: "#F0F0F0",
+    main20: "#D9D9D9",
+  },
+  utility2: {
+    main: "#000000",
+    main80: "#333333",
+    main60: "#666666",
+    main40: "#999999",
+    main20: "#CCCCCC",
+  },
+  utility3: {
+    success: "#61C454",
+    warning: "#F5BF50",
+    error: "#ED695D",
+    highAttention: "#FF0000",
+    lowAttention: "#FAFF00",
+    black: "#000000",
+    white: "#FFFFFF",
+  },
+};
 
 const namadaSpacers = {
   horizontal: {
-    xs: "aaa",
-    s: "aaa",
-    m: "aaa",
-    l: "aaa",
-    xl: "fff",
-    xxl: "fff",
+    xs: "8px",
+    s: "12px",
+    m: "24px",
+    l: "48px",
+    xl: "64px",
+    xxl: "96px",
   },
   vertical: {
-    xs: "aaa",
-    s: "aaa",
-    m: "aaa",
-    l: "aaa",
-    xl: "fff",
-    xxl: "fff",
+    xs: "8px",
+    s: "12px",
+    m: "24px",
+    l: "48px",
+    xl: "64px",
+    xxl: "96px",
   },
 };
 
@@ -205,10 +256,6 @@ enum Brand {
   Namada,
 }
 
-const getIsDarkMode = (): boolean => {
-  return true;
-};
-
 const getBrand = (): Brand => {
   return Brand.Namada;
 };
@@ -217,9 +264,7 @@ export type ThemeConfigurations = {
   isLightMode: boolean;
 };
 
-export const getTheme = (_isLightMode: boolean): DesignConfiguration => {
-  // check mode
-  const isDarkMode = getIsDarkMode();
+export const getTheme = (isLightMode: boolean): DesignConfiguration => {
   // branding mode
   const brand = getBrand();
 
@@ -227,11 +272,11 @@ export const getTheme = (_isLightMode: boolean): DesignConfiguration => {
   switch (brand) {
     case Brand.Namada:
       const namadaTheme: DesignConfiguration = {
-        colors: isDarkMode ? namadaDarkColors : namadaLightColors,
+        colors: isLightMode ? namadaDarkColors : namadaLightColors,
         spacers: namadaSpacers,
         borderRadius: namadaBorderRadius,
         typeAndFont: namadaTypeAndFont,
-        themeConfigurations: {},
+        themeConfigurations: { isLightMode },
       };
       return namadaTheme;
   }

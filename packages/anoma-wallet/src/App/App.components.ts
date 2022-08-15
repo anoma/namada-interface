@@ -1,6 +1,24 @@
 import styled, { createGlobalStyle } from "styled-components/macro";
 import { motion } from "framer-motion";
+import { DesignConfiguration } from "utils/theme";
 
+enum ComponentColor {
+  BorderColor,
+  BackgroundColor,
+}
+
+const getColor = (
+  color: ComponentColor,
+  theme: DesignConfiguration
+): string => {
+  const isDark = theme.themeConfigurations.isLightMode;
+  switch (color) {
+    case ComponentColor.BorderColor:
+      return isDark ? "transparent" : theme.colors.utility2.main20;
+    case ComponentColor.BackgroundColor:
+      return isDark ? theme.colors.utility1.main80 : theme.colors.utility1.main;
+  }
+};
 type GlobalStyleProps = {
   isLightMode: boolean;
 };
@@ -63,7 +81,11 @@ export const ContentContainer = styled.div`
   // TODO: maybe this is too hacky? maybe there could be just another div
   // behind the main one with transform: translate(-4px, 4px);
   box-sizing: border-box;
-  background-color: ${(props) => props.theme.colors.utility1.main80};
+  background-color: ${(props) =>
+    getColor(ComponentColor.BackgroundColor, props.theme)};
+  border: 1px solid
+    ${(props) => getColor(ComponentColor.BorderColor, props.theme)};
+
   padding: 0;
   min-height: 620px;
   width: 100%;

@@ -35,6 +35,25 @@ import { SettingsState } from "slices/settings";
 import { Icon, IconName } from "components/Icon";
 import { useNavigate } from "react-router-dom";
 import { TopLevelRoute } from "App/types";
+import { DesignConfiguration } from "utils/theme";
+
+enum ComponentColor {
+  GasButtonBorder,
+  GasButtonBorderActive,
+}
+
+const getColor = (
+  color: ComponentColor,
+  theme: DesignConfiguration
+): string => {
+  const isDark = theme.themeConfigurations.isLightMode;
+  switch (color) {
+    case ComponentColor.GasButtonBorder:
+      return isDark ? theme.colors.primary.main : theme.colors.secondary.main;
+    case ComponentColor.GasButtonBorderActive:
+      return isDark ? theme.colors.primary.main : theme.colors.secondary.main;
+  }
+};
 
 type Props = {
   accountId: string;
@@ -287,7 +306,10 @@ const TokenSendForm = ({
   const gasFeeButtonActiveStyleOverride: CSSProperties = {
     backgroundColor: themeContext.colors.utility1.main60,
     color: themeContext.colors.utility2.main,
-    border: `solid 1px ${themeContext.colors.primary.main}`,
+    border: `solid 1px ${getColor(
+      ComponentColor.GasButtonBorderActive,
+      themeContext
+    )}`,
   };
   const gasFeeButtonStyleOverride: CSSProperties = {
     backgroundColor: themeContext.colors.utility1.main70,

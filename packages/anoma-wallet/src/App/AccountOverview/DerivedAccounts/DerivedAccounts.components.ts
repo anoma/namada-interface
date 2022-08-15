@@ -1,4 +1,20 @@
 import styled from "styled-components/macro";
+import { DesignConfiguration } from "utils/theme";
+
+enum ComponentColor {
+  ScrollbarThumb,
+}
+
+const getColor = (
+  color: ComponentColor,
+  theme: DesignConfiguration
+): string => {
+  const isDark = theme.themeConfigurations.isLightMode;
+  switch (color) {
+    case ComponentColor.ScrollbarThumb:
+      return isDark ? theme.colors.primary.main : theme.colors.secondary.main;
+  }
+};
 
 export const ThemedScrollbarContainer = styled.div`
   overflow-y: auto;
@@ -18,7 +34,8 @@ export const ThemedScrollbarContainer = styled.div`
   }
 
   &::-webkit-scrollbar-thumb {
-    background: ${(props) => props.theme.colors.primary.main};
+    background: ${(props) =>
+      getColor(ComponentColor.ScrollbarThumb, props.theme)};
     border-radius: 1ex;
     -webkit-border-radius: 1ex;
     box-shadow: none;

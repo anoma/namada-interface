@@ -1,4 +1,20 @@
 import styled from "styled-components/macro";
+import { DesignConfiguration } from "utils/theme";
+
+enum ComponentColor {
+  BorderColor,
+}
+
+const getColor = (
+  color: ComponentColor,
+  theme: DesignConfiguration
+): string => {
+  const isDark = theme.themeConfigurations.isLightMode;
+  switch (color) {
+    case ComponentColor.BorderColor:
+      return isDark ? theme.colors.primary.main60 : theme.colors.secondary.main;
+  }
+};
 
 export const InputWrapper = styled.div`
   padding: 2px 0;
@@ -6,7 +22,8 @@ export const InputWrapper = styled.div`
 
 export const TextInput = styled.input<{ error: boolean }>`
   background-color: ${(props) => props.theme.colors.utility1.main70};
-  border: 1px solid ${(props) => props.theme.colors.primary.main60};
+  border: 1px solid
+    ${(props) => getColor(ComponentColor.BorderColor, props.theme)};
   border-radius: 8px;
   color: ${(props) => props.theme.colors.utility2.main};
   font-weight: 500;
@@ -80,4 +97,7 @@ export const IconContainer = styled.span`
   top: 38%;
   right: 16px;
   cursor: pointer;
+  & path {
+    stroke: ${(props) => getColor(ComponentColor.BorderColor, props.theme)};
+  }
 `;

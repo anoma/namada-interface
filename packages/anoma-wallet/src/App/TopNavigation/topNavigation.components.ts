@@ -2,6 +2,22 @@ import styled, {
   css,
   FlattenSimpleInterpolation,
 } from "styled-components/macro";
+import { DesignConfiguration } from "utils/theme";
+
+enum ComponentColor {
+  Logo,
+}
+
+const getColor = (
+  color: ComponentColor,
+  theme: DesignConfiguration
+): string => {
+  const isDark = theme.themeConfigurations.isLightMode;
+  switch (color) {
+    case ComponentColor.Logo:
+      return isDark ? theme.colors.primary.main : theme.colors.utility2.main;
+  }
+};
 
 export const TopNavigationContainer = styled.div`
   display: flex;
@@ -129,7 +145,7 @@ export const LogoContainer = styled.div`
   & > div {
     svg > path {
       stroke: none;
-      fill: ${(props) => props.theme.colors.primary.main};
+      fill: ${(props) => getColor(ComponentColor.Logo, props.theme)};
     }
   }
 `;
@@ -143,8 +159,8 @@ export const MenuButton = styled.button`
 
   & div {
     svg > path {
-      stroke: ${(props) => props.theme.colors.primary.main};
-      fill: ${(props) => props.theme.colors.primary.main};
+      stroke: ${(props) => getColor(ComponentColor.Logo, props.theme)};
+      fill: ${(props) => getColor(ComponentColor.Logo, props.theme)};
     }
   }
 `;
@@ -158,7 +174,7 @@ export const MenuCloseButton = styled.button`
 
   & div {
     svg > path {
-      stroke: ${(props) => props.theme.colors.primary.main};
+      stroke: ${(props) => getColor(ComponentColor.Logo, props.theme)};
     }
   }
 `;
@@ -207,7 +223,7 @@ export const MobileMenuHeader = styled.div`
 
   & div {
     svg > path {
-      stroke: ${(props) => props.theme.colors.primary.main};
+      stroke: ${(props) => getColor(ComponentColor.Logo, props.theme)};
     }
   }
 
