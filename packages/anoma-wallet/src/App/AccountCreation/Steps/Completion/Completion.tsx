@@ -14,7 +14,7 @@ import {
   BodyText,
 } from "./Completion.components";
 import { Tokens, TokenType } from "constants/";
-import { createShieldedAccount } from "slices/accountsNew/actions";
+import { createShieldedAccount } from "slices/AccountsNew/actions";
 import { useNavigate } from "react-router-dom";
 import { TopLevelRoute } from "App/types";
 

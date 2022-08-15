@@ -1,15 +1,17 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import { Chain } from "config/chain";
 import { setFiatCurrency, setChainId, SettingsState } from "slices/settings";
 import { useAppDispatch, useAppSelector } from "store";
-import { Session } from "lib";
+import { Keplr, Session } from "lib";
 import { Currencies } from "constants/";
 
 import { NavigationContainer } from "components/NavigationContainer";
 import { Heading, HeadingLevel } from "components/Heading";
-import { SettingsWalletSettingsContainer } from "./SettingsWalletSettings.components";
+import {
+  ExtensionInfo,
+  SettingsWalletSettingsContainer,
+} from "./SettingsWalletSettings.components";
 import { Tooltip } from "components/Tooltip";
 import { Icon, IconName } from "components/Icon";
 import { Select, Option } from "components/Select";
@@ -35,9 +37,33 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
 
   const chains = Object.values(Config.chain);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
+  const chain = Config.chain[chainId];
+
+  const keplr = useMemo(() => {
+    return new Keplr(chain);
+  }, [chainId]);
+
+  enum KeplrConnectionState {
+    Initial,
+    Connecting,
+    Connected,
+  }
+
+  enum KeplrChainState {
+    Initial,
+    Adding,
+    Added,
+  }
+
   const [displaySeedPhrase, setDisplaySeedPhrase] = useState(false);
   const [seedPhrase, setSeedPhrase] = useState<string[]>([]);
   const [isLoadingSeed, setIsLoadingSeed] = useState(false);
+  const [keplrConnectionState, setKeplrConnectionState] = useState(
+    KeplrConnectionState.Initial
+  );
+  const [keplrChainState, setKeplrChainState] = useState(
+    KeplrChainState.Initial
+  );
 
   const networks = Object.values(chains).map(({ id, alias }: Chain) => ({
     label: alias,
@@ -65,6 +91,24 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
     (state) => state.settings.fiatCurrency
   );
 
+  useEffect(() => {
+    (async () => {
+      try {
+        const isChainAdded = await keplr.detectChain();
+        if (isChainAdded) {
+          setKeplrChainState(KeplrChainState.Added);
+        } else {
+          setKeplrChainState(KeplrChainState.Initial);
+          setKeplrConnectionState(KeplrConnectionState.Initial);
+        }
+      } catch (e) {
+        console.warn(e);
+        setKeplrChainState(KeplrChainState.Initial);
+        setKeplrConnectionState(KeplrConnectionState.Initial);
+      }
+    })();
+  }, [chainId]);
+
   const handleCurrencySelect = (
     e: React.ChangeEvent<HTMLSelectElement>
   ): void => {
@@ -79,6 +123,35 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
     const { value } = e.target;
 
     dispatch(setChainId(value));
+  };
+
+  const handleKeplrSuggestChainClick = async (): Promise<void> => {
+    if (keplr.detect()) {
+      try {
+        setKeplrChainState(KeplrChainState.Adding);
+        await keplr.suggestChain();
+        setKeplrChainState(KeplrChainState.Added);
+      } catch (e) {
+        console.warn(e);
+        setKeplrChainState(KeplrChainState.Initial);
+      }
+    }
+  };
+
+  const handleKeplrEnableClick = async (): Promise<void> => {
+    if (keplr.detect()) {
+      try {
+        setKeplrConnectionState(KeplrConnectionState.Connecting);
+        await keplr.enable();
+        const key = await keplr.getKey();
+
+        if (key) {
+          setKeplrConnectionState(KeplrConnectionState.Connected);
+        }
+      } catch (e) {
+        console.warn(e);
+      }
+    }
   };
 
   return (
@@ -146,6 +219,39 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
             onChange={handleNetworkSelect}
           />
         </InputContainer>
+
+        {keplr.detect() && keplrChainState !== KeplrChainState.Added && (
+          <Button
+            onClick={handleKeplrSuggestChainClick}
+            variant={ButtonVariant.Outlined}
+            disabled={keplrChainState === KeplrChainState.Adding}
+          >
+            Add Chain to Keplr
+          </Button>
+        )}
+
+        {keplrChainState === KeplrChainState.Added &&
+          keplrConnectionState !== KeplrConnectionState.Connected && (
+            <Button
+              onClick={handleKeplrEnableClick}
+              variant={ButtonVariant.Outlined}
+              disabled={
+                keplrConnectionState === KeplrConnectionState.Connecting
+              }
+            >
+              Connect to Keplr
+            </Button>
+          )}
+
+        {keplrConnectionState == KeplrConnectionState.Connected && (
+          <ExtensionInfo>Connected to Keplr Extension</ExtensionInfo>
+        )}
+
+        {!keplr.detect() && (
+          <ExtensionInfo>
+            Install the Keplr extension to connect your Wallet
+          </ExtensionInfo>
+        )}
       </SettingsContent>
       <ButtonsContainer>
         <BackButton

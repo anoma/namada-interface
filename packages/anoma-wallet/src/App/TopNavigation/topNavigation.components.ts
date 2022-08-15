@@ -235,6 +235,10 @@ export const MobileMenuListItem = styled.li`
   border-bottom: 1px solid ${(props) => props.theme.colors.utility2.main60};
   color: ${(props) => props.theme.colors.utility2.main80};
 
+  & button {
+    width: 100%;
+  }
+
   & button > div {
     color: ${(props) => props.theme.colors.utility2.main80};
     & > svg > path {

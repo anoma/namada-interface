@@ -14,8 +14,6 @@ describe("Account wasm and class methods", () => {
   });
 
   test("Account initialization should return a byte array and a hash", async () => {
-    const client = await new Account().init();
-
     fetchMock.mockResponseOnce(() => {
       return Promise.resolve(
         JSON.stringify({
@@ -24,6 +22,7 @@ describe("Account wasm and class methods", () => {
       );
     });
 
+    const client = await new Account().init();
     const { hash, bytes } = await client.initialize({
       epoch: 1,
       privateKey: PRIVATE_KEY,
@@ -31,6 +30,6 @@ describe("Account wasm and class methods", () => {
     });
 
     expect(hash.length).toBe(64);
-    expect(bytes.length).toBe(489);
+    expect(bytes.length).toBe(534);
   });
 });

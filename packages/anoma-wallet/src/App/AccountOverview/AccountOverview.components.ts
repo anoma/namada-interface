@@ -70,6 +70,7 @@ export const InputContainer = styled.div`
   justify-content: baseline;
   padding: 20px;
   color: ${(props) => props.theme.colors.utility2.main80};
+  box-sizing: border-box;
   input {
     width: 96%;
   }

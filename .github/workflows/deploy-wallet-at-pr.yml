@@ -105,7 +105,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
-          node-version: "14.x"
+          node-version: "18.x"
       - name: Install wasm-pack
         uses: jetli/wasm-pack-action@v0.3.0
         with:
@@ -125,7 +125,7 @@ jobs:
           --data '{"message":"E2E tests succeeded ✅\n \n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nReview\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
           ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
       - name: report failure
-        if: steps.run-playwright-tests.outcome != 'success'
+        if: failure() && steps.run-playwright-tests.outcome != 'success'
         run: |
           curl --header "Content-Type: application/json" \
           --request POST \

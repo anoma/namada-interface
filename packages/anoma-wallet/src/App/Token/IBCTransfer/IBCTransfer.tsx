@@ -54,10 +54,14 @@ const IBCTransfer = (): JSX.Element => {
 
   const selectDestinationChainData = ibc.map((ibcChain) => ({
     value: ibcChain.chainId,
-    label: chains[ibcChain.chainId].alias,
+    label: ibcChain.alias,
   }));
 
-  const channels = (channelsByChain[selectedChainId] || []).sort();
+  const channels =
+    channelsByChain[chainId] && channelsByChain[chainId][selectedChainId]
+      ? channelsByChain[chainId][selectedChainId]
+      : [];
+
   const selectChannelsData = channels.map((channel: string) => ({
     value: channel,
     label: channel,
@@ -157,7 +161,8 @@ const IBCTransfer = (): JSX.Element => {
   useEffect(() => {
     // Set a default selectedChannelId if none are selected, but channels are available
     if (selectedChainId && !selectedChannelId) {
-      const channels = channelsByChain[selectedChainId];
+      const chains = channelsByChain[chainId] || {};
+      const channels = chains[selectedChainId] || [];
       if (channels && channels.length > 0) {
         setSelectedChannelId(channels[0]);
       }
@@ -168,7 +173,8 @@ const IBCTransfer = (): JSX.Element => {
     if (channelId) {
       dispatch(
         addChannel({
-          chainId: selectedChainId,
+          chainId,
+          destinationChainId: selectedChainId,
           channelId,
         })
       );

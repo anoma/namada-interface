@@ -20,7 +20,7 @@ import {
   createShieldedTransfer,
   TRANSFER_CONFIGURATION,
 } from "./shieldedTransfer";
-import { updateShieldedBalances } from "./accountsNew";
+import { updateShieldedBalances } from "./AccountsNew";
 
 const TRANSFERS_ACTIONS_BASE = "transfers";
 const LEDGER_TRANSFER_TIMEOUT = 20000;

@@ -205,8 +205,12 @@ export const mockAppState: RootState = {
   },
   channels: {
     channelsByChain: {
-      "anoma-test.1e670ba91369ec891fc": ["channel-0"],
-      "anoma-test.89060614ce340f4baae": ["channel-0"],
+      "anoma-test.1e670ba91369ec891fc": {
+        "anoma-test.89060614ce340f4baae": ["channel-0"],
+      },
+      "anoma-test.89060614ce340f4baae": {
+        "anoma-test.1e670ba91369ec891fc": ["channel-0"],
+      },
     },
   },
   settings: {
