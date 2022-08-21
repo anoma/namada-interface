@@ -43,10 +43,22 @@
         "allowExpressions": true
       }
     ],
+    "@typescript-eslint/no-unused-vars": [
+      "warn", // or "error"
+      { 
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
+      }
+    ],
     "max-len": [
       "warn",
       {
-        "code": 120
+        "code": 120,
+        "ignoreTemplateLiterals": true,
+        "ignoreStrings": true,
+        "ignoreUrls": true,
+        "ignorePattern": "<path([/s/S]*?)/>"
       }
     ],
     "react-hooks/rules-of-hooks": "error",

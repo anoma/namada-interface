@@ -7,5 +7,5 @@ export const SettingsAccountSettingsContainer = styled.div`
   align-items: center;
   width: 100%;
   height: 100%;
-  color: ${(props) => props.theme.colors.titleColor};
+  color: ${(props) => props.theme.colors.utility2.main};
 `;

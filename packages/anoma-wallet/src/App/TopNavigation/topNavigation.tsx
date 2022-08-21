@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { ThemeContext } from "styled-components";
 import { useNavigate, useLocation, NavigateFunction } from "react-router-dom";
 import { Persistor } from "redux-persist";
 import { Provider } from "react-redux";
@@ -101,6 +102,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
     store,
   } = props;
   const navigate = useNavigate();
+  const themeContext = useContext(ThemeContext);
   const [showMenu, setShowMenu] = useState(false);
 
   return (
@@ -186,7 +188,11 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
             <>
               <LeftSection>
                 <MenuButton onClick={() => setShowMenu(true)}>
-                  <Icon iconName={IconName.Menu} />
+                  <Icon
+                    iconName={IconName.Menu}
+                    strokeColorOverride={themeContext.colors.primary.main60}
+                    fillColorOverride={themeContext.colors.primary.main60}
+                  />
                 </MenuButton>
               </LeftSection>
               <MiddleSection>
@@ -254,7 +260,10 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
         <MobileMenu className={showMenu ? "active" : ""}>
           <MobileMenuHeader>
             <MenuCloseButton onClick={() => setShowMenu(false)}>
-              <Icon iconName={IconName.ChevronLeft} />
+              <Icon
+                iconName={IconName.ChevronLeft}
+                strokeColorOverride={themeContext.colors.utility2.main60}
+              />
             </MenuCloseButton>
             <LogoContainer
               onClick={() => {

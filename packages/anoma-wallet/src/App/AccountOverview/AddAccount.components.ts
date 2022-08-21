@@ -8,7 +8,7 @@ export const AddAccountContainer = styled.div`
   width: 100%;
   height: 100%;
   padding: 0;
-  color: ${(props) => props.theme.colors.titleColor};
+  color: ${(props) => props.theme.colors.utility2.main};
 `;
 
 export const AddAccountContent = styled.div`

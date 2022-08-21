@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext, CSSProperties } from "react";
+import { ThemeContext } from "styled-components";
 import QrReader from "react-qr-reader";
 
 import Config from "config";
@@ -34,6 +35,25 @@ import { SettingsState } from "slices/settings";
 import { Icon, IconName } from "components/Icon";
 import { useNavigate } from "react-router-dom";
 import { TopLevelRoute } from "App/types";
+import { DesignConfiguration } from "utils/theme";
+
+enum ComponentColor {
+  GasButtonBorder,
+  GasButtonBorderActive,
+}
+
+const getColor = (
+  color: ComponentColor,
+  theme: DesignConfiguration
+): string => {
+  const isDark = theme.themeConfigurations.isLightMode;
+  switch (color) {
+    case ComponentColor.GasButtonBorder:
+      return isDark ? theme.colors.primary.main : theme.colors.secondary.main;
+    case ComponentColor.GasButtonBorderActive:
+      return isDark ? theme.colors.primary.main : theme.colors.secondary.main;
+  }
+};
 
 type Props = {
   accountId: string;
@@ -96,7 +116,7 @@ const TokenSendForm = ({
 }: Props): JSX.Element => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-
+  const themeContext = useContext(ThemeContext);
   const [target, setTarget] = useState<string | undefined>(defaultTarget);
   const [amount, setAmount] = useState(0);
 
@@ -282,6 +302,20 @@ const TokenSendForm = ({
     return transferAmount <= balance ? undefined : "Invalid amount!";
   };
 
+  // these are passed to button for the custom gas fee buttons
+  const gasFeeButtonActiveStyleOverride: CSSProperties = {
+    backgroundColor: themeContext.colors.utility1.main60,
+    color: themeContext.colors.utility2.main,
+    border: `solid 1px ${getColor(
+      ComponentColor.GasButtonBorderActive,
+      themeContext
+    )}`,
+  };
+  const gasFeeButtonStyleOverride: CSSProperties = {
+    backgroundColor: themeContext.colors.utility1.main70,
+    color: themeContext.colors.utility2.main80,
+  };
+
   return (
     <>
       <TokenSendFormContainer>
@@ -326,6 +360,11 @@ const TokenSendForm = ({
           <Button
             variant={ButtonVariant.Outlined}
             onClick={() => setGasFee(GasFee.Low)}
+            style={
+              gasFee === GasFee.Low
+                ? gasFeeButtonActiveStyleOverride
+                : gasFeeButtonStyleOverride
+            }
             className={gasFee === GasFee.Low ? "active" : ""}
           >
             <p>
@@ -339,7 +378,12 @@ const TokenSendForm = ({
           <Button
             variant={ButtonVariant.Outlined}
             onClick={() => setGasFee(GasFee.Medium)}
-            className={gasFee === GasFee.Medium ? "active" : ""}
+            style={
+              gasFee === GasFee.Medium
+                ? gasFeeButtonActiveStyleOverride
+                : gasFeeButtonStyleOverride
+            }
+            // className={gasFee === GasFee.Medium ? "active" : ""}
           >
             <p>
               <span>Medium</span>
@@ -352,7 +396,12 @@ const TokenSendForm = ({
           <Button
             variant={ButtonVariant.Outlined}
             onClick={() => setGasFee(GasFee.High)}
-            className={gasFee === GasFee.High ? "active" : ""}
+            style={
+              gasFee === GasFee.High
+                ? gasFeeButtonActiveStyleOverride
+                : gasFeeButtonStyleOverride
+            }
+            // className={gasFee === GasFee.High ? "active" : ""}
           >
             <p>
               <span>High</span>

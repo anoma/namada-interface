@@ -8,10 +8,10 @@ export const ButtonContainer = styled.button`
   align-items: center;
   box-sizing: border-box;
   padding: 0 16px;
-  background-color: ${(props) => props.theme.colors.yellow1};
+  background-color: ${(props) => props.theme.colors.primary.main80};
   cursor: pointer;
-  border: 2px solid ${(props) => props.theme.colors.buttonBorder};
-  border-bottom: solid 4px ${(props) => props.theme.colors.buttonShadow};
+  border: 2px solid ${(props) => props.theme.colors.primary.main80};
+  border-bottom: solid 4px ${(props) => props.theme.colors.primary.main60};
   height: 50px;
   min-height: 50px;
   min-width: 48px;
@@ -19,15 +19,14 @@ export const ButtonContainer = styled.button`
   font-weight: 600;
   transition: ${transition};
   &:hover {
-    background-color: ${(props) => props.theme.colors.yellow1Hover};
-    border: 2px solid ${(props) => props.theme.colors.buttonShadowHover};
-    border-bottom: solid 4px ${(props) => props.theme.colors.buttonShadowHover};
+    background-color: ${(props) => props.theme.colors.primary.main60};
+    border: 2px solid ${(props) => props.theme.colors.primary.main60};
+    border-bottom: solid 4px ${(props) => props.theme.colors.primary.main60};
   }
   &:disabled {
-    background-color: ${(props) => props.theme.colors.buttonDisabledBackground};
-    border: 2px solid ${(props) => props.theme.colors.buttonDisabledBorder};
-    border-bottom: solid 4px
-      ${(props) => props.theme.colors.buttonDisabledBorder};
+    background-color: ${(props) => props.theme.colors.primary.main60};
+    border: 2px solid ${(props) => props.theme.colors.primary.main60};
+    border-bottom: solid 4px ${(props) => props.theme.colors.primary.main60};
     cursor: default;
   }
 `;
@@ -42,9 +41,9 @@ export const ButtonContainerOutline = styled.button`
   // if light we use different
   color: ${(props) =>
     props.theme.themeConfigurations.isLightMode
-      ? props.theme.colors.textPrimary
+      ? props.theme.colors.primary.main80
       : "white"};
-  background-color: ${(props) => props.theme.colors.background2};
+  background-color: ${(props) => props.theme.colors.utility1.main80};
   cursor: pointer;
 
   // if light we use different color in the borders
@@ -52,12 +51,12 @@ export const ButtonContainerOutline = styled.button`
   border: 2px solid
     ${(props) =>
       props.theme.themeConfigurations.isLightMode
-        ? props.theme.colors.buttonBorder
+        ? props.theme.colors.primary.main
         : "white"};
   border-bottom: solid 4px
     ${(props) =>
       props.theme.themeConfigurations.isLightMode
-        ? props.theme.colors.buttonBorder
+        ? props.theme.colors.primary.main
         : "white"};
   height: 50px;
   min-height: 50px;
@@ -66,13 +65,13 @@ export const ButtonContainerOutline = styled.button`
   font-weight: 600;
   transition: ${transition};
   &:hover {
-    background-color: ${(props) => props.theme.colors.yellow1Hover};
+    background-color: ${(props) => props.theme.colors.primary.main60};
 
-    border: 2px solid ${(props) => props.theme.colors.buttonShadowHover};
-    border-bottom: solid 4px ${(props) => props.theme.colors.buttonShadowHover};
+    border: 2px solid ${(props) => props.theme.colors.primary.main40};
+    border-bottom: solid 4px ${(props) => props.theme.colors.primary.main40};
   }
   &:disabled {
-    background-color: ${(props) => props.theme.colors.buttonDisabledBackground};
+    background-color: ${(props) => props.theme.colors.primary.main80};
     cursor: default;
   }
 `;
@@ -86,7 +85,7 @@ export const ButtonContainerText = styled.button`
   background: none;
   cursor: pointer;
   border: none;
-  color: ${(props) => props.theme.colors.titleColor};
+  color: ${(props) => props.theme.colors.utility2.main80};
   height: 32px;
   min-height: 32px;
   min-width: 48px;
@@ -94,11 +93,10 @@ export const ButtonContainerText = styled.button`
   font-weight: 600;
   transition: ${transition};
   &:hover {
-    background-color: ${(props) =>
-      props.theme.colors.buttonOutlineStyleHoverBackground};
+    background-color: ${(props) => props.theme.colors.utility1.main75};
   }
   &:disabled {
-    background-color: ${(props) => props.theme.colors.buttonDisabledBackground};
+    background-color: ${(props) => props.theme.colors.primary.main60};
     cursor: default;
   }
 `;

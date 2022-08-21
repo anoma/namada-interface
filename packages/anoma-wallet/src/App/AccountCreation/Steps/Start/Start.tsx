@@ -12,7 +12,7 @@ type StartViewProps = {
 };
 
 function Start(props: StartViewProps): React.ReactElement {
-  const { onCtaClick, onCtaHover } = props;
+  const { onCtaClick } = props;
   return (
     <StartViewContainer>
       <StartViewUpperPartContainer>

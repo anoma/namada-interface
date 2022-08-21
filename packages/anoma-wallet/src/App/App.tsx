@@ -11,7 +11,7 @@ import { AnimatePresence } from "framer-motion";
 import { ThemeProvider } from "styled-components/macro";
 
 // internal
-import { darkColors, lightColors, Theme } from "utils/theme";
+import { getTheme } from "utils/theme";
 import { TopLevelRoute } from "./types";
 
 import { TopNavigation } from "./TopNavigation";
@@ -32,18 +32,6 @@ import { Persistor, persistStore } from "redux-persist";
 import { Provider } from "react-redux";
 
 export const history = createBrowserHistory({ window });
-
-// this sets the dark/light colors to theme
-export const getTheme = (isLightMode: boolean): Theme => {
-  const colors = isLightMode ? lightColors : darkColors;
-  const theme: Theme = {
-    themeConfigurations: {
-      isLightMode: isLightMode,
-    },
-    colors: colors,
-  };
-  return theme;
-};
 
 export const AnimatedTransition = (props: {
   children: React.ReactNode;

@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
-
+import { useContext } from "react";
+import { ThemeContext } from "styled-components";
 import { useAppDispatch, useAppSelector } from "store";
 import {
   AccountsState,
@@ -38,6 +39,7 @@ export const SettingsAccountSettings = (): JSX.Element => {
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const dispatch = useAppDispatch();
+  const styleContext = useContext(ThemeContext);
 
   const { id = "" } = params;
   const derivedAccounts = derived[chainId] || {};
@@ -106,7 +108,10 @@ export const SettingsAccountSettings = (): JSX.Element => {
               <Button
                 variant={ButtonVariant.ContainedAlternative}
                 onClick={handleDeleteAccount}
-                style={{ marginLeft: 0 }}
+                style={{
+                  marginLeft: 0,
+                  backgroundColor: styleContext.colors.utility3.error,
+                }}
               >
                 Delete Account
               </Button>
