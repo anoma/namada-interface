@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { TopLevelRoute } from "App/types";
-import { LoginViewContainer } from "./Login.components";
+import { LoginViewContainer, UnlockingLabel } from "./Login.components";
 import { useNavigate } from "react-router-dom";
 import { Input, InputVariants } from "components/Input";
 import { Button, ButtonVariant } from "components/Button";
@@ -73,7 +73,7 @@ const Login = ({ setPassword, setStore }: Props): JSX.Element => {
       >
         Unlock Wallet
       </Button>
-      {isLoggingIn && <p>Unlocking wallet...</p>}
+      {isLoggingIn && <UnlockingLabel>Unlocking wallet...</UnlockingLabel>}
     </LoginViewContainer>
   );
 };

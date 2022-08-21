@@ -133,7 +133,7 @@ function AccountCreation({ setStore, store, setPassword }: Props): JSX.Element {
             >
               <Icon
                 iconName={IconName.ChevronLeft}
-                strokeColorOverride={themeContext.colors.buttonBackground2}
+                strokeColorOverride={themeContext.colors.utility2.main60}
                 iconSize={IconSize.L}
               />
             </a>

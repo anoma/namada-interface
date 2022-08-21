@@ -44,7 +44,7 @@ export const AccountNameContainer = styled.div`
   overflow: hidden;
   white-space: nowrap;
   border-radius: 8px;
-  background-color: ${(props) => props.theme.colors.headingBackground};
+  background-color: ${(props) => props.theme.colors.utility1.main70};
 `;
 
 export const AccountNameContainerOverflow = styled.div`
@@ -76,7 +76,7 @@ export const AccountAlias = styled.span`
   font-weight: 600;
   padding: 8px;
   width: 120px;
-  color: ${(props) => props.theme.colors.titleColor};
+  color: ${(props) => props.theme.colors.utility2.main80};
 
   span {
     font-weight: normal;

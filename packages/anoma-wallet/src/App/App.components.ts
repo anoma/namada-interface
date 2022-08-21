@@ -1,6 +1,24 @@
 import styled, { createGlobalStyle } from "styled-components/macro";
 import { motion } from "framer-motion";
+import { DesignConfiguration } from "utils/theme";
 
+enum ComponentColor {
+  BorderColor,
+  BackgroundColor,
+}
+
+const getColor = (
+  color: ComponentColor,
+  theme: DesignConfiguration
+): string => {
+  const isDark = theme.themeConfigurations.isLightMode;
+  switch (color) {
+    case ComponentColor.BorderColor:
+      return isDark ? "transparent" : theme.colors.utility2.main20;
+    case ComponentColor.BackgroundColor:
+      return isDark ? theme.colors.utility1.main80 : theme.colors.utility1.main;
+  }
+};
 type GlobalStyleProps = {
   isLightMode: boolean;
 };
@@ -9,7 +27,7 @@ type GlobalStyleProps = {
 // on whether the user is logged in
 export const GlobalStyles = createGlobalStyle<GlobalStyleProps>`
   html, body {
-    background-color: ${(props) => (props.isLightMode ? "#ffffff" : "#000000")};
+    background-color: ${(props) => props.theme.colors.utility1.main};
     transition: background-color 0.5s ease;
   }
 `;
@@ -29,7 +47,7 @@ export const AppContainer = styled.div`
   flex-direction: column;
   height: 100vh;
   width: 100%;
-  background-color: ${(props) => props.theme.colors.background1};
+  background-color: ${(props) => props.theme.colors.utility1.main};
   transition: all 0.3s linear;
   box-sizing: border-box;
 
@@ -63,13 +81,16 @@ export const ContentContainer = styled.div`
   // TODO: maybe this is too hacky? maybe there could be just another div
   // behind the main one with transform: translate(-4px, 4px);
   box-sizing: border-box;
-  background-color: ${(props) => props.theme.colors.background2};
+  background-color: ${(props) =>
+    getColor(ComponentColor.BackgroundColor, props.theme)};
+  border: 1px solid
+    ${(props) => getColor(ComponentColor.BorderColor, props.theme)};
+
   padding: 0;
   min-height: 620px;
   width: 100%;
   max-width: 760px;
   border-radius: 24px;
   overflow-x: hidden;
-  ${(props) => `border: solid 1px ${props.theme.colors.border}`};
   transition: background-color 0.3s linear;
 `;

@@ -15,6 +15,13 @@ export const TokenReceiveContent = styled.div`
   margin: 20px 0;
   height: 400px;
   box-sizing: border-box;
+
+  // TODO unify pre as a component if it is being used
+  // but do we really need pre in these?
+  pre {
+    background-color: ${(props) => props.theme.colors.utility1.main70};
+    color: ${(props) => props.theme.colors.utility2.main80};
+  }
 `;
 
 export const CanvasContainer = styled.div`

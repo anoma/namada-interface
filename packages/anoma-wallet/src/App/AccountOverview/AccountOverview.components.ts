@@ -1,5 +1,25 @@
 import styled from "styled-components/macro";
+import { DesignConfiguration } from "utils/theme";
 
+enum ComponentColor {
+  TabLabelActive,
+  BackgroundActive,
+}
+
+const getColor = (
+  color: ComponentColor,
+  theme: DesignConfiguration
+): string => {
+  const isDark = theme.themeConfigurations.isLightMode;
+  switch (color) {
+    case ComponentColor.TabLabelActive:
+      return isDark ? theme.colors.primary.main : theme.colors.secondary.main;
+    case ComponentColor.BackgroundActive:
+      return isDark
+        ? theme.colors.utility1.main80
+        : theme.colors.utility3.white;
+  }
+};
 export const AccountOverviewContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -7,7 +27,6 @@ export const AccountOverviewContainer = styled.div`
   align-items: center;
   width: 100%;
   height: 100%;
-
   h1 {
     margin: 0;
   }
@@ -17,8 +36,12 @@ export const AccountOverviewContainer = styled.div`
   }
 
   h1,
-  h4 {
-    color: ${(props) => props.theme.colors.titleColor};
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: ${(props) => props.theme.colors.utility2.main};
   }
 `;
 
@@ -26,7 +49,8 @@ export const AccountOverviewContent = styled.div`
   width: 100%;
   padding: 0 40px;
   box-sizing: border-box;
-  background-color: ${(props) => props.theme.colors.tabActiveBackground};
+  background-color: ${(props) =>
+    getColor(ComponentColor.BackgroundActive, props.theme)};
 `;
 
 export const AccountTabsContainer = styled.div`
@@ -43,16 +67,17 @@ export const AccountTab = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  color: ${(props) => props.theme.colors.tabInactiveColor};
-  background-color: ${(props) => props.theme.colors.tabInactiveBackground};
+  color: ${(props) => props.theme.colors.utility2.main80};
+  background-color: ${(props) => props.theme.colors.utility1.main60};
   font-size: 14px;
   font-weight: bold;
   cursor: pointer;
 
   &.active {
     cursor: default;
-    color: ${(props) => props.theme.colors.buttonText1};
-    background-color: ${(props) => props.theme.colors.tabActiveBackground};
+    color: ${(props) => getColor(ComponentColor.TabLabelActive, props.theme)};
+    background-color: ${(props) =>
+      getColor(ComponentColor.BackgroundActive, props.theme)};
   }
 
   &.disabled {
@@ -65,10 +90,14 @@ export const InputContainer = styled.div`
   width: 100%;
   justify-content: baseline;
   padding: 20px;
+  color: ${(props) => props.theme.colors.utility2.main80};
   box-sizing: border-box;
-
   input {
     width: 96%;
+  }
+
+  pre {
+    background-color: ${(props) => props.theme.colors.utility1.main70};
   }
 `;
 
@@ -122,7 +151,7 @@ export const TotalAmount = styled.div`
   font-weight: bold;
   padding: 0;
   text-align: right;
-  color: ${(props) => props.theme.colors.titleColor};
+  color: ${(props) => props.theme.colors.utility2.main};
 `;
 
 export const TotalAmountValue = styled.span`
@@ -143,5 +172,5 @@ export const NoAccountsContainer = styled.div`
   align-items: center;
   margin: 0;
   padding: 20px 0;
-  color: ${(props) => props.theme.colors.titleColor};
+  color: ${(props) => props.theme.colors.utility2.main80};
 `;

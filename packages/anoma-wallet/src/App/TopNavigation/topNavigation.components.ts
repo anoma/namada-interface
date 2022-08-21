@@ -2,6 +2,22 @@ import styled, {
   css,
   FlattenSimpleInterpolation,
 } from "styled-components/macro";
+import { DesignConfiguration } from "utils/theme";
+
+enum ComponentColor {
+  Logo,
+}
+
+const getColor = (
+  color: ComponentColor,
+  theme: DesignConfiguration
+): string => {
+  const isDark = theme.themeConfigurations.isLightMode;
+  switch (color) {
+    case ComponentColor.Logo:
+      return isDark ? theme.colors.primary.main : theme.colors.utility2.main;
+  }
+};
 
 export const TopNavigationContainer = styled.div`
   display: flex;
@@ -59,8 +75,9 @@ export const RightSection = styled(Section)`
   width: 25%;
 `;
 
-const isSelected = (): FlattenSimpleInterpolation => {
+const isSelected = (colorInHex: string): FlattenSimpleInterpolation => {
   return css`
+    color: ${colorInHex};
     transition: font-weight 0.1s ease-out, stroke-width 0.1s ease-out;
     font-weight: 700;
     & path {
@@ -78,6 +95,7 @@ export const MenuItem = styled.button<{ isSelected?: boolean }>`
   margin: 0 22px;
   font-size: 14px;
   box-sizing: border-box;
+  color: ${(props) => props.theme.colors.utility2.main80};
 
   @media screen and (max-width: 860px) {
     padding: 40px 0;
@@ -90,11 +108,11 @@ export const MenuItem = styled.button<{ isSelected?: boolean }>`
   }
 
   & path {
-    stroke-width: 1;
-    fill: ${(props) => props.theme.colors.buttonBackground4};
+    fill: ${(props) => props.theme.colors.utility2.main60};
   }
-  //width: 10%;
-  ${(props) => (props.isSelected ? isSelected() : "")}
+
+  ${(props) =>
+    props.isSelected ? isSelected(props.theme.colors.utility2.main) : ""}
 `;
 
 export const MenuItemTextContainer = styled.div`
@@ -107,8 +125,6 @@ export const MenuItemTextContainer = styled.div`
     margin-right: 0;
     padding-right: 0;
   }
-
-  color: ${(props) => props.theme.colors.logoColor};
 `;
 
 export const MenuItemIconContainer = styled.div`
@@ -129,7 +145,7 @@ export const LogoContainer = styled.div`
   & > div {
     svg > path {
       stroke: none;
-      fill: ${(props) => props.theme.colors.logoColor};
+      fill: ${(props) => getColor(ComponentColor.Logo, props.theme)};
     }
   }
 `;
@@ -143,8 +159,8 @@ export const MenuButton = styled.button`
 
   & div {
     svg > path {
-      stroke: ${(props) => props.theme.colors.logoColor};
-      fill: ${(props) => props.theme.colors.logoColor};
+      stroke: ${(props) => getColor(ComponentColor.Logo, props.theme)};
+      fill: ${(props) => getColor(ComponentColor.Logo, props.theme)};
     }
   }
 `;
@@ -158,7 +174,7 @@ export const MenuCloseButton = styled.button`
 
   & div {
     svg > path {
-      stroke: ${(props) => props.theme.colors.logoColor};
+      stroke: ${(props) => getColor(ComponentColor.Logo, props.theme)};
     }
   }
 `;
@@ -191,7 +207,7 @@ export const MobileMenu = styled.div`
   &.active {
     display: flex;
     flex-direction: column;
-    background: ${(props) => props.theme.colors.background1};
+    background: ${(props) => props.theme.colors.utility1.main80};
     position: fixed;
     top: 0;
     left: 0;
@@ -207,14 +223,14 @@ export const MobileMenuHeader = styled.div`
 
   & div {
     svg > path {
-      stroke: ${(props) => props.theme.colors.buttonBackground2};
+      stroke: ${(props) => getColor(ComponentColor.Logo, props.theme)};
     }
   }
 
   & div:nth-child(2) {
     svg > path {
-      stroke: ${(props) => props.theme.colors.headingColor};
-      fill: ${(props) => props.theme.colors.headingColor};
+      stroke: ${(props) => props.theme.colors.utility2.main};
+      fill: ${(props) => props.theme.colors.utility2.main};
     }
   }
 `;
@@ -232,18 +248,17 @@ export const MobileMenuList = styled.ul`
 export const MobileMenuListItem = styled.li`
   padding: 0;
   margin: 0;
-  border-bottom: 1px solid ${(props) => props.theme.colors.buttonBackground4};
-  color: ${(props) => props.theme.colors.headingColor};
+  border-bottom: 1px solid ${(props) => props.theme.colors.utility2.main60};
+  color: ${(props) => props.theme.colors.utility2.main80};
 
   & button {
     width: 100%;
   }
 
   & button > div {
-    color: ${(props) => props.theme.colors.headingColor};
-
+    color: ${(props) => props.theme.colors.utility2.main80};
     & > svg > path {
-      fill: ${(props) => props.theme.colors.buttonBackground2};
+      fill: ${(props) => props.theme.colors.utility2.main80};
     }
   }
 `;

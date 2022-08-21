@@ -1,14 +1,35 @@
 import styled from "styled-components/macro";
+import { DesignConfiguration } from "utils/theme";
 
-// TODO: connect the theme colors to these
-const BACKGROUND_ENABLED = "#F4C54F";
-const BACKGROUND_DISABLE = "#E8E8F2";
-
-const COMPONENT_WIDTH_PIXELS = 42;
+const COMPONENT_WIDTH_PIXELS = 46;
 const CIRCLE_DIAMETER_PIXELS = 20;
-const BORDER_PIXELS = 1;
+const BORDER_PIXELS = 2;
 
 const transition = "all 0.3s ease-in-out";
+
+enum ComponentColor {
+  CircleBackground,
+  ToggleBackground,
+  ToggleBorder,
+}
+
+const getColor = (
+  toggleColor: ComponentColor,
+  theme: DesignConfiguration
+): string => {
+  const isDark = theme.themeConfigurations.isLightMode;
+  switch (toggleColor) {
+    case ComponentColor.CircleBackground:
+      return isDark ? theme.colors.primary.main : theme.colors.secondary.main;
+    case ComponentColor.ToggleBackground:
+      return isDark
+        ? theme.colors.utility1.main60
+        : theme.colors.utility1.main20;
+    case ComponentColor.ToggleBorder:
+      return theme.colors.primary.main;
+  }
+};
+
 export const ToggleContainer = styled.button<{
   checked: boolean;
   isLoading?: boolean;
@@ -20,14 +41,16 @@ export const ToggleContainer = styled.button<{
   padding: 0;
   padding-left: ${(props) =>
     props.checked
-      ? `${BORDER_PIXELS}px`
-      : `${COMPONENT_WIDTH_PIXELS - CIRCLE_DIAMETER_PIXELS - BORDER_PIXELS}px`};
-  border: 1px solid ${(props) => props.theme.colors.toggleBorder};
+      ? `${BORDER_PIXELS - 1}px`
+      : `${
+          COMPONENT_WIDTH_PIXELS - CIRCLE_DIAMETER_PIXELS - 1 - BORDER_PIXELS
+        }px`};
+  border: 1px solid
+    ${(props) => getColor(ComponentColor.ToggleBackground, props.theme)};
   border-radius: 999px;
-  background-color: ${(props) => props.theme.colors.toggleBackground};
+  background-color: ${(props) =>
+    getColor(ComponentColor.ToggleBackground, props.theme)};
   /* TODO: Make this work for all toggles, not just theme selection */
-  /* background-color: ${(props) =>
-    props.checked ? BACKGROUND_ENABLED : BACKGROUND_DISABLE}; */
   transition: ${transition};
   cursor: pointer;
 `;
@@ -43,7 +66,8 @@ export const ToggleCircle = styled.div<{
   height: ${CIRCLE_DIAMETER_PIXELS}px;
   border: none;
   border-radius: 50%;
-  background-color: ${(props) => props.theme.colors.toggleCircle};
+  background-color: ${(props) =>
+    getColor(ComponentColor.CircleBackground, props.theme)};
   box-sizing: border-box;
   transition: ${transition};
 `;

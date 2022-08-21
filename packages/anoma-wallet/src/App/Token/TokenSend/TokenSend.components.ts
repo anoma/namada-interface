@@ -1,4 +1,25 @@
 import styled from "styled-components/macro";
+import { DesignConfiguration } from "utils/theme";
+
+enum ComponentColor {
+  TabBackgroundColorActive,
+  TabBackgroundColor,
+}
+
+const getColor = (
+  color: ComponentColor,
+  theme: DesignConfiguration
+): string => {
+  const isDark = theme.themeConfigurations.isLightMode;
+  switch (color) {
+    case ComponentColor.TabBackgroundColorActive:
+      return isDark ? theme.colors.utility1.main80 : theme.colors.utility1.main;
+    case ComponentColor.TabBackgroundColor:
+      return isDark
+        ? theme.colors.utility1.main70
+        : theme.colors.utility1.main40;
+  }
+};
 
 export const TokenSendContainer = styled.div`
   display: flex;
@@ -8,7 +29,7 @@ export const TokenSendContainer = styled.div`
   width: 100%;
   height: 100%;
   padding: 0;
-  color: ${(props) => props.theme.colors.titleColor};
+  color: ${(props) => props.theme.colors.utility2.main};
 `;
 
 export const TokenSendTabsGroup = styled.div`
@@ -19,8 +40,9 @@ export const TokenSendTabsGroup = styled.div`
 `;
 
 export const TokenSendTab = styled.button`
-  color: ${(props) => props.theme.colors.tabInactiveColor};
-  background-color: ${(props) => props.theme.colors.tabInactiveBackground};
+  background-color: ${(props) =>
+    getColor(ComponentColor.TabBackgroundColor, props.theme)};
+  color: ${(props) => props.theme.colors.utility2.main60};
   width: 100%;
   border: 0;
   padding: 8px 4px;
@@ -31,8 +53,11 @@ export const TokenSendTab = styled.button`
 
   &.active {
     cursor: default;
-    color: ${(props) => props.theme.colors.tabActiveColor};
-    background-color: ${(props) => props.theme.colors.tabActiveBackground};
+    color: ${(props) => props.theme.colors.utility2.main80};
+    background-color: ${(props) => props.theme.colors.utility1.main80};
+    background-color: ${(props) =>
+      getColor(ComponentColor.TabBackgroundColorActive, props.theme)};
+    color: ${(props) => props.theme.colors.secondary.main};
   }
 `;
 

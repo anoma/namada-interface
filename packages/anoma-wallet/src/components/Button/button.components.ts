@@ -1,4 +1,23 @@
 import styled from "styled-components/macro";
+import { DesignConfiguration } from "utils/theme";
+
+enum ComponentColor {
+  ButtonBackground,
+  ContainedButtonLabelColor,
+}
+
+const getColor = (
+  color: ComponentColor,
+  theme: DesignConfiguration
+): string => {
+  const isDark = theme.themeConfigurations.isLightMode;
+  switch (color) {
+    case ComponentColor.ButtonBackground:
+      return isDark ? theme.colors.primary.main : theme.colors.secondary.main;
+    case ComponentColor.ContainedButtonLabelColor:
+      return isDark ? theme.colors.utility3.black : theme.colors.utility3.black;
+  }
+};
 
 const Button = styled.button`
   padding: 0.75em 1.25em;
@@ -13,54 +32,52 @@ const Button = styled.button`
 
 const RoundButton = styled(Button)`
   border-radius: 200px;
-  border-width: 1px;
+  border: none;
 `;
 
 export const OutlinedButton = styled(RoundButton)`
-  border-color: ${(props) => props.theme.colors.buttonBorder2};
-  background-color: ${(props) => props.theme.colors.background2};
-  color: ${(props) => props.theme.colors.buttonText1};
+  border-color: ${(props) => props.theme.colors.primary.main60};
+  background-color: ${(props) => props.theme.colors.utility1.main80};
+  color: ${(props) => props.theme.colors.utility1.main80};
 
   &:hover {
-    border-color: ${(props) => props.theme.colors.buttonHover1};
+    border-color: ${(props) => props.theme.colors.primary.main80};
   }
   &:disabled {
     opacity: 30%;
     cursor: initial;
-    border-color: ${(props) => props.theme.colors.buttonBorder1};
+    border-color: ${(props) => props.theme.colors.primary.main80};
   }
 
   &.active {
-    background-color: ${(props) => props.theme.colors.buttonBackground2};
-    color: ${(props) => props.theme.colors.buttonText2};
+    background-color: ${(props) => props.theme.colors.primary.main};
+    color: ${(props) => props.theme.colors.utility2.main80};
   }
 `;
 
 export const ContainedButton = styled(RoundButton)`
-  border-color: ${(props) => props.theme.colors.buttonBorder2};
-  background-color: ${(props) => props.theme.colors.buttonBackground2};
-  color: ${(props) => props.theme.colors.buttonText2};
-  &:hover {
-    border-color: ${(props) => props.theme.colors.buttonHover2};
-  }
+  background-color: ${(props) => props.theme.colors.primary.main};
+  background-color: ${(props) =>
+    getColor(ComponentColor.ButtonBackground, props.theme)};
+  color: ${(props) =>
+    getColor(ComponentColor.ContainedButtonLabelColor, props.theme)};
   &:disabled {
-    opacity: 30%;
+    opacity: 50%;
     cursor: initial;
-    border-color: ${(props) => props.theme.colors.buttonBorder2};
   }
 `;
 
 export const ContainedAltButton = styled(RoundButton)`
-  border-color: ${(props) => props.theme.colors.buttonBorder3};
-  background-color: ${(props) => props.theme.colors.buttonBackground3};
-  color: ${(props) => props.theme.colors.buttonText3};
+  border-color: ${(props) => props.theme.colors.primary.main60};
+  background-color: ${(props) => props.theme.colors.primary.main80};
+  color: ${(props) => props.theme.colors.utility1.main80};
   &:hover {
-    border-color: ${(props) => props.theme.colors.buttonHover3};
+    border-color: ${(props) => props.theme.colors.primary.main60};
   }
   &:disabled {
     opacity: 30%;
     cursor: initial;
-    border-color: ${(props) => props.theme.colors.buttonBorder3};
+    border-color: ${(props) => props.theme.colors.primary.main60};
   }
 `;
 
@@ -68,10 +85,10 @@ export const SmallButton = styled(Button)`
   border-width: 1px;
   border-radius: 4px;
   background-color: transparent;
-  border-color: ${(props) => props.theme.colors.buttonTextSmall};
-  color: ${(props) => props.theme.colors.buttonTextSmall};
+  border-color: ${(props) => props.theme.colors.primary.main60};
+  color: ${(props) => props.theme.colors.utility2.main60};
   &:active {
-    background-color: ${(props) => props.theme.colors.buttonTextSmall};
+    background-color: ${(props) => props.theme.colors.primary.main60};
     color: white;
   }
   &:disabled {
