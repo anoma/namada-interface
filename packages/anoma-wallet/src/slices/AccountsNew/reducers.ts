@@ -54,13 +54,17 @@ export const addAccountReducersToBuilder = (
     .addCase(
       updateShieldedBalances.fulfilled,
       (state, action: PayloadAction<ShieldedBalancesPayload | undefined>) => {
-        const { chainId = "", shieldedBalances = {} } = action.payload || {};
+        const { chainId, shieldedBalances = {} } = action.payload || {};
 
-        const shieldedAccounts = state.shieldedAccounts[chainId];
+        if (chainId) {
+          const shieldedAccounts = state.shieldedAccounts[chainId];
 
-        for (const [key, shieldedBalance] of Object.entries(shieldedBalances)) {
-          if (shieldedAccounts[key] && typeof shieldedBalance === "number") {
-            state.shieldedAccounts[chainId][key].balance = shieldedBalance;
+          for (const [key, shieldedBalance] of Object.entries(
+            shieldedBalances
+          )) {
+            if (shieldedAccounts[key] && typeof shieldedBalance === "number") {
+              state.shieldedAccounts[chainId][key].balance = shieldedBalance;
+            }
           }
         }
       }

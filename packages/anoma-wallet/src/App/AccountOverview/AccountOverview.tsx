@@ -77,7 +77,7 @@ export const AccountOverview = ({
       (async () => {
         const mnemonic = await Session.getSeed(password);
         const wallet = await new Wallet(mnemonic || "", "NAM").init();
-        const account = wallet.new(accountIndex, 0);
+        const account = wallet.deriveChildAccount(accountIndex, 0);
         const { public: publicKey, secret: signingKey, wif: address } = account;
 
         dispatch(

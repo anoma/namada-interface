@@ -74,7 +74,7 @@ class Wallet {
    * NOTE: A "child" account is represented as a
    * set of Bip32 keys derived from our root account.
    */
-  public new(
+  public deriveChildAccount(
     account: number,
     index: number,
     encoding: Encoding = "hex",
