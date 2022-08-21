@@ -1,4 +1,8 @@
-type PrimitiveColors = {
+// the tokens in this file should always reflect the content of
+// our Figma, which is considered to be the source of truth.
+// https://www.figma.com/file/aiWZpaXjPLW6fDjE7dpFaU/Projects-2021?node-id=9102%3A8806
+
+type Colors = {
   primary: {
     main: string;
     main80: string;
@@ -76,7 +80,8 @@ type Type = {
   weight: string;
   fontFamily: string;
 };
-type TypeAndFont = {
+
+type Typography = {
   h1: Type;
   h2: Type;
   h3: Type;
@@ -87,15 +92,15 @@ type TypeAndFont = {
 };
 
 export type DesignConfiguration = {
-  colors: PrimitiveColors;
+  colors: Colors;
   spacers: Spacers;
   borderRadius: BorderRadius;
-  typeAndFont: TypeAndFont;
+  typography: Typography;
   themeConfigurations: { isLightMode?: boolean };
 };
 
 // NAMADA
-const namadaDarkColors: PrimitiveColors = {
+const namadaDarkColors: Colors = {
   primary: {
     main: "#FFFF00",
     main80: "#CCCC00",
@@ -144,7 +149,7 @@ const namadaDarkColors: PrimitiveColors = {
   },
 };
 
-const namadaLightColors: PrimitiveColors = {
+const namadaLightColors: Colors = {
   primary: {
     main: "#FFFF00",
     main80: "#CCCC00",
@@ -214,7 +219,7 @@ const namadaSpacers = {
 
 const namadaBorderRadius = { s: "12px", m: "24px" };
 
-const namadaTypeAndFont = {
+const namadaTypography = {
   body: {
     fontFamily: "Space Grotesk",
     size: "48px",
@@ -275,7 +280,7 @@ export const getTheme = (isLightMode: boolean): DesignConfiguration => {
         colors: isLightMode ? namadaDarkColors : namadaLightColors,
         spacers: namadaSpacers,
         borderRadius: namadaBorderRadius,
-        typeAndFont: namadaTypeAndFont,
+        typography: namadaTypography,
         themeConfigurations: { isLightMode },
       };
       return namadaTheme;

@@ -23,7 +23,7 @@ export const ThemedScrollbarContainer = styled.div`
   /* NOTE - Firefox will only show max width on hover, otherwise is thin profile */
   /* TODO - Refactor this into a common function */
   scrollbar-width: 10px;
-  scrollbar-color: ${(props) => props.theme.colors.primary.main + " red"};
+  scrollbar-color: ${(props) => props.theme.colors.primary.main};
 
   &::-webkit-scrollbar {
     height: 12px;
@@ -40,10 +40,6 @@ export const ThemedScrollbarContainer = styled.div`
     -webkit-border-radius: 1ex;
     box-shadow: none;
     -webkit-box-shadow: none;
-  }
-
-  &::-webkit-scrollbar-corner {
-    background: red;
   }
 `;
 

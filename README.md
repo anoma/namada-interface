@@ -1,10 +1,10 @@
-# namada-interface
+<h1> namada-interface</h1>
 
 <div style="width: 100%; display: flex; justify-content: center; margin-bottom: 32px;">
     <img style="width: 300px;" src="banner-image.png" />
 </div>
 
-## Run it
+<h2> Run it</h2>
 
 ```bash
 # go to the directory of namada-interface web app
@@ -21,8 +21,20 @@ yarn wasm:build
 yarn
 yarn start
 ```
+for solving possible issue see [Troubleshooting](#troubleshooting)
 
-for solving issue see [Troubleshooting](#troubleshooting)
+- [Introduction](#introduction)
+- [anoma-lib](#anoma-lib)
+  - [Project Structure](#project-structure)
+    - [Utils / Theme](#utils--theme)
+      - [Colors](#colors)
+      - [Example](#example)
+      - [Exceptions](#exceptions)
+  - [Testing](#testing)
+    - [Unit](#unit)
+    - [e2e](#e2e)
+  - [Troubleshooting](#troubleshooting)
+
 ## Introduction
 
 This is the main app of the project and it is the user interface of the application. It is based on create-react-app and uses TypeScript. Some of its' functionality is split to external project living in this repository, under the directory `packages`. They are: [anoma-lib](#anoma-lib), [key-management](#key-management), [masp-web](#masp-web). All of those dependencies use Rust code that is compiled to WASM with [bindgen](https://rustwasm.github.io/wasm-bindgen). Anoma-wallet and its developers do not have to care about this fact, except when compiling the dependencies in the beginning. All of the libraries using WASM exposes a usual TypeScript interface.
