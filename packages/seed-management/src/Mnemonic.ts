@@ -1,4 +1,4 @@
-import { AnomaClient } from "@namada-interface/anoma-lib";
+import { AnomaClient } from "@anoma/wasm";
 import { toBase64, fromBase64 } from "@cosmjs/encoding";
 
 export enum MnemonicLength {

@@ -1,0 +1,23 @@
+{
+  "name": "@anoma/integrations",
+  "version": "0.1.0",
+  "description": "Anoma Wallet third-party integrations",
+  "main": "src/index.ts",
+  "repository": "https://github.com/anoma/namada-interface",
+  "author": "Heliax Dev <info@heliax.dev>",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "@keplr-wallet/types": "^0.10.19",
+    "@types/jest": "^28.1.8",
+    "@types/node": "^18.7.13",
+    "eslint": "^8.22.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-typescript": "^3.5.0",
+    "eslint-plugin-import": "^2.26.0"
+  },
+  "dependencies": {
+    "@cosmjs/proto-signing": "^0.28.13"
+  }
+}

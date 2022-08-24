@@ -1,0 +1,33 @@
+{
+  "name": "@anoma/extension",
+  "version": "0.1.0",
+  "description": "Browser Extension for Anoma Key Management",
+  "main": "src/index.html",
+  "license": "MIT",
+  "author": "Heliax Developers <info@heliax.dev>",
+  "browserslist": "> 0.5%, last 2 versions, not dead",
+  "private": true,
+  "scripts": {
+    "prebuild": "run-s clean",
+    "clean": "rimraf ./dist",
+    "start": "parcel src/index.html --open",
+    "dev:local": "parcel src/index.html --target webext-dev",
+    "build": "parcel build src/index.html --no-source-maps"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.17",
+    "@types/react-dom": "^18.0.6",
+    "@typescript-eslint/eslint-plugin": "^5.33.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "parcel": "^2.7.0",
+    "parcel-bundler": "^1.12.5",
+    "parcel-plugin-web-extension": "^1.6.1",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.7.4",
+    "yarn-run-all": "^3.1.1"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}

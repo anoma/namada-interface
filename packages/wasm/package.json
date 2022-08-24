@@ -1,0 +1,16 @@
+{
+  "name": "@anoma/wasm",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "MIT",
+  "main": "./index.ts",
+  "scripts": {
+    "wasm:build": "wasm-pack build ./lib --out-dir ../src/lib/anoma --out-name anoma --target web",
+    "wasm:build:node": "wasm-pack build ./lib --out-dir ../src/lib/anoma --out-name anoma --target nodejs"
+  },
+  "devDependencies": {
+    "jest": "^27.5.1",
+    "ts-jest": "^27.1.3",
+    "typescript": "^4.5.5"
+  }
+}
