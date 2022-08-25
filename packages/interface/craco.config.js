@@ -12,6 +12,12 @@ module.exports = {
         },
       });
 
+      webpackConfig.resolve = {
+        ...webpackConfig.resolve,
+        fallback: {
+          crypto: require.resolve("crypto-browserify"),
+        },
+      };
       return webpackConfig;
     },
   },

@@ -10,7 +10,6 @@ class Account {
   ) {}
 
   public async init(): Promise<Account> {
-    console.log(this._txCode, this._vpCode);
     this._client = await new AnomaClient().init();
     return this;
   }

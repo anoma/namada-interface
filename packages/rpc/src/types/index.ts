@@ -45,8 +45,7 @@ export type JsonCompatibleDictionary = {
   [key: string]: string | JsonCompatibleArray;
 };
 
-// these are the paths that are used as a prefix on ledfer to store data
-
+// Ledger storage keys
 export enum PathType {
   Value = "value",
   Prefix = "prefix",

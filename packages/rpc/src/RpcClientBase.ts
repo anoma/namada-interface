@@ -1,4 +1,4 @@
-import { Network, Protocol } from "config";
+import { Network, Protocol } from "./types";
 
 export type RpcClientInitArgs = Network;
 
