@@ -7,10 +7,7 @@
   "author": "Heliax Dev <info@heliax.org>",
   "license": "MIT",
   "private": true,
-  "scripts": {
-    "test": "jest",
-    "test:watch": "jest --watchAll"
-  },
+  "scripts": {},
   "dependencies": {
     "@anoma/utils": "0.1.0",
     "@cosmjs/encoding": "^0.28.13",

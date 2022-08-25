@@ -6,7 +6,7 @@
   "main": "./index.ts",
   "scripts": {
     "wasm:build:node": "./scripts/build-test.sh",
-    "test": "yarn wasm:build:node && yarn jest"
+    "test": "yarn wasm:build:node && jest"
   },
   "devDependencies": {
     "jest": "^27.5.1",
