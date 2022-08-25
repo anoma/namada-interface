@@ -1,5 +1,5 @@
 import Config from "config";
-import { RpcClient } from "lib";
+import { RpcClient } from "@anoma/rpc";
 import { NodeWithNextId, getMaspWeb } from "@anoma/masp-web";
 import { TRANSFER_CONFIGURATION } from "./types";
 

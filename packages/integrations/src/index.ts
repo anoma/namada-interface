@@ -1,1 +1,1 @@
-export * from "./Keplr";
+export { default as Keplr } from "./Keplr";

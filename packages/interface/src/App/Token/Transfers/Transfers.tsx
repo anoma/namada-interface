@@ -9,7 +9,7 @@ import {
 import { TransfersState } from "slices/transfers";
 import { SettingsState } from "slices/settings";
 import { useAppSelector } from "store";
-import { formatRoute, stringFromTimestamp } from "utils/helpers";
+import { formatRoute, stringFromTimestamp } from "@anoma/utils";
 
 import { Button, ButtonVariant } from "components/Button";
 import { Heading, HeadingLevel } from "components/Heading";

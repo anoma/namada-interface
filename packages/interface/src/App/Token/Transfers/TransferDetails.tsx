@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Config, { Chain } from "config";
 import { TransfersState } from "slices/transfers";
 import { useAppSelector } from "store";
-import { stringFromTimestamp } from "utils/helpers";
+import { stringFromTimestamp } from "@anoma/utils";
 
 import { Heading, HeadingLevel } from "components/Heading";
 import { NavigationContainer } from "components/NavigationContainer";

@@ -6,7 +6,7 @@ import Config from "config";
 import { AccountsState } from "slices/accounts";
 import { SettingsState } from "slices/settings";
 import { useAppSelector } from "store";
-import { formatRoute } from "utils/helpers";
+import { formatRoute } from "@anoma/utils";
 import { TopLevelRoute } from "App/types";
 
 import { Address } from "../Transfers/TransferDetails.components";

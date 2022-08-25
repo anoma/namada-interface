@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { TopLevelRoute } from "App/types";
-import { formatRoute } from "utils/helpers";
+import { formatRoute } from "@anoma/utils";
 import { useAppSelector } from "store";
 import { AccountsState } from "slices/accounts";
 import { SettingsState } from "slices/settings";

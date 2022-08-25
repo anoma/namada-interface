@@ -9,7 +9,7 @@ import { BalancesState, fetchBalances } from "slices/balances";
 import { SettingsState } from "slices/settings";
 import { updateShieldedBalances } from "slices/AccountsNew";
 import { Symbols, Tokens, TokenType } from "constants/";
-import { formatRoute } from "utils/helpers";
+import { formatRoute } from "@anoma/utils";
 import { TransfersState } from "slices/transfers";
 import { fetchConversionRates, CoinsState } from "slices/coins";
 

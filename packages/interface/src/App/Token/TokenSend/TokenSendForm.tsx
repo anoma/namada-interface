@@ -4,7 +4,7 @@ import QrReader from "react-qr-reader";
 
 import Config from "config";
 import { Tokens, TokenType } from "constants/";
-import { RpcClient } from "lib";
+import { RpcClient } from "@anoma/rpc";
 import { AccountsState } from "slices/accounts";
 import {
   clearEvents,

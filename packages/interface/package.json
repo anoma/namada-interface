@@ -10,9 +10,12 @@
   "type": "commonjs",
   "license": "MIT",
   "dependencies": {
+    "@anoma/integrations": "0.1.0",
     "@anoma/masp-web": "0.1.0",
     "@anoma/rpc": "0.1.0",
     "@anoma/seed-management": "0.1.0",
+    "@anoma/tx": "0.1.0",
+    "@anoma/utils": "0.1.0",
     "@anoma/wasm": "0.1.0",
     "@cosmjs/encoding": "^0.27.1",
     "@cosmjs/json-rpc": "^0.27.1",

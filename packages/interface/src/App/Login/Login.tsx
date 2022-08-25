@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Input, InputVariants } from "components/Input";
 import { Button, ButtonVariant } from "components/Button";
 import { Session } from "lib";
-import { getParams } from "utils/helpers";
+import { getParams } from "@anoma/utils";
 
 type Props = {
   setPassword: (password: string) => void;

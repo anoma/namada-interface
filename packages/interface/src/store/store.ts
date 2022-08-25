@@ -18,7 +18,7 @@ import {
   coinsReducer,
 } from "slices";
 import { LocalStorageKeys } from "App/types";
-import { hashPassword } from "utils/helpers";
+import { hashPassword } from "@anoma/utils";
 
 const reducers = combineReducers({
   accounts: accountsReducer || {},

@@ -5,7 +5,7 @@ import {
   Window as KeplrWindow,
 } from "@keplr-wallet/types";
 import { AccountData } from "@cosmjs/proto-signing";
-import { Chain } from "config";
+import { Chain } from "./types";
 import { Tokens, TokenType } from "@anoma/tx";
 
 const { REACT_APP_LOCAL, NODE_ENV } = process.env;

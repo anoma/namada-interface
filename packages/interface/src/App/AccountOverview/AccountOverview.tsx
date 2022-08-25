@@ -32,7 +32,7 @@ import {
 import { ButtonsContainer } from "App/AccountCreation/Steps/Completion/Completion.components";
 import Config from "config";
 import { Session, Wallet } from "lib";
-import { formatCurrency } from "utils/helpers";
+import { formatCurrency } from "@anoma/utils";
 
 type Props = {
   password: string;

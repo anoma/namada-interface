@@ -1,6 +1,6 @@
 import { ChainInfo, Key, Keplr as IKeplr } from "@keplr-wallet/types";
 
-import { Chain } from "config";
+import { Chain } from "types";
 import Keplr from "./Keplr";
 
 type MockKeplr = Pick<

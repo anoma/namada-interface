@@ -3,9 +3,9 @@ import {
   getUrlProtocol,
   sanitize,
   stripInvalidCharacters,
-} from "utils/helpers";
+} from "@anoma/utils";
 import IBCConfig, { IBCConfigItem } from "./ibc";
-import { Network } from "./rpc";
+import { Network } from "@anoma/rpc";
 
 export type Protocol = "http" | "https" | "ws" | "wss";
 

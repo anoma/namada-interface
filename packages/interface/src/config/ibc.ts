@@ -1,4 +1,4 @@
-import { sanitize, stripInvalidCharacters } from "utils/helpers";
+import { sanitize, stripInvalidCharacters } from "@anoma/utils";
 
 export type IBCConfigItem = {
   chainId: string;

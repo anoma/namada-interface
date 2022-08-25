@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Symbols, Currencies, Tokens } from "constants/";
-import { getTimeStamp } from "utils/helpers";
+import { getTimeStamp } from "@anoma/utils";
 import Config from "config";
 
 const COINS_ACTIONS_BASE = "coins";

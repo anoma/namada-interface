@@ -1,6 +1,6 @@
 import { Mnemonic } from "@anoma/seed-management";
 import { LocalStorageKeys } from "App/types";
-import { hashPassword } from "utils/helpers";
+import { hashPassword } from "@anoma/utils";
 
 class Session {
   public static async getSeed(secret: string): Promise<string | undefined> {

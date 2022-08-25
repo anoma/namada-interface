@@ -1,9 +1,11 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import Config, { RPCConfig } from "config";
 import { Symbols, Tokens, TokenType, TxResponse } from "constants/";
-import { Account, RpcClient, SocketClient } from "lib";
-import { NewBlockEvents } from "lib/rpc/types";
-import { promiseWithTimeout, stringToHash } from "utils/helpers";
+//import { Account, RpcClient, SocketClient } from "lib";
+import { Account } from "@anoma/tx";
+import { RpcClient, SocketClient, NewBlockEvents } from "@anoma/rpc";
+
+import { promiseWithTimeout, stringToHash } from "@anoma/utils";
 import { submitTransferTransaction } from "./transfers";
 import { addAccountReducersToBuilder } from "./AccountsNew/reducers";
 

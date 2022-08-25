@@ -1,4 +1,4 @@
-export * from "./Account";
-export * from "./IBCTransfer";
-export * from "./Transfer";
+export { default as Account } from "./Account";
+export { default as IBCTransfer } from "./IBCTransfer";
+export { default as Transfer } from "./Transfer";
 export * from "./tokens";

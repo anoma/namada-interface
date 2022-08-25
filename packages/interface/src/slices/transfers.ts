@@ -3,12 +3,12 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import Config from "config";
 import { RpcConfig, RpcClient, SocketClient } from "@anoma/rpc";
 
-import { Transfer, IBCTransfer } from "lib";
+import { Transfer, IBCTransfer } from "@anoma/tx";
 import { IbcTxResponse } from "constants/tx";
 //import { history, TopLevelRouteGenerator } from "App";
 import { Tokens, TokenType, TxResponse } from "constants/";
-import { NewBlockEvents } from "lib/rpc/types";
-import { amountFromMicro, promiseWithTimeout } from "utils/helpers";
+import { NewBlockEvents } from "@anoma/rpc";
+import { amountFromMicro, promiseWithTimeout } from "@anoma/utils";
 import {
   DerivedAccount,
   ShieldedAccount,
