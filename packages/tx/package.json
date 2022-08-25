@@ -7,6 +7,11 @@
   "author": "Heliax Dev <info@heliax.org>",
   "license": "MIT",
   "private": true,
+  "scripts": {
+    "wasm:build": "./scripts/build-test.sh",
+    "test": "yarn wasm:build && jest",
+    "test:watch": "yarn wasm:build && jest --watchAll"
+  },
   "devDependencies": {
     "@types/jest": "^28.1.8",
     "@types/node": "^18.7.13",
@@ -15,7 +20,9 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-import-resolver-typescript": "^3.5.0",
     "eslint-plugin-import": "^2.26.0",
+    "jest": "^28.1.3",
     "jest-fetch-mock": "^3.0.3",
+    "ts-jest": "^28.0.8",
     "typescript": "^4.7.4"
   },
   "dependencies": {

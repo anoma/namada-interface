@@ -31,7 +31,8 @@ import {
 } from "./AccountOverview.components";
 import { ButtonsContainer } from "App/AccountCreation/Steps/Completion/Completion.components";
 import Config from "config";
-import { Session, Wallet } from "lib";
+import { Wallet } from "@anoma/wallet";
+import { Session } from "@anoma/session";
 import { formatCurrency } from "@anoma/utils";
 
 type Props = {

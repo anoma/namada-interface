@@ -2,13 +2,13 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import Config from "config";
 import { RpcConfig, RpcClient, SocketClient } from "@anoma/rpc";
-
-import { Transfer, IBCTransfer } from "@anoma/tx";
-import { IbcTxResponse } from "constants/tx";
-//import { history, TopLevelRouteGenerator } from "App";
-import { Tokens, TokenType, TxResponse } from "constants/";
-import { NewBlockEvents } from "@anoma/rpc";
-import { amountFromMicro, promiseWithTimeout } from "@anoma/utils";
+import { Transfer, IBCTransfer, TxWasm, Tokens, TokenType } from "@anoma/tx";
+import { NewBlockEvents, TxResponse, IbcTxResponse } from "@anoma/rpc";
+import {
+  amountFromMicro,
+  promiseWithTimeout,
+  fetchWasmCode,
+} from "@anoma/utils";
 import {
   DerivedAccount,
   ShieldedAccount,
@@ -150,7 +150,8 @@ const createTransfer = async (
   sourceAccount: DerivedAccount | ShieldedAccount,
   transferData: TransferData
 ): Promise<TransferHashAndBytes> => {
-  const transfer = await new Transfer().init();
+  const txCode = await fetchWasmCode(TxWasm.Transfer);
+  const transfer = await new Transfer(txCode).init();
   const { target } = transferData;
   if (isShieldedAddress(target) || isShieldedAccount(sourceAccount)) {
     // if the transfer source is shielded
@@ -352,7 +353,8 @@ export const submitIbcTransferTransaction = createAsyncThunk(
     const socketClient = new SocketClient(rpcConfig.wsNetwork);
 
     const epoch = await rpcClient.queryEpoch();
-    const transfer = await new IBCTransfer().init();
+    const txWasm = await fetchWasmCode(TxWasm.IBC);
+    const transfer = await new IBCTransfer(txWasm).init();
     const token = Tokens[tokenType];
 
     const { hash, bytes } = await transfer.makeIbcTransfer({

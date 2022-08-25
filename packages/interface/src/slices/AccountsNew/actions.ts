@@ -8,7 +8,7 @@ import {
 } from "./types";
 import { history, TopLevelRouteGenerator } from "App";
 import { RootState } from "store/store";
-import { Session } from "lib";
+import { Session } from "@anoma/session";
 import {
   getShieldedBalance,
   TRANSFER_CONFIGURATION,

@@ -4,7 +4,7 @@ import { Chain } from "config/chain";
 import { setFiatCurrency, setChainId, SettingsState } from "slices/settings";
 import { useAppDispatch, useAppSelector } from "store";
 import { Keplr } from "@anoma/integrations";
-import { Session } from "lib";
+import { Session } from "@anoma/session";
 import { Currencies } from "constants/";
 
 import { NavigationContainer } from "components/NavigationContainer";

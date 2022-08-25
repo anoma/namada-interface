@@ -4,7 +4,7 @@ import { LoginViewContainer, UnlockingLabel } from "./Login.components";
 import { useNavigate } from "react-router-dom";
 import { Input, InputVariants } from "components/Input";
 import { Button, ButtonVariant } from "components/Button";
-import { Session } from "lib";
+import { Session } from "@anoma/session";
 import { getParams } from "@anoma/utils";
 
 type Props = {

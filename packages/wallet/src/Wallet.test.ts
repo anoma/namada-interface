@@ -1,13 +1,20 @@
 import { fromHex, toHex } from "@cosmjs/encoding";
-import { Tokens } from "constants/";
+import fetchMock, { enableFetchMocks } from "jest-fetch-mock";
+import { Tokens } from "@anoma/tx";
 import Wallet from "./Wallet";
 import { AnomaClient } from "@anoma/wasm";
+
+enableFetchMocks();
 
 const MNEMONIC_24 =
   // eslint-disable-next-line max-len
   "caught pig embody hip goose like become worry face oval manual flame pizza steel viable proud eternal speed chapter sunny boat because view bullet";
 
 describe("Wallet class", () => {
+  beforeEach(() => {
+    fetchMock.resetMocks();
+  });
+
   test("It should derive the correct public keys from mnemonic", async () => {
     const walletBtc = await new Wallet(MNEMONIC_24, "BTC").init();
     const child1 = walletBtc.deriveChildAccount(0, 0);

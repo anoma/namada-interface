@@ -1,6 +1,4 @@
-import fetchMock, { enableFetchMocks } from "jest-fetch-mock";
 import IBCTransfer from "./IBCTransfer";
-enableFetchMocks();
 
 const TOKEN =
   "atest1v4ehgw36xdzryve5gsc52veeg5cnsv2yx5eygvp38qcrvd29xy6rys6p8yc5xvp4xfpy2v694wgwcp";
@@ -14,20 +12,9 @@ const CHANNEL_ID = "channel-0";
 const PORT_ID = "transfer";
 
 describe("IBCTransfer class", () => {
-  beforeEach(() => {
-    fetchMock.resetMocks();
-  });
-
   test("IBCTransfer should return a byte array and a hash", async () => {
-    fetchMock.mockResponseOnce(() => {
-      return Promise.resolve(
-        JSON.stringify({
-          arrayBuffer: Buffer.from(new Uint8Array([])),
-        })
-      );
-    });
-
-    const client = await new IBCTransfer().init();
+    const wasm = new Uint8Array([]);
+    const client = await new IBCTransfer(wasm).init();
     const { hash, bytes } = await client.makeIbcTransfer({
       amount: 1,
       epoch: 1,
@@ -40,6 +27,6 @@ describe("IBCTransfer class", () => {
     });
 
     expect(hash.length).toBe(64);
-    expect(bytes.length).toBe(840);
+    expect(bytes.length).toBe(795);
   });
 });

@@ -1,23 +1,16 @@
 import { AnomaClient } from "@anoma/wasm";
-import { TxWasm, VpWasm } from "./wasm";
 import { Tokens } from "@anoma/tx";
 
 class Account {
-  private _txCode: Uint8Array | undefined;
-  private _vpCode: Uint8Array | undefined;
   private _client: AnomaClient | undefined;
 
+  constructor(
+    private readonly _txCode: Uint8Array,
+    private readonly _vpCode: Uint8Array
+  ) {}
+
   public async init(): Promise<Account> {
-    // initialize tx wasm
-    const txResults = await fetch(`/wasm/${TxWasm.InitAccount}`);
-    const txWasm = await txResults.arrayBuffer();
-    this._txCode = new Uint8Array(txWasm);
-
-    // initialize vp wasm
-    const vpResults = await fetch(`/wasm/${VpWasm.User}`);
-    const vpWasm = await vpResults.arrayBuffer();
-    this._vpCode = new Uint8Array(vpWasm);
-
+    console.log(this._txCode, this._vpCode);
     this._client = await new AnomaClient().init();
     return this;
   }

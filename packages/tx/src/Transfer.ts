@@ -18,13 +18,11 @@ type ShieldedTransactionData = TransactionData & {
 };
 
 class Transfer {
-  private _txCode: Uint8Array | undefined;
   private _client: AnomaClient | undefined;
 
+  constructor(private readonly _txCode: Uint8Array) {}
+
   public async init(): Promise<Transfer> {
-    const results = await fetch(`/wasm/${TxWasm.Transfer}`);
-    const wasm = await results.arrayBuffer();
-    this._txCode = new Uint8Array(wasm);
     this._client = await new AnomaClient().init();
     return this;
   }

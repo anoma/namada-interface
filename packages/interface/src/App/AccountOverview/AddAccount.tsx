@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Symbols, TokenType, Tokens } from "constants/";
-import { Wallet, Session } from "lib";
+import { Session } from "@anoma/session";
+import { Wallet } from "@anoma/wallet";
 import { useAppDispatch, useAppSelector } from "store";
 
 import { DerivedAccount, AccountsState, addAccount } from "slices/accounts";

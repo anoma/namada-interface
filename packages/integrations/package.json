@@ -8,7 +8,9 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "test": "./scripts/build-test.sh && jest --watch"
+    "wasm:build": "./scripts/build-test.sh",
+    "test": "yarn wasm:build && jest",
+    "test:watch": "yarn wasm:build && jest --watchAll"
   },
   "devDependencies": {
     "@keplr-wallet/types": "^0.10.19",

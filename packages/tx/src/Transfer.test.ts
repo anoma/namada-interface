@@ -1,6 +1,3 @@
-import fetchMock, { enableFetchMocks } from "jest-fetch-mock";
-enableFetchMocks();
-
 import Transfer from "./Transfer";
 
 const TOKEN =
@@ -13,20 +10,9 @@ const PRIVATE_KEY =
   "73BF20F71265056A1ACB3091272929C4FCBEF5DE60D1222428D6A99CEB4EBC21";
 
 describe("Transfer wasm and class methods", () => {
-  beforeEach(() => {
-    fetchMock.resetMocks();
-  });
-
   test("Transfer should return a byte array and a hash", async () => {
-    fetchMock.mockResponseOnce(() => {
-      return Promise.resolve(
-        JSON.stringify({
-          arrayBuffer: Buffer.from(new Uint8Array([])),
-        })
-      );
-    });
-
-    const client = await new Transfer().init();
+    const wasm = new Uint8Array([]);
+    const client = await new Transfer(wasm).init();
     const { hash, bytes } = await client.makeTransfer({
       amount: 1,
       epoch: 1,
@@ -37,6 +23,6 @@ describe("Transfer wasm and class methods", () => {
     });
 
     expect(hash.length).toBe(64);
-    expect(bytes.length).toBe(642);
+    expect(bytes.length).toBe(597);
   });
 });

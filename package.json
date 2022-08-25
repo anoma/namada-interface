@@ -5,6 +5,9 @@
   "workspaces": [
     "packages/*"
   ],
+  "scripts": {
+    "test": "jest --watch"
+  },
   "dependencies": {
     "@cosmjs/encoding": "^0.27.1",
     "@cosmjs/json-rpc": "^0.27.1",

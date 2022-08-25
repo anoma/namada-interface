@@ -1,5 +1,6 @@
 import { Image, ImageName } from "components/Image";
-import { Session, Wallet } from "lib";
+import { Wallet } from "@anoma/wallet";
+import { Session } from "@anoma/session";
 
 import { addAccount, InitialAccount } from "slices/accounts";
 import { useEffect } from "react";

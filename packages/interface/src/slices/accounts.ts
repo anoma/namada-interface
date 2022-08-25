@@ -1,11 +1,9 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import Config, { RPCConfig } from "config";
 import { Symbols, Tokens, TokenType, TxResponse } from "constants/";
-//import { Account, RpcClient, SocketClient } from "lib";
-import { Account } from "@anoma/tx";
+import { Account, TxWasm, VpWasm } from "@anoma/tx";
 import { RpcClient, SocketClient, NewBlockEvents } from "@anoma/rpc";
-
-import { promiseWithTimeout, stringToHash } from "@anoma/utils";
+import { fetchWasmCode, promiseWithTimeout, stringToHash } from "@anoma/utils";
 import { submitTransferTransaction } from "./transfers";
 import { addAccountReducersToBuilder } from "./AccountsNew/reducers";
 
@@ -113,7 +111,10 @@ export const submitInitAccountTransaction = createAsyncThunk(
     const socketClient = new SocketClient(rpcConfig.wsNetwork);
 
     const epoch = await rpcClient.queryEpoch();
-    const anomaAccount = await new Account().init();
+    const txCode = await fetchWasmCode(TxWasm.InitAccount);
+    const vpCode = await fetchWasmCode(VpWasm.User);
+
+    const anomaAccount = await new Account(txCode, vpCode).init();
     const { hash, bytes } = await anomaAccount.initialize({
       token: Tokens[tokenType].address,
       privateKey,

@@ -1,15 +1,11 @@
 import { AnomaClient } from "@anoma/wasm";
-import { TxWasm } from "./wasm";
 
 class IBCTransfer {
-  private _txCode: Uint8Array | undefined;
   private _client: AnomaClient | undefined;
 
-  public async init(): Promise<IBCTransfer> {
-    const results = await fetch(`/wasm/${TxWasm.IBC}`);
-    const wasm = await results.arrayBuffer();
+  constructor(private readonly _txCode: Uint8Array) {}
 
-    this._txCode = new Uint8Array(wasm);
+  public async init(): Promise<IBCTransfer> {
     this._client = await new AnomaClient().init();
     return this;
   }
