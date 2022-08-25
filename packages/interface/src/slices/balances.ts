@@ -1,6 +1,6 @@
 import { RpcClient } from "@anoma/rpc";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Symbols, Tokens, TokenType } from "constants/";
+import { Symbols, Tokens, TokenType } from "@anoma/tx";
 import { DerivedAccount } from "./accounts";
 import Config from "config";
 

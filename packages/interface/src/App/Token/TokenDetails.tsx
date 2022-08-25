@@ -21,7 +21,7 @@ import { Button, ButtonVariant } from "components/Button";
 import { Heading, HeadingLevel } from "components/Heading";
 import { Icon, IconName, IconSize } from "components/Icon";
 import { NavigationContainer } from "components/NavigationContainer";
-import { Tokens } from "constants/";
+import { Tokens } from "@anoma/tx";
 import {
   ButtonsContainer,
   SettingsButton,

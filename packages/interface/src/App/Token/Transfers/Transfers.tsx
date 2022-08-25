@@ -23,7 +23,7 @@ import {
 import { BackButton } from "../TokenSend/TokenSendForm.components";
 import { Icon, IconName } from "components/Icon";
 import { NavigationContainer } from "components/NavigationContainer";
-import { TokenType } from "constants/";
+import { TokenType } from "@anoma/tx";
 
 type TokenDetailsParams = {
   id: string;

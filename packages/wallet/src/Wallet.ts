@@ -1,6 +1,6 @@
 import { toHex } from "@cosmjs/encoding";
 import base58 from "bs58";
-import { Tokens, TokenType } from "constants/";
+import { Tokens, TokenType } from "@anoma/tx";
 import {
   AnomaClient,
   Result,

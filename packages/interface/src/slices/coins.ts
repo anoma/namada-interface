@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Symbols, Currencies, Tokens } from "constants/";
+import { Symbols, Tokens } from "@anoma/tx";
+import { Currencies } from "currencies";
 import { getTimeStamp } from "@anoma/utils";
 import Config from "config";
 

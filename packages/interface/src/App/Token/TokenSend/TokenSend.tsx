@@ -11,7 +11,7 @@ import {
   ESTABLISHED_ADDRESS_LENGTH,
   ESTABLISHED_ADDRESS_PREFIX,
 } from "./types";
-import { Symbols, Tokens, TokenType } from "constants/";
+import { Symbols, Tokens, TokenType } from "@anoma/tx";
 
 import TokenSendForm from "./TokenSendForm";
 import { Heading, HeadingLevel } from "components/Heading";

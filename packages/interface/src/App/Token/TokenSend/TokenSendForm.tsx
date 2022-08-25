@@ -3,7 +3,7 @@ import { ThemeContext } from "styled-components";
 import QrReader from "react-qr-reader";
 
 import Config from "config";
-import { Tokens, TokenType } from "constants/";
+import { Tokens, TokenType } from "@anoma/tx";
 import { RpcClient } from "@anoma/rpc";
 import { AccountsState } from "slices/accounts";
 import {

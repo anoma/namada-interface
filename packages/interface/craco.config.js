@@ -12,12 +12,15 @@ module.exports = {
         },
       });
 
+      // @cosmjs/encoding requires "crypto", which is only availabe on NodeJS.
+      // This provides a fallback for browsers:
       webpackConfig.resolve = {
         ...webpackConfig.resolve,
         fallback: {
           crypto: require.resolve("crypto-browserify"),
         },
       };
+
       return webpackConfig;
     },
   },

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Symbols, TokenType, Tokens } from "constants/";
+import { Symbols, TokenType, Tokens } from "@anoma/tx";
 import { Session } from "@anoma/session";
 import { Wallet } from "@anoma/wallet";
 import { useAppDispatch, useAppSelector } from "store";

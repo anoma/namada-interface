@@ -1,4 +1,4 @@
-import { Tokens } from "constants/tokens";
+import { Tokens } from "@anoma/tx";
 export const SHIELDED_TRANSACTIONS = "SHIELDED";
 export const CREATE = `${SHIELDED_TRANSACTIONS}/CREATE`;
 

@@ -14,7 +14,7 @@ import {
   Header1,
   BodyText,
 } from "./Completion.components";
-import { Tokens, TokenType } from "constants/";
+import { Tokens, TokenType } from "@anoma/tx";
 import { createShieldedAccount } from "slices/AccountsNew/actions";
 import { useNavigate } from "react-router-dom";
 import { TopLevelRoute } from "App/types";
