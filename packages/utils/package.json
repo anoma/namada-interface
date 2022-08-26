@@ -7,6 +7,10 @@
   "author": "Heliax Dev <info@heliax.dev>",
   "license": "MIT",
   "private": true,
+  "scripts": {
+    "lint": "npx eslint src --ext .ts",
+    "lint:fix": "yarn lint -- --fix"
+  },
   "dependencies": {
     "@anoma/masp-web": "0.1.0",
     "@cosmjs/json-rpc": "^0.28.13",

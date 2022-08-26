@@ -1,7 +1,5 @@
 import Session from "./Session";
 
-type Store = Record<string, string>;
-
 const STORAGE_KEY = "com.anoma.net::seed";
 
 const MNEMONIC_12 =

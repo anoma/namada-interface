@@ -22,13 +22,10 @@ export class Mnemonic {
   }
 
   static fromString(phrase: string): Mnemonic {
-    let mnemonicLength: MnemonicLength;
     switch (phrase.split(" ").length) {
       case 12:
-        mnemonicLength = MnemonicLength.Twelve;
         break;
       case 24:
-        mnemonicLength = MnemonicLength.TwentyFour;
         break;
       default:
         throw new Error("Invalid number of words in the mnemonic");

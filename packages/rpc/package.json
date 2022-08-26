@@ -7,7 +7,10 @@
   "author": "Heliax Dev <info@heliax.org>",
   "license": "MIT",
   "private": true,
-  "scripts": {},
+  "scripts": {
+    "lint": "npx eslint src --ext .ts",
+    "lint:fix": "yarn lint -- --fix"
+  },
   "dependencies": {
     "@anoma/utils": "0.1.0",
     "@cosmjs/encoding": "^0.28.13",

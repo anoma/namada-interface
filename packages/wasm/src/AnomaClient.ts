@@ -1,3 +1,4 @@
+/* eslint-disable */
 import init, {
   Keypair,
   Transfer,
@@ -6,6 +7,7 @@ import init, {
   Wallet,
   Mnemonic,
 } from "./lib/anoma";
+/* eslint-enable */
 
 export enum ResultType {
   Ok = "Ok",
