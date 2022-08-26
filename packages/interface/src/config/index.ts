@@ -2,7 +2,6 @@ import ApiConfig from "./api";
 import ChainConfig from "./chain";
 import IBCConfig from "./ibc";
 
-export { default as RPCConfig, type Network } from "./rpc";
 export { defaultChainId, type Protocol, type Chain } from "./chain";
 
 const Config = {

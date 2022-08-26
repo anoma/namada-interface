@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import Config, { RPCConfig } from "config";
+import Config from "config";
+import { RpcConfig } from "@anoma/rpc";
 import { Account, TxWasm, VpWasm, Symbols, Tokens, TokenType } from "@anoma/tx";
 import {
   RpcClient,
@@ -110,7 +111,7 @@ export const submitInitAccountTransaction = createAsyncThunk(
     const { faucet } = chainConfig;
     const { url, port, protocol, wsProtocol } = chainConfig.network;
 
-    const rpcConfig = new RPCConfig(url, port, protocol, wsProtocol);
+    const rpcConfig = new RpcConfig(url, port, protocol, wsProtocol);
     const rpcClient = new RpcClient(rpcConfig.network);
     const socketClient = new SocketClient(rpcConfig.wsNetwork);
 
