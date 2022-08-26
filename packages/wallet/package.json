@@ -8,7 +8,9 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "test": "./scripts/build-test.sh && jest --watchAll"
+    "wasm:build": "./scripts/build-test.sh",
+    "test": "yarn wasm:build && jest",
+    "test:watch": "yarn wasm:build && jest --watchAll"
   },
   "dependencies": {
     "@anoma/tx": "0.1.0",
