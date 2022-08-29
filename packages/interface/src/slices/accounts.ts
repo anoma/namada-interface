@@ -114,8 +114,14 @@ export const submitInitAccountTransaction = createAsyncThunk(
     const rpcConfig = new RpcConfig(url, port, protocol, wsProtocol);
     const rpcClient = new RpcClient(rpcConfig.network);
     const socketClient = new SocketClient(rpcConfig.wsNetwork);
+    let epoch: number;
 
-    const epoch = await rpcClient.queryEpoch();
+    try {
+      epoch = await rpcClient.queryEpoch();
+    } catch (e) {
+      return rejectWithValue(e);
+    }
+
     const txCode = await fetchWasmCode(TxWasm.InitAccount);
     const vpCode = await fetchWasmCode(VpWasm.User);
 
