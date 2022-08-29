@@ -108,7 +108,11 @@ export const AccountOverview = ({
     // Initialize accounts sequentially
     // Each rerender will initialize the next in this batch
     if (uninitializedAccounts.length > 0) {
-      dispatch(submitInitAccountTransaction(uninitializedAccounts[0]));
+      const account = uninitializedAccounts[0];
+      // Attempt to initialize unless a previous attempt failed
+      if (!account.accountInitializationError) {
+        dispatch(submitInitAccountTransaction(account));
+      }
     }
   }, [uninitializedAccounts]);
 

@@ -114,8 +114,8 @@ export const submitInitAccountTransaction = createAsyncThunk(
     const rpcConfig = new RpcConfig(url, port, protocol, wsProtocol);
     const rpcClient = new RpcClient(rpcConfig.network);
     const socketClient = new SocketClient(rpcConfig.wsNetwork);
-    let epoch: number;
 
+    let epoch: number;
     try {
       epoch = await rpcClient.queryEpoch();
     } catch (e) {
