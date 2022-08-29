@@ -255,7 +255,13 @@ export const submitTransferTransaction = createAsyncThunk(
       protocol: network.wsProtocol,
     });
 
-    const epoch = await rpcClient.queryEpoch();
+    let epoch: number;
+    try {
+      epoch = await rpcClient.queryEpoch();
+    } catch (e) {
+      return rejectWithValue(e);
+    }
+
     const token = Tokens[tokenType]; // TODO refactor, no need for separate Tokens and tokenType
     const transferData: TransferData = {
       source,
@@ -358,7 +364,13 @@ export const submitIbcTransferTransaction = createAsyncThunk(
     const rpcClient = new RpcClient(rpcConfig.network);
     const socketClient = new SocketClient(rpcConfig.wsNetwork);
 
-    const epoch = await rpcClient.queryEpoch();
+    let epoch: number;
+    try {
+      epoch = await rpcClient.queryEpoch();
+    } catch (e) {
+      return rejectWithValue(e);
+    }
+
     const txWasm = await fetchWasmCode(TxWasm.IBC);
     const transfer = await new IBCTransfer(txWasm).init();
     const token = Tokens[tokenType];
