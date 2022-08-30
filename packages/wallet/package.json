@@ -10,7 +10,9 @@
   "scripts": {
     "wasm:build": "../../scripts/build-test.sh",
     "test": "yarn wasm:build && jest",
-    "test:watch": "yarn wasm:build && jest --watchAll"
+    "test:watch": "yarn wasm:build && jest --watchAll",
+    "lint": "npx eslint src --ext .ts",
+    "lint:fix": "yarn lint -- --fix"
   },
   "dependencies": {
     "@anoma/tx": "0.1.0",

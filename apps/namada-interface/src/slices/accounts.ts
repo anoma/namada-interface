@@ -92,14 +92,14 @@ export const fetchBalanceByAccount = createAsyncThunk(
 
     const rpcClient = new RpcClient(chainConfig.network);
     const { address: tokenAddress = "" } = Tokens[tokenType];
-    const balance = await rpcClient.queryBalance(
-      tokenAddress,
-      establishedAddress
-    );
+    const balance = establishedAddress
+      ? await rpcClient.queryBalance(tokenAddress, establishedAddress)
+      : 0;
+
     return {
       chainId,
       id,
-      balance: balance > 0 ? balance : 0,
+      balance,
     };
   }
 );

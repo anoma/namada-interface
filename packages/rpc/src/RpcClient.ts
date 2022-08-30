@@ -22,7 +22,7 @@ class RpcClient extends RpcClientBase {
     this._client = new HttpClient(this.endpoint);
   }
 
-  public async queryBalance(token: string, owner?: string): Promise<number> {
+  public async queryBalance(token: string, owner: string): Promise<number> {
     const path = `value/#${token}/balance/#${owner}`;
     const request = createJsonRpcRequest("abci_query", [path, "", "0", false]);
 

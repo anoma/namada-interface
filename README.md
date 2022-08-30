@@ -4,7 +4,7 @@
     <img style="width: 300px;" src="banner-image.png" />
 </div>
 
-<h2> Run it</h2>
+<h2> Run namada-interface </h2>
 
 ```bash
 # go to the directory of namada-interface web app
@@ -57,6 +57,27 @@ namada-interface/
     ├── utils/           # Shared utilities
     ├── wallet/          # Library for deriving keys
     ├── wasm/            # Rust lib for generating WASM
+```
+
+### Usage
+
+Before using apps in this repo, we first need to install all dependencies:
+
+```bash
+yarn
+```
+
+At the root-level, we can issue commands for all packages in the monorepo. Following is an example:
+
+```bash
+# Execute all tests within monorepo
+yarn test
+
+# Lint all packages
+yarn lint
+
+# Fix linting on all packages
+yarn lint:fix
 ```
 
 ### Project Structure

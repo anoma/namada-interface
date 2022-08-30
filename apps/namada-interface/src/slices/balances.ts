@@ -42,16 +42,15 @@ export const fetchBalanceByToken = createAsyncThunk(
     const rpcClient = new RpcClient(chainConfig.network);
     const { address: tokenAddress = "" } = Tokens[token];
 
-    const balance = await rpcClient.queryBalance(
-      tokenAddress,
-      establishedAddress
-    );
+    const balance = establishedAddress
+      ? await rpcClient.queryBalance(tokenAddress, establishedAddress)
+      : 0;
 
     return {
       token,
       chainId,
       accountId,
-      balance: balance > 0 ? balance : 0,
+      balance,
     };
   }
 );
@@ -71,15 +70,15 @@ export const fetchBalances = createAsyncThunk(
           Symbols.map(async (token) => {
             const { address: tokenAddress = "" } = Tokens[token];
 
-            const balance = await rpcClient.queryBalance(
-              tokenAddress,
-              establishedAddress
-            );
+            const balance = establishedAddress
+              ? await rpcClient.queryBalance(tokenAddress, establishedAddress)
+              : 0;
+
             return {
               token,
               chainId,
               accountId,
-              balance: balance > 0 ? balance : 0,
+              balance,
             };
           })
         );
