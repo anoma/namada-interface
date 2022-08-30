@@ -8,7 +8,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "wasm:build": "./scripts/build-test.sh",
+    "wasm:build": "../../scripts/build-test.sh",
     "test": "yarn wasm:build && jest",
     "test:watch": "yarn wasm:build && jest --watchAll"
   },
