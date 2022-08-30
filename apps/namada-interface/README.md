@@ -60,7 +60,7 @@ yarn wasm:build:nodejs
 ### Configuration
 
 There are two ways to configure the app to work with a local (or development) environment - with a single ledger, or with two IBC-enabled validators.
-These options are added to a `.env` environment. See [.env.sample](https://github.com/anoma/namada-interface/blob/main/packages/interface/.env.sample) for the full list
+These options are added to a `.env` environment. See [.env.sample](https://github.com/anoma/namada-interface/blob/main/apps/interface/.env.sample) for the full list
 of options.
 
 #### Configure a single local ledger

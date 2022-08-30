@@ -8,7 +8,7 @@
 
 ```bash
 # go to the directory of namada-interface web app
-cd packages/anoma-wallet
+cd apps/namada-interface
 
 # other OS
 yarn wasm:build
@@ -21,6 +21,7 @@ yarn wasm:build
 yarn
 yarn start
 ```
+
 for solving possible issue see [Troubleshooting](#troubleshooting)
 
 - [Introduction](#introduction)
@@ -43,59 +44,71 @@ This is the `namada-interface` monorepo. Within it, you will find the code for t
 
 ```bash
 namada-interface/
+└── apps/
+    ├── namada-interface/   # Main wallet React App
+    ├── extension/          # Browser Extension React App
 └── packages/
-    ├── anoma-wallet/    # Main wallet React App
-    ├── anoma-lib/       # Rust lib for generating WASM
-    ├── key-management/  # Key management library
+    ├── integrations/    # Third-party wallet integrations
     └── masp-web/        # utilities for performing MASP actions
+    └── rpc/             # Library for handling HTTP and WebSocket RPC calls
+    ├── seed-management/ # Seed management library
+    ├── session/         # Session management library
+    ├── tx/              # Library for interfacing with Anoma transactions
+    ├── utils/           # Shared utilities
+    ├── wallet/          # Library for deriving keys
+    ├── wasm/            # Rust lib for generating WASM
 ```
 
-
-## anoma-lib
-
 ### Project Structure
-The app is split in 4 major parts: `App`, `Components`, `State`, `Utils`.
-* **App** - This contains a flat structure of the views of the wallet. These can be then composed in desired hierarchy and flows with routing and navigation. One of the main purposes of the components in `App` is to create layouts and map the state to the visual components.
-* **Components** - These are the visual and generic components of the app. Ideally anything that the user is seeing is composed of these components.
-* **State** - This lives under `slices` directory and is based on Redux and Redux Thunk using [Redux Toolkit](https://redux-toolkit.js.org). This is where the business logic of the app lives. This is where all the calls to libraries and to the network are initiated from.
-* **utils** - Anything that did not go to one of the previous 3, should be here.
-  * **theme** - The app is using styled-components for styling the components. There us a system in-place that maps the designs to the styles in the app. This is explanied more in detail below.
 
+The app is split in 4 major parts: `App`, `Components`, `State`, `Utils`.
+
+- **App** - This contains a flat structure of the views of the wallet. These can be then composed in desired hierarchy and flows with routing and navigation. One of the main purposes of the components in `App` is to create layouts and map the state to the visual components.
+- **Components** - These are the visual and generic components of the app. Ideally anything that the user is seeing is composed of these components.
+- **State** - This lives under `slices` directory and is based on Redux and Redux Thunk using [Redux Toolkit](https://redux-toolkit.js.org). This is where the business logic of the app lives. This is where all the calls to libraries and to the network are initiated from.
+- **utils** - Anything that did not go to one of the previous 3, should be here.
+  - **theme** - The app is using styled-components for styling the components. There us a system in-place that maps the designs to the styles in the app. This is explanied more in detail below.
 
 #### Utils / Theme
 
 The styles are initially defined in Figma [here](https://www.figma.com/file/NFyHbLZXBSl3aUsMxtffvV/Namada-Wallet?node-id=3%3A12). The style consist of:
-* colors
-* spaces
-* border radius
-* type information
-  * font family
-  * sizes
-  * weights
-  * colors
 
-All this information is typed in the app under `packages/anoma-wallet/src/utils/theme/theme.ts`. The 2 most important types are `PrimitiveColors` which defines the colors. And `DesignConfiguration` which collects all design tokens together. Now some of the styles are different between light and dark modes. We alrways define 2 `PrimitiveColors`, one for light and one for dark. The getter function returns the correct based on which mode the user has selected.
+- colors
+- spaces
+- border radius
+- type information
+  - font family
+  - sizes
+  - weights
+  - colors
+
+All this information is typed in the app under `apps/namada-interface/src/utils/theme/theme.ts`. The 2 most important types are `PrimitiveColors` which defines the colors. And `DesignConfiguration` which collects all design tokens together. Now some of the styles are different between light and dark modes. We alrways define 2 `PrimitiveColors`, one for light and one for dark. The getter function returns the correct based on which mode the user has selected.
 
 ##### Colors
+
 Under colors we have 6 main color groups:
-* **primary** - main brand specific
-* **secondary** - secondary brand specific
-* **tertiary** - tertiary brand specific
-* **utility1** - mostly backgrounds and panels
-* **utility2** - mostly foregrounds and texts
-* **utility3** - generic utils such as warning, error, ...
+
+- **primary** - main brand specific
+- **secondary** - secondary brand specific
+- **tertiary** - tertiary brand specific
+- **utility1** - mostly backgrounds and panels
+- **utility2** - mostly foregrounds and texts
+- **utility3** - generic utils such as warning, error, ...
 
 https://www.figma.com/file/aiWZpaXjPLW6fDjE7dpFaU/Projects-2021?node-id=9102%3A8806
 
 ##### Example
 
 Then in styled components we can do:
+
 ```ts
 export const AccountCreationContainer = styled.div`
   background-color: ${(props) => props.theme.colors.primary.main80};
-`
+`;
 ```
+
 ##### Exceptions
+
 Sometimes we cannot use same color (such as `colors.primary.main80`) for both the dark and light modes. Such as the logo. In these cases we define a getter in styles component (or React) files to facilitate this difference. This is pretty verbose, yet very maintainable. This could be all central, but i feel it is better when close to the consumer.
 
 ```ts
@@ -123,17 +136,21 @@ const getColor = (
 // then we use it like this
 export const ContainedButton = styled.div`
   color: ${(props) => props.theme.colors.primary.main};
-  background-color: ${(props) => getColor(ComponentColor.ButtonBackground, props.theme)}; 
+  background-color: ${(props) =>
+    getColor(ComponentColor.ButtonBackground, props.theme)};
 `;
 ```
 
 ### Testing
 
 #### Unit
+
 TBA
 
 #### e2e
+
 TBA
+
 ### Troubleshooting
 
 When running or building the wallet on **MacOS**, it's possible compilation will fail with some error similar to that:
