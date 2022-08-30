@@ -7,6 +7,9 @@ enum ComponentColor {
   BackgroundColor,
 }
 
+const topSectionHeight = "164px";
+const spaceBellowMainContentContainer = "64px";
+
 const getColor = (
   color: ComponentColor,
   theme: DesignConfiguration
@@ -61,7 +64,7 @@ export const TopSection = styled.section`
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  height: 120px;
+  height: ${topSectionHeight};
   width: 100%;
 `;
 
@@ -69,7 +72,7 @@ export const BottomSection = styled.section`
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  height: calc(100% - 120px);
+  height: calc(100% - ${topSectionHeight});
   width: 100%;
 `;
 
@@ -87,7 +90,7 @@ export const ContentContainer = styled.div`
     ${(props) => getColor(ComponentColor.BorderColor, props.theme)};
 
   padding: 0;
-  min-height: 620px;
+  height: calc(100% - ${spaceBellowMainContentContainer});
   width: 100%;
   max-width: 760px;
   border-radius: 24px;

@@ -67,6 +67,7 @@ export const AccountTab = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  height: 52px;
   color: ${(props) => props.theme.colors.utility2.main80};
   background-color: ${(props) => props.theme.colors.utility1.main60};
   font-size: 14px;

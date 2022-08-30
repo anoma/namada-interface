@@ -3,7 +3,6 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import Config, { RPCConfig } from "config";
 import { IbcTxResponse } from "constants/tx";
 import { RpcClient, SocketClient, Transfer, IBCTransfer } from "lib";
-//import { history, TopLevelRouteGenerator } from "App";
 import { Tokens, TokenType, TxResponse } from "constants/";
 import { NewBlockEvents } from "lib/rpc/types";
 import { amountFromMicro, promiseWithTimeout } from "utils/helpers";
