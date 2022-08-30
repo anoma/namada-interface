@@ -3,15 +3,15 @@ on:
   pull_request:
     paths:
       - "apps/namada-interface/**"
-      - "apps/extension/**",
-      - "packages/integrations/**",
-      - "packages/masp-web/**",
+      - "apps/extension/**"
+      - "packages/integrations/**"
+      - "packages/masp-web/**"
       - "packages/rpc/**"
       - "packages/seed-management/**"
-      - "packages/session/**",
-      - "packages/tx/**",
-      - "packages/utils/**",
-      - "packages/wallet/**",
+      - "packages/session/**"
+      - "packages/tx/**"
+      - "packages/utils/**"
+      - "packages/wallet/**"
       - "packages/wasm/**"
       - ".github/workflows/**"
 
