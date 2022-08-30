@@ -1,5 +1,5 @@
 {
-  "name": "@anoma/interface",
+  "name": "@anoma/namada-interface",
   "jest": {
     "moduleNameMapper": {
       "^@anoma/masp-web": "<rootDir>/../../node_modules/@anoma/masp-web"

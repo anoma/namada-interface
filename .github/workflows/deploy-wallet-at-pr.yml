@@ -2,9 +2,17 @@ name: Deploy wallet preview to netlify at PR and pushes to it
 on:
   pull_request:
     paths:
-      - "packages/interface/**"
-      - "packages/wasm/**"
+      - "apps/namada-interface/**"
+      - "apps/extension/**",
+      - "packages/integrations/**",
+      - "packages/masp-web/**",
+      - "packages/rpc/**"
       - "packages/seed-management/**"
+      - "packages/session/**",
+      - "packages/tx/**",
+      - "packages/utils/**",
+      - "packages/wallet/**",
+      - "packages/wasm/**"
       - ".github/workflows/**"
 
 env:
@@ -17,7 +25,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install dependencies
-        working-directory: ./packages/interface
+        working-directory: ./apps/namada-interface
         run: yarn
 
       - name: Install wasm-pack
@@ -27,7 +35,7 @@ jobs:
 
       - name: Run unit tests
         id: run-unit-tests
-        working-directory: ./packages/interface
+        working-directory: ./apps/namada-interface
         run: yarn test:coverage
         env:
           REACT_APP_ALIAS: "Namada Mainnet"
@@ -56,7 +64,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install dependencies
-        working-directory: ./packages/interface
+        working-directory: ./apps/namada-interface
         run: yarn
 
       - name: Install wasm-pack
@@ -65,7 +73,7 @@ jobs:
           version: "v0.10.3"
 
       - name: build the site
-        working-directory: ./packages/interface
+        working-directory: ./apps/namada-interface
         run: yarn build
         env:
           GENERATE_SOURCEMAP: false
@@ -77,7 +85,7 @@ jobs:
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v1.2.3
         with:
-          publish-dir: "./packages/interface/build"
+          publish-dir: "./apps/namada-interface/build"
           production-branch: main
           github-token: ${{ secrets.GITHUB_TOKEN }}
           deploy-message: "deploy ${{ github.event.number }} at creating a PR"
@@ -100,7 +108,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./packages/interface
+        working-directory: ./apps/namada-interface
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
