@@ -6,7 +6,7 @@
   "repository": "https://github.com/anoma/namada-interface/",
   "author": "Heliax Dev <info@heliax.dev>",
   "license": "MIT",
-  "private": true,
+  "private": false,
   "scripts": {
     "lint": "npx eslint src --ext .ts",
     "lint:fix": "yarn lint -- --fix"
