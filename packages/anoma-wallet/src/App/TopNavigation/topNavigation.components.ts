@@ -47,7 +47,9 @@ export const TopNavigationContainerSecondRow = styled(
 
 export const TopNavigationSecondRowInnerContainer = styled(
   TopNavigationContainerRow
-)`
+)<{ spaceBetween?: boolean }>`
+  justify-content: ${(props) =>
+    props.spaceBetween ? "space-between" : "flex-end"};
   min-height: 48px;
   width: 100%;
   max-width: 760px;

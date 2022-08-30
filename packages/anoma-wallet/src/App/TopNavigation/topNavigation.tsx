@@ -142,7 +142,9 @@ const SecondMenuRow = (props: SecondMenuRowProps): React.ReactElement => {
   }));
 
   return (
-    <TopNavigationSecondRowInnerContainer>
+    <TopNavigationSecondRowInnerContainer
+      spaceBetween={isSubMenuContentVisible}
+    >
       {isSubMenuContentVisible && (
         <SubMenuContainer>
           <MenuItemForSecondRow
