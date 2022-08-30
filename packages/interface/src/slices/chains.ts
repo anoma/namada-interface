@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+
 import Config, { Chain } from "config";
 
 const CHAINS_ACTIONS_BASE = "channels";

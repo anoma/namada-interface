@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import Config from "config";
 import {
   RpcConfig,
   RpcClient,
@@ -15,6 +14,8 @@ import {
   promiseWithTimeout,
   fetchWasmCode,
 } from "@anoma/utils";
+
+import Config from "config";
 import {
   DerivedAccount,
   ShieldedAccount,
@@ -23,7 +24,6 @@ import {
   isShieldedAddress,
   isShieldedAccount,
 } from "./accounts";
-
 import {
   createShieldedTransfer,
   TRANSFER_CONFIGURATION,

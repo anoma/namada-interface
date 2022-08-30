@@ -1,14 +1,16 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import Config from "config";
-import { RpcConfig } from "@anoma/rpc";
+
 import { Account, TxWasm, VpWasm, Symbols, Tokens, TokenType } from "@anoma/tx";
 import {
   RpcClient,
+  RpcConfig,
   SocketClient,
   NewBlockEvents,
   TxResponse,
 } from "@anoma/rpc";
 import { fetchWasmCode, promiseWithTimeout, stringToHash } from "@anoma/utils";
+
+import Config from "config";
 import { submitTransferTransaction } from "./transfers";
 import { addAccountReducersToBuilder } from "./AccountsNew/reducers";
 

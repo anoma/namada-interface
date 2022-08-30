@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+
 import { defaultChainId } from "config/chain";
 
 const SETTINGS_ACTIONS_BASE = "settings";

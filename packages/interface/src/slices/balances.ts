@@ -1,8 +1,10 @@
-import { RpcClient } from "@anoma/rpc";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+
+import { RpcClient } from "@anoma/rpc";
 import { Symbols, Tokens, TokenType } from "@anoma/tx";
-import { DerivedAccount } from "./accounts";
+
 import Config from "config";
+import { DerivedAccount } from "./accounts";
 
 type Balance = {
   chainId: string;
