@@ -1,13 +1,13 @@
-import { Anoma } from "../api/Anoma";
+import { Anoma as AnomaAPI } from "../api/Anoma";
 
 declare global {
-  var Anoma: Anoma;
+  var Anoma: AnomaAPI;
 }
 
 export type WindowWithAnoma = Window &
   typeof globalThis & {
-    Anoma: Anoma;
+    Anoma: AnomaAPI;
   };
 
-window.Anoma = new Anoma();
+window.Anoma = new AnomaAPI();
 console.info("Anoma Extension loaded!");

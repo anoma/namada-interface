@@ -9,8 +9,10 @@ the extension files based on the provided `manifest.json`.
 # Clean build files
 yarn clean
 
-# Build web extension (chrome)
+# Build web extension (chrome & Firefox)
 yarn build
+yarn build:chrome  # Build only chrome (./build/chrome)
+yarn build:firefox # Build only firefox (./build/firefox)
 
 # Run development mode
 yarn start
