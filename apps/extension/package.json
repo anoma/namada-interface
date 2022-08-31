@@ -9,7 +9,9 @@
   "scripts": {
     "clean": "rimraf ./dist",
     "start": "yarn clean && parcel watch src/manifest.json --host localhost -p 5000",
-    "build": "yarn clean && parcel build src/manifest.json",
+    "build": "yarn build:chrome",
+    "build:chrome": "yarn clean && parcel build src/manifest.json",
+    "build:firefox": "yarn clean && parcel build src/manifest.firefox.json",
     "lint": "npx eslint src --ext .ts",
     "lint:fix": "yarn lint -- --fix",
     "test": "yarn jest",

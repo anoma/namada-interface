@@ -37,4 +37,5 @@ hopefully instantiating an instance of the `Anoma()` class API for handling comm
 
 ## TODO
 
-- Utilize `web-ext` in build pipeline to generate a `v2` `manifest.json` for Firefox (and potentially other platforms).
+- Currently, Firefox does not support `manifest_version: 3`, and Chrome will be removing support for `V2` in 2023. We will need to maintain
+  a build-pipeline that supports both of these.
