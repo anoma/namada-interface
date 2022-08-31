@@ -1,32 +1,32 @@
-type Transaction = {
+export type Transaction = {
   hash: Uint8Array;
   tx: Uint8Array;
 };
 
-type Account = {
+export type Account = {
   alias: string;
   address: string;
   publicKey: Uint8Array;
 };
 
-interface Signer {
+export interface Signer {
   sign(account: Account, tx: Transaction): Promise<Transaction>;
   accounts: Account[];
 }
 
-type ChainConfig = {
+export type ChainConfig = {
   chainId: string;
   rpc: string;
 };
 
-interface IAnoma {
+export interface IAnoma {
   enable(chainId: string): Promise<void>;
   getSigner(chainId: string): Signer;
   addChain(chainConfig: ChainConfig): Promise<boolean>;
   chains: string[];
 }
 
-class Anoma implements IAnoma {
+export class Anoma implements IAnoma {
   private _chains: string[] = [];
 
   public async enable(chainId: string): Promise<void> {
@@ -40,6 +40,10 @@ class Anoma implements IAnoma {
 
   public async addChain(config: ChainConfig): Promise<boolean> {
     console.log({ config });
+    const { chainId } = config;
+    if (this._chains.indexOf(chainId) < 0) {
+      this._chains.push(chainId);
+    }
     return true;
   }
 
@@ -47,5 +51,3 @@ class Anoma implements IAnoma {
     return this._chains;
   }
 }
-
-export default Anoma;
