@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@anoma/masp-web": "0.1.0",
-    "@cosmjs/json-rpc": "^0.28.13",
+    "@cosmjs/json-rpc": "^0.27.1",
     "bs58": "^5.0.0",
     "crypto-js": "^4.1.1",
     "luxon": "^3.0.1"

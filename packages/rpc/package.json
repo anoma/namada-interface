@@ -13,9 +13,9 @@
   },
   "dependencies": {
     "@anoma/utils": "0.1.0",
-    "@cosmjs/encoding": "^0.28.13",
-    "@cosmjs/json-rpc": "^0.28.13",
-    "@cosmjs/tendermint-rpc": "^0.28.13",
+    "@cosmjs/encoding": "^0.27.1",
+    "@cosmjs/json-rpc": "^0.27.1",
+    "@cosmjs/tendermint-rpc": "^0.27.1",
     "bn.js": "^5.2.1",
     "borsh": "^0.7.0",
     "buffer": "^6.0.3",

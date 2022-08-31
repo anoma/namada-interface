@@ -28,6 +28,6 @@
     "ts-node": "^10.9.1"
   },
   "dependencies": {
-    "@cosmjs/proto-signing": "^0.28.13"
+    "@cosmjs/proto-signing": "^0.27.1"
   }
 }
