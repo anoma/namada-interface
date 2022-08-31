@@ -50,7 +50,7 @@ export const fetchBalanceByToken = createAsyncThunk(
       token,
       chainId,
       accountId,
-      balance,
+      balance: Math.max(balance, 0),
     };
   }
 );
@@ -78,7 +78,7 @@ export const fetchBalances = createAsyncThunk(
               token,
               chainId,
               accountId,
-              balance,
+              balance: Math.max(balance, 0),
             };
           })
         );

@@ -99,7 +99,7 @@ export const fetchBalanceByAccount = createAsyncThunk(
     return {
       chainId,
       id,
-      balance,
+      balance: Math.max(balance, 0),
     };
   }
 );
