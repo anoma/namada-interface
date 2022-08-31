@@ -1,6 +1,6 @@
 import styled, { createGlobalStyle } from "styled-components/macro";
 import { motion } from "framer-motion";
-import { DesignConfiguration } from "utils/theme";
+import { DesignConfiguration, ThemeName } from "utils/theme";
 
 enum ComponentColor {
   BorderColor,
@@ -17,6 +17,9 @@ const getColor = (
   const isDark = theme.themeConfigurations.isLightMode;
   switch (color) {
     case ComponentColor.BorderColor:
+      if (theme.themeConfigurations.themeName === ThemeName.Placeholder) {
+        return "transparent";
+      }
       return isDark ? "transparent" : theme.colors.utility2.main20;
     case ComponentColor.BackgroundColor:
       return isDark ? theme.colors.utility1.main80 : theme.colors.utility1.main;
@@ -93,7 +96,7 @@ export const ContentContainer = styled.div`
   height: calc(100% - ${spaceBellowMainContentContainer});
   width: 100%;
   max-width: 760px;
-  border-radius: 24px;
+  border-radius: ${(props) => props.theme.borderRadius.mainContainer};
   overflow-x: hidden;
   transition: background-color 0.3s linear;
 `;
