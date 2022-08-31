@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "Anoma Extension",
+  "version": "0.1.0",
+  "background": {
+    "service_worker": "background/index.ts",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://github.com/anoma/namada-interface/*"],
+      "js": ["content/index.ts"]
+    }
+  ],
+  "permissions": ["storage"]
+}
