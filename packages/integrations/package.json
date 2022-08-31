@@ -15,7 +15,6 @@
     "lint:fix": "yarn lint -- --fix"
   },
   "devDependencies": {
-    "@keplr-wallet/types": "^0.10.19",
     "@types/jest": "^28.1.8",
     "@types/node": "^18.7.13",
     "eslint": "^8.22.0",
@@ -28,6 +27,7 @@
     "ts-node": "^10.9.1"
   },
   "dependencies": {
-    "@cosmjs/proto-signing": "^0.27.1"
+    "@cosmjs/proto-signing": "^0.27.1",
+    "@keplr-wallet/types": "^0.10.19"
   }
 }
