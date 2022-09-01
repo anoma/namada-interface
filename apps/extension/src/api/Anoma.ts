@@ -3,9 +3,7 @@ import { Anoma as IAnoma, ChainConfig, Signer } from "@anoma/types";
 export class Anoma implements IAnoma {
   private _chains: string[] = [];
 
-  constructor() {
-    return this;
-  }
+  constructor(private readonly _version: string) {}
 
   public async enable(chainId: string): Promise<void> {
     console.log({ chainId });
@@ -24,7 +22,11 @@ export class Anoma implements IAnoma {
     return true;
   }
 
-  public get chains() {
+  public get chains(): string[] {
     return this._chains;
+  }
+
+  public get version(): string {
+    return this._version;
   }
 }

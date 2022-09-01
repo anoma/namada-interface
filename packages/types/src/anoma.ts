@@ -24,9 +24,10 @@ export interface Anoma {
   getSigner(chainId: string): Signer;
   addChain(chainConfig: ChainConfig): Promise<boolean>;
   chains: string[];
+  version: string;
 }
 
 export type WindowWithAnoma = Window &
   typeof globalThis & {
-    Anoma: Anoma;
+    anoma: Anoma;
   };
