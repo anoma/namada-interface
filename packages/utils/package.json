@@ -1,0 +1,34 @@
+{
+  "name": "@anoma/utils",
+  "version": "0.1.0",
+  "description": "Anoma Wallet Utilities",
+  "main": "src/index.ts",
+  "repository": "https://github.com/anoma/namada-interface/",
+  "author": "Heliax Dev <info@heliax.dev>",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "lint": "npx eslint src --ext .ts",
+    "lint:fix": "yarn lint -- --fix"
+  },
+  "dependencies": {
+    "@anoma/masp-web": "0.1.0",
+    "@cosmjs/json-rpc": "^0.27.1",
+    "bs58": "^5.0.0",
+    "crypto-js": "^4.1.1",
+    "luxon": "^3.0.1"
+  },
+  "devDependencies": {
+    "@types/bs58": "^4.0.1",
+    "@types/crypto-js": "^4.1.1",
+    "@types/jest": "^28.1.8",
+    "@types/luxon": "^3.0.0",
+    "@types/node": "^18.7.13",
+    "eslint": "^8.22.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-typescript": "^3.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "typescript": "^4.7.4"
+  }
+}

@@ -4,7 +4,7 @@ on:
     branches:
       - main
     paths:
-      - "packages/anoma-wallet/**"
+      - "apps/namada-interface/**"
 env:
   CI: false
 jobs:
@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install dependencies
-        working-directory: ./packages/anoma-wallet
+        working-directory: ./apps/namada-interface
         run: yarn
 
       - name: Install wasm-pack
@@ -24,7 +24,7 @@ jobs:
           version: "v0.10.3"
 
       - name: build the site
-        working-directory: ./packages/anoma-wallet
+        working-directory: ./apps/namada-interface
         run: yarn build
         env:
           GENERATE_SOURCEMAP: false
@@ -36,7 +36,7 @@ jobs:
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v1.2.3
         with:
-          publish-dir: "./packages/anoma-wallet/build"
+          publish-dir: "./apps/namada-interface/build"
           production-branch: main
           github-token: ${{ secrets.GITHUB_TOKEN }}
           deploy-message: "Merged PR ${{ github.event.number }} to main"
