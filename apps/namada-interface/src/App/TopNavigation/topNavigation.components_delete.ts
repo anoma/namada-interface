@@ -131,7 +131,7 @@ export const MenuItem = styled.button<{ isSelected?: boolean }>`
 `;
 
 export const MenuItemForSecondRow = styled(MenuItem)`
-  margin-right: 32px;
+  margin-right: 16px;
   margin-left: 0px;
 `;
 

@@ -1,14 +1,19 @@
 import { useEffect } from "react";
-import { NavigationContainer } from "components/NavigationContainer";
-import { Heading, HeadingLevel } from "components/Heading";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 
+import { Staking } from "App/Staking";
+import { Governance } from "App/Governance";
+import { PublicGoodsFunding } from "App/PublicGoodsFunding";
 import { StakingAndGovernanceContainer } from "./StakingAndGovernance.components";
 import {
   TopLevelRoute,
   StakingAndGovernanceSubRoute,
   locationToStakingAndGovernanceSubRoute,
 } from "App/types";
+
+// This is just rendering the actual Staking/Governance/PGF screens
+// mostly the purpose of this is to define the default behavior when
+// the user clicks the top level Staking & Governance menu
 export const StakingAndGovernance = (): JSX.Element => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -16,6 +21,7 @@ export const StakingAndGovernance = (): JSX.Element => {
   // we need one of the sub routes, staking alone has nothing
   const stakingAndGovernanceSubRoute =
     locationToStakingAndGovernanceSubRoute(location);
+
   useEffect(() => {
     if (!!!stakingAndGovernanceSubRoute) {
       navigate(
@@ -26,43 +32,20 @@ export const StakingAndGovernance = (): JSX.Element => {
 
   return (
     <StakingAndGovernanceContainer>
-      <NavigationContainer>
-        <Heading level={HeadingLevel.One}>Staking & Governance</Heading>
-      </NavigationContainer>
       <Routes>
-        <Route path="*" element={<div>*</div>} />
         <Route
           path={StakingAndGovernanceSubRoute.Staking}
-          element={
-            <div style={{ color: "white" }}>
-              StakingAndGovernanceSubRoute.Staking
-            </div>
-          }
+          element={<Staking />}
         />
         <Route
           path={StakingAndGovernanceSubRoute.Governance}
-          element={
-            <div style={{ color: "white" }}>
-              StakingAndGovernanceSubRoute.Governance
-            </div>
-          }
+          element={<Governance />}
         />
         <Route
           path={StakingAndGovernanceSubRoute.PublicGoodsFunding}
-          element={
-            <div style={{ color: "white" }}>
-              StakingAndGovernanceSubRoute.PublicGoodsFunding
-            </div>
-          }
+          element={<PublicGoodsFunding />}
         />
       </Routes>
-      <a
-        href="https://github.com/anoma/spec/blob/master/src/architecture/namada/web-wallet/user-interfaces.md#stakingandgovernance-1"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        StakingAndGovernance
-      </a>
     </StakingAndGovernanceContainer>
   );
 };

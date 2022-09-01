@@ -1,5 +1,5 @@
 import styled from "styled-components/macro";
-import { DesignConfiguration, ThemeName } from "utils/theme";
+import { DesignConfiguration } from "utils/theme";
 
 enum ComponentColor {
   ButtonBackground,
@@ -15,9 +15,6 @@ const getColor = (
     case ComponentColor.ButtonBackground:
       return isDark ? theme.colors.primary.main : theme.colors.secondary.main;
     case ComponentColor.ContainedButtonLabelColor:
-      if (theme.themeConfigurations.themeName === ThemeName.Placeholder) {
-        return theme.colors.utility3.white;
-      }
       return isDark ? theme.colors.utility3.black : theme.colors.utility3.black;
   }
 };
@@ -34,7 +31,7 @@ const Button = styled.button`
 `;
 
 const RoundButton = styled(Button)`
-  border-radius: ${(props) => props.theme.borderRadius.buttonBorderRadius};
+  border-radius: 200px;
   border: none;
 `;
 

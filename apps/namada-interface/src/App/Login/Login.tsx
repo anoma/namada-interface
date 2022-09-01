@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { TopLevelRoute } from "App/types";
-import { LoginViewContainer, UnlockingLabel } from "./Login.components";
+import {
+  LoginViewContainer,
+  LoginViewOuterContainer,
+  UnlockingLabel,
+} from "./Login.components";
 import { useNavigate } from "react-router-dom";
 import { Input, InputVariants } from "components/Input";
 import { Button, ButtonVariant } from "components/Button";
@@ -59,22 +63,24 @@ const Login = ({ setPassword, setStore }: Props): JSX.Element => {
   };
 
   return (
-    <LoginViewContainer>
-      <Input
-        label="Enter password to unlock wallet"
-        variant={InputVariants.Password}
-        onChangeCallback={handlePasswordChange}
-        error={error}
-      />
-      <Button
-        variant={ButtonVariant.Contained}
-        onClick={handleUnlockClick}
-        disabled={!loginPassword} // TODO: Improve validation
-      >
-        Unlock Wallet
-      </Button>
-      {isLoggingIn && <UnlockingLabel>Unlocking wallet...</UnlockingLabel>}
-    </LoginViewContainer>
+    <LoginViewOuterContainer>
+      <LoginViewContainer>
+        <Input
+          label="Enter password to unlock wallet"
+          variant={InputVariants.Password}
+          onChangeCallback={handlePasswordChange}
+          error={error}
+        />
+        <Button
+          variant={ButtonVariant.Contained}
+          onClick={handleUnlockClick}
+          disabled={!loginPassword} // TODO: Improve validation
+        >
+          Unlock Wallet
+        </Button>
+        {isLoggingIn && <UnlockingLabel>Unlocking wallet...</UnlockingLabel>}
+      </LoginViewContainer>
+    </LoginViewOuterContainer>
   );
 };
 

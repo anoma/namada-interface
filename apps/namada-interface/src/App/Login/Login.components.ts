@@ -19,6 +19,13 @@ export const LoginViewContainer = styled.div`
   }
 `;
 
+export const LoginViewOuterContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+`;
+
 export const UnlockingLabel = styled.p`
   color: ${(props) => props.theme.colors.utility2.main};
 `;
