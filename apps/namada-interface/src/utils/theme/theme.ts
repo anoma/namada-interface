@@ -198,6 +198,55 @@ const namadaLightColors: Colors = {
   },
 };
 
+const placeholderThemeColors: Colors = {
+  primary: {
+    main: "#FFFF00",
+    main80: "#CCCC00",
+    main60: "#999900",
+    main40: "#666600",
+    main20: "#333300",
+  },
+  secondary: {
+    main: "#11DFDF",
+    main80: "#41E5E5",
+    main60: "#70ECEC",
+    main40: "#A0F2F2",
+    main20: "#CFF9F9",
+  },
+  tertiary: {
+    main: "#11DFDF",
+    main80: "#41E5E5",
+    main60: "#70ECEC",
+    main40: "#A0F2F2",
+    main20: "#CFF9F9",
+  },
+  utility1: {
+    main: "#FFFFFF",
+    main80: "#F8F8F8",
+    main75: "#F8F8F8",
+    main70: "#F8F8F8",
+    main60: "#F3F3F3",
+    main40: "#F0F0F0",
+    main20: "#D9D9D9",
+  },
+  utility2: {
+    main: "#000000",
+    main80: "#333333",
+    main60: "#666666",
+    main40: "#999999",
+    main20: "#CCCCCC",
+  },
+  utility3: {
+    success: "#61C454",
+    warning: "#F5BF50",
+    error: "#ED695D",
+    highAttention: "#FF0000",
+    lowAttention: "#FAFF00",
+    black: "#000000",
+    white: "#FFFFFF",
+  },
+};
+
 const namadaSpacers = {
   horizontal: {
     xs: "8px",
@@ -257,34 +306,33 @@ const namadaTypography = {
   },
 };
 
-enum Brand {
-  Namada,
-}
-
-const getBrand = (): Brand => {
-  return Brand.Namada;
-};
-
 export type ThemeConfigurations = {
   isLightMode: boolean;
 };
 
-export const getTheme = (isLightMode: boolean): DesignConfiguration => {
-  // branding mode
-  const brand = getBrand();
-
-  // return the correct theming configuration
-  switch (brand) {
-    case Brand.Namada:
-      const namadaTheme: DesignConfiguration = {
-        colors: isLightMode ? namadaDarkColors : namadaLightColors,
-        spacers: namadaSpacers,
-        borderRadius: namadaBorderRadius,
-        typography: namadaTypography,
-        themeConfigurations: { isLightMode },
-      };
-      return namadaTheme;
+export const getTheme = (
+  isLightMode: boolean,
+  shouldUsePlaceholderTheme?: boolean
+): DesignConfiguration => {
+  if (shouldUsePlaceholderTheme) {
+    const placeholderTheme: DesignConfiguration = {
+      colors: placeholderThemeColors,
+      spacers: namadaSpacers,
+      borderRadius: namadaBorderRadius,
+      typography: namadaTypography,
+      themeConfigurations: { isLightMode },
+    };
+    return placeholderTheme;
   }
+
+  const namadaTheme: DesignConfiguration = {
+    colors: isLightMode ? namadaDarkColors : namadaLightColors,
+    spacers: namadaSpacers,
+    borderRadius: namadaBorderRadius,
+    typography: namadaTypography,
+    themeConfigurations: { isLightMode },
+  };
+  return namadaTheme;
 };
 
 export type Theme = {

@@ -1,18 +1,31 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { ThemeContext } from "styled-components";
-import { useNavigate, useLocation, NavigateFunction } from "react-router-dom";
+import {
+  useNavigate,
+  useLocation,
+  NavigateFunction,
+  Location,
+} from "react-router-dom";
 import { Persistor } from "redux-persist";
-import { Provider } from "react-redux";
+import { useAppDispatch, useAppSelector } from "store";
 
-import { TopLevelRoute } from "App/types";
+import {
+  TopLevelRoute,
+  StakingAndGovernanceSubRoute,
+  locationToTopLevelRoute,
+  locationToStakingAndGovernanceSubRoute,
+} from "App/types";
 import { Image, ImageName } from "components/Image";
 import { Toggle } from "components/Toggle";
+import { Select } from "components/Select";
 import {
   TopNavigationContainer,
   LeftSection,
   MiddleSection,
   RightSection,
   MenuItem,
+  MenuItemForSecondRow,
+  MenuItemSubComponent,
   MenuItemTextContainer,
   ColorModeContainer,
   LogoContainer,
@@ -20,6 +33,7 @@ import {
   OnlyInMedium,
   TopNavigationContainerRow,
   TopNavigationContainerSecondRow,
+  TopNavigationSecondRowInnerContainer,
   TopNavigationLogoContainer,
   MenuButton,
   MobileMenu,
@@ -27,12 +41,15 @@ import {
   MobileMenuListItem,
   MobileMenuHeader,
   MenuCloseButton,
+  SubMenuContainer,
 } from "./topNavigation.components";
 
 import { AppStore } from "store/store";
+import { setChainId, SettingsState } from "slices/settings";
 import TopNavigationLoggedIn from "./topNavigationLoggedIn";
 import { SettingsButton } from "./topNavigationLoggedIn.components";
 import { Icon, IconName } from "components/Icon";
+import Config, { Chain } from "config";
 
 /**
  * this is rendered in one of 2 places depending of the screen size
@@ -42,7 +59,7 @@ const TopNavigationMenuItems = (props: {
 }): React.ReactElement => {
   const { navigate } = props;
   const location = useLocation();
-
+  const topLevelPath = `/${location.pathname.split("/")[1]}`;
   return (
     <>
       {/* Wallet */}
@@ -67,18 +84,119 @@ const TopNavigationMenuItems = (props: {
 
       {/* Staking */}
       <MenuItem
-        isSelected={location.pathname === TopLevelRoute.StakingAndGovernance}
+        onClick={() => {
+          navigate(`${TopLevelRoute.Staking}`);
+        }}
+        isSelected={topLevelPath === TopLevelRoute.Staking}
       >
         <MenuItemTextContainer>Staking</MenuItemTextContainer>
       </MenuItem>
 
       {/* Governance */}
       <MenuItem
-        isSelected={location.pathname === TopLevelRoute.StakingAndGovernance}
+        onClick={() => {
+          navigate(`${TopLevelRoute.Governance}`);
+        }}
+        isSelected={topLevelPath === TopLevelRoute.Governance}
       >
         <MenuItemTextContainer>Governance</MenuItemTextContainer>
       </MenuItem>
     </>
+  );
+};
+
+type SecondMenuRowProps = {
+  location: Location;
+  navigate: NavigateFunction;
+  setIsLightMode: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+const SecondMenuRow = (props: SecondMenuRowProps): React.ReactElement => {
+  const dispatch = useAppDispatch();
+  const { navigate, location, setIsLightMode } = props;
+  const topLevelRoute = locationToTopLevelRoute(location);
+  const stakingAndGovernanceSubRoute =
+    locationToStakingAndGovernanceSubRoute(location);
+  const isSubMenuContentVisible = topLevelRoute === TopLevelRoute.Staking;
+  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
+
+  useEffect(() => {
+    if (topLevelRoute === TopLevelRoute.Staking) {
+      setIsLightMode(false);
+    }
+  });
+
+  // callback func for select component
+  const handleNetworkSelect = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ): void => {
+    const { value } = event.target;
+    dispatch(setChainId(value));
+  };
+
+  // transform for select component
+  const chains = Object.values(Config.chain);
+  const networks = Object.values(chains).map(({ id, alias }: Chain) => ({
+    label: alias,
+    value: id,
+  }));
+
+  return (
+    <TopNavigationSecondRowInnerContainer
+      spaceBetween={isSubMenuContentVisible}
+    >
+      {isSubMenuContentVisible && (
+        <SubMenuContainer>
+          <MenuItemForSecondRow
+            onClick={() => {
+              navigate(
+                `${TopLevelRoute.Staking}${StakingAndGovernanceSubRoute.Staking}`
+              );
+            }}
+            isSelected={
+              stakingAndGovernanceSubRoute ===
+              StakingAndGovernanceSubRoute.Staking
+            }
+          >
+            Staking
+          </MenuItemForSecondRow>
+          <MenuItemForSecondRow
+            onClick={() => {
+              navigate(
+                `${TopLevelRoute.Staking}${StakingAndGovernanceSubRoute.Governance}`
+              );
+            }}
+            isSelected={
+              stakingAndGovernanceSubRoute ===
+              StakingAndGovernanceSubRoute.Governance
+            }
+          >
+            Governance
+          </MenuItemForSecondRow>
+          <MenuItemForSecondRow
+            onClick={() => {
+              navigate(
+                `${TopLevelRoute.Staking}${StakingAndGovernanceSubRoute.PublicGoodsFunding}`
+              );
+            }}
+            isSelected={
+              stakingAndGovernanceSubRoute ===
+              StakingAndGovernanceSubRoute.PublicGoodsFunding
+            }
+          >
+            Public Goods Funding
+          </MenuItemForSecondRow>
+        </SubMenuContainer>
+      )}
+
+      <RightSection>
+        <Select
+          value={chainId}
+          data={networks}
+          onChange={handleNetworkSelect}
+        />
+      </RightSection>
+    </TopNavigationSecondRowInnerContainer>
   );
 };
 
@@ -92,6 +210,7 @@ type TopNavigationProps = {
   store?: AppStore;
   logout: () => void;
 };
+
 // top nav of the app, this is likely always visible.
 function TopNavigation(props: TopNavigationProps): JSX.Element {
   const {
@@ -104,6 +223,10 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
   const navigate = useNavigate();
   const themeContext = useContext(ThemeContext);
   const [showMenu, setShowMenu] = useState(false);
+  const location = useLocation();
+  const topLevelRoute = locationToTopLevelRoute(location);
+  const stakingAndGovernanceSubRoute =
+    locationToStakingAndGovernanceSubRoute(location);
 
   return (
     <TopNavigationContainer>
@@ -131,29 +254,38 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
           </MiddleSection>
 
           <RightSection>
-            {/* TODO: extract to Button component*/}
-            {isLoggedIn && (
-              <MenuItem
-                onClick={() => {
-                  navigate(TopLevelRoute.Home);
-                  logout();
-                }}
-              >
-                <Icon iconName={IconName.Lock} />
-                <MenuItemTextContainer>Lock</MenuItemTextContainer>
-              </MenuItem>
+            {isLoggedIn && store && (
+              <>
+                <TopNavigationLoggedIn
+                  isLightMode={isLightMode}
+                  setIsLightMode={(isLightMode) => setIsLightMode(isLightMode)}
+                  topLevelRoute={topLevelRoute}
+                ></TopNavigationLoggedIn>
+
+                <MenuItem
+                  onClick={() => {
+                    navigate(TopLevelRoute.Home);
+                    logout();
+                  }}
+                >
+                  <Icon iconName={IconName.Lock} />
+                  <MenuItemTextContainer>Lock</MenuItemTextContainer>
+                </MenuItem>
+              </>
             )}
           </RightSection>
         </TopNavigationContainerRow>
+
+        {/* sub menu */}
+        {isLoggedIn && (
+          <SecondMenuRow
+            location={location}
+            navigate={navigate}
+            setIsLightMode={setIsLightMode}
+          />
+        )}
+
         <TopNavigationContainerSecondRow>
-          {isLoggedIn && store && (
-            <Provider store={store}>
-              <TopNavigationLoggedIn
-                isLightMode={isLightMode}
-                setIsLightMode={(isLightMode) => setIsLightMode(isLightMode)}
-              ></TopNavigationLoggedIn>
-            </Provider>
-          )}
           {!isLoggedIn && (
             <TopNavigationLogoContainer>
               <SettingsButton>
@@ -170,17 +302,21 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
                 />
               </LogoContainer>
               <ColorModeContainer>
-                <Toggle
-                  checked={isLightMode}
-                  onClick={() => {
-                    setIsLightMode((isLightMode) => !isLightMode);
-                  }}
-                />
+                {topLevelRoute !== TopLevelRoute.Staking && (
+                  <Toggle
+                    checked={isLightMode}
+                    onClick={() => {
+                      setIsLightMode((isLightMode) => !isLightMode);
+                    }}
+                  />
+                )}
               </ColorModeContainer>
             </TopNavigationLogoContainer>
           )}
         </TopNavigationContainerSecondRow>
       </OnlyInMedium>
+
+      {/* mobile size */}
       <OnlyInSmall>
         <TopNavigationContainerRow>
           &nbsp;
@@ -211,12 +347,14 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
               <RightSection>
                 {isLoggedIn && (
                   <ColorModeContainer>
-                    <Toggle
-                      checked={isLightMode}
-                      onClick={() => {
-                        setIsLightMode((isLightMode) => !isLightMode);
-                      }}
-                    />
+                    {topLevelRoute !== TopLevelRoute.Staking && (
+                      <Toggle
+                        checked={isLightMode}
+                        onClick={() => {
+                          setIsLightMode((isLightMode) => !isLightMode);
+                        }}
+                      />
+                    )}
                   </ColorModeContainer>
                 )}
               </RightSection>
@@ -225,12 +363,10 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
         </TopNavigationContainerRow>
         <TopNavigationContainerSecondRow>
           {isLoggedIn && store ? (
-            <Provider store={store}>
-              <TopNavigationLoggedIn
-                isLightMode={isLightMode}
-                setIsLightMode={(isLightMode) => setIsLightMode(isLightMode)}
-              ></TopNavigationLoggedIn>
-            </Provider>
+            <TopNavigationLoggedIn
+              isLightMode={isLightMode}
+              setIsLightMode={(isLightMode) => setIsLightMode(isLightMode)}
+            ></TopNavigationLoggedIn>
           ) : (
             <TopNavigationLogoContainer>
               <SettingsButton>
@@ -247,12 +383,14 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
                 />
               </LogoContainer>
               <ColorModeContainer>
-                <Toggle
-                  checked={isLightMode}
-                  onClick={() => {
-                    setIsLightMode((isLightMode) => !isLightMode);
-                  }}
-                />
+                {topLevelRoute !== TopLevelRoute.Staking && (
+                  <Toggle
+                    checked={isLightMode}
+                    onClick={() => {
+                      setIsLightMode((isLightMode) => !isLightMode);
+                    }}
+                  />
+                )}
               </ColorModeContainer>
             </TopNavigationLogoContainer>
           )}
@@ -277,12 +415,14 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
               />
             </LogoContainer>
             <ColorModeContainer>
-              <Toggle
-                checked={isLightMode}
-                onClick={() => {
-                  setIsLightMode((isLightMode) => !isLightMode);
-                }}
-              />
+              {topLevelRoute !== TopLevelRoute.Staking && (
+                <Toggle
+                  checked={isLightMode}
+                  onClick={() => {
+                    setIsLightMode((isLightMode) => !isLightMode);
+                  }}
+                />
+              )}
             </ColorModeContainer>
           </MobileMenuHeader>
 
@@ -293,6 +433,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
                   setShowMenu(false);
                   navigate(TopLevelRoute.Home);
                 }}
+                isSelected={topLevelRoute === TopLevelRoute.Wallet}
               >
                 Wallet
               </MenuItem>
@@ -303,9 +444,57 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
                   setShowMenu(false);
                   navigate(TopLevelRoute.Bridge);
                 }}
+                isSelected={topLevelRoute === TopLevelRoute.Bridge}
               >
                 Bridge
               </MenuItem>
+            </MobileMenuListItem>
+            <MobileMenuListItem>
+              <MenuItemSubComponent
+                onClick={() => {
+                  setShowMenu(false);
+                  setIsLightMode(false);
+                  navigate(
+                    `${TopLevelRoute.Staking}${StakingAndGovernanceSubRoute.Staking}`
+                  );
+                }}
+                isSelected={
+                  stakingAndGovernanceSubRoute ===
+                  StakingAndGovernanceSubRoute.Staking
+                }
+              >
+                Staking
+              </MenuItemSubComponent>
+              <MenuItemSubComponent
+                onClick={() => {
+                  setShowMenu(false);
+                  setIsLightMode(false);
+                  navigate(
+                    `${TopLevelRoute.Staking}${StakingAndGovernanceSubRoute.Governance}`
+                  );
+                }}
+                isSelected={
+                  stakingAndGovernanceSubRoute ===
+                  StakingAndGovernanceSubRoute.Governance
+                }
+              >
+                Governance
+              </MenuItemSubComponent>
+              <MenuItemSubComponent
+                onClick={() => {
+                  setShowMenu(false);
+                  setIsLightMode(false);
+                  navigate(
+                    `${TopLevelRoute.Staking}${StakingAndGovernanceSubRoute.PublicGoodsFunding}`
+                  );
+                }}
+                isSelected={
+                  stakingAndGovernanceSubRoute ===
+                  StakingAndGovernanceSubRoute.PublicGoodsFunding
+                }
+              >
+                Public Goods Funding
+              </MenuItemSubComponent>
             </MobileMenuListItem>
             <MobileMenuListItem>
               <MenuItem
@@ -313,6 +502,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
                   setShowMenu(false);
                   navigate(TopLevelRoute.Settings);
                 }}
+                isSelected={topLevelRoute === TopLevelRoute.Settings}
               >
                 Settings
               </MenuItem>

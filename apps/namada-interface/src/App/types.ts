@@ -1,3 +1,5 @@
+import { Location } from "react-router-dom";
+
 export const TopLevelRouteGenerator = {
   // this creates a route for TopLevelRoute.Token
   createRouteForTokenByTokenId: (tokenId: string) => `/token/${tokenId}`,
@@ -28,7 +30,8 @@ export enum TopLevelRoute {
   TokenIbcTransfer = "/token/:id/ibc-transfer",
 
   /* STAKING AND GOVERNANCE */
-  StakingAndGovernance = "/staking-and-governance",
+  Staking = "/staking",
+  Governance = "/governance",
 
   /* SETTINGS */
   Settings = "/settings",
@@ -36,6 +39,46 @@ export enum TopLevelRoute {
   SettingsWalletSettings = "/settings/wallet-settings",
   SettingsAccountSettings = "/settings/account-settings/:id",
 }
+
+export enum StakingAndGovernanceSubRoute {
+  Staking = "/staking",
+  Governance = "/governance",
+  PublicGoodsFunding = "/public-goods-funding",
+}
+
+// returns the root route from react router
+// location: host.com/xxx/thisWillNotBeReturned
+// returns: TopLevelRoute.Xxx
+export const locationToTopLevelRoute = (
+  location: Location
+): TopLevelRoute | undefined => {
+  const firstPartOtPath = `/${location.pathname.split("/")[1]}`;
+  const values = Object.values(TopLevelRoute);
+  const secondPartOtPathAsStakingAndGovernanceSubRoute =
+    firstPartOtPath as unknown as TopLevelRoute;
+
+  if (values.includes(secondPartOtPathAsStakingAndGovernanceSubRoute)) {
+    return secondPartOtPathAsStakingAndGovernanceSubRoute;
+  }
+  return undefined;
+};
+
+// returns the second level route from react router
+// location: host.com/thisWillNotBeReturned/xxx
+// returns: StakingAndGovernanceSubRoute.Xxx
+export const locationToStakingAndGovernanceSubRoute = (
+  location: Location
+): StakingAndGovernanceSubRoute | undefined => {
+  const secondPartOtPath = `/${location.pathname.split("/")[2]}`;
+  const values = Object.values(StakingAndGovernanceSubRoute);
+  const secondPartOtPathAsStakingAndGovernanceSubRoute =
+    secondPartOtPath as unknown as StakingAndGovernanceSubRoute;
+
+  if (values.includes(secondPartOtPathAsStakingAndGovernanceSubRoute)) {
+    return secondPartOtPathAsStakingAndGovernanceSubRoute;
+  }
+  return undefined;
+};
 
 export enum LocalStorageKeys {
   MasterSeed = "com.anoma.network:seed",

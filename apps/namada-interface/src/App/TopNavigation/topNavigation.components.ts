@@ -45,6 +45,17 @@ export const TopNavigationContainerSecondRow = styled(
   justify-content: center;
 `;
 
+export const TopNavigationSecondRowInnerContainer = styled(
+  TopNavigationContainerRow
+)<{ spaceBetween?: boolean }>`
+  justify-content: ${(props) =>
+    props.spaceBetween ? "space-between" : "flex-end"};
+  min-height: 48px;
+  width: 100%;
+  max-width: 760px;
+  margin-top: 24px;
+`;
+
 export const TopNavigationLogoContainer = styled.div`
   display: flex;
   width: 100%;
@@ -68,6 +79,10 @@ export const LeftSection = styled(Section)`
 export const MiddleSection = styled(Section)`
   justify-content: center;
   width: 60%;
+`;
+
+export const SubMenuContainer = styled(Section)`
+  justify-content: center;
 `;
 
 export const RightSection = styled(Section)`
@@ -113,6 +128,20 @@ export const MenuItem = styled.button<{ isSelected?: boolean }>`
 
   ${(props) =>
     props.isSelected ? isSelected(props.theme.colors.utility2.main) : ""}
+`;
+
+export const MenuItemForSecondRow = styled(MenuItem)`
+  margin-right: 16px;
+  margin-left: 0px;
+`;
+
+export const MenuItemSubComponent = styled(MenuItem)`
+  margin: 0 22px 0 48px;
+  @media screen and (max-width: 860px) {
+    padding: 16px 0;
+    height: 100%;
+    justify-content: flex-start;
+  }
 `;
 
 export const MenuItemTextContainer = styled.div`
@@ -182,15 +211,17 @@ export const MenuCloseButton = styled.button`
 export const OnlyInSmall = styled.div`
   display: flex;
   flex-direction: column;
-  // @media only screen and (min-width: 1024px) {
+
   @media only screen and (min-width: 860px) {
     display: none;
   }
 `;
 
 export const OnlyInMedium = styled.div`
-  display: block;
-  //@media only screen and (max-width: 1024px) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
   @media only screen and (max-width: 860px) {
     display: none;
   }
