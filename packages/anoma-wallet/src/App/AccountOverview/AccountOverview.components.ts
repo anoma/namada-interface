@@ -21,7 +21,6 @@ const getColor = (
   }
 };
 export const AccountOverviewContainer = styled.div`
-  display: flex;
   flex-direction: column;
   justify-content: start;
   align-items: center;
