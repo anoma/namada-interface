@@ -1,33 +1,11 @@
-export type Transaction = {
-  hash: Uint8Array;
-  tx: Uint8Array;
-};
-
-export type Account = {
-  alias: string;
-  address: string;
-  publicKey: Uint8Array;
-};
-
-export interface Signer {
-  sign(account: Account, tx: Transaction): Promise<Transaction>;
-  accounts: Account[];
-}
-
-export type ChainConfig = {
-  chainId: string;
-  rpc: string;
-};
-
-export interface IAnoma {
-  enable(chainId: string): Promise<void>;
-  getSigner(chainId: string): Signer;
-  addChain(chainConfig: ChainConfig): Promise<boolean>;
-  chains: string[];
-}
+import { Anoma as IAnoma, ChainConfig, Signer } from "@anoma/types";
 
 export class Anoma implements IAnoma {
   private _chains: string[] = [];
+
+  constructor() {
+    return this;
+  }
 
   public async enable(chainId: string): Promise<void> {
     console.log({ chainId });
@@ -39,7 +17,6 @@ export class Anoma implements IAnoma {
   }
 
   public async addChain(config: ChainConfig): Promise<boolean> {
-    console.log({ config });
     const { chainId } = config;
     if (this._chains.indexOf(chainId) < 0) {
       this._chains.push(chainId);

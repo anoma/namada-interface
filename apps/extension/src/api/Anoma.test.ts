@@ -1,4 +1,5 @@
-import { Anoma, ChainConfig } from "./Anoma";
+import { Anoma } from "./Anoma";
+import { ChainConfig } from "@anoma/types";
 
 describe("Anoma", () => {
   test("It adds a chain ID", async () => {

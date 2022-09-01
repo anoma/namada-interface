@@ -22,8 +22,10 @@ yarn build
 yarn build:chrome  # Build only chrome (./build/chrome)
 yarn build:firefox # Build only firefox (./build/firefox)
 
-# Run development mode
+# Run development mode. This enables autoreloading when you install the extension at ./build/chrome
 yarn start
+yarn start:chrome  # Same as yarn start, which defaults to a Chrome target
+yarn start:firefox # Run development extension in Firefox
 
 # Run tests
 yarn test
@@ -47,7 +49,7 @@ Once you have run `yarn build`, you can use the files in `./dist` to install the
 ### Firefox
 
 1. In Firefox, navigate to `about:debugging#/runtime/this-firefox`
-2. Select `Load Temporary`
+2. Select `Load Temporary Add-On...`
 3. Navigate to either the `build/browser/manifest.json` or the `build/firefox/anoma_extension-0.1.0.zip` file to install
 
 The extension should be installed. Currently, this is enabled for `namada.me`, so navigating to that page will call the `content` scripts,
