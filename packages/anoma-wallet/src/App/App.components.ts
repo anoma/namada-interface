@@ -8,7 +8,6 @@ enum ComponentColor {
 }
 
 const topSectionHeight = "164px";
-const spaceBellowMainContentContainer = "64px";
 
 const getColor = (
   color: ComponentColor,
