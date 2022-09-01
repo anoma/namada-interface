@@ -1,4 +1,4 @@
-import { AnomaClient } from "@namada-interface/anoma-lib";
+import { AnomaClient } from "@anoma/wasm";
 import { toBase64, fromBase64 } from "@cosmjs/encoding";
 
 export enum MnemonicLength {
@@ -22,19 +22,12 @@ export class Mnemonic {
   }
 
   static fromString(phrase: string): Mnemonic {
-    let mnemonicLength: MnemonicLength;
-    switch (phrase.split(" ").length) {
-      case 12:
-        mnemonicLength = MnemonicLength.Twelve;
-        break;
-      case 24:
-        mnemonicLength = MnemonicLength.TwentyFour;
-        break;
-      default:
-        throw new Error("Invalid number of words in the mnemonic");
+    const phraseLength = phrase.split(" ").length;
+    if ([12, 24].includes(phraseLength)) {
+      const self = new Mnemonic(phrase);
+      return self;
     }
-    const self = new Mnemonic(phrase);
-    return self;
+    throw new Error("Invalid number of words in the mnemonic");
   }
 
   static async fromStorageValue(

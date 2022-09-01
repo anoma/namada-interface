@@ -1,0 +1,34 @@
+{
+  "name": "@anoma/tx",
+  "version": "0.1.0",
+  "description": "Anoma Wallet Transactions Library",
+  "main": "src/index.ts",
+  "repository": "https://github.com/anoma/namada-interface/",
+  "author": "Heliax Dev <info@heliax.org>",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "wasm:build": "../../scripts/build-test.sh",
+    "test": "yarn wasm:build && jest",
+    "test:watch": "yarn wasm:build && jest --watchAll",
+    "lint": "npx eslint src --ext .ts",
+    "lint:fix": "yarn lint -- --fix"
+  },
+  "devDependencies": {
+    "@types/jest": "^28.1.8",
+    "@types/node": "^18.7.13",
+    "eslint": "^8.22.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-typescript": "^3.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "jest": "^28.1.3",
+    "jest-fetch-mock": "^3.0.3",
+    "ts-jest": "^28.0.8",
+    "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "@anoma/wasm": "0.1.0",
+    "slip44": "^1.2.60"
+  }
+}
