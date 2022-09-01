@@ -22,16 +22,12 @@ export class Mnemonic {
   }
 
   static fromString(phrase: string): Mnemonic {
-    switch (phrase.split(" ").length) {
-      case 12:
-        break;
-      case 24:
-        break;
-      default:
-        throw new Error("Invalid number of words in the mnemonic");
+    const phraseLength = phrase.split(" ").length;
+    if ([12, 24].includes(phraseLength)) {
+      const self = new Mnemonic(phrase);
+      return self;
     }
-    const self = new Mnemonic(phrase);
-    return self;
+    throw new Error("Invalid number of words in the mnemonic");
   }
 
   static async fromStorageValue(
