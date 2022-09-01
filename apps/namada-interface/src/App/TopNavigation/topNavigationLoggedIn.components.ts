@@ -19,7 +19,6 @@ const getColor = (
 export const TopNavigationLoggedInContainer = styled.div`
   display: flex;
   flex-direction: row;
-  width: 100%;
   max-width: 760px;
   justify-content: space-between;
   align-items: center;
@@ -27,9 +26,8 @@ export const TopNavigationLoggedInContainer = styled.div`
 
 export const TopNavigationLoggedInControlsContainer = styled.div`
   display: flex;
-  align-items: center;
+  align-items: end;
   flex-direction: row;
-  width: 160px;
 
   &:first-child {
     padding-right: 20px;
