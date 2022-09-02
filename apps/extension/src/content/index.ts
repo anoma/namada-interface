@@ -11,6 +11,7 @@ InjectedAnoma.startProxy(
   new Anoma(manifest.version, new ExtensionMessageRequester())
 );
 
+// Determine if content-scripts can be executed in this environment
 // TODO: Refactor this out!
 export class ContentScriptEnv {
   static readonly produceEnv = (sender: MessageSender): Env => {

@@ -19,31 +19,13 @@ export abstract class Message<R> {
   // @ts-ignore
   protected _: R;
 
-  /**
-   * ValidateBasic does a simple validation check that
-   * doesn't require access to any other information.
-   * You can throw error in this when msg is invalid.
-   */
   abstract validate(): void;
   abstract route(): string;
   abstract type(): string;
 
-  /**
-   * This means where the message is sent from.
-   * Sending logic should set this value.
-   * And, message manager should check that this origin is set properly.
-   */
   public origin!: string;
-
-  /**
-   * You can put values here that can be helpful when processing in the router.
-   * In logic, these values should not be used.
-   */
   public meta?: Record<string, any>;
 
-  /**
-   * Ask for approval if message is sent externally.
-   */
   approveExternal(
     _env: Omit<Env, "requestInteraction">,
     _sender: MessageSender

@@ -1,33 +1,32 @@
 import { Anoma as IAnoma, ChainConfig, Signer } from "@anoma/types";
 import { ExtensionMessageRequester } from "../router";
+import { AddChainMsg, Ports } from "../types";
 
 export class Anoma implements IAnoma {
-  private _chains: ChainConfig[] = [];
-
   constructor(
     private readonly _version: string,
-    private readonly _router: ExtensionMessageRequester
+    protected readonly requester: ExtensionMessageRequester
   ) {}
 
   public async enable(chainId: string): Promise<void> {
-    console.log({ chainId });
+    console.log("Anoma::enable()", { chainId });
   }
 
   public getSigner(chainId: string): Signer {
     console.log({ chainId });
+    console.log("Anoma::getSigner()", { chainId });
     return {} as Signer;
   }
 
   public async addChain(config: ChainConfig): Promise<boolean> {
-    const { chainId } = config;
-    if (!this._chains.find((config) => config.chainId === chainId)) {
-      this._chains.push(config);
-    }
+    console.log("Anoma::addChain()", config);
+    await this.requester.sendMessage(Ports.Background, new AddChainMsg(config));
     return true;
   }
 
   public get chains(): ChainConfig[] {
-    return this._chains;
+    // TODO: Return from background state
+    return [];
   }
 
   public get version(): string {

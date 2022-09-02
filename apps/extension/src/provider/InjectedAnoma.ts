@@ -3,23 +3,26 @@ import { Anoma } from "../api";
 import { Result } from "../types";
 
 type ProxyMethods = "addChain" | "enable" | "getSigner";
+enum ProxyRequestTypes {
+  Request = "proxy-request",
+  Response = "proxy-request-response",
+}
 
 export interface ProxyRequest {
-  type: "proxy-request";
+  type: ProxyRequestTypes;
   id: string;
   method: ProxyMethods;
-  args: ChainConfig & string;
+  // TODO: Remove following `any` with a better type
+  args: any;
 }
 
 export interface ProxyRequestResponse {
-  type: "proxy-request-response";
+  type: ProxyRequestTypes.Response;
   id: string;
   result: Result | undefined;
 }
 
 export class InjectedAnoma implements IAnoma {
-  private _chains: ChainConfig[] = [];
-
   static startProxy(
     anoma: Anoma,
     eventListener: {
@@ -41,12 +44,13 @@ export class InjectedAnoma implements IAnoma {
       const message: ProxyRequest = parseMessage
         ? parseMessage(e.data)
         : e.data;
-      if (!message || message.type !== "proxy-request") {
+      if (!message || message.type !== ProxyRequestTypes.Request) {
         return;
       }
 
       const { method, args } = message;
       try {
+        console.log("METHOD CALLED -> ", anoma[method], message);
         if (!anoma[method] || typeof anoma[method] !== "function") {
           throw new Error(`Invalid method: ${message.method}`);
         }
@@ -54,7 +58,7 @@ export class InjectedAnoma implements IAnoma {
         const result = await anoma[method](args);
 
         const proxyResponse: ProxyRequestResponse = {
-          type: "proxy-request-response",
+          type: ProxyRequestTypes.Response,
           id: message.id,
           result: {
             return: result,
@@ -64,7 +68,7 @@ export class InjectedAnoma implements IAnoma {
         eventListener.postMessage(proxyResponse);
       } catch (e: unknown) {
         const proxyResponse: ProxyRequestResponse = {
-          type: "proxy-request-response",
+          type: ProxyRequestTypes.Response,
           id: message.id,
           result: {
             error: e,
@@ -78,8 +82,7 @@ export class InjectedAnoma implements IAnoma {
 
   protected requestMethod(
     method: ProxyMethods,
-    args: ChainConfig & string
-    // TODO: Remove following `any` once structure is known
+    args: any // TODO: Remove following `any` once structure is known
   ): Promise<any> {
     const bytes = new Uint8Array(8);
     const id: string = Array.from(crypto.getRandomValues(bytes))
@@ -89,7 +92,7 @@ export class InjectedAnoma implements IAnoma {
       .join("");
 
     const proxyMessage: ProxyRequest = {
-      type: "proxy-request",
+      type: ProxyRequestTypes.Request,
       id,
       method,
       args,
@@ -102,7 +105,10 @@ export class InjectedAnoma implements IAnoma {
           ? this.parseMessage(e.data)
           : e.data;
 
-        if (!proxyResponse || proxyResponse.type !== "proxy-request-response") {
+        if (
+          !proxyResponse ||
+          proxyResponse.type !== ProxyRequestTypes.Response
+        ) {
           return;
         }
 
@@ -157,15 +163,18 @@ export class InjectedAnoma implements IAnoma {
 
   public async enable(chainId: string): Promise<void> {
     console.log("InjectedAnoma::enable()", { chainId });
+    this.requestMethod("enable", chainId);
   }
 
   public async addChain(config: ChainConfig): Promise<boolean> {
     console.log("InjectedAnoma::addChain()", { config });
+    this.requestMethod("addChain", config);
     return true;
   }
 
-  public getSigner(): Signer {
+  public getSigner(chainId: string): Signer {
     console.log("InjectedAnoma::getSigner()");
+    this.requestMethod("getSigner", chainId);
     return {} as Signer;
   }
 
@@ -174,6 +183,7 @@ export class InjectedAnoma implements IAnoma {
   }
 
   public get chains(): ChainConfig[] {
-    return this._chains;
+    // TODO
+    return [];
   }
 }
