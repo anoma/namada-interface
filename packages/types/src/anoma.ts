@@ -23,7 +23,7 @@ export interface Anoma {
   enable(chainId: string): Promise<void>;
   getSigner(chainId: string): Signer;
   addChain(chainConfig: ChainConfig): Promise<boolean>;
-  chains: string[];
+  chains: ChainConfig[];
   version: string;
 }
 

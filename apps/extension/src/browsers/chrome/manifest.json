@@ -16,5 +16,11 @@
   "action": {
     "default_popup": "../../static/popup.html"
   },
-  "permissions": ["storage", "notifications", "identity"]
+  "permissions": ["storage", "notifications", "identity"],
+  "web_accessible_resources": [
+    {
+      "resources": ["scripts/inject.ts"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }

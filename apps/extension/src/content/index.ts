@@ -1,16 +1,9 @@
-import { Anoma } from "../api";
-import { Anoma as IAnoma } from "@anoma/types";
-import Manifest from "../manifest/chrome/manifest.json";
+const container = document.head || document.documentElement;
+const scriptElement = document.createElement("script");
 
-const { version } = Manifest;
+scriptElement.src = (chrome || browser).runtime.getURL("scripts/inject.js");
+scriptElement.type = "text/javascript";
+container.insertBefore(scriptElement, container.children[0]);
+scriptElement.remove();
 
-declare global {
-  var anoma: IAnoma;
-}
-
-/**
- * This content script gets loaded into the browser runtime
- */
-// TODO: Call the following from within a script gets injected via
-// a <script> tag:
-window.anoma = new Anoma(version);
+export {};

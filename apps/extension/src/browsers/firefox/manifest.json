@@ -19,5 +19,6 @@
       "run_at": "document_start",
       "all_frames": true
     }
-  ]
+  ],
+  "web_accessible_resources": ["../../content/injected.ts"]
 }

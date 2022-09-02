@@ -1,7 +1,7 @@
 import { Anoma as IAnoma, ChainConfig, Signer } from "@anoma/types";
 
 export class Anoma implements IAnoma {
-  private _chains: string[] = [];
+  private _chains: ChainConfig[] = [];
 
   constructor(private readonly _version: string) {}
 
@@ -16,13 +16,13 @@ export class Anoma implements IAnoma {
 
   public async addChain(config: ChainConfig): Promise<boolean> {
     const { chainId } = config;
-    if (this._chains.indexOf(chainId) < 0) {
-      this._chains.push(chainId);
+    if (!this._chains.find((config) => config.chainId === chainId)) {
+      this._chains.push(config);
     }
     return true;
   }
 
-  public get chains(): string[] {
+  public get chains(): ChainConfig[] {
     return this._chains;
   }
 
