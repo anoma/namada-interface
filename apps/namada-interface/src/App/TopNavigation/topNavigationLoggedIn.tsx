@@ -32,7 +32,7 @@ const TopNavigationLoggedIn = (props: Props): JSX.Element => {
             <Icon iconName={IconName.Settings} />
           </SettingsButton>
           <ColorModeContainer>
-            {topLevelRoute !== TopLevelRoute.Staking && (
+            {topLevelRoute !== TopLevelRoute.StakingAndGovernance && (
               <Toggle
                 checked={isLightMode}
                 onClick={() => {

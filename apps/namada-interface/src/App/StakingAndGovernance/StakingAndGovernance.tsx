@@ -22,10 +22,12 @@ export const StakingAndGovernance = (): JSX.Element => {
   const stakingAndGovernanceSubRoute =
     locationToStakingAndGovernanceSubRoute(location);
 
+  // from outside this view we just navigate here
+  // this view decides what is the default view
   useEffect(() => {
     if (!!!stakingAndGovernanceSubRoute) {
       navigate(
-        `${TopLevelRoute.Staking}${StakingAndGovernanceSubRoute.Staking}`
+        `${TopLevelRoute.StakingAndGovernance}${StakingAndGovernanceSubRoute.Staking}${StakingAndGovernanceSubRoute.StakingOverview}`
       );
     }
   });
@@ -34,7 +36,7 @@ export const StakingAndGovernance = (): JSX.Element => {
     <StakingAndGovernanceContainer>
       <Routes>
         <Route
-          path={StakingAndGovernanceSubRoute.Staking}
+          path={`${StakingAndGovernanceSubRoute.Staking}/*`}
           element={<Staking />}
         />
         <Route
