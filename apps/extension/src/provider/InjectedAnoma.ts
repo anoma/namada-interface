@@ -1,10 +1,6 @@
 import { Anoma as IAnoma, ChainConfig, Signer } from "@anoma/types";
 import { Anoma } from "../api";
-
-type Result = {
-  return?: unknown;
-  error?: unknown;
-};
+import { Result } from "../types";
 
 type ProxyMethods = "addChain" | "enable" | "getSigner";
 
