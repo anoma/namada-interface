@@ -1,9 +1,13 @@
 import { Anoma as IAnoma, ChainConfig, Signer } from "@anoma/types";
+import { ExtensionMessageRequester } from "../router";
 
 export class Anoma implements IAnoma {
   private _chains: ChainConfig[] = [];
 
-  constructor(private readonly _version: string) {}
+  constructor(
+    private readonly _version: string,
+    private readonly _router: ExtensionMessageRequester
+  ) {}
 
   public async enable(chainId: string): Promise<void> {
     console.log({ chainId });

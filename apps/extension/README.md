@@ -18,9 +18,9 @@ yarn bundle:chrome
 yarn bundle:firefox
 
 # Build production web extension (chrome & Firefox)
-yarn build
-yarn build:chrome  # Build only chrome (./build/chrome)
-yarn build:firefox # Build only firefox (./build/firefox)
+yarn build                       # Clean and build all extensions
+yarn clean && yarn build:chrome  # Build only chrome (./build/chrome)
+yarn clean && yarn build:firefox # Build only firefox (./build/firefox)
 
 # Run development mode. This enables autoreloading when you install the extension at ./build/chrome
 yarn start

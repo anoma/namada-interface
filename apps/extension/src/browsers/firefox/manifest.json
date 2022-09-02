@@ -20,5 +20,5 @@
       "all_frames": true
     }
   ],
-  "web_accessible_resources": ["../../content/injected.ts"]
+  "web_accessible_resources": ["scripts/inject.ts"]
 }
