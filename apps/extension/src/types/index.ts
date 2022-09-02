@@ -1,5 +1,7 @@
 import { Message } from "../router/Message";
 
+export * from "./enums";
+
 export type MessageSender = Pick<
   browser.runtime.MessageSender,
   "id" | "url" | "tab"

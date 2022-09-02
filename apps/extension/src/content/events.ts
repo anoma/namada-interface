@@ -1,8 +1,9 @@
 import { Message, Router } from "../router";
+import { Events, Routes } from "../types";
 
 class PushEventDataMsg extends Message<void> {
   public static type() {
-    return "push-event-data";
+    return Events.PushEventData;
   }
 
   constructor(
@@ -21,7 +22,7 @@ class PushEventDataMsg extends Message<void> {
   }
 
   route(): string {
-    return "interaction-foreground";
+    return Routes.InteractionForeground;
   }
 
   type(): string {
@@ -32,11 +33,11 @@ class PushEventDataMsg extends Message<void> {
 export function initEvents(router: Router) {
   router.registerMessage(PushEventDataMsg);
 
-  router.addHandler("interaction-foreground", (_, msg) => {
+  router.addHandler(Routes.InteractionForeground, (_, msg) => {
     switch (msg.constructor) {
       case PushEventDataMsg:
-        if ((msg as PushEventDataMsg).data.type === "keystore-changed") {
-          window.dispatchEvent(new Event("keplr_keystorechange"));
+        if ((msg as PushEventDataMsg).data.type === Events.KeystoreChanged) {
+          window.dispatchEvent(new Event("anoma_keystoreupdated"));
         }
         return;
       default:
