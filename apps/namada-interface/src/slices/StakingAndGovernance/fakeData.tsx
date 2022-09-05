@@ -1,20 +1,4 @@
-import { useNavigate } from "react-router-dom";
-
-import { TopLevelRoute, StakingAndGovernanceSubRoute } from "App/types";
-import { RowBase } from "components/Table";
-
-type Validator = RowBase & {
-  name: string;
-  homepageUrl: string;
-};
-
-// my balances
-type MyBalanceRow = RowBase & {
-  key: string;
-  baseCurrency: string;
-  fiatCurrency: string;
-};
-
+import { Validator, MyStaking, MyBalanceRow } from "./types";
 export const myBalancesData: MyBalanceRow[] = [
   {
     uuid: "1",
@@ -42,13 +26,7 @@ export const myBalancesData: MyBalanceRow[] = [
   },
 ];
 
-// my validators
-type MyValidatorsRow = Validator & {
-  stakingStatus: string;
-  stakedAmount: string;
-};
-
-export const myValidatorData: MyValidatorsRow[] = [
+export const myValidatorData: MyStaking[] = [
   {
     uuid: "1",
     name: "Polychain capital",
@@ -72,13 +50,7 @@ export const myValidatorData: MyValidatorsRow[] = [
   },
 ];
 
-// all validators
-type AllValidatorData = Validator & {
-  votingPower: string;
-  commission: string;
-};
-
-export const allValidatorsData: AllValidatorData[] = [
+export const allValidatorsData: Validator[] = [
   {
     uuid: "1",
     name: "Polychain capital",

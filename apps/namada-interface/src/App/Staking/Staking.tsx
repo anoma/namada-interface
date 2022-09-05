@@ -54,11 +54,18 @@ const figureOutValidatorFromUrl = (path: string): string | undefined => {
   }
 };
 
-export const Staking = (): JSX.Element => {
+type Props = {
+  fetchValidators: () => void;
+  fetchValidatorDetails: (validatorId: string) => void;
+};
+
+export const Staking = (props: Props): JSX.Element => {
   const [breadcrumb, setBreadcrumb] = useState([initialTitle]);
   const [validatorName, setValidatorName] = useState<string | undefined>();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const { fetchValidators, fetchValidatorDetails } = props;
 
   // this is just so we can se the title/breadcrumb
   // in real case we do this cleanly in a callback that
@@ -78,11 +85,28 @@ export const Staking = (): JSX.Element => {
   });
 
   useEffect(() => {
+    fetchValidators();
+  }, []);
+
+  useEffect(() => {
     const newBreadcrumb = figureOutBreadcrumb(location.pathname);
     const validatorNameFromUrl = figureOutValidatorFromUrl(location.pathname);
-    setBreadcrumb(newBreadcrumb);
-    setValidatorName(validatorNameFromUrl);
+    if (validatorNameFromUrl) {
+      // triggers fetching of further details
+      fetchValidatorDetails(validatorNameFromUrl);
+
+      // placeholders
+      setBreadcrumb(newBreadcrumb);
+      setValidatorName(validatorNameFromUrl);
+    }
   }, [location, JSON.stringify(breadcrumb)]);
+
+  const navigateToValidatorDetails = (validatorId: string): void => {
+    navigate(
+      `${TopLevelRoute.StakingAndGovernance}${StakingAndGovernanceSubRoute.Staking}${StakingAndGovernanceSubRoute.ValidatorDetails}/${validatorId}`
+    );
+    fetchValidatorDetails(validatorId);
+  };
 
   return (
     <StakingContainer>
@@ -100,13 +124,7 @@ export const Staking = (): JSX.Element => {
           path={StakingAndGovernanceSubRoute.StakingOverview}
           element={
             <StakingOverview
-              navigateToValidatorDetails={(validatorName: string) => {
-                // this callback ends up being called when user clicks
-                // validator names in table
-                navigate(
-                  `${TopLevelRoute.StakingAndGovernance}${StakingAndGovernanceSubRoute.Staking}${StakingAndGovernanceSubRoute.ValidatorDetails}/${validatorName}`
-                );
-              }}
+              navigateToValidatorDetails={navigateToValidatorDetails}
               ownValidators={[]}
               validators={[]}
             />
