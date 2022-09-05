@@ -42,8 +42,21 @@ const figureOutBreadcrumb = (path: string): string[] => {
   return ["Staking"];
 };
 
+const figureOutValidatorFromUrl = (path: string): string | undefined => {
+  const pathInParts = path.split("/");
+  const pathLength = pathInParts.length;
+
+  if (
+    `/${pathInParts[pathLength - 2]}` ===
+    StakingAndGovernanceSubRoute.ValidatorDetails
+  ) {
+    return pathInParts[pathLength - 1];
+  }
+};
+
 export const Staking = (): JSX.Element => {
   const [breadcrumb, setBreadcrumb] = useState([initialTitle]);
+  const [validatorName, setValidatorName] = useState<string | undefined>();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -66,7 +79,9 @@ export const Staking = (): JSX.Element => {
 
   useEffect(() => {
     const newBreadcrumb = figureOutBreadcrumb(location.pathname);
+    const validatorNameFromUrl = figureOutValidatorFromUrl(location.pathname);
     setBreadcrumb(newBreadcrumb);
+    setValidatorName(validatorNameFromUrl);
   }, [location, JSON.stringify(breadcrumb)]);
 
   return (
@@ -99,7 +114,7 @@ export const Staking = (): JSX.Element => {
         />
         <Route
           path={`${StakingAndGovernanceSubRoute.ValidatorDetails}/*`}
-          element={<div>ValidatorDetails</div>}
+          element={<ValidatorDetails validator={validatorName} />}
         />
       </Routes>
     </StakingContainer>
