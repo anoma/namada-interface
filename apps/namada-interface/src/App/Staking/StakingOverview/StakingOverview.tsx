@@ -1,7 +1,3 @@
-import { useState } from "react";
-import { MainContainerNavigation } from "App/StakingAndGovernance/MainContainerNavigation";
-import { useNavigate } from "react-router-dom";
-import { TopLevelRoute, StakingAndGovernanceSubRoute } from "App/types";
 import { StakingOverviewContainer } from "./StakingOverview.components";
 import {
   Table,
@@ -10,8 +6,7 @@ import {
   TableConfigurations,
 } from "components/Table";
 
-import { myBalancesData, myValidatorData, allValidatorsData } from "./fakeData";
-
+import { myBalancesData, myValidatorData } from "./fakeData";
 import {
   MyBalanceRow,
   Validator,
@@ -150,7 +145,7 @@ type Props = {
 };
 
 export const StakingOverview = (props: Props): JSX.Element => {
-  const { navigateToValidatorDetails } = props;
+  const { navigateToValidatorDetails, validators } = props;
 
   // we get the configurations for 2 tables that contain callbacks
   const myValidatorsConfiguration = getMyValidatorsConfiguration(
@@ -179,7 +174,7 @@ export const StakingOverview = (props: Props): JSX.Element => {
       {/* all validators */}
       <Table
         title="All Validators"
-        data={allValidatorsData}
+        data={validators}
         tableConfigurations={allValidatorsConfiguration}
       />
     </StakingOverviewContainer>

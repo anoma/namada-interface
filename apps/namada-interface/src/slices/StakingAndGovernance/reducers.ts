@@ -4,12 +4,12 @@ import { STAKING_AND_GOVERNANCE } from "./types";
 import { Validator, ValidatorId } from "./types";
 
 export type StakingAndGovernanceState = {
-  validators: Record<ValidatorId, Validator>;
+  validators: Validator[];
   selectedValidatorId?: ValidatorId;
 };
 
 const initialState: StakingAndGovernanceState = {
-  validators: {},
+  validators: [],
 };
 
 export const stakingAndGovernanceSlice = createSlice({
@@ -21,8 +21,8 @@ export const stakingAndGovernanceSlice = createSlice({
       .addCase(fetchValidators.pending, (_state, _action) => {
         console.log({ _state, _action }, "fetchValidators.pending");
       })
-      .addCase(fetchValidators.fulfilled, (_state, _action) => {
-        console.log({ _state, _action }, "fetchValidators.fulfilled");
+      .addCase(fetchValidators.fulfilled, (state, action) => {
+        state.validators = action.payload.allValidators;
       })
       .addCase(fetchValidators.rejected, (_state, _action) => {
         console.log({ _state, _action }, "fetchValidators.rejected");

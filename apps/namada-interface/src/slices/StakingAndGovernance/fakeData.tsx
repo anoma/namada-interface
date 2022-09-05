@@ -56,7 +56,7 @@ export const allValidatorsData: Validator[] = [
     name: "Polychain capital",
     homepageUrl: "https://polychain.capital",
     votingPower: "NAM 100 000",
-    commission: "20%",
+    commission: "22%",
   },
   {
     uuid: "2",

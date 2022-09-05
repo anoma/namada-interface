@@ -4,25 +4,8 @@ import { MainContainerNavigation } from "App/StakingAndGovernance/MainContainerN
 import { StakingContainer } from "./Staking.components";
 import { StakingOverview } from "./StakingOverview";
 import { ValidatorDetails } from "./ValidatorDetails";
-import {
-  TopLevelRoute,
-  StakingAndGovernanceSubRoute,
-  locationToStakingAndGovernanceSubRoute,
-} from "App/types";
-import { Button, ButtonVariant } from "components/Button";
-import { Table } from "components/Table";
-import { ValidatorDetailsContainer } from "App/Staking/ValidatorDetails/ValidatorDetails.components";
-
-const stakingViews = {
-  stakingOverview: {
-    getTitle: () => "Staking",
-    path: "/staking",
-  },
-  validatorDetails: {
-    getTitle: (validatorName: string) => validatorName,
-    path: "/staking",
-  },
-};
+import { TopLevelRoute, StakingAndGovernanceSubRoute } from "App/types";
+import { Validator } from "slices/StakingAndGovernance";
 
 const initialTitle = "Staking";
 
@@ -55,6 +38,8 @@ const figureOutValidatorFromUrl = (path: string): string | undefined => {
 };
 
 type Props = {
+  validators: Validator[];
+  selectedValidator: string | undefined;
   fetchValidators: () => void;
   fetchValidatorDetails: (validatorId: string) => void;
 };
@@ -65,7 +50,7 @@ export const Staking = (props: Props): JSX.Element => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { fetchValidators, fetchValidatorDetails } = props;
+  const { fetchValidators, fetchValidatorDetails, validators } = props;
 
   // this is just so we can se the title/breadcrumb
   // in real case we do this cleanly in a callback that
@@ -93,7 +78,7 @@ export const Staking = (props: Props): JSX.Element => {
     const validatorNameFromUrl = figureOutValidatorFromUrl(location.pathname);
     if (validatorNameFromUrl) {
       // triggers fetching of further details
-      fetchValidatorDetails(validatorNameFromUrl);
+      // fetchValidatorDetails(validatorNameFromUrl);
 
       // placeholders
       setBreadcrumb(newBreadcrumb);
@@ -126,7 +111,7 @@ export const Staking = (props: Props): JSX.Element => {
             <StakingOverview
               navigateToValidatorDetails={navigateToValidatorDetails}
               ownValidators={[]}
-              validators={[]}
+              validators={validators}
             />
           }
         />
