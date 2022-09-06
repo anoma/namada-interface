@@ -50,14 +50,14 @@ namada-interface/
 └── packages/
     ├── crypto/          # Crypto functions related to anoma extension and interface
     ├── integrations/    # Third-party wallet integrations
-    └── masp-web/        # utilities for performing MASP actions
-    └── rpc/             # Library for handling HTTP and WebSocket RPC calls
+    ├── masp-web/        # utilities for performing MASP actions
+    ├── rpc/             # Library for handling HTTP and WebSocket RPC calls
     ├── seed-management/ # Seed management library
     ├── session/         # Session management library
+    ├── shared/          # Package for interfacing with `namada/shared`
     ├── tx/              # Library for interfacing with Anoma transactions
     ├── utils/           # Shared utilities
-    ├── wallet/          # Library for deriving keys
-    ├── shared/          # Package for interfacing with `namada/shared`
+    └── wallet/          # Library for deriving keys
 ```
 
 ### Usage

@@ -17,11 +17,8 @@
     "default_popup": "../../static/popup.html"
   },
   "permissions": ["storage", "notifications", "identity"],
-  "sandbox": {
-    "pages": ["../../background/index.ts"]
-  },
   "content_security_policy": {
-    "sandbox": "sandbox allow-scripts script-src 'self' 'wasm-eval"
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
   },
   "web_accessible_resources": [
     {

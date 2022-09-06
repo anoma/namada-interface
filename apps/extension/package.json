@@ -23,6 +23,7 @@
     "test:watch": "yarn jest --watchAll=true"
   },
   "dependencies": {
+    "@anoma/crypto": "0.1.0",
     "@anoma/rpc": "0.1.0",
     "@anoma/tx": "0.1.0",
     "@anoma/types": "0.1.0",
