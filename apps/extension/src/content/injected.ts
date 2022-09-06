@@ -1,4 +1,4 @@
-import { InjectedAnoma } from "../provider";
+import { InjectedAnoma } from "../provider/InjectedAnoma";
 import { init } from "./init";
 import manifest from "../browsers/chrome/manifest.json";
 

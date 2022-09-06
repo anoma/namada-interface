@@ -14,6 +14,6 @@ describe("Anoma", () => {
     const { chains } = anoma;
 
     expect(results).toEqual(true);
-    expect(chains).toEqual([config]);
+    expect(chains).toEqual([]);
   });
 });
