@@ -4,10 +4,11 @@ export type ColumnDefinition = {
   width: string;
 };
 
-export type TableConfigurations<RowType> = {
+export type TableConfigurations<RowType, Callbacks> = {
   title: string;
-  rowRenderer: (rowData: RowType) => JSX.Element;
+  rowRenderer: (rowData: RowType, callbacks?: Callbacks) => JSX.Element;
   columns: ColumnDefinition[];
+  callbacks?: Callbacks;
 };
 
 export type RowBase = {

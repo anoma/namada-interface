@@ -3,10 +3,10 @@ import { MainContainerNavigation } from "App/StakingAndGovernance/MainContainerN
 import { TableContainer, TableElement } from "./Table.components";
 import { TableConfigurations, RowBase, ColumnDefinition } from "./types";
 
-type Props<RowType extends RowBase> = {
+type Props<RowType extends RowBase, Callbacks> = {
   title: string;
   data: RowType[];
-  tableConfigurations: TableConfigurations<RowType>;
+  tableConfigurations: TableConfigurations<RowType, Callbacks>;
 };
 
 const getRenderedHeaderRow = (
@@ -41,23 +41,30 @@ const getRenderedHeaderRow = (
   return header;
 };
 
-const getRenderedDataRows = <RowType extends RowBase>(
+const getRenderedDataRows = <RowType extends RowBase, Callbacks>(
   rows: RowType[],
-  rowRenderer: (row: RowType) => JSX.Element
+  rowRenderer: (row: RowType, callbacks?: Callbacks) => JSX.Element,
+  callbacks?: Callbacks
 ): JSX.Element[] => {
   const renderedRows = rows.map((row) => {
-    return <tr key={row.uuid}>{rowRenderer(row)}</tr>;
+    return <tr key={row.uuid}>{rowRenderer(row, callbacks)}</tr>;
   });
   return renderedRows;
 };
 
-export const Table = <T extends RowBase>(props: Props<T>): JSX.Element => {
+export const Table = <RowType extends RowBase, Callbacks>(
+  props: Props<RowType, Callbacks>
+): JSX.Element => {
   const { data, tableConfigurations } = props;
-  const { title, columns, rowRenderer } =
+  const { title, columns, rowRenderer, callbacks } =
     tableConfigurations && tableConfigurations;
 
   const renderedHeaderRow = getRenderedHeaderRow(columns);
-  const renderedDataRows = getRenderedDataRows(data, rowRenderer);
+  const renderedDataRows = getRenderedDataRows<RowType, Callbacks>(
+    data,
+    rowRenderer,
+    callbacks
+  );
 
   const renderedRows = [renderedHeaderRow, ...renderedDataRows];
   return (
