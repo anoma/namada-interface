@@ -7,7 +7,6 @@ use wasm_bindgen::prelude::*;
 pub struct Bip44 {
     root_key: String,
     seed: Vec<u8>,
-    password: String,
 }
 
 #[wasm_bindgen]
@@ -28,9 +27,7 @@ pub struct ExtendedKeys {
 
 #[wasm_bindgen]
 impl Bip44 {
-    pub fn new(
-        seed: Vec<u8>,
-        password: String) -> Result<Bip44, JsValue> {
+    pub fn new(seed: Vec<u8>) -> Result<Bip44, JsValue> {
         let seed: &[u8] = &seed;
 
         // BIP32 Root Key
@@ -38,7 +35,6 @@ impl Bip44 {
         let root_xprv_str = root_xprv.to_string(Prefix::XPRV).to_string();
 
         Ok(Bip44 {
-            password,
             root_key: root_xprv_str,
             seed: seed.to_vec(),
         })

@@ -2,4 +2,4 @@
 
 SCRIPT_DIR=$(cd "$(dirname "$0")"; pwd -P)
 
-cd $SCRIPT_DIR/../packages/wasm && yarn wasm:build
+cd $SCRIPT_DIR/../packages/shared && yarn wasm:build

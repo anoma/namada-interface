@@ -1,4 +1,4 @@
-import { AnomaClient } from "@anoma/wasm";
+import { AnomaClient } from "@anoma/shared";
 import { toBase64, fromBase64 } from "@cosmjs/encoding";
 
 export enum MnemonicLength {

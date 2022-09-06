@@ -1,4 +1,4 @@
-import { AnomaClient } from "@anoma/wasm";
+import { AnomaClient } from "@anoma/shared";
 
 class IBCTransfer {
   private _client: AnomaClient | undefined;

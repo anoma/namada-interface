@@ -3,7 +3,7 @@ use orion::{aead, kdf};
 use thiserror::Error;
 use wasm_bindgen::prelude::*;
 
-use crate::crypto::utils::{encryption_key, encryption_salt};
+use crate::utils::{encryption_key, encryption_salt};
 
 #[allow(missing_docs)]
 #[derive(Debug, Error)]

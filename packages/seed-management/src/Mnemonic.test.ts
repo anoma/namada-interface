@@ -1,5 +1,5 @@
 import { Mnemonic, MnemonicLength } from "./Mnemonic";
-import { AnomaClient } from "@anoma/wasm";
+import { AnomaClient } from "@anoma/shared";
 
 test("mnemonic should have a correct length", async () => {
   const mnemonic1 = await Mnemonic.fromMnemonic(MnemonicLength.Twelve);

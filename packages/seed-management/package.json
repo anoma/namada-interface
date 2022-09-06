@@ -21,7 +21,7 @@
     "typescript": "^4.5.5"
   },
   "dependencies": {
-    "@anoma/wasm": "0.1.0",
+    "@anoma/shared": "0.1.0",
     "@iarna/toml": "^2.2.5",
     "buffer": "^6.0.3"
   }

@@ -48,6 +48,7 @@ namada-interface/
     ├── namada-interface/   # Main wallet React App
     ├── extension/          # Browser Extension React App
 └── packages/
+    ├── crypto/          # Crypto functions related to anoma extension and interface
     ├── integrations/    # Third-party wallet integrations
     └── masp-web/        # utilities for performing MASP actions
     └── rpc/             # Library for handling HTTP and WebSocket RPC calls
@@ -56,7 +57,7 @@ namada-interface/
     ├── tx/              # Library for interfacing with Anoma transactions
     ├── utils/           # Shared utilities
     ├── wallet/          # Library for deriving keys
-    ├── wasm/            # Rust lib for generating WASM
+    ├── shared/          # Package for interfacing with `namada/shared`
 ```
 
 ### Usage

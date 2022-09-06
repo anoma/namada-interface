@@ -1,4 +1,4 @@
-import { AnomaClient } from "@anoma/wasm";
+import { AnomaClient } from "@anoma/shared";
 import { Tokens } from "@anoma/tx";
 
 class Account {
