@@ -1,8 +1,8 @@
 import { Anoma as IAnoma, ChainConfig, Signer } from "@anoma/types";
-import { Anoma } from "../api";
+import { Anoma } from "./Anoma";
 import { Result } from "../types";
 
-type ProxyMethods = "addChain" | "enable" | "getSigner";
+type ProxyMethods = "addChain" | "connect" | "getSigner";
 enum ProxyRequestTypes {
   Request = "proxy-request",
   Response = "proxy-request-response",
@@ -161,9 +161,9 @@ export class InjectedAnoma implements IAnoma {
     protected readonly parseMessage?: (message: any) => any
   ) {}
 
-  public async enable(chainId: string): Promise<void> {
-    console.log("InjectedAnoma::enable()", { chainId });
-    this.requestMethod("enable", chainId);
+  public async connect(chainId: string): Promise<void> {
+    console.log("InjectedAnoma::connect()", { chainId });
+    this.requestMethod("connect", chainId);
   }
 
   public async addChain(config: ChainConfig): Promise<boolean> {

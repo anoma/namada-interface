@@ -20,7 +20,7 @@ export type ChainConfig = {
 };
 
 export interface Anoma {
-  enable(chainId: string): Promise<void>;
+  connect(chainId: string): Promise<void>;
   getSigner(chainId: string): Signer;
   addChain(chainConfig: ChainConfig): Promise<boolean>;
   chains: ChainConfig[];

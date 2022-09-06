@@ -1,15 +1,12 @@
 import browser from "webextension-polyfill";
-import { Anoma } from "../api";
-import { InjectedAnoma } from "../provider";
-import { ExtensionRouter, ExtensionMessageRequester } from "../router";
+import { Anoma, InjectedAnoma } from "../provider";
+import { ExtensionRouter, ExtensionRequester } from "../router";
 import { Env, MessageSender, Ports } from "../types";
 import { initEvents } from "./events";
 import manifest from "../browsers/chrome/manifest.json";
 
 // Start proxying messages from Anoma to InjectedAnoma
-InjectedAnoma.startProxy(
-  new Anoma(manifest.version, new ExtensionMessageRequester())
-);
+InjectedAnoma.startProxy(new Anoma(manifest.version, new ExtensionRequester()));
 
 // Determine if content-scripts can be executed in this environment
 // TODO: Refactor this out!

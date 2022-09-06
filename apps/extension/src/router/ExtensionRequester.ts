@@ -2,7 +2,7 @@ import browser from "webextension-polyfill";
 import { getAnomaRouterId } from "../utils";
 import { Message } from "./Message";
 
-export class ExtensionMessageRequester {
+export class ExtensionRequester {
   async sendMessage<M extends Message<unknown>>(
     port: string,
     msg: M

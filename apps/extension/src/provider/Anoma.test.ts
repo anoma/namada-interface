@@ -1,5 +1,4 @@
 import { Anoma } from "./Anoma";
-import { ExtensionMessageRequester } from "../router";
 import { ChainConfig } from "@anoma/types";
 
 describe("Anoma", () => {
@@ -10,7 +9,7 @@ describe("Anoma", () => {
       chainId,
       rpc: "http://localhost:3000",
     };
-    const anoma = new Anoma(version, new ExtensionMessageRequester());
+    const anoma = new Anoma(version);
     const results = await anoma.addChain(config);
     const { chains } = anoma;
 
