@@ -1,7 +1,6 @@
 import browser from "webextension-polyfill";
 import { getAnomaRouterId } from "../utils";
-import { Router } from "./Router";
-import { MessageSender, EnvProducer, Result } from "../types";
+import { Router, MessageSender, EnvProducer, Result } from "../router";
 
 export class ExtensionRouter extends Router {
   constructor(envProducer: EnvProducer) {

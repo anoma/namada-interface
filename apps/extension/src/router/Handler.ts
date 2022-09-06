@@ -1,5 +1,5 @@
 import { Message } from "./Message";
-import { Env } from "../types";
+import { Env } from "./types";
 
 export type Handler = (env: Env, msg: Message<unknown>) => any;
 export type InternalHandler<M extends Message<unknown>> = (

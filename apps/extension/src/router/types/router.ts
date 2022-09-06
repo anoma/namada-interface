@@ -1,4 +1,4 @@
-import { Message } from "../router/Message";
+import { Message } from "../Message";
 
 export type MessageSender = Pick<
   browser.runtime.MessageSender,

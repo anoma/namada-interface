@@ -1,5 +1,4 @@
-import { Message, Router } from "../router";
-import { Events, Routes } from "../types";
+import { Message, Router, Events, Routes } from "../router";
 
 class PushEventDataMsg extends Message<void> {
   public static type() {

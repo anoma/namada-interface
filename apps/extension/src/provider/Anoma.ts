@@ -1,5 +1,5 @@
 import { Anoma as IAnoma, ChainConfig, Signer } from "@anoma/types";
-import { AddChainMsg, Ports, MessageRequester } from "../types";
+import { AddChainMsg, Ports, MessageRequester } from "../router/types";
 
 export class Anoma implements IAnoma {
   constructor(

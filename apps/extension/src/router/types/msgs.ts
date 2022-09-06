@@ -1,5 +1,5 @@
 import { ChainConfig } from "@anoma/types";
-import { Message } from "../router/Message";
+import { Message } from "../Message";
 
 export enum MessageTypes {
   AddChain = "add-chain",

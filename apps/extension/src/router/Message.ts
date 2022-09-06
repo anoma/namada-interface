@@ -1,4 +1,4 @@
-import { Env, MessageSender } from "../types";
+import { Env, MessageSender } from "./types";
 
 /**
  * This messaging system is influenced by cosmos-sdk.

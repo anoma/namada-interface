@@ -1,6 +1,6 @@
 import { Anoma as IAnoma, ChainConfig, Signer } from "@anoma/types";
 import { Anoma } from "./Anoma";
-import { Result } from "../types";
+import { Result } from "../router/types";
 
 type ProxyMethods = "addChain" | "connect" | "getSigner";
 enum ProxyRequestTypes {

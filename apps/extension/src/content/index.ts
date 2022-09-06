@@ -1,7 +1,7 @@
 import browser from "webextension-polyfill";
 import { Anoma, InjectedAnoma } from "../provider";
-import { ExtensionRouter, ExtensionRequester } from "../router";
-import { Env, MessageSender, Ports } from "../types";
+import { ExtensionRouter, ExtensionRequester } from "../extension";
+import { Env, MessageSender, Ports } from "../router/types";
 import { initEvents } from "./events";
 import manifest from "../browsers/chrome/manifest.json";
 

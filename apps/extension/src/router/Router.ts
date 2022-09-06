@@ -1,6 +1,6 @@
 import { Message } from "./Message";
 import { Handler } from "./Handler";
-import { EnvProducer, Guard, MessageSender } from "../types";
+import { EnvProducer, Guard, MessageSender } from "./types";
 import { MessageRegistry } from "./MessageRegistry";
 
 export abstract class Router {

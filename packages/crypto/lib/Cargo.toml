@@ -1,0 +1,30 @@
+[package]
+name = "crypto"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+bip32 = "0.4.0"
+bip39 = "1.0.1"
+ed25519-dalek = {version = "1.0.1", default-features = false, features = ["rand", "u64_backend", "serde"]}
+getrandom = {version = "0.2.3", features = ["js"]}
+orion = "0.16.0"
+thiserror = "1.0.30"
+rand = {version = "0.7", features = ["wasm-bindgen"]}
+rand_bip = {version = "0.6", features = ["wasm-bindgen"], package = "rand"}
+serde = {version = "1.0.130", features = ["derive"]}
+wasm-bindgen = {version = "0.2.78", features = ["serde-serialize"]}
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3.13"
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
+
+[profile.release]
+# Tell `rustc` to optimize for small code size.
+debug = true
+opt-level = "s"
