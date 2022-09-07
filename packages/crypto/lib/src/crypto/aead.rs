@@ -15,7 +15,7 @@ pub enum DecryptionError {
 }
 
 #[wasm_bindgen]
-pub struct AEAD {}
+pub struct AEAD;
 
 #[wasm_bindgen]
 impl AEAD {
