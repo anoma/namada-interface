@@ -44,11 +44,13 @@ export class InjectedAnoma implements IAnoma {
       const message: ProxyRequest = parseMessage
         ? parseMessage(e.data)
         : e.data;
+      console.log({ message });
       if (!message || message.type !== ProxyRequestTypes.Request) {
         return;
       }
 
       const { method, args } = message;
+      console.log({ method, args });
       try {
         console.log("METHOD CALLED -> ", anoma[method], message);
         if (!anoma[method] || typeof anoma[method] !== "function") {
@@ -99,8 +101,7 @@ export class InjectedAnoma implements IAnoma {
     };
 
     return new Promise((resolve, reject) => {
-      // TODO: Remove following `any` once structure is known
-      const receiveResponse = (e: any) => {
+      const receiveResponse = (e: MessageEvent) => {
         const proxyResponse: ProxyRequestResponse = this.parseMessage
           ? this.parseMessage(e.data)
           : e.data;
@@ -168,7 +169,7 @@ export class InjectedAnoma implements IAnoma {
 
   public async addChain(config: ChainConfig): Promise<boolean> {
     console.log("InjectedAnoma::addChain()", { config });
-    this.requestMethod("addChain", config);
+    await this.requestMethod("addChain", config);
     return true;
   }
 

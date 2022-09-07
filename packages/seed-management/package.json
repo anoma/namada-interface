@@ -1,9 +1,8 @@
 {
   "name": "@anoma/seed-management",
   "version": "0.1.0",
-  "type": "module",
   "license": "MIT",
-  "main": "./index.ts",
+  "main": "./src/index.ts",
   "scripts": {
     "wasm:build:node": "../../scripts/build-test.sh",
     "test": "yarn wasm:build:node && jest",

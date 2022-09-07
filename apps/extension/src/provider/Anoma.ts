@@ -12,17 +12,18 @@ export class Anoma implements IAnoma {
   }
 
   public getSigner(chainId: string): Signer {
-    console.log({ chainId });
     console.log("Anoma::getSigner()", { chainId });
+
     return {} as Signer;
   }
 
   public async addChain(config: ChainConfig): Promise<boolean> {
     console.log("Anoma::addChain()", config);
-    await this.requester?.sendMessage(
+    const results = await this.requester?.sendMessage(
       Ports.Background,
       new AddChainMsg(config)
     );
+    console.log("Anoma::addChain()", { results });
     return true;
   }
 

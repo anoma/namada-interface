@@ -1,8 +1,14 @@
+import { IndexedDBKVStore } from "@keplr-wallet/common";
 import { init } from "@anoma/crypto";
 import { ExtensionRouter } from "../extension";
 import { ContentScriptEnv } from "../utils";
 import { Ports } from "../router/types";
-import { AddChainMsg } from "../router";
+
+import { ChainsService } from "./chains";
+import { init as initChains } from "./chains/init";
+import { chains } from "../chains";
+
+const store = new IndexedDBKVStore("anoma");
 
 const initWasm = async () => {
   await init();
@@ -12,9 +18,10 @@ const initWasm = async () => {
 initWasm();
 
 const router = new ExtensionRouter(ContentScriptEnv.produceEnv);
-router.registerMessage(AddChainMsg);
-// TODO: This is just an example to test connectivity
-router.addHandler("add-chain", (env, msg) =>
-  console.log("add-chain", { env, msg })
-);
+const chainsService = new ChainsService(store, chains);
+chainsService.init();
+
+// Initialize messages and handlers
+initChains(router, chainsService);
+
 router.listen(Ports.Background);
