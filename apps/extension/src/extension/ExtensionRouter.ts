@@ -49,7 +49,6 @@ export class ExtensionRouter extends Router {
         return: result,
       };
     } catch (e) {
-      console.log(`Failed to process msg ${message.type}: ${e}`);
       return Promise.resolve({ error: e });
     }
   }

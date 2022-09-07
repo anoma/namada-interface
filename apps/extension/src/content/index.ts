@@ -1,29 +1,13 @@
 import browser from "webextension-polyfill";
 import { Anoma, InjectedAnoma } from "../provider";
 import { ExtensionRouter, ExtensionRequester } from "../extension";
-import { Env, MessageSender, Ports } from "../router/types";
+import { Ports } from "../router/types";
 import { initEvents } from "./events";
+import { ContentScriptEnv } from "../utils";
 import manifest from "../browsers/chrome/manifest.json";
 
 // Start proxying messages from Anoma to InjectedAnoma
 InjectedAnoma.startProxy(new Anoma(manifest.version, new ExtensionRequester()));
-
-// Determine if content-scripts can be executed in this environment
-// TODO: Refactor this out!
-export class ContentScriptEnv {
-  static readonly produceEnv = (sender: MessageSender): Env => {
-    const isInternalMsg = sender.id === browser.runtime.id;
-
-    return {
-      isInternalMsg,
-      requestInteraction: () => {
-        throw new Error(
-          "ContentScriptEnv doesn't support `requestInteraction`"
-        );
-      },
-    };
-  };
-}
 
 const router = new ExtensionRouter(ContentScriptEnv.produceEnv);
 initEvents(router);

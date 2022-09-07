@@ -23,7 +23,7 @@ export class AddChainMsg extends Message<void> {
   }
 
   route(): string {
-    return "chains";
+    return "add-chain";
   }
 
   type(): string {
