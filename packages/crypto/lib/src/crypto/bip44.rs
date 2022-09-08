@@ -1,107 +1,139 @@
-use serde::{Serialize, Deserialize};
 use bip32::{Prefix, XPrv};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
-#[derive(Serialize, Deserialize)]
 pub struct Bip44 {
-    root_key: String,
     seed: Vec<u8>,
 }
 
 #[wasm_bindgen]
-#[derive(Serialize, Deserialize)]
-pub struct DerivedAccount {
-    private_key: Vec<u8>,
-    public_key: Vec<u8>,
+pub struct DerivedKeys {
     secret: Vec<u8>,
     public: Vec<u8>,
 }
 
 #[wasm_bindgen]
-#[derive(Serialize, Deserialize)]
-pub struct ExtendedKeys {
-    xpriv: String,
-    xpub: String,
+impl DerivedKeys {
+    //TODO: Implement encoding
+    pub fn secret(&self) -> Vec<u8> {
+        self.secret.clone()
+    }
+
+    pub fn public(&self) -> Vec<u8> {
+        self.public.clone()
+    }
 }
 
 #[wasm_bindgen]
-impl Bip44 {
-    pub fn new(seed: Vec<u8>) -> Result<Bip44, JsValue> {
+pub struct ExtendedKeys {
+    xprv: Vec<u8>,
+    xpub: Vec<u8>,
+}
+
+#[wasm_bindgen]
+impl ExtendedKeys {
+    pub fn new (seed: Vec<u8>, path: Option<String>) -> Result<ExtendedKeys, String> {
         let seed: &[u8] = &seed;
 
-        // BIP32 Root Key
-        let root_xprv = XPrv::new(&seed).expect("Could not create extended private key from seed");
-        let root_xprv_str = root_xprv.to_string(Prefix::XPRV).to_string();
-
-        Ok(Bip44 {
-            root_key: root_xprv_str,
-            seed: seed.to_vec(),
-        })
-    }
-
-    /// Derive account from a seed and a path
-    pub fn derive(&self, path: String) -> Result<DerivedAccount, String> {
-        let seed: &[u8] = &self.seed;
+        let xprv = match path {
+            Some(path) => XPrv::derive_from_path(
+                &seed,
+                &path.parse().expect("Could not parse path",
+            )),
+            None => XPrv::new(seed),
+        }.expect("Extended private key could not be derived");
 
         // BIP32 Extended Private Key
-        let xprv = match XPrv::derive_from_path(&seed, &path.parse().unwrap()) {
-            Ok(xprv) => xprv,
-            Err(error) => return Err(error.to_string())
-        };
-
-        // BIP32 Extended Public Key
-        let xpub = xprv.public_key();
-
-        // ed25519 keypair
-        let prv_bytes: &[u8] = &xprv.private_key().clone().to_bytes();
-        let secret = ed25519_dalek::SecretKey::from_bytes(prv_bytes)
-            .expect("Could not create secret from bytes");
-        let public = ed25519_dalek::PublicKey::from(&secret);
-
-        Ok(DerivedAccount {
-            secret: xprv.private_key().to_bytes().to_vec(),
-            public: xpub.public_key().to_bytes().to_vec(),
-            private_key: secret.to_bytes().to_vec(),
-            public_key: public.to_bytes().to_vec(),
-        })
-    }
-
-    /// Get extended keys from path
-    pub fn get_extended_keys(&self, path: String) -> Result<ExtendedKeys, String> {
-        let seed: &[u8] = &self.seed;
-
-        // BIP32 Extended Private Key
-        let xprv = match XPrv::derive_from_path(&seed, &path.parse().unwrap()) {
-            Ok(xprv) => xprv,
-            Err(error) => return Err(error.to_string())
-        };
         let xprv_str = xprv.to_string(Prefix::XPRV).to_string();
+        let xprv_bytes = xprv_str.as_bytes();
 
         // BIP32 Extended Public Key
         let xpub = xprv.public_key();
         let xpub_str = xpub.to_string(Prefix::XPUB);
+        let xpub_bytes = xpub_str.as_bytes();
 
         Ok(ExtendedKeys {
-            xpriv: xprv_str,
-            xpub: xpub_str,
+            xprv: Vec::from(xprv_bytes),
+            xpub: Vec::from(xpub_bytes),
         })
     }
 
-    /// Get serialized Wallet
-    pub fn serialize(&self) -> Result<JsValue, JsValue> {
-        Ok(JsValue::from_serde(&self).expect("Wallet could not be serialized"))
+    pub fn get_private (&self) -> Vec<u8> {
+        self.xprv.clone()
     }
 
-    /// Get serialized extended keys
-    pub fn extended_keys(&self, path: String) -> Result<JsValue, JsValue> {
-        let keys = &self.get_extended_keys(path);
-        Ok(JsValue::from_serde(&keys).expect("Extended keys could not be serialized"))
+    pub fn get_public (&self) -> Vec<u8> {
+        self.xpub.clone()
+    }
+}
+
+#[wasm_bindgen]
+impl Bip44 {
+    pub fn new(seed: Vec<u8>) -> Bip44 {
+        Bip44 {
+            seed,
+        }
     }
 
-    /// Get serialized derived account
-    pub fn account(&self, path: String) -> Result<JsValue, JsValue> {
-        let keys = &self.derive(path);
-        Ok(JsValue::from_serde(&keys).expect("Derived account could not be serialized"))
+    /// Get private key from seed
+    pub fn get_private_key(&self) -> Result<Vec<u8>, String> {
+        let seed = &self.seed;
+        let xprv = match XPrv::new(seed) {
+            Ok(xprv) => xprv,
+            Err(error) => return Err(error.to_string())
+        };
+
+        Ok(Vec::from(xprv.to_string(Prefix::XPRV).as_bytes()))
+    }
+
+    /// Derive account from a seed and a path
+    pub fn derive(&self, path: String) -> Result<DerivedKeys, String> {
+        // BIP32 Extended Private Key
+        let xprv = match XPrv::derive_from_path(&self.seed, &path.parse().unwrap()) {
+            Ok(xprv) => xprv,
+            Err(error) => return Err(format!("Could not derive from path {:?}", error))
+        };
+         let prv_bytes: &[u8] = &xprv.private_key().to_bytes();
+
+        // ed25519 keypair
+        let secret = ed25519_dalek::SecretKey::from_bytes(prv_bytes)
+            .expect("Could not create secret from bytes");
+        let public = ed25519_dalek::PublicKey::from(&secret);
+
+        Ok(DerivedKeys {
+            secret: secret.to_bytes().to_vec(),
+            public: public.to_bytes().to_vec(),
+        })
+    }
+
+    /// Get extended keys from path
+    pub fn get_extended_keys(&self, path: Option<String>) -> Result<ExtendedKeys, String> {
+        let seed = self.seed.clone();
+        let extended_keys = match ExtendedKeys::new(seed, path) {
+            Ok(extended_keys) => extended_keys,
+            Err(error) => return Err(error)
+        };
+
+        Ok(extended_keys)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::crypto::mnemonic::Mnemonic;
+
+    #[test]
+    fn can_derive_keys_from_path() {
+        let phrase = "caught pig embody hip goose like become worry face oval manual flame pizza steel viable proud eternal speed chapter sunny boat because view bullet";
+        let mnemonic = Mnemonic::from_phrase(phrase.into());
+        let seed = mnemonic.to_seed(None).unwrap();
+        let bip44: Bip44 = Bip44::new(seed);
+        let path = "m/44'/0'/0'/0'";
+
+        let keys = bip44.derive(String::from(path)).expect("Should derive keys from a path");
+
+        assert_eq!(keys.secret.len(), 32);
+        assert_eq!(keys.public.len(), 32);
     }
 }

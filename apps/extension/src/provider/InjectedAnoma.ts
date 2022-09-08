@@ -1,4 +1,5 @@
-import { Anoma as IAnoma, ChainConfig, Signer } from "@anoma/types";
+import { ChainInfo as Chain } from "@keplr-wallet/types";
+import { Anoma as IAnoma, Signer } from "@anoma/types";
 import { Anoma } from "./Anoma";
 import { Result } from "../router/types";
 
@@ -163,8 +164,8 @@ export class InjectedAnoma implements IAnoma {
     this.requestMethod("connect", chainId);
   }
 
-  public async suggestChain(config: ChainConfig): Promise<boolean> {
-    await this.requestMethod("suggestChain", config);
+  public async suggestChain(chain: Chain): Promise<boolean> {
+    await this.requestMethod("suggestChain", chain);
     return true;
   }
 

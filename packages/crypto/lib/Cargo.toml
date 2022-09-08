@@ -10,7 +10,7 @@ license = "MIT"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-bip32 = "0.4.0"
+bip32 = { version = "0.4.0", features = ["bip39"] }
 bip39 = "1.0.1"
 ed25519-dalek = {version = "1.0.1", default-features = false, features = ["rand", "u64_backend", "serde"]}
 getrandom = {version = "0.2.3", features = ["js"]}

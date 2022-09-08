@@ -1,14 +1,4 @@
-use thiserror::Error;
 use wasm_bindgen::prelude::*;
-
-#[allow(missing_docs)]
-#[derive(Debug, Error)]
-pub enum DecryptionError {
-    #[error("Unexpected encryption salt")]
-    BadSalt,
-    #[error("Unable to decrypt the mnemonic. Is the password correct?")]
-    DecryptionError,
-}
 
 #[wasm_bindgen]
 #[derive(Copy, Clone)]
