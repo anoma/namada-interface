@@ -3,24 +3,24 @@ use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 pub struct Bip44 {
-    seed: Vec<u8>,
+    seed: [u8; 64],
 }
 
 #[wasm_bindgen]
 pub struct DerivedKeys {
-    secret: Vec<u8>,
-    public: Vec<u8>,
+    secret: [u8; 32],
+    public: [u8; 32],
 }
 
 #[wasm_bindgen]
 impl DerivedKeys {
     //TODO: Implement encoding
     pub fn secret(&self) -> Vec<u8> {
-        self.secret.clone()
+        Vec::from(self.secret)
     }
 
     pub fn public(&self) -> Vec<u8> {
-        self.public.clone()
+        Vec::from(self.public)
     }
 }
 
@@ -67,12 +67,20 @@ impl ExtendedKeys {
     }
 }
 
+fn validate_seed(seed: Vec<u8>) -> Result<[u8; 64], String> {
+    let seed: [u8; 64] = seed.try_into()
+        .unwrap_or_else(|v: Vec<u8>| panic!("Expected a Vec of length {} but it was {}", 64, v.len()));
+    Ok(seed)
+}
+
 #[wasm_bindgen]
 impl Bip44 {
-    pub fn new(seed: Vec<u8>) -> Bip44 {
-        Bip44 {
+    pub fn new(seed: Vec<u8>) -> Result<Bip44, String> {
+        let seed = validate_seed(seed).expect("Seed should be correct size");
+
+        Ok(Bip44 {
             seed,
-        }
+        })
     }
 
     /// Get private key from seed
@@ -93,7 +101,7 @@ impl Bip44 {
             Ok(xprv) => xprv,
             Err(error) => return Err(format!("Could not derive from path {:?}", error))
         };
-         let prv_bytes: &[u8] = &xprv.private_key().to_bytes();
+        let prv_bytes: &[u8] = &xprv.private_key().to_bytes();
 
         // ed25519 keypair
         let secret = ed25519_dalek::SecretKey::from_bytes(prv_bytes)
@@ -101,15 +109,15 @@ impl Bip44 {
         let public = ed25519_dalek::PublicKey::from(&secret);
 
         Ok(DerivedKeys {
-            secret: secret.to_bytes().to_vec(),
-            public: public.to_bytes().to_vec(),
+            secret: secret.to_bytes(),
+            public: public.to_bytes(),
         })
     }
 
     /// Get extended keys from path
     pub fn get_extended_keys(&self, path: Option<String>) -> Result<ExtendedKeys, String> {
-        let seed = self.seed.clone();
-        let extended_keys = match ExtendedKeys::new(seed, path) {
+        let seed: &[u8] = &self.seed;
+        let extended_keys = match ExtendedKeys::new(Vec::from(seed), path) {
             Ok(extended_keys) => extended_keys,
             Err(error) => return Err(error)
         };
@@ -128,7 +136,7 @@ mod tests {
         let phrase = "caught pig embody hip goose like become worry face oval manual flame pizza steel viable proud eternal speed chapter sunny boat because view bullet";
         let mnemonic = Mnemonic::from_phrase(phrase.into());
         let seed = mnemonic.to_seed(None).unwrap();
-        let bip44: Bip44 = Bip44::new(seed);
+        let bip44: Bip44 = Bip44::new(seed).unwrap();
         let path = "m/44'/0'/0'/0'";
 
         let keys = bip44.derive(String::from(path)).expect("Should derive keys from a path");

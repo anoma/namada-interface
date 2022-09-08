@@ -12,14 +12,13 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 bip32 = { version = "0.4.0", features = ["bip39"] }
 bip39 = "1.0.1"
-ed25519-dalek = {version = "1.0.1", default-features = false, features = ["rand", "u64_backend", "serde"]}
+ed25519-dalek = {version = "1.0.1", default-features = false, features = ["rand", "u64_backend"]}
 getrandom = {version = "0.2.3", features = ["js"]}
 orion = "0.16.0"
 thiserror = "1.0.30"
 rand = {version = "0.7", features = ["wasm-bindgen"]}
 rand_bip = {version = "0.6", features = ["wasm-bindgen"], package = "rand"}
-serde = {version = "1.0.130", features = ["derive"]}
-wasm-bindgen = {version = "0.2.78", features = ["serde-serialize"]}
+wasm-bindgen = "0.2.78"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.13"

@@ -56,8 +56,40 @@ impl Mnemonic {
             Ok(mnemonic) => mnemonic,
             Err(error) => return Err(format!("Unable to parse mnemonic! {:?}", error)),
         };
-        let seed = mnemonic.to_seed_normalized(&passphrase);
+        let seed: &[u8] = &mnemonic.to_seed_normalized(&passphrase);
 
         Ok(Vec::from(seed))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn can_generate_mnemonic_from_size() {
+        let mnemonic = Mnemonic::new(PhraseSize::Twelve)
+            .expect("Should generate mnemonic of length 12");
+        let split = mnemonic.phrase.split(' ');
+        let words: Vec<&str> = split.collect();
+
+        assert_eq!(words.iter().len(), 12);
+
+        let mnemonic = Mnemonic::new(PhraseSize::TwentyFour)
+            .expect("Should generate mnemonic of length 24");
+        let split = mnemonic.phrase.split(' ');
+        let words: Vec<&str> = split.collect();
+
+        assert_eq!(words.iter().len(), 24);
+    }
+
+    #[test]
+    fn can_generate_seed_from_phrase() {
+        let phrase = "caught pig embody hip goose like become worry face oval manual flame \
+                      pizza steel viable proud eternal speed chapter sunny boat because view bullet";
+        let mnemonic = Mnemonic::from_phrase(phrase.into());
+        let seed = mnemonic.to_seed(None).expect("Should return seed from mnemonic phrase");
+
+        assert_eq!(seed.len(), 64);
     }
 }

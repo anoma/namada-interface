@@ -56,3 +56,31 @@ impl AEAD {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn can_decrypt_encrypted_string() {
+        let password = String::from("unhackable");
+        let message = String::from("My secret message");
+
+        let encrypted = AEAD::encrypt_from_string(message.clone(), password.clone());
+        let decrypted = AEAD::decrypt(encrypted, password).expect("Value should be decrypted");
+
+        assert_eq!(decrypted, message);
+    }
+
+    #[test]
+    fn can_decrypt_encrypted_data() {
+        let password = String::from("unhackable");
+        let message = String::from("My secret message");
+        let bytes = Vec::from(message.as_bytes());
+
+        let encrypted = AEAD::encrypt(bytes, password.clone());
+        let decrypted = AEAD::decrypt(encrypted, password).expect("Value should be decrypted");
+
+        assert_eq!(decrypted, message);
+    }
+
+}
