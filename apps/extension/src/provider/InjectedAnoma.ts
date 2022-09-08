@@ -2,7 +2,7 @@ import { Anoma as IAnoma, ChainConfig, Signer } from "@anoma/types";
 import { Anoma } from "./Anoma";
 import { Result } from "../router/types";
 
-type ProxyMethods = "addChain" | "connect" | "getSigner";
+type ProxyMethods = "suggestChain" | "connect" | "getSigner" | "chains";
 enum ProxyRequestTypes {
   Request = "proxy-request",
   Response = "proxy-request-response",
@@ -44,15 +44,12 @@ export class InjectedAnoma implements IAnoma {
       const message: ProxyRequest = parseMessage
         ? parseMessage(e.data)
         : e.data;
-      console.log({ message });
       if (!message || message.type !== ProxyRequestTypes.Request) {
         return;
       }
 
       const { method, args } = message;
-      console.log({ method, args });
       try {
-        console.log("METHOD CALLED -> ", anoma[method], message);
         if (!anoma[method] || typeof anoma[method] !== "function") {
           throw new Error(`Invalid method: ${message.method}`);
         }
@@ -163,27 +160,24 @@ export class InjectedAnoma implements IAnoma {
   ) {}
 
   public async connect(chainId: string): Promise<void> {
-    console.log("InjectedAnoma::connect()", { chainId });
     this.requestMethod("connect", chainId);
   }
 
-  public async addChain(config: ChainConfig): Promise<boolean> {
-    console.log("InjectedAnoma::addChain()", { config });
-    await this.requestMethod("addChain", config);
+  public async suggestChain(config: ChainConfig): Promise<boolean> {
+    await this.requestMethod("suggestChain", config);
     return true;
   }
 
   public getSigner(chainId: string): Signer {
-    console.log("InjectedAnoma::getSigner()");
     this.requestMethod("getSigner", chainId);
     return {} as Signer;
   }
 
-  public get version() {
+  public version() {
     return this._version;
   }
 
-  public get chains(): ChainConfig[] {
+  public chains(): ChainConfig[] {
     // TODO
     return [];
   }

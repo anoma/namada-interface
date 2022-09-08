@@ -1,3 +1,5 @@
+import { ChainInfo as Chain } from "@keplr-wallet/types";
+
 export type Transaction = {
   hash: Uint8Array;
   tx: Uint8Array;
@@ -14,17 +16,12 @@ export interface Signer {
   accounts: Account[];
 }
 
-export type ChainConfig = {
-  chainId: string;
-  rpc: string;
-};
-
 export interface Anoma {
   connect(chainId: string): Promise<void>;
   getSigner(chainId: string): Signer;
-  addChain(chainConfig: ChainConfig): Promise<boolean>;
-  chains: ChainConfig[];
-  version: string;
+  suggestChain(chainConfig: Chain): Promise<boolean>;
+  chains: () => Chain[];
+  version: () => string;
 }
 
 export type WindowWithAnoma = Window &

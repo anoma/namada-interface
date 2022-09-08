@@ -1,4 +1,4 @@
-import { IndexedDBKVStore } from "@keplr-wallet/common";
+import { IndexedDBKVStore } from "@anoma/storage";
 import { init } from "@anoma/crypto";
 import { ExtensionRouter } from "../extension";
 import { ContentScriptEnv } from "../utils";
@@ -12,7 +12,6 @@ const store = new IndexedDBKVStore("anoma");
 
 const initWasm = async () => {
   await init();
-  console.info("wasm loaded");
 };
 
 initWasm();

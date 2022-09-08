@@ -1,4 +1,4 @@
-import { KVStore, Debouncer } from "@keplr-wallet/common";
+import { KVStore, Debouncer } from "@anoma/storage";
 import { ChainInfo as Chain } from "@keplr-wallet/types";
 import { Env } from "../../router";
 

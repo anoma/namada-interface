@@ -1,5 +1,7 @@
-import { Anoma as IAnoma, ChainConfig, Signer } from "@anoma/types";
-import { AddChainMsg, Ports, MessageRequester } from "../router/types";
+import { ChainInfo as Chain } from "@keplr-wallet/types";
+import { Anoma as IAnoma, Signer } from "@anoma/types";
+import { Ports, MessageRequester } from "../router";
+import { SuggestChainMsg } from "../background/chains";
 
 export class Anoma implements IAnoma {
   constructor(
@@ -7,32 +9,26 @@ export class Anoma implements IAnoma {
     protected readonly requester?: MessageRequester
   ) {}
 
-  public async connect(chainId: string): Promise<void> {
-    console.log("Anoma::enable()", { chainId });
-  }
+  public async connect(chainId: string): Promise<void> {}
 
   public getSigner(chainId: string): Signer {
-    console.log("Anoma::getSigner()", { chainId });
-
     return {} as Signer;
   }
 
-  public async addChain(config: ChainConfig): Promise<boolean> {
-    console.log("Anoma::addChain()", config);
+  public async suggestChain(config: Chain): Promise<boolean> {
     const results = await this.requester?.sendMessage(
       Ports.Background,
-      new AddChainMsg(config)
+      new SuggestChainMsg(config)
     );
-    console.log("Anoma::addChain()", { results });
     return true;
   }
 
-  public get chains(): ChainConfig[] {
+  public chains(): Chain[] {
     // TODO: Return from background state
     return [];
   }
 
-  public get version(): string {
+  public version(): string {
     return this._version;
   }
 }

@@ -15,7 +15,11 @@ const ibcCurrency: IBCCurrency = {
   ],
 };
 
+/**
+ * Define chains to embed within extension
+ */
 const chain: Chain = {
+  // TODO: Use NODE_ENV to determine a localhost versus production configuration
   rpc: "http://localhost:26657",
   rest: "http://localhost:1317",
   chainId: "namada-test.XXXXXXXXXXXX",
