@@ -51,7 +51,7 @@ export class InjectedAnoma implements IAnoma {
       const { method, args } = message;
       try {
         if (!anoma[method] || typeof anoma[method] !== "function") {
-          throw new Error(`Invalid method: ${message.method}`);
+          throw new Error(`Invalid method: ${message.method}!!!!!!!!!!!!`);
         }
 
         const result = await anoma[method](args);
