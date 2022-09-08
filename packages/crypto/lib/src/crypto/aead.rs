@@ -19,15 +19,19 @@ pub struct AEAD;
 
 #[wasm_bindgen]
 impl AEAD {
-    pub fn encrypt(value: String, password: String) -> Vec<u8> {
+    pub fn encrypt(data: Vec<u8>, password: String) -> Vec<u8> {
+        let data: &[u8] = &data;
         let salt = encryption_salt();
         let encryption_key = encryption_key(&salt, password);
-        let data = value.as_bytes();
-
-        let encrypted_keypair =
+                let encrypted_keypair =
             aead::seal(&encryption_key, data).expect("Encryption of data shouldn't fail");
 
         [salt.as_ref(), &encrypted_keypair].concat()
+    }
+
+    pub fn encrypt_from_string(value: String, password: String) -> Vec<u8> {
+        let data = Vec::from(value.as_bytes());
+        AEAD::encrypt(data, password)
     }
 
     pub fn decrypt(encrypted: Vec<u8>, password: String) -> Result<String, JsValue> {
