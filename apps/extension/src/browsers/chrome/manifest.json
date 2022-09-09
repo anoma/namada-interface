@@ -17,12 +17,8 @@
     "default_popup": "../../static/popup.html"
   },
   "permissions": ["storage", "notifications", "identity"],
-  "sandbox": {
-    "pages": ["../../static/sandbox.html"]
-  },
   "content_security_policy": {
-    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'",
-    "sandbox": "sandbox allow-scripts; script-src 'self' 'wasm-unsafe-eval'"
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
   },
   "web_accessible_resources": [
     {

@@ -1,6 +1,12 @@
-import { inject } from "../../../content/injected";
+import { inject as injectContent } from "../../../content/injected";
+import { inject as injectWasm } from "../../../wasm";
 
 /**
  * Inject scripts for Chrome
  */
-inject();
+
+// Content-Scripts
+injectContent();
+
+// Proxy to WASM functionality
+injectWasm();
