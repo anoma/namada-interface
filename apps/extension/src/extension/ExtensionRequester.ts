@@ -14,7 +14,7 @@ export class ExtensionRequester {
       routerId: getAnomaRouterId(),
     };
 
-    const result = await browser.runtime.sendMessage({
+    const result = await (chrome || browser).runtime.sendMessage({
       port,
       type: msg.type(),
       msg: msg,

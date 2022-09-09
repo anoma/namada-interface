@@ -20,16 +20,14 @@ export class ChainsService {
     console.debug("ChainsService initialized");
   }
 
-  readonly getChains: () => Promise<any[]> = debounce(async () => {
+  readonly getChains: () => Promise<Chain[]> = debounce(async () => {
     if (this.cachedChains) {
       return this.cachedChains;
     }
 
     const chains = [...this.defaultChains];
     const suggestedChains: Chain[] = await this.getSuggestedChains();
-    let result: Chain[] = chains.concat(suggestedChains);
-
-    return result;
+    return chains.concat(suggestedChains);
   });
 
   clearCachedChains() {

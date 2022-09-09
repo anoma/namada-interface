@@ -12,6 +12,7 @@ export class ExtensionRouter extends Router {
       throw new Error("Empty port");
     }
 
+    console.info(`Listening on port ${port}`);
     this.port = port;
     browser.runtime.onMessage.addListener(this.onMessage);
   }

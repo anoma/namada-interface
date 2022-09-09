@@ -19,7 +19,6 @@ export interface ProxyRequest {
   type: ProxyRequestTypes;
   id: string;
   method: ProxyMethods;
-  // TODO: Remove following `any` with a better type
   args: any;
 }
 
@@ -33,24 +32,18 @@ export class InjectedAnoma implements IAnoma {
   static startProxy(
     anoma: Anoma,
     eventListener: {
-      // TODO: Remove following `any` once structure is known
       addMessageListener: (fn: (e: any) => void) => void;
-      // TODO: Remove following `any` once structure is known
       postMessage: (message: any) => void;
     } = {
-      // TODO: Remove following `any` once structure is known
       addMessageListener: (fn: (e: any) => void) =>
         window.addEventListener("message", fn),
       postMessage: (message) =>
         window.postMessage(message, window.location.origin),
     },
-    parseMessage?: (message: any) => any
+    parseMessage: (message: any) => ProxyRequest = (message) => message
   ) {
-    // TODO: Remove following `any` once structure is known
     eventListener.addMessageListener(async (e: any) => {
-      const message: ProxyRequest = parseMessage
-        ? parseMessage(e.data)
-        : e.data;
+      const message = parseMessage(e.data);
 
       if (!message || message.type !== ProxyRequestTypes.Request) {
         return;
@@ -86,10 +79,7 @@ export class InjectedAnoma implements IAnoma {
     });
   }
 
-  protected requestMethod(
-    method: ProxyMethods,
-    args: any // TODO: Remove following `any` once structure is known
-  ): Promise<any> {
+  protected requestMethod(method: ProxyMethods, args: any): Promise<any> {
     const bytes = new Uint8Array(8);
     const id: string = Array.from(crypto.getRandomValues(bytes))
       .map((value) => {
@@ -104,15 +94,12 @@ export class InjectedAnoma implements IAnoma {
       args,
     };
 
-    console.log({ proxyMessage });
-
     return new Promise((resolve, reject) => {
       const receiveResponse = (e: MessageEvent) => {
         const proxyResponse: ProxyRequestResponse = this.parseMessage
           ? this.parseMessage(e.data)
           : e.data;
 
-        console.log("receiveResponse", { proxyResponse });
         if (
           !proxyResponse ||
           proxyResponse.type !== ProxyRequestTypes.Response
@@ -120,32 +107,24 @@ export class InjectedAnoma implements IAnoma {
           return;
         }
 
-        console.log(
-          "Do IDs match?",
-          proxyResponse.id,
-          id,
-          proxyResponse.id === id
-        );
         if (proxyResponse.id !== id) {
           return;
         }
-        console.log("requestMethod called", { proxyMessage });
+
         this.eventListener.removeMessageListener(receiveResponse);
 
         const { result } = proxyResponse;
-        console.log("requestMethod - result =", { result });
+
         if (!result) {
           reject(new Error("Result is null"));
           return;
         }
 
         if (result.error) {
-          // TODO: Remove following `any` once structure is known
           reject(new Error(result.error as any));
           return;
         }
 
-        console.log({ result });
         resolve(result.return);
       };
 
@@ -157,17 +136,12 @@ export class InjectedAnoma implements IAnoma {
   constructor(
     private readonly _version: string,
     protected readonly eventListener: {
-      // TODO: Remove following `any` once structure is known
       addMessageListener: (fn: (e: any) => void) => void;
-      // TODO: Remove following `any` once structure is known
       removeMessageListener: (fn: (e: any) => void) => void;
-      // TODO: Remove following `any` once structure is known
       postMessage: (message: any) => void;
     } = {
-      // TODO: Remove following `any` once structure is known
       addMessageListener: (fn: (e: any) => void) =>
         window.addEventListener("message", fn),
-      // TODO: Remove following `any` once structure is known
       removeMessageListener: (fn: (e: any) => void) =>
         window.removeEventListener("message", fn),
       postMessage: (message) =>
@@ -177,26 +151,22 @@ export class InjectedAnoma implements IAnoma {
   ) {}
 
   public async connect(chainId: string): Promise<void> {
-    this.requestMethod("connect", chainId);
+    return await this.requestMethod("connect", chainId);
   }
 
-  public async suggestChain(chain: Chain): Promise<string> {
-    const { chainId } = chain;
-    await this.requestMethod("suggestChain", chain);
-    return chainId;
+  public async suggestChain(chain: Chain): Promise<void> {
+    return await this.requestMethod("suggestChain", chain);
   }
 
-  public getSigner(chainId: string): Signer {
-    this.requestMethod("getSigner", chainId);
-    return {} as Signer;
+  public async getSigner(chainId: string): Promise<Signer> {
+    return await this.requestMethod("getSigner", chainId);
   }
 
   public version() {
     return this._version;
   }
 
-  public chains(): Chain[] {
-    this.requestMethod("chains", undefined);
-    return [];
+  public async chains(): Promise<Chain[]> {
+    return await this.requestMethod("chains", undefined);
   }
 }

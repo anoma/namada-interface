@@ -32,10 +32,7 @@ const handleGetChainsMsg: (
   service: ChainsService
 ) => InternalHandler<GetChainsMsg> = (service) => {
   return async () => {
-    const chains = await service.getChains();
-    return {
-      chains,
-    };
+    return await service.getChains();
   };
 };
 

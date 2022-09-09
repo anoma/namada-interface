@@ -12,6 +12,7 @@ const store = new IndexedDBKVStore("anoma");
 
 const initWasm = async () => {
   await init();
+  console.debug("wasm loaded");
 };
 
 initWasm();

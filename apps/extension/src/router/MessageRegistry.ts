@@ -10,7 +10,6 @@ export class MessageRegistry {
     if (this.registeredMsgType.has(msgCls.type())) {
       throw new Error(`Already registered type ${msgCls.type()}`);
     }
-
     this.registeredMsgType.set(msgCls.type(), msgCls);
   }
 

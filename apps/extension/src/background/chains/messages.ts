@@ -1,4 +1,5 @@
 import { Message } from "../../router/Message";
+import { Signer } from "@anoma/types";
 import { ChainInfo as Chain } from "@keplr-wallet/types";
 import { ROUTE } from "./constants";
 
@@ -6,6 +7,7 @@ enum MessageTypes {
   SuggestChain = "suggest-chain",
   GetChain = "get-chain",
   GetChains = "get-chains",
+  GetSigner = "get-signer",
   RemoveChain = "remove-chain",
   Connect = "connect",
 }
@@ -34,7 +36,7 @@ export class SuggestChainMsg extends Message<void> {
   }
 }
 
-export class GetChainsMsg extends Message<{ chains: Chain[] }> {
+export class GetChainsMsg extends Message<Chain[]> {
   public static type() {
     return MessageTypes.GetChains;
   }
@@ -99,5 +101,24 @@ export class RemoveChainMsg extends Message<{ chains: Chain[] }> {
 
   type(): string {
     return RemoveChainMsg.type();
+  }
+}
+export class GetSignerMsg extends Message<Signer> {
+  public static type() {
+    return MessageTypes.GetSigner;
+  }
+
+  constructor() {
+    super();
+  }
+
+  validate(): void {}
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return GetSignerMsg.type();
   }
 }
