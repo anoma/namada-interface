@@ -3,7 +3,7 @@ const bech32Prefix = "namada";
 
 const ibcCurrency: IBCCurrency = {
   coinDenom: "NAM",
-  coinMinimalDenom: "nam", // Add this to Token config?
+  coinMinimalDenom: "nam",
   coinDecimals: 6,
   originChainId: "namada-test.XXXXXXXXX",
   originCurrency: undefined,
@@ -19,7 +19,6 @@ const ibcCurrency: IBCCurrency = {
  * Define chains to embed within extension
  */
 const chain: Chain = {
-  // TODO: Use NODE_ENV to determine a localhost versus production configuration
   rpc: "http://localhost:26657",
   rest: "http://localhost:1317",
   chainId: "namada-test.XXXXXXXXXXXX",
@@ -38,7 +37,6 @@ const chain: Chain = {
   },
   currencies: [ibcCurrency],
   feeCurrencies: [ibcCurrency],
-  // TODO: This should be configured for production:
   gasPriceStep: { low: 0.01, average: 0.025, high: 0.03 }, // Optional
   features: ["ibc-transfer"],
   beta: false,

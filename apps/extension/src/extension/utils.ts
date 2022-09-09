@@ -6,7 +6,7 @@ declare global {
 }
 
 export const getAnomaRouterId = (): number => {
-  if (window.anomaExtensionRouterId == null) {
+  if (!window.anomaExtensionRouterId) {
     window.anomaExtensionRouterId = Math.floor(Math.random() * 1000000);
   }
   return window.anomaExtensionRouterId;
