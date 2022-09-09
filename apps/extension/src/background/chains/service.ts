@@ -17,7 +17,7 @@ export class ChainsService {
   }
 
   init() {
-    console.info("ChainsService initialized");
+    console.debug("ChainsService initialized");
   }
 
   readonly getChains: () => Promise<any[]> = debounce(async () => {

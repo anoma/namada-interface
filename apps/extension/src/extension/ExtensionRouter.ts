@@ -30,8 +30,8 @@ export class ExtensionRouter extends Router {
     }
 
     if (
-      message.msg?.meta?.receiverRouterId &&
-      message.msg.meta.receiverRouterId !== getAnomaRouterId()
+      message.msg?.meta?.routerId &&
+      message.msg.meta.routerId !== getAnomaRouterId()
     ) {
       return;
     }

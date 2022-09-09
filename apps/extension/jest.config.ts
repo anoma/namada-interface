@@ -5,6 +5,7 @@ const config: Config.InitialOptions = {
   transform: {
     "^.+\\.ts$": "ts-jest",
   },
+  transformIgnorePatterns: ["__mocks__"],
 };
 
 export default config;

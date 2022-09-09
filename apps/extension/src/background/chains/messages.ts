@@ -1,5 +1,6 @@
 import { Message } from "../../router/Message";
 import { ChainInfo as Chain } from "@keplr-wallet/types";
+import { ROUTE } from "./constants";
 
 enum MessageTypes {
   SuggestChain = "suggest-chain",
@@ -25,7 +26,7 @@ export class SuggestChainMsg extends Message<void> {
   }
 
   route(): string {
-    return MessageTypes.SuggestChain;
+    return ROUTE;
   }
 
   type(): string {
@@ -45,7 +46,7 @@ export class GetChainsMsg extends Message<{ chains: Chain[] }> {
   validate(): void {}
 
   route(): string {
-    return MessageTypes.GetChains;
+    return ROUTE;
   }
 
   type(): string {
@@ -69,7 +70,7 @@ export class GetChainMsg extends Message<{ chain: Chain }> {
   }
 
   route(): string {
-    return MessageTypes.GetChain;
+    return ROUTE;
   }
 
   type(): string {
@@ -93,7 +94,7 @@ export class RemoveChainMsg extends Message<{ chains: Chain[] }> {
   }
 
   route(): string {
-    return MessageTypes.RemoveChain;
+    return ROUTE;
   }
 
   type(): string {

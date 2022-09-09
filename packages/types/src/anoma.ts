@@ -19,7 +19,7 @@ export interface Signer {
 export interface Anoma {
   connect(chainId: string): Promise<void>;
   getSigner(chainId: string): Signer;
-  suggestChain(chainConfig: Chain): Promise<boolean>;
+  suggestChain(chainConfig: Chain): Promise<string>;
   chains: () => Chain[];
   version: () => string;
 }

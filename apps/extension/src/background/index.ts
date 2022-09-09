@@ -1,6 +1,6 @@
 import { IndexedDBKVStore } from "@anoma/storage";
 import { init } from "@anoma/crypto";
-import { ExtensionRouter } from "../extension";
+import { ExtensionRouter, ExtensionGuards } from "../extension";
 import { ContentScriptEnv } from "../utils";
 import { Ports } from "../router/types";
 
@@ -17,6 +17,9 @@ const initWasm = async () => {
 initWasm();
 
 const router = new ExtensionRouter(ContentScriptEnv.produceEnv);
+router.addGuard(ExtensionGuards.checkOriginIsValid);
+router.addGuard(ExtensionGuards.checkMessageIsInternal);
+
 const chainsService = new ChainsService(store, chains);
 chainsService.init();
 

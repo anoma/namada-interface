@@ -3,7 +3,13 @@ import { Anoma as IAnoma, Signer } from "@anoma/types";
 import { Anoma } from "./Anoma";
 import { Result } from "../router/types";
 
-type ProxyMethods = "suggestChain" | "connect" | "getSigner" | "chains";
+type ProxyMethods =
+  | "suggestChain"
+  | "connect"
+  | "getSigner"
+  | "chains"
+  | "version";
+
 enum ProxyRequestTypes {
   Request = "proxy-request",
   Response = "proxy-request-response",
@@ -45,6 +51,7 @@ export class InjectedAnoma implements IAnoma {
       const message: ProxyRequest = parseMessage
         ? parseMessage(e.data)
         : e.data;
+
       if (!message || message.type !== ProxyRequestTypes.Request) {
         return;
       }
@@ -52,11 +59,10 @@ export class InjectedAnoma implements IAnoma {
       const { method, args } = message;
       try {
         if (!anoma[method] || typeof anoma[method] !== "function") {
-          throw new Error(`Invalid method: ${message.method}!!!!!!!!!!!!`);
+          throw new Error(`${message.method} not found!`);
         }
 
         const result = await anoma[method](args);
-
         const proxyResponse: ProxyRequestResponse = {
           type: ProxyRequestTypes.Response,
           id: message.id,
@@ -98,12 +104,15 @@ export class InjectedAnoma implements IAnoma {
       args,
     };
 
+    console.log({ proxyMessage });
+
     return new Promise((resolve, reject) => {
       const receiveResponse = (e: MessageEvent) => {
         const proxyResponse: ProxyRequestResponse = this.parseMessage
           ? this.parseMessage(e.data)
           : e.data;
 
+        console.log("receiveResponse", { proxyResponse });
         if (
           !proxyResponse ||
           proxyResponse.type !== ProxyRequestTypes.Response
@@ -111,14 +120,20 @@ export class InjectedAnoma implements IAnoma {
           return;
         }
 
+        console.log(
+          "Do IDs match?",
+          proxyResponse.id,
+          id,
+          proxyResponse.id === id
+        );
         if (proxyResponse.id !== id) {
           return;
         }
-
+        console.log("requestMethod called", { proxyMessage });
         this.eventListener.removeMessageListener(receiveResponse);
 
         const { result } = proxyResponse;
-
+        console.log("requestMethod - result =", { result });
         if (!result) {
           reject(new Error("Result is null"));
           return;
@@ -130,6 +145,7 @@ export class InjectedAnoma implements IAnoma {
           return;
         }
 
+        console.log({ result });
         resolve(result.return);
       };
 
@@ -164,9 +180,10 @@ export class InjectedAnoma implements IAnoma {
     this.requestMethod("connect", chainId);
   }
 
-  public async suggestChain(chain: Chain): Promise<boolean> {
+  public async suggestChain(chain: Chain): Promise<string> {
+    const { chainId } = chain;
     await this.requestMethod("suggestChain", chain);
-    return true;
+    return chainId;
   }
 
   public getSigner(chainId: string): Signer {
@@ -178,8 +195,8 @@ export class InjectedAnoma implements IAnoma {
     return this._version;
   }
 
-  public chains(): ChainConfig[] {
-    // TODO
+  public chains(): Chain[] {
+    this.requestMethod("chains", undefined);
     return [];
   }
 }
