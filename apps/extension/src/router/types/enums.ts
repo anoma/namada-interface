@@ -5,10 +5,10 @@ export enum Ports {
 }
 
 export enum Events {
-  KeystoreChanged = "keystore-changed",
-  PushEventData = "push-event-data",
+  KeystoreChanged = "anoma-keystore-changed",
+  PushEventData = "anoma-push-event-data",
 }
 
 export enum Routes {
-  InteractionForeground = "interaction-foreground",
+  InteractionForeground = "anoma-interaction-foreground",
 }

@@ -3,7 +3,7 @@ import { Anoma, InjectedAnoma } from "../provider";
 import { ExtensionRouter, ExtensionRequester } from "../extension";
 import { Ports } from "../router/types";
 import { initEvents } from "./events";
-import { ContentScriptEnv } from "../utils";
+import { ContentScriptEnv } from "../extension/utils";
 import { ContentScriptGuards } from "../extension/guards";
 import manifest from "../browsers/chrome/manifest.json";
 

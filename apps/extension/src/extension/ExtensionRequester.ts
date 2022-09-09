@@ -1,5 +1,5 @@
 import browser from "webextension-polyfill";
-import { getAnomaRouterId } from "../utils";
+import { getAnomaRouterId } from "../extension/utils";
 import { Message } from "../router";
 
 export class ExtensionRequester {
@@ -14,7 +14,7 @@ export class ExtensionRequester {
       routerId: getAnomaRouterId(),
     };
 
-    const result = await (chrome || browser).runtime.sendMessage({
+    const result = await browser.runtime.sendMessage({
       port,
       type: msg.type(),
       msg: msg,

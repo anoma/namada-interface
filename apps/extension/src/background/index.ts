@@ -1,7 +1,7 @@
 import { IndexedDBKVStore } from "@anoma/storage";
 import { init } from "@anoma/crypto";
 import { ExtensionRouter, ExtensionGuards } from "../extension";
-import { ContentScriptEnv } from "../utils";
+import { ContentScriptEnv } from "../extension/utils";
 import { Ports } from "../router/types";
 
 import { ChainsService } from "./chains";
