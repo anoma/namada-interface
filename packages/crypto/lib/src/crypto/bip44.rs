@@ -1,8 +1,24 @@
 use bip32::{Prefix, XPrv};
-use wasm_bindgen::prelude::*;
 use std::convert::From;
-use std::string::ToString;
 use std::fmt::{self, Display};
+use std::string::ToString;
+use thiserror::Error;
+
+use wasm_bindgen::prelude::*;
+
+
+#[allow(missing_docs)]
+#[derive(Debug, Error)]
+pub enum Bip44Error {
+    #[error("Unable to parse path")]
+    PathError,
+    #[error("Unable to derive keys from path")]
+    DerivationError,
+    #[error("Could not create secret key from bytes")]
+    SecretKeyError,
+    #[error("Invalid seed length")]
+    InvalidSeed,
+}
 
 #[wasm_bindgen]
 pub struct Bip44 {
@@ -91,15 +107,20 @@ impl ExtendedKeys {
     pub fn new (seed: Vec<u8>, path: Option<String>) -> Result<ExtendedKeys, String> {
         let seed: &[u8] = &seed;
         let xprv = match path {
-            Some(path) => XPrv::derive_from_path(
-                &seed, &path.parse().expect("Could not parse path"),
-            ),
+            Some(path) => {
+                let path = &path.parse().map_err(|_| Bip44Error::PathError);
+                let derivation_path = match path {
+                    Ok(path) => path,
+                    Err(error) => return Err(error.to_string()),
+                };
+                XPrv::derive_from_path(&seed, derivation_path)
+            },
             None => XPrv::new(seed),
         };
 
         let xprv = match xprv {
             Ok(xprv) => xprv,
-            Err(error) => return Err(error.to_string()),
+            Err(_) => return Err(Bip44Error::DerivationError.to_string()),
         };
 
         // BIP32 Extended Private Key
@@ -135,7 +156,10 @@ fn validate_seed(seed: Vec<u8>) -> Result<[u8; 64], String> {
 #[wasm_bindgen]
 impl Bip44 {
     pub fn new(seed: Vec<u8>) -> Result<Bip44, String> {
-        let seed = validate_seed(seed).expect("Seed should be correct size");
+        let seed = match validate_seed(seed) {
+            Ok(seed) => seed,
+            Err(_) => return Err(Bip44Error::InvalidSeed.to_string()),
+        };
 
         Ok(Bip44 {
             seed,
@@ -147,7 +171,7 @@ impl Bip44 {
         let seed = &self.seed;
         let xprv = match XPrv::new(seed) {
             Ok(xprv) => xprv,
-            Err(error) => return Err(error.to_string())
+            Err(_) => return Err(Bip44Error::DerivationError.to_string()),
         };
 
         Ok(Vec::from(xprv.to_string(Prefix::XPRV).as_bytes()))
@@ -158,17 +182,23 @@ impl Bip44 {
         // BIP32 Extended Private Key
         let xprv = match XPrv::derive_from_path(&self.seed, &path.parse().unwrap()) {
             Ok(xprv) => xprv,
-            Err(error) => return Err(format!("Could not derive from path {:?}", error))
+            Err(_) => return Err(Bip44Error::DerivationError.to_string()),
         };
         let prv_bytes: &[u8] = &xprv.private_key().to_bytes();
 
         // ed25519 keypair
         let secret = ed25519_dalek::SecretKey::from_bytes(prv_bytes)
-            .expect("Could not create secret from bytes");
-        let public = ed25519_dalek::PublicKey::from(&secret);
+            .map_err(|_| Bip44Error::SecretKeyError);
+
+        let secret_key = match secret {
+            Ok(secret_key) => secret_key,
+            Err(error) => return Err(error.to_string()),
+        };
+
+        let public = ed25519_dalek::PublicKey::from(&secret_key);
 
         Ok(DerivedKeys {
-            private: Key::from(secret.to_bytes()),
+            private: Key::from(secret_key.to_bytes()),
             public: Key::from(public.to_bytes()),
         })
     }
