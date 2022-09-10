@@ -10,6 +10,28 @@ The Rust source code lives in `lib/`, and currently provides the following modul
 
 ## Basic usage
 
+### Building
+
+From the base `crypto` directory, we can build to wasm targets using the following:
+
+```bash
+# Build to web wasm target
+yarn wasm:build
+
+# Build to NodeJS wasm target (for testing)
+yarn wasm:build:node
+```
+
+### Testing
+
+From `lib/`, we can issue the following to run unit tests:
+
+```bash
+cargo run test
+```
+
+## Overview
+
 ### AEAD
 
 ```rust

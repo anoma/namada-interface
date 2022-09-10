@@ -1,5 +1,8 @@
 use bip32::{Prefix, XPrv};
 use wasm_bindgen::prelude::*;
+use std::convert::From;
+use std::string::ToString;
+use std::fmt::{self, Display};
 
 #[wasm_bindgen]
 pub struct Bip44 {
@@ -7,23 +10,76 @@ pub struct Bip44 {
 }
 
 #[wasm_bindgen]
+pub struct Key {
+    bytes: [u8; 32],
+}
+
+/// A 32 byte ed25519 key
+impl Key {
+    pub fn len(&self) -> i32 {
+       self.bytes.len() as i32
+    }
+
+    pub fn to_bytes(&self) -> [u8; 32] {
+        self.bytes
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.bytes.len() > 0
+    }
+}
+
+impl Display for Key {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let as_string = self.bytes
+            .iter()
+            .map(|&c| c as char).collect::<String>();
+
+        write!(f, "{}", as_string)
+    }
+}
+
+impl From<[u8; 32]> for Key {
+    fn from(bytes: [u8; 32]) -> Key {
+        Key {
+            bytes,
+        }
+    }
+}
+
+trait Encodings {
+    fn to_hex(&self) -> String;
+    fn to_base64(&self) -> String;
+}
+
+impl Encodings for Key {
+    fn to_hex(&self) -> String {
+        hex::encode(self.to_string())
+    }
+
+    fn to_base64(&self) -> String {
+        base64::encode(self.to_string())
+    }
+}
+
+#[wasm_bindgen]
 pub struct DerivedKeys {
-    secret: [u8; 32],
-    public: [u8; 32],
+    private: Key,
+    public: Key,
 }
 
 #[wasm_bindgen]
 impl DerivedKeys {
-    //TODO: Implement encoding
-    pub fn secret(&self) -> Vec<u8> {
-        Vec::from(self.secret)
+    pub fn private(&self) -> Vec<u8> {
+        Vec::from(self.private.to_bytes())
     }
 
     pub fn public(&self) -> Vec<u8> {
-        Vec::from(self.public)
+        Vec::from(self.public.to_bytes())
     }
 }
 
+/// Root or derived extended keys
 #[wasm_bindgen]
 pub struct ExtendedKeys {
     xprv: Vec<u8>,
@@ -34,14 +90,17 @@ pub struct ExtendedKeys {
 impl ExtendedKeys {
     pub fn new (seed: Vec<u8>, path: Option<String>) -> Result<ExtendedKeys, String> {
         let seed: &[u8] = &seed;
-
         let xprv = match path {
             Some(path) => XPrv::derive_from_path(
-                &seed,
-                &path.parse().expect("Could not parse path",
-            )),
+                &seed, &path.parse().expect("Could not parse path"),
+            ),
             None => XPrv::new(seed),
-        }.expect("Extended private key could not be derived");
+        };
+
+        let xprv = match xprv {
+            Ok(xprv) => xprv,
+            Err(error) => return Err(error.to_string()),
+        };
 
         // BIP32 Extended Private Key
         let xprv_str = xprv.to_string(Prefix::XPRV).to_string();
@@ -58,11 +117,11 @@ impl ExtendedKeys {
         })
     }
 
-    pub fn get_private (&self) -> Vec<u8> {
+    pub fn private (&self) -> Vec<u8> {
         self.xprv.clone()
     }
 
-    pub fn get_public (&self) -> Vec<u8> {
+    pub fn public (&self) -> Vec<u8> {
         self.xpub.clone()
     }
 }
@@ -109,8 +168,8 @@ impl Bip44 {
         let public = ed25519_dalek::PublicKey::from(&secret);
 
         Ok(DerivedKeys {
-            secret: secret.to_bytes(),
-            public: public.to_bytes(),
+            private: Key::from(secret.to_bytes()),
+            public: Key::from(public.to_bytes()),
         })
     }
 
@@ -133,7 +192,8 @@ mod tests {
 
     #[test]
     fn can_derive_keys_from_path() {
-        let phrase = "caught pig embody hip goose like become worry face oval manual flame pizza steel viable proud eternal speed chapter sunny boat because view bullet";
+        let phrase = "caught pig embody hip goose like become worry face oval manual flame \
+                      pizza steel viable proud eternal speed chapter sunny boat because view bullet";
         let mnemonic = Mnemonic::from_phrase(phrase.into());
         let seed = mnemonic.to_seed(None).unwrap();
         let bip44: Bip44 = Bip44::new(seed).unwrap();
@@ -141,7 +201,19 @@ mod tests {
 
         let keys = bip44.derive(String::from(path)).expect("Should derive keys from a path");
 
-        assert_eq!(keys.secret.len(), 32);
+        assert_eq!(keys.private.len(), 32);
         assert_eq!(keys.public.len(), 32);
+
+        let secret_b64 = keys.private.to_base64();
+        assert_eq!(secret_b64, "VsKNwrDDlcOPwockKcOww7TDssKFDzY3b2rCscK1w6crNVzDmMOxbjklwqnCo0sg");
+
+        let secret_hex = keys.private.to_hex();
+        assert_eq!(secret_hex, "56c28dc2b0c395c38fc2872429c3b0c3b4c3b2c2850f36376f6ac2b1c2b5c3a72b355cc398c3b16e3925c2a9c2a34b20");
+
+        let public_b64 = keys.public.to_base64();
+        assert_eq!(public_b64, "w5QFw7MvFsOjJsKeSFMYK2fDtlhKPSrCsMKkTzTCusOpw4N+csOnfsONwobDkg==");
+
+        let public_hex = keys.public.to_hex();
+        assert_eq!(public_hex, "c39405c3b32f16c3a326c29e4853182b67c3b6584a3d2ac2b0c2a44f34c2bac3a9c3837e72c3a77ec38dc286c392");
     }
 }
