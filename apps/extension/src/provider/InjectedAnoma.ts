@@ -2,6 +2,8 @@ import { ChainInfo as Chain } from "@keplr-wallet/types";
 import { Anoma as IAnoma, Signer } from "@anoma/types";
 import { Anoma } from "./Anoma";
 import { Result } from "../router/types";
+import { AEAD, Bip44, Mnemonic } from "@anoma/crypto";
+import { Wasm } from "./Wasm";
 
 type ProxyMethods =
   | "suggestChain"
@@ -147,8 +149,11 @@ export class InjectedAnoma implements IAnoma {
       postMessage: (message) =>
         window.postMessage(message, window.location.origin),
     },
-    protected readonly parseMessage?: (message: any) => any
-  ) {}
+    protected readonly parseMessage?: (message: any) => any,
+    protected readonly wasm: Wasm = new Wasm(AEAD, Bip44, Mnemonic)
+  ) {
+    this.wasm.init();
+  }
 
   public async connect(chainId: string): Promise<void> {
     return await this.requestMethod("connect", chainId);

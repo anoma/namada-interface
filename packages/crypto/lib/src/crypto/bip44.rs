@@ -27,22 +27,24 @@ pub struct Bip44 {
 
 #[wasm_bindgen]
 pub struct Key {
-    bytes: [u8; 32],
+    bytes: Vec<u8>,
 }
 
 /// A 32 byte ed25519 key
+#[wasm_bindgen]
 impl Key {
-    pub fn len(&self) -> i32 {
-       self.bytes.len() as i32
+    pub fn to_bytes(&self) -> Vec<u8> {
+        self.bytes.clone()
     }
 
-    pub fn to_bytes(&self) -> [u8; 32] {
-        self.bytes
+    pub fn to_hex(&self) -> String {
+        hex::encode(self.to_string())
     }
 
-    pub fn is_empty(&self) -> bool {
-        self.bytes.len() > 0
+    pub fn to_base64(&self) -> String {
+        base64::encode(self.to_string())
     }
+
 }
 
 impl Display for Key {
@@ -57,24 +59,10 @@ impl Display for Key {
 
 impl From<[u8; 32]> for Key {
     fn from(bytes: [u8; 32]) -> Key {
+        let bytes: Vec<u8> = Vec::from(bytes);
         Key {
             bytes,
         }
-    }
-}
-
-trait Encodings {
-    fn to_hex(&self) -> String;
-    fn to_base64(&self) -> String;
-}
-
-impl Encodings for Key {
-    fn to_hex(&self) -> String {
-        hex::encode(self.to_string())
-    }
-
-    fn to_base64(&self) -> String {
-        base64::encode(self.to_string())
     }
 }
 
@@ -86,12 +74,12 @@ pub struct DerivedKeys {
 
 #[wasm_bindgen]
 impl DerivedKeys {
-    pub fn private(&self) -> Vec<u8> {
-        Vec::from(self.private.to_bytes())
+    pub fn private(&self) -> Key {
+        Key { bytes: self.private.to_bytes() }
     }
 
-    pub fn public(&self) -> Vec<u8> {
-        Vec::from(self.public.to_bytes())
+    pub fn public(&self) -> Key {
+        Key { bytes: self.public.to_bytes() }
     }
 }
 
@@ -110,7 +98,7 @@ impl ExtendedKeys {
             Some(path) => {
                 let path = &path.parse().map_err(|_| Bip44Error::PathError);
                 let derivation_path = match path {
-                    Ok(path) => path,
+                    Ok(derivation_path) => derivation_path,
                     Err(error) => return Err(error.to_string()),
                 };
                 XPrv::derive_from_path(&seed, derivation_path)
@@ -231,8 +219,8 @@ mod tests {
 
         let keys = bip44.derive(String::from(path)).expect("Should derive keys from a path");
 
-        assert_eq!(keys.private.len(), 32);
-        assert_eq!(keys.public.len(), 32);
+        assert_eq!(keys.private.to_bytes().len(), 32);
+        assert_eq!(keys.public.to_bytes().len(), 32);
 
         let secret_b64 = keys.private.to_base64();
         assert_eq!(secret_b64, "VsKNwrDDlcOPwockKcOww7TDssKFDzY3b2rCscK1w6crNVzDmMOxbjklwqnCo0sg");
