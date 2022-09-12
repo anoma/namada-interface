@@ -44,7 +44,6 @@ impl Key {
     pub fn to_base64(&self) -> String {
         base64::encode(self.to_string())
     }
-
 }
 
 impl Display for Key {
