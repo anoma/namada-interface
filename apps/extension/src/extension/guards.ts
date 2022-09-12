@@ -1,4 +1,4 @@
-import { Env, Guard, MessageSender, Message } from "..//router";
+import { Env, Guard, MessageSender, Message } from "../router";
 
 export class ContentScriptGuards {
   // Router in content script will reject all messages that can be sent from the external.

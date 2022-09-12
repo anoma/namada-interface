@@ -50,10 +50,6 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         {
-          from: "../../node_modules/webextension-polyfill/dist/browser-polyfill.js",
-          to: `./browser-polyfill.js`,
-        },
-        {
           from: "./src/static/*.html",
           to: "./[name].html",
         },

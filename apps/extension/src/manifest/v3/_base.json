@@ -19,7 +19,7 @@
   "permissions": ["storage", "notifications", "identity"],
   "web_accessible_resources": [
     {
-      "resources": ["injected.bundle.js", "browser-polyfill.js"],
+      "resources": ["injected.bundle.js"],
       "matches": ["<all_urls>"]
     }
   ]

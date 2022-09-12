@@ -20,5 +20,5 @@
       "all_frames": true
     }
   ],
-  "web_accessible_resources": ["injected.bundle.js", "browser-polyfill.js"]
+  "web_accessible_resources": ["injected.bundle.js"]
 }
