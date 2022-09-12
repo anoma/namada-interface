@@ -1,4 +1,4 @@
-import browser from "webextension-polyfill";
+// import browser from "webextension-polyfill";
 import { Env, MessageSender } from "../router/types";
 
 declare global {

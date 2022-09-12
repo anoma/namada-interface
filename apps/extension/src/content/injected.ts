@@ -1,7 +1,18 @@
-import { InjectedAnoma } from "../provider/InjectedAnoma";
-import { init } from "./init";
-import manifest from "../browsers/chrome/manifest.json";
+import { InjectedAnoma } from "../provider";
+import manifest from "../manifest/v3/_base.json";
 
-const anoma = new InjectedAnoma(manifest.version || "0.1.0");
+declare global {
+  var anoma: InjectedAnoma;
+}
 
-export const inject = () => init(anoma);
+export function init(anoma: InjectedAnoma) {
+  if (process.env.NODE_ENV !== "production") {
+    if (!window.anoma) {
+      window.anoma = anoma;
+    }
+  } else {
+    window.anoma = anoma;
+  }
+}
+
+init(new InjectedAnoma(manifest.version));

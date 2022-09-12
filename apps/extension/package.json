@@ -9,14 +9,11 @@
   "scripts": {
     "clean": "rimraf ./build",
     "start": "yarn start:chrome",
-    "start:chrome": "yarn clean && TARGET=chrome NODE_ENV=development parcel watch ./src/browsers/chrome/manifest.json --host localhost -p 5000 --dist-dir ./build/chrome",
-    "start:firefox": "yarn clean && TARGET=browser NODE_ENV=development parcel watch ./src/browsers/firefox/manifest.json --host localhost -p 5000 --dist-dir ./build/browser",
-    "bundle": "yarn clean && yarn bundle:chrome && yarn bundle:firefox",
-    "bundle:chrome": "TARGET=chrome NODE_ENV=development parcel build ./src/browsers/chrome/manifest.json --dist-dir ./build/chrome",
-    "bundle:browser": "TARGET=browser NODE_ENV=development parcel build ./src/browsers/firefox/manifest.json --dist-dir ./build/browser",
-    "build": "yarn clean && yarn build:chrome && yarn build:firefox",
-    "build:chrome": "TARGET=chrome NODE_ENV=production parcel build ./src/browsers/chrome/manifest.json --no-source-maps --dist-dir ./build/chrome",
-    "build:firefox": "TARGET=browser NODE_ENV=production parcel build ./src/browsers/firefox/manifest.json --no-source-maps --dist-dir ./build/browser && web-ext build --s ./build/browser -a ./build/firefox",
+    "start:chrome": "yarn clean && NODE_ENV=development TARGET=chrome webpack --watch",
+    "start:firefox": "yarn clean && NODE_ENV=development TARGET=firefox webpack --watch",
+    "build": "yarn clean && yarn build:chrome",
+    "build:chrome": "NODE_ENV=production TARGET=chrome webpack",
+    "build:firefox": "NODE_ENV=production TARGET=firefox webpack && web-ext build --s ./build/firefox -a ./build/firefox",
     "lint": "npx eslint src --ext .ts",
     "lint:fix": "yarn lint -- --fix",
     "test": "yarn jest",
@@ -39,7 +36,6 @@
     "webextension-polyfill": "^0.10.0"
   },
   "devDependencies": {
-    "@parcel/config-webextension": "^2.7.0",
     "@types/aes-js": "^3.1.1",
     "@types/chrome": "^0.0.196",
     "@types/firefox-webext-browser": "^94.0.1",
@@ -51,14 +47,17 @@
     "@types/styled-components": "^5.1.26",
     "@types/webextension-polyfill": "^0.9.0",
     "babel-plugin-styled-components": "^2.0.7",
+    "copy-webpack-plugin": "^11.0.0",
     "eslint": "^8.23.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^8.5.0",
     "eslint-import-resolver-typescript": "^3.5.0",
     "jest": "^29.0.1",
-    "parcel": "^2.7.0",
+    "merge-jsons-webpack-plugin": "^2.0.1",
     "rimraf": "^3.0.2",
-    "ts-node": "^10.9.1"
+    "ts-loader": "^9.3.1",
+    "ts-node": "^10.9.1",
+    "webpack-cli": "^4.10.0"
   },
   "@parcel/bundler-default": {
     "maxParallelRequests": 20

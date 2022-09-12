@@ -1,19 +1,15 @@
-import { ChainInfo as Chain } from "@keplr-wallet/types";
 import { KVStore } from "@anoma/storage";
 import { KeyRing, KeyRingStatus } from "./keyring";
 
 const keyRing = new KeyRing();
 
 export class KeyRingService {
-  constructor(
-    protected readonly kvStore: KVStore,
-    protected readonly defaultChains: Chain[]
-  ) {
+  constructor(protected readonly kvStore: KVStore) {
     this.kvStore = kvStore;
   }
 
   init() {
-    console.debug("ChainsService initialized");
+    console.debug("KeyStoreService initialized");
   }
 
   async lock(): Promise<{ status: KeyRingStatus }> {

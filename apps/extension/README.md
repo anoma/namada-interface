@@ -1,21 +1,15 @@
 # Anoma Browser Extension
 
-This is the Anoma Browser Extension project. This project is using `parcel` with `@parcel/config-webextension` for building
-the extension files based on the provided `manifest.json`.
+This is the Anoma Browser Extension project.
 
 ## Usage
 
 ```bash
-# First, install web-ext globally:
+# First, install web-ext globally (this bundles Firefox extensions into a `.zip` file):
 yarn global add web-ext
 
 # Clean build files
 yarn clean
-
-# Bundle development extensions
-yarn bundle # firefox & chrome
-yarn bundle:chrome
-yarn bundle:firefox
 
 # Build production web extension (chrome & Firefox)
 yarn build                       # Clean and build all extensions
@@ -58,3 +52,5 @@ hopefully instantiating an instance of the `Anoma()` class API for handling comm
 ## Notes
 
 - Currently, Firefox does not support `manifest_version: 3`, and Chrome will be removing support for `V2` in 2023. We will need to maintain a build-pipeline that supports both of these.
+- Manifest files can be found in `src/manifest/v2` (version 2, required for Firefox), and `src/manifest/v3` (others). There are independent files that
+  extend a `_base.json` file for the target browser, which will be merged when building. Built extensions will be found under `build/chrome` and `build/firefox`.
