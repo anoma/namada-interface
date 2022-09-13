@@ -86,9 +86,8 @@ export class ChainsService {
 
     savedChains.push(chain);
 
-    await this.kvStore.set<Chain[]>("chain-infos", savedChains);
-
     this.clearCachedChains();
+    await this.kvStore.set<Chain[]>("chain-infos", savedChains);
   }
 
   async removeChain(chainId: string): Promise<void> {

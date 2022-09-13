@@ -20,6 +20,7 @@ export interface Anoma {
   connect(chainId: string): Promise<void>;
   getSigner(chainId: string): Promise<Signer | undefined>;
   suggestChain(chainConfig: Chain): Promise<void>;
+  chain: (chainId: string) => Promise<Chain | undefined>;
   chains: () => Promise<Chain[] | undefined>;
   version: () => string;
 }

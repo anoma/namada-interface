@@ -40,10 +40,7 @@ const handleGetChainMsg: (
   service: ChainsService
 ) => InternalHandler<GetChainMsg> = (service) => {
   return async (_, msg) => {
-    const chain = await service.getChain(msg.chainId);
-    return {
-      chain,
-    };
+    return await service.getChain(msg.chainId);
   };
 };
 
@@ -65,9 +62,6 @@ const handleRemoveChainMsg: (
 ) => InternalHandler<RemoveChainMsg> = (service) => {
   return async (_, msg) => {
     await service.removeChain(msg.chainId);
-    const chains = await service.getChains();
-    return {
-      chains,
-    };
+    return await service.getChains();
   };
 };

@@ -9,7 +9,7 @@
   "scripts": {
     "clean": "rimraf ./build",
     "clean:chrome": "rimraf ./build/chrome",
-    "clean:firefox": "rimraf ./build/chrome",
+    "clean:firefox": "rimraf ./build/firefox",
     "start": "yarn start:chrome",
     "start:chrome": "yarn clean:chrome && NODE_ENV=development TARGET=chrome webpack --watch",
     "start:firefox": "yarn clean:firefox && NODE_ENV=development TARGET=firefox webpack --watch",

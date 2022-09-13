@@ -1,14 +1,14 @@
-import { init, AEAD, Bip44, Mnemonic } from "@anoma/crypto";
+import { init as initCrypto, AEAD, Bip44, Mnemonic } from "@anoma/crypto";
 
 export class Wasm {
-  constructor(
-    public readonly aead: typeof AEAD,
-    public readonly bip44: typeof Bip44,
-    public readonly mnemonic: typeof Mnemonic
-  ) {}
+  public readonly crypto = {
+    aead: AEAD,
+    bip44: Bip44,
+    mnemonic: Mnemonic,
+  };
 
   public async init() {
-    await init();
+    await initCrypto();
     return this;
   }
 }

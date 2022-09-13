@@ -56,7 +56,7 @@ export class GetChainsMsg extends Message<Chain[]> {
   }
 }
 
-export class GetChainMsg extends Message<{ chain: Chain }> {
+export class GetChainMsg extends Message<Chain> {
   public static type() {
     return MessageTypes.GetChain;
   }
@@ -80,7 +80,7 @@ export class GetChainMsg extends Message<{ chain: Chain }> {
   }
 }
 
-export class RemoveChainMsg extends Message<{ chains: Chain[] }> {
+export class RemoveChainMsg extends Message<Chain[]> {
   public static type() {
     return MessageTypes.RemoveChain;
   }

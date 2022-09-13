@@ -2,6 +2,7 @@ import { ChainInfo as Chain } from "@keplr-wallet/types";
 import { Anoma as IAnoma, Signer } from "@anoma/types";
 import { Ports, MessageRequester } from "../router";
 import {
+  GetChainMsg,
   GetChainsMsg,
   GetSignerMsg,
   SuggestChainMsg,
@@ -29,6 +30,13 @@ export class Anoma implements IAnoma {
     return await this.requester?.sendMessage(
       Ports.Background,
       new SuggestChainMsg(chain)
+    );
+  }
+
+  public async chain(chainId: string): Promise<Chain | undefined> {
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new GetChainMsg(chainId)
     );
   }
 
