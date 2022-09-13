@@ -30,8 +30,6 @@
     "@anoma/types": "0.1.0",
     "@anoma/utils": "0.1.0",
     "@anoma/wallet": "0.1.0",
-    "aes-js": "^3.1.2",
-    "pbkdf2": "^3.1.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "styled-components": "^5.3.5",
@@ -39,12 +37,10 @@
     "webextension-polyfill": "^0.10.0"
   },
   "devDependencies": {
-    "@types/aes-js": "^3.1.1",
     "@types/chrome": "^0.0.196",
     "@types/firefox-webext-browser": "^94.0.1",
     "@types/jest": "^29.0.0",
     "@types/node": "^18.7.14",
-    "@types/pbkdf2": "^3.1.0",
     "@types/react": "^18.0.18",
     "@types/react-dom": "^18.0.6",
     "@types/styled-components": "^5.1.26",
@@ -61,8 +57,5 @@
     "ts-loader": "^9.3.1",
     "ts-node": "^10.9.1",
     "webpack-cli": "^4.10.0"
-  },
-  "@parcel/bundler-default": {
-    "maxParallelRequests": 20
   }
 }
