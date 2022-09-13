@@ -1,3 +1,4 @@
+use js_sys::Array;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -49,16 +50,25 @@ impl Mnemonic {
             Some(passphrase) => passphrase,
             None => "".into(),
         };
-        let mnemonic = match bip39::Mnemonic::parse_in_normalized(
-            bip39::Language::English,
-            &self.phrase,
-        ) {
+        let mnemonic = match bip39::Mnemonic::parse(&self.phrase) {
             Ok(mnemonic) => mnemonic,
             Err(error) => return Err(format!("Unable to parse mnemonic! {:?}", error)),
         };
-        let seed: &[u8] = &mnemonic.to_seed_normalized(&passphrase);
+        let seed: &[u8] = &mnemonic.to_seed(&passphrase);
 
         Ok(Vec::from(seed))
+    }
+
+    pub fn to_words(&self) -> Result<JsValue, String> {
+        let mnemonic = match bip39::Mnemonic::parse(&self.phrase) {
+            Ok(mnemonic) => mnemonic,
+            Err(error) => return Err(format!("Unable to parse mnemonic! {:?}", error)),
+        };
+
+        #[allow(clippy::redundant_closure)]
+        Ok(JsValue::from(mnemonic.word_iter()
+            .map(|word| JsValue::from(word))
+            .collect::<Array>()))
     }
 }
 

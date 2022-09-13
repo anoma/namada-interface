@@ -6,7 +6,6 @@ use thiserror::Error;
 
 use wasm_bindgen::prelude::*;
 
-
 #[allow(missing_docs)]
 #[derive(Debug, Error)]
 pub enum Bip44Error {

@@ -16,6 +16,7 @@ bip39 = "1.0.1"
 ed25519-dalek = {version = "1.0.1", default-features = false, features = ["rand", "u64_backend"]}
 getrandom = {version = "0.2.3", features = ["js"]}
 hex = "0.4.3"
+js-sys = "0.3.60"
 orion = "0.16.0"
 thiserror = "1.0.30"
 rand = {version = "0.7", features = ["wasm-bindgen"]}
