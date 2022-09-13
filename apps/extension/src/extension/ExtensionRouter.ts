@@ -22,22 +22,22 @@ export class ExtensionRouter extends Router {
     browser.runtime.onMessage.removeListener(this.onMessage);
   }
 
-  protected onMessage = (
+  protected onMessage = async (
     message: any,
     sender: MessageSender
-  ): Promise<Result> | undefined => {
+  ): Promise<Result | undefined> => {
     if (message.port !== this.port) {
       return;
     }
 
     if (
       message.msg?.meta?.routerId &&
-      message.msg.meta.routerId !== getAnomaRouterId()
+      message.msg.meta.routerId !== (await getAnomaRouterId())
     ) {
       return;
     }
 
-    return this.onMessageHandler(message, sender);
+    return await this.onMessageHandler(message, sender);
   };
 
   protected async onMessageHandler(

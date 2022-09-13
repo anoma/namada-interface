@@ -11,7 +11,7 @@ export class ExtensionRequester {
     msg.origin = window.location.origin;
     msg.meta = {
       ...msg.meta,
-      routerId: getAnomaRouterId(),
+      routerId: await getAnomaRouterId(),
     };
 
     const result = await browser.runtime.sendMessage({
@@ -40,7 +40,7 @@ export class ExtensionRequester {
     msg.origin = window.location.origin;
     msg.meta = {
       ...msg.meta,
-      routerId: getAnomaRouterId(),
+      routerId: await getAnomaRouterId(),
     };
 
     const result = await browser.tabs.sendMessage(tabId, {
