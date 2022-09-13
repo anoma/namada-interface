@@ -4,13 +4,13 @@
   "description": "The Anoma Extension manages a user's wallet for the Anoma ecosystem.",
   "version": "0.1.0",
   "background": {
-    "service_worker": "background.bundle.js",
+    "service_worker": "background.anoma.js",
     "type": "module"
   },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.bundle.js"]
+      "js": ["content.anoma.js"]
     }
   ],
   "action": {
@@ -19,7 +19,7 @@
   "permissions": ["storage", "notifications", "identity"],
   "web_accessible_resources": [
     {
-      "resources": ["injected.bundle.js"],
+      "resources": ["injected.anoma.js"],
       "matches": ["<all_urls>"]
     }
   ]

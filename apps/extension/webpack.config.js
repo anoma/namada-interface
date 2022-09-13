@@ -20,7 +20,7 @@ module.exports = {
   output: {
     publicPath: "",
     path: resolve(__dirname, `./build/${TARGET}`),
-    filename: "[name].bundle.js",
+    filename: "[name].anoma.js",
   },
   module: {
     rules: [

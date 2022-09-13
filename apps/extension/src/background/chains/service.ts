@@ -1,13 +1,12 @@
 import { ChainInfo as Chain } from "@keplr-wallet/types";
 import { KVStore } from "@anoma/storage";
 import { debounce } from "@anoma/utils";
-import { Env } from "../../router";
+import { Env, KVKeys } from "../../router";
 
 type ChainRemovedHandler = (chainId: string, identifier: string) => void;
 
 export class ChainsService {
   protected onChainRemovedHandlers: ChainRemovedHandler[] = [];
-  protected cachedChains: Chain[] | undefined;
 
   constructor(
     protected readonly kvStore: KVStore,
@@ -21,18 +20,10 @@ export class ChainsService {
   }
 
   readonly getChains: () => Promise<Chain[]> = debounce(async () => {
-    if (this.cachedChains) {
-      return this.cachedChains;
-    }
-
     const chains = [...this.defaultChains];
     const suggestedChains: Chain[] = await this.getSuggestedChains();
     return chains.concat(suggestedChains);
   });
-
-  clearCachedChains() {
-    this.cachedChains = undefined;
-  }
 
   async getChain(chainId: string): Promise<Chain> {
     const chain = (await this.getChains()).find((chain) => {
@@ -73,7 +64,7 @@ export class ChainsService {
   }
 
   async getSuggestedChains(): Promise<Chain[]> {
-    return (await this.kvStore.get<Chain[]>("chain-infos")) ?? [];
+    return (await this.kvStore.get<Chain[]>(KVKeys.Chains)) ?? [];
   }
 
   async addChain(chain: Chain): Promise<void> {
@@ -82,12 +73,11 @@ export class ChainsService {
       throw new Error(`Chain with ID ${chainId} is already registered`);
     }
 
-    const savedChains = (await this.kvStore.get<Chain[]>("chain-infos")) ?? [];
+    const savedChains = (await this.kvStore.get<Chain[]>(KVKeys.Chains)) ?? [];
 
     savedChains.push(chain);
 
-    this.clearCachedChains();
-    await this.kvStore.set<Chain[]>("chain-infos", savedChains);
+    await this.kvStore.set<Chain[]>(KVKeys.Chains, savedChains);
   }
 
   async removeChain(chainId: string): Promise<void> {
@@ -95,15 +85,13 @@ export class ChainsService {
       throw new Error("Chain is not registered");
     }
 
-    const savedChains = (await this.kvStore.get<Chain[]>("chain-infos")) ?? [];
+    const chains = (await this.kvStore.get<Chain[]>(KVKeys.Chains)) ?? [];
 
-    const resultChain = savedChains.filter((chain: Chain) => {
+    const filteredChains = chains.filter((chain: Chain) => {
       return chain.chainId !== chainId;
     });
 
-    await this.kvStore.set<Chain[]>("chain-infos", resultChain);
-
-    this.clearCachedChains();
+    await this.kvStore.set<Chain[]>(KVKeys.Chains, filteredChains);
   }
 
   addChainRemovedHandler(handler: ChainRemovedHandler) {

@@ -12,3 +12,12 @@ export enum Events {
 export enum Routes {
   InteractionForeground = "anoma-interaction-foreground",
 }
+
+export enum KVPrefix {
+  IndexedDB = "Anoma::IndexedDB",
+  LocalStorage = "Anoma::LocalStorage",
+}
+
+export enum KVKeys {
+  Chains = "chains",
+}

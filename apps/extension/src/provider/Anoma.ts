@@ -18,21 +18,6 @@ export class Anoma implements IAnoma {
     console.info("connect", chainId);
   }
 
-  public async getSigner(chainId: string): Promise<Signer | undefined> {
-    console.info("getSigner", chainId);
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new GetSignerMsg()
-    );
-  }
-
-  public async suggestChain(chain: Chain): Promise<void> {
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new SuggestChainMsg(chain)
-    );
-  }
-
   public async chain(chainId: string): Promise<Chain | undefined> {
     return await this.requester?.sendMessage(
       Ports.Background,
@@ -44,6 +29,21 @@ export class Anoma implements IAnoma {
     return await this.requester?.sendMessage(
       Ports.Background,
       new GetChainsMsg()
+    );
+  }
+
+  public async suggestChain(chain: Chain): Promise<void> {
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new SuggestChainMsg(chain)
+    );
+  }
+
+  public async getSigner(chainId: string): Promise<Signer | undefined> {
+    console.info("getSigner", chainId);
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new GetSignerMsg()
     );
   }
 

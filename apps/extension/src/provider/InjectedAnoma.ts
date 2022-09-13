@@ -13,8 +13,8 @@ type ProxyMethods =
   | "version";
 
 enum ProxyRequestTypes {
-  Request = "proxy-request",
-  Response = "proxy-request-response",
+  Request = "anoma-proxy-request",
+  Response = "anoma-proxy-request-response",
 }
 
 export interface ProxyRequest {
@@ -159,12 +159,16 @@ export class InjectedAnoma implements IAnoma {
     return await this.requestMethod("connect", chainId);
   }
 
-  public async suggestChain(chain: Chain): Promise<void> {
-    await this.requestMethod("suggestChain", chain);
-  }
-
   public async chain(chainId: string): Promise<Chain | undefined> {
     return this.requestMethod("chain", chainId);
+  }
+
+  public async chains(): Promise<Chain[]> {
+    return await this.requestMethod("chains", undefined);
+  }
+
+  public async suggestChain(chain: Chain): Promise<void> {
+    await this.requestMethod("suggestChain", chain);
   }
 
   public async getSigner(chainId: string): Promise<Signer> {
@@ -173,9 +177,5 @@ export class InjectedAnoma implements IAnoma {
 
   public version() {
     return this._version;
-  }
-
-  public async chains(): Promise<Chain[]> {
-    return await this.requestMethod("chains", undefined);
   }
 }

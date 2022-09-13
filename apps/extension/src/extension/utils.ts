@@ -1,9 +1,9 @@
 import browser from "webextension-polyfill";
-import { Env, MessageSender } from "../router/types";
+import { Env, MessageSender, KVPrefix } from "../router/types";
 import { ExtensionKVStore } from "@anoma/storage";
 
 const ROUTER_ID_KEY = "anomaExtensionRouterId";
-const store = new ExtensionKVStore("anoma");
+const store = new ExtensionKVStore(KVPrefix.LocalStorage);
 
 export const getAnomaRouterId = async (): Promise<number | undefined> => {
   const storedId = await store.get(ROUTER_ID_KEY);
