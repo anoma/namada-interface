@@ -1,5 +1,5 @@
 {
-  "name": "@anoma/shared",
+  "name": "@anoma/wasm",
   "version": "0.1.0",
   "type": "module",
   "license": "MIT",

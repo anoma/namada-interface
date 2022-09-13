@@ -46,6 +46,12 @@ module.exports = {
       assetFilename.endsWith(".wasm");
     },
   },
+  devServer: {
+    host: "0.0.0.0",
+    port: "5000",
+    hot: true,
+    historyApiFallback: true,
+  },
   plugins: [
     new CopyPlugin({
       patterns: [

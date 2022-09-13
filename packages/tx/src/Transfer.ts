@@ -1,5 +1,5 @@
 import { amountToMicro } from "@anoma/utils";
-import { AnomaClient } from "@anoma/shared";
+import { AnomaClient } from "@anoma/wasm";
 
 type TransactionData = {
   source: string;

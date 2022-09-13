@@ -6,7 +6,7 @@ import {
   Result,
   ResultType,
   Wallet as WalletType,
-} from "@anoma/shared";
+} from "@anoma/wasm";
 
 type Encoding = "hex" | "base58" | null;
 
