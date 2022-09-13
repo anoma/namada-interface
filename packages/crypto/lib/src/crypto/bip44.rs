@@ -90,6 +90,7 @@ pub struct ExtendedKeys {
 
 #[wasm_bindgen]
 impl ExtendedKeys {
+    #[wasm_bindgen(constructor)]
     pub fn new (seed: Vec<u8>, path: Option<String>) -> Result<ExtendedKeys, String> {
         let seed: &[u8] = &seed;
         let xprv = match path {
@@ -141,6 +142,7 @@ fn validate_seed(seed: Vec<u8>) -> Result<[u8; 64], String> {
 
 #[wasm_bindgen]
 impl Bip44 {
+    #[wasm_bindgen(constructor)]
     pub fn new(seed: Vec<u8>) -> Result<Bip44, String> {
         let seed = match validate_seed(seed) {
             Ok(seed) => seed,

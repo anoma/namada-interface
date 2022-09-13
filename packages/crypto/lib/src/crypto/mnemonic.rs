@@ -15,6 +15,7 @@ pub struct Mnemonic {
 
 #[wasm_bindgen]
 impl Mnemonic {
+    #[wasm_bindgen(constructor)]
     pub fn new(size: PhraseSize) -> Result<Mnemonic, String> {
         use rand_bip::prelude::ThreadRng;
         use rand_bip::thread_rng;

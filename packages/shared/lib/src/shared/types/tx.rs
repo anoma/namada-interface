@@ -12,10 +12,20 @@ pub struct Tx {
 
 #[wasm_bindgen]
 impl Tx {
+    #[wasm_bindgen(constructor)]
     pub fn new(tx_code: Vec<u8>, data: Vec<u8>) -> Tx {
         Tx {
             tx_code,
             data
+        }
+    }
+
+    // TODO: Implement
+    #[allow(unused_variables)]
+    pub fn sign(&self, signing_key: Vec<u8>) -> Tx {
+        Tx {
+            tx_code: self.tx_code.clone(),
+            data: self.data.clone(),
         }
     }
 
