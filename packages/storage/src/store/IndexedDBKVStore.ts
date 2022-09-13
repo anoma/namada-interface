@@ -73,7 +73,7 @@ export class IndexedDBKVStore implements KVStore {
     }
 
     return new Promise((resolve, reject) => {
-      const request = window.indexedDB.open(this.prefix());
+      const request = indexedDB.open(this.prefix());
       request.onerror = (event) => {
         event.stopPropagation();
         reject(event.target);

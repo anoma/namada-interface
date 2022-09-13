@@ -103,6 +103,7 @@ export class RemoveChainMsg extends Message<{ chains: Chain[] }> {
     return RemoveChainMsg.type();
   }
 }
+
 export class GetSignerMsg extends Message<Signer> {
   public static type() {
     return MessageTypes.GetSigner;
