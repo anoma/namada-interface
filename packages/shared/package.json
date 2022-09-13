@@ -1,0 +1,17 @@
+{
+  "name": "@anoma/shared",
+  "version": "0.1.0",
+  "description": "Anoma shared functionality",
+  "main": "src/index.ts",
+  "repository": "https://github.com/anoma/namada-interface/",
+  "author": "Heliax Dev <info@heliax.dev>",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "wasm:build": "./scripts/build.sh",
+    "wasm:build:node": "./scripts/build-test.sh"
+  },
+  "dependencies": {
+    "typescript": "^4.8.2"
+  }
+}
