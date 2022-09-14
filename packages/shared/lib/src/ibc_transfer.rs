@@ -99,3 +99,38 @@ impl IbcTransfer {
         Ok(JsValue::from_serde(&transaction).unwrap())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use wasm_bindgen_test::*;
+
+    #[wasm_bindgen_test]
+    fn can_generate_ibc_transfer_transaction() {
+        let sender = String::from("atest1v4ehgw368ycryv2z8qcnxv3cxgmrgvjpxs6yg333gym5vv2zxepnj334g4rryvj9xucrgve4x3xvr4");
+        let receiver = String::from("atest1v4ehgw36xvcyyvejgvenxs34g3zygv3jxqunjd6rxyeyys3sxy6rwvfkx4qnj33hg9qnvse4lsfctw");
+        let secret = String::from("1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93");
+        let token = String::from("atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5");
+        let source_port = String::from("transfer");
+        let source_channel = String::from("channel-0");
+        let amount = 1000.0;
+        let epoch = 5;
+        let fee_amount = 1000;
+        let gas_limit = 1_000_000;
+
+        let tx_code = vec![];
+
+        let ibc_transfer = IbcTransfer::new(source_port, source_channel, token, sender, receiver, amount);
+        let transaction = ibc_transfer.to_tx(secret, epoch, fee_amount, gas_limit, tx_code)
+            .expect("Should be able to convert to transaction");
+
+        let serialized_tx: Transaction = JsValue::into_serde(&transaction)
+            .expect("Should be able to serialize to a Transaction");
+
+        let hash = serialized_tx.hash();
+        let bytes = serialized_tx.bytes();
+
+        assert_eq!(hash.len(), 64);
+        assert_eq!(bytes.len(), 798);
+    }
+}

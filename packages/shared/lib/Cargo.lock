@@ -1915,7 +1915,6 @@ version = "0.1.0"
 dependencies = [
  "borsh",
  "chrono",
- "console_error_panic_hook",
  "getrandom 0.2.7",
  "gloo-utils",
  "js-sys",
@@ -2505,8 +2504,3 @@ dependencies = [
  "syn",
  "synstructure",
 ]
-
-[[patch.unused]]
-name = "orchard"
-version = "0.1.0-beta.1"
-source = "git+https://github.com/memasdeligeorgakis/orchard?branch=feat/v0.1.0-beta.1_with_extra_type_annotation#0929fc7ed72ed93830c4577495e742c77912cf0e"

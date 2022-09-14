@@ -29,7 +29,9 @@ impl Account {
         secret: String,
         vp_code: Vec<u8>,
     ) -> Self {
-        let signing_key = SecretKey::Ed25519(key::ed25519::SecretKey::from_str(&secret).unwrap());
+        let signing_key = SecretKey::Ed25519(
+            key::ed25519::SecretKey::from_str(&secret).expect("ed25519 encoding should not fail")
+        );
 
         // TODO: Fix the following conversion
         #[allow(clippy::useless_conversion)]
@@ -65,5 +67,36 @@ impl Account {
 
         // Return serialized Transaction
         Ok(JsValue::from_serde(&transaction).unwrap())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use wasm_bindgen_test::*;
+
+    #[wasm_bindgen_test]
+    fn can_generate_init_account_transaction() {
+        let secret = String::from("1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93");
+        let token = String::from("atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5");
+        let epoch = 5;
+        let fee_amount = 1000;
+        let gas_limit = 1_000_000;
+
+        let tx_code = vec![];
+        let vp_code = vec![];
+
+        let account = Account::new(secret.clone(), vp_code);
+        let transaction = account.to_tx(secret, token, epoch, fee_amount, gas_limit, tx_code)
+            .expect("Should be able to convert to transaction");
+
+        let serialized_tx: Transaction = JsValue::into_serde(&transaction)
+            .expect("Should be able to serialize to a Transaction");
+
+        let hash = serialized_tx.hash();
+        let bytes = serialized_tx.bytes();
+
+        assert_eq!(hash.len(), 64);
+        assert_eq!(bytes.len(), 489);
     }
 }

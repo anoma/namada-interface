@@ -51,4 +51,12 @@ impl Transaction {
             bytes,
         })
     }
+
+    pub fn hash(&self) -> String {
+        self.hash.clone()
+    }
+
+    pub fn bytes(&self) -> Vec<u8> {
+        self.bytes.clone()
+    }
 }

@@ -12,7 +12,6 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 borsh = "0.9.0"
 chrono = "0.4.22"
-console_error_panic_hook = "0.1.7"
 getrandom = { version = "0.2.7", features = ["js"] }
 gloo-utils = { version = "0.1.5", features = ["serde"] }
 js-sys = "0.3.60"
@@ -33,7 +32,6 @@ borsh-derive = {git = "https://github.com/heliaxdev/borsh-rs.git", rev = "cd5223
 borsh-derive-internal = {git = "https://github.com/heliaxdev/borsh-rs.git", rev = "cd5223e5103c4f139e0c54cf8259b7ec5ec4073a"}
 borsh-schema-derive-internal = {git = "https://github.com/heliaxdev/borsh-rs.git", rev = "cd5223e5103c4f139e0c54cf8259b7ec5ec4073a"}
 bumpalo = {git = "https://github.com/fitzgen/bumpalo", version = "3.8.0"}
-orchard = {git = "https://github.com/memasdeligeorgakis/orchard", branch = "feat/v0.1.0-beta.1_with_extra_type_annotation"}
 
 [package.metadata.wasm-pack.profile.release]
 wasm-opt = false

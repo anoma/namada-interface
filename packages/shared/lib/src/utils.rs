@@ -17,11 +17,6 @@ pub fn get_timestamp() -> DateTimeUtc {
     DateTimeUtc(utc)
 }
 
-/// Set console error hook
-pub fn set_panic_hook() {
-    console_error_panic_hook::set_once();
-}
-
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_namespace = console)]
