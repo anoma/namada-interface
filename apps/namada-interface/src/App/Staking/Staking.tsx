@@ -12,7 +12,7 @@ const initialTitle = "Staking";
 // this is just a placeholder in real case we can use the
 // navigation callback that we define in this file and pass
 // down for the table
-const figureOutBreadcrumb = (path: string): string[] => {
+const breadcrumbsFromPath = (path: string): string[] => {
   const pathInParts = path.split("/");
   const pathLength = pathInParts.length;
 
@@ -74,7 +74,7 @@ export const Staking = (props: Props): JSX.Element => {
   }, []);
 
   useEffect(() => {
-    const newBreadcrumb = figureOutBreadcrumb(location.pathname);
+    const newBreadcrumb = breadcrumbsFromPath(location.pathname);
     const validatorName = validatorNameFromUrl(location.pathname);
     if (validatorName) {
       // triggers fetching of further details
