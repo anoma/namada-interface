@@ -1,6 +1,7 @@
 use chrono::{TimeZone, Utc};
 use namada::types::time::DateTimeUtc;
-extern crate js_sys;
+
+use wasm_bindgen::prelude::*;
 
 pub fn get_timestamp() -> DateTimeUtc {
     let now = js_sys::Date::new_0();
@@ -19,4 +20,10 @@ pub fn get_timestamp() -> DateTimeUtc {
 /// Set console error hook
 pub fn set_panic_hook() {
     console_error_panic_hook::set_once();
+}
+
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(js_namespace = console)]
+    fn log(s: &str);
 }

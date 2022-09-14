@@ -14,6 +14,7 @@ pub struct Transaction {
     bytes: Vec<u8>,
 }
 
+/// Sign and wrap transaction
 impl Transaction {
     pub fn new(
         secret: String,
@@ -22,12 +23,12 @@ impl Transaction {
         fee_amount: u32,
         gas_limit: u32,
         tx_code: Vec<u8>,
-        data: Vec<u8>,
+        tx_data: Vec<u8>,
     ) -> Result<Transaction, JsValue> {
         let signing_key = SecretKey::Ed25519(key::ed25519::SecretKey::from_str(&secret).unwrap());
         let tx = Tx::to_proto(
             tx_code,
-            data,
+            tx_data,
         ).sign(&signing_key);
 
         let wrapper_tx = WrapperTx::wrap(

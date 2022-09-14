@@ -1,13 +1,5 @@
 use crate::types::transaction::Transaction;
-use namada::types::{
-    address::Address,
-    key::{
-        self,
-        common::{PublicKey, SecretKey},
-        RefTo,
-    },
-    transaction::InitAccount,
-};
+use namada::types::{address::Address, token};
 use borsh::BorshSerialize;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
@@ -16,31 +8,39 @@ use gloo_utils::format::JsValueSerdeExt;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
-#[derive(Serialize,Deserialize)]
-pub struct Account {
+#[derive(Serialize, Deserialize)]
+pub struct Transfer {
+    token: Address,
     tx_data: Vec<u8>,
 }
 
 #[wasm_bindgen]
-impl Account {
-    /// Initialize an account on the Ledger
+impl Transfer {
     #[wasm_bindgen(constructor)]
     pub fn new(
-        secret: String,
-        vp_code: Vec<u8>,
+        source: String,
+        target: String,
+        token: String,
+        amount: f32,
     ) -> Self {
-        let signing_key = SecretKey::Ed25519(key::ed25519::SecretKey::from_str(&secret).unwrap());
+        let source = Address::from_str(&source).expect("Address from string should not fail");
+        let target = Address::from_str(&target).expect("Address from string should not fail");
+        let token = Address::from_str(&token).expect("Address from string should not fail");
+        let amount = token::Amount::from(amount as u64);
 
-        // TODO: Fix the following conversion
-        #[allow(clippy::useless_conversion)]
-        let public_key = PublicKey::from(signing_key.ref_to());
+        let transfer = token::Transfer {
+            source,
+            target,
+            token: token.clone(),
+            amount,
+        };
 
-        let tx_data = InitAccount {
-            public_key,
-            vp_code,
-        }.try_to_vec().expect("Encoding tx data shouldn't fail");
+        let tx_data = transfer
+            .try_to_vec()
+            .expect("Encoding unsigned transfer shouldn't fail");
 
         Self {
+            token,
             tx_data,
         }
     }
@@ -48,15 +48,13 @@ impl Account {
     pub fn to_tx(
         &self,
         secret: String,
-        token: String,
         epoch: u32,
         fee_amount: u32,
         gas_limit: u32,
         tx_code: Vec<u8>,
     ) -> Result<JsValue, JsValue> {
-        let token = Address::from_str(&token).unwrap();
         let tx_data = self.tx_data.clone();
-
+        let token = self.token.clone();
         let transaction =
             match Transaction::new(secret, token, epoch, fee_amount, gas_limit, tx_code, tx_data) {
                 Ok(transaction) => transaction,
