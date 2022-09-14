@@ -49,7 +49,7 @@ export const AnimatedTransition = (props: {
 // based on location we decide whether to use placeholder theme
 const getShouldUsePlaceholderTheme = (location: Location): boolean => {
   const topLevelRoute = locationToTopLevelRoute(location);
-  const isStaking = topLevelRoute === TopLevelRoute.Staking;
+  const isStaking = topLevelRoute === TopLevelRoute.StakingAndGovernance;
   return isStaking;
 };
 
