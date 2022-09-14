@@ -8,18 +8,23 @@ This is the Anoma Browser Extension project.
 # First, install web-ext globally (this bundles Firefox extensions into a `.zip` file):
 yarn global add web-ext
 
+# Build wasm dependencies
+yarn wasm:build # This needs to be run initially to ensure wasm dependencies are available
+
 # Clean build files
 yarn clean
+yarn clean:chrome   # Clean only chrome build
+yarn clean:firefox  # Clean only firefox build
 
 # Build production web extension (chrome & Firefox)
-yarn build                       # Clean and build all extensions
-yarn build:chrome  # Build only chrome (./build/chrome)
-yarn build:firefox # Build only firefox (./build/firefox)
+yarn build         # Clean and build all extensions & wasm dependencies
+yarn build:chrome  # Clean and build only for chrome (./build/chrome)
+yarn build:firefox # Clean and build only firefox (./build/firefox)
 
-# Run development mode. This enables autoreloading when you install the extension at ./build/chrome
+# Run in development mode. This enables autoreloading when you install the extension at ./build/chrome
 yarn start
 yarn start:chrome  # Same as yarn start, which defaults to a Chrome target
-yarn start:firefox # Run development extension in Firefox
+yarn start:firefox # Run development extension in Firefox - use ./build/firefox
 
 # Run tests
 yarn test
@@ -51,6 +56,6 @@ hopefully instantiating an instance of the `Anoma()` class API for handling comm
 
 ## Notes
 
-- Currently, Firefox does not support `manifest_version: 3`, and Chrome will be removing support for `V2` in 2023. We will need to maintain a build-pipeline that supports both of these.
+- Currently, Firefox does not support `manifest_version: 3`, and Chrome will be removing support for `V2` in 2023. As such, both manifest versions are supported.
 - Manifest files can be found in `src/manifest/v2` (version 2, required for Firefox), and `src/manifest/v3` (others). There are independent files that
-  extend a `_base.json` file for the target browser, which will be merged when building. Built extensions will be found under `build/chrome` and `build/firefox`.
+  extend a `_base.json` file for the target browser, which will be merged when building. Built extensions will be found under `build/chrome` and `build/firefox` (currently, these are the only two scripted build).
