@@ -19,26 +19,25 @@ export const stakingAndGovernanceSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchValidators.pending, (_state, _action) => {
-        console.log({ _state, _action }, "fetchValidators.pending");
+        // start the loader
       })
       .addCase(fetchValidators.fulfilled, (state, action) => {
+        // stop the loader
         state.validators = action.payload.allValidators;
       })
       .addCase(fetchValidators.rejected, (_state, _action) => {
-        console.log({ _state, _action }, "fetchValidators.rejected");
+        // stop the loader
       })
       .addCase(fetchValidatorDetails.pending, (state, action) => {
+        // start the loader
         state.selectedValidatorId = undefined;
-        console.log(
-          action.meta.arg,
-          "action.meta.arg @ fetchValidatorDetails.pending"
-        );
       })
       .addCase(fetchValidatorDetails.fulfilled, (state, action) => {
+        // stop the loader
         state.selectedValidatorId = action.payload?.name;
       })
       .addCase(fetchValidatorDetails.rejected, (_state, _action) => {
-        console.log({ _state, _action }, "fetchValidatorDetails.rejected");
+        // stop the loader
       });
   },
 });
