@@ -76,6 +76,7 @@ impl Mnemonic {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use wasm_bindgen_test::*;
 
     #[test]
     fn can_generate_mnemonic_from_size() {
@@ -102,5 +103,23 @@ mod tests {
         let seed = mnemonic.to_seed(None).expect("Should return seed from mnemonic phrase");
 
         assert_eq!(seed.len(), 64);
+    }
+
+    #[wasm_bindgen_test]
+    fn can_generate_word_list_from_mnemonic() {
+        use js_sys::Array;
+        let mnemonic = Mnemonic::new(PhraseSize::Twelve)
+            .expect("Should generate mnemonic of length 12");
+        let words = mnemonic.to_words()
+            .expect("Should return JsValue array of words");
+
+        assert_eq!(Array::from(&words).length(), 12);
+
+        let mnemonic = Mnemonic::new(PhraseSize::TwentyFour)
+            .expect("Should generate mnemonic of length 24");
+        let words = mnemonic.to_words()
+            .expect("Should return JsValue array of words");
+
+        assert_eq!(Array::from(&words).length(), 24);
     }
 }

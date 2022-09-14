@@ -28,6 +28,9 @@ From `lib/`, we can issue the following to run unit tests:
 
 ```bash
 cargo run test
+
+# Run tests of methods returning JsValue:
+wasm-pack test --node
 ```
 
 ## Overview
@@ -66,5 +69,8 @@ let phrase = "caught pig embody hip goose like become worry face oval manual fla
 let mnemonic = Mnemonic::from_phrase(phrase.into());
 
 // Get seed from mnemonic:
-let seed: [u8; 64] = Mnemonic::to_seed()?;
+let seed: [u8; 64] = mnemonic.to_seed()?;
+
+// Get words in JsValue
+let words: JsValue = mnemonic.to_words()?;
 ```

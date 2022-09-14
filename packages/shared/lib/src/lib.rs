@@ -1,4 +1,5 @@
-pub mod shared;
+pub mod account;
+pub mod types;
 mod utils;
 
 use wasm_bindgen::prelude::*;
