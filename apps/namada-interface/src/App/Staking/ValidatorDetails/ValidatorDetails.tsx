@@ -3,10 +3,15 @@ import { MainContainerNavigation } from "App/StakingAndGovernance/MainContainerN
 import { ValidatorDetailsContainer } from "./ValidatorDetails.components";
 import { Table } from "components/Table";
 
-type Props = {};
+type Props = {
+  validator?: string;
+};
 
 export const ValidatorDetails = (props: Props): JSX.Element => {
+  const { validator } = props;
   return (
-    <ValidatorDetailsContainer>Validator Details</ValidatorDetailsContainer>
+    <ValidatorDetailsContainer>
+      Validator Details for {validator}
+    </ValidatorDetailsContainer>
   );
 };

@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useAppDispatch, useAppSelector, RootState } from "store";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 
 import { Staking } from "App/Staking";
@@ -11,13 +12,22 @@ import {
   locationToStakingAndGovernanceSubRoute,
 } from "App/types";
 
+import {
+  fetchValidators,
+  fetchValidatorDetails,
+} from "slices/StakingAndGovernance";
+
 // This is just rendering the actual Staking/Governance/PGF screens
 // mostly the purpose of this is to define the default behavior when
 // the user clicks the top level Staking & Governance menu
 export const StakingAndGovernance = (): JSX.Element => {
   const location = useLocation();
   const navigate = useNavigate();
-
+  const dispatch = useAppDispatch();
+  const stakingAndGovernance = useAppSelector(
+    (state: RootState) => state.stakingAndGovernance
+  );
+  const { validators, selectedValidatorId } = stakingAndGovernance;
   // we need one of the sub routes, staking alone has nothing
   const stakingAndGovernanceSubRoute =
     locationToStakingAndGovernanceSubRoute(location);
@@ -32,12 +42,29 @@ export const StakingAndGovernance = (): JSX.Element => {
     }
   });
 
+  // triggered by the initial load of <Staking />
+  const fetchValidatorsCallback = (): void => {
+    dispatch(fetchValidators());
+  };
+
+  // triggered by the url load or user click in <Staking />
+  const fetchValidatorDetailsCallback = (validatorId: string): void => {
+    dispatch(fetchValidatorDetails(validatorId));
+  };
+
   return (
     <StakingAndGovernanceContainer>
       <Routes>
         <Route
           path={`${StakingAndGovernanceSubRoute.Staking}/*`}
-          element={<Staking />}
+          element={
+            <Staking
+              validators={validators}
+              selectedValidator={selectedValidatorId}
+              fetchValidators={fetchValidatorsCallback}
+              fetchValidatorDetails={fetchValidatorDetailsCallback}
+            />
+          }
         />
         <Route
           path={StakingAndGovernanceSubRoute.Governance}
