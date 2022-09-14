@@ -25,7 +25,7 @@ const figureOutBreadcrumb = (path: string): string[] => {
   return ["Staking"];
 };
 
-const figureOutValidatorFromUrl = (path: string): string | undefined => {
+const validatorNameFromUrl = (path: string): string | undefined => {
   const pathInParts = path.split("/");
   const pathLength = pathInParts.length;
 
@@ -75,14 +75,14 @@ export const Staking = (props: Props): JSX.Element => {
 
   useEffect(() => {
     const newBreadcrumb = figureOutBreadcrumb(location.pathname);
-    const validatorNameFromUrl = figureOutValidatorFromUrl(location.pathname);
-    if (validatorNameFromUrl) {
+    const validatorName = validatorNameFromUrl(location.pathname);
+    if (validatorName) {
       // triggers fetching of further details
-      // fetchValidatorDetails(validatorNameFromUrl);
+      // fetchValidatorDetails(validatorName);
 
       // placeholders
       setBreadcrumb(newBreadcrumb);
-      setValidatorName(validatorNameFromUrl);
+      setValidatorName(validatorName);
     }
   }, [location, JSON.stringify(breadcrumb)]);
 

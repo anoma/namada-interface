@@ -1,6 +1,3 @@
-import { useNavigate } from "react-router-dom";
-
-import { TopLevelRoute, StakingAndGovernanceSubRoute } from "App/types";
 import { RowBase } from "components/Table";
 
 type Validator = RowBase & {
