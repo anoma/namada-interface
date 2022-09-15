@@ -1,5 +1,6 @@
 use js_sys::Array;
 use wasm_bindgen::prelude::*;
+use bip0039::Count;
 
 #[wasm_bindgen]
 #[derive(Copy, Clone)]
@@ -17,16 +18,11 @@ pub struct Mnemonic {
 impl Mnemonic {
     #[wasm_bindgen(constructor)]
     pub fn new(size: PhraseSize) -> Result<Mnemonic, String> {
-        use rand_bip::prelude::ThreadRng;
-        use rand_bip::thread_rng;
-        let mut rng: ThreadRng = thread_rng();
-        let mnemonic = match bip39::Mnemonic::generate_in_with(
-            &mut rng, bip39::Language::English,
-            size as usize,
-        ) {
-            Ok(mnemonic) => mnemonic,
-            Err(error) => return Err(format!("Unable to generate mnemonic! {:?}", error)),
+        let count: Count = match size {
+            PhraseSize::Twelve => Count::Words12,
+            PhraseSize::TwentyFour => Count::Words24,
         };
+        let mnemonic = bip0039::Mnemonic::generate(count);
 
         Ok(Mnemonic { phrase: mnemonic.to_string() })
     }
@@ -51,9 +47,9 @@ impl Mnemonic {
             Some(passphrase) => passphrase,
             None => "".into(),
         };
-        let mnemonic = match bip39::Mnemonic::parse(&self.phrase) {
+        let mnemonic = match bip0039::Mnemonic::from_phrase(self.phrase.clone()) {
             Ok(mnemonic) => mnemonic,
-            Err(error) => return Err(format!("Unable to parse mnemonic! {:?}", error)),
+            Err(_) => return Err(format!("Unable to parse mnemonic!")),
         };
         let seed: &[u8] = &mnemonic.to_seed(&passphrase);
 
@@ -61,15 +57,11 @@ impl Mnemonic {
     }
 
     pub fn to_words(&self) -> Result<JsValue, String> {
-        let mnemonic = match bip39::Mnemonic::parse(&self.phrase) {
-            Ok(mnemonic) => mnemonic,
-            Err(error) => return Err(format!("Unable to parse mnemonic! {:?}", error)),
-        };
+        let words: Array = self.phrase.clone().split(' ')
+            .map(|word| JsValue::from(&word.to_string()))
+            .collect();
 
-        #[allow(clippy::redundant_closure)]
-        Ok(JsValue::from(mnemonic.word_iter()
-            .map(|word| JsValue::from(word))
-            .collect::<Array>()))
+        Ok(JsValue::from(words))
     }
 }
 
