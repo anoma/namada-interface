@@ -68,6 +68,7 @@ export const StakingAndGovernance = (): JSX.Element => {
         />
         <Route
           path={StakingAndGovernanceSubRoute.Governance}
+          element={<Governance />}
         />
         <Route
           path={StakingAndGovernanceSubRoute.PublicGoodsFunding}
