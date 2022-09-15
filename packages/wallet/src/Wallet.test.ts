@@ -2,7 +2,7 @@ import { fromHex, toHex } from "@cosmjs/encoding";
 import fetchMock, { enableFetchMocks } from "jest-fetch-mock";
 import { Tokens } from "@anoma/tx";
 import Wallet from "./Wallet";
-import { AnomaClient } from "@anoma/shared";
+import { AnomaClient } from "@anoma/wasm";
 
 enableFetchMocks();
 
