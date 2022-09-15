@@ -1,6 +1,7 @@
 #!/bin/sh
 
 SCRIPT_DIR=$(cd "$(dirname "$0")"; pwd -P)
+PACKAGES_PATH="../../../packages"
 
-cd $SCRIPT_DIR/../../../packages/crypto && yarn wasm:build && cd -
-cd $SCRIPT_DIR/../../../packages/shared && yarn wasm:build && cd -
+cd "${SCRIPT_DIR}/${PACKAGES_PATH}/crypto" && yarn wasm:build
+cd "${SCRIPT_DIR}/${PACKAGES_PATH}/shared" && yarn wasm:build
