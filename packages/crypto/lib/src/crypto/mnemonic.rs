@@ -49,7 +49,7 @@ impl Mnemonic {
         };
         let mnemonic = match bip0039::Mnemonic::from_phrase(self.phrase.clone()) {
             Ok(mnemonic) => mnemonic,
-            Err(_) => return Err(format!("Unable to parse mnemonic!")),
+            Err(_) => return Err(String::from("Unable to parse mnemonic!")),
         };
         let seed: &[u8] = &mnemonic.to_seed(&passphrase);
 
