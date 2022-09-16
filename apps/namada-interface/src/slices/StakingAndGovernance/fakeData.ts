@@ -1,5 +1,5 @@
-import { Validator, MyStaking, MyBalanceRow } from "./types";
-export const myBalancesData: MyBalanceRow[] = [
+import { Validator, MyStaking, MyBalanceEntry } from "./types";
+export const myBalancesData: MyBalanceEntry[] = [
   {
     uuid: "1",
     key: "Total Balance",
@@ -26,96 +26,93 @@ export const myBalancesData: MyBalanceRow[] = [
   },
 ];
 
-export const myValidatorData: MyStaking[] = [
+export const myStakingData: MyStaking[] = [
   {
     uuid: "1",
-    name: "Polychain capital",
-    homepageUrl: "poly",
     stakingStatus: "Bonded",
     stakedAmount: "10.00",
+    validatorId: "polychain-capital",
   },
   {
     uuid: "2",
-    name: "Figment",
-    homepageUrl: "poly",
     stakingStatus: "Bonded Pending",
     stakedAmount: "3.00",
+    validatorId: "coinbase-custody",
   },
   {
     uuid: "3",
-    name: "P2P",
-    homepageUrl: "poly",
     stakingStatus: "Unboding (22 days left)",
     stakedAmount: "20.00",
+    validatorId: "kraken",
   },
 ];
 
 export const allValidatorsData: Validator[] = [
   {
-    uuid: "1",
+    uuid: "polychain-capital",
     name: "Polychain capital",
     homepageUrl: "https://polychain.capital",
     votingPower: "NAM 100 000",
     commission: "22%",
   },
   {
-    uuid: "2",
+    uuid: "figment",
     name: "Figment",
     homepageUrl: "https://polychain.capital",
     votingPower: "NAM 100 000",
     commission: "20%",
   },
   {
-    uuid: "3",
+    uuid: "p2p",
     name: "P2P",
     homepageUrl: "https://polychain.capital",
     votingPower: "NAM 100 000",
     commission: "20%",
   },
   {
-    uuid: "4",
+    uuid: "coinbase-custody",
     name: "Coinbase Custody",
     homepageUrl: "https://polychain.capital",
     votingPower: "NAM 100 000",
     commission: "20%",
   },
   {
-    uuid: "5",
+    uuid: "chorus-one",
     name: "Chorus One",
     homepageUrl: "https://polychain.capital",
     votingPower: "NAM 100 000",
     commission: "20%",
   },
   {
-    uuid: "6",
+    uuid: "binance-staking",
     name: "Binance Staking",
     homepageUrl: "https://polychain.capital",
     votingPower: "NAM 100 000",
     commission: "20%",
   },
   {
-    uuid: "7",
+    uuid: "dokiacapital",
     name: "DokiaCapital",
     homepageUrl: "https://polychain.capital",
     votingPower: "NAM 100 000",
     commission: "20%",
   },
   {
-    uuid: "8",
+    uuid: "kraken",
     name: "Kraken",
     homepageUrl: "https://polychain.capital",
     votingPower: "NAM 100 000",
     commission: "20%",
   },
   {
-    uuid: "9",
+    uuid: "zero-knowledge-validator-(ZKV)",
     name: "Zero Knowledge Validator (ZKV)",
     homepageUrl: "https://polychain.capital",
     votingPower: "NAM 100 000",
     commission: "20%",
   },
   {
-    uuid: "10",
+    uuid: "paradigm",
     name: "Paradigm",
     homepageUrl: "https://polychain.capital",
     votingPower: "NAM 100 000",
