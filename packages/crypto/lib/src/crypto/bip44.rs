@@ -31,6 +31,7 @@ pub struct Key {
 /// A 32 byte ed25519 key
 #[wasm_bindgen]
 impl Key {
+    #[wasm_bindgen(constructor)]
     pub fn new(bytes: Vec<u8>) -> Result<Key, String> {
         let bytes: &[u8] = &bytes;
         let bytes: &[u8; 32] = bytes
@@ -180,9 +181,9 @@ impl Bip44 {
 
         Ok(DerivedKeys {
             private: Key::new(Vec::from(secret_key.to_bytes()))
-                     .expect("Creating Key from bytes should not fail"),
+                        .expect("Creating Key from bytes should not fail"),
             public: Key::new(Vec::from(public.to_bytes()))
-                    .expect("Creating Key from bytes should not fail"),
+                        .expect("Creating Key from bytes should not fail"),
         })
     }
 
