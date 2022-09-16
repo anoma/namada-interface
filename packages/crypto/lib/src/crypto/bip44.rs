@@ -33,13 +33,12 @@ pub struct Key {
 impl Key {
     #[wasm_bindgen(constructor)]
     pub fn new(bytes: Vec<u8>) -> Result<Key, String> {
-        let bytes: &[u8] = &bytes;
-        let bytes: &[u8; 32] = bytes
+        let bytes: [u8; 32] = bytes
             .try_into()
-            .map_err(|_| Bip44Error::InvalidKeySize.to_string())?;
+            .unwrap_or_else(|v: Vec<u8>| panic!("Expected a Vec of length {} but it was {}", 32, v.len()));
 
         Ok(Key {
-            bytes: bytes.to_owned(),
+            bytes,
         })
     }
 
@@ -59,13 +58,13 @@ impl Key {
 }
 
 #[wasm_bindgen]
-pub struct DerivedKeys {
+pub struct Keypair {
     private: Key,
     public: Key,
 }
 
 #[wasm_bindgen]
-impl DerivedKeys {
+impl Keypair {
     pub fn private(&self) -> Key {
         Key { bytes: self.private.bytes }
     }
@@ -77,15 +76,15 @@ impl DerivedKeys {
 
 /// Root or derived extended keys
 #[wasm_bindgen]
-pub struct ExtendedKeys {
+pub struct ExtendedKeypair {
     xprv: Vec<u8>,
     xpub: Vec<u8>,
 }
 
 #[wasm_bindgen]
-impl ExtendedKeys {
+impl ExtendedKeypair {
     #[wasm_bindgen(constructor)]
-    pub fn new (seed: Vec<u8>, path: Option<String>) -> Result<ExtendedKeys, String> {
+    pub fn new (seed: Vec<u8>, path: Option<String>) -> Result<ExtendedKeypair, String> {
         let seed: &[u8] = &seed;
         let xprv = match path {
             Some(path) => {
@@ -97,12 +96,7 @@ impl ExtendedKeys {
                 XPrv::derive_from_path(&seed, derivation_path)
             },
             None => XPrv::new(seed),
-        };
-
-        let xprv = match xprv {
-            Ok(xprv) => xprv,
-            Err(_) => return Err(Bip44Error::DerivationError.to_string()),
-        };
+        }.map_err(|_| Bip44Error::DerivationError.to_string())?;
 
         // BIP32 Extended Private Key
         let xprv_str = xprv.to_string(Prefix::XPRV).to_string();
@@ -113,7 +107,7 @@ impl ExtendedKeys {
         let xpub_str = xpub.to_string(Prefix::XPUB);
         let xpub_bytes = xpub_str.as_bytes();
 
-        Ok(ExtendedKeys {
+        Ok(ExtendedKeypair {
             xprv: Vec::from(xprv_bytes),
             xpub: Vec::from(xpub_bytes),
         })
@@ -160,26 +154,21 @@ impl Bip44 {
     }
 
     /// Derive account from a seed and a path
-    pub fn derive(&self, path: String) -> Result<DerivedKeys, String> {
+    pub fn derive(&self, path: String) -> Result<Keypair, String> {
         // BIP32 Extended Private Key
-        let xprv = match XPrv::derive_from_path(&self.seed, &path.parse().unwrap()) {
-            Ok(xprv) => xprv,
-            Err(_) => return Err(Bip44Error::DerivationError.to_string()),
-        };
+        let path = path.parse().map_err(|_| Bip44Error::PathError.to_string())?;
+        let xprv = XPrv::derive_from_path(&self.seed, &path)
+            .map_err(|_| Bip44Error::DerivationError.to_string())?;
+
         let prv_bytes: &[u8] = &xprv.private_key().to_bytes();
 
         // ed25519 keypair
-        let secret = ed25519_dalek::SecretKey::from_bytes(prv_bytes)
-            .map_err(|_| Bip44Error::SecretKeyError);
-
-        let secret_key = match secret {
-            Ok(secret_key) => secret_key,
-            Err(error) => return Err(error.to_string()),
-        };
+        let secret_key = ed25519_dalek::SecretKey::from_bytes(prv_bytes)
+            .map_err(|_| Bip44Error::SecretKeyError.to_string())?;
 
         let public = ed25519_dalek::PublicKey::from(&secret_key);
 
-        Ok(DerivedKeys {
+        Ok(Keypair {
             private: Key::new(Vec::from(secret_key.to_bytes()))
                         .expect("Creating Key from bytes should not fail"),
             public: Key::new(Vec::from(public.to_bytes()))
@@ -188,9 +177,9 @@ impl Bip44 {
     }
 
     /// Get extended keys from path
-    pub fn get_extended_keys(&self, path: Option<String>) -> Result<ExtendedKeys, String> {
+    pub fn get_extended_keys(&self, path: Option<String>) -> Result<ExtendedKeypair, String> {
         let seed: &[u8] = &self.seed;
-        let extended_keys = match ExtendedKeys::new(Vec::from(seed), path) {
+        let extended_keys = match ExtendedKeypair::new(Vec::from(seed), path) {
             Ok(extended_keys) => extended_keys,
             Err(error) => return Err(error)
         };
