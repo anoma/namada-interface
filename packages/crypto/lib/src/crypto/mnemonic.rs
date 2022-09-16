@@ -32,6 +32,14 @@ impl Mnemonic {
     }
 
     pub fn from_phrase(phrase: String) -> Mnemonic {
+        let split = &phrase.split(' ');
+        let words: Vec<&str> = split.clone().collect();
+
+        if words.len() != PhraseSize::Twelve as usize
+            && words.len() != PhraseSize::TwentyFour as usize {
+            panic!("Invalid phrase!")
+        }
+
         Mnemonic {
             phrase
         }
@@ -95,6 +103,13 @@ mod tests {
         let seed = mnemonic.to_seed(None).expect("Should return seed from mnemonic phrase");
 
         assert_eq!(seed.len(), 64);
+    }
+
+    #[test]
+    #[should_panic]
+    fn invalid_phrase_should_panic() {
+        let bad_phrase = "caught pig embody hip goose like become";
+        let _ = Mnemonic::from_phrase(bad_phrase.into()).to_seed(None);
     }
 
     #[wasm_bindgen_test]

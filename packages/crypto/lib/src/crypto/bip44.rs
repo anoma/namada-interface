@@ -230,4 +230,11 @@ mod tests {
         let public_hex = keys.public.to_hex();
         assert_eq!(public_hex, "d405f32f16e3269e4853182b67f6584a3d2ab0a44f34bae9c37e72e77ecd86d2");
     }
+
+    #[test]
+    #[should_panic]
+    fn invalid_seed_should_panic() {
+        let bad_seed = vec![0, 1, 2, 3, 4, 5];
+        let _ = Bip44::new(bad_seed).unwrap();
+    }
 }
