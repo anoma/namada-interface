@@ -1,7 +1,4 @@
 use bip32::{Prefix, XPrv};
-use std::convert::From;
-use std::fmt::{self, Display};
-use std::string::ToString;
 use thiserror::Error;
 
 use wasm_bindgen::prelude::*;
@@ -15,6 +12,8 @@ pub enum Bip44Error {
     DerivationError,
     #[error("Could not create secret key from bytes")]
     SecretKeyError,
+    #[error("Invalid key size")]
+    InvalidKeySize,
     #[error("Invalid seed length")]
     InvalidSeed,
 }
@@ -26,41 +25,35 @@ pub struct Bip44 {
 
 #[wasm_bindgen]
 pub struct Key {
-    bytes: Vec<u8>,
+    bytes: [u8; 32],
 }
 
 /// A 32 byte ed25519 key
 #[wasm_bindgen]
 impl Key {
+    pub fn new(bytes: Vec<u8>) -> Result<Key, String> {
+        let bytes: &[u8] = &bytes;
+        let bytes: &[u8; 32] = bytes
+            .try_into()
+            .map_err(|_| Bip44Error::InvalidKeySize.to_string())?;
+
+        Ok(Key {
+            bytes: bytes.to_owned(),
+        })
+    }
+
     pub fn to_bytes(&self) -> Vec<u8> {
-        self.bytes.clone()
+        Vec::from(self.bytes)
     }
 
     pub fn to_hex(&self) -> String {
-        hex::encode(self.to_string())
+        let bytes: &[u8] = &self.bytes;
+        hex::encode(&bytes)
     }
 
     pub fn to_base64(&self) -> String {
-        base64::encode(self.to_string())
-    }
-}
-
-impl Display for Key {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let as_string = self.bytes
-            .iter()
-            .map(|&c| c as char).collect::<String>();
-
-        write!(f, "{}", as_string)
-    }
-}
-
-impl From<[u8; 32]> for Key {
-    fn from(bytes: [u8; 32]) -> Key {
-        let bytes: Vec<u8> = Vec::from(bytes);
-        Key {
-            bytes,
-        }
+        let bytes: &[u8] = &self.bytes;
+        base64::encode(&bytes)
     }
 }
 
@@ -73,11 +66,11 @@ pub struct DerivedKeys {
 #[wasm_bindgen]
 impl DerivedKeys {
     pub fn private(&self) -> Key {
-        Key { bytes: self.private.to_bytes() }
+        Key { bytes: self.private.bytes }
     }
 
     pub fn public(&self) -> Key {
-        Key { bytes: self.public.to_bytes() }
+        Key { bytes: self.public.bytes }
     }
 }
 
@@ -186,8 +179,10 @@ impl Bip44 {
         let public = ed25519_dalek::PublicKey::from(&secret_key);
 
         Ok(DerivedKeys {
-            private: Key::from(secret_key.to_bytes()),
-            public: Key::from(public.to_bytes()),
+            private: Key::new(Vec::from(secret_key.to_bytes()))
+                     .expect("Creating Key from bytes should not fail"),
+            public: Key::new(Vec::from(public.to_bytes()))
+                    .expect("Creating Key from bytes should not fail"),
         })
     }
 
@@ -223,15 +218,15 @@ mod tests {
         assert_eq!(keys.public.to_bytes().len(), 32);
 
         let secret_b64 = keys.private.to_base64();
-        assert_eq!(secret_b64, "VsKNwrDDlcOPwockKcOww7TDssKFDzY3b2rCscK1w6crNVzDmMOxbjklwqnCo0sg");
+        assert_eq!(secret_b64, "Vo2w1c+HJCnw9PKFDzY3b2qxtecrNVzY8W45JamjSyA=");
 
         let secret_hex = keys.private.to_hex();
-        assert_eq!(secret_hex, "56c28dc2b0c395c38fc2872429c3b0c3b4c3b2c2850f36376f6ac2b1c2b5c3a72b355cc398c3b16e3925c2a9c2a34b20");
+        assert_eq!(secret_hex, "568db0d5cf872429f0f4f2850f36376f6ab1b5e72b355cd8f16e3925a9a34b20");
 
         let public_b64 = keys.public.to_base64();
-        assert_eq!(public_b64, "w5QFw7MvFsOjJsKeSFMYK2fDtlhKPSrCsMKkTzTCusOpw4N+csOnfsONwobDkg==");
+        assert_eq!(public_b64, "1AXzLxbjJp5IUxgrZ/ZYSj0qsKRPNLrpw35y537NhtI=");
 
         let public_hex = keys.public.to_hex();
-        assert_eq!(public_hex, "c39405c3b32f16c3a326c29e4853182b67c3b6584a3d2ac2b0c2a44f34c2bac3a9c3837e72c3a77ec38dc286c392");
+        assert_eq!(public_hex, "d405f32f16e3269e4853182b67f6584a3d2ab0a44f34bae9c37e72e77ecd86d2");
     }
 }
