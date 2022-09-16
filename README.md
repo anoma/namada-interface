@@ -57,7 +57,8 @@ namada-interface/
     ├── shared/          # Package for interfacing with `namada/shared`
     ├── tx/              # Library for interfacing with Anoma transactions
     ├── utils/           # Shared utilities
-    └── wallet/          # Library for deriving keys
+    ├── wallet/          # Library for deriving keys
+    └── wasm/            # Legacy wasm library
 ```
 
 ### Usage
@@ -167,7 +168,11 @@ export const ContainedButton = styled.div`
 
 #### Unit
 
-TBA
+```bash
+# Running this from the root project directory will run unit tests
+# for all packages where a test script is defined
+yarn test
+```
 
 #### e2e
 
