@@ -19,7 +19,6 @@ target/
 .env.test.local
 .env.production.local
 **/.npmrc
-**/.parcel-cache
 
 npm-debug.log*
 yarn-debug.log*
