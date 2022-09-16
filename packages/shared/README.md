@@ -35,7 +35,7 @@ let transaction = transfer.to_tx(secret, epoch, fee_amount, gas_limit, tx_code)
 
 ```ts
 const transfer = new Transfer(source, target, token, amount);
-const { hash, bytes } = tranfer.to_tx(
+const { hash, bytes } = transfer.to_tx(
   secret,
   epoch,
   feeAmount,
