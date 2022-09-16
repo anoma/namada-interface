@@ -8,7 +8,7 @@ import {
 } from "../extension";
 import { Ports } from "../router/types";
 import { initEvents } from "./events";
-import manifest from "../manifest/v3/_base.json";
+import manifest from "../manifest/_base.json";
 
 // Start proxying messages from Anoma to InjectedAnoma
 InjectedAnoma.startProxy(new Anoma(manifest.version, new ExtensionRequester()));

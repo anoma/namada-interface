@@ -1,8 +1,5 @@
 {
   "manifest_version": 3,
-  "name": "Anoma Extension",
-  "description": "The Anoma Extension manages a user's wallet for the Anoma ecosystem.",
-  "version": "0.1.0",
   "background": {
     "service_worker": "background.anoma.js",
     "type": "module"
