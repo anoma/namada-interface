@@ -33,9 +33,10 @@ pub struct Key {
 impl Key {
     #[wasm_bindgen(constructor)]
     pub fn new(bytes: Vec<u8>) -> Result<Key, String> {
-        let bytes: [u8; 32] = bytes
-            .try_into()
-            .unwrap_or_else(|v: Vec<u8>| panic!("Expected a Vec of length {} but it was {}", 32, v.len()));
+        let bytes: [u8; 32] = match bytes.try_into() {
+            Ok(bytes) => bytes,
+            Err(err) => return Err(format!("{}: {:?}", Bip44Error::InvalidKeySize, err)),
+        };
 
         Ok(Key {
             bytes,
@@ -122,19 +123,13 @@ impl ExtendedKeypair {
     }
 }
 
-fn validate_seed(seed: Vec<u8>) -> Result<[u8; 64], String> {
-    let seed: [u8; 64] = seed.try_into()
-        .unwrap_or_else(|v: Vec<u8>| panic!("Expected a Vec of length {} but it was {}", 64, v.len()));
-    Ok(seed)
-}
-
 #[wasm_bindgen]
 impl Bip44 {
     #[wasm_bindgen(constructor)]
     pub fn new(seed: Vec<u8>) -> Result<Bip44, String> {
-        let seed = match validate_seed(seed) {
+        let seed: [u8; 64] = match seed.try_into() {
             Ok(seed) => seed,
-            Err(_) => return Err(Bip44Error::InvalidSeed.to_string()),
+            Err(err) => return Err(format!("{}: {:?}", Bip44Error::InvalidSeed, err)),
         };
 
         Ok(Bip44 {
@@ -144,8 +139,7 @@ impl Bip44 {
 
     /// Get private key from seed
     pub fn get_private_key(&self) -> Result<Vec<u8>, String> {
-        let seed = &self.seed;
-        let xprv = match XPrv::new(seed) {
+        let xprv = match XPrv::new(&self.seed) {
             Ok(xprv) => xprv,
             Err(_) => return Err(Bip44Error::DerivationError.to_string()),
         };
@@ -156,7 +150,8 @@ impl Bip44 {
     /// Derive account from a seed and a path
     pub fn derive(&self, path: String) -> Result<Keypair, String> {
         // BIP32 Extended Private Key
-        let path = path.parse().map_err(|_| Bip44Error::PathError.to_string())?;
+        let path = path.parse()
+            .map_err(|err| format!("{}: {:?}", Bip44Error::PathError, err))?;
         let xprv = XPrv::derive_from_path(&self.seed, &path)
             .map_err(|_| Bip44Error::DerivationError.to_string())?;
 
@@ -165,25 +160,21 @@ impl Bip44 {
         // ed25519 keypair
         let secret_key = ed25519_dalek::SecretKey::from_bytes(prv_bytes)
             .map_err(|_| Bip44Error::SecretKeyError.to_string())?;
+        let public_key = ed25519_dalek::PublicKey::from(&secret_key);
 
-        let public = ed25519_dalek::PublicKey::from(&secret_key);
+        let private  = Key::new(Vec::from(secret_key.to_bytes()))?;
+        let public = Key::new(Vec::from(public_key.to_bytes()))?;
 
         Ok(Keypair {
-            private: Key::new(Vec::from(secret_key.to_bytes()))
-                        .expect("Creating Key from bytes should not fail"),
-            public: Key::new(Vec::from(public.to_bytes()))
-                        .expect("Creating Key from bytes should not fail"),
+            private,
+            public,
         })
     }
 
     /// Get extended keys from path
     pub fn get_extended_keys(&self, path: Option<String>) -> Result<ExtendedKeypair, String> {
         let seed: &[u8] = &self.seed;
-        let extended_keys = match ExtendedKeypair::new(Vec::from(seed), path) {
-            Ok(extended_keys) => extended_keys,
-            Err(error) => return Err(error)
-        };
-
+        let extended_keys = ExtendedKeypair::new(Vec::from(seed), path)?;
         Ok(extended_keys)
     }
 }
@@ -191,7 +182,7 @@ impl Bip44 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::crypto::mnemonic::Mnemonic;
+    use crate::crypto::mnemonic::{Mnemonic, PhraseSize};
 
     #[test]
     fn can_derive_keys_from_path() {
@@ -202,7 +193,7 @@ mod tests {
         let bip44: Bip44 = Bip44::new(seed).unwrap();
         let path = "m/44'/0'/0'/0'";
 
-        let keys = bip44.derive(String::from(path)).expect("Should derive keys from a path");
+        let keys = bip44.derive(path.to_string()).expect("Should derive keys from a path");
 
         assert_eq!(keys.private.to_bytes().len(), 32);
         assert_eq!(keys.public.to_bytes().len(), 32);
@@ -223,7 +214,23 @@ mod tests {
     #[test]
     #[should_panic]
     fn invalid_seed_should_panic() {
-        let bad_seed = vec![0, 1, 2, 3, 4, 5];
-        let _ = Bip44::new(bad_seed).unwrap();
+        let _bip44 = Bip44::new(vec![0, 1, 2, 3, 4]).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn invalid_key_should_panic() {
+        let _key = Key::new(vec![0, 1, 2, 3, 4]).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn invalid_derivation_path_should_panic() {
+        let m = Mnemonic::new(PhraseSize::Twelve).expect("New mnemonic should not fail");
+        let seed = m.to_seed(None).expect("Mnemonic to seed should not fail");
+        let b = Bip44::new(seed).expect("Bip44 from seed should not fail");
+
+        let bad_path = "m/44/0 '/ 0";
+        let _keypair = b.derive(bad_path.to_string()).unwrap();
     }
 }
