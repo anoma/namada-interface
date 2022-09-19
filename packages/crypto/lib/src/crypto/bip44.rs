@@ -3,7 +3,6 @@ use thiserror::Error;
 
 use wasm_bindgen::prelude::*;
 
-#[allow(missing_docs)]
 #[derive(Debug, Error)]
 pub enum Bip44Error {
     #[error("Unable to parse path")]
@@ -58,6 +57,7 @@ impl Key {
     }
 }
 
+/// An ed25519 keypair
 #[wasm_bindgen]
 pub struct Keypair {
     private: Key,
@@ -75,7 +75,7 @@ impl Keypair {
     }
 }
 
-/// Root or derived extended keys
+/// Extended keys (Xpriv and Xpub)
 #[wasm_bindgen]
 pub struct ExtendedKeypair {
     xprv: Vec<u8>,
@@ -89,7 +89,9 @@ impl ExtendedKeypair {
         let seed: &[u8] = &seed;
         let xprv = match path {
             Some(path) => {
-                let path = &path.parse().map_err(|_| Bip44Error::PathError);
+                let path = &path
+                    .parse()
+                    .map_err(|err| format!("{}: {:?}", Bip44Error::PathError, err));
                 let derivation_path = match path {
                     Ok(derivation_path) => derivation_path,
                     Err(error) => return Err(error.to_string()),
@@ -97,7 +99,7 @@ impl ExtendedKeypair {
                 XPrv::derive_from_path(&seed, derivation_path)
             },
             None => XPrv::new(seed),
-        }.map_err(|_| Bip44Error::DerivationError.to_string())?;
+        }.map_err(|err| format!("{}: {:?}", Bip44Error::DerivationError, err))?;
 
         // BIP32 Extended Private Key
         let xprv_str = xprv.to_string(Prefix::XPRV).to_string();
@@ -123,6 +125,7 @@ impl ExtendedKeypair {
     }
 }
 
+/// A set of methods to derive keys from a BIP44 path
 #[wasm_bindgen]
 impl Bip44 {
     #[wasm_bindgen(constructor)]

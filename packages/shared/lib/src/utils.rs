@@ -3,6 +3,7 @@ use namada::types::time::DateTimeUtc;
 
 use wasm_bindgen::prelude::*;
 
+/// Get a valid UTC timestamp from the JavaScript engine
 pub fn get_timestamp() -> DateTimeUtc {
     let now = js_sys::Date::new_0();
 
