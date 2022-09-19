@@ -1,6 +1,15 @@
-import { ValidatorDetailsContainer } from "./ValidatorDetails.components";
-import { Table, TableConfigurations, KeyValueData } from "components/Table";
-import { Validator } from "slices/StakingAndGovernance/types";
+import {
+  ValidatorDetailsContainer,
+  StakeButtonContainer,
+} from "./ValidatorDetails.components";
+import {
+  Table,
+  TableConfigurations,
+  KeyValueData,
+  TableLink,
+} from "components/Table";
+import { Button, ButtonVariant } from "components/Button";
+import { Validator, StakingPosition } from "slices/StakingAndGovernance";
 
 const validatorDetailsConfigurations: TableConfigurations<KeyValueData, never> =
   {
@@ -27,17 +36,42 @@ const validatorDetailsConfigurations: TableConfigurations<KeyValueData, never> =
     ],
   };
 
-const myStakingWithValidatorConfigurations: TableConfigurations<never, never> =
-  {
-    rowRenderer: () => <div>Row</div>,
-    columns: [
-      { uuid: "1", columnLabel: "", width: "30%" },
-      { uuid: "2", columnLabel: "", width: "70%" },
-    ],
-  };
+const myStakingWithValidatorConfigurations: TableConfigurations<
+  StakingPosition,
+  never
+> = {
+  rowRenderer: (stakingPosition: StakingPosition) => {
+    return (
+      <>
+        <td>{stakingPosition.stakedCurrency}</td>
+        <td>{stakingPosition.stakingStatus}</td>
+        <td>
+          {stakingPosition.stakedAmount}{" "}
+          <TableLink
+            onClick={() =>
+              alert(
+                `Unstake (${stakingPosition.stakedAmount} from ${stakingPosition.validatorId}). Unstaking is not implemented yet`
+              )
+            }
+          >
+            unstake
+          </TableLink>
+        </td>
+        <td>{stakingPosition.totalRewards}</td>
+      </>
+    );
+  },
+  columns: [
+    { uuid: "1", columnLabel: "Asset", width: "25%" },
+    { uuid: "2", columnLabel: "State", width: "25%" },
+    { uuid: "3", columnLabel: "Amount Staked", width: "25%" },
+    { uuid: "4", columnLabel: "Total Rewards", width: "25%" },
+  ],
+};
 
 type Props = {
   validator?: Validator;
+  stakingPositionsWithSelectedValidator?: StakingPosition[];
 };
 
 // this turns the Validator object to rows that are passed to the table
@@ -61,7 +95,7 @@ const validatorToDataRows = (
 };
 
 export const ValidatorDetails = (props: Props): JSX.Element => {
-  const { validator } = props;
+  const { validator, stakingPositionsWithSelectedValidator = [] } = props;
   const validatorDetailsData = validatorToDataRows(validator);
 
   return (
@@ -71,10 +105,20 @@ export const ValidatorDetails = (props: Props): JSX.Element => {
         tableConfigurations={validatorDetailsConfigurations}
         data={validatorDetailsData}
       />
+      <StakeButtonContainer>
+        <Button
+          onClick={() => alert("Staking is not implemented yet")}
+          variant={ButtonVariant.Contained}
+          style={{ marginLeft: "0" }}
+        >
+          Stake
+        </Button>
+      </StakeButtonContainer>
+
       <Table
         title={`My Staking with ${validator?.name}`}
         tableConfigurations={myStakingWithValidatorConfigurations}
-        data={[]}
+        data={stakingPositionsWithSelectedValidator}
       />
     </ValidatorDetailsContainer>
   );

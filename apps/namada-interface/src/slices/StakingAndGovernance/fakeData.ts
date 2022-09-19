@@ -1,4 +1,4 @@
-import { Validator, MyStaking, MyBalanceEntry } from "./types";
+import { Validator, StakingPosition, MyBalanceEntry } from "./types";
 export const myBalancesData: MyBalanceEntry[] = [
   {
     uuid: "1",
@@ -26,23 +26,29 @@ export const myBalancesData: MyBalanceEntry[] = [
   },
 ];
 
-export const myStakingData: MyStaking[] = [
+export const myStakingData: StakingPosition[] = [
   {
     uuid: "1",
     stakingStatus: "Bonded",
     stakedAmount: "10.00",
+    stakedCurrency: "NAM",
+    totalRewards: "0.55",
     validatorId: "polychain-capital",
   },
   {
     uuid: "2",
     stakingStatus: "Bonded Pending",
     stakedAmount: "3.00",
+    stakedCurrency: "NAM",
+    totalRewards: "0.15",
     validatorId: "coinbase-custody",
   },
   {
     uuid: "3",
     stakingStatus: "Unboding (22 days left)",
     stakedAmount: "20.00",
+    stakedCurrency: "NAM",
+    totalRewards: "1.05",
     validatorId: "kraken",
   },
 ];

@@ -4,11 +4,12 @@ import {
   FETCH_VALIDATORS,
   FETCH_VALIDATOR_DETAILS,
   FETCH_MY_VALIDATORS,
+  FETCH_MY_STAKING_POSITIONS,
   Validator,
   ValidatorDetailsPayload,
   MyBalanceEntry,
   MyValidators,
-  MyStaking,
+  StakingPosition,
 } from "./types";
 import { allValidatorsData, myStakingData, myBalancesData } from "./fakeData";
 
@@ -39,7 +40,7 @@ export const fetchValidatorDetails = createAsyncThunk<
 
 // util to add validators to the user's staking entries
 const myStakingToMyValidators = (
-  myStaking: MyStaking[],
+  myStaking: StakingPosition[],
   allValidators: Validator[]
 ): MyValidators[] => {
   // try {
@@ -76,6 +77,13 @@ export const fetchMyValidators = createAsyncThunk<
     console.warn(`error: ${error}`);
     return Promise.reject({});
   }
+});
+
+export const fetchMyStakingPositions = createAsyncThunk<
+  { myStakingPositions: StakingPosition[] },
+  void
+>(FETCH_MY_STAKING_POSITIONS, async () => {
+  return Promise.resolve({ myStakingPositions: myStakingData });
 });
 
 export const fetchMyBalances = createAsyncThunk<

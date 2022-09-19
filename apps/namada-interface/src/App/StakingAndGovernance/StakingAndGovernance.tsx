@@ -14,6 +14,7 @@ import {
 
 import {
   fetchMyBalances,
+  fetchMyStakingPositions,
   fetchValidators,
   fetchValidatorDetails,
 } from "slices/StakingAndGovernance";
@@ -28,12 +29,13 @@ export const StakingAndGovernance = (): JSX.Element => {
   const stakingAndGovernance = useAppSelector(
     (state: RootState) => state.stakingAndGovernance
   );
-  const { myBalances, validators, myValidators, selectedValidatorId } =
-    stakingAndGovernance;
-
-  const selectedValidator = validators.find(
-    (validator) => validator.uuid === selectedValidatorId
-  );
+  const {
+    myBalances,
+    validators,
+    myValidators,
+    selectedValidatorId,
+    myStakingPositions,
+  } = stakingAndGovernance;
 
   // we need one of the sub routes, staking alone has nothing
   const stakingAndGovernanceSubRoute =
@@ -50,12 +52,10 @@ export const StakingAndGovernance = (): JSX.Element => {
   });
 
   // triggered by the initial load of <Staking />
-  const fetchValidatorsCallback = (): void => {
+  const onStakingComponentInitCallback = (): void => {
     dispatch(fetchValidators());
-  };
-
-  const fetchMyBalancesCallback = (): void => {
     dispatch(fetchMyBalances());
+    dispatch(fetchMyStakingPositions());
   };
 
   // triggered by the url load or user click in <Staking />
@@ -73,9 +73,9 @@ export const StakingAndGovernance = (): JSX.Element => {
               myBalances={myBalances}
               validators={validators}
               myValidators={myValidators}
-              selectedValidator={selectedValidator}
-              fetchMyBalances={fetchMyBalancesCallback}
-              fetchValidators={fetchValidatorsCallback}
+              myStakingPositions={myStakingPositions}
+              selectedValidatorId={selectedValidatorId}
+              onInitCallback={onStakingComponentInitCallback}
               fetchValidatorDetails={fetchValidatorDetailsCallback}
             />
           }
