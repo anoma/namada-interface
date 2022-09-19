@@ -63,6 +63,9 @@ const myStakingToMyValidators = (
 // fetches staking data and appends the validators to it
 // this needs the validators, so they are being passed in
 // vs. getting them from the state
+//
+// TODO this or fetchMyStakingPositions is likely redundant based on
+// real data model stored in the chain, adjust when implementing the real data
 export const fetchMyValidators = createAsyncThunk<
   { myValidators: MyValidators[] },
   Validator[]
