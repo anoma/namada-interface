@@ -20,18 +20,9 @@ export const stakingAndGovernanceSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchMyBalances.pending, (_state, _action) => {
-        // start the loader
-      })
       .addCase(fetchMyBalances.fulfilled, (state, action) => {
         // stop the loader
         state.myBalances = action.payload.myBalances;
-      })
-      .addCase(fetchMyBalances.rejected, (_state, _action) => {
-        // stop the loader
-      })
-      .addCase(fetchValidators.pending, (_state, _action) => {
-        // start the loader
       })
       .addCase(fetchValidators.fulfilled, (state, action) => {
         // stop the loader
@@ -40,9 +31,6 @@ export const stakingAndGovernanceSlice = createSlice({
       .addCase(fetchValidators.rejected, (state, _action) => {
         // stop the loader
         state.validators = [];
-      })
-      .addCase(fetchMyValidators.pending, (_state, _action) => {
-        // start the loader
       })
       .addCase(fetchMyValidators.fulfilled, (state, action) => {
         // stop the loader
@@ -59,9 +47,6 @@ export const stakingAndGovernanceSlice = createSlice({
       .addCase(fetchValidatorDetails.fulfilled, (state, action) => {
         // stop the loader
         state.selectedValidatorId = action.payload?.name;
-      })
-      .addCase(fetchValidatorDetails.rejected, (_state, _action) => {
-        // stop the loader
       });
   },
 });
