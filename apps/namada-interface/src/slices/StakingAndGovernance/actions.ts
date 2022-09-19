@@ -27,11 +27,10 @@ export const fetchValidators = createAsyncThunk<
 export const fetchValidatorDetails = createAsyncThunk<
   ValidatorDetailsPayload | undefined,
   string
->(FETCH_VALIDATOR_DETAILS, async (_validatorId: string) => {
+>(FETCH_VALIDATOR_DETAILS, async (validatorId: string) => {
   try {
     return Promise.resolve({
-      name: "polychain",
-      websiteUrl: "polychain.com",
+      name: validatorId,
     });
   } catch {
     return Promise.reject();

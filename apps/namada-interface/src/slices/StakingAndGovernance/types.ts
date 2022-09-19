@@ -22,6 +22,7 @@ export type Validator = Unique & {
   votingPower: string;
   homepageUrl: string;
   commission: string;
+  description: string;
 };
 
 // represents users staking position
@@ -48,7 +49,6 @@ export type MyBalanceEntry = Unique & {
 // PLACEHOLDER
 export type ValidatorDetailsPayload = {
   name: string;
-  websiteUrl: string;
 };
 
 export type StakingAndGovernanceState = {

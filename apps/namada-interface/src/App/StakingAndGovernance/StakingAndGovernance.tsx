@@ -31,6 +31,10 @@ export const StakingAndGovernance = (): JSX.Element => {
   const { myBalances, validators, myValidators, selectedValidatorId } =
     stakingAndGovernance;
 
+  const selectedValidator = validators.find(
+    (validator) => validator.uuid === selectedValidatorId
+  );
+
   // we need one of the sub routes, staking alone has nothing
   const stakingAndGovernanceSubRoute =
     locationToStakingAndGovernanceSubRoute(location);
@@ -69,7 +73,7 @@ export const StakingAndGovernance = (): JSX.Element => {
               myBalances={myBalances}
               validators={validators}
               myValidators={myValidators}
-              selectedValidator={selectedValidatorId}
+              selectedValidator={selectedValidator}
               fetchMyBalances={fetchMyBalancesCallback}
               fetchValidators={fetchValidatorsCallback}
               fetchValidatorDetails={fetchValidatorDetailsCallback}

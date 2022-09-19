@@ -45,7 +45,7 @@ type Props = {
   myBalances: MyBalanceEntry[];
   validators: Validator[];
   myValidators: MyValidators[];
-  selectedValidator: string | undefined;
+  selectedValidator: Validator | undefined;
   fetchMyBalances: () => void;
   fetchValidators: () => void;
   fetchValidatorDetails: (validatorId: string) => void;
@@ -53,7 +53,6 @@ type Props = {
 
 export const Staking = (props: Props): JSX.Element => {
   const [breadcrumb, setBreadcrumb] = useState([initialTitle]);
-  const [validatorName, setValidatorName] = useState<string | undefined>();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -64,6 +63,7 @@ export const Staking = (props: Props): JSX.Element => {
     myBalances,
     validators,
     myValidators,
+    selectedValidator,
   } = props;
 
   // this is just so we can se the title/breadcrumb
@@ -93,11 +93,7 @@ export const Staking = (props: Props): JSX.Element => {
     const validatorName = validatorNameFromUrl(location.pathname);
     if (validatorName) {
       // triggers fetching of further details
-      // fetchValidatorDetails(validatorName);
-
-      // placeholders
       setBreadcrumb(newBreadcrumb);
-      setValidatorName(validatorName);
     }
   }, [location, JSON.stringify(breadcrumb)]);
 
@@ -133,7 +129,7 @@ export const Staking = (props: Props): JSX.Element => {
         />
         <Route
           path={`${StakingAndGovernanceSubRoute.ValidatorDetails}/*`}
-          element={<ValidatorDetails validator={validatorName} />}
+          element={<ValidatorDetails validator={selectedValidator} />}
         />
       </Routes>
     </StakingContainer>
