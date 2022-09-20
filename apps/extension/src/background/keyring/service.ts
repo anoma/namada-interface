@@ -1,5 +1,6 @@
 import { KVStore } from "@anoma/storage";
-import { KeyRing, KeyRingStatus } from "./keyring";
+import { KeyRing } from "./keyring";
+import { KeyRingStatus } from "./types";
 
 const keyRing = new KeyRing();
 
@@ -13,20 +14,19 @@ export class KeyRingService {
   }
 
   async lock(): Promise<{ status: KeyRingStatus }> {
-    // TODO
+    await keyRing.lock();
     return { status: keyRing.status };
   }
 
   async unlock(password: string): Promise<{ status: KeyRingStatus }> {
-    // TODO
     if (!password) {
       throw new Error("A password is required to unlock keystore!");
     }
+    await keyRing.unlock(password);
     return { status: keyRing.status };
   }
 
   async checkPassword(password: string): Promise<boolean> {
-    // TODO
-    return !!password;
+    return await keyRing.checkPassword(password);
   }
 }

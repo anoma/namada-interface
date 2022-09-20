@@ -64,6 +64,26 @@ export class KeyRing {
     if (this.status !== KeyRingStatus.LOCKED) {
       throw new Error("Key ring is not locked!");
     }
+
+    // Note: We may support multiple top-level mnemonic seeds in the future,
+    // hence why we're storing these in an array. For now, we check for only one:
+    const mnemonics = await this._store?.get<MnemonicState[]>(
+      KeyRingStore.Mnemonic
+    );
+    if (await this.checkPassword(password)) {
+      const accounts = await this._store.get<AccountState[]>(
+        KeyRingStore.Accounts
+      );
+      this._state.update({
+        status: KeyRingStatus.UNLOCKED,
+        accounts,
+        mnemonics,
+        password,
+      });
+    }
+  }
+
+  public async checkPassword(password: string): Promise<boolean> {
     const mnemonics = await this._store?.get<MnemonicState[]>(
       KeyRingStore.Mnemonic
     );
@@ -74,22 +94,17 @@ export class KeyRing {
       const { phrase } = mnemonics[0];
       try {
         AEAD.decrypt(phrase, password);
-        const accounts = await this._store.get<AccountState[]>(
-          KeyRingStore.Accounts
-        );
-        this._state.update({
-          status: KeyRingStatus.UNLOCKED,
-          accounts,
-          mnemonics,
-          password,
-        });
-      } catch (e) {
-        console.error(e);
+        return true;
+      } catch (error) {
+        console.warn(error);
       }
     }
-  }
 
-  public async generateMnemonic(size: PhraseSize = PhraseSize.Twelve) {
+    return false;
+  }
+  public async generateMnemonic(
+    size: PhraseSize = PhraseSize.Twelve
+  ): Promise<string[]> {
     const mnemonic = new Mnemonic(size);
     const phrase = mnemonic.phrase();
 
@@ -107,7 +122,10 @@ export class KeyRing {
         ],
       });
       this.update();
+
+      return mnemonic.to_words();
     }
+    return [];
   }
 
   public async update() {
