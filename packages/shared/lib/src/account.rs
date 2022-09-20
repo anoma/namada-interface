@@ -34,6 +34,7 @@ impl Account {
         );
 
         // TODO: Fix the following conversion
+        #[allow(clippy::useless_conversion)]
         let public_key = PublicKey::from(signing_key.ref_to());
 
         let tx_data = InitAccount {

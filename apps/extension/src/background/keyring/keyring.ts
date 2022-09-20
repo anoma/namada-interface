@@ -102,6 +102,7 @@ export class KeyRing {
 
     return false;
   }
+
   public async generateMnemonic(
     size: PhraseSize = PhraseSize.Twelve
   ): Promise<string[]> {
@@ -123,7 +124,10 @@ export class KeyRing {
       });
       this.update();
 
-      return mnemonic.to_words();
+      const words = mnemonic.to_words();
+      mnemonic.free();
+
+      return words;
     }
     return [];
   }

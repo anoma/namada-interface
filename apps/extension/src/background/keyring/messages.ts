@@ -1,6 +1,6 @@
 import { Message } from "../../router";
 import { ROUTE } from "./constants";
-import { KeyRingStatus } from "./keyring";
+import { KeyRingStatus } from "./types";
 
 enum MessageTypes {
   LockKeyRing = "lock-keyring",
