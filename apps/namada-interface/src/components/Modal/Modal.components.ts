@@ -6,7 +6,6 @@ export const ModalContainer = styled.div`
   align-items: center;
 
   width: 100%;
-  background-color: lightblue;
 `;
 export const ModalHeader = styled.div`
   display: flex;

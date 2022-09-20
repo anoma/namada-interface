@@ -108,15 +108,16 @@ const StakingView = (props: StakingViewProps): JSX.Element => {
     <>
       <Button
         variant={ButtonVariant.Contained}
-        onClick={() => onRequestClose(ModalOnRequestCloseType.Cancel)}
-      >
-        Cancel
-      </Button>
-      <Button
-        variant={ButtonVariant.Contained}
         onClick={() => onRequestClose(ModalOnRequestCloseType.Confirm)}
       >
         Confirm
+      </Button>
+      <Button
+        variant={ButtonVariant.Contained}
+        onClick={() => onRequestClose(ModalOnRequestCloseType.Cancel)}
+        style={{ backgroundColor: "lightgrey", color: "black" }}
+      >
+        Cancel
       </Button>
     </>
   );
