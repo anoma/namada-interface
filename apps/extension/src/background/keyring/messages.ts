@@ -1,3 +1,4 @@
+import { PhraseSize } from "@anoma/crypto";
 import { Message } from "../../router";
 import { ROUTE } from "./constants";
 import { KeyRingStatus } from "./types";
@@ -6,6 +7,7 @@ enum MessageTypes {
   LockKeyRing = "lock-keyring",
   UnlockKeyRing = "unlock-keyring",
   CheckPassword = "check-password",
+  GenerateMnemonic = "generate-mnemonic",
 }
 
 export class LockKeyRingMsg extends Message<{ status: KeyRingStatus }> {
@@ -73,5 +75,25 @@ export class CheckPasswordMsg extends Message<boolean> {
 
   type(): string {
     return CheckPasswordMsg.type();
+  }
+}
+
+export class GenerateMnemonicMsg extends Message<string[]> {
+  public static type() {
+    return MessageTypes.GenerateMnemonic;
+  }
+
+  constructor(public readonly size?: PhraseSize) {
+    super();
+  }
+
+  validate(): void {}
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return GenerateMnemonicMsg.type();
   }
 }

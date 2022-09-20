@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { ExtensionRequester } from "../extension";
-import { GetChainsMsg } from "../background/chains";
+import { GenerateMnemonicMsg } from "../background/keyring";
 import { Ports } from "../router";
 
 const requester = new ExtensionRequester();
@@ -8,9 +8,9 @@ const requester = new ExtensionRequester();
 export const App = () => {
   useEffect(() => {
     (async () => {
-      const results = await requester.sendMessage<GetChainsMsg>(
+      const results = await requester.sendMessage<GenerateMnemonicMsg>(
         Ports.Background,
-        new GetChainsMsg()
+        new GenerateMnemonicMsg(24)
       );
 
       console.log({ results });

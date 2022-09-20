@@ -1,6 +1,11 @@
 import { KeyRingService } from "./service";
 import { Handler } from "../../router";
-import { LockKeyRingMsg, UnlockKeyRingMsg, CheckPasswordMsg } from "./messages";
+import {
+  LockKeyRingMsg,
+  UnlockKeyRingMsg,
+  CheckPasswordMsg,
+  GenerateMnemonicMsg,
+} from "./messages";
 import { Env, Message, InternalHandler } from "../../router";
 
 export const getHandler: (service: KeyRingService) => Handler = (service) => {
@@ -12,6 +17,11 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleUnlockKeyRingMsg(service)(env, msg as UnlockKeyRingMsg);
       case CheckPasswordMsg:
         return handleCheckPasswordMsg(service)(env, msg as CheckPasswordMsg);
+      case GenerateMnemonicMsg:
+        return handleGenerateMnemonicMsg(service)(
+          env,
+          msg as GenerateMnemonicMsg
+        );
       default:
         throw new Error("Unknown msg type");
     }
@@ -39,5 +49,13 @@ const handleCheckPasswordMsg: (
 ) => InternalHandler<CheckPasswordMsg> = (service) => {
   return async (_, msg) => {
     return await service.checkPassword(msg.password);
+  };
+};
+
+const handleGenerateMnemonicMsg: (
+  service: KeyRingService
+) => InternalHandler<GenerateMnemonicMsg> = (service) => {
+  return async (_, msg) => {
+    return await service.generateMnemonic(msg.size);
   };
 };

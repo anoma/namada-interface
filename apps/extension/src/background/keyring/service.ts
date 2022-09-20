@@ -1,3 +1,4 @@
+import { PhraseSize } from "@anoma/crypto";
 import { KVStore } from "@anoma/storage";
 import { KeyRing } from "./keyring";
 import { KeyRingStatus } from "./types";
@@ -28,5 +29,9 @@ export class KeyRingService {
 
   async checkPassword(password: string): Promise<boolean> {
     return await keyRing.checkPassword(password);
+  }
+
+  async generateMnemonic(size?: PhraseSize): Promise<string[]> {
+    return await keyRing.generateMnemonic(size);
   }
 }
