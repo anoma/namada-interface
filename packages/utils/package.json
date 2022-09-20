@@ -16,7 +16,8 @@
     "bs58": "^5.0.0",
     "crypto-js": "^4.1.1",
     "luxon": "^3.0.1",
-    "sha.js": "^2.4.11"
+    "sha.js": "^2.4.11",
+    "styled-components": "^5.3.5"
   },
   "devDependencies": {
     "@types/bs58": "^4.0.1",
@@ -25,6 +26,7 @@
     "@types/luxon": "^3.0.0",
     "@types/node": "^18.7.13",
     "@types/sha.js": "^2.4.0",
+    "@types/styled-components": "^5.1.26",
     "eslint": "^8.22.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^8.5.0",
