@@ -34,6 +34,33 @@ module.exports = {
       {
         test: /\.wasm$/,
         type: "asset/inline",
+        exclude: /node_modules/,
+      },
+      {
+        test: /\.svg$/,
+        use: [
+          {
+            loader: require.resolve("@svgr/webpack"),
+            options: {
+              prettier: false,
+              svgo: false,
+              svgoConfig: {
+                plugins: [{ removeViewBox: false }],
+              },
+              titleProp: true,
+              ref: true,
+            },
+          },
+          {
+            loader: require.resolve("file-loader"),
+            options: {
+              name: "assets/[name].[hash].[ext]",
+            },
+          },
+        ],
+        issuer: {
+          and: [/\.(ts|tsx|js|jsx|md|mdx)$/],
+        },
       },
     ],
   },
@@ -69,7 +96,7 @@ module.exports = {
       entries: {
         contentScript: ["content"],
         background: ["background"],
-        extensionPage: ["popup"],
+        extensionPage: ["popup", "injected"],
       },
     }),
   ],

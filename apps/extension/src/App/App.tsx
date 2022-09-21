@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ThemeProvider } from "styled-components";
-import { WordChip } from "@anoma/components";
+import { WordChip, Icon, IconName } from "@anoma/components";
 import { getTheme } from "@anoma/utils";
 import { ExtensionRequester } from "../extension";
 import { GenerateMnemonicMsg } from "../background/keyring";
@@ -24,15 +24,14 @@ export const App: React.FC = () => {
   }, []);
 
   return (
-    <div>
-      <ThemeProvider theme={theme}>
-        <div>
-          <h1>Anoma Browser Extension</h1>
-          {mnemonic.map((word, i) => (
-            <WordChip key={`${i}-${word}`} number={i} text={word} />
-          ))}
-        </div>
-      </ThemeProvider>
-    </div>
+    <ThemeProvider theme={theme}>
+      <div>
+        <Icon iconName={IconName.Settings} />
+        <h1>Anoma Browser Extension</h1>
+        {mnemonic.map((word, i) => (
+          <WordChip key={`${i}-${word}`} number={i} text={word} />
+        ))}
+      </div>
+    </ThemeProvider>
   );
 };
