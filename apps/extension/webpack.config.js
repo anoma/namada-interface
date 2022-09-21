@@ -1,6 +1,7 @@
 const { resolve } = require("path");
 const CopyPlugin = require("copy-webpack-plugin");
 const MergeJsonWebpackPlugin = require("merge-jsons-webpack-plugin");
+const ExtensionReloader = require("webpack-extension-reloader");
 
 const { NODE_ENV, TARGET } = process.env;
 const MANIFEST_VERSION = TARGET === "firefox" ? "v2" : "v3";
@@ -11,7 +12,7 @@ const MANIFEST_PATH = `./src/manifest/${MANIFEST_VERSION}/${TARGET}.json`;
 module.exports = {
   mode: NODE_ENV,
   target: "web",
-  devtool: "inline-cheap-source-map",
+  devtool: false,
   entry: {
     content: "./src/content",
     background: "./src/background",
@@ -47,12 +48,6 @@ module.exports = {
       assetFilename.endsWith(".wasm");
     },
   },
-  devServer: {
-    host: "0.0.0.0",
-    port: "5000",
-    hot: true,
-    historyApiFallback: true,
-  },
   plugins: [
     new CopyPlugin({
       patterns: [
@@ -66,6 +61,15 @@ module.exports = {
       files: [MANIFEST_BASE_PATH, MANIFEST_BASE_VERSION_PATH, MANIFEST_PATH],
       output: {
         fileName: "./manifest.json",
+      },
+    }),
+    new ExtensionReloader({
+      port: 5000,
+      reloadPage: true,
+      entries: {
+        contentScript: ["content"],
+        background: ["background"],
+        extensionPage: ["popup"],
       },
     }),
   ],
