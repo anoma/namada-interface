@@ -11,9 +11,7 @@ export class ChainsService {
   constructor(
     protected readonly kvStore: KVStore,
     protected readonly defaultChains: Chain[]
-  ) {
-    this.kvStore = kvStore;
-  }
+  ) {}
 
   init() {
     console.debug("ChainsService initialized");
