@@ -3,13 +3,7 @@ import { Anoma as IAnoma, Signer } from "@anoma/types";
 import { Anoma } from "./Anoma";
 import { Result } from "../router/types";
 
-type ProxyMethods =
-  | "suggestChain"
-  | "connect"
-  | "getSigner"
-  | "chain"
-  | "chains"
-  | "version";
+type ProxyMethod = keyof Anoma;
 
 enum ProxyRequestTypes {
   Request = "anoma-proxy-request",
@@ -19,7 +13,7 @@ enum ProxyRequestTypes {
 export interface ProxyRequest {
   type: ProxyRequestTypes;
   id: string;
-  method: ProxyMethods;
+  method: ProxyMethod;
   args: any;
 }
 
@@ -80,7 +74,7 @@ export class InjectedAnoma implements IAnoma {
     });
   }
 
-  protected requestMethod(method: ProxyMethods, args: any): Promise<any> {
+  protected requestMethod(method: ProxyMethod, args: any): Promise<any> {
     const bytes = new Uint8Array(8);
     const id: string = Array.from(crypto.getRandomValues(bytes))
       .map((value) => {
