@@ -47,13 +47,14 @@ impl Transfer {
 
     pub fn to_tx(
         &self,
-        secret: String,
+        secret: &str,
         epoch: u32,
         fee_amount: u32,
         gas_limit: u32,
         tx_code: Vec<u8>,
     ) -> Result<JsValue, JsValue> {
-        let tx_data = self.tx_data.clone();
+        let tx_data: &[u8] = &self.tx_data;
+        let tx_code: &[u8] = &tx_code;
         let token = self.token.clone();
         let transaction =
             match Transaction::new(secret, token, epoch, fee_amount, gas_limit, tx_code, tx_data) {
@@ -62,13 +63,14 @@ impl Transfer {
             };
 
         // Return serialized Transaction
-        Ok(JsValue::from_serde(&transaction).unwrap())
+        Ok(JsValue::from_serde(&transaction.serialize()).unwrap())
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::types::transaction::SerializedTx;
     use wasm_bindgen_test::*;
 
     #[wasm_bindgen_test]
@@ -85,10 +87,10 @@ mod tests {
         let tx_code = vec![];
 
         let transfer = Transfer::new(source, target, token, amount);
-        let transaction = transfer.to_tx(secret, epoch, fee_amount, gas_limit, tx_code)
+        let transaction = transfer.to_tx(&secret, epoch, fee_amount, gas_limit, tx_code)
             .expect("Should be able to convert to transaction");
 
-        let serialized_tx: Transaction = JsValue::into_serde(&transaction)
+        let serialized_tx: SerializedTx = JsValue::into_serde(&transaction)
             .expect("Should be able to serialize to a Transaction");
 
         let hash = serialized_tx.hash();

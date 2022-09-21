@@ -45,7 +45,7 @@ describe("AEAD", () => {
   test("It should encrypt and decrypt a value", () => {
     const password = "password";
     const message = "My secret message";
-    const encrypted = AEAD.encrypt_from_string(message, password);
+    const encrypted = AEAD.encrypt(message, password);
     const decrypted = AEAD.decrypt(encrypted, password);
 
     expect(decrypted).toBe(message);

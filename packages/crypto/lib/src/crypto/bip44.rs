@@ -191,7 +191,7 @@ mod tests {
     fn can_derive_keys_from_path() {
         let phrase = "caught pig embody hip goose like become worry face oval manual flame \
                       pizza steel viable proud eternal speed chapter sunny boat because view bullet";
-        let mnemonic = Mnemonic::from_phrase(phrase.into());
+        let mnemonic = Mnemonic::from_phrase(phrase.into()).expect("Should not fail with a valid phrase!");
         let seed = mnemonic.to_seed(None).unwrap();
         let bip44: Bip44 = Bip44::new(seed).unwrap();
         let path = "m/44'/0'/0'/0'";

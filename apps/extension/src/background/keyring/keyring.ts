@@ -120,19 +120,25 @@ export class KeyRing {
       throw new Error("Password is not set! Cannot store mnemonic");
     }
     const phrase = mnemonic.join(" ");
-    const encrypted = AEAD.encrypt_from_string(phrase, this._state.password);
 
-    // Create mnemonic keystore
-    this._state.update({
-      mnemonics: [
-        ...this._state.mnemonics,
-        {
-          id: getId(phrase, this._state.mnemonics.length),
-          phrase: encrypted,
-        },
-      ],
-    });
-    this.update();
+    try {
+      Mnemonic.validate(phrase);
+      const encrypted = AEAD.encrypt(phrase, this._state.password);
+      // Validate mnemonic
+      // Create mnemonic keystore
+      this._state.update({
+        mnemonics: [
+          ...this._state.mnemonics,
+          {
+            id: getId(phrase, this._state.mnemonics.length),
+            phrase: encrypted,
+          },
+        ],
+      });
+      this.update();
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   public async update() {

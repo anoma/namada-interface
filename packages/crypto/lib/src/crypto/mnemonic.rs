@@ -31,18 +31,24 @@ impl Mnemonic {
         String::from(&self.phrase)
     }
 
-    pub fn from_phrase(phrase: String) -> Mnemonic {
+    pub fn validate(phrase: &str) -> Result<(), String> {
         let split = &phrase.split(' ');
         let words: Vec<&str> = split.clone().collect();
 
         if words.len() != PhraseSize::Twelve as usize
             && words.len() != PhraseSize::TwentyFour as usize {
-            panic!("Invalid phrase!")
+            return Err("Invalid mnemonic phrase!".into());
         }
 
-        Mnemonic {
+        Ok(())
+    }
+
+    pub fn from_phrase(phrase: String) -> Result<Mnemonic, String> {
+        Mnemonic::validate(&phrase)?;
+
+        Ok(Mnemonic {
             phrase
-        }
+        })
     }
 
     pub fn to_bytes(&self) -> Vec<u8> {
@@ -99,7 +105,7 @@ mod tests {
     fn can_generate_seed_from_phrase() {
         let phrase = "caught pig embody hip goose like become worry face oval manual flame \
                       pizza steel viable proud eternal speed chapter sunny boat because view bullet";
-        let mnemonic = Mnemonic::from_phrase(phrase.into());
+        let mnemonic = Mnemonic::from_phrase(phrase.into()).unwrap();
         let seed = mnemonic.to_seed(None).expect("Should return seed from mnemonic phrase");
 
         assert_eq!(seed.len(), 64);
@@ -109,7 +115,7 @@ mod tests {
     #[should_panic]
     fn invalid_phrase_should_panic() {
         let bad_phrase = "caught pig embody hip goose like become";
-        let _ = Mnemonic::from_phrase(bad_phrase.into()).to_seed(None);
+        let _ = Mnemonic::from_phrase(bad_phrase.into()).expect("This should fail");
     }
 
     #[wasm_bindgen_test]
