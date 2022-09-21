@@ -9,6 +9,37 @@ const MANIFEST_BASE_PATH = `./src/manifest/_base.json`;
 const MANIFEST_BASE_VERSION_PATH = `./src/manifest/${MANIFEST_VERSION}/_base.json`;
 const MANIFEST_PATH = `./src/manifest/${MANIFEST_VERSION}/${TARGET}.json`;
 
+const plugins = [
+  new CopyPlugin({
+    patterns: [
+      {
+        from: "./src/static/*.html",
+        to: "./[name].html",
+      },
+    ],
+  }),
+  new MergeJsonWebpackPlugin({
+    files: [MANIFEST_BASE_PATH, MANIFEST_BASE_VERSION_PATH, MANIFEST_PATH],
+    output: {
+      fileName: "./manifest.json",
+    },
+  }),
+];
+
+if (NODE_ENV === "development") {
+  plugins.push(
+    new ExtensionReloader({
+      port: 5000,
+      reloadPage: true,
+      entries: {
+        contentScript: ["content"],
+        background: ["background"],
+        extensionPage: ["popup"],
+      },
+    })
+  );
+}
+
 module.exports = {
   mode: NODE_ENV,
   target: "web",
@@ -59,7 +90,7 @@ module.exports = {
           },
         ],
         issuer: {
-          and: [/\.(ts|tsx|js|jsx|md|mdx)$/],
+          and: [/\.(ts|tsx|md)$/],
         },
       },
     ],
@@ -75,29 +106,5 @@ module.exports = {
       assetFilename.endsWith(".wasm");
     },
   },
-  plugins: [
-    new CopyPlugin({
-      patterns: [
-        {
-          from: "./src/static/*.html",
-          to: "./[name].html",
-        },
-      ],
-    }),
-    new MergeJsonWebpackPlugin({
-      files: [MANIFEST_BASE_PATH, MANIFEST_BASE_VERSION_PATH, MANIFEST_PATH],
-      output: {
-        fileName: "./manifest.json",
-      },
-    }),
-    new ExtensionReloader({
-      port: 5000,
-      reloadPage: true,
-      entries: {
-        contentScript: ["content"],
-        background: ["background"],
-        extensionPage: ["popup", "injected"],
-      },
-    }),
-  ],
+  plugins,
 };

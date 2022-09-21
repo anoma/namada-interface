@@ -1,4 +1,4 @@
-import { ChainInfo as Chain } from "@keplr-wallet/types";
+import { ChainInfo } from "@keplr-wallet/types";
 
 export type Transaction = {
   hash: Uint8Array;
@@ -29,3 +29,6 @@ export type WindowWithAnoma = Window &
   typeof globalThis & {
     anoma: Anoma;
   };
+
+// Alias ChainInfo as Chain, as we will eventually want to use our own type alongside that of Keplr
+export type Chain = ChainInfo;
