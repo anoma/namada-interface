@@ -4,9 +4,7 @@ import { KeyRing, KeyRingStatus } from "./keyring";
 const keyRing = new KeyRing();
 
 export class KeyRingService {
-  constructor(protected readonly kvStore: KVStore) {
-    this.kvStore = kvStore;
-  }
+  constructor(protected readonly kvStore: KVStore) {}
 
   init() {
     console.debug("KeyStoreService initialized");
