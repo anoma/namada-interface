@@ -1,5 +1,5 @@
 import { PhraseSize } from "@anoma/crypto";
-import { Message } from "../../router";
+import { Message } from "router";
 import { ROUTE } from "./constants";
 import { KeyRingStatus } from "./types";
 

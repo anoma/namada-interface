@@ -97,6 +97,7 @@ module.exports = {
   },
   resolve: {
     extensions: [".tsx", ".ts", ".js"],
+    modules: [resolve(__dirname, "src/"), "node_modules"],
   },
   performance: {
     hints: "warning",

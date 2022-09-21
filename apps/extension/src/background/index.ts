@@ -2,14 +2,11 @@ import { IndexedDBKVStore } from "@anoma/storage";
 import { init as initCrypto } from "@anoma/crypto";
 import { init as initShared } from "@anoma/shared";
 
-import { ExtensionRouter, ExtensionGuards } from "../extension";
-import { ContentScriptEnv } from "../extension/utils";
-import { Ports, KVPrefix } from "../router/types";
-import { ChainsService } from "./chains";
-import { KeyRingService } from "./keyring";
-import { init as initChains } from "./chains/init";
-import { init as initKeyRing } from "./keyring/init";
-import { chains } from "../chains";
+import { ExtensionRouter, ExtensionGuards, ContentScriptEnv } from "extension";
+import { Ports, KVPrefix } from "router";
+import { chains } from "chains";
+import { ChainsService, init as initChains } from "./chains";
+import { KeyRingService, init as initKeyRing } from "./keyring";
 
 initCrypto();
 initShared();

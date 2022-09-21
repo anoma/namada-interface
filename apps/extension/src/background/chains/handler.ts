@@ -1,13 +1,12 @@
+import { ChainInfo as Chain } from "@keplr-wallet/types";
+import { Handler, Env, Message, InternalHandler } from "router";
 import { ChainsService } from "./service";
-import { Handler } from "../../router";
 import {
   SuggestChainMsg,
   GetChainsMsg,
   GetChainMsg,
   RemoveChainMsg,
 } from "./messages";
-import { Env, Message, InternalHandler } from "../../router";
-import { ChainInfo as Chain } from "@keplr-wallet/types";
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 

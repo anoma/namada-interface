@@ -1,7 +1,7 @@
 import { ChainInfo as Chain } from "@keplr-wallet/types";
 import { KVStore } from "@anoma/storage";
 import { debounce } from "@anoma/utils";
-import { Env, KVKeys } from "../../router";
+import { Env, KVKeys } from "router";
 
 type ChainRemovedHandler = (chainId: string, identifier: string) => void;
 

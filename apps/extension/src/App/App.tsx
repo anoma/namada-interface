@@ -3,10 +3,10 @@ import { ThemeProvider } from "styled-components";
 import { WordChip, Icon, IconName } from "@anoma/components";
 import { Chain } from "@anoma/types";
 import { getTheme } from "@anoma/utils";
-import { ExtensionRequester } from "../extension";
-import { GenerateMnemonicMsg } from "../background/keyring";
-import { GetChainsMsg } from "../background/chains";
-import { Ports } from "../router";
+import { ExtensionRequester } from "extension";
+import { GenerateMnemonicMsg } from "background/keyring";
+import { GetChainsMsg } from "background/chains";
+import { Ports } from "router";
 
 const requester = new ExtensionRequester();
 

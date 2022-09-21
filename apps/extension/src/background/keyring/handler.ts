@@ -1,12 +1,11 @@
+import { Handler, Env, Message, InternalHandler } from "router";
 import { KeyRingService } from "./service";
-import { Handler } from "../../router";
 import {
   LockKeyRingMsg,
   UnlockKeyRingMsg,
   CheckPasswordMsg,
   GenerateMnemonicMsg,
 } from "./messages";
-import { Env, Message, InternalHandler } from "../../router";
 
 export const getHandler: (service: KeyRingService) => Handler = (service) => {
   return (env: Env, msg: Message<unknown>) => {
