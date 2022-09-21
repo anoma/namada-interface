@@ -1,4 +1,4 @@
-import { ChainInfo as Chain } from "@keplr-wallet/types";
+import { Chain } from "@anoma/types";
 import { Handler, Env, Message, InternalHandler } from "router";
 import { ChainsService } from "./service";
 import {

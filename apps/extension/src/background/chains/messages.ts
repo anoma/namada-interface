@@ -1,5 +1,4 @@
-import { ChainInfo as Chain } from "@keplr-wallet/types";
-import { Signer } from "@anoma/types";
+import { Chain, Signer } from "@anoma/types";
 import { Message } from "router";
 import { ROUTE } from "./constants";
 

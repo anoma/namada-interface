@@ -1,4 +1,4 @@
-import { ChainInfo as Chain, IBCCurrency } from "@keplr-wallet/types";
+import { Chain, IBCCurrency } from "@anoma/types";
 const bech32Prefix = "namada";
 
 const ibcCurrency: IBCCurrency = {
