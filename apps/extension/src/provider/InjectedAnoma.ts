@@ -3,7 +3,13 @@ import { Anoma as IAnoma, Signer } from "@anoma/types";
 import { Anoma } from "./Anoma";
 import { Result } from "../router/types";
 
-type ProxyMethod = keyof Anoma;
+/**
+ * Specify which methods can be proxied
+ *
+ * In the following, we proxy all methods except "version",
+ * as it can be handled locally:
+ */
+type ProxyMethod = keyof Omit<Anoma, "version">;
 
 enum ProxyRequestTypes {
   Request = "anoma-proxy-request",
