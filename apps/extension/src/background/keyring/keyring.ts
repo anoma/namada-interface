@@ -8,12 +8,21 @@ import {
 } from "./types";
 import { v5 as uuid } from "uuid";
 
+// Generated UUID namespace for uuid v5
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
 
-// TODO: Move to a common function
-const getId = (name: string, index: number, parentIndex = 0): string => {
+// Construct unique uuid, passing in an arbitray number of arguments.
+// This could be a unique parameter of the object receiving the id,
+// or an index based on the number of existing objects in a hierarchy.
+const getId = (name: string, ...args: (number | string)[]): string => {
   // Ensure a unique UUID
-  return uuid(`${name}::${parentIndex}::${index}`, UUID_NAMESPACE);
+  let uuidName = name;
+
+  // Concatenate any number of args onto the name parameter
+  for (const arg in args) {
+    uuidName = `${uuidName}::${arg}`;
+  }
+  return uuid(uuidName, UUID_NAMESPACE);
 };
 
 enum KeyRingStore {
@@ -116,18 +125,22 @@ export class KeyRing {
   }
 
   // Store validated mnemonic
-  public async storeMnemonic(mnemonic: string[]): Promise<void> {
-    if (!this._state.password) {
-      throw new Error("Password is not set! Cannot store mnemonic");
+  public async storeMnemonic(
+    mnemonic: string[],
+    password: string
+  ): Promise<boolean> {
+    if (!password) {
+      throw new Error("Password is not provided! Cannot store mnemonic");
     }
     const phrase = mnemonic.join(" ");
 
     try {
       Mnemonic.validate(phrase);
-      const encrypted = AEAD.encrypt(phrase, this._state.password);
+      const encrypted = AEAD.encrypt(phrase, password);
       // Validate mnemonic
       // Create mnemonic keystore
       this._state.update({
+        password,
         mnemonics: [
           ...this._state.mnemonics,
           {
@@ -137,9 +150,12 @@ export class KeyRing {
         ],
       });
       this.update();
+      console.log("STATE", this._state);
+      return true;
     } catch (e) {
       console.error(e);
     }
+    return false;
   }
 
   public async update() {

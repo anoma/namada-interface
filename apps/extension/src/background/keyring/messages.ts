@@ -8,6 +8,7 @@ enum MessageTypes {
   UnlockKeyRing = "unlock-keyring",
   CheckPassword = "check-password",
   GenerateMnemonic = "generate-mnemonic",
+  SaveMnemonic = "save-mnemonic",
 }
 
 export class LockKeyRingMsg extends Message<{ status: KeyRingStatus }> {
@@ -95,5 +96,43 @@ export class GenerateMnemonicMsg extends Message<string[]> {
 
   type(): string {
     return GenerateMnemonicMsg.type();
+  }
+}
+
+export class SaveMnemonicMsg extends Message<boolean> {
+  public static type() {
+    return MessageTypes.SaveMnemonic;
+  }
+
+  constructor(
+    public readonly words: string[],
+    public readonly password: string
+  ) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.password) {
+      throw new Error("A password is required to save a mnemonic!");
+    }
+
+    if (!this.words) {
+      throw new Error("A wordlist is required to save a mnemonic!");
+    }
+
+    if (
+      this.words.length !== PhraseSize.Twelve &&
+      this.words.length !== PhraseSize.TwentyFour
+    ) {
+      throw new Error("Invalid wordlist length! Not a valid mnemonic.");
+    }
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return SaveMnemonicMsg.type();
   }
 }

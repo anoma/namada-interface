@@ -4,6 +4,7 @@ import {
   UnlockKeyRingMsg,
   CheckPasswordMsg,
   GenerateMnemonicMsg,
+  SaveMnemonicMsg,
 } from "./messages";
 import { ROUTE } from "./constants";
 import { getHandler } from "./handler";
@@ -14,6 +15,7 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(UnlockKeyRingMsg);
   router.registerMessage(CheckPasswordMsg);
   router.registerMessage(GenerateMnemonicMsg);
+  router.registerMessage(SaveMnemonicMsg);
 
   router.addHandler(ROUTE, getHandler(service));
 }
