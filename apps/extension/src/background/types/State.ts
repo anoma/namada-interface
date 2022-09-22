@@ -3,7 +3,7 @@ export interface IState<T> {
   update(state: Partial<T>): void;
 }
 
-export class State<T> implements IState<T> {
+export abstract class State<T> implements IState<T> {
   constructor(public state: T) {}
 
   public update(state: Partial<T>) {

@@ -10,6 +10,7 @@ import { v5 as uuid } from "uuid";
 
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
 
+// TODO: Move to a common function
 const getId = (name: string, index: number, parentIndex = 0): string => {
   // Ensure a unique UUID
   return uuid(`${name}::${parentIndex}::${index}`, UUID_NAMESPACE);

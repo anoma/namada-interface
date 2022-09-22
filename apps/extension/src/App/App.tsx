@@ -17,12 +17,12 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     (async () => {
-      const mnemonics = await requester.sendMessage<GenerateMnemonicMsg>(
+      const words = await requester.sendMessage<GenerateMnemonicMsg>(
         Ports.Background,
         new GenerateMnemonicMsg(24)
       );
-      setMnemonic(mnemonics);
-      console.log({ mnemonics });
+      setMnemonic(words);
+      console.log({ mnemonics: words });
 
       const chainsResult = await requester.sendMessage<GetChainsMsg>(
         Ports.Background,
@@ -38,7 +38,6 @@ export const App: React.FC = () => {
       <div>
         <Icon iconName={IconName.Settings} />
         <h1>Anoma Browser Extension</h1>
-
         <div>
           {chains.map((chain, i) => (
             <div key={`${chain.chainId}-${i}`}>
@@ -48,10 +47,11 @@ export const App: React.FC = () => {
             </div>
           ))}
         </div>
-        <div></div>
-        {mnemonic.map((word, i) => (
-          <WordChip key={`${i}-${word}`} number={i} text={word} />
-        ))}
+        <div>
+          {mnemonic.map((word, i) => (
+            <WordChip key={`${i}-${word}`} number={i} text={word} />
+          ))}
+        </div>
       </div>
     </ThemeProvider>
   );
