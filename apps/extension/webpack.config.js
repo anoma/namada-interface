@@ -13,8 +13,12 @@ const plugins = [
   new CopyPlugin({
     patterns: [
       {
-        from: "./src/static/*.html",
+        from: "./src/public/*.html",
         to: "./[name].html",
+      },
+      {
+        from: "./src/public/*.css",
+        to: "./assets/[name].css",
       },
     ],
   }),
@@ -34,7 +38,7 @@ if (NODE_ENV === "development") {
       entries: {
         contentScript: ["content"],
         background: ["background"],
-        extensionPage: ["popup"],
+        extensionPage: ["popup", "setup"],
       },
     })
   );
@@ -48,6 +52,7 @@ module.exports = {
     content: "./src/content",
     background: "./src/background",
     popup: "./src/popup",
+    setup: "./src/setup",
     injected: "./src/content/injected.ts",
   },
   output: {

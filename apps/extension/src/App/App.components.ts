@@ -1,16 +1,23 @@
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 
 const topSectionHeight = "164px";
+
+// Set global styles for themed control of background color based
+// on whether the user is logged in
+export const GlobalStyles = createGlobalStyle`
+  html, body {
+    background-color: #000;
+  }
+`;
 
 export const AppContainer = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: top;
   flex-direction: column;
   height: 100vh;
   width: 100%;
   background-color: ${(props) => props.theme.colors.utility1.main};
-  transition: all 0.3s linear;
   box-sizing: border-box;
 
   @media screen and (max-width: 860px) {

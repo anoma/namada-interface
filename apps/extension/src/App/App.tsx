@@ -1,31 +1,44 @@
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 
+import { Button, ButtonVariant } from "@anoma/components";
 import { getTheme } from "@anoma/utils";
-import { ExtensionRequester } from "extension";
 
-import { AccountCreation } from "./AccountCreation";
-// import { TopLevelRoute } from "./types";
-
-const requester = new ExtensionRequester();
+import browser from "webextension-polyfill";
+import {
+  AppContainer,
+  BottomSection,
+  ContentContainer,
+  GlobalStyles,
+  TopSection,
+} from "./App.components";
 
 export const App: React.FC = () => {
-  const theme = getTheme(false, false);
+  const theme = getTheme(true, false);
 
   return (
     <ThemeProvider theme={theme}>
-      <div>
-        <h1>Anoma Browser Extension</h1>
-        <BrowserRouter>
-          <Routes>
-            <Route
-              path={`*`}
-              element={<AccountCreation requester={requester} />}
-            />
-          </Routes>
-        </BrowserRouter>
-      </div>
+      <AppContainer>
+        <GlobalStyles />
+        <TopSection>
+          <h1>Anoma Browser Extension</h1>
+        </TopSection>
+        <ContentContainer>
+          {/* Show user button to launch setup if this wallet hasn't been configured */}
+          <Button
+            variant={ButtonVariant.Contained}
+            onClick={() => {
+              browser.tabs.create({
+                url: browser.runtime.getURL("setup.html"),
+              });
+            }}
+          >
+            Launch Initial Set-Up
+          </Button>
+          {/* Otherwise, load their accounts and display below */}
+        </ContentContainer>
+        <BottomSection></BottomSection>
+      </AppContainer>
     </ThemeProvider>
   );
 };
