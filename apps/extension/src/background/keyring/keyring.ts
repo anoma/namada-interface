@@ -1,5 +1,6 @@
 import { KVStore } from "@anoma/storage";
-import { AEAD, Mnemonic, PhraseSize } from "@anoma/crypto";
+import { AEAD, Bip44, Mnemonic, PhraseSize } from "@anoma/crypto";
+import { Address } from "@anoma/shared";
 import {
   KeyRingState,
   KeyRingStatus,
@@ -7,6 +8,7 @@ import {
   AccountState,
 } from "./types";
 import { v5 as uuid } from "uuid";
+import { Bip44Path, DerivedAccount } from "./types";
 
 // Generated UUID namespace for uuid v5
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
@@ -127,7 +129,8 @@ export class KeyRing {
   // Store validated mnemonic
   public async storeMnemonic(
     mnemonic: string[],
-    password: string
+    password: string,
+    description?: string
   ): Promise<boolean> {
     if (!password) {
       throw new Error("Password is not provided! Cannot store mnemonic");
@@ -145,6 +148,7 @@ export class KeyRing {
           ...this._state.mnemonics,
           {
             id: getId(phrase, this._state.mnemonics.length),
+            description,
             phrase: encrypted,
           },
         ],
@@ -156,6 +160,70 @@ export class KeyRing {
       console.error(e);
     }
     return false;
+  }
+
+  public async deriveAccount(
+    path: Bip44Path,
+    description?: string
+  ): Promise<DerivedAccount> {
+    if (!this._state.password) {
+      throw new Error("No password is set!");
+    }
+
+    const storedMnemonic = this._state.mnemonics[0];
+
+    if (!storedMnemonic) {
+      throw new Error("Mnemonic is not set!");
+    }
+
+    try {
+      const phrase = AEAD.decrypt(storedMnemonic.phrase, this._state.password);
+      // TODO: Validate derivation path against stored paths under this mnemonic!
+      const { account, change, index } = path;
+      const fragment = `${account}'/${change}'/${index}'`;
+      const root = "m/44'";
+      const derivationPath = [root, fragment].join("/");
+      const mnemonic = Mnemonic.from_phrase(phrase);
+      const seed = mnemonic.to_seed();
+      const bip44 = new Bip44(seed);
+      const derivedAccount = bip44.derive(derivationPath);
+      const privateKey = AEAD.encrypt_from_bytes(
+        derivedAccount.private().to_bytes(),
+        this._state.password
+      );
+      const publicKey = AEAD.encrypt_from_bytes(
+        derivedAccount.public().to_bytes(),
+        this._state.password
+      );
+      const address = new Address(derivedAccount.private().to_hex()).implicit();
+      // TODO: Establish address on the ledger:
+      const establishedAddress = "";
+
+      this._state.update({
+        accounts: [
+          ...this._state.accounts,
+          {
+            id: getId("account", account, change, index),
+            parentId: storedMnemonic.id,
+            bip44Path: path,
+            address,
+            establishedAddress,
+            private: privateKey,
+            public: publicKey,
+            description,
+          },
+        ],
+      });
+      this.update();
+
+      return {
+        bip44Path: path,
+        address,
+        establishedAddress,
+      };
+    } catch (e) {
+      throw new Error("Could not decrypt mnemonic from password!");
+    }
   }
 
   public async update() {

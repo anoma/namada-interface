@@ -106,7 +106,8 @@ export class SaveMnemonicMsg extends Message<boolean> {
 
   constructor(
     public readonly words: string[],
-    public readonly password: string
+    public readonly password: string,
+    public readonly description?: string
   ) {
     super();
   }

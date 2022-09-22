@@ -8,17 +8,22 @@ export type Bip44Path = {
 
 export type MnemonicState = {
   id: string;
+  description?: string;
   phrase: Uint8Array;
 };
 
-export type AccountState = {
+export type DerivedAccount = {
+  bip44Path: Bip44Path;
+  address: string;
+  establishedAddress: string;
+};
+
+export type AccountState = DerivedAccount & {
   id: string;
   parentId: string;
-  description: string;
-  bip44Path: Bip44Path;
+  description?: string;
   private: Uint8Array;
   public: Uint8Array;
-  address: string;
 };
 
 export enum KeyRingStatus {

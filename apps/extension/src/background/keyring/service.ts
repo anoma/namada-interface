@@ -33,7 +33,11 @@ export class KeyRingService {
     return await keyRing.generateMnemonic(size);
   }
 
-  async saveMnemonic(words: string[], password: string): Promise<boolean> {
-    return await keyRing.storeMnemonic(words, password);
+  async saveMnemonic(
+    words: string[],
+    password: string,
+    description?: string
+  ): Promise<boolean> {
+    return await keyRing.storeMnemonic(words, password, description);
   }
 }
