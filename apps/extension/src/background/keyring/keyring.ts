@@ -223,7 +223,7 @@ export class KeyRing {
 
   public async queryAccounts(): Promise<DerivedAccount[]> {
     if (!this._state.password) {
-      throw new Error("No password is set!");
+      return [];
     }
 
     if (this._state.accounts.length === 0) {
