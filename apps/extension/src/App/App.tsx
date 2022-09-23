@@ -15,6 +15,7 @@ import {
   GlobalStyles,
   TopSection,
 } from "./App.components";
+import Accounts from "./Accounts/Accounts";
 
 const requester = new ExtensionRequester();
 
@@ -34,7 +35,7 @@ export const App: React.FC = () => {
           setAccounts(accounts);
         }
       } catch (e) {
-        console.warn(e);
+        console.error(e);
       } finally {
         setIsLoading(false);
       }
@@ -61,16 +62,7 @@ export const App: React.FC = () => {
               Launch Initial Set-Up
             </Button>
           )}
-          {accounts.map((account, i) => (
-            <div key={`account-${i}`}>
-              <code>
-                m/44'/{account.bip44Path.account}'/{account.bip44Path.change}'/
-                {account.bip44Path.index}'
-              </code>
-              &nbsp;
-              <code>{account.address}</code>
-            </div>
-          ))}
+          <Accounts accounts={accounts} />
         </ContentContainer>
         <BottomSection></BottomSection>
       </AppContainer>

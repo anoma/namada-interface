@@ -2,8 +2,6 @@ import styled, { createGlobalStyle } from "styled-components";
 
 const topSectionHeight = "164px";
 
-// Set global styles for themed control of background color based
-// on whether the user is logged in
 export const GlobalStyles = createGlobalStyle`
   html, body {
     background-color: #000;

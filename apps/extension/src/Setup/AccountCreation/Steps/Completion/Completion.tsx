@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
 import { ExtensionRequester } from "extension";
+import browser from "webextension-polyfill";
+
+import { Button, ButtonVariant } from "@anoma/components";
 import { DeriveAccountMsg, SaveMnemonicMsg } from "background/keyring";
 import { Ports } from "router";
 
 import {
+  BodyText,
+  ButtonsContainer,
   CompletionViewContainer,
   CompletionViewUpperPartContainer,
-  ImageContainer,
   Header1,
-  BodyText,
 } from "./Completion.components";
 
 type CompletionViewProps = {
@@ -60,9 +63,15 @@ const Completion = (props: CompletionViewProps): JSX.Element => {
 
   return (
     <CompletionViewContainer>
-      <ImageContainer></ImageContainer>
       <CompletionViewUpperPartContainer>
         <Header1>Creating your wallet</Header1>
+        {isComplete && (
+          <BodyText>
+            Setup is complete! You may close this tab and access the extension
+            popup to view your accounts.
+          </BodyText>
+        )}
+
         {!isComplete && (
           <BodyText>One moment while your wallet is being created...</BodyText>
         )}
@@ -80,14 +89,21 @@ const Completion = (props: CompletionViewProps): JSX.Element => {
             {accountStatus === Status.Failed && <i>Failed</i>}
           </li>
         </ul>
-
-        {isComplete && (
-          <BodyText>
-            Setup is complete! You may close this tab and access the extension
-            popup to view your accounts.
-          </BodyText>
-        )}
       </CompletionViewUpperPartContainer>
+      <ButtonsContainer>
+        <Button
+          variant={ButtonVariant.Contained}
+          onClick={async () => {
+            const tab = await browser.tabs.getCurrent();
+            if (tab.id) {
+              browser.tabs.remove(tab.id);
+            }
+          }}
+          disabled={!isComplete}
+        >
+          Close
+        </Button>
+      </ButtonsContainer>
     </CompletionViewContainer>
   );
 };

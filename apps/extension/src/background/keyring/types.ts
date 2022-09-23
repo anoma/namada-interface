@@ -16,12 +16,12 @@ export type DerivedAccount = {
   bip44Path: Bip44Path;
   address: string;
   establishedAddress?: string;
+  description?: string;
 };
 
 export type AccountState = DerivedAccount & {
   id: string;
   parentId: string;
-  description?: string;
   private: Uint8Array;
   public: Uint8Array;
 };
