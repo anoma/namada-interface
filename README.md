@@ -4,7 +4,7 @@
     <img style="width: 300px;" src="banner-image.png" />
 </div>
 
-There is a seperate more details specifications documentation under [/specs](https://github.com/anoma/namada-interface/blob/main/specs/index.md)
+There is a seperate more details specifications documentation under [/specs](https://github.com/anoma/namada-interface/blob/main/specs)
 
 <h2> Run namada-interface </h2>
 
