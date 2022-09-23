@@ -5,6 +5,9 @@ Rust library for compiling crypto functions to wasm, as used by Namada Interface
 ## Usage
 
 ```bash
+# Install wasm-bindgen-cli
+cargo install -f wasm-bindgen-cli
+
 # Build wasm
 ../scripts/build.sh
 
