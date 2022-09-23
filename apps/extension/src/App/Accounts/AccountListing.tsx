@@ -16,12 +16,13 @@ const AccountListing = ({ account }: Props): JSX.Element => {
 
   return (
     <AccountListingContainer>
+      {description && <Description>{description}</Description>}
       <DerivationPath>
-        m/44'/{account.bip44Path.account}'/{account.bip44Path.change}'/
-        {account.bip44Path.index}'
+        /{bip44Path.account}'/{bip44Path.change}'/
+        {bip44Path.index}'
       </DerivationPath>
-      &nbsp;
-      <Address>{account.address}</Address>
+      <Address>{address}</Address>
+      {establishedAddress && <Address>{establishedAddress}</Address>}
     </AccountListingContainer>
   );
 };

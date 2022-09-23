@@ -12,7 +12,7 @@ import {
   ContentContainer,
   GlobalStyles,
   TopSection,
-} from "../App/App.components";
+} from "./Setup.components";
 
 const requester = new ExtensionRequester();
 
@@ -23,9 +23,7 @@ export const Setup: React.FC = () => {
     <ThemeProvider theme={theme}>
       <AppContainer>
         <GlobalStyles />
-        <TopSection>
-          <h1>Anoma Browser Extension</h1>
-        </TopSection>
+        <TopSection>Anoma Browser Extension</TopSection>
         <ContentContainer>
           <BrowserRouter>
             <Routes>

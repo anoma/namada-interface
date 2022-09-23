@@ -31,9 +31,7 @@ export const App: React.FC = () => {
           Ports.Background,
           new QueryAccountsMsg()
         );
-        if (accounts.length > 0) {
-          setAccounts(accounts);
-        }
+        setAccounts(accounts);
       } catch (e) {
         console.error(e);
       } finally {
@@ -46,13 +44,14 @@ export const App: React.FC = () => {
     <ThemeProvider theme={theme}>
       <AppContainer>
         <GlobalStyles />
-        <TopSection>
-          <h1>Anoma Browser Extension</h1>
-        </TopSection>
         <ContentContainer>
+          <TopSection>
+            <h1>Anoma Browser Extension</h1>
+          </TopSection>
+
           {!isLoading && accounts.length === 0 && (
             <Button
-              variant={ButtonVariant.Contained}
+              variant={ButtonVariant.ContainedAlternative}
               onClick={() => {
                 browser.tabs.create({
                   url: browser.runtime.getURL("setup.html"),

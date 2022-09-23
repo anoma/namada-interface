@@ -65,6 +65,19 @@ export const SeedPhraseIndexLabel = styled.span`
   color: ${(props) => props.theme.colors.utility2.main80};
 `;
 
+export const SeedPhraseLengthContainer = styled.div`
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: right;
+  flex-direction: row;
+  margin: 4px 0 12px;
+`;
+
+export const SeedPhraseLength = styled.div`
+  padding: 0 8px;
+`;
+
 export const ExportSeedPhraseButtonsContainer = styled.div`
   display: flex;
   justify-content: center;

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, ButtonVariant } from "@anoma/components";
+import { Button, ButtonVariant, Toggle } from "@anoma/components";
 import { GenerateMnemonicMsg } from "background/keyring";
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
@@ -13,6 +13,8 @@ import {
   SeedPhraseCard,
   SeedPhraseContainer,
   SeedPhraseIndexLabel,
+  SeedPhraseLengthContainer,
+  SeedPhraseLength,
   ExportSeedPhraseButtonsContainer,
   CopyToClipboard,
 } from "./SeedPhrase.components";
@@ -46,8 +48,8 @@ const SeedPhrase = (props: AccountInformationViewProps): JSX.Element => {
   const [seedPhrase, setSeedPhrase] = useState(defaultSeedPhrase || []);
 
   const isSubmitButtonDisabled = seedPhrase.length === 0;
-  // TODO: User should be able to also choose 24!
-  const seedPhraseLength = 12;
+
+  const [mnemonicLength, setMnemonicLength] = useState(12);
 
   useEffect(() => {
     // if a mnemonic was passed in we do not generate it again
@@ -56,14 +58,14 @@ const SeedPhrase = (props: AccountInformationViewProps): JSX.Element => {
     const createMnemonic = async (): Promise<void> => {
       const words = await requester.sendMessage<GenerateMnemonicMsg>(
         Ports.Background,
-        new GenerateMnemonicMsg(seedPhraseLength)
+        new GenerateMnemonicMsg(mnemonicLength)
       );
       setSeedPhrase(words);
     };
 
     createMnemonic();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [mnemonicLength]);
 
   return (
     <AccountInformationViewContainer>
@@ -76,6 +78,16 @@ const SeedPhrase = (props: AccountInformationViewProps): JSX.Element => {
       <AccountInformationForm>
         {/* description */}
         <BodyText>Write down your seed phrase.</BodyText>
+        <SeedPhraseLengthContainer>
+          <SeedPhraseLength>12</SeedPhraseLength>
+          <Toggle
+            checked={mnemonicLength === 12}
+            onClick={() => {
+              setMnemonicLength(mnemonicLength === 24 ? 12 : 24);
+            }}
+          />
+          <SeedPhraseLength>24</SeedPhraseLength>
+        </SeedPhraseLengthContainer>
         <SeedPhraseContainer>
           {seedPhrase.map((word, index) => {
             return (
@@ -86,7 +98,6 @@ const SeedPhrase = (props: AccountInformationViewProps): JSX.Element => {
             );
           })}
         </SeedPhraseContainer>
-
         <ExportSeedPhraseButtonsContainer>
           {/* copy seed phrase */}
           <CopyToClipboard
@@ -98,7 +109,6 @@ const SeedPhrase = (props: AccountInformationViewProps): JSX.Element => {
             Copy to clipboard
           </CopyToClipboard>
         </ExportSeedPhraseButtonsContainer>
-
         {/* continue */}
         <ButtonContainer>
           <Button

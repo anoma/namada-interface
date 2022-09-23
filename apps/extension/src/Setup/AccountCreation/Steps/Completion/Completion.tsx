@@ -42,7 +42,8 @@ const Completion = (props: CompletionViewProps): JSX.Element => {
             new SaveMnemonicMsg(mnemonic, password)
           );
           setMnemonicStatus(Status.Completed);
-        } catch (_) {
+        } catch (e) {
+          console.error(e);
           setMnemonicStatus(Status.Failed);
         }
 
@@ -52,7 +53,8 @@ const Completion = (props: CompletionViewProps): JSX.Element => {
             new DeriveAccountMsg({ account: 0, change: 0, index: 0 })
           );
           setAccountStatus(Status.Completed);
-        } catch (_) {
+        } catch (e) {
+          console.error(e);
           setAccountStatus(Status.Failed);
         }
 

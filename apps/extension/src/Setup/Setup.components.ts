@@ -12,15 +12,13 @@ export const AppContainer = styled.div`
   align-items: top;
   flex-direction: column;
   height: 100%;
-  min-height: 430px;
+  min-height: 400px;
   width: 100%;
   box-sizing: border-box;
 
   @media screen and (max-width: 860px) {
-    margin: 0;
-    padding: 0 8px;
+    padding: 0 36px;
     min-width: 360px;
-    min-height: 360px;
   }
 `;
 
@@ -40,11 +38,7 @@ export const BottomSection = styled.section`
 
 export const ContentContainer = styled.div`
   display: flex;
-  height: 100%;
-  min-height: 360px;
   flex-direction: column;
   justify-content: start;
   align-items: center;
-  background-color: ${(props) => props.theme.colors.utility1.main80};
-  color: ${(props) => props.theme.colors.utility1.main20};
 `;

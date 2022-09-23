@@ -13,10 +13,6 @@ export class ChainsService {
     protected readonly defaultChains: Chain[]
   ) {}
 
-  init() {
-    console.debug("ChainsService initialized");
-  }
-
   readonly getChains: () => Promise<Chain[]> = debounce(async () => {
     const chains = [...this.defaultChains];
     const suggestedChains: Chain[] = await this.getSuggestedChains();

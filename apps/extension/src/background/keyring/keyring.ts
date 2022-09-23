@@ -43,11 +43,7 @@ export class KeyRing {
     accounts: [],
   });
 
-  private _store: KVStore | null;
-
-  constructor() {
-    this._store = null;
-  }
+  constructor(private _store: KVStore) {}
 
   public isLocked(): boolean {
     return !this._state.password;
@@ -79,7 +75,7 @@ export class KeyRing {
 
     // Note: We may support multiple top-level mnemonic seeds in the future,
     // hence why we're storing these in an array. For now, we check for only one:
-    const mnemonics = await this._store?.get<MnemonicState[]>(
+    const mnemonics = await this._store.get<MnemonicState[]>(
       KeyRingStore.Mnemonic
     );
     if (await this.checkPassword(password)) {
@@ -96,7 +92,7 @@ export class KeyRing {
   }
 
   public async checkPassword(password: string): Promise<boolean> {
-    const mnemonics = await this._store?.get<MnemonicState[]>(
+    const mnemonics = await this._store.get<MnemonicState[]>(
       KeyRingStore.Mnemonic
     );
 
@@ -152,7 +148,6 @@ export class KeyRing {
         ],
       });
       this.update();
-      console.log("STATE", this._state);
       return true;
     } catch (e) {
       console.error(e);
@@ -217,23 +212,23 @@ export class KeyRing {
         address,
       };
     } catch (e) {
+      console.error(e);
       throw new Error("Could not decrypt mnemonic from password!");
     }
   }
 
   public async queryAccounts(): Promise<DerivedAccount[]> {
-    if (!this._state.password) {
-      return [];
-    }
-
     if (this._state.accounts.length === 0) {
+      // Query accounts from storage
       const accounts = await this._store?.get<AccountState[]>(
         KeyRingStore.Accounts
       );
 
-      this._state.update({
-        accounts,
-      });
+      if (accounts) {
+        this._state.update({
+          accounts,
+        });
+      }
     }
 
     return this._state.accounts.map(({ address, bip44Path, description }) => ({
@@ -244,11 +239,11 @@ export class KeyRing {
   }
 
   public async update() {
-    await this._store?.set<MnemonicState[]>(
+    await this._store.set<MnemonicState[]>(
       KeyRingStore.Mnemonic,
       this._state.mnemonics
     );
-    await this._store?.set<AccountState[]>(
+    await this._store.set<AccountState[]>(
       KeyRingStore.Accounts,
       this._state.accounts
     );
