@@ -1,7 +1,7 @@
 import { PhraseSize } from "@anoma/crypto";
 import { Message } from "router";
 import { ROUTE } from "./constants";
-import { KeyRingStatus } from "./types";
+import { Bip44Path, DerivedAccount, KeyRingStatus } from "./types";
 
 enum MessageTypes {
   LockKeyRing = "lock-keyring",
@@ -9,6 +9,8 @@ enum MessageTypes {
   CheckPassword = "check-password",
   GenerateMnemonic = "generate-mnemonic",
   SaveMnemonic = "save-mnemonic",
+  DeriveAccount = "derive-account",
+  QueryAccounts = "query-accounts",
 }
 
 export class LockKeyRingMsg extends Message<{ status: KeyRingStatus }> {
@@ -135,5 +137,66 @@ export class SaveMnemonicMsg extends Message<boolean> {
 
   type(): string {
     return SaveMnemonicMsg.type();
+  }
+}
+
+export class DeriveAccountMsg extends Message<DerivedAccount> {
+  public static type() {
+    return MessageTypes.DeriveAccount;
+  }
+
+  constructor(
+    public readonly path: Bip44Path,
+    public readonly description?: string
+  ) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.path) {
+      throw new Error("A Bip44Path object must be provided!");
+    }
+
+    const { account, change, index } = this.path;
+
+    if (!`${account}`) {
+      throw new Error("A Bip44Path account path was not provided!");
+    }
+
+    if (!`${change}`) {
+      throw new Error("A Bip44Path change path was not provided!");
+    }
+
+    if (!`${index}`) {
+      throw new Error("A Bip44Path index path was not provided!");
+    }
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return DeriveAccountMsg.type();
+  }
+}
+
+export class QueryAccountsMsg extends Message<DerivedAccount[]> {
+  public static type() {
+    return MessageTypes.QueryAccounts;
+  }
+
+  constructor() {
+    super();
+  }
+
+  validate(): void {}
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return QueryAccountsMsg.type();
   }
 }

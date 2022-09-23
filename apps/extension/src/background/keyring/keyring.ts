@@ -140,8 +140,6 @@ export class KeyRing {
     try {
       Mnemonic.validate(phrase);
       const encrypted = AEAD.encrypt(phrase, password);
-      // Validate mnemonic
-      // Create mnemonic keystore
       this._state.update({
         password,
         mnemonics: [
@@ -180,9 +178,10 @@ export class KeyRing {
       const phrase = AEAD.decrypt(storedMnemonic.phrase, this._state.password);
       // TODO: Validate derivation path against stored paths under this mnemonic!
       const { account, change, index } = path;
-      const fragment = `${account}'/${change}'/${index}'`;
-      const root = "m/44'";
-      const derivationPath = [root, fragment].join("/");
+      const root = "m/44";
+      const derivationPath = [root, account, change, index]
+        .map((p) => `${p}'`)
+        .join("/");
       const mnemonic = Mnemonic.from_phrase(phrase);
       const seed = mnemonic.to_seed();
       const bip44 = new Bip44(seed);
@@ -196,8 +195,6 @@ export class KeyRing {
         this._state.password
       );
       const address = new Address(derivedAccount.private().to_hex()).implicit();
-      // TODO: Establish address on the ledger:
-      const establishedAddress = "";
 
       this._state.update({
         accounts: [
@@ -207,7 +204,6 @@ export class KeyRing {
             parentId: storedMnemonic.id,
             bip44Path: path,
             address,
-            establishedAddress,
             private: privateKey,
             public: publicKey,
             description,
@@ -219,11 +215,32 @@ export class KeyRing {
       return {
         bip44Path: path,
         address,
-        establishedAddress,
       };
     } catch (e) {
       throw new Error("Could not decrypt mnemonic from password!");
     }
+  }
+
+  public async queryAccounts(): Promise<DerivedAccount[]> {
+    if (!this._state.password) {
+      throw new Error("No password is set!");
+    }
+
+    if (this._state.accounts.length === 0) {
+      const accounts = await this._store?.get<AccountState[]>(
+        KeyRingStore.Accounts
+      );
+
+      this._state.update({
+        accounts,
+      });
+    }
+
+    return this._state.accounts.map(({ address, bip44Path, description }) => ({
+      address,
+      bip44Path,
+      description,
+    }));
   }
 
   public async update() {

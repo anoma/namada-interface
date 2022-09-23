@@ -15,7 +15,7 @@ export type MnemonicState = {
 export type DerivedAccount = {
   bip44Path: Bip44Path;
   address: string;
-  establishedAddress: string;
+  establishedAddress?: string;
 };
 
 export type AccountState = DerivedAccount & {

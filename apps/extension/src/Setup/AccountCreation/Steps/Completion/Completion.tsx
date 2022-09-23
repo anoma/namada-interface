@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Image, ImageName } from "@anoma/components";
 import { ExtensionRequester } from "extension";
-import { SaveMnemonicMsg } from "background/keyring";
+import { DeriveAccountMsg, SaveMnemonicMsg } from "background/keyring";
 import { Ports } from "router";
 
 import {
@@ -25,12 +25,19 @@ const Completion = (props: CompletionViewProps): JSX.Element => {
     if (password && mnemonic) {
       console.log("Account is ready to initialize", { password, mnemonic });
       (async () => {
-        const results = await requester.sendMessage<SaveMnemonicMsg>(
+        const mnemonicResults = await requester.sendMessage<SaveMnemonicMsg>(
           Ports.Background,
           new SaveMnemonicMsg(mnemonic, password)
         );
 
-        console.log({ results, mnemonic, password });
+        console.info({ mnemonicResults, mnemonic, password });
+
+        const account = await requester.sendMessage<DeriveAccountMsg>(
+          Ports.Background,
+          new DeriveAccountMsg({ account: 0, change: 0, index: 0 })
+        );
+
+        console.info({ account });
       })();
     }
   }, []);

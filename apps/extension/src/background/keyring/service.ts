@@ -1,7 +1,7 @@
 import { PhraseSize } from "@anoma/crypto";
 import { KVStore } from "@anoma/storage";
 import { KeyRing } from "./keyring";
-import { KeyRingStatus } from "./types";
+import { Bip44Path, DerivedAccount, KeyRingStatus } from "./types";
 
 const keyRing = new KeyRing();
 
@@ -39,5 +39,16 @@ export class KeyRingService {
     description?: string
   ): Promise<boolean> {
     return await keyRing.storeMnemonic(words, password, description);
+  }
+
+  async deriveAccount(
+    path: Bip44Path,
+    description?: string
+  ): Promise<DerivedAccount> {
+    return await keyRing.deriveAccount(path, description);
+  }
+
+  async queryAccounts(): Promise<DerivedAccount[]> {
+    return await keyRing.queryAccounts();
   }
 }

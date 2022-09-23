@@ -1,6 +1,8 @@
 import { Handler, Env, Message, InternalHandler } from "router";
 import { KeyRingService } from "./service";
 import {
+  DeriveAccountMsg,
+  QueryAccountsMsg,
   LockKeyRingMsg,
   UnlockKeyRingMsg,
   CheckPasswordMsg,
@@ -24,6 +26,10 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         );
       case SaveMnemonicMsg:
         return handleSaveMnemonicMsg(service)(env, msg as SaveMnemonicMsg);
+      case DeriveAccountMsg:
+        return handleDeriveAccountMsg(service)(env, msg as DeriveAccountMsg);
+      case QueryAccountsMsg:
+        return handleQueryAccountsMsg(service)(env, msg as QueryAccountsMsg);
       default:
         throw new Error("Unknown msg type");
     }
@@ -71,5 +77,22 @@ const handleSaveMnemonicMsg: (
       return await service.saveMnemonic(words, password, description);
     }
     return false;
+  };
+};
+
+const handleDeriveAccountMsg: (
+  service: KeyRingService
+) => InternalHandler<DeriveAccountMsg> = (service) => {
+  return async (_, msg) => {
+    const { path, description } = msg;
+    return await service.deriveAccount(path, description);
+  };
+};
+
+const handleQueryAccountsMsg: (
+  service: KeyRingService
+) => InternalHandler<QueryAccountsMsg> = (service) => {
+  return async (_, _msg) => {
+    return await service.queryAccounts();
   };
 };
