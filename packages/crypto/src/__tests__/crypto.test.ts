@@ -1,4 +1,4 @@
-import { AEAD, Bip44, Mnemonic, PhraseSize } from "../crypto/crypto";
+import { AEAD, HDWallet, Mnemonic, PhraseSize, Scrypt } from "../crypto/crypto";
 
 const KEY_LENGTH = 32;
 const SEED_LENGTH = 64;
@@ -23,11 +23,11 @@ describe("Mnemonic", () => {
   });
 });
 
-describe("Bip44", () => {
+describe("HDWallet", () => {
   test("It should derive unique keys from a seed and a path", () => {
     const m = new Mnemonic(PhraseSize.Twelve);
     const seed = m.to_seed();
-    const b = new Bip44(seed);
+    const b = new HDWallet(seed);
 
     const account1 = b.derive("m/44/0/0/0");
 
@@ -49,5 +49,16 @@ describe("AEAD", () => {
     const decrypted = AEAD.decrypt(encrypted, password);
 
     expect(decrypted).toBe(message);
+  });
+});
+
+describe("Scrypt", () => {
+  test("It should hash a password and verify", () => {
+    const password = "password";
+    const scrypt = new Scrypt(password);
+    const hash = scrypt.to_hash();
+    const results = scrypt.verify(hash);
+
+    expect(results).not.toBe("invalid password");
   });
 });
