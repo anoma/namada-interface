@@ -53,9 +53,18 @@ describe("AEAD", () => {
 });
 
 describe("Scrypt", () => {
-  test("It should hash a password and verify", () => {
+  test("It should hash a password and verify with default params", () => {
     const password = "password";
     const scrypt = new Scrypt(password);
+    const hash = scrypt.to_hash();
+    const results = scrypt.verify(hash);
+
+    expect(results).not.toBe("invalid password");
+  });
+
+  test("It should hash a password and verify with custom params", () => {
+    const password = "password";
+    const scrypt = new Scrypt(password, 12, 12, 2);
     const hash = scrypt.to_hash();
     const results = scrypt.verify(hash);
 
