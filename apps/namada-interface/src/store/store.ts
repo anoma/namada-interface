@@ -16,6 +16,7 @@ import {
   settingsReducer,
   channelsReducer,
   coinsReducer,
+  stakingAndGovernanceReducers,
 } from "slices";
 import { LocalStorageKeys } from "App/types";
 import { hashPassword } from "@anoma/utils";
@@ -27,6 +28,7 @@ const reducers = combineReducers({
   channels: channelsReducer,
   settings: settingsReducer,
   coins: coinsReducer,
+  stakingAndGovernance: stakingAndGovernanceReducers,
 });
 
 type StoreFactory = (secretKey: string) => EnhancedStore;
@@ -49,6 +51,7 @@ const makeStore: StoreFactory = (secret) => {
       "settings",
       "channels",
       "coins",
+      "stakingAndGovernance",
     ],
     transforms: [
       encryptTransform({

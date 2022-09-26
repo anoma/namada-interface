@@ -30,7 +30,7 @@ export enum TopLevelRoute {
   TokenIbcTransfer = "/token/:id/ibc-transfer",
 
   /* STAKING AND GOVERNANCE */
-  Staking = "/staking",
+  StakingAndGovernance = "/staking-and-governance",
   Governance = "/governance",
 
   /* SETTINGS */
@@ -42,6 +42,8 @@ export enum TopLevelRoute {
 
 export enum StakingAndGovernanceSubRoute {
   Staking = "/staking",
+  StakingOverview = "/staking-overview",
+  ValidatorDetails = "/validator-details",
   Governance = "/governance",
   PublicGoodsFunding = "/public-goods-funding",
 }

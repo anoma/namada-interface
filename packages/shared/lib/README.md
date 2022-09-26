@@ -5,6 +5,9 @@ Rust library for wrapping Namada types and functionality and compiling to wasm, 
 ## Usage
 
 ```bash
+# Install wasm-bindgen-cli
+cargo install -f wasm-bindgen-cli
+
 # Build wasm
 ../scripts/build.sh
 
