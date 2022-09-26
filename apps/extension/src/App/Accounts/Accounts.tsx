@@ -1,8 +1,12 @@
+import { Icon, IconName } from "@anoma/components";
 import { DerivedAccount } from "background/keyring";
 import {
   AccountsContainer,
   AccountsList,
   AccountsListItem,
+  ButtonContainer,
+  Button,
+  ButtonText,
 } from "./Accounts.components";
 import { AccountListing } from "App/Accounts";
 
@@ -20,6 +24,12 @@ const Accounts = ({ accounts }: Props): JSX.Element => {
           </AccountsListItem>
         ))}
       </AccountsList>
+      <ButtonContainer>
+        <Button>
+          <ButtonText>Derive new account</ButtonText>
+          <Icon iconName={IconName.Plus} />
+        </Button>
+      </ButtonContainer>
     </AccountsContainer>
   );
 };

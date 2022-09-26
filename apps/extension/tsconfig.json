@@ -20,13 +20,5 @@
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
   "exclude": ["node_modules"],
-  "typeRoots": ["./node_modules/@types"],
-  "plugins": [
-    {
-      "transform": "typescript-plugin-styled-components",
-      "type": "config",
-      "minify": true,
-      "ssr": false
-    }
-  ]
+  "typeRoots": ["./node_modules/@types"]
 }

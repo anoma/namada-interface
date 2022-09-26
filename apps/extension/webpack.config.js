@@ -2,6 +2,8 @@ const { resolve } = require("path");
 const CopyPlugin = require("copy-webpack-plugin");
 const MergeJsonWebpackPlugin = require("merge-jsons-webpack-plugin");
 const ExtensionReloader = require("webpack-extension-reloader");
+const createStyledComponentsTransformer =
+  require("typescript-plugin-styled-components").default;
 
 const { NODE_ENV, TARGET } = process.env;
 const MANIFEST_VERSION = TARGET === "firefox" ? "v2" : "v3";
@@ -64,8 +66,19 @@ module.exports = {
     rules: [
       {
         test: /\.tsx?$/,
-        use: "ts-loader",
+        loader: "ts-loader",
         exclude: /node_modules/,
+        options: {
+          getCustomTransformers: (program) => ({
+            before: [
+              createStyledComponentsTransformer(program, {
+                setComponentId: true,
+                setDisplayName: true,
+                minify: true,
+              }),
+            ],
+          }),
+        },
       },
       {
         test: /\.wasm$/,

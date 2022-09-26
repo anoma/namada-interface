@@ -19,6 +19,7 @@ export enum IconName {
   Info,
   Lock,
   Menu,
+  Copy,
 }
 
 export enum IconSize {
