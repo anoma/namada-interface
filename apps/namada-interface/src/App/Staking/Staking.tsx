@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { MainContainerNavigation } from "App/StakingAndGovernance/MainContainerNavigation";
+import { Modal } from "components/Modal";
 import { StakingContainer } from "./Staking.components";
 import { StakingOverview } from "./StakingOverview";
 import { ValidatorDetails } from "./ValidatorDetails";
@@ -11,6 +12,8 @@ import {
   MyValidators,
   StakingPosition,
 } from "slices/StakingAndGovernance";
+import { NewStakingPosition } from "./NewStakingPosition";
+import { UnstakePosition } from "./UnstakePosition";
 
 const initialTitle = "Staking";
 
@@ -52,8 +55,22 @@ type Props = {
   fetchValidatorDetails: (validatorId: string) => void;
 };
 
+// in this view we can be in one of these states at any given time
+export enum ModalState {
+  None,
+  Stake,
+  Unstake,
+}
+
+// TODO: these should go to Modal component
+export enum ModalOnRequestCloseType {
+  Confirm,
+  Cancel,
+}
+
 export const Staking = (props: Props): JSX.Element => {
   const [breadcrumb, setBreadcrumb] = useState([initialTitle]);
+  const [modalState, setModalState] = useState(ModalState.None);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -68,9 +85,11 @@ export const Staking = (props: Props): JSX.Element => {
   } = props;
 
   // these 2 are needed for validator details
-  const stakingPositionsWithSelectedValidator = myStakingPositions.filter(
-    (validator) => validator.validatorId === selectedValidatorId
-  );
+  const stakingPositionsWithSelectedValidator =
+    myStakingPositions &&
+    myStakingPositions.filter(
+      (validator) => validator.validatorId === selectedValidatorId
+    );
 
   const selectedValidator = validators.find(
     (validator) => validator.uuid === selectedValidatorId
@@ -113,6 +132,24 @@ export const Staking = (props: Props): JSX.Element => {
     fetchValidatorDetails(validatorId);
   };
 
+  // this handles the modal closing callback, setting the modal state in this view
+  const onRequestCloseStakingModal = (
+    modalOnRequestCloseType: ModalOnRequestCloseType
+  ): void => {
+    switch (modalOnRequestCloseType) {
+      case ModalOnRequestCloseType.Confirm: {
+        console.log(`called action ${modalOnRequestCloseType}`);
+        setModalState(ModalState.None);
+        break;
+      }
+      case ModalOnRequestCloseType.Cancel: {
+        console.log(`called action ${modalOnRequestCloseType}`);
+        setModalState(ModalState.None);
+        break;
+      }
+    }
+  };
+
   return (
     <StakingContainer>
       <MainContainerNavigation
@@ -124,6 +161,56 @@ export const Staking = (props: Props): JSX.Element => {
           setBreadcrumb([initialTitle]);
         }}
       />
+      <Modal
+        isOpen={modalState === ModalState.Stake}
+        title={`Stake with ${selectedValidator?.name}`}
+        onBackdropClick={() => {
+          setModalState(ModalState.None);
+        }}
+      >
+        <>
+          <button
+            onClick={() => {
+              onRequestCloseStakingModal(ModalOnRequestCloseType.Confirm);
+            }}
+          >
+            Confirm
+          </button>
+          <button
+            onClick={() => {
+              onRequestCloseStakingModal(ModalOnRequestCloseType.Cancel);
+            }}
+          >
+            Cancel
+          </button>
+          <NewStakingPosition />
+        </>
+      </Modal>
+      <Modal
+        isOpen={modalState === ModalState.Unstake}
+        title="Unstake"
+        onBackdropClick={() => {
+          setModalState(ModalState.None);
+        }}
+      >
+        <>
+          <button
+            onClick={() => {
+              onRequestCloseStakingModal(ModalOnRequestCloseType.Confirm);
+            }}
+          >
+            Confirm
+          </button>
+          <button
+            onClick={() => {
+              onRequestCloseStakingModal(ModalOnRequestCloseType.Cancel);
+            }}
+          >
+            Cancel
+          </button>
+          <UnstakePosition />
+        </>
+      </Modal>
       <Routes>
         <Route
           path={StakingAndGovernanceSubRoute.StakingOverview}
@@ -144,6 +231,7 @@ export const Staking = (props: Props): JSX.Element => {
               stakingPositionsWithSelectedValidator={
                 stakingPositionsWithSelectedValidator
               }
+              setModalState={setModalState}
             />
           }
         />

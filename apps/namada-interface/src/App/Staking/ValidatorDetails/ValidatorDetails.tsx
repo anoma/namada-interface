@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   ValidatorDetailsContainer,
   StakeButtonContainer,
@@ -10,8 +9,8 @@ import {
   TableLink,
 } from "components/Table";
 import { Button, ButtonVariant } from "components/Button";
-import { Modal } from "components/Modal";
 import { Validator, StakingPosition } from "slices/StakingAndGovernance";
+import { ModalState } from "../Staking";
 
 const validatorDetailsConfigurations: TableConfigurations<KeyValueData, never> =
   {
@@ -76,6 +75,7 @@ const getMyStakingWithValidatorConfigurations = (
 type Props = {
   validator?: Validator;
   stakingPositionsWithSelectedValidator?: StakingPosition[];
+  setModalState: React.Dispatch<React.SetStateAction<ModalState>>;
 };
 
 // this turns the Validator object to rows that are passed to the table
@@ -98,88 +98,18 @@ const validatorToDataRows = (
   ];
 };
 
-type StakingViewProps = {
-  onRequestClose: (modalOnRequestCloseType: ModalOnRequestCloseType) => void;
-};
-
-const StakingView = (props: StakingViewProps): JSX.Element => {
-  const { onRequestClose } = props;
-  return (
-    <>
-      <Button
-        variant={ButtonVariant.Contained}
-        onClick={() => onRequestClose(ModalOnRequestCloseType.Confirm)}
-      >
-        Confirm
-      </Button>
-      <Button
-        variant={ButtonVariant.Contained}
-        onClick={() => onRequestClose(ModalOnRequestCloseType.Cancel)}
-        style={{ backgroundColor: "lightgrey", color: "black" }}
-      >
-        Cancel
-      </Button>
-    </>
-  );
-};
-
-enum ModalState {
-  None,
-  Stake,
-  Unstake,
-}
-
-enum ModalOnRequestCloseType {
-  Confirm,
-  Cancel,
-}
-
 export const ValidatorDetails = (props: Props): JSX.Element => {
-  const { validator, stakingPositionsWithSelectedValidator = [] } = props;
+  const {
+    validator,
+    setModalState,
+    stakingPositionsWithSelectedValidator = [],
+  } = props;
   const validatorDetailsData = validatorToDataRows(validator);
-
-  const [modalState, setModalState] = useState(ModalState.None);
-
-  const onRequestCloseStakingModal = (
-    modalOnRequestCloseType: ModalOnRequestCloseType
-  ): void => {
-    switch (modalOnRequestCloseType) {
-      case ModalOnRequestCloseType.Confirm: {
-        console.log(`called action ${modalOnRequestCloseType}`);
-        setModalState(ModalState.None);
-        break;
-      }
-      case ModalOnRequestCloseType.Cancel: {
-        console.log(`called action ${modalOnRequestCloseType}`);
-        setModalState(ModalState.None);
-        break;
-      }
-    }
-  };
-
   const myStakingWithValidatorConfigurations =
     getMyStakingWithValidatorConfigurations(setModalState);
 
   return (
     <ValidatorDetailsContainer>
-      <Modal
-        isOpen={modalState === ModalState.Stake}
-        title="Stake"
-        onBackdropClick={() => {
-          setModalState(ModalState.None);
-        }}
-      >
-        <StakingView onRequestClose={onRequestCloseStakingModal} />
-      </Modal>
-      <Modal
-        isOpen={modalState === ModalState.Unstake}
-        title="Unstake"
-        onBackdropClick={() => {
-          setModalState(ModalState.None);
-        }}
-      >
-        <StakingView onRequestClose={onRequestCloseStakingModal} />
-      </Modal>
       <Table
         title="Validator Details"
         tableConfigurations={validatorDetailsConfigurations}

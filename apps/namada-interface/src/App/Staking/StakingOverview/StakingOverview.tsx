@@ -1,4 +1,3 @@
-import { StakingOverviewContainer } from "./StakingOverview.components";
 import {
   Table,
   TableLink,
@@ -10,6 +9,7 @@ import {
   Validator,
   MyValidators,
 } from "slices/StakingAndGovernance";
+import { StakingOverviewContainer } from "./StakingOverview.components";
 
 // My Balances table row renderer and configuration
 const myBalancesRowRenderer = (myBalanceEntry: MyBalanceEntry): JSX.Element => {
