@@ -61,7 +61,9 @@ export const App: React.FC = () => {
               Launch Initial Set-Up
             </Button>
           )}
-          <Accounts accounts={accounts} />
+          {!isLoading && accounts.length > 0 && (
+            <Accounts accounts={accounts} />
+          )}
         </ContentContainer>
         <BottomSection></BottomSection>
       </AppContainer>

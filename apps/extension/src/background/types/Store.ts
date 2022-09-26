@@ -5,15 +5,19 @@ export interface IStore<T> {
   get(): Promise<T[]>;
   append(state: T): Promise<void>;
   update(id: string, state: Partial<T>): Promise<void>;
+  remove(id: string): Promise<void>;
 }
 
 // StoredRecords in storage should have a unique identifier
 export type StoredRecord = { id: string };
 
 /**
- * A class instance will be set for a specific storage key, and allow
- * get, set (override all values) and append (add a record to collection),
- * and update (update record specified by ID, providing a partial of that record)
+ * A class instance will be set for a specific storage key, and allows:
+ * get - get array of all items
+ * set - set or overwrite all items in storage
+ * append - add a record to collection,
+ * update - update record specified by ID with a partial record
+ * remove - remove a record specified by ID
  */
 export class Store<T extends StoredRecord> implements IStore<T> {
   constructor(public readonly key: string, public readonly store: KVStore) {}
@@ -45,5 +49,9 @@ export class Store<T extends StoredRecord> implements IStore<T> {
     });
 
     await this.set(updated);
+  }
+
+  public async remove(id: string): Promise<void> {
+    await this.set((await this.get()).filter((record) => record.id !== id));
   }
 }

@@ -109,7 +109,7 @@ export class SaveMnemonicMsg extends Message<boolean> {
   constructor(
     public readonly words: string[],
     public readonly password: string,
-    public readonly description?: string
+    public readonly alias?: string
   ) {
     super();
   }
@@ -145,10 +145,7 @@ export class DeriveAccountMsg extends Message<DerivedAccount> {
     return MessageTypes.DeriveAccount;
   }
 
-  constructor(
-    public readonly path: Bip44Path,
-    public readonly description?: string
-  ) {
+  constructor(public readonly path: Bip44Path, public readonly alias?: string) {
     super();
   }
 

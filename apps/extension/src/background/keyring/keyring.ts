@@ -104,7 +104,7 @@ export class KeyRing {
   public async storeMnemonic(
     mnemonic: string[],
     password: string,
-    description?: string
+    alias?: string
   ): Promise<boolean> {
     if (!password) {
       throw new Error("Password is not provided! Cannot store mnemonic");
@@ -116,7 +116,7 @@ export class KeyRing {
       const encrypted = AEAD.encrypt(phrase, password);
       await this._mnemonicStore.append({
         id: getId(phrase, (await this._mnemonicStore.get()).length),
-        description,
+        alias,
         phrase: encrypted,
       });
 
@@ -130,7 +130,7 @@ export class KeyRing {
 
   public async deriveAccount(
     path: Bip44Path,
-    description?: string
+    alias?: string
   ): Promise<DerivedAccount> {
     if (!this._password) {
       throw new Error("No password is set!");
@@ -174,12 +174,12 @@ export class KeyRing {
 
       this._accountStore.append({
         id: getId("account", account, change, index),
+        alias,
         parentId: storedMnemonic.id,
         bip44Path: path,
         address,
         private: privateKey,
         public: publicKey,
-        description,
       });
 
       return {
@@ -196,10 +196,10 @@ export class KeyRing {
     // Query accounts from storage
     const accounts = (await this._accountStore.get()) || [];
 
-    return accounts.map(({ address, bip44Path, description }) => ({
+    return accounts.map(({ address, bip44Path, alias }) => ({
       address,
       bip44Path,
-      description,
+      alias,
     }));
   }
 }

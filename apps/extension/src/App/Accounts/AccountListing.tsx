@@ -20,12 +20,12 @@ const textToClipboard = (content: string): void => {
 };
 
 const AccountListing = ({ account }: Props): JSX.Element => {
-  const { address, bip44Path, description, establishedAddress } = account;
+  const { address, bip44Path, alias, establishedAddress } = account;
 
   return (
     <AccountListingContainer>
       <Details>
-        {description && <Description>{description}</Description>}
+        {alias && <Description>{alias}</Description>}
         <DerivationPath>
           /{bip44Path.account}'/{bip44Path.change}'/
           {bip44Path.index}'
