@@ -1,14 +1,11 @@
 import { KVStore } from "@anoma/storage";
 import { AEAD, Bip44, Mnemonic, PhraseSize } from "@anoma/crypto";
 import { Address } from "@anoma/shared";
-import {
-  KeyRingState,
-  KeyRingStatus,
-  MnemonicState,
-  AccountState,
-} from "./types";
+import { KeyRingStatus, MnemonicState, AccountState } from "./types";
 import { v5 as uuid } from "uuid";
 import { Bip44Path, DerivedAccount } from "./types";
+
+import { IStore, Store } from "../types";
 
 // Generated UUID namespace for uuid v5
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
@@ -29,72 +26,53 @@ const getId = (name: string, ...args: (number | string)[]): string => {
 
 enum KeyRingStore {
   Mnemonic = "mnemonic",
-  Accounts = "accounts",
+  Account = "account",
 }
 
-/*
- Keyring stores keys in persistent backround.
+/**
+ * Keyring stores keys in persisted backround.
  */
 export class KeyRing {
-  private _state = new KeyRingState({
-    password: undefined,
-    status: KeyRingStatus.EMPTY,
-    mnemonics: [],
-    accounts: [],
-  });
+  private _mnemonicStore: IStore<MnemonicState>;
+  private _accountStore: IStore<AccountState>;
+  private _password: string | undefined;
+  private _status: KeyRingStatus = KeyRingStatus.EMPTY;
 
-  constructor(private _store: KVStore) {}
+  constructor(kvStore: KVStore) {
+    this._mnemonicStore = new Store(KeyRingStore.Mnemonic, kvStore);
+    this._accountStore = new Store(KeyRingStore.Account, kvStore);
+  }
 
   public isLocked(): boolean {
-    return !this._state.password;
+    return !this._password;
   }
 
   public get status(): KeyRingStatus {
-    return this._state.status;
+    return this._status;
   }
 
   public async lock() {
-    if (this._state.status !== KeyRingStatus.UNLOCKED) {
+    if (this._status !== KeyRingStatus.UNLOCKED) {
       throw new Error("Key ring is not unlocked");
     }
-    this._state.update({
-      mnemonics: [],
-      accounts: [],
-      password: undefined,
-      status: KeyRingStatus.LOCKED,
-    });
+
+    this._status = KeyRingStatus.LOCKED;
+    this._password = undefined;
   }
 
   public async unlock(password: string) {
-    if (!this._store) {
-      throw new Error("Key ring not initialized");
-    }
     if (this.status !== KeyRingStatus.LOCKED) {
       throw new Error("Key ring is not locked!");
     }
 
-    // Note: We may support multiple top-level mnemonic seeds in the future,
-    // hence why we're storing these in an array. For now, we check for only one:
-    const mnemonics = await this._store.get<MnemonicState[]>(
-      KeyRingStore.Mnemonic
-    );
     if (await this.checkPassword(password)) {
-      const accounts = await this._store.get<AccountState[]>(
-        KeyRingStore.Accounts
-      );
-      this._state.update({
-        status: KeyRingStatus.UNLOCKED,
-        accounts,
-        mnemonics,
-        password,
-      });
+      this._password = password;
+      this._status = KeyRingStatus.UNLOCKED;
     }
   }
 
   public async checkPassword(password: string): Promise<boolean> {
-    const mnemonics = await this._store.get<MnemonicState[]>(
-      KeyRingStore.Mnemonic
-    );
+    const mnemonics = await this._mnemonicStore.get();
 
     // Note: We may support multiple top-level mnemonic seeds in the future,
     // hence why we're storing these in an array. For now, we check for only one:
@@ -136,18 +114,13 @@ export class KeyRing {
     try {
       Mnemonic.validate(phrase);
       const encrypted = AEAD.encrypt(phrase, password);
-      this._state.update({
-        password,
-        mnemonics: [
-          ...this._state.mnemonics,
-          {
-            id: getId(phrase, this._state.mnemonics.length),
-            description,
-            phrase: encrypted,
-          },
-        ],
+      await this._mnemonicStore.append({
+        id: getId(phrase, (await this._mnemonicStore.get()).length),
+        description,
+        phrase: encrypted,
       });
-      this.update();
+
+      this._password = password;
       return true;
     } catch (e) {
       console.error(e);
@@ -159,18 +132,26 @@ export class KeyRing {
     path: Bip44Path,
     description?: string
   ): Promise<DerivedAccount> {
-    if (!this._state.password) {
+    if (!this._password) {
       throw new Error("No password is set!");
     }
 
-    const storedMnemonic = this._state.mnemonics[0];
+    const mnemonics = await this._mnemonicStore.get();
+
+    if (!(mnemonics.length > 0)) {
+      throw new Error("No mnemonics have been stored!");
+    }
+
+    // TODO: For now, we are assuming only one mnemonic is used, but in the future
+    // will want to have multiple top-level accounts:
+    const storedMnemonic = mnemonics[0];
 
     if (!storedMnemonic) {
       throw new Error("Mnemonic is not set!");
     }
 
     try {
-      const phrase = AEAD.decrypt(storedMnemonic.phrase, this._state.password);
+      const phrase = AEAD.decrypt(storedMnemonic.phrase, this._password);
       // TODO: Validate derivation path against stored paths under this mnemonic!
       const { account, change, index } = path;
       const root = "m/44";
@@ -183,29 +164,23 @@ export class KeyRing {
       const derivedAccount = bip44.derive(derivationPath);
       const privateKey = AEAD.encrypt_from_bytes(
         derivedAccount.private().to_bytes(),
-        this._state.password
+        this._password
       );
       const publicKey = AEAD.encrypt_from_bytes(
         derivedAccount.public().to_bytes(),
-        this._state.password
+        this._password
       );
       const address = new Address(derivedAccount.private().to_hex()).implicit();
 
-      this._state.update({
-        accounts: [
-          ...this._state.accounts,
-          {
-            id: getId("account", account, change, index),
-            parentId: storedMnemonic.id,
-            bip44Path: path,
-            address,
-            private: privateKey,
-            public: publicKey,
-            description,
-          },
-        ],
+      this._accountStore.append({
+        id: getId("account", account, change, index),
+        parentId: storedMnemonic.id,
+        bip44Path: path,
+        address,
+        private: privateKey,
+        public: publicKey,
+        description,
       });
-      this.update();
 
       return {
         bip44Path: path,
@@ -218,34 +193,13 @@ export class KeyRing {
   }
 
   public async queryAccounts(): Promise<DerivedAccount[]> {
-    if (this._state.accounts.length === 0) {
-      // Query accounts from storage
-      const accounts = await this._store?.get<AccountState[]>(
-        KeyRingStore.Accounts
-      );
+    // Query accounts from storage
+    const accounts = (await this._accountStore.get()) || [];
 
-      if (accounts) {
-        this._state.update({
-          accounts,
-        });
-      }
-    }
-
-    return this._state.accounts.map(({ address, bip44Path, description }) => ({
+    return accounts.map(({ address, bip44Path, description }) => ({
       address,
       bip44Path,
       description,
     }));
-  }
-
-  public async update() {
-    await this._store.set<MnemonicState[]>(
-      KeyRingStore.Mnemonic,
-      this._state.mnemonics
-    );
-    await this._store.set<AccountState[]>(
-      KeyRingStore.Accounts,
-      this._state.accounts
-    );
   }
 }

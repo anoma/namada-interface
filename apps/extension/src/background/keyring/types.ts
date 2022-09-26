@@ -1,5 +1,3 @@
-import { State } from "../types";
-
 export type Bip44Path = {
   account: number;
   change: number;
@@ -31,33 +29,4 @@ export enum KeyRingStatus {
   EMPTY,
   LOCKED,
   UNLOCKED,
-}
-
-export interface IKeyRingState {
-  status: KeyRingStatus;
-  password?: string;
-  mnemonics: MnemonicState[];
-  accounts: AccountState[];
-}
-
-export class KeyRingState extends State<IKeyRingState> {
-  constructor(initialState: IKeyRingState) {
-    super(initialState);
-  }
-
-  public get password(): string | undefined {
-    return this.state.password;
-  }
-
-  public get status(): KeyRingStatus {
-    return this.state.status;
-  }
-
-  public get accounts(): AccountState[] {
-    return this.state.accounts;
-  }
-
-  public get mnemonics(): MnemonicState[] {
-    return this.state.mnemonics;
-  }
 }
