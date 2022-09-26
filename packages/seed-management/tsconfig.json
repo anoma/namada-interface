@@ -1,6 +1,22 @@
 {
   "compilerOptions": {
-    "esModuleInterop": true
+    "baseUrl": "./src",
+    "target": "es5",
+    "lib": ["dom", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "types": ["node", "jest"]
   },
-  "files": ["./src/Mnemonic.ts"]
+  "include": ["src"],
+  "typeRoots": ["./node_modules/@types"]
 }

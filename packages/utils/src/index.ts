@@ -1,3 +1,4 @@
-export * from "./encoding";
+export * from "./async";
+export * from "./crypto";
 export * from "./helpers";
 export * from "./wasm";

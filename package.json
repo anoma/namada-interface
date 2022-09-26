@@ -23,6 +23,7 @@
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
+    "stream-browserify": "^3.0.0",
     "wsrun": "^5.2.4"
   }
 }

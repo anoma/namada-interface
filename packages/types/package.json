@@ -1,0 +1,10 @@
+{
+  "name": "@anoma/types",
+  "version": "0.1.0",
+  "description": "Types related to the Anoma Extension",
+  "main": "src/index.ts",
+  "repository": "https://github.com/anoma/namada-interface/",
+  "author": "Heliax Dev <info@heliax.dev>",
+  "license": "MIT",
+  "private": false
+}
