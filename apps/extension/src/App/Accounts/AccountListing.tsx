@@ -20,7 +20,7 @@ const textToClipboard = (content: string): void => {
 };
 
 const AccountListing = ({ account }: Props): JSX.Element => {
-  const { address, bip44Path, alias, establishedAddress } = account;
+  const { address, alias, bip44Path, establishedAddress } = account;
 
   return (
     <AccountListingContainer>

@@ -96,7 +96,7 @@ const AddAccount: React.FC<Props> = ({ accounts, requester, setAccounts }) => {
       const derivedAccount: DerivedAccount =
         await requester.sendMessage<DeriveAccountMsg>(
           Ports.Background,
-          new DeriveAccountMsg({ account, change, index })
+          new DeriveAccountMsg({ account, change, index }, alias)
         );
       setAccounts([...accounts, derivedAccount]);
       navigate(-1);
