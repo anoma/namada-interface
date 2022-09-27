@@ -19,14 +19,7 @@ import {
   CopyToClipboard,
 } from "./SeedPhrase.components";
 
-// this is being used:
-// to store the data in the parent when editing
-// when submitting the form
-export type AccountCreationDetails = {
-  seedPhraseLength?: string;
-  accountName?: string;
-  password?: string;
-};
+import { AccountCreationDetails } from "Setup/AccountCreation/types";
 
 type AccountInformationViewProps = {
   requester: ExtensionRequester;

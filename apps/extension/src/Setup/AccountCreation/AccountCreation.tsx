@@ -22,7 +22,7 @@ import {
   RouteContainer,
   MotionContainer,
 } from "./AccountCreation.components";
-import { AccountCreationDetails } from "./Steps/SeedPhrase/SeedPhrase";
+import { AccountCreationDetails } from "Setup/AccountCreation/types";
 
 type AnimatedTransitionProps = {
   elementKey: string;
@@ -55,15 +55,11 @@ const AccountCreation = (props: {
   requester: ExtensionRequester;
 }): JSX.Element => {
   const { requester } = props;
-  // account details defaults
-  const defaultAccountCreationDetails: AccountCreationDetails = {
-    seedPhraseLength: "12",
-    accountName: "",
-  };
 
-  const [accountCreationDetails, setAccountCreationDetails] = useState(
-    defaultAccountCreationDetails
-  );
+  const [accountCreationDetails, setAccountCreationDetails] =
+    useState<AccountCreationDetails>({
+      alias: "",
+    });
   const [seedPhrase, setSeedPhrase] = useState<string[]>();
   const [stepIndex, setStepIndex] = useState(0);
 
@@ -195,6 +191,7 @@ const AccountCreation = (props: {
                   elementKey={AccountCreationRoute.Completion}
                 >
                   <Completion
+                    alias={accountCreationDetails.alias || ""}
                     requester={requester}
                     mnemonic={seedPhrase || []}
                     password={accountCreationDetails.password || ""}

@@ -15,6 +15,7 @@ import {
 } from "./Completion.components";
 
 type CompletionViewProps = {
+  alias: string;
   requester: ExtensionRequester;
   mnemonic: string[];
   password: string;
@@ -27,7 +28,7 @@ enum Status {
 }
 
 const Completion = (props: CompletionViewProps): JSX.Element => {
-  const { requester, mnemonic, password } = props;
+  const { alias, mnemonic, password, requester } = props;
   const [mnemonicStatus, setMnemonicStatus] = useState<Status>(Status.Pending);
   const [accountStatus, setAccountStatus] = useState<Status>(Status.Pending);
   const [isComplete, setIsComplete] = useState(false);
@@ -49,7 +50,10 @@ const Completion = (props: CompletionViewProps): JSX.Element => {
         try {
           await requester.sendMessage<DeriveAccountMsg>(
             Ports.Background,
-            new DeriveAccountMsg({ account: "0'", change: "0'", index: "0'" })
+            new DeriveAccountMsg(
+              { account: "0'", change: "0'", index: "0'" },
+              alias
+            )
           );
           setAccountStatus(Status.Completed);
         } catch (e) {

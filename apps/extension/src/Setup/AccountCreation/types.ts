@@ -27,3 +27,8 @@ export type Step = {
   next?: Step;
   previous?: Step;
 };
+
+export type AccountCreationDetails = {
+  alias?: string;
+  password?: string;
+};
