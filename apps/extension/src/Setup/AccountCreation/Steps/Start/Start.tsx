@@ -1,3 +1,4 @@
+import React from "react";
 import { Button, ButtonVariant } from "@anoma/components";
 import {
   StartViewContainer,
@@ -5,11 +6,12 @@ import {
   Header1,
   BodyText,
 } from "./Start.components";
-type StartViewProps = {
+
+type Props = {
   onClick: () => void;
 };
 
-const Start = (props: StartViewProps): JSX.Element => {
+const Start: React.FC<Props> = (props) => {
   const { onClick } = props;
   return (
     <StartViewContainer>

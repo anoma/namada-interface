@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ExtensionRequester } from "extension";
 import browser from "webextension-polyfill";
 
@@ -14,7 +14,7 @@ import {
   Header1,
 } from "./Completion.components";
 
-type CompletionViewProps = {
+type Props = {
   alias: string;
   requester: ExtensionRequester;
   mnemonic: string[];
@@ -27,7 +27,7 @@ enum Status {
   Failed,
 }
 
-const Completion = (props: CompletionViewProps): JSX.Element => {
+const Completion: React.FC<Props> = (props) => {
   const { alias, mnemonic, password, requester } = props;
   const [mnemonicStatus, setMnemonicStatus] = useState<Status>(Status.Pending);
   const [accountStatus, setAccountStatus] = useState<Status>(Status.Pending);

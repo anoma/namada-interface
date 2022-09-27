@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { ThemeContext } from "styled-components";
@@ -26,14 +26,13 @@ import { AccountCreationDetails } from "Setup/AccountCreation/types";
 
 type AnimatedTransitionProps = {
   elementKey: string;
-  // the page contents
   children: JSX.Element;
 };
 
 /**
  * This is a utility to facilitate the animated transitions.
  */
-const AnimatedTransition = (props: AnimatedTransitionProps): JSX.Element => {
+const AnimatedTransition: React.FC<AnimatedTransitionProps> = (props) => {
   const { children, elementKey } = props;
   return (
     <MotionContainer
@@ -47,15 +46,15 @@ const AnimatedTransition = (props: AnimatedTransitionProps): JSX.Element => {
   );
 };
 
+type Props = {
+  requester: ExtensionRequester;
+};
+
 /**
  * The main purpose of this is to coordinate the flow for creating a new account.
  * It persists the data between the screens in the flow.
  */
-const AccountCreation = (props: {
-  requester: ExtensionRequester;
-}): JSX.Element => {
-  const { requester } = props;
-
+const AccountCreation: React.FC<Props> = ({ requester }) => {
   const [accountCreationDetails, setAccountCreationDetails] =
     useState<AccountCreationDetails>({
       alias: "",

@@ -13,7 +13,7 @@ export const AppContainer = styled.div`
   flex-direction: column;
   height: 100%;
   min-height: 430px;
-  width: 100%;
+  width: 400px;
   box-sizing: border-box;
 
   @media screen and (max-width: 860px) {

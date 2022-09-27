@@ -17,5 +17,5 @@
       "all_frames": true
     }
   ],
-  "web_accessible_resources": ["injected.anoma.js"]
+  "web_accessible_resources": ["injected.anoma.js", "assets/app.css"]
 }

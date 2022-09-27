@@ -9,11 +9,15 @@ import {
   AddAccountContainer,
   AddAccountForm,
   Bip44PathContainer,
+  Bip44PathDelimiter,
   Bip44Input,
   Bip44Path,
   Bip44Error,
+  ButtonsContainer,
   FormError,
   FormStatus,
+  InputContainer,
+  Label,
 } from "./AddAccount.components";
 
 type Props = {
@@ -110,47 +114,60 @@ const AddAccount: React.FC<Props> = ({ accounts, requester, setAccounts }) => {
   return (
     <AddAccountContainer>
       <AddAccountForm>
-        <Input
-          variant={InputVariants.Text}
-          label="Alias"
-          value={alias}
-          onChange={(e) => setAlias(e.target.value)}
-        />
-        <Bip44PathContainer>
-          <span>{bip44Prefix}</span>
-          <Bip44Input
+        <InputContainer>
+          <Input
             variant={InputVariants.Text}
-            value={account}
-            onChange={(e) => setAccount(e.target.value)}
+            label="Alias"
+            value={alias}
+            onChange={(e) => setAlias(e.target.value)}
           />
-          <Bip44Input
-            variant={InputVariants.Text}
-            value={change}
-            onChange={(e) => setChange(e.target.value)}
-          />
-          <Bip44Input
-            variant={InputVariants.Text}
-            value={index}
-            onChange={(e) => setIndex(e.target.value)}
-          />
-        </Bip44PathContainer>
-        <Bip44Path>{[bip44Prefix, account, change, index].join("/")}</Bip44Path>
+        </InputContainer>
+
+        <InputContainer>
+          <Label>
+            <p>BIP44 Path</p>
+            <Bip44PathContainer>
+              <Bip44PathDelimiter>{bip44Prefix}/</Bip44PathDelimiter>
+              <Bip44Input
+                value={account}
+                onChange={(e) => setAccount(e.target.value)}
+              />
+              <Bip44PathDelimiter>/</Bip44PathDelimiter>
+              <Bip44Input
+                value={change}
+                onChange={(e) => setChange(e.target.value)}
+              />
+              <Bip44PathDelimiter>/</Bip44PathDelimiter>
+              <Bip44Input
+                value={index}
+                onChange={(e) => setIndex(e.target.value)}
+              />
+            </Bip44PathContainer>
+          </Label>
+        </InputContainer>
+
+        <Bip44Path>
+          Derivation path:{" "}
+          <span>{[bip44Prefix, account, change, index].join("/")}</span>
+        </Bip44Path>
         <Bip44Error>{bip44Error}</Bip44Error>
       </AddAccountForm>
       {formStatus === Status.Pending && (
         <FormStatus>Submitting new account...</FormStatus>
       )}
       {formStatus === Status.Failed && <FormError>{formError}</FormError>}
-      <Button variant={ButtonVariant.Contained} onClick={() => navigate(-1)}>
-        Back
-      </Button>
-      <Button
-        variant={ButtonVariant.Contained}
-        disabled={!isFormValid || formStatus === Status.Pending}
-        onClick={handleAccountAdd}
-      >
-        Add
-      </Button>
+      <ButtonsContainer>
+        <Button variant={ButtonVariant.Contained} onClick={() => navigate(-1)}>
+          Back
+        </Button>
+        <Button
+          variant={ButtonVariant.Contained}
+          disabled={!isFormValid || formStatus === Status.Pending}
+          onClick={handleAccountAdd}
+        >
+          Add
+        </Button>
+      </ButtonsContainer>
     </AddAccountContainer>
   );
 };
