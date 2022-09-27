@@ -160,7 +160,11 @@ export class KeyRing {
       // TODO: Validate derivation path against stored paths under this mnemonic!
       const { account, change, index } = path;
       const root = "m/44'";
-      const derivationPath = [root, account, change, index].join("/");
+      // TODO: This should be defined for our chain (SLIP044)
+      const coinType = "0'";
+      const derivationPath = [root, coinType, `${account}`, change, index].join(
+        "/"
+      );
       const mnemonic = Mnemonic.from_phrase(phrase);
       const seed = mnemonic.to_seed();
       const bip44 = new Bip44(seed);

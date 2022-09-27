@@ -50,10 +50,7 @@ const Completion: React.FC<Props> = (props) => {
         try {
           await requester.sendMessage<DeriveAccountMsg>(
             Ports.Background,
-            new DeriveAccountMsg(
-              { account: "0'", change: "0'", index: "0'" },
-              alias
-            )
+            new DeriveAccountMsg({ account: 0, change: 0, index: 0 }, alias)
           );
           setAccountStatus(Status.Completed);
         } catch (e) {

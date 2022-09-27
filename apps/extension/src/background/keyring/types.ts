@@ -1,7 +1,7 @@
 export type Bip44Path = {
-  account: string;
-  change: string;
-  index: string;
+  account: number;
+  change: number;
+  index: number;
 };
 
 export type MnemonicState = {
