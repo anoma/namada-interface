@@ -4,6 +4,8 @@ export const FETCH_VALIDATORS = `${STAKING_AND_GOVERNANCE}/FETCH_VALIDATORS`;
 export const FETCH_MY_VALIDATORS = `${STAKING_AND_GOVERNANCE}/FETCH_MY_VALIDATORS`;
 export const FETCH_MY_STAKING_POSITIONS = `${STAKING_AND_GOVERNANCE}/FETCH_MY_STAKING_POSITIONS`;
 export const FETCH_VALIDATOR_DETAILS = `${STAKING_AND_GOVERNANCE}/FETCH_VALIDATOR_DETAILS`;
+export const POST_NEW_STAKING = `${STAKING_AND_GOVERNANCE}/POST_NEW_STAKING`;
+export const POST_UNSTAKING = `${STAKING_AND_GOVERNANCE}/POST_UNSTAKING`;
 
 export enum StakingAndGovernanceErrors {
   StakingAndGovernanceErrors = "StakingAndGovernanceError.GenericError",
@@ -54,10 +56,23 @@ export type ValidatorDetailsPayload = {
   name: string;
 };
 
+export enum CurrentState {
+  Idle,
+  Staking,
+  Unstaking,
+}
+
+export type NewStakingPositionRequest = {
+  validatorId: string;
+  amount: string;
+  stakingCurrency: string;
+};
+
 export type StakingAndGovernanceState = {
   myBalances: MyBalanceEntry[];
   validators: Validator[];
   myValidators: MyValidators[];
   myStakingPositions: StakingPosition[];
   selectedValidatorId?: ValidatorId;
+  currentState: CurrentState;
 };

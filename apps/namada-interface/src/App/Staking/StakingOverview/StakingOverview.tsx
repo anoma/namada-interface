@@ -135,6 +135,12 @@ type Props = {
   myValidators: MyValidators[];
 };
 
+// This is the default view for the staking. it displays all the relevant
+// staking information of the user and allows unstake the active staking
+// positions directly from here.
+// * Unstaking happens by calling a callback that triggers a modal
+//   view in the parent
+// * user can also navigate to sibling view for validator details
 export const StakingOverview = (props: Props): JSX.Element => {
   const { navigateToValidatorDetails, myBalances, validators, myValidators } =
     props;

@@ -5,11 +5,14 @@ import {
   FETCH_VALIDATOR_DETAILS,
   FETCH_MY_VALIDATORS,
   FETCH_MY_STAKING_POSITIONS,
+  POST_NEW_STAKING,
+  POST_UNSTAKING,
   Validator,
   ValidatorDetailsPayload,
   MyBalanceEntry,
   MyValidators,
   StakingPosition,
+  NewStakingPositionRequest,
 } from "./types";
 import { allValidatorsData, myStakingData, myBalancesData } from "./fakeData";
 
@@ -95,3 +98,30 @@ export const fetchMyBalances = createAsyncThunk<
 >(FETCH_MY_BALANCES, async () => {
   return Promise.resolve({ myBalances: myBalancesData });
 });
+
+// we generate the new staking transaction
+// we post the new staking transaction
+// once it is accepted to the chain, we dispatch the below actions to get
+// the new updated balances and validator amounts:
+// * fetchMyBalances
+// * fetchMyValidators
+export const postNewStaking = createAsyncThunk<void, NewStakingPositionRequest>(
+  POST_NEW_STAKING,
+  async (newStakingPositionRequest: NewStakingPositionRequest) => {
+    console.log(newStakingPositionRequest, "void at postNewStaking");
+    return Promise.resolve();
+  }
+);
+
+// we post an unstake transaction
+// once it is accepted to the chain, we dispatch the below actions to get
+// the new updated balances and validator amounts:
+// * fetchMyBalances
+// * fetchMyValidators
+export const postUnstaking = createAsyncThunk<void, string>(
+  POST_UNSTAKING,
+  async (stakingPositionId: string) => {
+    console.log(stakingPositionId, "stakingPositionId at postUnstaking");
+    return Promise.resolve();
+  }
+);

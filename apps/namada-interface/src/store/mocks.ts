@@ -1,5 +1,6 @@
 import { RootState } from "./store";
 import { TransferType } from "slices/transfers";
+import { CurrentState } from "slices/StakingAndGovernance";
 
 export const mockAppState: RootState = {
   accounts: {
@@ -223,5 +224,6 @@ export const mockAppState: RootState = {
     validators: [],
     myValidators: [],
     myStakingPositions: [],
+    currentState: CurrentState.Idle,
   },
 };

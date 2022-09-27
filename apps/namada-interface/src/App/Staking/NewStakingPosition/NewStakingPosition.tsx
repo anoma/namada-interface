@@ -1,30 +1,64 @@
 import { NewStakingPositionContainer } from "./NewStakingPosition.components";
 import { Table, TableConfigurations, KeyValueData } from "components/Table";
+import { Button, ButtonVariant } from "components/Button";
+import { NewStakingPositionRequest } from "slices/StakingAndGovernance";
 
-const validatorDetailsConfigurations: TableConfigurations<KeyValueData, never> =
-  {
-    rowRenderer: (rowData: KeyValueData) => {
-      return (
-        <>
-          <td style={{ display: "flex" }}>{rowData.key}</td>
-          <td>{rowData.value}</td>
-        </>
-      );
-    },
-    columns: [
-      { uuid: "1", columnLabel: "", width: "30%" },
-      { uuid: "2", columnLabel: "", width: "70%" },
-    ],
-  };
+const stakingDetailsConfigurations: TableConfigurations<KeyValueData, never> = {
+  rowRenderer: (rowData: KeyValueData) => {
+    return (
+      <>
+        <td style={{ display: "flex" }}>{rowData.key}</td>
+        <td>{rowData.value}</td>
+      </>
+    );
+  },
+  columns: [
+    { uuid: "1", columnLabel: "", width: "30%" },
+    { uuid: "2", columnLabel: "", width: "70%" },
+  ],
+};
 
-export const NewStakingPosition = (): JSX.Element => {
+// this is called for both confirm and cancel. If con
+type Props = {
+  confirmStaking: (stakingPositionRequest: NewStakingPositionRequest) => void;
+  cancelStaking: () => void;
+};
+
+// Creates a view that allows the user to create a new staking position.
+// It needs the information of the users balances and the validator that
+// the staking is going to be done with. This is mostly for being able
+// to display a summary for the user. But also to be able to create an
+// object to represent the new staking position.
+export const NewStakingPosition = (props: Props): JSX.Element => {
+  const { confirmStaking, cancelStaking } = props;
   return (
     <NewStakingPositionContainer>
       <Table
         title="Summary"
-        tableConfigurations={validatorDetailsConfigurations}
+        tableConfigurations={stakingDetailsConfigurations}
         data={[]}
       />
+      <Button
+        variant={ButtonVariant.Contained}
+        onClick={() => {
+          const newStakingPositionRequest: NewStakingPositionRequest = {
+            amount: "1",
+            stakingCurrency: "NAM",
+            validatorId: "123",
+          };
+          confirmStaking(newStakingPositionRequest);
+        }}
+      >
+        Confirm
+      </Button>
+      <Button
+        variant={ButtonVariant.Contained}
+        onClick={() => {
+          cancelStaking();
+        }}
+      >
+        Cancel
+      </Button>
     </NewStakingPositionContainer>
   );
 };
