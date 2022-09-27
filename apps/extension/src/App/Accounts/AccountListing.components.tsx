@@ -32,7 +32,7 @@ export const DerivationPath = styled.div``;
 
 export const Address = styled.div``;
 
-export const Description = styled.div``;
+export const Alias = styled.div``;
 
 export const CopyToClipboard = styled.a`
   text-decoration: underline;

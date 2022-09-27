@@ -34,7 +34,6 @@ const Completion = (props: CompletionViewProps): JSX.Element => {
 
   useEffect(() => {
     if (password && mnemonic) {
-      console.log("Account is ready to initialize", { password, mnemonic });
       (async () => {
         try {
           await requester.sendMessage<SaveMnemonicMsg>(
@@ -50,7 +49,7 @@ const Completion = (props: CompletionViewProps): JSX.Element => {
         try {
           await requester.sendMessage<DeriveAccountMsg>(
             Ports.Background,
-            new DeriveAccountMsg({ account: 0, change: 0, index: 0 })
+            new DeriveAccountMsg({ account: "0'", change: "0'", index: "0'" })
           );
           setAccountStatus(Status.Completed);
         } catch (e) {
@@ -77,6 +76,7 @@ const Completion = (props: CompletionViewProps): JSX.Element => {
         {!isComplete && (
           <BodyText>One moment while your wallet is being created...</BodyText>
         )}
+
         <ul>
           <li>
             Encrypting and storing mnemonic:{" "}

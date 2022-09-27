@@ -1,7 +1,7 @@
 export type Bip44Path = {
-  account: number;
-  change: number;
-  index: number;
+  account: string;
+  change: string;
+  index: string;
 };
 
 export type MnemonicState = {
@@ -11,14 +11,14 @@ export type MnemonicState = {
 };
 
 export type DerivedAccount = {
-  bip44Path: Bip44Path;
+  id: string;
   address: string;
-  establishedAddress?: string;
   alias?: string;
+  bip44Path: Bip44Path;
+  establishedAddress?: string;
 };
 
 export type AccountState = DerivedAccount & {
-  id: string;
   parentId: string;
   private: Uint8Array;
   public: Uint8Array;

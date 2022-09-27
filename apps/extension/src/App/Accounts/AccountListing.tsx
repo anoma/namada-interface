@@ -4,7 +4,7 @@ import {
   Address,
   Buttons,
   Details,
-  Description,
+  Alias,
   DerivationPath,
   CopyToClipboard,
 } from "./AccountListing.components";
@@ -25,10 +25,9 @@ const AccountListing = ({ account }: Props): JSX.Element => {
   return (
     <AccountListingContainer>
       <Details>
-        {alias && <Description>{alias}</Description>}
+        {alias && <Alias>{alias}</Alias>}
         <DerivationPath>
-          /{bip44Path.account}'/{bip44Path.change}'/
-          {bip44Path.index}'
+          m/44'/{bip44Path.account}/{bip44Path.change}/{bip44Path.index}
         </DerivationPath>
         <Address>{address}</Address>
         {establishedAddress && <Address>{establishedAddress}</Address>}

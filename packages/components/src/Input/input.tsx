@@ -14,9 +14,9 @@ import { InputVariants } from "./types";
 export type InputProps = {
   variant?: InputVariants;
   value?: string | number;
-  label: string | React.ReactNode;
+  label?: string | React.ReactNode;
   error?: string;
-  onChangeCallback?: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
+  onChange?: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
   onFocus?: FocusEventHandler<HTMLInputElement>;
   placeholder?: string;
 };
@@ -26,7 +26,7 @@ export const Input = ({
   value = "",
   label,
   error,
-  onChangeCallback,
+  onChange,
   onFocus,
   placeholder,
 }: InputProps): JSX.Element => {
@@ -41,7 +41,7 @@ export const Input = ({
           <InputWrapper>
             <TextInput
               error={!!error}
-              onChange={onChangeCallback}
+              onChange={onChange}
               onFocus={onFocus}
               placeholder={placeholder}
               value={value}
@@ -56,11 +56,7 @@ export const Input = ({
         <Label>
           {label}
           <InputWrapper>
-            <TextAreaInput
-              error={!!error}
-              onChange={onChangeCallback}
-              value={value}
-            />
+            <TextAreaInput error={!!error} onChange={onChange} value={value} />
           </InputWrapper>
           <ErrorTooltip>{error}</ErrorTooltip>
         </Label>
@@ -73,7 +69,7 @@ export const Input = ({
             <TextInput
               error={!!error}
               placeholder={placeholder}
-              onChange={onChangeCallback}
+              onChange={onChange}
               onFocus={onFocus}
               type={passwordShown ? "text" : "password"}
             />
@@ -96,7 +92,7 @@ export const Input = ({
               placeholder={placeholder}
               type={"number"}
               value={value}
-              onChange={onChangeCallback}
+              onChange={onChange}
               onFocus={onFocus}
             />
           </InputWrapper>

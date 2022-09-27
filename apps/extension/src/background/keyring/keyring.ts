@@ -18,9 +18,10 @@ const getId = (name: string, ...args: (number | string)[]): string => {
   let uuidName = name;
 
   // Concatenate any number of args onto the name parameter
-  for (const arg in args) {
+  args.forEach((arg) => {
     uuidName = `${uuidName}::${arg}`;
-  }
+  });
+
   return uuid(uuidName, UUID_NAMESPACE);
 };
 
@@ -145,6 +146,10 @@ export class KeyRing {
     // TODO: For now, we are assuming only one mnemonic is used, but in the future
     // will want to have multiple top-level accounts:
     const storedMnemonic = mnemonics[0];
+    // NOTE: This is hardcoded to 0, but when we have multiple mnemonics, we'll want an
+    // indicator to set an ID by mnemonic index, account, change, index so each ID will
+    // be a unique value:
+    const storedMnemonicIndex = 0;
 
     if (!storedMnemonic) {
       throw new Error("Mnemonic is not set!");
@@ -154,10 +159,8 @@ export class KeyRing {
       const phrase = AEAD.decrypt(storedMnemonic.phrase, this._password);
       // TODO: Validate derivation path against stored paths under this mnemonic!
       const { account, change, index } = path;
-      const root = "m/44";
-      const derivationPath = [root, account, change, index]
-        .map((p) => `${p}'`)
-        .join("/");
+      const root = "m/44'";
+      const derivationPath = [root, account, change, index].join("/");
       const mnemonic = Mnemonic.from_phrase(phrase);
       const seed = mnemonic.to_seed();
       const bip44 = new Bip44(seed);
@@ -172,19 +175,23 @@ export class KeyRing {
       );
       const address = new Address(derivedAccount.private().to_hex()).implicit();
 
+      const id = getId("account", storedMnemonicIndex, account, change, index);
+
       this._accountStore.append({
-        id: getId("account", account, change, index),
-        alias,
-        parentId: storedMnemonic.id,
-        bip44Path: path,
+        id,
         address,
+        alias,
+        bip44Path: path,
+        parentId: storedMnemonic.id,
         private: privateKey,
         public: publicKey,
       });
 
       return {
-        bip44Path: path,
+        id,
         address,
+        alias,
+        bip44Path: path,
       };
     } catch (e) {
       console.error(e);
@@ -196,7 +203,8 @@ export class KeyRing {
     // Query accounts from storage
     const accounts = (await this._accountStore.get()) || [];
 
-    return accounts.map(({ address, bip44Path, alias }) => ({
+    return accounts.map(({ address, alias, bip44Path, id }) => ({
+      id,
       address,
       bip44Path,
       alias,

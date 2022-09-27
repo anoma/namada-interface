@@ -48,3 +48,7 @@ export const ContentContainer = styled.div`
   background-color: ${(props) => props.theme.colors.utility1.main80};
   color: ${(props) => props.theme.colors.utility1.main20};
 `;
+
+export const LoadingError = styled.div`
+  color: ${(props) => props.theme.colors.utility3.highAttention};
+`;

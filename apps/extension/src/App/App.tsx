@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 import browser from "webextension-polyfill";
 
@@ -12,19 +13,29 @@ import {
   AppContainer,
   BottomSection,
   ContentContainer,
+  LoadingError,
   GlobalStyles,
   TopSection,
 } from "./App.components";
 import Accounts from "./Accounts/Accounts";
+import AddAccount from "./Accounts/AddAccount";
+import { TopLevelRoute } from "App/types";
 
 const requester = new ExtensionRequester();
 
+enum Status {
+  Completed,
+  Pending,
+  Failed,
+}
+
 export const App: React.FC = () => {
   const theme = getTheme(true, false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [status, setStatus] = useState<Status>();
   const [accounts, setAccounts] = useState<DerivedAccount[]>([]);
 
   useEffect(() => {
+    setStatus(Status.Pending);
     (async () => {
       try {
         const accounts = await requester.sendMessage(
@@ -34,8 +45,9 @@ export const App: React.FC = () => {
         setAccounts(accounts);
       } catch (e) {
         console.error(e);
+        setStatus(Status.Failed);
       } finally {
-        setIsLoading(false);
+        setStatus(Status.Completed);
       }
     })();
   }, []);
@@ -49,7 +61,7 @@ export const App: React.FC = () => {
             <h1>Anoma Browser Extension</h1>
           </TopSection>
 
-          {!isLoading && accounts.length === 0 && (
+          {status === Status.Completed && accounts.length === 0 && (
             <Button
               variant={ButtonVariant.ContainedAlternative}
               onClick={() => {
@@ -61,8 +73,25 @@ export const App: React.FC = () => {
               Launch Initial Set-Up
             </Button>
           )}
-          {!isLoading && accounts.length > 0 && (
-            <Accounts accounts={accounts} />
+          {status === Status.Completed && accounts.length > 0 && (
+            <BrowserRouter>
+              <Routes>
+                <Route path={`*`} element={<Accounts accounts={accounts} />} />
+                <Route
+                  path={TopLevelRoute.WalletAddAccount}
+                  element={
+                    <AddAccount
+                      accounts={accounts}
+                      requester={requester}
+                      setAccounts={setAccounts}
+                    />
+                  }
+                />
+              </Routes>
+            </BrowserRouter>
+          )}
+          {status === Status.Failed && (
+            <LoadingError>An error occured loading accounts!</LoadingError>
           )}
         </ContentContainer>
         <BottomSection></BottomSection>

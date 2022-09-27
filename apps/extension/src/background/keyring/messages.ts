@@ -156,15 +156,15 @@ export class DeriveAccountMsg extends Message<DerivedAccount> {
 
     const { account, change, index } = this.path;
 
-    if (!`${account}`) {
+    if (!account) {
       throw new Error("A Bip44Path account path was not provided!");
     }
 
-    if (!`${change}`) {
+    if (!change) {
       throw new Error("A Bip44Path change path was not provided!");
     }
 
-    if (!`${index}`) {
+    if (!index) {
       throw new Error("A Bip44Path index path was not provided!");
     }
   }
