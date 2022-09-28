@@ -64,7 +64,7 @@ const TopNavigationMenuItems = (props: {
         <MenuItemTextContainer>Bridge</MenuItemTextContainer>
       </MenuItem>
 
-      {/* Staking */}
+      {/* Staking disabled*/}
       <MenuItem
         isSelected={location.pathname === TopLevelRoute.StakingAndGovernance}
       >
