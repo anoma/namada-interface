@@ -62,8 +62,8 @@ The flow may resemble the following:
 
 ## Manifest considerations
 
-Currently, Firefox does not support `manifest_version: 3`, but Chrome no longer accepts `manifest_version: 2` into their extension store. It is best that we follow what the `metamask-extension`
-is doing by supporting multiple both versions. `@keplr-wallet/extension` is currently using only version 2 in all browsers, but as we will be a new submission, we need to support version 3.
+Currently, Firefox does not support `manifest_version: 3`, but Chrome no longer accepts `manifest_version: 2` into their extension store. It is best that we follow what `metamask-extension`
+is doing by supporting multiple both versions. `@keplr-wallet/extension` is currently using only version 2 in all browsers, but as this will be a new submission, we need to support version 3 for Chrome.
 
 This has some implications for how the `background-scripts` are designed:
 
