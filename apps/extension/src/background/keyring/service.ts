@@ -23,6 +23,10 @@ export class KeyRingService {
     return { status: this._keyRing.status };
   }
 
+  isLocked(): boolean {
+    return this._keyRing.isLocked();
+  }
+
   async checkPassword(password: string): Promise<boolean> {
     return await this._keyRing.checkPassword(password);
   }

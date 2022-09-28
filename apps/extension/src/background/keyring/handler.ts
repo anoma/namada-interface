@@ -1,6 +1,7 @@
 import { Handler, Env, Message, InternalHandler } from "router";
 import { KeyRingService } from "./service";
 import {
+  CheckIsLockedMsg,
   DeriveAccountMsg,
   QueryAccountsMsg,
   LockKeyRingMsg,
@@ -13,6 +14,8 @@ import {
 export const getHandler: (service: KeyRingService) => Handler = (service) => {
   return (env: Env, msg: Message<unknown>) => {
     switch (msg.constructor) {
+      case CheckIsLockedMsg:
+        return handleCheckIsLockedMsg(service)(env, msg as CheckIsLockedMsg);
       case LockKeyRingMsg:
         return handleLockKeyRingMsg(service)(env, msg as LockKeyRingMsg);
       case UnlockKeyRingMsg:
@@ -33,6 +36,14 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
       default:
         throw new Error("Unknown msg type");
     }
+  };
+};
+
+const handleCheckIsLockedMsg: (
+  service: KeyRingService
+) => InternalHandler<CheckIsLockedMsg> = (service) => {
+  return () => {
+    return service.isLocked();
   };
 };
 

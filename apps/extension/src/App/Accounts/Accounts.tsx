@@ -30,7 +30,7 @@ const Accounts = ({ accounts }: Props): JSX.Element => {
         ))}
       </AccountsList>
       <ButtonContainer>
-        <Button onClick={() => navigate(TopLevelRoute.WalletAddAccount)}>
+        <Button onClick={() => navigate(TopLevelRoute.AddAccount)}>
           <ButtonText>Derive new account</ButtonText>
           <Icon iconName={IconName.Plus} />
         </Button>

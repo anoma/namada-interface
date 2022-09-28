@@ -53,19 +53,11 @@ export class KeyRing {
   }
 
   public async lock() {
-    if (this._status !== KeyRingStatus.UNLOCKED) {
-      throw new Error("Key ring is not unlocked");
-    }
-
     this._status = KeyRingStatus.LOCKED;
     this._password = undefined;
   }
 
   public async unlock(password: string) {
-    if (this.status !== KeyRingStatus.LOCKED) {
-      throw new Error("Key ring is not locked!");
-    }
-
     if (await this.checkPassword(password)) {
       this._password = password;
       this._status = KeyRingStatus.UNLOCKED;

@@ -49,6 +49,8 @@ export const ContentContainer = styled.div`
   color: ${(props) => props.theme.colors.utility1.main20};
 `;
 
-export const LoadingError = styled.div`
-  color: ${(props) => props.theme.colors.utility3.highAttention};
+export const LockExtensionButton = styled.a`
+  display: block;
+  width: 25px;
+  height: 25px;
 `;

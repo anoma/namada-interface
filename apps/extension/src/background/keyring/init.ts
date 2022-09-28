@@ -1,5 +1,6 @@
 import { Router } from "router";
 import {
+  CheckIsLockedMsg,
   DeriveAccountMsg,
   QueryAccountsMsg,
   LockKeyRingMsg,
@@ -13,6 +14,7 @@ import { getHandler } from "./handler";
 import { KeyRingService } from "./service";
 
 export function init(router: Router, service: KeyRingService): void {
+  router.registerMessage(CheckIsLockedMsg);
   router.registerMessage(DeriveAccountMsg);
   router.registerMessage(QueryAccountsMsg);
   router.registerMessage(LockKeyRingMsg);
