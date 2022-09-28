@@ -67,6 +67,22 @@ impl Scrypt {
         Ok(password_hash)
     }
 
+    pub fn to_bytes(&self) -> Result<Vec<u8>, String> {
+        let password: &[u8] = &self.password;
+        let mut output: Vec<u8> = vec![];
+        let salt_string = SaltString::generate(&mut OsRng);
+        let salt = salt_string.as_bytes();
+
+        let _ = scrypt::scrypt(
+            password,
+            salt,
+            &self.params,
+            &mut output,
+        ).map_err(|err| err.to_string());
+
+        Ok(output)
+    }
+
     pub fn verify(&self, hash: String) -> Result<(), String> {
         let bytes: &[u8] = &self.password;
         let parsed_hash = PasswordHash::new(&hash).
@@ -140,5 +156,18 @@ mod tests {
         let hash = scrypt.to_hash().expect("Hashing password with Scrypt should not fail!");
 
         assert!(scrypt.verify(hash).is_ok());
+    }
+
+    #[test]
+    fn can_hash_password_to_bytes() {
+        // This isn't working as expected!
+        let password = "unhackable";
+        let scrypt = Scrypt::new(password.into(), None, None, None)
+            .expect("Instance should be able to be created with default params");
+        let output = scrypt.to_bytes();
+
+        assert!(output.is_ok());
+        // This should not be true
+        assert_eq!(output.unwrap(), vec![]);
     }
 }

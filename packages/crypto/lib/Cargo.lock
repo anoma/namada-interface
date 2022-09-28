@@ -160,6 +160,7 @@ dependencies = [
  "orion",
  "rand 0.7.3",
  "scrypt",
+ "serde",
  "thiserror",
  "wasm-bindgen",
  "wasm-bindgen-test",
@@ -641,6 +642,12 @@ dependencies = [
  "subtle",
  "zeroize",
 ]
+
+[[package]]
+name = "serde"
+version = "1.0.145"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "728eb6351430bccb993660dfffc5a72f91ccc1295abaa8ce19b27ebe4f75568b"
 
 [[package]]
 name = "sha2"
