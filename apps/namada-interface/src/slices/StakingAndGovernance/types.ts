@@ -62,7 +62,7 @@ export enum CurrentState {
   Unstaking,
 }
 
-export type NewStakingPositionRequest = {
+export type ChangeInStakingPosition = {
   validatorId: string;
   amount: string;
   stakingCurrency: string;

@@ -13,6 +13,6 @@ export type {
   MyValidators,
   StakingAndGovernanceState,
   StakingPosition,
-  NewStakingPositionRequest,
+  ChangeInStakingPosition,
 } from "./types";
 export { CurrentState } from "./types";

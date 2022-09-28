@@ -1,7 +1,7 @@
 import { NewStakingPositionContainer } from "./NewStakingPosition.components";
 import { Table, TableConfigurations, KeyValueData } from "components/Table";
 import { Button, ButtonVariant } from "components/Button";
-import { NewStakingPositionRequest } from "slices/StakingAndGovernance";
+import { ChangeInStakingPosition } from "slices/StakingAndGovernance";
 
 const stakingDetailsConfigurations: TableConfigurations<KeyValueData, never> = {
   rowRenderer: (rowData: KeyValueData) => {
@@ -20,7 +20,7 @@ const stakingDetailsConfigurations: TableConfigurations<KeyValueData, never> = {
 
 // this is called for both confirm and cancel. If con
 type Props = {
-  confirmStaking: (stakingPositionRequest: NewStakingPositionRequest) => void;
+  confirmStaking: (changeInStakingPosition: ChangeInStakingPosition) => void;
   cancelStaking: () => void;
 };
 
@@ -41,12 +41,12 @@ export const NewStakingPosition = (props: Props): JSX.Element => {
       <Button
         variant={ButtonVariant.Contained}
         onClick={() => {
-          const newStakingPositionRequest: NewStakingPositionRequest = {
+          const changeInStakingPosition: ChangeInStakingPosition = {
             amount: "1",
             stakingCurrency: "NAM",
             validatorId: "123",
           };
-          confirmStaking(newStakingPositionRequest);
+          confirmStaking(changeInStakingPosition);
         }}
       >
         Confirm

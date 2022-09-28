@@ -11,7 +11,7 @@ import {
   Validator,
   MyValidators,
   StakingPosition,
-  NewStakingPositionRequest,
+  ChangeInStakingPosition,
 } from "slices/StakingAndGovernance";
 import { NewStakingPosition } from "./NewStakingPosition";
 import { UnstakePosition } from "./UnstakePosition";
@@ -55,7 +55,7 @@ type Props = {
   onInitCallback: () => void; // will be called at first load, triggers fetching
   fetchValidatorDetails: (validatorId: string) => void;
   postNewStakingCallback: (
-    newStakingPositionRequest: NewStakingPositionRequest
+    changeInStakingPosition: ChangeInStakingPosition
   ) => void;
   postUnstakingCallback: (stakingPositionId: string) => void;
 };
@@ -149,10 +149,10 @@ export const Staking = (props: Props): JSX.Element => {
 
   // callbacks for the bonding and unbonding views
   const confirmBonding = (
-    stakingPositionRequest: NewStakingPositionRequest
+    changeInStakingPosition: ChangeInStakingPosition
   ): void => {
     setModalState(ModalState.None);
-    postNewStakingCallback(stakingPositionRequest);
+    postNewStakingCallback(changeInStakingPosition);
   };
 
   const cancelBonding = (): void => {
@@ -160,10 +160,10 @@ export const Staking = (props: Props): JSX.Element => {
   };
 
   const confirmUnbonding = (
-    stakingPositionRequest: NewStakingPositionRequest
+    changeInStakingPosition: ChangeInStakingPosition
   ): void => {
     setModalState(ModalState.None);
-    postNewStakingCallback(stakingPositionRequest);
+    postNewStakingCallback(changeInStakingPosition);
   };
 
   const cancelUnbonding = (): void => {

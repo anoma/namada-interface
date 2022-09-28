@@ -12,7 +12,7 @@ import {
   MyBalanceEntry,
   MyValidators,
   StakingPosition,
-  NewStakingPositionRequest,
+  ChangeInStakingPosition,
 } from "./types";
 import { allValidatorsData, myStakingData, myBalancesData } from "./fakeData";
 
@@ -105,10 +105,13 @@ export const fetchMyBalances = createAsyncThunk<
 // the new updated balances and validator amounts:
 // * fetchMyBalances
 // * fetchMyValidators
-export const postNewStaking = createAsyncThunk<void, NewStakingPositionRequest>(
+export const postNewStaking = createAsyncThunk<void, ChangeInStakingPosition>(
   POST_NEW_STAKING,
-  async (newStakingPositionRequest: NewStakingPositionRequest) => {
-    console.log(newStakingPositionRequest, "void at postNewStaking");
+  async (changeInStakingPosition: ChangeInStakingPosition) => {
+    console.log(
+      changeInStakingPosition,
+      "changeInStakingPosition at postNewStaking"
+    );
     return Promise.resolve();
   }
 );

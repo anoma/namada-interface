@@ -19,9 +19,9 @@ import {
   fetchValidatorDetails,
   postNewStaking,
   postUnstaking,
-  NewStakingPositionRequest,
+  ChangeInStakingPosition,
 } from "slices/StakingAndGovernance";
-export type { NewStakingPositionRequest };
+export type { ChangeInStakingPosition };
 // This is just rendering the actual Staking/Governance/PGF screens
 // mostly the purpose of this is to define the default behavior when
 // the user clicks the top level Staking & Governance menu
@@ -67,9 +67,9 @@ export const StakingAndGovernance = (): JSX.Element => {
   };
 
   const postNewStakingCallback = (
-    newStakingPositionRequest: NewStakingPositionRequest
+    changeInStakingPosition: ChangeInStakingPosition
   ): void => {
-    dispatch(postNewStaking(newStakingPositionRequest));
+    dispatch(postNewStaking(changeInStakingPosition));
   };
 
   const postUnstakingCallback = (stakingPositionId: string): void => {
