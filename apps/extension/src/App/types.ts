@@ -1,15 +1,12 @@
 export enum TopLevelRoute {
-  /* INITIAL ACCOUNT */
-  Home = "/",
-  AccountCreation = "/account-creation",
+  Default = "/",
+  Login = "/login",
+  Setup = "/setup",
 
   /* WALLET */
-  Wallet = "/",
-  WalletAddAccount = "/add-account",
+  Accounts = "/accounts",
+  AddAccount = "/accounts/add",
 
   /* SETTINGS */
   Settings = "/settings",
-  SettingsAccounts = "/settings/accounts",
-  SettingsWalletSettings = "/settings/wallet-settings",
-  SettingsAccountSettings = "/settings/account-settings/:id",
 }

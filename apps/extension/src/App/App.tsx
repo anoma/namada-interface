@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { ThemeProvider } from "styled-components";
-import browser from "webextension-polyfill";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 
-import { Button, ButtonVariant } from "@anoma/components";
 import { getTheme } from "@anoma/utils";
-
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
 import { DerivedAccount, QueryAccountsMsg } from "background/keyring";
@@ -15,12 +13,16 @@ import {
   GlobalStyles,
   TopSection,
 } from "./App.components";
-import Accounts from "./Accounts/Accounts";
+import { Accounts } from "./Accounts";
+import { Setup } from "./Setup";
+import { TopLevelRoute } from "./types";
+import { Loading } from "./Loading";
 
 const requester = new ExtensionRequester();
 
 export const App: React.FC = () => {
   const theme = getTheme(true, false);
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [accounts, setAccounts] = useState<DerivedAccount[]>([]);
 
@@ -40,6 +42,17 @@ export const App: React.FC = () => {
     })();
   }, []);
 
+  useEffect(() => {
+    // TODO: Check for authenticated extension
+    if (!isLoading) {
+      if (accounts.length === 0) {
+        navigate(TopLevelRoute.Setup);
+      } else {
+        navigate(TopLevelRoute.Accounts);
+      }
+    }
+  }, [isLoading, accounts]);
+
   return (
     <ThemeProvider theme={theme}>
       <AppContainer>
@@ -48,20 +61,14 @@ export const App: React.FC = () => {
           <TopSection>
             <h1>Anoma Browser Extension</h1>
           </TopSection>
-
-          {!isLoading && accounts.length === 0 && (
-            <Button
-              variant={ButtonVariant.ContainedAlternative}
-              onClick={() => {
-                browser.tabs.create({
-                  url: browser.runtime.getURL("setup.html"),
-                });
-              }}
-            >
-              Launch Initial Set-Up
-            </Button>
-          )}
-          <Accounts accounts={accounts} />
+          <Routes>
+            <Route path="*" element={<Loading />} />
+            <Route
+              path={TopLevelRoute.Accounts}
+              element={<Accounts accounts={accounts} />}
+            />
+            <Route path={TopLevelRoute.Setup} element={<Setup />} />
+          </Routes>
         </ContentContainer>
         <BottomSection></BottomSection>
       </AppContainer>
