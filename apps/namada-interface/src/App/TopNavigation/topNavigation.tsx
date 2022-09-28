@@ -83,24 +83,24 @@ const TopNavigationMenuItems = (props: {
       </MenuItem>
 
       {/* Staking */}
-      <MenuItem
+      {/* <MenuItem
         onClick={() => {
           navigate(`${TopLevelRoute.StakingAndGovernance}`);
         }}
         isSelected={topLevelPath === TopLevelRoute.StakingAndGovernance}
       >
         <MenuItemTextContainer>Staking</MenuItemTextContainer>
-      </MenuItem>
+      </MenuItem> */}
 
       {/* Governance */}
-      <MenuItem
+      {/* <MenuItem
         onClick={() => {
           navigate(`${TopLevelRoute.Governance}`);
         }}
         isSelected={topLevelPath === TopLevelRoute.Governance}
       >
         <MenuItemTextContainer>Governance</MenuItemTextContainer>
-      </MenuItem>
+      </MenuItem> */}
     </>
   );
 };
@@ -148,7 +148,7 @@ const SecondMenuRow = (props: SecondMenuRowProps): React.ReactElement => {
     >
       {isSubMenuContentVisible && (
         <SubMenuContainer>
-          <MenuItemForSecondRow
+          {/* <MenuItemForSecondRow
             onClick={() => {
               navigate(
                 `${TopLevelRoute.StakingAndGovernance}${StakingAndGovernanceSubRoute.Staking}`
@@ -160,8 +160,8 @@ const SecondMenuRow = (props: SecondMenuRowProps): React.ReactElement => {
             }
           >
             Staking
-          </MenuItemForSecondRow>
-          <MenuItemForSecondRow
+          </MenuItemForSecondRow> */}
+          {/* <MenuItemForSecondRow
             onClick={() => {
               navigate(
                 `${TopLevelRoute.StakingAndGovernance}${StakingAndGovernanceSubRoute.Governance}`
@@ -186,7 +186,7 @@ const SecondMenuRow = (props: SecondMenuRowProps): React.ReactElement => {
             }
           >
             Public Goods Funding
-          </MenuItemForSecondRow>
+          </MenuItemForSecondRow> */}
         </SubMenuContainer>
       )}
 
@@ -450,8 +450,8 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
                 Bridge
               </MenuItem>
             </MobileMenuListItem>
-            <MobileMenuListItem>
-              <MenuItemSubComponent
+            {/* <MobileMenuListItem> */}
+            {/* <MenuItemSubComponent
                 onClick={() => {
                   setShowMenu(false);
                   setIsLightMode(false);
@@ -465,8 +465,8 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
                 }
               >
                 Staking
-              </MenuItemSubComponent>
-              <MenuItemSubComponent
+              </MenuItemSubComponent> */}
+            {/* <MenuItemSubComponent
                 onClick={() => {
                   setShowMenu(false);
                   setIsLightMode(false);
@@ -495,8 +495,8 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
                 }
               >
                 Public Goods Funding
-              </MenuItemSubComponent>
-            </MobileMenuListItem>
+              </MenuItemSubComponent> */}
+            {/* </MobileMenuListItem> */}
             <MobileMenuListItem>
               <MenuItem
                 onClick={() => {
