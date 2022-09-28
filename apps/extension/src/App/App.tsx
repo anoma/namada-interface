@@ -41,23 +41,37 @@ export const App: React.FC = () => {
   const [accounts, setAccounts] = useState<DerivedAccount[]>([]);
   const [error, setError] = useState("");
 
-  useEffect(() => {
+  const fetchAccounts = async () => {
     setStatus(Status.Pending);
-    (async () => {
-      try {
-        const accounts = await requester.sendMessage(
-          Ports.Background,
-          new QueryAccountsMsg()
-        );
-        setAccounts(accounts);
-      } catch (e) {
-        console.error(e);
-        setError(`An error occurred while loading extension: ${e}`);
-        setStatus(Status.Failed);
-      } finally {
-        setStatus(Status.Completed);
-      }
-    })();
+    try {
+      const accounts = await requester.sendMessage(
+        Ports.Background,
+        new QueryAccountsMsg()
+      );
+      setAccounts(accounts);
+    } catch (e) {
+      console.error(e);
+      setError(`An error occurred while loading extension: ${e}`);
+      setStatus(Status.Failed);
+    } finally {
+      setStatus(Status.Completed);
+    }
+  };
+
+  const checkIsLocked = async () => {
+    const isLocked = await requester.sendMessage(
+      Ports.Background,
+      new CheckIsLockedMsg()
+    );
+    if (isLocked) {
+      navigate(TopLevelRoute.Login);
+    } else {
+      navigate(TopLevelRoute.Accounts);
+    }
+  };
+
+  useEffect(() => {
+    fetchAccounts();
   }, []);
 
   useEffect(() => {
@@ -65,17 +79,7 @@ export const App: React.FC = () => {
       if (accounts.length === 0) {
         navigate(TopLevelRoute.Setup);
       } else {
-        (async () => {
-          const isLocked = await requester.sendMessage(
-            Ports.Background,
-            new CheckIsLockedMsg()
-          );
-          if (isLocked) {
-            navigate(TopLevelRoute.Login);
-          } else {
-            navigate(TopLevelRoute.Accounts);
-          }
-        })();
+        checkIsLocked();
       }
     }
   }, [status, accounts]);

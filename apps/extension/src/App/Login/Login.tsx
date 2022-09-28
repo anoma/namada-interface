@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { TopLevelRoute } from "App/types";
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
-import { UnlockKeyRingMsg } from "background/keyring";
+import { UnlockKeyRingMsg, KeyRingStatus } from "background/keyring";
 import { Input, InputVariants } from "@anoma/components";
 import { Button, ButtonVariant } from "@anoma/components";
 import { LoginContainer, LoginError } from "./Login.components";
@@ -13,7 +13,6 @@ enum Status {
   InvalidPassword,
   Pending,
   Failed,
-  Completed,
 }
 
 type Props = {
@@ -26,13 +25,13 @@ const Login: React.FC<Props> = ({ requester }) => {
   const [status, setStatus] = useState<Status>();
 
   const handleSubmit = async () => {
+    setStatus(Status.Pending);
     try {
-      setStatus(Status.Pending);
-      const isAuthenticated = await requester.sendMessage(
+      const { status: lockStatus } = await requester.sendMessage(
         Ports.Background,
         new UnlockKeyRingMsg(password)
       );
-      if (isAuthenticated) {
+      if (lockStatus === KeyRingStatus.UNLOCKED) {
         navigate(TopLevelRoute.Accounts);
       } else {
         setStatus(Status.InvalidPassword);
@@ -40,8 +39,6 @@ const Login: React.FC<Props> = ({ requester }) => {
     } catch (e) {
       console.error(e);
       setStatus(Status.Failed);
-    } finally {
-      setStatus(Status.Completed);
     }
   };
 
@@ -54,7 +51,7 @@ const Login: React.FC<Props> = ({ requester }) => {
       />
       <Button
         variant={ButtonVariant.Contained}
-        disabled={!(password.length > 0)}
+        disabled={status === Status.Pending || !(password.length > 0)}
         onClick={handleSubmit}
       >
         Unlock
