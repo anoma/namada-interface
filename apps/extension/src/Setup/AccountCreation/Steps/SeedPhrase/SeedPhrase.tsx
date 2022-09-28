@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, ButtonVariant, Toggle } from "@anoma/components";
 import { GenerateMnemonicMsg } from "background/keyring";
 import { ExtensionRequester } from "extension";
@@ -19,16 +19,9 @@ import {
   CopyToClipboard,
 } from "./SeedPhrase.components";
 
-// this is being used:
-// to store the data in the parent when editing
-// when submitting the form
-export type AccountCreationDetails = {
-  seedPhraseLength?: string;
-  accountName?: string;
-  password?: string;
-};
+import { AccountCreationDetails } from "Setup/AccountCreation/types";
 
-type AccountInformationViewProps = {
+type Props = {
   requester: ExtensionRequester;
   // go to next screen
   onConfirm: (seedPhraseAsArray: string[]) => void;
@@ -43,7 +36,7 @@ const textToClipboard = (content: string): void => {
   navigator.clipboard.writeText(content);
 };
 
-const SeedPhrase = (props: AccountInformationViewProps): JSX.Element => {
+const SeedPhrase: React.FC<Props> = (props) => {
   const { requester, onConfirm, defaultSeedPhrase } = props;
   const [seedPhrase, setSeedPhrase] = useState(defaultSeedPhrase || []);
 

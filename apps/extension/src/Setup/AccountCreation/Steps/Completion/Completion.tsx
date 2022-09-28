@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ExtensionRequester } from "extension";
 import browser from "webextension-polyfill";
 
@@ -14,7 +14,8 @@ import {
   Header1,
 } from "./Completion.components";
 
-type CompletionViewProps = {
+type Props = {
+  alias: string;
   requester: ExtensionRequester;
   mnemonic: string[];
   password: string;
@@ -26,15 +27,14 @@ enum Status {
   Failed,
 }
 
-const Completion = (props: CompletionViewProps): JSX.Element => {
-  const { requester, mnemonic, password } = props;
+const Completion: React.FC<Props> = (props) => {
+  const { alias, mnemonic, password, requester } = props;
   const [mnemonicStatus, setMnemonicStatus] = useState<Status>(Status.Pending);
   const [accountStatus, setAccountStatus] = useState<Status>(Status.Pending);
   const [isComplete, setIsComplete] = useState(false);
 
   useEffect(() => {
     if (password && mnemonic) {
-      console.log("Account is ready to initialize", { password, mnemonic });
       (async () => {
         try {
           await requester.sendMessage<SaveMnemonicMsg>(
@@ -50,7 +50,7 @@ const Completion = (props: CompletionViewProps): JSX.Element => {
         try {
           await requester.sendMessage<DeriveAccountMsg>(
             Ports.Background,
-            new DeriveAccountMsg({ account: 0, change: 0, index: 0 })
+            new DeriveAccountMsg({ account: 0, change: 0, index: 0 }, alias)
           );
           setAccountStatus(Status.Completed);
         } catch (e) {
@@ -77,6 +77,7 @@ const Completion = (props: CompletionViewProps): JSX.Element => {
         {!isComplete && (
           <BodyText>One moment while your wallet is being created...</BodyText>
         )}
+
         <ul>
           <li>
             Encrypting and storing mnemonic:{" "}

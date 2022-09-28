@@ -2,27 +2,51 @@ import styled from "styled-components";
 
 export const AccountListingContainer = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   width: 100%;
   background-color: ${(props) => props.theme.colors.utility1.main};
-  color: ${(props) => props.theme.colors.utility1.main20}
+  color: ${(props) => props.theme.colors.utility1.main40};
   box-sizing: border-box;
-  border: 1px solid ${(props) => props.theme.colors.utility1.main}
+  border: 1px solid ${(props) => props.theme.colors.utility1.main};
   border-radius: 8px;
-  padding: 8px 0 8px;
   box-sizing: border-box;
-`;
-
-export const DerivationPath = styled.div`
+  font-size: 10px;
   padding: 4px 8px;
-  margin: 4px 8px;
-  background-color: ${(props) => props.theme.colors.utility1.main80};
 `;
 
-export const Address = styled.div`
-  padding: 4px 8px;
-  margin: 4px 8px;
-  background-color: ${(props) => props.theme.colors.utility1.main80};
+export const Details = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  flex: 3;
 `;
 
-export const Description = styled.div``;
+export const Buttons = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  flex: 1;
+`;
+
+export const DerivationPath = styled.div``;
+
+export const Address = styled.div``;
+
+export const Alias = styled.div``;
+
+export const CopyToClipboard = styled.a`
+  text-decoration: underline;
+  padding: 5px;
+  transition: "1 sec";
+  border-radius: 4px;
+
+  & > div > svg > path {
+    fill: ${(props) => props.theme.colors.utility1.main40};
+    stroke: ${(props) => props.theme.colors.utility1.main40};
+  }
+
+  &:active {
+    border: 1px solid ${(props) => props.theme.colors.primary.main};
+    background-color: ${(props) => props.theme.colors.primary.main};
+  }
+`;

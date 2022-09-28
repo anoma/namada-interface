@@ -13,7 +13,7 @@ export const AppContainer = styled.div`
   flex-direction: column;
   height: 100%;
   min-height: 430px;
-  width: 100%;
+  width: 400px;
   box-sizing: border-box;
 
   @media screen and (max-width: 860px) {
@@ -47,4 +47,8 @@ export const ContentContainer = styled.div`
   align-items: center;
   background-color: ${(props) => props.theme.colors.utility1.main80};
   color: ${(props) => props.theme.colors.utility1.main20};
+`;
+
+export const LoadingError = styled.div`
+  color: ${(props) => props.theme.colors.utility3.highAttention};
 `;

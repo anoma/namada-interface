@@ -85,9 +85,9 @@ const TopNavigationMenuItems = (props: {
       {/* Staking */}
       <MenuItem
         onClick={() => {
-          navigate(`${TopLevelRoute.Staking}`);
+          navigate(`${TopLevelRoute.StakingAndGovernance}`);
         }}
-        isSelected={topLevelPath === TopLevelRoute.Staking}
+        isSelected={topLevelPath === TopLevelRoute.StakingAndGovernance}
       >
         <MenuItemTextContainer>Staking</MenuItemTextContainer>
       </MenuItem>
@@ -117,11 +117,12 @@ const SecondMenuRow = (props: SecondMenuRowProps): React.ReactElement => {
   const topLevelRoute = locationToTopLevelRoute(location);
   const stakingAndGovernanceSubRoute =
     locationToStakingAndGovernanceSubRoute(location);
-  const isSubMenuContentVisible = topLevelRoute === TopLevelRoute.Staking;
+  const isSubMenuContentVisible =
+    topLevelRoute === TopLevelRoute.StakingAndGovernance;
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
 
   useEffect(() => {
-    if (topLevelRoute === TopLevelRoute.Staking) {
+    if (topLevelRoute === TopLevelRoute.StakingAndGovernance) {
       setIsLightMode(false);
     }
   });
@@ -150,7 +151,7 @@ const SecondMenuRow = (props: SecondMenuRowProps): React.ReactElement => {
           <MenuItemForSecondRow
             onClick={() => {
               navigate(
-                `${TopLevelRoute.Staking}${StakingAndGovernanceSubRoute.Staking}`
+                `${TopLevelRoute.StakingAndGovernance}${StakingAndGovernanceSubRoute.Staking}`
               );
             }}
             isSelected={
@@ -163,7 +164,7 @@ const SecondMenuRow = (props: SecondMenuRowProps): React.ReactElement => {
           <MenuItemForSecondRow
             onClick={() => {
               navigate(
-                `${TopLevelRoute.Staking}${StakingAndGovernanceSubRoute.Governance}`
+                `${TopLevelRoute.StakingAndGovernance}${StakingAndGovernanceSubRoute.Governance}`
               );
             }}
             isSelected={
@@ -176,7 +177,7 @@ const SecondMenuRow = (props: SecondMenuRowProps): React.ReactElement => {
           <MenuItemForSecondRow
             onClick={() => {
               navigate(
-                `${TopLevelRoute.Staking}${StakingAndGovernanceSubRoute.PublicGoodsFunding}`
+                `${TopLevelRoute.StakingAndGovernance}${StakingAndGovernanceSubRoute.PublicGoodsFunding}`
               );
             }}
             isSelected={
@@ -302,7 +303,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
                 />
               </LogoContainer>
               <ColorModeContainer>
-                {topLevelRoute !== TopLevelRoute.Staking && (
+                {topLevelRoute !== TopLevelRoute.StakingAndGovernance && (
                   <Toggle
                     checked={isLightMode}
                     onClick={() => {
@@ -347,7 +348,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
               <RightSection>
                 {isLoggedIn && (
                   <ColorModeContainer>
-                    {topLevelRoute !== TopLevelRoute.Staking && (
+                    {topLevelRoute !== TopLevelRoute.StakingAndGovernance && (
                       <Toggle
                         checked={isLightMode}
                         onClick={() => {
@@ -383,7 +384,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
                 />
               </LogoContainer>
               <ColorModeContainer>
-                {topLevelRoute !== TopLevelRoute.Staking && (
+                {topLevelRoute !== TopLevelRoute.StakingAndGovernance && (
                   <Toggle
                     checked={isLightMode}
                     onClick={() => {
@@ -415,7 +416,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
               />
             </LogoContainer>
             <ColorModeContainer>
-              {topLevelRoute !== TopLevelRoute.Staking && (
+              {topLevelRoute !== TopLevelRoute.StakingAndGovernance && (
                 <Toggle
                   checked={isLightMode}
                   onClick={() => {
@@ -455,7 +456,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
                   setShowMenu(false);
                   setIsLightMode(false);
                   navigate(
-                    `${TopLevelRoute.Staking}${StakingAndGovernanceSubRoute.Staking}`
+                    `${TopLevelRoute.StakingAndGovernance}${StakingAndGovernanceSubRoute.Staking}`
                   );
                 }}
                 isSelected={
@@ -470,7 +471,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
                   setShowMenu(false);
                   setIsLightMode(false);
                   navigate(
-                    `${TopLevelRoute.Staking}${StakingAndGovernanceSubRoute.Governance}`
+                    `${TopLevelRoute.StakingAndGovernance}${StakingAndGovernanceSubRoute.Governance}`
                   );
                 }}
                 isSelected={
@@ -485,7 +486,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
                   setShowMenu(false);
                   setIsLightMode(false);
                   navigate(
-                    `${TopLevelRoute.Staking}${StakingAndGovernanceSubRoute.PublicGoodsFunding}`
+                    `${TopLevelRoute.StakingAndGovernance}${StakingAndGovernanceSubRoute.PublicGoodsFunding}`
                   );
                 }}
                 isSelected={

@@ -218,4 +218,7 @@ export const mockAppState: RootState = {
   coins: {
     rates: {},
   },
+  stakingAndGovernance: {
+    validators: [],
+  },
 };

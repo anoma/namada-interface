@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { ThemeContext } from "styled-components";
@@ -22,18 +22,17 @@ import {
   RouteContainer,
   MotionContainer,
 } from "./AccountCreation.components";
-import { AccountCreationDetails } from "./Steps/SeedPhrase/SeedPhrase";
+import { AccountCreationDetails } from "Setup/AccountCreation/types";
 
 type AnimatedTransitionProps = {
   elementKey: string;
-  // the page contents
   children: JSX.Element;
 };
 
 /**
  * This is a utility to facilitate the animated transitions.
  */
-const AnimatedTransition = (props: AnimatedTransitionProps): JSX.Element => {
+const AnimatedTransition: React.FC<AnimatedTransitionProps> = (props) => {
   const { children, elementKey } = props;
   return (
     <MotionContainer
@@ -47,23 +46,19 @@ const AnimatedTransition = (props: AnimatedTransitionProps): JSX.Element => {
   );
 };
 
+type Props = {
+  requester: ExtensionRequester;
+};
+
 /**
  * The main purpose of this is to coordinate the flow for creating a new account.
  * It persists the data between the screens in the flow.
  */
-const AccountCreation = (props: {
-  requester: ExtensionRequester;
-}): JSX.Element => {
-  const { requester } = props;
-  // account details defaults
-  const defaultAccountCreationDetails: AccountCreationDetails = {
-    seedPhraseLength: "12",
-    accountName: "",
-  };
-
-  const [accountCreationDetails, setAccountCreationDetails] = useState(
-    defaultAccountCreationDetails
-  );
+const AccountCreation: React.FC<Props> = ({ requester }) => {
+  const [accountCreationDetails, setAccountCreationDetails] =
+    useState<AccountCreationDetails>({
+      alias: "",
+    });
   const [seedPhrase, setSeedPhrase] = useState<string[]>();
   const [stepIndex, setStepIndex] = useState(0);
 
@@ -195,6 +190,7 @@ const AccountCreation = (props: {
                   elementKey={AccountCreationRoute.Completion}
                 >
                   <Completion
+                    alias={accountCreationDetails.alias || ""}
                     requester={requester}
                     mnemonic={seedPhrase || []}
                     password={accountCreationDetails.password || ""}

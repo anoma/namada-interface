@@ -5,7 +5,10 @@ This is the Anoma Browser Extension project.
 ## Usage
 
 ```bash
-# First, install web-ext globally (this bundles Firefox extensions into a `.zip` file):
+# First, install wasm-bindgen-cli (for related dependencies) if you haven't already:
+cargo install -f wasm-bindgen-cli
+
+# Install web-ext globally (this bundles Firefox extensions into a `.zip` file):
 yarn global add web-ext
 
 # Build wasm dependencies

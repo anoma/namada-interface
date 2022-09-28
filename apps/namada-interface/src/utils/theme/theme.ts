@@ -54,6 +54,10 @@ type Colors = {
 type BorderRadius = {
   s: string;
   m: string;
+  l: string;
+  textField: string;
+  mainContainer: string;
+  buttonBorderRadius: string;
 };
 
 type Spacers = {
@@ -96,7 +100,7 @@ export type DesignConfiguration = {
   spacers: Spacers;
   borderRadius: BorderRadius;
   typography: Typography;
-  themeConfigurations: { isLightMode?: boolean };
+  themeConfigurations: { isLightMode?: boolean; themeName: ThemeName };
 };
 
 // NAMADA
@@ -207,23 +211,23 @@ const placeholderThemeColors: Colors = {
     main20: "#333300",
   },
   secondary: {
-    main: "#11DFDF",
-    main80: "#41E5E5",
-    main60: "#70ECEC",
-    main40: "#A0F2F2",
-    main20: "#CFF9F9",
+    main: "#1D44A7",
+    main80: "#1D44A7",
+    main60: "#1D44A7",
+    main40: "#1D44A7",
+    main20: "#1D44A7",
   },
   tertiary: {
-    main: "#11DFDF",
-    main80: "#41E5E5",
-    main60: "#70ECEC",
-    main40: "#A0F2F2",
-    main20: "#CFF9F9",
+    main: "#1D44A7",
+    main80: "#1D44A7",
+    main60: "#1D44A7",
+    main40: "#1D44A7",
+    main20: "#1D44A7",
   },
   utility1: {
     main: "#FFFFFF",
-    main80: "#F8F8F8",
-    main75: "#F8F8F8",
+    main80: "#eaf3fe",
+    main75: "#eaf3fe",
     main70: "#F8F8F8",
     main60: "#F3F3F3",
     main40: "#F0F0F0",
@@ -247,6 +251,24 @@ const placeholderThemeColors: Colors = {
   },
 };
 
+const placeholderBorderRadius: BorderRadius = {
+  s: "8px",
+  m: "12px",
+  l: "18px",
+  mainContainer: "8px",
+  textField: "8px",
+  buttonBorderRadius: "8px",
+};
+
+const namadaBorderRadius: BorderRadius = {
+  s: "8px",
+  m: "12px",
+  l: "18px",
+  mainContainer: "24px",
+  textField: "8px",
+  buttonBorderRadius: "200px",
+};
+
 const namadaSpacers = {
   horizontal: {
     xs: "8px",
@@ -265,8 +287,6 @@ const namadaSpacers = {
     xxl: "96px",
   },
 };
-
-const namadaBorderRadius = { s: "12px", m: "24px" };
 
 const namadaTypography = {
   body: {
@@ -306,6 +326,13 @@ const namadaTypography = {
   },
 };
 
+// we want to have the name as we might alter the usage
+// of style tokens in styling files based on the theme name
+export enum ThemeName {
+  Namada,
+  Placeholder,
+}
+
 export type ThemeConfigurations = {
   isLightMode: boolean;
 };
@@ -318,9 +345,9 @@ export const getTheme = (
     const placeholderTheme: DesignConfiguration = {
       colors: placeholderThemeColors,
       spacers: namadaSpacers,
-      borderRadius: namadaBorderRadius,
+      borderRadius: placeholderBorderRadius,
       typography: namadaTypography,
-      themeConfigurations: { isLightMode },
+      themeConfigurations: { isLightMode, themeName: ThemeName.Placeholder },
     };
     return placeholderTheme;
   }
@@ -330,7 +357,7 @@ export const getTheme = (
     spacers: namadaSpacers,
     borderRadius: namadaBorderRadius,
     typography: namadaTypography,
-    themeConfigurations: { isLightMode },
+    themeConfigurations: { isLightMode, themeName: ThemeName.Namada },
   };
   return namadaTheme;
 };

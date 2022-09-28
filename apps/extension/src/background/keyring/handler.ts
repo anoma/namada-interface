@@ -72,9 +72,9 @@ const handleSaveMnemonicMsg: (
   service: KeyRingService
 ) => InternalHandler<SaveMnemonicMsg> = (service) => {
   return async (_, msg) => {
-    const { words, password, description } = msg;
+    const { words, password, alias } = msg;
     if (words && password) {
-      return await service.saveMnemonic(words, password, description);
+      return await service.saveMnemonic(words, password, alias);
     }
     return false;
   };
@@ -84,8 +84,8 @@ const handleDeriveAccountMsg: (
   service: KeyRingService
 ) => InternalHandler<DeriveAccountMsg> = (service) => {
   return async (_, msg) => {
-    const { path, description } = msg;
-    return await service.deriveAccount(path, description);
+    const { path, alias } = msg;
+    return await service.deriveAccount(path, alias);
   };
 };
 

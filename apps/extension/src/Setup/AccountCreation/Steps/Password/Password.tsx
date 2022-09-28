@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button, ButtonVariant } from "@anoma/components";
 import {
   AccountInformationViewContainer,
@@ -12,18 +12,10 @@ import {
   InputContainer,
   ButtonContainer,
 } from "./Password.components";
-
-// this is being used:
-// to store the data in the parent when editing
-// when submitting the form
-export type AccountCreationDetails = {
-  seedPhraseLength?: string;
-  accountName?: string;
-  password?: string;
-};
+import { AccountCreationDetails } from "Setup/AccountCreation/types";
 
 // the data of this form
-type AccountInformationViewProps = {
+type Props = {
   // if the user navigates back and forth this might be there
   accountCreationDetails?: AccountCreationDetails;
   onSubmitAccountCreationDetails: (
@@ -35,16 +27,17 @@ type AccountInformationViewProps = {
   ) => void;
 };
 
-const Password = (props: AccountInformationViewProps): React.ReactElement => {
+const Password: React.FC<Props> = (props) => {
   const { onSubmitAccountCreationDetails, accountCreationDetails } = props;
 
   // we store passwords locally as we would not like to pass them in
   // when the user switches between the screens
-  const [password1, setPassword1] = React.useState("");
-  const [password2, setPassword2] = React.useState("");
-  const [password2Feedback, setPassword2Feedback] = React.useState("");
-  const [password1Feedback, setPassword1Feedback] = React.useState("");
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [password1, setPassword1] = useState("");
+  const [password2, setPassword2] = useState("");
+  const [password2Feedback, setPassword2Feedback] = useState("");
+  const [password1Feedback, setPassword1Feedback] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [alias, setAlias] = useState("");
 
   const isSubmitButtonDisabled = password1 === "" || password1 !== password2;
 
@@ -63,6 +56,11 @@ const Password = (props: AccountInformationViewProps): React.ReactElement => {
           <strong>NOT</strong> a replacement for your seed phrase! Use this
           password to access your wallet in the browser.
         </BodyText>
+
+        <InputContainer>
+          <Header5>Alias (optional)</Header5>
+          <Input value={alias} onChange={(e) => setAlias(e.target.value)} />
+        </InputContainer>
 
         {/* password 1 */}
         <InputContainer>
@@ -126,6 +124,7 @@ const Password = (props: AccountInformationViewProps): React.ReactElement => {
                 setIsSubmitting(true);
                 const accountCreationDetailsToSubmit: AccountCreationDetails = {
                   ...accountCreationDetails,
+                  alias,
                   password: password1,
                 };
 

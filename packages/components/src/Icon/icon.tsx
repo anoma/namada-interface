@@ -17,6 +17,7 @@ import { ReactComponent as PlusCircle } from "./assets/plus-circle.svg";
 import { ReactComponent as Info } from "./assets/info.svg";
 import { ReactComponent as Lock } from "./assets/lock.svg";
 import { ReactComponent as Menu } from "./assets/menu.svg";
+import { ReactComponent as Copy } from "./assets/copy.svg";
 
 import { IconName, IconSize } from "./types";
 import { IconContainer, StyledIcon } from "./icon.components";
@@ -52,6 +53,7 @@ const icons: Record<IconName, ComponentType> = {
   [IconName.Info]: Info,
   [IconName.Lock]: Lock,
   [IconName.Menu]: Menu,
+  [IconName.Copy]: Copy,
 };
 
 /**

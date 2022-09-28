@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ThemeProvider } from "styled-components";
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 
 import { getTheme } from "@anoma/utils";
 import { ExtensionRequester } from "extension";
@@ -10,6 +10,7 @@ import {
   AppContainer,
   BottomSection,
   ContentContainer,
+  LoadingError,
   GlobalStyles,
   TopSection,
 } from "./App.components";
@@ -20,13 +21,20 @@ import { Loading } from "./Loading";
 
 const requester = new ExtensionRequester();
 
+enum Status {
+  Completed,
+  Pending,
+  Failed,
+}
+
 export const App: React.FC = () => {
   const theme = getTheme(true, false);
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(true);
+  const [status, setStatus] = useState<Status>();
   const [accounts, setAccounts] = useState<DerivedAccount[]>([]);
 
   useEffect(() => {
+    setStatus(Status.Pending);
     (async () => {
       try {
         const accounts = await requester.sendMessage(
@@ -36,22 +44,23 @@ export const App: React.FC = () => {
         setAccounts(accounts);
       } catch (e) {
         console.error(e);
+        setStatus(Status.Failed);
       } finally {
-        setIsLoading(false);
+        setStatus(Status.Completed);
       }
     })();
   }, []);
 
   useEffect(() => {
     // TODO: Check for authenticated extension
-    if (!isLoading) {
+    if (status !== Status.Pending) {
       if (accounts.length === 0) {
         navigate(TopLevelRoute.Setup);
       } else {
         navigate(TopLevelRoute.Accounts);
       }
     }
-  }, [isLoading, accounts]);
+  }, [status, accounts]);
 
   return (
     <ThemeProvider theme={theme}>

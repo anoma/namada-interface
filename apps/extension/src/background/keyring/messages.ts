@@ -109,7 +109,7 @@ export class SaveMnemonicMsg extends Message<boolean> {
   constructor(
     public readonly words: string[],
     public readonly password: string,
-    public readonly description?: string
+    public readonly alias?: string
   ) {
     super();
   }
@@ -145,10 +145,7 @@ export class DeriveAccountMsg extends Message<DerivedAccount> {
     return MessageTypes.DeriveAccount;
   }
 
-  constructor(
-    public readonly path: Bip44Path,
-    public readonly description?: string
-  ) {
+  constructor(public readonly path: Bip44Path, public readonly alias?: string) {
     super();
   }
 
@@ -167,7 +164,7 @@ export class DeriveAccountMsg extends Message<DerivedAccount> {
       throw new Error("A Bip44Path change path was not provided!");
     }
 
-    if (!`${index}`) {
+    if (!`${!index}`) {
       throw new Error("A Bip44Path index path was not provided!");
     }
   }

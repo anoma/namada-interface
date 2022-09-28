@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, ButtonVariant } from "@anoma/components";
 import {
   AccountInformationViewContainer,
@@ -13,14 +13,12 @@ import {
 } from "./SeedPhraseConfirmation.components";
 import { Input } from "../Password/Password.components";
 
-type SeedPhraseConfirmationProps = {
+type Props = {
   seedPhrase: string[];
   onConfirm: () => void;
 };
 
-const SeedPhraseConfirmation = (
-  props: SeedPhraseConfirmationProps
-): JSX.Element => {
+const SeedPhraseConfirmation: React.FC<Props> = (props) => {
   const { seedPhrase, onConfirm } = props;
   const seedPhraseLength = seedPhrase.length;
   const [verificationInput, setVerificationInput] = useState("");

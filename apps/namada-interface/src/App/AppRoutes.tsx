@@ -127,9 +127,11 @@ const AppRoutes = ({ store, persistor, password }: Props): JSX.Element => {
                 }
               />
               <Route
-                path={`${TopLevelRoute.Staking}/*`}
+                path={`${TopLevelRoute.StakingAndGovernance}/*`}
                 element={
-                  <AnimatedTransition elementKey={TopLevelRoute.Staking}>
+                  <AnimatedTransition
+                    elementKey={TopLevelRoute.StakingAndGovernance}
+                  >
                     <StakingAndGovernance />
                   </AnimatedTransition>
                 }

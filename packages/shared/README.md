@@ -5,6 +5,9 @@ Anoma shared library functionality, providing wasm-compability for features in `
 ## Usage
 
 ```bash
+# Install wasm-bindgen-cli
+cargo install -f wasm-bindgen-cli
+
 # Build to a wasm target (for web)
 yarn wasm:build
 

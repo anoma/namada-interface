@@ -16,6 +16,9 @@ The Rust source code lives in `lib/`, and currently provides the following crate
 From the base `crypto` directory, we can build to wasm targets using the following:
 
 ```bash
+# Install wasm-bindgen-cli
+cargo install -f wasm-bindgen-cli
+
 # Build to web wasm target
 yarn wasm:build
 
