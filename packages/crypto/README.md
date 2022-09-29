@@ -78,23 +78,3 @@ let seed: [u8; 64] = mnemonic.to_seed()?;
 // Get words in JsValue
 let words: JsValue = mnemonic.to_words()?;
 ```
-
-### Scrypt
-
-Generate a Scrypt password hash for storage, and verify hash against a password:
-
-```rust
-let password = String::from("unhackable");
-// Optionally specify the following:
-// log_n: u8 - log(n) iterations
-// r: u32 - block size
-// p: u32 - number of threads to run in parallel
-// Otherwise, uses the recommended 15, 8, 1
-let scrypt = Scrypt::new(password.clone(), None, None, None);
-let hash = scrypt.to_hash();
-
-// Result should be empty unless an error occured
-assert!(scrypt.verify(password).is_ok());
-// Subsequent hashes derived from same password should not be equal
-assert_ne!(scrypt.to_hash(), hash);
-```

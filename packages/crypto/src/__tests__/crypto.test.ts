@@ -1,4 +1,4 @@
-import { AEAD, HDWallet, Mnemonic, PhraseSize, Scrypt } from "../crypto/crypto";
+import { AEAD, HDWallet, Mnemonic, PhraseSize } from "../crypto/crypto";
 
 const KEY_LENGTH = 32;
 const SEED_LENGTH = 64;
@@ -49,47 +49,5 @@ describe("AEAD", () => {
     const decrypted = AEAD.decrypt(encrypted, password);
 
     expect(decrypted).toBe(message);
-  });
-});
-
-describe("Scrypt", () => {
-  test("It should hash a password and verify with default params", () => {
-    const password = "password";
-    const scrypt = new Scrypt(password);
-    const hash = scrypt.to_hash();
-    const results = scrypt.verify(hash);
-
-    expect(results).not.toBe("invalid password");
-  });
-
-  test("It should hash a password and verify with custom params", () => {
-    const password = "password";
-    const scrypt = new Scrypt(password, 12, 12, 2);
-    const hash = scrypt.to_hash();
-    const results = scrypt.verify(hash);
-
-    expect(results).not.toBe("invalid password");
-  });
-
-  test("It should serialize correctly (key + params)", () => {
-    const password = "password";
-    const scrypt = new Scrypt(password);
-    const { params, key } = scrypt.to_serialized();
-    const { log_n, r, p } = params;
-
-    expect(log_n).toBe(15);
-    expect(r).toBe(8);
-    expect(p).toBe(1);
-    expect(key.length).toBe(43);
-  });
-
-  test("It should serialize the Scrypt params correctly", () => {
-    const password = "password";
-    const scrypt = new Scrypt(password);
-    const { log_n, r, p } = scrypt.params();
-
-    expect(log_n).toBe(15);
-    expect(r).toBe(8);
-    expect(p).toBe(1);
   });
 });
