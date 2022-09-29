@@ -13,8 +13,6 @@ crate-type = ["cdylib", "rlib"]
 base64 = "0.13.0"
 bip32 = { version = "0.4.0", features = ["bip39"] }
 bip0039 = "0.10.1"
-cipher = "0.4.3"
-ctr = "0.9.1"
 ed25519-dalek = {version = "1.0.1", default-features = false, features = ["rand", "u64_backend"]}
 getrandom = {version = "0.2.3", features = ["js"]}
 hex = "0.4.3"
