@@ -11,18 +11,25 @@ const MANIFEST_BASE_PATH = `./src/manifest/_base.json`;
 const MANIFEST_BASE_VERSION_PATH = `./src/manifest/${MANIFEST_VERSION}/_base.json`;
 const MANIFEST_PATH = `./src/manifest/${MANIFEST_VERSION}/${TARGET}.json`;
 
+const copyPatterns = [
+  {
+    from: "./src/public/*.html",
+    to: "./[name].html",
+  },
+  {
+    from: "./src/public/*.css",
+    to: "./assets/[name].css",
+  },
+  // browser-polyfill expects a source-map
+  {
+    from: "../../node_modules/webextension-polyfill/dist/browser-polyfill.js.map",
+    to: "./browser-polyfill.js.map",
+  },
+];
+
 const plugins = [
   new CopyPlugin({
-    patterns: [
-      {
-        from: "./src/public/*.html",
-        to: "./[name].html",
-      },
-      {
-        from: "./src/public/*.css",
-        to: "./assets/[name].css",
-      },
-    ],
+    patterns: copyPatterns,
   }),
   new MergeJsonWebpackPlugin({
     files: [MANIFEST_BASE_PATH, MANIFEST_BASE_VERSION_PATH, MANIFEST_PATH],

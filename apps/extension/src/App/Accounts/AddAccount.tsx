@@ -112,7 +112,8 @@ const AddAccount: React.FC<Props> = ({ accounts, requester, setAccounts }) => {
     e: React.ChangeEvent<HTMLInputElement>,
     callback: (value: number) => void
   ): void => {
-    callback(parseInt(e.target.value, 10));
+    const result = e.target.value || "0";
+    callback(parseInt(result, 10));
   };
 
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>) =>

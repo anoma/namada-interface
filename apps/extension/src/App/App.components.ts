@@ -26,9 +26,11 @@ export const AppContainer = styled.div`
 
 export const TopSection = styled.section`
   display: flex;
+  flex-direction: row;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
   width: 100%;
+  padding: 0 12px;
 `;
 
 export const BottomSection = styled.section`
@@ -49,8 +51,8 @@ export const ContentContainer = styled.div`
   color: ${(props) => props.theme.colors.utility1.main20};
 `;
 
-export const LockExtensionButton = styled.a`
-  display: block;
-  width: 25px;
-  height: 25px;
+export const Heading = styled.h1`
+  font-size: 18px;
+  font-weight: 500;
+  color: ${(props) => props.theme.colors.utility1.main20};
 `;

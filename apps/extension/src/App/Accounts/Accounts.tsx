@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Icon, IconName } from "@anoma/components";
 
 import { TopLevelRoute } from "App/types";
+import { Status } from "App/App";
 import { DerivedAccount } from "background/keyring";
 import {
   AccountsContainer,
@@ -10,6 +11,7 @@ import {
   ButtonContainer,
   Button,
   ButtonText,
+  ThemedScrollbarContainer,
 } from "./Accounts.components";
 import { AccountListing } from "App/Accounts";
 
@@ -22,19 +24,21 @@ const Accounts = ({ accounts }: Props): JSX.Element => {
 
   return (
     <AccountsContainer>
-      <AccountsList>
-        {accounts.map((account) => (
-          <AccountsListItem key={`account-${account.id}`}>
-            <AccountListing account={account} />
-          </AccountsListItem>
-        ))}
-      </AccountsList>
-      <ButtonContainer>
-        <Button onClick={() => navigate(TopLevelRoute.AddAccount)}>
-          <ButtonText>Derive new account</ButtonText>
-          <Icon iconName={IconName.Plus} />
-        </Button>
-      </ButtonContainer>
+      <ThemedScrollbarContainer>
+        <AccountsList>
+          {accounts.map((account) => (
+            <AccountsListItem key={`account-${account.id}`}>
+              <AccountListing account={account} />
+            </AccountsListItem>
+          ))}
+        </AccountsList>
+        <ButtonContainer>
+          <Button onClick={() => navigate(TopLevelRoute.AddAccount)}>
+            <ButtonText>Derive new account</ButtonText>
+            <Icon iconName={IconName.Plus} />
+          </Button>
+        </ButtonContainer>
+      </ThemedScrollbarContainer>
     </AccountsContainer>
   );
 };

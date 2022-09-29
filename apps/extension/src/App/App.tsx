@@ -3,13 +3,11 @@ import { ThemeProvider } from "styled-components";
 import { Routes, Route, useNavigate } from "react-router-dom";
 
 import { getTheme } from "@anoma/utils";
-import { Icon, IconName } from "@anoma/components";
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
 import {
   CheckIsLockedMsg,
   DerivedAccount,
-  LockKeyRingMsg,
   QueryAccountsMsg,
 } from "background/keyring";
 import {
@@ -17,9 +15,9 @@ import {
   BottomSection,
   ContentContainer,
   GlobalStyles,
-  LockExtensionButton,
   TopSection,
 } from "./App.components";
+import { LockWrapper } from "./LockWrapper";
 import { Accounts, AddAccount } from "./Accounts";
 import { Login } from "./Login";
 import { Setup } from "./Setup";
@@ -28,7 +26,7 @@ import { Loading } from "./Loading";
 
 const requester = new ExtensionRequester();
 
-enum Status {
+export enum Status {
   Completed,
   Pending,
   Failed,
@@ -84,17 +82,6 @@ export const App: React.FC = () => {
     }
   }, [status, accounts]);
 
-  const handleLock = async () => {
-    try {
-      await requester.sendMessage(Ports.Background, new LockKeyRingMsg());
-      setStatus(undefined);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      navigate(TopLevelRoute.Login);
-    }
-  };
-
   return (
     <ThemeProvider theme={theme}>
       <AppContainer>
@@ -102,15 +89,16 @@ export const App: React.FC = () => {
         <ContentContainer>
           <TopSection>
             <h1>Anoma Browser Extension</h1>
-            <LockExtensionButton onClick={handleLock}>
-              <Icon iconName={IconName.Lock} />
-            </LockExtensionButton>
           </TopSection>
           <Routes>
             <Route path="*" element={<Loading error={error} />} />
             <Route
               path={TopLevelRoute.Accounts}
-              element={<Accounts accounts={accounts} />}
+              element={
+                <LockWrapper requester={requester} setStatus={setStatus}>
+                  <Accounts accounts={accounts} />
+                </LockWrapper>
+              }
             />
             <Route path={TopLevelRoute.Setup} element={<Setup />} />
             <Route
@@ -120,11 +108,13 @@ export const App: React.FC = () => {
             <Route
               path={TopLevelRoute.AddAccount}
               element={
-                <AddAccount
-                  accounts={accounts}
-                  requester={requester}
-                  setAccounts={setAccounts}
-                />
+                <LockWrapper requester={requester} setStatus={setStatus}>
+                  <AddAccount
+                    accounts={accounts}
+                    requester={requester}
+                    setAccounts={setAccounts}
+                  />
+                </LockWrapper>
               }
             />
           </Routes>
