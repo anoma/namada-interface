@@ -1,4 +1,4 @@
-import { AEAD, HDWallet, Mnemonic, PhraseSize } from "../crypto/crypto";
+import { AEAD, HDWallet, Mnemonic, PhraseSize, Scrypt } from "../crypto/crypto";
 
 const KEY_LENGTH = 32;
 const SEED_LENGTH = 64;
@@ -49,5 +49,25 @@ describe("AEAD", () => {
     const decrypted = AEAD.decrypt(encrypted, password);
 
     expect(decrypted).toBe(message);
+  });
+});
+
+describe("Scrypt", () => {
+  test("It should hash a password and verify with default params", () => {
+    const password = "password";
+    const scrypt = new Scrypt(password);
+    const hash = scrypt.to_hash();
+    const results = scrypt.verify(hash);
+
+    expect(results).not.toBe("invalid password");
+  });
+
+  test("It should hash a password and verify with custom params", () => {
+    const password = "password";
+    const scrypt = new Scrypt(password, 12, 12, 2);
+    const hash = scrypt.to_hash();
+    const results = scrypt.verify(hash);
+
+    expect(results).not.toBe("invalid password");
   });
 });
