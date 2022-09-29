@@ -96,6 +96,7 @@ impl Scrypt {
         Ok(password_hash)
     }
 
+    // TODO: Fix or remove this method
     pub fn to_bytes(&self) -> Result<Vec<u8>, String> {
         let password: &[u8] = &self.password;
         let mut output: Vec<u8> = vec![];

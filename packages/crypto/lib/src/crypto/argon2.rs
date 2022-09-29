@@ -114,6 +114,8 @@ impl Argon2 {
             params.p_cost(),
         )).expect("Should be able to serialize into JsValue"))
     }
+
+    // TODO: Implement serialized key with params -> JsValue
 }
 
 #[cfg(test)]

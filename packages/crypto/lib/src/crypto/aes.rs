@@ -1,3 +1,4 @@
+// TODO: Finish implementation
 // use aes::Aes256;
 use aes::cipher::{
     // BlockCipher, BlockEncrypt, BlockDecrypt, KeyInit,
@@ -27,7 +28,7 @@ impl AES {
 }
 
 impl Default for AES {
-    fn default() -> Self { 
+    fn default() -> Self {
         Self::new()
     }
 }
