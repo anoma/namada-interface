@@ -6,7 +6,28 @@ use scrypt::{
     },
     Params,
 };
+use serde::{Serialize, Deserialize};
+use gloo_utils::format::JsValueSerdeExt;
 use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen]
+#[derive(Serialize, Deserialize)]
+pub struct ScryptParams {
+    log_n: u8,
+    r: u32,
+    p: u32,
+}
+
+#[wasm_bindgen]
+impl ScryptParams {
+    pub fn new(log_n: u8, r: u32, p: u32) -> Self {
+        Self {
+            log_n,
+            r,
+            p,
+        }
+    }
+}
 
 #[wasm_bindgen]
 pub struct Scrypt {
@@ -94,22 +115,22 @@ impl Scrypt {
         }
     }
 
-    pub fn log_n(&self) -> u8 {
-        self.params.log_n()
-    }
+    pub fn params(&self) -> Result<JsValue, String> {
+        let params = self.params;
 
-    pub fn r(&self) -> u32 {
-        self.params.r()
-    }
-
-    pub fn p(&self) -> u32 {
-        self.params.p()
+        // Return serialized parameters
+        Ok(JsValue::from_serde(&ScryptParams::new(
+            params.log_n(),
+            params.r(),
+            params.p(),
+        )).expect("Should be able to serialize into JsValue"))
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use wasm_bindgen_test::*;
 
     #[test]
     fn can_hash_password() {
@@ -167,7 +188,23 @@ mod tests {
         let output = scrypt.to_bytes();
 
         assert!(output.is_ok());
-        // This should not be true
-        assert_eq!(output.unwrap(), vec![]);
     }
+
+    #[wasm_bindgen_test]
+    fn can_serialize_params_to_js_value() {
+        let password = "unhackable";
+        let scrypt = Scrypt::new(password.into(), None, None, None)
+            .expect("Creating instance with default params should not fail");
+        let hash = scrypt.to_hash().expect("Hashing password with Argon2 should not fail!");
+
+        assert!(scrypt.verify(hash).is_ok());
+
+        let params: ScryptParams = JsValue::into_serde(&scrypt.params().unwrap())
+            .expect("Should be able to serialize parameters to JsValue");
+
+        assert_eq!(params.log_n, 15);
+        assert_eq!(params.r, 8);
+        assert_eq!(params.p, 1);
+    }
+
 }

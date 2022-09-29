@@ -18,14 +18,16 @@ cipher = "0.4.3"
 ctr = "0.9.1"
 ed25519-dalek = {version = "1.0.1", default-features = false, features = ["rand", "u64_backend"]}
 getrandom = {version = "0.2.3", features = ["js"]}
+gloo-utils = { version = "0.1.5", features = ["serde"] }
 hex = "0.4.3"
 js-sys = "0.3.60"
 orion = "0.16.0"
 scrypt = "0.10.0"
-serde = "1.0.145"
+serde = { version = "1.0.145", features = ["derive"]}
 thiserror = "1.0.30"
 rand = {version = "0.7", features = ["wasm-bindgen"]}
 wasm-bindgen = "0.2.78"
+argon2 = "0.4.1"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.13"
