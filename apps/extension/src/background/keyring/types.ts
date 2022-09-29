@@ -13,7 +13,8 @@ export type MnemonicState = {
 };
 
 export type Storage = {
-  kdfParams: ScryptParams | Argon2Params;
+  kdf: "scrypt" | "argon2";
+  params: ScryptParams | Argon2Params;
 };
 
 export type DerivedAccount = {
