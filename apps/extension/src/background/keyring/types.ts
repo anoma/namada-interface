@@ -1,7 +1,19 @@
+import { ScryptParams, Argon2Params } from "@anoma/crypto";
+
 export type Bip44Path = {
   account: number;
   change: number;
   index: number;
+};
+
+enum KdfTypes {
+  Argon2 = "argon2",
+  Scrypt = "scrypt",
+}
+
+export type Storage = {
+  kdf: KdfTypes;
+  params: ScryptParams | Argon2Params;
 };
 
 export type MnemonicState = {
