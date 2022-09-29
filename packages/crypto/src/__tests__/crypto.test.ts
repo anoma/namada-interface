@@ -71,16 +71,16 @@ describe("Scrypt", () => {
     expect(results).not.toBe("invalid password");
   });
 
-  test("It should serialize correctly", () => {
+  test("It should serialize correctly (key + params)", () => {
     const password = "password";
     const scrypt = new Scrypt(password);
-    const { params, bytes } = scrypt.to_serialized();
+    const { params, key } = scrypt.to_serialized();
     const { log_n, r, p } = params;
 
     expect(log_n).toBe(15);
     expect(r).toBe(8);
     expect(p).toBe(1);
-    expect(bytes.length).toBe(43);
+    expect(key.length).toBe(43);
   });
 
   test("It should serialize the Scrypt params correctly", () => {

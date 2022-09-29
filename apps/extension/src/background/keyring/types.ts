@@ -1,3 +1,5 @@
+import { ScryptParams, Argon2Params } from "@anoma/crypto";
+
 export type Bip44Path = {
   account: number;
   change: number;
@@ -8,6 +10,10 @@ export type MnemonicState = {
   id: string;
   alias?: string;
   phrase: Uint8Array;
+};
+
+export type Storage = {
+  kdfParams: ScryptParams | Argon2Params;
 };
 
 export type DerivedAccount = {

@@ -32,7 +32,7 @@ impl ScryptParams {
 #[wasm_bindgen]
 #[derive(Serialize, Deserialize)]
 pub struct Serialized {
-    bytes: Vec<u8>,
+    key: Vec<u8>,
     params: ScryptParams,
 }
 
@@ -123,6 +123,7 @@ impl Scrypt {
         }
     }
 
+    /// Convert PHC string to serialized key + params
     pub fn to_serialized(&self) -> Result<JsValue, String> {
         let hash = self.to_hash()?;
         let split = hash.split('$');
@@ -131,7 +132,7 @@ impl Scrypt {
         let key = items[items.len() - 1];
 
         Ok(JsValue::from_serde(&Serialized {
-            bytes: Vec::from(key.as_bytes()),
+            key: Vec::from(key.as_bytes()),
             params: ScryptParams::new(
                 self.params.log_n(),
                 self.params.r(),
@@ -247,7 +248,7 @@ mod tests {
         assert_eq!(serialized.params.log_n, 15);
         assert_eq!(serialized.params.r, 8);
         assert_eq!(serialized.params.p, 1);
-        assert_eq!(serialized.bytes.len(), 43);
+        assert_eq!(serialized.key.len(), 43);
     }
 
 }
