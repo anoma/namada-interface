@@ -109,9 +109,9 @@ export const postNewBonding = createAsyncThunk<void, ChangeInStakingPosition>(
   POST_NEW_STAKING,
   async (changeInStakingPosition: ChangeInStakingPosition) => {
     console.log(
-      changeInStakingPosition,
-      "changeInStakingPosition at postNewStaking"
+      "Should create a new bonding transaction and post it to the chain with the following data:"
     );
+    console.log(changeInStakingPosition);
     return Promise.resolve();
   }
 );
@@ -125,9 +125,9 @@ export const postNewUnbonding = createAsyncThunk<void, ChangeInStakingPosition>(
   POST_UNSTAKING,
   async (changeInStakingPosition: ChangeInStakingPosition) => {
     console.log(
-      changeInStakingPosition,
-      "changeInStakingPosition at postUnstaking"
+      "Should create a new unbonding transaction and post it to the chain with the following data:"
     );
+    console.log(changeInStakingPosition);
     return Promise.resolve();
   }
 );

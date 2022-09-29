@@ -10,14 +10,20 @@ import {
   ChangeInStakingPosition,
 } from "slices/StakingAndGovernance";
 
+const REMAINS_BONDED_KEY = "Remains bonded";
+
 // configuration for the summary table that represents all the data in this view
 const unbondingDetailsConfigurations: TableConfigurations<KeyValueData, never> =
   {
     rowRenderer: (rowData: KeyValueData) => {
+      const styleForRemainsBondedRow =
+        rowData.key === REMAINS_BONDED_KEY ? { fontWeight: "bold" } : {};
       return (
         <>
-          <td style={{ display: "flex" }}>{rowData.key}</td>
-          <td>{rowData.value}</td>
+          <td style={{ display: "flex", ...styleForRemainsBondedRow }}>
+            {rowData.key}
+          </td>
+          <td style={styleForRemainsBondedRow}>{rowData.value}</td>
         </>
       );
     },
@@ -95,7 +101,7 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
     },
     {
       uuid: "4",
-      key: "Remains bonded",
+      key: REMAINS_BONDED_KEY,
       value: remainsBondedToDisplay,
     },
   ];

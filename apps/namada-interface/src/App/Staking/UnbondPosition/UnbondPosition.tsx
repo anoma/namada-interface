@@ -12,8 +12,7 @@ import {
 
 // this is the key in the table
 const AMOUNT_TO_UNBOND_KEY = "Amount to unbond";
-const FAULTY_UNBONDING_AMOUNT_MESSAGE =
-  "The unbonding amount can be more than 0 and at most";
+const REMAINS_BONDED_KEY = "Remains bonded";
 
 // this is being passed into the table for being able to react to
 // change in the input for unbonding amount
@@ -27,6 +26,8 @@ const unbondingDetailsConfigurations: TableConfigurations<
   UnbondingCallbacks
 > = {
   rowRenderer: (rowData: KeyValueData, callbacks?: UnbondingCallbacks) => {
+    const styleForRemainsBondedRow =
+      rowData.key === REMAINS_BONDED_KEY ? { fontWeight: "bold" } : {};
     const valueOrInput =
       rowData.key === AMOUNT_TO_UNBOND_KEY ? (
         <td>
@@ -37,12 +38,14 @@ const unbondingDetailsConfigurations: TableConfigurations<
           />
         </td>
       ) : (
-        <td>{rowData.value}</td>
+        <td style={styleForRemainsBondedRow}>{rowData.value}</td>
       );
 
     return (
       <>
-        <td style={{ display: "flex" }}>{rowData.key}</td>
+        <td style={{ display: "flex", ...styleForRemainsBondedRow }}>
+          {rowData.key}
+        </td>
         {valueOrInput}
       </>
     );
@@ -97,18 +100,13 @@ export const UnbondPosition = (props: Props): JSX.Element => {
     isEntryIncorrect || amountToBondOrUnbond === "";
 
   // we convey this with an object that can be used
-  const faultyAmountMessage = FAULTY_UNBONDING_AMOUNT_MESSAGE;
   const remainsBondedToDisplay = isEntryIncorrect
-    ? `${faultyAmountMessage} ${bondedAmountAsNumber}`
+    ? `"The unbonding amount can be more than 0 and at most" ${bondedAmountAsNumber}`
     : `${remainsBonded}`;
 
   // to increase or decrease bonding, so we need to negate in case on unbind
   const delta = amountToUnstakeAsNumber * -1;
   const deltaAsString = `${delta}`;
-
-  // we also use one of the keys for table based in the
-  // direction (bond or unbond)
-  const bondOrUnbondKeyForTable = AMOUNT_TO_UNBOND_KEY;
 
   // we display one of 2 variations of the table based on if this is
   // bonding or unbonding:
@@ -122,7 +120,7 @@ export const UnbondPosition = (props: Props): JSX.Element => {
     },
     {
       uuid: "2",
-      key: bondOrUnbondKeyForTable,
+      key: AMOUNT_TO_UNBOND_KEY,
       value: remainsBondedToDisplay,
       hint: "stake",
     },
