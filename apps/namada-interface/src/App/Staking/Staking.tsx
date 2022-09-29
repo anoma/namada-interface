@@ -62,8 +62,8 @@ type Props = {
 // in this view we can be in one of these states at any given time
 export enum ModalState {
   None,
-  Stake,
-  Unstake,
+  NewBonding,
+  Unbond,
 }
 
 // TODO: these should go to Modal component
@@ -180,8 +180,9 @@ export const Staking = (props: Props): JSX.Element => {
           setBreadcrumb([initialTitle]);
         }}
       />
+      {/* modal for bonding */}
       <Modal
-        isOpen={modalState === ModalState.Stake}
+        isOpen={modalState === ModalState.NewBonding}
         title={`Stake with ${selectedValidator?.name}`}
         onBackdropClick={() => {
           cancelBonding();
@@ -189,13 +190,15 @@ export const Staking = (props: Props): JSX.Element => {
       >
         <NewBondingPosition
           totalFundsToBond={100}
-          confirmUnbonding={confirmBonding}
-          cancelUnbonding={cancelUnbonding}
+          confirmBonding={confirmBonding}
+          cancelBonding={cancelBonding}
           currentBondingPosition={stakingPositionsWithSelectedValidator[0]}
         />
       </Modal>
+
+      {/* modal for unbonding */}
       <Modal
-        isOpen={modalState === ModalState.Unstake}
+        isOpen={modalState === ModalState.Unbond}
         title="Unstake"
         onBackdropClick={() => {
           cancelUnbonding();

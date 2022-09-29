@@ -1,8 +1,5 @@
 import { useState } from "react";
-import {
-  UnstakePositionContainer,
-  BondingAmountInputContainer,
-} from "./UnbondPosition.components";
+import { UnstakePositionContainer } from "./UnbondPosition.components";
 import { Table, TableConfigurations, KeyValueData } from "components/Table";
 import { Button, ButtonVariant } from "components/Button";
 import {
@@ -10,17 +7,16 @@ import {
   ChangeInStakingPosition,
 } from "slices/StakingAndGovernance";
 
-// this is the key in the table
+// keys for the table that we want to act upon in table configuration
 const AMOUNT_TO_UNBOND_KEY = "Amount to unbond";
 const REMAINS_BONDED_KEY = "Remains bonded";
 
-// this is being passed into the table for being able to react to
-// change in the input for unbonding amount
+// contains the callback to change unbonding amount in summary table
 type UnbondingCallbacks = {
   setAmountToUnstake: React.Dispatch<React.SetStateAction<string>>;
 };
 
-// configuration for the summary table that represents all the data in this view
+// configuration for the summary table
 const unbondingDetailsConfigurations: TableConfigurations<
   KeyValueData,
   UnbondingCallbacks
@@ -57,13 +53,12 @@ const unbondingDetailsConfigurations: TableConfigurations<
 };
 
 type Props = {
+  currentBondingPosition: StakingPosition;
   confirmUnbonding: (changeInStakingPosition: ChangeInStakingPosition) => void;
   cancelUnbonding: () => void;
-  currentBondingPosition: StakingPosition;
 };
 
-// contains everything what the user needs for unbonding active bonding
-// positions.
+// contains data and controls to unbond
 export const UnbondPosition = (props: Props): JSX.Element => {
   const { currentBondingPosition, confirmUnbonding, cancelUnbonding } = props;
   const { validatorId, stakedCurrency } = currentBondingPosition;
@@ -91,27 +86,26 @@ export const UnbondPosition = (props: Props): JSX.Element => {
   const amountToUnstakeAsNumber = Number(amountToBondOrUnbond);
   const remainsBonded = bondedAmountAsNumber - amountToUnstakeAsNumber;
 
+  // if the input value is incorrect we display an error
   const isEntryIncorrect =
     (amountToBondOrUnbond !== "" && amountToUnstakeAsNumber <= 0) ||
     remainsBonded < 0 ||
     Number.isNaN(amountToUnstakeAsNumber);
 
+  // if the input value is incorrect or empty we disable the confirm button
   const isEntryIncorrectOrEmpty =
     isEntryIncorrect || amountToBondOrUnbond === "";
 
   // we convey this with an object that can be used
   const remainsBondedToDisplay = isEntryIncorrect
-    ? `"The unbonding amount can be more than 0 and at most" ${bondedAmountAsNumber}`
+    ? `The unbonding amount can be more than 0 and at most ${bondedAmountAsNumber}`
     : `${remainsBonded}`;
 
-  // to increase or decrease bonding, so we need to negate in case on unbind
+  // This is the value that we pass to be dispatch to the action
   const delta = amountToUnstakeAsNumber * -1;
   const deltaAsString = `${delta}`;
 
-  // we display one of 2 variations of the table based on if this is
-  // bonding or unbonding:
-  // bonding - we display value from the field above table
-  // unbonding - we need a input in the table
+  // data for the summary table
   const unbondingSummary = [
     {
       uuid: "1",
@@ -121,7 +115,7 @@ export const UnbondPosition = (props: Props): JSX.Element => {
     {
       uuid: "2",
       key: AMOUNT_TO_UNBOND_KEY,
-      value: remainsBondedToDisplay,
+      value: "",
       hint: "stake",
     },
     {
@@ -133,13 +127,14 @@ export const UnbondPosition = (props: Props): JSX.Element => {
 
   return (
     <UnstakePositionContainer>
-      <BondingAmountInputContainer></BondingAmountInputContainer>
-
+      {/* summary table */}
       <Table
         title="Summary"
         tableConfigurations={unbondingDetailsConfigurationsWithCallbacks}
         data={unbondingSummary}
       />
+
+      {/* confirm and cancel buttons */}
       <Button
         variant={ButtonVariant.Contained}
         onClick={() => {

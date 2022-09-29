@@ -10,8 +10,3 @@ export const UnstakePositionContainer = styled.div`
   overflow-y: scroll;
   color: ${(props) => props.theme.colors.utility2.main};
 `;
-
-export const BondingAmountInputContainer = styled.div`
-  display: flex;
-  width: 100%;
-`;

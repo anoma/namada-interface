@@ -53,7 +53,7 @@ const getMyStakingWithValidatorConfigurations = (
             {stakingPosition.stakedAmount}{" "}
             <TableLink
               onClick={() => {
-                setModalState(ModalState.Unstake);
+                setModalState(ModalState.Unbond);
               }}
             >
               unstake
@@ -118,7 +118,7 @@ export const ValidatorDetails = (props: Props): JSX.Element => {
       <StakeButtonContainer>
         <Button
           onClick={() => {
-            setModalState(ModalState.Stake);
+            setModalState(ModalState.NewBonding);
           }}
           variant={ButtonVariant.Contained}
           style={{ marginLeft: "0" }}
