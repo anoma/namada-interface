@@ -87,7 +87,6 @@ export const App: React.FC = () => {
   const handleLock = async () => {
     try {
       await requester.sendMessage(Ports.Background, new LockKeyRingMsg());
-      setAccounts([]);
       setStatus(undefined);
     } catch (e) {
       console.error(e);

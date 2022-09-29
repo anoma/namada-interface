@@ -112,8 +112,7 @@ const AddAccount: React.FC<Props> = ({ accounts, requester, setAccounts }) => {
     e: React.ChangeEvent<HTMLInputElement>,
     callback: (value: number) => void
   ): void => {
-    const result = e.target.value.replace(/\D/g, "") || "0";
-    callback(parseInt(result));
+    callback(parseInt(e.target.value, 10));
   };
 
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -139,21 +138,24 @@ const AddAccount: React.FC<Props> = ({ accounts, requester, setAccounts }) => {
                 {[bip44Prefix, coinType].join("/")}/
               </Bip44PathDelimiter>
               <Bip44Input
-                type="text"
+                type="number"
+                min="0"
                 value={account}
                 onChange={(e) => handleNumericChange(e, setAccount)}
                 onFocus={handleFocus}
               />
               <Bip44PathDelimiter>'/</Bip44PathDelimiter>
               <Bip44Input
-                type="text"
+                type="number"
+                min="0"
                 value={change}
                 onChange={(e) => handleNumericChange(e, setChange)}
                 onFocus={handleFocus}
               />
               <Bip44PathDelimiter>/</Bip44PathDelimiter>
               <Bip44Input
-                type="text"
+                type="number"
+                min="0"
                 value={index}
                 onChange={(e) => handleNumericChange(e, setIndex)}
                 onFocus={handleFocus}
