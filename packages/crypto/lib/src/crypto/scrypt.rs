@@ -30,6 +30,14 @@ impl ScryptParams {
 }
 
 #[wasm_bindgen]
+#[derive(Serialize, Deserialize)]
+pub struct Serialized {
+    bytes: Vec<u8>,
+    params: ScryptParams,
+}
+
+
+#[wasm_bindgen]
 pub struct Scrypt {
     password: Vec<u8>,
     params: Params,
@@ -115,6 +123,23 @@ impl Scrypt {
         }
     }
 
+    pub fn to_serialized(&self) -> Result<JsValue, String> {
+        let hash = self.to_hash()?;
+        let split = hash.split('$');
+        let items: Vec<&str> = split.collect();
+
+        let key = items[items.len() - 1];
+
+        Ok(JsValue::from_serde(&Serialized {
+            bytes: Vec::from(key.as_bytes()),
+            params: ScryptParams::new(
+                self.params.log_n(),
+                self.params.r(),
+                self.params.p(),
+            ),
+        }).expect("Should be able to serialize into JsValue"))
+    }
+
     pub fn params(&self) -> Result<JsValue, String> {
         let params = self.params;
 
@@ -195,7 +220,7 @@ mod tests {
         let password = "unhackable";
         let scrypt = Scrypt::new(password.into(), None, None, None)
             .expect("Creating instance with default params should not fail");
-        let hash = scrypt.to_hash().expect("Hashing password with Argon2 should not fail!");
+        let hash = scrypt.to_hash().expect("Hashing password with Scrypt should not fail!");
 
         assert!(scrypt.verify(hash).is_ok());
 
@@ -205,6 +230,24 @@ mod tests {
         assert_eq!(params.log_n, 15);
         assert_eq!(params.r, 8);
         assert_eq!(params.p, 1);
+    }
+
+    #[wasm_bindgen_test]
+    fn can_serialize_to_js_value() {
+        let password = "unhackable";
+        let scrypt = Scrypt::new(password.into(), None, None, None)
+            .expect("Creating instance with default params should not fail");
+        let hash = scrypt.to_hash().expect("Hashing password with Scrypt should not fail!");
+
+        assert!(scrypt.verify(hash).is_ok());
+
+        let serialized: Serialized = JsValue::into_serde(&scrypt.to_serialized().unwrap())
+            .expect("Should be able to serialize parameters to JsValue");
+
+        assert_eq!(serialized.params.log_n, 15);
+        assert_eq!(serialized.params.r, 8);
+        assert_eq!(serialized.params.p, 1);
+        assert_eq!(serialized.bytes.len(), 43);
     }
 
 }

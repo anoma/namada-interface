@@ -75,7 +75,6 @@ impl Argon2 {
 
     pub fn to_hash(&self) -> Result<String, String> {
         let salt = SaltString::generate(&mut OsRng);
-        // TODO: Allow for custom parameters
         // Argon2 with default params (Argon2id v19)
         let argon2 = argon2::Argon2::default();
         let bytes: &[u8] = &self.password;
@@ -88,7 +87,7 @@ impl Argon2 {
             None, // Default ver = v19
             params.to_owned(),
             &salt,
-        ). map_err(|err| err.to_string())?.to_string();
+        ).map_err(|err| err.to_string())?.to_string();
 
         Ok(password_hash)
     }
