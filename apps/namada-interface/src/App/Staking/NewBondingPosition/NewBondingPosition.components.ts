@@ -1,6 +1,6 @@
 import styled from "styled-components/macro";
 
-export const UnstakePositionContainer = styled.div`
+export const BondingPositionContainer = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: start;
@@ -9,5 +9,9 @@ export const UnstakePositionContainer = styled.div`
   margin: 16px 0 16px;
   overflow-y: scroll;
   color: ${(props) => props.theme.colors.utility2.main};
-  background-color: ${(props) => props.theme.colors.utility1.main80};
+`;
+
+export const BondingAmountInputContainer = styled.div`
+  display: flex;
+  width: 100%;
 `;

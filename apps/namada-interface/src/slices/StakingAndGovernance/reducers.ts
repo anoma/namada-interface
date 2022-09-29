@@ -5,8 +5,8 @@ import {
   fetchMyBalances,
   fetchMyValidators,
   fetchMyStakingPositions,
-  postNewStaking,
-  postUnstaking,
+  postNewBonding,
+  postNewUnbonding,
 } from "./actions";
 import {
   STAKING_AND_GOVERNANCE,
@@ -60,26 +60,26 @@ export const stakingAndGovernanceSlice = createSlice({
         // stop the loader
         state.myStakingPositions = action.payload?.myStakingPositions;
       })
-      .addCase(postNewStaking.pending, (state, _action) => {
+      .addCase(postNewBonding.pending, (state, _action) => {
         // stop the loader
         state.currentState = CurrentState.Staking;
       })
-      .addCase(postNewStaking.fulfilled, (state, _action) => {
+      .addCase(postNewBonding.fulfilled, (state, _action) => {
         // stop the loader
         state.currentState = CurrentState.Idle;
       })
-      .addCase(postNewStaking.rejected, (state, _action) => {
+      .addCase(postNewBonding.rejected, (state, _action) => {
         state.currentState = CurrentState.Idle;
       })
-      .addCase(postUnstaking.pending, (state, _action) => {
+      .addCase(postNewUnbonding.pending, (state, _action) => {
         // stop the loader
         state.currentState = CurrentState.Unstaking;
       })
-      .addCase(postUnstaking.fulfilled, (state, _action) => {
+      .addCase(postNewUnbonding.fulfilled, (state, _action) => {
         // stop the loader
         state.currentState = CurrentState.Idle;
       })
-      .addCase(postUnstaking.rejected, (state, _action) => {
+      .addCase(postNewUnbonding.rejected, (state, _action) => {
         state.currentState = CurrentState.Idle;
       });
   },

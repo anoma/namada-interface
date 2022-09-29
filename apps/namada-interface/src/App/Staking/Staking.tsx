@@ -13,8 +13,8 @@ import {
   StakingPosition,
   ChangeInStakingPosition,
 } from "slices/StakingAndGovernance";
-import { NewStakingPosition } from "./NewStakingPosition";
-import { UnstakePosition } from "./UnstakePosition";
+import { NewBondingPosition } from "./NewBondingPosition";
+import { UnbondPosition } from "./UnbondPosition";
 
 const initialTitle = "Staking";
 
@@ -52,12 +52,11 @@ type Props = {
   myValidators: MyValidators[];
   myStakingPositions: StakingPosition[];
   selectedValidatorId: string | undefined;
-  onInitCallback: () => void; // will be called at first load, triggers fetching
+  // will be called at first load, parent decides what happens
+  onInitCallback: () => void;
   fetchValidatorDetails: (validatorId: string) => void;
-  postNewStakingCallback: (
-    changeInStakingPosition: ChangeInStakingPosition
-  ) => void;
-  postUnstakingCallback: (stakingPositionId: string) => void;
+  postNewBonding: (changeInStakingPosition: ChangeInStakingPosition) => void;
+  postNewUnbonding: (changeInStakingPosition: ChangeInStakingPosition) => void;
 };
 
 // in this view we can be in one of these states at any given time
@@ -90,8 +89,8 @@ export const Staking = (props: Props): JSX.Element => {
   const {
     onInitCallback,
     fetchValidatorDetails,
-    postNewStakingCallback,
-    postUnstakingCallback,
+    postNewBonding,
+    postNewUnbonding,
     myBalances,
     validators,
     myValidators,
@@ -152,7 +151,7 @@ export const Staking = (props: Props): JSX.Element => {
     changeInStakingPosition: ChangeInStakingPosition
   ): void => {
     setModalState(ModalState.None);
-    postNewStakingCallback(changeInStakingPosition);
+    postNewBonding(changeInStakingPosition);
   };
 
   const cancelBonding = (): void => {
@@ -163,32 +162,11 @@ export const Staking = (props: Props): JSX.Element => {
     changeInStakingPosition: ChangeInStakingPosition
   ): void => {
     setModalState(ModalState.None);
-    postNewStakingCallback(changeInStakingPosition);
+    postNewUnbonding(changeInStakingPosition);
   };
 
   const cancelUnbonding = (): void => {
     setModalState(ModalState.None);
-    postUnstakingCallback("aaa");
-  };
-
-  const onRequestCloseUnstakingModal = (
-    modalOnRequestCloseType: ModalOnRequestCloseType
-  ): void => {
-    switch (modalOnRequestCloseType) {
-      case ModalOnRequestCloseType.Confirm: {
-        if (selectedValidator) {
-          // based on the current design we can never stake unless we have
-          // selected a validator
-          postUnstakingCallback("some_staking_position_id");
-        }
-        setModalState(ModalState.None);
-        break;
-      }
-      case ModalOnRequestCloseType.Cancel: {
-        setModalState(ModalState.None);
-        break;
-      }
-    }
   };
 
   return (
@@ -209,19 +187,21 @@ export const Staking = (props: Props): JSX.Element => {
           cancelBonding();
         }}
       >
-        <NewStakingPosition
-          confirmStaking={confirmBonding}
-          cancelStaking={cancelBonding}
+        <NewBondingPosition
+          totalFundsToBond={100}
+          confirmUnbonding={confirmBonding}
+          cancelUnbonding={cancelUnbonding}
+          currentBondingPosition={stakingPositionsWithSelectedValidator[0]}
         />
       </Modal>
       <Modal
         isOpen={modalState === ModalState.Unstake}
         title="Unstake"
         onBackdropClick={() => {
-          onRequestCloseUnstakingModal(ModalOnRequestCloseType.Cancel);
+          cancelUnbonding();
         }}
       >
-        <UnstakePosition
+        <UnbondPosition
           confirmUnbonding={confirmUnbonding}
           cancelUnbonding={cancelUnbonding}
           currentBondingPosition={stakingPositionsWithSelectedValidator[0]}

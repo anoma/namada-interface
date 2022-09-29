@@ -17,8 +17,8 @@ import {
   fetchMyStakingPositions,
   fetchValidators,
   fetchValidatorDetails,
-  postNewStaking,
-  postUnstaking,
+  postNewBonding as postNewBondingAction,
+  postNewUnbonding as postNewUnbondingAction,
   ChangeInStakingPosition,
 } from "slices/StakingAndGovernance";
 export type { ChangeInStakingPosition };
@@ -66,14 +66,16 @@ export const StakingAndGovernance = (): JSX.Element => {
     dispatch(fetchValidatorDetails(validatorId));
   };
 
-  const postNewStakingCallback = (
+  const postNewBonding = (
     changeInStakingPosition: ChangeInStakingPosition
   ): void => {
-    dispatch(postNewStaking(changeInStakingPosition));
+    dispatch(postNewBondingAction(changeInStakingPosition));
   };
 
-  const postUnstakingCallback = (stakingPositionId: string): void => {
-    dispatch(postUnstaking(stakingPositionId));
+  const postNewUnbonding = (
+    changeInStakingPosition: ChangeInStakingPosition
+  ): void => {
+    dispatch(postNewUnbondingAction(changeInStakingPosition));
   };
 
   return (
@@ -90,8 +92,8 @@ export const StakingAndGovernance = (): JSX.Element => {
               selectedValidatorId={selectedValidatorId}
               onInitCallback={onStakingComponentInitCallback}
               fetchValidatorDetails={fetchValidatorDetailsCallback}
-              postNewStakingCallback={postNewStakingCallback}
-              postUnstakingCallback={postUnstakingCallback}
+              postNewBonding={postNewBonding}
+              postNewUnbonding={postNewUnbonding}
             />
           }
         />

@@ -105,7 +105,7 @@ export const fetchMyBalances = createAsyncThunk<
 // the new updated balances and validator amounts:
 // * fetchMyBalances
 // * fetchMyValidators
-export const postNewStaking = createAsyncThunk<void, ChangeInStakingPosition>(
+export const postNewBonding = createAsyncThunk<void, ChangeInStakingPosition>(
   POST_NEW_STAKING,
   async (changeInStakingPosition: ChangeInStakingPosition) => {
     console.log(
@@ -121,10 +121,13 @@ export const postNewStaking = createAsyncThunk<void, ChangeInStakingPosition>(
 // the new updated balances and validator amounts:
 // * fetchMyBalances
 // * fetchMyValidators
-export const postUnstaking = createAsyncThunk<void, string>(
+export const postNewUnbonding = createAsyncThunk<void, ChangeInStakingPosition>(
   POST_UNSTAKING,
-  async (stakingPositionId: string) => {
-    console.log(stakingPositionId, "stakingPositionId at postUnstaking");
+  async (changeInStakingPosition: ChangeInStakingPosition) => {
+    console.log(
+      changeInStakingPosition,
+      "changeInStakingPosition at postUnstaking"
+    );
     return Promise.resolve();
   }
 );

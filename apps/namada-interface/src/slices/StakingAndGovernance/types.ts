@@ -34,7 +34,7 @@ export type StakingPosition = Unique & {
   stakedAmount: string;
   stakedCurrency: string;
   totalRewards: string;
-  validatorId: string;
+  validatorId: ValidatorId;
 };
 
 // represents users staking position combined with the validator
@@ -62,8 +62,11 @@ export enum CurrentState {
   Unstaking,
 }
 
+// this represents a change in staking position
+// if positive, we are posting new bonding
+// negative, we are decreasing it
 export type ChangeInStakingPosition = {
-  validatorId: string;
+  validatorId: ValidatorId;
   amount: string;
   stakingCurrency: string;
 };

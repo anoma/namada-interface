@@ -3,8 +3,8 @@ export {
   fetchMyStakingPositions,
   fetchValidators,
   fetchValidatorDetails,
-  postNewStaking,
-  postUnstaking,
+  postNewBonding,
+  postNewUnbonding,
 } from "./actions";
 export { reducer as stakingAndGovernanceReducers } from "./reducers";
 export type {
