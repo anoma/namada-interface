@@ -179,7 +179,7 @@ mod tests {
 
         // A previously defined hash using the same password.
         // Two hashes created with the same password should not be equal, but should
-        // be able to be verified with the same password:
+        // be able to be verified with the same password (as we are using random salts):
         let stored_hash = "$scrypt$ln=15,r=8,p=1$8tCIIPY6IHOer0WBjPr9OQ$PuKRj3Nfv+Mt47FljIRgmXyQnaH3Yh1eBwVq63rNTME";
 
         assert_ne!(scrypt.to_hash().unwrap(), stored_hash);
