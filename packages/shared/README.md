@@ -104,24 +104,3 @@ const { hash, bytes } = account.to_tx(
   txCode
 );
 ```
-
-## TODO
-
-- It would be nice if all `.to_tx()` methods shared an identical API. In addition, it may be a better
-  practice to incorporate `JsValue` serialization and deserialization so that we might pass these
-  arguments via an object, and deserialize via Serde to get the options we need. We could export a
-  well-typed struct indicating arguments, and using this method, order of arguments would not be a concern
-  to developers. Something akin to the following may work:
-
-  ```rust
-  #[wasm_bindgen]
-  #[derive(Serialize, Deserialize)]
-  pub struct TxArgs {
-    secret: String,
-    token: String,
-    epoch: u32,
-    fee_amount: u32,
-    gas_limit: u32,
-    tx_code: Vec<u8>,
-  }
-  ```

@@ -17,7 +17,6 @@ bip32 = { version = "0.4.0", features = ["bip39"] }
 bip0039 = "0.10.1"
 ed25519-dalek = {version = "1.0.1", default-features = false, features = ["rand", "u64_backend"]}
 getrandom = {version = "0.2.3", features = ["js"]}
-gloo-utils = { version = "0.1.5", features = ["serde"] }
 hex = "0.4.3"
 js-sys = "0.3.60"
 orion = "0.16.0"
