@@ -16,31 +16,8 @@ house any integrations with other wallets.
 
 A high-level overview of this architecture should resemble the following:
 
-```
---------------
-| Web Client | - namada-interface
---------------
-      ^
-      |
-----------------
-| Injected API |
-----------------
-      ^
-      |
-  ---------   ----------------
-  | PROXY |-->| API Instance | (content-scripts)
-  ---------   ----------------
-                      |
-              ------------------     -----------------------
-              | Service Worker |---->| Storage (IndexedDB) |
-              ------------------     -----------------------
-              (background-scripts)   (Key-value store)
-                      |
-               ---------------
-               | WebAssembly |
-               ---------------
-               (namada types, other crypto functions)
-```
+![Architectural Overview](./images/extension-architecture-overview.png)
+_High-level overview of extension architecture_
 
 The proxy is necessary to forward data via messages (using `window.postMessage`) to execute functions within the extension, as well as return message data to the client.
 
