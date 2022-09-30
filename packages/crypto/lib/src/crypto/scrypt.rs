@@ -29,13 +29,11 @@ impl ScryptParams {
     }
 }
 
-#[wasm_bindgen]
 #[derive(Serialize, Deserialize)]
 pub struct Serialized {
     key: Vec<u8>,
     params: ScryptParams,
 }
-
 
 #[wasm_bindgen]
 pub struct Scrypt {
@@ -251,5 +249,4 @@ mod tests {
         assert_eq!(serialized.params.p, 1);
         assert_eq!(serialized.key.len(), 43);
     }
-
 }

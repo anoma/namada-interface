@@ -30,6 +30,12 @@ impl Argon2Params {
     }
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct Serialized {
+    key: Vec<u8>,
+    params: Argon2Params,
+}
+
 #[wasm_bindgen]
 pub struct Argon2 {
     password: Vec<u8>,
@@ -115,7 +121,23 @@ impl Argon2 {
         )).expect("Should be able to serialize into JsValue"))
     }
 
-    // TODO: Implement serialized key with params -> JsValue
+    /// Convert PHC string to serialized key + params
+    pub fn to_serialized(&self) -> Result<JsValue, String> {
+        let hash = self.to_hash()?;
+        let split = hash.split('$');
+        let items: Vec<&str> = split.collect();
+
+        let key = items[items.len() - 1];
+
+        Ok(JsValue::from_serde(&Serialized {
+            key: Vec::from(key.as_bytes()),
+            params: Argon2Params::new(
+                self.params.m_cost(),
+                self.params.t_cost(),
+                self.params.p_cost(),
+            ),
+        }).expect("Should be able to serialize into JsValue"))
+    }
 }
 
 #[cfg(test)]
@@ -135,8 +157,11 @@ mod tests {
 
     #[test]
     fn can_hash_password_with_custom_params() {
+        // Memory cost
         let m_cost = 2048;
+        // Iterations/Time cost:
         let t_cost = 2;
+        // Degree of parallelism:
         let p_cost = 2;
         let password = "unhackable";
         let argon2 = Argon2::new(password.into(), Some(m_cost), Some(t_cost), Some(p_cost))
@@ -172,5 +197,23 @@ mod tests {
         assert_eq!(params.m_cost, 4096);
         assert_eq!(params.t_cost, 3);
         assert_eq!(params.p_cost, 1);
+    }
+
+    #[wasm_bindgen_test]
+    fn can_serialize_to_js_value() {
+        let password = "unhackable";
+        let scrypt = Argon2::new(password.into(), None, None, None)
+            .expect("Creating instance with default params should not fail");
+        let hash = scrypt.to_hash().expect("Hashing password with Scrypt should not fail!");
+
+        assert!(scrypt.verify(hash).is_ok());
+
+        let serialized: Serialized = JsValue::into_serde(&scrypt.to_serialized().unwrap())
+            .expect("Should be able to serialize parameters to JsValue");
+
+        assert_eq!(serialized.params.m_cost, 4096);
+        assert_eq!(serialized.params.t_cost, 3);
+        assert_eq!(serialized.params.p_cost, 1);
+        assert_eq!(serialized.key.len(), 43);
     }
 }

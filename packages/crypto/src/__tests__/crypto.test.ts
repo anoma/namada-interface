@@ -1,4 +1,11 @@
-import { AEAD, HDWallet, Mnemonic, PhraseSize, Scrypt } from "../crypto/crypto";
+import {
+  AEAD,
+  Argon2,
+  HDWallet,
+  Mnemonic,
+  PhraseSize,
+  Scrypt,
+} from "../crypto/crypto";
 
 const KEY_LENGTH = 32;
 const SEED_LENGTH = 64;
@@ -67,6 +74,26 @@ describe("Scrypt", () => {
     const scrypt = new Scrypt(password, 12, 12, 2);
     const hash = scrypt.to_hash();
     const results = scrypt.verify(hash);
+
+    expect(results).not.toBe("invalid password");
+  });
+});
+
+describe("Argon2", () => {
+  test("It should hash a password and verify with default params", () => {
+    const password = "password";
+    const argon2 = new Argon2(password);
+    const hash = argon2.to_hash();
+    const results = argon2.verify(hash);
+
+    expect(results).not.toBe("invalid password");
+  });
+
+  test("It should hash a password and verify with custom params", () => {
+    const password = "password";
+    const argon2 = new Argon2(password, 2048, 2, 2);
+    const hash = argon2.to_hash();
+    const results = argon2.verify(hash);
 
     expect(results).not.toBe("invalid password");
   });
