@@ -1,6 +1,7 @@
 import {
   AEAD,
   Argon2,
+  Argon2Params,
   HDWallet,
   Mnemonic,
   PhraseSize,
@@ -91,7 +92,9 @@ describe("Argon2", () => {
 
   test("It should hash a password and verify with custom params", () => {
     const password = "password";
-    const argon2 = new Argon2(password, 2048, 2, 2);
+    const params = new Argon2Params(2048, 2, 2);
+    const salt = "41oVKhMIBZ+oF4efwq7e0A";
+    const argon2 = new Argon2(password, salt, params);
     const hash = argon2.to_hash();
     const results = argon2.verify(hash);
 

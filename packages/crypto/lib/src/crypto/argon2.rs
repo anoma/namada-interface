@@ -2,7 +2,7 @@ use argon2::{
     self,
     password_hash::{
         rand_core::OsRng,
-        PasswordHash, PasswordHasher, PasswordVerifier, SaltString
+        PasswordHash, PasswordHasher, PasswordVerifier, Salt, SaltString
     },
     Params,
 };
@@ -32,12 +32,14 @@ impl Argon2Params {
 
 #[derive(Serialize, Deserialize)]
 pub struct Serialized {
+    salt: String,
     key: Vec<u8>,
     params: Argon2Params,
 }
 
 #[wasm_bindgen]
 pub struct Argon2 {
+    salt: SaltString,
     password: Vec<u8>,
     params: argon2::Params,
 }
@@ -48,40 +50,50 @@ impl Argon2 {
     #[wasm_bindgen(constructor)]
     pub fn new(
         password: String,
-        m_cost: Option<u32>,
-        t_cost: Option<u32>,
-        p_cost: Option<u32>,
+        salt: Option<String>,
+        params: Option<Argon2Params>,
     ) -> Result<Argon2, String> {
         let password = Vec::from(password.as_bytes());
         let default_params = Params::default();
 
-        let m_cost = match m_cost {
-            Some(m_cost) => m_cost,
-            None => default_params.m_cost(),
+        let salt = match salt {
+            Some(salt) => SaltString::new(&salt)
+                .map_err(|err| err.to_string())?,
+            None => SaltString::generate(&mut OsRng),
         };
 
-        let t_cost = match t_cost {
-            Some(t_cost) => t_cost,
-            None => default_params.t_cost(),
+        let params = match params {
+            Some(params) => params,
+            None => Argon2Params::new(
+                default_params.m_cost(),
+                default_params.t_cost(),
+                default_params.p_cost(),
+            ),
         };
 
-        let p_cost = match p_cost {
-            Some(p_cost) => p_cost,
-            None => default_params.p_cost(),
-        };
-
-        let params = Params::new(m_cost, t_cost, p_cost, None)
-            .map_err(|err| err.to_string())?;
+        let params = Params::new(
+            params.m_cost,
+            params.t_cost,
+            params.p_cost,
+            None,
+        ).map_err(|err| err.to_string())?;
 
         Ok(Argon2 {
+            salt,
             password,
             params,
         })
     }
 
-    pub fn to_hash(&self) -> Result<String, String> {
+    /// Static method to generate salt as string
+    pub fn generate_salt() -> String {
         let salt = SaltString::generate(&mut OsRng);
-        // Argon2 with default params (Argon2id v19)
+        let salt = Salt::from(&salt);
+
+        String::from(salt.as_str())
+    }
+
+    pub fn to_hash(&self) -> Result<String, String> {
         let argon2 = argon2::Argon2::default();
         let bytes: &[u8] = &self.password;
         let params = &self.params;
@@ -92,7 +104,7 @@ impl Argon2 {
             None, // Default alg_id = Argon2id
             None, // Default ver = v19
             params.to_owned(),
-            &salt,
+            &self.salt,
         ).map_err(|err| err.to_string())?.to_string();
 
         Ok(password_hash)
@@ -130,6 +142,7 @@ impl Argon2 {
         let key = items[items.len() - 1];
 
         Ok(JsValue::from_serde(&Serialized {
+            salt: String::from(self.salt.as_str()),
             key: Vec::from(key.as_bytes()),
             params: Argon2Params::new(
                 self.params.m_cost(),
@@ -137,6 +150,10 @@ impl Argon2 {
                 self.params.p_cost(),
             ),
         }).expect("Should be able to serialize into JsValue"))
+    }
+
+    pub fn salt(&self) -> String {
+        String::from(self.salt.as_str())
     }
 }
 
@@ -148,7 +165,7 @@ mod tests {
     #[test]
     fn can_hash_password() {
         let password = "unhackable";
-        let argon2 = Argon2::new(password.into(), None, None, None)
+        let argon2 = Argon2::new(password.into(), None, None)
             .expect("Creating instance with default params should not fail");
         let hash = argon2.to_hash().expect("Hashing password with Argon2 should not fail!");
 
@@ -163,8 +180,9 @@ mod tests {
         let t_cost = 2;
         // Degree of parallelism:
         let p_cost = 2;
+        let params = Argon2Params::new(m_cost, t_cost, p_cost);
         let password = "unhackable";
-        let argon2 = Argon2::new(password.into(), Some(m_cost), Some(t_cost), Some(p_cost))
+        let argon2 = Argon2::new(password.into(), None, Some(params))
             .expect("Creating instance with custom params should not fail");
 
         let hash = argon2.to_hash().expect("Hashing password with Argon2 should not fail!");
@@ -174,18 +192,43 @@ mod tests {
     #[test]
     fn can_verify_stored_hash() {
         let password = "unhackable";
-        let argon2 = Argon2::new(password.into(), None, None, None)
+        let argon2 = Argon2::new(password.into(), None, None)
             .expect("Creating instance with default params should not fail");
         let stored_hash = "$argon2id$v=19$m=4096,t=3,p=1$0UUjc4ZBOJJLTPrS1mQr1w$orbgGGRzWC0GvplgJuteaDORldnQiJfVumhXSuwO3UE";
 
+        // With randomly generated salt, this should not create
+        // an equivalent hash:
         assert_ne!(argon2.to_hash().unwrap(), stored_hash);
         assert!(argon2.verify(stored_hash.to_string()).is_ok());
+    }
+
+    #[test]
+    fn can_verify_stored_hash_with_custom_salt() {
+        let password = "unhackable";
+        let salt = String::from("41oVKhMIBZ+oF4efwq7e0A");
+        let argon2 = Argon2::new(password.into(), Some(salt), None)
+            .expect("Creating instance with default params should not fail");
+        let stored_hash = "$argon2id$v=19$m=4096,t=3,p=1$41oVKhMIBZ+oF4efwq7e0A$ec9kY153e/S6z9awayWdUTLdaQowoAxrdo7ZkTjhBl4";
+
+        // Providing salt, this should create an equivalent hash:
+        assert_eq!(argon2.to_hash().unwrap(), stored_hash);
+        assert!(argon2.verify(stored_hash.to_string()).is_ok());
+    }
+
+    #[test]
+    fn can_generate_salt_from_string() {
+        let salt = String::from("41oVKhMIBZ+oF4efwq7e0A");
+        let password = String::from("unhackable");
+        let argon2 = Argon2::new(password, Some(salt.clone()), None)
+            .expect("Creating instance of Argon2 should not fail!");
+
+        assert_eq!(salt, argon2.salt());
     }
 
     #[wasm_bindgen_test]
     fn can_serialize_params_to_js_value() {
         let password = "unhackable";
-        let argon2 = Argon2::new(password.into(), None, None, None)
+        let argon2 = Argon2::new(password.into(), None, None)
             .expect("Creating instance with default params should not fail");
         let hash = argon2.to_hash().expect("Hashing password with Argon2 should not fail!");
 
@@ -202,7 +245,7 @@ mod tests {
     #[wasm_bindgen_test]
     fn can_serialize_to_js_value() {
         let password = "unhackable";
-        let scrypt = Argon2::new(password.into(), None, None, None)
+        let scrypt = Argon2::new(password.into(), None, None)
             .expect("Creating instance with default params should not fail");
         let hash = scrypt.to_hash().expect("Hashing password with Scrypt should not fail!");
 
