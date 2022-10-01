@@ -6,7 +6,9 @@ import {
   HDWallet,
   Mnemonic,
   PhraseSize,
+  Salt,
   Scrypt,
+  ScryptParams,
 } from "../crypto/crypto";
 
 const KEY_LENGTH = 32;
@@ -73,7 +75,8 @@ describe("Scrypt", () => {
 
   test("It should hash a password and verify with custom params", () => {
     const password = "password";
-    const scrypt = new Scrypt(password, 12, 12, 2);
+    const params = new ScryptParams(12, 12, 2);
+    const scrypt = new Scrypt(password, undefined, params);
     const hash = scrypt.to_hash();
     const results = scrypt.verify(hash);
 
@@ -104,10 +107,10 @@ describe("Argon2", () => {
 });
 
 describe("AES", () => {
-  test("It should encrypt and decrypt with provided key and iv", () => {
+  test("It should encrypt and decrypt with provided key (Argon2) and iv", () => {
     const password = "password";
     const plaintext = "my secret message";
-    const salt = "41oVKhMIBZ+oF4efwq7e0A";
+    const salt = Salt.generate().as_string();
     const argon2 = new Argon2(password, salt);
     const { params, key } = argon2.to_serialized();
 
@@ -125,6 +128,38 @@ describe("AES", () => {
       password,
       salt,
       argon2Params
+    ).to_serialized();
+
+    const aes2 = new AES(newKey, iv);
+    const decrypted = aes2.decrypt(encrypted);
+    const plaintextBytes = new Uint8Array(Buffer.from(plaintext));
+    const decryptedText = new TextDecoder().decode(decrypted);
+
+    expect(decrypted).toEqual(plaintextBytes);
+    expect(decryptedText).toEqual(plaintext);
+  });
+
+  test("It should encrypt and decrypt with provided key (Scrypt) and iv", () => {
+    const password = "password";
+    const plaintext = "my secret message";
+    const salt = Salt.generate().as_string();
+    const scrypt = new Scrypt(password, salt);
+    const { params, key } = scrypt.to_serialized();
+
+    const iv = new Uint8Array(
+      Array.from({ length: 12 }, () => Math.floor(Math.random() * 12))
+    );
+    const aes = new AES(key, iv);
+    const encrypted = aes.encrypt(plaintext);
+
+    // Let's rehash a provided password, salt, and Scrypt parameters
+    // to confirm that we can reconstruct the key originally used to encrypt:
+    const { log_n, r, p } = params;
+    const scryptParams = new ScryptParams(log_n, r, p);
+    const { key: newKey } = new Scrypt(
+      password,
+      salt,
+      scryptParams
     ).to_serialized();
 
     const aes2 = new AES(newKey, iv);

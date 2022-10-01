@@ -30,32 +30,6 @@ impl Argon2Params {
     }
 }
 
-#[wasm_bindgen]
-pub struct Salt {
-    salt: SaltString,
-}
-
-#[wasm_bindgen]
-impl Salt {
-    #[wasm_bindgen(constructor)]
-    pub fn new(salt: String) -> Result<Salt, String> {
-        let salt = SaltString::new(&salt)
-            .map_err(|err| err.to_string())?;
-
-        Ok(Salt {
-            salt,
-        })
-    }
-
-    pub fn to_bytes(&self) -> Result<Vec<u8>, String> {
-        let salt_string = &self.salt.to_string();
-        let salt = argon2::password_hash::Salt::new(salt_string)
-            .map_err(|err| err.to_string())?;
-        let bytes: &[u8] = salt.as_bytes();
-        Ok(Vec::from(bytes))
-    }
-}
-
 #[derive(Serialize, Deserialize)]
 pub struct Serialized {
     salt: String,
@@ -109,15 +83,6 @@ impl Argon2 {
             password,
             params,
         })
-    }
-
-    /// Static method to generate salt as string
-    pub fn generate_salt() -> Result<Salt, String> {
-        let salt_string = SaltString::generate(&mut OsRng);
-        let salt = argon2::password_hash::Salt::from(&salt_string);
-        let salt = Salt::new(String::from(salt.as_str()))?;
-
-        Ok(salt)
     }
 
     pub fn to_hash(&self) -> Result<String, String> {
@@ -187,6 +152,7 @@ impl Argon2 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::crypto::salt::Salt;
     use wasm_bindgen_test::*;
 
     #[test]

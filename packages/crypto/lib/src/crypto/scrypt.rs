@@ -4,7 +4,6 @@ use scrypt::{
         rand_core::OsRng,
         PasswordHash, PasswordHasher, PasswordVerifier, SaltString,
     },
-    Params,
 };
 use serde::{Serialize, Deserialize};
 use gloo_utils::format::JsValueSerdeExt;
@@ -20,6 +19,7 @@ pub struct ScryptParams {
 
 #[wasm_bindgen]
 impl ScryptParams {
+    #[wasm_bindgen(constructor)]
     pub fn new(log_n: u8, r: u32, p: u32) -> Self {
         Self {
             log_n,
@@ -32,13 +32,15 @@ impl ScryptParams {
 #[derive(Serialize, Deserialize)]
 pub struct Serialized {
     key: Vec<u8>,
+    salt: String,
     params: ScryptParams,
 }
 
 #[wasm_bindgen]
 pub struct Scrypt {
     password: Vec<u8>,
-    params: Params,
+    salt: SaltString,
+    params: scrypt::Params,
 }
 
 /// Scrypt password hashing
@@ -47,38 +49,41 @@ impl Scrypt {
     #[wasm_bindgen(constructor)]
     pub fn new(
         password: String,
-        log_n: Option<u8>,
-        r: Option<u32>,
-        p: Option<u32>,
+        salt: Option<String>,
+        params: Option<ScryptParams>,
     ) -> Result<Scrypt, String> {
         let bytes: &[u8] = password.as_bytes();
-        let default_params = Params::recommended();
-        let log_n = match log_n {
-            Some(log_n) => log_n,
-            None => default_params.log_n(),
+        let default_params = scrypt::Params::recommended();
+
+        let salt = match salt {
+            Some(salt) => SaltString::new(&salt)
+                .map_err(|err| err.to_string())?,
+            None => SaltString::generate(&mut OsRng),
         };
 
-        let r = match r {
-            Some(r) => r,
-            None => default_params.r(),
+        let params = match params {
+            Some(params) => params,
+            None => ScryptParams::new(
+                default_params.log_n(),
+                default_params.r(),
+                default_params.p(),
+            ),
         };
 
-        let p = match p {
-            Some(p) => p,
-            None => default_params.p(),
-        };
-
-        let params = Params::new(log_n, r, p)
-            .map_err(|err| err.to_string())?;
+        let params = scrypt::Params::new(
+            params.log_n,
+            params.r,
+            params.p,
+        ).unwrap();
 
         Ok(Scrypt {
             password: Vec::from(bytes),
+            salt,
             params,
         })
     }
 
     pub fn to_hash(&self) -> Result<String, String> {
-        let salt = SaltString::generate(&mut OsRng);
         let bytes: &[u8] = &self.password;
 
         // Hash password to PHC string ($scrypt$...)
@@ -88,27 +93,10 @@ impl Scrypt {
                 None,
                 None,
                 self.params,
-                &salt,
+                &self.salt,
             ).map_err(|err| err.to_string())?.to_string();
 
         Ok(password_hash)
-    }
-
-    // TODO: Fix or remove this method
-    pub fn to_bytes(&self) -> Result<Vec<u8>, String> {
-        let password: &[u8] = &self.password;
-        let mut output: Vec<u8> = vec![];
-        let salt_string = SaltString::generate(&mut OsRng);
-        let salt = salt_string.as_bytes();
-
-        let _ = scrypt::scrypt(
-            password,
-            salt,
-            &self.params,
-            &mut output,
-        ).map_err(|err| err.to_string());
-
-        Ok(output)
     }
 
     pub fn verify(&self, hash: String) -> Result<(), String> {
@@ -132,6 +120,7 @@ impl Scrypt {
 
         Ok(JsValue::from_serde(&Serialized {
             key: Vec::from(key.as_bytes()),
+            salt: String::from(self.salt.as_str()),
             params: ScryptParams::new(
                 self.params.log_n(),
                 self.params.r(),
@@ -164,7 +153,7 @@ mod tests {
         // Iterations: log_n = 15 (n = 32768)
         // Block size: r = 8
         // Threads in parallel: p = 1
-        let scrypt = Scrypt::new(password.into(), None, None, None)
+        let scrypt = Scrypt::new(password.into(), None, None)
             .expect("Instance should be able to be created with default params");
         let hash = scrypt.to_hash().expect("Hashing password with Scrypt should not fail!");
 
@@ -174,7 +163,7 @@ mod tests {
     #[test]
     fn can_verify_stored_hash() {
         let password = "unhackable";
-        let scrypt = Scrypt::new(password.into(), None, None, None)
+        let scrypt = Scrypt::new(password.into(), None, None)
             .expect("Instance should be able to be created with default params");
 
         // A previously defined hash using the same password.
@@ -195,8 +184,9 @@ mod tests {
         let r: u32 = 12;
         // Threads to run in parallel
         let p: u32 = 2;
+        let params = ScryptParams::new(log_n, r, p);
 
-        let scrypt = Scrypt::new(password.into(), Some(log_n), Some(r), Some(p))
+        let scrypt = Scrypt::new(password.into(), None, Some(params))
             .expect("Instance should be able to be created with custom params");
 
         let hash = scrypt.to_hash().expect("Hashing password with Scrypt should not fail!");
@@ -204,21 +194,10 @@ mod tests {
         assert!(scrypt.verify(hash).is_ok());
     }
 
-    #[test]
-    fn can_hash_password_to_bytes() {
-        // This isn't working as expected!
-        let password = "unhackable";
-        let scrypt = Scrypt::new(password.into(), None, None, None)
-            .expect("Instance should be able to be created with default params");
-        let output = scrypt.to_bytes();
-
-        assert!(output.is_ok());
-    }
-
     #[wasm_bindgen_test]
     fn can_serialize_params_to_js_value() {
         let password = "unhackable";
-        let scrypt = Scrypt::new(password.into(), None, None, None)
+        let scrypt = Scrypt::new(password.into(), None, None)
             .expect("Creating instance with default params should not fail");
         let hash = scrypt.to_hash().expect("Hashing password with Scrypt should not fail!");
 
@@ -235,7 +214,7 @@ mod tests {
     #[wasm_bindgen_test]
     fn can_serialize_to_js_value() {
         let password = "unhackable";
-        let scrypt = Scrypt::new(password.into(), None, None, None)
+        let scrypt = Scrypt::new(password.into(), None, None)
             .expect("Creating instance with default params should not fail");
         let hash = scrypt.to_hash().expect("Hashing password with Scrypt should not fail!");
 
