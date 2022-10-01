@@ -143,16 +143,11 @@ impl Argon2 {
             ),
         }).expect("Should be able to serialize into JsValue"))
     }
-
-    pub fn salt(&self) -> String {
-        String::from(self.salt.as_str())
-    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::crypto::salt::Salt;
     use wasm_bindgen_test::*;
 
     #[test]
@@ -206,26 +201,6 @@ mod tests {
         // Providing salt, this should create an equivalent hash:
         assert_eq!(argon2.to_hash().unwrap(), stored_hash);
         assert!(argon2.verify(stored_hash.to_string()).is_ok());
-    }
-
-    #[test]
-    fn can_generate_salt_from_string() {
-        let salt = String::from("41oVKhMIBZ+oF4efwq7e0A");
-        let password = String::from("unhackable");
-        let argon2 = Argon2::new(password, Some(salt.clone()), None)
-            .expect("Creating instance of Argon2 should not fail!");
-
-        assert_eq!(salt, argon2.salt());
-    }
-
-    #[test]
-    fn can_generate_salt_bytes_from_string() {
-        let salt = String::from("41oVKhMIBZ+oF4efwq7e0A");
-        let salt = Salt::new(salt).expect("Creating salt from string should not fail");
-        let expected_bytes = vec![52, 49, 111, 86, 75, 104, 77, 73, 66, 90, 43,
-                                  111, 70, 52, 101, 102, 119, 113, 55, 101, 48, 65];
-        let bytes = salt.to_bytes().expect("Returning to bytes should not fail");
-        assert_eq!(bytes, expected_bytes);
     }
 
     #[wasm_bindgen_test]
