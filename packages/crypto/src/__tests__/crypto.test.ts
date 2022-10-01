@@ -117,12 +117,14 @@ describe("AES", () => {
     const aes = new AES(key, iv);
     const encrypted = aes.encrypt(plaintext);
 
-    // Let's rehash a provided password, along with Argon2 parameters
+    // Let's rehash a provided password, salt, and Argon2 parameters
     // to confirm that we can reconstruct the key originally used to encrypt:
+    const { m_cost, t_cost, p_cost } = params;
+    const argon2Params = new Argon2Params(m_cost, t_cost, p_cost);
     const { key: newKey } = new Argon2(
       password,
       salt,
-      params.params
+      argon2Params
     ).to_serialized();
 
     const aes2 = new AES(newKey, iv);
