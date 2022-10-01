@@ -1,5 +1,6 @@
 import {
   AEAD,
+  AES,
   Argon2,
   Argon2Params,
   HDWallet,
@@ -99,5 +100,37 @@ describe("Argon2", () => {
     const results = argon2.verify(hash);
 
     expect(results).not.toBe("invalid password");
+  });
+});
+
+describe("AES", () => {
+  test("It should encrypt and decrypt with provided key and iv", () => {
+    const password = "password";
+    const plaintext = "my secret message";
+    const salt = "41oVKhMIBZ+oF4efwq7e0A";
+    const argon2 = new Argon2(password, salt);
+    const { params, key } = argon2.to_serialized();
+
+    const iv = new Uint8Array(
+      Array.from({ length: 12 }, () => Math.floor(Math.random() * 12))
+    );
+    const aes = new AES(key, iv);
+    const encrypted = aes.encrypt(plaintext);
+
+    // Let's rehash a provided password, along with Argon2 parameters
+    // to confirm that we can reconstruct the key originally used to encrypt:
+    const { key: newKey } = new Argon2(
+      password,
+      salt,
+      params.params
+    ).to_serialized();
+
+    const aes2 = new AES(newKey, iv);
+    const decrypted = aes2.decrypt(encrypted);
+    const plaintextBytes = new Uint8Array(Buffer.from(plaintext));
+    const decryptedText = new TextDecoder().decode(decrypted);
+
+    expect(decrypted).toEqual(plaintextBytes);
+    expect(decryptedText).toEqual(plaintext);
   });
 });
