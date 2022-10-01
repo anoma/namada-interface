@@ -176,6 +176,18 @@ mod tests {
     }
 
     #[test]
+    fn can_verify_stored_hash_with_custom_salt() {
+        let password = "unhackable";
+        let salt = String::from("41oVKhMIBZ+oF4efwq7e0A");
+        let scrypt = Scrypt::new(password.into(), Some(salt), None)
+            .expect("Creating instance with default params should not fail");
+        let stored_hash = "$scrypt$ln=15,r=8,p=1$41oVKhMIBZ+oF4efwq7e0A$P9PqBNYpL7MUaDuH1SCW6Gf5cbgg9FyedEccMoVyTbA";
+        // Providing salt, this should create an equivalent hash:
+        assert_eq!(scrypt.to_hash().unwrap(), stored_hash);
+        assert!(scrypt.verify(stored_hash.to_string()).is_ok());
+    }
+
+    #[test]
     fn can_hash_password_with_custom_params() {
         let password = "unhackable";
         // Iteratons count - log(n)

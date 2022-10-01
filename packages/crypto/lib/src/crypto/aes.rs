@@ -1,5 +1,5 @@
 use aes_gcm::{
-    aead::{ Aead, KeyInit, generic_array::GenericArray},
+    aead::{Aead, KeyInit, generic_array::GenericArray},
     Aes256Gcm, Nonce,
 };
 use thiserror::Error;
