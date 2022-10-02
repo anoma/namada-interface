@@ -9,13 +9,17 @@ export enum KdfTypes {
   Scrypt = "scrypt",
 }
 
-export type Argon2Params = {
+type KdfParams = {
+  salt: string;
+};
+
+export type Argon2Params = KdfParams & {
   m_cost: number;
   t_cost: number;
   p_cost: number;
 };
 
-export type ScryptParams = {
+export type ScryptParams = KdfParams & {
   log_n: number;
   r: number;
   p: number;
@@ -37,11 +41,8 @@ export interface KeyStore {
     cipherText: Uint8Array;
     kdf: KdfTypes;
     params: Argon2Params;
-    salt: string;
   };
 }
-
-export type CounterState = number;
 
 export type MnemonicState = {
   id: string;

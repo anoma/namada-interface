@@ -1,4 +1,4 @@
-import { AES, Argon2, Argon2Params, Salt } from "@anoma/crypto";
+import { AES, Argon2, Argon2Params, ByteSize, Rng, Salt } from "@anoma/crypto";
 import { Bip44Path, KdfTypes, KeyStore } from "./types";
 
 export class Crypto {
@@ -13,9 +13,7 @@ export class Crypto {
     const argon2 = new Argon2(password, salt);
     const { params, key } = argon2.to_serialized();
 
-    const iv = new Uint8Array(
-      Array.from({ length: 12 }, () => Math.floor(Math.random() * 12))
-    );
+    const iv = Rng.generate_bytes(ByteSize.N12);
     const aes = new AES(key, iv);
     const encrypted = aes.encrypt(text);
 
@@ -30,16 +28,15 @@ export class Crypto {
         },
         cipherText: encrypted,
         kdf: KdfTypes.Argon2,
-        params,
-        salt,
+        params: { ...params, salt },
       },
     };
   }
 
   public decrypt(store: KeyStore, password: string): Uint8Array {
     const { crypto } = store;
-    const { cipherParams, cipherText, params, salt } = crypto;
-    const { m_cost, t_cost, p_cost } = params;
+    const { cipherParams, cipherText, params } = crypto;
+    const { m_cost, t_cost, p_cost, salt } = params;
 
     const argon2Params = new Argon2Params(m_cost, t_cost, p_cost);
 

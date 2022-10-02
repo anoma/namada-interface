@@ -3,9 +3,11 @@ import {
   AES,
   Argon2,
   Argon2Params,
+  ByteSize,
   HDWallet,
   Mnemonic,
   PhraseSize,
+  Rng,
   Salt,
   Scrypt,
   ScryptParams,
@@ -114,9 +116,7 @@ describe("AES", () => {
     const argon2 = new Argon2(password, salt);
     const { params, key } = argon2.to_serialized();
 
-    const iv = new Uint8Array(
-      Array.from({ length: 12 }, () => Math.floor(Math.random() * 12))
-    );
+    const iv = Rng.generate_bytes(ByteSize.N12);
     const aes = new AES(key, iv);
     const encrypted = aes.encrypt(plaintext);
 
@@ -146,9 +146,7 @@ describe("AES", () => {
     const scrypt = new Scrypt(password, salt);
     const { params, key } = scrypt.to_serialized();
 
-    const iv = new Uint8Array(
-      Array.from({ length: 12 }, () => Math.floor(Math.random() * 12))
-    );
+    const iv = Rng.generate_bytes(ByteSize.N12);
     const aes = new AES(key, iv);
     const encrypted = aes.encrypt(plaintext);
 
