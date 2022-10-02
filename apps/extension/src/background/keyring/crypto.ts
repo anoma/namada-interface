@@ -22,21 +22,23 @@ export class Crypto {
       id,
       path: bip44Path,
       crypto: {
-        cipher: "aes-256-gcm",
-        cipherParams: {
+        cipher: {
+          type: "aes-256-gcm",
           iv,
+          text: encrypted,
         },
-        cipherText: encrypted,
-        kdf: KdfTypes.Argon2,
-        params: { ...params, salt },
+        kdf: {
+          type: KdfTypes.Argon2,
+          params: { ...params, salt },
+        },
       },
     };
   }
 
   public decrypt(store: KeyStore, password: string): Uint8Array {
     const { crypto } = store;
-    const { cipherParams, cipherText, params } = crypto;
-    const { m_cost, t_cost, p_cost, salt } = params;
+    const { cipher, kdf } = crypto;
+    const { m_cost, t_cost, p_cost, salt } = kdf.params;
 
     const argon2Params = new Argon2Params(m_cost, t_cost, p_cost);
 
@@ -46,8 +48,8 @@ export class Crypto {
       argon2Params
     ).to_serialized();
 
-    const aes = new AES(newKey, cipherParams.iv);
+    const aes = new AES(newKey, cipher.iv);
 
-    return aes.decrypt(cipherText);
+    return aes.decrypt(cipher.text);
   }
 }

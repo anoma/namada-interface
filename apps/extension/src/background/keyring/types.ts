@@ -25,7 +25,7 @@ export type ScryptParams = KdfParams & {
   p: number;
 };
 
-export interface KeyStore {
+export interface KeyStore<T = Argon2Params> {
   id: string;
   alias: string;
   path: Bip44Path;
@@ -34,13 +34,15 @@ export interface KeyStore {
     [key: string]: string;
   };
   crypto: {
-    cipher: "aes-256-gcm";
-    cipherParams: {
+    cipher: {
+      type: "aes-256-gcm";
       iv: Uint8Array;
+      text: Uint8Array;
     };
-    cipherText: Uint8Array;
-    kdf: KdfTypes;
-    params: Argon2Params;
+    kdf: {
+      type: KdfTypes;
+      params: T;
+    };
   };
 }
 
