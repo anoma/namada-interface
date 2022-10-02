@@ -57,24 +57,17 @@ impl AES {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::crypto::rng::{Rng, ByteSize};
 
     #[test]
     fn can_encrypt_and_decrypt() {
-        let key = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
-                       17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
-                       31, 32];
-
+        let key = Rng::generate_bytes(Some(ByteSize::N32))
+            .expect("Generating random bytes should not fail");
         let iv = Vec::from("123456789123".as_bytes());
         let aes = AES::new(key, iv).unwrap();
         let plaintext = "my secret message";
         let encrypted = aes.encrypt(plaintext)
             .expect("AES should not fail encrypting plaintext");
-
-        let expected = vec![167, 153, 113, 97, 196, 71, 31, 31, 86, 208, 157, 103, 7,
-                            76, 51, 137, 154, 156, 83, 43, 154, 92, 9, 209, 114, 82,
-                            33, 40, 255, 125, 31, 97, 188];
-
-        assert_eq!(encrypted, expected);
 
         let decrypted: &[u8] = &aes.decrypt(encrypted)
             .expect("AES should not fail decrypting ciphertext");
