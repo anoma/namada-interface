@@ -1,10 +1,6 @@
-use argon2::{
-    self,
-    password_hash::{
-        rand_core::OsRng,
-        PasswordHash, PasswordHasher, PasswordVerifier, SaltString
-    },
-    Params,
+use password_hash::{
+    rand_core::OsRng,
+    PasswordHash, PasswordHasher, PasswordVerifier, SaltString
 };
 use serde::{Serialize, Deserialize};
 use gloo_utils::format::JsValueSerdeExt;
@@ -54,7 +50,7 @@ impl Argon2 {
         params: Option<Argon2Params>,
     ) -> Result<Argon2, String> {
         let password = Vec::from(password.as_bytes());
-        let default_params = Params::default();
+        let default_params = argon2::Params::default();
 
         let salt = match salt {
             Some(salt) => SaltString::new(&salt)
@@ -63,20 +59,14 @@ impl Argon2 {
         };
 
         let params = match params {
-            Some(params) => params,
-            None => Argon2Params::new(
-                default_params.m_cost(),
-                default_params.t_cost(),
-                default_params.p_cost(),
-            ),
+            Some(params) => argon2::Params::new(
+                params.m_cost,
+                params.t_cost,
+                params.p_cost,
+                None,
+            ).map_err(|err| err.to_string())?,
+            None => default_params,
         };
-
-        let params = Params::new(
-            params.m_cost,
-            params.t_cost,
-            params.p_cost,
-            None,
-        ).map_err(|err| err.to_string())?;
 
         Ok(Argon2 {
             salt,

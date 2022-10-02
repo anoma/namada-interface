@@ -1,10 +1,4 @@
-use argon2::{
-    self,
-    password_hash::{
-        rand_core::OsRng,
-        SaltString
-    },
-};
+use password_hash::{rand_core::OsRng, SaltString};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]

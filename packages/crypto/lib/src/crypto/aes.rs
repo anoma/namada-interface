@@ -9,7 +9,7 @@ use wasm_bindgen::prelude::*;
 pub enum AESError {
     #[error("Invalid key size! Minimum key size is 32.")]
     KeyLengthError,
-    #[error("Invalid IV! Expected 12 bytes")]
+    #[error("Invalid IV! Expected 96 bits (12 bytes)")]
     IVSizeError,
 }
 

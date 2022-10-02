@@ -1,9 +1,6 @@
-use scrypt::{
-    self,
-    password_hash::{
-        rand_core::OsRng,
-        PasswordHash, PasswordHasher, PasswordVerifier, SaltString,
-    },
+use password_hash::{
+    rand_core::OsRng,
+    PasswordHash, PasswordHasher, PasswordVerifier, SaltString,
 };
 use serde::{Serialize, Deserialize};
 use gloo_utils::format::JsValueSerdeExt;
@@ -62,19 +59,13 @@ impl Scrypt {
         };
 
         let params = match params {
-            Some(params) => params,
-            None => ScryptParams::new(
-                default_params.log_n(),
-                default_params.r(),
-                default_params.p(),
-            ),
+            Some(params) => scrypt::Params::new(
+                params.log_n,
+                params.r,
+                params.p,
+            ).map_err(|err| err.to_string())?,
+            None => default_params,
         };
-
-        let params = scrypt::Params::new(
-            params.log_n,
-            params.r,
-            params.p,
-        ).unwrap();
 
         Ok(Scrypt {
             password: Vec::from(bytes),

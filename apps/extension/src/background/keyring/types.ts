@@ -1,20 +1,47 @@
-import { ScryptParams, Argon2Params } from "@anoma/crypto";
-
 export type Bip44Path = {
   account: number;
   change: number;
   index: number;
 };
 
-enum KdfTypes {
+export enum KdfTypes {
   Argon2 = "argon2",
   Scrypt = "scrypt",
 }
 
-export type Storage = {
-  kdf: KdfTypes;
-  params: ScryptParams | Argon2Params;
+export type Argon2Params = {
+  m_cost: number;
+  t_cost: number;
+  p_cost: number;
 };
+
+export type ScryptParams = {
+  log_n: number;
+  r: number;
+  p: number;
+};
+
+export interface KeyStore {
+  id: string;
+  alias: string;
+  path: Bip44Path;
+  parentId?: string;
+  meta?: {
+    [key: string]: string;
+  };
+  crypto: {
+    cipher: "aes-256-gcm";
+    cipherParams: {
+      iv: Uint8Array;
+    };
+    cipherText: Uint8Array;
+    kdf: KdfTypes;
+    params: Argon2Params;
+    salt: string;
+  };
+}
+
+export type CounterState = number;
 
 export type MnemonicState = {
   id: string;
