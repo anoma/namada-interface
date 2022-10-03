@@ -2,7 +2,6 @@ export {
   getTheme,
   loadColorMode,
   storeColorMode,
-  getTheme_old,
   ThemeName,
 } from "./theme";
 

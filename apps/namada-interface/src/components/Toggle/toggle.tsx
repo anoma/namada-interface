@@ -1,4 +1,5 @@
-import { ToggleCircle, ToggleContainer } from "./toggle.components";
+import { ToggleCircle } from "./toggle-circle.component";
+import { ToggleContainer } from "./toggle-container.component";
 
 export type ToggleProps = {
   // indicates whether it is enabled/disabled. checked = enabled

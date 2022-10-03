@@ -1,31 +1,43 @@
-import styled, { createGlobalStyle } from "styled-components/macro";
+import styled, {
+  CSSProperties,
+  createGlobalStyle,
+} from "styled-components/macro";
 import { motion } from "framer-motion";
-import { DesignConfiguration, ThemeName } from "utils/theme";
-
-enum ComponentColor {
-  BorderColor,
-  BackgroundColor,
-}
+import { ColorMode, DesignConfiguration, ThemeName } from "utils/theme";
 
 const topSectionHeight = "164px";
 
-const getColor = (
-  color: ComponentColor,
+const getCssPropMap = (
   theme: DesignConfiguration
-): string => {
-  const isDark = theme.themeConfigurations.isLightMode;
-  switch (color) {
-    case ComponentColor.BorderColor:
-      if (theme.themeConfigurations.themeName === ThemeName.Placeholder) {
-        return "transparent";
-      }
-      return isDark ? "transparent" : theme.colors.utility2.main20;
-    case ComponentColor.BackgroundColor:
-      return isDark ? theme.colors.utility1.main80 : theme.colors.utility1.main;
+): Record<ColorMode, CSSProperties> => ({
+  light: {
+    borderColor: theme.colors.utility2.main20,
+    backgroundColor: theme.colors.utility1.main,
+  },
+  dark: {
+    borderColor: "transparent",
+    backgroundColor: theme.colors.utility1.main80,
+  },
+});
+
+const getColor = (
+  color: keyof CSSProperties,
+  theme: DesignConfiguration
+): CSSProperties[keyof CSSProperties] => {
+  const colorMode = theme.themeConfigurations.colorMode;
+
+  if (
+    color == "borderColor" &&
+    theme.themeConfigurations.themeName === ThemeName.Placeholder
+  ) {
+    return "transparent";
   }
+
+  return getCssPropMap(theme)[colorMode][color];
 };
+
 type GlobalStyleProps = {
-  isLightMode: boolean;
+  colorMode: ColorMode;
 };
 
 // Set global styles for themed control of background color based
@@ -85,11 +97,8 @@ export const ContentContainer = styled.div`
   // TODO: maybe this is too hacky? maybe there could be just another div
   // behind the main one with transform: translate(-4px, 4px);
   box-sizing: border-box;
-  background-color: ${(props) =>
-    getColor(ComponentColor.BackgroundColor, props.theme)};
-  border: 1px solid
-    ${(props) => getColor(ComponentColor.BorderColor, props.theme)};
-
+  background-color: ${(props) => getColor("backgroundColor", props.theme)};
+  border: 1px solid ${(props) => getColor("borderColor", props.theme)};
   padding: 0;
   min-height: 620px;
   width: 100%;

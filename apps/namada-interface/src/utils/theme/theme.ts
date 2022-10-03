@@ -101,7 +101,7 @@ export type DesignConfiguration = {
   spacers: Spacers;
   borderRadius: BorderRadius;
   typography: Typography;
-  themeConfigurations: { isLightMode?: boolean; themeName: ThemeName };
+  themeConfigurations: { colorMode: ColorMode; isLightMode: boolean; themeName: ThemeName };
 };
 
 // NAMADA
@@ -327,6 +327,11 @@ const namadaTypography = {
   },
 };
 
+const modeThemeMap: Record<ColorMode, Colors> = {
+  light: namadaLightColors,
+  dark: namadaDarkColors,
+};
+
 // we want to have the name as we might alter the usage
 // of style tokens in styling files based on the theme name
 export enum ThemeName {
@@ -346,10 +351,12 @@ export const storeColorMode = (mode: ColorMode): void => {
 };
 
 export type ThemeConfigurations = {
+  colorMode: ColorMode;
   isLightMode: boolean;
 };
 
 export const getTheme = (
+  colorMode: ColorMode,
   isLightMode: boolean,
   shouldUsePlaceholderTheme?: boolean
 ): DesignConfiguration => {
@@ -359,31 +366,21 @@ export const getTheme = (
       spacers: namadaSpacers,
       borderRadius: placeholderBorderRadius,
       typography: namadaTypography,
-      themeConfigurations: { isLightMode, themeName: ThemeName.Placeholder },
+      themeConfigurations: { colorMode, isLightMode, themeName: ThemeName.Placeholder },
     };
     return placeholderTheme;
   }
 
   const namadaTheme: DesignConfiguration = {
-    colors: isLightMode ? namadaDarkColors : namadaLightColors,
+    colors: modeThemeMap[colorMode],
     spacers: namadaSpacers,
     borderRadius: namadaBorderRadius,
     typography: namadaTypography,
-    themeConfigurations: { isLightMode, themeName: ThemeName.Namada },
+    themeConfigurations: { colorMode, isLightMode, themeName: ThemeName.Namada },
   };
   return namadaTheme;
 };
 
 export type Theme = {
   themeConfigurations: ThemeConfigurations;
-};
-
-// this sets the dark/light colors to theme
-export const getTheme_old = (isLightMode: boolean): Theme => {
-  const theme: Theme = {
-    themeConfigurations: {
-      isLightMode: isLightMode,
-    },
-  };
-  return theme;
 };

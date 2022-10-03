@@ -1,5 +1,12 @@
-import styled from "styled-components/macro";
+import styled, { CSSProperties } from "styled-components/macro";
 import { motion } from "framer-motion";
+
+import { ColorMode } from "utils/theme";
+
+const cssPropMap: Record<ColorMode, CSSProperties> = {
+  light: { padding: "4px 36px 0 32px" },
+  dark: { padding: "0 32px" },
+};
 
 export const AccountCreationContainer = styled.div`
   display: flex;
@@ -10,7 +17,7 @@ export const AccountCreationContainer = styled.div`
   background-color: ${(props) => props.theme.colors.utility1.main80};
   color: ${(props) => props.theme.colors.utility2.main80};
   padding: ${(props) =>
-    props.theme.themeConfigurations.isLightMode ? "0 32px" : "4px 36px 0 32px"};
+    cssPropMap[props.theme.themeConfigurations.colorMode].padding};
   height: 100%;
   width: 480px;
   transition: background-color 0.3s linear;

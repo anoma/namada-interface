@@ -1,22 +1,34 @@
 import styled, {
   css,
+  CSSProperties,
   FlattenSimpleInterpolation,
 } from "styled-components/macro";
-import { DesignConfiguration } from "utils/theme";
+import { ColorMode, DesignConfiguration } from "utils/theme";
 
 enum ComponentColor {
   Logo,
 }
 
-const getColor = (
-  color: ComponentColor,
+const getCssPropMap = (
   theme: DesignConfiguration
-): string => {
-  const isDark = theme.themeConfigurations.isLightMode;
-  switch (color) {
-    case ComponentColor.Logo:
-      return isDark ? theme.colors.primary.main : theme.colors.utility2.main;
-  }
+): Record<ColorMode, CSSProperties> => ({
+  light: {
+    stroke: theme.colors.utility2.main,
+    fill: theme.colors.utility2.main,
+  },
+  dark: {
+    stroke: theme.colors.primary.main,
+    fill: theme.colors.primary.main,
+  },
+});
+
+const getColor = (
+  color: keyof CSSProperties,
+  theme: DesignConfiguration
+): CSSProperties[keyof CSSProperties] => {
+  const colorMode = theme.themeConfigurations.colorMode;
+
+  return getCssPropMap(theme)[colorMode][color]
 };
 
 export const TopNavigationContainer = styled.div`
@@ -174,7 +186,7 @@ export const LogoContainer = styled.div`
   & > div {
     svg > path {
       stroke: none;
-      fill: ${(props) => getColor(ComponentColor.Logo, props.theme)};
+      fill: ${(props) => getColor("fill", props.theme)};
     }
   }
 `;
@@ -188,8 +200,8 @@ export const MenuButton = styled.button`
 
   & div {
     svg > path {
-      stroke: ${(props) => getColor(ComponentColor.Logo, props.theme)};
-      fill: ${(props) => getColor(ComponentColor.Logo, props.theme)};
+      stroke: ${(props) => getColor("stroke", props.theme)};
+      fill: ${(props) => getColor("fill", props.theme)};
     }
   }
 `;
@@ -203,7 +215,7 @@ export const MenuCloseButton = styled.button`
 
   & div {
     svg > path {
-      stroke: ${(props) => getColor(ComponentColor.Logo, props.theme)};
+      stroke: ${(props) => getColor("stroke", props.theme)};
     }
   }
 `;
@@ -254,7 +266,7 @@ export const MobileMenuHeader = styled.div`
 
   & div {
     svg > path {
-      stroke: ${(props) => getColor(ComponentColor.Logo, props.theme)};
+      stroke: ${(props) => getColor("stroke", props.theme)};
     }
   }
 
