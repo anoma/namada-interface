@@ -4,7 +4,7 @@ export const AccountsContainer = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
-  max-height: 400px;
+  max-height: 420px;
   width: 100%;
   box-sizing: border-box;
   padding: 0 8px;

@@ -21,6 +21,7 @@ export class Crypto {
     const iv = Rng.generate_bytes(ByteSize.N12);
     const aes = new AES(key, iv);
     const encrypted = aes.encrypt(text);
+    aes.free();
 
     return {
       alias,
@@ -56,7 +57,9 @@ export class Crypto {
     ).to_serialized();
 
     const aes = new AES(newKey, cipher.iv);
+    const decrypted = aes.decrypt(cipher.text);
+    aes.free();
 
-    return aes.decrypt(cipher.text);
+    return decrypted;
   }
 }

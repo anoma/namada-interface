@@ -25,20 +25,18 @@ import {
 } from "./AddAccount.components";
 
 type Props = {
+  account: number;
   accounts: DerivedAccount[];
   requester: ExtensionRequester;
   setAccounts: (accounts: DerivedAccount[]) => void;
 };
 
 const validateAccount = (
-  newAccount: { account: number; change: number; index: number },
+  account: number,
+  newAccount: { change: number; index: number },
   accounts: DerivedAccount[]
 ): boolean => {
-  const newPath = [
-    newAccount.account,
-    newAccount.change,
-    newAccount.index,
-  ].join("/");
+  const newPath = [account, newAccount.change, newAccount.index].join("/");
   let isValid = true;
   accounts.forEach((a: DerivedAccount) => {
     const { path } = a;
@@ -71,10 +69,14 @@ enum Status {
   Failed,
 }
 
-const AddAccount: React.FC<Props> = ({ accounts, requester, setAccounts }) => {
+const AddAccount: React.FC<Props> = ({
+  account,
+  accounts,
+  requester,
+  setAccounts,
+}) => {
   const navigate = useNavigate();
   const [alias, setAlias] = useState("");
-  const [account, setAccount] = useState(0);
   const [change, setChange] = useState(0);
   const [index, setIndex] = useState(findNextIndex(accounts));
   const [bip44Error, setBip44Error] = useState("");
@@ -82,11 +84,11 @@ const AddAccount: React.FC<Props> = ({ accounts, requester, setAccounts }) => {
   const [formError, setFormError] = useState("");
   const [formStatus, setFormStatus] = useState<Status>();
 
-  const bip44Prefix = "m/44'";
-  const coinType = "0'";
+  const bip44Prefix = "m/44";
+  const coinType = 0;
 
   useEffect(() => {
-    const isValid = validateAccount({ account, change, index }, accounts);
+    const isValid = validateAccount(account, { change, index }, accounts);
     if (!isValid) {
       setBip44Error("Invalid path! This path is already in use.");
       setIsFormValid(false);
@@ -121,7 +123,7 @@ const AddAccount: React.FC<Props> = ({ accounts, requester, setAccounts }) => {
     callback(parseInt(result, 10));
   };
 
-  const handleFocus = (e: React.ChangeEvent<HTMLInputElement>) =>
+  const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
 
   return (
@@ -141,19 +143,12 @@ const AddAccount: React.FC<Props> = ({ accounts, requester, setAccounts }) => {
             <p>HD Derivation Path</p>
             <Bip44PathContainer>
               <Bip44PathDelimiter>
-                {[bip44Prefix, coinType].join("/")}/
+                {[bip44Prefix, coinType, account].join("'/")}&apos;/
               </Bip44PathDelimiter>
               <Bip44Input
                 type="number"
                 min="0"
-                value={account}
-                onChange={(e) => handleNumericChange(e, setAccount)}
-                onFocus={handleFocus}
-              />
-              <Bip44PathDelimiter>'/</Bip44PathDelimiter>
-              <Bip44Input
-                type="number"
-                min="0"
+                max="1"
                 value={change}
                 onChange={(e) => handleNumericChange(e, setChange)}
                 onFocus={handleFocus}
@@ -173,7 +168,9 @@ const AddAccount: React.FC<Props> = ({ accounts, requester, setAccounts }) => {
         <Bip44Path>
           Derivation path:{" "}
           <span>
-            {[bip44Prefix, coinType, `${account}'`, change, index].join("/")}
+            {[bip44Prefix, `${coinType}'`, `${account}'`, change, index].join(
+              "/"
+            )}
           </span>
         </Bip44Path>
         <Bip44Error>{bip44Error}</Bip44Error>

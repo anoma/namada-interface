@@ -8,6 +8,7 @@ import { Ports } from "router";
 import {
   CheckIsLockedMsg,
   DerivedAccount,
+  KeyStoreType,
   QueryAccountsMsg,
 } from "background/keyring";
 import {
@@ -39,7 +40,7 @@ export const App: React.FC = () => {
   const [accounts, setAccounts] = useState<DerivedAccount[]>([]);
   const [error, setError] = useState("");
 
-  const fetchAccounts = async () => {
+  const fetchAccounts = async (): Promise<void> => {
     setStatus(Status.Pending);
     try {
       const accounts = await requester.sendMessage(
@@ -56,7 +57,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const checkIsLocked = async () => {
+  const checkIsLocked = async (): Promise<void> => {
     const isLocked = await requester.sendMessage(
       Ports.Background,
       new CheckIsLockedMsg()
@@ -81,6 +82,11 @@ export const App: React.FC = () => {
       }
     }
   }, [status, accounts]);
+
+  const parent = accounts.find(
+    (account) => account.type === KeyStoreType.Mnemonic
+  );
+  const { account = 0 } = parent?.path || {};
 
   return (
     <ThemeProvider theme={theme}>
@@ -110,6 +116,7 @@ export const App: React.FC = () => {
               element={
                 <LockWrapper requester={requester} setStatus={setStatus}>
                   <AddAccount
+                    account={account}
                     accounts={accounts}
                     requester={requester}
                     setAccounts={setAccounts}

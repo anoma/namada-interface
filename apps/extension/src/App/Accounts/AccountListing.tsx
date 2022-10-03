@@ -14,6 +14,7 @@ import { DerivedAccount, KeyStoreType } from "background/keyring";
 import { TopLevelRoute } from "App/types";
 
 type Props = {
+  parent?: number;
   account: DerivedAccount;
   alias: string;
 };
@@ -29,16 +30,13 @@ const AccountListing = ({ account, alias: rootAlias }: Props): JSX.Element => {
   return (
     <AccountListingContainer>
       <Details>
-        {alias && (
-          <Alias>
-            {type === KeyStoreType.Mnemonic ? alias : rootAlias + " > " + alias}
-          </Alias>
-        )}
         <DerivationPath>
-          {`/${path.account}'/${path.change}${
-            typeof path.index === "number" ? "/" + path.index : ""
-          }`}
+          {type !== KeyStoreType.Mnemonic &&
+            `${rootAlias} /${path.account}'/${path.change}${
+              typeof path.index === "number" ? "/" + path.index : ""
+            }`}
         </DerivationPath>
+        {alias && <Alias>{alias}</Alias>}
         <Address>{address}</Address>
         {establishedAddress && <Address>{establishedAddress}</Address>}
       </Details>
