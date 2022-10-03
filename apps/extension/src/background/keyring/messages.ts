@@ -15,7 +15,7 @@ enum MessageTypes {
 }
 
 export class CheckIsLockedMsg extends Message<boolean> {
-  public static type() {
+  public static type(): MessageTypes {
     return MessageTypes.CheckIsLocked;
   }
 
@@ -23,7 +23,9 @@ export class CheckIsLockedMsg extends Message<boolean> {
     super();
   }
 
-  validate(): void {}
+  validate(): void {
+    // noop
+  }
 
   route(): string {
     return ROUTE;
@@ -35,7 +37,7 @@ export class CheckIsLockedMsg extends Message<boolean> {
 }
 
 export class LockKeyRingMsg extends Message<{ status: KeyRingStatus }> {
-  public static type() {
+  public static type(): MessageTypes {
     return MessageTypes.LockKeyRing;
   }
 
@@ -43,7 +45,9 @@ export class LockKeyRingMsg extends Message<{ status: KeyRingStatus }> {
     super();
   }
 
-  validate(): void {}
+  validate(): void {
+    // noop
+  }
 
   route(): string {
     return ROUTE;
@@ -55,7 +59,7 @@ export class LockKeyRingMsg extends Message<{ status: KeyRingStatus }> {
 }
 
 export class UnlockKeyRingMsg extends Message<{ status: KeyRingStatus }> {
-  public static type() {
+  public static type(): MessageTypes {
     return MessageTypes.UnlockKeyRing;
   }
 
@@ -79,7 +83,7 @@ export class UnlockKeyRingMsg extends Message<{ status: KeyRingStatus }> {
 }
 
 export class CheckPasswordMsg extends Message<boolean> {
-  public static type() {
+  public static type(): MessageTypes {
     return MessageTypes.CheckPassword;
   }
 
@@ -103,7 +107,7 @@ export class CheckPasswordMsg extends Message<boolean> {
 }
 
 export class GenerateMnemonicMsg extends Message<string[]> {
-  public static type() {
+  public static type(): MessageTypes {
     return MessageTypes.GenerateMnemonic;
   }
 
@@ -111,7 +115,9 @@ export class GenerateMnemonicMsg extends Message<string[]> {
     super();
   }
 
-  validate(): void {}
+  validate(): void {
+    // noop
+  }
 
   route(): string {
     return ROUTE;
@@ -123,7 +129,7 @@ export class GenerateMnemonicMsg extends Message<string[]> {
 }
 
 export class SaveMnemonicMsg extends Message<boolean> {
-  public static type() {
+  public static type(): MessageTypes {
     return MessageTypes.SaveMnemonic;
   }
 
@@ -162,7 +168,7 @@ export class SaveMnemonicMsg extends Message<boolean> {
 }
 
 export class DeriveAccountMsg extends Message<DerivedAccount> {
-  public static type() {
+  public static type(): MessageTypes {
     return MessageTypes.DeriveAccount;
   }
 
@@ -175,7 +181,7 @@ export class DeriveAccountMsg extends Message<DerivedAccount> {
       throw new Error("A Bip44Path object must be provided!");
     }
 
-    const { account, change, index } = this.path;
+    const { account, change } = this.path;
 
     if (!`${account}`) {
       throw new Error("A Bip44Path account path was not provided!");
@@ -183,10 +189,6 @@ export class DeriveAccountMsg extends Message<DerivedAccount> {
 
     if (!`${change}`) {
       throw new Error("A Bip44Path change path was not provided!");
-    }
-
-    if (!`${!index}`) {
-      throw new Error("A Bip44Path index path was not provided!");
     }
   }
 
@@ -200,7 +202,7 @@ export class DeriveAccountMsg extends Message<DerivedAccount> {
 }
 
 export class QueryAccountsMsg extends Message<DerivedAccount[]> {
-  public static type() {
+  public static type(): MessageTypes {
     return MessageTypes.QueryAccounts;
   }
 
@@ -208,7 +210,9 @@ export class QueryAccountsMsg extends Message<DerivedAccount[]> {
     super();
   }
 
-  validate(): void {}
+  validate(): void {
+    // noop
+  }
 
   route(): string {
     return ROUTE;

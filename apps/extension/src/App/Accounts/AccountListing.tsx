@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { Icon, IconName } from "@anoma/components";
 import {
   AccountListingContainer,
@@ -6,43 +7,59 @@ import {
   Details,
   Alias,
   DerivationPath,
-  CopyToClipboard,
+  Button,
 } from "./AccountListing.components";
 
-import { DerivedAccount } from "background/keyring";
+import { DerivedAccount, KeyStoreType } from "background/keyring";
+import { TopLevelRoute } from "App/types";
 
 type Props = {
   account: DerivedAccount;
+  alias: string;
 };
 
 const textToClipboard = (content: string): void => {
   navigator.clipboard.writeText(content);
 };
 
-const AccountListing = ({ account }: Props): JSX.Element => {
-  const { address, alias, bip44Path, establishedAddress } = account;
-  const coinType = "0'";
+const AccountListing = ({ account, alias: rootAlias }: Props): JSX.Element => {
+  const { address, alias, path, establishedAddress, type } = account;
+  const navigate = useNavigate();
 
   return (
     <AccountListingContainer>
       <Details>
-        {alias && <Alias>{alias}</Alias>}
+        {alias && (
+          <Alias>
+            {type === KeyStoreType.Mnemonic ? alias : rootAlias + " > " + alias}
+          </Alias>
+        )}
         <DerivationPath>
-          m/44'/{coinType}/{`${bip44Path.account}'`}/{bip44Path.change}/
-          {bip44Path.index}
+          {`/${path.account}'/${path.change}${
+            typeof path.index === "number" ? "/" + path.index : ""
+          }`}
         </DerivationPath>
         <Address>{address}</Address>
         {establishedAddress && <Address>{establishedAddress}</Address>}
       </Details>
       <Buttons>
-        <CopyToClipboard
+        {type === KeyStoreType.Mnemonic && (
+          <Button
+            onClick={() => {
+              navigate(TopLevelRoute.AddAccount);
+            }}
+          >
+            <Icon iconName={IconName.Plus} />
+          </Button>
+        )}
+        <Button
           onClick={() => {
             textToClipboard(address);
           }}
           href="#"
         >
           <Icon iconName={IconName.Copy} />
-        </CopyToClipboard>
+        </Button>
       </Buttons>
     </AccountListingContainer>
   );

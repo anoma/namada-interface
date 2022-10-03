@@ -22,7 +22,7 @@ export type StoredRecord = { id: string };
 export class Store<T extends StoredRecord> implements IStore<T> {
   constructor(public readonly key: string, public readonly store: KVStore) {}
 
-  public async set(state: T[]) {
+  public async set(state: T[]): Promise<void> {
     await this.store.set<T[]>(this.key, state);
   }
 

@@ -1,7 +1,7 @@
 export type Bip44Path = {
   account: number;
   change: number;
-  index: number;
+  index?: number;
 };
 
 export enum KdfTypes {
@@ -25,14 +25,16 @@ export type ScryptParams = KdfParams & {
   p: number;
 };
 
+export enum KeyStoreType {
+  Mnemonic = "mnemonic",
+  PrivateKey = "private-key",
+}
+
 export interface KeyStore<T = Argon2Params> {
   id: string;
-  alias: string;
-  path: Bip44Path;
-  parentId?: string;
-  meta?: {
-    [key: string]: string;
-  };
+  alias?: string;
+  address: string;
+  establishedAddress?: string;
   crypto: {
     cipher: {
       type: "aes-256-gcm";
@@ -44,6 +46,12 @@ export interface KeyStore<T = Argon2Params> {
       params: T;
     };
   };
+  meta?: {
+    [key: string]: string;
+  };
+  path: Bip44Path;
+  parentId?: string;
+  type: KeyStoreType;
 }
 
 export type MnemonicState = {
@@ -56,8 +64,10 @@ export type DerivedAccount = {
   id: string;
   address: string;
   alias?: string;
-  bip44Path: Bip44Path;
   establishedAddress?: string;
+  parentId?: string;
+  path: Bip44Path;
+  type: KeyStoreType;
 };
 
 export type AccountState = DerivedAccount & {

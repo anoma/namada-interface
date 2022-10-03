@@ -4,7 +4,11 @@ import { Button, ButtonVariant, Input, InputVariants } from "@anoma/components";
 
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
-import { DerivedAccount, DeriveAccountMsg } from "background/keyring";
+import {
+  DerivedAccount,
+  DeriveAccountMsg,
+  KeyStoreType,
+} from "background/keyring";
 import {
   AddAccountContainer,
   AddAccountForm,
@@ -37,8 +41,8 @@ const validateAccount = (
   ].join("/");
   let isValid = true;
   accounts.forEach((a: DerivedAccount) => {
-    const { bip44Path } = a;
-    const { account, change, index } = bip44Path;
+    const { path } = a;
+    const { account, change, index } = path;
     const existingPath = [account, change, index].join("/");
 
     if (newPath === existingPath) {
@@ -51,14 +55,15 @@ const validateAccount = (
 
 const findNextIndex = (accounts: DerivedAccount[]): number => {
   let maxIndex = 0;
-  accounts.forEach((account) => {
-    const { index } = account.bip44Path;
-    if (index > maxIndex) {
-      maxIndex = index;
-    }
-  });
 
-  return maxIndex + 1;
+  accounts
+    .filter((account) => account.type !== KeyStoreType.Mnemonic)
+    .forEach((account) => {
+      const { index = 0 } = account.path;
+      maxIndex = index + 1;
+    });
+
+  return maxIndex;
 };
 
 enum Status {
@@ -91,7 +96,7 @@ const AddAccount: React.FC<Props> = ({ accounts, requester, setAccounts }) => {
     }
   }, [account, change, index]);
 
-  const handleAccountAdd = async () => {
+  const handleAccountAdd = async (): Promise<void> => {
     setFormStatus(Status.Pending);
     try {
       const derivedAccount: DerivedAccount =

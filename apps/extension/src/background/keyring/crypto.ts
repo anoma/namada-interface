@@ -1,14 +1,19 @@
 import { AES, Argon2, Argon2Params, ByteSize, Rng, Salt } from "@anoma/crypto";
-import { Bip44Path, KdfTypes, KeyStore } from "./types";
+import { Bip44Path, KdfTypes, KeyStore, KeyStoreType } from "./types";
+
+type CryptoArgs = {
+  alias?: string;
+  address: string;
+  path: Bip44Path;
+  id: string;
+  password: string;
+  text: string;
+  type: KeyStoreType;
+};
 
 export class Crypto {
-  public encrypt(
-    id: string,
-    alias: string,
-    password: string,
-    text: string,
-    bip44Path: Bip44Path
-  ): KeyStore {
+  public encrypt(args: CryptoArgs): KeyStore {
+    const { address, alias, path, id, password, text, type } = args;
     const salt = Salt.generate().as_string();
     const argon2 = new Argon2(password, salt);
     const { params, key } = argon2.to_serialized();
@@ -19,8 +24,9 @@ export class Crypto {
 
     return {
       alias,
+      address,
       id,
-      path: bip44Path,
+      path,
       crypto: {
         cipher: {
           type: "aes-256-gcm",
@@ -32,6 +38,7 @@ export class Crypto {
           params: { ...params, salt },
         },
       },
+      type,
     };
   }
 

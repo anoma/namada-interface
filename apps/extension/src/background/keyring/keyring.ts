@@ -1,9 +1,11 @@
-import { KVStore } from "@anoma/storage";
-import { AEAD, HDWallet, Mnemonic, PhraseSize } from "@anoma/crypto";
-import { Address } from "@anoma/shared";
-import { KeyRingStatus, MnemonicState, AccountState } from "./types";
 import { v5 as uuid } from "uuid";
+
+import { KVStore } from "@anoma/storage";
+import { HDWallet, Mnemonic, PhraseSize } from "@anoma/crypto";
+import { Address } from "@anoma/shared";
+import { KeyRingStatus, KeyStore, KeyStoreType } from "./types";
 import { Bip44Path, DerivedAccount } from "./types";
+import { Crypto } from "./crypto";
 
 import { IStore, Store } from "../types";
 
@@ -25,23 +27,19 @@ const getId = (name: string, ...args: (number | string)[]): string => {
   return uuid(uuidName, UUID_NAMESPACE);
 };
 
-enum KeyRingStore {
-  Mnemonic = "mnemonic",
-  Account = "account",
-}
+const KEYSTORE_KEY = "key-store";
+const crypto = new Crypto();
 
 /**
  * Keyring stores keys in persisted backround.
  */
 export class KeyRing {
-  private _mnemonicStore: IStore<MnemonicState>;
-  private _accountStore: IStore<AccountState>;
+  private _keyStore: IStore<KeyStore>;
   private _password: string | undefined;
   private _status: KeyRingStatus = KeyRingStatus.EMPTY;
 
   constructor(kvStore: KVStore) {
-    this._mnemonicStore = new Store(KeyRingStore.Mnemonic, kvStore);
-    this._accountStore = new Store(KeyRingStore.Account, kvStore);
+    this._keyStore = new Store(KEYSTORE_KEY, kvStore);
   }
 
   public isLocked(): boolean {
@@ -52,12 +50,12 @@ export class KeyRing {
     return this._status;
   }
 
-  public async lock() {
+  public lock(): void {
     this._status = KeyRingStatus.LOCKED;
     this._password = undefined;
   }
 
-  public async unlock(password: string) {
+  public async unlock(password: string): Promise<void> {
     if (await this.checkPassword(password)) {
       this._password = password;
       this._status = KeyRingStatus.UNLOCKED;
@@ -65,14 +63,13 @@ export class KeyRing {
   }
 
   public async checkPassword(password: string): Promise<boolean> {
-    const mnemonics = await this._mnemonicStore.get();
+    const mnemonics = await this._keyStore.get();
 
     // Note: We may support multiple top-level mnemonic seeds in the future,
     // hence why we're storing these in an array. For now, we check for only one:
     if (mnemonics && mnemonics[0]) {
-      const { phrase } = mnemonics[0];
       try {
-        AEAD.decrypt(phrase, password);
+        crypto.decrypt(mnemonics[0], password);
         return true;
       } catch (error) {
         console.warn(error);
@@ -105,13 +102,28 @@ export class KeyRing {
     const phrase = mnemonic.join(" ");
 
     try {
-      Mnemonic.validate(phrase);
-      const encrypted = AEAD.encrypt(phrase, password);
-      await this._mnemonicStore.append({
-        id: getId(phrase, (await this._mnemonicStore.get()).length),
+      const mnemonic = Mnemonic.from_phrase(phrase);
+      const seed = mnemonic.to_seed();
+      // TODO: coinType should match our registered SLIP-0044 type:
+      const coinType = 0;
+      const path = `m/44'/${coinType}'/0'/0`;
+      const bip44 = new HDWallet(seed);
+      const account = bip44.derive(path);
+      const address = new Address(account.private().to_hex()).implicit();
+
+      const mnemonicStore = crypto.encrypt({
+        id: getId(phrase, (await this._keyStore.get()).length),
         alias,
-        phrase: encrypted,
+        address,
+        password,
+        path: {
+          account: 0,
+          change: 0,
+        },
+        text: phrase,
+        type: KeyStoreType.Mnemonic,
       });
+      await this._keyStore.append(mnemonicStore);
 
       this._password = password;
       return true;
@@ -129,28 +141,25 @@ export class KeyRing {
       throw new Error("No password is set!");
     }
 
-    const mnemonics = await this._mnemonicStore.get();
+    const mnemonics = await this._keyStore.get();
 
     if (!(mnemonics.length > 0)) {
       throw new Error("No mnemonics have been stored!");
     }
 
     // TODO: For now, we are assuming only one mnemonic is used, but in the future
-    // will want to have multiple top-level accounts:
+    // we may want to have multiple top-level accounts:
     const storedMnemonic = mnemonics[0];
-    // NOTE: This is hardcoded to 0, but when we have multiple mnemonics, we'll want an
-    // indicator to set an ID by mnemonic index, account, change, index so each ID will
-    // be a unique value:
-    const storedMnemonicIndex = 0;
 
     if (!storedMnemonic) {
       throw new Error("Mnemonic is not set!");
     }
 
     try {
-      const phrase = AEAD.decrypt(storedMnemonic.phrase, this._password);
+      const phraseBytes = crypto.decrypt(storedMnemonic, this._password);
+      const phrase = new TextDecoder().decode(phraseBytes);
       // TODO: Validate derivation path against stored paths under this mnemonic!
-      const { account, change, index } = path;
+      const { account, change, index = 0 } = path;
       const root = "m/44'";
       // TODO: This should be defined for our chain (SLIP044)
       const coinType = "0'";
@@ -161,33 +170,29 @@ export class KeyRing {
       const seed = mnemonic.to_seed();
       const bip44 = new HDWallet(seed);
       const derivedAccount = bip44.derive(derivationPath);
-      const privateKey = AEAD.encrypt_from_bytes(
-        derivedAccount.private().to_bytes(),
-        this._password
-      );
-      const publicKey = AEAD.encrypt_from_bytes(
-        derivedAccount.public().to_bytes(),
-        this._password
-      );
+
       const address = new Address(derivedAccount.private().to_hex()).implicit();
+      const id = getId("account", storedMnemonic.id, account, change, index);
+      const type = KeyStoreType.PrivateKey;
 
-      const id = getId("account", storedMnemonicIndex, account, change, index);
-
-      this._accountStore.append({
-        id,
-        address,
+      const keyStore = crypto.encrypt({
         alias,
-        bip44Path: path,
-        parentId: storedMnemonic.id,
-        private: privateKey,
-        public: publicKey,
+        address,
+        id,
+        password: this._password,
+        path,
+        text: derivedAccount.private().to_hex(),
+        type,
       });
+      this._keyStore.append(keyStore);
 
       return {
         id,
         address,
         alias,
-        bip44Path: path,
+        parentId: storedMnemonic.id,
+        path,
+        type,
       };
     } catch (e) {
       console.error(e);
@@ -197,13 +202,17 @@ export class KeyRing {
 
   public async queryAccounts(): Promise<DerivedAccount[]> {
     // Query accounts from storage
-    const accounts = (await this._accountStore.get()) || [];
-
-    return accounts.map(({ address, alias, bip44Path, id }) => ({
-      id,
-      address,
-      bip44Path,
-      alias,
-    }));
+    const accounts = (await this._keyStore.get()) || [];
+    return accounts.map(
+      ({ address, alias, establishedAddress, path, parentId, id, type }) => ({
+        address,
+        alias,
+        establishedAddress,
+        id,
+        parentId,
+        path,
+        type,
+      })
+    );
   }
 }

@@ -34,7 +34,7 @@ export const Address = styled.div``;
 
 export const Alias = styled.div``;
 
-export const CopyToClipboard = styled.a`
+export const Button = styled.a`
   text-decoration: underline;
   padding: 5px;
   transition: "1 sec";
