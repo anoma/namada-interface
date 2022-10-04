@@ -1,6 +1,15 @@
-import { TransferMsgSchema, TransferMsgValue } from "../schema";
+import {
+  AccountMsgValue,
+  AccountMsgSchema,
+  TransferMsgSchema,
+  TransferMsgValue,
+  IbcTransferMsgSchema,
+  IbcTransferMsgValue,
+  TransactionMsgSchema,
+  TransactionMsgValue,
+} from "../schema";
 import { ClassType, Message } from "../messages";
-import { Address, Account, IbcTransfer, Transfer } from "../shared/shared";
+import { Address, Account, Transfer, IbcTransfer } from "../shared/shared";
 
 const source =
   "atest1v4ehgw368ycryv2z8qcnxv3cxgmrgvjpxs6yg333gym5vv2zxepnj334g4rryvj9xucrgve4x3xvr4";
@@ -13,12 +22,28 @@ const token =
 const epoch = 5;
 const feeAmount = 1000;
 const gasLimit = 1_000_000;
-const amount = 100;
+const amount = 123.123;
 
 // Empty validity predicate code
 const vpCode = new Uint8Array([]);
 // Empty transaction code
 const txCode = new Uint8Array([]);
+
+// Transaction Message
+const txMessage = new Message<
+  TransactionMsgValue,
+  ClassType<TransactionMsgValue>
+>();
+
+// Transaction Message Value
+const txMessageValue = new TransactionMsgValue({
+  secret,
+  token,
+  epoch,
+  fee_amount: feeAmount,
+  gas_limit: gasLimit,
+  tx_code: txCode,
+});
 
 const HASH_LENGTH = 64;
 
@@ -50,14 +75,21 @@ describe("Address", () => {
 
 describe("Account", () => {
   test("It should create valid hash and bytes", () => {
-    const account = new Account(secret, vpCode);
-    const { hash, bytes } = account.to_tx(
+    const accountMsgValue = new AccountMsgValue({
       secret,
-      token,
-      epoch,
-      feeAmount,
-      gasLimit,
-      txCode
+      vp_code: vpCode,
+    });
+
+    const accountMessage = new Message<
+      AccountMsgValue,
+      ClassType<AccountMsgValue>
+    >();
+
+    const encoded = accountMessage.encode(AccountMsgSchema, accountMsgValue);
+
+    const account = new Account(encoded);
+    const { hash, bytes } = account.to_tx(
+      txMessage.encode(TransactionMsgSchema, txMessageValue)
     );
 
     expect(hash.length).toEqual(HASH_LENGTH);
@@ -70,26 +102,32 @@ describe("IbcTransfer", () => {
   test("It should create valid hash and bytes", () => {
     const port = "transfer";
     const channel = "channel-0";
-
-    const ibcTransfer = new IbcTransfer(
-      port,
-      channel,
+    const ibcTransferMsgValue = new IbcTransferMsgValue({
+      source_port: port,
+      source_channel: channel,
       token,
-      source,
-      target,
-      amount
+      sender: source,
+      receiver: target,
+      amount,
+    });
+
+    const ibcTransferMessage = new Message<
+      IbcTransferMsgValue,
+      ClassType<IbcTransferMsgValue>
+    >();
+
+    const encoded = ibcTransferMessage.encode(
+      IbcTransferMsgSchema,
+      ibcTransferMsgValue
     );
+    const ibcTransfer = new IbcTransfer(encoded);
     const { hash, bytes } = ibcTransfer.to_tx(
-      secret,
-      epoch,
-      feeAmount,
-      gasLimit,
-      txCode
+      txMessage.encode(TransactionMsgSchema, txMessageValue)
     );
 
     expect(hash.length).toEqual(HASH_LENGTH);
     // Assert that we get a byte array of the expected size
-    expect(bytes.length).toEqual(797);
+    expect(bytes.length).toEqual(842);
   });
 });
 
@@ -102,19 +140,15 @@ describe("Transfer", () => {
       amount,
     });
 
-    const message = new Message<
+    const transferMessage = new Message<
       TransferMsgValue,
       ClassType<TransferMsgValue>
     >();
 
-    const encoded = message.encode(TransferMsgSchema, transferMsgValue);
+    const encoded = transferMessage.encode(TransferMsgSchema, transferMsgValue);
     const transfer = new Transfer(encoded);
     const { hash, bytes } = transfer.to_tx(
-      secret,
-      epoch,
-      feeAmount,
-      gasLimit,
-      txCode
+      txMessage.encode(TransactionMsgSchema, txMessageValue)
     );
 
     expect(hash.length).toEqual(HASH_LENGTH);

@@ -1,6 +1,5 @@
 use crate::types::transaction::Transaction;
 use crate::utils;
-
 use namada::ibc::{
     applications::ics20_fungible_token_transfer::msgs::transfer::MsgTransfer,
     core::{
@@ -124,7 +123,6 @@ mod tests {
         let transaction_msg = TransactionMsg::new(secret, token, epoch, fee_amount, gas_limit, tx_code);
         let transaction_msg_serialized = BorshSerialize::try_to_vec(&transaction_msg)
             .expect("Message should serialize");
-
 
         let transaction = ibc_transfer.to_tx(transaction_msg_serialized)
             .expect("Should be able to convert to transaction");
