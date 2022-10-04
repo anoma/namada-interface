@@ -1,5 +1,5 @@
 import styled from "styled-components/macro";
-import { DesignConfiguration } from "utils/theme";
+import { ColorMode, DesignConfiguration } from "utils/theme";
 
 enum ComponentColor {
   NavItem,
@@ -9,11 +9,18 @@ const getColor = (
   color: ComponentColor,
   theme: DesignConfiguration
 ): string => {
-  const isDark = theme.themeConfigurations.isLightMode;
-  switch (color) {
-    case ComponentColor.NavItem:
-      return isDark ? theme.colors.primary.main : theme.colors.secondary.main;
-  }
+  const { colorMode } = theme.themeConfigurations;
+
+  const colorMap: Record<ColorMode, Record<ComponentColor, string>> = {
+    light: {
+      [ComponentColor.NavItem]: theme.colors.secondary.main,
+    },
+    dark: {
+      [ComponentColor.NavItem]: theme.colors.primary.main,
+    },
+  };
+
+  return colorMap[colorMode][color];
 };
 
 export const TopNavigationLoggedInContainer = styled.div`

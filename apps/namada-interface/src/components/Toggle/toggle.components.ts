@@ -18,15 +18,15 @@ const getColor = (
 ): string => {
   const { colorMode } = theme.themeConfigurations;
 
-  const colorMap: Record<ColorMode, Record<ComponentColor, string>>  = {
-    "light": {
+  const colorMap: Record<ColorMode, Record<ComponentColor, string>> = {
+    light: {
       [ComponentColor.CircleBackground]: theme.colors.secondary.main,
-      [ComponentColor.ToggleBackground]: theme.colors.utility1.main20
+      [ComponentColor.ToggleBackground]: theme.colors.utility1.main20,
     },
-    "dark": {
+    dark: {
       [ComponentColor.CircleBackground]: theme.colors.primary.main,
-      [ComponentColor.ToggleBackground]: theme.colors.utility1.main60
-    }
+      [ComponentColor.ToggleBackground]: theme.colors.utility1.main60,
+    },
   };
 
   return colorMap[colorMode][toggleColor];
