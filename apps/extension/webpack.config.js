@@ -53,8 +53,8 @@ module.exports = {
   entry: {
     content: "./src/content",
     background: "./src/background",
-    popup: "./src/popup",
-    setup: "./src/setup",
+    popup: "./src/App",
+    setup: "./src/Setup",
     injected: "./src/content/injected.ts",
   },
   output: {
