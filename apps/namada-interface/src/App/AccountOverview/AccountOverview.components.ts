@@ -1,5 +1,5 @@
 import styled from "styled-components/macro";
-import { DesignConfiguration } from "utils/theme";
+import { DesignConfiguration, ColorMode } from "utils/theme";
 
 enum ComponentColor {
   TabLabelActive,
@@ -7,19 +7,25 @@ enum ComponentColor {
 }
 
 const getColor = (
-  color: ComponentColor,
+  toggleColor: ComponentColor,
   theme: DesignConfiguration
 ): string => {
-  const isDark = theme.themeConfigurations.isLightMode;
-  switch (color) {
-    case ComponentColor.TabLabelActive:
-      return isDark ? theme.colors.primary.main : theme.colors.secondary.main;
-    case ComponentColor.BackgroundActive:
-      return isDark
-        ? theme.colors.utility1.main80
-        : theme.colors.utility3.white;
-  }
+  const { colorMode } = theme.themeConfigurations;
+
+  const colorMap: Record<ColorMode, Record<ComponentColor, string>> = {
+    light: {
+      [ComponentColor.TabLabelActive]: theme.colors.secondary.main,
+      [ComponentColor.BackgroundActive]: theme.colors.utility3.white,
+    },
+    dark: {
+      [ComponentColor.TabLabelActive]: theme.colors.primary.main,
+      [ComponentColor.BackgroundActive]: theme.colors.utility1.main80,
+    },
+  };
+
+  return colorMap[colorMode][toggleColor];
 };
+
 export const AccountOverviewContainer = styled.div`
   flex-direction: column;
   justify-content: start;

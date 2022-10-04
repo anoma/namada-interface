@@ -2,21 +2,28 @@ import styled, {
   css,
   FlattenSimpleInterpolation,
 } from "styled-components/macro";
-import { DesignConfiguration } from "utils/theme";
+import { ColorMode, DesignConfiguration } from "utils/theme";
 
 enum ComponentColor {
   Logo,
 }
 
 const getColor = (
-  color: ComponentColor,
+  toggleColor: ComponentColor,
   theme: DesignConfiguration
 ): string => {
-  const isDark = theme.themeConfigurations.isLightMode;
-  switch (color) {
-    case ComponentColor.Logo:
-      return isDark ? theme.colors.primary.main : theme.colors.utility2.main;
-  }
+  const { colorMode } = theme.themeConfigurations;
+
+  const colorMap: Record<ColorMode, Record<ComponentColor, string>> = {
+    light: {
+      [ComponentColor.Logo]: theme.colors.utility2.main,
+    },
+    dark: {
+      [ComponentColor.Logo]: theme.colors.primary.main,
+    },
+  };
+
+  return colorMap[colorMode][toggleColor];
 };
 
 export const TopNavigationContainer = styled.div`

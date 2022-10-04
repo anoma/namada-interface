@@ -1,19 +1,26 @@
 import styled from "styled-components/macro";
-import { DesignConfiguration } from "utils/theme";
+import { ColorMode, DesignConfiguration } from "utils/theme";
 
 enum ComponentColor {
   ScrollbarThumb,
 }
 
 const getColor = (
-  color: ComponentColor,
+  toggleColor: ComponentColor,
   theme: DesignConfiguration
 ): string => {
-  const isDark = theme.themeConfigurations.isLightMode;
-  switch (color) {
-    case ComponentColor.ScrollbarThumb:
-      return isDark ? theme.colors.primary.main : theme.colors.secondary.main;
-  }
+  const { colorMode } = theme.themeConfigurations;
+
+  const colorMap: Record<ColorMode, Record<ComponentColor, string>> = {
+    light: {
+      [ComponentColor.ScrollbarThumb]: theme.colors.secondary.main,
+    },
+    dark: {
+      [ComponentColor.ScrollbarThumb]: theme.colors.primary.main,
+    },
+  };
+
+  return colorMap[colorMode][toggleColor];
 };
 
 export const ThemedScrollbarContainer = styled.div`

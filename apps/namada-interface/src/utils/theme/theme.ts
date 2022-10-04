@@ -103,7 +103,6 @@ export type DesignConfiguration = {
   typography: Typography;
   themeConfigurations: {
     colorMode: ColorMode;
-    isLightMode?: boolean;
     themeName: ThemeName;
   };
 };
@@ -353,8 +352,6 @@ export const getTheme = (
   colorMode: ColorMode,
   shouldUsePlaceholderTheme?: boolean
 ): DesignConfiguration => {
-  const isLightMode = colorMode === "dark";
-
   if (shouldUsePlaceholderTheme) {
     const placeholderTheme: DesignConfiguration = {
       colors: placeholderThemeColors,
@@ -363,7 +360,6 @@ export const getTheme = (
       typography: namadaTypography,
       themeConfigurations: {
         colorMode,
-        isLightMode,
         themeName: ThemeName.Placeholder,
       },
     };
@@ -371,13 +367,12 @@ export const getTheme = (
   }
 
   const namadaTheme: DesignConfiguration = {
-    colors: isLightMode ? namadaDarkColors : namadaLightColors,
+    colors: colorMode === "dark" ? namadaDarkColors : namadaLightColors,
     spacers: namadaSpacers,
     borderRadius: namadaBorderRadius,
     typography: namadaTypography,
     themeConfigurations: {
       colorMode,
-      isLightMode,
       themeName: ThemeName.Namada,
     },
   };

@@ -1,5 +1,5 @@
 import styled from "styled-components/macro";
-import { DesignConfiguration } from "utils/theme";
+import { ColorMode, DesignConfiguration } from "utils/theme";
 
 enum ComponentColor {
   TabBackgroundColorActive,
@@ -7,18 +7,23 @@ enum ComponentColor {
 }
 
 const getColor = (
-  color: ComponentColor,
+  toggleColor: ComponentColor,
   theme: DesignConfiguration
 ): string => {
-  const isDark = theme.themeConfigurations.isLightMode;
-  switch (color) {
-    case ComponentColor.TabBackgroundColorActive:
-      return isDark ? theme.colors.utility1.main80 : theme.colors.utility1.main;
-    case ComponentColor.TabBackgroundColor:
-      return isDark
-        ? theme.colors.utility1.main70
-        : theme.colors.utility1.main40;
-  }
+  const { colorMode } = theme.themeConfigurations;
+
+  const colorMap: Record<ColorMode, Record<ComponentColor, string>> = {
+    light: {
+      [ComponentColor.TabBackgroundColor]: theme.colors.utility1.main40,
+      [ComponentColor.TabBackgroundColorActive]: theme.colors.utility1.main,
+    },
+    dark: {
+      [ComponentColor.TabBackgroundColor]: theme.colors.utility1.main70,
+      [ComponentColor.TabBackgroundColorActive]: theme.colors.utility1.main80,
+    },
+  };
+
+  return colorMap[colorMode][toggleColor];
 };
 
 export const TokenSendContainer = styled.div`

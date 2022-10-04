@@ -10,7 +10,9 @@ export const AccountCreationContainer = styled.div`
   background-color: ${(props) => props.theme.colors.utility1.main80};
   color: ${(props) => props.theme.colors.utility2.main80};
   padding: ${(props) =>
-    props.theme.themeConfigurations.isLightMode ? "0 32px" : "4px 36px 0 32px"};
+    props.theme.themeConfigurations.colorMode == "light"
+      ? "0 32px"
+      : "4px 36px 0 32px"};
   height: 100%;
   width: 480px;
   transition: background-color 0.3s linear;

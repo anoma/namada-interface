@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { ComponentType, useContext } from "react";
 import { ThemeContext } from "styled-components/macro";
 
 import { ReactComponent as LogoDark } from "./assets/logo-dark.svg";
@@ -9,8 +9,8 @@ import { ReactComponent as SuccessImageDark } from "./assets/success-image.svg";
 import { ReactComponent as SuccessImageLight } from "./assets/success-image.svg";
 
 import { ImageName } from "./types";
-import { ComponentType } from "react";
 import { ImageContainer, StyledImage } from "./image.components";
+import { ColorMode } from "utils/theme";
 
 export interface ImageProps {
   imageName: ImageName;
@@ -36,9 +36,10 @@ const imagesLight: Record<ImageName, ComponentType> = {
 // gives the images based on color mode
 const getImageByTypeAndMode = (
   imageName: ImageName,
-  isLightMode: boolean
+  colorMode: ColorMode,
+  forceLightMode: boolean
 ): ComponentType => {
-  if (isLightMode) {
+  if (colorMode == "light" || forceLightMode) {
     return imagesLight[imageName];
   }
   return imagesDark[imageName];
@@ -54,10 +55,11 @@ const getImageByTypeAndMode = (
 export const Image = (props: ImageProps): JSX.Element => {
   const { imageName, styleOverrides = {}, forceLightMode = false } = props;
   const themeContext = useContext(ThemeContext);
-  const { isLightMode } = themeContext.themeConfigurations;
+  const { colorMode } = themeContext.themeConfigurations;
   const ImageByType = getImageByTypeAndMode(
     imageName,
-    isLightMode || forceLightMode
+    colorMode,
+    forceLightMode
   );
 
   return (
