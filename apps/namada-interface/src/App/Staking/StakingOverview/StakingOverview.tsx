@@ -5,27 +5,25 @@ import {
   TableDimmedCell,
   TableConfigurations,
 } from "components/Table";
-
-import { myBalancesData, myValidatorData } from "./fakeData";
 import {
-  MyBalanceRow,
+  MyBalanceEntry,
   Validator,
-  MyStaking,
+  MyValidators,
 } from "slices/StakingAndGovernance";
 
 // My Balances table row renderer and configuration
-const myBalancesRowRenderer = (myBalanceRow: MyBalanceRow): JSX.Element => {
+const myBalancesRowRenderer = (myBalanceEntry: MyBalanceEntry): JSX.Element => {
   return (
     <>
-      <td>{myBalanceRow.key}</td>
-      <td>{myBalanceRow.baseCurrency}</td>
+      <td>{myBalanceEntry.key}</td>
+      <td>{myBalanceEntry.baseCurrency}</td>
       <td>
-        <TableDimmedCell>{myBalanceRow.fiatCurrency}</TableDimmedCell>
+        <TableDimmedCell>{myBalanceEntry.fiatCurrency}</TableDimmedCell>
       </td>
     </>
   );
 };
-const myBalancesConfigurations: TableConfigurations<MyBalanceRow, never> = {
+const myBalancesConfigurations: TableConfigurations<MyBalanceEntry, never> = {
   title: "My Balances",
   rowRenderer: myBalancesRowRenderer,
   columns: [
@@ -36,7 +34,7 @@ const myBalancesConfigurations: TableConfigurations<MyBalanceRow, never> = {
 };
 
 const MyValidatorsRowRenderer = (
-  myValidatorRow: MyStaking,
+  myValidatorRow: MyValidators,
   callbacks?: ValidatorsCallbacks
 ): JSX.Element => {
   return (
@@ -44,7 +42,7 @@ const MyValidatorsRowRenderer = (
       <td>
         <TableLink
           onClick={() => {
-            const formattedValidatorName = myValidatorRow.name
+            const formattedValidatorName = myValidatorRow.validator.name
               .replace(" ", "-")
               .toLowerCase();
 
@@ -56,7 +54,7 @@ const MyValidatorsRowRenderer = (
             callbacks && callbacks.onClickValidator(formattedValidatorName);
           }}
         >
-          {myValidatorRow.name}
+          {myValidatorRow.validator.name}
         </TableLink>
       </td>
       <td>{myValidatorRow.stakingStatus}</td>
@@ -67,7 +65,7 @@ const MyValidatorsRowRenderer = (
 
 const getMyValidatorsConfiguration = (
   navigateToValidatorDetails: (validatorId: string) => void
-): TableConfigurations<MyStaking, ValidatorsCallbacks> => {
+): TableConfigurations<MyValidators, ValidatorsCallbacks> => {
   return {
     title: "My Validators",
     rowRenderer: MyValidatorsRowRenderer,
@@ -134,12 +132,14 @@ const getAllValidatorsConfiguration = (
 
 type Props = {
   navigateToValidatorDetails: (validatorId: string) => void;
+  myBalances: MyBalanceEntry[];
   validators: Validator[];
-  ownValidators: Validator[];
+  myValidators: MyValidators[];
 };
 
 export const StakingOverview = (props: Props): JSX.Element => {
-  const { navigateToValidatorDetails, validators } = props;
+  const { navigateToValidatorDetails, myBalances, validators, myValidators } =
+    props;
 
   // we get the configurations for 2 tables that contain callbacks
   const myValidatorsConfiguration = getMyValidatorsConfiguration(
@@ -154,14 +154,15 @@ export const StakingOverview = (props: Props): JSX.Element => {
       {/* my balances */}
       <Table
         title="My Balances"
-        data={myBalancesData}
+        data={myBalances}
         tableConfigurations={myBalancesConfigurations}
       />
 
       {/* my validators */}
       <Table
         title="My Validators"
-        data={myValidatorData}
+        // data={myValidatorData}
+        data={myValidators}
         tableConfigurations={myValidatorsConfiguration}
       />
 

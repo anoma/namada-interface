@@ -5,7 +5,11 @@ import { StakingContainer } from "./Staking.components";
 import { StakingOverview } from "./StakingOverview";
 import { ValidatorDetails } from "./ValidatorDetails";
 import { TopLevelRoute, StakingAndGovernanceSubRoute } from "App/types";
-import { Validator } from "slices/StakingAndGovernance";
+import {
+  MyBalanceEntry,
+  Validator,
+  MyValidators,
+} from "slices/StakingAndGovernance";
 
 const initialTitle = "Staking";
 
@@ -38,8 +42,11 @@ const validatorNameFromUrl = (path: string): string | undefined => {
 };
 
 type Props = {
+  myBalances: MyBalanceEntry[];
   validators: Validator[];
+  myValidators: MyValidators[];
   selectedValidator: string | undefined;
+  fetchMyBalances: () => void;
   fetchValidators: () => void;
   fetchValidatorDetails: (validatorId: string) => void;
 };
@@ -50,7 +57,14 @@ export const Staking = (props: Props): JSX.Element => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { fetchValidators, fetchValidatorDetails, validators } = props;
+  const {
+    fetchMyBalances,
+    fetchValidators,
+    fetchValidatorDetails,
+    myBalances,
+    validators,
+    myValidators,
+  } = props;
 
   // this is just so we can se the title/breadcrumb
   // in real case we do this cleanly in a callback that
@@ -70,6 +84,7 @@ export const Staking = (props: Props): JSX.Element => {
   });
 
   useEffect(() => {
+    fetchMyBalances();
     fetchValidators();
   }, []);
 
@@ -110,7 +125,8 @@ export const Staking = (props: Props): JSX.Element => {
           element={
             <StakingOverview
               navigateToValidatorDetails={navigateToValidatorDetails}
-              ownValidators={[]}
+              myBalances={myBalances}
+              myValidators={myValidators}
               validators={validators}
             />
           }
