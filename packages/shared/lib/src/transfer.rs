@@ -11,7 +11,8 @@ use wasm_bindgen::prelude::*;
 #[derive(BorshSerialize, BorshDeserialize)]
 pub struct TransferMsg {
     source: String,
-    target: String, token: String,
+    target: String,
+    token: String,
     amount: f32,
 }
 
