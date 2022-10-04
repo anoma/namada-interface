@@ -35,7 +35,7 @@ import { SettingsState } from "slices/settings";
 import { Icon, IconName } from "components/Icon";
 import { useNavigate } from "react-router-dom";
 import { TopLevelRoute } from "App/types";
-import { DesignConfiguration } from "utils/theme";
+import { ColorMode, DesignConfiguration } from "utils/theme";
 
 enum ComponentColor {
   GasButtonBorder,
@@ -46,13 +46,20 @@ const getColor = (
   color: ComponentColor,
   theme: DesignConfiguration
 ): string => {
-  const isDark = theme.themeConfigurations.isLightMode;
-  switch (color) {
-    case ComponentColor.GasButtonBorder:
-      return isDark ? theme.colors.primary.main : theme.colors.secondary.main;
-    case ComponentColor.GasButtonBorderActive:
-      return isDark ? theme.colors.primary.main : theme.colors.secondary.main;
-  }
+  const { colorMode } = theme.themeConfigurations;
+
+  const colorMap: Record<ColorMode, Record<ComponentColor, string>> = {
+    light: {
+      [ComponentColor.GasButtonBorder]: theme.colors.secondary.main,
+      [ComponentColor.GasButtonBorderActive]: theme.colors.secondary.main,
+    },
+    dark: {
+      [ComponentColor.GasButtonBorder]: theme.colors.primary.main,
+      [ComponentColor.GasButtonBorderActive]: theme.colors.secondary.main,
+    },
+  };
+
+  return colorMap[colorMode][color];
 };
 
 type Props = {
