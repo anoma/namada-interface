@@ -101,7 +101,11 @@ export type DesignConfiguration = {
   spacers: Spacers;
   borderRadius: BorderRadius;
   typography: Typography;
-  themeConfigurations: { isLightMode?: boolean; themeName: ThemeName };
+  themeConfigurations: {
+    colorMode: ColorMode;
+    isLightMode?: boolean;
+    themeName: ThemeName;
+  };
 };
 
 // NAMADA
@@ -345,21 +349,23 @@ export const storeColorMode = (mode: ColorMode): void => {
   localStorage.setItem(LocalStorageKeys.ColorMode, mode);
 };
 
-export type ThemeConfigurations = {
-  isLightMode: boolean;
-};
-
 export const getTheme = (
-  isLightMode: boolean,
+  colorMode: ColorMode,
   shouldUsePlaceholderTheme?: boolean
 ): DesignConfiguration => {
+  const isLightMode = colorMode === "dark";
+
   if (shouldUsePlaceholderTheme) {
     const placeholderTheme: DesignConfiguration = {
       colors: placeholderThemeColors,
       spacers: namadaSpacers,
       borderRadius: placeholderBorderRadius,
       typography: namadaTypography,
-      themeConfigurations: { isLightMode, themeName: ThemeName.Placeholder },
+      themeConfigurations: {
+        colorMode,
+        isLightMode,
+        themeName: ThemeName.Placeholder,
+      },
     };
     return placeholderTheme;
   }
@@ -369,11 +375,11 @@ export const getTheme = (
     spacers: namadaSpacers,
     borderRadius: namadaBorderRadius,
     typography: namadaTypography,
-    themeConfigurations: { isLightMode, themeName: ThemeName.Namada },
+    themeConfigurations: {
+      colorMode,
+      isLightMode,
+      themeName: ThemeName.Namada,
+    },
   };
   return namadaTheme;
-};
-
-export type Theme = {
-  themeConfigurations: ThemeConfigurations;
 };
