@@ -18,18 +18,18 @@ const SEED_LENGTH = 64;
 
 describe("Mnemonic", () => {
   test("It should return the correct number of words", () => {
-    let mnemonic = new Mnemonic(PhraseSize.Twelve);
+    let mnemonic = new Mnemonic(PhraseSize.N12);
     let words = mnemonic?.to_words();
     expect(words.length).toBe(12);
 
-    mnemonic = new Mnemonic(PhraseSize.TwentyFour);
+    mnemonic = new Mnemonic(PhraseSize.N12);
     words = mnemonic.to_words();
 
     expect(words.length).toBe(24);
   });
 
   test("It should return a seed with a valid length", () => {
-    const mnemonic = new Mnemonic(PhraseSize.Twelve);
+    const mnemonic = new Mnemonic(PhraseSize.N12);
     const seed = mnemonic.to_seed();
 
     expect(seed.length).toBe(SEED_LENGTH);
@@ -38,7 +38,7 @@ describe("Mnemonic", () => {
 
 describe("HDWallet", () => {
   test("It should derive unique keys from a seed and a path", () => {
-    const m = new Mnemonic(PhraseSize.Twelve);
+    const m = new Mnemonic(PhraseSize.N12);
     const seed = m.to_seed();
     const b = new HDWallet(seed);
 

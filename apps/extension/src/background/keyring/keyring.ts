@@ -81,7 +81,7 @@ export class KeyRing {
 
   // Return new mnemonic to client for validation
   public async generateMnemonic(
-    size: PhraseSize = PhraseSize.Twelve
+    size: PhraseSize = PhraseSize.N12
   ): Promise<string[]> {
     const mnemonic = new Mnemonic(size);
     const words = mnemonic.to_words();

@@ -1,5 +1,5 @@
 import { AES, Argon2, Argon2Params, ByteSize, Rng, Salt } from "@anoma/crypto";
-import { Bip44Path, KdfTypes, KeyStore, KeyStoreType } from "./types";
+import { Bip44Path, KdfType, KeyStore, KeyStoreType } from "./types";
 
 type CryptoArgs = {
   alias?: string;
@@ -35,7 +35,7 @@ export class Crypto {
           text: encrypted,
         },
         kdf: {
-          type: KdfTypes.Argon2,
+          type: KdfType.Argon2,
           params: { ...params, salt },
         },
       },

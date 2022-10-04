@@ -4,7 +4,7 @@ export type Bip44Path = {
   index?: number;
 };
 
-export enum KdfTypes {
+export enum KdfType {
   Argon2 = "argon2",
   Scrypt = "scrypt",
 }
@@ -42,7 +42,7 @@ export interface KeyStore<T = Argon2Params> {
       text: Uint8Array;
     };
     kdf: {
-      type: KdfTypes;
+      type: KdfType;
       params: T;
     };
   };

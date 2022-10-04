@@ -14,16 +14,18 @@ import { DerivedAccount, KeyStoreType } from "background/keyring";
 import { TopLevelRoute } from "App/types";
 
 type Props = {
+  // The parent Bip44 "account"
   parent?: number;
+  // The child account
   account: DerivedAccount;
-  alias: string;
+  parentAlias: string;
 };
 
 const textToClipboard = (content: string): void => {
   navigator.clipboard.writeText(content);
 };
 
-const AccountListing = ({ account, alias: rootAlias }: Props): JSX.Element => {
+const AccountListing = ({ account, parentAlias }: Props): JSX.Element => {
   const { address, alias, path, establishedAddress, type } = account;
   const navigate = useNavigate();
 
@@ -32,7 +34,7 @@ const AccountListing = ({ account, alias: rootAlias }: Props): JSX.Element => {
       <Details>
         <DerivationPath>
           {type !== KeyStoreType.Mnemonic &&
-            `${rootAlias} /${path.account}'/${path.change}${
+            `${parentAlias} /${path.account}'/${path.change}${
               typeof path.index === "number" ? "/" + path.index : ""
             }`}
         </DerivationPath>

@@ -63,7 +63,8 @@ mod tests {
     fn can_encrypt_and_decrypt() {
         let key = Rng::generate_bytes(Some(ByteSize::N32))
             .expect("Generating random bytes should not fail");
-        let iv = Vec::from("123456789123".as_bytes());
+        let iv = Rng::generate_bytes(Some(ByteSize::N12))
+            .expect("Generating random bytes should not fail");
         let aes = AES::new(key, iv).unwrap();
         let plaintext = "my secret message";
         let encrypted = aes.encrypt(plaintext)

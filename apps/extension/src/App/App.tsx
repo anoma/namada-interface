@@ -86,7 +86,7 @@ export const App: React.FC = () => {
   const parent = accounts.find(
     (account) => account.type === KeyStoreType.Mnemonic
   );
-  const { account = 0 } = parent?.path || {};
+  const { account: parentAccount = 0 } = parent?.path || {};
 
   return (
     <ThemeProvider theme={theme}>
@@ -116,7 +116,7 @@ export const App: React.FC = () => {
               element={
                 <LockWrapper requester={requester} setStatus={setStatus}>
                   <AddAccount
-                    account={account}
+                    parentAccount={parentAccount}
                     accounts={accounts}
                     requester={requester}
                     setAccounts={setAccounts}

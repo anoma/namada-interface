@@ -25,7 +25,8 @@ import {
 } from "./AddAccount.components";
 
 type Props = {
-  account: number;
+  // The parent Bip44 "account"
+  parentAccount: number;
   accounts: DerivedAccount[];
   requester: ExtensionRequester;
   setAccounts: (accounts: DerivedAccount[]) => void;
@@ -70,7 +71,7 @@ enum Status {
 }
 
 const AddAccount: React.FC<Props> = ({
-  account,
+  parentAccount,
   accounts,
   requester,
   setAccounts,
@@ -88,7 +89,7 @@ const AddAccount: React.FC<Props> = ({
   const coinType = 0;
 
   useEffect(() => {
-    const isValid = validateAccount(account, { change, index }, accounts);
+    const isValid = validateAccount(parentAccount, { change, index }, accounts);
     if (!isValid) {
       setBip44Error("Invalid path! This path is already in use.");
       setIsFormValid(false);
@@ -96,7 +97,7 @@ const AddAccount: React.FC<Props> = ({
       setBip44Error("");
       setIsFormValid(true);
     }
-  }, [account, change, index]);
+  }, [parentAccount, change, index]);
 
   const handleAccountAdd = async (): Promise<void> => {
     setFormStatus(Status.Pending);
@@ -104,7 +105,7 @@ const AddAccount: React.FC<Props> = ({
       const derivedAccount: DerivedAccount =
         await requester.sendMessage<DeriveAccountMsg>(
           Ports.Background,
-          new DeriveAccountMsg({ account, change, index }, alias)
+          new DeriveAccountMsg({ account: parentAccount, change, index }, alias)
         );
       setAccounts([...accounts, derivedAccount]);
       navigate(-1);
@@ -143,7 +144,7 @@ const AddAccount: React.FC<Props> = ({
             <p>HD Derivation Path</p>
             <Bip44PathContainer>
               <Bip44PathDelimiter>
-                {[bip44Prefix, coinType, account].join("'/")}&apos;/
+                {[bip44Prefix, coinType, parentAccount].join("'/")}&apos;/
               </Bip44PathDelimiter>
               <Bip44Input
                 type="number"
@@ -168,9 +169,13 @@ const AddAccount: React.FC<Props> = ({
         <Bip44Path>
           Derivation path:{" "}
           <span>
-            {[bip44Prefix, `${coinType}'`, `${account}'`, change, index].join(
-              "/"
-            )}
+            {[
+              bip44Prefix,
+              `${coinType}'`,
+              `${parentAccount}'`,
+              change,
+              index,
+            ].join("/")}
           </span>
         </Bip44Path>
         <Bip44Error>{bip44Error}</Bip44Error>

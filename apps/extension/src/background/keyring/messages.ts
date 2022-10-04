@@ -151,8 +151,8 @@ export class SaveMnemonicMsg extends Message<boolean> {
     }
 
     if (
-      this.words.length !== PhraseSize.Twelve &&
-      this.words.length !== PhraseSize.TwentyFour
+      this.words.length !== PhraseSize.N12 &&
+      this.words.length !== PhraseSize.N24
     ) {
       throw new Error("Invalid wordlist length! Not a valid mnemonic.");
     }

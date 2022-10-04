@@ -12,8 +12,8 @@ type Props = {
 };
 
 const Accounts = ({ accounts }: Props): JSX.Element => {
-  const rootAccount = accounts[0];
-  const { alias = "" } = rootAccount || {};
+  const parentAccount = accounts[0];
+  const { alias = "" } = parentAccount || {};
 
   return (
     <AccountsContainer>
@@ -21,7 +21,7 @@ const Accounts = ({ accounts }: Props): JSX.Element => {
         <AccountsList>
           {accounts.map((account) => (
             <AccountsListItem key={`account-${account.id}`}>
-              <AccountListing account={account} alias={alias} />
+              <AccountListing account={account} parentAlias={alias} />
             </AccountsListItem>
           ))}
         </AccountsList>

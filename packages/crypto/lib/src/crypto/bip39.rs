@@ -5,8 +5,8 @@ use bip0039::Count;
 #[wasm_bindgen]
 #[derive(Copy, Clone)]
 pub enum PhraseSize {
-    Twelve = 12,
-    TwentyFour = 24,
+    N12 = 12,
+    N24 = 24,
 }
 
 #[wasm_bindgen]
@@ -19,8 +19,8 @@ impl Mnemonic {
     #[wasm_bindgen(constructor)]
     pub fn new(size: PhraseSize) -> Result<Mnemonic, String> {
         let count: Count = match size {
-            PhraseSize::Twelve => Count::Words12,
-            PhraseSize::TwentyFour => Count::Words24,
+            PhraseSize::N12 => Count::Words12,
+            PhraseSize::N24 => Count::Words24,
         };
         let mnemonic = bip0039::Mnemonic::generate(count);
 
@@ -35,8 +35,8 @@ impl Mnemonic {
         let split = &phrase.split(' ');
         let words: Vec<&str> = split.clone().collect();
 
-        if words.len() != PhraseSize::Twelve as usize
-            && words.len() != PhraseSize::TwentyFour as usize {
+        if words.len() != PhraseSize::N12 as usize
+            && words.len() != PhraseSize::N24 as usize {
             return Err("Invalid mnemonic phrase!".into());
         }
 
@@ -86,14 +86,14 @@ mod tests {
 
     #[test]
     fn can_generate_mnemonic_from_size() {
-        let mnemonic = Mnemonic::new(PhraseSize::Twelve)
+        let mnemonic = Mnemonic::new(PhraseSize::N12)
             .expect("Should generate mnemonic of length 12");
         let split = mnemonic.phrase.split(' ');
         let words: Vec<&str> = split.collect();
 
         assert_eq!(words.iter().len(), 12);
 
-        let mnemonic = Mnemonic::new(PhraseSize::TwentyFour)
+        let mnemonic = Mnemonic::new(PhraseSize::N24)
             .expect("Should generate mnemonic of length 24");
         let split = mnemonic.phrase.split(' ');
         let words: Vec<&str> = split.collect();
@@ -121,14 +121,14 @@ mod tests {
     #[wasm_bindgen_test]
     fn can_generate_word_list_from_mnemonic() {
         use js_sys::Array;
-        let mnemonic = Mnemonic::new(PhraseSize::Twelve)
+        let mnemonic = Mnemonic::new(PhraseSize::N12)
             .expect("Should generate mnemonic of length 12");
         let words = mnemonic.to_words()
             .expect("Should return JsValue array of words");
 
         assert_eq!(Array::from(&words).length(), 12);
 
-        let mnemonic = Mnemonic::new(PhraseSize::TwentyFour)
+        let mnemonic = Mnemonic::new(PhraseSize::N24)
             .expect("Should generate mnemonic of length 24");
         let words = mnemonic.to_words()
             .expect("Should return JsValue array of words");
