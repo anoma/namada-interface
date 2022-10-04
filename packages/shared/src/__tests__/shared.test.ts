@@ -1,3 +1,5 @@
+import { TransferMsgSchema, TransferMsgValue } from "../schema";
+import { ClassType, Message } from "../messages";
 import { Address, Account, IbcTransfer, Transfer } from "../shared/shared";
 
 const source =
@@ -41,7 +43,6 @@ describe("Address", () => {
   test("It should generate a SecretKey from a secret", () => {
     const address = new Address(secret);
     const secretKey = address.private();
-
     // SecretKey is padded with "00"
     expect(secretKey.substring(2)).toBe(secret);
   });
@@ -94,7 +95,20 @@ describe("IbcTransfer", () => {
 
 describe("Transfer", () => {
   test("It should create valid hash and bytes", () => {
-    const transfer = new Transfer(source, target, token, amount);
+    const transferMsgValue = new TransferMsgValue({
+      source,
+      target,
+      token,
+      amount,
+    });
+
+    const message = new Message<
+      TransferMsgValue,
+      ClassType<TransferMsgValue>
+    >();
+
+    const encoded = message.encode(TransferMsgSchema, transferMsgValue);
+    const transfer = new Transfer(encoded);
     const { hash, bytes } = transfer.to_tx(
       secret,
       epoch,
