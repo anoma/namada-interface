@@ -377,13 +377,3 @@ export const getTheme = (
 export type Theme = {
   themeConfigurations: ThemeConfigurations;
 };
-
-// this sets the dark/light colors to theme
-export const getTheme_old = (isLightMode: boolean): Theme => {
-  const theme: Theme = {
-    themeConfigurations: {
-      isLightMode: isLightMode,
-    },
-  };
-  return theme;
-};

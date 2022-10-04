@@ -1,6 +1,6 @@
 import styled, { createGlobalStyle } from "styled-components/macro";
 import { motion } from "framer-motion";
-import { DesignConfiguration, ThemeName } from "utils/theme";
+import { ColorMode, DesignConfiguration, ThemeName } from "utils/theme";
 
 enum ComponentColor {
   BorderColor,
@@ -25,7 +25,7 @@ const getColor = (
   }
 };
 type GlobalStyleProps = {
-  isLightMode: boolean;
+  colorMode: ColorMode;
 };
 
 // Set global styles for themed control of background color based
