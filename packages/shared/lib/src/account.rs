@@ -1,6 +1,5 @@
 use crate::types::transaction::Transaction;
 use namada::types::{
-    address::Address,
     key::{
         self,
         common::{PublicKey, SecretKey},
@@ -8,12 +7,19 @@ use namada::types::{
     },
     transaction::InitAccount,
 };
-use borsh::BorshSerialize;
+use borsh::{BorshSerialize, BorshDeserialize};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 use gloo_utils::format::JsValueSerdeExt;
 
 use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen]
+#[derive(BorshSerialize, BorshDeserialize)]
+pub struct AccountMsg {
+    secret: String,
+    vp_code: Vec<u8>,
+}
 
 #[wasm_bindgen]
 #[derive(Serialize,Deserialize)]
@@ -26,10 +32,14 @@ impl Account {
     /// Initialize an account on the Ledger
     #[wasm_bindgen(constructor)]
     pub fn new(
-        secret: &str,
-        vp_code: Vec<u8>,
-    ) -> Self {
-        let secret_key = key::ed25519::SecretKey::from_str(secret)
+        msg: Vec<u8>,
+    ) -> Result<Account, String> {
+        let msg: &[u8] = &msg;
+        let msg = BorshDeserialize::try_from_slice(msg)
+            .map_err(|err| err.to_string())?;
+        let AccountMsg { secret, vp_code } = msg;
+
+        let secret_key = key::ed25519::SecretKey::from_str(&secret)
             .expect("ed25519 encoding should not fail");
         let signing_key = SecretKey::Ed25519(secret_key);
 
@@ -46,31 +56,16 @@ impl Account {
             .try_to_vec()
             .expect("Encoding tx data shouldn't fail");
 
-        Self {
+        Ok(Account {
             tx_data,
-        }
+        })
     }
 
     pub fn to_tx(
         &self,
-        secret: &str,
-        token: String,
-        epoch: u32,
-        fee_amount: u32,
-        gas_limit: u32,
-        tx_code: Vec<u8>,
+        msg: Vec<u8>,
     ) -> Result<JsValue, JsValue> {
-        let token = Address::from_str(&token).unwrap();
-        let tx_data: &[u8] = &self.tx_data;
-        let tx_code: &[u8] = &tx_code;
-
-        let transaction =
-            match Transaction::new(secret, token, epoch, fee_amount, gas_limit, tx_code, tx_data) {
-                Ok(transaction) => transaction,
-                Err(error) => return Err(error),
-            };
-
-        // Return serialized Transaction
+        let transaction = Transaction::new(msg, &self.tx_data)?;
         Ok(JsValue::from_serde(&transaction.serialize()).unwrap())
     }
 }
@@ -78,7 +73,7 @@ impl Account {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::types::transaction::SerializedTx;
+    use crate::types::transaction::{SerializedTx, TransactionMsg};
     use wasm_bindgen_test::*;
 
     #[wasm_bindgen_test]
@@ -91,9 +86,19 @@ mod tests {
 
         let tx_code = vec![];
         let vp_code = vec![];
+        let msg = AccountMsg { secret: secret.clone(), vp_code };
 
-        let account = Account::new(&secret, vp_code);
-        let transaction = account.to_tx(&secret, token, epoch, fee_amount, gas_limit, tx_code)
+        let msg_serialized = BorshSerialize::try_to_vec(&msg)
+            .expect("Message should serialize");
+
+        let account = Account::new(msg_serialized)
+            .expect("Should be able to create an Account from serialized message");
+
+        let transaction_msg = TransactionMsg::new(secret, token, epoch, fee_amount, gas_limit, tx_code);
+        let transaction_msg_serialized = BorshSerialize::try_to_vec(&transaction_msg)
+            .expect("Message should serialize");
+
+        let transaction = account.to_tx(transaction_msg_serialized)
             .expect("Should be able to convert to transaction");
 
         let serialized_tx: SerializedTx = JsValue::into_serde(&transaction)

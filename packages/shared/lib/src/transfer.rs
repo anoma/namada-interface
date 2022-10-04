@@ -17,22 +17,8 @@ pub struct TransferMsg {
 }
 
 #[wasm_bindgen]
-impl TransferMsg {
-    #[wasm_bindgen(constructor)]
-    pub fn new(source: String, target: String, token: String, amount: f32) -> Self {
-        Self {
-            source,
-            target,
-            token,
-            amount,
-        }
-    }
-}
-
-#[wasm_bindgen]
 #[derive(Serialize, Deserialize)]
 pub struct Transfer {
-    token: Address,
     tx_data: Vec<u8>,
 }
 
@@ -55,7 +41,7 @@ impl Transfer {
         let transfer = token::Transfer {
             source,
             target,
-            token: token.clone(),
+            token,
             amount,
         };
 
@@ -64,36 +50,23 @@ impl Transfer {
             .map_err(|err| err.to_string())?;
 
         Ok(Transfer {
-            token,
             tx_data,
         })
     }
 
     pub fn to_tx(
         &self,
-        secret: &str,
-        epoch: u32,
-        fee_amount: u32,
-        gas_limit: u32,
-        tx_code: Vec<u8>,
+        msg: Vec<u8>,
     ) -> Result<JsValue, JsValue> {
-        let tx_data: &[u8] = &self.tx_data;
-        let tx_code: &[u8] = &tx_code;
-        let token = self.token.clone();
-        let transaction =
-            match Transaction::new(secret, token, epoch, fee_amount, gas_limit, tx_code, tx_data) {
-                Ok(transaction) => transaction,
-                Err(error) => return Err(error),
-            };
-
-        // Return serialized Transaction
+        let transaction = Transaction::new(msg, &self.tx_data)?;
         Ok(JsValue::from_serde(&transaction.serialize()).unwrap())
     }
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::types::transaction::SerializedTx;
+    use crate::types::transaction::{SerializedTx, TransactionMsg};
     use wasm_bindgen_test::*;
 
     #[wasm_bindgen_test]
@@ -108,12 +81,17 @@ mod tests {
         let gas_limit = 1_000_000;
 
         let tx_code = vec![];
-        let msg = TransferMsg::new(source, target, token, amount);
+        let msg = TransferMsg { source, target, token: token.clone(), amount };
+
         let msg_serialized = BorshSerialize::try_to_vec(&msg)
             .expect("Message should serialize");
         let transfer = Transfer::new(msg_serialized)
             .expect("Transfer should be able to instantiate from Borsh-serialized message");
-        let transaction = transfer.to_tx(&secret, epoch, fee_amount, gas_limit, tx_code)
+
+        let transaction_msg = TransactionMsg::new(secret, token, epoch, fee_amount, gas_limit, tx_code);
+        let transaction_msg_serialized = BorshSerialize::try_to_vec(&transaction_msg)
+            .expect("Message should serialize");
+        let transaction = transfer.to_tx(transaction_msg_serialized)
             .expect("Should be able to convert to transaction");
 
         let serialized_tx: SerializedTx = JsValue::into_serde(&transaction)

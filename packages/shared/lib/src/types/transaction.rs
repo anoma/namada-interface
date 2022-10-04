@@ -2,10 +2,44 @@ use crate::types::{
     tx::Tx,
     wrapper::WrapperTx,
 };
+use std::str::FromStr;
 use namada::types::{key::{self, common::SecretKey}, address::Address, transaction};
 use serde::{Serialize, Deserialize};
+use borsh::{BorshSerialize, BorshDeserialize};
 use wasm_bindgen::prelude::*;
-use std::str::FromStr;
+
+#[wasm_bindgen]
+#[derive(BorshSerialize, BorshDeserialize)]
+pub struct TransactionMsg {
+    secret: String,
+    token: String,
+    epoch: u32,
+    fee_amount: u32,
+    gas_limit: u32,
+    tx_code: Vec<u8>,
+}
+
+#[wasm_bindgen]
+impl TransactionMsg {
+    #[wasm_bindgen(constructor)]
+    pub fn new(
+        secret: String,
+        token: String,
+        epoch: u32,
+        fee_amount: u32,
+        gas_limit: u32,
+        tx_code: Vec<u8>,
+        ) -> Self {
+        Self {
+            secret,
+            token,
+            epoch,
+            fee_amount,
+            gas_limit,
+            tx_code,
+        }
+    }
+}
 
 #[wasm_bindgen]
 #[derive(Serialize, Deserialize)]
@@ -22,36 +56,45 @@ pub struct Transaction {
 /// Sign and wrap transaction
 impl Transaction {
     pub fn new(
-        secret: &str,
-        token: Address,
-        epoch: u32,
-        fee_amount: u32,
-        gas_limit: u32,
-        tx_code: &[u8],
-        tx_data: &[u8],
+        msg: Vec<u8>,
+        tx_data: &Vec<u8>,
     ) -> Result<Transaction, JsValue> {
-        let secret_key = key::ed25519::SecretKey::from_str(secret).
+        let msg: &[u8] = &msg;
+        let msg = BorshDeserialize::try_from_slice(msg)
+            .map_err(|err| err.to_string())?;
+        let TransactionMsg {
+            secret,
+            epoch,
+            token,
+            fee_amount,
+            gas_limit,
+            tx_code,
+        } = msg;
+
+        let secret_key = key::ed25519::SecretKey::from_str(&secret).
             map_err(|err| err.to_string())?;
         let secret_key = SecretKey::Ed25519(secret_key);
+        let token = Address::from_str(&token)
+            .map_err(|err| err.to_string())?;
 
         // Create and sign inner Tx
         let tx = Tx::to_proto(
-            Vec::from(tx_code),
-            Vec::from(tx_data),
+            tx_code,
+            tx_data.to_owned(),
         ).sign(&secret_key);
 
         // Wrap Tx
         let wrapper_tx = WrapperTx::wrap(
             token,
             fee_amount,
-            String::from(secret),
+            secret.clone(),
             epoch,
             gas_limit,
             tx,
         );
 
         Ok(Transaction {
-            secret: secret.to_string(),
+            secret,
             wrapper_tx
         })
     }
