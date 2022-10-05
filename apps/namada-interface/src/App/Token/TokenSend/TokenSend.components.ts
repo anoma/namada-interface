@@ -4,6 +4,7 @@ import { ColorMode, DesignConfiguration } from "utils/theme";
 enum ComponentColor {
   TabBackgroundColorActive,
   TabBackgroundColor,
+  TabColorActive,
 }
 
 const getColor = (
@@ -16,10 +17,12 @@ const getColor = (
     light: {
       [ComponentColor.TabBackgroundColor]: theme.colors.utility1.main40,
       [ComponentColor.TabBackgroundColorActive]: theme.colors.utility1.main,
+      [ComponentColor.TabColorActive]: theme.colors.secondary.main,
     },
     dark: {
       [ComponentColor.TabBackgroundColor]: theme.colors.utility1.main70,
       [ComponentColor.TabBackgroundColorActive]: theme.colors.utility1.main80,
+      [ComponentColor.TabColorActive]: theme.colors.primary.main,
     },
   };
 
@@ -58,11 +61,9 @@ export const TokenSendTab = styled.button`
 
   &.active {
     cursor: default;
-    color: ${(props) => props.theme.colors.utility2.main80};
-    background-color: ${(props) => props.theme.colors.utility1.main80};
     background-color: ${(props) =>
       getColor(ComponentColor.TabBackgroundColorActive, props.theme)};
-    color: ${(props) => props.theme.colors.secondary.main};
+    color: ${(props) => getColor(ComponentColor.TabColorActive, props.theme)}
   }
 `;
 

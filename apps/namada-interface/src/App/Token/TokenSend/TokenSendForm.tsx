@@ -55,7 +55,7 @@ const getColor = (
     },
     dark: {
       [ComponentColor.GasButtonBorder]: theme.colors.primary.main,
-      [ComponentColor.GasButtonBorderActive]: theme.colors.secondary.main,
+      [ComponentColor.GasButtonBorderActive]: theme.colors.primary.main,
     },
   };
 
