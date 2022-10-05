@@ -1,14 +1,14 @@
 import {
   AccountMsgValue,
   AccountMsgSchema,
-  TransferMsgSchema,
-  TransferMsgValue,
+  Message,
   IbcTransferMsgSchema,
   IbcTransferMsgValue,
+  TransferMsgSchema,
+  TransferMsgValue,
   TransactionMsgSchema,
   TransactionMsgValue,
-} from "../schema";
-import { Message } from "../messages";
+} from "@anoma/types";
 import { Address, Account, Transfer, IbcTransfer } from "../shared/shared";
 
 const source =

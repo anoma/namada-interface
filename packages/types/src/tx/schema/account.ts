@@ -1,5 +1,5 @@
 export class AccountMsgValue {
-  secret: String;
+  secret: string;
   vp_code: Uint8Array;
 
   constructor(properties: { secret: string; vp_code: Uint8Array }) {
