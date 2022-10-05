@@ -1,85 +1,13 @@
 import { Anoma as IAnoma, Chain, Signer } from "@anoma/types";
-import { Anoma } from "./Anoma";
-import { Result } from "router/types";
-
-/**
- * Specify which methods can be proxied
- *
- * In the following, we proxy all methods except "version",
- * as it can be handled locally:
- */
-type ProxyMethod = keyof Omit<Anoma, "version">;
-
-enum ProxyRequestTypes {
-  Request = "anoma-proxy-request",
-  Response = "anoma-proxy-request-response",
-}
-
-export interface ProxyRequest {
-  type: ProxyRequestTypes;
-  id: string;
-  method: ProxyMethod;
-  args: any;
-}
-
-export interface ProxyRequestResponse {
-  type: ProxyRequestTypes.Response;
-  id: string;
-  result: Result | undefined;
-}
+import {
+  ProxyMethod,
+  ProxyRequest,
+  ProxyRequestResponse,
+  ProxyRequestTypes,
+} from "./Proxy";
 
 export class InjectedAnoma implements IAnoma {
-  static startProxy(
-    anoma: Anoma,
-    eventListener: {
-      addMessageListener: (fn: (e: any) => void) => void;
-      postMessage: (message: any) => void;
-    } = {
-      addMessageListener: (fn: (e: any) => void) =>
-        window.addEventListener("message", fn),
-      postMessage: (message) =>
-        window.postMessage(message, window.location.origin),
-    },
-    parseMessage: (message: any) => ProxyRequest = (message) => message
-  ) {
-    eventListener.addMessageListener(async (e: any) => {
-      const message = parseMessage(e.data);
-
-      if (!message || message.type !== ProxyRequestTypes.Request) {
-        return;
-      }
-
-      const { method, args } = message;
-      try {
-        if (!anoma[method] || typeof anoma[method] !== "function") {
-          throw new Error(`${message.method} not found!`);
-        }
-
-        const result = await anoma[method](args);
-        const proxyResponse: ProxyRequestResponse = {
-          type: ProxyRequestTypes.Response,
-          id: message.id,
-          result: {
-            return: result,
-          },
-        };
-
-        eventListener.postMessage(proxyResponse);
-      } catch (e: unknown) {
-        const proxyResponse: ProxyRequestResponse = {
-          type: ProxyRequestTypes.Response,
-          id: message.id,
-          result: {
-            error: e,
-          },
-        };
-
-        eventListener.postMessage(proxyResponse);
-      }
-    });
-  }
-
-  protected requestMethod(method: ProxyMethod, args: any): Promise<any> {
+  protected requestMethod<T, U>(method: ProxyMethod, args: T): Promise<U> {
     const bytes = new Uint8Array(8);
     const id: string = Array.from(crypto.getRandomValues(bytes))
       .map((value) => {
@@ -94,11 +22,9 @@ export class InjectedAnoma implements IAnoma {
       args,
     };
 
-    return new Promise((resolve, reject) => {
-      const receiveResponse = (e: MessageEvent) => {
-        const proxyResponse: ProxyRequestResponse = this.parseMessage
-          ? this.parseMessage(e.data)
-          : e.data;
+    return new Promise((resolve, reject): void => {
+      const receiveResponse = (e: MessageEvent): void => {
+        const proxyResponse: ProxyRequestResponse = e.data;
 
         if (
           !proxyResponse ||
@@ -121,11 +47,11 @@ export class InjectedAnoma implements IAnoma {
         }
 
         if (result.error) {
-          reject(new Error(result.error as any));
+          reject(new Error(`${result.error}`));
           return;
         }
 
-        resolve(result.return);
+        resolve(result.return as U);
       };
 
       this.eventListener.addMessageListener(receiveResponse);
@@ -136,41 +62,40 @@ export class InjectedAnoma implements IAnoma {
   constructor(
     private readonly _version: string,
     protected readonly eventListener: {
-      addMessageListener: (fn: (e: any) => void) => void;
-      removeMessageListener: (fn: (e: any) => void) => void;
-      postMessage: (message: any) => void;
+      addMessageListener: (fn: (e: MessageEvent<ProxyRequest>) => void) => void;
+      removeMessageListener: (
+        fn: (e: MessageEvent<ProxyRequest>) => void
+      ) => void;
+      postMessage: (message: ProxyRequest) => void;
     } = {
-      addMessageListener: (fn: (e: any) => void) =>
-        window.addEventListener("message", fn),
-      removeMessageListener: (fn: (e: any) => void) =>
-        window.removeEventListener("message", fn),
+      addMessageListener: (fn) => window.addEventListener("message", fn),
+      removeMessageListener: (fn) => window.removeEventListener("message", fn),
       postMessage: (message) =>
         window.postMessage(message, window.location.origin),
-    },
-    protected readonly parseMessage?: (message: any) => any
+    }
   ) {}
 
   public async connect(chainId: string): Promise<void> {
-    return await this.requestMethod("connect", chainId);
+    return await this.requestMethod<string, void>("connect", chainId);
   }
 
   public async chain(chainId: string): Promise<Chain | undefined> {
-    return this.requestMethod("chain", chainId);
+    return this.requestMethod<string, Chain>("chain", chainId);
   }
 
   public async chains(): Promise<Chain[]> {
-    return await this.requestMethod("chains", undefined);
+    return await this.requestMethod<void, Chain[]>("chains", undefined);
   }
 
   public async suggestChain(chain: Chain): Promise<void> {
-    await this.requestMethod("suggestChain", chain);
+    await this.requestMethod<Chain, void>("suggestChain", chain);
   }
 
   public async getSigner(chainId: string): Promise<Signer> {
-    return await this.requestMethod("getSigner", chainId);
+    return await this.requestMethod<string, Signer>("getSigner", chainId);
   }
 
-  public version() {
+  public version(): string {
     return this._version;
   }
 }

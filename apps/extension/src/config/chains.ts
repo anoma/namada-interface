@@ -1,6 +1,6 @@
 import { Chain, IBCCurrency } from "@anoma/types";
-const bech32Prefix = "namada";
 
+const bech32Prefix = "namada";
 export const chains: Chain[] = [];
 
 const ibcCurrency: IBCCurrency = {
@@ -27,7 +27,9 @@ const defaultChain: Chain = {
   chainName: "Namada Testnet",
   stakeCurrency: ibcCurrency,
   bip44: {
-    coinType: 9999,
+    // coinType = testnet (all coins) - Slip-0044
+    // See: https://github.com/satoshilabs/slips/blob/master/slip-0044.md
+    coinType: 1,
   },
   bech32Config: {
     bech32PrefixAccAddr: bech32Prefix,
