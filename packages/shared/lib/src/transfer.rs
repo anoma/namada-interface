@@ -13,7 +13,7 @@ pub struct TransferMsg {
     source: String,
     target: String,
     token: String,
-    amount: f32,
+    amount: u64,
 }
 
 #[wasm_bindgen]
@@ -36,7 +36,7 @@ impl Transfer {
         let source = Address::from_str(&source).expect("Address from string should not fail");
         let target = Address::from_str(&target).expect("Address from string should not fail");
         let token = Address::from_str(&token).expect("Address from string should not fail");
-        let amount = token::Amount::from(amount as u64);
+        let amount = token::Amount::from(amount);
 
         let transfer = token::Transfer {
             source,
@@ -76,7 +76,7 @@ mod tests {
         let target = String::from("atest1v4ehgw36xvcyyvejgvenxs34g3zygv3jxqunjd6rxyeyys3sxy6rwvfkx4qnj33hg9qnvse4lsfctw");
         let secret = String::from("1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93");
         let token = String::from("atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5");
-        let amount = 1000.0;
+        let amount = 1000;
         let epoch = 5;
         let fee_amount = 1000;
         let gas_limit = 1_000_000;

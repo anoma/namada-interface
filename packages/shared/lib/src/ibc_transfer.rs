@@ -11,6 +11,7 @@ use namada::ibc::{
     tx_msg::Msg,
 };
 use namada::ibc_proto::cosmos::base::v1beta1::Coin;
+use namada::types::token;
 
 use core::ops::Add;
 use core::time::Duration;
@@ -31,7 +32,7 @@ pub struct IbcTransferMsg {
     token: String,
     sender: String,
     receiver: String,
-    amount: f32,
+    amount: u64,
 }
 
 #[wasm_bindgen]
@@ -54,7 +55,7 @@ impl IbcTransfer {
 
         let transfer_token = Some(Coin {
             denom: token,
-            amount: format!("{}", amount),
+            amount: format!("{}", amount / token::SCALE),
         });
         let timestamp_nanos = utils::get_timestamp().0.timestamp_nanos() as u64;
         let timeout_duration = Duration::from_secs(30);
@@ -107,7 +108,7 @@ mod tests {
         let token = String::from("atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5");
         let source_port = String::from("transfer");
         let source_channel = String::from("channel-0");
-        let amount = 1000.0;
+        let amount = 1000;
         let epoch = 5;
         let fee_amount = 1000;
         let gas_limit = 1_000_000;
@@ -135,6 +136,6 @@ mod tests {
         let bytes = serialized_tx.bytes();
 
         assert_eq!(hash.len(), 64);
-        assert_eq!(bytes.len(), 798);
+        assert_eq!(bytes.len(), 795);
     }
 }

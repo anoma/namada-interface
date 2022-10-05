@@ -1,10 +1,12 @@
+import BN from "bn.js";
+
 export class IbcTransferMsgValue {
   source_port: string;
   source_channel: string;
   token: string;
   sender: string;
   receiver: string;
-  amount: number;
+  amount: BN;
 
   constructor(properties: {
     source_port: string;
@@ -19,7 +21,7 @@ export class IbcTransferMsgValue {
     this.token = properties.token;
     this.sender = properties.sender;
     this.receiver = properties.receiver;
-    this.amount = properties.amount;
+    this.amount = new BN(properties.amount, 64);
   }
 }
 
@@ -34,7 +36,7 @@ export const IbcTransferMsgSchema = new Map([
         ["token", "string"],
         ["sender", "string"],
         ["receiver", "string"],
-        ["amount", "u32"],
+        ["amount", "u64"],
       ],
     },
   ],

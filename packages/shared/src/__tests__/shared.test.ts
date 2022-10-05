@@ -9,6 +9,7 @@ import {
   TransactionMsgSchema,
   TransactionMsgValue,
 } from "@anoma/types";
+import { amountToMicro } from "@anoma/utils";
 import { Address, Account, Transfer, IbcTransfer } from "../shared/shared";
 
 const source =
@@ -22,7 +23,7 @@ const token =
 const epoch = 5;
 const feeAmount = 1000;
 const gasLimit = 1_000_000;
-const amount = 123.123;
+const amount = amountToMicro(123.123);
 
 // Empty validity predicate code
 const vpCode = new Uint8Array([]);
@@ -118,7 +119,7 @@ describe("IbcTransfer", () => {
 
     expect(hash.length).toEqual(HASH_LENGTH);
     // Assert that we get a byte array of the expected size
-    expect(bytes.length).toEqual(842);
+    expect(bytes.length).toEqual(797);
   });
 });
 
