@@ -11,7 +11,6 @@ use wasm_bindgen::prelude::*;
 #[wasm_bindgen]
 #[derive(BorshSerialize, BorshDeserialize)]
 pub struct TransactionMsg {
-    secret: String,
     token: String,
     epoch: u32,
     fee_amount: u32,
@@ -23,7 +22,6 @@ pub struct TransactionMsg {
 impl TransactionMsg {
     #[wasm_bindgen(constructor)]
     pub fn new(
-        secret: String,
         token: String,
         epoch: u32,
         fee_amount: u32,
@@ -31,7 +29,6 @@ impl TransactionMsg {
         tx_code: Vec<u8>,
         ) -> Self {
         Self {
-            secret,
             token,
             epoch,
             fee_amount,
@@ -57,13 +54,13 @@ pub struct Transaction {
 impl Transaction {
     pub fn new(
         msg: Vec<u8>,
+        secret: String,
         tx_data: &Vec<u8>,
     ) -> Result<Transaction, JsValue> {
         let msg: &[u8] = &msg;
         let msg = BorshDeserialize::try_from_slice(msg)
             .map_err(|err| err.to_string())?;
         let TransactionMsg {
-            secret,
             epoch,
             token,
             fee_amount,

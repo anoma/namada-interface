@@ -34,7 +34,6 @@ const txMessage = new Message<TransactionMsgValue>();
 
 // Transaction Message Value
 const txMessageValue = new TransactionMsgValue({
-  secret,
   token,
   epoch,
   fee_amount: feeAmount,
@@ -73,7 +72,6 @@ describe("Address", () => {
 describe("Account", () => {
   test("It should create valid hash and bytes", () => {
     const accountMsgValue = new AccountMsgValue({
-      secret,
       vp_code: vpCode,
     });
 
@@ -81,9 +79,10 @@ describe("Account", () => {
 
     const encoded = accountMessage.encode(AccountMsgSchema, accountMsgValue);
 
-    const account = new Account(encoded);
-    const { hash, bytes } = account.to_tx(
-      txMessage.encode(TransactionMsgSchema, txMessageValue)
+    const account = new Account(encoded, secret);
+    const { hash, bytes } = account.sign(
+      txMessage.encode(TransactionMsgSchema, txMessageValue),
+      secret
     );
 
     expect(hash.length).toEqual(HASH_LENGTH);
@@ -112,8 +111,9 @@ describe("IbcTransfer", () => {
       ibcTransferMsgValue
     );
     const ibcTransfer = new IbcTransfer(encoded);
-    const { hash, bytes } = ibcTransfer.to_tx(
-      txMessage.encode(TransactionMsgSchema, txMessageValue)
+    const { hash, bytes } = ibcTransfer.sign(
+      txMessage.encode(TransactionMsgSchema, txMessageValue),
+      secret
     );
 
     expect(hash.length).toEqual(HASH_LENGTH);
@@ -135,8 +135,9 @@ describe("Transfer", () => {
 
     const encoded = transferMessage.encode(TransferMsgSchema, transferMsgValue);
     const transfer = new Transfer(encoded);
-    const { hash, bytes } = transfer.to_tx(
-      txMessage.encode(TransactionMsgSchema, txMessageValue)
+    const { hash, bytes } = transfer.sign(
+      txMessage.encode(TransactionMsgSchema, txMessageValue),
+      secret
     );
 
     expect(hash.length).toEqual(HASH_LENGTH);

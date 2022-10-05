@@ -54,11 +54,12 @@ impl Transfer {
         })
     }
 
-    pub fn to_tx(
+    pub fn sign(
         &self,
         msg: Vec<u8>,
+        secret: String,
     ) -> Result<JsValue, JsValue> {
-        let transaction = Transaction::new(msg, &self.tx_data)?;
+        let transaction = Transaction::new(msg, secret, &self.tx_data)?;
         Ok(JsValue::from_serde(&transaction.serialize()).unwrap())
     }
 }
@@ -88,10 +89,10 @@ mod tests {
         let transfer = Transfer::new(msg_serialized)
             .expect("Transfer should be able to instantiate from Borsh-serialized message");
 
-        let transaction_msg = TransactionMsg::new(secret, token, epoch, fee_amount, gas_limit, tx_code);
+        let transaction_msg = TransactionMsg::new(token, epoch, fee_amount, gas_limit, tx_code);
         let transaction_msg_serialized = BorshSerialize::try_to_vec(&transaction_msg)
             .expect("Message should serialize");
-        let transaction = transfer.to_tx(transaction_msg_serialized)
+        let transaction = transfer.sign(transaction_msg_serialized, secret)
             .expect("Should be able to convert to transaction");
 
         let serialized_tx: SerializedTx = JsValue::into_serde(&transaction)

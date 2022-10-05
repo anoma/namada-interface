@@ -1,9 +1,7 @@
 export class AccountMsgValue {
-  secret: string;
   vp_code: Uint8Array;
 
-  constructor(properties: { secret: string; vp_code: Uint8Array }) {
-    this.secret = properties.secret;
+  constructor(properties: { vp_code: Uint8Array }) {
     this.vp_code = properties.vp_code;
   }
 }
@@ -13,10 +11,7 @@ export const AccountMsgSchema = new Map([
     AccountMsgValue,
     {
       kind: "struct",
-      fields: [
-        ["secret", "string"],
-        ["vp_code", []],
-      ],
+      fields: [["vp_code", []]],
     },
   ],
 ]);

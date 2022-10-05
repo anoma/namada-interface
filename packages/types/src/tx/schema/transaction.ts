@@ -1,5 +1,4 @@
 export class TransactionMsgValue {
-  secret: string;
   token: string;
   epoch: number;
   fee_amount: number;
@@ -7,14 +6,12 @@ export class TransactionMsgValue {
   tx_code: Uint8Array;
 
   constructor(properties: {
-    secret: string;
     token: string;
     epoch: number;
     fee_amount: number;
     gas_limit: number;
     tx_code: Uint8Array;
   }) {
-    this.secret = properties.secret;
     this.token = properties.token;
     this.epoch = properties.epoch;
     this.fee_amount = properties.fee_amount;
@@ -29,7 +26,6 @@ export const TransactionMsgSchema = new Map([
     {
       kind: "struct",
       fields: [
-        ["secret", "string"],
         ["token", "string"],
         ["epoch", "u32"],
         ["fee_amount", "u32"],

@@ -17,7 +17,6 @@ use wasm_bindgen::prelude::*;
 #[wasm_bindgen]
 #[derive(BorshSerialize, BorshDeserialize)]
 pub struct AccountMsg {
-    secret: String,
     vp_code: Vec<u8>,
 }
 
@@ -33,11 +32,12 @@ impl Account {
     #[wasm_bindgen(constructor)]
     pub fn new(
         msg: Vec<u8>,
+        secret: String,
     ) -> Result<Account, String> {
         let msg: &[u8] = &msg;
         let msg = BorshDeserialize::try_from_slice(msg)
             .map_err(|err| err.to_string())?;
-        let AccountMsg { secret, vp_code } = msg;
+        let AccountMsg { vp_code } = msg;
 
         let secret_key = key::ed25519::SecretKey::from_str(&secret)
             .expect("ed25519 encoding should not fail");
@@ -53,19 +53,19 @@ impl Account {
         };
 
         let tx_data = init_account
-            .try_to_vec()
-            .expect("Encoding tx data shouldn't fail");
+            .try_to_vec() .expect("Encoding tx data shouldn't fail");
 
         Ok(Account {
             tx_data,
         })
     }
 
-    pub fn to_tx(
+    pub fn sign(
         &self,
         msg: Vec<u8>,
+        secret: String,
     ) -> Result<JsValue, JsValue> {
-        let transaction = Transaction::new(msg, &self.tx_data)?;
+        let transaction = Transaction::new(msg, secret, &self.tx_data)?;
         Ok(JsValue::from_serde(&transaction.serialize()).unwrap())
     }
 }
@@ -86,19 +86,19 @@ mod tests {
 
         let tx_code = vec![];
         let vp_code = vec![];
-        let msg = AccountMsg { secret: secret.clone(), vp_code };
+        let msg = AccountMsg {  vp_code };
 
         let msg_serialized = BorshSerialize::try_to_vec(&msg)
             .expect("Message should serialize");
 
-        let account = Account::new(msg_serialized)
+        let account = Account::new(msg_serialized, secret.clone())
             .expect("Should be able to create an Account from serialized message");
 
-        let transaction_msg = TransactionMsg::new(secret, token, epoch, fee_amount, gas_limit, tx_code);
+        let transaction_msg = TransactionMsg::new(token, epoch, fee_amount, gas_limit, tx_code);
         let transaction_msg_serialized = BorshSerialize::try_to_vec(&transaction_msg)
             .expect("Message should serialize");
 
-        let transaction = account.to_tx(transaction_msg_serialized)
+        let transaction = account.sign(transaction_msg_serialized, secret )
             .expect("Should be able to convert to transaction");
 
         let serialized_tx: SerializedTx = JsValue::into_serde(&transaction)
