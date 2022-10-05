@@ -1,5 +1,5 @@
 import styled from "styled-components/macro";
-import { DesignConfiguration, ColorMode, ThemeName } from "utils/theme";
+import { DesignConfiguration, ColorMode } from "utils/theme";
 
 enum ComponentColor {
   ButtonBackground,
@@ -11,7 +11,6 @@ const getColor = (
   theme: DesignConfiguration
 ): string => {
   const { colorMode } = theme.themeConfigurations;
-
 
   const colorMap: Record<ColorMode, Record<ComponentColor, string>> = {
     light: {

@@ -8,7 +8,7 @@ enum ComponentColor {
 }
 
 const getColor = (
-  toggleColor: ComponentColor,
+  color: ComponentColor,
   theme: DesignConfiguration
 ): string => {
   const { colorMode } = theme.themeConfigurations;
@@ -26,7 +26,7 @@ const getColor = (
     },
   };
 
-  return colorMap[colorMode][toggleColor];
+  return colorMap[colorMode][color];
 };
 
 export const TokenSendContainer = styled.div`
@@ -63,7 +63,7 @@ export const TokenSendTab = styled.button`
     cursor: default;
     background-color: ${(props) =>
       getColor(ComponentColor.TabBackgroundColorActive, props.theme)};
-    color: ${(props) => getColor(ComponentColor.TabColorActive, props.theme)}
+    color: ${(props) => getColor(ComponentColor.TabColorActive, props.theme)};
   }
 `;
 

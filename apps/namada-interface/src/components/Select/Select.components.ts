@@ -9,7 +9,7 @@ enum ComponentColor {
 }
 
 const getColor = (
-  toggleColor: ComponentColor,
+  color: ComponentColor,
   theme: DesignConfiguration
 ): string => {
   const { colorMode } = theme.themeConfigurations;
@@ -29,7 +29,7 @@ const getColor = (
     },
   };
 
-  return colorMap[colorMode][toggleColor];
+  return colorMap[colorMode][color];
 };
 
 export const StyledSelectWrapper = styled.div`

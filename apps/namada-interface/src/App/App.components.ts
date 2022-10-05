@@ -10,7 +10,7 @@ enum ComponentColor {
 const topSectionHeight = "164px";
 
 const getColor = (
-  toggleColor: ComponentColor,
+  color: ComponentColor,
   theme: DesignConfiguration
 ): string => {
   const { colorMode } = theme.themeConfigurations;
@@ -26,7 +26,7 @@ const getColor = (
     },
   };
 
-  return colorMap[colorMode][toggleColor];
+  return colorMap[colorMode][color];
 };
 
 type GlobalStyleProps = {
