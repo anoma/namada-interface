@@ -43,7 +43,7 @@ export class Crypto {
     };
   }
 
-  public decrypt(store: KeyStore, password: string): Uint8Array {
+  public decrypt(store: KeyStore, password: string): string {
     const { crypto } = store;
     const { cipher, kdf } = crypto;
     const { m_cost, t_cost, p_cost, salt } = kdf.params;
@@ -60,6 +60,6 @@ export class Crypto {
     const decrypted = aes.decrypt(cipher.text);
     aes.free();
 
-    return decrypted;
+    return new TextDecoder().decode(decrypted);
   }
 }

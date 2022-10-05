@@ -10,8 +10,8 @@ export class KeyRingService {
     this._keyRing = new KeyRing(kvStore);
   }
 
-  async lock(): Promise<{ status: KeyRingStatus }> {
-    await this._keyRing.lock();
+  lock(): { status: KeyRingStatus } {
+    this._keyRing.lock();
     return { status: this._keyRing.status };
   }
 

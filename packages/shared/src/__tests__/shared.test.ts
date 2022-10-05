@@ -10,7 +10,13 @@ import {
   TransactionMsgValue,
 } from "@anoma/types";
 import { amountToMicro } from "@anoma/utils";
-import { Address, Account, Transfer, IbcTransfer } from "../shared/shared";
+import {
+  Address,
+  Account,
+  IbcTransfer,
+  Signer,
+  Transfer,
+} from "../shared/shared";
 
 const source =
   "atest1v4ehgw368ycryv2z8qcnxv3cxgmrgvjpxs6yg333gym5vv2zxepnj334g4rryvj9xucrgve4x3xvr4";
@@ -57,7 +63,6 @@ describe("Address", () => {
     const publicKey = address.public();
     const ed25519Key =
       "b7a3c12dc0c8c748ab07525b701122b88bd78f600c76342d27f25e5f92444cde";
-
     // PublicKey is padded with "00"
     expect(publicKey.substring(2)).toBe(ed25519Key);
   });
@@ -75,13 +80,15 @@ describe("Account", () => {
     const accountMsgValue = new AccountMsgValue({
       vp_code: vpCode,
     });
-
     const accountMessage = new Message<AccountMsgValue>();
-
     const encoded = accountMessage.encode(AccountMsgSchema, accountMsgValue);
 
-    const account = new Account(encoded, secret);
-    const { hash, bytes } = account.sign(
+    // Create tx_data from init-account tx
+    const { tx_data } = new Account(encoded, secret).to_serialized();
+
+    // Sign tx_data, then serialize to hash and bytes
+    const signer = new Signer(tx_data);
+    const { hash, bytes } = signer.sign(
       txMessage.encode(TransactionMsgSchema, txMessageValue),
       secret
     );
@@ -104,15 +111,18 @@ describe("IbcTransfer", () => {
       receiver: target,
       amount,
     });
-
     const ibcTransferMessage = new Message<IbcTransferMsgValue>();
-
     const encoded = ibcTransferMessage.encode(
       IbcTransferMsgSchema,
       ibcTransferMsgValue
     );
-    const ibcTransfer = new IbcTransfer(encoded);
-    const { hash, bytes } = ibcTransfer.sign(
+
+    // Create tx_data from ibc-transfer tx
+    const { tx_data } = new IbcTransfer(encoded).to_serialized();
+
+    // Sign tx_data, then serialize to hash and bytes
+    const signer = new Signer(tx_data);
+    const { hash, bytes } = signer.sign(
       txMessage.encode(TransactionMsgSchema, txMessageValue),
       secret
     );
@@ -133,10 +143,14 @@ describe("Transfer", () => {
     });
 
     const transferMessage = new Message<TransferMsgValue>();
-
     const encoded = transferMessage.encode(TransferMsgSchema, transferMsgValue);
-    const transfer = new Transfer(encoded);
-    const { hash, bytes } = transfer.sign(
+
+    // Create tx_data from transfer tx
+    const { tx_data } = new Transfer(encoded).to_serialized();
+
+    // Sign tx_data, then serialize to hash and bytes
+    const signer = new Signer(tx_data);
+    const { hash, bytes } = signer.sign(
       txMessage.encode(TransactionMsgSchema, txMessageValue),
       secret
     );

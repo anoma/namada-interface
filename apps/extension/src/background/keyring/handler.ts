@@ -50,8 +50,8 @@ const handleCheckIsLockedMsg: (
 const handleLockKeyRingMsg: (
   service: KeyRingService
 ) => InternalHandler<LockKeyRingMsg> = (service) => {
-  return async () => {
-    return await service.lock();
+  return () => {
+    return service.lock();
   };
 };
 

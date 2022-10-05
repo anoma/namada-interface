@@ -45,6 +45,17 @@ pub struct SerializedTx {
     bytes: Vec<u8>,
 }
 
+#[wasm_bindgen]
+impl SerializedTx {
+    pub fn hash(&self) -> String {
+        self.hash.clone()
+    }
+
+    pub fn bytes(&self) -> Vec<u8> {
+        self.bytes.clone()
+    }
+}
+
 pub struct Transaction {
     secret: String,
     wrapper_tx: transaction::WrapperTx,
@@ -109,13 +120,3 @@ impl Transaction {
     }
 }
 
-#[wasm_bindgen]
-impl SerializedTx {
-    pub fn hash(&self) -> String {
-        self.hash.clone()
-    }
-
-    pub fn bytes(&self) -> Vec<u8> {
-        self.bytes.clone()
-    }
-}

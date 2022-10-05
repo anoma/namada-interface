@@ -2,7 +2,7 @@ import { v5 as uuid } from "uuid";
 
 import { KVStore } from "@anoma/storage";
 import { HDWallet, Mnemonic, PhraseSize } from "@anoma/crypto";
-import { Address } from "@anoma/shared";
+import { Address, Signer } from "@anoma/shared";
 import { KeyRingStatus, KeyStore, KeyStoreType } from "./types";
 import { Bip44Path, DerivedAccount } from "./types";
 import { Crypto } from "./crypto";
@@ -156,8 +156,7 @@ export class KeyRing {
     }
 
     try {
-      const phraseBytes = crypto.decrypt(storedMnemonic, this._password);
-      const phrase = new TextDecoder().decode(phraseBytes);
+      const phrase = crypto.decrypt(storedMnemonic, this._password);
       // TODO: Validate derivation path against stored paths under this mnemonic!
       const { account, change, index = 0 } = path;
       const root = "m/44'";
@@ -214,5 +213,26 @@ export class KeyRing {
         type,
       })
     );
+  }
+
+  async signTx(
+    address: string,
+    txMsg: Uint8Array,
+    txData: Uint8Array
+  ): Promise<ReturnType<Signer["sign"]>> {
+    if (!this._password) {
+      throw new Error("Not authenticated!");
+    }
+    const account = await this._keyStore.getRecord("address", address);
+    if (!account) {
+      throw new Error(`Account not found for ${address}`);
+    }
+    try {
+      const pk = crypto.decrypt(account, this._password);
+      const signer = new Signer(txData);
+      return signer.sign(txMsg, pk);
+    } catch (e) {
+      throw new Error(`Could not unlock account for ${address}: ${e}`);
+    }
   }
 }

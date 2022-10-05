@@ -1,4 +1,3 @@
-use crate::types::transaction::Transaction;
 use namada::types::{
     key::{
         self,
@@ -60,13 +59,10 @@ impl Account {
         })
     }
 
-    pub fn sign(
-        &self,
-        msg: Vec<u8>,
-        secret: String,
-    ) -> Result<JsValue, JsValue> {
-        let transaction = Transaction::new(msg, secret, &self.tx_data)?;
-        Ok(JsValue::from_serde(&transaction.serialize()).unwrap())
+    pub fn to_serialized(&self) -> Result<JsValue, String> {
+        let serialized = JsValue::from_serde(&self)
+            .map_err(|err| err.to_string())?;
+        Ok(serialized)
     }
 }
 
@@ -74,6 +70,8 @@ impl Account {
 mod tests {
     use super::*;
     use crate::types::transaction::{SerializedTx, TransactionMsg};
+    use crate::types::signer::Signer;
+
     use wasm_bindgen_test::*;
 
     #[wasm_bindgen_test]
@@ -91,14 +89,15 @@ mod tests {
         let msg_serialized = BorshSerialize::try_to_vec(&msg)
             .expect("Message should serialize");
 
-        let account = Account::new(msg_serialized, secret.clone())
+        let Account { tx_data } = Account::new(msg_serialized, secret.clone())
             .expect("Should be able to create an Account from serialized message");
 
         let transaction_msg = TransactionMsg::new(token, epoch, fee_amount, gas_limit, tx_code);
         let transaction_msg_serialized = BorshSerialize::try_to_vec(&transaction_msg)
             .expect("Message should serialize");
 
-        let transaction = account.sign(transaction_msg_serialized, secret )
+        let signer = Signer::new(&tx_data);
+        let transaction = signer.sign(&transaction_msg_serialized, secret )
             .expect("Should be able to convert to transaction");
 
         let serialized_tx: SerializedTx = JsValue::into_serde(&transaction)
