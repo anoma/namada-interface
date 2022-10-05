@@ -35,7 +35,7 @@ export class Proxy {
         window.postMessage(message, window.location.origin),
     }
   ): void {
-    eventListener.addMessageListener(async (e: MessageEvent<ProxyRequest>) => {
+    eventListener.addMessageListener(async (e) => {
       const message = e.data;
 
       if (!message || message.type !== ProxyRequestTypes.Request) {

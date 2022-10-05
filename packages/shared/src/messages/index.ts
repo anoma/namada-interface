@@ -10,12 +10,12 @@ export type ClassType<T> = {
   new (args: any): T;
 };
 
-export interface IMessage<T, U extends ClassType<T>> {
+export interface IMessage<T> {
   encode(schema: Schema, value: T): Uint8Array;
-  decode(schema: Schema, buffer: Uint8Array, parser: U): T;
+  decode(schema: Schema, buffer: Uint8Array, parser: ClassType<T>): T;
 }
 
-export class Message<T, U extends ClassType<T>> implements IMessage<T, U> {
+export class Message<T> implements IMessage<T> {
   public encode(schema: Schema, value: T): Uint8Array {
     try {
       return serialize(schema, value, BinaryWriter);
@@ -24,7 +24,7 @@ export class Message<T, U extends ClassType<T>> implements IMessage<T, U> {
     }
   }
 
-  public decode(schema: Schema, buffer: Uint8Array, parser: U): T {
+  public decode(schema: Schema, buffer: Uint8Array, parser: ClassType<T>): T {
     try {
       return deserialize(schema, parser, Buffer.from(buffer), BinaryReader);
     } catch (e) {

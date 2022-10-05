@@ -8,7 +8,7 @@ import {
   TransactionMsgSchema,
   TransactionMsgValue,
 } from "../schema";
-import { ClassType, Message } from "../messages";
+import { Message } from "../messages";
 import { Address, Account, Transfer, IbcTransfer } from "../shared/shared";
 
 const source =
@@ -30,10 +30,7 @@ const vpCode = new Uint8Array([]);
 const txCode = new Uint8Array([]);
 
 // Transaction Message
-const txMessage = new Message<
-  TransactionMsgValue,
-  ClassType<TransactionMsgValue>
->();
+const txMessage = new Message<TransactionMsgValue>();
 
 // Transaction Message Value
 const txMessageValue = new TransactionMsgValue({
@@ -80,10 +77,7 @@ describe("Account", () => {
       vp_code: vpCode,
     });
 
-    const accountMessage = new Message<
-      AccountMsgValue,
-      ClassType<AccountMsgValue>
-    >();
+    const accountMessage = new Message<AccountMsgValue>();
 
     const encoded = accountMessage.encode(AccountMsgSchema, accountMsgValue);
 
@@ -111,10 +105,7 @@ describe("IbcTransfer", () => {
       amount,
     });
 
-    const ibcTransferMessage = new Message<
-      IbcTransferMsgValue,
-      ClassType<IbcTransferMsgValue>
-    >();
+    const ibcTransferMessage = new Message<IbcTransferMsgValue>();
 
     const encoded = ibcTransferMessage.encode(
       IbcTransferMsgSchema,
@@ -140,10 +131,7 @@ describe("Transfer", () => {
       amount,
     });
 
-    const transferMessage = new Message<
-      TransferMsgValue,
-      ClassType<TransferMsgValue>
-    >();
+    const transferMessage = new Message<TransferMsgValue>();
 
     const encoded = transferMessage.encode(TransferMsgSchema, transferMsgValue);
     const transfer = new Transfer(encoded);
