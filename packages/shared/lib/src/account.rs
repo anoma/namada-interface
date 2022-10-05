@@ -39,7 +39,7 @@ impl Account {
         let AccountMsg { vp_code } = msg;
 
         let secret_key = key::ed25519::SecretKey::from_str(&secret)
-            .expect("ed25519 encoding should not fail");
+            .map_err(|err| format!("ed25519 encoding failed: {:?}", err))?;
         let signing_key = SecretKey::Ed25519(secret_key);
 
         // TODO: Fix the following conversion
@@ -52,7 +52,8 @@ impl Account {
         };
 
         let tx_data = init_account
-            .try_to_vec() .expect("Encoding tx data shouldn't fail");
+            .try_to_vec()
+            .map_err(|err| err.to_string())?;
 
         Ok(Account {
             tx_data,
@@ -97,7 +98,7 @@ mod tests {
             .expect("Message should serialize");
 
         let signer = Signer::new(&tx_data);
-        let transaction = signer.sign(&transaction_msg_serialized, secret )
+        let transaction = signer.sign(&transaction_msg_serialized, secret)
             .expect("Should be able to convert to transaction");
 
         let serialized_tx: SerializedTx = JsValue::into_serde(&transaction)

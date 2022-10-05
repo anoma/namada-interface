@@ -47,10 +47,20 @@ impl IbcTransfer {
         let msg: &[u8] = &msg;
         let msg = BorshDeserialize::try_from_slice(msg)
             .map_err(|err| err.to_string())?;
-        let IbcTransferMsg { source_port, source_channel, token, sender, receiver, amount  } = msg;
 
-        let source_port = PortId::from_str(&source_port).unwrap();
-        let source_channel = ChannelId::from_str(&source_channel).unwrap();
+        let IbcTransferMsg {
+            source_port,
+            source_channel,
+            token,
+            sender,
+            receiver,
+            amount,
+        } = msg;
+
+        let source_port = PortId::from_str(&source_port)
+            .map_err(|err| err.to_string())?;
+        let source_channel = ChannelId::from_str(&source_channel)
+            .map_err(|err| err.to_string())?;
 
         let transfer_token = Some(Coin {
             denom: token,
@@ -76,7 +86,8 @@ impl IbcTransfer {
 
         let msg = msg.to_any();
         let mut tx_data = vec![];
-        Any::encode(&msg, &mut tx_data).expect("encoding IBC message shouldn't fail");
+        Any::encode(&msg, &mut tx_data)
+            .map_err(|err| err.to_string())?;
 
         Ok(IbcTransfer {
             tx_data
