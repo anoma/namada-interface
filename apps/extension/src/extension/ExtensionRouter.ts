@@ -29,10 +29,11 @@ export class ExtensionRouter extends Router {
   }
 
   protected onMessage = async (
+    // TODO: Refactor messaging to unify data types
+    // eslint-disable-next-line
     message: any,
     sender: MessageSender
   ): Promise<Result | undefined> => {
-    console.log("ExtensionRouter -> onMessage", { message, sender });
     if (message.port !== this.port) {
       return;
     }
@@ -50,8 +51,9 @@ export class ExtensionRouter extends Router {
   protected async onMessageHandler(
     message: RoutedMessage,
     sender: MessageSender
+    // TODO: Refactor messaging to unify data types
+    // eslint-disable-next-line
   ): Promise<any> {
-    console.log("ExtensionRouter -> onMessageHandler", { message, sender });
     try {
       const result = await this.handleMessage(message, sender);
       return {

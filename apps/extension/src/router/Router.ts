@@ -14,9 +14,10 @@ export abstract class Router {
   constructor(protected readonly envProducer: EnvProducer) {}
 
   public registerMessage(
+    // TODO: Refactor messaging to unify data types being passed.
+    // eslint-disable-next-line
     msgCls: { new (...args: any): Message<unknown> } & { type(): string }
   ): void {
-    console.log("Router -> registerMessage", { msgCls });
     this.msgRegistry.registerMessage(msgCls);
   }
 
@@ -40,7 +41,6 @@ export abstract class Router {
     message: RoutedMessage,
     sender: MessageSender
   ): Promise<unknown> {
-    console.log("Router -> handleMessage", { message, sender });
     const msg = this.msgRegistry.parseMessage(message);
     const env = this.envProducer(sender, msg.meta ?? {});
 
