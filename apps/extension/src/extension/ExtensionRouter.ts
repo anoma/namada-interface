@@ -2,7 +2,6 @@ import browser from "webextension-polyfill";
 import { getAnomaRouterId } from "./utils";
 import {
   EnvProducer,
-  Message,
   MessageSender,
   Result,
   RoutedMessage,

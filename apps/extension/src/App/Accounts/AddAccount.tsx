@@ -4,11 +4,8 @@ import { Button, ButtonVariant, Input, InputVariants } from "@anoma/components";
 
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
-import {
-  DerivedAccount,
-  DeriveAccountMsg,
-  KeyStoreType,
-} from "background/keyring";
+import { DeriveAccountMsg } from "background/keyring";
+import { AccountType, DerivedAccount } from "types";
 import {
   AddAccountContainer,
   AddAccountForm,
@@ -56,7 +53,7 @@ const findNextIndex = (accounts: DerivedAccount[]): number => {
   let maxIndex = 0;
 
   accounts
-    .filter((account) => account.type !== KeyStoreType.Mnemonic)
+    .filter((account) => account.type !== AccountType.Mnemonic)
     .forEach((account) => {
       const { index = 0 } = account.path;
       maxIndex = index + 1;

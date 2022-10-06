@@ -3,8 +3,8 @@ import { v5 as uuid } from "uuid";
 import { KVStore } from "@anoma/storage";
 import { HDWallet, Mnemonic, PhraseSize } from "@anoma/crypto";
 import { Address, Signer } from "@anoma/shared";
-import { KeyRingStatus, KeyStore, KeyStoreType } from "./types";
-import { Bip44Path, DerivedAccount } from "./types";
+import { KeyRingStatus, KeyStore } from "./types";
+import { Bip44Path, DerivedAccount, AccountType } from "types";
 import { Crypto } from "./crypto";
 
 import { IStore, Store } from "../types";
@@ -121,7 +121,7 @@ export class KeyRing {
           change: 0,
         },
         text: phrase,
-        type: KeyStoreType.Mnemonic,
+        type: AccountType.Mnemonic,
       });
       await this._keyStore.append(mnemonicStore);
 
@@ -172,7 +172,7 @@ export class KeyRing {
 
       const address = new Address(derivedAccount.private().to_hex()).implicit();
       const id = getId("account", storedMnemonic.id, account, change, index);
-      const type = KeyStoreType.PrivateKey;
+      const type = AccountType.PrivateKey;
 
       const keyStore = crypto.encrypt({
         alias,

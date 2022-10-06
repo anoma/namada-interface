@@ -1,4 +1,4 @@
-import { DerivedAccount } from "background/keyring";
+import { DerivedAccount } from "types";
 import {
   AccountsContainer,
   AccountsList,

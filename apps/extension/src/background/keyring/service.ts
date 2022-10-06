@@ -1,7 +1,8 @@
 import { PhraseSize } from "@anoma/crypto";
 import { KVStore } from "@anoma/storage";
 import { KeyRing } from "./keyring";
-import { Bip44Path, DerivedAccount, KeyRingStatus } from "./types";
+import { Bip44Path, DerivedAccount } from "types";
+import { KeyRingStatus } from "./types";
 
 export class KeyRingService {
   private _keyRing: KeyRing;

@@ -1,7 +1,8 @@
 import { PhraseSize } from "@anoma/crypto";
 import { Message } from "router";
 import { ROUTE } from "./constants";
-import { Bip44Path, DerivedAccount, KeyRingStatus } from "./types";
+import { Bip44Path, DerivedAccount } from "types";
+import { KeyRingStatus } from "./types";
 
 enum MessageTypes {
   CheckIsLocked = "check-is-locked",

@@ -10,7 +10,7 @@ import {
   Button,
 } from "./AccountListing.components";
 
-import { DerivedAccount, KeyStoreType } from "background/keyring";
+import { DerivedAccount, AccountType } from "types";
 import { TopLevelRoute } from "App/types";
 
 type Props = {
@@ -33,7 +33,7 @@ const AccountListing = ({ account, parentAlias }: Props): JSX.Element => {
     <AccountListingContainer>
       <Details>
         <DerivationPath>
-          {type !== KeyStoreType.Mnemonic &&
+          {type !== AccountType.Mnemonic &&
             `${parentAlias} /${path.account}'/${path.change}${
               typeof path.index === "number" ? "/" + path.index : ""
             }`}
@@ -43,7 +43,7 @@ const AccountListing = ({ account, parentAlias }: Props): JSX.Element => {
         {establishedAddress && <Address>{establishedAddress}</Address>}
       </Details>
       <Buttons>
-        {type === KeyStoreType.Mnemonic && (
+        {type === AccountType.Mnemonic && (
           <Button
             onClick={() => {
               navigate(TopLevelRoute.AddAccount);
