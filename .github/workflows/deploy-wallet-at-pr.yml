@@ -119,7 +119,7 @@ jobs:
         with:
           version: "v0.10.3"
       - name: Install dependencies
-        run: yarn wasm:build && yarn
+        run: yarn
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run Playwright tests
