@@ -19,7 +19,7 @@ export abstract class Router {
     this.msgRegistry.registerMessage(msgCls);
   }
 
-  public addHandler(route: string, handler: Handler) {
+  public addHandler(route: string, handler: Handler): void {
     if (this.registeredHandler.has(route)) {
       throw new Error(`Already registered type ${route}`);
     }

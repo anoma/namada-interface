@@ -1,6 +1,12 @@
 import browser from "webextension-polyfill";
 import { getAnomaRouterId } from "./utils";
-import { Router, MessageSender, EnvProducer, Result } from "router";
+import {
+  Router,
+  MessageSender,
+  MessageRequester,
+  EnvProducer,
+  Result,
+} from "router";
 
 export class ExtensionRouter extends Router {
   constructor(envProducer: EnvProducer) {
@@ -41,7 +47,7 @@ export class ExtensionRouter extends Router {
   };
 
   protected async onMessageHandler(
-    message: any,
+    message: ReturnType<MessageRequester["sendMessage"]>,
     sender: MessageSender
   ): Promise<any> {
     try {

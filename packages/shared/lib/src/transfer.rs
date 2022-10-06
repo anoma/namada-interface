@@ -64,7 +64,7 @@ impl Transfer {
 mod tests {
     use super::*;
     use crate::types::transaction::{SerializedTx, TransactionMsg};
-    use crate::types::signer::Signer;
+    use crate::signer::Signer;
     use wasm_bindgen_test::*;
 
     #[wasm_bindgen_test]

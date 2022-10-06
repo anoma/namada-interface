@@ -16,14 +16,14 @@ impl WrapperTx {
 
     pub fn wrap(
         token: address::Address,
-        fee_amount: u32,
+        fee_amount: u64,
         secret: String,
-        epoch: u32,
-        gas_limit: u32,
+        epoch: u64,
+        gas_limit: u64,
         tx: proto::Tx,
     ) -> transaction::WrapperTx {
-        let gas_limit = transaction::GasLimit::from(u64::from(gas_limit));
-        let amount = token::Amount::from(u64::from(fee_amount));
+        let gas_limit = transaction::GasLimit::from(gas_limit);
+        let amount = token::Amount::from(fee_amount);
         let signing_key = SecretKey::Ed25519(key::ed25519::SecretKey::from_str(&secret).unwrap());
         let encryption_key = transaction::EncryptionKey::default();
 
@@ -33,7 +33,7 @@ impl WrapperTx {
                 token,
             },
             &signing_key,
-            storage::Epoch(u64::from(epoch)),
+            storage::Epoch(epoch),
             gas_limit,
             tx,
             encryption_key,

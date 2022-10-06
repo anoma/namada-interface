@@ -2,7 +2,7 @@ import { Anoma } from "./Anoma";
 import { ProxyRequest, ProxyRequestResponse, ProxyRequestTypes } from "./types";
 
 export class Proxy {
-  static startProxy(anoma: Anoma): void {
+  static start(anoma: Anoma): void {
     Proxy.addMessageListener(async (e) => {
       const message = e.data;
 

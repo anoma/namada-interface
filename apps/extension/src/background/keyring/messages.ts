@@ -24,7 +24,7 @@ export class CheckIsLockedMsg extends Message<boolean> {
   }
 
   validate(): void {
-    // noop
+    return;
   }
 
   route(): string {
@@ -46,7 +46,7 @@ export class LockKeyRingMsg extends Message<{ status: KeyRingStatus }> {
   }
 
   validate(): void {
-    // noop
+    return;
   }
 
   route(): string {
@@ -116,7 +116,7 @@ export class GenerateMnemonicMsg extends Message<string[]> {
   }
 
   validate(): void {
-    // noop
+    return;
   }
 
   route(): string {
@@ -211,7 +211,7 @@ export class QueryAccountsMsg extends Message<DerivedAccount[]> {
   }
 
   validate(): void {
-    // noop
+    return;
   }
 
   route(): string {

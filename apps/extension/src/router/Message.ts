@@ -23,6 +23,7 @@ export abstract class Message<R> {
    * though there is no need to use generic R in structure. This is just dummy field for generic R, and
    * it is never actually used.
    */
+  // eslint-disable-next-line
   // @ts-ignore
   protected _: R;
 
@@ -31,7 +32,7 @@ export abstract class Message<R> {
   abstract type(): string;
 
   public origin!: string;
-  public meta?: Record<string, any>;
+  public meta?: Record<string, string | number | undefined>;
 
   approveExternal(
     _env: Omit<Env, "requestInteraction">,

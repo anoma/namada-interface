@@ -12,7 +12,7 @@ enum MessageTypes {
 }
 
 export class SuggestChainMsg extends Message<void> {
-  public static type() {
+  public static type(): string {
     return MessageTypes.SuggestChain;
   }
 
@@ -36,7 +36,7 @@ export class SuggestChainMsg extends Message<void> {
 }
 
 export class GetChainsMsg extends Message<Chain[]> {
-  public static type() {
+  public static type(): string {
     return MessageTypes.GetChains;
   }
 
@@ -44,7 +44,9 @@ export class GetChainsMsg extends Message<Chain[]> {
     super();
   }
 
-  validate(): void {}
+  validate(): void {
+    return;
+  }
 
   route(): string {
     return ROUTE;
@@ -56,7 +58,7 @@ export class GetChainsMsg extends Message<Chain[]> {
 }
 
 export class GetChainMsg extends Message<Chain> {
-  public static type() {
+  public static type(): string {
     return MessageTypes.GetChain;
   }
 
@@ -80,7 +82,7 @@ export class GetChainMsg extends Message<Chain> {
 }
 
 export class RemoveChainMsg extends Message<Chain[]> {
-  public static type() {
+  public static type(): string {
     return MessageTypes.RemoveChain;
   }
 
@@ -104,7 +106,7 @@ export class RemoveChainMsg extends Message<Chain[]> {
 }
 
 export class GetSignerMsg extends Message<Signer> {
-  public static type() {
+  public static type(): string {
     return MessageTypes.GetSigner;
   }
 
@@ -112,7 +114,9 @@ export class GetSignerMsg extends Message<Signer> {
     super();
   }
 
-  validate(): void {}
+  validate(): void {
+    return;
+  }
 
   route(): string {
     return ROUTE;

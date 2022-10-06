@@ -1,8 +1,10 @@
+import BN from "bn.js";
+
 export class TransactionMsgValue {
   token: string;
-  epoch: number;
-  fee_amount: number;
-  gas_limit: number;
+  epoch: BN;
+  fee_amount: BN;
+  gas_limit: BN;
   tx_code: Uint8Array;
 
   constructor(properties: {
@@ -13,9 +15,9 @@ export class TransactionMsgValue {
     tx_code: Uint8Array;
   }) {
     this.token = properties.token;
-    this.epoch = properties.epoch;
-    this.fee_amount = properties.fee_amount;
-    this.gas_limit = properties.gas_limit;
+    this.epoch = new BN(properties.epoch, 64);
+    this.fee_amount = new BN(properties.fee_amount, 64);
+    this.gas_limit = new BN(properties.gas_limit, 64);
     this.tx_code = properties.tx_code;
   }
 }
@@ -27,9 +29,9 @@ export const TransactionMsgSchema = new Map([
       kind: "struct",
       fields: [
         ["token", "string"],
-        ["epoch", "u32"],
-        ["fee_amount", "u32"],
-        ["gas_limit", "u32"],
+        ["epoch", "u64"],
+        ["fee_amount", "u64"],
+        ["gas_limit", "u64"],
         ["tx_code", []],
       ],
     },

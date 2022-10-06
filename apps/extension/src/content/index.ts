@@ -11,7 +11,7 @@ import { initEvents } from "./events";
 import manifest from "manifest/_base.json";
 
 // Start proxying messages from Anoma to InjectedAnoma
-Proxy.startProxy(new Anoma(manifest.version, new ExtensionRequester()));
+Proxy.start(new Anoma(manifest.version, new ExtensionRequester()));
 
 const router = new ExtensionRouter(ContentScriptEnv.produceEnv);
 initEvents(router);

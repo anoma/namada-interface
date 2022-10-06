@@ -12,9 +12,9 @@ use wasm_bindgen::prelude::*;
 #[derive(BorshSerialize, BorshDeserialize)]
 pub struct TransactionMsg {
     token: String,
-    epoch: u32,
-    fee_amount: u32,
-    gas_limit: u32,
+    epoch: u64,
+    fee_amount: u64,
+    gas_limit: u64,
     tx_code: Vec<u8>,
 }
 
@@ -23,9 +23,9 @@ impl TransactionMsg {
     #[wasm_bindgen(constructor)]
     pub fn new(
         token: String,
-        epoch: u32,
-        fee_amount: u32,
-        gas_limit: u32,
+        epoch: u64,
+        fee_amount: u64,
+        gas_limit: u64,
         tx_code: Vec<u8>,
         ) -> Self {
         Self {

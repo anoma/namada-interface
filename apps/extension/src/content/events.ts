@@ -1,7 +1,7 @@
 import { Message, Router, Events, Routes } from "../router";
 
 class PushEventDataMsg extends Message<void> {
-  public static type() {
+  public static type(): string {
     return Events.PushEventData;
   }
 
@@ -29,7 +29,7 @@ class PushEventDataMsg extends Message<void> {
   }
 }
 
-export function initEvents(router: Router) {
+export function initEvents(router: Router): void {
   router.registerMessage(PushEventDataMsg);
 
   router.addHandler(Routes.InteractionForeground, (_, msg) => {
