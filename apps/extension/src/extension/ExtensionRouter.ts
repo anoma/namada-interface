@@ -3,9 +3,9 @@ import { getAnomaRouterId } from "./utils";
 import {
   Router,
   MessageSender,
-  MessageRequester,
   EnvProducer,
   Result,
+  RoutedMessage,
 } from "router";
 
 export class ExtensionRouter extends Router {
@@ -32,6 +32,7 @@ export class ExtensionRouter extends Router {
     message: any,
     sender: MessageSender
   ): Promise<Result | undefined> => {
+    console.log("ExtensionRouter -> onMessage", { message, sender });
     if (message.port !== this.port) {
       return;
     }
@@ -47,9 +48,10 @@ export class ExtensionRouter extends Router {
   };
 
   protected async onMessageHandler(
-    message: ReturnType<MessageRequester["sendMessage"]>,
+    message: RoutedMessage,
     sender: MessageSender
   ): Promise<any> {
+    console.log("ExtensionRouter -> onMessageHandler", { message, sender });
     try {
       const result = await this.handleMessage(message, sender);
       return {

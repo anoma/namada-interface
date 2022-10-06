@@ -4,8 +4,8 @@ export class MessageRegistry {
   private registeredMsgType: Map<string, { new (): Message<unknown> }> =
     new Map();
 
-  registerMessage(
-    msgCls: { new (...args: any): Message<unknown> } & { type(): string }
+  registerMessage<T = unknown>(
+    msgCls: { new (...args: T[]): Message<unknown> } & { type(): string }
   ): void {
     if (this.registeredMsgType.has(msgCls.type())) {
       throw new Error(`Already registered type ${msgCls.type()}`);
@@ -13,7 +13,10 @@ export class MessageRegistry {
     this.registeredMsgType.set(msgCls.type(), msgCls);
   }
 
-  parseMessage(message: { type?: string; msg: any }): Message<unknown> {
+  parseMessage(message: {
+    type?: string;
+    msg: Message<unknown>;
+  }): Message<unknown> {
     if (!message.type) {
       throw new Error("Null type");
     }

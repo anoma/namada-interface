@@ -7,7 +7,7 @@ import {
 } from "borsh";
 
 export type ClassType<T> = {
-  new (args: any): T;
+  new (args: unknown): T;
 };
 
 export interface IMessage<T> {

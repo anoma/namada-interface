@@ -1,6 +1,6 @@
 import { Message } from "./Message";
 import { Handler } from "./Handler";
-import { EnvProducer, Guard, MessageSender } from "./types";
+import { EnvProducer, Guard, MessageSender, RoutedMessage } from "./types";
 import { MessageRegistry } from "./MessageRegistry";
 
 export abstract class Router {
@@ -16,6 +16,7 @@ export abstract class Router {
   public registerMessage(
     msgCls: { new (...args: any): Message<unknown> } & { type(): string }
   ): void {
+    console.log("Router -> registerMessage", { msgCls });
     this.msgRegistry.registerMessage(msgCls);
   }
 
@@ -36,9 +37,10 @@ export abstract class Router {
   public abstract unlisten(): void;
 
   protected async handleMessage(
-    message: any,
+    message: RoutedMessage,
     sender: MessageSender
   ): Promise<unknown> {
+    console.log("Router -> handleMessage", { message, sender });
     const msg = this.msgRegistry.parseMessage(message);
     const env = this.envProducer(sender, msg.meta ?? {});
 

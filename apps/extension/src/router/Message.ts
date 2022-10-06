@@ -41,3 +41,7 @@ export abstract class Message<R> {
     return false;
   }
 }
+
+export type MessageClass<T = Message<unknown>> = {
+  new (args: unknown): T;
+};
