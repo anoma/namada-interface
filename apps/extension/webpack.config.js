@@ -35,7 +35,7 @@ const plugins = [
 if (NODE_ENV === "development") {
   plugins.push(
     new ExtensionReloader({
-      port: 5000,
+      port: 9999,
       reloadPage: true,
       entries: {
         contentScript: ["content"],

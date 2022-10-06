@@ -25,8 +25,8 @@ export type AccountState = DerivedAccount & {
 };
 
 export enum KeyRingStatus {
-  NOTLOADED,
-  EMPTY,
-  LOCKED,
-  UNLOCKED,
+  NotLoaded,
+  Empty,
+  Locked,
+  Unlocked,
 }

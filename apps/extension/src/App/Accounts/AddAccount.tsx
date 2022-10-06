@@ -62,6 +62,7 @@ const findNextIndex = (accounts: DerivedAccount[]): number => {
 };
 
 enum Status {
+  Idle,
   Pending,
   Failed,
 }
@@ -75,7 +76,7 @@ const AddAccount: React.FC<Props> = ({ accounts, requester, setAccounts }) => {
   const [bip44Error, setBip44Error] = useState("");
   const [isFormValid, setIsFormValid] = useState(true);
   const [formError, setFormError] = useState("");
-  const [formStatus, setFormStatus] = useState<Status>();
+  const [formStatus, setFormStatus] = useState(Status.Idle);
 
   const bip44Prefix = "m/44'";
   const coinType = "0'";
@@ -91,7 +92,7 @@ const AddAccount: React.FC<Props> = ({ accounts, requester, setAccounts }) => {
     }
   }, [account, change, index]);
 
-  const handleAccountAdd = async () => {
+  const handleAccountAdd = async (): Promise<void> => {
     setFormStatus(Status.Pending);
     try {
       const derivedAccount: DerivedAccount =
@@ -116,7 +117,7 @@ const AddAccount: React.FC<Props> = ({ accounts, requester, setAccounts }) => {
     callback(parseInt(result));
   };
 
-  const handleFocus = (e: React.ChangeEvent<HTMLInputElement>) =>
+  const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
 
   return (
@@ -144,7 +145,7 @@ const AddAccount: React.FC<Props> = ({ accounts, requester, setAccounts }) => {
                 onChange={(e) => handleNumericChange(e, setAccount)}
                 onFocus={handleFocus}
               />
-              <Bip44PathDelimiter>'/</Bip44PathDelimiter>
+              <Bip44PathDelimiter>&apos;/</Bip44PathDelimiter>
               <Bip44Input
                 type="text"
                 value={change}
