@@ -3,7 +3,7 @@ import { Message } from "router";
 import { ROUTE } from "./constants";
 import { Bip44Path, DerivedAccount, KeyRingStatus } from "./types";
 
-enum MessageTypes {
+enum MessageType {
   LockKeyRing = "lock-keyring",
   UnlockKeyRing = "unlock-keyring",
   CheckPassword = "check-password",
@@ -14,15 +14,17 @@ enum MessageTypes {
 }
 
 export class LockKeyRingMsg extends Message<{ status: KeyRingStatus }> {
-  public static type() {
-    return MessageTypes.LockKeyRing;
+  public static type(): MessageType {
+    return MessageType.LockKeyRing;
   }
 
   constructor() {
     super();
   }
 
-  validate(): void {}
+  validate(): void {
+    return;
+  }
 
   route(): string {
     return ROUTE;
@@ -34,8 +36,8 @@ export class LockKeyRingMsg extends Message<{ status: KeyRingStatus }> {
 }
 
 export class UnlockKeyRingMsg extends Message<{ status: KeyRingStatus }> {
-  public static type() {
-    return MessageTypes.UnlockKeyRing;
+  public static type(): MessageType {
+    return MessageType.UnlockKeyRing;
   }
 
   constructor(public readonly password = "") {
@@ -58,8 +60,8 @@ export class UnlockKeyRingMsg extends Message<{ status: KeyRingStatus }> {
 }
 
 export class CheckPasswordMsg extends Message<boolean> {
-  public static type() {
-    return MessageTypes.CheckPassword;
+  public static type(): MessageType {
+    return MessageType.CheckPassword;
   }
 
   constructor(public readonly password: string) {
@@ -82,15 +84,17 @@ export class CheckPasswordMsg extends Message<boolean> {
 }
 
 export class GenerateMnemonicMsg extends Message<string[]> {
-  public static type() {
-    return MessageTypes.GenerateMnemonic;
+  public static type(): MessageType {
+    return MessageType.GenerateMnemonic;
   }
 
   constructor(public readonly size?: PhraseSize) {
     super();
   }
 
-  validate(): void {}
+  validate(): void {
+    return;
+  }
 
   route(): string {
     return ROUTE;
@@ -102,8 +106,8 @@ export class GenerateMnemonicMsg extends Message<string[]> {
 }
 
 export class SaveMnemonicMsg extends Message<boolean> {
-  public static type() {
-    return MessageTypes.SaveMnemonic;
+  public static type(): MessageType {
+    return MessageType.SaveMnemonic;
   }
 
   constructor(
@@ -141,8 +145,8 @@ export class SaveMnemonicMsg extends Message<boolean> {
 }
 
 export class DeriveAccountMsg extends Message<DerivedAccount> {
-  public static type() {
-    return MessageTypes.DeriveAccount;
+  public static type(): MessageType {
+    return MessageType.DeriveAccount;
   }
 
   constructor(public readonly path: Bip44Path, public readonly alias?: string) {
@@ -179,15 +183,17 @@ export class DeriveAccountMsg extends Message<DerivedAccount> {
 }
 
 export class QueryAccountsMsg extends Message<DerivedAccount[]> {
-  public static type() {
-    return MessageTypes.QueryAccounts;
+  public static type(): MessageType {
+    return MessageType.QueryAccounts;
   }
 
   constructor() {
     super();
   }
 
-  validate(): void {}
+  validate(): void {
+    return;
+  }
 
   route(): string {
     return ROUTE;

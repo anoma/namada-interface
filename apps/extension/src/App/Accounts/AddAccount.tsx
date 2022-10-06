@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, ButtonVariant, Input, InputVariants } from "@anoma/components";
+import { Button, ButtonVariant, Input, InputVariant } from "@anoma/components";
 
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
@@ -125,7 +125,7 @@ const AddAccount: React.FC<Props> = ({ accounts, requester, setAccounts }) => {
       <AddAccountForm>
         <InputContainer>
           <Input
-            variant={InputVariants.Text}
+            variant={InputVariant.Text}
             label="Alias"
             value={alias}
             onChange={(e) => setAlias(e.target.value)}

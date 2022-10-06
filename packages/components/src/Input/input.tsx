@@ -9,10 +9,10 @@ import {
   TextAreaInput,
   TextInput,
 } from "./input.components";
-import { InputVariants } from "./types";
+import { InputVariant } from "./types";
 
 export type InputProps = {
-  variant?: InputVariants;
+  variant?: InputVariant;
   value?: string | number;
   label?: string | React.ReactNode;
   error?: string;
@@ -22,7 +22,7 @@ export type InputProps = {
 };
 
 export const Input = ({
-  variant = InputVariants.Text,
+  variant = InputVariant.Text,
   value = "",
   label,
   error,
@@ -34,7 +34,7 @@ export const Input = ({
   const togglePasswordShown = (): void => setPasswordShown(!passwordShown);
 
   switch (variant) {
-    case InputVariants.Text:
+    case InputVariant.Text:
       return (
         <Label>
           {label}
@@ -51,7 +51,7 @@ export const Input = ({
           <ErrorTooltip>{error}</ErrorTooltip>
         </Label>
       );
-    case InputVariants.Textarea:
+    case InputVariant.Textarea:
       return (
         <Label>
           {label}
@@ -61,7 +61,7 @@ export const Input = ({
           <ErrorTooltip>{error}</ErrorTooltip>
         </Label>
       );
-    case InputVariants.Password:
+    case InputVariant.Password:
       return (
         <Label>
           {label}
@@ -82,7 +82,7 @@ export const Input = ({
           <ErrorTooltip>{error}</ErrorTooltip>
         </Label>
       );
-    case InputVariants.Number:
+    case InputVariant.Number:
       return (
         <Label>
           {label}
