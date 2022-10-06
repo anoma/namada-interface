@@ -43,9 +43,9 @@ const txMessage = new Message<TransactionMsgValue>();
 const txMessageValue = new TransactionMsgValue({
   token,
   epoch,
-  fee_amount: feeAmount,
-  gas_limit: gasLimit,
-  tx_code: txCode,
+  feeAmount,
+  gasLimit,
+  txCode,
 });
 
 const HASH_LENGTH = 64;
@@ -78,7 +78,7 @@ describe("Address", () => {
 describe("Account", () => {
   test("It should create valid hash and bytes", () => {
     const accountMsgValue = new AccountMsgValue({
-      vp_code: vpCode,
+      vpCode,
     });
     const accountMessage = new Message<AccountMsgValue>();
     const encoded = accountMessage.encode(AccountMsgSchema, accountMsgValue);
@@ -104,8 +104,8 @@ describe("IbcTransfer", () => {
     const port = "transfer";
     const channel = "channel-0";
     const ibcTransferMsgValue = new IbcTransferMsgValue({
-      source_port: port,
-      source_channel: channel,
+      sourcePort: port,
+      sourceChannel: channel,
       token,
       sender: source,
       receiver: target,

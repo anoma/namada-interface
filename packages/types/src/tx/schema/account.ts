@@ -1,8 +1,10 @@
+import { InitAccountProps } from "../types";
+
 export class AccountMsgValue {
   vp_code: Uint8Array;
 
-  constructor(properties: { vp_code: Uint8Array }) {
-    this.vp_code = properties.vp_code;
+  constructor(properties: InitAccountProps) {
+    this.vp_code = properties.vpCode;
   }
 }
 

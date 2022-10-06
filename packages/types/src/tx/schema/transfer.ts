@@ -1,4 +1,5 @@
 import BN from "bn.js";
+import { TransferProps } from "../types";
 
 export class TransferMsgValue {
   source: string;
@@ -6,12 +7,7 @@ export class TransferMsgValue {
   token: string;
   amount: BN;
 
-  constructor(properties: {
-    source: string;
-    target: string;
-    token: string;
-    amount: number;
-  }) {
+  constructor(properties: TransferProps) {
     this.source = properties.source;
     this.target = properties.target;
     this.token = properties.token;

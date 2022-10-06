@@ -1,4 +1,5 @@
 import BN from "bn.js";
+import { IbcTransferProps } from "../types";
 
 export class IbcTransferMsgValue {
   source_port: string;
@@ -8,16 +9,9 @@ export class IbcTransferMsgValue {
   receiver: string;
   amount: BN;
 
-  constructor(properties: {
-    source_port: string;
-    source_channel: string;
-    token: string;
-    sender: string;
-    receiver: string;
-    amount: number;
-  }) {
-    this.source_port = properties.source_port;
-    this.source_channel = properties.source_channel;
+  constructor(properties: IbcTransferProps) {
+    this.source_port = properties.sourcePort;
+    this.source_channel = properties.sourceChannel;
     this.token = properties.token;
     this.sender = properties.sender;
     this.receiver = properties.receiver;
