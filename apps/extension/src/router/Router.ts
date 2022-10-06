@@ -6,9 +6,7 @@ import { MessageRegistry } from "./MessageRegistry";
 export abstract class Router {
   protected msgRegistry: MessageRegistry = new MessageRegistry();
   protected registeredHandler: Map<string, Handler> = new Map();
-
   protected guards: Guard[] = [];
-
   protected port = "";
 
   constructor(protected readonly envProducer: EnvProducer) {}

@@ -38,15 +38,17 @@ export type Guard = (
   msg: Message<unknown>,
   sender: MessageSender
 ) => Promise<void>;
+
 export type Result = {
   return?: unknown;
   error?: unknown;
 };
 
-export type RoutedMessage = {
+export type RoutedMessage<T = Message<unknown>> = {
   meta: {
     routerId: number;
   };
-  msg: Message<unknown>;
+  msg: T;
   type: string;
+  port: string;
 };

@@ -1,11 +1,12 @@
 import browser from "webextension-polyfill";
 import { getAnomaRouterId } from "./utils";
 import {
-  Router,
-  MessageSender,
   EnvProducer,
+  Message,
+  MessageSender,
   Result,
   RoutedMessage,
+  Router,
 } from "router";
 
 export class ExtensionRouter extends Router {
@@ -29,11 +30,9 @@ export class ExtensionRouter extends Router {
   }
 
   protected onMessage = async (
-    // TODO: Refactor messaging to unify data types
-    // eslint-disable-next-line
-    message: any,
+    message: RoutedMessage,
     sender: MessageSender
-  ): Promise<Result | undefined> => {
+  ): Promise<Result | void> => {
     if (message.port !== this.port) {
       return;
     }
@@ -51,9 +50,7 @@ export class ExtensionRouter extends Router {
   protected async onMessageHandler(
     message: RoutedMessage,
     sender: MessageSender
-    // TODO: Refactor messaging to unify data types
-    // eslint-disable-next-line
-  ): Promise<any> {
+  ): Promise<Result> {
     try {
       const result = await this.handleMessage(message, sender);
       return {
