@@ -2,54 +2,50 @@ import {
   Anoma,
   AccountMsgValue,
   AccountMsgSchema,
-  IbcTransferMsgValue,
   IbcTransferMsgSchema,
+  IbcTransferMsgValue,
   IbcTransferProps,
   InitAccountProps,
   Message,
+  SignedTx,
+  Signer as ISigner,
   TransferMsgValue,
   TransferMsgSchema,
   TransferProps,
   TxProps,
-  SignedTx,
 } from "@anoma/types";
-import { DerivedAccount } from "types";
 
-export interface ISigner<T> {
-  accounts: () => Promise<T[]>;
-  signTransfer(
-    signer: string,
-    args: TransferProps,
-    txProps: TxProps
-  ): Promise<SignedTx>;
-  signIbcTransfer(
-    signer: string,
-    args: IbcTransferProps,
-    txProps: TxProps
-  ): Promise<SignedTx>;
-  signInitAccount(
-    signer: string,
-    args: InitAccountProps,
-    txProps: TxProps
-  ): Promise<SignedTx>;
-}
-
-export class Signer<T = DerivedAccount> implements ISigner<T> {
+export class Signer implements ISigner {
   constructor(
     protected readonly chainId: string,
     protected readonly anoma: Anoma
   ) {}
 
-  public async accounts(): Promise<T[]> {
+  public async accounts(): Promise<[]> {
     // TODO: Implement this.anoma.accounts()
-    return [] as T[];
+    return [];
   }
 
-  public async signTransfer(
+  /**
+   * Sign encoded transaction message, returning Tx hash and bytes
+   */
+  public async signTx(
     signer: string,
-    args: TransferProps,
-    txProps: TxProps
+    txProps: TxProps,
+    encoded: Uint8Array
   ): Promise<SignedTx> {
+    // TODO: Implement this.anoma.signTx(signer, txProps, encoded)
+    console.log({ signer, txProps, encoded });
+    return {
+      hash: "",
+      bytes: new Uint8Array([]),
+    };
+  }
+
+  /**
+   * Encode a Transfer message
+   */
+  public encodeTransfer(args: TransferProps): Uint8Array {
     const { source, target, token, amount } = args;
     const transferMsgValue = new TransferMsgValue({
       source,
@@ -57,26 +53,14 @@ export class Signer<T = DerivedAccount> implements ISigner<T> {
       token,
       amount,
     });
-
     const transferMessage = new Message<TransferMsgValue>();
-    const encoded = transferMessage.encode(TransferMsgSchema, transferMsgValue);
-
-    // TODO: Submit encoded message to proxy
-    // This is just a placeholder for now - replace with call to anoma.signTransfer:
-    const results = await this.anoma.getSigner(this.chainId);
-    console.debug({ signer, txProps, results, encoded });
-
-    return {
-      hash: "",
-      bytes: new Uint8Array([]),
-    };
+    return transferMessage.encode(TransferMsgSchema, transferMsgValue);
   }
 
-  public async signIbcTransfer(
-    signer: string,
-    args: IbcTransferProps,
-    txProps: TxProps
-  ): Promise<SignedTx> {
+  /**
+   * Encode an IbcTransfer message
+   */
+  public encodeIbcTransfer(args: IbcTransferProps): Uint8Array {
     const { sourcePort, sourceChannel, token, sender, receiver, amount } = args;
     const ibcTransferMsgValue = new IbcTransferMsgValue({
       sourcePort,
@@ -87,40 +71,24 @@ export class Signer<T = DerivedAccount> implements ISigner<T> {
       amount,
     });
     const ibcTransferMessage = new Message<IbcTransferMsgValue>();
-    const encoded = ibcTransferMessage.encode(
-      IbcTransferMsgSchema,
-      ibcTransferMsgValue
-    );
-
-    // TODO: Submit encoded message to proxy
-    // This is just a placeholder for now - replace with call to anoma.signIbcTransfer:
-    const results = await this.anoma.getSigner(this.chainId);
-    console.debug({ signer, txProps, encoded, results });
-    return {
-      hash: "",
-      bytes: new Uint8Array([]),
-    };
+    return ibcTransferMessage.encode(IbcTransferMsgSchema, ibcTransferMsgValue);
   }
 
-  public async signInitAccount(
+  /**
+   * Encode an InitAccount message
+   */
+  public async encodeInitAccount(
     signer: string,
-    args: InitAccountProps,
-    txProps: TxProps
-  ): Promise<SignedTx> {
+    args: InitAccountProps
+  ): Promise<Uint8Array> {
+    console.log({ signer });
     const { vpCode } = args;
     const accountMsgValue = new AccountMsgValue({
       vpCode,
     });
     const accountMessage = new Message<AccountMsgValue>();
-    const encoded = accountMessage.encode(AccountMsgSchema, accountMsgValue);
-
-    // TODO: Submit encoded message to proxy
-    // This is just a placeholder for now - replace with call to anoma.signInitAccount:
-    const results = await this.anoma.getSigner(this.chainId);
-    console.debug({ signer, txProps, encoded, results });
-    return {
-      hash: "",
-      bytes: new Uint8Array([]),
-    };
+    // TODO: Init-Account requires a secret when creating InitAccount struct.
+    // Implement `this.anoma.initAccount(signer, encoded)`
+    return accountMessage.encode(AccountMsgSchema, accountMsgValue);
   }
 }

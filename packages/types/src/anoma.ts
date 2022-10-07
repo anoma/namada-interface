@@ -1,4 +1,5 @@
 import { Chain } from "./chain";
+import { Signer } from "./signer";
 
 export type Transaction = {
   hash: Uint8Array;
@@ -10,11 +11,6 @@ export type Account = {
   address: string;
   publicKey: Uint8Array;
 };
-
-export interface Signer {
-  sign(account: Account, tx: Transaction): Promise<Transaction>;
-  accounts: Account[];
-}
 
 export interface Anoma {
   connect(chainId: string): Promise<void>;
