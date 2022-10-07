@@ -5,7 +5,7 @@ import { TopLevelRoute } from "App/types";
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
 import { UnlockKeyRingMsg, KeyRingStatus } from "background/keyring";
-import { Input, InputVariants } from "@anoma/components";
+import { Input, InputVariant } from "@anoma/components";
 import { Button, ButtonVariant } from "@anoma/components";
 import { LoginContainer, LoginError } from "./Login.components";
 
@@ -31,7 +31,7 @@ const Login: React.FC<Props> = ({ requester }) => {
         Ports.Background,
         new UnlockKeyRingMsg(password)
       );
-      if (lockStatus === KeyRingStatus.UNLOCKED) {
+      if (lockStatus === KeyRingStatus.Unlocked) {
         navigate(TopLevelRoute.Accounts);
       } else {
         setStatus(Status.InvalidPassword);
@@ -46,7 +46,7 @@ const Login: React.FC<Props> = ({ requester }) => {
     <LoginContainer>
       <Input
         label="Enter your password"
-        variant={InputVariants.Password}
+        variant={InputVariant.Password}
         onChange={(e) => setPassword(e.target.value)}
       />
       <Button
