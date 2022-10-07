@@ -42,7 +42,7 @@ const plugins = [
 if (NODE_ENV === "development") {
   plugins.push(
     new ExtensionReloader({
-      port: 5000,
+      port: 9999,
       reloadPage: true,
       entries: {
         contentScript: ["content"],
@@ -60,8 +60,8 @@ module.exports = {
   entry: {
     content: "./src/content",
     background: "./src/background",
-    popup: "./src/popup",
-    setup: "./src/setup",
+    popup: "./src/App",
+    setup: "./src/Setup",
     injected: "./src/content/injected.ts",
   },
   output: {

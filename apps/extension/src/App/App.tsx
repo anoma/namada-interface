@@ -11,6 +11,7 @@ import {
   KeyStoreType,
   QueryAccountsMsg,
 } from "background/keyring";
+
 import {
   AppContainer,
   BottomSection,

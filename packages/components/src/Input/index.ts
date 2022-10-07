@@ -1,3 +1,3 @@
 export { Input } from "./input";
-export { InputVariants } from "./types";
+export { InputVariant } from "./types";
 export { Label } from "./input.components";

@@ -1,3 +1,4 @@
+import { LocalStorageKeys } from "App/types";
 // the tokens in this file should always reflect the content of
 // our Figma, which is considered to be the source of truth.
 // https://www.figma.com/file/aiWZpaXjPLW6fDjE7dpFaU/Projects-2021?node-id=9102%3A8806
@@ -332,6 +333,17 @@ export enum ThemeName {
   Namada,
   Placeholder,
 }
+
+export type ColorMode = "light" | "dark";
+
+export const loadColorMode = (): ColorMode => {
+  return (localStorage.getItem(LocalStorageKeys.ColorMode) ||
+    "dark") as ColorMode;
+};
+
+export const storeColorMode = (mode: ColorMode): void => {
+  localStorage.setItem(LocalStorageKeys.ColorMode, mode);
+};
 
 export type ThemeConfigurations = {
   isLightMode: boolean;
