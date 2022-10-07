@@ -4,7 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 
 import { App } from "./App";
 
-export default () =>
+export default ((): void => {
   ReactDOM.render(
     <React.StrictMode>
       <BrowserRouter>
@@ -13,3 +13,4 @@ export default () =>
     </React.StrictMode>,
     document.getElementById("root")
   );
+})();

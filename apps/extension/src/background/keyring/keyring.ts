@@ -37,7 +37,7 @@ export class KeyRing {
   private _mnemonicStore: IStore<MnemonicState>;
   private _accountStore: IStore<AccountState>;
   private _password: string | undefined;
-  private _status: KeyRingStatus = KeyRingStatus.EMPTY;
+  private _status: KeyRingStatus = KeyRingStatus.Empty;
 
   constructor(kvStore: KVStore) {
     this._mnemonicStore = new Store(KeyRingStore.Mnemonic, kvStore);
@@ -45,22 +45,30 @@ export class KeyRing {
   }
 
   public isLocked(): boolean {
-    return !this._password;
+    return this._password === undefined;
   }
 
   public get status(): KeyRingStatus {
     return this._status;
   }
 
-  public async lock() {
-    this._status = KeyRingStatus.LOCKED;
+  public async lock(): Promise<void> {
+    if (this._status !== KeyRingStatus.Unlocked) {
+      throw new Error("Key ring is not unlocked");
+    }
+
+    this._status = KeyRingStatus.Locked;
     this._password = undefined;
   }
 
-  public async unlock(password: string) {
+  public async unlock(password: string): Promise<void> {
+    if (this.status !== KeyRingStatus.Locked) {
+      throw new Error("Key ring is not locked!");
+    }
+
     if (await this.checkPassword(password)) {
       this._password = password;
-      this._status = KeyRingStatus.UNLOCKED;
+      this._status = KeyRingStatus.Unlocked;
     }
   }
 

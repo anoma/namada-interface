@@ -10,6 +10,7 @@ import {
   DerivedAccount,
   QueryAccountsMsg,
 } from "background/keyring";
+
 import {
   AppContainer,
   BottomSection,
@@ -39,7 +40,7 @@ export const App: React.FC = () => {
   const [accounts, setAccounts] = useState<DerivedAccount[]>([]);
   const [error, setError] = useState("");
 
-  const fetchAccounts = async () => {
+  const fetchAccounts = async (): Promise<void> => {
     setStatus(Status.Pending);
     try {
       const accounts = await requester.sendMessage(
@@ -56,7 +57,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const checkIsLocked = async () => {
+  const checkIsLocked = async (): Promise<void> => {
     const isLocked = await requester.sendMessage(
       Ports.Background,
       new CheckIsLockedMsg()

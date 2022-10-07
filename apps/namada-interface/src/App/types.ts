@@ -86,4 +86,5 @@ export enum LocalStorageKeys {
   MasterSeed = "com.anoma.network:seed",
   Session = "com.anoma.network:session",
   Persist = "com.anoma.network:state",
+  ColorMode = "com.anoma.color-mode",
 }

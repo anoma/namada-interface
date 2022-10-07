@@ -1,5 +1,3 @@
-import { useState } from "react";
-import { MainContainerNavigation } from "App/StakingAndGovernance/MainContainerNavigation";
 import { TableContainer, TableElement } from "./Table.components";
 import { TableConfigurations, RowBase, ColumnDefinition } from "./types";
 

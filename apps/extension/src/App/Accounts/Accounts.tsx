@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 import { Icon, IconName } from "@anoma/components";
 
 import { TopLevelRoute } from "App/types";
-import { Status } from "App/App";
 import { DerivedAccount } from "background/keyring";
 import {
   AccountsContainer,
