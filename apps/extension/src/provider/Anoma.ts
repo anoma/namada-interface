@@ -1,12 +1,11 @@
-import { ChainInfo as Chain } from "@keplr-wallet/types";
-import { Anoma as IAnoma, Signer } from "@anoma/types";
-import { Ports, MessageRequester } from "../router";
+import { Anoma as IAnoma, Chain, Signer } from "@anoma/types";
+import { Ports, MessageRequester } from "router";
 import {
   GetChainMsg,
   GetChainsMsg,
   GetSignerMsg,
   SuggestChainMsg,
-} from "../background/chains";
+} from "background/chains";
 
 export class Anoma implements IAnoma {
   constructor(

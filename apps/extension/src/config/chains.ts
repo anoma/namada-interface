@@ -1,5 +1,7 @@
-import { ChainInfo as Chain, IBCCurrency } from "@keplr-wallet/types";
+import { Chain, IBCCurrency } from "@anoma/types";
 const bech32Prefix = "namada";
+
+export const chains: Chain[] = [];
 
 const ibcCurrency: IBCCurrency = {
   coinDenom: "NAM",
@@ -18,7 +20,7 @@ const ibcCurrency: IBCCurrency = {
 /**
  * Define chains to embed within extension
  */
-const chain: Chain = {
+const defaultChain: Chain = {
   rpc: "http://localhost:26657",
   rest: "http://localhost:1317",
   chainId: "namada-test.XXXXXXXXXXXX",
@@ -42,4 +44,4 @@ const chain: Chain = {
   beta: false,
 };
 
-export const chains = [chain];
+chains.push(defaultChain);

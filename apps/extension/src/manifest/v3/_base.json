@@ -19,7 +19,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["injected.anoma.js"],
+      "resources": ["injected.anoma.js", "assets/app.css"],
       "matches": ["<all_urls>"]
     }
   ]

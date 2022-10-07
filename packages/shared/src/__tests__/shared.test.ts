@@ -1,4 +1,4 @@
-import { Account, IbcTransfer, Transfer } from "../shared/shared";
+import { Address, Account, IbcTransfer, Transfer } from "../shared/shared";
 
 const source =
   "atest1v4ehgw368ycryv2z8qcnxv3cxgmrgvjpxs6yg333gym5vv2zxepnj334g4rryvj9xucrgve4x3xvr4";
@@ -13,8 +13,39 @@ const feeAmount = 1000;
 const gasLimit = 1_000_000;
 const amount = 100;
 
+// Empty validity predicate code
 const vpCode = new Uint8Array([]);
+// Empty transaction code
 const txCode = new Uint8Array([]);
+
+const HASH_LENGTH = 64;
+
+describe("Address", () => {
+  test("It should generate an ImplicitAddress from a secret", () => {
+    const address = new Address(secret);
+    const implicit = address.implicit();
+
+    expect(implicit).toBe("5162ABDCBABA0940AA25C9885DE79D088433EB9D");
+  });
+
+  test("It should generate a PublicKey from a secret", () => {
+    const address = new Address(secret);
+    const publicKey = address.public();
+    const ed25519Key =
+      "b7a3c12dc0c8c748ab07525b701122b88bd78f600c76342d27f25e5f92444cde";
+
+    // PublicKey is padded with "00"
+    expect(publicKey.substring(2)).toBe(ed25519Key);
+  });
+
+  test("It should generate a SecretKey from a secret", () => {
+    const address = new Address(secret);
+    const secretKey = address.private();
+
+    // SecretKey is padded with "00"
+    expect(secretKey.substring(2)).toBe(secret);
+  });
+});
 
 describe("Account", () => {
   test("It should create valid hash and bytes", () => {
@@ -28,8 +59,9 @@ describe("Account", () => {
       txCode
     );
 
-    expect(hash).toBeDefined();
-    expect(bytes).toBeDefined();
+    expect(hash.length).toEqual(HASH_LENGTH);
+    // Assert that we get a byte array of the expected size
+    expect(bytes.length).toEqual(489);
   });
 });
 
@@ -54,8 +86,9 @@ describe("IbcTransfer", () => {
       txCode
     );
 
-    expect(hash).toBeDefined();
-    expect(bytes).toBeDefined();
+    expect(hash.length).toEqual(HASH_LENGTH);
+    // Assert that we get a byte array of the expected size
+    expect(bytes.length).toEqual(797);
   });
 });
 
@@ -70,7 +103,8 @@ describe("Transfer", () => {
       txCode
     );
 
-    expect(hash).toBeDefined();
-    expect(bytes).toBeDefined();
+    expect(hash.length).toEqual(HASH_LENGTH);
+    // Assert that we get a byte array of the expected size
+    expect(bytes.length).toEqual(596);
   });
 });

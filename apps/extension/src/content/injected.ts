@@ -1,5 +1,5 @@
-import { InjectedAnoma } from "../provider";
-import manifest from "../manifest/_base.json";
+import { InjectedAnoma } from "provider";
+import manifest from "manifest/_base.json";
 
 declare global {
   var anoma: InjectedAnoma;

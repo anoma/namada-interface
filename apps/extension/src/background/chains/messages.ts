@@ -1,6 +1,5 @@
-import { Message } from "../../router/Message";
-import { Signer } from "@anoma/types";
-import { ChainInfo as Chain } from "@keplr-wallet/types";
+import { Chain, Signer } from "@anoma/types";
+import { Message } from "router";
 import { ROUTE } from "./constants";
 
 enum MessageTypes {

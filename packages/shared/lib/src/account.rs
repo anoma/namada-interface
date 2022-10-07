@@ -26,21 +26,25 @@ impl Account {
     /// Initialize an account on the Ledger
     #[wasm_bindgen(constructor)]
     pub fn new(
-        secret: String,
+        secret: &str,
         vp_code: Vec<u8>,
     ) -> Self {
-        let signing_key = SecretKey::Ed25519(
-            key::ed25519::SecretKey::from_str(&secret).expect("ed25519 encoding should not fail")
-        );
+        let secret_key = key::ed25519::SecretKey::from_str(secret)
+            .expect("ed25519 encoding should not fail");
+        let signing_key = SecretKey::Ed25519(secret_key);
 
         // TODO: Fix the following conversion
         #[allow(clippy::useless_conversion)]
         let public_key = PublicKey::from(signing_key.ref_to());
 
-        let tx_data = InitAccount {
+        let init_account = InitAccount {
             public_key,
             vp_code,
-        }.try_to_vec().expect("Encoding tx data shouldn't fail");
+        };
+
+        let tx_data = init_account
+            .try_to_vec()
+            .expect("Encoding tx data shouldn't fail");
 
         Self {
             tx_data,
@@ -49,7 +53,7 @@ impl Account {
 
     pub fn to_tx(
         &self,
-        secret: String,
+        secret: &str,
         token: String,
         epoch: u32,
         fee_amount: u32,
@@ -57,7 +61,8 @@ impl Account {
         tx_code: Vec<u8>,
     ) -> Result<JsValue, JsValue> {
         let token = Address::from_str(&token).unwrap();
-        let tx_data = self.tx_data.clone();
+        let tx_data: &[u8] = &self.tx_data;
+        let tx_code: &[u8] = &tx_code;
 
         let transaction =
             match Transaction::new(secret, token, epoch, fee_amount, gas_limit, tx_code, tx_data) {
@@ -66,13 +71,14 @@ impl Account {
             };
 
         // Return serialized Transaction
-        Ok(JsValue::from_serde(&transaction).unwrap())
+        Ok(JsValue::from_serde(&transaction.serialize()).unwrap())
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::types::transaction::SerializedTx;
     use wasm_bindgen_test::*;
 
     #[wasm_bindgen_test]
@@ -86,11 +92,11 @@ mod tests {
         let tx_code = vec![];
         let vp_code = vec![];
 
-        let account = Account::new(secret.clone(), vp_code);
-        let transaction = account.to_tx(secret, token, epoch, fee_amount, gas_limit, tx_code)
+        let account = Account::new(&secret, vp_code);
+        let transaction = account.to_tx(&secret, token, epoch, fee_amount, gas_limit, tx_code)
             .expect("Should be able to convert to transaction");
 
-        let serialized_tx: Transaction = JsValue::into_serde(&transaction)
+        let serialized_tx: SerializedTx = JsValue::into_serde(&transaction)
             .expect("Should be able to serialize to a Transaction");
 
         let hash = serialized_tx.hash();

@@ -1,6 +1,6 @@
 import browser from "webextension-polyfill";
-import { Env, MessageSender, KVPrefix } from "../router/types";
 import { ExtensionKVStore } from "@anoma/storage";
+import { Env, MessageSender, KVPrefix } from "router/types";
 
 const ROUTER_ID_KEY = "anomaExtensionRouterId";
 const store = new ExtensionKVStore(KVPrefix.LocalStorage);

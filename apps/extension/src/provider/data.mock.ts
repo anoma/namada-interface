@@ -1,4 +1,4 @@
-import { ChainInfo as Chain } from "@keplr-wallet/types";
+import { Chain } from "@anoma/types";
 
 export const chain: Chain = {
   rpc: "http://localhost:26657",
