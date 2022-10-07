@@ -39,7 +39,7 @@ const getImageByTypeAndMode = (
   colorMode: ColorMode,
   forceLightMode: boolean
 ): ComponentType => {
-  if (colorMode == "light" || forceLightMode) {
+  if (colorMode === "light" || forceLightMode) {
     return imagesLight[imageName];
   }
   return imagesDark[imageName];
