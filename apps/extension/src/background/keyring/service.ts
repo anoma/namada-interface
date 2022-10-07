@@ -80,10 +80,10 @@ export class KeyRingService {
     }
   }
 
-  encodeIbcTransfer(txMsg: Uint8Array): Uint8Array {
+  encodeIbcTransfer(txMsg: string): string {
     try {
-      const { tx_data } = new IbcTransfer(txMsg).to_serialized();
-      return tx_data;
+      const { tx_data } = new IbcTransfer(fromBase64(txMsg)).to_serialized();
+      return toBase64(tx_data);
     } catch (e) {
       throw new Error(`Unable to encode IBC transfer! ${e}`);
     }
@@ -94,10 +94,11 @@ export class KeyRingService {
    * therefore, we need to query the private key for this account from
    * storage
    */
-  async encodeInitAccount(
-    address: string,
-    txMsg: Uint8Array
-  ): Promise<Uint8Array> {
-    return await this._keyRing.encodeInitAccount(address, txMsg);
+  async encodeInitAccount(txMsg: string, address: string): Promise<string> {
+    const tx_data = await this._keyRing.encodeInitAccount(
+      address,
+      fromBase64(txMsg)
+    );
+    return toBase64(tx_data);
   }
 }

@@ -270,7 +270,7 @@ export class KeyRing {
       const { tx_data } = new Account(txMsg, pk).to_serialized();
       return tx_data;
     } catch (e) {
-      throw new Error(`Could not encode InitAccount! ${address}: ${e}`);
+      throw new Error(`Could not encode InitAccount for ${address}: ${e}`);
     }
   }
 }

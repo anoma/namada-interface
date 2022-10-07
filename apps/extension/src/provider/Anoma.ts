@@ -69,21 +69,21 @@ export class Anoma implements IAnoma {
     );
   }
 
-  public async encodeIbcTransfer(
-    txMsg: Uint8Array
-  ): Promise<Uint8Array | undefined> {
+  public async encodeIbcTransfer(txMsg: string): Promise<string | undefined> {
     return await this.requester?.sendMessage(
       Ports.Background,
       new EncodeIbcTransferMsg(txMsg)
     );
   }
 
-  public async encodeInitAccount(
-    txMsg: Uint8Array
-  ): Promise<Uint8Array | undefined> {
+  public async encodeInitAccount(props: {
+    txMsg: string;
+    address: string;
+  }): Promise<string | undefined> {
+    const { txMsg, address } = props;
     return await this.requester?.sendMessage(
       Ports.Background,
-      new EncodeInitAccountMsg(txMsg)
+      new EncodeInitAccountMsg(txMsg, address)
     );
   }
 

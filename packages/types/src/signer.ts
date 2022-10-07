@@ -16,9 +16,9 @@ export interface Signer<T = Account> {
     txData: string
   ): Promise<SignedTx | undefined>;
   encodeTransfer(args: TransferProps): Promise<string | undefined>;
-  encodeIbcTransfer(args: IbcTransferProps): Promise<Uint8Array | undefined>;
+  encodeIbcTransfer(args: IbcTransferProps): Promise<string | undefined>;
   encodeInitAccount(
-    signer: string,
-    args: InitAccountProps
-  ): Promise<Uint8Array | undefined>;
+    args: InitAccountProps,
+    signer: string
+  ): Promise<string | undefined>;
 }

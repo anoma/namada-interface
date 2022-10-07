@@ -289,12 +289,12 @@ export class EncodeTransferMsg extends Message<string> {
   }
 }
 
-export class EncodeIbcTransferMsg extends Message<Uint8Array> {
+export class EncodeIbcTransferMsg extends Message<string> {
   public static type(): MessageType {
     return MessageType.EncodeIbcTransfer;
   }
 
-  constructor(public readonly txMsg: Uint8Array) {
+  constructor(public readonly txMsg: string) {
     super();
   }
 
@@ -314,16 +314,19 @@ export class EncodeIbcTransferMsg extends Message<Uint8Array> {
   }
 }
 
-export class EncodeInitAccountMsg extends Message<Uint8Array> {
+export class EncodeInitAccountMsg extends Message<string> {
   public static type(): MessageType {
     return MessageType.EncodeInitAccount;
   }
 
-  constructor(public readonly txMsg: Uint8Array) {
+  constructor(public readonly txMsg: string, public readonly address: string) {
     super();
   }
 
   validate(): void {
+    if (!this.address) {
+      throw new Error("An address is required!");
+    }
     if (!this.txMsg) {
       throw new Error("Invalid encoded transaction message!");
     }

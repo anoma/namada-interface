@@ -81,7 +81,7 @@ export class Signer implements ISigner {
    */
   public async encodeIbcTransfer(
     args: IbcTransferProps
-  ): Promise<Uint8Array | undefined> {
+  ): Promise<string | undefined> {
     const { sourcePort, sourceChannel, token, sender, receiver, amount } = args;
     const ibcTransferMsgValue = new IbcTransferMsgValue({
       sourcePort,
@@ -92,26 +92,36 @@ export class Signer implements ISigner {
       amount,
     });
     const ibcTransferMessage = new Message<IbcTransferMsgValue>();
-    // TODO: call this._anoma.getIbcTransfer();
-    return ibcTransferMessage.encode(IbcTransferMsgSchema, ibcTransferMsgValue);
+    const serializedIbcTransfer = ibcTransferMessage.encode(
+      IbcTransferMsgSchema,
+      ibcTransferMsgValue
+    );
+
+    if (serializedIbcTransfer) {
+      return await this._anoma.encodeTransfer(toBase64(serializedIbcTransfer));
+    }
   }
 
   /**
    * Encode an InitAccount message
    */
   public async encodeInitAccount(
-    signer: string,
-    args: InitAccountProps
-  ): Promise<Uint8Array> {
+    args: InitAccountProps,
+    signer: string
+  ): Promise<string | undefined> {
     console.log({ signer });
     const { vpCode } = args;
     const accountMsgValue = new AccountMsgValue({
       vpCode,
     });
     const accountMessage = new Message<AccountMsgValue>();
-    // TODO: Init-Account requires a secret when creating InitAccount struct.
-    // Look up secret for signer in storage:
-    // Implement `this._anoma.initAccount(signer, encoded)`
-    return accountMessage.encode(AccountMsgSchema, accountMsgValue);
+    const serialized = accountMessage.encode(AccountMsgSchema, accountMsgValue);
+
+    if (serialized) {
+      return await this._anoma.encodeInitAccount({
+        txMsg: toBase64(serialized),
+        address: signer,
+      });
+    }
   }
 }
