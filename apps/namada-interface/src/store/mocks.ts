@@ -223,4 +223,7 @@ export const mockAppState: RootState = {
     validators: [],
     myValidators: [],
   },
+  notifications: {
+    toasts: {} 
+  }
 };

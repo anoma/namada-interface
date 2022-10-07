@@ -30,6 +30,7 @@ import makeStore, { AppStore } from "store/store";
 import AppRoutes from "./AppRoutes";
 import { Persistor, persistStore } from "redux-persist";
 import { Provider } from "react-redux";
+import { Toasts } from "components/Toast";
 
 export const history = createBrowserHistory({ window });
 
@@ -86,6 +87,7 @@ function App(): JSX.Element {
       <ThemeProvider theme={theme}>
         <Provider store={store}>
           <GlobalStyles isLightMode={isLightMode} />
+          <Toasts />
           <AppContainer data-testid="AppContainer">
             <TopSection>
               <TopNavigation

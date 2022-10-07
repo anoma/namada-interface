@@ -14,6 +14,7 @@ import {
   TRANSFER_CONFIGURATION,
 } from "slices/shieldedTransfer";
 import { ShieldedAccountType, getMaspWeb } from "@anoma/masp-web";
+import { actions, CreateToastPayload, ToastId } from "slices/notifications";
 
 type NewAccountDetailsWithPassword = NewAccountDetails & {
   chainId: string;
@@ -24,6 +25,34 @@ type ShieldedKeysAndAddressesWithNewAccountDetails = {
   chainId: string;
   shieldedKeysAndAddress: ShieldedAccount;
   newAccountDetails: NewAccountDetails;
+};
+
+enum Toasts {
+  CreateShieldedAccountStart,
+  CreateShieldedAccountSuccess,
+}
+
+const getToast = (toastId: ToastId, toast: Toasts): CreateToastPayload => {
+  const toasts: Record<Toasts, CreateToastPayload> = {
+    [Toasts.CreateShieldedAccountStart]: {
+      id: toastId,
+      data: {
+        title: "Creating account...",
+        message: "Account creation started.",
+        type: "info",
+      },
+    },
+    [Toasts.CreateShieldedAccountSuccess]: {
+      id: toastId,
+      data: {
+        title: "Success!",
+        message: "New shielded account created.",
+        type: "success",
+      },
+    },
+  };
+
+  return toasts[toast];
 };
 
 /**
@@ -37,7 +66,13 @@ export const createShieldedAccount = createAsyncThunk<
   NewAccountDetailsWithPassword
 >(
   ADD_ACCOUNT_TO_LEDGER,
-  async (newAccountDetails: NewAccountDetailsWithPassword) => {
+  async (newAccountDetails: NewAccountDetailsWithPassword, thunkAPI) => {
+    thunkAPI.dispatch(
+      actions.createToast(
+        getToast(thunkAPI.requestId, Toasts.CreateShieldedAccountStart)
+      )
+    );
+
     try {
       // TODO distinguish between master/derived
       const { chainId, alias, password } = newAccountDetails;
@@ -62,6 +97,12 @@ export const createShieldedAccount = createAsyncThunk<
           newAccountDetails,
           shieldedKeysAndAddress: shieldedAccount,
         };
+
+        thunkAPI.dispatch(
+          actions.createToast(
+            getToast(thunkAPI.requestId, Toasts.CreateShieldedAccountSuccess)
+          )
+        );
 
         // TODO allow overriding this
         history.push(TopLevelRouteGenerator.createRouteForWallet());
