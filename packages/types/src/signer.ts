@@ -8,7 +8,7 @@ import {
 } from "./tx";
 
 export interface Signer<T = DerivedAccount> {
-  accounts: () => Promise<T[]>;
+  accounts: () => Promise<T[] | undefined>;
   signTx(
     signer: string,
     txProps: TxProps,

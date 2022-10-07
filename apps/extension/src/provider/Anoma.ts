@@ -1,11 +1,8 @@
-import { Anoma as IAnoma, Chain, Signer } from "@anoma/types";
+import { Anoma as IAnoma, Chain } from "@anoma/types";
 import { Ports, MessageRequester } from "router";
-import {
-  GetChainMsg,
-  GetChainsMsg,
-  GetSignerMsg,
-  SuggestChainMsg,
-} from "background/chains";
+import { GetChainMsg, GetChainsMsg, SuggestChainMsg } from "background/chains";
+import { DerivedAccount } from "types";
+import { QueryAccountsMsg } from "background/keyring";
 
 export class Anoma implements IAnoma {
   constructor(
@@ -14,6 +11,7 @@ export class Anoma implements IAnoma {
   ) {}
 
   public async connect(chainId: string): Promise<void> {
+    // TODO: Implement this
     console.info("connect", chainId);
   }
 
@@ -31,18 +29,19 @@ export class Anoma implements IAnoma {
     );
   }
 
+  public async accounts(
+    chainId: string
+  ): Promise<DerivedAccount[] | undefined> {
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new QueryAccountsMsg(chainId)
+    );
+  }
+
   public async suggestChain(chain: Chain): Promise<void> {
     return await this.requester?.sendMessage(
       Ports.Background,
       new SuggestChainMsg(chain)
-    );
-  }
-
-  public async getSigner(chainId: string): Promise<Signer | undefined> {
-    console.info("getSigner", chainId);
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new GetSignerMsg()
     );
   }
 

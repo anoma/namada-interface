@@ -14,16 +14,16 @@ import {
   TransferProps,
   TxProps,
 } from "@anoma/types";
+import { DerivedAccount } from "types";
 
 export class Signer implements ISigner {
   constructor(
     protected readonly chainId: string,
-    protected readonly anoma: Anoma
+    private readonly _anoma: Anoma
   ) {}
 
-  public async accounts(): Promise<[]> {
-    // TODO: Implement this.anoma.accounts()
-    return [];
+  public async accounts(): Promise<DerivedAccount[] | undefined> {
+    return await this._anoma.accounts(this.chainId);
   }
 
   /**
@@ -34,7 +34,7 @@ export class Signer implements ISigner {
     txProps: TxProps,
     encoded: Uint8Array
   ): Promise<SignedTx> {
-    // TODO: Implement this.anoma.signTx(signer, txProps, encoded)
+    // TODO: Implement this._anoma.signTx(signer, txProps, encoded)
     console.log({ signer, txProps, encoded });
     return {
       hash: "",
@@ -88,7 +88,8 @@ export class Signer implements ISigner {
     });
     const accountMessage = new Message<AccountMsgValue>();
     // TODO: Init-Account requires a secret when creating InitAccount struct.
-    // Implement `this.anoma.initAccount(signer, encoded)`
+    // Look up secret for signer in storage:
+    // Implement `this._anoma.initAccount(signer, encoded)`
     return accountMessage.encode(AccountMsgSchema, accountMsgValue);
   }
 }
