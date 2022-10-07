@@ -1,6 +1,6 @@
 export type SignedTx = {
   hash: string;
-  bytes: Uint8Array;
+  bytes: string;
 };
 
 export type TxProps = {

@@ -52,8 +52,8 @@ export class Anoma implements IAnoma {
 
   public async signTx(props: {
     signer: string;
-    txMsg: Uint8Array;
-    txData: Uint8Array;
+    txMsg: string;
+    txData: string;
   }): Promise<SignedTx | undefined> {
     const { signer, txMsg, txData } = props;
     return await this.requester?.sendMessage(
@@ -62,9 +62,7 @@ export class Anoma implements IAnoma {
     );
   }
 
-  public async encodeTransfer(
-    txMsg: Uint8Array
-  ): Promise<Uint8Array | undefined> {
+  public async encodeTransfer(txMsg: string): Promise<string | undefined> {
     return await this.requester?.sendMessage(
       Ports.Background,
       new EncodeTransferMsg(txMsg)

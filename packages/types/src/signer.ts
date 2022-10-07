@@ -12,10 +12,10 @@ export interface Signer<T = Account> {
   signTx(
     signer: string,
     txProps: TxProps,
-    encodedTx: Uint8Array,
-    txData: Uint8Array
+    encodedTx: string,
+    txData: string
   ): Promise<SignedTx | undefined>;
-  encodeTransfer(args: TransferProps): Promise<Uint8Array | undefined>;
+  encodeTransfer(args: TransferProps): Promise<string | undefined>;
   encodeIbcTransfer(args: IbcTransferProps): Promise<Uint8Array | undefined>;
   encodeInitAccount(
     signer: string,

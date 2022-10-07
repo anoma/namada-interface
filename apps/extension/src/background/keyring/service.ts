@@ -1,3 +1,4 @@
+import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import { PhraseSize } from "@anoma/crypto";
 import { KVStore } from "@anoma/storage";
 import { DerivedAccount, SignedTx } from "@anoma/types";
@@ -59,20 +60,33 @@ export class KeyRingService {
 
   async signTx(
     signer: string,
-    txMsg: Uint8Array,
-    txData: Uint8Array
+    txMsg: string,
+    txData: string
   ): Promise<SignedTx> {
-    return await this._keyRing.signTx(signer, txMsg, txData);
+    return await this._keyRing.signTx(
+      signer,
+      fromBase64(txMsg),
+      fromBase64(txData)
+    );
   }
 
-  encodeTransfer(txMsg: Uint8Array): Uint8Array {
-    const { tx_data } = new Transfer(txMsg).to_serialized();
-    return tx_data;
+  encodeTransfer(txMsg: string): string {
+    try {
+      const { tx_data } = new Transfer(fromBase64(txMsg)).to_serialized();
+      return toBase64(tx_data);
+    } catch (e) {
+      console.warn(e);
+      throw new Error(`Unable to encode transfer! ${e}`);
+    }
   }
 
   encodeIbcTransfer(txMsg: Uint8Array): Uint8Array {
-    const { tx_data } = new IbcTransfer(txMsg).to_serialized();
-    return tx_data;
+    try {
+      const { tx_data } = new IbcTransfer(txMsg).to_serialized();
+      return tx_data;
+    } catch (e) {
+      throw new Error(`Unable to encode IBC transfer! ${e}`);
+    }
   }
 
   /**

@@ -29,7 +29,7 @@ const token =
 const epoch = 5;
 const feeAmount = 1000;
 const gasLimit = 1_000_000;
-const amount = amountToMicro(123.123);
+const amount = amountToMicro(123.456);
 
 // Empty validity predicate code
 const vpCode = new Uint8Array([]);

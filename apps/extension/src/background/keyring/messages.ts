@@ -236,8 +236,8 @@ export class SignTxMsg extends Message<SignedTx> {
 
   constructor(
     public readonly signer: string,
-    public readonly txMsg: Uint8Array,
-    public readonly txData: Uint8Array
+    public readonly txMsg: string,
+    public readonly txData: string
   ) {
     super();
   }
@@ -264,17 +264,17 @@ export class SignTxMsg extends Message<SignedTx> {
   }
 }
 
-export class EncodeTransferMsg extends Message<Uint8Array> {
+export class EncodeTransferMsg extends Message<string> {
   public static type(): MessageType {
     return MessageType.EncodeTransfer;
   }
 
-  constructor(public readonly txMsg: Uint8Array) {
+  constructor(public readonly txMsg: string) {
     super();
   }
 
   validate(): void {
-    if (!this.txMsg || this.txMsg.length === 0) {
+    if (!this.txMsg) {
       throw new Error("Invalid encoded transaction message!");
     }
     return;
@@ -299,7 +299,7 @@ export class EncodeIbcTransferMsg extends Message<Uint8Array> {
   }
 
   validate(): void {
-    if (!this.txMsg || this.txMsg.length === 0) {
+    if (!this.txMsg) {
       throw new Error("Invalid encoded transaction message!");
     }
     return;
@@ -324,7 +324,7 @@ export class EncodeInitAccountMsg extends Message<Uint8Array> {
   }
 
   validate(): void {
-    if (!this.txMsg || this.txMsg.length === 0) {
+    if (!this.txMsg) {
       throw new Error("Invalid encoded transaction message!");
     }
     return;

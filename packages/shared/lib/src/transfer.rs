@@ -29,7 +29,7 @@ impl Transfer {
     ) -> Result<Transfer, String> {
         let msg: &[u8] = &msg;
         let msg = BorshDeserialize::try_from_slice(msg)
-            .map_err(|err| err.to_string())?;
+            .map_err(|err| format!("BorshDeserialize failed! {:?}", err))?;
         let TransferMsg { source, target, token, amount } = msg;
 
         let source = Address::from_str(&source).expect("Address from string should not fail");

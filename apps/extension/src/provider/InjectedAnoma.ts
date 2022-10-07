@@ -44,19 +44,17 @@ export class InjectedAnoma implements IAnoma {
 
   public async signTx(props: {
     signer: string;
-    txMsg: Uint8Array;
-    txData: Uint8Array;
+    txMsg: string;
+    txData: string;
   }): Promise<SignedTx> {
     return await InjectedProxy.requestMethod<
-      { signer: string; txMsg: Uint8Array; txData: Uint8Array },
+      { signer: string; txMsg: string; txData: string },
       SignedTx
     >("signTx", props);
   }
 
-  public async encodeTransfer(
-    txMsg: Uint8Array
-  ): Promise<Uint8Array | undefined> {
-    return await InjectedProxy.requestMethod<Uint8Array, Uint8Array>(
+  public async encodeTransfer(txMsg: string): Promise<string | undefined> {
+    return await InjectedProxy.requestMethod<string, string>(
       "encodeTransfer",
       txMsg
     );
@@ -79,6 +77,7 @@ export class InjectedAnoma implements IAnoma {
       txMsg
     );
   }
+
   public version(): string {
     return this._version;
   }

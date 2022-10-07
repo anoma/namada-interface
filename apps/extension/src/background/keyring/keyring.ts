@@ -9,6 +9,7 @@ import { Bip44Path, AccountType } from "types";
 import { Crypto } from "./crypto";
 
 import { IStore, Store } from "../types";
+import { toBase64 } from "@cosmjs/encoding";
 
 // Generated UUID namespace for uuid v5
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
@@ -235,7 +236,11 @@ export class KeyRing {
     try {
       const pk = crypto.decrypt(account, this._password);
       const signer = new Signer(txData);
-      return signer.sign(txMsg, pk);
+      const { hash, bytes } = signer.sign(txMsg, pk);
+      return {
+        hash,
+        bytes: toBase64(bytes),
+      };
     } catch (e) {
       throw new Error(`Could not unlock account for ${address}: ${e}`);
     }
@@ -252,12 +257,20 @@ export class KeyRing {
     if (!account) {
       throw new Error(`Account not found for ${address}`);
     }
+
+    let pk: string;
+
     try {
-      const pk = crypto.decrypt(account, this._password);
+      pk = crypto.decrypt(account, this._password);
+    } catch (e) {
+      throw new Error(`Could not unlock account for ${address}: ${e}`);
+    }
+
+    try {
       const { tx_data } = new Account(txMsg, pk).to_serialized();
       return tx_data;
     } catch (e) {
-      throw new Error(`Could not unlock account for ${address}: ${e}`);
+      throw new Error(`Could not encode InitAccount! ${address}: ${e}`);
     }
   }
 }

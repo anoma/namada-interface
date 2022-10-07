@@ -1,9 +1,9 @@
+import { toBase64 } from "@cosmjs/encoding";
 import {
   Account,
   Anoma,
   AccountMsgValue,
   AccountMsgSchema,
-  DerivedAccount,
   IbcTransferMsgSchema,
   IbcTransferMsgValue,
   IbcTransferProps,
@@ -38,14 +38,18 @@ export class Signer implements ISigner {
   public async signTx(
     signer: string,
     txProps: TxProps,
-    txData: Uint8Array
+    txData: string
   ): Promise<SignedTx | undefined> {
     // TODO: Implement this._anoma.signTx(signer, txProps, encoded)
     const txMsg = new Message<TransactionMsgValue>();
     const txMsgValue = new TransactionMsgValue(txProps);
     const txMsgEncoded = txMsg.encode(TransactionMsgSchema, txMsgValue);
 
-    return await this._anoma.signTx({ signer, txMsg: txMsgEncoded, txData });
+    return await this._anoma.signTx({
+      signer,
+      txMsg: toBase64(txMsgEncoded),
+      txData,
+    });
   }
 
   /**
@@ -53,7 +57,7 @@ export class Signer implements ISigner {
    */
   public async encodeTransfer(
     args: TransferProps
-  ): Promise<Uint8Array | undefined> {
+  ): Promise<string | undefined> {
     const { source, target, token, amount } = args;
     const transferMsgValue = new TransferMsgValue({
       source,
@@ -62,13 +66,13 @@ export class Signer implements ISigner {
       amount,
     });
     const transferMessage = new Message<TransferMsgValue>();
-    const encodedTransfer = transferMessage.encode(
+    const serializedTransfer = transferMessage.encode(
       TransferMsgSchema,
       transferMsgValue
     );
 
-    if (encodedTransfer) {
-      return await this._anoma.encodeTransfer(encodedTransfer);
+    if (serializedTransfer) {
+      return await this._anoma.encodeTransfer(toBase64(serializedTransfer));
     }
   }
 
