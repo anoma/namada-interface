@@ -1,6 +1,6 @@
 import styled, { createGlobalStyle } from "styled-components/macro";
 import { motion } from "framer-motion";
-import { ColorMode, DesignConfiguration, ThemeName } from "utils/theme";
+import { ColorMode, DesignConfiguration } from "utils/theme";
 
 enum ComponentColor {
   BorderColor,
