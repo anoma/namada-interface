@@ -70,7 +70,7 @@ function App(): JSX.Element {
   const theme = getTheme(isLightMode, ShouldUsePlaceholderTheme);
 
   const toggleColorMode = (): void => {
-    setColorMode((currentMode) => (currentMode == "dark" ? "light" : "dark"));
+    setColorMode((currentMode) => (currentMode === "dark" ? "light" : "dark"));
   };
 
   useEffect(() => storeColorMode(colorMode), [colorMode]);

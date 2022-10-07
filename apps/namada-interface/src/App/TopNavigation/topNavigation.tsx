@@ -316,7 +316,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
               <ColorModeContainer>
                 {topLevelRoute !== TopLevelRoute.StakingAndGovernance && (
                   <Toggle
-                    checked={colorMode == "dark"}
+                    checked={colorMode === "dark"}
                     onClick={toggleColorMode}
                   />
                 )}
@@ -359,7 +359,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
                   <ColorModeContainer>
                     {topLevelRoute !== TopLevelRoute.StakingAndGovernance && (
                       <Toggle
-                        checked={colorMode == "dark"}
+                        checked={colorMode === "dark"}
                         onClick={toggleColorMode}
                       />
                     )}
@@ -393,7 +393,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
               <ColorModeContainer>
                 {topLevelRoute !== TopLevelRoute.StakingAndGovernance && (
                   <Toggle
-                    checked={colorMode == "dark"}
+                    checked={colorMode === "dark"}
                     onClick={toggleColorMode}
                   />
                 )}
@@ -423,7 +423,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
             <ColorModeContainer>
               {topLevelRoute !== TopLevelRoute.StakingAndGovernance && (
                 <Toggle
-                  checked={colorMode == "dark"}
+                  checked={colorMode === "dark"}
                   onClick={toggleColorMode}
                 />
               )}

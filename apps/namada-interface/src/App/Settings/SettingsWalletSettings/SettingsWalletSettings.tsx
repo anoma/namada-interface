@@ -244,7 +244,7 @@ export const SettingsWalletSettings = ({ password }: Props): JSX.Element => {
             </Button>
           )}
 
-        {keplrConnectionState == KeplrConnectionState.Connected && (
+        {keplrConnectionState === KeplrConnectionState.Connected && (
           <ExtensionInfo>Connected to Keplr Extension</ExtensionInfo>
         )}
 

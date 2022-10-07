@@ -35,7 +35,7 @@ const TopNavigationLoggedIn = (props: Props): JSX.Element => {
           <ColorModeContainer>
             {topLevelRoute !== TopLevelRoute.StakingAndGovernance && (
               <Toggle
-                checked={colorMode == "dark"}
+                checked={colorMode === "dark"}
                 onClick={() => {
                   toggleColorMode();
                 }}

@@ -175,12 +175,12 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
       const shielded: TokenBalance[] =
         tokens.filter(
           (tokenBalance) =>
-            tokenBalance.token == symbol && tokenBalance.isShielded
+            tokenBalance.token === symbol && tokenBalance.isShielded
         ) || [];
       const transparent: TokenBalance[] =
         tokens.filter(
           (tokenBalance) =>
-            tokenBalance.token == symbol && !tokenBalance.isShielded
+            tokenBalance.token === symbol && !tokenBalance.isShielded
         ) || [];
       tokenBalances.push(...shielded, ...transparent);
       return tokenBalances;
