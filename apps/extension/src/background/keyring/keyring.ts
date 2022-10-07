@@ -60,11 +60,6 @@ export class KeyRing {
   }
 
   public async unlock(password: string): Promise<void> {
-
-    if (this.status !== KeyRingStatus.Locked) {
-      throw new Error("Key ring is not locked!");
-    }
-
     if (await this.checkPassword(password)) {
       this._password = password;
       this._status = KeyRingStatus.Unlocked;
