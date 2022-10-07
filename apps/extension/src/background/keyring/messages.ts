@@ -4,7 +4,7 @@ import { ROUTE } from "./constants";
 import { Bip44Path, DerivedAccount } from "types";
 import { KeyRingStatus } from "./types";
 
-enum MessageTypes {
+enum MessageType {
   CheckIsLocked = "check-is-locked",
   LockKeyRing = "lock-keyring",
   UnlockKeyRing = "unlock-keyring",
@@ -16,8 +16,8 @@ enum MessageTypes {
 }
 
 export class CheckIsLockedMsg extends Message<boolean> {
-  public static type(): MessageTypes {
-    return MessageTypes.CheckIsLocked;
+  public static type(): MessageType {
+    return MessageType.CheckIsLocked;
   }
 
   constructor() {
@@ -38,8 +38,8 @@ export class CheckIsLockedMsg extends Message<boolean> {
 }
 
 export class LockKeyRingMsg extends Message<{ status: KeyRingStatus }> {
-  public static type(): MessageTypes {
-    return MessageTypes.LockKeyRing;
+  public static type(): MessageType {
+    return MessageType.LockKeyRing;
   }
 
   constructor() {
@@ -60,8 +60,8 @@ export class LockKeyRingMsg extends Message<{ status: KeyRingStatus }> {
 }
 
 export class UnlockKeyRingMsg extends Message<{ status: KeyRingStatus }> {
-  public static type(): MessageTypes {
-    return MessageTypes.UnlockKeyRing;
+  public static type(): MessageType {
+    return MessageType.UnlockKeyRing;
   }
 
   constructor(public readonly password = "") {
@@ -84,8 +84,8 @@ export class UnlockKeyRingMsg extends Message<{ status: KeyRingStatus }> {
 }
 
 export class CheckPasswordMsg extends Message<boolean> {
-  public static type(): MessageTypes {
-    return MessageTypes.CheckPassword;
+  public static type(): MessageType {
+    return MessageType.CheckPassword;
   }
 
   constructor(public readonly password: string) {
@@ -108,8 +108,8 @@ export class CheckPasswordMsg extends Message<boolean> {
 }
 
 export class GenerateMnemonicMsg extends Message<string[]> {
-  public static type(): MessageTypes {
-    return MessageTypes.GenerateMnemonic;
+  public static type(): MessageType {
+    return MessageType.GenerateMnemonic;
   }
 
   constructor(public readonly size?: PhraseSize) {
@@ -130,8 +130,8 @@ export class GenerateMnemonicMsg extends Message<string[]> {
 }
 
 export class SaveMnemonicMsg extends Message<boolean> {
-  public static type(): MessageTypes {
-    return MessageTypes.SaveMnemonic;
+  public static type(): MessageType {
+    return MessageType.SaveMnemonic;
   }
 
   constructor(
@@ -169,8 +169,8 @@ export class SaveMnemonicMsg extends Message<boolean> {
 }
 
 export class DeriveAccountMsg extends Message<DerivedAccount> {
-  public static type(): MessageTypes {
-    return MessageTypes.DeriveAccount;
+  public static type(): MessageType {
+    return MessageType.DeriveAccount;
   }
 
   constructor(public readonly path: Bip44Path, public readonly alias?: string) {
@@ -203,8 +203,8 @@ export class DeriveAccountMsg extends Message<DerivedAccount> {
 }
 
 export class QueryAccountsMsg extends Message<DerivedAccount[]> {
-  public static type(): MessageTypes {
-    return MessageTypes.QueryAccounts;
+  public static type(): MessageType {
+    return MessageType.QueryAccounts;
   }
 
   constructor(public readonly chainId?: string) {
