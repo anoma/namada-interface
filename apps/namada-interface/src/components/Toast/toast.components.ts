@@ -5,6 +5,7 @@ export const Wrapper = styled(motion.div)<{ index: number }>`
   display: flex;
   justify-content: space-between;
   position: fixed;
+  transition: top 0.5s;
   top: ${(props) => 100 + props.index * 70}px;
   right: 15px;
   width: 360px;

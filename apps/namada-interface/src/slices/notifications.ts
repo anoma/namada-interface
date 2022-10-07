@@ -35,7 +35,6 @@ export const NotificationsSlice = createSlice({
     createToast: (state, action: PayloadAction<CreateToastPayload>) => {
       const { id, data } = action.payload;
       state.toasts = {
-        ...state.toasts,
         ...{
           [id]: {
             title: data.title,
@@ -44,6 +43,7 @@ export const NotificationsSlice = createSlice({
             timeout: data.timeout || DEFAULT_TIMEOUT,
           },
         },
+        ...state.toasts,
       };
     },
     removeToast: (state, action: PayloadAction<{ id: ToastId }>) => {

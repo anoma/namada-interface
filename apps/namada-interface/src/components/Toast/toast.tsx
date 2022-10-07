@@ -19,7 +19,7 @@ import {
 } from "./toast.components";
 import { Icon, IconName } from "components/Icon";
 
-export const Toasts = (): JSX.Element | null => {
+export const Toasts = (): JSX.Element => {
   const dispatch = useAppDispatch();
 
   const { toasts } = useAppSelector<NotificationsState>(
@@ -83,7 +83,7 @@ export const Toast = ({
       <CloseToastButton onClick={() => onClose(id)}>
         <Icon
           strokeColorOverride={themeContext.colors.utility3.black}
-          iconName={IconName.ChevronLeft}
+          iconName={IconName.ChevronRight}
         />
       </CloseToastButton>
     </Wrapper>

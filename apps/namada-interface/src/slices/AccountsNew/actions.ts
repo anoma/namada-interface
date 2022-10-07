@@ -63,19 +63,27 @@ const getToast = (toastId: ToastId, toast: Toasts): CreateToastPayload => {
  */
 export const createShieldedAccount = createAsyncThunk<
   ShieldedKeysAndAddressesWithNewAccountDetails | undefined,
-  NewAccountDetailsWithPassword
+  NewAccountDetailsWithPassword & { notify?: boolean }
 >(
   ADD_ACCOUNT_TO_LEDGER,
-  async (newAccountDetails: NewAccountDetailsWithPassword, thunkAPI) => {
-    thunkAPI.dispatch(
-      actions.createToast(
-        getToast(thunkAPI.requestId, Toasts.CreateShieldedAccountStart)
-      )
-    );
+  async (
+    newAccountDetails: NewAccountDetailsWithPassword & { notify?: boolean },
+    thunkAPI
+  ) => {
+    const { chainId, alias, password, notify } = newAccountDetails;
 
+    if (notify) {
+      thunkAPI.dispatch(
+        actions.createToast(
+          getToast(
+            `${thunkAPI.requestId}-start`,
+            Toasts.CreateShieldedAccountStart
+          )
+        )
+      );
+    }
     try {
       // TODO distinguish between master/derived
-      const { chainId, alias, password } = newAccountDetails;
       const mnemonic = await Session.getSeed(password);
 
       if (mnemonic) {
@@ -98,11 +106,16 @@ export const createShieldedAccount = createAsyncThunk<
           shieldedKeysAndAddress: shieldedAccount,
         };
 
-        thunkAPI.dispatch(
-          actions.createToast(
-            getToast(thunkAPI.requestId, Toasts.CreateShieldedAccountSuccess)
-          )
-        );
+        if (notify) {
+          thunkAPI.dispatch(
+            actions.createToast(
+              getToast(
+                `${thunkAPI.requestId}-success`,
+                Toasts.CreateShieldedAccountSuccess
+              )
+            )
+          );
+        }
 
         // TODO allow overriding this
         history.push(TopLevelRouteGenerator.createRouteForWallet());
