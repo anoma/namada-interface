@@ -53,6 +53,32 @@ export class InjectedAnoma implements IAnoma {
     >("signTx", props);
   }
 
+  public async encodeTransfer(
+    txMsg: Uint8Array
+  ): Promise<Uint8Array | undefined> {
+    return await InjectedProxy.requestMethod<Uint8Array, Uint8Array>(
+      "encodeTransfer",
+      txMsg
+    );
+  }
+
+  public async encodeIbcTransfer(
+    txMsg: Uint8Array
+  ): Promise<Uint8Array | undefined> {
+    return await InjectedProxy.requestMethod<Uint8Array, Uint8Array>(
+      "encodeIbcTransfer",
+      txMsg
+    );
+  }
+
+  public async encodeInitAccount(
+    txMsg: Uint8Array
+  ): Promise<Uint8Array | undefined> {
+    return await InjectedProxy.requestMethod<Uint8Array, Uint8Array>(
+      "encodeInitAccount",
+      txMsg
+    );
+  }
   public version(): string {
     return this._version;
   }

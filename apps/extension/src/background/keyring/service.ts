@@ -1,9 +1,10 @@
 import { PhraseSize } from "@anoma/crypto";
 import { KVStore } from "@anoma/storage";
-import { DerivedAccount, SignedTx, TxProps } from "@anoma/types";
+import { DerivedAccount, SignedTx } from "@anoma/types";
 import { KeyRing } from "./keyring";
 import { Bip44Path } from "types";
 import { KeyRingStatus } from "./types";
+import { IbcTransfer, Transfer } from "@anoma/shared";
 
 export class KeyRingService {
   private _keyRing: KeyRing;
@@ -62,5 +63,27 @@ export class KeyRingService {
     txData: Uint8Array
   ): Promise<SignedTx> {
     return await this._keyRing.signTx(signer, txMsg, txData);
+  }
+
+  encodeTransfer(txMsg: Uint8Array): Uint8Array {
+    const { tx_data } = new Transfer(txMsg).to_serialized();
+    return tx_data;
+  }
+
+  encodeIbcTransfer(txMsg: Uint8Array): Uint8Array {
+    const { tx_data } = new IbcTransfer(txMsg).to_serialized();
+    return tx_data;
+  }
+
+  /**
+   * Creating an InitAccount for Namada requires a secret,
+   * therefore, we need to query the private key for this account from
+   * storage
+   */
+  async encodeInitAccount(
+    address: string,
+    txMsg: Uint8Array
+  ): Promise<Uint8Array> {
+    return await this._keyRing.encodeInitAccount(address, txMsg);
   }
 }

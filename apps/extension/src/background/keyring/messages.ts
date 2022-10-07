@@ -15,6 +15,9 @@ enum MessageType {
   DeriveAccount = "derive-account",
   QueryAccounts = "query-accounts",
   SignTx = "sign-tx",
+  EncodeTransfer = "encode-transfer",
+  EncodeIbcTransfer = "encode-ibc-transfer",
+  EncodeInitAccount = "encode-init-account",
 }
 
 export class CheckIsLockedMsg extends Message<boolean> {
@@ -258,5 +261,80 @@ export class SignTxMsg extends Message<SignedTx> {
 
   type(): string {
     return SignTxMsg.type();
+  }
+}
+
+export class EncodeTransferMsg extends Message<Uint8Array> {
+  public static type(): MessageType {
+    return MessageType.EncodeTransfer;
+  }
+
+  constructor(public readonly txMsg: Uint8Array) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.txMsg || this.txMsg.length === 0) {
+      throw new Error("Invalid encoded transaction message!");
+    }
+    return;
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return EncodeTransferMsg.type();
+  }
+}
+
+export class EncodeIbcTransferMsg extends Message<Uint8Array> {
+  public static type(): MessageType {
+    return MessageType.EncodeIbcTransfer;
+  }
+
+  constructor(public readonly txMsg: Uint8Array) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.txMsg || this.txMsg.length === 0) {
+      throw new Error("Invalid encoded transaction message!");
+    }
+    return;
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return EncodeIbcTransferMsg.type();
+  }
+}
+
+export class EncodeInitAccountMsg extends Message<Uint8Array> {
+  public static type(): MessageType {
+    return MessageType.EncodeInitAccount;
+  }
+
+  constructor(public readonly txMsg: Uint8Array) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.txMsg || this.txMsg.length === 0) {
+      throw new Error("Invalid encoded transaction message!");
+    }
+    return;
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return EncodeInitAccountMsg.type();
   }
 }

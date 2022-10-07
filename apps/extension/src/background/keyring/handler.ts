@@ -2,14 +2,17 @@ import { Handler, Env, Message, InternalHandler } from "router";
 import { KeyRingService } from "./service";
 import {
   CheckIsLockedMsg,
+  CheckPasswordMsg,
   DeriveAccountMsg,
+  EncodeTransferMsg,
+  EncodeIbcTransferMsg,
+  EncodeInitAccountMsg,
+  GenerateMnemonicMsg,
   QueryAccountsMsg,
   LockKeyRingMsg,
-  UnlockKeyRingMsg,
-  CheckPasswordMsg,
-  GenerateMnemonicMsg,
   SaveMnemonicMsg,
   SignTxMsg,
+  UnlockKeyRingMsg,
 } from "./messages";
 
 export const getHandler: (service: KeyRingService) => Handler = (service) => {
@@ -36,7 +39,8 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleQueryAccountsMsg(service)(env, msg as QueryAccountsMsg);
       case SignTxMsg:
         return handleSignTxMsg(service)(env, msg as SignTxMsg);
-
+      case EncodeTransferMsg:
+        return handleEncodeTransferMsg(service)(env, msg as EncodeTransferMsg);
       default:
         throw new Error("Unknown msg type");
     }
@@ -118,5 +122,14 @@ const handleSignTxMsg: (
   return async (_, msg) => {
     const { signer, txMsg, txData } = msg;
     return await service.signTx(signer, txMsg, txData);
+  };
+};
+
+const handleEncodeTransferMsg: (
+  service: KeyRingService
+) => InternalHandler<EncodeTransferMsg> = (service) => {
+  return (_, msg) => {
+    const { txMsg } = msg;
+    return service.encodeTransfer(txMsg);
   };
 };

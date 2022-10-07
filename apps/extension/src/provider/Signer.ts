@@ -38,7 +38,6 @@ export class Signer implements ISigner {
   public async signTx(
     signer: string,
     txProps: TxProps,
-    encodedMsg: Uint8Array,
     txData: Uint8Array
   ): Promise<SignedTx | undefined> {
     // TODO: Implement this._anoma.signTx(signer, txProps, encoded)
@@ -52,7 +51,9 @@ export class Signer implements ISigner {
   /**
    * Encode a Transfer message
    */
-  public encodeTransfer(args: TransferProps): Uint8Array {
+  public async encodeTransfer(
+    args: TransferProps
+  ): Promise<Uint8Array | undefined> {
     const { source, target, token, amount } = args;
     const transferMsgValue = new TransferMsgValue({
       source,
@@ -61,13 +62,22 @@ export class Signer implements ISigner {
       amount,
     });
     const transferMessage = new Message<TransferMsgValue>();
-    return transferMessage.encode(TransferMsgSchema, transferMsgValue);
+    const encodedTransfer = transferMessage.encode(
+      TransferMsgSchema,
+      transferMsgValue
+    );
+
+    if (encodedTransfer) {
+      return await this._anoma.encodeTransfer(encodedTransfer);
+    }
   }
 
   /**
    * Encode an IbcTransfer message
    */
-  public encodeIbcTransfer(args: IbcTransferProps): Uint8Array {
+  public async encodeIbcTransfer(
+    args: IbcTransferProps
+  ): Promise<Uint8Array | undefined> {
     const { sourcePort, sourceChannel, token, sender, receiver, amount } = args;
     const ibcTransferMsgValue = new IbcTransferMsgValue({
       sourcePort,
@@ -78,6 +88,7 @@ export class Signer implements ISigner {
       amount,
     });
     const ibcTransferMessage = new Message<IbcTransferMsgValue>();
+    // TODO: call this._anoma.getIbcTransfer();
     return ibcTransferMessage.encode(IbcTransferMsgSchema, ibcTransferMsgValue);
   }
 

@@ -1,13 +1,13 @@
-import {
-  Anoma as IAnoma,
-  Chain,
-  DerivedAccount,
-  SignedTx,
-  TxProps,
-} from "@anoma/types";
+import { Anoma as IAnoma, Chain, DerivedAccount, SignedTx } from "@anoma/types";
 import { Ports, MessageRequester } from "router";
 import { GetChainMsg, GetChainsMsg, SuggestChainMsg } from "background/chains";
-import { QueryAccountsMsg, SignTxMsg } from "background/keyring";
+import {
+  EncodeIbcTransferMsg,
+  EncodeInitAccountMsg,
+  EncodeTransferMsg,
+  QueryAccountsMsg,
+  SignTxMsg,
+} from "background/keyring";
 
 export class Anoma implements IAnoma {
   constructor(
@@ -59,6 +59,33 @@ export class Anoma implements IAnoma {
     return await this.requester?.sendMessage(
       Ports.Background,
       new SignTxMsg(signer, txMsg, txData)
+    );
+  }
+
+  public async encodeTransfer(
+    txMsg: Uint8Array
+  ): Promise<Uint8Array | undefined> {
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new EncodeTransferMsg(txMsg)
+    );
+  }
+
+  public async encodeIbcTransfer(
+    txMsg: Uint8Array
+  ): Promise<Uint8Array | undefined> {
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new EncodeIbcTransferMsg(txMsg)
+    );
+  }
+
+  public async encodeInitAccount(
+    txMsg: Uint8Array
+  ): Promise<Uint8Array | undefined> {
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new EncodeInitAccountMsg(txMsg)
     );
   }
 

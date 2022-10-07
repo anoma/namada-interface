@@ -2,7 +2,7 @@ import { v5 as uuid } from "uuid";
 
 import { KVStore } from "@anoma/storage";
 import { HDWallet, Mnemonic, PhraseSize } from "@anoma/crypto";
-import { Address, Signer } from "@anoma/shared";
+import { Account, Address, Signer } from "@anoma/shared";
 import { DerivedAccount, SignedTx } from "@anoma/types";
 import { KeyRingStatus, KeyStore } from "./types";
 import { Bip44Path, AccountType } from "types";
@@ -236,6 +236,26 @@ export class KeyRing {
       const pk = crypto.decrypt(account, this._password);
       const signer = new Signer(txData);
       return signer.sign(txMsg, pk);
+    } catch (e) {
+      throw new Error(`Could not unlock account for ${address}: ${e}`);
+    }
+  }
+
+  async encodeInitAccount(
+    address: string,
+    txMsg: Uint8Array
+  ): Promise<Uint8Array> {
+    if (!this._password) {
+      throw new Error("Not authenticated!");
+    }
+    const account = await this._keyStore.getRecord("address", address);
+    if (!account) {
+      throw new Error(`Account not found for ${address}`);
+    }
+    try {
+      const pk = crypto.decrypt(account, this._password);
+      const { tx_data } = new Account(txMsg, pk).to_serialized();
+      return tx_data;
     } catch (e) {
       throw new Error(`Could not unlock account for ${address}: ${e}`);
     }
