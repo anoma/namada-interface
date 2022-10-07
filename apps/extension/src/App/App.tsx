@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import { ThemeProvider } from "styled-components";
 import { Routes, Route, useNavigate } from "react-router-dom";
 
+import { DerivedAccount } from "@anoma/types";
 import { getTheme } from "@anoma/utils";
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
 import { CheckIsLockedMsg, QueryAccountsMsg } from "background/keyring";
-import { AccountType, DerivedAccount } from "types";
+import { AccountType } from "types";
 import {
   AppContainer,
   BottomSection,

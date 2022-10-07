@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, ButtonVariant, Input, InputVariant } from "@anoma/components";
+import { DerivedAccount } from "@anoma/types";
 
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
 import { DeriveAccountMsg } from "background/keyring";
-import { AccountType, DerivedAccount } from "types";
+import { AccountType } from "types";
 import {
   AddAccountContainer,
   AddAccountForm,

@@ -18,3 +18,5 @@ export type DerivedAccount = {
   path: Bip44Path;
   type: AccountType;
 };
+
+export type Account = Pick<DerivedAccount, "address" | "alias">;

@@ -1,7 +1,8 @@
 import { PhraseSize } from "@anoma/crypto";
+import { DerivedAccount, SignedTx } from "@anoma/types";
 import { Message } from "router";
 import { ROUTE } from "./constants";
-import { Bip44Path, DerivedAccount } from "types";
+import { Bip44Path } from "types";
 import { KeyRingStatus } from "./types";
 
 enum MessageType {
@@ -13,6 +14,7 @@ enum MessageType {
   SaveMnemonic = "save-mnemonic",
   DeriveAccount = "derive-account",
   QueryAccounts = "query-accounts",
+  SignTx = "sign-tx",
 }
 
 export class CheckIsLockedMsg extends Message<boolean> {
@@ -221,5 +223,40 @@ export class QueryAccountsMsg extends Message<DerivedAccount[]> {
 
   type(): string {
     return QueryAccountsMsg.type();
+  }
+}
+
+export class SignTxMsg extends Message<SignedTx> {
+  public static type(): MessageType {
+    return MessageType.SignTx;
+  }
+
+  constructor(
+    public readonly signer: string,
+    public readonly txMsg: Uint8Array,
+    public readonly txData: Uint8Array
+  ) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.signer) {
+      throw new Error("A signer address is required to sign transactions!");
+    }
+    if (!this.txMsg || this.txMsg.length === 0) {
+      throw new Error("Invalid encoded transaction message!");
+    }
+    if (!this.txData) {
+      throw new Error("Invalid transaction wasm data!");
+    }
+    return;
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return SignTxMsg.type();
   }
 }

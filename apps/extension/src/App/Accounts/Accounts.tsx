@@ -1,4 +1,4 @@
-import { DerivedAccount } from "types";
+import { DerivedAccount } from "@anoma/types";
 import {
   AccountsContainer,
   AccountsList,

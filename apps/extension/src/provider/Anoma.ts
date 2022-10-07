@@ -1,8 +1,13 @@
-import { Anoma as IAnoma, Chain } from "@anoma/types";
+import {
+  Anoma as IAnoma,
+  Chain,
+  DerivedAccount,
+  SignedTx,
+  TxProps,
+} from "@anoma/types";
 import { Ports, MessageRequester } from "router";
 import { GetChainMsg, GetChainsMsg, SuggestChainMsg } from "background/chains";
-import { DerivedAccount } from "types";
-import { QueryAccountsMsg } from "background/keyring";
+import { QueryAccountsMsg, SignTxMsg } from "background/keyring";
 
 export class Anoma implements IAnoma {
   constructor(
@@ -42,6 +47,18 @@ export class Anoma implements IAnoma {
     return await this.requester?.sendMessage(
       Ports.Background,
       new SuggestChainMsg(chain)
+    );
+  }
+
+  public async signTx(props: {
+    signer: string;
+    txMsg: Uint8Array;
+    txData: Uint8Array;
+  }): Promise<SignedTx | undefined> {
+    const { signer, txMsg, txData } = props;
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new SignTxMsg(signer, txMsg, txData)
     );
   }
 

@@ -1,7 +1,8 @@
 import { PhraseSize } from "@anoma/crypto";
 import { KVStore } from "@anoma/storage";
+import { DerivedAccount, SignedTx, TxProps } from "@anoma/types";
 import { KeyRing } from "./keyring";
-import { Bip44Path, DerivedAccount } from "types";
+import { Bip44Path } from "types";
 import { KeyRingStatus } from "./types";
 
 export class KeyRingService {
@@ -53,5 +54,13 @@ export class KeyRingService {
 
   async queryAccounts(): Promise<DerivedAccount[]> {
     return await this._keyRing.queryAccounts();
+  }
+
+  async signTx(
+    signer: string,
+    txMsg: Uint8Array,
+    txData: Uint8Array
+  ): Promise<SignedTx> {
+    return await this._keyRing.signTx(signer, txMsg, txData);
   }
 }

@@ -3,8 +3,9 @@ import { v5 as uuid } from "uuid";
 import { KVStore } from "@anoma/storage";
 import { HDWallet, Mnemonic, PhraseSize } from "@anoma/crypto";
 import { Address, Signer } from "@anoma/shared";
+import { DerivedAccount, SignedTx } from "@anoma/types";
 import { KeyRingStatus, KeyStore } from "./types";
-import { Bip44Path, DerivedAccount, AccountType } from "types";
+import { Bip44Path, AccountType } from "types";
 import { Crypto } from "./crypto";
 
 import { IStore, Store } from "../types";
@@ -223,7 +224,7 @@ export class KeyRing {
     address: string,
     txMsg: Uint8Array,
     txData: Uint8Array
-  ): Promise<ReturnType<Signer["sign"]>> {
+  ): Promise<SignedTx> {
     if (!this._password) {
       throw new Error("Not authenticated!");
     }

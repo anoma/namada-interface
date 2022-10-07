@@ -8,13 +8,3 @@ export enum AccountType {
   Mnemonic = "mnemonic",
   PrivateKey = "private-key",
 }
-
-export type DerivedAccount = {
-  id: string;
-  address: string;
-  alias?: string;
-  establishedAddress?: string;
-  parentId?: string;
-  path: Bip44Path;
-  type: AccountType;
-};

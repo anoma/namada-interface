@@ -9,6 +9,7 @@ import {
   CheckPasswordMsg,
   GenerateMnemonicMsg,
   SaveMnemonicMsg,
+  SignTxMsg,
 } from "./messages";
 
 export const getHandler: (service: KeyRingService) => Handler = (service) => {
@@ -33,6 +34,9 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleDeriveAccountMsg(service)(env, msg as DeriveAccountMsg);
       case QueryAccountsMsg:
         return handleQueryAccountsMsg(service)(env, msg as QueryAccountsMsg);
+      case SignTxMsg:
+        return handleSignTxMsg(service)(env, msg as SignTxMsg);
+
       default:
         throw new Error("Unknown msg type");
     }
@@ -105,5 +109,14 @@ const handleQueryAccountsMsg: (
 ) => InternalHandler<QueryAccountsMsg> = (service) => {
   return async (_, _msg) => {
     return await service.queryAccounts();
+  };
+};
+
+const handleSignTxMsg: (
+  service: KeyRingService
+) => InternalHandler<SignTxMsg> = (service) => {
+  return async (_, msg) => {
+    const { signer, txMsg, txData } = msg;
+    return await service.signTx(signer, txMsg, txData);
   };
 };

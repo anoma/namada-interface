@@ -1,11 +1,11 @@
 import {
+  Account,
   Anoma as IAnoma,
   Chain,
+  DerivedAccount,
   SignedTx,
   Signer as ISigner,
-  TxProps,
 } from "@anoma/types";
-import { DerivedAccount } from "types";
 import { InjectedProxy } from "./InjectedProxy";
 import { Signer } from "./Signer";
 
@@ -38,22 +38,20 @@ export class InjectedAnoma implements IAnoma {
     );
   }
 
-  public getSigner(chainId: string): ISigner<DerivedAccount> | undefined {
+  public getSigner(chainId: string): ISigner<Account> | undefined {
     return new Signer(chainId, this);
   }
 
-  /*
   public async signTx(props: {
-    signer: string,
-    chainId: string,
-    txArgs: TxProps
+    signer: string;
+    txMsg: Uint8Array;
+    txData: Uint8Array;
   }): Promise<SignedTx> {
-    return await InjectedProxy.requestMethod<TxProps, SignedTx>(
-      "signTx",
-      props,
-    );
+    return await InjectedProxy.requestMethod<
+      { signer: string; txMsg: Uint8Array; txData: Uint8Array },
+      SignedTx
+    >("signTx", props);
   }
-  */
 
   public version(): string {
     return this._version;

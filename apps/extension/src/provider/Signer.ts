@@ -1,7 +1,9 @@
 import {
+  Account,
   Anoma,
   AccountMsgValue,
   AccountMsgSchema,
+  DerivedAccount,
   IbcTransferMsgSchema,
   IbcTransferMsgValue,
   IbcTransferProps,
@@ -11,10 +13,11 @@ import {
   Signer as ISigner,
   TransferMsgValue,
   TransferMsgSchema,
+  TransactionMsgValue,
+  TransactionMsgSchema,
   TransferProps,
   TxProps,
 } from "@anoma/types";
-import { DerivedAccount } from "types";
 
 export class Signer implements ISigner {
   constructor(
@@ -22,8 +25,11 @@ export class Signer implements ISigner {
     private readonly _anoma: Anoma
   ) {}
 
-  public async accounts(): Promise<DerivedAccount[] | undefined> {
-    return await this._anoma.accounts(this.chainId);
+  public async accounts(): Promise<Account[] | undefined> {
+    return (await this._anoma.accounts(this.chainId))?.map((account) => ({
+      alias: account.alias,
+      address: account.address,
+    }));
   }
 
   /**
@@ -32,14 +38,15 @@ export class Signer implements ISigner {
   public async signTx(
     signer: string,
     txProps: TxProps,
-    encoded: Uint8Array
-  ): Promise<SignedTx> {
+    encodedMsg: Uint8Array,
+    txData: Uint8Array
+  ): Promise<SignedTx | undefined> {
     // TODO: Implement this._anoma.signTx(signer, txProps, encoded)
-    console.log({ signer, txProps, encoded });
-    return {
-      hash: "",
-      bytes: new Uint8Array([]),
-    };
+    const txMsg = new Message<TransactionMsgValue>();
+    const txMsgValue = new TransactionMsgValue(txProps);
+    const txMsgEncoded = txMsg.encode(TransactionMsgSchema, txMsgValue);
+
+    return await this._anoma.signTx({ signer, txMsg: txMsgEncoded, txData });
   }
 
   /**
