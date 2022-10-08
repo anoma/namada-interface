@@ -73,15 +73,15 @@ impl IbcTransfer {
             source_port,
             source_channel,
             token: transfer_token,
-            sender: Signer::from_str(&sender).unwrap(),
-            receiver: Signer::from_str(&receiver).unwrap(),
+            sender: Signer::from_str(&sender).map_err(|err| err.to_string())?,
+            receiver: Signer::from_str(&receiver).map_err(|err| err.to_string())?,
             timeout_height: Height::new(0, 0),
             // Optionally, set timeout_timestamp to 0 for no timeout, e.g.:
             // timeout_timestamp: Timestamp::none(),
             timeout_timestamp: Timestamp::from_nanoseconds(timestamp_nanos)
-                .unwrap()
+                .expect("Shouldn't fail creating timestamp from nanoseconds")
                 .add(timeout_duration)
-                .unwrap(),
+                .expect("Shouldn't fail adding duration to timestamp"),
         };
 
         let msg = msg.to_any();
@@ -104,47 +104,24 @@ impl IbcTransfer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::types::transaction::{SerializedTx, TransactionMsg};
-    use crate::signer::Signer;
     use wasm_bindgen_test::*;
 
     #[wasm_bindgen_test]
     fn can_generate_ibc_transfer_transaction() {
         let sender = String::from("atest1v4ehgw368ycryv2z8qcnxv3cxgmrgvjpxs6yg333gym5vv2zxepnj334g4rryvj9xucrgve4x3xvr4");
         let receiver = String::from("atest1v4ehgw36xvcyyvejgvenxs34g3zygv3jxqunjd6rxyeyys3sxy6rwvfkx4qnj33hg9qnvse4lsfctw");
-        let secret = String::from("1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93");
         let token = String::from("atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5");
         let source_port = String::from("transfer");
         let source_channel = String::from("channel-0");
         let amount = 1000;
-        let epoch = 5;
-        let fee_amount = 1000;
-        let gas_limit = 1_000_000;
 
-        let tx_code = vec![];
-
-        let msg = IbcTransferMsg { source_port, source_channel, sender, receiver, token: token.clone(), amount };
+        let msg = IbcTransferMsg { source_port, source_channel, sender, receiver, token, amount };
         let msg_serialized = BorshSerialize::try_to_vec(&msg)
             .expect("Message should serialize");
 
         let IbcTransfer { tx_data } = IbcTransfer::new(msg_serialized)
             .expect("IbcTransfer should instantiate");
 
-        let transaction_msg = TransactionMsg::new(token, epoch, fee_amount, gas_limit, tx_code);
-        let transaction_msg_serialized = BorshSerialize::try_to_vec(&transaction_msg)
-            .expect("Message should serialize");
-
-        let signer = Signer::new(&tx_data);
-        let transaction = signer.sign(&transaction_msg_serialized, secret)
-            .expect("Should be able to convert to transaction");
-
-        let serialized_tx: SerializedTx = JsValue::into_serde(&transaction)
-            .expect("Should be able to serialize to a Transaction");
-
-        let hash = serialized_tx.hash();
-        let bytes = serialized_tx.bytes();
-
-        assert_eq!(hash.len(), 64);
-        assert_eq!(bytes.len(), 795);
+        assert_eq!(tx_data.len(), 342);
     }
 }

@@ -56,19 +56,18 @@ impl SerializedTx {
     }
 }
 
-pub struct Transaction {
-    secret: String,
+pub struct Transaction<'a> {
+    secret: &'a str,
     wrapper_tx: transaction::WrapperTx,
 }
 
 /// Sign and wrap transaction
-impl Transaction {
+impl<'a> Transaction<'a> {
     pub fn new(
-        msg: Vec<u8>,
-        secret: String,
+        msg: &[u8],
+        secret: &'a str,
         tx_data: &Vec<u8>,
-    ) -> Result<Transaction, JsValue> {
-        let msg: &[u8] = &msg;
+    ) -> Result<Transaction<'a>, JsValue> {
         let msg = BorshDeserialize::try_from_slice(msg)
             .map_err(|err| err.to_string())?;
         let TransactionMsg {
@@ -79,9 +78,10 @@ impl Transaction {
             tx_code,
         } = msg;
 
-        let secret_key = key::ed25519::SecretKey::from_str(&secret).
-            map_err(|err| err.to_string())?;
-        let secret_key = SecretKey::Ed25519(secret_key);
+        let secret_key = SecretKey::Ed25519(
+            key::ed25519::SecretKey::from_str(secret)
+                .map_err(|err| err.to_string())?
+            );
         let token = Address::from_str(&token)
             .map_err(|err| err.to_string())?;
 
@@ -95,11 +95,11 @@ impl Transaction {
         let wrapper_tx = WrapperTx::wrap(
             token,
             fee_amount,
-            secret.clone(),
+            secret,
             epoch,
             gas_limit,
             tx,
-        );
+        )?;
 
         Ok(Transaction {
             secret,
@@ -107,16 +107,19 @@ impl Transaction {
         })
     }
 
-    pub fn serialize(&self) -> SerializedTx {
+    pub fn serialize(&self) -> Result<SerializedTx, String> {
         let wrapper_tx = &self.wrapper_tx;
         let hash = wrapper_tx.tx_hash.to_string();
-        let wrapper_tx = WrapperTx::sign(wrapper_tx.to_owned(), String::from(&self.secret));
+        let wrapper_tx = WrapperTx::sign(
+            wrapper_tx.to_owned(),
+            String::from(self.secret),
+        )?;
         let bytes = wrapper_tx.to_bytes();
 
-        SerializedTx {
+        Ok(SerializedTx {
             hash,
             bytes,
-        }
+        })
     }
 }
 

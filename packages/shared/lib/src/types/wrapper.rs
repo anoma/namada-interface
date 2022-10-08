@@ -4,9 +4,6 @@ use namada::{proto, types::{key, transaction, token, storage, address}};
 use namada::types::key::common::SecretKey;
 use std::str::FromStr;
 
-use wasm_bindgen::prelude::*;
-
-#[wasm_bindgen]
 pub struct WrapperTx(pub(crate) transaction::WrapperTx);
 
 impl WrapperTx {
@@ -17,17 +14,20 @@ impl WrapperTx {
     pub fn wrap(
         token: address::Address,
         fee_amount: u64,
-        secret: String,
+        secret: &str,
         epoch: u64,
         gas_limit: u64,
         tx: proto::Tx,
-    ) -> transaction::WrapperTx {
+    ) -> Result<transaction::WrapperTx, String> {
         let gas_limit = transaction::GasLimit::from(gas_limit);
         let amount = token::Amount::from(fee_amount);
-        let signing_key = SecretKey::Ed25519(key::ed25519::SecretKey::from_str(&secret).unwrap());
+        let signing_key = SecretKey::Ed25519(
+            key::ed25519::SecretKey::from_str(secret)
+                .map_err(|err| err.to_string())?
+        );
         let encryption_key = transaction::EncryptionKey::default();
 
-        transaction::WrapperTx::new(
+        Ok(transaction::WrapperTx::new(
             transaction::Fee {
                 amount,
                 token,
@@ -37,15 +37,21 @@ impl WrapperTx {
             gas_limit,
             tx,
             encryption_key,
-        )
+        ))
     }
 
-    pub fn sign(wrapper_tx: transaction::WrapperTx, secret: String ) -> proto::Tx {
-        let keypair = SecretKey::Ed25519(key::ed25519::SecretKey::from_str(&secret).unwrap());
-        (Tx::to_proto(
+    pub fn sign(
+        wrapper_tx: transaction::WrapperTx,
+        secret: String,
+    ) -> Result<proto::Tx, String> {
+        let keypair = SecretKey::Ed25519(
+            key::ed25519::SecretKey::from_str(&secret)
+                .map_err(|err| err.to_string())?
+            );
+        Ok((Tx::to_proto(
             vec![],
             transaction::TxType::Wrapper(wrapper_tx)
                 .try_to_vec().expect("Could not serialize WrapperTx")
-        )).sign(&keypair)
+        )).sign(&keypair))
     }
 }
