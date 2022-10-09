@@ -31,14 +31,14 @@ impl Account {
     #[wasm_bindgen(constructor)]
     pub fn new(
         msg: Vec<u8>,
-        secret: String,
+        secret: &str,
     ) -> Result<Account, String> {
         let msg: &[u8] = &msg;
         let msg = BorshDeserialize::try_from_slice(msg)
-            .map_err(|err| err.to_string())?;
+            .map_err(|err| format!("BorshDeserialize failed! {:?}", err))?;
         let AccountMsg { vp_code } = msg;
 
-        let secret_key = key::ed25519::SecretKey::from_str(&secret)
+        let secret_key = key::ed25519::SecretKey::from_str(secret)
             .map_err(|err| format!("ed25519 encoding failed: {:?}", err))?;
         let signing_key = SecretKey::Ed25519(secret_key);
 
@@ -73,10 +73,9 @@ mod tests {
     use wasm_bindgen_test::*;
 
     #[wasm_bindgen_test]
-    fn can_generate_init_account_transaction() {
-        let secret = String::from("1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93");
-        let vp_code = vec![];
-        let msg = AccountMsg {  vp_code };
+    fn can_generate_init_account() {
+        let secret = "1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93";
+        let msg = AccountMsg {  vp_code: vec![] };
 
         let msg_serialized = BorshSerialize::try_to_vec(&msg)
             .expect("Message should serialize to vector");

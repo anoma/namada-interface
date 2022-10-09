@@ -46,7 +46,7 @@ impl IbcTransfer {
     pub fn new(msg: Vec<u8>) -> Result<IbcTransfer, String> {
         let msg: &[u8] = &msg;
         let msg = BorshDeserialize::try_from_slice(msg)
-            .map_err(|err| err.to_string())?;
+            .map_err(|err| format!("BorshDeserialize failed! {:?}", err))?;
 
         let IbcTransferMsg {
             source_port,
@@ -66,7 +66,11 @@ impl IbcTransfer {
             denom: token,
             amount: format!("{}", amount / token::SCALE),
         });
-        let timestamp_nanos = utils::get_timestamp().0.timestamp_nanos() as u64;
+        let timestamp_nanos: u64 = utils::get_timestamp()
+            .0
+            .timestamp_nanos()
+            .try_into()
+            .expect("Nano conversion from i64 to u64 should not fail");
         let timeout_duration = Duration::from_secs(30);
 
         let msg = MsgTransfer {
@@ -107,7 +111,7 @@ mod tests {
     use wasm_bindgen_test::*;
 
     #[wasm_bindgen_test]
-    fn can_generate_ibc_transfer_transaction() {
+    fn can_generate_ibc_transfer() {
         let sender = String::from("atest1v4ehgw368ycryv2z8qcnxv3cxgmrgvjpxs6yg333gym5vv2zxepnj334g4rryvj9xucrgve4x3xvr4");
         let receiver = String::from("atest1v4ehgw36xvcyyvejgvenxs34g3zygv3jxqunjd6rxyeyys3sxy6rwvfkx4qnj33hg9qnvse4lsfctw");
         let token = String::from("atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5");
@@ -115,7 +119,14 @@ mod tests {
         let source_channel = String::from("channel-0");
         let amount = 1000;
 
-        let msg = IbcTransferMsg { source_port, source_channel, sender, receiver, token, amount };
+        let msg = IbcTransferMsg {
+            source_port,
+            source_channel,
+            sender,
+            receiver,
+            token,
+            amount,
+        };
         let msg_serialized = BorshSerialize::try_to_vec(&msg)
             .expect("Message should serialize");
 

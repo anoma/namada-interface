@@ -69,7 +69,7 @@ impl<'a> Transaction<'a> {
         tx_data: &Vec<u8>,
     ) -> Result<Transaction<'a>, JsValue> {
         let msg = BorshDeserialize::try_from_slice(msg)
-            .map_err(|err| err.to_string())?;
+            .map_err(|err| format!("BorshDeserialize failed! {:?}", err))?;
         let TransactionMsg {
             epoch,
             token,
@@ -88,7 +88,7 @@ impl<'a> Transaction<'a> {
         // Create and sign inner Tx
         let tx = Tx::to_proto(
             tx_code,
-            tx_data.to_owned(),
+            tx_data,
         ).sign(&secret_key);
 
         // Wrap Tx

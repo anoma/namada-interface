@@ -1,7 +1,7 @@
 use crate::types::tx::Tx;
-use borsh::BorshSerialize;
 use namada::{proto, types::{key, transaction, token, storage, address}};
 use namada::types::key::common::SecretKey;
+use borsh::BorshSerialize;
 use std::str::FromStr;
 
 pub struct WrapperTx(pub(crate) transaction::WrapperTx);
@@ -48,10 +48,13 @@ impl WrapperTx {
             key::ed25519::SecretKey::from_str(&secret)
                 .map_err(|err| err.to_string())?
             );
+        let wrapped_tx = transaction::TxType::Wrapper(wrapper_tx)
+                .try_to_vec()
+                .map_err(|err| err.to_string())?;
+
         Ok((Tx::to_proto(
             vec![],
-            transaction::TxType::Wrapper(wrapper_tx)
-                .try_to_vec().expect("Could not serialize WrapperTx")
+            &wrapped_tx,
         )).sign(&keypair))
     }
 }
