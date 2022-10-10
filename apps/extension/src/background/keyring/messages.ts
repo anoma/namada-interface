@@ -247,10 +247,10 @@ export class SignTxMsg extends Message<SignedTx> {
       throw new Error("A signer address is required to sign transactions!");
     }
     if (!this.txMsg || this.txMsg.length === 0) {
-      throw new Error("Invalid encoded transaction message!");
+      throw new Error("An encoded txMsg is required!");
     }
     if (!this.txData) {
-      throw new Error("Invalid transaction wasm data!");
+      throw new Error("txData bytes is required!");
     }
     return;
   }
@@ -275,7 +275,7 @@ export class EncodeTransferMsg extends Message<string> {
 
   validate(): void {
     if (!this.txMsg) {
-      throw new Error("Invalid encoded transaction message!");
+      throw new Error("An encoded txMsg is required!");
     }
     return;
   }
@@ -300,7 +300,7 @@ export class EncodeIbcTransferMsg extends Message<string> {
 
   validate(): void {
     if (!this.txMsg) {
-      throw new Error("Invalid encoded transaction message!");
+      throw new Error("An encoded txMsg is required!");
     }
     return;
   }
@@ -328,7 +328,7 @@ export class EncodeInitAccountMsg extends Message<string> {
       throw new Error("An address is required!");
     }
     if (!this.txMsg) {
-      throw new Error("Invalid encoded transaction message!");
+      throw new Error("An encoded txMsg is required!");
     }
     return;
   }
