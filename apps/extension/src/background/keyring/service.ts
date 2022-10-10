@@ -1,9 +1,8 @@
 import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import { PhraseSize } from "@anoma/crypto";
 import { KVStore } from "@anoma/storage";
-import { DerivedAccount, SignedTx } from "@anoma/types";
+import { Bip44Path, DerivedAccount, SignedTx } from "@anoma/types";
 import { KeyRing } from "./keyring";
-import { Bip44Path } from "types";
 import { KeyRingStatus } from "./types";
 import { IbcTransfer, Transfer } from "@anoma/shared";
 

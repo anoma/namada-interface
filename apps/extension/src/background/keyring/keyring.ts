@@ -1,15 +1,14 @@
 import { v5 as uuid } from "uuid";
+import { toBase64 } from "@cosmjs/encoding";
 
 import { KVStore } from "@anoma/storage";
 import { HDWallet, Mnemonic, PhraseSize } from "@anoma/crypto";
 import { Account, Address, Signer } from "@anoma/shared";
-import { DerivedAccount, SignedTx } from "@anoma/types";
-import { KeyRingStatus, KeyStore } from "./types";
-import { Bip44Path, AccountType } from "types";
-import { Crypto } from "./crypto";
+import { IStore, Store } from "@anoma/storage";
+import { AccountType, Bip44Path, DerivedAccount, SignedTx } from "@anoma/types";
 
-import { IStore, Store } from "../types";
-import { toBase64 } from "@cosmjs/encoding";
+import { Crypto } from "./crypto";
+import { KeyRingStatus, KeyStore } from "./types";
 
 // Generated UUID namespace for uuid v5
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";

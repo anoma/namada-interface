@@ -1,5 +1,4 @@
-import { DerivedAccount } from "@anoma/types";
-import { AccountType, Bip44Path } from "types";
+import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
 
 export enum KdfType {
   Argon2 = "argon2",

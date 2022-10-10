@@ -1,5 +1,5 @@
 import { AES, Argon2, Argon2Params, ByteSize, Rng, Salt } from "@anoma/crypto";
-import { AccountType, Bip44Path } from "types";
+import { AccountType, Bip44Path } from "@anoma/types";
 import { KdfType, KeyStore } from "./types";
 
 type CryptoArgs = {

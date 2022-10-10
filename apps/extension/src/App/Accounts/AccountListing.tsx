@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Icon, IconName } from "@anoma/components";
-import { DerivedAccount } from "@anoma/types";
+import { AccountType, DerivedAccount } from "@anoma/types";
 import {
   AccountListingContainer,
   Address,
@@ -11,7 +11,6 @@ import {
   Button,
 } from "./AccountListing.components";
 
-import { AccountType } from "types";
 import { TopLevelRoute } from "App/types";
 
 type Props = {

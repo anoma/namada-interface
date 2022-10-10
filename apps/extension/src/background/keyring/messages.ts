@@ -1,8 +1,7 @@
 import { PhraseSize } from "@anoma/crypto";
-import { DerivedAccount, SignedTx } from "@anoma/types";
+import { Bip44Path, DerivedAccount, SignedTx } from "@anoma/types";
 import { Message } from "router";
 import { ROUTE } from "./constants";
-import { Bip44Path } from "types";
 import { KeyRingStatus } from "./types";
 
 enum MessageType {
