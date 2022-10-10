@@ -41,6 +41,16 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleSignTxMsg(service)(env, msg as SignTxMsg);
       case EncodeTransferMsg:
         return handleEncodeTransferMsg(service)(env, msg as EncodeTransferMsg);
+      case EncodeIbcTransferMsg:
+        return handleEncodeIbcTransferMsg(service)(
+          env,
+          msg as EncodeIbcTransferMsg
+        );
+      case EncodeInitAccountMsg:
+        return handleEncodeInitAccountMsg(service)(
+          env,
+          msg as EncodeInitAccountMsg
+        );
       default:
         throw new Error("Unknown msg type");
     }
@@ -131,5 +141,23 @@ const handleEncodeTransferMsg: (
   return (_, msg) => {
     const { txMsg } = msg;
     return service.encodeTransfer(txMsg);
+  };
+};
+
+const handleEncodeIbcTransferMsg: (
+  service: KeyRingService
+) => InternalHandler<EncodeIbcTransferMsg> = (service) => {
+  return (_, msg) => {
+    const { txMsg } = msg;
+    return service.encodeIbcTransfer(txMsg);
+  };
+};
+
+const handleEncodeInitAccountMsg: (
+  service: KeyRingService
+) => InternalHandler<EncodeInitAccountMsg> = (service) => {
+  return (_, msg) => {
+    const { address, txMsg } = msg;
+    return service.encodeInitAccount(txMsg, address);
   };
 };

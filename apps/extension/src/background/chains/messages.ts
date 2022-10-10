@@ -2,7 +2,7 @@ import { Chain, Signer } from "@anoma/types";
 import { Message } from "router";
 import { ROUTE } from "./constants";
 
-enum MessageTypes {
+enum MessageType {
   SuggestChain = "suggest-chain",
   GetChain = "get-chain",
   GetChains = "get-chains",
@@ -12,8 +12,8 @@ enum MessageTypes {
 }
 
 export class SuggestChainMsg extends Message<void> {
-  public static type(): string {
-    return MessageTypes.SuggestChain;
+  public static type(): MessageType {
+    return MessageType.SuggestChain;
   }
 
   constructor(public readonly chain: Chain) {
@@ -30,14 +30,14 @@ export class SuggestChainMsg extends Message<void> {
     return ROUTE;
   }
 
-  type(): string {
+  type(): MessageType {
     return SuggestChainMsg.type();
   }
 }
 
 export class GetChainsMsg extends Message<Chain[]> {
-  public static type(): string {
-    return MessageTypes.GetChains;
+  public static type(): MessageType {
+    return MessageType.GetChains;
   }
 
   constructor() {
@@ -58,8 +58,8 @@ export class GetChainsMsg extends Message<Chain[]> {
 }
 
 export class GetChainMsg extends Message<Chain> {
-  public static type(): string {
-    return MessageTypes.GetChain;
+  public static type(): MessageType {
+    return MessageType.GetChain;
   }
 
   constructor(public readonly chainId: string) {
@@ -76,14 +76,14 @@ export class GetChainMsg extends Message<Chain> {
     return ROUTE;
   }
 
-  type(): string {
+  type(): MessageType {
     return GetChainMsg.type();
   }
 }
 
 export class RemoveChainMsg extends Message<Chain[]> {
-  public static type(): string {
-    return MessageTypes.RemoveChain;
+  public static type(): MessageType {
+    return MessageType.RemoveChain;
   }
 
   constructor(public readonly chainId: string) {
@@ -106,8 +106,8 @@ export class RemoveChainMsg extends Message<Chain[]> {
 }
 
 export class GetSignerMsg extends Message<Signer> {
-  public static type(): string {
-    return MessageTypes.GetSigner;
+  public static type(): MessageType {
+    return MessageType.GetSigner;
   }
 
   constructor() {
