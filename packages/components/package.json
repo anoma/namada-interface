@@ -1,0 +1,26 @@
+{
+  "name": "@anoma/components",
+  "version": "0.1.0",
+  "description": "A collection of components for use with the Anoma ecosystem",
+  "main": "src/index.ts",
+  "repository": "https://github.com/anoma/namada-interface",
+  "author": "Heliax Dev <info@heliax.dev>",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "lint": "npx eslint src --ext .ts,.tsx",
+    "lint:fix": "yarn lint -- --fix"
+  },
+  "dependencies": {
+    "react": "^17.0.2",
+    "styled-components": "^5.3.5",
+    "typescript": "^4.8.3"
+  },
+  "devDependencies": {
+    "@types/react": "^17.0.39",
+    "@types/styled-components": "^5.1.26",
+    "eslint": "^8.23.1",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-prettier": "^8.5.0"
+  }
+}

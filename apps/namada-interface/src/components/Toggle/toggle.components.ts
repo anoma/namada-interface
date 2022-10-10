@@ -1,5 +1,5 @@
 import styled from "styled-components/macro";
-import { DesignConfiguration } from "utils/theme";
+import { ColorMode, DesignConfiguration } from "utils/theme";
 
 const COMPONENT_WIDTH_PIXELS = 46;
 const CIRCLE_DIAMETER_PIXELS = 20;
@@ -10,24 +10,26 @@ const transition = "all 0.3s ease-in-out";
 enum ComponentColor {
   CircleBackground,
   ToggleBackground,
-  ToggleBorder,
 }
 
 const getColor = (
-  toggleColor: ComponentColor,
+  color: ComponentColor,
   theme: DesignConfiguration
 ): string => {
-  const isDark = theme.themeConfigurations.isLightMode;
-  switch (toggleColor) {
-    case ComponentColor.CircleBackground:
-      return isDark ? theme.colors.primary.main : theme.colors.secondary.main;
-    case ComponentColor.ToggleBackground:
-      return isDark
-        ? theme.colors.utility1.main60
-        : theme.colors.utility1.main20;
-    case ComponentColor.ToggleBorder:
-      return theme.colors.primary.main;
-  }
+  const { colorMode } = theme.themeConfigurations;
+
+  const colorMap: Record<ColorMode, Record<ComponentColor, string>> = {
+    light: {
+      [ComponentColor.CircleBackground]: theme.colors.secondary.main,
+      [ComponentColor.ToggleBackground]: theme.colors.utility1.main20,
+    },
+    dark: {
+      [ComponentColor.CircleBackground]: theme.colors.primary.main,
+      [ComponentColor.ToggleBackground]: theme.colors.utility1.main60,
+    },
+  };
+
+  return colorMap[colorMode][color];
 };
 
 export const ToggleContainer = styled.button<{

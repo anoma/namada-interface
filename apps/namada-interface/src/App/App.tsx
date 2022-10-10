@@ -6,7 +6,12 @@ import { AnimatePresence } from "framer-motion";
 import { ThemeProvider } from "styled-components/macro";
 
 // internal
-import { getTheme } from "utils/theme";
+import {
+  getTheme,
+  loadColorMode,
+  storeColorMode,
+  ColorMode,
+} from "utils/theme";
 import { TopLevelRoute, locationToTopLevelRoute } from "./types";
 
 import { TopNavigation } from "./TopNavigation";
@@ -54,14 +59,20 @@ const getShouldUsePlaceholderTheme = (location: Location): boolean => {
 };
 
 function App(): JSX.Element {
-  const [isLightMode, setIsLightMode] = useState(true);
+  const initialColorMode = loadColorMode();
+  const [colorMode, setColorMode] = useState<ColorMode>(initialColorMode);
   const location = useLocation();
   const [password, setPassword] = useState<string>();
   const [store, setStore] = useState<AppStore>();
   const [persistor, setPersistor] = useState<Persistor>();
-
   const ShouldUsePlaceholderTheme = getShouldUsePlaceholderTheme(location);
-  const theme = getTheme(isLightMode, ShouldUsePlaceholderTheme);
+  const theme = getTheme(colorMode, ShouldUsePlaceholderTheme);
+
+  const toggleColorMode = (): void => {
+    setColorMode((currentMode) => (currentMode === "dark" ? "light" : "dark"));
+  };
+
+  useEffect(() => storeColorMode(colorMode), [colorMode]);
 
   useEffect(() => {
     if (store) {
@@ -73,12 +84,13 @@ function App(): JSX.Element {
     return (
       <ThemeProvider theme={theme}>
         <Provider store={store}>
-          <GlobalStyles isLightMode={isLightMode} />
+          <GlobalStyles colorMode={colorMode} />
           <AppContainer data-testid="AppContainer">
             <TopSection>
               <TopNavigation
-                isLightMode={isLightMode}
-                setIsLightMode={setIsLightMode}
+                colorMode={colorMode}
+                toggleColorMode={toggleColorMode}
+                setColorMode={setColorMode}
                 isLoggedIn={!!password}
                 persistor={persistor}
                 store={store}
@@ -105,12 +117,13 @@ function App(): JSX.Element {
    */
   return (
     <ThemeProvider theme={theme}>
-      <GlobalStyles isLightMode={isLightMode} />
+      <GlobalStyles colorMode={colorMode} />
       <AppContainer data-testid="AppContainer">
         <TopSection>
           <TopNavigation
-            isLightMode={isLightMode}
-            setIsLightMode={setIsLightMode}
+            colorMode={colorMode}
+            setColorMode={setColorMode}
+            toggleColorMode={toggleColorMode}
             logout={() => setPassword(undefined)}
           />
         </TopSection>

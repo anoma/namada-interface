@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "background": {
+    "service_worker": "background.anoma.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.anoma.js"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "permissions": ["storage", "notifications", "identity"],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["injected.anoma.js", "assets/app.css"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

@@ -9,15 +9,16 @@ import {
   TopNavigationLoggedInContainer,
   TopNavigationLoggedInControlsContainer,
 } from "./topNavigationLoggedIn.components";
+import { ColorMode } from "utils/theme";
 
 type Props = {
-  isLightMode: boolean;
-  setIsLightMode: (isLightMode: boolean) => void;
+  colorMode: ColorMode;
+  toggleColorMode: () => void;
   topLevelRoute?: TopLevelRoute;
 };
 
 const TopNavigationLoggedIn = (props: Props): JSX.Element => {
-  const { isLightMode, setIsLightMode, topLevelRoute } = props;
+  const { colorMode, toggleColorMode, topLevelRoute } = props;
   const navigate = useNavigate();
 
   return (
@@ -34,9 +35,9 @@ const TopNavigationLoggedIn = (props: Props): JSX.Element => {
           <ColorModeContainer>
             {topLevelRoute !== TopLevelRoute.StakingAndGovernance && (
               <Toggle
-                checked={isLightMode}
+                checked={colorMode === "dark"}
                 onClick={() => {
-                  setIsLightMode(!isLightMode);
+                  toggleColorMode();
                 }}
               />
             )}

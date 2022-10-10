@@ -105,7 +105,7 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
 
   const derivedAccounts = derived[chainId] || {};
   const shieldedAccounts = allShieldedAccounts[chainId] || {};
-  const { isLightMode } = themeContext.themeConfigurations;
+  const { colorMode } = themeContext.themeConfigurations;
 
   const tokenBalances: TokenBalance[] = [];
 
@@ -135,9 +135,9 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
   );
 
   const getAssetIconByTheme = (symbol: TokenType): string => {
-    return isLightMode
-      ? assetIconByToken[symbol].light
-      : assetIconByToken[symbol].dark;
+    return colorMode === "dark"
+      ? assetIconByToken[symbol].dark
+      : assetIconByToken[symbol].light;
   };
 
   useEffect(() => {
@@ -175,12 +175,12 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
       const shielded: TokenBalance[] =
         tokens.filter(
           (tokenBalance) =>
-            tokenBalance.token == symbol && tokenBalance.isShielded
+            tokenBalance.token === symbol && tokenBalance.isShielded
         ) || [];
       const transparent: TokenBalance[] =
         tokens.filter(
           (tokenBalance) =>
-            tokenBalance.token == symbol && !tokenBalance.isShielded
+            tokenBalance.token === symbol && !tokenBalance.isShielded
         ) || [];
       tokenBalances.push(...shielded, ...transparent);
       return tokenBalances;
