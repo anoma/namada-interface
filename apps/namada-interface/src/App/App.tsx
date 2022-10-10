@@ -65,12 +65,11 @@ function App(): JSX.Element {
   const [password, setPassword] = useState<string>();
   const [store, setStore] = useState<AppStore>();
   const [persistor, setPersistor] = useState<Persistor>();
-  const isLightMode = colorMode === "dark";
   const ShouldUsePlaceholderTheme = getShouldUsePlaceholderTheme(location);
-  const theme = getTheme(isLightMode, ShouldUsePlaceholderTheme);
+  const theme = getTheme(colorMode, ShouldUsePlaceholderTheme);
 
   const toggleColorMode = (): void => {
-    setColorMode((currentMode) => (currentMode == "dark" ? "light" : "dark"));
+    setColorMode((currentMode) => (currentMode === "dark" ? "light" : "dark"));
   };
 
   useEffect(() => storeColorMode(colorMode), [colorMode]);
@@ -85,11 +84,11 @@ function App(): JSX.Element {
     return (
       <ThemeProvider theme={theme}>
         <Provider store={store}>
-          <GlobalStyles isLightMode={isLightMode} />
+          <GlobalStyles colorMode={colorMode} />
           <AppContainer data-testid="AppContainer">
             <TopSection>
               <TopNavigation
-                isLightMode={isLightMode}
+                colorMode={colorMode}
                 toggleColorMode={toggleColorMode}
                 setColorMode={setColorMode}
                 isLoggedIn={!!password}
@@ -118,11 +117,11 @@ function App(): JSX.Element {
    */
   return (
     <ThemeProvider theme={theme}>
-      <GlobalStyles isLightMode={isLightMode} />
+      <GlobalStyles colorMode={colorMode} />
       <AppContainer data-testid="AppContainer">
         <TopSection>
           <TopNavigation
-            isLightMode={isLightMode}
+            colorMode={colorMode}
             setColorMode={setColorMode}
             toggleColorMode={toggleColorMode}
             logout={() => setPassword(undefined)}

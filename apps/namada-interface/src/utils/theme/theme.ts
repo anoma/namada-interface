@@ -101,7 +101,10 @@ export type DesignConfiguration = {
   spacers: Spacers;
   borderRadius: BorderRadius;
   typography: Typography;
-  themeConfigurations: { isLightMode?: boolean; themeName: ThemeName };
+  themeConfigurations: {
+    colorMode: ColorMode;
+    themeName: ThemeName;
+  };
 };
 
 // NAMADA
@@ -345,12 +348,8 @@ export const storeColorMode = (mode: ColorMode): void => {
   localStorage.setItem(LocalStorageKeys.ColorMode, mode);
 };
 
-export type ThemeConfigurations = {
-  isLightMode: boolean;
-};
-
 export const getTheme = (
-  isLightMode: boolean,
+  colorMode: ColorMode,
   shouldUsePlaceholderTheme?: boolean
 ): DesignConfiguration => {
   if (shouldUsePlaceholderTheme) {
@@ -359,31 +358,23 @@ export const getTheme = (
       spacers: namadaSpacers,
       borderRadius: placeholderBorderRadius,
       typography: namadaTypography,
-      themeConfigurations: { isLightMode, themeName: ThemeName.Placeholder },
+      themeConfigurations: {
+        colorMode,
+        themeName: ThemeName.Placeholder,
+      },
     };
     return placeholderTheme;
   }
 
   const namadaTheme: DesignConfiguration = {
-    colors: isLightMode ? namadaDarkColors : namadaLightColors,
+    colors: colorMode === "dark" ? namadaDarkColors : namadaLightColors,
     spacers: namadaSpacers,
     borderRadius: namadaBorderRadius,
     typography: namadaTypography,
-    themeConfigurations: { isLightMode, themeName: ThemeName.Namada },
-  };
-  return namadaTheme;
-};
-
-export type Theme = {
-  themeConfigurations: ThemeConfigurations;
-};
-
-// this sets the dark/light colors to theme
-export const getTheme_old = (isLightMode: boolean): Theme => {
-  const theme: Theme = {
     themeConfigurations: {
-      isLightMode: isLightMode,
+      colorMode,
+      themeName: ThemeName.Namada,
     },
   };
-  return theme;
+  return namadaTheme;
 };
