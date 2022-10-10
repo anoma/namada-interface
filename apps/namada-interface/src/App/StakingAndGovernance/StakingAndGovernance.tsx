@@ -58,10 +58,6 @@ export const StakingAndGovernance = (): JSX.Element => {
     dispatch(fetchMyStakingPositions());
   };
 
-  const fetchMyBalancesCallback = (): void => {
-    dispatch(fetchMyBalances());
-  };
-
   // triggered by the url load or user click in <Staking />
   const fetchValidatorDetailsCallback = (validatorId: string): void => {
     dispatch(fetchValidatorDetails(validatorId));
