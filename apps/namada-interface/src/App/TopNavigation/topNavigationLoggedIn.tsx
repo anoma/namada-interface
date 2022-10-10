@@ -12,12 +12,12 @@ import {
 
 type Props = {
   isLightMode: boolean;
-  setIsLightMode: (isLightMode: boolean) => void;
+  toggleColorMode: () => void;
   topLevelRoute?: TopLevelRoute;
 };
 
 const TopNavigationLoggedIn = (props: Props): JSX.Element => {
-  const { isLightMode, setIsLightMode, topLevelRoute } = props;
+  const { isLightMode, toggleColorMode, topLevelRoute } = props;
   const navigate = useNavigate();
 
   return (
@@ -36,7 +36,7 @@ const TopNavigationLoggedIn = (props: Props): JSX.Element => {
               <Toggle
                 checked={isLightMode}
                 onClick={() => {
-                  setIsLightMode(!isLightMode);
+                  toggleColorMode();
                 }}
               />
             )}

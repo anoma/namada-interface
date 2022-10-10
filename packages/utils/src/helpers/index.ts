@@ -8,29 +8,6 @@ import {
   Protocol,
 } from "@anoma/rpc";
 
-/**
- * Race a promise against a timeout
- */
-export const promiseWithTimeout = <T = unknown>(
-  promise: Promise<T>,
-  timeout = 4000,
-  error = "Request timed out"
-): {
-  promise: Promise<T>;
-  timeoutId: number;
-} => {
-  let timeoutId: ReturnType<typeof setTimeout> | number = -1;
-  const timeoutPromise = new Promise<T>((_, reject) => {
-    timeoutId = setTimeout(() => {
-      reject(new Error(error));
-    }, timeout);
-  });
-  return {
-    promise: Promise.race([promise, timeoutPromise]),
-    timeoutId,
-  };
-};
-
 const MICRO_FACTOR = 1000000; // 1,000,000
 
 /**
@@ -60,59 +37,6 @@ export const createJsonRpcRequest = (
     method,
     params,
   };
-};
-
-/**
- * Encrypt a string with a password
- */
-export const aesEncrypt = (value: string, password: string): string => {
-  const key = CryptoJS.enc.Utf8.parse(password);
-  const iv = CryptoJS.enc.Utf8.parse(password);
-  const encrypted = CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(value), key, {
-    keySize: 128 / 8,
-    iv: iv,
-    mode: CryptoJS.mode.CBC,
-    padding: CryptoJS.pad.Pkcs7,
-  });
-  return encrypted.toString();
-};
-
-/**
- * Decrypt an encrypted string with password
- */
-export const aesDecrypt = (encrypted: string, password: string): string => {
-  const key = CryptoJS.enc.Utf8.parse(password);
-  const iv = CryptoJS.enc.Utf8.parse(password);
-
-  try {
-    const decrypted = CryptoJS.AES.decrypt(encrypted, key, {
-      keySize: 128 / 8,
-      iv: iv,
-      mode: CryptoJS.mode.CBC,
-      padding: CryptoJS.pad.Pkcs7,
-    });
-    return decrypted.toString(CryptoJS.enc.Utf8);
-  } catch (e) {
-    throw new Error(`Unable to decrypt value: ${e}`);
-  }
-};
-
-/**
- * Hash a provided password
- */
-export const hashPassword = (password: string): string => {
-  const hash = CryptoJS.SHA3(password, { outputLength: 512 });
-  return hash.toString(CryptoJS.enc.Base64);
-};
-
-/**
- * Create a short base58 encoded hash of a string.
- * Useful for creating URL-friendly hashes of storage
- * values in state.
- */
-export const stringToHash = (value: string): string => {
-  const hash = CryptoJS.MD5(value);
-  return base58.encode(new Uint8Array(hash.words));
 };
 
 /**

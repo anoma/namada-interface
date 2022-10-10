@@ -28,7 +28,7 @@ export const fetchValidators = createAsyncThunk<
 export const fetchValidatorDetails = createAsyncThunk<
   ValidatorDetailsPayload | undefined,
   string
->(FETCH_VALIDATOR_DETAILS, async (validatorId: string) => {
+>(FETCH_VALIDATOR_DETAILS, async (_validatorId: string) => {
   try {
     return Promise.resolve({
       name: validatorId,
