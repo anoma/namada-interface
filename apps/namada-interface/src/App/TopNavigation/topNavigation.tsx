@@ -59,7 +59,7 @@ const TopNavigationMenuItems = (props: {
   navigate: NavigateFunction;
   setColorMode: (mode: ColorMode) => void;
 }): React.ReactElement => {
-  const { navigate, setColorMode } = props;
+  const { navigate } = props;
   const location = useLocation();
   const topLevelPath = `/${location.pathname.split("/")[1]}`;
   return (
@@ -206,7 +206,7 @@ const SecondMenuRow = (props: SecondMenuRowProps): React.ReactElement => {
 
 type TopNavigationProps = {
   // this is for the toggle
-  isLightMode: boolean;
+  colorMode: ColorMode;
   // cb for telling parent to change hte color in context
   toggleColorMode: () => void;
   setColorMode: (mode: ColorMode) => void;
@@ -219,7 +219,7 @@ type TopNavigationProps = {
 // top nav of the app, this is likely always visible.
 function TopNavigation(props: TopNavigationProps): JSX.Element {
   const {
-    isLightMode,
+    colorMode,
     logout,
     toggleColorMode,
     setColorMode,
@@ -268,7 +268,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
             {isLoggedIn && store && (
               <>
                 <TopNavigationLoggedIn
-                  isLightMode={isLightMode}
+                  colorMode={colorMode}
                   toggleColorMode={toggleColorMode}
                   topLevelRoute={topLevelRoute}
                 ></TopNavigationLoggedIn>
@@ -315,7 +315,10 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
               </LogoContainer>
               <ColorModeContainer>
                 {topLevelRoute !== TopLevelRoute.StakingAndGovernance && (
-                  <Toggle checked={isLightMode} onClick={toggleColorMode} />
+                  <Toggle
+                    checked={colorMode === "dark"}
+                    onClick={toggleColorMode}
+                  />
                 )}
               </ColorModeContainer>
             </TopNavigationLogoContainer>
@@ -355,7 +358,10 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
                 {isLoggedIn && (
                   <ColorModeContainer>
                     {topLevelRoute !== TopLevelRoute.StakingAndGovernance && (
-                      <Toggle checked={isLightMode} onClick={toggleColorMode} />
+                      <Toggle
+                        checked={colorMode === "dark"}
+                        onClick={toggleColorMode}
+                      />
                     )}
                   </ColorModeContainer>
                 )}
@@ -366,7 +372,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
         <TopNavigationContainerSecondRow>
           {isLoggedIn && store ? (
             <TopNavigationLoggedIn
-              isLightMode={isLightMode}
+              colorMode={colorMode}
               toggleColorMode={toggleColorMode}
             ></TopNavigationLoggedIn>
           ) : (
@@ -386,7 +392,10 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
               </LogoContainer>
               <ColorModeContainer>
                 {topLevelRoute !== TopLevelRoute.StakingAndGovernance && (
-                  <Toggle checked={isLightMode} onClick={toggleColorMode} />
+                  <Toggle
+                    checked={colorMode === "dark"}
+                    onClick={toggleColorMode}
+                  />
                 )}
               </ColorModeContainer>
             </TopNavigationLogoContainer>
@@ -413,7 +422,10 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
             </LogoContainer>
             <ColorModeContainer>
               {topLevelRoute !== TopLevelRoute.StakingAndGovernance && (
-                <Toggle checked={isLightMode} onClick={toggleColorMode} />
+                <Toggle
+                  checked={colorMode === "dark"}
+                  onClick={toggleColorMode}
+                />
               )}
             </ColorModeContainer>
           </MobileMenuHeader>
