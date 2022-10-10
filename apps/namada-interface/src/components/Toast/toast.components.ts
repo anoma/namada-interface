@@ -9,7 +9,7 @@ export const Wrapper = styled(motion.div)<{ index: number }>`
   top: ${(props) => 100 + props.index * 70}px;
   right: 15px;
   width: 360px;
-  z-index: 10;
+  z-index: 9999;
   border-radius: 4px;
   border-color: ${(props) => props.theme.colors.primary.main60};
   color: ${(props) => props.theme.colors.utility3.black};
