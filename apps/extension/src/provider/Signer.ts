@@ -40,7 +40,6 @@ export class Signer implements ISigner {
     txProps: TxProps,
     txData: string
   ): Promise<SignedTx | undefined> {
-    // TODO: Implement this._anoma.signTx(signer, txProps, encoded)
     const txMsg = new Message<TransactionMsgValue>();
     const txMsgValue = new TransactionMsgValue(txProps);
     const txMsgEncoded = txMsg.encode(TransactionMsgSchema, txMsgValue);
@@ -71,9 +70,7 @@ export class Signer implements ISigner {
       transferMsgValue
     );
 
-    if (serializedTransfer) {
-      return await this._anoma.encodeTransfer(toBase64(serializedTransfer));
-    }
+    return await this._anoma.encodeTransfer(toBase64(serializedTransfer));
   }
 
   /**
@@ -97,9 +94,7 @@ export class Signer implements ISigner {
       ibcTransferMsgValue
     );
 
-    if (serializedIbcTransfer) {
-      return await this._anoma.encodeTransfer(toBase64(serializedIbcTransfer));
-    }
+    return await this._anoma.encodeTransfer(toBase64(serializedIbcTransfer));
   }
 
   /**
@@ -116,11 +111,9 @@ export class Signer implements ISigner {
     const accountMessage = new Message<AccountMsgValue>();
     const serialized = accountMessage.encode(AccountMsgSchema, accountMsgValue);
 
-    if (serialized) {
-      return await this._anoma.encodeInitAccount({
-        txMsg: toBase64(serialized),
-        address: signer,
-      });
-    }
+    return await this._anoma.encodeInitAccount({
+      txMsg: toBase64(serialized),
+      address: signer,
+    });
   }
 }
