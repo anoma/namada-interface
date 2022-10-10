@@ -18,6 +18,7 @@
     "noEmit": false,
     "jsx": "react-jsx"
   },
-  "include": ["src"],
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules"],
   "typeRoots": ["./node_modules/@types"]
 }

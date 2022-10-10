@@ -1,7 +1,7 @@
-import { ChainInfo as Chain } from "@keplr-wallet/types";
 import { KVStore } from "@anoma/storage";
 import { debounce } from "@anoma/utils";
-import { Env, KVKeys } from "../../router";
+import { Chain } from "@anoma/types";
+import { Env, KVKeys } from "router";
 
 type ChainRemovedHandler = (chainId: string, identifier: string) => void;
 
@@ -12,10 +12,6 @@ export class ChainsService {
     protected readonly kvStore: KVStore,
     protected readonly defaultChains: Chain[]
   ) {}
-
-  init() {
-    console.debug("ChainsService initialized");
-  }
 
   readonly getChains: () => Promise<Chain[]> = debounce(async () => {
     const chains = [...this.defaultChains];

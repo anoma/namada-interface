@@ -20,19 +20,19 @@ pub struct AEAD;
 /// A set of simple WASM-compatible AEAD (Authenticated Encryption with Additional Data) functions
 #[wasm_bindgen]
 impl AEAD {
-    pub fn encrypt(data: Vec<u8>, password: String) -> Vec<u8> {
-        let data: &[u8] = &data;
+    pub fn encrypt_from_bytes(bytes: Vec<u8>, password: String) -> Vec<u8> {
+        let bytes: &[u8] = &bytes;
         let salt = encryption_salt();
         let encryption_key = encryption_key(&salt, password);
                 let encrypted_keypair =
-            aead::seal(&encryption_key, data).expect("Encryption of data shouldn't fail");
+            aead::seal(&encryption_key, bytes).expect("Encryption of data shouldn't fail");
 
         [salt.as_ref(), &encrypted_keypair].concat()
     }
 
-    pub fn encrypt_from_string(value: String, password: String) -> Vec<u8> {
+    pub fn encrypt(value: String, password: String) -> Vec<u8> {
         let data = Vec::from(value.as_bytes());
-        AEAD::encrypt(data, password)
+        AEAD::encrypt_from_bytes(data, password)
     }
 
     pub fn decrypt(encrypted: Vec<u8>, password: String) -> Result<String, String> {
@@ -66,7 +66,7 @@ mod tests {
         let password = String::from("unhackable");
         let message = String::from("My secret message");
 
-        let encrypted = AEAD::encrypt_from_string(message.clone(), password.clone());
+        let encrypted = AEAD::encrypt(message.clone(), password.clone());
         let decrypted = AEAD::decrypt(encrypted, password).expect("Value should be decrypted");
 
         assert_eq!(decrypted, message);
@@ -78,7 +78,7 @@ mod tests {
         let message = String::from("My secret message");
         let bytes = Vec::from(message.as_bytes());
 
-        let encrypted = AEAD::encrypt(bytes, password.clone());
+        let encrypted = AEAD::encrypt_from_bytes(bytes, password.clone());
         let decrypted = AEAD::decrypt(encrypted, password).expect("Value should be decrypted");
 
         assert_eq!(decrypted, message);

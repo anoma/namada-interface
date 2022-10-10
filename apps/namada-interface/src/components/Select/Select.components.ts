@@ -1,5 +1,5 @@
 import styled from "styled-components/macro";
-import { DesignConfiguration } from "utils/theme";
+import { ColorMode, DesignConfiguration } from "utils/theme";
 
 enum ComponentColor {
   Arrow,
@@ -12,19 +12,24 @@ const getColor = (
   color: ComponentColor,
   theme: DesignConfiguration
 ): string => {
-  const isDark = theme.themeConfigurations.isLightMode;
-  switch (color) {
-    case ComponentColor.Arrow:
-      return isDark ? theme.colors.primary.main : theme.colors.secondary.main;
-    case ComponentColor.Label:
-      return isDark ? theme.colors.primary.main : theme.colors.secondary.main;
-    case ComponentColor.Border:
-      return isDark ? "transparent" : theme.colors.utility2.main60;
-    case ComponentColor.Background:
-      return isDark
-        ? theme.colors.utility1.main70
-        : theme.colors.utility3.white;
-  }
+  const { colorMode } = theme.themeConfigurations;
+
+  const colorMap: Record<ColorMode, Record<ComponentColor, string>> = {
+    light: {
+      [ComponentColor.Arrow]: theme.colors.secondary.main,
+      [ComponentColor.Label]: theme.colors.secondary.main,
+      [ComponentColor.Border]: theme.colors.utility2.main60,
+      [ComponentColor.Background]: theme.colors.utility3.white,
+    },
+    dark: {
+      [ComponentColor.Arrow]: theme.colors.primary.main,
+      [ComponentColor.Label]: theme.colors.primary.main,
+      [ComponentColor.Border]: "transparent",
+      [ComponentColor.Background]: theme.colors.utility1.main70,
+    },
+  };
+
+  return colorMap[colorMode][color];
 };
 
 export const StyledSelectWrapper = styled.div`

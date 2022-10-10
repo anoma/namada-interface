@@ -49,7 +49,7 @@ export const SettingsAccountSettings = (): JSX.Element => {
     if (
       prompt(
         `Please type in ${account.alias} if you're sure you want to delete this account`
-      ) == account.alias
+      ) === account.alias
     ) {
       dispatch(removeAccount({ chainId, id: account.id }));
       navigate(TopLevelRoute.SettingsAccounts);

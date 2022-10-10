@@ -1,4 +1,4 @@
-import { ChainInfo as Chain } from "@keplr-wallet/types";
+import { Chain } from "./chain";
 
 export type Transaction = {
   hash: Uint8Array;

@@ -1,14 +1,14 @@
 import browser from "webextension-polyfill";
-import { Anoma, InjectedAnoma } from "../provider";
+import { Anoma, InjectedAnoma } from "provider";
 import {
   ExtensionRouter,
   ExtensionRequester,
   ContentScriptEnv,
   ContentScriptGuards,
-} from "../extension";
-import { Ports } from "../router/types";
+} from "extension";
+import { Ports } from "router/types";
 import { initEvents } from "./events";
-import manifest from "../manifest/_base.json";
+import manifest from "manifest/_base.json";
 
 // Start proxying messages from Anoma to InjectedAnoma
 InjectedAnoma.startProxy(new Anoma(manifest.version, new ExtensionRequester()));

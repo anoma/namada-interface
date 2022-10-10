@@ -2,14 +2,11 @@ import { IndexedDBKVStore } from "@anoma/storage";
 import { init as initCrypto } from "@anoma/crypto";
 import { init as initShared } from "@anoma/shared";
 
-import { ExtensionRouter, ExtensionGuards } from "../extension";
-import { ContentScriptEnv } from "../extension/utils";
-import { Ports, KVPrefix } from "../router/types";
-import { ChainsService } from "./chains";
-import { KeyRingService } from "./keyring";
-import { init as initChains } from "./chains/init";
-import { init as initKeyRing } from "./keyring/init";
-import { chains } from "../chains";
+import { ExtensionRouter, ExtensionGuards, ContentScriptEnv } from "extension";
+import { Ports, KVPrefix } from "router";
+import { chains } from "config";
+import { ChainsService, init as initChains } from "./chains";
+import { KeyRingService, init as initKeyRing } from "./keyring";
 
 initCrypto();
 initShared();
@@ -20,10 +17,7 @@ router.addGuard(ExtensionGuards.checkOriginIsValid);
 router.addGuard(ExtensionGuards.checkMessageIsInternal);
 
 const chainsService = new ChainsService(store, chains);
-chainsService.init();
-
 const keyRingService = new KeyRingService(store);
-keyRingService.init();
 
 // Initialize messages and handlers
 initChains(router, chainsService);

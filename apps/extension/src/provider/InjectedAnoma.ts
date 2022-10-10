@@ -1,7 +1,6 @@
-import { ChainInfo as Chain } from "@keplr-wallet/types";
-import { Anoma as IAnoma, Signer } from "@anoma/types";
+import { Anoma as IAnoma, Chain, Signer } from "@anoma/types";
 import { Anoma } from "./Anoma";
-import { Result } from "../router/types";
+import { Result } from "router/types";
 
 /**
  * Specify which methods can be proxied

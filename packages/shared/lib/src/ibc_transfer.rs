@@ -79,15 +79,15 @@ impl IbcTransfer {
 
     pub fn to_tx(
         &self,
-        secret: String,
+        secret: &str,
         epoch: u32,
         fee_amount: u32,
         gas_limit: u32,
         tx_code: Vec<u8>,
     ) -> Result<JsValue, JsValue> {
         let token = Address::from_str(&self.token).unwrap();
-        let tx_code: Vec<u8> = tx_code.to_vec();
-        let tx_data = self.tx_data.clone();
+        let tx_code: &[u8] = &tx_code;
+        let tx_data: &[u8] = &self.tx_data;
 
         let transaction =
             match Transaction::new(secret, token, epoch, fee_amount, gas_limit, tx_code, tx_data) {
@@ -96,13 +96,14 @@ impl IbcTransfer {
             };
 
         // Return a serialized IBC Transaction
-        Ok(JsValue::from_serde(&transaction).unwrap())
+        Ok(JsValue::from_serde(&transaction.serialize()).unwrap())
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::types::transaction::SerializedTx;
     use wasm_bindgen_test::*;
 
     #[wasm_bindgen_test]
@@ -121,10 +122,10 @@ mod tests {
         let tx_code = vec![];
 
         let ibc_transfer = IbcTransfer::new(source_port, source_channel, token, sender, receiver, amount);
-        let transaction = ibc_transfer.to_tx(secret, epoch, fee_amount, gas_limit, tx_code)
+        let transaction = ibc_transfer.to_tx(&secret, epoch, fee_amount, gas_limit, tx_code)
             .expect("Should be able to convert to transaction");
 
-        let serialized_tx: Transaction = JsValue::into_serde(&transaction)
+        let serialized_tx: SerializedTx = JsValue::into_serde(&transaction)
             .expect("Should be able to serialize to a Transaction");
 
         let hash = serialized_tx.hash();
