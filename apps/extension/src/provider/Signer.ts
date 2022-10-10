@@ -109,7 +109,6 @@ export class Signer implements ISigner {
     args: InitAccountProps,
     signer: string
   ): Promise<string | undefined> {
-    console.log({ signer });
     const { vpCode } = args;
     const accountMsgValue = new AccountMsgValue({
       vpCode,

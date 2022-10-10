@@ -234,7 +234,21 @@ export class KeyRing {
       throw new Error(`Account not found for ${address}`);
     }
     try {
-      const pk = crypto.decrypt(account, this._password);
+      const decrypted = crypto.decrypt(account, this._password);
+      let pk: string;
+      // If the account type is a Mnemonic, derive a private key
+      // from associated derived address (root account):
+      if (account.type === AccountType.Mnemonic) {
+        const { path } = account;
+        const mnemonic = Mnemonic.from_phrase(decrypted);
+        const bip44 = new HDWallet(mnemonic.to_seed());
+        const derivationPath = `m/44'/1'/${path.account}'/${path.change}`;
+        const derived = bip44.derive(derivationPath);
+        pk = derived.private().to_hex();
+      } else {
+        pk = decrypted;
+      }
+
       const signer = new Signer(txData);
       const { hash, bytes } = signer.sign(txMsg, pk);
       return {

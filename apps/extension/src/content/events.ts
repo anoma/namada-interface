@@ -1,7 +1,7 @@
 import { Message, Router, Events, Routes } from "../router";
 
 class PushEventDataMsg extends Message<void> {
-  public static type(): string {
+  public static type(): Events {
     return Events.PushEventData;
   }
 
