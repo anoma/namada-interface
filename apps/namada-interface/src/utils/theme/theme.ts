@@ -250,7 +250,7 @@ const placeholderThemeColors: Colors = {
     error: "#ED695D",
     highAttention: "#FF0000",
     lowAttention: "#FAFF00",
-    black: "#000000",
+    black: "#FFFFFF",
     white: "#FFFFFF",
   },
 };

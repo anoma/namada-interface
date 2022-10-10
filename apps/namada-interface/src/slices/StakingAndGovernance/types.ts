@@ -2,6 +2,7 @@ export const STAKING_AND_GOVERNANCE = "stakingAndGovernance";
 export const FETCH_MY_BALANCES = `${STAKING_AND_GOVERNANCE}/FETCH_MY_BALANCES`;
 export const FETCH_VALIDATORS = `${STAKING_AND_GOVERNANCE}/FETCH_VALIDATORS`;
 export const FETCH_MY_VALIDATORS = `${STAKING_AND_GOVERNANCE}/FETCH_MY_VALIDATORS`;
+export const FETCH_MY_STAKING_POSITIONS = `${STAKING_AND_GOVERNANCE}/FETCH_MY_STAKING_POSITIONS`;
 export const FETCH_VALIDATOR_DETAILS = `${STAKING_AND_GOVERNANCE}/FETCH_VALIDATOR_DETAILS`;
 
 export enum StakingAndGovernanceErrors {
@@ -22,12 +23,15 @@ export type Validator = Unique & {
   votingPower: string;
   homepageUrl: string;
   commission: string;
+  description: string;
 };
 
 // represents users staking position
-export type MyStaking = Unique & {
+export type StakingPosition = Unique & {
   stakingStatus: string;
   stakedAmount: string;
+  stakedCurrency: string;
+  totalRewards: string;
   validatorId: string;
 };
 
@@ -48,12 +52,12 @@ export type MyBalanceEntry = Unique & {
 // PLACEHOLDER
 export type ValidatorDetailsPayload = {
   name: string;
-  websiteUrl: string;
 };
 
 export type StakingAndGovernanceState = {
   myBalances: MyBalanceEntry[];
   validators: Validator[];
   myValidators: MyValidators[];
+  myStakingPositions: StakingPosition[];
   selectedValidatorId?: ValidatorId;
 };
