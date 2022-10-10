@@ -65,9 +65,8 @@ function App(): JSX.Element {
   const [password, setPassword] = useState<string>();
   const [store, setStore] = useState<AppStore>();
   const [persistor, setPersistor] = useState<Persistor>();
-  const isLightMode = colorMode === "dark";
   const ShouldUsePlaceholderTheme = getShouldUsePlaceholderTheme(location);
-  const theme = getTheme(isLightMode, ShouldUsePlaceholderTheme);
+  const theme = getTheme(colorMode, ShouldUsePlaceholderTheme);
 
   const toggleColorMode = (): void => {
     setColorMode((currentMode) => (currentMode === "dark" ? "light" : "dark"));

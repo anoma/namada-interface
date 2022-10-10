@@ -1,6 +1,6 @@
 import styled, { createGlobalStyle } from "styled-components/macro";
 import { motion } from "framer-motion";
-import { ColorMode, DesignConfiguration, ThemeName } from "utils/theme";
+import { ColorMode, DesignConfiguration } from "utils/theme";
 
 enum ComponentColor {
   BorderColor,
@@ -13,17 +13,22 @@ const getColor = (
   color: ComponentColor,
   theme: DesignConfiguration
 ): string => {
-  const isDark = theme.themeConfigurations.isLightMode;
-  switch (color) {
-    case ComponentColor.BorderColor:
-      if (theme.themeConfigurations.themeName === ThemeName.Placeholder) {
-        return "transparent";
-      }
-      return isDark ? "transparent" : theme.colors.utility2.main20;
-    case ComponentColor.BackgroundColor:
-      return isDark ? theme.colors.utility1.main80 : theme.colors.utility1.main;
-  }
+  const { colorMode } = theme.themeConfigurations;
+
+  const colorMap: Record<ColorMode, Record<ComponentColor, string>> = {
+    light: {
+      [ComponentColor.BorderColor]: theme.colors.utility2.main20,
+      [ComponentColor.BackgroundColor]: theme.colors.utility1.main,
+    },
+    dark: {
+      [ComponentColor.BorderColor]: "transparent",
+      [ComponentColor.BackgroundColor]: theme.colors.utility1.main80,
+    },
+  };
+
+  return colorMap[colorMode][color];
 };
+
 type GlobalStyleProps = {
   colorMode: ColorMode;
 };
