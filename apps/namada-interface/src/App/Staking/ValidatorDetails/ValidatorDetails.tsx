@@ -145,12 +145,10 @@ export const ValidatorDetails = (props: Props): JSX.Element => {
   ): void => {
     switch (modalOnRequestCloseType) {
       case ModalOnRequestCloseType.Confirm: {
-        console.log(`called action ${modalOnRequestCloseType}`);
         setModalState(ModalState.None);
         break;
       }
       case ModalOnRequestCloseType.Cancel: {
-        console.log(`called action ${modalOnRequestCloseType}`);
         setModalState(ModalState.None);
         break;
       }
