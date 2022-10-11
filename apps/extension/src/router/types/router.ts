@@ -32,7 +32,7 @@ export interface MessageRequester {
     msg: M
   ): Promise<M extends Message<infer R> ? R : never>;
 
-  startSession(): void;
+  startSession(chainid?: string): void;
 }
 
 export type Guard = (
