@@ -244,7 +244,8 @@ export class KeyRing {
         const { path } = account;
         const mnemonic = Mnemonic.from_phrase(decrypted);
         const bip44 = new HDWallet(mnemonic.to_seed());
-        const derivationPath = `m/44'/1'/${path.account}'/${path.change}`;
+        const { coinType } = chains[0].bip44;
+        const derivationPath = `m/44'/${coinType}'/${path.account}'/${path.change}`;
         const derived = bip44.derive(derivationPath);
         pk = derived.private().to_hex();
       } else {

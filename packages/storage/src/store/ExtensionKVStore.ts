@@ -11,7 +11,7 @@ export class ExtensionKVStore implements KVStore {
     const k = this.prefix() + "/" + key;
 
     const data = await this.provider.get();
-    return data[k];
+    return data[k] as T;
   }
 
   public set<T = unknown>(key: string, data: T | null): Promise<void> {

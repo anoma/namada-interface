@@ -5,10 +5,6 @@ export interface KVStore {
 }
 
 export interface KVStoreProvider {
-  // TODO: Strongly type KVStoreProvider
-  // eslint-disable-next-line
-  get(): Promise<{ [key: string]: any }>;
-  // TODO: Strongly type KVStoreProvider
-  // eslint-disable-next-line
-  set(items: { [key: string]: any }): Promise<void>;
+  get(): Promise<{ [key: string]: unknown }>;
+  set(items: { [key: string]: unknown }): Promise<void>;
 }
