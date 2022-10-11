@@ -18,7 +18,7 @@ type Props = {
 const LockWrapper: React.FC<Props> = ({ requester, setStatus, children }) => {
   const navigate = useNavigate();
 
-  const handleLock = async () => {
+  const handleLock = async (): Promise<void> => {
     try {
       await requester.sendMessage(Ports.Background, new LockKeyRingMsg());
       setStatus(undefined);
