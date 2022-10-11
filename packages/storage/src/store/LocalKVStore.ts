@@ -3,7 +3,7 @@ import { KVStore } from "./types";
 export class LocalKVStore implements KVStore {
   constructor(private readonly _prefix: string) {}
 
-  get<T = unknown>(key: string): Promise<T | undefined> {
+  public get<T = unknown>(key: string): Promise<T | undefined> {
     const k = this.prefix() + "/" + key;
 
     const data = localStorage.getItem(k);
@@ -13,7 +13,7 @@ export class LocalKVStore implements KVStore {
     return Promise.resolve(JSON.parse(data));
   }
 
-  set<T = unknown>(key: string, data: T | null): Promise<void> {
+  public set<T = unknown>(key: string, data: T | null): Promise<void> {
     const k = this.prefix() + "/" + key;
 
     if (data === null) {
@@ -23,7 +23,7 @@ export class LocalKVStore implements KVStore {
     return Promise.resolve(localStorage.setItem(k, JSON.stringify(data)));
   }
 
-  prefix(): string {
+  public prefix(): string {
     return this._prefix;
   }
 }

@@ -1,32 +1,26 @@
-import browser from "webextension-polyfill";
-import { BaseKVStore } from "./BaseKVStore";
-import { KVStoreProvider } from "./types";
+/* import browser from "webextension-polyfill"; */
+import { KVStore, KVStoreProvider } from "./types";
 
-export class ExtensionKVStore extends BaseKVStore {
-  protected static KVStoreProvider: KVStoreProvider | undefined;
+export class ExtensionKVStore implements KVStore {
+  constructor(
+    protected readonly _prefix: string,
+    protected readonly provider: KVStoreProvider
+  ) {}
 
-  constructor(prefix: string) {
-    if (!ExtensionKVStore.KVStoreProvider) {
-      if (typeof browser === "undefined") {
-        console.log(
-          "You should use ExtensionKVStore on the extension environment."
-        );
-      } else if (!browser.storage || !browser.storage.local) {
-        console.log(
-          "The 'browser' exists, but it doesn't seem to be an extension environment. This can happen in Safari browser."
-        );
-      } else {
-        ExtensionKVStore.KVStoreProvider = {
-          get: browser.storage.local.get,
-          set: browser.storage.local.set,
-        };
-      }
-    }
+  public async get<T = unknown>(key: string): Promise<T | undefined> {
+    const k = this.prefix() + "/" + key;
 
-    if (!ExtensionKVStore.KVStoreProvider) {
-      throw new Error("Can't initialize kv store for browser extension");
-    }
+    const data = await this.provider.get();
+    return data[k];
+  }
 
-    super(ExtensionKVStore.KVStoreProvider, prefix);
+  public set<T = unknown>(key: string, data: T | null): Promise<void> {
+    const k = this.prefix() + "/" + key;
+
+    return this.provider.set({ [k]: data });
+  }
+
+  public prefix(): string {
+    return this._prefix;
   }
 }

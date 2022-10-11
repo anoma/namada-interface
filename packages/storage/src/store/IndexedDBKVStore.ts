@@ -5,7 +5,7 @@ export class IndexedDBKVStore implements KVStore {
 
   constructor(protected readonly _prefix: string) {}
 
-  async get<T = unknown>(key: string): Promise<T | undefined> {
+  public async get<T = unknown>(key: string): Promise<T | undefined> {
     const tx = (await this.getDB()).transaction([this.prefix()], "readonly");
     const store = tx.objectStore(this.prefix());
 
@@ -26,7 +26,7 @@ export class IndexedDBKVStore implements KVStore {
     });
   }
 
-  async set<T = unknown>(key: string, data: T | null): Promise<void> {
+  public async set<T = unknown>(key: string, data: T | null): Promise<void> {
     if (data === null) {
       const tx = (await this.getDB()).transaction([this.prefix()], "readwrite");
       const store = tx.objectStore(this.prefix());
@@ -63,7 +63,7 @@ export class IndexedDBKVStore implements KVStore {
     }
   }
 
-  prefix(): string {
+  public prefix(): string {
     return this._prefix;
   }
 

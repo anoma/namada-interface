@@ -109,8 +109,10 @@ export class KeyRing {
     try {
       const mnemonic = Mnemonic.from_phrase(phrase);
       const seed = mnemonic.to_seed();
-      // TODO: coinType should match our registered SLIP-0044 type:
-      const coinType = 0;
+      // TODO: coinType should match our registered SLIP-0044 type!
+      // coinType = 1: testnet (all coins) - Slip-0044
+      // See: https://github.com/satoshilabs/slips/blob/master/slip-0044.md
+      const coinType = 1;
       const path = `m/44'/${coinType}'/0'/0`;
       const bip44 = new HDWallet(seed);
       const account = bip44.derive(path);
@@ -166,7 +168,7 @@ export class KeyRing {
       const { account, change, index = 0 } = path;
       const root = "m/44'";
       // TODO: This should be defined for our chain (SLIP044)
-      const coinType = "0'";
+      const coinType = "1'";
       const derivationPath = [root, coinType, `${account}`, change, index].join(
         "/"
       );

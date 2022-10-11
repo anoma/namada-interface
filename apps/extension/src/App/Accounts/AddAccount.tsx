@@ -84,7 +84,7 @@ const AddAccount: React.FC<Props> = ({
   const [formStatus, setFormStatus] = useState(Status.Idle);
 
   const bip44Prefix = "m/44";
-  const coinType = 0;
+  const coinType = 1;
 
   useEffect(() => {
     const isValid = validateAccount(parentAccount, { change, index }, accounts);
