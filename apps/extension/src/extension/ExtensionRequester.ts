@@ -59,4 +59,15 @@ export class ExtensionRequester {
 
     return result.return;
   }
+
+  public startSession(): void {
+    console.log("Reconnect to session");
+    const port = browser.runtime.connect({ name: "session-port" });
+    port.postMessage({ msg: "Establishing port to background" });
+    console.log({ port });
+
+    port.onMessage.addListener((m) => {
+      console.log(`Port established: ${m.msg}`);
+    });
+  }
 }

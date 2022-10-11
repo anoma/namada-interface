@@ -9,11 +9,24 @@ import { chains } from "config";
 import { ChainsService, init as initChains } from "./chains";
 import { KeyRingService, init as initKeyRing } from "./keyring";
 
+type Msg = {
+  msg: string;
+};
+
 initCrypto();
 initShared();
 
 const store = new IndexedDBKVStore(KVPrefix.IndexedDB);
-const router = new ExtensionRouter(ContentScriptEnv.produceEnv);
+const router = new ExtensionRouter(ContentScriptEnv.produceEnv, () => {
+  // eslint-disable-next-line
+  browser.runtime.onConnect.addListener((port: any): void => {
+    console.log("Registering port in background for session-port");
+    port.postMessage({ msg: "Connection to background established." });
+    port.onMessage.addListener((m: Msg) => {
+      console.info(`Background received request to connect: ${m.msg}`);
+    });
+  });
+});
 router.addGuard(ExtensionGuards.checkOriginIsValid);
 router.addGuard(ExtensionGuards.checkMessageIsInternal);
 
@@ -25,21 +38,3 @@ initChains(router, chainsService);
 initKeyRing(router, keyRingService);
 
 router.listen(Ports.Background);
-
-type Msg = {
-  msg: string;
-};
-
-// eslint-disable-next-line
-let portFromCS: any;
-
-// eslint-disable-next-line
-const connected = (p: any): void => {
-  portFromCS = p;
-  portFromCS.postMessage({ msg: "Connection to background established." });
-  portFromCS.onMessage.addListener((m: Msg) => {
-    console.info(`Background received request to connect: ${m.msg}`);
-  });
-};
-
-browser.runtime.onConnect.addListener(connected);

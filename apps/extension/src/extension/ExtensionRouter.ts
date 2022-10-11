@@ -9,7 +9,10 @@ import {
 } from "router";
 
 export class ExtensionRouter extends Router {
-  constructor(envProducer: EnvProducer) {
+  constructor(
+    envProducer: EnvProducer,
+    protected readonly onListen?: () => void
+  ) {
     super(envProducer);
   }
 
@@ -21,6 +24,10 @@ export class ExtensionRouter extends Router {
     console.info(`Listening on port ${port}`);
     this.port = port;
     browser.runtime.onMessage.addListener(this.onMessage);
+
+    if (this.onListen) {
+      this.onListen();
+    }
   }
 
   unlisten(): void {

@@ -26,11 +26,3 @@ scriptElement.src = browser.runtime.getURL("injected.anoma.js");
 scriptElement.type = "text/javascript";
 container.insertBefore(scriptElement, container.children[0]);
 scriptElement.remove();
-
-// Establish port connection to background:
-const port = browser.runtime.connect({ name: "session-port" });
-port.postMessage({ msg: "Connecting to background" });
-
-port.onMessage.addListener((m) => {
-  console.info(`Port connection successful! ${m.msg}`);
-});
