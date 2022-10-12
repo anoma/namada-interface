@@ -1,9 +1,7 @@
+import { Runtime } from "webextension-polyfill";
 import { Message } from "../Message";
 
-export type MessageSender = Pick<
-  browser.runtime.MessageSender,
-  "id" | "url" | "tab"
->;
+export type MessageSender = Pick<Runtime.MessageSender, "id" | "url" | "tab">;
 
 export interface Env {
   readonly isInternalMsg: boolean;
@@ -31,8 +29,8 @@ export interface MessageRequester {
     port: string,
     msg: M
   ): Promise<M extends Message<infer R> ? R : never>;
-
-  startSession(chainid?: string): void;
+  startSession(): Runtime.Port;
+  endSession(): void;
 }
 
 export type Guard = (

@@ -8,13 +8,16 @@ const initPort = (): Runtime.Port =>
   });
 
 export class ExtensionRequester {
-  protected timestamp: number | undefined;
-  protected port: Runtime.Port | undefined;
+  private _timestamp = Date.now();
+
+  constructor(protected port: Runtime.Port = initPort()) {}
 
   async sendMessage<M extends Message<unknown>>(
     port: string,
     msg: M
   ): Promise<M extends Message<infer R> ? R : never> {
+    this._timestamp = Date.now();
+
     msg.validate();
     msg.origin = window.location.origin;
     msg.meta = {
@@ -68,43 +71,37 @@ export class ExtensionRequester {
     return result.return;
   }
 
-  public startSession(chainId?: string): void {
-    this.port?.disconnect();
+  public startSession(): Runtime.Port {
+    this._timestamp = Date.now();
+    this.port.disconnect();
     this.port = initPort();
-    if (!this.timestamp) {
-      this.timestamp = Date.now();
-    }
-
     this.port.postMessage({
       msg: "Establishing port to background",
     });
 
-    this.port.onMessage.addListener((m, p) => {
-      console.log(`Port established: ${m.msg}`, p, this.timestamp);
+    this.port.onMessage.addListener((message, port) => {
+      console.log(`Port established: ${message.msg}`, port);
     });
 
-    // eslint-disable-next-line
-    this.port.onDisconnect.addListener((p: Runtime.Port) => {
-      console.log("Port is disconnecting!");
-      // Port.error is not available on Chrome: use Port.lastError
-      if (p.error) {
-        console.error("Port disconnected due to error", p.error);
+    this.port.onDisconnect.addListener((port: Runtime.Port) => {
+      console.warn(
+        `Session is ending after ${
+          (Date.now() - this._timestamp) / 1000 / 60
+        } minutes!`
+      );
+      if (port.error) {
+        console.error("Port disconnected due to error", port.error);
       }
     });
+    return this.port;
+  }
 
-    const SERVICE_WORKER_TIMEOUT = 5 * 60 * 1000;
-    const SESSION_TIMEOUT = SERVICE_WORKER_TIMEOUT * 2 - 2000;
+  public endSession(): void {
+    this.port.postMessage({
+      msg: "Ended session",
+    });
 
-    if (chainId) {
-      setTimeout(() => {
-        const duration = (Date.now() - (this?.timestamp || 0)) / 1000;
-        this.port?.disconnect();
-        if (duration < SESSION_TIMEOUT / 1000) {
-          this.startSession(chainId);
-        } else {
-          this.timestamp = undefined;
-        }
-      }, SERVICE_WORKER_TIMEOUT - 1000);
-    }
+    console.log("Disconnecting session");
+    this.port.disconnect();
   }
 }
