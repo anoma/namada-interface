@@ -4,7 +4,7 @@ use thiserror::Error;
 use wasm_bindgen::prelude::*;
 
 #[derive(Debug, Error)]
-pub enum Bip44Error {
+pub enum HDWalletError {
     #[error("Unable to parse path")]
     PathError,
     #[error("Unable to derive keys from path")]
@@ -18,7 +18,7 @@ pub enum Bip44Error {
 }
 
 #[wasm_bindgen]
-pub struct Bip44 {
+pub struct HDWallet {
     seed: [u8; 64],
 }
 
@@ -34,7 +34,7 @@ impl Key {
     pub fn new(bytes: Vec<u8>) -> Result<Key, String> {
         let bytes: [u8; 32] = match bytes.try_into() {
             Ok(bytes) => bytes,
-            Err(err) => return Err(format!("{}: {:?}", Bip44Error::InvalidKeySize, err)),
+            Err(err) => return Err(format!("{}: {:?}", HDWalletError::InvalidKeySize, err)),
         };
 
         Ok(Key {
@@ -91,7 +91,7 @@ impl ExtendedKeypair {
             Some(path) => {
                 let path = &path
                     .parse()
-                    .map_err(|err| format!("{}: {:?}", Bip44Error::PathError, err));
+                    .map_err(|err| format!("{}: {:?}", HDWalletError::PathError, err));
                 let derivation_path = match path {
                     Ok(derivation_path) => derivation_path,
                     Err(error) => return Err(error.to_string()),
@@ -99,7 +99,7 @@ impl ExtendedKeypair {
                 XPrv::derive_from_path(&seed, derivation_path)
             },
             None => XPrv::new(seed),
-        }.map_err(|err| format!("{}: {:?}", Bip44Error::DerivationError, err))?;
+        }.map_err(|err| format!("{}: {:?}", HDWalletError::DerivationError, err))?;
 
         // BIP32 Extended Private Key
         let xprv_str = xprv.to_string(Prefix::XPRV).to_string();
@@ -125,17 +125,17 @@ impl ExtendedKeypair {
     }
 }
 
-/// A set of methods to derive keys from a BIP44 path
+/// A set of methods to derive keys from a BIP32/BIP44 path
 #[wasm_bindgen]
-impl Bip44 {
+impl HDWallet {
     #[wasm_bindgen(constructor)]
-    pub fn new(seed: Vec<u8>) -> Result<Bip44, String> {
+    pub fn new(seed: Vec<u8>) -> Result<HDWallet, String> {
         let seed: [u8; 64] = match seed.try_into() {
             Ok(seed) => seed,
-            Err(err) => return Err(format!("{}: {:?}", Bip44Error::InvalidSeed, err)),
+            Err(err) => return Err(format!("{}: {:?}", HDWalletError::InvalidSeed, err)),
         };
 
-        Ok(Bip44 {
+        Ok(HDWallet {
             seed,
         })
     }
@@ -144,7 +144,7 @@ impl Bip44 {
     pub fn get_private_key(&self) -> Result<Vec<u8>, String> {
         let xprv = match XPrv::new(&self.seed) {
             Ok(xprv) => xprv,
-            Err(_) => return Err(Bip44Error::DerivationError.to_string()),
+            Err(_) => return Err(HDWalletError::DerivationError.to_string()),
         };
 
         Ok(Vec::from(xprv.to_string(Prefix::XPRV).as_bytes()))
@@ -154,15 +154,15 @@ impl Bip44 {
     pub fn derive(&self, path: String) -> Result<Keypair, String> {
         // BIP32 Extended Private Key
         let path = path.parse()
-            .map_err(|err| format!("{}: {:?}", Bip44Error::PathError, err))?;
+            .map_err(|err| format!("{}: {:?}", HDWalletError::PathError, err))?;
         let xprv = XPrv::derive_from_path(&self.seed, &path)
-            .map_err(|_| Bip44Error::DerivationError.to_string())?;
+            .map_err(|_| HDWalletError::DerivationError.to_string())?;
 
         let prv_bytes: &[u8] = &xprv.private_key().to_bytes();
 
         // ed25519 keypair
         let secret_key = ed25519_dalek::SecretKey::from_bytes(prv_bytes)
-            .map_err(|_| Bip44Error::SecretKeyError.to_string())?;
+            .map_err(|_| HDWalletError::SecretKeyError.to_string())?;
         let public_key = ed25519_dalek::PublicKey::from(&secret_key);
 
         let private  = Key::new(Vec::from(secret_key.to_bytes()))?;
@@ -185,7 +185,7 @@ impl Bip44 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::crypto::mnemonic::{Mnemonic, PhraseSize};
+    use crate::crypto::bip39::{Mnemonic, PhraseSize};
 
     #[test]
     fn can_derive_keys_from_path() {
@@ -193,7 +193,7 @@ mod tests {
                       pizza steel viable proud eternal speed chapter sunny boat because view bullet";
         let mnemonic = Mnemonic::from_phrase(phrase.into()).expect("Should not fail with a valid phrase!");
         let seed = mnemonic.to_seed(None).unwrap();
-        let bip44: Bip44 = Bip44::new(seed).unwrap();
+        let bip44: HDWallet = HDWallet::new(seed).unwrap();
         let path = "m/44'/0'/0'/0'";
 
         let keys = bip44.derive(path.to_string()).expect("Should derive keys from a path");
@@ -217,7 +217,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn invalid_seed_should_panic() {
-        let _bip44 = Bip44::new(vec![0, 1, 2, 3, 4]).unwrap();
+        let _bip44 = HDWallet::new(vec![0, 1, 2, 3, 4]).unwrap();
     }
 
     #[test]
@@ -231,7 +231,7 @@ mod tests {
     fn invalid_derivation_path_should_panic() {
         let m = Mnemonic::new(PhraseSize::Twelve).expect("New mnemonic should not fail");
         let seed = m.to_seed(None).expect("Mnemonic to seed should not fail");
-        let b = Bip44::new(seed).expect("Bip44 from seed should not fail");
+        let b = HDWallet::new(seed).expect("HDWallet from seed should not fail");
 
         let bad_path = "m/44/0 '/ 0";
         let _keypair = b.derive(bad_path.to_string()).unwrap();

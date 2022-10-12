@@ -1,5 +1,5 @@
 import { KVStore } from "@anoma/storage";
-import { AEAD, Bip44, Mnemonic, PhraseSize } from "@anoma/crypto";
+import { AEAD, HDWallet, Mnemonic, PhraseSize } from "@anoma/crypto";
 import { Address } from "@anoma/shared";
 import { KeyRingStatus, MnemonicState, AccountState } from "./types";
 import { v5 as uuid } from "uuid";
@@ -62,10 +62,6 @@ export class KeyRing {
   }
 
   public async unlock(password: string): Promise<void> {
-    if (this.status !== KeyRingStatus.Locked) {
-      throw new Error("Key ring is not locked!");
-    }
-
     if (await this.checkPassword(password)) {
       this._password = password;
       this._status = KeyRingStatus.Unlocked;
@@ -167,7 +163,7 @@ export class KeyRing {
       );
       const mnemonic = Mnemonic.from_phrase(phrase);
       const seed = mnemonic.to_seed();
-      const bip44 = new Bip44(seed);
+      const bip44 = new HDWallet(seed);
       const derivedAccount = bip44.derive(derivationPath);
       const privateKey = AEAD.encrypt_from_bytes(
         derivedAccount.private().to_bytes(),

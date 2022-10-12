@@ -1,4 +1,4 @@
-import { AEAD, Bip44, Mnemonic, PhraseSize } from "../crypto/crypto";
+import { AEAD, HDWallet, Mnemonic, PhraseSize } from "../crypto/crypto";
 
 const KEY_LENGTH = 32;
 const SEED_LENGTH = 64;
@@ -23,11 +23,11 @@ describe("Mnemonic", () => {
   });
 });
 
-describe("Bip44", () => {
+describe("HDWallet", () => {
   test("It should derive unique keys from a seed and a path", () => {
     const m = new Mnemonic(PhraseSize.Twelve);
     const seed = m.to_seed();
-    const b = new Bip44(seed);
+    const b = new HDWallet(seed);
 
     const account1 = b.derive("m/44/0/0/0");
 

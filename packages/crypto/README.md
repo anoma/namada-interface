@@ -1,12 +1,13 @@
 # crypto
 
-The `@anoma/crypto` package is to provide crytography functions with Rust via WebAssembly.
+The `@anoma/crypto` package is to provide cryptography functionality with Rust via WebAssembly.
 
-The Rust source code lives in `lib/`, and currently provides the following modules:
+The Rust source code lives in `lib/`, and currently provides the following crates:
 
-- `AEAD` - provides encryption of data (and of plain strings) using the `orion` crate
-- `Bip44` - provides key-derivation functionality using BIP44 paths and a seed
-- `Mnemonic` - provides BIP39 Mnemonic functionality to generate a mnemonic seed
+- `aead::AEAD` - provides encryption of data (and of plain strings) using the `orion` crate
+- `bip32::HDWallet` - provides key-derivation functionality using BIP32/BIP44 paths and a seed
+- `bip39::Mnemonic` - provides BIP39 Mnemonic functionality to generate a mnemonic seed
+- `scrypt::Scrypt` - provides password hashing for storage, and hash verification
 
 ## Basic usage
 
@@ -31,9 +32,6 @@ From `lib/`, we can issue the following to run unit tests:
 
 ```bash
 cargo run test
-
-# Run tests of methods returning JsValue:
-wasm-pack test --node
 ```
 
 ## Overview
@@ -48,16 +46,19 @@ let encrypted = AEAD::encrypt_from_string(message.clone(), password.clone());
 let decrypted = AEAD::decrypt(encrypted, password).expect("Value should be decrypted");
 ```
 
-### Bip44
+### HDWallet
+
+This provids BIP32 Key Derivation, to which we can pass BIP32 or BIP44 paths:
 
 ```rust
 let mnemonic = Mnemonic::new(PhraseSize::Twelve)?;
 let seed = mnemonic.to_seed(None)?;
-let bip44: Bip44 = Bip44::new(seed)?;
+let hd_wallet: HDWallet = HDWallet::new(seed)?;
+// BIP44 path:
 let path = "m/44'/0'/0'/0'";
 
 // Derive an ed25519 keypair from a seed and path:
-let keys = bip44.derive(String::from(path))?;
+let keys = hd_wallet.derive(String::from(path))?;
 ```
 
 ### Mnemonic

@@ -4,6 +4,7 @@ import { ROUTE } from "./constants";
 import { Bip44Path, DerivedAccount, KeyRingStatus } from "./types";
 
 enum MessageType {
+  CheckIsLocked = "check-is-locked",
   LockKeyRing = "lock-keyring",
   UnlockKeyRing = "unlock-keyring",
   CheckPassword = "check-password",
@@ -11,6 +12,26 @@ enum MessageType {
   SaveMnemonic = "save-mnemonic",
   DeriveAccount = "derive-account",
   QueryAccounts = "query-accounts",
+}
+
+export class CheckIsLockedMsg extends Message<boolean> {
+  public static type() {
+    return MessageType.CheckIsLocked;
+  }
+
+  constructor() {
+    super();
+  }
+
+  validate(): void {}
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return CheckIsLockedMsg.type();
+  }
 }
 
 export class LockKeyRingMsg extends Message<{ status: KeyRingStatus }> {

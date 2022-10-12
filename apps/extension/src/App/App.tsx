@@ -1,29 +1,33 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
-import browser from "webextension-polyfill";
+import { Routes, Route, useNavigate } from "react-router-dom";
 
-import { Button, ButtonVariant } from "@anoma/components";
 import { getTheme } from "@anoma/utils";
-
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
-import { DerivedAccount, QueryAccountsMsg } from "background/keyring";
+import {
+  CheckIsLockedMsg,
+  DerivedAccount,
+  QueryAccountsMsg,
+} from "background/keyring";
+
 import {
   AppContainer,
   BottomSection,
   ContentContainer,
-  LoadingError,
   GlobalStyles,
   TopSection,
 } from "./App.components";
-import Accounts from "./Accounts/Accounts";
-import AddAccount from "./Accounts/AddAccount";
-import { TopLevelRoute } from "App/types";
+import { LockWrapper } from "./LockWrapper";
+import { Accounts, AddAccount } from "./Accounts";
+import { Login } from "./Login";
+import { Setup } from "./Setup";
+import { TopLevelRoute } from "./types";
+import { Loading } from "./Loading";
 
 const requester = new ExtensionRequester();
 
-enum Status {
+export enum Status {
   Completed,
   Pending,
   Failed,
@@ -31,26 +35,53 @@ enum Status {
 
 export const App: React.FC = () => {
   const theme = getTheme(true, false);
+  const navigate = useNavigate();
   const [status, setStatus] = useState<Status>();
   const [accounts, setAccounts] = useState<DerivedAccount[]>([]);
+  const [error, setError] = useState("");
+
+  const fetchAccounts = async (): Promise<void> => {
+    setStatus(Status.Pending);
+    try {
+      const accounts = await requester.sendMessage(
+        Ports.Background,
+        new QueryAccountsMsg()
+      );
+      setAccounts(accounts);
+    } catch (e) {
+      console.error(e);
+      setError(`An error occurred while loading extension: ${e}`);
+      setStatus(Status.Failed);
+    } finally {
+      setStatus(Status.Completed);
+    }
+  };
+
+  const checkIsLocked = async (): Promise<void> => {
+    const isLocked = await requester.sendMessage(
+      Ports.Background,
+      new CheckIsLockedMsg()
+    );
+    if (isLocked) {
+      navigate(TopLevelRoute.Login);
+    } else {
+      navigate(TopLevelRoute.Accounts);
+    }
+  };
 
   useEffect(() => {
-    setStatus(Status.Pending);
-    (async () => {
-      try {
-        const accounts = await requester.sendMessage(
-          Ports.Background,
-          new QueryAccountsMsg()
-        );
-        setAccounts(accounts);
-      } catch (e) {
-        console.error(e);
-        setStatus(Status.Failed);
-      } finally {
-        setStatus(Status.Completed);
-      }
-    })();
+    fetchAccounts();
   }, []);
+
+  useEffect(() => {
+    if (status === Status.Completed) {
+      if (accounts.length === 0) {
+        navigate(TopLevelRoute.Setup);
+      } else {
+        checkIsLocked();
+      }
+    }
+  }, [status, accounts]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -60,39 +91,34 @@ export const App: React.FC = () => {
           <TopSection>
             <h1>Anoma Browser Extension</h1>
           </TopSection>
-
-          {status === Status.Completed && accounts.length === 0 && (
-            <Button
-              variant={ButtonVariant.ContainedAlternative}
-              onClick={() => {
-                browser.tabs.create({
-                  url: browser.runtime.getURL("setup.html"),
-                });
-              }}
-            >
-              Launch Initial Set-Up
-            </Button>
-          )}
-          {status === Status.Completed && accounts.length > 0 && (
-            <BrowserRouter>
-              <Routes>
-                <Route path={`*`} element={<Accounts accounts={accounts} />} />
-                <Route
-                  path={TopLevelRoute.WalletAddAccount}
-                  element={
-                    <AddAccount
-                      accounts={accounts}
-                      requester={requester}
-                      setAccounts={setAccounts}
-                    />
-                  }
-                />
-              </Routes>
-            </BrowserRouter>
-          )}
-          {status === Status.Failed && (
-            <LoadingError>An error occured loading accounts!</LoadingError>
-          )}
+          <Routes>
+            <Route path="*" element={<Loading error={error} />} />
+            <Route
+              path={TopLevelRoute.Accounts}
+              element={
+                <LockWrapper requester={requester} setStatus={setStatus}>
+                  <Accounts accounts={accounts} />
+                </LockWrapper>
+              }
+            />
+            <Route path={TopLevelRoute.Setup} element={<Setup />} />
+            <Route
+              path={TopLevelRoute.Login}
+              element={<Login requester={requester} />}
+            />
+            <Route
+              path={TopLevelRoute.AddAccount}
+              element={
+                <LockWrapper requester={requester} setStatus={setStatus}>
+                  <AddAccount
+                    accounts={accounts}
+                    requester={requester}
+                    setAccounts={setAccounts}
+                  />
+                </LockWrapper>
+              }
+            />
+          </Routes>
         </ContentContainer>
         <BottomSection></BottomSection>
       </AppContainer>
