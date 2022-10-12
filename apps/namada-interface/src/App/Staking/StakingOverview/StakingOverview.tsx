@@ -23,8 +23,8 @@ const myBalancesRowRenderer = (myBalanceEntry: MyBalanceEntry): JSX.Element => {
     </>
   );
 };
+
 const myBalancesConfigurations: TableConfigurations<MyBalanceEntry, never> = {
-  title: "My Balances",
   rowRenderer: myBalancesRowRenderer,
   columns: [
     { uuid: "1", columnLabel: "", width: "30%" },
@@ -67,7 +67,6 @@ const getMyValidatorsConfiguration = (
   navigateToValidatorDetails: (validatorId: string) => void
 ): TableConfigurations<MyValidators, ValidatorsCallbacks> => {
   return {
-    title: "My Validators",
     rowRenderer: MyValidatorsRowRenderer,
     columns: [
       { uuid: "1", columnLabel: "Validator", width: "30%" },
@@ -117,7 +116,6 @@ const getAllValidatorsConfiguration = (
   navigateToValidatorDetails: (validatorId: string) => void
 ): TableConfigurations<Validator, ValidatorsCallbacks> => {
   return {
-    title: "All Validators",
     rowRenderer: AllValidatorsRowRenderer,
     callbacks: {
       onClickValidator: navigateToValidatorDetails,

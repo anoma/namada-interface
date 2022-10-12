@@ -42,7 +42,7 @@ export const SecondaryTitle = styled.h1`
 
 export const BackButtonContainer = styled.div<{ disabled?: boolean }>`
   display: flex;
-  justify-content: center;
+  justify-content: start;
   align-items: center;
   width: 100px;
   height: 100%;

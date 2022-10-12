@@ -14,6 +14,7 @@ import {
   TRANSFER_CONFIGURATION,
 } from "slices/shieldedTransfer";
 import { ShieldedAccountType, getMaspWeb } from "@anoma/masp-web";
+import { actions, CreateToastPayload, ToastId } from "slices/notifications";
 
 type NewAccountDetailsWithPassword = NewAccountDetails & {
   chainId: string;
@@ -26,6 +27,34 @@ type ShieldedKeysAndAddressesWithNewAccountDetails = {
   newAccountDetails: NewAccountDetails;
 };
 
+enum Toasts {
+  CreateShieldedAccountStart,
+  CreateShieldedAccountSuccess,
+}
+
+const getToast = (toastId: ToastId, toast: Toasts): CreateToastPayload => {
+  const toasts: Record<Toasts, CreateToastPayload> = {
+    [Toasts.CreateShieldedAccountStart]: {
+      id: toastId,
+      data: {
+        title: "Creating account...",
+        message: "Account creation started.",
+        type: "info",
+      },
+    },
+    [Toasts.CreateShieldedAccountSuccess]: {
+      id: toastId,
+      data: {
+        title: "Success!",
+        message: "New shielded account created.",
+        type: "success",
+      },
+    },
+  };
+
+  return toasts[toast];
+};
+
 /**
  * Creates "shielded accounts" (viewing key, spending key, payment address)
  * after a successful creation navigates to TopLevelRouteGenerator.createRouteForWallet()
@@ -34,13 +63,27 @@ type ShieldedKeysAndAddressesWithNewAccountDetails = {
  */
 export const createShieldedAccount = createAsyncThunk<
   ShieldedKeysAndAddressesWithNewAccountDetails | undefined,
-  NewAccountDetailsWithPassword
+  NewAccountDetailsWithPassword & { notify?: boolean }
 >(
   ADD_ACCOUNT_TO_LEDGER,
-  async (newAccountDetails: NewAccountDetailsWithPassword) => {
+  async (
+    newAccountDetails: NewAccountDetailsWithPassword & { notify?: boolean },
+    thunkAPI
+  ) => {
+    const { chainId, alias, password, notify } = newAccountDetails;
+
+    if (notify) {
+      thunkAPI.dispatch(
+        actions.createToast(
+          getToast(
+            `${thunkAPI.requestId}-start`,
+            Toasts.CreateShieldedAccountStart
+          )
+        )
+      );
+    }
     try {
       // TODO distinguish between master/derived
-      const { chainId, alias, password } = newAccountDetails;
       const mnemonic = await Session.getSeed(password);
 
       if (mnemonic) {
@@ -62,6 +105,17 @@ export const createShieldedAccount = createAsyncThunk<
           newAccountDetails,
           shieldedKeysAndAddress: shieldedAccount,
         };
+
+        if (notify) {
+          thunkAPI.dispatch(
+            actions.createToast(
+              getToast(
+                `${thunkAPI.requestId}-success`,
+                Toasts.CreateShieldedAccountSuccess
+              )
+            )
+          );
+        }
 
         // TODO allow overriding this
         history.push(TopLevelRouteGenerator.createRouteForWallet());

@@ -1,4 +1,4 @@
-import { Validator, MyStaking, MyBalanceEntry } from "./types";
+import { Validator, StakingPosition, MyBalanceEntry } from "./types";
 export const myBalancesData: MyBalanceEntry[] = [
   {
     uuid: "1",
@@ -26,23 +26,29 @@ export const myBalancesData: MyBalanceEntry[] = [
   },
 ];
 
-export const myStakingData: MyStaking[] = [
+export const myStakingData: StakingPosition[] = [
   {
     uuid: "1",
     stakingStatus: "Bonded",
     stakedAmount: "10.00",
+    stakedCurrency: "NAM",
+    totalRewards: "0.55",
     validatorId: "polychain-capital",
   },
   {
     uuid: "2",
     stakingStatus: "Bonded Pending",
     stakedAmount: "3.00",
+    stakedCurrency: "NAM",
+    totalRewards: "0.15",
     validatorId: "coinbase-custody",
   },
   {
     uuid: "3",
     stakingStatus: "Unboding (22 days left)",
     stakedAmount: "20.00",
+    stakedCurrency: "NAM",
+    totalRewards: "1.05",
     validatorId: "kraken",
   },
 ];
@@ -54,68 +60,84 @@ export const allValidatorsData: Validator[] = [
     homepageUrl: "https://polychain.capital",
     votingPower: "NAM 100 000",
     commission: "22%",
+    description:
+      "Polychain is an investment firm committed to exceptional returns for investors through actively managed portfolios of blockchain assets.",
   },
   {
     uuid: "figment",
     name: "Figment",
-    homepageUrl: "https://polychain.capital",
+    homepageUrl: "https://figment.io",
     votingPower: "NAM 100 000",
     commission: "20%",
+    description:
+      "Makers of Hubble and Canada’s largest Cosmos validator, Figment is the easiest and most secure way to stake your Atoms.",
   },
   {
     uuid: "p2p",
     name: "P2P",
-    homepageUrl: "https://polychain.capital",
+    homepageUrl: "https://p2p.org",
     votingPower: "NAM 100 000",
     commission: "20%",
+    description:
+      "One of the winners of Cosmos Game of Stakes. We provide a simple, secure and intelligent staking service to help you generate rewards on your blockchain assets across 9+ networks within a single interface. Let’s stake together - p2p.org.",
   },
   {
     uuid: "coinbase-custody",
     name: "Coinbase Custody",
-    homepageUrl: "https://polychain.capital",
+    homepageUrl: "https://custody.coinbase.com",
     votingPower: "NAM 100 000",
     commission: "20%",
+    description: "Coinbase Custody Cosmos Validator",
   },
   {
     uuid: "chorus-one",
     name: "Chorus One",
-    homepageUrl: "https://polychain.capital",
+    homepageUrl: "https://chorus.one",
     votingPower: "NAM 100 000",
     commission: "20%",
+    description:
+      "Secure Cosmos and shape its future by delegating to Chorus One, a highly secure and stable validator. By delegating, you agree to the terms of service at: https://chorus.one/cosmos/tos",
   },
   {
     uuid: "binance-staking",
     name: "Binance Staking",
-    homepageUrl: "https://polychain.capital",
+    homepageUrl: "https://binance.com",
     votingPower: "NAM 100 000",
     commission: "20%",
+    description: "Exchange the world",
   },
   {
     uuid: "dokiacapital",
     name: "DokiaCapital",
-    homepageUrl: "https://polychain.capital",
+    homepageUrl: "https://staking.dokia.cloud",
     votingPower: "NAM 100 000",
     commission: "20%",
+    description:
+      "Downtime is not an option for Dokia Capital. We operate an enterprise-grade infrastructure that is robust and secure.",
   },
   {
     uuid: "kraken",
     name: "Kraken",
-    homepageUrl: "https://polychain.capital",
+    homepageUrl: "https://kraken.com",
     votingPower: "NAM 100 000",
     commission: "20%",
+    description: "Kraken Exchange validator",
   },
   {
     uuid: "zero-knowledge-validator-(ZKV)",
     name: "Zero Knowledge Validator (ZKV)",
-    homepageUrl: "https://polychain.capital",
+    homepageUrl: "https://zkvalidator.com",
     votingPower: "NAM 100 000",
     commission: "20%",
+    description:
+      "Zero Knowledge Validator: Stake & Support ZKP Research & Privacy Tech",
   },
   {
     uuid: "paradigm",
     name: "Paradigm",
-    homepageUrl: "https://polychain.capital",
+    homepageUrl: "https://www.paradigm.xyz",
     votingPower: "NAM 100 000",
     commission: "20%",
+    description: "",
   },
 ];

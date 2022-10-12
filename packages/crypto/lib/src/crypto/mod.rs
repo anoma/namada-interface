@@ -6,3 +6,4 @@ pub mod bip39;
 pub mod rng;
 pub mod salt;
 pub mod scrypt;
+
