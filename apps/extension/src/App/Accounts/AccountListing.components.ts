@@ -24,7 +24,14 @@ export const Details = styled.div`
 
 export const DerivationPath = styled.div``;
 
-export const Address = styled.div``;
+export const Address = styled.div`
+  position: relative;
+  overflow-x: auto;
+  max-width: 280px;
+  word-wrap: break-word;
+  padding: 0 0 4px;
+}
+`;
 
 export const Alias = styled.div`
   color: ${(props) => props.theme.colors.utility1.main20};

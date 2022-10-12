@@ -26,7 +26,7 @@ const textToClipboard = (content: string): void => {
 };
 
 const AccountListing = ({ account, parentAlias }: Props): JSX.Element => {
-  const { address, alias, path, establishedAddress, type } = account;
+  const { address, alias, path, type } = account;
   const navigate = useNavigate();
 
   return (
@@ -40,7 +40,6 @@ const AccountListing = ({ account, parentAlias }: Props): JSX.Element => {
         </DerivationPath>
         {alias && <Alias>{alias}</Alias>}
         <Address>{address}</Address>
-        {establishedAddress && <Address>{establishedAddress}</Address>}
       </Details>
       <Buttons>
         {type === AccountType.Mnemonic && (
