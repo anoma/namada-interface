@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   ValidatorDetailsContainer,
   StakeButtonContainer,
@@ -9,6 +10,7 @@ import {
   TableLink,
 } from "components/Table";
 import { Button, ButtonVariant } from "components/Button";
+import { Modal } from "components/Modal";
 import { Validator, StakingPosition } from "slices/StakingAndGovernance";
 
 const validatorDetailsConfigurations: TableConfigurations<KeyValueData, never> =
@@ -36,37 +38,39 @@ const validatorDetailsConfigurations: TableConfigurations<KeyValueData, never> =
     ],
   };
 
-const myStakingWithValidatorConfigurations: TableConfigurations<
+const getMyStakingWithValidatorConfigurations = (
+  setModalState: React.Dispatch<React.SetStateAction<ModalState>>
+): TableConfigurations<
   StakingPosition,
-  never
-> = {
-  rowRenderer: (stakingPosition: StakingPosition) => {
-    return (
-      <>
-        <td>{stakingPosition.stakedCurrency}</td>
-        <td>{stakingPosition.stakingStatus}</td>
-        <td>
-          {stakingPosition.stakedAmount}{" "}
-          <TableLink
-            onClick={() =>
-              alert(
-                `Unstake (${stakingPosition.stakedAmount} from ${stakingPosition.validatorId}). Unstaking is not implemented yet`
-              )
-            }
-          >
-            unstake
-          </TableLink>
-        </td>
-        <td>{stakingPosition.totalRewards}</td>
-      </>
-    );
-  },
-  columns: [
-    { uuid: "1", columnLabel: "Asset", width: "25%" },
-    { uuid: "2", columnLabel: "State", width: "25%" },
-    { uuid: "3", columnLabel: "Amount Staked", width: "25%" },
-    { uuid: "4", columnLabel: "Total Rewards", width: "25%" },
-  ],
+  { setModalState: React.Dispatch<React.SetStateAction<ModalState>> }
+> => {
+  return {
+    rowRenderer: (stakingPosition: StakingPosition) => {
+      return (
+        <>
+          <td>{stakingPosition.stakedCurrency}</td>
+          <td>{stakingPosition.stakingStatus}</td>
+          <td>
+            {stakingPosition.stakedAmount}{" "}
+            <TableLink
+              onClick={() => {
+                setModalState(ModalState.Unstake);
+              }}
+            >
+              unstake
+            </TableLink>
+          </td>
+          <td>{stakingPosition.totalRewards}</td>
+        </>
+      );
+    },
+    columns: [
+      { uuid: "1", columnLabel: "Asset", width: "25%" },
+      { uuid: "2", columnLabel: "State", width: "25%" },
+      { uuid: "3", columnLabel: "Amount Staked", width: "25%" },
+      { uuid: "4", columnLabel: "Total Rewards", width: "25%" },
+    ],
+  };
 };
 
 type Props = {
@@ -94,12 +98,86 @@ const validatorToDataRows = (
   ];
 };
 
+type StakingViewProps = {
+  onRequestClose: (modalOnRequestCloseType: ModalOnRequestCloseType) => void;
+};
+
+const StakingView = (props: StakingViewProps): JSX.Element => {
+  const { onRequestClose } = props;
+  return (
+    <>
+      <Button
+        variant={ButtonVariant.Contained}
+        onClick={() => onRequestClose(ModalOnRequestCloseType.Confirm)}
+      >
+        Confirm
+      </Button>
+      <Button
+        variant={ButtonVariant.Contained}
+        onClick={() => onRequestClose(ModalOnRequestCloseType.Cancel)}
+        style={{ backgroundColor: "lightgrey", color: "black" }}
+      >
+        Cancel
+      </Button>
+    </>
+  );
+};
+
+enum ModalState {
+  None,
+  Stake,
+  Unstake,
+}
+
+enum ModalOnRequestCloseType {
+  Confirm,
+  Cancel,
+}
+
 export const ValidatorDetails = (props: Props): JSX.Element => {
   const { validator, stakingPositionsWithSelectedValidator = [] } = props;
   const validatorDetailsData = validatorToDataRows(validator);
 
+  const [modalState, setModalState] = useState(ModalState.None);
+
+  const onRequestCloseStakingModal = (
+    modalOnRequestCloseType: ModalOnRequestCloseType
+  ): void => {
+    switch (modalOnRequestCloseType) {
+      case ModalOnRequestCloseType.Confirm: {
+        setModalState(ModalState.None);
+        break;
+      }
+      case ModalOnRequestCloseType.Cancel: {
+        setModalState(ModalState.None);
+        break;
+      }
+    }
+  };
+
+  const myStakingWithValidatorConfigurations =
+    getMyStakingWithValidatorConfigurations(setModalState);
+
   return (
     <ValidatorDetailsContainer>
+      <Modal
+        isOpen={modalState === ModalState.Stake}
+        title="Stake"
+        onBackdropClick={() => {
+          setModalState(ModalState.None);
+        }}
+      >
+        <StakingView onRequestClose={onRequestCloseStakingModal} />
+      </Modal>
+      <Modal
+        isOpen={modalState === ModalState.Unstake}
+        title="Unstake"
+        onBackdropClick={() => {
+          setModalState(ModalState.None);
+        }}
+      >
+        <StakingView onRequestClose={onRequestCloseStakingModal} />
+      </Modal>
       <Table
         title="Validator Details"
         tableConfigurations={validatorDetailsConfigurations}
@@ -107,7 +185,9 @@ export const ValidatorDetails = (props: Props): JSX.Element => {
       />
       <StakeButtonContainer>
         <Button
-          onClick={() => alert("Staking is not implemented yet")}
+          onClick={() => {
+            setModalState(ModalState.Stake);
+          }}
           variant={ButtonVariant.Contained}
           style={{ marginLeft: "0" }}
         >
