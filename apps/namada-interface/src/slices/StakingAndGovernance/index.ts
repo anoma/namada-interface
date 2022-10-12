@@ -1,5 +1,6 @@
 export {
   fetchMyBalances,
+  fetchMyStakingPositions,
   fetchValidators,
   fetchValidatorDetails,
 } from "./actions";
@@ -9,4 +10,5 @@ export type {
   Validator,
   MyValidators,
   StakingAndGovernanceState,
+  StakingPosition,
 } from "./types";

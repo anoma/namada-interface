@@ -9,6 +9,7 @@ import {
   MyBalanceEntry,
   Validator,
   MyValidators,
+  StakingPosition,
 } from "slices/StakingAndGovernance";
 
 const initialTitle = "Staking";
@@ -45,26 +46,35 @@ type Props = {
   myBalances: MyBalanceEntry[];
   validators: Validator[];
   myValidators: MyValidators[];
-  selectedValidator: string | undefined;
-  fetchMyBalances: () => void;
-  fetchValidators: () => void;
+  myStakingPositions: StakingPosition[];
+  selectedValidatorId: string | undefined;
+  onInitCallback: () => void; // will be called at first load, triggers fetching
   fetchValidatorDetails: (validatorId: string) => void;
 };
 
 export const Staking = (props: Props): JSX.Element => {
   const [breadcrumb, setBreadcrumb] = useState([initialTitle]);
-  const [validatorName, setValidatorName] = useState<string | undefined>();
   const location = useLocation();
   const navigate = useNavigate();
 
   const {
-    fetchMyBalances,
-    fetchValidators,
+    onInitCallback,
     fetchValidatorDetails,
     myBalances,
     validators,
     myValidators,
+    myStakingPositions,
+    selectedValidatorId,
   } = props;
+
+  // these 2 are needed for validator details
+  const stakingPositionsWithSelectedValidator = myStakingPositions.filter(
+    (validator) => validator.validatorId === selectedValidatorId
+  );
+
+  const selectedValidator = validators.find(
+    (validator) => validator.uuid === selectedValidatorId
+  );
 
   // this is just so we can se the title/breadcrumb
   // in real case we do this cleanly in a callback that
@@ -84,8 +94,7 @@ export const Staking = (props: Props): JSX.Element => {
   });
 
   useEffect(() => {
-    fetchMyBalances();
-    fetchValidators();
+    onInitCallback();
   }, []);
 
   useEffect(() => {
@@ -93,11 +102,7 @@ export const Staking = (props: Props): JSX.Element => {
     const validatorName = validatorNameFromUrl(location.pathname);
     if (validatorName) {
       // triggers fetching of further details
-      // fetchValidatorDetails(validatorName);
-
-      // placeholders
       setBreadcrumb(newBreadcrumb);
-      setValidatorName(validatorName);
     }
   }, [location, JSON.stringify(breadcrumb)]);
 
@@ -133,7 +138,14 @@ export const Staking = (props: Props): JSX.Element => {
         />
         <Route
           path={`${StakingAndGovernanceSubRoute.ValidatorDetails}/*`}
-          element={<ValidatorDetails validator={validatorName} />}
+          element={
+            <ValidatorDetails
+              validator={selectedValidator}
+              stakingPositionsWithSelectedValidator={
+                stakingPositionsWithSelectedValidator
+              }
+            />
+          }
         />
       </Routes>
     </StakingContainer>

@@ -5,7 +5,6 @@ export type ColumnDefinition = {
 };
 
 export type TableConfigurations<RowType, Callbacks> = {
-  title: string;
   rowRenderer: (rowData: RowType, callbacks?: Callbacks) => JSX.Element;
   columns: ColumnDefinition[];
   callbacks?: Callbacks;
@@ -14,3 +13,6 @@ export type TableConfigurations<RowType, Callbacks> = {
 export type RowBase = {
   uuid: string;
 };
+
+// generic data type for tables that only have 2 columns, key and value
+export type KeyValueData = { key: string; value: string };

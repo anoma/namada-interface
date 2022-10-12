@@ -11,3 +11,8 @@ export const ValidatorDetailsContainer = styled.div`
   color: ${(props) => props.theme.colors.utility2.main};
   background-color: ${(props) => props.theme.colors.utility1.main80};
 `;
+
+export const StakeButtonContainer = styled.div`
+  display: flex;
+  width: 100%;
+`;

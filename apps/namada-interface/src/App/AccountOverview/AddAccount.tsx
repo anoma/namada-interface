@@ -116,7 +116,12 @@ export const AddAccount = ({ password }: Props): JSX.Element => {
     };
     if (newAccountDetails) {
       dispatch(
-        createShieldedAccount({ chainId, ...newAccountDetails, password })
+        createShieldedAccount({
+          chainId,
+          ...newAccountDetails,
+          password,
+          notify: true,
+        })
       );
     }
   };

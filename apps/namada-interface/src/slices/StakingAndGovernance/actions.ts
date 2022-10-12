@@ -4,11 +4,12 @@ import {
   FETCH_VALIDATORS,
   FETCH_VALIDATOR_DETAILS,
   FETCH_MY_VALIDATORS,
+  FETCH_MY_STAKING_POSITIONS,
   Validator,
   ValidatorDetailsPayload,
   MyBalanceEntry,
   MyValidators,
-  MyStaking,
+  StakingPosition,
 } from "./types";
 import { allValidatorsData, myStakingData, myBalancesData } from "./fakeData";
 
@@ -27,11 +28,10 @@ export const fetchValidators = createAsyncThunk<
 export const fetchValidatorDetails = createAsyncThunk<
   ValidatorDetailsPayload | undefined,
   string
->(FETCH_VALIDATOR_DETAILS, async (_validatorId: string) => {
+>(FETCH_VALIDATOR_DETAILS, async (validatorId: string) => {
   try {
     return Promise.resolve({
-      name: "polychain",
-      websiteUrl: "polychain.com",
+      name: validatorId,
     });
   } catch {
     return Promise.reject();
@@ -40,7 +40,7 @@ export const fetchValidatorDetails = createAsyncThunk<
 
 // util to add validators to the user's staking entries
 const myStakingToMyValidators = (
-  myStaking: MyStaking[],
+  myStaking: StakingPosition[],
   allValidators: Validator[]
 ): MyValidators[] => {
   // try {
@@ -63,6 +63,9 @@ const myStakingToMyValidators = (
 // fetches staking data and appends the validators to it
 // this needs the validators, so they are being passed in
 // vs. getting them from the state
+//
+// TODO this or fetchMyStakingPositions is likely redundant based on
+// real data model stored in the chain, adjust when implementing the real data
 export const fetchMyValidators = createAsyncThunk<
   { myValidators: MyValidators[] },
   Validator[]
@@ -77,6 +80,13 @@ export const fetchMyValidators = createAsyncThunk<
     console.warn(`error: ${error}`);
     return Promise.reject({});
   }
+});
+
+export const fetchMyStakingPositions = createAsyncThunk<
+  { myStakingPositions: StakingPosition[] },
+  void
+>(FETCH_MY_STAKING_POSITIONS, async () => {
+  return Promise.resolve({ myStakingPositions: myStakingData });
 });
 
 export const fetchMyBalances = createAsyncThunk<
