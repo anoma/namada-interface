@@ -1,9 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
-  fetchMyBalances,
-  fetchValidators,
-  fetchMyValidators,
   fetchValidatorDetails,
+  fetchValidators,
+  fetchMyBalances,
+  fetchMyValidators,
+  fetchMyStakingPositions,
 } from "./actions";
 import { STAKING_AND_GOVERNANCE } from "./types";
 import { StakingAndGovernanceState } from "./types";
@@ -12,6 +13,7 @@ const initialState: StakingAndGovernanceState = {
   myBalances: [],
   validators: [],
   myValidators: [],
+  myStakingPositions: [],
 };
 
 export const stakingAndGovernanceSlice = createSlice({
@@ -47,6 +49,10 @@ export const stakingAndGovernanceSlice = createSlice({
       .addCase(fetchValidatorDetails.fulfilled, (state, action) => {
         // stop the loader
         state.selectedValidatorId = action.payload?.name;
+      })
+      .addCase(fetchMyStakingPositions.fulfilled, (state, action) => {
+        // stop the loader
+        state.myStakingPositions = action.payload?.myStakingPositions;
       });
   },
 });

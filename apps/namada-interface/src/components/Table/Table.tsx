@@ -53,8 +53,8 @@ const getRenderedDataRows = <RowType extends RowBase, Callbacks>(
 export const Table = <RowType extends RowBase, Callbacks>(
   props: Props<RowType, Callbacks>
 ): JSX.Element => {
-  const { data, tableConfigurations } = props;
-  const { title, columns, rowRenderer, callbacks } =
+  const { data, tableConfigurations, title } = props;
+  const { columns, rowRenderer, callbacks } =
     tableConfigurations && tableConfigurations;
 
   const renderedHeaderRow = getRenderedHeaderRow(columns);
