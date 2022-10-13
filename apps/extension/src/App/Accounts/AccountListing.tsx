@@ -10,6 +10,7 @@ import {
   DerivationPath,
   Button,
 } from "./AccountListing.components";
+import { shortenAddress } from "@anoma/utils";
 
 import { TopLevelRoute } from "App/types";
 
@@ -25,11 +26,6 @@ const textToClipboard = (content: string): void => {
   navigator.clipboard.writeText(content);
 };
 
-const formatAddress = (address: string): string => {
-  const beg = address.substring(0, 32);
-  const end = address.substring(address.length - 6, address.length);
-  return [beg, "...", end].join("");
-};
 const AccountListing = ({ account, parentAlias }: Props): JSX.Element => {
   const { address, alias, path, type } = account;
   const navigate = useNavigate();
@@ -44,7 +40,7 @@ const AccountListing = ({ account, parentAlias }: Props): JSX.Element => {
             }`}
         </DerivationPath>
         {alias && <Alias>{alias}</Alias>}
-        <Address>{formatAddress(address)}</Address>
+        <Address>{shortenAddress(address)}</Address>
       </Details>
       <Buttons>
         {type === AccountType.Mnemonic && (

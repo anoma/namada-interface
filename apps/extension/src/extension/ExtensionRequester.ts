@@ -11,14 +11,13 @@ export class ExtensionRequester {
     msg: M
   ): Promise<M extends Message<infer R> ? R : never> {
     msg.validate();
+    // Update session timestamp to track inactivity
+    this.session.update();
     msg.origin = window.location.origin;
     msg.meta = {
       ...msg.meta,
       routerId: await getAnomaRouterId(),
     };
-
-    // If message is valid, start a new session port
-    this.session.start();
 
     const result = await browser.runtime.sendMessage({
       port,
@@ -64,5 +63,9 @@ export class ExtensionRequester {
     }
 
     return result.return;
+  }
+
+  startSession(): void {
+    this.session.start();
   }
 }

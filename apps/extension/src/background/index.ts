@@ -12,9 +12,7 @@ initCrypto();
 initShared();
 
 const store = new IndexedDBKVStore(KVPrefix.IndexedDB);
-const router = new ExtensionRouter(ContentScriptEnv.produceEnv, () => {
-  // eslint-disable-next-line
-});
+const router = new ExtensionRouter(ContentScriptEnv.produceEnv);
 router.addGuard(ExtensionGuards.checkOriginIsValid);
 router.addGuard(ExtensionGuards.checkMessageIsInternal);
 

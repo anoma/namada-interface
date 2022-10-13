@@ -59,6 +59,7 @@ mod tests {
         let implicit = address.implicit();
 
         assert_eq!(implicit, "atest1d9khqw36x5cnvvjpgfzyxsjpgfqnqwf5xpq5zv34gvunswp4g3znww2yxqursdpnxdz5yw2ypna253");
+        assert_eq!(implicit.len(), address::ADDRESS_LEN);
     }
 
     #[test]
@@ -69,6 +70,7 @@ mod tests {
         let pad = "00";
 
         assert_eq!(public, format!("{}{}", pad, "b7a3c12dc0c8c748ab07525b701122b88bd78f600c76342d27f25e5f92444cde"));
+        assert_eq!(public.len(), pad.len() + 64);
     }
 
     #[test]
@@ -79,5 +81,6 @@ mod tests {
         let pad = "00";
 
         assert_eq!(format!("{}{}", pad, secret), private);
+        assert_eq!(private.len(), pad.len() + 64);
     }
 }

@@ -10,10 +10,7 @@ import {
 import { SessionMsg } from "./Session";
 
 export class ExtensionRouter extends Router {
-  constructor(
-    envProducer: EnvProducer,
-    protected readonly onListen?: () => void
-  ) {
+  constructor(envProducer: EnvProducer) {
     super(envProducer);
   }
 
@@ -27,10 +24,8 @@ export class ExtensionRouter extends Router {
     browser.runtime.onMessage.addListener(this.onMessage);
 
     browser.runtime.onConnect.addListener((port: Runtime.Port): void => {
-      console.log("Registering port in background for session-port");
-      port.postMessage({ msg: "Connection to background established." });
       port.onMessage.addListener((m: SessionMsg) => {
-        console.info(`Background received request to connect: ${m.msg}`);
+        console.info(`Background received: ${m.msg}`);
       });
     });
   }

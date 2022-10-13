@@ -32,6 +32,7 @@ const Login: React.FC<Props> = ({ requester }) => {
         new UnlockKeyRingMsg(password)
       );
       if (lockStatus === KeyRingStatus.Unlocked) {
+        requester.startSession();
         navigate(TopLevelRoute.Accounts);
       } else {
         setStatus(Status.InvalidPassword);
