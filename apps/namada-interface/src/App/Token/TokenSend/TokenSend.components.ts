@@ -1,24 +1,32 @@
 import styled from "styled-components/macro";
-import { DesignConfiguration } from "utils/theme";
+import { ColorMode, DesignConfiguration } from "utils/theme";
 
 enum ComponentColor {
   TabBackgroundColorActive,
   TabBackgroundColor,
+  TabColorActive,
 }
 
 const getColor = (
   color: ComponentColor,
   theme: DesignConfiguration
 ): string => {
-  const isDark = theme.themeConfigurations.isLightMode;
-  switch (color) {
-    case ComponentColor.TabBackgroundColorActive:
-      return isDark ? theme.colors.utility1.main80 : theme.colors.utility1.main;
-    case ComponentColor.TabBackgroundColor:
-      return isDark
-        ? theme.colors.utility1.main70
-        : theme.colors.utility1.main40;
-  }
+  const { colorMode } = theme.themeConfigurations;
+
+  const colorMap: Record<ColorMode, Record<ComponentColor, string>> = {
+    light: {
+      [ComponentColor.TabBackgroundColor]: theme.colors.utility1.main40,
+      [ComponentColor.TabBackgroundColorActive]: theme.colors.utility1.main,
+      [ComponentColor.TabColorActive]: theme.colors.secondary.main,
+    },
+    dark: {
+      [ComponentColor.TabBackgroundColor]: theme.colors.utility1.main70,
+      [ComponentColor.TabBackgroundColorActive]: theme.colors.utility1.main80,
+      [ComponentColor.TabColorActive]: theme.colors.primary.main,
+    },
+  };
+
+  return colorMap[colorMode][color];
 };
 
 export const TokenSendContainer = styled.div`
@@ -53,11 +61,9 @@ export const TokenSendTab = styled.button`
 
   &.active {
     cursor: default;
-    color: ${(props) => props.theme.colors.utility2.main80};
-    background-color: ${(props) => props.theme.colors.utility1.main80};
     background-color: ${(props) =>
       getColor(ComponentColor.TabBackgroundColorActive, props.theme)};
-    color: ${(props) => props.theme.colors.secondary.main};
+    color: ${(props) => getColor(ComponentColor.TabColorActive, props.theme)};
   }
 `;
 

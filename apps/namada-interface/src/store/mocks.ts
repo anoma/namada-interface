@@ -226,4 +226,7 @@ export const mockAppState: RootState = {
     myStakingPositions: [],
     currentState: CurrentState.Idle,
   },
+  notifications: {
+    toasts: {} 
+  }
 };

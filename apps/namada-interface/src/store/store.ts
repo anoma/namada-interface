@@ -16,6 +16,7 @@ import {
   settingsReducer,
   channelsReducer,
   coinsReducer,
+  notificationsReducer,
   stakingAndGovernanceReducers,
 } from "slices";
 import { LocalStorageKeys } from "App/types";
@@ -28,6 +29,7 @@ const reducers = combineReducers({
   channels: channelsReducer,
   settings: settingsReducer,
   coins: coinsReducer,
+  notifications: notificationsReducer,
   stakingAndGovernance: stakingAndGovernanceReducers,
 });
 

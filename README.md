@@ -4,6 +4,8 @@
     <img style="width: 300px;" src="banner-image.png" />
 </div>
 
+There is a seperate more details specifications documentation under [/specs](https://github.com/anoma/namada-interface/blob/main/specs)
+
 <h2> Run namada-interface </h2>
 
 ```bash
@@ -25,7 +27,7 @@ yarn start
 for solving possible issue see [Troubleshooting](#troubleshooting)
 
 - [Introduction](#introduction)
-- [anoma-lib](#anoma-lib)
+  - [Usage](#usage)
   - [Project Structure](#project-structure)
     - [Utils / Theme](#utils--theme)
       - [Colors](#colors)
@@ -48,15 +50,17 @@ namada-interface/
     ├── namada-interface/   # Main wallet React App
     ├── extension/          # Browser Extension React App
 └── packages/
+    ├── crypto/          # Crypto functions related to anoma extension and interface
     ├── integrations/    # Third-party wallet integrations
-    └── masp-web/        # utilities for performing MASP actions
-    └── rpc/             # Library for handling HTTP and WebSocket RPC calls
+    ├── masp-web/        # utilities for performing MASP actions
+    ├── rpc/             # Library for handling HTTP and WebSocket RPC calls
     ├── seed-management/ # Seed management library
     ├── session/         # Session management library
+    ├── shared/          # Package for interfacing with `namada/shared`
     ├── tx/              # Library for interfacing with Anoma transactions
     ├── utils/           # Shared utilities
     ├── wallet/          # Library for deriving keys
-    ├── wasm/            # Rust lib for generating WASM
+    └── wasm/            # Legacy wasm library
 ```
 
 ### Usage
@@ -166,7 +170,11 @@ export const ContainedButton = styled.div`
 
 #### Unit
 
-TBA
+```bash
+# Running this from the root project directory will run unit tests
+# for all packages where a test script is defined
+yarn test
+```
 
 #### e2e
 

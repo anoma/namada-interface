@@ -1,5 +1,5 @@
 import styled from "styled-components/macro";
-import { DesignConfiguration, ThemeName } from "utils/theme";
+import { DesignConfiguration, ColorMode } from "utils/theme";
 
 enum ComponentColor {
   ButtonBackground,
@@ -10,16 +10,20 @@ const getColor = (
   color: ComponentColor,
   theme: DesignConfiguration
 ): string => {
-  const isDark = theme.themeConfigurations.isLightMode;
-  switch (color) {
-    case ComponentColor.ButtonBackground:
-      return isDark ? theme.colors.primary.main : theme.colors.secondary.main;
-    case ComponentColor.ContainedButtonLabelColor:
-      if (theme.themeConfigurations.themeName === ThemeName.Placeholder) {
-        return theme.colors.utility3.white;
-      }
-      return isDark ? theme.colors.utility3.black : theme.colors.utility3.black;
-  }
+  const { colorMode } = theme.themeConfigurations;
+
+  const colorMap: Record<ColorMode, Record<ComponentColor, string>> = {
+    light: {
+      [ComponentColor.ButtonBackground]: theme.colors.secondary.main,
+      [ComponentColor.ContainedButtonLabelColor]: theme.colors.utility3.black,
+    },
+    dark: {
+      [ComponentColor.ButtonBackground]: theme.colors.primary.main,
+      [ComponentColor.ContainedButtonLabelColor]: theme.colors.utility3.black,
+    },
+  };
+
+  return colorMap[colorMode][color];
 };
 
 const Button = styled.button`

@@ -4,11 +4,8 @@ import { fromBase64 } from "@cosmjs/encoding";
 import { BinaryReader, deserialize } from "borsh";
 import { Buffer } from "buffer";
 
-import {
-  amountFromMicro,
-  createJsonRpcRequest,
-  decodeTransactionWithNextTxId,
-} from "@anoma/utils";
+import { amountFromMicro, createJsonRpcRequest } from "@anoma/utils";
+import { decodeTransactionWithNextTxId } from "./utils";
 import { NodeWithNextId } from "@anoma/masp-web";
 import RpcClientBase, { RpcClientInitArgs } from "./RpcClientBase";
 import { schemaAmount, TokenAmount } from "./schema";
