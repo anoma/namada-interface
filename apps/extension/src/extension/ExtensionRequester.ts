@@ -23,7 +23,7 @@ export class ExtensionRequester {
     const result = await browser.runtime.sendMessage({
       port,
       type: msg.type(),
-      msg: msg,
+      msg,
     });
 
     if (!result) {
@@ -52,7 +52,7 @@ export class ExtensionRequester {
     const result = await browser.tabs.sendMessage(tabId, {
       port,
       type: msg.type(),
-      msg: msg,
+      msg,
     });
 
     if (!result) {

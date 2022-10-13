@@ -3,8 +3,15 @@ import { LockKeyRingMsg } from "background/keyring";
 import { Ports } from "router";
 import { ExtensionRequester } from "./ExtensionRequester";
 
+export enum SessionMsgType {
+  Connect = "connect",
+  Disconnect = "disconnect",
+  Message = "message",
+}
+
 export type SessionMsg = {
   msg: string;
+  type: SessionMsgType;
 };
 
 const SESSION_PORT = "session-port";
@@ -33,6 +40,7 @@ export class Session {
     this.port = initPort();
     this.port.postMessage({
       msg: "Establishing port to background",
+      type: SessionMsgType.Connect,
     });
     if (requester) {
       this._requester = requester;
@@ -55,9 +63,7 @@ export class Session {
   }
 
   public update(): void {
-    if (this._timeout) {
-      clearTimeout(this._timeout);
-    }
+    this._clearTimeout();
     this.start();
   }
 
@@ -68,22 +74,45 @@ export class Session {
       // Post message to background that session has ended
       this.port.postMessage({
         msg: "Session ended",
+        type: SessionMsgType.Disconnect,
       });
 
       if (this.port) {
         this.port.disconnect();
       }
     }
+    this._clearTimeout();
     this._requester = undefined;
   }
 
+  private _clearTimeout(): void {
+    if (this._timeout) {
+      clearTimeout(this._timeout);
+    }
+  }
+
+  /**
+   * Handle postMessages from background
+   */
   public handleOnMessage(message: SessionMsg, _port: Runtime.Port): void {
-    // TODO: Here we can selectively handle messages from the background:
-    console.info(`Message handled: ${message.msg}`);
+    const { msg, type } = message;
+    console.info(`Message ${type} recieved: ${msg}`);
+
+    switch (type) {
+      case SessionMsgType.Disconnect:
+        this.close();
+        break;
+      case SessionMsgType.Connect:
+        this.start();
+        break;
+      default:
+        return;
+    }
   }
 
   public handleOnDisconnect(port: Runtime.Port): void {
     console.info("Session port has closed.");
+    this._clearTimeout();
     if (port.error) {
       console.error("Port disconnected due to an error", port.error);
     }
