@@ -44,10 +44,18 @@ const Login: React.FC<Props> = ({ requester }) => {
   };
 
   return (
-    <LoginContainer>
+    <LoginContainer
+      onKeyDown={(e) => {
+        if (e.key === "Enter" && password.length > 0) {
+          handleSubmit();
+        }
+      }}
+    >
       <Input
         label="Enter your password"
+        autoFocus={true}
         variant={InputVariant.Password}
+        value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
       <Button

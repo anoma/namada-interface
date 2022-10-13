@@ -1,6 +1,6 @@
+import browser, { Runtime } from "webextension-polyfill";
 import { LockKeyRingMsg } from "background/keyring";
 import { Ports } from "router";
-import browser, { Runtime } from "webextension-polyfill";
 import { ExtensionRequester } from "./ExtensionRequester";
 
 export type SessionMsg = {
@@ -15,18 +15,11 @@ const initPort = (): Runtime.Port =>
     name: SESSION_PORT,
   });
 
-// Get duration in minutes from an existing timestamp
-const timestampToDuration = (timestamp: number): number =>
-  Math.round((Date.now() - timestamp) / 1000 / 60);
-
 export class Session {
   protected port: Runtime.Port | undefined;
-  private _timestamp: number = Date.now();
   private _requester: ExtensionRequester | undefined;
 
   public start(requester?: ExtensionRequester): Runtime.Port {
-    console.log("START");
-    this._timestamp = Date.now();
     // Restart port:
     this.port?.disconnect();
     this.port = initPort();
@@ -40,13 +33,7 @@ export class Session {
     return this.port;
   }
 
-  public update(): void {
-    this._timestamp = Date.now();
-  }
-
-  public end(): void {
-    const sessionDurationMinutes = timestampToDuration(this._timestamp);
-    console.info(`Session is ending after ${sessionDurationMinutes} minutes!`);
+  public close(): void {
     // Dispatch LockKeyRingMsg if requester is available:
     this._requester?.sendMessage(Ports.Background, new LockKeyRingMsg());
     if (this.port) {

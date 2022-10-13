@@ -11,8 +11,6 @@ export class ExtensionRequester {
     msg: M
   ): Promise<M extends Message<infer R> ? R : never> {
     msg.validate();
-    // Update session timestamp to track inactivity
-    this.session.update();
     msg.origin = window.location.origin;
     msg.meta = {
       ...msg.meta,

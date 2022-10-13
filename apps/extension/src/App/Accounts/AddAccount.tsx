@@ -128,11 +128,18 @@ const AddAccount: React.FC<Props> = ({
 
   return (
     <AddAccountContainer>
-      <AddAccountForm>
+      <AddAccountForm
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && isFormValid) {
+            handleAccountAdd();
+          }
+        }}
+      >
         <InputContainer>
           <Input
             variant={InputVariant.Text}
             label="Alias"
+            autoFocus={true}
             value={alias}
             onChange={(e) => setAlias(e.target.value)}
           />
