@@ -56,7 +56,8 @@ export type ValidatorDetailsPayload = {
   name: string;
 };
 
-export enum CurrentState {
+// represents a state for ongoing staking
+export enum StakingOrUnstakingState {
   Idle,
   Staking,
   Unstaking,
@@ -77,5 +78,5 @@ export type StakingAndGovernanceState = {
   myValidators: MyValidators[];
   myStakingPositions: StakingPosition[];
   selectedValidatorId?: ValidatorId;
-  currentState: CurrentState;
+  stakingOrUnstakingState: StakingOrUnstakingState;
 };

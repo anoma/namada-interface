@@ -15,4 +15,4 @@ export type {
   StakingPosition,
   ChangeInStakingPosition,
 } from "./types";
-export { CurrentState } from "./types";
+export { StakingOrUnstakingState } from "./types";
