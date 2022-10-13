@@ -98,7 +98,7 @@ export const App: React.FC = () => {
               path={TopLevelRoute.Accounts}
               element={
                 <LockWrapper requester={requester} setStatus={setStatus}>
-                  <Accounts accounts={accounts} />
+                  <Accounts accounts={accounts} requester={requester} />
                 </LockWrapper>
               }
             />
