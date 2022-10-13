@@ -1,29 +1,24 @@
-import browser, { Runtime } from "webextension-polyfill";
+import browser from "webextension-polyfill";
 import { getAnomaRouterId } from "../extension/utils";
 import { Message } from "../router";
-
-const initPort = (): Runtime.Port =>
-  browser.runtime.connect({
-    name: "session-port",
-  });
+import { Session } from "./Session";
 
 export class ExtensionRequester {
-  private _timestamp = Date.now();
-
-  constructor(protected port: Runtime.Port = initPort()) {}
+  constructor(protected readonly session = new Session()) {}
 
   async sendMessage<M extends Message<unknown>>(
     port: string,
     msg: M
   ): Promise<M extends Message<infer R> ? R : never> {
-    this._timestamp = Date.now();
-
     msg.validate();
     msg.origin = window.location.origin;
     msg.meta = {
       ...msg.meta,
       routerId: await getAnomaRouterId(),
     };
+
+    // If message is valid, start a new session port
+    this.session.start();
 
     const result = await browser.runtime.sendMessage({
       port,
@@ -69,39 +64,5 @@ export class ExtensionRequester {
     }
 
     return result.return;
-  }
-
-  public startSession(): Runtime.Port {
-    this._timestamp = Date.now();
-    this.port.disconnect();
-    this.port = initPort();
-    this.port.postMessage({
-      msg: "Establishing port to background",
-    });
-
-    this.port.onMessage.addListener((message, port) => {
-      console.log(`Port established: ${message.msg}`, port);
-    });
-
-    this.port.onDisconnect.addListener((port: Runtime.Port) => {
-      console.warn(
-        `Session is ending after ${
-          (Date.now() - this._timestamp) / 1000 / 60
-        } minutes!`
-      );
-      if (port.error) {
-        console.error("Port disconnected due to error", port.error);
-      }
-    });
-    return this.port;
-  }
-
-  public endSession(): void {
-    this.port.postMessage({
-      msg: "Ended session",
-    });
-
-    console.log("Disconnecting session");
-    this.port.disconnect();
   }
 }

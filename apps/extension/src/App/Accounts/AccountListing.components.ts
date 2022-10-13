@@ -25,10 +25,8 @@ export const Details = styled.div`
 export const DerivationPath = styled.div``;
 
 export const Address = styled.div`
-  position: relative;
-  overflow-x: auto;
-  max-width: 280px;
-  word-wrap: break-word;
+  font-family: monospace;
+  font-size: 10px;
   padding: 0 0 4px;
 }
 `;

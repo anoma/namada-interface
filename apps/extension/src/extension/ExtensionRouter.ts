@@ -1,4 +1,4 @@
-import browser from "webextension-polyfill";
+import browser, { Runtime } from "webextension-polyfill";
 import { getAnomaRouterId } from "./utils";
 import {
   EnvProducer,
@@ -7,6 +7,7 @@ import {
   RoutedMessage,
   Router,
 } from "router";
+import { SessionMsg } from "./Session";
 
 export class ExtensionRouter extends Router {
   constructor(
@@ -25,9 +26,13 @@ export class ExtensionRouter extends Router {
     this.port = port;
     browser.runtime.onMessage.addListener(this.onMessage);
 
-    if (this.onListen) {
-      this.onListen();
-    }
+    browser.runtime.onConnect.addListener((port: Runtime.Port): void => {
+      console.log("Registering port in background for session-port");
+      port.postMessage({ msg: "Connection to background established." });
+      port.onMessage.addListener((m: SessionMsg) => {
+        console.info(`Background received request to connect: ${m.msg}`);
+      });
+    });
   }
 
   unlisten(): void {

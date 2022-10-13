@@ -29,8 +29,6 @@ export interface MessageRequester {
     port: string,
     msg: M
   ): Promise<M extends Message<infer R> ? R : never>;
-  startSession(): Runtime.Port;
-  endSession(): void;
 }
 
 export type Guard = (
