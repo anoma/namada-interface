@@ -8,6 +8,8 @@ export type SessionMsg = {
 };
 
 const SESSION_PORT = "session-port";
+// Maximum length of inactivity
+const SESSION_DURATION = 4 * 60 * 1000;
 
 // Connect to SESSION_PORT
 const initPort = (): Runtime.Port =>
@@ -15,22 +17,48 @@ const initPort = (): Runtime.Port =>
     name: SESSION_PORT,
   });
 
+/**
+ * Maintain an open port to the background until a certain limit has been reached.
+ */
 export class Session {
   protected port: Runtime.Port | undefined;
   private _requester: ExtensionRequester | undefined;
+  private _timestamp: number = Date.now();
+  private _timeout: ReturnType<typeof setTimeout> | undefined;
 
   public start(requester?: ExtensionRequester): Runtime.Port {
+    this._timestamp = Date.now();
     // Restart port:
     this.port?.disconnect();
     this.port = initPort();
     this.port.postMessage({
       msg: "Establishing port to background",
     });
-    this._requester = requester;
+    if (requester) {
+      this._requester = requester;
+    }
 
     this.port.onMessage.addListener(this.handleOnMessage);
     this.port.onDisconnect.addListener(this.handleOnDisconnect);
+
+    this._timeout = setTimeout(() => {
+      const duration = Date.now() - this._timestamp;
+      if (duration < SESSION_DURATION) {
+        this.port = initPort();
+        this.update();
+      } else {
+        this.close();
+      }
+    }, SESSION_DURATION);
+
     return this.port;
+  }
+
+  public update(): void {
+    if (this._timeout) {
+      clearTimeout(this._timeout);
+    }
+    this.start();
   }
 
   public close(): void {
@@ -42,7 +70,6 @@ export class Session {
         msg: "Session ended",
       });
 
-      console.info("Disconnecting session");
       if (this.port) {
         this.port.disconnect();
       }
@@ -51,6 +78,7 @@ export class Session {
   }
 
   public handleOnMessage(message: SessionMsg, _port: Runtime.Port): void {
+    // TODO: Here we can selectively handle messages from the background:
     console.info(`Message handled: ${message.msg}`);
   }
 

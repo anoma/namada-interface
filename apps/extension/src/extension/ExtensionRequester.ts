@@ -11,6 +11,9 @@ export class ExtensionRequester {
     msg: M
   ): Promise<M extends Message<infer R> ? R : never> {
     msg.validate();
+    // If message is valid, update the session, resetting the
+    // period of inactivity:
+    this.session.update();
     msg.origin = window.location.origin;
     msg.meta = {
       ...msg.meta,
@@ -64,6 +67,6 @@ export class ExtensionRequester {
   }
 
   startSession(): void {
-    this.session.start();
+    this.session.start(this);
   }
 }
