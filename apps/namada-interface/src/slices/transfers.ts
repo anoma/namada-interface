@@ -29,6 +29,46 @@ import {
   TRANSFER_CONFIGURATION,
 } from "./shieldedTransfer";
 import { updateShieldedBalances } from "./AccountsNew";
+import {
+  actions as notificationsActions,
+  CreateToastPayload,
+  ToastId,
+  ToastType,
+} from "slices/notifications";
+
+enum Toasts {
+  TransferStarted,
+  TransferCompleted,
+}
+
+type TransferCompletedToastProps = { gas: number };
+type GetToastProps = TransferCompletedToastProps | void;
+
+const getToast = (
+  toastId: ToastId,
+  toast: Toasts
+): ((props: GetToastProps) => CreateToastPayload) => {
+  const toasts = {
+    [Toasts.TransferStarted]: () => ({
+      id: toastId,
+      data: {
+        title: "Transfer started!",
+        message: "",
+        type: "info" as ToastType,
+      },
+    }),
+    [Toasts.TransferCompleted]: ({ gas }: TransferCompletedToastProps) => ({
+      id: toastId,
+      data: {
+        title: "Transfer successful!",
+        message: `Gas used: ${gas}`,
+        type: "success" as ToastType,
+      },
+    }),
+  };
+
+  return toasts[toast] as (props: GetToastProps) => CreateToastPayload;
+};
 
 const TRANSFERS_ACTIONS_BASE = "transfers";
 const LEDGER_TRANSFER_TIMEOUT = 20000;
@@ -221,16 +261,19 @@ const createTransfer = async (
   }
 };
 
+export const actionTypes = {
+  SUBMIT_TRANSFER_ACTION_TYPE: `${TRANSFERS_ACTIONS_BASE}/${TransfersThunkActions.SubmitTransferTransaction}`,
+};
 // this takes care of 4 different variations of transfers:
 // shielded -> shielded
 // transparent -> shielded
 // shielded -> transparent
 // transparent -> transparente
 export const submitTransferTransaction = createAsyncThunk(
-  `${TRANSFERS_ACTIONS_BASE}/${TransfersThunkActions.SubmitTransferTransaction}`,
+  actionTypes.SUBMIT_TRANSFER_ACTION_TYPE,
   async (
     txTransferArgs: TxTransferArgs | ShieldedTransferData,
-    { dispatch, rejectWithValue }
+    { dispatch, rejectWithValue, requestId }
   ) => {
     const {
       account,
@@ -254,6 +297,12 @@ export const submitTransferTransaction = createAsyncThunk(
       ...network,
       protocol: network.wsProtocol,
     });
+
+    dispatch(
+      notificationsActions.createToast(
+        getToast(`${requestId}-pending`, Toasts.TransferStarted)()
+      )
+    );
 
     let epoch: number;
     try {
@@ -320,6 +369,15 @@ export const submitTransferTransaction = createAsyncThunk(
     //     txTransferArgs.account.id
     //   )
     // );
+    //
+    dispatch(
+      notificationsActions.createToast(
+        getToast(
+          `${requestId}-fullfilled`,
+          Toasts.TransferCompleted
+        )({ gas: gas })
+      )
+    );
 
     return {
       id,

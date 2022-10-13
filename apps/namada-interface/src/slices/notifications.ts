@@ -1,4 +1,11 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import {
+  createSlice,
+  PayloadAction,
+  isAsyncThunkAction,
+  isPending,
+  isFulfilled,
+  isRejected,
+} from "@reduxjs/toolkit";
 
 export type ToastType = "info" | "warning" | "error" | "success";
 
@@ -13,10 +20,12 @@ export type Toast = {
 
 export type NotificationsState = {
   toasts: Record<ToastId, Toast>;
+  pendingActions: string[];
 };
 
 const initialState: NotificationsState = {
   toasts: {},
+  pendingActions: [],
 };
 
 const DEFAULT_TIMEOUT = 2000;
@@ -50,6 +59,22 @@ export const NotificationsSlice = createSlice({
       const { [action.payload.id]: _, ...newToasts } = state.toasts;
       state.toasts = newToasts;
     },
+  },
+  extraReducers: (builder) => {
+    builder.addMatcher(isAsyncThunkAction, (state, action) => {
+      const [actionType] =
+        action.type.match(/^.*(?=\/(pending|fulfilled|rejected)$)/) || [];
+      const pendingSet = new Set(state.pendingActions);
+
+      if (actionType) {
+        if (isPending(action)) {
+          pendingSet.add(actionType);
+        } else if (isFulfilled(action) || isRejected(action)) {
+          pendingSet.delete(actionType);
+        }
+        state.pendingActions = Array.from(pendingSet);
+      }
+    });
   },
 });
 

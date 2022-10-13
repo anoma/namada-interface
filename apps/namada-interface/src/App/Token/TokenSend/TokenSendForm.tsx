@@ -9,6 +9,7 @@ import { AccountsState } from "slices/accounts";
 import {
   clearEvents,
   submitTransferTransaction,
+  actionTypes,
   TransfersState,
   TransferType,
 } from "slices/transfers";
@@ -36,6 +37,7 @@ import { Icon, IconName } from "components/Icon";
 import { useNavigate } from "react-router-dom";
 import { TopLevelRoute } from "App/types";
 import { ColorMode, DesignConfiguration } from "utils/theme";
+import { NotificationsState } from "slices/notifications";
 
 enum ComponentColor {
   GasButtonBorder,
@@ -156,8 +158,15 @@ const TokenSendForm = ({
   );
   const balancesForChain = balancesState[chainId] || {};
 
-  const { isTransferSubmitting, transferError, events } =
-    useAppSelector<TransfersState>((state) => state.transfers);
+  const isTransferSubmitting = useAppSelector<boolean>((state) =>
+    state.notifications.pendingActions.includes(
+      actionTypes.SUBMIT_TRANSFER_ACTION_TYPE
+    )
+  );
+
+  const { transferError } = useAppSelector<TransfersState>(
+    (state) => state.transfers
+  );
 
   const transparentAndShieldedAccounts = {
     ...derivedAccounts,
@@ -423,15 +432,6 @@ const TokenSendForm = ({
 
       <StatusContainer>
         {transferError && <StatusMessage>{transferError}</StatusMessage>}
-        {isTransferSubmitting && (
-          <StatusMessage>Submitting transfer</StatusMessage>
-        )}
-        {events && (
-          <>
-            <StatusMessage>Transfer successful!</StatusMessage>
-            <StatusMessage>Gas used: {events.gas}</StatusMessage>
-          </>
-        )}
       </StatusContainer>
 
       <ButtonsContainer>
@@ -439,6 +439,7 @@ const TokenSendForm = ({
           <Icon iconName={IconName.ChevronLeft} />
         </BackButton>
         <Button
+          loading={isTransferSubmitting}
           variant={ButtonVariant.Contained}
           disabled={isFormInvalid}
           onClick={handleOnSendClick}
