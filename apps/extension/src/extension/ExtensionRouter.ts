@@ -1,4 +1,4 @@
-import browser, { Runtime } from "webextension-polyfill";
+import browser from "webextension-polyfill";
 import { getAnomaRouterId } from "./utils";
 import {
   EnvProducer,
