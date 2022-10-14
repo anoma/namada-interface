@@ -39,9 +39,10 @@ const validateAccount = (
 ): boolean => {
   const newPath = [account, newAccount.change, newAccount.index].join("/");
   let isValid = true;
-  accounts.forEach((a: DerivedAccount) => {
-    const { path } = a;
-    const { account, change, index } = path;
+  accounts.forEach((derivedAccount: DerivedAccount) => {
+    const {
+      path: { account, change, index },
+    } = derivedAccount;
     const existingPath = [account, change, index].join("/");
 
     if (newPath === existingPath) {

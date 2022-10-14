@@ -87,7 +87,7 @@ export const App: React.FC = () => {
   const parent = accounts.find(
     (account) => account.type === KeyStoreType.Mnemonic
   );
-  const { account: parentAccount = 0 } = parent?.path || {};
+  const parentAccount = parent?.path?.account ?? 0;
 
   return (
     <ThemeProvider theme={theme}>
