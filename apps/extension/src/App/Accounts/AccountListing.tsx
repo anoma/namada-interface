@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Icon, IconName } from "@anoma/components";
-import { AccountType, DerivedAccount } from "@anoma/types";
+import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
 import {
   AccountListingContainer,
   Address,
@@ -18,25 +18,29 @@ type Props = {
   parent?: number;
   // The child account
   account: DerivedAccount;
-  parentAlias: string;
+  parentAlias?: string;
 };
 
 const textToClipboard = (content: string): void => {
   navigator.clipboard.writeText(content);
 };
 
+const formatDerivationPath = (
+  isChildAccount: boolean,
+  { account, change, index = 0 }: Bip44Path
+): string => (isChildAccount ? `/${account}'/${change}/${index}` : "");
+
 const AccountListing = ({ account, parentAlias }: Props): JSX.Element => {
   const { address, alias, path, establishedAddress, type } = account;
   const navigate = useNavigate();
+  const isChildAccount = type !== AccountType.Mnemonic;
 
   return (
     <AccountListingContainer>
       <Details>
         <DerivationPath>
-          {type !== AccountType.Mnemonic &&
-            `${parentAlias} /${path.account}'/${path.change}${
-              typeof path.index === "number" ? "/" + path.index : ""
-            }`}
+          {isChildAccount && parentAlias}{" "}
+          {formatDerivationPath(isChildAccount, path)}
         </DerivationPath>
         {alias && <Alias>{alias}</Alias>}
         <Address>{address}</Address>

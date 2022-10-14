@@ -1,5 +1,6 @@
 /* eslint-disable max-len */
 import {
+  ButtonContent,
   ContainedAltButton,
   ContainedButton,
   OutlinedButton,
@@ -14,6 +15,7 @@ export type ButtonProps = {
   disabled?: boolean;
   tooltip?: string;
   className?: string;
+  loading?: boolean;
 };
 export const Button: React.FC<ButtonProps> = (props): JSX.Element => {
   const {
@@ -24,17 +26,19 @@ export const Button: React.FC<ButtonProps> = (props): JSX.Element => {
     disabled,
     children,
     tooltip,
+    loading,
   } = props;
   switch (variant) {
     case ButtonVariant.Contained:
       return (
         <ContainedButton
+          className={loading ? "loading" : ""}
           style={style}
           onClick={onClick}
           disabled={disabled}
           title={tooltip}
         >
-          {children}
+          <ButtonContent>{children}</ButtonContent>
         </ContainedButton>
       );
     case ButtonVariant.ContainedAlternative:
