@@ -129,6 +129,8 @@ const AddAccount: React.FC<Props> = ({
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
 
+  const parentDerivationPath = `${bip44Prefix}'/${coinType}'/${parentAccount}'/`;
+
   return (
     <AddAccountContainer>
       <AddAccountForm>
@@ -145,9 +147,7 @@ const AddAccount: React.FC<Props> = ({
           <Label>
             <p>HD Derivation Path</p>
             <Bip44PathContainer>
-              <Bip44PathDelimiter>
-                {[bip44Prefix, coinType, parentAccount].join("'/")}&apos;/
-              </Bip44PathDelimiter>
+              <Bip44PathDelimiter>{parentDerivationPath}</Bip44PathDelimiter>
               <Bip44Input
                 type="number"
                 min="0"
@@ -170,15 +170,7 @@ const AddAccount: React.FC<Props> = ({
 
         <Bip44Path>
           Derivation path:{" "}
-          <span>
-            {[
-              bip44Prefix,
-              `${coinType}'`,
-              `${parentAccount}'`,
-              change,
-              index,
-            ].join("/")}
-          </span>
+          <span>{`${parentDerivationPath}${change}/${index}`}</span>
         </Bip44Path>
         <Bip44Error>{bip44Error}</Bip44Error>
       </AddAccountForm>

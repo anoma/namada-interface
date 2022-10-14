@@ -13,7 +13,7 @@ type Props = {
 
 const Accounts = ({ accounts }: Props): JSX.Element => {
   const parentAccount = accounts[0];
-  const { alias = "" } = parentAccount || {};
+  const alias = parentAccount?.alias;
 
   return (
     <AccountsContainer>
