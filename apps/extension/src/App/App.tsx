@@ -8,6 +8,7 @@ import { Ports } from "router";
 import {
   CheckIsLockedMsg,
   DerivedAccount,
+  KeyStoreType,
   QueryAccountsMsg,
 } from "background/keyring";
 
@@ -83,6 +84,11 @@ export const App: React.FC = () => {
     }
   }, [status, accounts]);
 
+  const parent = accounts.find(
+    (account) => account.type === KeyStoreType.Mnemonic
+  );
+  const parentAccount = parent?.path?.account ?? 0;
+
   return (
     <ThemeProvider theme={theme}>
       <AppContainer>
@@ -111,6 +117,7 @@ export const App: React.FC = () => {
               element={
                 <LockWrapper requester={requester} setStatus={setStatus}>
                   <AddAccount
+                    parentAccount={parentAccount}
                     accounts={accounts}
                     requester={requester}
                     setAccounts={setAccounts}

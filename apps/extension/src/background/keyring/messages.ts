@@ -15,7 +15,7 @@ enum MessageType {
 }
 
 export class CheckIsLockedMsg extends Message<boolean> {
-  public static type() {
+  public static type(): MessageType {
     return MessageType.CheckIsLocked;
   }
 
@@ -23,7 +23,9 @@ export class CheckIsLockedMsg extends Message<boolean> {
     super();
   }
 
-  validate(): void {}
+  validate(): void {
+    return;
+  }
 
   route(): string {
     return ROUTE;
@@ -149,8 +151,8 @@ export class SaveMnemonicMsg extends Message<boolean> {
     }
 
     if (
-      this.words.length !== PhraseSize.Twelve &&
-      this.words.length !== PhraseSize.TwentyFour
+      this.words.length !== PhraseSize.N12 &&
+      this.words.length !== PhraseSize.N24
     ) {
       throw new Error("Invalid wordlist length! Not a valid mnemonic.");
     }
@@ -179,7 +181,7 @@ export class DeriveAccountMsg extends Message<DerivedAccount> {
       throw new Error("A Bip44Path object must be provided!");
     }
 
-    const { account, change, index } = this.path;
+    const { account, change } = this.path;
 
     if (!`${account}`) {
       throw new Error("A Bip44Path account path was not provided!");
@@ -187,10 +189,6 @@ export class DeriveAccountMsg extends Message<DerivedAccount> {
 
     if (!`${change}`) {
       throw new Error("A Bip44Path change path was not provided!");
-    }
-
-    if (!`${!index}`) {
-      throw new Error("A Bip44Path index path was not provided!");
     }
   }
 

@@ -194,7 +194,8 @@ mod tests {
         let mnemonic = Mnemonic::from_phrase(phrase.into()).expect("Should not fail with a valid phrase!");
         let seed = mnemonic.to_seed(None).unwrap();
         let bip44: HDWallet = HDWallet::new(seed).unwrap();
-        let path = "m/44'/0'/0'/0'";
+        // Account (/0'/0) - External path
+        let path = "m/44'/0'/0'/0";
 
         let keys = bip44.derive(path.to_string()).expect("Should derive keys from a path");
 
@@ -202,16 +203,26 @@ mod tests {
         assert_eq!(keys.public.to_bytes().len(), 32);
 
         let secret_b64 = keys.private.to_base64();
-        assert_eq!(secret_b64, "Vo2w1c+HJCnw9PKFDzY3b2qxtecrNVzY8W45JamjSyA=");
+        assert_eq!(secret_b64, "xiB2bcoA7Zo0XdnTqjyql8rzM1lNvckot6oXLvo+J8M=");
 
         let secret_hex = keys.private.to_hex();
-        assert_eq!(secret_hex, "568db0d5cf872429f0f4f2850f36376f6ab1b5e72b355cd8f16e3925a9a34b20");
+        assert_eq!(secret_hex, "c620766dca00ed9a345dd9d3aa3caa97caf333594dbdc928b7aa172efa3e27c3");
 
         let public_b64 = keys.public.to_base64();
-        assert_eq!(public_b64, "1AXzLxbjJp5IUxgrZ/ZYSj0qsKRPNLrpw35y537NhtI=");
+        assert_eq!(public_b64, "JxUtX29qv87BzMilM0WSBRyyE00EzWTprsEGmNxd54I=");
 
         let public_hex = keys.public.to_hex();
-        assert_eq!(public_hex, "d405f32f16e3269e4853182b67f6584a3d2ab0a44f34bae9c37e72e77ecd86d2");
+        assert_eq!(public_hex, "27152d5f6f6abfcec1ccc8a5334592051cb2134d04cd64e9aec10698dc5de782");
+
+        // Sub-Account (/0'/0/0) - External path
+        let path = "m/44'/0'/0'/0/0";
+
+        let keys = bip44.derive(path.to_string()).expect("Should derive keys from a path");
+        let secret_hex = keys.private.to_hex();
+        assert_eq!(secret_hex, "2493640b28d0ab262451713fdff14d6fb5e5c4d2652f1e3aba301e23fe5c4442");
+
+        let public_hex = keys.public.to_hex();
+        assert_eq!(public_hex, "cb312d148b5e615ee2854307b0b0c17133cd24c44f35d3cb554cf29c7b2addb1");
     }
 
     #[test]
@@ -229,7 +240,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn invalid_derivation_path_should_panic() {
-        let m = Mnemonic::new(PhraseSize::Twelve).expect("New mnemonic should not fail");
+        let m = Mnemonic::new(PhraseSize::N12).expect("New mnemonic should not fail");
         let seed = m.to_seed(None).expect("Mnemonic to seed should not fail");
         let b = HDWallet::new(seed).expect("HDWallet from seed should not fail");
 

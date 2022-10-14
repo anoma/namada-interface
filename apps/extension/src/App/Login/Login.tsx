@@ -24,7 +24,7 @@ const Login: React.FC<Props> = ({ requester }) => {
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<Status>();
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (): Promise<void> => {
     setStatus(Status.Pending);
     try {
       const { status: lockStatus } = await requester.sendMessage(

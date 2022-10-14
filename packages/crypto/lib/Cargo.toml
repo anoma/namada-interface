@@ -10,14 +10,20 @@ license = "MIT"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
+aes-gcm = "0.10.1"
+argon2 = "0.4.1"
 base64 = "0.13.0"
 bip32 = { version = "0.4.0", features = ["bip39"] }
 bip0039 = "0.10.1"
 ed25519-dalek = {version = "1.0.1", default-features = false, features = ["rand", "u64_backend"]}
 getrandom = {version = "0.2.3", features = ["js"]}
+gloo-utils = { version = "0.1.5", features = ["serde"] }
 hex = "0.4.3"
 js-sys = "0.3.60"
 orion = "0.16.0"
+password-hash = "0.4.2"
+serde = { version = "1.0.145", features = ["derive"] }
+scrypt = "0.10.0"
 thiserror = "1.0.30"
 rand = {version = "0.7", features = ["wasm-bindgen"]}
 wasm-bindgen = "0.2.78"

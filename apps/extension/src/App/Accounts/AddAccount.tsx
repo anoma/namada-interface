@@ -4,7 +4,11 @@ import { Button, ButtonVariant, Input, InputVariant } from "@anoma/components";
 
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
-import { DerivedAccount, DeriveAccountMsg } from "background/keyring";
+import {
+  DerivedAccount,
+  DeriveAccountMsg,
+  KeyStoreType,
+} from "background/keyring";
 import {
   AddAccountContainer,
   AddAccountForm,
@@ -21,24 +25,24 @@ import {
 } from "./AddAccount.components";
 
 type Props = {
+  // The parent Bip44 "account"
+  parentAccount: number;
   accounts: DerivedAccount[];
   requester: ExtensionRequester;
   setAccounts: (accounts: DerivedAccount[]) => void;
 };
 
 const validateAccount = (
-  newAccount: { account: number; change: number; index: number },
+  account: number,
+  newAccount: { change: number; index: number },
   accounts: DerivedAccount[]
 ): boolean => {
-  const newPath = [
-    newAccount.account,
-    newAccount.change,
-    newAccount.index,
-  ].join("/");
+  const newPath = [account, newAccount.change, newAccount.index].join("/");
   let isValid = true;
-  accounts.forEach((a: DerivedAccount) => {
-    const { bip44Path } = a;
-    const { account, change, index } = bip44Path;
+  accounts.forEach((derivedAccount: DerivedAccount) => {
+    const {
+      path: { account, change, index },
+    } = derivedAccount;
     const existingPath = [account, change, index].join("/");
 
     if (newPath === existingPath) {
@@ -51,14 +55,15 @@ const validateAccount = (
 
 const findNextIndex = (accounts: DerivedAccount[]): number => {
   let maxIndex = 0;
-  accounts.forEach((account) => {
-    const { index } = account.bip44Path;
-    if (index > maxIndex) {
-      maxIndex = index;
-    }
-  });
 
-  return maxIndex + 1;
+  accounts
+    .filter((account) => account.type !== KeyStoreType.Mnemonic)
+    .forEach((account) => {
+      const { index = 0 } = account.path;
+      maxIndex = index + 1;
+    });
+
+  return maxIndex;
 };
 
 enum Status {
@@ -67,10 +72,14 @@ enum Status {
   Failed,
 }
 
-const AddAccount: React.FC<Props> = ({ accounts, requester, setAccounts }) => {
+const AddAccount: React.FC<Props> = ({
+  parentAccount,
+  accounts,
+  requester,
+  setAccounts,
+}) => {
   const navigate = useNavigate();
   const [alias, setAlias] = useState("");
-  const [account, setAccount] = useState(0);
   const [change, setChange] = useState(0);
   const [index, setIndex] = useState(findNextIndex(accounts));
   const [bip44Error, setBip44Error] = useState("");
@@ -78,11 +87,11 @@ const AddAccount: React.FC<Props> = ({ accounts, requester, setAccounts }) => {
   const [formError, setFormError] = useState("");
   const [formStatus, setFormStatus] = useState(Status.Idle);
 
-  const bip44Prefix = "m/44'";
-  const coinType = "0'";
+  const bip44Prefix = "m/44";
+  const coinType = 0;
 
   useEffect(() => {
-    const isValid = validateAccount({ account, change, index }, accounts);
+    const isValid = validateAccount(parentAccount, { change, index }, accounts);
     if (!isValid) {
       setBip44Error("Invalid path! This path is already in use.");
       setIsFormValid(false);
@@ -90,7 +99,7 @@ const AddAccount: React.FC<Props> = ({ accounts, requester, setAccounts }) => {
       setBip44Error("");
       setIsFormValid(true);
     }
-  }, [account, change, index]);
+  }, [parentAccount, change, index]);
 
   const handleAccountAdd = async (): Promise<void> => {
     setFormStatus(Status.Pending);
@@ -98,7 +107,7 @@ const AddAccount: React.FC<Props> = ({ accounts, requester, setAccounts }) => {
       const derivedAccount: DerivedAccount =
         await requester.sendMessage<DeriveAccountMsg>(
           Ports.Background,
-          new DeriveAccountMsg({ account, change, index }, alias)
+          new DeriveAccountMsg({ account: parentAccount, change, index }, alias)
         );
       setAccounts([...accounts, derivedAccount]);
       navigate(-1);
@@ -120,6 +129,8 @@ const AddAccount: React.FC<Props> = ({ accounts, requester, setAccounts }) => {
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
 
+  const parentDerivationPath = `${bip44Prefix}'/${coinType}'/${parentAccount}'/`;
+
   return (
     <AddAccountContainer>
       <AddAccountForm>
@@ -136,20 +147,11 @@ const AddAccount: React.FC<Props> = ({ accounts, requester, setAccounts }) => {
           <Label>
             <p>HD Derivation Path</p>
             <Bip44PathContainer>
-              <Bip44PathDelimiter>
-                {[bip44Prefix, coinType].join("/")}/
-              </Bip44PathDelimiter>
+              <Bip44PathDelimiter>{parentDerivationPath}</Bip44PathDelimiter>
               <Bip44Input
                 type="number"
                 min="0"
-                value={account}
-                onChange={(e) => handleNumericChange(e, setAccount)}
-                onFocus={handleFocus}
-              />
-              <Bip44PathDelimiter>&apos;/</Bip44PathDelimiter>
-              <Bip44Input
-                type="number"
-                min="0"
+                max="1"
                 value={change}
                 onChange={(e) => handleNumericChange(e, setChange)}
                 onFocus={handleFocus}
@@ -168,9 +170,7 @@ const AddAccount: React.FC<Props> = ({ accounts, requester, setAccounts }) => {
 
         <Bip44Path>
           Derivation path:{" "}
-          <span>
-            {[bip44Prefix, coinType, `${account}'`, change, index].join("/")}
-          </span>
+          <span>{`${parentDerivationPath}${change}/${index}`}</span>
         </Bip44Path>
         <Bip44Error>{bip44Error}</Bip44Error>
       </AddAccountForm>
