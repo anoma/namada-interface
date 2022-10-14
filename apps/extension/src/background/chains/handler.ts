@@ -1,12 +1,8 @@
 import { Chain } from "@anoma/types";
 import { Handler, Env, Message, InternalHandler } from "router";
 import { ChainsService } from "./service";
-import {
-  SuggestChainMsg,
-  GetChainsMsg,
-  GetChainMsg,
-  RemoveChainMsg,
-} from "./messages";
+import { RemoveChainMsg } from "./messages";
+import { SuggestChainMsg, GetChainsMsg, GetChainMsg } from "provider/messages";
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 

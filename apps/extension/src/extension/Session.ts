@@ -18,11 +18,18 @@ const SESSION_PORT = "session-port";
 // Maximum length of inactivity
 const SESSION_DURATION = 4 * 60 * 1000;
 
+type Timeout = ReturnType<typeof setTimeout>;
 // Connect to SESSION_PORT
 const initPort = (): Runtime.Port =>
   browser.runtime.connect({
     name: SESSION_PORT,
   });
+
+const clearSessionTimeout = (timeout?: Timeout): void => {
+  if (timeout) {
+    clearTimeout(timeout);
+  }
+};
 
 /**
  * Maintain an open port to the background until a certain limit has been reached.
@@ -31,7 +38,7 @@ export class Session {
   protected port: Runtime.Port | undefined;
   private _requester: ExtensionRequester | undefined;
   private _timestamp: number = Date.now();
-  private _timeout: ReturnType<typeof setTimeout> | undefined;
+  private _timeout: Timeout | undefined;
 
   public start(requester?: ExtensionRequester): Runtime.Port {
     this._timestamp = Date.now();
@@ -63,7 +70,7 @@ export class Session {
   }
 
   public update(): void {
-    this._clearTimeout();
+    clearSessionTimeout(this._timeout);
     this.start();
   }
 
@@ -81,14 +88,8 @@ export class Session {
         this.port.disconnect();
       }
     }
-    this._clearTimeout();
-    this._requester = undefined;
-  }
 
-  private _clearTimeout(): void {
-    if (this._timeout) {
-      clearTimeout(this._timeout);
-    }
+    this._requester = undefined;
   }
 
   /**
@@ -96,7 +97,7 @@ export class Session {
    */
   public handleOnMessage(message: SessionMsg, _port: Runtime.Port): void {
     const { msg, type } = message;
-    console.info(`Message ${type} recieved: ${msg}`);
+    console.info(`${type}: ${msg}`);
 
     switch (type) {
       case SessionMsgType.Disconnect:
@@ -111,8 +112,7 @@ export class Session {
   }
 
   public handleOnDisconnect(port: Runtime.Port): void {
-    console.info("Session port has closed.");
-    this._clearTimeout();
+    clearSessionTimeout(this._timeout);
     if (port.error) {
       console.error("Port disconnected due to an error", port.error);
     }

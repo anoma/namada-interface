@@ -7,7 +7,6 @@ import {
   RoutedMessage,
   Router,
 } from "router";
-import { SessionMsg } from "./Session";
 
 export class ExtensionRouter extends Router {
   constructor(envProducer: EnvProducer) {
@@ -22,12 +21,6 @@ export class ExtensionRouter extends Router {
     console.info(`Listening on port ${port}`);
     this.port = port;
     browser.runtime.onMessage.addListener(this.onMessage);
-
-    browser.runtime.onConnect.addListener((port: Runtime.Port): void => {
-      port.onMessage.addListener((m: SessionMsg) => {
-        console.info(`Background received: ${m.msg}`);
-      });
-    });
   }
 
   unlisten(): void {
