@@ -1,6 +1,9 @@
 import { KVStore } from "@anoma/storage";
 
-export interface IStore<T> {
+// StoredRecords in storage should have a unique identifier
+export type StoredRecord = { id: string };
+
+export interface IStore<T extends StoredRecord> {
   set(state: T[]): Promise<void>;
   get(): Promise<T[]>;
   getRecord<U = string | number>(
@@ -11,9 +14,6 @@ export interface IStore<T> {
   update(id: string, state: Partial<T>): Promise<void>;
   remove(id: string): Promise<void>;
 }
-
-// StoredRecords in storage should have a unique identifier
-export type StoredRecord = { id: string };
 
 /**
  * A class instance will be set for a specific storage key, and allows:
