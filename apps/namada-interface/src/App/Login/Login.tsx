@@ -72,13 +72,13 @@ const Login = ({ setPassword, setStore }: Props): JSX.Element => {
           error={error}
         />
         <Button
+          loading={isLoggingIn}
           variant={ButtonVariant.Contained}
           onClick={handleUnlockClick}
           disabled={!loginPassword} // TODO: Improve validation
         >
           Unlock Wallet
         </Button>
-        {isLoggingIn && <UnlockingLabel>Unlocking wallet...</UnlockingLabel>}
       </LoginViewContainer>
     </LoginViewOuterContainer>
   );
