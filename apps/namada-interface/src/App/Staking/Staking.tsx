@@ -100,7 +100,6 @@ export const Staking = (props: Props): JSX.Element => {
 
   // these 2 are needed for validator details
   const stakingPositionsWithSelectedValidator =
-    myStakingPositions &&
     myStakingPositions.filter(
       (validator) => validator.validatorId === selectedValidatorId
     );
