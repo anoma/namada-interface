@@ -16,7 +16,7 @@ type Props = {
 
 const Accounts: React.FC<Props> = ({ accounts, requester }) => {
   const parentAccount = accounts[0];
-  const { alias = "" } = parentAccount || {};
+  const alias = parentAccount?.alias;
 
   useEffect(() => {
       requester.startSession();
