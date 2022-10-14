@@ -80,7 +80,7 @@ export const ShieldedDataMsg = new Map([
       ["join_splits", "string"],
       ["join_split_pubkey", { kind: "option", type: [32] }],
       ["join_split_sig", { kind: "option", type: [64] }],
-      ["binding_sig", []],
+      ["binding_sig", { kind: "option", type: [] }],
     ],
   ],
 ]);
