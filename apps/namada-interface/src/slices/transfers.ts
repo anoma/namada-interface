@@ -124,6 +124,8 @@ enum TransfersThunkActions {
   SubmitIbcTransferTransaction = "submitIbcTransferTransaction",
 }
 
+type WithNotification<T> = T & { notify?: boolean };
+
 type TxArgs = {
   chainId: string;
   account: DerivedAccount | ShieldedAccount;
@@ -272,7 +274,7 @@ export const actionTypes = {
 export const submitTransferTransaction = createAsyncThunk(
   actionTypes.SUBMIT_TRANSFER_ACTION_TYPE,
   async (
-    txTransferArgs: TxTransferArgs | ShieldedTransferData,
+    txTransferArgs: WithNotification<TxTransferArgs | ShieldedTransferData>,
     { dispatch, rejectWithValue, requestId }
   ) => {
     const {
@@ -283,6 +285,7 @@ export const submitTransferTransaction = createAsyncThunk(
       memo = "",
       faucet,
       chainId,
+      notify,
     } = txTransferArgs;
     const { id, establishedAddress = "", signingKey: privateKey } = account;
 
@@ -298,11 +301,12 @@ export const submitTransferTransaction = createAsyncThunk(
       protocol: network.wsProtocol,
     });
 
-    dispatch(
-      notificationsActions.createToast(
-        getToast(`${requestId}-pending`, Toasts.TransferStarted)()
-      )
-    );
+    notify &&
+      dispatch(
+        notificationsActions.createToast(
+          getToast(`${requestId}-pending`, Toasts.TransferStarted)()
+        )
+      );
 
     let epoch: number;
     try {
@@ -370,7 +374,7 @@ export const submitTransferTransaction = createAsyncThunk(
     //   )
     // );
     //
-    dispatch(
+    notify && dispatch(
       notificationsActions.createToast(
         getToast(
           `${requestId}-fullfilled`,
