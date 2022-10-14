@@ -16,8 +16,8 @@ export type TransferProps = {
   target: string;
   token: string;
   amount: number;
-  key: string | null;
-  shielded: Uint8Array | null;
+  key?: string;
+  shielded?: Uint8Array;
 };
 
 export type IbcTransferProps = {

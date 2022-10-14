@@ -1,6 +1,7 @@
 import BN from "bn.js";
 import { ShieldedDataProps, ShieldedProps } from "../types";
 
+// A Zcash Transaction
 export class ShieldedTransferMsgValue {
   txid: Uint8Array;
   data: Uint8Array;
@@ -17,13 +18,14 @@ export const ShieldedTransferMsgSchema = new Map([
     {
       kind: "struct",
       fields: [
-        ["txid", "[]"],
-        ["data", "[]"],
+        ["txid", [32]],
+        ["data", []],
       ],
     },
   ],
 ]);
 
+// Zcash Transaction Data
 export class ShieldedDataMsgValue {
   overwintered: boolean;
   version: string;
@@ -76,8 +78,8 @@ export const ShieldedDataMsg = new Map([
       ["shielded_converts", []],
       ["shielded_outputs", []],
       ["join_splits", "string"],
-      ["join_split_pubkey", []],
-      ["join_split_sig", []],
+      ["join_split_pubkey", { kind: "option", type: [32] }],
+      ["join_split_sig", { kind: "option", type: [64] }],
       ["binding_sig", []],
     ],
   ],
