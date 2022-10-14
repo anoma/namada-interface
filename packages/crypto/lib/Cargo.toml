@@ -1,5 +1,6 @@
 [package]
 name = "crypto"
+authors = ["Heliax AG <hello@heliax.dev>"]
 version = "0.1.0"
 edition = "2021"
 repository = "https://github.com/anoma/namada-interface/"

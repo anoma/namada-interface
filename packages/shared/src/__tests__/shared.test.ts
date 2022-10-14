@@ -142,6 +142,8 @@ describe("Transfer", () => {
       target,
       token,
       amount,
+      key: null,
+      shielded: null,
     });
 
     const transferMessage = new Message<TransferMsgValue>();

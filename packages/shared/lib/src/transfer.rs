@@ -1,4 +1,5 @@
 use namada::types::{address::Address, token};
+use masp_primitives::transaction::Transaction;
 use borsh::{BorshSerialize, BorshDeserialize};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
@@ -13,6 +14,8 @@ pub struct TransferMsg {
     target: String,
     token: String,
     amount: u64,
+    key: Option<String>,
+    shielded: Option<Vec<u8>>,
 }
 
 #[wasm_bindgen]
@@ -30,18 +33,34 @@ impl Transfer {
         let msg: &[u8] = &msg;
         let msg = BorshDeserialize::try_from_slice(msg)
             .map_err(|err| format!("BorshDeserialize failed! {:?}", err))?;
-        let TransferMsg { source, target, token, amount } = msg;
+        let TransferMsg { source, target, token, amount, key, shielded } = msg;
 
         let source = Address::from_str(&source).expect("Address from string should not fail");
         let target = Address::from_str(&target).expect("Address from string should not fail");
         let token = Address::from_str(&token).expect("Address from string should not fail");
         let amount = token::Amount::from(amount);
 
+        let shielded = match shielded {
+            Some(shielded) => {
+                let shielded: &[u8] = &shielded;
+                let tx: Transaction = BorshDeserialize::try_from_slice(shielded)
+                    .map_err(|err| format!("BorshDeserialize failed! {:?}", err))?;
+                Some(tx)
+            },
+            None => None,
+        };
+        let key = match Some(key) {
+            Some(key) => key,
+            None => None,
+        };
+
         let transfer = token::Transfer {
             source,
             target,
             token,
             amount,
+            key,
+            shielded,
         };
 
         let tx_data = transfer
@@ -71,13 +90,13 @@ mod tests {
         let target = String::from("atest1v4ehgw36xvcyyvejgvenxs34g3zygv3jxqunjd6rxyeyys3sxy6rwvfkx4qnj33hg9qnvse4lsfctw");
         let token = String::from("atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5");
         let amount = 1000;
-        let msg = TransferMsg { source, target, token, amount };
+        let msg = TransferMsg { source, target, token, amount, key: None, shielded: None };
 
         let msg_serialized = BorshSerialize::try_to_vec(&msg)
             .expect("Message should serialize to vector");
         let Transfer { tx_data } = Transfer::new(msg_serialized)
             .expect("Transfer should be able to instantiate from Borsh-serialized message");
 
-        assert_eq!(tx_data.len(), 143);
+        assert_eq!(tx_data.len(), 145);
     }
 }
