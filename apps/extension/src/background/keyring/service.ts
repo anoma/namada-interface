@@ -3,13 +3,13 @@ import { PhraseSize } from "@anoma/crypto";
 import { KVStore } from "@anoma/storage";
 import { Bip44Path, DerivedAccount, SignedTx } from "@anoma/types";
 import { KeyRing } from "./keyring";
-import { KeyRingStatus } from "./types";
+import { KeyRingStatus, KeyStore } from "./types";
 import { IbcTransfer, Transfer } from "@anoma/shared";
 
 export class KeyRingService {
   private _keyRing: KeyRing;
 
-  constructor(protected readonly kvStore: KVStore) {
+  constructor(protected readonly kvStore: KVStore<KeyStore>) {
     this._keyRing = new KeyRing(kvStore);
   }
 

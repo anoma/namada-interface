@@ -39,7 +39,7 @@ export class KeyRing {
   private _password: string | undefined;
   private _status: KeyRingStatus = KeyRingStatus.Empty;
 
-  constructor(kvStore: KVStore) {
+  constructor(kvStore: KVStore<KeyStore>) {
     this._keyStore = new Store(KEYSTORE_KEY, kvStore);
   }
 

@@ -9,7 +9,7 @@ export class ChainsService {
   protected onChainRemovedHandlers: ChainRemovedHandler[] = [];
 
   constructor(
-    protected readonly kvStore: KVStore,
+    protected readonly kvStore: KVStore<Chain>,
     protected readonly defaultChains: Chain[]
   ) {}
 
@@ -58,7 +58,7 @@ export class ChainsService {
   }
 
   async getSuggestedChains(): Promise<Chain[]> {
-    return (await this.kvStore.get<Chain[]>(KVKeys.Chains)) ?? [];
+    return (await this.kvStore.get(KVKeys.Chains)) ?? [];
   }
 
   async addChain(chain: Chain): Promise<void> {
@@ -67,11 +67,11 @@ export class ChainsService {
       throw new Error(`Chain with ID ${chainId} is already registered`);
     }
 
-    const savedChains = (await this.kvStore.get<Chain[]>(KVKeys.Chains)) ?? [];
+    const savedChains = (await this.kvStore.get(KVKeys.Chains)) ?? [];
 
     savedChains.push(chain);
 
-    await this.kvStore.set<Chain[]>(KVKeys.Chains, savedChains);
+    await this.kvStore.set(KVKeys.Chains, savedChains);
   }
 
   async removeChain(chainId: string): Promise<void> {
@@ -79,13 +79,13 @@ export class ChainsService {
       throw new Error("Chain is not registered");
     }
 
-    const chains = (await this.kvStore.get<Chain[]>(KVKeys.Chains)) ?? [];
+    const chains = (await this.kvStore.get(KVKeys.Chains)) ?? [];
 
     const filteredChains = chains.filter((chain: Chain) => {
       return chain.chainId !== chainId;
     });
 
-    await this.kvStore.set<Chain[]>(KVKeys.Chains, filteredChains);
+    await this.kvStore.set(KVKeys.Chains, filteredChains);
   }
 
   addChainRemovedHandler(handler: ChainRemovedHandler): void {

@@ -1,6 +1,6 @@
 import { KVStore } from "./types";
 
-export class IndexedDBKVStore implements KVStore {
+export class IndexedDBKVStore<T> implements KVStore<T> {
   protected cachedDB?: IDBDatabase;
 
   constructor(protected readonly _prefix: string) {}
