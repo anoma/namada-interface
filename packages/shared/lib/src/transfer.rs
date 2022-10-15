@@ -49,10 +49,6 @@ impl Transfer {
             },
             None => None,
         };
-        let key = match Some(key) {
-            Some(key) => key,
-            None => None,
-        };
 
         let transfer = token::Transfer {
             source,

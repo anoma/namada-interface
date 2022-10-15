@@ -14,6 +14,8 @@ use wasm_bindgen::prelude::*;
 pub enum Zip32Error {
     #[error("Invalid seed length")]
     InvalidSeedSize,
+    #[error("Could not derive child key!")]
+    ChildDerivationerror,
 }
 
 #[wasm_bindgen]
@@ -76,7 +78,7 @@ impl ShieldedHDWallet {
         let index = ChildIndex::NonHardened(index);
         let child_sk = self.xsk_m.derive_child(index);
         let child_fvk = self.xfvk_m.derive_child(index)
-            .map_err(|_| String::from("Could not derive child full viewing key"))?;
+            .map_err(|err| format!("{}: {:?}", Zip32Error::ChildDerivationerror, err))?;
 
         let (_, xsk_address) = child_sk.default_address();
         let xsk: &[u8] = &xsk_address.to_bytes();
