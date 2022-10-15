@@ -1,6 +1,5 @@
 use bip32::{Prefix, XPrv};
 use thiserror::Error;
-
 use wasm_bindgen::prelude::*;
 
 #[derive(Debug, Error)]
