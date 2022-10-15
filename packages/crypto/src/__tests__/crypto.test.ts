@@ -22,7 +22,7 @@ describe("Mnemonic", () => {
     let words = mnemonic?.to_words();
     expect(words.length).toBe(12);
 
-    mnemonic = new Mnemonic(PhraseSize.N12);
+    mnemonic = new Mnemonic(PhraseSize.N24);
     words = mnemonic.to_words();
 
     expect(words.length).toBe(24);
