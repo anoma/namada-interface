@@ -10,8 +10,17 @@ use zcash_primitives::zip32::{
 use thiserror::Error;
 use wasm_bindgen::prelude::*;
 
+const KEY_SIZE: usize = 96;
+const ADDRESS_SIZE: usize = 43;
+const DIVERSIFIER_INDEX_SIZE: usize = 11;
+const SEED_SIZE: usize = 64;
+
 #[derive(Debug, Error)]
 pub enum Zip32Error {
+    #[error("Invalid address size! Expected 96")]
+    InvalidAddressSize,
+    #[error("Invalid diversifier index size! Expected 11")]
+    InvalidDiversifierSize,
     #[error("Invalid seed length")]
     InvalidSeedSize,
     #[error("Could not derive child key!")]
@@ -43,24 +52,61 @@ impl ExtendedKeys {
 
 #[wasm_bindgen]
 pub struct Keys {
-    expsk: Vec<u8>,
-    fvk: Vec<u8>,
+    expsk: [u8; KEY_SIZE],
+    fvk: [u8; KEY_SIZE],
 }
 
 #[wasm_bindgen]
 impl Keys {
     pub fn expsk(&self) -> Vec<u8> {
-        self.expsk.clone()
+        let expsk: &[u8] = &self.expsk;
+        Vec::from(expsk)
     }
 
     pub fn fvk(&self) -> Vec<u8> {
-        self.fvk.clone()
+        let fvk: &[u8] = &self.fvk;
+        Vec::from(fvk)
+    }
+}
+
+#[wasm_bindgen]
+pub struct PaymentAddress {
+    diversifier: [u8; DIVERSIFIER_INDEX_SIZE],
+    address: [u8; ADDRESS_SIZE],
+}
+
+#[wasm_bindgen]
+impl PaymentAddress {
+    pub fn new(diversifier: Vec<u8>, address: Vec<u8>) -> Result<PaymentAddress, String> {
+        let diversifier: [u8; DIVERSIFIER_INDEX_SIZE] = match diversifier.try_into() {
+            Ok(bytes) => bytes,
+            Err(err) => return Err(format!("{}: {:?}", Zip32Error::InvalidDiversifierSize, err)),
+        };
+        let address: [u8; ADDRESS_SIZE] = match address.try_into() {
+            Ok(bytes) => bytes,
+            Err(err) => return Err(format!("{}: {:?}", Zip32Error::InvalidAddressSize, err)),
+        };
+
+        Ok(PaymentAddress {
+            diversifier,
+            address,
+        })
+    }
+
+    pub fn diversifier(&self) -> Vec<u8> {
+        let diversifier: &[u8] = &self.diversifier;
+        Vec::from(diversifier)
+    }
+
+    pub fn address(&self) -> Vec<u8> {
+        let address: &[u8] = &self.address;
+        Vec::from(address)
     }
 }
 
 #[wasm_bindgen]
 pub struct ShieldedHDWallet {
-    seed: [u8; 64],
+    seed: [u8; SEED_SIZE],
     xsk_m: ExtendedSpendingKey,
     xfvk_m: ExtendedFullViewingKey,
 }
@@ -72,7 +118,7 @@ impl ShieldedHDWallet {
         // zip-0032 requires seed to be at least 32 and at most 252 bytes,
         // but the seed generated from our mnemonic will be 64, so let's
         // enforce it here:
-        let seed: [u8; 64] = match seed.try_into() {
+        let seed: [u8; SEED_SIZE] = match seed.try_into() {
             Ok(bytes) => bytes,
             Err(err) => return Err(format!("{}: {:?}", Zip32Error::InvalidSeedSize, err)),
         };
@@ -85,12 +131,6 @@ impl ShieldedHDWallet {
             xsk_m,
             xfvk_m,
         })
-    }
-
-    pub fn default_address(&self) -> Vec<u8> {
-        let (_, address) = self.xsk_m.default_address();
-        let bytes: &[u8] = &address.to_bytes();
-        Vec::from(bytes)
     }
 
     pub fn derive(&self, index: u32) -> Result<Keys, String> {
@@ -109,13 +149,12 @@ impl ShieldedHDWallet {
         ext_sk: ExtSpendingKey,
         ext_fvk: ExtFullViewingKey,
     ) -> Keys {
-
-        let expsk: &[u8] = &ext_sk.0.expsk.to_bytes();
-        let fvk: &[u8] = &ext_fvk.0.fvk.to_bytes();
+        let expsk = ext_sk.0.expsk.to_bytes();
+        let fvk = ext_fvk.0.fvk.to_bytes();
 
         Keys {
-            expsk: Vec::from(expsk),
-            fvk: Vec::from(fvk),
+            expsk,
+            fvk,
         }
     }
 
@@ -148,11 +187,52 @@ impl ShieldedHDWallet {
     }
 
     pub fn master_keys(&self) -> Keys {
-        let expsk: &[u8] = &self.xsk_m.expsk.to_bytes();
-        let fvk: &[u8] = &self.xfvk_m.fvk.to_bytes();
+        let expsk = self.xsk_m.expsk.to_bytes();
+        let fvk = self.xfvk_m.fvk.to_bytes();
+
         Keys {
-            expsk: Vec::from(expsk),
-            fvk: Vec::from(fvk),
+            expsk,
+            fvk,
+        }
+    }
+
+    pub fn master_sk_address(&self) -> PaymentAddress {
+        let (diversifier, address) = &self.xsk_m.default_address();
+
+        PaymentAddress {
+            diversifier: diversifier.0,
+            address: address.to_bytes(),
+        }
+    }
+
+    pub fn master_fvk_address(&self) -> PaymentAddress {
+        let (diversifier, address) = &self.xfvk_m.default_address();
+
+        PaymentAddress {
+            diversifier: diversifier.0,
+            address: address.to_bytes(),
+        }
+    }
+
+    pub fn ext_expsk_to_address(ext_xsk: ExtSpendingKey) -> PaymentAddress {
+        let (diversifier, address) = ext_xsk.0.default_address();
+        let diversifier = diversifier.0;
+        let address = address.to_bytes();
+
+        PaymentAddress {
+            diversifier,
+            address,
+        }
+    }
+
+    pub fn ext_fvk_to_address(ext_fvk: ExtFullViewingKey) -> PaymentAddress {
+        let (diversifier, address) = ext_fvk.0.default_address();
+        let diversifier = diversifier.0;
+        let address = address.to_bytes();
+
+        PaymentAddress {
+            diversifier,
+            address,
         }
     }
 
@@ -191,18 +271,18 @@ mod tests {
         assert!(shielded_wallet.is_ok());
 
         let shielded_wallet = shielded_wallet.unwrap();
-        let address = shielded_wallet.default_address();
+        let m_sk_address = shielded_wallet.master_sk_address();
 
         let expected: &[u8] = &[253, 245, 255, 224, 122, 231, 20, 4, 103, 209, 36, 54, 100, 101, 140,
                                 159, 130, 83, 20, 74, 132, 241, 199, 122, 9, 104, 22, 110, 81, 117, 127,
                                 178, 212, 7, 209, 157, 251, 100, 242, 229, 135, 218, 175];
 
-        assert_eq!(address, Vec::from(expected));
+        assert_eq!(m_sk_address.address(), Vec::from(expected));
     }
 
     #[test]
     fn can_derive_child_keys() {
-        let seed: &[u8] = &[0; 64];
+        let seed: &[u8] = &[0; SEED_SIZE];
         let shielded_wallet = ShieldedHDWallet::new(Vec::from(seed))
             .expect("Should be able to instantiate ShieldedHDWallet");
 
@@ -229,14 +309,14 @@ mod tests {
                             43, 143, 168, 136, 74, 179, 47, 207];
 
         assert_eq!(expsk, expsk_expected);
-        assert_eq!(expsk.len(), 96);
+        assert_eq!(expsk.len(), KEY_SIZE);
         assert_eq!(fvk, fvk_expected);
-        assert_eq!(fvk.len(), 96);
+        assert_eq!(fvk.len(), KEY_SIZE);
     }
 
     #[test]
     fn can_derive_child_from_extended_keys() {
-        let seed: &[u8] = &[0; 64];
+        let seed: &[u8] = &[0; SEED_SIZE];
         let shielded_wallet = ShieldedHDWallet::new(Vec::from(seed))
             .expect("Instantiating ShieldedHDWallet should not fail");
 
@@ -244,13 +324,13 @@ mod tests {
         let Keys { expsk, fvk } = ShieldedHDWallet::derive_from_ext(xsk, xfvk, 1)
             .expect("Deriving from ExtendedKeys should not fail");
 
-        assert_eq!(expsk.len(), 96);
-        assert_eq!(fvk.len(), 96);
+        assert_eq!(expsk.len(), KEY_SIZE);
+        assert_eq!(fvk.len(), KEY_SIZE);
     }
 
     #[test]
     fn can_recover_native_spending_key_from_child() {
-        let seed: &[u8] = &[0; 64];
+        let seed: &[u8] = &[0; SEED_SIZE];
         let shielded_wallet = ShieldedHDWallet::new(Vec::from(seed))
             .expect("Instantiating ShieldedHDWallet should not fail");
         let ext_keys = shielded_wallet.extended_master_keys();
@@ -262,8 +342,8 @@ mod tests {
         let child = xsk.derive_child(child_index);
         let (diversifier_index, address) = child.default_address();
 
-        assert_eq!(address.to_bytes().len(), 43);
-        assert_eq!(diversifier_index.0, [0; 11]);
+        assert_eq!(address.to_bytes().len(), ADDRESS_SIZE);
+        assert_eq!(diversifier_index.0, [0; DIVERSIFIER_INDEX_SIZE]);
         assert_eq!(
             address.diversifier().0,
             [93, 200, 58, 67, 210, 217, 81, 15, 136, 189, 97]
