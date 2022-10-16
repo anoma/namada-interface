@@ -100,14 +100,19 @@ pub struct PaymentAddress {
 
 #[wasm_bindgen]
 impl PaymentAddress {
-    pub fn new(diversifier: Vec<u8>, address: Vec<u8>) -> Result<PaymentAddress, String> {
+    #[wasm_bindgen(constructor)]
+    pub fn new(diversifier: &[u8], address: &[u8]) -> Result<PaymentAddress, String> {
         let diversifier: [u8; DIVERSIFIER_INDEX_SIZE] = match diversifier.try_into() {
             Ok(bytes) => bytes,
-            Err(err) => return Err(format!("{}: {:?}", Zip32Error::InvalidDiversifierSize, err)),
+            Err(err) => return Err(
+                format!("{}: {:?}", Zip32Error::InvalidDiversifierSize, err),
+            ),
         };
         let address: [u8; ADDRESS_SIZE] = match address.try_into() {
             Ok(bytes) => bytes,
-            Err(err) => return Err(format!("{}: {:?}", Zip32Error::InvalidAddressSize, err)),
+            Err(err) => return Err(
+                format!("{}: {:?}", Zip32Error::InvalidAddressSize, err),
+            ),
         };
 
         Ok(PaymentAddress {
@@ -143,7 +148,9 @@ impl ShieldedHDWallet {
         // enforce it here:
         let seed: [u8; SEED_SIZE] = match seed.try_into() {
             Ok(bytes) => bytes,
-            Err(err) => return Err(format!("{}: {:?}", Zip32Error::InvalidSeedSize, err)),
+            Err(err) => return Err(
+                format!("{}: {:?}", Zip32Error::InvalidSeedSize, err),
+            ),
         };
 
         let xsk_m = ExtendedSpendingKey::master(&seed);
