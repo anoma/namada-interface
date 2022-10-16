@@ -19,27 +19,44 @@ pub enum Zip32Error {
 }
 
 #[wasm_bindgen]
-pub struct ExtendedKeys {
-    xsk: Vec<u8>,
-    xfvk: Vec<u8>,
-}
-
-#[wasm_bindgen]
-impl ExtendedKeys {
-    pub fn xsk(&self) -> Vec<u8> {
-        self.xsk.clone()
-    }
-
-    pub fn xfvk(&self) -> Vec<u8> {
-        self.xfvk.clone()
-    }
-}
-
-#[wasm_bindgen]
 pub struct ExtSpendingKey(pub (crate) ExtendedSpendingKey);
 
 #[wasm_bindgen]
 pub struct ExtFullViewingKey(pub (crate) ExtendedFullViewingKey);
+
+#[wasm_bindgen]
+pub struct ExtendedKeys {
+    xsk: ExtSpendingKey,
+    xfvk: ExtFullViewingKey,
+}
+
+#[wasm_bindgen]
+impl ExtendedKeys {
+    pub fn xsk(self) -> ExtSpendingKey {
+        self.xsk
+    }
+
+    pub fn xfvk(self) -> ExtFullViewingKey {
+        self.xfvk
+    }
+}
+
+#[wasm_bindgen]
+pub struct Keys {
+    expsk: Vec<u8>,
+    fvk: Vec<u8>,
+}
+
+#[wasm_bindgen]
+impl Keys {
+    pub fn expsk(&self) -> Vec<u8> {
+        self.expsk.clone()
+    }
+
+    pub fn fvk(&self) -> Vec<u8> {
+        self.fvk.clone()
+    }
+}
 
 #[wasm_bindgen]
 pub struct ShieldedHDWallet {
@@ -52,7 +69,9 @@ pub struct ShieldedHDWallet {
 impl ShieldedHDWallet {
     #[wasm_bindgen(constructor)]
     pub fn new(seed: Vec<u8>) -> Result<ShieldedHDWallet, String> {
-        // Seed must be 64 bytes to match Mnemonic
+        // zip-0032 requires seed to be at least 32 and at most 252 bytes,
+        // but the seed generated from our mnemonic will be 64, so let's
+        // enforce it here:
         let seed: [u8; 64] = match seed.try_into() {
             Ok(bytes) => bytes,
             Err(err) => return Err(format!("{}: {:?}", Zip32Error::InvalidSeedSize, err)),
@@ -74,22 +93,46 @@ impl ShieldedHDWallet {
         Vec::from(bytes)
     }
 
-    pub fn derive_child(&self, index: u32) -> Result<ExtendedKeys, String> {
-        let index = ChildIndex::NonHardened(index);
-        let child_sk = self.xsk_m.derive_child(index);
-        let child_fvk = self.xfvk_m.derive_child(index)
+    pub fn derive(&self, index: u32) -> Result<Keys, String> {
+        let c_index = ChildIndex::NonHardened(index);
+        let child_sk = self.xsk_m.derive_child(c_index);
+        let child_fvk = self.xfvk_m.derive_child(c_index)
             .map_err(|err| format!("{}: {:?}", Zip32Error::ChildDerivationerror, err))?;
 
-        let (_, xsk_address) = child_sk.default_address();
-        let xsk: &[u8] = &xsk_address.to_bytes();
+        Ok(ShieldedHDWallet::derived_to_keys(
+            ExtSpendingKey(child_sk),
+            ExtFullViewingKey(child_fvk),
+        ))
+    }
 
-        let (_, xfvk_address) = child_fvk.default_address();
-        let xfvk: &[u8] = &xfvk_address.to_bytes();
+    pub fn derived_to_keys(
+        ext_sk: ExtSpendingKey,
+        ext_fvk: ExtFullViewingKey,
+    ) -> Keys {
 
-        Ok(ExtendedKeys {
-            xsk: Vec::from(xsk),
-            xfvk: Vec::from(xfvk),
-        })
+        let expsk: &[u8] = &ext_sk.0.expsk.to_bytes();
+        let fvk: &[u8] = &ext_fvk.0.fvk.to_bytes();
+
+        Keys {
+            expsk: Vec::from(expsk),
+            fvk: Vec::from(fvk),
+        }
+    }
+
+    pub fn derive_from_ext(
+        ext_sk: ExtSpendingKey,
+        ext_fvk: ExtFullViewingKey,
+        index: u32,
+    ) -> Result<Keys, String> {
+        let c_index = ChildIndex::NonHardened(index);
+        let child_sk = ext_sk.0.derive_child(c_index);
+        let child_fvk = ext_fvk.0.derive_child(c_index)
+            .map_err(|err| format!("{}: {:?}", Zip32Error::ChildDerivationerror, err))?;
+
+        Ok(ShieldedHDWallet::derived_to_keys(
+            ExtSpendingKey(child_sk),
+            ExtFullViewingKey(child_fvk),
+        ))
     }
 
     pub fn seed(&self) -> Vec<u8> {
@@ -97,25 +140,20 @@ impl ShieldedHDWallet {
         Vec::from(seed)
     }
 
-    pub fn extended_keys(&self) -> ExtendedKeys {
-        let (_, xsk) = &self.xsk_m.default_address();
-        let (_, xfvk) = &self.xfvk_m.default_address();
-
-        let xsk_bytes: &[u8] = &xsk.to_bytes();
-        let xfvk_bytes: &[u8] = &xfvk.to_bytes();
-
+    pub fn extended_master_keys(&self) -> ExtendedKeys {
         ExtendedKeys {
-            xsk: Vec::from(xsk_bytes),
-            xfvk: Vec::from(xfvk_bytes),
+            xsk: ExtSpendingKey(self.xsk_m.clone()),
+            xfvk: ExtFullViewingKey(self.xfvk_m.clone()),
         }
     }
 
-    pub fn xsk_master(&self) -> ExtSpendingKey {
-        ExtSpendingKey(self.xsk_m.clone())
-    }
-
-    pub fn xfvk_master(&self) -> ExtFullViewingKey {
-        ExtFullViewingKey(self.xfvk_m.clone())
+    pub fn master_keys(&self) -> Keys {
+        let expsk: &[u8] = &self.xsk_m.expsk.to_bytes();
+        let fvk: &[u8] = &self.xfvk_m.fvk.to_bytes();
+        Keys {
+            expsk: Vec::from(expsk),
+            fvk: Vec::from(fvk),
+        }
     }
 
     // TODO - Implement for:
@@ -168,21 +206,57 @@ mod tests {
         let shielded_wallet = ShieldedHDWallet::new(Vec::from(seed))
             .expect("Should be able to instantiate ShieldedHDWallet");
 
-        let ExtendedKeys { xsk, xfvk } = shielded_wallet.derive_child(1)
+        let Keys { expsk, fvk } = shielded_wallet.derive(1)
             .expect("Should derive child extended keys!");
 
-        assert_eq!(xsk, xfvk);
+        // ExpandedSpendingKey
+        // ask + nsk + ovk - 96 bytes
+        let expsk_expected = [192, 175, 193, 12, 186, 84, 3, 28, 112, 249, 136, 141, 192, 15,
+                              127, 245, 71, 2, 253, 0, 101, 210, 43, 240, 51, 47, 66, 167, 239,
+                              46, 113, 9, 102, 114, 33, 44, 178, 194, 5, 119, 149, 211, 124,
+                              63, 172, 106, 216, 171, 120, 98, 149, 5, 90, 86, 133, 142, 49,
+                              211, 65, 35, 8, 23, 181, 5, 185, 213, 66, 93, 12, 232, 223, 227,
+                              92, 218, 29, 64, 67, 159, 43, 16, 107, 72, 166, 233, 254, 125,
+                              231, 100, 43, 143, 168, 136, 74, 179, 47, 207];
+        // FullViewingKey
+        // vk + ovk - 96 bytes
+        let fvk_expected = [35, 160, 78, 65, 211, 133, 89, 227, 5, 41, 122, 32, 87, 47, 167,
+                            187, 223, 100, 126, 122, 63, 239, 39, 218, 66, 80, 133, 80, 69, 30,
+                            58, 42, 119, 102, 171, 159, 11, 249, 203, 188, 202, 60, 84, 127,
+                            122, 151, 87, 159, 98, 137, 133, 207, 174, 161, 245, 233, 155, 247,
+                            91, 51, 183, 192, 95, 162, 185, 213, 66, 93, 12, 232, 223, 227, 92,
+                            218, 29, 64, 67, 159, 43, 16, 107, 72, 166, 233, 254, 125, 231, 100,
+                            43, 143, 168, 136, 74, 179, 47, 207];
+
+        assert_eq!(expsk, expsk_expected);
+        assert_eq!(expsk.len(), 96);
+        assert_eq!(fvk, fvk_expected);
+        assert_eq!(fvk.len(), 96);
     }
 
     #[test]
-    fn can_recover_native_spending_key() {
+    fn can_derive_child_from_extended_keys() {
         let seed: &[u8] = &[0; 64];
         let shielded_wallet = ShieldedHDWallet::new(Vec::from(seed))
-            .expect("Should be able to instantiate ShieldedHDWallet");
-        let xsk_m = shielded_wallet.xsk_master();
+            .expect("Instantiating ShieldedHDWallet should not fail");
+
+        let ExtendedKeys { xsk, xfvk } = shielded_wallet.extended_master_keys();
+        let Keys { expsk, fvk } = ShieldedHDWallet::derive_from_ext(xsk, xfvk, 1)
+            .expect("Deriving from ExtendedKeys should not fail");
+
+        assert_eq!(expsk.len(), 96);
+        assert_eq!(fvk.len(), 96);
+    }
+
+    #[test]
+    fn can_recover_native_spending_key_from_child() {
+        let seed: &[u8] = &[0; 64];
+        let shielded_wallet = ShieldedHDWallet::new(Vec::from(seed))
+            .expect("Instantiating ShieldedHDWallet should not fail");
+        let ext_keys = shielded_wallet.extended_master_keys();
 
         // recover zcash_primitive for zip32 ExtendedSpendingKey from instance
-        let xsk = xsk_m.0;
+        let xsk = ext_keys.xsk.0;
         let child_index = ChildIndex::NonHardened(1);
 
         let child = xsk.derive_child(child_index);

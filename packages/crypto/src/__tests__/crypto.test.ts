@@ -11,10 +11,12 @@ import {
   Salt,
   Scrypt,
   ScryptParams,
+  ShieldedHDWallet,
 } from "../crypto/crypto";
 
 const KEY_LENGTH = 32;
 const SEED_LENGTH = 64;
+const SHIELDED_KEY_LENGTH = 96;
 
 describe("Mnemonic", () => {
   test("It should return the correct number of words", () => {
@@ -51,6 +53,26 @@ describe("HDWallet", () => {
 
     expect(account2.private().to_hex()).not.toBe(account1.private().to_hex());
     expect(account2.public().to_hex()).not.toBe(account1.public().to_hex());
+  });
+});
+
+describe("ShieldedHDWallet", () => {
+  test("It should derive unique keys from a seed and indices", () => {
+    const m = new Mnemonic(PhraseSize.N12);
+    const seed = m.to_seed();
+    const b = new ShieldedHDWallet(seed);
+
+    const master = b.master_keys();
+    const account1 = b.derive(1);
+    const account2 = b.derive(2);
+
+    expect(master.expsk().length).toBe(SHIELDED_KEY_LENGTH);
+    expect(master.fvk().length).toBe(SHIELDED_KEY_LENGTH);
+    expect(account1.expsk().length).toBe(SHIELDED_KEY_LENGTH);
+    expect(account1.fvk().length).toBe(SHIELDED_KEY_LENGTH);
+    expect(master.expsk()).not.toEqual(account1.expsk());
+    expect(account1.expsk()).not.toEqual(account2.expsk());
+    expect(account1.fvk()).not.toEqual(account2.fvk());
   });
 });
 
