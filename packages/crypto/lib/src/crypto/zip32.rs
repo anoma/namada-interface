@@ -17,11 +17,13 @@ const SEED_SIZE: usize = 64;
 
 #[derive(Debug, Error)]
 pub enum Zip32Error {
-    #[error("Invalid address size! Expected 96")]
+    #[error("Invalid address size! Expected 43")]
     InvalidAddressSize,
+    #[error("Invalid key size! Expected 96")]
+    InvalidKeySize,
     #[error("Invalid diversifier index size! Expected 11")]
     InvalidDiversifierSize,
-    #[error("Invalid seed length")]
+    #[error("Invalid seed length! Expected 64")]
     InvalidSeedSize,
     #[error("Could not derive child key!")]
     ChildDerivationerror,
@@ -58,6 +60,27 @@ pub struct Keys {
 
 #[wasm_bindgen]
 impl Keys {
+    #[wasm_bindgen(constructor)]
+    pub fn new(expsk: &[u8], fvk: &[u8]) -> Result<Keys, String> {
+        let expsk: [u8; KEY_SIZE] = match expsk.try_into() {
+            Ok(bytes) => bytes,
+            Err(err) => return Err(
+                format!("{}, {:?}", Zip32Error::InvalidKeySize, err),
+            ),
+        };
+        let fvk: [u8; KEY_SIZE] = match fvk.try_into() {
+            Ok(bytes) => bytes,
+            Err(err) => return Err(
+                format!("{}: {:?}", Zip32Error::InvalidKeySize, err),
+            ),
+        };
+
+        Ok(Keys {
+            expsk,
+            fvk
+        })
+    }
+
     pub fn expsk(&self) -> Vec<u8> {
         let expsk: &[u8] = &self.expsk;
         Vec::from(expsk)
