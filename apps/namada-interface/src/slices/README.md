@@ -4,7 +4,7 @@
 This directory contains the state management for the application. It is divided by main topics (staking and governance, transfers, ...). Each directory contains the following files:
 * **actions.ts** - this contains all the actions for the state. All the side effects (network calls, calls to libs, ...) are being performed from here.
 * **reducers.ts** - all reducers of the state are here. This is where the state changes are being committed. Commonly all actions have 3 reducers associated with them:
-    * pending - this is being triggered with the initial dispatch call (mostly originating from the UI or view Components). The payload to this is same as the action was dispatched with.
+    * **pending** - this is being triggered with the initial dispatch call (mostly originating from the UI or view Components). The payload to this is same as the action was dispatched with.
     * **fulfilled** - This is being fired when the action resolves successfully
     * **rejected** - This is being fired when the action resolves unsuccessfully
 * **types.ts** - this contains all the types that relates to the actual persisted data and the state. It could also contains utils and constants that are needed. The View components can import relevant types from here. And this makes it feel that this whole directory should live next to it's main consumer.
