@@ -1,8 +1,8 @@
-//! ShieldedHDWallet - Provide wasm_bindgen bindings for zcash_primitives::zip32 HD wallets
-//! TODO: We may want to instead import from masp_primitives::zip32, as
+//! ShieldedHDWallet - Provide wasm_bindgen bindings for zip32 HD wallets
+//! Imports from masp_primitives::zip32, instead of zcash_primitives::zip32, as
 //! the value for constant ZIP32_SAPLING_MASTER_PERSONALIZATION is different!
-//! Otherwise, these implementations appear to be equivalent.
-use zcash_primitives::zip32::{
+//! Otherwise, these implementations should be equivalent.
+use masp_primitives::zip32::{
     ChildIndex,
     ExtendedSpendingKey,
     ExtendedFullViewingKey,
@@ -211,8 +211,8 @@ impl ShieldedHDWallet {
 
     pub fn extended_master_keys(&self) -> ExtendedKeys {
         ExtendedKeys {
-            xsk: ExtSpendingKey(self.xsk_m.clone()),
-            xfvk: ExtFullViewingKey(self.xfvk_m.clone()),
+            xsk: ExtSpendingKey(self.xsk_m),
+            xfvk: ExtFullViewingKey(self.xfvk_m),
         }
     }
 
@@ -266,7 +266,7 @@ impl ShieldedHDWallet {
         }
     }
 
-    // TODO - Implement for:
+    // TODO
     //
     // Implement derive child from path:
     //
@@ -285,8 +285,8 @@ impl ShieldedHDWallet {
     // 0' -> Account
     // 0 -> Child index
     //
-    // Generate Spending Key
-    // Generate Viewing Key
+    // Currently, we only specify a ChildIndex, but should be able to specify
+    // both Coin-Type and Account.
 }
 
 #[cfg(test)]
@@ -303,9 +303,10 @@ mod tests {
         let shielded_wallet = shielded_wallet.unwrap();
         let m_sk_address = shielded_wallet.master_sk_address();
 
-        let expected: &[u8] = &[253, 245, 255, 224, 122, 231, 20, 4, 103, 209, 36, 54, 100, 101, 140,
-                                159, 130, 83, 20, 74, 132, 241, 199, 122, 9, 104, 22, 110, 81, 117, 127,
-                                178, 212, 7, 209, 157, 251, 100, 242, 229, 135, 218, 175];
+        let expected: &[u8] = &[197, 222, 151, 151, 40, 202, 42, 29, 98, 195, 191,
+                                242, 148, 114, 44, 137, 224, 97, 228, 207, 182, 163,
+                                251, 87, 187, 142, 33, 116, 98, 49, 185, 36, 174,
+                                146, 13, 55, 213, 0, 64, 131, 22, 118, 7];
 
         assert_eq!(m_sk_address.address(), Vec::from(expected));
     }
@@ -321,22 +322,23 @@ mod tests {
 
         // ExpandedSpendingKey
         // ask + nsk + ovk - 96 bytes
-        let expsk_expected = [192, 175, 193, 12, 186, 84, 3, 28, 112, 249, 136, 141, 192, 15,
-                              127, 245, 71, 2, 253, 0, 101, 210, 43, 240, 51, 47, 66, 167, 239,
-                              46, 113, 9, 102, 114, 33, 44, 178, 194, 5, 119, 149, 211, 124,
-                              63, 172, 106, 216, 171, 120, 98, 149, 5, 90, 86, 133, 142, 49,
-                              211, 65, 35, 8, 23, 181, 5, 185, 213, 66, 93, 12, 232, 223, 227,
-                              92, 218, 29, 64, 67, 159, 43, 16, 107, 72, 166, 233, 254, 125,
-                              231, 100, 43, 143, 168, 136, 74, 179, 47, 207];
+        let expsk_expected = [71, 230, 226, 2, 146, 75, 94, 233, 234, 254, 128, 142,
+                              209, 73, 65, 180, 64, 235, 159, 125, 24, 77, 12, 246,
+                              113, 174, 41, 217, 5, 190, 215, 6, 76, 189, 55, 31, 96,
+                              85, 114, 22, 215, 250, 140, 98, 162, 95, 203, 154, 180,
+                              0, 231, 40, 172, 36, 137, 30, 142, 181, 225, 143, 180,
+                              110, 135, 2, 213, 181, 237, 102, 55, 178, 202, 2, 123,
+                              161, 104, 49, 91, 37, 62, 52, 132, 72, 103, 7, 60, 110,
+                              171, 49, 22, 100, 146, 44, 79, 205, 112, 25];
         // FullViewingKey
         // vk + ovk - 96 bytes
-        let fvk_expected = [35, 160, 78, 65, 211, 133, 89, 227, 5, 41, 122, 32, 87, 47, 167,
-                            187, 223, 100, 126, 122, 63, 239, 39, 218, 66, 80, 133, 80, 69, 30,
-                            58, 42, 119, 102, 171, 159, 11, 249, 203, 188, 202, 60, 84, 127,
-                            122, 151, 87, 159, 98, 137, 133, 207, 174, 161, 245, 233, 155, 247,
-                            91, 51, 183, 192, 95, 162, 185, 213, 66, 93, 12, 232, 223, 227, 92,
-                            218, 29, 64, 67, 159, 43, 16, 107, 72, 166, 233, 254, 125, 231, 100,
-                            43, 143, 168, 136, 74, 179, 47, 207];
+        let fvk_expected = [231, 141, 253, 33, 141, 45, 47, 253, 94, 99, 2, 58, 233, 84,
+                            152, 142, 60, 45, 175, 100, 10, 5, 32, 126, 133, 46, 214, 50,
+                            136, 235, 250, 73, 125, 112, 103, 142, 119, 204, 205, 75, 30,
+                            208, 119, 223, 218, 19, 88, 206, 173, 185, 244, 228, 224, 32,
+                            104, 193, 189, 255, 9, 147, 22, 21, 240, 191, 213, 181, 237,
+                            102, 55, 178, 202, 2, 123, 161, 104, 49, 91, 37, 62, 52, 132,
+                            72, 103, 7, 60, 110, 171, 49, 22, 100, 146, 44, 79, 205, 112, 25];
 
         assert_eq!(expsk, expsk_expected);
         assert_eq!(expsk.len(), KEY_SIZE);
@@ -373,10 +375,10 @@ mod tests {
         let (diversifier_index, address) = child.default_address();
 
         assert_eq!(address.to_bytes().len(), ADDRESS_SIZE);
-        assert_eq!(diversifier_index.0, [0; DIVERSIFIER_INDEX_SIZE]);
+        assert_eq!(diversifier_index.0, [3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
         assert_eq!(
             address.diversifier().0,
-            [93, 200, 58, 67, 210, 217, 81, 15, 136, 189, 97]
+            [100, 199, 34, 96, 93, 67, 18, 95, 86, 139, 123],
         );
     }
 }
