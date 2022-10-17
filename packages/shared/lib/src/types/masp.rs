@@ -2,7 +2,18 @@
 //! See @anoma/crypto for zip32 HD wallet functionality.
 use std::str::FromStr;
 use namada::types::masp;
+use masp_primitives::zip32;
+use borsh::BorshDeserialize;
+use thiserror::Error;
 use wasm_bindgen::prelude::*;
+
+#[derive(Debug, Error)]
+pub enum MaspError {
+    #[error("PaymentAddress from_str failed!")]
+    PaymentAddress,
+    #[error("BorshDeserialize failed!")]
+    BorshDeserialize,
+}
 
 /// Wrap masp::ExtendedViewingKey
 #[wasm_bindgen]
@@ -12,10 +23,11 @@ pub struct ExtendedViewingKey(pub (crate) masp::ExtendedViewingKey);
 #[wasm_bindgen]
 impl ExtendedViewingKey {
     #[wasm_bindgen(constructor)]
-    pub fn new(key: &str) -> Result<ExtendedViewingKey, String> {
+    pub fn new(key: &[u8]) -> Result<ExtendedViewingKey, String> {
+        let xfvk: zip32::ExtendedFullViewingKey = BorshDeserialize::try_from_slice(key)
+            .map_err(|err| format!("{}: {:?}", MaspError::BorshDeserialize, err))?;
 
-        let vk = masp::ExtendedViewingKey::from_str(key)
-            .map_err(|err| format!("{:?}", err))?;
+        let vk = masp::ExtendedViewingKey::from(xfvk);
 
         Ok(ExtendedViewingKey(vk))
     }
@@ -33,12 +45,13 @@ pub struct ExtendedSpendingKey(pub (crate) masp::ExtendedSpendingKey);
 #[wasm_bindgen]
 impl ExtendedSpendingKey {
     #[wasm_bindgen(constructor)]
-    pub fn new(key: &str) -> Result<ExtendedSpendingKey, String> {
+    pub fn new(key: &[u8]) -> Result<ExtendedSpendingKey, String> {
+        let xsk: zip32::ExtendedSpendingKey = BorshDeserialize::try_from_slice(key)
+            .map_err(|err| format!("{}: {:?}", MaspError::BorshDeserialize, err))?;
 
-        let vk = masp::ExtendedSpendingKey::from_str(key)
-            .map_err(|err| format!("{:?}", err))?;
+        let xsk = masp::ExtendedSpendingKey::from(xsk);
 
-        Ok(ExtendedSpendingKey(vk))
+        Ok(ExtendedSpendingKey(xsk))
     }
 
     pub fn as_string(&self) -> String {
@@ -56,7 +69,7 @@ impl PaymentAddress {
     #[wasm_bindgen(constructor)]
     pub fn new(address: &str) -> Result<PaymentAddress, String> {
         let address = masp::PaymentAddress::from_str(address)
-            .map_err(|err| err.to_string())?;
+            .map_err(|err| format!("{}: {:?}", MaspError::PaymentAddress, err))?;
         Ok(PaymentAddress(address))
     }
 
