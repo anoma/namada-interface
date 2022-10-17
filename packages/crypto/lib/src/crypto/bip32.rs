@@ -17,11 +17,6 @@ pub enum HDWalletError {
 }
 
 #[wasm_bindgen]
-pub struct HDWallet {
-    seed: [u8; 64],
-}
-
-#[wasm_bindgen]
 pub struct Key {
     bytes: [u8; 32],
 }
@@ -122,6 +117,11 @@ impl ExtendedKeypair {
     pub fn public (&self) -> Vec<u8> {
         self.xpub.clone()
     }
+}
+
+#[wasm_bindgen]
+pub struct HDWallet {
+    seed: [u8; 64],
 }
 
 /// A set of methods to derive keys from a BIP32/BIP44 path

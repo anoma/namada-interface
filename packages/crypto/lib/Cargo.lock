@@ -484,6 +484,7 @@ dependencies = [
  "base64",
  "bip0039 0.10.1",
  "bip32",
+ "borsh",
  "ed25519-dalek",
  "getrandom 0.2.7",
  "gloo-utils",
