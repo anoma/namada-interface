@@ -50,13 +50,18 @@ impl ExtendedKeys {
 }
 
 #[wasm_bindgen]
-pub struct SerializedKeys {
+pub struct Serialized {
+    payment_address: Vec<u8>,
     xsk: Vec<u8>,
     xfvk: Vec<u8>,
 }
 
 #[wasm_bindgen]
-impl SerializedKeys {
+impl Serialized {
+    pub fn payment_address(&self) -> Vec<u8> {
+        self.payment_address.clone()
+    }
+
     pub fn xsk(&self) -> Vec<u8> {
         self.xsk.clone()
     }
@@ -181,21 +186,45 @@ impl ShieldedHDWallet {
     pub fn derive_to_serialized_keys(
         &self,
         index: u32,
-    ) -> Result<SerializedKeys, String> {
+    ) -> Result<Serialized, String> {
         let c_index = ChildIndex::NonHardened(index);
         let child_sk = self.xsk_m.derive_child(c_index);
         let child_fvk = self.xfvk_m.derive_child(c_index)
             .map_err(|err| format!("{}: {:?}", Zip32Error::ChildDerivationError, err))?;
 
-        // BorshSerialize the resulting children
+        let (_, address) = child_sk.default_address();
+
+        // BorshSerialize the payment address and keys for resulting children
+        let payment_address = address.try_to_vec()
+            .map_err(|err| format!("{}: {:?}", Zip32Error::BorshSerialize, err))?;
         let child_sk = child_sk.try_to_vec()
             .map_err(|err| format!("{}: {:?}", Zip32Error::BorshSerialize, err))?;
         let child_fvk = child_fvk.try_to_vec()
             .map_err(|err| format!("{}: {:?}", Zip32Error::BorshSerialize, err))?;
 
-        Ok(SerializedKeys {
+        Ok(Serialized {
+            payment_address,
             xsk: child_sk,
             xfvk: child_fvk,
+        })
+    }
+
+    pub fn master_keys_serialized(&self) -> Result<Serialized, String> {
+        // BorshSerialize the payment address and master keys
+        let (_, address) = &self.xsk_m.default_address();
+
+        let payment_address = address.try_to_vec()
+            .map_err(|err| format!("{}: {:?}", Zip32Error::BorshSerialize, err))?;
+
+        let xsk = self.xsk_m.try_to_vec()
+            .map_err(|err| format!("{}: {:?}", Zip32Error::BorshSerialize, err))?;
+        let xfvk = self.xfvk_m.try_to_vec()
+            .map_err(|err| format!("{}: {:?}", Zip32Error::BorshSerialize, err))?;
+
+        Ok(Serialized {
+            payment_address,
+            xsk,
+            xfvk,
         })
     }
 
@@ -219,19 +248,6 @@ impl ShieldedHDWallet {
             expsk,
             fvk,
         }
-    }
-
-    pub fn master_keys_serialized(&self) -> Result<SerializedKeys, String> {
-        // BorshSerialize the master keys
-        let xsk = self.xsk_m.try_to_vec()
-            .map_err(|err| format!("{}: {:?}", Zip32Error::BorshSerialize, err))?;
-        let xfvk = self.xfvk_m.try_to_vec()
-            .map_err(|err| format!("{}: {:?}", Zip32Error::BorshSerialize, err))?;
-
-        Ok(SerializedKeys {
-            xsk,
-            xfvk,
-        })
     }
 
     // TODO
@@ -260,6 +276,7 @@ impl ShieldedHDWallet {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use masp_primitives::primitives::PaymentAddress;
 
     #[test]
     #[should_panic]
@@ -280,14 +297,17 @@ mod tests {
         let seed: &[u8] = &[0; 64];
         let shielded_wallet = ShieldedHDWallet::new(Vec::from(seed))
             .expect("ShieldedHDWallet should instantiate");
-        let SerializedKeys { xsk, xfvk } = shielded_wallet.master_keys_serialized()
+        let Serialized { payment_address, xsk, xfvk } = shielded_wallet.master_keys_serialized()
             .expect("Master keys should serialize");
 
+        let payment_address: PaymentAddress = borsh::BorshDeserialize::try_from_slice(&payment_address)
+            .expect("Should be able to deserialize payment address!");
         let xsk: ExtendedSpendingKey = borsh::BorshDeserialize::try_from_slice(&xsk)
             .expect("BorshDeserialize should not fail");
         let xfvk: ExtendedFullViewingKey = borsh::BorshDeserialize::try_from_slice(&xfvk)
             .expect("BorshDeserialize should not fail");
 
+        assert_eq!(payment_address.to_bytes().len(), 43);
         assert_eq!(xsk.expsk.to_bytes().len(), KEY_SIZE);
         assert_eq!(xfvk.fvk.to_bytes().len(), KEY_SIZE);
     }
@@ -347,14 +367,17 @@ mod tests {
         let shielded_wallet = ShieldedHDWallet::new(Vec::from(seed))
             .expect("Instantiating ShieldedHDWallet should not fail");
 
-        let SerializedKeys { xsk, xfvk } = shielded_wallet.derive_to_serialized_keys(1)
+        let Serialized { payment_address, xsk, xfvk } = shielded_wallet.derive_to_serialized_keys(1)
             .expect("Deriving from ExtendedKeys should not fail");
 
+        let payment_address: PaymentAddress = borsh::BorshDeserialize::try_from_slice(&payment_address)
+            .expect("Should be able to deserialize payment address!");
         let xsk: ExtendedSpendingKey = borsh::BorshDeserialize::try_from_slice(&xsk)
             .expect("Should be able to deserialize extended spending key!");
         let xfvk: ExtendedFullViewingKey = borsh::BorshDeserialize::try_from_slice(&xfvk)
             .expect("Should be able to deserialize full viewing key!");
 
+        assert_eq!(payment_address.to_bytes().len(), 43);
         assert_eq!(xsk.expsk.to_bytes().len(), KEY_SIZE);
         assert_eq!(xfvk.fvk.to_bytes().len(), KEY_SIZE);
     }
