@@ -1,7 +1,7 @@
 import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import { PhraseSize } from "@anoma/crypto";
 import { KVStore } from "@anoma/storage";
-import { Bip44Path, DerivedAccount, SignedTx } from "@anoma/types";
+import { AccountType, Bip44Path, DerivedAccount, SignedTx } from "@anoma/types";
 import { KeyRing } from "./keyring";
 import { KeyRingStatus, KeyStore } from "./types";
 import { IbcTransfer, Transfer } from "@anoma/shared";
@@ -48,16 +48,10 @@ export class KeyRingService {
 
   async deriveAccount(
     path: Bip44Path,
+    type: AccountType,
     alias?: string
   ): Promise<DerivedAccount> {
-    return await this._keyRing.deriveAccount(path, alias);
-  }
-
-  async deriveShieldedAccount(
-    path: Bip44Path,
-    alias?: string
-  ): Promise<DerivedAccount> {
-    return await this._keyRing.deriveShieldedAccount(path, alias);
+    return await this._keyRing.deriveAccount(path, type, alias);
   }
 
   async queryAccounts(): Promise<DerivedAccount[]> {

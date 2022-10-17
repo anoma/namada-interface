@@ -11,7 +11,7 @@ import { AccountType, DerivedAccount } from "@anoma/types";
 
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
-import { DeriveAccountMsg, DeriveShieldedAccountMsg } from "background/keyring";
+import { DeriveAccountMsg } from "background/keyring";
 import { chains } from "config";
 import {
   AddAccountContainer,
@@ -26,6 +26,7 @@ import {
   FormStatus,
   InputContainer,
   Label,
+  ShieldedToggleContainer,
 } from "./AddAccount.components";
 
 type Props = {
@@ -90,7 +91,7 @@ const AddAccount: React.FC<Props> = ({
   const [isFormValid, setIsFormValid] = useState(true);
   const [formError, setFormError] = useState("");
   const [formStatus, setFormStatus] = useState(Status.Idle);
-  const [isShielded, setIsShielded] = useState(false);
+  const [isTransparent, setIsTransparent] = useState(true);
 
   const bip44Prefix = "m/44";
   const { coinType } = chains[0].bip44;
@@ -112,16 +113,15 @@ const AddAccount: React.FC<Props> = ({
       const derivedAccount: DerivedAccount =
         await requester.sendMessage<DeriveAccountMsg>(
           Ports.Background,
-          isShielded
-            ? new DeriveShieldedAccountMsg({
-                account: parentAccount,
-                change: 0,
-                index,
-              })
-            : new DeriveAccountMsg(
-                { account: parentAccount, change, index },
-                alias
-              )
+          new DeriveAccountMsg(
+            {
+              account: parentAccount,
+              change,
+              index,
+            },
+            isTransparent ? AccountType.PrivateKey : AccountType.ShieldedKeys,
+            alias
+          )
         );
       setAccounts([...accounts, derivedAccount]);
       navigate(-1);
@@ -155,13 +155,6 @@ const AddAccount: React.FC<Props> = ({
         }}
       >
         <InputContainer>
-          <Toggle
-            onClick={() => setIsShielded(!isShielded)}
-            checked={isShielded}
-          />
-          &nbsp;Shielded
-        </InputContainer>
-        <InputContainer>
           <Input
             variant={InputVariant.Text}
             label="Alias"
@@ -194,6 +187,15 @@ const AddAccount: React.FC<Props> = ({
               />
             </Bip44PathContainer>
           </Label>
+        </InputContainer>
+        <InputContainer>
+          <ShieldedToggleContainer>
+            <Toggle
+              onClick={() => setIsTransparent(!isTransparent)}
+              checked={isTransparent}
+            />
+            <span>&nbsp;Shielded</span>
+          </ShieldedToggleContainer>
         </InputContainer>
 
         <Bip44Path>

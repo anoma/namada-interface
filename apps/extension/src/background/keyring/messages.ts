@@ -1,5 +1,5 @@
 import { PhraseSize } from "@anoma/crypto";
-import { Bip44Path, DerivedAccount } from "@anoma/types";
+import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
 import { Message } from "router";
 import { ROUTE } from "./constants";
 import { KeyRingStatus } from "./types";
@@ -173,11 +173,18 @@ export class DeriveAccountMsg extends Message<DerivedAccount> {
     return MessageType.DeriveAccount;
   }
 
-  constructor(public readonly path: Bip44Path, public readonly alias?: string) {
+  constructor(
+    public readonly path: Bip44Path,
+    public readonly accountType: AccountType,
+    public readonly alias?: string
+  ) {
     super();
   }
 
   validate(): void {
+    if (!this.accountType) {
+      throw new Error("An account type is required!");
+    }
     if (!this.path) {
       throw new Error("A Bip44Path object must be provided!");
     }
@@ -199,35 +206,5 @@ export class DeriveAccountMsg extends Message<DerivedAccount> {
 
   type(): string {
     return DeriveAccountMsg.type();
-  }
-}
-
-export class DeriveShieldedAccountMsg extends Message<DerivedAccount> {
-  public static type(): MessageType {
-    return MessageType.DeriveShieldedAccount;
-  }
-
-  constructor(public readonly path: Bip44Path, public readonly alias?: string) {
-    super();
-  }
-
-  validate(): void {
-    if (!this.path) {
-      throw new Error("A Bip44Path object must be provided!");
-    }
-
-    const { index } = this.path;
-
-    if (!`${index}`) {
-      throw new Error("An index must be provided!");
-    }
-  }
-
-  route(): string {
-    return ROUTE;
-  }
-
-  type(): string {
-    return DeriveShieldedAccountMsg.type();
   }
 }

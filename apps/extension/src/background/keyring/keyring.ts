@@ -43,6 +43,11 @@ const getId = (name: string, ...args: (number | string)[]): string => {
 const KEYSTORE_KEY = "key-store";
 const crypto = new Crypto();
 
+type DerivedAccountInfo = {
+  address: string;
+  id: string;
+  text: string;
+};
 /**
  * Keyring stores keys in persisted backround.
  */
@@ -145,8 +150,71 @@ export class KeyRing {
     return false;
   }
 
+  public static deriveTransparentAccount(
+    seed: Uint8Array,
+    path: Bip44Path,
+    parentId: string
+  ): {
+    address: string;
+    id: string;
+    text: string;
+  } {
+    const { account, change, index = 0 } = path;
+    const root = "m/44'";
+    const { coinType } = chains[0].bip44;
+    const derivationPath = [
+      root,
+      `${coinType}'`,
+      `${account}`,
+      change,
+      index,
+    ].join("/");
+    const bip44 = new HDWallet(seed);
+    const derivedAccount = bip44.derive(derivationPath);
+
+    const address = new Address(derivedAccount.private().to_hex()).implicit();
+    const id = getId("account", parentId, account, change, index);
+    const text = derivedAccount.private().to_hex();
+
+    return {
+      address,
+      id,
+      text,
+    };
+  }
+
+  public static deriveShieldedAccount(
+    seed: Uint8Array,
+    path: Bip44Path,
+    parentId: string
+  ): {
+    address: string;
+    id: string;
+    text: string;
+  } {
+    const { index = 0 } = path;
+    const id = getId("shielded-account", parentId, index);
+    const zip32 = new ShieldedHDWallet(seed);
+    const account = zip32.derive_to_serialized_keys(index);
+
+    const xsk = account.xsk();
+    const xfvk = account.xfvk();
+    const payment_address = account.payment_address();
+
+    const spendingKey = new ExtendedSpendingKey(xsk).encode();
+    const viewingKey = new ExtendedViewingKey(xfvk).encode();
+    const address = new PaymentAddress(payment_address).encode();
+
+    return {
+      address,
+      id,
+      text: JSON.stringify({ spendingKey, viewingKey }),
+    };
+  }
+
   public async deriveAccount(
     path: Bip44Path,
+    accountType: AccountType,
     alias?: string
   ): Promise<DerivedAccount> {
     if (!this._password) {
@@ -170,25 +238,33 @@ export class KeyRing {
     try {
       const phrase = crypto.decrypt(storedMnemonic, this._password);
       // TODO: Validate derivation path against stored paths under this mnemonic!
-      const { account, change, index = 0 } = path;
-      const root = "m/44'";
-      // TODO: This should be defined for our chain (SLIP044)
-      const { coinType } = chains[0].bip44;
-      const derivationPath = [
-        root,
-        `${coinType}'`,
-        `${account}`,
-        change,
-        index,
-      ].join("/");
       const mnemonic = Mnemonic.from_phrase(phrase);
       const seed = mnemonic.to_seed();
-      const bip44 = new HDWallet(seed);
-      const derivedAccount = bip44.derive(derivationPath);
 
-      const address = new Address(derivedAccount.private().to_hex()).implicit();
-      const id = getId("account", storedMnemonic.id, account, change, index);
-      const type = AccountType.PrivateKey;
+      let id: string;
+      let address: string;
+      let text: string;
+
+      if (accountType === AccountType.ShieldedKeys) {
+        const shieldedAccount = KeyRing.deriveShieldedAccount(
+          seed,
+          path,
+          storedMnemonic.id
+        );
+
+        id = shieldedAccount.id;
+        address = shieldedAccount.address;
+        text = shieldedAccount.text;
+      } else {
+        const transparentAccount = KeyRing.deriveTransparentAccount(
+          seed,
+          path,
+          storedMnemonic.id
+        );
+        id = transparentAccount.id;
+        address = transparentAccount.address;
+        text = transparentAccount.text;
+      }
 
       const keyStore = crypto.encrypt({
         alias,
@@ -196,8 +272,8 @@ export class KeyRing {
         id,
         password: this._password,
         path,
-        text: derivedAccount.private().to_hex(),
-        type,
+        text,
+        type: accountType,
       });
       this._keyStore.append(keyStore);
 
@@ -207,74 +283,10 @@ export class KeyRing {
         alias,
         parentId: storedMnemonic.id,
         path,
-        type,
+        type: accountType,
       };
     } catch (e) {
       console.error(e);
-      throw new Error("Could not decrypt mnemonic from password!");
-    }
-  }
-
-  public async deriveShieldedAccount(
-    path: Bip44Path,
-    alias?: string
-  ): Promise<DerivedAccount> {
-    if (!this._password) {
-      throw new Error("No password is set!");
-    }
-
-    const mnemonics = await this._keyStore.get();
-
-    if (!(mnemonics.length > 0)) {
-      throw new Error("No mnemonics have been stored!");
-    }
-
-    // TODO: For now, we are assuming only one mnemonic is used, but in the future
-    // we may want to have multiple top-level accounts:
-    const storedMnemonic = mnemonics[0];
-
-    if (!storedMnemonic) {
-      throw new Error("Mnemonic is not set!");
-    }
-
-    const { index = 0 } = path;
-    const id = getId("shielded-account", storedMnemonic.id, index);
-    const type = AccountType.ShieldedKeys;
-
-    try {
-      const phrase = crypto.decrypt(storedMnemonic, this._password);
-      const seed = Mnemonic.from_phrase(phrase).to_seed();
-      const zip32 = new ShieldedHDWallet(seed);
-      const account = zip32.derive_to_serialized_keys(index);
-
-      const xsk = account.xsk();
-      const xfvk = account.xfvk();
-      const payment_address = account.payment_address();
-
-      const spendingKey = new ExtendedSpendingKey(xsk).encode();
-      const viewingKey = new ExtendedViewingKey(xfvk).encode();
-      const address = new PaymentAddress(payment_address).encode();
-
-      const keyStore = crypto.encrypt({
-        alias,
-        address,
-        id,
-        password: this._password,
-        path,
-        text: JSON.stringify({ spendingKey, viewingKey }),
-        type,
-      });
-      this._keyStore.append(keyStore);
-
-      return {
-        id,
-        address,
-        alias,
-        parentId: storedMnemonic.id,
-        path,
-        type,
-      };
-    } catch (e) {
       throw new Error("Could not decrypt mnemonic from password!");
     }
   }
