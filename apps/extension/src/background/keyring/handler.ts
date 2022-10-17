@@ -4,6 +4,7 @@ import {
   CheckIsLockedMsg,
   CheckPasswordMsg,
   DeriveAccountMsg,
+  DeriveShieldedAccountMsg,
   GenerateMnemonicMsg,
   LockKeyRingMsg,
   SaveMnemonicMsg,
@@ -37,6 +38,11 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleSaveMnemonicMsg(service)(env, msg as SaveMnemonicMsg);
       case DeriveAccountMsg:
         return handleDeriveAccountMsg(service)(env, msg as DeriveAccountMsg);
+      case DeriveShieldedAccountMsg:
+        return handleDeriveShieldedAccountMsg(service)(
+          env,
+          msg as DeriveShieldedAccountMsg
+        );
       case QueryAccountsMsg:
         return handleQueryAccountsMsg(service)(env, msg as QueryAccountsMsg);
       case SignTxMsg:
@@ -117,6 +123,15 @@ const handleDeriveAccountMsg: (
   return async (_, msg) => {
     const { path, alias } = msg;
     return await service.deriveAccount(path, alias);
+  };
+};
+
+const handleDeriveShieldedAccountMsg: (
+  service: KeyRingService
+) => InternalHandler<DeriveShieldedAccountMsg> = (service) => {
+  return async (_, msg) => {
+    const { path, alias } = msg;
+    return await service.deriveShieldedAccount(path, alias);
   };
 };
 

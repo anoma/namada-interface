@@ -12,6 +12,7 @@ enum MessageType {
   GenerateMnemonic = "generate-mnemonic",
   SaveMnemonic = "save-mnemonic",
   DeriveAccount = "derive-account",
+  DeriveShieldedAccount = "derive-shielded-account",
 }
 
 export class CheckIsLockedMsg extends Message<boolean> {
@@ -198,5 +199,35 @@ export class DeriveAccountMsg extends Message<DerivedAccount> {
 
   type(): string {
     return DeriveAccountMsg.type();
+  }
+}
+
+export class DeriveShieldedAccountMsg extends Message<DerivedAccount> {
+  public static type(): MessageType {
+    return MessageType.DeriveShieldedAccount;
+  }
+
+  constructor(public readonly path: Bip44Path, public readonly alias?: string) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.path) {
+      throw new Error("A Bip44Path object must be provided!");
+    }
+
+    const { index } = this.path;
+
+    if (!`${index}`) {
+      throw new Error("An index must be provided!");
+    }
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return DeriveShieldedAccountMsg.type();
   }
 }

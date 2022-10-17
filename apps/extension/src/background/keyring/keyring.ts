@@ -2,8 +2,20 @@ import { v5 as uuid } from "uuid";
 import { toBase64 } from "@cosmjs/encoding";
 
 import { KVStore } from "@anoma/storage";
-import { HDWallet, Mnemonic, PhraseSize } from "@anoma/crypto";
-import { Account, Address, Signer } from "@anoma/shared";
+import {
+  HDWallet,
+  Mnemonic,
+  PhraseSize,
+  ShieldedHDWallet,
+} from "@anoma/crypto";
+import {
+  Account,
+  Address,
+  Signer,
+  ExtendedSpendingKey,
+  ExtendedViewingKey,
+  PaymentAddress,
+} from "@anoma/shared";
 import { IStore, Store } from "@anoma/storage";
 import { AccountType, Bip44Path, DerivedAccount, SignedTx } from "@anoma/types";
 import { chains } from "config";
@@ -199,6 +211,70 @@ export class KeyRing {
       };
     } catch (e) {
       console.error(e);
+      throw new Error("Could not decrypt mnemonic from password!");
+    }
+  }
+
+  public async deriveShieldedAccount(
+    path: Bip44Path,
+    alias?: string
+  ): Promise<DerivedAccount> {
+    if (!this._password) {
+      throw new Error("No password is set!");
+    }
+
+    const mnemonics = await this._keyStore.get();
+
+    if (!(mnemonics.length > 0)) {
+      throw new Error("No mnemonics have been stored!");
+    }
+
+    // TODO: For now, we are assuming only one mnemonic is used, but in the future
+    // we may want to have multiple top-level accounts:
+    const storedMnemonic = mnemonics[0];
+
+    if (!storedMnemonic) {
+      throw new Error("Mnemonic is not set!");
+    }
+
+    const { index = 0 } = path;
+    const id = getId("shielded-account", storedMnemonic.id, index);
+    const type = AccountType.ShieldedKeys;
+
+    try {
+      const phrase = crypto.decrypt(storedMnemonic, this._password);
+      const seed = Mnemonic.from_phrase(phrase).to_seed();
+      const zip32 = new ShieldedHDWallet(seed);
+      const account = zip32.derive_to_serialized_keys(index);
+
+      const xsk = account.xsk();
+      const xfvk = account.xfvk();
+      const payment_address = account.payment_address();
+
+      const spendingKey = new ExtendedSpendingKey(xsk).encode();
+      const viewingKey = new ExtendedViewingKey(xfvk).encode();
+      const address = new PaymentAddress(payment_address).encode();
+
+      const keyStore = crypto.encrypt({
+        alias,
+        address,
+        id,
+        password: this._password,
+        path,
+        text: JSON.stringify({ spendingKey, viewingKey }),
+        type,
+      });
+      this._keyStore.append(keyStore);
+
+      return {
+        id,
+        address,
+        alias,
+        parentId: storedMnemonic.id,
+        path,
+        type,
+      };
+    } catch (e) {
       throw new Error("Could not decrypt mnemonic from password!");
     }
   }

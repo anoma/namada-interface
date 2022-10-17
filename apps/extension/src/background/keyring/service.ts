@@ -41,16 +41,23 @@ export class KeyRingService {
   async saveMnemonic(
     words: string[],
     password: string,
-    description?: string
+    alias?: string
   ): Promise<boolean> {
-    return await this._keyRing.storeMnemonic(words, password, description);
+    return await this._keyRing.storeMnemonic(words, password, alias);
   }
 
   async deriveAccount(
     path: Bip44Path,
-    description?: string
+    alias?: string
   ): Promise<DerivedAccount> {
-    return await this._keyRing.deriveAccount(path, description);
+    return await this._keyRing.deriveAccount(path, alias);
+  }
+
+  async deriveShieldedAccount(
+    path: Bip44Path,
+    alias?: string
+  ): Promise<DerivedAccount> {
+    return await this._keyRing.deriveShieldedAccount(path, alias);
   }
 
   async queryAccounts(): Promise<DerivedAccount[]> {

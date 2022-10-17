@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, ButtonVariant, Input, InputVariant } from "@anoma/components";
+import {
+  Button,
+  ButtonVariant,
+  Input,
+  InputVariant,
+  Toggle,
+} from "@anoma/components";
 import { AccountType, DerivedAccount } from "@anoma/types";
 
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
-import { DeriveAccountMsg } from "background/keyring";
+import { DeriveAccountMsg, DeriveShieldedAccountMsg } from "background/keyring";
 import { chains } from "config";
 import {
   AddAccountContainer,
@@ -84,6 +90,7 @@ const AddAccount: React.FC<Props> = ({
   const [isFormValid, setIsFormValid] = useState(true);
   const [formError, setFormError] = useState("");
   const [formStatus, setFormStatus] = useState(Status.Idle);
+  const [isShielded, setIsShielded] = useState(false);
 
   const bip44Prefix = "m/44";
   const { coinType } = chains[0].bip44;
@@ -105,7 +112,16 @@ const AddAccount: React.FC<Props> = ({
       const derivedAccount: DerivedAccount =
         await requester.sendMessage<DeriveAccountMsg>(
           Ports.Background,
-          new DeriveAccountMsg({ account: parentAccount, change, index }, alias)
+          isShielded
+            ? new DeriveShieldedAccountMsg({
+                account: parentAccount,
+                change: 0,
+                index,
+              })
+            : new DeriveAccountMsg(
+                { account: parentAccount, change, index },
+                alias
+              )
         );
       setAccounts([...accounts, derivedAccount]);
       navigate(-1);
@@ -138,6 +154,13 @@ const AddAccount: React.FC<Props> = ({
           }
         }}
       >
+        <InputContainer>
+          <Toggle
+            onClick={() => setIsShielded(!isShielded)}
+            checked={isShielded}
+          />
+          &nbsp;Shielded
+        </InputContainer>
         <InputContainer>
           <Input
             variant={InputVariant.Text}

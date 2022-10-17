@@ -7,6 +7,7 @@ export type Bip44Path = {
 export enum AccountType {
   Mnemonic = "mnemonic",
   PrivateKey = "private-key",
+  ShieldedKeys = "shielded-keys",
 }
 
 export type DerivedAccount = {
