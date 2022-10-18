@@ -24,6 +24,7 @@ pub struct ExtendedViewingKey(pub (crate) masp::ExtendedViewingKey);
 /// wasm_bindgen bindings for ExtendedViewingKey
 #[wasm_bindgen]
 impl ExtendedViewingKey {
+    /// Instantiate ExtendedViewingKey from serialized vector
     #[wasm_bindgen(constructor)]
     pub fn new(key: &[u8]) -> Result<ExtendedViewingKey, String> {
         let xfvk: zip32::ExtendedFullViewingKey = BorshDeserialize::try_from_slice(key)
@@ -34,6 +35,7 @@ impl ExtendedViewingKey {
         Ok(ExtendedViewingKey(vk))
     }
 
+    /// Return ExtendedViewingKey as Bech32-encoded String
     pub fn encode(&self) -> String {
         self.0.to_string()
     }
@@ -46,6 +48,7 @@ pub struct ExtendedSpendingKey(pub (crate) masp::ExtendedSpendingKey);
 /// wasm_bindgen bindings for ExtendedViewingKey
 #[wasm_bindgen]
 impl ExtendedSpendingKey {
+    /// Instantiate ExtendedSpendingKey from serialized vector
     #[wasm_bindgen(constructor)]
     pub fn new(key: &[u8]) -> Result<ExtendedSpendingKey, String> {
         let xsk: zip32::ExtendedSpendingKey = BorshDeserialize::try_from_slice(key)
@@ -56,6 +59,7 @@ impl ExtendedSpendingKey {
         Ok(ExtendedSpendingKey(xsk))
     }
 
+    /// Return ExtendedSpendingKey as Bech32-encoded String
     pub fn encode(&self) -> String {
         self.0.to_string()
     }
@@ -68,6 +72,7 @@ pub struct PaymentAddress(pub (crate) masp::PaymentAddress);
 /// wasm_bindgen bindings for PaymentAddress
 #[wasm_bindgen]
 impl PaymentAddress {
+    /// Instantiate PaymentAddress from serialized vector
     #[wasm_bindgen(constructor)]
     pub fn new(address: &[u8]) -> Result<PaymentAddress, String> {
         let payment_address: primitives::PaymentAddress = BorshDeserialize::try_from_slice(address)
@@ -76,6 +81,22 @@ impl PaymentAddress {
         Ok(PaymentAddress(payment_address))
     }
 
+    /// Returns a pinned or non-pinned PaymentAddress
+    pub fn pinned(&self, pin: bool) -> PaymentAddress {
+        PaymentAddress(self.0.pinned(pin))
+    }
+
+    /// Determine whether this PaymentAddress is pinned
+    pub fn is_pinned(&self) -> bool {
+        self.0.is_pinned()
+    }
+
+    /// Retrieve PaymentAddress hash
+    pub fn hash(&self) -> String {
+        self.0.hash()
+    }
+
+    /// Return PaymentAddress as Bech32-encoded String
     pub fn encode(&self) -> String {
         self.0.to_string()
     }
@@ -150,9 +171,28 @@ mod tests {
             .expect("Instantiating PaymentAddress struct should not fail!");
 
         let address = payment_address.encode();
+        let hash = payment_address.hash();
+
         let expected_address = "patest1vnrjyczagvf9745t002cmeyn48d0wj6ncdyyjtzpare7t5flkuq4w47t9z60yeam7hszga07g7t";
+        let expected_hash = "DBF7C3440E0C0B81EBBB95AD26DA6D875C19BC45";
 
         assert!(address.starts_with("patest"));
         assert_eq!(address, expected_address);
+        assert_eq!(hash, expected_hash);
+    }
+
+    #[test]
+    fn can_pin_a_payment_address() {
+        let encoded_payment_address: &[u8] = &[100, 199, 34, 96, 93, 67, 18, 95, 86, 139, 123, 213, 141, 228, 147, 169, 218,
+                                               247, 75, 83, 195, 72, 73, 44, 65, 232, 243, 229, 209, 63, 183, 1, 87, 87, 203,
+                                               40, 180, 242, 103, 187, 245, 224, 36];
+        let payment_address = PaymentAddress::new(encoded_payment_address)
+            .expect("Instantiating PaymentAddress struct should not fail!");
+
+        let is_pinned = payment_address.is_pinned();
+        assert!(!is_pinned);
+
+        let payment_address = payment_address.pinned(true);
+        assert!(payment_address.is_pinned());
     }
 }
