@@ -28,9 +28,8 @@ pub struct Transfer {
 impl Transfer {
     #[wasm_bindgen(constructor)]
     pub fn new(
-        msg: Vec<u8>,
+        msg: &[u8],
     ) -> Result<Transfer, String> {
-        let msg: &[u8] = &msg;
         let msg = BorshDeserialize::try_from_slice(msg)
             .map_err(|err| format!("BorshDeserialize failed! {:?}", err))?;
         let TransferMsg { source, target, token, amount, key, shielded_msg } = msg;
@@ -90,7 +89,7 @@ mod tests {
 
         let msg_serialized = BorshSerialize::try_to_vec(&msg)
             .expect("Message should serialize to vector");
-        let Transfer { tx_data } = Transfer::new(msg_serialized)
+        let Transfer { tx_data } = Transfer::new(&msg_serialized)
             .expect("Transfer should be able to instantiate from Borsh-serialized message");
 
         assert_eq!(tx_data.len(), 145);

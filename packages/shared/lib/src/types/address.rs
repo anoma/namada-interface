@@ -3,7 +3,6 @@ use namada::types::{
     address,
     key::{self, common::{PublicKey, SecretKey}, RefTo},
 };
-
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]

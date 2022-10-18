@@ -1,6 +1,5 @@
 use chrono::{TimeZone, Utc};
 use namada::types::time::DateTimeUtc;
-
 use wasm_bindgen::prelude::*;
 
 /// Get a valid UTC timestamp from the JavaScript engine
