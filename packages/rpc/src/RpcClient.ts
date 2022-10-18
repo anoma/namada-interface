@@ -11,6 +11,12 @@ import RpcClientBase, { RpcClientInitArgs } from "./RpcClientBase";
 import { schemaAmount, TokenAmount } from "./schema";
 import { AbciResponse, PathType } from "./types";
 
+const ABCI_QUERY_PATH_PREFIX = "";
+// TODO: When the RPC shell sub-router feature is merged to main
+// (See: https://github.com/anoma/namada/pull/569), then use the
+// following, and remove the empty prefix above.
+/* const ABCI_QUERY_PATH_PREFIX = "/shell/"; */
+
 class RpcClient extends RpcClientBase {
   private _client: HttpClient;
 
@@ -20,7 +26,7 @@ class RpcClient extends RpcClientBase {
   }
 
   public async queryBalance(token: string, owner: string): Promise<number> {
-    const path = `value/#${token}/balance/#${owner}`;
+    const path = `${ABCI_QUERY_PATH_PREFIX}value/#${token}/balance/#${owner}`;
     const request = createJsonRpcRequest("abci_query", [path, "", "0", false]);
 
     try {
@@ -44,7 +50,7 @@ class RpcClient extends RpcClientBase {
   }
 
   public async queryEpoch(): Promise<number> {
-    const path = "epoch";
+    const path = `${ABCI_QUERY_PATH_PREFIX}epoch`;
     const request = createJsonRpcRequest("abci_query", [path, "", "0", false]);
 
     try {
@@ -70,7 +76,7 @@ class RpcClient extends RpcClientBase {
       case PathType.Prefix:
       case PathType.Value:
         if (storageKey) {
-          return `${pathType}/${storageKey}`;
+          return `${ABCI_QUERY_PATH_PREFIX}${pathType}/${storageKey}`;
         }
         throw "cannot create path";
     }
@@ -120,7 +126,7 @@ class RpcClient extends RpcClientBase {
   }
 
   public async isKnownAddress(address: string): Promise<boolean> {
-    const path = `has_key/#${address}/?`;
+    const path = `${ABCI_QUERY_PATH_PREFIX}has_key/#${address}/?`;
     const request = createJsonRpcRequest("abci_query", [path, "", "0", false]);
 
     try {
@@ -128,26 +134,6 @@ class RpcClient extends RpcClientBase {
       const response: AbciResponse = json.result.response;
       // borsh serialises true to 1 which in base64 is AQ==
       if (response.code === 0 && response.value === "AQ==") {
-        return true;
-      }
-      return false;
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  }
-
-  public async queryChannel(
-    channelId: string,
-    portId = "transfer"
-  ): Promise<boolean> {
-    const path = `#IBC/channelEnds/ports/${portId}/channels/${channelId}`;
-    const request = createJsonRpcRequest("abci_query", [path, "", "0", false]);
-
-    try {
-      const json: JsonRpcSuccessResponse = await this._client.execute(request);
-      const response: AbciResponse = json.result.response;
-      if (response.code === 0) {
-        // TODO: We are expecting a result encoded as a Protobuf, so it should be handled here:
         return true;
       }
       return false;
