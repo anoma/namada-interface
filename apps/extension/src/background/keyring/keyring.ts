@@ -154,11 +154,7 @@ export class KeyRing {
     seed: Uint8Array,
     path: Bip44Path,
     parentId: string
-  ): {
-    address: string;
-    id: string;
-    text: string;
-  } {
+  ): DerivedAccountInfo {
     const { account, change, index = 0 } = path;
     const root = "m/44'";
     const { coinType } = chains[0].bip44;
@@ -187,20 +183,18 @@ export class KeyRing {
     seed: Uint8Array,
     path: Bip44Path,
     parentId: string
-  ): {
-    address: string;
-    id: string;
-    text: string;
-  } {
+  ): DerivedAccountInfo {
     const { index = 0 } = path;
     const id = getId("shielded-account", parentId, index);
     const zip32 = new ShieldedHDWallet(seed);
     const account = zip32.derive_to_serialized_keys(index);
 
+    // Retrieve serialized types from wasm
     const xsk = account.xsk();
     const xfvk = account.xfvk();
     const payment_address = account.payment_address();
 
+    // Deserialize and encode keys and address
     const spendingKey = new ExtendedSpendingKey(xsk).encode();
     const viewingKey = new ExtendedViewingKey(xfvk).encode();
     const address = new PaymentAddress(payment_address).encode();
@@ -214,7 +208,7 @@ export class KeyRing {
 
   public async deriveAccount(
     path: Bip44Path,
-    accountType: AccountType,
+    type: AccountType,
     alias?: string
   ): Promise<DerivedAccount> {
     if (!this._password) {
@@ -235,9 +229,10 @@ export class KeyRing {
       throw new Error("Mnemonic is not set!");
     }
 
+    const parentId = storedMnemonic.id;
+
     try {
       const phrase = crypto.decrypt(storedMnemonic, this._password);
-      // TODO: Validate derivation path against stored paths under this mnemonic!
       const mnemonic = Mnemonic.from_phrase(phrase);
       const seed = mnemonic.to_seed();
 
@@ -245,11 +240,11 @@ export class KeyRing {
       let address: string;
       let text: string;
 
-      if (accountType === AccountType.ShieldedKeys) {
+      if (type === AccountType.ShieldedKeys) {
         const shieldedAccount = KeyRing.deriveShieldedAccount(
           seed,
           path,
-          storedMnemonic.id
+          parentId
         );
 
         id = shieldedAccount.id;
@@ -259,31 +254,32 @@ export class KeyRing {
         const transparentAccount = KeyRing.deriveTransparentAccount(
           seed,
           path,
-          storedMnemonic.id
+          parentId
         );
         id = transparentAccount.id;
         address = transparentAccount.address;
         text = transparentAccount.text;
       }
 
-      const keyStore = crypto.encrypt({
-        alias,
-        address,
-        id,
-        password: this._password,
-        path,
-        text,
-        type: accountType,
-      });
-      this._keyStore.append(keyStore);
+      this._keyStore.append(
+        crypto.encrypt({
+          alias,
+          address,
+          id,
+          password: this._password,
+          path,
+          text,
+          type,
+        })
+      );
 
       return {
         id,
         address,
         alias,
-        parentId: storedMnemonic.id,
+        parentId,
         path,
-        type: accountType,
+        type,
       };
     } catch (e) {
       console.error(e);

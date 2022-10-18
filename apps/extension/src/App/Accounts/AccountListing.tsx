@@ -15,7 +15,7 @@ import { shortenAddress } from "@anoma/utils";
 import { TopLevelRoute } from "App/types";
 
 type Props = {
-  // The parent Bip44 "account"
+  // The parent BIP44/ZIP32 "account"
   parent?: number;
   // The child account
   account: DerivedAccount;
