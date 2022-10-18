@@ -300,7 +300,9 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
         <TopNavigationContainerSecondRow>
           {!isLoggedIn && (
             <TopNavigationLogoContainer>
-              <SettingsButton>
+              <SettingsButton
+                onClick={() => navigate(TopLevelRoute.SettingsWalletSettings)}
+              >
                 <Icon iconName={IconName.Settings} />
               </SettingsButton>
               <LogoContainer

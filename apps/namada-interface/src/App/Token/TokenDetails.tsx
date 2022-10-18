@@ -1,8 +1,7 @@
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Persistor } from "redux-persist";
-import { PersistGate } from "redux-persist/integration/react";
 
+import config from "config";
 import { TopLevelRoute } from "App/types";
 import {
   DerivedAccount,
@@ -15,7 +14,6 @@ import { SettingsState } from "slices/settings";
 import { updateShieldedBalances } from "slices/AccountsNew";
 import { useAppDispatch, useAppSelector } from "store";
 import { formatRoute, stringFromTimestamp } from "@anoma/utils";
-import { ChainsState } from "slices/chains";
 
 import { Button, ButtonVariant } from "components/Button";
 import { Heading, HeadingLevel } from "components/Heading";
@@ -31,10 +29,6 @@ import {
   AccountsDetailsNavContainer,
 } from "./TokenDetails.components";
 import { Address } from "./Transfers/TransferDetails.components";
-
-type Props = {
-  persistor: Persistor;
-};
 
 type TokenDetailsParams = {
   id: string;
@@ -62,14 +56,13 @@ const getAccountDetails = (
   );
 };
 
-const TokenDetails = ({ persistor }: Props): JSX.Element => {
+const TokenDetails = (): JSX.Element => {
   const navigate = useNavigate();
   const { id = "" } = useParams<TokenDetailsParams>();
   const { derived, shieldedAccounts: shieldedAccountsByChainId } =
     useAppSelector<AccountsState>((state) => state.accounts);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
-  const chainConfig = useAppSelector<ChainsState>((state) => state.chains);
-  const { ibc } = chainConfig[chainId];
+  const { ibc } = config.chain[chainId];
   const { transactions: accountTransactions } = useAppSelector<TransfersState>(
     (state) => state.transfers
   );
@@ -80,14 +73,7 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
   const accounts = { ...derivedAccounts, ...shieldedAccounts };
 
   const account: DerivedAccount = accounts[id] || {};
-  const {
-    alias,
-    tokenType,
-    balance,
-    establishedAddress,
-    isInitializing,
-    isShielded,
-  } = account;
+  const { alias, tokenType, balance, establishedAddress } = account;
 
   let shieldedKeysAndPaymentAddress: ShieldedKeysAndPaymentAddress | undefined;
 
@@ -146,99 +132,86 @@ const TokenDetails = ({ persistor }: Props): JSX.Element => {
           </SettingsButton>
         </AccountsDetailsNavContainer>
       </NavigationContainer>
-      <PersistGate loading={"Loading token details..."} persistor={persistor}>
-        <p>
-          <strong>
-            {balance} {token.symbol}
-          </strong>
-        </p>
+      <p>
+        <strong>
+          {balance} {token.symbol}
+        </strong>
+      </p>
 
-        {/* renders the address if this is a transparent account */}
-        {!!!isShielded && (
-          <>
-            {isInitializing ? (
-              <p>Account is initializing...</p>
-            ) : (
-              <Address>{establishedAddress}</Address>
-            )}
-          </>
-        )}
+      {/* renders the account detail if this is a shielded account */}
+      {renderedShieldedAccountDetails}
 
-        {/* renders the account detail if this is a shielded account */}
-        {renderedShieldedAccountDetails}
-
+      <ButtonsContainer>
+        <Button
+          variant={ButtonVariant.Small}
+          style={{ width: 180 }}
+          onClick={() => {
+            navigate(formatRoute(TopLevelRoute.TokenReceive, { id }));
+          }}
+        >
+          Receive
+        </Button>
+        <Button
+          variant={ButtonVariant.Small}
+          style={{ width: 180 }}
+          onClick={() => {
+            navigate(formatRoute(TopLevelRoute.TokenSend, { id }));
+          }}
+        >
+          Send
+        </Button>
+      </ButtonsContainer>
+      {ibc && Object.values(ibc).length > 0 && (
         <ButtonsContainer>
           <Button
             variant={ButtonVariant.Small}
-            style={{ width: 180 }}
+            style={{ width: "100%" }}
             onClick={() => {
-              navigate(formatRoute(TopLevelRoute.TokenReceive, { id }));
+              navigate(formatRoute(TopLevelRoute.TokenIbcTransfer, { id }));
             }}
           >
-            Receive
-          </Button>
-          <Button
-            variant={ButtonVariant.Small}
-            style={{ width: 180 }}
-            onClick={() => {
-              navigate(formatRoute(TopLevelRoute.TokenSend, { id }));
-            }}
-          >
-            Send
+            IBC Transfer
           </Button>
         </ButtonsContainer>
-        {ibc && Object.values(ibc).length > 0 && (
-          <ButtonsContainer>
-            <Button
-              variant={ButtonVariant.Small}
-              style={{ width: "100%" }}
-              onClick={() => {
-                navigate(formatRoute(TopLevelRoute.TokenIbcTransfer, { id }));
-              }}
-            >
-              IBC Transfer
-            </Button>
-          </ButtonsContainer>
-        )}
-        <Heading level={HeadingLevel.Three}>Transactions</Heading>
-        {transactions.length === 0 && <p>No transactions</p>}
-        {transactions.length > 0 && (
-          <TransactionList>
-            {transactions.map((transaction) => {
-              const { appliedHash, amount, timestamp, type } = transaction;
-              const dateTimeFormatted = stringFromTimestamp(timestamp);
+      )}
+      <Heading level={HeadingLevel.Three}>Transactions</Heading>
+      {transactions.length === 0 && <p>No transactions</p>}
+      {transactions.length > 0 && (
+        <TransactionList>
+          {transactions.map((transaction) => {
+            const { appliedHash, amount, timestamp, type } = transaction;
+            const dateTimeFormatted = stringFromTimestamp(timestamp);
 
-              return (
-                <TransactionListItem key={`${appliedHash}:${timestamp}`}>
-                  <div>
-                    <strong>
-                      {transaction.source === establishedAddress
-                        ? "Sent "
-                        : "Received "}
-                      ({type}) {amount} {tokenType}
-                    </strong>
-                    <br />
-                    {dateTimeFormatted}
-                  </div>
-                  <Button
-                    variant={ButtonVariant.Small}
-                    onClick={() => {
-                      navigate(
-                        formatRoute(TopLevelRoute.TokenTransferDetails, {
-                          id,
-                          appliedHash,
-                        })
-                      );
-                    }}
-                  >
-                    Details
-                  </Button>
-                </TransactionListItem>
-              );
-            })}
-          </TransactionList>
-        )}
-      </PersistGate>
+            return (
+              <TransactionListItem key={`${appliedHash}:${timestamp}`}>
+                <div>
+                  <strong>
+                    {transaction.source === establishedAddress
+                      ? "Sent "
+                      : "Received "}
+                    ({type}) {amount} {tokenType}
+                  </strong>
+                  <br />
+                  {dateTimeFormatted}
+                </div>
+                <Button
+                  variant={ButtonVariant.Small}
+                  onClick={() => {
+                    navigate(
+                      formatRoute(TopLevelRoute.TokenTransferDetails, {
+                        id,
+                        appliedHash,
+                      })
+                    );
+                  }}
+                >
+                  Details
+                </Button>
+              </TransactionListItem>
+            );
+          })}
+        </TransactionList>
+      )}
     </TokenDetailContainer>
   );
 };

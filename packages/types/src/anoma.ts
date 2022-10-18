@@ -1,10 +1,12 @@
 import { SignedTx } from "./tx";
 import { DerivedAccount } from "./account";
 import { Chain } from "./chain";
+import { Signer } from "./signer";
 
 export interface Anoma {
   connect(chainId: string): Promise<void>;
   accounts(chainId: string): Promise<DerivedAccount[] | undefined>;
+  getSigner(chainId: string): Signer;
   suggestChain(chainConfig: Chain): Promise<void>;
   signTx(props: {
     signer: string;
