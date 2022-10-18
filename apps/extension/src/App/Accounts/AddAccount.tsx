@@ -224,6 +224,7 @@ const AddAccount: React.FC<Props> = ({
         </InputContainer>
         <InputContainer>
           <ShieldedToggleContainer>
+            <span>Transparent&nbsp;</span>
             <Toggle
               onClick={() => setIsTransparent(!isTransparent)}
               checked={isTransparent}
