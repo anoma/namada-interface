@@ -28,8 +28,14 @@ const textToClipboard = (content: string): void => {
 
 const formatDerivationPath = (
   isChildAccount: boolean,
-  { account, change, index = 0 }: Bip44Path
-): string => (isChildAccount ? `/${account}'/${change}/${index}` : "");
+  { account, change, index = 0 }: Bip44Path,
+  type: AccountType
+): string =>
+  isChildAccount
+    ? `/${account}'/${
+        type === AccountType.PrivateKey ? `${change}/` : ""
+      }${index}`
+    : "";
 
 const AccountListing = ({ account, parentAlias }: Props): JSX.Element => {
   const { address, alias, path, type } = account;
@@ -41,7 +47,7 @@ const AccountListing = ({ account, parentAlias }: Props): JSX.Element => {
       <Details>
         <DerivationPath>
           {isChildAccount && parentAlias}{" "}
-          {formatDerivationPath(isChildAccount, path)}
+          {formatDerivationPath(isChildAccount, path, type)}
         </DerivationPath>
         {alias && <Alias>{alias}</Alias>}
         <Address>{shortenAddress(address)}</Address>

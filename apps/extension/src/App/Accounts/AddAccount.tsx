@@ -40,29 +40,38 @@ type Props = {
 const validateAccount = (
   account: number,
   newAccount: { change: number; index: number },
-  accounts: DerivedAccount[]
+  accounts: DerivedAccount[],
+  accountType: AccountType
 ): boolean => {
   const newPath = [account, newAccount.change, newAccount.index].join("/");
   let isValid = true;
-  accounts.forEach((derivedAccount: DerivedAccount) => {
-    const {
-      path: { account, change, index },
-    } = derivedAccount;
-    const existingPath = [account, change, index].join("/");
+  accounts
+    .filter((derivedAccount) => derivedAccount.type === accountType)
+    .forEach((derivedAccount: DerivedAccount) => {
+      const {
+        path: { account, change, index },
+      } = derivedAccount;
+      const existingPath = [account, change, index].join("/");
 
-    if (newPath === existingPath) {
-      isValid = false;
-    }
-  });
+      if (newPath === existingPath) {
+        isValid = false;
+      }
+    });
 
   return isValid;
 };
 
-const findNextIndex = (accounts: DerivedAccount[]): number => {
+const findNextIndex = (
+  accounts: DerivedAccount[],
+  accountType: AccountType
+): number => {
   let maxIndex = 0;
 
   accounts
-    .filter((account) => account.type !== AccountType.Mnemonic)
+    .filter(
+      (account) =>
+        account.type !== AccountType.Mnemonic && account.type === accountType
+    )
     .forEach((account) => {
       const { index = 0 } = account.path;
       maxIndex = index + 1;
@@ -86,18 +95,29 @@ const AddAccount: React.FC<Props> = ({
   const navigate = useNavigate();
   const [alias, setAlias] = useState("");
   const [change, setChange] = useState(0);
-  const [index, setIndex] = useState(findNextIndex(accounts));
   const [bip44Error, setBip44Error] = useState("");
   const [isFormValid, setIsFormValid] = useState(true);
   const [formError, setFormError] = useState("");
   const [formStatus, setFormStatus] = useState(Status.Idle);
   const [isTransparent, setIsTransparent] = useState(true);
+  const [index, setIndex] = useState(
+    findNextIndex(
+      accounts,
+      isTransparent ? AccountType.PrivateKey : AccountType.ShieldedKeys
+    )
+  );
 
   const bip44Prefix = "m/44";
+  const zip32Prefix = "m/32";
   const { coinType } = chains[0].bip44;
 
   useEffect(() => {
-    const isValid = validateAccount(parentAccount, { change, index }, accounts);
+    const isValid = validateAccount(
+      parentAccount,
+      { change, index },
+      accounts,
+      isTransparent ? AccountType.PrivateKey : AccountType.ShieldedKeys
+    );
     if (!isValid) {
       setBip44Error("Invalid path! This path is already in use.");
       setIsFormValid(false);
@@ -106,6 +126,15 @@ const AddAccount: React.FC<Props> = ({
       setIsFormValid(true);
     }
   }, [parentAccount, change, index]);
+
+  useEffect(() => {
+    setIndex(
+      findNextIndex(
+        accounts,
+        isTransparent ? AccountType.PrivateKey : AccountType.ShieldedKeys
+      )
+    );
+  }, [isTransparent]);
 
   const handleAccountAdd = async (): Promise<void> => {
     setFormStatus(Status.Pending);
@@ -143,7 +172,9 @@ const AddAccount: React.FC<Props> = ({
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
 
-  const parentDerivationPath = `${bip44Prefix}'/${coinType}'/${parentAccount}'/`;
+  const parentDerivationPath = isTransparent
+    ? `${bip44Prefix}'/${coinType}'/${parentAccount}'/`
+    : `${zip32Prefix}'/${coinType}'/${parentAccount}'/`;
 
   return (
     <AddAccountContainer>
@@ -163,21 +194,24 @@ const AddAccount: React.FC<Props> = ({
             onChange={(e) => setAlias(e.target.value)}
           />
         </InputContainer>
-
         <InputContainer>
           <Label>
             <p>HD Derivation Path</p>
             <Bip44PathContainer>
               <Bip44PathDelimiter>{parentDerivationPath}</Bip44PathDelimiter>
-              <Bip44Input
-                type="number"
-                min="0"
-                max="1"
-                value={change}
-                onChange={(e) => handleNumericChange(e, setChange)}
-                onFocus={handleFocus}
-              />
-              <Bip44PathDelimiter>/</Bip44PathDelimiter>
+              {isTransparent && (
+                <>
+                  <Bip44Input
+                    type="number"
+                    min="0"
+                    max="1"
+                    value={change}
+                    onChange={(e) => handleNumericChange(e, setChange)}
+                    onFocus={handleFocus}
+                  />
+                  <Bip44PathDelimiter>/</Bip44PathDelimiter>
+                </>
+              )}
               <Bip44Input
                 type="number"
                 min="0"
@@ -200,7 +234,9 @@ const AddAccount: React.FC<Props> = ({
 
         <Bip44Path>
           Derivation path:{" "}
-          <span>{`${parentDerivationPath}${change}/${index}`}</span>
+          <span>{`${parentDerivationPath}${
+            isTransparent ? `${change}/` : ""
+          }${index}`}</span>
         </Bip44Path>
         <Bip44Error>{bip44Error}</Bip44Error>
       </AddAccountForm>
