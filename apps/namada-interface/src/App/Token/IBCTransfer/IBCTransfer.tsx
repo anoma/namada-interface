@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { useAppDispatch, useAppSelector } from "store";
-import { AccountsState, fetchBalanceByAccount } from "slices/accounts";
+import { AccountsState } from "slices/accounts";
 import { addChannel, ChannelsState } from "slices/channels";
 import {
   clearErrors,
@@ -75,10 +75,12 @@ const IBCTransfer = (): JSX.Element => {
 
   const derivedAccounts = derived[chainId] || {};
   const account = Object.values(derivedAccounts)[0] || {};
-  const [selectedAccountId, setSelectedAccountId] = useState(account.id || "");
+  const [selectedAccountAddress, setSelectedAccountAddress] = useState(
+    account.address || ""
+  );
 
   type AccountTokenData = {
-    id: string;
+    address: string;
     alias: string;
     balance: number;
     tokenType: TokenType;
@@ -86,13 +88,13 @@ const IBCTransfer = (): JSX.Element => {
 
   const tokenBalances = Object.values(derivedAccounts).reduce(
     (data: AccountTokenData[], account) => {
-      const { id, alias } = account;
+      const { address, alias } = account;
 
       const accountsWithId = Symbols.map((symbol) => {
-        const balance = (balances[id] || {})[symbol] || 0;
+        const balance = (balances[address] || {})[symbol] || 0;
 
         return {
-          id,
+          address,
           alias,
           tokenType: symbol,
           balance,
@@ -107,12 +109,12 @@ const IBCTransfer = (): JSX.Element => {
   const tokenData: Option<string>[] = tokenBalances
     .filter((account) => account.balance > 0)
     .map((account) => {
-      const { id, alias, tokenType, balance } = account;
+      const { address, alias, tokenType, balance } = account;
       const token = Tokens[tokenType];
       const { coin } = token;
 
       return {
-        value: `${id}|${tokenType}`,
+        value: `${address}|${tokenType}`,
         label: `${
           alias !== "Namada" ? alias + " - " : ""
         }${coin} (${balance} ${tokenType})`,
@@ -121,7 +123,7 @@ const IBCTransfer = (): JSX.Element => {
 
   const { tokenType } = tokenBalances[0] || {};
   const balance =
-    tokenBalances.find((balance) => balance.id === selectedAccountId)
+    tokenBalances.find((balance) => balance.address === selectedAccountAddress)
       ?.balance || 0;
 
   const [token, setToken] = useState<TokenType>(tokenType);
@@ -154,7 +156,10 @@ const IBCTransfer = (): JSX.Element => {
 
   useEffect(() => {
     if (account && !isIbcTransferSubmitting) {
-      dispatch(fetchBalanceByAccount(account));
+      fetchBalances({
+        chainId,
+        accounts: Object.values(derivedAccounts),
+      });
     }
   }, [isIbcTransferSubmitting]);
 
@@ -189,7 +194,7 @@ const IBCTransfer = (): JSX.Element => {
 
     const [accountId, tokenSymbol] = value.split("|");
 
-    setSelectedAccountId(accountId);
+    setSelectedAccountAddress(accountId);
     setToken(tokenSymbol as TokenType);
   };
 
@@ -217,7 +222,7 @@ const IBCTransfer = (): JSX.Element => {
           <InputContainer>
             <Select
               data={tokenData}
-              value={`${selectedAccountId}|${token}`}
+              value={`${selectedAccountAddress}|${token}`}
               label="Token"
               onChange={handleTokenChange}
             />

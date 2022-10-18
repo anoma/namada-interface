@@ -1,12 +1,8 @@
 import { useParams, useNavigate } from "react-router-dom";
 
 import { TopLevelRoute } from "App/types";
-import {
-  DerivedAccount,
-  ShieldedKeysAndPaymentAddress,
-  AccountsState,
-} from "slices/accounts";
-import { TransfersState } from "slices/transfers";
+import { DerivedAccount, AccountsState } from "slices/accounts";
+import { TransfersState, TransferTransaction } from "slices/transfers";
 import { SettingsState } from "slices/settings";
 import { useAppSelector } from "store";
 import { formatRoute, stringFromTimestamp } from "@anoma/utils";
@@ -33,36 +29,30 @@ type TokenDetailsParams = {
 const Transfers = (): JSX.Element => {
   const navigate = useNavigate();
   const { id = "", token } = useParams<TokenDetailsParams>();
-  const { derived, shieldedAccounts: shieldedAccountsByChainId } =
-    useAppSelector<AccountsState>((state) => state.accounts);
+  const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const { transactions: accountTransactions } = useAppSelector<TransfersState>(
     (state) => state.transfers
   );
 
   const derivedAccounts = derived[chainId] || {};
-  const shieldedAccounts = shieldedAccountsByChainId[chainId] || {};
-  const accounts = { ...derivedAccounts, ...shieldedAccounts };
+  const accounts = { ...derivedAccounts };
 
-  let shieldedKeysAndPaymentAddress: ShieldedKeysAndPaymentAddress | undefined;
+  /* let shieldedKeysAndPaymentAddress: ShieldedKeysAndPaymentAddress | undefined; */
+  /**/
+  /* if (shieldedAccounts && shieldedAccounts[id]) { */
+  /*   shieldedKeysAndPaymentAddress = */
+  /*     shieldedAccounts[id].shieldedKeysAndPaymentAddress; */
+  /* } */
 
-  if (shieldedAccounts && shieldedAccounts[id]) {
-    shieldedKeysAndPaymentAddress =
-      shieldedAccounts[id].shieldedKeysAndPaymentAddress;
-  }
+  const account: DerivedAccount = accounts[id] || {}; // || shieldedAccounts[id] || {};
+  const { address } = account;
 
-  const account: DerivedAccount = accounts[id] || shieldedAccounts[id] || {};
-  const { tokenType, establishedAddress } = account;
-
-  const transactions = accountTransactions
+  const transactions: TransferTransaction[] = accountTransactions
     .filter(
-      (transaction) =>
-        (transaction.source ===
-          (establishedAddress ||
-            shieldedKeysAndPaymentAddress?.paymentAddress) ||
-          transaction.target ===
-            (establishedAddress ||
-              shieldedKeysAndPaymentAddress?.paymentAddress)) &&
+      (transaction: TransferTransaction) =>
+        (transaction.source === address ||
+          transaction.source === transaction.target) &&
         transaction.chainId === chainId &&
         transaction.tokenType === token
     )
@@ -79,17 +69,16 @@ const Transfers = (): JSX.Element => {
         {transactions.length > 0 && (
           <TransactionList>
             {transactions.map((transaction) => {
-              const { appliedHash, amount, timestamp, type } = transaction;
+              const { appliedHash, amount, timestamp, type, tokenType } =
+                transaction;
               const dateTimeFormatted = stringFromTimestamp(timestamp);
 
               return (
                 <TransactionListItem key={`${appliedHash}:${timestamp}`}>
                   <div>
                     <strong>
-                      {transaction.source === establishedAddress
-                        ? "Sent "
-                        : "Received "}
-                      ({type}) {amount} {tokenType}
+                      {transaction.source === address ? "Sent " : "Received "}(
+                      {type}) {amount} {tokenType}
                     </strong>
                     <br />
                     {dateTimeFormatted}

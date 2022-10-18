@@ -6,7 +6,6 @@ import { Signer } from "./signer";
 export interface Anoma {
   connect(chainId: string): Promise<void>;
   accounts(chainId: string): Promise<DerivedAccount[] | undefined>;
-  getSigner(chainId: string): Signer;
   suggestChain(chainConfig: Chain): Promise<void>;
   signTx(props: {
     signer: string;
@@ -26,5 +25,7 @@ export interface Anoma {
 
 export type WindowWithAnoma = Window &
   typeof globalThis & {
-    anoma: Anoma;
+    anoma: Anoma & {
+      getSigner: (chainId: string) => Signer;
+    };
   };

@@ -15,6 +15,7 @@ import {
 } from "slices/shieldedTransfer";
 import { ShieldedAccountType, getMaspWeb } from "@anoma/masp-web";
 import { actions, CreateToastPayload, ToastId } from "slices/notifications";
+import { TokenType } from "@anoma/tx";
 
 type NewAccountDetailsWithPassword = NewAccountDetails & {
   chainId: string;
@@ -135,6 +136,7 @@ export type ShieldedBalancesPayload = {
   };
 };
 
+// TODO: This needs to be updated for the extension!
 export const updateShieldedBalances = createAsyncThunk<
   ShieldedBalancesPayload,
   void
@@ -142,7 +144,7 @@ export const updateShieldedBalances = createAsyncThunk<
   try {
     const state = thunkAPI.getState() as RootState;
     const { chainId } = state.settings;
-    const shieldedAccounts = state.accounts.shieldedAccounts[chainId];
+    const shieldedAccounts = state.accounts.derived[chainId];
     const shieldedBalances: ShieldedBalancesPayload = {
       chainId,
       shieldedBalances: {},
@@ -150,28 +152,30 @@ export const updateShieldedBalances = createAsyncThunk<
 
     for (const shieldedAccountId of Object.keys(shieldedAccounts)) {
       const shieldedAccount = shieldedAccounts[shieldedAccountId];
-      const { tokenType } = shieldedAccount;
-      const tokenAddress = TRANSFER_CONFIGURATION.tokenAddresses[tokenType];
-      const shieldedBalance = await getShieldedBalance(
-        chainId,
-        shieldedAccount.shieldedKeysAndPaymentAddress.spendingKey,
-        tokenAddress
-      );
+      /* const { tokenType } = shieldedAccount; */
+      const tokenType = "NAM";
+      const tokenAddress =
+        TRANSFER_CONFIGURATION.tokenAddresses[tokenType as TokenType];
+      // TODO: Update then re-enable this:
+      /* const shieldedBalance = await getShieldedBalance( */
+      /*   chainId, */
+      /*   shieldedAccount.shieldedKeysAndPaymentAddress.spendingKey, */
+      /*   tokenAddress */
+      /* ); */
 
-      // TODO, move the casting with errors to a common place
-      // we attempt to cast the balance to number
-      const shieldedBalanceAsNumber = Number(shieldedBalance);
+      /* const shieldedBalanceAsNumber = Number(shieldedBalance); */
+      // TODO: Update, then re-enable this
       // if the casting failed, we reassign the return value
-      if (
-        typeof shieldedBalanceAsNumber === "number" &&
-        isNaN(shieldedBalanceAsNumber)
-      ) {
-        shieldedBalances.shieldedBalances[shieldedAccountId] =
-          AccountErrors.NonNumericShieldedBalanceReturned;
-      } else {
-        shieldedBalances.shieldedBalances[shieldedAccountId] =
-          shieldedBalanceAsNumber;
-      }
+      /* if ( */
+      /*   typeof shieldedBalanceAsNumber === "number" && */
+      /*   isNaN(shieldedBalanceAsNumber) */
+      /* ) { */
+      /*   shieldedBalances.shieldedBalances[shieldedAccountId] = */
+      /*     AccountErrors.NonNumericShieldedBalanceReturned; */
+      /* } else { */
+      /*   shieldedBalances.shieldedBalances[shieldedAccountId] = */
+      /*     shieldedBalanceAsNumber; */
+      /* } */
     }
     return Promise.resolve(shieldedBalances);
   } catch (error) {

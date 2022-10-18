@@ -5,7 +5,7 @@ import QrReader from "react-qr-reader";
 import Config from "config";
 import { Tokens, TokenType } from "@anoma/tx";
 import { RpcClient } from "@anoma/rpc";
-import { AccountsState } from "slices/accounts";
+import { AccountsState, DerivedAccount } from "slices/accounts";
 import {
   clearEvents,
   submitTransferTransaction,
@@ -37,7 +37,6 @@ import { Icon, IconName } from "components/Icon";
 import { useNavigate } from "react-router-dom";
 import { TopLevelRoute } from "App/types";
 import { ColorMode, DesignConfiguration } from "utils/theme";
-import { NotificationsState } from "slices/notifications";
 
 enum ComponentColor {
   GasButtonBorder,
@@ -65,7 +64,7 @@ const getColor = (
 };
 
 type Props = {
-  accountId: string;
+  address: string;
   defaultTarget?: string;
   tokenType: TokenType;
 };
@@ -119,7 +118,7 @@ const AccountSourceTargetDescription = (props: {
 };
 
 const TokenSendForm = ({
-  accountId,
+  address,
   tokenType,
   defaultTarget,
 }: Props): JSX.Element => {
@@ -148,9 +147,7 @@ const TokenSendForm = ({
     (state) => state.settings
   );
   const { rates } = useAppSelector<CoinsState>((state) => state.coins);
-  const { derived, shieldedAccounts } = useAppSelector<AccountsState>(
-    (state) => state.accounts
-  );
+  const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const derivedAccounts = derived[chainId] || {};
 
   const balancesState = useAppSelector<BalancesState>(
@@ -168,19 +165,13 @@ const TokenSendForm = ({
     (state) => state.transfers
   );
 
-  const transparentAndShieldedAccounts = {
-    ...derivedAccounts,
-    ...(shieldedAccounts[chainId] || {}),
-  };
-  const account = transparentAndShieldedAccounts[accountId] || {};
+  const account: DerivedAccount = derivedAccounts[address];
 
-  const isShieldedSource = account.shieldedKeysAndPaymentAddress ? true : false;
-  const { establishedAddress = "" } = account;
+  const isShieldedSource = account.isShielded;
   const token = Tokens[tokenType] || {};
 
-  const balances = balancesForChain[accountId] || {};
-  const balance =
-    (isShieldedSource ? account.balance : balances[tokenType]) || 0;
+  const balances = balancesForChain[address] || {};
+  const balance = balances[tokenType] || 0;
 
   const isFormInvalid = getIsFormInvalid(
     target,
@@ -197,7 +188,7 @@ const TokenSendForm = ({
     ""
   ) : (
     <AccountSourceTargetDescription
-      isShieldedSource={isShieldedSource}
+      isShieldedSource={!!isShieldedSource}
       isShieldedTarget={isShieldedTarget}
     />
   );
@@ -245,7 +236,7 @@ const TokenSendForm = ({
           setIsShieldedTarget(false);
         }
         // we dont allow the funds to be sent to source address
-        if (target === establishedAddress) {
+        if (target === address) {
           setIsTargetValid(false);
         } else {
           const isValid = await rpcClient.isKnownAddress(target);
@@ -278,7 +269,7 @@ const TokenSendForm = ({
           amount,
           token: tokenType,
           feeAmount: gasFee,
-          notify: true
+          notify: true,
         })
       );
     }
@@ -302,12 +293,12 @@ const TokenSendForm = ({
 
   // if the transfer target is not TransferType.Shielded we perform the validation logic
   const isAmountValid = (
-    id: string,
+    address: string,
     token: TokenType,
     transferAmount: number,
     targetAddress: string | undefined
   ): string | undefined => {
-    const account = transparentAndShieldedAccounts[id];
+    const account = derivedAccounts[address];
     const balance =
       (account && account.balance ? account.balance : balances[token]) || 0;
 
@@ -368,7 +359,7 @@ const TokenSendForm = ({
               setAmount(parseFloat(`${value}`));
             }}
             onFocus={handleFocus}
-            error={isAmountValid(account.id, tokenType, amount, target)}
+            error={isAmountValid(address, tokenType, amount, target)}
           />
         </InputContainer>
         <InputContainer>{accountSourceTargetDescription}</InputContainer>

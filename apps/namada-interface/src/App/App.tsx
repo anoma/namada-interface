@@ -79,7 +79,6 @@ function App(): JSX.Element {
               colorMode={colorMode}
               toggleColorMode={toggleColorMode}
               setColorMode={setColorMode}
-              isLoggedIn={!!password}
               store={store}
               logout={() => setPassword(undefined)}
             />

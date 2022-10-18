@@ -50,8 +50,7 @@ type Params = {
 };
 
 const TokenSend = (): JSX.Element => {
-  const { derived, shieldedAccounts: allShieldedAccounts } =
-    useAppSelector<AccountsState>((state) => state.accounts);
+  const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const { accountIndex, target } = useParams<Params>();
   const dispatch = useAppDispatch();
@@ -62,19 +61,16 @@ const TokenSend = (): JSX.Element => {
   const balances = balancesByChain[chainId] || {};
   const accounts = derived[chainId] || {};
   const account = Object.values(accounts)[0] || {};
-  const [selectedAccountId, setSelectedAccountId] = useState<
+  const [selectedAccountAddress, setSelectedAccountId] = useState<
     string | undefined
-  >(account.id);
+  >(account.address);
 
-  const [selectedShieldedAccountId, setSelectedShieldedAccountId] = useState<
-    string | undefined
-  >();
-
-  const shieldedAccounts = allShieldedAccounts[chainId] || {};
+  const [selectedShieldedAccountAddress, setSelectedShieldedAccountId] =
+    useState<string | undefined>();
 
   // TODO: Refactor and improve this:
   type AccountTokenData = {
-    id: string;
+    address: string;
     alias: string;
     balance: number;
     tokenType: TokenType;
@@ -82,13 +78,13 @@ const TokenSend = (): JSX.Element => {
 
   const tokenBalances = Object.values(accounts).reduce(
     (data: AccountTokenData[], account) => {
-      const { id, alias } = account;
+      const { address, alias } = account;
 
       const accountsWithId: AccountTokenData[] = Symbols.map((symbol) => {
-        const balance = (balances[id] || {})[symbol] || 0;
+        const balance = (balances[address] || {})[symbol] || 0;
 
         return {
-          id,
+          address,
           alias,
           tokenType: symbol,
           balance,
@@ -103,12 +99,12 @@ const TokenSend = (): JSX.Element => {
   const tokenData: Option<string>[] = tokenBalances
     .filter((account) => account.balance > 0)
     .map((account) => {
-      const { id, alias, tokenType, balance } = account;
+      const { alias, address, tokenType, balance } = account;
       const token = Tokens[tokenType];
       const { coin } = token;
 
       return {
-        value: `${id}|${tokenType}`,
+        value: `${address}|${tokenType}`,
         label: `${
           alias !== "Namada"
             ? alias + " (" + balance + " " + tokenType + ")"
@@ -117,17 +113,19 @@ const TokenSend = (): JSX.Element => {
       };
     });
 
-  const accountsData = Object.values(accounts).map((account) => ({
-    value: account.id,
-    label: `${account.alias} (${account.tokenType})`,
-  }));
+  const accountsData = Object.values(accounts)
+    .filter((account) => !account.isShielded)
+    .map((account) => ({
+      value: account.address,
+      label: `${account.alias}`,
+    }));
 
-  const shieldedAccountsData = Object.values(shieldedAccounts).map(
-    (shieldedAccount) => ({
-      value: shieldedAccount.id,
-      label: `${shieldedAccount.alias} (${shieldedAccount.balance} ${shieldedAccount.tokenType})`,
-    })
-  );
+  const shieldedAccountsData = Object.values(accounts)
+    .filter((account) => account.isShielded)
+    .map((shieldedAccount) => ({
+      value: shieldedAccount.address,
+      label: `${shieldedAccount.alias})`,
+    }));
 
   const tabs = ["Shielded", "Transparent"];
   let defaultTab = 0;
@@ -137,9 +135,7 @@ const TokenSend = (): JSX.Element => {
   }
 
   const [activeTab, setActiveTab] = useState(tabs[defaultTab]);
-  const tokenType = selectedAccountId
-    ? accounts[selectedAccountId]?.tokenType || "NAM"
-    : "NAM";
+  const tokenType = "NAM";
   const [token, setToken] = useState<TokenType>(tokenType);
 
   useEffect(() => {
@@ -157,16 +153,16 @@ const TokenSend = (): JSX.Element => {
   }, [accountIndex]);
 
   useEffect(() => {
-    if (!selectedAccountId && accountsData.length > 0) {
+    if (!selectedAccountAddress && accountsData.length > 0) {
       setSelectedAccountId(accountsData[0].value);
     }
-  }, [accountsData, selectedAccountId]);
+  }, [accountsData, selectedAccountAddress]);
 
   useEffect(() => {
-    if (!selectedShieldedAccountId && shieldedAccountsData.length > 0) {
+    if (!selectedShieldedAccountAddress && shieldedAccountsData.length > 0) {
       setSelectedShieldedAccountId(shieldedAccountsData[0].value);
     }
-  }, [shieldedAccountsData, selectedShieldedAccountId]);
+  }, [shieldedAccountsData, selectedShieldedAccountAddress]);
 
   const handleTransparentTokenChange = (
     e: React.ChangeEvent<HTMLSelectElement>
@@ -203,18 +199,14 @@ const TokenSend = (): JSX.Element => {
             <>
               <Select
                 data={shieldedAccountsData || []}
-                value={selectedShieldedAccountId}
+                value={selectedShieldedAccountAddress}
                 label="Token"
                 onChange={(e) => setSelectedShieldedAccountId(e.target.value)}
               />
-              {selectedShieldedAccountId && (
+              {selectedShieldedAccountAddress && (
                 <TokenSendForm
-                  accountId={selectedShieldedAccountId}
-                  tokenType={
-                    shieldedAccounts[selectedShieldedAccountId]
-                      ? shieldedAccounts[selectedShieldedAccountId].tokenType
-                      : token
-                  }
+                  address={selectedShieldedAccountAddress}
+                  tokenType={token}
                   defaultTarget={
                     target?.startsWith("patest") ? target : undefined
                   }
@@ -231,13 +223,13 @@ const TokenSend = (): JSX.Element => {
             <>
               <Select
                 data={tokenData || []}
-                value={`${selectedAccountId}|${token}`}
+                value={`${selectedAccountAddress}|${token}`}
                 label="Token"
                 onChange={handleTransparentTokenChange}
               />
-              {selectedAccountId && (
+              {selectedAccountAddress && (
                 <TokenSendForm
-                  accountId={selectedAccountId}
+                  address={selectedAccountAddress}
                   tokenType={token}
                   defaultTarget={
                     target?.startsWith("atest") ? target : undefined

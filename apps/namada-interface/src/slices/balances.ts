@@ -8,7 +8,7 @@ import { DerivedAccount } from "./accounts";
 
 type Balance = {
   chainId: string;
-  accountId: string;
+  address: string;
   token: TokenType;
   balance: number;
 };
@@ -37,19 +37,17 @@ export const fetchBalanceByToken = createAsyncThunk(
   }) => {
     const { token, account } = args;
 
-    const { chainId, id: accountId, establishedAddress } = account;
+    const { chainId, address } = account;
     const chainConfig = Config.chain[chainId];
     const rpcClient = new RpcClient(chainConfig.network);
     const { address: tokenAddress = "" } = Tokens[token];
 
-    const balance = establishedAddress
-      ? await rpcClient.queryBalance(tokenAddress, establishedAddress)
-      : 0;
+    const balance = await rpcClient.queryBalance(tokenAddress, address);
 
     return {
       token,
       chainId,
-      accountId,
+      address,
       balance: Math.max(balance, 0),
     };
   }
@@ -62,7 +60,7 @@ export const fetchBalances = createAsyncThunk(
 
     const balances = await Promise.all(
       accounts.map(async (account) => {
-        const { chainId, id: accountId, establishedAddress } = account;
+        const { chainId, address } = account;
         const chainConfig = Config.chain[chainId];
         const rpcClient = new RpcClient(chainConfig.network);
 
@@ -70,14 +68,12 @@ export const fetchBalances = createAsyncThunk(
           Symbols.map(async (token) => {
             const { address: tokenAddress = "" } = Tokens[token];
 
-            const balance = establishedAddress
-              ? await rpcClient.queryBalance(tokenAddress, establishedAddress)
-              : 0;
+            const balance = await rpcClient.queryBalance(tokenAddress, address);
 
             return {
               token,
               chainId,
-              accountId,
+              address,
               balance: Math.max(balance, 0),
             };
           })
@@ -90,13 +86,13 @@ export const fetchBalances = createAsyncThunk(
     const balancesByAccount = balances.reduce(
       (acc: Record<string, BalanceByToken>, balances) => {
         balances.forEach((balanceByToken) => {
-          const { accountId, token, balance } = balanceByToken;
+          const { address, token, balance } = balanceByToken;
 
-          if (!acc[accountId]) {
-            acc[accountId] = {};
+          if (!acc[address]) {
+            acc[address] = {};
           }
-          if (!acc[accountId][token]) {
-            acc[accountId][token] = balance;
+          if (!acc[address][token]) {
+            acc[address][token] = balance;
           }
         });
 
@@ -117,35 +113,35 @@ const balancesSlice = createSlice({
   initialState,
   reducers: {
     updateBalance: (state, action: PayloadAction<Balance>) => {
-      const { chainId, accountId, token, balance } = action.payload;
+      const { chainId, address, token, balance } = action.payload;
 
       if (!state[chainId]) {
         state[chainId] = {};
       }
 
-      if (!state[chainId][accountId]) {
-        state[chainId][accountId] = {};
+      if (!state[chainId][address]) {
+        state[chainId][address] = {};
       }
 
-      state[chainId][accountId][token] = balance;
+      state[chainId][address][token] = balance;
     },
   },
   extraReducers: (builder) => {
     builder.addCase(
       fetchBalanceByToken.fulfilled,
       (state, action: PayloadAction<Balance>) => {
-        const { chainId, accountId, token, balance } = action.payload;
+        const { chainId, address, token, balance } = action.payload;
 
         // Perhaps this isn't needed?
         if (!state[chainId]) {
           state[chainId] = {};
         }
 
-        if (!state[chainId][accountId]) {
-          state[chainId][accountId] = {};
+        if (!state[chainId][address]) {
+          state[chainId][address] = {};
         }
 
-        state[chainId][accountId][token] = balance;
+        state[chainId][address][token] = balance;
       }
     ),
       builder.addCase(
