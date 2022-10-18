@@ -9,7 +9,7 @@ const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
 const NETLIFY_SITE_PROTECTION_PASSWORD =
   process.env.NETLIFY_SITE_PROTECTION_PASSWORD || "";
 
-test("main page loads with correct title and allows changing color mode", async ({
+test.skip("main page loads with correct title and allows changing color mode", async ({
   page,
 }) => {
   // load the page
