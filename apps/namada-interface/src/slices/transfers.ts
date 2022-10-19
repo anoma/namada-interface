@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { Account } from "@anoma/types";
+import { Anoma } from "@anoma/integrations";
 import {
   RpcConfig,
   RpcClient,
@@ -17,7 +18,6 @@ import {
 } from "@anoma/utils";
 
 import Config from "config";
-import { DerivedAccount } from "./accounts";
 import {
   createShieldedTransfer,
   /* TRANSFER_CONFIGURATION, */
@@ -29,6 +29,7 @@ import {
   ToastId,
   ToastType,
 } from "slices/notifications";
+import { toHex } from "@cosmjs/encoding";
 
 enum Toasts {
   TransferStarted,
@@ -153,7 +154,7 @@ type TxIbcTransferArgs = TxArgs & {
 type TransferHashAndBytes = {
   transferType: TransferType;
   transferHash: string;
-  transferAsBytes: Uint8Array;
+  transferAsBytes: string;
 };
 
 type TransferData = {
@@ -165,35 +166,38 @@ type TransferData = {
   privateKey: string;
 };
 
-const createShieldedTransaction = async (
-  chainId: string,
-  spendingKey: string | undefined,
-  paymentAddress: string,
-  // tokenValue: 1 ETC, 0.2 ETC, etc. the token value as the user entered it
-  // division by 1_000_000 should have not been performed yet
-  tokenValue: number,
-  tokenAddress: string
-): Promise<Uint8Array> => {
-  const transferAmount = tokenValue * 1_000_000;
-  const shieldedTransaction = await createShieldedTransfer(
-    chainId,
-    transferAmount,
-    spendingKey,
-    paymentAddress,
-    tokenAddress
-  );
-  return Promise.resolve(shieldedTransaction);
-};
+// TODO: Re-enable, and update this:
+/* const createShieldedTransaction = async ( */
+/*   chainId: string, */
+/*   spendingKey: string | undefined, */
+/*   paymentAddress: string, */
+/*   // tokenValue: 1 ETC, 0.2 ETC, etc. the token value as the user entered it */
+/*   // division by 1_000_000 should have not been performed yet */
+/*   tokenValue: number, */
+/*   tokenAddress: string */
+/* ): Promise<Uint8Array> => { */
+/*   const transferAmount = tokenValue * 1_000_000; */
+/*   const shieldedTransaction = await createShieldedTransfer( */
+/*     chainId, */
+/*     transferAmount, */
+/*     spendingKey, */
+/*     paymentAddress, */
+/*     tokenAddress */
+/*   ); */
+/*   return Promise.resolve(shieldedTransaction); */
+/* }; */
 
 // this creates the transfer that is being submitted to the ledger, if the transfer is shielded
 // it will first create the shielded transfer that is included in the "parent" transfer
 const createTransfer = async (
-  chainId: string,
   sourceAccount: Account,
   transferData: TransferData
 ): Promise<TransferHashAndBytes> => {
+  const { chainId, alias, address } = sourceAccount;
+  const { amount, target, token } = transferData;
+  const { address: tokenAddress = "" } = Tokens[token as TokenType];
   const txCode = await fetchWasmCode(TxWasm.Transfer);
-  const transfer = await new Transfer(txCode).init();
+  /* const transfer = await new Transfer(txCode).init(); */
   // ============================================================================
   // TODO:
   //
@@ -261,12 +265,38 @@ const createTransfer = async (
   /* } else { */
 
   // TODO: This needs to be replaced with functionality from the extension!
-  const hashAndBytes = await transfer.makeTransfer(transferData);
-  return {
-    transferType: TransferType.NonShielded,
-    transferHash: hashAndBytes.hash,
-    transferAsBytes: hashAndBytes.bytes,
+  const anoma = new Anoma();
+  const signer = anoma.signer(chainId);
+  const encodedTx =
+    (await signer.encodeTransfer({
+      source: address,
+      target,
+      token: tokenAddress,
+      amount,
+    })) || "";
+
+  const txProps = {
+    token:
+      "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5",
+    epoch: 5,
+    feeAmount: 1000,
+    gasLimit: 1000000,
+    txCode,
   };
+
+  // Double-check that you're logged into the extension (that it's unlocked), then do the following:
+  const { hash, bytes } =
+    (await signer.signTx(address, txProps, encodedTx)) || {};
+
+  if (hash && bytes) {
+    return {
+      transferType: TransferType.NonShielded,
+      transferHash: hash,
+      transferAsBytes: bytes,
+    };
+  } else {
+    throw new Error("Invalid transaction!");
+  }
   /* } */
 };
 
@@ -332,11 +362,7 @@ export const submitTransferTransaction = createAsyncThunk(
       privateKey: "", // TODO: Remove this!
     };
 
-    const createdTransfer = await createTransfer(
-      chainId,
-      account,
-      transferData
-    );
+    const createdTransfer = await createTransfer(account, transferData);
 
     const { transferHash, transferAsBytes, transferType } = createdTransfer;
     const { promise, timeoutId } = promiseWithTimeout<NewBlockEvents>(
@@ -461,7 +487,8 @@ export const submitIbcTransferTransaction = createAsyncThunk(
 
     const { promise, timeoutId } = promiseWithTimeout<NewBlockEvents>(
       new Promise(async (resolve) => {
-        await socketClient.broadcastTx(bytes);
+        // TODO: Bytes received should already be in base64 encoded!
+        await socketClient.broadcastTx(toHex(bytes));
         const events = await socketClient.subscribeNewBlock(hash);
         resolve(events);
       }),

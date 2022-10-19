@@ -167,7 +167,6 @@ const TokenSendForm = ({
   );
 
   const account: Account = derivedAccounts[address];
-
   const isShieldedSource = account.isShielded;
   const token = Tokens[tokenType] || {};
 
@@ -182,9 +181,6 @@ const TokenSendForm = ({
     isTransferSubmitting
   );
 
-  const chainConfig = Config.chain[chainId] || {};
-  const { url, port, protocol } = chainConfig.network || {};
-  const rpcClient = new RpcClient({ url, port, protocol });
   const accountSourceTargetDescription = isFormInvalid ? (
     ""
   ) : (
@@ -240,8 +236,8 @@ const TokenSendForm = ({
         if (target === address) {
           setIsTargetValid(false);
         } else {
-          const isValid = await rpcClient.isKnownAddress(target);
-          setIsTargetValid(isValid);
+          // We can add any other methods of validation here.
+          setIsTargetValid(true);
         }
       }
     })();
@@ -299,9 +295,7 @@ const TokenSendForm = ({
     transferAmount: number,
     targetAddress: string | undefined
   ): string | undefined => {
-    // TODO: Pull balance from balances state!
-    const balance = 0;
-    /* (account && account.balance ? account.balance : balances[token]) || 0; */
+    const balance = balancesForChain[address][token] || 0;
 
     const transferTypeBasedOnTarget =
       targetAddress && parseTarget(targetAddress);

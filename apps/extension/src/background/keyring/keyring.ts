@@ -48,6 +48,7 @@ type DerivedAccountInfo = {
   id: string;
   text: string;
 };
+
 /**
  * Keyring stores keys in persisted backround.
  */
@@ -57,8 +58,8 @@ export class KeyRing {
   private _status: KeyRingStatus = KeyRingStatus.Empty;
 
   constructor(
-    kvStore: KVStore<KeyStore>,
-    public readonly chainId: string = chains[0].chainId
+    protected readonly kvStore: KVStore<KeyStore>,
+    protected readonly chainId: string = chains[0].chainId
   ) {
     this._keyStore = new Store(KEYSTORE_KEY, kvStore);
   }

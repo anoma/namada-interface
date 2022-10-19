@@ -1,4 +1,9 @@
-import { Account, Anoma as IAnoma, WindowWithAnoma } from "@anoma/types";
+import {
+  Account,
+  Anoma as IAnoma,
+  Signer,
+  WindowWithAnoma,
+} from "@anoma/types";
 
 export default class Anoma {
   constructor(
@@ -21,5 +26,9 @@ export default class Anoma {
   public async fetchAccounts(): Promise<Account[] | undefined> {
     const signer = this._anoma.getSigner("");
     return await signer.accounts();
+  }
+
+  public signer(chainId: string): Signer {
+    return this._anoma.getSigner(chainId);
   }
 }

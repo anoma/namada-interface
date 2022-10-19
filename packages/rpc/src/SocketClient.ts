@@ -31,7 +31,7 @@ class SocketClient extends RpcClientBase {
   }
 
   public async broadcastTx(
-    tx: Uint8Array,
+    tx: string,
     callbacks?: {
       onBroadcast?: (response: BroadcastSyncResponse) => void;
       onError?: (error: string) => void;
@@ -45,9 +45,7 @@ class SocketClient extends RpcClientBase {
 
     return new Promise((resolve, reject) => {
       this.client
-        ?.execute(
-          createJsonRpcRequest("broadcast_tx_sync", { tx: toBase64(tx) })
-        )
+        ?.execute(createJsonRpcRequest("broadcast_tx_sync", { tx }))
         .then((response: BroadcastSyncResponse) => {
           this.disconnect();
           if (onBroadcast) {
