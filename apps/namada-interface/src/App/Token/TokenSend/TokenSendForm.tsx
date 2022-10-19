@@ -6,7 +6,7 @@ import { Account } from "@anoma/types";
 import Config from "config";
 import { Tokens, TokenType } from "@anoma/tx";
 import { RpcClient } from "@anoma/rpc";
-import { AccountsState, DerivedAccount } from "slices/accounts";
+import { AccountsState } from "slices/accounts";
 import {
   clearEvents,
   submitTransferTransaction,
@@ -299,7 +299,6 @@ const TokenSendForm = ({
     transferAmount: number,
     targetAddress: string | undefined
   ): string | undefined => {
-    const account = derivedAccounts[address];
     // TODO: Pull balance from balances state!
     const balance = 0;
     /* (account && account.balance ? account.balance : balances[token]) || 0; */

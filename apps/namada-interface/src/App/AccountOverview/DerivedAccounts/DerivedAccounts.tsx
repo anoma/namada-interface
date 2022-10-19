@@ -110,7 +110,7 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
 
       tokenBalances.push({
         address,
-        balance: balances[symbol || 0],
+        balance: balances[symbol] || 0,
         label: `${alias !== "Namada" ? alias : coin}`,
         token: symbol,
         isShielded,

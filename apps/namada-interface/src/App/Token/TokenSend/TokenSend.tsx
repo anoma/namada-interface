@@ -11,7 +11,7 @@ import {
   ESTABLISHED_ADDRESS_LENGTH,
   ESTABLISHED_ADDRESS_PREFIX,
 } from "./types";
-import { Symbols, Tokens, TokenType } from "@anoma/tx";
+import { Symbols, TokenType } from "@anoma/tx";
 
 import TokenSendForm from "./TokenSendForm";
 import { Heading, HeadingLevel } from "components/Heading";
@@ -60,25 +60,35 @@ const TokenSend = (): JSX.Element => {
   );
   const balances = balancesByChain[chainId] || {};
   const accounts = derived[chainId] || {};
-  const account = Object.values(accounts)[0] || {};
-  const [selectedAccountAddress, setSelectedAccountId] = useState<
-    string | undefined
-  >(account.address);
 
-  const [selectedShieldedAccountAddress, setSelectedShieldedAccountId] =
+  const transparentAccounts = Object.values(accounts).filter(
+    (account) => !account.isShielded
+  );
+  const shieldedAccounts = Object.values(accounts).filter(
+    (account) => account.isShielded
+  );
+
+  const account = Object.values(accounts)[0] || {};
+  const [
+    selectedTransparentAccountAddress,
+    setSelectedTransparentAccountAddress,
+  ] = useState<string | undefined>(account.address);
+
+  const [selectedShieldedAccountAddress, setSelectedShieldedAccountAddress] =
     useState<string | undefined>();
 
-  // TODO: Refactor and improve this:
   type AccountTokenData = {
     address: string;
     alias?: string;
     balance: number;
     tokenType: TokenType;
+    isShielded: boolean;
   };
 
+  // Get balances for each token & account
   const tokenBalances = Object.values(accounts).reduce(
     (data: AccountTokenData[], account) => {
-      const { address, alias } = account;
+      const { address, alias, isShielded } = account;
 
       const accountsWithToken: AccountTokenData[] = Symbols.map((symbol) => {
         const balance = (balances[address] || {})[symbol] || 0;
@@ -88,6 +98,7 @@ const TokenSend = (): JSX.Element => {
           alias,
           tokenType: symbol,
           balance,
+          isShielded,
         };
       });
 
@@ -96,47 +107,36 @@ const TokenSend = (): JSX.Element => {
     []
   );
 
-  const tokenData: Option<string>[] = tokenBalances
-    .filter((account) => account.balance > 0)
-    .map((account) => {
-      const { alias, address, tokenType, balance } = account;
-      const token = Tokens[tokenType];
-      const { coin } = token;
+  // Create token data for either Shielded or Transparent accounts
+  const getTokenData = (isShielded: boolean): Option<string>[] => {
+    return tokenBalances
+      .filter(
+        (account) => account.balance > 0 && account.isShielded === isShielded
+      )
+      .map((account) => {
+        const { alias, address, tokenType, balance } = account;
 
-      return {
-        value: `${address}|${tokenType}`,
-        label: `${
-          alias !== "Namada"
-            ? alias + " (" + balance + " " + tokenType + ")"
-            : coin + " (" + balance + " " + tokenType + ")"
-        }`,
-      };
-    });
+        return {
+          value: `${address}|${tokenType}`,
+          label: `${alias} ${balance} (${tokenType})`,
+        };
+      });
+  };
 
-  const accountsData = Object.values(accounts)
-    .filter((account) => !account.isShielded)
-    .map((account) => ({
-      value: account.address,
-      label: `${account.alias}`,
-    }));
-
-  const shieldedAccountsData = Object.values(accounts)
-    .filter((account) => account.isShielded)
-    .map((shieldedAccount) => ({
-      value: shieldedAccount.address,
-      label: `${shieldedAccount.alias})`,
-    }));
+  const transparentTokenData = getTokenData(false);
+  const shieldedTokenData = getTokenData(true);
 
   const tabs = ["Shielded", "Transparent"];
   let defaultTab = 0;
 
+  // Load the correct form if coming from URL in QR code:
   if (target && target.startsWith("atest")) {
     defaultTab = 1;
   }
 
   const [activeTab, setActiveTab] = useState(tabs[defaultTab]);
-  const tokenType = "NAM";
-  const [token, setToken] = useState<TokenType>(tokenType);
+  const defaultTokenType = "NAM";
+  const [token, setToken] = useState<TokenType>(defaultTokenType);
 
   useEffect(() => {
     if (accountIndex) {
@@ -153,25 +153,26 @@ const TokenSend = (): JSX.Element => {
   }, [accountIndex]);
 
   useEffect(() => {
-    if (!selectedAccountAddress && accountsData.length > 0) {
-      setSelectedAccountId(accountsData[0].value);
+    // Set selectedTransparentAccountAddress to first account if one
+    // hasn't been set:
+    if (!selectedTransparentAccountAddress && transparentAccounts.length > 0) {
+      setSelectedTransparentAccountAddress(transparentAccounts[0].address);
     }
-  }, [accountsData, selectedAccountAddress]);
+  }, [transparentAccounts, selectedTransparentAccountAddress]);
 
   useEffect(() => {
-    if (!selectedShieldedAccountAddress && shieldedAccountsData.length > 0) {
-      setSelectedShieldedAccountId(shieldedAccountsData[0].value);
+    // Set selectedShieldedAccountAddress to first account if one
+    // hasn't been set:
+    if (!selectedShieldedAccountAddress && shieldedAccounts.length > 0) {
+      setSelectedShieldedAccountAddress(shieldedAccounts[0].address);
     }
-  }, [shieldedAccountsData, selectedShieldedAccountAddress]);
+  }, [shieldedAccounts, selectedShieldedAccountAddress]);
 
-  const handleTransparentTokenChange = (
-    e: React.ChangeEvent<HTMLSelectElement>
-  ): void => {
+  const handleTokenChange = (e: React.ChangeEvent<HTMLSelectElement>): void => {
     const { value } = e.target;
-
     const [accountId, tokenSymbol] = value.split("|");
 
-    setSelectedAccountId(accountId);
+    setSelectedTransparentAccountAddress(accountId);
     setToken(tokenSymbol as TokenType);
   };
 
@@ -195,13 +196,13 @@ const TokenSend = (): JSX.Element => {
 
       {activeTab === "Shielded" && (
         <TokenSendContent>
-          {shieldedAccountsData.length > 0 && (
+          {shieldedTokenData.length > 0 ? (
             <>
               <Select
-                data={shieldedAccountsData || []}
-                value={selectedShieldedAccountAddress}
+                data={shieldedTokenData}
+                value={`${selectedShieldedAccountAddress}|${token}`}
                 label="Token"
-                onChange={(e) => setSelectedShieldedAccountId(e.target.value)}
+                onChange={handleTokenChange}
               />
               {selectedShieldedAccountAddress && (
                 <TokenSendForm
@@ -213,23 +214,25 @@ const TokenSend = (): JSX.Element => {
                 />
               )}
             </>
+          ) : (
+            <p>You have no shielded token balances.</p>
           )}
         </TokenSendContent>
       )}
 
       {activeTab === "Transparent" && (
         <TokenSendContent>
-          {accountsData.length > 0 && (
+          {transparentTokenData.length > 0 ? (
             <>
               <Select
-                data={tokenData || []}
-                value={`${selectedAccountAddress}|${token}`}
+                data={transparentTokenData}
+                value={`${selectedTransparentAccountAddress}|${token}`}
                 label="Token"
-                onChange={handleTransparentTokenChange}
+                onChange={handleTokenChange}
               />
-              {selectedAccountAddress && (
+              {selectedTransparentAccountAddress && (
                 <TokenSendForm
-                  address={selectedAccountAddress}
+                  address={selectedTransparentAccountAddress}
                   tokenType={token}
                   defaultTarget={
                     target?.startsWith("atest") ? target : undefined
@@ -237,6 +240,8 @@ const TokenSend = (): JSX.Element => {
                 />
               )}
             </>
+          ) : (
+            <p>You have no shielded token balances.</p>
           )}
         </TokenSendContent>
       )}

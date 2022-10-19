@@ -17,10 +17,6 @@ const BALANCES_ACTIONS_BASE = "balances";
 export type BalanceByToken = Record<string, number>;
 export type BalancesState = Record<string, Record<string, BalanceByToken>>;
 
-type FetchBalancesResults = {
-  balancesByAccount: Record<string, BalanceByToken>;
-};
-
 const initialState: BalancesState = {};
 enum BalancesThunkActions {
   FetchBalanceByAccounts = "fetchBalancesByAccounts",
@@ -57,7 +53,7 @@ export const fetchBalances = createAsyncThunk(
         const chainConfig = Config.chain[chainId];
         const rpcClient = new RpcClient(chainConfig.network);
 
-        const results = await Promise.all(
+        const results: Balance[] = await Promise.all(
           Symbols.map(async (token) => {
             const { address: tokenAddress = "" } = Tokens[token];
 
@@ -76,27 +72,7 @@ export const fetchBalances = createAsyncThunk(
       })
     );
 
-    const balancesByAccount = balances.reduce(
-      (acc: Record<string, BalanceByToken>, balances) => {
-        balances.forEach((balanceByToken) => {
-          const { address, token, balance } = balanceByToken;
-
-          if (!acc[address]) {
-            acc[address] = {};
-          }
-          if (!acc[address][token]) {
-            acc[address][token] = balance;
-          }
-        });
-
-        return acc;
-      },
-      {}
-    );
-
-    return {
-      balancesByAccount,
-    };
+    return balances;
   }
 );
 
@@ -124,7 +100,6 @@ const balancesSlice = createSlice({
       (state, action: PayloadAction<Balance>) => {
         const { chainId, address, token, balance } = action.payload;
 
-        // Perhaps this isn't needed?
         if (!state[chainId]) {
           state[chainId] = {};
         }
@@ -135,26 +110,29 @@ const balancesSlice = createSlice({
 
         state[chainId][address][token] = balance;
       }
-    ),
-      builder.addCase(
-        fetchBalances.fulfilled,
-        (state, action: PayloadAction<FetchBalancesResults>) => {
-          const { balancesByAccount } = action.payload;
+    );
+    builder.addCase(
+      fetchBalances.fulfilled,
+      (state, action: PayloadAction<Balance[][]>) => {
+        const result = action.payload;
 
-          const accountIds = Object.keys(balancesByAccount);
+        result.forEach((balances) => {
+          balances.forEach((tokenBalance) => {
+            const { chainId, address, token, balance } = tokenBalance;
 
-          accountIds.forEach((accountId) => {
-            const { chainId } = balancesByAccount[accountId];
             if (!state[chainId]) {
               state[chainId] = {};
             }
-            if (!state[chainId][accountId]) {
-              state[chainId][accountId] = {};
+
+            if (!state[chainId][address]) {
+              state[chainId][address] = {};
             }
-            state[chainId][accountId] = balancesByAccount[accountId];
+
+            state[chainId][address][token] = balance;
           });
-        }
-      );
+        });
+      }
+    );
   },
 });
 

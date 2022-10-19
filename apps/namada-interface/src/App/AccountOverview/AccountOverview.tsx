@@ -26,8 +26,6 @@ import {
   TotalHeading,
 } from "./AccountOverview.components";
 import { formatCurrency } from "@anoma/utils";
-import { fetchBalanceByToken } from "slices/balances";
-import { Symbols } from "@anoma/tx";
 
 export const AccountOverview = (): JSX.Element => {
   const navigate = useNavigate();
@@ -40,16 +38,7 @@ export const AccountOverview = (): JSX.Element => {
   const { chainId, fiatCurrency } = useAppSelector<SettingsState>(
     (state) => state.settings
   );
-  const accounts = derived[chainId] || {};
   const [total, setTotal] = useState(0);
-
-  useEffect(() => {
-    Object.values(accounts).forEach((account) => {
-      Symbols.forEach((token) => {
-        dispatch(fetchBalanceByToken({ token, account }));
-      });
-    });
-  }, [derived]);
 
   const handleConnectExtension = async (): Promise<void> => {
     try {
