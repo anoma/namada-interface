@@ -210,12 +210,11 @@ type TopNavigationProps = {
   setColorMode: (mode: ColorMode) => void;
   persistor?: Persistor;
   store?: AppStore;
-  logout: () => void;
 };
 
 // top nav of the app, this is likely always visible.
 function TopNavigation(props: TopNavigationProps): JSX.Element {
-  const { colorMode, logout, toggleColorMode, setColorMode, store } = props;
+  const { colorMode, toggleColorMode, setColorMode, store } = props;
   const navigate = useNavigate();
   const themeContext = useContext(ThemeContext);
   const [showMenu, setShowMenu] = useState(false);
@@ -258,16 +257,6 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
                   toggleColorMode={toggleColorMode}
                   topLevelRoute={topLevelRoute}
                 ></TopNavigationLoggedIn>
-
-                <MenuItem
-                  onClick={() => {
-                    navigate(TopLevelRoute.Home);
-                    logout();
-                  }}
-                >
-                  <Icon iconName={IconName.Lock} />
-                  <MenuItemTextContainer>Lock</MenuItemTextContainer>
-                </MenuItem>
               </>
             )}
           </RightSection>
@@ -435,18 +424,6 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
                 isSelected={topLevelRoute === TopLevelRoute.Settings}
               >
                 Settings
-              </MenuItem>
-            </MobileMenuListItem>
-            <MobileMenuListItem>
-              <MenuItem
-                onClick={() => {
-                  setShowMenu(false);
-                  navigate(TopLevelRoute.Home);
-                  logout();
-                }}
-              >
-                <Icon iconName={IconName.Lock} />
-                <MenuItemTextContainer>Lock</MenuItemTextContainer>
               </MenuItem>
             </MobileMenuListItem>
           </MobileMenuList>

@@ -15,6 +15,7 @@ import {
   AccountOverviewContent,
   AccountTab,
   AccountTabsContainer,
+  ButtonsContainer,
   ButtonsWrapper,
   HeadingContainer,
   NoAccountsContainer,
@@ -95,20 +96,22 @@ export const AccountOverview = (): JSX.Element => {
         </HeadingContainer>
 
         {derived[chainId] ? (
-          <ButtonsWrapper>
-            <Button
-              variant={ButtonVariant.Contained}
-              onClick={() => navigate(TopLevelRoute.TokenSend)}
-            >
-              Send
-            </Button>
-            <Button
-              variant={ButtonVariant.Contained}
-              onClick={() => navigate(TopLevelRoute.TokenReceive)}
-            >
-              Receive
-            </Button>
-          </ButtonsWrapper>
+          <ButtonsContainer>
+            <ButtonsWrapper>
+              <Button
+                variant={ButtonVariant.Contained}
+                onClick={() => navigate(TopLevelRoute.TokenSend)}
+              >
+                Send
+              </Button>
+              <Button
+                variant={ButtonVariant.Contained}
+                onClick={() => navigate(TopLevelRoute.TokenReceive)}
+              >
+                Receive
+              </Button>
+            </ButtonsWrapper>
+          </ButtonsContainer>
         ) : (
           <div />
         )}

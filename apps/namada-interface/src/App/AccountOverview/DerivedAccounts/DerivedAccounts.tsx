@@ -118,12 +118,9 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
     });
   });
 
-  // TODO: Re-enable this once we have a way of transferring faucet tokens!
-  /* const tokens = tokenBalances.filter( */
-  /*   (tokenBalance) => tokenBalance.balance > 0 */
-  /* ); */
-  // TODO: Remove the following once the previous has been re-enabled!
-  const tokens = tokenBalances;
+  const tokens = tokenBalances.filter(
+    (tokenBalance) => tokenBalance.balance > 0
+  );
 
   const getAssetIconByTheme = (symbol: TokenType): string => {
     return colorMode === "dark"

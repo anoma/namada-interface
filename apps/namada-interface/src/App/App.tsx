@@ -58,7 +58,6 @@ function App(): JSX.Element {
   const initialColorMode = loadColorMode();
   const [colorMode, setColorMode] = useState<ColorMode>(initialColorMode);
   const location = useLocation();
-  const [password, setPassword] = useState<string>();
   const ShouldUsePlaceholderTheme = getShouldUsePlaceholderTheme(location);
   const theme = getTheme(colorMode, ShouldUsePlaceholderTheme);
 
@@ -80,7 +79,6 @@ function App(): JSX.Element {
               toggleColorMode={toggleColorMode}
               setColorMode={setColorMode}
               store={store}
-              logout={() => setPassword(undefined)}
             />
           </TopSection>
           <BottomSection>

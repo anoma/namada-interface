@@ -80,7 +80,7 @@ const TokenSend = (): JSX.Element => {
     (data: AccountTokenData[], account) => {
       const { address, alias } = account;
 
-      const accountsWithId: AccountTokenData[] = Symbols.map((symbol) => {
+      const accountsWithToken: AccountTokenData[] = Symbols.map((symbol) => {
         const balance = (balances[address] || {})[symbol] || 0;
 
         return {
@@ -91,7 +91,7 @@ const TokenSend = (): JSX.Element => {
         };
       });
 
-      return [...data, ...accountsWithId];
+      return [...data, ...accountsWithToken];
     },
     []
   );
