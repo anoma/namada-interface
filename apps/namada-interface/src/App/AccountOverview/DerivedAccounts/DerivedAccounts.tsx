@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from "store";
 import { AccountsState } from "slices/accounts";
 import { BalancesState, fetchBalances } from "slices/balances";
 import { SettingsState } from "slices/settings";
-import { updateShieldedBalances } from "slices/AccountsNew";
+/* import { updateShieldedBalances } from "slices/AccountsNew"; */
 import { Symbols, Tokens, TokenType } from "@anoma/tx";
 import { formatRoute } from "@anoma/utils";
 import { fetchConversionRates, CoinsState } from "slices/coins";
@@ -92,8 +92,6 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
     label: string;
     balance: number;
     isShielded?: boolean;
-    isInitializing?: boolean;
-    isInitial?: boolean;
   };
 
   const derivedAccounts = derived[chainId] || {};
@@ -116,15 +114,16 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
         label: `${alias !== "Namada" ? alias : coin}`,
         token: symbol,
         isShielded,
-        isInitializing: false,
-        isInitial: false,
       });
     });
   });
 
-  const tokens = tokenBalances.filter(
-    (tokenBalance) => tokenBalance.balance > 0
-  );
+  // TODO: Re-enable this once we have a way of transferring faucet tokens!
+  /* const tokens = tokenBalances.filter( */
+  /*   (tokenBalance) => tokenBalance.balance > 0 */
+  /* ); */
+  // TODO: Remove the following once the previous has been re-enabled!
+  const tokens = tokenBalances;
 
   const getAssetIconByTheme = (symbol: TokenType): string => {
     return colorMode === "dark"
@@ -140,12 +139,7 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
   /* }, []); */
 
   useEffect(() => {
-    dispatch(
-      fetchBalances({
-        chainId,
-        accounts: Object.values(derivedAccounts),
-      })
-    );
+    dispatch(fetchBalances(Object.values(derivedAccounts)));
   }, [derivedAccounts]);
 
   /**

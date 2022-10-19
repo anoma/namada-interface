@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { Account } from "@anoma/types";
 
 import { TopLevelRoute } from "App/types";
 import { DerivedAccount, AccountsState } from "slices/accounts";
@@ -45,7 +46,7 @@ const Transfers = (): JSX.Element => {
   /*     shieldedAccounts[id].shieldedKeysAndPaymentAddress; */
   /* } */
 
-  const account: DerivedAccount = accounts[id] || {}; // || shieldedAccounts[id] || {};
+  const account: Account = accounts[id] || {}; // || shieldedAccounts[id] || {};
   const { address } = account;
 
   const transactions: TransferTransaction[] = accountTransactions

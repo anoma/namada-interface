@@ -25,7 +25,7 @@ export interface KeyStore<T = Argon2Params> {
   id: string;
   alias?: string;
   address: string;
-  establishedAddress?: string;
+  chainId: string;
   crypto: {
     cipher: {
       type: "aes-256-gcm";

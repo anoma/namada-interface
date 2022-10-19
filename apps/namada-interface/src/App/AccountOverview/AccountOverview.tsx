@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Anoma } from "@anoma/integrations";
-import { useAppSelector } from "store";
-import { AccountsState } from "slices/accounts";
+import { useAppSelector, useAppDispatch } from "store";
+import { AccountsState, addAccounts } from "slices/accounts";
 import { SettingsState } from "slices/settings";
 import { TopLevelRoute } from "App/types";
 
@@ -25,28 +25,46 @@ import {
   TotalHeading,
 } from "./AccountOverview.components";
 import { formatCurrency } from "@anoma/utils";
+import { fetchBalanceByToken } from "slices/balances";
+import { Symbols } from "@anoma/tx";
 
 export const AccountOverview = (): JSX.Element => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const [isExtensionConnected, setIsExtensionConnected] = useState(false);
+  const [isConnectingToExtension, setIsConnectingToExtension] = useState(false);
 
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
 
   const { chainId, fiatCurrency } = useAppSelector<SettingsState>(
     (state) => state.settings
   );
+  const accounts = derived[chainId] || {};
   const [total, setTotal] = useState(0);
+
+  useEffect(() => {
+    Object.values(accounts).forEach((account) => {
+      Symbols.forEach((token) => {
+        dispatch(fetchBalanceByToken({ token, account }));
+      });
+    });
+  }, [derived]);
 
   const handleConnectExtension = async (): Promise<void> => {
     try {
-      console.log("CONNECT TO EXTENSION!");
       const anoma = new Anoma();
-      await anoma.connect();
-      const accounts = await anoma.fetchAccounts();
-      console.log({ accounts });
-      setIsExtensionConnected(true);
+      if (anoma.detect()) {
+        setIsConnectingToExtension(true);
+        await anoma.connect();
+        const accounts = await anoma.fetchAccounts();
+        if (accounts) {
+          dispatch(addAccounts(accounts));
+        }
+        setIsExtensionConnected(true);
+      }
     } catch (e) {
       setIsExtensionConnected(false);
+      setIsConnectingToExtension(false);
     }
   };
 
@@ -100,6 +118,7 @@ export const AccountOverview = (): JSX.Element => {
               <Button
                 variant={ButtonVariant.Contained}
                 onClick={handleConnectExtension}
+                disabled={isConnectingToExtension}
               >
                 Connect to Extension
               </Button>

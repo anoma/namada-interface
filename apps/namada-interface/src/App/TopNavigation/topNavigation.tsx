@@ -35,7 +35,6 @@ import {
   TopNavigationContainerRow,
   TopNavigationContainerSecondRow,
   TopNavigationSecondRowInnerContainer,
-  TopNavigationLogoContainer,
   MenuButton,
   MobileMenu,
   MobileMenuList,
@@ -48,7 +47,6 @@ import {
 import { AppStore } from "store/store";
 import { setChainId, SettingsState } from "slices/settings";
 import TopNavigationLoggedIn from "./topNavigationLoggedIn";
-import { SettingsButton } from "./topNavigationLoggedIn.components";
 import { Icon, IconName } from "components/Icon";
 import Config, { Chain } from "config";
 

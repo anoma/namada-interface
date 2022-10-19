@@ -81,7 +81,7 @@ const IBCTransfer = (): JSX.Element => {
 
   type AccountTokenData = {
     address: string;
-    alias: string;
+    alias?: string;
     balance: number;
     tokenType: TokenType;
   };
@@ -146,20 +146,12 @@ const IBCTransfer = (): JSX.Element => {
       const selectedChain = ibc[0].chainId;
       setSelectedChainId(selectedChain);
     }
-    dispatch(
-      fetchBalances({
-        chainId,
-        accounts: Object.values(derivedAccounts),
-      })
-    );
+    dispatch(fetchBalances(Object.values(derivedAccounts)));
   }, [chainId]);
 
   useEffect(() => {
     if (account && !isIbcTransferSubmitting) {
-      fetchBalances({
-        chainId,
-        accounts: Object.values(derivedAccounts),
-      });
+      fetchBalances(Object.values(derivedAccounts));
     }
   }, [isIbcTransferSubmitting]);
 

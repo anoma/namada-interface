@@ -1,5 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Account } from "@anoma/types";
 
+// TODO: REMOVE THIS TYPE! USE SHARED TYPE INSTEAD!
 export type DerivedAccount = {
   alias: string;
   address: string;
@@ -10,7 +12,7 @@ export type DerivedAccount = {
 };
 
 type DerivedAccounts = {
-  [address: string]: DerivedAccount;
+  [address: string]: Account;
 };
 
 type ChainId = string;
@@ -29,24 +31,19 @@ const accountsSlice = createSlice({
   name: ACCOUNTS_ACTIONS_BASE,
   initialState,
   reducers: {
-    addAccounts: (
-      state,
-      action: PayloadAction<{ chainId: ChainId; accounts: DerivedAccount[] }>
-    ) => {
-      const { chainId, accounts } = action.payload;
-
-      if (!state.derived[chainId]) {
-        state.derived[chainId] = {};
-      }
+    addAccounts: (state, action: PayloadAction<Account[]>) => {
+      const accounts = action.payload;
 
       accounts.forEach((account) => {
-        const { address, alias, publicKey, isShielded } = account;
+        const { address, alias, chainId, isShielded } = account;
+        if (!state.derived[chainId]) {
+          state.derived[chainId] = {};
+        }
 
         state.derived[chainId][address] = {
           address,
           alias,
           chainId,
-          publicKey,
           isShielded,
         };
       });

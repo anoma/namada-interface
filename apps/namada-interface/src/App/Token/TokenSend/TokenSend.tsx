@@ -71,7 +71,7 @@ const TokenSend = (): JSX.Element => {
   // TODO: Refactor and improve this:
   type AccountTokenData = {
     address: string;
-    alias: string;
+    alias?: string;
     balance: number;
     tokenType: TokenType;
   };

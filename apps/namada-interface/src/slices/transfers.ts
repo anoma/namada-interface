@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+import { Account } from "@anoma/types";
 import {
   RpcConfig,
   RpcClient,
@@ -121,7 +122,7 @@ type WithNotification<T> = T & { notify?: boolean };
 
 type TxArgs = {
   chainId: string;
-  account: DerivedAccount;
+  account: Account;
   token: TokenType;
   target: string;
   amount: number;
@@ -188,7 +189,7 @@ const createShieldedTransaction = async (
 // it will first create the shielded transfer that is included in the "parent" transfer
 const createTransfer = async (
   chainId: string,
-  sourceAccount: DerivedAccount,
+  sourceAccount: Account,
   transferData: TransferData
 ): Promise<TransferHashAndBytes> => {
   const txCode = await fetchWasmCode(TxWasm.Transfer);

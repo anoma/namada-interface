@@ -56,7 +56,10 @@ export class KeyRing {
   private _password: string | undefined;
   private _status: KeyRingStatus = KeyRingStatus.Empty;
 
-  constructor(kvStore: KVStore<KeyStore>) {
+  constructor(
+    kvStore: KVStore<KeyStore>,
+    public readonly chainId: string = chains[0].chainId
+  ) {
     this._keyStore = new Store(KEYSTORE_KEY, kvStore);
   }
 
@@ -127,11 +130,13 @@ export class KeyRing {
       const bip44 = new HDWallet(seed);
       const account = bip44.derive(path);
       const address = new Address(account.private().to_hex()).implicit();
+      const { chainId } = this;
 
       const mnemonicStore = crypto.encrypt({
         id: getId(phrase, (await this._keyStore.get()).length),
         alias,
         address,
+        chainId,
         password,
         path: {
           account: 0,
@@ -261,10 +266,13 @@ export class KeyRing {
         text = transparentAccount.text;
       }
 
+      const { chainId } = this;
+
       this._keyStore.append(
         crypto.encrypt({
           alias,
           address,
+          chainId,
           id,
           password: this._password,
           path,
@@ -277,6 +285,7 @@ export class KeyRing {
         id,
         address,
         alias,
+        chainId,
         parentId,
         path,
         type,
@@ -291,10 +300,10 @@ export class KeyRing {
     // Query accounts from storage
     const accounts = (await this._keyStore.get()) || [];
     return accounts.map(
-      ({ address, alias, establishedAddress, path, parentId, id, type }) => ({
+      ({ address, alias, chainId, path, parentId, id, type }) => ({
         address,
         alias,
-        establishedAddress,
+        chainId,
         id,
         parentId,
         path,

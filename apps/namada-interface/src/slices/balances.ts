@@ -1,10 +1,10 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Account } from "@anoma/types";
 
 import { RpcClient } from "@anoma/rpc";
 import { Symbols, Tokens, TokenType } from "@anoma/tx";
 
 import Config from "config";
-import { DerivedAccount } from "./accounts";
 
 type Balance = {
   chainId: string;
@@ -18,7 +18,6 @@ export type BalanceByToken = Record<string, number>;
 export type BalancesState = Record<string, Record<string, BalanceByToken>>;
 
 type FetchBalancesResults = {
-  chainId: string;
   balancesByAccount: Record<string, BalanceByToken>;
 };
 
@@ -30,11 +29,7 @@ enum BalancesThunkActions {
 
 export const fetchBalanceByToken = createAsyncThunk(
   `${BALANCES_ACTIONS_BASE}/${BalancesThunkActions.FetchBalanceByToken}`,
-  async (args: {
-    chainId: string;
-    token: TokenType;
-    account: DerivedAccount;
-  }) => {
+  async (args: { token: TokenType; account: Account }) => {
     const { token, account } = args;
 
     const { chainId, address } = account;
@@ -55,9 +50,7 @@ export const fetchBalanceByToken = createAsyncThunk(
 
 export const fetchBalances = createAsyncThunk(
   `${BALANCES_ACTIONS_BASE}/${BalancesThunkActions.FetchBalanceByAccounts}`,
-  async (args: { chainId: string; accounts: DerivedAccount[] }) => {
-    const { chainId, accounts } = args;
-
+  async (accounts: Account[]) => {
     const balances = await Promise.all(
       accounts.map(async (account) => {
         const { chainId, address } = account;
@@ -102,7 +95,6 @@ export const fetchBalances = createAsyncThunk(
     );
 
     return {
-      chainId,
       balancesByAccount,
     };
   }
@@ -147,15 +139,15 @@ const balancesSlice = createSlice({
       builder.addCase(
         fetchBalances.fulfilled,
         (state, action: PayloadAction<FetchBalancesResults>) => {
-          const { chainId, balancesByAccount } = action.payload;
+          const { balancesByAccount } = action.payload;
 
           const accountIds = Object.keys(balancesByAccount);
 
-          if (!state[chainId]) {
-            state[chainId] = {};
-          }
-
           accountIds.forEach((accountId) => {
+            const { chainId } = balancesByAccount[accountId];
+            if (!state[chainId]) {
+              state[chainId] = {};
+            }
             if (!state[chainId][accountId]) {
               state[chainId][accountId] = {};
             }

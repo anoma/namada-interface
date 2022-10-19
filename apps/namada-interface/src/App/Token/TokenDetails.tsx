@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { Account } from "@anoma/types";
 
 import config from "config";
 import { TopLevelRoute } from "App/types";
@@ -36,7 +37,7 @@ const TokenDetails = (): JSX.Element => {
 
   const accounts = derived[chainId] || {};
 
-  const account: DerivedAccount = accounts[id] || {};
+  const account: Account = accounts[id] || {};
   const { alias, address } = account;
 
   // TODO: Fix me

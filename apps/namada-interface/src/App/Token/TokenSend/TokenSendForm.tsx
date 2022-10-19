@@ -2,6 +2,7 @@ import { useEffect, useState, useContext, CSSProperties } from "react";
 import { ThemeContext } from "styled-components";
 import QrReader from "react-qr-reader";
 
+import { Account } from "@anoma/types";
 import Config from "config";
 import { Tokens, TokenType } from "@anoma/tx";
 import { RpcClient } from "@anoma/rpc";
@@ -165,7 +166,7 @@ const TokenSendForm = ({
     (state) => state.transfers
   );
 
-  const account: DerivedAccount = derivedAccounts[address];
+  const account: Account = derivedAccounts[address];
 
   const isShieldedSource = account.isShielded;
   const token = Tokens[tokenType] || {};
@@ -299,8 +300,9 @@ const TokenSendForm = ({
     targetAddress: string | undefined
   ): string | undefined => {
     const account = derivedAccounts[address];
-    const balance =
-      (account && account.balance ? account.balance : balances[token]) || 0;
+    // TODO: Pull balance from balances state!
+    const balance = 0;
+    /* (account && account.balance ? account.balance : balances[token]) || 0; */
 
     const transferTypeBasedOnTarget =
       targetAddress && parseTarget(targetAddress);

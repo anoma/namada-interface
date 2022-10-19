@@ -16,12 +16,14 @@ export enum AccountType {
 
 export type DerivedAccount = {
   id: string;
+  chainId: string;
   address: string;
   alias?: string;
-  establishedAddress?: string;
   parentId?: string;
   path: Bip44Path;
   type: AccountType;
 };
 
-export type Account = Pick<DerivedAccount, "address" | "alias">;
+export type Account = Pick<DerivedAccount, "address" | "alias" | "chainId"> & {
+  isShielded: boolean;
+};

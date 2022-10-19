@@ -11,8 +11,7 @@ export const mockAppState: RootState = {
             alias: "Namada",
             address:
               "atest1v4ehgw36xqcyz3zrxsenzd3kxsunsvzzxymyywpkg4zrjv2pxepyyd3cgse5gwzxgsm5x3zrkf2pwp",
-            publicKey:
-              "267ab5211a716883f630ac294cb30fd97fba9eb122b31b4bd3b72944931b307a",
+            isShielded: false,
           },
       },
       "anoma-test.1e670ba91369ec891fc": {
@@ -21,8 +20,7 @@ export const mockAppState: RootState = {
           alias: "Namada",
           address:
             "atest1v4ehgw36xqcyz3zrxsenzd3kxsunsvzzxymyywpkg4zrjv2pxepyyd3cgse5gwzxgsm5x3zrkf2pwp",
-          publicKey:
-            "6138f3a79b14854a2c69c64c8029d6eed1460bbfe4995f26185fa538740cb3dc",
+          isShielded: false,
         },
       },
       "anoma-test.89060614ce340f4baae": {
@@ -30,8 +28,7 @@ export const mockAppState: RootState = {
           chainId: "anoma-test.89060614ce340f4baae",
           alias: "Namada",
           address: "L1qDtV8TRwYLSHdMDW518hgRw9nWnRjFTenkcBYNJruyYoLjaj8F",
-          publicKey:
-            "17f47ab28c162729425dd01baebccadeb536c81ccd2c145a046239a9588eeef5",
+          isShielded: false,
         },
       },
     },
