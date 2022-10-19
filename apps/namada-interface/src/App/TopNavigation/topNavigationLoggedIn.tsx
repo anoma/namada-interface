@@ -27,7 +27,7 @@ const TopNavigationLoggedIn = (props: Props): JSX.Element => {
         <TopNavigationLoggedInControlsContainer>
           <SettingsButton
             onClick={() => {
-              navigate(`${TopLevelRoute.Settings}`);
+              navigate(`${TopLevelRoute.SettingsWalletSettings}`);
             }}
           >
             <Icon iconName={IconName.Settings} />

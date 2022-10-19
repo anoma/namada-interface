@@ -421,7 +421,9 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
                   setShowMenu(false);
                   navigate(TopLevelRoute.Settings);
                 }}
-                isSelected={topLevelRoute === TopLevelRoute.Settings}
+                isSelected={
+                  topLevelRoute === TopLevelRoute.SettingsWalletSettings
+                }
               >
                 Settings
               </MenuItem>

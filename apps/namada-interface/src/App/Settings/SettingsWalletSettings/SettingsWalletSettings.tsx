@@ -97,7 +97,7 @@ export const SettingsWalletSettings = (): JSX.Element => {
       <ButtonsContainer>
         <BackButton
           onClick={() => {
-            navigate(TopLevelRoute.Settings);
+            navigate(-1);
           }}
         >
           <Icon iconName={IconName.ChevronLeft} />
