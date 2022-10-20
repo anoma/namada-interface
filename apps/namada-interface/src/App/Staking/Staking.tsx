@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { MainContainerNavigation } from "App/StakingAndGovernance/MainContainerNavigation";
+import { Modal } from "components/Modal";
 import { StakingContainer } from "./Staking.components";
 import { StakingOverview } from "./StakingOverview";
 import { ValidatorDetails } from "./ValidatorDetails";
@@ -10,7 +11,10 @@ import {
   Validator,
   MyValidators,
   StakingPosition,
+  ChangeInStakingPosition,
 } from "slices/StakingAndGovernance";
+import { NewBondingPosition } from "./NewBondingPosition";
+import { UnbondPosition } from "./UnbondPosition";
 
 const initialTitle = "Staking";
 
@@ -48,18 +52,45 @@ type Props = {
   myValidators: MyValidators[];
   myStakingPositions: StakingPosition[];
   selectedValidatorId: string | undefined;
-  onInitCallback: () => void; // will be called at first load, triggers fetching
+  // will be called at first load, parent decides what happens
+  onInitCallback: () => void;
   fetchValidatorDetails: (validatorId: string) => void;
+  postNewBonding: (changeInStakingPosition: ChangeInStakingPosition) => void;
+  postNewUnbonding: (changeInStakingPosition: ChangeInStakingPosition) => void;
 };
 
+// in this view we can be in one of these states at any given time
+export enum ModalState {
+  None,
+  NewBonding,
+  Unbond,
+}
+
+// TODO: these should go to Modal component
+export enum ModalOnRequestCloseType {
+  Confirm,
+  Cancel,
+}
+
+//  This is the parent view for all staking related views. Most of the
+//  staking specific functions are defined here and passed down as props.
+//  This contains the main vies in staking:
+//  * StakingOverview - displaying an overview of the users staking and validators
+//  * ValidatorDetails - as the name says
+//  * NewStakingStakingPosition - rendered in modal on top of other content
+//     this is for creating new staking positions
+//  * UnstakePositions - rendered in modal on top of other content, for unstaking
 export const Staking = (props: Props): JSX.Element => {
   const [breadcrumb, setBreadcrumb] = useState([initialTitle]);
+  const [modalState, setModalState] = useState(ModalState.None);
   const location = useLocation();
   const navigate = useNavigate();
 
   const {
     onInitCallback,
     fetchValidatorDetails,
+    postNewBonding,
+    postNewUnbonding,
     myBalances,
     validators,
     myValidators,
@@ -68,9 +99,10 @@ export const Staking = (props: Props): JSX.Element => {
   } = props;
 
   // these 2 are needed for validator details
-  const stakingPositionsWithSelectedValidator = myStakingPositions.filter(
-    (validator) => validator.validatorId === selectedValidatorId
-  );
+  const stakingPositionsWithSelectedValidator =
+    myStakingPositions.filter(
+      (validator) => validator.validatorId === selectedValidatorId
+    );
 
   const selectedValidator = validators.find(
     (validator) => validator.uuid === selectedValidatorId
@@ -113,6 +145,29 @@ export const Staking = (props: Props): JSX.Element => {
     fetchValidatorDetails(validatorId);
   };
 
+  // callbacks for the bonding and unbonding views
+  const confirmBonding = (
+    changeInStakingPosition: ChangeInStakingPosition
+  ): void => {
+    setModalState(ModalState.None);
+    postNewBonding(changeInStakingPosition);
+  };
+
+  const cancelBonding = (): void => {
+    setModalState(ModalState.None);
+  };
+
+  const confirmUnbonding = (
+    changeInStakingPosition: ChangeInStakingPosition
+  ): void => {
+    setModalState(ModalState.None);
+    postNewUnbonding(changeInStakingPosition);
+  };
+
+  const cancelUnbonding = (): void => {
+    setModalState(ModalState.None);
+  };
+
   return (
     <StakingContainer>
       <MainContainerNavigation
@@ -124,6 +179,36 @@ export const Staking = (props: Props): JSX.Element => {
           setBreadcrumb([initialTitle]);
         }}
       />
+      {/* modal for bonding */}
+      <Modal
+        isOpen={modalState === ModalState.NewBonding}
+        title={`Stake with ${selectedValidator?.name}`}
+        onBackdropClick={() => {
+          cancelBonding();
+        }}
+      >
+        <NewBondingPosition
+          totalFundsToBond={100}
+          confirmBonding={confirmBonding}
+          cancelBonding={cancelBonding}
+          currentBondingPosition={stakingPositionsWithSelectedValidator[0]}
+        />
+      </Modal>
+
+      {/* modal for unbonding */}
+      <Modal
+        isOpen={modalState === ModalState.Unbond}
+        title="Unstake"
+        onBackdropClick={() => {
+          cancelUnbonding();
+        }}
+      >
+        <UnbondPosition
+          confirmUnbonding={confirmUnbonding}
+          cancelUnbonding={cancelUnbonding}
+          currentBondingPosition={stakingPositionsWithSelectedValidator[0]}
+        />
+      </Modal>
       <Routes>
         <Route
           path={StakingAndGovernanceSubRoute.StakingOverview}
@@ -144,6 +229,7 @@ export const Staking = (props: Props): JSX.Element => {
               stakingPositionsWithSelectedValidator={
                 stakingPositionsWithSelectedValidator
               }
+              setModalState={setModalState}
             />
           }
         />

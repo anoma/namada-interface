@@ -5,15 +5,21 @@ import {
   fetchMyBalances,
   fetchMyValidators,
   fetchMyStakingPositions,
+  postNewBonding,
+  postNewUnbonding,
 } from "./actions";
-import { STAKING_AND_GOVERNANCE } from "./types";
-import { StakingAndGovernanceState } from "./types";
+import {
+  STAKING_AND_GOVERNANCE,
+  StakingAndGovernanceState,
+  StakingOrUnstakingState,
+} from "./types";
 
 const initialState: StakingAndGovernanceState = {
   myBalances: [],
   validators: [],
   myValidators: [],
   myStakingPositions: [],
+  stakingOrUnstakingState: StakingOrUnstakingState.Idle,
 };
 
 export const stakingAndGovernanceSlice = createSlice({
@@ -53,6 +59,28 @@ export const stakingAndGovernanceSlice = createSlice({
       .addCase(fetchMyStakingPositions.fulfilled, (state, action) => {
         // stop the loader
         state.myStakingPositions = action.payload?.myStakingPositions;
+      })
+      .addCase(postNewBonding.pending, (state, _action) => {
+        // stop the loader
+        state.stakingOrUnstakingState = StakingOrUnstakingState.Staking;
+      })
+      .addCase(postNewBonding.fulfilled, (state, _action) => {
+        // stop the loader
+        state.stakingOrUnstakingState = StakingOrUnstakingState.Idle;
+      })
+      .addCase(postNewBonding.rejected, (state, _action) => {
+        state.stakingOrUnstakingState = StakingOrUnstakingState.Idle;
+      })
+      .addCase(postNewUnbonding.pending, (state, _action) => {
+        // stop the loader
+        state.stakingOrUnstakingState = StakingOrUnstakingState.Unstaking;
+      })
+      .addCase(postNewUnbonding.fulfilled, (state, _action) => {
+        // stop the loader
+        state.stakingOrUnstakingState = StakingOrUnstakingState.Idle;
+      })
+      .addCase(postNewUnbonding.rejected, (state, _action) => {
+        state.stakingOrUnstakingState = StakingOrUnstakingState.Idle;
       });
   },
 });

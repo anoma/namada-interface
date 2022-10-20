@@ -37,6 +37,7 @@ export const Modal = (props: Props): JSX.Element => {
           display: "flex",
           justifyContent: "center",
           width: "80%",
+          maxWidth: "640px",
           height: "80%",
         },
       }}
