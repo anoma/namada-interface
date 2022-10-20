@@ -5,11 +5,14 @@ import {
   FETCH_VALIDATOR_DETAILS,
   FETCH_MY_VALIDATORS,
   FETCH_MY_STAKING_POSITIONS,
+  POST_NEW_STAKING,
+  POST_UNSTAKING,
   Validator,
   ValidatorDetailsPayload,
   MyBalanceEntry,
   MyValidators,
   StakingPosition,
+  ChangeInStakingPosition,
 } from "./types";
 import { allValidatorsData, myStakingData, myBalancesData } from "./fakeData";
 
@@ -95,3 +98,36 @@ export const fetchMyBalances = createAsyncThunk<
 >(FETCH_MY_BALANCES, async () => {
   return Promise.resolve({ myBalances: myBalancesData });
 });
+
+// we generate the new staking transaction
+// we post the new staking transaction
+// once it is accepted to the chain, we dispatch the below actions to get
+// the new updated balances and validator amounts:
+// * fetchMyBalances
+// * fetchMyValidators
+export const postNewBonding = createAsyncThunk<void, ChangeInStakingPosition>(
+  POST_NEW_STAKING,
+  async (changeInStakingPosition: ChangeInStakingPosition) => {
+    console.log(
+      "Should create a new bonding transaction and post it to the chain with the following data:"
+    );
+    console.log(changeInStakingPosition);
+    return Promise.resolve();
+  }
+);
+
+// we post an unstake transaction
+// once it is accepted to the chain, we dispatch the below actions to get
+// the new updated balances and validator amounts:
+// * fetchMyBalances
+// * fetchMyValidators
+export const postNewUnbonding = createAsyncThunk<void, ChangeInStakingPosition>(
+  POST_UNSTAKING,
+  async (changeInStakingPosition: ChangeInStakingPosition) => {
+    console.log(
+      "Should create a new unbonding transaction and post it to the chain with the following data:"
+    );
+    console.log(changeInStakingPosition);
+    return Promise.resolve();
+  }
+);

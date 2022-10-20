@@ -15,4 +15,4 @@ export type RowBase = {
 };
 
 // generic data type for tables that only have 2 columns, key and value
-export type KeyValueData = { key: string; value: string };
+export type KeyValueData = RowBase & { key: string; value: string };

@@ -7,7 +7,6 @@ export const TableContainer = styled.div`
   width: 100%;
   margin-bottom: 32px;
   color: ${(props) => props.theme.colors.utility2.main};
-  background-color: ${(props) => props.theme.colors.utility1.main80};
 `;
 
 export const TableElement = styled.table`
