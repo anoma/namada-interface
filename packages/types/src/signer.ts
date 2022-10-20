@@ -7,12 +7,11 @@ import {
   TxProps,
 } from "./tx";
 
-export interface Signer<T = Account> {
-  accounts: () => Promise<T[] | undefined>;
+export interface Signer {
+  accounts: () => Promise<Account[] | undefined>;
   signTx(
     signer: string,
     txProps: TxProps,
-    encodedTx: string,
     txData: string
   ): Promise<SignedTx | undefined>;
   encodeTransfer(args: TransferProps): Promise<string | undefined>;
