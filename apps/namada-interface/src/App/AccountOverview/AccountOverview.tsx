@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Anoma } from "@anoma/integrations";
@@ -110,7 +110,7 @@ export const AccountOverview = (): JSX.Element => {
               <Button
                 variant={ButtonVariant.Contained}
                 onClick={handleConnectExtension}
-                disabled={isConnectingToExtension}
+                loading={isConnectingToExtension}
               >
                 Connect to Extension
               </Button>

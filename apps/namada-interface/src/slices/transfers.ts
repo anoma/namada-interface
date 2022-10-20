@@ -9,6 +9,7 @@ import {
   NewBlockEvents,
   TxResponse,
   IbcTxResponse,
+  Events,
 } from "@anoma/rpc";
 import { Transfer, IBCTransfer, TxWasm, Tokens, TokenType } from "@anoma/tx";
 import {
@@ -362,7 +363,7 @@ export const submitTransferTransaction = createAsyncThunk(
     const createdTransfer = await createTransfer(account, transferData);
 
     const { transferHash, transferAsBytes, transferType } = createdTransfer;
-    const { promise, timeoutId } = promiseWithTimeout<NewBlockEvents>(
+    const { promise, timeoutId } = promiseWithTimeout<Events>(
       new Promise(async (resolve) => {
         await socketClient.broadcastTx(transferAsBytes);
         const events = await socketClient.subscribeNewBlock(transferHash);
@@ -383,16 +384,18 @@ export const submitTransferTransaction = createAsyncThunk(
     socketClient.disconnect();
     clearTimeout(timeoutId);
 
-    const code = events[TxResponse.Code][0];
-    const info = events[TxResponse.Info][0];
+    console.log({ events });
+
+    const code = events[TxResponse.Code];
+    const info = events[TxResponse.Info];
 
     if (code !== "0") {
       return rejectWithValue(info);
     }
 
-    const gas = amountFromMicro(parseInt(events[TxResponse.GasUsed][0]));
-    const appliedHash = events[TxResponse.Hash][0];
-    const height = parseInt(events[TxResponse.Height][0]);
+    const gas = amountFromMicro(parseInt(events[TxResponse.GasUsed]));
+    const appliedHash = events[TxResponse.Hash];
+    const height = parseInt(events[TxResponse.Height]);
 
     // TODO: Fix this!
     /* dispatch(fetchBalanceByAccount(account)); */
@@ -482,7 +485,7 @@ export const submitIbcTransferTransaction = createAsyncThunk(
       feeAmount,
     });
 
-    const { promise, timeoutId } = promiseWithTimeout<NewBlockEvents>(
+    const { promise, timeoutId } = promiseWithTimeout<Events>(
       new Promise(async (resolve) => {
         // TODO: Bytes received should already be in base64 encoded!
         await socketClient.broadcastTx(toHex(bytes));
@@ -504,27 +507,27 @@ export const submitIbcTransferTransaction = createAsyncThunk(
     socketClient.disconnect();
     clearTimeout(timeoutId);
 
-    const code = events[TxResponse.Code][0];
-    const info = events[TxResponse.Info][0];
+    const code = events[TxResponse.Code];
+    const info = events[TxResponse.Info];
 
     if (code !== "0") {
       return rejectWithValue(info);
     }
 
     // Get transaction events
-    const gas = amountFromMicro(parseInt(events[TxResponse.GasUsed][0]));
-    const appliedHash = events[TxResponse.Hash][0];
-    const height = parseInt(events[TxResponse.Height][0]);
+    const gas = amountFromMicro(parseInt(events[TxResponse.GasUsed]));
+    const appliedHash = events[TxResponse.Hash];
+    const height = parseInt(events[TxResponse.Height]);
 
     // Get IBC events
-    const sourceChannel = events[IbcTxResponse.SourceChannel][0];
-    const sourcePort = events[IbcTxResponse.SourcePort][0];
-    const destinationChannel = events[IbcTxResponse.DestinationChannel][0];
-    const destinationPort = events[IbcTxResponse.DestinationPort][0];
-    const timeoutHeight = parseInt(events[IbcTxResponse.TimeoutHeight][0]);
-    const timeoutTimestamp = parseInt(
-      events[IbcTxResponse.TimeoutTimestamp][0]
-    );
+    const sourceChannel = events[IbcTxResponse.SourceChannel];
+    const sourcePort = events[IbcTxResponse.SourcePort];
+    const destinationChannel = events[IbcTxResponse.DestinationChannel];
+    const destinationPort = events[IbcTxResponse.DestinationPort];
+    const timeoutHeight = 0;
+    parseInt(events[IbcTxResponse.TimeoutHeight]);
+    const timeoutTimestamp = 0;
+    parseInt(events[IbcTxResponse.TimeoutTimestamp]);
 
     return {
       chainId,

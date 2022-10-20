@@ -1,4 +1,3 @@
-import { toBase64 } from "@cosmjs/encoding";
 import { WebsocketClient } from "@cosmjs/tendermint-rpc";
 
 import RpcClientBase from "./RpcClientBase";
@@ -6,9 +5,24 @@ import { createJsonRpcRequest } from "@anoma/utils";
 import { TxResponse } from "./enums";
 import {
   BroadcastSyncResponse,
+  Events,
   NewBlockEvents,
   SubscriptionEvents,
 } from "./types";
+
+const parseEvents = (subEvents: SubscriptionEvents): Events => {
+  const { events }: { events: NewBlockEvents } = subEvents;
+  const [applied] = events;
+
+  const parsedEvents = applied.attributes.reduce((acc, attribute): Events => {
+    const { key, value } = attribute;
+    acc[key] = value;
+    return acc;
+  }, {} as Events);
+
+  console.log({ parsedEvents });
+  return parsedEvents;
+};
 
 class SocketClient extends RpcClientBase {
   private _client: WebsocketClient | null = null;
@@ -65,10 +79,10 @@ class SocketClient extends RpcClientBase {
   public subscribeNewBlock(
     hash: string,
     callbacks?: {
-      onNext?: (events: NewBlockEvents) => void;
+      onNext?: (events: Events) => void;
       onError?: (e: unknown) => void;
     }
-  ): Promise<NewBlockEvents> {
+  ): Promise<Events> {
     if (!this._client) {
       this.connect();
     }
@@ -86,13 +100,13 @@ class SocketClient extends RpcClientBase {
         )
         .addListener({
           next: (subEvent) => {
-            const { events }: { events: NewBlockEvents } =
-              subEvent as SubscriptionEvents;
+            const parsedEvents = parseEvents(<SubscriptionEvents>subEvent);
+
             this.disconnect();
             if (onNext) {
-              onNext(events);
+              onNext(parsedEvents);
             }
-            return resolve(events);
+            return resolve(parsedEvents);
           },
           error: (e) => {
             if (onError) {

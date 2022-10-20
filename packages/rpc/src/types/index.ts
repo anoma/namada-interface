@@ -38,7 +38,20 @@ export interface SubscriptionEvents extends SubscriptionEvent {
   events: NewBlockEvents;
 }
 
-export type NewBlockEvents = Record<TxResponse | IbcTxResponse, string[]>;
+export type Attribute = {
+  index: boolean;
+  key: string;
+  value: string;
+};
+
+export type Event = {
+  attributes: Attribute[];
+  type: string;
+};
+
+export type NewBlockEvents = [Event, Event];
+
+export type Events = Record<string, string>;
 
 export type JsonCompatibleArray = (string | number | boolean)[];
 export type JsonCompatibleDictionary = {
