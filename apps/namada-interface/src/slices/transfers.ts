@@ -15,6 +15,7 @@ import {
   amountFromMicro,
   promiseWithTimeout,
   fetchWasmCode,
+  amountToMicro,
 } from "@anoma/utils";
 
 import Config from "config";
@@ -163,7 +164,6 @@ type TransferData = {
   token: string;
   amount: number;
   epoch: number;
-  privateKey: string;
 };
 
 // TODO: Re-enable, and update this:
@@ -193,10 +193,44 @@ const createTransfer = async (
   sourceAccount: Account,
   transferData: TransferData
 ): Promise<TransferHashAndBytes> => {
-  const { chainId, alias, address } = sourceAccount;
-  const { amount, target, token } = transferData;
-  const { address: tokenAddress = "" } = Tokens[token as TokenType];
+  const { chainId, address } = sourceAccount;
+  const { amount, target, token, epoch } = transferData;
   const txCode = await fetchWasmCode(TxWasm.Transfer);
+
+  // Invoke extension integration
+  const anoma = new Anoma();
+  const signer = anoma.signer(chainId);
+  const encodedTx =
+    (await signer.encodeTransfer({
+      source: address,
+      target,
+      token,
+      amount,
+    })) || "";
+
+  const txProps = {
+    token,
+    epoch,
+    // TODO: Use user-specified or default feeAmount
+    feeAmount: 1000,
+    // TODO: Use user-specified or default gasLimit
+    gasLimit: 1000000,
+    txCode,
+  };
+
+  // Double-check that you're logged into the extension (that it's unlocked), then do the following:
+  const { hash, bytes } =
+    (await signer.signTx(address, txProps, encodedTx)) || {};
+
+  if (hash && bytes) {
+    return {
+      transferType: TransferType.NonShielded,
+      transferHash: hash,
+      transferAsBytes: bytes,
+    };
+  } else {
+    throw new Error("Invalid transaction!");
+  }
   /* const transfer = await new Transfer(txCode).init(); */
   // ============================================================================
   // TODO:
@@ -264,39 +298,6 @@ const createTransfer = async (
   /*   }; */
   /* } else { */
 
-  // TODO: This needs to be replaced with functionality from the extension!
-  const anoma = new Anoma();
-  const signer = anoma.signer(chainId);
-  const encodedTx =
-    (await signer.encodeTransfer({
-      source: address,
-      target,
-      token: tokenAddress,
-      amount,
-    })) || "";
-
-  const txProps = {
-    token:
-      "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5",
-    epoch: 5,
-    feeAmount: 1000,
-    gasLimit: 1000000,
-    txCode,
-  };
-
-  // Double-check that you're logged into the extension (that it's unlocked), then do the following:
-  const { hash, bytes } =
-    (await signer.signTx(address, txProps, encodedTx)) || {};
-
-  if (hash && bytes) {
-    return {
-      transferType: TransferType.NonShielded,
-      transferHash: hash,
-      transferAsBytes: bytes,
-    };
-  } else {
-    throw new Error("Invalid transaction!");
-  }
   /* } */
 };
 
@@ -325,11 +326,8 @@ export const submitTransferTransaction = createAsyncThunk(
       notify,
     } = txTransferArgs;
     const { address } = account;
-
     const source = faucet || address;
-
     const chainConfig = Config.chain[chainId];
-
     const { network } = chainConfig;
 
     const rpcClient = new RpcClient(network);
@@ -357,9 +355,8 @@ export const submitTransferTransaction = createAsyncThunk(
       source,
       target,
       token: token.address || "",
-      amount,
+      amount: amountToMicro(amount),
       epoch,
-      privateKey: "", // TODO: Remove this!
     };
 
     const createdTransfer = await createTransfer(account, transferData);

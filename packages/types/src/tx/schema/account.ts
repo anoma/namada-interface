@@ -13,7 +13,7 @@ export const AccountMsgSchema = new Map([
     AccountMsgValue,
     {
       kind: "struct",
-      fields: [["vp_code", []]],
+      fields: [["vp_code", ["u8"]]],
     },
   ],
 ]);

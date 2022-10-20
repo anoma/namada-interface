@@ -325,6 +325,7 @@ export class KeyRing {
     if (!account) {
       throw new Error(`Account not found for ${address}`);
     }
+
     try {
       const decrypted = crypto.decrypt(account, this._password);
       let pk: string;
@@ -344,6 +345,7 @@ export class KeyRing {
 
       const signer = new Signer(txData);
       const { hash, bytes } = signer.sign(txMsg, pk);
+
       return {
         hash,
         bytes: toBase64(bytes),

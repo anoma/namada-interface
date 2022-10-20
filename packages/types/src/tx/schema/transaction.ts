@@ -27,7 +27,7 @@ export const TransactionMsgSchema = new Map([
         ["epoch", "u64"],
         ["fee_amount", "u64"],
         ["gas_limit", "u64"],
-        ["tx_code", []],
+        ["tx_code", ["u8"]],
       ],
     },
   ],
