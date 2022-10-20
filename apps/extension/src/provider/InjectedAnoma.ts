@@ -38,7 +38,7 @@ export class InjectedAnoma implements IAnoma {
     );
   }
 
-  public getSigner(chainId: string): ISigner<Account> | undefined {
+  public getSigner(chainId: string): ISigner | undefined {
     return new Signer(chainId, this);
   }
 

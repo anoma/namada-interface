@@ -19,8 +19,8 @@ const Accounts: React.FC<Props> = ({ accounts, requester }) => {
   const alias = parentAccount?.alias;
 
   useEffect(() => {
-      requester.startSession();
-  }, [])
+    requester.startSession();
+  }, []);
 
   return (
     <AccountsContainer>
