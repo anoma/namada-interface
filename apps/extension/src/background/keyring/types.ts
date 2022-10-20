@@ -1,8 +1,4 @@
-export type Bip44Path = {
-  account: number;
-  change: number;
-  index?: number;
-};
+import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
 
 export enum KdfType {
   Argon2 = "argon2",
@@ -25,11 +21,6 @@ export type ScryptParams = KdfParams & {
   p: number;
 };
 
-export enum KeyStoreType {
-  Mnemonic = "mnemonic",
-  PrivateKey = "private-key",
-}
-
 export interface KeyStore<T = Argon2Params> {
   id: string;
   alias?: string;
@@ -51,23 +42,13 @@ export interface KeyStore<T = Argon2Params> {
   };
   path: Bip44Path;
   parentId?: string;
-  type: KeyStoreType;
+  type: AccountType;
 }
 
 export type MnemonicState = {
   id: string;
   alias?: string;
   phrase: Uint8Array;
-};
-
-export type DerivedAccount = {
-  id: string;
-  address: string;
-  alias?: string;
-  establishedAddress?: string;
-  parentId?: string;
-  path: Bip44Path;
-  type: KeyStoreType;
 };
 
 export type AccountState = DerivedAccount & {

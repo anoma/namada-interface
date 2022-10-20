@@ -7,6 +7,10 @@
   "author": "Heliax Dev <info@heliax.dev>",
   "license": "MIT",
   "private": false,
+  "scripts": {
+    "lint": "npx eslint src --ext .ts",
+    "lint:fix": "yarn lint -- --fix"
+  },
   "dependencies": {
     "typescript": "^4.8.2"
   },

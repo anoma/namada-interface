@@ -7,7 +7,7 @@ export type MessageSender = Pick<
 
 export interface Env {
   readonly isInternalMsg: boolean;
-  readonly requestInteraction: any;
+  readonly requestInteraction: () => void;
 }
 
 export type FnRequestInteraction = <M extends Message<unknown>>(
@@ -23,7 +23,7 @@ export type FnRequestInteractionOptions = {
 
 export type EnvProducer = (
   sender: MessageSender,
-  routerMeta: Record<string, any>
+  routerMeta: Record<string, string | number | undefined>
 ) => Env;
 
 export interface MessageRequester {
@@ -38,7 +38,17 @@ export type Guard = (
   msg: Message<unknown>,
   sender: MessageSender
 ) => Promise<void>;
+
 export type Result = {
   return?: unknown;
   error?: unknown;
+};
+
+export type RoutedMessage<T = Message<unknown>> = {
+  meta: {
+    routerId: number;
+  };
+  msg: T;
+  type: string;
+  port: string;
 };

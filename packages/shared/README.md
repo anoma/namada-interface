@@ -28,22 +28,30 @@ Create a transfer transaction:
 
 **Rust**
 
+**NOTE** This library has been updated to accept tx data in the form of Borsh-encoded vectors. See
+[../types/README.md](README.md) in `packages/types` for more information on their usage.
+
 ```rust
-let transfer = Transfer::new(source, target, token, amount);
-let transaction = transfer.to_tx(secret, epoch, fee_amount, gas_limit, tx_code)
+// Assume we have a Borsh-encoded message "transfer_msg" and "tx_msg", and "secret" (String):
+let Transfer { tx_data } = Transfer::new(transfer_msg)
+    .expect("Transfer should instantiate");
+let signer = Signer::new(&tx_data);
+let transaction = signer.sign(&tx_msg, secret)
     .expect("Should be able to convert to transaction");
+
+let hash = transaction.hash();
+let bytes = transaction.bytes();
 ```
 
 **TypeScript**
 
-```ts
-const transfer = new Transfer(source, target, token, amount);
-const { hash, bytes } = transfer.to_tx(
+```typescript
+// Assume we have Borsh-encoded messages "transferMsg" and "txMsg", and secret (string)
+const { tx_data } = new Transfer(transferMsg).to_serialized();
+const signer = new Signer(tx_data );
+const { hash, bytes } = signer.sign(
+  txMsg
   secret,
-  epoch,
-  feeAmount,
-  gasLimit,
-  txCode
 );
 ```
 
@@ -54,14 +62,18 @@ Create an IBC transfer transaction:
 **Rust**
 
 ```rust
-let ibc_transfer = IbcTransfer::new(source_port, source_channel, token, sender, receiver, amount);
-let transaction = ibc_transfer.to_tx(secret, epoch, fee_amount, gas_limit, tx_code)
-    .expect("Should be able to convert to transaction");
+// Assume we have Borsh-encoded messages "ibc_transfer_msg" and "tx_msg", and "secret" (String):
+let IbcTranfer { tx_data } = IbcTransfer::new(ibc_transfer_msg)
+    .expect("IbcTransfer should instantiate");
+let signer = Signer::new(&tx_data);
+let transaction = signer.sign(tx_msg, secret)
+    .expect("Should be able to sign transaction");
 ```
 
 **TypeScript**
 
-```ts
+```typescript
+// Assume we have Borsh-encoded messages "ibcTranferMsg" and "txMsg", and "secret" (String):
 const ibcTransfer = new IbcTransfer(
   port,
   channel,
@@ -86,14 +98,16 @@ Create an "init-account" transaction for receiving an established address from a
 **Rust**
 
 ```rust
-let account = Account::new(secret, vp_code);
-let transaction = account.to_tx(secret, token, epoch, fee_amount, gas_limit, tx_code)
+// Assume we have Borsh-encoded messages "account_msg" and "tx_msg", and "secret" (String):
+let Account { tx_data } = Account::new(account_msg, secret);
+let signer = Signer::new(&tx_data);
+let transaction = signer.sign(tx_msg, secret)
     .expect("Should be able to convert to transaction");
 ```
 
 **TypeScript**
 
-```ts
+```typescript
 const account = new Account(secret, vpCode);
 const { hash, bytes } = account.to_tx(
   secret,

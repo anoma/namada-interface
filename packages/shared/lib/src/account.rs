@@ -1,6 +1,4 @@
-use crate::types::transaction::Transaction;
 use namada::types::{
-    address::Address,
     key::{
         self,
         common::{PublicKey, SecretKey},
@@ -8,12 +6,18 @@ use namada::types::{
     },
     transaction::InitAccount,
 };
-use borsh::BorshSerialize;
+use borsh::{BorshSerialize, BorshDeserialize};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 use gloo_utils::format::JsValueSerdeExt;
 
 use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen]
+#[derive(BorshSerialize, BorshDeserialize)]
+pub struct AccountMsg {
+    vp_code: Vec<u8>,
+}
 
 #[wasm_bindgen]
 #[derive(Serialize,Deserialize)]
@@ -23,14 +27,19 @@ pub struct Account {
 
 #[wasm_bindgen]
 impl Account {
-    /// Initialize an account on the Ledger
+    /// Create an init-account struct
     #[wasm_bindgen(constructor)]
     pub fn new(
+        msg: Vec<u8>,
         secret: &str,
-        vp_code: Vec<u8>,
-    ) -> Self {
+    ) -> Result<Account, String> {
+        let msg: &[u8] = &msg;
+        let msg = BorshDeserialize::try_from_slice(msg)
+            .map_err(|err| format!("BorshDeserialize failed! {:?}", err))?;
+        let AccountMsg { vp_code } = msg;
+
         let secret_key = key::ed25519::SecretKey::from_str(secret)
-            .expect("ed25519 encoding should not fail");
+            .map_err(|err| format!("ed25519 encoding failed: {:?}", err))?;
         let signing_key = SecretKey::Ed25519(secret_key);
 
         // TODO: Fix the following conversion
@@ -44,65 +53,36 @@ impl Account {
 
         let tx_data = init_account
             .try_to_vec()
-            .expect("Encoding tx data shouldn't fail");
+            .map_err(|err| err.to_string())?;
 
-        Self {
+        Ok(Account {
             tx_data,
-        }
+        })
     }
 
-    pub fn to_tx(
-        &self,
-        secret: &str,
-        token: String,
-        epoch: u32,
-        fee_amount: u32,
-        gas_limit: u32,
-        tx_code: Vec<u8>,
-    ) -> Result<JsValue, JsValue> {
-        let token = Address::from_str(&token).unwrap();
-        let tx_data: &[u8] = &self.tx_data;
-        let tx_code: &[u8] = &tx_code;
-
-        let transaction =
-            match Transaction::new(secret, token, epoch, fee_amount, gas_limit, tx_code, tx_data) {
-                Ok(transaction) => transaction,
-                Err(error) => return Err(error),
-            };
-
-        // Return serialized Transaction
-        Ok(JsValue::from_serde(&transaction.serialize()).unwrap())
+    pub fn to_serialized(&self) -> Result<JsValue, String> {
+        let serialized = JsValue::from_serde(&self)
+            .map_err(|err| err.to_string())?;
+        Ok(serialized)
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::types::transaction::SerializedTx;
     use wasm_bindgen_test::*;
 
     #[wasm_bindgen_test]
-    fn can_generate_init_account_transaction() {
-        let secret = String::from("1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93");
-        let token = String::from("atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5");
-        let epoch = 5;
-        let fee_amount = 1000;
-        let gas_limit = 1_000_000;
+    fn can_generate_init_account() {
+        let secret = "1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93";
+        let msg = AccountMsg {  vp_code: vec![] };
 
-        let tx_code = vec![];
-        let vp_code = vec![];
+        let msg_serialized = BorshSerialize::try_to_vec(&msg)
+            .expect("Message should serialize to vector");
 
-        let account = Account::new(&secret, vp_code);
-        let transaction = account.to_tx(&secret, token, epoch, fee_amount, gas_limit, tx_code)
-            .expect("Should be able to convert to transaction");
+        let Account { tx_data } = Account::new(msg_serialized, secret)
+            .expect("Should be able to create an Account from serialized message");
 
-        let serialized_tx: SerializedTx = JsValue::into_serde(&transaction)
-            .expect("Should be able to serialize to a Transaction");
-
-        let hash = serialized_tx.hash();
-        let bytes = serialized_tx.bytes();
-
-        assert_eq!(hash.len(), 64);
-        assert_eq!(bytes.len(), 489);
+        assert_eq!(tx_data.len(), 37);
     }
 }

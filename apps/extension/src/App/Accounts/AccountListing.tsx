@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Icon, IconName } from "@anoma/components";
+import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
 import {
   AccountListingContainer,
   Address,
@@ -10,7 +11,6 @@ import {
   Button,
 } from "./AccountListing.components";
 
-import { Bip44Path, DerivedAccount, KeyStoreType } from "background/keyring";
 import { TopLevelRoute } from "App/types";
 
 type Props = {
@@ -33,7 +33,7 @@ const formatDerivationPath = (
 const AccountListing = ({ account, parentAlias }: Props): JSX.Element => {
   const { address, alias, path, establishedAddress, type } = account;
   const navigate = useNavigate();
-  const isChildAccount = type !== KeyStoreType.Mnemonic;
+  const isChildAccount = type !== AccountType.Mnemonic;
 
   return (
     <AccountListingContainer>
@@ -47,7 +47,7 @@ const AccountListing = ({ account, parentAlias }: Props): JSX.Element => {
         {establishedAddress && <Address>{establishedAddress}</Address>}
       </Details>
       <Buttons>
-        {type === KeyStoreType.Mnemonic && (
+        {type === AccountType.Mnemonic && (
           <Button
             onClick={() => {
               navigate(TopLevelRoute.AddAccount);

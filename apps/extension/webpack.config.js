@@ -1,3 +1,4 @@
+const webpack = require("webpack");
 const { resolve } = require("path");
 const CopyPlugin = require("copy-webpack-plugin");
 const MergeJsonWebpackPlugin = require("merge-jsons-webpack-plugin");
@@ -36,6 +37,9 @@ const plugins = [
     output: {
       fileName: "./manifest.json",
     },
+  }),
+  new webpack.ProvidePlugin({
+    Buffer: ["buffer", "Buffer"],
   }),
 ];
 
@@ -123,6 +127,9 @@ module.exports = {
   resolve: {
     extensions: [".tsx", ".ts", ".js"],
     modules: [resolve(__dirname, "src/"), "node_modules"],
+    fallback: {
+      buffer: require.resolve("buffer/"),
+    },
   },
   performance: {
     hints: "warning",

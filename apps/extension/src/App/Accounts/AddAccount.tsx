@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, ButtonVariant, Input, InputVariant } from "@anoma/components";
+import { AccountType, DerivedAccount } from "@anoma/types";
 
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
-import {
-  DerivedAccount,
-  DeriveAccountMsg,
-  KeyStoreType,
-} from "background/keyring";
+import { DeriveAccountMsg } from "background/keyring";
+import { chains } from "config";
 import {
   AddAccountContainer,
   AddAccountForm,
@@ -57,7 +55,7 @@ const findNextIndex = (accounts: DerivedAccount[]): number => {
   let maxIndex = 0;
 
   accounts
-    .filter((account) => account.type !== KeyStoreType.Mnemonic)
+    .filter((account) => account.type !== AccountType.Mnemonic)
     .forEach((account) => {
       const { index = 0 } = account.path;
       maxIndex = index + 1;
@@ -88,7 +86,7 @@ const AddAccount: React.FC<Props> = ({
   const [formStatus, setFormStatus] = useState(Status.Idle);
 
   const bip44Prefix = "m/44";
-  const coinType = 0;
+  const { coinType } = chains[0].bip44;
 
   useEffect(() => {
     const isValid = validateAccount(parentAccount, { change, index }, accounts);

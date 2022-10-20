@@ -1,27 +1,24 @@
+import { SignedTx } from "./tx";
+import { DerivedAccount } from "./account";
 import { Chain } from "./chain";
-
-export type Transaction = {
-  hash: Uint8Array;
-  tx: Uint8Array;
-};
-
-export type Account = {
-  alias: string;
-  address: string;
-  publicKey: Uint8Array;
-};
-
-export interface Signer {
-  sign(account: Account, tx: Transaction): Promise<Transaction>;
-  accounts: Account[];
-}
 
 export interface Anoma {
   connect(chainId: string): Promise<void>;
-  getSigner(chainId: string): Promise<Signer | undefined>;
+  accounts(chainId: string): Promise<DerivedAccount[] | undefined>;
   suggestChain(chainConfig: Chain): Promise<void>;
+  signTx(props: {
+    signer: string;
+    txMsg: string;
+    txData: string;
+  }): Promise<SignedTx | undefined>;
   chain: (chainId: string) => Promise<Chain | undefined>;
   chains: () => Promise<Chain[] | undefined>;
+  encodeTransfer: (txMsg: string) => Promise<string | undefined>;
+  encodeIbcTransfer: (txMsg: string) => Promise<string | undefined>;
+  encodeInitAccount: (props: {
+    txMsg: string;
+    address: string;
+  }) => Promise<string | undefined>;
   version: () => string;
 }
 

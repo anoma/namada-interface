@@ -1,5 +1,6 @@
 import { AES, Argon2, Argon2Params, ByteSize, Rng, Salt } from "@anoma/crypto";
-import { Bip44Path, KdfType, KeyStore, KeyStoreType } from "./types";
+import { AccountType, Bip44Path } from "@anoma/types";
+import { KdfType, KeyStore } from "./types";
 
 type CryptoArgs = {
   alias?: string;
@@ -8,7 +9,7 @@ type CryptoArgs = {
   id: string;
   password: string;
   text: string;
-  type: KeyStoreType;
+  type: AccountType;
 };
 
 export class Crypto {
@@ -43,7 +44,7 @@ export class Crypto {
     };
   }
 
-  public decrypt(store: KeyStore, password: string): Uint8Array {
+  public decrypt(store: KeyStore, password: string): string {
     const { crypto } = store;
     const { cipher, kdf } = crypto;
     const { m_cost, t_cost, p_cost, salt } = kdf.params;
@@ -60,6 +61,6 @@ export class Crypto {
     const decrypted = aes.decrypt(cipher.text);
     aes.free();
 
-    return decrypted;
+    return new TextDecoder().decode(decrypted);
   }
 }

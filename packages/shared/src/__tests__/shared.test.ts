@@ -1,4 +1,22 @@
-import { Address, Account, IbcTransfer, Transfer } from "../shared/shared";
+import {
+  AccountMsgValue,
+  AccountMsgSchema,
+  Message,
+  IbcTransferMsgSchema,
+  IbcTransferMsgValue,
+  TransferMsgSchema,
+  TransferMsgValue,
+  TransactionMsgSchema,
+  TransactionMsgValue,
+} from "@anoma/types";
+import { amountToMicro } from "@anoma/utils";
+import {
+  Address,
+  Account,
+  IbcTransfer,
+  Signer,
+  Transfer,
+} from "../shared/shared";
 
 const source =
   "atest1v4ehgw368ycryv2z8qcnxv3cxgmrgvjpxs6yg333gym5vv2zxepnj334g4rryvj9xucrgve4x3xvr4";
@@ -11,12 +29,24 @@ const token =
 const epoch = 5;
 const feeAmount = 1000;
 const gasLimit = 1_000_000;
-const amount = 100;
+const amount = amountToMicro(123.456);
 
 // Empty validity predicate code
 const vpCode = new Uint8Array([]);
 // Empty transaction code
 const txCode = new Uint8Array([]);
+
+// Transaction Message
+const txMessage = new Message<TransactionMsgValue>();
+
+// Transaction Message Value
+const txMessageValue = new TransactionMsgValue({
+  token,
+  epoch,
+  feeAmount,
+  gasLimit,
+  txCode,
+});
 
 const HASH_LENGTH = 64;
 
@@ -33,7 +63,6 @@ describe("Address", () => {
     const publicKey = address.public();
     const ed25519Key =
       "b7a3c12dc0c8c748ab07525b701122b88bd78f600c76342d27f25e5f92444cde";
-
     // PublicKey is padded with "00"
     expect(publicKey.substring(2)).toBe(ed25519Key);
   });
@@ -41,7 +70,6 @@ describe("Address", () => {
   test("It should generate a SecretKey from a secret", () => {
     const address = new Address(secret);
     const secretKey = address.private();
-
     // SecretKey is padded with "00"
     expect(secretKey.substring(2)).toBe(secret);
   });
@@ -49,14 +77,20 @@ describe("Address", () => {
 
 describe("Account", () => {
   test("It should create valid hash and bytes", () => {
-    const account = new Account(secret, vpCode);
-    const { hash, bytes } = account.to_tx(
-      secret,
-      token,
-      epoch,
-      feeAmount,
-      gasLimit,
-      txCode
+    const accountMsgValue = new AccountMsgValue({
+      vpCode,
+    });
+    const accountMessage = new Message<AccountMsgValue>();
+    const encoded = accountMessage.encode(AccountMsgSchema, accountMsgValue);
+
+    // Create tx_data from init-account tx
+    const { tx_data } = new Account(encoded, secret).to_serialized();
+
+    // Sign tx_data, then serialize to hash and bytes
+    const signer = new Signer(tx_data);
+    const { hash, bytes } = signer.sign(
+      txMessage.encode(TransactionMsgSchema, txMessageValue),
+      secret
     );
 
     expect(hash.length).toEqual(HASH_LENGTH);
@@ -69,21 +103,28 @@ describe("IbcTransfer", () => {
   test("It should create valid hash and bytes", () => {
     const port = "transfer";
     const channel = "channel-0";
-
-    const ibcTransfer = new IbcTransfer(
-      port,
-      channel,
+    const ibcTransferMsgValue = new IbcTransferMsgValue({
+      sourcePort: port,
+      sourceChannel: channel,
       token,
-      source,
-      target,
-      amount
+      sender: source,
+      receiver: target,
+      amount,
+    });
+    const ibcTransferMessage = new Message<IbcTransferMsgValue>();
+    const encoded = ibcTransferMessage.encode(
+      IbcTransferMsgSchema,
+      ibcTransferMsgValue
     );
-    const { hash, bytes } = ibcTransfer.to_tx(
-      secret,
-      epoch,
-      feeAmount,
-      gasLimit,
-      txCode
+
+    // Create tx_data from ibc-transfer tx
+    const { tx_data } = new IbcTransfer(encoded).to_serialized();
+
+    // Sign tx_data, then serialize to hash and bytes
+    const signer = new Signer(tx_data);
+    const { hash, bytes } = signer.sign(
+      txMessage.encode(TransactionMsgSchema, txMessageValue),
+      secret
     );
 
     expect(hash.length).toEqual(HASH_LENGTH);
@@ -94,13 +135,24 @@ describe("IbcTransfer", () => {
 
 describe("Transfer", () => {
   test("It should create valid hash and bytes", () => {
-    const transfer = new Transfer(source, target, token, amount);
-    const { hash, bytes } = transfer.to_tx(
-      secret,
-      epoch,
-      feeAmount,
-      gasLimit,
-      txCode
+    const transferMsgValue = new TransferMsgValue({
+      source,
+      target,
+      token,
+      amount,
+    });
+
+    const transferMessage = new Message<TransferMsgValue>();
+    const encoded = transferMessage.encode(TransferMsgSchema, transferMsgValue);
+
+    // Create tx_data from transfer tx
+    const { tx_data } = new Transfer(encoded).to_serialized();
+
+    // Sign tx_data, then serialize to hash and bytes
+    const signer = new Signer(tx_data);
+    const { hash, bytes } = signer.sign(
+      txMessage.encode(TransactionMsgSchema, txMessageValue),
+      secret
     );
 
     expect(hash.length).toEqual(HASH_LENGTH);

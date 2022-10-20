@@ -1,6 +1,12 @@
 import browser from "webextension-polyfill";
 import { getAnomaRouterId } from "./utils";
-import { Router, MessageSender, EnvProducer, Result } from "router";
+import {
+  EnvProducer,
+  MessageSender,
+  Result,
+  RoutedMessage,
+  Router,
+} from "router";
 
 export class ExtensionRouter extends Router {
   constructor(envProducer: EnvProducer) {
@@ -23,9 +29,9 @@ export class ExtensionRouter extends Router {
   }
 
   protected onMessage = async (
-    message: any,
+    message: RoutedMessage,
     sender: MessageSender
-  ): Promise<Result | undefined> => {
+  ): Promise<Result | void> => {
     if (message.port !== this.port) {
       return;
     }
@@ -41,9 +47,9 @@ export class ExtensionRouter extends Router {
   };
 
   protected async onMessageHandler(
-    message: any,
+    message: RoutedMessage,
     sender: MessageSender
-  ): Promise<any> {
+  ): Promise<Result> {
     try {
       const result = await this.handleMessage(message, sender);
       return {

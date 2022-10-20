@@ -11,6 +11,7 @@ export const AppContainer = styled.div`
   justify-content: space-between;
   align-items: top;
   flex-direction: column;
+  font-family: "Space Grotesk", sans-serif;
   height: 100%;
   min-height: 430px;
   width: 400px;

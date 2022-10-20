@@ -2,13 +2,17 @@ import { Handler, Env, Message, InternalHandler } from "router";
 import { KeyRingService } from "./service";
 import {
   CheckIsLockedMsg,
+  CheckPasswordMsg,
   DeriveAccountMsg,
+  EncodeTransferMsg,
+  EncodeIbcTransferMsg,
+  EncodeInitAccountMsg,
+  GenerateMnemonicMsg,
   QueryAccountsMsg,
   LockKeyRingMsg,
-  UnlockKeyRingMsg,
-  CheckPasswordMsg,
-  GenerateMnemonicMsg,
   SaveMnemonicMsg,
+  SignTxMsg,
+  UnlockKeyRingMsg,
 } from "./messages";
 
 export const getHandler: (service: KeyRingService) => Handler = (service) => {
@@ -33,6 +37,20 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleDeriveAccountMsg(service)(env, msg as DeriveAccountMsg);
       case QueryAccountsMsg:
         return handleQueryAccountsMsg(service)(env, msg as QueryAccountsMsg);
+      case SignTxMsg:
+        return handleSignTxMsg(service)(env, msg as SignTxMsg);
+      case EncodeTransferMsg:
+        return handleEncodeTransferMsg(service)(env, msg as EncodeTransferMsg);
+      case EncodeIbcTransferMsg:
+        return handleEncodeIbcTransferMsg(service)(
+          env,
+          msg as EncodeIbcTransferMsg
+        );
+      case EncodeInitAccountMsg:
+        return handleEncodeInitAccountMsg(service)(
+          env,
+          msg as EncodeInitAccountMsg
+        );
       default:
         throw new Error("Unknown msg type");
     }
@@ -50,8 +68,8 @@ const handleCheckIsLockedMsg: (
 const handleLockKeyRingMsg: (
   service: KeyRingService
 ) => InternalHandler<LockKeyRingMsg> = (service) => {
-  return async () => {
-    return await service.lock();
+  return () => {
+    return service.lock();
   };
 };
 
@@ -105,5 +123,41 @@ const handleQueryAccountsMsg: (
 ) => InternalHandler<QueryAccountsMsg> = (service) => {
   return async (_, _msg) => {
     return await service.queryAccounts();
+  };
+};
+
+const handleSignTxMsg: (
+  service: KeyRingService
+) => InternalHandler<SignTxMsg> = (service) => {
+  return async (_, msg) => {
+    const { signer, txMsg, txData } = msg;
+    return await service.signTx(signer, txMsg, txData);
+  };
+};
+
+const handleEncodeTransferMsg: (
+  service: KeyRingService
+) => InternalHandler<EncodeTransferMsg> = (service) => {
+  return (_, msg) => {
+    const { txMsg } = msg;
+    return service.encodeTransfer(txMsg);
+  };
+};
+
+const handleEncodeIbcTransferMsg: (
+  service: KeyRingService
+) => InternalHandler<EncodeIbcTransferMsg> = (service) => {
+  return (_, msg) => {
+    const { txMsg } = msg;
+    return service.encodeIbcTransfer(txMsg);
+  };
+};
+
+const handleEncodeInitAccountMsg: (
+  service: KeyRingService
+) => InternalHandler<EncodeInitAccountMsg> = (service) => {
+  return (_, msg) => {
+    const { address, txMsg } = msg;
+    return service.encodeInitAccount(txMsg, address);
   };
 };

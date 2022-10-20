@@ -88,7 +88,7 @@ export class ChainsService {
     await this.kvStore.set<Chain[]>(KVKeys.Chains, filteredChains);
   }
 
-  addChainRemovedHandler(handler: ChainRemovedHandler) {
+  addChainRemovedHandler(handler: ChainRemovedHandler): void {
     this.onChainRemovedHandlers.push(handler);
   }
 }

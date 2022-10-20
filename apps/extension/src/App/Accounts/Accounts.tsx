@@ -1,4 +1,4 @@
-import { DerivedAccount } from "background/keyring";
+import { DerivedAccount } from "@anoma/types";
 import {
   AccountsContainer,
   AccountsList,

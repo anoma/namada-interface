@@ -1,11 +1,13 @@
-import { Anoma as IAnoma, Chain, Signer } from "@anoma/types";
+import { Anoma as IAnoma, Chain, DerivedAccount, SignedTx } from "@anoma/types";
 import { Ports, MessageRequester } from "router";
+import { GetChainMsg, GetChainsMsg, SuggestChainMsg } from "background/chains";
 import {
-  GetChainMsg,
-  GetChainsMsg,
-  GetSignerMsg,
-  SuggestChainMsg,
-} from "background/chains";
+  EncodeIbcTransferMsg,
+  EncodeInitAccountMsg,
+  EncodeTransferMsg,
+  QueryAccountsMsg,
+  SignTxMsg,
+} from "background/keyring";
 
 export class Anoma implements IAnoma {
   constructor(
@@ -14,6 +16,7 @@ export class Anoma implements IAnoma {
   ) {}
 
   public async connect(chainId: string): Promise<void> {
+    // TODO: Implement this
     console.info("connect", chainId);
   }
 
@@ -31,6 +34,15 @@ export class Anoma implements IAnoma {
     );
   }
 
+  public async accounts(
+    chainId: string
+  ): Promise<DerivedAccount[] | undefined> {
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new QueryAccountsMsg(chainId)
+    );
+  }
+
   public async suggestChain(chain: Chain): Promise<void> {
     return await this.requester?.sendMessage(
       Ports.Background,
@@ -38,11 +50,40 @@ export class Anoma implements IAnoma {
     );
   }
 
-  public async getSigner(chainId: string): Promise<Signer | undefined> {
-    console.info("getSigner", chainId);
+  public async signTx(props: {
+    signer: string;
+    txMsg: string;
+    txData: string;
+  }): Promise<SignedTx | undefined> {
+    const { signer, txMsg, txData } = props;
     return await this.requester?.sendMessage(
       Ports.Background,
-      new GetSignerMsg()
+      new SignTxMsg(signer, txMsg, txData)
+    );
+  }
+
+  public async encodeTransfer(txMsg: string): Promise<string | undefined> {
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new EncodeTransferMsg(txMsg)
+    );
+  }
+
+  public async encodeIbcTransfer(txMsg: string): Promise<string | undefined> {
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new EncodeIbcTransferMsg(txMsg)
+    );
+  }
+
+  public async encodeInitAccount(props: {
+    txMsg: string;
+    address: string;
+  }): Promise<string | undefined> {
+    const { txMsg, address } = props;
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new EncodeInitAccountMsg(txMsg, address)
     );
   }
 

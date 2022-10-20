@@ -2,16 +2,11 @@ import React, { useEffect, useState } from "react";
 import { ThemeProvider } from "styled-components";
 import { Routes, Route, useNavigate } from "react-router-dom";
 
+import { AccountType, DerivedAccount } from "@anoma/types";
 import { getTheme } from "@anoma/utils";
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
-import {
-  CheckIsLockedMsg,
-  DerivedAccount,
-  KeyStoreType,
-  QueryAccountsMsg,
-} from "background/keyring";
-
+import { CheckIsLockedMsg, QueryAccountsMsg } from "background/keyring";
 import {
   AppContainer,
   BottomSection,
@@ -85,7 +80,7 @@ export const App: React.FC = () => {
   }, [status, accounts]);
 
   const parent = accounts.find(
-    (account) => account.type === KeyStoreType.Mnemonic
+    (account) => account.type === AccountType.Mnemonic
   );
   const parentAccount = parent?.path?.account ?? 0;
 

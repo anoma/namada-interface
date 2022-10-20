@@ -5,6 +5,6 @@ export interface KVStore {
 }
 
 export interface KVStoreProvider {
-  get(): Promise<{ [key: string]: any }>;
-  set(items: { [key: string]: any }): Promise<void>;
+  get(): Promise<{ [key: string]: unknown }>;
+  set(items: { [key: string]: unknown }): Promise<void>;
 }

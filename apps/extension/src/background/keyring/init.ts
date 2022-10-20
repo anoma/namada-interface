@@ -8,6 +8,10 @@ import {
   CheckPasswordMsg,
   GenerateMnemonicMsg,
   SaveMnemonicMsg,
+  SignTxMsg,
+  EncodeTransferMsg,
+  EncodeIbcTransferMsg,
+  EncodeInitAccountMsg,
 } from "./messages";
 import { ROUTE } from "./constants";
 import { getHandler } from "./handler";
@@ -22,6 +26,10 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(CheckPasswordMsg);
   router.registerMessage(GenerateMnemonicMsg);
   router.registerMessage(SaveMnemonicMsg);
+  router.registerMessage(SignTxMsg);
+  router.registerMessage(EncodeTransferMsg);
+  router.registerMessage(EncodeIbcTransferMsg);
+  router.registerMessage(EncodeInitAccountMsg);
 
   router.addHandler(ROUTE, getHandler(service));
 }

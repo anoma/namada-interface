@@ -1,7 +1,10 @@
+import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import { PhraseSize } from "@anoma/crypto";
 import { KVStore } from "@anoma/storage";
+import { Bip44Path, DerivedAccount, SignedTx } from "@anoma/types";
 import { KeyRing } from "./keyring";
-import { Bip44Path, DerivedAccount, KeyRingStatus } from "./types";
+import { KeyRingStatus } from "./types";
+import { IbcTransfer, Transfer } from "@anoma/shared";
 
 export class KeyRingService {
   private _keyRing: KeyRing;
@@ -10,8 +13,8 @@ export class KeyRingService {
     this._keyRing = new KeyRing(kvStore);
   }
 
-  async lock(): Promise<{ status: KeyRingStatus }> {
-    await this._keyRing.lock();
+  lock(): { status: KeyRingStatus } {
+    this._keyRing.lock();
     return { status: this._keyRing.status };
   }
 
@@ -52,5 +55,49 @@ export class KeyRingService {
 
   async queryAccounts(): Promise<DerivedAccount[]> {
     return await this._keyRing.queryAccounts();
+  }
+
+  async signTx(
+    signer: string,
+    txMsg: string,
+    txData: string
+  ): Promise<SignedTx> {
+    return await this._keyRing.signTx(
+      signer,
+      fromBase64(txMsg),
+      fromBase64(txData)
+    );
+  }
+
+  encodeTransfer(txMsg: string): string {
+    try {
+      const { tx_data } = new Transfer(fromBase64(txMsg)).to_serialized();
+      return toBase64(tx_data);
+    } catch (e) {
+      console.warn(e);
+      throw new Error(`Unable to encode transfer! ${e}`);
+    }
+  }
+
+  encodeIbcTransfer(txMsg: string): string {
+    try {
+      const { tx_data } = new IbcTransfer(fromBase64(txMsg)).to_serialized();
+      return toBase64(tx_data);
+    } catch (e) {
+      throw new Error(`Unable to encode IBC transfer! ${e}`);
+    }
+  }
+
+  /**
+   * Creating an InitAccount for Namada requires a secret,
+   * therefore, we need to query the private key for this account from
+   * storage
+   */
+  async encodeInitAccount(txMsg: string, address: string): Promise<string> {
+    const tx_data = await this._keyRing.encodeInitAccount(
+      address,
+      fromBase64(txMsg)
+    );
+    return toBase64(tx_data);
   }
 }

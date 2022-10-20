@@ -1,13 +1,14 @@
 import { v5 as uuid } from "uuid";
+import { toBase64 } from "@cosmjs/encoding";
 
 import { KVStore } from "@anoma/storage";
 import { HDWallet, Mnemonic, PhraseSize } from "@anoma/crypto";
-import { Address } from "@anoma/shared";
-import { KeyRingStatus, KeyStore, KeyStoreType } from "./types";
-import { Bip44Path, DerivedAccount } from "./types";
+import { Account, Address, Signer } from "@anoma/shared";
+import { IStore, Store } from "@anoma/storage";
+import { AccountType, Bip44Path, DerivedAccount, SignedTx } from "@anoma/types";
+import { chains } from "config";
 import { Crypto } from "./crypto";
-
-import { IStore, Store } from "../types";
+import { KeyRingStatus, KeyStore } from "./types";
 
 // Generated UUID namespace for uuid v5
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
@@ -51,10 +52,6 @@ export class KeyRing {
   }
 
   public async lock(): Promise<void> {
-    if (this._status !== KeyRingStatus.Unlocked) {
-      throw new Error("Key ring is not unlocked");
-    }
-
     this._status = KeyRingStatus.Locked;
     this._password = undefined;
   }
@@ -108,8 +105,7 @@ export class KeyRing {
     try {
       const mnemonic = Mnemonic.from_phrase(phrase);
       const seed = mnemonic.to_seed();
-      // TODO: coinType should match our registered SLIP-0044 type:
-      const coinType = 0;
+      const { coinType } = chains[0].bip44;
       const path = `m/44'/${coinType}'/0'/0`;
       const bip44 = new HDWallet(seed);
       const account = bip44.derive(path);
@@ -125,7 +121,7 @@ export class KeyRing {
           change: 0,
         },
         text: phrase,
-        type: KeyStoreType.Mnemonic,
+        type: AccountType.Mnemonic,
       });
       await this._keyStore.append(mnemonicStore);
 
@@ -160,16 +156,19 @@ export class KeyRing {
     }
 
     try {
-      const phraseBytes = crypto.decrypt(storedMnemonic, this._password);
-      const phrase = new TextDecoder().decode(phraseBytes);
+      const phrase = crypto.decrypt(storedMnemonic, this._password);
       // TODO: Validate derivation path against stored paths under this mnemonic!
       const { account, change, index = 0 } = path;
       const root = "m/44'";
       // TODO: This should be defined for our chain (SLIP044)
-      const coinType = "0'";
-      const derivationPath = [root, coinType, `${account}`, change, index].join(
-        "/"
-      );
+      const { coinType } = chains[0].bip44;
+      const derivationPath = [
+        root,
+        `${coinType}'`,
+        `${account}`,
+        change,
+        index,
+      ].join("/");
       const mnemonic = Mnemonic.from_phrase(phrase);
       const seed = mnemonic.to_seed();
       const bip44 = new HDWallet(seed);
@@ -177,7 +176,7 @@ export class KeyRing {
 
       const address = new Address(derivedAccount.private().to_hex()).implicit();
       const id = getId("account", storedMnemonic.id, account, change, index);
-      const type = KeyStoreType.PrivateKey;
+      const type = AccountType.PrivateKey;
 
       const keyStore = crypto.encrypt({
         alias,
@@ -218,5 +217,73 @@ export class KeyRing {
         type,
       })
     );
+  }
+
+  async signTx(
+    address: string,
+    txMsg: Uint8Array,
+    txData: Uint8Array
+  ): Promise<SignedTx> {
+    if (!this._password) {
+      throw new Error("Not authenticated!");
+    }
+    const account = await this._keyStore.getRecord("address", address);
+    if (!account) {
+      throw new Error(`Account not found for ${address}`);
+    }
+    try {
+      const decrypted = crypto.decrypt(account, this._password);
+      let pk: string;
+      // If the account type is a Mnemonic, derive a private key
+      // from associated derived address (root account):
+      if (account.type === AccountType.Mnemonic) {
+        const { path } = account;
+        const mnemonic = Mnemonic.from_phrase(decrypted);
+        const bip44 = new HDWallet(mnemonic.to_seed());
+        const { coinType } = chains[0].bip44;
+        const derivationPath = `m/44'/${coinType}'/${path.account}'/${path.change}`;
+        const derived = bip44.derive(derivationPath);
+        pk = derived.private().to_hex();
+      } else {
+        pk = decrypted;
+      }
+
+      const signer = new Signer(txData);
+      const { hash, bytes } = signer.sign(txMsg, pk);
+      return {
+        hash,
+        bytes: toBase64(bytes),
+      };
+    } catch (e) {
+      throw new Error(`Could not unlock account for ${address}: ${e}`);
+    }
+  }
+
+  async encodeInitAccount(
+    address: string,
+    txMsg: Uint8Array
+  ): Promise<Uint8Array> {
+    if (!this._password) {
+      throw new Error("Not authenticated!");
+    }
+    const account = await this._keyStore.getRecord("address", address);
+    if (!account) {
+      throw new Error(`Account not found for ${address}`);
+    }
+
+    let pk: string;
+
+    try {
+      pk = crypto.decrypt(account, this._password);
+    } catch (e) {
+      throw new Error(`Could not unlock account for ${address}: ${e}`);
+    }
+
+    try {
+      const { tx_data } = new Account(txMsg, pk).to_serialized();
+      return tx_data;
+    } catch (e) {
+      throw new Error(`Could not encode InitAccount for ${address}: ${e}`);
+    }
   }
 }

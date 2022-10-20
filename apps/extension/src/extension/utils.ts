@@ -3,7 +3,10 @@ import { ExtensionKVStore } from "@anoma/storage";
 import { Env, MessageSender, KVPrefix } from "router/types";
 
 const ROUTER_ID_KEY = "anomaExtensionRouterId";
-const store = new ExtensionKVStore(KVPrefix.LocalStorage);
+const store = new ExtensionKVStore(KVPrefix.LocalStorage, {
+  get: browser.storage.local.get,
+  set: browser.storage.local.set,
+});
 
 export const getAnomaRouterId = async (): Promise<number | undefined> => {
   const storedId = await store.get(ROUTER_ID_KEY);
