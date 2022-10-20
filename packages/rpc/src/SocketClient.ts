@@ -14,14 +14,11 @@ const parseEvents = (subEvents: SubscriptionEvents): Events => {
   const { events }: { events: NewBlockEvents } = subEvents;
   const [applied] = events;
 
-  const parsedEvents = applied.attributes.reduce((acc, attribute): Events => {
+  return applied.attributes.reduce((acc, attribute): Events => {
     const { key, value } = attribute;
     acc[key] = value;
     return acc;
   }, {} as Events);
-
-  console.log({ parsedEvents });
-  return parsedEvents;
 };
 
 class SocketClient extends RpcClientBase {
@@ -86,9 +83,7 @@ class SocketClient extends RpcClientBase {
     if (!this._client) {
       this.connect();
     }
-
     const { onNext, onError } = callbacks || {};
-
     const queries = [`tm.event='NewBlock'`, `${TxResponse.Hash}='${hash}'`];
 
     return new Promise((resolve, reject) => {
@@ -101,7 +96,6 @@ class SocketClient extends RpcClientBase {
         .addListener({
           next: (subEvent) => {
             const parsedEvents = parseEvents(<SubscriptionEvents>subEvent);
-
             this.disconnect();
             if (onNext) {
               onNext(parsedEvents);

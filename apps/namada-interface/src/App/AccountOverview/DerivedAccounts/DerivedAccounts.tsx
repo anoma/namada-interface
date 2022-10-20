@@ -8,7 +8,7 @@ import { AccountsState } from "slices/accounts";
 import { BalancesState, fetchBalances } from "slices/balances";
 import { SettingsState } from "slices/settings";
 /* import { updateShieldedBalances } from "slices/AccountsNew"; */
-import { Symbols, Tokens, TokenType } from "@anoma/tx";
+import { Symbols, TokenType } from "@anoma/tx";
 import { formatRoute } from "@anoma/utils";
 import { fetchConversionRates, CoinsState } from "slices/coins";
 
@@ -105,13 +105,10 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
     const balances = transparentBalances[address] || {};
 
     Symbols.forEach((symbol) => {
-      const token = Tokens[symbol];
-      const { coin } = token;
-
       tokenBalances.push({
         address,
         balance: balances[symbol] || 0,
-        label: `${alias !== "Namada" ? alias : coin}`,
+        label: `${alias}`,
         token: symbol,
         isShielded,
       });
@@ -189,7 +186,7 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
 
   return (
     <DerivedAccountsContainer>
-      {groupedTokens.length === 0 && (
+      {Object.values(derived).length > 0 && groupedTokens.length === 0 && (
         <NoTokens>
           <p>You have no token balances to display on {alias}!</p>
         </NoTokens>

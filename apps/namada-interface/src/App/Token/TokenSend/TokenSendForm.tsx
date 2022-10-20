@@ -3,9 +3,7 @@ import { ThemeContext } from "styled-components";
 import QrReader from "react-qr-reader";
 
 import { Account } from "@anoma/types";
-import Config from "config";
 import { Tokens, TokenType } from "@anoma/tx";
-import { RpcClient } from "@anoma/rpc";
 import { AccountsState } from "slices/accounts";
 import {
   clearEvents,
@@ -386,7 +384,6 @@ const TokenSendForm = ({
                 ? gasFeeButtonActiveStyleOverride
                 : gasFeeButtonStyleOverride
             }
-            // className={gasFee === GasFee.Medium ? "active" : ""}
           >
             <p>
               <span>Medium</span>
@@ -404,7 +401,6 @@ const TokenSendForm = ({
                 ? gasFeeButtonActiveStyleOverride
                 : gasFeeButtonStyleOverride
             }
-            // className={gasFee === GasFee.High ? "active" : ""}
           >
             <p>
               <span>High</span>

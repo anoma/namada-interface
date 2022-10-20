@@ -241,7 +241,7 @@ const TokenSend = (): JSX.Element => {
               )}
             </>
           ) : (
-            <p>You have no shielded token balances.</p>
+            <p>You have no transparent token balances.</p>
           )}
         </TokenSendContent>
       )}

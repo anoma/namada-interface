@@ -6,7 +6,6 @@ import {
   RpcConfig,
   RpcClient,
   SocketClient,
-  NewBlockEvents,
   TxResponse,
   IbcTxResponse,
   Events,
@@ -383,8 +382,6 @@ export const submitTransferTransaction = createAsyncThunk(
     const events = await promise;
     socketClient.disconnect();
     clearTimeout(timeoutId);
-
-    console.log({ events });
 
     const code = events[TxResponse.Code];
     const info = events[TxResponse.Info];
