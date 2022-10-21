@@ -182,7 +182,7 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
         dispatch(fetchConversionRates());
       }
     }
-  }, [timestamp]);
+  }, [timestamp, groupedTokens]);
 
   return (
     <DerivedAccountsContainer>

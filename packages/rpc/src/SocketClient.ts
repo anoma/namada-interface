@@ -85,14 +85,19 @@ class SocketClient extends RpcClientBase {
     }
     const { onNext, onError } = callbacks || {};
     const queries = [`tm.event='NewBlock'`, `${TxResponse.Hash}='${hash}'`];
+    // TODO: We should be able to query on tx hash (NOTE: This may change, and
+    // we will have to keep an eye on the latest changes to confirm).
+    /* const query = queries.join(" AND "); */
+    const query = queries[0];
 
     return new Promise((resolve, reject) => {
       this.client
         ?.listen(
           createJsonRpcRequest("subscribe", {
-            query: queries.join(" AND "),
+            query,
           })
         )
+
         .addListener({
           next: (subEvent) => {
             const parsedEvents = parseEvents(<SubscriptionEvents>subEvent);

@@ -219,7 +219,6 @@ const createTransfer = async (
     txCode,
   };
 
-  // Double-check that you're logged into the extension (that it's unlocked), then do the following:
   const { hash, bytes } =
     (await signer.signTx(address, txProps, encodedTx)) || {};
 
@@ -364,10 +363,18 @@ export const submitTransferTransaction = createAsyncThunk(
 
     const { transferHash, transferAsBytes, transferType } = createdTransfer;
     const { promise, timeoutId } = promiseWithTimeout<Events>(
-      new Promise(async (resolve) => {
-        await socketClient.broadcastTx(transferAsBytes);
-        const events = socketClient.subscribeNewBlock(transferHash);
-        resolve(events);
+      new Promise(async (resolve, reject) => {
+        try {
+          await socketClient.broadcastTx(transferAsBytes);
+        } catch (e) {
+          return reject(
+            `Unable to broadcast transfer! ${
+              typeof e === "string" ? `Received: ${e}` : ""
+            }`
+          );
+        }
+        const events = await socketClient.subscribeNewBlock(transferHash);
+        return resolve(events);
       }),
       LEDGER_TRANSFER_TIMEOUT,
       `Async actions timed out when submitting Token Transfer after ${
