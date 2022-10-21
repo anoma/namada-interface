@@ -10,7 +10,7 @@ import {
   IbcTxResponse,
   Events,
 } from "@anoma/rpc";
-import { Transfer, IBCTransfer, TxWasm, Tokens, TokenType } from "@anoma/tx";
+import { IBCTransfer, TxWasm, Tokens, TokenType } from "@anoma/tx";
 import {
   amountFromMicro,
   promiseWithTimeout,
@@ -31,6 +31,7 @@ import {
   ToastType,
 } from "slices/notifications";
 import { toHex } from "@cosmjs/encoding";
+import { fetchBalanceByToken } from "./balances";
 
 enum Toasts {
   TransferStarted,
@@ -308,7 +309,7 @@ export const actionTypes = {
 // shielded -> shielded
 // transparent -> shielded
 // shielded -> transparent
-// transparent -> transparente
+// transparent -> transparent
 export const submitTransferTransaction = createAsyncThunk(
   actionTypes.SUBMIT_TRANSFER_ACTION_TYPE,
   async (
@@ -365,7 +366,7 @@ export const submitTransferTransaction = createAsyncThunk(
     const { promise, timeoutId } = promiseWithTimeout<Events>(
       new Promise(async (resolve) => {
         await socketClient.broadcastTx(transferAsBytes);
-        const events = await socketClient.subscribeNewBlock(transferHash);
+        const events = socketClient.subscribeNewBlock(transferHash);
         resolve(events);
       }),
       LEDGER_TRANSFER_TIMEOUT,
@@ -394,9 +395,10 @@ export const submitTransferTransaction = createAsyncThunk(
     const appliedHash = events[TxResponse.Hash];
     const height = parseInt(events[TxResponse.Height]);
 
-    // TODO: Fix this!
-    /* dispatch(fetchBalanceByAccount(account)); */
-    dispatch(updateShieldedBalances());
+    dispatch(fetchBalanceByToken({ token: tokenType, account }));
+
+    // TODO: Re-enable the following!
+    /* dispatch(updateShieldedBalances()); */
 
     // TODO pass this as a callback from consumer as we might need different behaviors
     // history.push(
@@ -408,10 +410,7 @@ export const submitTransferTransaction = createAsyncThunk(
     notify &&
       dispatch(
         notificationsActions.createToast(
-          getToast(
-            `${requestId}-fullfilled`,
-            Toasts.TransferCompleted
-          )({ gas: gas })
+          getToast(`${requestId}-fullfilled`, Toasts.TransferCompleted)({ gas })
         )
       );
 

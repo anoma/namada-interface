@@ -14,11 +14,11 @@ const parseEvents = (subEvents: SubscriptionEvents): Events => {
   const { events }: { events: NewBlockEvents } = subEvents;
   const [applied] = events;
 
-  return applied.attributes.reduce((acc, attribute): Events => {
+  return applied.attributes.reduce((acc: Events, attribute) => {
     const { key, value } = attribute;
     acc[key] = value;
     return acc;
-  }, {} as Events);
+  }, {});
 };
 
 class SocketClient extends RpcClientBase {
