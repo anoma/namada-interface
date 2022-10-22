@@ -1,0 +1,7 @@
+[workspace]
+members = [
+    "packages/crypto/lib",
+    "packages/masp-web/lib",
+    "packages/shared/lib",
+    "packages/wasm/lib"
+]

@@ -1,0 +1,4 @@
+{
+  "**/*.{js,ts}": "yarn run lint",
+  "**/*.rs": "cargo fmt --all -- --fix"
+}
