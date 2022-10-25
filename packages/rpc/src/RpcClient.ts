@@ -1,3 +1,4 @@
+import { Validators, init as initShared } from "@anoma/shared";
 import { HttpClient } from "@cosmjs/tendermint-rpc";
 import { JsonRpcSuccessResponse } from "@cosmjs/json-rpc";
 import { fromBase64 } from "@cosmjs/encoding";
@@ -38,6 +39,22 @@ class RpcClient extends RpcClientBase {
 
       // Note: .toNumber() is limited to 53 bits:
       return amountFromMicro(decoded.micro.toNumber());
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  public async queryAllValidators(pos: string): Promise<any> {
+    const path = `value/#${pos}/validator_set`;
+    const request = createJsonRpcRequest("abci_query", [path, "", "0", false]);
+
+    try {
+      const json: JsonRpcSuccessResponse = await this._client.execute(request);
+      const response: AbciResponse = json.result.response;
+      const valueAsByteArray = fromBase64(response.value || "0");
+      await initShared();
+
+      return Promise.resolve(Validators.decode(valueAsByteArray));
     } catch (e) {
       return Promise.reject(e);
     }

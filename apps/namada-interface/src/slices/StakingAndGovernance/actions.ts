@@ -15,17 +15,35 @@ import {
   ChangeInStakingPosition,
 } from "./types";
 import { allValidatorsData, myStakingData, myBalancesData } from "./fakeData";
+import { RpcClient } from "@anoma/rpc";
+import { RootState } from "store";
+import Config from "config";
 
 // this retrieves the validators
 // this dispatches further actions that are depending on
 // validators data
 export const fetchValidators = createAsyncThunk<
   { allValidators: Validator[] },
-  void
+  void,
+  { state: RootState }
 >(FETCH_VALIDATORS, async (_, thunkApi) => {
   const allValidators = allValidatorsData;
+  const { chainId } = thunkApi.getState().settings;
+  const { network, pos} = Config.chain[chainId];
+  const rpcClient = new RpcClient(network);
+
+  const validators = await rpcClient.queryAllValidators(pos!);
+  const asd = validators.active.map((v: any) => ({
+    uuid: v.address as string,
+    name: v.address.substr(0, 6) as string,
+    votingPower: v.voting_power as string,
+    homepageUrl: "namada.net",
+    commission: "100%",
+    description: v.address as string
+  } as Validator))
+
   thunkApi.dispatch(fetchMyValidators(allValidators));
-  return Promise.resolve({ allValidators });
+  return Promise.resolve({ allValidators: asd });
 });
 
 export const fetchValidatorDetails = createAsyncThunk<

@@ -331,11 +331,14 @@ export const submitTransferTransaction = createAsyncThunk(
       transferData
     );
 
+    console.log("ct", createdTransfer);
+
     const { transferHash, transferAsBytes, transferType } = createdTransfer;
     const { promise, timeoutId } = promiseWithTimeout<NewBlockEvents>(
       new Promise(async (resolve) => {
         await socketClient.broadcastTx(transferAsBytes);
         const events = await socketClient.subscribeNewBlock(transferHash);
+        console.log("ev", events);
         resolve(events);
       }),
       LEDGER_TRANSFER_TIMEOUT,
@@ -349,20 +352,37 @@ export const submitTransferTransaction = createAsyncThunk(
       return rejectWithValue(e);
     });
 
-    const events = await promise;
+    const events = await promise as any;
+
+    const attributes = events.find(
+      ({ type }: { type: string }) => type === "applied"
+    ).attributes;
+
+    const code = attributes.find(({ key }: { key: string }) => key == "code");
+
+    const attributesMap = attributes.reduce(
+      (map: any, attr: any) => ({ [attr.key]: attr.value, ...map }),
+      {}
+    );
+
+    console.log(attributesMap);
+
+    // const info = events[TxResponse.Info][0];
+    const info = "info";
+
     socketClient.disconnect();
     clearTimeout(timeoutId);
 
-    const code = events[TxResponse.Code][0];
-    const info = events[TxResponse.Info][0];
+    // const code = events[TxResponse.Code][0];
+    // const info = events[TxResponse.Info][0];
 
-    if (code !== "0") {
+    if (code.value !== "0") {
       return rejectWithValue(info);
     }
 
-    const gas = amountFromMicro(parseInt(events[TxResponse.GasUsed][0]));
-    const appliedHash = events[TxResponse.Hash][0];
-    const height = parseInt(events[TxResponse.Height][0]);
+    const gas = amountFromMicro(parseInt(attributesMap.gas_used));
+    const appliedHash = attributesMap.hash
+    const height = parseInt(attributesMap.height);
 
     dispatch(fetchBalanceByAccount(account));
     dispatch(updateShieldedBalances());

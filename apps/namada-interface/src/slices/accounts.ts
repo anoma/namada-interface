@@ -155,14 +155,14 @@ export const submitInitAccountTransaction = createAsyncThunk(
     clearTimeout(timeoutId);
     socketClient.disconnect();
 
-    const code = events[TxResponse.Code][0];
-    const info = events[TxResponse.Info][0];
+    const code = (events as any)['applied.code'][0];
+    const info = (events as any)['applied.info'][0];
 
     if (code !== "0") {
       return rejectWithValue(info);
     }
 
-    const initializedAccounts = events[TxResponse.InitializedAccounts];
+    const initializedAccounts = (events as any)['applied.initialized_accounts'];
 
     // TODO: This is a major bug when initializing multiple accounts!
     const establishedAddress = initializedAccounts

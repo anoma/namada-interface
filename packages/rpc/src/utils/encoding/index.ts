@@ -11,3 +11,13 @@ export const decodeTransactionWithNextTxId = async (
   );
   return decodedData;
 };
+
+export const deocdeValidators = async (
+  transactionAsByteArray: Uint8Array
+): Promise<any> => {
+  const initialisedMaspWeb = await getMaspWeb();
+  const decodedData = initialisedMaspWeb.decodeTransactionWithNextTxId(
+    transactionAsByteArray
+  );
+  return decodedData;
+};

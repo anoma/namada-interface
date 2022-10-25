@@ -16,6 +16,7 @@ const {
   REACT_APP_CHAIN_ID,
   REACT_APP_FAUCET,
   REACT_APP_ALIAS,
+  REACT_APP_POS,
 
   // Alternatively, specify a local IBC chain:
   // IBC - CHAIN A
@@ -45,6 +46,7 @@ export type Chain = {
   accountIndex: number;
   network: NetworkConfig;
   faucet?: string;
+  pos?: string;
   portId?: string;
   ibc?: IBCConfigItem[];
 };
@@ -74,6 +76,7 @@ const url = getUrl(sanitize(REACT_APP_LEDGER_URL));
 const protocol = getUrlProtocol(REACT_APP_LEDGER_URL);
 const wsProtocol: Protocol = protocol === "https" ? "wss" : "ws";
 const faucet = sanitize(REACT_APP_FAUCET);
+const pos = sanitize(REACT_APP_POS);
 const port = parseInt(sanitize(REACT_APP_LEDGER_PORT)) || undefined;
 
 // IBC Chain A
@@ -114,6 +117,7 @@ if (chainId) {
     alias,
     accountIndex: 0,
     faucet,
+    pos,
     network: {
       url: url || DEFAULT_URL,
       port,

@@ -9,6 +9,7 @@ declare global {
       REACT_APP_LEDGER_PORT?: string;
       REACT_APP_CHAIN_ID?: string;
       REACT_APP_FAUCET?: string;
+      REACT_APP_POS?: string;
 
       // IBC Chain A
       REACT_APP_CHAIN_A_ALIAS?: string;

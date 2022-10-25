@@ -77,7 +77,7 @@ class SocketClient extends RpcClientBase {
 
     const { onNext, onError } = callbacks || {};
 
-    const queries = [`tm.event='NewBlock'`, `${TxResponse.Hash}='${hash}'`];
+    const queries = [`tm.event='NewBlock'`];
 
     return new Promise((resolve, reject) => {
       this.client
@@ -90,11 +90,14 @@ class SocketClient extends RpcClientBase {
           next: (subEvent) => {
             const { events }: { events: NewBlockEvents } =
               subEvent as SubscriptionEvents;
-            this.disconnect();
+            const a = (events as any)?.['applied.hash']?.[0];
+            if (a === hash) {
+              this.disconnect();
+              return resolve(events);
+            }
             if (onNext) {
               onNext(events);
             }
-            return resolve(events);
           },
           error: (e) => {
             if (onError) {
