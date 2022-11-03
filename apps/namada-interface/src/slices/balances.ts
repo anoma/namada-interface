@@ -56,9 +56,12 @@ export const fetchBalances = createAsyncThunk(
         const results: Balance[] = await Promise.all(
           Symbols.map(async (token) => {
             const { address: tokenAddress = "" } = Tokens[token];
-
-            const balance = await rpcClient.queryBalance(tokenAddress, address);
-
+            let balance: number;
+            try {
+              balance = await rpcClient.queryBalance(tokenAddress, address);
+            } catch (e) {
+              balance = 0;
+            }
             return {
               token,
               chainId,

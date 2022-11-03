@@ -11,11 +11,11 @@ import RpcClientBase, { RpcClientInitArgs } from "./RpcClientBase";
 import { schemaAmount, TokenAmount } from "./schema";
 import { AbciResponse, PathType } from "./types";
 
-const ABCI_QUERY_PATH_PREFIX = "";
+/* const ABCI_QUERY_PATH_PREFIX = ""; */
 // TODO: When the RPC shell sub-router feature is merged to main
 // (See: https://github.com/anoma/namada/pull/569), then use the
 // following, and remove the empty prefix above.
-/* const ABCI_QUERY_PATH_PREFIX = "/shell/"; */
+const ABCI_QUERY_PATH_PREFIX = "/shell/";
 
 class RpcClient extends RpcClientBase {
   private _client: HttpClient;
@@ -32,6 +32,7 @@ class RpcClient extends RpcClientBase {
     try {
       const json: JsonRpcSuccessResponse = await this._client.execute(request);
       const response: AbciResponse = json.result.response;
+
       if (response.code === 1) {
         return -2;
       }
