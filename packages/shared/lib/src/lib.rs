@@ -8,4 +8,5 @@ pub mod ibc_transfer;
 pub mod signer;
 pub mod transfer;
 pub mod types;
+pub mod rpc_client;
 mod utils;

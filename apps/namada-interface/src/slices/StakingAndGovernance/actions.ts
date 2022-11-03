@@ -14,16 +14,35 @@ import {
   StakingPosition,
   ChangeInStakingPosition,
 } from "./types";
-import { allValidatorsData, myStakingData, myBalancesData } from "./fakeData";
+import { myStakingData, myBalancesData } from "./fakeData";
+import { RootState } from "store";
+import Config from "config";
+// import { RpcClient } from "@anoma/rpc";
+import { Abci, init as initShared } from "@anoma/shared";
 
+const toValidator = ([address, votingPower]: [string, string]): Validator => ({
+  uuid: address,
+  name: address,
+  votingPower: `${votingPower}NAM`,
+  homepageUrl: "htttp://namada.me",
+  commission: "TBD",
+  description: "TBD",
+});
 // this retrieves the validators
 // this dispatches further actions that are depending on
 // validators data
 export const fetchValidators = createAsyncThunk<
   { allValidators: Validator[] },
-  void
+  void,
+  { state: RootState }
 >(FETCH_VALIDATORS, async (_, thunkApi) => {
-  const allValidators = allValidatorsData;
+  const { chainId } = thunkApi.getState().settings;
+  const { network } = Config.chain[chainId];
+
+  await initShared();
+  const abci = new Abci(`http://${network.url}`);
+  const allValidators = (await abci.query_all_validators()).map(toValidator);
+
   thunkApi.dispatch(fetchMyValidators(allValidators));
   return Promise.resolve({ allValidators });
 });
@@ -71,13 +90,23 @@ const myStakingToMyValidators = (
 // real data model stored in the chain, adjust when implementing the real data
 export const fetchMyValidators = createAsyncThunk<
   { myValidators: MyValidators[] },
-  Validator[]
->(FETCH_MY_VALIDATORS, async (allValidatorsData: Validator[]) => {
+  Validator[],
+  { state: RootState }
+>(FETCH_MY_VALIDATORS, async (allValidatorsData: Validator[], thunkApi) => {
   try {
-    const myValidators = myStakingToMyValidators(
-      myStakingData,
-      allValidatorsData
+    const { chainId } = thunkApi.getState().settings;
+    const { network } = Config.chain[chainId];
+    const accounts = thunkApi.getState().accounts.derived[chainId];
+    const establishedAddresses = Object.values(accounts).map(
+      (a) => a.establishedAddress
+    ).filter((a): a is string => typeof a === "string");
+
+    await initShared();
+    const abci = new Abci(`http://${network.url}`);
+    const myValidators = (await abci.query_my_validators(establishedAddresses[0])).map(
+      toValidator
     );
+
     return Promise.resolve({ myValidators });
   } catch (error) {
     console.warn(`error: ${error}`);

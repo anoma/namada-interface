@@ -94,7 +94,7 @@ class RpcClient extends RpcClientBase {
       // Note: .toNumber() is limited to 53 bits:
       return amountFromMicro(decoded.micro.toNumber());
     } catch (e) {
-      return Promise.reject(e);
+      return Promise.resolve(0);
     }
   }
 
@@ -151,7 +151,7 @@ class RpcClient extends RpcClientBase {
         maspAddressWithTransactionId
       );
       const request = createJsonRpcRequest("abci_query", [
-        path,
+        "/shell/" + path,
         "",
         "0",
         false,
