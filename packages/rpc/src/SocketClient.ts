@@ -97,7 +97,6 @@ class SocketClient extends RpcClientBase {
             query,
           })
         )
-
         .addListener({
           next: (subEvent) => {
             const parsedEvents = parseEvents(<SubscriptionEvents>subEvent);

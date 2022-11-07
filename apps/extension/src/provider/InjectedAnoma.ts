@@ -1,5 +1,4 @@
 import {
-  Account,
   Anoma as IAnoma,
   Chain,
   DerivedAccount,
