@@ -52,7 +52,7 @@ const emptyStakingPosition = (validatorId: string): StakingPosition => ({
   stakedAmount: "",
   stakedCurrency: "",
   totalRewards: "",
-  validatorId: validatorId
+  validatorId: validatorId,
 });
 
 type Props = {
@@ -108,10 +108,9 @@ export const Staking = (props: Props): JSX.Element => {
   } = props;
 
   // these 2 are needed for validator details
-  const stakingPositionsWithSelectedValidator =
-    myStakingPositions.filter(
-      (validator) => validator.validatorId === selectedValidatorId
-    );
+  const stakingPositionsWithSelectedValidator = myStakingPositions.filter(
+    (validator) => validator.validatorId === selectedValidatorId
+  );
 
   const selectedValidator = validators.find(
     (validator) => validator.uuid === selectedValidatorId
@@ -200,7 +199,10 @@ export const Staking = (props: Props): JSX.Element => {
           totalFundsToBond={100}
           confirmBonding={confirmBonding}
           cancelBonding={cancelBonding}
-          currentBondingPosition={stakingPositionsWithSelectedValidator[0] || emptyStakingPosition(selectedValidatorId || "")}
+          currentBondingPosition={
+            stakingPositionsWithSelectedValidator[0] ||
+            emptyStakingPosition(selectedValidatorId || "")
+          }
         />
       </Modal>
 
@@ -215,7 +217,10 @@ export const Staking = (props: Props): JSX.Element => {
         <UnbondPosition
           confirmUnbonding={confirmUnbonding}
           cancelUnbonding={cancelUnbonding}
-          currentBondingPosition={stakingPositionsWithSelectedValidator[0] || emptyStakingPosition(selectedValidatorId || "")}
+          currentBondingPosition={
+            stakingPositionsWithSelectedValidator[0] ||
+            emptyStakingPosition(selectedValidatorId || "")
+          }
         />
       </Modal>
       <Routes>

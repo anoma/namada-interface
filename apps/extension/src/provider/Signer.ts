@@ -62,9 +62,7 @@ export class Signer implements ISigner {
   /**
    * Encode a Bonding message
    */
-  public async encodeBonding(
-    args: BondingProps
-  ): Promise<string | undefined> {
+  public async encodeBonding(args: BondingProps): Promise<string | undefined> {
     const { validator, source, amount } = args;
     const msgValue = new BondingMsgValue({
       source,
@@ -73,10 +71,7 @@ export class Signer implements ISigner {
     });
 
     const bondingMsg = new Message<BondingMsgValue>();
-    const serializedTransfer = bondingMsg.encode(
-      BondingMsgSchema,
-      msgValue
-    );
+    const serializedTransfer = bondingMsg.encode(BondingMsgSchema, msgValue);
 
     return await this._anoma.encodeBonding(toBase64(serializedTransfer));
   }

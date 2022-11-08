@@ -44,8 +44,7 @@ export const extraReducers = (
   builder.addMatcher(
     isAsyncThunkAction,
     (state: NotificationsState, action: Action) => {
-      const [actionType] =
-        action.type.match(THUNK_MATCH_REGEXP) || [];
+      const [actionType] = action.type.match(THUNK_MATCH_REGEXP) || [];
       const pendingSet = new Set(state.pendingActions);
 
       if (actionType) {
