@@ -21,7 +21,6 @@ export class Anoma implements IAnoma {
   public async connect(chainId: string): Promise<void> {
     // TODO: Implement this
     console.info("connect", chainId);
-    this.requester?.startSession();
   }
 
   public async chain(chainId: string): Promise<Chain | undefined> {
