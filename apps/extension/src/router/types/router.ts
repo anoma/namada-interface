@@ -29,7 +29,6 @@ export interface MessageRequester {
     port: string,
     msg: M
   ): Promise<M extends Message<infer R> ? R : never>;
-  startSession(): void;
 }
 
 export type Guard = (
