@@ -22,6 +22,7 @@ enum MessageType {
   GetChain = "get-chain",
   GetChains = "get-chains",
   SuggestChain = "suggest-chain",
+  EncodeBonding = "encode-bonding",
 }
 
 /**
@@ -257,5 +258,30 @@ export class EncodeRevealPkMsg extends Message<string> {
 
   type(): string {
     return EncodeRevealPkMsg.type();
+  }
+}
+
+export class EncodeBondingMsg extends Message<string> {
+  public static type(): MessageType {
+    return MessageType.EncodeBonding;
+  }
+
+  constructor(public readonly txMsg: string) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.txMsg) {
+      throw new Error("An encoded txMsg is required!");
+    }
+    return;
+  }
+
+  route(): string {
+    return Route.KeyRing;
+  }
+
+  type(): string {
+    return EncodeBondingMsg.type();
   }
 }

@@ -52,6 +52,13 @@ export class InjectedAnoma implements IAnoma {
     >("signTx", props);
   }
 
+  public async encodeBonding(txMsg: string): Promise<string | undefined> {
+    return await InjectedProxy.requestMethod<string, string>(
+      "encodeBonding",
+      txMsg
+    );
+  }
+
   public async encodeTransfer(txMsg: string): Promise<string | undefined> {
     return await InjectedProxy.requestMethod<string, string>(
       "encodeTransfer",

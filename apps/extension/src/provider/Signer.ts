@@ -11,6 +11,7 @@ import {
   Message,
   SignedTx,
   Signer as ISigner,
+  BondingMsgValue,
   TransferMsgValue,
   TransferMsgSchema,
   TransactionMsgValue,
@@ -18,6 +19,8 @@ import {
   TransferProps,
   TxProps,
   AccountType,
+  BondingProps,
+  BondingMsgSchema,
 } from "@anoma/types";
 
 export class Signer implements ISigner {
@@ -54,6 +57,28 @@ export class Signer implements ISigner {
       txMsg: toBase64(txMsgEncoded),
       txData,
     });
+  }
+
+  /**
+   * Encode a Bonding message
+   */
+  public async encodeBonding(
+    args: BondingProps
+  ): Promise<string | undefined> {
+    const { validator, source, amount } = args;
+    const msgValue = new BondingMsgValue({
+      source,
+      validator,
+      amount,
+    });
+
+    const bondingMsg = new Message<BondingMsgValue>();
+    const serializedTransfer = bondingMsg.encode(
+      BondingMsgSchema,
+      msgValue
+    );
+
+    return await this._anoma.encodeBonding(toBase64(serializedTransfer));
   }
 
   /**

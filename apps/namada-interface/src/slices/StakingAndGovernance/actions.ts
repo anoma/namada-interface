@@ -17,8 +17,11 @@ import {
 import { myStakingData, myBalancesData } from "./fakeData";
 import { RootState } from "store";
 import Config from "config";
-// import { RpcClient } from "@anoma/rpc";
+import { Anoma } from "@anoma/integrations";
 import { Abci, init as initShared } from "@anoma/shared";
+import { RpcClient, RpcConfig, SocketClient } from "@anoma/rpc";
+import { fetchWasmCode } from "@anoma/utils";
+import { Tokens, TxWasm } from "@anoma/tx";
 
 const toValidator = ([address, votingPower]: [string, string]): Validator => ({
   uuid: address,
@@ -27,6 +30,18 @@ const toValidator = ([address, votingPower]: [string, string]): Validator => ({
   homepageUrl: "htttp://namada.me",
   commission: "TBD",
   description: "TBD",
+});
+
+const toStakingPosition = ([address, stakedAmount]: [
+  string,
+  string
+]): StakingPosition => ({
+  uuid: address,
+  stakingStatus: "Bonded",
+  stakedAmount: stakedAmount,
+  stakedCurrency: "NAM",
+  totalRewards: "TBD",
+  validatorId: address,
 });
 // this retrieves the validators
 // this dispatches further actions that are depending on
@@ -89,25 +104,28 @@ const myStakingToMyValidators = (
 // TODO this or fetchMyStakingPositions is likely redundant based on
 // real data model stored in the chain, adjust when implementing the real data
 export const fetchMyValidators = createAsyncThunk<
-  { myValidators: MyValidators[] },
+  { myValidators: MyValidators[]; myStakingPositions: StakingPosition[] },
   Validator[],
   { state: RootState }
->(FETCH_MY_VALIDATORS, async (allValidatorsData: Validator[], thunkApi) => {
+>(FETCH_MY_VALIDATORS, async (_, thunkApi) => {
   try {
     const { chainId } = thunkApi.getState().settings;
     const { network } = Config.chain[chainId];
     const accounts = thunkApi.getState().accounts.derived[chainId];
-    const establishedAddresses = Object.values(accounts).map(
-      (a) => a.establishedAddress
-    ).filter((a): a is string => typeof a === "string");
+    const establishedAddresses = Object.values(accounts)
+      .map((a) => a.establishedAddress)
+      .filter((a): a is string => typeof a === "string");
 
     await initShared();
     const abci = new Abci(`http://${network.url}`);
-    const myValidators = (await abci.query_my_validators(establishedAddresses[0])).map(
-      toValidator
+    const myValidatorsRes = await abci.query_my_validators(
+      establishedAddresses[0]
     );
 
-    return Promise.resolve({ myValidators });
+    const myValidators = myValidatorsRes.map(toValidator);
+    const myStakingPositions = myValidatorsRes.map(toStakingPosition);
+
+    return Promise.resolve({ myValidators, myStakingPositions });
   } catch (error) {
     console.warn(`error: ${error}`);
     return Promise.reject({});
@@ -134,13 +152,52 @@ export const fetchMyBalances = createAsyncThunk<
 // the new updated balances and validator amounts:
 // * fetchMyBalances
 // * fetchMyValidators
-export const postNewBonding = createAsyncThunk<void, ChangeInStakingPosition>(
+export const postNewBonding = createAsyncThunk<
+  void,
+  ChangeInStakingPosition,
+  { state: RootState }
+>(
   POST_NEW_STAKING,
-  async (changeInStakingPosition: ChangeInStakingPosition) => {
-    console.log(
-      "Should create a new bonding transaction and post it to the chain with the following data:"
+  async (changeInStakingPosition: ChangeInStakingPosition, thunkApi) => {
+    const { chainId } = thunkApi.getState().settings;
+    const chainConfig = Config.chain[chainId];
+    const { network } = chainConfig;
+    const anoma = new Anoma();
+    const signer = anoma.signer(chainId);
+    const rpcClient = new RpcClient(network);
+    const txCode = await fetchWasmCode(TxWasm.Bond);
+    const epoch = await rpcClient.queryEpoch();
+    const { url, port, protocol, wsProtocol } = chainConfig.network;
+    const rpcConfig = new RpcConfig(url, port, protocol, wsProtocol);
+    const socketClient = new SocketClient(rpcConfig.wsNetwork);
+
+    const encodedTx =
+      (await signer.encodeBonding({
+        source:
+          "atest1d9khqw36gsmrgde38qursvpegfpngvzpxfq5vs29xs6nvv6xgyeny3p58ycrqvjzxaq52sejlzlly5",
+        validator:
+          "atest1v4ehgw36g5crwd2yxgm52wp5xu6ngven8pzyvdjpx3znw33sxdz5zvzzg5erzv33gdpnzdfc3psyt6",
+        amount: 100,
+      })) || "";
+
+    const asd = await signer.signTx(
+      "atest1d9khqw36gsmrgde38qursvpegfpngvzpxfq5vs29xs6nvv6xgyeny3p58ycrqvjzxaq52sejlzlly5",
+      {
+        token: Tokens["NAM"].address!,
+        epoch,
+        feeAmount: 0.0005,
+        gasLimit: 10000000,
+        txCode,
+      },
+      encodedTx
     );
-    console.log(changeInStakingPosition);
+
+    if (asd!.hash && asd!.bytes) {
+      await socketClient.broadcastTx(asd!.bytes);
+    } else {
+      throw new Error("Invalid transaction!");
+    }
+
     return Promise.resolve();
   }
 );

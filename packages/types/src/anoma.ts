@@ -14,6 +14,7 @@ export interface Anoma {
   }): Promise<SignedTx | undefined>;
   chain: (chainId: string) => Promise<Chain | undefined>;
   chains: () => Promise<Chain[] | undefined>;
+  encodeBonding: (txMsg: string) => Promise<string | undefined>;
   encodeTransfer: (txMsg: string) => Promise<string | undefined>;
   encodeIbcTransfer: (txMsg: string) => Promise<string | undefined>;
   encodeInitAccount: (props: {

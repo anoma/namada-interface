@@ -16,6 +16,7 @@ import {
   EncodeRevealPkMsg,
   QueryAccountsMsg,
   SignTxMsg,
+  EncodeBondingMsg,
 } from "provider/messages";
 
 export const getHandler: (service: KeyRingService) => Handler = (service) => {
@@ -42,6 +43,8 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleQueryAccountsMsg(service)(env, msg as QueryAccountsMsg);
       case SignTxMsg:
         return handleSignTxMsg(service)(env, msg as SignTxMsg);
+      case EncodeBondingMsg:
+        return handleEncodeBondingMsg(service)(env, msg as EncodeBondingMsg);
       case EncodeTransferMsg:
         return handleEncodeTransferMsg(service)(env, msg as EncodeTransferMsg);
       case EncodeIbcTransferMsg:
@@ -140,6 +143,15 @@ const handleSignTxMsg: (
   return async (_, msg) => {
     const { signer, txMsg, txData } = msg;
     return await service.signTx(signer, txMsg, txData);
+  };
+};
+
+const handleEncodeBondingMsg: (
+  service: KeyRingService
+) => InternalHandler<EncodeBondingMsg> = (service) => {
+  return (_, msg) => {
+    const { txMsg } = msg;
+    return service.encodeBonding(txMsg);
   };
 };
 

@@ -46,6 +46,15 @@ const validatorNameFromUrl = (path: string): string | undefined => {
   }
 };
 
+const emptyStakingPosition = (validatorId: string): StakingPosition => ({
+  uuid: validatorId,
+  stakingStatus: "",
+  stakedAmount: "",
+  stakedCurrency: "",
+  totalRewards: "",
+  validatorId: validatorId
+});
+
 type Props = {
   myBalances: MyBalanceEntry[];
   validators: Validator[];
@@ -191,7 +200,7 @@ export const Staking = (props: Props): JSX.Element => {
           totalFundsToBond={100}
           confirmBonding={confirmBonding}
           cancelBonding={cancelBonding}
-          currentBondingPosition={stakingPositionsWithSelectedValidator[0]}
+          currentBondingPosition={stakingPositionsWithSelectedValidator[0] || emptyStakingPosition(selectedValidatorId || "")}
         />
       </Modal>
 
@@ -206,7 +215,7 @@ export const Staking = (props: Props): JSX.Element => {
         <UnbondPosition
           confirmUnbonding={confirmUnbonding}
           cancelUnbonding={cancelUnbonding}
-          currentBondingPosition={stakingPositionsWithSelectedValidator[0]}
+          currentBondingPosition={stakingPositionsWithSelectedValidator[0] || emptyStakingPosition(selectedValidatorId || "")}
         />
       </Modal>
       <Routes>

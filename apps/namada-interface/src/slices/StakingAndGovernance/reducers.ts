@@ -43,6 +43,7 @@ export const stakingAndGovernanceSlice = createSlice({
       .addCase(fetchMyValidators.fulfilled, (state, action) => {
         // stop the loader
         state.myValidators = action.payload.myValidators;
+        state.myStakingPositions = action.payload.myStakingPositions;
       })
       .addCase(fetchMyValidators.rejected, (state, _action) => {
         // stop the loader

@@ -58,7 +58,7 @@ export const StakingAndGovernance = (): JSX.Element => {
   const onStakingComponentInitCallback = (): void => {
     dispatch(fetchValidators());
     dispatch(fetchMyBalances());
-    dispatch(fetchMyStakingPositions());
+    // dispatch(fetchMyStakingPositions());
   };
 
   // triggered by the url load or user click in <Staking />
