@@ -196,7 +196,7 @@ impl Abci {
         let mut result: Vec<(Address, token::Amount)> = Vec::new();
 
         for address in delegated_addresses.into_iter() {
-            let bond_path = &format!("/vp/pos/bond_amount/{}/{}", address, address)[..];
+            let bond_path = &format!("/vp/pos/bond_amount/{}/{}", owner, address)[..];
             let total_bonds = abci_query::<token::Amount>(&self.url, bond_path).await?;
 
             result.push((address, total_bonds));

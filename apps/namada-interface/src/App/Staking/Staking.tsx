@@ -7,7 +7,6 @@ import { StakingOverview } from "./StakingOverview";
 import { ValidatorDetails } from "./ValidatorDetails";
 import { TopLevelRoute, StakingAndGovernanceSubRoute } from "App/types";
 import {
-  MyBalanceEntry,
   Validator,
   MyValidators,
   StakingPosition,
@@ -56,7 +55,6 @@ const emptyStakingPosition = (validatorId: string): StakingPosition => ({
 });
 
 type Props = {
-  myBalances: MyBalanceEntry[];
   validators: Validator[];
   myValidators: MyValidators[];
   myStakingPositions: StakingPosition[];
@@ -100,7 +98,6 @@ export const Staking = (props: Props): JSX.Element => {
     fetchValidatorDetails,
     postNewBonding,
     postNewUnbonding,
-    myBalances,
     validators,
     myValidators,
     myStakingPositions,
@@ -229,7 +226,6 @@ export const Staking = (props: Props): JSX.Element => {
           element={
             <StakingOverview
               navigateToValidatorDetails={navigateToValidatorDetails}
-              myBalances={myBalances}
               myValidators={myValidators}
               validators={validators}
             />

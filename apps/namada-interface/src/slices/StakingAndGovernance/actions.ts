@@ -9,7 +9,6 @@ import {
   POST_UNSTAKING,
   Validator,
   ValidatorDetailsPayload,
-  MyBalanceEntry,
   MyValidators,
   StakingPosition,
   ChangeInStakingPosition,
@@ -30,6 +29,13 @@ const toValidator = ([address, votingPower]: [string, string]): Validator => ({
   homepageUrl: "htttp://namada.me",
   commission: "TBD",
   description: "TBD",
+});
+
+const toMyValidator = ([address, bonded]: [string, string]): MyValidators => ({
+  uuid: address,
+  stakingStatus: "Bonded",
+  stakedAmount: bonded,
+  validator: toValidator([address, bonded])
 });
 
 const toStakingPosition = ([address, stakedAmount]: [
@@ -75,28 +81,6 @@ export const fetchValidatorDetails = createAsyncThunk<
   }
 });
 
-// util to add validators to the user's staking entries
-const myStakingToMyValidators = (
-  myStaking: StakingPosition[],
-  allValidators: Validator[]
-): MyValidators[] => {
-  // try {
-  const myValidators: MyValidators[] = myStaking.map((myStakingEntry) => {
-    // let's get the validator we are going to add
-    const validator = allValidators.find(
-      (validator) => validator.uuid === myStakingEntry.validatorId
-    );
-
-    // this should not happen if the data is not corrupted
-    if (validator === undefined) {
-      throw `Validator with ID ${myStakingEntry.validatorId} not found`;
-    }
-
-    return { ...myStakingEntry, validator: validator };
-  });
-  return myValidators;
-};
-
 // fetches staking data and appends the validators to it
 // this needs the validators, so they are being passed in
 // vs. getting them from the state
@@ -111,18 +95,18 @@ export const fetchMyValidators = createAsyncThunk<
   try {
     const { chainId } = thunkApi.getState().settings;
     const { network } = Config.chain[chainId];
-    const accounts = thunkApi.getState().accounts.derived[chainId];
-    const establishedAddresses = Object.values(accounts)
-      .map((a) => a.establishedAddress)
-      .filter((a): a is string => typeof a === "string");
+
+    const anoma = new Anoma();
+    // TODO: read from state after extension is integrated with interface
+    const accounts = await anoma.signer(chainId).accounts() || [];
 
     await initShared();
     const abci = new Abci(`http://${network.url}`);
     const myValidatorsRes = await abci.query_my_validators(
-      establishedAddresses[0]
+      accounts[0].address
     );
 
-    const myValidators = myValidatorsRes.map(toValidator);
+    const myValidators = myValidatorsRes.map(toMyValidator);
     const myStakingPositions = myValidatorsRes.map(toStakingPosition);
 
     return Promise.resolve({ myValidators, myStakingPositions });
@@ -139,13 +123,6 @@ export const fetchMyStakingPositions = createAsyncThunk<
   return Promise.resolve({ myStakingPositions: myStakingData });
 });
 
-export const fetchMyBalances = createAsyncThunk<
-  { myBalances: MyBalanceEntry[] },
-  void
->(FETCH_MY_BALANCES, async () => {
-  return Promise.resolve({ myBalances: myBalancesData });
-});
-
 // we generate the new staking transaction
 // we post the new staking transaction
 // once it is accepted to the chain, we dispatch the below actions to get
@@ -158,42 +135,46 @@ export const postNewBonding = createAsyncThunk<
   { state: RootState }
 >(
   POST_NEW_STAKING,
-  async (changeInStakingPosition: ChangeInStakingPosition, thunkApi) => {
+  async (change: ChangeInStakingPosition, thunkApi) => {
     const { chainId } = thunkApi.getState().settings;
     const chainConfig = Config.chain[chainId];
-    const { network } = chainConfig;
-    const anoma = new Anoma();
-    const signer = anoma.signer(chainId);
+
+    const { network: { url, port, protocol, wsProtocol }, network } = chainConfig;
     const rpcClient = new RpcClient(network);
-    const txCode = await fetchWasmCode(TxWasm.Bond);
     const epoch = await rpcClient.queryEpoch();
-    const { url, port, protocol, wsProtocol } = chainConfig.network;
     const rpcConfig = new RpcConfig(url, port, protocol, wsProtocol);
     const socketClient = new SocketClient(rpcConfig.wsNetwork);
 
+    const txCode = await fetchWasmCode(TxWasm.Bond);
+    const anoma = new Anoma();
+    const signer = anoma.signer(chainId);
+
+    // TODO: read from state after extension is integrated with interface
+    const accounts = await anoma.signer(chainId).accounts() || [];
+    const source = accounts[0].address;
+
     const encodedTx =
       (await signer.encodeBonding({
-        source:
-          "atest1d9khqw36gsmrgde38qursvpegfpngvzpxfq5vs29xs6nvv6xgyeny3p58ycrqvjzxaq52sejlzlly5",
-        validator:
-          "atest1v4ehgw36g5crwd2yxgm52wp5xu6ngven8pzyvdjpx3znw33sxdz5zvzzg5erzv33gdpnzdfc3psyt6",
-        amount: 100,
+        source,
+        validator: change.validatorId,
+        // TODO: change amount to number
+        amount: Number(change.amount),
       })) || "";
 
-    const asd = await signer.signTx(
-      "atest1d9khqw36gsmrgde38qursvpegfpngvzpxfq5vs29xs6nvv6xgyeny3p58ycrqvjzxaq52sejlzlly5",
+    const {hash, bytes} = await signer.signTx(
+      source,
       {
         token: Tokens["NAM"].address!,
         epoch,
-        feeAmount: 0.0005,
-        gasLimit: 10000000,
+        feeAmount: 0,
+        gasLimit: 0,
         txCode,
       },
       encodedTx
-    );
+    ) || {};
 
-    if (asd!.hash && asd!.bytes) {
-      await socketClient.broadcastTx(asd!.bytes);
+    if (hash && bytes) {
+      await socketClient.broadcastTx(bytes);
     } else {
       throw new Error("Invalid transaction!");
     }

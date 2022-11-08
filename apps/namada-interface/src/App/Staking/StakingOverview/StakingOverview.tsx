@@ -1,37 +1,11 @@
+import { Table, TableLink, TableConfigurations } from "components/Table";
+import { Validator, MyValidators } from "slices/StakingAndGovernance";
 import {
-  Table,
-  TableLink,
-  TableDimmedCell,
-  TableConfigurations,
-} from "components/Table";
-import {
-  MyBalanceEntry,
-  Validator,
-  MyValidators,
-} from "slices/StakingAndGovernance";
-import { StakingOverviewContainer } from "./StakingOverview.components";
-
-// My Balances table row renderer and configuration
-const myBalancesRowRenderer = (myBalanceEntry: MyBalanceEntry): JSX.Element => {
-  return (
-    <>
-      <td>{myBalanceEntry.key}</td>
-      <td>{myBalanceEntry.baseCurrency}</td>
-      <td>
-        <TableDimmedCell>{myBalanceEntry.fiatCurrency}</TableDimmedCell>
-      </td>
-    </>
-  );
-};
-
-const myBalancesConfigurations: TableConfigurations<MyBalanceEntry, never> = {
-  rowRenderer: myBalancesRowRenderer,
-  columns: [
-    { uuid: "1", columnLabel: "", width: "30%" },
-    { uuid: "2", columnLabel: "", width: "15%" },
-    { uuid: "3", columnLabel: "", width: "55%" },
-  ],
-};
+  StakingBalances,
+  StakingBalancesLabel,
+  StakingBalancesValue,
+  StakingOverviewContainer,
+} from "./StakingOverview.components";
 
 const MyValidatorsRowRenderer = (
   myValidatorRow: MyValidators,
@@ -130,7 +104,6 @@ const getAllValidatorsConfiguration = (
 
 type Props = {
   navigateToValidatorDetails: (validatorId: string) => void;
-  myBalances: MyBalanceEntry[];
   validators: Validator[];
   myValidators: MyValidators[];
 };
@@ -142,8 +115,7 @@ type Props = {
 //   view in the parent
 // * user can also navigate to sibling view for validator details
 export const StakingOverview = (props: Props): JSX.Element => {
-  const { navigateToValidatorDetails, myBalances, validators, myValidators } =
-    props;
+  const { navigateToValidatorDetails, validators, myValidators } = props;
 
   // we get the configurations for 2 tables that contain callbacks
   const myValidatorsConfiguration = getMyValidatorsConfiguration(
@@ -152,15 +124,29 @@ export const StakingOverview = (props: Props): JSX.Element => {
   const allValidatorsConfiguration = getAllValidatorsConfiguration(
     navigateToValidatorDetails
   );
+  const totalBonded = myValidators.reduce(
+    (acc, validator) => acc + Number(validator.stakedAmount),
+    0
+  );
+  // TODO: change after extension changes are merged
+  const totalBalance = 1000;
 
   return (
     <StakingOverviewContainer>
       {/* my balances */}
-      <Table
-        title="My Balances"
-        data={myBalances}
-        tableConfigurations={myBalancesConfigurations}
-      />
+      <StakingBalances>
+        <StakingBalancesLabel>Total Balance</StakingBalancesLabel>
+        <StakingBalancesValue>{totalBalance}NAM</StakingBalancesValue>
+
+        <StakingBalancesLabel>Total Bonded</StakingBalancesLabel>
+        <StakingBalancesValue>{totalBonded}</StakingBalancesValue>
+
+        <StakingBalancesLabel>Pending Rewards</StakingBalancesLabel>
+        <StakingBalancesValue>TBD</StakingBalancesValue>
+
+        <StakingBalancesLabel>Available for bonding</StakingBalancesLabel>
+        <StakingBalancesValue>{totalBalance - totalBonded}</StakingBalancesValue>
+      </StakingBalances>
 
       {/* my validators */}
       <Table

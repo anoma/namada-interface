@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector, RootState } from "store";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 
@@ -13,7 +13,6 @@ import {
 } from "App/types";
 
 import {
-  fetchMyBalances,
   fetchValidators,
   fetchValidatorDetails,
   postNewBonding as postNewBondingAction,
@@ -32,7 +31,6 @@ export const StakingAndGovernance = (): JSX.Element => {
     (state: RootState) => state.stakingAndGovernance
   );
   const {
-    myBalances,
     validators,
     myValidators,
     selectedValidatorId,
@@ -56,7 +54,6 @@ export const StakingAndGovernance = (): JSX.Element => {
   // triggered by the initial load of <Staking />
   const onStakingComponentInitCallback = (): void => {
     dispatch(fetchValidators());
-    dispatch(fetchMyBalances());
   };
 
   // triggered by the url load or user click in <Staking />
@@ -83,7 +80,6 @@ export const StakingAndGovernance = (): JSX.Element => {
           path={`${StakingAndGovernanceSubRoute.Staking}/*`}
           element={
             <Staking
-              myBalances={myBalances}
               validators={validators}
               myValidators={myValidators}
               myStakingPositions={myStakingPositions}

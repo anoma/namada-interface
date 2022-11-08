@@ -73,7 +73,6 @@ export type ChangeInStakingPosition = {
 };
 
 export type StakingAndGovernanceState = {
-  myBalances: MyBalanceEntry[];
   validators: Validator[];
   myValidators: MyValidators[];
   myStakingPositions: StakingPosition[];

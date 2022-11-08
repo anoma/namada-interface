@@ -1,5 +1,4 @@
 export {
-  fetchMyBalances,
   fetchMyStakingPositions,
   fetchValidators,
   fetchValidatorDetails,
