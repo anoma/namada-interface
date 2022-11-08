@@ -19,11 +19,10 @@ import {
 } from "@anoma/utils";
 
 import Config from "config";
-import {
-  createShieldedTransfer,
-  /* TRANSFER_CONFIGURATION, */
-} from "./shieldedTransfer";
-import { updateShieldedBalances } from "./AccountsNew";
+/* import { */
+/*   createShieldedTransfer, */
+/* } from "./shieldedTransfer"; */
+/* import { updateShieldedBalances } from "./AccountsNew"; */
 import {
   actions as notificationsActions,
   CreateToastPayload,

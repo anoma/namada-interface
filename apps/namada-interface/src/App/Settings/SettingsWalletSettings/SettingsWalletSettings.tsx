@@ -13,7 +13,6 @@ import { Select, Option } from "components/Select";
 import { InputContainer } from "App/AccountOverview/AccountOverview.components";
 import Config from "config";
 import { BackButton } from "App/Token/TokenSend/TokenSendForm.components";
-import { TopLevelRoute } from "App/types";
 import { ButtonsContainer, SettingsContent } from "../Settings.components";
 
 export const SettingsWalletSettings = (): JSX.Element => {

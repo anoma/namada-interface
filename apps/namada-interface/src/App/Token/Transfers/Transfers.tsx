@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Account } from "@anoma/types";
 
 import { TopLevelRoute } from "App/types";
-import { DerivedAccount, AccountsState } from "slices/accounts";
+import { AccountsState } from "slices/accounts";
 import { TransfersState, TransferTransaction } from "slices/transfers";
 import { SettingsState } from "slices/settings";
 import { useAppSelector } from "store";

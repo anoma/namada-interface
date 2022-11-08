@@ -3,7 +3,7 @@ import { Account } from "@anoma/types";
 
 import config from "config";
 import { TopLevelRoute } from "App/types";
-import { DerivedAccount, AccountsState } from "slices/accounts";
+import { AccountsState } from "slices/accounts";
 import { TransfersState } from "slices/transfers";
 import { SettingsState } from "slices/settings";
 import { useAppSelector } from "store";
