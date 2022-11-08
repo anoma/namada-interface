@@ -1,19 +1,13 @@
 import browser from "webextension-polyfill";
 import { getAnomaRouterId } from "../extension/utils";
 import { Message } from "../router";
-import { Session } from "./Session";
 
 export class ExtensionRequester {
-  constructor(protected readonly session = new Session()) {}
-
   async sendMessage<M extends Message<unknown>>(
     port: string,
     msg: M
   ): Promise<M extends Message<infer R> ? R : never> {
     msg.validate();
-    // If message is valid, update the session, resetting the
-    // period of inactivity:
-    this.session.update();
     msg.origin = window.location.origin;
     msg.meta = {
       ...msg.meta,
@@ -64,9 +58,5 @@ export class ExtensionRequester {
     }
 
     return result.return;
-  }
-
-  startSession(): void {
-    this.session.start(this);
   }
 }

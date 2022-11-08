@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { DerivedAccount } from "@anoma/types";
 import {
   AccountsContainer,
@@ -14,13 +14,9 @@ type Props = {
   requester: ExtensionRequester;
 };
 
-const Accounts: React.FC<Props> = ({ accounts, requester }) => {
+const Accounts: React.FC<Props> = ({ accounts }) => {
   const parentAccount = accounts[0];
   const alias = parentAccount?.alias;
-
-  useEffect(() => {
-    requester.startSession();
-  }, []);
 
   return (
     <AccountsContainer>

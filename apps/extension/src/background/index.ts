@@ -7,7 +7,6 @@ import { Ports, KVPrefix } from "router";
 import { chains } from "config";
 import { ChainsService, init as initChains } from "./chains";
 import { KeyRingService, init as initKeyRing } from "./keyring";
-import { SessionHandler } from "./session";
 
 initCrypto();
 initShared();
@@ -23,7 +22,5 @@ const keyRingService = new KeyRingService(store);
 // Initialize messages and handlers
 initChains(router, chainsService);
 initKeyRing(router, keyRingService);
-
-new SessionHandler(keyRingService);
 
 router.listen(Ports.Background);
