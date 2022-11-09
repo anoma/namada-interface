@@ -10,10 +10,10 @@ use wasm_bindgen::JsCast;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{Request, RequestInit, RequestMode, Response};
 
-use serde::{Deserialize, Serialize};
-use borsh::{BorshDeserialize, BorshSerialize };
+use borsh::{BorshDeserialize, BorshSerialize};
 use gloo_utils::format::JsValueSerdeExt;
-use tendermint::abci::{Log, Path, Data};
+use serde::{Deserialize, Serialize};
+use tendermint::abci::{Data, Log, Path};
 use tendermint::block;
 use tendermint::merkle::proof::Proof;
 use tendermint::serializers;
@@ -100,25 +100,24 @@ type Prove = bool;
 
 type AbciParams = (Path, Data, block::Height, Prove);
 
-
 #[derive(Deserialize, Serialize)]
 pub struct AbciRequest {
     id: String,
     jsonrpc: String,
     method: String,
-    params: AbciParams
+    params: AbciParams,
 }
 
- pub fn create_json_rpc_request(abci_params: AbciParams) -> AbciRequest {
-    AbciRequest{
+pub fn create_json_rpc_request(abci_params: AbciParams) -> AbciRequest {
+    AbciRequest {
         id: "".to_owned(),
         jsonrpc: "2.0".to_owned(),
         method: "abci_query".to_owned(),
-        params: abci_params
+        params: abci_params,
     }
- }
+}
 
- pub async fn fetch(url: &str, method: &str, body: &str) -> Result<JsValue, JsValue> {
+pub async fn fetch(url: &str, method: &str, body: &str) -> Result<JsValue, JsValue> {
     let mut opts = RequestInit::new();
     opts.method(method);
     opts.mode(RequestMode::Cors);
@@ -130,11 +129,11 @@ pub struct AbciRequest {
 
     let resp: Response = resp_value.dyn_into()?;
     JsFuture::from(resp.json().unwrap()).await
- }
+}
 
 pub async fn abci_query<T>(url: &str, path: &str) -> Result<T, JsValue>
 where
-    T: BorshDeserialize + Serialize
+    T: BorshDeserialize + Serialize,
 {
     let path = Path::from_str(path).unwrap();
     let data = Data::from(Vec::new());
@@ -148,36 +147,36 @@ where
 
     match T::try_from_slice(&abci_response.result.response.value[..]) {
         Ok(v) => Ok(v),
-        Err(e) => Err(JsValue::from(e.to_string()))
+        Err(e) => Err(JsValue::from(e.to_string())),
     }
 }
 
 fn to_js_result<T>(result: T) -> Result<JsValue, JsValue>
-where T: Serialize
+where
+    T: Serialize,
 {
     match JsValue::from_serde(&result) {
         Ok(v) => Ok(v),
-        Err(e) => Err(JsValue::from(e.to_string()))
+        Err(e) => Err(JsValue::from(e.to_string())),
     }
 }
 
-
 #[wasm_bindgen]
-#[derive(Serialize,Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Abci {
     url: String,
 }
 
 #[wasm_bindgen]
 impl Abci {
-
     #[wasm_bindgen(constructor)]
     pub fn new(url: String) -> Abci {
         Abci { url }
     }
 
     pub async fn query_all_validators(&self) -> Result<JsValue, JsValue> {
-        let validator_addresses = abci_query::<HashSet<Address>>(&self.url, "/vp/pos/validator/addresses").await?;
+        let validator_addresses =
+            abci_query::<HashSet<Address>>(&self.url, "/vp/pos/validator/addresses").await?;
         let mut result: Vec<(Address, token::Amount)> = Vec::new();
 
         for address in validator_addresses.into_iter() {
@@ -192,7 +191,11 @@ impl Abci {
 
     pub async fn query_my_validators(&self, owner: &str) -> Result<JsValue, JsValue> {
         let owner = Address::from_str(owner).unwrap();
-        let delegated_addresses = abci_query::<HashSet<Address>>(&self.url, &format!("/vp/pos/delegations/{}", owner.encode())[..]).await?;
+        let delegated_addresses = abci_query::<HashSet<Address>>(
+            &self.url,
+            &format!("/vp/pos/delegations/{}", owner.encode())[..],
+        )
+        .await?;
         let mut result: Vec<(Address, token::Amount)> = Vec::new();
 
         for address in delegated_addresses.into_iter() {
