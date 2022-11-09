@@ -10,7 +10,7 @@ import {
   IbcTxResponse,
   Events,
 } from "@anoma/rpc";
-import { IBCTransfer, TxWasm, Tokens, TokenType } from "@anoma/tx";
+import { TxWasm, Tokens, TokenType } from "@anoma/tx";
 import {
   amountFromMicro,
   promiseWithTimeout,
@@ -29,7 +29,6 @@ import {
   ToastId,
   ToastType,
 } from "slices/notifications";
-import { toHex } from "@cosmjs/encoding";
 import { fetchBalanceByToken } from "./balances";
 
 enum Toasts {
@@ -130,6 +129,7 @@ type TxArgs = {
   amount: number;
   memo?: string;
   feeAmount?: number;
+  gasLimit?: number;
 };
 
 type TxTransferArgs = TxArgs & {
@@ -191,7 +191,9 @@ type TransferData = {
 // it will first create the shielded transfer that is included in the "parent" transfer
 const createTransfer = async (
   sourceAccount: Account,
-  transferData: TransferData
+  transferData: TransferData,
+  gasLimit = 100000,
+  feeAmount = 1000
 ): Promise<TransferHashAndBytes> => {
   const { chainId, address } = sourceAccount;
   const { amount, target, token, epoch } = transferData;
@@ -211,10 +213,8 @@ const createTransfer = async (
   const txProps = {
     token,
     epoch,
-    // TODO: Use user-specified or default feeAmount
-    feeAmount: 1000,
-    // TODO: Use user-specified or default gasLimit
-    gasLimit: 1000000,
+    feeAmount,
+    gasLimit,
     txCode,
   };
 
@@ -238,7 +238,7 @@ const createTransfer = async (
   // Any access to private keys need to be accessed only within the extension.
   // Spending and Viewing keys should be accessible by the interface, and the
   // hard-coded private key below must be removed. This can be replaced with
-  // a private signing key from the extension:
+  // a private signing key within the extension:
   // ============================================================================
   //
   //
@@ -320,10 +320,15 @@ export const submitTransferTransaction = createAsyncThunk(
       token: tokenType,
       amount,
       memo = "",
+      // TODO: What are reasonable defaults for this?
+      feeAmount = 1000,
+      // TODO: What are reasonable defaults for this?
+      gasLimit = 1000000,
       faucet,
       chainId,
       notify,
     } = txTransferArgs;
+
     const { address } = account;
     const source = faucet || address;
     const chainConfig = Config.chain[chainId];
@@ -358,7 +363,12 @@ export const submitTransferTransaction = createAsyncThunk(
       epoch,
     };
 
-    const createdTransfer = await createTransfer(account, transferData);
+    const createdTransfer = await createTransfer(
+      account,
+      transferData,
+      gasLimit,
+      feeAmount
+    );
 
     const { transferHash, transferAsBytes, transferType } = createdTransfer;
     const { promise, timeoutId } = promiseWithTimeout<Events>(
@@ -448,7 +458,10 @@ export const submitIbcTransferTransaction = createAsyncThunk(
       target,
       amount,
       memo = "",
-      feeAmount = 0,
+      // TODO: What are reasonable defaults for this?
+      feeAmount = 1000,
+      // TODO: What are reasonable defaults for this?
+      gasLimit = 1000000,
       channelId,
       portId,
       chainId,
@@ -456,7 +469,6 @@ export const submitIbcTransferTransaction = createAsyncThunk(
     { rejectWithValue }
   ) => {
     const { address: source = "" } = account;
-    const privateKey = ""; // TODO: Remove this!
     const chainConfig = Config.chain[chainId] || {};
     const { url, port, protocol, wsProtocol } = chainConfig.network;
     const rpcConfig = new RpcConfig(url, port, protocol, wsProtocol);
@@ -470,27 +482,41 @@ export const submitIbcTransferTransaction = createAsyncThunk(
       return rejectWithValue(e);
     }
 
-    const txWasm = await fetchWasmCode(TxWasm.IBC);
-    // TODO: Refactor this to use the extension!
-    const transfer = await new IBCTransfer(txWasm).init();
     const token = Tokens[tokenType];
+    const tokenAddress = token?.address ?? "";
+    const txCode = await fetchWasmCode(TxWasm.IBC);
 
-    const { hash, bytes } = await transfer.makeIbcTransfer({
-      source,
-      target,
-      token: token.address || "",
-      amount,
+    // Invoke extension integration
+    const anoma = new Anoma();
+    const signer = anoma.signer(chainId);
+    const encodedTx =
+      (await signer.encodeIbcTransfer({
+        sourcePort: portId,
+        sourceChannel: channelId,
+        sender: source,
+        receiver: target,
+        token: tokenAddress,
+        amount,
+      })) || "";
+
+    const txProps = {
+      token: tokenAddress,
       epoch,
-      privateKey,
-      portId,
-      channelId,
       feeAmount,
-    });
+      gasLimit,
+      txCode,
+    };
 
+    const { hash, bytes } =
+      (await signer.signTx(source, txProps, encodedTx)) || {};
+
+    if (!hash || !bytes) {
+      throw new Error("Invalid transaction!");
+    }
     const { promise, timeoutId } = promiseWithTimeout<Events>(
       new Promise(async (resolve) => {
         // TODO: Bytes received should already be in base64 encoded!
-        await socketClient.broadcastTx(toHex(bytes));
+        await socketClient.broadcastTx(bytes);
         const events = await socketClient.subscribeNewBlock(hash);
         resolve(events);
       }),
