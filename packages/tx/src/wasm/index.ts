@@ -5,7 +5,7 @@ export enum TxWasm {
   Transfer = "tx_transfer.1b2dab6d1f3428ff72afd0c4c8e460cb25932d89734de3a54342e0de5ca6aaba.wasm",
   Withdraw = "tx_withdraw.cff5707c4c7d40f8c59b08a6975b869453774b803ae64c40af9bafb3f3dc3e2c.wasm",
   Bond = "tx_bond.02c5b9fc07a44feb48c063f30a1e4e48d22a69693abe290c3c53783f22b9ce05.wasm",
-  UnBond = "tx_unbond.87e6f0f778717691e33b281d522e68b8048d0012b8a34e43a329b28c8a9780a4.wasm",
+  UnBond = "tx_unbond.1f9b180a62f0df9a85fe43e23288ca765ee3fb7e6bad7cbcc4a351e86948042b.wasm",
   FromIntent = "tx_from_intent.77da29925cf0c61842380f3d231326cf5be26a923ad771a67e68451c8bb0c322.wasm",
   IBC = "tx_ibc.b826c8fda4114dfd0a88f5a9974d5f5c8dec3a98eb524a28a13d2d8163704f16.wasm",
 }

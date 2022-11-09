@@ -86,7 +86,7 @@ const validatorToDataRows = (
     return [];
   }
   return [
-    { uuid: "1", key: "Name", value: validator.name },
+    { uuid: "1", key: "Name", value: `${validator.name.substring(0, 12)}...` },
     { uuid: "2", key: "Commission", value: validator.commission },
     { uuid: "3", key: "Voting Power", value: validator.votingPower },
     {
@@ -128,7 +128,7 @@ export const ValidatorDetails = (props: Props): JSX.Element => {
       </StakeButtonContainer>
 
       <Table
-        title={`My Staking with ${validator?.name}`}
+        title={`My Staking with ${validator?.name.substring(0, 12)}...`}
         tableConfigurations={myStakingWithValidatorConfigurations}
         data={stakingPositionsWithSelectedValidator}
       />

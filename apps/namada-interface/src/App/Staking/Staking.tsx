@@ -187,7 +187,7 @@ export const Staking = (props: Props): JSX.Element => {
       {/* modal for bonding */}
       <Modal
         isOpen={modalState === ModalState.NewBonding}
-        title={`Stake with ${selectedValidator?.name}`}
+        title={`Stake with ${selectedValidator?.name.substring(0, 12)}...`}
         onBackdropClick={() => {
           cancelBonding();
         }}

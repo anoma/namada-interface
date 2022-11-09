@@ -136,16 +136,16 @@ export const StakingOverview = (props: Props): JSX.Element => {
       {/* my balances */}
       <StakingBalances>
         <StakingBalancesLabel>Total Balance</StakingBalancesLabel>
-        <StakingBalancesValue>{totalBalance}NAM</StakingBalancesValue>
+        <StakingBalancesValue>NAM {totalBalance}</StakingBalancesValue>
 
         <StakingBalancesLabel>Total Bonded</StakingBalancesLabel>
-        <StakingBalancesValue>{totalBonded}NAM</StakingBalancesValue>
+        <StakingBalancesValue>NAM {totalBonded}</StakingBalancesValue>
 
         <StakingBalancesLabel>Pending Rewards</StakingBalancesLabel>
         <StakingBalancesValue>TBD</StakingBalancesValue>
 
         <StakingBalancesLabel>Available for bonding</StakingBalancesLabel>
-        <StakingBalancesValue>{totalBalance - totalBonded}NAM</StakingBalancesValue>
+        <StakingBalancesValue>NAM {totalBalance - totalBonded}</StakingBalancesValue>
       </StakingBalances>
 
       {/* my validators */}
