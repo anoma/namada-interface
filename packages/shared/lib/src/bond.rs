@@ -8,7 +8,7 @@ use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 #[derive(BorshSerialize, BorshDeserialize)]
-pub struct BondingMsg {
+pub struct BondMsg {
     source: String,
     validator: String,
     amount: u64,
@@ -27,7 +27,7 @@ impl Bond {
         let msg: &[u8] = &msg;
         let msg = BorshDeserialize::try_from_slice(msg)
             .map_err(|err| format!("BorshDeserialize failed! {:?}", err))?;
-        let BondingMsg {
+        let BondMsg {
             source,
             validator,
             amount,
@@ -55,3 +55,24 @@ impl Bond {
 }
 
 pub type Unbond = Bond;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use wasm_bindgen_test::*;
+
+    #[wasm_bindgen_test]
+    fn can_generate_bond_tx() {
+        let source = String::from("atest1v4ehgw368ycryv2z8qcnxv3cxgmrgvjpxs6yg333gym5vv2zxepnj334g4rryvj9xucrgve4x3xvr4");
+        let validator = String::from("atest1v4ehgw36xvcyyvejgvenxs34g3zygv3jxqunjd6rxyeyys3sxy6rwvfkx4qnj33hg9qnvse4lsfctw");
+        let amount = 1000;
+        let msg = BondMsg { source, validator, amount };
+
+        let msg_serialized = BorshSerialize::try_to_vec(&msg)
+            .expect("Message should serialize to vector");
+        let Bond { tx_data } = Bond::new(msg_serialized)
+            .expect("Transfer should be able to instantiate from Borsh-serialized message");
+
+        assert_eq!(tx_data.len(), 99);
+    }
+}
