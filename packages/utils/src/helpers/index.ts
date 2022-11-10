@@ -1,6 +1,4 @@
-import CryptoJS from "crypto-js";
 import { JsonRpcRequest } from "@cosmjs/json-rpc";
-import base58 from "bs58";
 import { DateTime } from "luxon";
 import {
   JsonCompatibleArray,
@@ -137,4 +135,21 @@ export const getUrlProtocol = (url?: string): Protocol => {
   }
 
   return "http";
+};
+
+/*
+ * Shorten a Bech32 address
+ */
+export const shortenAddress = (
+  address: string,
+  prefixLength = 32,
+  suffixLength = 6,
+  delimiter = "..."
+): string => {
+  const prefix = address.substring(0, prefixLength);
+  const suffix = address.substring(
+    address.length - suffixLength,
+    address.length
+  );
+  return [prefix, delimiter, suffix].join("");
 };

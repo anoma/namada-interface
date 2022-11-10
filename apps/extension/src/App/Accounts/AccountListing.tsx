@@ -10,6 +10,7 @@ import {
   DerivationPath,
   Button,
 } from "./AccountListing.components";
+import { shortenAddress } from "@anoma/utils";
 
 import { TopLevelRoute } from "App/types";
 
@@ -31,7 +32,7 @@ const formatDerivationPath = (
 ): string => (isChildAccount ? `/${account}'/${change}/${index}` : "");
 
 const AccountListing = ({ account, parentAlias }: Props): JSX.Element => {
-  const { address, alias, path, establishedAddress, type } = account;
+  const { address, alias, path, type } = account;
   const navigate = useNavigate();
   const isChildAccount = type !== AccountType.Mnemonic;
 
@@ -43,8 +44,7 @@ const AccountListing = ({ account, parentAlias }: Props): JSX.Element => {
           {formatDerivationPath(isChildAccount, path)}
         </DerivationPath>
         {alias && <Alias>{alias}</Alias>}
-        <Address>{address}</Address>
-        {establishedAddress && <Address>{establishedAddress}</Address>}
+        <Address>{shortenAddress(address)}</Address>
       </Details>
       <Buttons>
         {type === AccountType.Mnemonic && (

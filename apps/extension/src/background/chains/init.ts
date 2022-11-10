@@ -1,19 +1,13 @@
 import { Router } from "router";
-import {
-  GetChainMsg,
-  GetChainsMsg,
-  GetSignerMsg,
-  SuggestChainMsg,
-  RemoveChainMsg,
-} from "./messages";
 import { ROUTE } from "./constants";
+import { RemoveChainMsg } from "./messages";
+import { SuggestChainMsg, GetChainsMsg, GetChainMsg } from "provider/messages";
 import { getHandler } from "./handler";
 import { ChainsService } from "./service";
 
 export function init(router: Router, service: ChainsService): void {
   router.registerMessage(GetChainMsg);
   router.registerMessage(GetChainsMsg);
-  router.registerMessage(GetSignerMsg);
   router.registerMessage(SuggestChainMsg);
   router.registerMessage(RemoveChainMsg);
 

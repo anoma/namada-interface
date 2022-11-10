@@ -1,12 +1,14 @@
 use std::str::FromStr;
-use namada::types::address::ImplicitAddress;
-use namada::types::key::{self, common::{PublicKey, SecretKey}, RefTo};
+use namada::types::{
+    address,
+    key::{self, common::{PublicKey, SecretKey}, RefTo},
+};
 
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 pub struct Address {
-    implicit: ImplicitAddress,
+    implicit: address::Address,
     private: SecretKey,
     public: PublicKey,
 }
@@ -22,7 +24,9 @@ impl Address {
 
         #[allow(clippy::useless_conversion)]
         let public = PublicKey::from(private.ref_to());
-        let implicit = ImplicitAddress::from(&public);
+        let implicit = address::Address::Implicit(
+            address::ImplicitAddress::from(&public),
+        );
 
         Address {
             implicit,
@@ -32,7 +36,7 @@ impl Address {
     }
 
     pub fn implicit(&self) -> String {
-        self.implicit.0.to_string()
+        self.implicit.encode()
     }
 
     pub fn public(&self) -> String {
@@ -54,7 +58,8 @@ mod tests {
         let address = Address::new(secret);
         let implicit = address.implicit();
 
-        assert_eq!(implicit, "5162ABDCBABA0940AA25C9885DE79D088433EB9D");
+        assert_eq!(implicit, "atest1d9khqw36x5cnvvjpgfzyxsjpgfqnqwf5xpq5zv34gvunswp4g3znww2yxqursdpnxdz5yw2ypna253");
+        assert_eq!(implicit.len(), address::ADDRESS_LEN);
     }
 
     #[test]
@@ -65,6 +70,7 @@ mod tests {
         let pad = "00";
 
         assert_eq!(public, format!("{}{}", pad, "b7a3c12dc0c8c748ab07525b701122b88bd78f600c76342d27f25e5f92444cde"));
+        assert_eq!(public.len(), pad.len() + 64);
     }
 
     #[test]
@@ -75,5 +81,6 @@ mod tests {
         let pad = "00";
 
         assert_eq!(format!("{}{}", pad, secret), private);
+        assert_eq!(private.len(), pad.len() + 64);
     }
 }

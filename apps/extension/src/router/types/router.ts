@@ -1,9 +1,7 @@
+import { Runtime } from "webextension-polyfill";
 import { Message } from "../Message";
 
-export type MessageSender = Pick<
-  browser.runtime.MessageSender,
-  "id" | "url" | "tab"
->;
+export type MessageSender = Pick<Runtime.MessageSender, "id" | "url" | "tab">;
 
 export interface Env {
   readonly isInternalMsg: boolean;

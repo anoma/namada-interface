@@ -4,16 +4,18 @@ import {
   CheckIsLockedMsg,
   CheckPasswordMsg,
   DeriveAccountMsg,
+  GenerateMnemonicMsg,
+  LockKeyRingMsg,
+  SaveMnemonicMsg,
+  UnlockKeyRingMsg,
+} from "./messages";
+import {
   EncodeTransferMsg,
   EncodeIbcTransferMsg,
   EncodeInitAccountMsg,
-  GenerateMnemonicMsg,
   QueryAccountsMsg,
-  LockKeyRingMsg,
-  SaveMnemonicMsg,
   SignTxMsg,
-  UnlockKeyRingMsg,
-} from "./messages";
+} from "provider/messages";
 
 export const getHandler: (service: KeyRingService) => Handler = (service) => {
   return (env: Env, msg: Message<unknown>) => {

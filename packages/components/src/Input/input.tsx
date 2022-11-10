@@ -1,5 +1,5 @@
-import { Icon, IconName } from "../Icon";
 import React, { ChangeEventHandler, FocusEventHandler, useState } from "react";
+import { Icon, IconName } from "../Icon";
 import {
   ErrorTooltip,
   IconContainer,
@@ -16,6 +16,7 @@ export type InputProps = {
   variant?: InputVariant;
   value?: string | number;
   label?: string | React.ReactNode;
+  autoFocus?: boolean;
   error?: string;
   onChange?: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
   onFocus?: FocusEventHandler<HTMLInputElement>;
@@ -26,6 +27,7 @@ export const Input = ({
   variant = InputVariant.Text,
   value = "",
   label,
+  autoFocus,
   error,
   onChange,
   onFocus,
@@ -42,6 +44,7 @@ export const Input = ({
           <InputWrapper>
             <TextInput
               error={!!error}
+              autoFocus={autoFocus}
               onChange={onChange}
               onFocus={onFocus}
               placeholder={placeholder}
@@ -57,7 +60,12 @@ export const Input = ({
         <Label>
           {label}
           <InputWrapper>
-            <TextAreaInput error={!!error} onChange={onChange} value={value} />
+            <TextAreaInput
+              error={!!error}
+              onChange={onChange}
+              value={value}
+              autoFocus={autoFocus}
+            />
           </InputWrapper>
           <ErrorTooltip>{error}</ErrorTooltip>
         </Label>
@@ -70,6 +78,7 @@ export const Input = ({
             <TextInput
               error={!!error}
               placeholder={placeholder}
+              autoFocus={autoFocus}
               onChange={onChange}
               onFocus={onFocus}
               type={passwordShown ? "text" : "password"}
@@ -91,6 +100,7 @@ export const Input = ({
             <TextInput
               error={!!error}
               placeholder={placeholder}
+              autoFocus={autoFocus}
               type={"number"}
               value={value}
               onChange={onChange}

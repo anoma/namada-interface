@@ -1,6 +1,9 @@
 import { KVStore } from "@anoma/storage";
 
-export interface IStore<T> {
+// StoredRecords in storage should have a unique identifier
+export type StoredRecord = { id: string };
+
+export interface IStore<T extends StoredRecord> {
   set(state: T[]): Promise<void>;
   get(): Promise<T[]>;
   getRecord<U = string | number>(
@@ -12,9 +15,6 @@ export interface IStore<T> {
   remove(id: string): Promise<void>;
 }
 
-// StoredRecords in storage should have a unique identifier
-export type StoredRecord = { id: string };
-
 /**
  * A class instance will be set for a specific storage key, and allows:
  * get - get array of all items
@@ -25,10 +25,10 @@ export type StoredRecord = { id: string };
  * remove - remove a record specified by ID
  */
 export class Store<T extends StoredRecord> implements IStore<T> {
-  constructor(public readonly key: string, public readonly store: KVStore) {}
+  constructor(public readonly key: string, public readonly store: KVStore<T>) {}
 
   public async set(state: T[]): Promise<void> {
-    await this.store.set<T[]>(this.key, state);
+    await this.store.set(this.key, state);
   }
 
   public async get(): Promise<T[]> {
@@ -43,10 +43,7 @@ export class Store<T extends StoredRecord> implements IStore<T> {
   }
 
   public async append(record: T): Promise<void> {
-    await this.store.set<T[]>(this.key, [
-      ...((await this.get()) || []),
-      record,
-    ]);
+    await this.store.set(this.key, [...((await this.get()) || []), record]);
   }
 
   public async update(id: string, partial: Partial<T>): Promise<void> {

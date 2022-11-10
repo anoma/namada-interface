@@ -1,13 +1,16 @@
 import { Anoma as IAnoma, Chain, DerivedAccount, SignedTx } from "@anoma/types";
 import { Ports, MessageRequester } from "router";
-import { GetChainMsg, GetChainsMsg, SuggestChainMsg } from "background/chains";
+
 import {
+  GetChainMsg,
+  GetChainsMsg,
+  SuggestChainMsg,
   EncodeIbcTransferMsg,
   EncodeInitAccountMsg,
   EncodeTransferMsg,
   QueryAccountsMsg,
   SignTxMsg,
-} from "background/keyring";
+} from "./messages";
 
 export class Anoma implements IAnoma {
   constructor(

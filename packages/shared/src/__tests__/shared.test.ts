@@ -55,7 +55,9 @@ describe("Address", () => {
     const address = new Address(secret);
     const implicit = address.implicit();
 
-    expect(implicit).toBe("5162ABDCBABA0940AA25C9885DE79D088433EB9D");
+    expect(implicit).toBe(
+      "atest1d9khqw36x5cnvvjpgfzyxsjpgfqnqwf5xpq5zv34gvunswp4g3znww2yxqursdpnxdz5yw2ypna253"
+    );
   });
 
   test("It should generate a PublicKey from a secret", () => {

@@ -24,7 +24,12 @@ export const Details = styled.div`
 
 export const DerivationPath = styled.div``;
 
-export const Address = styled.div``;
+export const Address = styled.div`
+  font-family: monospace;
+  font-size: 10px;
+  padding: 0 0 4px;
+}
+`;
 
 export const Alias = styled.div`
   color: ${(props) => props.theme.colors.utility1.main20};

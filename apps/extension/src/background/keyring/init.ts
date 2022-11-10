@@ -2,17 +2,20 @@ import { Router } from "router";
 import {
   CheckIsLockedMsg,
   DeriveAccountMsg,
-  QueryAccountsMsg,
   LockKeyRingMsg,
   UnlockKeyRingMsg,
   CheckPasswordMsg,
   GenerateMnemonicMsg,
   SaveMnemonicMsg,
-  SignTxMsg,
+} from "./messages";
+import {
   EncodeTransferMsg,
   EncodeIbcTransferMsg,
   EncodeInitAccountMsg,
-} from "./messages";
+  QueryAccountsMsg,
+  SignTxMsg,
+} from "provider/messages";
+
 import { ROUTE } from "./constants";
 import { getHandler } from "./handler";
 import { KeyRingService } from "./service";
