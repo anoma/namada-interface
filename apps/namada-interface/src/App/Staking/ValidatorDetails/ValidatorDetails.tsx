@@ -50,7 +50,7 @@ const getMyStakingWithValidatorConfigurations = (
           <td>{stakingPosition.stakedCurrency}</td>
           <td>{stakingPosition.stakingStatus}</td>
           <td>
-            {stakingPosition.stakedAmount}{" "}
+            NAM {stakingPosition.stakedAmount}{" "}
             <TableLink
               onClick={() => {
                 setModalState(ModalState.Unbond);

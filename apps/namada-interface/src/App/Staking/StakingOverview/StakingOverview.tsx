@@ -32,7 +32,7 @@ const MyValidatorsRowRenderer = (
         </TableLink>
       </td>
       <td>{myValidatorRow.stakingStatus}</td>
-      <td>{myValidatorRow.stakedAmount}</td>
+      <td>NAM {myValidatorRow.stakedAmount}</td>
     </>
   );
 };
