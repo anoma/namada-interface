@@ -4,7 +4,7 @@ use std::fmt::{self, Debug, Display, Formatter};
 use std::str::FromStr;
 
 use namada::types::address::Address;
-use namada::types::token;
+use namada::types::token::Amount;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use wasm_bindgen_futures::JsFuture;
@@ -55,7 +55,6 @@ pub struct AbciQuery {
     pub proof: Option<Proof>,
 
     /// Block height
-    ///
     #[serde(with = "serializers::from_str")]
     pub height: block::Height,
 
@@ -177,11 +176,11 @@ impl Abci {
     pub async fn query_all_validators(&self) -> Result<JsValue, JsValue> {
         let validator_addresses =
             abci_query::<HashSet<Address>>(&self.url, "/vp/pos/validator/addresses").await?;
-        let mut result: Vec<(Address, token::Amount)> = Vec::new();
+        let mut result: Vec<(Address, Amount)> = Vec::new();
 
         for address in validator_addresses.into_iter() {
             let stake = &format!("/vp/pos/validator/stake/{}", address)[..];
-            let total_bonds = abci_query::<token::Amount>(&self.url, stake).await?;
+            let total_bonds = abci_query::<Amount>(&self.url, stake).await?;
 
             result.push((address, total_bonds));
         }
@@ -196,13 +195,15 @@ impl Abci {
             &format!("/vp/pos/delegations/{}", owner.encode())[..],
         )
         .await?;
-        let mut result: Vec<(Address, token::Amount)> = Vec::new();
+        let mut result: Vec<(Address, Amount)> = Vec::new();
 
         for address in delegated_addresses.into_iter() {
             let bond_path = &format!("/vp/pos/bond_amount/{}/{}", owner, address)[..];
-            let total_bonds = abci_query::<token::Amount>(&self.url, bond_path).await?;
+            let total_bonds = abci_query::<Amount>(&self.url, bond_path).await?;
 
-            result.push((address, total_bonds));
+            if total_bonds != Amount::from(0) {
+                result.push((address, total_bonds));
+            }
         }
 
         to_js_result(result)
