@@ -1,3 +1,6 @@
+import {
+  truncateInMiddle,
+} from "@anoma/utils";
 import { useState, useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { MainContainerNavigation } from "App/StakingAndGovernance/MainContainerNavigation";
@@ -49,7 +52,7 @@ const emptyStakingPosition = (validatorId: string): StakingPosition => ({
   uuid: validatorId,
   stakingStatus: "",
   stakedAmount: "",
-  stakedCurrency: "",
+  owner: "",
   totalRewards: "",
   validatorId: validatorId,
 });
@@ -187,7 +190,7 @@ export const Staking = (props: Props): JSX.Element => {
       {/* modal for bonding */}
       <Modal
         isOpen={modalState === ModalState.NewBonding}
-        title={`Stake with ${selectedValidator?.name.substring(0, 12)}...`}
+        title={`Stake with ${truncateInMiddle(selectedValidator?.name || "", 5, 5)}`}
         onBackdropClick={() => {
           cancelBonding();
         }}

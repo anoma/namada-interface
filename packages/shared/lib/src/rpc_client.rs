@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashSet, HashMap};
 use std::error::Error;
 use std::fmt::{self, Debug, Display, Formatter};
 use std::str::FromStr;
@@ -166,6 +166,9 @@ pub struct Abci {
     url: String,
 }
 
+type Owner = Address;
+type Validator = Address;
+
 #[wasm_bindgen]
 impl Abci {
     #[wasm_bindgen(constructor)]
@@ -176,7 +179,8 @@ impl Abci {
     pub async fn query_all_validators(&self) -> Result<JsValue, JsValue> {
         let validator_addresses =
             abci_query::<HashSet<Address>>(&self.url, "/vp/pos/validator/addresses").await?;
-        let mut result: Vec<(Address, Amount)> = Vec::new();
+
+        let mut result: Vec<(Validator, Amount)> = Vec::new();
 
         for address in validator_addresses.into_iter() {
             let stake = &format!("/vp/pos/validator/stake/{}", address)[..];
@@ -188,21 +192,32 @@ impl Abci {
         to_js_result(result)
     }
 
-    pub async fn query_my_validators(&self, owner: &str) -> Result<JsValue, JsValue> {
-        let owner = Address::from_str(owner).unwrap();
-        let delegated_addresses = abci_query::<HashSet<Address>>(
-            &self.url,
-            &format!("/vp/pos/delegations/{}", owner.encode())[..],
-        )
-        .await?;
-        let mut result: Vec<(Address, Amount)> = Vec::new();
+    pub async fn query_my_validators(&self, owner_addresses: Box<[JsValue]>) -> Result<JsValue, JsValue> {
+        let owner_addresses: Vec<Address> = owner_addresses
+            .into_iter()
+            .map(|address| {
+                let address_str = &(address.as_string().unwrap()[..]);
+                Address::from_str(address_str).unwrap()
+            }).collect();
 
-        for address in delegated_addresses.into_iter() {
-            let bond_path = &format!("/vp/pos/bond_amount/{}/{}", owner, address)[..];
-            let total_bonds = abci_query::<Amount>(&self.url, bond_path).await?;
+        let mut validators_per_address: HashMap<Address, HashSet<Address>> = HashMap::new();
 
-            if total_bonds != Amount::from(0) {
-                result.push((address, total_bonds));
+        for address in owner_addresses.into_iter() {
+            let validators = abci_query::<HashSet<Address>>(
+                &self.url,
+                &format!("/vp/pos/delegations/{}", address.encode())[..]).await?;
+
+            validators_per_address.insert(address, validators);
+        }
+
+        let mut result: Vec<(Owner, Validator, Amount)> = Vec::new();
+
+        for (owner, validators) in validators_per_address.into_iter() {
+            for validator in validators.into_iter() {
+                let bond_path = &format!("/vp/pos/bond_amount/{}/{}", owner, validator)[..];
+                let total_bonds = abci_query::<Amount>(&self.url, bond_path).await?;
+
+                result.push((owner.clone(), validator, total_bonds));
             }
         }
 

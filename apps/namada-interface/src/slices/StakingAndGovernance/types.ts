@@ -31,7 +31,7 @@ export type Validator = Unique & {
 export type StakingPosition = Unique & {
   stakingStatus: string;
   stakedAmount: string;
-  stakedCurrency: string;
+  owner: string;
   totalRewards: string;
   validatorId: ValidatorId;
 };
@@ -67,8 +67,8 @@ export enum StakingOrUnstakingState {
 // negative, we are decreasing it
 export type ChangeInStakingPosition = {
   validatorId: ValidatorId;
+  owner: string;
   amount: string;
-  stakingCurrency: string;
 };
 
 export type StakingAndGovernanceState = {

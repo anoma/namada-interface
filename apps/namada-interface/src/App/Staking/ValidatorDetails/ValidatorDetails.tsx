@@ -1,3 +1,4 @@
+import { truncateInMiddle } from "@anoma/utils";
 import {
   ValidatorDetailsContainer,
   StakeButtonContainer,
@@ -47,7 +48,7 @@ const getMyStakingWithValidatorConfigurations = (
     rowRenderer: (stakingPosition: StakingPosition) => {
       return (
         <>
-          <td>{stakingPosition.stakedCurrency}</td>
+          <td>{truncateInMiddle(stakingPosition.owner || "", 5, 5)}</td>
           <td>{stakingPosition.stakingStatus}</td>
           <td>
             NAM {stakingPosition.stakedAmount}{" "}
@@ -64,7 +65,7 @@ const getMyStakingWithValidatorConfigurations = (
       );
     },
     columns: [
-      { uuid: "1", columnLabel: "Asset", width: "25%" },
+      { uuid: "1", columnLabel: "Owner", width: "25%" },
       { uuid: "2", columnLabel: "State", width: "25%" },
       { uuid: "3", columnLabel: "Amount Staked", width: "25%" },
       { uuid: "4", columnLabel: "Total Rewards", width: "25%" },
@@ -86,7 +87,7 @@ const validatorToDataRows = (
     return [];
   }
   return [
-    { uuid: "1", key: "Name", value: `${validator.name.substring(0, 12)}...` },
+    { uuid: "1", key: "Name", value: truncateInMiddle(validator.name, 5, 5) },
     { uuid: "2", key: "Commission", value: validator.commission },
     { uuid: "3", key: "Voting Power", value: validator.votingPower },
     {
@@ -128,7 +129,7 @@ export const ValidatorDetails = (props: Props): JSX.Element => {
       </StakeButtonContainer>
 
       <Table
-        title={`My Staking with ${validator?.name.substring(0, 12)}...`}
+        title={`My Staking with ${truncateInMiddle(validator?.name || "", 5, 5)}`}
         tableConfigurations={myStakingWithValidatorConfigurations}
         data={stakingPositionsWithSelectedValidator}
       />

@@ -61,7 +61,7 @@ type Props = {
 // contains data and controls to unbond
 export const UnbondPosition = (props: Props): JSX.Element => {
   const { currentBondingPosition, confirmUnbonding, cancelUnbonding } = props;
-  const { validatorId, stakedCurrency } = currentBondingPosition;
+  const { validatorId, owner } = currentBondingPosition;
 
   // storing the bonding amount input value locally here as string
   // we threat them as strings except below in validation
@@ -140,8 +140,8 @@ export const UnbondPosition = (props: Props): JSX.Element => {
         onClick={() => {
           const changeInStakingPosition: ChangeInStakingPosition = {
             amount: deltaAsString,
-            stakingCurrency: stakedCurrency,
-            validatorId: validatorId,
+            owner,
+            validatorId,
           };
           confirmUnbonding(changeInStakingPosition);
         }}

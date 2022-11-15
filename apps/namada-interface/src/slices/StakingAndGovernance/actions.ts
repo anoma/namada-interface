@@ -27,29 +27,48 @@ const toValidator = ([address, votingPower]: [string, string]): Validator => ({
   name: address,
   // TODO: voting power is multiplied by votes_per_token value defined in genesis file
   // currently it is 10
-  votingPower: `NAM ${BigInt(votingPower) * BigInt(10)}`,
+  votingPower: String(BigInt(votingPower) * BigInt(10)),
   homepageUrl: "http://namada.net",
   commission: "TBD",
   description: "TBD",
 });
 
-const toMyValidator = ([address, bonded]: [string, string]): MyValidators => ({
-  uuid: address,
-  stakingStatus: "Bonded",
-  stakedAmount: bonded,
-  validator: toValidator([address, bonded]),
-});
+const toMyValidators = (
+  acc: MyValidators[],
+  [_, validator, stake]: [string, string, string]
+): MyValidators[] => {
+  const index = acc.findIndex((myValidator) => myValidator.uuid === validator);
+  const v = acc[index];
+  const sliceFn =
+    index == -1
+      ? (arr: MyValidators[]) => arr
+      : (arr: MyValidators[], idx: number) => [
+          ...arr.slice(0, idx),
+          ...arr.slice(idx + 1),
+        ];
 
-const toStakingPosition = ([address, stakedAmount]: [
+  return [
+    ...sliceFn(acc, index),
+    {
+      uuid: validator,
+      stakingStatus: "Bonded",
+      stakedAmount: String(Number(stake) + Number(v?.stakedAmount || 0)),
+      validator: toValidator([validator, String(Number(stake) + Number(v?.stakedAmount || 0))]),
+    },
+  ];
+};
+
+const toStakingPosition = ([owner, validator, stake]: [
+  string,
   string,
   string
 ]): StakingPosition => ({
-  uuid: address,
+  uuid: owner + validator,
   stakingStatus: "Bonded",
-  stakedAmount: stakedAmount,
-  stakedCurrency: "NAM",
+  stakedAmount: stake,
+  owner,
   totalRewards: "TBD",
-  validatorId: address,
+  validatorId: validator,
 });
 // this retrieves the validators
 // this dispatches further actions that are depending on
@@ -104,9 +123,12 @@ export const fetchMyValidators = createAsyncThunk<
 
     await initShared();
     const abci = new Abci(`http://${network.url}`);
-    const myValidatorsRes = await abci.query_my_validators(accounts[0].address);
+    const myValidatorsRes = await abci.query_my_validators(
+      accounts.map((account) => account.address)
+    );
 
-    const myValidators = myValidatorsRes.map(toMyValidator);
+    const myValidators = myValidatorsRes.reduce(toMyValidators, []);
+    console.log("asd", myValidatorsRes, myValidators);
     const myStakingPositions = myValidatorsRes.map(toStakingPosition);
 
     return Promise.resolve({ myValidators, myStakingPositions });
@@ -128,7 +150,7 @@ const createBondingTx = async (
 
   // TODO: read from state after extension is integrated with interface
   const accounts = (await anoma.signer(chainId).accounts()) || [];
-  const source = accounts[0].address;
+  const source = change.owner || accounts[0].address;
 
   const encodedTx =
     (await signer.encodeBonding({
