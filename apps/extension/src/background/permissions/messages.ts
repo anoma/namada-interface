@@ -99,7 +99,7 @@ export class GetPermittedChainsMsg extends Message<string[]> {
   }
 }
 
-export class AddPermissionOrigin extends Message<void> {
+export class AddOriginPermission extends Message<void> {
   public static type(): MessageType {
     return MessageType.AddOriginPermission;
   }
@@ -131,7 +131,7 @@ export class AddPermissionOrigin extends Message<void> {
   }
 
   type(): string {
-    return AddPermissionOrigin.type();
+    return AddOriginPermission.type();
   }
 }
 
