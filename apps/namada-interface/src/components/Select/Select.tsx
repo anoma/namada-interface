@@ -13,6 +13,7 @@ type Props<T = string | number> = {
   data: Option<T>[];
   style?: React.CSSProperties;
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void | Promise<void>;
+  className?: string;
 };
 
 function Select<T>({
@@ -21,9 +22,10 @@ function Select<T>({
   data,
   style,
   onChange,
+  className
 }: Props<T>): JSX.Element {
   return (
-    <Label>
+    <Label className={className}>
       {label}
       <StyledSelectWrapper>
         <StyledSelect onChange={onChange} value={`${value}`} style={style}>

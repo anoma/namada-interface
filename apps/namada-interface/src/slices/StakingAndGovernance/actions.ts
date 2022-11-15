@@ -128,7 +128,6 @@ export const fetchMyValidators = createAsyncThunk<
     );
 
     const myValidators = myValidatorsRes.reduce(toMyValidators, []);
-    console.log("asd", myValidatorsRes, myValidators);
     const myStakingPositions = myValidatorsRes.map(toStakingPosition);
 
     return Promise.resolve({ myValidators, myStakingPositions });

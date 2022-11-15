@@ -199,9 +199,9 @@ export const Staking = (props: Props): JSX.Element => {
           totalFundsToBond={100}
           confirmBonding={confirmBonding}
           cancelBonding={cancelBonding}
-          currentBondingPosition={
-            stakingPositionsWithSelectedValidator[0] ||
-            emptyStakingPosition(selectedValidatorId || "")
+          currentBondingPositions={
+            stakingPositionsWithSelectedValidator ||
+            [emptyStakingPosition(selectedValidatorId || "")]
           }
         />
       </Modal>
