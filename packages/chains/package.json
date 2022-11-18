@@ -1,0 +1,21 @@
+{
+  "name": "@anoma/chains",
+  "version": "0.1.0",
+  "description": "Chain configurations for Namada",
+  "main": "src/index.ts",
+  "repository": "https://github.com/anoma/namada-interface",
+  "author": "Heliax AG <hello@heliax.dev>",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "typescript": "^4.9.3",
+    "@anoma/types": "0.1.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.27.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-typescript": "^3.5.2",
+    "eslint-plugin-import": "^2.26.0"
+  }
+}
