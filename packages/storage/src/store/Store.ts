@@ -25,7 +25,7 @@ export interface IStore<T extends StoredRecord> {
  * remove - remove a record specified by ID
  */
 export class Store<T extends StoredRecord> implements IStore<T> {
-  constructor(public readonly key: string, public readonly store: KVStore<T>) {}
+  constructor(public readonly key: string, public readonly store: KVStore<T[]>) {}
 
   public async set(state: T[]): Promise<void> {
     await this.store.set(this.key, state);

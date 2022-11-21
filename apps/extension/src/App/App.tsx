@@ -4,8 +4,8 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 
 import { AccountType, DerivedAccount } from "@anoma/types";
 import { getTheme } from "@anoma/utils";
-import { ExtensionRequester } from "extension";
-import { Ports } from "router";
+import { ExtensionMessenger, ExtensionRequester } from "extension";
+import { KVPrefix, Ports } from "router";
 import { CheckIsLockedMsg } from "background/keyring";
 import { QueryAccountsMsg } from "provider/messages";
 import {
@@ -21,8 +21,15 @@ import { Login } from "./Login";
 import { Setup } from "./Setup";
 import { TopLevelRoute } from "./types";
 import { Loading } from "./Loading";
+import { ExtensionKVStore } from "@anoma/storage";
 
-const requester = new ExtensionRequester();
+
+const store = new ExtensionKVStore(KVPrefix.LocalStorage, {
+  get: browser.storage.local.get,
+  set: browser.storage.local.set,
+});
+const messenger = new ExtensionMessenger();
+const requester = new ExtensionRequester(messenger, store);
 
 export enum Status {
   Completed,

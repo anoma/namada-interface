@@ -9,7 +9,7 @@ export class ChainsService {
   protected onChainRemovedHandlers: ChainRemovedHandler[] = [];
 
   constructor(
-    protected readonly kvStore: KVStore<Chain>,
+    protected readonly kvStore: KVStore<Chain[]>,
     protected readonly defaultChains: Chain[]
   ) {}
 

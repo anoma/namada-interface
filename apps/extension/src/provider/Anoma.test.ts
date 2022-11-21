@@ -1,13 +1,24 @@
-import { Anoma } from "./Anoma";
+import { deepMock } from "mockzilla";
+import { init } from "test/init";
+import type { Browser } from "webextension-polyfill";
+
 import { chain } from "./data.mock";
 
-describe("Anoma", () => {
-  test.skip("It adds a chain configuration", async () => {
-    const version = "0.1.0";
-    const anoma = new Anoma(version);
-    const results = await anoma.suggestChain(chain);
-    const { chainId } = chain;
+// Needed for now as utils import webextension-polyfill directly
+const [browser] = deepMock<Browser>(
+  "browser",
+  false
+);
+jest.mock("webextension-polyfill", () => browser);
 
-    expect(results).toEqual(chainId);
+describe("Anoma", () => {
+  const { anoma, chainStore } = init();
+
+  test("It adds a chain configuration", async () => {
+    await anoma.suggestChain(chain);
+
+    const chains = await chainStore.get('chains');
+    expect(chains?.pop()).toEqual(chain);
   });
 });
+

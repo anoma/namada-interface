@@ -5,15 +5,29 @@ import {
   ExtensionRequester,
   ContentScriptEnv,
   ContentScriptGuards,
+  ExtensionMessenger,
 } from "extension";
-import { Ports } from "router/types";
+import { KVPrefix, Ports } from "router/types";
 import { initEvents } from "./events";
 import manifest from "manifest/_base.json";
+import { ExtensionKVStore } from "@anoma/storage";
 
 // Start proxying messages from Anoma to InjectedAnoma
-Proxy.start(new Anoma(manifest.version, new ExtensionRequester()));
 
-const router = new ExtensionRouter(ContentScriptEnv.produceEnv);
+const extensionStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
+  get: browser.storage.local.get,
+  set: browser.storage.local.set,
+});
+const messenger = new ExtensionMessenger();
+Proxy.start(
+  new Anoma(manifest.version, new ExtensionRequester(messenger, extensionStore))
+);
+
+const router = new ExtensionRouter(
+  ContentScriptEnv.produceEnv,
+  messenger,
+  extensionStore
+);
 initEvents(router);
 router.listen(Ports.WebBrowser);
 router.addGuard(ContentScriptGuards.checkMessageIsInternal);
