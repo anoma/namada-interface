@@ -45,14 +45,6 @@ yarn lint:fix
 
 # Run tests
 yarn test
-
-# OTHER
-
-# Build wasm library with web target
-yarn wasm:build
-
-# Build wasm library with nodejs target
-yarn wasm:build:nodejs
 ```
 
 [ [Table of Contents](#table-of-contents) ]
