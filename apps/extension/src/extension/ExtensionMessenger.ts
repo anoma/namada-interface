@@ -1,3 +1,5 @@
+import browser from "webextension-polyfill";
+
 export type Callback = (...args: any[]) => Promise<any>;
 
 export interface Messenger {
@@ -8,11 +10,11 @@ export interface Messenger {
 
 export class ExtensionMessenger implements Messenger {
   addListener(callback: Callback): void {
-    // this.callbacks.add(callback);
+    browser.runtime.onMessage.addListener(callback);
   }
 
   removeListener(callback: Callback): void {
-    // this.callbacks.delete(callback);
+    browser.runtime.onMessage.removeListener(callback);
   }
 
   sendMessage(payload: any) {

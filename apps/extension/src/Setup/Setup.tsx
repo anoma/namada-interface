@@ -1,3 +1,4 @@
+import browser from "webextension-polyfill";
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "styled-components";

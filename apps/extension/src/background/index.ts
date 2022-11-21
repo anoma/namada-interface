@@ -1,6 +1,7 @@
+import browser from "webextension-polyfill";
 import { ExtensionKVStore, IndexedDBKVStore } from "@anoma/storage";
-import { init as initCrypto } from "@anoma/crypto";
-import { init as initShared } from "@anoma/shared";
+import { init as initCrypto } from "@anoma/crypto/src/init";
+import { init as initShared } from "@anoma/shared/src/init";
 
 import {
   ExtensionRouter,
