@@ -10,6 +10,7 @@
   "type": "commonjs",
   "license": "MIT",
   "dependencies": {
+    "@anoma/chains": "0.1.0",
     "@anoma/integrations": "0.1.0",
     "@anoma/masp-web": "0.1.0",
     "@anoma/rpc": "0.1.0",
