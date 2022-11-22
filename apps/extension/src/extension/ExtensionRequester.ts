@@ -6,7 +6,7 @@ import { Messenger } from "./ExtensionMessenger";
 export class ExtensionRequester {
   constructor(
     private readonly messenger: Messenger,
-    private readonly store: KVStore<unknown>
+    private readonly store: KVStore<number>
   ) {}
 
   async sendMessage<M extends Message<unknown>>(

@@ -35,15 +35,14 @@ class KVStoreMock<T> implements KVStore<T> {
 
 export const init = (): {
   anoma: Anoma;
-  chainStore: KVStoreMock<Chain[]>;
-  keyStore: KVStoreMock<KeyStore[]>;
+  iDBStore: KVStoreMock<any>;
   extStore: KVStoreMock<unknown>;
 } => {
   const messenger = new ExtensionMessengerMock();
 
-  const chainStore = new KVStoreMock<Chain[]>(KVPrefix.IndexedDB);
-  const keyStore = new KVStoreMock<KeyStore[]>(KVPrefix.IndexedDB);
-  const extStore = new KVStoreMock<unknown>(KVPrefix.IndexedDB);
+  // TODO: any for now - needs a change to KVStore interface
+  const iDBStore = new KVStoreMock<any>(KVPrefix.IndexedDB);
+  const extStore = new KVStoreMock<number>(KVPrefix.IndexedDB);
   const requester = new ExtensionRequester(messenger, extStore);
 
   const router = new ExtensionRouter(
@@ -57,8 +56,8 @@ export const init = (): {
     extStore
   );
 
-  const chainsService = new ChainsService(chainStore, chains);
-  const keyRingService = new KeyRingService(keyStore);
+  const chainsService = new ChainsService(iDBStore, chains);
+  const keyRingService = new KeyRingService(iDBStore);
 
   // Initialize messages and handlers
   initChains(router, chainsService);
@@ -71,8 +70,7 @@ export const init = (): {
 
   return {
     anoma,
-    chainStore,
-    keyStore,
+    iDBStore,
     extStore
   };
 };

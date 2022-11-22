@@ -13,7 +13,7 @@ export class ExtensionRouter extends Router {
   constructor(
     envProducer: EnvProducer,
     private readonly messenger: Messenger,
-    private readonly store: KVStore<unknown>
+    private readonly store: KVStore<number>
   ) {
     super(envProducer);
   }

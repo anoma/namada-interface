@@ -5,7 +5,7 @@ import { Env, MessageSender } from "router/types";
 const ROUTER_ID_KEY = "anomaExtensionRouterId";
 
 export const getAnomaRouterId = async (
-  store: KVStore<unknown>
+  store: KVStore<number>
 ): Promise<number | undefined> => {
   const storedId = await store.get(ROUTER_ID_KEY);
   if (!storedId) {

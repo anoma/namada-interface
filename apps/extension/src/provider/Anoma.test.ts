@@ -12,12 +12,12 @@ const [browser] = deepMock<Browser>(
 jest.mock("webextension-polyfill", () => browser);
 
 describe("Anoma", () => {
-  const { anoma, chainStore } = init();
+  const { anoma, iDBStore } = init();
 
   test("It adds a chain configuration", async () => {
     await anoma.suggestChain(chain);
 
-    const chains = await chainStore.get('chains');
+    const chains = await iDBStore.get('chains');
     expect(chains?.pop()).toEqual(chain);
   });
 });
