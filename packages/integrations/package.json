@@ -8,9 +8,8 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "wasm:build": "../../scripts/build-test.sh",
-    "test": "yarn wasm:build && jest",
-    "test:watch": "yarn wasm:build && jest --watchAll",
+    "test": "jest",
+    "test:watch": "jest --watchAll",
     "lint": "npx eslint src --ext .ts",
     "lint:fix": "yarn lint -- --fix"
   },
