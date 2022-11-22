@@ -1,9 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Account } from "@anoma/types";
 
+import { Account, Symbols, Tokens, TokenType } from "@anoma/types";
 import { RpcClient } from "@anoma/rpc";
-import { Symbols, Tokens, TokenType } from "@anoma/tx";
-
 import Config from "config";
 
 type Balance = {

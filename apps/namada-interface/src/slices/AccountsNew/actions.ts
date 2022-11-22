@@ -14,7 +14,7 @@ import {
 } from "slices/shieldedTransfer";
 import { ShieldedAccountType, getMaspWeb } from "@anoma/masp-web";
 import { actions, CreateToastPayload, ToastId } from "slices/notifications";
-import { TokenType } from "@anoma/tx";
+import { TokenType } from "@anoma/types";
 
 type NewAccountDetailsWithPassword = NewAccountDetails & {
   chainId: string;

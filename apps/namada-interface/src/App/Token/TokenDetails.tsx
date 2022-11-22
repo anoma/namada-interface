@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { Account } from "@anoma/types";
+import { Account, Tokens } from "@anoma/types";
 
 import config from "config";
 import { TopLevelRoute } from "App/types";
@@ -12,7 +12,6 @@ import { formatRoute, stringFromTimestamp } from "@anoma/utils";
 import { Button, ButtonVariant } from "components/Button";
 import { Heading, HeadingLevel } from "components/Heading";
 import { NavigationContainer } from "components/NavigationContainer";
-import { Tokens } from "@anoma/tx";
 import {
   ButtonsContainer,
   TokenDetailContainer,

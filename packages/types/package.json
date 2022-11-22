@@ -14,6 +14,7 @@
   "dependencies": {
     "bn.js": "^5.2.1",
     "borsh": "^0.7.0",
+    "slip44": "^1.2.60",
     "typescript": "^4.8.4"
   },
   "devDependencies": {

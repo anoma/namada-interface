@@ -5,8 +5,8 @@ import {
   Window as KeplrWindow,
 } from "@keplr-wallet/types";
 import { AccountData } from "@cosmjs/proto-signing";
+import { Tokens, TokenType } from "@anoma/types";
 import { Chain } from "./types";
-import { Tokens, TokenType } from "@anoma/tx";
 
 const { REACT_APP_LOCAL, NODE_ENV } = process.env;
 const DEV_ENV = !!(REACT_APP_LOCAL || NODE_ENV === "development");

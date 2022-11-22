@@ -13,7 +13,7 @@
     "@anoma/integrations": "0.1.0",
     "@anoma/masp-web": "0.1.0",
     "@anoma/rpc": "0.1.0",
-    "@anoma/tx": "0.1.0",
+    "@anoma/types": "0.1.0",
     "@anoma/utils": "0.1.0",
     "@reduxjs/toolkit": "^1.8.0",
     "crypto-browserify": "^3.12.0",
