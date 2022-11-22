@@ -8,7 +8,6 @@ import {
 } from "./types";
 import { history, TopLevelRouteGenerator } from "App";
 import { RootState } from "store/store";
-import { Session } from "@anoma/session";
 import {
   getShieldedBalance,
   TRANSFER_CONFIGURATION,
@@ -85,7 +84,8 @@ export const createShieldedAccount = createAsyncThunk<
     }
     try {
       // TODO distinguish between master/derived
-      const mnemonic = await Session.getSeed(password);
+      // TODO: Session has been removed - this should be updated to use Extension!
+      const mnemonic = undefined; //await Session.getSeed(password);
 
       if (mnemonic) {
         const initialisedMaspWeb = await getMaspWeb();
