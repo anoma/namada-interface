@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 import { useState, useEffect } from "react";
-import { Routes, Route, Outlet, useLocation, Location } from "react-router-dom";
+import { useLocation, Location } from "react-router-dom";
 import { createBrowserHistory } from "history";
 import { AnimatePresence } from "framer-motion";
 import { ThemeProvider } from "styled-components/macro";
@@ -15,20 +15,15 @@ import {
 import { TopLevelRoute, locationToTopLevelRoute } from "./types";
 
 import { TopNavigation } from "./TopNavigation";
-import { AccountCreation } from "./AccountCreation";
-import { Login } from "./Login";
 import {
   AppContainer,
   TopSection,
   BottomSection,
-  ContentContainer,
   MotionContainer,
   GlobalStyles,
 } from "./App.components";
-import Redirect from "./Redirect";
-import makeStore, { AppStore } from "store/store";
+import store from "store/store";
 import AppRoutes from "./AppRoutes";
-import { Persistor, persistStore } from "redux-persist";
 import { Provider } from "react-redux";
 import { Toasts } from "components/Toast";
 
@@ -63,9 +58,6 @@ function App(): JSX.Element {
   const initialColorMode = loadColorMode();
   const [colorMode, setColorMode] = useState<ColorMode>(initialColorMode);
   const location = useLocation();
-  const [password, setPassword] = useState<string>();
-  const [store, setStore] = useState<AppStore>();
-  const [persistor, setPersistor] = useState<Persistor>();
   const ShouldUsePlaceholderTheme = getShouldUsePlaceholderTheme(location);
   const theme = getTheme(colorMode, ShouldUsePlaceholderTheme);
 
@@ -75,102 +67,27 @@ function App(): JSX.Element {
 
   useEffect(() => storeColorMode(colorMode), [colorMode]);
 
-  useEffect(() => {
-    if (store) {
-      setPersistor(persistStore(store));
-    }
-  }, [store]);
-
-  if (password && store && persistor) {
-    return (
-      <ThemeProvider theme={theme}>
-        <Provider store={store}>
-          <Toasts />
-          <GlobalStyles colorMode={colorMode} />
-          <AppContainer data-testid="AppContainer">
-            <TopSection>
-              <TopNavigation
-                colorMode={colorMode}
-                toggleColorMode={toggleColorMode}
-                setColorMode={setColorMode}
-                isLoggedIn={!!password}
-                persistor={persistor}
-                store={store}
-                logout={() => setPassword(undefined)}
-              />
-            </TopSection>
-            <BottomSection>
-              <AnimatePresence exitBeforeEnter>
-                <AppRoutes
-                  store={store}
-                  persistor={persistor}
-                  password={password}
-                />
-              </AnimatePresence>
-            </BottomSection>
-          </AppContainer>
-        </Provider>
-      </ThemeProvider>
-    );
-  }
-
-  /**
-   * Unlock Wallet & Create Master Seed flow:
-   */
   return (
     <ThemeProvider theme={theme}>
-      <GlobalStyles colorMode={colorMode} />
-      <AppContainer data-testid="AppContainer">
-        <TopSection>
-          <TopNavigation
-            colorMode={colorMode}
-            setColorMode={setColorMode}
-            toggleColorMode={toggleColorMode}
-            logout={() => setPassword(undefined)}
-          />
-        </TopSection>
-        <BottomSection>
-          <AnimatePresence exitBeforeEnter>
-            <Routes>
-              <Route
-                path="/"
-                element={
-                  <ContentContainer>
-                    <Outlet />
-                  </ContentContainer>
-                }
-              >
-                <Route
-                  path={""}
-                  element={
-                    <Login
-                      setPassword={setPassword}
-                      // set store is dehydrating the whole
-                      // state once the user gives a password
-                      setStore={(password) => setStore(makeStore(password))}
-                    />
-                  }
-                />
-                <Route
-                  path={`${TopLevelRoute.AccountCreation}/*`}
-                  element={
-                    <AnimatedTransition
-                      elementKey={TopLevelRoute.AccountCreation}
-                    >
-                      <AccountCreation
-                        store={store}
-                        setPassword={setPassword}
-                        setStore={(password) => setStore(makeStore(password))}
-                      />
-                    </AnimatedTransition>
-                  }
-                />
-                <Route path={"*"} element={<Redirect password={password} />} />
-              </Route>
-            </Routes>
-          </AnimatePresence>
-        </BottomSection>
-      </AppContainer>
+      <Provider store={store}>
+        <Toasts />
+        <GlobalStyles colorMode={colorMode} />
+        <AppContainer data-testid="AppContainer">
+          <TopSection>
+            <TopNavigation
+              colorMode={colorMode}
+              toggleColorMode={toggleColorMode}
+              setColorMode={setColorMode}
+              store={store}
+            />
+          </TopSection>
+          <BottomSection>
+            <AnimatePresence exitBeforeEnter>
+              <AppRoutes store={store} />
+            </AnimatePresence>
+          </BottomSection>
+        </AppContainer>
+      </Provider>
     </ThemeProvider>
   );
 }

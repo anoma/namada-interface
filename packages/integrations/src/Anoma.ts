@@ -1,9 +1,13 @@
-import { ChainInfo as Chain } from "@keplr-wallet/types";
-import { Anoma as IAnoma, WindowWithAnoma } from "@anoma/types";
+import {
+  Account,
+  Anoma as IAnoma,
+  Signer,
+  WindowWithAnoma,
+} from "@anoma/types";
 
-export class Anoma {
+export default class Anoma {
   constructor(
-    public readonly chain: Chain,
+    /* public readonly chain: Chain, */
     private readonly _anoma = (<WindowWithAnoma>window)?.anoma
   ) {}
 
@@ -13,5 +17,18 @@ export class Anoma {
 
   public detect(): boolean {
     return !!this._anoma;
+  }
+
+  public async connect(): Promise<void> {
+    await this._anoma.connect("");
+  }
+
+  public async fetchAccounts(): Promise<Account[] | undefined> {
+    const signer = this._anoma.getSigner("");
+    return await signer.accounts();
+  }
+
+  public signer(chainId: string): Signer {
+    return this._anoma.getSigner(chainId);
   }
 }

@@ -1,4 +1,3 @@
-import { toBase64 } from "@cosmjs/encoding";
 import { WebsocketClient } from "@cosmjs/tendermint-rpc";
 
 import RpcClientBase from "./RpcClientBase";
@@ -6,9 +5,21 @@ import { createJsonRpcRequest } from "@anoma/utils";
 import { TxResponse } from "./enums";
 import {
   BroadcastSyncResponse,
+  Events,
   NewBlockEvents,
   SubscriptionEvents,
 } from "./types";
+
+const parseEvents = (subEvents: SubscriptionEvents): Events => {
+  const { events }: { events: NewBlockEvents } = subEvents;
+  const [applied] = events;
+
+  return applied.attributes.reduce((acc: Events, attribute) => {
+    const { key, value } = attribute;
+    acc[key] = value;
+    return acc;
+  }, {});
+};
 
 class SocketClient extends RpcClientBase {
   private _client: WebsocketClient | null = null;
@@ -31,7 +42,7 @@ class SocketClient extends RpcClientBase {
   }
 
   public async broadcastTx(
-    tx: Uint8Array,
+    tx: string,
     callbacks?: {
       onBroadcast?: (response: BroadcastSyncResponse) => void;
       onError?: (error: string) => void;
@@ -45,9 +56,7 @@ class SocketClient extends RpcClientBase {
 
     return new Promise((resolve, reject) => {
       this.client
-        ?.execute(
-          createJsonRpcRequest("broadcast_tx_sync", { tx: toBase64(tx) })
-        )
+        ?.execute(createJsonRpcRequest("broadcast_tx_sync", { tx }))
         .then((response: BroadcastSyncResponse) => {
           this.disconnect();
           if (onBroadcast) {
@@ -67,34 +76,35 @@ class SocketClient extends RpcClientBase {
   public subscribeNewBlock(
     hash: string,
     callbacks?: {
-      onNext?: (events: NewBlockEvents) => void;
+      onNext?: (events: Events) => void;
       onError?: (e: unknown) => void;
     }
-  ): Promise<NewBlockEvents> {
+  ): Promise<Events> {
     if (!this._client) {
       this.connect();
     }
-
     const { onNext, onError } = callbacks || {};
-
     const queries = [`tm.event='NewBlock'`, `${TxResponse.Hash}='${hash}'`];
+    // TODO: We should be able to query on tx hash (NOTE: This may change, and
+    // we will have to keep an eye on the latest changes to confirm).
+    /* const query = queries.join(" AND "); */
+    const query = queries[0];
 
     return new Promise((resolve, reject) => {
       this.client
         ?.listen(
           createJsonRpcRequest("subscribe", {
-            query: queries.join(" AND "),
+            query,
           })
         )
         .addListener({
           next: (subEvent) => {
-            const { events }: { events: NewBlockEvents } =
-              subEvent as SubscriptionEvents;
+            const parsedEvents = parseEvents(<SubscriptionEvents>subEvent);
             this.disconnect();
             if (onNext) {
-              onNext(events);
+              onNext(parsedEvents);
             }
-            return resolve(events);
+            return resolve(parsedEvents);
           },
           error: (e) => {
             if (onError) {

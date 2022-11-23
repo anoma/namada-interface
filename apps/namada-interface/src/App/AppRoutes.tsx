@@ -1,17 +1,10 @@
 import { Provider } from "react-redux";
 import { Routes, Route, Outlet } from "react-router-dom";
-import { Persistor } from "redux-persist";
 
 import { AccountOverview } from "./AccountOverview";
-import { AddAccount } from "./AccountOverview/AddAccount";
 import { AnimatedTransition } from "./App";
 import { ContentContainer } from "./App.components";
-import {
-  Settings,
-  SettingsAccounts,
-  SettingsAccountSettings,
-  SettingsWalletSettings,
-} from "./Settings";
+import { Settings, SettingsWalletSettings } from "./Settings";
 import { Bridge } from "./Bridge";
 import { StakingAndGovernance } from "./StakingAndGovernance";
 import { TopLevelRoute } from "./types";
@@ -20,15 +13,12 @@ import { TokenDetails } from "./Token";
 import { TokenSend } from "./Token/TokenSend";
 import { TokenReceive } from "./Token/TokenReceive";
 import { TransferDetails, Transfers } from "./Token/Transfers";
-import NotFound from "./NotFound";
 
 type Props = {
   store: AppStore;
-  persistor: Persistor;
-  password: string;
 };
 
-const AppRoutes = ({ store, persistor, password }: Props): JSX.Element => {
+const AppRoutes = ({ store }: Props): JSX.Element => {
   return (
     <>
       {store && (
@@ -47,22 +37,7 @@ const AppRoutes = ({ store, persistor, password }: Props): JSX.Element => {
                 element={
                   // eslint-disable-next-line react/jsx-no-undef
                   <AnimatedTransition elementKey={TopLevelRoute.Wallet}>
-                    {persistor && (
-                      <AccountOverview
-                        persistor={persistor}
-                        password={password}
-                      />
-                    )}
-                  </AnimatedTransition>
-                }
-              />
-              <Route
-                path={TopLevelRoute.WalletAddAccount}
-                element={
-                  <AnimatedTransition
-                    elementKey={TopLevelRoute.WalletAddAccount}
-                  >
-                    <AddAccount password={password} />
+                    <AccountOverview />
                   </AnimatedTransition>
                 }
               />
@@ -70,7 +45,7 @@ const AppRoutes = ({ store, persistor, password }: Props): JSX.Element => {
                 path={TopLevelRoute.Token}
                 element={
                   <AnimatedTransition elementKey={TopLevelRoute.Token}>
-                    {persistor && <TokenDetails persistor={persistor} />}
+                    <TokenDetails />
                   </AnimatedTransition>
                 }
               />
@@ -145,36 +120,15 @@ const AppRoutes = ({ store, persistor, password }: Props): JSX.Element => {
                 }
               />
               <Route
-                path={TopLevelRoute.SettingsAccounts}
-                element={
-                  <AnimatedTransition
-                    elementKey={TopLevelRoute.SettingsAccounts}
-                  >
-                    <SettingsAccounts />
-                  </AnimatedTransition>
-                }
-              />
-              <Route
                 path={TopLevelRoute.SettingsWalletSettings}
                 element={
                   <AnimatedTransition
                     elementKey={TopLevelRoute.SettingsWalletSettings}
                   >
-                    <SettingsWalletSettings password={password} />
+                    <SettingsWalletSettings />
                   </AnimatedTransition>
                 }
               />
-              <Route
-                path={TopLevelRoute.SettingsAccountSettings}
-                element={
-                  <AnimatedTransition
-                    elementKey={TopLevelRoute.SettingsWalletSettings}
-                  >
-                    <SettingsAccountSettings />
-                  </AnimatedTransition>
-                }
-              />
-              <Route path={"*"} element={<NotFound />} />
             </Route>
           </Routes>
         </Provider>

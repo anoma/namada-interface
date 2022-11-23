@@ -1,6 +1,7 @@
 import { SignedTx } from "./tx";
 import { DerivedAccount } from "./account";
 import { Chain } from "./chain";
+import { Signer } from "./signer";
 
 export interface Anoma {
   connect(chainId: string): Promise<void>;
@@ -24,5 +25,7 @@ export interface Anoma {
 
 export type WindowWithAnoma = Window &
   typeof globalThis & {
-    anoma: Anoma;
+    anoma: Anoma & {
+      getSigner: (chainId: string) => Signer;
+    };
   };

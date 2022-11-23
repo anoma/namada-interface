@@ -1,3 +1,4 @@
+use std::fmt::Debug;
 use chrono::{TimeZone, Utc};
 use namada::types::time::DateTimeUtc;
 use wasm_bindgen::prelude::*;
@@ -22,3 +23,14 @@ extern "C" {
     #[wasm_bindgen(js_namespace = console)]
     fn log(s: &str);
 }
+
+#[allow(dead_code)]
+pub fn console_log(string: &str) {
+    log(string);
+}
+
+#[allow(dead_code)]
+pub fn console_log_any<T: Debug>(string: &T) {
+    log(format!("{:?}", string).as_str());
+}
+

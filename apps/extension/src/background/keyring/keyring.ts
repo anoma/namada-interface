@@ -48,6 +48,7 @@ type DerivedAccountInfo = {
   id: string;
   text: string;
 };
+
 /**
  * Keyring stores keys in persisted backround.
  */
@@ -56,7 +57,10 @@ export class KeyRing {
   private _password: string | undefined;
   private _status: KeyRingStatus = KeyRingStatus.Empty;
 
-  constructor(kvStore: KVStore<KeyStore>) {
+  constructor(
+    protected readonly kvStore: KVStore<KeyStore>,
+    protected readonly chainId: string = chains[0].chainId
+  ) {
     this._keyStore = new Store(KEYSTORE_KEY, kvStore);
   }
 
@@ -127,11 +131,13 @@ export class KeyRing {
       const bip44 = new HDWallet(seed);
       const account = bip44.derive(path);
       const address = new Address(account.private().to_hex()).implicit();
+      const { chainId } = this;
 
       const mnemonicStore = crypto.encrypt({
         id: getId(phrase, (await this._keyStore.get()).length),
         alias,
         address,
+        chainId,
         password,
         path: {
           account: 0,
@@ -261,10 +267,13 @@ export class KeyRing {
         text = transparentAccount.text;
       }
 
+      const { chainId } = this;
+
       this._keyStore.append(
         crypto.encrypt({
           alias,
           address,
+          chainId,
           id,
           password: this._password,
           path,
@@ -277,6 +286,7 @@ export class KeyRing {
         id,
         address,
         alias,
+        chainId,
         parentId,
         path,
         type,
@@ -291,10 +301,10 @@ export class KeyRing {
     // Query accounts from storage
     const accounts = (await this._keyStore.get()) || [];
     return accounts.map(
-      ({ address, alias, establishedAddress, path, parentId, id, type }) => ({
+      ({ address, alias, chainId, path, parentId, id, type }) => ({
         address,
         alias,
-        establishedAddress,
+        chainId,
         id,
         parentId,
         path,
@@ -315,6 +325,7 @@ export class KeyRing {
     if (!account) {
       throw new Error(`Account not found for ${address}`);
     }
+
     try {
       const decrypted = crypto.decrypt(account, this._password);
       let pk: string;
@@ -334,6 +345,7 @@ export class KeyRing {
 
       const signer = new Signer(txData);
       const { hash, bytes } = signer.sign(txMsg, pk);
+
       return {
         hash,
         bytes: toBase64(bytes),

@@ -4,7 +4,8 @@ const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
 const NETLIFY_SITE_PROTECTION_PASSWORD =
   process.env.NETLIFY_SITE_PROTECTION_PASSWORD || "";
 
-test("user should be able to create an initial account and set up a password", async ({
+// TODO: This is no longer a part of namada-interface! Remove this test.
+test.skip("user should be able to create an initial account and set up a password", async ({
   page,
 }) => {
   // load the page

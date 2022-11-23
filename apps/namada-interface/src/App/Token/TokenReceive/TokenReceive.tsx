@@ -26,50 +26,45 @@ import { Heading, HeadingLevel } from "components/Heading";
 const TokenReceive = (): JSX.Element => {
   const { Canvas } = useQRCode();
   const navigate = useNavigate();
-  const { derived, shieldedAccounts: allShieldedAccounts } =
-    useAppSelector<AccountsState>((state) => state.accounts);
+  const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
-  const [selectedAccountId, setSelectedAccountId] = useState<
+  const [selectedAccountAddress, setSelectedAccountAddress] = useState<
     string | undefined
   >();
-  const derivedAccounts = derived[chainId] || {};
-  const shieldedAccounts = allShieldedAccounts[chainId] || {};
+  const accounts = derived[chainId] || {};
   const { accountIndex } = Config.chain[chainId] || {};
 
-  const accounts = { ...shieldedAccounts, ...derivedAccounts };
   const accountsArray = Object.values(accounts);
 
   const accountsData = Object.values(accountsArray).map((account) => ({
-    value: account.id,
+    value: account.address,
     label: `${account.alias} - ${
       account.isShielded ? "Shielded" : "Transparent"
     }`,
   }));
 
   useEffect(() => {
-    if (!selectedAccountId && accountsData && accountsData.length > 0) {
-      setSelectedAccountId(accountsData[0].value);
+    if (!selectedAccountAddress && accountsData && accountsData.length > 0) {
+      setSelectedAccountAddress(accountsData[0].value);
     }
-  }, [accountsData, selectedAccountId]);
+  }, [accountsData, selectedAccountAddress]);
 
   useEffect(() => {
     if (accountsData[0]) {
-      setSelectedAccountId(accountsData[0].value);
+      setSelectedAccountAddress(accountsData[0].value);
     }
   }, [chainId]);
 
-  const { establishedAddress = "", shieldedKeysAndPaymentAddress } =
-    accounts[selectedAccountId || ""] || {};
+  accounts[selectedAccountAddress || ""] || {};
 
   const { protocol, host } = window.location;
-  const address =
-    establishedAddress || shieldedKeysAndPaymentAddress?.paymentAddress || "";
 
   const text = `${protocol}//${host}${formatRoute(
     TopLevelRoute.TokenSendTarget,
     {
       accountIndex,
-      target: address,
+      // TODO: Fix this:
+      target: selectedAccountAddress || "",
     }
   )}`;
 
@@ -84,9 +79,9 @@ const TokenReceive = (): JSX.Element => {
           <>
             <Select
               data={accountsData || []}
-              value={selectedAccountId}
+              value={selectedAccountAddress}
               label="Account"
-              onChange={(e) => setSelectedAccountId(e.target.value)}
+              onChange={(e) => setSelectedAccountAddress(e.target.value)}
             />
             <CanvasContainer>
               <Canvas
@@ -102,7 +97,7 @@ const TokenReceive = (): JSX.Element => {
                 }}
               />
             </CanvasContainer>
-            <Address>{address}</Address>
+            <Address>{selectedAccountAddress}</Address>
           </>
         )}
       </TokenReceiveContent>

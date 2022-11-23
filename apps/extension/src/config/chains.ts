@@ -2,12 +2,13 @@ import { Chain, IBCCurrency } from "@anoma/types";
 
 const bech32Prefix = "namada";
 export const chains: Chain[] = [];
+const DEFAULT_CHAIN_ID = "namada-75a7e12.69483d59a9fb174";
 
 const ibcCurrency: IBCCurrency = {
   coinDenom: "NAM",
   coinMinimalDenom: "nam",
   coinDecimals: 6,
-  originChainId: "namada-test.XXXXXXXXX",
+  originChainId: DEFAULT_CHAIN_ID,
   originCurrency: undefined,
   paths: [
     {
@@ -23,7 +24,7 @@ const ibcCurrency: IBCCurrency = {
 const defaultChain: Chain = {
   rpc: "http://localhost:26657",
   rest: "http://localhost:1317",
-  chainId: "namada-test.XXXXXXXXXXXX",
+  chainId: DEFAULT_CHAIN_ID,
   chainName: "Namada Testnet",
   stakeCurrency: ibcCurrency,
   bip44: {

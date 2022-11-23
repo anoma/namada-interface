@@ -17,6 +17,7 @@ import {
   TransactionMsgSchema,
   TransferProps,
   TxProps,
+  AccountType,
 } from "@anoma/types";
 
 export class Signer implements ISigner {
@@ -26,10 +27,14 @@ export class Signer implements ISigner {
   ) {}
 
   public async accounts(): Promise<Account[] | undefined> {
-    return (await this._anoma.accounts(this.chainId))?.map((account) => ({
-      alias: account.alias,
-      address: account.address,
-    }));
+    return (await this._anoma.accounts(this.chainId))?.map(
+      ({ alias, address, chainId, type }) => ({
+        alias,
+        address,
+        chainId,
+        isShielded: type === AccountType.ShieldedKeys,
+      })
+    );
   }
 
   /**
@@ -57,12 +62,14 @@ export class Signer implements ISigner {
   public async encodeTransfer(
     args: TransferProps
   ): Promise<string | undefined> {
-    const { source, target, token, amount } = args;
+    const { source, target, token, amount, key, shielded } = args;
     const transferMsgValue = new TransferMsgValue({
       source,
       target,
       token,
       amount,
+      key,
+      shielded,
     });
     const transferMessage = new Message<TransferMsgValue>();
     const serializedTransfer = transferMessage.encode(

@@ -87,6 +87,7 @@ export const DerivedAccountItem = styled.li`
   &:first-child {
     padding-top: 0;
   }
+
   &:last-child {
     border-bottom: none;
   }
@@ -148,7 +149,7 @@ export const DerivedAccountStatus = styled.span`
 export const NoTokens = styled.div`
   font-size: 14px;
   font-weight: bold;
-  background-color: ${(props) => props.theme.colors.utility2.main};
+  color: ${(props) => props.theme.colors.utility2.main};
 `;
 
 export const Status = styled.div`

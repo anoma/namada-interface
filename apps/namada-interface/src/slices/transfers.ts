@@ -1,40 +1,35 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+import { Account } from "@anoma/types";
+import { Anoma } from "@anoma/integrations";
 import {
   RpcConfig,
   RpcClient,
   SocketClient,
-  NewBlockEvents,
   TxResponse,
   IbcTxResponse,
+  Events,
 } from "@anoma/rpc";
-import { Transfer, IBCTransfer, TxWasm, Tokens, TokenType } from "@anoma/tx";
+import { TxWasm, Tokens, TokenType } from "@anoma/tx";
 import {
   amountFromMicro,
   promiseWithTimeout,
   fetchWasmCode,
+  amountToMicro,
 } from "@anoma/utils";
 
 import Config from "config";
-import {
-  DerivedAccount,
-  ShieldedAccount,
-  fetchBalanceByAccount,
-  ShieldedKeysAndPaymentAddress,
-  isShieldedAddress,
-  isShieldedAccount,
-} from "./accounts";
-import {
-  createShieldedTransfer,
-  TRANSFER_CONFIGURATION,
-} from "./shieldedTransfer";
-import { updateShieldedBalances } from "./AccountsNew";
+/* import { */
+/*   createShieldedTransfer, */
+/* } from "./shieldedTransfer"; */
+/* import { updateShieldedBalances } from "./AccountsNew"; */
 import {
   actions as notificationsActions,
   CreateToastPayload,
   ToastId,
   ToastType,
 } from "slices/notifications";
+import { fetchBalanceByToken } from "./balances";
 
 enum Toasts {
   TransferStarted,
@@ -73,7 +68,7 @@ const getToast = (
 const TRANSFERS_ACTIONS_BASE = "transfers";
 const LEDGER_TRANSFER_TIMEOUT = 20000;
 const IBC_TRANSFER_TIMEOUT = 15000;
-const MASP_ADDRESS = TRANSFER_CONFIGURATION.maspAddress;
+/* const MASP_ADDRESS = TRANSFER_CONFIGURATION.maspAddress; */
 
 export type IBCTransferAttributes = {
   sourceChannel: string;
@@ -128,12 +123,13 @@ type WithNotification<T> = T & { notify?: boolean };
 
 type TxArgs = {
   chainId: string;
-  account: DerivedAccount | ShieldedAccount;
+  account: Account;
   token: TokenType;
   target: string;
   amount: number;
   memo?: string;
   feeAmount?: number;
+  gasLimit?: number;
 };
 
 type TxTransferArgs = TxArgs & {
@@ -146,20 +142,20 @@ type TxIbcTransferArgs = TxArgs & {
   portId: string;
 };
 
-type ShieldedAddress = string;
-
-// data passed from the UI for a shielded transfer
-type ShieldedTransferData = TxTransferArgs & {
-  account: ShieldedAccount;
-  shieldedKeysAndPaymentAddress: ShieldedKeysAndPaymentAddress;
-  target: ShieldedAddress;
-  targetShieldedAddress: ShieldedAddress;
-};
+/* type ShieldedAddress = string; */
+/**/
+/* // data passed from the UI for a shielded transfer */
+/* type ShieldedTransferData = TxTransferArgs & { */
+/*   account: ShieldedAccount; */
+/*   shieldedKeysAndPaymentAddress: ShieldedKeysAndPaymentAddress; */
+/*   target: ShieldedAddress; */
+/*   targetShieldedAddress: ShieldedAddress; */
+/* }; */
 
 type TransferHashAndBytes = {
   transferType: TransferType;
   transferHash: string;
-  transferAsBytes: Uint8Array;
+  transferAsBytes: string;
 };
 
 type TransferData = {
@@ -168,99 +164,140 @@ type TransferData = {
   token: string;
   amount: number;
   epoch: number;
-  privateKey: string;
 };
 
-const createShieldedTransaction = async (
-  chainId: string,
-  spendingKey: string | undefined,
-  paymentAddress: string,
-  // tokenValue: 1 ETC, 0.2 ETC, etc. the token value as the user entered it
-  // division by 1_000_000 should have not been performed yet
-  tokenValue: number,
-  tokenAddress: string
-): Promise<Uint8Array> => {
-  const transferAmount = tokenValue * 1_000_000;
-  const shieldedTransaction = await createShieldedTransfer(
-    chainId,
-    transferAmount,
-    spendingKey,
-    paymentAddress,
-    tokenAddress
-  );
-  return Promise.resolve(shieldedTransaction);
-};
+// TODO: Re-enable, and update this:
+/* const createShieldedTransaction = async ( */
+/*   chainId: string, */
+/*   spendingKey: string | undefined, */
+/*   paymentAddress: string, */
+/*   // tokenValue: 1 ETC, 0.2 ETC, etc. the token value as the user entered it */
+/*   // division by 1_000_000 should have not been performed yet */
+/*   tokenValue: number, */
+/*   tokenAddress: string */
+/* ): Promise<Uint8Array> => { */
+/*   const transferAmount = tokenValue * 1_000_000; */
+/*   const shieldedTransaction = await createShieldedTransfer( */
+/*     chainId, */
+/*     transferAmount, */
+/*     spendingKey, */
+/*     paymentAddress, */
+/*     tokenAddress */
+/*   ); */
+/*   return Promise.resolve(shieldedTransaction); */
+/* }; */
 
 // this creates the transfer that is being submitted to the ledger, if the transfer is shielded
 // it will first create the shielded transfer that is included in the "parent" transfer
 const createTransfer = async (
-  chainId: string,
-  sourceAccount: DerivedAccount | ShieldedAccount,
-  transferData: TransferData
+  sourceAccount: Account,
+  transferData: TransferData,
+  gasLimit = 100000,
+  feeAmount = 1000
 ): Promise<TransferHashAndBytes> => {
+  const { chainId, address } = sourceAccount;
+  const { amount, target, token, epoch } = transferData;
   const txCode = await fetchWasmCode(TxWasm.Transfer);
-  const transfer = await new Transfer(txCode).init();
-  const { target } = transferData;
-  if (isShieldedAddress(target) || isShieldedAccount(sourceAccount)) {
-    // if the transfer source is shielded
-    const spendingKey =
-      sourceAccount.shieldedKeysAndPaymentAddress?.spendingKey;
 
-    // TODO add types to this
-    // "NAM", "BTC", ...
-    const tokenType = sourceAccount.tokenType;
-    const tokenAddress = TRANSFER_CONFIGURATION.tokenAddresses[tokenType];
-    // if this is a shielding transfer, there is no shieldedKeysAndPaymentAddress
-    // in that case we just pass undefined
-    const shieldedTransaction = await createShieldedTransaction(
-      chainId,
-      spendingKey,
-      transferData.target,
-      transferData.amount,
-      tokenAddress
-    );
+  // Invoke extension integration
+  const anoma = new Anoma();
+  const signer = anoma.signer(chainId);
+  const encodedTx =
+    (await signer.encodeTransfer({
+      source: address,
+      target,
+      token,
+      amount,
+    })) || "";
 
-    // TODO get rid of these hacks, restructure the whole data model representing the transfer
-    // we set the source and target addresses to masp (shielded -> shielded)
-    const source = sourceAccount.shieldedKeysAndPaymentAddress
-      ? MASP_ADDRESS
-      : sourceAccount.establishedAddress || ""; // TODO: Fix data model so this "" isn't needed
+  const txProps = {
+    token,
+    epoch,
+    feeAmount,
+    gasLimit,
+    txCode,
+  };
 
-    const maspAddressOrEstablishedAddress = isShieldedAddress(target)
-      ? MASP_ADDRESS
-      : target; // TODO: Fix data model so this "" isn't needed
+  const { hash, bytes } =
+    (await signer.signTx(address, txProps, encodedTx)) || {};
 
-    // TODO remove this placeholder
-    if (sourceAccount.shieldedKeysAndPaymentAddress) {
-      transferData.privateKey =
-        "cf0805f7675f3a17db1769f12541449d53935f50dab8590044f8a4cd3454ec4f";
-    }
-
-    const transferDataWithMaspAddress = {
-      ...transferData,
-      source: source,
-      target: maspAddressOrEstablishedAddress,
-    };
-
-    // generate the transfer that contains the shielded transaction inside of it
-    const hashAndBytes = await transfer.makeShieldedTransfer({
-      ...transferDataWithMaspAddress,
-      shieldedTransaction,
-    });
-
-    return {
-      transferType: TransferType.Shielded,
-      transferHash: hashAndBytes.hash,
-      transferAsBytes: hashAndBytes.bytes,
-    };
-  } else {
-    const hashAndBytes = await transfer.makeTransfer(transferData);
+  if (hash && bytes) {
     return {
       transferType: TransferType.NonShielded,
-      transferHash: hashAndBytes.hash,
-      transferAsBytes: hashAndBytes.bytes,
+      transferHash: hash,
+      transferAsBytes: bytes,
     };
+  } else {
+    throw new Error("Invalid transaction!");
   }
+  /* const transfer = await new Transfer(txCode).init(); */
+  // ============================================================================
+  // TODO:
+  //
+  // The following must be updated to be supported by the extension!
+  // Any access to private keys need to be accessed only within the extension.
+  // Spending and Viewing keys should be accessible by the interface, and the
+  // hard-coded private key below must be removed. This can be replaced with
+  // a private signing key within the extension:
+  // ============================================================================
+  //
+  //
+  /* const { target } = transferData; */
+  /* if (isShieldedAddress(target) || isShieldedAccount(sourceAccount)) { */
+  /*   // if the transfer source is shielded */
+  /*   const spendingKey = */
+  /*     sourceAccount.shieldedKeysAndPaymentAddress?.spendingKey; */
+  /**/
+  /*   // TODO add types to this */
+  /*   // "NAM", "BTC", ... */
+  /*   const tokenType = sourceAccount.tokenType; */
+  /*   const tokenAddress = TRANSFER_CONFIGURATION.tokenAddresses[tokenType]; */
+  /*   // if this is a shielding transfer, there is no shieldedKeysAndPaymentAddress */
+  /*   // in that case we just pass undefined */
+  /*   const shieldedTransaction = await createShieldedTransaction( */
+  /*     chainId, */
+  /*     spendingKey, */
+  /*     transferData.target, */
+  /*     transferData.amount, */
+  /*     tokenAddress */
+  /*   ); */
+  /**/
+  /*   // TODO get rid of these hacks, restructure the whole data model representing the transfer */
+  /*   // we set the source and target addresses to masp (shielded -> shielded) */
+  /*   const source = sourceAccount.shieldedKeysAndPaymentAddress */
+  /*     ? MASP_ADDRESS */
+  /*     : sourceAccount.establishedAddress || ""; // TODO: Fix data model so this "" isn't needed */
+  /**/
+  /*   const maspAddressOrEstablishedAddress = isShieldedAddress(target) */
+  /*     ? MASP_ADDRESS */
+  /*     : target; // TODO: Fix data model so this "" isn't needed */
+  /**/
+  /*   // TODO remove this placeholder */
+  /*   if (sourceAccount.shieldedKeysAndPaymentAddress) { */
+  /*     transferData.privateKey = */
+  /*       "cf0805f7675f3a17db1769f12541449d53935f50dab8590044f8a4cd3454ec4f"; */
+  /*   } */
+  /**/
+  /*   const transferDataWithMaspAddress = { */
+  /*     ...transferData, */
+  /*     source: source, */
+  /*     target: maspAddressOrEstablishedAddress, */
+  /*   }; */
+  /**/
+  /*   // generate the transfer that contains the shielded transaction inside of it */
+  /*   const hashAndBytes = await transfer.makeShieldedTransfer({ */
+  /*     ...transferDataWithMaspAddress, */
+  /*     shieldedTransaction, */
+  /*   }); */
+  /**/
+  /*   return { */
+  /*     transferType: TransferType.Shielded, */
+  /*     transferHash: hashAndBytes.hash, */
+  /*     transferAsBytes: hashAndBytes.bytes, */
+  /*   }; */
+  /* } else { */
+
+  /* } */
 };
 
 export const actionTypes = {
@@ -270,11 +307,11 @@ export const actionTypes = {
 // shielded -> shielded
 // transparent -> shielded
 // shielded -> transparent
-// transparent -> transparente
+// transparent -> transparent
 export const submitTransferTransaction = createAsyncThunk(
   actionTypes.SUBMIT_TRANSFER_ACTION_TYPE,
   async (
-    txTransferArgs: WithNotification<TxTransferArgs | ShieldedTransferData>,
+    txTransferArgs: WithNotification<TxTransferArgs>,
     { dispatch, rejectWithValue, requestId }
   ) => {
     const {
@@ -283,16 +320,18 @@ export const submitTransferTransaction = createAsyncThunk(
       token: tokenType,
       amount,
       memo = "",
+      // TODO: What are reasonable defaults for this?
+      feeAmount = 1000,
+      // TODO: What are reasonable defaults for this?
+      gasLimit = 1000000,
       faucet,
       chainId,
       notify,
     } = txTransferArgs;
-    const { id, establishedAddress = "", signingKey: privateKey } = account;
 
-    const source = faucet || establishedAddress;
-
+    const { address } = account;
+    const source = faucet || address;
     const chainConfig = Config.chain[chainId];
-
     const { network } = chainConfig;
 
     const rpcClient = new RpcClient(network);
@@ -320,23 +359,31 @@ export const submitTransferTransaction = createAsyncThunk(
       source,
       target,
       token: token.address || "",
-      amount,
+      amount: amountToMicro(amount),
       epoch,
-      privateKey,
     };
 
     const createdTransfer = await createTransfer(
-      chainId,
       account,
-      transferData
+      transferData,
+      gasLimit,
+      feeAmount
     );
 
     const { transferHash, transferAsBytes, transferType } = createdTransfer;
-    const { promise, timeoutId } = promiseWithTimeout<NewBlockEvents>(
-      new Promise(async (resolve) => {
-        await socketClient.broadcastTx(transferAsBytes);
+    const { promise, timeoutId } = promiseWithTimeout<Events>(
+      new Promise(async (resolve, reject) => {
+        try {
+          await socketClient.broadcastTx(transferAsBytes);
+        } catch (e) {
+          return reject(
+            `Unable to broadcast transfer! ${
+              typeof e === "string" ? `Received: ${e}` : ""
+            }`
+          );
+        }
         const events = await socketClient.subscribeNewBlock(transferHash);
-        resolve(events);
+        return resolve(events);
       }),
       LEDGER_TRANSFER_TIMEOUT,
       `Async actions timed out when submitting Token Transfer after ${
@@ -353,19 +400,21 @@ export const submitTransferTransaction = createAsyncThunk(
     socketClient.disconnect();
     clearTimeout(timeoutId);
 
-    const code = events[TxResponse.Code][0];
-    const info = events[TxResponse.Info][0];
+    const code = events[TxResponse.Code];
+    const info = events[TxResponse.Info];
 
     if (code !== "0") {
       return rejectWithValue(info);
     }
 
-    const gas = amountFromMicro(parseInt(events[TxResponse.GasUsed][0]));
-    const appliedHash = events[TxResponse.Hash][0];
-    const height = parseInt(events[TxResponse.Height][0]);
+    const gas = amountFromMicro(parseInt(events[TxResponse.GasUsed]));
+    const appliedHash = events[TxResponse.Hash];
+    const height = parseInt(events[TxResponse.Height]);
 
-    dispatch(fetchBalanceByAccount(account));
-    dispatch(updateShieldedBalances());
+    dispatch(fetchBalanceByToken({ token: tokenType, account }));
+
+    // TODO: Re-enable the following!
+    /* dispatch(updateShieldedBalances()); */
 
     // TODO pass this as a callback from consumer as we might need different behaviors
     // history.push(
@@ -374,17 +423,14 @@ export const submitTransferTransaction = createAsyncThunk(
     //   )
     // );
     //
-    notify && dispatch(
-      notificationsActions.createToast(
-        getToast(
-          `${requestId}-fullfilled`,
-          Toasts.TransferCompleted
-        )({ gas: gas })
-      )
-    );
+    notify &&
+      dispatch(
+        notificationsActions.createToast(
+          getToast(`${requestId}-fullfilled`, Toasts.TransferCompleted)({ gas })
+        )
+      );
 
     return {
-      id,
       faucet,
       transaction: {
         chainId,
@@ -412,14 +458,17 @@ export const submitIbcTransferTransaction = createAsyncThunk(
       target,
       amount,
       memo = "",
-      feeAmount = 0,
+      // TODO: What are reasonable defaults for this?
+      feeAmount = 1000,
+      // TODO: What are reasonable defaults for this?
+      gasLimit = 1000000,
       channelId,
       portId,
       chainId,
     }: TxIbcTransferArgs,
     { rejectWithValue }
   ) => {
-    const { establishedAddress: source = "", signingKey: privateKey } = account;
+    const { address: source = "" } = account;
     const chainConfig = Config.chain[chainId] || {};
     const { url, port, protocol, wsProtocol } = chainConfig.network;
     const rpcConfig = new RpcConfig(url, port, protocol, wsProtocol);
@@ -433,24 +482,40 @@ export const submitIbcTransferTransaction = createAsyncThunk(
       return rejectWithValue(e);
     }
 
-    const txWasm = await fetchWasmCode(TxWasm.IBC);
-    const transfer = await new IBCTransfer(txWasm).init();
     const token = Tokens[tokenType];
+    const tokenAddress = token?.address ?? "";
+    const txCode = await fetchWasmCode(TxWasm.IBC);
 
-    const { hash, bytes } = await transfer.makeIbcTransfer({
-      source,
-      target,
-      token: token.address || "",
-      amount,
+    // Invoke extension integration
+    const anoma = new Anoma();
+    const signer = anoma.signer(chainId);
+    const encodedTx =
+      (await signer.encodeIbcTransfer({
+        sourcePort: portId,
+        sourceChannel: channelId,
+        sender: source,
+        receiver: target,
+        token: tokenAddress,
+        amount,
+      })) || "";
+
+    const txProps = {
+      token: tokenAddress,
       epoch,
-      privateKey,
-      portId,
-      channelId,
       feeAmount,
-    });
+      gasLimit,
+      txCode,
+    };
 
-    const { promise, timeoutId } = promiseWithTimeout<NewBlockEvents>(
+    const { hash, bytes } =
+      (await signer.signTx(source, txProps, encodedTx)) || {};
+
+    if (!hash || !bytes) {
+      throw new Error("Invalid transaction!");
+    }
+    const { promise, timeoutId } = promiseWithTimeout<Events>(
       new Promise(async (resolve) => {
+        // TODO: Bytes received should already be in base64 encoded!
         await socketClient.broadcastTx(bytes);
         const events = await socketClient.subscribeNewBlock(hash);
         resolve(events);
@@ -470,27 +535,27 @@ export const submitIbcTransferTransaction = createAsyncThunk(
     socketClient.disconnect();
     clearTimeout(timeoutId);
 
-    const code = events[TxResponse.Code][0];
-    const info = events[TxResponse.Info][0];
+    const code = events[TxResponse.Code];
+    const info = events[TxResponse.Info];
 
     if (code !== "0") {
       return rejectWithValue(info);
     }
 
     // Get transaction events
-    const gas = amountFromMicro(parseInt(events[TxResponse.GasUsed][0]));
-    const appliedHash = events[TxResponse.Hash][0];
-    const height = parseInt(events[TxResponse.Height][0]);
+    const gas = amountFromMicro(parseInt(events[TxResponse.GasUsed]));
+    const appliedHash = events[TxResponse.Hash];
+    const height = parseInt(events[TxResponse.Height]);
 
     // Get IBC events
-    const sourceChannel = events[IbcTxResponse.SourceChannel][0];
-    const sourcePort = events[IbcTxResponse.SourcePort][0];
-    const destinationChannel = events[IbcTxResponse.DestinationChannel][0];
-    const destinationPort = events[IbcTxResponse.DestinationPort][0];
-    const timeoutHeight = parseInt(events[IbcTxResponse.TimeoutHeight][0]);
-    const timeoutTimestamp = parseInt(
-      events[IbcTxResponse.TimeoutTimestamp][0]
-    );
+    const sourceChannel = events[IbcTxResponse.SourceChannel];
+    const sourcePort = events[IbcTxResponse.SourcePort];
+    const destinationChannel = events[IbcTxResponse.DestinationChannel];
+    const destinationPort = events[IbcTxResponse.DestinationPort];
+    const timeoutHeight = 0;
+    parseInt(events[IbcTxResponse.TimeoutHeight]);
+    const timeoutTimestamp = 0;
+    parseInt(events[IbcTxResponse.TimeoutTimestamp]);
 
     return {
       chainId,
@@ -556,7 +621,6 @@ const transfersSlice = createSlice({
       (
         state,
         action: PayloadAction<{
-          id: string;
           faucet: string | undefined;
           transaction: TransferTransaction;
         }>

@@ -27,15 +27,6 @@ export const Settings = (): JSX.Element => {
       </NavigationContainer>
 
       <SettingsContent>
-        {/* accounts button */}
-        <Button
-          onClick={() => navigate(TopLevelRoute.SettingsAccounts)}
-          variant={ButtonVariant.Contained}
-          style={{ minWidth: "50%" }}
-        >
-          Accounts
-        </Button>
-
         {/* wallet settings */}
         <Button
           onClick={() => navigate(TopLevelRoute.SettingsWalletSettings)}

@@ -30,7 +30,7 @@ export const TransferMsgSchema = new Map([
         ["token", "string"],
         ["amount", "u64"],
         ["key", { kind: "option", type: "string" }],
-        ["shielded_msg", { kind: "option", type: [] }],
+        ["shielded_msg", { kind: "option", type: ["u8"] }],
       ],
     },
   ],

@@ -6,6 +6,7 @@ import { KdfType, KeyStore } from "./types";
 type CryptoArgs = {
   alias?: string;
   address: string;
+  chainId: string;
   path: Bip44Path;
   id: string;
   password: string;
@@ -15,7 +16,7 @@ type CryptoArgs = {
 
 export class Crypto {
   public encrypt(args: CryptoArgs): KeyStore {
-    const { address, alias, path, id, password, text, type } = args;
+    const { address, alias, chainId, path, id, password, text, type } = args;
     const salt = Salt.generate().as_string();
     const { m_cost, t_cost, p_cost } = Argon2Config;
     const argon2Params = new Argon2Params(m_cost, t_cost, p_cost);
@@ -30,6 +31,7 @@ export class Crypto {
     return {
       alias,
       address,
+      chainId,
       id,
       path,
       crypto: {

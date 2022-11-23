@@ -1,14 +1,9 @@
-import { useEffect, useState } from "react";
-import { PersistGate } from "redux-persist/integration/react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Persistor } from "redux-persist/lib/types";
 
-import { useAppDispatch, useAppSelector } from "store";
-import {
-  AccountsState,
-  submitInitAccountTransaction,
-  addAccount,
-} from "slices/accounts";
+import { Anoma } from "@anoma/integrations";
+import { useAppSelector, useAppDispatch } from "store";
+import { AccountsState, addAccounts } from "slices/accounts";
 import { SettingsState } from "slices/settings";
 import { TopLevelRoute } from "App/types";
 
@@ -20,6 +15,7 @@ import {
   AccountOverviewContent,
   AccountTab,
   AccountTabsContainer,
+  ButtonsContainer,
   ButtonsWrapper,
   HeadingContainer,
   NoAccountsContainer,
@@ -29,155 +25,100 @@ import {
   TotalContainer,
   TotalHeading,
 } from "./AccountOverview.components";
-import { ButtonsContainer } from "App/AccountCreation/Steps/Completion/Completion.components";
-import Config from "config";
-import { Wallet } from "@anoma/wallet";
-import { Session } from "@anoma/session";
 import { formatCurrency } from "@anoma/utils";
 
-type Props = {
-  password: string;
-  persistor: Persistor;
-};
-
-export const AccountOverview = ({
-  persistor,
-  password,
-}: Props): JSX.Element => {
+export const AccountOverview = (): JSX.Element => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const [isExtensionConnected, setIsExtensionConnected] = useState(false);
+  const [isConnectingToExtension, setIsConnectingToExtension] = useState(false);
 
-  const { derived, shieldedAccounts } = useAppSelector<AccountsState>(
-    (state) => state.accounts
-  );
+  const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
 
   const { chainId, fiatCurrency } = useAppSelector<SettingsState>(
     (state) => state.settings
   );
-  const { faucet, accountIndex } = Config.chain[chainId] || {};
-
   const [total, setTotal] = useState(0);
-  const [runCreateAccount, setRunCreateAccount] = useState(false);
 
-  const derivedAccounts = derived[chainId] || {};
-  const accounts = Object.values(derivedAccounts);
-
-  useEffect(() => {
-    // If a faucet is defined for this chain, run the account
-    // create process (which will detect if any accounts are
-    // available, then create one if not):
-    if (faucet) {
-      setRunCreateAccount(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    // If there are no accounts for this chain, and a faucet is defined,
-    // create one now:
-    if (runCreateAccount && accounts.length === 0 && faucet) {
-      (async () => {
-        const mnemonic = await Session.getSeed(password);
-        const wallet = await new Wallet(mnemonic || "", "NAM").init();
-        const account = wallet.deriveChildAccount(accountIndex, 0);
-        const { public: publicKey, secret: signingKey, wif: address } = account;
-
-        dispatch(
-          addAccount({
-            address,
-            alias: "Namada",
-            chainId,
-            publicKey,
-            signingKey,
-            tokenType: "NAM",
-            isInitial: true,
-          })
-        );
-      })();
-      // NOTE: This can occur when a new config is pushed to an existing app
-      // containing new chain definitions, as they didn't exist during the
-      // initial account creation process.
-    }
-  }, [chainId, accounts, runCreateAccount]);
-
-  // Collect uninitialized transparent accounts
-  const uninitializedAccounts = accounts.filter(
-    (account) => !account.establishedAddress && !account.isInitializing
-  );
-
-  useEffect(() => {
-    // Initialize accounts sequentially
-    // Each rerender will initialize the next in this batch
-    if (uninitializedAccounts.length > 0) {
-      const account = uninitializedAccounts[0];
-      // Attempt to initialize unless a previous attempt failed
-      if (!account.accountInitializationError) {
-        dispatch(submitInitAccountTransaction(account));
+  const handleConnectExtension = async (): Promise<void> => {
+    try {
+      const anoma = new Anoma();
+      if (anoma.detect()) {
+        setIsConnectingToExtension(true);
+        await anoma.connect();
+        const accounts = await anoma.fetchAccounts();
+        if (accounts) {
+          dispatch(addAccounts(accounts));
+        }
+        setIsExtensionConnected(true);
       }
+    } catch (e) {
+      setIsExtensionConnected(false);
+      setIsConnectingToExtension(false);
     }
-  }, [uninitializedAccounts]);
+  };
 
   return (
     <AccountOverviewContainer>
-      <PersistGate loading={"Loading accounts..."} persistor={persistor}>
-        <AccountTabsContainer>
-          <AccountTab className={"active"}>Fungible</AccountTab>
-          <AccountTab className={"disabled"}>Non-Fungible</AccountTab>
-        </AccountTabsContainer>
-        <AccountOverviewContent>
-          <HeadingContainer>
-            <div>
-              <Heading level={HeadingLevel.Four}>Your wallet</Heading>
-              <TotalHeading>
-                <Heading level={HeadingLevel.One}>Total Balance</Heading>
-              </TotalHeading>
-            </div>
-            <TotalContainer>
-              {(derived[chainId] || shieldedAccounts[chainId]) && (
-                <TotalAmount>
-                  <TotalAmountFiat>{fiatCurrency}</TotalAmountFiat>
-                  <TotalAmountValue>
-                    {formatCurrency(fiatCurrency, total)}
-                  </TotalAmountValue>
-                </TotalAmount>
-              )}
-            </TotalContainer>
-          </HeadingContainer>
+      <AccountTabsContainer>
+        <AccountTab className={"active"}>Fungible</AccountTab>
+        <AccountTab className={"disabled"}>Non-Fungible</AccountTab>
+      </AccountTabsContainer>
+      <AccountOverviewContent>
+        <HeadingContainer>
+          <div>
+            <Heading level={HeadingLevel.Four}>Your wallet</Heading>
+            <TotalHeading>
+              <Heading level={HeadingLevel.One}>Total Balance</Heading>
+            </TotalHeading>
+          </div>
+          <TotalContainer>
+            {derived[chainId] && (
+              <TotalAmount>
+                <TotalAmountFiat>{fiatCurrency}</TotalAmountFiat>
+                <TotalAmountValue>
+                  {formatCurrency(fiatCurrency, total)}
+                </TotalAmountValue>
+              </TotalAmount>
+            )}
+          </TotalContainer>
+        </HeadingContainer>
 
-          {derived[chainId] || shieldedAccounts[chainId] ? (
-            <ButtonsContainer>
-              <ButtonsWrapper>
-                <Button
-                  variant={ButtonVariant.Contained}
-                  onClick={() => navigate(TopLevelRoute.TokenSend)}
-                >
-                  Send
-                </Button>
-                <Button
-                  variant={ButtonVariant.Contained}
-                  onClick={() => navigate(TopLevelRoute.TokenReceive)}
-                >
-                  Receive
-                </Button>
-              </ButtonsWrapper>
-            </ButtonsContainer>
-          ) : (
-            <div />
-          )}
-          {!derived[chainId] && !shieldedAccounts[chainId] && (
-            <NoAccountsContainer>
-              <p>You have no accounts on this chain!</p>
-
+        {derived[chainId] ? (
+          <ButtonsContainer>
+            <ButtonsWrapper>
               <Button
                 variant={ButtonVariant.Contained}
-                onClick={() => navigate(TopLevelRoute.WalletAddAccount)}
+                onClick={() => navigate(TopLevelRoute.TokenSend)}
               >
-                Create an Account
+                Send
               </Button>
-            </NoAccountsContainer>
-          )}
-          <DerivedAccounts setTotal={setTotal} />
-        </AccountOverviewContent>
-      </PersistGate>
+              <Button
+                variant={ButtonVariant.Contained}
+                onClick={() => navigate(TopLevelRoute.TokenReceive)}
+              >
+                Receive
+              </Button>
+            </ButtonsWrapper>
+          </ButtonsContainer>
+        ) : (
+          <div />
+        )}
+        {!derived[chainId] && (
+          <NoAccountsContainer>
+            {!isExtensionConnected && (
+              <Button
+                variant={ButtonVariant.Contained}
+                onClick={handleConnectExtension}
+                loading={isConnectingToExtension}
+              >
+                Connect to Extension
+              </Button>
+            )}
+          </NoAccountsContainer>
+        )}
+        <DerivedAccounts setTotal={setTotal} />
+      </AccountOverviewContent>
     </AccountOverviewContainer>
   );
 };

@@ -1,14 +1,14 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Account } from "@anoma/types";
 
 import { RpcClient } from "@anoma/rpc";
 import { Symbols, Tokens, TokenType } from "@anoma/tx";
 
 import Config from "config";
-import { DerivedAccount } from "./accounts";
 
 type Balance = {
   chainId: string;
-  accountId: string;
+  address: string;
   token: TokenType;
   balance: number;
 };
@@ -16,11 +16,6 @@ type Balance = {
 const BALANCES_ACTIONS_BASE = "balances";
 export type BalanceByToken = Record<string, number>;
 export type BalancesState = Record<string, Record<string, BalanceByToken>>;
-
-type FetchBalancesResults = {
-  chainId: string;
-  balancesByAccount: Record<string, BalanceByToken>;
-};
 
 const initialState: BalancesState = {};
 enum BalancesThunkActions {
@@ -30,26 +25,20 @@ enum BalancesThunkActions {
 
 export const fetchBalanceByToken = createAsyncThunk(
   `${BALANCES_ACTIONS_BASE}/${BalancesThunkActions.FetchBalanceByToken}`,
-  async (args: {
-    chainId: string;
-    token: TokenType;
-    account: DerivedAccount;
-  }) => {
+  async (args: { token: TokenType; account: Account }) => {
     const { token, account } = args;
 
-    const { chainId, id: accountId, establishedAddress } = account;
+    const { chainId, address } = account;
     const chainConfig = Config.chain[chainId];
     const rpcClient = new RpcClient(chainConfig.network);
     const { address: tokenAddress = "" } = Tokens[token];
 
-    const balance = establishedAddress
-      ? await rpcClient.queryBalance(tokenAddress, establishedAddress)
-      : 0;
+    const balance = await rpcClient.queryBalance(tokenAddress, address);
 
     return {
       token,
       chainId,
-      accountId,
+      address,
       balance: Math.max(balance, 0),
     };
   }
@@ -57,27 +46,26 @@ export const fetchBalanceByToken = createAsyncThunk(
 
 export const fetchBalances = createAsyncThunk(
   `${BALANCES_ACTIONS_BASE}/${BalancesThunkActions.FetchBalanceByAccounts}`,
-  async (args: { chainId: string; accounts: DerivedAccount[] }) => {
-    const { chainId, accounts } = args;
-
+  async (accounts: Account[]) => {
     const balances = await Promise.all(
       accounts.map(async (account) => {
-        const { chainId, id: accountId, establishedAddress } = account;
+        const { chainId, address } = account;
         const chainConfig = Config.chain[chainId];
         const rpcClient = new RpcClient(chainConfig.network);
 
-        const results = await Promise.all(
+        const results: Balance[] = await Promise.all(
           Symbols.map(async (token) => {
             const { address: tokenAddress = "" } = Tokens[token];
-
-            const balance = establishedAddress
-              ? await rpcClient.queryBalance(tokenAddress, establishedAddress)
-              : 0;
-
+            let balance: number;
+            try {
+              balance = await rpcClient.queryBalance(tokenAddress, address);
+            } catch (e) {
+              balance = 0;
+            }
             return {
               token,
               chainId,
-              accountId,
+              address,
               balance: Math.max(balance, 0),
             };
           })
@@ -87,28 +75,7 @@ export const fetchBalances = createAsyncThunk(
       })
     );
 
-    const balancesByAccount = balances.reduce(
-      (acc: Record<string, BalanceByToken>, balances) => {
-        balances.forEach((balanceByToken) => {
-          const { accountId, token, balance } = balanceByToken;
-
-          if (!acc[accountId]) {
-            acc[accountId] = {};
-          }
-          if (!acc[accountId][token]) {
-            acc[accountId][token] = balance;
-          }
-        });
-
-        return acc;
-      },
-      {}
-    );
-
-    return {
-      chainId,
-      balancesByAccount,
-    };
+    return balances;
   }
 );
 
@@ -117,56 +84,58 @@ const balancesSlice = createSlice({
   initialState,
   reducers: {
     updateBalance: (state, action: PayloadAction<Balance>) => {
-      const { chainId, accountId, token, balance } = action.payload;
+      const { chainId, address, token, balance } = action.payload;
 
       if (!state[chainId]) {
         state[chainId] = {};
       }
 
-      if (!state[chainId][accountId]) {
-        state[chainId][accountId] = {};
+      if (!state[chainId][address]) {
+        state[chainId][address] = {};
       }
 
-      state[chainId][accountId][token] = balance;
+      state[chainId][address][token] = balance;
     },
   },
   extraReducers: (builder) => {
     builder.addCase(
       fetchBalanceByToken.fulfilled,
       (state, action: PayloadAction<Balance>) => {
-        const { chainId, accountId, token, balance } = action.payload;
+        const { chainId, address, token, balance } = action.payload;
 
-        // Perhaps this isn't needed?
         if (!state[chainId]) {
           state[chainId] = {};
         }
 
-        if (!state[chainId][accountId]) {
-          state[chainId][accountId] = {};
+        if (!state[chainId][address]) {
+          state[chainId][address] = {};
         }
 
-        state[chainId][accountId][token] = balance;
+        state[chainId][address][token] = balance;
       }
-    ),
-      builder.addCase(
-        fetchBalances.fulfilled,
-        (state, action: PayloadAction<FetchBalancesResults>) => {
-          const { chainId, balancesByAccount } = action.payload;
+    );
+    builder.addCase(
+      fetchBalances.fulfilled,
+      (state, action: PayloadAction<Balance[][]>) => {
+        const result = action.payload;
 
-          const accountIds = Object.keys(balancesByAccount);
+        result.forEach((balances) => {
+          balances.forEach((tokenBalance) => {
+            const { chainId, address, token, balance } = tokenBalance;
 
-          if (!state[chainId]) {
-            state[chainId] = {};
-          }
-
-          accountIds.forEach((accountId) => {
-            if (!state[chainId][accountId]) {
-              state[chainId][accountId] = {};
+            if (!state[chainId]) {
+              state[chainId] = {};
             }
-            state[chainId][accountId] = balancesByAccount[accountId];
+
+            if (!state[chainId][address]) {
+              state[chainId][address] = {};
+            }
+
+            state[chainId][address][token] = balance;
           });
-        }
-      );
+        });
+      }
+    );
   },
 });
 

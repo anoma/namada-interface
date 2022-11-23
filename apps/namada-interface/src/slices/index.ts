@@ -1,11 +1,4 @@
-export {
-  default as accountsReducer,
-  addAccount,
-  removeAccount,
-  renameAccount,
-  setEstablishedAddress,
-  fetchBalanceByAccount,
-} from "./accounts";
+export { default as accountsReducer } from "./accounts";
 export { default as balancesReducer } from "./balances";
 export { default as transfersReducer } from "./transfers";
 export { default as channelsReducer } from "./channels";
