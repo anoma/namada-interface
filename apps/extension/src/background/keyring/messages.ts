@@ -1,5 +1,5 @@
 import { PhraseSize } from "@anoma/crypto";
-import { Bip44Path, DerivedAccount } from "@anoma/types";
+import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
 import { Message } from "router";
 import { ROUTE } from "./constants";
 import { KeyRingStatus } from "./types";
@@ -12,6 +12,7 @@ enum MessageType {
   GenerateMnemonic = "generate-mnemonic",
   SaveMnemonic = "save-mnemonic",
   DeriveAccount = "derive-account",
+  DeriveShieldedAccount = "derive-shielded-account",
 }
 
 export class CheckIsLockedMsg extends Message<boolean> {
@@ -172,11 +173,18 @@ export class DeriveAccountMsg extends Message<DerivedAccount> {
     return MessageType.DeriveAccount;
   }
 
-  constructor(public readonly path: Bip44Path, public readonly alias?: string) {
+  constructor(
+    public readonly path: Bip44Path,
+    public readonly accountType: AccountType,
+    public readonly alias?: string
+  ) {
     super();
   }
 
   validate(): void {
+    if (!this.accountType) {
+      throw new Error("An account type is required!");
+    }
     if (!this.path) {
       throw new Error("A Bip44Path object must be provided!");
     }

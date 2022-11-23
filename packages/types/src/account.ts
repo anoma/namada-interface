@@ -4,9 +4,14 @@ export type Bip44Path = {
   index?: number;
 };
 
+// Type of account for storage
 export enum AccountType {
+  // A stored mnemonic phrase
   Mnemonic = "mnemonic",
+  // A stored private key
   PrivateKey = "private-key",
+  // Stored, stringified spending and viewing keys
+  ShieldedKeys = "shielded-keys",
 }
 
 export type DerivedAccount = {

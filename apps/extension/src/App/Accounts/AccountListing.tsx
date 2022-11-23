@@ -15,7 +15,7 @@ import { shortenAddress } from "@anoma/utils";
 import { TopLevelRoute } from "App/types";
 
 type Props = {
-  // The parent Bip44 "account"
+  // The parent BIP44/ZIP32 "account"
   parent?: number;
   // The child account
   account: DerivedAccount;
@@ -28,8 +28,14 @@ const textToClipboard = (content: string): void => {
 
 const formatDerivationPath = (
   isChildAccount: boolean,
-  { account, change, index = 0 }: Bip44Path
-): string => (isChildAccount ? `/${account}'/${change}/${index}` : "");
+  { account, change, index = 0 }: Bip44Path,
+  type: AccountType
+): string =>
+  isChildAccount
+    ? `/${account}'/${
+        type === AccountType.PrivateKey ? `${change}/` : ""
+      }${index}`
+    : "";
 
 const AccountListing = ({ account, parentAlias }: Props): JSX.Element => {
   const { address, alias, path, type } = account;
@@ -41,7 +47,7 @@ const AccountListing = ({ account, parentAlias }: Props): JSX.Element => {
       <Details>
         <DerivationPath>
           {isChildAccount && parentAlias}{" "}
-          {formatDerivationPath(isChildAccount, path)}
+          {formatDerivationPath(isChildAccount, path, type)}
         </DerivationPath>
         {alias && <Alias>{alias}</Alias>}
         <Address>{shortenAddress(address)}</Address>

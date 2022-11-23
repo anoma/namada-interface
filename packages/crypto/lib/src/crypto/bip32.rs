@@ -1,6 +1,5 @@
 use bip32::{Prefix, XPrv};
 use thiserror::Error;
-
 use wasm_bindgen::prelude::*;
 
 #[derive(Debug, Error)]
@@ -15,11 +14,6 @@ pub enum HDWalletError {
     InvalidKeySize,
     #[error("Invalid seed length")]
     InvalidSeed,
-}
-
-#[wasm_bindgen]
-pub struct HDWallet {
-    seed: [u8; 64],
 }
 
 #[wasm_bindgen]
@@ -123,6 +117,11 @@ impl ExtendedKeypair {
     pub fn public (&self) -> Vec<u8> {
         self.xpub.clone()
     }
+}
+
+#[wasm_bindgen]
+pub struct HDWallet {
+    seed: [u8; 64],
 }
 
 /// A set of methods to derive keys from a BIP32/BIP44 path

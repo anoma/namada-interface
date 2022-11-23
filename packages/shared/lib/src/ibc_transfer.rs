@@ -11,7 +11,6 @@ use namada::ibc::{
 };
 use namada::ibc_proto::cosmos::base::v1beta1::Coin;
 use namada::types::token;
-
 use core::ops::Add;
 use core::time::Duration;
 use serde::{Deserialize, Serialize};
@@ -20,7 +19,6 @@ use std::str::FromStr;
 use gloo_utils::format::JsValueSerdeExt;
 use prost::Message;
 use prost_types::Any;
-
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -43,8 +41,7 @@ pub struct IbcTransfer {
 #[wasm_bindgen]
 impl IbcTransfer {
     #[wasm_bindgen(constructor)]
-    pub fn new(msg: Vec<u8>) -> Result<IbcTransfer, String> {
-        let msg: &[u8] = &msg;
+    pub fn new(msg: &[u8]) -> Result<IbcTransfer, String> {
         let msg = BorshDeserialize::try_from_slice(msg)
             .map_err(|err| format!("BorshDeserialize failed! {:?}", err))?;
 
@@ -130,7 +127,7 @@ mod tests {
         let msg_serialized = BorshSerialize::try_to_vec(&msg)
             .expect("Message should serialize");
 
-        let IbcTransfer { tx_data } = IbcTransfer::new(msg_serialized)
+        let IbcTransfer { tx_data } = IbcTransfer::new(&msg_serialized)
             .expect("IbcTransfer should instantiate");
 
         assert_eq!(tx_data.len(), 342);

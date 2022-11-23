@@ -11,10 +11,26 @@ import {
   Salt,
   Scrypt,
   ScryptParams,
+  ShieldedHDWallet,
 } from "../crypto/crypto";
 
 const KEY_LENGTH = 32;
 const SEED_LENGTH = 64;
+const SHIELDED_KEY_LENGTH = 96;
+const MNEMONIC_WORDS = [
+  "odor",
+  "panic",
+  "bar",
+  "rotate",
+  "answer",
+  "settle",
+  "champion",
+  "act",
+  "excite",
+  "family",
+  "arrow",
+  "season",
+];
 
 describe("Mnemonic", () => {
   test("It should return the correct number of words", () => {
@@ -22,35 +38,87 @@ describe("Mnemonic", () => {
     let words = mnemonic?.to_words();
     expect(words.length).toBe(12);
 
-    mnemonic = new Mnemonic(PhraseSize.N12);
+    mnemonic = new Mnemonic(PhraseSize.N24);
     words = mnemonic.to_words();
 
     expect(words.length).toBe(24);
   });
 
   test("It should return a seed with a valid length", () => {
-    const mnemonic = new Mnemonic(PhraseSize.N12);
-    const seed = mnemonic.to_seed();
+    const mnemonic12 = new Mnemonic(PhraseSize.N12);
+    const seed = mnemonic12.to_seed();
+    const mnemonic24 = new Mnemonic(PhraseSize.N24);
+    const seed2 = mnemonic24.to_seed();
 
     expect(seed.length).toBe(SEED_LENGTH);
+    expect(seed2.length).toBe(SEED_LENGTH);
   });
 });
 
 describe("HDWallet", () => {
-  test("It should derive unique keys from a seed and a path", () => {
-    const m = new Mnemonic(PhraseSize.N12);
+  test("It should restore keys from a mnemonic and a path", () => {
+    const m = Mnemonic.from_phrase(MNEMONIC_WORDS.join(" "));
     const seed = m.to_seed();
     const b = new HDWallet(seed);
 
-    const account1 = b.derive("m/44/0/0/0");
+    // /44' - Purpose
+    // /1' - Testnet (all tokens)
+    // /0' - Account 0'
+    // /0 - Change (External)
+    const rootPath = "m/44'/1'/0'/0";
+    const root = b.derive(rootPath);
+    const expectedRootPk =
+      "e97a9774b7102c139e778a3793c748660512f9f03a0cd2cef8f4181fd9bcd933";
+    const expectedRootPub =
+      "86ec1457c9eedcb469fc2d381d5e20215abade64f41f061aca2bf93d445ad31a";
+
+    expect(root.private().to_bytes().length).toBe(KEY_LENGTH);
+    expect(root.public().to_bytes().length).toBe(KEY_LENGTH);
+    expect(root.private().to_hex()).toBe(expectedRootPk);
+    expect(root.public().to_hex()).toBe(expectedRootPub);
+
+    // Account 1: m/44'/1'/0'/0/0
+    const account1 = b.derive(`${rootPath}/0`);
+    const expectedAccount1Pk =
+      "f90691f142f5a967ade596645aec7924275f3a06978cb832e2fc80e4627fccaa";
+    const expectedAccount1Pub =
+      "68eacaf3518adb1f9e3c7669a495893615d0c47a748c25b462302817ca3fff39";
 
     expect(account1.private().to_bytes().length).toBe(KEY_LENGTH);
     expect(account1.public().to_bytes().length).toBe(KEY_LENGTH);
+    expect(account1.private().to_hex()).toBe(expectedAccount1Pk);
+    expect(account1.public().to_hex()).toBe(expectedAccount1Pub);
 
-    const account2 = b.derive("m/44/0/0/1");
+    // Account2: m/44'/1'/0'/0/1
+    const account2 = b.derive(`${rootPath}/1`);
+    const expectedAccount2Pk =
+      "a3e35ef25a2a90f7d8d9f0e4db679d5099ff0992dc1735c7ef4027a6220f934b";
+    const expectedAccount2Pub =
+      "f99b467f2d4f3a59ccab3d86bd9c62436959687655cff56a393a88f70f49434d";
+    expect(account2.private().to_bytes().length).toBe(KEY_LENGTH);
+    expect(account2.public().to_bytes().length).toBe(KEY_LENGTH);
+    expect(account2.private().to_hex()).toBe(expectedAccount2Pk);
+    expect(account2.public().to_hex()).toBe(expectedAccount2Pub);
+  });
+});
 
-    expect(account2.private().to_hex()).not.toBe(account1.private().to_hex());
-    expect(account2.public().to_hex()).not.toBe(account1.public().to_hex());
+describe("ShieldedHDWallet", () => {
+  test("It should restore keys from a mnemonic and child indices", () => {
+    const m = Mnemonic.from_phrase(MNEMONIC_WORDS.join(" "));
+    const seed = m.to_seed();
+    const b = new ShieldedHDWallet(seed);
+
+    const master = b.master_keys();
+    const account1 = b.derive(1);
+    const account2 = b.derive(2);
+
+    expect(master.expsk().length).toBe(SHIELDED_KEY_LENGTH);
+    expect(master.fvk().length).toBe(SHIELDED_KEY_LENGTH);
+    expect(account1.expsk().length).toBe(SHIELDED_KEY_LENGTH);
+    expect(account1.fvk().length).toBe(SHIELDED_KEY_LENGTH);
+    expect(master.expsk()).not.toEqual(account1.expsk());
+    expect(account1.expsk()).not.toEqual(account2.expsk());
+    expect(account1.fvk()).not.toEqual(account2.fvk());
   });
 });
 

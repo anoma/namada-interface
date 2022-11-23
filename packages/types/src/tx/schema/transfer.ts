@@ -6,12 +6,16 @@ export class TransferMsgValue {
   target: string;
   token: string;
   amount: BN;
+  key?: string;
+  shielded_msg?: Uint8Array;
 
   constructor(properties: TransferProps) {
     this.source = properties.source;
     this.target = properties.target;
     this.token = properties.token;
     this.amount = new BN(properties.amount, 64);
+    this.key = properties.key;
+    this.shielded_msg = properties.shielded;
   }
 }
 
@@ -25,6 +29,8 @@ export const TransferMsgSchema = new Map([
         ["target", "string"],
         ["token", "string"],
         ["amount", "u64"],
+        ["key", { kind: "option", type: "string" }],
+        ["shielded_msg", { kind: "option", type: [] }],
       ],
     },
   ],

@@ -136,7 +136,7 @@ describe("IbcTransfer", () => {
 });
 
 describe("Transfer", () => {
-  test("It should create valid hash and bytes", () => {
+  test("It should create valid hash and bytes for Transparent Transfer", () => {
     const transferMsgValue = new TransferMsgValue({
       source,
       target,
@@ -159,6 +159,6 @@ describe("Transfer", () => {
 
     expect(hash.length).toEqual(HASH_LENGTH);
     // Assert that we get a byte array of the expected size
-    expect(bytes.length).toEqual(596);
+    expect(bytes.length).toEqual(598);
   });
 });

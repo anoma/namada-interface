@@ -1,5 +1,6 @@
 import { AES, Argon2, Argon2Params, ByteSize, Rng, Salt } from "@anoma/crypto";
 import { AccountType, Bip44Path } from "@anoma/types";
+import { Argon2Config } from "config";
 import { KdfType, KeyStore } from "./types";
 
 type CryptoArgs = {
@@ -16,7 +17,9 @@ export class Crypto {
   public encrypt(args: CryptoArgs): KeyStore {
     const { address, alias, path, id, password, text, type } = args;
     const salt = Salt.generate().as_string();
-    const argon2 = new Argon2(password, salt);
+    const { m_cost, t_cost, p_cost } = Argon2Config;
+    const argon2Params = new Argon2Params(m_cost, t_cost, p_cost);
+    const argon2 = new Argon2(password, salt, argon2Params);
     const { params, key } = argon2.to_serialized();
 
     const iv = Rng.generate_bytes(ByteSize.N12);

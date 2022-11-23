@@ -99,3 +99,11 @@ export const ButtonsContainer = styled.div`
     flex: 1;
   }
 `;
+
+export const ShieldedToggleContainer = styled.div`
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 4px 0 0;
+`;

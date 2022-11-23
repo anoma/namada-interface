@@ -10,7 +10,6 @@ use borsh::{BorshSerialize, BorshDeserialize};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 use gloo_utils::format::JsValueSerdeExt;
-
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -30,10 +29,9 @@ impl Account {
     /// Create an init-account struct
     #[wasm_bindgen(constructor)]
     pub fn new(
-        msg: Vec<u8>,
+        msg: &[u8],
         secret: &str,
     ) -> Result<Account, String> {
-        let msg: &[u8] = &msg;
         let msg = BorshDeserialize::try_from_slice(msg)
             .map_err(|err| format!("BorshDeserialize failed! {:?}", err))?;
         let AccountMsg { vp_code } = msg;
@@ -80,7 +78,7 @@ mod tests {
         let msg_serialized = BorshSerialize::try_to_vec(&msg)
             .expect("Message should serialize to vector");
 
-        let Account { tx_data } = Account::new(msg_serialized, secret)
+        let Account { tx_data } = Account::new(&msg_serialized, secret)
             .expect("Should be able to create an Account from serialized message");
 
         assert_eq!(tx_data.len(), 37);

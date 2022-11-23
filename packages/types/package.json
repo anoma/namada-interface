@@ -4,13 +4,24 @@
   "description": "Types related to the Anoma Extension",
   "main": "src/index.ts",
   "repository": "https://github.com/anoma/namada-interface/",
-  "author": "Heliax Dev <info@heliax.dev>",
+  "author": "Heliax AG <hello@heliax.dev>",
   "license": "MIT",
   "private": false,
+  "scripts": {
+    "lint": "npx eslint src --ext .ts",
+    "lint:fix": "yarn lint -- --fix"
+  },
   "dependencies": {
-    "@types/bn.js": "^5.1.1",
     "bn.js": "^5.2.1",
     "borsh": "^0.7.0",
     "typescript": "^4.8.4"
+  },
+  "devDependencies": {
+    "@types/bn.js": "^5.1.1",
+    "eslint": "^8.25.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-typescript": "^3.5.1",
+    "eslint-plugin-import": "^2.26.0"
   }
 }

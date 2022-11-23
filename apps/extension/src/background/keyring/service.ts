@@ -1,7 +1,7 @@
 import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import { PhraseSize } from "@anoma/crypto";
 import { KVStore } from "@anoma/storage";
-import { Bip44Path, DerivedAccount, SignedTx } from "@anoma/types";
+import { AccountType, Bip44Path, DerivedAccount, SignedTx } from "@anoma/types";
 import { KeyRing } from "./keyring";
 import { KeyRingStatus, KeyStore } from "./types";
 import { IbcTransfer, Transfer } from "@anoma/shared";
@@ -41,16 +41,17 @@ export class KeyRingService {
   async saveMnemonic(
     words: string[],
     password: string,
-    description?: string
+    alias?: string
   ): Promise<boolean> {
-    return await this._keyRing.storeMnemonic(words, password, description);
+    return await this._keyRing.storeMnemonic(words, password, alias);
   }
 
   async deriveAccount(
     path: Bip44Path,
-    description?: string
+    type: AccountType,
+    alias?: string
   ): Promise<DerivedAccount> {
-    return await this._keyRing.deriveAccount(path, description);
+    return await this._keyRing.deriveAccount(path, type, alias);
   }
 
   async queryAccounts(): Promise<DerivedAccount[]> {
