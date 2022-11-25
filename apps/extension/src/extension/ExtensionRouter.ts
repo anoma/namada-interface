@@ -1,4 +1,3 @@
-import browser from "webextension-polyfill";
 import { getAnomaRouterId } from "./utils";
 import {
   EnvProducer,
@@ -7,9 +6,15 @@ import {
   RoutedMessage,
   Router,
 } from "router";
+import { KVStore } from "@anoma/storage";
+import { Messenger } from "./ExtensionMessenger";
 
 export class ExtensionRouter extends Router {
-  constructor(envProducer: EnvProducer) {
+  constructor(
+    envProducer: EnvProducer,
+    private readonly messenger: Messenger,
+    private readonly store: KVStore<number>
+  ) {
     super(envProducer);
   }
 
@@ -20,12 +25,12 @@ export class ExtensionRouter extends Router {
 
     console.info(`Listening on port ${port}`);
     this.port = port;
-    browser.runtime.onMessage.addListener(this.onMessage);
+    this.messenger.addListener(this.onMessage);
   }
 
   unlisten(): void {
     this.port = "";
-    browser.runtime.onMessage.removeListener(this.onMessage);
+    this.messenger.removeListener(this.onMessage);
   }
 
   protected onMessage = async (
@@ -38,7 +43,7 @@ export class ExtensionRouter extends Router {
 
     if (
       message.msg?.meta?.routerId &&
-      message.msg.meta.routerId !== (await getAnomaRouterId())
+      message.msg.meta.routerId !== (await getAnomaRouterId(this.store))
     ) {
       return;
     }

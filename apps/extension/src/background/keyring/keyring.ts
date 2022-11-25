@@ -58,7 +58,7 @@ export class KeyRing {
   private _status: KeyRingStatus = KeyRingStatus.Empty;
 
   constructor(
-    protected readonly kvStore: KVStore<KeyStore>,
+    protected readonly kvStore: KVStore<KeyStore[]>,
     protected readonly chainId: string = chains[0].chainId
   ) {
     this._keyStore = new Store(KEYSTORE_KEY, kvStore);

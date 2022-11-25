@@ -1,6 +1,6 @@
 export interface KVStore<T> {
-  get(key: string): Promise<T[] | undefined>;
-  set(key: string, data: T[] | null): Promise<void>;
+  get(key: string): Promise<T | undefined>;
+  set(key: string, data: T | null): Promise<void>;
   prefix(): string;
 }
 
