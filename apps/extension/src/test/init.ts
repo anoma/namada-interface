@@ -1,5 +1,4 @@
 import { KVStore } from "@anoma/storage";
-import { Chain } from "@anoma/types";
 
 import {
   ExtensionRouter,
@@ -15,6 +14,7 @@ import {
   KeyStore,
 } from "../background/keyring";
 import { Anoma } from "provider";
+import { Chain } from "@anoma/types";
 
 class KVStoreMock<T> implements KVStore<T> {
   private storage: { [key: string]: T | null } = {};
@@ -35,13 +35,13 @@ class KVStoreMock<T> implements KVStore<T> {
 
 export const init = (): {
   anoma: Anoma;
-  iDBStore: KVStoreMock<any>;
-  extStore: KVStoreMock<unknown>;
+  iDBStore: KVStoreMock<Chain[] | KeyStore[]>;
+  extStore: KVStoreMock<number>;
 } => {
   const messenger = new ExtensionMessengerMock();
 
   // TODO: any for now - needs a change to KVStore interface
-  const iDBStore = new KVStoreMock<any>(KVPrefix.IndexedDB);
+  const iDBStore = new KVStoreMock<Chain[] | KeyStore[]>(KVPrefix.IndexedDB);
   const extStore = new KVStoreMock<number>(KVPrefix.IndexedDB);
   const requester = new ExtensionRequester(messenger, extStore);
 
@@ -56,8 +56,8 @@ export const init = (): {
     extStore
   );
 
-  const chainsService = new ChainsService(iDBStore, chains);
-  const keyRingService = new KeyRingService(iDBStore);
+  const chainsService = new ChainsService(iDBStore as KVStore<Chain[]>, chains);
+  const keyRingService = new KeyRingService(iDBStore as KVStore<KeyStore[]>);
 
   // Initialize messages and handlers
   initChains(router, chainsService);

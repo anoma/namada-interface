@@ -43,9 +43,6 @@ export type Result = {
 };
 
 export type RoutedMessage<T = Message<unknown>> = {
-  meta: {
-    routerId: number;
-  };
   msg: T;
   type: string;
   port: string;
