@@ -14077,6 +14077,11 @@ slash@^4.0.0:
   resolved "https://registry.yarnpkg.com/slash/-/slash-4.0.0.tgz#2422372176c4c6c5addb5e2ada885af984b396a7"
   integrity sha512-3dOsAHXXUkQTpOYcoAxLIorMTp4gIQr5IW3iVb7A7lFIp0VHhnynm9izx6TssdrIcVIESAlVjtnO2K8bg+Coew==
 
+slip44@^2.0.4:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/slip44/-/slip44-2.0.4.tgz#68f5a46d4cdd368609f91e9f9453d7a933706046"
+  integrity sha512-WX7y7PNkxQh7G/4BFogHqXxbb2+TbV47ThaL3BNJ5PE31asPJWARKqk8KYZZibXgp+th3MSdksZRL22m7FE5Ww==
+
 sockjs-client@1.1.4:
   version "1.1.4"
   resolved "https://registry.yarnpkg.com/sockjs-client/-/sockjs-client-1.1.4.tgz#5babe386b775e4cf14e7520911452654016c8b12"
