@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { Account } from "@anoma/types";
+import { Account ,  TokenType } from "@anoma/types";
 
 import { TopLevelRoute } from "App/types";
 import { AccountsState } from "slices/accounts";
@@ -20,7 +20,6 @@ import {
 import { BackButton } from "../TokenSend/TokenSendForm.components";
 import { Icon, IconName } from "components/Icon";
 import { NavigationContainer } from "components/NavigationContainer";
-import { TokenType } from "@anoma/tx";
 
 type TokenDetailsParams = {
   id: string;

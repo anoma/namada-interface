@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import { Account } from "@anoma/types";
+import { Account, TxWasm, Tokens, TokenType } from "@anoma/types";
 import { Anoma } from "@anoma/integrations";
 import {
   RpcConfig,
@@ -10,7 +10,6 @@ import {
   IbcTxResponse,
   Events,
 } from "@anoma/rpc";
-import { TxWasm, Tokens, TokenType } from "@anoma/tx";
 import {
   amountFromMicro,
   promiseWithTimeout,
