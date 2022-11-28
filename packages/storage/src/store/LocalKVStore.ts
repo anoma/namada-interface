@@ -1,6 +1,6 @@
 import { KVStore } from "./types";
 
-export class LocalKVStore<T> implements KVStore<T> {
+export class LocalKVStore<T> implements KVStore<T[]> {
   constructor(private readonly _prefix: string) {}
 
   public get<T = unknown>(key: string): Promise<T | undefined> {

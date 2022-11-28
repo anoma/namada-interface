@@ -1,8 +1,14 @@
-import browser from "webextension-polyfill";
+import { KVStore } from "@anoma/storage";
 import { getAnomaRouterId } from "../extension/utils";
 import { Message } from "../router";
+import { Messenger } from "./ExtensionMessenger";
 
 export class ExtensionRequester {
+  constructor(
+    private readonly messenger: Messenger,
+    private readonly store: KVStore<number>
+  ) {}
+
   async sendMessage<M extends Message<unknown>>(
     port: string,
     msg: M
@@ -11,10 +17,10 @@ export class ExtensionRequester {
     msg.origin = window.location.origin;
     msg.meta = {
       ...msg.meta,
-      routerId: await getAnomaRouterId(),
+      routerId: await getAnomaRouterId(this.store),
     };
 
-    const result = await browser.runtime.sendMessage({
+    const result = await this.messenger.sendMessage({
       port,
       type: msg.type(),
       msg,
@@ -31,7 +37,7 @@ export class ExtensionRequester {
     return result.return;
   }
 
-  static async sendMessageToTab<M extends Message<unknown>>(
+  async sendMessageToTab<M extends Message<unknown>>(
     tabId: number,
     port: string,
     msg: M
@@ -40,7 +46,7 @@ export class ExtensionRequester {
     msg.origin = window.location.origin;
     msg.meta = {
       ...msg.meta,
-      routerId: await getAnomaRouterId(),
+      routerId: await getAnomaRouterId(this.store),
     };
 
     const result = await browser.tabs.sendMessage(tabId, {
