@@ -40,7 +40,7 @@ const getId = (name: string, ...args: (number | string)[]): string => {
   return uuid(uuidName, UUID_NAMESPACE);
 };
 
-const KEYSTORE_KEY = "key-store";
+export const KEYSTORE_KEY = "key-store";
 const crypto = new Crypto();
 
 type DerivedAccountInfo = {
