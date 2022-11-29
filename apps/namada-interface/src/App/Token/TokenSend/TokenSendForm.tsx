@@ -2,8 +2,7 @@ import { useEffect, useState, useContext, CSSProperties } from "react";
 import { ThemeContext } from "styled-components";
 import QrReader from "react-qr-reader";
 
-import { Account } from "@anoma/types";
-import { Tokens, TokenType } from "@anoma/tx";
+import { Account, Tokens, TokenType } from "@anoma/types";
 import { AccountsState } from "slices/accounts";
 import {
   clearEvents,

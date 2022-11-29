@@ -8,14 +8,13 @@ import {
 } from "./types";
 import { history, TopLevelRouteGenerator } from "App";
 import { RootState } from "store/store";
-import { Session } from "@anoma/session";
 import {
   getShieldedBalance,
   TRANSFER_CONFIGURATION,
 } from "slices/shieldedTransfer";
 import { ShieldedAccountType, getMaspWeb } from "@anoma/masp-web";
 import { actions, CreateToastPayload, ToastId } from "slices/notifications";
-import { TokenType } from "@anoma/tx";
+import { TokenType } from "@anoma/types";
 
 type NewAccountDetailsWithPassword = NewAccountDetails & {
   chainId: string;
@@ -85,7 +84,8 @@ export const createShieldedAccount = createAsyncThunk<
     }
     try {
       // TODO distinguish between master/derived
-      const mnemonic = await Session.getSeed(password);
+      // TODO: This is moved to the extension. Remove this once fully implemneted.
+      const mnemonic = ""; //await Session.getSeed(password);
 
       if (mnemonic) {
         const initialisedMaspWeb = await getMaspWeb();

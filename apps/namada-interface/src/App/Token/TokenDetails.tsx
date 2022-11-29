@@ -12,7 +12,7 @@ import { formatRoute, stringFromTimestamp } from "@anoma/utils";
 import { Button, ButtonVariant } from "components/Button";
 import { Heading, HeadingLevel } from "components/Heading";
 import { NavigationContainer } from "components/NavigationContainer";
-import { Tokens } from "@anoma/tx";
+import { Tokens } from "@anoma/types";
 import {
   ButtonsContainer,
   TokenDetailContainer,

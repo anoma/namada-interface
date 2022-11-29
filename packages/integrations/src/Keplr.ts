@@ -6,7 +6,7 @@ import {
 } from "@keplr-wallet/types";
 import { AccountData } from "@cosmjs/proto-signing";
 import { Chain } from "./types";
-import { Tokens, TokenType } from "@anoma/tx";
+import { Tokens, TokenType } from "@anoma/types";
 
 const { REACT_APP_LOCAL, NODE_ENV } = process.env;
 const DEV_ENV = !!(REACT_APP_LOCAL || NODE_ENV === "development");

@@ -26,7 +26,7 @@ import { Icon, IconName } from "components/Icon";
 import { Button, ButtonVariant } from "components/Button";
 import { Address } from "../Transfers/TransferDetails.components";
 import Config from "config";
-import { Symbols, Tokens, TokenType } from "@anoma/tx";
+import { Symbols, Tokens, TokenType } from "@anoma/types";
 import { BalancesState, fetchBalances } from "slices/balances";
 
 const IBCTransfer = (): JSX.Element => {
