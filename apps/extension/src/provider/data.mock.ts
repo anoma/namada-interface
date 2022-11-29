@@ -1,6 +1,19 @@
 import { AccountType, Chain } from "@anoma/types";
 import { KdfType, KeyStore } from "background/keyring";
 
+export const NAM = {
+  coinDenom: "NAM",
+  coinMinimalDenom: "nam",
+  coinDecimals: 6,
+  originChainId: "namada-test.XXXXXXXXX",
+  paths: [
+    {
+      portId: "transfer",
+      channelId: "channel-0",
+    },
+  ],
+};
+
 export const chain: Chain = {
   rpc: "http://localhost:26657",
   rest: "http://localhost:1317",
@@ -22,20 +35,7 @@ export const chain: Chain = {
     bech32PrefixConsAddr: "namadavalcons",
     bech32PrefixConsPub: "namadavalconspub",
   },
-  currencies: [
-    {
-      coinDenom: "NAM",
-      coinMinimalDenom: "nam",
-      coinDecimals: 6,
-      originChainId: "namada-test.XXXXXXXXX",
-      paths: [
-        {
-          portId: "transfer",
-          channelId: "channel-0",
-        },
-      ],
-    },
-  ],
+  currencies: [NAM],
   feeCurrencies: [
     {
       coinDenom: "NAM",
@@ -55,9 +55,9 @@ export const chain: Chain = {
 export const keyStore: KeyStore = {
   alias: "Address",
   address:
-    "atest1d9khqw36gv65v33jxuerss3s8pzyxwfhgfzyysfhx3pnxse5x3prvw2pgfprsdpkxq6nqd2zfjywqg",
+    "atest1d9khqw36gvurxv6yxcmyvv6pgdzyxwp3g9z5gv6px5cyxs348yenjd6ygse5y32xxapy2dph26clnv",
   chainId: "namada-75a7e12.69483d59a9fb174",
-  id: "d0337325-1798-5fd1-b2bc-7d17fd6a0bd5",
+  id: "324bfe0e-cb19-5f1a-9630-9daaaecadabe",
   path: {
     account: 0,
     change: 0,
@@ -65,16 +65,14 @@ export const keyStore: KeyStore = {
   crypto: {
     cipher: {
       type: "aes-256-gcm",
-      iv: new Uint8Array([
-        103, 48, 102, 233, 62, 223, 93, 120, 155, 193, 248, 164,
-      ]),
+      iv: new Uint8Array([21, 236, 255, 45, 1, 85, 224, 91, 131, 95, 216, 186]),
       text: new Uint8Array([
-        23, 95, 203, 173, 104, 100, 219, 82, 175, 55, 13, 243, 231, 60, 199,
-        151, 195, 53, 78, 161, 200, 114, 57, 15, 244, 209, 71, 34, 105, 183,
-        168, 195, 197, 7, 8, 35, 149, 117, 88, 199, 13, 71, 155, 64, 104, 160,
-        27, 0, 7, 172, 243, 174, 145, 238, 143, 33, 216, 115, 119, 235, 76, 159,
-        138, 238, 9, 109, 35, 205, 251, 45, 172, 91, 169, 51, 145, 225, 237,
-        189, 132, 97, 27, 58, 199, 203, 105, 201, 117, 175, 73, 74, 78, 156, 93,
+        250, 49, 107, 16, 63, 98, 41, 44, 127, 146, 84, 218, 118, 97, 236, 40,
+        151, 60, 2, 34, 75, 141, 136, 8, 177, 122, 11, 116, 5, 165, 11, 51, 46,
+        148, 217, 177, 100, 189, 77, 88, 136, 230, 123, 84, 179, 56, 23, 134,
+        81, 248, 158, 123, 219, 47, 107, 5, 216, 47, 214, 73, 28, 104, 247, 202,
+        3, 114, 61, 76, 221, 122, 232, 12, 141, 24, 132, 236, 17, 167, 219, 118,
+        244, 138, 139, 17, 169, 127, 124, 243, 23, 172, 41, 29,
       ]),
     },
     kdf: {
@@ -83,9 +81,14 @@ export const keyStore: KeyStore = {
         m_cost: 4096,
         t_cost: 3,
         p_cost: 1,
-        salt: "uhdfd0vBiAtfO3a2Feollw",
+        salt: "Z29nfsJfAbe51KPQQcmlMA",
       },
     },
   },
   type: AccountType.Mnemonic,
 };
+
+export const mnemonic =
+  "uncover refuse athlete early valid clump used punch season little hire split";
+
+export const password = "asd";

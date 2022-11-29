@@ -37,6 +37,8 @@ export const init = (): {
   anoma: Anoma;
   iDBStore: KVStoreMock<Chain[] | KeyStore[]>;
   extStore: KVStoreMock<number>;
+  chainsService: ChainsService,
+  keyRingService: KeyRingService
 } => {
   const messenger = new ExtensionMessengerMock();
 
@@ -71,6 +73,8 @@ export const init = (): {
   return {
     anoma,
     iDBStore,
-    extStore
+    extStore,
+    chainsService,
+    keyRingService
   };
 };
