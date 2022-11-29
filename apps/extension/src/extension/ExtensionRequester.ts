@@ -20,11 +20,13 @@ export class ExtensionRequester {
       routerId: await getAnomaRouterId(this.store),
     };
 
-    const result = await this.messenger.sendMessage({
+    const payload = {
       port,
       type: msg.type(),
       msg,
-    });
+    };
+
+    const result = await this.messenger.sendMessage(payload);
 
     if (!result) {
       throw new Error("Null result");

@@ -1,11 +1,25 @@
+import {
+  Message,
+  MessageSender,
+  RoutedMessage,
+  Result as RouterResult,
+} from "../router";
 import browser from "webextension-polyfill";
 
-export type Callback = (...args: any[]) => Promise<any>;
+export type Callback = (
+  message: RoutedMessage,
+  sender: MessageSender
+) => Promise<RouterResult | void>;
+
+export type Result<M> = {
+  error?: string;
+  return: Promise<M extends Message<infer R> ? R : never>;
+};
 
 export interface Messenger {
   addListener(callback: Callback): void;
   removeListener(callback: Callback): void;
-  sendMessage(payload: any): Promise<any>;
+  sendMessage<M extends Message<unknown>>(payload: RoutedMessage<M>): Promise<Result<M>>;
 }
 
 export class ExtensionMessenger implements Messenger {
@@ -17,7 +31,9 @@ export class ExtensionMessenger implements Messenger {
     browser.runtime.onMessage.removeListener(callback);
   }
 
-  sendMessage(payload: any) {
+  sendMessage<M extends Message<unknown>>(
+    payload: RoutedMessage<M>
+  ): Promise<Result<M>> {
     return browser.runtime.sendMessage(payload);
   }
 }
