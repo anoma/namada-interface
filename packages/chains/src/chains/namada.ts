@@ -8,14 +8,16 @@ const namada: Chain = {
   currency: {
     token: "Namada",
     symbol: "NAM",
+    bip44: {
+      coinType: 1,
+    },
+
+    gasPriceStep: { low: 0.01, average: 0.025, high: 0.03 },
   },
-  bip44: {
-    coinType: 1,
-  },
+
   ibc: {
     portId: "transfer",
   },
-  gasPriceStep: { low: 0.01, average: 0.025, high: 0.03 },
 };
 
 export default namada;

@@ -23,6 +23,7 @@
     "wasm:build": "./scripts/build.sh"
   },
   "dependencies": {
+    "@anoma/chains": "0.1.0",
     "@anoma/components": "0.1.0",
     "@anoma/crypto": "0.1.0",
     "@anoma/rpc": "0.1.0",

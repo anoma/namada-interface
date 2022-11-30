@@ -15,13 +15,13 @@ const defaultChain: Chain = {
   currency: {
     token: "Namada",
     symbol: "NAM",
+    gasPriceStep: { low: 0.01, average: 0.025, high: 0.03 }, // Optional
   },
   bip44: {
     // coinType = testnet (all coins) - Slip-0044
     // See: https://github.com/satoshilabs/slips/blob/master/slip-0044.md
     coinType: 1,
   },
-  gasPriceStep: { low: 0.01, average: 0.025, high: 0.03 }, // Optional
 };
 
 chains.push(defaultChain);

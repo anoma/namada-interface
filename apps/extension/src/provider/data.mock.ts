@@ -17,18 +17,18 @@ export const NAM = {
 export const chain: Chain = {
   alias: "Namada Testnet",
   bech32Prefix: "atest",
-  rpc: "http://localhost:26657",
-  chainId: "namada-75a7e12.69483d59a9fb174",
-  currency: {
-    token: "Namada",
-    symbol: "NAM",
-  },
   bip44: {
     // coinType = testnet (all coins) - Slip-0044
     // See: https://github.com/satoshilabs/slips/blob/master/slip-0044.md
     coinType: 1,
   },
-  gasPriceStep: { low: 0.01, average: 0.025, high: 0.03 }, // Optional
+  rpc: "http://localhost:26657",
+  chainId: "namada-75a7e12.69483d59a9fb174",
+  currency: {
+    token: "Namada",
+    symbol: "NAM",
+    gasPriceStep: { low: 0.01, average: 0.025, high: 0.03 }, // Optional
+  },
 };
 
 export const keyStore: KeyStore = {

@@ -1,21 +1,23 @@
-export type Chain = {
-  alias: string;
-  bech32Prefix: string;
-  rpc: string;
-  chainId: string;
-  bip44: {
-    coinType: number;
-  };
-  currency: {
-    token: string;
-    symbol: string;
-  };
-  ibc?: {
-    portId: string;
-  };
+export type Currency = {
+  token: string;
+  symbol: string;
   gasPriceStep?: {
     low: number;
     average: number;
     high: number;
+  };
+};
+
+export type Chain = {
+  alias: string;
+  bech32Prefix: string;
+  bip44: {
+    coinType: number;
+  };
+  rpc: string;
+  chainId: string;
+  currency: Currency;
+  ibc?: {
+    portId: string;
   };
 };
