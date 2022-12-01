@@ -14,9 +14,9 @@ export type Chain = {
   bip44: {
     coinType: number;
   };
-  rpc: string;
   chainId: string;
   currency: Currency;
+  rpc: string;
   ibc?: {
     portId: string;
   };

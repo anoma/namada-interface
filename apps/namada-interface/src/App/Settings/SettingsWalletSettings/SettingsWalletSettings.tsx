@@ -1,10 +1,10 @@
 import { useNavigate } from "react-router-dom";
+import { chains } from "@anoma/chains";
+import { Chain } from "@anoma/types";
 
 import { setFiatCurrency, setChainId, SettingsState } from "slices/settings";
 import { useAppDispatch, useAppSelector } from "store";
 import { Currencies } from "currencies";
-import { chains } from "@anoma/chains";
-import { Chain } from "@anoma/types";
 
 import { NavigationContainer } from "components/NavigationContainer";
 import { Heading, HeadingLevel } from "components/Heading";

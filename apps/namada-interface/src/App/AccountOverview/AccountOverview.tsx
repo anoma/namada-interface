@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Anoma } from "@anoma/integrations";
+import { chains } from "@anoma/chains";
 import { useAppSelector, useAppDispatch } from "store";
 import { AccountsState, addAccounts } from "slices/accounts";
 import { SettingsState } from "slices/settings";
@@ -42,7 +43,7 @@ export const AccountOverview = (): JSX.Element => {
 
   const handleConnectExtension = async (): Promise<void> => {
     try {
-      const anoma = new Anoma();
+      const anoma = new Anoma(chains[chainId]);
       if (anoma.detect()) {
         setIsConnectingToExtension(true);
         await anoma.connect();

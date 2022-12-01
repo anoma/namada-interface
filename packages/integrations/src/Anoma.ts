@@ -1,13 +1,14 @@
 import {
   Account,
   Anoma as IAnoma,
+  Chain,
   Signer,
   WindowWithAnoma,
 } from "@anoma/types";
 
 export default class Anoma {
   constructor(
-    /* public readonly chain: Chain, */
+    public readonly chain: Chain,
     private readonly _anoma = (<WindowWithAnoma>window)?.anoma
   ) {}
 
@@ -20,7 +21,7 @@ export default class Anoma {
   }
 
   public async connect(): Promise<void> {
-    await this._anoma.connect("");
+    await this._anoma.connect(this.chain.chainId);
   }
 
   public async fetchAccounts(): Promise<Account[] | undefined> {

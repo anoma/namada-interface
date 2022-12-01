@@ -16,6 +16,7 @@ import {
   fetchWasmCode,
   amountToMicro,
 } from "@anoma/utils";
+import { chains } from "@anoma/chains";
 
 import Config from "config";
 /* import { */
@@ -199,7 +200,7 @@ const createTransfer = async (
   const txCode = await fetchWasmCode(TxWasm.Transfer);
 
   // Invoke extension integration
-  const anoma = new Anoma();
+  const anoma = new Anoma(chains[chainId]);
   const signer = anoma.signer(chainId);
   const encodedTx =
     (await signer.encodeTransfer({
@@ -486,7 +487,7 @@ export const submitIbcTransferTransaction = createAsyncThunk(
     const txCode = await fetchWasmCode(TxWasm.IBC);
 
     // Invoke extension integration
-    const anoma = new Anoma();
+    const anoma = new Anoma(chains[chainId]);
     const signer = anoma.signer(chainId);
     const encodedTx =
       (await signer.encodeIbcTransfer({

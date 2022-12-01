@@ -8,13 +8,3 @@ export type IBCConfigItem = {
 export type NetworkConfig = Network & {
   wsProtocol: Protocol;
 };
-
-export type Chain = {
-  id: string;
-  alias: string;
-  accountIndex: number;
-  network: NetworkConfig;
-  faucet?: string;
-  portId?: string;
-  ibc?: IBCConfigItem[];
-};
