@@ -9,7 +9,10 @@ use namada::ibc::{
     timestamp::Timestamp,
     tx_msg::Msg,
 };
-use namada::ibc_proto::cosmos::base::v1beta1::Coin;
+use namada::ibc_proto::{
+    cosmos::base::v1beta1::Coin,
+    google::protobuf::Any
+};
 use namada::types::token;
 use core::ops::Add;
 use core::time::Duration;
@@ -18,7 +21,6 @@ use borsh::{BorshSerialize, BorshDeserialize};
 use std::str::FromStr;
 use gloo_utils::format::JsValueSerdeExt;
 use prost::Message;
-use prost_types::Any;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
