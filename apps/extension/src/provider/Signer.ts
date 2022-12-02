@@ -101,7 +101,7 @@ export class Signer implements ISigner {
       ibcTransferMsgValue
     );
 
-    return await this._anoma.encodeTransfer(toBase64(serializedIbcTransfer));
+    return await this._anoma.encodeIbcTransfer(toBase64(serializedIbcTransfer));
   }
 
   /**
