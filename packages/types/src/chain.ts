@@ -1,10 +1,21 @@
-import {
-  ChainInfo,
-  Currency as KeplrCurrency,
-  IBCCurrency as KeplrIBCCurrency,
-} from "@keplr-wallet/types";
-
-// Alias types from keplr-wallet so we can update as needed from a single point
-export type Chain = ChainInfo;
-export type Currency = KeplrCurrency;
-export type IBCCurrency = KeplrIBCCurrency;
+export type Chain = {
+  alias: string;
+  bech32Prefix: string;
+  rpc: string;
+  chainId: string;
+  bip44: {
+    coinType: number;
+  };
+  currency: {
+    token: string;
+    symbol: string;
+  };
+  ibc?: {
+    portId: string;
+  };
+  gasPriceStep?: {
+    low: number;
+    average: number;
+    high: number;
+  };
+};
