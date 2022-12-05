@@ -1,9 +1,9 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+import { chains } from "@anoma/chains";
 import { Account, TxWasm, Tokens, TokenType } from "@anoma/types";
 import { Integrations } from "@anoma/integrations";
 import {
-  RpcConfig,
   RpcClient,
   SocketClient,
   TxResponse,
@@ -16,9 +16,7 @@ import {
   fetchWasmCode,
   amountToMicro,
 } from "@anoma/utils";
-import { chains } from "@anoma/chains";
 
-import Config from "config";
 /* import { */
 /*   createShieldedTransfer, */
 /* } from "./shieldedTransfer"; */
@@ -331,14 +329,10 @@ export const submitTransferTransaction = createAsyncThunk(
 
     const { address } = account;
     const source = faucet || address;
-    const chainConfig = Config.chain[chainId];
-    const { network } = chainConfig;
+    const { rpc } = chains.namada;
 
-    const rpcClient = new RpcClient(network);
-    const socketClient = new SocketClient({
-      ...network,
-      protocol: network.wsProtocol,
-    });
+    const rpcClient = new RpcClient(rpc);
+    const socketClient = new SocketClient(rpc);
 
     notify &&
       dispatch(
@@ -469,11 +463,10 @@ export const submitIbcTransferTransaction = createAsyncThunk(
     { rejectWithValue }
   ) => {
     const { address: source = "" } = account;
-    const chainConfig = Config.chain[chainId] || {};
-    const { url, port, protocol, wsProtocol } = chainConfig.network;
-    const rpcConfig = new RpcConfig(url, port, protocol, wsProtocol);
-    const rpcClient = new RpcClient(rpcConfig.network);
-    const socketClient = new SocketClient(rpcConfig.wsNetwork);
+    const { rpc } = chains.namada;
+
+    const rpcClient = new RpcClient(rpc);
+    const socketClient = new SocketClient(rpc);
 
     let epoch: number;
     try {

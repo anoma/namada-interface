@@ -1,9 +1,8 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+import { chains } from "@anoma/chains";
 import { Account, Symbols, Tokens, TokenType } from "@anoma/types";
 import { RpcClient } from "@anoma/rpc";
-
-import Config from "config";
 
 type Balance = {
   chainId: string;
@@ -28,8 +27,8 @@ export const fetchBalanceByToken = createAsyncThunk(
     const { token, account } = args;
 
     const { chainId, address } = account;
-    const chainConfig = Config.chain[chainId];
-    const rpcClient = new RpcClient(chainConfig.network);
+    const { rpc } = chains.namada;
+    const rpcClient = new RpcClient(rpc);
     const { address: tokenAddress = "" } = Tokens[token];
 
     const balance = await rpcClient.queryBalance(tokenAddress, address);
@@ -49,8 +48,8 @@ export const fetchBalances = createAsyncThunk(
     const balances = await Promise.all(
       accounts.map(async (account) => {
         const { chainId, address } = account;
-        const chainConfig = Config.chain[chainId];
-        const rpcClient = new RpcClient(chainConfig.network);
+        const { rpc } = chains.namada;
+        const rpcClient = new RpcClient(rpc);
 
         const results: Balance[] = await Promise.all(
           Symbols.map(async (token) => {

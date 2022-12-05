@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQRCode } from "next-qrcode";
 
-import Config from "config";
 import { AccountsState } from "slices/accounts";
 import { SettingsState } from "slices/settings";
 import { useAppSelector } from "store";
@@ -32,7 +31,6 @@ const TokenReceive = (): JSX.Element => {
     string | undefined
   >();
   const accounts = derived[chainId] || {};
-  const { accountIndex } = Config.chain[chainId] || {};
 
   const accountsArray = Object.values(accounts);
 
@@ -62,7 +60,6 @@ const TokenReceive = (): JSX.Element => {
   const text = `${protocol}//${host}${formatRoute(
     TopLevelRoute.TokenSendTarget,
     {
-      accountIndex,
       // TODO: Fix this:
       target: selectedAccountAddress || "",
     }

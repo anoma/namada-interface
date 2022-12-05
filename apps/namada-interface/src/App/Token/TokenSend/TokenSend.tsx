@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 
 import { AccountsState } from "slices/accounts";
-import { setChainId, SettingsState } from "slices/settings";
+import { SettingsState } from "slices/settings";
 import { TransferType } from "slices/transfers";
-import { useAppDispatch, useAppSelector } from "store";
+import { useAppSelector } from "store";
 
 import {
   PAYMENT_ADDRESS_LENGTH,
@@ -25,7 +25,6 @@ import {
 } from "./TokenSend.components";
 import { BalancesState } from "slices/balances";
 import { useParams } from "react-router-dom";
-import Config from "config";
 
 export const parseTarget = (target: string): TransferType | undefined => {
   if (
@@ -45,15 +44,13 @@ export const parseTarget = (target: string): TransferType | undefined => {
 };
 
 type Params = {
-  accountIndex: string;
   target: string;
 };
 
 const TokenSend = (): JSX.Element => {
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
-  const { accountIndex, target } = useParams<Params>();
-  const dispatch = useAppDispatch();
+  const { target } = useParams<Params>();
 
   const balancesByChain = useAppSelector<BalancesState>(
     (state) => state.balances
@@ -137,20 +134,6 @@ const TokenSend = (): JSX.Element => {
   const [activeTab, setActiveTab] = useState(tabs[defaultTab]);
   const defaultTokenType = "NAM";
   const [token, setToken] = useState<TokenType>(defaultTokenType);
-
-  useEffect(() => {
-    if (accountIndex) {
-      const chains = Object.values(Config.chain);
-      const targetChain = chains.find(
-        (chain) => chain.accountIndex === parseInt(accountIndex)
-      );
-      // Token Send should match the target's network, otherwise
-      // transactions will not succeed:
-      if (targetChain && targetChain.id !== chainId) {
-        dispatch(setChainId(targetChain.id));
-      }
-    }
-  }, [accountIndex]);
 
   useEffect(() => {
     // Set selectedTransparentAccountAddress to first account if one

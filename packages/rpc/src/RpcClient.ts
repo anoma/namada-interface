@@ -7,7 +7,7 @@ import { Buffer } from "buffer";
 import { amountFromMicro, createJsonRpcRequest } from "@anoma/utils";
 import { decodeTransactionWithNextTxId } from "./utils";
 import { NodeWithNextId } from "@anoma/masp-web";
-import RpcClientBase, { RpcClientInitArgs } from "./RpcClientBase";
+import RpcClientBase from "./RpcClientBase";
 import { schemaAmount, TokenAmount } from "./schema";
 import { AbciResponse, PathType } from "./types";
 
@@ -20,8 +20,8 @@ const ABCI_QUERY_PATH_PREFIX = "/shell/";
 class RpcClient extends RpcClientBase {
   private _client: HttpClient;
 
-  constructor(args: RpcClientInitArgs) {
-    super(args);
+  constructor(url: string) {
+    super(url);
     this._client = new HttpClient(this.endpoint);
   }
 

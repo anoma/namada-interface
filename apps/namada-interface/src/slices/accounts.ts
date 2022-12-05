@@ -3,7 +3,7 @@ import { Account } from "@anoma/types";
 
 // TODO: Remove the following once configuration updates are in place:
 // See notes below.
-import { defaultChainId as chainId } from "config";
+import { defaultChainId as chainId } from "@anoma/chains";
 
 // TODO: REMOVE THIS TYPE! USE SHARED TYPE INSTEAD!
 export type DerivedAccount = {
