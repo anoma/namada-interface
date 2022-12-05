@@ -9,8 +9,11 @@ import { IbcTransfer, Transfer } from "@anoma/shared";
 export class KeyRingService {
   private _keyRing: KeyRing;
 
-  constructor(protected readonly kvStore: KVStore<KeyStore[]>) {
-    this._keyRing = new KeyRing(kvStore);
+  constructor(
+    protected readonly kvStore: KVStore<KeyStore[]>,
+    protected readonly chainId: string
+  ) {
+    this._keyRing = new KeyRing(kvStore, chainId);
   }
 
   lock(): { status: KeyRingStatus } {

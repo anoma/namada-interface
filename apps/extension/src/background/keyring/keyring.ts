@@ -18,7 +18,7 @@ import {
 } from "@anoma/shared";
 import { IStore, Store } from "@anoma/storage";
 import { AccountType, Bip44Path, DerivedAccount, SignedTx } from "@anoma/types";
-import { chains } from "config";
+import { chains } from "@anoma/chains";
 import { Crypto } from "./crypto";
 import { KeyRingStatus, KeyStore } from "./types";
 
@@ -59,7 +59,7 @@ export class KeyRing {
 
   constructor(
     protected readonly kvStore: KVStore<KeyStore[]>,
-    protected readonly chainId: string = chains[0].chainId
+    protected readonly chainId: string
   ) {
     this._keyStore = new Store(KEYSTORE_KEY, kvStore);
   }
@@ -126,7 +126,7 @@ export class KeyRing {
     try {
       const mnemonic = Mnemonic.from_phrase(phrase);
       const seed = mnemonic.to_seed();
-      const { coinType } = chains[0].bip44;
+      const { coinType } = chains[this.chainId].bip44;
       const path = `m/44'/${coinType}'/0'/0`;
       const bip44 = new HDWallet(seed);
       const account = bip44.derive(path);
@@ -159,11 +159,12 @@ export class KeyRing {
   public static deriveTransparentAccount(
     seed: Uint8Array,
     path: Bip44Path,
-    parentId: string
+    parentId: string,
+    chainId: string
   ): DerivedAccountInfo {
     const { account, change, index = 0 } = path;
     const root = "m/44'";
-    const { coinType } = chains[0].bip44;
+    const { coinType } = chains[chainId].bip44;
     const derivationPath = [
       root,
       `${coinType}'`,
@@ -260,7 +261,8 @@ export class KeyRing {
         const transparentAccount = KeyRing.deriveTransparentAccount(
           seed,
           path,
-          parentId
+          parentId,
+          this.chainId
         );
         id = transparentAccount.id;
         address = transparentAccount.address;

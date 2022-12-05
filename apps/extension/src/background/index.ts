@@ -10,7 +10,7 @@ import {
   ExtensionMessenger,
 } from "extension";
 import { Ports, KVPrefix } from "router";
-import { chains } from "config";
+import { defaultChainId, chains } from "@anoma/chains";
 import { ChainsService, init as initChains } from "./chains";
 import { KeyRingService, init as initKeyRing } from "./keyring";
 
@@ -31,8 +31,8 @@ const router = new ExtensionRouter(
 router.addGuard(ExtensionGuards.checkOriginIsValid);
 router.addGuard(ExtensionGuards.checkMessageIsInternal);
 
-const chainsService = new ChainsService(store, chains);
-const keyRingService = new KeyRingService(store);
+const chainsService = new ChainsService(store, [chains[defaultChainId]]);
+const keyRingService = new KeyRingService(store, defaultChainId);
 
 // Initialize messages and handlers
 initChains(router, chainsService);

@@ -1,4 +1,4 @@
-import { AccountType, Chain } from "@anoma/types";
+import { AccountType, Chain, Extensions } from "@anoma/types";
 import { KdfType, KeyStore } from "background/keyring";
 
 export const NAM = {
@@ -24,6 +24,7 @@ export const chain: Chain = {
   },
   rpc: "http://localhost:26657",
   chainId: "namada-75a7e12.69483d59a9fb174",
+  extension: Extensions["keplr"],
   currency: {
     token: "Namada",
     symbol: "NAM",

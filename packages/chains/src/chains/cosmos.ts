@@ -1,4 +1,4 @@
-import { Chain } from "@anoma/types";
+import { Chain, Extensions } from "@anoma/types";
 
 const cosmos: Chain = {
   alias: "Cosmos Testnet",
@@ -13,6 +13,7 @@ const cosmos: Chain = {
     symbol: "ATOM",
     gasPriceStep: { low: 0.01, average: 0.025, high: 0.03 },
   },
+  extension: Extensions["keplr"],
   ibc: {
     portId: "transfer",
   },
