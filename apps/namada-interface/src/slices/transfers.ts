@@ -329,7 +329,7 @@ export const submitTransferTransaction = createAsyncThunk(
 
     const { address } = account;
     const source = faucet || address;
-    const { rpc } = chains.namada;
+    const { rpc } = chains[chainId];
 
     const rpcClient = new RpcClient(rpc);
     const socketClient = new SocketClient(rpc);
@@ -463,7 +463,7 @@ export const submitIbcTransferTransaction = createAsyncThunk(
     { rejectWithValue }
   ) => {
     const { address: source = "" } = account;
-    const { rpc } = chains.namada;
+    const { rpc } = chains[chainId];
 
     const rpcClient = new RpcClient(rpc);
     const socketClient = new SocketClient(rpc);

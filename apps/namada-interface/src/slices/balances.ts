@@ -27,7 +27,7 @@ export const fetchBalanceByToken = createAsyncThunk(
     const { token, account } = args;
 
     const { chainId, address } = account;
-    const { rpc } = chains.namada;
+    const { rpc } = chains[chainId];
     const rpcClient = new RpcClient(rpc);
     const { address: tokenAddress = "" } = Tokens[token];
 
@@ -48,7 +48,7 @@ export const fetchBalances = createAsyncThunk(
     const balances = await Promise.all(
       accounts.map(async (account) => {
         const { chainId, address } = account;
-        const { rpc } = chains.namada;
+        const { rpc } = chains[chainId];
         const rpcClient = new RpcClient(rpc);
 
         const results: Balance[] = await Promise.all(
