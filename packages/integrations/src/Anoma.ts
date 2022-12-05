@@ -6,7 +6,9 @@ import {
   WindowWithAnoma,
 } from "@anoma/types";
 
-export default class Anoma {
+import { Integration } from "types/Integration";
+
+export default class Anoma implements Integration<Account, Signer> {
   constructor(
     public readonly chain: Chain,
     private readonly _anoma = (<WindowWithAnoma>window)?.anoma
@@ -24,12 +26,12 @@ export default class Anoma {
     await this._anoma.connect(this.chain.chainId);
   }
 
-  public async fetchAccounts(): Promise<Account[] | undefined> {
-    const signer = this._anoma.getSigner("");
+  public async accounts(): Promise<readonly Account[] | undefined> {
+    const signer = this._anoma.getSigner(this.chain.chainId);
     return await signer.accounts();
   }
 
-  public signer(chainId: string): Signer {
-    return this._anoma.getSigner(chainId);
+  public signer(): Signer | undefined {
+    return this._anoma.getSigner(this.chain.chainId);
   }
 }

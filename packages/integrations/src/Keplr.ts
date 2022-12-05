@@ -5,6 +5,7 @@ import {
 } from "@keplr-wallet/types";
 import { AccountData } from "@cosmjs/proto-signing";
 import { Chain } from "@anoma/types";
+import { Integration } from "types/Integration";
 
 const KEPLR_NOT_FOUND = "Keplr extension not found!";
 const DEFAULT_FEATURES: string[] = [];
@@ -12,7 +13,7 @@ const IBC_FEATURE = "ibc-transfer";
 
 type OfflineSigner = ReturnType<IKeplr["getOfflineSigner"]>;
 
-class Keplr {
+class Keplr implements Integration<AccountData, OfflineSigner> {
   private _offlineSigner: OfflineSigner | undefined;
   private _features: string[] = [];
   /**
@@ -46,7 +47,7 @@ class Keplr {
    * Get offline signer for current chain
    * @returns {OfflineSigner}
    */
-  public get offlineSigner(): OfflineSigner {
+  public signer(): OfflineSigner {
     if (this._offlineSigner) {
       return this._offlineSigner;
     }
@@ -68,32 +69,14 @@ class Keplr {
   }
 
   /**
-   * Determine if chain has already been added to extension. Keplr
-   * will throw an error if chainId is not found
-   * @returns {Promise<boolean>}
-   */
-  public async detectChain(): Promise<boolean> {
-    if (this._keplr) {
-      try {
-        await this._keplr.getOfflineSignerAuto(this.chain.chainId);
-        return true;
-      } catch (e) {
-        return false;
-      }
-    }
-    return Promise.reject(KEPLR_NOT_FOUND);
-  }
-
-  /**
    * Enable connection to Keplr for current chain
    * @returns {Promise<boolean>}
    */
-  public async enable(): Promise<boolean> {
+  public async connect(): Promise<void> {
     if (this._keplr) {
       const { chainId } = this.chain;
 
       await this._keplr.enable(chainId);
-      return true;
     }
     return Promise.reject(KEPLR_NOT_FOUND);
   }
@@ -114,9 +97,9 @@ class Keplr {
    * Get accounts from offline signer
    * @returns {Promise<readonly AccountData[]>}
    */
-  public async getAccounts(): Promise<readonly AccountData[]> {
+  public async accounts(): Promise<readonly AccountData[] | undefined> {
     if (this._keplr) {
-      return await this.offlineSigner.getAccounts();
+      return await this._offlineSigner?.getAccounts();
     }
     return Promise.reject(KEPLR_NOT_FOUND);
   }

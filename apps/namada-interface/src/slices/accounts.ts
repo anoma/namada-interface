@@ -35,7 +35,7 @@ const accountsSlice = createSlice({
   name: ACCOUNTS_ACTIONS_BASE,
   initialState,
   reducers: {
-    addAccounts: (state, action: PayloadAction<Account[]>) => {
+    addAccounts: (state, action: PayloadAction<readonly Account[]>) => {
       const accounts = action.payload;
       accounts.forEach((account) => {
         /**

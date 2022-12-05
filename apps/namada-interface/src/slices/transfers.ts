@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { Account, TxWasm, Tokens, TokenType } from "@anoma/types";
-import { Anoma } from "@anoma/integrations";
+import { Integrations } from "@anoma/integrations";
 import {
   RpcConfig,
   RpcClient,
@@ -200,10 +200,10 @@ const createTransfer = async (
   const txCode = await fetchWasmCode(TxWasm.Transfer);
 
   // Invoke extension integration
-  const anoma = new Anoma(chains[chainId]);
-  const signer = anoma.signer(chainId);
+  const anoma = new Integrations.anoma(chains[chainId]);
+  const signer = anoma.signer();
   const encodedTx =
-    (await signer.encodeTransfer({
+    (await signer?.encodeTransfer({
       source: address,
       target,
       token,
@@ -219,7 +219,7 @@ const createTransfer = async (
   };
 
   const { hash, bytes } =
-    (await signer.signTx(address, txProps, encodedTx)) || {};
+    (await signer?.signTx(address, txProps, encodedTx)) || {};
 
   if (hash && bytes) {
     return {
@@ -487,10 +487,10 @@ export const submitIbcTransferTransaction = createAsyncThunk(
     const txCode = await fetchWasmCode(TxWasm.IBC);
 
     // Invoke extension integration
-    const anoma = new Anoma(chains[chainId]);
-    const signer = anoma.signer(chainId);
+    const anoma = new Integrations.anoma(chains[chainId]);
+    const signer = anoma.signer();
     const encodedTx =
-      (await signer.encodeIbcTransfer({
+      (await signer?.encodeIbcTransfer({
         sourcePort: portId,
         sourceChannel: channelId,
         sender: source,
@@ -508,7 +508,7 @@ export const submitIbcTransferTransaction = createAsyncThunk(
     };
 
     const { hash, bytes } =
-      (await signer.signTx(source, txProps, encodedTx)) || {};
+      (await signer?.signTx(source, txProps, encodedTx)) || {};
 
     if (!hash || !bytes) {
       throw new Error("Invalid transaction!");
