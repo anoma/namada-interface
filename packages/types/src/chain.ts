@@ -8,29 +8,31 @@ export type Currency = {
   };
 };
 
+// Define keys for supported extensions
 export type ExtensionKey = "anoma" | "keplr" | "metamask";
 
 export type ExtensionInfo = {
   alias: string;
-  key: ExtensionKey;
+  id: ExtensionKey;
   url: string;
 };
 
+// Define constant with extension properties
 export const Extensions: Record<ExtensionKey, ExtensionInfo> = {
   anoma: {
     alias: "Anoma",
-    key: "anoma",
-    url: "https://namada.me",
+    id: "anoma",
+    url: "https://namada.me/",
   },
   keplr: {
     alias: "Keplr",
-    key: "keplr",
-    url: "",
+    id: "keplr",
+    url: "https://www.keplr.app/",
   },
   metamask: {
     alias: "Metamask",
-    key: "keplr",
-    url: "",
+    id: "metamask",
+    url: "https://metamask.io/",
   },
 };
 

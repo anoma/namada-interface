@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Integrations } from "@anoma/integrations";
 import { chains } from "@anoma/chains";
 import { useAppSelector, useAppDispatch } from "store";
 import { AccountsState, addAccounts } from "slices/accounts";
@@ -27,11 +26,19 @@ import {
   TotalHeading,
 } from "./AccountOverview.components";
 import { formatCurrency } from "@anoma/utils";
+import { AppContext } from "App/App";
+import { Account, ExtensionKey, Extensions } from "@anoma/types";
 
 export const AccountOverview = (): JSX.Element => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const [isExtensionConnected, setIsExtensionConnected] = useState(false);
+  const [isExtensionConnected, setIsExtensionConnected] = useState<
+    Record<ExtensionKey, boolean>
+  >({
+    anoma: false,
+    keplr: false,
+    metamask: false,
+  });
   const [isConnectingToExtension, setIsConnectingToExtension] = useState(false);
 
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
@@ -39,22 +46,35 @@ export const AccountOverview = (): JSX.Element => {
   const { chainId, fiatCurrency } = useAppSelector<SettingsState>(
     (state) => state.settings
   );
+
+  const context = useContext(AppContext);
+  const integration = context?.integrations[chainId];
+  const chain = chains[chainId];
+  const extensionAlias = Extensions[chain.extension.id].alias;
+
   const [total, setTotal] = useState(0);
 
   const handleConnectExtension = async (): Promise<void> => {
     try {
-      const anoma = new Integrations.anoma(chains[chainId]);
-      if (anoma.detect()) {
+      if (integration?.detect()) {
         setIsConnectingToExtension(true);
-        await anoma.connect();
-        const accounts = await anoma.accounts();
-        if (accounts) {
-          dispatch(addAccounts(accounts));
+        await integration?.connect();
+        if (chain.extension.id === "anoma") {
+          const accounts = await integration?.accounts();
+          if (accounts) {
+            dispatch(addAccounts(accounts as Account[]));
+          }
         }
-        setIsExtensionConnected(true);
+        setIsExtensionConnected({
+          ...isExtensionConnected,
+          [chain.extension.id]: true,
+        });
       }
     } catch (e) {
-      setIsExtensionConnected(false);
+      setIsExtensionConnected({
+        ...isExtensionConnected,
+        [chain.extension.id]: false,
+      });
       setIsConnectingToExtension(false);
     }
   };
@@ -107,13 +127,13 @@ export const AccountOverview = (): JSX.Element => {
         )}
         {!derived[chainId] && (
           <NoAccountsContainer>
-            {!isExtensionConnected && (
+            {!isExtensionConnected[chain.extension.id] && (
               <Button
                 variant={ButtonVariant.Contained}
                 onClick={handleConnectExtension}
                 loading={isConnectingToExtension}
               >
-                Connect to Extension
+                Connect to {extensionAlias} Extension
               </Button>
             )}
           </NoAccountsContainer>

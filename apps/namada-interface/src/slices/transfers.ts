@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { chains } from "@anoma/chains";
 import { Account, TxWasm, Tokens, TokenType } from "@anoma/types";
-import { Integrations } from "@anoma/integrations";
+import { Anoma, Keplr } from "@anoma/integrations";
 import {
   RpcClient,
   SocketClient,
@@ -198,7 +198,7 @@ const createTransfer = async (
   const txCode = await fetchWasmCode(TxWasm.Transfer);
 
   // Invoke extension integration
-  const anoma = new Integrations.anoma(chains[chainId]);
+  const anoma = new Anoma(chains[chainId]);
   const signer = anoma.signer();
   const encodedTx =
     (await signer?.encodeTransfer({
@@ -480,7 +480,7 @@ export const submitIbcTransferTransaction = createAsyncThunk(
     const txCode = await fetchWasmCode(TxWasm.IBC);
 
     // Invoke extension integration
-    const anoma = new Integrations.anoma(chains[chainId]);
+    const anoma = new Anoma(chains[chainId]);
     const signer = anoma.signer();
     const encodedTx =
       (await signer?.encodeIbcTransfer({
