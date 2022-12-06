@@ -5,8 +5,23 @@ const MergeJsonWebpackPlugin = require("merge-jsons-webpack-plugin");
 const ExtensionReloader = require("webpack-extension-reloader");
 const createStyledComponentsTransformer =
   require("typescript-plugin-styled-components").default;
+require('dotenv').config({ path: '../namada-interface/.env' });
 
-const { NODE_ENV, TARGET } = process.env;
+const {
+  NODE_ENV,
+  TARGET,
+  REACT_APP_NAMADA_ALIAS,
+  REACT_APP_NAMADA_CHAIN_ID,
+  REACT_APP_NAMADA_URL,
+  REACT_APP_NAMADA_BECH32_PREFIX,
+  REACT_APP_COSMOS_ALIAS,
+  REACT_APP_COSMOS_CHAIN_ID,
+  REACT_APP_COSMOS_URL,
+  REACT_APP_OSMOSIS_ALIAS,
+  REACT_APP_OSMOSIS_CHAIN_ID,
+  REACT_APP_OSMOSIS_URL,
+} = process.env;
+
 const MANIFEST_VERSION = TARGET === "firefox" ? "v2" : "v3";
 const MANIFEST_BASE_PATH = `./src/manifest/_base.json`;
 const MANIFEST_BASE_VERSION_PATH = `./src/manifest/${MANIFEST_VERSION}/_base.json`;
@@ -40,6 +55,23 @@ const plugins = [
   }),
   new webpack.ProvidePlugin({
     Buffer: ["buffer", "Buffer"],
+  }),
+  // Provide environment variables to extension:
+  new webpack.DefinePlugin({
+    process: {
+      env: {
+        REACT_APP_NAMADA_ALIAS,
+        REACT_APP_NAMADA_CHAIN_ID,
+        REACT_APP_NAMADA_URL,
+        REACT_APP_NAMADA_BECH32_PREFIX,
+        REACT_APP_COSMOS_ALIAS,
+        REACT_APP_COSMOS_CHAIN_ID,
+        REACT_APP_COSMOS_URL,
+        REACT_APP_OSMOSIS_ALIAS,
+        REACT_APP_OSMOSIS_CHAIN_ID,
+        REACT_APP_OSMOSIS_URL,
+      },
+    },
   }),
 ];
 
