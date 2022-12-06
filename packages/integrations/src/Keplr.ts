@@ -4,7 +4,7 @@ import {
   Window as KeplrWindow,
 } from "@keplr-wallet/types";
 import { AccountData } from "@cosmjs/proto-signing";
-import { Chain } from "@anoma/types";
+import { Account, Chain } from "@anoma/types";
 import { Integration } from "types/Integration";
 
 const KEPLR_NOT_FOUND = "Keplr extension not found!";
@@ -13,7 +13,7 @@ const IBC_FEATURE = "ibc-transfer";
 
 type OfflineSigner = ReturnType<IKeplr["getOfflineSigner"]>;
 
-class Keplr implements Integration<AccountData, OfflineSigner> {
+class Keplr implements Integration<Account, OfflineSigner> {
   private _offlineSigner: OfflineSigner | undefined;
   private _features: string[] = [];
   /**
@@ -97,10 +97,19 @@ class Keplr implements Integration<AccountData, OfflineSigner> {
    * Get accounts from offline signer
    * @returns {Promise<readonly AccountData[]>}
    */
-  public async accounts(): Promise<readonly AccountData[] | undefined> {
+  public async accounts(): Promise<readonly Account[] | undefined> {
     // TODO: Update this to map values to Account type defined in @anoma/types
     if (this._keplr) {
-      return await this._offlineSigner?.getAccounts();
+      const accounts = await this._offlineSigner?.getAccounts();
+
+      return accounts?.map(
+        (account: AccountData): Account => ({
+          alias: "keplr",
+          chainId: this.chain.chainId,
+          address: account.address,
+          isShielded: false,
+        })
+      );
     }
     return Promise.reject(KEPLR_NOT_FOUND);
   }

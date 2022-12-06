@@ -59,12 +59,11 @@ export const AccountOverview = (): JSX.Element => {
       if (integration?.detect()) {
         setIsConnectingToExtension(true);
         await integration?.connect();
-        if (chain.extension.id === "anoma") {
-          const accounts = await integration?.accounts();
-          if (accounts) {
-            dispatch(addAccounts(accounts as Account[]));
-          }
+        const accounts = await integration?.accounts();
+        if (accounts) {
+          dispatch(addAccounts(accounts as Account[]));
         }
+
         setIsExtensionConnected({
           ...isExtensionConnected,
           [chain.extension.id]: true,
