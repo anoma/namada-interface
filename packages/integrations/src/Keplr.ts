@@ -98,6 +98,7 @@ class Keplr implements Integration<AccountData, OfflineSigner> {
    * @returns {Promise<readonly AccountData[]>}
    */
   public async accounts(): Promise<readonly AccountData[] | undefined> {
+    // TODO: Update this to map values to Account type defined in @anoma/types
     if (this._keplr) {
       return await this._offlineSigner?.getAccounts();
     }

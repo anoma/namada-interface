@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { chains } from "@anoma/chains";
 import { Account, TxWasm, Tokens, TokenType } from "@anoma/types";
-import { Anoma, Keplr } from "@anoma/integrations";
+import { Anoma } from "@anoma/integrations";
 import {
   RpcClient,
   SocketClient,

@@ -1,13 +1,25 @@
 import { Chain, Extensions } from "@anoma/types";
 
+const DEFAULT_ALIAS = "Namada Testnet";
+const DEFAULT_CHAIN_ID = "namada-75a7e12.69483d59a9fb174";
+const DEFAULT_RPC = "http://localhost:26657";
+const DEFAULT_BECH32_PREFIX = "atest";
+
+const {
+  REACT_APP_NAMADA_ALIAS: alias = DEFAULT_ALIAS,
+  REACT_APP_NAMADA_CHAIN_ID: chainId = DEFAULT_CHAIN_ID,
+  REACT_APP_NAMADA_URL: rpc = DEFAULT_RPC,
+  REACT_APP_NAMADA_BECH32_PREFIX: bech32Prefix = DEFAULT_BECH32_PREFIX,
+} = process.env;
+
 const namada: Chain = {
-  alias: "Namada Testnet",
-  bech32Prefix: "atest",
+  alias,
+  bech32Prefix,
   bip44: {
     coinType: 118,
   },
-  rpc: "http://localhost:26657",
-  chainId: "namada-75a7e12.69483d59a9fb174",
+  rpc,
+  chainId,
   currency: {
     token: "Nam",
     symbol: "NAM",
