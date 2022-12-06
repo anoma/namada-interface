@@ -5,11 +5,14 @@ const MergeJsonWebpackPlugin = require("merge-jsons-webpack-plugin");
 const ExtensionReloader = require("webpack-extension-reloader");
 const createStyledComponentsTransformer =
   require("typescript-plugin-styled-components").default;
+
+// Load .env from namada-interface:
 require('dotenv').config({ path: '../namada-interface/.env' });
 
 const {
   NODE_ENV,
   TARGET,
+  // React .env variables from interface for shared chain configuration:
   REACT_APP_NAMADA_ALIAS,
   REACT_APP_NAMADA_CHAIN_ID,
   REACT_APP_NAMADA_URL,
