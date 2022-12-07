@@ -7,7 +7,7 @@ const createStyledComponentsTransformer =
   require("typescript-plugin-styled-components").default;
 
 // Load .env from namada-interface:
-require('dotenv').config({ path: '../namada-interface/.env' });
+require("dotenv").config({ path: "../namada-interface/.env" });
 
 const {
   NODE_ENV,
@@ -46,6 +46,26 @@ const copyPatterns = [
   },
 ];
 
+// Set up environment values
+const env = {};
+const envVariables = {
+  REACT_APP_NAMADA_ALIAS,
+  REACT_APP_NAMADA_CHAIN_ID,
+  REACT_APP_NAMADA_URL,
+  REACT_APP_NAMADA_BECH32_PREFIX,
+  REACT_APP_COSMOS_ALIAS,
+  REACT_APP_COSMOS_CHAIN_ID,
+  REACT_APP_COSMOS_URL,
+  REACT_APP_OSMOSIS_ALIAS,
+  REACT_APP_OSMOSIS_CHAIN_ID,
+  REACT_APP_OSMOSIS_URL,
+};
+
+// Stringify to ensure values are wrapped in quotes
+for (const key in envVariables) {
+  env[key] = JSON.stringify(envVariables);
+}
+
 const plugins = [
   new CopyPlugin({
     patterns: copyPatterns,
@@ -62,18 +82,7 @@ const plugins = [
   // Provide environment variables to extension:
   new webpack.DefinePlugin({
     process: {
-      env: {
-        REACT_APP_NAMADA_ALIAS,
-        REACT_APP_NAMADA_CHAIN_ID,
-        REACT_APP_NAMADA_URL,
-        REACT_APP_NAMADA_BECH32_PREFIX,
-        REACT_APP_COSMOS_ALIAS,
-        REACT_APP_COSMOS_CHAIN_ID,
-        REACT_APP_COSMOS_URL,
-        REACT_APP_OSMOSIS_ALIAS,
-        REACT_APP_OSMOSIS_CHAIN_ID,
-        REACT_APP_OSMOSIS_URL,
-      },
+      env,
     },
   }),
 ];
