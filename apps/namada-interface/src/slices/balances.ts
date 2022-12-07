@@ -21,6 +21,7 @@ enum BalancesThunkActions {
   FetchBalanceByToken = "fetchBalanceByToken",
 }
 
+// TODO: We need to update this to also support balance queries from Cosmos, Osmosis, etc.
 export const fetchBalanceByToken = createAsyncThunk(
   `${BALANCES_ACTIONS_BASE}/${BalancesThunkActions.FetchBalanceByToken}`,
   async (args: { token: TokenType; account: Account }) => {
@@ -42,6 +43,7 @@ export const fetchBalanceByToken = createAsyncThunk(
   }
 );
 
+// TODO: We need to update this to also support balance queries from Cosmos, Osmosis, etc.
 export const fetchBalances = createAsyncThunk(
   `${BALANCES_ACTIONS_BASE}/${BalancesThunkActions.FetchBalanceByAccounts}`,
   async (accounts: Account[]) => {

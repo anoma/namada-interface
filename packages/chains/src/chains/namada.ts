@@ -1,8 +1,9 @@
 import { Chain, Extensions } from "@anoma/types";
 
 const DEFAULT_ALIAS = "Namada Testnet";
-const DEFAULT_CHAIN_ID = "namada-75a7e12.69483d59a9fb174";
-const DEFAULT_RPC = "http://localhost:26657";
+const DEFAULT_CHAIN_ID = "qc-testnet-5.1.025a61165acd05e";
+const DEFAULT_RPC =
+  "https://d3brk13lbhxfdb.cloudfront.net/qc-testnet-5.1.025a61165acd05e";
 const DEFAULT_BECH32_PREFIX = "atest";
 
 const {
