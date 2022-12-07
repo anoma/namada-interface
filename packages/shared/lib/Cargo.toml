@@ -17,7 +17,7 @@ getrandom = { version = "0.2.7", features = ["js"] }
 gloo-utils = { version = "0.1.5", features = ["serde"] }
 js-sys = "0.3.60"
 masp_primitives = { git = "https://github.com/anoma/masp", rev = "bee40fc465f6afbd10558d12fe96eb1742eee45c" }
-namada = {git = "https://github.com/anoma/namada", branch = "ray/masp-testnet-n002", features = ["rand", "ferveo-tpke"]}
+namada = {git = "https://github.com/anoma/namada", tag = "v0.11.0", features = ["ferveo-tpke"]}
 prost = "0.9.0"
 prost-types = "0.9.0"
 rand = "0.8.5"
@@ -30,6 +30,13 @@ wasm-bindgen = "0.2.83"
 wasm-bindgen-test = "0.3.13"
 
 [patch.crates-io]
+funty = { git = "https://github.com/ferrilab/funty.git", rev = "7ef0d890fbcd8b3def1635ac1a877fc298488446" }
+# patched to a commit on the `eth-bridge-integration` branch of our fork
+ibc = {git = "https://github.com/heliaxdev/ibc-rs.git", rev = "f4703dfe2c1f25cc431279ab74f10f3e0f6827e2"}
+ibc-proto = {git = "https://github.com/heliaxdev/ibc-rs.git", rev = "f4703dfe2c1f25cc431279ab74f10f3e0f6827e2"}
+tendermint = {git = "https://github.com/heliaxdev/tendermint-rs.git", rev = "e6c684731f21bffd89886d3e91074b96aee074ba"}
+tendermint-proto = {git = "https://github.com/heliaxdev/tendermint-rs.git", rev = "e6c684731f21bffd89886d3e91074b96aee074ba"}
+
 borsh = {git = "https://github.com/heliaxdev/borsh-rs.git", rev = "cd5223e5103c4f139e0c54cf8259b7ec5ec4073a"}
 borsh-derive = {git = "https://github.com/heliaxdev/borsh-rs.git", rev = "cd5223e5103c4f139e0c54cf8259b7ec5ec4073a"}
 borsh-derive-internal = {git = "https://github.com/heliaxdev/borsh-rs.git", rev = "cd5223e5103c4f139e0c54cf8259b7ec5ec4073a"}

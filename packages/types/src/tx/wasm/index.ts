@@ -1,12 +1,12 @@
 /* eslint-disable max-len */
 export enum TxWasm {
-  InitAccount = "tx_init_account.471ba8fa277ba422bbfdddb513e7c7b97dcb3d278e31a2abb5ce4795bc7a869a.wasm",
-  Transfer = "tx_transfer.6abb9fa97316134671477fd980f109a1751a9cae4eaa245fdd9775d400943523.wasm",
-  IBC = "tx_ibc.24138bc1574c483e3472fe78b2da2fcce05310904d2cecd84f5156171dc96fbd.wasm",
+  InitAccount = "tx_init_account.e0a3d18ec8b373366a6c19bfd91784d011a076ba5acb13063c7644ae3881c1c4.wasm",
+  Transfer = "tx_transfer.410f2e3d5d98815ce4d30e4895a8d2902087f370f9c24b20c575f4fcb4b6bbd0.wasm",
+  IBC = "tx_ibc.13b28479e6dd07f91749fb782752c2c59e9a4e6720e22f5e77417f8e92152819.wasm",
 }
 
 export enum VpWasm {
-  User = "vp_user.eb918add9dd36797e6420affda3b1e768b6bc7f3f8a2610591213d5fc7154090.wasm",
-  Token = "vp_token.b8ab23243f793722bad4a627415e30a1ffeb5acdee6f8838b132af3bb09e1b59.wasm",
-  Masp = "vp_masp.1a8cfe1811fd2842f374913611eadc6f0ba9c890ccdaabf0e7c2861e6db2ad7f.wasm",
+  User = "vp_user.3e1a72d8c71c7befb2dadaa4215560e711b3e3f1ec612c3e10ae56658dc29f14.wasm",
+  Token = "vp_token.8f0ae2a307a883c25e73c77a0aac99b8a927d03682b9e88b75be3036eb7468de.wasm",
+  Masp = "vp_masp.4e83d20336fb56650d7b7a6669b368864f1a0a70498ff4e1767edccf49a97392.wasm",
 }

@@ -14,7 +14,7 @@ pub fn get_timestamp() -> DateTimeUtc {
     let min: u32 = now.get_utc_minutes();
     let sec: u32 = now.get_utc_seconds();
 
-    let utc = Utc.ymd(year, month, day).and_hms(hour, min, sec);
+    let utc = Utc.with_ymd_and_hms(year, month, day, hour, min, sec).unwrap();
     DateTimeUtc(utc)
 }
 

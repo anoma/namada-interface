@@ -53,6 +53,7 @@ impl Transfer {
             source,
             target,
             token,
+            sub_prefix: None,
             amount,
             key,
             shielded,
