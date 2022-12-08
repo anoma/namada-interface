@@ -392,7 +392,7 @@ export const submitTransferTransaction = createAsyncThunk(
       const epoch = await rpcClient.queryEpoch();
       const revealPk = await revealPublicKey(account, token.address || "", epoch);
       await rpcClient.broadcastTxSync(revealPk.bytes);
-      await rpcClient.get_applied_tx(revealPk.hash);
+      await rpcClient.getAppliedTx(revealPk.hash);
     } catch (e) {
       return rejectWithValue(e);
     }

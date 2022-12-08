@@ -37,7 +37,7 @@ class RpcClient extends RpcClientBase {
     }
   }
 
-  public async get_applied_tx(hash: string): Promise<AbciResponse> {
+  public async getAppliedTx(hash: string): Promise<AbciResponse> {
     const path = `${ABCI_QUERY_PATH_PREFIX}applied/${hash}`;
     const request = createJsonRpcRequest("abci_query", [path, "", "0", false]);
     let TRIES = 10;
