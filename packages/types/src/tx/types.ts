@@ -9,6 +9,7 @@ export type TxProps = {
   feeAmount: number;
   gasLimit: number;
   txCode: Uint8Array;
+  signInner: boolean;
 };
 
 export type TransferProps = {

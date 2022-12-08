@@ -164,6 +164,42 @@ type TransferData = {
   epoch: number;
 };
 
+const _revealPublicKey = async (
+  account: Account,
+  token: string,
+  epoch: number,
+  gasLimit = 10000000,
+  feeAmount = 10000
+): Promise<{ hash: string; bytes: string }> => {
+  const anoma = new Anoma();
+  const signer = anoma.signer(account.chainId);
+  const txCode = await fetchWasmCode(TxWasm.RevealPK);
+
+  const encodedTx =
+    (await signer.encodeRevealPk(account.address)) || "";
+
+  const txProps = {
+    token,
+    epoch,
+    feeAmount,
+    gasLimit,
+    txCode,
+    signInner: false,
+  };
+
+  const { hash, bytes } =
+    (await signer.signTx(account.address, txProps, encodedTx)) || {};
+
+  if (hash && bytes) {
+    return {
+      hash,
+      bytes,
+    };
+  }
+
+  throw Error("Invalid RevealPublicKey Transaction");
+};
+
 // TODO: Re-enable, and update this:
 /* const createShieldedTransaction = async ( */
 /*   chainId: string, */
@@ -214,6 +250,7 @@ const createTransfer = async (
     feeAmount,
     gasLimit,
     txCode,
+    signInner: true,
   };
 
   const { hash, bytes } =
@@ -319,9 +356,9 @@ export const submitTransferTransaction = createAsyncThunk(
       amount,
       memo = "",
       // TODO: What are reasonable defaults for this?
-      feeAmount = 1000,
+      feeAmount = 10000,
       // TODO: What are reasonable defaults for this?
-      gasLimit = 1000000,
+      gasLimit = 10000000,
       faucet,
       chainId,
       notify,
@@ -368,7 +405,7 @@ export const submitTransferTransaction = createAsyncThunk(
     const { promise, timeoutId } = promiseWithTimeout<Events>(
       new Promise(async (resolve, reject) => {
         try {
-          await socketClient.broadcastTx(transferAsBytes);
+          await rpcClient.broadcastTxSync(transferAsBytes);
         } catch (e) {
           return reject(
             `Unable to broadcast transfer! ${
@@ -498,6 +535,7 @@ export const submitIbcTransferTransaction = createAsyncThunk(
       feeAmount,
       gasLimit,
       txCode,
+      signInner: true
     };
 
     const { hash, bytes } =

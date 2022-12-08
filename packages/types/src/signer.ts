@@ -20,4 +20,7 @@ export interface Signer {
     args: InitAccountProps,
     signer: string
   ): Promise<string | undefined>;
+  encodeRevealPk(
+    signer: string
+  ): Promise<string | undefined>;
 }
