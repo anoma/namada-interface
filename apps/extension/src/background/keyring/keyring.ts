@@ -295,6 +295,7 @@ export class KeyRing {
         type,
       };
     } catch (e) {
+      console.error(e);
       throw new Error("Could not decrypt mnemonic from password!");
     }
   }
@@ -339,7 +340,6 @@ export class KeyRing {
         bytes: toBase64(bytes),
       };
     } catch (e) {
-      console.error(e);
       throw new Error(`Could not unlock account for ${address}: ${e}`);
     }
   }
@@ -403,7 +403,7 @@ export class KeyRing {
         const { path } = account;
         const mnemonic = Mnemonic.from_phrase(decrypted);
         const bip44 = new HDWallet(mnemonic.to_seed());
-        const { coinType } = chains[0].bip44;
+        const { coinType } = chains[this.chainId].bip44;
         const derivationPath = `m/44'/${coinType}'/${path.account}'/${path.change}`;
         const derived = bip44.derive(derivationPath);
         private_key = derived.private().to_hex();

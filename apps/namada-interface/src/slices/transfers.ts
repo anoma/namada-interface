@@ -170,12 +170,13 @@ const revealPublicKey = async (
   gasLimit = 10000000,
   feeAmount = 10000
 ): Promise<{ hash: string; bytes: string }> => {
-  const anoma = new Anoma();
-  const signer = anoma.signer(account.chainId);
+  const anoma = new Anoma(chains[account.chainId]);
+  anoma.connect();
+  const signer = anoma.signer();
   const txCode = await fetchWasmCode(TxWasm.RevealPK);
 
   const encodedTx =
-    (await signer.encodeRevealPk(account.address)) || "";
+    (await signer?.encodeRevealPk(account.address)) || "";
 
   const txProps = {
     token,
@@ -187,7 +188,7 @@ const revealPublicKey = async (
   };
 
   const { hash, bytes } =
-    (await signer.signTx(account.address, txProps, encodedTx)) || {};
+    (await signer?.signTx(account.address, txProps, encodedTx)) || {};
 
   if (hash && bytes) {
     return {
@@ -235,6 +236,7 @@ const createTransfer = async (
 
   // Invoke extension integration
   const anoma = new Anoma(chains[chainId]);
+  anoma.connect();
   const signer = anoma.signer();
   const encodedTx =
     (await signer?.encodeTransfer({
@@ -521,6 +523,7 @@ export const submitIbcTransferTransaction = createAsyncThunk(
 
     // Invoke extension integration
     const anoma = new Anoma(chains[chainId]);
+    anoma.connect();
     const signer = anoma.signer();
     const encodedTx =
       (await signer?.encodeIbcTransfer({
