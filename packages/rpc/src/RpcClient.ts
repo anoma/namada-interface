@@ -25,6 +25,18 @@ class RpcClient extends RpcClientBase {
     this._client = new HttpClient(this.endpoint);
   }
 
+  public async broadcastTxSync(tx: string): Promise<AbciResponse> {
+    const request = createJsonRpcRequest("broadcast_tx_sync", [tx]);
+
+    try {
+      const json: JsonRpcSuccessResponse = await this._client.execute(request);
+      const response: AbciResponse = json.result.response;
+      return response;
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
   public async queryBalance(token: string, owner: string): Promise<number> {
     const path = `${ABCI_QUERY_PATH_PREFIX}value/#${token}/balance/#${owner}`;
     const request = createJsonRpcRequest("abci_query", [path, "", "0", false]);
@@ -49,6 +61,8 @@ class RpcClient extends RpcClientBase {
       return Promise.reject(e);
     }
   }
+
+
 
   public async queryEpoch(): Promise<number> {
     const path = `${ABCI_QUERY_PATH_PREFIX}epoch`;
