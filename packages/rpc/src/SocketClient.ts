@@ -25,7 +25,11 @@ class SocketClient extends RpcClientBase {
   private _client: WebsocketClient | null = null;
 
   public connect(): void {
-    this._client = new WebsocketClient(this.endpoint, (e: Error) => {
+    const urlParts = this.endpoint.split("://");
+    const protocol = urlParts[0] === "https" ? "wss" : "ws";
+    const endpoint = `${protocol}://${urlParts[1]}`;
+
+    this._client = new WebsocketClient(endpoint, (e: Error) => {
       throw new Error(e.message);
     });
   }

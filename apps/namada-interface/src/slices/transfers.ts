@@ -1,9 +1,9 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+import { chains } from "@anoma/chains";
 import { Account, TxWasm, Tokens, TokenType } from "@anoma/types";
 import { Anoma } from "@anoma/integrations";
 import {
-  RpcConfig,
   RpcClient,
   SocketClient,
   TxResponse,
@@ -17,7 +17,6 @@ import {
   amountToMicro,
 } from "@anoma/utils";
 
-import Config from "config";
 /* import { */
 /*   createShieldedTransfer, */
 /* } from "./shieldedTransfer"; */
@@ -199,10 +198,10 @@ const createTransfer = async (
   const txCode = await fetchWasmCode(TxWasm.Transfer);
 
   // Invoke extension integration
-  const anoma = new Anoma();
-  const signer = anoma.signer(chainId);
+  const anoma = new Anoma(chains[chainId]);
+  const signer = anoma.signer();
   const encodedTx =
-    (await signer.encodeTransfer({
+    (await signer?.encodeTransfer({
       source: address,
       target,
       token,
@@ -218,7 +217,7 @@ const createTransfer = async (
   };
 
   const { hash, bytes } =
-    (await signer.signTx(address, txProps, encodedTx)) || {};
+    (await signer?.signTx(address, txProps, encodedTx)) || {};
 
   if (hash && bytes) {
     return {
@@ -330,14 +329,10 @@ export const submitTransferTransaction = createAsyncThunk(
 
     const { address } = account;
     const source = faucet || address;
-    const chainConfig = Config.chain[chainId];
-    const { network } = chainConfig;
+    const { rpc } = chains[chainId];
 
-    const rpcClient = new RpcClient(network);
-    const socketClient = new SocketClient({
-      ...network,
-      protocol: network.wsProtocol,
-    });
+    const rpcClient = new RpcClient(rpc);
+    const socketClient = new SocketClient(rpc);
 
     notify &&
       dispatch(
@@ -468,11 +463,10 @@ export const submitIbcTransferTransaction = createAsyncThunk(
     { rejectWithValue }
   ) => {
     const { address: source = "" } = account;
-    const chainConfig = Config.chain[chainId] || {};
-    const { url, port, protocol, wsProtocol } = chainConfig.network;
-    const rpcConfig = new RpcConfig(url, port, protocol, wsProtocol);
-    const rpcClient = new RpcClient(rpcConfig.network);
-    const socketClient = new SocketClient(rpcConfig.wsNetwork);
+    const { rpc } = chains[chainId];
+
+    const rpcClient = new RpcClient(rpc);
+    const socketClient = new SocketClient(rpc);
 
     let epoch: number;
     try {
@@ -486,10 +480,10 @@ export const submitIbcTransferTransaction = createAsyncThunk(
     const txCode = await fetchWasmCode(TxWasm.IBC);
 
     // Invoke extension integration
-    const anoma = new Anoma();
-    const signer = anoma.signer(chainId);
+    const anoma = new Anoma(chains[chainId]);
+    const signer = anoma.signer();
     const encodedTx =
-      (await signer.encodeIbcTransfer({
+      (await signer?.encodeIbcTransfer({
         sourcePort: portId,
         sourceChannel: channelId,
         sender: source,
@@ -507,7 +501,7 @@ export const submitIbcTransferTransaction = createAsyncThunk(
     };
 
     const { hash, bytes } =
-      (await signer.signTx(source, txProps, encodedTx)) || {};
+      (await signer?.signTx(source, txProps, encodedTx)) || {};
 
     if (!hash || !bytes) {
       throw new Error("Invalid transaction!");

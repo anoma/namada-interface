@@ -1,4 +1,4 @@
-import { AccountType, Chain } from "@anoma/types";
+import { AccountType, Chain, Extensions } from "@anoma/types";
 import { KdfType, KeyStore } from "background/keyring";
 
 export const NAM = {
@@ -15,41 +15,21 @@ export const NAM = {
 };
 
 export const chain: Chain = {
-  rpc: "http://localhost:26657",
-  rest: "http://localhost:1317",
-  chainId: "namada-test.XXXXXXXXXXXX",
-  chainName: "Namada Testnet",
-  stakeCurrency: {
-    coinDenom: "NAM",
-    coinMinimalDenom: "nam",
-    coinDecimals: 6,
-  },
+  alias: "Namada Testnet",
+  bech32Prefix: "atest",
   bip44: {
-    coinType: 9999,
+    // coinType = testnet (all coins) - Slip-0044
+    // See: https://github.com/satoshilabs/slips/blob/master/slip-0044.md
+    coinType: 1,
   },
-  bech32Config: {
-    bech32PrefixAccAddr: "namada",
-    bech32PrefixAccPub: "namadapub",
-    bech32PrefixValAddr: "namadavaloper",
-    bech32PrefixValPub: "namadavaloperpub",
-    bech32PrefixConsAddr: "namadavalcons",
-    bech32PrefixConsPub: "namadavalconspub",
+  rpc: "http://localhost:26657",
+  chainId: "namada-75a7e12.69483d59a9fb174",
+  extension: Extensions["keplr"],
+  currency: {
+    token: "Namada",
+    symbol: "NAM",
+    gasPriceStep: { low: 0.01, average: 0.025, high: 0.03 }, // Optional
   },
-  currencies: [NAM],
-  feeCurrencies: [
-    {
-      coinDenom: "NAM",
-      coinMinimalDenom: "nam",
-      coinDecimals: 6,
-    },
-  ],
-  gasPriceStep: {
-    low: 0.01,
-    average: 0.025,
-    high: 0.03,
-  },
-  features: ["ibc-transfer"],
-  beta: false,
 };
 
 export const keyStore: KeyStore = {

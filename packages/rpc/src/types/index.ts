@@ -1,15 +1,6 @@
 import { BroadcastTxSyncResponse } from "@cosmjs/tendermint-rpc";
 import { JsonRpcSuccessResponse } from "@cosmjs/json-rpc";
 import { SubscriptionEvent } from "@cosmjs/tendermint-rpc/build/rpcclients";
-import { TxResponse, IbcTxResponse } from "../enums";
-
-export type Protocol = "http" | "https" | "ws" | "wss";
-
-export type Network = {
-  url: string;
-  port?: number;
-  protocol: Protocol;
-};
 
 export type AbciResponse = {
   code?: number;

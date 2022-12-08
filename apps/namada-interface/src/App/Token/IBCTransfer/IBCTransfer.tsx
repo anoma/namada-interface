@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+import { chains } from "@anoma/chains";
+import { Chain, Symbols, Tokens, TokenType } from "@anoma/types";
 import { useAppDispatch, useAppSelector } from "store";
 import { AccountsState } from "slices/accounts";
 import { addChannel, ChannelsState } from "slices/channels";
@@ -25,8 +27,6 @@ import { Option, Select } from "components/Select";
 import { Icon, IconName } from "components/Icon";
 import { Button, ButtonVariant } from "components/Button";
 import { Address } from "../Transfers/TransferDetails.components";
-import Config from "config";
-import { Symbols, Tokens, TokenType } from "@anoma/types";
 import { BalancesState, fetchBalances } from "slices/balances";
 
 const IBCTransfer = (): JSX.Element => {
@@ -43,13 +43,14 @@ const IBCTransfer = (): JSX.Element => {
   const { isIbcTransferSubmitting, transferError, events } =
     useAppSelector<TransfersState>((state) => state.transfers);
 
-  const chains = Config.chain;
-  const chain = chains[chainId];
-  const { ibc = [] } = chain || {};
+  /* const chain = Object.values(chains).find((chain: Chain) => chain.chainId === chainId); */
+  const ibc = Object.values(chains).filter(
+    (chain: Chain) => chain.chainId !== chainId
+  );
 
   const defaultIbcChain = chains[ibc[0]?.chainId] || null;
   const [selectedChainId, setSelectedChainId] = useState(
-    defaultIbcChain ? defaultIbcChain.id : ""
+    defaultIbcChain ? defaultIbcChain.chainId : ""
   );
 
   const selectDestinationChainData = ibc.map((ibcChain) => ({
@@ -131,7 +132,7 @@ const IBCTransfer = (): JSX.Element => {
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
 
-  const { portId = "transfer" } = defaultIbcChain || {};
+  const { portId = "transfer" } = defaultIbcChain.ibc || {};
 
   useEffect(() => {
     return () => {
@@ -141,7 +142,6 @@ const IBCTransfer = (): JSX.Element => {
   }, []);
 
   useEffect(() => {
-    const { ibc = [] } = chains[chainId] || {};
     if (ibc.length > 0) {
       const selectedChain = ibc[0].chainId;
       setSelectedChainId(selectedChain);

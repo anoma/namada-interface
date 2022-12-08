@@ -12,7 +12,7 @@ import { AccountType, DerivedAccount } from "@anoma/types";
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
 import { DeriveAccountMsg } from "background/keyring";
-import { chains } from "config";
+import { chains, defaultChainId } from "@anoma/chains";
 import {
   AddAccountContainer,
   AddAccountForm,
@@ -109,7 +109,7 @@ const AddAccount: React.FC<Props> = ({
 
   const bip44Prefix = "m/44";
   const zip32Prefix = "m/32";
-  const { coinType } = chains[0].bip44;
+  const { coinType } = chains[defaultChainId].bip44;
 
   useEffect(() => {
     const isValid = validateAccount(

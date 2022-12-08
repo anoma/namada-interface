@@ -6,7 +6,7 @@ import {
   ExtensionRequester,
 } from "../extension";
 import { Ports, KVPrefix } from "../router";
-import { chains } from "../config";
+import { chains } from "@anoma/chains";
 import { ChainsService, init as initChains } from "../background/chains";
 import {
   KeyRingService,
@@ -37,8 +37,8 @@ export const init = (): {
   anoma: Anoma;
   iDBStore: KVStoreMock<Chain[] | KeyStore[]>;
   extStore: KVStoreMock<number>;
-  chainsService: ChainsService,
-  keyRingService: KeyRingService
+  chainsService: ChainsService;
+  keyRingService: KeyRingService;
 } => {
   const messenger = new ExtensionMessengerMock();
 
@@ -58,8 +58,14 @@ export const init = (): {
     extStore
   );
 
-  const chainsService = new ChainsService(iDBStore as KVStore<Chain[]>, chains);
-  const keyRingService = new KeyRingService(iDBStore as KVStore<KeyStore[]>);
+  const chainsService = new ChainsService(
+    iDBStore as KVStore<Chain[]>,
+    Object.values(chains)
+  );
+  const keyRingService = new KeyRingService(
+    iDBStore as KVStore<KeyStore[]>,
+    "namada-test.XXXXXXXX"
+  );
 
   // Initialize messages and handlers
   initChains(router, chainsService);
@@ -75,6 +81,6 @@ export const init = (): {
     iDBStore,
     extStore,
     chainsService,
-    keyRingService
+    keyRingService,
   };
 };

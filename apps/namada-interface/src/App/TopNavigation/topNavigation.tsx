@@ -48,7 +48,8 @@ import { AppStore } from "store/store";
 import { setChainId, SettingsState } from "slices/settings";
 import TopNavigationLoggedIn from "./topNavigationLoggedIn";
 import { Icon, IconName } from "components/Icon";
-import Config, { Chain } from "config";
+import { chains } from "@anoma/chains";
+import { Chain } from "@anoma/types";
 
 /**
  * this is rendered in one of 2 places depending of the screen size
@@ -137,10 +138,9 @@ const SecondMenuRow = (props: SecondMenuRowProps): React.ReactElement => {
   };
 
   // transform for select component
-  const chains = Object.values(Config.chain);
-  const networks = Object.values(chains).map(({ id, alias }: Chain) => ({
+  const networks = Object.values(chains).map(({ chainId, alias }: Chain) => ({
     label: alias,
-    value: id,
+    value: chainId,
   }));
 
   return (

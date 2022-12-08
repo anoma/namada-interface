@@ -1,6 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
+import { chains } from "@anoma/chains";
+import { Chain } from "@anoma/types";
 
-import Config, { Chain } from "config";
 import { TransfersState } from "slices/transfers";
 import { useAppSelector } from "store";
 import { stringFromTimestamp } from "@anoma/utils";
@@ -11,7 +12,6 @@ import { Address, TransferDetailContainer } from "./TransferDetails.components";
 import { BackButton } from "../TokenSend/TokenSendForm.components";
 import { Icon, IconName } from "components/Icon";
 import { ButtonsContainer, TransfersContent } from "./Transfers.components";
-import { IBCConfigItem } from "config/ibc";
 
 type TransferDetailsParams = {
   id: string;
@@ -41,8 +41,9 @@ const TransferDetail = (): JSX.Element => {
     (transaction) => transaction.appliedHash === appliedHash
   ) || {};
 
-  const sourceChain: Chain | undefined =
-    (sourceChainId && Config.chain[sourceChainId]) || undefined;
+  const sourceChain: Chain | undefined = Object.values(chains).find(
+    (chain: Chain) => chain.chainId === sourceChainId
+  );
 
   const {
     chainId,
@@ -52,19 +53,7 @@ const TransferDetail = (): JSX.Element => {
     destinationPort,
   } = ibcTransfer || {};
 
-  const chains = Config.chain;
-  const chain = chainId && chains[chainId];
-  const { ibc = [] } = chain || {};
-  const ibcChainConfig: IBCConfigItem | undefined = ibc.find(
-    (ibcConfig) => ibcConfig.chainId === chainId
-  );
-
-  const destinationChain = ibcChainConfig
-    ? chains[ibcChainConfig.chainId]
-    : undefined;
-
-  const chainAlias = destinationChain?.alias;
-
+  const chainAlias = sourceChain?.alias;
   const dateTimeFormatted = stringFromTimestamp(timestamp);
 
   return (

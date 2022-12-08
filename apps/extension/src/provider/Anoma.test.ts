@@ -19,7 +19,7 @@ import {
 
 import { KVKeys } from "router";
 import { init } from "test/init";
-import { chains as defaultChains } from "../config";
+import { chains as defaultChains } from "@anoma/chains";
 import { chain, keyStore, NAM, password } from "./data.mock";
 import { KeyRing, KEYSTORE_KEY } from "background/keyring";
 
@@ -53,7 +53,7 @@ describe("Anoma", () => {
     iDBStore.set(KVKeys.Chains, [chain]);
     const storedChains = await anoma.chains();
 
-    expect(storedChains).toEqual([...defaultChains, chain]);
+    expect(storedChains).toEqual([...Object.values(defaultChains), chain]);
   });
 
   it("should return all accounts", async () => {

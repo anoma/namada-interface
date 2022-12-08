@@ -3,6 +3,7 @@ import { ThemeContext } from "styled-components";
 import { useNavigate } from "react-router-dom";
 
 import Config from "config";
+import { chains } from "@anoma/chains";
 import { useAppDispatch, useAppSelector } from "store";
 import { AccountsState } from "slices/accounts";
 import { BalancesState, fetchBalances } from "slices/balances";
@@ -81,7 +82,6 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
   );
 
   const { api } = Config;
-  const chains = Config.chain;
   const { alias } = chains[chainId] || {};
 
   const transparentBalances = balancesByChainId[chainId] || {};

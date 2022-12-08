@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { Account } from "@anoma/types";
+import { chains } from "@anoma/chains";
+import { Account, Chain, Tokens } from "@anoma/types";
 
-import config from "config";
 import { TopLevelRoute } from "App/types";
 import { AccountsState } from "slices/accounts";
 import { TransfersState } from "slices/transfers";
@@ -12,7 +12,6 @@ import { formatRoute, stringFromTimestamp } from "@anoma/utils";
 import { Button, ButtonVariant } from "components/Button";
 import { Heading, HeadingLevel } from "components/Heading";
 import { NavigationContainer } from "components/NavigationContainer";
-import { Tokens } from "@anoma/types";
 import {
   ButtonsContainer,
   TokenDetailContainer,
@@ -30,7 +29,9 @@ const TokenDetails = (): JSX.Element => {
   const { id = "" } = useParams<TokenDetailsParams>();
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
-  const { ibc } = config.chain[chainId];
+  const { ibc } =
+    Object.values(chains).find((chain: Chain) => chain.chainId === chainId) ??
+    {};
   const { transactions: accountTransactions } = useAppSelector<TransfersState>(
     (state) => state.transfers
   );

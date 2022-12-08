@@ -1,2 +1,4 @@
-export { default as Anoma } from "./Anoma";
-export { default as Keplr } from "./Keplr";
+import Anoma from "./Anoma";
+import Keplr from "./Keplr";
+
+export { Anoma, Keplr };

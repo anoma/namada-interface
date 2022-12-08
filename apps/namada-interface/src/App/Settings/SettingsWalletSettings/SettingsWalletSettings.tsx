@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { Chain } from "config/chain";
+import { chains } from "@anoma/chains";
+import { Chain } from "@anoma/types";
+
 import { setFiatCurrency, setChainId, SettingsState } from "slices/settings";
 import { useAppDispatch, useAppSelector } from "store";
 import { Currencies } from "currencies";
@@ -11,7 +13,6 @@ import { Tooltip } from "components/Tooltip";
 import { Icon, IconName } from "components/Icon";
 import { Select, Option } from "components/Select";
 import { InputContainer } from "App/AccountOverview/AccountOverview.components";
-import Config from "config";
 import { BackButton } from "App/Token/TokenSend/TokenSendForm.components";
 import { ButtonsContainer, SettingsContent } from "../Settings.components";
 
@@ -19,12 +20,11 @@ export const SettingsWalletSettings = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const chains = Object.values(Config.chain);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
 
-  const networks = Object.values(chains).map(({ id, alias }: Chain) => ({
+  const networks = Object.values(chains).map(({ chainId, alias }: Chain) => ({
     label: alias,
-    value: id,
+    value: chainId,
   }));
 
   const currencies: Option<string>[] = Currencies.map((currency) => ({

@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
-import { defaultChainId } from "config/chain";
+import { defaultChainId } from "@anoma/chains";
 
 const SETTINGS_ACTIONS_BASE = "settings";
 

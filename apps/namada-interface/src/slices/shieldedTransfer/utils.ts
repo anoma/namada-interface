@@ -1,4 +1,4 @@
-import Config from "config";
+import { chains } from "@anoma/chains";
 import { RpcClient } from "@anoma/rpc";
 import { NodeWithNextId, getMaspWeb } from "@anoma/masp-web";
 import { TRANSFER_CONFIGURATION } from "./types";
@@ -51,9 +51,9 @@ const fetchShieldedTransferById = async (
   transactionId?: string
 ): Promise<NodeWithNextId | undefined> => {
   const { maspAddress } = TRANSFER_CONFIGURATION;
-  const { network } = Config.chain[chainId];
 
-  const rpcClient = new RpcClient(network);
+  const { rpc } = chains[chainId];
+  const rpcClient = new RpcClient(rpc);
   const shieldedTransactionId = await rpcClient.queryShieldedTransaction(
     maspAddress,
     transactionId

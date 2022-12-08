@@ -1,10 +1,6 @@
 import { JsonRpcRequest } from "@cosmjs/json-rpc";
 import { DateTime } from "luxon";
-import {
-  JsonCompatibleArray,
-  JsonCompatibleDictionary,
-  Protocol,
-} from "@anoma/rpc";
+import { JsonCompatibleArray, JsonCompatibleDictionary } from "@anoma/rpc";
 
 const MICRO_FACTOR = 1000000; // 1,000,000
 
@@ -120,21 +116,6 @@ export const sanitize = (value = " "): string => {
  */
 export const getUrl = (url = ""): string => {
   return sanitize(url).replace(/^https?\:\/\//, "");
-};
-
-/**
- * Get the protocol from a URL or return default
- * @param url
- * @returns {Protocol}
- */
-export const getUrlProtocol = (url?: string): Protocol => {
-  const prefix = sanitize(url).split(":")[0];
-
-  if (prefix === "https") {
-    return "https";
-  }
-
-  return "http";
 };
 
 /*

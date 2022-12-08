@@ -1,11 +1,13 @@
 /* eslint-disable max-len */
-import { useState, useEffect } from "react";
+import { useState, useEffect, createContext } from "react";
 import { useLocation, Location } from "react-router-dom";
 import { createBrowserHistory } from "history";
 import { AnimatePresence } from "framer-motion";
 import { ThemeProvider } from "styled-components/macro";
 
 // internal
+import { Anoma, Keplr } from "@anoma/integrations";
+import { chains } from "@anoma/chains";
 import {
   getTheme,
   loadColorMode,
@@ -13,7 +15,6 @@ import {
   ColorMode,
 } from "utils/theme";
 import { TopLevelRoute, locationToTopLevelRoute } from "./types";
-
 import { TopNavigation } from "./TopNavigation";
 import {
   AppContainer,
@@ -54,6 +55,33 @@ const getShouldUsePlaceholderTheme = (location: Location): boolean => {
   return isStaking;
 };
 
+type Integrations = Record<string, Anoma | Keplr>;
+export const AppContext = createContext<{ integrations: Integrations } | null>(
+  null
+);
+
+const IntegrationInstances = (() => {
+  const instances: Integrations = {};
+  let chainId: keyof typeof chains;
+  for (chainId in chains) {
+    const chain = chains[chainId];
+    const extensionId = chain.extension.id;
+    switch (extensionId) {
+      case "anoma": {
+        instances[chainId] = new Anoma(chain);
+        break;
+      }
+      case "keplr": {
+        instances[chainId] = new Keplr(chain);
+        break;
+      }
+      default:
+        break;
+    }
+  }
+  return instances;
+})();
+
 function App(): JSX.Element {
   const initialColorMode = loadColorMode();
   const [colorMode, setColorMode] = useState<ColorMode>(initialColorMode);
@@ -69,25 +97,27 @@ function App(): JSX.Element {
 
   return (
     <ThemeProvider theme={theme}>
-      <Provider store={store}>
-        <Toasts />
-        <GlobalStyles colorMode={colorMode} />
-        <AppContainer data-testid="AppContainer">
-          <TopSection>
-            <TopNavigation
-              colorMode={colorMode}
-              toggleColorMode={toggleColorMode}
-              setColorMode={setColorMode}
-              store={store}
-            />
-          </TopSection>
-          <BottomSection>
-            <AnimatePresence exitBeforeEnter>
-              <AppRoutes store={store} />
-            </AnimatePresence>
-          </BottomSection>
-        </AppContainer>
-      </Provider>
+      <AppContext.Provider value={{ integrations: IntegrationInstances }}>
+        <Provider store={store}>
+          <Toasts />
+          <GlobalStyles colorMode={colorMode} />
+          <AppContainer data-testid="AppContainer">
+            <TopSection>
+              <TopNavigation
+                colorMode={colorMode}
+                toggleColorMode={toggleColorMode}
+                setColorMode={setColorMode}
+                store={store}
+              />
+            </TopSection>
+            <BottomSection>
+              <AnimatePresence exitBeforeEnter>
+                <AppRoutes store={store} />
+              </AnimatePresence>
+            </BottomSection>
+          </AppContainer>
+        </Provider>
+      </AppContext.Provider>
     </ThemeProvider>
   );
 }
