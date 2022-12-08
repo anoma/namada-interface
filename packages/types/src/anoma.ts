@@ -20,6 +20,9 @@ export interface Anoma {
     txMsg: string;
     address: string;
   }) => Promise<string | undefined>;
+  encodeRevealPk: (props: {
+    signer: string;
+  }) => Promise<string | undefined>;
   version: () => string;
 }
 

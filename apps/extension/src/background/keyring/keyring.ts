@@ -15,6 +15,7 @@ import {
   ExtendedSpendingKey,
   ExtendedViewingKey,
   PaymentAddress,
+  RevealPk,
 } from "@anoma/shared";
 import { IStore, Store } from "@anoma/storage";
 import { AccountType, Bip44Path, DerivedAccount, SignedTx } from "@anoma/types";
@@ -323,36 +324,23 @@ export class KeyRing {
     if (!this._password) {
       throw new Error("Not authenticated!");
     }
+
     const account = await this._keyStore.getRecord("address", address);
     if (!account) {
       throw new Error(`Account not found for ${address}`);
     }
 
     try {
-      const decrypted = crypto.decrypt(account, this._password);
-      let pk: string;
-      // If the account type is a Mnemonic, derive a private key
-      // from associated derived address (root account):
-      if (account.type === AccountType.Mnemonic) {
-        const { path } = account;
-        const mnemonic = Mnemonic.from_phrase(decrypted);
-        const bip44 = new HDWallet(mnemonic.to_seed());
-        const { coinType } = chains[0].bip44;
-        const derivationPath = `m/44'/${coinType}'/${path.account}'/${path.change}`;
-        const derived = bip44.derive(derivationPath);
-        pk = derived.private().to_hex();
-      } else {
-        pk = decrypted;
-      }
-
+      const privateKey = this.getPrivateKey(account, this._password);
       const signer = new Signer(txData);
-      const { hash, bytes } = signer.sign(txMsg, pk);
+      const { hash, bytes } = signer.sign(txMsg, privateKey);
 
       return {
         hash,
         bytes: toBase64(bytes),
       };
     } catch (e) {
+      console.error(e);
       throw new Error(`Could not unlock account for ${address}: ${e}`);
     }
   }
@@ -383,5 +371,45 @@ export class KeyRing {
     } catch (e) {
       throw new Error(`Could not encode InitAccount for ${address}: ${e}`);
     }
+  }
+
+  async encodeRevealPk(
+    signer: string,
+  ): Promise<Uint8Array> {
+    if (!this._password) {
+      throw new Error("Not authenticated!");
+    }
+    const account = await this._keyStore.getRecord("address", signer);
+    if (!account) {
+      throw new Error(`Account not found for ${signer}`);
+    }
+
+    const privateKey = this.getPrivateKey(account, this._password);
+
+    try {
+      const { tx_data } = new RevealPk(privateKey).to_serialized();
+      return tx_data;
+    } catch (e) {
+      throw new Error(`Could not encode InitAccount for ${signer}: ${e}`);
+    }
+  }
+
+  private getPrivateKey(account: KeyStore, password: string): string {
+      const decrypted = crypto.decrypt(account, password);
+      let private_key = decrypted;
+
+      // If the account type is a Mnemonic, derive a private key
+      // from associated derived address (root account):
+      if (account.type === AccountType.Mnemonic) {
+        const { path } = account;
+        const mnemonic = Mnemonic.from_phrase(decrypted);
+        const bip44 = new HDWallet(mnemonic.to_seed());
+        const { coinType } = chains[0].bip44;
+        const derivationPath = `m/44'/${coinType}'/${path.account}'/${path.change}`;
+        const derived = bip44.derive(derivationPath);
+        private_key = derived.private().to_hex();
+      }
+
+      return private_key;
   }
 }

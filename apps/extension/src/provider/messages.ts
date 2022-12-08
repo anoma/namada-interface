@@ -18,6 +18,7 @@ enum MessageType {
   EncodeTransfer = "encode-transfer",
   EncodeIbcTransfer = "encode-ibc-transfer",
   EncodeInitAccount = "encode-init-account",
+  EncodeRevealPublicKey = "encode-reveal-public-key",
   GetChain = "get-chain",
   GetChains = "get-chains",
   SuggestChain = "suggest-chain",
@@ -231,5 +232,30 @@ export class EncodeInitAccountMsg extends Message<string> {
 
   type(): string {
     return EncodeInitAccountMsg.type();
+  }
+}
+
+export class EncodeRevealPkMsg extends Message<string> {
+  public static type(): MessageType {
+    return MessageType.EncodeRevealPublicKey;
+  }
+
+  constructor(public readonly signer: string) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.signer) {
+      throw new Error("An signer is required!");
+    }
+    return;
+  }
+
+  route(): string {
+    return Route.KeyRing;
+  }
+
+  type(): string {
+    return EncodeRevealPkMsg.type();
   }
 }

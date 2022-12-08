@@ -76,6 +76,15 @@ export class InjectedAnoma implements IAnoma {
     >("encodeInitAccount", props);
   }
 
+  public async encodeRevealPk(props: {
+    signer: string;
+  }): Promise<string | undefined> {
+    return await InjectedProxy.requestMethod<
+      { signer: string },
+      string
+    >("encodeRevealPk", props);
+  }
+
   public version(): string {
     return this._version;
   }

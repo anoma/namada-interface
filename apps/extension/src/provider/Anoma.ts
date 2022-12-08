@@ -10,6 +10,7 @@ import {
   EncodeTransferMsg,
   QueryAccountsMsg,
   SignTxMsg,
+  EncodeRevealPkMsg,
 } from "./messages";
 
 export class Anoma implements IAnoma {
@@ -87,6 +88,16 @@ export class Anoma implements IAnoma {
     return await this.requester?.sendMessage(
       Ports.Background,
       new EncodeInitAccountMsg(txMsg, address)
+    );
+  }
+
+  public async encodeRevealPk(props: {
+    signer: string;
+  }): Promise<string | undefined> {
+    const { signer } = props;
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new EncodeRevealPkMsg(signer)
     );
   }
 

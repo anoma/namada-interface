@@ -13,6 +13,7 @@ import {
   EncodeTransferMsg,
   EncodeIbcTransferMsg,
   EncodeInitAccountMsg,
+  EncodeRevealPkMsg,
   QueryAccountsMsg,
   SignTxMsg,
 } from "provider/messages";
@@ -52,6 +53,11 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleEncodeInitAccountMsg(service)(
           env,
           msg as EncodeInitAccountMsg
+        );
+      case EncodeRevealPkMsg:
+        return handleEncodeRevealPkMsg(service)(
+          env,
+          msg as EncodeRevealPkMsg
         );
       default:
         throw new Error("Unknown msg type");
@@ -161,5 +167,14 @@ const handleEncodeInitAccountMsg: (
   return (_, msg) => {
     const { address, txMsg } = msg;
     return service.encodeInitAccount(txMsg, address);
+  };
+};
+
+const handleEncodeRevealPkMsg: (
+  service: KeyRingService
+) => InternalHandler<EncodeRevealPkMsg> = (service) => {
+  return (_, msg) => {
+    const { signer } = msg;
+    return service.encodeRevealPk(signer);
   };
 };
