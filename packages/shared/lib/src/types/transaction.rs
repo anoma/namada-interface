@@ -1,4 +1,4 @@
-use crate::{types::{tx::Tx, wrapper::WrapperTx}, utils::{console_log, console_log_any}};
+use crate::types::{tx::Tx, wrapper::WrapperTx};
 use borsh::{BorshDeserialize, BorshSerialize};
 use namada::types::{
     address::Address,

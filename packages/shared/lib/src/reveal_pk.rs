@@ -37,22 +37,3 @@ impl RevealPk {
     }
 }
 
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//     use wasm_bindgen_test::*;
-
-//     #[wasm_bindgen_test]
-//     fn can_generate_init_account() {
-//         let secret = "1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93";
-//         let msg = AccountMsg { vp_code: vec![] };
-
-//         let msg_serialized =
-//             BorshSerialize::try_to_vec(&msg).expect("Message should serialize to vector");
-
-//         let Account { tx_data } = Account::new(&msg_serialized, secret)
-//             .expect("Should be able to create an Account from serialized message");
-
-//         assert_eq!(tx_data.len(), 37);
-//     }
-// }

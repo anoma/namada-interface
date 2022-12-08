@@ -295,7 +295,6 @@ export class KeyRing {
         type,
       };
     } catch (e) {
-      console.error(e);
       throw new Error("Could not decrypt mnemonic from password!");
     }
   }
@@ -390,7 +389,7 @@ export class KeyRing {
       const { tx_data } = new RevealPk(privateKey).to_serialized();
       return tx_data;
     } catch (e) {
-      throw new Error(`Could not encode InitAccount for ${signer}: ${e}`);
+      throw new Error(`Could not encode RevealPk for ${signer}: ${e}`);
     }
   }
 
