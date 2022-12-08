@@ -63,7 +63,7 @@ const envVariables = {
 
 // Stringify to ensure values are wrapped in quotes
 for (const key in envVariables) {
-  env[key] = JSON.stringify(envVariables);
+  env[key] = JSON.stringify(envVariables[key]);
 }
 
 const plugins = [
