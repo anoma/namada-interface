@@ -14,11 +14,9 @@ const ABCI_QUERY_PATH_PREFIX = "/shell/";
 
 class RpcClient {
   private _client: HttpClient;
-  private _url: string;
 
   constructor(url: string) {
-    this._url = url;
-    this._client = new HttpClient(this.endpoint);
+    this._client = new HttpClient(url);
   }
 
   public async broadcastTxSync(tx: string): Promise<AbciResponse> {
@@ -185,10 +183,6 @@ class RpcClient {
     } catch (e) {
       return Promise.reject(e);
     }
-  }
-
-  protected get endpoint(): string {
-    return this._url;
   }
 }
 
