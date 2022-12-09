@@ -14,6 +14,7 @@ import {
   EncodeInitAccountMsg,
   QueryAccountsMsg,
   SignTxMsg,
+  EncodeRevealPkMsg,
 } from "provider/messages";
 
 import { ROUTE } from "./constants";
@@ -33,6 +34,7 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(EncodeTransferMsg);
   router.registerMessage(EncodeIbcTransferMsg);
   router.registerMessage(EncodeInitAccountMsg);
+  router.registerMessage(EncodeRevealPkMsg);
 
   router.addHandler(ROUTE, getHandler(service));
 }

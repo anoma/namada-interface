@@ -85,6 +85,7 @@ describe("Anoma", () => {
     ]);
 
     const txProps: TxProps = {
+      signInner: true,
       token:
         "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5",
       epoch: 0,

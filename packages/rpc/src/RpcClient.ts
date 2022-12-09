@@ -25,6 +25,54 @@ class RpcClient extends RpcClientBase {
     this._client = new HttpClient(this.endpoint);
   }
 
+  public async broadcastTxSync(tx: string): Promise<AbciResponse> {
+    const request = createJsonRpcRequest("broadcast_tx_sync", [tx]);
+
+    try {
+      const json: JsonRpcSuccessResponse = await this._client.execute(request);
+      const response: AbciResponse = json.result.response;
+      return response;
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  public async getAppliedTx(hash: string): Promise<AbciResponse> {
+    const path = `${ABCI_QUERY_PATH_PREFIX}applied/${hash}`;
+    const request = createJsonRpcRequest("abci_query", [path, "", "0", false]);
+    let TRIES = 10;
+
+    const executeRequest = async (): Promise<AbciResponse> => {
+      try {
+        const json: JsonRpcSuccessResponse = await this._client.execute(
+          request
+        );
+        const response: AbciResponse = json.result.response;
+        return response;
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    };
+
+    const executePollRequest = async (): Promise<AbciResponse> => {
+      let result = await executeRequest();
+      while (result.value === "AA==" && TRIES > 0) {
+        TRIES--;
+        await wait(1000);
+        result = await executeRequest();
+      }
+      return result;
+    };
+
+    const wait = async (ms = 1000): Promise<unknown> => {
+      return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+      });
+    };
+
+    return executePollRequest();
+  }
+
   public async queryBalance(token: string, owner: string): Promise<number> {
     const path = `${ABCI_QUERY_PATH_PREFIX}value/#${token}/balance/#${owner}`;
     const request = createJsonRpcRequest("abci_query", [path, "", "0", false]);

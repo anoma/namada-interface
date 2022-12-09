@@ -123,4 +123,16 @@ export class Signer implements ISigner {
       address: signer,
     });
   }
+
+  /**
+   * Encode an RevealPk message
+   */
+  public async encodeRevealPk(
+    signer: string,
+  ): Promise<string | undefined> {
+
+    return await this._anoma.encodeRevealPk({
+      signer,
+    });
+  }
 }

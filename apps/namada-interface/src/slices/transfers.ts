@@ -161,7 +161,43 @@ type TransferData = {
   target: string;
   token: string;
   amount: number;
-  epoch: number;
+};
+
+const revealPublicKey = async (
+  account: Account,
+  token: string,
+  epoch: number,
+  gasLimit = 10000000,
+  feeAmount = 10000
+): Promise<{ hash: string; bytes: string }> => {
+  const anoma = new Anoma(chains[account.chainId]);
+  anoma.connect();
+  const signer = anoma.signer();
+  const txCode = await fetchWasmCode(TxWasm.RevealPK);
+
+  const encodedTx =
+    (await signer?.encodeRevealPk(account.address)) || "";
+
+  const txProps = {
+    token,
+    epoch,
+    feeAmount,
+    gasLimit,
+    txCode,
+    signInner: false,
+  };
+
+  const { hash, bytes } =
+    (await signer?.signTx(account.address, txProps, encodedTx)) || {};
+
+  if (hash && bytes) {
+    return {
+      hash,
+      bytes,
+    };
+  }
+
+  throw Error("Invalid RevealPublicKey Transaction");
 };
 
 // TODO: Re-enable, and update this:
@@ -188,17 +224,19 @@ type TransferData = {
 // this creates the transfer that is being submitted to the ledger, if the transfer is shielded
 // it will first create the shielded transfer that is included in the "parent" transfer
 const createTransfer = async (
+  epoch: number,
   sourceAccount: Account,
   transferData: TransferData,
   gasLimit = 100000,
   feeAmount = 1000
 ): Promise<TransferHashAndBytes> => {
   const { chainId, address } = sourceAccount;
-  const { amount, target, token, epoch } = transferData;
+  const { amount, target, token } = transferData;
   const txCode = await fetchWasmCode(TxWasm.Transfer);
 
   // Invoke extension integration
   const anoma = new Anoma(chains[chainId]);
+  anoma.connect();
   const signer = anoma.signer();
   const encodedTx =
     (await signer?.encodeTransfer({
@@ -214,6 +252,7 @@ const createTransfer = async (
     feeAmount,
     gasLimit,
     txCode,
+    signInner: true,
   };
 
   const { hash, bytes } =
@@ -319,9 +358,9 @@ export const submitTransferTransaction = createAsyncThunk(
       amount,
       memo = "",
       // TODO: What are reasonable defaults for this?
-      feeAmount = 1000,
+      feeAmount = 10000,
       // TODO: What are reasonable defaults for this?
-      gasLimit = 1000000,
+      gasLimit = 10000000,
       faucet,
       chainId,
       notify,
@@ -341,23 +380,26 @@ export const submitTransferTransaction = createAsyncThunk(
         )
       );
 
-    let epoch: number;
-    try {
-      epoch = await rpcClient.queryEpoch();
-    } catch (e) {
-      return rejectWithValue(e);
-    }
-
     const token = Tokens[tokenType]; // TODO refactor, no need for separate Tokens and tokenType
     const transferData: TransferData = {
       source,
       target,
       token: token.address || "",
       amount: amountToMicro(amount),
-      epoch,
     };
 
+    try {
+      const epoch = await rpcClient.queryEpoch();
+      const revealPk = await revealPublicKey(account, token.address || "", epoch);
+      await rpcClient.broadcastTxSync(revealPk.bytes);
+      await rpcClient.getAppliedTx(revealPk.hash);
+    } catch (e) {
+      return rejectWithValue(e);
+    }
+
+    const epoch = await rpcClient.queryEpoch();
     const createdTransfer = await createTransfer(
+      epoch,
       account,
       transferData,
       gasLimit,
@@ -368,7 +410,7 @@ export const submitTransferTransaction = createAsyncThunk(
     const { promise, timeoutId } = promiseWithTimeout<Events>(
       new Promise(async (resolve, reject) => {
         try {
-          await socketClient.broadcastTx(transferAsBytes);
+          await rpcClient.broadcastTxSync(transferAsBytes);
         } catch (e) {
           return reject(
             `Unable to broadcast transfer! ${
@@ -481,6 +523,7 @@ export const submitIbcTransferTransaction = createAsyncThunk(
 
     // Invoke extension integration
     const anoma = new Anoma(chains[chainId]);
+    anoma.connect();
     const signer = anoma.signer();
     const encodedTx =
       (await signer?.encodeIbcTransfer({
@@ -498,6 +541,7 @@ export const submitIbcTransferTransaction = createAsyncThunk(
       feeAmount,
       gasLimit,
       txCode,
+      signInner: true
     };
 
     const { hash, bytes } =

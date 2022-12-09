@@ -104,4 +104,11 @@ export class KeyRingService {
     );
     return toBase64(tx_data);
   }
+
+  async encodeRevealPk(signer: string): Promise<string> {
+    const tx_data = await this._keyRing.encodeRevealPk(
+      signer,
+    );
+    return toBase64(tx_data);
+  }
 }
