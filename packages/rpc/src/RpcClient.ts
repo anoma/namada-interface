@@ -7,14 +7,9 @@ import { Buffer } from "buffer";
 import { amountFromMicro, createJsonRpcRequest } from "@anoma/utils";
 import { decodeTransactionWithNextTxId } from "./utils";
 import { NodeWithNextId } from "@anoma/masp-web";
-import RpcClientBase from "./RpcClientBase";
 import { schemaAmount, TokenAmount } from "./schema";
 import { AbciResponse, PathType } from "./types";
 
-/* const ABCI_QUERY_PATH_PREFIX = ""; */
-// TODO: When the RPC shell sub-router feature is merged to main
-// (See: https://github.com/anoma/namada/pull/569), then use the
-// following, and remove the empty prefix above.
 const ABCI_QUERY_PATH_PREFIX = "/shell/";
 
 class RpcClient {
@@ -41,7 +36,7 @@ class RpcClient {
   public async getAppliedTx(hash: string): Promise<AbciResponse> {
     const path = `${ABCI_QUERY_PATH_PREFIX}applied/${hash}`;
     const request = createJsonRpcRequest("abci_query", [path, "", "0", false]);
-    let TRIES = 10;
+    let TRIES = 40;
 
     const executeRequest = async (): Promise<AbciResponse> => {
       try {
