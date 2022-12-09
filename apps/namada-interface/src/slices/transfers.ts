@@ -64,7 +64,6 @@ const getToast = (
 };
 
 const TRANSFERS_ACTIONS_BASE = "transfers";
-const LEDGER_TRANSFER_TIMEOUT = 20000;
 const IBC_TRANSFER_TIMEOUT = 15000;
 /* const MASP_ADDRESS = TRANSFER_CONFIGURATION.maspAddress; */
 
@@ -175,8 +174,7 @@ const revealPublicKey = async (
   const signer = anoma.signer();
   const txCode = await fetchWasmCode(TxWasm.RevealPK);
 
-  const encodedTx =
-    (await signer?.encodeRevealPk(account.address)) || "";
+  const encodedTx = (await signer?.encodeRevealPk(account.address)) || "";
 
   const txProps = {
     token,
@@ -371,7 +369,6 @@ export const submitTransferTransaction = createAsyncThunk(
     const { rpc } = chains[chainId];
 
     const rpcClient = new RpcClient(rpc);
-    const socketClient = new SocketClient(rpc);
 
     notify &&
       dispatch(
@@ -390,7 +387,11 @@ export const submitTransferTransaction = createAsyncThunk(
 
     try {
       const epoch = await rpcClient.queryEpoch();
-      const revealPk = await revealPublicKey(account, token.address || "", epoch);
+      const revealPk = await revealPublicKey(
+        account,
+        token.address || "",
+        epoch
+      );
       await rpcClient.broadcastTxSync(revealPk.bytes);
       await rpcClient.getAppliedTx(revealPk.hash);
     } catch (e) {
@@ -407,34 +408,28 @@ export const submitTransferTransaction = createAsyncThunk(
     );
 
     const { transferHash, transferAsBytes, transferType } = createdTransfer;
-    const { promise, timeoutId } = promiseWithTimeout<Events>(
-      new Promise(async (resolve, reject) => {
-        try {
-          await rpcClient.broadcastTxSync(transferAsBytes);
-        } catch (e) {
-          return reject(
-            `Unable to broadcast transfer! ${
-              typeof e === "string" ? `Received: ${e}` : ""
-            }`
-          );
-        }
-        const events = await socketClient.subscribeNewBlock(transferHash);
-        return resolve(events);
-      }),
-      LEDGER_TRANSFER_TIMEOUT,
-      `Async actions timed out when submitting Token Transfer after ${
-        LEDGER_TRANSFER_TIMEOUT / 1000
-      } seconds`
-    );
 
-    promise.catch((e) => {
-      socketClient.disconnect();
-      return rejectWithValue(e);
-    });
-
-    const events = await promise;
-    socketClient.disconnect();
-    clearTimeout(timeoutId);
+    // TODO https://github.com/anoma/namada-interface/issues/4#issuecomment-1342977235
+    // we should make the getAppliedTx return Events, or maybe better
+    // make this function utilize the proper type that is in AbciResponse
+    // to pick up the data we need here
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let _events: any;
+    let events: Events;
+    try {
+      await rpcClient.broadcastTxSync(transferAsBytes);
+      _events = await rpcClient.getAppliedTx(transferHash);
+      // we just defien some fake data for now as we do not decode the
+      // response to the call checking if Tx was applied
+      events = {
+        code: "0",
+        gas_used: "0",
+        hash: "placeholder_applied_hash",
+        height: "placeholder_height",
+      };
+    } catch (error) {
+      return rejectWithValue(error);
+    }
 
     const code = events[TxResponse.Code];
     const info = events[TxResponse.Info];
@@ -541,7 +536,7 @@ export const submitIbcTransferTransaction = createAsyncThunk(
       feeAmount,
       gasLimit,
       txCode,
-      signInner: true
+      signInner: true,
     };
 
     const { hash, bytes } =
