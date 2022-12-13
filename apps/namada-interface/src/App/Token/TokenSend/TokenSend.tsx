@@ -58,9 +58,6 @@ const TokenSend = (): JSX.Element => {
   const balances = balancesByChain[chainId] || {};
   const accounts = derived[chainId] || {};
 
-  const transparentAccounts = Object.values(accounts).filter(
-    (account) => !account.isShielded
-  );
   const shieldedAccounts = Object.values(accounts).filter(
     (account) => account.isShielded
   );
@@ -82,9 +79,9 @@ const TokenSend = (): JSX.Element => {
     isShielded: boolean;
   };
 
-  // Get balances for each token & account
-  const tokenBalances = Object.values(accounts).reduce(
-    (data: AccountTokenData[], account) => {
+  // Get balances > 0 for each token & account
+  const tokenBalances = Object.values(accounts)
+    .reduce((data: AccountTokenData[], account) => {
       const { address, alias, isShielded } = account;
 
       const accountsWithToken: AccountTokenData[] = Symbols.map((symbol) => {
@@ -100,10 +97,10 @@ const TokenSend = (): JSX.Element => {
       });
 
       return [...data, ...accountsWithToken];
-    },
-    []
-  );
+    }, [])
+    .filter((tokenBalance) => tokenBalance.balance !== 0);
 
+  // Create array of data for drop-down menu
   const getTokenData = (isShielded: boolean): Option<string>[] => {
     return tokenBalances
       .filter(
@@ -130,23 +127,19 @@ const TokenSend = (): JSX.Element => {
   }
 
   const [activeTab, setActiveTab] = useState(tabs[defaultTab]);
-  const defaultTokenType = "NAM";
-  // TODO: We should refactor transparentTokenData to provide a mapping to the
-  // currently selected account in order to set the initial token type,
-  // and to avoid parsing as we do below:
-  const [token, setToken] = useState<TokenType>(
-    (transparentTokenData[0]?.value.split("|")[1] as TokenType) ||
-      defaultTokenType
-  );
+  const [token, setToken] = useState<TokenType>("NAM");
 
+  // Set transparent address and token to first token balance
   useEffect(() => {
-    // Set selectedTransparentAccountAddress to first account if one
-    // hasn't been set:
-    if (!selectedTransparentAccountAddress && tokenBalances.length > 0) {
-      setSelectedTransparentAccountAddress(tokenBalances[0].address);
+    if (tokenBalances[0]) {
+      const { address, tokenType } = tokenBalances[0];
+      setToken(tokenType);
+      setSelectedTransparentAccountAddress(address);
     }
-  }, [transparentAccounts, selectedTransparentAccountAddress]);
+  }, []);
 
+  // TODO: When shielded balances are available, the following should be
+  // revisited and refactored
   useEffect(() => {
     // Set selectedShieldedAccountAddress to first account if one
     // hasn't been set:
