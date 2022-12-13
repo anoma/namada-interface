@@ -57,7 +57,6 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
     cancelBonding,
   } = props;
 
-  // TODO: pass addresses in props instead
   const selectOptions = addresses.map((address) => ({
     value: address,
     label: truncateInMiddle(address, 9, 9),
@@ -89,7 +88,6 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
   // unbonding amount and displayed value with a very naive validation
   // TODO (https://github.com/anoma/namada-interface/issues/4#issuecomment-1260564499)
   // do proper validation as part of input
-  // const bondedAmountAsNumber = Number(currentBondingPosition.stakedAmount);
   const amountToBondNumber = Number(amountToBond);
 
   // if this is the case, we display error message

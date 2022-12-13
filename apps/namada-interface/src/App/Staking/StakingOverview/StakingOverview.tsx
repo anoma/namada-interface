@@ -134,7 +134,6 @@ export const StakingOverview = (props: Props): JSX.Element => {
   const totalBalance = Object.values(balance).reduce((acc, curr) => {
     return acc + curr["NAM"];
   }, 0);
-  // TODO: change after extension changes are merged
 
   return (
     <StakingOverviewContainer>
