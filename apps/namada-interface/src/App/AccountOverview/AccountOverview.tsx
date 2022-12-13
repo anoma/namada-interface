@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { chains } from "@anoma/chains";
@@ -26,7 +26,7 @@ import {
   TotalHeading,
 } from "./AccountOverview.components";
 import { formatCurrency } from "@anoma/utils";
-import { AppContext } from "App/App";
+import { useIntegrationConnection } from "services";
 import { Account, ExtensionKey, Extensions } from "@anoma/types";
 
 export const AccountOverview = (): JSX.Element => {
@@ -39,7 +39,6 @@ export const AccountOverview = (): JSX.Element => {
     keplr: false,
     metamask: false,
   });
-  const [isConnectingToExtension, setIsConnectingToExtension] = useState(false);
 
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
 
@@ -47,18 +46,16 @@ export const AccountOverview = (): JSX.Element => {
     (state) => state.settings
   );
 
-  const context = useContext(AppContext);
-  const integration = context?.integrations[chainId];
+  const [integration, isConnectingToExtension, withConnection] =
+    useIntegrationConnection(chainId);
   const chain = chains[chainId];
   const extensionAlias = Extensions[chain.extension.id].alias;
 
   const [total, setTotal] = useState(0);
 
   const handleConnectExtension = async (): Promise<void> => {
-    try {
-      if (integration?.detect()) {
-        setIsConnectingToExtension(true);
-        await integration?.connect();
+    withConnection(
+      async () => {
         const accounts = await integration?.accounts();
         if (accounts) {
           dispatch(addAccounts(accounts as Account[]));
@@ -68,14 +65,14 @@ export const AccountOverview = (): JSX.Element => {
           ...isExtensionConnected,
           [chain.extension.id]: true,
         });
+      },
+      async () => {
+        setIsExtensionConnected({
+          ...isExtensionConnected,
+          [chain.extension.id]: false,
+        });
       }
-    } catch (e) {
-      setIsExtensionConnected({
-        ...isExtensionConnected,
-        [chain.extension.id]: false,
-      });
-      setIsConnectingToExtension(false);
-    }
+    );
   };
 
   return (
