@@ -5,13 +5,14 @@ import {
   BondingAddressSelect,
   NewBondingTable,
 } from "./NewBondingPosition.components";
-import { Table, TableConfigurations, KeyValueData } from "components/Table";
+import { TableConfigurations, KeyValueData } from "components/Table";
 import { Button, ButtonVariant } from "components/Button";
 import {
   StakingPosition,
   ChangeInStakingPosition,
 } from "slices/StakingAndGovernance";
 import { truncateInMiddle } from "@anoma/utils";
+import { BalanceByToken } from "slices/balances";
 
 const REMAINS_BONDED_KEY = "Remains bonded";
 
@@ -37,9 +38,9 @@ const bondingDetailsConfigurations: TableConfigurations<KeyValueData, never> = {
 };
 
 type Props = {
+  balance: Record<string, BalanceByToken>;
+  addresses: string[];
   currentBondingPositions: StakingPosition[];
-  // this is how much we have available for bonding
-  totalFundsToBond: number;
   // called when the user confirms bonding
   confirmBonding: (changeInStakingPosition: ChangeInStakingPosition) => void;
   // called when the user cancels bonding
@@ -49,28 +50,35 @@ type Props = {
 // contains everything what the user needs for bonding funds
 export const NewBondingPosition = (props: Props): JSX.Element => {
   const {
+    balance,
+    addresses,
     currentBondingPositions,
-    totalFundsToBond,
     confirmBonding,
     cancelBonding,
   } = props;
 
   // TODO: pass addresses in props instead
-  const selectOptions = currentBondingPositions.map(({ owner }) => ({
-    value: owner,
-    label: truncateInMiddle(owner || "", 9, 9),
+  const selectOptions = addresses.map((address) => ({
+    value: address,
+    label: truncateInMiddle(address, 9, 9),
   }));
 
-  const [address, setAddress] = useState<string>(selectOptions[0].value);
+  const [address, setAddress] = useState<string>(addresses[0]);
+  const [currentBalance, setCurrentBalance] = useState<BalanceByToken>(
+    balance[addresses[0]]
+  );
   const currentBondingPosition = currentBondingPositions.find(
     (pos) => pos.owner === address
   );
   const stakedAmount = Number(currentBondingPosition?.stakedAmount || "0");
+  const currentNAMBalance = currentBalance["NAM"];
 
   const handleAddressChange = (
     e: React.ChangeEvent<HTMLSelectElement>
   ): void => {
-    setAddress(e.target.value);
+    const address = e.target.value;
+    setAddress(address);
+    setCurrentBalance(balance[address]);
   };
 
   // storing the unbonding input value locally here as string
@@ -87,7 +95,7 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
   // if this is the case, we display error message
   const isEntryIncorrect =
     (amountToBond !== "" && amountToBondNumber <= 0) ||
-    amountToBondNumber > totalFundsToBond ||
+    amountToBondNumber > currentNAMBalance ||
     Number.isNaN(amountToBondNumber);
 
   // if incorrect or empty value we disable the button
@@ -95,7 +103,7 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
 
   // we convey this with an object that can be used
   const remainsBondedToDisplay = isEntryIncorrect
-    ? `The bonding amount can be more than 0 and at most ${totalFundsToBond}`
+    ? `The bonding amount can be more than 0 and at most ${currentNAMBalance}`
     : `${stakedAmount + amountToBondNumber}`;
 
   // data for the table
@@ -103,7 +111,7 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
     {
       uuid: "1",
       key: "Total Funds",
-      value: `${totalFundsToBond}`,
+      value: `${currentNAMBalance}`,
     },
     {
       uuid: "2",

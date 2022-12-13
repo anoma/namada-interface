@@ -52,7 +52,6 @@ class SocketClient extends RpcClientBase {
       onError?: (error: string) => void;
     }
   ): Promise<BroadcastSyncResponse> {
-    const base64Tx = typeof tx === "string" ? tx : toBase64(tx);
     if (!this._client) {
       this.connect();
     }

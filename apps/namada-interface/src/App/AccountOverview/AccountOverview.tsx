@@ -60,7 +60,6 @@ export const AccountOverview = (): JSX.Element => {
         if (accounts) {
           dispatch(addAccounts(accounts as Account[]));
         }
-
         setIsExtensionConnected({
           ...isExtensionConnected,
           [chain.extension.id]: true,

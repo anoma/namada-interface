@@ -14,13 +14,12 @@ import {
 } from "./types";
 import { myStakingData } from "./fakeData";
 import { RootState } from "store";
-import Config from "config";
-import { Anoma } from "@anoma/integrations";
-import { Abci, init as initShared } from "@anoma/shared";
-import { RpcClient, RpcConfig, SocketClient } from "@anoma/rpc";
+import { Abci } from "@anoma/shared";
+import { RpcClient } from "@anoma/rpc";
 import { fetchWasmCode } from "@anoma/utils";
-import { Tokens, TxWasm } from "@anoma/tx";
-import { SignedTx } from "@anoma/types";
+import { SignedTx, Signer, Tokens, TxWasm } from "@anoma/types";
+import { chains } from "@anoma/chains";
+import { getIntegration } from "services";
 
 const toValidator = ([address, votingPower]: [string, string]): Validator => ({
   uuid: address,
@@ -53,7 +52,10 @@ const toMyValidators = (
       uuid: validator,
       stakingStatus: "Bonded",
       stakedAmount: String(Number(stake) + Number(v?.stakedAmount || 0)),
-      validator: toValidator([validator, String(Number(stake) + Number(v?.stakedAmount || 0))]),
+      validator: toValidator([
+        validator,
+        String(Number(stake) + Number(v?.stakedAmount || 0)),
+      ]),
     },
   ];
 };
@@ -79,10 +81,9 @@ export const fetchValidators = createAsyncThunk<
   { state: RootState }
 >(FETCH_VALIDATORS, async (_, thunkApi) => {
   const { chainId } = thunkApi.getState().settings;
-  const { network } = Config.chain[chainId];
+  const { rpc } = chains[chainId];
 
-  await initShared();
-  const abci = new Abci(`http://${network.url}`);
+  const abci = new Abci(rpc);
   const allValidators = (await abci.query_all_validators()).map(toValidator);
 
   thunkApi.dispatch(fetchMyValidators(allValidators));
@@ -115,17 +116,12 @@ export const fetchMyValidators = createAsyncThunk<
 >(FETCH_MY_VALIDATORS, async (_, thunkApi) => {
   try {
     const { chainId } = thunkApi.getState().settings;
-    const { network } = Config.chain[chainId];
+    const { rpc } = chains[chainId];
 
-    const anoma = new Anoma();
-    // TODO: read from state after extension is integrated with interface
-    const accounts = (await anoma.signer(chainId).accounts()) || [];
-
-    await initShared();
-    const abci = new Abci(`http://${network.url}`);
-    const myValidatorsRes = await abci.query_my_validators(
-      accounts.map((account) => account.address)
-    );
+    const accounts = thunkApi.getState().accounts.derived[chainId];
+    const addresses = Object.keys(accounts);
+    const abci = new Abci(rpc);
+    const myValidatorsRes = await abci.query_my_validators(addresses);
 
     const myValidators = myValidatorsRes.reduce(toMyValidators, []);
     const myStakingPositions = myValidatorsRes.map(toStakingPosition);
@@ -141,18 +137,16 @@ const createBondingTx = async (
   txWasm: TxWasm,
   change: ChangeInStakingPosition,
   epoch: number,
-  chainId: string
+  chainId: string,
+  addresses: string[]
 ): Promise<SignedTx> => {
   const txCode = await fetchWasmCode(txWasm);
-  const anoma = new Anoma();
-  const signer = anoma.signer(chainId);
-
-  // TODO: read from state after extension is integrated with interface
-  const accounts = (await anoma.signer(chainId).accounts()) || [];
-  const source = change.owner || accounts[0].address;
+  const integration = getIntegration(chainId);
+  const signer = integration.signer() as Signer;
+  const source = change.owner || addresses[0];
 
   const encodedTx =
-    (await signer.encodeBonding({
+    (await signer?.encodeBonding({
       source,
       validator: change.validatorId,
       // TODO: change amount to number
@@ -160,14 +154,15 @@ const createBondingTx = async (
     })) || "";
 
   return (
-    (await signer.signTx(
+    (await signer?.signTx(
       source,
       {
-        token: Tokens["NAM"].address!,
+        token: Tokens["NAM"].address || "",
         epoch,
         feeAmount: 0,
         gasLimit: 0,
         txCode,
+        signInner: true,
       },
       encodedTx
     )) || { hash: "", bytes: "" }
@@ -193,14 +188,9 @@ export const postNewBonding = createAsyncThunk<
   { state: RootState }
 >(POST_NEW_STAKING, async (change, thunkApi) => {
   const { chainId } = thunkApi.getState().settings;
-  const chainConfig = Config.chain[chainId];
-  const {
-    network: { url, port, protocol, wsProtocol },
-    network,
-  } = chainConfig;
-  const rpcClient = new RpcClient(network);
-  const rpcConfig = new RpcConfig(url, port, protocol, wsProtocol);
-  const socketClient = new SocketClient(rpcConfig.wsNetwork);
+  const { rpc } = chains[chainId];
+  const rpcClient = new RpcClient(rpc);
+  const accounts = thunkApi.getState().accounts.derived[chainId];
 
   const epoch = await rpcClient.queryEpoch();
 
@@ -208,11 +198,12 @@ export const postNewBonding = createAsyncThunk<
     TxWasm.Bond,
     change,
     epoch,
-    chainId
+    chainId,
+    Object.keys(accounts)
   );
 
   if (hash && bytes) {
-    await socketClient.broadcastTx(bytes);
+    await rpcClient.broadcastTxSync(bytes);
   } else {
     throw new Error("Invalid transaction!");
   }
@@ -231,26 +222,22 @@ export const postNewUnbonding = createAsyncThunk<
   { state: RootState }
 >(POST_UNSTAKING, async (change, thunkApi) => {
   const { chainId } = thunkApi.getState().settings;
-  const chainConfig = Config.chain[chainId];
-  const {
-    network: { url, port, protocol, wsProtocol },
-    network,
-  } = chainConfig;
-  const rpcClient = new RpcClient(network);
-  const rpcConfig = new RpcConfig(url, port, protocol, wsProtocol);
-  const socketClient = new SocketClient(rpcConfig.wsNetwork);
+  const { rpc } = chains[chainId];
+  const rpcClient = new RpcClient(rpc);
+  const accounts = thunkApi.getState().accounts.derived[chainId];
 
   const epoch = await rpcClient.queryEpoch();
 
   const { hash, bytes } = await createBondingTx(
-    TxWasm.UnBond,
+    TxWasm.Unbond,
     change,
     epoch,
-    chainId
+    chainId,
+    Object.keys(accounts)
   );
 
   if (hash && bytes) {
-    await socketClient.broadcastTx(bytes);
+    await rpcClient.broadcastTxSync(bytes);
   } else {
     throw new Error("Invalid transaction!");
   }

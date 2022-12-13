@@ -1,6 +1,4 @@
-import {
-  truncateInMiddle,
-} from "@anoma/utils";
+import { truncateInMiddle } from "@anoma/utils";
 import { useState, useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { MainContainerNavigation } from "App/StakingAndGovernance/MainContainerNavigation";
@@ -17,6 +15,7 @@ import {
 } from "slices/StakingAndGovernance";
 import { NewBondingPosition } from "./NewBondingPosition";
 import { UnbondPosition } from "./UnbondPosition";
+import { BalanceByToken } from "slices/balances";
 
 const initialTitle = "Staking";
 
@@ -58,6 +57,8 @@ const emptyStakingPosition = (validatorId: string): StakingPosition => ({
 });
 
 type Props = {
+  balance: Record<string, BalanceByToken>;
+  addresses: string[];
   validators: Validator[];
   myValidators: MyValidators[];
   myStakingPositions: StakingPosition[];
@@ -97,6 +98,8 @@ export const Staking = (props: Props): JSX.Element => {
   const navigate = useNavigate();
 
   const {
+    balance,
+    addresses,
     onInitCallback,
     fetchValidatorDetails,
     postNewBonding,
@@ -190,18 +193,24 @@ export const Staking = (props: Props): JSX.Element => {
       {/* modal for bonding */}
       <Modal
         isOpen={modalState === ModalState.NewBonding}
-        title={`Stake with ${truncateInMiddle(selectedValidator?.name || "", 5, 5)}`}
+        title={`Stake with ${truncateInMiddle(
+          selectedValidator?.name || "",
+          5,
+          5
+        )}`}
         onBackdropClick={() => {
           cancelBonding();
         }}
       >
         <NewBondingPosition
-          totalFundsToBond={100}
+          balance={balance}
+          addresses={addresses}
           confirmBonding={confirmBonding}
           cancelBonding={cancelBonding}
           currentBondingPositions={
-            stakingPositionsWithSelectedValidator ||
-            [emptyStakingPosition(selectedValidatorId || "")]
+            stakingPositionsWithSelectedValidator.length !== 0
+              ? stakingPositionsWithSelectedValidator
+              : [emptyStakingPosition(selectedValidatorId || "")]
           }
         />
       </Modal>
@@ -231,6 +240,7 @@ export const Staking = (props: Props): JSX.Element => {
               navigateToValidatorDetails={navigateToValidatorDetails}
               myValidators={myValidators}
               validators={validators}
+              balance={balance}
             />
           }
         />

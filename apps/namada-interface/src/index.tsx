@@ -4,6 +4,7 @@ import { unstable_HistoryRouter as HistoryRouter } from "react-router-dom";
 import { createBrowserHistory } from "history";
 import { App } from "./App";
 import reportWebVitals from "./reportWebVitals";
+import { init as initShared } from "@anoma/shared/src/init";
 import "./index.css";
 
 const history = createBrowserHistory({ window });
@@ -21,3 +22,4 @@ ReactDOM.render(
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
+initShared();
