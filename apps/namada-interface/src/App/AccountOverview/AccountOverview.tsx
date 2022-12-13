@@ -26,7 +26,7 @@ import {
   TotalHeading,
 } from "./AccountOverview.components";
 import { formatCurrency } from "@anoma/utils";
-import { AppContext } from "App/App";
+import { useIntegrations } from "services";
 import { Account, ExtensionKey, Extensions } from "@anoma/types";
 
 export const AccountOverview = (): JSX.Element => {
@@ -47,8 +47,8 @@ export const AccountOverview = (): JSX.Element => {
     (state) => state.settings
   );
 
-  const context = useContext(AppContext);
-  const integration = context?.integrations[chainId];
+  const integrations = useIntegrations();
+  const integration = integrations[chainId];
   const chain = chains[chainId];
   const extensionAlias = Extensions[chain.extension.id].alias;
 

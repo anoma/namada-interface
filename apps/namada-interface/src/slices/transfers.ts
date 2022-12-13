@@ -1,8 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { chains } from "@anoma/chains";
-import { Account, TxWasm, Tokens, TokenType } from "@anoma/types";
-import { Anoma } from "@anoma/integrations";
+import { Account, TxWasm, Tokens, TokenType, Signer } from "@anoma/types";
 import {
   RpcClient,
   SocketClient,
@@ -28,6 +27,7 @@ import {
   ToastType,
 } from "slices/notifications";
 import { fetchBalanceByToken } from "./balances";
+import { getIntegration } from "services";
 
 enum Toasts {
   TransferStarted,
@@ -170,13 +170,15 @@ const revealPublicKey = async (
   gasLimit = 10000000,
   feeAmount = 10000
 ): Promise<{ hash: string; bytes: string }> => {
-  const anoma = new Anoma(chains[account.chainId]);
-  anoma.connect();
-  const signer = anoma.signer();
+  const integration = getIntegration(account.chainId);
+  integration.detect();
+
+  //TODO: We have to treat this as anoma Signer for now
+  // so we can use signer methods
+  const signer = integration.signer() as Signer;
   const txCode = await fetchWasmCode(TxWasm.RevealPK);
 
-  const encodedTx =
-    (await signer?.encodeRevealPk(account.address)) || "";
+  const encodedTx = (await signer?.encodeRevealPk(account.address)) || "";
 
   const txProps = {
     token,
@@ -235,9 +237,11 @@ const createTransfer = async (
   const txCode = await fetchWasmCode(TxWasm.Transfer);
 
   // Invoke extension integration
-  const anoma = new Anoma(chains[chainId]);
-  anoma.connect();
-  const signer = anoma.signer();
+  const integration = getIntegration(chainId);
+  integration.detect();
+  //TODO: We have to treat this as anoma Signer for now
+  // so we can use signer methods
+  const signer = integration.signer() as Signer;
   const encodedTx =
     (await signer?.encodeTransfer({
       source: address,
@@ -390,7 +394,11 @@ export const submitTransferTransaction = createAsyncThunk(
 
     try {
       const epoch = await rpcClient.queryEpoch();
-      const revealPk = await revealPublicKey(account, token.address || "", epoch);
+      const revealPk = await revealPublicKey(
+        account,
+        token.address || "",
+        epoch
+      );
       await rpcClient.broadcastTxSync(revealPk.bytes);
       await rpcClient.getAppliedTx(revealPk.hash);
     } catch (e) {
@@ -521,10 +529,11 @@ export const submitIbcTransferTransaction = createAsyncThunk(
     const tokenAddress = token?.address ?? "";
     const txCode = await fetchWasmCode(TxWasm.IBC);
 
-    // Invoke extension integration
-    const anoma = new Anoma(chains[chainId]);
-    anoma.connect();
-    const signer = anoma.signer();
+    const integration = getIntegration(chainId);
+    integration.detect();
+    //TODO: We have to treat this as anoma Signer for now
+    // so we can use signer methods
+    const signer = integration.signer() as Signer;
     const encodedTx =
       (await signer?.encodeIbcTransfer({
         sourcePort: portId,
@@ -541,7 +550,7 @@ export const submitIbcTransferTransaction = createAsyncThunk(
       feeAmount,
       gasLimit,
       txCode,
-      signInner: true
+      signInner: true,
     };
 
     const { hash, bytes } =
