@@ -38,7 +38,7 @@
     "start": "craco start",
     "dev": "NODE_ENV=development yarn start",
     "dev:local": "NODE_ENV=development; REACT_APP_LOCAL=\"true\" yarn dev",
-    "build": "craco build",
+    "build": "yarn wasm:build && craco build",
     "lint": "npx eslint src --ext .ts,.tsx",
     "lint:fix": "yarn lint -- --fix",
     "test": "create-react-scripts test --watchAll=false",
@@ -46,7 +46,8 @@
     "test:coverage": "yarn test --coverage",
     "e2e-test": "PLAYWRIGHT_BASE_URL=http://localhost:3000 yarn playwright test",
     "e2e-test:headed": "PLAYWRIGHT_BASE_URL=http://localhost:3000 yarn playwright test --project=chromium --headed",
-    "eject": "npx react-scripts eject"
+    "eject": "npx react-scripts eject",
+    "wasm:build": "./scripts/build.sh"
   },
   "eslintConfig": {
     "extends": [

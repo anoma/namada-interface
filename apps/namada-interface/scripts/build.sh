@@ -1,0 +1,6 @@
+#!/bin/sh
+
+SCRIPT_DIR=$(cd "$(dirname "$0")"; pwd -P)
+PACKAGES_PATH="../../../packages"
+
+cd "${SCRIPT_DIR}/${PACKAGES_PATH}/shared" && yarn wasm:build
