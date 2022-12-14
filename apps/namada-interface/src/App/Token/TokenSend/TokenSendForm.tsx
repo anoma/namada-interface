@@ -296,6 +296,7 @@ const TokenSendForm = ({
 
     const transferTypeBasedOnTarget =
       targetAddress && parseTarget(targetAddress);
+
     if (transferTypeBasedOnTarget === TransferType.Shielded) {
       return undefined;
     }

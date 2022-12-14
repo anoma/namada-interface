@@ -2,19 +2,8 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { chains } from "@anoma/chains";
 import { Account, TxWasm, Tokens, TokenType, Signer } from "@anoma/types";
-import {
-  RpcClient,
-  SocketClient,
-  TxResponse,
-  IbcTxResponse,
-  Events,
-} from "@anoma/rpc";
-import {
-  amountFromMicro,
-  promiseWithTimeout,
-  fetchWasmCode,
-  amountToMicro,
-} from "@anoma/utils";
+import { RpcClient } from "@anoma/rpc";
+import { fetchWasmCode, amountToMicro } from "@anoma/utils";
 
 /* import { */
 /*   createShieldedTransfer, */
@@ -64,8 +53,6 @@ const getToast = (
 };
 
 const TRANSFERS_ACTIONS_BASE = "transfers";
-const LEDGER_TRANSFER_TIMEOUT = 20000;
-const IBC_TRANSFER_TIMEOUT = 15000;
 /* const MASP_ADDRESS = TRANSFER_CONFIGURATION.maspAddress; */
 
 export type IBCTransferAttributes = {
@@ -375,7 +362,6 @@ export const submitTransferTransaction = createAsyncThunk(
     const { rpc } = chains[chainId];
 
     const rpcClient = new RpcClient(rpc);
-    const socketClient = new SocketClient(rpc);
 
     notify &&
       dispatch(
@@ -415,62 +401,23 @@ export const submitTransferTransaction = createAsyncThunk(
     );
 
     const { transferHash, transferAsBytes, transferType } = createdTransfer;
-    const { promise, timeoutId } = promiseWithTimeout<Events>(
-      new Promise(async (resolve, reject) => {
-        try {
-          await rpcClient.broadcastTxSync(transferAsBytes);
-        } catch (e) {
-          return reject(
-            `Unable to broadcast transfer! ${
-              typeof e === "string" ? `Received: ${e}` : ""
-            }`
-          );
-        }
-        const events = await socketClient.subscribeNewBlock(transferHash);
-        return resolve(events);
-      }),
-      LEDGER_TRANSFER_TIMEOUT,
-      `Async actions timed out when submitting Token Transfer after ${
-        LEDGER_TRANSFER_TIMEOUT / 1000
-      } seconds`
-    );
-
-    promise.catch((e) => {
-      socketClient.disconnect();
+    try {
+      await rpcClient.broadcastTxSync(transferAsBytes);
+      await rpcClient.getAppliedTx(transferHash);
+    } catch (e) {
       return rejectWithValue(e);
-    });
-
-    const events = await promise;
-    socketClient.disconnect();
-    clearTimeout(timeoutId);
-
-    const code = events[TxResponse.Code];
-    const info = events[TxResponse.Info];
-
-    if (code !== "0") {
-      return rejectWithValue(info);
     }
-
-    const gas = amountFromMicro(parseInt(events[TxResponse.GasUsed]));
-    const appliedHash = events[TxResponse.Hash];
-    const height = parseInt(events[TxResponse.Height]);
 
     dispatch(fetchBalanceByToken({ token: tokenType, account }));
 
-    // TODO: Re-enable the following!
-    /* dispatch(updateShieldedBalances()); */
-
-    // TODO pass this as a callback from consumer as we might need different behaviors
-    // history.push(
-    //   TopLevelRouteGenerator.createRouteForTokenByTokenId(
-    //     txTransferArgs.account.id
-    //   )
-    // );
-    //
     notify &&
       dispatch(
         notificationsActions.createToast(
-          getToast(`${requestId}-fullfilled`, Toasts.TransferCompleted)({ gas })
+          // TODO: Remove the following if we decided we do not want to return gas used
+          getToast(
+            `${requestId}-fullfilled`,
+            Toasts.TransferCompleted
+          )({ gas: 100000 })
         )
       );
 
@@ -480,12 +427,12 @@ export const submitTransferTransaction = createAsyncThunk(
         chainId,
         source,
         target,
-        appliedHash,
+        appliedHash: transferHash,
         tokenType,
         amount,
         memo,
-        gas,
-        height,
+        gas: 100000,
+        height: 2,
         timestamp: new Date().getTime(),
         type: transferType,
       },
@@ -493,6 +440,7 @@ export const submitTransferTransaction = createAsyncThunk(
   }
 );
 
+// TODO: This needs to be revisited and tested
 export const submitIbcTransferTransaction = createAsyncThunk(
   `${TRANSFERS_ACTIONS_BASE}/${TransfersThunkActions.SubmitIbcTransferTransaction}`,
   async (
@@ -516,7 +464,6 @@ export const submitIbcTransferTransaction = createAsyncThunk(
     const { rpc } = chains[chainId];
 
     const rpcClient = new RpcClient(rpc);
-    const socketClient = new SocketClient(rpc);
 
     let epoch: number;
     try {
@@ -559,71 +506,36 @@ export const submitIbcTransferTransaction = createAsyncThunk(
     if (!hash || !bytes) {
       throw new Error("Invalid transaction!");
     }
-    const { promise, timeoutId } = promiseWithTimeout<Events>(
-      new Promise(async (resolve) => {
-        // TODO: Bytes received should already be in base64 encoded!
-        await socketClient.broadcastTx(bytes);
-        const events = await socketClient.subscribeNewBlock(hash);
-        resolve(events);
-      }),
-      IBC_TRANSFER_TIMEOUT,
-      `Async actions timed out when submitting IBC Transfer after ${
-        IBC_TRANSFER_TIMEOUT / 1000
-      } seconds`
-    );
 
-    promise.catch((e) => {
-      socketClient.disconnect();
+    try {
+      await rpcClient.broadcastTxSync(bytes);
+      await rpcClient.getAppliedTx(hash);
+    } catch (e) {
       return rejectWithValue(e);
-    });
-
-    const events = await promise;
-    socketClient.disconnect();
-    clearTimeout(timeoutId);
-
-    const code = events[TxResponse.Code];
-    const info = events[TxResponse.Info];
-
-    if (code !== "0") {
-      return rejectWithValue(info);
     }
-
-    // Get transaction events
-    const gas = amountFromMicro(parseInt(events[TxResponse.GasUsed]));
-    const appliedHash = events[TxResponse.Hash];
-    const height = parseInt(events[TxResponse.Height]);
-
-    // Get IBC events
-    const sourceChannel = events[IbcTxResponse.SourceChannel];
-    const sourcePort = events[IbcTxResponse.SourcePort];
-    const destinationChannel = events[IbcTxResponse.DestinationChannel];
-    const destinationPort = events[IbcTxResponse.DestinationPort];
-    const timeoutHeight = 0;
-    parseInt(events[IbcTxResponse.TimeoutHeight]);
-    const timeoutTimestamp = 0;
-    parseInt(events[IbcTxResponse.TimeoutTimestamp]);
 
     return {
       chainId,
-      appliedHash,
+      appliedHash: hash,
       tokenType,
       source,
       target,
       amount,
       memo,
       shielded: false,
-      gas,
-      height,
+      gas: 1000000,
+      height: 0,
       timestamp: new Date().getTime(),
       type: TransferType.IBC,
+      // TODO: Remove unused properties below
       ibcTransfer: {
         chainId,
-        sourceChannel,
-        sourcePort,
-        destinationChannel,
-        destinationPort,
-        timeoutHeight,
-        timeoutTimestamp,
+        sourceChannel: channelId,
+        sourcePort: portId,
+        destinationChannel: channelId,
+        destinationPort: portId,
+        timeoutHeight: 0,
+        timeoutTimestamp: 0,
       },
     };
   }
