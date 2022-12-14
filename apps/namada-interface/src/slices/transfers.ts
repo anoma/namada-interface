@@ -1,27 +1,9 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { chains } from "@anoma/chains";
-<<<<<<< HEAD
 import { Account, TxWasm, Tokens, TokenType, Signer } from "@anoma/types";
-import {
-  RpcClient,
-  SocketClient,
-  TxResponse,
-  IbcTxResponse,
-  Events,
-} from "@anoma/rpc";
-import {
-  amountFromMicro,
-  promiseWithTimeout,
-  fetchWasmCode,
-  amountToMicro,
-} from "@anoma/utils";
-=======
-import { Account, TxWasm, Tokens, TokenType } from "@anoma/types";
-import { Anoma } from "@anoma/integrations";
 import { RpcClient } from "@anoma/rpc";
 import { fetchWasmCode, amountToMicro } from "@anoma/utils";
->>>>>>> a5e684d (Fixed default token type in TokenSendForm, removed SocketClient)
 
 /* import { */
 /*   createShieldedTransfer, */
