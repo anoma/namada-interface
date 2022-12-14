@@ -164,12 +164,14 @@ const TokenSendForm = ({
   );
 
   const account: Account = derivedAccounts[address];
+  console.log({ account });
   const isShieldedSource = account.isShielded;
   const token = Tokens[tokenType] || {};
 
   const balances = balancesForChain[address] || {};
   const balance = balances[tokenType] || 0;
 
+  console.log({ tokenType, balances, balance });
   const isFormInvalid = getIsFormInvalid(
     target,
     amount,
@@ -293,9 +295,11 @@ const TokenSendForm = ({
     targetAddress: string | undefined
   ): string | undefined => {
     const balance = balancesForChain[address][token] || 0;
+    console.log({ address, token, balance, balancesForChain });
 
     const transferTypeBasedOnTarget =
       targetAddress && parseTarget(targetAddress);
+    console.log({ transferTypeBasedOnTarget });
     if (transferTypeBasedOnTarget === TransferType.Shielded) {
       return undefined;
     }

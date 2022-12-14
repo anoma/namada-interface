@@ -17,11 +17,12 @@ import { AbciResponse, PathType } from "./types";
 // following, and remove the empty prefix above.
 const ABCI_QUERY_PATH_PREFIX = "/shell/";
 
-class RpcClient extends RpcClientBase {
+class RpcClient {
   private _client: HttpClient;
+  private _url: string;
 
   constructor(url: string) {
-    super(url);
+    this._url = url;
     this._client = new HttpClient(this.endpoint);
   }
 
@@ -189,6 +190,10 @@ class RpcClient extends RpcClientBase {
     } catch (e) {
       return Promise.reject(e);
     }
+  }
+
+  protected get endpoint(): string {
+    return this._url;
   }
 }
 

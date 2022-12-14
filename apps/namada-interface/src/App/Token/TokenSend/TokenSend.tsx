@@ -104,6 +104,9 @@ const TokenSend = (): JSX.Element => {
     []
   );
 
+  // TODO - This should probably be refactored to map token data
+  // to accounts in order to set the default token more cleanly, and from
+  // that new array/object we can generated the Select dropdown data:
   // Create token data for either Shielded or Transparent accounts
   const getTokenData = (isShielded: boolean): Option<string>[] => {
     return tokenBalances
@@ -112,7 +115,6 @@ const TokenSend = (): JSX.Element => {
       )
       .map((account) => {
         const { alias, address, tokenType, balance } = account;
-
         return {
           value: `${address}|${tokenType}`,
           label: `${alias} ${balance} (${tokenType})`,
@@ -133,7 +135,13 @@ const TokenSend = (): JSX.Element => {
 
   const [activeTab, setActiveTab] = useState(tabs[defaultTab]);
   const defaultTokenType = "NAM";
-  const [token, setToken] = useState<TokenType>(defaultTokenType);
+  // TODO: We should refactor transparentTokenData to provide a mapping to the
+  // currently selected account in order to set the initial token type,
+  // and to avoid parsing as we do below:
+  const [token, setToken] = useState<TokenType>(
+    (transparentTokenData[0].value.split("|")[1] as TokenType) ||
+      defaultTokenType
+  );
 
   useEffect(() => {
     // Set selectedTransparentAccountAddress to first account if one
