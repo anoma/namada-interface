@@ -156,6 +156,12 @@ export const Staking = (props: Props): JSX.Element => {
     fetchValidatorDetails(validatorId);
   };
 
+  const navigateToUnbonding = (validatorId: string, owner: string): void => {
+    navigate(
+      `${TopLevelRoute.StakingAndGovernance}${StakingAndGovernanceSubRoute.Staking}${StakingAndGovernanceSubRoute.ValidatorDetails}/${validatorId}/${owner}`
+    );
+  };
+
   // callbacks for the bonding and unbonding views
   const confirmBonding = (
     changeInStakingPosition: ChangeInStakingPosition
@@ -177,6 +183,7 @@ export const Staking = (props: Props): JSX.Element => {
 
   const cancelUnbonding = (): void => {
     setModalState(ModalState.None);
+    navigateToValidatorDetails(selectedValidatorId || "");
   };
 
   return (
@@ -215,23 +222,6 @@ export const Staking = (props: Props): JSX.Element => {
         />
       </Modal>
 
-      {/* modal for unbonding */}
-      <Modal
-        isOpen={modalState === ModalState.Unbond}
-        title="Unstake"
-        onBackdropClick={() => {
-          cancelUnbonding();
-        }}
-      >
-        <UnbondPosition
-          confirmUnbonding={confirmUnbonding}
-          cancelUnbonding={cancelUnbonding}
-          currentBondingPosition={
-            stakingPositionsWithSelectedValidator[0] ||
-            emptyStakingPosition(selectedValidatorId || "")
-          }
-        />
-      </Modal>
       <Routes>
         <Route
           path={StakingAndGovernanceSubRoute.StakingOverview}
@@ -245,17 +235,39 @@ export const Staking = (props: Props): JSX.Element => {
           }
         />
         <Route
-          path={`${StakingAndGovernanceSubRoute.ValidatorDetails}/*`}
+          path={`${StakingAndGovernanceSubRoute.ValidatorDetails}/:validatorId`}
           element={
             <ValidatorDetails
               validator={selectedValidator}
               stakingPositionsWithSelectedValidator={
                 stakingPositionsWithSelectedValidator
               }
+              navigateToUnbonding={navigateToUnbonding}
               setModalState={setModalState}
             />
           }
-        />
+        >
+          <Route
+            path=":owner"
+            element={
+              <Modal
+                isOpen={modalState === ModalState.Unbond}
+                title="Unstake"
+                onBackdropClick={cancelUnbonding}
+              >
+                <UnbondPosition
+                  confirmUnbonding={confirmUnbonding}
+                  cancelUnbonding={cancelUnbonding}
+                  currentBondingPositions={
+                    stakingPositionsWithSelectedValidator.length !== 0
+                      ? stakingPositionsWithSelectedValidator
+                      : [emptyStakingPosition(selectedValidatorId || "")]
+                  }
+                />
+              </Modal>
+            }
+          />
+        </Route>
       </Routes>
     </StakingContainer>
   );

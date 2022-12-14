@@ -12,6 +12,7 @@ import {
 import { Button, ButtonVariant } from "components/Button";
 import { Validator, StakingPosition } from "slices/StakingAndGovernance";
 import { ModalState } from "../Staking";
+import { Outlet } from "react-router-dom";
 
 const validatorDetailsConfigurations: TableConfigurations<KeyValueData, never> =
   {
@@ -39,10 +40,14 @@ const validatorDetailsConfigurations: TableConfigurations<KeyValueData, never> =
   };
 
 const getMyStakingWithValidatorConfigurations = (
-  setModalState: React.Dispatch<React.SetStateAction<ModalState>>
+  setModalState: React.Dispatch<React.SetStateAction<ModalState>>,
+  navigateToUnbonding: (validatorId: string, owner: string) => void
 ): TableConfigurations<
   StakingPosition,
-  { setModalState: React.Dispatch<React.SetStateAction<ModalState>> }
+  {
+    setModalState: React.Dispatch<React.SetStateAction<ModalState>>;
+    navigateToUnbonding: (validatorId: string, owner: string) => void;
+  }
 > => {
   return {
     rowRenderer: (stakingPosition: StakingPosition) => {
@@ -55,6 +60,10 @@ const getMyStakingWithValidatorConfigurations = (
             <TableLink
               onClick={() => {
                 setModalState(ModalState.Unbond);
+                navigateToUnbonding(
+                  stakingPosition.validatorId,
+                  stakingPosition.owner
+                );
               }}
             >
               unstake
@@ -77,6 +86,7 @@ type Props = {
   validator?: Validator;
   stakingPositionsWithSelectedValidator?: StakingPosition[];
   setModalState: React.Dispatch<React.SetStateAction<ModalState>>;
+  navigateToUnbonding: (validatorId: string, owner: string) => void;
 };
 
 // this turns the Validator object to rows that are passed to the table
@@ -103,11 +113,12 @@ export const ValidatorDetails = (props: Props): JSX.Element => {
   const {
     validator,
     setModalState,
+    navigateToUnbonding,
     stakingPositionsWithSelectedValidator = [],
   } = props;
   const validatorDetailsData = validatorToDataRows(validator);
   const myStakingWithValidatorConfigurations =
-    getMyStakingWithValidatorConfigurations(setModalState);
+    getMyStakingWithValidatorConfigurations(setModalState, navigateToUnbonding);
 
   return (
     <ValidatorDetailsContainer>
@@ -129,10 +140,17 @@ export const ValidatorDetails = (props: Props): JSX.Element => {
       </StakeButtonContainer>
 
       <Table
-        title={`My Staking with ${truncateInMiddle(validator?.name || "", 5, 5)}`}
+        title={`My Staking with ${truncateInMiddle(
+          validator?.name || "",
+          5,
+          5
+        )}`}
         tableConfigurations={myStakingWithValidatorConfigurations}
-        data={stakingPositionsWithSelectedValidator}
+        data={stakingPositionsWithSelectedValidator.filter(
+          ({ stakedAmount }) => Number(stakedAmount) !== 0
+        )}
       />
+      <Outlet />
     </ValidatorDetailsContainer>
   );
 };

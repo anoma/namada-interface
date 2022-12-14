@@ -6,6 +6,7 @@ import {
   StakingPosition,
   ChangeInStakingPosition,
 } from "slices/StakingAndGovernance";
+import { useParams } from "react-router-dom";
 
 // keys for the table that we want to act upon in table configuration
 const AMOUNT_TO_UNBOND_KEY = "Amount to unbond";
@@ -53,15 +54,20 @@ const unbondingDetailsConfigurations: TableConfigurations<
 };
 
 type Props = {
-  currentBondingPosition: StakingPosition;
+  currentBondingPositions: StakingPosition[];
   confirmUnbonding: (changeInStakingPosition: ChangeInStakingPosition) => void;
   cancelUnbonding: () => void;
 };
 
 // contains data and controls to unbond
 export const UnbondPosition = (props: Props): JSX.Element => {
-  const { currentBondingPosition, confirmUnbonding, cancelUnbonding } = props;
-  const { validatorId, owner } = currentBondingPosition;
+  const { owner } = useParams();
+  const { currentBondingPositions, confirmUnbonding, cancelUnbonding } = props;
+  const currentBondingPosition = currentBondingPositions.find(
+    (pos) => pos.owner === owner
+  );
+
+  const stakedAmount = Number(currentBondingPosition?.stakedAmount || "0");
 
   // storing the bonding amount input value locally here as string
   // we threat them as strings except below in validation
@@ -82,9 +88,8 @@ export const UnbondPosition = (props: Props): JSX.Element => {
   // unbonding amount and displayed value with a very naive validation
   // TODO (https://github.com/anoma/namada-interface/issues/4#issuecomment-1260564499)
   // do proper validation as part of input
-  const bondedAmountAsNumber = Number(currentBondingPosition.stakedAmount);
   const amountToUnstakeAsNumber = Number(amountToBondOrUnbond);
-  const remainsBonded = bondedAmountAsNumber - amountToUnstakeAsNumber;
+  const remainsBonded = stakedAmount - amountToUnstakeAsNumber;
 
   // if the input value is incorrect we display an error
   const isEntryIncorrect =
@@ -98,7 +103,7 @@ export const UnbondPosition = (props: Props): JSX.Element => {
 
   // we convey this with an object that can be used
   const remainsBondedToDisplay = isEntryIncorrect
-    ? `The unbonding amount can be more than 0 and at most ${bondedAmountAsNumber}`
+    ? `The unbonding amount can be more than 0 and at most ${stakedAmount}`
     : `${remainsBonded}`;
 
   // This is the value that we pass to be dispatch to the action
@@ -110,7 +115,7 @@ export const UnbondPosition = (props: Props): JSX.Element => {
     {
       uuid: "1",
       key: "Bonded amount",
-      value: currentBondingPosition.stakedAmount,
+      value: String(stakedAmount),
     },
     {
       uuid: "2",
@@ -140,8 +145,8 @@ export const UnbondPosition = (props: Props): JSX.Element => {
         onClick={() => {
           const changeInStakingPosition: ChangeInStakingPosition = {
             amount: deltaAsString,
-            owner,
-            validatorId,
+            owner: owner as string,
+            validatorId: currentBondingPositions[0].validatorId,
           };
           confirmUnbonding(changeInStakingPosition);
         }}
