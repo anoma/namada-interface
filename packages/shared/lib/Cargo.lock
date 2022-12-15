@@ -1602,6 +1602,39 @@ checksum = "e5ce46fe64a9d73be07dcbe690a38ce1b293be448fd8ce1e6c1b8062c9f72c6a"
 
 [[package]]
 name = "namada"
+version = "0.10.1"
+source = "git+https://github.com/anoma/namada.git?branch=murisi/shared_masp2#dcbc058747a6ae9875658f4fbb9465001096dc47"
+dependencies = [
+ "async-trait",
+ "bellman",
+ "bls12_381",
+ "borsh",
+ "circular-queue",
+ "clru",
+ "data-encoding",
+ "derivative",
+ "ibc",
+ "ibc-proto",
+ "itertools",
+ "masp_primitives",
+ "masp_proofs",
+ "namada_core 0.9.0",
+ "namada_proof_of_stake 0.10.1",
+ "paste",
+ "prost",
+ "rust_decimal",
+ "serde_json",
+ "sha2 0.9.9",
+ "tendermint",
+ "tendermint-proto",
+ "thiserror",
+ "tracing",
+ "wasmparser",
+ "zeroize",
+]
+
+[[package]]
+name = "namada"
 version = "0.11.0"
 source = "git+https://github.com/anoma/namada?tag=v0.11.0#7ed315a96cd5bfc8e0e2bef37e065746eada6622"
 dependencies = [
@@ -1617,8 +1650,8 @@ dependencies = [
  "itertools",
  "masp_primitives",
  "masp_proofs",
- "namada_core",
- "namada_proof_of_stake",
+ "namada_core 0.11.0",
+ "namada_proof_of_stake 0.11.0",
  "paste",
  "prost",
  "rust_decimal",
@@ -1629,6 +1662,44 @@ dependencies = [
  "thiserror",
  "tracing",
  "wasmparser",
+ "zeroize",
+]
+
+[[package]]
+name = "namada_core"
+version = "0.9.0"
+source = "git+https://github.com/anoma/namada.git?branch=murisi/shared_masp2#dcbc058747a6ae9875658f4fbb9465001096dc47"
+dependencies = [
+ "ark-bls12-381",
+ "ark-serialize",
+ "bech32",
+ "bellman",
+ "bit-vec",
+ "borsh",
+ "chrono",
+ "data-encoding",
+ "derivative",
+ "ed25519-consensus",
+ "ferveo-common",
+ "ibc",
+ "ibc-proto",
+ "ics23",
+ "itertools",
+ "libsecp256k1",
+ "masp_primitives",
+ "prost",
+ "prost-types",
+ "rust_decimal",
+ "rust_decimal_macros",
+ "serde",
+ "serde_json",
+ "sha2 0.9.9",
+ "sparse-merkle-tree",
+ "tendermint",
+ "tendermint-proto",
+ "thiserror",
+ "tonic-build",
+ "tracing",
  "zeroize",
 ]
 
@@ -1677,12 +1748,26 @@ dependencies = [
 
 [[package]]
 name = "namada_proof_of_stake"
+version = "0.10.1"
+source = "git+https://github.com/anoma/namada.git?branch=murisi/shared_masp2#dcbc058747a6ae9875658f4fbb9465001096dc47"
+dependencies = [
+ "borsh",
+ "derivative",
+ "namada_core 0.9.0",
+ "rust_decimal",
+ "rust_decimal_macros",
+ "thiserror",
+ "tracing",
+]
+
+[[package]]
+name = "namada_proof_of_stake"
 version = "0.11.0"
 source = "git+https://github.com/anoma/namada?tag=v0.11.0#7ed315a96cd5bfc8e0e2bef37e065746eada6622"
 dependencies = [
  "borsh",
  "derivative",
- "namada_core",
+ "namada_core 0.11.0",
  "rust_decimal",
  "rust_decimal_macros",
  "thiserror",
@@ -2463,13 +2548,16 @@ dependencies = [
 name = "shared"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "borsh",
  "chrono",
  "getrandom 0.2.8",
  "gloo-utils",
  "js-sys",
  "masp_primitives",
- "namada",
+ "masp_proofs",
+ "namada 0.10.1",
+ "namada 0.11.0",
  "prost",
  "prost-types",
  "rand 0.8.5",
@@ -2477,6 +2565,7 @@ dependencies = [
  "serde",
  "thiserror",
  "wasm-bindgen",
+ "wasm-bindgen-futures",
  "wasm-bindgen-test",
 ]
 

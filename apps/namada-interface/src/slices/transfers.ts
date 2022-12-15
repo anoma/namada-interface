@@ -328,6 +328,54 @@ const createTransfer = async (
   /* } */
 };
 
+const _createShieldedTransfer = async (
+  epoch: number,
+  sourceAccount: Account,
+  transferData: TransferData,
+  gasLimit = 100000,
+  feeAmount = 1000
+): Promise<TransferHashAndBytes> => {
+  const { chainId, address } = sourceAccount;
+  const { amount, target, token } = transferData;
+  const txCode = await fetchWasmCode(TxWasm.Transfer);
+
+  // Invoke extension integration
+  const integration = getIntegration(chainId);
+  integration.detect();
+  //TODO: We have to treat this as anoma Signer for now
+  // so we can use signer methods
+  const signer = integration.signer() as Signer;
+  const encodedTx =
+    (await signer?.encodeTransfer({
+      source: address,
+      target,
+      token,
+      amount,
+    })) || "";
+
+  const txProps = {
+    token,
+    epoch,
+    feeAmount,
+    gasLimit,
+    txCode,
+    signInner: true,
+  };
+
+  const { hash, bytes } =
+    (await signer?.signTx(address, txProps, encodedTx)) || {};
+
+  if (hash && bytes) {
+    return {
+      transferType: TransferType.NonShielded,
+      transferHash: hash,
+      transferAsBytes: bytes,
+    };
+  } else {
+    throw new Error("Invalid transaction!");
+  }
+};
+
 export const actionTypes = {
   SUBMIT_TRANSFER_ACTION_TYPE: `${TRANSFERS_ACTIONS_BASE}/${TransfersThunkActions.SubmitTransferTransaction}`,
 };
