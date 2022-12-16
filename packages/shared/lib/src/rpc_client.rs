@@ -1,22 +1,17 @@
-use std::collections::{HashSet, HashMap};
-use std::error::Error;
-use std::fmt::{self, Debug, Display, Formatter};
+use gloo_utils::format::JsValueSerdeExt;
+use namada::ledger::queries::{Client, EncodedResponseQuery};
+use namada::tendermint::abci::{Code, Log, Path};
+use namada::tendermint::block;
+use namada::tendermint::merkle::proof::Proof;
+use namada::tendermint::serializers;
+use namada::types::storage::BlockHeight;
+use serde::{Deserialize, Serialize};
+use std::fmt::Debug;
 use std::str::FromStr;
-
-use namada::types::address::Address;
-use namada::types::token::Amount;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{Request, RequestInit, RequestMode, Response};
-
-use borsh::{BorshDeserialize, BorshSerialize};
-use gloo_utils::format::JsValueSerdeExt;
-use serde::{Deserialize, Serialize};
-use tendermint::abci::{Data, Log, Path};
-use tendermint::block;
-use tendermint::merkle::proof::Proof;
-use tendermint::serializers;
 
 #[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub struct AbciResponse {
@@ -74,30 +69,13 @@ pub struct AbciQueryResult {
     pub result: AbciResponse,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct FetchError {
-    err: JsValue,
+#[derive(Deserialize, Serialize)]
+struct AbciParams {
+    path: Path,
+    data: Option<Vec<u8>>,
+    height: Option<BlockHeight>,
+    prove: bool,
 }
-
-impl Display for FetchError {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        Debug::fmt(&self.err, f)
-    }
-}
-impl Error for FetchError {}
-
-impl From<JsValue> for FetchError {
-    fn from(value: JsValue) -> Self {
-        Self { err: value }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize, BorshSerialize, BorshDeserialize)]
-pub struct Epoch(u64);
-
-type Prove = bool;
-
-type AbciParams = (Path, Data, block::Height, Prove);
 
 #[derive(Deserialize, Serialize)]
 pub struct AbciRequest {
@@ -107,120 +85,94 @@ pub struct AbciRequest {
     params: AbciParams,
 }
 
-pub fn create_json_rpc_request(abci_params: AbciParams) -> AbciRequest {
-    AbciRequest {
-        id: "".to_owned(),
-        jsonrpc: "2.0".to_owned(),
-        method: "abci_query".to_owned(),
-        params: abci_params,
-    }
-}
-
-pub async fn fetch(url: &str, method: &str, body: &str) -> Result<JsValue, JsValue> {
-    let mut opts = RequestInit::new();
-    opts.method(method);
-    opts.mode(RequestMode::Cors);
-    opts.body(Some(&JsValue::from(body)));
-
-    let request = Request::new_with_str_and_init(url, &opts)?;
-    let window = web_sys::window().unwrap();
-    let resp_value = JsFuture::from(window.fetch_with_request(&request)).await?;
-
-    let resp: Response = resp_value.dyn_into()?;
-    JsFuture::from(resp.json().unwrap()).await
-}
-
-pub async fn abci_query<T>(url: &str, path: &str) -> Result<T, JsValue>
-where
-    T: BorshDeserialize + Serialize,
-{
-    let path = Path::from_str(path).unwrap();
-    let data = Data::from(Vec::new());
-    let height = block::Height::from(0 as u8);
-
-    let json_rpc_request = create_json_rpc_request((path, data, height, false));
-    let body = serde_json::to_string(&json_rpc_request).unwrap();
-
-    let json = fetch(url, "POST", &body[..]).await?;
-    let abci_response: AbciQueryResult = JsValue::into_serde(&json).unwrap();
-
-    match T::try_from_slice(&abci_response.result.response.value[..]) {
-        Ok(v) => Ok(v),
-        Err(e) => Err(JsValue::from(e.to_string())),
-    }
-}
-
-fn to_js_result<T>(result: T) -> Result<JsValue, JsValue>
-where
-    T: Serialize,
-{
-    match JsValue::from_serde(&result) {
-        Ok(v) => Ok(v),
-        Err(e) => Err(JsValue::from(e.to_string())),
-    }
-}
-
-#[wasm_bindgen]
-#[derive(Serialize, Deserialize)]
-pub struct Abci {
+pub struct HttpClient {
     url: String,
 }
 
-type Owner = Address;
-type Validator = Address;
-
-#[wasm_bindgen]
-impl Abci {
-    #[wasm_bindgen(constructor)]
-    pub fn new(url: String) -> Abci {
-        Abci { url }
+impl HttpClient {
+    pub fn new(url: String) -> HttpClient {
+        HttpClient { url }
     }
 
-    pub async fn query_all_validators(&self) -> Result<JsValue, JsValue> {
-        let validator_addresses =
-            abci_query::<HashSet<Address>>(&self.url, "/vp/pos/validator/addresses").await?;
-
-        let mut result: Vec<(Validator, Amount)> = Vec::new();
-
-        for address in validator_addresses.into_iter() {
-            let stake = &format!("/vp/pos/validator/stake/{}", address)[..];
-            let total_bonds = abci_query::<Amount>(&self.url, stake).await?;
-
-            result.push((address, total_bonds));
+    fn create_json_rpc_request(&self, abci_params: AbciParams) -> AbciRequest {
+        AbciRequest {
+            id: "".to_owned(),
+            jsonrpc: "2.0".to_owned(),
+            method: "abci_query".to_owned(),
+            params: abci_params,
         }
-
-        to_js_result(result)
     }
 
-    pub async fn query_my_validators(&self, owner_addresses: Box<[JsValue]>) -> Result<JsValue, JsValue> {
-        let owner_addresses: Vec<Address> = owner_addresses
-            .into_iter()
-            .map(|address| {
-                let address_str = &(address.as_string().unwrap()[..]);
-                Address::from_str(address_str).unwrap()
-            }).collect();
+    async fn fetch(&self, url: &str, method: &str, body: &str) -> Result<JsValue, JsValue> {
+        let mut opts = RequestInit::new();
+        opts.method(method);
+        opts.mode(RequestMode::Cors);
+        opts.body(Some(&JsValue::from(body)));
 
-        let mut validators_per_address: HashMap<Address, HashSet<Address>> = HashMap::new();
+        let request = Request::new_with_str_and_init(url, &opts)?;
+        let window = web_sys::window().expect("Window object does not exist");
+        let resp_value = JsFuture::from(window.fetch_with_request(&request)).await?;
 
-        for address in owner_addresses.into_iter() {
-            let validators = abci_query::<HashSet<Address>>(
-                &self.url,
-                &format!("/vp/pos/delegations/{}", address.encode())[..]).await?;
+        let resp: Response = resp_value.dyn_into()?;
+        JsFuture::from(resp.json().unwrap()).await
+    }
 
-            validators_per_address.insert(address, validators);
+    pub async fn abci_query(
+        &self,
+        url: &str,
+        path: &str,
+        data: Option<Vec<u8>>,
+        height: Option<BlockHeight>,
+        prove: bool,
+    ) -> Result<AbciQuery, JsError> {
+        let path = Path::from_str(path)?;
+        let json_rpc_request = &self.create_json_rpc_request(AbciParams {
+            path,
+            data,
+            height,
+            prove,
+        });
+
+        let body = serde_json::to_string(&json_rpc_request)?;
+
+        let json = &self.fetch(url, "POST", &body[..]).await.map_err(|e| {
+            // We are serializing the JsValue to pass it as a string to the Error
+            // it is a bit meh, but we do not know exact shape of JsValue
+            let error_js_str = js_sys::JSON::stringify(&e).expect("JsValue to be serializable");
+            let error_str: String = error_js_str.into();
+            JsError::new(&error_str)
+        })?;
+
+        let abci_response: AbciQueryResult = JsValue::into_serde(&json)?;
+
+        Ok(abci_response.result.response)
+    }
+}
+
+#[async_trait::async_trait(?Send)]
+impl Client for HttpClient {
+    type Error = JsError;
+
+    async fn request(
+        &self,
+        path: String,
+        data: Option<Vec<u8>>,
+        height: Option<BlockHeight>,
+        prove: bool,
+    ) -> Result<EncodedResponseQuery, Self::Error> {
+        let response = &self
+            .abci_query(&self.url, &path, data, height, prove)
+            .await?;
+        let response = response.clone();
+        let code = Code::from(response.code);
+
+        match code {
+            Code::Ok => Ok(EncodedResponseQuery {
+                data: response.value,
+                info: response.info,
+                proof: response.proof,
+            }),
+            Code::Err(code) => Err(JsError::new(&format!("Error code {}", code))),
         }
-
-        let mut result: Vec<(Owner, Validator, Amount)> = Vec::new();
-
-        for (owner, validators) in validators_per_address.into_iter() {
-            for validator in validators.into_iter() {
-                let bond_path = &format!("/vp/pos/bond_amount/{}/{}", owner, validator)[..];
-                let total_bonds = abci_query::<Amount>(&self.url, bond_path).await?;
-
-                result.push((owner.clone(), validator, total_bonds));
-            }
-        }
-
-        to_js_result(result)
     }
 }
