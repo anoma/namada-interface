@@ -2,13 +2,17 @@ import { useState } from "react";
 import {
   BondingPositionContainer,
   BondingAmountInputContainer,
+  BondingAddressSelect,
+  NewBondingTable,
 } from "./NewBondingPosition.components";
-import { Table, TableConfigurations, KeyValueData } from "components/Table";
+import { TableConfigurations, KeyValueData } from "components/Table";
 import { Button, ButtonVariant } from "components/Button";
 import {
   StakingPosition,
   ChangeInStakingPosition,
 } from "slices/StakingAndGovernance";
+import { truncateInMiddle } from "@anoma/utils";
+import { BalanceByToken } from "slices/balances";
 
 const REMAINS_BONDED_KEY = "Remains bonded";
 
@@ -34,9 +38,9 @@ const bondingDetailsConfigurations: TableConfigurations<KeyValueData, never> = {
 };
 
 type Props = {
-  currentBondingPosition: StakingPosition;
-  // this is how much we have available for bonding
-  totalFundsToBond: number;
+  balance: Record<string, BalanceByToken>;
+  addresses: string[];
+  currentBondingPositions: StakingPosition[];
   // called when the user confirms bonding
   confirmBonding: (changeInStakingPosition: ChangeInStakingPosition) => void;
   // called when the user cancels bonding
@@ -46,12 +50,35 @@ type Props = {
 // contains everything what the user needs for bonding funds
 export const NewBondingPosition = (props: Props): JSX.Element => {
   const {
-    currentBondingPosition,
-    totalFundsToBond,
+    balance,
+    addresses,
+    currentBondingPositions,
     confirmBonding,
     cancelBonding,
   } = props;
-  const { validatorId, stakedCurrency } = currentBondingPosition;
+
+  const selectOptions = addresses.map((address) => ({
+    value: address,
+    label: truncateInMiddle(address, 9, 9),
+  }));
+
+  const [address, setAddress] = useState<string>(addresses[0]);
+  const [currentBalance, setCurrentBalance] = useState<BalanceByToken>(
+    balance[addresses[0]]
+  );
+  const currentBondingPosition = currentBondingPositions.find(
+    (pos) => pos.owner === address
+  );
+  const stakedAmount = Number(currentBondingPosition?.stakedAmount || "0");
+  const currentNAMBalance = currentBalance["NAM"];
+
+  const handleAddressChange = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ): void => {
+    const address = e.target.value;
+    setAddress(address);
+    setCurrentBalance(balance[address]);
+  };
 
   // storing the unbonding input value locally here as string
   // we threat them as strings except below in validation
@@ -61,13 +88,12 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
   // unbonding amount and displayed value with a very naive validation
   // TODO (https://github.com/anoma/namada-interface/issues/4#issuecomment-1260564499)
   // do proper validation as part of input
-  const bondedAmountAsNumber = Number(currentBondingPosition.stakedAmount);
   const amountToBondNumber = Number(amountToBond);
 
   // if this is the case, we display error message
   const isEntryIncorrect =
     (amountToBond !== "" && amountToBondNumber <= 0) ||
-    amountToBondNumber > totalFundsToBond ||
+    amountToBondNumber > currentNAMBalance ||
     Number.isNaN(amountToBondNumber);
 
   // if incorrect or empty value we disable the button
@@ -75,20 +101,20 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
 
   // we convey this with an object that can be used
   const remainsBondedToDisplay = isEntryIncorrect
-    ? `The bonding amount can be more than 0 and at most ${totalFundsToBond}`
-    : `${bondedAmountAsNumber + amountToBondNumber}`;
+    ? `The bonding amount can be more than 0 and at most ${currentNAMBalance}`
+    : `${stakedAmount + amountToBondNumber}`;
 
   // data for the table
   const bondingSummary = [
     {
       uuid: "1",
       key: "Total Funds",
-      value: `${totalFundsToBond}`,
+      value: `${currentNAMBalance}`,
     },
     {
       uuid: "2",
       key: "Bonded amount",
-      value: currentBondingPosition.stakedAmount,
+      value: String(stakedAmount),
     },
     {
       uuid: "3",
@@ -107,6 +133,7 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
     <BondingPositionContainer>
       {/* input field */}
       <BondingAmountInputContainer>
+        Value
         <input
           onChange={(event) => {
             setAmountToBond(event.target.value);
@@ -114,8 +141,15 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
         />
       </BondingAmountInputContainer>
 
+      <BondingAddressSelect
+        data={selectOptions}
+        value={address}
+        label="Address"
+        onChange={handleAddressChange}
+      />
+
       {/* summary table */}
-      <Table
+      <NewBondingTable
         title="Summary"
         tableConfigurations={bondingDetailsConfigurations}
         data={bondingSummary}
@@ -127,8 +161,8 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
         onClick={() => {
           const changeInStakingPosition: ChangeInStakingPosition = {
             amount: amountToBond,
-            stakingCurrency: stakedCurrency,
-            validatorId: validatorId,
+            owner: address,
+            validatorId: currentBondingPositions[0].validatorId,
           };
           confirmBonding(changeInStakingPosition);
         }}

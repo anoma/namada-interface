@@ -13,14 +13,14 @@ import {
 } from "App/types";
 
 import {
-  fetchMyBalances,
-  fetchMyStakingPositions,
   fetchValidators,
   fetchValidatorDetails,
   postNewBonding as postNewBondingAction,
   postNewUnbonding as postNewUnbondingAction,
   ChangeInStakingPosition,
 } from "slices/StakingAndGovernance";
+import { SettingsState } from "slices/settings";
+import { useIntegrationConnection } from "services";
 export type { ChangeInStakingPosition };
 // This is just rendering the actual Staking/Governance/PGF screens
 // mostly the purpose of this is to define the default behavior when
@@ -32,13 +32,16 @@ export const StakingAndGovernance = (): JSX.Element => {
   const stakingAndGovernance = useAppSelector(
     (state: RootState) => state.stakingAndGovernance
   );
-  const {
-    myBalances,
-    validators,
-    myValidators,
-    selectedValidatorId,
-    myStakingPositions,
-  } = stakingAndGovernance;
+  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
+  const addresses = useAppSelector((state: RootState) =>
+    Object.keys(state.accounts.derived[chainId])
+  );
+  const balance = useAppSelector((state: RootState) => state.balances[chainId]);
+  const [_integration, _status, withConnection] =
+    useIntegrationConnection(chainId);
+
+  const { validators, myValidators, selectedValidatorId, myStakingPositions } =
+    stakingAndGovernance;
 
   // we need one of the sub routes, staking alone has nothing
   const stakingAndGovernanceSubRoute =
@@ -57,8 +60,6 @@ export const StakingAndGovernance = (): JSX.Element => {
   // triggered by the initial load of <Staking />
   const onStakingComponentInitCallback = (): void => {
     dispatch(fetchValidators());
-    dispatch(fetchMyBalances());
-    dispatch(fetchMyStakingPositions());
   };
 
   // triggered by the url load or user click in <Staking />
@@ -69,13 +70,17 @@ export const StakingAndGovernance = (): JSX.Element => {
   const postNewBonding = (
     changeInStakingPosition: ChangeInStakingPosition
   ): void => {
-    dispatch(postNewBondingAction(changeInStakingPosition));
+    withConnection(() => {
+      dispatch(postNewBondingAction(changeInStakingPosition));
+    });
   };
 
   const postNewUnbonding = (
     changeInStakingPosition: ChangeInStakingPosition
   ): void => {
-    dispatch(postNewUnbondingAction(changeInStakingPosition));
+    withConnection(() => {
+      dispatch(postNewUnbondingAction(changeInStakingPosition));
+    });
   };
 
   return (
@@ -85,7 +90,8 @@ export const StakingAndGovernance = (): JSX.Element => {
           path={`${StakingAndGovernanceSubRoute.Staking}/*`}
           element={
             <Staking
-              myBalances={myBalances}
+              balance={balance}
+              addresses={addresses}
               validators={validators}
               myValidators={myValidators}
               myStakingPositions={myStakingPositions}

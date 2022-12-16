@@ -14,7 +14,7 @@ export const NotificationsSlice = createSlice({
   name: NOTIFICATIONS_ACTIONS_BASE,
   initialState,
   reducers,
-  extraReducers
+  extraReducers,
 });
 
 export const actions = NotificationsSlice.actions;

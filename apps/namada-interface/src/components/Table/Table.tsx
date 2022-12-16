@@ -1,10 +1,11 @@
 import { TableContainer, TableElement } from "./Table.components";
 import { TableConfigurations, RowBase, ColumnDefinition } from "./types";
 
-type Props<RowType extends RowBase, Callbacks> = {
+export type Props<RowType extends RowBase, Callbacks> = {
   title: string;
   data: RowType[];
   tableConfigurations: TableConfigurations<RowType, Callbacks>;
+  className?: string;
 };
 
 const getRenderedHeaderRow = (
@@ -53,7 +54,7 @@ const getRenderedDataRows = <RowType extends RowBase, Callbacks>(
 export const Table = <RowType extends RowBase, Callbacks>(
   props: Props<RowType, Callbacks>
 ): JSX.Element => {
-  const { data, tableConfigurations, title } = props;
+  const { data, tableConfigurations, title, className } = props;
   const { columns, rowRenderer, callbacks } =
     tableConfigurations && tableConfigurations;
 
@@ -66,7 +67,7 @@ export const Table = <RowType extends RowBase, Callbacks>(
 
   const renderedRows = [renderedHeaderRow, ...renderedDataRows];
   return (
-    <TableContainer>
+    <TableContainer className={className}>
       <h3>{title}</h3>
       <TableElement style={{ borderCollapse: "collapse" }}>
         <tbody>{renderedRows}</tbody>

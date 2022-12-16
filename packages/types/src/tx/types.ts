@@ -12,6 +12,12 @@ export type TxProps = {
   signInner: boolean;
 };
 
+export type BondingProps = {
+  validator: string;
+  amount: number;
+  source: string;
+};
+
 export type TransferProps = {
   source: string;
   target: string;

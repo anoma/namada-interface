@@ -5,6 +5,7 @@ import {
   GetChainMsg,
   GetChainsMsg,
   SuggestChainMsg,
+  EncodeBondingMsg,
   EncodeIbcTransferMsg,
   EncodeInitAccountMsg,
   EncodeTransferMsg,
@@ -63,6 +64,13 @@ export class Anoma implements IAnoma {
     return await this.requester?.sendMessage(
       Ports.Background,
       new SignTxMsg(signer, txMsg, txData)
+    );
+  }
+
+  public async encodeBonding(txMsg: string): Promise<string | undefined> {
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new EncodeBondingMsg(txMsg)
     );
   }
 

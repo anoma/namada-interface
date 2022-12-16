@@ -1,3 +1,4 @@
+import { truncateInMiddle } from "@anoma/utils";
 import {
   ValidatorDetailsContainer,
   StakeButtonContainer,
@@ -11,6 +12,7 @@ import {
 import { Button, ButtonVariant } from "components/Button";
 import { Validator, StakingPosition } from "slices/StakingAndGovernance";
 import { ModalState } from "../Staking";
+import { Outlet } from "react-router-dom";
 
 const validatorDetailsConfigurations: TableConfigurations<KeyValueData, never> =
   {
@@ -38,22 +40,30 @@ const validatorDetailsConfigurations: TableConfigurations<KeyValueData, never> =
   };
 
 const getMyStakingWithValidatorConfigurations = (
-  setModalState: React.Dispatch<React.SetStateAction<ModalState>>
+  setModalState: React.Dispatch<React.SetStateAction<ModalState>>,
+  navigateToUnbonding: (validatorId: string, owner: string) => void
 ): TableConfigurations<
   StakingPosition,
-  { setModalState: React.Dispatch<React.SetStateAction<ModalState>> }
+  {
+    setModalState: React.Dispatch<React.SetStateAction<ModalState>>;
+    navigateToUnbonding: (validatorId: string, owner: string) => void;
+  }
 > => {
   return {
     rowRenderer: (stakingPosition: StakingPosition) => {
       return (
         <>
-          <td>{stakingPosition.stakedCurrency}</td>
+          <td>{truncateInMiddle(stakingPosition.owner || "", 5, 5)}</td>
           <td>{stakingPosition.stakingStatus}</td>
           <td>
-            {stakingPosition.stakedAmount}{" "}
+            NAM {stakingPosition.stakedAmount}{" "}
             <TableLink
               onClick={() => {
                 setModalState(ModalState.Unbond);
+                navigateToUnbonding(
+                  stakingPosition.validatorId,
+                  stakingPosition.owner
+                );
               }}
             >
               unstake
@@ -64,7 +74,7 @@ const getMyStakingWithValidatorConfigurations = (
       );
     },
     columns: [
-      { uuid: "1", columnLabel: "Asset", width: "25%" },
+      { uuid: "1", columnLabel: "Owner", width: "25%" },
       { uuid: "2", columnLabel: "State", width: "25%" },
       { uuid: "3", columnLabel: "Amount Staked", width: "25%" },
       { uuid: "4", columnLabel: "Total Rewards", width: "25%" },
@@ -76,6 +86,7 @@ type Props = {
   validator?: Validator;
   stakingPositionsWithSelectedValidator?: StakingPosition[];
   setModalState: React.Dispatch<React.SetStateAction<ModalState>>;
+  navigateToUnbonding: (validatorId: string, owner: string) => void;
 };
 
 // this turns the Validator object to rows that are passed to the table
@@ -86,7 +97,7 @@ const validatorToDataRows = (
     return [];
   }
   return [
-    { uuid: "1", key: "Name", value: validator.name },
+    { uuid: "1", key: "Name", value: truncateInMiddle(validator.name, 5, 5) },
     { uuid: "2", key: "Commission", value: validator.commission },
     { uuid: "3", key: "Voting Power", value: validator.votingPower },
     {
@@ -102,11 +113,12 @@ export const ValidatorDetails = (props: Props): JSX.Element => {
   const {
     validator,
     setModalState,
+    navigateToUnbonding,
     stakingPositionsWithSelectedValidator = [],
   } = props;
   const validatorDetailsData = validatorToDataRows(validator);
   const myStakingWithValidatorConfigurations =
-    getMyStakingWithValidatorConfigurations(setModalState);
+    getMyStakingWithValidatorConfigurations(setModalState, navigateToUnbonding);
 
   return (
     <ValidatorDetailsContainer>
@@ -128,10 +140,17 @@ export const ValidatorDetails = (props: Props): JSX.Element => {
       </StakeButtonContainer>
 
       <Table
-        title={`My Staking with ${validator?.name}`}
+        title={`My Staking with ${truncateInMiddle(
+          validator?.name || "",
+          5,
+          5
+        )}`}
         tableConfigurations={myStakingWithValidatorConfigurations}
-        data={stakingPositionsWithSelectedValidator}
+        data={stakingPositionsWithSelectedValidator.filter(
+          ({ stakedAmount }) => Number(stakedAmount) !== 0
+        )}
       />
+      <Outlet />
     </ValidatorDetailsContainer>
   );
 };

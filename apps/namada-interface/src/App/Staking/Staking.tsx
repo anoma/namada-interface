@@ -1,3 +1,4 @@
+import { truncateInMiddle } from "@anoma/utils";
 import { useState, useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { MainContainerNavigation } from "App/StakingAndGovernance/MainContainerNavigation";
@@ -7,7 +8,6 @@ import { StakingOverview } from "./StakingOverview";
 import { ValidatorDetails } from "./ValidatorDetails";
 import { TopLevelRoute, StakingAndGovernanceSubRoute } from "App/types";
 import {
-  MyBalanceEntry,
   Validator,
   MyValidators,
   StakingPosition,
@@ -15,6 +15,7 @@ import {
 } from "slices/StakingAndGovernance";
 import { NewBondingPosition } from "./NewBondingPosition";
 import { UnbondPosition } from "./UnbondPosition";
+import { BalanceByToken } from "slices/balances";
 
 const initialTitle = "Staking";
 
@@ -46,8 +47,18 @@ const validatorNameFromUrl = (path: string): string | undefined => {
   }
 };
 
+const emptyStakingPosition = (validatorId: string): StakingPosition => ({
+  uuid: validatorId,
+  stakingStatus: "",
+  stakedAmount: "",
+  owner: "",
+  totalRewards: "",
+  validatorId: validatorId,
+});
+
 type Props = {
-  myBalances: MyBalanceEntry[];
+  balance: Record<string, BalanceByToken>;
+  addresses: string[];
   validators: Validator[];
   myValidators: MyValidators[];
   myStakingPositions: StakingPosition[];
@@ -87,11 +98,12 @@ export const Staking = (props: Props): JSX.Element => {
   const navigate = useNavigate();
 
   const {
+    balance,
+    addresses,
     onInitCallback,
     fetchValidatorDetails,
     postNewBonding,
     postNewUnbonding,
-    myBalances,
     validators,
     myValidators,
     myStakingPositions,
@@ -99,10 +111,9 @@ export const Staking = (props: Props): JSX.Element => {
   } = props;
 
   // these 2 are needed for validator details
-  const stakingPositionsWithSelectedValidator =
-    myStakingPositions.filter(
-      (validator) => validator.validatorId === selectedValidatorId
-    );
+  const stakingPositionsWithSelectedValidator = myStakingPositions.filter(
+    (validator) => validator.validatorId === selectedValidatorId
+  );
 
   const selectedValidator = validators.find(
     (validator) => validator.uuid === selectedValidatorId
@@ -145,6 +156,12 @@ export const Staking = (props: Props): JSX.Element => {
     fetchValidatorDetails(validatorId);
   };
 
+  const navigateToUnbonding = (validatorId: string, owner: string): void => {
+    navigate(
+      `${TopLevelRoute.StakingAndGovernance}${StakingAndGovernanceSubRoute.Staking}${StakingAndGovernanceSubRoute.ValidatorDetails}/${validatorId}/${owner}`
+    );
+  };
+
   // callbacks for the bonding and unbonding views
   const confirmBonding = (
     changeInStakingPosition: ChangeInStakingPosition
@@ -166,6 +183,7 @@ export const Staking = (props: Props): JSX.Element => {
 
   const cancelUnbonding = (): void => {
     setModalState(ModalState.None);
+    navigateToValidatorDetails(selectedValidatorId || "");
   };
 
   return (
@@ -182,57 +200,74 @@ export const Staking = (props: Props): JSX.Element => {
       {/* modal for bonding */}
       <Modal
         isOpen={modalState === ModalState.NewBonding}
-        title={`Stake with ${selectedValidator?.name}`}
+        title={`Stake with ${truncateInMiddle(
+          selectedValidator?.name || "",
+          5,
+          5
+        )}`}
         onBackdropClick={() => {
           cancelBonding();
         }}
       >
         <NewBondingPosition
-          totalFundsToBond={100}
+          balance={balance}
+          addresses={addresses}
           confirmBonding={confirmBonding}
           cancelBonding={cancelBonding}
-          currentBondingPosition={stakingPositionsWithSelectedValidator[0]}
+          currentBondingPositions={
+            stakingPositionsWithSelectedValidator.length !== 0
+              ? stakingPositionsWithSelectedValidator
+              : [emptyStakingPosition(selectedValidatorId || "")]
+          }
         />
       </Modal>
 
-      {/* modal for unbonding */}
-      <Modal
-        isOpen={modalState === ModalState.Unbond}
-        title="Unstake"
-        onBackdropClick={() => {
-          cancelUnbonding();
-        }}
-      >
-        <UnbondPosition
-          confirmUnbonding={confirmUnbonding}
-          cancelUnbonding={cancelUnbonding}
-          currentBondingPosition={stakingPositionsWithSelectedValidator[0]}
-        />
-      </Modal>
       <Routes>
         <Route
           path={StakingAndGovernanceSubRoute.StakingOverview}
           element={
             <StakingOverview
               navigateToValidatorDetails={navigateToValidatorDetails}
-              myBalances={myBalances}
               myValidators={myValidators}
               validators={validators}
+              balance={balance}
             />
           }
         />
         <Route
-          path={`${StakingAndGovernanceSubRoute.ValidatorDetails}/*`}
+          path={`${StakingAndGovernanceSubRoute.ValidatorDetails}/:validatorId`}
           element={
             <ValidatorDetails
               validator={selectedValidator}
               stakingPositionsWithSelectedValidator={
                 stakingPositionsWithSelectedValidator
               }
+              navigateToUnbonding={navigateToUnbonding}
               setModalState={setModalState}
             />
           }
-        />
+        >
+          <Route
+            path=":owner"
+            element={
+              <Modal
+                isOpen={modalState === ModalState.Unbond}
+                title="Unstake"
+                onBackdropClick={cancelUnbonding}
+              >
+                <UnbondPosition
+                  confirmUnbonding={confirmUnbonding}
+                  cancelUnbonding={cancelUnbonding}
+                  currentBondingPositions={
+                    stakingPositionsWithSelectedValidator.length !== 0
+                      ? stakingPositionsWithSelectedValidator
+                      : [emptyStakingPosition(selectedValidatorId || "")]
+                  }
+                />
+              </Modal>
+            }
+          />
+        </Route>
       </Routes>
     </StakingContainer>
   );

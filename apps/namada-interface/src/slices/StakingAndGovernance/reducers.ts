@@ -2,7 +2,6 @@ import { createSlice } from "@reduxjs/toolkit";
 import {
   fetchValidatorDetails,
   fetchValidators,
-  fetchMyBalances,
   fetchMyValidators,
   fetchMyStakingPositions,
   postNewBonding,
@@ -15,7 +14,6 @@ import {
 } from "./types";
 
 const initialState: StakingAndGovernanceState = {
-  myBalances: [],
   validators: [],
   myValidators: [],
   myStakingPositions: [],
@@ -28,10 +26,6 @@ export const stakingAndGovernanceSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchMyBalances.fulfilled, (state, action) => {
-        // stop the loader
-        state.myBalances = action.payload.myBalances;
-      })
       .addCase(fetchValidators.fulfilled, (state, action) => {
         // stop the loader
         state.validators = action.payload.allValidators;
@@ -43,6 +37,7 @@ export const stakingAndGovernanceSlice = createSlice({
       .addCase(fetchMyValidators.fulfilled, (state, action) => {
         // stop the loader
         state.myValidators = action.payload.myValidators;
+        state.myStakingPositions = action.payload.myStakingPositions;
       })
       .addCase(fetchMyValidators.rejected, (state, _action) => {
         // stop the loader

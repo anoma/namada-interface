@@ -1,9 +1,13 @@
+import { Select } from "components/Select";
+import { KeyValueData, Table } from "components/Table";
+import { Props as TableProps } from "components/Table/Table";
+import { FC } from "react";
 import styled from "styled-components/macro";
 
 export const BondingPositionContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: start;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(3, auto);
   align-items: center;
   width: 100%;
   margin: 16px 0 16px;
@@ -11,7 +15,22 @@ export const BondingPositionContainer = styled.div`
   color: ${(props) => props.theme.colors.utility2.main};
 `;
 
+
+export const NewBondingTable = styled<FC<TableProps<KeyValueData, never>>>(
+  Table
+)`
+  width: auto;
+  grid-area: 2 / 1 / 3 / 3;
+  padding: 0 20px;
+`;
+
 export const BondingAmountInputContainer = styled.div`
   display: flex;
-  width: 100%;
+  flex-direction: column;
+  padding: 0 20px;
+`;
+
+export const BondingAddressSelect = styled(Select)`
+  padding: 0 20px;
+  width: auto;
 `;

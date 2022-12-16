@@ -1,5 +1,4 @@
 export const STAKING_AND_GOVERNANCE = "stakingAndGovernance";
-export const FETCH_MY_BALANCES = `${STAKING_AND_GOVERNANCE}/FETCH_MY_BALANCES`;
 export const FETCH_VALIDATORS = `${STAKING_AND_GOVERNANCE}/FETCH_VALIDATORS`;
 export const FETCH_MY_VALIDATORS = `${STAKING_AND_GOVERNANCE}/FETCH_MY_VALIDATORS`;
 export const FETCH_MY_STAKING_POSITIONS = `${STAKING_AND_GOVERNANCE}/FETCH_MY_STAKING_POSITIONS`;
@@ -32,7 +31,7 @@ export type Validator = Unique & {
 export type StakingPosition = Unique & {
   stakingStatus: string;
   stakedAmount: string;
-  stakedCurrency: string;
+  owner: string;
   totalRewards: string;
   validatorId: ValidatorId;
 };
@@ -68,12 +67,11 @@ export enum StakingOrUnstakingState {
 // negative, we are decreasing it
 export type ChangeInStakingPosition = {
   validatorId: ValidatorId;
+  owner: string;
   amount: string;
-  stakingCurrency: string;
 };
 
 export type StakingAndGovernanceState = {
-  myBalances: MyBalanceEntry[];
   validators: Validator[];
   myValidators: MyValidators[];
   myStakingPositions: StakingPosition[];

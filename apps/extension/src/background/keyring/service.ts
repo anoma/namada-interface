@@ -4,7 +4,7 @@ import { KVStore } from "@anoma/storage";
 import { AccountType, Bip44Path, DerivedAccount, SignedTx } from "@anoma/types";
 import { KeyRing } from "./keyring";
 import { KeyRingStatus, KeyStore } from "./types";
-import { IbcTransfer, Transfer } from "@anoma/shared";
+import { IbcTransfer, Transfer, Bond } from "@anoma/shared";
 
 export class KeyRingService {
   private _keyRing: KeyRing;
@@ -71,6 +71,16 @@ export class KeyRingService {
       fromBase64(txMsg),
       fromBase64(txData)
     );
+  }
+
+  encodeBonding(txMsg: string): string {
+    try {
+      const { tx_data } = new Bond(fromBase64(txMsg)).to_serialized();
+      return toBase64(tx_data);
+    } catch (e) {
+      console.warn(e);
+      throw new Error(`Unable to encode bonding tx! ${e}`);
+    }
   }
 
   encodeTransfer(txMsg: string): string {
