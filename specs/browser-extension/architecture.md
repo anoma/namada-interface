@@ -16,31 +16,8 @@ house any integrations with other wallets.
 
 A high-level overview of this architecture should resemble the following:
 
-```
---------------
-| Web Client | - namada-interface
---------------
-      ^
-      |
-----------------
-| Injected API |
-----------------
-      ^
-      |
-  ---------   ----------------
-  | PROXY |-->| API Instance | (content-scripts)
-  ---------   ----------------
-                      |
-              ------------------     -----------------------
-              | Service Worker |---->| Storage (IndexedDB) |
-              ------------------     -----------------------
-              (background-scripts)   (Key-value store)
-                      |
-               ---------------
-               | WebAssembly |
-               ---------------
-               (namada types, other crypto functions)
-```
+![Architectural Overview](./images/extension-architecture-overview.png)
+_High-level overview of extension architecture_
 
 The proxy is necessary to forward data via messages (using `window.postMessage`) to execute functions within the extension, as well as return message data to the client.
 
@@ -62,8 +39,8 @@ The flow may resemble the following:
 
 ## Manifest considerations
 
-Currently, Firefox does not support `manifest_version: 3`, but Chrome no longer accepts `manifest_version: 2` into their extension store. It is best that we follow what the `metamask-extension`
-is doing by supporting multiple both versions. `@keplr-wallet/extension` is currently using only version 2 in all browsers, but as we will be a new submission, we need to support version 3.
+Currently, Firefox does not support `manifest_version: 3`, but Chrome no longer accepts `manifest_version: 2` into their extension store. It is best that we follow what `metamask-extension`
+is doing by supporting multiple both versions. `@keplr-wallet/extension` is currently using only version 2 in all browsers, but as this will be a new submission, we need to support version 3 for Chrome.
 
 This has some implications for how the `background-scripts` are designed:
 
