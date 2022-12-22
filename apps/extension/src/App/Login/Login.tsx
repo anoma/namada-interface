@@ -18,6 +18,7 @@ enum Status {
 
 type Props = {
   requester: ExtensionRequester;
+  route?: TopLevelRoute;
 };
 
 const Login: React.FC<Props> = ({ requester }) => {
