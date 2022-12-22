@@ -120,7 +120,7 @@ const AddAccount: React.FC<Props> = ({
         new CheckIsLockedMsg()
       );
       if (isKeyChainLocked) {
-        navigate(TopLevelRoute.Login);
+        navigate(`${TopLevelRoute.Login}?redirect=${TopLevelRoute.AddAccount}`);
       } else {
         setIsLocked(false);
       }
@@ -198,85 +198,94 @@ const AddAccount: React.FC<Props> = ({
 
   return (
     <AddAccountContainer>
-      <AddAccountForm
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && isFormValid) {
-            handleAccountAdd();
-          }
-        }}
-      >
-        <InputContainer>
-          <Input
-            variant={InputVariant.Text}
-            label="Alias"
-            autoFocus={true}
-            value={alias}
-            onChange={(e) => setAlias(e.target.value)}
-          />
-        </InputContainer>
-        <InputContainer>
-          <Label>
-            <p>HD Derivation Path</p>
-            <Bip44PathContainer>
-              <Bip44PathDelimiter>{parentDerivationPath}</Bip44PathDelimiter>
-              {isTransparent && (
-                <>
+      {!isLocked && (
+        <>
+          <AddAccountForm
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && isFormValid) {
+                handleAccountAdd();
+              }
+            }}
+          >
+            <InputContainer>
+              <Input
+                variant={InputVariant.Text}
+                label="Alias"
+                autoFocus={true}
+                value={alias}
+                onChange={(e) => setAlias(e.target.value)}
+              />
+            </InputContainer>
+            <InputContainer>
+              <Label>
+                <p>HD Derivation Path</p>
+                <Bip44PathContainer>
+                  <Bip44PathDelimiter>
+                    {parentDerivationPath}
+                  </Bip44PathDelimiter>
+                  {isTransparent && (
+                    <>
+                      <Bip44Input
+                        type="number"
+                        min="0"
+                        max="1"
+                        value={change}
+                        onChange={(e) => handleNumericChange(e, setChange)}
+                        onFocus={handleFocus}
+                      />
+                      <Bip44PathDelimiter>/</Bip44PathDelimiter>
+                    </>
+                  )}
                   <Bip44Input
                     type="number"
                     min="0"
-                    max="1"
-                    value={change}
-                    onChange={(e) => handleNumericChange(e, setChange)}
+                    value={index}
+                    onChange={(e) => handleNumericChange(e, setIndex)}
                     onFocus={handleFocus}
                   />
-                  <Bip44PathDelimiter>/</Bip44PathDelimiter>
-                </>
-              )}
-              <Bip44Input
-                type="number"
-                min="0"
-                value={index}
-                onChange={(e) => handleNumericChange(e, setIndex)}
-                onFocus={handleFocus}
-              />
-            </Bip44PathContainer>
-          </Label>
-        </InputContainer>
-        <InputContainer>
-          <ShieldedToggleContainer>
-            <span>Transparent&nbsp;</span>
-            <Toggle
-              onClick={() => setIsTransparent(!isTransparent)}
-              checked={isTransparent}
-            />
-            <span>&nbsp;Shielded</span>
-          </ShieldedToggleContainer>
-        </InputContainer>
+                </Bip44PathContainer>
+              </Label>
+            </InputContainer>
+            <InputContainer>
+              <ShieldedToggleContainer>
+                <span>Transparent&nbsp;</span>
+                <Toggle
+                  onClick={() => setIsTransparent(!isTransparent)}
+                  checked={isTransparent}
+                />
+                <span>&nbsp;Shielded</span>
+              </ShieldedToggleContainer>
+            </InputContainer>
 
-        <Bip44Path>
-          Derivation path:{" "}
-          <span>{`${parentDerivationPath}${
-            isTransparent ? `${change}/` : ""
-          }${index}`}</span>
-        </Bip44Path>
-        <Bip44Error>{bip44Error}</Bip44Error>
-      </AddAccountForm>
-      {formStatus === Status.Pending && (
-        <FormStatus>Submitting new account...</FormStatus>
+            <Bip44Path>
+              Derivation path:{" "}
+              <span>{`${parentDerivationPath}${
+                isTransparent ? `${change}/` : ""
+              }${index}`}</span>
+            </Bip44Path>
+            <Bip44Error>{bip44Error}</Bip44Error>
+          </AddAccountForm>
+          {formStatus === Status.Pending && (
+            <FormStatus>Submitting new account...</FormStatus>
+          )}
+          {formStatus === Status.Failed && <FormError>{formError}</FormError>}
+          <ButtonsContainer>
+            <Button
+              variant={ButtonVariant.Contained}
+              onClick={() => navigate(TopLevelRoute.Accounts)}
+            >
+              Back
+            </Button>
+            <Button
+              variant={ButtonVariant.Contained}
+              disabled={!isFormValid || formStatus === Status.Pending}
+              onClick={handleAccountAdd}
+            >
+              Add
+            </Button>
+          </ButtonsContainer>
+        </>
       )}
-      {formStatus === Status.Failed && <FormError>{formError}</FormError>}
-      <ButtonsContainer>
-        <Button variant={ButtonVariant.Contained} onClick={() => navigate(-1)}>
-          Back
-        </Button>
-        <Button
-          variant={ButtonVariant.Contained}
-          disabled={!isFormValid || formStatus === Status.Pending}
-          onClick={handleAccountAdd}
-        >
-          Add
-        </Button>
-      </ButtonsContainer>
     </AddAccountContainer>
   );
 };

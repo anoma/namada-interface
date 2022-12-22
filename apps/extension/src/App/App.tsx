@@ -100,9 +100,7 @@ export const App: React.FC = () => {
             <Route path={TopLevelRoute.Setup} element={<Setup />} />
             <Route
               path={TopLevelRoute.Login}
-              element={
-                <Login requester={requester} route={TopLevelRoute.AddAccount} />
-              }
+              element={<Login requester={requester} />}
             />
             <Route
               path={TopLevelRoute.AddAccount}

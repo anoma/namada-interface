@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import { TopLevelRoute } from "App/types";
 import { ExtensionRequester } from "extension";
@@ -17,16 +17,20 @@ enum Status {
 
 type Props = {
   requester: ExtensionRequester;
-  route?: TopLevelRoute;
 };
 
-const Login: React.FC<Props> = ({
-  requester,
-  route = TopLevelRoute.Accounts,
-}) => {
+const Login: React.FC<Props> = ({ requester }) => {
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<Status>();
+
+  const useQuery = (): URLSearchParams => {
+    const { search } = useLocation();
+    return React.useMemo(() => new URLSearchParams(search), [search]);
+  };
+
+  const query = useQuery();
+  const redirect = query.get("redirect") || TopLevelRoute.Accounts;
 
   const handleSubmit = async (): Promise<void> => {
     setStatus(Status.Pending);
@@ -36,7 +40,7 @@ const Login: React.FC<Props> = ({
         new UnlockKeyRingMsg(password)
       );
       if (lockStatus === KeyRingStatus.Unlocked) {
-        navigate(route);
+        navigate(redirect);
       } else {
         setStatus(Status.InvalidPassword);
       }
