@@ -24,7 +24,6 @@ import { TopLevelRoute } from "./types";
 import { Loading } from "./Loading";
 import { ExtensionKVStore } from "@anoma/storage";
 
-
 const store = new ExtensionKVStore(KVPrefix.LocalStorage, {
   get: browser.storage.local.get,
   set: browser.storage.local.set,
@@ -62,18 +61,6 @@ export const App: React.FC = () => {
     }
   };
 
-  const checkIsLocked = async (): Promise<void> => {
-    const isLocked = await requester.sendMessage(
-      Ports.Background,
-      new CheckIsLockedMsg()
-    );
-    if (isLocked) {
-      navigate(TopLevelRoute.Login);
-    } else {
-      navigate(TopLevelRoute.Accounts);
-    }
-  };
-
   useEffect(() => {
     fetchAccounts();
   }, []);
@@ -83,7 +70,7 @@ export const App: React.FC = () => {
       if (accounts.length === 0) {
         navigate(TopLevelRoute.Setup);
       } else {
-        checkIsLocked();
+        navigate(TopLevelRoute.Accounts);
       }
     }
   }, [status, accounts]);
@@ -114,7 +101,9 @@ export const App: React.FC = () => {
             <Route path={TopLevelRoute.Setup} element={<Setup />} />
             <Route
               path={TopLevelRoute.Login}
-              element={<Login requester={requester} />}
+              element={
+                <Login requester={requester} route={TopLevelRoute.AddAccount} />
+              }
             />
             <Route
               path={TopLevelRoute.AddAccount}

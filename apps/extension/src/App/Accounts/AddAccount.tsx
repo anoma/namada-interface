@@ -11,7 +11,7 @@ import { AccountType, DerivedAccount } from "@anoma/types";
 
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
-import { DeriveAccountMsg } from "background/keyring";
+import { CheckIsLockedMsg, DeriveAccountMsg } from "background/keyring";
 import { chains, defaultChainId } from "@anoma/chains";
 import {
   AddAccountContainer,
@@ -28,6 +28,7 @@ import {
   Label,
   ShieldedToggleContainer,
 } from "./AddAccount.components";
+import { TopLevelRoute } from "App/types";
 
 type Props = {
   // The parent Bip44 "account"
@@ -93,6 +94,7 @@ const AddAccount: React.FC<Props> = ({
   setAccounts,
 }) => {
   const navigate = useNavigate();
+  const [isLocked, setIsLocked] = useState(true);
   const [alias, setAlias] = useState("");
   const [change, setChange] = useState(0);
   const [bip44Error, setBip44Error] = useState("");
@@ -110,6 +112,24 @@ const AddAccount: React.FC<Props> = ({
   const bip44Prefix = "m/44";
   const zip32Prefix = "m/32";
   const { coinType } = chains[defaultChainId].bip44;
+
+  const checkIsLocked = async (): Promise<void> => {
+    if (isLocked) {
+      const isKeyChainLocked = await requester.sendMessage(
+        Ports.Background,
+        new CheckIsLockedMsg()
+      );
+      if (isKeyChainLocked) {
+        navigate(TopLevelRoute.Login);
+      } else {
+        setIsLocked(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    checkIsLocked();
+  }, []);
 
   useEffect(() => {
     const isValid = validateAccount(
@@ -153,7 +173,7 @@ const AddAccount: React.FC<Props> = ({
           )
         );
       setAccounts([...accounts, derivedAccount]);
-      navigate(-1);
+      navigate(TopLevelRoute.Accounts);
     } catch (e) {
       console.error(e);
       setFormStatus(Status.Failed);

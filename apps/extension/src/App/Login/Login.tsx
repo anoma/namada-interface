@@ -17,9 +17,13 @@ enum Status {
 
 type Props = {
   requester: ExtensionRequester;
+  route?: TopLevelRoute;
 };
 
-const Login: React.FC<Props> = ({ requester }) => {
+const Login: React.FC<Props> = ({
+  requester,
+  route = TopLevelRoute.Accounts,
+}) => {
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<Status>();
@@ -32,7 +36,7 @@ const Login: React.FC<Props> = ({ requester }) => {
         new UnlockKeyRingMsg(password)
       );
       if (lockStatus === KeyRingStatus.Unlocked) {
-        navigate(TopLevelRoute.Accounts);
+        navigate(route);
       } else {
         setStatus(Status.InvalidPassword);
       }
