@@ -7,7 +7,6 @@ import { AccountType, DerivedAccount } from "@anoma/types";
 import { getTheme } from "@anoma/utils";
 import { ExtensionMessenger, ExtensionRequester } from "extension";
 import { KVPrefix, Ports } from "router";
-import { CheckIsLockedMsg } from "background/keyring";
 import { QueryAccountsMsg } from "provider/messages";
 import {
   AppContainer,
