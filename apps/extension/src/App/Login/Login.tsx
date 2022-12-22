@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import { Button, ButtonVariant, Input, InputVariants } from "@anoma/components";
 
@@ -18,7 +18,6 @@ enum Status {
 
 type Props = {
   requester: ExtensionRequester;
-  route?: TopLevelRoute;
 };
 
 const Login: React.FC<Props> = ({ requester }) => {
