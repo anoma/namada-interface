@@ -114,20 +114,22 @@ const AddAccount: React.FC<Props> = ({
   const { coinType } = chains[defaultChainId].bip44;
 
   const checkIsLocked = async (): Promise<void> => {
-    if (isLocked) {
-      const isKeyChainLocked = await requester.sendMessage(
-        Ports.Background,
-        new CheckIsLockedMsg()
+    const isKeyChainLocked = await requester.sendMessage(
+      Ports.Background,
+      new CheckIsLockedMsg()
+    );
+    if (isKeyChainLocked) {
+      navigate(
+        `${TopLevelRoute.Login}?redirect=${TopLevelRoute.AddAccount}&prompt=A password is required to derive an account`
       );
-      if (isKeyChainLocked) {
-        navigate(`${TopLevelRoute.Login}?redirect=${TopLevelRoute.AddAccount}`);
-      } else {
-        setIsLocked(false);
-      }
+    } else {
+      setIsLocked(false);
     }
   };
 
   useEffect(() => {
+    // Query the locked status of the Keyring before displaying the form,
+    // and redirect to Login if it is locked:
     checkIsLocked();
   }, []);
 
