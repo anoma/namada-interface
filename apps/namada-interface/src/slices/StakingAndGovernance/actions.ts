@@ -14,7 +14,7 @@ import {
 } from "./types";
 import { myStakingData } from "./fakeData";
 import { RootState } from "store";
-import { Abci } from "@anoma/shared";
+import { Query } from "@anoma/shared";
 import { RpcClient } from "@anoma/rpc";
 import { fetchWasmCode } from "@anoma/utils";
 import { SignedTx, Signer, Tokens, TxWasm } from "@anoma/types";
@@ -83,8 +83,8 @@ export const fetchValidators = createAsyncThunk<
   const { chainId } = thunkApi.getState().settings;
   const { rpc } = chains[chainId];
 
-  const abci = new Abci(rpc);
-  const allValidators = (await abci.query_all_validators()).map(toValidator);
+  const query = new Query(rpc);
+  const allValidators = (await query.query_all_validators()).map(toValidator);
 
   thunkApi.dispatch(fetchMyValidators(allValidators));
   return Promise.resolve({ allValidators });
@@ -120,8 +120,8 @@ export const fetchMyValidators = createAsyncThunk<
 
     const accounts = thunkApi.getState().accounts.derived[chainId];
     const addresses = Object.keys(accounts);
-    const abci = new Abci(rpc);
-    const myValidatorsRes = await abci.query_my_validators(addresses);
+    const query = new Query(rpc);
+    const myValidatorsRes = await query.query_my_validators(addresses);
 
     const myValidators = myValidatorsRes.reduce(toMyValidators, []);
     const myStakingPositions = myValidatorsRes.map(toStakingPosition);

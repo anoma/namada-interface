@@ -1290,9 +1290,9 @@ dependencies = [
  "serde_json",
  "sha2 0.10.6",
  "subtle-encoding",
- "tendermint 0.23.6 (git+https://github.com/heliaxdev/tendermint-rs.git?rev=e6c684731f21bffd89886d3e91074b96aee074ba)",
+ "tendermint",
  "tendermint-light-client-verifier",
- "tendermint-proto 0.23.6 (git+https://github.com/heliaxdev/tendermint-rs.git?rev=e6c684731f21bffd89886d3e91074b96aee074ba)",
+ "tendermint-proto",
  "time 0.3.17",
  "tracing",
 ]
@@ -1307,7 +1307,7 @@ dependencies = [
  "prost",
  "prost-types",
  "serde",
- "tendermint-proto 0.23.6 (git+https://github.com/heliaxdev/tendermint-rs.git?rev=e6c684731f21bffd89886d3e91074b96aee074ba)",
+ "tendermint-proto",
 ]
 
 [[package]]
@@ -1603,8 +1603,9 @@ checksum = "e5ce46fe64a9d73be07dcbe690a38ce1b293be448fd8ce1e6c1b8062c9f72c6a"
 [[package]]
 name = "namada"
 version = "0.11.0"
-source = "git+https://github.com/anoma/namada?tag=v0.11.0#7ed315a96cd5bfc8e0e2bef37e065746eada6622"
+source = "git+https://github.com/anoma/namada?branch=mateusz/0.11.0#8d4bc406e14ce261cf55fef5bbcefb411fd8bc6b"
 dependencies = [
+ "async-trait",
  "bellman",
  "bls12_381",
  "borsh",
@@ -1624,8 +1625,8 @@ dependencies = [
  "rust_decimal",
  "serde_json",
  "sha2 0.9.9",
- "tendermint 0.23.6 (git+https://github.com/heliaxdev/tendermint-rs.git?rev=e6c684731f21bffd89886d3e91074b96aee074ba)",
- "tendermint-proto 0.23.6 (git+https://github.com/heliaxdev/tendermint-rs.git?rev=e6c684731f21bffd89886d3e91074b96aee074ba)",
+ "tendermint",
+ "tendermint-proto",
  "thiserror",
  "tracing",
  "wasmparser",
@@ -1635,7 +1636,7 @@ dependencies = [
 [[package]]
 name = "namada_core"
 version = "0.11.0"
-source = "git+https://github.com/anoma/namada?tag=v0.11.0#7ed315a96cd5bfc8e0e2bef37e065746eada6622"
+source = "git+https://github.com/anoma/namada?branch=mateusz/0.11.0#8d4bc406e14ce261cf55fef5bbcefb411fd8bc6b"
 dependencies = [
  "ark-bls12-381",
  "ark-ec",
@@ -1667,8 +1668,8 @@ dependencies = [
  "serde_json",
  "sha2 0.9.9",
  "sparse-merkle-tree",
- "tendermint 0.23.6 (git+https://github.com/heliaxdev/tendermint-rs.git?rev=e6c684731f21bffd89886d3e91074b96aee074ba)",
- "tendermint-proto 0.23.6 (git+https://github.com/heliaxdev/tendermint-rs.git?rev=e6c684731f21bffd89886d3e91074b96aee074ba)",
+ "tendermint",
+ "tendermint-proto",
  "thiserror",
  "tonic-build",
  "tracing",
@@ -1678,7 +1679,7 @@ dependencies = [
 [[package]]
 name = "namada_proof_of_stake"
 version = "0.11.0"
-source = "git+https://github.com/anoma/namada?tag=v0.11.0#7ed315a96cd5bfc8e0e2bef37e065746eada6622"
+source = "git+https://github.com/anoma/namada?branch=mateusz/0.11.0#8d4bc406e14ce261cf55fef5bbcefb411fd8bc6b"
 dependencies = [
  "borsh",
  "derivative",
@@ -2463,6 +2464,7 @@ dependencies = [
 name = "shared"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "borsh",
  "chrono",
  "getrandom 0.2.8",
@@ -2476,7 +2478,6 @@ dependencies = [
  "rayon",
  "serde",
  "serde_json",
- "tendermint 0.23.6 (git+https://github.com/heliaxdev/tendermint-rs.git?rev=87be41b8c9cc2850830f4d8028c1fe1bd9f96284)",
  "thiserror",
  "wasm-bindgen",
  "wasm-bindgen-futures",
@@ -2593,34 +2594,6 @@ dependencies = [
 [[package]]
 name = "tendermint"
 version = "0.23.6"
-source = "git+https://github.com/heliaxdev/tendermint-rs.git?rev=87be41b8c9cc2850830f4d8028c1fe1bd9f96284#87be41b8c9cc2850830f4d8028c1fe1bd9f96284"
-dependencies = [
- "async-trait",
- "bytes",
- "ed25519",
- "ed25519-dalek",
- "flex-error",
- "futures",
- "num-traits",
- "once_cell",
- "prost",
- "prost-types",
- "serde",
- "serde_bytes",
- "serde_json",
- "serde_repr",
- "sha2 0.9.9",
- "signature",
- "subtle",
- "subtle-encoding",
- "tendermint-proto 0.23.6 (git+https://github.com/heliaxdev/tendermint-rs.git?rev=87be41b8c9cc2850830f4d8028c1fe1bd9f96284)",
- "time 0.3.17",
- "zeroize",
-]
-
-[[package]]
-name = "tendermint"
-version = "0.23.6"
 source = "git+https://github.com/heliaxdev/tendermint-rs.git?rev=e6c684731f21bffd89886d3e91074b96aee074ba#e6c684731f21bffd89886d3e91074b96aee074ba"
 dependencies = [
  "async-trait",
@@ -2641,7 +2614,7 @@ dependencies = [
  "signature",
  "subtle",
  "subtle-encoding",
- "tendermint-proto 0.23.6 (git+https://github.com/heliaxdev/tendermint-rs.git?rev=e6c684731f21bffd89886d3e91074b96aee074ba)",
+ "tendermint-proto",
  "time 0.3.17",
  "zeroize",
 ]
@@ -2655,24 +2628,7 @@ dependencies = [
  "derive_more",
  "flex-error",
  "serde",
- "tendermint 0.23.6 (git+https://github.com/heliaxdev/tendermint-rs.git?rev=e6c684731f21bffd89886d3e91074b96aee074ba)",
- "time 0.3.17",
-]
-
-[[package]]
-name = "tendermint-proto"
-version = "0.23.6"
-source = "git+https://github.com/heliaxdev/tendermint-rs.git?rev=87be41b8c9cc2850830f4d8028c1fe1bd9f96284#87be41b8c9cc2850830f4d8028c1fe1bd9f96284"
-dependencies = [
- "bytes",
- "flex-error",
- "num-derive",
- "num-traits",
- "prost",
- "prost-types",
- "serde",
- "serde_bytes",
- "subtle-encoding",
+ "tendermint",
  "time 0.3.17",
 ]
 

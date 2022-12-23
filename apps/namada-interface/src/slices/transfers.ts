@@ -17,6 +17,7 @@ import {
 } from "slices/notifications";
 import { fetchBalanceByToken } from "./balances";
 import { getIntegration } from "services";
+import { Query } from "@anoma/shared";
 
 enum Toasts {
   TransferStarted,
@@ -362,6 +363,7 @@ export const submitTransferTransaction = createAsyncThunk(
     const { rpc } = chains[chainId];
 
     const rpcClient = new RpcClient(rpc);
+    const query = new Query(rpc);
 
     notify &&
       dispatch(
@@ -379,7 +381,7 @@ export const submitTransferTransaction = createAsyncThunk(
     };
 
     try {
-      const epoch = await rpcClient.queryEpoch();
+      const epoch = await query.query_epoch();
       const revealPk = await revealPublicKey(
         account,
         token.address || "",
