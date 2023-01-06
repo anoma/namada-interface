@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { TopLevelRoute } from "App/types";
 import { ExtensionRequester } from "extension";
+import { useQuery } from "hooks";
 import { Ports } from "router";
 import { UnlockKeyRingMsg, KeyRingStatus } from "background/keyring";
 import { Input, InputVariant } from "@anoma/components";
@@ -23,11 +24,6 @@ const Login: React.FC<Props> = ({ requester }) => {
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<Status>();
-
-  const useQuery = (): URLSearchParams => {
-    const { search } = useLocation();
-    return React.useMemo(() => new URLSearchParams(search), [search]);
-  };
 
   const query = useQuery();
   const redirect = query.get("redirect") || TopLevelRoute.Accounts;

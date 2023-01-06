@@ -8,11 +8,11 @@ import {
   Toggle,
 } from "@anoma/components";
 import { AccountType, DerivedAccount } from "@anoma/types";
+import { chains, defaultChainId } from "@anoma/chains";
 
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
-import { CheckIsLockedMsg, DeriveAccountMsg } from "background/keyring";
-import { chains, defaultChainId } from "@anoma/chains";
+import { DeriveAccountMsg } from "background/keyring";
 import {
   AddAccountContainer,
   AddAccountForm,
@@ -29,6 +29,7 @@ import {
   ShieldedToggleContainer,
 } from "./AddAccount.components";
 import { TopLevelRoute } from "App/types";
+import { useAuth } from "hooks";
 
 type Props = {
   // The parent Bip44 "account"
@@ -113,24 +114,14 @@ const AddAccount: React.FC<Props> = ({
   const zip32Prefix = "m/32";
   const { coinType } = chains[defaultChainId].bip44;
 
-  const checkIsLocked = async (): Promise<void> => {
-    const isKeyChainLocked = await requester.sendMessage(
-      Ports.Background,
-      new CheckIsLockedMsg()
-    );
-    if (isKeyChainLocked) {
-      navigate(
-        `${TopLevelRoute.Login}?redirect=${TopLevelRoute.AddAccount}&prompt=A password is required to derive an account`
-      );
-    } else {
-      setIsLocked(false);
-    }
-  };
+  const authorize = useAuth(requester);
 
   useEffect(() => {
-    // Query the locked status of the Keyring before displaying the form,
-    // and redirect to Login if it is locked:
-    checkIsLocked();
+    authorize(
+      TopLevelRoute.AddAccount,
+      "A password is required to add an account!",
+      () => setIsLocked(false)
+    );
   }, []);
 
   useEffect(() => {

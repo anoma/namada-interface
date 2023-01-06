@@ -22,6 +22,7 @@ import { Setup } from "./Setup";
 import { TopLevelRoute } from "./types";
 import { Loading } from "./Loading";
 import { ExtensionKVStore } from "@anoma/storage";
+import { ApproveConnection, ApproveTx } from "./Approvals";
 
 const store = new ExtensionKVStore(KVPrefix.LocalStorage, {
   get: browser.storage.local.get,
@@ -98,6 +99,14 @@ export const App: React.FC = () => {
               }
             />
             <Route path={TopLevelRoute.Setup} element={<Setup />} />
+            <Route
+              path={TopLevelRoute.ApproveConnection}
+              element={<ApproveConnection requester={requester} />}
+            />
+            <Route
+              path={TopLevelRoute.ApproveTx}
+              element={<ApproveTx requester={requester} />}
+            />
             <Route
               path={TopLevelRoute.Login}
               element={<Login requester={requester} />}
