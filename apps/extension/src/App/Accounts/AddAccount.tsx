@@ -37,6 +37,8 @@ type Props = {
   accounts: DerivedAccount[];
   requester: ExtensionRequester;
   setAccounts: (accounts: DerivedAccount[]) => void;
+  isLocked: boolean;
+  unlockKeyRing: () => void;
 };
 
 const validateAccount = (
@@ -93,9 +95,10 @@ const AddAccount: React.FC<Props> = ({
   accounts,
   requester,
   setAccounts,
+  isLocked,
+  unlockKeyRing,
 }) => {
   const navigate = useNavigate();
-  const [isLocked, setIsLocked] = useState(true);
   const [alias, setAlias] = useState("");
   const [change, setChange] = useState(0);
   const [bip44Error, setBip44Error] = useState("");
@@ -120,7 +123,7 @@ const AddAccount: React.FC<Props> = ({
     authorize(
       TopLevelRoute.AddAccount,
       "A password is required to add an account!",
-      () => setIsLocked(false)
+      unlockKeyRing
     );
   }, []);
 

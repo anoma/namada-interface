@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Button, ButtonVariant } from "@anoma/components";
 import { shortenAddress } from "@anoma/utils";
 import { useAuth } from "hooks";
@@ -10,17 +10,22 @@ import { ExtensionRequester } from "extension";
 
 type Props = {
   requester: ExtensionRequester;
+  isLocked: boolean;
+  unlockKeyRing: () => void;
 };
 
-export const ApproveTx: React.FC<Props> = ({ requester }) => {
-  const [isLocked, setIsLocked] = useState(true);
+export const ApproveTx: React.FC<Props> = ({
+  requester,
+  isLocked,
+  unlockKeyRing,
+}) => {
   const authorize = useAuth(requester);
 
   useEffect(() => {
     authorize(
       TopLevelRoute.ApproveTx,
       "A password is required to approve a transaction!",
-      () => setIsLocked(false)
+      unlockKeyRing
     );
   }, []);
 
@@ -31,10 +36,20 @@ export const ApproveTx: React.FC<Props> = ({ requester }) => {
         <>
           <p>Approve this Transaction?</p>
           <p>
-            Target: <Address>{shortenAddress("xxxxxxxxxxxx")}</Address>
+            Target:&nbsp;
+            <Address>
+              {shortenAddress(
+                "atest1d9khqw368ycrv3phxgcnwdzygdp5xd2yxyey2w2ygdpy23jxxgeyy3zp8ymnw3p5xyuyxwps5u3n2x"
+              )}
+            </Address>
           </p>
           <p>
-            Source: <Address>{shortenAddress("xxxxxxxxxxxx")}</Address>
+            Source:&nbsp;
+            <Address>
+              {shortenAddress(
+                "atest1d9khqw36xu65v3phgs6nvwz98q6rxvfnxaqnwv2rx4rrwsjxgezyvdpk8yervvjzgsu5vd34zrynzd"
+              )}
+            </Address>
           </p>
           <p>Ammount: 1000</p>
           <p>Token: NAM</p>

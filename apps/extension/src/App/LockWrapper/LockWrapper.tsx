@@ -11,31 +11,42 @@ import { ExtensionRequester } from "extension";
 
 type Props = {
   requester: ExtensionRequester;
+  isLocked: boolean;
   setStatus: (status?: Status) => void;
+  lockKeyRing: () => void;
   children: JSX.Element;
 };
 
-const LockWrapper: React.FC<Props> = ({ requester, setStatus, children }) => {
+const LockWrapper: React.FC<Props> = ({
+  requester,
+  isLocked,
+  lockKeyRing,
+  setStatus,
+  children,
+}) => {
   const navigate = useNavigate();
 
   const handleLock = async (): Promise<void> => {
     try {
       await requester.sendMessage(Ports.Background, new LockKeyRingMsg());
       setStatus(undefined);
+      lockKeyRing();
     } catch (e) {
       console.error(e);
     } finally {
-      navigate(TopLevelRoute.Login);
+      navigate(TopLevelRoute.Accounts);
     }
   };
 
   return (
     <>
-      <ButtonContainer>
-        <LockExtensionButton onClick={handleLock}>
-          <span>Lock</span> <Icon iconName={IconName.Lock} />
-        </LockExtensionButton>
-      </ButtonContainer>
+      {!isLocked && (
+        <ButtonContainer>
+          <LockExtensionButton onClick={handleLock}>
+            <span>Lock</span> <Icon iconName={IconName.Lock} />
+          </LockExtensionButton>
+        </ButtonContainer>
+      )}
       {children}
     </>
   );

@@ -40,6 +40,7 @@ export enum Status {
 export const App: React.FC = () => {
   const theme = getTheme(true, false);
   const navigate = useNavigate();
+  const [isLocked, setIsLocked] = useState(true);
   const [status, setStatus] = useState<Status>();
   const [accounts, setAccounts] = useState<DerivedAccount[]>([]);
   const [error, setError] = useState("");
@@ -92,20 +93,42 @@ export const App: React.FC = () => {
             <Route path="*" element={<Loading error={error} />} />
             <Route
               path={TopLevelRoute.Accounts}
-              element={
-                <LockWrapper requester={requester} setStatus={setStatus}>
-                  <Accounts accounts={accounts} requester={requester} />
-                </LockWrapper>
-              }
+              element={<Accounts accounts={accounts} requester={requester} />}
             />
             <Route path={TopLevelRoute.Setup} element={<Setup />} />
             <Route
               path={TopLevelRoute.ApproveConnection}
-              element={<ApproveConnection requester={requester} />}
+              element={
+                <LockWrapper
+                  requester={requester}
+                  setStatus={setStatus}
+                  isLocked={isLocked}
+                  lockKeyRing={() => setIsLocked(true)}
+                >
+                  <ApproveConnection
+                    requester={requester}
+                    isLocked={isLocked}
+                    unlockKeyRing={() => setIsLocked(false)}
+                  />
+                </LockWrapper>
+              }
             />
             <Route
               path={TopLevelRoute.ApproveTx}
-              element={<ApproveTx requester={requester} />}
+              element={
+                <LockWrapper
+                  requester={requester}
+                  setStatus={setStatus}
+                  isLocked={isLocked}
+                  lockKeyRing={() => setIsLocked(true)}
+                >
+                  <ApproveTx
+                    requester={requester}
+                    isLocked={isLocked}
+                    unlockKeyRing={() => setIsLocked(false)}
+                  />
+                </LockWrapper>
+              }
             />
             <Route
               path={TopLevelRoute.Login}
@@ -114,12 +137,19 @@ export const App: React.FC = () => {
             <Route
               path={TopLevelRoute.AddAccount}
               element={
-                <LockWrapper requester={requester} setStatus={setStatus}>
+                <LockWrapper
+                  requester={requester}
+                  setStatus={setStatus}
+                  isLocked={isLocked}
+                  lockKeyRing={() => setIsLocked(true)}
+                >
                   <AddAccount
                     parentAccount={parentAccount}
                     accounts={accounts}
                     requester={requester}
                     setAccounts={setAccounts}
+                    isLocked={isLocked}
+                    unlockKeyRing={() => setIsLocked(false)}
                   />
                 </LockWrapper>
               }
