@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-
 import { Button, ButtonVariant } from "@anoma/components";
 import { shortenAddress } from "@anoma/utils";
 
