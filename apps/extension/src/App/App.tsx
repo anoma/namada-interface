@@ -140,6 +140,26 @@ export const App: React.FC = () => {
               }
             />
             <Route
+              path={TopLevelRoute.ApproveConnection}
+              element={
+                <ApproveConnection
+                  requester={requester}
+                  isLocked={isLocked}
+                  unlockKeyRing={() => setIsLocked(false)}
+                />
+              }
+            />
+            <Route
+              path={TopLevelRoute.ApproveTx}
+              element={
+                <ApproveTx
+                  requester={requester}
+                  isLocked={isLocked}
+                  unlockKeyRing={() => setIsLocked(false)}
+                />
+              }
+            />
+            <Route
               path={TopLevelRoute.Login}
               element={<Login requester={requester} />}
             />
