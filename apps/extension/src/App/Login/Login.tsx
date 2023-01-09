@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { Input, InputVariant } from "@anoma/components";
+import { Button, ButtonVariant } from "@anoma/components";
+
 import { TopLevelRoute } from "App/types";
 import { ExtensionRequester } from "extension";
 import { useQuery } from "hooks";
 import { Ports } from "router";
 import { UnlockKeyRingMsg, KeyRingStatus } from "background/keyring";
-import { Input, InputVariant } from "@anoma/components";
-import { Button, ButtonVariant } from "@anoma/components";
 import { LoginContainer, LoginError } from "./Login.components";
 
 enum Status {

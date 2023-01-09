@@ -1,6 +1,8 @@
 import { useEffect } from "react";
+
 import { Button, ButtonVariant } from "@anoma/components";
 import { shortenAddress } from "@anoma/utils";
+
 import { useAuth } from "hooks";
 import { TopLevelRoute } from "App/types";
 import { ApproveTxContainer } from "./ApproveTx.components";

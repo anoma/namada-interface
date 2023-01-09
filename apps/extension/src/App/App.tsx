@@ -5,6 +5,8 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 
 import { AccountType, DerivedAccount } from "@anoma/types";
 import { getTheme } from "@anoma/utils";
+import { ExtensionKVStore } from "@anoma/storage";
+
 import { ExtensionMessenger, ExtensionRequester } from "extension";
 import { KVPrefix, Ports } from "router";
 import { QueryAccountsMsg } from "provider/messages";
@@ -15,13 +17,12 @@ import {
   GlobalStyles,
   TopSection,
 } from "./App.components";
+import { TopLevelRoute } from "./types";
 import { LockWrapper } from "./LockWrapper";
 import { Accounts, AddAccount } from "./Accounts";
 import { Login } from "./Login";
 import { Setup } from "./Setup";
-import { TopLevelRoute } from "./types";
 import { Loading } from "./Loading";
-import { ExtensionKVStore } from "@anoma/storage";
 import { ApproveConnection, ApproveTx } from "./Approvals";
 
 const store = new ExtensionKVStore(KVPrefix.LocalStorage, {

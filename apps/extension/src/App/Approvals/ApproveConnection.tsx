@@ -1,5 +1,7 @@
 import { useEffect } from "react";
+
 import { Button, ButtonVariant } from "@anoma/components";
+
 import { ExtensionRequester } from "extension";
 import {
   ApproveConnectionContainer,
