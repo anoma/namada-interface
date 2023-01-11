@@ -1,8 +1,8 @@
 import { chains } from "@anoma/chains";
-import { Anoma, Keplr } from "@anoma/integrations";
+import { Anoma, Keplr, Metamask } from "@anoma/integrations";
 import { createContext, useCallback, useContext, useState } from "react";
 
-type Integration = typeof Anoma | typeof Keplr;
+type Integration = typeof Anoma | typeof Keplr | typeof Metamask;
 type ChainId = string;
 type IntegrationsMap = Record<string, Integration>;
 type Integrations = Record<ChainId, InstanceType<Integration>>;
@@ -14,6 +14,7 @@ type ExtensionConnection<T, U> = (
 const extensionMap: IntegrationsMap = {
   anoma: Anoma,
   keplr: Keplr,
+  metamask: Metamask,
 };
 
 const integrations = Object.entries(chains).reduce((acc, [chainId, chain]) => {
