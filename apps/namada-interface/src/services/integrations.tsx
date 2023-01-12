@@ -81,7 +81,7 @@ export const useIntegrationConnection = <TSuccess, TFail>(
       }
       setIsConnectingToExtension(false);
     },
-    []
+    [chainId]
   );
 
   return [integration, isConnectingToExtension, connect];
