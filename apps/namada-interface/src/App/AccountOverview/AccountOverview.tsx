@@ -26,7 +26,10 @@ import {
   TotalHeading,
 } from "./AccountOverview.components";
 import { formatCurrency } from "@anoma/utils";
-import { useIntegrationConnection } from "services";
+import {
+  useIntegrationConnection,
+  useUntilIntegrationAttached,
+} from "services";
 import { Account, ExtensionKey, Extensions } from "@anoma/types";
 
 export const AccountOverview = (): JSX.Element => {
@@ -51,7 +54,15 @@ export const AccountOverview = (): JSX.Element => {
   const chain = chains[chainId];
   const extensionAlias = Extensions[chain.extension.id].alias;
 
+  const extensionAttachStatus = useUntilIntegrationAttached(chain);
+  const currentExtensionAttachStatus =
+    extensionAttachStatus[chain.extension.id];
+
   const [total, setTotal] = useState(0);
+
+  const handleDownloadExtension = (url: string): void => {
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
 
   const handleConnectExtension = async (): Promise<void> => {
     withConnection(
@@ -126,10 +137,25 @@ export const AccountOverview = (): JSX.Element => {
             {!isExtensionConnected[chain.extension.id] && (
               <Button
                 variant={ButtonVariant.Contained}
-                onClick={handleConnectExtension}
-                loading={isConnectingToExtension}
+                onClick={
+                  currentExtensionAttachStatus === "attached"
+                    ? handleConnectExtension
+                    : handleDownloadExtension.bind(null, chain.extension.url)
+                }
+                loading={
+                  currentExtensionAttachStatus === "pending" ||
+                  isConnectingToExtension
+                }
+                style={
+                  currentExtensionAttachStatus === "pending"
+                    ? { color: "transparent" }
+                    : {}
+                }
               >
-                Connect to {extensionAlias} Extension
+                {currentExtensionAttachStatus === "attached" ||
+                currentExtensionAttachStatus === "pending"
+                  ? `Connect to ${extensionAlias} Extension`
+                  : "Click to download the extension"}
               </Button>
             )}
           </NoAccountsContainer>
