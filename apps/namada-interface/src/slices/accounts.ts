@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Account } from "@anoma/types";
-import { defaultChainId as chainId } from "@anoma/chains";
 
 type Accounts = {
   [address: string]: Account;
@@ -25,7 +24,7 @@ const accountsSlice = createSlice({
     addAccounts: (state, action: PayloadAction<readonly Account[]>) => {
       const accounts = action.payload;
       accounts.forEach((account) => {
-        const { address, alias, isShielded } = account;
+        const { address, alias, isShielded, chainId } = account;
         if (!state.derived[chainId]) {
           state.derived[chainId] = {};
         }
