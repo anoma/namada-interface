@@ -5,5 +5,4 @@ pub mod bip32;
 pub mod bip39;
 pub mod rng;
 pub mod salt;
-pub mod scrypt;
 pub mod zip32;
