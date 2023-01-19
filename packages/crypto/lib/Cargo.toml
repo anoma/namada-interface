@@ -26,7 +26,6 @@ masp_primitives = { git = "https://github.com/anoma/masp", rev = "bee40fc465f6af
 orion = "0.16.0"
 password-hash = "0.4.2"
 serde = { version = "1.0.145", features = ["derive"] }
-scrypt = "0.10.0"
 thiserror = "1.0.30"
 rand = {version = "0.7", features = ["wasm-bindgen"]}
 wasm-bindgen = "0.2.78"
