@@ -1,5 +1,8 @@
 # Transparent Transactions
 
+**TODO** The following is outdated in a couple ways. First, the constructing and signing of transactions are now handled by the browser extension,
+via an exposed API to the `namada-interface` client. Second, we will soon be incorporating features from the SDK to achieve the following.
+
 #### Table of Contents
 
 - [Transfer Transactions](#part-1---token-transfer-transactions)
@@ -76,7 +79,6 @@ let data = transfer
 _In Anoma CLI:_
 https://github.com/anoma/anoma/blob/f6e78278608aaef253617885bb7ef95a50057268/apps/src/lib/client/tx.rs#L406-L411
 
-
 #### Creating and signing the `proto::Tx` struct
 
 _In wasm:_
@@ -99,7 +101,6 @@ impl Tx {
 
 _In Anoma CLI:_
 https://github.com/anoma/anoma/blob/f6e78278608aaef253617885bb7ef95a50057268/apps/src/lib/client/tx.rs#L417-L419
-
 
 ### 1.2 - Creating the `anoma::types::transaction::WrapperTx` struct
 
@@ -186,7 +187,6 @@ Ok(Transaction {
 
 _In Anoma CLI:_
 https://github.com/anoma/anoma/blob/f6e78278608aaef253617885bb7ef95a50057268/apps/src/lib/client/tx.rs#L810-L814
-
 
 ## Part 2 - Initialize Account Transaction
 

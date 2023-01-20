@@ -1,5 +1,7 @@
 ## Using JSON RPC to Communicate with Ledger
 
+**TODO** The following will soon be irrelevant, as this will be a feature of the SDK and not handled manually as in the following:
+
 To query values from the ledger, the web-wallet must issue JSON RPC calls to the **Tendermint** `abci_query` endpoint over HTTP, which if running the ledger locally, would look like:
 
 ```
