@@ -1,5 +1,5 @@
 use gloo_utils::format::JsValueSerdeExt;
-use namada::ledger::queries::{Client, EncodedResponseQuery, MutClient};
+use namada::ledger::queries::{Client, EncodedResponseQuery};
 use namada::tendermint::abci::{Code, Log, Path};
 use namada::tendermint::block::Height;
 use namada::tendermint::merkle::proof::Proof;
@@ -10,7 +10,6 @@ use namada::types::storage::BlockHeight;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 use std::str::FromStr;
-use tendermint_rpc::endpoint::broadcast::tx_sync::Response as TxSyncResponse;
 use tendermint_rpc::query::Query;
 use tendermint_rpc::{Order, SimpleRequest};
 use wasm_bindgen::prelude::*;
@@ -100,15 +99,6 @@ impl HttpClient {
         HttpClient { url }
     }
 
-    fn create_json_rpc_request(&self, abci_params: AbciParams) -> AbciRequest {
-        AbciRequest {
-            id: "".to_owned(),
-            jsonrpc: "2.0".to_owned(),
-            method: "abci_query".to_owned(),
-            params: abci_params,
-        }
-    }
-
     async fn fetch(&self, url: &str, method: &str, body: &str) -> Result<JsValue, JsValue> {
         let mut opts = RequestInit::new();
         opts.method(method);
@@ -121,37 +111,6 @@ impl HttpClient {
 
         let resp: Response = resp_value.dyn_into()?;
         JsFuture::from(resp.json().unwrap()).await
-    }
-
-    pub async fn abci_query(
-        &self,
-        url: &str,
-        path: &str,
-        data: Option<Vec<u8>>,
-        height: Option<BlockHeight>,
-        prove: bool,
-    ) -> Result<AbciQuery, JsError> {
-        let path = Path::from_str(path)?;
-        let json_rpc_request = &self.create_json_rpc_request(AbciParams {
-            path,
-            data,
-            height,
-            prove,
-        });
-
-        let body = serde_json::to_string(&json_rpc_request)?;
-
-        let json = &self.fetch(url, "POST", &body[..]).await.map_err(|e| {
-            // We are serializing the JsValue to pass it as a string to the Error
-            // it is a bit meh, but we do not know exact shape of JsValue
-            let error_js_str = js_sys::JSON::stringify(&e).expect("JsValue to be serializable");
-            let error_str: String = error_js_str.into();
-            JsError::new(&error_str)
-        })?;
-
-        let abci_response: AbciQueryResult = JsValue::into_serde(&json)?;
-
-        Ok(abci_response.result.response)
     }
 }
 
@@ -166,8 +125,21 @@ impl Client for HttpClient {
         height: Option<BlockHeight>,
         prove: bool,
     ) -> Result<EncodedResponseQuery, Self::Error> {
-        let response = &self
-            .abci_query(&self.url, &path, data, height, prove)
+        let data = data.unwrap_or_default();
+        let height = height
+            .map(|height| {
+                tendermint::block::Height::try_from(height.0).map_err(|_err| JsError::new("TODO"))
+            })
+            .transpose()?;
+
+        let response = self
+            .abci_query(
+                // TODO open the private Path constructor in tendermint-rpc
+                Some(std::str::FromStr::from_str(&path).unwrap()),
+                data,
+                height,
+                prove,
+            )
             .await?;
         let response = response.clone();
         let code = Code::from(response.code);
@@ -181,56 +153,17 @@ impl Client for HttpClient {
             Code::Err(code) => Err(JsError::new(&format!("Error code {}", code))),
         }
     }
-}
 
-#[async_trait::async_trait(?Send)]
-impl MutClient for HttpClient {
-    async fn broadcast_tx_sync(
-        &self,
-        tx: tendermint::abci::Transaction,
-    ) -> Result<TxSyncResponse, RpcError> {
-        let req = tendermint_rpc::endpoint::broadcast::tx_sync::Request::new(tx);
-        let req_json = serde_json::to_string_pretty(&req).expect("TODO");
+    async fn perform<R>(&self, request: R) -> Result<R::Response, RpcError>
+    where
+        R: SimpleRequest,
+    {
+        let req_json = serde_json::to_string_pretty(&request).expect("TODO");
         let response_json = self
             .fetch(&self.url[..], "POST", &req_json)
             .await
             .expect("TODO");
-        let asd: TxSyncResponse = JsValue::into_serde(&response_json).expect("TODO");
-        Ok(asd)
-    }
-
-    async fn latest_block(&self) -> Result<tendermint_rpc::endpoint::block::Response, RpcError> {
-        todo!();
-    }
-
-    async fn block_search(
-        &self,
-        query: Query,
-        page: u32,
-        per_page: u8,
-        order: Order,
-    ) -> Result<tendermint_rpc::endpoint::block_search::Response, RpcError> {
-        todo!();
-    }
-
-    async fn block_results<H>(
-        &self,
-        height: H,
-    ) -> Result<tendermint_rpc::endpoint::block_results::Response, RpcError>
-    where
-        H: Into<Height> + Send,
-    {
-        todo!();
-    }
-
-    async fn tx_search(
-        &self,
-        query: Query,
-        prove: bool,
-        page: u32,
-        per_page: u8,
-        order: Order,
-    ) -> Result<tendermint_rpc::endpoint::tx_search::Response, RpcError> {
-        todo!();
+        let response: R::Response = JsValue::into_serde(&response_json).expect("TODO");
+        Ok(response)
     }
 }

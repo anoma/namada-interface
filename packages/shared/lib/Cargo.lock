@@ -2791,7 +2791,6 @@ dependencies = [
 [[package]]
 name = "tendermint"
 version = "0.23.6"
-source = "git+https://github.com/heliaxdev/tendermint-rs.git?rev=e6c684731f21bffd89886d3e91074b96aee074ba#e6c684731f21bffd89886d3e91074b96aee074ba"
 dependencies = [
  "async-trait",
  "bytes",
@@ -2819,7 +2818,6 @@ dependencies = [
 [[package]]
 name = "tendermint-config"
 version = "0.23.6"
-source = "git+https://github.com/heliaxdev/tendermint-rs.git?rev=e6c684731f21bffd89886d3e91074b96aee074ba#e6c684731f21bffd89886d3e91074b96aee074ba"
 dependencies = [
  "flex-error",
  "serde",
@@ -2845,7 +2843,6 @@ dependencies = [
 [[package]]
 name = "tendermint-proto"
 version = "0.23.6"
-source = "git+https://github.com/heliaxdev/tendermint-rs.git?rev=e6c684731f21bffd89886d3e91074b96aee074ba#e6c684731f21bffd89886d3e91074b96aee074ba"
 dependencies = [
  "bytes",
  "flex-error",
@@ -2862,7 +2859,6 @@ dependencies = [
 [[package]]
 name = "tendermint-rpc"
 version = "0.23.6"
-source = "git+https://github.com/heliaxdev/tendermint-rs.git?rev=e6c684731f21bffd89886d3e91074b96aee074ba#e6c684731f21bffd89886d3e91074b96aee074ba"
 dependencies = [
  "bytes",
  "flex-error",
@@ -2878,6 +2874,7 @@ dependencies = [
  "tendermint-proto",
  "thiserror",
  "time 0.3.17",
+ "tokio",
  "url",
  "uuid",
  "walkdir",
@@ -2971,6 +2968,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1d9f76183f91ecfb55e1d7d5602bd1d979e38a3a522fe900241cf195624d67ae"
 dependencies = [
  "autocfg",
+ "num_cpus",
  "pin-project-lite",
  "windows-sys",
 ]

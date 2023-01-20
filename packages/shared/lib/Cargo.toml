@@ -52,10 +52,10 @@ funty = { git = "https://github.com/ferrilab/funty.git", rev = "7ef0d890fbcd8b3d
 # patched to a commit on the `eth-bridge-integration` branch of our fork
 ibc = {git = "https://github.com/heliaxdev/ibc-rs.git", rev = "f4703dfe2c1f25cc431279ab74f10f3e0f6827e2"}
 ibc-proto = {git = "https://github.com/heliaxdev/ibc-rs.git", rev = "f4703dfe2c1f25cc431279ab74f10f3e0f6827e2"}
-tendermint = {git = "https://github.com/heliaxdev/tendermint-rs.git", rev = "e6c684731f21bffd89886d3e91074b96aee074ba"}
-tendermint-rpc = {git = "https://github.com/heliaxdev/tendermint-rs.git", rev = "e6c684731f21bffd89886d3e91074b96aee074ba"}
-tendermint-proto = {git = "https://github.com/heliaxdev/tendermint-rs.git", rev = "e6c684731f21bffd89886d3e91074b96aee074ba"}
-tendermint-config = {git = "https://github.com/heliaxdev/tendermint-rs.git", rev = "e6c684731f21bffd89886d3e91074b96aee074ba"}
+tendermint = {path = "/home/mj/Projects/heliax/tendermint-rs/tendermint"}
+tendermint-config = {path = "/home/mj/Projects/heliax/tendermint-rs/config"}
+tendermint-proto = {path = "/home/mj/Projects/heliax/tendermint-rs/proto"}
+tendermint-rpc = {path = "/home/mj/Projects/heliax/tendermint-rs/rpc"}
 
 borsh = {git = "https://github.com/heliaxdev/borsh-rs.git", rev = "cd5223e5103c4f139e0c54cf8259b7ec5ec4073a"}
 borsh-derive = {git = "https://github.com/heliaxdev/borsh-rs.git", rev = "cd5223e5103c4f139e0c54cf8259b7ec5ec4073a"}
