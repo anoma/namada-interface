@@ -1,5 +1,6 @@
 use gloo_utils::format::JsValueSerdeExt;
 use namada::ledger::queries::RPC;
+use namada::ledger::tx;
 use namada::types::address::Address;
 use namada::types::token::Amount;
 use serde::Serialize;
@@ -97,6 +98,4 @@ impl Query {
 
         Query::to_js_result(result)
     }
-
-    pub async fn broadcast_tx_sync() {}
 }

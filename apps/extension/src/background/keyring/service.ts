@@ -58,7 +58,9 @@ export class KeyRingService {
   }
 
   async queryAccounts(): Promise<DerivedAccount[]> {
-    return await this._keyRing.queryAccounts();
+    const asd = await this._keyRing.queryAccounts();
+
+    return asd;
   }
 
   async signTx(
@@ -116,9 +118,7 @@ export class KeyRingService {
   }
 
   async encodeRevealPk(signer: string): Promise<string> {
-    const tx_data = await this._keyRing.encodeRevealPk(
-      signer,
-    );
+    const tx_data = await this._keyRing.encodeRevealPk(signer);
     return toBase64(tx_data);
   }
 }

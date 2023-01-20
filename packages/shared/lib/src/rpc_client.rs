@@ -1,13 +1,18 @@
 use gloo_utils::format::JsValueSerdeExt;
-use namada::ledger::queries::{Client, EncodedResponseQuery};
+use namada::ledger::queries::{Client, EncodedResponseQuery, MutClient};
 use namada::tendermint::abci::{Code, Log, Path};
-use namada::tendermint::block;
+use namada::tendermint::block::Height;
 use namada::tendermint::merkle::proof::Proof;
 use namada::tendermint::serializers;
+use namada::tendermint::{self, block};
+use namada::tendermint_rpc::error::Error as RpcError;
 use namada::types::storage::BlockHeight;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 use std::str::FromStr;
+use tendermint_rpc::endpoint::broadcast::tx_sync::Response as TxSyncResponse;
+use tendermint_rpc::query::Query;
+use tendermint_rpc::{Order, SimpleRequest};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use wasm_bindgen_futures::JsFuture;
@@ -85,6 +90,7 @@ pub struct AbciRequest {
     params: AbciParams,
 }
 
+#[derive()]
 pub struct HttpClient {
     url: String,
 }
@@ -174,5 +180,57 @@ impl Client for HttpClient {
             }),
             Code::Err(code) => Err(JsError::new(&format!("Error code {}", code))),
         }
+    }
+}
+
+#[async_trait::async_trait(?Send)]
+impl MutClient for HttpClient {
+    async fn broadcast_tx_sync(
+        &self,
+        tx: tendermint::abci::Transaction,
+    ) -> Result<TxSyncResponse, RpcError> {
+        let req = tendermint_rpc::endpoint::broadcast::tx_sync::Request::new(tx);
+        let req_json = serde_json::to_string_pretty(&req).expect("TODO");
+        let response_json = self
+            .fetch(&self.url[..], "POST", &req_json)
+            .await
+            .expect("TODO");
+        let asd: TxSyncResponse = JsValue::into_serde(&response_json).expect("TODO");
+        Ok(asd)
+    }
+
+    async fn latest_block(&self) -> Result<tendermint_rpc::endpoint::block::Response, RpcError> {
+        todo!();
+    }
+
+    async fn block_search(
+        &self,
+        query: Query,
+        page: u32,
+        per_page: u8,
+        order: Order,
+    ) -> Result<tendermint_rpc::endpoint::block_search::Response, RpcError> {
+        todo!();
+    }
+
+    async fn block_results<H>(
+        &self,
+        height: H,
+    ) -> Result<tendermint_rpc::endpoint::block_results::Response, RpcError>
+    where
+        H: Into<Height> + Send,
+    {
+        todo!();
+    }
+
+    async fn tx_search(
+        &self,
+        query: Query,
+        prove: bool,
+        page: u32,
+        per_page: u8,
+        order: Order,
+    ) -> Result<tendermint_rpc::endpoint::tx_search::Response, RpcError> {
+        todo!();
     }
 }
