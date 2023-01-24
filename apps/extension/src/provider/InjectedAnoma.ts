@@ -59,6 +59,16 @@ export class InjectedAnoma implements IAnoma {
     );
   }
 
+  public async submitBond(props: {
+    txMsg1: string;
+    txMsg2: string;
+  }): Promise<string | undefined> {
+    return await InjectedProxy.requestMethod<
+      { txMsg1: string; txMsg2: string },
+      string
+    >("submitBond", props);
+  }
+
   public async encodeTransfer(txMsg: string): Promise<string | undefined> {
     return await InjectedProxy.requestMethod<string, string>(
       "encodeTransfer",
@@ -86,10 +96,10 @@ export class InjectedAnoma implements IAnoma {
   public async encodeRevealPk(props: {
     signer: string;
   }): Promise<string | undefined> {
-    return await InjectedProxy.requestMethod<
-      { signer: string },
-      string
-    >("encodeRevealPk", props);
+    return await InjectedProxy.requestMethod<{ signer: string }, string>(
+      "encodeRevealPk",
+      props
+    );
   }
 
   public version(): string {

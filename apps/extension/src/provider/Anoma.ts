@@ -12,6 +12,7 @@ import {
   QueryAccountsMsg,
   SignTxMsg,
   EncodeRevealPkMsg,
+  SubmitBondMsg,
 } from "./messages";
 
 export class Anoma implements IAnoma {
@@ -71,6 +72,17 @@ export class Anoma implements IAnoma {
     return await this.requester?.sendMessage(
       Ports.Background,
       new EncodeBondingMsg(txMsg)
+    );
+  }
+
+  public async submitBond(props: {
+    txMsg1: string;
+    txMsg2: string;
+  }): Promise<string | undefined> {
+    const { txMsg1, txMsg2 } = props;
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new SubmitBondMsg(txMsg1, txMsg2)
     );
   }
 

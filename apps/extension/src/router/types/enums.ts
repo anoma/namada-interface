@@ -16,6 +16,7 @@ export enum Routes {
 export enum KVPrefix {
   IndexedDB = "Anoma::IndexedDB",
   LocalStorage = "Anoma::LocalStorage",
+  SDK = "Anoma::SDK",
 }
 
 export enum KVKeys {
