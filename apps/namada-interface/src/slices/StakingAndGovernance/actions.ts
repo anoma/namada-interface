@@ -188,25 +188,42 @@ export const postNewBonding = createAsyncThunk<
   { state: RootState }
 >(POST_NEW_STAKING, async (change, thunkApi) => {
   const { chainId } = thunkApi.getState().settings;
-  const { rpc } = chains[chainId];
-  const rpcClient = new RpcClient(rpc);
-  const accounts = thunkApi.getState().accounts.derived[chainId];
+  const integration = getIntegration(chainId);
+  const signer = integration.signer() as Signer;
+  signer.submitBond({
+    bond: {
+      validator: change.validatorId,
+      amount: Number(change.amount) * 1_000_000,
+      source: change.owner,
+      txCode: await fetchWasmCode(TxWasm.Bond),
+    },
+    tx: {
+      token: Tokens.NAM.address || "",
+      feeAmount: 0,
+      gasLimit: 0,
+      txCode: await fetchWasmCode(TxWasm.RevealPK),
+    },
+  });
 
-  const epoch = await rpcClient.queryEpoch();
+  // const { rpc } = chains[chainId];
+  // const rpcClient = new RpcClient(rpc);
+  // const accounts = thunkApi.getState().accounts.derived[chainId];
 
-  const { hash, bytes } = await createBondingTx(
-    TxWasm.Bond,
-    change,
-    epoch,
-    chainId,
-    Object.keys(accounts)
-  );
+  // const epoch = await rpcClient.queryEpoch();
 
-  if (hash && bytes) {
-    await rpcClient.broadcastTxSync(bytes);
-  } else {
-    throw new Error("Invalid transaction!");
-  }
+  // const { hash, bytes } = await createBondingTx(
+  //   TxWasm.Bond,
+  //   change,
+  //   epoch,
+  //   chainId,
+  //   Object.keys(accounts)
+  // );
+
+  // if (hash && bytes) {
+  //   await rpcClient.broadcastTxSync(bytes);
+  // } else {
+  //   throw new Error("Invalid transaction!");
+  // }
 
   return Promise.resolve();
 });

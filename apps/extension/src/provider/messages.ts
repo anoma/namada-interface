@@ -23,6 +23,7 @@ enum MessageType {
   GetChains = "get-chains",
   SuggestChain = "suggest-chain",
   EncodeBonding = "encode-bonding",
+  SubmitBond = "submit-bond",
 }
 
 /**
@@ -283,5 +284,33 @@ export class EncodeBondingMsg extends Message<string> {
 
   type(): string {
     return EncodeBondingMsg.type();
+  }
+}
+
+export class SubmitBondMsg extends Message<string> {
+  public static type(): MessageType {
+    return MessageType.SubmitBond;
+  }
+
+  constructor(public readonly txMsg1: string, public readonly txMsg2: string) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.txMsg1) {
+      throw new Error("An encoded txMsg is required!");
+    }
+    if (!this.txMsg2) {
+      throw new Error("An encoded txMsg is required!");
+    }
+    return;
+  }
+
+  route(): string {
+    return Route.KeyRing;
+  }
+
+  type(): string {
+    return SubmitBondMsg.type();
   }
 }

@@ -16,6 +16,7 @@ import {
   SignTxMsg,
   EncodeRevealPkMsg,
   EncodeBondingMsg,
+  SubmitBondMsg,
 } from "provider/messages";
 import { ROUTE } from "./constants";
 import { getHandler } from "./handler";
@@ -32,6 +33,7 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(SaveMnemonicMsg);
   router.registerMessage(SignTxMsg);
   router.registerMessage(EncodeBondingMsg);
+  router.registerMessage(SubmitBondMsg);
   router.registerMessage(EncodeTransferMsg);
   router.registerMessage(EncodeIbcTransferMsg);
   router.registerMessage(EncodeInitAccountMsg);

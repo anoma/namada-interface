@@ -21,6 +21,12 @@ import {
   AccountType,
   BondingProps,
   BondingMsgSchema,
+  BondProps,
+  BondMsgValue,
+  BondMsgSchema,
+  Tx,
+  TxMsgValue,
+  TxMsgSchema,
 } from "@anoma/types";
 
 export class Signer implements ISigner {
@@ -74,6 +80,29 @@ export class Signer implements ISigner {
     const serializedTransfer = bondingMsg.encode(BondingMsgSchema, msgValue);
 
     return await this._anoma.encodeBonding(toBase64(serializedTransfer));
+  }
+
+  /**
+   * Submit bond transaction
+   */
+  public async submitBond(args: {
+    bond: BondProps;
+    tx: Tx;
+  }): Promise<string | undefined> {
+    const msgValue1 = new BondMsgValue(args.bond);
+
+    const msg1 = new Message<BondMsgValue>();
+    const msg1encoded = msg1.encode(BondMsgSchema, msgValue1);
+
+    const msgValue2 = new TxMsgValue(args.tx);
+
+    const msg2 = new Message<TxMsgValue>();
+    const msg2encoded = msg2.encode(TxMsgSchema, msgValue2);
+
+    return await this._anoma.submitBond({
+      txMsg1: toBase64(msg1encoded),
+      txMsg2: toBase64(msg2encoded),
+    });
   }
 
   /**
@@ -147,10 +176,7 @@ export class Signer implements ISigner {
   /**
    * Encode an RevealPk message
    */
-  public async encodeRevealPk(
-    signer: string,
-  ): Promise<string | undefined> {
-
+  public async encodeRevealPk(signer: string): Promise<string | undefined> {
     return await this._anoma.encodeRevealPk({
       signer,
     });

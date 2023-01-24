@@ -1,77 +1,18 @@
 use gloo_utils::format::JsValueSerdeExt;
 use namada::ledger::queries::{Client, EncodedResponseQuery};
 use namada::tendermint::abci::{Code, Log, Path};
-use namada::tendermint::block::Height;
 use namada::tendermint::merkle::proof::Proof;
 use namada::tendermint::serializers;
 use namada::tendermint::{self, block};
 use namada::tendermint_rpc::error::Error as RpcError;
+use namada::tendermint_rpc::{Order, SimpleRequest};
 use namada::types::storage::BlockHeight;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
-use std::str::FromStr;
-use tendermint_rpc::query::Query;
-use tendermint_rpc::{Order, SimpleRequest};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{Request, RequestInit, RequestMode, Response};
-
-#[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
-pub struct AbciResponse {
-    /// ABCI query results
-    pub response: AbciQuery,
-}
-
-/// ABCI query results
-#[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize, Default)]
-#[serde(default)]
-pub struct AbciQuery {
-    /// Response code
-    pub code: u32,
-
-    /// Log value
-    pub log: Log,
-
-    /// Info value
-    #[serde(default = "String::new")]
-    pub info: String,
-
-    /// Index
-    #[serde(with = "serializers::from_str")]
-    pub index: i64,
-
-    /// Key
-    #[serde(default, with = "serializers::bytes::base64string")]
-    pub key: Vec<u8>,
-
-    /// Value
-    #[serde(default, with = "serializers::bytes::base64string")]
-    pub value: Vec<u8>,
-
-    /// Proof (might be explicit null)
-    #[serde(alias = "proofOps")]
-    pub proof: Option<Proof>,
-
-    /// Block height
-    #[serde(with = "serializers::from_str")]
-    pub height: block::Height,
-
-    /// Codespace
-    #[serde(default = "String::new")]
-    pub codespace: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct AbciQueryResult {
-    #[serde(default = "String::new")]
-    pub id: String,
-
-    #[serde(default = "String::new")]
-    pub jsonrpc: String,
-
-    pub result: AbciResponse,
-}
 
 #[derive(Deserialize, Serialize)]
 struct AbciParams {

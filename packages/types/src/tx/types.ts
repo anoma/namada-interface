@@ -18,6 +18,20 @@ export type BondingProps = {
   source: string;
 };
 
+export type BondProps = {
+  validator: string;
+  amount: number;
+  source: string;
+  txCode: Uint8Array;
+};
+
+export type Tx = {
+  token: string;
+  feeAmount: number;
+  gasLimit: number;
+  txCode: Uint8Array;
+};
+
 export type TransferProps = {
   source: string;
   target: string;
@@ -26,7 +40,6 @@ export type TransferProps = {
   key?: string;
   shielded?: Uint8Array;
 };
-
 export type IbcTransferProps = {
   sourcePort: string;
   sourceChannel: string;

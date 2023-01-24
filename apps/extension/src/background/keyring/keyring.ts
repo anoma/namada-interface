@@ -12,10 +12,11 @@ import {
   Account,
   Address,
   Signer,
-  ExtendedSpendingKey,
-  ExtendedViewingKey,
-  PaymentAddress,
+  // ExtendedSpendingKey,
+  // ExtendedViewingKey,
+  // PaymentAddress,
   RevealPk,
+  Sdk,
 } from "@anoma/shared";
 import { IStore, Store } from "@anoma/storage";
 import { AccountType, Bip44Path, DerivedAccount, SignedTx } from "@anoma/types";
@@ -42,6 +43,7 @@ const getId = (name: string, ...args: (number | string)[]): string => {
 };
 
 export const KEYSTORE_KEY = "key-store";
+export const SDK_KEY = "sdk-store";
 const crypto = new Crypto();
 
 type DerivedAccountInfo = {
@@ -60,7 +62,9 @@ export class KeyRing {
 
   constructor(
     protected readonly kvStore: KVStore<KeyStore[]>,
-    protected readonly chainId: string
+    protected readonly sdkStore: KVStore<string>,
+    protected readonly chainId: string,
+    protected readonly sdk: Sdk
   ) {
     this._keyStore = new Store(KEYSTORE_KEY, kvStore);
   }
@@ -187,32 +191,32 @@ export class KeyRing {
     };
   }
 
-  public static deriveShieldedAccount(
-    seed: Uint8Array,
-    path: Bip44Path,
-    parentId: string
-  ): DerivedAccountInfo {
-    const { index = 0 } = path;
-    const id = getId("shielded-account", parentId, index);
-    const zip32 = new ShieldedHDWallet(seed);
-    const account = zip32.derive_to_serialized_keys(index);
+  // public static deriveShieldedAccount(
+  //   seed: Uint8Array,
+  //   path: Bip44Path,
+  //   parentId: string
+  // ): DerivedAccountInfo {
+  //   const { index = 0 } = path;
+  //   const id = getId("shielded-account", parentId, index);
+  //   const zip32 = new ShieldedHDWallet(seed);
+  //   const account = zip32.derive_to_serialized_keys(index);
 
-    // Retrieve serialized types from wasm
-    const xsk = account.xsk();
-    const xfvk = account.xfvk();
-    const payment_address = account.payment_address();
+  //   // Retrieve serialized types from wasm
+  //   const xsk = account.xsk();
+  //   const xfvk = account.xfvk();
+  //   const payment_address = account.payment_address();
 
-    // Deserialize and encode keys and address
-    const spendingKey = new ExtendedSpendingKey(xsk).encode();
-    const viewingKey = new ExtendedViewingKey(xfvk).encode();
-    const address = new PaymentAddress(payment_address).encode();
+  //   // Deserialize and encode keys and address
+  //   const spendingKey = new ExtendedSpendingKey(xsk).encode();
+  //   const viewingKey = new ExtendedViewingKey(xfvk).encode();
+  //   const address = new PaymentAddress(payment_address).encode();
 
-    return {
-      address,
-      id,
-      text: JSON.stringify({ spendingKey, viewingKey }),
-    };
-  }
+  //   return {
+  //     address,
+  //     id,
+  //     text: JSON.stringify({ spendingKey, viewingKey }),
+  //   };
+  // }
 
   public async deriveAccount(
     path: Bip44Path,
@@ -249,15 +253,17 @@ export class KeyRing {
       let text: string;
 
       if (type === AccountType.ShieldedKeys) {
-        const shieldedAccount = KeyRing.deriveShieldedAccount(
-          seed,
-          path,
-          parentId
-        );
-
-        id = shieldedAccount.id;
-        address = shieldedAccount.address;
-        text = shieldedAccount.text;
+        // const shieldedAccount = KeyRing.deriveShieldedAccount(
+        //   seed,
+        //   path,
+        //   parentId
+        // );
+        // id = shieldedAccount.id;
+        // address = shieldedAccount.address;
+        // text = shieldedAccount.text;
+        id = "id";
+        address = "addess";
+        text = "text";
       } else {
         const transparentAccount = KeyRing.deriveTransparentAccount(
           seed,
@@ -271,6 +277,16 @@ export class KeyRing {
       }
 
       const { chainId } = this;
+
+      const sdkDataStr = await this.sdkStore.get(SDK_KEY);
+      // TextEncoder support
+      const sdkData = new TextEncoder().encode(sdkDataStr);
+
+      this.sdk.decode(sdkData);
+      // add_key not keys
+      this.sdk.add_keys(text, alias);
+
+      this.sdkStore.set(SDK_KEY, new TextDecoder().decode(this.sdk.encode()));
 
       this._keyStore.append(
         crypto.encrypt({
@@ -372,9 +388,7 @@ export class KeyRing {
     }
   }
 
-  async encodeRevealPk(
-    signer: string,
-  ): Promise<Uint8Array> {
+  async encodeRevealPk(signer: string): Promise<Uint8Array> {
     if (!this._password) {
       throw new Error("Not authenticated!");
     }
@@ -394,21 +408,21 @@ export class KeyRing {
   }
 
   private getPrivateKey(account: KeyStore, password: string): string {
-      const decrypted = crypto.decrypt(account, password);
-      let private_key = decrypted;
+    const decrypted = crypto.decrypt(account, password);
+    let private_key = decrypted;
 
-      // If the account type is a Mnemonic, derive a private key
-      // from associated derived address (root account):
-      if (account.type === AccountType.Mnemonic) {
-        const { path } = account;
-        const mnemonic = Mnemonic.from_phrase(decrypted);
-        const bip44 = new HDWallet(mnemonic.to_seed());
-        const { coinType } = chains[this.chainId].bip44;
-        const derivationPath = `m/44'/${coinType}'/${path.account}'/${path.change}`;
-        const derived = bip44.derive(derivationPath);
-        private_key = derived.private().to_hex();
-      }
+    // If the account type is a Mnemonic, derive a private key
+    // from associated derived address (root account):
+    if (account.type === AccountType.Mnemonic) {
+      const { path } = account;
+      const mnemonic = Mnemonic.from_phrase(decrypted);
+      const bip44 = new HDWallet(mnemonic.to_seed());
+      const { coinType } = chains[this.chainId].bip44;
+      const derivationPath = `m/44'/${coinType}'/${path.account}'/${path.change}`;
+      const derived = bip44.derive(derivationPath);
+      private_key = derived.private().to_hex();
+    }
 
-      return private_key;
+    return private_key;
   }
 }
