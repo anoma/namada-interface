@@ -1,16 +1,15 @@
 # Browser Extension - Interface
 
-The interface for the browser extension should follow a similar stack to what we presently utilize in `namada-interface`. This will make it possible
-to reuse similar components and development processes as we currently employ.
-
-The stack should resemble the following:
+The stack for the extension interface contains the following:
 
 - TypeScript
 - React
-- Redux-Toolkit (`@reduxjs/toolkit`)
+- `react-router-dom`
 - Styled-Components
 
-While this stack is generally consistent, we should perhaps move away from `create-react-app`, as this imits the control we
-have on the build pipeline (making it more difficult to customize). We should consider using Parcel and
-[@parcel/config-web-extension](https://parceljs.org/recipes/web-extension/) as an improvement in development process,
-or a custom build pipline with Webpack, versus using `create-react-app`.
+Unlike `namada-interface`, the extension is not currently using `@redux/toolkit`. If the requirements are extended in the future,
+it may make good sense to incorporate it.
+
+While this stack is generally consistent with `namada-interface`, it has moved away from using `create-react-app` and `react-scripts`. The extension
+uses a custom `webpack` configuration, which is much better suited to the needs of the extension. It is important that Webpack is configured
+correctly to allow `wasm` to execute correctly in the extension when installed in Chrome.

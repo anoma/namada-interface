@@ -1,8 +1,12 @@
 # Browser Extension - Key Management
 
-We need to move all key-management into an extension, from which we can query from clients such as `namada.me`.
+Key management (creating mnemonics and accounts, deriving addresses) has been moved into the extension, and is
+utilized entirely within the extension's own interface. Accounts and addresses created within the extension
+are now made available to `namada-interface` via an injected API.
 
 ## Requirements
+
+The following requirements have been implemented in the extension:
 
 - User should be able to generate a mnemonic
 - User should be prompted to set a password for this seed
