@@ -1,11 +1,12 @@
 use gloo_utils::format::JsValueSerdeExt;
+use js_sys::JSON::stringify;
 use namada::ledger::queries::{Client, EncodedResponseQuery};
 use namada::tendermint::abci::{Code, Log, Path};
 use namada::tendermint::merkle::proof::Proof;
 use namada::tendermint::serializers;
 use namada::tendermint::{self, block};
 use namada::tendermint_rpc::error::Error as RpcError;
-use namada::tendermint_rpc::{Order, SimpleRequest};
+use namada::tendermint_rpc::{Response as RpcResponse, SimpleRequest};
 use namada::types::storage::BlockHeight;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
@@ -13,6 +14,8 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{Request, RequestInit, RequestMode, Response};
+
+use crate::utils::console_log_any;
 
 #[derive(Deserialize, Serialize)]
 struct AbciParams {
@@ -44,7 +47,7 @@ impl HttpClient {
         let mut opts = RequestInit::new();
         opts.method(method);
         opts.mode(RequestMode::Cors);
-        opts.body(Some(&JsValue::from(body)));
+        opts.body(Some(&JsValue::from_str(body)));
 
         let request = Request::new_with_str_and_init(url, &opts)?;
         let window = web_sys::window().expect("Window object does not exist");
@@ -99,12 +102,15 @@ impl Client for HttpClient {
     where
         R: SimpleRequest,
     {
-        let req_json = serde_json::to_string_pretty(&request).expect("TODO");
+        let request_body = request.into_json();
         let response_json = self
-            .fetch(&self.url[..], "POST", &req_json)
+            .fetch(&self.url[..], "POST", &request_body)
             .await
             .expect("TODO");
-        let response: R::Response = JsValue::into_serde(&response_json).expect("TODO");
-        Ok(response)
+
+        let test: String = stringify(&response_json)
+            .expect("JS object to be serializable")
+            .into();
+        R::Response::from_string(&test)
     }
 }

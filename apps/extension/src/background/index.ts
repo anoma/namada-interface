@@ -15,33 +15,37 @@ import { defaultChainId, chains } from "@anoma/chains";
 import { ChainsService, init as initChains } from "./chains";
 import { KeyRingService, init as initKeyRing } from "./keyring";
 
-initCrypto();
-initShared();
+Promise.all([initCrypto(), initShared()]).then(() => {
+  const messenger = new ExtensionMessenger();
+  const store = new IndexedDBKVStore(KVPrefix.IndexedDB);
+  const sdkStore = new IndexedDBKVStore(KVPrefix.SDK);
+  const sdk = new Sdk("http://127.0.0.1:26657");
+  const extensionStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
+    get: browser.storage.local.get,
+    set: browser.storage.local.set,
+  });
+  const router = new ExtensionRouter(
+    ContentScriptEnv.produceEnv,
+    messenger,
+    extensionStore
+  );
+  router.addGuard(ExtensionGuards.checkOriginIsValid);
+  router.addGuard(ExtensionGuards.checkMessageIsInternal);
 
-const messenger = new ExtensionMessenger();
-const store = new IndexedDBKVStore(KVPrefix.IndexedDB);
-const sdkStore = new IndexedDBKVStore(KVPrefix.SDK);
-const sdk = new Sdk("http://127.0.0.1:26657");
-const extensionStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
-  get: browser.storage.local.get,
-  set: browser.storage.local.set,
+  const chainsService = new ChainsService(store, [chains[defaultChainId]]);
+  const keyRingService = new KeyRingService(
+    store,
+    sdkStore,
+    defaultChainId,
+    sdk
+  );
+
+  // Initialize messages and handlers
+  initChains(router, chainsService);
+  initKeyRing(router, keyRingService);
+
+  router.listen(Ports.Background);
 });
-const router = new ExtensionRouter(
-  ContentScriptEnv.produceEnv,
-  messenger,
-  extensionStore
-);
-router.addGuard(ExtensionGuards.checkOriginIsValid);
-router.addGuard(ExtensionGuards.checkMessageIsInternal);
-
-const chainsService = new ChainsService(store, [chains[defaultChainId]]);
-const keyRingService = new KeyRingService(store, sdkStore, defaultChainId, sdk);
-
-// Initialize messages and handlers
-initChains(router, chainsService);
-initKeyRing(router, keyRingService);
-
-router.listen(Ports.Background);
 
 // The following is an example of launching an approval screen from the background:
 /*
