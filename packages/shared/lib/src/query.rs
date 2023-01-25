@@ -1,6 +1,5 @@
 use gloo_utils::format::JsValueSerdeExt;
 use namada::ledger::queries::RPC;
-use namada::ledger::tx;
 use namada::types::address::Address;
 use namada::types::token::Amount;
 use serde::Serialize;
