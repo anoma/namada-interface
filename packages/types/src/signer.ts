@@ -18,7 +18,7 @@ export interface Signer {
     txData: string
   ): Promise<SignedTx | undefined>;
   encodeBonding(args: BondingProps): Promise<string | undefined>;
-  submitBond(args: { bond: BondProps; tx: Tx }): Promise<string | undefined>;
+  submitBond(args: { bond: BondProps; tx: Tx }): Promise<void>;
   encodeTransfer(args: TransferProps): Promise<string | undefined>;
   encodeIbcTransfer(args: IbcTransferProps): Promise<string | undefined>;
   encodeInitAccount(

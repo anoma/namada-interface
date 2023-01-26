@@ -278,16 +278,13 @@ export class KeyRing {
 
       const { chainId } = this;
 
+      // TODO: check TextEncoder support
       const sdkDataStr = await this.sdkStore.get(SDK_KEY);
-      // TextEncoder support
       const sdkData = new TextEncoder().encode(sdkDataStr);
-
       if (sdkData.length > 0) {
         this.sdk.decode(sdkData);
       }
-      // add_key not keys
       this.sdk.add_keys(text, alias);
-
       this.sdkStore.set(SDK_KEY, new TextDecoder().decode(this.sdk.encode()));
 
       this._keyStore.append(
