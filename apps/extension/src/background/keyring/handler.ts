@@ -159,8 +159,8 @@ const handleSubmitBondMsg: (
   service: KeyRingService
 ) => InternalHandler<SubmitBondMsg> = (service) => {
   return async (_, msg) => {
-    const { txMsg1, txMsg2 } = msg;
-    return await service.submitBond(txMsg1, txMsg2);
+    const { txMsg } = msg;
+    return await service.submitBond(txMsg);
   };
 };
 

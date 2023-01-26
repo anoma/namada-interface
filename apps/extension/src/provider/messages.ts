@@ -292,15 +292,12 @@ export class SubmitBondMsg extends Message<void> {
     return MessageType.SubmitBond;
   }
 
-  constructor(public readonly txMsg1: string, public readonly txMsg2: string) {
+  constructor(public readonly txMsg: string) {
     super();
   }
 
   validate(): void {
-    if (!this.txMsg1) {
-      throw new Error("An encoded txMsg is required!");
-    }
-    if (!this.txMsg2) {
+    if (!this.txMsg) {
       throw new Error("An encoded txMsg is required!");
     }
     return;
