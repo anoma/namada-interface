@@ -87,10 +87,10 @@ export class KeyRingService {
     }
   }
 
-  submitBond(txMsg1: string, txMsg2: string): string {
+  async submitBond(txMsg1: string, txMsg2: string): Promise<string> {
     try {
-      this.sdk.submit_bond(fromBase64(txMsg1), fromBase64(txMsg2));
-      return "HELLO";
+      await this.sdk.submit_bond(fromBase64(txMsg1), fromBase64(txMsg2));
+      return Promise.resolve("HELLO");
     } catch (e) {
       console.warn(e);
       throw new Error(`Unable to encode bonding tx! ${e}`);

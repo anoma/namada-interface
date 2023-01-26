@@ -16,7 +16,7 @@ use namada::{
 };
 use wasm_bindgen::prelude::*;
 
-use crate::rpc_client::HttpClient;
+use crate::{rpc_client::HttpClient, utils::console_log_any};
 
 #[derive(BorshSerialize, BorshDeserialize)]
 pub struct TransactionMsg {
@@ -72,6 +72,7 @@ pub struct Sdk {
 impl Sdk {
     #[wasm_bindgen(constructor)]
     pub fn new(url: String) -> Self {
+        console_error_panic_hook::set_once();
         Sdk {
             client: HttpClient::new(url),
             wallet: Wallet::new(STORAGE_PATH.to_owned(), Store::default()),
@@ -116,8 +117,9 @@ impl Sdk {
         }
     }
 
-    pub async fn submit_bond(&mut self, tx_msg: &[u8], bond_msg: &[u8]) -> Result<(), JsError> {
-        let tx_msg = BorshDeserialize::try_from_slice(tx_msg)
+    pub async fn submit_bond(&mut self, bond_msg: &[u8], tx_msg: &[u8]) -> Result<(), JsError> {
+        console_log_any(&"Hello1");
+        let tx_msg = TransactionMsg::try_from_slice(tx_msg)
             .map_err(|err| format!("BorshDeserialize failed! {:?}", err))
             .expect("TODO");
         let TransactionMsg {
@@ -127,7 +129,7 @@ impl Sdk {
             tx_code,
         } = tx_msg;
 
-        let bond_msg = BorshDeserialize::try_from_slice(bond_msg)
+        let bond_msg = BondMsg::try_from_slice(bond_msg)
             .map_err(|err| format!("BorshDeserialize failed! {:?}", err))
             .expect("TODO");
 
@@ -166,6 +168,8 @@ impl Sdk {
             native_token: token,
             tx_code_path: bond_tx_code,
         };
+
+        console_log_any(&"Hello4");
 
         submit_bond(&self.client, &mut self.wallet, args)
             .await

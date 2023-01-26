@@ -1,15 +1,11 @@
-use gloo_utils::format::JsValueSerdeExt;
 use js_sys::JSON::stringify;
 use namada::ledger::queries::{Client, EncodedResponseQuery};
-use namada::tendermint::abci::{Code, Log, Path};
-use namada::tendermint::merkle::proof::Proof;
-use namada::tendermint::serializers;
-use namada::tendermint::{self, block};
-use namada::tendermint_rpc::error::Error as RpcError;
+use namada::tendermint::abci::{Code, Path};
+
 use namada::tendermint_rpc::{Response as RpcResponse, SimpleRequest};
 use namada::types::storage::BlockHeight;
+use namada::{tendermint, tendermint_rpc::error::Error as RpcError};
 use serde::{Deserialize, Serialize};
-use std::fmt::Debug;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use wasm_bindgen_futures::JsFuture;
@@ -33,7 +29,16 @@ pub struct AbciRequest {
     params: AbciParams,
 }
 
-#[derive()]
+#[wasm_bindgen(module = "/src/rpc.js")]
+extern "C" {
+    /// this is the signature of the js method that is used to perform
+    /// the calls to the chain
+    /// `JsValue` here are `string`s in TypeScript
+    /// we have to do this conversion  manually
+    #[wasm_bindgen(catch, js_name = "call")]
+    async fn call(url: JsValue, method: JsValue, body: JsValue) -> Result<JsValue, JsValue>;
+}
+
 pub struct HttpClient {
     url: String,
 }
@@ -49,9 +54,12 @@ impl HttpClient {
         opts.mode(RequestMode::Cors);
         opts.body(Some(&JsValue::from_str(body)));
 
-        let request = Request::new_with_str_and_init(url, &opts)?;
-        let window = web_sys::window().expect("Window object does not exist");
-        let resp_value = JsFuture::from(window.fetch_with_request(&request)).await?;
+        let resp_value = call(
+            JsValue::from_str(url),
+            JsValue::from_str(method),
+            JsValue::from_str(body),
+        )
+        .await?;
 
         let resp: Response = resp_value.dyn_into()?;
         JsFuture::from(resp.json().unwrap()).await
@@ -111,6 +119,7 @@ impl Client for HttpClient {
         let test: String = stringify(&response_json)
             .expect("JS object to be serializable")
             .into();
+        console_log_any(&"Done");
         R::Response::from_string(&test)
     }
 }

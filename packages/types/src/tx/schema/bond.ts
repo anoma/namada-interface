@@ -46,7 +46,7 @@ export class TxMsgValue {
 
 export const TxMsgSchema = new Map([
   [
-    BondMsgValue,
+    TxMsgValue,
     {
       kind: "struct",
       fields: [
