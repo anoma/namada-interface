@@ -282,7 +282,9 @@ export class KeyRing {
       // TextEncoder support
       const sdkData = new TextEncoder().encode(sdkDataStr);
 
-      this.sdk.decode(sdkData);
+      if (sdkData.length > 0) {
+        this.sdk.decode(sdkData);
+      }
       // add_key not keys
       this.sdk.add_keys(text, alias);
 

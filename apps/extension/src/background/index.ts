@@ -13,17 +13,21 @@ import {
 import { Ports, KVPrefix } from "router";
 import { defaultChainId, chains } from "@anoma/chains";
 import { ChainsService, init as initChains } from "./chains";
-import { KeyRingService, init as initKeyRing } from "./keyring";
+import { KeyRingService, init as initKeyRing, SDK_KEY } from "./keyring";
 
-Promise.all([initCrypto(), initShared()]).then(() => {
-  const messenger = new ExtensionMessenger();
-  const store = new IndexedDBKVStore(KVPrefix.IndexedDB);
-  const sdkStore = new IndexedDBKVStore(KVPrefix.SDK);
-  const sdk = new Sdk("http://127.0.0.1:26657");
+const messenger = new ExtensionMessenger();
+const store = new IndexedDBKVStore(KVPrefix.IndexedDB);
+const sdkStore = new IndexedDBKVStore(KVPrefix.SDK);
+
+(async function init() {
+  await initCrypto();
+  await initShared();
+
   const extensionStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
     get: browser.storage.local.get,
     set: browser.storage.local.set,
   });
+
   const router = new ExtensionRouter(
     ContentScriptEnv.produceEnv,
     messenger,
@@ -31,6 +35,13 @@ Promise.all([initCrypto(), initShared()]).then(() => {
   );
   router.addGuard(ExtensionGuards.checkOriginIsValid);
   router.addGuard(ExtensionGuards.checkMessageIsInternal);
+
+  const sdkDataStr: string | undefined = await sdkStore.get(SDK_KEY);
+  const sdk = new Sdk("http://127.0.0.1:26657");
+  if (sdkDataStr) {
+    const sdkData = new TextEncoder().encode(sdkDataStr);
+    sdk.decode(sdkData);
+  }
 
   const chainsService = new ChainsService(store, [chains[defaultChainId]]);
   const keyRingService = new KeyRingService(
@@ -45,7 +56,7 @@ Promise.all([initCrypto(), initShared()]).then(() => {
   initKeyRing(router, keyRingService);
 
   router.listen(Ports.Background);
-});
+})();
 
 // The following is an example of launching an approval screen from the background:
 /*
