@@ -17,6 +17,7 @@ import { KeyRingService, init as initKeyRing, SDK_KEY } from "./keyring";
 
 const messenger = new ExtensionMessenger();
 const store = new IndexedDBKVStore(KVPrefix.IndexedDB);
+// TODO: For now we will be running two stores side by side
 const sdkStore = new IndexedDBKVStore(KVPrefix.SDK);
 
 (async function init() {
@@ -36,7 +37,9 @@ const sdkStore = new IndexedDBKVStore(KVPrefix.SDK);
   router.addGuard(ExtensionGuards.checkOriginIsValid);
   router.addGuard(ExtensionGuards.checkMessageIsInternal);
 
+  // TODO: Stored data is not encrypted in any way
   const sdkDataStr: string | undefined = await sdkStore.get(SDK_KEY);
+
   const sdk = new Sdk("http://127.0.0.1:26657");
   if (sdkDataStr) {
     const sdkData = new TextEncoder().encode(sdkDataStr);

@@ -205,26 +205,6 @@ export const postNewBonding = createAsyncThunk<
     },
   });
 
-  // const { rpc } = chains[chainId];
-  // const rpcClient = new RpcClient(rpc);
-  // const accounts = thunkApi.getState().accounts.derived[chainId];
-
-  // const epoch = await rpcClient.queryEpoch();
-
-  // const { hash, bytes } = await createBondingTx(
-  //   TxWasm.Bond,
-  //   change,
-  //   epoch,
-  //   chainId,
-  //   Object.keys(accounts)
-  // );
-
-  // if (hash && bytes) {
-  //   await rpcClient.broadcastTxSync(bytes);
-  // } else {
-  //   throw new Error("Invalid transaction!");
-  // }
-
   return Promise.resolve();
 });
 

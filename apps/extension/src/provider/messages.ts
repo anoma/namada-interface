@@ -287,7 +287,7 @@ export class EncodeBondingMsg extends Message<string> {
   }
 }
 
-export class SubmitBondMsg extends Message<string> {
+export class SubmitBondMsg extends Message<void> {
   public static type(): MessageType {
     return MessageType.SubmitBond;
   }

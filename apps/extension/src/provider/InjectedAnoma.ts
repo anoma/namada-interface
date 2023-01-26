@@ -62,10 +62,10 @@ export class InjectedAnoma implements IAnoma {
   public async submitBond(props: {
     txMsg1: string;
     txMsg2: string;
-  }): Promise<string | undefined> {
+  }): Promise<void> {
     return await InjectedProxy.requestMethod<
       { txMsg1: string; txMsg2: string },
-      string
+      void
     >("submitBond", props);
   }
 

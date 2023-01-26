@@ -85,10 +85,7 @@ export class Signer implements ISigner {
   /**
    * Submit bond transaction
    */
-  public async submitBond(args: {
-    bond: BondProps;
-    tx: Tx;
-  }): Promise<string | undefined> {
+  public async submitBond(args: { bond: BondProps; tx: Tx }): Promise<void> {
     const msgValue1 = new BondMsgValue(args.bond);
 
     const msg1 = new Message<BondMsgValue>();

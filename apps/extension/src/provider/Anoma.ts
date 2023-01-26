@@ -78,7 +78,7 @@ export class Anoma implements IAnoma {
   public async submitBond(props: {
     txMsg1: string;
     txMsg2: string;
-  }): Promise<string | undefined> {
+  }): Promise<void> {
     const { txMsg1, txMsg2 } = props;
     return await this.requester?.sendMessage(
       Ports.Background,
