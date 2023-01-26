@@ -21,12 +21,9 @@ import {
   AccountType,
   BondingProps,
   BondingMsgSchema,
-  BondProps,
-  BondMsgValue,
-  BondMsgSchema,
-  Tx,
-  TxMsgValue,
-  TxMsgSchema,
+  SubmitBondProps,
+  SubmitBondMsgValue,
+  SubmitBondMsgSchema,
 } from "@anoma/types";
 
 export class Signer implements ISigner {
@@ -85,21 +82,13 @@ export class Signer implements ISigner {
   /**
    * Submit bond transaction
    */
-  public async submitBond(args: { bond: BondProps; tx: Tx }): Promise<void> {
-    const msgValue1 = new BondMsgValue(args.bond);
+  public async submitBond(args: SubmitBondProps): Promise<void> {
+    const msgValue = new SubmitBondMsgValue(args);
 
-    const msg1 = new Message<BondMsgValue>();
-    const msg1encoded = msg1.encode(BondMsgSchema, msgValue1);
+    const msg = new Message<SubmitBondMsgValue>();
+    const encoded = msg.encode(SubmitBondMsgSchema, msgValue);
 
-    const msgValue2 = new TxMsgValue(args.tx);
-
-    const msg2 = new Message<TxMsgValue>();
-    const msg2encoded = msg2.encode(TxMsgSchema, msgValue2);
-
-    return await this._anoma.submitBond({
-      txMsg1: toBase64(msg1encoded),
-      txMsg2: toBase64(msg2encoded),
-    });
+    return await this._anoma.submitBond(toBase64(encoded));
   }
 
   /**

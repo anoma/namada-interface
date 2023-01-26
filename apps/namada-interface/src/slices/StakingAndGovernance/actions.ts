@@ -191,12 +191,11 @@ export const postNewBonding = createAsyncThunk<
   const integration = getIntegration(chainId);
   const signer = integration.signer() as Signer;
   signer.submitBond({
-    bond: {
-      validator: change.validatorId,
-      amount: Number(change.amount) * 1_000_000,
-      source: change.owner,
-      txCode: await fetchWasmCode(TxWasm.Bond),
-    },
+    source: change.owner,
+    validator: change.validatorId,
+    amount: Number(change.amount) * 1_000_000,
+    txCode: await fetchWasmCode(TxWasm.Bond),
+    nativeToken: Tokens.NAM.address || "",
     tx: {
       token: Tokens.NAM.address || "",
       feeAmount: 0,

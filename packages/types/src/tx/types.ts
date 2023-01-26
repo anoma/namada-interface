@@ -18,11 +18,13 @@ export type BondingProps = {
   source: string;
 };
 
-export type BondProps = {
+export type SubmitBondProps = {
   validator: string;
   amount: number;
   source: string;
   txCode: Uint8Array;
+  nativeToken: string;
+  tx: Tx;
 };
 
 export type Tx = {

@@ -3,7 +3,7 @@ use std::str::FromStr;
 use borsh::{BorshDeserialize, BorshSerialize};
 use namada::{
     ledger::{
-        args::{self, SdkTypes},
+        args,
         tx::submit_bond,
         wallet::{Alias, ConfirmationResponse, Store, StoredKeypair, Wallet, WalletUtils},
     },
@@ -16,23 +16,7 @@ use namada::{
 };
 use wasm_bindgen::prelude::*;
 
-use crate::{rpc_client::HttpClient, utils::console_log_any};
-
-#[derive(BorshSerialize, BorshDeserialize)]
-pub struct TransactionMsg {
-    token: String,
-    fee_amount: u64,
-    gas_limit: u64,
-    tx_code: Vec<u8>,
-}
-
-#[derive(BorshSerialize, BorshDeserialize)]
-pub struct BondMsg {
-    source: String,
-    validator: String,
-    amount: u64,
-    tx_code: Vec<u8>,
-}
+use crate::rpc_client::HttpClient;
 
 const STORAGE_PATH: &str = "";
 
@@ -60,6 +44,24 @@ impl WalletUtils for WebWallet {
     fn new_password_prompt(_unsafe_dont_encrypt: bool) -> Option<String> {
         todo!()
     }
+}
+
+#[derive(BorshSerialize, BorshDeserialize)]
+pub struct TxMsg {
+    token: String,
+    fee_amount: u64,
+    gas_limit: u64,
+    tx_code: Vec<u8>,
+}
+
+#[derive(BorshSerialize, BorshDeserialize)]
+pub struct SubmitBondMsg {
+    source: String,
+    validator: String,
+    amount: u64,
+    tx_code: Vec<u8>,
+    native_token: String,
+    tx: TxMsg,
 }
 
 #[wasm_bindgen]
@@ -117,36 +119,51 @@ impl Sdk {
         }
     }
 
-    pub async fn submit_bond(&mut self, bond_msg: &[u8], tx_msg: &[u8]) -> Result<(), JsError> {
-        console_log_any(&"Hello1");
-        let tx_msg = TransactionMsg::try_from_slice(tx_msg)
-            .map_err(|err| format!("BorshDeserialize failed! {:?}", err))
-            .expect("TODO");
-        let TransactionMsg {
+    pub async fn submit_bond(&mut self, tx_msg: &[u8]) -> Result<(), JsError> {
+        let tx_msg = SubmitBondMsg::try_from_slice(tx_msg)
+            .map_err(|err| JsError::new(&format!("BorshDeserialize failed! {:?}", err)))?;
+        let SubmitBondMsg {
+            native_token,
+            source,
+            validator,
+            amount,
+            tx_code: bond_tx_code,
+            tx,
+        } = tx_msg;
+
+        let source = Address::from_str(&source).expect("Address from string should not fail");
+        let native_token =
+            Address::from_str(&native_token).expect("Address from string should not fail");
+        let validator = Address::from_str(&validator).expect("Address from string should not fail");
+        let amount = token::Amount::from(amount);
+
+        let args = args::Bond {
+            tx: Self::tx_msg_into_args(tx),
+            validator,
+            amount,
+            source: Some(source),
+            native_token,
+            tx_code_path: bond_tx_code,
+        };
+
+        submit_bond(&self.client, &mut self.wallet, args)
+            .await
+            .map_err(|e| JsError::from(e))
+    }
+
+    //TODO: move somewhere else
+    fn tx_msg_into_args(tx_msg: TxMsg) -> args::Tx {
+        let TxMsg {
             token,
             fee_amount,
             gas_limit,
             tx_code,
         } = tx_msg;
 
-        let bond_msg = BondMsg::try_from_slice(bond_msg)
-            .map_err(|err| format!("BorshDeserialize failed! {:?}", err))
-            .expect("TODO");
-
-        let BondMsg {
-            source,
-            validator,
-            amount,
-            tx_code: bond_tx_code,
-        } = bond_msg;
-
-        let source = Address::from_str(&source).expect("Address from string should not fail");
-        let validator = Address::from_str(&validator).expect("Address from string should not fail");
-        let amount = token::Amount::from(amount);
         let token = Address::from_str(&token).expect("Address from string should not fail");
         let fee_amount = token::Amount::from(fee_amount);
 
-        let tx: args::Tx<SdkTypes> = args::Tx {
+        args::Tx {
             dry_run: false,
             force: false,
             broadcast_only: false,
@@ -156,23 +173,8 @@ impl Sdk {
             fee_token: token.clone(),
             gas_limit: GasLimit::from(gas_limit),
             signing_key: None,
-            signer: Some(source.clone()),
+            signer: None,
             tx_code_path: tx_code,
-        };
-
-        let args = args::Bond {
-            tx,
-            validator,
-            amount,
-            source: Some(source),
-            native_token: token,
-            tx_code_path: bond_tx_code,
-        };
-
-        console_log_any(&"Hello4");
-
-        submit_bond(&self.client, &mut self.wallet, args)
-            .await
-            .map_err(|e| JsError::from(e))
+        }
     }
 }
