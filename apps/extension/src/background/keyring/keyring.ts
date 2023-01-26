@@ -135,7 +135,8 @@ export class KeyRing {
       const path = `m/44'/${coinType}'/0'/0`;
       const bip44 = new HDWallet(seed);
       const account = bip44.derive(path);
-      const address = new Address(account.private().to_hex()).implicit();
+      const sk = account.private().to_hex();
+      const address = new Address(sk).implicit();
       const { chainId } = this;
 
       const mnemonicStore = crypto.encrypt({
@@ -152,6 +153,7 @@ export class KeyRing {
         type: AccountType.Mnemonic,
       });
       await this._keyStore.append(mnemonicStore);
+      await this.syncSdkStore(sk, alias);
 
       this._password = password;
       return true;
@@ -278,15 +280,6 @@ export class KeyRing {
 
       const { chainId } = this;
 
-      // TODO: check TextEncoder support
-      const sdkDataStr = await this.sdkStore.get(SDK_KEY);
-      const sdkData = new TextEncoder().encode(sdkDataStr);
-      if (sdkData.length > 0) {
-        this.sdk.decode(sdkData);
-      }
-      this.sdk.add_keys(text, alias);
-      this.sdkStore.set(SDK_KEY, new TextDecoder().decode(this.sdk.encode()));
-
       this._keyStore.append(
         crypto.encrypt({
           alias,
@@ -299,6 +292,7 @@ export class KeyRing {
           type,
         })
       );
+      this.syncSdkStore(text, alias);
 
       return {
         id,
@@ -423,5 +417,25 @@ export class KeyRing {
     }
 
     return private_key;
+  }
+
+  /**
+   * Syncs current storeage with SdkStorage and Sdk struct
+   * It is needed for peforming tx calls using SDK
+   *
+   * @async
+   * @param {string} sk - secret
+   * @param {string} [alias] - alias of an address
+   * @returns {Promise<void>}
+   */
+  private async syncSdkStore(sk: string, alias?: string): Promise<void> {
+    // TODO: check TextEncoder support
+    const dataStr = await this.sdkStore.get(SDK_KEY);
+    const data = new TextEncoder().encode(dataStr);
+    if (data.length > 0) {
+      this.sdk.decode(data);
+    }
+    this.sdk.add_keys(sk, alias);
+    this.sdkStore.set(SDK_KEY, new TextDecoder().decode(this.sdk.encode()));
   }
 }

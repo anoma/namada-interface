@@ -40,6 +40,7 @@ const sdkStore = new IndexedDBKVStore(KVPrefix.SDK);
   // TODO: Stored data is not encrypted in any way
   const sdkDataStr: string | undefined = await sdkStore.get(SDK_KEY);
 
+  //TODO: get address from env
   const sdk = new Sdk("http://127.0.0.1:26657");
   if (sdkDataStr) {
     const sdkData = new TextEncoder().encode(sdkDataStr);
