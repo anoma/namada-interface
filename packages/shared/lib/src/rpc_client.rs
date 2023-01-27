@@ -1,42 +1,19 @@
 use js_sys::JSON::stringify;
-use namada::ledger::queries::{Client, EncodedResponseQuery};
-use namada::tendermint::abci::{Code, Path};
-
-use namada::tendermint_rpc::{Response as RpcResponse, SimpleRequest};
-use namada::types::storage::BlockHeight;
-use namada::{tendermint, tendermint_rpc::error::Error as RpcError};
-use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use wasm_bindgen_futures::JsFuture;
-use web_sys::{Request, RequestInit, RequestMode, Response};
+use web_sys::Response;
 
-use crate::utils::console_log_any;
+use namada::ledger::queries::{Client, EncodedResponseQuery};
+use namada::tendermint::abci::Code;
+use namada::tendermint_rpc::{Response as RpcResponse, SimpleRequest};
+use namada::types::storage::BlockHeight;
+use namada::{tendermint, tendermint_rpc::error::Error as RpcError};
 
-#[derive(Deserialize, Serialize)]
-struct AbciParams {
-    path: Path,
-    data: Option<Vec<u8>>,
-    height: Option<BlockHeight>,
-    prove: bool,
-}
-
-#[derive(Deserialize, Serialize)]
-pub struct AbciRequest {
-    id: String,
-    jsonrpc: String,
-    method: String,
-    params: AbciParams,
-}
-
-#[wasm_bindgen(module = "/src/rpc.js")]
+#[wasm_bindgen(module = "/src/rpc_client.js")]
 extern "C" {
-    /// this is the signature of the js method that is used to perform
-    /// the calls to the chain
-    /// `JsValue` here are `string`s in TypeScript
-    /// we have to do this conversion  manually
-    #[wasm_bindgen(catch, js_name = "call")]
-    async fn call(url: JsValue, method: JsValue, body: JsValue) -> Result<JsValue, JsValue>;
+    #[wasm_bindgen(catch, js_name = "wasmFetch")]
+    async fn wasmFetch(url: JsValue, method: JsValue, body: JsValue) -> Result<JsValue, JsValue>;
 }
 
 pub struct HttpClient {
@@ -49,12 +26,7 @@ impl HttpClient {
     }
 
     async fn fetch(&self, url: &str, method: &str, body: &str) -> Result<JsValue, JsValue> {
-        let mut opts = RequestInit::new();
-        opts.method(method);
-        opts.mode(RequestMode::Cors);
-        opts.body(Some(&JsValue::from_str(body)));
-
-        let resp_value = call(
+        let resp_value = wasmFetch(
             JsValue::from_str(url),
             JsValue::from_str(method),
             JsValue::from_str(body),
@@ -86,7 +58,6 @@ impl Client for HttpClient {
 
         let response = self
             .abci_query(
-                // TODO open the private Path constructor in tendermint-rpc
                 Some(std::str::FromStr::from_str(&path).unwrap()),
                 data,
                 height,
@@ -111,15 +82,14 @@ impl Client for HttpClient {
         R: SimpleRequest,
     {
         let request_body = request.into_json();
-        let response_json = self
+        let response = self
             .fetch(&self.url[..], "POST", &request_body)
             .await
-            .expect("TODO");
-
-        let test: String = stringify(&response_json)
+            .expect("TODO: map error to RpcError");
+        let response_json: String = stringify(&response)
             .expect("JS object to be serializable")
             .into();
-        console_log_any(&"Done");
-        R::Response::from_string(&test)
+
+        R::Response::from_string(&response_json)
     }
 }
