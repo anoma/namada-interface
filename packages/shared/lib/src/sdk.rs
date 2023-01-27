@@ -1,4 +1,4 @@
-use std::{pin::Pin, str::FromStr};
+use std::str::FromStr;
 
 use borsh::{BorshDeserialize, BorshSerialize};
 use masp_primitives::zip32::ExtendedFullViewingKey;
@@ -18,7 +18,7 @@ use namada::{
 };
 use wasm_bindgen::prelude::*;
 
-use crate::{rpc_client::HttpClient, utils::console_log_any};
+use crate::rpc_client::HttpClient;
 
 const STORAGE_PATH: &str = "";
 
