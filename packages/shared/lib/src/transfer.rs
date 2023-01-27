@@ -1,5 +1,6 @@
 use borsh::{BorshDeserialize, BorshSerialize};
 use gloo_utils::format::JsValueSerdeExt;
+use masp_primitives::transaction::Transaction;
 use namada::types::{address::Address, token};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
@@ -35,13 +36,23 @@ impl Transfer {
             token,
             amount,
             key,
-            shielded_msg: _,
+            shielded_msg,
         } = msg;
 
         let source = Address::from_str(&source).expect("Address from string should not fail");
         let target = Address::from_str(&target).expect("Address from string should not fail");
         let token = Address::from_str(&token).expect("Address from string should not fail");
         let amount = token::Amount::from(amount);
+
+        let shielded = match shielded_msg {
+            Some(shielded) => {
+                let shielded: &[u8] = &shielded;
+                let tx: Transaction = BorshDeserialize::try_from_slice(shielded)
+                    .map_err(|err| format!("BorshDeserialize failed! {:?}", err))?;
+                Some(tx)
+            }
+            None => None,
+        };
 
         let transfer = token::Transfer {
             source,
@@ -50,7 +61,7 @@ impl Transfer {
             sub_prefix: None,
             amount,
             key,
-            shielded: None,
+            shielded,
         };
 
         let tx_data = transfer.try_to_vec().map_err(|err| err.to_string())?;

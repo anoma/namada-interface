@@ -74,8 +74,6 @@ export class KeyRing {
     protected readonly sdk: Sdk
   ) {
     this._keyStore = new Store(KEYSTORE_KEY, kvStore);
-
-    console.log("constructor", new TextDecoder().decode(this.sdk.encode()));
   }
 
   public isLocked(): boolean {
