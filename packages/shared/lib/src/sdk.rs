@@ -86,7 +86,7 @@ impl Sdk {
     }
 
     pub fn decode(mut self, data: Vec<u8>) {
-        let store = Store::decode(data).expect("TODO");
+        let store = Store::decode(data).expect("To be able to decode stored data.");
         self.wallet = Wallet::new(STORAGE_PATH.to_owned(), store);
     }
 

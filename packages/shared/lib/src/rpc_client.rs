@@ -51,9 +51,7 @@ impl Client for HttpClient {
     ) -> Result<EncodedResponseQuery, Self::Error> {
         let data = data.unwrap_or_default();
         let height = height
-            .map(|height| {
-                tendermint::block::Height::try_from(height.0).map_err(|_err| JsError::new("TODO"))
-            })
+            .map(|height| tendermint::block::Height::try_from(height.0))
             .transpose()?;
 
         let response = self
@@ -85,7 +83,11 @@ impl Client for HttpClient {
         let response = self
             .fetch(&self.url[..], "POST", &request_body)
             .await
-            .expect("TODO: map error to RpcError");
+            .map_err(|e| {
+                let e = stringify(&e).expect("Error to be serializable");
+                let e_str: String = e.into();
+                RpcError::server(e_str)
+            })?;
         let response_json: String = stringify(&response)
             .expect("JS object to be serializable")
             .into();
