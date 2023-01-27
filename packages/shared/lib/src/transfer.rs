@@ -35,7 +35,7 @@ impl Transfer {
             token,
             amount,
             key,
-            shielded_msg,
+            shielded_msg: _,
         } = msg;
 
         let source = Address::from_str(&source).expect("Address from string should not fail");
