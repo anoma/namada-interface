@@ -6,7 +6,7 @@ import {
   HDWallet,
   Mnemonic,
   PhraseSize,
-  ShieldedHDWallet,
+  ShieldedHDWallet as _,
 } from "@anoma/crypto";
 import {
   Account,

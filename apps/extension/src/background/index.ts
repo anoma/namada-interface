@@ -20,6 +20,10 @@ const store = new IndexedDBKVStore(KVPrefix.IndexedDB);
 // TODO: For now we will be running two stores side by side
 const sdkStore = new IndexedDBKVStore(KVPrefix.SDK);
 
+const DEFAULT_URL =
+  "https://d3brk13lbhxfdb.cloudfront.net/qc-testnet-5.1.025a61165acd05e";
+const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
+
 (async function init() {
   await initCrypto();
   await initShared();
@@ -40,8 +44,7 @@ const sdkStore = new IndexedDBKVStore(KVPrefix.SDK);
   // TODO: Stored data is not encrypted in any way
   const sdkDataStr: string | undefined = await sdkStore.get(SDK_KEY);
 
-  //TODO: get address from env
-  const sdk = new Sdk("http://127.0.0.1:26657");
+  const sdk = new Sdk(REACT_APP_NAMADA_URL);
   if (sdkDataStr) {
     const sdkData = new TextEncoder().encode(sdkDataStr);
     sdk.decode(sdkData);
