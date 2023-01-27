@@ -1,6 +1,7 @@
-use std::str::FromStr;
+use std::{pin::Pin, str::FromStr};
 
 use borsh::{BorshDeserialize, BorshSerialize};
+use masp_primitives::zip32::ExtendedFullViewingKey;
 use namada::{
     ledger::{
         args,
@@ -10,13 +11,14 @@ use namada::{
     types::{
         address::{Address, ImplicitAddress},
         key::{self, common::SecretKey, PublicKeyHash, RefTo},
+        masp::ExtendedSpendingKey,
         token,
         transaction::GasLimit,
     },
 };
 use wasm_bindgen::prelude::*;
 
-use crate::rpc_client::HttpClient;
+use crate::{rpc_client::HttpClient, utils::console_log_any};
 
 const STORAGE_PATH: &str = "";
 
@@ -85,7 +87,7 @@ impl Sdk {
         self.wallet.store().encode()
     }
 
-    pub fn decode(mut self, data: Vec<u8>) {
+    pub fn decode(&mut self, data: Vec<u8>) {
         let store = Store::decode(data).expect("To be able to decode stored data.");
         self.wallet = Wallet::new(STORAGE_PATH.to_owned(), store);
     }
@@ -97,7 +99,7 @@ impl Sdk {
         let sk = SecretKey::Ed25519(sk);
 
         let pkh: PublicKeyHash = PublicKeyHash::from(&sk.ref_to());
-        // What with pw?
+        // TODO: Password is None
         let (keypair_to_store, _raw_keypair) = StoredKeypair::new(sk, None);
         let address = Address::Implicit(ImplicitAddress(pkh.clone()));
         let alias: Alias = alias.unwrap_or_else(|| pkh.clone().into()).into();
@@ -113,6 +115,26 @@ impl Sdk {
             .wallet
             .store_mut()
             .insert_address::<WebWallet>(alias.clone(), address)
+            .is_none()
+        {
+            panic!("Action cancelled, no changes persisted.");
+        }
+    }
+
+    pub fn add_spending_key(&mut self, xsk: &[u8], alias: &str) {
+        let xsk: masp_primitives::zip32::ExtendedSpendingKey =
+            BorshDeserialize::try_from_slice(xsk).expect("To deserialize xsk");
+
+        let xsk = ExtendedSpendingKey::from(xsk);
+        let viewkey = ExtendedFullViewingKey::from(&xsk.into()).into();
+
+        // TODO: Password is None
+        let (spendkey_to_store, _raw_spendkey) = StoredKeypair::new(xsk, None);
+        let alias = Alias::from(alias);
+        if self
+            .wallet
+            .store_mut()
+            .insert_spending_key::<WebWallet>(alias.clone(), spendkey_to_store, viewkey)
             .is_none()
         {
             panic!("Action cancelled, no changes persisted.");
