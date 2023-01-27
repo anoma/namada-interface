@@ -429,7 +429,6 @@ export class KeyRing {
    * @returns {Promise<void>}
    */
   private async syncSdkStore(sk: string, alias?: string): Promise<void> {
-    // TODO: check TextEncoder support
     const dataStr = await this.sdkStore.get(SDK_KEY);
     const data = new TextEncoder().encode(dataStr);
     if (data.length > 0) {
