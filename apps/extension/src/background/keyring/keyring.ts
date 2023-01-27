@@ -6,15 +6,15 @@ import {
   HDWallet,
   Mnemonic,
   PhraseSize,
-  ShieldedHDWallet as _,
+  ShieldedHDWallet,
 } from "@anoma/crypto";
 import {
   Account,
   Address,
   Signer,
-  // ExtendedSpendingKey,
-  // ExtendedViewingKey,
-  // PaymentAddress,
+  ExtendedSpendingKey,
+  ExtendedViewingKey,
+  PaymentAddress,
   RevealPk,
   Sdk,
 } from "@anoma/shared";
@@ -52,6 +52,13 @@ type DerivedAccountInfo = {
   text: string;
 };
 
+type DerivedShieldedAccountInfo = {
+  address: string;
+  id: string;
+  spendingKey: Uint8Array;
+  text: string;
+};
+
 /**
  * Keyring stores keys in persisted backround.
  */
@@ -67,6 +74,8 @@ export class KeyRing {
     protected readonly sdk: Sdk
   ) {
     this._keyStore = new Store(KEYSTORE_KEY, kvStore);
+
+    console.log("constructor", new TextDecoder().decode(this.sdk.encode()));
   }
 
   public isLocked(): boolean {
@@ -153,7 +162,7 @@ export class KeyRing {
         type: AccountType.Mnemonic,
       });
       await this._keyStore.append(mnemonicStore);
-      await this.syncSdkStore(sk, alias);
+      await this.addSecretKey(sk, alias);
 
       this._password = password;
       return true;
@@ -193,32 +202,33 @@ export class KeyRing {
     };
   }
 
-  // public static deriveShieldedAccount(
-  //   seed: Uint8Array,
-  //   path: Bip44Path,
-  //   parentId: string
-  // ): DerivedAccountInfo {
-  //   const { index = 0 } = path;
-  //   const id = getId("shielded-account", parentId, index);
-  //   const zip32 = new ShieldedHDWallet(seed);
-  //   const account = zip32.derive_to_serialized_keys(index);
+  public static deriveShieldedAccount(
+    seed: Uint8Array,
+    path: Bip44Path,
+    parentId: string
+  ): DerivedShieldedAccountInfo {
+    const { index = 0 } = path;
+    const id = getId("shielded-account", parentId, index);
+    const zip32 = new ShieldedHDWallet(seed);
+    const account = zip32.derive_to_serialized_keys(index);
 
-  //   // Retrieve serialized types from wasm
-  //   const xsk = account.xsk();
-  //   const xfvk = account.xfvk();
-  //   const payment_address = account.payment_address();
+    // Retrieve serialized types from wasm
+    const xsk = account.xsk();
+    const xfvk = account.xfvk();
+    const payment_address = account.payment_address();
 
-  //   // Deserialize and encode keys and address
-  //   const spendingKey = new ExtendedSpendingKey(xsk).encode();
-  //   const viewingKey = new ExtendedViewingKey(xfvk).encode();
-  //   const address = new PaymentAddress(payment_address).encode();
+    // Deserialize and encode keys and address
+    const spendingKey = new ExtendedSpendingKey(xsk).encode();
+    const viewingKey = new ExtendedViewingKey(xfvk).encode();
+    const address = new PaymentAddress(payment_address).encode();
 
-  //   return {
-  //     address,
-  //     id,
-  //     text: JSON.stringify({ spendingKey, viewingKey }),
-  //   };
-  // }
+    return {
+      address,
+      id,
+      spendingKey: xsk,
+      text: JSON.stringify({ spendingKey, viewingKey }),
+    };
+  }
 
   public async deriveAccount(
     path: Bip44Path,
@@ -255,17 +265,14 @@ export class KeyRing {
       let text: string;
 
       if (type === AccountType.ShieldedKeys) {
-        // const shieldedAccount = KeyRing.deriveShieldedAccount(
-        //   seed,
-        //   path,
-        //   parentId
-        // );
-        // id = shieldedAccount.id;
-        // address = shieldedAccount.address;
-        // text = shieldedAccount.text;
-        id = "id";
-        address = "addess";
-        text = "text";
+        const { spendingKey, ...shieldedAccount } =
+          KeyRing.deriveShieldedAccount(seed, path, parentId);
+        id = shieldedAccount.id;
+        address = shieldedAccount.address;
+        text = shieldedAccount.text;
+
+        //TODO: check if shileded accounts require Alias?
+        this.addSpendingKey(spendingKey, alias || "");
       } else {
         const transparentAccount = KeyRing.deriveTransparentAccount(
           seed,
@@ -276,6 +283,8 @@ export class KeyRing {
         id = transparentAccount.id;
         address = transparentAccount.address;
         text = transparentAccount.text;
+
+        this.addSecretKey(text, alias);
       }
 
       const { chainId } = this;
@@ -292,7 +301,6 @@ export class KeyRing {
           type,
         })
       );
-      this.syncSdkStore(text, alias);
 
       return {
         id,
@@ -419,22 +427,16 @@ export class KeyRing {
     return private_key;
   }
 
-  /**
-   * Syncs current storeage with SdkStorage and Sdk struct
-   * It is needed for peforming tx calls using SDK
-   *
-   * @async
-   * @param {string} sk - secret
-   * @param {string} [alias] - alias of an address
-   * @returns {Promise<void>}
-   */
-  private async syncSdkStore(sk: string, alias?: string): Promise<void> {
-    const dataStr = await this.sdkStore.get(SDK_KEY);
-    const data = new TextEncoder().encode(dataStr);
-    if (data.length > 0) {
-      this.sdk.decode(data);
-    }
-    this.sdk.add_keys(sk, alias);
+  private async addSecretKey(secretKey: string, alias?: string): Promise<void> {
+    this.sdk.add_keys(secretKey, alias);
+    this.sdkStore.set(SDK_KEY, new TextDecoder().decode(this.sdk.encode()));
+  }
+
+  private async addSpendingKey(
+    spendingKey: Uint8Array,
+    alias: string
+  ): Promise<void> {
+    this.sdk.add_spending_key(spendingKey, alias);
     this.sdkStore.set(SDK_KEY, new TextDecoder().decode(this.sdk.encode()));
   }
 }
