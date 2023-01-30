@@ -31,7 +31,7 @@ export const ApproveTx: React.FC<Props> = ({
     );
   }, []);
 
-  // TODO: How to load tx details into this view?
+  // TODO: How to load tx details into this view? Via a query parameter?
   return (
     <ApproveTxContainer>
       {!isLocked && (

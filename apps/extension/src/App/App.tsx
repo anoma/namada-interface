@@ -10,6 +10,7 @@ import { ExtensionKVStore } from "@anoma/storage";
 import { ExtensionMessenger, ExtensionRequester } from "extension";
 import { KVPrefix, Ports } from "router";
 import { QueryAccountsMsg } from "provider/messages";
+import { useQuery } from "hooks";
 import {
   AppContainer,
   BottomSection,
@@ -40,6 +41,8 @@ export enum Status {
 
 export const App: React.FC = () => {
   const theme = getTheme(true, false);
+  const query = useQuery();
+  const redirect = query.get("redirect");
   const navigate = useNavigate();
   const [isLocked, setIsLocked] = useState(true);
   const [status, setStatus] = useState<Status>();
@@ -64,7 +67,12 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchAccounts();
+    if (redirect) {
+      // Provide a redirect in the case of transaction/connection approvals
+      navigate(redirect);
+    } else {
+      fetchAccounts();
+    }
   }, []);
 
   useEffect(() => {
