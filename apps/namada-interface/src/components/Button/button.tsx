@@ -28,13 +28,16 @@ export const Button: React.FC<ButtonProps> = (props): JSX.Element => {
     tooltip,
     loading,
   } = props;
+
+  const guardedClick = !loading ? onClick : undefined;
+
   switch (variant) {
     case ButtonVariant.Contained:
       return (
         <ContainedButton
           className={loading ? "loading" : ""}
           style={style}
-          onClick={onClick}
+          onClick={guardedClick}
           disabled={disabled}
           title={tooltip}
         >
@@ -45,7 +48,7 @@ export const Button: React.FC<ButtonProps> = (props): JSX.Element => {
       return (
         <ContainedAltButton
           style={style}
-          onClick={onClick}
+          onClick={guardedClick}
           disabled={disabled}
           title={tooltip}
           className={className ? className : ""}
@@ -57,7 +60,7 @@ export const Button: React.FC<ButtonProps> = (props): JSX.Element => {
       return (
         <OutlinedButton
           style={style}
-          onClick={onClick}
+          onClick={guardedClick}
           disabled={disabled}
           title={tooltip}
           className={className ? className : ""}
@@ -69,7 +72,7 @@ export const Button: React.FC<ButtonProps> = (props): JSX.Element => {
       return (
         <SmallButton
           style={style}
-          onClick={onClick}
+          onClick={guardedClick}
           disabled={disabled}
           title={tooltip}
         >

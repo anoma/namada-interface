@@ -4,7 +4,6 @@ import MetaMaskSDK from "@metamask/sdk";
 import { Account, Chain } from "@anoma/types";
 import { Integration } from "types/Integration";
 
-const METAMASK_NOT_FOUND = "Metamask extension not found!";
 const MULTIPLE_WALLETS = "Multiple wallets installed!";
 const CANT_FETCH_ACCOUNTS = "Can't fetch accounts!";
 
@@ -14,25 +13,29 @@ type MetamaskWindow = Window &
   };
 
 class Metamask implements Integration<Account, unknown> {
-  private _ethereum: MetaMaskInpageProvider;
-  constructor(public readonly chain: Chain) {
-    const MMSDK = new MetaMaskSDK();
-    const provider = MMSDK.getProvider();
+  private _ethereum: MetaMaskInpageProvider | undefined;
+  constructor(public readonly chain: Chain) {}
 
-    if (!provider || !provider?.isMetaMask) {
-      throw new Error(METAMASK_NOT_FOUND);
+  private init(): void {
+    if ((<MetamaskWindow>window).ethereum) {
+      const MMSDK = new MetaMaskSDK();
+      const provider = MMSDK.getProvider();
+
+      this._ethereum = provider;
     }
-    this._ethereum = provider;
   }
 
   detect(): boolean {
-    return this._ethereum?.isMetaMask;
+    this.init();
+    const ethereum = (<MetamaskWindow>window).ethereum;
+
+    return ethereum?.isMetaMask ?? false;
   }
 
   async accounts(): Promise<Account[] | undefined> {
     await this.syncChainId();
 
-    const addresses = await this._ethereum.request<string[]>({
+    const addresses = await this._ethereum?.request<string[]>({
       method: "eth_requestAccounts",
     });
 
@@ -64,7 +67,7 @@ class Metamask implements Integration<Account, unknown> {
 
   private async syncChainId(): Promise<void> {
     const { chainId } = this.chain;
-    await this._ethereum.request<null>({
+    await this._ethereum?.request<null>({
       method: "wallet_switchEthereumChain",
       params: [{ chainId }],
     });

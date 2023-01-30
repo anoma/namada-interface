@@ -1,6 +1,14 @@
 import { chains } from "@anoma/chains";
 import { Anoma, Keplr, Metamask } from "@anoma/integrations";
-import { createContext, useCallback, useContext, useState } from "react";
+import { Chain, ExtensionKey } from "@anoma/types";
+import { useUntil } from "hooks/useUntil";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 type Integration = typeof Anoma | typeof Keplr | typeof Metamask;
 type ChainId = string;
@@ -86,6 +94,47 @@ export const useIntegrationConnection = <TSuccess, TFail>(
   );
 
   return [integration, isConnectingToExtension, connect];
+};
+
+type AttachStatus = "pending" | "attached" | "detached";
+type AttachStatusMap = { [key in ExtensionKey]: AttachStatus };
+
+/**
+ * Hook used for returning attach status of extension
+ *
+ * @param {Chain} chain - Current chain configuration
+ * @returns {AttachStatusMap} Map of extension -> status
+ */
+export const useUntilIntegrationAttached = (chain: Chain): AttachStatusMap => {
+  const { chainId, extension } = chain;
+  const integration = useIntegration(chainId);
+
+  const [attachStatusMap, setAttachStatus] = useState<AttachStatusMap>({
+    anoma: "pending",
+    keplr: "pending",
+    metamask: "pending",
+  });
+
+  useEffect(() => {
+    setAttachStatus({ ...attachStatusMap, [extension.id]: "pending" });
+  }, [chainId]);
+
+  useUntil(
+    {
+      predFn: () => integration.detect(),
+      onSuccess: () =>
+        setAttachStatus({ ...attachStatusMap, [extension.id]: "attached" }),
+      onFail: () =>
+        setAttachStatus({ ...attachStatusMap, [extension.id]: "detached" }),
+    },
+    {
+      tries: 10,
+      ms: 100,
+    },
+    [integration]
+  );
+
+  return attachStatusMap;
 };
 
 /**

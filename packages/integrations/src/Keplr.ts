@@ -14,24 +14,27 @@ const IBC_FEATURE = "ibc-transfer";
 type OfflineSigner = ReturnType<IKeplr["getOfflineSigner"]>;
 
 class Keplr implements Integration<Account, OfflineSigner> {
+  private _keplr: IKeplr | undefined;
   private _offlineSigner: OfflineSigner | undefined;
   private _features: string[] = [];
   /**
    * Pass a chain config into constructor to instantiate, and optionally
    * override keplr instance for testing
    * @param chain
-   * @param _keplr
    */
-  constructor(
-    public readonly chain: Chain,
-    private readonly _keplr = (<KeplrWindow>window)?.keplr
-  ) {
+  constructor(public readonly chain: Chain) {
     // If chain is ibc-enabled, add relevant feature:
     const { ibc } = chain;
     this._features.push(...DEFAULT_FEATURES);
 
     if (ibc) {
       this._features.push(IBC_FEATURE);
+    }
+  }
+
+  private init(): void {
+    if (!this._keplr) {
+      this._keplr = (<KeplrWindow>window)?.keplr;
     }
   }
 
@@ -65,6 +68,7 @@ class Keplr implements Integration<Account, OfflineSigner> {
    * @returns {boolean}
    */
   public detect(): boolean {
+    this.init();
     return !!this._keplr;
   }
 
