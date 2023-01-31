@@ -2,7 +2,7 @@ import { type MetaMaskInpageProvider } from "@metamask/providers";
 import MetaMaskSDK from "@metamask/sdk";
 
 import { Account, Chain } from "@anoma/types";
-import { Integration } from "types/Integration";
+import { Integration } from "./types/Integration";
 
 const MULTIPLE_WALLETS = "Multiple wallets installed!";
 const CANT_FETCH_ACCOUNTS = "Can't fetch accounts!";

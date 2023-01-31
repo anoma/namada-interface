@@ -5,7 +5,7 @@ import {
 } from "@keplr-wallet/types";
 import { AccountData } from "@cosmjs/proto-signing";
 import { Account, Chain } from "@anoma/types";
-import { Integration } from "types/Integration";
+import { Integration } from "./types/Integration";
 
 const KEPLR_NOT_FOUND = "Keplr extension not found!";
 const DEFAULT_FEATURES: string[] = [];

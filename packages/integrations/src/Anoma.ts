@@ -6,7 +6,7 @@ import {
   WindowWithAnoma,
 } from "@anoma/types";
 
-import { Integration } from "types/Integration";
+import { Integration } from "./types/Integration";
 
 export default class Anoma implements Integration<Account, Signer> {
   private _anoma: WindowWithAnoma["anoma"] | undefined;
