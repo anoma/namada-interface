@@ -39,3 +39,16 @@ initChains(router, chainsService);
 initKeyRing(router, keyRingService);
 
 router.listen(Ports.Background);
+
+// The following is an example of launching an approval screen from the background:
+/*
+const url = browser.runtime.getURL("popup.html");
+console.log({ url });
+
+browser.windows.create({
+  url: `${url}?redirect=/tx`,
+  width: 415,
+  height: 510,
+  type: "popup",
+});
+*/

@@ -1,5 +1,7 @@
 export enum TopLevelRoute {
   Default = "/",
+  ApproveConnection = "/connection",
+  ApproveTx = "/tx",
   Login = "/login",
   Setup = "/setup",
 

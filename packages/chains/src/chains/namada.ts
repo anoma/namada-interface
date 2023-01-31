@@ -17,7 +17,10 @@ const namada: Chain = {
   alias,
   bech32Prefix,
   bip44: {
-    coinType: 118,
+    // TODO: Update this when coinType for NAM token is registered with a SLIP-0044 coin-type.
+    // For now, use coin-type for testnet (all coins).
+    // See: https://github.com/satoshilabs/slips/blob/master/slip-0044.md
+    coinType: 1,
   },
   rpc,
   chainId,
