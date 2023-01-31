@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useLocation, Location } from "react-router-dom";
 import { createBrowserHistory } from "history";
 import { AnimatePresence } from "framer-motion";
-import { ThemeProvider } from "styled-components/macro";
+import { ThemeProvider } from "styled-components";
 
 // internal
 import {

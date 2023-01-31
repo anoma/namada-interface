@@ -1,4 +1,4 @@
-import styled, { createGlobalStyle } from "styled-components/macro";
+import styled, { createGlobalStyle } from "styled-components";
 import { motion } from "framer-motion";
 import { ColorMode, DesignConfiguration } from "utils/theme";
 

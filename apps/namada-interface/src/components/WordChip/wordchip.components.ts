@@ -1,4 +1,4 @@
-import styled from "styled-components/macro";
+import styled from "styled-components";
 
 export const WordChipContainer = styled.span`
   padding: 0.625rem 0.7rem;

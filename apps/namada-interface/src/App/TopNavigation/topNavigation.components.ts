@@ -1,7 +1,4 @@
-import styled, {
-  css,
-  FlattenSimpleInterpolation,
-} from "styled-components/macro";
+import styled, { css, FlattenSimpleInterpolation } from "styled-components";
 import { ColorMode, DesignConfiguration } from "utils/theme";
 
 enum ComponentColor {

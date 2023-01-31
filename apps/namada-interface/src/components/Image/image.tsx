@@ -1,5 +1,5 @@
 import { ComponentType, useContext } from "react";
-import { ThemeContext } from "styled-components/macro";
+import { ThemeContext } from "styled-components";
 
 import { ReactComponent as LogoDark } from "./assets/logo-dark.svg";
 import { ReactComponent as LogoLight } from "./assets/logo-light.svg";

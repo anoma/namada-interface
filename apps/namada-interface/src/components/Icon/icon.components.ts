@@ -1,4 +1,4 @@
-import styled from "styled-components/macro";
+import styled from "styled-components";
 import { IconSize } from "./types";
 
 export const IconContainer = styled.div`

@@ -1,4 +1,4 @@
-import styled from "styled-components/macro";
+import styled from "styled-components";
 
 export const GovernanceContainer = styled.div`
   display: flex;

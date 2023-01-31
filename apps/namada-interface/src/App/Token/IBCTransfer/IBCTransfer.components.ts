@@ -1,4 +1,4 @@
-import styled from "styled-components/macro";
+import styled from "styled-components";
 
 export const IBCTransferFormContainer = styled.div`
   display: flex;
