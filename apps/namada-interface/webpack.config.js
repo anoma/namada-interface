@@ -1,5 +1,6 @@
 const webpack = require("webpack");
-const { resolve } = require("path");
+const { resolve, join } = require("path");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const Dotenv = require("dotenv-webpack");
 const createStyledComponentsTransformer =
@@ -28,6 +29,9 @@ const plugins = [
   new webpack.ProvidePlugin({
     Buffer: ["buffer", "Buffer"],
   }),
+  new HtmlWebpackPlugin({
+    template: resolve("./public/index.html"),
+  }),
 ];
 
 module.exports = {
@@ -40,7 +44,7 @@ module.exports = {
   output: {
     publicPath: "",
     path: resolve(__dirname, `./build/`),
-    filename: "[name].js",
+    filename: "[name].bundle.js",
   },
   module: {
     rules: [
@@ -123,4 +127,11 @@ module.exports = {
     },
   },
   plugins,
+  devServer: {
+    static: {
+      directory: join(__dirname, "public"),
+    },
+    compress: true,
+    port: 3000,
+  },
 };

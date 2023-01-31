@@ -33,7 +33,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "webpack --watch",
+    "start": "webpack-dev-server",
     "dev": "export NODE_ENV=development && yarn start",
     "dev:local": "export NODE_ENV=development; export REACT_APP_LOCAL=\"true\" && yarn dev",
     "build": "export NODE_ENV=production && yarn wasm:build && webpack",
@@ -85,6 +85,7 @@
     "eslint-plugin-react": "^7.28.0",
     "eslint-plugin-react-hooks": "^4.3.0",
     "history": "^5.3.0",
+    "html-webpack-plugin": "^5.5.0",
     "jest": "^29.4.1",
     "jest-fetch-mock": "^3.0.3",
     "prettier": "^2.5.1",
@@ -94,6 +95,7 @@
     "ts-loader": "^9.4.2",
     "ts-node": "^10.9.1",
     "typescript-plugin-styled-components": "^2.0.0",
-    "webpack-cli": "^5.0.1"
+    "webpack-cli": "^5.0.1",
+    "webpack-dev-server": "^4.11.1"
   }
 }
