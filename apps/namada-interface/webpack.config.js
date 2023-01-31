@@ -49,6 +49,7 @@ module.exports = {
         loader: "ts-loader",
         exclude: /node_modules/,
         options: {
+          configFile: resolve(__dirname, "tsconfig.webpack.json"),
           getCustomTransformers: (program) => ({
             before: [
               createStyledComponentsTransformer(program, {
@@ -110,6 +111,7 @@ module.exports = {
     modules: [resolve(__dirname, "src/"), "node_modules"],
     fallback: {
       buffer: require.resolve("buffer/"),
+      crypto: require.resolve("crypto-browserify"),
     },
   },
   performance: {
