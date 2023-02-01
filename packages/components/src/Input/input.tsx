@@ -12,6 +12,7 @@ import {
 import { InputVariants } from "./types";
 
 export type InputProps = {
+  autoFocus?: boolean;
   variant?: InputVariants;
   value?: string | number;
   label: string | React.ReactNode;
@@ -22,6 +23,7 @@ export type InputProps = {
 };
 
 export const Input = ({
+  autoFocus,
   variant = InputVariants.Text,
   value = "",
   label,
@@ -45,6 +47,7 @@ export const Input = ({
               onFocus={onFocus}
               placeholder={placeholder}
               value={value}
+              autoFocus={autoFocus}
             />
             <br />
           </InputWrapper>
@@ -60,6 +63,7 @@ export const Input = ({
               error={!!error}
               onChange={onChangeCallback}
               value={value}
+              autoFocus={autoFocus}
             />
           </InputWrapper>
           <ErrorTooltip>{error}</ErrorTooltip>
@@ -76,6 +80,7 @@ export const Input = ({
               onChange={onChangeCallback}
               onFocus={onFocus}
               type={passwordShown ? "text" : "password"}
+              autoFocus={autoFocus}
             />
             <IconContainer onClick={() => togglePasswordShown()}>
               <Icon
@@ -98,6 +103,7 @@ export const Input = ({
               value={value}
               onChange={onChangeCallback}
               onFocus={onFocus}
+              autoFocus={autoFocus}
             />
           </InputWrapper>
           <ErrorTooltip>{error}</ErrorTooltip>
