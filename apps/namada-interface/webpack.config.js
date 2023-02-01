@@ -111,6 +111,14 @@ module.exports = {
     ],
   },
   resolve: {
+    alias: {
+      // Use styled-components from namada-interface, not packages/components
+      "styled-components": resolve(
+        __dirname,
+        "node_modules",
+        "styled-components"
+      ),
+    },
     extensions: [".tsx", ".ts", ".js"],
     modules: [resolve(__dirname, "src/"), "node_modules"],
     fallback: {
@@ -131,7 +139,7 @@ module.exports = {
     static: {
       directory: join(__dirname, "public"),
     },
-    compress: true,
+    compress: false,
     port: 3000,
   },
 };
