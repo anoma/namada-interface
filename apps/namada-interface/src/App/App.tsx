@@ -6,7 +6,6 @@ import { createBrowserHistory } from "history";
 import { AnimatePresence } from "framer-motion";
 import { ThemeProvider } from "styled-components";
 
-// internal
 import {
   getTheme,
   loadColorMode,
@@ -21,7 +20,7 @@ import {
   TopSection,
   BottomSection,
   MotionContainer,
-  /* GlobalStyles, */
+  GlobalStyles,
 } from "./App.components";
 import store from "store/store";
 import AppRoutes from "./AppRoutes";
@@ -73,7 +72,7 @@ function App(): JSX.Element {
       <IntegrationsProvider>
         <Provider store={store}>
           <Toasts />
-          {/* <GlobalStyles colorMode={colorMode} /> */}
+          <GlobalStyles colorMode={colorMode} />
           <AppContainer data-testid="AppContainer">
             <TopSection>
               <TopNavigation
