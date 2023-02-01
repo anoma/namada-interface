@@ -1,12 +1,19 @@
 import { useState } from "react";
-import { UnstakePositionContainer } from "./UnbondPosition.components";
-import { Table, TableConfigurations, KeyValueData } from "components/Table";
-import { Button, ButtonVariant } from "components/Button";
+import { useParams } from "react-router-dom";
+
+import {
+  Button,
+  ButtonVariant,
+  Table,
+  TableConfigurations,
+  KeyValueData,
+} from "@anoma/components";
+
 import {
   StakingPosition,
   ChangeInStakingPosition,
 } from "slices/StakingAndGovernance";
-import { useParams } from "react-router-dom";
+import { UnstakePositionContainer } from "./UnbondPosition.components";
 
 // keys for the table that we want to act upon in table configuration
 const AMOUNT_TO_UNBOND_KEY = "Amount to unbond";

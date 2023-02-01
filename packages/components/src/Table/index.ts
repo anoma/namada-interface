@@ -1,4 +1,4 @@
-export { Table } from "./Table";
+export { Table, type Props } from "./Table";
 export { TableLink, TableDimmedCell } from "./Table.components";
 export type {
   TableConfigurations,

@@ -1,4 +1,4 @@
-export enum InputVariant {
+export enum InputVariants {
   Password,
   Text,
   Textarea,

@@ -2,11 +2,15 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQRCode } from "next-qrcode";
 
-import { AccountsState } from "slices/accounts";
-import { SettingsState } from "slices/settings";
-import { useAppSelector } from "store";
 import { formatRoute } from "@anoma/utils";
-import { TopLevelRoute } from "App/types";
+import {
+  Heading,
+  HeadingLevel,
+  Icon,
+  IconName,
+  NavigationContainer,
+  Select,
+} from "@anoma/components";
 
 import { Address } from "../Transfers/TransferDetails.components";
 import {
@@ -15,12 +19,11 @@ import {
   ButtonsContainer,
   TokenReceiveContent,
 } from "./TokenReceive.components";
-
-import { Select } from "components/Select";
 import { BackButton } from "../TokenSend/TokenSendForm.components";
-import { Icon, IconName } from "components/Icon";
-import { NavigationContainer } from "components/NavigationContainer";
-import { Heading, HeadingLevel } from "components/Heading";
+import { TopLevelRoute } from "App/types";
+import { AccountsState } from "slices/accounts";
+import { SettingsState } from "slices/settings";
+import { useAppSelector } from "store";
 
 const TokenReceive = (): JSX.Element => {
   const { Canvas } = useQRCode();

@@ -1,5 +1,5 @@
-import { Icon, IconName } from "components/Icon";
 import React from "react";
+import { Icon, IconName } from "../Icon";
 import { Label, StyledSelect, StyledSelectWrapper } from "./Select.components";
 
 export type Option<T> = {
@@ -22,7 +22,7 @@ function Select<T>({
   data,
   style,
   onChange,
-  className
+  className,
 }: Props<T>): JSX.Element {
   return (
     <Label className={className}>

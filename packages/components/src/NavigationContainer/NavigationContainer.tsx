@@ -1,7 +1,7 @@
 import { useContext } from "react";
-import { Button, ButtonVariant } from "components/Button";
+import { Button, ButtonVariant } from "../Button";
 import { ThemeContext } from "styled-components";
-import { Icon, IconName } from "components/Icon";
+import { Icon, IconName } from "../Icon";
 import {
   NavigationContainerContainer,
   MainRow,

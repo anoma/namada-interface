@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { DesignConfiguration } from "@anoma/utils";
+import { ColorMode, DesignConfiguration } from "@anoma/utils";
 
 enum ComponentColor {
   BorderColor,
@@ -9,11 +9,18 @@ const getColor = (
   color: ComponentColor,
   theme: DesignConfiguration
 ): string => {
-  const isDark = theme.themeConfigurations.isLightMode;
-  switch (color) {
-    case ComponentColor.BorderColor:
-      return isDark ? theme.colors.primary.main60 : theme.colors.secondary.main;
-  }
+  const { colorMode } = theme.themeConfigurations;
+
+  const colorMap: Record<ColorMode, Record<ComponentColor, string>> = {
+    light: {
+      [ComponentColor.BorderColor]: theme.colors.secondary.main,
+    },
+    dark: {
+      [ComponentColor.BorderColor]: theme.colors.primary.main60,
+    },
+  };
+
+  return colorMap[colorMode][color];
 };
 
 export const InputWrapper = styled.div`

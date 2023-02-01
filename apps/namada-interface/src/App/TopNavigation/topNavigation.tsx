@@ -6,19 +6,27 @@ import {
   NavigateFunction,
   Location,
 } from "react-router-dom";
-import { Persistor } from "redux-persist";
-import { useAppDispatch, useAppSelector } from "store";
 
+import { ColorMode } from "@anoma/utils";
+import { chains } from "@anoma/chains";
+import { Chain } from "@anoma/types";
+import {
+  Icon,
+  IconName,
+  Image,
+  ImageName,
+  Toggle,
+  Select,
+} from "@anoma/components";
+
+import { useAppDispatch, useAppSelector } from "store";
+import { AppStore } from "store/store";
 import {
   TopLevelRoute,
   StakingAndGovernanceSubRoute,
   locationToTopLevelRoute,
   locationToStakingAndGovernanceSubRoute,
 } from "App/types";
-import { ColorMode } from "utils/theme";
-import { Image, ImageName } from "components/Image";
-import { Toggle } from "components/Toggle";
-import { Select } from "components/Select";
 import {
   TopNavigationContainer,
   LeftSection,
@@ -43,13 +51,8 @@ import {
   MenuCloseButton,
   SubMenuContainer,
 } from "./topNavigation.components";
-
-import { AppStore } from "store/store";
 import { setChainId, SettingsState } from "slices/settings";
 import TopNavigationLoggedIn from "./topNavigationLoggedIn";
-import { Icon, IconName } from "components/Icon";
-import { chains } from "@anoma/chains";
-import { Chain } from "@anoma/types";
 
 /**
  * this is rendered in one of 2 places depending of the screen size
@@ -208,7 +211,6 @@ type TopNavigationProps = {
   // cb for telling parent to change hte color in context
   toggleColorMode: () => void;
   setColorMode: (mode: ColorMode) => void;
-  persistor?: Persistor;
   store?: AppStore;
 };
 

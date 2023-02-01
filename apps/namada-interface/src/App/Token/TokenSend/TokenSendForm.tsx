@@ -1,8 +1,19 @@
 import { useEffect, useState, useContext, CSSProperties } from "react";
+import { useNavigate } from "react-router-dom";
 import { ThemeContext } from "styled-components";
 import QrReader from "react-qr-reader";
 
 import { Account, Tokens, TokenType } from "@anoma/types";
+import { ColorMode, DesignConfiguration } from "@anoma/utils";
+import {
+  Button,
+  ButtonVariant,
+  Icon,
+  IconName,
+  Input,
+  InputVariants,
+} from "@anoma/components";
+
 import { AccountsState } from "slices/accounts";
 import {
   clearEvents,
@@ -14,9 +25,6 @@ import {
 import { BalancesState } from "slices/balances";
 import { CoinsState } from "slices/coins";
 import { useAppDispatch, useAppSelector } from "store";
-
-import { Button, ButtonVariant } from "components/Button";
-import { Input, InputVariants } from "components/Input";
 
 import {
   BackButton,
@@ -31,10 +39,7 @@ import {
 } from "./TokenSendForm.components";
 import { parseTarget } from "./TokenSend";
 import { SettingsState } from "slices/settings";
-import { Icon, IconName } from "components/Icon";
-import { useNavigate } from "react-router-dom";
 import { TopLevelRoute } from "App/types";
-import { ColorMode, DesignConfiguration } from "utils/theme";
 
 enum ComponentColor {
   GasButtonBorder,

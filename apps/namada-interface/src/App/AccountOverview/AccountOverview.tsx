@@ -8,8 +8,12 @@ import { SettingsState } from "slices/settings";
 import { TopLevelRoute } from "App/types";
 
 import { DerivedAccounts } from "./DerivedAccounts";
-import { Heading, HeadingLevel } from "components/Heading";
-import { Button, ButtonVariant } from "components/Button";
+import {
+  Button,
+  ButtonVariant,
+  Heading,
+  HeadingLevel,
+} from "@anoma/components";
 import {
   AccountOverviewContainer,
   AccountOverviewContent,

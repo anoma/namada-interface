@@ -1,6 +1,9 @@
-import { Select } from "components/Select";
-import { KeyValueData, Table } from "components/Table";
-import { Props as TableProps } from "components/Table/Table";
+import {
+  KeyValueData,
+  Select,
+  Table,
+  Props as TableProps,
+} from "@anoma/components";
 import { FC } from "react";
 import styled from "styled-components";
 

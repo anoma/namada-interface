@@ -1,8 +1,10 @@
 import { useEffect, useContext, useCallback } from "react";
-import { useAppSelector, useAppDispatch } from "store";
 import { AnimatePresence } from "framer-motion";
-import { ThemeContext } from "styled-components";
 
+import { Icon, IconName } from "@anoma/components";
+
+import { useAppSelector, useAppDispatch } from "store";
+import { ThemeContext } from "styled-components";
 import { actions } from "slices/notifications";
 import type {
   ToastId,
@@ -17,7 +19,6 @@ import {
   Title,
   Message,
 } from "./toast.components";
-import { Icon, IconName } from "components/Icon";
 
 export const Toasts = (): JSX.Element => {
   const dispatch = useAppDispatch();

@@ -1,18 +1,21 @@
+import { Outlet } from "react-router-dom";
+
 import { truncateInMiddle } from "@anoma/utils";
 import {
-  ValidatorDetailsContainer,
-  StakeButtonContainer,
-} from "./ValidatorDetails.components";
-import {
+  Button,
+  ButtonVariant,
   Table,
   TableConfigurations,
   KeyValueData,
   TableLink,
-} from "components/Table";
-import { Button, ButtonVariant } from "components/Button";
+} from "@anoma/components";
+
+import {
+  ValidatorDetailsContainer,
+  StakeButtonContainer,
+} from "./ValidatorDetails.components";
 import { Validator, StakingPosition } from "slices/StakingAndGovernance";
 import { ModalState } from "../Staking";
-import { Outlet } from "react-router-dom";
 
 const validatorDetailsConfigurations: TableConfigurations<KeyValueData, never> =
   {

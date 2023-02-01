@@ -1,15 +1,23 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { Account ,  TokenType } from "@anoma/types";
+
+import { Account, TokenType } from "@anoma/types";
+import { formatRoute, stringFromTimestamp } from "@anoma/utils";
+import {
+  Button,
+  ButtonVariant,
+  Heading,
+  HeadingLevel,
+  Icon,
+  IconName,
+  NavigationContainer,
+} from "@anoma/components";
 
 import { TopLevelRoute } from "App/types";
 import { AccountsState } from "slices/accounts";
 import { TransfersState, TransferTransaction } from "slices/transfers";
 import { SettingsState } from "slices/settings";
 import { useAppSelector } from "store";
-import { formatRoute, stringFromTimestamp } from "@anoma/utils";
 
-import { Button, ButtonVariant } from "components/Button";
-import { Heading, HeadingLevel } from "components/Heading";
 import {
   TransfersContainer,
   TransactionList,
@@ -18,8 +26,6 @@ import {
   TransfersContent,
 } from "./Transfers.components";
 import { BackButton } from "../TokenSend/TokenSendForm.components";
-import { Icon, IconName } from "components/Icon";
-import { NavigationContainer } from "components/NavigationContainer";
 
 type TokenDetailsParams = {
   id: string;

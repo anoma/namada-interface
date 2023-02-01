@@ -1,6 +1,7 @@
 import styled, { createGlobalStyle } from "styled-components";
 import { motion } from "framer-motion";
-import { ColorMode, DesignConfiguration } from "utils/theme";
+
+import { ColorMode, DesignConfiguration } from "@anoma/utils";
 
 enum ComponentColor {
   BorderColor,
@@ -29,19 +30,20 @@ const getColor = (
   return colorMap[colorMode][color];
 };
 
-type GlobalStyleProps = {
-  colorMode: ColorMode;
-};
-
-// Set global styles for themed control of background color based
-// on whether the user is logged in
-export const GlobalStyles = createGlobalStyle<GlobalStyleProps>`
-  html, body {
-    background-color: ${(props) => props.theme.colors.utility1.main};
-    transition: background-color 0.5s ease;
-  }
-`;
-
+// TODO: This isn't needed anymore as we don't set background color according to user's logged in state:
+/* type GlobalStyleProps = { */
+/*   colorMode: ColorMode; */
+/* }; */
+/**/
+/* // Set global styles for themed control of background color based */
+/* // on whether the user is logged in */
+/* export const GlobalStyles = createGlobalStyle<GlobalStyleProps>` */
+/*   html, body { */
+/*     background-color: ${(props) => props.theme.colors.utility1.main}; */
+/*     transition: background-color 0.5s ease; */
+/*   } */
+/* `; */
+/**/
 export const MotionContainer = styled(motion.div)`
   display: flex;
   justify-content: center;
