@@ -19,6 +19,10 @@ const copyPatterns = [
     from: "./public/*.png",
     to: "./assets/[name].png",
   },
+  {
+    from: "./public/manifest.json",
+    to: "./manifest.json",
+  },
 ];
 
 const plugins = [

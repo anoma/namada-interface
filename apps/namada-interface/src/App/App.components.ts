@@ -30,7 +30,6 @@ const getColor = (
   return colorMap[colorMode][color];
 };
 
-// TODO: FIXME!
 type GlobalStyleProps = {
   colorMode: ColorMode;
 };
