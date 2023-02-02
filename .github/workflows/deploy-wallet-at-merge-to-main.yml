@@ -27,7 +27,7 @@ jobs:
         working-directory: ./apps/namada-interface
         run: yarn build
         env:
-          GENERATE_SOURCEMAP: false
+          NODE_ENV: "production"
           REACT_APP_NAMADA_ALIAS: "Namada Testnet"
           REACT_APP_NAMADA_CHAIN_ID: "qc-testnet-5.1.025a61165acd05e"
           REACT_APP_NAMADA_URL: "https://d3brk13lbhxfdb.cloudfront.net/qc-testnet-5.1.025a61165acd05e"
