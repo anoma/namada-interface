@@ -35,9 +35,9 @@
   },
   "scripts": {
     "start": "webpack-dev-server",
-    "dev": "NODE_ENV=development yarn start",
-    "dev:local": "NODE_ENV=development; REACT_APP_LOCAL=\"true\" yarn dev",
-    "build": "NODE_ENV=production yarn wasm:build && webpack",
+    "dev": "export NODE_ENV=development && yarn start",
+    "dev:local": "export NODE_ENV=development; export REACT_APP_LOCAL=\"true\" && yarn dev",
+    "build": "export NODE_ENV=production && yarn wasm:build && webpack",
     "lint": "npx eslint src --ext .ts,.tsx",
     "lint:fix": "yarn lint -- --fix",
     "test": "jest --watchAll=false",
