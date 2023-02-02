@@ -2,7 +2,12 @@ const webpack = require("webpack");
 const { resolve, join } = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
-const Dotenv = require("dotenv-webpack");
+
+// Load environment variables
+require("dotenv").config({ path: resolve(__dirname, ".env") });
+
+const { NODE_ENV } = process.env;
+
 const createStyledComponentsTransformer =
   require("typescript-plugin-styled-components").default;
 
@@ -26,7 +31,6 @@ const copyPatterns = [
 ];
 
 const plugins = [
-  new Dotenv(),
   new CopyPlugin({
     patterns: copyPatterns,
   }),
@@ -36,10 +40,16 @@ const plugins = [
   new HtmlWebpackPlugin({
     template: resolve("./public/index.html"),
   }),
+  // Provide environment variables to interface:
+  new webpack.DefinePlugin({
+    process: {
+      env: JSON.stringify(process.env),
+    },
+  }),
 ];
 
 module.exports = {
-  mode: process.env.NODE_ENV,
+  mode: NODE_ENV,
   target: "web",
   devtool: false,
   entry: {
