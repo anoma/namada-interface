@@ -17,12 +17,14 @@ import {
   PaymentAddress,
   RevealPk,
   Sdk,
+  PasswordService,
 } from "@anoma/shared";
 import { IStore, Store } from "@anoma/storage";
 import { AccountType, Bip44Path, DerivedAccount, SignedTx } from "@anoma/types";
 import { chains } from "@anoma/chains";
 import { Crypto } from "./crypto";
 import { KeyRingStatus, KeyStore } from "./types";
+import { Pw } from "./pw";
 
 // Generated UUID namespace for uuid v5
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
@@ -66,6 +68,7 @@ export class KeyRing {
   private _keyStore: IStore<KeyStore>;
   private _password: string | undefined;
   private _status: KeyRingStatus = KeyRingStatus.Empty;
+  private passwordService: PasswordService = Pw.getInstance();
 
   constructor(
     protected readonly kvStore: KVStore<KeyStore[]>,
@@ -87,11 +90,13 @@ export class KeyRing {
   public async lock(): Promise<void> {
     this._status = KeyRingStatus.Locked;
     this._password = undefined;
+    this.passwordService.clearPassword();
   }
 
   public async unlock(password: string): Promise<void> {
     if (await this.checkPassword(password)) {
       this._password = password;
+      this.passwordService.setPassword(password);
       this._status = KeyRingStatus.Unlocked;
     }
   }
@@ -160,7 +165,7 @@ export class KeyRing {
         type: AccountType.Mnemonic,
       });
       await this._keyStore.append(mnemonicStore);
-      await this.addSecretKey(sk, alias);
+      await this.addSecretKey(sk, password, alias);
 
       this._password = password;
       return true;
@@ -282,7 +287,7 @@ export class KeyRing {
         address = transparentAccount.address;
         text = transparentAccount.text;
 
-        this.addSecretKey(text, alias);
+        this.addSecretKey(text, this._password, alias);
       }
 
       const { chainId } = this;
@@ -425,16 +430,21 @@ export class KeyRing {
     return private_key;
   }
 
-  private async addSecretKey(secretKey: string, alias?: string): Promise<void> {
-    this.sdk.add_keys(secretKey, alias);
+  private async addSecretKey(
+    secretKey: string,
+    password: string,
+    alias?: string
+  ): Promise<void> {
+    this.sdk.add_keys(secretKey, password, alias);
     this.sdkStore.set(SDK_KEY, new TextDecoder().decode(this.sdk.encode()));
   }
 
   private async addSpendingKey(
     spendingKey: Uint8Array,
-    alias: string
+    password?: string,
+    alias = ""
   ): Promise<void> {
-    this.sdk.add_spending_key(spendingKey, alias);
+    this.sdk.add_spending_key(spendingKey, password, alias);
     this.sdkStore.set(SDK_KEY, new TextDecoder().decode(this.sdk.encode()));
   }
 }
