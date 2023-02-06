@@ -1,8 +1,5 @@
 # Transparent Transactions
 
-**TODO** The following is outdated in a couple ways. First, the constructing and signing of transactions are now handled by the browser extension,
-via an exposed API to the `namada-interface` client. Second, we will soon be incorporating features from the SDK to achieve the following.
-
 #### Table of Contents
 
 - [Transfer Transactions](#part-1---token-transfer-transactions)
@@ -11,7 +8,8 @@ via an exposed API to the `namada-interface` client. Second, we will soon be inc
 
 ## Constructing Transparent Transactions
 
-The web-wallet will need to support many transactions. As the data that gets submitted to the ledger is most easily constructed from `namada` types, we perform the assembly of the transaction with in WebAssembly using Rust so that we may natively interact with `namada`. The role of wasm in this scenario is to provide two pieces of data to the client (which will handle the broadcasting of the transaction), which are:
+Namada-Interface will need to support many transactions. As the data that gets submitted to the ledger is most easily constructed from `namada` types, we perform the assembly of the transaction with in WebAssembly using Rust so that we may natively
+interact with `namada`. The role of wasm in this scenario is to provide two pieces of data to the client (which will handle the broadcasting of the transaction), which are:
 
 1. `hash` - the hash of the transaction
 2. `data` - A byte array of the final wrapped and signed transaction
@@ -20,11 +18,13 @@ The following outlines how we can construct these transactions before returning 
 
 ## Part 1 - Token Transfer Transactions
 
-There are a few steps involved in creating and signing a transaction:
+There are a few steps involved in creating and signing a transaction. These are currently handled by the browser extension, and soon will be handled by the SDK integration (but still called from the extension):
 
 1. Create an `namada::proto::Tx struct` and sign it with a keypair
 2. Wrap Tx with a `namada::types::transaction::WrapperTx` struct which encrypts the transaction
 3. Create a new `namada::proto::Tx` with the new `WrapperTx` as data, and sign it with a keypair (this will be broadcast to the ledger)
+
+_Note_: See the extension [integration](../browser-extension/interface.md) specs for more information.
 
 ### 1.1 - Creating the `namada::proto::Tx` struct
 
