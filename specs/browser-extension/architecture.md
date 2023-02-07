@@ -28,8 +28,8 @@ and is configured in the manifest versions 2 and 3 to execute wasm code.
 
 The extension has a simple authentication mechanism to give a user access to their seed and private keys. Currently, when the user enters a password, it is used to
 decrypt their mnemonic, which, if successful, will set the password in the application's state until either the service worker shuts down, or the user locks the wallet.
-This will soon be changed so that the password is checked against a stored and encrypted value of arbitray data. This should be initially set when the user sets up the extension,
-where it will be generated and encrypted to be used for validating passwords only.
+This will be changed when issue [#199](https://github.com/anoma/namada-interface/issues/199) is implemented, which will instead decrypt a randomly generated value instead of
+directly decrypting the mnemonic in order to verify the password and authenticate the user. This value will be generated when the user initializes the browser extension.
 
 ## Manifest considerations
 
