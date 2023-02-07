@@ -1,6 +1,6 @@
 # Browser Extension - API & Integration
 
-If the extension has been installed (and assuming the user has gone through the process of setting up an account), we can use the following to integrate with another interface.
+The extension is able to be integrated with in a similar fasion to Keplr and Metamask. If the extension has been installed (and assuming the user has gone through the process of setting up an account), we can use the following to integrate with another interface.
 
 **NOTE** The user would need to link their `package.json` to `https://github.com/anoma/namada-interface` to import any public packages from this repo - this isn't required for integration, but it provides useful types and utilities.
 

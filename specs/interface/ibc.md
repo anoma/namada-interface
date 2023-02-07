@@ -4,18 +4,22 @@ The web wallet must be able to transfer token amounts to other chains via the In
 
 We need to be able to support the following:
 
-- Fungible token transfer (ICS020) from Namada to other Anoma chains
-- Fungible token transfer (ICS020) from Namada to Cosmos
+- Fungible token transfer from Namada to other Anoma chains
+- Fungible token transfer from Namada to Cosmos ecosystem
+- Fungible token transfer from Cosmos ecosystem to Namada
 
 What the UI will need to display to the user:
 
 - Select a chain (chain ID) as destination
 - Enter a channel ID for destination (e.g., `channel-0`)
-- Specify a receiver address
+- Specify a receiver address (or alternatively, load an account via Keplr extension)
 - Specify a token
 - Specify an amount to transfer
 
-The web wallet will need to construct a `MsgTransfer` struct, which will get wrapped in a normal, signed transaction and broadcasted to the source ledger (this struct is passed into the `Tx` `data`):
+### Namada to Anoma and Cosmos-based chains
+
+The web wallet will need to construct a `MsgTransfer` struct, which will get wrapped in a normal, signed transaction and broadcasted to the source ledger (this struct is passed into the `Tx` `data`).
+When submitting an IBC transfer to a Namada source chain, we need to construct the transaction in the following way:
 
 ```rust
 MsgTransfer {
@@ -70,6 +74,13 @@ Once this transaction is unwrapped and validated, `apply_tx` will invoke `IBC.di
 
 When this is executed on the source chain, the balance will be deducted on the source account, so we need to reflect this in the interface. If the transaction succeeds, query
 the balance for that token and display to the user.
+
+### Cosmos-based chains to Namada
+
+When we want to transfer tokens from a Cosmos-based chain _to_ Namada, we will need to send that transaction to a source chain. We can make use of [cosmjs](https://github.com/cosmos/cosmjs)
+for formatting this request and sending the IBC transfer (via the CosmJS RPC client).
+
+More info _TBD_
 
 ## Testing
 

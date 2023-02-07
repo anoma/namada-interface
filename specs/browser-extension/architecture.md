@@ -26,16 +26,10 @@ and is configured in the manifest versions 2 and 3 to execute wasm code.
 
 ## Authentication
 
-In `@keplr-wallet/extension`, authentication is handled by retrieving an encrypted mnemonic phrase and attempting to decrypt it, which if successful, will set the provided
-password in the state of the background-scripts class instance for some duration. This is how authenication works on `namada-interface`, with the caveat that being a client-side-only
-application, that state is lost as soon as the user refreshed the page, as the password is not persisted outside of the app state. As authentication will now occur within the extension,
-state can be maintained in the background services, and the interface will only need to query the extension to retrieve the authenticated state.
-
-The flow may resemble the following:
-
-1. The interface accepts a password and posts a message to authenticate via the proxy
-2. The proxy fetches the decrypted mnemonic from storage and attempts to decrypt it
-3. If successful, the users credentials are proxied back to the extension for persisting their session
+The extension has a simple authentication mechanism to give a user access to their seed and private keys. Currently, when the user enters a password, it is used to
+decrypt their mnemonic, which, if successful, will set the password in the application's state until either the service worker shuts down, or the user locks the wallet.
+This will be changed when issue [#199](https://github.com/anoma/namada-interface/issues/199) is implemented, which will instead decrypt a randomly generated value instead of
+directly decrypting the mnemonic in order to verify the password and authenticate the user. This value will be generated when the user initializes the browser extension.
 
 ## Manifest considerations
 
