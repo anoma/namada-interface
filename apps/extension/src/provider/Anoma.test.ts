@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { deepMock } from "mockzilla";
 import type { Browser } from "webextension-polyfill";
 import { toBase64 } from "@cosmjs/encoding";
@@ -9,9 +10,9 @@ import {
   IbcTransferMsgValue,
   IbcTransferProps,
   Message,
+  SubmitTransferMsgSchema,
   TransactionMsgSchema,
   TransactionMsgValue,
-  TransferMsgSchema,
   TransferMsgValue,
   TransferProps,
   TxProps,
@@ -22,6 +23,7 @@ import { init } from "test/init";
 import { chains as defaultChains } from "@anoma/chains";
 import { chain, keyStore, NAM, password } from "./data.mock";
 import { KeyRing, KEYSTORE_KEY } from "background/keyring";
+import { Sdk } from "@anoma/shared";
 
 // Needed for now as utils import webextension-polyfill directly
 const [browser] = deepMock<Browser>("browser", false);
@@ -40,7 +42,7 @@ describe("Anoma", () => {
     keyRingService.lock();
   });
 
-  const { anoma, iDBStore, keyRingService } = init();
+  const { anoma, iDBStore, keyRingService, sdk } = init();
 
   it("should return chain by chainId", async () => {
     iDBStore.set(KVKeys.Chains, [chain]);
@@ -73,6 +75,11 @@ describe("Anoma", () => {
   });
 
   it("should sign tx", async () => {
+    jest
+      .spyOn(KeyRing.prototype as any, "getPrivateKey")
+      .mockReturnValueOnce(
+        "1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93"
+      );
     const txData = new Uint8Array([
       1, 40, 0, 0, 0, 67, 53, 70, 70, 50, 55, 50, 56, 66, 48, 56, 68, 67, 57,
       55, 66, 68, 66, 65, 55, 52, 67, 51, 67, 52, 52, 66, 54, 57, 65, 66, 66,
@@ -107,27 +114,38 @@ describe("Anoma", () => {
     ).resolves.toBeDefined();
   });
 
-  it("should encode transfer", async () => {
+  it("should be able to submit a transfer through the sdk", async () => {
+    jest.spyOn(sdk, "submit_transfer").mockReturnValueOnce(Promise.resolve());
+
+    const token =
+      "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5";
     const transferProps: TransferProps = {
+      tx: {
+        token,
+        feeAmount: 0,
+        gasLimit: 0,
+        txCode: new Uint8Array(),
+      },
       source: keyStore.address,
       target:
         "atest1d9khqw36gdz5ydzygvcnyvesxgcn2s6zxyung3zzgcmrjwzzgvmnyd3kxym52vzzg5unxve5cm87cr",
-      token:
-        "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5",
+      token,
       amount: 1000,
+      nativeToken: token,
+      txCode: new Uint8Array(),
     };
 
     const transferMsgValue = new TransferMsgValue(transferProps);
 
     const transferMessage = new Message<TransferMsgValue>();
     const serializedTransfer = transferMessage.encode(
-      TransferMsgSchema,
+      SubmitTransferMsgSchema,
       transferMsgValue
     );
 
-    await expect(
-      anoma.encodeTransfer(toBase64(serializedTransfer))
-    ).resolves.toBeDefined();
+    const res = anoma.submitTransfer(toBase64(serializedTransfer));
+
+    await expect(res).resolves.not.toBeDefined();
   });
 
   it("should encode ibc transfer", async () => {

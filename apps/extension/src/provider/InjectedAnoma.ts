@@ -63,9 +63,9 @@ export class InjectedAnoma implements IAnoma {
     return await InjectedProxy.requestMethod<string, void>("submitBond", txMsg);
   }
 
-  public async encodeTransfer(txMsg: string): Promise<string | undefined> {
-    return await InjectedProxy.requestMethod<string, string>(
-      "encodeTransfer",
+  public async submitTransfer(txMsg: string): Promise<void> {
+    return await InjectedProxy.requestMethod<string, void>(
+      "submitTransfer",
       txMsg
     );
   }

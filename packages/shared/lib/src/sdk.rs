@@ -2,16 +2,18 @@ use std::str::FromStr;
 
 use borsh::{BorshDeserialize, BorshSerialize};
 use masp_primitives::zip32::ExtendedFullViewingKey;
+use masp_proofs::prover::LocalTxProver;
 use namada::{
     ledger::{
         args,
-        tx::submit_bond,
-        wallet::{Alias, ConfirmationResponse, Store, StoredKeypair, Wallet, WalletUtils},
+        masp::{ShieldedContext, ShieldedUtils},
+        tx::{submit_bond, submit_transfer},
+        wallet::{Alias, SdkWalletUtils, Store, StoredKeypair, Wallet},
     },
     types::{
         address::{Address, ImplicitAddress},
         key::{self, common::SecretKey, PublicKeyHash, RefTo},
-        masp::ExtendedSpendingKey,
+        masp::{ExtendedSpendingKey, TransferSource, TransferTarget},
         token,
         transaction::GasLimit,
     },
@@ -22,28 +24,21 @@ use crate::rpc_client::HttpClient;
 
 const STORAGE_PATH: &str = "";
 
-pub struct WebWallet {}
+#[derive(Default, Debug, BorshSerialize, BorshDeserialize, Clone)]
+pub struct WebShieldedUtils {}
 
-impl WalletUtils for WebWallet {
-    type Storage = std::string::String;
+impl ShieldedUtils for WebShieldedUtils {
+    type C = HttpClient;
 
-    fn read_and_confirm_pwd(_unsafe_dont_encrypt: bool) -> Option<String> {
+    fn local_tx_prover(&self) -> LocalTxProver {
         todo!()
     }
 
-    fn read_password(_prompt_msg: &str) -> String {
+    fn load(self) -> std::io::Result<ShieldedContext<Self>> {
         todo!()
     }
 
-    fn read_alias(_prompt_msg: &str) -> String {
-        todo!()
-    }
-
-    fn show_overwrite_confirmation(_alias: &Alias, _alias_for: &str) -> ConfirmationResponse {
-        ConfirmationResponse::Replace
-    }
-
-    fn new_password_prompt(_unsafe_dont_encrypt: bool) -> Option<String> {
+    fn save(&self, _ctx: &ShieldedContext<Self>) -> std::io::Result<()> {
         todo!()
     }
 }
@@ -66,10 +61,25 @@ pub struct SubmitBondMsg {
     tx: TxMsg,
 }
 
+#[derive(BorshSerialize, BorshDeserialize)]
+pub struct SubmitTransferMsg {
+    tx: TxMsg,
+    source: String,
+    target: String,
+    token: String,
+    sub_prefix: Option<String>,
+    amount: u64,
+    native_token: String,
+    tx_code: Vec<u8>,
+}
+
+type WalletUtils = SdkWalletUtils<String>;
+
 #[wasm_bindgen]
 pub struct Sdk {
     client: HttpClient,
-    wallet: Wallet<WebWallet>,
+    wallet: Wallet<WalletUtils>,
+    shielded_ctx: ShieldedContext<WebShieldedUtils>,
 }
 
 #[wasm_bindgen]
@@ -80,6 +90,7 @@ impl Sdk {
         Sdk {
             client: HttpClient::new(url),
             wallet: Wallet::new(STORAGE_PATH.to_owned(), Store::default()),
+            shielded_ctx: ShieldedContext::default(),
         }
     }
 
@@ -106,7 +117,7 @@ impl Sdk {
         if self
             .wallet
             .store_mut()
-            .insert_keypair::<WebWallet>(alias.clone(), keypair_to_store, pkh)
+            .insert_keypair::<WalletUtils>(alias.clone(), keypair_to_store, pkh)
             .is_none()
         {
             panic!("Action cancelled, no changes persisted.");
@@ -114,7 +125,7 @@ impl Sdk {
         if self
             .wallet
             .store_mut()
-            .insert_address::<WebWallet>(alias.clone(), address)
+            .insert_address::<WalletUtils>(alias.clone(), address)
             .is_none()
         {
             panic!("Action cancelled, no changes persisted.");
@@ -134,14 +145,18 @@ impl Sdk {
         if self
             .wallet
             .store_mut()
-            .insert_spending_key::<WebWallet>(alias.clone(), spendkey_to_store, viewkey)
+            .insert_spending_key::<WalletUtils>(alias.clone(), spendkey_to_store, viewkey)
             .is_none()
         {
             panic!("Action cancelled, no changes persisted.");
         }
     }
 
-    pub async fn submit_bond(&mut self, tx_msg: &[u8]) -> Result<(), JsError> {
+    pub async fn submit_bond(
+        &mut self,
+        tx_msg: &[u8],
+        password: Option<String>,
+    ) -> Result<(), JsError> {
         let tx_msg = SubmitBondMsg::try_from_slice(tx_msg)
             .map_err(|err| JsError::new(&format!("BorshDeserialize failed! {:?}", err)))?;
         let SubmitBondMsg {
@@ -160,7 +175,7 @@ impl Sdk {
         let amount = token::Amount::from(amount);
 
         let args = args::Bond {
-            tx: Self::tx_msg_into_args(tx),
+            tx: Self::tx_msg_into_args(tx, password),
             validator,
             amount,
             source: Some(source),
@@ -173,8 +188,49 @@ impl Sdk {
             .map_err(|e| JsError::from(e))
     }
 
+    pub async fn submit_transfer(
+        &mut self,
+        tx_msg: &[u8],
+        password: Option<String>,
+    ) -> Result<(), JsError> {
+        let tx_msg = SubmitTransferMsg::try_from_slice(tx_msg)
+            .map_err(|err| JsError::new(&format!("BorshDeserialize failed! {:?}", err)))?;
+        let SubmitTransferMsg {
+            tx,
+            source,
+            target,
+            token,
+            sub_prefix,
+            amount,
+            native_token,
+            tx_code: transfer_tx_code,
+        } = tx_msg;
+
+        let source = Address::from_str(&source).expect("Address from string should not fail");
+        let target = Address::from_str(&target).expect("Address from string should not fail");
+        let native_token =
+            Address::from_str(&native_token).expect("Address from string should not fail");
+        let token = Address::from_str(&token).expect("Address from string should not fail");
+        let amount = token::Amount::from(amount);
+
+        let args = args::TxTransfer {
+            tx: Self::tx_msg_into_args(tx, password),
+            source: TransferSource::Address(source),
+            target: TransferTarget::Address(target),
+            token,
+            sub_prefix,
+            amount,
+            native_token,
+            tx_code_path: transfer_tx_code,
+        };
+
+        submit_transfer(&self.client, &mut self.wallet, &mut self.shielded_ctx, args)
+            .await
+            .map_err(|e| JsError::from(e))
+    }
+
     //TODO: move somewhere else
-    fn tx_msg_into_args(tx_msg: TxMsg) -> args::Tx {
+    fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> args::Tx {
         let TxMsg {
             token,
             fee_amount,
@@ -197,6 +253,7 @@ impl Sdk {
             signing_key: None,
             signer: None,
             tx_code_path: tx_code,
+            password,
         }
     }
 }

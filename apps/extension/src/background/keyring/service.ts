@@ -87,17 +87,16 @@ export class KeyRingService {
 
   async submitBond(txMsg: string): Promise<void> {
     try {
-      await this.sdk.submit_bond(fromBase64(txMsg));
+      await this._keyRing.submitBond(fromBase64(txMsg));
     } catch (e) {
       console.warn(e);
       throw new Error(`Unable to encode bonding tx! ${e}`);
     }
   }
 
-  encodeTransfer(txMsg: string): string {
+  async submitTransfer(txMsg: string): Promise<void> {
     try {
-      const { tx_data } = new Transfer(fromBase64(txMsg)).to_serialized();
-      return toBase64(tx_data);
+      await this._keyRing.submitTransfer(fromBase64(txMsg));
     } catch (e) {
       console.warn(e);
       throw new Error(`Unable to encode transfer! ${e}`);
