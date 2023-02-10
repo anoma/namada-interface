@@ -1,15 +1,15 @@
-import { ColorModeContainer, OnlyInMedium } from "./topNavigation.components";
-import { Toggle } from "components/Toggle";
 import { useNavigate } from "react-router-dom";
-import { Icon, IconName } from "components/Icon";
-import { TopLevelRoute } from "App/types";
 
+import { Icon, IconName, Toggle } from "@anoma/components";
+import { ColorMode } from "@anoma/utils";
+
+import { TopLevelRoute } from "App/types";
+import { ColorModeContainer, OnlyInMedium } from "./topNavigation.components";
 import {
   SettingsButton,
   TopNavigationLoggedInContainer,
   TopNavigationLoggedInControlsContainer,
 } from "./topNavigationLoggedIn.components";
-import { ColorMode } from "utils/theme";
 
 type Props = {
   colorMode: ColorMode;

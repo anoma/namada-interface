@@ -1,17 +1,21 @@
 import { useParams, useNavigate } from "react-router-dom";
+
 import { chains } from "@anoma/chains";
 import { Account, Chain, Tokens } from "@anoma/types";
+import { formatRoute, stringFromTimestamp } from "@anoma/utils";
+import {
+  Button,
+  ButtonVariant,
+  Heading,
+  HeadingLevel,
+  NavigationContainer,
+} from "@anoma/components";
 
 import { TopLevelRoute } from "App/types";
 import { AccountsState } from "slices/accounts";
 import { TransfersState } from "slices/transfers";
 import { SettingsState } from "slices/settings";
 import { useAppSelector } from "store";
-import { formatRoute, stringFromTimestamp } from "@anoma/utils";
-
-import { Button, ButtonVariant } from "components/Button";
-import { Heading, HeadingLevel } from "components/Heading";
-import { NavigationContainer } from "components/NavigationContainer";
 import {
   ButtonsContainer,
   TokenDetailContainer,

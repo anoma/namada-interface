@@ -1,22 +1,21 @@
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 import { AccountsState } from "slices/accounts";
 import { SettingsState } from "slices/settings";
 import { TransferType } from "slices/transfers";
 import { useAppSelector } from "store";
 
-import {
-  PAYMENT_ADDRESS_LENGTH,
-  PAYMENT_ADDRESS_PREFIX,
-  ESTABLISHED_ADDRESS_LENGTH,
-  ESTABLISHED_ADDRESS_PREFIX,
-} from "./types";
 import { Symbols, TokenType } from "@anoma/types";
-
+import {
+  Heading,
+  HeadingLevel,
+  NavigationContainer,
+  Select,
+  Option,
+} from "@anoma/components";
 import TokenSendForm from "./TokenSendForm";
-import { Heading, HeadingLevel } from "components/Heading";
-import { NavigationContainer } from "components/NavigationContainer";
-import { Select, Option } from "components/Select";
+
 import {
   TokenSendContainer,
   TokenSendTab,
@@ -24,7 +23,12 @@ import {
   TokenSendContent,
 } from "./TokenSend.components";
 import { BalancesState } from "slices/balances";
-import { useParams } from "react-router-dom";
+import {
+  PAYMENT_ADDRESS_LENGTH,
+  PAYMENT_ADDRESS_PREFIX,
+  ESTABLISHED_ADDRESS_LENGTH,
+  ESTABLISHED_ADDRESS_PREFIX,
+} from "./types";
 
 export const parseTarget = (target: string): TransferType | undefined => {
   if (

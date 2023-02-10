@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Input, InputVariant } from "@anoma/components";
-import { Button, ButtonVariant } from "@anoma/components";
+import { Button, ButtonVariant, Input, InputVariants } from "@anoma/components";
 
 import { TopLevelRoute } from "App/types";
 import { ExtensionRequester } from "extension";
@@ -61,9 +60,9 @@ const Login: React.FC<Props> = ({ requester }) => {
         <Input
           label="Enter password"
           autoFocus={true}
-          variant={InputVariant.Password}
+          variant={InputVariants.Password}
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChangeCallback={(e) => setPassword(e.target.value)}
         />
         <Button
           variant={ButtonVariant.Contained}

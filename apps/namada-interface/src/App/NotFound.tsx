@@ -1,14 +1,20 @@
 import { useNavigate } from "react-router-dom";
+import {
+  Button,
+  ButtonVariant,
+  Heading,
+  HeadingLevel,
+  Icon,
+  IconName,
+  NavigationContainer,
+} from "@anoma/components";
+
 import { TopLevelRoute } from "./types";
-import { Heading, HeadingLevel } from "components/Heading";
-import { Button, ButtonVariant } from "components/Button";
-import { NavigationContainer } from "components/NavigationContainer";
 import {
   NotFoundContainer,
   NotFoundContent,
   ButtonsContainer,
 } from "./NotFound.components";
-import { Icon, IconName } from "components/Icon";
 import { BackButton } from "./Token/TokenSend/TokenSendForm.components";
 
 const NotFound = (): JSX.Element => {

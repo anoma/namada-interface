@@ -1,8 +1,11 @@
-import { Select } from "components/Select";
-import { KeyValueData, Table } from "components/Table";
-import { Props as TableProps } from "components/Table/Table";
+import {
+  KeyValueData,
+  Select,
+  Table,
+  Props as TableProps,
+} from "@anoma/components";
 import { FC } from "react";
-import styled from "styled-components/macro";
+import styled from "styled-components";
 
 export const BondingPositionContainer = styled.div`
   display: grid;
@@ -14,7 +17,6 @@ export const BondingPositionContainer = styled.div`
   overflow-y: scroll;
   color: ${(props) => props.theme.colors.utility2.main};
 `;
-
 
 export const NewBondingTable = styled<FC<TableProps<KeyValueData, never>>>(
   Table

@@ -2,16 +2,21 @@ import { useNavigate } from "react-router-dom";
 
 import { TopLevelRoute } from "App/types";
 
-import { NavigationContainer } from "components/NavigationContainer";
-import { Button, ButtonVariant } from "components/Button";
-import { Heading, HeadingLevel } from "components/Heading";
+import {
+  Button,
+  ButtonVariant,
+  Heading,
+  HeadingLevel,
+  Icon,
+  IconName,
+  NavigationContainer,
+} from "@anoma/components";
 import {
   SettingsContainer,
   SettingsContent,
   ButtonsContainer,
 } from "./Settings.components";
 import { BackButton } from "App/Token/TokenSend/TokenSendForm.components";
-import { Icon, IconName } from "components/Icon";
 
 /**
  * This is the root component for Settings, it contains further screens that are

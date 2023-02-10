@@ -5,7 +5,7 @@ import {
   Button,
   ButtonVariant,
   Input,
-  InputVariant,
+  InputVariants,
   Toggle,
 } from "@anoma/components";
 import { AccountType, DerivedAccount } from "@anoma/types";
@@ -206,11 +206,11 @@ const AddAccount: React.FC<Props> = ({
           >
             <InputContainer>
               <Input
-                variant={InputVariant.Text}
+                variant={InputVariants.Text}
                 label="Alias"
                 autoFocus={true}
                 value={alias}
-                onChange={(e) => setAlias(e.target.value)}
+                onChangeCallback={(e) => setAlias(e.target.value)}
               />
             </InputContainer>
             <InputContainer>

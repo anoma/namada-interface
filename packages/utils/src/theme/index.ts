@@ -1,3 +1,3 @@
-export { getTheme, getTheme_old } from "./theme";
+export { getTheme, loadColorMode, storeColorMode, ThemeName } from "./theme";
 
-export type { Theme, DesignConfiguration } from "./theme";
+export type { DesignConfiguration, ColorMode } from "./theme";

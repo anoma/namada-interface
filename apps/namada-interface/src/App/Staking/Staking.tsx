@@ -1,8 +1,10 @@
-import { truncateInMiddle } from "@anoma/utils";
 import { useState, useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+
+import { truncateInMiddle } from "@anoma/utils";
+import { Modal } from "@anoma/components";
+
 import { MainContainerNavigation } from "App/StakingAndGovernance/MainContainerNavigation";
-import { Modal } from "components/Modal";
 import { StakingContainer } from "./Staking.components";
 import { StakingOverview } from "./StakingOverview";
 import { ValidatorDetails } from "./ValidatorDetails";

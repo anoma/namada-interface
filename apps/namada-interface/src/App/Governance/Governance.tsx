@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { MainContainerNavigation } from "App/StakingAndGovernance/MainContainerNavigation";
 import { GovernanceContainer } from "./Governance.components";
-import { Button, ButtonVariant } from "components/Button";
+import { Button, ButtonVariant } from "@anoma/components";
 
 const initialTitle = "Governance";
 export const Governance = (): JSX.Element => {

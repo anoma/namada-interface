@@ -1,5 +1,5 @@
-import styled from "styled-components/macro";
-import { DesignConfiguration, ColorMode } from "utils/theme";
+import styled from "styled-components";
+import { DesignConfiguration, ColorMode } from "@anoma/utils";
 
 enum ComponentColor {
   TabLabelActive,

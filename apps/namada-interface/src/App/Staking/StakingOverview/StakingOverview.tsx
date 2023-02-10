@@ -1,4 +1,4 @@
-import { Table, TableLink, TableConfigurations } from "components/Table";
+import { Table, TableLink, TableConfigurations } from "@anoma/components";
 import { BalanceByToken } from "slices/balances";
 import { Validator, MyValidators } from "slices/StakingAndGovernance";
 import {

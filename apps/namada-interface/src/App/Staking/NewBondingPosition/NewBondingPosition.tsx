@@ -5,13 +5,17 @@ import {
   BondingAddressSelect,
   NewBondingTable,
 } from "./NewBondingPosition.components";
-import { TableConfigurations, KeyValueData } from "components/Table";
-import { Button, ButtonVariant } from "components/Button";
+import {
+  Button,
+  ButtonVariant,
+  TableConfigurations,
+  KeyValueData,
+} from "@anoma/components";
+import { truncateInMiddle } from "@anoma/utils";
 import {
   StakingPosition,
   ChangeInStakingPosition,
 } from "slices/StakingAndGovernance";
-import { truncateInMiddle } from "@anoma/utils";
 import { BalanceByToken } from "slices/balances";
 
 const REMAINS_BONDED_KEY = "Remains bonded";

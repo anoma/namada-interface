@@ -1,4 +1,4 @@
-import styled, { css } from "styled-components/macro";
+import styled, { css } from "styled-components";
 
 export const MainContainerNavigationContainer = styled.div`
   display: flex;

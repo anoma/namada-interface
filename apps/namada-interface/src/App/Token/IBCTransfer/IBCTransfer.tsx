@@ -13,7 +13,16 @@ import {
 } from "slices/transfers";
 import { SettingsState } from "slices/settings";
 
-import { Input, InputVariants } from "components/Input";
+import {
+  Button,
+  ButtonVariant,
+  Icon,
+  IconName,
+  Input,
+  InputVariants,
+  Option,
+  Select,
+} from "@anoma/components";
 import {
   ButtonsContainer,
   InputContainer,
@@ -23,9 +32,6 @@ import {
   AddChannelButton,
   IBCTransferFormContainer,
 } from "./IBCTransfer.components";
-import { Option, Select } from "components/Select";
-import { Icon, IconName } from "components/Icon";
-import { Button, ButtonVariant } from "components/Button";
 import { Address } from "../Transfers/TransferDetails.components";
 import { BalancesState, fetchBalances } from "slices/balances";
 

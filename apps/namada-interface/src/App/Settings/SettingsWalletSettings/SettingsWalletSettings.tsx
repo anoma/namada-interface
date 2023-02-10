@@ -6,12 +6,17 @@ import { setFiatCurrency, setChainId, SettingsState } from "slices/settings";
 import { useAppDispatch, useAppSelector } from "store";
 import { Currencies } from "currencies";
 
-import { NavigationContainer } from "components/NavigationContainer";
-import { Heading, HeadingLevel } from "components/Heading";
 import { SettingsWalletSettingsContainer } from "./SettingsWalletSettings.components";
-import { Tooltip } from "components/Tooltip";
-import { Icon, IconName } from "components/Icon";
-import { Select, Option } from "components/Select";
+import {
+  NavigationContainer,
+  Heading,
+  HeadingLevel,
+  Tooltip,
+  Icon,
+  IconName,
+  Select,
+  Option,
+} from "@anoma/components";
 import { InputContainer } from "App/AccountOverview/AccountOverview.components";
 import { BackButton } from "App/Token/TokenSend/TokenSendForm.components";
 import { ButtonsContainer, SettingsContent } from "../Settings.components";

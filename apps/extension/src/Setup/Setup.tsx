@@ -25,7 +25,7 @@ const messenger = new ExtensionMessenger();
 const requester = new ExtensionRequester(messenger, store);
 
 export const Setup: React.FC = () => {
-  const theme = getTheme(true, false);
+  const theme = getTheme("dark");
 
   return (
     <ThemeProvider theme={theme}>

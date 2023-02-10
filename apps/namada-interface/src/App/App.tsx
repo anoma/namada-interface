@@ -1,17 +1,18 @@
 /* eslint-disable max-len */
 import { useState, useEffect } from "react";
 import { useLocation, Location } from "react-router-dom";
+import { Provider } from "react-redux";
 import { createBrowserHistory } from "history";
 import { AnimatePresence } from "framer-motion";
-import { ThemeProvider } from "styled-components/macro";
+import { ThemeProvider } from "styled-components";
 
-// internal
 import {
   getTheme,
   loadColorMode,
   storeColorMode,
   ColorMode,
-} from "utils/theme";
+} from "@anoma/utils";
+
 import { TopLevelRoute, locationToTopLevelRoute } from "./types";
 import { TopNavigation } from "./TopNavigation";
 import {
@@ -23,8 +24,7 @@ import {
 } from "./App.components";
 import store from "store/store";
 import AppRoutes from "./AppRoutes";
-import { Provider } from "react-redux";
-import { Toasts } from "components/Toast";
+import { Toasts } from "App/Toast";
 import { IntegrationsProvider } from "services";
 
 export const history = createBrowserHistory({ window });

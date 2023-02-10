@@ -40,7 +40,7 @@ export enum Status {
 }
 
 export const App: React.FC = () => {
-  const theme = getTheme(true, false);
+  const theme = getTheme("dark");
   const query = useQuery();
   const redirect = query.get("redirect");
   const navigate = useNavigate();

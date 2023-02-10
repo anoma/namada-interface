@@ -1,4 +1,4 @@
-import { Icon, IconName } from "components/Icon";
+import { Icon, IconName } from "@anoma/components";
 import {
   MainContainerNavigationContainer,
   BackButtonContainer,
