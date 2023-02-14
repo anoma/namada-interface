@@ -43,6 +43,7 @@
     "webextension-polyfill": "^0.10.0"
   },
   "devDependencies": {
+    "@babel/plugin-transform-modules-commonjs": "^7.20.11",
     "@svgr/webpack": "^6.3.1",
     "@types/chrome": "^0.0.196",
     "@types/firefox-webext-browser": "^94.0.1",

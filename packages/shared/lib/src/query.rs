@@ -27,6 +27,7 @@ impl Query {
     }
     #[wasm_bindgen(constructor)]
     pub fn new(url: String) -> Query {
+        console_error_panic_hook::set_once();
         let client = HttpClient::new(url);
         Query { client }
     }
@@ -97,6 +98,4 @@ impl Query {
 
         Query::to_js_result(result)
     }
-
-    pub async fn broadcast_tx_sync() {}
 }

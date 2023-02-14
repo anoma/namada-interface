@@ -16,10 +16,11 @@ import { myStakingData } from "./fakeData";
 import { RootState } from "store";
 import { Query } from "@anoma/shared";
 import { RpcClient } from "@anoma/rpc";
-import { fetchWasmCode } from "@anoma/utils";
+import { amountToMicro, fetchWasmCode } from "@anoma/utils";
 import { SignedTx, Signer, Tokens, TxWasm } from "@anoma/types";
 import { chains } from "@anoma/chains";
 import { getIntegration } from "services";
+import { Accounts } from "slices/accounts";
 
 const toValidator = ([address, votingPower]: [string, string]): Validator => ({
   uuid: address,
@@ -118,8 +119,10 @@ export const fetchMyValidators = createAsyncThunk<
     const { chainId } = thunkApi.getState().settings;
     const { rpc } = chains[chainId];
 
-    const accounts = thunkApi.getState().accounts.derived[chainId];
-    const addresses = Object.keys(accounts);
+    const accounts: Accounts = thunkApi.getState().accounts.derived[chainId];
+    const addresses = Object.entries(accounts)
+      .filter(([_, value]) => !value.isShielded)
+      .map(([key]) => key);
     const query = new Query(rpc);
     const myValidatorsRes = await query.query_my_validators(addresses);
 
@@ -188,25 +191,21 @@ export const postNewBonding = createAsyncThunk<
   { state: RootState }
 >(POST_NEW_STAKING, async (change, thunkApi) => {
   const { chainId } = thunkApi.getState().settings;
-  const { rpc } = chains[chainId];
-  const rpcClient = new RpcClient(rpc);
-  const accounts = thunkApi.getState().accounts.derived[chainId];
-
-  const epoch = await rpcClient.queryEpoch();
-
-  const { hash, bytes } = await createBondingTx(
-    TxWasm.Bond,
-    change,
-    epoch,
-    chainId,
-    Object.keys(accounts)
-  );
-
-  if (hash && bytes) {
-    await rpcClient.broadcastTxSync(bytes);
-  } else {
-    throw new Error("Invalid transaction!");
-  }
+  const integration = getIntegration(chainId);
+  const signer = integration.signer() as Signer;
+  signer.submitBond({
+    source: change.owner,
+    validator: change.validatorId,
+    amount: amountToMicro(Number(change.amount)),
+    txCode: await fetchWasmCode(TxWasm.Bond),
+    nativeToken: Tokens.NAM.address || "",
+    tx: {
+      token: Tokens.NAM.address || "",
+      feeAmount: 0,
+      gasLimit: 0,
+      txCode: await fetchWasmCode(TxWasm.RevealPK),
+    },
+  });
 
   return Promise.resolve();
 });

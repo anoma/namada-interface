@@ -15,6 +15,7 @@ import {
 } from "../background/keyring";
 import { Anoma } from "provider";
 import { Chain } from "@anoma/types";
+import { Sdk } from "@anoma/shared";
 
 class KVStoreMock<T> implements KVStore<T> {
   private storage: { [key: string]: T | null } = {};
@@ -39,11 +40,13 @@ export const init = (): {
   extStore: KVStoreMock<number>;
   chainsService: ChainsService;
   keyRingService: KeyRingService;
+  sdk: Sdk;
 } => {
   const messenger = new ExtensionMessengerMock();
 
   // TODO: any for now - needs a change to KVStore interface
   const iDBStore = new KVStoreMock<Chain[] | KeyStore[]>(KVPrefix.IndexedDB);
+  const sdkStore = new KVStoreMock<string>(KVPrefix.SDK);
   const extStore = new KVStoreMock<number>(KVPrefix.IndexedDB);
   const requester = new ExtensionRequester(messenger, extStore);
 
@@ -58,13 +61,17 @@ export const init = (): {
     extStore
   );
 
+  const sdk = new Sdk("");
+
   const chainsService = new ChainsService(
     iDBStore as KVStore<Chain[]>,
     Object.values(chains)
   );
   const keyRingService = new KeyRingService(
     iDBStore as KVStore<KeyStore[]>,
-    "namada-test.XXXXXXXX"
+    sdkStore,
+    "namada-test.XXXXXXXX",
+    sdk
   );
 
   // Initialize messages and handlers
@@ -82,5 +89,6 @@ export const init = (): {
     extStore,
     chainsService,
     keyRingService,
+    sdk,
   };
 };

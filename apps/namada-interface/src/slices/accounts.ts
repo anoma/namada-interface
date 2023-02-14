@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Account } from "@anoma/types";
 
-type Accounts = {
+export type Accounts = {
   [address: string]: Account;
 };
 

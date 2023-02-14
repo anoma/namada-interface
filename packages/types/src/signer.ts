@@ -4,6 +4,7 @@ import {
   IbcTransferProps,
   InitAccountProps,
   SignedTx,
+  SubmitBondProps,
   TransferProps,
   TxProps,
 } from "./tx";
@@ -16,13 +17,12 @@ export interface Signer {
     txData: string
   ): Promise<SignedTx | undefined>;
   encodeBonding(args: BondingProps): Promise<string | undefined>;
-  encodeTransfer(args: TransferProps): Promise<string | undefined>;
+  submitBond(args: SubmitBondProps): Promise<void>;
+  submitTransfer(args: TransferProps): Promise<void>;
   encodeIbcTransfer(args: IbcTransferProps): Promise<string | undefined>;
   encodeInitAccount(
     args: InitAccountProps,
     signer: string
   ): Promise<string | undefined>;
-  encodeRevealPk(
-    signer: string
-  ): Promise<string | undefined>;
+  encodeRevealPk(signer: string): Promise<string | undefined>;
 }

@@ -9,13 +9,14 @@ import {
   SaveMnemonicMsg,
 } from "./messages";
 import {
-  EncodeTransferMsg,
+  SubmitTransferMsg,
   EncodeIbcTransferMsg,
   EncodeInitAccountMsg,
   QueryAccountsMsg,
   SignTxMsg,
   EncodeRevealPkMsg,
   EncodeBondingMsg,
+  SubmitBondMsg,
 } from "provider/messages";
 import { ROUTE } from "./constants";
 import { getHandler } from "./handler";
@@ -32,7 +33,8 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(SaveMnemonicMsg);
   router.registerMessage(SignTxMsg);
   router.registerMessage(EncodeBondingMsg);
-  router.registerMessage(EncodeTransferMsg);
+  router.registerMessage(SubmitBondMsg);
+  router.registerMessage(SubmitTransferMsg);
   router.registerMessage(EncodeIbcTransferMsg);
   router.registerMessage(EncodeInitAccountMsg);
   router.registerMessage(EncodeRevealPkMsg);

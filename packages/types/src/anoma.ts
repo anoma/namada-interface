@@ -15,15 +15,14 @@ export interface Anoma {
   chain: (chainId: string) => Promise<Chain | undefined>;
   chains: () => Promise<Chain[] | undefined>;
   encodeBonding: (txMsg: string) => Promise<string | undefined>;
-  encodeTransfer: (txMsg: string) => Promise<string | undefined>;
+  submitBond: (txMsg: string) => Promise<void>;
+  submitTransfer: (txMsg: string) => Promise<void>;
   encodeIbcTransfer: (txMsg: string) => Promise<string | undefined>;
   encodeInitAccount: (props: {
     txMsg: string;
     address: string;
   }) => Promise<string | undefined>;
-  encodeRevealPk: (props: {
-    signer: string;
-  }) => Promise<string | undefined>;
+  encodeRevealPk: (props: { signer: string }) => Promise<string | undefined>;
   version: () => string;
 }
 

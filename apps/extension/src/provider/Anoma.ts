@@ -8,10 +8,11 @@ import {
   EncodeBondingMsg,
   EncodeIbcTransferMsg,
   EncodeInitAccountMsg,
-  EncodeTransferMsg,
   QueryAccountsMsg,
   SignTxMsg,
   EncodeRevealPkMsg,
+  SubmitBondMsg,
+  SubmitTransferMsg,
 } from "./messages";
 
 export class Anoma implements IAnoma {
@@ -74,10 +75,17 @@ export class Anoma implements IAnoma {
     );
   }
 
-  public async encodeTransfer(txMsg: string): Promise<string | undefined> {
+  public async submitBond(txMsg: string): Promise<void> {
     return await this.requester?.sendMessage(
       Ports.Background,
-      new EncodeTransferMsg(txMsg)
+      new SubmitBondMsg(txMsg)
+    );
+  }
+
+  public async submitTransfer(txMsg: string): Promise<void> {
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new SubmitTransferMsg(txMsg)
     );
   }
 

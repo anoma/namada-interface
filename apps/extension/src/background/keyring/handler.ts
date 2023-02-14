@@ -10,13 +10,14 @@ import {
   UnlockKeyRingMsg,
 } from "./messages";
 import {
-  EncodeTransferMsg,
+  SubmitTransferMsg,
   EncodeIbcTransferMsg,
   EncodeInitAccountMsg,
   EncodeRevealPkMsg,
   QueryAccountsMsg,
   SignTxMsg,
   EncodeBondingMsg,
+  SubmitBondMsg,
 } from "provider/messages";
 
 export const getHandler: (service: KeyRingService) => Handler = (service) => {
@@ -45,8 +46,10 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleSignTxMsg(service)(env, msg as SignTxMsg);
       case EncodeBondingMsg:
         return handleEncodeBondingMsg(service)(env, msg as EncodeBondingMsg);
-      case EncodeTransferMsg:
-        return handleEncodeTransferMsg(service)(env, msg as EncodeTransferMsg);
+      case SubmitBondMsg:
+        return handleSubmitBondMsg(service)(env, msg as SubmitBondMsg);
+      case SubmitTransferMsg:
+        return handleSubmitTransferMsg(service)(env, msg as SubmitTransferMsg);
       case EncodeIbcTransferMsg:
         return handleEncodeIbcTransferMsg(service)(
           env,
@@ -58,10 +61,7 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
           msg as EncodeInitAccountMsg
         );
       case EncodeRevealPkMsg:
-        return handleEncodeRevealPkMsg(service)(
-          env,
-          msg as EncodeRevealPkMsg
-        );
+        return handleEncodeRevealPkMsg(service)(env, msg as EncodeRevealPkMsg);
       default:
         throw new Error("Unknown msg type");
     }
@@ -155,12 +155,21 @@ const handleEncodeBondingMsg: (
   };
 };
 
-const handleEncodeTransferMsg: (
+const handleSubmitBondMsg: (
   service: KeyRingService
-) => InternalHandler<EncodeTransferMsg> = (service) => {
-  return (_, msg) => {
+) => InternalHandler<SubmitBondMsg> = (service) => {
+  return async (_, msg) => {
     const { txMsg } = msg;
-    return service.encodeTransfer(txMsg);
+    return await service.submitBond(txMsg);
+  };
+};
+
+const handleSubmitTransferMsg: (
+  service: KeyRingService
+) => InternalHandler<SubmitTransferMsg> = (service) => {
+  return async (_, msg) => {
+    const { txMsg } = msg;
+    return await service.submitTransfer(txMsg);
   };
 };
 

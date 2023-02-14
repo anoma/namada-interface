@@ -18,13 +18,31 @@ export type BondingProps = {
   source: string;
 };
 
+export type SubmitBondProps = {
+  validator: string;
+  amount: number;
+  source: string;
+  txCode: Uint8Array;
+  nativeToken: string;
+  tx: Tx;
+};
+
+export type Tx = {
+  token: string;
+  feeAmount: number;
+  gasLimit: number;
+  txCode: Uint8Array;
+};
+
 export type TransferProps = {
+  tx: Tx;
   source: string;
   target: string;
   token: string;
+  subPrefix?: string;
   amount: number;
-  key?: string;
-  shielded?: Uint8Array;
+  nativeToken: string;
+  txCode: Uint8Array;
 };
 
 export type IbcTransferProps = {

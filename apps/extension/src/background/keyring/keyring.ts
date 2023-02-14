@@ -16,6 +16,7 @@ import {
   ExtendedViewingKey,
   PaymentAddress,
   RevealPk,
+  Sdk,
 } from "@anoma/shared";
 import { IStore, Store } from "@anoma/storage";
 import { AccountType, Bip44Path, DerivedAccount, SignedTx } from "@anoma/types";
@@ -42,11 +43,19 @@ const getId = (name: string, ...args: (number | string)[]): string => {
 };
 
 export const KEYSTORE_KEY = "key-store";
+export const SDK_KEY = "sdk-store";
 const crypto = new Crypto();
 
 type DerivedAccountInfo = {
   address: string;
   id: string;
+  text: string;
+};
+
+type DerivedShieldedAccountInfo = {
+  address: string;
+  id: string;
+  spendingKey: Uint8Array;
   text: string;
 };
 
@@ -60,7 +69,9 @@ export class KeyRing {
 
   constructor(
     protected readonly kvStore: KVStore<KeyStore[]>,
-    protected readonly chainId: string
+    protected readonly sdkStore: KVStore<string>,
+    protected readonly chainId: string,
+    protected readonly sdk: Sdk
   ) {
     this._keyStore = new Store(KEYSTORE_KEY, kvStore);
   }
@@ -131,7 +142,8 @@ export class KeyRing {
       const path = `m/44'/${coinType}'/0'/0`;
       const bip44 = new HDWallet(seed);
       const account = bip44.derive(path);
-      const address = new Address(account.private().to_hex()).implicit();
+      const sk = account.private().to_hex();
+      const address = new Address(sk).implicit();
       const { chainId } = this;
 
       const mnemonicStore = crypto.encrypt({
@@ -148,6 +160,7 @@ export class KeyRing {
         type: AccountType.Mnemonic,
       });
       await this._keyStore.append(mnemonicStore);
+      await this.addSecretKey(sk, password, alias);
 
       this._password = password;
       return true;
@@ -191,7 +204,7 @@ export class KeyRing {
     seed: Uint8Array,
     path: Bip44Path,
     parentId: string
-  ): DerivedAccountInfo {
+  ): DerivedShieldedAccountInfo {
     const { index = 0 } = path;
     const id = getId("shielded-account", parentId, index);
     const zip32 = new ShieldedHDWallet(seed);
@@ -210,6 +223,7 @@ export class KeyRing {
     return {
       address,
       id,
+      spendingKey: xsk,
       text: JSON.stringify({ spendingKey, viewingKey }),
     };
   }
@@ -249,15 +263,14 @@ export class KeyRing {
       let text: string;
 
       if (type === AccountType.ShieldedKeys) {
-        const shieldedAccount = KeyRing.deriveShieldedAccount(
-          seed,
-          path,
-          parentId
-        );
-
+        const { spendingKey, ...shieldedAccount } =
+          KeyRing.deriveShieldedAccount(seed, path, parentId);
         id = shieldedAccount.id;
         address = shieldedAccount.address;
         text = shieldedAccount.text;
+
+        //TODO: check if shileded accounts require Alias?
+        this.addSpendingKey(spendingKey, this._password, alias || "");
       } else {
         const transparentAccount = KeyRing.deriveTransparentAccount(
           seed,
@@ -268,6 +281,8 @@ export class KeyRing {
         id = transparentAccount.id;
         address = transparentAccount.address;
         text = transparentAccount.text;
+
+        this.addSecretKey(text, this._password, alias);
       }
 
       const { chainId } = this;
@@ -372,9 +387,7 @@ export class KeyRing {
     }
   }
 
-  async encodeRevealPk(
-    signer: string,
-  ): Promise<Uint8Array> {
+  async encodeRevealPk(signer: string): Promise<Uint8Array> {
     if (!this._password) {
       throw new Error("Not authenticated!");
     }
@@ -393,22 +406,64 @@ export class KeyRing {
     }
   }
 
+  async submitBond(txMsg: Uint8Array): Promise<void> {
+    if (!this._password) {
+      throw new Error("Not authenticated!");
+    }
+
+    try {
+      await this.sdk.submit_bond(txMsg, this._password);
+    } catch (e) {
+      throw new Error(`Could not submit bond tx: ${e}`);
+    }
+  }
+
+  async submitTransfer(txMsg: Uint8Array): Promise<void> {
+    if (!this._password) {
+      throw new Error("Not authenticated!");
+    }
+
+    try {
+      await this.sdk.submit_transfer(txMsg, this._password);
+    } catch (e) {
+      throw new Error(`Could not submit transfer tx: ${e}`);
+    }
+  }
+
   private getPrivateKey(account: KeyStore, password: string): string {
-      const decrypted = crypto.decrypt(account, password);
-      let private_key = decrypted;
+    const decrypted = crypto.decrypt(account, password);
+    let private_key = decrypted;
 
-      // If the account type is a Mnemonic, derive a private key
-      // from associated derived address (root account):
-      if (account.type === AccountType.Mnemonic) {
-        const { path } = account;
-        const mnemonic = Mnemonic.from_phrase(decrypted);
-        const bip44 = new HDWallet(mnemonic.to_seed());
-        const { coinType } = chains[this.chainId].bip44;
-        const derivationPath = `m/44'/${coinType}'/${path.account}'/${path.change}`;
-        const derived = bip44.derive(derivationPath);
-        private_key = derived.private().to_hex();
-      }
+    // If the account type is a Mnemonic, derive a private key
+    // from associated derived address (root account):
+    if (account.type === AccountType.Mnemonic) {
+      const { path } = account;
+      const mnemonic = Mnemonic.from_phrase(decrypted);
+      const bip44 = new HDWallet(mnemonic.to_seed());
+      const { coinType } = chains[this.chainId].bip44;
+      const derivationPath = `m/44'/${coinType}'/${path.account}'/${path.change}`;
+      const derived = bip44.derive(derivationPath);
+      private_key = derived.private().to_hex();
+    }
 
-      return private_key;
+    return private_key;
+  }
+
+  private async addSecretKey(
+    secretKey: string,
+    password: string,
+    alias?: string
+  ): Promise<void> {
+    this.sdk.add_keys(secretKey, password, alias);
+    this.sdkStore.set(SDK_KEY, new TextDecoder().decode(this.sdk.encode()));
+  }
+
+  private async addSpendingKey(
+    spendingKey: Uint8Array,
+    password: string,
+    alias: string
+  ): Promise<void> {
+    this.sdk.add_spending_key(spendingKey, password, alias);
+    this.sdkStore.set(SDK_KEY, new TextDecoder().decode(this.sdk.encode()));
   }
 }
