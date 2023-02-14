@@ -9,7 +9,7 @@ import {
   SaveMnemonicMsg,
 } from "./messages";
 import {
-  EncodeTransferMsg,
+  SubmitTransferMsg,
   EncodeIbcTransferMsg,
   EncodeInitAccountMsg,
   QueryAccountsMsg,
@@ -34,7 +34,7 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(SignTxMsg);
   router.registerMessage(EncodeBondingMsg);
   router.registerMessage(SubmitBondMsg);
-  router.registerMessage(EncodeTransferMsg);
+  router.registerMessage(SubmitTransferMsg);
   router.registerMessage(EncodeIbcTransferMsg);
   router.registerMessage(EncodeInitAccountMsg);
   router.registerMessage(EncodeRevealPkMsg);

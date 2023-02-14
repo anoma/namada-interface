@@ -15,7 +15,7 @@ enum Route {
 enum MessageType {
   QueryAccounts = "query-accounts",
   SignTx = "sign-tx",
-  EncodeTransfer = "encode-transfer",
+  SubmitTransfer = "submit-transfer",
   EncodeIbcTransfer = "encode-ibc-transfer",
   EncodeInitAccount = "encode-init-account",
   EncodeRevealPublicKey = "encode-reveal-public-key",
@@ -159,9 +159,9 @@ export class SignTxMsg extends Message<SignedTx> {
   }
 }
 
-export class EncodeTransferMsg extends Message<string> {
+export class SubmitTransferMsg extends Message<void> {
   public static type(): MessageType {
-    return MessageType.EncodeTransfer;
+    return MessageType.SubmitTransfer;
   }
 
   constructor(public readonly txMsg: string) {
@@ -180,7 +180,7 @@ export class EncodeTransferMsg extends Message<string> {
   }
 
   type(): string {
-    return EncodeTransferMsg.type();
+    return SubmitTransferMsg.type();
   }
 }
 

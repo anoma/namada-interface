@@ -406,6 +406,30 @@ export class KeyRing {
     }
   }
 
+  async submitBond(txMsg: Uint8Array): Promise<void> {
+    if (!this._password) {
+      throw new Error("Not authenticated!");
+    }
+
+    try {
+      await this.sdk.submit_bond(txMsg, this._password);
+    } catch (e) {
+      throw new Error(`Could not submit bond tx: ${e}`);
+    }
+  }
+
+  async submitTransfer(txMsg: Uint8Array): Promise<void> {
+    if (!this._password) {
+      throw new Error("Not authenticated!");
+    }
+
+    try {
+      await this.sdk.submit_transfer(txMsg, this._password);
+    } catch (e) {
+      throw new Error(`Could not submit transfer tx: ${e}`);
+    }
+  }
+
   private getPrivateKey(account: KeyStore, password: string): string {
     const decrypted = crypto.decrypt(account, password);
     let private_key = decrypted;

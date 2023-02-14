@@ -35,13 +35,16 @@ export type Tx = {
 };
 
 export type TransferProps = {
+  tx: Tx;
   source: string;
   target: string;
   token: string;
+  subPrefix?: string;
   amount: number;
-  key?: string;
-  shielded?: Uint8Array;
+  nativeToken: string;
+  txCode: Uint8Array;
 };
+
 export type IbcTransferProps = {
   sourcePort: string;
   sourceChannel: string;

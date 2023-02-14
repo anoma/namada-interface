@@ -10,7 +10,7 @@ import {
   UnlockKeyRingMsg,
 } from "./messages";
 import {
-  EncodeTransferMsg,
+  SubmitTransferMsg,
   EncodeIbcTransferMsg,
   EncodeInitAccountMsg,
   EncodeRevealPkMsg,
@@ -48,8 +48,8 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleEncodeBondingMsg(service)(env, msg as EncodeBondingMsg);
       case SubmitBondMsg:
         return handleSubmitBondMsg(service)(env, msg as SubmitBondMsg);
-      case EncodeTransferMsg:
-        return handleEncodeTransferMsg(service)(env, msg as EncodeTransferMsg);
+      case SubmitTransferMsg:
+        return handleSubmitTransferMsg(service)(env, msg as SubmitTransferMsg);
       case EncodeIbcTransferMsg:
         return handleEncodeIbcTransferMsg(service)(
           env,
@@ -164,12 +164,12 @@ const handleSubmitBondMsg: (
   };
 };
 
-const handleEncodeTransferMsg: (
+const handleSubmitTransferMsg: (
   service: KeyRingService
-) => InternalHandler<EncodeTransferMsg> = (service) => {
-  return (_, msg) => {
+) => InternalHandler<SubmitTransferMsg> = (service) => {
+  return async (_, msg) => {
     const { txMsg } = msg;
-    return service.encodeTransfer(txMsg);
+    return await service.submitTransfer(txMsg);
   };
 };
 

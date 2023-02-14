@@ -13,7 +13,6 @@ import {
   Signer as ISigner,
   BondingMsgValue,
   TransferMsgValue,
-  TransferMsgSchema,
   TransactionMsgValue,
   TransactionMsgSchema,
   TransferProps,
@@ -24,6 +23,7 @@ import {
   SubmitBondProps,
   SubmitBondMsgValue,
   SubmitBondMsgSchema,
+  SubmitTransferMsgSchema,
 } from "@anoma/types";
 
 export class Signer implements ISigner {
@@ -94,25 +94,34 @@ export class Signer implements ISigner {
   /**
    * Encode a Transfer message
    */
-  public async encodeTransfer(
-    args: TransferProps
-  ): Promise<string | undefined> {
-    const { source, target, token, amount, key, shielded } = args;
-    const transferMsgValue = new TransferMsgValue({
+  public async submitTransfer(args: TransferProps): Promise<void> {
+    const {
+      tx,
       source,
       target,
       token,
+      subPrefix,
       amount,
-      key,
-      shielded,
+      nativeToken,
+      txCode,
+    } = args;
+    const transferMsgValue = new TransferMsgValue({
+      tx,
+      source,
+      target,
+      token,
+      subPrefix,
+      amount,
+      nativeToken,
+      txCode,
     });
     const transferMessage = new Message<TransferMsgValue>();
     const serializedTransfer = transferMessage.encode(
-      TransferMsgSchema,
+      SubmitTransferMsgSchema,
       transferMsgValue
     );
 
-    return await this._anoma.encodeTransfer(toBase64(serializedTransfer));
+    return await this._anoma.submitTransfer(toBase64(serializedTransfer));
   }
 
   /**

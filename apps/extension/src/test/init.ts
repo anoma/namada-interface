@@ -40,6 +40,7 @@ export const init = (): {
   extStore: KVStoreMock<number>;
   chainsService: ChainsService;
   keyRingService: KeyRingService;
+  sdk: Sdk;
 } => {
   const messenger = new ExtensionMessengerMock();
 
@@ -88,5 +89,6 @@ export const init = (): {
     extStore,
     chainsService,
     keyRingService,
+    sdk,
   };
 };
