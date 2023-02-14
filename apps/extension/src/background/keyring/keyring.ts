@@ -160,7 +160,7 @@ export class KeyRing {
         type: AccountType.Mnemonic,
       });
       await this._keyStore.append(mnemonicStore);
-      await this.addSecretKey(sk, alias);
+      await this.addSecretKey(sk, password, alias);
 
       this._password = password;
       return true;
@@ -270,7 +270,7 @@ export class KeyRing {
         text = shieldedAccount.text;
 
         //TODO: check if shileded accounts require Alias?
-        this.addSpendingKey(spendingKey, alias || "");
+        this.addSpendingKey(spendingKey, this._password, alias || "");
       } else {
         const transparentAccount = KeyRing.deriveTransparentAccount(
           seed,
@@ -282,7 +282,7 @@ export class KeyRing {
         address = transparentAccount.address;
         text = transparentAccount.text;
 
-        this.addSecretKey(text, alias);
+        this.addSecretKey(text, this._password, alias);
       }
 
       const { chainId } = this;
@@ -449,16 +449,21 @@ export class KeyRing {
     return private_key;
   }
 
-  private async addSecretKey(secretKey: string, alias?: string): Promise<void> {
-    this.sdk.add_keys(secretKey, alias);
+  private async addSecretKey(
+    secretKey: string,
+    password: string,
+    alias?: string
+  ): Promise<void> {
+    this.sdk.add_keys(secretKey, password, alias);
     this.sdkStore.set(SDK_KEY, new TextDecoder().decode(this.sdk.encode()));
   }
 
   private async addSpendingKey(
     spendingKey: Uint8Array,
+    password: string,
     alias: string
   ): Promise<void> {
-    this.sdk.add_spending_key(spendingKey, alias);
+    this.sdk.add_spending_key(spendingKey, password, alias);
     this.sdkStore.set(SDK_KEY, new TextDecoder().decode(this.sdk.encode()));
   }
 }

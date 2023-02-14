@@ -103,7 +103,7 @@ impl Sdk {
         self.wallet = Wallet::new(STORAGE_PATH.to_owned(), store);
     }
 
-    pub fn add_keys(&mut self, private_key: &str, alias: Option<String>) {
+    pub fn add_keys(&mut self, private_key: &str, password: Option<String>, alias: Option<String>) {
         let sk = key::ed25519::SecretKey::from_str(private_key)
             .map_err(|err| format!("ed25519 encoding failed: {:?}", err))
             .expect("FIX ME");
@@ -111,7 +111,7 @@ impl Sdk {
 
         let pkh: PublicKeyHash = PublicKeyHash::from(&sk.ref_to());
         // TODO: Password is None
-        let (keypair_to_store, _raw_keypair) = StoredKeypair::new(sk, None);
+        let (keypair_to_store, _raw_keypair) = StoredKeypair::new(sk, password);
         let address = Address::Implicit(ImplicitAddress(pkh.clone()));
         let alias: Alias = alias.unwrap_or_else(|| pkh.clone().into()).into();
         if self
@@ -132,7 +132,7 @@ impl Sdk {
         }
     }
 
-    pub fn add_spending_key(&mut self, xsk: &[u8], alias: &str) {
+    pub fn add_spending_key(&mut self, xsk: &[u8], password: Option<String>, alias: &str) {
         let xsk: masp_primitives::zip32::ExtendedSpendingKey =
             BorshDeserialize::try_from_slice(xsk).expect("To deserialize xsk");
 
@@ -140,7 +140,7 @@ impl Sdk {
         let viewkey = ExtendedFullViewingKey::from(&xsk.into()).into();
 
         // TODO: Password is None
-        let (spendkey_to_store, _raw_spendkey) = StoredKeypair::new(xsk, None);
+        let (spendkey_to_store, _raw_spendkey) = StoredKeypair::new(xsk, password);
         let alias = Alias::from(alias);
         if self
             .wallet
