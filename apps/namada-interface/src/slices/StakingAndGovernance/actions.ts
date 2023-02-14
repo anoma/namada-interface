@@ -16,7 +16,7 @@ import { myStakingData } from "./fakeData";
 import { RootState } from "store";
 import { Query } from "@anoma/shared";
 import { RpcClient } from "@anoma/rpc";
-import { fetchWasmCode } from "@anoma/utils";
+import { amountToMicro, fetchWasmCode } from "@anoma/utils";
 import { SignedTx, Signer, Tokens, TxWasm } from "@anoma/types";
 import { chains } from "@anoma/chains";
 import { getIntegration } from "services";
@@ -196,7 +196,7 @@ export const postNewBonding = createAsyncThunk<
   signer.submitBond({
     source: change.owner,
     validator: change.validatorId,
-    amount: Number(change.amount) * 1_000_000,
+    amount: amountToMicro(Number(change.amount)),
     txCode: await fetchWasmCode(TxWasm.Bond),
     nativeToken: Tokens.NAM.address || "",
     tx: {
