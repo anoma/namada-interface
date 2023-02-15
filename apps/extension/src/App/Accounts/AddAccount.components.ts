@@ -70,7 +70,7 @@ export const Label = styled.label`
   }
 `;
 
-export const Bip44Error = styled.div`
+export const FormValidationMsg = styled.div`
   font-family: "Space Grotesk", sans-serif;
   color: ${(props) => props.theme.colors.utility3.highAttention};
   font-size: 12px;

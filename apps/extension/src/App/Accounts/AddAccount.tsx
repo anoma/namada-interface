@@ -17,14 +17,14 @@ import { DeriveAccountMsg } from "background/keyring";
 import {
   AddAccountContainer,
   AddAccountForm,
-  Bip44PathContainer,
-  Bip44PathDelimiter,
   Bip44Input,
   Bip44Path,
-  Bip44Error,
+  Bip44PathContainer,
+  Bip44PathDelimiter,
   ButtonsContainer,
   FormError,
   FormStatus,
+  FormValidationMsg,
   InputContainer,
   Label,
   ShieldedToggleContainer,
@@ -42,7 +42,7 @@ type Props = {
   unlockKeyRing: () => void;
 };
 
-const validateAccount = (
+const validatePath = (
   account: number,
   newAccount: { change: number; index: number },
   accounts: DerivedAccount[],
@@ -64,6 +64,34 @@ const validateAccount = (
     });
 
   return isValid;
+};
+
+/**
+ * Validates if alias is already in use
+ *
+ * @param {DerivedAccount[]} accounts - list of all the accounts
+ * @param {string} alias - alias of the new address
+ * @returns {boolean} returns true when alias is valid
+ */
+const validateAliasInUse = (
+  accounts: DerivedAccount[],
+  alias: string
+): boolean => {
+  return accounts.map((acc) => acc.alias).includes(alias) === false;
+};
+
+/**
+ * Validates if alias is required
+ *
+ * @param {string} alias - alias of the new address
+ * @param {boolean} isTransparent - is new address a transparent one
+ * @returns {boolean} retursn true when alias is valid
+ */
+const validateAliasIsRequired = (
+  alias: string,
+  isTransparent: boolean
+): boolean => {
+  return !(!isTransparent && alias === "");
 };
 
 const findNextIndex = (
@@ -91,6 +119,13 @@ enum Status {
   Failed,
 }
 
+enum Validation {
+  Valid = "",
+  PathInUse = "Invalid path! This path is already in use.",
+  AliasInUse = "This alias is already in use.",
+  AliasRequired = "Alias is required for shielded addresses.",
+}
+
 const AddAccount: React.FC<Props> = ({
   parentAccount,
   accounts,
@@ -102,8 +137,8 @@ const AddAccount: React.FC<Props> = ({
   const navigate = useNavigate();
   const [alias, setAlias] = useState("");
   const [change, setChange] = useState(0);
-  const [bip44Error, setBip44Error] = useState("");
-  const [isFormValid, setIsFormValid] = useState(true);
+  const [validation, setValidation] = useState(Validation.Valid);
+  const isFormValid = validation === Validation.Valid;
   const [formError, setFormError] = useState("");
   const [formStatus, setFormStatus] = useState(Status.Idle);
   const [isTransparent, setIsTransparent] = useState(true);
@@ -129,20 +164,30 @@ const AddAccount: React.FC<Props> = ({
   }, []);
 
   useEffect(() => {
-    const isValid = validateAccount(
+    const _validatePath = validatePath.bind(
+      null,
       parentAccount,
       { change, index },
       accounts,
       isTransparent ? AccountType.PrivateKey : AccountType.ShieldedKeys
     );
-    if (!isValid) {
-      setBip44Error("Invalid path! This path is already in use.");
-      setIsFormValid(false);
+    const _validateAliasInUse = validateAliasInUse.bind(null, accounts, alias);
+    const _validateAliasIsRequired = validateAliasIsRequired.bind(
+      null,
+      alias,
+      isTransparent
+    );
+
+    if (!_validateAliasIsRequired()) {
+      setValidation(Validation.AliasRequired);
+    } else if (!_validateAliasInUse()) {
+      setValidation(Validation.AliasInUse);
+    } else if (!_validatePath()) {
+      setValidation(Validation.PathInUse);
     } else {
-      setBip44Error("");
-      setIsFormValid(true);
+      setValidation(Validation.Valid);
     }
-  }, [parentAccount, change, index]);
+  }, [parentAccount, change, index, alias, isTransparent]);
 
   useEffect(() => {
     setIndex(
@@ -260,7 +305,7 @@ const AddAccount: React.FC<Props> = ({
                 isTransparent ? `${change}/` : ""
               }${index}`}</span>
             </Bip44Path>
-            <Bip44Error>{bip44Error}</Bip44Error>
+            <FormValidationMsg>{validation}</FormValidationMsg>
           </AddAccountForm>
           {formStatus === Status.Pending && (
             <FormStatus>Submitting new account...</FormStatus>
