@@ -37,8 +37,8 @@ impl Sdk {
         wallet::decode(&mut self.wallet, data)
     }
 
-    pub fn add_keys(&mut self, private_key: &str, password: Option<String>, alias: Option<String>) {
-        wallet::add_keys(&mut self.wallet, private_key, password, alias)
+    pub fn add_key(&mut self, private_key: &str, password: Option<String>, alias: Option<String>) {
+        wallet::add_key(&mut self.wallet, private_key, password, alias)
     }
 
     pub fn add_spending_key(&mut self, xsk: &[u8], password: Option<String>, alias: &str) {

@@ -24,7 +24,7 @@ pub fn decode(wallet: &mut Wallet<WalletUtils>, data: Vec<u8>) {
     *wallet = Wallet::new(STORAGE_PATH.to_owned(), store);
 }
 
-pub fn add_keys(
+pub fn add_key(
     wallet: &mut Wallet<WalletUtils>,
     private_key: &str,
     password: Option<String>,
