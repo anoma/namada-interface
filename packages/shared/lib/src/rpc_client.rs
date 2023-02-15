@@ -86,6 +86,8 @@ impl Client for HttpClient {
             .map_err(|e| {
                 let e = stringify(&e).expect("Error to be serializable");
                 let e_str: String = e.into();
+                // There is no "generic" RpcError, so we have to pick
+                // one with error msg as an argument.
                 RpcError::server(e_str)
             })?;
         let response_json: String = stringify(&response)
