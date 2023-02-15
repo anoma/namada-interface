@@ -42,7 +42,7 @@ describe("Anoma", () => {
     keyRingService.lock();
   });
 
-  const { anoma, iDBStore, keyRingService, sdk } = init();
+  const { anoma, iDBStore, keyRingService } = init();
 
   it("should return chain by chainId", async () => {
     iDBStore.set(KVKeys.Chains, [chain]);
@@ -115,7 +115,9 @@ describe("Anoma", () => {
   });
 
   it("should be able to submit a transfer through the sdk", async () => {
-    jest.spyOn(sdk, "submit_transfer").mockReturnValueOnce(Promise.resolve());
+    jest
+      .spyOn(Sdk.prototype, "submit_transfer")
+      .mockReturnValueOnce(Promise.resolve());
 
     const token =
       "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5";
