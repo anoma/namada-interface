@@ -12,8 +12,6 @@ use namada::{
 };
 use wasm_bindgen::JsError;
 
-const ADDRESS_FROM_STR_MSG: &str = "Address to be a valid string.";
-
 #[derive(BorshSerialize, BorshDeserialize)]
 pub struct TxMsg {
     token: String,
@@ -50,7 +48,7 @@ pub fn bond_tx_args(tx_msg: &[u8], password: Option<String>) -> Result<args::Bon
     let amount = Amount::from(amount);
 
     let args = args::Bond {
-        tx: tx_msg_into_args(tx, password),
+        tx: tx_msg_into_args(tx, password)?,
         validator,
         amount,
         source: Some(source),
@@ -96,7 +94,7 @@ pub fn transfer_tx_args(
     let amount = Amount::from(amount);
 
     let args = args::TxTransfer {
-        tx: tx_msg_into_args(tx, password),
+        tx: tx_msg_into_args(tx, password)?,
         source: TransferSource::Address(source),
         target: TransferTarget::Address(target),
         token,
@@ -108,7 +106,7 @@ pub fn transfer_tx_args(
     Ok(args)
 }
 
-fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> args::Tx {
+fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> Result<args::Tx, JsError> {
     let TxMsg {
         token,
         fee_amount,
@@ -116,10 +114,10 @@ fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> args::Tx {
         tx_code,
     } = tx_msg;
 
-    let token = Address::from_str(&token).expect(ADDRESS_FROM_STR_MSG);
+    let token = Address::from_str(&token)?;
     let fee_amount = Amount::from(fee_amount);
 
-    args::Tx {
+    let args = args::Tx {
         dry_run: false,
         force: false,
         broadcast_only: false,
@@ -132,5 +130,6 @@ fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> args::Tx {
         signer: None,
         tx_code_path: tx_code,
         password,
-    }
+    };
+    Ok(args)
 }
