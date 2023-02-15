@@ -1,6 +1,6 @@
-use std::fmt::Debug;
 use chrono::{TimeZone, Utc};
 use namada::types::time::DateTimeUtc;
+use std::fmt::Debug;
 use wasm_bindgen::prelude::*;
 
 /// Get a valid UTC timestamp from the JavaScript engine
@@ -14,7 +14,9 @@ pub fn get_timestamp() -> DateTimeUtc {
     let min: u32 = now.get_utc_minutes();
     let sec: u32 = now.get_utc_seconds();
 
-    let utc = Utc.with_ymd_and_hms(year, month, day, hour, min, sec).unwrap();
+    let utc = Utc
+        .with_ymd_and_hms(year, month, day, hour, min, sec)
+        .unwrap();
     DateTimeUtc(utc)
 }
 
@@ -33,4 +35,3 @@ pub fn console_log(string: &str) {
 pub fn console_log_any<T: Debug>(string: &T) {
     log(format!("{:?}", string).as_str());
 }
-

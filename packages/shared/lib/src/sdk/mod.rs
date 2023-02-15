@@ -33,8 +33,10 @@ impl Sdk {
         wallet::encode(&self.wallet)
     }
 
-    pub fn decode(&mut self, data: Vec<u8>) {
-        wallet::decode(&mut self.wallet, data)
+    pub fn decode(&mut self, data: Vec<u8>) -> Result<(), JsError> {
+        let wallet = wallet::decode(data)?;
+        self.wallet = wallet;
+        Ok(())
     }
 
     pub fn add_key(&mut self, private_key: &str, password: Option<String>, alias: Option<String>) {
@@ -50,7 +52,11 @@ impl Sdk {
         tx_msg: &[u8],
         password: Option<String>,
     ) -> Result<(), JsError> {
-        tx::submit_bond(&self.client, &mut self.wallet, tx_msg, password).await
+        let args = tx::bond_tx_args(tx_msg, password)?;
+
+        namada::ledger::tx::submit_bond(&mut self.client, &mut self.wallet, args)
+            .await
+            .map_err(|e| JsError::from(e))
     }
 
     pub async fn submit_transfer(
@@ -58,13 +64,15 @@ impl Sdk {
         tx_msg: &[u8],
         password: Option<String>,
     ) -> Result<(), JsError> {
-        tx::submit_transfer(
+        let args = tx::transfer_tx_args(tx_msg, password)?;
+
+        namada::ledger::tx::submit_transfer(
             &self.client,
             &mut self.wallet,
             &mut self.shielded_ctx,
-            tx_msg,
-            password,
+            args,
         )
         .await
+        .map_err(|e| JsError::from(e))
     }
 }

@@ -2,12 +2,7 @@ use std::str::FromStr;
 
 use borsh::{BorshDeserialize, BorshSerialize};
 use namada::{
-    ledger::{
-        args,
-        masp::ShieldedContext,
-        tx,
-        wallet::{SdkWalletUtils, Wallet},
-    },
+    ledger::args,
     types::{
         address::Address,
         masp::{TransferSource, TransferTarget},
@@ -17,11 +12,7 @@ use namada::{
 };
 use wasm_bindgen::JsError;
 
-use crate::rpc_client::HttpClient;
-
-use super::masp::WebShieldedUtils;
-
-type WalletUtils = SdkWalletUtils<String>;
+const ADDRESS_FROM_STR_MSG: &str = "Address to be a valid string.";
 
 #[derive(BorshSerialize, BorshDeserialize)]
 pub struct TxMsg {
@@ -41,14 +32,9 @@ pub struct SubmitBondMsg {
     tx: TxMsg,
 }
 
-pub async fn submit_bond(
-    client: &HttpClient,
-    wallet: &mut Wallet<WalletUtils>,
-    tx_msg: &[u8],
-    password: Option<String>,
-) -> Result<(), JsError> {
-    let tx_msg = SubmitBondMsg::try_from_slice(tx_msg)
-        .map_err(|err| JsError::new(&format!("BorshDeserialize failed! {:?}", err)))?;
+pub fn bond_tx_args(tx_msg: &[u8], password: Option<String>) -> Result<args::Bond, JsError> {
+    let tx_msg = SubmitBondMsg::try_from_slice(tx_msg)?;
+
     let SubmitBondMsg {
         native_token,
         source,
@@ -58,10 +44,9 @@ pub async fn submit_bond(
         tx,
     } = tx_msg;
 
-    let source = Address::from_str(&source).expect("Address from string should not fail");
-    let native_token =
-        Address::from_str(&native_token).expect("Address from string should not fail");
-    let validator = Address::from_str(&validator).expect("Address from string should not fail");
+    let source = Address::from_str(&source)?;
+    let native_token = Address::from_str(&native_token)?;
+    let validator = Address::from_str(&validator)?;
     let amount = Amount::from(amount);
 
     let args = args::Bond {
@@ -73,9 +58,7 @@ pub async fn submit_bond(
         tx_code_path: bond_tx_code,
     };
 
-    tx::submit_bond(client, wallet, args)
-        .await
-        .map_err(|e| JsError::from(e))
+    Ok(args)
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -90,15 +73,11 @@ pub struct SubmitTransferMsg {
     tx_code: Vec<u8>,
 }
 
-pub async fn submit_transfer(
-    client: &HttpClient,
-    wallet: &mut Wallet<WalletUtils>,
-    shielded_ctx: &mut ShieldedContext<WebShieldedUtils>,
+pub fn transfer_tx_args(
     tx_msg: &[u8],
     password: Option<String>,
-) -> Result<(), JsError> {
-    let tx_msg = SubmitTransferMsg::try_from_slice(tx_msg)
-        .map_err(|err| JsError::new(&format!("BorshDeserialize failed! {:?}", err)))?;
+) -> Result<args::TxTransfer, JsError> {
+    let tx_msg = SubmitTransferMsg::try_from_slice(tx_msg)?;
     let SubmitTransferMsg {
         tx,
         source,
@@ -110,11 +89,10 @@ pub async fn submit_transfer(
         tx_code: transfer_tx_code,
     } = tx_msg;
 
-    let source = Address::from_str(&source).expect("Address from string should not fail");
-    let target = Address::from_str(&target).expect("Address from string should not fail");
-    let native_token =
-        Address::from_str(&native_token).expect("Address from string should not fail");
-    let token = Address::from_str(&token).expect("Address from string should not fail");
+    let source = Address::from_str(&source)?;
+    let target = Address::from_str(&target)?;
+    let native_token = Address::from_str(&native_token)?;
+    let token = Address::from_str(&token)?;
     let amount = Amount::from(amount);
 
     let args = args::TxTransfer {
@@ -127,10 +105,7 @@ pub async fn submit_transfer(
         native_token,
         tx_code_path: transfer_tx_code,
     };
-
-    tx::submit_transfer(client, wallet, shielded_ctx, args)
-        .await
-        .map_err(|e| JsError::from(e))
+    Ok(args)
 }
 
 fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> args::Tx {
@@ -141,7 +116,7 @@ fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> args::Tx {
         tx_code,
     } = tx_msg;
 
-    let token = Address::from_str(&token).expect("Address from string should not fail");
+    let token = Address::from_str(&token).expect(ADDRESS_FROM_STR_MSG);
     let fee_amount = Amount::from(fee_amount);
 
     args::Tx {

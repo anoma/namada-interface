@@ -10,6 +10,7 @@ use namada::{
         masp::ExtendedSpendingKey,
     },
 };
+use wasm_bindgen::JsError;
 
 pub type WalletUtils = SdkWalletUtils<String>;
 
@@ -19,9 +20,10 @@ pub fn encode(wallet: &Wallet<WalletUtils>) -> Vec<u8> {
     wallet.store().encode()
 }
 
-pub fn decode(wallet: &mut Wallet<WalletUtils>, data: Vec<u8>) {
-    let store = Store::decode(data).expect("To be able to decode stored data.");
-    *wallet = Wallet::new(STORAGE_PATH.to_owned(), store);
+pub fn decode(data: Vec<u8>) -> Result<Wallet<WalletUtils>, JsError> {
+    let store = Store::decode(data)?;
+    let wallet = Wallet::new(STORAGE_PATH.to_owned(), store);
+    Ok(wallet)
 }
 
 pub fn add_key(
@@ -32,7 +34,7 @@ pub fn add_key(
 ) {
     let sk = key::ed25519::SecretKey::from_str(private_key)
         .map_err(|err| format!("ed25519 encoding failed: {:?}", err))
-        .expect("FIX ME");
+        .unwrap();
     let sk = SecretKey::Ed25519(sk);
     let pkh: PublicKeyHash = PublicKeyHash::from(&sk.ref_to());
     let (keypair_to_store, _raw_keypair) = StoredKeypair::new(sk, password);
@@ -62,7 +64,7 @@ pub fn add_spending_key(
     alias: &str,
 ) {
     let xsk: masp_primitives::zip32::ExtendedSpendingKey =
-        BorshDeserialize::try_from_slice(xsk).expect("To deserialize xsk");
+        BorshDeserialize::try_from_slice(xsk).expect("XSK deserialization failed.");
 
     let xsk = ExtendedSpendingKey::from(xsk);
     let viewkey = ExtendedFullViewingKey::from(&xsk.into()).into();
