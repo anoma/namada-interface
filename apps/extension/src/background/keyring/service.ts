@@ -4,7 +4,7 @@ import { KVStore } from "@anoma/storage";
 import { AccountType, Bip44Path, DerivedAccount, SignedTx } from "@anoma/types";
 import { KeyRing } from "./keyring";
 import { KeyRingStatus, KeyStore } from "./types";
-import { IbcTransfer, Transfer, Bond, Sdk } from "@anoma/shared";
+import { IbcTransfer, Sdk } from "@anoma/shared";
 
 export class KeyRingService {
   private _keyRing: KeyRing;
@@ -75,22 +75,21 @@ export class KeyRingService {
     );
   }
 
-  encodeBonding(txMsg: string): string {
-    try {
-      const { tx_data } = new Bond(fromBase64(txMsg)).to_serialized();
-      return toBase64(tx_data);
-    } catch (e) {
-      console.warn(e);
-      throw new Error(`Unable to encode bonding tx! ${e}`);
-    }
-  }
-
   async submitBond(txMsg: string): Promise<void> {
     try {
       await this._keyRing.submitBond(fromBase64(txMsg));
     } catch (e) {
       console.warn(e);
-      throw new Error(`Unable to encode bonding tx! ${e}`);
+      throw new Error(`Unable to submit bond tx! ${e}`);
+    }
+  }
+
+  async submitUnbond(txMsg: string): Promise<void> {
+    try {
+      await this._keyRing.submitUnbond(fromBase64(txMsg));
+    } catch (e) {
+      console.warn(e);
+      throw new Error(`Unable to submit unbond tx! ${e}`);
     }
   }
 

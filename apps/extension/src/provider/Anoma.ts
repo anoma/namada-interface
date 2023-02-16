@@ -5,13 +5,13 @@ import {
   GetChainMsg,
   GetChainsMsg,
   SuggestChainMsg,
-  EncodeBondingMsg,
   EncodeIbcTransferMsg,
   EncodeInitAccountMsg,
   QueryAccountsMsg,
   SignTxMsg,
   EncodeRevealPkMsg,
   SubmitBondMsg,
+  SubmitUnbondMsg,
   SubmitTransferMsg,
 } from "./messages";
 
@@ -68,17 +68,17 @@ export class Anoma implements IAnoma {
     );
   }
 
-  public async encodeBonding(txMsg: string): Promise<string | undefined> {
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new EncodeBondingMsg(txMsg)
-    );
-  }
-
   public async submitBond(txMsg: string): Promise<void> {
     return await this.requester?.sendMessage(
       Ports.Background,
       new SubmitBondMsg(txMsg)
+    );
+  }
+
+  public async submitUnbond(txMsg: string): Promise<void> {
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new SubmitUnbondMsg(txMsg)
     );
   }
 

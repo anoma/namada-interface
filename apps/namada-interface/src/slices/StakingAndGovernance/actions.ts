@@ -15,7 +15,6 @@ import {
 import { myStakingData } from "./fakeData";
 import { RootState } from "store";
 import { Query } from "@anoma/shared";
-import { RpcClient } from "@anoma/rpc";
 import { amountToMicro, fetchWasmCode } from "@anoma/utils";
 import { SignedTx, Signer, Tokens, TxWasm } from "@anoma/types";
 import { chains } from "@anoma/chains";
@@ -136,42 +135,6 @@ export const fetchMyValidators = createAsyncThunk<
   }
 });
 
-const createBondingTx = async (
-  txWasm: TxWasm,
-  change: ChangeInStakingPosition,
-  epoch: number,
-  chainId: string,
-  addresses: string[]
-): Promise<SignedTx> => {
-  const txCode = await fetchWasmCode(txWasm);
-  const integration = getIntegration(chainId);
-  const signer = integration.signer() as Signer;
-  const source = change.owner || addresses[0];
-
-  const encodedTx =
-    (await signer?.encodeBonding({
-      source,
-      validator: change.validatorId,
-      // TODO: change amount to number
-      amount: Number(change.amount) * 1_000_000,
-    })) || "";
-
-  return (
-    (await signer?.signTx(
-      source,
-      {
-        token: Tokens["NAM"].address || "",
-        epoch,
-        feeAmount: 0,
-        gasLimit: 0,
-        txCode,
-        signInner: true,
-      },
-      encodedTx
-    )) || { hash: "", bytes: "" }
-  );
-};
-
 export const fetchMyStakingPositions = createAsyncThunk<
   { myStakingPositions: StakingPosition[] },
   void
@@ -193,7 +156,7 @@ export const postNewBonding = createAsyncThunk<
   const { chainId } = thunkApi.getState().settings;
   const integration = getIntegration(chainId);
   const signer = integration.signer() as Signer;
-  signer.submitBond({
+  await signer.submitBond({
     source: change.owner,
     validator: change.validatorId,
     amount: amountToMicro(Number(change.amount)),
@@ -206,8 +169,6 @@ export const postNewBonding = createAsyncThunk<
       txCode: await fetchWasmCode(TxWasm.RevealPK),
     },
   });
-
-  return Promise.resolve();
 });
 
 // we post an unstake transaction
@@ -221,25 +182,18 @@ export const postNewUnbonding = createAsyncThunk<
   { state: RootState }
 >(POST_UNSTAKING, async (change, thunkApi) => {
   const { chainId } = thunkApi.getState().settings;
-  const { rpc } = chains[chainId];
-  const rpcClient = new RpcClient(rpc);
-  const accounts = thunkApi.getState().accounts.derived[chainId];
-
-  const epoch = await rpcClient.queryEpoch();
-
-  const { hash, bytes } = await createBondingTx(
-    TxWasm.Unbond,
-    change,
-    epoch,
-    chainId,
-    Object.keys(accounts)
-  );
-
-  if (hash && bytes) {
-    await rpcClient.broadcastTxSync(bytes);
-  } else {
-    throw new Error("Invalid transaction!");
-  }
-
-  return Promise.resolve();
+  const integration = getIntegration(chainId);
+  const signer = integration.signer() as Signer;
+  await signer.submitUnbond({
+    source: change.owner,
+    validator: change.validatorId,
+    amount: amountToMicro(Number(change.amount)),
+    txCode: await fetchWasmCode(TxWasm.Unbond),
+    tx: {
+      token: Tokens.NAM.address || "",
+      feeAmount: 0,
+      gasLimit: 0,
+      txCode: await fetchWasmCode(TxWasm.RevealPK),
+    },
+  });
 });

@@ -1,10 +1,10 @@
 import { Account } from "./account";
 import {
-  BondingProps,
   IbcTransferProps,
   InitAccountProps,
   SignedTx,
   SubmitBondProps,
+  SubmitUnbondProps,
   TransferProps,
   TxProps,
 } from "./tx";
@@ -16,8 +16,8 @@ export interface Signer {
     txProps: TxProps,
     txData: string
   ): Promise<SignedTx | undefined>;
-  encodeBonding(args: BondingProps): Promise<string | undefined>;
   submitBond(args: SubmitBondProps): Promise<void>;
+  submitUnbond(args: SubmitUnbondProps): Promise<void>;
   submitTransfer(args: TransferProps): Promise<void>;
   encodeIbcTransfer(args: IbcTransferProps): Promise<string | undefined>;
   encodeInitAccount(
