@@ -41,7 +41,6 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
   router.addGuard(ExtensionGuards.checkOriginIsValid);
   router.addGuard(ExtensionGuards.checkMessageIsInternal);
 
-  // TODO: Stored data is not encrypted in any way
   const sdkDataStr: string | undefined = await sdkStore.get(SDK_KEY);
 
   const sdk = new Sdk(REACT_APP_NAMADA_URL);

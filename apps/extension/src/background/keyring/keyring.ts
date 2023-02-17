@@ -454,7 +454,7 @@ export class KeyRing {
     password: string,
     alias?: string
   ): Promise<void> {
-    this.sdk.add_keys(secretKey, password, alias);
+    this.sdk.add_key(secretKey, password, alias);
     this.sdkStore.set(SDK_KEY, new TextDecoder().decode(this.sdk.encode()));
   }
 

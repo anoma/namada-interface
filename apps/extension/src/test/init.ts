@@ -40,11 +40,8 @@ export const init = (): {
   extStore: KVStoreMock<number>;
   chainsService: ChainsService;
   keyRingService: KeyRingService;
-  sdk: Sdk;
 } => {
   const messenger = new ExtensionMessengerMock();
-
-  // TODO: any for now - needs a change to KVStore interface
   const iDBStore = new KVStoreMock<Chain[] | KeyStore[]>(KVPrefix.IndexedDB);
   const sdkStore = new KVStoreMock<string>(KVPrefix.SDK);
   const extStore = new KVStoreMock<number>(KVPrefix.IndexedDB);
@@ -89,6 +86,5 @@ export const init = (): {
     extStore,
     chainsService,
     keyRingService,
-    sdk,
   };
 };
