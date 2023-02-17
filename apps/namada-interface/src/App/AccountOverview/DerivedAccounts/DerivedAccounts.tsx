@@ -82,7 +82,7 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
   );
 
   const { api } = Config;
-  const { alias } = chains[chainId] || {};
+  const { alias, currency } = chains[chainId] || {};
 
   const transparentBalances = balancesByChainId[chainId] || {};
 
@@ -97,15 +97,27 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
   const derivedAccounts = derived[chainId] || {};
   const { colorMode } = themeContext.themeConfigurations;
 
-  const tokenBalances: TokenBalance[] = [];
+  const tokens: TokenBalance[] = [];
 
   Object.values(derivedAccounts).forEach((account) => {
     const { address, alias, isShielded } = account;
 
     const balances = transparentBalances[address] || {};
+    let tokenSymbols = [];
+    if (currency.symbol === "NAM") {
+      // TODO: It may be better to add to chain configs an array of all supported tokens,
+      // rather than use that logic here only for Namada:
+      // Show all supported tokens
+      tokenSymbols = Symbols.map((symbol) => symbol);
+    } else {
+      // Show token for this chain only
+      tokenSymbols.push(currency.symbol);
+    }
 
-    Symbols.forEach((symbol) => {
-      tokenBalances.push({
+    // TODO: Type this correctly
+    // eslint-disable-next-line
+    tokenSymbols.forEach((symbol: any) => {
+      tokens.push({
         address,
         balance: balances[symbol] || 0,
         label: `${alias}`,
@@ -114,10 +126,6 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
       });
     });
   });
-
-  const tokens = tokenBalances.filter(
-    (tokenBalance) => tokenBalance.balance > 0
-  );
 
   const getAssetIconByTheme = (symbol: TokenType): string => {
     return colorMode === "dark"
