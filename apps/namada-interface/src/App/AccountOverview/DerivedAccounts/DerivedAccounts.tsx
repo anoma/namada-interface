@@ -10,7 +10,7 @@ import { BalancesState, fetchBalances } from "slices/balances";
 import { SettingsState } from "slices/settings";
 /* import { updateShieldedBalances } from "slices/AccountsNew"; */
 import { Symbols, TokenType } from "@anoma/types";
-import { formatRoute } from "@anoma/utils";
+import { formatCurrency, formatRoute } from "@anoma/utils";
 import { fetchConversionRates, CoinsState } from "slices/coins";
 
 import {
@@ -23,9 +23,12 @@ import {
   DerivedAccountAlias,
   DerivedAccountContainer,
   TokenIcon,
+  TokenBalance,
   TransparentLabel,
   ShieldedLabel,
   NoTokens,
+  TokenTotals,
+  TokenBalances,
 } from "./DerivedAccounts.components";
 
 // Import PNG images assets
@@ -97,9 +100,8 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
   const derivedAccounts = derived[chainId] || {};
   const { colorMode } = themeContext.themeConfigurations;
 
-  const tokens: TokenBalance[] = [];
-
-  Object.values(derivedAccounts).forEach((account) => {
+  const accountBalances = Object.values(derivedAccounts).map((account) => {
+    const tokens: TokenBalance[] = [];
     const { address, alias, isShielded } = account;
 
     const balances = transparentBalances[address] || {};
@@ -125,6 +127,11 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
         isShielded,
       });
     });
+
+    return {
+      account,
+      tokens,
+    };
   });
 
   const getAssetIconByTheme = (symbol: TokenType): string => {
@@ -144,82 +151,61 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
     dispatch(fetchBalances(Object.values(derivedAccounts)));
   }, [derivedAccounts]);
 
-  /**
-   * I agree that this is probably not the most efficient way of handling grouping:
-   */
-  const groupedTokens = Symbols.reduce(
-    (tokenBalances: TokenBalance[], symbol) => {
-      const shielded: TokenBalance[] =
-        tokens.filter(
-          (tokenBalance) =>
-            tokenBalance.token === symbol && tokenBalance.isShielded
-        ) || [];
-      const transparent: TokenBalance[] =
-        tokens.filter(
-          (tokenBalance) =>
-            tokenBalance.token === symbol && !tokenBalance.isShielded
-        ) || [];
-      // This ensures shielded accounts are displayed first
-      tokenBalances.push(...shielded, ...transparent);
-      return tokenBalances;
-    },
-    []
-  );
+  const applyConversionRate = (balance: number, token: string): number => {
+    if (rates[token] && rates[token][fiatCurrency]) {
+      return balance * rates[token][fiatCurrency].rate;
+    }
+    return balance;
+  };
 
   useEffect(() => {
-    if (groupedTokens.length > 0) {
-      const total = tokens.reduce((acc, tokenBalance) => {
-        const { balance = 0, token } = tokenBalance;
+    if (accountBalances.length > 0) {
+      const total = accountBalances.reduce((acc, accountBalance) => {
+        const { tokens } = accountBalance;
+
         let fiatBalance = 0;
 
-        if (rates[token] && rates[token][fiatCurrency]) {
-          fiatBalance = balance * rates[token][fiatCurrency].rate;
-        }
-        return acc + (fiatBalance || balance);
+        tokens.forEach((tokenBalance) => {
+          const { balance = 0, token } = tokenBalance;
+
+          fiatBalance = applyConversionRate(balance, token);
+        });
+
+        return acc + fiatBalance;
       }, 0);
       setTotal(total);
     }
-  }, [groupedTokens, chainId]);
+  }, [accountBalances, chainId]);
 
   useEffect(() => {
-    if (groupedTokens.length > 0) {
-      const currentTimestamp = Math.floor(Date.now() / 1000);
-      const timeSinceUpdate = currentTimestamp - (timestamp || 0);
+    const currentTimestamp = Math.floor(Date.now() / 1000);
+    const timeSinceUpdate = currentTimestamp - (timestamp || 0);
 
-      if (!timestamp || timeSinceUpdate > api.cacheTTL) {
-        dispatch(fetchConversionRates());
-      }
+    if (!timestamp || timeSinceUpdate > api.cacheTTL) {
+      dispatch(fetchConversionRates());
     }
-  }, [timestamp, groupedTokens]);
+  }, [timestamp]);
 
   return (
     <DerivedAccountsContainer>
-      {Object.values(derived).length > 0 && groupedTokens.length === 0 && (
-        <NoTokens>
-          <p>You have no token balances to display on {alias}!</p>
-        </NoTokens>
-      )}
+      {accountBalances.length === 0 &&
+        Object.values(derivedAccounts).length > 0 && (
+          <NoTokens>
+            <p>You have no token balances to display on {alias}!</p>
+          </NoTokens>
+        )}
+
       <DerivedAccountsList>
-        {groupedTokens.map((tokenBalance) => {
-          const { address, token, label, balance, isShielded } = tokenBalance;
+        {accountBalances.map((accountBalance) => {
+          const { account, tokens } = accountBalance;
+          const { alias, address, isShielded } = account;
 
           return (
-            <DerivedAccountItem key={`${address}-${token}`}>
-              <DerivedAccountContainer>
-                <DerivedAccountInfo>
-                  <TokenIcon
-                    src={getAssetIconByTheme(token)}
-                    onClick={() => {
-                      navigate(
-                        formatRoute(TopLevelRoute.TokenTransfers, {
-                          id: address,
-                          token,
-                        })
-                      );
-                    }}
-                  />
-                  <div>
-                    <DerivedAccountAlias>{label}</DerivedAccountAlias>
+            <>
+              <DerivedAccountItem key={address}>
+                <DerivedAccountContainer>
+                  <DerivedAccountInfo>
+                    <DerivedAccountAlias>{alias}</DerivedAccountAlias>
                     <DerivedAccountType>
                       {isShielded ? (
                         <ShieldedLabel>Shielded</ShieldedLabel>
@@ -227,14 +213,38 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
                         <TransparentLabel>Transparent</TransparentLabel>
                       )}
                     </DerivedAccountType>
-                  </div>
-                </DerivedAccountInfo>
+                  </DerivedAccountInfo>
 
-                <DerivedAccountBalance>
-                  {balance} {token}
-                </DerivedAccountBalance>
-              </DerivedAccountContainer>
-            </DerivedAccountItem>
+                  <DerivedAccountBalance>
+                    {formatCurrency(fiatCurrency, 0)}
+                  </DerivedAccountBalance>
+                </DerivedAccountContainer>
+              </DerivedAccountItem>
+              <TokenTotals>
+                <TokenBalances>
+                  {tokens.map((tokenBalance) => {
+                    const { balance, token } = tokenBalance;
+
+                    return (
+                      <TokenBalance key={`${address}-${token}`}>
+                        <TokenIcon
+                          src={getAssetIconByTheme(token)}
+                          onClick={() => {
+                            navigate(
+                              formatRoute(TopLevelRoute.TokenTransfers, {
+                                id: address,
+                                token,
+                              })
+                            );
+                          }}
+                        />
+                        {balance} {token}
+                      </TokenBalance>
+                    );
+                  })}
+                </TokenBalances>
+              </TokenTotals>
+            </>
           );
         })}
       </DerivedAccountsList>

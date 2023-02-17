@@ -96,6 +96,7 @@ export const DerivedAccountItem = styled.li`
 export const DerivedAccountInfo = styled.div`
   display: flex;
   justify-content: flex-start;
+  flex-direction: column;
 `;
 
 export const DerivedAccountAlias = styled.div`
@@ -167,6 +168,23 @@ export const TokenIcon = styled.img`
   height: 36px;
   cursor: pointer;
   margin-right: 12px;
+`;
+
+export const TokenTotals = styled.div``;
+
+export const TokenBalances = styled.ul`
+  padding: 0;
+  margin: 0;
+`;
+export const TokenBalance = styled.li`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  list-style: none;
+  list-style-type: none;
+  padding: 10px 0;
+  color: ${(props) => props.theme.colors.utility2.main};
 `;
 
 export const ShieldedLabel = styled.div`
