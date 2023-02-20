@@ -442,6 +442,18 @@ export class KeyRing {
     }
   }
 
+  async submitIbcTransfer(txMsg: Uint8Array): Promise<void> {
+    if (!this._password) {
+      throw new Error("Not authenticated!");
+    }
+
+    try {
+      await this.sdk.submit_ibc_transfer(txMsg, this._password);
+    } catch (e) {
+      throw new Error(`Could not submit ibc transfer tx: ${e}`);
+    }
+  }
+
   private getPrivateKey(account: KeyStore, password: string): string {
     const decrypted = crypto.decrypt(account, password);
     let private_key = decrypted;

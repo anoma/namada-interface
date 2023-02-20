@@ -11,13 +11,13 @@ import {
 } from "./messages";
 import {
   SubmitTransferMsg,
-  EncodeIbcTransferMsg,
   EncodeInitAccountMsg,
   EncodeRevealPkMsg,
   QueryAccountsMsg,
   SignTxMsg,
   SubmitBondMsg,
   SubmitUnbondMsg,
+  SubmitIbcTransferMsg,
 } from "provider/messages";
 
 export const getHandler: (service: KeyRingService) => Handler = (service) => {
@@ -50,10 +50,10 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleSubmitUnbondMsg(service)(env, msg as SubmitUnbondMsg);
       case SubmitTransferMsg:
         return handleSubmitTransferMsg(service)(env, msg as SubmitTransferMsg);
-      case EncodeIbcTransferMsg:
-        return handleEncodeIbcTransferMsg(service)(
+      case SubmitIbcTransferMsg:
+        return handleSubmitIbcTransferMsg(service)(
           env,
-          msg as EncodeIbcTransferMsg
+          msg as SubmitIbcTransferMsg
         );
       case EncodeInitAccountMsg:
         return handleEncodeInitAccountMsg(service)(
@@ -173,12 +173,12 @@ const handleSubmitTransferMsg: (
   };
 };
 
-const handleEncodeIbcTransferMsg: (
+const handleSubmitIbcTransferMsg: (
   service: KeyRingService
-) => InternalHandler<EncodeIbcTransferMsg> = (service) => {
-  return (_, msg) => {
+) => InternalHandler<SubmitIbcTransferMsg> = (service) => {
+  return async (_, msg) => {
     const { txMsg } = msg;
-    return service.encodeIbcTransfer(txMsg);
+    return await service.submitIbcTransfer(txMsg);
   };
 };
 

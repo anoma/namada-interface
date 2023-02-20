@@ -19,7 +19,7 @@ export interface Signer {
   submitBond(args: SubmitBondProps): Promise<void>;
   submitUnbond(args: SubmitUnbondProps): Promise<void>;
   submitTransfer(args: TransferProps): Promise<void>;
-  encodeIbcTransfer(args: IbcTransferProps): Promise<string | undefined>;
+  submitIbcTransfer(args: IbcTransferProps): Promise<void>;
   encodeInitAccount(
     args: InitAccountProps,
     signer: string

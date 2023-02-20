@@ -102,12 +102,12 @@ export class KeyRingService {
     }
   }
 
-  encodeIbcTransfer(txMsg: string): string {
+  async submitIbcTransfer(txMsg: string): Promise<void> {
     try {
-      const { tx_data } = new IbcTransfer(fromBase64(txMsg)).to_serialized();
-      return toBase64(tx_data);
+      await this._keyRing.submitIbcTransfer(fromBase64(txMsg));
     } catch (e) {
-      throw new Error(`Unable to encode IBC transfer! ${e}`);
+      console.warn(e);
+      throw new Error(`Unable to encode transfer! ${e}`);
     }
   }
 
