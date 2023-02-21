@@ -64,19 +64,12 @@ export const DerivedAccountsList = styled.ul`
   max-height: 400px; /* TODO: Remove this - set a max height on a main container */
 `;
 
-export const DerivedAccountContainer = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-`;
-
 export const DerivedAccountItem = styled.li`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: space-between;
   align-items: flex-start;
   margin: 0;
-  padding: 20px 0;
   border-bottom: 1px solid ${(props) => props.theme.colors.utility2.main20};
 
   button {
@@ -90,6 +83,19 @@ export const DerivedAccountItem = styled.li`
 
   &:last-child {
     border-bottom: none;
+  }
+`;
+
+export const DerivedAccountContainer = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 20px 0;
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.utility2.main20};
   }
 `;
 
@@ -119,9 +125,9 @@ export const DerivedAccountBalance = styled.div`
   margin-bottom: 0;
   width: 200px;
   color: ${(props) => props.theme.colors.utility2.main};
+  text-align: right;
 
   @media screen and (max-width: 860px) {
-    text-align: right;
     padding-right: 20px;
   }
 `;

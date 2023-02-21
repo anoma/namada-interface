@@ -201,29 +201,28 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
           const { alias, address, isShielded } = account;
 
           return (
-            <>
-              <DerivedAccountItem key={address}>
-                <DerivedAccountContainer>
-                  <DerivedAccountInfo>
-                    <DerivedAccountAlias>{alias}</DerivedAccountAlias>
-                    <DerivedAccountType>
-                      {isShielded ? (
-                        <ShieldedLabel>Shielded</ShieldedLabel>
-                      ) : (
-                        <TransparentLabel>Transparent</TransparentLabel>
-                      )}
-                    </DerivedAccountType>
-                  </DerivedAccountInfo>
+            <DerivedAccountItem key={address}>
+              <DerivedAccountContainer>
+                <DerivedAccountInfo>
+                  <DerivedAccountAlias>{alias}</DerivedAccountAlias>
+                  <DerivedAccountType>
+                    {isShielded ? (
+                      <ShieldedLabel>Shielded</ShieldedLabel>
+                    ) : (
+                      <TransparentLabel>Transparent</TransparentLabel>
+                    )}
+                  </DerivedAccountType>
+                </DerivedAccountInfo>
 
-                  <DerivedAccountBalance>
-                    {formatCurrency(fiatCurrency, 0)}
-                  </DerivedAccountBalance>
-                </DerivedAccountContainer>
-              </DerivedAccountItem>
+                <DerivedAccountBalance>
+                  {formatCurrency(fiatCurrency, 0)}
+                </DerivedAccountBalance>
+              </DerivedAccountContainer>
               <TokenTotals>
                 <TokenBalances>
                   {tokens.map((tokenBalance) => {
                     const { balance, token } = tokenBalance;
+                    console.log({ address, token });
 
                     return (
                       <TokenBalance key={`${address}-${token}`}>
@@ -244,7 +243,7 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
                   })}
                 </TokenBalances>
               </TokenTotals>
-            </>
+            </DerivedAccountItem>
           );
         })}
       </DerivedAccountsList>
