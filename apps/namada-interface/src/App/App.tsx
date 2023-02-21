@@ -1,6 +1,5 @@
 /* eslint-disable max-len */
 import { useState, useEffect } from "react";
-import { useLocation, Location } from "react-router-dom";
 import { Provider } from "react-redux";
 import { createBrowserHistory } from "history";
 import { AnimatePresence } from "framer-motion";
@@ -13,7 +12,6 @@ import {
   ColorMode,
 } from "@anoma/utils";
 
-import { TopLevelRoute, locationToTopLevelRoute } from "./types";
 import { TopNavigation } from "./TopNavigation";
 import {
   AppContainer,
@@ -47,19 +45,10 @@ export const AnimatedTransition = (props: {
   );
 };
 
-// based on location we decide whether to use placeholder theme
-const getShouldUsePlaceholderTheme = (location: Location): boolean => {
-  const topLevelRoute = locationToTopLevelRoute(location);
-  const isStaking = topLevelRoute === TopLevelRoute.StakingAndGovernance;
-  return isStaking;
-};
-
 function App(): JSX.Element {
   const initialColorMode = loadColorMode();
   const [colorMode, setColorMode] = useState<ColorMode>(initialColorMode);
-  const location = useLocation();
-  const ShouldUsePlaceholderTheme = getShouldUsePlaceholderTheme(location);
-  const theme = getTheme(colorMode, ShouldUsePlaceholderTheme);
+  const theme = getTheme(colorMode);
 
   const toggleColorMode = (): void => {
     setColorMode((currentMode) => (currentMode === "dark" ? "light" : "dark"));
