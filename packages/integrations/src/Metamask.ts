@@ -2,6 +2,7 @@ import { type MetaMaskInpageProvider } from "@metamask/providers";
 import MetaMaskSDK from "@metamask/sdk";
 
 import { Account, BridgeTransferProps, Chain } from "@anoma/types";
+import { shortenAddress } from "@anoma/utils";
 import { Integration } from "./types/Integration";
 
 const MULTIPLE_WALLETS = "Multiple wallets installed!";
@@ -45,7 +46,7 @@ class Metamask implements Integration<Account, unknown, BridgeTransferProps> {
 
     const accounts: Account[] = (addresses as string[]).map((address) => ({
       address,
-      alias: address.substring(0, 4),
+      alias: shortenAddress(address, 16),
       chainId: this.chain.chainId,
       isShielded: false,
     }));

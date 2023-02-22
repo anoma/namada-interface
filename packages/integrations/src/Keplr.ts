@@ -5,6 +5,7 @@ import {
 } from "@keplr-wallet/types";
 import { AccountData } from "@cosmjs/proto-signing";
 import { Account, Chain, IbcTransferProps } from "@anoma/types";
+import { shortenAddress } from "@anoma/utils";
 import { Integration } from "./types/Integration";
 
 const KEPLR_NOT_FOUND = "Keplr extension not found!";
@@ -97,7 +98,7 @@ class Keplr implements Integration<Account, OfflineSigner, IbcTransferProps> {
 
       return accounts?.map(
         (account: AccountData): Account => ({
-          alias: "keplr",
+          alias: shortenAddress(account.address, 16),
           chainId: this.chain.chainId,
           address: account.address,
           isShielded: false,
