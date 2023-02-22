@@ -115,6 +115,7 @@ class Keplr implements Integration<Account, OfflineSigner, IbcTransferProps> {
     sourceChannel,
     amount,
   }: IbcTransferProps): Promise<void> {
+    // TODO: Submit transfer via CosmJS RpcClient
     console.log("Keplr.submitBridgeTransfer", {
       sender,
       receiver,

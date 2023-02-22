@@ -197,7 +197,7 @@ export const TokenBalance = styled.li`
   width: 100%;
   list-style: none;
   list-style-type: none;
-  padding: 10px 0;
+  padding: 10px 0 10px 12px;
   color: ${(props) => props.theme.colors.utility2.main};
 `;
 

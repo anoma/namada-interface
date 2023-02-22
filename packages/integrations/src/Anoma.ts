@@ -52,6 +52,7 @@ export default class Anoma
     sourceChannel,
     amount,
   }: IbcTransferProps): Promise<void> {
+    // TODO: Call method in Anoma extension
     console.log("Anoma.submitBridgeTransfer", {
       sender,
       receiver,

@@ -79,6 +79,7 @@ class Metamask implements Integration<Account, unknown, BridgeTransferProps> {
     target,
     amount,
   }: BridgeTransferProps): Promise<void> {
+    // TODO: Submit transfer via Ethereum Bridge
     console.log("Metamask.submitBridgeTransfer", {
       source,
       target,
