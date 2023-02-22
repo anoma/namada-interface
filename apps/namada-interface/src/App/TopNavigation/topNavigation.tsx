@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import { ThemeContext } from "styled-components";
 import {
   useNavigate,
@@ -118,19 +118,13 @@ type SecondMenuRowProps = {
 
 const SecondMenuRow = (props: SecondMenuRowProps): React.ReactElement => {
   const dispatch = useAppDispatch();
-  const { navigate, location, setColorMode } = props;
+  const { navigate, location } = props;
   const topLevelRoute = locationToTopLevelRoute(location);
   const stakingAndGovernanceSubRoute =
     locationToStakingAndGovernanceSubRoute(location);
   const isSubMenuContentVisible =
     topLevelRoute === TopLevelRoute.StakingAndGovernance;
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
-
-  useEffect(() => {
-    if (topLevelRoute === TopLevelRoute.StakingAndGovernance) {
-      setColorMode("light");
-    }
-  });
 
   // callback func for select component
   const handleNetworkSelect = (
@@ -257,7 +251,6 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
                 <TopNavigationLoggedIn
                   colorMode={colorMode}
                   toggleColorMode={toggleColorMode}
-                  topLevelRoute={topLevelRoute}
                 ></TopNavigationLoggedIn>
               </>
             )}

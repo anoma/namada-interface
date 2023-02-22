@@ -14,11 +14,10 @@ import {
 type Props = {
   colorMode: ColorMode;
   toggleColorMode: () => void;
-  topLevelRoute?: TopLevelRoute;
 };
 
 const TopNavigationLoggedIn = (props: Props): JSX.Element => {
-  const { colorMode, toggleColorMode, topLevelRoute } = props;
+  const { colorMode, toggleColorMode } = props;
   const navigate = useNavigate();
 
   return (
@@ -33,14 +32,12 @@ const TopNavigationLoggedIn = (props: Props): JSX.Element => {
             <Icon iconName={IconName.Settings} />
           </SettingsButton>
           <ColorModeContainer>
-            {topLevelRoute !== TopLevelRoute.StakingAndGovernance && (
-              <Toggle
-                checked={colorMode === "dark"}
-                onClick={() => {
-                  toggleColorMode();
-                }}
-              />
-            )}
+            <Toggle
+              checked={colorMode === "dark"}
+              onClick={() => {
+                toggleColorMode();
+              }}
+            />
           </ColorModeContainer>
         </TopNavigationLoggedInControlsContainer>
       </OnlyInMedium>
