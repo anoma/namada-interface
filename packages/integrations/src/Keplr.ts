@@ -69,7 +69,7 @@ class Keplr implements Integration<Account, OfflineSigner, IbcTransferProps> {
     if (this._keplr) {
       const { chainId } = this.chain;
 
-      await this._keplr.enable(chainId);
+      return await this._keplr.enable(chainId);
     }
     return Promise.reject(KEPLR_NOT_FOUND);
   }
@@ -92,7 +92,8 @@ class Keplr implements Integration<Account, OfflineSigner, IbcTransferProps> {
    */
   public async accounts(): Promise<readonly Account[] | undefined> {
     if (this._keplr) {
-      const accounts = await this._offlineSigner?.getAccounts();
+      const client = this.signer();
+      const accounts = await client?.getAccounts();
 
       return accounts?.map(
         (account: AccountData): Account => ({
