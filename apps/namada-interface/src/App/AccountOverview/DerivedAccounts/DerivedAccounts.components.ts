@@ -103,6 +103,7 @@ export const DerivedAccountInfo = styled.div`
   display: flex;
   justify-content: flex-start;
   flex-direction: column;
+  padding 0 8px;
 `;
 
 export const DerivedAccountAlias = styled.div`
@@ -120,7 +121,7 @@ export const DerivedAccountType = styled.div`
 `;
 
 export const DerivedAccountBalance = styled.div`
-  padding: 8px 0;
+  padding: 8px 8px 8px 0;
   font-weight: bold;
   margin-bottom: 0;
   width: 200px;
