@@ -151,6 +151,8 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
 
   useEffect(() => {
     dispatch(fetchBalances(Object.values(derivedAccounts)));
+
+    setActiveAccountAddress(accountBalances[0]?.account?.address);
   }, [derivedAccounts]);
 
   const applyConversionRate = (balance: number, token: string): number => {
