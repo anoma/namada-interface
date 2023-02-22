@@ -176,12 +176,19 @@ export const TokenIcon = styled.img`
   margin-right: 12px;
 `;
 
-export const TokenTotals = styled.div``;
+export const TokenTotals = styled.div`
+  display: none;
+
+  &.active {
+    display: flex;
+  }
+`;
 
 export const TokenBalances = styled.ul`
   padding: 0;
   margin: 0;
 `;
+
 export const TokenBalance = styled.li`
   display: flex;
   flex-direction: row;

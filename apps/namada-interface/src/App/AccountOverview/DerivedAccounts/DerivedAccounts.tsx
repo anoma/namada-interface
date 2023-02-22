@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ThemeContext } from "styled-components";
 import { useNavigate } from "react-router-dom";
 
@@ -73,6 +73,7 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
   const dispatch = useAppDispatch();
   const themeContext = useContext(ThemeContext);
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
+  const [activeAccountAddress, setActiveAccountAddress] = useState("");
 
   const { chainId, fiatCurrency } = useAppSelector<SettingsState>(
     (state) => state.settings
@@ -106,6 +107,7 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
 
     const balances = transparentBalances[address] || {};
     let tokenSymbols = [];
+
     if (currency.symbol === "NAM") {
       // TODO: It may be better to add to chain configs an array of all supported tokens,
       // rather than use that logic here only for Namada:
@@ -186,6 +188,10 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
     }
   }, [timestamp]);
 
+  const handleAccountClick = (address: string): void => {
+    setActiveAccountAddress(address === activeAccountAddress ? "" : address);
+  };
+
   return (
     <DerivedAccountsContainer>
       {accountBalances.length === 0 &&
@@ -202,7 +208,9 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
 
           return (
             <DerivedAccountItem key={address}>
-              <DerivedAccountContainer>
+              <DerivedAccountContainer
+                onClick={() => handleAccountClick(address)}
+              >
                 <DerivedAccountInfo>
                   <DerivedAccountAlias>{alias}</DerivedAccountAlias>
                   <DerivedAccountType>
@@ -213,16 +221,16 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
                     )}
                   </DerivedAccountType>
                 </DerivedAccountInfo>
-
                 <DerivedAccountBalance>
                   {formatCurrency(fiatCurrency, 0)}
                 </DerivedAccountBalance>
               </DerivedAccountContainer>
-              <TokenTotals>
+              <TokenTotals
+                className={(address === activeAccountAddress && "active") || ""}
+              >
                 <TokenBalances>
                   {tokens.map((tokenBalance) => {
                     const { balance, token } = tokenBalance;
-                    console.log({ address, token });
 
                     return (
                       <TokenBalance key={`${address}-${token}`}>
