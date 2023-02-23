@@ -1,7 +1,7 @@
 import { type MetaMaskInpageProvider } from "@metamask/providers";
 import MetaMaskSDK from "@metamask/sdk";
 
-import { Account, Chain } from "@anoma/types";
+import { Account, BridgeTransferProps, Chain } from "@anoma/types";
 import { Integration } from "./types/Integration";
 
 const MULTIPLE_WALLETS = "Multiple wallets installed!";
@@ -12,7 +12,7 @@ type MetamaskWindow = Window &
     ethereum: MetaMaskInpageProvider;
   };
 
-class Metamask implements Integration<Account, unknown> {
+class Metamask implements Integration<Account, unknown, BridgeTransferProps> {
   private _ethereum: MetaMaskInpageProvider | undefined;
   constructor(public readonly chain: Chain) {}
 
@@ -71,6 +71,19 @@ class Metamask implements Integration<Account, unknown> {
       method: "wallet_switchEthereumChain",
       params: [{ chainId }],
     });
+  }
+
+  public async submitBridgeTransfer({
+    source,
+    target,
+    amount,
+  }: BridgeTransferProps): Promise<void> {
+    console.log("Metamask.submitBridgeTransfer", {
+      source,
+      target,
+      amount,
+    });
+    return;
   }
 }
 
