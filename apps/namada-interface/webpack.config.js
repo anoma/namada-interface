@@ -55,12 +55,12 @@ const plugins = [
 module.exports = {
   mode: NODE_ENV,
   target: "web",
-  devtool: false,
+  devtool: "eval-source-map",
   entry: {
     interface: "./src",
   },
   output: {
-    publicPath: "",
+    publicPath: "/",
     path: resolve(__dirname, `./build/`),
     filename: "[name].bundle.js",
   },
