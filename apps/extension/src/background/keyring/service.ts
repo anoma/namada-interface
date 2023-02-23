@@ -1,3 +1,4 @@
+import browser from "webextension-polyfill";
 import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import { PhraseSize } from "@anoma/crypto";
 import { KVStore } from "@anoma/storage";
@@ -16,6 +17,19 @@ export class KeyRingService {
     protected readonly sdk: Sdk
   ) {
     this._keyRing = new KeyRing(kvStore, sdkStore, chainId, sdk);
+  }
+
+  async connect(chainId: string): Promise<void> {
+    const url = browser.runtime.getURL("popup.html");
+
+    browser.windows.create({
+      url: `${url}?redirect=/connection&chainId=${chainId}`,
+      width: 415,
+      height: 510,
+      type: "popup",
+    });
+
+    return;
   }
 
   lock(): { status: KeyRingStatus } {

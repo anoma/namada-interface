@@ -2,6 +2,7 @@ import { Anoma as IAnoma, Chain, DerivedAccount, SignedTx } from "@anoma/types";
 import { Ports, MessageRequester } from "router";
 
 import {
+  ConnectExtensionMsg,
   GetChainMsg,
   GetChainsMsg,
   SuggestChainMsg,
@@ -22,8 +23,10 @@ export class Anoma implements IAnoma {
   ) {}
 
   public async connect(chainId: string): Promise<void> {
-    // TODO: Implement this
-    console.info("connect", chainId);
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new ConnectExtensionMsg(chainId)
+    );
   }
 
   public async chain(chainId: string): Promise<Chain | undefined> {

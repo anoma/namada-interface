@@ -11,6 +11,7 @@ import {
 } from "./messages";
 import {
   SubmitTransferMsg,
+  ConnectExtensionMsg,
   EncodeIbcTransferMsg,
   EncodeInitAccountMsg,
   EncodeRevealPkMsg,
@@ -23,6 +24,11 @@ import {
 export const getHandler: (service: KeyRingService) => Handler = (service) => {
   return (env: Env, msg: Message<unknown>) => {
     switch (msg.constructor) {
+      case ConnectExtensionMsg:
+        return handleConnectExtensionMsg(service)(
+          env,
+          msg as ConnectExtensionMsg
+        );
       case CheckIsLockedMsg:
         return handleCheckIsLockedMsg(service)(env, msg as CheckIsLockedMsg);
       case LockKeyRingMsg:
@@ -65,6 +71,15 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
       default:
         throw new Error("Unknown msg type");
     }
+  };
+};
+
+const handleConnectExtensionMsg: (
+  service: KeyRingService
+) => InternalHandler<ConnectExtensionMsg> = (service) => {
+  return async (_, msg) => {
+    const { chainId } = msg;
+    return await service.connect(chainId);
   };
 };
 
