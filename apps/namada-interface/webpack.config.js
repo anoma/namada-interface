@@ -28,6 +28,10 @@ const copyPatterns = [
     from: "./public/manifest.json",
     to: "./manifest.json",
   },
+  {
+    from: "./public/_redirects",
+    to: "./_redirects",
+  },
 ];
 
 const plugins = [
@@ -155,5 +159,6 @@ module.exports = {
     },
     compress: false,
     port: 3000,
+    historyApiFallback: true,
   },
 };
