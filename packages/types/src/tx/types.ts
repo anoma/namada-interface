@@ -12,18 +12,20 @@ export type TxProps = {
   signInner: boolean;
 };
 
-export type BondingProps = {
-  validator: string;
-  amount: number;
-  source: string;
-};
-
 export type SubmitBondProps = {
   validator: string;
   amount: number;
   source: string;
   txCode: Uint8Array;
   nativeToken: string;
+  tx: Tx;
+};
+
+export type SubmitUnbondProps = {
+  validator: string;
+  amount: number;
+  source: string;
+  txCode: Uint8Array;
   tx: Tx;
 };
 

@@ -59,6 +59,18 @@ impl Sdk {
             .map_err(|e| JsError::from(e))
     }
 
+    pub async fn submit_unbond(
+        &mut self,
+        tx_msg: &[u8],
+        password: Option<String>,
+    ) -> Result<(), JsError> {
+        let args = tx::unbond_tx_args(tx_msg, password)?;
+
+        namada::ledger::tx::submit_unbond(&mut self.client, &mut self.wallet, args)
+            .await
+            .map_err(|e| JsError::from(e))
+    }
+
     pub async fn submit_transfer(
         &mut self,
         tx_msg: &[u8],

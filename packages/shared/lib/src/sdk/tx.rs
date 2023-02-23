@@ -60,6 +60,41 @@ pub fn bond_tx_args(tx_msg: &[u8], password: Option<String>) -> Result<args::Bon
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
+pub struct SubmitUnbondMsg {
+    source: String,
+    validator: String,
+    amount: u64,
+    tx_code: Vec<u8>,
+    tx: TxMsg,
+}
+
+pub fn unbond_tx_args(tx_msg: &[u8], password: Option<String>) -> Result<args::Unbond, JsError> {
+    let tx_msg = SubmitUnbondMsg::try_from_slice(tx_msg)?;
+
+    let SubmitUnbondMsg {
+        source,
+        validator,
+        amount,
+        tx_code: bond_tx_code,
+        tx,
+    } = tx_msg;
+
+    let source = Address::from_str(&source)?;
+    let validator = Address::from_str(&validator)?;
+    let amount = Amount::from(amount);
+
+    let args = args::Unbond {
+        tx: tx_msg_into_args(tx, password)?,
+        validator,
+        amount,
+        source: Some(source),
+        tx_code_path: bond_tx_code,
+    };
+
+    Ok(args)
+}
+
+#[derive(BorshSerialize, BorshDeserialize)]
 pub struct SubmitTransferMsg {
     tx: TxMsg,
     source: String,

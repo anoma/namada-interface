@@ -16,8 +16,8 @@ import {
   EncodeRevealPkMsg,
   QueryAccountsMsg,
   SignTxMsg,
-  EncodeBondingMsg,
   SubmitBondMsg,
+  SubmitUnbondMsg,
 } from "provider/messages";
 
 export const getHandler: (service: KeyRingService) => Handler = (service) => {
@@ -44,10 +44,10 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleQueryAccountsMsg(service)(env, msg as QueryAccountsMsg);
       case SignTxMsg:
         return handleSignTxMsg(service)(env, msg as SignTxMsg);
-      case EncodeBondingMsg:
-        return handleEncodeBondingMsg(service)(env, msg as EncodeBondingMsg);
       case SubmitBondMsg:
         return handleSubmitBondMsg(service)(env, msg as SubmitBondMsg);
+      case SubmitUnbondMsg:
+        return handleSubmitUnbondMsg(service)(env, msg as SubmitUnbondMsg);
       case SubmitTransferMsg:
         return handleSubmitTransferMsg(service)(env, msg as SubmitTransferMsg);
       case EncodeIbcTransferMsg:
@@ -146,21 +146,21 @@ const handleSignTxMsg: (
   };
 };
 
-const handleEncodeBondingMsg: (
-  service: KeyRingService
-) => InternalHandler<EncodeBondingMsg> = (service) => {
-  return (_, msg) => {
-    const { txMsg } = msg;
-    return service.encodeBonding(txMsg);
-  };
-};
-
 const handleSubmitBondMsg: (
   service: KeyRingService
 ) => InternalHandler<SubmitBondMsg> = (service) => {
   return async (_, msg) => {
     const { txMsg } = msg;
     return await service.submitBond(txMsg);
+  };
+};
+
+const handleSubmitUnbondMsg: (
+  service: KeyRingService
+) => InternalHandler<SubmitUnbondMsg> = (service) => {
+  return async (_, msg) => {
+    const { txMsg } = msg;
+    return await service.submitUnbond(txMsg);
   };
 };
 
