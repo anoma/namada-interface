@@ -115,7 +115,7 @@ class Keplr implements Integration<Account, OfflineSigner, IbcTransferProps> {
     sourceChannel,
     amount,
   }: IbcTransferProps): Promise<void> {
-    // TODO: Submit transfer via CosmJS RpcClient
+    // TODO: Submit transfer via CosmJS client
     console.log("Keplr.submitBridgeTransfer", {
       sender,
       receiver,
@@ -124,6 +124,12 @@ class Keplr implements Integration<Account, OfflineSigner, IbcTransferProps> {
       amount,
     });
     return;
+  }
+
+  public async queryBalance(address: string): Promise<number> {
+    // TODO: Query balance via CosmJS client
+    console.log("Keplr.queryBalance", { address });
+    return 0;
   }
 }
 

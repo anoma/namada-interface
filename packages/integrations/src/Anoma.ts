@@ -62,4 +62,10 @@ export default class Anoma
     });
     return;
   }
+
+  public async queryBalance(address: string): Promise<number> {
+    // TODO: Query balance from SDK
+    console.log("Anoma.queryBalance", { address });
+    return 0;
+  }
 }

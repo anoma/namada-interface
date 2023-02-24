@@ -6,4 +6,5 @@ export interface Integration<T, S, P = BridgeTransferProps | IbcTransferProps> {
   accounts: () => Promise<readonly T[] | undefined>;
   signer: () => S | undefined;
   submitBridgeTransfer: (props: P) => Promise<void>;
+  queryBalance: (address: string) => Promise<number>;
 }
