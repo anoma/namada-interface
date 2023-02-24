@@ -1,7 +1,7 @@
 import { Chain, Extensions } from "@anoma/types";
 
 const DEFAULT_ALIAS = "Osmosis Testnet";
-const DEFAULT_CHAIN_ID = "osmosis-75a7e12.69483d59a9fb174";
+const DEFAULT_CHAIN_ID = "osmosis-1";
 const DEFAULT_RPC = "https://rpc.osmosis.zone/";
 
 const {

@@ -64,19 +64,12 @@ export const DerivedAccountsList = styled.ul`
   max-height: 400px; /* TODO: Remove this - set a max height on a main container */
 `;
 
-export const DerivedAccountContainer = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-`;
-
 export const DerivedAccountItem = styled.li`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: space-between;
   align-items: flex-start;
   margin: 0;
-  padding: 20px 0;
   border-bottom: 1px solid ${(props) => props.theme.colors.utility2.main20};
 
   button {
@@ -93,9 +86,24 @@ export const DerivedAccountItem = styled.li`
   }
 `;
 
+export const DerivedAccountContainer = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 20px 0;
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.utility2.main20};
+  }
+`;
+
 export const DerivedAccountInfo = styled.div`
   display: flex;
   justify-content: flex-start;
+  flex-direction: column;
+  padding 0 8px;
 `;
 
 export const DerivedAccountAlias = styled.div`
@@ -113,14 +121,14 @@ export const DerivedAccountType = styled.div`
 `;
 
 export const DerivedAccountBalance = styled.div`
-  padding: 8px 0;
+  padding: 8px 8px 8px 0;
   font-weight: bold;
   margin-bottom: 0;
   width: 200px;
   color: ${(props) => props.theme.colors.utility2.main};
+  text-align: right;
 
   @media screen and (max-width: 860px) {
-    text-align: right;
     padding-right: 20px;
   }
 `;
@@ -167,6 +175,30 @@ export const TokenIcon = styled.img`
   height: 36px;
   cursor: pointer;
   margin-right: 12px;
+`;
+
+export const TokenTotals = styled.div`
+  display: none;
+
+  &.active {
+    display: flex;
+  }
+`;
+
+export const TokenBalances = styled.ul`
+  padding: 0;
+  margin: 0;
+`;
+
+export const TokenBalance = styled.li`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  list-style: none;
+  list-style-type: none;
+  padding: 10px 0 10px 12px;
+  color: ${(props) => props.theme.colors.utility2.main};
 `;
 
 export const ShieldedLabel = styled.div`

@@ -28,6 +28,10 @@ const copyPatterns = [
     from: "./public/manifest.json",
     to: "./manifest.json",
   },
+  {
+    from: "./public/_redirects",
+    to: "./_redirects",
+  },
 ];
 
 const plugins = [
@@ -51,12 +55,12 @@ const plugins = [
 module.exports = {
   mode: NODE_ENV,
   target: "web",
-  devtool: false,
+  devtool: "eval-source-map",
   entry: {
     interface: "./src",
   },
   output: {
-    publicPath: "",
+    publicPath: "/",
     path: resolve(__dirname, `./build/`),
     filename: "[name].bundle.js",
   },
@@ -155,5 +159,6 @@ module.exports = {
     },
     compress: false,
     port: 3000,
+    historyApiFallback: true,
   },
 };

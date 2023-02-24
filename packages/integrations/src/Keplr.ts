@@ -4,33 +4,23 @@ import {
   Window as KeplrWindow,
 } from "@keplr-wallet/types";
 import { AccountData } from "@cosmjs/proto-signing";
-import { Account, Chain } from "@anoma/types";
+import { Account, Chain, IbcTransferProps } from "@anoma/types";
+import { shortenAddress } from "@anoma/utils";
 import { Integration } from "./types/Integration";
 
 const KEPLR_NOT_FOUND = "Keplr extension not found!";
-const DEFAULT_FEATURES: string[] = [];
-const IBC_FEATURE = "ibc-transfer";
 
 type OfflineSigner = ReturnType<IKeplr["getOfflineSigner"]>;
 
-class Keplr implements Integration<Account, OfflineSigner> {
+class Keplr implements Integration<Account, OfflineSigner, IbcTransferProps> {
   private _keplr: IKeplr | undefined;
   private _offlineSigner: OfflineSigner | undefined;
-  private _features: string[] = [];
   /**
    * Pass a chain config into constructor to instantiate, and optionally
    * override keplr instance for testing
    * @param chain
    */
-  constructor(public readonly chain: Chain) {
-    // If chain is ibc-enabled, add relevant feature:
-    const { ibc } = chain;
-    this._features.push(...DEFAULT_FEATURES);
-
-    if (ibc) {
-      this._features.push(IBC_FEATURE);
-    }
-  }
+  constructor(public readonly chain: Chain) {}
 
   private init(): void {
     if (!this._keplr) {
@@ -80,7 +70,7 @@ class Keplr implements Integration<Account, OfflineSigner> {
     if (this._keplr) {
       const { chainId } = this.chain;
 
-      await this._keplr.enable(chainId);
+      return await this._keplr.enable(chainId);
     }
     return Promise.reject(KEPLR_NOT_FOUND);
   }
@@ -103,11 +93,12 @@ class Keplr implements Integration<Account, OfflineSigner> {
    */
   public async accounts(): Promise<readonly Account[] | undefined> {
     if (this._keplr) {
-      const accounts = await this._offlineSigner?.getAccounts();
+      const client = this.signer();
+      const accounts = await client?.getAccounts();
 
       return accounts?.map(
         (account: AccountData): Account => ({
-          alias: "keplr",
+          alias: shortenAddress(account.address, 16),
           chainId: this.chain.chainId,
           address: account.address,
           isShielded: false,
@@ -115,6 +106,24 @@ class Keplr implements Integration<Account, OfflineSigner> {
       );
     }
     return Promise.reject(KEPLR_NOT_FOUND);
+  }
+
+  public async submitBridgeTransfer({
+    sender,
+    receiver,
+    sourcePort,
+    sourceChannel,
+    amount,
+  }: IbcTransferProps): Promise<void> {
+    // TODO: Submit transfer via CosmJS RpcClient
+    console.log("Keplr.submitBridgeTransfer", {
+      sender,
+      receiver,
+      sourcePort,
+      sourceChannel,
+      amount,
+    });
+    return;
   }
 }
 

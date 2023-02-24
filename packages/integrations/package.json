@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@anoma/types": "0.1.0",
+    "@anoma/utils": "0.1.0",
     "@cosmjs/proto-signing": "^0.27.1",
     "@keplr-wallet/types": "^0.10.19",
     "@metamask/providers": "^10.2.1",

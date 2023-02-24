@@ -56,6 +56,13 @@ export type IbcTransferProps = {
   amount: number;
 };
 
+// TODO: This is a placeholder
+export type BridgeTransferProps = {
+  source: string;
+  target: string;
+  amount: number;
+};
+
 export type InitAccountProps = {
   vpCode: Uint8Array;
 };
