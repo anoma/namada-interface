@@ -125,6 +125,12 @@ class Keplr implements Integration<Account, OfflineSigner, IbcTransferProps> {
     });
     return;
   }
+
+  public async queryBalance(address: string): Promise<number> {
+    // TODO: Query balance via CosmJS client
+    console.log("Keplr.queryBalance", { address });
+    return 0;
+  }
 }
 
 export default Keplr;

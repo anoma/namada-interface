@@ -87,6 +87,12 @@ class Metamask implements Integration<Account, unknown, BridgeTransferProps> {
     });
     return;
   }
+
+  public async queryBalance(address: string): Promise<number> {
+    // TODO: Query balance from Ethereum
+    console.log("Metamask.queryBalance", { address });
+    return 0;
+  }
 }
 
 export default Metamask;
