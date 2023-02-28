@@ -16,7 +16,7 @@ import {
   StakingPosition,
   ChangeInStakingPosition,
 } from "slices/StakingAndGovernance";
-import { BalanceByToken } from "slices/balances";
+import { Balance } from "slices/accounts";
 
 const REMAINS_BONDED_KEY = "Remains bonded";
 
@@ -42,8 +42,7 @@ const bondingDetailsConfigurations: TableConfigurations<KeyValueData, never> = {
 };
 
 type Props = {
-  balance: Record<string, BalanceByToken>;
-  addresses: string[];
+  addressesWithBalance: { address: string; balance: Balance }[];
   currentBondingPositions: StakingPosition[];
   // called when the user confirms bonding
   confirmBonding: (changeInStakingPosition: ChangeInStakingPosition) => void;
@@ -54,21 +53,22 @@ type Props = {
 // contains everything what the user needs for bonding funds
 export const NewBondingPosition = (props: Props): JSX.Element => {
   const {
-    balance,
-    addresses,
+    addressesWithBalance,
     currentBondingPositions,
     confirmBonding,
     cancelBonding,
   } = props;
 
-  const selectOptions = addresses.map((address) => ({
+  const selectOptions = addressesWithBalance.map(({ address }) => ({
     value: address,
     label: truncateInMiddle(address, 9, 9),
   }));
 
-  const [address, setAddress] = useState<string>(addresses[0]);
-  const [currentBalance, setCurrentBalance] = useState<BalanceByToken>(
-    balance[addresses[0]]
+  const [address, setAddress] = useState<string>(
+    addressesWithBalance[0].address
+  );
+  const [currentBalance, setCurrentBalance] = useState<Balance>(
+    addressesWithBalance[0].balance
   );
   const currentBondingPosition = currentBondingPositions.find(
     (pos) => pos.owner === address
@@ -80,8 +80,13 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
     e: React.ChangeEvent<HTMLSelectElement>
   ): void => {
     const address = e.target.value;
-    setAddress(address);
-    setCurrentBalance(balance[address]);
+    const addrWithBalance = addressesWithBalance.find(
+      ({ address: a }) => address === a
+    );
+    if (addrWithBalance) {
+      setAddress(addrWithBalance.address);
+      setCurrentBalance(addrWithBalance.balance);
+    }
   };
 
   // storing the unbonding input value locally here as string

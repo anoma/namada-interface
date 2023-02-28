@@ -3,7 +3,6 @@ import { combineReducers } from "redux";
 import thunk from "redux-thunk";
 import {
   accountsReducer,
-  balancesReducer,
   transfersReducer,
   settingsReducer,
   channelsReducer,
@@ -14,7 +13,6 @@ import {
 
 const reducers = combineReducers({
   accounts: accountsReducer || {},
-  balances: balancesReducer,
   transfers: transfersReducer || {},
   channels: channelsReducer,
   settings: settingsReducer,

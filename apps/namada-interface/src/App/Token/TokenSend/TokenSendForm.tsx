@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ThemeContext } from "styled-components";
 import QrReader from "react-qr-reader";
 
-import { Account, Tokens, TokenType } from "@anoma/types";
+import { Tokens, TokenType } from "@anoma/types";
 import { ColorMode, DesignConfiguration } from "@anoma/utils";
 import {
   Button,
@@ -22,7 +22,6 @@ import {
   TransfersState,
   TransferType,
 } from "slices/transfers";
-import { BalancesState } from "slices/balances";
 import { CoinsState } from "slices/coins";
 import { useAppDispatch, useAppSelector } from "store";
 
@@ -151,12 +150,7 @@ const TokenSendForm = ({
   );
   const { rates } = useAppSelector<CoinsState>((state) => state.coins);
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
-  const derivedAccounts = derived[chainId] || {};
-
-  const balancesState = useAppSelector<BalancesState>(
-    (state) => state.balances
-  );
-  const balancesForChain = balancesState[chainId] || {};
+  const derivedAccounts = derived[chainId];
 
   const isTransferSubmitting = useAppSelector<boolean>((state) =>
     state.notifications.pendingActions.includes(
@@ -168,17 +162,14 @@ const TokenSendForm = ({
     (state) => state.transfers
   );
 
-  const account: Account = derivedAccounts[address];
+  const { account, balance } = derivedAccounts[address];
   const isShieldedSource = account.isShielded;
   const token = Tokens[tokenType] || {};
-
-  const balances = balancesForChain[address] || {};
-  const balance = balances[tokenType] || 0;
 
   const isFormInvalid = getIsFormInvalid(
     target,
     amount,
-    balance,
+    balance[tokenType],
     isTargetValid,
     isTransferSubmitting
   );
@@ -297,7 +288,7 @@ const TokenSendForm = ({
     transferAmount: number,
     targetAddress: string | undefined
   ): string | undefined => {
-    const balance = balancesForChain[address][token] || 0;
+    const balance = derivedAccounts[address].balance[token] || 0;
 
     const transferTypeBasedOnTarget =
       targetAddress && parseTarget(targetAddress);

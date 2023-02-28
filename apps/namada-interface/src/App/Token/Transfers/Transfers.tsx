@@ -41,8 +41,7 @@ const Transfers = (): JSX.Element => {
     (state) => state.transfers
   );
 
-  const derivedAccounts = derived[chainId] || {};
-  const accounts = { ...derivedAccounts };
+  const derivedAccounts = derived[chainId];
 
   /* let shieldedKeysAndPaymentAddress: ShieldedKeysAndPaymentAddress | undefined; */
   /**/
@@ -51,7 +50,7 @@ const Transfers = (): JSX.Element => {
   /*     shieldedAccounts[id].shieldedKeysAndPaymentAddress; */
   /* } */
 
-  const account: Account = accounts[id] || {}; // || shieldedAccounts[id] || {};
+  const account: Account = derivedAccounts[id].account;
   const { address } = account;
 
   const transactions: TransferTransaction[] = accountTransactions

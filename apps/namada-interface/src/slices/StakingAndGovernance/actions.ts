@@ -16,10 +16,9 @@ import { myStakingData } from "./fakeData";
 import { RootState } from "store";
 import { Query } from "@anoma/shared";
 import { amountToMicro, fetchWasmCode } from "@anoma/utils";
-import { SignedTx, Signer, Tokens, TxWasm } from "@anoma/types";
+import { Signer, Tokens, TxWasm } from "@anoma/types";
 import { chains } from "@anoma/chains";
 import { getIntegration } from "services";
-import { Accounts } from "slices/accounts";
 
 const toValidator = ([address, votingPower]: [string, string]): Validator => ({
   uuid: address,
@@ -118,9 +117,9 @@ export const fetchMyValidators = createAsyncThunk<
     const { chainId } = thunkApi.getState().settings;
     const { rpc } = chains[chainId];
 
-    const accounts: Accounts = thunkApi.getState().accounts.derived[chainId];
+    const accounts = thunkApi.getState().accounts.derived[chainId];
     const addresses = Object.entries(accounts)
-      .filter(([_, value]) => !value.isShielded)
+      .filter(([_, value]) => !value.account.isShielded)
       .map(([key]) => key);
     const query = new Query(rpc);
     const myValidatorsRes = await query.query_my_validators(addresses);

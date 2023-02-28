@@ -140,6 +140,6 @@ const balancesSlice = createSlice({
 });
 
 const { actions, reducer } = balancesSlice;
-export const { updateBalance } = actions;
+// export const { updateBalance } = actions;
 
-export default reducer;
+// export default reducer;

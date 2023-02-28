@@ -21,6 +21,7 @@ import {
 } from "slices/StakingAndGovernance";
 import { SettingsState } from "slices/settings";
 import { useIntegrationConnection } from "services";
+import { AccountsState } from "slices/accounts";
 export type { ChangeInStakingPosition };
 // This is just rendering the actual Staking/Governance/PGF screens
 // mostly the purpose of this is to define the default behavior when
@@ -33,10 +34,16 @@ export const StakingAndGovernance = (): JSX.Element => {
     (state: RootState) => state.stakingAndGovernance
   );
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
-  const addresses = useAppSelector((state: RootState) =>
-    Object.keys(state.accounts.derived[chainId])
+  const derivedAccounts = useAppSelector<AccountsState>(
+    (state: RootState) => state.accounts
+  ).derived[chainId];
+
+  const addressesWithBalance = Object.values(derivedAccounts).map(
+    ({ account, balance }) => ({
+      address: account.address,
+      balance,
+    })
   );
-  const balance = useAppSelector((state: RootState) => state.balances[chainId]);
   const [_integration, _status, withConnection] =
     useIntegrationConnection(chainId);
 
@@ -90,8 +97,7 @@ export const StakingAndGovernance = (): JSX.Element => {
           path={`${StakingAndGovernanceSubRoute.Staking}/*`}
           element={
             <Staking
-              balance={balance}
-              addresses={addresses}
+              addressesWithBalance={addressesWithBalance}
               validators={validators}
               myValidators={myValidators}
               myStakingPositions={myStakingPositions}
