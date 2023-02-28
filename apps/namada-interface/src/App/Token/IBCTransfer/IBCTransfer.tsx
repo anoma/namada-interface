@@ -79,7 +79,7 @@ const IBCTransfer = (): JSX.Element => {
     ({ account }) => account.isShielded
   );
 
-  const { account } = accountsWithBalance[0] || {};
+  const { account } = accountsWithBalance[0] || { account: {} };
   const [selectedAccountAddress, setSelectedAccountAddress] = useState(
     account.address || ""
   );

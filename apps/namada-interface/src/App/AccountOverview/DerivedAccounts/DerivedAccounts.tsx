@@ -83,7 +83,7 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
 
   const { alias } = chains[chainId] || {};
 
-  const derivedAccounts = derived[chainId] || {};
+  const derivedAccounts = derived[chainId];
   const { colorMode } = themeContext.themeConfigurations;
 
   const getAssetIconByTheme = (symbol: TokenType): string => {

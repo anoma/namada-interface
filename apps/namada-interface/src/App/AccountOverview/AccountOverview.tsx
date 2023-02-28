@@ -36,6 +36,11 @@ import {
 } from "services";
 import { Account, ExtensionKey, Extensions } from "@anoma/types";
 
+//TODO: move to utils when we have one
+const isEmptyObject = (object: Record<string, unknown>): boolean => {
+  return Object.keys(object).length === 0;
+};
+
 export const AccountOverview = (): JSX.Element => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -106,7 +111,7 @@ export const AccountOverview = (): JSX.Element => {
             </TotalHeading>
           </div>
           <TotalContainer>
-            {derived[chainId] && (
+            {!isEmptyObject(derived[chainId]) && (
               <TotalAmount>
                 <TotalAmountFiat>{fiatCurrency}</TotalAmountFiat>
                 <TotalAmountValue>
@@ -117,7 +122,7 @@ export const AccountOverview = (): JSX.Element => {
           </TotalContainer>
         </HeadingContainer>
 
-        {derived[chainId] ? (
+        {!isEmptyObject(derived[chainId]) ? (
           <ButtonsContainer>
             <ButtonsWrapper>
               <Button
@@ -137,7 +142,7 @@ export const AccountOverview = (): JSX.Element => {
         ) : (
           <div />
         )}
-        {!derived[chainId] && (
+        {isEmptyObject(derived[chainId]) && (
           <NoAccountsContainer>
             {!isExtensionConnected[chain.extension.id] && (
               <Button

@@ -26,13 +26,18 @@ const EMPTY_BALANCE = {
 
 const ACCOUNTS_ACTIONS_BASE = "accounts";
 
+const INITIAL_STATE = {
+  derived: Object.keys(chains).reduce(
+    (acc, curr) => ({ ...acc, [curr]: {} }),
+    {}
+  ),
+};
+
 enum AccountsThunkActions {
   FetchBalance = "fetchBalance",
 }
 
-const initialState: AccountsState = {
-  derived: {},
-};
+const initialState: AccountsState = INITIAL_STATE;
 
 // TODO: We need to update this to also support balance queries from Cosmos, Osmosis, etc.
 export const fetchBalances = createAsyncThunk<
