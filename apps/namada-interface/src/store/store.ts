@@ -1,6 +1,8 @@
 import { Action, configureStore, ThunkAction } from "@reduxjs/toolkit";
 import { combineReducers } from "redux";
 import thunk from "redux-thunk";
+import { persistReducer, persistStore } from "redux-persist";
+import storage from "redux-persist/lib/storage";
 import {
   accountsReducer,
   transfersReducer,
@@ -10,6 +12,11 @@ import {
   notificationsReducer,
   stakingAndGovernanceReducers,
 } from "slices";
+import { LocalStorageKeys } from "App/types";
+
+const { REACT_APP_LOCAL, NODE_ENV } = process.env;
+const POSTFIX =
+  NODE_ENV === "development" ? (REACT_APP_LOCAL ? "-local" : "-dev") : "";
 
 const reducers = combineReducers({
   accounts: accountsReducer || {},
@@ -21,13 +28,21 @@ const reducers = combineReducers({
   stakingAndGovernance: stakingAndGovernanceReducers,
 });
 
-const { NODE_ENV } = process.env;
+const persistConfig = {
+  key: `${LocalStorageKeys.Persist}${POSTFIX}`,
+  storage,
+  // Only persist data in whitelist:
+  whitelist: ["settings"],
+};
+
+const persistedReducer = persistReducer(persistConfig, reducers);
 
 const store = configureStore({
-  reducer: reducers,
+  reducer: persistedReducer,
   devTools: NODE_ENV !== "production",
   middleware: [thunk],
 });
+const persistor = persistStore(store);
 export type RootState = ReturnType<typeof reducers>;
 
 export type AppStore = typeof store;
@@ -40,4 +55,4 @@ export type AppThunk<ReturnType = void> = ThunkAction<
 >;
 export type AppDispatch = ReturnType<AppStore["dispatch"]>;
 
-export default store;
+export { store, persistor };

@@ -1,9 +1,9 @@
 /* eslint-disable max-len */
 import { useState, useEffect } from "react";
-import { Provider } from "react-redux";
 import { createBrowserHistory } from "history";
 import { AnimatePresence } from "framer-motion";
 import { ThemeProvider } from "styled-components";
+import { PersistGate } from "redux-persist/integration/react";
 
 import {
   getTheme,
@@ -19,11 +19,17 @@ import {
   BottomSection,
   MotionContainer,
   GlobalStyles,
+  ContentContainer,
+  AppLoader,
 } from "./App.components";
-import store from "store/store";
-import AppRoutes from "./AppRoutes";
+import { persistor, store, useAppDispatch, useAppSelector } from "store";
 import { Toasts } from "App/Toast";
-import { IntegrationsProvider } from "services";
+import { SettingsState } from "slices/settings";
+import { chains } from "@anoma/chains";
+import { useIntegration, useUntilIntegrationAttached } from "services";
+import { Outlet } from "react-router-dom";
+import { addAccounts } from "slices/accounts";
+import { Account } from "@anoma/types";
 
 export const history = createBrowserHistory({ window });
 
@@ -46,6 +52,7 @@ export const AnimatedTransition = (props: {
 };
 
 function App(): JSX.Element {
+  const dispatch = useAppDispatch();
   const initialColorMode = loadColorMode();
   const [colorMode, setColorMode] = useState<ColorMode>(initialColorMode);
   const theme = getTheme(colorMode);
@@ -54,14 +61,41 @@ function App(): JSX.Element {
     setColorMode((currentMode) => (currentMode === "dark" ? "light" : "dark"));
   };
 
+  const { chainId, connectedChains } = useAppSelector<SettingsState>(
+    (state) => state.settings
+  );
+  const chain = chains[chainId];
+
+  const integration = useIntegration(chainId);
+
   useEffect(() => storeColorMode(colorMode), [colorMode]);
+
+  const extensionAttachStatus = useUntilIntegrationAttached(chain);
+  const currentExtensionAttachStatus =
+    extensionAttachStatus[chain.extension.id];
+
+  useEffect(() => {
+    const fetchAccounts = async (): Promise<void> => {
+      const accounts = await integration?.accounts();
+      if (accounts) {
+        dispatch(addAccounts(accounts as Account[]));
+      }
+    };
+    if (
+      currentExtensionAttachStatus === "attached" &&
+      connectedChains.includes(chainId)
+    ) {
+      fetchAccounts();
+    }
+  });
 
   return (
     <ThemeProvider theme={theme}>
-      <IntegrationsProvider>
-        <Provider store={store}>
-          <Toasts />
-          <GlobalStyles colorMode={colorMode} />
+      <PersistGate loading={null} persistor={persistor}>
+        <Toasts />
+        <GlobalStyles colorMode={colorMode} />
+        {(currentExtensionAttachStatus === "attached" ||
+          currentExtensionAttachStatus === "detached") && (
           <AppContainer data-testid="AppContainer">
             <TopSection>
               <TopNavigation
@@ -73,12 +107,15 @@ function App(): JSX.Element {
             </TopSection>
             <BottomSection>
               <AnimatePresence exitBeforeEnter>
-                <AppRoutes store={store} />
+                <ContentContainer>
+                  <Outlet />
+                </ContentContainer>
               </AnimatePresence>
             </BottomSection>
           </AppContainer>
-        </Provider>
-      </IntegrationsProvider>
+        )}
+        {currentExtensionAttachStatus === "pending" && <AppLoader />};
+      </PersistGate>
     </ThemeProvider>
   );
 }

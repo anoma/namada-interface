@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { chains } from "@anoma/chains";
 import { useAppSelector, useAppDispatch } from "store";
 import { AccountsState, addAccounts, fetchBalances } from "slices/accounts";
-import { SettingsState } from "slices/settings";
+import { setIsConnected, SettingsState } from "slices/settings";
 import { TopLevelRoute } from "App/types";
 
 import { DerivedAccounts } from "./DerivedAccounts";
@@ -80,6 +80,7 @@ export const AccountOverview = (): JSX.Element => {
         if (accounts) {
           dispatch(addAccounts(accounts as Account[]));
           dispatch(fetchBalances());
+          dispatch(setIsConnected(chainId));
         }
 
         setIsExtensionConnected({

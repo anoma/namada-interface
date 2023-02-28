@@ -23,7 +23,7 @@
     "react-modal": "^3.15.1",
     "react-qr-reader": "2.1.2",
     "react-redux": "^7.2.6",
-    "react-router-dom": "6",
+    "react-router-dom": "^6.0.0",
     "react-scripts": "5.0.0",
     "redux-persist": "^6.0.0",
     "redux-persist-transform-encrypt": "^3.0.1",

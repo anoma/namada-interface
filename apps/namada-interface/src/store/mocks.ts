@@ -147,6 +147,7 @@ export const mockAppState: RootState = {
   settings: {
     fiatCurrency: "USD",
     chainId: "anoma-masp-1.5.32ccad5356012a7",
+    connectedChains: [],
   },
   coins: {
     rates: {},
