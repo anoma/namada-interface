@@ -36,7 +36,6 @@ import AssetPolkadotDot from "./assets/asset-polkadot-dot.png";
 import AssetBitcoinBtc from "./assets/asset-bitcoin-btc.png";
 
 import { TopLevelRoute } from "App/types";
-import { fetchBalances } from "slices/balances";
 import { CoinsState, fetchConversionRates } from "slices/coins";
 import Config from "config";
 
@@ -116,7 +115,7 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
         let fiatBalance = 0;
 
         Object.entries(balance).forEach(([token, value]) => {
-          fiatBalance = applyConversionRate(value, token);
+          fiatBalance += applyConversionRate(value, token);
         });
 
         return acc + fiatBalance;
@@ -135,7 +134,6 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
   }, [timestamp]);
 
   useEffect(() => {
-    dispatch(fetchBalances(accountsWithBalance.map((v) => v.account)));
     setActiveAccountAddress(accountsWithBalance[0]?.account?.address);
   }, [derivedAccounts]);
 

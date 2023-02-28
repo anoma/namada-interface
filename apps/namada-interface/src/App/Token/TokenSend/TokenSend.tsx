@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { AccountsState, Balance } from "slices/accounts";
@@ -6,7 +6,7 @@ import { SettingsState } from "slices/settings";
 import { TransferType } from "slices/transfers";
 import { useAppSelector } from "store";
 
-import { Account, Symbols, TokenType } from "@anoma/types";
+import { Account, TokenType } from "@anoma/types";
 import {
   Heading,
   HeadingLevel,
@@ -22,7 +22,6 @@ import {
   TokenSendTabsGroup,
   TokenSendContent,
 } from "./TokenSend.components";
-import { BalancesState } from "slices/balances";
 import {
   PAYMENT_ADDRESS_LENGTH,
   PAYMENT_ADDRESS_PREFIX,

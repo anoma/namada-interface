@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { chains } from "@anoma/chains";
 import { Chain, Tokens, TokenType } from "@anoma/types";
 import { useAppDispatch, useAppSelector } from "store";
-import { AccountsState } from "slices/accounts";
+import { AccountsState, fetchBalances } from "slices/accounts";
 import { addChannel, ChannelsState } from "slices/channels";
 import {
   clearErrors,
@@ -33,7 +33,6 @@ import {
   IBCTransferFormContainer,
 } from "./IBCTransfer.components";
 import { Address } from "../Transfers/TransferDetails.components";
-import { fetchBalances } from "slices/balances";
 
 const IBCTransfer = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -79,7 +78,6 @@ const IBCTransfer = (): JSX.Element => {
   const accountsWithBalance = Object.values(derived[chainId]).filter(
     ({ account }) => account.isShielded
   );
-  const transparentAccounts = accountsWithBalance.map(({ account }) => account);
 
   const { account } = accountsWithBalance[0] || {};
   const [selectedAccountAddress, setSelectedAccountAddress] = useState(
@@ -123,12 +121,12 @@ const IBCTransfer = (): JSX.Element => {
       const selectedChain = ibc[0].chainId;
       setSelectedChainId(selectedChain);
     }
-    dispatch(fetchBalances(transparentAccounts));
+    dispatch(fetchBalances());
   }, [chainId]);
 
   useEffect(() => {
     if (account && !isIbcTransferSubmitting) {
-      fetchBalances(transparentAccounts);
+      dispatch(fetchBalances());
     }
   }, [isIbcTransferSubmitting]);
 

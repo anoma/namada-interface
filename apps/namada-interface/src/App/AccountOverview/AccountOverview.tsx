@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { chains } from "@anoma/chains";
 import { useAppSelector, useAppDispatch } from "store";
-import { AccountsState, addAccounts } from "slices/accounts";
+import { AccountsState, addAccounts, fetchBalances } from "slices/accounts";
 import { SettingsState } from "slices/settings";
 import { TopLevelRoute } from "App/types";
 
@@ -74,6 +74,7 @@ export const AccountOverview = (): JSX.Element => {
         const accounts = await integration?.accounts();
         if (accounts) {
           dispatch(addAccounts(accounts as Account[]));
+          dispatch(fetchBalances());
         }
 
         setIsExtensionConnected({
