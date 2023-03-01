@@ -119,16 +119,17 @@ export const useUntilIntegrationAttached = (chain: Chain): AttachStatusMap => {
   });
 
   useEffect(() => {
-    setAttachStatus({ ...attachStatusMap, [extension.id]: "pending" });
+    setAttachStatus((v) => ({ ...v, [extension.id]: "pending" }));
   }, [chainId]);
 
   useUntil(
     {
       predFn: () => integration.detect(),
-      onSuccess: () =>
-        setAttachStatus({ ...attachStatusMap, [extension.id]: "attached" }),
+      onSuccess: () => {
+        setAttachStatus((v) => ({ ...v, [extension.id]: "attached" }));
+      },
       onFail: () =>
-        setAttachStatus({ ...attachStatusMap, [extension.id]: "detached" }),
+        setAttachStatus((v) => ({ ...v, [extension.id]: "detached" })),
     },
     {
       tries: 10,

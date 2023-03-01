@@ -121,7 +121,6 @@ const IBCTransfer = (): JSX.Element => {
       const selectedChain = ibc[0].chainId;
       setSelectedChainId(selectedChain);
     }
-    dispatch(fetchBalances());
   }, [chainId]);
 
   useEffect(() => {

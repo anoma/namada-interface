@@ -28,7 +28,7 @@ import { SettingsState } from "slices/settings";
 import { chains } from "@anoma/chains";
 import { useIntegration, useUntilIntegrationAttached } from "services";
 import { Outlet } from "react-router-dom";
-import { addAccounts } from "slices/accounts";
+import { addAccounts, fetchBalances } from "slices/accounts";
 import { Account } from "@anoma/types";
 
 export const history = createBrowserHistory({ window });
@@ -79,6 +79,7 @@ function App(): JSX.Element {
       const accounts = await integration?.accounts();
       if (accounts) {
         dispatch(addAccounts(accounts as Account[]));
+        dispatch(fetchBalances());
       }
     };
     if (
