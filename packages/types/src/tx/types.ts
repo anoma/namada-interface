@@ -48,12 +48,17 @@ export type TransferProps = {
 };
 
 export type IbcTransferProps = {
-  sourcePort: string;
-  sourceChannel: string;
-  token: string;
-  sender: string;
+  tx: Tx;
+  source: string;
   receiver: string;
+  token: string;
+  subPrefix?: string;
   amount: number;
+  portId: string;
+  channelId: string;
+  timeoutHeight?: number;
+  timeoutSecOffset?: number;
+  txCode: Uint8Array;
 };
 
 // TODO: This is a placeholder

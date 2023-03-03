@@ -87,4 +87,16 @@ impl Sdk {
         .await
         .map_err(|e| JsError::from(e))
     }
+
+    pub async fn submit_ibc_transfer(
+        &mut self,
+        tx_msg: &[u8],
+        password: Option<String>,
+    ) -> Result<(), JsError> {
+        let args = tx::ibc_transfer_tx_args(tx_msg, password)?;
+
+        namada::ledger::tx::submit_ibc_transfer(&self.client, &mut self.wallet, args)
+            .await
+            .map_err(|e| JsError::from(e))
+    }
 }

@@ -6,7 +6,7 @@ import { toBase64 } from "@cosmjs/encoding";
 import {
   AccountMsgSchema,
   AccountMsgValue,
-  IbcTransferMsgSchema,
+  SubmitIbcTransferMsgSchema,
   IbcTransferMsgValue,
   IbcTransferProps,
   Message,
@@ -150,29 +150,41 @@ describe("Anoma", () => {
     await expect(res).resolves.not.toBeDefined();
   });
 
-  it("should encode ibc transfer", async () => {
+  it("should be able to submit an ibc transfer through the sdk", async () => {
+    jest
+      .spyOn(Sdk.prototype, "submit_ibc_transfer")
+      .mockReturnValueOnce(Promise.resolve());
+
+    const token =
+      "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5";
     const transferProps: IbcTransferProps = {
-      sender: keyStore.address,
+      tx: {
+        token,
+        feeAmount: 0,
+        gasLimit: 0,
+        txCode: new Uint8Array(),
+      },
+      source: keyStore.address,
       receiver:
         "atest1d9khqw36gdz5ydzygvcnyvesxgcn2s6zxyung3zzgcmrjwzzgvmnyd3kxym52vzzg5unxve5cm87cr",
-      token:
-        "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5",
+      token,
       amount: 1000,
-      sourcePort: NAM.paths[0].portId,
-      sourceChannel: NAM.paths[0].channelId,
+      portId: NAM.paths[0].portId,
+      channelId: NAM.paths[0].channelId,
+      txCode: new Uint8Array(),
     };
 
     const transferMsgValue = new IbcTransferMsgValue(transferProps);
 
     const transferMessage = new Message<IbcTransferMsgValue>();
     const serializedTransfer = transferMessage.encode(
-      IbcTransferMsgSchema,
+      SubmitIbcTransferMsgSchema,
       transferMsgValue
     );
 
-    await expect(
-      anoma.encodeIbcTransfer(toBase64(serializedTransfer))
-    ).resolves.toBeDefined();
+    const res = anoma.submitIbcTransfer(toBase64(serializedTransfer));
+
+    await expect(res).resolves.not.toBeDefined();
   });
 
   // This test shows that init account is NOT working - it is also unused.

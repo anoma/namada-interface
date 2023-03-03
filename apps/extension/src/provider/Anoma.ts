@@ -5,7 +5,6 @@ import {
   GetChainMsg,
   GetChainsMsg,
   SuggestChainMsg,
-  EncodeIbcTransferMsg,
   EncodeInitAccountMsg,
   QueryAccountsMsg,
   SignTxMsg,
@@ -13,6 +12,7 @@ import {
   SubmitBondMsg,
   SubmitUnbondMsg,
   SubmitTransferMsg,
+  SubmitIbcTransferMsg,
 } from "./messages";
 
 export class Anoma implements IAnoma {
@@ -89,10 +89,10 @@ export class Anoma implements IAnoma {
     );
   }
 
-  public async encodeIbcTransfer(txMsg: string): Promise<string | undefined> {
+  public async submitIbcTransfer(txMsg: string): Promise<void> {
     return await this.requester?.sendMessage(
       Ports.Background,
-      new EncodeIbcTransferMsg(txMsg)
+      new SubmitIbcTransferMsg(txMsg)
     );
   }
 

@@ -17,7 +17,7 @@ export interface Anoma {
   submitBond: (txMsg: string) => Promise<void>;
   submitUnbond: (txMsg: string) => Promise<void>;
   submitTransfer: (txMsg: string) => Promise<void>;
-  encodeIbcTransfer: (txMsg: string) => Promise<string | undefined>;
+  submitIbcTransfer: (txMsg: string) => Promise<void>;
   encodeInitAccount: (props: {
     txMsg: string;
     address: string;

@@ -16,7 +16,7 @@ enum MessageType {
   QueryAccounts = "query-accounts",
   SignTx = "sign-tx",
   SubmitTransfer = "submit-transfer",
-  EncodeIbcTransfer = "encode-ibc-transfer",
+  SubmitIbcTransfer = "submit-ibc-transfer",
   EncodeInitAccount = "encode-init-account",
   EncodeRevealPublicKey = "encode-reveal-public-key",
   GetChain = "get-chain",
@@ -184,9 +184,9 @@ export class SubmitTransferMsg extends Message<void> {
   }
 }
 
-export class EncodeIbcTransferMsg extends Message<string> {
+export class SubmitIbcTransferMsg extends Message<void> {
   public static type(): MessageType {
-    return MessageType.EncodeIbcTransfer;
+    return MessageType.SubmitIbcTransfer;
   }
 
   constructor(public readonly txMsg: string) {
@@ -205,7 +205,7 @@ export class EncodeIbcTransferMsg extends Message<string> {
   }
 
   type(): string {
-    return EncodeIbcTransferMsg.type();
+    return SubmitIbcTransferMsg.type();
   }
 }
 

@@ -70,9 +70,9 @@ export class InjectedAnoma implements IAnoma {
     );
   }
 
-  public async encodeIbcTransfer(txMsg: string): Promise<string | undefined> {
-    return await InjectedProxy.requestMethod<string, string>(
-      "encodeIbcTransfer",
+  public async submitIbcTransfer(txMsg: string): Promise<void> {
+    return await InjectedProxy.requestMethod<string, void>(
+      "submitIbcTransfer",
       txMsg
     );
   }

@@ -2,6 +2,7 @@ use std::str::FromStr;
 
 use borsh::{BorshDeserialize, BorshSerialize};
 use namada::{
+    ibc::core::ics24_host::identifier::{ChannelId, PortId},
     ledger::args,
     types::{
         address::Address,
@@ -136,6 +137,62 @@ pub fn transfer_tx_args(
         sub_prefix,
         amount,
         native_token,
+        tx_code_path: transfer_tx_code,
+    };
+    Ok(args)
+}
+
+#[derive(BorshSerialize, BorshDeserialize)]
+pub struct SubmitIbcTransferMsg {
+    tx: TxMsg,
+    source: String,
+    receiver: String,
+    token: String,
+    sub_prefix: Option<String>,
+    amount: u64,
+    port_id: String,
+    channel_id: String,
+    timeout_height: Option<u64>,
+    timeout_sec_offset: Option<u64>,
+    tx_code: Vec<u8>,
+}
+
+pub fn ibc_transfer_tx_args(
+    tx_msg: &[u8],
+    password: Option<String>,
+) -> Result<args::TxIbcTransfer, JsError> {
+    let tx_msg = SubmitIbcTransferMsg::try_from_slice(tx_msg)?;
+    let SubmitIbcTransferMsg {
+        tx,
+        source,
+        receiver,
+        token,
+        sub_prefix,
+        amount,
+        port_id,
+        channel_id,
+        timeout_height,
+        timeout_sec_offset,
+        tx_code: transfer_tx_code,
+    } = tx_msg;
+
+    let source = Address::from_str(&source)?;
+    let token = Address::from_str(&token)?;
+    let amount = Amount::from(amount);
+    let port_id = PortId::from_str(&port_id)?;
+    let channel_id = ChannelId::from_str(&channel_id)?;
+
+    let args = args::TxIbcTransfer {
+        tx: tx_msg_into_args(tx, password)?,
+        source,
+        receiver,
+        token,
+        sub_prefix,
+        amount,
+        port_id,
+        channel_id,
+        timeout_height,
+        timeout_sec_offset,
         tx_code_path: transfer_tx_code,
     };
     Ok(args)

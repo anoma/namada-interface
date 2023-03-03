@@ -171,103 +171,44 @@ export const submitTransferTransaction = createAsyncThunk<
 );
 
 // TODO: This needs to be revisited and tested
-export const submitIbcTransferTransaction = createAsyncThunk(
+export const submitIbcTransferTransaction = createAsyncThunk<
+  void,
+  WithNotification<TxIbcTransferArgs>,
+  { state: RootState }
+>(
   `${TRANSFERS_ACTIONS_BASE}/${TransfersThunkActions.SubmitIbcTransferTransaction}`,
-  async (
-    {
-      account,
-      token: tokenType,
-      target,
-      amount,
-      memo = "",
-      // TODO: What are reasonable defaults for this?
-      feeAmount = 1000,
-      // TODO: What are reasonable defaults for this?
-      gasLimit = 1000000,
-      channelId,
-      portId,
-      chainId,
-    }: TxIbcTransferArgs,
-    { rejectWithValue }
-  ) => {
-    const { address: source = "" } = account;
-    const { rpc } = chains[chainId];
-
-    const rpcClient = new RpcClient(rpc);
-
-    let epoch: number;
-    try {
-      epoch = await rpcClient.queryEpoch();
-    } catch (e) {
-      return rejectWithValue(e);
-    }
-
-    const token = Tokens[tokenType];
-    const tokenAddress = token?.address ?? "";
-    const txCode = await fetchWasmCode(TxWasm.IBC);
-
+  async (txIbcTransferArgs, { getState, dispatch, requestId }) => {
+    const { chainId } = getState().settings;
     const integration = getIntegration(chainId);
-    integration.detect();
-    //TODO: We have to treat this as anoma Signer for now
-    // so we can use signer methods
     const signer = integration.signer() as Signer;
-    const encodedTx =
-      (await signer?.encodeIbcTransfer({
-        sourcePort: portId,
-        sourceChannel: channelId,
-        sender: source,
-        receiver: target,
-        token: tokenAddress,
-        amount,
-      })) || "";
 
-    const txProps = {
-      token: tokenAddress,
-      epoch,
-      feeAmount,
-      gasLimit,
-      txCode,
-      signInner: true,
-    };
+    dispatch(
+      notificationsActions.createToast(
+        getToast(`${requestId}-pending`, Toasts.TransferStarted)()
+      )
+    );
 
-    const { hash, bytes } =
-      (await signer?.signTx(source, txProps, encodedTx)) || {};
-
-    if (!hash || !bytes) {
-      throw new Error("Invalid transaction!");
-    }
-
-    try {
-      await rpcClient.broadcastTxSync(bytes);
-      await rpcClient.getAppliedTx(hash);
-    } catch (e) {
-      return rejectWithValue(e);
-    }
-
-    return {
-      chainId,
-      appliedHash: hash,
-      tokenType,
-      source,
-      target,
-      amount,
-      memo,
-      shielded: false,
-      gas: 1000000,
-      height: 0,
-      timestamp: new Date().getTime(),
-      type: TransferType.IBC,
-      // TODO: Remove unused properties below
-      ibcTransfer: {
-        chainId,
-        sourceChannel: channelId,
-        sourcePort: portId,
-        destinationChannel: channelId,
-        destinationPort: portId,
-        timeoutHeight: 0,
-        timeoutTimestamp: 0,
+    await signer.submitIbcTransfer({
+      tx: {
+        token: Tokens.NAM.address || "",
+        feeAmount: 0,
+        gasLimit: 0,
+        txCode: await fetchWasmCode(TxWasm.RevealPK),
       },
-    };
+      source: txIbcTransferArgs.account.address,
+      receiver: txIbcTransferArgs.target,
+      token: Tokens.NAM.address || "",
+      amount: amountToMicro(txIbcTransferArgs.amount),
+      portId: txIbcTransferArgs.portId,
+      channelId: txIbcTransferArgs.channelId,
+      txCode: await fetchWasmCode(TxWasm.IBC),
+    });
+
+    dispatch(
+      notificationsActions.createToast(
+        getToast(`${requestId}-fullfilled`, Toasts.TransferCompleted)()
+      )
+    );
   }
 );
 
@@ -316,24 +257,6 @@ const transfersSlice = createSlice({
       state.transferError = (payload as string) || error.message;
       state.events = undefined;
     });
-
-    builder.addCase(
-      submitIbcTransferTransaction.fulfilled,
-      (state, action: PayloadAction<TransferTransaction>) => {
-        const transaction = action.payload;
-        const { gas, appliedHash } = transaction;
-
-        state.isIbcTransferSubmitting = false;
-        state.transferError = undefined;
-
-        state.events = {
-          gas,
-          appliedHash,
-        };
-
-        state.transactions.push(transaction);
-      }
-    );
   },
 });
 
