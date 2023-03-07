@@ -33,4 +33,6 @@ const cosmos: Chain = {
   },
 };
 
+console.log({ cosmos });
+
 export default cosmos;
