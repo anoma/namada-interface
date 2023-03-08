@@ -12,6 +12,7 @@ export type TransactionConfiguration = {
     BTC: string;
     ETH: string;
     DOT: string;
+    OSMO: string;
   };
   maspAddress: string;
 };
@@ -23,6 +24,7 @@ export const TRANSFER_CONFIGURATION: TransactionConfiguration = {
     BTC: Tokens.BTC.address || "",
     ETH: Tokens.ETH.address || "",
     DOT: Tokens.DOT.address || "",
+    OSMO: Tokens.OSMO.address || "",
   },
   maspAddress:
     "atest1v4ehgw36xaryysfsx5unvve4g5my2vjz89p52sjxxgenzd348yuyyv3hg3pnjs35g5unvde4ca36y5",

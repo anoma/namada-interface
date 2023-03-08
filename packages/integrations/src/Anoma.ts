@@ -45,21 +45,8 @@ export default class Anoma
     return this._anoma?.getSigner(this.chain.chainId);
   }
 
-  public async submitBridgeTransfer({
-    sender,
-    receiver,
-    sourcePort,
-    sourceChannel,
-    amount,
-  }: IbcTransferProps): Promise<void> {
+  public async submitBridgeTransfer(props: IbcTransferProps): Promise<void> {
     // TODO: Call method in Anoma extension
-    console.log("Anoma.submitBridgeTransfer", {
-      sender,
-      receiver,
-      sourcePort,
-      sourceChannel,
-      amount,
-    });
-    return;
+    console.log("Anoma.submitBridgeTransfer", props);
   }
 }

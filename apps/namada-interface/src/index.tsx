@@ -1,19 +1,21 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { unstable_HistoryRouter as HistoryRouter } from "react-router-dom";
-import { createBrowserHistory } from "history";
-import { App } from "./App";
+import { RouterProvider } from "react-router-dom";
 import reportWebVitals from "./reportWebVitals";
 import { init as initShared } from "@anoma/shared/src/init";
 import "./index.css";
-
-const history = createBrowserHistory({ window });
+import { store } from "store/store";
+import { getRouter } from "./App/AppRoutes";
+import { IntegrationsProvider } from "services";
+import { Provider } from "react-redux";
 
 ReactDOM.render(
   <React.StrictMode>
-    <HistoryRouter history={history}>
-      <App />
-    </HistoryRouter>
+    <IntegrationsProvider>
+      <Provider store={store}>
+        <RouterProvider router={getRouter()} />
+      </Provider>
+    </IntegrationsProvider>
   </React.StrictMode>,
   document.getElementById("root")
 );

@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 
 import { chains } from "@anoma/chains";
 import { useAppSelector, useAppDispatch } from "store";
-import { AccountsState, addAccounts } from "slices/accounts";
-import { SettingsState } from "slices/settings";
+import { AccountsState, addAccounts, fetchBalances } from "slices/accounts";
+import { setIsConnected, SettingsState } from "slices/settings";
 import { TopLevelRoute } from "App/types";
 
 import { DerivedAccounts } from "./DerivedAccounts";
@@ -35,6 +35,11 @@ import {
   useUntilIntegrationAttached,
 } from "services";
 import { Account, ExtensionKey, Extensions } from "@anoma/types";
+
+//TODO: move to utils when we have one
+const isEmptyObject = (object: Record<string, unknown>): boolean => {
+  return Object.keys(object).length === 0;
+};
 
 export const AccountOverview = (): JSX.Element => {
   const navigate = useNavigate();
@@ -74,6 +79,8 @@ export const AccountOverview = (): JSX.Element => {
         const accounts = await integration?.accounts();
         if (accounts) {
           dispatch(addAccounts(accounts as Account[]));
+          dispatch(fetchBalances());
+          dispatch(setIsConnected(chainId));
         }
 
         setIsExtensionConnected({
@@ -105,7 +112,7 @@ export const AccountOverview = (): JSX.Element => {
             </TotalHeading>
           </div>
           <TotalContainer>
-            {derived[chainId] && (
+            {!isEmptyObject(derived[chainId]) && (
               <TotalAmount>
                 <TotalAmountFiat>{fiatCurrency}</TotalAmountFiat>
                 <TotalAmountValue>
@@ -116,7 +123,7 @@ export const AccountOverview = (): JSX.Element => {
           </TotalContainer>
         </HeadingContainer>
 
-        {derived[chainId] ? (
+        {!isEmptyObject(derived[chainId]) ? (
           <ButtonsContainer>
             <ButtonsWrapper>
               <Button
@@ -136,7 +143,7 @@ export const AccountOverview = (): JSX.Element => {
         ) : (
           <div />
         )}
-        {!derived[chainId] && (
+        {isEmptyObject(derived[chainId]) && (
           <NoAccountsContainer>
             {!isExtensionConnected[chain.extension.id] && (
               <Button

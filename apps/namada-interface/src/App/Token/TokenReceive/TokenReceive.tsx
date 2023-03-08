@@ -35,7 +35,7 @@ const TokenReceive = (): JSX.Element => {
   >();
   const accounts = derived[chainId] || {};
 
-  const accountsArray = Object.values(accounts);
+  const accountsArray = Object.values(accounts).map(({ account }) => account);
 
   const accountsData = Object.values(accountsArray).map((account) => ({
     value: account.address,

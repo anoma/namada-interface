@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 
 import { chains } from "@anoma/chains";
-import { Chain, Symbols, Tokens, TokenType } from "@anoma/types";
+import { Chain, Tokens, TokenType } from "@anoma/types";
 import { useAppDispatch, useAppSelector } from "store";
-import { AccountsState } from "slices/accounts";
+import { AccountsState, fetchBalances } from "slices/accounts";
 import { addChannel, ChannelsState } from "slices/channels";
 import {
   clearErrors,
@@ -33,16 +33,11 @@ import {
   IBCTransferFormContainer,
 } from "./IBCTransfer.components";
 import { Address } from "../Transfers/TransferDetails.components";
-import { BalancesState, fetchBalances } from "slices/balances";
 
 const IBCTransfer = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
-  const balancesByChain = useAppSelector<BalancesState>(
-    (state) => state.balances
-  );
-  const balances = balancesByChain[chainId] || {};
   const { channelsByChain = {} } = useAppSelector<ChannelsState>(
     (state) => state.channels
   );
@@ -80,60 +75,34 @@ const IBCTransfer = (): JSX.Element => {
   const [channelId, setChannelId] = useState<string>();
   const [recipient, setRecipient] = useState("");
 
-  const derivedAccounts = derived[chainId] || {};
-  const account = Object.values(derivedAccounts)[0] || {};
+  const accountsWithBalance = Object.values(derived[chainId]).filter(
+    ({ account }) => !account.isShielded
+  );
+
+  const { account } = accountsWithBalance[0] || { account: {} };
   const [selectedAccountAddress, setSelectedAccountAddress] = useState(
     account.address || ""
   );
 
-  type AccountTokenData = {
-    address: string;
-    alias?: string;
-    balance: number;
-    tokenType: TokenType;
-  };
-
-  const tokenBalances = Object.values(derivedAccounts).reduce(
-    (data: AccountTokenData[], account) => {
+  const tokenData: Option<string>[] = accountsWithBalance.flatMap(
+    ({ balance, account }) => {
       const { address, alias } = account;
 
-      const accountsWithId = Symbols.map((symbol) => {
-        const balance = (balances[address] || {})[symbol] || 0;
-
-        return {
-          address,
-          alias,
-          tokenType: symbol,
-          balance,
-        };
-      });
-
-      return [...data, ...accountsWithId];
-    },
-    []
+      return Object.entries(balance).map(([tokenType, amount]) => ({
+        value: `${address}|${tokenType}`,
+        label: `${alias !== "Namada" ? alias + " - " : ""}${
+          Tokens[tokenType as TokenType].coin
+        } (${amount} ${tokenType})`,
+      }));
+    }
   );
 
-  const tokenData: Option<string>[] = tokenBalances
-    .filter((account) => account.balance > 0)
-    .map((account) => {
-      const { address, alias, tokenType, balance } = account;
-      const token = Tokens[tokenType];
-      const { coin } = token;
+  const [token, setToken] = useState<TokenType>("NAM");
 
-      return {
-        value: `${address}|${tokenType}`,
-        label: `${
-          alias !== "Namada" ? alias + " - " : ""
-        }${coin} (${balance} ${tokenType})`,
-      };
-    });
-
-  const { tokenType } = tokenBalances[0] || {};
-  const balance =
-    tokenBalances.find((balance) => balance.address === selectedAccountAddress)
-      ?.balance || 0;
-
-  const [token, setToken] = useState<TokenType>(tokenType);
+  const currentBalance =
+    accountsWithBalance.find(
+      ({ account }) => account.address === selectedAccountAddress
+    )?.balance[token] || 0;
 
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
@@ -152,12 +121,11 @@ const IBCTransfer = (): JSX.Element => {
       const selectedChain = ibc[0].chainId;
       setSelectedChainId(selectedChain);
     }
-    dispatch(fetchBalances(Object.values(derivedAccounts)));
   }, [chainId]);
 
   useEffect(() => {
     if (account && !isIbcTransferSubmitting) {
-      fetchBalances(Object.values(derivedAccounts));
+      dispatch(fetchBalances());
     }
   }, [isIbcTransferSubmitting]);
 
@@ -309,7 +277,7 @@ const IBCTransfer = (): JSX.Element => {
                 setAmount(parseFloat(`${value}`));
               }}
               onFocus={handleFocus}
-              error={amount <= balance ? undefined : "Invalid amount!"}
+              error={amount <= currentBalance ? undefined : "Invalid amount!"}
             />
           </InputContainer>
 
@@ -332,7 +300,7 @@ const IBCTransfer = (): JSX.Element => {
             <Button
               variant={ButtonVariant.Contained}
               disabled={
-                amount > balance ||
+                amount > currentBalance ||
                 amount === 0 ||
                 !recipient ||
                 isIbcTransferSubmitting ||

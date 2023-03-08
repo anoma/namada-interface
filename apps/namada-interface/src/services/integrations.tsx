@@ -13,7 +13,7 @@ import {
 type Integration = typeof Anoma | typeof Keplr | typeof Metamask;
 type ChainId = string;
 type IntegrationsMap = Record<string, Integration>;
-type Integrations = Record<ChainId, InstanceType<Integration>>;
+export type Integrations = Record<ChainId, InstanceType<Integration>>;
 type ExtensionConnection<T, U> = (
   onSuccess: () => T,
   onFail?: () => U
@@ -25,16 +25,19 @@ const extensionMap: IntegrationsMap = {
   metamask: Metamask,
 };
 
-const integrations = Object.entries(chains).reduce((acc, [chainId, chain]) => {
-  const extensionId = chain.extension.id;
+export const integrations = Object.entries(chains).reduce(
+  (acc, [chainId, chain]) => {
+    const extensionId = chain.extension.id;
 
-  if (Object.keys(extensionMap).includes(extensionId)) {
-    const Ext = extensionMap[extensionId];
-    acc[chainId] = new Ext(chain);
-  }
+    if (Object.keys(extensionMap).includes(extensionId)) {
+      const Ext = extensionMap[extensionId];
+      acc[chainId] = new Ext(chain);
+    }
 
-  return acc;
-}, {} as Integrations);
+    return acc;
+  },
+  {} as Integrations
+);
 
 export const IntegrationsContext = createContext<Integrations>({});
 
@@ -116,16 +119,17 @@ export const useUntilIntegrationAttached = (chain: Chain): AttachStatusMap => {
   });
 
   useEffect(() => {
-    setAttachStatus({ ...attachStatusMap, [extension.id]: "pending" });
+    setAttachStatus((v) => ({ ...v, [extension.id]: "pending" }));
   }, [chainId]);
 
   useUntil(
     {
       predFn: () => integration.detect(),
-      onSuccess: () =>
-        setAttachStatus({ ...attachStatusMap, [extension.id]: "attached" }),
+      onSuccess: () => {
+        setAttachStatus((v) => ({ ...v, [extension.id]: "attached" }));
+      },
       onFail: () =>
-        setAttachStatus({ ...attachStatusMap, [extension.id]: "detached" }),
+        setAttachStatus((v) => ({ ...v, [extension.id]: "detached" })),
     },
     {
       tries: 10,

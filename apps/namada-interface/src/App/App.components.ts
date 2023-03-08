@@ -68,6 +68,39 @@ export const AppContainer = styled.div`
   }
 `;
 
+export const AppLoader = styled.div`
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10;
+
+  &::after {
+    content: "";
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    border: 4px solid transparent;
+    border-top-color: ${(props) => props.theme.colors.primary.main};
+    border-radius: 50%;
+    animation: button-loading-spinner 1s ease infinite;
+
+    @keyframes button-loading-spinner {
+      from {
+        transform: rotate(0turn);
+      }
+
+      to {
+        transform: rotate(1turn);
+      }
+    }
+  }
+`;
+
 export const TopSection = styled.section`
   display: flex;
   justify-content: center;

@@ -2,16 +2,12 @@ import { useContext, useEffect, useState } from "react";
 import { ThemeContext } from "styled-components";
 import { useNavigate } from "react-router-dom";
 
-import Config from "config";
 import { chains } from "@anoma/chains";
 import { useAppDispatch, useAppSelector } from "store";
 import { AccountsState } from "slices/accounts";
-import { BalancesState, fetchBalances } from "slices/balances";
 import { SettingsState } from "slices/settings";
-/* import { updateShieldedBalances } from "slices/AccountsNew"; */
-import { Symbols, TokenType } from "@anoma/types";
+import { TokenType } from "@anoma/types";
 import { formatCurrency, formatRoute } from "@anoma/utils";
-import { fetchConversionRates, CoinsState } from "slices/coins";
 
 import {
   DerivedAccountsContainer,
@@ -40,6 +36,8 @@ import AssetPolkadotDot from "./assets/asset-polkadot-dot.png";
 import AssetBitcoinBtc from "./assets/asset-bitcoin-btc.png";
 
 import { TopLevelRoute } from "App/types";
+import { CoinsState, fetchConversionRates } from "slices/coins";
+import Config from "config";
 
 type Props = {
   setTotal: (total: number) => void;
@@ -66,6 +64,10 @@ const assetIconByToken: Record<TokenType, { light: string; dark: string }> = {
     light: AssetBitcoinBtc,
     dark: AssetBitcoinBtc,
   },
+  ["OSMO"]: {
+    light: AssetCosmosAtom,
+    dark: AssetCosmosAtom,
+  },
 };
 
 const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
@@ -78,63 +80,15 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
   const { chainId, fiatCurrency } = useAppSelector<SettingsState>(
     (state) => state.settings
   );
-  const balancesByChainId = useAppSelector<BalancesState>(
-    (state) => state.balances
-  );
   const { rates, timestamp } = useAppSelector<CoinsState>(
     (state) => state.coins
   );
-
   const { api } = Config;
-  const { alias, currency } = chains[chainId] || {};
 
-  const transparentBalances = balancesByChainId[chainId] || {};
+  const { alias } = chains[chainId] || {};
 
-  type TokenBalance = {
-    address: string;
-    token: TokenType;
-    label: string;
-    balance: number;
-    isShielded?: boolean;
-  };
-
-  const derivedAccounts = derived[chainId] || {};
+  const derivedAccounts = derived[chainId];
   const { colorMode } = themeContext.themeConfigurations;
-
-  const accountBalances = Object.values(derivedAccounts).map((account) => {
-    const tokens: TokenBalance[] = [];
-    const { address, alias, isShielded } = account;
-
-    const balances = transparentBalances[address] || {};
-    let tokenSymbols = [];
-
-    if (currency.symbol === "NAM") {
-      // TODO: It may be better to add to chain configs an array of all supported tokens,
-      // rather than use that logic here only for Namada:
-      // Show all supported tokens
-      tokenSymbols = Symbols.map((symbol) => symbol);
-    } else {
-      // Show token for this chain only
-      tokenSymbols.push(currency.symbol);
-    }
-
-    // TODO: Type this correctly
-    // eslint-disable-next-line
-    tokenSymbols.forEach((symbol: any) => {
-      tokens.push({
-        address,
-        balance: balances[symbol] || 0,
-        label: `${alias}`,
-        token: symbol,
-        isShielded,
-      });
-    });
-
-    return {
-      account,
-      tokens,
-    };
-  });
 
   const getAssetIconByTheme = (symbol: TokenType): string => {
     return colorMode === "dark"
@@ -142,18 +96,13 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
       : assetIconByToken[symbol].light;
   };
 
-  // TODO: Check for any shielded accounts, and update balances accordingly
-  /* useEffect(() => { */
-  /*   if (Object.values(shieldedAccounts).length > 0) { */
-  /*     dispatch(updateShieldedBalances()); */
-  /*   } */
-  /* }, []); */
+  const handleAccountClick = (address: string): void => {
+    setActiveAccountAddress(address === activeAccountAddress ? "" : address);
+  };
 
-  useEffect(() => {
-    dispatch(fetchBalances(Object.values(derivedAccounts)));
-
-    setActiveAccountAddress(accountBalances[0]?.account?.address);
-  }, [derivedAccounts]);
+  const accountsWithBalance = Object.values(derivedAccounts).sort(
+    ({ account }) => (account.isShielded ? -1 : 1)
+  );
 
   const applyConversionRate = (balance: number, token: string): number => {
     if (rates[token] && rates[token][fiatCurrency]) {
@@ -163,23 +112,21 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
   };
 
   useEffect(() => {
-    if (accountBalances.length > 0) {
-      const total = accountBalances.reduce((acc, accountBalance) => {
-        const { tokens } = accountBalance;
+    if (accountsWithBalance.length > 0) {
+      const total = accountsWithBalance.reduce((acc, entry) => {
+        const { balance } = entry;
 
         let fiatBalance = 0;
 
-        tokens.forEach((tokenBalance) => {
-          const { balance = 0, token } = tokenBalance;
-
-          fiatBalance = applyConversionRate(balance, token);
+        Object.entries(balance).forEach(([token, value]) => {
+          fiatBalance += applyConversionRate(value, token);
         });
 
         return acc + fiatBalance;
       }, 0);
       setTotal(total);
     }
-  }, [accountBalances, chainId]);
+  }, [accountsWithBalance, chainId]);
 
   useEffect(() => {
     const currentTimestamp = Math.floor(Date.now() / 1000);
@@ -190,22 +137,20 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
     }
   }, [timestamp]);
 
-  const handleAccountClick = (address: string): void => {
-    setActiveAccountAddress(address === activeAccountAddress ? "" : address);
-  };
+  useEffect(() => {
+    setActiveAccountAddress(accountsWithBalance[0]?.account?.address);
+  }, [derivedAccounts]);
 
   return (
     <DerivedAccountsContainer>
-      {accountBalances.length === 0 &&
-        Object.values(derivedAccounts).length > 0 && (
-          <NoTokens>
-            <p>You have no token balances to display on {alias}!</p>
-          </NoTokens>
-        )}
+      {accountsWithBalance.length === 0 && (
+        <NoTokens>
+          <p>You have no token balances to display on {alias}!</p>
+        </NoTokens>
+      )}
 
       <DerivedAccountsList>
-        {accountBalances.map((accountBalance) => {
-          const { account, tokens } = accountBalance;
+        {accountsWithBalance.map(({ account, balance }) => {
           const { alias, address, isShielded } = account;
 
           return (
@@ -231,13 +176,11 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
                 className={(address === activeAccountAddress && "active") || ""}
               >
                 <TokenBalances>
-                  {tokens.map((tokenBalance) => {
-                    const { balance, token } = tokenBalance;
-
+                  {Object.entries(balance).map(([token, amount]) => {
                     return (
                       <TokenBalance key={`${address}-${token}`}>
                         <TokenIcon
-                          src={getAssetIconByTheme(token)}
+                          src={getAssetIconByTheme(token as TokenType)}
                           onClick={() => {
                             navigate(
                               formatRoute(TopLevelRoute.TokenTransfers, {
@@ -247,7 +190,7 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
                             );
                           }}
                         />
-                        {balance} {token}
+                        {amount} {token}
                       </TokenBalance>
                     );
                   })}

@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 
 import { chains } from "@anoma/chains";
-import { Account, Chain, Tokens } from "@anoma/types";
+import { Chain, Tokens } from "@anoma/types";
 import { formatRoute, stringFromTimestamp } from "@anoma/utils";
 import {
   Button,
@@ -40,14 +40,11 @@ const TokenDetails = (): JSX.Element => {
     (state) => state.transfers
   );
 
-  const accounts = derived[chainId] || {};
-
-  const account: Account = accounts[id] || {};
+  const { account } = derived[chainId][id];
   const { alias, address } = account;
 
-  // TODO: Fix me
-  const tokenType = "NAM";
-  const token = Tokens[tokenType] || {};
+  const tokenType = chains[chainId].currency.symbol;
+  const token = Tokens[tokenType];
 
   // eslint-disable-next-line prefer-const
   const transactions = accountTransactions
