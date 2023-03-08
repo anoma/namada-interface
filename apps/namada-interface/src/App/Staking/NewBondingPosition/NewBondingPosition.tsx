@@ -74,7 +74,7 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
     (pos) => pos.owner === address
   );
   const stakedAmount = Number(currentBondingPosition?.stakedAmount || "0");
-  const currentNAMBalance = currentBalance["NAM"];
+  const currentNAMBalance = currentBalance["NAM"] || 0;
 
   const handleAddressChange = (
     e: React.ChangeEvent<HTMLSelectElement>

@@ -1,6 +1,8 @@
+import { TokenType } from "./tx";
+
 export type Currency = {
   token: string;
-  symbol: string;
+  symbol: TokenType;
   gasPriceStep?: {
     low: number;
     average: number;

@@ -164,12 +164,12 @@ const TokenSendForm = ({
 
   const { account, balance } = derivedAccounts[address];
   const isShieldedSource = account.isShielded;
-  const token = Tokens[tokenType] || {};
+  const token = Tokens[tokenType];
 
   const isFormInvalid = getIsFormInvalid(
     target,
     amount,
-    balance[tokenType],
+    balance[tokenType] || 0,
     isTargetValid,
     isTransferSubmitting
   );

@@ -43,9 +43,8 @@ const TokenDetails = (): JSX.Element => {
   const { account } = derived[chainId][id];
   const { alias, address } = account;
 
-  // TODO: Fix me
-  const tokenType = "NAM";
-  const token = Tokens[tokenType] || {};
+  const tokenType = chains[chainId].currency.symbol;
+  const token = Tokens[tokenType];
 
   // eslint-disable-next-line prefer-const
   const transactions = accountTransactions

@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Account, Symbols, Tokens, TokenType } from "@anoma/types";
+import { Account, Tokens, TokenType } from "@anoma/types";
 import { RootState } from "store";
 import { chains } from "@anoma/chains";
 import { RpcClient } from "@anoma/rpc";
@@ -7,21 +7,13 @@ import { RpcClient } from "@anoma/rpc";
 type ChainId = string;
 type Address = string;
 
-export type Balance = Record<TokenType, number>;
+export type Balance = Partial<Record<TokenType, number>>;
 
 export type AccountsState = {
   derived: Record<
     ChainId,
     Record<Address, { account: Account; balance: Balance }>
   >;
-};
-
-const EMPTY_BALANCE = {
-  NAM: 0,
-  ATOM: 0,
-  ETH: 0,
-  DOT: 0,
-  BTC: 0,
 };
 
 const ACCOUNTS_ACTIONS_BASE = "accounts";
@@ -57,13 +49,14 @@ export const fetchBalances = createAsyncThunk<
     );
 
     const balances = await Promise.all(
-      accountsWithBalance.map(async ({ account }) => {
+      accountsWithBalance.map(async ({ account, balance: currentBalance }) => {
         const { chainId, address } = account;
         const { rpc } = chains[chainId];
         const rpcClient = new RpcClient(rpc);
 
         const results = await Promise.all(
-          Symbols.map(async (tokenType) => {
+          Object.keys(currentBalance).map(async (balanceKey) => {
+            const tokenType = balanceKey as TokenType;
             const { address: tokenAddress = "" } = Tokens[tokenType];
             let balance: number;
             try {
@@ -99,6 +92,7 @@ const accountsSlice = createSlice({
       const accounts = action.payload;
       accounts.forEach((account) => {
         const { address, alias, isShielded, chainId } = account;
+        const currencySymbol = chains[chainId].currency.symbol;
         if (!state.derived[chainId]) {
           state.derived[chainId] = {};
         }
@@ -110,7 +104,9 @@ const accountsSlice = createSlice({
             chainId,
             isShielded,
           },
-          balance: EMPTY_BALANCE,
+          balance: {
+            [currencySymbol]: 0,
+          },
         };
       });
     },

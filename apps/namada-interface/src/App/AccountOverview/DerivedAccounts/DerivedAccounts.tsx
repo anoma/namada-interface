@@ -64,6 +64,10 @@ const assetIconByToken: Record<TokenType, { light: string; dark: string }> = {
     light: AssetBitcoinBtc,
     dark: AssetBitcoinBtc,
   },
+  ["OSMO"]: {
+    light: AssetCosmosAtom,
+    dark: AssetCosmosAtom,
+  },
 };
 
 const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {

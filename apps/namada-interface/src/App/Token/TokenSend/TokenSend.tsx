@@ -28,6 +28,7 @@ import {
   ESTABLISHED_ADDRESS_LENGTH,
   ESTABLISHED_ADDRESS_PREFIX,
 } from "./types";
+import { chains } from "@anoma/chains";
 
 export const parseTarget = (target: string): TransferType | undefined => {
   if (
@@ -85,7 +86,7 @@ const TokenSend = (): JSX.Element => {
   const [
     selectedTransparentAccountAddress,
     setSelectedTransparentAccountAddress,
-  ] = useState<string | undefined>(account.address);
+  ] = useState<string | undefined>(account?.address);
 
   const [selectedShieldedAccountAddress, setSelectedShieldedAccountAddress] =
     useState<string | undefined>();
@@ -99,7 +100,9 @@ const TokenSend = (): JSX.Element => {
   }
 
   const [activeTab, setActiveTab] = useState(tabs[defaultTab]);
-  const [token, setToken] = useState<TokenType>("NAM");
+  const [token, setToken] = useState<TokenType>(
+    chains[chainId].currency.symbol
+  );
 
   const handleTokenChange =
     (selectAccountFn: (accId: string) => void) =>

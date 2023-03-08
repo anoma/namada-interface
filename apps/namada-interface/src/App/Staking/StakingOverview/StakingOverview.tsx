@@ -136,7 +136,7 @@ export const StakingOverview = (props: Props): JSX.Element => {
     0
   );
   const totalBalance = addressesWithBalance.reduce((acc, curr) => {
-    return acc + curr.balance["NAM"];
+    return acc + (curr.balance["NAM"] ?? 0);
   }, 0);
 
   return (

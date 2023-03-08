@@ -76,7 +76,7 @@ const IBCTransfer = (): JSX.Element => {
   const [recipient, setRecipient] = useState("");
 
   const accountsWithBalance = Object.values(derived[chainId]).filter(
-    ({ account }) => account.isShielded
+    ({ account }) => !account.isShielded
   );
 
   const { account } = accountsWithBalance[0] || { account: {} };

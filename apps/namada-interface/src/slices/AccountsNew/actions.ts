@@ -8,10 +8,7 @@ import {
 } from "./types";
 import { history, TopLevelRouteGenerator } from "App";
 import { RootState } from "store/store";
-import {
-  getShieldedBalance,
-  TRANSFER_CONFIGURATION,
-} from "slices/shieldedTransfer";
+import { TRANSFER_CONFIGURATION } from "slices/shieldedTransfer";
 import { ShieldedAccountType, getMaspWeb } from "@anoma/masp-web";
 import { actions, CreateToastPayload, ToastId } from "slices/notifications";
 import { TokenType } from "@anoma/types";
@@ -70,7 +67,7 @@ export const createShieldedAccount = createAsyncThunk<
     newAccountDetails: NewAccountDetailsWithPassword & { notify?: boolean },
     thunkAPI
   ) => {
-    const { chainId, alias, password, notify } = newAccountDetails;
+    const { chainId, alias, notify } = newAccountDetails;
 
     if (notify) {
       thunkAPI.dispatch(
