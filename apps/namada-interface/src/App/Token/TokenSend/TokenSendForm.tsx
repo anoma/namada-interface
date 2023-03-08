@@ -162,8 +162,8 @@ const TokenSendForm = ({
     (state) => state.transfers
   );
 
-  const { account, balance } = derivedAccounts[address];
-  const isShieldedSource = account.isShielded;
+  const { details, balance } = derivedAccounts[address];
+  const isShieldedSource = details.isShielded;
   const token = Tokens[tokenType];
 
   const isFormInvalid = getIsFormInvalid(
@@ -254,7 +254,7 @@ const TokenSendForm = ({
       dispatch(
         submitTransferTransaction({
           chainId,
-          account,
+          account: details,
           target,
           amount,
           token: tokenType,

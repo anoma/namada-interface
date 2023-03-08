@@ -16,7 +16,7 @@ import {
   StakingPosition,
   ChangeInStakingPosition,
 } from "slices/StakingAndGovernance";
-import { Balance } from "slices/accounts";
+import { Account, Balance } from "slices/accounts";
 
 const REMAINS_BONDED_KEY = "Remains bonded";
 
@@ -42,7 +42,7 @@ const bondingDetailsConfigurations: TableConfigurations<KeyValueData, never> = {
 };
 
 type Props = {
-  addressesWithBalance: { address: string; balance: Balance }[];
+  accounts: Account[];
   currentBondingPositions: StakingPosition[];
   // called when the user confirms bonding
   confirmBonding: (changeInStakingPosition: ChangeInStakingPosition) => void;
@@ -52,40 +52,32 @@ type Props = {
 
 // contains everything what the user needs for bonding funds
 export const NewBondingPosition = (props: Props): JSX.Element => {
-  const {
-    addressesWithBalance,
-    currentBondingPositions,
-    confirmBonding,
-    cancelBonding,
-  } = props;
+  const { accounts, currentBondingPositions, confirmBonding, cancelBonding } =
+    props;
 
-  const selectOptions = addressesWithBalance.map(({ address }) => ({
+  const selectOptions = accounts.map(({ details: { address } }) => ({
     value: address,
     label: truncateInMiddle(address, 9, 9),
   }));
 
-  const [address, setAddress] = useState<string>(
-    addressesWithBalance[0].address
-  );
-  const [currentBalance, setCurrentBalance] = useState<Balance>(
-    addressesWithBalance[0].balance
-  );
+  const [currentAccount, setCurrentAccount] = useState<Account>(accounts[0]);
+  const currentAddress = currentAccount?.details.address;
+
   const currentBondingPosition = currentBondingPositions.find(
-    (pos) => pos.owner === address
+    (pos) => pos.owner === currentAccount?.details.address
   );
   const stakedAmount = Number(currentBondingPosition?.stakedAmount || "0");
-  const currentNAMBalance = currentBalance["NAM"] || 0;
+  const currentNAMBalance = currentAccount.balance["NAM"] || 0;
 
   const handleAddressChange = (
     e: React.ChangeEvent<HTMLSelectElement>
   ): void => {
-    const address = e.target.value;
-    const addrWithBalance = addressesWithBalance.find(
-      ({ address: a }) => address === a
+    const targetAddress = e.target.value;
+    const account = accounts.find(
+      ({ details: { address } }) => targetAddress === address
     );
-    if (addrWithBalance) {
-      setAddress(addrWithBalance.address);
-      setCurrentBalance(addrWithBalance.balance);
+    if (account) {
+      setCurrentAccount(account);
     }
   };
 
@@ -152,7 +144,7 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
 
       <BondingAddressSelect
         data={selectOptions}
-        value={address}
+        value={currentAddress}
         label="Address"
         onChange={handleAddressChange}
       />
@@ -170,7 +162,7 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
         onClick={() => {
           const changeInStakingPosition: ChangeInStakingPosition = {
             amount: amountToBond,
-            owner: address,
+            owner: currentAddress,
             validatorId: currentBondingPositions[0].validatorId,
           };
           confirmBonding(changeInStakingPosition);

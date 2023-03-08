@@ -87,7 +87,7 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
 
   const { alias } = chains[chainId] || {};
 
-  const derivedAccounts = derived[chainId];
+  const accounts = Object.values(derived[chainId]);
   const { colorMode } = themeContext.themeConfigurations;
 
   const getAssetIconByTheme = (symbol: TokenType): string => {
@@ -100,10 +100,6 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
     setActiveAccountAddress(address === activeAccountAddress ? "" : address);
   };
 
-  const accountsWithBalance = Object.values(derivedAccounts).sort(
-    ({ account }) => (account.isShielded ? -1 : 1)
-  );
-
   const applyConversionRate = (balance: number, token: string): number => {
     if (rates[token] && rates[token][fiatCurrency]) {
       return balance * rates[token][fiatCurrency].rate;
@@ -112,21 +108,19 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
   };
 
   useEffect(() => {
-    if (accountsWithBalance.length > 0) {
-      const total = accountsWithBalance.reduce((acc, entry) => {
-        const { balance } = entry;
+    const total = accounts.reduce((acc, entry) => {
+      const { balance } = entry;
 
-        let fiatBalance = 0;
+      let fiatBalance = 0;
 
-        Object.entries(balance).forEach(([token, value]) => {
-          fiatBalance += applyConversionRate(value, token);
-        });
+      Object.entries(balance).forEach(([token, value]) => {
+        fiatBalance += applyConversionRate(value, token);
+      });
 
-        return acc + fiatBalance;
-      }, 0);
-      setTotal(total);
-    }
-  }, [accountsWithBalance, chainId]);
+      return acc + fiatBalance;
+    }, 0);
+    setTotal(total);
+  }, [accounts, chainId]);
 
   useEffect(() => {
     const currentTimestamp = Math.floor(Date.now() / 1000);
@@ -138,67 +132,71 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
   }, [timestamp]);
 
   useEffect(() => {
-    setActiveAccountAddress(accountsWithBalance[0]?.account?.address);
-  }, [derivedAccounts]);
+    setActiveAccountAddress(accounts[0]?.details.address);
+  }, [accounts]);
 
   return (
     <DerivedAccountsContainer>
-      {accountsWithBalance.length === 0 && (
+      {accounts.length === 0 && (
         <NoTokens>
           <p>You have no token balances to display on {alias}!</p>
         </NoTokens>
       )}
 
       <DerivedAccountsList>
-        {accountsWithBalance.map(({ account, balance }) => {
-          const { alias, address, isShielded } = account;
+        {accounts
+          .sort(({ details }) => (details.isShielded ? -1 : 1))
+          .map(({ details, balance }) => {
+            const { alias, address, isShielded } = details;
 
-          return (
-            <DerivedAccountItem key={address}>
-              <DerivedAccountContainer
-                onClick={() => handleAccountClick(address)}
-              >
-                <DerivedAccountInfo>
-                  <DerivedAccountAlias>{alias}</DerivedAccountAlias>
-                  <DerivedAccountType>
-                    {isShielded ? (
-                      <ShieldedLabel>Shielded</ShieldedLabel>
-                    ) : (
-                      <TransparentLabel>Transparent</TransparentLabel>
-                    )}
-                  </DerivedAccountType>
-                </DerivedAccountInfo>
-                <DerivedAccountBalance>
-                  {formatCurrency(fiatCurrency, 0)}
-                </DerivedAccountBalance>
-              </DerivedAccountContainer>
-              <TokenTotals
-                className={(address === activeAccountAddress && "active") || ""}
-              >
-                <TokenBalances>
-                  {Object.entries(balance).map(([token, amount]) => {
-                    return (
-                      <TokenBalance key={`${address}-${token}`}>
-                        <TokenIcon
-                          src={getAssetIconByTheme(token as TokenType)}
-                          onClick={() => {
-                            navigate(
-                              formatRoute(TopLevelRoute.TokenTransfers, {
-                                id: address,
-                                token,
-                              })
-                            );
-                          }}
-                        />
-                        {amount} {token}
-                      </TokenBalance>
-                    );
-                  })}
-                </TokenBalances>
-              </TokenTotals>
-            </DerivedAccountItem>
-          );
-        })}
+            return (
+              <DerivedAccountItem key={address}>
+                <DerivedAccountContainer
+                  onClick={() => handleAccountClick(address)}
+                >
+                  <DerivedAccountInfo>
+                    <DerivedAccountAlias>{alias}</DerivedAccountAlias>
+                    <DerivedAccountType>
+                      {isShielded ? (
+                        <ShieldedLabel>Shielded</ShieldedLabel>
+                      ) : (
+                        <TransparentLabel>Transparent</TransparentLabel>
+                      )}
+                    </DerivedAccountType>
+                  </DerivedAccountInfo>
+                  <DerivedAccountBalance>
+                    {formatCurrency(fiatCurrency, 0)}
+                  </DerivedAccountBalance>
+                </DerivedAccountContainer>
+                <TokenTotals
+                  className={
+                    (address === activeAccountAddress && "active") || ""
+                  }
+                >
+                  <TokenBalances>
+                    {Object.entries(balance).map(([token, amount]) => {
+                      return (
+                        <TokenBalance key={`${address}-${token}`}>
+                          <TokenIcon
+                            src={getAssetIconByTheme(token as TokenType)}
+                            onClick={() => {
+                              navigate(
+                                formatRoute(TopLevelRoute.TokenTransfers, {
+                                  id: address,
+                                  token,
+                                })
+                              );
+                            }}
+                          />
+                          {amount} {token}
+                        </TokenBalance>
+                      );
+                    })}
+                  </TokenBalances>
+                </TokenTotals>
+              </DerivedAccountItem>
+            );
+          })}
       </DerivedAccountsList>
     </DerivedAccountsContainer>
   );

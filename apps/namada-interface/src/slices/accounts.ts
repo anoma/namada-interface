@@ -1,19 +1,18 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Account, Tokens, TokenType } from "@anoma/types";
+import { Account as AccountDetails, Tokens, TokenType } from "@anoma/types";
 import { RootState } from "store";
 import { chains } from "@anoma/chains";
 import { RpcClient } from "@anoma/rpc";
 
 type ChainId = string;
 type Address = string;
+type Details = AccountDetails;
 
 export type Balance = Partial<Record<TokenType, number>>;
+export type Account = { details: Details; balance: Balance };
 
 export type AccountsState = {
-  derived: Record<
-    ChainId,
-    Record<Address, { account: Account; balance: Balance }>
-  >;
+  derived: Record<ChainId, Record<Address, Account>>;
 };
 
 const ACCOUNTS_ACTIONS_BASE = "accounts";
@@ -44,13 +43,13 @@ export const fetchBalances = createAsyncThunk<
   `${ACCOUNTS_ACTIONS_BASE}/${AccountsThunkActions.FetchBalance}`,
   async (_, thunkApi) => {
     const { chainId } = thunkApi.getState().settings;
-    const accountsWithBalance = Object.values(
+    const accounts: Account[] = Object.values(
       thunkApi.getState().accounts.derived[chainId]
     );
 
     const balances = await Promise.all(
-      accountsWithBalance.map(async ({ account, balance: currentBalance }) => {
-        const { chainId, address } = account;
+      accounts.map(async ({ details, balance: currentBalance }) => {
+        const { chainId, address } = details;
         const { rpc } = chains[chainId];
         const rpcClient = new RpcClient(rpc);
 
@@ -88,7 +87,7 @@ const accountsSlice = createSlice({
   name: ACCOUNTS_ACTIONS_BASE,
   initialState,
   reducers: {
-    addAccounts: (state, action: PayloadAction<readonly Account[]>) => {
+    addAccounts: (state, action: PayloadAction<readonly AccountDetails[]>) => {
       const accounts = action.payload;
       accounts.forEach((account) => {
         const { address, alias, isShielded, chainId } = account;
@@ -98,7 +97,7 @@ const accountsSlice = createSlice({
         }
 
         state.derived[chainId][address] = {
-          account: {
+          details: {
             address,
             alias,
             chainId,

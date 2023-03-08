@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 
-import { Account, TokenType } from "@anoma/types";
+import { TokenType } from "@anoma/types";
 import { formatRoute, stringFromTimestamp } from "@anoma/utils";
 import {
   Button,
@@ -13,7 +13,7 @@ import {
 } from "@anoma/components";
 
 import { TopLevelRoute } from "App/types";
-import { AccountsState } from "slices/accounts";
+import { Account, AccountsState } from "slices/accounts";
 import { TransfersState, TransferTransaction } from "slices/transfers";
 import { SettingsState } from "slices/settings";
 import { useAppSelector } from "store";
@@ -50,8 +50,10 @@ const Transfers = (): JSX.Element => {
   /*     shieldedAccounts[id].shieldedKeysAndPaymentAddress; */
   /* } */
 
-  const account: Account = derivedAccounts[id].account;
-  const { address } = account;
+  const account: Account = derivedAccounts[id];
+  const {
+    details: { address },
+  } = account;
 
   const transactions: TransferTransaction[] = accountTransactions
     .filter(

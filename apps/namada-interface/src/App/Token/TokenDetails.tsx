@@ -40,8 +40,9 @@ const TokenDetails = (): JSX.Element => {
     (state) => state.transfers
   );
 
-  const { account } = derived[chainId][id];
-  const { alias, address } = account;
+  const {
+    details: { alias, address },
+  } = derived[chainId][id];
 
   const tokenType = chains[chainId].currency.symbol;
   const token = Tokens[tokenType];

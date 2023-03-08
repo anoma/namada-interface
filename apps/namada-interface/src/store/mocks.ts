@@ -8,7 +8,7 @@ export const mockAppState: RootState = {
       "anoma-masp-1.5.32ccad5356012a7": {
         atest1v4ehgw36xqcyz3zrxsenzd3kxsunsvzzxymyywpkg4zrjv2pxepyyd3cgse5gwzxgsm5x3zrkf2pwp:
           {
-            account: {
+            details: {
               chainId: "anoma-masp-1.5.32ccad5356012a7",
               alias: "Namada",
               address:
@@ -26,7 +26,7 @@ export const mockAppState: RootState = {
       },
       "anoma-test.1e670ba91369ec891fc": {
         "39UL18": {
-          account: {
+          details: {
             chainId: "anoma-test.1e670ba91369ec891fc",
             alias: "Namada",
             address:
@@ -44,7 +44,7 @@ export const mockAppState: RootState = {
       },
       "anoma-test.89060614ce340f4baae": {
         "2MLGVA": {
-          account: {
+          details: {
             chainId: "anoma-test.89060614ce340f4baae",
             alias: "Namada",
             address: "L1qDtV8TRwYLSHdMDW518hgRw9nWnRjFTenkcBYNJruyYoLjaj8F",
