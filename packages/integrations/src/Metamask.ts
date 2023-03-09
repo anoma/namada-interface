@@ -1,7 +1,7 @@
 import { type MetaMaskInpageProvider } from "@metamask/providers";
 import MetaMaskSDK from "@metamask/sdk";
 
-import { Account, BridgeTransferProps, Chain } from "@anoma/types";
+import { Account, BridgeTransferProps, Chain, TokenType } from "@anoma/types";
 import { shortenAddress } from "@anoma/utils";
 import { Integration } from "./types/Integration";
 
@@ -88,8 +88,8 @@ class Metamask implements Integration<Account, unknown, BridgeTransferProps> {
     return;
   }
 
-  public async queryBalances(accounts: Account[]): Promise<number> {
-    console.log({ accounts });
+  public async queryBalance(owner: string, token: TokenType): Promise<number> {
+    console.log({ owner, token });
 
     return 0;
   }

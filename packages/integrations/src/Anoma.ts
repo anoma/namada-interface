@@ -4,8 +4,11 @@ import {
   Chain,
   IbcTransferProps,
   Signer,
+  Tokens,
+  TokenType,
   WindowWithAnoma,
 } from "@anoma/types";
+import { RpcClient } from "@anoma/rpc";
 
 import { Integration } from "./types/Integration";
 
@@ -51,9 +54,10 @@ export default class Anoma
     console.log("Anoma.submitBridgeTransfer", props);
   }
 
-  public async queryBalances(accounts: Account[]): Promise<number> {
-    console.log({ accounts });
+  public async queryBalance(owner: string, token: TokenType): Promise<number> {
+    const rpcClient = new RpcClient(this.chain.rpc);
+    const { address: tokenAddress = "" } = Tokens[token];
 
-    return 0;
+    return await rpcClient.queryBalance(tokenAddress, owner);
   }
 }

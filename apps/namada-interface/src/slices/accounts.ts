@@ -51,23 +51,16 @@ export const fetchBalances = createAsyncThunk<
       thunkApi.getState().accounts.derived[chainId]
     );
 
-    // Test passing accounts to integration->queryBalances(accounts)
-    await integration.queryBalances(accounts.map((acc) => acc.details));
-
-    // TODO: Move this logic to integration (Anoma), implement for Keplr & Metamask within Integration
     const balances = await Promise.all(
       accounts.map(async ({ details, balance: currentBalance }) => {
         const { chainId, address } = details;
-        const { rpc } = chains[chainId];
-        const rpcClient = new RpcClient(rpc);
 
         const results = await Promise.all(
           Object.keys(currentBalance).map(async (balanceKey) => {
             const tokenType = balanceKey as TokenType;
-            const { address: tokenAddress = "" } = Tokens[tokenType];
             let balance: number;
             try {
-              balance = await rpcClient.queryBalance(tokenAddress, address);
+              balance = await integration.queryBalance(address, tokenType);
             } catch (e) {
               balance = 0;
             }
