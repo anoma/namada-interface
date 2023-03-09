@@ -13,10 +13,26 @@ import {
   stakingAndGovernanceReducers,
 } from "slices";
 import { LocalStorageKeys } from "App/types";
+import { createTransform } from "redux-persist";
+import { SettingsState } from "slices/settings";
+import { chains, defaultChainId } from "@anoma/chains";
 
 const { REACT_APP_LOCAL, NODE_ENV } = process.env;
 const POSTFIX =
   NODE_ENV === "development" ? (REACT_APP_LOCAL ? "-local" : "-dev") : "";
+
+const ChainIdTransform = createTransform(
+  (inboundState: SettingsState) => {
+    return inboundState;
+  },
+  (outboundState: SettingsState) => {
+    const savedChainId = outboundState.chainId;
+    const chainId = savedChainId in chains ? savedChainId : defaultChainId;
+
+    return { ...outboundState, chainId };
+  },
+  { whitelist: ["settings"] }
+);
 
 const reducers = combineReducers({
   accounts: accountsReducer || {},
@@ -33,6 +49,7 @@ const persistConfig = {
   storage,
   // Only persist data in whitelist:
   whitelist: ["settings"],
+  transforms: [ChainIdTransform],
 };
 
 const persistedReducer = persistReducer(persistConfig, reducers);
