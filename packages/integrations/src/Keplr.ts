@@ -4,6 +4,7 @@ import {
   Window as KeplrWindow,
 } from "@keplr-wallet/types";
 import { AccountData } from "@cosmjs/proto-signing";
+import { StargateClient } from "@cosmjs/stargate";
 import { Account, Chain, IbcTransferProps } from "@anoma/types";
 import { shortenAddress } from "@anoma/utils";
 import { Integration } from "./types/Integration";
@@ -111,6 +112,24 @@ class Keplr implements Integration<Account, OfflineSigner, IbcTransferProps> {
   public async submitBridgeTransfer(props: IbcTransferProps): Promise<void> {
     // TODO: Submit transfer via CosmJS RpcClient
     console.log("Keplr.submitBridgeTransfer", props);
+  }
+
+  public async queryBalance(owner: string, token: string): Promise<number> {
+    // TODO
+    console.log({ owner, token });
+    const client = await StargateClient.connect(this.chain.rpc);
+
+    // TESTING CLIENT
+    console.log(
+      "With client, chain id:",
+      await client.getChainId(),
+      ", height:",
+      await client.getHeight()
+    );
+
+    const balances = await client.getAllBalances(owner);
+    console.log({ balances });
+    return 0;
   }
 }
 

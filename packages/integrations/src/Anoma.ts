@@ -50,4 +50,10 @@ export default class Anoma
     // TODO: Call method in Anoma extension
     console.log("Anoma.submitBridgeTransfer", props);
   }
+
+  public async queryBalance(owner: string, token: string): Promise<number> {
+    console.log({ owner, token });
+
+    return 0;
+  }
 }
