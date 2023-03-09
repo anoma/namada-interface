@@ -41,6 +41,9 @@ const getId = (name: string, ...args: (number | string)[]): string => {
 
 export const KEYSTORE_KEY = "key-store";
 export const SDK_KEY = "sdk-store";
+export const MASP_CONVERT_KEY = "masp-convert.params";
+export const MASP_OUTPUT_KEY = "masp-output.params";
+export const MASP_SPEND_KEY = "masp-spend.params";
 const crypto = new Crypto();
 
 type DerivedAccountInfo = {
@@ -326,6 +329,10 @@ export class KeyRing {
         type,
       })
     );
+  }
+
+  public async saveMaspParams(base64Params: string): Promise<void> {
+    this.sdkStore.set(MASP_SPEND_KEY, base64Params);
   }
 
   async encodeInitAccount(
