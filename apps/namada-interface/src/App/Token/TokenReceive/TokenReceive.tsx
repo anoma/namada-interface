@@ -33,14 +33,13 @@ const TokenReceive = (): JSX.Element => {
   const [selectedAccountAddress, setSelectedAccountAddress] = useState<
     string | undefined
   >();
-  const accounts = derived[chainId] || {};
 
-  const accountsArray = Object.values(accounts).map(({ account }) => account);
+  const accounts = Object.values(derived[chainId]);
 
-  const accountsData = Object.values(accountsArray).map((account) => ({
-    value: account.address,
-    label: `${account.alias} - ${
-      account.isShielded ? "Shielded" : "Transparent"
+  const accountsData = accounts.map(({ details }) => ({
+    value: details.address,
+    label: `${details.alias} - ${
+      details.isShielded ? "Shielded" : "Transparent"
     }`,
   }));
 
@@ -55,8 +54,6 @@ const TokenReceive = (): JSX.Element => {
       setSelectedAccountAddress(accountsData[0].value);
     }
   }, [chainId]);
-
-  accounts[selectedAccountAddress || ""] || {};
 
   const { protocol, host } = window.location;
 

@@ -17,7 +17,7 @@ import {
 } from "slices/StakingAndGovernance";
 import { NewBondingPosition } from "./NewBondingPosition";
 import { UnbondPosition } from "./UnbondPosition";
-import { Balance } from "slices/accounts";
+import { Account } from "slices/accounts";
 
 const initialTitle = "Staking";
 
@@ -59,7 +59,7 @@ const emptyStakingPosition = (validatorId: string): StakingPosition => ({
 });
 
 type Props = {
-  addressesWithBalance: { address: string; balance: Balance }[];
+  accounts: Account[];
   validators: Validator[];
   myValidators: MyValidators[];
   myStakingPositions: StakingPosition[];
@@ -99,7 +99,7 @@ export const Staking = (props: Props): JSX.Element => {
   const navigate = useNavigate();
 
   const {
-    addressesWithBalance,
+    accounts,
     onInitCallback,
     fetchValidatorDetails,
     postNewBonding,
@@ -210,7 +210,7 @@ export const Staking = (props: Props): JSX.Element => {
         }}
       >
         <NewBondingPosition
-          addressesWithBalance={addressesWithBalance}
+          accounts={accounts}
           confirmBonding={confirmBonding}
           cancelBonding={cancelBonding}
           currentBondingPositions={
@@ -229,7 +229,7 @@ export const Staking = (props: Props): JSX.Element => {
               navigateToValidatorDetails={navigateToValidatorDetails}
               myValidators={myValidators}
               validators={validators}
-              addressesWithBalance={addressesWithBalance}
+              accounts={accounts}
             />
           }
         />

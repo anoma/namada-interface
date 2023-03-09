@@ -38,12 +38,7 @@ export const StakingAndGovernance = (): JSX.Element => {
     (state: RootState) => state.accounts
   ).derived[chainId];
 
-  const addressesWithBalance = Object.values(derivedAccounts).map(
-    ({ account, balance }) => ({
-      address: account.address,
-      balance,
-    })
-  );
+  const accounts = Object.values(derivedAccounts);
   const [_integration, _status, withConnection] =
     useIntegrationConnection(chainId);
 
@@ -97,7 +92,7 @@ export const StakingAndGovernance = (): JSX.Element => {
           path={`${StakingAndGovernanceSubRoute.Staking}/*`}
           element={
             <Staking
-              addressesWithBalance={addressesWithBalance}
+              accounts={accounts}
               validators={validators}
               myValidators={myValidators}
               myStakingPositions={myStakingPositions}

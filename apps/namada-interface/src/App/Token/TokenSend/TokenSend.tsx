@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 
-import { AccountsState, Balance } from "slices/accounts";
+import { Account, AccountsState, Balance } from "slices/accounts";
 import { SettingsState } from "slices/settings";
 import { TransferType } from "slices/transfers";
 import { useAppSelector } from "store";
 
-import { Account, TokenType } from "@anoma/types";
+import { TokenType } from "@anoma/types";
 import {
   Heading,
   HeadingLevel,
@@ -52,12 +52,12 @@ type Params = {
 };
 
 const accountsWithBalanceIntoSelectData = (
-  accountsWithBalance: { account: Account; balance: Balance }[]
+  accountsWithBalance: Account[]
 ): Option<string>[] =>
-  accountsWithBalance.flatMap(({ account, balance }) =>
+  accountsWithBalance.flatMap(({ details, balance }) =>
     Object.entries(balance).map(([tokenType, amount]) => ({
-      value: `${account.address}|${tokenType}`,
-      label: `${account.alias} ${amount} (${tokenType})`,
+      value: `${details.address}|${tokenType}`,
+      label: `${details.alias} ${amount} (${tokenType})`,
     }))
   );
 
@@ -66,13 +66,13 @@ const TokenSend = (): JSX.Element => {
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const { target } = useParams<Params>();
 
-  const accountsWithBalance = Object.values(derived[chainId]);
+  const accounts = Object.values(derived[chainId]);
 
-  const shieldedAccountsWithBalance = accountsWithBalance.filter(
-    ({ account }) => account.isShielded
+  const shieldedAccountsWithBalance = accounts.filter(
+    ({ details }) => details.isShielded
   );
-  const transparentAccountsWithBalance = accountsWithBalance.filter(
-    ({ account }) => !account.isShielded
+  const transparentAccountsWithBalance = accounts.filter(
+    ({ details }) => !details.isShielded
   );
 
   const shieldedTokenData = accountsWithBalanceIntoSelectData(
@@ -82,11 +82,11 @@ const TokenSend = (): JSX.Element => {
     transparentAccountsWithBalance
   );
 
-  const { account } = Object.values(accountsWithBalance)[0] || {};
+  const selectedAccount = accounts[0];
   const [
     selectedTransparentAccountAddress,
     setSelectedTransparentAccountAddress,
-  ] = useState<string | undefined>(account?.address);
+  ] = useState<string | undefined>(selectedAccount?.details.address);
 
   const [selectedShieldedAccountAddress, setSelectedShieldedAccountAddress] =
     useState<string | undefined>();

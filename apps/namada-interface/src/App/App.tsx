@@ -115,7 +115,7 @@ function App(): JSX.Element {
             </BottomSection>
           </AppContainer>
         )}
-        {currentExtensionAttachStatus === "pending" && <AppLoader />};
+        {currentExtensionAttachStatus === "pending" && <AppLoader />}
       </PersistGate>
     </ThemeProvider>
   );

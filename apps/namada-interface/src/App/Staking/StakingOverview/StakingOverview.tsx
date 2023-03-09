@@ -1,5 +1,5 @@
 import { Table, TableLink, TableConfigurations } from "@anoma/components";
-import { Balance } from "slices/accounts";
+import { Account } from "slices/accounts";
 import { Validator, MyValidators } from "slices/StakingAndGovernance";
 import {
   StakingBalances,
@@ -104,7 +104,7 @@ const getAllValidatorsConfiguration = (
 };
 
 type Props = {
-  addressesWithBalance: { address: string; balance: Balance }[];
+  accounts: Account[];
   navigateToValidatorDetails: (validatorId: string) => void;
   validators: Validator[];
   myValidators: MyValidators[];
@@ -117,12 +117,8 @@ type Props = {
 //   view in the parent
 // * user can also navigate to sibling view for validator details
 export const StakingOverview = (props: Props): JSX.Element => {
-  const {
-    navigateToValidatorDetails,
-    validators,
-    myValidators,
-    addressesWithBalance,
-  } = props;
+  const { navigateToValidatorDetails, validators, myValidators, accounts } =
+    props;
 
   // we get the configurations for 2 tables that contain callbacks
   const myValidatorsConfiguration = getMyValidatorsConfiguration(
@@ -135,7 +131,7 @@ export const StakingOverview = (props: Props): JSX.Element => {
     (acc, validator) => acc + Number(validator.stakedAmount),
     0
   );
-  const totalBalance = addressesWithBalance.reduce((acc, curr) => {
+  const totalBalance = accounts.reduce((acc, curr) => {
     return acc + (curr.balance["NAM"] ?? 0);
   }, 0);
 
