@@ -3,6 +3,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Account as AccountDetails, Tokens, TokenType } from "@anoma/types";
 import { chains } from "@anoma/chains";
 import { RpcClient } from "@anoma/rpc";
+import { getIntegration } from "services";
 
 import { RootState } from "store";
 
@@ -45,10 +46,15 @@ export const fetchBalances = createAsyncThunk<
   `${ACCOUNTS_ACTIONS_BASE}/${AccountsThunkActions.FetchBalance}`,
   async (_, thunkApi) => {
     const { chainId } = thunkApi.getState().settings;
+    const integration = getIntegration(chainId);
     const accounts: Account[] = Object.values(
       thunkApi.getState().accounts.derived[chainId]
     );
 
+    // Test passing accounts to integration->queryBalances(accounts)
+    await integration.queryBalances(accounts.map((acc) => acc.details));
+
+    // TODO: Move this logic to integration (Anoma), implement for Keplr & Metamask within Integration
     const balances = await Promise.all(
       accounts.map(async ({ details, balance: currentBalance }) => {
         const { chainId, address } = details;

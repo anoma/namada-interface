@@ -114,21 +114,21 @@ class Keplr implements Integration<Account, OfflineSigner, IbcTransferProps> {
     console.log("Keplr.submitBridgeTransfer", props);
   }
 
-  public async queryBalance(owner: string, token: string): Promise<number> {
+  public async queryBalances(accounts: Account[]): Promise<number> {
     // TODO
-    console.log({ owner, token });
-    const client = await StargateClient.connect(this.chain.rpc);
-
-    // TESTING CLIENT
-    console.log(
-      "With client, chain id:",
-      await client.getChainId(),
-      ", height:",
-      await client.getHeight()
-    );
-
-    const balances = await client.getAllBalances(owner);
-    console.log({ balances });
+    console.log({ accounts });
+    /* const client = await StargateClient.connect(this.chain.rpc); */
+    /**/
+    /* // TESTING CLIENT */
+    /* console.log( */
+    /*   "With client, chain id:", */
+    /*   await client.getChainId(), */
+    /*   ", height:", */
+    /*   await client.getHeight() */
+    /* ); */
+    /**/
+    /* const balances = await client.getAllBalances(owner); */
+    /* console.log({ balances }); */
     return 0;
   }
 }

@@ -51,8 +51,8 @@ export default class Anoma
     console.log("Anoma.submitBridgeTransfer", props);
   }
 
-  public async queryBalance(owner: string, token: string): Promise<number> {
-    console.log({ owner, token });
+  public async queryBalances(accounts: Account[]): Promise<number> {
+    console.log({ accounts });
 
     return 0;
   }

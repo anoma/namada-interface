@@ -88,8 +88,8 @@ class Metamask implements Integration<Account, unknown, BridgeTransferProps> {
     return;
   }
 
-  public async queryBalance(owner: string, token: string): Promise<number> {
-    console.log({ owner, token });
+  public async queryBalances(accounts: Account[]): Promise<number> {
+    console.log({ accounts });
 
     return 0;
   }
