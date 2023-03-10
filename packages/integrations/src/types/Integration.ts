@@ -1,4 +1,8 @@
-import { BridgeTransferProps, IbcTransferProps, TokenType } from "@anoma/types";
+import {
+  BridgeTransferProps,
+  IbcTransferProps,
+  TokenBalance,
+} from "@anoma/types";
 
 export interface Integration<T, S, P = BridgeTransferProps | IbcTransferProps> {
   detect: () => boolean;
@@ -6,5 +10,5 @@ export interface Integration<T, S, P = BridgeTransferProps | IbcTransferProps> {
   accounts: () => Promise<readonly T[] | undefined>;
   signer: () => S | undefined;
   submitBridgeTransfer: (props: P) => Promise<void>;
-  queryBalance: (owner: string, token: TokenType) => Promise<number>;
+  queryBalances: (owner: string) => Promise<TokenBalance[]>;
 }

@@ -60,3 +60,5 @@ Tokens["DOT"].coinGeckoId = "polkadot";
 Tokens["BTC"].address =
   "atest1v4ehgw36xdzryve5gsc52veeg5cnsv2yx5eygvp38qcrvd29xy6rys6p8yc5xvp4xfpy2v694wgwcp";
 Tokens["BTC"].coinGeckoId = "bitcoin";
+
+export type TokenBalance = { token: TokenType; amount: number };

@@ -5,13 +5,17 @@ import {
 } from "@keplr-wallet/types";
 import { AccountData } from "@cosmjs/proto-signing";
 import { StargateClient } from "@cosmjs/stargate";
-import { Account, Chain, IbcTransferProps, TokenType } from "@anoma/types";
+import { Coin } from "@cosmjs/launchpad";
+
+import { Account, Chain, IbcTransferProps, TokenBalance } from "@anoma/types";
 import { shortenAddress } from "@anoma/utils";
 import { Integration } from "./types/Integration";
 
 const KEPLR_NOT_FOUND = "Keplr extension not found!";
 
 type OfflineSigner = ReturnType<IKeplr["getOfflineSigner"]>;
+
+export type KeplrBalance = Coin;
 
 class Keplr implements Integration<Account, OfflineSigner, IbcTransferProps> {
   private _keplr: IKeplr | undefined;
@@ -114,27 +118,15 @@ class Keplr implements Integration<Account, OfflineSigner, IbcTransferProps> {
     console.log("Keplr.submitBridgeTransfer", props);
   }
 
-  public async queryBalance(owner: string, token: TokenType): Promise<number> {
+  public async queryBalances(owner: string): Promise<TokenBalance[]> {
     const client = await StargateClient.connect(this.chain.rpc);
 
-    // TESTING CLIENT
-    console.log(
-      "Cosmos/Keplr",
-      {
-        owner,
-        token,
-        rpc: this.chain.rpc,
-      },
-      "With client, chain id:",
-      await client.getChainId(),
-      ", height:",
-      await client.getHeight()
-
-      // Query balance:
-    );
-    const balances = await client.getAllBalances(owner);
-    console.log({ balances });
-    return 0;
+    // Query balance for ATOM:
+    return ((await client.getAllBalances(owner)) || []).map((coin: Coin) => ({
+      // TODO: Map Keplr "denom" values to our TokenType (e.g., uatom => ATOM)
+      token: "ATOM",
+      amount: parseInt(coin.amount),
+    }));
   }
 }
 

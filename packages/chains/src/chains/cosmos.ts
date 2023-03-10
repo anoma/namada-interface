@@ -19,7 +19,7 @@ const cosmos: Chain = {
   rpc,
   chainId,
   currency: {
-    token: "Atom",
+    token: "uatom",
     symbol: "ATOM",
     gasPriceStep: { low: 0.01, average: 0.025, high: 0.03 },
   },

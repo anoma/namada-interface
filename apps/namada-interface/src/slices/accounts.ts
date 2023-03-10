@@ -52,27 +52,13 @@ export const fetchBalances = createAsyncThunk<
     );
 
     const balances = await Promise.all(
-      accounts.map(async ({ details, balance: currentBalance }) => {
+      accounts.map(async ({ details }) => {
         const { chainId, address } = details;
 
-        const results = await Promise.all(
-          Object.keys(currentBalance).map(async (balanceKey) => {
-            const tokenType = balanceKey as TokenType;
-            let balance: number;
-            try {
-              balance = await integration.queryBalance(address, tokenType);
-            } catch (e) {
-              balance = 0;
-            }
-            return {
-              tokenType,
-              amount: Math.max(balance, 0),
-            };
-          })
-        );
+        const results = await integration.queryBalances(address);
 
         const balance = results.reduce(
-          (acc, curr) => ({ ...acc, [curr.tokenType]: curr.amount }),
+          (acc, curr) => ({ ...acc, [curr.token]: curr.amount }),
           {} as Balance
         );
 
