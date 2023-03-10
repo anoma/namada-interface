@@ -1841,7 +1841,6 @@ checksum = "e5ce46fe64a9d73be07dcbe690a38ce1b293be448fd8ce1e6c1b8062c9f72c6a"
 [[package]]
 name = "namada"
 version = "0.12.0"
-source = "git+https://github.com/anoma/namada?branch=mariari/shared-sdk-integration#fd98fdac89041aebe41a9b1f33043791c474ad3e"
 dependencies = [
  "async-std",
  "async-trait",
@@ -1883,7 +1882,6 @@ dependencies = [
 [[package]]
 name = "namada_core"
 version = "0.12.0"
-source = "git+https://github.com/anoma/namada?branch=mariari/shared-sdk-integration#fd98fdac89041aebe41a9b1f33043791c474ad3e"
 dependencies = [
  "ark-bls12-381",
  "ark-ec",
@@ -1926,7 +1924,6 @@ dependencies = [
 [[package]]
 name = "namada_proof_of_stake"
 version = "0.12.0"
-source = "git+https://github.com/anoma/namada?branch=mariari/shared-sdk-integration#fd98fdac89041aebe41a9b1f33043791c474ad3e"
 dependencies = [
  "borsh",
  "derivative",
@@ -3017,7 +3014,7 @@ dependencies = [
 [[package]]
 name = "tendermint"
 version = "0.23.6"
-source = "git+https://github.com/heliaxdev/tendermint-rs.git?branch=murisi/trait-client#679227ab920dbb45cdd5acb97f49c4fe2ebb5a44"
+source = "git+https://github.com/heliaxdev/tendermint-rs.git?rev=679227ab920dbb45cdd5acb97f49c4fe2ebb5a44#679227ab920dbb45cdd5acb97f49c4fe2ebb5a44"
 dependencies = [
  "async-trait",
  "bytes",
@@ -3045,7 +3042,7 @@ dependencies = [
 [[package]]
 name = "tendermint-config"
 version = "0.23.6"
-source = "git+https://github.com/heliaxdev/tendermint-rs.git?branch=murisi/trait-client#679227ab920dbb45cdd5acb97f49c4fe2ebb5a44"
+source = "git+https://github.com/heliaxdev/tendermint-rs.git?rev=679227ab920dbb45cdd5acb97f49c4fe2ebb5a44#679227ab920dbb45cdd5acb97f49c4fe2ebb5a44"
 dependencies = [
  "flex-error",
  "serde",
@@ -3071,7 +3068,7 @@ dependencies = [
 [[package]]
 name = "tendermint-proto"
 version = "0.23.6"
-source = "git+https://github.com/heliaxdev/tendermint-rs.git?branch=murisi/trait-client#679227ab920dbb45cdd5acb97f49c4fe2ebb5a44"
+source = "git+https://github.com/heliaxdev/tendermint-rs.git?rev=679227ab920dbb45cdd5acb97f49c4fe2ebb5a44#679227ab920dbb45cdd5acb97f49c4fe2ebb5a44"
 dependencies = [
  "bytes",
  "flex-error",
@@ -3088,7 +3085,7 @@ dependencies = [
 [[package]]
 name = "tendermint-rpc"
 version = "0.23.6"
-source = "git+https://github.com/heliaxdev/tendermint-rs.git?branch=murisi/trait-client#679227ab920dbb45cdd5acb97f49c4fe2ebb5a44"
+source = "git+https://github.com/heliaxdev/tendermint-rs.git?rev=679227ab920dbb45cdd5acb97f49c4fe2ebb5a44#679227ab920dbb45cdd5acb97f49c4fe2ebb5a44"
 dependencies = [
  "async-trait",
  "bytes",

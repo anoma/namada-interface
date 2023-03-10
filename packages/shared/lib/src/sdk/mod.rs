@@ -5,7 +5,7 @@ use namada::ledger::{
 };
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 
-use crate::{rpc_client::HttpClient, sdk::masp::WebShieldedUtils, utils::console_log_any};
+use crate::{rpc_client::HttpClient, sdk::masp::WebShieldedUtils};
 
 mod masp;
 mod tx;
@@ -26,10 +26,13 @@ impl Sdk {
         Sdk {
             client: HttpClient::new(url),
             wallet: Wallet::new(wallet::STORAGE_PATH.to_owned(), Store::default()),
+            // TODO: Probably makes sense to override default to handle cases when params are not
+            // yet loaded
             shielded_ctx: ShieldedContext::default(),
         }
     }
 
+    //TODO: move to utils
     fn to_bytes(u_int_8_array: JsValue) -> Vec<u8> {
         let array = Uint8Array::new(&u_int_8_array);
         array.to_vec()

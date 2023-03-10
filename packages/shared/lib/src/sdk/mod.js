@@ -1,14 +1,11 @@
 export const PREFIX = "Anoma::SDK";
 
-export async function fetchParams(params) {
+async function fetchParams(params) {
+  //TODO: pass env
   return fetch(`http://localhost:3000/assets/${params}`)
     .then((response) => response.blob())
     .then((blob) => blob.arrayBuffer())
-    .then((ab) => new Uint8Array(ab))
-    .then((a) => {
-      console.log("done", a.length);
-      return a;
-    });
+    .then((ab) => new Uint8Array(ab));
 }
 
 export async function fetchAndStore(params) {
@@ -40,7 +37,7 @@ function getDB() {
   });
 }
 
-async function get(key) {
+export async function get(key) {
   const tx = (await getDB()).transaction(PREFIX, "readonly");
   const store = tx.objectStore(PREFIX);
 
@@ -61,7 +58,7 @@ async function get(key) {
   });
 }
 
-async function set(key, data) {
+export async function set(key, data) {
   const tx = (await getDB()).transaction(PREFIX, "readwrite");
   const store = tx.objectStore(PREFIX);
 
