@@ -48,7 +48,10 @@ impl WebShieldedUtils {
 impl ShieldedUtils for WebShieldedUtils {
     type C = HttpClient;
 
+    //TODO: add async version
     fn local_tx_prover(&self) -> LocalTxProver {
+        crate::utils::console_log_any(&"local_tx_prover");
+        crate::utils::console_log_any(&self.convert_param_bytes);
         LocalTxProver::from_bytes(
             &self.spend_param_bytes,
             &self.output_param_bytes,

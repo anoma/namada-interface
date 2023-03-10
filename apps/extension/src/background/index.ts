@@ -44,6 +44,7 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
   const sdkDataStr: string | undefined = await sdkStore.get(SDK_KEY);
 
   const sdk = new Sdk(REACT_APP_NAMADA_URL);
+  //TODO: should not be here most likely :)
   sdk.fetch_masp_params();
 
   if (sdkDataStr) {

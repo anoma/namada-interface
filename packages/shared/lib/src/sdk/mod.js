@@ -10,11 +10,17 @@ async function fetchParams(params) {
 
 export async function fetchAndStore(params) {
   const stored = await get(params);
+  let data;
 
   if (!stored) {
-    const data = await fetchParams(params);
+    data = await fetchParams(params);
     await set(params, data);
+  } else {
+    data = await get(params);
   }
+
+  console.log(params);
+  return data;
 }
 
 function getDB() {
