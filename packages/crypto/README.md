@@ -4,7 +4,6 @@ The `@anoma/crypto` package is to provide cryptography functionality with Rust v
 
 The Rust source code lives in `lib/`, and currently provides the following crates:
 
-- `aead::AEAD` - provides encryption of data (and of plain strings) using the `orion` crate
 - `bip32::HDWallet` - provides key-derivation functionality using BIP32/BIP44 paths and a seed
 - `bip39::Mnemonic` - provides BIP39 Mnemonic functionality to generate a mnemonic seed
 - `scrypt::Scrypt` - provides password hashing for storage, and hash verification
@@ -35,16 +34,6 @@ cargo run test
 ```
 
 ## Overview
-
-### AEAD
-
-```rust
-let password = String::from("unhackable");
-let message = String::from("My secret message");
-
-let encrypted = AEAD::encrypt_from_string(message.clone(), password.clone());
-let decrypted = AEAD::decrypt(encrypted, password).expect("Value should be decrypted");
-```
 
 ### HDWallet
 

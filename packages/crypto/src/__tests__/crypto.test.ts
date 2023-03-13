@@ -1,5 +1,4 @@
 import {
-  AEAD,
   AES,
   Argon2,
   Argon2Params,
@@ -117,17 +116,6 @@ describe("ShieldedHDWallet", () => {
     expect(master.expsk()).not.toEqual(account1.expsk());
     expect(account1.expsk()).not.toEqual(account2.expsk());
     expect(account1.fvk()).not.toEqual(account2.fvk());
-  });
-});
-
-describe("AEAD", () => {
-  test("It should encrypt and decrypt a value", () => {
-    const password = "password";
-    const message = "My secret message";
-    const encrypted = AEAD.encrypt(message, password);
-    const decrypted = AEAD.decrypt(encrypted, password);
-
-    expect(decrypted).toBe(message);
   });
 });
 
