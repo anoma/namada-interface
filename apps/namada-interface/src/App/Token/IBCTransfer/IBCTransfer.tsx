@@ -76,18 +76,23 @@ const IBCTransfer = (): JSX.Element => {
   const [recipient, setRecipient] = useState("");
   const accounts = Object.values(derived[chainId]);
 
-  const transparentAccounts = accounts.filter(
-    ({ details }) => !details.isShielded
+  const destinationAccounts = Object.values(derived[selectedChainId]).filter(
+    (account) => !account.details.isShielded
+  );
+  const destinationAccountsData = destinationAccounts.map(
+    ({ details: { alias, address } }) => ({
+      label: alias || "",
+      value: address,
+    })
   );
 
-  const [selectedAccount, setSelectedAccount] = useState(
-    transparentAccounts[0]
-  );
+  const sourceAccounts = accounts.filter(({ details }) => !details.isShielded);
 
-  const tokenData: Option<string>[] = transparentAccounts.flatMap(
+  const [sourceAccount, setSourceAccount] = useState(sourceAccounts[0]);
+
+  const tokenData: Option<string>[] = sourceAccounts.flatMap(
     ({ balance, details }) => {
       const { address, alias } = details;
-      console.log({ balance, details });
 
       return Object.entries(balance).map(([tokenType, amount]) => ({
         value: `${address}|${tokenType}`,
@@ -101,8 +106,8 @@ const IBCTransfer = (): JSX.Element => {
   const [token, setToken] = useState<TokenType>("NAM");
 
   const currentBalance =
-    transparentAccounts.find(
-      ({ details }) => details.address === selectedAccount?.details.address
+    sourceAccounts.find(
+      ({ details }) => details.address === sourceAccount?.details.address
     )?.balance[token] || 0;
 
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
@@ -118,14 +123,21 @@ const IBCTransfer = (): JSX.Element => {
   }, []);
 
   useEffect(() => {
+    if (destinationAccounts.length > 0) {
+      setRecipient(destinationAccounts[0].details.address);
+    }
+  }, [selectedChainId, destinationAccounts]);
+
+  useEffect(() => {
     if (ibc.length > 0) {
       const selectedChain = ibc[0].chainId;
       setSelectedChainId(selectedChain);
+      setSourceAccount(sourceAccounts[0]);
     }
   }, [chainId]);
 
   useEffect(() => {
-    if (selectedAccount && !isIbcTransferSubmitting) {
+    if (sourceAccount && !isIbcTransferSubmitting) {
       dispatch(fetchBalances());
     }
   }, [isIbcTransferSubmitting]);
@@ -160,18 +172,18 @@ const IBCTransfer = (): JSX.Element => {
     const { value } = e.target;
 
     const [accountId, tokenSymbol] = value.split("|");
-    const account = transparentAccounts.find(
+    const account = sourceAccounts.find(
       (account) => account?.details?.address === accountId
     ) as Account;
 
-    setSelectedAccount(account);
+    setSourceAccount(account);
     setToken(tokenSymbol as TokenType);
   };
 
   const handleSubmit = (): void => {
     dispatch(
       submitIbcTransferTransaction({
-        account: selectedAccount.details,
+        account: sourceAccount.details,
         token,
         amount,
         chainId,
@@ -192,7 +204,7 @@ const IBCTransfer = (): JSX.Element => {
           <InputContainer>
             <Select
               data={tokenData}
-              value={`${selectedAccount?.details?.address}|${token}`}
+              value={`${sourceAccount?.details?.address}|${token}`}
               label="Token"
               onChange={handleTokenChange}
             />
@@ -260,14 +272,11 @@ const IBCTransfer = (): JSX.Element => {
           )}
 
           <InputContainer>
-            <Input
-              variant={InputVariants.Text}
+            <Select
               label={"Recipient"}
+              data={destinationAccountsData}
               value={recipient}
-              onChangeCallback={(e) => {
-                const { value } = e.target;
-                setRecipient(value);
-              }}
+              onChange={(e) => setRecipient(e.target.value)}
             />
           </InputContainer>
 
