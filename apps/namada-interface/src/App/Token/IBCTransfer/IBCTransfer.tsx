@@ -87,6 +87,7 @@ const IBCTransfer = (): JSX.Element => {
   const tokenData: Option<string>[] = transparentAccounts.flatMap(
     ({ balance, details }) => {
       const { address, alias } = details;
+      console.log({ balance, details });
 
       return Object.entries(balance).map(([tokenType, amount]) => ({
         value: `${address}|${tokenType}`,

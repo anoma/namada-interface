@@ -7,7 +7,13 @@ import { AccountData } from "@cosmjs/proto-signing";
 import { StargateClient } from "@cosmjs/stargate";
 import { Coin } from "@cosmjs/launchpad";
 
-import { Account, Chain, IbcTransferProps, TokenBalance } from "@anoma/types";
+import {
+  Account,
+  Chain,
+  CosmosTokens,
+  IbcTransferProps,
+  TokenBalance,
+} from "@anoma/types";
 import { shortenAddress } from "@anoma/utils";
 import { Integration } from "./types/Integration";
 
@@ -123,8 +129,7 @@ class Keplr implements Integration<Account, OfflineSigner, IbcTransferProps> {
 
     // Query balance for ATOM:
     return ((await client.getAllBalances(owner)) || []).map((coin: Coin) => ({
-      // TODO: Map Keplr "denom" values to our TokenType (e.g., uatom => ATOM)
-      token: "ATOM",
+      token: CosmosTokens[coin.denom] || "ATOM",
       amount: parseInt(coin.amount),
     }));
   }
