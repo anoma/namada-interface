@@ -44,7 +44,6 @@ const IBCTransfer = (): JSX.Element => {
   const { isIbcTransferSubmitting, transferError, events } =
     useAppSelector<TransfersState>((state) => state.transfers);
 
-  /* const chain = Object.values(chains).find((chain: Chain) => chain.chainId === chainId); */
   const ibc = Object.values(chains).filter(
     (chain: Chain) => chain.chainId !== chainId
   );
@@ -126,7 +125,7 @@ const IBCTransfer = (): JSX.Element => {
     if (destinationAccounts.length > 0) {
       setRecipient(destinationAccounts[0].details.address);
     }
-  }, [selectedChainId, destinationAccounts]);
+  }, [selectedChainId]);
 
   useEffect(() => {
     if (ibc.length > 0) {
