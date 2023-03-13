@@ -119,15 +119,21 @@ class Keplr implements Integration<Account, OfflineSigner, IbcTransferProps> {
 
     // TESTING CLIENT
     console.log(
+      "Cosmos/Keplr",
       {
         owner,
         token,
+        rpc: this.chain.rpc,
       },
       "With client, chain id:",
       await client.getChainId(),
       ", height:",
       await client.getHeight()
+
+      // Query balance:
     );
+    const balances = await client.getAllBalances(owner);
+    console.log({ balances });
     return 0;
   }
 }

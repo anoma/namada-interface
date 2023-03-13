@@ -1,9 +1,9 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import { Account as AccountDetails, Tokens, TokenType } from "@anoma/types";
+import { Account as AccountDetails, TokenType } from "@anoma/types";
+
 import { chains } from "@anoma/chains";
-import { RpcClient } from "@anoma/rpc";
-import { getIntegration } from "services";
+import { getIntegration } from "@anoma/hooks";
 
 import { RootState } from "store";
 
