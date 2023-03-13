@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import { chains } from "@anoma/chains";
 import { useAppDispatch, useAppSelector } from "store";
-import { AccountsState } from "slices/accounts";
+import { AccountsState, Balance } from "slices/accounts";
 import { SettingsState } from "slices/settings";
 import { TokenType } from "@anoma/types";
 import { formatCurrency, formatRoute } from "@anoma/utils";
@@ -100,24 +100,20 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
     setActiveAccountAddress(address === activeAccountAddress ? "" : address);
   };
 
-  const applyConversionRate = (balance: number, token: string): number => {
-    if (rates[token] && rates[token][fiatCurrency]) {
-      return balance * rates[token][fiatCurrency].rate;
-    }
-    return balance;
+  const balanceToFiat = (balance: Balance): number => {
+    return Object.entries(balance).reduce((acc, [token, value]) => {
+      return (
+        acc +
+        (rates[token] && rates[token][fiatCurrency]
+          ? value * rates[token][fiatCurrency].rate
+          : value)
+      );
+    }, 0);
   };
 
   useEffect(() => {
-    const total = accounts.reduce((acc, entry) => {
-      const { balance } = entry;
-
-      let fiatBalance = 0;
-
-      Object.entries(balance).forEach(([token, value]) => {
-        fiatBalance += applyConversionRate(value, token);
-      });
-
-      return acc + fiatBalance;
+    const total = accounts.reduce((acc, { balance }) => {
+      return acc + balanceToFiat(balance);
     }, 0);
     setTotal(total);
     setActiveAccountAddress(accounts[0]?.details.address);
@@ -162,7 +158,7 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
                     </DerivedAccountType>
                   </DerivedAccountInfo>
                   <DerivedAccountBalance>
-                    {formatCurrency(fiatCurrency, 0)}
+                    {formatCurrency(fiatCurrency, balanceToFiat(balance))}
                   </DerivedAccountBalance>
                 </DerivedAccountContainer>
                 <TokenTotals
