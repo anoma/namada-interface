@@ -120,7 +120,8 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
       return acc + fiatBalance;
     }, 0);
     setTotal(total);
-  }, [accounts, chainId]);
+    setActiveAccountAddress(accounts[0]?.details.address);
+  }, [derived[chainId], chainId]);
 
   useEffect(() => {
     const currentTimestamp = Math.floor(Date.now() / 1000);
@@ -130,10 +131,6 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
       dispatch(fetchConversionRates());
     }
   }, [timestamp]);
-
-  useEffect(() => {
-    setActiveAccountAddress(accounts[0]?.details.address);
-  }, [accounts]);
 
   return (
     <DerivedAccountsContainer>
