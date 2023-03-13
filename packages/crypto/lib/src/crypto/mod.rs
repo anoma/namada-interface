@@ -1,4 +1,3 @@
-pub mod aead;
 pub mod aes;
 pub mod argon2;
 pub mod bip32;
