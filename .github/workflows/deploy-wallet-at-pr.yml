@@ -5,7 +5,6 @@ on:
       - "apps/namada-interface/**"
       - "apps/extension/**"
       - "packages/integrations/**"
-      - "packages/masp-web/**"
       - "packages/rpc/**"
       - "packages/seed-management/**"
       - "packages/session/**"

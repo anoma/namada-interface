@@ -283,20 +283,20 @@ describe("Thunk match regexp", () => {
   });
 
   it("should match a string with a slash('/') followed by pending/fulfilled/rejected", () => {
-    expect("hello/pending".match(THUNK_MATCH_REGEXP)![0]).toEqual("hello");
-    expect("hello/fulfilled".match(THUNK_MATCH_REGEXP)![0]).toEqual("hello");
-    expect("hello/rejected".match(THUNK_MATCH_REGEXP)![0]).toEqual("hello");
+    expect("hello/pending".match(THUNK_MATCH_REGEXP)?.[0]).toEqual("hello");
+    expect("hello/fulfilled".match(THUNK_MATCH_REGEXP)?.[0]).toEqual("hello");
+    expect("hello/rejected".match(THUNK_MATCH_REGEXP)?.[0]).toEqual("hello");
   });
 
   it("should match a string with multiple slashes('/') followed by pending/fulfilled/rejected", () => {
-    expect("hello/world/pending".match(THUNK_MATCH_REGEXP)![0]).toEqual(
+    expect("hello/world/pending".match(THUNK_MATCH_REGEXP)?.[0]).toEqual(
       "hello/world"
     );
     expect(
-      "hello/world/action/fulfilled".match(THUNK_MATCH_REGEXP)![0]
+      "hello/world/action/fulfilled".match(THUNK_MATCH_REGEXP)?.[0]
     ).toEqual("hello/world/action");
     expect(
-      "hello/world/action/more-action/rejected".match(THUNK_MATCH_REGEXP)![0]
+      "hello/world/action/more-action/rejected".match(THUNK_MATCH_REGEXP)?.[0]
     ).toEqual("hello/world/action/more-action");
   });
 });

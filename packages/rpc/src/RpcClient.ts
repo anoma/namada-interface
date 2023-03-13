@@ -5,8 +5,6 @@ import { BinaryReader, deserialize } from "borsh";
 import { Buffer } from "buffer";
 
 import { amountFromMicro, createJsonRpcRequest } from "@anoma/utils";
-import { decodeTransactionWithNextTxId } from "./utils";
-import { NodeWithNextId } from "@anoma/masp-web";
 import { schemaAmount, TokenAmount } from "./schema";
 import { AbciResponse, PathType } from "./types";
 
@@ -124,49 +122,6 @@ class RpcClient {
         throw "cannot create path";
     }
   };
-
-  // queries the shielded transctions from the ledger, this is needed
-  // when scanning the shielded transction to find notes that can be spent
-  //
-  // TODO this should likely move to rust code and we could just pass in
-  // the networking related sys calls to get rid of having to do this here
-  public async queryShieldedTransaction(
-    maspAddress: string,
-    transactionId?: string
-  ): Promise<NodeWithNextId | undefined> {
-    try {
-      // the first shielded tx has a different path
-      const txPrefixAndMaybeId = transactionId
-        ? `tx-${transactionId}`
-        : "head-tx";
-      const maspAddressWithTransactionId = `#${maspAddress}/${txPrefixAndMaybeId}`;
-      const path = this.createPath(
-        PathType.Value,
-        maspAddressWithTransactionId
-      );
-      const request = createJsonRpcRequest("abci_query", [
-        path,
-        "",
-        "0",
-        false,
-      ]);
-
-      // then we get the data containing a shielded tx and the id for the next linked shielded tx
-      const response: JsonRpcSuccessResponse = await this._client.execute(
-        request
-      );
-      const { value } = response.result.response;
-      if (value === null) {
-        return undefined;
-      }
-      const shieldedTransactionsIdsByteArray = fromBase64(value || "0");
-      const buffer = Buffer.from(shieldedTransactionsIdsByteArray);
-      const decodedTransaction = await decodeTransactionWithNextTxId(buffer);
-      return Promise.resolve(decodedTransaction);
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  }
 
   public async isKnownAddress(address: string): Promise<boolean> {
     const path = `${ABCI_QUERY_PATH_PREFIX}has_key/#${address}/?`;

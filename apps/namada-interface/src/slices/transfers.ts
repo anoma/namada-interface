@@ -1,8 +1,6 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
-import { chains } from "@anoma/chains";
 import { Account, TxWasm, Tokens, TokenType, Signer } from "@anoma/types";
-import { RpcClient } from "@anoma/rpc";
 import { amountToMicro, fetchWasmCode } from "@anoma/utils";
 import {
   actions as notificationsActions,

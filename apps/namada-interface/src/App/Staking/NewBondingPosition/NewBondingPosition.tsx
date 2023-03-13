@@ -16,7 +16,7 @@ import {
   StakingPosition,
   ChangeInStakingPosition,
 } from "slices/StakingAndGovernance";
-import { Account, Balance } from "slices/accounts";
+import { Account } from "slices/accounts";
 
 const REMAINS_BONDED_KEY = "Remains bonded";
 
