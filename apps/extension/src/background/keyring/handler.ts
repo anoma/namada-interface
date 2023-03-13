@@ -12,9 +12,7 @@ import {
 import {
   SubmitTransferMsg,
   EncodeInitAccountMsg,
-  EncodeRevealPkMsg,
   QueryAccountsMsg,
-  SignTxMsg,
   SubmitBondMsg,
   SubmitUnbondMsg,
   SubmitIbcTransferMsg,
@@ -42,8 +40,6 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleDeriveAccountMsg(service)(env, msg as DeriveAccountMsg);
       case QueryAccountsMsg:
         return handleQueryAccountsMsg(service)(env, msg as QueryAccountsMsg);
-      case SignTxMsg:
-        return handleSignTxMsg(service)(env, msg as SignTxMsg);
       case SubmitBondMsg:
         return handleSubmitBondMsg(service)(env, msg as SubmitBondMsg);
       case SubmitUnbondMsg:
@@ -60,8 +56,6 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
           env,
           msg as EncodeInitAccountMsg
         );
-      case EncodeRevealPkMsg:
-        return handleEncodeRevealPkMsg(service)(env, msg as EncodeRevealPkMsg);
       default:
         throw new Error("Unknown msg type");
     }
@@ -137,15 +131,6 @@ const handleQueryAccountsMsg: (
   };
 };
 
-const handleSignTxMsg: (
-  service: KeyRingService
-) => InternalHandler<SignTxMsg> = (service) => {
-  return async (_, msg) => {
-    const { signer, txMsg, txData } = msg;
-    return await service.signTx(signer, txMsg, txData);
-  };
-};
-
 const handleSubmitBondMsg: (
   service: KeyRingService
 ) => InternalHandler<SubmitBondMsg> = (service) => {
@@ -188,14 +173,5 @@ const handleEncodeInitAccountMsg: (
   return (_, msg) => {
     const { address, txMsg } = msg;
     return service.encodeInitAccount(txMsg, address);
-  };
-};
-
-const handleEncodeRevealPkMsg: (
-  service: KeyRingService
-) => InternalHandler<EncodeRevealPkMsg> = (service) => {
-  return (_, msg) => {
-    const { signer } = msg;
-    return service.encodeRevealPk(signer);
   };
 };

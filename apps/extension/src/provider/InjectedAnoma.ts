@@ -2,7 +2,6 @@ import {
   Anoma as IAnoma,
   Chain,
   DerivedAccount,
-  SignedTx,
   Signer as ISigner,
 } from "@anoma/types";
 import { InjectedProxy } from "./InjectedProxy";
@@ -41,17 +40,6 @@ export class InjectedAnoma implements IAnoma {
     return new Signer(chainId, this);
   }
 
-  public async signTx(props: {
-    signer: string;
-    txMsg: string;
-    txData: string;
-  }): Promise<SignedTx> {
-    return await InjectedProxy.requestMethod<
-      { signer: string; txMsg: string; txData: string },
-      SignedTx
-    >("signTx", props);
-  }
-
   public async submitBond(txMsg: string): Promise<void> {
     return await InjectedProxy.requestMethod<string, void>("submitBond", txMsg);
   }
@@ -85,15 +73,6 @@ export class InjectedAnoma implements IAnoma {
       { txMsg: string; address: string },
       string
     >("encodeInitAccount", props);
-  }
-
-  public async encodeRevealPk(props: {
-    signer: string;
-  }): Promise<string | undefined> {
-    return await InjectedProxy.requestMethod<{ signer: string }, string>(
-      "encodeRevealPk",
-      props
-    );
   }
 
   public version(): string {

@@ -1,4 +1,4 @@
-import { Chain, DerivedAccount, SignedTx } from "@anoma/types";
+import { Chain, DerivedAccount } from "@anoma/types";
 import { Message } from "router";
 
 /**
@@ -121,41 +121,6 @@ export class QueryAccountsMsg extends Message<DerivedAccount[]> {
 
   type(): string {
     return QueryAccountsMsg.type();
-  }
-}
-
-export class SignTxMsg extends Message<SignedTx> {
-  public static type(): MessageType {
-    return MessageType.SignTx;
-  }
-
-  constructor(
-    public readonly signer: string,
-    public readonly txMsg: string,
-    public readonly txData: string
-  ) {
-    super();
-  }
-
-  validate(): void {
-    if (!this.signer) {
-      throw new Error("A signer address is required to sign transactions!");
-    }
-    if (!this.txMsg || this.txMsg.length === 0) {
-      throw new Error("An encoded txMsg is required!");
-    }
-    if (!this.txData) {
-      throw new Error("txData bytes is required!");
-    }
-    return;
-  }
-
-  route(): string {
-    return Route.KeyRing;
-  }
-
-  type(): string {
-    return SignTxMsg.type();
   }
 }
 

@@ -11,11 +11,8 @@ import {
   IbcTransferProps,
   Message,
   SubmitTransferMsgSchema,
-  TransactionMsgSchema,
-  TransactionMsgValue,
   TransferMsgValue,
   TransferProps,
-  TxProps,
 } from "@anoma/types";
 
 import { KVKeys } from "router";
@@ -72,46 +69,6 @@ describe("Anoma", () => {
 
     const chains = await iDBStore.get("chains");
     expect(chains?.pop()).toEqual(chain);
-  });
-
-  it("should sign tx", async () => {
-    jest
-      .spyOn(KeyRing.prototype as any, "getPrivateKey")
-      .mockReturnValueOnce(
-        "1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93"
-      );
-    const txData = new Uint8Array([
-      1, 40, 0, 0, 0, 67, 53, 70, 70, 50, 55, 50, 56, 66, 48, 56, 68, 67, 57,
-      55, 66, 68, 66, 65, 55, 52, 67, 51, 67, 52, 52, 66, 54, 57, 65, 66, 66,
-      56, 52, 54, 48, 53, 48, 53, 66, 1, 40, 0, 0, 0, 70, 70, 53, 69, 50, 66,
-      55, 49, 68, 70, 69, 70, 67, 52, 54, 70, 66, 70, 51, 70, 70, 66, 67, 56,
-      56, 56, 67, 51, 48, 56, 65, 70, 56, 66, 52, 57, 53, 48, 52, 51, 0, 40, 0,
-      0, 0, 52, 66, 56, 56, 70, 66, 57, 49, 51, 65, 48, 55, 54, 54, 69, 51, 48,
-      65, 48, 48, 66, 50, 70, 66, 56, 65, 65, 50, 57, 52, 57, 65, 55, 49, 48,
-      69, 50, 52, 69, 54, 64, 66, 15, 0, 0, 0, 0, 0, 0, 0,
-    ]);
-
-    const txProps: TxProps = {
-      signInner: true,
-      token:
-        "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5",
-      epoch: 0,
-      feeAmount: 10,
-      gasLimit: 1000,
-      txCode: new Uint8Array(),
-    };
-
-    const txMsg = new Message<TransactionMsgValue>();
-    const txMsgValue = new TransactionMsgValue(txProps);
-    const txMsgEncoded = txMsg.encode(TransactionMsgSchema, txMsgValue);
-
-    await expect(
-      anoma.signTx({
-        signer: keyStore.address,
-        txMsg: toBase64(txMsgEncoded),
-        txData: toBase64(txData),
-      })
-    ).resolves.toBeDefined();
   });
 
   it("should be able to submit a transfer through the sdk", async () => {

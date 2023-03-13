@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import { Tx } from "../types";
+import { TxProps } from "../types";
 
 export class TxMsgValue {
   token: string;
@@ -7,7 +7,7 @@ export class TxMsgValue {
   gas_limit: BN;
   tx_code: Uint8Array;
 
-  constructor(properties: Tx) {
+  constructor(properties: TxProps) {
     this.token = properties.token;
     this.fee_amount = new BN(properties.feeAmount, 64);
     this.gas_limit = new BN(properties.gasLimit, 64);

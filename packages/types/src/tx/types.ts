@@ -1,24 +1,10 @@
-export type SignedTx = {
-  hash: string;
-  bytes: string;
-};
-
-export type TxProps = {
-  token: string;
-  epoch: number;
-  feeAmount: number;
-  gasLimit: number;
-  txCode: Uint8Array;
-  signInner: boolean;
-};
-
 export type SubmitBondProps = {
   validator: string;
   amount: number;
   source: string;
   txCode: Uint8Array;
   nativeToken: string;
-  tx: Tx;
+  tx: TxProps;
 };
 
 export type SubmitUnbondProps = {
@@ -26,10 +12,10 @@ export type SubmitUnbondProps = {
   amount: number;
   source: string;
   txCode: Uint8Array;
-  tx: Tx;
+  tx: TxProps;
 };
 
-export type Tx = {
+export type TxProps = {
   token: string;
   feeAmount: number;
   gasLimit: number;
@@ -37,7 +23,7 @@ export type Tx = {
 };
 
 export type TransferProps = {
-  tx: Tx;
+  tx: TxProps;
   source: string;
   target: string;
   token: string;
@@ -48,7 +34,7 @@ export type TransferProps = {
 };
 
 export type IbcTransferProps = {
-  tx: Tx;
+  tx: TxProps;
   source: string;
   receiver: string;
   token: string;
