@@ -154,6 +154,10 @@ module.exports = {
   },
   plugins,
   devServer: {
+    allowedHosts: "all",
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+    },
     static: {
       directory: join(__dirname, "public"),
     },

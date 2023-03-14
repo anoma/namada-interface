@@ -17,8 +17,10 @@ chrono = "0.4.22"
 getrandom = { version = "0.2.7", features = ["js"] }
 gloo-utils = { version = "0.1.5", features = ["serde"] }
 js-sys = "0.3.60"
-masp_primitives = { git = "https://github.com/anoma/masp", rev = "bee40fc465f6afbd10558d12fe96eb1742eee45c" }
-masp_proofs = { git = "https://github.com/anoma/masp", rev = "bee40fc465f6afbd10558d12fe96eb1742eee45c", features = ["bundled-prover", "download-params"] }
+# masp_primitives = { git = "https://github.com/anoma/masp", rev = "bee40fc465f6afbd10558d12fe96eb1742eee45c" }
+masp_primitives = { path = "/home/mj/Projects/heliax/masp/masp_primitives" }
+# masp_proofs = { git = "https://github.com/anoma/masp", rev = "bee40fc465f6afbd10558d12fe96eb1742eee45c", default-features = false, features=["local-prover"]}
+masp_proofs = { path = "/home/mj/Projects/heliax/masp/masp_proofs", default-features = false, features = ["local-prover"] }
 # namada = { git = "https://github.com/anoma/namada", branch = "mariari/shared-sdk-integration", default-features = false, features = ["abciplus", "namada-sdk"] }
 namada = { path = "/home/mj/Projects/heliax/namada/shared", default-features = false, features = ["abciplus", "namada-sdk"] }
 prost = "0.9.0"
