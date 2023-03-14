@@ -1,10 +1,10 @@
 import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import { PhraseSize } from "@anoma/crypto";
 import { KVStore } from "@anoma/storage";
-import { AccountType, Bip44Path, DerivedAccount, SignedTx } from "@anoma/types";
+import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
 import { KeyRing } from "./keyring";
 import { KeyRingStatus, KeyStore } from "./types";
-import { IbcTransfer, Sdk } from "@anoma/shared";
+import { Sdk } from "@anoma/shared";
 
 export class KeyRingService {
   private _keyRing: KeyRing;
@@ -63,18 +63,6 @@ export class KeyRingService {
     return await this._keyRing.queryAccounts();
   }
 
-  async signTx(
-    signer: string,
-    txMsg: string,
-    txData: string
-  ): Promise<SignedTx> {
-    return await this._keyRing.signTx(
-      signer,
-      fromBase64(txMsg),
-      fromBase64(txData)
-    );
-  }
-
   async submitBond(txMsg: string): Promise<void> {
     try {
       await this._keyRing.submitBond(fromBase64(txMsg));
@@ -121,11 +109,6 @@ export class KeyRingService {
       address,
       fromBase64(txMsg)
     );
-    return toBase64(tx_data);
-  }
-
-  async encodeRevealPk(signer: string): Promise<string> {
-    const tx_data = await this._keyRing.encodeRevealPk(signer);
     return toBase64(tx_data);
   }
 }

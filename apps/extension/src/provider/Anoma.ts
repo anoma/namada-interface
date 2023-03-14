@@ -1,4 +1,4 @@
-import { Anoma as IAnoma, Chain, DerivedAccount, SignedTx } from "@anoma/types";
+import { Anoma as IAnoma, Chain, DerivedAccount } from "@anoma/types";
 import { Ports, MessageRequester } from "router";
 
 import {
@@ -7,8 +7,6 @@ import {
   SuggestChainMsg,
   EncodeInitAccountMsg,
   QueryAccountsMsg,
-  SignTxMsg,
-  EncodeRevealPkMsg,
   SubmitBondMsg,
   SubmitUnbondMsg,
   SubmitTransferMsg,
@@ -56,18 +54,6 @@ export class Anoma implements IAnoma {
     );
   }
 
-  public async signTx(props: {
-    signer: string;
-    txMsg: string;
-    txData: string;
-  }): Promise<SignedTx | undefined> {
-    const { signer, txMsg, txData } = props;
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new SignTxMsg(signer, txMsg, txData)
-    );
-  }
-
   public async submitBond(txMsg: string): Promise<void> {
     return await this.requester?.sendMessage(
       Ports.Background,
@@ -104,16 +90,6 @@ export class Anoma implements IAnoma {
     return await this.requester?.sendMessage(
       Ports.Background,
       new EncodeInitAccountMsg(txMsg, address)
-    );
-  }
-
-  public async encodeRevealPk(props: {
-    signer: string;
-  }): Promise<string | undefined> {
-    const { signer } = props;
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new EncodeRevealPkMsg(signer)
     );
   }
 

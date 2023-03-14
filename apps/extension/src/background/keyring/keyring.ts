@@ -1,5 +1,4 @@
 import { v5 as uuid } from "uuid";
-import { toBase64 } from "@cosmjs/encoding";
 
 import { KVStore } from "@anoma/storage";
 import {
@@ -11,15 +10,13 @@ import {
 import {
   Account,
   Address,
-  Signer,
   ExtendedSpendingKey,
   ExtendedViewingKey,
   PaymentAddress,
-  RevealPk,
   Sdk,
 } from "@anoma/shared";
 import { IStore, Store } from "@anoma/storage";
-import { AccountType, Bip44Path, DerivedAccount, SignedTx } from "@anoma/types";
+import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
 import { chains } from "@anoma/chains";
 import { Crypto } from "./crypto";
 import { KeyRingStatus, KeyStore } from "./types";
@@ -331,34 +328,6 @@ export class KeyRing {
     );
   }
 
-  async signTx(
-    address: string,
-    txMsg: Uint8Array,
-    txData: Uint8Array
-  ): Promise<SignedTx> {
-    if (!this._password) {
-      throw new Error("Not authenticated!");
-    }
-
-    const account = await this._keyStore.getRecord("address", address);
-    if (!account) {
-      throw new Error(`Account not found for ${address}`);
-    }
-
-    try {
-      const privateKey = this.getPrivateKey(account, this._password);
-      const signer = new Signer(txData);
-      const { hash, bytes } = signer.sign(txMsg, privateKey);
-
-      return {
-        hash,
-        bytes: toBase64(bytes),
-      };
-    } catch (e) {
-      throw new Error(`Could not unlock account for ${address}: ${e}`);
-    }
-  }
-
   async encodeInitAccount(
     address: string,
     txMsg: Uint8Array
@@ -384,25 +353,6 @@ export class KeyRing {
       return tx_data;
     } catch (e) {
       throw new Error(`Could not encode InitAccount for ${address}: ${e}`);
-    }
-  }
-
-  async encodeRevealPk(signer: string): Promise<Uint8Array> {
-    if (!this._password) {
-      throw new Error("Not authenticated!");
-    }
-    const account = await this._keyStore.getRecord("address", signer);
-    if (!account) {
-      throw new Error(`Account not found for ${signer}`);
-    }
-
-    const privateKey = this.getPrivateKey(account, this._password);
-
-    try {
-      const { tx_data } = new RevealPk(privateKey).to_serialized();
-      return tx_data;
-    } catch (e) {
-      throw new Error(`Could not encode RevealPk for ${signer}: ${e}`);
     }
   }
 
@@ -452,25 +402,6 @@ export class KeyRing {
     } catch (e) {
       throw new Error(`Could not submit ibc transfer tx: ${e}`);
     }
-  }
-
-  private getPrivateKey(account: KeyStore, password: string): string {
-    const decrypted = crypto.decrypt(account, password);
-    let private_key = decrypted;
-
-    // If the account type is a Mnemonic, derive a private key
-    // from associated derived address (root account):
-    if (account.type === AccountType.Mnemonic) {
-      const { path } = account;
-      const mnemonic = Mnemonic.from_phrase(decrypted);
-      const bip44 = new HDWallet(mnemonic.to_seed());
-      const { coinType } = chains[this.chainId].bip44;
-      const derivationPath = `m/44'/${coinType}'/${path.account}'/${path.change}`;
-      const derived = bip44.derive(derivationPath);
-      private_key = derived.private().to_hex();
-    }
-
-    return private_key;
   }
 
   private async addSecretKey(

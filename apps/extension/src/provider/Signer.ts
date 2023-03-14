@@ -9,13 +9,9 @@ import {
   IbcTransferProps,
   InitAccountProps,
   Message,
-  SignedTx,
   Signer as ISigner,
   TransferMsgValue,
-  TransactionMsgValue,
-  TransactionMsgSchema,
   TransferProps,
-  TxProps,
   AccountType,
   SubmitBondProps,
   SubmitBondMsgValue,
@@ -40,25 +36,6 @@ export class Signer implements ISigner {
         isShielded: type === AccountType.ShieldedKeys,
       })
     );
-  }
-
-  /**
-   * Sign encoded transaction message, returning Tx hash and bytes
-   */
-  public async signTx(
-    signer: string,
-    txProps: TxProps,
-    txData: string
-  ): Promise<SignedTx | undefined> {
-    const txMsg = new Message<TransactionMsgValue>();
-    const txMsgValue = new TransactionMsgValue(txProps);
-    const txMsgEncoded = txMsg.encode(TransactionMsgSchema, txMsgValue);
-
-    return await this._anoma.signTx({
-      signer,
-      txMsg: toBase64(txMsgEncoded),
-      txData,
-    });
   }
 
   /**
@@ -130,15 +107,6 @@ export class Signer implements ISigner {
     return await this._anoma.encodeInitAccount({
       txMsg: toBase64(serialized),
       address: signer,
-    });
-  }
-
-  /**
-   * Encode an RevealPk message
-   */
-  public async encodeRevealPk(signer: string): Promise<string | undefined> {
-    return await this._anoma.encodeRevealPk({
-      signer,
     });
   }
 }
