@@ -63,12 +63,16 @@ export const Input = styled.input`
 
 export const InputContainer = styled.div`
   width: 100%;
-  height: 92px;
+  min-height: 92px;
   color: ${(props) => props.theme.colors.utility2.main80};
 `;
 
-export const InputFeedback = styled.span`
+export const InputFeedback = styled.div`
   font-size: 12px;
+  margin-top: 4px;
+  &.warning {
+    color: ${(props) => props.theme.colors.primary.main};
+  }
 `;
 
 export const RecoveryPhraseLengthRadioButton = styled.input`
