@@ -306,8 +306,7 @@ const IBCTransfer = (): JSX.Element => {
             <>
               <StatusMessage>
                 Successfully submitted IBC transfer! It will take some time for
-                bridgeType: BridgeType.IBC, the receiver to see an updated
-                balance.
+                the receiver to see an updated balance.
               </StatusMessage>
               <StatusMessage>Gas used: {events.gas}</StatusMessage>
               <StatusMessage>Applied hash:</StatusMessage>

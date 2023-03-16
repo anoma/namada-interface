@@ -51,7 +51,6 @@ export default class Anoma implements Integration<Account, Signer> {
   }
 
   public async submitBridgeTransfer(props: BridgeProps): Promise<void> {
-    console.log("Anoma.submitBridgeTransfer", props);
     if (props.ibcProps) {
       const { source, receiver, channelId, portId, amount, token } =
         props.ibcProps;
@@ -90,6 +89,7 @@ export default class Anoma implements Integration<Account, Signer> {
         const { address: tokenAddress = "" } = Tokens[tokenType];
         return {
           token: tokenType,
+          // TODO: Implement balance fetching via SDK
           amount: (await rpcClient.queryBalance(tokenAddress, owner)) || 0,
         };
       })
