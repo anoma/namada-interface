@@ -10,7 +10,7 @@
   "scripts": {
     "wasm:build": "./scripts/build.sh",
     "wasm:build:node": "./scripts/build-test.sh",
-    "test:ci": "cd ./lib && cargo test"
+    "test-wasm:ci": "cd ./lib && cargo test"
   },
   "dependencies": {
     "typescript": "^4.8.2"

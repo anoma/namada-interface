@@ -18,7 +18,7 @@ on:
 env:
   CI: false
 jobs:
-  unit-tests:
+  unit-tests-js:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -35,7 +35,6 @@ jobs:
       - name: Compile WASM
         run: yarn wasm:build-test
 
-      # NOTE: Disabling unit tests until wasm dependencies are building against Namada v0.7.1+
       - name: Run unit tests
         id: run-unit-tests
         run: yarn test:ci
@@ -53,6 +52,39 @@ jobs:
           --request POST \
           --data '{"message":"Unit tests failed ⛔️ \n \n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nReview\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
           ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
+
+  unit-tests-wasm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install wsrun
+        run: yarn add -W wsrun
+
+      - name: Install wasm-pack
+        uses: jetli/wasm-pack-action@v0.4.0
+        with:
+          version: "v0.10.3"
+
+      - name: Run unit tests
+        id: run-unit-tests
+        run: yarn test-wasm:ci
+      - name: Report success
+        if: steps.run-unit-tests.outcome == 'success'
+        run: |
+          curl --header "Content-Type: application/json" \
+          --request POST \
+          --data '{"message":"Unit tests succeeded ✅\n \n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nReview\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
+          ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
+      - name: Report failure
+        if: steps.run-unit-tests.outcome != 'success'
+        run: |
+          curl --header "Content-Type: application/json" \
+          --request POST \
+          --data '{"message":"Unit tests failed ⛔️ \n \n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nReview\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
+          ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
+
   build:
     runs-on: ubuntu-latest
     steps:
