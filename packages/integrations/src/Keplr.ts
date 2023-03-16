@@ -7,15 +7,9 @@ import { AccountData } from "@cosmjs/proto-signing";
 import { StargateClient } from "@cosmjs/stargate";
 import { Coin } from "@cosmjs/launchpad";
 
-import {
-  Account,
-  Chain,
-  CosmosTokens,
-  IbcTransferProps,
-  TokenBalance,
-} from "@anoma/types";
+import { Account, Chain, CosmosTokens, TokenBalance } from "@anoma/types";
 import { shortenAddress } from "@anoma/utils";
-import { Integration } from "./types/Integration";
+import { BridgeProps, Integration } from "./types/Integration";
 
 const KEPLR_NOT_FOUND = "Keplr extension not found!";
 
@@ -23,7 +17,7 @@ type OfflineSigner = ReturnType<IKeplr["getOfflineSigner"]>;
 
 export type KeplrBalance = Coin;
 
-class Keplr implements Integration<Account, OfflineSigner, IbcTransferProps> {
+class Keplr implements Integration<Account, OfflineSigner> {
   private _keplr: IKeplr | undefined;
   private _offlineSigner: OfflineSigner | undefined;
   /**
@@ -119,9 +113,9 @@ class Keplr implements Integration<Account, OfflineSigner, IbcTransferProps> {
     return Promise.reject(KEPLR_NOT_FOUND);
   }
 
-  public async submitBridgeTransfer(props: IbcTransferProps): Promise<void> {
+  public async submitBridgeTransfer(props: BridgeProps): Promise<void> {
     // TODO: Submit transfer via CosmJS RpcClient
-    console.log("Keplr.submitBridgeTransfer", props);
+    console.log("Keplr.submitBridgeTransfer", props.ibcProps);
   }
 
   public async queryBalances(owner: string): Promise<TokenBalance[]> {

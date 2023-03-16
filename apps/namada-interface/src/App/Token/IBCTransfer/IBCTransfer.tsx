@@ -41,7 +41,7 @@ const IBCTransfer = (): JSX.Element => {
   const { channelsByChain = {} } = useAppSelector<ChannelsState>(
     (state) => state.channels
   );
-  const { isIbcTransferSubmitting, transferError, events } =
+  const { isBridgeTransferSubmitting, transferError, events } =
     useAppSelector<TransfersState>((state) => state.transfers);
 
   // TODO: Bridged Chains should have at least one compatible "bridgeType" with the source chain:
@@ -138,10 +138,10 @@ const IBCTransfer = (): JSX.Element => {
   }, [chainId]);
 
   useEffect(() => {
-    if (sourceAccount && !isIbcTransferSubmitting) {
+    if (sourceAccount && !isBridgeTransferSubmitting) {
       dispatch(fetchBalances());
     }
-  }, [isIbcTransferSubmitting]);
+  }, [isBridgeTransferSubmitting]);
 
   useEffect(() => {
     // Set a default selectedChannelId if none are selected, but channels are available
@@ -298,7 +298,7 @@ const IBCTransfer = (): JSX.Element => {
             />
           </InputContainer>
 
-          {isIbcTransferSubmitting && <p>Submitting IBC Transfer</p>}
+          {isBridgeTransferSubmitting && <p>Submitting IBC Transfer</p>}
           {transferError && (
             <pre style={{ overflow: "auto" }}>{transferError}</pre>
           )}
@@ -321,7 +321,7 @@ const IBCTransfer = (): JSX.Element => {
                 amount > currentBalance ||
                 amount === 0 ||
                 !recipient ||
-                isIbcTransferSubmitting ||
+                isBridgeTransferSubmitting ||
                 !(selectedDestinationChain.bridgeType.indexOf(BridgeType.IBC) >
                 -1
                   ? selectedChannelId

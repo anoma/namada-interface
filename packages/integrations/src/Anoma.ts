@@ -7,15 +7,15 @@ import {
   Tokens,
   TokenType,
   TokenBalance,
+  TxWasm,
   WindowWithAnoma,
 } from "@anoma/types";
+import { fetchWasmCode } from "@anoma/utils";
 import { RpcClient } from "@anoma/rpc";
 
-import { Integration } from "./types/Integration";
+import { BridgeProps, Integration } from "./types/Integration";
 
-export default class Anoma
-  implements Integration<Account, Signer, IbcTransferProps>
-{
+export default class Anoma implements Integration<Account, Signer> {
   private _anoma: WindowWithAnoma["anoma"] | undefined;
 
   constructor(public readonly chain: Chain) {}
@@ -50,9 +50,35 @@ export default class Anoma
     return this._anoma?.getSigner(this.chain.chainId);
   }
 
-  public async submitBridgeTransfer(props: IbcTransferProps): Promise<void> {
-    // TODO: Call method in Anoma extension
+  public async submitBridgeTransfer(props: BridgeProps): Promise<void> {
     console.log("Anoma.submitBridgeTransfer", props);
+    if (props.ibcProps) {
+      const { source, receiver, channelId, portId, amount, token } =
+        props.ibcProps;
+      const tokenAddress = Tokens[token as TokenType]?.address;
+      const signer = this._anoma?.getSigner(this.chain.chainId);
+
+      return await signer?.submitIbcTransfer({
+        tx: {
+          token: Tokens.NAM.address || "",
+          feeAmount: 0,
+          gasLimit: 0,
+          txCode: await fetchWasmCode(TxWasm.RevealPK),
+        },
+        source,
+        receiver,
+        channelId,
+        portId,
+        token: tokenAddress || "",
+        amount,
+        txCode: await fetchWasmCode(TxWasm.IBC),
+      });
+    } else if (props.bridgeProps) {
+      console.log("TODO: Implement Ethereum Bridge transfer");
+      return;
+    }
+
+    return Promise.reject("Invalid bridge transfer props!");
   }
 
   public async queryBalances(owner: string): Promise<TokenBalance[]> {

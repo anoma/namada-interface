@@ -130,7 +130,7 @@ export const mockAppState: RootState = {
       },
     ],
     isTransferSubmitting: false,
-    isIbcTransferSubmitting: false,
+    isBridgeTransferSubmitting: false,
     transferError:
       "Async actions timed out when submitting Token Transfer after 20 seconds",
   },
