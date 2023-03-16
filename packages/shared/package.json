@@ -10,8 +10,7 @@
   "scripts": {
     "wasm:build": "./scripts/build.sh",
     "wasm:build:node": "./scripts/build-test.sh",
-    "test": "yarn wasm:build:node && yarn jest",
-    "test:watch": "yarn test --watch"
+    "test:ci": "cd ./lib && cargo test"
   },
   "dependencies": {
     "typescript": "^4.8.2"

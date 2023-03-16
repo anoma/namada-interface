@@ -11,7 +11,8 @@
     "wasm:build": "./scripts/build.sh",
     "wasm:build:node": "./scripts/build-test.sh",
     "test": "yarn wasm:build:node && yarn jest",
-    "test:watch": "yarn wasm:build:node && yarn test --watch"
+    "test:watch": "yarn wasm:build:node && yarn test --watch",
+    "test:ci": "jest && cd ./lib && cargo test"
   },
   "dependencies": {
     "typescript": "^4.8.2"
