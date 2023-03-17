@@ -44,16 +44,15 @@ const IBCTransfer = (): JSX.Element => {
   const { isBridgeTransferSubmitting, transferError, events } =
     useAppSelector<TransfersState>((state) => state.transfers);
 
-  // TODO: Bridged Chains should have at least one compatible "bridgeType" with the source chain:
   const bridgedChains = Object.values(chains).filter(
     (chain: Chain) => chain.chainId !== chainId
   );
 
-  const defaultIbcChain = chains[bridgedChains[0]?.chainId] || null;
+  const sourceChain = chains[bridgedChains[0]?.chainId] || null;
   const [selectedChainId, setSelectedChainId] = useState(
-    defaultIbcChain ? defaultIbcChain.chainId : ""
+    sourceChain ? sourceChain.chainId : ""
   );
-  const selectedDestinationChain = chains[selectedChainId];
+  const destinationChain = chains[selectedChainId];
 
   const selectDestinationChainData = bridgedChains.map((chain) => ({
     value: chain.chainId,
@@ -114,7 +113,7 @@ const IBCTransfer = (): JSX.Element => {
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
 
-  const { portId = "transfer" } = defaultIbcChain.ibc || {};
+  const { portId = "transfer" } = sourceChain.ibc || {};
 
   useEffect(() => {
     return () => {
@@ -197,10 +196,7 @@ const IBCTransfer = (): JSX.Element => {
 
   return (
     <IBCTransferFormContainer>
-      {!defaultIbcChain && (
-        <p>This chain is not configured to connect over IBC!</p>
-      )}
-      {defaultIbcChain && (
+      {sourceChain && (
         <>
           <InputContainer>
             <Select
@@ -222,7 +218,7 @@ const IBCTransfer = (): JSX.Element => {
               }}
             />
           </InputContainer>
-          {selectedDestinationChain.bridgeType.indexOf(BridgeType.IBC) > -1 && (
+          {destinationChain.bridgeType.indexOf(BridgeType.IBC) > -1 && (
             <InputContainer>
               {channels.length > 0 && (
                 <Select<string>
@@ -242,7 +238,7 @@ const IBCTransfer = (): JSX.Element => {
             </InputContainer>
           )}
 
-          {selectedDestinationChain.bridgeType.indexOf(BridgeType.IBC) > -1 &&
+          {destinationChain.bridgeType.indexOf(BridgeType.IBC) > -1 &&
             showAddChannelForm && (
               <InputContainer>
                 <Input
@@ -311,15 +307,15 @@ const IBCTransfer = (): JSX.Element => {
             />
           </InputContainer>
 
-          {isBridgeTransferSubmitting && <p>Submitting IBC Transfer</p>}
+          {isBridgeTransferSubmitting && <p>Submitting bridge transfer...</p>}
           {transferError && (
             <pre style={{ overflow: "auto" }}>{transferError}</pre>
           )}
           {events && (
             <>
               <StatusMessage>
-                Successfully submitted IBC transfer! It will take some time for
-                the receiver to see an updated balance.
+                Successfully submitted bridge transfer! It will take some time
+                for the receiver to see an updated balance.
               </StatusMessage>
               <StatusMessage>Gas used: {events.gas}</StatusMessage>
               <StatusMessage>Applied hash:</StatusMessage>
@@ -334,8 +330,7 @@ const IBCTransfer = (): JSX.Element => {
                 amount === 0 ||
                 !recipient ||
                 isBridgeTransferSubmitting ||
-                !(selectedDestinationChain.bridgeType.indexOf(BridgeType.IBC) >
-                -1
+                !(destinationChain.bridgeType.indexOf(BridgeType.IBC) > -1
                   ? selectedChannelId
                   : true)
               }
