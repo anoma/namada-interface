@@ -5,5 +5,6 @@ const config: Config.InitialOptions = {
   transform: {
     "^.+\\.tsx?$": "ts-jest",
   },
+  modulePathIgnorePatterns: ["e2e-tests"],
 };
 export default config;

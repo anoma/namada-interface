@@ -1,195 +1,142 @@
-import { ChainInfo, Key, Keplr as IKeplr } from "@keplr-wallet/types";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { mock } from "jest-mock-extended";
 
-import { Chain } from "types";
+import { Chain } from "@anoma/types";
+import { Key, Keplr as IKeplr } from "@keplr-wallet/types";
+
 import Keplr from "./Keplr";
-
-type MockKeplr = Pick<
-  IKeplr,
-  "enable" | "getKey" | "experimentalSuggestChain" | "getOfflineSignerAuto"
->;
-
-const KEPLR_ADDED_CHAINS = ["anoma-test.fd58c789bc11e6c6392"];
+import {
+  AccountData,
+  OfflineDirectSigner,
+  OfflineSigner,
+} from "@cosmjs/proto-signing";
 
 /**
  * Mock Chain configuration data
  */
-const mockChain: Chain = {
-  accountIndex: 0,
-  alias: "Namada Testnet",
-  id: "anoma-test.fd58c789bc11e6c6392",
-  network: {
-    protocol: "http",
-    wsProtocol: "ws",
-    url: "localhost",
-    port: 26657,
-  },
-  ibc: [
-    {
-      chainId: "gaia",
-      alias: "Cosmos (Gaia)",
-    },
-  ],
-};
-
-/**
- * Mock Keplr key results data
- */
-const mockKey: Key = {
-  name: "keyName",
-  algo: "algo",
-  pubKey: new Uint8Array(),
-  address: new Uint8Array(),
-  bech32Address: "cosmos1qjnyxraddqgzg91ezty2x3n5t31eur9dsxx4fp",
-  isNanoLedger: false,
-};
-
-/**
- * Mock Chain Info data for Keplr suggest chain functionality
- */
-const mockChainInfo: ChainInfo = {
-  rpc: "http://localhost:26657",
-  rest: "http://localhost:1317",
-  chainId: "anoma-test.fd58c789bc11e6c6392",
-  chainName: "Namada Testnet",
-  stakeCurrency: {
-    coinDenom: "ATOM",
-    coinMinimalDenom: "uatom",
-    coinDecimals: 6,
-    coinGeckoId: "cosmos",
-  },
-  bip44: { coinType: 118 },
-  bech32Config: {
-    bech32PrefixAccAddr: "namada",
-    bech32PrefixAccPub: "namadapub",
-    bech32PrefixValAddr: "namadavaloper",
-    bech32PrefixValPub: "namadavaloperpub",
-    bech32PrefixConsAddr: "namadavalcons",
-    bech32PrefixConsPub: "namadavalconspub",
-  },
-  currencies: [
-    {
-      coinDenom: "ATOM",
-      coinMinimalDenom: "uatom",
-      coinDecimals: 6,
-      coinGeckoId: "cosmos",
-    },
-  ],
-  feeCurrencies: [
-    {
-      coinDenom: "ATOM",
-      coinMinimalDenom: "uatom",
-      coinDecimals: 6,
-      coinGeckoId: "cosmos",
-    },
-  ],
-  gasPriceStep: { low: 0.01, average: 0.025, high: 0.03 },
-  features: ["ibc-transfer"],
-  beta: false,
-};
-
+const mockChain = mock<Chain>();
 /**
  * Mock Keplr extension
  */
-const mockKeplrExtension: MockKeplr = {
-  enable: async (): Promise<void> => {
-    return;
-  },
-  experimentalSuggestChain: async (): Promise<void> => {
-    return;
-  },
-  getKey: async (): Promise<Key> => {
-    return mockKey;
-  },
-  // We currently only want to ensure that an error is thrown if the provided chainId
-  // doesn't match what is available in the keplr instance, hence the following any:
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getOfflineSignerAuto: async (chainId: string): Promise<any> => {
-    if (KEPLR_ADDED_CHAINS.indexOf(chainId) < 0) {
-      throw new Error("Chain not found!");
-    }
-  },
-};
-
-const mockKeplr = new Keplr(mockChain, mockKeplrExtension as IKeplr);
+const mockKeplrExtension = mock<IKeplr>();
 
 describe("Keplr class", () => {
+  let keplr: Keplr;
+
+  beforeEach(() => {
+    keplr = new Keplr(mockChain);
+  });
+
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  test("It should detect keplr extension", () => {
-    const isKeplrDetected = mockKeplr.detect();
+  test("'instance' should return the instance of Keplr extension", () => {
+    expect(keplr.instance).toBeUndefined();
 
-    expect(isKeplrDetected).toEqual(true);
+    (keplr as any)._keplr = mockKeplrExtension;
+    expect(keplr.instance).toBe(mockKeplrExtension);
   });
 
-  test("It should invoke suggestChain", async () => {
-    const spy = mockKeplr.instance
-      ? jest.spyOn(mockKeplr.instance, "experimentalSuggestChain")
-      : null;
-    const results = await mockKeplr.suggestChain();
+  test("'signer' should return offline signer if there is one", () => {
+    const offlineSignerMock = mock<OfflineSigner & OfflineDirectSigner>();
+    (keplr as any)._offlineSigner = offlineSignerMock;
 
-    expect(results).toEqual(true);
-    expect(spy).toHaveBeenCalledTimes(1);
-    expect(spy).toHaveBeenCalledWith(mockChainInfo);
+    expect(keplr.signer()).toBe(offlineSignerMock);
   });
 
-  test("It should invoke enable", async () => {
-    const spy = mockKeplr.instance
-      ? jest.spyOn(mockKeplr.instance, "enable")
-      : null;
-    const results = await mockKeplr.enable();
+  test("'signer' should return offline signer from the extension if offline signer is not present and extension is initialized", () => {
+    const offlineSignerMock = mock<OfflineSigner & OfflineDirectSigner>();
+    (keplr as any)._keplr = mockKeplrExtension;
 
-    expect(results).toEqual(true);
-    expect(spy).toHaveBeenCalledTimes(1);
-    expect(spy).toHaveBeenCalledWith(mockChain.id);
+    const getOfflineSignerSpy = jest
+      .spyOn(mockKeplrExtension, "getOfflineSigner")
+      .mockReturnValue(offlineSignerMock as any);
+
+    const signer = keplr.signer();
+
+    expect(getOfflineSignerSpy).toBeCalledWith(mockChain.chainId);
+    expect(signer).toBe(offlineSignerMock);
   });
 
-  test("It should invoke getKey", async () => {
-    const spy = mockKeplr.instance
-      ? jest.spyOn(mockKeplr.instance, "getKey")
-      : null;
-    const results = await mockKeplr.getKey();
-
-    expect(results).toBe(mockKey);
-    expect(spy).toHaveBeenCalledTimes(1);
-    expect(spy).toHaveBeenCalledWith(mockChain.id);
+  test("'signer' should throw an error when offlineSginer is not present and extension is not initialized", () => {
+    expect(() => keplr.signer()).toThrow();
   });
 
-  test("It should invoke detectChain", async () => {
-    const spy = mockKeplr.instance
-      ? jest.spyOn(mockKeplr.instance, "getOfflineSignerAuto")
-      : null;
-    const results = await mockKeplr.detectChain();
+  test("'detect' should call init and return value indicating if extension is initialized", () => {
+    const initSpy = jest.spyOn(keplr as any, "init").mockReturnValue(undefined);
 
-    expect(results).toEqual(true);
-    expect(spy).toHaveBeenCalledTimes(1);
-    expect(spy).toHaveBeenLastCalledWith(mockChain.id);
+    const falseDetect = keplr.detect();
+    expect(falseDetect).toEqual(false);
+
+    (keplr as any)._keplr = mockKeplrExtension;
+    const trueDetect = keplr.detect();
+    expect(trueDetect).toEqual(true);
+
+    expect(initSpy).toBeCalledTimes(2);
   });
 
-  test("It should catch thrown error if chainId not found in detectChain", async () => {
-    const invalidChain: Chain = {
-      ...mockChain,
-      id: "anoma-ibc-0.4.5b0d5e5569aa27fb",
-    };
-    const mockKeplrInvalidChainId = new Keplr(
-      invalidChain,
-      mockKeplrExtension as IKeplr
+  test("'connect' should enable extension of extension is initialized", async () => {
+    (keplr as any)._keplr = mockKeplrExtension;
+
+    const enableSpy = jest
+      .spyOn(mockKeplrExtension, "enable")
+      .mockResolvedValue();
+
+    const result = await keplr.connect();
+    expect(enableSpy).toHaveBeenCalled();
+    expect(enableSpy).toHaveBeenCalledWith(mockChain.chainId);
+    expect(result).toBeUndefined();
+  });
+
+  test("'connect' should reject the promise if Keplr extension instance is not present", async () => {
+    await expect(keplr.connect()).rejects.toBeDefined();
+  });
+
+  test("'getKey' should return the promise with key if Keplr extension is initialized", async () => {
+    const key = mock<Key>();
+    (keplr as any)._keplr = mockKeplrExtension;
+
+    const getKeySpy = jest
+      .spyOn(mockKeplrExtension, "getKey")
+      .mockResolvedValue(key);
+    const result = await keplr.getKey();
+
+    expect(getKeySpy).toHaveBeenCalled();
+    expect(getKeySpy).toHaveBeenCalledWith(mockChain.chainId);
+    expect(result).toEqual(key);
+  });
+
+  test("'getKey' should reject the promise if Keplr extension instance is not present", async () => {
+    await expect(keplr.getKey()).rejects.toBeDefined();
+  });
+
+  test("'accounts' should return mapped accounts from the extension if extension is initialized", async () => {
+    (keplr as any)._keplr = mockKeplrExtension;
+    const aliases = ["a1", "a2", "a3"];
+    const keplrAccounts = aliases.map<AccountData>((address) => ({
+      address,
+      algo: "secp256k1",
+      pubkey: new Uint8Array(),
+    }));
+    const offlineSigner = mock<OfflineSigner & OfflineDirectSigner>();
+    jest.spyOn(keplr, "signer").mockReturnValue(offlineSigner as any);
+    jest.spyOn(offlineSigner, "getAccounts").mockResolvedValue(keplrAccounts);
+
+    const accounts = await keplr.accounts();
+    expect(keplr.signer).toBeCalled();
+    expect(offlineSigner.getAccounts).toBeCalled();
+    expect(accounts).toEqual(
+      aliases.map((a) => ({
+        alias: `${a}...${a}`,
+        chainId: mockChain.chainId,
+        address: a,
+        isShielded: false,
+      }))
     );
-
-    const spy = mockKeplrInvalidChainId.instance
-      ? jest.spyOn(mockKeplrInvalidChainId.instance, "getOfflineSignerAuto")
-      : null;
-
-    const results = await mockKeplrInvalidChainId.detectChain();
-
-    expect(results).toEqual(false);
-    expect(spy).toHaveBeenCalledTimes(1);
-    expect(spy).toHaveBeenCalledWith(invalidChain.id);
   });
 
-  test("It should return a chain configuration for inspection", () => {
-    const chainConfig = mockKeplr.chain;
-    expect(chainConfig).toBe(mockChain);
+  test("'accounts' should return reject the promise if extension is not initialized", async () => {
+    await expect(keplr.accounts()).rejects.toBeDefined();
   });
 });

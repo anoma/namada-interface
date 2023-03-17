@@ -20,6 +20,7 @@
     "start:firefox": "yarn clean:firefox && export NODE_ENV=development; export TARGET=firefox webpack --watch",
     "test": "./scripts/build-node.sh && yarn jest",
     "test:watch": "./scripts/build-node.sh && yarn jest --watchAll=true",
+    "test:ci": "jest",
     "wasm:build": "./scripts/build.sh"
   },
   "dependencies": {
