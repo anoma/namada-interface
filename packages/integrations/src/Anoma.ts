@@ -2,7 +2,6 @@ import {
   Account,
   Anoma as IAnoma,
   Chain,
-  IbcTransferProps,
   Signer,
   Tokens,
   TokenType,
