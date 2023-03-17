@@ -1,4 +1,4 @@
-import { Chain, Extensions } from "@anoma/types";
+import { BridgeType, Chain, Extensions } from "@anoma/types";
 
 const DEFAULT_ALIAS = "Cosmos Hub";
 const DEFAULT_CHAIN_ID = "cosmoshub-4";
@@ -16,6 +16,7 @@ const cosmos: Chain = {
   bip44: {
     coinType: 118,
   },
+  bridgeType: [BridgeType.IBC],
   rpc,
   chainId,
   currency: {

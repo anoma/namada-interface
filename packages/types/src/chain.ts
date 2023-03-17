@@ -10,6 +10,11 @@ export type Currency = {
   };
 };
 
+export enum BridgeType {
+  IBC = "ibc",
+  Ethereum = "ethereum-bridge",
+}
+
 // Define keys for supported extensions
 export type ExtensionKey = "anoma" | "keplr" | "metamask";
 
@@ -44,6 +49,7 @@ export type Chain = {
   bip44: {
     coinType: number;
   };
+  bridgeType: BridgeType[];
   chainId: string;
   currency: Currency;
   extension: ExtensionInfo;

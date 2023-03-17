@@ -1,4 +1,4 @@
-import { Chain, Extensions } from "@anoma/types";
+import { BridgeType, Chain, Extensions } from "@anoma/types";
 
 const DEFAULT_ALIAS = "Osmosis Testnet";
 const DEFAULT_CHAIN_ID = "osmosis-1";
@@ -16,6 +16,7 @@ const osmosis: Chain = {
   bip44: {
     coinType: 1,
   },
+  bridgeType: [BridgeType.IBC],
   rpc,
   chainId,
   currency: {

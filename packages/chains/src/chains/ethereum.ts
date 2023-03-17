@@ -1,4 +1,4 @@
-import { Chain, Extensions } from "@anoma/types";
+import { BridgeType, Chain, Extensions } from "@anoma/types";
 
 const DEFAULT_ALIAS = "Goerli Testnet";
 const DEFAULT_CHAIN_ID = "0x5";
@@ -16,6 +16,7 @@ const ethereum: Chain = {
   bip44: {
     coinType: 1,
   },
+  bridgeType: [BridgeType.Ethereum],
   rpc,
   chainId,
   currency: {

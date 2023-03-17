@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { chains } from "@anoma/chains";
-import { Chain, Tokens, TokenType } from "@anoma/types";
+import { BridgeType, Chain, Tokens, TokenType } from "@anoma/types";
 import { useAppDispatch, useAppSelector } from "store";
 import { Account, AccountsState, fetchBalances } from "slices/accounts";
 import { addChannel, ChannelsState } from "slices/channels";
@@ -44,18 +44,20 @@ const IBCTransfer = (): JSX.Element => {
   const { isIbcTransferSubmitting, transferError, events } =
     useAppSelector<TransfersState>((state) => state.transfers);
 
-  const ibc = Object.values(chains).filter(
+  // TODO: Bridged Chains should have at least one compatible "bridgeType" with the source chain:
+  const bridgedChains = Object.values(chains).filter(
     (chain: Chain) => chain.chainId !== chainId
   );
 
-  const defaultIbcChain = chains[ibc[0]?.chainId] || null;
+  const defaultIbcChain = chains[bridgedChains[0]?.chainId] || null;
   const [selectedChainId, setSelectedChainId] = useState(
     defaultIbcChain ? defaultIbcChain.chainId : ""
   );
+  const selectedDestinationChain = chains[selectedChainId];
 
-  const selectDestinationChainData = ibc.map((ibcChain) => ({
-    value: ibcChain.chainId,
-    label: ibcChain.alias,
+  const selectDestinationChainData = bridgedChains.map((chain) => ({
+    value: chain.chainId,
+    label: chain.alias,
   }));
 
   const channels =
@@ -128,8 +130,8 @@ const IBCTransfer = (): JSX.Element => {
   }, [selectedChainId]);
 
   useEffect(() => {
-    if (ibc.length > 0) {
-      const selectedChain = ibc[0].chainId;
+    if (bridgedChains.length > 0) {
+      const selectedChain = bridgedChains[0].chainId;
       setSelectedChainId(selectedChain);
       setSourceAccount(sourceAccounts[0]);
     }
@@ -217,58 +219,61 @@ const IBCTransfer = (): JSX.Element => {
               onChange={(e) => setSelectedChainId(e.target.value)}
             />
           </InputContainer>
-          <InputContainer>
-            {channels.length > 0 && (
-              <Select<string>
-                data={selectChannelsData}
-                value={selectedChannelId}
-                label="IBC Transfer Channel"
-                onChange={(e) => setSelectedChannelId(e.target.value)}
-              />
-            )}
-
-            {!showAddChannelForm && (
-              <AddChannelButton onClick={() => setShowAddChannelForm(true)}>
-                <Icon iconName={IconName.Plus} />
-                <span>Add IBC Transfer Channel</span>
-              </AddChannelButton>
-            )}
-          </InputContainer>
-
-          {showAddChannelForm && (
+          {selectedDestinationChain.bridgeType.indexOf(BridgeType.IBC) > -1 && (
             <InputContainer>
-              <Input
-                variant={InputVariants.Text}
-                label="Add Channel ID"
-                value={channelId}
-                onChangeCallback={(e) => {
-                  const { value } = e.target;
-                  setChannelId(value);
-                }}
-                onFocus={handleFocus}
-                error={
-                  channels.indexOf(`${channelId}`) > -1
-                    ? "Channel exists!"
-                    : undefined
-                }
-              />
-              <Button
-                variant={ButtonVariant.Contained}
-                style={{ width: 160 }}
-                onClick={handleAddChannel}
-                disabled={!channelId}
-              >
-                Add
-              </Button>
-              <Button
-                variant={ButtonVariant.Contained}
-                style={{ width: 160 }}
-                onClick={() => setShowAddChannelForm(false)}
-              >
-                Cancel
-              </Button>
+              {channels.length > 0 && (
+                <Select<string>
+                  data={selectChannelsData}
+                  value={selectedChannelId}
+                  label="IBC Transfer Channel"
+                  onChange={(e) => setSelectedChannelId(e.target.value)}
+                />
+              )}
+
+              {!showAddChannelForm && (
+                <AddChannelButton onClick={() => setShowAddChannelForm(true)}>
+                  <Icon iconName={IconName.Plus} />
+                  <span>Add IBC Transfer Channel</span>
+                </AddChannelButton>
+              )}
             </InputContainer>
           )}
+
+          {selectedDestinationChain.bridgeType.indexOf(BridgeType.IBC) > -1 &&
+            showAddChannelForm && (
+              <InputContainer>
+                <Input
+                  variant={InputVariants.Text}
+                  label="Add Channel ID"
+                  value={channelId}
+                  onChangeCallback={(e) => {
+                    const { value } = e.target;
+                    setChannelId(value);
+                  }}
+                  onFocus={handleFocus}
+                  error={
+                    channels.indexOf(`${channelId}`) > -1
+                      ? "Channel exists!"
+                      : undefined
+                  }
+                />
+                <Button
+                  variant={ButtonVariant.Contained}
+                  style={{ width: 160 }}
+                  onClick={handleAddChannel}
+                  disabled={!channelId}
+                >
+                  Add
+                </Button>
+                <Button
+                  variant={ButtonVariant.Contained}
+                  style={{ width: 160 }}
+                  onClick={() => setShowAddChannelForm(false)}
+                >
+                  Cancel
+                </Button>
+              </InputContainer>
+            )}
 
           <InputContainer>
             <Select
@@ -301,7 +306,8 @@ const IBCTransfer = (): JSX.Element => {
             <>
               <StatusMessage>
                 Successfully submitted IBC transfer! It will take some time for
-                the receiver to see an updated balance.
+                bridgeType: BridgeType.IBC, the receiver to see an updated
+                balance.
               </StatusMessage>
               <StatusMessage>Gas used: {events.gas}</StatusMessage>
               <StatusMessage>Applied hash:</StatusMessage>
@@ -316,7 +322,10 @@ const IBCTransfer = (): JSX.Element => {
                 amount === 0 ||
                 !recipient ||
                 isIbcTransferSubmitting ||
-                !selectedChannelId
+                !(selectedDestinationChain.bridgeType.indexOf(BridgeType.IBC) >
+                -1
+                  ? selectedChannelId
+                  : true)
               }
               onClick={handleSubmit}
             >

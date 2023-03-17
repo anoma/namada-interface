@@ -1,4 +1,4 @@
-import { AccountType, Chain, Extensions } from "@anoma/types";
+import { AccountType, BridgeType, Chain, Extensions } from "@anoma/types";
 import { KdfType, KeyStore } from "background/keyring";
 
 export const ACTIVE_ACCOUNT_ID = "324bfe0e-cb19-5f1a-9630-9daaaecadabe";
@@ -11,6 +11,7 @@ export const chain: Chain = {
     // See: https://github.com/satoshilabs/slips/blob/master/slip-0044.md
     coinType: 1,
   },
+  bridgeType: [BridgeType.IBC, BridgeType.Ethereum],
   rpc: "http://localhost:26657",
   chainId: "namada-75a7e12.69483d59a9fb174",
   extension: Extensions["anoma"],
