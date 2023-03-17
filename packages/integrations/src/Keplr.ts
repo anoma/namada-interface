@@ -3,9 +3,14 @@ import {
   Key,
   Window as KeplrWindow,
 } from "@keplr-wallet/types";
-import { AccountData } from "@cosmjs/proto-signing";
-import { StargateClient } from "@cosmjs/stargate";
+import { AccountData, coin, coins } from "@cosmjs/proto-signing";
+import {
+  StargateClient,
+  SigningStargateClient,
+  SigningStargateClientOptions,
+} from "@cosmjs/stargate";
 import { Coin } from "@cosmjs/launchpad";
+import Long from "long";
 
 import { Account, Chain, CosmosTokens, TokenBalance } from "@anoma/types";
 import { shortenAddress } from "@anoma/utils";
@@ -16,6 +21,11 @@ const KEPLR_NOT_FOUND = "Keplr extension not found!";
 type OfflineSigner = ReturnType<IKeplr["getOfflineSigner"]>;
 
 export type KeplrBalance = Coin;
+
+export const defaultSigningClientOptions: SigningStargateClientOptions = {
+  broadcastPollIntervalMs: 300,
+  broadcastTimeoutMs: 8_000,
+};
 
 class Keplr implements Integration<Account, OfflineSigner> {
   private _keplr: IKeplr | undefined;
@@ -114,8 +124,50 @@ class Keplr implements Integration<Account, OfflineSigner> {
   }
 
   public async submitBridgeTransfer(props: BridgeProps): Promise<void> {
-    // TODO: Submit transfer via CosmJS RpcClient
-    console.log("Keplr.submitBridgeTransfer", props.ibcProps);
+    if (props.ibcProps) {
+      const {
+        source,
+        receiver,
+        token,
+        amount,
+        portId = "transfer",
+        channelId,
+      } = props.ibcProps;
+
+      const client = await SigningStargateClient.connectWithSigner(
+        this.chain.rpc,
+        this.signer(),
+        defaultSigningClientOptions
+      );
+
+      const fee = {
+        amount: coins(2000, "ucosm"),
+        gas: "222000",
+      };
+
+      const response = await client.sendIbcTokens(
+        source,
+        receiver,
+        coin(amount, CosmosTokens[token]),
+        portId,
+        channelId,
+        {
+          revisionHeight: Long.fromNumber(123),
+          revisionNumber: Long.fromNumber(456),
+        },
+        Math.floor(Date.now() / 1000) + 60,
+        fee,
+        "IBC Transfer Keplr<->Namada"
+      );
+
+      if (response.code !== 0) {
+        return Promise.reject("Transaction failed!");
+      }
+
+      return;
+    }
+
+    return Promise.reject("Invalid bridge props!");
   }
 
   public async queryBalances(owner: string): Promise<TokenBalance[]> {

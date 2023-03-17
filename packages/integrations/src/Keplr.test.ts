@@ -11,10 +11,18 @@ import {
   OfflineSigner,
 } from "@cosmjs/proto-signing";
 
+type MockKeplr = Pick<
+  IKeplr,
+  "enable" | "getKey" | "experimentalSuggestChain" | "getOfflineSignerAuto"
+>;
+
+const KEPLR_ADDED_CHAINS = ["anoma-test.fd58c789bc11e6c6392"];
+
 /**
  * Mock Chain configuration data
  */
 const mockChain = mock<Chain>();
+
 /**
  * Mock Keplr extension
  */
