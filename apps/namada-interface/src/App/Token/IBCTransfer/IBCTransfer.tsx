@@ -216,7 +216,10 @@ const IBCTransfer = (): JSX.Element => {
               data={selectDestinationChainData}
               value={selectedChainId}
               label="Destination Chain"
-              onChange={(e) => setSelectedChainId(e.target.value)}
+              onChange={(e) => {
+                setRecipient("");
+                setSelectedChainId(e.target.value);
+              }}
             />
           </InputContainer>
           {selectedDestinationChain.bridgeType.indexOf(BridgeType.IBC) > -1 && (
@@ -276,12 +279,22 @@ const IBCTransfer = (): JSX.Element => {
             )}
 
           <InputContainer>
-            <Select
-              label={"Recipient"}
-              data={destinationAccountsData}
-              value={recipient}
-              onChange={(e) => setRecipient(e.target.value)}
-            />
+            {destinationAccounts.length > 0 && (
+              <Select
+                label={"Recipient"}
+                data={destinationAccountsData}
+                value={recipient}
+                onChange={(e) => setRecipient(e.target.value)}
+              />
+            )}
+            {destinationAccounts.length === 0 && (
+              <Input
+                variant={InputVariants.Text}
+                label="Recipient"
+                value={recipient}
+                onChangeCallback={(e) => setRecipient(e.target.value)}
+              />
+            )}
           </InputContainer>
 
           <InputContainer>
