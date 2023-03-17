@@ -123,6 +123,10 @@ class Keplr implements Integration<Account, OfflineSigner> {
     return Promise.reject(KEPLR_NOT_FOUND);
   }
 
+  /**
+   * Submit IBC transfer tx to a Cosmos-based chain, using the offline signer from Keplr
+   * @returns {Promise<void>}
+   */
   public async submitBridgeTransfer(props: BridgeProps): Promise<void> {
     if (props.ibcProps) {
       const {
@@ -141,7 +145,7 @@ class Keplr implements Integration<Account, OfflineSigner> {
       );
 
       const fee = {
-        amount: coins(2000, "ucosm"),
+        amount: coins(2000, CosmosTokens[token]),
         gas: "222000",
       };
 
@@ -161,7 +165,7 @@ class Keplr implements Integration<Account, OfflineSigner> {
       );
 
       if (response.code !== 0) {
-        return Promise.reject("Transaction failed!");
+        return Promise.reject(`Transaction failed with code ${response.code}!`);
       }
 
       return;

@@ -205,7 +205,7 @@ export const submitIbcTransferTransaction = createAsyncThunk<
         receiver: txIbcTransferArgs.target,
         token: Tokens.NAM.address || "",
         txCode: await fetchWasmCode(TxWasm.RevealPK),
-        amount: amountToMicro(txIbcTransferArgs.amount),
+        amount: txIbcTransferArgs.amount,
         portId: txIbcTransferArgs.portId,
         channelId: txIbcTransferArgs.channelId,
       },
@@ -236,6 +236,8 @@ export const submitBridgeTransferTransaction = createAsyncThunk<
     );
 
     await integration.submitBridgeTransfer({
+      // TODO: tx and txCode (below) are *not* required for Keplr, but are required for this type.
+      // This should be accounted for in the type declarations and integration.
       bridgeProps: {
         tx: {
           token: Tokens.NAM.address || "",
@@ -247,6 +249,7 @@ export const submitBridgeTransferTransaction = createAsyncThunk<
         source: txBridgeTransferArgs.account.address,
         target: txBridgeTransferArgs.target,
         token: txBridgeTransferArgs.token,
+        // TODO: Check to see if amountToMicro is needed here once implemented for ETH Bridge:
         amount: amountToMicro(txBridgeTransferArgs.amount),
         txCode: await fetchWasmCode(TxWasm.IBC),
       },
