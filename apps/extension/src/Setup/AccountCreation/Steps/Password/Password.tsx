@@ -1,3 +1,4 @@
+import zxcvbn from "zxcvbn";
 import React, { useState } from "react";
 import { Button, ButtonVariant } from "@anoma/components";
 import {
@@ -27,19 +28,32 @@ type Props = {
   ) => void;
 };
 
+const validatePassword = (
+  { warning, suggestions }: zxcvbn.ZXCVBNFeedback,
+  password: string,
+  passwordMatch: string
+): boolean => {
+  return process.env.NODE_ENV === "development"
+    ? password.length > 0 && password === passwordMatch
+    : warning === "" && suggestions.length === 0 && password === passwordMatch;
+};
+
 const Password: React.FC<Props> = (props) => {
   const { onSubmitAccountCreationDetails, accountCreationDetails } = props;
 
   // we store passwords locally as we would not like to pass them in
   // when the user switches between the screens
-  const [password1, setPassword1] = useState("");
-  const [password2, setPassword2] = useState("");
-  const [password2Feedback, setPassword2Feedback] = useState("");
-  const [password1Feedback, setPassword1Feedback] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordMatch, setPasswordMatch] = useState("");
+  const [passwordMatchFeedback, setPasswordMatchFeedback] = useState("");
+  const [zxcvbnFeedback, setZxcvbnFeedback] = useState(zxcvbn("").feedback);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [alias, setAlias] = useState("");
-
-  const isSubmitButtonDisabled = password1 === "" || password1 !== password2;
+  const isPasswordValid = validatePassword(
+    zxcvbnFeedback,
+    password,
+    passwordMatch
+  );
 
   return (
     <AccountInformationViewContainer>
@@ -66,27 +80,29 @@ const Password: React.FC<Props> = (props) => {
         <InputContainer>
           <Header5>Create password</Header5>
           <Input
-            value={password1}
+            value={password}
             onChange={(event) => {
               const { value } = event.target;
-              setPassword1(value);
-            }}
-            onFocus={() => {
-              setPassword1Feedback("");
-              setPassword2Feedback("");
+              setPassword(value);
             }}
             onBlur={() => {
-              if (password1 === "") {
-                setPassword1Feedback("password cannot be empty");
-              }
+              const { feedback } = zxcvbn(password);
+              setZxcvbnFeedback(feedback);
 
-              if (password2 !== "" && password1 !== password2) {
-                setPassword2Feedback("passwords are not matching");
+              if (passwordMatch !== "" && password !== passwordMatch) {
+                setPasswordMatchFeedback("Passwords are not matching");
+              } else {
+                setPasswordMatchFeedback("");
               }
             }}
             type="password"
           />
-          <InputFeedback>{password1Feedback}</InputFeedback>
+          <InputFeedback className="warning">
+            {zxcvbnFeedback.warning}
+          </InputFeedback>
+          {zxcvbnFeedback.suggestions.map((suggestion, index) => (
+            <InputFeedback key={index}>{suggestion}</InputFeedback>
+          ))}
         </InputContainer>
 
         {/* password 2 */}
@@ -94,24 +110,19 @@ const Password: React.FC<Props> = (props) => {
           <Header5>Confirm password</Header5>
           <Input
             type="password"
-            value={password2}
+            value={passwordMatch}
             onChange={(event) => {
-              setPassword2(event.target.value);
-            }}
-            onFocus={() => {
-              setPassword1Feedback("");
-              setPassword2Feedback("");
+              setPasswordMatch(event.target.value);
             }}
             onBlur={() => {
-              if (password2 === "") {
-                setPassword2Feedback("Password cannot be empty");
-              }
-              if (password1 !== password2) {
-                setPassword2Feedback("Passwords are not matching");
+              if (password !== passwordMatch) {
+                setPasswordMatchFeedback("Passwords are not matching");
+              } else {
+                setPasswordMatchFeedback("");
               }
             }}
           />
-          <InputFeedback>{password2Feedback}</InputFeedback>
+          <InputFeedback>{passwordMatchFeedback}</InputFeedback>
           {isSubmitting && <p>Initializing wallet store...</p>}
         </InputContainer>
 
@@ -120,12 +131,12 @@ const Password: React.FC<Props> = (props) => {
           <Button
             variant={ButtonVariant.Contained}
             onClick={() => {
-              if (!isSubmitButtonDisabled && !isSubmitting) {
+              if (isPasswordValid && !isSubmitting) {
                 setIsSubmitting(true);
                 const accountCreationDetailsToSubmit: AccountCreationDetails = {
                   ...accountCreationDetails,
                   alias,
-                  password: password1,
+                  password,
                 };
 
                 // Wait a moment for setStore to finish, then navigate
@@ -133,7 +144,7 @@ const Password: React.FC<Props> = (props) => {
                 onSubmitAccountCreationDetails(accountCreationDetailsToSubmit);
               }
             }}
-            disabled={isSubmitButtonDisabled}
+            disabled={!isPasswordValid}
           >
             Create an Account
           </Button>
