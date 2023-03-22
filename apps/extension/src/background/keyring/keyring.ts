@@ -1,3 +1,6 @@
+import browser from "webextension-polyfill";
+declare let self: ServiceWorkerGlobalScope;
+
 import { v5 as uuid } from "uuid";
 
 import { KVStore } from "@anoma/storage";
@@ -20,6 +23,7 @@ import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
 import { chains } from "@anoma/chains";
 import { Crypto } from "./crypto";
 import { KeyRingStatus, KeyStore } from "./types";
+import { toBase64 } from "@cosmjs/encoding";
 
 // Generated UUID namespace for uuid v5
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
@@ -387,16 +391,45 @@ export class KeyRing {
     }
   }
 
+  async hasOffscreenDocument(path: string): Promise<boolean> {
+    // Check all windows controlled by the service worker to see if one
+    // of them is the offscreen document with the given path
+    const offscreenUrl = chrome.runtime.getURL(path);
+    const matchedClients = await self.clients.matchAll();
+    for (const client of matchedClients) {
+      if (client.url === offscreenUrl) {
+        console.log("kappa trye");
+        return true;
+      }
+    }
+    return false;
+  }
+
   async submitTransfer(txMsg: Uint8Array): Promise<void> {
     if (!this._password) {
       throw new Error("Not authenticated!");
     }
 
-    try {
-      await this.sdk.submit_transfer(txMsg, this._password);
-    } catch (e) {
-      throw new Error(`Could not submit transfer tx: ${e}`);
+    const offscreenDocumentPath = "offscreen.html";
+    // create offscreen document if it's not open already
+    if (!(await this.hasOffscreenDocument(offscreenDocumentPath))) {
+      await chrome.offscreen.createDocument({
+        url: chrome.runtime.getURL(offscreenDocumentPath),
+        reasons: [chrome.offscreen.Reason.CLIPBOARD],
+        justification: "reason for needing the document",
+      });
     }
+    await browser.runtime.sendMessage({
+      type: "test_offscreen",
+      target: "offscreen.anoma",
+      data: { txMsg: toBase64(txMsg), password: this._password },
+    });
+
+    // try {
+    //   await this.sdk.submit_transfer(txMsg, this._password);
+    // } catch (e) {
+    //   throw new Error(`Could not submit transfer tx: ${e}`);
+    // }
   }
 
   async submitIbcTransfer(txMsg: Uint8Array): Promise<void> {

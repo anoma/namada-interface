@@ -13,7 +13,13 @@
   "action": {
     "default_popup": "popup.html"
   },
-  "permissions": ["storage", "notifications", "identity"],
+  "permissions": [
+    "storage",
+    "notifications",
+    "identity",
+    "offscreen",
+    "clipboardWrite"
+  ],
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
   },

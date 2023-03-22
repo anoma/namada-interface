@@ -45,7 +45,7 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
 
   const sdk = new Sdk(REACT_APP_NAMADA_URL);
   //TODO: should not be here most likely :)
-  sdk.fetch_masp_params();
+  await sdk.fetch_masp_params();
 
   if (sdkDataStr) {
     const sdkData = new TextEncoder().encode(sdkDataStr);

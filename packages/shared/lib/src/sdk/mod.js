@@ -3,8 +3,7 @@ export const PREFIX = "Anoma::SDK";
 async function fetchParams(params) {
   //TODO: pass env
   return fetch(`http://localhost:3000/assets/${params}`)
-    .then((response) => response.blob())
-    .then((blob) => blob.arrayBuffer())
+    .then((response) => response.arrayBuffer())
     .then((ab) => new Uint8Array(ab));
 }
 
