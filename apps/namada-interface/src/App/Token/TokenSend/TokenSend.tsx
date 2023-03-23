@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { Account, AccountsState } from "slices/accounts";
@@ -82,14 +82,22 @@ const TokenSend = (): JSX.Element => {
     transparentAccountsWithBalance
   );
 
-  const selectedAccount = accounts[0];
   const [
     selectedTransparentAccountAddress,
     setSelectedTransparentAccountAddress,
-  ] = useState<string | undefined>(selectedAccount?.details.address);
+  ] = useState<string | undefined>();
 
   const [selectedShieldedAccountAddress, setSelectedShieldedAccountAddress] =
     useState<string | undefined>();
+
+  useEffect(() => {
+    setSelectedShieldedAccountAddress(
+      shieldedAccountsWithBalance?.[0]?.details.address
+    );
+    setSelectedTransparentAccountAddress(
+      transparentAccountsWithBalance?.[0]?.details.address
+    );
+  }, [derived[chainId]]);
 
   const tabs = ["Shielded", "Transparent"];
   let defaultTab = 0;
