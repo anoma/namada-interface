@@ -1,13 +1,8 @@
-export {};
-
-type Message = {
-  type: string;
-  target: string;
-  data: {
-    txMsg: string;
-    password: string;
-  };
-};
+import {
+  SubmitTransferMessage,
+  init as initSubmitTransferWebWorker,
+} from "background/web-workers";
+import { OFFSCREEN_TARGET, SUBMIT_TRANSFER_MSG_TYPE } from "./utils";
 
 (async function init() {
   chrome.runtime.onMessage.addListener(handleMessages);
@@ -16,20 +11,14 @@ type Message = {
     data,
     type,
     target,
-  }: Message): Promise<boolean> {
-    if (target !== "offscreen.anoma") {
+  }: SubmitTransferMessage): Promise<boolean> {
+    if (target !== OFFSCREEN_TARGET) {
       return false;
     }
 
     switch (type) {
-      case "test_offscreen":
-        const w = new Worker("send_transfer_webworker.anoma.js");
-        w.onmessage = (e) => {
-          if (e.data === "initialized") {
-            w.postMessage(data);
-          }
-          console.log("WW done " + e.data);
-        };
+      case SUBMIT_TRANSFER_MSG_TYPE:
+        initSubmitTransferWebWorker(data);
         break;
       default:
         console.warn(`Unexpected message type received: '${type}'.`);

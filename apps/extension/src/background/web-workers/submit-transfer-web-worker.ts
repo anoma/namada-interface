@@ -2,6 +2,7 @@ import { Sdk } from "@anoma/shared";
 import { init as initShared } from "@anoma/shared/src/init";
 import { IndexedDBKVStore } from "@anoma/storage";
 import { fromBase64 } from "@cosmjs/encoding";
+import { SDK_KEY } from "background/keyring";
 import { KVPrefix } from "router";
 
 const DEFAULT_URL =
@@ -11,7 +12,7 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
 (async function init() {
   await initShared();
   const sdkStore = new IndexedDBKVStore(KVPrefix.SDK);
-  const sdkDataStr: string | undefined = await sdkStore.get("sdk-store");
+  const sdkDataStr: string | undefined = await sdkStore.get(SDK_KEY);
   const sdk = new Sdk(REACT_APP_NAMADA_URL);
   await sdk.fetch_masp_params();
 
@@ -23,14 +24,10 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
   addEventListener(
     "message",
     function ({ data }) {
-      sdk
-        .submit_transfer(fromBase64(data.txMsg), data.password)
-        .then((v) => {
-          console.log("v", v);
-        })
-        .catch((e) => console.log("e", e));
+      sdk.submit_transfer(fromBase64(data.txMsg), data.password);
     },
     false
   );
+  //TODO: add id to the msg
   postMessage("initialized");
 })();

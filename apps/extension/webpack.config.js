@@ -82,8 +82,8 @@ module.exports = {
     setup: "./src/Setup",
     injected: "./src/content/injected.ts",
     offscreen: "./src/background/offscreen/offscreen.ts",
-    send_transfer_webworker:
-      "./src/background/offscreen/send_transfer_webworker.ts",
+    ["submit-transfer-web-worker"]:
+      "./src/background/web-workers/submit-transfer-web-worker.ts",
   },
   output: {
     publicPath: "",

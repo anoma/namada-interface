@@ -1,6 +1,3 @@
-import browser from "webextension-polyfill";
-declare let self: ServiceWorkerGlobalScope;
-
 import { v5 as uuid } from "uuid";
 
 import { KVStore } from "@anoma/storage";
@@ -24,6 +21,13 @@ import { chains } from "@anoma/chains";
 import { Crypto } from "./crypto";
 import { KeyRingStatus, KeyStore } from "./types";
 import { toBase64 } from "@cosmjs/encoding";
+import {
+  createOffscreenWithTxWorker,
+  hasOffscreenDocument,
+  OFFSCREEN_TARGET,
+  SUBMIT_TRANSFER_MSG_TYPE,
+} from "../offscreen";
+import { init as initSubmitTransferWebWorker } from "background/web-workers";
 
 // Generated UUID namespace for uuid v5
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
@@ -391,63 +395,45 @@ export class KeyRing {
     }
   }
 
-  async hasOffscreenDocument(path: string): Promise<boolean> {
-    // Check all windows controlled by the service worker to see if one
-    // of them is the offscreen document with the given path
-    const offscreenUrl = chrome.runtime.getURL(path);
-    const matchedClients = await self.clients.matchAll();
-    for (const client of matchedClients) {
-      if (client.url === offscreenUrl) {
-        console.log("kappa trye");
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private async submitTransferChrome(txMsg: Uint8Array): Promise<void> {
+  private async submitTransferChrome(
+    txMsg: Uint8Array,
+    password: string
+  ): Promise<void> {
     const offscreenDocumentPath = "offscreen.html";
 
-    if (!(await this.hasOffscreenDocument(offscreenDocumentPath))) {
-      await chrome.offscreen.createDocument({
-        url: chrome.runtime.getURL(offscreenDocumentPath),
-        reasons: [chrome.offscreen.Reason.CLIPBOARD],
-        justification: "reason for needing the document",
-      });
+    if (!(await hasOffscreenDocument(offscreenDocumentPath))) {
+      await createOffscreenWithTxWorker(offscreenDocumentPath);
     }
-    await browser.runtime.sendMessage({
-      type: "test_offscreen",
-      target: "offscreen.anoma",
-      data: { txMsg: toBase64(txMsg), password: this._password },
+    await chrome.runtime.sendMessage({
+      type: SUBMIT_TRANSFER_MSG_TYPE,
+      target: OFFSCREEN_TARGET,
+      data: { txMsg: toBase64(txMsg), password },
     });
   }
 
-  private async submitTransferFirefox(txMsg: Uint8Array): Promise<void> {
-    const w = new Worker("send_transfer_webworker.anoma.js");
-    w.onmessage = (e) => {
-      if (e.data === "initialized") {
-        w.postMessage({ txMsg: toBase64(txMsg), password: this._password });
-      }
-      console.log("WW done " + e.data);
-    };
+  private async submitTransferFirefox(
+    txMsg: Uint8Array,
+    password: string
+  ): Promise<void> {
+    initSubmitTransferWebWorker({
+      txMsg: toBase64(txMsg),
+      password,
+    });
   }
 
   async submitTransfer(txMsg: Uint8Array): Promise<void> {
     if (!this._password) {
       throw new Error("Not authenticated!");
     }
-    const chrome = false;
-    if (chrome) {
-      this.submitTransferChrome(txMsg);
-    } else {
-      this.submitTransferFirefox(txMsg);
-    }
 
-    // try {
-    //   await this.sdk.submit_transfer(txMsg, this._password);
-    // } catch (e) {
-    //   throw new Error(`Could not submit transfer tx: ${e}`);
-    // }
+    const { TARGET } = process.env;
+    if (TARGET === "chrome") {
+      this.submitTransferChrome(txMsg, this._password);
+    } else if (TARGET === "firefox") {
+      this.submitTransferFirefox(txMsg, this._password);
+    } else {
+      console.warn("Submitting transfers is not supported with your browser.");
+    }
   }
 
   async submitIbcTransfer(txMsg: Uint8Array): Promise<void> {
