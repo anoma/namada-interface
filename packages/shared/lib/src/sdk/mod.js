@@ -18,7 +18,6 @@ export async function fetchAndStore(params) {
     data = await get(params);
   }
 
-  console.log(params);
   return data;
 }
 

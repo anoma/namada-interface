@@ -4,6 +4,7 @@ import { IndexedDBKVStore } from "@anoma/storage";
 import { fromBase64 } from "@cosmjs/encoding";
 import { SDK_KEY } from "background/keyring";
 import { KVPrefix } from "router";
+import { INIT_MSG } from ".";
 
 const DEFAULT_URL =
   "https://d3brk13lbhxfdb.cloudfront.net/qc-testnet-5.1.025a61165acd05e";
@@ -23,11 +24,14 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
 
   addEventListener(
     "message",
-    function ({ data }) {
-      sdk.submit_transfer(fromBase64(data.txMsg), data.password);
+    ({ data }) => {
+      sdk
+        .submit_transfer(fromBase64(data.txMsg), data.password)
+        .then(() => console.log("Transfer successfull."))
+        .catch(() => console.error("Transfer failed."));
     },
     false
   );
-  //TODO: add id to the msg
-  postMessage("initialized");
+
+  postMessage(INIT_MSG);
 })();

@@ -9,11 +9,13 @@ type SubmitTransferMessageData = {
   password: string;
 };
 
+export const INIT_MSG = "init";
+
 export const init = (data: SubmitTransferMessageData): void => {
   const w = new Worker("submit-transfer-web-worker.anoma.js");
 
   w.onmessage = (e) => {
-    if (e.data === "initialized") {
+    if (e.data === INIT_MSG) {
       w.postMessage(data);
     }
   };
