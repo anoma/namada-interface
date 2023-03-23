@@ -405,13 +405,9 @@ export class KeyRing {
     return false;
   }
 
-  async submitTransfer(txMsg: Uint8Array): Promise<void> {
-    if (!this._password) {
-      throw new Error("Not authenticated!");
-    }
-
+  private async submitTransferChrome(txMsg: Uint8Array): Promise<void> {
     const offscreenDocumentPath = "offscreen.html";
-    // create offscreen document if it's not open already
+
     if (!(await this.hasOffscreenDocument(offscreenDocumentPath))) {
       await chrome.offscreen.createDocument({
         url: chrome.runtime.getURL(offscreenDocumentPath),
@@ -424,6 +420,28 @@ export class KeyRing {
       target: "offscreen.anoma",
       data: { txMsg: toBase64(txMsg), password: this._password },
     });
+  }
+
+  private async submitTransferFirefox(txMsg: Uint8Array): Promise<void> {
+    const w = new Worker("send_transfer_webworker.anoma.js");
+    w.onmessage = (e) => {
+      if (e.data === "initialized") {
+        w.postMessage({ txMsg: toBase64(txMsg), password: this._password });
+      }
+      console.log("WW done " + e.data);
+    };
+  }
+
+  async submitTransfer(txMsg: Uint8Array): Promise<void> {
+    if (!this._password) {
+      throw new Error("Not authenticated!");
+    }
+    const chrome = false;
+    if (chrome) {
+      this.submitTransferChrome(txMsg);
+    } else {
+      this.submitTransferFirefox(txMsg);
+    }
 
     // try {
     //   await this.sdk.submit_transfer(txMsg, this._password);
