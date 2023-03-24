@@ -335,34 +335,34 @@ const IBCTransfer = (): JSX.Element => {
                 </Button>
               </InputContainer>
             )}
-          {(!isExtensionConnected[chain.extension.id] ||
-            destinationAccounts.length === 0) && (
-            <Button
-              variant={ButtonVariant.Contained}
-              onClick={
-                currentExtensionAttachStatus === "attached"
-                  ? handleConnectExtension
-                  : handleDownloadExtension.bind(
-                      null,
-                      destinationChain.extension.url
-                    )
-              }
-              loading={
-                currentExtensionAttachStatus === "pending" ||
-                isConnectingToExtension
-              }
-              style={
+          {!isExtensionConnected[chain.extension.id] &&
+            destinationAccounts.length === 0 && (
+              <Button
+                variant={ButtonVariant.Contained}
+                onClick={
+                  currentExtensionAttachStatus === "attached"
+                    ? handleConnectExtension
+                    : handleDownloadExtension.bind(
+                        null,
+                        destinationChain.extension.url
+                      )
+                }
+                loading={
+                  currentExtensionAttachStatus === "pending" ||
+                  isConnectingToExtension
+                }
+                style={
+                  currentExtensionAttachStatus === "pending"
+                    ? { color: "transparent" }
+                    : {}
+                }
+              >
+                {currentExtensionAttachStatus === "attached" ||
                 currentExtensionAttachStatus === "pending"
-                  ? { color: "transparent" }
-                  : {}
-              }
-            >
-              {currentExtensionAttachStatus === "attached" ||
-              currentExtensionAttachStatus === "pending"
-                ? `Connect to ${extensionAlias} Extension`
-                : "Click to download the extension"}
-            </Button>
-          )}
+                  ? `Connect to ${extensionAlias} Extension`
+                  : "Click to download the extension"}
+              </Button>
+            )}
 
           <InputContainer>
             {destinationAccounts.length > 0 && (
