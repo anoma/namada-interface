@@ -99,9 +99,11 @@ const Password: React.FC<Props> = (props) => {
           <InputFeedback className="warning">
             {zxcvbnFeedback.warning}
           </InputFeedback>
-          {zxcvbnFeedback.suggestions.map((suggestion, index) => (
-            <InputFeedback key={index}>{suggestion}</InputFeedback>
-          ))}
+          {zxcvbnFeedback.suggestions.map(
+            (suggestion: string, index: number) => (
+              <InputFeedback key={index}>{suggestion}</InputFeedback>
+            )
+          )}
         </InputContainer>
 
         {/* password 2 */}

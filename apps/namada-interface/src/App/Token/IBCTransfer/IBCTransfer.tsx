@@ -1,18 +1,15 @@
 import { useEffect, useState } from "react";
 
 import { chains } from "@anoma/chains";
-import { BridgeType, Chain, Tokens, TokenType } from "@anoma/types";
-import { useAppDispatch, useAppSelector } from "store";
-import { Account, AccountsState, fetchBalances } from "slices/accounts";
-import { addChannel, ChannelsState } from "slices/channels";
 import {
-  clearErrors,
-  clearEvents,
-  submitIbcTransferTransaction,
-  TransfersState,
-} from "slices/transfers";
-import { SettingsState } from "slices/settings";
-
+  Account as AccountType,
+  BridgeType,
+  Chain,
+  ExtensionKey,
+  Extensions,
+  Tokens,
+  TokenType,
+} from "@anoma/types";
 import {
   Button,
   ButtonVariant,
@@ -23,6 +20,27 @@ import {
   Option,
   Select,
 } from "@anoma/components";
+
+import {
+  useIntegrationConnection,
+  useUntilIntegrationAttached,
+} from "services";
+import { useAppDispatch, useAppSelector } from "store";
+import {
+  Account,
+  AccountsState,
+  addAccounts,
+  fetchBalances,
+} from "slices/accounts";
+import { addChannel, ChannelsState } from "slices/channels";
+import {
+  clearErrors,
+  clearEvents,
+  submitIbcTransferTransaction,
+  TransfersState,
+} from "slices/transfers";
+import { setIsConnected, SettingsState } from "slices/settings";
+
 import {
   ButtonsContainer,
   InputContainer,
@@ -43,6 +61,13 @@ const IBCTransfer = (): JSX.Element => {
   );
   const { isBridgeTransferSubmitting, transferError, events } =
     useAppSelector<TransfersState>((state) => state.transfers);
+  const [isExtensionConnected, setIsExtensionConnected] = useState<
+    Record<ExtensionKey, boolean>
+  >({
+    anoma: false,
+    keplr: false,
+    metamask: false,
+  });
 
   const bridgedChains = Object.values(chains).filter(
     (chain: Chain) => chain.chainId !== chainId
@@ -58,6 +83,15 @@ const IBCTransfer = (): JSX.Element => {
     value: chain.chainId,
     label: chain.alias,
   }));
+
+  const [integration, isConnectingToExtension, withConnection] =
+    useIntegrationConnection(destinationChain.chainId);
+  const chain = chains[chainId];
+  const extensionAlias = Extensions[destinationChain.extension.id].alias;
+
+  const extensionAttachStatus = useUntilIntegrationAttached(chain);
+  const currentExtensionAttachStatus =
+    extensionAttachStatus[chain.extension.id];
 
   const channels =
     channelsByChain[chainId] && channelsByChain[chainId][selectedChainId]
@@ -194,6 +228,34 @@ const IBCTransfer = (): JSX.Element => {
     );
   };
 
+  const handleConnectExtension = async (): Promise<void> => {
+    withConnection(
+      async () => {
+        const accounts = await integration?.accounts();
+        if (accounts) {
+          dispatch(addAccounts(accounts as AccountType[]));
+          dispatch(fetchBalances());
+          dispatch(setIsConnected(chainId));
+        }
+
+        setIsExtensionConnected({
+          ...isExtensionConnected,
+          [chain.extension.id]: true,
+        });
+      },
+      async () => {
+        setIsExtensionConnected({
+          ...isExtensionConnected,
+          [chain.extension.id]: false,
+        });
+      }
+    );
+  };
+
+  const handleDownloadExtension = (url: string): void => {
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
   return (
     <IBCTransferFormContainer>
       {sourceChain && (
@@ -273,6 +335,34 @@ const IBCTransfer = (): JSX.Element => {
                 </Button>
               </InputContainer>
             )}
+          {(!isExtensionConnected[chain.extension.id] ||
+            destinationAccounts.length === 0) && (
+            <Button
+              variant={ButtonVariant.Contained}
+              onClick={
+                currentExtensionAttachStatus === "attached"
+                  ? handleConnectExtension
+                  : handleDownloadExtension.bind(
+                      null,
+                      destinationChain.extension.url
+                    )
+              }
+              loading={
+                currentExtensionAttachStatus === "pending" ||
+                isConnectingToExtension
+              }
+              style={
+                currentExtensionAttachStatus === "pending"
+                  ? { color: "transparent" }
+                  : {}
+              }
+            >
+              {currentExtensionAttachStatus === "attached" ||
+              currentExtensionAttachStatus === "pending"
+                ? `Connect to ${extensionAlias} Extension`
+                : "Click to download the extension"}
+            </Button>
+          )}
 
           <InputContainer>
             {destinationAccounts.length > 0 && (
