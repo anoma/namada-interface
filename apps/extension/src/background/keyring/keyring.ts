@@ -404,6 +404,7 @@ export class KeyRing {
     if (!(await hasOffscreenDocument(offscreenDocumentPath))) {
       await createOffscreenWithTxWorker(offscreenDocumentPath);
     }
+
     await chrome.runtime.sendMessage({
       type: SUBMIT_TRANSFER_MSG_TYPE,
       target: OFFSCREEN_TARGET,
