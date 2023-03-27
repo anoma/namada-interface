@@ -56,6 +56,7 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
   const keyRingService = new KeyRingService(
     store,
     sdkStore,
+    extensionStore,
     defaultChainId,
     sdk
   );

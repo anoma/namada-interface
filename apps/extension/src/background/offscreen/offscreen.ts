@@ -1,3 +1,6 @@
+import browser from "webextension-polyfill";
+import { ExtensionKVStore } from "@anoma/storage";
+import { CloseOffscreenDocumentMsg } from "background/keyring";
 import { init as initSubmitTransferWebWorker } from "background/web-workers";
 import {
   Msg,
@@ -5,6 +8,8 @@ import {
   TRANSFER_FAILED_MSG,
   TRANSFER_SUCCESSFUL_MSG,
 } from "background/web-workers/types";
+import { ExtensionMessenger, ExtensionRequester } from "extension";
+import { Ports } from "router";
 import { OFFSCREEN_TARGET, SUBMIT_TRANSFER_MSG_TYPE } from "./utils";
 
 const SW_TTL = 20000;
@@ -20,11 +25,17 @@ const SW_TTL = 20000;
   async function handleMessages({
     data,
     type,
+    routerId,
     target,
   }: SubmitTransferMessage): Promise<boolean> {
     if (target !== OFFSCREEN_TARGET) {
       return false;
     }
+
+    const messenger = new ExtensionMessenger();
+    const requester = new ExtensionRequester(messenger, () =>
+      Promise.resolve(routerId)
+    );
 
     const onmessage = (e: MessageEvent<Msg>): void => {
       if ([TRANSFER_SUCCESSFUL_MSG, TRANSFER_FAILED_MSG].includes(e.data)) {
@@ -32,6 +43,10 @@ const SW_TTL = 20000;
       }
 
       if (ww_count === 0) {
+        requester.sendMessage<CloseOffscreenDocumentMsg>(
+          Ports.Background,
+          new CloseOffscreenDocumentMsg()
+        );
         clearInterval(pingSw);
       }
     };

@@ -28,6 +28,7 @@ import {
   SUBMIT_TRANSFER_MSG_TYPE,
 } from "../offscreen";
 import { init as initSubmitTransferWebWorker } from "background/web-workers";
+import { getAnomaRouterId } from "extension";
 
 // Generated UUID namespace for uuid v5
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
@@ -78,6 +79,7 @@ export class KeyRing {
   constructor(
     protected readonly kvStore: KVStore<KeyStore[]>,
     protected readonly sdkStore: KVStore<string>,
+    protected readonly extensionStore: KVStore<number>,
     protected readonly chainId: string,
     protected readonly sdk: Sdk
   ) {
@@ -400,6 +402,7 @@ export class KeyRing {
     password: string
   ): Promise<void> {
     const offscreenDocumentPath = "offscreen.html";
+    const routerId = await getAnomaRouterId(this.extensionStore);
 
     if (!(await hasOffscreenDocument(offscreenDocumentPath))) {
       await createOffscreenWithTxWorker(offscreenDocumentPath);
@@ -408,6 +411,7 @@ export class KeyRing {
     await chrome.runtime.sendMessage({
       type: SUBMIT_TRANSFER_MSG_TYPE,
       target: OFFSCREEN_TARGET,
+      routerId,
       data: { txMsg: toBase64(txMsg), password },
     });
   }

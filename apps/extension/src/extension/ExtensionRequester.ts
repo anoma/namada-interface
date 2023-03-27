@@ -1,12 +1,10 @@
-import { KVStore } from "@anoma/storage";
-import { getAnomaRouterId } from "../extension/utils";
 import { Message } from "../router";
 import { Messenger } from "./ExtensionMessenger";
 
 export class ExtensionRequester {
   constructor(
     private readonly messenger: Messenger,
-    private readonly store: KVStore<number>
+    private readonly getRouterId: () => Promise<number | undefined>
   ) {}
 
   async sendMessage<M extends Message<unknown>>(
@@ -17,7 +15,7 @@ export class ExtensionRequester {
     msg.origin = window.location.origin;
     msg.meta = {
       ...msg.meta,
-      routerId: await getAnomaRouterId(this.store),
+      routerId: await this.getRouterId(),
     };
 
     const payload = {
@@ -48,7 +46,7 @@ export class ExtensionRequester {
     msg.origin = window.location.origin;
     msg.meta = {
       ...msg.meta,
-      routerId: await getAnomaRouterId(this.store),
+      routerId: await this.getRouterId(),
     };
 
     const result = await browser.tabs.sendMessage(tabId, {

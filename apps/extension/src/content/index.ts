@@ -6,6 +6,7 @@ import {
   ContentScriptEnv,
   ContentScriptGuards,
   ExtensionMessenger,
+  getAnomaRouterId,
 } from "extension";
 import { KVPrefix, Ports } from "router/types";
 import { initEvents } from "./events";
@@ -18,9 +19,12 @@ const extensionStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
   get: browser.storage.local.get,
   set: browser.storage.local.set,
 });
+
+const getRouterId = async (): Promise<number | undefined> =>
+  getAnomaRouterId(extensionStore);
 const messenger = new ExtensionMessenger();
 Proxy.start(
-  new Anoma(manifest.version, new ExtensionRequester(messenger, extensionStore))
+  new Anoma(manifest.version, new ExtensionRequester(messenger, getRouterId))
 );
 
 const router = new ExtensionRouter(

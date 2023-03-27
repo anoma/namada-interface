@@ -1,6 +1,7 @@
 export type SubmitTransferMessage = {
   type: string;
   target: string;
+  routerId: number;
   data: SubmitTransferMessageData;
 };
 

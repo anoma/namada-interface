@@ -7,7 +7,11 @@ import { AccountType, DerivedAccount } from "@anoma/types";
 import { getTheme } from "@anoma/utils";
 import { ExtensionKVStore } from "@anoma/storage";
 
-import { ExtensionMessenger, ExtensionRequester } from "extension";
+import {
+  ExtensionMessenger,
+  ExtensionRequester,
+  getAnomaRouterId,
+} from "extension";
 import { KVPrefix, Ports } from "router";
 import { QueryAccountsMsg } from "provider/messages";
 import { useQuery } from "hooks";
@@ -26,12 +30,14 @@ import { Setup } from "./Setup";
 import { Loading } from "./Loading";
 import { ApproveConnection, ApproveTx } from "./Approvals";
 
+const getRouterId = async (): Promise<number | undefined> =>
+  getAnomaRouterId(store);
 const store = new ExtensionKVStore(KVPrefix.LocalStorage, {
   get: browser.storage.local.get,
   set: browser.storage.local.set,
 });
 const messenger = new ExtensionMessenger();
-const requester = new ExtensionRequester(messenger, store);
+const requester = new ExtensionRequester(messenger, getRouterId);
 
 export enum Status {
   Completed,

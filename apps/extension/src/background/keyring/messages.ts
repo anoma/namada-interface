@@ -6,13 +6,14 @@ import { KeyRingStatus } from "./types";
 
 enum MessageType {
   CheckIsLocked = "check-is-locked",
-  LockKeyRing = "lock-keyring",
-  UnlockKeyRing = "unlock-keyring",
   CheckPassword = "check-password",
-  GenerateMnemonic = "generate-mnemonic",
-  SaveMnemonic = "save-mnemonic",
+  CloseOffscreenDocument = "close-offscreen-document",
   DeriveAccount = "derive-account",
   DeriveShieldedAccount = "derive-shielded-account",
+  GenerateMnemonic = "generate-mnemonic",
+  LockKeyRing = "lock-keyring",
+  SaveMnemonic = "save-mnemonic",
+  UnlockKeyRing = "unlock-keyring",
 }
 
 export class CheckIsLockedMsg extends Message<boolean> {
@@ -126,6 +127,28 @@ export class GenerateMnemonicMsg extends Message<string[]> {
 
   type(): string {
     return GenerateMnemonicMsg.type();
+  }
+}
+
+export class CloseOffscreenDocumentMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.CloseOffscreenDocument;
+  }
+
+  constructor() {
+    super();
+  }
+
+  validate(): void {
+    return;
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return CloseOffscreenDocumentMsg.type();
   }
 }
 
