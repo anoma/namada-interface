@@ -9,29 +9,34 @@ import {
   ExtensionGuards,
   ContentScriptEnv,
   ExtensionMessenger,
+  ExtensionRequester,
+  getAnomaRouterId,
 } from "extension";
 import { Ports, KVPrefix } from "router";
 import { defaultChainId, chains } from "@anoma/chains";
 import { ChainsService, init as initChains } from "./chains";
 import { KeyRingService, init as initKeyRing, SDK_KEY } from "./keyring";
-
-const messenger = new ExtensionMessenger();
-const store = new IndexedDBKVStore(KVPrefix.IndexedDB);
-// TODO: For now we will be running two stores side by side
-const sdkStore = new IndexedDBKVStore(KVPrefix.SDK);
+import { ContentService, init as initContentEvents } from "./content";
 
 const DEFAULT_URL =
   "https://d3brk13lbhxfdb.cloudfront.net/qc-testnet-5.1.025a61165acd05e";
 const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
 
+const store = new IndexedDBKVStore(KVPrefix.IndexedDB);
+// TODO: For now we will be running two stores side by side
+const sdkStore = new IndexedDBKVStore(KVPrefix.SDK);
+const extensionStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
+  get: browser.storage.local.get,
+  set: browser.storage.local.set,
+});
+
 (async function init() {
   await initCrypto();
   await initShared();
-
-  const extensionStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
-    get: browser.storage.local.get,
-    set: browser.storage.local.set,
-  });
+  const getRouterId = async (): Promise<number | undefined> =>
+    getAnomaRouterId(extensionStore);
+  const messenger = new ExtensionMessenger();
+  const requester = new ExtensionRequester(messenger, getRouterId);
 
   const router = new ExtensionRouter(
     ContentScriptEnv.produceEnv,
@@ -60,10 +65,12 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
     defaultChainId,
     sdk
   );
+  const contentService = new ContentService(requester);
 
   // Initialize messages and handlers
   initChains(router, chainsService);
   initKeyRing(router, keyRingService);
+  initContentEvents(router, contentService);
 
   router.listen(Ports.Background);
 })();

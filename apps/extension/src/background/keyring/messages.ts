@@ -13,6 +13,7 @@ enum MessageType {
   GenerateMnemonic = "generate-mnemonic",
   LockKeyRing = "lock-keyring",
   SaveMnemonic = "save-mnemonic",
+  TransferCompletedMsg = "transfer-completed-msg",
   UnlockKeyRing = "unlock-keyring",
 }
 

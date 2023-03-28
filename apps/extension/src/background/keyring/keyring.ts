@@ -420,10 +420,15 @@ export class KeyRing {
     txMsg: Uint8Array,
     password: string
   ): Promise<void> {
-    initSubmitTransferWebWorker({
-      txMsg: toBase64(txMsg),
-      password,
-    });
+    const routerId = await getAnomaRouterId(this.extensionStore);
+
+    initSubmitTransferWebWorker(
+      {
+        txMsg: toBase64(txMsg),
+        password,
+      },
+      routerId
+    );
   }
 
   async submitTransfer(txMsg: Uint8Array): Promise<void> {

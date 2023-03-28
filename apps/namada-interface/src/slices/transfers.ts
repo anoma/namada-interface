@@ -130,7 +130,7 @@ export const actionTypes = {
 // transparent -> transparent
 export const submitTransferTransaction = createAsyncThunk<
   void,
-  WithNotification<TxTransferArgs>,
+  TxTransferArgs,
   { state: RootState }
 >(
   actionTypes.SUBMIT_TRANSFER_ACTION_TYPE,
@@ -145,6 +145,8 @@ export const submitTransferTransaction = createAsyncThunk<
       )
     );
 
+    // TODO: because submitting transfer is async we have to keep track of the
+    // transfer id to know how when and how to handle it when it's completed.
     await signer.submitTransfer({
       tx: {
         token: Tokens.NAM.address || "",

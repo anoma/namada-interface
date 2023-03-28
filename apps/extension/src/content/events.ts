@@ -1,21 +1,16 @@
 import { Message, Router, Events, Routes } from "../router";
 
-class PushEventDataMsg extends Message<void> {
+export class TransferCompletedMsg extends Message<void> {
   public static type(): Events {
-    return Events.PushEventData;
+    return Events.TransferCompleted;
   }
 
-  constructor(
-    public readonly data: {
-      type: string;
-      data: unknown;
-    }
-  ) {
+  constructor(readonly success: boolean) {
     super();
   }
 
   validate(): void {
-    if (!this.data.type) {
+    if (!this.success) {
       throw new Error("Type should not be empty");
     }
   }
@@ -25,18 +20,20 @@ class PushEventDataMsg extends Message<void> {
   }
 
   type(): string {
-    return PushEventDataMsg.type();
+    return TransferCompletedMsg.type();
   }
 }
 
 export function initEvents(router: Router): void {
-  router.registerMessage(PushEventDataMsg);
+  router.registerMessage(TransferCompletedMsg);
 
   router.addHandler(Routes.InteractionForeground, (_, msg) => {
     switch (msg.constructor) {
-      case PushEventDataMsg:
-        if ((msg as PushEventDataMsg).data.type === Events.KeystoreChanged) {
-          window.dispatchEvent(new Event("anoma_keystoreupdated"));
+      case TransferCompletedMsg:
+        if ((msg as TransferCompletedMsg).success) {
+          window.dispatchEvent(new Event("anoma_transfer_completed"));
+        } else {
+          window.dispatchEvent(new Event("anoma_transfer_failed"));
         }
         return;
       default:

@@ -1,5 +1,3 @@
-import browser from "webextension-polyfill";
-import { ExtensionKVStore } from "@anoma/storage";
 import { CloseOffscreenDocumentMsg } from "background/keyring";
 import { init as initSubmitTransferWebWorker } from "background/web-workers";
 import {
@@ -52,7 +50,7 @@ const SW_TTL = 20000;
     };
 
     if (type == SUBMIT_TRANSFER_MSG_TYPE) {
-      initSubmitTransferWebWorker(data, onmessage);
+      initSubmitTransferWebWorker(data, routerId, onmessage);
       ww_count++;
     } else {
       console.warn(`Unexpected message type received: '${type}'.`);
