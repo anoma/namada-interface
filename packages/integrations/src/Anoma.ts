@@ -82,16 +82,16 @@ export default class Anoma implements Integration<Account, Signer> {
   public async queryBalances(owner: string): Promise<TokenBalance[]> {
     const rpcClient = new RpcClient(this.chain.rpc);
 
-    return await Promise.all(
-      Object.keys(Tokens).map(async (token) => {
-        const tokenType = token as TokenType;
-        const { address: tokenAddress = "" } = Tokens[tokenType];
-        return {
-          token: tokenType,
-          // TODO: Implement balance fetching via SDK
-          amount: (await rpcClient.queryBalance(tokenAddress, owner)) || 0,
-        };
-      })
-    );
+    const tokenType = "NAM";
+    const { address: tokenAddress = "" } = Tokens[tokenType];
+    const amount = await rpcClient.queryBalance(tokenAddress, owner);
+
+    const tokenBalance: TokenBalance = {
+      token: tokenType,
+      // TODO: Implement balance fetching via SDK
+      amount: amount || 0,
+    };
+
+    return Promise.all([tokenBalance]);
   }
 }
