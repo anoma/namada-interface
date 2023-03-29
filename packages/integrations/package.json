@@ -13,7 +13,8 @@
     "test:watch": "yarn wasm:build && jest --watchAll",
     "test:ci": "jest",
     "lint": "npx eslint src --ext .ts",
-    "lint:fix": "yarn lint -- --fix"
+    "lint:fix": "yarn lint -- --fix",
+    "lint:ci": "yarn lint --max-warnings 0"
   },
   "devDependencies": {
     "@types/jest": "^28.1.8",

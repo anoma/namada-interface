@@ -39,6 +39,7 @@
     "build": "export NODE_ENV=production && yarn wasm:build && webpack",
     "lint": "npx eslint src --ext .ts,.tsx",
     "lint:fix": "yarn lint -- --fix",
+    "lint:ci": "yarn lint --max-warnings 0",
     "test": "yarn wasm:build-node && yarn jest",
     "test:watch": "yarn wasm:build-node && yarn jest --watchAll=true",
     "test:coverage": "yarn wasm:build-node && yarn test --coverage",

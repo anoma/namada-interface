@@ -18,7 +18,20 @@ on:
 env:
   CI: false
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: yarn
+
+      - name: Run ESLint
+        run: yarn lint:ci
+
   unit-tests-js:
+    needs: lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -54,6 +67,7 @@ jobs:
           ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
 
   unit-tests-wasm:
+    needs: lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
