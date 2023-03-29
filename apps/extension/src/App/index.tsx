@@ -3,12 +3,15 @@ import ReactDOM from "react-dom";
 import { BrowserRouter } from "react-router-dom";
 
 import { App } from "./App";
+import { RequesterProvider } from "./Requester";
 
 export default ((): void => {
   ReactDOM.render(
     <React.StrictMode>
       <BrowserRouter>
-        <App />
+        <RequesterProvider>
+          <App />
+        </RequesterProvider>
       </BrowserRouter>
     </React.StrictMode>,
     document.getElementById("root")

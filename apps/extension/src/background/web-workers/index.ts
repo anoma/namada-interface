@@ -37,9 +37,7 @@ export const init = (
 ): void => {
   const w = new Worker("submit-transfer-web-worker.anoma.js");
   const messenger = new ExtensionMessenger();
-  const requester = new ExtensionRequester(messenger, () =>
-    Promise.resolve(routerId)
-  );
+  const requester = new ExtensionRequester(messenger, routerId);
 
   w.onmessage = (e: MessageEvent<Msg>) => {
     onMessage && onMessage(e);
