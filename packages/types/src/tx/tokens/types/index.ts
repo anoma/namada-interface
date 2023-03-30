@@ -11,7 +11,7 @@ type TokenInfo = {
 };
 
 // Declare symbols for tokens we support:
-export const Symbols = ["NAM", "ATOM", "ETH", "DOT", "BTC", "OSMO"] as const;
+export const Symbols = ["NAM", "ATOM", "ETH"] as const;
 
 export type TokenType = typeof Symbols[number];
 type Tokens = Record<TokenType, TokenInfo>;
@@ -52,13 +52,5 @@ Tokens["ATOM"].coinGeckoId = "cosmos";
 Tokens["ETH"].address =
   "atest1v4ehgw36xqmr2d3nx3ryvd2xxgmrq33j8qcns33sxezrgv6zxdzrydjrxveygd2yxumrsdpsf9jc2p";
 Tokens["ETH"].coinGeckoId = "ethereum";
-
-Tokens["DOT"].address =
-  "atest1v4ehgw36gg6nvs2zgfpyxsfjgc65yv6pxy6nwwfsxgungdzrggeyzv35gveyxsjyxymyz335hur2jn";
-Tokens["DOT"].coinGeckoId = "polkadot";
-
-Tokens["BTC"].address =
-  "atest1v4ehgw36xdzryve5gsc52veeg5cnsv2yx5eygvp38qcrvd29xy6rys6p8yc5xvp4xfpy2v694wgwcp";
-Tokens["BTC"].coinGeckoId = "bitcoin";
 
 export type TokenBalance = { token: TokenType; amount: number };

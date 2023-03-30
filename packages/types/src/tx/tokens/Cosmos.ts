@@ -5,5 +5,4 @@ import { TokenType } from "./types";
 // See: https://github.com/chainapsis/keplr-wallet/blob/master/packages/extension/src/config.ts for all values in Keplr
 export const CosmosTokens: Record<string, TokenType> = {
   uatom: "ATOM",
-  uosmo: "OSMO",
 };

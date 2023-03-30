@@ -32,8 +32,6 @@ import AssetNamadaNamLight from "./assets/asset-namada-nam-light.png";
 import AssetNamadaNamDark from "./assets/asset-namada-nam-dark.png";
 import AssetCosmosAtom from "./assets/asset-cosmos-atom.png";
 import AssetEthereumEther from "./assets/asset-ethereum-ether.png";
-import AssetPolkadotDot from "./assets/asset-polkadot-dot.png";
-import AssetBitcoinBtc from "./assets/asset-bitcoin-btc.png";
 
 import { TopLevelRoute } from "App/types";
 import { CoinsState, fetchConversionRates } from "slices/coins";
@@ -53,18 +51,6 @@ const assetIconByToken: Record<TokenType, { light: string; dark: string }> = {
     dark: AssetEthereumEther,
   },
   ["ATOM"]: {
-    light: AssetCosmosAtom,
-    dark: AssetCosmosAtom,
-  },
-  ["DOT"]: {
-    light: AssetPolkadotDot,
-    dark: AssetPolkadotDot,
-  },
-  ["BTC"]: {
-    light: AssetBitcoinBtc,
-    dark: AssetBitcoinBtc,
-  },
-  ["OSMO"]: {
     light: AssetCosmosAtom,
     dark: AssetCosmosAtom,
   },
