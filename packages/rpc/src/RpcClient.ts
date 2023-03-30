@@ -86,7 +86,8 @@ class RpcClient {
       // Note: .toNumber() is limited to 53 bits:
       return amountFromMicro(decoded.micro.toNumber());
     } catch (e) {
-      return Promise.reject(e);
+      // No balance found
+      return 0;
     }
   }
 

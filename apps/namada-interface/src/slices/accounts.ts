@@ -33,7 +33,6 @@ enum AccountsThunkActions {
 
 const initialState: AccountsState = INITIAL_STATE;
 
-// TODO: We need to update this to also support balance queries from Cosmos, Osmosis, etc.
 export const fetchBalances = createAsyncThunk<
   {
     chainId: string;
