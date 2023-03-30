@@ -153,24 +153,31 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
                   }
                 >
                   <TokenBalances>
-                    {Object.entries(balance).map(([token, amount]) => {
-                      return (
-                        <TokenBalance key={`${address}-${token}`}>
-                          <TokenIcon
-                            src={getAssetIconByTheme(token as TokenType)}
-                            onClick={() => {
-                              navigate(
-                                formatRoute(TopLevelRoute.TokenTransfers, {
-                                  id: address,
-                                  token,
-                                })
-                              );
-                            }}
-                          />
-                          {amount} {token}
-                        </TokenBalance>
-                      );
-                    })}
+                    {Object.entries(balance)
+                      .sort(([tokenType]) => {
+                        // Show native token first
+                        return tokenType === chains[chainId].currency.token
+                          ? 1
+                          : -1;
+                      })
+                      .map(([token, amount]) => {
+                        return (
+                          <TokenBalance key={`${address}-${token}`}>
+                            <TokenIcon
+                              src={getAssetIconByTheme(token as TokenType)}
+                              onClick={() => {
+                                navigate(
+                                  formatRoute(TopLevelRoute.TokenTransfers, {
+                                    id: address,
+                                    token,
+                                  })
+                                );
+                              }}
+                            />
+                            {amount} {token}
+                          </TokenBalance>
+                        );
+                      })}
                   </TokenBalances>
                 </TokenTotals>
               </DerivedAccountItem>
