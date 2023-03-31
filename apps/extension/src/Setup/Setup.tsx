@@ -4,7 +4,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 
 import { getTheme } from "@anoma/utils";
-import { ExtensionMessenger, ExtensionRequester } from "extension";
+import {
+  ExtensionMessenger,
+  ExtensionRequester,
+  getAnomaRouterId,
+} from "extension";
 
 import { AccountCreation } from "./AccountCreation";
 import {
@@ -22,7 +26,9 @@ const store = new ExtensionKVStore(KVPrefix.LocalStorage, {
   set: browser.storage.local.set,
 });
 const messenger = new ExtensionMessenger();
-const requester = new ExtensionRequester(messenger, store);
+const getRouterId = async (): Promise<number | undefined> =>
+  getAnomaRouterId(store);
+const requester = new ExtensionRequester(messenger, getRouterId);
 
 export const Setup: React.FC = () => {
   const theme = getTheme("dark");

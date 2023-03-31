@@ -12,10 +12,17 @@ export class KeyRingService {
   constructor(
     protected readonly kvStore: KVStore<KeyStore[]>,
     protected readonly sdkStore: KVStore<string>,
+    protected readonly extensionStore: KVStore<number>,
     protected readonly chainId: string,
     protected readonly sdk: Sdk
   ) {
-    this._keyRing = new KeyRing(kvStore, sdkStore, chainId, sdk);
+    this._keyRing = new KeyRing(
+      kvStore,
+      sdkStore,
+      extensionStore,
+      chainId,
+      sdk
+    );
   }
 
   lock(): { status: KeyRingStatus } {
@@ -37,6 +44,16 @@ export class KeyRingService {
 
   async checkPassword(password: string): Promise<boolean> {
     return await this._keyRing.checkPassword(password);
+  }
+
+  closeOffscreenDocument(): Promise<void> {
+    if (chrome) {
+      return chrome.offscreen.closeDocument();
+    } else {
+      return Promise.reject(
+        "Trying to close offscreen document for nor supported browser"
+      );
+    }
   }
 
   async generateMnemonic(size?: PhraseSize): Promise<string[]> {

@@ -20,6 +20,15 @@ import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
 import { chains } from "@anoma/chains";
 import { Crypto } from "./crypto";
 import { KeyRingStatus, KeyStore } from "./types";
+import { toBase64 } from "@cosmjs/encoding";
+import {
+  createOffscreenWithTxWorker,
+  hasOffscreenDocument,
+  OFFSCREEN_TARGET,
+  SUBMIT_TRANSFER_MSG_TYPE,
+} from "../offscreen";
+import { init as initSubmitTransferWebWorker } from "background/web-workers";
+import { getAnomaRouterId } from "extension";
 
 // Generated UUID namespace for uuid v5
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
@@ -70,6 +79,7 @@ export class KeyRing {
   constructor(
     protected readonly kvStore: KVStore<KeyStore[]>,
     protected readonly sdkStore: KVStore<string>,
+    protected readonly extensionStore: KVStore<number>,
     protected readonly chainId: string,
     protected readonly sdk: Sdk
   ) {
@@ -387,15 +397,52 @@ export class KeyRing {
     }
   }
 
+  private async submitTransferChrome(
+    txMsg: Uint8Array,
+    password: string
+  ): Promise<void> {
+    const offscreenDocumentPath = "offscreen.html";
+    const routerId = await getAnomaRouterId(this.extensionStore);
+
+    if (!(await hasOffscreenDocument(offscreenDocumentPath))) {
+      await createOffscreenWithTxWorker(offscreenDocumentPath);
+    }
+
+    await chrome.runtime.sendMessage({
+      type: SUBMIT_TRANSFER_MSG_TYPE,
+      target: OFFSCREEN_TARGET,
+      routerId,
+      data: { txMsg: toBase64(txMsg), password },
+    });
+  }
+
+  private async submitTransferFirefox(
+    txMsg: Uint8Array,
+    password: string
+  ): Promise<void> {
+    const routerId = await getAnomaRouterId(this.extensionStore);
+
+    initSubmitTransferWebWorker(
+      {
+        txMsg: toBase64(txMsg),
+        password,
+      },
+      routerId
+    );
+  }
+
   async submitTransfer(txMsg: Uint8Array): Promise<void> {
     if (!this._password) {
       throw new Error("Not authenticated!");
     }
 
-    try {
-      await this.sdk.submit_transfer(txMsg, this._password);
-    } catch (e) {
-      throw new Error(`Could not submit transfer tx: ${e}`);
+    const { TARGET } = process.env;
+    if (TARGET === "chrome") {
+      this.submitTransferChrome(txMsg, this._password);
+    } else if (TARGET === "firefox") {
+      this.submitTransferFirefox(txMsg, this._password);
+    } else {
+      console.warn("Submitting transfers is not supported with your browser.");
     }
   }
 

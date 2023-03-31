@@ -5,6 +5,7 @@ import {
   CheckPasswordMsg,
   DeriveAccountMsg,
   GenerateMnemonicMsg,
+  CloseOffscreenDocumentMsg,
   LockKeyRingMsg,
   SaveMnemonicMsg,
   UnlockKeyRingMsg,
@@ -33,6 +34,11 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleGenerateMnemonicMsg(service)(
           env,
           msg as GenerateMnemonicMsg
+        );
+      case CloseOffscreenDocumentMsg:
+        return handleCloseOffscreenDocumentMsg(service)(
+          env,
+          msg as CloseOffscreenDocumentMsg
         );
       case SaveMnemonicMsg:
         return handleSaveMnemonicMsg(service)(env, msg as SaveMnemonicMsg);
@@ -99,6 +105,14 @@ const handleGenerateMnemonicMsg: (
 ) => InternalHandler<GenerateMnemonicMsg> = (service) => {
   return async (_, msg) => {
     return await service.generateMnemonic(msg.size);
+  };
+};
+
+const handleCloseOffscreenDocumentMsg: (
+  service: KeyRingService
+) => InternalHandler<CloseOffscreenDocumentMsg> = (service) => {
+  return async () => {
+    return await service.closeOffscreenDocument();
   };
 };
 

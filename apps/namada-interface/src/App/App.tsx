@@ -57,6 +57,13 @@ function App(): JSX.Element {
   const [colorMode, setColorMode] = useState<ColorMode>(initialColorMode);
   const theme = getTheme(colorMode);
 
+  useEffect(() => {
+    window.addEventListener("anoma_transfer_completed", (event) => {
+      // TODO: remove when we have proper event handling.
+      console.log("anoma_transfer_completed", event);
+    });
+  }, []);
+
   const toggleColorMode = (): void => {
     setColorMode((currentMode) => (currentMode === "dark" ? "light" : "dark"));
   };

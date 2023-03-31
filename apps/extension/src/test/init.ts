@@ -4,6 +4,7 @@ import {
   ExtensionRouter,
   ExtensionMessengerMock,
   ExtensionRequester,
+  getAnomaRouterId,
 } from "../extension";
 import { Ports, KVPrefix } from "../router";
 import { chains } from "@anoma/chains";
@@ -41,11 +42,13 @@ export const init = (): {
   chainsService: ChainsService;
   keyRingService: KeyRingService;
 } => {
+  const getRouterId = async (): Promise<number | undefined> =>
+    getAnomaRouterId(extStore);
   const messenger = new ExtensionMessengerMock();
   const iDBStore = new KVStoreMock<Chain[] | KeyStore[]>(KVPrefix.IndexedDB);
   const sdkStore = new KVStoreMock<string>(KVPrefix.SDK);
   const extStore = new KVStoreMock<number>(KVPrefix.IndexedDB);
-  const requester = new ExtensionRequester(messenger, extStore);
+  const requester = new ExtensionRequester(messenger, getRouterId);
 
   const router = new ExtensionRouter(
     () => ({
@@ -67,6 +70,7 @@ export const init = (): {
   const keyRingService = new KeyRingService(
     iDBStore as KVStore<KeyStore[]>,
     sdkStore,
+    extStore,
     "namada-test.XXXXXXXX",
     sdk
   );

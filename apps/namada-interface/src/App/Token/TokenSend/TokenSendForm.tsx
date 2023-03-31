@@ -259,7 +259,6 @@ const TokenSendForm = ({
           amount,
           token: tokenType,
           feeAmount: gasFee,
-          notify: true,
         })
       );
     }

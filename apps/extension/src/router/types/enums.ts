@@ -6,7 +6,7 @@ export enum Ports {
 
 export enum Events {
   KeystoreChanged = "anoma-keystore-changed",
-  PushEventData = "anoma-push-event-data",
+  TransferCompleted = "anoma-transfer-completed",
 }
 
 export enum Routes {

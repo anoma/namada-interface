@@ -19,7 +19,9 @@ export type Result<M> = {
 export interface Messenger {
   addListener(callback: Callback): void;
   removeListener(callback: Callback): void;
-  sendMessage<M extends Message<unknown>>(payload: RoutedMessage<M>): Promise<Result<M>>;
+  sendMessage<M extends Message<unknown>>(
+    payload: RoutedMessage<M>
+  ): Promise<Result<M>>;
 }
 
 export class ExtensionMessenger implements Messenger {
