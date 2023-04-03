@@ -74,7 +74,7 @@ class RpcClient {
       const response: AbciResponse = json.result.response;
 
       if (response.code === 1) {
-        return -2;
+        return 0;
       }
       const valueAsByteArray = fromBase64(response.value || "0");
       const decoded = deserialize(
