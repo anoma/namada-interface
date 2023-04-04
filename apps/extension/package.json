@@ -15,6 +15,7 @@
     "build:firefox": "yarn clean:firefox && NODE_ENV=production TARGET=firefox webpack && web-ext build --s ./build/firefox -a ./build/firefox",
     "lint": "npx eslint src --ext .ts",
     "lint:fix": "yarn lint -- --fix",
+    "lint:ci": "yarn lint --max-warnings 0",
     "start": "yarn start:chrome",
     "start:chrome": "yarn clean:chrome && export NODE_ENV=development; export TARGET=chrome && webpack --watch",
     "start:firefox": "yarn clean:firefox && export NODE_ENV=development; export TARGET=firefox webpack --watch",

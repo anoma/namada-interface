@@ -9,7 +9,8 @@
   "private": false,
   "scripts": {
     "lint": "npx eslint src --ext .ts,.tsx",
-    "lint:fix": "yarn lint -- --fix"
+    "lint:fix": "yarn lint -- --fix",
+    "lint:ci": "yarn lint --max-warnings 0"
   },
   "dependencies": {
     "@anoma/utils": "0.1.0",
