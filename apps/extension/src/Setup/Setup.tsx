@@ -1,14 +1,8 @@
-import browser from "webextension-polyfill";
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 
 import { getTheme } from "@anoma/utils";
-import {
-  ExtensionMessenger,
-  ExtensionRequester,
-  getAnomaRouterId,
-} from "extension";
 
 import { AccountCreation } from "./AccountCreation";
 import {
@@ -18,20 +12,11 @@ import {
   GlobalStyles,
   TopSection,
 } from "./Setup.components";
-import { ExtensionKVStore } from "@anoma/storage";
-import { KVPrefix } from "router";
-
-const store = new ExtensionKVStore(KVPrefix.LocalStorage, {
-  get: browser.storage.local.get,
-  set: browser.storage.local.set,
-});
-const messenger = new ExtensionMessenger();
-const getRouterId = async (): Promise<number | undefined> =>
-  getAnomaRouterId(store);
-const requester = new ExtensionRequester(messenger, getRouterId);
+import { useRequester } from "App/Requester";
 
 export const Setup: React.FC = () => {
   const theme = getTheme("dark");
+  const requester = useRequester();
 
   return (
     <ThemeProvider theme={theme}>

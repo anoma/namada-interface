@@ -31,9 +31,7 @@ const SW_TTL = 20000;
     }
 
     const messenger = new ExtensionMessenger();
-    const requester = new ExtensionRequester(messenger, () =>
-      Promise.resolve(routerId)
-    );
+    const requester = new ExtensionRequester(messenger, routerId);
 
     const onmessage = (e: MessageEvent<Msg>): void => {
       if ([TRANSFER_SUCCESSFUL_MSG, TRANSFER_FAILED_MSG].includes(e.data)) {

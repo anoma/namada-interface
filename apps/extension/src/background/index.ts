@@ -33,10 +33,9 @@ const extensionStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
 (async function init() {
   await initCrypto();
   await initShared();
-  const getRouterId = async (): Promise<number | undefined> =>
-    getAnomaRouterId(extensionStore);
+  const routerId = await getAnomaRouterId(extensionStore);
   const messenger = new ExtensionMessenger();
-  const requester = new ExtensionRequester(messenger, getRouterId);
+  const requester = new ExtensionRequester(messenger, routerId);
 
   const router = new ExtensionRouter(
     ContentScriptEnv.produceEnv,
