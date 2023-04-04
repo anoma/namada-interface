@@ -1,4 +1,4 @@
-# namada-interface/interface
+# apps/namada-interface
 
 ## Table of Contents
 
@@ -54,9 +54,11 @@ REACT_APP_COSMOS_CHAIN_ID=cosmos-testnet.123412341234
 REACT_APP_COSMOS_URL=http://127.0.0.1:12345
 ```
 
+_Note_, you will also need to build and install the `extension` app for managing keys and generating address. See <https://github.com/anoma/namada-interface/tree/main/apps/extension>.
+
 [ [Table of Contents](#table-of-contents) ]
 
-#### Configure a local node
+### Configure a local node
 
 - Clone the [namada](https://github.com/anoma/namada) repository
 - In `namada/`, build namada and wasm scripts:
