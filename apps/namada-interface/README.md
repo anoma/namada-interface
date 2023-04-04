@@ -60,55 +60,67 @@ _Note_, you will also need to build and install the `extension` app for managing
 
 ### Configure a local node
 
-- Clone the [namada](https://github.com/anoma/namada) repository
-- In `namada/`, build namada and wasm scripts:
-  ```
-  ./scripts/get_tendermint.sh
-  make build
-  make build-wasm-scripts
-  ```
-- Initilize network
-  ```
-  target/debug/namadac utils init-network \
-    --genesis-path genesis/e2e-tests-single-node.toml \
-    --wasm-checksums-path wasm/checksums.json \
-    --chain-prefix local \
-    --unsafe-dont-encrypt \
-    --localhost \
-    --allow-duplicate-ip
-  ```
-- Setup validator
+1. Clone the [namada](https://github.com/anoma/namada) repository
+2. In `namada/`, build namada and wasm scripts:
 
-  ```
-  CHAIN_ID=$1
+```
+./scripts/get_tendermint.sh
+make build
+make build-wasm-scripts
+```
 
-  cp -f wasm/checksums.json .anoma/${CHAIN_ID}/setup/validator-0/.anoma/${CHAIN*ID}/wasm/
-  cp -f wasm/*.wasm .anoma/${CHAIN_ID}/setup/validator-0/.anoma/${CHAIN*ID}/wasm/
-  cp -f wasm/checksums.json .anoma/${CHAIN_ID}/wasm/
-  cp -f wasm/*.wasm .anoma/${CHAIN_ID}/wasm/
-  ```
+3. Initilize network
 
-- Start ledger with validator node
-  ```
-  target/debug/namadan --chain-id ${CHAIN_ID} --base-dir .anoma/${CHAIN_ID}/setup/validator-0/.anoma --mode validator ledger
-  ```
-- Setup wallet
-  ```
-  target/debug/namada wallet address gen --alias my-account
-  ```
-- Send a transfer from faucet
-  ```
-  target/debug/namada client transfer \
-   --source faucet \
-   --target ${ADDRESS} \
-   --token NAM \
-   --amount 100 --ledger-address tcp://127.0.0.1:27657 --signer my-account
-  ```
-- To prevent the CORS bad request issue:
-  1.  Start node
-  2.  Stop node
-  3.  Go to `.namada/${CHAIN_ID}/setup/validator/.namada/${CHAIN_ID}/tendermint/config/config.toml`
-  4.  set `cors_allowed_origins = ["*"]`
-  5.  Start node again
+```
+target/debug/namadac utils init-network \
+  --genesis-path genesis/e2e-tests-single-node.toml \
+  --wasm-checksums-path wasm/checksums.json \
+  --chain-prefix local \
+  --unsafe-dont-encrypt \
+  --localhost \
+  --allow-duplicate-ip
+```
+
+4. Setup validator
+
+```
+CHAIN_ID=local-namada.xxxxxxxxxxxxxxxx # Set to the chain ID generated in previous step
+cp -f wasm/checksums.json .anoma/${CHAIN_ID}/setup/validator-0/.anoma/${CHAIN*ID}/wasm/
+cp -f wasm/*.wasm .anoma/${CHAIN_ID}/setup/validator-0/.anoma/${CHAIN*ID}/wasm/
+cp -f wasm/checksums.json .anoma/${CHAIN_ID}/wasm/
+cp -f wasm/*.wasm .anoma/${CHAIN_ID}/wasm/
+```
+
+5. Start a local validator
+
+```
+target/debug/namadan --chain-id ${CHAIN_ID} --base-dir .anoma/${CHAIN_ID}/setup/validator-0/.anoma --mode validator ledger
+```
+
+6. Set-up wallet
+
+```
+target/debug/namada wallet address gen --alias my-account
+```
+
+7. Send a transfer from faucet
+
+```
+ADDRESS=atest.xxxxxxxxxxxxxxxxxxxxx # Set this to an address generated within the extension!
+
+target/debug/namada client transfer \
+ --source faucet \
+ --target ${ADDRESS} \
+ --token NAM \
+ --amount 100 --ledger-address tcp://127.0.0.1:27657 --signer my-account
+```
+
+8. To resolve the CORS bad request issue when connecting from the interface:
+
+- Start node (ignore if you have completed step 5 above)
+- Stop node
+- Go to `.namada/${CHAIN_ID}/setup/validator/.namada/${CHAIN_ID}/tendermint/config/config.toml`
+- Set `cors_allowed_origins = ["*"]`
+- Start node again
 
 [ [Table of Contents](#table-of-contents) ]
