@@ -1,11 +1,12 @@
 import browser from "webextension-polyfill";
+import { createContext, useContext, useEffect, useState } from "react";
+
 import { ExtensionKVStore } from "@anoma/storage";
 import {
   ExtensionMessenger,
   ExtensionRequester,
   getAnomaRouterId,
 } from "extension";
-import { createContext, useContext, useEffect, useState } from "react";
 import { KVPrefix } from "router";
 
 const store = new ExtensionKVStore(KVPrefix.LocalStorage, {
