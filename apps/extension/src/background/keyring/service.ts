@@ -1,10 +1,16 @@
+import { v4 as uuidv4 } from "uuid";
 import { fromBase64, toBase64 } from "@cosmjs/encoding";
+
 import { PhraseSize } from "@anoma/crypto";
 import { KVStore } from "@anoma/storage";
 import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
+import { Sdk } from "@anoma/shared";
+
 import { KeyRing } from "./keyring";
 import { KeyRingStatus, KeyStore } from "./types";
-import { Sdk } from "@anoma/shared";
+import { ExtensionRequester } from "extension";
+import { Ports } from "router";
+import { TransferStartedEvent } from "content/events";
 
 export class KeyRingService {
   private _keyRing: KeyRing;
@@ -14,7 +20,8 @@ export class KeyRingService {
     protected readonly sdkStore: KVStore<string>,
     protected readonly extensionStore: KVStore<number>,
     protected readonly chainId: string,
-    protected readonly sdk: Sdk
+    protected readonly sdk: Sdk,
+    protected readonly requester: ExtensionRequester
   ) {
     this._keyRing = new KeyRing(
       kvStore,
@@ -99,8 +106,15 @@ export class KeyRingService {
   }
 
   async submitTransfer(txMsg: string): Promise<void> {
+    const msgId = uuidv4();
+
+    this.requester.sendMessageToCurrentTab(
+      Ports.WebBrowser,
+      new TransferStartedEvent(msgId)
+    );
+
     try {
-      await this._keyRing.submitTransfer(fromBase64(txMsg));
+      await this._keyRing.submitTransfer(fromBase64(txMsg), msgId);
     } catch (e) {
       console.warn(e);
       throw new Error(`Unable to encode transfer! ${e}`);

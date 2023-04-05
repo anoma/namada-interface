@@ -62,7 +62,8 @@ const extensionStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
     sdkStore,
     extensionStore,
     defaultChainId,
-    sdk
+    sdk,
+    requester
   );
   const contentService = new ContentService(requester);
 

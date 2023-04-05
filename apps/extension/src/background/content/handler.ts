@@ -1,14 +1,14 @@
 import { Env, Handler, InternalHandler, Message } from "router";
-import { TransferCompletedMsg } from "./messages";
+import { TransferCompletedEvent } from "./messages";
 import { ContentService } from "./service";
 
 export const getHandler: (service: ContentService) => Handler = (service) => {
   return (env: Env, msg: Message<unknown>) => {
     switch (msg.constructor) {
-      case TransferCompletedMsg:
+      case TransferCompletedEvent:
         return handleTransferCompletedMsg(service)(
           env,
-          msg as TransferCompletedMsg
+          msg as TransferCompletedEvent
         );
     }
   };
@@ -16,9 +16,9 @@ export const getHandler: (service: ContentService) => Handler = (service) => {
 
 const handleTransferCompletedMsg: (
   service: ContentService
-) => InternalHandler<TransferCompletedMsg> = (service) => {
+) => InternalHandler<TransferCompletedEvent> = (service) => {
   return async (_, msg) => {
-    const { success } = msg;
-    return service.handleTransferCompleted(success);
+    const { success, msgId } = msg;
+    return service.handleTransferCompleted(success, msgId);
   };
 };
