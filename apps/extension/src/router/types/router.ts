@@ -5,6 +5,7 @@ export type MessageSender = Pick<Runtime.MessageSender, "id" | "url" | "tab">;
 
 export interface Env {
   readonly isInternalMsg: boolean;
+  readonly senderTabId: number;
   readonly requestInteraction: () => void;
 }
 

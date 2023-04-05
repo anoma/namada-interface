@@ -7,11 +7,11 @@ export class ContentService {
 
   async handleTransferCompleted(
     success: boolean,
-    msgId: string
+    msgId: string,
+    senderTabId: number
   ): Promise<void> {
-    // TODO: most likely we want to send this back to the sender.
-    // We can get sender's tabId from the onMessage listener.
-    return this.requester.sendMessageToCurrentTab(
+    return this.requester.sendMessageToTab(
+      senderTabId,
       Ports.WebBrowser,
       new TransferCompletedEvent(success, msgId)
     );

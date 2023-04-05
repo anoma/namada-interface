@@ -18,7 +18,7 @@ const handleTransferCompletedMsg: (
   service: ContentService
 ) => InternalHandler<TransferCompletedEvent> = (service) => {
   return async (_, msg) => {
-    const { success, msgId } = msg;
-    return service.handleTransferCompleted(success, msgId);
+    const { success, msgId, senderTabId } = msg;
+    return service.handleTransferCompleted(success, msgId, senderTabId);
   };
 };

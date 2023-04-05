@@ -49,6 +49,7 @@ export const init = (): {
 
   const router = new ExtensionRouter(
     () => ({
+      senderTabId: -1,
       isInternalMsg: true,
       requestInteraction: () => {
         throw new Error("Test env doesn't support `requestInteraction`");

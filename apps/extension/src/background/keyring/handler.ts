@@ -166,9 +166,9 @@ const handleSubmitUnbondMsg: (
 const handleSubmitTransferMsg: (
   service: KeyRingService
 ) => InternalHandler<SubmitTransferMsg> = (service) => {
-  return async (_, msg) => {
+  return async ({ senderTabId }, msg) => {
     const { txMsg } = msg;
-    return await service.submitTransfer(txMsg);
+    return await service.submitTransfer(txMsg, senderTabId);
   };
 };
 
