@@ -58,6 +58,13 @@ export class InjectedAnoma implements IAnoma {
     );
   }
 
+  public async submitShieldedTransfer(txMsg: string): Promise<void> {
+    return await InjectedProxy.requestMethod<string, void>(
+      "submitShieldedTransfer",
+      txMsg
+    );
+  }
+
   public async submitIbcTransfer(txMsg: string): Promise<void> {
     return await InjectedProxy.requestMethod<string, void>(
       "submitIbcTransfer",

@@ -9,7 +9,7 @@ const TransferCompletedHandler =
   (dispatch: Dispatch<unknown>) => (event: CustomEventInit) => {
     dispatch(
       notificationsActions.createToast(
-        getToast(`${event.detail.msgId}-fullfilled`, Toasts.TransferCompleted)()
+        getToast(`${event.detail.msgId}-shielded`, Toasts.TransferCompleted)()
       )
     );
   };
@@ -18,7 +18,10 @@ const TransferStartedHandler =
   (dispatch: Dispatch<unknown>) => (event: CustomEventInit) => {
     dispatch(
       notificationsActions.createToast(
-        getToast(`${event.detail.msgId}-pending`, Toasts.TransferStarted)()
+        getToast(
+          `${event.detail.msgId}-shielded`,
+          Toasts.ShieldedTransferStarted
+        )()
       )
     );
   };

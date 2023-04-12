@@ -397,6 +397,13 @@ export class KeyRing {
     }
   }
 
+  async submitTransfer(txMsg: Uint8Array): Promise<void> {
+    if (!this._password) {
+      throw new Error("Not authenticated!");
+    }
+    await this.sdk.submit_transfer(txMsg, this._password);
+  }
+
   private async submitTransferChrome(
     txMsg: Uint8Array,
     msgId: string,
@@ -437,7 +444,7 @@ export class KeyRing {
     );
   }
 
-  async submitTransfer(
+  async submitShieldedTransfer(
     txMsg: Uint8Array,
     msgId: string,
     senderTabId: number
@@ -452,7 +459,9 @@ export class KeyRing {
     } else if (TARGET === "firefox") {
       this.submitTransferFirefox(txMsg, msgId, senderTabId, this._password);
     } else {
-      console.warn("Submitting transfers is not supported with your browser.");
+      console.warn(
+        "Submitting shielded transfers is not supported with your browser."
+      );
     }
   }
 

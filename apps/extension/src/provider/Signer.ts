@@ -77,6 +77,22 @@ export class Signer implements ISigner {
   }
 
   /**
+   * Submit a shielded transfer
+   */
+  public async submitShieldedTransfer(args: TransferProps): Promise<void> {
+    const transferMsgValue = new TransferMsgValue(args);
+    const transferMessage = new Message<TransferMsgValue>();
+    const serializedTransfer = transferMessage.encode(
+      SubmitTransferMsgSchema,
+      transferMsgValue
+    );
+
+    return await this._anoma.submitShieldedTransfer(
+      toBase64(serializedTransfer)
+    );
+  }
+
+  /**
    * Submit an ibc transfer
    */
   public async submitIbcTransfer(args: IbcTransferProps): Promise<void> {

@@ -17,6 +17,7 @@ import {
   SubmitBondMsg,
   SubmitUnbondMsg,
   SubmitIbcTransferMsg,
+  SubmitShieldedTransferMsg,
 } from "provider/messages";
 import { ROUTE } from "./constants";
 import { getHandler } from "./handler";
@@ -35,6 +36,7 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(SubmitBondMsg);
   router.registerMessage(SubmitUnbondMsg);
   router.registerMessage(SubmitTransferMsg);
+  router.registerMessage(SubmitShieldedTransferMsg);
   router.registerMessage(SubmitIbcTransferMsg);
   router.registerMessage(EncodeInitAccountMsg);
   router.registerMessage(EncodeRevealPkMsg);

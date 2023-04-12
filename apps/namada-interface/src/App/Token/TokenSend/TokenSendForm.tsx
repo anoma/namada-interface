@@ -18,6 +18,7 @@ import { AccountsState } from "slices/accounts";
 import {
   clearEvents,
   submitTransferTransaction,
+  submitShieldedTransferTransaction,
   actionTypes,
   TransfersState,
   TransferType,
@@ -251,8 +252,11 @@ const TokenSendForm = ({
 
   const handleOnSendClick = (): void => {
     if ((isShieldedTarget && target) || (target && token.address)) {
+      const action = !isShieldedTarget
+        ? submitTransferTransaction
+        : submitShieldedTransferTransaction;
       dispatch(
-        submitTransferTransaction({
+        action({
           chainId,
           account: details,
           target,

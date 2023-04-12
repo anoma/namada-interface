@@ -17,6 +17,7 @@ import {
   SubmitBondMsg,
   SubmitUnbondMsg,
   SubmitIbcTransferMsg,
+  SubmitShieldedTransferMsg,
 } from "provider/messages";
 
 export const getHandler: (service: KeyRingService) => Handler = (service) => {
@@ -52,6 +53,11 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleSubmitUnbondMsg(service)(env, msg as SubmitUnbondMsg);
       case SubmitTransferMsg:
         return handleSubmitTransferMsg(service)(env, msg as SubmitTransferMsg);
+      case SubmitShieldedTransferMsg:
+        return handleSubmitShieldedTransferMsg(service)(
+          env,
+          msg as SubmitShieldedTransferMsg
+        );
       case SubmitIbcTransferMsg:
         return handleSubmitIbcTransferMsg(service)(
           env,
@@ -166,9 +172,18 @@ const handleSubmitUnbondMsg: (
 const handleSubmitTransferMsg: (
   service: KeyRingService
 ) => InternalHandler<SubmitTransferMsg> = (service) => {
+  return async (_, msg) => {
+    const { txMsg } = msg;
+    return await service.submitTransfer(txMsg);
+  };
+};
+
+const handleSubmitShieldedTransferMsg: (
+  service: KeyRingService
+) => InternalHandler<SubmitShieldedTransferMsg> = (service) => {
   return async ({ senderTabId }, msg) => {
     const { txMsg } = msg;
-    return await service.submitTransfer(txMsg, senderTabId);
+    return await service.submitShieldedTransfer(txMsg, senderTabId);
   };
 };
 

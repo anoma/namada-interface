@@ -1,18 +1,27 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
-import { Account, TxWasm, Tokens, TokenType, Signer } from "@anoma/types";
+import {
+  Account,
+  TxWasm,
+  Tokens,
+  TokenType,
+  Signer,
+  TransferProps,
+} from "@anoma/types";
 import { amountToMicro, fetchWasmCode } from "@anoma/utils";
 import {
   actions as notificationsActions,
   CreateToastPayload,
   ToastId,
+  ToastTimeout,
   ToastType,
 } from "slices/notifications";
 import { getIntegration } from "services";
 import { RootState } from "store";
 
 export enum Toasts {
-  TransferStarted,
+  TransparentTransferStarted,
+  ShieldedTransferStarted,
   TransferCompleted,
 }
 
@@ -24,12 +33,21 @@ export const getToast = (
   toast: Toasts
 ): ((props: GetToastProps) => CreateToastPayload) => {
   const toasts = {
-    [Toasts.TransferStarted]: () => ({
+    [Toasts.TransparentTransferStarted]: () => ({
       id: toastId,
       data: {
         title: "Transfer started!",
         message: "",
         type: "info" as ToastType,
+      },
+    }),
+    [Toasts.ShieldedTransferStarted]: () => ({
+      id: toastId,
+      data: {
+        title: "Shielded transfer in progress!",
+        message: "Running in the background",
+        type: "pending-info" as ToastType,
+        timeout: ToastTimeout.None(),
       },
     }),
     [Toasts.TransferCompleted]: () => ({
@@ -94,6 +112,7 @@ type TransferEvents = {
 
 enum TransfersThunkActions {
   SubmitTransferTransaction = "submitTransferTransaction",
+  SubmitShieldedTransferTransaction = "submitShieldedTransferTransaction",
   SubmitIbcTransferTransaction = "submitIbcTransferTransaction",
 }
 
@@ -122,11 +141,27 @@ type TxIbcTransferArgs = TxArgs & {
 
 export const actionTypes = {
   SUBMIT_TRANSFER_ACTION_TYPE: `${TRANSFERS_ACTIONS_BASE}/${TransfersThunkActions.SubmitTransferTransaction}`,
+  SUBMIT_SHIELDED_TRANSFER_ACTION_TYPE: `${TRANSFERS_ACTIONS_BASE}/${TransfersThunkActions.SubmitShieldedTransferTransaction}`,
 };
-// this takes care of 4 different variations of transfers:
-// shielded -> shielded
-// transparent -> shielded
-// shielded -> transparent
+
+const transferArgsToTransferProps = async (
+  txTransferArgs: TxTransferArgs
+): Promise<TransferProps> => {
+  return {
+    tx: {
+      token: Tokens.NAM.address || "",
+      feeAmount: 0,
+      gasLimit: 0,
+      txCode: await fetchWasmCode(TxWasm.RevealPK),
+    },
+    source: txTransferArgs.account.address,
+    target: txTransferArgs.target,
+    token: Tokens.NAM.address || "",
+    amount: amountToMicro(txTransferArgs.amount),
+    nativeToken: Tokens.NAM.address || "",
+    txCode: await fetchWasmCode(TxWasm.Transfer),
+  };
+};
 // transparent -> transparent
 export const submitTransferTransaction = createAsyncThunk<
   void,
@@ -134,25 +169,46 @@ export const submitTransferTransaction = createAsyncThunk<
   { state: RootState }
 >(
   actionTypes.SUBMIT_TRANSFER_ACTION_TYPE,
+  async (txTransferArgs, { getState, dispatch, requestId }) => {
+    const { chainId } = getState().settings;
+    const integration = getIntegration(chainId);
+    const signer = integration.signer() as Signer;
+
+    dispatch(
+      notificationsActions.createToast(
+        getToast(`${requestId}-pending`, Toasts.TransparentTransferStarted)()
+      )
+    );
+
+    await signer.submitTransfer(
+      await transferArgsToTransferProps(txTransferArgs)
+    );
+
+    dispatch(
+      notificationsActions.createToast(
+        getToast(`${requestId}-fullfilled`, Toasts.TransferCompleted)()
+      )
+    );
+  }
+);
+
+// shielded -> shielded
+// transparent -> shielded
+// shielded -> transparent
+export const submitShieldedTransferTransaction = createAsyncThunk<
+  void,
+  TxTransferArgs,
+  { state: RootState }
+>(
+  actionTypes.SUBMIT_SHIELDED_TRANSFER_ACTION_TYPE,
   async (txTransferArgs, { getState }) => {
     const { chainId } = getState().settings;
     const integration = getIntegration(chainId);
     const signer = integration.signer() as Signer;
 
-    await signer.submitTransfer({
-      tx: {
-        token: Tokens.NAM.address || "",
-        feeAmount: 0,
-        gasLimit: 0,
-        txCode: await fetchWasmCode(TxWasm.RevealPK),
-      },
-      source: txTransferArgs.account.address,
-      target: txTransferArgs.target,
-      token: Tokens.NAM.address || "",
-      amount: amountToMicro(txTransferArgs.amount),
-      nativeToken: Tokens.NAM.address || "",
-      txCode: await fetchWasmCode(TxWasm.Transfer),
-    });
+    await signer.submitShieldedTransfer(
+      await transferArgsToTransferProps(txTransferArgs)
+    );
   }
 );
 
@@ -170,7 +226,7 @@ export const submitIbcTransferTransaction = createAsyncThunk<
 
     dispatch(
       notificationsActions.createToast(
-        getToast(`${requestId}-pending`, Toasts.TransferStarted)()
+        getToast(`${requestId}-pending`, Toasts.TransparentTransferStarted)()
       )
     );
 

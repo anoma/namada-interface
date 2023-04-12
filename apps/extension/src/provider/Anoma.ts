@@ -11,6 +11,7 @@ import {
   SubmitUnbondMsg,
   SubmitTransferMsg,
   SubmitIbcTransferMsg,
+  SubmitShieldedTransferMsg,
 } from "./messages";
 
 export class Anoma implements IAnoma {
@@ -72,6 +73,13 @@ export class Anoma implements IAnoma {
     return await this.requester?.sendMessage(
       Ports.Background,
       new SubmitTransferMsg(txMsg)
+    );
+  }
+
+  public async submitShieldedTransfer(txMsg: string): Promise<void> {
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new SubmitShieldedTransferMsg(txMsg)
     );
   }
 

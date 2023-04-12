@@ -8,9 +8,13 @@ import {
   ActionReducerMapBuilder,
 } from "@reduxjs/toolkit";
 
-import { CreateToastPayload, ToastId, NotificationsState } from "./types";
+import {
+  CreateToastPayload,
+  ToastId,
+  NotificationsState,
+  ToastTimeout,
+} from "./types";
 
-export const DEFAULT_TIMEOUT = 2000;
 export const THUNK_MATCH_REGEXP = /^.*(?=\/(pending|fulfilled|rejected)$)/;
 
 export const reducers = {
@@ -25,7 +29,7 @@ export const reducers = {
         title: data.title,
         message: data.message,
         type: data.type,
-        timeout: data.timeout || DEFAULT_TIMEOUT,
+        timeout: data.timeout || ToastTimeout.Default(),
       },
     };
   },
