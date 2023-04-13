@@ -2,15 +2,15 @@ import { Message } from "router";
 import { ROUTE } from "./constants";
 
 enum MessageType {
-  TransferCompletedMsg = "transfer-completed-msg",
+  TransferCompletedEvent = "transfer-completed-event",
 }
 
-export class TransferCompletedMsg extends Message<void> {
+export class TransferCompletedEvent extends Message<void> {
   public static type(): MessageType {
-    return MessageType.TransferCompletedMsg;
+    return MessageType.TransferCompletedEvent;
   }
 
-  constructor(public readonly success: boolean) {
+  constructor(public readonly success: boolean, public readonly msgId: string) {
     super();
   }
 
@@ -25,6 +25,6 @@ export class TransferCompletedMsg extends Message<void> {
   }
 
   type(): string {
-    return TransferCompletedMsg.type();
+    return TransferCompletedEvent.type();
   }
 }

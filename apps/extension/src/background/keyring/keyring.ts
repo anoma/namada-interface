@@ -399,6 +399,7 @@ export class KeyRing {
 
   private async submitTransferChrome(
     txMsg: Uint8Array,
+    msgId: string,
     password: string
   ): Promise<void> {
     const offscreenDocumentPath = "offscreen.html";
@@ -412,12 +413,13 @@ export class KeyRing {
       type: SUBMIT_TRANSFER_MSG_TYPE,
       target: OFFSCREEN_TARGET,
       routerId,
-      data: { txMsg: toBase64(txMsg), password },
+      data: { txMsg: toBase64(txMsg), msgId, password },
     });
   }
 
   private async submitTransferFirefox(
     txMsg: Uint8Array,
+    msgId: string,
     password: string
   ): Promise<void> {
     const routerId = await getAnomaRouterId(this.extensionStore);
@@ -425,22 +427,23 @@ export class KeyRing {
     initSubmitTransferWebWorker(
       {
         txMsg: toBase64(txMsg),
+        msgId,
         password,
       },
       routerId
     );
   }
 
-  async submitTransfer(txMsg: Uint8Array): Promise<void> {
+  async submitTransfer(txMsg: Uint8Array, msgId: string): Promise<void> {
     if (!this._password) {
       throw new Error("Not authenticated!");
     }
 
     const { TARGET } = process.env;
     if (TARGET === "chrome") {
-      this.submitTransferChrome(txMsg, this._password);
+      this.submitTransferChrome(txMsg, msgId, this._password);
     } else if (TARGET === "firefox") {
-      this.submitTransferFirefox(txMsg, this._password);
+      this.submitTransferFirefox(txMsg, msgId, this._password);
     } else {
       console.warn("Submitting transfers is not supported with your browser.");
     }

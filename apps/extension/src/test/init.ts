@@ -69,7 +69,8 @@ export const init = (): {
     sdkStore,
     extStore,
     "namada-test.XXXXXXXX",
-    sdk
+    sdk,
+    requester
   );
 
   // Initialize messages and handlers

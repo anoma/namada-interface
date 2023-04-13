@@ -1,5 +1,5 @@
-import { TransferCompletedMsg as BackgroundTransferCompletedMsg } from "background/content";
-import { TransferCompletedMsg as ContentTransferCompletedMsg } from "content/events";
+import { TransferCompletedEvent as BackgroundTransferCompletedEvent } from "background/content";
+import { TransferCompletedEvent as ContentTransferCompletedEvent } from "content/events";
 import { ExtensionMessenger, ExtensionRequester } from "extension";
 import { Ports } from "router";
 import {
@@ -10,20 +10,20 @@ import {
   TRANSFER_SUCCESSFUL_MSG,
 } from "./types";
 
-const sendTransferCompletedMsg = (
+const sendTransferCompletedEvent = (
   requester: ExtensionRequester,
-  success: boolean
+  { success, msgId }: { success: boolean; msgId: string }
 ): Promise<void> => {
   const { TARGET } = process.env;
   if (TARGET === "chrome") {
     return requester.sendMessage(
       Ports.Background,
-      new BackgroundTransferCompletedMsg(success)
+      new BackgroundTransferCompletedEvent(success, msgId)
     );
   } else if (TARGET === "firefox") {
     return requester.sendMessageToCurrentTab(
       Ports.WebBrowser,
-      new ContentTransferCompletedMsg(success)
+      new ContentTransferCompletedEvent(success, msgId)
     );
   } else {
     throw Error("Unsupported target.");
@@ -45,9 +45,16 @@ export const init = (
     if (e.data === INIT_MSG) {
       w.postMessage(data);
     } else if (e.data === TRANSFER_SUCCESSFUL_MSG) {
-      sendTransferCompletedMsg(requester, true).then(() => w.terminate());
+      //TODO: Figure out if we do not need to pass msgId from the WebWorker
+      sendTransferCompletedEvent(requester, {
+        success: true,
+        msgId: data.msgId,
+      }).then(() => w.terminate());
     } else if (e.data === TRANSFER_FAILED_MSG) {
-      sendTransferCompletedMsg(requester, false).then(() => w.terminate());
+      sendTransferCompletedEvent(requester, {
+        success: false,
+        msgId: data.msgId,
+      }).then(() => w.terminate());
     } else {
       console.warn("Not supporeted msg type.");
     }

@@ -11,7 +11,7 @@ import {
 import { getIntegration } from "services";
 import { RootState } from "store";
 
-enum Toasts {
+export enum Toasts {
   TransferStarted,
   TransferCompleted,
 }
@@ -19,7 +19,7 @@ enum Toasts {
 type TransferCompletedToastProps = { gas: number };
 type GetToastProps = TransferCompletedToastProps | void;
 
-const getToast = (
+export const getToast = (
   toastId: ToastId,
   toast: Toasts
 ): ((props: GetToastProps) => CreateToastPayload) => {
@@ -134,19 +134,11 @@ export const submitTransferTransaction = createAsyncThunk<
   { state: RootState }
 >(
   actionTypes.SUBMIT_TRANSFER_ACTION_TYPE,
-  async (txTransferArgs, { getState, dispatch, requestId }) => {
+  async (txTransferArgs, { getState }) => {
     const { chainId } = getState().settings;
     const integration = getIntegration(chainId);
     const signer = integration.signer() as Signer;
 
-    dispatch(
-      notificationsActions.createToast(
-        getToast(`${requestId}-pending`, Toasts.TransferStarted)()
-      )
-    );
-
-    // TODO: because submitting transfer is async we have to keep track of the
-    // transfer id to know how when and how to handle it when it's completed.
     await signer.submitTransfer({
       tx: {
         token: Tokens.NAM.address || "",
@@ -161,12 +153,6 @@ export const submitTransferTransaction = createAsyncThunk<
       nativeToken: Tokens.NAM.address || "",
       txCode: await fetchWasmCode(TxWasm.Transfer),
     });
-
-    dispatch(
-      notificationsActions.createToast(
-        getToast(`${requestId}-fullfilled`, Toasts.TransferCompleted)()
-      )
-    );
   }
 );
 
