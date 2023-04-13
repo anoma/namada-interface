@@ -12,16 +12,21 @@ import {
 
 const sendTransferCompletedEvent = (
   requester: ExtensionRequester,
-  { success, msgId }: { success: boolean; msgId: string }
+  {
+    success,
+    msgId,
+    senderTabId,
+  }: { success: boolean; msgId: string; senderTabId: number }
 ): Promise<void> => {
   const { TARGET } = process.env;
   if (TARGET === "chrome") {
     return requester.sendMessage(
       Ports.Background,
-      new BackgroundTransferCompletedEvent(success, msgId)
+      new BackgroundTransferCompletedEvent(success, msgId, senderTabId)
     );
   } else if (TARGET === "firefox") {
-    return requester.sendMessageToCurrentTab(
+    return requester.sendMessageToTab(
+      senderTabId,
       Ports.WebBrowser,
       new ContentTransferCompletedEvent(success, msgId)
     );
@@ -49,11 +54,13 @@ export const init = (
       sendTransferCompletedEvent(requester, {
         success: true,
         msgId: data.msgId,
+        senderTabId: data.senderTabId,
       }).then(() => w.terminate());
     } else if (e.data === TRANSFER_FAILED_MSG) {
       sendTransferCompletedEvent(requester, {
         success: false,
         msgId: data.msgId,
+        senderTabId: data.senderTabId,
       }).then(() => w.terminate());
     } else {
       console.warn("Not supporeted msg type.");

@@ -105,16 +105,17 @@ export class KeyRingService {
     }
   }
 
-  async submitTransfer(txMsg: string): Promise<void> {
+  async submitTransfer(txMsg: string, senderTabId: number): Promise<void> {
     const msgId = uuidv4();
 
-    this.requester.sendMessageToCurrentTab(
+    this.requester.sendMessageToTab(
+      senderTabId,
       Ports.WebBrowser,
       new TransferStartedEvent(msgId)
     );
 
     try {
-      await this._keyRing.submitTransfer(fromBase64(txMsg), msgId);
+      await this._keyRing.submitTransfer(fromBase64(txMsg), msgId, senderTabId);
     } catch (e) {
       console.warn(e);
       throw new Error(`Unable to encode transfer! ${e}`);

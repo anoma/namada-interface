@@ -10,7 +10,11 @@ export class TransferCompletedEvent extends Message<void> {
     return MessageType.TransferCompletedEvent;
   }
 
-  constructor(public readonly success: boolean, public readonly msgId: string) {
+  constructor(
+    public readonly success: boolean,
+    public readonly msgId: string,
+    public readonly senderTabId: number
+  ) {
     super();
   }
 
