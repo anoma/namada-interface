@@ -96,8 +96,7 @@ export class KeyRing {
   public async checkPassword(password: string): Promise<boolean> {
     const mnemonics = await this._keyStore.get();
 
-    // Note: We may support multiple top-level mnemonic seeds in the future,
-    // hence why we're storing these in an array. For now, we check for only one:
+    // TODO: Validate against stored mnemonic by mnemonic ID (using the selected mnemonic, instead of the first one!)
     if (mnemonics && mnemonics[0]) {
       try {
         crypto.decrypt(mnemonics[0], password);
@@ -240,8 +239,7 @@ export class KeyRing {
       throw new Error("No mnemonics have been stored!");
     }
 
-    // TODO: For now, we are assuming only one mnemonic is used, but in the future
-    // we may want to have multiple top-level accounts:
+    // TODO: Pull the stored mnemonic idenfitied by "id"
     const storedMnemonic = mnemonics[0];
 
     if (!storedMnemonic) {
@@ -290,6 +288,7 @@ export class KeyRing {
           address,
           chainId,
           id,
+          parentId,
           password: this._password,
           path,
           text,

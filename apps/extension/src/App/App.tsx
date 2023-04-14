@@ -91,9 +91,10 @@ export const App: React.FC = () => {
       (account) => account.type === AccountType.Mnemonic
     );
     if (parent) {
+      console.log({ parent, accounts });
       setParentAccount(parent);
     }
-  }, []);
+  }, [accounts]);
 
   return (
     <ThemeProvider theme={theme}>

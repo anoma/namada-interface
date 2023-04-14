@@ -9,6 +9,7 @@ type CryptoArgs = {
   chainId: string;
   path: Bip44Path;
   id: string;
+  parentId?: string;
   password: string;
   text: string;
   type: AccountType;
@@ -16,7 +17,17 @@ type CryptoArgs = {
 
 export class Crypto {
   public encrypt(args: CryptoArgs): KeyStore {
-    const { address, alias, chainId, path, id, password, text, type } = args;
+    const {
+      address,
+      alias,
+      chainId,
+      path,
+      id,
+      parentId,
+      password,
+      text,
+      type,
+    } = args;
     const salt = Salt.generate().as_string();
     const { m_cost, t_cost, p_cost } = Argon2Config;
     const argon2Params = new Argon2Params(m_cost, t_cost, p_cost);
@@ -33,6 +44,7 @@ export class Crypto {
       address,
       chainId,
       id,
+      parentId,
       path,
       crypto: {
         cipher: {
