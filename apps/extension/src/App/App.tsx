@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { ThemeProvider } from "styled-components";
 import { Routes, Route, useNavigate } from "react-router-dom";
 
-import { AccountType, DerivedAccount } from "@anoma/types";
+import { DerivedAccount } from "@anoma/types";
 import { getTheme } from "@anoma/utils";
 import { ExtensionKVStore } from "@anoma/storage";
 import { Icon, IconName } from "@anoma/components";

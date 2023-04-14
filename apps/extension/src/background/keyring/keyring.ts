@@ -5,7 +5,7 @@ import {
   Mnemonic,
   PhraseSize,
   ShieldedHDWallet,
-  VecU8Pointer
+  VecU8Pointer,
 } from "@anoma/crypto";
 import {
   Account,
@@ -20,7 +20,10 @@ import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
 import { chains } from "@anoma/chains";
 import { Crypto } from "./crypto";
 import { KeyRingStatus, KeyStore } from "./types";
-import { readVecStringPointer, readStringPointer } from "@anoma/crypto/src/utils";
+import {
+  readVecStringPointer,
+  readStringPointer,
+} from "@anoma/crypto/src/utils";
 
 // Generated UUID namespace for uuid v5
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
@@ -280,6 +283,7 @@ export class KeyRing {
       "id",
       await this.getActiveAccountId()
     );
+
     if (!storedMnemonic) {
       throw new Error("Mnemonic is not set!");
     }
@@ -287,7 +291,11 @@ export class KeyRing {
     const parentId = storedMnemonic.id;
 
     try {
-      const phrase = crypto.decrypt(storedMnemonic, this._password, this._cryptoMemory);
+      const phrase = crypto.decrypt(
+        storedMnemonic,
+        this._password,
+        this._cryptoMemory
+      );
       const mnemonic = Mnemonic.from_phrase(phrase);
       const seed = mnemonic.to_seed();
       mnemonic.free();
