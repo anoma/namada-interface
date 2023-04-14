@@ -95,8 +95,6 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  console.log({ parentAccount });
-
   return (
     <ThemeProvider theme={theme}>
       <AppContainer>
