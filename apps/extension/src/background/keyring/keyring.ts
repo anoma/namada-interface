@@ -371,6 +371,7 @@ export class KeyRing {
       const accounts = [parentAccount, ...derivedAccounts];
 
       // Return only non-encrypted data
+
       return accounts.map(
         ({ address, alias, chainId, path, parentId, id, type }) => ({
           address,
