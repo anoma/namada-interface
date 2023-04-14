@@ -157,7 +157,6 @@ export const App: React.FC = () => {
               path={TopLevelRoute.Login}
               element={<Login requester={requester} />}
             />
-<<<<<<< HEAD
             {/* Routes that depend on a parent account existing in storage */}
             {parentAccount && (
               <>
@@ -217,28 +216,6 @@ export const App: React.FC = () => {
                 />
               </>
             )}
-=======
-            <Route
-              path={TopLevelRoute.AddAccount}
-              element={
-                <LockWrapper
-                  requester={requester}
-                  setStatus={setStatus}
-                  isLocked={isLocked}
-                  lockKeyRing={() => setIsLocked(true)}
-                >
-                  <AddAccount
-                    accountIndex={parentAccount?.path?.account || 0}
-                    accounts={accounts}
-                    requester={requester}
-                    setAccounts={setAccounts}
-                    isLocked={isLocked}
-                    unlockKeyRing={() => setIsLocked(false)}
-                  />
-                </LockWrapper>
-              }
-            />
->>>>>>> f305124 (begin updating to identify parent account by ID)
           </Routes>
         </ContentContainer>
         <BottomSection></BottomSection>

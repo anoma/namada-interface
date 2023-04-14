@@ -283,7 +283,6 @@ export class KeyRing {
       "id",
       await this.getActiveAccountId()
     );
-
     if (!storedMnemonic) {
       throw new Error("Mnemonic is not set!");
     }
