@@ -344,25 +344,23 @@ export class KeyRing {
       "id",
       this._activeAccountId
     );
-    const accounts =
+    const derivedAccounts =
       (await this._keyStore.getRecords("parentId", this._activeAccountId)) ||
       [];
 
     if (parentAccount) {
-      return [
-        parentAccount,
-        ...accounts.map(
-          ({ address, alias, chainId, path, parentId, id, type }) => ({
-            address,
-            alias,
-            chainId,
-            id,
-            parentId,
-            path,
-            type,
-          })
-        ),
-      ];
+      const accounts = [parentAccount, ...derivedAccounts];
+      return accounts.map(
+        ({ address, alias, chainId, path, parentId, id, type }) => ({
+          address,
+          alias,
+          chainId,
+          id,
+          parentId,
+          path,
+          type,
+        })
+      );
     }
     return [];
   }
