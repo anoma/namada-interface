@@ -52,6 +52,7 @@ const validatePath = (
     newAccount.change,
     newAccount.index,
   ].join("/");
+
   let isValid = true;
   accounts
     .filter((derivedAccount) => derivedAccount.type === accountType)
