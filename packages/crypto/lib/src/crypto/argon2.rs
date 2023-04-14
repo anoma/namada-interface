@@ -2,12 +2,11 @@ use password_hash::{
     rand_core::OsRng,
     PasswordHash, PasswordHasher, PasswordVerifier, SaltString
 };
-use serde::{Serialize, Deserialize};
-use gloo_utils::format::JsValueSerdeExt;
 use wasm_bindgen::prelude::*;
+use zeroize::{Zeroize, ZeroizeOnDrop};
+use crate::crypto::pointer_types::VecU8Pointer;
 
 #[wasm_bindgen]
-#[derive(Serialize, Deserialize)]
 pub struct Argon2Params {
     m_cost: u32,
     t_cost: u32,
@@ -24,19 +23,30 @@ impl Argon2Params {
             p_cost,
         }
     }
-}
 
-#[derive(Serialize, Deserialize)]
-pub struct Serialized {
-    salt: String,
-    key: Vec<u8>,
-    params: Argon2Params,
+    #[wasm_bindgen(getter)]
+    pub fn m_cost(&self) -> u32 {
+        self.m_cost
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn t_cost(&self) -> u32 {
+        self.t_cost
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn p_cost(&self) -> u32 {
+        self.p_cost
+    }
 }
 
 #[wasm_bindgen]
+#[derive(ZeroizeOnDrop)]
 pub struct Argon2 {
+    #[zeroize(skip)]
     salt: SaltString,
     password: Vec<u8>,
+    #[zeroize(skip)]
     params: argon2::Params,
 }
 
@@ -104,34 +114,25 @@ impl Argon2 {
         }
     }
 
-    pub fn params(&self) -> Result<JsValue, String> {
-        let params = &self.params;
-
-        // Return serialized parameters
-        Ok(JsValue::from_serde(&Argon2Params::new(
-            params.m_cost(),
-            params.t_cost(),
-            params.p_cost(),
-        )).expect("Should be able to serialize into JsValue"))
+    pub fn params(&self) -> Argon2Params {
+        Argon2Params::new(
+            self.params.m_cost(),
+            self.params.t_cost(),
+            self.params.p_cost()
+        )
     }
 
-    /// Convert PHC string to serialized key + params
-    pub fn to_serialized(&self) -> Result<JsValue, String> {
-        let hash = self.to_hash()?;
+    /// Convert PHC string to serialized key
+    pub fn key(&self) -> Result<VecU8Pointer, String> {
+        let mut hash = self.to_hash()?;
         let split = hash.split('$');
         let items: Vec<&str> = split.collect();
 
         let key = items[items.len() - 1];
+        let vec = Vec::from(key.as_bytes());
+        hash.zeroize();
 
-        Ok(JsValue::from_serde(&Serialized {
-            salt: String::from(self.salt.as_str()),
-            key: Vec::from(key.as_bytes()),
-            params: Argon2Params::new(
-                self.params.m_cost(),
-                self.params.t_cost(),
-                self.params.p_cost(),
-            ),
-        }).expect("Should be able to serialize into JsValue"))
+        Ok(VecU8Pointer::new(vec))
     }
 }
 
@@ -194,7 +195,7 @@ mod tests {
     }
 
     #[wasm_bindgen_test]
-    fn can_serialize_params_to_js_value() {
+    fn can_get_key_and_params() {
         let password = "unhackable";
         let argon2 = Argon2::new(password.into(), None, None)
             .expect("Creating instance with default params should not fail");
@@ -202,29 +203,12 @@ mod tests {
 
         assert!(argon2.verify(hash).is_ok());
 
-        let params: Argon2Params = JsValue::into_serde(&argon2.params().unwrap())
-            .expect("Should be able to serialize parameters to JsValue");
+        let params = argon2.params();
+        let key = argon2.key().expect("Creating key should not fail");
 
-        assert_eq!(params.m_cost, 4096);
-        assert_eq!(params.t_cost, 3);
-        assert_eq!(params.p_cost, 1);
-    }
-
-    #[wasm_bindgen_test]
-    fn can_serialize_to_js_value() {
-        let password = "unhackable";
-        let scrypt = Argon2::new(password.into(), None, None)
-            .expect("Creating instance with default params should not fail");
-        let hash = scrypt.to_hash().expect("Hashing password with Scrypt should not fail!");
-
-        assert!(scrypt.verify(hash).is_ok());
-
-        let serialized: Serialized = JsValue::into_serde(&scrypt.to_serialized().unwrap())
-            .expect("Should be able to serialize parameters to JsValue");
-
-        assert_eq!(serialized.params.m_cost, 4096);
-        assert_eq!(serialized.params.t_cost, 3);
-        assert_eq!(serialized.params.p_cost, 1);
-        assert_eq!(serialized.key.len(), 43);
+        assert_eq!(params.m_cost(), 4096);
+        assert_eq!(params.t_cost(), 3);
+        assert_eq!(params.p_cost(), 1);
+        assert_eq!(key.vec.len(), 43);
     }
 }

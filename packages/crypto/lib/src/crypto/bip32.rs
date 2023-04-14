@@ -1,6 +1,8 @@
-use bip32::{Prefix, XPrv};
+use bip32::XPrv;
 use thiserror::Error;
 use wasm_bindgen::prelude::*;
+use zeroize::{Zeroize, ZeroizeOnDrop};
+use crate::crypto::pointer_types::{StringPointer, VecU8Pointer};
 
 #[derive(Debug, Error)]
 pub enum HDWalletError {
@@ -17,6 +19,7 @@ pub enum HDWalletError {
 }
 
 #[wasm_bindgen]
+#[derive(Zeroize)]
 pub struct Key {
     bytes: [u8; 32],
 }
@@ -36,15 +39,17 @@ impl Key {
         })
     }
 
-    pub fn to_bytes(&self) -> Vec<u8> {
-        Vec::from(self.bytes)
+    pub fn to_bytes(&self) -> VecU8Pointer {
+        VecU8Pointer::new(Vec::from(self.bytes))
     }
 
-    pub fn to_hex(&self) -> String {
+    pub fn to_hex(&self) -> StringPointer {
         let bytes: &[u8] = &self.bytes;
-        hex::encode(&bytes)
+        let string = hex::encode(&bytes);
+        StringPointer::new(string)
     }
 
+    #[wasm_bindgen(skip_typescript)] // skipped as may reveal secrets to JS
     pub fn to_base64(&self) -> String {
         let bytes: &[u8] = &self.bytes;
         base64::encode(&bytes)
@@ -53,6 +58,7 @@ impl Key {
 
 /// An ed25519 keypair
 #[wasm_bindgen]
+#[derive(Zeroize, ZeroizeOnDrop)]
 pub struct Keypair {
     private: Key,
     public: Key,
@@ -69,57 +75,8 @@ impl Keypair {
     }
 }
 
-/// Extended keys (Xpriv and Xpub)
 #[wasm_bindgen]
-pub struct ExtendedKeypair {
-    xprv: Vec<u8>,
-    xpub: Vec<u8>,
-}
-
-#[wasm_bindgen]
-impl ExtendedKeypair {
-    #[wasm_bindgen(constructor)]
-    pub fn new (seed: Vec<u8>, path: Option<String>) -> Result<ExtendedKeypair, String> {
-        let seed: &[u8] = &seed;
-        let xprv = match path {
-            Some(path) => {
-                let path = &path
-                    .parse()
-                    .map_err(|err| format!("{}: {:?}", HDWalletError::PathError, err));
-                let derivation_path = match path {
-                    Ok(derivation_path) => derivation_path,
-                    Err(error) => return Err(error.to_string()),
-                };
-                XPrv::derive_from_path(&seed, derivation_path)
-            },
-            None => XPrv::new(seed),
-        }.map_err(|err| format!("{}: {:?}", HDWalletError::DerivationError, err))?;
-
-        // BIP32 Extended Private Key
-        let xprv_str = xprv.to_string(Prefix::XPRV).to_string();
-        let xprv_bytes = xprv_str.as_bytes();
-
-        // BIP32 Extended Public Key
-        let xpub = xprv.public_key();
-        let xpub_str = xpub.to_string(Prefix::XPUB);
-        let xpub_bytes = xpub_str.as_bytes();
-
-        Ok(ExtendedKeypair {
-            xprv: Vec::from(xprv_bytes),
-            xpub: Vec::from(xpub_bytes),
-        })
-    }
-
-    pub fn private (&self) -> Vec<u8> {
-        self.xprv.clone()
-    }
-
-    pub fn public (&self) -> Vec<u8> {
-        self.xpub.clone()
-    }
-}
-
-#[wasm_bindgen]
+#[derive(ZeroizeOnDrop)]
 pub struct HDWallet {
     seed: [u8; 64],
 }
@@ -128,8 +85,8 @@ pub struct HDWallet {
 #[wasm_bindgen]
 impl HDWallet {
     #[wasm_bindgen(constructor)]
-    pub fn new(seed: Vec<u8>) -> Result<HDWallet, String> {
-        let seed: [u8; 64] = match seed.try_into() {
+    pub fn new(seed_ptr: VecU8Pointer) -> Result<HDWallet, String> {
+        let seed: [u8; 64] = match seed_ptr.vec.clone().try_into() {
             Ok(seed) => seed,
             Err(err) => return Err(format!("{}: {:?}", HDWalletError::InvalidSeed, err)),
         };
@@ -137,16 +94,6 @@ impl HDWallet {
         Ok(HDWallet {
             seed,
         })
-    }
-
-    /// Get private key from seed
-    pub fn get_private_key(&self) -> Result<Vec<u8>, String> {
-        let xprv = match XPrv::new(&self.seed) {
-            Ok(xprv) => xprv,
-            Err(_) => return Err(HDWalletError::DerivationError.to_string()),
-        };
-
-        Ok(Vec::from(xprv.to_string(Prefix::XPRV).as_bytes()))
     }
 
     /// Derive account from a seed and a path
@@ -157,12 +104,14 @@ impl HDWallet {
         let xprv = XPrv::derive_from_path(&self.seed, &path)
             .map_err(|_| HDWalletError::DerivationError.to_string())?;
 
-        let prv_bytes: &[u8] = &xprv.private_key().to_bytes();
+        let prv_bytes: &mut [u8] = &mut xprv.private_key().to_bytes();
 
         // ed25519 keypair
         let secret_key = ed25519_dalek::SecretKey::from_bytes(prv_bytes)
             .map_err(|_| HDWalletError::SecretKeyError.to_string())?;
         let public_key = ed25519_dalek::PublicKey::from(&secret_key);
+
+        prv_bytes.zeroize();
 
         let private  = Key::new(Vec::from(secret_key.to_bytes()))?;
         let public = Key::new(Vec::from(public_key.to_bytes()))?;
@@ -171,13 +120,6 @@ impl HDWallet {
             private,
             public,
         })
-    }
-
-    /// Get extended keys from path
-    pub fn get_extended_keys(&self, path: Option<String>) -> Result<ExtendedKeypair, String> {
-        let seed: &[u8] = &self.seed;
-        let extended_keys = ExtendedKeypair::new(Vec::from(seed), path)?;
-        Ok(extended_keys)
     }
 }
 
@@ -198,36 +140,36 @@ mod tests {
 
         let keys = bip44.derive(path.to_string()).expect("Should derive keys from a path");
 
-        assert_eq!(keys.private.to_bytes().len(), 32);
-        assert_eq!(keys.public.to_bytes().len(), 32);
+        assert_eq!(keys.private.to_bytes().vec.len(), 32);
+        assert_eq!(keys.public.to_bytes().vec.len(), 32);
 
         let secret_b64 = keys.private.to_base64();
         assert_eq!(secret_b64, "xiB2bcoA7Zo0XdnTqjyql8rzM1lNvckot6oXLvo+J8M=");
 
-        let secret_hex = keys.private.to_hex();
+        let secret_hex = &keys.private.to_hex().string;
         assert_eq!(secret_hex, "c620766dca00ed9a345dd9d3aa3caa97caf333594dbdc928b7aa172efa3e27c3");
 
         let public_b64 = keys.public.to_base64();
         assert_eq!(public_b64, "JxUtX29qv87BzMilM0WSBRyyE00EzWTprsEGmNxd54I=");
 
-        let public_hex = keys.public.to_hex();
+        let public_hex = &keys.public.to_hex().string;
         assert_eq!(public_hex, "27152d5f6f6abfcec1ccc8a5334592051cb2134d04cd64e9aec10698dc5de782");
 
         // Sub-Account (/0'/0/0) - External path
         let path = "m/44'/0'/0'/0/0";
 
         let keys = bip44.derive(path.to_string()).expect("Should derive keys from a path");
-        let secret_hex = keys.private.to_hex();
+        let secret_hex = &keys.private.to_hex().string;
         assert_eq!(secret_hex, "2493640b28d0ab262451713fdff14d6fb5e5c4d2652f1e3aba301e23fe5c4442");
 
-        let public_hex = keys.public.to_hex();
+        let public_hex = &keys.public.to_hex().string;
         assert_eq!(public_hex, "cb312d148b5e615ee2854307b0b0c17133cd24c44f35d3cb554cf29c7b2addb1");
     }
 
     #[test]
     #[should_panic]
     fn invalid_seed_should_panic() {
-        let _bip44 = HDWallet::new(vec![0, 1, 2, 3, 4]).unwrap();
+        let _bip44 = HDWallet::new(VecU8Pointer::new(vec![0, 1, 2, 3, 4])).unwrap();
     }
 
     #[test]

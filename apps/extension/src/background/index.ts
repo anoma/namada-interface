@@ -27,7 +27,8 @@ const DEFAULT_URL =
 const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
 
 (async function init() {
-  await initCrypto();
+  const { memory: cryptoMemory } = await initCrypto();
+
   await initShared();
 
   const extensionStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
@@ -57,7 +58,8 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
     sdkStore,
     activeAccountStore,
     defaultChainId,
-    sdk
+    sdk,
+    cryptoMemory
   );
 
   // Initialize messages and handlers

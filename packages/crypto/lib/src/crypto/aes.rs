@@ -4,6 +4,8 @@ use aes_gcm::{
 };
 use thiserror::Error;
 use wasm_bindgen::prelude::*;
+use zeroize::Zeroize;
+use crate::crypto::pointer_types::VecU8Pointer;
 
 #[derive(Debug, Error)]
 pub enum AESError {
@@ -22,35 +24,41 @@ pub struct AES {
 #[wasm_bindgen]
 impl AES {
     #[wasm_bindgen(constructor)]
-    pub fn new(key: Vec<u8>, iv: Vec<u8>) -> Result<AES, String> {
-        if key.len() < 32 {
-            return Err(format!("{} Received {}", AESError::KeyLengthError, key.len()));
+    pub fn new(key: VecU8Pointer, iv: Vec<u8>) -> Result<AES, String> {
+        if key.length < 32 {
+            return Err(format!("{} Received {}", AESError::KeyLengthError, key.length));
         }
-        let key = GenericArray::from_iter(key.into_iter());
+        let mut key = GenericArray::from_iter(key.vec.clone().into_iter());
         let iv: [u8; 12] = match iv.try_into() {
             Ok(iv) => iv,
-            Err(_) => return Err(AESError::IVSizeError.to_string()),
+            Err(_) => {
+                key.zeroize();
+                return Err(AESError::IVSizeError.to_string())
+            }
         };
 
-        Ok(AES {
+        let aes = AES {
             cipher: Aes256Gcm::new(&key),
             iv,
-        })
+        };
+        key.zeroize();
+        Ok(aes)
     }
 
-    pub fn encrypt(&self, text: &str) -> Result<Vec<u8>, String> {
+    pub fn encrypt(&self, mut text: String) -> Result<Vec<u8>, String> {
         let nonce = Nonce::from_slice(&self.iv);
-        let ciphertext = self.cipher.encrypt(nonce, text.as_ref())
-            .map_err(|err| err.to_string())?;
-
-        Ok(ciphertext)
+        let result = self.cipher.encrypt(nonce, text.as_ref())
+            .map_err(|err| err.to_string());
+        text.zeroize();
+        result
     }
 
-    pub fn decrypt(&self, ciphertext: Vec<u8>) -> Result<Vec<u8>, String> {
+    pub fn decrypt(&self, ciphertext: Vec<u8>) -> Result<VecU8Pointer, String> {
         let nonce = Nonce::from_slice(&self.iv);
         let plaintext = self.cipher.decrypt(nonce, ciphertext.as_ref())
             .map_err(|err| err.to_string())?;
-        Ok(plaintext)
+
+        Ok(VecU8Pointer::new(plaintext))
     }
 }
 
@@ -65,13 +73,14 @@ mod tests {
             .expect("Generating random bytes should not fail");
         let iv = Rng::generate_bytes(Some(ByteSize::N12))
             .expect("Generating random bytes should not fail");
-        let aes = AES::new(key, iv).unwrap();
+        let aes = AES::new(VecU8Pointer::new(key), iv).unwrap();
         let plaintext = "my secret message";
-        let encrypted = aes.encrypt(plaintext)
+        let encrypted = aes.encrypt(String::from(plaintext))
             .expect("AES should not fail encrypting plaintext");
 
         let decrypted: &[u8] = &aes.decrypt(encrypted)
-            .expect("AES should not fail decrypting ciphertext");
+            .expect("AES should not fail decrypting ciphertext")
+            .vec;
         let decrypted = std::str::from_utf8(decrypted)
             .expect("Should parse as string");
 

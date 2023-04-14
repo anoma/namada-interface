@@ -5,6 +5,7 @@ import {
   Mnemonic,
   PhraseSize,
   ShieldedHDWallet,
+  VecU8Pointer
 } from "@anoma/crypto";
 import {
   Account,
@@ -19,6 +20,7 @@ import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
 import { chains } from "@anoma/chains";
 import { Crypto } from "./crypto";
 import { KeyRingStatus, KeyStore } from "./types";
+import { readVecStringPointer, readStringPointer } from "@anoma/crypto/src/utils";
 
 // Generated UUID namespace for uuid v5
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
@@ -64,15 +66,18 @@ export class KeyRing {
   private _keyStore: IStore<KeyStore>;
   private _password: string | undefined;
   private _status: KeyRingStatus = KeyRingStatus.Empty;
+  private _cryptoMemory: WebAssembly.Memory;
 
   constructor(
     protected readonly kvStore: KVStore<KeyStore[]>,
     protected readonly sdkStore: KVStore<string>,
     protected readonly activeAccountStore: KVStore<string>,
     protected readonly chainId: string,
-    protected readonly sdk: Sdk
+    protected readonly sdk: Sdk,
+    protected readonly cryptoMemory: WebAssembly.Memory
   ) {
     this._keyStore = new Store(KEYSTORE_KEY, kvStore);
+    this._cryptoMemory = cryptoMemory;
   }
 
   public isLocked(): boolean {
@@ -110,7 +115,7 @@ export class KeyRing {
     // TODO: Generate arbitray data to check decryption against
     if (mnemonic) {
       try {
-        crypto.decrypt(mnemonic, password);
+        crypto.decrypt(mnemonic, password, this._cryptoMemory);
         return true;
       } catch (error) {
         console.warn(error);
@@ -125,8 +130,11 @@ export class KeyRing {
     size: PhraseSize = PhraseSize.N12
   ): Promise<string[]> {
     const mnemonic = new Mnemonic(size);
-    const words = mnemonic.to_words();
+    const vecStringPointer = mnemonic.to_words();
+    const words = readVecStringPointer(vecStringPointer, this._cryptoMemory);
+
     mnemonic.free();
+    vecStringPointer.free();
 
     return words;
   }
@@ -149,12 +157,18 @@ export class KeyRing {
       const path = `m/44'/${coinType}'/0'/0`;
       const bip44 = new HDWallet(seed);
       const account = bip44.derive(path);
-      const sk = account.private().to_hex();
+      const stringPointer = account.private().to_hex();
+      const sk = readStringPointer(stringPointer, this._cryptoMemory);
       const address = new Address(sk).implicit();
       const { chainId } = this;
 
       // Generate unique ID for new parent account:
       const id = getId(phrase, (await this._keyStore.get()).length);
+
+      mnemonic.free();
+      bip44.free();
+      account.free();
+      stringPointer.free();
 
       const mnemonicStore = crypto.encrypt({
         id,
@@ -183,10 +197,11 @@ export class KeyRing {
   }
 
   public static deriveTransparentAccount(
-    seed: Uint8Array,
+    seed: VecU8Pointer,
     path: Bip44Path,
     parentId: string,
-    chainId: string
+    chainId: string,
+    cryptoMemory: WebAssembly.Memory
   ): DerivedAccountInfo {
     const { account, change, index = 0 } = path;
     const root = "m/44'";
@@ -201,9 +216,16 @@ export class KeyRing {
     const bip44 = new HDWallet(seed);
     const derivedAccount = bip44.derive(derivationPath);
 
-    const address = new Address(derivedAccount.private().to_hex()).implicit();
+    const privateKey = derivedAccount.private();
+    const hex = privateKey.to_hex();
+    const text = readStringPointer(hex, cryptoMemory);
+    const address = new Address(text).implicit();
     const id = getId("account", parentId, account, change, index);
-    const text = derivedAccount.private().to_hex();
+
+    bip44.free();
+    derivedAccount.free();
+    privateKey.free();
+    hex.free();
 
     return {
       address,
@@ -213,7 +235,7 @@ export class KeyRing {
   }
 
   public static deriveShieldedAccount(
-    seed: Uint8Array,
+    seed: VecU8Pointer,
     path: Bip44Path,
     parentId: string
   ): DerivedShieldedAccountInfo {
@@ -229,8 +251,13 @@ export class KeyRing {
 
     // Deserialize and encode keys and address
     const spendingKey = new ExtendedSpendingKey(xsk).encode();
-    const viewingKey = new ExtendedViewingKey(xfvk).encode();
+    const extendedViewingKey = new ExtendedViewingKey(xfvk);
+    const viewingKey = extendedViewingKey.encode();
     const address = new PaymentAddress(payment_address).encode();
+
+    zip32.free();
+    account.free();
+    extendedViewingKey.free();
 
     return {
       address,
@@ -261,9 +288,10 @@ export class KeyRing {
     const parentId = storedMnemonic.id;
 
     try {
-      const phrase = crypto.decrypt(storedMnemonic, this._password);
+      const phrase = crypto.decrypt(storedMnemonic, this._password, this._cryptoMemory);
       const mnemonic = Mnemonic.from_phrase(phrase);
       const seed = mnemonic.to_seed();
+      mnemonic.free();
 
       let id: string;
       let address: string;
@@ -282,7 +310,8 @@ export class KeyRing {
           seed,
           path,
           parentId,
-          this.chainId
+          this.chainId,
+          this._cryptoMemory
         );
         id = transparentAccount.id;
         address = transparentAccount.address;
@@ -387,7 +416,7 @@ export class KeyRing {
     let pk: string;
 
     try {
-      pk = crypto.decrypt(account, this._password);
+      pk = crypto.decrypt(account, this._password, this._cryptoMemory);
     } catch (e) {
       throw new Error(`Could not unlock account for ${address}: ${e}`);
     }

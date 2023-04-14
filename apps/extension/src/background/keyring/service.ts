@@ -15,14 +15,16 @@ export class KeyRingService {
     protected readonly sdkStore: KVStore<string>,
     protected readonly accountAccountStore: KVStore<string>,
     protected readonly chainId: string,
-    protected readonly sdk: Sdk
+    protected readonly sdk: Sdk,
+    protected readonly cryptoMemory: WebAssembly.Memory
   ) {
     this._keyRing = new KeyRing(
       kvStore,
       sdkStore,
       accountAccountStore,
       chainId,
-      sdk
+      sdk,
+      cryptoMemory
     );
   }
 

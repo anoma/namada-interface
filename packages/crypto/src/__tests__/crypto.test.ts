@@ -8,12 +8,21 @@ import {
   PhraseSize,
   Rng,
   Salt,
-  ShieldedHDWallet,
+  ShieldedHDWallet
 } from "../crypto/crypto";
+
+import {
+  readStringPointer,
+  readVecStringPointer,
+  readVecU8Pointer
+} from "../utils";
+
+// __wasm is not exported in crypto.d.ts so need to use require instead of import
+const memory = (require("../crypto/crypto")).__wasm.memory;
 
 const KEY_LENGTH = 32;
 const SEED_LENGTH = 64;
-const SHIELDED_KEY_LENGTH = 96;
+const SHIELDED_CHILD_KEY_LENGTH = 169;
 const MNEMONIC_WORDS = [
   "odor",
   "panic",
@@ -32,11 +41,11 @@ const MNEMONIC_WORDS = [
 describe("Mnemonic", () => {
   test("It should return the correct number of words", () => {
     let mnemonic = new Mnemonic(PhraseSize.N12);
-    let words = mnemonic?.to_words();
+    let words = readVecStringPointer(mnemonic?.to_words(), memory);
     expect(words.length).toBe(12);
 
     mnemonic = new Mnemonic(PhraseSize.N24);
-    words = mnemonic.to_words();
+    words = readVecStringPointer(mnemonic.to_words(), memory);
 
     expect(words.length).toBe(24);
   });
@@ -71,8 +80,8 @@ describe("HDWallet", () => {
 
     expect(root.private().to_bytes().length).toBe(KEY_LENGTH);
     expect(root.public().to_bytes().length).toBe(KEY_LENGTH);
-    expect(root.private().to_hex()).toBe(expectedRootPk);
-    expect(root.public().to_hex()).toBe(expectedRootPub);
+    expect(readStringPointer(root.private().to_hex(), memory)).toBe(expectedRootPk);
+    expect(readStringPointer(root.public().to_hex(), memory)).toBe(expectedRootPub);
 
     // Account 1: m/44'/1'/0'/0/0
     const account1 = b.derive(`${rootPath}/0`);
@@ -83,8 +92,8 @@ describe("HDWallet", () => {
 
     expect(account1.private().to_bytes().length).toBe(KEY_LENGTH);
     expect(account1.public().to_bytes().length).toBe(KEY_LENGTH);
-    expect(account1.private().to_hex()).toBe(expectedAccount1Pk);
-    expect(account1.public().to_hex()).toBe(expectedAccount1Pub);
+    expect(readStringPointer(account1.private().to_hex(), memory)).toBe(expectedAccount1Pk);
+    expect(readStringPointer(account1.public().to_hex(), memory)).toBe(expectedAccount1Pub);
 
     // Account2: m/44'/1'/0'/0/1
     const account2 = b.derive(`${rootPath}/1`);
@@ -94,8 +103,8 @@ describe("HDWallet", () => {
       "f99b467f2d4f3a59ccab3d86bd9c62436959687655cff56a393a88f70f49434d";
     expect(account2.private().to_bytes().length).toBe(KEY_LENGTH);
     expect(account2.public().to_bytes().length).toBe(KEY_LENGTH);
-    expect(account2.private().to_hex()).toBe(expectedAccount2Pk);
-    expect(account2.public().to_hex()).toBe(expectedAccount2Pub);
+    expect(readStringPointer(account2.private().to_hex(), memory)).toBe(expectedAccount2Pk);
+    expect(readStringPointer(account2.public().to_hex(), memory)).toBe(expectedAccount2Pub);
   });
 });
 
@@ -105,17 +114,13 @@ describe("ShieldedHDWallet", () => {
     const seed = m.to_seed();
     const b = new ShieldedHDWallet(seed);
 
-    const master = b.master_keys();
-    const account1 = b.derive(1);
-    const account2 = b.derive(2);
+    const account1 = b.derive_to_serialized_keys(1);
+    const account2 = b.derive_to_serialized_keys(2);
 
-    expect(master.expsk().length).toBe(SHIELDED_KEY_LENGTH);
-    expect(master.fvk().length).toBe(SHIELDED_KEY_LENGTH);
-    expect(account1.expsk().length).toBe(SHIELDED_KEY_LENGTH);
-    expect(account1.fvk().length).toBe(SHIELDED_KEY_LENGTH);
-    expect(master.expsk()).not.toEqual(account1.expsk());
-    expect(account1.expsk()).not.toEqual(account2.expsk());
-    expect(account1.fvk()).not.toEqual(account2.fvk());
+    expect(account1.xsk().length).toBe(SHIELDED_CHILD_KEY_LENGTH);
+    expect(account1.xfvk().length).toBe(SHIELDED_CHILD_KEY_LENGTH);
+    expect(account1.xsk()).not.toEqual(account2.xsk());
+    expect(account1.xfvk()).not.toEqual(account2.xfvk());
   });
 });
 
@@ -147,7 +152,8 @@ describe("AES", () => {
     const plaintext = "my secret message";
     const salt = Salt.generate().as_string();
     const argon2 = new Argon2(password, salt);
-    const { params, key } = argon2.to_serialized();
+    const params = argon2.params();
+    const key = argon2.key();
 
     const iv = Rng.generate_bytes(ByteSize.N12);
     const aes = new AES(key, iv);
@@ -157,14 +163,14 @@ describe("AES", () => {
     // to confirm that we can reconstruct the key originally used to encrypt:
     const { m_cost, t_cost, p_cost } = params;
     const argon2Params = new Argon2Params(m_cost, t_cost, p_cost);
-    const { key: newKey } = new Argon2(
+    const newKey = new Argon2(
       password,
       salt,
       argon2Params
-    ).to_serialized();
+    ).key();
 
     const aes2 = new AES(newKey, iv);
-    const decrypted = aes2.decrypt(encrypted);
+    const decrypted = readVecU8Pointer(aes2.decrypt(encrypted), memory);
     const plaintextBytes = new Uint8Array(Buffer.from(plaintext));
     const decryptedText = new TextDecoder().decode(decrypted);
 

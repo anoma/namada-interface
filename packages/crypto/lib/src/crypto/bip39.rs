@@ -1,6 +1,12 @@
-use js_sys::Array;
 use wasm_bindgen::prelude::*;
 use bip0039::Count;
+use zeroize::{Zeroize, ZeroizeOnDrop};
+use crate::crypto::pointer_types::{
+    StringPointer,
+    VecU8Pointer,
+    VecStringPointer,
+    new_vec_string_pointer
+};
 
 #[wasm_bindgen]
 #[derive(Copy, Clone)]
@@ -9,6 +15,7 @@ pub enum PhraseSize {
     N24 = 24,
 }
 
+#[derive(Zeroize, ZeroizeOnDrop)]
 #[wasm_bindgen]
 pub struct Mnemonic {
     phrase: String,
@@ -27,11 +34,7 @@ impl Mnemonic {
         Ok(Mnemonic { phrase: mnemonic.to_string() })
     }
 
-    pub fn phrase(&self) -> String {
-        String::from(&self.phrase)
-    }
-
-    pub fn validate(phrase: &str) -> Result<(), String> {
+    fn validate(phrase: &str) -> Result<(), String> {
         let split = &phrase.split(' ');
         let words: Vec<&str> = split.clone().collect();
 
@@ -44,21 +47,16 @@ impl Mnemonic {
     }
 
     pub fn from_phrase(phrase: String) -> Result<Mnemonic, String> {
-        Mnemonic::validate(&phrase)?;
+        if let Err(e) = Mnemonic::validate(&phrase) {
+            return Err(e)
+        }
 
-        Ok(Mnemonic {
-            phrase
-        })
+        Ok(Mnemonic { phrase })
     }
 
-    pub fn to_bytes(&self) -> Vec<u8> {
-        let bytes = self.phrase.as_bytes();
-        Vec::from(bytes)
-    }
-
-    pub fn to_seed(&self, passphrase: Option<String>) -> Result<Vec<u8>, String> {
-        let passphrase = match passphrase {
-            Some(passphrase) => passphrase,
+    pub fn to_seed(&self, passphrase: Option<StringPointer>) -> Result<VecU8Pointer, String> {
+        let mut passphrase = match passphrase {
+            Some(passphrase) => passphrase.string.clone(),
             None => "".into(),
         };
         let mnemonic = match bip0039::Mnemonic::from_phrase(self.phrase.clone()) {
@@ -67,15 +65,16 @@ impl Mnemonic {
         };
         let seed: &[u8] = &mnemonic.to_seed(&passphrase);
 
-        Ok(Vec::from(seed))
+        passphrase.zeroize();
+
+        Ok(VecU8Pointer::new(Vec::from(seed)))
     }
 
-    pub fn to_words(&self) -> Result<JsValue, String> {
-        let words: Array = self.phrase.clone().split(' ')
-            .map(|word| JsValue::from(&word.to_string()))
-            .collect();
-
-        Ok(JsValue::from(words))
+    pub fn to_words(&self) -> Result<VecStringPointer, String> {
+        let words: Vec<String> = self.phrase.clone().split(' ')
+             .map(|word| String::from(word))
+             .collect();
+        Ok(new_vec_string_pointer(words))
     }
 }
 
@@ -108,7 +107,7 @@ mod tests {
         let mnemonic = Mnemonic::from_phrase(phrase.into()).unwrap();
         let seed = mnemonic.to_seed(None).expect("Should return seed from mnemonic phrase");
 
-        assert_eq!(seed.len(), 64);
+        assert_eq!(seed.vec.len(), 64);
     }
 
     #[test]
@@ -120,19 +119,18 @@ mod tests {
 
     #[wasm_bindgen_test]
     fn can_generate_word_list_from_mnemonic() {
-        use js_sys::Array;
         let mnemonic = Mnemonic::new(PhraseSize::N12)
             .expect("Should generate mnemonic of length 12");
         let words = mnemonic.to_words()
-            .expect("Should return JsValue array of words");
+            .expect("Should return a VecStringPointer containing the words");
 
-        assert_eq!(Array::from(&words).length(), 12);
+        assert_eq!(words.strings.len(), 12);
 
         let mnemonic = Mnemonic::new(PhraseSize::N24)
             .expect("Should generate mnemonic of length 24");
         let words = mnemonic.to_words()
-            .expect("Should return JsValue array of words");
+            .expect("Should return a VecStringPointer containing the words");
 
-        assert_eq!(Array::from(&words).length(), 24);
+        assert_eq!(words.strings.len(), 24);
     }
 }

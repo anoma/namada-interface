@@ -5,3 +5,4 @@ pub mod bip39;
 pub mod rng;
 pub mod salt;
 pub mod zip32;
+pub mod pointer_types;
