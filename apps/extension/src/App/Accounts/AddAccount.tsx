@@ -33,8 +33,7 @@ import { TopLevelRoute } from "App/types";
 import { useAuth } from "hooks";
 
 type Props = {
-  // The parent Bip44 "account"
-  parentAccount: number;
+  accountIndex: number;
   accounts: DerivedAccount[];
   requester: ExtensionRequester;
   setAccounts: (accounts: DerivedAccount[]) => void;
@@ -43,12 +42,12 @@ type Props = {
 };
 
 const validatePath = (
-  account: number,
+  accountIndex: number,
   newAccount: { change: number; index: number },
   accounts: DerivedAccount[],
   accountType: AccountType
 ): boolean => {
-  const newPath = [account, newAccount.change, newAccount.index].join("/");
+  const newPath = [accountIndex, newAccount.change, newAccount.index].join("/");
   let isValid = true;
   accounts
     .filter((derivedAccount) => derivedAccount.type === accountType)
@@ -127,7 +126,7 @@ enum Validation {
 }
 
 const AddAccount: React.FC<Props> = ({
-  parentAccount,
+  accountIndex: parentAccount,
   accounts,
   requester,
   setAccounts,

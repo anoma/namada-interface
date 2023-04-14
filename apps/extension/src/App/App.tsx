@@ -47,7 +47,7 @@ export const App: React.FC = () => {
   const [isLocked, setIsLocked] = useState(true);
   const [status, setStatus] = useState<Status>();
   const [accounts, setAccounts] = useState<DerivedAccount[]>([]);
-  const [parentAccount, setParentAccount] = useState(0);
+  const [parentAccount, setParentAccount] = useState<DerivedAccount>();
   const [error, setError] = useState("");
 
   const fetchAccounts = async (): Promise<void> => {
@@ -90,10 +90,12 @@ export const App: React.FC = () => {
     const parent = accounts.find(
       (account) => account.type === AccountType.Mnemonic
     );
-    if (parent?.path?.account) {
-      setParentAccount(parent.path.account);
+    if (parent) {
+      setParentAccount(parent);
     }
   }, []);
+
+  console.log({ parentAccount });
 
   return (
     <ThemeProvider theme={theme}>
@@ -158,7 +160,7 @@ export const App: React.FC = () => {
                   lockKeyRing={() => setIsLocked(true)}
                 >
                   <AddAccount
-                    parentAccount={parentAccount}
+                    accountIndex={parentAccount?.path?.account || 0}
                     accounts={accounts}
                     requester={requester}
                     setAccounts={setAccounts}
