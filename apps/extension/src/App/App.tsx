@@ -77,6 +77,15 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    const parent = accounts.find(
+      (account) => account.type === AccountType.Mnemonic
+    );
+    if (parent) {
+      setParentAccount(parent);
+    }
+  }, [accounts]);
+
+  useEffect(() => {
     if (status === Status.Completed) {
       if (accounts.length === 0) {
         navigate(TopLevelRoute.Setup);
@@ -85,16 +94,6 @@ export const App: React.FC = () => {
       }
     }
   }, [status, accounts]);
-
-  useEffect(() => {
-    const parent = accounts.find(
-      (account) => account.type === AccountType.Mnemonic
-    );
-    if (parent) {
-      console.log({ parent, accounts });
-      setParentAccount(parent);
-    }
-  }, [accounts]);
 
   return (
     <ThemeProvider theme={theme}>

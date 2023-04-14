@@ -1,6 +1,5 @@
 import { v5 as uuid } from "uuid";
 
-import { KVStore } from "@anoma/storage";
 import {
   HDWallet,
   Mnemonic,
@@ -15,7 +14,7 @@ import {
   PaymentAddress,
   Sdk,
 } from "@anoma/shared";
-import { IStore, Store } from "@anoma/storage";
+import { IndexedDBKVStore, IStore, KVStore, Store } from "@anoma/storage";
 import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
 import { chains } from "@anoma/chains";
 import { Crypto } from "./crypto";
@@ -41,6 +40,8 @@ const getId = (name: string, ...args: (number | string)[]): string => {
 
 export const KEYSTORE_KEY = "key-store";
 export const SDK_KEY = "sdk-store";
+const PARENT_ACCOUNT_ID_KEY = "parent-account-id";
+
 const crypto = new Crypto();
 
 type DerivedAccountInfo = {
@@ -61,6 +62,8 @@ type DerivedShieldedAccountInfo = {
  */
 export class KeyRing {
   private _keyStore: IStore<KeyStore>;
+  private _parentAccountStore: IndexedDBKVStore<string>;
+  private _activeAccountId: string | undefined;
   private _password: string | undefined;
   private _status: KeyRingStatus = KeyRingStatus.Empty;
 
@@ -71,6 +74,23 @@ export class KeyRing {
     protected readonly sdk: Sdk
   ) {
     this._keyStore = new Store(KEYSTORE_KEY, kvStore);
+    this._parentAccountStore = new IndexedDBKVStore("active-account");
+    this._init();
+  }
+
+  private async _init(): Promise<void> {
+    // Initialize active account
+    this._activeAccountId = await this.getActiveAccountId();
+
+    if (!this._activeAccountId) {
+      const mnemonic = (await this._keyStore.get()).find(
+        (account: DerivedAccount) => account.type === AccountType.Mnemonic
+      );
+      if (mnemonic) {
+        // Set active account to first mnemonic account found
+        this._activeAccountId = mnemonic.id;
+      }
+    }
   }
 
   public isLocked(): boolean {
@@ -93,13 +113,24 @@ export class KeyRing {
     }
   }
 
-  public async checkPassword(password: string): Promise<boolean> {
-    const mnemonics = await this._keyStore.get();
+  public async getActiveAccountId(): Promise<string | undefined> {
+    return await this._parentAccountStore.get(PARENT_ACCOUNT_ID_KEY);
+  }
 
-    // TODO: Validate against stored mnemonic by mnemonic ID (using the selected mnemonic, instead of the first one!)
-    if (mnemonics && mnemonics[0]) {
+  public async setActiveAccountId(parentId: string): Promise<void> {
+    await this._parentAccountStore.set(PARENT_ACCOUNT_ID_KEY, parentId);
+    this._activeAccountId = parentId;
+  }
+
+  public async checkPassword(password: string): Promise<boolean> {
+    const mnemonic = await this._keyStore.getRecord(
+      "id",
+      this._activeAccountId
+    );
+    // TODO: Generate arbitray data to check decryption against
+    if (mnemonic) {
       try {
-        crypto.decrypt(mnemonics[0], password);
+        crypto.decrypt(mnemonic, password);
         return true;
       } catch (error) {
         console.warn(error);
@@ -233,14 +264,10 @@ export class KeyRing {
       throw new Error("No password is set!");
     }
 
-    const mnemonics = await this._keyStore.get();
-
-    if (!(mnemonics.length > 0)) {
-      throw new Error("No mnemonics have been stored!");
-    }
-
-    // TODO: Pull the stored mnemonic idenfitied by "id"
-    const storedMnemonic = mnemonics[0];
+    const storedMnemonic = await this._keyStore.getRecord(
+      "id",
+      this._activeAccountId
+    );
 
     if (!storedMnemonic) {
       throw new Error("Mnemonic is not set!");
@@ -312,19 +339,32 @@ export class KeyRing {
   }
 
   public async queryAccounts(): Promise<DerivedAccount[]> {
-    // Query accounts from storage
-    const accounts = (await this._keyStore.get()) || [];
-    return accounts.map(
-      ({ address, alias, chainId, path, parentId, id, type }) => ({
-        address,
-        alias,
-        chainId,
-        id,
-        parentId,
-        path,
-        type,
-      })
+    // Query accounts from storage (parent account + derived child accounts)
+    const parentAccount = await this._keyStore.getRecord(
+      "id",
+      this._activeAccountId
     );
+    const accounts =
+      (await this._keyStore.getRecords("parentId", this._activeAccountId)) ||
+      [];
+
+    if (parentAccount) {
+      return [
+        parentAccount,
+        ...accounts.map(
+          ({ address, alias, chainId, path, parentId, id, type }) => ({
+            address,
+            alias,
+            chainId,
+            id,
+            parentId,
+            path,
+            type,
+          })
+        ),
+      ];
+    }
+    return [];
   }
 
   async encodeInitAccount(

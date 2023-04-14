@@ -10,6 +10,10 @@ export interface IStore<T extends StoredRecord> {
     param: keyof T,
     value: U
   ): Promise<T | undefined>;
+  getRecords<U = string | number>(
+    param: keyof T,
+    value: U
+  ): Promise<T[] | undefined>;
   append(state: T): Promise<void>;
   update(id: string, state: Partial<T>): Promise<void>;
   remove(id: string): Promise<void>;
@@ -25,7 +29,10 @@ export interface IStore<T extends StoredRecord> {
  * remove - remove a record specified by ID
  */
 export class Store<T extends StoredRecord> implements IStore<T> {
-  constructor(public readonly key: string, public readonly store: KVStore<T[]>) {}
+  constructor(
+    public readonly key: string,
+    public readonly store: KVStore<T[]>
+  ) {}
 
   public async set(state: T[]): Promise<void> {
     await this.store.set(this.key, state);
@@ -40,6 +47,13 @@ export class Store<T extends StoredRecord> implements IStore<T> {
     value: U
   ): Promise<T | undefined> {
     return (await this.get()).find((record: T) => record[param] === value);
+  }
+
+  public async getRecords<U = string | number>(
+    param: keyof T,
+    value: U
+  ): Promise<T[] | undefined> {
+    return (await this.get()).filter((record: T) => record[param] === value);
   }
 
   public async append(record: T): Promise<void> {
