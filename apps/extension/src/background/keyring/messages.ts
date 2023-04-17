@@ -13,6 +13,7 @@ enum MessageType {
   SaveMnemonic = "save-mnemonic",
   DeriveAccount = "derive-account",
   DeriveShieldedAccount = "derive-shielded-account",
+  SetActiveAccount = "set-active-account",
 }
 
 export class CheckIsLockedMsg extends Message<boolean> {
@@ -206,5 +207,29 @@ export class DeriveAccountMsg extends Message<DerivedAccount> {
 
   type(): string {
     return DeriveAccountMsg.type();
+  }
+}
+
+export class SetActiveAccountMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.UnlockKeyRing;
+  }
+
+  constructor(public readonly accountId: string) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.accountId) {
+      throw new Error("Account ID is not set!");
+    }
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return SetActiveAccountMsg.type();
   }
 }

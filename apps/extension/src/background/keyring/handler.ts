@@ -8,6 +8,7 @@ import {
   LockKeyRingMsg,
   SaveMnemonicMsg,
   UnlockKeyRingMsg,
+  SetActiveAccountMsg,
 } from "./messages";
 import {
   SubmitTransferMsg,
@@ -55,6 +56,11 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleEncodeInitAccountMsg(service)(
           env,
           msg as EncodeInitAccountMsg
+        );
+      case SetActiveAccountMsg:
+        return handleSetActiveAccountMsg(service)(
+          env,
+          msg as SetActiveAccountMsg
         );
       default:
         throw new Error("Unknown msg type");
@@ -173,5 +179,14 @@ const handleEncodeInitAccountMsg: (
   return (_, msg) => {
     const { address, txMsg } = msg;
     return service.encodeInitAccount(txMsg, address);
+  };
+};
+
+const handleSetActiveAccountMsg: (
+  service: KeyRingService
+) => InternalHandler<SetActiveAccountMsg> = (service) => {
+  return async (_, msg) => {
+    const { accountId } = msg;
+    return await service.setActiveAccountId(accountId);
   };
 };
