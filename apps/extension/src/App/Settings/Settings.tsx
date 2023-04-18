@@ -6,8 +6,10 @@ import { Button, ButtonVariant } from "@anoma/components";
 
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
-import { QueryAccountsMsg } from "provider/messages";
-import { SetActiveAccountMsg } from "background/keyring";
+import {
+  SetActiveAccountMsg,
+  QueryParentAccountsMsg,
+} from "background/keyring";
 import { SettingsContainer } from "./Settings.components";
 import { TopLevelRoute } from "../types";
 import { Status } from "../App";
@@ -27,8 +29,7 @@ const Settings: React.FC<Props> = ({ requester }) => {
     try {
       const accounts = await requester.sendMessage(
         Ports.Background,
-        // TODO: Query parent accounts instead!
-        new QueryAccountsMsg()
+        new QueryParentAccountsMsg()
       );
       setParentAccounts(accounts);
     } catch (e) {

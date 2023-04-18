@@ -9,6 +9,7 @@ import {
   SaveMnemonicMsg,
   UnlockKeyRingMsg,
   SetActiveAccountMsg,
+  QueryParentAccountsMsg,
 } from "./messages";
 import {
   SubmitTransferMsg,
@@ -41,6 +42,16 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleDeriveAccountMsg(service)(env, msg as DeriveAccountMsg);
       case QueryAccountsMsg:
         return handleQueryAccountsMsg(service)(env, msg as QueryAccountsMsg);
+      case SetActiveAccountMsg:
+        return handleSetActiveAccountMsg(service)(
+          env,
+          msg as SetActiveAccountMsg
+        );
+      case QueryParentAccountsMsg:
+        return handleQueryParentAccountsMsg(service)(
+          env,
+          msg as QueryParentAccountsMsg
+        );
       case SubmitBondMsg:
         return handleSubmitBondMsg(service)(env, msg as SubmitBondMsg);
       case SubmitUnbondMsg:
@@ -56,11 +67,6 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleEncodeInitAccountMsg(service)(
           env,
           msg as EncodeInitAccountMsg
-        );
-      case SetActiveAccountMsg:
-        return handleSetActiveAccountMsg(service)(
-          env,
-          msg as SetActiveAccountMsg
         );
       default:
         throw new Error("Unknown msg type");
@@ -134,6 +140,14 @@ const handleQueryAccountsMsg: (
 ) => InternalHandler<QueryAccountsMsg> = (service) => {
   return async (_, _msg) => {
     return await service.queryAccounts();
+  };
+};
+
+const handleQueryParentAccountsMsg: (
+  service: KeyRingService
+) => InternalHandler<QueryParentAccountsMsg> = (service) => {
+  return async (_, _msg) => {
+    return await service.queryParentAccounts();
   };
 };
 

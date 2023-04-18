@@ -63,6 +63,10 @@ export class KeyRingService {
     return await this._keyRing.queryAccounts();
   }
 
+  async queryParentAccounts(): Promise<DerivedAccount[]> {
+    return await this._keyRing.queryParentAccounts();
+  }
+
   async submitBond(txMsg: string): Promise<void> {
     try {
       await this._keyRing.submitBond(fromBase64(txMsg));

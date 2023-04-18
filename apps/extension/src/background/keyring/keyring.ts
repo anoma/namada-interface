@@ -365,6 +365,25 @@ export class KeyRing {
     return [];
   }
 
+  public async queryParentAccounts(): Promise<DerivedAccount[]> {
+    // Query only accounts from storage
+    const accounts = await this._keyStore.getRecords(
+      "type",
+      AccountType.Mnemonic
+    );
+    return (accounts || []).map(
+      ({ address, alias, chainId, path, parentId, id, type }) => ({
+        address,
+        alias,
+        chainId,
+        id,
+        parentId,
+        path,
+        type,
+      })
+    );
+  }
+
   async encodeInitAccount(
     address: string,
     txMsg: Uint8Array
