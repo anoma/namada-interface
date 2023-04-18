@@ -23,7 +23,7 @@ export type ScryptParams = KdfParams & {
 
 export interface KeyStore<T = Argon2Params> {
   id: string;
-  alias?: string;
+  alias: string;
   address: string;
   chainId: string;
   crypto: {
@@ -44,12 +44,6 @@ export interface KeyStore<T = Argon2Params> {
   parentId?: string;
   type: AccountType;
 }
-
-export type MnemonicState = {
-  id: string;
-  alias?: string;
-  phrase: Uint8Array;
-};
 
 export type AccountState = DerivedAccount & {
   parentId: string;

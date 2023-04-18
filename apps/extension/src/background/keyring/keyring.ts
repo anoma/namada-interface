@@ -155,7 +155,7 @@ export class KeyRing {
   public async storeMnemonic(
     mnemonic: string[],
     password: string,
-    alias?: string
+    alias: string
   ): Promise<boolean> {
     if (!password) {
       throw new Error("Password is not provided! Cannot store mnemonic");
@@ -258,7 +258,7 @@ export class KeyRing {
   public async deriveAccount(
     path: Bip44Path,
     type: AccountType,
-    alias?: string
+    alias: string
   ): Promise<DerivedAccount> {
     if (!this._password) {
       throw new Error("No password is set!");
@@ -291,8 +291,7 @@ export class KeyRing {
         address = shieldedAccount.address;
         text = shieldedAccount.text;
 
-        //TODO: check if shileded accounts require Alias?
-        this.addSpendingKey(spendingKey, this._password, alias || "");
+        this.addSpendingKey(spendingKey, this._password, alias);
       } else {
         const transparentAccount = KeyRing.deriveTransparentAccount(
           seed,
@@ -338,8 +337,10 @@ export class KeyRing {
     }
   }
 
+  /**
+   * Query accounts from storage (active parent account + associated derived child accounts)
+   */
   public async queryAccounts(): Promise<DerivedAccount[]> {
-    // Query accounts from storage (parent account + derived child accounts)
     const parentAccount = await this._keyStore.getRecord(
       "id",
       this._activeAccountId
@@ -350,6 +351,8 @@ export class KeyRing {
 
     if (parentAccount) {
       const accounts = [parentAccount, ...derivedAccounts];
+
+      // Return only non-encrypted data
       return accounts.map(
         ({ address, alias, chainId, path, parentId, id, type }) => ({
           address,
@@ -365,12 +368,15 @@ export class KeyRing {
     return [];
   }
 
+  /**
+   * Query all top-level parent accounts (mnemonic accounts)
+   */
   public async queryParentAccounts(): Promise<DerivedAccount[]> {
-    // Query only accounts from storage
     const accounts = await this._keyStore.getRecords(
       "type",
       AccountType.Mnemonic
     );
+    // Return only non-encrypted data
     return (accounts || []).map(
       ({ address, alias, chainId, path, parentId, id, type }) => ({
         address,
@@ -463,7 +469,7 @@ export class KeyRing {
   private async addSecretKey(
     secretKey: string,
     password: string,
-    alias?: string
+    alias: string
   ): Promise<void> {
     this.sdk.add_key(secretKey, password, alias);
     this.sdkStore.set(SDK_KEY, new TextDecoder().decode(this.sdk.encode()));

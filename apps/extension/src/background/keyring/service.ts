@@ -46,7 +46,7 @@ export class KeyRingService {
   async saveMnemonic(
     words: string[],
     password: string,
-    alias?: string
+    alias: string
   ): Promise<boolean> {
     return await this._keyRing.storeMnemonic(words, password, alias);
   }
@@ -54,7 +54,7 @@ export class KeyRingService {
   async deriveAccount(
     path: Bip44Path,
     type: AccountType,
-    alias?: string
+    alias: string
   ): Promise<DerivedAccount> {
     return await this._keyRing.deriveAccount(path, type, alias);
   }

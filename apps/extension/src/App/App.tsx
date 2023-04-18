@@ -92,13 +92,13 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     if (status === Status.Completed) {
-      if (accounts.length === 0) {
+      if (!parentAccount) {
         navigate(TopLevelRoute.Setup);
       } else {
         navigate(TopLevelRoute.Accounts);
       }
     }
-  }, [status, accounts]);
+  }, [status, parentAccount]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -108,7 +108,7 @@ export const App: React.FC = () => {
           <TopSection>
             <Heading>Anoma Browser Extension</Heading>
             <HeadingButtons>
-              {accounts.length > 0 && (
+              {parentAccount && (
                 <SettingsButton
                   onClick={() => navigate(TopLevelRoute.Settings)}
                 >
@@ -119,10 +119,6 @@ export const App: React.FC = () => {
           </TopSection>
           <Routes>
             <Route path="*" element={<Loading error={error} />} />
-            <Route
-              path={TopLevelRoute.Accounts}
-              element={<Accounts accounts={accounts} requester={requester} />}
-            />
             <Route path={TopLevelRoute.Setup} element={<Setup />} />
             <Route
               path={TopLevelRoute.ApproveConnection}
@@ -142,56 +138,68 @@ export const App: React.FC = () => {
               }
             />
             <Route
-              path={TopLevelRoute.ApproveTx}
-              element={
-                <LockWrapper
-                  requester={requester}
-                  setStatus={setStatus}
-                  isLocked={isLocked}
-                  lockKeyRing={() => setIsLocked(true)}
-                >
-                  <ApproveTx
-                    requester={requester}
-                    isLocked={isLocked}
-                    unlockKeyRing={() => setIsLocked(false)}
-                  />
-                </LockWrapper>
-              }
-            />
-            <Route
               path={TopLevelRoute.Login}
               element={<Login requester={requester} />}
             />
-            <Route
-              path={TopLevelRoute.AddAccount}
-              element={
-                <LockWrapper
-                  requester={requester}
-                  setStatus={setStatus}
-                  isLocked={isLocked}
-                  lockKeyRing={() => setIsLocked(true)}
-                >
-                  <AddAccount
-                    accountIndex={parentAccount?.path?.account || 0}
-                    accounts={accounts}
-                    requester={requester}
-                    setAccounts={setAccounts}
-                    isLocked={isLocked}
-                    unlockKeyRing={() => setIsLocked(false)}
-                  />
-                </LockWrapper>
-              }
-            />
-            <Route
-              path={TopLevelRoute.Settings}
-              element={
-                <Settings
-                  requester={requester}
-                  fetchAccounts={fetchAccounts}
-                  parentId={parentAccount?.id}
+            {/* Routes that depend on a parent account existing in storage */}
+            {parentAccount && (
+              <>
+                <Route
+                  path={TopLevelRoute.Accounts}
+                  element={
+                    <Accounts accounts={accounts} requester={requester} />
+                  }
                 />
-              }
-            />
+                <Route
+                  path={TopLevelRoute.ApproveTx}
+                  element={
+                    <LockWrapper
+                      requester={requester}
+                      setStatus={setStatus}
+                      isLocked={isLocked}
+                      lockKeyRing={() => setIsLocked(true)}
+                    >
+                      <ApproveTx
+                        requester={requester}
+                        isLocked={isLocked}
+                        parentAlias={parentAccount.alias}
+                        unlockKeyRing={() => setIsLocked(false)}
+                      />
+                    </LockWrapper>
+                  }
+                />
+                <Route
+                  path={TopLevelRoute.AddAccount}
+                  element={
+                    <LockWrapper
+                      requester={requester}
+                      setStatus={setStatus}
+                      isLocked={isLocked}
+                      lockKeyRing={() => setIsLocked(true)}
+                    >
+                      <AddAccount
+                        accounts={accounts}
+                        parentAccount={parentAccount}
+                        requester={requester}
+                        setAccounts={setAccounts}
+                        isLocked={isLocked}
+                        unlockKeyRing={() => setIsLocked(false)}
+                      />
+                    </LockWrapper>
+                  }
+                />
+                <Route
+                  path={TopLevelRoute.Settings}
+                  element={
+                    <Settings
+                      requester={requester}
+                      fetchAccounts={fetchAccounts}
+                      parentId={parentAccount.id}
+                    />
+                  }
+                />
+              </>
+            )}
           </Routes>
         </ContentContainer>
         <BottomSection></BottomSection>

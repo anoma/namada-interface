@@ -4,7 +4,7 @@ import { Argon2Config } from "config";
 import { KdfType, KeyStore } from "./types";
 
 type CryptoArgs = {
-  alias?: string;
+  alias: string;
   address: string;
   chainId: string;
   path: Bip44Path;

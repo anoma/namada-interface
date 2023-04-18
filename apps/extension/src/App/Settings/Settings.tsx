@@ -8,6 +8,7 @@ import { Button, ButtonVariant } from "@anoma/components";
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
 import {
+  LockKeyRingMsg,
   SetActiveAccountMsg,
   QueryParentAccountsMsg,
 } from "background/keyring";
@@ -16,6 +17,7 @@ import {
   ButtonsContainer,
   ParentAccountsList,
   ParentAccountsListItem,
+  ParentAccountDetails,
 } from "./Settings.components";
 import {
   AccountsContainer,
@@ -63,9 +65,14 @@ const Settings: React.FC<Props> = ({ requester, fetchAccounts, parentId }) => {
         Ports.Background,
         new SetActiveAccountMsg(id)
       );
-      // TODO: Dispatch event to inform connected interfaces to reload account views
+
+      // Lock current wallet keyring:
+      await requester.sendMessage(Ports.Background, new LockKeyRingMsg());
+
+      // Fetch accounts for selected parent account
       await fetchAccounts();
-      navigate(TopLevelRoute.Accounts);
+      /* navigate(TopLevelRoute.Accounts); */
+      // TODO: Dispatch event to inform connected interfaces to reload account views
     } catch (e) {
       console.error(e);
       setError(`An error occurred while setting active account: ${e}`);
@@ -83,16 +90,17 @@ const Settings: React.FC<Props> = ({ requester, fetchAccounts, parentId }) => {
             <p>Error communicating with extension background!</p>
           )}
           {error && <p>{error}</p>}
-          <h4>Select account:</h4>
+          {!error && <p>Select account:</p>}
           <ParentAccountsList>
             {parentAccounts.length > 0 &&
               parentAccounts.map((account, i: number) => (
-                <ParentAccountsListItem
-                  key={i}
-                  onClick={() => handleSetParentAccount(account.id)}
-                >
-                  {account.alias}{" "}
-                  {parentId === account.id && <span>(active)</span>}
+                <ParentAccountsListItem key={i}>
+                  <ParentAccountDetails
+                    onClick={() => handleSetParentAccount(account.id)}
+                  >
+                    {account.alias}
+                    {parentId === account.id && <span>(selected)</span>}
+                  </ParentAccountDetails>
                 </ParentAccountsListItem>
               ))}
           </ParentAccountsList>

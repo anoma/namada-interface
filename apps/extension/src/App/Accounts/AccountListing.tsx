@@ -19,7 +19,7 @@ type Props = {
   parent?: number;
   // The child account
   account: DerivedAccount;
-  parentAlias?: string;
+  parentAlias: string;
 };
 
 const textToClipboard = (content: string): void => {
@@ -46,7 +46,7 @@ const AccountListing = ({ account, parentAlias }: Props): JSX.Element => {
     <AccountListingContainer>
       <Details>
         <DerivationPath>
-          {isChildAccount && parentAlias}{" "}
+          {isChildAccount && parentAlias}
           {formatDerivationPath(isChildAccount, path, type)}
         </DerivationPath>
         {alias && <Alias>{alias}</Alias>}
