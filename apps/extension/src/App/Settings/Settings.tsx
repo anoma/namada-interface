@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import browser from "webextension-polyfill";
 
 import { DerivedAccount } from "@anoma/types";
 import { Button, ButtonVariant } from "@anoma/components";
@@ -10,15 +11,26 @@ import {
   SetActiveAccountMsg,
   QueryParentAccountsMsg,
 } from "background/keyring";
-import { SettingsContainer } from "./Settings.components";
+import {
+  SettingsContainer,
+  ButtonsContainer,
+  ParentAccountsList,
+  ParentAccountsListItem,
+} from "./Settings.components";
+import {
+  AccountsContainer,
+  ThemedScrollbarContainer,
+} from "../Accounts/Accounts.components";
 import { TopLevelRoute } from "../types";
 import { Status } from "../App";
 
 type Props = {
   requester: ExtensionRequester;
+  fetchAccounts: () => Promise<void>;
+  parentId?: string;
 };
 
-const Settings: React.FC<Props> = ({ requester }) => {
+const Settings: React.FC<Props> = ({ requester, fetchAccounts, parentId }) => {
   const navigate = useNavigate();
   const [parentAccounts, setParentAccounts] = useState<DerivedAccount[]>([]);
   const [status, setStatus] = useState<Status>();
@@ -51,6 +63,9 @@ const Settings: React.FC<Props> = ({ requester }) => {
         Ports.Background,
         new SetActiveAccountMsg(id)
       );
+      // TODO: Dispatch event to inform connected interfaces to reload account views
+      await fetchAccounts();
+      navigate(TopLevelRoute.Accounts);
     } catch (e) {
       console.error(e);
       setError(`An error occurred while setting active account: ${e}`);
@@ -62,28 +77,45 @@ const Settings: React.FC<Props> = ({ requester }) => {
 
   return (
     <SettingsContainer>
-      <h1>Settings</h1>
-      {status === Status.Failed && (
-        <p>Error communicating with extension background!</p>
-      )}
-      {error && <p>{error}</p>}
-      <h4>Select account:</h4>
-      {parentAccounts.length > 0 &&
-        parentAccounts.map((account, i: number) => (
-          <Button
-            variant={ButtonVariant.Outlined}
-            key={i}
-            onClick={() => handleSetParentAccount(account.id)}
-          >
-            {account.alias}
-          </Button>
-        ))}
-      <Button
-        variant={ButtonVariant.Contained}
-        onClick={() => navigate(TopLevelRoute.Accounts)}
-      >
-        Back
-      </Button>
+      <AccountsContainer>
+        <ThemedScrollbarContainer>
+          {status === Status.Failed && (
+            <p>Error communicating with extension background!</p>
+          )}
+          {error && <p>{error}</p>}
+          <h4>Select account:</h4>
+          <ParentAccountsList>
+            {parentAccounts.length > 0 &&
+              parentAccounts.map((account, i: number) => (
+                <ParentAccountsListItem
+                  key={i}
+                  onClick={() => handleSetParentAccount(account.id)}
+                >
+                  {account.alias}{" "}
+                  {parentId === account.id && <span>(active)</span>}
+                </ParentAccountsListItem>
+              ))}
+          </ParentAccountsList>
+          <ButtonsContainer>
+            <Button
+              variant={ButtonVariant.ContainedAlternative}
+              onClick={() => navigate(TopLevelRoute.Accounts)}
+            >
+              Back
+            </Button>
+            <Button
+              variant={ButtonVariant.ContainedAlternative}
+              onClick={() => {
+                browser.tabs.create({
+                  url: browser.runtime.getURL("setup.html"),
+                });
+              }}
+            >
+              Add Account
+            </Button>
+          </ButtonsContainer>
+        </ThemedScrollbarContainer>
+      </AccountsContainer>
     </SettingsContainer>
   );
 };

@@ -184,7 +184,13 @@ export const App: React.FC = () => {
             />
             <Route
               path={TopLevelRoute.Settings}
-              element={<Settings requester={requester} />}
+              element={
+                <Settings
+                  requester={requester}
+                  fetchAccounts={fetchAccounts}
+                  parentId={parentAccount?.id}
+                />
+              }
             />
           </Routes>
         </ContentContainer>
