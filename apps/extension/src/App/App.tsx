@@ -6,6 +6,7 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import { AccountType, DerivedAccount } from "@anoma/types";
 import { getTheme } from "@anoma/utils";
 import { ExtensionKVStore } from "@anoma/storage";
+import { Icon, IconName } from "@anoma/components";
 
 import { ExtensionMessenger, ExtensionRequester } from "extension";
 import { KVPrefix, Ports } from "router";
@@ -17,13 +18,17 @@ import {
   ContentContainer,
   GlobalStyles,
   TopSection,
+  Heading,
+  HeadingButtons,
+  SettingsButton,
 } from "./App.components";
 import { TopLevelRoute } from "./types";
 import { LockWrapper } from "./LockWrapper";
 import { Accounts, AddAccount } from "./Accounts";
+import { Loading } from "./Loading";
 import { Login } from "./Login";
 import { Setup } from "./Setup";
-import { Loading } from "./Loading";
+import { Settings } from "./Settings";
 import { ApproveConnection, ApproveTx } from "./Approvals";
 
 const store = new ExtensionKVStore(KVPrefix.LocalStorage, {
@@ -101,7 +106,16 @@ export const App: React.FC = () => {
         <GlobalStyles />
         <ContentContainer>
           <TopSection>
-            <h1>Anoma Browser Extension</h1>
+            <Heading>Anoma Browser Extension</Heading>
+            <HeadingButtons>
+              {accounts.length > 0 && (
+                <SettingsButton
+                  onClick={() => navigate(TopLevelRoute.Settings)}
+                >
+                  <Icon iconName={IconName.Settings} />
+                </SettingsButton>
+              )}
+            </HeadingButtons>
           </TopSection>
           <Routes>
             <Route path="*" element={<Loading error={error} />} />
@@ -167,6 +181,10 @@ export const App: React.FC = () => {
                   />
                 </LockWrapper>
               }
+            />
+            <Route
+              path={TopLevelRoute.Settings}
+              element={<Settings requester={requester} />}
             />
           </Routes>
         </ContentContainer>
