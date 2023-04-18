@@ -75,11 +75,6 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
           env,
           msg as EncodeInitAccountMsg
         );
-      case SetActiveAccountMsg:
-        return handleSetActiveAccountMsg(service)(
-          env,
-          msg as SetActiveAccountMsg
-        );
       default:
         throw new Error("Unknown msg type");
     }
