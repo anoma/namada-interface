@@ -1,24 +1,22 @@
 import { createContext, Dispatch } from "react";
 
-import { Chain } from "@anoma/types";
 import { chains } from "@anoma/chains";
 import { Anoma } from "@anoma/integrations";
 
 import { useEventListenerOnce } from "hooks";
 import { useIntegration } from "services";
-import { addAccounts } from "slices/accounts";
 import { useAppDispatch, useAppSelector } from "store";
+import { addAccounts } from "slices/accounts";
 import { SettingsState } from "slices/settings";
 
 const AccountChangedHandler =
-  (
-    dispatch: Dispatch<unknown>,
-    integration: Anoma,
-    chain: Chain,
-    isConnected: boolean
-  ) =>
-  async () => {
-    // Only reload accounts if Namada accounts are displayed:
+  (dispatch: Dispatch<unknown>, integration: Anoma, isConnected: boolean) =>
+  async (event: CustomEventInit) => {
+    // Only reload accounts if this is a valid Namada chain,
+    // and only if extension has been connected to interface:
+    const chainId = event.detail?.chainId;
+    const chain = chains[chainId];
+
     if (isConnected && chain.extension.id === "anoma") {
       const accounts = await integration?.accounts();
       if (accounts) {
@@ -34,14 +32,12 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
   const { chainId, connectedChains } = useAppSelector<SettingsState>(
     (state) => state.settings
   );
-  const chain = chains[chainId];
   const integration = useIntegration(chainId);
   const isConnected = connectedChains.indexOf(chainId) > -1;
 
   const accountChangedHandler = AccountChangedHandler(
     dispatch,
     integration as Anoma,
-    chain,
     isConnected
   );
 
