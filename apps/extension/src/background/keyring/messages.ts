@@ -235,6 +235,27 @@ export class SetActiveAccountMsg extends Message<void> {
     return SetActiveAccountMsg.type();
   }
 }
+export class GetActiveAccountMsg extends Message<string | undefined> {
+  public static type(): MessageType {
+    return MessageType.GetActiveAccount;
+  }
+
+  constructor() {
+    super();
+  }
+
+  validate(): void {
+    return;
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return GetActiveAccountMsg.type();
+  }
+}
 
 export class GetActiveAccountMsg extends Message<string | undefined> {
   public static type(): MessageType {
