@@ -79,7 +79,7 @@ export class KeyRing {
   }
 
   private async _init(): Promise<void> {
-    // Initialize active account
+    // Check for active account
     this._activeAccountId = await this.getActiveAccountId();
 
     if (!this._activeAccountId) {

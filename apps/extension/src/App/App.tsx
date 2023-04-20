@@ -11,6 +11,7 @@ import { Icon, IconName } from "@anoma/components";
 import { ExtensionMessenger, ExtensionRequester } from "extension";
 import { KVPrefix, Ports } from "router";
 import { QueryAccountsMsg } from "provider/messages";
+import { GetActiveAccountMsg } from "background/keyring";
 import { useQuery } from "hooks";
 import {
   AppContainer,
@@ -72,6 +73,24 @@ export const App: React.FC = () => {
     }
   };
 
+  const fetchParentAccountId = async (): Promise<void> => {
+    setStatus(Status.Pending);
+    try {
+      const parentId = await requester.sendMessage(
+        Ports.Background,
+        new GetActiveAccountMsg()
+      );
+      const parentAccount = accounts.find((account) => account.id === parentId);
+      setParentAccount(parentAccount);
+    } catch (e) {
+      console.error(e);
+      setError(`An error occurred while loading extension: ${e}`);
+      setStatus(Status.Failed);
+    } finally {
+      setStatus(Status.Completed);
+    }
+  };
+
   useEffect(() => {
     if (redirect) {
       // Provide a redirect in the case of transaction/connection approvals
@@ -82,11 +101,8 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const parent = accounts.find(
-      (account) => account.type === AccountType.Mnemonic
-    );
-    if (parent) {
-      setParentAccount(parent);
+    if (accounts.length > 0) {
+      fetchParentAccountId();
     }
   }, [accounts]);
 

@@ -9,6 +9,7 @@ import {
   SaveMnemonicMsg,
   UnlockKeyRingMsg,
   SetActiveAccountMsg,
+  GetActiveAccountMsg,
   QueryParentAccountsMsg,
 } from "./messages";
 import {
@@ -47,6 +48,12 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
           env,
           msg as SetActiveAccountMsg
         );
+      case GetActiveAccountMsg:
+        return handleGetActiveAccountMsg(service)(
+          env,
+          msg as GetActiveAccountMsg
+        );
+
       case QueryParentAccountsMsg:
         return handleQueryParentAccountsMsg(service)(
           env,
@@ -202,5 +209,13 @@ const handleSetActiveAccountMsg: (
   return async (_, msg) => {
     const { accountId } = msg;
     return await service.setActiveAccountId(accountId);
+  };
+};
+
+const handleGetActiveAccountMsg: (
+  service: KeyRingService
+) => InternalHandler<GetActiveAccountMsg> = (service) => {
+  return async (_, _msg) => {
+    return await service.getActiveAccountId();
   };
 };

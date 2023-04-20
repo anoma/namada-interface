@@ -116,7 +116,11 @@ export class KeyRingService {
     return toBase64(tx_data);
   }
 
-  setActiveAccountId(accountId: string): Promise<void> {
+  async setActiveAccountId(accountId: string): Promise<void> {
     return this._keyRing.setActiveAccountId(accountId);
+  }
+
+  async getActiveAccountId(): Promise<string | undefined> {
+    return await this._keyRing.getActiveAccountId();
   }
 }

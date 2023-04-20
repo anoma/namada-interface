@@ -14,6 +14,7 @@ enum MessageType {
   DeriveAccount = "derive-account",
   DeriveShieldedAccount = "derive-shielded-account",
   SetActiveAccount = "set-active-account",
+  GetActiveAccount = "get-active-account",
   QueryParentAccounts = "query-parent-accounts",
 }
 
@@ -234,13 +235,34 @@ export class SetActiveAccountMsg extends Message<void> {
     return SetActiveAccountMsg.type();
   }
 }
+export class GetActiveAccountMsg extends Message<string | undefined> {
+  public static type(): MessageType {
+    return MessageType.GetActiveAccount;
+  }
+
+  constructor() {
+    super();
+  }
+
+  validate(): void {
+    return;
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return GetActiveAccountMsg.type();
+  }
+}
 
 export class QueryParentAccountsMsg extends Message<DerivedAccount[]> {
   public static type(): MessageType {
     return MessageType.QueryParentAccounts;
   }
 
-  constructor(public readonly chainId?: string) {
+  constructor() {
     super();
   }
 

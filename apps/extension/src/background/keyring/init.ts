@@ -8,6 +8,7 @@ import {
   GenerateMnemonicMsg,
   SaveMnemonicMsg,
   SetActiveAccountMsg,
+  GetActiveAccountMsg,
   QueryParentAccountsMsg,
 } from "./messages";
 import {
@@ -39,6 +40,7 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(EncodeInitAccountMsg);
   router.registerMessage(EncodeRevealPkMsg);
   router.registerMessage(SetActiveAccountMsg);
+  router.registerMessage(GetActiveAccountMsg);
   router.registerMessage(QueryParentAccountsMsg);
 
   router.addHandler(ROUTE, getHandler(service));
