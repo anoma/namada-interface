@@ -341,6 +341,11 @@ export class KeyRing {
    * Query accounts from storage (active parent account + associated derived child accounts)
    */
   public async queryAccounts(): Promise<DerivedAccount[]> {
+    // NOTE: This can be uninitialized in the context of unit tests, initialize as needed:
+    if (!this._activeAccountId) {
+      await this._init();
+    }
+
     const parentAccount = await this._keyStore.getRecord(
       "id",
       this._activeAccountId

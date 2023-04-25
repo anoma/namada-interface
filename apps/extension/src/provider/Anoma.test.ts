@@ -18,7 +18,7 @@ import {
 import { KVKeys } from "router";
 import { init } from "test/init";
 import { chains as defaultChains } from "@anoma/chains";
-import { chain, keyStore, NAM, password } from "./data.mock";
+import { chain, keyStore, password } from "./data.mock";
 import { KeyRing, KEYSTORE_KEY } from "background/keyring";
 import { Sdk } from "@anoma/shared";
 
@@ -58,7 +58,6 @@ describe("Anoma", () => {
   it("should return all accounts", async () => {
     iDBStore.set(KEYSTORE_KEY, [keyStore]);
     const { crypto: _, ...storedKeyStore } = keyStore;
-
     const storedAccounts = await anoma.accounts(chain.chainId);
 
     expect(storedAccounts).toEqual([storedKeyStore]);
@@ -126,8 +125,8 @@ describe("Anoma", () => {
         "atest1d9khqw36gdz5ydzygvcnyvesxgcn2s6zxyung3zzgcmrjwzzgvmnyd3kxym52vzzg5unxve5cm87cr",
       token,
       amount: 1000,
-      portId: NAM.paths[0].portId,
-      channelId: NAM.paths[0].channelId,
+      portId: "transfer",
+      channelId: "channel-0",
       txCode: new Uint8Array(),
     };
 

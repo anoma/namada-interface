@@ -1,19 +1,6 @@
 import { AccountType, Chain, Extensions } from "@anoma/types";
 import { KdfType, KeyStore } from "background/keyring";
 
-export const NAM = {
-  coinDenom: "NAM",
-  coinMinimalDenom: "nam",
-  coinDecimals: 6,
-  originChainId: "namada-test.XXXXXXXXX",
-  paths: [
-    {
-      portId: "transfer",
-      channelId: "channel-0",
-    },
-  ],
-};
-
 export const chain: Chain = {
   alias: "Namada Testnet",
   bech32Prefix: "atest",
@@ -24,7 +11,7 @@ export const chain: Chain = {
   },
   rpc: "http://localhost:26657",
   chainId: "namada-75a7e12.69483d59a9fb174",
-  extension: Extensions["keplr"],
+  extension: Extensions["anoma"],
   currency: {
     token: "Namada",
     symbol: "NAM",

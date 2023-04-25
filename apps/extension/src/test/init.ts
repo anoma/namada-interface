@@ -67,7 +67,7 @@ export const init = (): {
   const keyRingService = new KeyRingService(
     iDBStore as KVStore<KeyStore[]>,
     sdkStore,
-    "namada-test.XXXXXXXX",
+    "namada-75a7e12.69483d59a9fb174",
     sdk
   );
 
