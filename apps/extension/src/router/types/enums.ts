@@ -17,6 +17,7 @@ export enum KVPrefix {
   IndexedDB = "Anoma::IndexedDB",
   LocalStorage = "Anoma::LocalStorage",
   SDK = "Anoma::SDK",
+  ActiveAccount = "Anoma::ActiveAccount",
 }
 
 export enum KVKeys {

@@ -19,7 +19,11 @@ import { KVKeys } from "router";
 import { init } from "test/init";
 import { chains as defaultChains } from "@anoma/chains";
 import { chain, keyStore, password } from "./data.mock";
-import { KeyRing, KEYSTORE_KEY } from "background/keyring";
+import {
+  KeyRing,
+  KEYSTORE_KEY,
+  PARENT_ACCOUNT_ID_KEY,
+} from "background/keyring";
 import { Sdk } from "@anoma/shared";
 
 // Needed for now as utils import webextension-polyfill directly
@@ -39,7 +43,7 @@ describe("Anoma", () => {
     keyRingService.lock();
   });
 
-  const { anoma, iDBStore, keyRingService } = init();
+  const { anoma, iDBStore, activeAccountStore, keyRingService } = init();
 
   it("should return chain by chainId", async () => {
     iDBStore.set(KVKeys.Chains, [chain]);
@@ -56,11 +60,12 @@ describe("Anoma", () => {
   });
 
   it("should return all accounts", async () => {
-    iDBStore.set(KEYSTORE_KEY, [keyStore]);
-    const { crypto: _, ...storedKeyStore } = keyStore;
+    iDBStore.set(KEYSTORE_KEY, keyStore);
+    activeAccountStore.set(PARENT_ACCOUNT_ID_KEY, keyStore[0].id);
+    const storedKeyStore = keyStore.map(({ crypto: _, ...account }) => account);
     const storedAccounts = await anoma.accounts(chain.chainId);
 
-    expect(storedAccounts).toEqual([storedKeyStore]);
+    expect(storedAccounts).toEqual(storedKeyStore);
   });
 
   it("should add a chain configuration", async () => {
@@ -84,7 +89,7 @@ describe("Anoma", () => {
         gasLimit: 0,
         txCode: new Uint8Array(),
       },
-      source: keyStore.address,
+      source: keyStore[0].address,
       target:
         "atest1d9khqw36gdz5ydzygvcnyvesxgcn2s6zxyung3zzgcmrjwzzgvmnyd3kxym52vzzg5unxve5cm87cr",
       token,
@@ -120,7 +125,7 @@ describe("Anoma", () => {
         gasLimit: 0,
         txCode: new Uint8Array(),
       },
-      source: keyStore.address,
+      source: keyStore[0].address,
       receiver:
         "atest1d9khqw36gdz5ydzygvcnyvesxgcn2s6zxyung3zzgcmrjwzzgvmnyd3kxym52vzzg5unxve5cm87cr",
       token,
@@ -155,7 +160,7 @@ describe("Anoma", () => {
     await expect(
       anoma.encodeInitAccount({
         txMsg: toBase64(serialized),
-        address: keyStore.address,
+        address: keyStore[0].address,
       })
     ).rejects.toThrow();
   });

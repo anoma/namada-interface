@@ -38,6 +38,7 @@ export const init = (): {
   anoma: Anoma;
   iDBStore: KVStoreMock<Chain[] | KeyStore[]>;
   extStore: KVStoreMock<number>;
+  activeAccountStore: KVStoreMock<string>;
   chainsService: ChainsService;
   keyRingService: KeyRingService;
 } => {
@@ -45,6 +46,7 @@ export const init = (): {
   const iDBStore = new KVStoreMock<Chain[] | KeyStore[]>(KVPrefix.IndexedDB);
   const sdkStore = new KVStoreMock<string>(KVPrefix.SDK);
   const extStore = new KVStoreMock<number>(KVPrefix.IndexedDB);
+  const activeAccountStore = new KVStoreMock<string>(KVPrefix.ActiveAccount);
   const requester = new ExtensionRequester(messenger, extStore);
 
   const router = new ExtensionRouter(
@@ -67,6 +69,7 @@ export const init = (): {
   const keyRingService = new KeyRingService(
     iDBStore as KVStore<KeyStore[]>,
     sdkStore,
+    activeAccountStore,
     "namada-75a7e12.69483d59a9fb174",
     sdk
   );
@@ -84,6 +87,7 @@ export const init = (): {
     anoma,
     iDBStore,
     extStore,
+    activeAccountStore,
     chainsService,
     keyRingService,
   };

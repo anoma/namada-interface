@@ -17,6 +17,8 @@ import { KeyRingService, init as initKeyRing, SDK_KEY } from "./keyring";
 
 const messenger = new ExtensionMessenger();
 const store = new IndexedDBKVStore(KVPrefix.IndexedDB);
+
+const activeAccountStore = new IndexedDBKVStore(KVPrefix.ActiveAccount);
 // TODO: For now we will be running two stores side by side
 const sdkStore = new IndexedDBKVStore(KVPrefix.SDK);
 
@@ -53,6 +55,7 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
   const keyRingService = new KeyRingService(
     store,
     sdkStore,
+    activeAccountStore,
     defaultChainId,
     sdk
   );

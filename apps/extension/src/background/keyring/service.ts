@@ -2,9 +2,10 @@ import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import { PhraseSize } from "@anoma/crypto";
 import { KVStore } from "@anoma/storage";
 import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
+import { Sdk } from "@anoma/shared";
+
 import { KeyRing } from "./keyring";
 import { KeyRingStatus, KeyStore } from "./types";
-import { Sdk } from "@anoma/shared";
 
 export class KeyRingService {
   private _keyRing: KeyRing;
@@ -12,10 +13,17 @@ export class KeyRingService {
   constructor(
     protected readonly kvStore: KVStore<KeyStore[]>,
     protected readonly sdkStore: KVStore<string>,
+    protected readonly accountAccountStore: KVStore<string>,
     protected readonly chainId: string,
     protected readonly sdk: Sdk
   ) {
-    this._keyRing = new KeyRing(kvStore, sdkStore, chainId, sdk);
+    this._keyRing = new KeyRing(
+      kvStore,
+      sdkStore,
+      accountAccountStore,
+      chainId,
+      sdk
+    );
   }
 
   lock(): { status: KeyRingStatus } {
