@@ -1,6 +1,5 @@
 import { v5 as uuid } from "uuid";
 
-import { KVStore } from "@anoma/storage";
 import {
   HDWallet,
   Mnemonic,
@@ -15,7 +14,7 @@ import {
   PaymentAddress,
   Sdk,
 } from "@anoma/shared";
-import { IStore, Store } from "@anoma/storage";
+import { IStore, KVStore, Store } from "@anoma/storage";
 import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
 import { chains } from "@anoma/chains";
 import { Crypto } from "./crypto";
@@ -41,6 +40,8 @@ const getId = (name: string, ...args: (number | string)[]): string => {
 
 export const KEYSTORE_KEY = "key-store";
 export const SDK_KEY = "sdk-store";
+export const PARENT_ACCOUNT_ID_KEY = "parent-account-id";
+
 const crypto = new Crypto();
 
 type DerivedAccountInfo = {
@@ -67,6 +68,7 @@ export class KeyRing {
   constructor(
     protected readonly kvStore: KVStore<KeyStore[]>,
     protected readonly sdkStore: KVStore<string>,
+    protected readonly activeAccountStore: KVStore<string>,
     protected readonly chainId: string,
     protected readonly sdk: Sdk
   ) {
@@ -93,14 +95,22 @@ export class KeyRing {
     }
   }
 
-  public async checkPassword(password: string): Promise<boolean> {
-    const mnemonics = await this._keyStore.get();
+  public async getActiveAccountId(): Promise<string | undefined> {
+    return await this.activeAccountStore.get(PARENT_ACCOUNT_ID_KEY);
+  }
 
-    // Note: We may support multiple top-level mnemonic seeds in the future,
-    // hence why we're storing these in an array. For now, we check for only one:
-    if (mnemonics && mnemonics[0]) {
+  public async setActiveAccountId(parentId: string): Promise<void> {
+    await this.activeAccountStore.set(PARENT_ACCOUNT_ID_KEY, parentId);
+  }
+
+  public async checkPassword(password: string): Promise<boolean> {
+    const activeAccountId = await this.getActiveAccountId();
+
+    const mnemonic = await this._keyStore.getRecord("id", activeAccountId);
+    // TODO: Generate arbitray data to check decryption against
+    if (mnemonic) {
       try {
-        crypto.decrypt(mnemonics[0], password);
+        crypto.decrypt(mnemonic, password);
         return true;
       } catch (error) {
         console.warn(error);
@@ -125,7 +135,7 @@ export class KeyRing {
   public async storeMnemonic(
     mnemonic: string[],
     password: string,
-    alias?: string
+    alias: string
   ): Promise<boolean> {
     if (!password) {
       throw new Error("Password is not provided! Cannot store mnemonic");
@@ -143,8 +153,11 @@ export class KeyRing {
       const address = new Address(sk).implicit();
       const { chainId } = this;
 
+      // Generate unique ID for new parent account:
+      const id = getId(phrase, (await this._keyStore.get()).length);
+
       const mnemonicStore = crypto.encrypt({
-        id: getId(phrase, (await this._keyStore.get()).length),
+        id,
         alias,
         address,
         chainId,
@@ -156,8 +169,10 @@ export class KeyRing {
         text: phrase,
         type: AccountType.Mnemonic,
       });
+
       await this._keyStore.append(mnemonicStore);
       await this.addSecretKey(sk, password, alias);
+      await this.setActiveAccountId(id);
 
       this._password = password;
       return true;
@@ -228,21 +243,16 @@ export class KeyRing {
   public async deriveAccount(
     path: Bip44Path,
     type: AccountType,
-    alias?: string
+    alias: string
   ): Promise<DerivedAccount> {
     if (!this._password) {
       throw new Error("No password is set!");
     }
 
-    const mnemonics = await this._keyStore.get();
-
-    if (!(mnemonics.length > 0)) {
-      throw new Error("No mnemonics have been stored!");
-    }
-
-    // TODO: For now, we are assuming only one mnemonic is used, but in the future
-    // we may want to have multiple top-level accounts:
-    const storedMnemonic = mnemonics[0];
+    const storedMnemonic = await this._keyStore.getRecord(
+      "id",
+      await this.getActiveAccountId()
+    );
 
     if (!storedMnemonic) {
       throw new Error("Mnemonic is not set!");
@@ -266,8 +276,7 @@ export class KeyRing {
         address = shieldedAccount.address;
         text = shieldedAccount.text;
 
-        //TODO: check if shileded accounts require Alias?
-        this.addSpendingKey(spendingKey, this._password, alias || "");
+        this.addSpendingKey(spendingKey, this._password, alias);
       } else {
         const transparentAccount = KeyRing.deriveTransparentAccount(
           seed,
@@ -290,6 +299,7 @@ export class KeyRing {
           address,
           chainId,
           id,
+          parentId,
           password: this._password,
           path,
           text,
@@ -312,10 +322,44 @@ export class KeyRing {
     }
   }
 
+  /**
+   * Query accounts from storage (active parent account + associated derived child accounts)
+   */
   public async queryAccounts(): Promise<DerivedAccount[]> {
-    // Query accounts from storage
-    const accounts = (await this._keyStore.get()) || [];
-    return accounts.map(
+    const activeAccountId = await this.getActiveAccountId();
+    const parentAccount = await this._keyStore.getRecord("id", activeAccountId);
+    const derivedAccounts =
+      (await this._keyStore.getRecords("parentId", activeAccountId)) || [];
+
+    if (parentAccount) {
+      const accounts = [parentAccount, ...derivedAccounts];
+
+      // Return only non-encrypted data
+      return accounts.map(
+        ({ address, alias, chainId, path, parentId, id, type }) => ({
+          address,
+          alias,
+          chainId,
+          id,
+          parentId,
+          path,
+          type,
+        })
+      );
+    }
+    return [];
+  }
+
+  /**
+   * Query all top-level parent accounts (mnemonic accounts)
+   */
+  public async queryParentAccounts(): Promise<DerivedAccount[]> {
+    const accounts = await this._keyStore.getRecords(
+      "type",
+      AccountType.Mnemonic
+    );
+    // Return only non-encrypted data
+    return (accounts || []).map(
       ({ address, alias, chainId, path, parentId, id, type }) => ({
         address,
         alias,
@@ -407,7 +451,7 @@ export class KeyRing {
   private async addSecretKey(
     secretKey: string,
     password: string,
-    alias?: string
+    alias: string
   ): Promise<void> {
     this.sdk.add_key(secretKey, password, alias);
     this.sdkStore.set(SDK_KEY, new TextDecoder().decode(this.sdk.encode()));

@@ -33,9 +33,8 @@ import { TopLevelRoute } from "App/types";
 import { useAuth } from "hooks";
 
 type Props = {
-  // The parent Bip44 "account"
-  parentAccount: number;
   accounts: DerivedAccount[];
+  parentAccount: DerivedAccount;
   requester: ExtensionRequester;
   setAccounts: (accounts: DerivedAccount[]) => void;
   isLocked: boolean;
@@ -43,12 +42,16 @@ type Props = {
 };
 
 const validatePath = (
-  account: number,
+  parentAccountIndex: number,
   newAccount: { change: number; index: number },
   accounts: DerivedAccount[],
   accountType: AccountType
 ): boolean => {
-  const newPath = [account, newAccount.change, newAccount.index].join("/");
+  const newPath = [
+    parentAccountIndex,
+    newAccount.change,
+    newAccount.index,
+  ].join("/");
   let isValid = true;
   accounts
     .filter((derivedAccount) => derivedAccount.type === accountType)
@@ -127,8 +130,8 @@ enum Validation {
 }
 
 const AddAccount: React.FC<Props> = ({
-  parentAccount,
   accounts,
+  parentAccount,
   requester,
   setAccounts,
   isLocked,
@@ -152,13 +155,14 @@ const AddAccount: React.FC<Props> = ({
   const bip44Prefix = "m/44";
   const zip32Prefix = "m/32";
   const { coinType } = chains[defaultChainId].bip44;
+  const parentAccountIndex = parentAccount.path.account;
 
   const authorize = useAuth(requester);
 
   useEffect(() => {
     authorize(
       TopLevelRoute.AddAccount,
-      "A password is required to add an account!",
+      `A password for "${parentAccount.alias}" is required to add an account!`,
       unlockKeyRing
     );
   }, []);
@@ -166,7 +170,7 @@ const AddAccount: React.FC<Props> = ({
   useEffect(() => {
     const _validatePath = validatePath.bind(
       null,
-      parentAccount,
+      parentAccountIndex,
       { change, index },
       accounts,
       isTransparent ? AccountType.PrivateKey : AccountType.ShieldedKeys
@@ -187,7 +191,7 @@ const AddAccount: React.FC<Props> = ({
     } else {
       setValidation(Validation.Valid);
     }
-  }, [parentAccount, change, index, alias, isTransparent]);
+  }, [parentAccountIndex, change, index, alias, isTransparent]);
 
   useEffect(() => {
     setIndex(
@@ -206,7 +210,7 @@ const AddAccount: React.FC<Props> = ({
           Ports.Background,
           new DeriveAccountMsg(
             {
-              account: parentAccount,
+              account: parentAccountIndex,
               change,
               index,
             },
@@ -235,8 +239,8 @@ const AddAccount: React.FC<Props> = ({
     e.target.select();
 
   const parentDerivationPath = isTransparent
-    ? `${bip44Prefix}'/${coinType}'/${parentAccount}'/`
-    : `${zip32Prefix}'/${coinType}'/${parentAccount}'/`;
+    ? `${bip44Prefix}'/${coinType}'/${parentAccountIndex}'/`
+    : `${zip32Prefix}'/${coinType}'/${parentAccountIndex}'/`;
 
   return (
     <AddAccountContainer>

@@ -12,12 +12,16 @@ import { ExtensionRequester } from "extension";
 
 type Props = {
   requester: ExtensionRequester;
+  // An alias of the parent account is provided to inform the user of which account they need to authenticate
+  // against, and the password they provide need to match what was entered during setup for that account.
+  parentAlias: string;
   isLocked: boolean;
   unlockKeyRing: () => void;
 };
 
 export const ApproveTx: React.FC<Props> = ({
   requester,
+  parentAlias,
   isLocked,
   unlockKeyRing,
 }) => {
@@ -26,7 +30,7 @@ export const ApproveTx: React.FC<Props> = ({
   useEffect(() => {
     authorize(
       TopLevelRoute.ApproveTx,
-      "A password is required to approve a transaction!",
+      `A password for "${parentAlias}" is required to approve a transaction!`,
       unlockKeyRing
     );
   }, []);

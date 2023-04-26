@@ -29,6 +29,6 @@ export type Step = {
 };
 
 export type AccountCreationDetails = {
-  alias?: string;
+  alias: string;
   password?: string;
 };

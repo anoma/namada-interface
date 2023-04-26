@@ -13,6 +13,9 @@ enum MessageType {
   SaveMnemonic = "save-mnemonic",
   DeriveAccount = "derive-account",
   DeriveShieldedAccount = "derive-shielded-account",
+  SetActiveAccount = "set-active-account",
+  GetActiveAccount = "get-active-account",
+  QueryParentAccounts = "query-parent-accounts",
 }
 
 export class CheckIsLockedMsg extends Message<boolean> {
@@ -137,7 +140,7 @@ export class SaveMnemonicMsg extends Message<boolean> {
   constructor(
     public readonly words: string[],
     public readonly password: string,
-    public readonly alias?: string
+    public readonly alias: string
   ) {
     super();
   }
@@ -176,7 +179,7 @@ export class DeriveAccountMsg extends Message<DerivedAccount> {
   constructor(
     public readonly path: Bip44Path,
     public readonly accountType: AccountType,
-    public readonly alias?: string
+    public readonly alias: string
   ) {
     super();
   }
@@ -206,5 +209,72 @@ export class DeriveAccountMsg extends Message<DerivedAccount> {
 
   type(): string {
     return DeriveAccountMsg.type();
+  }
+}
+
+export class SetActiveAccountMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.SetActiveAccount;
+  }
+
+  constructor(public readonly accountId: string) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.accountId) {
+      throw new Error("Account ID is not set!");
+    }
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return SetActiveAccountMsg.type();
+  }
+}
+export class GetActiveAccountMsg extends Message<string | undefined> {
+  public static type(): MessageType {
+    return MessageType.GetActiveAccount;
+  }
+
+  constructor() {
+    super();
+  }
+
+  validate(): void {
+    return;
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return GetActiveAccountMsg.type();
+  }
+}
+
+export class QueryParentAccountsMsg extends Message<DerivedAccount[]> {
+  public static type(): MessageType {
+    return MessageType.QueryParentAccounts;
+  }
+
+  constructor() {
+    super();
+  }
+
+  validate(): void {
+    return;
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return QueryParentAccountsMsg.type();
   }
 }

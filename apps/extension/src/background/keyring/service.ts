@@ -2,9 +2,10 @@ import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import { PhraseSize } from "@anoma/crypto";
 import { KVStore } from "@anoma/storage";
 import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
+import { Sdk } from "@anoma/shared";
+
 import { KeyRing } from "./keyring";
 import { KeyRingStatus, KeyStore } from "./types";
-import { Sdk } from "@anoma/shared";
 
 export class KeyRingService {
   private _keyRing: KeyRing;
@@ -12,10 +13,17 @@ export class KeyRingService {
   constructor(
     protected readonly kvStore: KVStore<KeyStore[]>,
     protected readonly sdkStore: KVStore<string>,
+    protected readonly accountAccountStore: KVStore<string>,
     protected readonly chainId: string,
     protected readonly sdk: Sdk
   ) {
-    this._keyRing = new KeyRing(kvStore, sdkStore, chainId, sdk);
+    this._keyRing = new KeyRing(
+      kvStore,
+      sdkStore,
+      accountAccountStore,
+      chainId,
+      sdk
+    );
   }
 
   lock(): { status: KeyRingStatus } {
@@ -46,7 +54,7 @@ export class KeyRingService {
   async saveMnemonic(
     words: string[],
     password: string,
-    alias?: string
+    alias: string
   ): Promise<boolean> {
     return await this._keyRing.storeMnemonic(words, password, alias);
   }
@@ -54,13 +62,17 @@ export class KeyRingService {
   async deriveAccount(
     path: Bip44Path,
     type: AccountType,
-    alias?: string
+    alias: string
   ): Promise<DerivedAccount> {
     return await this._keyRing.deriveAccount(path, type, alias);
   }
 
   async queryAccounts(): Promise<DerivedAccount[]> {
     return await this._keyRing.queryAccounts();
+  }
+
+  async queryParentAccounts(): Promise<DerivedAccount[]> {
+    return await this._keyRing.queryParentAccounts();
   }
 
   async submitBond(txMsg: string): Promise<void> {
@@ -110,5 +122,13 @@ export class KeyRingService {
       fromBase64(txMsg)
     );
     return toBase64(tx_data);
+  }
+
+  async setActiveAccountId(accountId: string): Promise<void> {
+    return this._keyRing.setActiveAccountId(accountId);
+  }
+
+  async getActiveAccountId(): Promise<string | undefined> {
+    return await this._keyRing.getActiveAccountId();
   }
 }

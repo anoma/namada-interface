@@ -8,6 +8,9 @@ import {
   LockKeyRingMsg,
   SaveMnemonicMsg,
   UnlockKeyRingMsg,
+  SetActiveAccountMsg,
+  GetActiveAccountMsg,
+  QueryParentAccountsMsg,
 } from "./messages";
 import {
   SubmitTransferMsg,
@@ -40,6 +43,22 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleDeriveAccountMsg(service)(env, msg as DeriveAccountMsg);
       case QueryAccountsMsg:
         return handleQueryAccountsMsg(service)(env, msg as QueryAccountsMsg);
+      case SetActiveAccountMsg:
+        return handleSetActiveAccountMsg(service)(
+          env,
+          msg as SetActiveAccountMsg
+        );
+      case GetActiveAccountMsg:
+        return handleGetActiveAccountMsg(service)(
+          env,
+          msg as GetActiveAccountMsg
+        );
+
+      case QueryParentAccountsMsg:
+        return handleQueryParentAccountsMsg(service)(
+          env,
+          msg as QueryParentAccountsMsg
+        );
       case SubmitBondMsg:
         return handleSubmitBondMsg(service)(env, msg as SubmitBondMsg);
       case SubmitUnbondMsg:
@@ -131,6 +150,14 @@ const handleQueryAccountsMsg: (
   };
 };
 
+const handleQueryParentAccountsMsg: (
+  service: KeyRingService
+) => InternalHandler<QueryParentAccountsMsg> = (service) => {
+  return async (_, _msg) => {
+    return await service.queryParentAccounts();
+  };
+};
+
 const handleSubmitBondMsg: (
   service: KeyRingService
 ) => InternalHandler<SubmitBondMsg> = (service) => {
@@ -173,5 +200,22 @@ const handleEncodeInitAccountMsg: (
   return (_, msg) => {
     const { address, txMsg } = msg;
     return service.encodeInitAccount(txMsg, address);
+  };
+};
+
+const handleSetActiveAccountMsg: (
+  service: KeyRingService
+) => InternalHandler<SetActiveAccountMsg> = (service) => {
+  return async (_, msg) => {
+    const { accountId } = msg;
+    return await service.setActiveAccountId(accountId);
+  };
+};
+
+const handleGetActiveAccountMsg: (
+  service: KeyRingService
+) => InternalHandler<GetActiveAccountMsg> = (service) => {
+  return async (_, _msg) => {
+    return await service.getActiveAccountId();
   };
 };

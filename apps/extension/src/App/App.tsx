@@ -6,10 +6,12 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import { AccountType, DerivedAccount } from "@anoma/types";
 import { getTheme } from "@anoma/utils";
 import { ExtensionKVStore } from "@anoma/storage";
+import { Icon, IconName } from "@anoma/components";
 
 import { ExtensionMessenger, ExtensionRequester } from "extension";
 import { KVPrefix, Ports } from "router";
 import { QueryAccountsMsg } from "provider/messages";
+import { GetActiveAccountMsg } from "background/keyring";
 import { useQuery } from "hooks";
 import {
   AppContainer,
@@ -17,13 +19,17 @@ import {
   ContentContainer,
   GlobalStyles,
   TopSection,
+  Heading,
+  HeadingButtons,
+  SettingsButton,
 } from "./App.components";
 import { TopLevelRoute } from "./types";
 import { LockWrapper } from "./LockWrapper";
 import { Accounts, AddAccount } from "./Accounts";
+import { Loading } from "./Loading";
 import { Login } from "./Login";
 import { Setup } from "./Setup";
-import { Loading } from "./Loading";
+import { Settings } from "./Settings";
 import { ApproveConnection, ApproveTx } from "./Approvals";
 
 const store = new ExtensionKVStore(KVPrefix.LocalStorage, {
@@ -47,6 +53,7 @@ export const App: React.FC = () => {
   const [isLocked, setIsLocked] = useState(true);
   const [status, setStatus] = useState<Status>();
   const [accounts, setAccounts] = useState<DerivedAccount[]>([]);
+  const [parentAccount, setParentAccount] = useState<DerivedAccount>();
   const [error, setError] = useState("");
 
   const fetchAccounts = async (): Promise<void> => {
@@ -66,6 +73,24 @@ export const App: React.FC = () => {
     }
   };
 
+  const fetchParentAccountId = async (): Promise<void> => {
+    setStatus(Status.Pending);
+    try {
+      const parentId = await requester.sendMessage(
+        Ports.Background,
+        new GetActiveAccountMsg()
+      );
+      const parentAccount = accounts.find((account) => account.id === parentId);
+      setParentAccount(parentAccount);
+    } catch (e) {
+      console.error(e);
+      setError(`An error occurred while loading extension: ${e}`);
+      setStatus(Status.Failed);
+    } finally {
+      setStatus(Status.Completed);
+    }
+  };
+
   useEffect(() => {
     if (redirect) {
       // Provide a redirect in the case of transaction/connection approvals
@@ -76,19 +101,20 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    if (accounts.length > 0) {
+      fetchParentAccountId();
+    }
+  }, [accounts]);
+
+  useEffect(() => {
     if (status === Status.Completed) {
-      if (accounts.length === 0) {
+      if (!parentAccount) {
         navigate(TopLevelRoute.Setup);
       } else {
         navigate(TopLevelRoute.Accounts);
       }
     }
-  }, [status, accounts]);
-
-  const parent = accounts.find(
-    (account) => account.type === AccountType.Mnemonic
-  );
-  const parentAccount = parent?.path?.account ?? 0;
+  }, [status, parentAccount]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -96,14 +122,19 @@ export const App: React.FC = () => {
         <GlobalStyles />
         <ContentContainer>
           <TopSection>
-            <h1>Anoma Browser Extension</h1>
+            <Heading>Anoma Browser Extension</Heading>
+            <HeadingButtons>
+              {parentAccount && (
+                <SettingsButton
+                  onClick={() => navigate(TopLevelRoute.Settings)}
+                >
+                  <Icon iconName={IconName.Settings} />
+                </SettingsButton>
+              )}
+            </HeadingButtons>
           </TopSection>
           <Routes>
             <Route path="*" element={<Loading error={error} />} />
-            <Route
-              path={TopLevelRoute.Accounts}
-              element={<Accounts accounts={accounts} requester={requester} />}
-            />
             <Route path={TopLevelRoute.Setup} element={<Setup />} />
             <Route
               path={TopLevelRoute.ApproveConnection}
@@ -123,46 +154,68 @@ export const App: React.FC = () => {
               }
             />
             <Route
-              path={TopLevelRoute.ApproveTx}
-              element={
-                <LockWrapper
-                  requester={requester}
-                  setStatus={setStatus}
-                  isLocked={isLocked}
-                  lockKeyRing={() => setIsLocked(true)}
-                >
-                  <ApproveTx
-                    requester={requester}
-                    isLocked={isLocked}
-                    unlockKeyRing={() => setIsLocked(false)}
-                  />
-                </LockWrapper>
-              }
-            />
-            <Route
               path={TopLevelRoute.Login}
               element={<Login requester={requester} />}
             />
-            <Route
-              path={TopLevelRoute.AddAccount}
-              element={
-                <LockWrapper
-                  requester={requester}
-                  setStatus={setStatus}
-                  isLocked={isLocked}
-                  lockKeyRing={() => setIsLocked(true)}
-                >
-                  <AddAccount
-                    parentAccount={parentAccount}
-                    accounts={accounts}
-                    requester={requester}
-                    setAccounts={setAccounts}
-                    isLocked={isLocked}
-                    unlockKeyRing={() => setIsLocked(false)}
-                  />
-                </LockWrapper>
-              }
-            />
+            {/* Routes that depend on a parent account existing in storage */}
+            {parentAccount && (
+              <>
+                <Route
+                  path={TopLevelRoute.Accounts}
+                  element={
+                    <Accounts accounts={accounts} requester={requester} />
+                  }
+                />
+                <Route
+                  path={TopLevelRoute.ApproveTx}
+                  element={
+                    <LockWrapper
+                      requester={requester}
+                      setStatus={setStatus}
+                      isLocked={isLocked}
+                      lockKeyRing={() => setIsLocked(true)}
+                    >
+                      <ApproveTx
+                        requester={requester}
+                        isLocked={isLocked}
+                        parentAlias={parentAccount.alias}
+                        unlockKeyRing={() => setIsLocked(false)}
+                      />
+                    </LockWrapper>
+                  }
+                />
+                <Route
+                  path={TopLevelRoute.AddAccount}
+                  element={
+                    <LockWrapper
+                      requester={requester}
+                      setStatus={setStatus}
+                      isLocked={isLocked}
+                      lockKeyRing={() => setIsLocked(true)}
+                    >
+                      <AddAccount
+                        accounts={accounts}
+                        parentAccount={parentAccount}
+                        requester={requester}
+                        setAccounts={setAccounts}
+                        isLocked={isLocked}
+                        unlockKeyRing={() => setIsLocked(false)}
+                      />
+                    </LockWrapper>
+                  }
+                />
+                <Route
+                  path={TopLevelRoute.Settings}
+                  element={
+                    <Settings
+                      requester={requester}
+                      fetchAccounts={fetchAccounts}
+                      parentId={parentAccount.id}
+                    />
+                  }
+                />
+              </>
+            )}
           </Routes>
         </ContentContainer>
         <BottomSection></BottomSection>
