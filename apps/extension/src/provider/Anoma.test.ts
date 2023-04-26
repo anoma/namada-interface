@@ -18,7 +18,7 @@ import {
 import { KVKeys } from "router";
 import { init } from "test/init";
 import { chains as defaultChains } from "@anoma/chains";
-import { chain, keyStore, password } from "./data.mock";
+import { chain, keyStore, password, ACTIVE_ACCOUNT_ID } from "./data.mock";
 import {
   KeyRing,
   KEYSTORE_KEY,
@@ -61,7 +61,7 @@ describe("Anoma", () => {
 
   it("should return all accounts", async () => {
     iDBStore.set(KEYSTORE_KEY, keyStore);
-    activeAccountStore.set(PARENT_ACCOUNT_ID_KEY, keyStore[0].id);
+    activeAccountStore.set(PARENT_ACCOUNT_ID_KEY, ACTIVE_ACCOUNT_ID);
     const storedKeyStore = keyStore.map(({ crypto: _, ...account }) => account);
     const storedAccounts = await anoma.accounts(chain.chainId);
 
