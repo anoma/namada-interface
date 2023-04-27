@@ -90,34 +90,6 @@ export const formatCurrency = (currency = "USD", value = 0): string => {
  */
 export const getTimeStamp = (): number => Math.floor(Date.now() / 1000);
 
-/**
- * Remove any comments ("#") or quotes
- * @param url
- * @returns {string}
- */
-export const stripInvalidCharacters = (url = ""): string => {
-  // Ignore comments and quotes
-  return url.split("#")[0].replace(/\"|\'/, "");
-};
-
-/**
- * Remove any characters after whitespace from env value
- * @param value
- * @returns {string}
- */
-export const sanitize = (value = " "): string => {
-  return stripInvalidCharacters(value).split(" ")[0];
-};
-
-/**
- * Return URL with no prefixed protocol
- * @param url
- * @returns {string}
- */
-export const getUrl = (url = ""): string => {
-  return sanitize(url).replace(/^https?\:\/\//, "");
-};
-
 /*
  * Shorten a Bech32 address
  */
