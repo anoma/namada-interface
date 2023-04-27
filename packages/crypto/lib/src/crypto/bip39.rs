@@ -46,8 +46,9 @@ impl Mnemonic {
         Ok(())
     }
 
-    pub fn from_phrase(phrase: String) -> Result<Mnemonic, String> {
+    pub fn from_phrase(mut phrase: String) -> Result<Mnemonic, String> {
         if let Err(e) = Mnemonic::validate(&phrase) {
+            phrase.zeroize();
             return Err(e)
         }
 
