@@ -2,6 +2,7 @@ import { createContext, useEffect, useState } from "react";
 
 import { Anoma, Keplr, Metamask } from "@anoma/integrations";
 import { chains } from "@anoma/chains";
+import { Events } from "@anoma/types";
 
 import { useEventListenerOnce } from "hooks";
 import { useAppDispatch, useAppSelector } from "store";
@@ -59,7 +60,7 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
   );
 
   // Register handlers:
-  useEventListenerOnce("anoma_account_changed", anomaAccountChangedHandler);
+  useEventListenerOnce(Events.AccountChanged, anomaAccountChangedHandler);
 
   return (
     <ExtensionEventsContext.Provider value={{}}>

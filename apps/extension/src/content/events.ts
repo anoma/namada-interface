@@ -1,8 +1,10 @@
-import { Message, Router, Events, Routes } from "../router";
+import { Events } from "@anoma/types";
+
+import { Message, Router, Routes } from "../router";
 
 export class AccountChangedEventMsg extends Message<void> {
   public static type(): Events {
-    return Events.PushEventData;
+    return Events.AccountChanged;
   }
 
   constructor(public readonly chainId: string) {
@@ -32,7 +34,7 @@ export function initEvents(router: Router): void {
       case AccountChangedEventMsg:
         if ((msg as AccountChangedEventMsg).chainId) {
           window.dispatchEvent(
-            new CustomEvent("anoma_account_changed", { detail: msg })
+            new CustomEvent(Events.AccountChanged, { detail: msg })
           );
         }
         return;
