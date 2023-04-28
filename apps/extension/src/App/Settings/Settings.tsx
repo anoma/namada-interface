@@ -4,6 +4,7 @@ import browser from "webextension-polyfill";
 
 import { DerivedAccount } from "@anoma/types";
 import { Button, ButtonVariant } from "@anoma/components";
+import { defaultChainId } from "@anoma/chains";
 
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
@@ -12,6 +13,7 @@ import {
   SetActiveAccountMsg,
   QueryParentAccountsMsg,
 } from "background/keyring";
+import { AccountChangedEvent } from "background/content";
 import {
   SettingsContainer,
   ButtonsContainer,
@@ -64,6 +66,13 @@ const Settings: React.FC<Props> = ({ requester, fetchAccounts, parentId }) => {
       await requester.sendMessage(
         Ports.Background,
         new SetActiveAccountMsg(id)
+      );
+
+      // Dispatch event notifying interface of parent-account change
+      // TODO: Debug the following (results in failure)
+      await requester.sendMessage(
+        Ports.Background,
+        new AccountChangedEvent(defaultChainId)
       );
 
       // Lock current wallet keyring:
