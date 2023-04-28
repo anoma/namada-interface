@@ -12,7 +12,7 @@ export class AccountChangedEvent extends Message<void> {
 
   constructor(
     public readonly chainId: string,
-    public readonly senderTabId: number
+    public readonly senderTabId?: number
   ) {
     super();
   }
