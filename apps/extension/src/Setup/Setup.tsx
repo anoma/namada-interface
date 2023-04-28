@@ -1,6 +1,6 @@
 import browser from "webextension-polyfill";
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 
 import { getTheme } from "@anoma/utils";
@@ -33,14 +33,14 @@ export const Setup: React.FC = () => {
         <GlobalStyles />
         <TopSection>Anoma Browser Extension</TopSection>
         <ContentContainer>
-          <BrowserRouter>
+          <HashRouter>
             <Routes>
               <Route
                 path={`*`}
                 element={<AccountCreation requester={requester} />}
               />
             </Routes>
-          </BrowserRouter>
+          </HashRouter>
         </ContentContainer>
         <BottomSection></BottomSection>
       </AppContainer>
