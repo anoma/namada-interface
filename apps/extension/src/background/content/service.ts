@@ -7,12 +7,17 @@ export class ContentService {
 
   async handleAccountChanged(
     chainId: string,
-    senderTabId: number
+    senderTabId?: number
   ): Promise<void> {
-    return this.requester.sendMessageToTab(
-      senderTabId,
-      Ports.WebBrowser,
-      new AccountChangedEventMsg(chainId)
-    );
+    return senderTabId
+      ? this.requester.sendMessageToTab(
+          senderTabId,
+          Ports.WebBrowser,
+          new AccountChangedEventMsg(chainId)
+        )
+      : this.requester.sendMessageToCurrentTab(
+          Ports.WebBrowser,
+          new AccountChangedEventMsg(chainId)
+        );
   }
 }

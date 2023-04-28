@@ -49,7 +49,7 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
       {}
     );
     setIntegrations(integrations);
-  }, connectedChains);
+  }, [connectedChains]);
 
   // Instantiate handlers:
   const anomaAccountChangedHandler = AnomaAccountChangedHandler(
