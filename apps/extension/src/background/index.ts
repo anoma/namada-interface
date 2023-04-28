@@ -15,6 +15,7 @@ import {
 import { Ports, KVPrefix } from "router";
 import { ChainsService, init as initChains } from "./chains";
 import { KeyRingService, init as initKeyRing, SDK_KEY } from "./keyring";
+import { ContentService, init as initContentEvents } from "./content";
 
 const messenger = new ExtensionMessenger();
 const store = new IndexedDBKVStore(KVPrefix.IndexedDB);
@@ -58,6 +59,7 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
     sdk.decode(sdkData);
   }
 
+  const contentService = new ContentService(requester);
   const chainsService = new ChainsService(store, [chains[defaultChainId]]);
   const keyRingService = new KeyRingService(
     store,
@@ -73,6 +75,7 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
   // Initialize messages and handlers
   initChains(router, chainsService);
   initKeyRing(router, keyRingService);
+  initContentEvents(router, contentService);
 
   router.listen(Ports.Background);
 })();
