@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext } from "react";
 
 import { Events } from "@anoma/types";
 import { defaultChainId } from "@anoma/chains";

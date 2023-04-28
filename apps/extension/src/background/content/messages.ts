@@ -18,8 +18,8 @@ export class AccountChangedEvent extends Message<void> {
   }
 
   validate(): void {
-    if (this.chainId === undefined) {
-      throw new Error("chainId is undefined");
+    if (!this.chainId) {
+      throw new Error("chainId must not be empty");
     }
   }
 
