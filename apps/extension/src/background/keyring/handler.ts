@@ -53,7 +53,6 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
           env,
           msg as GetActiveAccountMsg
         );
-
       case QueryParentAccountsMsg:
         return handleQueryParentAccountsMsg(service)(
           env,
