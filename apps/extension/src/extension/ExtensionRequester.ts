@@ -1,3 +1,5 @@
+import browser from "webextension-polyfill";
+
 import { KVStore } from "@anoma/storage";
 import { getAnomaRouterId } from "../extension/utils";
 import { Message } from "../router";
@@ -14,7 +16,7 @@ export class ExtensionRequester {
     msg: M
   ): Promise<M extends Message<infer R> ? R : never> {
     msg.validate();
-    msg.origin = window.location.origin;
+    msg.origin = origin;
     msg.meta = {
       ...msg.meta,
       routerId: await getAnomaRouterId(this.store),
@@ -45,7 +47,7 @@ export class ExtensionRequester {
     msg: M
   ): Promise<M extends Message<infer R> ? R : never> {
     msg.validate();
-    msg.origin = window.location.origin;
+    msg.origin = origin;
     msg.meta = {
       ...msg.meta,
       routerId: await getAnomaRouterId(this.store),

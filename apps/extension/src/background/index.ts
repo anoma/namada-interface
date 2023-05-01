@@ -63,7 +63,8 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
     activeAccountStore,
     defaultChainId,
     sdk,
-    cryptoMemory
+    cryptoMemory,
+    requester
   );
 
   // Initialize messages and handlers
