@@ -68,13 +68,6 @@ const Settings: React.FC<Props> = ({ requester, fetchAccounts, parentId }) => {
         new SetActiveAccountMsg(id)
       );
 
-      // Dispatch event notifying interface of parent-account change
-      // TODO: Debug the following (results in failure)
-      await requester.sendMessage(
-        Ports.Background,
-        new AccountChangedEvent(defaultChainId)
-      );
-
       // Lock current wallet keyring:
       await requester.sendMessage(Ports.Background, new LockKeyRingMsg());
 
