@@ -1,6 +1,7 @@
 import { useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { TopLevelRoute } from "./types";
+import { useSanitizedLocation } from "../hooks/useSanitizedLocation";
 
 type Props = {
   password?: string;
@@ -8,7 +9,7 @@ type Props = {
 
 const Redirect = ({ password }: Props): JSX.Element => {
   const navigate = useNavigate();
-  const location = useLocation();
+  const location = useSanitizedLocation();
 
   useEffect(() => {
     if (!password) {

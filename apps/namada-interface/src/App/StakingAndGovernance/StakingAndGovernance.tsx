@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector, RootState } from "store";
-import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 
 import { Staking } from "App/Staking";
 import { Governance } from "App/Governance";
@@ -11,6 +11,7 @@ import {
   StakingAndGovernanceSubRoute,
   locationToStakingAndGovernanceSubRoute,
 } from "App/types";
+import { useSanitizedLocation } from "hooks/useSanitizedLocation";
 
 import {
   fetchValidators,
@@ -27,7 +28,7 @@ export type { ChangeInStakingPosition };
 // mostly the purpose of this is to define the default behavior when
 // the user clicks the top level Staking & Governance menu
 export const StakingAndGovernance = (): JSX.Element => {
-  const location = useLocation();
+  const location = useSanitizedLocation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const stakingAndGovernance = useAppSelector(

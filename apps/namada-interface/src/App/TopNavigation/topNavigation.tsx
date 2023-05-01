@@ -2,7 +2,6 @@ import React, { useState, useContext } from "react";
 import { ThemeContext } from "styled-components";
 import {
   useNavigate,
-  useLocation,
   NavigateFunction,
   Location,
 } from "react-router-dom";
@@ -53,6 +52,7 @@ import {
 } from "./topNavigation.components";
 import { setChainId, SettingsState } from "slices/settings";
 import TopNavigationLoggedIn from "./topNavigationLoggedIn";
+import { useSanitizedLocation } from "../../hooks/useSanitizedLocation";
 
 /**
  * this is rendered in one of 2 places depending of the screen size
@@ -62,7 +62,7 @@ const TopNavigationMenuItems = (props: {
   setColorMode: (mode: ColorMode) => void;
 }): React.ReactElement => {
   const { navigate } = props;
-  const location = useLocation();
+  const location = useSanitizedLocation();
   const topLevelPath = `/${location.pathname.split("/")[1]}`;
   return (
     <>
@@ -214,7 +214,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
   const navigate = useNavigate();
   const themeContext = useContext(ThemeContext);
   const [showMenu, setShowMenu] = useState(false);
-  const location = useLocation();
+  const location = useSanitizedLocation();
   const topLevelRoute = locationToTopLevelRoute(location);
   const stakingAndGovernanceSubRoute =
     locationToStakingAndGovernanceSubRoute(location);

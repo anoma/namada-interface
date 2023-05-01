@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 
 import { truncateInMiddle } from "@anoma/utils";
 import { Modal } from "@anoma/components";
@@ -18,6 +18,7 @@ import {
 import { NewBondingPosition } from "./NewBondingPosition";
 import { UnbondPosition } from "./UnbondPosition";
 import { Account } from "slices/accounts";
+import { useSanitizedLocation } from "../../hooks/useSanitizedLocation";
 
 const initialTitle = "Staking";
 
@@ -95,7 +96,7 @@ export enum ModalOnRequestCloseType {
 export const Staking = (props: Props): JSX.Element => {
   const [breadcrumb, setBreadcrumb] = useState([initialTitle]);
   const [modalState, setModalState] = useState(ModalState.None);
-  const location = useLocation();
+  const location = useSanitizedLocation();
   const navigate = useNavigate();
 
   const {
