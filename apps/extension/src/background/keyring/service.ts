@@ -55,7 +55,6 @@ export class KeyRingService {
     if (this._connectedTabIds.indexOf(senderTabId) < 0) {
       this._connectedTabIds.push(senderTabId);
     }
-    console.log("TAB IDS", this._connectedTabIds);
   }
 
   async checkPassword(password: string): Promise<boolean> {
@@ -142,14 +141,11 @@ export class KeyRingService {
   async setActiveAccountId(accountId: string): Promise<void> {
     await this._keyRing.setActiveAccountId(accountId);
     try {
-      console.log({ tabs: this._connectedTabIds });
-      this._connectedTabIds.forEach((senderTabId) => {
-        this.requester.sendMessageToTab(
-          senderTabId,
-          Ports.WebBrowser,
-          new AccountChangedEventMsg(this.chainId)
-        );
-      });
+      // TODO: Update this to send to each connected tab
+      this.requester.sendMessageToCurrentTab(
+        Ports.WebBrowser,
+        new AccountChangedEventMsg(this.chainId)
+      );
     } catch (e) {
       console.warn(e);
     }
