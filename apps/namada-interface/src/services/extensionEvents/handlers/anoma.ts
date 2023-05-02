@@ -10,6 +10,7 @@ export const AnomaAccountChangedHandler =
     const chainId = event.detail?.chainId;
     const chain = chains[chainId];
     const integration = new Anoma(chain);
+    await integration.connect();
 
     const accounts = (await integration.accounts()) || [];
 

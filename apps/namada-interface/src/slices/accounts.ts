@@ -89,6 +89,10 @@ const accountsSlice = createSlice({
   reducers: {
     addAccounts: (state, action: PayloadAction<readonly AccountDetails[]>) => {
       const accounts = action.payload;
+
+      // Remove old accounts under this chainId if present:
+      state.derived[accounts[0].chainId] = {};
+
       accounts.forEach((account) => {
         const { address, alias, isShielded, chainId } = account;
         const currencySymbol = chains[chainId].currency.symbol;
