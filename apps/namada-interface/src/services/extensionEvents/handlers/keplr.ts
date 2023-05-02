@@ -3,26 +3,22 @@ import { Dispatch } from "react";
 import { chains } from "@anoma/chains";
 import { Keplr } from "@anoma/integrations";
 
-import { addAccounts } from "slices/accounts";
+import { addAccounts, fetchBalances } from "slices/accounts";
 
 export const KeplrAccountChangedHandler =
-  (
-    dispatch: Dispatch<unknown>,
-    integrations: Record<string, Keplr>,
-    connectedChains: string[]
-  ) =>
-  async (event: CustomEventInit) => {
-    // TODO: What is the correct parameter to respond to?
+  (dispatch: Dispatch<unknown>) => async (event: CustomEventInit) => {
     const chainId = event.detail?.chainId;
     const chain = chains[chainId];
 
-    if (
-      connectedChains.indexOf(chainId) > -1 &&
-      chain.extension.id === "keplr"
-    ) {
-      const accounts = await integrations[chainId]?.accounts();
+    if (chain.extension.id === "keplr") {
+      const integration = new Keplr(chain);
+      await integration.connect();
+
+      const accounts = await integration.accounts();
+
       if (accounts) {
         dispatch(addAccounts(accounts));
+        dispatch(fetchBalances());
       }
     }
   };
