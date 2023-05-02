@@ -1,63 +1,18 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext } from "react";
 
-import { Anoma, Keplr, Metamask } from "@anoma/integrations";
-import { chains } from "@anoma/chains";
 import { Events } from "@anoma/types";
 
 import { useEventListenerOnce } from "hooks";
-import { useAppDispatch, useAppSelector } from "store";
-import { SettingsState } from "slices/settings";
+import { useAppDispatch } from "store";
 import { AnomaAccountChangedHandler } from "./handlers/anoma";
 
 export const ExtensionEventsContext = createContext({});
 
 export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
   const dispatch = useAppDispatch();
-  // Only respond to events if chain is connected via extension
-  const { connectedChains } = useAppSelector<SettingsState>(
-    (state) => state.settings
-  );
-  const [integrations, setIntegrations] = useState<
-    Record<string, Anoma | Keplr | Metamask>
-  >({});
-
-  // Instantiate integrations for responding appropriately to events
-  useEffect(() => {
-    const integrations = Object.keys(chains).reduce(
-      (acc: Record<string, Anoma | Keplr | Metamask>, chainId: string) => {
-        const chain = chains[chainId];
-
-        switch (chain.extension.id) {
-          case "anoma":
-            return {
-              ...acc,
-              [chainId]: new Anoma(chain),
-            };
-          case "keplr":
-            return {
-              ...acc,
-              [chainId]: new Keplr(chain),
-            };
-          case "metamask":
-            return {
-              ...acc,
-              [chainId]: new Metamask(chain),
-            };
-          default:
-            return acc;
-        }
-      },
-      {}
-    );
-    setIntegrations(integrations);
-  }, [connectedChains]);
 
   // Instantiate handlers:
-  const anomaAccountChangedHandler = AnomaAccountChangedHandler(
-    dispatch,
-    integrations as Record<string, Anoma>,
-    connectedChains
-  );
+  const anomaAccountChangedHandler = AnomaAccountChangedHandler(dispatch);
 
   // Register handlers:
   useEventListenerOnce(Events.AccountChanged, anomaAccountChangedHandler);

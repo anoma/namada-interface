@@ -4,7 +4,6 @@ import browser from "webextension-polyfill";
 
 import { DerivedAccount } from "@anoma/types";
 import { Button, ButtonVariant } from "@anoma/components";
-import { defaultChainId } from "@anoma/chains";
 
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
@@ -13,7 +12,6 @@ import {
   SetActiveAccountMsg,
   QueryParentAccountsMsg,
 } from "background/keyring";
-import { AccountChangedEvent } from "background/content";
 import {
   SettingsContainer,
   ButtonsContainer,

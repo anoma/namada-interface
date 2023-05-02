@@ -8,7 +8,7 @@ import { KeyRing } from "./keyring";
 import { KeyRingStatus, KeyStore } from "./types";
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
-import { AccountChangedEvent } from "background/content";
+import { AccountChangedEventMsg } from "content/events";
 
 export class KeyRingService {
   private _keyRing: KeyRing;
@@ -132,10 +132,14 @@ export class KeyRingService {
 
   async setActiveAccountId(accountId: string): Promise<void> {
     await this._keyRing.setActiveAccountId(accountId);
-    this.requester.sendMessage(
-      Ports.Background,
-      new AccountChangedEvent(this.chainId)
-    );
+    try {
+      return await this.requester.sendMessageToCurrentTab(
+        Ports.WebBrowser,
+        new AccountChangedEventMsg(this.chainId)
+      );
+    } catch (e) {
+      console.warn(e);
+    }
   }
 
   async getActiveAccountId(): Promise<string | undefined> {
