@@ -12,6 +12,7 @@ import {
   QueryParentAccountsMsg,
 } from "./messages";
 import {
+  ConnectInterfaceMsg,
   SubmitTransferMsg,
   EncodeInitAccountMsg,
   QueryAccountsMsg,
@@ -26,6 +27,7 @@ import { KeyRingService } from "./service";
 
 export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(CheckIsLockedMsg);
+  router.registerMessage(ConnectInterfaceMsg);
   router.registerMessage(DeriveAccountMsg);
   router.registerMessage(QueryAccountsMsg);
   router.registerMessage(LockKeyRingMsg);

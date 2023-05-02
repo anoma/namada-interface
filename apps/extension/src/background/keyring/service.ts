@@ -12,6 +12,7 @@ import { AccountChangedEventMsg } from "content/events";
 
 export class KeyRingService {
   private _keyRing: KeyRing;
+  private _connectedTabIds: number[] = [];
 
   constructor(
     protected readonly kvStore: KVStore<KeyStore[]>,
@@ -47,6 +48,14 @@ export class KeyRingService {
 
   isLocked(): boolean {
     return this._keyRing.isLocked();
+  }
+
+  // Track connected tabs by ID in this service instance
+  connect(senderTabId: number): void {
+    if (this._connectedTabIds.indexOf(senderTabId) < 0) {
+      this._connectedTabIds.push(senderTabId);
+    }
+    console.log("TAB IDS", this._connectedTabIds);
   }
 
   async checkPassword(password: string): Promise<boolean> {
@@ -133,10 +142,14 @@ export class KeyRingService {
   async setActiveAccountId(accountId: string): Promise<void> {
     await this._keyRing.setActiveAccountId(accountId);
     try {
-      return await this.requester.sendMessageToCurrentTab(
-        Ports.WebBrowser,
-        new AccountChangedEventMsg(this.chainId)
-      );
+      console.log({ tabs: this._connectedTabIds });
+      this._connectedTabIds.forEach((senderTabId) => {
+        this.requester.sendMessageToTab(
+          senderTabId,
+          Ports.WebBrowser,
+          new AccountChangedEventMsg(this.chainId)
+        );
+      });
     } catch (e) {
       console.warn(e);
     }
