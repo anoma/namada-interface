@@ -10,14 +10,16 @@ import { ExtensionRequester } from "extension";
 import { Ports } from "router";
 import { AccountChangedEventMsg } from "content/events";
 
+const TabsStorageKey = "tabs";
+
 export class KeyRingService {
   private _keyRing: KeyRing;
-  private _connectedTabIds: number[] = [];
 
   constructor(
     protected readonly kvStore: KVStore<KeyStore[]>,
     protected readonly sdkStore: KVStore<string>,
     protected readonly accountAccountStore: KVStore<string>,
+    protected readonly connectedTabsStore: KVStore<number[]>,
     protected readonly chainId: string,
     protected readonly sdk: Sdk,
     protected readonly cryptoMemory: WebAssembly.Memory,
@@ -51,9 +53,11 @@ export class KeyRingService {
   }
 
   // Track connected tabs by ID in this service instance
-  connect(senderTabId: number): void {
-    if (this._connectedTabIds.indexOf(senderTabId) < 0) {
-      this._connectedTabIds.push(senderTabId);
+  async connect(senderTabId: number): Promise<void> {
+    const tabs = (await this.connectedTabsStore.get(TabsStorageKey)) || [];
+    if (tabs.indexOf(senderTabId) < 0) {
+      tabs.push(senderTabId);
+      await this.connectedTabsStore.set(TabsStorageKey, tabs);
     }
   }
 
@@ -139,13 +143,17 @@ export class KeyRingService {
   }
 
   async setActiveAccountId(accountId: string): Promise<void> {
+    const tabs = (await this.connectedTabsStore.get(TabsStorageKey)) || [];
     await this._keyRing.setActiveAccountId(accountId);
+
     try {
-      // TODO: Update this to send to each connected tab
-      this.requester.sendMessageToCurrentTab(
-        Ports.WebBrowser,
-        new AccountChangedEventMsg(this.chainId)
-      );
+      tabs.forEach((tab: number) => {
+        this.requester.sendMessageToTab(
+          tab,
+          Ports.WebBrowser,
+          new AccountChangedEventMsg(this.chainId)
+        );
+      });
     } catch (e) {
       console.warn(e);
     }
