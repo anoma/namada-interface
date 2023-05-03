@@ -18,6 +18,7 @@ export class KeyRingService {
     protected readonly sdkStore: KVStore<string>,
     protected readonly accountAccountStore: KVStore<string>,
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
+
     protected readonly chainId: string,
     protected readonly sdk: Sdk,
     protected readonly cryptoMemory: WebAssembly.Memory,
