@@ -10,8 +10,6 @@ import { ExtensionRequester } from "extension";
 import { Ports } from "router";
 import { AccountChangedEventMsg } from "content/events";
 
-const TabsStorageKey = "tabs";
-
 export class KeyRingService {
   private _keyRing: KeyRing;
 
@@ -53,11 +51,15 @@ export class KeyRingService {
   }
 
   // Track connected tabs by ID
-  async connect(senderTabId: number): Promise<void> {
-    const tabs = (await this.connectedTabsStore.get(TabsStorageKey)) || [];
-    if (tabs.indexOf(senderTabId) < 0) {
-      tabs.push(senderTabId);
-      await this.connectedTabsStore.set(TabsStorageKey, tabs);
+  async connect(senderTabId: number, chainId: string): Promise<void> {
+    // Validate chainId, if valid, append tab unless it already exists
+    if (chainId === this.chainId) {
+      const tabs = (await this.connectedTabsStore.get(chainId)) || [];
+
+      if (tabs.indexOf(senderTabId) < 0) {
+        tabs.push(senderTabId);
+        await this.connectedTabsStore.set(chainId, tabs);
+      }
     }
   }
 
@@ -143,11 +145,11 @@ export class KeyRingService {
   }
 
   async setActiveAccountId(accountId: string): Promise<void> {
-    const tabs = (await this.connectedTabsStore.get(TabsStorageKey)) || [];
+    const tabs = await this.connectedTabsStore.get(this.chainId);
     await this._keyRing.setActiveAccountId(accountId);
 
     try {
-      tabs.forEach((tab: number) => {
+      tabs?.forEach((tab: number) => {
         this.requester.sendMessageToTab(
           tab,
           Ports.WebBrowser,

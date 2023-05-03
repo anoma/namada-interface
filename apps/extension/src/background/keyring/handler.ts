@@ -89,8 +89,8 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
 const handleConnectInterfaceMsg: (
   service: KeyRingService
 ) => InternalHandler<ConnectInterfaceMsg> = (service) => {
-  return async ({ senderTabId }) => {
-    return await service.connect(senderTabId);
+  return async ({ senderTabId }, { chainId }) => {
+    return await service.connect(senderTabId, chainId);
   };
 };
 
