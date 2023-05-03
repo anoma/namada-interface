@@ -52,7 +52,7 @@ export class KeyRingService {
     return this._keyRing.isLocked();
   }
 
-  // Track connected tabs by ID in this service instance
+  // Track connected tabs by ID
   async connect(senderTabId: number): Promise<void> {
     const tabs = (await this.connectedTabsStore.get(TabsStorageKey)) || [];
     if (tabs.indexOf(senderTabId) < 0) {

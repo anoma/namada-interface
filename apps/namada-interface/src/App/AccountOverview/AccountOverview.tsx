@@ -76,7 +76,6 @@ export const AccountOverview = (): JSX.Element => {
   const handleConnectExtension = async (): Promise<void> => {
     withConnection(
       async () => {
-        await integration.connect();
         const accounts = await integration?.accounts();
         if (accounts) {
           dispatch(addAccounts(accounts as Account[]));
