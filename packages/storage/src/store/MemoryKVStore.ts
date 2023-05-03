@@ -9,8 +9,7 @@ export class MemoryKVStore<T> implements KVStore<T[]> {
     const k = this.prefix() + "/" + key;
     const data = this._store.get(k);
 
-    console.log("MemoryKVStore.get()", k);
-    if (data === null) {
+    if (!data) {
       return Promise.resolve(undefined);
     }
 
@@ -20,11 +19,8 @@ export class MemoryKVStore<T> implements KVStore<T[]> {
   public set<T = unknown>(key: string, data: T | null): Promise<void> {
     const k = this.prefix() + "/" + key;
 
-    console.log("MemoryKVStore.set()", k, data);
     if (data === null) {
-      // Unset value if it exists
-      const value = this._store.get(k);
-      if (value) {
+      if (this._store.has(k)) {
         this._store.delete(k);
       }
       return Promise.resolve();
