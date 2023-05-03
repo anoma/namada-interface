@@ -51,6 +51,7 @@ export const init = (): {
   const sdkStore = new KVStoreMock<string>(KVPrefix.SDK);
   const extStore = new KVStoreMock<number>(KVPrefix.IndexedDB);
   const activeAccountStore = new KVStoreMock<string>(KVPrefix.ActiveAccount);
+  const connectedTabsStore = new KVStoreMock<number[]>(KVPrefix.ConnectedTabs);
   const requester = new ExtensionRequester(messenger, extStore);
 
   const router = new ExtensionRouter(
@@ -75,6 +76,7 @@ export const init = (): {
     iDBStore as KVStore<KeyStore[]>,
     sdkStore,
     activeAccountStore,
+    connectedTabsStore,
     "namada-75a7e12.69483d59a9fb174",
     sdk,
     cryptoMemory,

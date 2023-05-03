@@ -1,5 +1,9 @@
 import browser from "webextension-polyfill";
-import { ExtensionKVStore, IndexedDBKVStore } from "@anoma/storage";
+import {
+  ExtensionKVStore,
+  IndexedDBKVStore,
+  MemoryKVStore,
+} from "@anoma/storage";
 import { defaultChainId, chains } from "@anoma/chains";
 import { init as initCrypto } from "@anoma/crypto/src/init";
 import { init as initShared } from "@anoma/shared/src/init";
@@ -36,6 +40,7 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
     get: browser.storage.local.get,
     set: browser.storage.local.set,
   });
+  const connectedTabsStore = new MemoryKVStore(KVPrefix.ConnectedTabs);
 
   const requester = new ExtensionRequester(messenger, extensionStore);
   const router = new ExtensionRouter(
@@ -59,6 +64,7 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
     store,
     sdkStore,
     activeAccountStore,
+    connectedTabsStore,
     defaultChainId,
     sdk,
     cryptoMemory,
