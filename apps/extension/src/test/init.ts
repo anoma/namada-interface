@@ -12,6 +12,7 @@ import {
   KeyRingService,
   init as initKeyRing,
   KeyStore,
+  TabStore,
 } from "../background/keyring";
 import { Anoma } from "provider";
 import { Chain } from "@anoma/types";
@@ -51,7 +52,9 @@ export const init = (): {
   const sdkStore = new KVStoreMock<string>(KVPrefix.SDK);
   const extStore = new KVStoreMock<number>(KVPrefix.IndexedDB);
   const activeAccountStore = new KVStoreMock<string>(KVPrefix.ActiveAccount);
-  const connectedTabsStore = new KVStoreMock<number[]>(KVPrefix.ConnectedTabs);
+  const connectedTabsStore = new KVStoreMock<TabStore[]>(
+    KVPrefix.ConnectedTabs
+  );
   const requester = new ExtensionRequester(messenger, extStore);
 
   const router = new ExtensionRouter(

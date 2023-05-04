@@ -57,3 +57,8 @@ export enum KeyRingStatus {
   Locked,
   Unlocked,
 }
+
+export type TabStore = {
+  tabId: number;
+  timestamp: number;
+};
