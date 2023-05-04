@@ -5,7 +5,7 @@ import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
 import { Sdk } from "@anoma/shared";
 
 import { KeyRing } from "./keyring";
-import { KeyRingStatus, KeyStore } from "./types";
+import { KeyRingStatus, KeyStore, TabStore } from "./types";
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
 import { AccountChangedEventMsg } from "content/events";
@@ -17,7 +17,7 @@ export class KeyRingService {
     protected readonly kvStore: KVStore<KeyStore[]>,
     protected readonly sdkStore: KVStore<string>,
     protected readonly accountAccountStore: KVStore<string>,
-    protected readonly connectedTabsStore: KVStore<number[]>,
+    protected readonly connectedTabsStore: KVStore<TabStore[]>,
     protected readonly chainId: string,
     protected readonly sdk: Sdk,
     protected readonly cryptoMemory: WebAssembly.Memory,
@@ -56,8 +56,11 @@ export class KeyRingService {
     if (chainId === this.chainId) {
       const tabs = (await this.connectedTabsStore.get(chainId)) || [];
 
-      if (tabs.indexOf(senderTabId) < 0) {
-        tabs.push(senderTabId);
+      if (!tabs.find((tab) => tab.tabId === senderTabId)) {
+        tabs.push({
+          tabId: senderTabId,
+          timestamp: Date.now(),
+        });
         await this.connectedTabsStore.set(chainId, tabs);
       }
     }
@@ -149,9 +152,9 @@ export class KeyRingService {
     await this._keyRing.setActiveAccountId(accountId);
 
     try {
-      tabs?.forEach((tab: number) => {
+      tabs?.forEach(({ tabId }: TabStore) => {
         this.requester.sendMessageToTab(
-          tab,
+          tabId,
           Ports.WebBrowser,
           new AccountChangedEventMsg(this.chainId)
         );
