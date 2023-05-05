@@ -26,7 +26,7 @@ import { persistor, store, useAppDispatch, useAppSelector } from "store";
 import { Toasts } from "App/Toast";
 import { SettingsState } from "slices/settings";
 import { chains } from "@anoma/chains";
-import { useIntegration, useUntilIntegrationAttached } from "services";
+import { useIntegration, useUntilIntegrationAttached } from "@anoma/hooks";
 import { Outlet } from "react-router-dom";
 import { addAccounts, fetchBalances } from "slices/accounts";
 import { Account } from "@anoma/types";
