@@ -67,7 +67,7 @@ export const App: React.FC = () => {
       setAccounts(accounts);
     } catch (e) {
       console.error(e);
-      setError(`An error occurred while loading extension: ${e}`);
+      setError(`An error occurred while fetching accounts: ${e}`);
       setStatus(Status.Failed);
     } finally {
       setStatus(Status.Completed);
@@ -85,7 +85,7 @@ export const App: React.FC = () => {
       setParentAccount(parentAccount);
     } catch (e) {
       console.error(e);
-      setError(`An error occurred while loading extension: ${e}`);
+      setError(`An error occurred while fetching parent account ID: ${e}`);
       setStatus(Status.Failed);
     } finally {
       setStatus(Status.Completed);
@@ -105,7 +105,6 @@ export const App: React.FC = () => {
         }
       },
       onSuccess: () => {
-        console.log("SUCCESS!");
         (async () => {
           // Fetch accounts
           try {
@@ -113,7 +112,6 @@ export const App: React.FC = () => {
               Ports.Background,
               new QueryAccountsMsg()
             );
-            console.log({ accounts });
             setAccounts(accounts);
           } catch (e) {
             console.error(e);
@@ -122,14 +120,13 @@ export const App: React.FC = () => {
             return;
           }
         })();
-        return;
       },
       onFail: () => {
-        console.log("FAILURE!");
-        return;
+        setError("An error occurred connecting to extension");
+        setStatus(Status.Failed);
       },
     },
-    { tries: 10, ms: 300 },
+    { tries: 10, ms: 100 },
     []
   );
 
