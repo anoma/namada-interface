@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 type Options = {
-  predFn: () => boolean;
+  predFn: () => Promise<boolean>;
   onSuccess: () => unknown;
   onFail: () => unknown;
 };
@@ -36,7 +36,7 @@ export const useUntil = (
     const execute = async (): Promise<void> => {
       let succ = false;
       while (!succ && tries > 0) {
-        succ = predFn();
+        succ = await predFn();
         tries--;
         await wait(config.ms);
       }
