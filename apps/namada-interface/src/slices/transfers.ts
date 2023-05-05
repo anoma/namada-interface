@@ -2,13 +2,14 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 import { Account, TxWasm, Tokens, TokenType, Signer } from "@anoma/types";
 import { amountToMicro, fetchWasmCode } from "@anoma/utils";
+import { getIntegration } from "@anoma/hooks";
+
 import {
   actions as notificationsActions,
   CreateToastPayload,
   ToastId,
   ToastType,
 } from "slices/notifications";
-import { getIntegration } from "@anoma/hooks";
 import { RootState } from "store";
 
 enum Toasts {

@@ -5,7 +5,8 @@ as well as for third-party integrations.
 
 Currently, the following hooks are defined:
 
-- `useEvent`
+- `useEventListener`
+- `useEventListenerOnce`
 - `useIntegration`
 - `useIntegrationConnection`
 - `useUntilIntegrationAttached`

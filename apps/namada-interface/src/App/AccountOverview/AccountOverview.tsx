@@ -2,11 +2,17 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { chains } from "@anoma/chains";
+import {
+  useIntegrationConnection,
+  useUntilIntegrationAttached,
+} from "@anoma/hooks";
+import { Account, ExtensionKey, Extensions } from "@anoma/types";
+import { formatCurrency } from "@anoma/utils";
+
 import { useAppSelector, useAppDispatch } from "store";
 import { AccountsState, addAccounts, fetchBalances } from "slices/accounts";
 import { setIsConnected, SettingsState } from "slices/settings";
 import { TopLevelRoute } from "App/types";
-
 import { DerivedAccounts } from "./DerivedAccounts";
 import {
   Button,
@@ -29,12 +35,6 @@ import {
   TotalContainer,
   TotalHeading,
 } from "./AccountOverview.components";
-import { formatCurrency } from "@anoma/utils";
-import {
-  useIntegrationConnection,
-  useUntilIntegrationAttached,
-} from "@anoma/hooks";
-import { Account, ExtensionKey, Extensions } from "@anoma/types";
 
 //TODO: move to utils when we have one
 const isEmptyObject = (object: Record<string, unknown>): boolean => {
