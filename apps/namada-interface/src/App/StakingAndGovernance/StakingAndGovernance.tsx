@@ -20,7 +20,7 @@ import {
   ChangeInStakingPosition,
 } from "slices/StakingAndGovernance";
 import { SettingsState } from "slices/settings";
-import { useIntegrationConnection } from "services";
+import { useIntegrationConnection } from "@anoma/hooks";
 import { AccountsState } from "slices/accounts";
 export type { ChangeInStakingPosition };
 // This is just rendering the actual Staking/Governance/PGF screens

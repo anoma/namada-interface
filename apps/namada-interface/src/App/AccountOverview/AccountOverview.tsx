@@ -33,7 +33,7 @@ import { formatCurrency } from "@anoma/utils";
 import {
   useIntegrationConnection,
   useUntilIntegrationAttached,
-} from "services";
+} from "@anoma/hooks";
 import { Account, ExtensionKey, Extensions } from "@anoma/types";
 
 //TODO: move to utils when we have one

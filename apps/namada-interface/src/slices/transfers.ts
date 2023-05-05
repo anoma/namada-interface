@@ -8,7 +8,7 @@ import {
   ToastId,
   ToastType,
 } from "slices/notifications";
-import { getIntegration } from "services";
+import { getIntegration } from "@anoma/hooks";
 import { RootState } from "store";
 
 enum Toasts {
