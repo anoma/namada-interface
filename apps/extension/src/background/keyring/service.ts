@@ -55,17 +55,18 @@ export class KeyRingService {
     // Validate chainId, if valid, append tab unless it already exists
     if (chainId === this.chainId) {
       const tabs = (await this.connectedTabsStore.get(chainId)) || [];
+      const tabIndex = tabs.findIndex((tab) => tab.tabId === senderTabId);
 
-      if (!tabs.find((tab) => tab.tabId === senderTabId)) {
+      if (tabIndex > -1) {
+        // If tab exists, update timestamp
+        tabs[tabIndex].timestamp = Date.now();
+      } else {
+        // Add tab to storage
         tabs.push({
           tabId: senderTabId,
           timestamp: Date.now(),
         });
-        return await this.connectedTabsStore.set(chainId, tabs);
       }
-      // If tab exists, update timestamp
-      const tabIndex = tabs.findIndex((tab) => tab.tabId === senderTabId);
-      tabs[tabIndex].timestamp = Date.now();
       return await this.connectedTabsStore.set(chainId, tabs);
     }
     throw new Error("Connect: Invalid chainId");
