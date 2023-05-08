@@ -71,8 +71,6 @@ const Settings: React.FC<Props> = ({ requester, fetchAccounts, parentId }) => {
 
       // Fetch accounts for selected parent account
       await fetchAccounts();
-      /* navigate(TopLevelRoute.Accounts); */
-      // TODO: Dispatch event to inform connected interfaces to reload account views
     } catch (e) {
       console.error(e);
       setError(`An error occurred while setting active account: ${e}`);

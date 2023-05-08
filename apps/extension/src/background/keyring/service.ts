@@ -6,6 +6,9 @@ import { Sdk } from "@anoma/shared";
 
 import { KeyRing } from "./keyring";
 import { KeyRingStatus, KeyStore } from "./types";
+import { ExtensionRequester } from "extension";
+import { Ports } from "router";
+import { AccountChangedEventMsg } from "content/events";
 
 export class KeyRingService {
   private _keyRing: KeyRing;
@@ -16,7 +19,8 @@ export class KeyRingService {
     protected readonly accountAccountStore: KVStore<string>,
     protected readonly chainId: string,
     protected readonly sdk: Sdk,
-    protected readonly cryptoMemory: WebAssembly.Memory
+    protected readonly cryptoMemory: WebAssembly.Memory,
+    protected readonly requester: ExtensionRequester
   ) {
     this._keyRing = new KeyRing(
       kvStore,
@@ -127,7 +131,15 @@ export class KeyRingService {
   }
 
   async setActiveAccountId(accountId: string): Promise<void> {
-    return this._keyRing.setActiveAccountId(accountId);
+    await this._keyRing.setActiveAccountId(accountId);
+    try {
+      return await this.requester.sendMessageToCurrentTab(
+        Ports.WebBrowser,
+        new AccountChangedEventMsg(this.chainId)
+      );
+    } catch (e) {
+      console.warn(e);
+    }
   }
 
   async getActiveAccountId(): Promise<string | undefined> {

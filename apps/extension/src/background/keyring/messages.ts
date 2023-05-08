@@ -235,6 +235,7 @@ export class SetActiveAccountMsg extends Message<void> {
     return SetActiveAccountMsg.type();
   }
 }
+
 export class GetActiveAccountMsg extends Message<string | undefined> {
   public static type(): MessageType {
     return MessageType.GetActiveAccount;

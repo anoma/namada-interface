@@ -1,22 +1,19 @@
-import { Message, Router, Events, Routes } from "../router";
+import { Events } from "@anoma/types";
 
-class PushEventDataMsg extends Message<void> {
+import { Message, Router, Routes } from "../router";
+
+export class AccountChangedEventMsg extends Message<void> {
   public static type(): Events {
-    return Events.PushEventData;
+    return Events.AccountChanged;
   }
 
-  constructor(
-    public readonly data: {
-      type: string;
-      data: unknown;
-    }
-  ) {
+  constructor(public readonly chainId: string) {
     super();
   }
 
   validate(): void {
-    if (!this.data.type) {
-      throw new Error("Type should not be empty");
+    if (!this.chainId) {
+      throw new Error("chainId must not be empty");
     }
   }
 
@@ -25,18 +22,20 @@ class PushEventDataMsg extends Message<void> {
   }
 
   type(): string {
-    return PushEventDataMsg.type();
+    return AccountChangedEventMsg.type();
   }
 }
 
 export function initEvents(router: Router): void {
-  router.registerMessage(PushEventDataMsg);
+  router.registerMessage(AccountChangedEventMsg);
 
   router.addHandler(Routes.InteractionForeground, (_, msg) => {
     switch (msg.constructor) {
-      case PushEventDataMsg:
-        if ((msg as PushEventDataMsg).data.type === Events.KeystoreChanged) {
-          window.dispatchEvent(new Event("anoma_keystoreupdated"));
+      case AccountChangedEventMsg:
+        if ((msg as AccountChangedEventMsg).chainId) {
+          window.dispatchEvent(
+            new CustomEvent(Events.AccountChanged, { detail: msg })
+          );
         }
         return;
       default:

@@ -19,7 +19,7 @@ import { Sdk } from "@anoma/shared";
 
 // __wasm is not exported in crypto.d.ts so need to use require instead of import
 /* eslint-disable @typescript-eslint/no-var-requires */
-const cryptoMemory = (require("@anoma/crypto")).__wasm.memory;
+const cryptoMemory = require("@anoma/crypto").__wasm.memory;
 
 class KVStoreMock<T> implements KVStore<T> {
   private storage: { [key: string]: T | null } = {};
@@ -76,7 +76,8 @@ export const init = (): {
     activeAccountStore,
     "namada-75a7e12.69483d59a9fb174",
     sdk,
-    cryptoMemory
+    cryptoMemory,
+    requester
   );
 
   // Initialize messages and handlers

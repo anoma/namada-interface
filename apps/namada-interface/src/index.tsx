@@ -6,14 +6,16 @@ import { init as initShared } from "@anoma/shared/src/init";
 import "./index.css";
 import { store } from "store/store";
 import { getRouter } from "./App/AppRoutes";
-import { IntegrationsProvider } from "services";
+import { ExtensionEventsProvider, IntegrationsProvider } from "services";
 import { Provider } from "react-redux";
 
 ReactDOM.render(
   <React.StrictMode>
     <IntegrationsProvider>
       <Provider store={store}>
-        <RouterProvider router={getRouter()} />
+        <ExtensionEventsProvider>
+          <RouterProvider router={getRouter()} />
+        </ExtensionEventsProvider>
       </Provider>
     </IntegrationsProvider>
   </React.StrictMode>,

@@ -1,5 +1,6 @@
 import browser from "webextension-polyfill";
 import { ExtensionKVStore, IndexedDBKVStore } from "@anoma/storage";
+import { defaultChainId, chains } from "@anoma/chains";
 import { init as initCrypto } from "@anoma/crypto/src/init";
 import { init as initShared } from "@anoma/shared/src/init";
 import { Sdk } from "@anoma/shared";
@@ -9,9 +10,9 @@ import {
   ExtensionGuards,
   ContentScriptEnv,
   ExtensionMessenger,
+  ExtensionRequester,
 } from "extension";
 import { Ports, KVPrefix } from "router";
-import { defaultChainId, chains } from "@anoma/chains";
 import { ChainsService, init as initChains } from "./chains";
 import { KeyRingService, init as initKeyRing, SDK_KEY } from "./keyring";
 
@@ -36,6 +37,7 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
     set: browser.storage.local.set,
   });
 
+  const requester = new ExtensionRequester(messenger, extensionStore);
   const router = new ExtensionRouter(
     ContentScriptEnv.produceEnv,
     messenger,
@@ -59,7 +61,8 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
     activeAccountStore,
     defaultChainId,
     sdk,
-    cryptoMemory
+    cryptoMemory,
+    requester
   );
 
   // Initialize messages and handlers
@@ -68,16 +71,3 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
 
   router.listen(Ports.Background);
 })();
-
-// The following is an example of launching an approval screen from the background:
-/*
-const url = browser.runtime.getURL("popup.html");
-console.log({ url });
-
-browser.windows.create({
-  url: `${url}?redirect=/tx`,
-  width: 415,
-  height: 510,
-  type: "popup",
-});
-*/
