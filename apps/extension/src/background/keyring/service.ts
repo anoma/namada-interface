@@ -5,7 +5,7 @@ import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
 import { Sdk } from "@anoma/shared";
 
 import { KeyRing } from "./keyring";
-import { KeyRingStatus, KeyStore } from "./types";
+import { KeyRingStatus, KeyStore, TabStore } from "./types";
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
 import { AccountChangedEventMsg } from "content/events";
@@ -17,6 +17,7 @@ export class KeyRingService {
     protected readonly kvStore: KVStore<KeyStore[]>,
     protected readonly sdkStore: KVStore<string>,
     protected readonly accountAccountStore: KVStore<string>,
+    protected readonly connectedTabsStore: KVStore<TabStore[]>,
     protected readonly chainId: string,
     protected readonly sdk: Sdk,
     protected readonly cryptoMemory: WebAssembly.Memory,
@@ -47,6 +48,28 @@ export class KeyRingService {
 
   isLocked(): boolean {
     return this._keyRing.isLocked();
+  }
+
+  // Track connected tabs by ID
+  async connect(senderTabId: number, chainId: string): Promise<void> {
+    // Validate chainId, if valid, append tab unless it already exists
+    if (chainId === this.chainId) {
+      const tabs = (await this.connectedTabsStore.get(chainId)) || [];
+      const tabIndex = tabs.findIndex((tab) => tab.tabId === senderTabId);
+
+      if (tabIndex > -1) {
+        // If tab exists, update timestamp
+        tabs[tabIndex].timestamp = Date.now();
+      } else {
+        // Add tab to storage
+        tabs.push({
+          tabId: senderTabId,
+          timestamp: Date.now(),
+        });
+      }
+      return await this.connectedTabsStore.set(chainId, tabs);
+    }
+    throw new Error("Connect: Invalid chainId");
   }
 
   async checkPassword(password: string): Promise<boolean> {
@@ -131,12 +154,17 @@ export class KeyRingService {
   }
 
   async setActiveAccountId(accountId: string): Promise<void> {
+    const tabs = await this.connectedTabsStore.get(this.chainId);
     await this._keyRing.setActiveAccountId(accountId);
+
     try {
-      return await this.requester.sendMessageToCurrentTab(
-        Ports.WebBrowser,
-        new AccountChangedEventMsg(this.chainId)
-      );
+      tabs?.forEach(({ tabId }: TabStore) => {
+        this.requester.sendMessageToTab(
+          tabId,
+          Ports.WebBrowser,
+          new AccountChangedEventMsg(this.chainId)
+        );
+      });
     } catch (e) {
       console.warn(e);
     }

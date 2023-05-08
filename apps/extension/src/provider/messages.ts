@@ -13,6 +13,7 @@ enum Route {
 }
 
 enum MessageType {
+  ConnectInterface = "connect-interface",
   QueryAccounts = "query-accounts",
   SignTx = "sign-tx",
   SubmitTransfer = "submit-transfer",
@@ -29,6 +30,31 @@ enum MessageType {
 /**
  * Messages routed from providers to Chains service
  */
+
+export class ConnectInterfaceMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.ConnectInterface;
+  }
+
+  constructor(public readonly chainId: string) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.chainId) {
+      throw new Error("chain ID not set");
+    }
+  }
+
+  route(): string {
+    return Route.KeyRing;
+  }
+
+  type(): string {
+    return ConnectInterfaceMsg.type();
+  }
+}
+
 export class SuggestChainMsg extends Message<void> {
   public static type(): MessageType {
     return MessageType.SuggestChain;

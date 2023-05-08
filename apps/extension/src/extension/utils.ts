@@ -3,6 +3,7 @@ import { KVStore } from "@anoma/storage";
 import { Env, MessageSender } from "router/types";
 
 const ROUTER_ID_KEY = "anomaExtensionRouterId";
+const NO_TAB_ID = -2;
 
 export const getAnomaRouterId = async (
   store: KVStore<number>
@@ -19,9 +20,11 @@ export const getAnomaRouterId = async (
 export class ContentScriptEnv {
   static readonly produceEnv = (sender: MessageSender): Env => {
     const isInternalMsg = sender.id === browser.runtime.id;
+    const senderTabId = sender.tab?.id || NO_TAB_ID;
 
     return {
       isInternalMsg,
+      senderTabId,
       requestInteraction: () => {
         throw new Error(
           "ContentScriptEnv doesn't support `requestInteraction`"

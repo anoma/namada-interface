@@ -36,6 +36,10 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
     get: browser.storage.local.get,
     set: browser.storage.local.set,
   });
+  const connectedTabsStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
+    get: browser.storage.local.get,
+    set: browser.storage.local.set,
+  });
 
   const requester = new ExtensionRequester(messenger, extensionStore);
   const router = new ExtensionRouter(
@@ -59,6 +63,7 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
     store,
     sdkStore,
     activeAccountStore,
+    connectedTabsStore,
     defaultChainId,
     sdk,
     cryptoMemory,

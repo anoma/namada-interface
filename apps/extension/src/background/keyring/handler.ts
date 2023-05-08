@@ -13,6 +13,7 @@ import {
   QueryParentAccountsMsg,
 } from "./messages";
 import {
+  ConnectInterfaceMsg,
   SubmitTransferMsg,
   EncodeInitAccountMsg,
   QueryAccountsMsg,
@@ -26,6 +27,11 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
     switch (msg.constructor) {
       case CheckIsLockedMsg:
         return handleCheckIsLockedMsg(service)(env, msg as CheckIsLockedMsg);
+      case ConnectInterfaceMsg:
+        return handleConnectInterfaceMsg(service)(
+          env,
+          msg as ConnectInterfaceMsg
+        );
       case LockKeyRingMsg:
         return handleLockKeyRingMsg(service)(env, msg as LockKeyRingMsg);
       case UnlockKeyRingMsg:
@@ -77,6 +83,14 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
       default:
         throw new Error("Unknown msg type");
     }
+  };
+};
+
+const handleConnectInterfaceMsg: (
+  service: KeyRingService
+) => InternalHandler<ConnectInterfaceMsg> = (service) => {
+  return async ({ senderTabId }, { chainId }) => {
+    return await service.connect(senderTabId, chainId);
   };
 };
 

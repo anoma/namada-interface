@@ -37,6 +37,7 @@ export default class Anoma
   }
 
   public async accounts(): Promise<readonly Account[] | undefined> {
+    await this.connect();
     const signer = this._anoma?.getSigner(this.chain.chainId);
     return await signer?.accounts();
   }
