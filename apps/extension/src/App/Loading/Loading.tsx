@@ -4,7 +4,7 @@ import { LoadingError } from "./Loading.components";
 
 type Props = {
   error?: string;
-  status: Status;
+  status?: Status;
 };
 
 const Loading: React.FC<Props> = ({ error, status }) => {
