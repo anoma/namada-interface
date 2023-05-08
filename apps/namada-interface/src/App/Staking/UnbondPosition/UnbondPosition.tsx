@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
 
 import {
   Button,
@@ -14,6 +13,7 @@ import {
   ChangeInStakingPosition,
 } from "slices/StakingAndGovernance";
 import { UnstakePositionContainer } from "./UnbondPosition.components";
+import { useSanitizedParams } from "../../../hooks/useSanitizedParams";
 
 // keys for the table that we want to act upon in table configuration
 const AMOUNT_TO_UNBOND_KEY = "Amount to unbond";
@@ -68,7 +68,7 @@ type Props = {
 
 // contains data and controls to unbond
 export const UnbondPosition = (props: Props): JSX.Element => {
-  const { owner } = useParams();
+  const { owner } = useSanitizedParams();
   const { currentBondingPositions, confirmUnbonding, cancelUnbonding } = props;
   const currentBondingPosition = currentBondingPositions.find(
     (pos) => pos.owner === owner

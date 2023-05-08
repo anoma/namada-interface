@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { TokenType } from "@anoma/types";
 import { formatRoute, stringFromTimestamp } from "@anoma/utils";
@@ -26,6 +26,7 @@ import {
   TransfersContent,
 } from "./Transfers.components";
 import { BackButton } from "../TokenSend/TokenSendForm.components";
+import { useSanitizedParams } from "../../../hooks/useSanitizedParams";
 
 type TokenDetailsParams = {
   id: string;
@@ -34,7 +35,7 @@ type TokenDetailsParams = {
 
 const Transfers = (): JSX.Element => {
   const navigate = useNavigate();
-  const { id = "", token } = useParams<TokenDetailsParams>();
+  const { id = "", token } = useSanitizedParams<TokenDetailsParams>();
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const { transactions: accountTransactions } = useAppSelector<TransfersState>(

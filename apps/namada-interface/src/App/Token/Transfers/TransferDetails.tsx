@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { chains } from "@anoma/chains";
 import { Chain } from "@anoma/types";
@@ -16,6 +16,7 @@ import { useAppSelector } from "store";
 import { Address, TransferDetailContainer } from "./TransferDetails.components";
 import { BackButton } from "../TokenSend/TokenSendForm.components";
 import { ButtonsContainer, TransfersContent } from "./Transfers.components";
+import { useSanitizedParams } from "../../../hooks/useSanitizedParams";
 
 type TransferDetailsParams = {
   id: string;
@@ -24,7 +25,7 @@ type TransferDetailsParams = {
 
 const TransferDetail = (): JSX.Element => {
   const navigate = useNavigate();
-  const { appliedHash = "" } = useParams<TransferDetailsParams>();
+  const { appliedHash = "" } = useSanitizedParams<TransferDetailsParams>();
   const { transactions } = useAppSelector<TransfersState>(
     (state) => state.transfers
   );

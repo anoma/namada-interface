@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
 
 import { Account, AccountsState } from "slices/accounts";
 import { SettingsState } from "slices/settings";
@@ -15,6 +14,7 @@ import {
   Option,
 } from "@anoma/components";
 import TokenSendForm from "./TokenSendForm";
+import { useSanitizedParams } from "../../../hooks/useSanitizedParams";
 
 import {
   TokenSendContainer,
@@ -64,7 +64,7 @@ const accountsWithBalanceIntoSelectData = (
 const TokenSend = (): JSX.Element => {
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
-  const { target } = useParams<Params>();
+  const { target } = useSanitizedParams<Params>();
 
   const accounts = Object.values(derived[chainId]);
 

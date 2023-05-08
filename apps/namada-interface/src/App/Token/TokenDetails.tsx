@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { chains } from "@anoma/chains";
 import { Chain, Tokens } from "@anoma/types";
@@ -23,6 +23,7 @@ import {
   TransactionListItem,
   AccountsDetailsNavContainer,
 } from "./TokenDetails.components";
+import { useSanitizedParams } from "../../hooks/useSanitizedParams";
 
 type TokenDetailsParams = {
   id: string;
@@ -30,7 +31,7 @@ type TokenDetailsParams = {
 
 const TokenDetails = (): JSX.Element => {
   const navigate = useNavigate();
-  const { id = "" } = useParams<TokenDetailsParams>();
+  const { id = "" } = useSanitizedParams<TokenDetailsParams>();
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const { ibc } =
