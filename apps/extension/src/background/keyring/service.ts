@@ -61,9 +61,14 @@ export class KeyRingService {
           tabId: senderTabId,
           timestamp: Date.now(),
         });
-        await this.connectedTabsStore.set(chainId, tabs);
+        return await this.connectedTabsStore.set(chainId, tabs);
       }
+      // If tab exists, update timestamp
+      const tabIndex = tabs.findIndex((tab) => tab.tabId === senderTabId);
+      tabs[tabIndex].timestamp = Date.now();
+      return await this.connectedTabsStore.set(chainId, tabs);
     }
+    throw new Error("Connect: Invalid chainId");
   }
 
   async checkPassword(password: string): Promise<boolean> {
