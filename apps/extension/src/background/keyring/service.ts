@@ -6,6 +6,7 @@ import { Sdk } from "@anoma/shared";
 
 import { KeyRing } from "./keyring";
 import { KeyRingStatus, KeyStore, TabStore } from "./types";
+import { syncTabs } from "./utils";
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
 import { AccountChangedEventMsg } from "content/events";
@@ -154,7 +155,11 @@ export class KeyRingService {
   }
 
   async setActiveAccountId(accountId: string): Promise<void> {
-    const tabs = await this.connectedTabsStore.get(this.chainId);
+    const tabs = await syncTabs(
+      this.connectedTabsStore,
+      this.requester,
+      this.chainId
+    );
     await this._keyRing.setActiveAccountId(accountId);
 
     try {
