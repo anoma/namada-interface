@@ -75,7 +75,7 @@ export const App: React.FC = () => {
   };
 
   const fetchParentAccountId = async (): Promise<void> => {
-    setStatus(Status.Pending); // or "error"
+    setStatus(Status.Pending);
 
     try {
       const parentId = await requester.sendMessage(
@@ -130,6 +130,7 @@ export const App: React.FC = () => {
     { tries: 10, ms: 100 },
     []
   );
+
   useEffect(() => {
     if (redirect) {
       // Provide a redirect in the case of transaction/connection approvals
