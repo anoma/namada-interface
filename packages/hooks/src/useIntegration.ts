@@ -117,7 +117,7 @@ export const useUntilIntegrationAttached = (chain: Chain): AttachStatusMap => {
 
   useUntil(
     {
-      predFn: () => integration.detect(),
+      predFn: () => Promise.resolve(integration.detect()),
       onSuccess: () => {
         setAttachStatus((v) => ({ ...v, [extension.id]: "attached" }));
       },

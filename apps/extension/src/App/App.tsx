@@ -7,11 +7,12 @@ import { DerivedAccount } from "@anoma/types";
 import { getTheme } from "@anoma/utils";
 import { ExtensionKVStore } from "@anoma/storage";
 import { Icon, IconName } from "@anoma/components";
+import { useUntil } from "@anoma/hooks";
 
 import { ExtensionMessenger, ExtensionRequester } from "extension";
 import { KVPrefix, Ports } from "router";
 import { QueryAccountsMsg } from "provider/messages";
-import { GetActiveAccountMsg } from "background/keyring";
+import { GetActiveAccountMsg, CheckIsLockedMsg } from "background/keyring";
 import { useQuery } from "hooks";
 import {
   AppContainer,
@@ -74,7 +75,8 @@ export const App: React.FC = () => {
   };
 
   const fetchParentAccountId = async (): Promise<void> => {
-    setStatus(Status.Pending);
+    setStatus(Status.Pending); // or "error"
+
     try {
       const parentId = await requester.sendMessage(
         Ports.Background,
@@ -91,12 +93,47 @@ export const App: React.FC = () => {
     }
   };
 
+  useUntil(
+    {
+      predFn: async () => {
+        setStatus(Status.Pending);
+        try {
+          await requester.sendMessage(Ports.Background, new CheckIsLockedMsg());
+          return true;
+        } catch (e) {
+          console.warn(e);
+          return false;
+        }
+      },
+      onSuccess: () => {
+        (async () => {
+          // Fetch accounts
+          try {
+            const accounts = await requester.sendMessage(
+              Ports.Background,
+              new QueryAccountsMsg()
+            );
+            setAccounts(accounts);
+          } catch (e) {
+            console.error(e);
+            setError(`An error occurred while loading extension: ${e}`);
+            setStatus(Status.Failed);
+            return;
+          }
+        })();
+      },
+      onFail: () => {
+        setError("An error occurred connecting to extension");
+        setStatus(Status.Failed);
+      },
+    },
+    { tries: 10, ms: 100 },
+    []
+  );
   useEffect(() => {
     if (redirect) {
       // Provide a redirect in the case of transaction/connection approvals
       navigate(redirect);
-    } else {
-      fetchAccounts();
     }
   }, []);
 
@@ -134,7 +171,10 @@ export const App: React.FC = () => {
             </HeadingButtons>
           </TopSection>
           <Routes>
-            <Route path="*" element={<Loading error={error} />} />
+            <Route
+              path="*"
+              element={<Loading status={status} error={error} />}
+            />
             <Route path={TopLevelRoute.Setup} element={<Setup />} />
             <Route
               path={TopLevelRoute.ApproveConnection}
