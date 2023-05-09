@@ -3,11 +3,10 @@ import { createContext } from "react";
 import { Events } from "@anoma/types";
 import { defaultChainId } from "@anoma/chains";
 import { Anoma } from "@anoma/integrations";
+import { useEventListenerOnce, useIntegration } from "@anoma/hooks";
 
-import { useEventListenerOnce } from "hooks";
 import { useAppDispatch } from "store";
 import { AnomaAccountChangedHandler } from "./handlers/anoma";
-import { useIntegration } from "services/integrations";
 
 export const ExtensionEventsContext = createContext({});
 

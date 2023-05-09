@@ -1,0 +1,29 @@
+{
+  "name": "@anoma/hooks",
+  "version": "0.1.0",
+  "description": "A collection of React hooks",
+  "main": "src/index.ts",
+  "repository": "https://github.com/anoma/namada-interface",
+  "author": "Heliax Dev <info@heliax.dev>",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "lint": "npx eslint src --ext .ts,.tsx",
+    "lint:fix": "yarn lint -- --fix",
+    "lint:ci": "yarn lint --max-warnings 0"
+  },
+  "dependencies": {
+    "@anoma/chains": "0.1.0",
+    "@anoma/integrations": "0.1.0",
+    "@anoma/types": "0.1.0",
+    "@anoma/utils": "0.1.0",
+    "react": "^17.0.2",
+    "typescript": "^4.8.3"
+  },
+  "devDependencies": {
+    "@types/react": "^17.0.39",
+    "eslint": "^8.23.1",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-prettier": "^8.5.0"
+  }
+}
