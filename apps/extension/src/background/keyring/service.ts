@@ -6,7 +6,7 @@ import { Sdk } from "@anoma/shared";
 
 import { KeyRing } from "./keyring";
 import { KeyRingStatus, KeyStore, TabStore } from "./types";
-import { syncTabs } from "./utils";
+import { syncTabs, updateTabStorage } from "./utils";
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
 import { AccountChangedEventMsg } from "content/events";
@@ -55,20 +55,18 @@ export class KeyRingService {
   async connect(senderTabId: number, chainId: string): Promise<void> {
     // Validate chainId, if valid, append tab unless it already exists
     if (chainId === this.chainId) {
-      const tabs = (await this.connectedTabsStore.get(chainId)) || [];
-      const tabIndex = tabs.findIndex((tab) => tab.tabId === senderTabId);
+      const tabs = await syncTabs(
+        this.connectedTabsStore,
+        this.requester,
+        this.chainId
+      );
 
-      if (tabIndex > -1) {
-        // If tab exists, update timestamp
-        tabs[tabIndex].timestamp = Date.now();
-      } else {
-        // Add tab to storage
-        tabs.push({
-          tabId: senderTabId,
-          timestamp: Date.now(),
-        });
-      }
-      return await this.connectedTabsStore.set(chainId, tabs);
+      return await updateTabStorage(
+        senderTabId,
+        tabs,
+        this.connectedTabsStore,
+        this.chainId
+      );
     }
     throw new Error("Connect: Invalid chainId");
   }
