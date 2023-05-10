@@ -12,7 +12,7 @@ import { useUntil } from "@anoma/hooks";
 import { ExtensionMessenger, ExtensionRequester } from "extension";
 import { KVPrefix, Ports } from "router";
 import { QueryAccountsMsg } from "provider/messages";
-import { GetActiveAccountMsg, CheckIsLockedMsg } from "background/keyring";
+import { GetActiveAccountMsg } from "background/keyring";
 import { useQuery } from "hooks";
 import {
   AppContainer,
@@ -98,7 +98,11 @@ export const App: React.FC = () => {
       predFn: async () => {
         setStatus(Status.Pending);
         try {
-          await requester.sendMessage(Ports.Background, new CheckIsLockedMsg());
+          const accounts = await requester.sendMessage(
+            Ports.Background,
+            new QueryAccountsMsg()
+          );
+          setAccounts(accounts);
           return true;
         } catch (e) {
           console.warn(e);
@@ -106,21 +110,7 @@ export const App: React.FC = () => {
         }
       },
       onSuccess: () => {
-        (async () => {
-          // Fetch accounts
-          try {
-            const accounts = await requester.sendMessage(
-              Ports.Background,
-              new QueryAccountsMsg()
-            );
-            setAccounts(accounts);
-          } catch (e) {
-            console.error(e);
-            setError(`An error occurred while loading extension: ${e}`);
-            setStatus(Status.Failed);
-            return;
-          }
-        })();
+        setStatus(Status.Completed);
       },
       onFail: () => {
         setError("An error occurred connecting to extension");
