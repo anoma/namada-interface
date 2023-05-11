@@ -20,6 +20,7 @@ pub struct HttpClient {
     url: String,
 }
 
+/// HttpClient implementation using `window.fetch` API.
 impl HttpClient {
     pub fn new(url: String) -> HttpClient {
         HttpClient { url }
@@ -40,8 +41,19 @@ impl HttpClient {
 
 #[async_trait::async_trait(?Send)]
 impl Client for HttpClient {
+    /// Implementation of the `Client` trait for the `HttpClient` struct.
+    /// It's used by the Sdk to perform queries to the blockchain.
     type Error = JsError;
 
+    /// Wrapper for tendermint specific abci_query.
+    ///
+    /// # Arguments
+    ///
+    /// * `path` - path of the resource in the storage.
+    /// * `data` - query params in the form of bytearray.
+    /// * `height` - height of the specific blockchain block that we are quering information from.
+    ///              0 means the latest block.
+    /// * `prove` - include proofs of the transactions inclusion in the block
     async fn request(
         &self,
         path: String,
@@ -75,6 +87,11 @@ impl Client for HttpClient {
         }
     }
 
+    /// Performas request using fetch API. Maps returned JS object to the `RpcResponse` struct.
+    ///
+    /// # Arguments
+    ///
+    /// * `request` - request type to be performed. Check `Client` trait for avaialble requests.
     async fn perform<R>(&self, request: R) -> Result<R::Response, RpcError>
     where
         R: SimpleRequest,

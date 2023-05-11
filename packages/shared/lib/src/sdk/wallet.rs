@@ -14,18 +14,40 @@ use wasm_bindgen::JsError;
 
 pub type WalletUtils = SdkWalletUtils<String>;
 
+/// We get the data from the IndexedDB, that's why we don't need to specify the path.
 pub(crate) const STORAGE_PATH: &str = "";
 
+/// Encodes wallet data.
 pub fn encode(wallet: &Wallet<WalletUtils>) -> Vec<u8> {
     wallet.store().encode()
 }
 
+/// Decodes wallet data and assings it in the Sdk.
+/// Returns new Wallet instance if data can be deserialized.
+///
+/// # Arguments
+///
+/// * `data` - Serialized wallet data.
+///
+/// # Errors
+///
+/// Returns a JsError if the wallet data can't be deserialized.
 pub fn decode(data: Vec<u8>) -> Result<Wallet<WalletUtils>, JsError> {
     let store = Store::decode(data)?;
     let wallet = Wallet::new(STORAGE_PATH.to_owned(), store);
     Ok(wallet)
 }
 
+/// Adds keypair and the address to the wallet.
+/// It's needed because we create addresses without using the Sdk.
+/// Panics if inserting keypair or address is impossible.
+///
+/// # Arguments
+///
+/// * `wallet` - Instance of a wallet struct.
+/// * `private_key` - Private key to generate keypair from.
+/// * `password` - Password to encrypt the keypair.
+/// * `alias` - Optional address/keypair alias.
 pub fn add_key(
     wallet: &mut Wallet<WalletUtils>,
     private_key: &str,
@@ -57,6 +79,16 @@ pub fn add_key(
     }
 }
 
+/// Adds spending key to the wallet.
+/// It's needed because we create addresses without using the Sdk.
+/// Panics if inserting spending key is impossible.
+///
+/// # Arguments
+///
+/// * `wallet` - Instance of a wallet struct.
+/// * `xsk` - Bytearray representing serialized ExtendedSpendingKey.
+/// * `password` - Password to encrypt the spending key.
+/// * `alias` - Spending key alias.
 pub fn add_spending_key(
     wallet: &mut Wallet<WalletUtils>,
     xsk: &[u8],

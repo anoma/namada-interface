@@ -10,6 +10,7 @@ mod masp;
 mod tx;
 mod wallet;
 
+/// Represents the Sdk public API.
 #[wasm_bindgen]
 pub struct Sdk {
     client: HttpClient,
@@ -18,6 +19,8 @@ pub struct Sdk {
 }
 
 #[wasm_bindgen]
+/// Sdk mostly wraps the logic of the Sdk struct members, making it a part of public API.
+/// For more details, navigate to the corresponding modules.
 impl Sdk {
     #[wasm_bindgen(constructor)]
     pub fn new(url: String) -> Self {
