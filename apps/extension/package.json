@@ -34,6 +34,7 @@
     "@anoma/types": "0.1.0",
     "@anoma/utils": "0.1.0",
     "@cosmjs/encoding": "^0.29.0",
+    "@zondax/ledger-namada": "^0.0.1",
     "buffer": "^6.0.3",
     "dompurify": "^3.0.2",
     "framer-motion": "6.2.4",
