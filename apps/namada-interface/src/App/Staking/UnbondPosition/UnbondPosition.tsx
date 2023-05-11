@@ -13,7 +13,7 @@ import {
   ChangeInStakingPosition,
 } from "slices/StakingAndGovernance";
 import { UnstakePositionContainer } from "./UnbondPosition.components";
-import { useSanitizedParams } from "../../../hooks/useSanitizedParams";
+import { useSanitizedParams } from "@anoma/hooks";
 
 // keys for the table that we want to act upon in table configuration
 const AMOUNT_TO_UNBOND_KEY = "Amount to unbond";

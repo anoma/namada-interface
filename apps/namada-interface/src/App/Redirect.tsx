@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TopLevelRoute } from "./types";
-import { useSanitizedLocation } from "../hooks/useSanitizedLocation";
+import { useSanitizedLocation } from "@anoma/hooks";
 
 type Props = {
   password?: string;

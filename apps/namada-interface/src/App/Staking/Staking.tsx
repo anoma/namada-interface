@@ -18,7 +18,7 @@ import {
 import { NewBondingPosition } from "./NewBondingPosition";
 import { UnbondPosition } from "./UnbondPosition";
 import { Account } from "slices/accounts";
-import { useSanitizedLocation } from "../../hooks/useSanitizedLocation";
+import { useSanitizedLocation } from "@anoma/hooks";
 
 const initialTitle = "Staking";
 

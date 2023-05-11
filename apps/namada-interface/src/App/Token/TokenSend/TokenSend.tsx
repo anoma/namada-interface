@@ -14,7 +14,7 @@ import {
   Option,
 } from "@anoma/components";
 import TokenSendForm from "./TokenSendForm";
-import { useSanitizedParams } from "../../../hooks/useSanitizedParams";
+import { useSanitizedParams } from "@anoma/hooks";
 
 import {
   TokenSendContainer,

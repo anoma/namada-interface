@@ -52,7 +52,7 @@ import {
 } from "./topNavigation.components";
 import { setChainId, SettingsState } from "slices/settings";
 import TopNavigationLoggedIn from "./topNavigationLoggedIn";
-import { useSanitizedLocation } from "../../hooks/useSanitizedLocation";
+import { useSanitizedLocation } from "@anoma/hooks";
 
 /**
  * this is rendered in one of 2 places depending of the screen size

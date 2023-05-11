@@ -11,3 +11,5 @@ Currently, the following hooks are defined:
 - `useIntegrationConnection`
 - `useUntilIntegrationAttached`
 - `useUntil`
+- `useSanitizedLocation`
+- `useSanitizedParams`

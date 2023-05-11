@@ -12,7 +12,7 @@ import {
   StakingAndGovernanceSubRoute,
   locationToStakingAndGovernanceSubRoute,
 } from "App/types";
-import { useSanitizedLocation } from "hooks/useSanitizedLocation";
+import { useSanitizedLocation } from "@anoma/hooks";
 
 import {
   fetchValidators,

@@ -23,7 +23,7 @@ import {
   TransactionListItem,
   AccountsDetailsNavContainer,
 } from "./TokenDetails.components";
-import { useSanitizedParams } from "../../hooks/useSanitizedParams";
+import { useSanitizedParams } from "@anoma/hooks";
 
 type TokenDetailsParams = {
   id: string;

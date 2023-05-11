@@ -26,7 +26,7 @@ import {
   TransfersContent,
 } from "./Transfers.components";
 import { BackButton } from "../TokenSend/TokenSendForm.components";
-import { useSanitizedParams } from "../../../hooks/useSanitizedParams";
+import { useSanitizedParams } from "@anoma/hooks";
 
 type TokenDetailsParams = {
   id: string;

@@ -16,7 +16,7 @@ import { useAppSelector } from "store";
 import { Address, TransferDetailContainer } from "./TransferDetails.components";
 import { BackButton } from "../TokenSend/TokenSendForm.components";
 import { ButtonsContainer, TransfersContent } from "./Transfers.components";
-import { useSanitizedParams } from "../../../hooks/useSanitizedParams";
+import { useSanitizedParams } from "@anoma/hooks";
 
 type TransferDetailsParams = {
   id: string;
