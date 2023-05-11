@@ -1,8 +1,10 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+
 import { Account as AccountDetails, Tokens, TokenType } from "@anoma/types";
-import { RootState } from "store";
 import { chains } from "@anoma/chains";
 import { RpcClient } from "@anoma/rpc";
+
+import { RootState } from "store";
 
 type ChainId = string;
 type Address = string;

@@ -8,6 +8,7 @@
   "private": true,
   "dependencies": {
     "@anoma/components": "0.1.0",
+    "@anoma/hooks": "0.1.0",
     "@anoma/integrations": "0.1.0",
     "@anoma/rpc": "0.1.0",
     "@anoma/utils": "0.1.0",

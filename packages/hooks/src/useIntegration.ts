@@ -1,7 +1,3 @@
-import { chains } from "@anoma/chains";
-import { Anoma, Keplr, Metamask } from "@anoma/integrations";
-import { Chain, ExtensionKey } from "@anoma/types";
-import { useUntil } from "hooks/useUntil";
 import {
   createContext,
   useCallback,
@@ -9,6 +5,11 @@ import {
   useEffect,
   useState,
 } from "react";
+
+import { chains } from "@anoma/chains";
+import { Anoma, Keplr, Metamask } from "@anoma/integrations";
+import { Chain, ExtensionKey } from "@anoma/types";
+import { useUntil } from "@anoma/hooks";
 
 type Integration = typeof Anoma | typeof Keplr | typeof Metamask;
 type ChainId = string;
@@ -40,14 +41,6 @@ export const integrations = Object.entries(chains).reduce(
 );
 
 export const IntegrationsContext = createContext<Integrations>({});
-
-export const IntegrationsProvider: React.FC = (props): JSX.Element => {
-  return (
-    <IntegrationsContext.Provider value={integrations}>
-      {props.children}
-    </IntegrationsContext.Provider>
-  );
-};
 
 /**
  * Hook for accessing integration by ChainId.

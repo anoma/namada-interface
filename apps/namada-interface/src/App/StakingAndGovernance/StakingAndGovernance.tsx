@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useAppDispatch, useAppSelector, RootState } from "store";
 import { Routes, Route, useNavigate } from "react-router-dom";
 
+import { useIntegrationConnection } from "@anoma/hooks";
 import { Staking } from "App/Staking";
 import { Governance } from "App/Governance";
 import { PublicGoodsFunding } from "App/PublicGoodsFunding";
@@ -21,12 +22,13 @@ import {
   ChangeInStakingPosition,
 } from "slices/StakingAndGovernance";
 import { SettingsState } from "slices/settings";
-import { useIntegrationConnection } from "services";
 import { AccountsState } from "slices/accounts";
+
 export type { ChangeInStakingPosition };
 // This is just rendering the actual Staking/Governance/PGF screens
 // mostly the purpose of this is to define the default behavior when
 // the user clicks the top level Staking & Governance menu
+//
 export const StakingAndGovernance = (): JSX.Element => {
   const location = useSanitizedLocation();
   const navigate = useNavigate();

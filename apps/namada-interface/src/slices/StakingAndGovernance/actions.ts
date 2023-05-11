@@ -1,4 +1,11 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
+
+import { Query } from "@anoma/shared";
+import { amountToMicro, fetchWasmCode } from "@anoma/utils";
+import { Signer, Tokens, TxWasm } from "@anoma/types";
+import { chains } from "@anoma/chains";
+import { getIntegration } from "@anoma/hooks";
+
 import {
   FETCH_VALIDATORS,
   FETCH_VALIDATOR_DETAILS,
@@ -14,11 +21,6 @@ import {
 } from "./types";
 import { myStakingData } from "./fakeData";
 import { RootState } from "store";
-import { Query } from "@anoma/shared";
-import { amountToMicro, fetchWasmCode } from "@anoma/utils";
-import { Signer, Tokens, TxWasm } from "@anoma/types";
-import { chains } from "@anoma/chains";
-import { getIntegration } from "services";
 import { Account } from "slices/accounts";
 
 const toValidator = ([address, votingPower]: [string, string]): Validator => ({
