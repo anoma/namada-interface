@@ -8,7 +8,6 @@ import { AccountCreationRoute, accountCreationSteps } from "./types";
 
 import { Icon, IconName, IconSize } from "@anoma/components";
 import {
-  Start,
   Password,
   SeedPhrase,
   SeedPhraseConfirmation,
@@ -22,7 +21,7 @@ import {
   RouteContainer,
   MotionContainer,
 } from "./AccountCreation.components";
-import { AccountCreationDetails } from "Setup/AccountCreation/types";
+import { AccountDetails } from "Setup/AccountCreation/types";
 
 type AnimatedTransitionProps = {
   elementKey: string;
@@ -56,7 +55,7 @@ type Props = {
  */
 const AccountCreation: React.FC<Props> = ({ requester }) => {
   const [accountCreationDetails, setAccountCreationDetails] =
-    useState<AccountCreationDetails>({
+    useState<AccountDetails>({
       alias: "",
     });
   const [seedPhrase, setSeedPhrase] = useState<string[]>();
@@ -73,7 +72,7 @@ const AccountCreation: React.FC<Props> = ({ requester }) => {
   useEffect(() => {
     // at the load we redirect to the first step
     // this way we do not need to expose the flow routes to outside
-    navigate(AccountCreationRoute.Start);
+    navigate(AccountCreationRoute.SeedPhrase);
   }, []);
 
   const navigateToNext = (): void => {
@@ -113,19 +112,6 @@ const AccountCreation: React.FC<Props> = ({ requester }) => {
       <RouteContainer>
         <AnimatePresence exitBeforeEnter>
           <Routes location={location} key={location.pathname}>
-            <Route
-              path={`/${AccountCreationRoute.Start}`}
-              element={
-                <AnimatedTransition elementKey={AccountCreationRoute.Start}>
-                  <Start
-                    onClick={() => {
-                      navigateToNext();
-                    }}
-                  />
-                </AnimatedTransition>
-              }
-            />
-
             <Route
               path={`/${AccountCreationRoute.SeedPhrase}`}
               element={

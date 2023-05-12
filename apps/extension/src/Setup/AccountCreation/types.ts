@@ -1,8 +1,4 @@
 export enum AccountCreationRoute {
-  // initial screen to explain the flow
-  Start = "start",
-  // user is requested to enter account alias and password
-  //AccountDetails = "account-details",
   // phrase is provided to the user
   SeedPhrase = "seed-phrase",
   // user confirms the saving of the phrase
@@ -14,7 +10,6 @@ export enum AccountCreationRoute {
 }
 
 export const accountCreationSteps = [
-  AccountCreationRoute.Start,
   AccountCreationRoute.SeedPhrase,
   AccountCreationRoute.SeedPhraseConfirmation,
   AccountCreationRoute.Password,
@@ -28,7 +23,7 @@ export type Step = {
   previous?: Step;
 };
 
-export type AccountCreationDetails = {
+export type AccountDetails = {
   alias: string;
   password?: string;
 };

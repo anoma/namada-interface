@@ -4,18 +4,21 @@ import { HashRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 
 import { getTheme } from "@anoma/utils";
-import { ExtensionMessenger, ExtensionRequester } from "extension";
+import { ExtensionKVStore } from "@anoma/storage";
 
+import { ExtensionMessenger, ExtensionRequester } from "extension";
 import { AccountCreation } from "./AccountCreation";
 import {
   AppContainer,
-  BottomSection,
   ContentContainer,
   GlobalStyles,
+  MotionContainer,
   TopSection,
 } from "./Setup.components";
-import { ExtensionKVStore } from "@anoma/storage";
 import { KVPrefix } from "router";
+import { TopLevelRoute } from "./types";
+import { Ledger } from "./Ledger";
+import { Start } from "./Start";
 
 const store = new ExtensionKVStore(KVPrefix.LocalStorage, {
   get: browser.storage.local.get,
@@ -23,6 +26,28 @@ const store = new ExtensionKVStore(KVPrefix.LocalStorage, {
 });
 const messenger = new ExtensionMessenger();
 const requester = new ExtensionRequester(messenger, store);
+
+type AnimatedTransitionProps = {
+  elementKey: string;
+  children: JSX.Element;
+};
+
+/**
+ * This is a utility to animate transitions
+ */
+const AnimatedTransition: React.FC<AnimatedTransitionProps> = (props) => {
+  const { children, elementKey } = props;
+  return (
+    <MotionContainer
+      key={elementKey}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      {children}
+    </MotionContainer>
+  );
+};
 
 export const Setup: React.FC = () => {
   const theme = getTheme("dark");
@@ -35,14 +60,28 @@ export const Setup: React.FC = () => {
         <ContentContainer>
           <HashRouter>
             <Routes>
+              <Route path={TopLevelRoute.Start} element={<Start />} />
               <Route
-                path={`*`}
-                element={<AccountCreation requester={requester} />}
+                path={TopLevelRoute.AccountCreation}
+                element={
+                  <AnimatedTransition
+                    elementKey={TopLevelRoute.AccountCreation}
+                  >
+                    <AccountCreation requester={requester} />
+                  </AnimatedTransition>
+                }
+              />
+              <Route
+                path={TopLevelRoute.Ledger}
+                element={
+                  <AnimatedTransition elementKey={TopLevelRoute.Ledger}>
+                    <Ledger requester={requester} />
+                  </AnimatedTransition>
+                }
               />
             </Routes>
           </HashRouter>
         </ContentContainer>
-        <BottomSection></BottomSection>
       </AppContainer>
     </ThemeProvider>
   );

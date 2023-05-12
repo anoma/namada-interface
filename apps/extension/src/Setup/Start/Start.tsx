@@ -18,7 +18,9 @@ const Start: React.FC = () => {
     <StartViewContainer>
       <StartViewUpperPartContainer>
         <Header1>Create Your Account</Header1>
-        <BodyText>Create an initial account for your wallet.</BodyText>
+        <BodyText>
+          Create an account for your wallet, or load from Ledger.
+        </BodyText>
       </StartViewUpperPartContainer>
       <Button
         onClick={() => navigate(AccountCreationRoute.SeedPhrase)}

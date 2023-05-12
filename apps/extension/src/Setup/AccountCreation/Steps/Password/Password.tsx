@@ -13,19 +13,17 @@ import {
   InputContainer,
   ButtonContainer,
 } from "./Password.components";
-import { AccountCreationDetails } from "Setup/AccountCreation/types";
+import { AccountDetails } from "Setup/AccountCreation/types";
 
 // the data of this form
 type Props = {
   // if the user navigates back and forth this might be there
-  accountCreationDetails?: AccountCreationDetails;
+  accountCreationDetails?: AccountDetails;
   onSubmitAccountCreationDetails: (
-    accountCreationDetails: AccountCreationDetails
+    accountCreationDetails: AccountDetails
   ) => void;
 
-  onSetAccountCreationDetails: (
-    accountCreationDetails: AccountCreationDetails
-  ) => void;
+  onSetAccountCreationDetails: (accountCreationDetails: AccountDetails) => void;
 };
 
 const validatePassword = (
@@ -133,7 +131,7 @@ const Password: React.FC<Props> = (props) => {
             onClick={() => {
               if (isPasswordValid && !isSubmitting) {
                 setIsSubmitting(true);
-                const accountCreationDetailsToSubmit: AccountCreationDetails = {
+                const accountCreationDetailsToSubmit: AccountDetails = {
                   ...accountCreationDetails,
                   alias,
                   password,

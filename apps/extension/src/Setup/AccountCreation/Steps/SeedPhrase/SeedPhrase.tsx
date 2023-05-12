@@ -19,14 +19,14 @@ import {
   CopyToClipboard,
 } from "./SeedPhrase.components";
 
-import { AccountCreationDetails } from "Setup/AccountCreation/types";
+import { AccountDetails } from "Setup/AccountCreation/types";
 
 type Props = {
   requester: ExtensionRequester;
   // go to next screen
   onConfirm: (seedPhraseAsArray: string[]) => void;
   // depending if first load this might or might not be available
-  accountCreationDetails?: AccountCreationDetails;
+  accountCreationDetails?: AccountDetails;
   // depending if first load this might or might not be available
   defaultSeedPhrase?: string[];
 };
