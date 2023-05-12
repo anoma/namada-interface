@@ -19,7 +19,7 @@ import {
   CopyToClipboard,
 } from "./SeedPhrase.components";
 
-import { AccountDetails } from "Setup/AccountCreation/types";
+import { AccountDetails } from "../../../types";
 
 type Props = {
   requester: ExtensionRequester;

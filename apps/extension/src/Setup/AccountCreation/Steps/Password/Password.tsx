@@ -13,7 +13,7 @@ import {
   InputContainer,
   ButtonContainer,
 } from "./Password.components";
-import { AccountDetails } from "Setup/AccountCreation/types";
+import { AccountDetails } from "../../../types";
 
 // the data of this form
 type Props = {
