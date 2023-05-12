@@ -1,6 +1,7 @@
 export enum TopLevelRoute {
   Start = "*",
   AccountCreation = "account-creation",
+  ImportAccount = "restore-account",
   Ledger = "ledger",
 }
 

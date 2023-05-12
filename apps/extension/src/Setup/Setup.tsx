@@ -19,6 +19,8 @@ import { KVPrefix } from "router";
 import { TopLevelRoute } from "./types";
 import { Ledger } from "./Ledger";
 import { Start } from "./Start";
+import { AnimatePresence } from "framer-motion";
+import { ImportAccount } from "./ImportAccount";
 
 const store = new ExtensionKVStore(KVPrefix.LocalStorage, {
   get: browser.storage.local.get,
@@ -58,29 +60,35 @@ export const Setup: React.FC = () => {
         <GlobalStyles />
         <TopSection>Anoma Browser Extension</TopSection>
         <ContentContainer>
-          <HashRouter>
-            <Routes>
-              <Route path={TopLevelRoute.Start} element={<Start />} />
-              <Route
-                path={TopLevelRoute.AccountCreation}
-                element={
-                  <AnimatedTransition
-                    elementKey={TopLevelRoute.AccountCreation}
-                  >
-                    <AccountCreation requester={requester} />
-                  </AnimatedTransition>
-                }
-              />
-              <Route
-                path={TopLevelRoute.Ledger}
-                element={
-                  <AnimatedTransition elementKey={TopLevelRoute.Ledger}>
-                    <Ledger requester={requester} />
-                  </AnimatedTransition>
-                }
-              />
-            </Routes>
-          </HashRouter>
+          <AnimatePresence>
+            <HashRouter>
+              <Routes>
+                <Route path={TopLevelRoute.Start} element={<Start />} />
+                <Route
+                  path={TopLevelRoute.AccountCreation}
+                  element={
+                    <AnimatedTransition
+                      elementKey={TopLevelRoute.AccountCreation}
+                    >
+                      <AccountCreation requester={requester} />
+                    </AnimatedTransition>
+                  }
+                />
+                <Route
+                  path={TopLevelRoute.ImportAccount}
+                  element={<ImportAccount />}
+                />
+                <Route
+                  path={TopLevelRoute.Ledger}
+                  element={
+                    <AnimatedTransition elementKey={TopLevelRoute.Ledger}>
+                      <Ledger requester={requester} />
+                    </AnimatedTransition>
+                  }
+                />
+              </Routes>
+            </HashRouter>
+          </AnimatePresence>
         </ContentContainer>
       </AppContainer>
     </ThemeProvider>

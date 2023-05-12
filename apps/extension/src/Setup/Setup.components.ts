@@ -22,6 +22,7 @@ export const AppContainer = styled.div`
   min-height: 400px;
   width: 480px;
   transition: background-color 0.3s linear;
+  margin: 36px auto;
 `;
 
 export const MotionContainer = styled(motion.div)`

@@ -4,7 +4,7 @@ import { AnimatePresence } from "framer-motion";
 import { ThemeContext } from "styled-components";
 
 import { ExtensionRequester } from "extension";
-import { AccountCreationRoute, accountCreationSteps } from "./types";
+import { AccountCreationRoute, AccountDetails } from "../types";
 
 import { Icon, IconName, IconSize } from "@anoma/components";
 import {
@@ -21,7 +21,6 @@ import {
   RouteContainer,
   MotionContainer,
 } from "./AccountCreation.components";
-import { AccountDetails } from "Setup/AccountCreation/types";
 
 type AnimatedTransitionProps = {
   elementKey: string;
@@ -59,7 +58,6 @@ const AccountCreation: React.FC<Props> = ({ requester }) => {
       alias: "",
     });
   const [seedPhrase, setSeedPhrase] = useState<string[]>();
-  const [stepIndex, setStepIndex] = useState(0);
 
   const themeContext = useContext(ThemeContext);
   const navigate = useNavigate();
@@ -67,7 +65,6 @@ const AccountCreation: React.FC<Props> = ({ requester }) => {
   const location = useLocation();
 
   // info for disabling the back button in the last step
-  const isLastIndex = accountCreationSteps.length - 1 === stepIndex;
 
   useEffect(() => {
     // at the load we redirect to the first step
@@ -75,36 +72,17 @@ const AccountCreation: React.FC<Props> = ({ requester }) => {
     navigate(AccountCreationRoute.SeedPhrase);
   }, []);
 
-  const navigateToNext = (): void => {
-    setStepIndex((stepIndex) => stepIndex + 1);
-    navigate(`${accountCreationSteps[stepIndex + 1]}`);
-  };
-
-  const navigateToPrevious = (): void => {
-    setStepIndex((stepIndex) => {
-      return stepIndex - 1;
-    });
-    navigate(`${accountCreationSteps[stepIndex - 1]}`);
-  };
-
   return (
     <AccountCreationContainer>
       <TopSection>
         <TopSectionButtonContainer>
-          {!isLastIndex && stepIndex !== 0 && (
-            <a
-              onClick={() => {
-                navigateToPrevious();
-              }}
-              style={{ cursor: "pointer" }}
-            >
-              <Icon
-                iconName={IconName.ChevronLeft}
-                strokeColorOverride={themeContext.colors.utility2.main60}
-                iconSize={IconSize.L}
-              />
-            </a>
-          )}
+          <a onClick={() => navigate(-1)} style={{ cursor: "pointer" }}>
+            <Icon
+              iconName={IconName.ChevronLeft}
+              strokeColorOverride={themeContext.colors.utility2.main60}
+              iconSize={IconSize.L}
+            />
+          </a>
         </TopSectionButtonContainer>
         <TopSectionHeaderContainer></TopSectionHeaderContainer>
         <TopSectionButtonContainer></TopSectionButtonContainer>
@@ -124,7 +102,7 @@ const AccountCreation: React.FC<Props> = ({ requester }) => {
                     defaultSeedPhrase={seedPhrase}
                     onConfirm={(seedPhrase: string[]) => {
                       setSeedPhrase(seedPhrase);
-                      navigateToNext();
+                      navigate(AccountCreationRoute.SeedPhraseConfirmation);
                     }}
                   />
                 </AnimatedTransition>
@@ -138,7 +116,7 @@ const AccountCreation: React.FC<Props> = ({ requester }) => {
                 >
                   <SeedPhraseConfirmation
                     seedPhrase={seedPhrase || []}
-                    onConfirm={() => navigateToNext()}
+                    onConfirm={() => navigate(AccountCreationRoute.Password)}
                   />
                 </AnimatedTransition>
               }
@@ -163,7 +141,7 @@ const AccountCreation: React.FC<Props> = ({ requester }) => {
                       accountCreationDetails
                     ) => {
                       setAccountCreationDetails(accountCreationDetails);
-                      navigateToNext();
+                      navigate(AccountCreationRoute.Completion);
                     }}
                   />
                 </AnimatedTransition>

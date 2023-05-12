@@ -10,27 +10,26 @@ import {
   BodyText,
 } from "./Start.components";
 import { TopLevelRoute } from "../types";
-import { AccountCreationRoute } from "Setup/AccountCreation/types";
 
 const Start: React.FC = () => {
   const navigate = useNavigate();
+
   return (
     <StartViewContainer>
       <StartViewUpperPartContainer>
         <Header1>Create Your Account</Header1>
         <BodyText>
-          Create an account for your wallet, or load from Ledger.
+          Create an account for your wallet, or connect to Ledger.
         </BodyText>
       </StartViewUpperPartContainer>
       <Button
-        onClick={() => navigate(AccountCreationRoute.SeedPhrase)}
+        onClick={() => navigate(TopLevelRoute.AccountCreation)}
         variant={ButtonVariant.Contained}
       >
         Create an account
       </Button>
       <Button
-        onClick={() => null}
-        disabled={true}
+        onClick={() => navigate(TopLevelRoute.ImportAccount)}
         variant={ButtonVariant.Contained}
       >
         Import an account
