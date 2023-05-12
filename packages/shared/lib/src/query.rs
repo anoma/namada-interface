@@ -54,7 +54,7 @@ impl Query {
                 .validator_stake(&self.client, &address, &None)
                 .await?;
 
-            result.push((address, total_bonds));
+            result.push((address, total_bonds.unwrap_or(Amount::whole(0))));
         }
 
         Query::to_js_result(result)
@@ -75,7 +75,11 @@ impl Query {
         let mut validators_per_address: HashMap<Address, HashSet<Address>> = HashMap::new();
 
         for address in owner_addresses.into_iter() {
-            let validators = RPC.vp().pos().delegations(&self.client, &address).await?;
+            let validators = RPC
+                .vp()
+                .pos()
+                .delegation_validators(&self.client, &address)
+                .await?;
 
             validators_per_address.insert(address, validators);
         }
@@ -89,7 +93,7 @@ impl Query {
                 let total_bonds = RPC
                     .vp()
                     .pos()
-                    .bond_amount(&self.client, &owner, &validator, &None)
+                    .bond(&self.client, &owner, &validator, &None)
                     .await?;
 
                 result.push((owner.clone(), validator, total_bonds));

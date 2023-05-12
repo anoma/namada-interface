@@ -6,6 +6,7 @@ use namada::{
     ledger::args,
     types::{
         address::Address,
+        chain::ChainId,
         masp::{TransferSource, TransferTarget},
         token::Amount,
         transaction::GasLimit,
@@ -179,8 +180,9 @@ pub fn ibc_transfer_tx_args(
     let source = Address::from_str(&source)?;
     let token = Address::from_str(&token)?;
     let amount = Amount::from(amount);
-    let port_id = PortId::from_str(&port_id)?;
-    let channel_id = ChannelId::from_str(&channel_id)?;
+    //TODO: fix unwraps
+    let port_id = PortId::from_str(&port_id).unwrap();
+    let channel_id = ChannelId::from_str(&channel_id).unwrap();
 
     let args = args::TxIbcTransfer {
         tx: tx_msg_into_args(tx, password)?,
@@ -211,6 +213,7 @@ fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> Result<args::Tx,
 
     let args = args::Tx {
         dry_run: false,
+        dump_tx: false,
         force: false,
         broadcast_only: false,
         ledger_address: (),
@@ -218,6 +221,9 @@ fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> Result<args::Tx,
         fee_amount,
         fee_token: token.clone(),
         gas_limit: GasLimit::from(gas_limit),
+        expiration: None,
+        //TODO: replace with proper chain id
+        chain_id: Some(ChainId(String::from("local.3d13dee1940a1b800fa724bd"))),
         signing_key: None,
         signer: None,
         tx_code_path: tx_code,

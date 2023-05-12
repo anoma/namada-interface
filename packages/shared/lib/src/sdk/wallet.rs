@@ -3,7 +3,7 @@ use std::str::FromStr;
 use borsh::BorshDeserialize;
 use masp_primitives::zip32::ExtendedFullViewingKey;
 use namada::{
-    ledger::wallet::{Alias, SdkWalletUtils, Store, StoredKeypair, Wallet},
+    ledger::wallet::{alias::Alias, SdkWalletUtils, Store, StoredKeypair, Wallet},
     types::{
         address::{Address, ImplicitAddress},
         key::{self, common::SecretKey, PublicKeyHash, RefTo},

@@ -1,4 +1,7 @@
+use borsh::{BorshDeserialize, BorshSerialize};
+use gloo_utils::format::JsValueSerdeExt;
 use namada::types::{
+    hash::Hash,
     key::{
         self,
         common::{PublicKey, SecretKey},
@@ -6,10 +9,8 @@ use namada::types::{
     },
     transaction::InitAccount,
 };
-use borsh::{BorshSerialize, BorshDeserialize};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
-use gloo_utils::format::JsValueSerdeExt;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -19,7 +20,7 @@ pub struct AccountMsg {
 }
 
 #[wasm_bindgen]
-#[derive(Serialize,Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Account {
     tx_data: Vec<u8>,
 }
@@ -28,13 +29,12 @@ pub struct Account {
 impl Account {
     /// Create an init-account struct
     #[wasm_bindgen(constructor)]
-    pub fn new(
-        msg: &[u8],
-        secret: &str,
-    ) -> Result<Account, String> {
+    pub fn new(msg: &[u8], secret: &str) -> Result<Account, String> {
         let msg = BorshDeserialize::try_from_slice(msg)
             .map_err(|err| format!("BorshDeserialize failed! {:?}", err))?;
         let AccountMsg { vp_code } = msg;
+        //TODO: Fix unwrap
+        let vp_code_hash = Hash::try_from(&vp_code[..]).unwrap();
 
         let secret_key = key::ed25519::SecretKey::from_str(secret)
             .map_err(|err| format!("ed25519 encoding failed: {:?}", err))?;
@@ -46,21 +46,16 @@ impl Account {
 
         let init_account = InitAccount {
             public_key,
-            vp_code,
+            vp_code_hash,
         };
 
-        let tx_data = init_account
-            .try_to_vec()
-            .map_err(|err| err.to_string())?;
+        let tx_data = init_account.try_to_vec().map_err(|err| err.to_string())?;
 
-        Ok(Account {
-            tx_data,
-        })
+        Ok(Account { tx_data })
     }
 
     pub fn to_serialized(&self) -> Result<JsValue, String> {
-        let serialized = JsValue::from_serde(&self)
-            .map_err(|err| err.to_string())?;
+        let serialized = JsValue::from_serde(&self).map_err(|err| err.to_string())?;
         Ok(serialized)
     }
 }
@@ -73,10 +68,10 @@ mod tests {
     #[wasm_bindgen_test]
     fn can_generate_init_account() {
         let secret = "1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93";
-        let msg = AccountMsg {  vp_code: vec![] };
+        let msg = AccountMsg { vp_code: vec![] };
 
-        let msg_serialized = BorshSerialize::try_to_vec(&msg)
-            .expect("Message should serialize to vector");
+        let msg_serialized =
+            BorshSerialize::try_to_vec(&msg).expect("Message should serialize to vector");
 
         let Account { tx_data } = Account::new(&msg_serialized, secret)
             .expect("Should be able to create an Account from serialized message");
