@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Button, ButtonVariant } from "@anoma/components";
+import { formatRouterPath } from "@anoma/utils";
 
 import {
   StartViewContainer,
@@ -9,7 +10,7 @@ import {
   Header1,
   BodyText,
 } from "./Start.components";
-import { TopLevelRoute } from "../types";
+import { AccountCreationRoute, TopLevelRoute } from "../types";
 
 const Start: React.FC = () => {
   const navigate = useNavigate();
@@ -23,7 +24,14 @@ const Start: React.FC = () => {
         </BodyText>
       </StartViewUpperPartContainer>
       <Button
-        onClick={() => navigate(TopLevelRoute.AccountCreation)}
+        onClick={() =>
+          navigate(
+            formatRouterPath([
+              TopLevelRoute.AccountCreation,
+              AccountCreationRoute.SeedPhrase,
+            ])
+          )
+        }
         variant={ButtonVariant.Contained}
       >
         Create an account

@@ -1,9 +1,7 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useContext } from "react";
 import { useNavigate, Outlet } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { ThemeContext } from "styled-components";
-
-import { AccountCreationRoute } from "../types";
 
 import { Icon, IconName, IconSize } from "@anoma/components";
 import {
@@ -21,14 +19,6 @@ import {
 const AccountCreation: React.FC = () => {
   const themeContext = useContext(ThemeContext);
   const navigate = useNavigate();
-
-  // info for disabling the back button in the last step
-
-  useEffect(() => {
-    // at the load we redirect to the first step
-    // this way we do not need to expose the flow routes to outside
-    navigate(AccountCreationRoute.SeedPhrase);
-  }, []);
 
   return (
     <AccountCreationContainer>

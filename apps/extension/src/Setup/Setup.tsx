@@ -89,7 +89,7 @@ export const Setup: React.FC = () => {
                 }
               >
                 <Route
-                  path={"*"}
+                  path={AccountCreationRoute.SeedPhrase}
                   element={
                     <AnimatedTransition
                       elementKey={AccountCreationRoute.SeedPhrase}
