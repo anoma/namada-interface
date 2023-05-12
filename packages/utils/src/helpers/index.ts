@@ -50,6 +50,14 @@ export const formatRoute = (
 };
 
 /**
+ * Format absolute React Router paths
+ * @param {string[]} routes
+ * @returns {string}
+ */
+export const formatRouterPath = (routes: string[]): string =>
+  `/${routes.join("/")}`;
+
+/**
  * Format a date-time string from a timestamp
  */
 export const stringFromTimestamp = (timestamp: number): string => {
