@@ -13,7 +13,6 @@ import {
   ContentContainer,
   GlobalStyles,
   MotionContainer,
-  TopSection,
 } from "./Setup.components";
 import {
   Completion,
@@ -70,7 +69,6 @@ export const Setup: React.FC = () => {
     <ThemeProvider theme={theme}>
       <AppContainer>
         <GlobalStyles />
-        <TopSection>Anoma Browser Extension</TopSection>
         <ContentContainer>
           <AnimatePresence>
             <Routes>

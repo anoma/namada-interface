@@ -6,16 +6,6 @@ export const AccountCreationContainer = styled.div`
   flex-direction: column;
   justify-content: start;
   align-items: center;
-  box-sizing: border-box;
-  background-color: ${(props) => props.theme.colors.utility1.main80};
-  border: 1px solid ${(props) => props.theme.colors.utility1.main80};
-  border-radius: 8px;
-  color: ${(props) => props.theme.colors.utility2.main80};
-  padding: 0 36px;
-  height: 100%;
-  min-height: 400px;
-  width: 480px;
-  transition: background-color 0.3s linear;
 `;
 
 export const MotionContainer = styled(motion.div)`
