@@ -45,7 +45,7 @@ export class Ledger {
     const pk = await this.namadaApp?.getAddressAndPubKey(path);
 
     if (pk && pk.publicKey) {
-      return pk.publicKey.toString();
+      return pk.publicKey.toString("hex");
     }
 
     return Promise.reject(`No public key found for ${this.info?.appName}!`);
