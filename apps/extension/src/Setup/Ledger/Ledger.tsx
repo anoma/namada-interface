@@ -1,44 +1,45 @@
-import React, { useEffect } from "react";
-import { NamadaApp } from "@zondax/ledger-namada";
-import TransportUSB from "@ledgerhq/hw-transport-webusb";
-import TransportHID from "@ledgerhq/hw-transport-webhid";
+import React, { useState } from "react";
 
-import { defaultChainId, chains } from "@anoma/chains";
+import { Button, ButtonVariant, Input, InputVariants } from "@anoma/components";
 
-import { LedgerViewContainer } from "./Ledger.components";
+import { Ledger as LedgerApp } from "background/ledger";
+import { LedgerViewContainer, LedgerError } from "./Ledger.components";
 import { ExtensionRequester } from "extension";
 
 type Props = {
   requester: ExtensionRequester;
 };
 
-const Ledger: React.FC<Props> = ({ requester }) => {
-  console.log({ requester });
-  const namadaChain = chains[defaultChainId];
+const Ledger: React.FC<Props> = ({ requester: _ }) => {
+  const [alias, setAlias] = useState("");
+  const [error, setError] = useState<string>();
 
-  /* TEST */
-  useEffect(() => {
-    (async () => {
-      // Instantiate NamadaApp
-      const transportUSB = await TransportUSB.create();
-      const namadaApp = new NamadaApp(transportUSB);
-      console.log({ TransportUSB, TransportHID });
-
-      const info = await namadaApp.getAppInfo();
-      console.log({ info });
-      const path = `m/44'/${namadaChain.bip44.coinType}'/0'/0/0`;
-      console.log({ namadaApp, path });
-      const pk = await namadaApp.getAddressAndPubKey(path);
-      console.log({ pk });
-    })();
-  }, []);
+  const handleConnectLedger = async (): Promise<void> => {
+    try {
+      await LedgerApp.init();
+    } catch (e) {
+      setError(`Failed to connect to Ledger: ${e}`);
+    }
+  };
 
   return (
     <LedgerViewContainer>
       <h1>Connect Ledger</h1>
-      <p>
-        <i>TODO</i>
-      </p>
+      {error && <LedgerError>{error}</LedgerError>}
+      <Input
+        label={"Alias"}
+        value={alias}
+        onChangeCallback={(e) => setAlias(e.target.value)}
+        variant={InputVariants.Text}
+      />
+
+      <Button
+        onClick={() => handleConnectLedger()}
+        variant={ButtonVariant.Contained}
+        disabled={alias === ""}
+      >
+        Connect to Ledger
+      </Button>
     </LedgerViewContainer>
   );
 };

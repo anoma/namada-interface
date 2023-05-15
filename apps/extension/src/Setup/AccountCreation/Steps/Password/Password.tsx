@@ -70,7 +70,7 @@ const Password: React.FC<Props> = (props) => {
         </BodyText>
 
         <InputContainer>
-          <Header5>Alias (optional)</Header5>
+          <Header5>Alias</Header5>
           <Input value={alias} onChange={(e) => setAlias(e.target.value)} />
         </InputContainer>
 
