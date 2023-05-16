@@ -18,15 +18,11 @@ export const syncTabs = async (
   chainId: string
 ): Promise<TabStore[]> => {
   const tabs = await requester.queryBrowserTabIds();
-  const storedTabs = await connectedTabsStore.get(chainId);
+  const storedTabs = (await connectedTabsStore.get(chainId)) || [];
   const currentTabs: TabStore[] = [];
 
-  if (storedTabs?.length === 0) {
-    return [];
-  }
-
   storedTabs?.forEach((tab: TabStore) => {
-    if (tabs.indexOf(tab.tabId) > -1) {
+    if (tabs.includes(tab.tabId)) {
       currentTabs.push(tab);
     }
   });
