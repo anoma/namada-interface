@@ -7,6 +7,7 @@ import { DerivedAccount } from "@anoma/types";
 import { getTheme } from "@anoma/utils";
 import { ExtensionKVStore } from "@anoma/storage";
 import { Icon, IconName } from "@anoma/components";
+import { useUntil } from "@anoma/hooks";
 
 import { ExtensionMessenger, ExtensionRequester } from "extension";
 import { KVPrefix, Ports } from "router";
@@ -75,6 +76,7 @@ export const App: React.FC = () => {
 
   const fetchParentAccountId = async (): Promise<void> => {
     setStatus(Status.Pending);
+
     try {
       const parentId = await requester.sendMessage(
         Ports.Background,
@@ -91,12 +93,38 @@ export const App: React.FC = () => {
     }
   };
 
+  useUntil(
+    {
+      predFn: async () => {
+        setStatus(Status.Pending);
+        try {
+          const accounts = await requester.sendMessage(
+            Ports.Background,
+            new QueryAccountsMsg()
+          );
+          setAccounts(accounts);
+          return true;
+        } catch (e) {
+          console.warn(e);
+          return false;
+        }
+      },
+      onSuccess: () => {
+        setStatus(Status.Completed);
+      },
+      onFail: () => {
+        setError("An error occurred connecting to extension");
+        setStatus(Status.Failed);
+      },
+    },
+    { tries: 10, ms: 100 },
+    []
+  );
+
   useEffect(() => {
     if (redirect) {
       // Provide a redirect in the case of transaction/connection approvals
       navigate(redirect);
-    } else {
-      fetchAccounts();
     }
   }, []);
 
@@ -134,7 +162,10 @@ export const App: React.FC = () => {
             </HeadingButtons>
           </TopSection>
           <Routes>
-            <Route path="*" element={<Loading error={error} />} />
+            <Route
+              path="*"
+              element={<Loading status={status} error={error} />}
+            />
             <Route path={TopLevelRoute.Setup} element={<Setup />} />
             <Route
               path={TopLevelRoute.ApproveConnection}
