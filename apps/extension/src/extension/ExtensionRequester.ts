@@ -85,4 +85,10 @@ export class ExtensionRequester {
       msg
     );
   }
+
+  async queryBrowserTabIds(): Promise<number[]> {
+    const tabs = await browser.tabs.query({});
+
+    return tabs.map((tab) => tab.id || browser.tabs.TAB_ID_NONE);
+  }
 }
