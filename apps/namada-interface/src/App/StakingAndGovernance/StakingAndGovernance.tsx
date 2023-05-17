@@ -12,7 +12,6 @@ import {
   StakingAndGovernanceSubRoute,
   locationToStakingAndGovernanceSubRoute,
 } from "App/types";
-import { useSanitizedLocation } from "@anoma/hooks";
 
 import {
   fetchValidators,
@@ -23,6 +22,7 @@ import {
 } from "slices/StakingAndGovernance";
 import { SettingsState } from "slices/settings";
 import { AccountsState } from "slices/accounts";
+import { useLocation } from "react-router-dom";
 
 export type { ChangeInStakingPosition };
 // This is just rendering the actual Staking/Governance/PGF screens
@@ -30,7 +30,7 @@ export type { ChangeInStakingPosition };
 // the user clicks the top level Staking & Governance menu
 //
 export const StakingAndGovernance = (): JSX.Element => {
-  const location = useSanitizedLocation();
+  const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const stakingAndGovernance = useAppSelector(

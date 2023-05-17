@@ -1,6 +1,7 @@
 import React, { useState, useContext } from "react";
 import { ThemeContext } from "styled-components";
 import {
+  useLocation,
   useNavigate,
   NavigateFunction,
   Location,
@@ -52,17 +53,16 @@ import {
 } from "./topNavigation.components";
 import { setChainId, SettingsState } from "slices/settings";
 import TopNavigationLoggedIn from "./topNavigationLoggedIn";
-import { useSanitizedLocation } from "@anoma/hooks";
 
 /**
  * this is rendered in one of 2 places depending of the screen size
  */
 const TopNavigationMenuItems = (props: {
   navigate: NavigateFunction;
+  location: Location;
   setColorMode: (mode: ColorMode) => void;
 }): React.ReactElement => {
   const { navigate } = props;
-  const location = useSanitizedLocation();
   const topLevelPath = `/${location.pathname.split("/")[1]}`;
   return (
     <>
@@ -214,7 +214,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
   const navigate = useNavigate();
   const themeContext = useContext(ThemeContext);
   const [showMenu, setShowMenu] = useState(false);
-  const location = useSanitizedLocation();
+  const location = useLocation();
   const topLevelRoute = locationToTopLevelRoute(location);
   const stakingAndGovernanceSubRoute =
     locationToStakingAndGovernanceSubRoute(location);
@@ -240,6 +240,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
 
           <MiddleSection>
             <TopNavigationMenuItems
+              location={location}
               navigate={navigate}
               setColorMode={setColorMode}
             />
