@@ -22,7 +22,17 @@ export const Details = styled.div`
   flex: 3;
 `;
 
+export const DerivationPathContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+`;
+
 export const DerivationPath = styled.div``;
+
+export const ParentAlias = styled.div`
+  font-weight: 600;
+  padding-right: 4px;
+`;
 
 export const Address = styled.div`
   font-family: monospace;

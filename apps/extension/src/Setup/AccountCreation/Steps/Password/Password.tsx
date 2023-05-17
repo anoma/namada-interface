@@ -46,7 +46,7 @@ const Password: React.FC<Props> = (props) => {
   const [passwordMatchFeedback, setPasswordMatchFeedback] = useState("");
   const [zxcvbnFeedback, setZxcvbnFeedback] = useState(zxcvbn("").feedback);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [alias, setAlias] = useState("");
+  const [alias, setAlias] = useState<string>();
   const isPasswordValid = validatePassword(
     zxcvbnFeedback,
     password,
@@ -129,7 +129,7 @@ const Password: React.FC<Props> = (props) => {
           <Button
             variant={ButtonVariant.Contained}
             onClick={() => {
-              if (isPasswordValid && !isSubmitting) {
+              if (isPasswordValid && alias && !isSubmitting) {
                 setIsSubmitting(true);
                 const accountCreationDetailsToSubmit: AccountDetails = {
                   ...accountCreationDetails,
@@ -142,7 +142,7 @@ const Password: React.FC<Props> = (props) => {
                 onSubmitAccountCreationDetails(accountCreationDetailsToSubmit);
               }
             }}
-            disabled={!isPasswordValid}
+            disabled={!isPasswordValid || !alias}
           >
             Create an Account
           </Button>
