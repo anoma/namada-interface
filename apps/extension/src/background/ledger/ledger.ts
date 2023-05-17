@@ -89,22 +89,15 @@ export class Ledger {
   /**
    * Get public key associated with optional path, otherwise, use default path
    */
-  public async getAddressAndPublicKey(
-    bip44Path?: string
-  ): Promise<{ address: Buffer; publicKey: Buffer }> {
+  public async getPublicKey(bip44Path?: string): Promise<string> {
     if (!this.namadaApp) {
       throw new Error("NamadaApp is not initialized!");
     }
 
     const path = bip44Path || DEFAULT_LEDGER_BIP44_PATH;
-    const { address, publicKey } = await this.namadaApp.getAddressAndPubKey(
-      path
-    );
+    const { publicKey } = await this.namadaApp.getAddressAndPubKey(path);
 
-    return {
-      address,
-      publicKey,
-    };
+    return publicKey.toString("hex");
   }
 
   /**
