@@ -43,14 +43,14 @@ pub fn add_key(
 
     if wallet
         .store_mut()
-        .insert_keypair::<WalletUtils>(alias.clone(), keypair_to_store, pkh)
+        .insert_keypair::<WalletUtils>(alias.clone(), keypair_to_store, pkh, false)
         .is_none()
     {
         panic!("Action cancelled, no changes persisted.");
     }
     if wallet
         .store_mut()
-        .insert_address::<WalletUtils>(alias.clone(), address)
+        .insert_address::<WalletUtils>(alias.clone(), address, false)
         .is_none()
     {
         panic!("Action cancelled, no changes persisted.");
@@ -73,7 +73,7 @@ pub fn add_spending_key(
 
     if wallet
         .store_mut()
-        .insert_spending_key::<WalletUtils>(alias.clone(), spendkey_to_store, viewkey)
+        .insert_spending_key::<WalletUtils>(alias.clone(), spendkey_to_store, viewkey, false)
         .is_none()
     {
         panic!("Action cancelled, no changes persisted.");

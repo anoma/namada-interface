@@ -171,6 +171,7 @@ export const postNewBonding = createAsyncThunk<
       feeAmount: 0,
       gasLimit: 0,
       txCode: await fetchWasmCode(TxWasm.RevealPK),
+      chainId,
     },
   });
 });
@@ -198,6 +199,7 @@ export const postNewUnbonding = createAsyncThunk<
       feeAmount: 0,
       gasLimit: 0,
       txCode: await fetchWasmCode(TxWasm.RevealPK),
+      chainId,
     },
   });
 });

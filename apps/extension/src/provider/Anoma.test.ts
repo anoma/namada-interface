@@ -88,6 +88,7 @@ describe("Anoma", () => {
         feeAmount: 0,
         gasLimit: 0,
         txCode: new Uint8Array(),
+        chainId: chain.chainId,
       },
       source: keyStore[0].address,
       target:
@@ -124,6 +125,7 @@ describe("Anoma", () => {
         feeAmount: 0,
         gasLimit: 0,
         txCode: new Uint8Array(),
+        chainId: chain.chainId,
       },
       source: keyStore[0].address,
       receiver:

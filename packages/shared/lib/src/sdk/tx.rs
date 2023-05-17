@@ -20,6 +20,7 @@ pub struct TxMsg {
     fee_amount: u64,
     gas_limit: u64,
     tx_code: Vec<u8>,
+    chain_id: String,
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -206,6 +207,7 @@ fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> Result<args::Tx,
         fee_amount,
         gas_limit,
         tx_code,
+        chain_id,
     } = tx_msg;
 
     let token = Address::from_str(&token)?;
@@ -217,13 +219,13 @@ fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> Result<args::Tx,
         force: false,
         broadcast_only: false,
         ledger_address: (),
+        wallet_alias_force: false,
         initialized_account_alias: None,
         fee_amount,
         fee_token: token.clone(),
         gas_limit: GasLimit::from(gas_limit),
         expiration: None,
-        //TODO: replace with proper chain id
-        chain_id: Some(ChainId(String::from("local.3d13dee1940a1b800fa724bd"))),
+        chain_id: Some(ChainId(String::from(chain_id))),
         signing_key: None,
         signer: None,
         tx_code_path: tx_code,
