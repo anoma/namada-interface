@@ -13,10 +13,12 @@ const ImportAccount: React.FC = () => {
       <ImportAccountViewUpperPartContainer>
         <Header1>Import Account</Header1>
         <BodyText>
-          Import account from mnemonic.{" "}
-          <b>
-            <i>TBD</i>
-          </b>
+          Import account from mnemonic.
+          <p>
+            <strong>
+              <i>TBD</i>
+            </strong>
+          </p>
         </BodyText>
       </ImportAccountViewUpperPartContainer>
     </ImportAccountViewContainer>
