@@ -31,10 +31,10 @@ export class Ledger {
   /**
    * Returns an initialized Ledger class instance with initialized Transport
    */
-  static async init(): Promise<Ledger> {
-    const transportHID = await initLedgerHIDTransport();
+  static async init(transport?: Transport): Promise<Ledger> {
+    const initializedTransport = transport ?? (await initLedgerUSBTransport());
 
-    const namadaApp = new NamadaApp(transportHID);
+    const namadaApp = new NamadaApp(initializedTransport);
     const ledger = new Ledger(namadaApp);
 
     ledger.version = await namadaApp.getVersion();
