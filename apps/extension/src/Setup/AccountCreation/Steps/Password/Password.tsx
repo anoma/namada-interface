@@ -1,6 +1,8 @@
-import zxcvbn from "zxcvbn";
 import React, { useState } from "react";
+import zxcvbn from "zxcvbn";
+
 import { Button, ButtonVariant } from "@anoma/components";
+
 import {
   AccountInformationViewContainer,
   AccountInformationViewUpperPartContainer,
@@ -13,7 +15,7 @@ import {
   InputContainer,
   ButtonContainer,
 } from "./Password.components";
-import { AccountDetails } from "../../../types";
+import { AccountDetails } from "Setup/types";
 
 // the data of this form
 type Props = {

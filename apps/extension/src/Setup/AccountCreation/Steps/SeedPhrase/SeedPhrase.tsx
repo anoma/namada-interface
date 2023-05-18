@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
+
 import { Button, ButtonVariant, Toggle } from "@anoma/components";
+
 import { GenerateMnemonicMsg } from "background/keyring";
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
@@ -18,8 +20,7 @@ import {
   ExportSeedPhraseButtonsContainer,
   CopyToClipboard,
 } from "./SeedPhrase.components";
-
-import { AccountDetails } from "../../../types";
+import { AccountDetails } from "Setup/types";
 
 type Props = {
   requester: ExtensionRequester;

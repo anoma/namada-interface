@@ -25,8 +25,6 @@ const Ledger: React.FC<Props> = ({ requester: _ }) => {
     setAppInfo({ name: appName, version: appVersion });
     setPublicKey(pk);
     setIsConnected(true);
-
-    return;
   };
 
   /**
