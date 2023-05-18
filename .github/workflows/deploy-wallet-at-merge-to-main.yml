@@ -18,6 +18,9 @@ jobs:
         working-directory: ./apps/namada-interface
         run: yarn
 
+      - name: Install protoc
+        run: sudo apt-get install -y protobuf-compiler
+
       - name: Install wasm-pack
         uses: jetli/wasm-pack-action@v0.3.0
         with:

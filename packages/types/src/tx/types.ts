@@ -20,6 +20,7 @@ export type TxProps = {
   feeAmount: number;
   gasLimit: number;
   txCode: Uint8Array;
+  chainId: string;
 };
 
 export type TransferProps = {

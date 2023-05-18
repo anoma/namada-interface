@@ -19,7 +19,7 @@ gloo-utils = { version = "0.1.5", features = ["serde"] }
 js-sys = "0.3.60"
 masp_primitives = { git = "https://github.com/anoma/masp", rev = "bee40fc465f6afbd10558d12fe96eb1742eee45c" }
 masp_proofs = { git = "https://github.com/anoma/masp", rev = "bee40fc465f6afbd10558d12fe96eb1742eee45c", features = ["bundled-prover", "download-params"] }
-namada = { git = "https://github.com/anoma/namada", branch = "mariari/shared-sdk-integration", default-features = false, features = ["abciplus", "namada-sdk"] }
+namada = { git = "https://github.com/anoma/namada", version = "0.16.0" }
 prost = "0.9.0"
 prost-types = "0.9.0"
 rand = "0.8.5"
@@ -27,7 +27,7 @@ rayon = "=1.5.1"
 serde = "1.0.144"
 serde_json = "1.0"
 thiserror = "^1"
-wasm-bindgen = "0.2.84"
+wasm-bindgen = "0.2.86"
 wasm-bindgen-futures = "0.4.33"
 console_error_panic_hook = "0.1.6"
 
@@ -47,14 +47,13 @@ wasm-bindgen-test = "0.3.13"
 
 [patch.crates-io]
 funty = { git = "https://github.com/ferrilab/funty.git", rev = "7ef0d890fbcd8b3def1635ac1a877fc298488446" }
-# patched to a commit on the `eth-bridge-integration` branch of our fork
-tendermint = { git="https://github.com/heliaxdev/tendermint-rs.git", branch="murisi/trait-client" }
-tendermint-config = { git="https://github.com/heliaxdev/tendermint-rs.git", branch="murisi/trait-client" }
-tendermint-proto = { git="https://github.com/heliaxdev/tendermint-rs.git", branch="murisi/trait-client" }
-tendermint-rpc = { git="https://github.com/heliaxdev/tendermint-rs.git", branch="murisi/trait-client" }
+tendermint = {git = "https://github.com/heliaxdev/tendermint-rs.git", rev = "4db3c5ea09fae4057008d22bf9e96bf541b55b35"}
+tendermint-config = {git = "https://github.com/heliaxdev/tendermint-rs.git", rev = "4db3c5ea09fae4057008d22bf9e96bf541b55b35"}
+tendermint-proto = {git = "https://github.com/heliaxdev/tendermint-rs.git", rev = "4db3c5ea09fae4057008d22bf9e96bf541b55b35"}
+tendermint-rpc = {git = "https://github.com/heliaxdev/tendermint-rs.git", rev = "4db3c5ea09fae4057008d22bf9e96bf541b55b35"}
 
-ibc = {git = "https://github.com/heliaxdev/ibc-rs.git", rev = "f4703dfe2c1f25cc431279ab74f10f3e0f6827e2"}
-ibc-proto = {git = "https://github.com/heliaxdev/ibc-rs.git", rev = "f4703dfe2c1f25cc431279ab74f10f3e0f6827e2"}
+ibc = {git = "https://github.com/heliaxdev/cosmos-ibc-rs.git", rev = "2d7edc16412b60cabf78163fe24a6264e11f77a9"}
+ibc-proto = {git = "https://github.com/heliaxdev/ibc-proto-rs.git", rev = "7e527b5b8c95d83351e93ceafc14ac853224283f"}
 
 borsh = {git = "https://github.com/heliaxdev/borsh-rs.git", rev = "cd5223e5103c4f139e0c54cf8259b7ec5ec4073a"}
 borsh-derive = {git = "https://github.com/heliaxdev/borsh-rs.git", rev = "cd5223e5103c4f139e0c54cf8259b7ec5ec4073a"}

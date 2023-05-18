@@ -6,6 +6,7 @@ use namada::{
     ledger::args,
     types::{
         address::Address,
+        chain::ChainId,
         masp::{TransferSource, TransferTarget},
         token::Amount,
         transaction::GasLimit,
@@ -19,6 +20,7 @@ pub struct TxMsg {
     fee_amount: u64,
     gas_limit: u64,
     tx_code: Vec<u8>,
+    chain_id: String,
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -179,8 +181,9 @@ pub fn ibc_transfer_tx_args(
     let source = Address::from_str(&source)?;
     let token = Address::from_str(&token)?;
     let amount = Amount::from(amount);
-    let port_id = PortId::from_str(&port_id)?;
-    let channel_id = ChannelId::from_str(&channel_id)?;
+    //TODO: fix unwraps
+    let port_id = PortId::from_str(&port_id).unwrap();
+    let channel_id = ChannelId::from_str(&channel_id).unwrap();
 
     let args = args::TxIbcTransfer {
         tx: tx_msg_into_args(tx, password)?,
@@ -204,6 +207,7 @@ fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> Result<args::Tx,
         fee_amount,
         gas_limit,
         tx_code,
+        chain_id,
     } = tx_msg;
 
     let token = Address::from_str(&token)?;
@@ -211,13 +215,17 @@ fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> Result<args::Tx,
 
     let args = args::Tx {
         dry_run: false,
+        dump_tx: false,
         force: false,
         broadcast_only: false,
         ledger_address: (),
+        wallet_alias_force: false,
         initialized_account_alias: None,
         fee_amount,
         fee_token: token.clone(),
         gas_limit: GasLimit::from(gas_limit),
+        expiration: None,
+        chain_id: Some(ChainId(String::from(chain_id))),
         signing_key: None,
         signer: None,
         tx_code_path: tx_code,
