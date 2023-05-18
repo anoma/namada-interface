@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 
 import { Button, ButtonVariant, Input, InputVariants } from "@anoma/components";
+import { shortenAddress } from "@anoma/utils";
 
 import { initLedgerHIDTransport, Ledger as LedgerApp } from "background/ledger";
-import { LedgerViewContainer, LedgerError } from "./Ledger.components";
 import { ExtensionRequester } from "extension";
-import { shortenAddress } from "@anoma/utils";
+import { LedgerViewContainer, LedgerError } from "./Ledger.components";
 
 type Props = {
   requester: ExtensionRequester;
