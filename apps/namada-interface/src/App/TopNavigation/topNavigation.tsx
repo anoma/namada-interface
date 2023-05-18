@@ -1,7 +1,6 @@
 import React, { useState, useContext } from "react";
 import { ThemeContext } from "styled-components";
 import {
-  useLocation,
   useNavigate,
   NavigateFunction,
   Location,
@@ -18,6 +17,7 @@ import {
   Toggle,
   Select,
 } from "@anoma/components";
+import { useSanitizedLocation } from "@anoma/hooks";
 
 import { useAppDispatch, useAppSelector } from "store";
 import { AppStore } from "store/store";
@@ -214,7 +214,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
   const navigate = useNavigate();
   const themeContext = useContext(ThemeContext);
   const [showMenu, setShowMenu] = useState(false);
-  const location = useLocation();
+  const location = useSanitizedLocation();
   const topLevelRoute = locationToTopLevelRoute(location);
   const stakingAndGovernanceSubRoute =
     locationToStakingAndGovernanceSubRoute(location);
