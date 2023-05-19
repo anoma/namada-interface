@@ -289,7 +289,6 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
               <Image
                 imageName={ImageName.Logo}
                 styleOverrides={{ maxWidth: "200px" }}
-                forceLightMode={true}
               />
             </LogoContainer>
           </MiddleSection>
@@ -328,7 +327,6 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
               <Image
                 imageName={ImageName.Logo}
                 styleOverrides={{ maxWidth: "200px" }}
-                forceLightMode={true}
               />
             </LogoContainer>
             <ColorModeContainer>
@@ -368,7 +366,6 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
               <MenuItemSubComponent
                 onClick={() => {
                   setShowMenu(false);
-                  setColorMode("light");
                   navigate(
                     `${TopLevelRoute.StakingAndGovernance}${StakingAndGovernanceSubRoute.Staking}`
                   );
@@ -383,7 +380,6 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
               <MenuItemSubComponent
                 onClick={() => {
                   setShowMenu(false);
-                  setColorMode("light");
                   navigate(
                     `${TopLevelRoute.StakingAndGovernance}${StakingAndGovernanceSubRoute.Governance}`
                   );
@@ -398,7 +394,6 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
               <MenuItemSubComponent
                 onClick={() => {
                   setShowMenu(false);
-                  setColorMode("light");
                   navigate(
                     `${TopLevelRoute.StakingAndGovernance}${StakingAndGovernanceSubRoute.PublicGoodsFunding}`
                   );

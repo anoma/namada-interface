@@ -6,12 +6,14 @@ import { GenerateMnemonicMsg } from "background/keyring";
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
 import {
-  AccountInformationViewContainer,
-  AccountInformationViewUpperPartContainer,
-  AccountInformationForm,
-  Header1,
   BodyText,
   ButtonContainer,
+  FormContainer,
+  Header1,
+  SubViewContainer,
+  UpperContentContainer,
+} from "Setup/Setup.components";
+import {
   SeedPhraseCard,
   SeedPhraseContainer,
   SeedPhraseIndexLabel,
@@ -62,14 +64,14 @@ const SeedPhrase: React.FC<Props> = (props) => {
   }, [mnemonicLength]);
 
   return (
-    <AccountInformationViewContainer>
+    <SubViewContainer>
       {/* header */}
-      <AccountInformationViewUpperPartContainer>
+      <UpperContentContainer>
         <Header1>Seed Phrase</Header1>
-      </AccountInformationViewUpperPartContainer>
+      </UpperContentContainer>
 
       {/* form */}
-      <AccountInformationForm>
+      <FormContainer>
         {/* description */}
         <BodyText>Write down your seed phrase.</BodyText>
         <BodyText>
@@ -121,8 +123,8 @@ const SeedPhrase: React.FC<Props> = (props) => {
             I wrote down my mnemonic
           </Button>
         </ButtonContainer>
-      </AccountInformationForm>
-    </AccountInformationViewContainer>
+      </FormContainer>
+    </SubViewContainer>
   );
 };
 

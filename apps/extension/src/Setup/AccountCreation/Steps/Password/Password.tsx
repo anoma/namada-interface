@@ -4,18 +4,17 @@ import zxcvbn from "zxcvbn";
 import { Button, ButtonVariant } from "@anoma/components";
 
 import {
-  AccountInformationViewContainer,
-  AccountInformationViewUpperPartContainer,
-  AccountInformationForm,
+  BodyText,
+  ButtonContainer,
+  FormContainer,
   Header1,
   Header5,
-  BodyText,
-  Input,
-  InputFeedback,
+  UpperContentContainer,
+  SubViewContainer,
   InputContainer,
-  ButtonContainer,
-} from "./Password.components";
+} from "Setup/Setup.components";
 import { AccountDetails } from "Setup/types";
+import { Input, InputFeedback } from "./Password.components";
 
 // the data of this form
 type Props = {
@@ -56,14 +55,14 @@ const Password: React.FC<Props> = (props) => {
   );
 
   return (
-    <AccountInformationViewContainer>
+    <SubViewContainer>
       {/* header */}
-      <AccountInformationViewUpperPartContainer>
+      <UpperContentContainer>
         <Header1>Set a Passcode for your wallet</Header1>
-      </AccountInformationViewUpperPartContainer>
+      </UpperContentContainer>
 
       {/* form */}
-      <AccountInformationForm>
+      <FormContainer>
         {/* seed phrase */}
         {/* description */}
         <BodyText>
@@ -149,8 +148,8 @@ const Password: React.FC<Props> = (props) => {
             Create an Account
           </Button>
         </ButtonContainer>
-      </AccountInformationForm>
-    </AccountInformationViewContainer>
+      </FormContainer>
+    </SubViewContainer>
   );
 };
 

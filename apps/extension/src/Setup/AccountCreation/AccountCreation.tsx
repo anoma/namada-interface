@@ -4,13 +4,13 @@ import { AnimatePresence } from "framer-motion";
 import { ThemeContext } from "styled-components";
 
 import { Icon, IconName, IconSize } from "@anoma/components";
+import { RouteContainer } from "./AccountCreation.components";
 import {
-  AccountCreationContainer,
   TopSection,
   TopSectionHeaderContainer,
   TopSectionButtonContainer,
-  RouteContainer,
-} from "./AccountCreation.components";
+  SubViewContainer,
+} from "Setup/Setup.components";
 
 /**
  * The main purpose of this is to coordinate the flow for creating a new account.
@@ -21,7 +21,7 @@ const AccountCreation: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <AccountCreationContainer>
+    <SubViewContainer>
       <TopSection>
         <TopSectionButtonContainer>
           <a onClick={() => navigate(-1)} style={{ cursor: "pointer" }}>
@@ -40,7 +40,7 @@ const AccountCreation: React.FC = () => {
           <Outlet />
         </AnimatePresence>
       </RouteContainer>
-    </AccountCreationContainer>
+    </SubViewContainer>
   );
 };
 

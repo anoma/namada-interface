@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Button, ButtonVariant } from "@anoma/components";
+import { Button, ButtonVariant, Input, InputVariants } from "@anoma/components";
+
 import {
-  AccountInformationViewContainer,
-  AccountInformationViewUpperPartContainer,
-  AccountInformationForm,
-  DescriptionAndInputContainer,
+  BodyText,
+  ButtonContainer,
+  InputContainer,
   Header1,
   Header5,
-  BodyText,
-  InputContainer,
-  ButtonContainer,
-} from "./SeedPhraseConfirmation.components";
-import { Input } from "../Password/Password.components";
+  SubViewContainer,
+  UpperContentContainer,
+  FormContainer,
+} from "Setup/Setup.components";
+import { DescriptionAndInputContainer } from "./SeedPhraseConfirmation.components";
+import { ContentContainer } from "App/App.components";
 
 type Props = {
   seedPhrase: string[];
@@ -29,23 +30,26 @@ const SeedPhraseConfirmation: React.FC<Props> = (props) => {
   }, []);
 
   return (
-    <AccountInformationViewContainer>
+    <SubViewContainer>
       {/* header */}
-      <AccountInformationViewUpperPartContainer>
+      <UpperContentContainer>
         <Header1>Verify Phrase</Header1>
-      </AccountInformationViewUpperPartContainer>
+      </UpperContentContainer>
 
       {/* form */}
-      <AccountInformationForm>
+      <ContentContainer>
         <DescriptionAndInputContainer>
           {/* description */}
           <BodyText> </BodyText>
 
           {/* seed verification */}
           <InputContainer>
-            <Header5>Word #{indexToConfirm + 1}</Header5>
+            <Header5></Header5>
             <Input
-              onChange={(event) => {
+              label={`Word #${indexToConfirm + 1}`}
+              variant={InputVariants.Text}
+              value={verificationInput}
+              onChangeCallback={(event) => {
                 setVerificationInput(event.target.value);
               }}
             />
@@ -63,8 +67,8 @@ const SeedPhraseConfirmation: React.FC<Props> = (props) => {
             Verify
           </Button>
         </ButtonContainer>
-      </AccountInformationForm>
-    </AccountInformationViewContainer>
+      </ContentContainer>
+    </SubViewContainer>
   );
 };
 
