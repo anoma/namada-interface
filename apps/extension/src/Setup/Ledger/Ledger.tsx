@@ -25,8 +25,8 @@ import {
   UpperContentContainer,
   Header1,
   BodyText,
+  FormContainer,
 } from "Setup/Setup.components";
-import { ContentContainer } from "App/App.components";
 
 type Props = {
   requester: ExtensionRequester;
@@ -87,57 +87,55 @@ const Ledger: React.FC<Props> = ({ requester: _ }) => {
             />
           </a>
         </TopSectionButtonContainer>
-
         <TopSectionHeaderContainer></TopSectionHeaderContainer>
       </TopSection>
+
       <UpperContentContainer>
         <Header1>Connect Ledger</Header1>
       </UpperContentContainer>
 
-      <ContentContainer>
-        {error && <LedgerError>{error}</LedgerError>}
-        {/* TODO: Navigate to next step for adding this account to background service. The following is temporary: */}
-        {isConnected && (
-          <BodyText>
-            <p>
-              Connection successful for <b>&quot;{alias}&quot;</b>!
-            </p>
-            <p>Public key: {publicKey && shortenAddress(publicKey)}</p>
-            {appInfo && (
-              <>
-                <p>Name: {appInfo.name}</p>
-                <p>Version: {appInfo.version}</p>
-              </>
-            )}
-          </BodyText>
-        )}
-        {!isConnected && (
-          <>
-            <Input
-              label={"Alias"}
-              value={alias}
-              onChangeCallback={(e) => setAlias(e.target.value)}
-              variant={InputVariants.Text}
-            />
-            <ButtonsContainer>
-              <Button
-                onClick={() => handleConnectUSB()}
-                variant={ButtonVariant.Contained}
-                disabled={alias === ""}
-              >
-                Connect USB
-              </Button>
-              <Button
-                onClick={() => handleConnectHID()}
-                variant={ButtonVariant.Contained}
-                disabled={alias === ""}
-              >
-                Connect HID
-              </Button>
-            </ButtonsContainer>
-          </>
-        )}
-      </ContentContainer>
+      {error && <LedgerError>{error}</LedgerError>}
+      {/* TODO: Navigate to next step for adding this account to background service. The following is temporary: */}
+      {isConnected && (
+        <BodyText>
+          <p>
+            Connection successful for <b>&quot;{alias}&quot;</b>!
+          </p>
+          <p>Public key: {publicKey && shortenAddress(publicKey)}</p>
+          {appInfo && (
+            <>
+              <p>Name: {appInfo.name}</p>
+              <p>Version: {appInfo.version}</p>
+            </>
+          )}
+        </BodyText>
+      )}
+      {!isConnected && (
+        <FormContainer>
+          <Input
+            label={"Alias"}
+            value={alias}
+            onChangeCallback={(e) => setAlias(e.target.value)}
+            variant={InputVariants.Text}
+          />
+        </FormContainer>
+      )}
+      <ButtonsContainer>
+        <Button
+          onClick={() => handleConnectUSB()}
+          variant={ButtonVariant.Contained}
+          disabled={alias === ""}
+        >
+          Connect USB
+        </Button>
+        <Button
+          onClick={() => handleConnectHID()}
+          variant={ButtonVariant.Contained}
+          disabled={alias === ""}
+        >
+          Connect HID
+        </Button>
+      </ButtonsContainer>
     </SubViewContainer>
   );
 };

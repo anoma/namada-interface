@@ -3,7 +3,7 @@ import { Button, ButtonVariant, Input, InputVariants } from "@anoma/components";
 
 import {
   BodyText,
-  ButtonContainer,
+  ButtonsContainer,
   InputContainer,
   Header1,
   Header5,
@@ -11,8 +11,6 @@ import {
   UpperContentContainer,
   FormContainer,
 } from "Setup/Setup.components";
-import { DescriptionAndInputContainer } from "./SeedPhraseConfirmation.components";
-import { ContentContainer } from "App/App.components";
 
 type Props = {
   seedPhrase: string[];
@@ -31,43 +29,31 @@ const SeedPhraseConfirmation: React.FC<Props> = (props) => {
 
   return (
     <SubViewContainer>
-      {/* header */}
       <UpperContentContainer>
         <Header1>Verify Phrase</Header1>
       </UpperContentContainer>
 
-      {/* form */}
-      <ContentContainer>
-        <DescriptionAndInputContainer>
-          {/* description */}
-          <BodyText> </BodyText>
-
-          {/* seed verification */}
-          <InputContainer>
-            <Header5></Header5>
-            <Input
-              label={`Word #${indexToConfirm + 1}`}
-              variant={InputVariants.Text}
-              value={verificationInput}
-              onChangeCallback={(event) => {
-                setVerificationInput(event.target.value);
-              }}
-            />
-          </InputContainer>
-        </DescriptionAndInputContainer>
-
-        <ButtonContainer>
-          <Button
-            onClick={() => {
-              onConfirm();
-            }}
-            disabled={verificationInput !== seedPhrase[indexToConfirm]}
-            variant={ButtonVariant.Contained}
-          >
-            Verify
-          </Button>
-        </ButtonContainer>
-      </ContentContainer>
+      <FormContainer>
+        <Input
+          label={`Word #${indexToConfirm + 1}`}
+          variant={InputVariants.Text}
+          value={verificationInput}
+          onChangeCallback={(event) => {
+            setVerificationInput(event.target.value);
+          }}
+        />
+      </FormContainer>
+      <ButtonsContainer>
+        <Button
+          onClick={() => {
+            onConfirm();
+          }}
+          disabled={verificationInput !== seedPhrase[indexToConfirm]}
+          variant={ButtonVariant.Contained}
+        >
+          Verify
+        </Button>
+      </ButtonsContainer>
     </SubViewContainer>
   );
 };

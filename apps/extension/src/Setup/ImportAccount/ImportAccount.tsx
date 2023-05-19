@@ -11,7 +11,6 @@ import {
   TopSectionButtonContainer,
   UpperContentContainer,
   Header1,
-  ContentContainer,
   BodyText,
 } from "Setup/Setup.components";
 
@@ -38,11 +37,9 @@ const ImportAccount: React.FC = () => {
         <Header1>Import Account</Header1>
       </UpperContentContainer>
 
-      <ContentContainer>
-        <BodyText>
-          <i>TBD</i>
-        </BodyText>
-      </ContentContainer>
+      <BodyText>
+        <i>TBD</i>
+      </BodyText>
     </SubViewContainer>
   );
 };

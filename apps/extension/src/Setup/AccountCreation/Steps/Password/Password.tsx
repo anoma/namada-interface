@@ -5,7 +5,7 @@ import { Button, ButtonVariant } from "@anoma/components";
 
 import {
   BodyText,
-  ButtonContainer,
+  ButtonsContainer,
   FormContainer,
   Header1,
   Header5,
@@ -126,7 +126,7 @@ const Password: React.FC<Props> = (props) => {
         </InputContainer>
 
         {/* submit */}
-        <ButtonContainer>
+        <ButtonsContainer>
           <Button
             variant={ButtonVariant.Contained}
             onClick={() => {
@@ -147,7 +147,7 @@ const Password: React.FC<Props> = (props) => {
           >
             Create an Account
           </Button>
-        </ButtonContainer>
+        </ButtonsContainer>
       </FormContainer>
     </SubViewContainer>
   );

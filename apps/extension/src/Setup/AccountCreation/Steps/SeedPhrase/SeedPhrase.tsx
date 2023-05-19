@@ -7,7 +7,7 @@ import { ExtensionRequester } from "extension";
 import { Ports } from "router";
 import {
   BodyText,
-  ButtonContainer,
+  ButtonsContainer,
   FormContainer,
   Header1,
   SubViewContainer,
@@ -112,7 +112,7 @@ const SeedPhrase: React.FC<Props> = (props) => {
           </ExportSeedPhraseButtonsContainer>
         )}
         {/* continue */}
-        <ButtonContainer>
+        <ButtonsContainer>
           <Button
             onClick={() => {
               onConfirm(seedPhrase);
@@ -122,7 +122,7 @@ const SeedPhrase: React.FC<Props> = (props) => {
           >
             I wrote down my mnemonic
           </Button>
-        </ButtonContainer>
+        </ButtonsContainer>
       </FormContainer>
     </SubViewContainer>
   );

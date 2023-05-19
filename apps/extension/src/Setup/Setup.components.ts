@@ -19,10 +19,18 @@ export const AppContainer = styled.div`
   color: ${(props) => props.theme.colors.utility2.main80};
   padding: 0 36px;
   height: 100%;
-  min-height: 400px;
   width: 480px;
   transition: background-color 0.3s linear;
   margin: 36px auto;
+`;
+
+export const SubViewContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  width: 440px;
+  min-height: 400px;
 `;
 
 export const MotionContainer = styled(motion.div)`
@@ -35,7 +43,7 @@ export const TopSection = styled.section`
   justify-content: start;
   align-items: center;
   width: 100%;
-  margin: 32px 0;
+  margin: 24px 0;
 `;
 
 export const TopSectionHeaderContainer = styled.section`
@@ -57,7 +65,6 @@ export const ContentContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 400px;
 `;
 
 export const UpperContentContainer = styled.div`
@@ -69,9 +76,10 @@ export const UpperContentContainer = styled.div`
 export const FormContainer = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-
+  align-items: center;
+  margin: 20px 0;
   width: 100%;
+  min-height: 170px;
 `;
 
 export const Header1 = styled.h1`
@@ -95,23 +103,10 @@ export const BodyText = styled.p`
 `;
 
 export const ButtonsContainer = styled.div`
+  margin: 20px 0;
   display: flex;
   justify-content: center;
   width: 100%;
-`;
-
-export const ButtonContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  width: 100%;
-`;
-
-export const SubViewContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 440px;
 `;
 
 export const InputContainer = styled.div`
