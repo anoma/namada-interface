@@ -97,18 +97,20 @@ const Ledger: React.FC<Props> = ({ requester: _ }) => {
       {error && <LedgerError>{error}</LedgerError>}
       {/* TODO: Navigate to next step for adding this account to background service. The following is temporary: */}
       {isConnected && (
-        <BodyText>
-          <p>
+        <>
+          <BodyText>
             Connection successful for <b>&quot;{alias}&quot;</b>!
-          </p>
-          <p>Public key: {publicKey && shortenAddress(publicKey)}</p>
+          </BodyText>
+          <BodyText>
+            Public key: {publicKey && shortenAddress(publicKey)}
+          </BodyText>
           {appInfo && (
             <>
-              <p>Name: {appInfo.name}</p>
-              <p>Version: {appInfo.version}</p>
+              <BodyText>Name: {appInfo.name}</BodyText>
+              <BodyText>Version: {appInfo.version}</BodyText>
             </>
           )}
-        </BodyText>
+        </>
       )}
       {!isConnected && (
         <FormContainer>
