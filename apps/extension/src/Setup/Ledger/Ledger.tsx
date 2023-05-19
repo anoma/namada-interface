@@ -68,7 +68,6 @@ const Ledger: React.FC<Props> = ({ requester: _ }) => {
   const handleConnectHID = async (): Promise<void> => {
     try {
       const transport = await initLedgerHIDTransport();
-
       queryLedger(await LedgerApp.init(transport));
     } catch (e) {
       setError(`Failed to connect to Ledger: ${e}`);
@@ -113,31 +112,33 @@ const Ledger: React.FC<Props> = ({ requester: _ }) => {
         </>
       )}
       {!isConnected && (
-        <FormContainer>
-          <Input
-            label={"Alias"}
-            value={alias}
-            onChangeCallback={(e) => setAlias(e.target.value)}
-            variant={InputVariants.Text}
-          />
-        </FormContainer>
+        <>
+          <FormContainer>
+            <Input
+              label={"Alias"}
+              value={alias}
+              onChangeCallback={(e) => setAlias(e.target.value)}
+              variant={InputVariants.Text}
+            />
+          </FormContainer>
+          <ButtonsContainer>
+            <Button
+              onClick={() => handleConnectUSB()}
+              variant={ButtonVariant.Contained}
+              disabled={alias === ""}
+            >
+              Connect USB
+            </Button>
+            <Button
+              onClick={() => handleConnectHID()}
+              variant={ButtonVariant.Contained}
+              disabled={alias === ""}
+            >
+              Connect HID
+            </Button>
+          </ButtonsContainer>
+        </>
       )}
-      <ButtonsContainer>
-        <Button
-          onClick={() => handleConnectUSB()}
-          variant={ButtonVariant.Contained}
-          disabled={alias === ""}
-        >
-          Connect USB
-        </Button>
-        <Button
-          onClick={() => handleConnectHID()}
-          variant={ButtonVariant.Contained}
-          disabled={alias === ""}
-        >
-          Connect HID
-        </Button>
-      </ButtonsContainer>
     </SubViewContainer>
   );
 };
