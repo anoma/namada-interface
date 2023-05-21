@@ -5792,10 +5792,10 @@
   resolved "https://registry.yarnpkg.com/@xtuc/long/-/long-4.2.2.tgz#d291c6a4e97989b5c61d9acf396ae4fe133a718d"
   integrity sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==
 
-"@zondax/ledger-namada@^0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@zondax/ledger-namada/-/ledger-namada-0.0.1.tgz#87b731359e11c062485ff7041f139afc8142f2d3"
-  integrity sha512-UsXmJe9T2PZvfBH+zyaZACxY9KV49WM0ZYnrNQwWqNciuRghi6+Q36CB07nCGcgsEQekFseNC0pbk31BYXyy0g==
+"@zondax/ledger-namada@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@zondax/ledger-namada/-/ledger-namada-0.0.2.tgz#17d9fc66c8eb5d1436a8fa6b030732219af3d4c0"
+  integrity sha512-F/rsDAsOclrIPFbGMDFIxD+1gDbGyIKZXtZ9yJD9DMYA8d7rkWzmGdHo/uxXCnzJDHzsM04BI1tvH0qDhmKuaw==
   dependencies:
     "@ledgerhq/hw-transport" "^6.28.2"
 

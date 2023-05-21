@@ -1,6 +1,7 @@
 import {
   NamadaApp,
   ResponseAppInfo,
+  ResponseSign,
   ResponseVersion,
 } from "@zondax/ledger-namada";
 import TransportUSB from "@ledgerhq/hw-transport-webusb";
@@ -26,7 +27,7 @@ export class Ledger {
   public version: ResponseVersion | undefined;
   public info: ResponseAppInfo | undefined;
 
-  constructor(public readonly namadaApp: NamadaApp | undefined = undefined) {}
+  constructor(public readonly namadaApp: NamadaApp | undefined = undefined) { }
 
   /**
    * Returns an initialized Ledger class instance with initialized Transport
@@ -103,7 +104,7 @@ export class Ledger {
   /**
    * Sign tx bytes with the key associated with provided (or default) path
    */
-  public async sign(tx: ArrayBuffer, bip44Path: string): Promise<ArrayBuffer> {
+  public async sign(tx: ArrayBuffer, bip44Path: string): Promise<ResponseSign> {
     if (!this.namadaApp) {
       throw new Error("NamadaApp is not initialized!");
     }
