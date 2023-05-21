@@ -94,7 +94,8 @@ const SeedPhrase: React.FC<Props> = (props) => {
         <ExportSeedPhraseButtonsContainer>
           {/* copy seed phrase */}
           <CopyToClipboard
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault();
               textToClipboard(seedPhrase.join(" "));
             }}
             href="#"

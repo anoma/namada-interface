@@ -84,7 +84,9 @@ export class KeyRingService {
     password: string,
     alias: string
   ): Promise<boolean> {
-    return await this._keyRing.storeMnemonic(words, password, alias);
+    const results = await this._keyRing.storeMnemonic(words, password, alias);
+    await this._broadcastAccountsChanged();
+    return results;
   }
 
   async deriveAccount(
@@ -92,7 +94,9 @@ export class KeyRingService {
     type: AccountType,
     alias: string
   ): Promise<DerivedAccount> {
-    return await this._keyRing.deriveAccount(path, type, alias);
+    const account = await this._keyRing.deriveAccount(path, type, alias);
+    await this._broadcastAccountsChanged();
+    return account;
   }
 
   async queryAccounts(): Promise<DerivedAccount[]> {
@@ -153,13 +157,20 @@ export class KeyRingService {
   }
 
   async setActiveAccountId(accountId: string): Promise<void> {
+    await this._keyRing.setActiveAccountId(accountId);
+    await this._broadcastAccountsChanged();
+  }
+
+  async getActiveAccountId(): Promise<string | undefined> {
+    return await this._keyRing.getActiveAccountId();
+  }
+
+  private async _broadcastAccountsChanged(): Promise<void> {
     const tabs = await syncTabs(
       this.connectedTabsStore,
       this.requester,
       this.chainId
     );
-    await this._keyRing.setActiveAccountId(accountId);
-
     try {
       tabs?.forEach(({ tabId }: TabStore) => {
         this.requester.sendMessageToTab(
@@ -171,9 +182,7 @@ export class KeyRingService {
     } catch (e) {
       console.warn(e);
     }
-  }
 
-  async getActiveAccountId(): Promise<string | undefined> {
-    return await this._keyRing.getActiveAccountId();
+    return;
   }
 }
