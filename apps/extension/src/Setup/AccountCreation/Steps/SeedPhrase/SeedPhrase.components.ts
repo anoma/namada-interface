@@ -52,6 +52,7 @@ export const SeedPhraseCard = styled.div`
   box-sizing: border-box;
   color: ${(props) => props.theme.colors.utility2.main80};
   font-weight: bold;
+  user-select: ${() => process.env.NODE_ENV === 'development' ? '' : 'none'};
 `;
 
 export const SeedPhraseContainer = styled.div`
