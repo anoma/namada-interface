@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import { Button, ButtonVariant, Toggle } from "@anoma/components";
+import { executeUntil } from "@anoma/utils";
 
 import { GenerateMnemonicMsg } from "background/keyring";
 import { ExtensionRequester } from "extension";
@@ -51,16 +52,21 @@ const SeedPhrase: React.FC<Props> = (props) => {
     // if a mnemonic was passed in we do not generate it again
     if (defaultSeedPhrase?.length && defaultSeedPhrase?.length > 0) return;
 
-    const createMnemonic = async (): Promise<void> => {
-      const words = await requester.sendMessage<GenerateMnemonicMsg>(
-        Ports.Background,
-        new GenerateMnemonicMsg(mnemonicLength)
-      );
-      setSeedPhrase(words);
-    };
-
-    createMnemonic();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    executeUntil(
+      async (): Promise<boolean> => {
+        try {
+          const words = await requester.sendMessage<GenerateMnemonicMsg>(
+            Ports.Background,
+            new GenerateMnemonicMsg(mnemonicLength)
+          );
+          setSeedPhrase(words);
+          return true;
+        } catch (_) {
+          return false;
+        }
+      },
+      { tries: 10, ms: 100 }
+    );
   }, [mnemonicLength]);
 
   return (
@@ -98,7 +104,7 @@ const SeedPhrase: React.FC<Props> = (props) => {
           })}
         </SeedPhraseContainer>
         {/* copy seed phrase */}
-        {process.env.NODE_ENV === 'development' && (
+        {process.env.NODE_ENV === "development" && (
           <ExportSeedPhraseButtonsContainer>
             <CopyToClipboard
               onClick={(e) => {

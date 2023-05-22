@@ -1,6 +1,12 @@
 import { useEffect } from "react";
 
-import { executeUntil, Config, Options } from "@anoma/utils";
+import { executeUntil, Config } from "@anoma/utils";
+
+type Options = {
+  predFn: () => Promise<boolean>;
+  onSuccess: () => unknown;
+  onFail: () => unknown;
+};
 
 /**
  * Hook that wait until predicate is met
@@ -15,6 +21,11 @@ export const useUntil = (
   deps?: React.DependencyList
 ): void => {
   useEffect(() => {
-    executeUntil(config, options);
+    const { predFn, onSuccess, onFail } = options;
+    (async () => {
+      const succ = await executeUntil(predFn, config);
+      const fn = succ ? onSuccess : onFail;
+      fn();
+    })();
   }, deps);
 };

@@ -3,12 +3,6 @@ export type Config = {
   ms: number;
 };
 
-export type Options = {
-  predFn: () => Promise<boolean>;
-  onSuccess: () => unknown;
-  onFail: () => unknown;
-};
-
 export const wait = async (ms: number): Promise<unknown> => {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
@@ -17,12 +11,14 @@ export const wait = async (ms: number): Promise<unknown> => {
 
 /**
  * Execute attempts until predicate is satisfied
+ *
+ * @param {Function} predFn
+ * @param {Config} config - number of tries and ms before failing
  */
 export const executeUntil = async (
-  config: Config,
-  options: Options
-): Promise<void> => {
-  const { predFn, onSuccess, onFail } = options;
+  predFn: () => Promise<boolean>,
+  config: Config
+): Promise<boolean> => {
   let succ = false;
   let { tries } = config;
 
@@ -32,6 +28,5 @@ export const executeUntil = async (
     await wait(config.ms);
   }
 
-  const fn = succ ? onSuccess : onFail;
-  fn();
+  return succ;
 };
