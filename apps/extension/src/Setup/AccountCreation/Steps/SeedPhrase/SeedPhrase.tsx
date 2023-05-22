@@ -71,6 +71,9 @@ const SeedPhrase: React.FC<Props> = (props) => {
       <AccountInformationForm>
         {/* description */}
         <BodyText>Write down your seed phrase.</BodyText>
+        <BodyText>
+          WARNING! It is not recommended to screenshot your seed phrase.
+        </BodyText>
         <SeedPhraseLengthContainer>
           <SeedPhraseLength>12</SeedPhraseLength>
           <Toggle
@@ -91,18 +94,20 @@ const SeedPhrase: React.FC<Props> = (props) => {
             );
           })}
         </SeedPhraseContainer>
-        <ExportSeedPhraseButtonsContainer>
-          {/* copy seed phrase */}
-          <CopyToClipboard
-            onClick={(e) => {
-              e.preventDefault();
-              textToClipboard(seedPhrase.join(" "));
-            }}
-            href="#"
-          >
-            Copy to clipboard
-          </CopyToClipboard>
-        </ExportSeedPhraseButtonsContainer>
+        {/* copy seed phrase */}
+        {process.env.NODE_ENV === 'development' && (
+          <ExportSeedPhraseButtonsContainer>
+            <CopyToClipboard
+              onClick={(e) => {
+                e.preventDefault();
+                textToClipboard(seedPhrase.join(" "));
+              }}
+              href="#"
+            >
+              Copy to clipboard
+            </CopyToClipboard>
+          </ExportSeedPhraseButtonsContainer>
+        )}
         {/* continue */}
         <ButtonContainer>
           <Button
