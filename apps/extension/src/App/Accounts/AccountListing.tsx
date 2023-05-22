@@ -1,6 +1,10 @@
 import { useNavigate } from "react-router-dom";
+
 import { Icon, IconName } from "@anoma/components";
 import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
+import { shortenAddress } from "@anoma/utils";
+
+import { TopLevelRoute } from "App/types";
 import {
   AccountListingContainer,
   Address,
@@ -12,9 +16,6 @@ import {
   ParentAlias,
   DerivationPathContainer,
 } from "./AccountListing.components";
-import { shortenAddress } from "@anoma/utils";
-
-import { TopLevelRoute } from "App/types";
 
 type Props = {
   // The parent BIP44/ZIP32 "account"
