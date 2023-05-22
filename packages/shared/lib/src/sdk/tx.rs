@@ -33,6 +33,17 @@ pub struct SubmitBondMsg {
     tx: TxMsg,
 }
 
+/// Maps serialized tx_msg into BondTx args.
+///
+/// # Arguments
+///
+/// * `tx_msg` - Borsh serialized tx_msg.
+/// * `password` - Password used for storage decryption.
+///
+/// # Errors
+///
+/// Returns JsError if the tx_msg can't be deserialized or
+/// Rust structs can't be created.
 pub fn bond_tx_args(tx_msg: &[u8], password: Option<String>) -> Result<args::Bond, JsError> {
     let tx_msg = SubmitBondMsg::try_from_slice(tx_msg)?;
 
@@ -71,6 +82,17 @@ pub struct SubmitUnbondMsg {
     tx: TxMsg,
 }
 
+/// Maps serialized tx_msg into UnbondTx args.
+///
+/// # Arguments
+///
+/// * `tx_msg` - Borsh serialized tx_msg.
+/// * `password` - Password used for storage decryption.
+///
+/// # Errors
+///
+/// Returns JsError if the tx_msg can't be deserialized or
+/// Rust structs can't be created.
 pub fn unbond_tx_args(tx_msg: &[u8], password: Option<String>) -> Result<args::Unbond, JsError> {
     let tx_msg = SubmitUnbondMsg::try_from_slice(tx_msg)?;
 
@@ -109,6 +131,17 @@ pub struct SubmitTransferMsg {
     tx_code: Vec<u8>,
 }
 
+/// Maps serialized tx_msg into TransferTx args.
+///
+/// # Arguments
+///
+/// * `tx_msg` - Borsh serialized tx_msg.
+/// * `password` - Password used for storage decryption.
+///
+/// # Errors
+///
+/// Returns JsError if the tx_msg can't be deserialized or
+/// Rust structs can't be created.
 pub fn transfer_tx_args(
     tx_msg: &[u8],
     password: Option<String>,
@@ -159,6 +192,17 @@ pub struct SubmitIbcTransferMsg {
     tx_code: Vec<u8>,
 }
 
+/// Maps serialized tx_msg into IbcTransferTx args.
+///
+/// # Arguments
+///
+/// * `tx_msg` - Borsh serialized tx_msg.
+/// * `password` - Password used for storage decryption.
+///
+/// # Errors
+///
+/// Returns JsError if the tx_msg can't be deserialized or
+/// Rust structs can't be created.
 pub fn ibc_transfer_tx_args(
     tx_msg: &[u8],
     password: Option<String>,
@@ -201,6 +245,17 @@ pub fn ibc_transfer_tx_args(
     Ok(args)
 }
 
+/// Maps serialized tx_msg into Tx args.
+/// This is common for all tx types.
+///
+/// # Arguments
+///
+/// * `tx_msg` - Borsh serialized tx_msg.
+/// * `password` - Password used for storage decryption.
+///
+/// # Errors
+///
+/// Returns JsError if token address is invalid.
 fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> Result<args::Tx, JsError> {
     let TxMsg {
         token,
