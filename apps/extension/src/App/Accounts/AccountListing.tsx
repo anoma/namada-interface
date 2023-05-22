@@ -63,7 +63,8 @@ const AccountListing = ({ account, parentAlias }: Props): JSX.Element => {
           </Button>
         )}
         <Button
-          onClick={() => {
+          onClick={(e) => {
+            e.preventDefault();
             textToClipboard(address);
           }}
           href="#"
