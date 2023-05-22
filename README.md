@@ -65,10 +65,41 @@ namada-interface/
 
 ### Usage
 
-Before using apps in this repo, we first need to install all dependencies:
+Before using apps in this repo, we first need to install all
+dependencies. Note that these commands are for Ubuntu and will vary on
+other systems:
 
 ```bash
+# Install rustup
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Add WASM target
+rustup target add wasm32-unknown-unknown
+
+# Install clang
+sudo apt-get install -y clang
+
+# Install pkg-config
+sudo apt-get install -y pkg-config
+
+# Install openssl development packages
+sudo apt-get install -y libssl-dev
+
+# Install wasm-bindgen-cli
+cargo install wasm-bindgen-cli
+
+# Install protoc
+sudo apt-get install -y protobuf-compiler
+
+# Install wasm-pack
+ curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+# Install yarn and JS dependencies
+npm install -g yarn
 yarn
+
+# Install web-ext
+yarn global add web-ext
 ```
 
 At the root-level, we can issue commands for all packages in the monorepo. Following is an example:
@@ -83,6 +114,8 @@ yarn lint
 # Fix linting on all packages
 yarn lint:fix
 ```
+
+There are also app-specific instructions in the [namada-interface README](apps/namada-interface/README.md) and the [extension README](apps/extension/README.md).
 
 ### Project Structure
 
