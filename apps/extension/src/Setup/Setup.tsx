@@ -20,19 +20,12 @@ import {
   SeedPhraseConfirmation,
   Password,
 } from "Setup/AccountCreation/Steps";
-import { KVPrefix } from "router";
 import { TopLevelRoute, AccountCreationRoute, AccountDetails } from "./types";
 import { Ledger } from "./Ledger";
 import { Start } from "./Start";
 import { AnimatePresence } from "framer-motion";
 import { ImportAccount } from "./ImportAccount";
-
-const store = new ExtensionKVStore(KVPrefix.LocalStorage, {
-  get: browser.storage.local.get,
-  set: browser.storage.local.set,
-});
-const messenger = new ExtensionMessenger();
-const requester = new ExtensionRequester(messenger, store);
+import { useRequester } from "App/Requester";
 
 type AnimatedTransitionProps = {
   elementKey: string;
@@ -57,6 +50,7 @@ const AnimatedTransition: React.FC<AnimatedTransitionProps> = (props) => {
 };
 
 export const Setup: React.FC = () => {
+  const requester = useRequester();
   const theme = getTheme("dark");
   const navigate = useNavigate();
   const [accountCreationDetails, setAccountCreationDetails] =

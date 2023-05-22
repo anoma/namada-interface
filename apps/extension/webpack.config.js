@@ -25,6 +25,10 @@ const copyPatterns = [
     from: "./src/public/*.css",
     to: "./assets/[name].css",
   },
+  {
+    from: "./src/background/offscreen/offscreen.html",
+    to: "./offscreen.html",
+  },
   // browser-polyfill expects a source-map
   {
     from: "../../node_modules/webextension-polyfill/dist/browser-polyfill.js.map",
@@ -77,6 +81,9 @@ module.exports = {
     popup: "./src/App",
     setup: "./src/Setup",
     injected: "./src/content/injected.ts",
+    offscreen: "./src/background/offscreen/offscreen.ts",
+    ["submit-transfer-web-worker"]:
+      "./src/background/web-workers/submit-transfer-web-worker.ts",
   },
   output: {
     publicPath: "",

@@ -3,6 +3,7 @@ import { KeyRingService } from "./service";
 import {
   CheckIsLockedMsg,
   CheckPasswordMsg,
+  CloseOffscreenDocumentMsg,
   DeriveAccountMsg,
   GenerateMnemonicMsg,
   LockKeyRingMsg,
@@ -11,6 +12,7 @@ import {
   SetActiveAccountMsg,
   GetActiveAccountMsg,
   QueryParentAccountsMsg,
+  TransferCompletedEvent,
 } from "./messages";
 import {
   ConnectInterfaceMsg,
@@ -80,6 +82,17 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
           env,
           msg as EncodeInitAccountMsg
         );
+      case CloseOffscreenDocumentMsg:
+        return handleCloseOffscreenDocumentMsg(service)(
+          env,
+          msg as CloseOffscreenDocumentMsg
+        );
+      case TransferCompletedEvent:
+        return handleTransferCompletedEvent(service)(
+          env,
+          msg as TransferCompletedEvent
+        );
+
       default:
         throw new Error("Unknown msg type");
     }
@@ -230,5 +243,21 @@ const handleGetActiveAccountMsg: (
 ) => InternalHandler<GetActiveAccountMsg> = (service) => {
   return async (_, _msg) => {
     return await service.getActiveAccountId();
+  };
+};
+
+const handleTransferCompletedEvent: (
+  service: KeyRingService
+) => InternalHandler<TransferCompletedEvent> = (service) => {
+  return async (_, _msg) => {
+    return await service.handleTransferCompleted();
+  };
+};
+
+const handleCloseOffscreenDocumentMsg: (
+  service: KeyRingService
+) => InternalHandler<CloseOffscreenDocumentMsg> = (service) => {
+  return async () => {
+    return await service.closeOffscreenDocument();
   };
 };

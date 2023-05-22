@@ -1,3 +1,4 @@
+import { RequesterProvider } from "App/Requester";
 import React from "react";
 import ReactDOM from "react-dom";
 import { HashRouter } from "react-router-dom";
@@ -8,7 +9,9 @@ export default ((): void => {
   ReactDOM.render(
     <React.StrictMode>
       <HashRouter>
-        <Setup />
+        <RequesterProvider>
+          <Setup />
+        </RequesterProvider>
       </HashRouter>
     </React.StrictMode>,
     document.getElementById("root")

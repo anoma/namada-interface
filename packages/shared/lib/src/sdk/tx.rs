@@ -7,7 +7,7 @@ use namada::{
     types::{
         address::Address,
         chain::ChainId,
-        masp::{TransferSource, TransferTarget},
+        masp::{PaymentAddress, TransferSource, TransferTarget},
         token::Amount,
         transaction::GasLimit,
     },
@@ -159,7 +159,13 @@ pub fn transfer_tx_args(
     } = tx_msg;
 
     let source = Address::from_str(&source)?;
-    let target = Address::from_str(&target)?;
+    let target = match Address::from_str(&target) {
+        Ok(v) => Ok(TransferTarget::Address(v)),
+        Err(e1) => match PaymentAddress::from_str(&target) {
+            Ok(v) => Ok(TransferTarget::PaymentAddress(v)),
+            Err(e2) => Err(JsError::new(&format!("Hello2 {}, {}", e1, e2))),
+        },
+    }?;
     let native_token = Address::from_str(&native_token)?;
     let token = Address::from_str(&token)?;
     let amount = Amount::from(amount);
@@ -167,7 +173,7 @@ pub fn transfer_tx_args(
     let args = args::TxTransfer {
         tx: tx_msg_into_args(tx, password)?,
         source: TransferSource::Address(source),
-        target: TransferTarget::Address(target),
+        target,
         token,
         sub_prefix,
         amount,
@@ -283,7 +289,7 @@ fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> Result<args::Tx,
         chain_id: Some(ChainId(String::from(chain_id))),
         signing_key: None,
         signer: None,
-        tx_code_path: tx_code,
+        tx_reveal_code_path: tx_code,
         password,
     };
     Ok(args)

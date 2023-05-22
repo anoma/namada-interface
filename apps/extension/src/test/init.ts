@@ -55,7 +55,8 @@ export const init = (): {
   const connectedTabsStore = new KVStoreMock<TabStore[]>(
     KVPrefix.ConnectedTabs
   );
-  const requester = new ExtensionRequester(messenger, extStore);
+  const anomaRouterId = 1234;
+  const requester = new ExtensionRequester(messenger, anomaRouterId);
 
   const router = new ExtensionRouter(
     () => ({
@@ -80,6 +81,7 @@ export const init = (): {
     sdkStore,
     activeAccountStore,
     connectedTabsStore,
+    extStore,
     "namada-75a7e12.69483d59a9fb174",
     sdk,
     cryptoMemory,

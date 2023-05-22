@@ -4979,10 +4979,10 @@
     "@types/filesystem" "*"
     "@types/har-format" "*"
 
-"@types/chrome@^0.0.196":
-  version "0.0.196"
-  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.196.tgz#9e0196a6fcdf3c0e12cfbcd086cd28feb5206990"
-  integrity sha512-LAjGIQYC0wyiYu6lVT03dBrHBfYTMsM8EmNfQ+UdZipGZe8OUiir6weoa9oQoBw3T3RLzBCp9m904T+rFtpPAg==
+"@types/chrome@^0.0.224":
+  version "0.0.224"
+  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.224.tgz#0138497299eaaf261d61ece62d7d6af3868ce856"
+  integrity sha512-YkL7q3KDV7OAKgVCBNIfH73rnjNMbIzAYHzTa2DKhSK/2z0Wf/n8yJnK/UoW+lvuYJJR4LtAkG3YvsIZTy7BOA==
   dependencies:
     "@types/filesystem" "*"
     "@types/har-format" "*"

@@ -24,6 +24,15 @@ import {
   readVecStringPointer,
   readStringPointer,
 } from "@anoma/crypto/src/utils";
+import { toBase64 } from "@cosmjs/encoding";
+import {
+  createOffscreenWithTxWorker,
+  hasOffscreenDocument,
+  OFFSCREEN_TARGET,
+  SUBMIT_TRANSFER_MSG_TYPE,
+} from "../offscreen";
+import { init as initSubmitTransferWebWorker } from "background/web-workers";
+import { getAnomaRouterId } from "extension";
 
 // Generated UUID namespace for uuid v5
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
@@ -75,6 +84,7 @@ export class KeyRing {
     protected readonly kvStore: KVStore<KeyStore[]>,
     protected readonly sdkStore: KVStore<string>,
     protected readonly activeAccountStore: KVStore<string>,
+    protected readonly extensionStore: KVStore<number>,
     protected readonly chainId: string,
     protected readonly sdk: Sdk,
     protected readonly cryptoMemory: WebAssembly.Memory
@@ -460,16 +470,62 @@ export class KeyRing {
       throw new Error(`Could not submit unbond tx: ${e}`);
     }
   }
+  private async submitTransferChrome(
+    txMsg: Uint8Array,
+    msgId: string,
+    senderTabId: number,
+    password: string
+  ): Promise<void> {
+    const offscreenDocumentPath = "offscreen.html";
+    const routerId = await getAnomaRouterId(this.extensionStore);
 
-  async submitTransfer(txMsg: Uint8Array): Promise<void> {
+    if (!(await hasOffscreenDocument(offscreenDocumentPath))) {
+      await createOffscreenWithTxWorker(offscreenDocumentPath);
+    }
+
+    await chrome.runtime.sendMessage({
+      type: SUBMIT_TRANSFER_MSG_TYPE,
+      target: OFFSCREEN_TARGET,
+      routerId,
+      data: { txMsg: toBase64(txMsg), msgId, senderTabId, password },
+    });
+  }
+
+  private async submitTransferFirefox(
+    txMsg: Uint8Array,
+    msgId: string,
+    senderTabId: number,
+    password: string
+  ): Promise<void> {
+    const routerId = await getAnomaRouterId(this.extensionStore);
+
+    initSubmitTransferWebWorker(
+      {
+        txMsg: toBase64(txMsg),
+        msgId,
+        senderTabId,
+        password,
+      },
+      routerId
+    );
+  }
+
+  async submitTransfer(
+    txMsg: Uint8Array,
+    msgId: string,
+    senderTabId: number
+  ): Promise<void> {
     if (!this._password) {
       throw new Error("Not authenticated!");
     }
 
-    try {
-      await this.sdk.submit_transfer(txMsg, this._password);
-    } catch (e) {
-      throw new Error(`Could not submit transfer tx: ${e}`);
+    const { TARGET } = process.env;
+    if (TARGET === "chrome") {
+      this.submitTransferChrome(txMsg, msgId, senderTabId, this._password);
+    } else if (TARGET === "firefox") {
+      this.submitTransferFirefox(txMsg, msgId, senderTabId, this._password);
+    } else {
+      console.warn("Submitting transfers is not supported with your browser.");
     }
   }
 

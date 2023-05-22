@@ -1,16 +1,13 @@
-import browser from "webextension-polyfill";
 import React, { useEffect, useState } from "react";
 import { ThemeProvider } from "styled-components";
 import { Routes, Route, useNavigate } from "react-router-dom";
 
 import { DerivedAccount } from "@anoma/types";
 import { getTheme } from "@anoma/utils";
-import { ExtensionKVStore } from "@anoma/storage";
 import { Icon, IconName } from "@anoma/components";
 import { useUntil } from "@anoma/hooks";
 
-import { ExtensionMessenger, ExtensionRequester } from "extension";
-import { KVPrefix, Ports } from "router";
+import { Ports } from "router";
 import { QueryAccountsMsg } from "provider/messages";
 import { GetActiveAccountMsg } from "background/keyring";
 import { useQuery } from "hooks";
@@ -32,13 +29,7 @@ import { Login } from "./Login";
 import { Setup } from "./Setup";
 import { Settings } from "./Settings";
 import { ApproveConnection, ApproveTx } from "./Approvals";
-
-const store = new ExtensionKVStore(KVPrefix.LocalStorage, {
-  get: browser.storage.local.get,
-  set: browser.storage.local.set,
-});
-const messenger = new ExtensionMessenger();
-const requester = new ExtensionRequester(messenger, store);
+import { useRequester } from "./Requester";
 
 export enum Status {
   Completed,
@@ -56,6 +47,7 @@ export const App: React.FC = () => {
   const [accounts, setAccounts] = useState<DerivedAccount[]>([]);
   const [parentAccount, setParentAccount] = useState<DerivedAccount>();
   const [error, setError] = useState("");
+  const requester = useRequester();
 
   const fetchAccounts = async (): Promise<void> => {
     setStatus(Status.Pending);

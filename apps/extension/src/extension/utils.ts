@@ -7,13 +7,15 @@ const NO_TAB_ID = -2;
 
 export const getAnomaRouterId = async (
   store: KVStore<number>
-): Promise<number | undefined> => {
+): Promise<number> => {
   const storedId = await store.get(ROUTER_ID_KEY);
   if (!storedId) {
     const id = Math.floor(Math.random() * 1000000);
     await store.set(ROUTER_ID_KEY, id);
+
+    return id;
   }
-  return store.get(ROUTER_ID_KEY) as Promise<number | undefined>;
+  return storedId;
 };
 
 // Determine if content-scripts can be executed in this environment

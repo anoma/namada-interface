@@ -19,6 +19,7 @@ export class KeyRingService {
     protected readonly sdkStore: KVStore<string>,
     protected readonly accountAccountStore: KVStore<string>,
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
+    protected readonly extensionStore: KVStore<number>,
     protected readonly chainId: string,
     protected readonly sdk: Sdk,
     protected readonly cryptoMemory: WebAssembly.Memory,
@@ -28,6 +29,7 @@ export class KeyRingService {
       kvStore,
       sdkStore,
       accountAccountStore,
+      extensionStore,
       chainId,
       sdk,
       cryptoMemory
@@ -127,7 +129,8 @@ export class KeyRingService {
 
   async submitTransfer(txMsg: string): Promise<void> {
     try {
-      await this._keyRing.submitTransfer(fromBase64(txMsg));
+      //TODO: fix tabId and msgId
+      await this._keyRing.submitTransfer(fromBase64(txMsg), "1", 1);
     } catch (e) {
       console.warn(e);
       throw new Error(`Unable to encode transfer! ${e}`);
@@ -184,5 +187,20 @@ export class KeyRingService {
     }
 
     return;
+  }
+
+  async handleTransferCompleted(): Promise<void> {
+    console.log("Transfer completed");
+    //TODO: Send message to tab
+  }
+
+  closeOffscreenDocument(): Promise<void> {
+    if (chrome) {
+      return chrome.offscreen.closeDocument();
+    } else {
+      return Promise.reject(
+        "Trying to close offscreen document for nor supported browser"
+      );
+    }
   }
 }
