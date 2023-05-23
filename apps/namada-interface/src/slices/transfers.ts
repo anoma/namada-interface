@@ -18,28 +18,32 @@ export enum Toasts {
   TransferCompleted,
 }
 
-type TransferCompletedToastProps = { gas: number };
-type GetToastProps = TransferCompletedToastProps | void;
+type TransferCompletedToastProps = { msgId: string };
+type TransferStartedToastProps = { msgId: string };
+type GetToastProps =
+  | TransferCompletedToastProps
+  | TransferStartedToastProps
+  | void;
 
 export const getToast = (
   toastId: ToastId,
   toast: Toasts
 ): ((props: GetToastProps) => CreateToastPayload) => {
   const toasts = {
-    [Toasts.TransferStarted]: () => ({
+    [Toasts.TransferStarted]: (payload: TransferCompletedToastProps) => ({
       id: toastId,
       data: {
         title: "Transfer in progress!",
-        message: "",
+        message: payload.msgId,
         type: "pending-info" as ToastType,
         timeout: ToastTimeout.None(),
       },
     }),
-    [Toasts.TransferCompleted]: () => ({
+    [Toasts.TransferCompleted]: (payload: TransferCompletedToastProps) => ({
       id: toastId,
       data: {
         title: "Transfer successful!",
-        message: "",
+        message: payload.msgId,
         type: "success" as ToastType,
       },
     }),

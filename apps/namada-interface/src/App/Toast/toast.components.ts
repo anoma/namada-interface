@@ -37,6 +37,7 @@ export const Wrapper = styled(motion.div)<{ index: number }>`
     &::before {
       content: "";
       margin: 5px 5px 5px 15px;
+      min-width: 24px;
       width: 24px;
       height: 24px;
       border: 2px solid transparent;

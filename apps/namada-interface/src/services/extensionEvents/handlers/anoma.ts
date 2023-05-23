@@ -23,18 +23,26 @@ export const AnomaAccountChangedHandler =
 
 export const AnomaTransferStartedHandler =
   (dispatch: Dispatch<unknown>) => async (event: CustomEventInit) => {
+    const { msgId } = event.detail;
     dispatch(
       notificationsActions.createToast(
-        getToast(`${event.detail.msgId}-transfer`, Toasts.TransferStarted)()
+        getToast(
+          `${event.detail.msgId}-transfer`,
+          Toasts.TransferStarted
+        )({ msgId })
       )
     );
   };
 
 export const AnomaTransferCompletedHandler =
   (dispatch: Dispatch<unknown>) => async (event: CustomEventInit) => {
+    const { msgId } = event.detail;
     dispatch(
       notificationsActions.createToast(
-        getToast(`${event.detail.msgId}-transfer`, Toasts.TransferCompleted)()
+        getToast(
+          `${event.detail.msgId}-transfer`,
+          Toasts.TransferCompleted
+        )({ msgId })
       )
     );
   };
