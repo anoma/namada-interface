@@ -17,7 +17,7 @@ import { BridgeProps, Integration } from "./types/Integration";
 export default class Anoma implements Integration<Account, Signer> {
   private _anoma: WindowWithAnoma["anoma"] | undefined;
 
-  constructor(public readonly chain: Chain) {}
+  constructor(public readonly chain: Chain) { }
 
   public get instance(): IAnoma | undefined {
     return this._anoma;
@@ -58,6 +58,7 @@ export default class Anoma implements Integration<Account, Signer> {
 
       return await signer?.submitIbcTransfer({
         tx: {
+          chainId: this.chain.chainId,
           token: Tokens.NAM.address || "",
           feeAmount: 0,
           gasLimit: 0,

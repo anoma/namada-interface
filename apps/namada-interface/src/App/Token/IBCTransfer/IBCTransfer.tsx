@@ -24,7 +24,7 @@ import {
 import {
   useIntegrationConnection,
   useUntilIntegrationAttached,
-} from "services";
+} from "@anoma/hooks";
 import { useAppDispatch, useAppSelector } from "store";
 import {
   Account,
@@ -130,9 +130,8 @@ const IBCTransfer = (): JSX.Element => {
 
       return Object.entries(balance).map(([tokenType, amount]) => ({
         value: `${address}|${tokenType}`,
-        label: `${alias !== "Namada" ? alias + " - " : ""}${
-          Tokens[tokenType as TokenType].coin
-        } (${amount} ${tokenType})`,
+        label: `${alias !== "Namada" ? alias + " - " : ""}${Tokens[tokenType as TokenType].coin
+          } (${amount} ${tokenType})`,
       }));
     }
   );
@@ -343,9 +342,9 @@ const IBCTransfer = (): JSX.Element => {
                   currentExtensionAttachStatus === "attached"
                     ? handleConnectExtension
                     : handleDownloadExtension.bind(
-                        null,
-                        destinationChain.extension.url
-                      )
+                      null,
+                      destinationChain.extension.url
+                    )
                 }
                 loading={
                   currentExtensionAttachStatus === "pending" ||
@@ -358,7 +357,7 @@ const IBCTransfer = (): JSX.Element => {
                 }
               >
                 {currentExtensionAttachStatus === "attached" ||
-                currentExtensionAttachStatus === "pending"
+                  currentExtensionAttachStatus === "pending"
                   ? `Connect to ${extensionAlias} Extension`
                   : "Click to download the extension"}
               </Button>
