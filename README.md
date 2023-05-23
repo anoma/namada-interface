@@ -36,7 +36,6 @@ for solving possible issue see [Troubleshooting](#troubleshooting)
   - [Testing](#testing)
     - [Unit](#unit)
     - [e2e](#e2e)
-  - [Troubleshooting](#troubleshooting)
 
 ## Introduction
 
@@ -96,10 +95,38 @@ sudo apt-get install -y protobuf-compiler
 
 # Install yarn and JS dependencies
 npm install -g yarn
+
+# within namada-interface/ base folder:
 yarn
 
 # Install web-ext
 yarn global add web-ext
+```
+
+#### macOS on Intel and Apple Silicon
+
+On macOS, when using Apple Silicon architecture, in order to compile some packages for our wasm dependencies, you will need to install
+the following:
+
+```
+xcode-select --install
+
+# Mac M1/M2 only - install brew's version of llvm
+brew install llvm
+```
+
+Then, in your shell profile (e.g., `~/.zshrc`), export the following environment variables:
+
+```
+# Mac M1/M2 only
+export LDFLAGS="-L/opt/homebrew/opt/llvm/lib"
+export CPPFLAGS="-I/opt/homebrew/opt/llvm/include"
+export CC=/opt/homebrew/opt/llvm/bin/clang
+export AR=/opt/homebrew/opt/llvm/bin/llvm-ar
+
+# Mac Intel only
+export CC=/usr/local/opt/llvm/bin/clang
+AR=/usr/local/opt/llvm/bin/llvm-ar
 ```
 
 At the root-level, we can issue commands for all packages in the monorepo. Following is an example:
@@ -212,23 +239,3 @@ yarn test
 #### e2e
 
 TBA
-
-### Troubleshooting
-
-When running or building the wallet on **MacOS**, it's possible compilation will fail with some error similar to that:
-
-```
-cargo:warning=error: unable to create target: 'No available targets are compatible with this triple.'
-```
-
-If that's the case, make sure you have installed both xcode-select and LLVM from brew, then run the command appending the full path of the Custom Compiler(`CC`) and the Archiver tool(`AR`):
-
-```
-xcode-select --install
-brew install llvm
-
-# M1
-CC=/opt/homebrew/opt/llvm/bin/clang AR=/opt/homebrew/opt/llvm/bin/llvm-ar yarn wasm:build
-# Intel
-CC=/usr/local/opt/llvm/bin/clang AR=/usr/local/opt/llvm/bin/llvm-ar yarn build
-```
