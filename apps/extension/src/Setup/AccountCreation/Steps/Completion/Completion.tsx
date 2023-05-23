@@ -9,10 +9,10 @@ import { Ports } from "router";
 import {
   BodyText,
   ButtonsContainer,
-  CompletionViewContainer,
-  CompletionViewUpperPartContainer,
   Header1,
-} from "./Completion.components";
+  SubViewContainer,
+  UpperContentContainer,
+} from "Setup/Setup.components";
 
 type Props = {
   alias: string;
@@ -52,8 +52,8 @@ const Completion: React.FC<Props> = (props) => {
   }, []);
 
   return (
-    <CompletionViewContainer>
-      <CompletionViewUpperPartContainer>
+    <SubViewContainer>
+      <UpperContentContainer>
         <Header1>Creating your wallet</Header1>
         {isComplete && (
           <BodyText>
@@ -70,7 +70,7 @@ const Completion: React.FC<Props> = (props) => {
           {mnemonicStatus === Status.Pending && <i>Pending...</i>}
           {mnemonicStatus === Status.Failed && <i>Failed</i>}
         </BodyText>
-      </CompletionViewUpperPartContainer>
+      </UpperContentContainer>
       <ButtonsContainer>
         <Button
           variant={ButtonVariant.Contained}
@@ -85,7 +85,7 @@ const Completion: React.FC<Props> = (props) => {
           Close
         </Button>
       </ButtonsContainer>
-    </CompletionViewContainer>
+    </SubViewContainer>
   );
 };
 

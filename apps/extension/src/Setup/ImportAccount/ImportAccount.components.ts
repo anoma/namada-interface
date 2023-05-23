@@ -1,13 +1,13 @@
 import styled from "styled-components";
 
-export const StartViewContainer = styled.div`
+export const ImportAccountViewContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   height: 100%;
 `;
 
-export const StartViewUpperPartContainer = styled.div`
+export const ImportAccountViewUpperPartContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;

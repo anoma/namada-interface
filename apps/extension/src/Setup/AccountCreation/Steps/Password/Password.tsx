@@ -1,31 +1,30 @@
-import zxcvbn from "zxcvbn";
 import React, { useState } from "react";
+import zxcvbn from "zxcvbn";
+
 import { Button, ButtonVariant } from "@anoma/components";
+
 import {
-  AccountInformationViewContainer,
-  AccountInformationViewUpperPartContainer,
-  AccountInformationForm,
+  BodyText,
+  ButtonsContainer,
+  FormContainer,
   Header1,
   Header5,
-  BodyText,
-  Input,
-  InputFeedback,
+  UpperContentContainer,
+  SubViewContainer,
   InputContainer,
-  ButtonContainer,
-} from "./Password.components";
-import { AccountCreationDetails } from "Setup/AccountCreation/types";
+} from "Setup/Setup.components";
+import { AccountDetails } from "Setup/types";
+import { Input, InputFeedback } from "./Password.components";
 
 // the data of this form
 type Props = {
   // if the user navigates back and forth this might be there
-  accountCreationDetails?: AccountCreationDetails;
+  accountCreationDetails?: AccountDetails;
   onSubmitAccountCreationDetails: (
-    accountCreationDetails: AccountCreationDetails
+    accountCreationDetails: AccountDetails
   ) => void;
 
-  onSetAccountCreationDetails: (
-    accountCreationDetails: AccountCreationDetails
-  ) => void;
+  onSetAccountCreationDetails: (accountCreationDetails: AccountDetails) => void;
 };
 
 const validatePassword = (
@@ -48,7 +47,7 @@ const Password: React.FC<Props> = (props) => {
   const [passwordMatchFeedback, setPasswordMatchFeedback] = useState("");
   const [zxcvbnFeedback, setZxcvbnFeedback] = useState(zxcvbn("").feedback);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [alias, setAlias] = useState("");
+  const [alias, setAlias] = useState<string>();
   const isPasswordValid = validatePassword(
     zxcvbnFeedback,
     password,
@@ -56,14 +55,14 @@ const Password: React.FC<Props> = (props) => {
   );
 
   return (
-    <AccountInformationViewContainer>
+    <SubViewContainer>
       {/* header */}
-      <AccountInformationViewUpperPartContainer>
+      <UpperContentContainer>
         <Header1>Set a Passcode for your wallet</Header1>
-      </AccountInformationViewUpperPartContainer>
+      </UpperContentContainer>
 
       {/* form */}
-      <AccountInformationForm>
+      <FormContainer>
         {/* seed phrase */}
         {/* description */}
         <BodyText>
@@ -72,7 +71,7 @@ const Password: React.FC<Props> = (props) => {
         </BodyText>
 
         <InputContainer>
-          <Header5>Alias (optional)</Header5>
+          <Header5>Alias</Header5>
           <Input value={alias} onChange={(e) => setAlias(e.target.value)} />
         </InputContainer>
 
@@ -127,13 +126,13 @@ const Password: React.FC<Props> = (props) => {
         </InputContainer>
 
         {/* submit */}
-        <ButtonContainer>
+        <ButtonsContainer>
           <Button
             variant={ButtonVariant.Contained}
             onClick={() => {
-              if (isPasswordValid && !isSubmitting) {
+              if (isPasswordValid && alias && !isSubmitting) {
                 setIsSubmitting(true);
-                const accountCreationDetailsToSubmit: AccountCreationDetails = {
+                const accountCreationDetailsToSubmit: AccountDetails = {
                   ...accountCreationDetails,
                   alias,
                   password,
@@ -144,13 +143,13 @@ const Password: React.FC<Props> = (props) => {
                 onSubmitAccountCreationDetails(accountCreationDetailsToSubmit);
               }
             }}
-            disabled={!isPasswordValid}
+            disabled={!isPasswordValid || !alias}
           >
             Create an Account
           </Button>
-        </ButtonContainer>
-      </AccountInformationForm>
-    </AccountInformationViewContainer>
+        </ButtonsContainer>
+      </FormContainer>
+    </SubViewContainer>
   );
 };
 

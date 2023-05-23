@@ -1,24 +1,22 @@
 import React, { useContext } from "react";
-import { useNavigate, Outlet } from "react-router-dom";
-import { AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { ThemeContext } from "styled-components";
 
 import { Icon, IconName, IconSize } from "@anoma/components";
-import { RouteContainer } from "./AccountCreation.components";
+
 import {
+  SubViewContainer,
   TopSection,
   TopSectionHeaderContainer,
   TopSectionButtonContainer,
-  SubViewContainer,
+  UpperContentContainer,
+  Header1,
+  BodyText,
 } from "Setup/Setup.components";
 
-/**
- * The main purpose of this is to coordinate the flow for creating a new account.
- * It persists the data between the screens in the flow.
- */
-const AccountCreation: React.FC = () => {
-  const themeContext = useContext(ThemeContext);
+const ImportAccount: React.FC = () => {
   const navigate = useNavigate();
+  const themeContext = useContext(ThemeContext);
 
   return (
     <SubViewContainer>
@@ -32,16 +30,18 @@ const AccountCreation: React.FC = () => {
             />
           </a>
         </TopSectionButtonContainer>
+
         <TopSectionHeaderContainer></TopSectionHeaderContainer>
-        <TopSectionButtonContainer></TopSectionButtonContainer>
       </TopSection>
-      <RouteContainer>
-        <AnimatePresence exitBeforeEnter>
-          <Outlet />
-        </AnimatePresence>
-      </RouteContainer>
+      <UpperContentContainer>
+        <Header1>Import Account</Header1>
+      </UpperContentContainer>
+
+      <BodyText>
+        <i>TBD</i>
+      </BodyText>
     </SubViewContainer>
   );
 };
 
-export default AccountCreation;
+export default ImportAccount;

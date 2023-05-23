@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from "react";
+
 import { Button, ButtonVariant, Toggle } from "@anoma/components";
+
 import { GenerateMnemonicMsg } from "background/keyring";
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
 import {
-  AccountInformationViewContainer,
-  AccountInformationViewUpperPartContainer,
-  AccountInformationForm,
-  Header1,
   BodyText,
-  ButtonContainer,
+  ButtonsContainer,
+  FormContainer,
+  Header1,
+  SubViewContainer,
+  UpperContentContainer,
+} from "Setup/Setup.components";
+import {
   SeedPhraseCard,
   SeedPhraseContainer,
   SeedPhraseIndexLabel,
@@ -18,15 +22,14 @@ import {
   ExportSeedPhraseButtonsContainer,
   CopyToClipboard,
 } from "./SeedPhrase.components";
-
-import { AccountCreationDetails } from "Setup/AccountCreation/types";
+import { AccountDetails } from "Setup/types";
 
 type Props = {
   requester: ExtensionRequester;
   // go to next screen
   onConfirm: (seedPhraseAsArray: string[]) => void;
   // depending if first load this might or might not be available
-  accountCreationDetails?: AccountCreationDetails;
+  accountCreationDetails?: AccountDetails;
   // depending if first load this might or might not be available
   defaultSeedPhrase?: string[];
 };
@@ -61,14 +64,14 @@ const SeedPhrase: React.FC<Props> = (props) => {
   }, [mnemonicLength]);
 
   return (
-    <AccountInformationViewContainer>
+    <SubViewContainer>
       {/* header */}
-      <AccountInformationViewUpperPartContainer>
+      <UpperContentContainer>
         <Header1>Seed Phrase</Header1>
-      </AccountInformationViewUpperPartContainer>
+      </UpperContentContainer>
 
       {/* form */}
-      <AccountInformationForm>
+      <FormContainer>
         {/* description */}
         <BodyText>Write down your seed phrase.</BodyText>
         <BodyText>
@@ -109,7 +112,7 @@ const SeedPhrase: React.FC<Props> = (props) => {
           </ExportSeedPhraseButtonsContainer>
         )}
         {/* continue */}
-        <ButtonContainer>
+        <ButtonsContainer>
           <Button
             onClick={() => {
               onConfirm(seedPhrase);
@@ -119,9 +122,9 @@ const SeedPhrase: React.FC<Props> = (props) => {
           >
             I wrote down my mnemonic
           </Button>
-        </ButtonContainer>
-      </AccountInformationForm>
-    </AccountInformationViewContainer>
+        </ButtonsContainer>
+      </FormContainer>
+    </SubViewContainer>
   );
 };
 

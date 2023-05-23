@@ -9,6 +9,8 @@ import {
   Alias,
   DerivationPath,
   Button,
+  ParentAlias,
+  DerivationPathContainer,
 } from "./AccountListing.components";
 import { shortenAddress } from "@anoma/utils";
 
@@ -45,10 +47,12 @@ const AccountListing = ({ account, parentAlias }: Props): JSX.Element => {
   return (
     <AccountListingContainer>
       <Details>
-        <DerivationPath>
-          {isChildAccount && parentAlias}
-          {formatDerivationPath(isChildAccount, path, type)}
-        </DerivationPath>
+        <DerivationPathContainer>
+          {isChildAccount && <ParentAlias>{parentAlias}</ParentAlias>}
+          <DerivationPath>
+            {formatDerivationPath(isChildAccount, path, type)}
+          </DerivationPath>
+        </DerivationPathContainer>
         {alias && <Alias>{alias}</Alias>}
         <Address>{shortenAddress(address)}</Address>
       </Details>
