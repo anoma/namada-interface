@@ -139,6 +139,7 @@ module.exports = {
     modules: [resolve(__dirname, "src/"), "node_modules"],
     fallback: {
       buffer: require.resolve("buffer/"),
+      crypto: false,
     },
   },
   performance: {

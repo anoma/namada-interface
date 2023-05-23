@@ -1,8 +1,9 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import { Account as AccountDetails, Tokens, TokenType } from "@anoma/types";
+import { Account as AccountDetails, TokenType } from "@anoma/types";
+
 import { chains } from "@anoma/chains";
-import { RpcClient } from "@anoma/rpc";
+import { getIntegration } from "@anoma/hooks";
 
 import { RootState } from "store";
 
@@ -32,7 +33,6 @@ enum AccountsThunkActions {
 
 const initialState: AccountsState = INITIAL_STATE;
 
-// TODO: We need to update this to also support balance queries from Cosmos, Osmosis, etc.
 export const fetchBalances = createAsyncThunk<
   {
     chainId: string;
@@ -45,35 +45,19 @@ export const fetchBalances = createAsyncThunk<
   `${ACCOUNTS_ACTIONS_BASE}/${AccountsThunkActions.FetchBalance}`,
   async (_, thunkApi) => {
     const { chainId } = thunkApi.getState().settings;
+    const integration = getIntegration(chainId);
     const accounts: Account[] = Object.values(
       thunkApi.getState().accounts.derived[chainId]
     );
 
     const balances = await Promise.all(
-      accounts.map(async ({ details, balance: currentBalance }) => {
+      accounts.map(async ({ details }) => {
         const { chainId, address } = details;
-        const { rpc } = chains[chainId];
-        const rpcClient = new RpcClient(rpc);
 
-        const results = await Promise.all(
-          Object.keys(currentBalance).map(async (balanceKey) => {
-            const tokenType = balanceKey as TokenType;
-            const { address: tokenAddress = "" } = Tokens[tokenType];
-            let balance: number;
-            try {
-              balance = await rpcClient.queryBalance(tokenAddress, address);
-            } catch (e) {
-              balance = 0;
-            }
-            return {
-              tokenType,
-              amount: Math.max(balance, 0),
-            };
-          })
-        );
+        const results = await integration.queryBalances(address);
 
         const balance = results.reduce(
-          (acc, curr) => ({ ...acc, [curr.tokenType]: curr.amount }),
+          (acc, curr) => ({ ...acc, [curr.token]: curr.amount }),
           {} as Balance
         );
 

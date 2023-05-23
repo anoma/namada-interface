@@ -3,16 +3,31 @@ import {
   Key,
   Window as KeplrWindow,
 } from "@keplr-wallet/types";
-import { AccountData } from "@cosmjs/proto-signing";
-import { Account, Chain, IbcTransferProps } from "@anoma/types";
+import { AccountData, coin, coins } from "@cosmjs/proto-signing";
+import {
+  StargateClient,
+  SigningStargateClient,
+  SigningStargateClientOptions,
+} from "@cosmjs/stargate";
+import { Coin } from "@cosmjs/launchpad";
+import Long from "long";
+
+import { Account, Chain, CosmosTokens, TokenBalance } from "@anoma/types";
 import { shortenAddress } from "@anoma/utils";
-import { Integration } from "./types/Integration";
+import { BridgeProps, Integration } from "./types/Integration";
 
 const KEPLR_NOT_FOUND = "Keplr extension not found!";
 
 type OfflineSigner = ReturnType<IKeplr["getOfflineSigner"]>;
 
-class Keplr implements Integration<Account, OfflineSigner, IbcTransferProps> {
+export type KeplrBalance = Coin;
+
+export const defaultSigningClientOptions: SigningStargateClientOptions = {
+  broadcastPollIntervalMs: 300,
+  broadcastTimeoutMs: 8_000,
+};
+
+class Keplr implements Integration<Account, OfflineSigner> {
   private _keplr: IKeplr | undefined;
   private _offlineSigner: OfflineSigner | undefined;
   /**
@@ -108,9 +123,65 @@ class Keplr implements Integration<Account, OfflineSigner, IbcTransferProps> {
     return Promise.reject(KEPLR_NOT_FOUND);
   }
 
-  public async submitBridgeTransfer(props: IbcTransferProps): Promise<void> {
-    // TODO: Submit transfer via CosmJS RpcClient
-    console.log("Keplr.submitBridgeTransfer", props);
+  /**
+   * Submit IBC transfer tx to a Cosmos-based chain, using the offline signer from Keplr
+   * @returns {Promise<void>}
+   */
+  public async submitBridgeTransfer(props: BridgeProps): Promise<void> {
+    if (props.ibcProps) {
+      const {
+        source,
+        receiver,
+        token,
+        amount,
+        portId = "transfer",
+        channelId,
+      } = props.ibcProps;
+
+      const client = await SigningStargateClient.connectWithSigner(
+        this.chain.rpc,
+        this.signer(),
+        defaultSigningClientOptions
+      );
+
+      const fee = {
+        amount: coins(2000, CosmosTokens[token]),
+        gas: "222000",
+      };
+
+      const response = await client.sendIbcTokens(
+        source,
+        receiver,
+        coin(amount, CosmosTokens[token]),
+        portId,
+        channelId,
+        {
+          revisionHeight: Long.fromNumber(123),
+          revisionNumber: Long.fromNumber(456),
+        },
+        Math.floor(Date.now() / 1000) + 60,
+        fee,
+        "IBC Transfer Keplr<->Namada"
+      );
+
+      if (response.code !== 0) {
+        return Promise.reject(`Transaction failed with code ${response.code}!`);
+      }
+
+      return;
+    }
+
+    return Promise.reject("Invalid bridge props!");
+  }
+
+  public async queryBalances(owner: string): Promise<TokenBalance[]> {
+    const client = await StargateClient.connect(this.chain.rpc);
+
+    // Query balance for ATOM:
+    return ((await client.getAllBalances(owner)) || []).map((coin: Coin) => ({
+      token: CosmosTokens[coin.denom] || "ATOM",
+      amount: parseInt(coin.amount),
+    }));
   }
 }
 

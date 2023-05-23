@@ -1,18 +1,15 @@
 import { useEffect, useState } from "react";
 
 import { chains } from "@anoma/chains";
-import { Chain, Tokens, TokenType } from "@anoma/types";
-import { useAppDispatch, useAppSelector } from "store";
-import { Account, AccountsState, fetchBalances } from "slices/accounts";
-import { addChannel, ChannelsState } from "slices/channels";
 import {
-  clearErrors,
-  clearEvents,
-  submitIbcTransferTransaction,
-  TransfersState,
-} from "slices/transfers";
-import { SettingsState } from "slices/settings";
-
+  Account as AccountType,
+  BridgeType,
+  Chain,
+  ExtensionKey,
+  Extensions,
+  Tokens,
+  TokenType,
+} from "@anoma/types";
 import {
   Button,
   ButtonVariant,
@@ -23,6 +20,27 @@ import {
   Option,
   Select,
 } from "@anoma/components";
+
+import {
+  useIntegrationConnection,
+  useUntilIntegrationAttached,
+} from "@anoma/hooks";
+import { useAppDispatch, useAppSelector } from "store";
+import {
+  Account,
+  AccountsState,
+  addAccounts,
+  fetchBalances,
+} from "slices/accounts";
+import { addChannel, ChannelsState } from "slices/channels";
+import {
+  clearErrors,
+  clearEvents,
+  submitIbcTransferTransaction,
+  TransfersState,
+} from "slices/transfers";
+import { setIsConnected, SettingsState } from "slices/settings";
+
 import {
   ButtonsContainer,
   InputContainer,
@@ -41,23 +59,39 @@ const IBCTransfer = (): JSX.Element => {
   const { channelsByChain = {} } = useAppSelector<ChannelsState>(
     (state) => state.channels
   );
-  const { isIbcTransferSubmitting, transferError, events } =
+  const { isBridgeTransferSubmitting, transferError, events } =
     useAppSelector<TransfersState>((state) => state.transfers);
+  const [isExtensionConnected, setIsExtensionConnected] = useState<
+    Record<ExtensionKey, boolean>
+  >({
+    anoma: false,
+    keplr: false,
+    metamask: false,
+  });
 
-  /* const chain = Object.values(chains).find((chain: Chain) => chain.chainId === chainId); */
-  const ibc = Object.values(chains).filter(
+  const bridgedChains = Object.values(chains).filter(
     (chain: Chain) => chain.chainId !== chainId
   );
 
-  const defaultIbcChain = chains[ibc[0]?.chainId] || null;
+  const sourceChain = chains[bridgedChains[0]?.chainId] || null;
   const [selectedChainId, setSelectedChainId] = useState(
-    defaultIbcChain ? defaultIbcChain.chainId : ""
+    sourceChain ? sourceChain.chainId : ""
   );
+  const destinationChain = chains[selectedChainId];
 
-  const selectDestinationChainData = ibc.map((ibcChain) => ({
-    value: ibcChain.chainId,
-    label: ibcChain.alias,
+  const selectDestinationChainData = bridgedChains.map((chain) => ({
+    value: chain.chainId,
+    label: chain.alias,
   }));
+
+  const [integration, isConnectingToExtension, withConnection] =
+    useIntegrationConnection(destinationChain.chainId);
+  const chain = chains[chainId];
+  const extensionAlias = Extensions[destinationChain.extension.id].alias;
+
+  const extensionAttachStatus = useUntilIntegrationAttached(chain);
+  const currentExtensionAttachStatus =
+    extensionAttachStatus[chain.extension.id];
 
   const channels =
     channelsByChain[chainId] && channelsByChain[chainId][selectedChainId]
@@ -76,23 +110,28 @@ const IBCTransfer = (): JSX.Element => {
   const [recipient, setRecipient] = useState("");
   const accounts = Object.values(derived[chainId]);
 
-  const transparentAccounts = accounts.filter(
-    ({ details }) => !details.isShielded
+  const destinationAccounts = Object.values(derived[selectedChainId]).filter(
+    (account) => !account.details.isShielded
+  );
+  const destinationAccountsData = destinationAccounts.map(
+    ({ details: { alias, address } }) => ({
+      label: alias || "",
+      value: address,
+    })
   );
 
-  const [selectedAccount, setSelectedAccount] = useState(
-    transparentAccounts[0]
-  );
+  const sourceAccounts = accounts.filter(({ details }) => !details.isShielded);
 
-  const tokenData: Option<string>[] = transparentAccounts.flatMap(
+  const [sourceAccount, setSourceAccount] = useState(sourceAccounts[0]);
+
+  const tokenData: Option<string>[] = sourceAccounts.flatMap(
     ({ balance, details }) => {
       const { address, alias } = details;
 
       return Object.entries(balance).map(([tokenType, amount]) => ({
         value: `${address}|${tokenType}`,
-        label: `${alias !== "Namada" ? alias + " - " : ""}${
-          Tokens[tokenType as TokenType].coin
-        } (${amount} ${tokenType})`,
+        label: `${alias !== "Namada" ? alias + " - " : ""}${Tokens[tokenType as TokenType].coin
+          } (${amount} ${tokenType})`,
       }));
     }
   );
@@ -100,14 +139,14 @@ const IBCTransfer = (): JSX.Element => {
   const [token, setToken] = useState<TokenType>("NAM");
 
   const currentBalance =
-    transparentAccounts.find(
-      ({ details }) => details.address === selectedAccount?.details.address
+    sourceAccounts.find(
+      ({ details }) => details.address === sourceAccount?.details.address
     )?.balance[token] || 0;
 
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
 
-  const { portId = "transfer" } = defaultIbcChain.ibc || {};
+  const { portId = "transfer" } = sourceChain.ibc || {};
 
   useEffect(() => {
     return () => {
@@ -117,17 +156,24 @@ const IBCTransfer = (): JSX.Element => {
   }, []);
 
   useEffect(() => {
-    if (ibc.length > 0) {
-      const selectedChain = ibc[0].chainId;
+    if (destinationAccounts.length > 0) {
+      setRecipient(destinationAccounts[0].details.address);
+    }
+  }, [selectedChainId]);
+
+  useEffect(() => {
+    if (bridgedChains.length > 0) {
+      const selectedChain = bridgedChains[0].chainId;
       setSelectedChainId(selectedChain);
+      setSourceAccount(sourceAccounts[0]);
     }
   }, [chainId]);
 
   useEffect(() => {
-    if (selectedAccount && !isIbcTransferSubmitting) {
+    if (sourceAccount && !isBridgeTransferSubmitting) {
       dispatch(fetchBalances());
     }
-  }, [isIbcTransferSubmitting]);
+  }, [isBridgeTransferSubmitting]);
 
   useEffect(() => {
     // Set a default selectedChannelId if none are selected, but channels are available
@@ -159,18 +205,18 @@ const IBCTransfer = (): JSX.Element => {
     const { value } = e.target;
 
     const [accountId, tokenSymbol] = value.split("|");
-    const account = transparentAccounts.find(
+    const account = sourceAccounts.find(
       (account) => account?.details?.address === accountId
     ) as Account;
 
-    setSelectedAccount(account);
+    setSourceAccount(account);
     setToken(tokenSymbol as TokenType);
   };
 
   const handleSubmit = (): void => {
     dispatch(
       submitIbcTransferTransaction({
-        account: selectedAccount.details,
+        account: sourceAccount.details,
         token,
         amount,
         chainId,
@@ -181,17 +227,42 @@ const IBCTransfer = (): JSX.Element => {
     );
   };
 
+  const handleConnectExtension = async (): Promise<void> => {
+    withConnection(
+      async () => {
+        const accounts = await integration?.accounts();
+        if (accounts) {
+          dispatch(addAccounts(accounts as AccountType[]));
+          dispatch(fetchBalances());
+          dispatch(setIsConnected(chainId));
+        }
+
+        setIsExtensionConnected({
+          ...isExtensionConnected,
+          [chain.extension.id]: true,
+        });
+      },
+      async () => {
+        setIsExtensionConnected({
+          ...isExtensionConnected,
+          [chain.extension.id]: false,
+        });
+      }
+    );
+  };
+
+  const handleDownloadExtension = (url: string): void => {
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
   return (
     <IBCTransferFormContainer>
-      {!defaultIbcChain && (
-        <p>This chain is not configured to connect over IBC!</p>
-      )}
-      {defaultIbcChain && (
+      {sourceChain && (
         <>
           <InputContainer>
             <Select
               data={tokenData}
-              value={`${selectedAccount?.details?.address}|${token}`}
+              value={`${sourceAccount?.details?.address}|${token}`}
               label="Token"
               onChange={handleTokenChange}
             />
@@ -202,72 +273,113 @@ const IBCTransfer = (): JSX.Element => {
               data={selectDestinationChainData}
               value={selectedChainId}
               label="Destination Chain"
-              onChange={(e) => setSelectedChainId(e.target.value)}
+              onChange={(e) => {
+                setRecipient("");
+                setSelectedChainId(e.target.value);
+              }}
             />
           </InputContainer>
-          <InputContainer>
-            {channels.length > 0 && (
-              <Select<string>
-                data={selectChannelsData}
-                value={selectedChannelId}
-                label="IBC Transfer Channel"
-                onChange={(e) => setSelectedChannelId(e.target.value)}
-              />
-            )}
-
-            {!showAddChannelForm && (
-              <AddChannelButton onClick={() => setShowAddChannelForm(true)}>
-                <Icon iconName={IconName.Plus} />
-                <span>Add IBC Transfer Channel</span>
-              </AddChannelButton>
-            )}
-          </InputContainer>
-
-          {showAddChannelForm && (
+          {destinationChain.bridgeType.indexOf(BridgeType.IBC) > -1 && (
             <InputContainer>
-              <Input
-                variant={InputVariants.Text}
-                label="Add Channel ID"
-                value={channelId}
-                onChangeCallback={(e) => {
-                  const { value } = e.target;
-                  setChannelId(value);
-                }}
-                onFocus={handleFocus}
-                error={
-                  channels.indexOf(`${channelId}`) > -1
-                    ? "Channel exists!"
-                    : undefined
-                }
-              />
-              <Button
-                variant={ButtonVariant.Contained}
-                style={{ width: 160 }}
-                onClick={handleAddChannel}
-                disabled={!channelId}
-              >
-                Add
-              </Button>
-              <Button
-                variant={ButtonVariant.Contained}
-                style={{ width: 160 }}
-                onClick={() => setShowAddChannelForm(false)}
-              >
-                Cancel
-              </Button>
+              {channels.length > 0 && (
+                <Select<string>
+                  data={selectChannelsData}
+                  value={selectedChannelId}
+                  label="IBC Transfer Channel"
+                  onChange={(e) => setSelectedChannelId(e.target.value)}
+                />
+              )}
+
+              {!showAddChannelForm && (
+                <AddChannelButton onClick={() => setShowAddChannelForm(true)}>
+                  <Icon iconName={IconName.Plus} />
+                  <span>Add IBC Transfer Channel</span>
+                </AddChannelButton>
+              )}
             </InputContainer>
           )}
 
+          {destinationChain.bridgeType.indexOf(BridgeType.IBC) > -1 &&
+            showAddChannelForm && (
+              <InputContainer>
+                <Input
+                  variant={InputVariants.Text}
+                  label="Add Channel ID"
+                  value={channelId}
+                  onChangeCallback={(e) => {
+                    const { value } = e.target;
+                    setChannelId(value);
+                  }}
+                  onFocus={handleFocus}
+                  error={
+                    channels.indexOf(`${channelId}`) > -1
+                      ? "Channel exists!"
+                      : undefined
+                  }
+                />
+                <Button
+                  variant={ButtonVariant.Contained}
+                  style={{ width: 160 }}
+                  onClick={handleAddChannel}
+                  disabled={!channelId}
+                >
+                  Add
+                </Button>
+                <Button
+                  variant={ButtonVariant.Contained}
+                  style={{ width: 160 }}
+                  onClick={() => setShowAddChannelForm(false)}
+                >
+                  Cancel
+                </Button>
+              </InputContainer>
+            )}
+          {!isExtensionConnected[chain.extension.id] &&
+            destinationAccounts.length === 0 && (
+              <Button
+                variant={ButtonVariant.Contained}
+                onClick={
+                  currentExtensionAttachStatus === "attached"
+                    ? handleConnectExtension
+                    : handleDownloadExtension.bind(
+                      null,
+                      destinationChain.extension.url
+                    )
+                }
+                loading={
+                  currentExtensionAttachStatus === "pending" ||
+                  isConnectingToExtension
+                }
+                style={
+                  currentExtensionAttachStatus === "pending"
+                    ? { color: "transparent" }
+                    : {}
+                }
+              >
+                {currentExtensionAttachStatus === "attached" ||
+                  currentExtensionAttachStatus === "pending"
+                  ? `Connect to ${extensionAlias} Extension`
+                  : "Click to download the extension"}
+              </Button>
+            )}
+
           <InputContainer>
-            <Input
-              variant={InputVariants.Text}
-              label={"Recipient"}
-              value={recipient}
-              onChangeCallback={(e) => {
-                const { value } = e.target;
-                setRecipient(value);
-              }}
-            />
+            {destinationAccounts.length > 0 && (
+              <Select
+                label={"Recipient"}
+                data={destinationAccountsData}
+                value={recipient}
+                onChange={(e) => setRecipient(e.target.value)}
+              />
+            )}
+            {destinationAccounts.length === 0 && (
+              <Input
+                variant={InputVariants.Text}
+                label="Recipient"
+                value={recipient}
+                onChangeCallback={(e) => setRecipient(e.target.value)}
+              />
+            )}
           </InputContainer>
 
           <InputContainer>
@@ -284,15 +396,15 @@ const IBCTransfer = (): JSX.Element => {
             />
           </InputContainer>
 
-          {isIbcTransferSubmitting && <p>Submitting IBC Transfer</p>}
+          {isBridgeTransferSubmitting && <p>Submitting bridge transfer...</p>}
           {transferError && (
             <pre style={{ overflow: "auto" }}>{transferError}</pre>
           )}
           {events && (
             <>
               <StatusMessage>
-                Successfully submitted IBC transfer! It will take some time for
-                the receiver to see an updated balance.
+                Successfully submitted bridge transfer! It will take some time
+                for the receiver to see an updated balance.
               </StatusMessage>
               <StatusMessage>Gas used: {events.gas}</StatusMessage>
               <StatusMessage>Applied hash:</StatusMessage>
@@ -306,8 +418,10 @@ const IBCTransfer = (): JSX.Element => {
                 amount > currentBalance ||
                 amount === 0 ||
                 !recipient ||
-                isIbcTransferSubmitting ||
-                !selectedChannelId
+                isBridgeTransferSubmitting ||
+                !(destinationChain.bridgeType.indexOf(BridgeType.IBC) > -1
+                  ? selectedChannelId
+                  : true)
               }
               onClick={handleSubmit}
             >

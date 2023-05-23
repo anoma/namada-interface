@@ -45,7 +45,7 @@ export const fetchConversionRates = createAsyncThunk(
     const apiBase = api.url;
     const apiKey = api.key;
 
-    const baseUrl = `${apiBase}/simple/price/`;
+    const baseUrl = `${apiBase}/simple/price`;
 
     const coinsQuery = Symbols.filter((symbol) => Tokens[symbol]?.coinGeckoId)
       .map((symbol) => {

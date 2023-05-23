@@ -77,7 +77,7 @@ export type TransferTransaction = {
 export type TransfersState = {
   transactions: TransferTransaction[];
   isTransferSubmitting: boolean;
-  isIbcTransferSubmitting: boolean;
+  isBridgeTransferSubmitting: boolean;
   transferError?: string;
   events?: TransferEvents;
 };
@@ -96,6 +96,7 @@ type TransferEvents = {
 enum TransfersThunkActions {
   SubmitTransferTransaction = "submitTransferTransaction",
   SubmitIbcTransferTransaction = "submitIbcTransferTransaction",
+  SubmitBridgeTransferTransaction = "submitBridgeTransferTransaction",
 }
 
 type WithNotification<T> = T & { notify?: boolean };
@@ -119,6 +120,11 @@ type TxIbcTransferArgs = TxArgs & {
   chainId: string;
   channelId: string;
   portId: string;
+};
+
+type TxBridgeTransferArgs = TxArgs & {
+  chainId: string;
+  target: string;
 };
 
 export const actionTypes = {
@@ -170,7 +176,6 @@ export const submitTransferTransaction = createAsyncThunk<
   }
 );
 
-// TODO: This needs to be revisited and tested
 export const submitIbcTransferTransaction = createAsyncThunk<
   void,
   WithNotification<TxIbcTransferArgs>,
@@ -180,7 +185,6 @@ export const submitIbcTransferTransaction = createAsyncThunk<
   async (txIbcTransferArgs, { getState, dispatch, requestId }) => {
     const { chainId } = getState().settings;
     const integration = getIntegration(chainId);
-    const signer = integration.signer() as Signer;
 
     dispatch(
       notificationsActions.createToast(
@@ -188,21 +192,67 @@ export const submitIbcTransferTransaction = createAsyncThunk<
       )
     );
 
-    await signer.submitIbcTransfer({
-      tx: {
+    await integration.submitBridgeTransfer({
+      ibcProps: {
+        tx: {
+          token: Tokens.NAM.address || "",
+          feeAmount: 0,
+          gasLimit: 0,
+          chainId,
+          txCode: await fetchWasmCode(TxWasm.RevealPK),
+        },
+        source: txIbcTransferArgs.account.address,
+        receiver: txIbcTransferArgs.target,
         token: Tokens.NAM.address || "",
-        feeAmount: 0,
-        gasLimit: 0,
         txCode: await fetchWasmCode(TxWasm.RevealPK),
-        chainId,
+        amount: txIbcTransferArgs.amount,
+        portId: txIbcTransferArgs.portId,
+        channelId: txIbcTransferArgs.channelId,
       },
-      source: txIbcTransferArgs.account.address,
-      receiver: txIbcTransferArgs.target,
-      token: Tokens.NAM.address || "",
-      amount: amountToMicro(txIbcTransferArgs.amount),
-      portId: txIbcTransferArgs.portId,
-      channelId: txIbcTransferArgs.channelId,
-      txCode: await fetchWasmCode(TxWasm.IBC),
+    });
+
+    dispatch(
+      notificationsActions.createToast(
+        getToast(`${requestId}-fullfilled`, Toasts.TransferCompleted)()
+      )
+    );
+  }
+);
+
+export const submitBridgeTransferTransaction = createAsyncThunk<
+  void,
+  WithNotification<TxBridgeTransferArgs>,
+  { state: RootState }
+>(
+  `${TRANSFERS_ACTIONS_BASE}/${TransfersThunkActions.SubmitBridgeTransferTransaction}`,
+  async (txBridgeTransferArgs, { getState, dispatch, requestId }) => {
+    const { chainId } = getState().settings;
+    const integration = getIntegration(chainId);
+
+    dispatch(
+      notificationsActions.createToast(
+        getToast(`${requestId}-pending`, Toasts.TransferStarted)()
+      )
+    );
+
+    await integration.submitBridgeTransfer({
+      // TODO: tx and txCode (below) are *not* required for Keplr, but are required for this type.
+      // This should be accounted for in the type declarations and integration.
+      bridgeProps: {
+        tx: {
+          token: Tokens.NAM.address || "",
+          feeAmount: 0,
+          gasLimit: 0,
+          chainId,
+          txCode: await fetchWasmCode(TxWasm.RevealPK),
+        },
+        source: txBridgeTransferArgs.account.address,
+        target: txBridgeTransferArgs.target,
+        token: txBridgeTransferArgs.token,
+        // TODO: Check to see if amountToMicro is needed here once implemented for ETH Bridge:
+        amount: amountToMicro(txBridgeTransferArgs.amount),
+        txCode: await fetchWasmCode(TxWasm.IBC),
+      },
     });
 
     dispatch(
@@ -216,7 +266,7 @@ export const submitIbcTransferTransaction = createAsyncThunk<
 const initialState: TransfersState = {
   transactions: [],
   isTransferSubmitting: false,
-  isIbcTransferSubmitting: false,
+  isBridgeTransferSubmitting: false,
 };
 
 // create slice containing reducers and actions for transfer
@@ -247,17 +297,33 @@ const transfersSlice = createSlice({
     });
 
     builder.addCase(submitIbcTransferTransaction.pending, (state) => {
-      state.isIbcTransferSubmitting = true;
+      state.isBridgeTransferSubmitting = true;
       state.transferError = undefined;
       state.events = undefined;
     });
 
     builder.addCase(submitIbcTransferTransaction.rejected, (state, action) => {
       const { error, payload } = action;
-      state.isIbcTransferSubmitting = false;
+      state.isBridgeTransferSubmitting = false;
       state.transferError = (payload as string) || error.message;
       state.events = undefined;
     });
+
+    builder.addCase(submitBridgeTransferTransaction.pending, (state) => {
+      state.isBridgeTransferSubmitting = true;
+      state.transferError = undefined;
+      state.events = undefined;
+    });
+
+    builder.addCase(
+      submitBridgeTransferTransaction.rejected,
+      (state, action) => {
+        const { error, payload } = action;
+        state.isBridgeTransferSubmitting = false;
+        state.transferError = (payload as string) || error.message;
+        state.events = undefined;
+      }
+    );
   },
 });
 

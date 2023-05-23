@@ -74,7 +74,7 @@ class RpcClient {
       const response: AbciResponse = json.result.response;
 
       if (response.code === 1) {
-        return -2;
+        return 0;
       }
       const valueAsByteArray = fromBase64(response.value || "0");
       const decoded = deserialize(
@@ -86,7 +86,8 @@ class RpcClient {
       // Note: .toNumber() is limited to 53 bits:
       return amountFromMicro(decoded.micro.toNumber());
     } catch (e) {
-      return Promise.reject(e);
+      // No balance found
+      return 0;
     }
   }
 

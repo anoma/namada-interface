@@ -32,7 +32,9 @@
   "dependencies": {
     "@anoma/types": "0.1.0",
     "@anoma/utils": "0.1.0",
+    "@cosmjs/launchpad": "^0.27.1",
     "@cosmjs/proto-signing": "^0.27.1",
+    "@cosmjs/stargate": "^0.29.5",
     "@keplr-wallet/types": "^0.10.19",
     "@metamask/providers": "^10.2.1",
     "@metamask/sdk": "^0.1.0"

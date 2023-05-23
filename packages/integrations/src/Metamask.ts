@@ -1,9 +1,9 @@
 import { type MetaMaskInpageProvider } from "@metamask/providers";
 import MetaMaskSDK from "@metamask/sdk";
 
-import { Account, BridgeTransferProps, Chain } from "@anoma/types";
+import { Account, Chain, TokenBalance } from "@anoma/types";
 import { shortenAddress } from "@anoma/utils";
-import { Integration } from "./types/Integration";
+import { BridgeProps, Integration } from "./types/Integration";
 
 const MULTIPLE_WALLETS = "Multiple wallets installed!";
 const CANT_FETCH_ACCOUNTS = "Can't fetch accounts!";
@@ -13,7 +13,7 @@ type MetamaskWindow = Window &
     ethereum: MetaMaskInpageProvider;
   };
 
-class Metamask implements Integration<Account, unknown, BridgeTransferProps> {
+class Metamask implements Integration<Account, unknown> {
   private _ethereum: MetaMaskInpageProvider | undefined;
   constructor(public readonly chain: Chain) {}
 
@@ -74,11 +74,8 @@ class Metamask implements Integration<Account, unknown, BridgeTransferProps> {
     });
   }
 
-  public async submitBridgeTransfer({
-    source,
-    target,
-    amount,
-  }: BridgeTransferProps): Promise<void> {
+  public async submitBridgeTransfer(props: BridgeProps): Promise<void> {
+    const { source, target, amount } = props.bridgeProps || {};
     // TODO: Submit transfer via Ethereum Bridge
     console.log("Metamask.submitBridgeTransfer", {
       source,
@@ -86,6 +83,11 @@ class Metamask implements Integration<Account, unknown, BridgeTransferProps> {
       amount,
     });
     return;
+  }
+
+  public async queryBalances(owner: string): Promise<TokenBalance[]> {
+    console.log("Metamask.queryBalance", owner);
+    return [];
   }
 }
 

@@ -50,9 +50,12 @@ export type IbcTransferProps = {
 
 // TODO: This is a placeholder
 export type BridgeTransferProps = {
+  tx: TxProps;
   source: string;
   target: string;
+  token: string;
   amount: number;
+  txCode: Uint8Array;
 };
 
 export type InitAccountProps = {

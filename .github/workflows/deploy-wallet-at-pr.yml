@@ -6,8 +6,6 @@ on:
       - "apps/extension/**"
       - "packages/integrations/**"
       - "packages/rpc/**"
-      - "packages/seed-management/**"
-      - "packages/session/**"
       - "packages/shared/**"
       - "packages/tx/**"
       - "packages/utils/**"
@@ -35,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install protoc
         run: sudo apt-get install -y protobuf-compiler

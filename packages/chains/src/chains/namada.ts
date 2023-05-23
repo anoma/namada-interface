@@ -1,4 +1,4 @@
-import { Chain, Extensions } from "@anoma/types";
+import { BridgeType, Chain, Extensions } from "@anoma/types";
 
 const DEFAULT_ALIAS = "Namada Testnet";
 const DEFAULT_CHAIN_ID = "qc-testnet-5.1.025a61165acd05e";
@@ -20,6 +20,7 @@ const namada: Chain = {
     // See Namada coin type at https://github.com/satoshilabs/slips/blob/master/slip-0044.md
     coinType: 877,
   },
+  bridgeType: [BridgeType.IBC, BridgeType.Ethereum],
   rpc,
   chainId,
   currency: {
