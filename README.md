@@ -95,6 +95,8 @@ sudo apt-get install -y protobuf-compiler
 
 # Install yarn and JS dependencies
 npm install -g yarn
+
+# within namada-interface/ base folder:
 yarn
 
 # Install web-ext
