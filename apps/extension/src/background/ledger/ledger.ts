@@ -6,9 +6,9 @@ import {
 } from "@zondax/ledger-namada";
 import TransportUSB from "@ledgerhq/hw-transport-webusb";
 import TransportHID from "@ledgerhq/hw-transport-webhid";
+import Transport from "@ledgerhq/hw-transport";
 
 import { defaultChainId, chains } from "@anoma/chains";
-import Transport from "@ledgerhq/hw-transport";
 
 const namadaChain = chains[defaultChainId];
 const bip44CoinType = namadaChain.bip44.coinType;
@@ -27,7 +27,7 @@ export class Ledger {
   public version: ResponseVersion | undefined;
   public info: ResponseAppInfo | undefined;
 
-  constructor(public readonly namadaApp: NamadaApp | undefined = undefined) { }
+  constructor(public readonly namadaApp: NamadaApp | undefined = undefined) {}
 
   /**
    * Returns an initialized Ledger class instance with initialized Transport
