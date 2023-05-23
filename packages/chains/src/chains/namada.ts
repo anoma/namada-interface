@@ -17,6 +17,7 @@ const namada: Chain = {
   alias,
   bech32Prefix,
   bip44: {
+    // See Namada coin type at https://github.com/satoshilabs/slips/blob/master/slip-0044.md
     coinType: 877,
   },
   rpc,
