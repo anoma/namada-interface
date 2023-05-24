@@ -70,6 +70,7 @@ export class KeyRingService {
   async connect(senderTabId: number, chainId: string): Promise<void> {
     // Validate chainId, if valid, append tab unless it already exists
     if (chainId === this.chainId) {
+      // TODO: Check if approval for this chain exists. If not, request approval from user:
       const url = `${browser.runtime.getURL(
         "approvals.html"
       )}#/connection?chainId=${chainId}`;
@@ -81,6 +82,7 @@ export class KeyRingService {
         type: "normal",
       });
 
+      // TODO: Only update tabs if approval exists:
       const tabs = await syncTabs(
         this.connectedTabsStore,
         this.requester,
