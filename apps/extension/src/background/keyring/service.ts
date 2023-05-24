@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { fromBase64, toBase64 } from "@cosmjs/encoding";
+
 import { PhraseSize } from "@anoma/crypto";
 import { KVStore } from "@anoma/storage";
 import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";

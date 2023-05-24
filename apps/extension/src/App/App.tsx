@@ -28,7 +28,6 @@ import { Loading } from "./Loading";
 import { Login } from "./Login";
 import { Setup } from "./Setup";
 import { Settings } from "./Settings";
-import { ApproveConnection, ApproveTx } from "./Approvals";
 import { useRequester } from "hooks/useRequester";
 
 export enum Status {
@@ -160,23 +159,6 @@ export const App: React.FC = () => {
             />
             <Route path={TopLevelRoute.Setup} element={<Setup />} />
             <Route
-              path={TopLevelRoute.ApproveConnection}
-              element={
-                <LockWrapper
-                  requester={requester}
-                  setStatus={setStatus}
-                  isLocked={isLocked}
-                  lockKeyRing={() => setIsLocked(true)}
-                >
-                  <ApproveConnection
-                    requester={requester}
-                    isLocked={isLocked}
-                    unlockKeyRing={() => setIsLocked(false)}
-                  />
-                </LockWrapper>
-              }
-            />
-            <Route
               path={TopLevelRoute.Login}
               element={<Login requester={requester} />}
             />
@@ -187,24 +169,6 @@ export const App: React.FC = () => {
                   path={TopLevelRoute.Accounts}
                   element={
                     <Accounts accounts={accounts} requester={requester} />
-                  }
-                />
-                <Route
-                  path={TopLevelRoute.ApproveTx}
-                  element={
-                    <LockWrapper
-                      requester={requester}
-                      setStatus={setStatus}
-                      isLocked={isLocked}
-                      lockKeyRing={() => setIsLocked(true)}
-                    >
-                      <ApproveTx
-                        requester={requester}
-                        isLocked={isLocked}
-                        parentAlias={parentAccount.alias}
-                        unlockKeyRing={() => setIsLocked(false)}
-                      />
-                    </LockWrapper>
                   }
                 />
                 <Route
