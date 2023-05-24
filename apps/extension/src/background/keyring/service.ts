@@ -1,10 +1,12 @@
 import { v4 as uuidv4 } from "uuid";
 import { fromBase64, toBase64 } from "@cosmjs/encoding";
+import borsh from "borsh";
 
 import { PhraseSize } from "@anoma/crypto";
 import { KVStore } from "@anoma/storage";
 import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
 import { Sdk } from "@anoma/shared";
+import { SubmitTransferMsgSchema, TransferMsgValue } from "@anoma/types";
 
 import { KeyRing } from "./keyring";
 import { KeyRingStatus, KeyStore, TabStore } from "./types";
@@ -71,17 +73,17 @@ export class KeyRingService {
     // Validate chainId, if valid, append tab unless it already exists
     if (chainId === this.chainId) {
       // TODO: Check if approval for this chain exists. If not, request approval from user:
-      const url = `${browser.runtime.getURL(
-        "approvals.html"
-      )}#/connection?chainId=${chainId}`;
-
-      browser.windows.create({
-        url,
-        width: 415,
-        height: 510,
-        type: "popup",
-      });
-
+      // const url = `${browser.runtime.getURL(
+      //   "approvals.html"
+      // )}#/connection?chainId=${chainId}`;
+      //
+      // browser.windows.create({
+      //   url,
+      //   width: 415,
+      //   height: 510,
+      //   type: "popup",
+      // });
+      //
       // TODO: Only update tabs if approval exists:
       const tabs = await syncTabs(
         this.connectedTabsStore,
@@ -223,6 +225,13 @@ export class KeyRingService {
       this.requester,
       this.chainId
     );
+    // TODO: Construct query params from transfer details
+    const txDetails = borsh.deserialize(
+      SubmitTransferMsgSchema,
+      TransferMsgValue,
+      Buffer.from(fromBase64(txMsg))
+    );
+    console.log({ txDetails });
 
     try {
       tabs.forEach(({ tabId }: TabStore) => {
