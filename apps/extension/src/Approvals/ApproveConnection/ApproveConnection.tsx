@@ -7,6 +7,7 @@ import {
 } from "Approvals/Approvals.components";
 
 export const ApproveConnection: React.FC = () => {
+  // TODO: Query current parent account
   // const authorize = useAuth(requester);
   //
   // useEffect(() => {

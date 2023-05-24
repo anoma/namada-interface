@@ -70,12 +70,24 @@ export class KeyRingService {
   async connect(senderTabId: number, chainId: string): Promise<void> {
     // Validate chainId, if valid, append tab unless it already exists
     if (chainId === this.chainId) {
+      const url = `${browser.runtime.getURL(
+        "approvals.html"
+      )}#/connection?chainId=${chainId}`;
+
+      browser.windows.create({
+        url,
+        width: 415,
+        height: 510,
+        type: "normal",
+      });
+
       const tabs = await syncTabs(
         this.connectedTabsStore,
         this.requester,
         this.chainId
       );
 
+      // TODO: Move to handler for ApproveConnection message
       return await updateTabStorage(
         senderTabId,
         tabs,
