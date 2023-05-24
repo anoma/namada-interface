@@ -6,7 +6,11 @@ import { Anoma } from "@anoma/integrations";
 import { useEventListenerOnce, useIntegration } from "@anoma/hooks";
 
 import { useAppDispatch } from "store";
-import { AnomaAccountChangedHandler } from "./handlers/anoma";
+import {
+  AnomaAccountChangedHandler,
+  AnomaTransferCompletedHandler,
+  AnomaTransferStartedHandler,
+} from "./handlers/anoma";
 
 export const ExtensionEventsContext = createContext({});
 
@@ -19,9 +23,13 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
     dispatch,
     anomaIntegration as Anoma
   );
+  const anomaTransferStartedHandler = AnomaTransferStartedHandler(dispatch);
+  const anomaTransferCompletedHandler = AnomaTransferCompletedHandler(dispatch);
 
   // Register handlers:
   useEventListenerOnce(Events.AccountChanged, anomaAccountChangedHandler);
+  useEventListenerOnce(Events.TransferStarted, anomaTransferStartedHandler);
+  useEventListenerOnce(Events.TransferCompleted, anomaTransferCompletedHandler);
 
   return (
     <ExtensionEventsContext.Provider value={{}}>
