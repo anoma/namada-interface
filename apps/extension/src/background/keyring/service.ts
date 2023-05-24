@@ -79,7 +79,7 @@ export class KeyRingService {
         url,
         width: 415,
         height: 510,
-        type: "normal",
+        type: "popup",
       });
 
       // TODO: Only update tabs if approval exists:
@@ -89,7 +89,7 @@ export class KeyRingService {
         this.chainId
       );
 
-      // TODO: Move to handler for ApproveConnection message
+      // TODO: Should also be called in handler for ApproveConnection message
       return await updateTabStorage(
         senderTabId,
         tabs,

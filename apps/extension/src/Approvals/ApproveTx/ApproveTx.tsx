@@ -1,16 +1,19 @@
-import { useSanitizedParams } from "@anoma/hooks";
 import { Button, ButtonVariant } from "@anoma/components";
 import { shortenAddress } from "@anoma/utils";
 
+import { useQuery } from "hooks";
 import { Address } from "App/Accounts/AccountListing.components";
 import {
   ApprovalContainer,
   ButtonContainer,
 } from "Approvals/Approvals.components";
 
-export const ApproveTx: React.FC = ({ }) => {
-  const params = useSanitizedParams();
-  const { amount = 0, source = "", target = "", token = "" } = params;
+export const ApproveTx: React.FC = () => {
+  const query = useQuery();
+  const amount = query.get("amount") || "";
+  const source = query.get("source") || "";
+  const target = query.get("target") || "";
+  const token = query.get("token") || "";
 
   return (
     <ApprovalContainer>
