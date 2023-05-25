@@ -209,13 +209,6 @@ export class KeyRingService {
       this.requester,
       this.chainId
     );
-    // TODO: Construct query params from transfer details
-    const txDetails = borsh.deserialize(
-      SubmitTransferMsgSchema,
-      TransferMsgValue,
-      Buffer.from(fromBase64(txMsg))
-    );
-    console.log({ txDetails });
 
     try {
       tabs.forEach(({ tabId }: TabStore) => {

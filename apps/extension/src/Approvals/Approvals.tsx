@@ -16,15 +16,7 @@ import {
 import { ApproveTx, ConfirmTx } from "./ApproveTx";
 import { ApproveConnection } from "./ApproveConnection";
 import { TopLevelRoute } from "Approvals/types";
-import { ExtensionMessenger, ExtensionRequester } from "extension";
-import { KVPrefix } from "router";
-
-const store = new ExtensionKVStore(KVPrefix.LocalStorage, {
-  get: browser.storage.local.get,
-  set: browser.storage.local.set,
-});
-const messenger = new ExtensionMessenger();
-const requester = new ExtensionRequester(messenger, store);
+import { useRequester } from "App/Requester";
 
 export enum Status {
   Completed,
@@ -33,6 +25,7 @@ export enum Status {
 }
 
 export const Approvals: React.FC = () => {
+  const requester = useRequester();
   const theme = getTheme("dark");
   const [txId, setTxId] = useState("");
   const [address, setAddress] = useState("");
