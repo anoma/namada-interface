@@ -5,6 +5,7 @@ import {
   LockKeyRingMsg,
   UnlockKeyRingMsg,
   CheckPasswordMsg,
+  ResetPasswordMsg,
   GenerateMnemonicMsg,
   SaveMnemonicMsg,
   SetActiveAccountMsg,
@@ -39,6 +40,7 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(LockKeyRingMsg);
   router.registerMessage(QueryAccountsMsg);
   router.registerMessage(QueryParentAccountsMsg);
+  router.registerMessage(ResetPasswordMsg);
   router.registerMessage(SaveMnemonicMsg);
   router.registerMessage(SetActiveAccountMsg);
   router.registerMessage(SubmitBondMsg);

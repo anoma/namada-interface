@@ -4,6 +4,7 @@ import browser from "webextension-polyfill";
 
 import { DerivedAccount } from "@anoma/types";
 import { Button, ButtonVariant } from "@anoma/components";
+import { assertNever } from "@anoma/utils";
 
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
@@ -16,8 +17,11 @@ import {
   SettingsContainer,
   ButtonsContainer,
   ParentAccountsList,
-  ParentAccountsListItem,
+  ParentAccountsListItemContainer,
   ParentAccountDetails,
+  ParentAccountSideButton,
+  ModeSelectLink,
+  ModeSelectContainer,
 } from "./Settings.components";
 import {
   AccountsContainer,
@@ -25,18 +29,31 @@ import {
 } from "../Accounts/Accounts.components";
 import { TopLevelRoute } from "../types";
 import { Status } from "../App";
+import {
+  ResetPassword,
+  Props as ResetPasswordProps
+} from "./ExtraSettings/ResetPassword"
+import { ExtraSettings } from "./ExtraSettings";
+import { Mode, ExtraSetting } from "./ExtraSettings/types";
 
-type Props = {
+/**
+ * Represents the extension's settings page.
+ */
+const Settings: React.FC<{
+  activeAccountId: string;
   requester: ExtensionRequester;
-  fetchAccounts: () => Promise<void>;
-  parentId?: string;
-};
-
-const Settings: React.FC<Props> = ({ requester, fetchAccounts, parentId }) => {
-  const navigate = useNavigate();
+  onSelectAccount: (account: DerivedAccount) => void;
+}> = ({
+  activeAccountId,
+  requester,
+  onSelectAccount,
+}) => {
+  const [extraSetting, setExtraSetting] = useState<ExtraSetting | null>(null);
+  const [status, setStatus] = useState<Status>(Status.Pending);
+  const [error, setError] = useState<string>("");
   const [parentAccounts, setParentAccounts] = useState<DerivedAccount[]>([]);
-  const [status, setStatus] = useState<Status>();
-  const [error, setError] = useState("");
+
+  const navigate = useNavigate();
 
   const fetchParentAccounts = async (): Promise<void> => {
     setStatus(Status.Pending);
@@ -46,12 +63,11 @@ const Settings: React.FC<Props> = ({ requester, fetchAccounts, parentId }) => {
         new QueryParentAccountsMsg()
       );
       setParentAccounts(accounts);
+      setStatus(Status.Completed);
     } catch (e) {
       console.error(e);
       setError(`An error occurred while loading extension: ${e}`);
       setStatus(Status.Failed);
-    } finally {
-      setStatus(Status.Completed);
     }
   };
 
@@ -59,7 +75,8 @@ const Settings: React.FC<Props> = ({ requester, fetchAccounts, parentId }) => {
     fetchParentAccounts();
   }, []);
 
-  const handleSetParentAccount = async (id: string): Promise<void> => {
+  const handleSelectAccount = async (account: DerivedAccount): Promise<void> => {
+    const { id } = account;
     try {
       await requester.sendMessage(
         Ports.Background,
@@ -70,38 +87,39 @@ const Settings: React.FC<Props> = ({ requester, fetchAccounts, parentId }) => {
       await requester.sendMessage(Ports.Background, new LockKeyRingMsg());
 
       // Fetch accounts for selected parent account
-      await fetchAccounts();
+      await onSelectAccount(account);
     } catch (e) {
       console.error(e);
       setError(`An error occurred while setting active account: ${e}`);
       setStatus(Status.Failed);
     }
-
-    return;
   };
 
   return (
     <SettingsContainer>
       <AccountsContainer>
         <ThemedScrollbarContainer>
+
           {status === Status.Failed && (
             <p>Error communicating with extension background!</p>
           )}
-          {error && <p>{error}</p>}
-          {!error && <p>Select account:</p>}
+          <p>{error ? error : "Select account:"}</p>
+
           <ParentAccountsList>
-            {parentAccounts.length > 0 &&
-              parentAccounts.map((account, i: number) => (
-                <ParentAccountsListItem key={i}>
-                  <ParentAccountDetails
-                    onClick={() => handleSetParentAccount(account.id)}
-                  >
-                    {account.alias}
-                    {parentId === account.id && <span>(selected)</span>}
-                  </ParentAccountDetails>
-                </ParentAccountsListItem>
-              ))}
+            {parentAccounts.map((account, i) =>
+              <AccountListItem
+                key={i}
+                account={account}
+                activeAccountId={activeAccountId}
+                onSelectAccount={() => handleSelectAccount(account)}
+                onSelectMode={(mode) => setExtraSetting({
+                  mode,
+                  accountId: account.id
+                })}
+              />
+            )}
           </ParentAccountsList>
+
           <ButtonsContainer>
             <Button
               variant={ButtonVariant.ContainedAlternative}
@@ -120,9 +138,85 @@ const Settings: React.FC<Props> = ({ requester, fetchAccounts, parentId }) => {
               Add Account
             </Button>
           </ButtonsContainer>
+
+          <ExtraSettings
+            extraSetting={extraSetting}
+            requester={requester}
+            onClose={() => setExtraSetting(null)}
+          />
+
         </ThemedScrollbarContainer>
       </AccountsContainer>
     </SettingsContainer>
+  );
+};
+
+/**
+ * Represents a single item in the list of accounts.
+ */
+const AccountListItem: React.FC<{
+  account: DerivedAccount;
+  activeAccountId: string;
+  onSelectAccount: () => void;
+  onSelectMode: (mode: Mode) => void;
+}> = ({
+  account,
+  activeAccountId,
+  onSelectAccount,
+  onSelectMode,
+}) => {
+  const [expanded, setExpanded] = useState<boolean>(false);
+
+  return (
+    <>
+      <ParentAccountsListItemContainer>
+        <ParentAccountDetails
+          onClick={onSelectAccount}
+        >
+          {account.alias}
+          {activeAccountId === account.id && <span>(selected)</span>}
+        </ParentAccountDetails>
+
+        <ParentAccountSideButton
+          onClick={() => setExpanded(!expanded)}
+        />
+      </ParentAccountsListItemContainer>
+
+      {expanded &&
+        <ModeSelect
+          onSelectMode={(mode) => {
+            setExpanded(false);
+            onSelectMode(mode);
+          }}
+        />
+      }
+    </>
+  );
+};
+
+/**
+ * Contains a list of possible settings to open for a given account.
+ */
+const ModeSelect: React.FC<{
+  onSelectMode: (mode: Mode) => void;
+}> = ({
+  onSelectMode,
+}) => {
+  const modes = [
+    Mode.ResetPassword,
+  ];
+
+  return (
+    <ModeSelectContainer>
+      {modes.map((mode, i) =>
+        <ModeSelectLink
+          key={i}
+          onClick={() => onSelectMode(mode)}
+        >
+          {mode}
+        </ModeSelectLink>
+      )}
+    </ModeSelectContainer>
   );
 };
 

@@ -2,7 +2,8 @@ import { PhraseSize } from "@anoma/crypto";
 import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
 import { Message } from "router";
 import { ROUTE } from "./constants";
-import { KeyRingStatus } from "./types";
+import { KeyRingStatus, ResetPasswordError } from "./types";
+import { Result } from "@anoma/utils";
 
 enum MessageType {
   CheckIsLocked = "check-is-locked",
@@ -14,6 +15,7 @@ enum MessageType {
   GetActiveAccount = "get-active-account",
   LockKeyRing = "lock-keyring",
   QueryParentAccounts = "query-parent-accounts",
+  ResetPassword = "reset-password",
   SaveMnemonic = "save-mnemonic",
   SetActiveAccount = "set-active-account",
   UnlockKeyRing = "unlock-keyring",
@@ -109,6 +111,32 @@ export class CheckPasswordMsg extends Message<boolean> {
 
   type(): string {
     return CheckPasswordMsg.type();
+  }
+}
+
+export class ResetPasswordMsg extends Message<Result<null, ResetPasswordError>> {
+  public static type(): MessageType {
+    return MessageType.ResetPassword;
+  }
+
+  constructor(
+    public readonly currentPassword: string,
+    public readonly newPassword: string,
+    public readonly accountId: string,
+  ) {
+    super();
+  }
+
+  validate(): void {
+    return;
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return ResetPasswordMsg.type();
   }
 }
 

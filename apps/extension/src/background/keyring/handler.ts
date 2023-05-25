@@ -4,6 +4,7 @@ import {
   CheckIsLockedMsg,
   CheckPasswordMsg,
   CloseOffscreenDocumentMsg,
+  ResetPasswordMsg,
   DeriveAccountMsg,
   GenerateMnemonicMsg,
   LockKeyRingMsg,
@@ -39,6 +40,8 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleUnlockKeyRingMsg(service)(env, msg as UnlockKeyRingMsg);
       case CheckPasswordMsg:
         return handleCheckPasswordMsg(service)(env, msg as CheckPasswordMsg);
+      case ResetPasswordMsg:
+        return handleResetPasswordMsg(service)(env, msg as ResetPasswordMsg);
       case GenerateMnemonicMsg:
         return handleGenerateMnemonicMsg(service)(
           env,
@@ -133,6 +136,15 @@ const handleCheckPasswordMsg: (
 ) => InternalHandler<CheckPasswordMsg> = (service) => {
   return async (_, msg) => {
     return await service.checkPassword(msg.password);
+  };
+};
+
+const handleResetPasswordMsg: (
+  service: KeyRingService
+) => InternalHandler<ResetPasswordMsg> = (service) => {
+  return async (_, msg) => {
+    return await service.resetPassword(msg.currentPassword, msg.newPassword,
+      msg.accountId);
   };
 };
 

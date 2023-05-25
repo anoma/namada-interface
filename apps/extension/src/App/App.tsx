@@ -196,8 +196,8 @@ export const App: React.FC = () => {
                   element={
                     <Settings
                       requester={requester}
-                      fetchAccounts={fetchAccounts}
-                      parentId={parentAccount.id}
+                      onSelectAccount={fetchAccounts}
+                      activeAccountId={parentAccount.id}
                     />
                   }
                 />

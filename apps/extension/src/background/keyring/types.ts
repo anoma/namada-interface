@@ -62,3 +62,8 @@ export type TabStore = {
   tabId: number;
   timestamp: number;
 };
+
+export enum ResetPasswordError {
+  BadPassword,
+  KeyStoreError
+};

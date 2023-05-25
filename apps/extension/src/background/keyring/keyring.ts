@@ -25,12 +25,13 @@ import {
 } from "@anoma/types";
 import { chains } from "@anoma/chains";
 import { Crypto } from "./crypto";
-import { KeyRingStatus, KeyStore } from "./types";
+import { KeyRingStatus, KeyStore, ResetPasswordError } from "./types";
 import {
   readVecStringPointer,
   readStringPointer,
 } from "@anoma/crypto/src/utils";
 import { deserialize } from "borsh";
+import { Result } from "@anoma/utils";
 
 // Generated UUID namespace for uuid v5
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
@@ -119,11 +120,12 @@ export class KeyRing {
     await this.activeAccountStore.set(PARENT_ACCOUNT_ID_KEY, parentId);
   }
 
-  public async checkPassword(password: string): Promise<boolean> {
-    const activeAccountId = await this.getActiveAccountId();
+  public async checkPassword(password: string, accountId?: string): Promise<boolean> {
+    // default to active account if no account provided
+    const idToCheck = accountId ?? (await this.getActiveAccountId());
 
-    const mnemonic = await this._keyStore.getRecord("id", activeAccountId);
-    // TODO: Generate arbitray data to check decryption against
+    const mnemonic = await this._keyStore.getRecord("id", idToCheck);
+    // TODO: Generate arbitrary data to check decryption against
     if (mnemonic) {
       try {
         crypto.decrypt(mnemonic, password, this._cryptoMemory);
@@ -134,6 +136,53 @@ export class KeyRing {
     }
 
     return false;
+  }
+
+  // Reset password by re-encrypting secrets with new password
+  public async resetPassword(
+    currentPassword: string,
+    newPassword: string,
+    accountId: string
+  ): Promise<Result<null, ResetPasswordError>> {
+    const passwordOk = await this.checkPassword(currentPassword, accountId);
+
+    if (!passwordOk) {
+      return Result.err(ResetPasswordError.BadPassword);
+    }
+
+    const topLevelAccount = await this._keyStore.getRecord("id", accountId);
+
+    const derivedAccounts =
+      (await this._keyStore.getRecords("parentId", accountId)) || [];
+
+    if (topLevelAccount) {
+      try {
+        const allAccounts = [topLevelAccount, ...derivedAccounts];
+
+        for (const account of allAccounts) {
+          const decryptedSecret = crypto.decrypt(account, currentPassword,
+            this._cryptoMemory);
+          const reencrypted = crypto.encrypt({
+            ...account,
+            password: newPassword,
+            text: decryptedSecret
+          });
+          await this._keyStore.update(account.id, reencrypted);
+        }
+
+        // change password held locally if active account password changed
+        if (accountId === await this.getActiveAccountId()) {
+          this._password = newPassword;
+        }
+      } catch (error) {
+        console.warn(error);
+        return Result.err(ResetPasswordError.KeyStoreError);
+      }
+    } else {
+      return Result.err(ResetPasswordError.KeyStoreError);
+    }
+
+    return Result.ok(null);
   }
 
   // Return new mnemonic to client for validation

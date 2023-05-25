@@ -4,9 +4,10 @@ import { PhraseSize } from "@anoma/crypto";
 import { KVStore } from "@anoma/storage";
 import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
 import { Sdk } from "@anoma/shared";
+import { Result } from "@anoma/utils";
 
 import { KeyRing } from "./keyring";
-import { KeyRingStatus, KeyStore, TabStore } from "./types";
+import { KeyRingStatus, KeyStore, TabStore, ResetPasswordError } from "./types";
 import { syncTabs, updateTabStorage } from "./utils";
 import { ExtensionRequester, getAnomaRouterId } from "extension";
 import { Ports } from "router";
@@ -88,6 +89,16 @@ export class KeyRingService {
 
   async checkPassword(password: string): Promise<boolean> {
     return await this._keyRing.checkPassword(password);
+  }
+
+  async resetPassword(
+    currentPassword: string,
+    newPassword: string,
+    accountId: string
+  ):
+    Promise<Result<null, ResetPasswordError>> {
+    return await this._keyRing.resetPassword(currentPassword, newPassword,
+      accountId);
   }
 
   async generateMnemonic(size?: PhraseSize): Promise<string[]> {
