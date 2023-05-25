@@ -1,6 +1,6 @@
-import { NotificationsState, ToastType } from "./types";
+import { NotificationsState, ToastTimeout, ToastType } from "./types";
 import reducer, { actions } from "./slice";
-import { DEFAULT_TIMEOUT, THUNK_MATCH_REGEXP } from "./reducers";
+import { THUNK_MATCH_REGEXP } from "./reducers";
 import {
   UnknownAsyncThunkFulfilledAction,
   UnknownAsyncThunkPendingAction,
@@ -19,7 +19,7 @@ describe("Notifications reducers", () => {
         title: "A",
         message: "B",
         type: "info" as ToastType,
-        timeout: 2000,
+        timeout: ToastTimeout.Default(),
       };
       const id = "some-id";
       const createToastAction = actions.createToast({
@@ -50,7 +50,7 @@ describe("Notifications reducers", () => {
       });
 
       expect(reducer(state, createToastAction)).toEqual({
-        toasts: { [id]: { ...data, timeout: DEFAULT_TIMEOUT } },
+        toasts: { [id]: { ...data, timeout: ToastTimeout.Default() } },
         pendingActions: [],
       });
     });
@@ -61,7 +61,7 @@ describe("Notifications reducers", () => {
           title: "A",
           message: "B",
           type: "error" as ToastType,
-          timeout: 1000,
+          timeout: ToastTimeout.Default(),
         },
       };
       const state: NotificationsState = {
@@ -72,7 +72,7 @@ describe("Notifications reducers", () => {
         title: "A",
         message: "B",
         type: "info" as ToastType,
-        timeout: 2000,
+        timeout: ToastTimeout.Default(),
       };
       const id = "some-id";
       const createToastAction = actions.createToast({
@@ -93,7 +93,7 @@ describe("Notifications reducers", () => {
           title: "A",
           message: "B",
           type: "error" as ToastType,
-          timeout: 1000,
+          timeout: ToastTimeout.Default(),
         },
       };
       const state: NotificationsState = {
@@ -104,7 +104,7 @@ describe("Notifications reducers", () => {
         title: "A",
         message: "B",
         type: "info" as ToastType,
-        timeout: 2000,
+        timeout: ToastTimeout.Default(),
       };
       const createToastAction = actions.createToast({
         id,
@@ -126,7 +126,7 @@ describe("Notifications reducers", () => {
           title: "A",
           message: "B",
           type: "error" as ToastType,
-          timeout: 1000,
+          timeout: ToastTimeout.Default(),
         },
       };
       const state: NotificationsState = {
@@ -151,7 +151,7 @@ describe("Notifications reducers", () => {
           title: "A",
           message: "B",
           type: "error" as ToastType,
-          timeout: 1000,
+          timeout: ToastTimeout.Default(),
         },
       };
       const state: NotificationsState = {

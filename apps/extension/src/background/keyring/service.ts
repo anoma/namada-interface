@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from "uuid";
 import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import { PhraseSize } from "@anoma/crypto";
 import { KVStore } from "@anoma/storage";
@@ -9,7 +10,11 @@ import { KeyRingStatus, KeyStore, TabStore } from "./types";
 import { syncTabs, updateTabStorage } from "./utils";
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
-import { AccountChangedEventMsg } from "content/events";
+import {
+  AccountChangedEventMsg,
+  TransferCompletedEvent,
+  TransferStartedEvent,
+} from "content/events";
 
 export class KeyRingService {
   private _keyRing: KeyRing;
@@ -128,9 +133,29 @@ export class KeyRingService {
   }
 
   async submitTransfer(txMsg: string): Promise<void> {
+    const msgId = uuidv4();
+
+    const tabs = await syncTabs(
+      this.connectedTabsStore,
+      this.requester,
+      this.chainId
+    );
+
+    try {
+      tabs.forEach(({ tabId }: TabStore) => {
+        this.requester.sendMessageToTab(
+          tabId,
+          Ports.WebBrowser,
+          new TransferStartedEvent(msgId)
+        );
+      });
+    } catch (e) {
+      console.warn(e);
+    }
+
     try {
       //TODO: fix tabId and msgId
-      await this._keyRing.submitTransfer(fromBase64(txMsg), "1", 1);
+      await this._keyRing.submitTransfer(fromBase64(txMsg), msgId);
     } catch (e) {
       console.warn(e);
       throw new Error(`Unable to encode transfer! ${e}`);
@@ -189,9 +214,24 @@ export class KeyRingService {
     return;
   }
 
-  async handleTransferCompleted(): Promise<void> {
-    console.log("Transfer completed");
-    //TODO: Send message to tab
+  async handleTransferCompleted(msgId: string): Promise<void> {
+    const tabs = await syncTabs(
+      this.connectedTabsStore,
+      this.requester,
+      this.chainId
+    );
+
+    try {
+      tabs.forEach(({ tabId }: TabStore) => {
+        this.requester.sendMessageToTab(
+          tabId,
+          Ports.WebBrowser,
+          new TransferCompletedEvent(msgId)
+        );
+      });
+    } catch (e) {
+      console.warn(e);
+    }
   }
 
   closeOffscreenDocument(): Promise<void> {

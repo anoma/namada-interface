@@ -249,8 +249,9 @@ const handleGetActiveAccountMsg: (
 const handleTransferCompletedEvent: (
   service: KeyRingService
 ) => InternalHandler<TransferCompletedEvent> = (service) => {
-  return async (_, _msg) => {
-    return await service.handleTransferCompleted();
+  return async (_, msg) => {
+    const { msgId } = msg;
+    return await service.handleTransferCompleted(msgId);
   };
 };
 

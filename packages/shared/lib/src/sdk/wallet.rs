@@ -1,11 +1,11 @@
 use std::str::FromStr;
 
-use bip39::Mnemonic;
 use borsh::BorshDeserialize;
 use masp_primitives::zip32::ExtendedFullViewingKey;
 use namada::{
     ledger::wallet::{
-        alias::Alias, ConfirmationResponse, Store, StoredKeypair, Wallet, WalletUtils,
+        alias::Alias, ConfirmationResponse, GenRestoreKeyError, Store, StoredKeypair, Wallet,
+        WalletUtils,
     },
     types::{
         address::{Address, ImplicitAddress},
@@ -22,23 +22,23 @@ impl WalletUtils for BrowserWalletUtils {
     type Storage = String;
     type Rng = OsRng;
 
-    fn read_decryption_password() -> String {
+    fn read_decryption_password() -> zeroize::Zeroizing<std::string::String> {
         panic!("attempted to prompt for password in non-interactive mode");
     }
 
-    fn read_encryption_password() -> String {
+    fn read_encryption_password() -> zeroize::Zeroizing<std::string::String> {
         panic!("attempted to prompt for password in non-interactive mode");
     }
 
-    fn read_alias(_prompt_msg: &str) -> String {
+    fn read_alias(_prompt_msg: &str) -> std::string::String {
         panic!("attempted to prompt for alias in non-interactive mode");
     }
 
-    fn read_mnemonic_code() -> Result<Mnemonic, namada::ledger::wallet::GenRestoreKeyError> {
+    fn read_mnemonic_code() -> std::result::Result<namada::bip39::Mnemonic, GenRestoreKeyError> {
         panic!("attempted to prompt for mnemonic in non-interactive mode");
     }
 
-    fn read_mnemonic_passphrase(_confirm: bool) -> String {
+    fn read_mnemonic_passphrase(_confirm: bool) -> zeroize::Zeroizing<std::string::String> {
         panic!("attempted to prompt for mnemonic in non-interactive mode");
     }
 
@@ -96,6 +96,7 @@ pub fn add_key(
         .unwrap();
     let sk = SecretKey::Ed25519(sk);
     let pkh: PublicKeyHash = PublicKeyHash::from(&sk.ref_to());
+    let password = password.map(|pwd| zeroize::Zeroizing::new(pwd));
     let (keypair_to_store, _raw_keypair) = StoredKeypair::new(sk, password);
     let address = Address::Implicit(ImplicitAddress(pkh.clone()));
     let alias: Alias = alias.unwrap_or_else(|| pkh.clone().into()).into();
@@ -137,6 +138,7 @@ pub fn add_spending_key(
 
     let xsk = ExtendedSpendingKey::from(xsk);
     let viewkey = ExtendedFullViewingKey::from(&xsk.into()).into();
+    let password = password.map(|pwd| zeroize::Zeroizing::new(pwd));
     let (spendkey_to_store, _raw_spendkey) = StoredKeypair::new(xsk, password);
     let alias = Alias::from(alias);
 

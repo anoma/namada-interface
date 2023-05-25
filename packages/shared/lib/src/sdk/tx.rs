@@ -273,6 +273,7 @@ fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> Result<args::Tx,
 
     let token = Address::from_str(&token)?;
     let fee_amount = Amount::from(fee_amount);
+    let password = password.map(|pwd| zeroize::Zeroizing::new(pwd));
 
     let args = args::Tx {
         dry_run: false,

@@ -5,7 +5,7 @@ import { Icon, IconName } from "@anoma/components";
 
 import { useAppSelector, useAppDispatch } from "store";
 import { ThemeContext } from "styled-components";
-import { actions } from "slices/notifications";
+import { actions, ToastTimeoutType } from "slices/notifications";
 import type {
   ToastId,
   Toast as NotificationToast,
@@ -62,12 +62,14 @@ export const Toast = ({
   onClose,
 }: ToastProps): JSX.Element => {
   const themeContext = useContext(ThemeContext);
+  const timeout = toast.timeout;
 
   useEffect(() => {
-    setTimeout(() => {
-      onClose(id);
-    }, toast.timeout);
-  }, []);
+    timeout.kind !== ToastTimeoutType.None &&
+      setTimeout(() => {
+        onClose(id);
+      }, timeout.value);
+  }, [timeout.kind]);
 
   return (
     <Wrapper
