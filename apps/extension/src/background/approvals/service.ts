@@ -52,6 +52,7 @@ export class ApprovalsService {
 
   // Authenticate keyring, submit approved transaction from storage
   async submitTx(txId: string, password: string): Promise<void> {
+    // TODO: Use executeUntil here:
     await this.keyRingService.unlock(password);
     const tx = await this.txStore.get(txId);
 
