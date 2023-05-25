@@ -4,6 +4,7 @@ import {
   ExtensionRouter,
   ExtensionMessengerMock,
   ExtensionRequester,
+  getAnomaRouterId,
 } from "../extension";
 import { Ports, KVPrefix } from "../router";
 import { chains } from "@anoma/chains";
@@ -22,7 +23,7 @@ import { Sdk } from "@anoma/shared";
 /* eslint-disable @typescript-eslint/no-var-requires */
 const cryptoMemory = require("@anoma/crypto").__wasm.memory;
 
-class KVStoreMock<T> implements KVStore<T> {
+export class KVStoreMock<T> implements KVStore<T> {
   private storage: { [key: string]: T | null } = {};
 
   constructor(private readonly _prefix: string) {}
@@ -39,14 +40,14 @@ class KVStoreMock<T> implements KVStore<T> {
   }
 }
 
-export const init = (): {
+export const init = async (): Promise<{
   anoma: Anoma;
   iDBStore: KVStoreMock<Chain[] | KeyStore[]>;
   extStore: KVStoreMock<number>;
   activeAccountStore: KVStoreMock<string>;
   chainsService: ChainsService;
   keyRingService: KeyRingService;
-} => {
+}> => {
   const messenger = new ExtensionMessengerMock();
   const iDBStore = new KVStoreMock<Chain[] | KeyStore[]>(KVPrefix.IndexedDB);
   const sdkStore = new KVStoreMock<string>(KVPrefix.SDK);
@@ -55,7 +56,8 @@ export const init = (): {
   const connectedTabsStore = new KVStoreMock<TabStore[]>(
     KVPrefix.ConnectedTabs
   );
-  const requester = new ExtensionRequester(messenger, extStore);
+  const anomaRouterId = await getAnomaRouterId(extStore);
+  const requester = new ExtensionRequester(messenger, anomaRouterId);
 
   const router = new ExtensionRouter(
     () => ({
@@ -80,6 +82,7 @@ export const init = (): {
     sdkStore,
     activeAccountStore,
     connectedTabsStore,
+    extStore,
     "namada-75a7e12.69483d59a9fb174",
     sdk,
     cryptoMemory,

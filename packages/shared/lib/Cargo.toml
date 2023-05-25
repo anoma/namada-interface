@@ -12,14 +12,15 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 async-trait = {version = "0.1.51"}
+tiny-bip39 = "0.8.2"
 borsh = "0.9.0"
 chrono = "0.4.22"
 getrandom = { version = "0.2.7", features = ["js"] }
 gloo-utils = { version = "0.1.5", features = ["serde"] }
 js-sys = "0.3.60"
-masp_primitives = { git = "https://github.com/anoma/masp", rev = "bee40fc465f6afbd10558d12fe96eb1742eee45c" }
-masp_proofs = { git = "https://github.com/anoma/masp", rev = "bee40fc465f6afbd10558d12fe96eb1742eee45c", features = ["bundled-prover", "download-params"] }
-namada = { git = "https://github.com/anoma/namada", version = "0.16.0" }
+masp_primitives = { git = "https://github.com/anoma/masp", rev = "cfea8c95d3f73077ca3e25380fd27e5b46e828fd" }
+masp_proofs = { git = "https://github.com/anoma/masp", rev = "cfea8c95d3f73077ca3e25380fd27e5b46e828fd", default-features = false, features = ["local-prover"] }
+namada = { git = "https://github.com/anoma/namada", branch = "draft" }
 prost = "0.9.0"
 prost-types = "0.9.0"
 rand = "0.8.5"
@@ -30,6 +31,7 @@ thiserror = "^1"
 wasm-bindgen = "0.2.86"
 wasm-bindgen-futures = "0.4.33"
 console_error_panic_hook = "0.1.6"
+zeroize = "1.6.0"
 
 [dependencies.web-sys]
 version = "0.3.4"

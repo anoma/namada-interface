@@ -10,6 +10,8 @@ import {
   SetActiveAccountMsg,
   GetActiveAccountMsg,
   QueryParentAccountsMsg,
+  TransferCompletedEvent,
+  CloseOffscreenDocumentMsg,
 } from "./messages";
 import {
   ConnectInterfaceMsg,
@@ -27,23 +29,25 @@ import { KeyRingService } from "./service";
 
 export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(CheckIsLockedMsg);
+  router.registerMessage(CheckPasswordMsg);
+  router.registerMessage(CloseOffscreenDocumentMsg);
   router.registerMessage(ConnectInterfaceMsg);
   router.registerMessage(DeriveAccountMsg);
-  router.registerMessage(QueryAccountsMsg);
-  router.registerMessage(LockKeyRingMsg);
-  router.registerMessage(UnlockKeyRingMsg);
-  router.registerMessage(CheckPasswordMsg);
-  router.registerMessage(GenerateMnemonicMsg);
-  router.registerMessage(SaveMnemonicMsg);
-  router.registerMessage(SubmitBondMsg);
-  router.registerMessage(SubmitUnbondMsg);
-  router.registerMessage(SubmitTransferMsg);
-  router.registerMessage(SubmitIbcTransferMsg);
   router.registerMessage(EncodeInitAccountMsg);
   router.registerMessage(EncodeRevealPkMsg);
-  router.registerMessage(SetActiveAccountMsg);
+  router.registerMessage(GenerateMnemonicMsg);
   router.registerMessage(GetActiveAccountMsg);
+  router.registerMessage(LockKeyRingMsg);
+  router.registerMessage(QueryAccountsMsg);
   router.registerMessage(QueryParentAccountsMsg);
+  router.registerMessage(SaveMnemonicMsg);
+  router.registerMessage(SetActiveAccountMsg);
+  router.registerMessage(SubmitBondMsg);
+  router.registerMessage(SubmitIbcTransferMsg);
+  router.registerMessage(SubmitTransferMsg);
+  router.registerMessage(SubmitUnbondMsg);
+  router.registerMessage(TransferCompletedEvent);
+  router.registerMessage(UnlockKeyRingMsg);
 
   router.addHandler(ROUTE, getHandler(service));
 }

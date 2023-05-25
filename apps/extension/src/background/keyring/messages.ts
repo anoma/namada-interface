@@ -6,16 +6,18 @@ import { KeyRingStatus } from "./types";
 
 enum MessageType {
   CheckIsLocked = "check-is-locked",
-  LockKeyRing = "lock-keyring",
-  UnlockKeyRing = "unlock-keyring",
   CheckPassword = "check-password",
-  GenerateMnemonic = "generate-mnemonic",
-  SaveMnemonic = "save-mnemonic",
+  CloseOffscreenDocument = "close-offscreen-document",
   DeriveAccount = "derive-account",
   DeriveShieldedAccount = "derive-shielded-account",
-  SetActiveAccount = "set-active-account",
+  GenerateMnemonic = "generate-mnemonic",
   GetActiveAccount = "get-active-account",
+  LockKeyRing = "lock-keyring",
   QueryParentAccounts = "query-parent-accounts",
+  SaveMnemonic = "save-mnemonic",
+  SetActiveAccount = "set-active-account",
+  UnlockKeyRing = "unlock-keyring",
+  TransferCompletedEvent = "transfer-completed-event",
 }
 
 export class CheckIsLockedMsg extends Message<boolean> {
@@ -277,5 +279,51 @@ export class QueryParentAccountsMsg extends Message<DerivedAccount[]> {
 
   type(): string {
     return QueryParentAccountsMsg.type();
+  }
+}
+//TODO: Figure out if spliting msgs into commands and events makes sense
+export class CloseOffscreenDocumentMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.CloseOffscreenDocument;
+  }
+
+  constructor() {
+    super();
+  }
+
+  validate(): void {
+    return;
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return CloseOffscreenDocumentMsg.type();
+  }
+}
+
+export class TransferCompletedEvent extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.TransferCompletedEvent;
+  }
+
+  constructor(public readonly success: boolean, public readonly msgId: string) {
+    super();
+  }
+
+  validate(): void {
+    if (this.success === undefined) {
+      throw new Error("Success is undefined");
+    }
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return TransferCompletedEvent.type();
   }
 }

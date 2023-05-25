@@ -4,6 +4,8 @@ import { chains } from "@anoma/chains";
 import { Anoma } from "@anoma/integrations";
 
 import { addAccounts, fetchBalances } from "slices/accounts";
+import { actions as notificationsActions } from "slices/notifications";
+import { getToast, Toasts } from "slices/transfers";
 
 export const AnomaAccountChangedHandler =
   (dispatch: Dispatch<unknown>, integration: Anoma) =>
@@ -17,4 +19,30 @@ export const AnomaAccountChangedHandler =
       dispatch(addAccounts(accounts));
       dispatch(fetchBalances());
     }
+  };
+
+export const AnomaTransferStartedHandler =
+  (dispatch: Dispatch<unknown>) => async (event: CustomEventInit) => {
+    const { msgId } = event.detail;
+    dispatch(
+      notificationsActions.createToast(
+        getToast(
+          `${event.detail.msgId}-transfer`,
+          Toasts.TransferStarted
+        )({ msgId })
+      )
+    );
+  };
+
+export const AnomaTransferCompletedHandler =
+  (dispatch: Dispatch<unknown>) => async (event: CustomEventInit) => {
+    const { msgId } = event.detail;
+    dispatch(
+      notificationsActions.createToast(
+        getToast(
+          `${event.detail.msgId}-transfer`,
+          Toasts.TransferCompleted
+        )({ msgId })
+      )
+    );
   };

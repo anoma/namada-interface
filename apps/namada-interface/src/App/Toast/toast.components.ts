@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 export const Wrapper = styled(motion.div)<{ index: number }>`
   display: flex;
   justify-content: space-between;
+  align-items: center;
   position: fixed;
   transition: top 0.5s;
   top: ${(props) => 100 + props.index * 70}px;
@@ -15,7 +16,8 @@ export const Wrapper = styled(motion.div)<{ index: number }>`
   color: ${(props) => props.theme.colors.utility3.black};
   outline: 1px solid ${(props) => props.theme.colors.utility3.black};
 
-  &.info {
+  &.info,
+  &.pending-info {
     background-color: ${(props) => props.theme.colors.utility3.white};
   }
 
@@ -29,6 +31,28 @@ export const Wrapper = styled(motion.div)<{ index: number }>`
 
   &.warning {
     background-color: ${(props) => props.theme.colors.utility3.lowAttention};
+  }
+
+  &.pending-info {
+    &::before {
+      content: "";
+      margin: 5px 5px 5px 15px;
+      min-width: 24px;
+      width: 24px;
+      height: 24px;
+      border: 2px solid transparent;
+      border-top-color: ${(props) => props.theme.colors.secondary.main};
+      border-radius: 50%;
+      animation: button-loading-spinner 1s ease infinite;
+      @keyframes button-loading-spinner {
+        from {
+          transform: rotate(0turn);
+        }
+        to {
+          transform: rotate(1turn);
+        }
+      }
+    }
   }
 `;
 

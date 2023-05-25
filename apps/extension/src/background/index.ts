@@ -11,17 +11,25 @@ import {
   ContentScriptEnv,
   ExtensionMessenger,
   ExtensionRequester,
+  getAnomaRouterId,
 } from "extension";
 import { Ports, KVPrefix } from "router";
 import { ChainsService, init as initChains } from "./chains";
 import { KeyRingService, init as initKeyRing, SDK_KEY } from "./keyring";
 
-const messenger = new ExtensionMessenger();
 const store = new IndexedDBKVStore(KVPrefix.IndexedDB);
 
 const activeAccountStore = new IndexedDBKVStore(KVPrefix.ActiveAccount);
 // TODO: For now we will be running two stores side by side
 const sdkStore = new IndexedDBKVStore(KVPrefix.SDK);
+const extensionStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
+  get: browser.storage.local.get,
+  set: browser.storage.local.set,
+});
+const connectedTabsStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
+  get: browser.storage.local.get,
+  set: browser.storage.local.set,
+});
 
 const DEFAULT_URL =
   "https://d3brk13lbhxfdb.cloudfront.net/qc-testnet-5.1.025a61165acd05e";
@@ -32,16 +40,10 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
 
   await initShared();
 
-  const extensionStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
-    get: browser.storage.local.get,
-    set: browser.storage.local.set,
-  });
-  const connectedTabsStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
-    get: browser.storage.local.get,
-    set: browser.storage.local.set,
-  });
+  const routerId = await getAnomaRouterId(extensionStore);
+  const messenger = new ExtensionMessenger();
+  const requester = new ExtensionRequester(messenger, routerId);
 
-  const requester = new ExtensionRequester(messenger, extensionStore);
   const router = new ExtensionRouter(
     ContentScriptEnv.produceEnv,
     messenger,
@@ -53,6 +55,9 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
   const sdkDataStr: string | undefined = await sdkStore.get(SDK_KEY);
 
   const sdk = new Sdk(REACT_APP_NAMADA_URL);
+  //TODO: should not be here most likely :)
+  await sdk.fetch_masp_params();
+
   if (sdkDataStr) {
     const sdkData = new TextEncoder().encode(sdkDataStr);
     sdk.decode(sdkData);
@@ -64,6 +69,7 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
     sdkStore,
     activeAccountStore,
     connectedTabsStore,
+    extensionStore,
     defaultChainId,
     sdk,
     cryptoMemory,

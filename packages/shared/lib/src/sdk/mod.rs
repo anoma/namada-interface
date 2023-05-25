@@ -1,10 +1,11 @@
+use js_sys::Uint8Array;
 use namada::ledger::{
     masp::ShieldedContext,
     wallet::{Store, Wallet},
 };
-use wasm_bindgen::{prelude::wasm_bindgen, JsError};
+use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 
-use crate::rpc_client::HttpClient;
+use crate::{rpc_client::HttpClient, sdk::masp::WebShieldedUtils};
 
 mod masp;
 mod tx;
@@ -14,7 +15,7 @@ mod wallet;
 #[wasm_bindgen]
 pub struct Sdk {
     client: HttpClient,
-    wallet: Wallet<wallet::WalletUtils>,
+    wallet: Wallet<wallet::BrowserWalletUtils>,
     shielded_ctx: ShieldedContext<masp::WebShieldedUtils>,
 }
 
@@ -28,8 +29,30 @@ impl Sdk {
         Sdk {
             client: HttpClient::new(url),
             wallet: Wallet::new(wallet::STORAGE_PATH.to_owned(), Store::default()),
+            // TODO: Probably makes sense to override default to handle cases when params are not
+            // yet loaded
             shielded_ctx: ShieldedContext::default(),
         }
+    }
+
+    //TODO: move to utils
+    fn to_bytes(u_int_8_array: JsValue) -> Vec<u8> {
+        let array = Uint8Array::new(&u_int_8_array);
+        array.to_vec()
+    }
+
+    pub async fn fetch_masp_params(&mut self) -> Result<(), JsValue> {
+        let spend = fetch_and_store("masp-spend.params").await?;
+        let output = fetch_and_store("masp-output.params").await?;
+        let convert = fetch_and_store("masp-convert.params").await?;
+
+        self.shielded_ctx = WebShieldedUtils::new(
+            Self::to_bytes(spend),
+            Self::to_bytes(output),
+            Self::to_bytes(convert),
+        );
+
+        Ok(())
     }
 
     pub fn encode(&self) -> Vec<u8> {
@@ -102,4 +125,10 @@ impl Sdk {
             .await
             .map_err(|e| JsError::from(e))
     }
+}
+
+#[wasm_bindgen(module = "/src/sdk/mod.js")]
+extern "C" {
+    #[wasm_bindgen(catch, js_name = "fetchAndStore")]
+    async fn fetch_and_store(params: &str) -> Result<JsValue, JsValue>;
 }

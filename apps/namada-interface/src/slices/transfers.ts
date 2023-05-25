@@ -8,36 +8,42 @@ import {
   actions as notificationsActions,
   CreateToastPayload,
   ToastId,
+  ToastTimeout,
   ToastType,
 } from "slices/notifications";
 import { RootState } from "store";
 
-enum Toasts {
+export enum Toasts {
   TransferStarted,
   TransferCompleted,
 }
 
-type TransferCompletedToastProps = { gas: number };
-type GetToastProps = TransferCompletedToastProps | void;
+type TransferCompletedToastProps = { msgId: string };
+type TransferStartedToastProps = { msgId: string };
+type GetToastProps =
+  | TransferCompletedToastProps
+  | TransferStartedToastProps
+  | void;
 
-const getToast = (
+export const getToast = (
   toastId: ToastId,
   toast: Toasts
 ): ((props: GetToastProps) => CreateToastPayload) => {
   const toasts = {
-    [Toasts.TransferStarted]: () => ({
+    [Toasts.TransferStarted]: (payload: TransferCompletedToastProps) => ({
       id: toastId,
       data: {
-        title: "Transfer started!",
-        message: "",
-        type: "info" as ToastType,
+        title: "Transfer in progress!",
+        message: payload.msgId,
+        type: "pending-info" as ToastType,
+        timeout: ToastTimeout.None(),
       },
     }),
-    [Toasts.TransferCompleted]: () => ({
+    [Toasts.TransferCompleted]: (payload: TransferCompletedToastProps) => ({
       id: toastId,
       data: {
         title: "Transfer successful!",
-        message: "",
+        message: payload.msgId,
         type: "success" as ToastType,
       },
     }),
@@ -141,16 +147,10 @@ export const submitTransferTransaction = createAsyncThunk<
   { state: RootState }
 >(
   actionTypes.SUBMIT_TRANSFER_ACTION_TYPE,
-  async (txTransferArgs, { getState, dispatch, requestId }) => {
+  async (txTransferArgs, { getState }) => {
     const { chainId } = getState().settings;
     const integration = getIntegration(chainId);
     const signer = integration.signer() as Signer;
-
-    dispatch(
-      notificationsActions.createToast(
-        getToast(`${requestId}-pending`, Toasts.TransferStarted)()
-      )
-    );
 
     await signer.submitTransfer({
       tx: {
@@ -167,12 +167,6 @@ export const submitTransferTransaction = createAsyncThunk<
       nativeToken: Tokens.NAM.address || "",
       txCode: await fetchWasmCode(TxWasm.Transfer),
     });
-
-    dispatch(
-      notificationsActions.createToast(
-        getToast(`${requestId}-fullfilled`, Toasts.TransferCompleted)()
-      )
-    );
   }
 );
 
