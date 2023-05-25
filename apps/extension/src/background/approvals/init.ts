@@ -1,5 +1,6 @@
 import { Router } from "router";
-import { ApproveTxMsg, RejectTxMsg, SubmitApprovedTxMsg } from "./messages";
+import { ApproveTxMsg } from "provider";
+import { RejectTxMsg, SubmitApprovedTxMsg } from "./messages";
 
 import { ROUTE } from "./constants";
 import { ApprovalsService } from "./service";

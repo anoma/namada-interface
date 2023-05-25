@@ -10,12 +10,13 @@ import { Message } from "router";
 enum Route {
   KeyRing = "keyring-route",
   Chains = "chains-route",
+  Approvals = "approvals-route",
 }
 
 enum MessageType {
   ConnectInterface = "connect-interface",
   QueryAccounts = "query-accounts",
-  SignTx = "sign-tx",
+  ApproveTx = "approve-tx",
   SubmitTransfer = "submit-transfer",
   SubmitIbcTransfer = "submit-ibc-transfer",
   EncodeInitAccount = "encode-init-account",
@@ -300,5 +301,30 @@ export class SubmitUnbondMsg extends Message<void> {
 
   type(): string {
     return SubmitUnbondMsg.type();
+  }
+}
+
+export class ApproveTxMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.ApproveTx;
+  }
+
+  constructor(public readonly txMsg: string) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.txMsg || this.txMsg === "") {
+      throw new Error("txMsg was not provided!");
+    }
+    return;
+  }
+
+  route(): string {
+    return Route.Approvals;
+  }
+
+  type(): string {
+    return ApproveTxMsg.type();
   }
 }

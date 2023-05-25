@@ -1,6 +1,7 @@
 import { Handler, Env, Message, InternalHandler } from "router";
 import { ApprovalsService } from "./service";
-import { ApproveTxMsg, RejectTxMsg, SubmitApprovedTxMsg } from "./messages";
+import { ApproveTxMsg } from "provider";
+import { RejectTxMsg, SubmitApprovedTxMsg } from "./messages";
 
 export const getHandler: (service: ApprovalsService) => Handler = (service) => {
   return (env: Env, msg: Message<unknown>) => {

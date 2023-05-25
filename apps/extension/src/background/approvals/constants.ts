@@ -1,1 +1,1 @@
-export const ROUTE = "approvals";
+export const ROUTE = "approvals-route";
