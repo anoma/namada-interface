@@ -67,7 +67,6 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
     sdk.decode(sdkData);
   }
 
-  const approvalsService = new ApprovalsService(txStore, requester);
   const chainsService = new ChainsService(store, [chains[defaultChainId]]);
   const keyRingService = new KeyRingService(
     store,
@@ -78,6 +77,11 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
     defaultChainId,
     sdk,
     cryptoMemory,
+    requester
+  );
+  const approvalsService = new ApprovalsService(
+    txStore,
+    keyRingService,
     requester
   );
 

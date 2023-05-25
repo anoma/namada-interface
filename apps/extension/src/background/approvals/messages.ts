@@ -2,12 +2,14 @@ import { Message } from "router";
 import { ROUTE } from "./constants";
 
 enum MessageType {
-  SubmitApproveTx = "submit-approve-tx",
+  ApproveTx = "approve-tx",
+  RejectTx = "reject-tx",
+  SubmitApprovedTx = "submit-approved-tx",
 }
 
-export class SubmitApproveTxMsg extends Message<void> {
+export class ApproveTxMsg extends Message<void> {
   public static type(): MessageType {
-    return MessageType.SubmitApproveTx;
+    return MessageType.ApproveTx;
   }
 
   constructor(public readonly txMsg: string) {
@@ -26,6 +28,59 @@ export class SubmitApproveTxMsg extends Message<void> {
   }
 
   type(): string {
-    return SubmitApproveTxMsg.type();
+    return ApproveTxMsg.type();
+  }
+}
+
+export class RejectTxMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.RejectTx;
+  }
+
+  constructor(public readonly txId: string) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.txId || this.txId === "") {
+      throw new Error("txId was not provided!");
+    }
+    return;
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return RejectTxMsg.type();
+  }
+}
+
+export class SubmitApprovedTxMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.SubmitApprovedTx;
+  }
+
+  constructor(public readonly txId: string, public readonly password: string) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.txId || this.txId === "") {
+      throw new Error("txId was not provided!");
+    }
+    if (!this.password || this.password === "") {
+      throw new Error("Password is required to submitTx!");
+    }
+    return;
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return SubmitApprovedTxMsg.type();
   }
 }

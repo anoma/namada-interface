@@ -8,14 +8,17 @@ import { amountFromMicro } from "@anoma/utils";
 import { KVStore } from "@anoma/storage";
 
 import { ExtensionRequester } from "extension";
+import { KeyRingService } from "background/keyring";
 
 export class ApprovalsService {
   constructor(
     protected readonly txStore: KVStore<string>,
+    protected readonly keyRingService: KeyRingService,
     protected readonly requester: ExtensionRequester
   ) { }
 
-  async submitTx(txMsg: string): Promise<void> {
+  // Deserialize transfer details and prompt user
+  async approveTx(txMsg: string): Promise<void> {
     const txMsgBuffer = Buffer.from(fromBase64(txMsg));
     const id = uuid();
     this.txStore.set(id, txMsg);
@@ -40,5 +43,22 @@ export class ApprovalsService {
     });
 
     return;
+  }
+
+  // Remove pending transaction from storage
+  async rejectTx(txId: string): Promise<void> {
+    await this.txStore.set(txId, null);
+  }
+
+  // Authenticate keyring, submit approved transaction from storage
+  async submitTx(txId: string, password: string): Promise<void> {
+    await this.keyRingService.unlock(password);
+    const tx = await this.txStore.get(txId);
+
+    if (tx) {
+      return await this.keyRingService.submitTransfer(tx);
+    }
+
+    throw new Error("Failed to submit transfer!");
   }
 }
