@@ -38,6 +38,7 @@ export enum Status {
 export const Approvals: React.FC = () => {
   const theme = getTheme("dark");
   const [txId, setTxId] = useState("");
+  const [address, setAddress] = useState("");
   // const [status, setStatus] = useState<Status>();
   // const [error, setError] = useState("");
 
@@ -52,11 +53,23 @@ export const Approvals: React.FC = () => {
           <Routes>
             <Route
               path={TopLevelRoute.ApproveTx}
-              element={<ApproveTx setTxId={setTxId} requester={requester} />}
+              element={
+                <ApproveTx
+                  setTxId={setTxId}
+                  setAddress={setAddress}
+                  requester={requester}
+                />
+              }
             />
             <Route
               path={TopLevelRoute.ConfirmTx}
-              element={<ConfirmTx txId={txId} requester={requester} />}
+              element={
+                <ConfirmTx
+                  txId={txId}
+                  address={address}
+                  requester={requester}
+                />
+              }
             />
             <Route
               path={TopLevelRoute.ApproveConnection}

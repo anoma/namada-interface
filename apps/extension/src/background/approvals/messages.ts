@@ -36,13 +36,20 @@ export class SubmitApprovedTxMsg extends Message<void> {
     return MessageType.SubmitApprovedTx;
   }
 
-  constructor(public readonly txId: string, public readonly password: string) {
+  constructor(
+    public readonly txId: string,
+    public readonly address: string,
+    public readonly password: string
+  ) {
     super();
   }
 
   validate(): void {
     if (!this.txId || this.txId === "") {
       throw new Error("txId was not provided!");
+    }
+    if (!this.address || this.address === "") {
+      throw new Error("address was not provided");
     }
     if (!this.password || this.password === "") {
       throw new Error("Password is required to submitTx!");

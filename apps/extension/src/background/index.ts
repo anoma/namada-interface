@@ -81,7 +81,9 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
   );
   const approvalsService = new ApprovalsService(
     txStore,
+    connectedTabsStore,
     keyRingService,
+    defaultChainId,
     requester
   );
 

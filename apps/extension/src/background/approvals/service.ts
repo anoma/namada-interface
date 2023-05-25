@@ -8,12 +8,17 @@ import { amountFromMicro } from "@anoma/utils";
 import { KVStore } from "@anoma/storage";
 
 import { ExtensionRequester } from "extension";
-import { KeyRingService } from "background/keyring";
+import { KeyRingService, syncTabs } from "background/keyring";
+import { TabStore } from "background/keyring";
+import { Ports } from "router";
+import { UpdatedBalancesEventMsg } from "content/events";
 
 export class ApprovalsService {
   constructor(
     protected readonly txStore: KVStore<string>,
+    protected readonly connectedTabsStore: KVStore<TabStore[]>,
     protected readonly keyRingService: KeyRingService,
+    protected readonly chainId: string,
     protected readonly requester: ExtensionRequester
   ) { }
 
@@ -65,6 +70,7 @@ export class ApprovalsService {
     if (tx) {
       await this.keyRingService.submitTransfer(tx);
       // Clean up storage
+      this._broadcastUpdateBalance();
       return await this._clearPendingTx(txId);
     }
 
@@ -73,5 +79,26 @@ export class ApprovalsService {
 
   private async _clearPendingTx(txId: string): Promise<void> {
     return await this.txStore.set(txId, null);
+  }
+
+  private async _broadcastUpdateBalance(): Promise<void> {
+    const tabs = await syncTabs(
+      this.connectedTabsStore,
+      this.requester,
+      this.chainId
+    );
+    try {
+      tabs?.forEach(({ tabId }: TabStore) => {
+        this.requester.sendMessageToTab(
+          tabId,
+          Ports.WebBrowser,
+          new UpdatedBalancesEventMsg(this.chainId)
+        );
+      });
+    } catch (e) {
+      console.warn(e);
+    }
+
+    return;
   }
 }

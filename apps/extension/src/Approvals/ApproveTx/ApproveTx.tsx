@@ -14,13 +14,19 @@ import { TopLevelRoute } from "Approvals/types";
 import { Ports } from "router";
 import { RejectTxMsg } from "background/approvals";
 import { Tokens } from "@anoma/types";
+import { useEffect } from "react";
 
 type Props = {
   setTxId: (txId: string) => void;
+  setAddress: (address: string) => void;
   requester: ExtensionRequester;
 };
 
-export const ApproveTx: React.FC<Props> = ({ setTxId, requester }) => {
+export const ApproveTx: React.FC<Props> = ({
+  setAddress,
+  setTxId,
+  requester,
+}) => {
   const navigate = useNavigate();
 
   const query = useQuery();
@@ -33,6 +39,12 @@ export const ApproveTx: React.FC<Props> = ({ setTxId, requester }) => {
   const tokenType =
     Object.values(Tokens).find((token) => token.address === tokenAddress)
       ?.symbol || "";
+
+  useEffect(() => {
+    if (source) {
+      setAddress(source);
+    }
+  }, [source]);
 
   const handleApproveClick = (): void => {
     setTxId(id);

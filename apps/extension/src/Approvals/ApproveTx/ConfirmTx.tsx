@@ -12,13 +12,16 @@ import {
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
 import { SubmitApprovedTxMsg } from "background/approvals";
+import { shortenAddress } from "@anoma/utils";
+import { Address } from "App/Accounts/AccountListing.components";
 
 type Props = {
   txId: string;
+  address: string;
   requester: ExtensionRequester;
 };
 
-export const ConfirmTx: React.FC<Props> = ({ txId, requester }) => {
+export const ConfirmTx: React.FC<Props> = ({ txId, address, requester }) => {
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string>();
@@ -30,11 +33,11 @@ export const ConfirmTx: React.FC<Props> = ({ txId, requester }) => {
       // TODO: use executeUntil here!
       await requester.sendMessage(
         Ports.Background,
-        new SubmitApprovedTxMsg(txId, password)
+        new SubmitApprovedTxMsg(txId, address, password)
       );
       setStatus(Status.Completed);
     } catch (e) {
-      setError(`Unable to authenticate Tx!`);
+      setError("Unable to authenticate Tx!");
       setStatus(Status.Failed);
     }
     return;
@@ -54,7 +57,7 @@ export const ConfirmTx: React.FC<Props> = ({ txId, requester }) => {
   return (
     <ApprovalContainer>
       {status === Status.Pending && (
-        <p>Authenticating and submitting transfer...</p>
+        <p>Decrypting keys and submitting transfer...</p>
       )}
       {status === Status.Failed && (
         <p>
@@ -65,6 +68,9 @@ export const ConfirmTx: React.FC<Props> = ({ txId, requester }) => {
       )}
       {status !== (Status.Pending || Status.Completed) && (
         <>
+          <div>
+            Decrypt keys for <Address>{shortenAddress(address)}</Address>
+          </div>
           <Input
             variant={InputVariants.Password}
             label={"Password"}
@@ -82,7 +88,7 @@ export const ConfirmTx: React.FC<Props> = ({ txId, requester }) => {
               onClick={() => navigate(-1)}
               variant={ButtonVariant.Contained}
             >
-              Cancel
+              Back
             </Button>
           </ButtonContainer>
         </>

@@ -78,10 +78,35 @@ export class TransferCompletedEvent extends Message<void> {
 // page script scope.
 declare function cloneInto<T>(data: T, global: Window | null): T;
 
+export class UpdatedBalancesEventMsg extends Message<void> {
+  public static type(): Events {
+    return Events.UpdatedBalances;
+  }
+
+  constructor(public readonly chainId: string) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.chainId) {
+      throw new Error("chainId must not be empty");
+    }
+  }
+
+  route(): string {
+    return Routes.InteractionForeground;
+  }
+
+  type(): string {
+    return UpdatedBalancesEventMsg.type();
+  }
+}
+
 export function initEvents(router: Router): void {
   router.registerMessage(AccountChangedEventMsg);
   router.registerMessage(TransferStartedEvent);
   router.registerMessage(TransferCompletedEvent);
+  router.registerMessage(UpdatedBalancesEventMsg);
 
   router.addHandler(Routes.InteractionForeground, (_, msg) => {
     const clonedMsg =
@@ -106,6 +131,9 @@ export function initEvents(router: Router): void {
         window.dispatchEvent(
           new CustomEvent(Events.TransferCompleted, { detail: clonedMsg })
         );
+        break;
+      case UpdatedBalancesEventMsg:
+        window.dispatchEvent(new CustomEvent(Events.UpdatedBalances));
         break;
       default:
         throw new Error("Unknown msg type");
