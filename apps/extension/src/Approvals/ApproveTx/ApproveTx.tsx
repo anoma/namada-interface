@@ -10,6 +10,7 @@ import {
 
 export const ApproveTx: React.FC = () => {
   const query = useQuery();
+  const id = query.get("id") || "";
   const amount = query.get("amount") || "";
   const source = query.get("source") || "";
   const target = query.get("target") || "";
@@ -18,6 +19,7 @@ export const ApproveTx: React.FC = () => {
   return (
     <ApprovalContainer>
       <p>Approve this Transaction?</p>
+      <p>ID: {id}</p>
       <p>
         Target:&nbsp;
         <Address>{shortenAddress(target)}</Address>

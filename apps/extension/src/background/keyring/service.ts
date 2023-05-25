@@ -1,12 +1,16 @@
 import { v4 as uuidv4 } from "uuid";
 import { fromBase64, toBase64 } from "@cosmjs/encoding";
-import { deserialize } from "borsh";
 
 import { PhraseSize } from "@anoma/crypto";
 import { KVStore } from "@anoma/storage";
-import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
+import {
+  AccountType,
+  Bip44Path,
+  DerivedAccount,
+  SubmitTransferMsgSchema,
+  TransferMsgValue,
+} from "@anoma/types";
 import { Sdk } from "@anoma/shared";
-import { SubmitTransferMsgSchema, TransferMsgValue } from "@anoma/types";
 
 import { KeyRing } from "./keyring";
 import { KeyRingStatus, KeyStore, TabStore } from "./types";
@@ -334,7 +338,7 @@ export class KeyRingService {
     } else {
       return Promise.reject(
         "Trying to close offscreen document for nor supported browser"
-      );
-    }
+);
+}
   }
 }
