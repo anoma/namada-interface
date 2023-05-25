@@ -14,6 +14,7 @@ import {
   getAnomaRouterId,
 } from "extension";
 import { Ports, KVPrefix } from "router";
+import { ApprovalsService, init as initApprovals } from "./approvals";
 import { ChainsService, init as initChains } from "./chains";
 import { KeyRingService, init as initKeyRing, SDK_KEY } from "./keyring";
 
@@ -27,6 +28,10 @@ const extensionStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
   set: browser.storage.local.set,
 });
 const connectedTabsStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
+  get: browser.storage.local.get,
+  set: browser.storage.local.set,
+});
+const txStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
   get: browser.storage.local.get,
   set: browser.storage.local.set,
 });
@@ -62,6 +67,7 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
     sdk.decode(sdkData);
   }
 
+  const approvalsService = new ApprovalsService(txStore, requester);
   const chainsService = new ChainsService(store, [chains[defaultChainId]]);
   const keyRingService = new KeyRingService(
     store,
@@ -76,6 +82,7 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
   );
 
   // Initialize messages and handlers
+  initApprovals(router, approvalsService);
   initChains(router, chainsService);
   initKeyRing(router, keyRingService);
 
