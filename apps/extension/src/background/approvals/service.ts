@@ -68,9 +68,8 @@ export class ApprovalsService {
     const tx = await this.txStore.get(txId);
 
     if (tx) {
-      await this.keyRingService.submitTransfer(tx);
+      await this.keyRingService.submitTransfer(tx, txId);
       // Clean up storage
-      this._broadcastUpdateBalance();
       return await this._clearPendingTx(txId);
     }
 
@@ -79,26 +78,5 @@ export class ApprovalsService {
 
   private async _clearPendingTx(txId: string): Promise<void> {
     return await this.txStore.set(txId, null);
-  }
-
-  private async _broadcastUpdateBalance(): Promise<void> {
-    const tabs = await syncTabs(
-      this.connectedTabsStore,
-      this.requester,
-      this.chainId
-    );
-    try {
-      tabs?.forEach(({ tabId }: TabStore) => {
-        this.requester.sendMessageToTab(
-          tabId,
-          Ports.WebBrowser,
-          new UpdatedBalancesEventMsg(this.chainId)
-        );
-      });
-    } catch (e) {
-      console.warn(e);
-    }
-
-    return;
   }
 }

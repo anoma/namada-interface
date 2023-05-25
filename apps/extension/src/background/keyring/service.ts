@@ -15,6 +15,7 @@ import {
   AccountChangedEventMsg,
   TransferCompletedEvent,
   TransferStartedEvent,
+  UpdatedBalancesEventMsg,
 } from "content/events";
 import {
   createOffscreenWithTxWorker,
@@ -100,7 +101,7 @@ export class KeyRingService {
     alias: string
   ): Promise<boolean> {
     const results = await this._keyRing.storeMnemonic(words, password, alias);
-    await this._broadcastAccountsChanged();
+    await this.broadcastAccountsChanged();
     return results;
   }
 
@@ -110,7 +111,7 @@ export class KeyRingService {
     alias: string
   ): Promise<DerivedAccount> {
     const account = await this._keyRing.deriveAccount(path, type, alias);
-    await this._broadcastAccountsChanged();
+    await this.broadcastAccountsChanged();
     return account;
   }
 
@@ -187,8 +188,8 @@ export class KeyRingService {
    * @throws {Error} - if unable to submit transfer
    * @returns {Promise<void>} - resolves when transfer is successfull (resolves for failed VPs)
    */
-  async submitTransfer(txMsg: string): Promise<void> {
-    const msgId = uuidv4();
+  async submitTransfer(txMsg: string, txId?: string): Promise<void> {
+    const msgId = txId || uuidv4();
 
     // Passing submit handler simplifies worker code when using Firefox
     const submit = async (password: string, xsk?: string): Promise<void> => {
@@ -228,6 +229,7 @@ export class KeyRingService {
       console.warn(e);
       throw new Error(`Unable to submit the transfer! ${e}`);
     }
+    return await this.broadcastUpdateBalance();
   }
 
   async submitIbcTransfer(txMsg: string): Promise<void> {
@@ -254,7 +256,7 @@ export class KeyRingService {
 
   async setActiveAccountId(accountId: string): Promise<void> {
     await this._keyRing.setActiveAccountId(accountId);
-    await this._broadcastAccountsChanged();
+    await this.broadcastAccountsChanged();
   }
 
   async getActiveAccountId(): Promise<string | undefined> {
@@ -313,5 +315,47 @@ export class KeyRingService {
         "Trying to close offscreen document for nor supported browser"
       );
     }
+  }
+
+  private async broadcastAccountsChanged(): Promise<void> {
+    const tabs = await syncTabs(
+      this.connectedTabsStore,
+      this.requester,
+      this.chainId
+    );
+    try {
+      tabs?.forEach(({ tabId }: TabStore) => {
+        this.requester.sendMessageToTab(
+          tabId,
+          Ports.WebBrowser,
+          new AccountChangedEventMsg(this.chainId)
+        );
+      });
+    } catch (e) {
+      console.warn(e);
+    }
+
+    return;
+  }
+
+  private async broadcastUpdateBalance(): Promise<void> {
+    const tabs = await syncTabs(
+      this.connectedTabsStore,
+      this.requester,
+      this.chainId
+    );
+    try {
+      tabs?.forEach(({ tabId }: TabStore) => {
+        this.requester.sendMessageToTab(
+          tabId,
+          Ports.WebBrowser,
+          new UpdatedBalancesEventMsg(this.chainId)
+        );
+      });
+    } catch (e) {
+      console.warn(e);
+    }
+
+    return;
   }
 }
