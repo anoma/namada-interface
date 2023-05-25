@@ -57,8 +57,7 @@ export class ApprovalsService {
   async submitTx(txId: string, password: string): Promise<void> {
     // TODO: Use executeUntil here:
     try {
-      const { status } = await this.keyRingService.unlock(password);
-      console.log({ status });
+      await this.keyRingService.unlock(password);
     } catch (e) {
       throw new Error(`${e}`);
     }
