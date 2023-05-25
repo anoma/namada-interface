@@ -3,13 +3,7 @@ import { fromBase64, toBase64 } from "@cosmjs/encoding";
 
 import { PhraseSize } from "@anoma/crypto";
 import { KVStore } from "@anoma/storage";
-import {
-  AccountType,
-  Bip44Path,
-  DerivedAccount,
-  SubmitTransferMsgSchema,
-  TransferMsgValue,
-} from "@anoma/types";
+import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
 import { Sdk } from "@anoma/shared";
 
 import { KeyRing } from "./keyring";
@@ -76,26 +70,12 @@ export class KeyRingService {
   async connect(senderTabId: number, chainId: string): Promise<void> {
     // Validate chainId, if valid, append tab unless it already exists
     if (chainId === this.chainId) {
-      // TODO: Check if approval for this chain exists. If not, request approval from user:
-      // const url = `${browser.runtime.getURL(
-      //   "approvals.html"
-      // )}#/connection?chainId=${chainId}`;
-      //
-      // browser.windows.create({
-      //   url,
-      //   width: 415,
-      //   height: 510,
-      //   type: "popup",
-      // });
-      //
-      // TODO: Only update tabs if approval exists:
       const tabs = await syncTabs(
         this.connectedTabsStore,
         this.requester,
         this.chainId
       );
 
-      // TODO: Should also be called in handler for ApproveConnection message
       return await updateTabStorage(
         senderTabId,
         tabs,

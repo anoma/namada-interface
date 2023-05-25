@@ -47,19 +47,31 @@ export class ApprovalsService {
 
   // Remove pending transaction from storage
   async rejectTx(txId: string): Promise<void> {
-    await this.txStore.set(txId, null);
+    await this._clearPendingTx(txId);
   }
 
   // Authenticate keyring, submit approved transaction from storage
   async submitTx(txId: string, password: string): Promise<void> {
     // TODO: Use executeUntil here:
-    await this.keyRingService.unlock(password);
+    try {
+      const { status } = await this.keyRingService.unlock(password);
+      console.log({ status });
+    } catch (e) {
+      throw new Error(`${e}`);
+    }
+
     const tx = await this.txStore.get(txId);
 
     if (tx) {
-      return await this.keyRingService.submitTransfer(tx);
+      await this.keyRingService.submitTransfer(tx);
+      // Clean up storage
+      return await this._clearPendingTx(txId);
     }
 
-    throw new Error("Failed to submit transfer!");
+    throw new Error("Pending transfer not found!");
+  }
+
+  private async _clearPendingTx(txId: string): Promise<void> {
+    return await this.txStore.set(txId, null);
   }
 }

@@ -1,3 +1,4 @@
+import browser from "webextension-polyfill";
 import { Button, ButtonVariant } from "@anoma/components";
 import { shortenAddress } from "@anoma/utils";
 
@@ -12,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { TopLevelRoute } from "Approvals/types";
 import { Ports } from "router";
 import { RejectTxMsg } from "background/approvals";
-import { Tokens, TokenType } from "@anoma/types";
+import { Tokens } from "@anoma/types";
 
 type Props = {
   setTxId: (txId: string) => void;
@@ -28,7 +29,6 @@ export const ApproveTx: React.FC<Props> = ({ setTxId, requester }) => {
   const amount = query.get("amount") || "";
   const source = query.get("source") || "";
   const target = query.get("target") || "";
-  // TODO: Look up token type
   const tokenAddress = query.get("token") || "";
   const tokenType =
     Object.values(Tokens).find((token) => token.address === tokenAddress)
@@ -43,6 +43,12 @@ export const ApproveTx: React.FC<Props> = ({ setTxId, requester }) => {
     try {
       // TODO: use executeUntil here!
       await requester.sendMessage(Ports.Background, new RejectTxMsg(id));
+
+      // Close tab
+      const tab = await browser.tabs.getCurrent();
+      if (tab.id) {
+        browser.tabs.remove(tab.id);
+      }
     } catch (e) {
       console.warn(e);
     }
@@ -57,8 +63,9 @@ export const ApproveTx: React.FC<Props> = ({ setTxId, requester }) => {
       <Address>{shortenAddress(target)}</Address>
       <p>Source:&nbsp;</p>
       <Address>{shortenAddress(source)}</Address>
-      <p>Amount: {amount}</p>
-      <p>Token: {tokenType}</p>
+      <p>
+        Amount: {amount} {tokenType}
+      </p>
 
       <ButtonContainer>
         <Button onClick={handleApproveClick} variant={ButtonVariant.Contained}>
