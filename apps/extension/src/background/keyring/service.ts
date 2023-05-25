@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { fromBase64, toBase64 } from "@cosmjs/encoding";
-import borsh from "borsh";
+import { deserialize } from "borsh";
 
 import { PhraseSize } from "@anoma/crypto";
 import { KVStore } from "@anoma/storage";

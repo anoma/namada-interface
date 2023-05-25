@@ -38,6 +38,7 @@
     "@ledgerhq/hw-transport-webhid": "^6.27.14",
     "@ledgerhq/hw-transport-webusb": "^6.27.14",
     "@zondax/ledger-namada": "^0.0.2",
+    "bn.js": "^5.2.1",
     "borsh": "^0.7.0",
     "buffer": "^6.0.3",
     "dompurify": "^3.0.2",
