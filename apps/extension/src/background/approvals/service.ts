@@ -8,10 +8,8 @@ import { amountFromMicro } from "@anoma/utils";
 import { KVStore } from "@anoma/storage";
 
 import { ExtensionRequester } from "extension";
-import { KeyRingService, syncTabs } from "background/keyring";
+import { KeyRingService } from "background/keyring";
 import { TabStore } from "background/keyring";
-import { Ports } from "router";
-import { UpdatedBalancesEventMsg } from "content/events";
 
 export class ApprovalsService {
   constructor(
