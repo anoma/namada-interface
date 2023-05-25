@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { TopLevelRoute } from "Approvals/types";
 import { Ports } from "router";
 import { RejectTxMsg } from "background/approvals";
+import { Tokens, TokenType } from "@anoma/types";
 
 type Props = {
   setTxId: (txId: string) => void;
@@ -28,7 +29,10 @@ export const ApproveTx: React.FC<Props> = ({ setTxId, requester }) => {
   const source = query.get("source") || "";
   const target = query.get("target") || "";
   // TODO: Look up token type
-  const token = query.get("token") || "";
+  const tokenAddress = query.get("token") || "";
+  const tokenType =
+    Object.values(Tokens).find((token) => token.address === tokenAddress)
+      ?.symbol || "";
 
   const handleApproveClick = (): void => {
     setTxId(id);
@@ -54,7 +58,7 @@ export const ApproveTx: React.FC<Props> = ({ setTxId, requester }) => {
       <p>Source:&nbsp;</p>
       <Address>{shortenAddress(source)}</Address>
       <p>Amount: {amount}</p>
-      <Address>Token: {shortenAddress(token)}</Address>
+      <p>Token: {tokenType}</p>
 
       <ButtonContainer>
         <Button onClick={handleApproveClick} variant={ButtonVariant.Contained}>
