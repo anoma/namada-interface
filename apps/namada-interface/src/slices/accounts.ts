@@ -1,7 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { Account as AccountDetails, TokenType } from "@anoma/types";
-
 import { chains } from "@anoma/chains";
 import { getIntegration } from "@anoma/hooks";
 

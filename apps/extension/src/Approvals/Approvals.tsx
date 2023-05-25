@@ -5,10 +5,7 @@ import { Routes, Route } from "react-router-dom";
 
 import { ExtensionKVStore } from "@anoma/storage";
 import { getTheme } from "@anoma/utils";
-// import { ExtensionKVStore } from "@anoma/storage";
-//
-// import { ExtensionMessenger, ExtensionRequester } from "extension";
-// import { KVPrefix Ports } from "router";
+
 import {
   AppContainer,
   ContentContainer,
@@ -28,7 +25,7 @@ const store = new ExtensionKVStore(KVPrefix.LocalStorage, {
 });
 const messenger = new ExtensionMessenger();
 const requester = new ExtensionRequester(messenger, store);
-//
+
 export enum Status {
   Completed,
   Pending,
@@ -39,8 +36,6 @@ export const Approvals: React.FC = () => {
   const theme = getTheme("dark");
   const [txId, setTxId] = useState("");
   const [address, setAddress] = useState("");
-  // const [status, setStatus] = useState<Status>();
-  // const [error, setError] = useState("");
 
   return (
     <ThemeProvider theme={theme}>
