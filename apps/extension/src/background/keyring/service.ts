@@ -338,7 +338,7 @@ export class KeyRingService {
     } else {
       return Promise.reject(
         "Trying to close offscreen document for nor supported browser"
-);
-}
+      );
+    }
   }
 }
