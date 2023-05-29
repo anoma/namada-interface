@@ -1,4 +1,3 @@
-use js_sys::Uint8Array;
 use namada::ledger::{
     masp::ShieldedContext,
     wallet::{Store, Wallet},
