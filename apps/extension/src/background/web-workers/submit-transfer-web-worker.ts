@@ -24,7 +24,6 @@ import {
     sdk.decode(sdkData);
   }
 
-  //TODO: check for msg type
   addEventListener(
     "message",
     ({ data }: { data: SubmitTransferMessageData }) => {

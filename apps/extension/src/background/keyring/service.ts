@@ -8,13 +8,20 @@ import { Sdk } from "@anoma/shared";
 import { KeyRing } from "./keyring";
 import { KeyRingStatus, KeyStore, TabStore } from "./types";
 import { syncTabs, updateTabStorage } from "./utils";
-import { ExtensionRequester } from "extension";
+import { ExtensionRequester, getAnomaRouterId } from "extension";
 import { Ports } from "router";
 import {
   AccountChangedEventMsg,
   TransferCompletedEvent,
   TransferStartedEvent,
 } from "content/events";
+import {
+  createOffscreenWithTxWorker,
+  hasOffscreenDocument,
+  OFFSCREEN_TARGET,
+  SUBMIT_TRANSFER_MSG_TYPE,
+} from "background/offscreen";
+import { init as initSubmitTransferWebWorker } from "background/web-workers";
 
 export class KeyRingService {
   private _keyRing: KeyRing;
@@ -132,6 +139,44 @@ export class KeyRingService {
     }
   }
 
+  private async submitTransferChrome(
+    txMsg: string,
+    msgId: string,
+    password: string,
+    xsk?: string
+  ): Promise<void> {
+    const offscreenDocumentPath = "offscreen.html";
+    const routerId = await getAnomaRouterId(this.extensionStore);
+
+    if (!(await hasOffscreenDocument(offscreenDocumentPath))) {
+      await createOffscreenWithTxWorker(offscreenDocumentPath);
+    }
+
+    await chrome.runtime.sendMessage({
+      type: SUBMIT_TRANSFER_MSG_TYPE,
+      target: OFFSCREEN_TARGET,
+      routerId,
+      data: { txMsg, msgId, password, xsk },
+    });
+  }
+
+  private async submitTransferFirefox(
+    txMsg: string,
+    msgId: string,
+    password: string,
+    xsk?: string
+  ): Promise<void> {
+    initSubmitTransferWebWorker(
+      {
+        txMsg,
+        msgId,
+        password,
+        xsk,
+      },
+      this.handleTransferCompleted.bind(this)
+    );
+  }
+
   async submitTransfer(txMsg: string): Promise<void> {
     const msgId = uuidv4();
 
@@ -154,11 +199,23 @@ export class KeyRingService {
     }
 
     try {
-      //TODO: fix tabId and msgId
-      await this._keyRing.submitTransfer(fromBase64(txMsg), msgId);
+      const { password, spendingKey } = await this._keyRing.transferData(
+        fromBase64(txMsg)
+      );
+
+      const { TARGET } = process.env;
+      if (TARGET === "chrome") {
+        this.submitTransferChrome(txMsg, msgId, password, spendingKey);
+      } else if (TARGET === "firefox") {
+        this.submitTransferFirefox(txMsg, msgId, password, spendingKey);
+      } else {
+        console.warn(
+          "Submitting transfers is not supported with your browser."
+        );
+      }
     } catch (e) {
       console.warn(e);
-      throw new Error(`Unable to encode transfer! ${e}`);
+      throw new Error(`Unable to load transfer data! ${e}`);
     }
   }
 
@@ -214,7 +271,10 @@ export class KeyRingService {
     return;
   }
 
-  async handleTransferCompleted(msgId: string): Promise<void> {
+  async handleTransferCompleted(
+    msgId: string,
+    success: boolean
+  ): Promise<void> {
     const tabs = await syncTabs(
       this.connectedTabsStore,
       this.requester,
@@ -226,7 +286,7 @@ export class KeyRingService {
         this.requester.sendMessageToTab(
           tabId,
           Ports.WebBrowser,
-          new TransferCompletedEvent(msgId)
+          new TransferCompletedEvent(msgId, success)
         );
       });
     } catch (e) {

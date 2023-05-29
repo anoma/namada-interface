@@ -1,13 +1,13 @@
 import browser from "webextension-polyfill";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 
 import { ExtensionKVStore } from "@anoma/storage";
+import { KVPrefix } from "router";
 import {
   ExtensionMessenger,
   ExtensionRequester,
   getAnomaRouterId,
 } from "extension";
-import { KVPrefix } from "router";
 
 const store = new ExtensionKVStore(KVPrefix.LocalStorage, {
   get: browser.storage.local.get,
@@ -15,9 +15,8 @@ const store = new ExtensionKVStore(KVPrefix.LocalStorage, {
 });
 const messenger = new ExtensionMessenger();
 
-const RequesterContext = createContext<ExtensionRequester | null>(null);
+export const RequesterContext = createContext<ExtensionRequester | null>(null);
 
-// TODO: Move this file somewhere else as it is used by both App and Setup
 export const RequesterProvider: React.FC = ({ children }) => {
   const [requester, setRequester] = useState<ExtensionRequester>();
 
@@ -39,16 +38,4 @@ export const RequesterProvider: React.FC = ({ children }) => {
       ) : null}
     </>
   );
-};
-
-export const useRequester = (): ExtensionRequester => {
-  const requesterContext = useContext(RequesterContext);
-
-  if (!requesterContext) {
-    throw new Error(
-      "requesterContext has to be used within <RequesterContext.Provider>"
-    );
-  }
-
-  return requesterContext;
 };

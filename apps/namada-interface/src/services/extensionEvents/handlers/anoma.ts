@@ -36,13 +36,13 @@ export const AnomaTransferStartedHandler =
 
 export const AnomaTransferCompletedHandler =
   (dispatch: Dispatch<unknown>) => async (event: CustomEventInit) => {
-    const { msgId } = event.detail;
+    const { msgId, success } = event.detail;
     dispatch(
       notificationsActions.createToast(
         getToast(
           `${event.detail.msgId}-transfer`,
           Toasts.TransferCompleted
-        )({ msgId })
+        )({ msgId, success })
       )
     );
   };

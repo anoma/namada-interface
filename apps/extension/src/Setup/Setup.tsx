@@ -1,12 +1,9 @@
-import browser from "webextension-polyfill";
 import React, { useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 
 import { formatRouterPath, getTheme } from "@anoma/utils";
-import { ExtensionKVStore } from "@anoma/storage";
 
-import { ExtensionMessenger, ExtensionRequester } from "extension";
 import { AccountCreation } from "./AccountCreation";
 import {
   AppContainer,
@@ -25,7 +22,7 @@ import { Ledger } from "./Ledger";
 import { Start } from "./Start";
 import { AnimatePresence } from "framer-motion";
 import { ImportAccount } from "./ImportAccount";
-import { useRequester } from "App/Requester";
+import { useRequester } from "hooks/useRequester";
 
 type AnimatedTransitionProps = {
   elementKey: string;

@@ -30,15 +30,6 @@ import {
   readVecStringPointer,
   readStringPointer,
 } from "@anoma/crypto/src/utils";
-import { toBase64 } from "@cosmjs/encoding";
-import {
-  createOffscreenWithTxWorker,
-  hasOffscreenDocument,
-  OFFSCREEN_TARGET,
-  SUBMIT_TRANSFER_MSG_TYPE,
-} from "../offscreen";
-import { init as initSubmitTransferWebWorker } from "background/web-workers";
-import { getAnomaRouterId } from "extension";
 import { deserialize } from "borsh";
 
 // Generated UUID namespace for uuid v5
@@ -477,47 +468,10 @@ export class KeyRing {
       throw new Error(`Could not submit unbond tx: ${e}`);
     }
   }
-  private async submitTransferChrome(
-    txMsg: Uint8Array,
-    msgId: string,
-    password: string,
-    xsk?: string
-  ): Promise<void> {
-    const offscreenDocumentPath = "offscreen.html";
-    const routerId = await getAnomaRouterId(this.extensionStore);
 
-    if (!(await hasOffscreenDocument(offscreenDocumentPath))) {
-      await createOffscreenWithTxWorker(offscreenDocumentPath);
-    }
-
-    await chrome.runtime.sendMessage({
-      type: SUBMIT_TRANSFER_MSG_TYPE,
-      target: OFFSCREEN_TARGET,
-      routerId,
-      data: { txMsg: toBase64(txMsg), msgId, password, xsk },
-    });
-  }
-
-  private async submitTransferFirefox(
-    txMsg: Uint8Array,
-    msgId: string,
-    password: string,
-    xsk?: string
-  ): Promise<void> {
-    const routerId = await getAnomaRouterId(this.extensionStore);
-
-    initSubmitTransferWebWorker(
-      {
-        txMsg: toBase64(txMsg),
-        msgId,
-        password,
-        xsk,
-      },
-      routerId
-    );
-  }
-
-  async submitTransfer(txMsg: Uint8Array, msgId: string): Promise<void> {
+  async transferData(
+    txMsg: Uint8Array
+  ): Promise<{ password: string; spendingKey?: string }> {
     if (!this._password) {
       throw new Error("Not authenticated!");
     }
@@ -535,16 +489,14 @@ export class KeyRing {
       throw new Error(`Account not found.`);
     }
     const text = crypto.decrypt(account, this._password, this._cryptoMemory);
-    const { spendingKey }: { spendingKey?: string } = JSON.parse(text);
 
-    const { TARGET } = process.env;
-    if (TARGET === "chrome") {
-      this.submitTransferChrome(txMsg, msgId, this._password, spendingKey);
-    } else if (TARGET === "firefox") {
-      this.submitTransferFirefox(txMsg, msgId, this._password);
-    } else {
-      console.warn("Submitting transfers is not supported with your browser.");
+    // For shielded accounts we need to return the spending key as well.
+    if (account.type === AccountType.ShieldedKeys) {
+      const { spendingKey }: { spendingKey: string } = JSON.parse(text);
+      return { password: this._password, spendingKey };
     }
+
+    return { password: this._password };
   }
 
   async submitIbcTransfer(txMsg: Uint8Array): Promise<void> {

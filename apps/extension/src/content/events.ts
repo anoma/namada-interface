@@ -55,7 +55,7 @@ export class TransferCompletedEvent extends Message<void> {
     return Events.TransferCompleted;
   }
 
-  constructor(readonly msgId: string) {
+  constructor(readonly msgId: string, readonly success: boolean) {
     super();
   }
 
