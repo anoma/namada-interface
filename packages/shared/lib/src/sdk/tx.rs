@@ -159,12 +159,16 @@ pub fn transfer_tx_args(
         tx_code: transfer_tx_code,
     } = tx_msg;
 
-
     let source = match Address::from_str(&source) {
         Ok(v) => Ok(TransferSource::Address(v)),
-        Err(e1) => match ExtendedSpendingKey::from_str(&xsk.unwrap()) {
+        Err(e1) => match ExtendedSpendingKey::from_str(
+            &xsk.expect("Extended spending key to be present, if address type is shielded."),
+        ) {
             Ok(v) => Ok(TransferSource::ExtendedSpendingKey(v)),
-            Err(e2) => Err(JsError::new(&format!("Hello2 {}, {}", e1, e2))),
+            Err(e2) => Err(JsError::new(&format!(
+                "Can't compute the transfer source. {}, {}",
+                e1, e2
+            ))),
         },
     }?;
 
@@ -172,7 +176,10 @@ pub fn transfer_tx_args(
         Ok(v) => Ok(TransferTarget::Address(v)),
         Err(e1) => match PaymentAddress::from_str(&target) {
             Ok(v) => Ok(TransferTarget::PaymentAddress(v)),
-            Err(e2) => Err(JsError::new(&format!("Hello2 {}, {}", e1, e2))),
+            Err(e2) => Err(JsError::new(&format!(
+                "Can't compute the transfer target. {}, {}",
+                e1, e2
+            ))),
         },
     }?;
     let native_token = Address::from_str(&native_token)?;
@@ -240,9 +247,8 @@ pub fn ibc_transfer_tx_args(
     let source = Address::from_str(&source)?;
     let token = Address::from_str(&token)?;
     let amount = Amount::from(amount);
-    //TODO: fix unwraps
-    let port_id = PortId::from_str(&port_id).unwrap();
-    let channel_id = ChannelId::from_str(&channel_id).unwrap();
+    let port_id = PortId::from_str(&port_id).expect("Port id to be valid");
+    let channel_id = ChannelId::from_str(&channel_id).expect("Channel id to be valid");
 
     let args = args::TxIbcTransfer {
         tx: tx_msg_into_args(tx, password)?,

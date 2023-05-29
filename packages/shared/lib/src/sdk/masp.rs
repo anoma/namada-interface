@@ -1,11 +1,15 @@
 use async_trait::async_trait;
 use borsh::{BorshDeserialize, BorshSerialize};
-use js_sys::{Uint8Array, JSON::stringify};
 use masp_proofs::prover::LocalTxProver;
 use namada::ledger::masp::{ShieldedContext, ShieldedUtils};
 use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
-use crate::rpc_client::HttpClient;
+use crate::{
+    rpc_client::HttpClient,
+    utils::{to_bytes, to_io_error},
+};
+
+const SHIELDED_CONTEXT: &str = "shielded-context";
 
 #[derive(Default, Debug, BorshSerialize, BorshDeserialize, Clone)]
 pub struct WebShieldedUtils {
@@ -30,25 +34,12 @@ impl WebShieldedUtils {
             ..Default::default()
         }
     }
-
-    //TODO: move to utils
-    fn to_bytes(u_int_8_array: JsValue) -> Vec<u8> {
-        let array = Uint8Array::new(&u_int_8_array);
-        array.to_vec()
-    }
-
-    fn to_io_error(js_value: JsValue) -> std::io::Error {
-        let e = stringify(&js_value).expect("Error to be serializable");
-        let e_str: String = e.into();
-        std::io::Error::new(std::io::ErrorKind::Other, e_str)
-    }
 }
 
 #[async_trait(?Send)]
 impl ShieldedUtils for WebShieldedUtils {
     type C = HttpClient;
 
-    //TODO: add async version
     fn local_tx_prover(&self) -> LocalTxProver {
         LocalTxProver::from_bytes(
             &self.spend_param_bytes,
@@ -58,11 +49,8 @@ impl ShieldedUtils for WebShieldedUtils {
     }
 
     async fn load(self) -> std::io::Result<ShieldedContext<Self>> {
-        //TODO: move to const
-        let ctx = get("shielded-context")
-            .await
-            .map_err(|e| Self::to_io_error(e))?;
-        let ctx_bytes = Self::to_bytes(ctx);
+        let ctx = get(SHIELDED_CONTEXT).await.map_err(|e| to_io_error(e))?;
+        let ctx_bytes = to_bytes(ctx);
         let mut new_ctx = ShieldedContext::deserialize(&mut &ctx_bytes[..])?;
 
         new_ctx.utils = self;
@@ -73,9 +61,9 @@ impl ShieldedUtils for WebShieldedUtils {
         let mut bytes = Vec::new();
         ctx.serialize(&mut bytes)
             .expect("cannot serialize shielded context");
-        set("shielded-context", bytes)
+        set(SHIELDED_CONTEXT, bytes)
             .await
-            .map_err(|e| Self::to_io_error(e))?;
+            .map_err(|e| to_io_error(e))?;
 
         Ok(())
     }

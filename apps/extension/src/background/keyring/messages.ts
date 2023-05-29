@@ -281,7 +281,7 @@ export class QueryParentAccountsMsg extends Message<DerivedAccount[]> {
     return QueryParentAccountsMsg.type();
   }
 }
-//TODO: Figure out if spliting msgs into commands and events makes sense
+
 export class CloseOffscreenDocumentMsg extends Message<void> {
   public static type(): MessageType {
     return MessageType.CloseOffscreenDocument;

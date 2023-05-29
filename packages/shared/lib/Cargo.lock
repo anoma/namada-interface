@@ -1983,6 +1983,7 @@ checksum = "e5ce46fe64a9d73be07dcbe690a38ce1b293be448fd8ce1e6c1b8062c9f72c6a"
 [[package]]
 name = "namada"
 version = "0.16.0"
+source = "git+https://github.com/anoma/namada?branch=draft#7e7e9f24289b70d3b4b4930af4271db2c7df28ed"
 dependencies = [
  "async-std",
  "async-trait",
@@ -2024,13 +2025,13 @@ dependencies = [
  "toml",
  "tracing",
  "wasmparser",
- "web-sys",
  "zeroize",
 ]
 
 [[package]]
 name = "namada_core"
 version = "0.16.0"
+source = "git+https://github.com/anoma/namada?branch=draft#7e7e9f24289b70d3b4b4930af4271db2c7df28ed"
 dependencies = [
  "ark-bls12-381",
  "ark-ec",
@@ -2074,6 +2075,7 @@ dependencies = [
 [[package]]
 name = "namada_macros"
 version = "0.16.0"
+source = "git+https://github.com/anoma/namada?branch=draft#7e7e9f24289b70d3b4b4930af4271db2c7df28ed"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2083,6 +2085,7 @@ dependencies = [
 [[package]]
 name = "namada_proof_of_stake"
 version = "0.16.0"
+source = "git+https://github.com/anoma/namada?branch=draft#7e7e9f24289b70d3b4b4930af4271db2c7df28ed"
 dependencies = [
  "borsh",
  "data-encoding",
