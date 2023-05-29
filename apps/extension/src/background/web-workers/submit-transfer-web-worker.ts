@@ -6,6 +6,7 @@ import { fromBase64 } from "@cosmjs/encoding";
 import { KVPrefix } from "router";
 import {
   INIT_MSG,
+  SubmitTransferMessageData,
   TRANSFER_FAILED_MSG,
   TRANSFER_SUCCESSFUL_MSG,
 } from "./types";
@@ -26,9 +27,9 @@ import {
   //TODO: check for msg type
   addEventListener(
     "message",
-    ({ data }) => {
+    ({ data }: { data: SubmitTransferMessageData }) => {
       sdk
-        .submit_transfer(fromBase64(data.txMsg), data.password)
+        .submit_transfer(fromBase64(data.txMsg), data.password, data.xsk)
         .then(() => postMessage(TRANSFER_SUCCESSFUL_MSG))
         .catch(() => postMessage(TRANSFER_FAILED_MSG));
     },

@@ -5,7 +5,9 @@ use namada::ledger::{
 };
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 
-use crate::{rpc_client::HttpClient, sdk::masp::WebShieldedUtils};
+use crate::{rpc_client::HttpClient, sdk::masp::WebShieldedUtils, utils::console_log_any};
+
+use namada::types::address::masp;
 
 mod masp;
 mod tx;
@@ -101,9 +103,9 @@ impl Sdk {
         &mut self,
         tx_msg: &[u8],
         password: Option<String>,
+        xsk: Option<String>,
     ) -> Result<(), JsError> {
-        let args = tx::transfer_tx_args(tx_msg, password)?;
-
+        let args = tx::transfer_tx_args(tx_msg, password, xsk)?;
         namada::ledger::tx::submit_transfer(
             &self.client,
             &mut self.wallet,

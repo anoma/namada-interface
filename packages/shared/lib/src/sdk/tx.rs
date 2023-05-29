@@ -7,7 +7,7 @@ use namada::{
     types::{
         address::Address,
         chain::ChainId,
-        masp::{PaymentAddress, TransferSource, TransferTarget},
+        masp::{ExtendedSpendingKey, PaymentAddress, TransferSource, TransferTarget},
         token::Amount,
         transaction::GasLimit,
     },
@@ -145,6 +145,7 @@ pub struct SubmitTransferMsg {
 pub fn transfer_tx_args(
     tx_msg: &[u8],
     password: Option<String>,
+    xsk: Option<String>,
 ) -> Result<args::TxTransfer, JsError> {
     let tx_msg = SubmitTransferMsg::try_from_slice(tx_msg)?;
     let SubmitTransferMsg {
@@ -158,7 +159,15 @@ pub fn transfer_tx_args(
         tx_code: transfer_tx_code,
     } = tx_msg;
 
-    let source = Address::from_str(&source)?;
+
+    let source = match Address::from_str(&source) {
+        Ok(v) => Ok(TransferSource::Address(v)),
+        Err(e1) => match ExtendedSpendingKey::from_str(&xsk.unwrap()) {
+            Ok(v) => Ok(TransferSource::ExtendedSpendingKey(v)),
+            Err(e2) => Err(JsError::new(&format!("Hello2 {}, {}", e1, e2))),
+        },
+    }?;
+
     let target = match Address::from_str(&target) {
         Ok(v) => Ok(TransferTarget::Address(v)),
         Err(e1) => match PaymentAddress::from_str(&target) {
@@ -172,7 +181,7 @@ pub fn transfer_tx_args(
 
     let args = args::TxTransfer {
         tx: tx_msg_into_args(tx, password)?,
-        source: TransferSource::Address(source),
+        source,
         target,
         token,
         sub_prefix,

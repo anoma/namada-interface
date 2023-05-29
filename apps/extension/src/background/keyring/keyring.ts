@@ -16,7 +16,13 @@ import {
   Sdk,
 } from "@anoma/shared";
 import { IStore, KVStore, Store } from "@anoma/storage";
-import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
+import {
+  AccountType,
+  Bip44Path,
+  DerivedAccount,
+  SubmitTransferMsgSchema,
+  TransferMsgValue,
+} from "@anoma/types";
 import { chains } from "@anoma/chains";
 import { Crypto } from "./crypto";
 import { KeyRingStatus, KeyStore } from "./types";
@@ -33,6 +39,7 @@ import {
 } from "../offscreen";
 import { init as initSubmitTransferWebWorker } from "background/web-workers";
 import { getAnomaRouterId } from "extension";
+import { deserialize } from "borsh";
 
 // Generated UUID namespace for uuid v5
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
@@ -473,7 +480,8 @@ export class KeyRing {
   private async submitTransferChrome(
     txMsg: Uint8Array,
     msgId: string,
-    password: string
+    password: string,
+    xsk?: string
   ): Promise<void> {
     const offscreenDocumentPath = "offscreen.html";
     const routerId = await getAnomaRouterId(this.extensionStore);
@@ -486,14 +494,15 @@ export class KeyRing {
       type: SUBMIT_TRANSFER_MSG_TYPE,
       target: OFFSCREEN_TARGET,
       routerId,
-      data: { txMsg: toBase64(txMsg), msgId, password },
+      data: { txMsg: toBase64(txMsg), msgId, password, xsk },
     });
   }
 
   private async submitTransferFirefox(
     txMsg: Uint8Array,
     msgId: string,
-    password: string
+    password: string,
+    xsk?: string
   ): Promise<void> {
     const routerId = await getAnomaRouterId(this.extensionStore);
 
@@ -502,6 +511,7 @@ export class KeyRing {
         txMsg: toBase64(txMsg),
         msgId,
         password,
+        xsk,
       },
       routerId
     );
@@ -512,9 +522,24 @@ export class KeyRing {
       throw new Error("Not authenticated!");
     }
 
+    // We need to get the source address in case it is shielded one, so we can
+    // decrypt the extended spending key for a transfer.
+    const { source } = deserialize(
+      SubmitTransferMsgSchema,
+      TransferMsgValue,
+      Buffer.from(txMsg)
+    );
+
+    const account = await this._keyStore.getRecord("address", source);
+    if (!account) {
+      throw new Error(`Account not found.`);
+    }
+    const text = crypto.decrypt(account, this._password, this._cryptoMemory);
+    const { spendingKey }: { spendingKey?: string } = JSON.parse(text);
+
     const { TARGET } = process.env;
     if (TARGET === "chrome") {
-      this.submitTransferChrome(txMsg, msgId, this._password);
+      this.submitTransferChrome(txMsg, msgId, this._password, spendingKey);
     } else if (TARGET === "firefox") {
       this.submitTransferFirefox(txMsg, msgId, this._password);
     } else {

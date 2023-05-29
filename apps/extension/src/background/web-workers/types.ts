@@ -9,6 +9,7 @@ export type SubmitTransferMessageData = {
   txMsg: string;
   msgId: string;
   password: string;
+  xsk?: string;
 };
 
 export const INIT_MSG = "init";
