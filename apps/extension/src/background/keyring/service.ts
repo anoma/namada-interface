@@ -263,27 +263,6 @@ export class KeyRingService {
     return await this._keyRing.getActiveAccountId();
   }
 
-  private async _broadcastAccountsChanged(): Promise<void> {
-    const tabs = await syncTabs(
-      this.connectedTabsStore,
-      this.requester,
-      this.chainId
-    );
-    try {
-      tabs?.forEach(({ tabId }: TabStore) => {
-        this.requester.sendMessageToTab(
-          tabId,
-          Ports.WebBrowser,
-          new AccountChangedEventMsg(this.chainId)
-        );
-      });
-    } catch (e) {
-      console.warn(e);
-    }
-
-    return;
-  }
-
   async handleTransferCompleted(
     msgId: string,
     success: boolean
