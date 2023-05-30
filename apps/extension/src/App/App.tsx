@@ -78,11 +78,13 @@ export const App: React.FC = () => {
     setStatus(Status.Pending);
 
     try {
-      const parentId = await requester.sendMessage(
+      const parent = await requester.sendMessage(
         Ports.Background,
         new GetActiveAccountMsg()
       );
-      const parentAccount = accounts.find((account) => account.id === parentId);
+      const parentAccount = accounts.find(
+        (account) => account.id === parent?.id
+      );
       setParentAccount(parentAccount);
     } catch (e) {
       console.error(e);
@@ -115,7 +117,7 @@ export const App: React.FC = () => {
       },
       onFail: () => {
         setError("An error occurred connecting to extension");
-        setStatus(Status.Failed);
+        setStatus(Status.Completed);
       },
     },
     { tries: 10, ms: 100 },

@@ -12,6 +12,7 @@ import {
   LockKeyRingMsg,
   SetActiveAccountMsg,
   QueryParentAccountsMsg,
+  ParentAccount,
 } from "background/keyring";
 import {
   SettingsContainer,
@@ -29,10 +30,6 @@ import {
 } from "../Accounts/Accounts.components";
 import { TopLevelRoute } from "../types";
 import { Status } from "../App";
-import {
-  ResetPassword,
-  Props as ResetPasswordProps
-} from "./ExtraSettings/ResetPassword"
 import { ExtraSettings } from "./ExtraSettings";
 import { Mode, ExtraSetting } from "./ExtraSettings/types";
 
@@ -43,11 +40,7 @@ const Settings: React.FC<{
   activeAccountId: string;
   requester: ExtensionRequester;
   onSelectAccount: (account: DerivedAccount) => void;
-}> = ({
-  activeAccountId,
-  requester,
-  onSelectAccount,
-}) => {
+}> = ({ activeAccountId, requester, onSelectAccount }) => {
   const [extraSetting, setExtraSetting] = useState<ExtraSetting | null>(null);
   const [status, setStatus] = useState<Status>(Status.Pending);
   const [error, setError] = useState<string>("");
@@ -75,19 +68,21 @@ const Settings: React.FC<{
     fetchParentAccounts();
   }, []);
 
-  const handleSelectAccount = async (account: DerivedAccount): Promise<void> => {
-    const { id } = account;
+  const handleSelectAccount = async (
+    account: DerivedAccount
+  ): Promise<void> => {
+    const { id, type } = account;
     try {
       await requester.sendMessage(
         Ports.Background,
-        new SetActiveAccountMsg(id)
+        new SetActiveAccountMsg(id, type as ParentAccount)
       );
 
       // Lock current wallet keyring:
       await requester.sendMessage(Ports.Background, new LockKeyRingMsg());
 
       // Fetch accounts for selected parent account
-      await onSelectAccount(account);
+      onSelectAccount(account);
     } catch (e) {
       console.error(e);
       setError(`An error occurred while setting active account: ${e}`);
@@ -95,7 +90,9 @@ const Settings: React.FC<{
     }
   };
 
-  const handleDeleteAccount = async (deletedAccountId: string): Promise<void> => {
+  const handleDeleteAccount = async (
+    deletedAccountId: string
+  ): Promise<void> => {
     await fetchParentAccounts();
   };
 
@@ -122,25 +119,26 @@ const Settings: React.FC<{
     <SettingsContainer>
       <AccountsContainer>
         <ThemedScrollbarContainer>
-
           {status === Status.Failed && (
             <p>Error communicating with extension background!</p>
           )}
           <p>{error ? error : "Select account:"}</p>
 
           <ParentAccountsList>
-            {parentAccounts.map((account, i) =>
+            {parentAccounts.map((account, i) => (
               <AccountListItem
                 key={i}
                 account={account}
                 activeAccountId={activeAccountId}
                 onSelectAccount={() => handleSelectAccount(account)}
-                onSelectMode={(mode) => setExtraSetting({
-                  mode,
-                  accountId: account.id
-                })}
+                onSelectMode={(mode) =>
+                  setExtraSetting({
+                    mode,
+                    accountId: account.id,
+                  })
+                }
               />
-            )}
+            ))}
           </ParentAccountsList>
 
           <ButtonsContainer>
@@ -168,7 +166,6 @@ const Settings: React.FC<{
             onClose={() => setExtraSetting(null)}
             onDeleteAccount={handleDeleteAccount}
           />
-
         </ThemedScrollbarContainer>
       </AccountsContainer>
     </SettingsContainer>
@@ -183,37 +180,28 @@ const AccountListItem: React.FC<{
   activeAccountId: string;
   onSelectAccount: () => void;
   onSelectMode: (mode: Mode) => void;
-}> = ({
-  account,
-  activeAccountId,
-  onSelectAccount,
-  onSelectMode,
-}) => {
+}> = ({ account, activeAccountId, onSelectAccount, onSelectMode }) => {
   const [expanded, setExpanded] = useState<boolean>(false);
 
   return (
     <>
       <ParentAccountsListItemContainer>
-        <ParentAccountDetails
-          onClick={onSelectAccount}
-        >
+        <ParentAccountDetails onClick={onSelectAccount}>
           {account.alias}
           {activeAccountId === account.id && <span>(selected)</span>}
         </ParentAccountDetails>
 
-        <ParentAccountSideButton
-          onClick={() => setExpanded(!expanded)}
-        />
+        <ParentAccountSideButton onClick={() => setExpanded(!expanded)} />
       </ParentAccountsListItemContainer>
 
-      {expanded &&
+      {expanded && (
         <ModeSelect
           onSelectMode={(mode) => {
             setExpanded(false);
             onSelectMode(mode);
           }}
         />
-      }
+      )}
     </>
   );
 };
@@ -223,24 +211,16 @@ const AccountListItem: React.FC<{
  */
 const ModeSelect: React.FC<{
   onSelectMode: (mode: Mode) => void;
-}> = ({
-  onSelectMode,
-}) => {
-  const modes = [
-    Mode.ResetPassword,
-    Mode.DeleteAccount,
-  ];
+}> = ({ onSelectMode }) => {
+  const modes = [Mode.ResetPassword, Mode.DeleteAccount];
 
   return (
     <ModeSelectContainer>
-      {modes.map((mode, i) =>
-        <ModeSelectLink
-          key={i}
-          onClick={() => onSelectMode(mode)}
-        >
+      {modes.map((mode, i) => (
+        <ModeSelectLink key={i} onClick={() => onSelectMode(mode)}>
           {mode}
         </ModeSelectLink>
-      )}
+      ))}
     </ModeSelectContainer>
   );
 };

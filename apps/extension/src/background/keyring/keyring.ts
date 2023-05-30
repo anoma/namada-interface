@@ -1,6 +1,8 @@
 import BigNumber from "bignumber.js";
-import { v5 as uuid, v4 as uuidV4 } from "uuid";
+import { v4 as uuidV4 } from "uuid";
+import { deserialize } from "@dao-xyz/borsh";
 
+import { chains } from "@namada/chains";
 import {
   HDWallet,
   Mnemonic,
@@ -24,9 +26,8 @@ import {
   DerivedAccount,
   TransferMsgValue,
 } from "@namada/types";
-import { chains } from "@namada/chains";
-import { Crypto } from "./crypto";
 import {
+  ActiveAccountStore,
   KeyRingStatus,
   KeyStore,
   ResetPasswordError,
@@ -38,26 +39,13 @@ import {
   readVecStringPointer,
   readStringPointer,
 } from "@namada/crypto/src/utils";
-import { Result } from "@namada/utils";
-import { deserialize } from "@dao-xyz/borsh";
+import { makeBip44Path, Result } from "@namada/utils";
+
+import { Crypto } from "./crypto";
+import { getAccountValuesFromStore, generateId } from "utils";
 
 // Generated UUID namespace for uuid v5
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
-
-// Construct unique uuid, passing in an arbitray number of arguments.
-// This could be a unique parameter of the object receiving the id,
-// or an index based on the number of existing objects in a hierarchy.
-const getId = (name: string, ...args: (number | string)[]): string => {
-  // Ensure a unique UUID
-  let uuidName = name;
-
-  // Concatenate any number of args onto the name parameter
-  args.forEach((arg) => {
-    uuidName = `${uuidName}::${arg}`;
-  });
-
-  return uuid(uuidName, UUID_NAMESPACE);
-};
 
 export const KEYSTORE_KEY = "key-store";
 export const SDK_KEY = "sdk-store";
@@ -116,17 +104,19 @@ export class KeyRing {
     }
   }
 
-  public async getActiveAccountId(): Promise<string | undefined> {
+  public async getActiveAccount(): Promise<ActiveAccountStore | undefined> {
     return await this.utilityStore.get(PARENT_ACCOUNT_ID_KEY);
   }
 
-  public async setActiveAccountId(parentId: string): Promise<void> {
-    await this.utilityStore.set(PARENT_ACCOUNT_ID_KEY, parentId);
-
+  public async setActiveAccount(
+    id: string,
+    type: AccountType.Mnemonic | AccountType.Ledger
+  ): Promise<void> {
+    await this.utilityStore.set(PARENT_ACCOUNT_ID_KEY, { id, type });
     // To sync sdk wallet with DB
     const sdkData = await this.sdkStore.get(SDK_KEY);
     if (sdkData) {
-      this.sdk.decode(new TextEncoder().encode(sdkData[parentId]));
+      this.sdk.decode(new TextEncoder().encode(sdkData[id]));
     }
   }
 
@@ -135,7 +125,7 @@ export class KeyRing {
     accountId?: string
   ): Promise<boolean> {
     // default to active account if no account provided
-    const idToCheck = accountId ?? (await this.getActiveAccountId());
+    const idToCheck = accountId ?? (await this.getActiveAccount())?.id;
     if (!idToCheck) {
       throw new Error("No account to check password against");
     }
@@ -191,7 +181,7 @@ export class KeyRing {
         }
 
         // change password held locally if active account password changed
-        if (accountId === (await this.getActiveAccountId())) {
+        if (accountId === (await this.getActiveAccount())?.id) {
           this._password = newPassword;
         }
       } catch (error) {
@@ -238,19 +228,24 @@ export class KeyRing {
       const mnemonic = Mnemonic.from_phrase(phrase);
       const seed = mnemonic.to_seed();
       const { coinType } = chains[this.chainId].bip44;
-      const path = `m/44'/${coinType}'/0'/0`;
-      const bip44 = new HDWallet(seed);
-      const account = bip44.derive(path);
+      const path = { account: 0, change: 0 };
+      const bip44Path = makeBip44Path(coinType, path);
+      const hdWallet = new HDWallet(seed);
+      const account = hdWallet.derive(bip44Path);
       const stringPointer = account.private().to_hex();
       const sk = readStringPointer(stringPointer, this._cryptoMemory);
       const address = new Address(sk).implicit();
       const { chainId } = this;
 
       // Generate unique ID for new parent account:
-      const id = getId(phrase, (await this._keyStore.get()).length);
+      const id = generateId(
+        UUID_NAMESPACE,
+        phrase,
+        (await this._keyStore.get()).length
+      );
 
       mnemonic.free();
-      bip44.free();
+      hdWallet.free();
       account.free();
       stringPointer.free();
 
@@ -261,10 +256,7 @@ export class KeyRing {
         owner: address,
         chainId,
         password,
-        path: {
-          account: 0,
-          change: 0,
-        },
+        path,
         text: phrase,
         type: AccountType.Mnemonic,
       });
@@ -275,7 +267,7 @@ export class KeyRing {
       // to prevent adding top level secret key to existing keys
       this.sdk.clear_storage();
       await this.addSecretKey(sk, password, alias, id);
-      await this.setActiveAccountId(id);
+      await this.setActiveAccount(id, AccountType.Mnemonic);
 
       this._password = password;
       return true;
@@ -305,26 +297,26 @@ export class KeyRing {
     path: Bip44Path,
     parentId: string
   ): DerivedAccountInfo {
-    const { account, change, index = 0 } = path;
-    const root = "m/44'";
     const { coinType } = chains[this.chainId].bip44;
-    const derivationPath = [
-      root,
-      `${coinType}'`,
-      `${account}`,
-      change,
-      index,
-    ].join("/");
-    const bip44 = new HDWallet(seed);
-    const derivedAccount = bip44.derive(derivationPath);
-
+    const derivationPath = makeBip44Path(coinType, path);
+    const hdWallet = new HDWallet(seed);
+    const derivedAccount = hdWallet.derive(derivationPath);
     const privateKey = derivedAccount.private();
     const hex = privateKey.to_hex();
     const text = readStringPointer(hex, this.cryptoMemory);
     const address = new Address(text).implicit();
-    const id = getId("account", parentId, account, change, index);
 
-    bip44.free();
+    const { account, change, index = 0 } = path;
+    const id = generateId(
+      UUID_NAMESPACE,
+      "account",
+      parentId,
+      account,
+      change,
+      index
+    );
+
+    hdWallet.free();
     derivedAccount.free();
     privateKey.free();
     hex.free();
@@ -343,7 +335,7 @@ export class KeyRing {
     parentId: string
   ): DerivedAccountInfo {
     const { index = 0 } = path;
-    const id = getId("shielded-account", parentId, index);
+    const id = generateId("shielded-account", parentId, index);
     const zip32 = new ShieldedHDWallet(seed);
     const account = zip32.derive_to_serialized_keys(index);
 
@@ -475,9 +467,10 @@ export class KeyRing {
     parentId: string;
     seed: VecU8Pointer;
   }> {
+    const activeAccount = await this.getActiveAccount();
     const storedMnemonic = await this._keyStore.getRecord(
       "id",
-      await this.getActiveAccountId()
+      activeAccount?.id
     );
 
     if (!storedMnemonic) {
@@ -575,28 +568,18 @@ export class KeyRing {
   /**
    * Query accounts from storage (active parent account + associated derived child accounts)
    */
-  public async queryAccounts(): Promise<DerivedAccount[]> {
-    const activeAccountId = await this.getActiveAccountId();
+  public async queryAccounts(
+    activeAccountId: string
+  ): Promise<DerivedAccount[]> {
     const parentAccount = await this._keyStore.getRecord("id", activeAccountId);
+
     const derivedAccounts =
       (await this._keyStore.getRecords("parentId", activeAccountId)) || [];
 
     if (parentAccount) {
       const accounts = [parentAccount, ...derivedAccounts];
 
-      // Return only non-encrypted data
-
-      return accounts.map(
-        ({ address, alias, chainId, path, parentId, id, type }) => ({
-          address,
-          alias,
-          chainId,
-          id,
-          parentId,
-          path,
-          type,
-        })
-      );
+      return getAccountValuesFromStore(accounts);
     }
     return [];
   }
@@ -605,22 +588,10 @@ export class KeyRing {
    * Query all top-level parent accounts (mnemonic accounts)
    */
   public async queryParentAccounts(): Promise<DerivedAccount[]> {
-    const accounts = await this._keyStore.getRecords(
-      "type",
-      AccountType.Mnemonic
-    );
+    const accounts =
+      (await this._keyStore.getRecords("type", AccountType.Mnemonic)) || [];
     // Return only non-encrypted data
-    return (accounts || []).map(
-      ({ address, alias, chainId, path, parentId, id, type }) => ({
-        address,
-        alias,
-        chainId,
-        id,
-        parentId,
-        path,
-        type,
-      })
-    );
+    return getAccountValuesFromStore(accounts);
   }
 
   async encodeInitAccount(
@@ -738,7 +709,7 @@ export class KeyRing {
     }
 
     // remove password held locally if active account deleted
-    if (accountId === (await this.getActiveAccountId())) {
+    if (accountId === (await this.getActiveAccount())?.id) {
       this._password = undefined;
     }
 
@@ -753,15 +724,10 @@ export class KeyRing {
   }
 
   async queryBalances(
-    address: string
+    owner: string
   ): Promise<{ token: string; amount: string }[]> {
-    const account = await this._keyStore.getRecord("address", address);
-    if (!account) {
-      throw new Error(`Account not found.`);
-    }
-
     try {
-      return (await this.query.query_balance(account.owner)).map(
+      return (await this.query.query_balance(owner)).map(
         ([token, amount]: [string, string]) => {
           return {
             token,
@@ -782,6 +748,10 @@ export class KeyRing {
     activeAccountId: string
   ): Promise<void> {
     this.sdk.add_key(secretKey, password, alias);
+    await this.initSdkStore(activeAccountId);
+  }
+
+  public async initSdkStore(activeAccountId: string): Promise<void> {
     const store = (await this.sdkStore.get(SDK_KEY)) || {};
 
     this.sdkStore.set(SDK_KEY, {

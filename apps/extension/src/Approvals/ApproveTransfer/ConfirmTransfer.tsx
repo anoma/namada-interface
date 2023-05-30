@@ -8,6 +8,8 @@ import { Status } from "Approvals/Approvals";
 import {
   ApprovalContainer,
   ButtonContainer,
+  InfoHeader,
+  InfoLoader,
 } from "Approvals/Approvals.components";
 import { Ports } from "router";
 import { useRequester } from "hooks/useRequester";
@@ -15,7 +17,6 @@ import { SubmitApprovedTransferMsg } from "background/approvals";
 import { Address } from "App/Accounts/AccountListing.components";
 import { closeCurrentTab } from "utils";
 import { FetchAndStoreMaspParamsMsg, HasMaspParamsMsg } from "provider";
-import { InfoHeader, InfoLoader } from "./ConfirmTransfer.components";
 
 type Props = {
   msgId: string;
@@ -30,7 +31,7 @@ export const ConfirmTransfer: React.FC<Props> = ({ msgId, address }) => {
   const [status, setStatus] = useState<Status>();
   const [statusInfo, setStatusInfo] = useState<string>("");
 
-  const handleApprove = async (): Promise<void> => {
+  const handleApproveTransfer = async (): Promise<void> => {
     setStatus(Status.Pending);
     const hasMaspParams = await requester.sendMessage(
       Ports.Background,
@@ -56,6 +57,7 @@ export const ConfirmTransfer: React.FC<Props> = ({ msgId, address }) => {
         Ports.Background,
         new SubmitApprovedTransferMsg(msgId, address, password)
       );
+      setStatus(Status.Completed);
     } catch (e) {
       setError("Unable to authenticate Tx!");
       setStatus(Status.Failed);
@@ -100,7 +102,7 @@ export const ConfirmTransfer: React.FC<Props> = ({ msgId, address }) => {
           />
           <ButtonContainer>
             <Button
-              onClick={handleApprove}
+              onClick={handleApproveTransfer}
               disabled={!password}
               variant={ButtonVariant.Contained}
             >

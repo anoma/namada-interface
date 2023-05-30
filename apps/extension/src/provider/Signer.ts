@@ -20,14 +20,16 @@ export class Signer implements ISigner {
   constructor(
     protected readonly chainId: string,
     private readonly _namada: Namada
-  ) {}
+  ) { }
 
   public async accounts(): Promise<Account[] | undefined> {
     return (await this._namada.accounts(this.chainId))?.map(
-      ({ alias, address, chainId, type }) => ({
+      ({ alias, address, chainId, type, publicKey }) => ({
         alias,
         address,
         chainId,
+        type,
+        publicKey,
         isShielded: type === AccountType.ShieldedKeys,
       })
     );
@@ -36,13 +38,20 @@ export class Signer implements ISigner {
   /**
    * Submit bond transaction
    */
-  public async submitBond(args: SubmitBondProps): Promise<void> {
+  public async submitBond(
+    args: SubmitBondProps,
+    type: AccountType,
+    publicKey?: string
+  ): Promise<void> {
     const msgValue = new SubmitBondMsgValue(args);
-
     const msg = new Message<SubmitBondMsgValue>();
     const encoded = msg.encode(msgValue);
 
-    return await this._namada.submitBond(toBase64(encoded));
+    return await this._namada.submitBond({
+      txMsg: toBase64(encoded),
+      type,
+      publicKey,
+    });
   }
 
   /**
@@ -60,12 +69,18 @@ export class Signer implements ISigner {
   /**
    * Submit a transfer
    */
-  public async submitTransfer(args: TransferProps): Promise<void> {
+  public async submitTransfer(
+    args: TransferProps,
+    type: AccountType
+  ): Promise<void> {
     const transferMsgValue = new TransferMsgValue(args);
     const transferMessage = new Message<TransferMsgValue>();
     const serializedTransfer = transferMessage.encode(transferMsgValue);
 
-    return await this._namada.submitTransfer(toBase64(serializedTransfer));
+    return await this._namada.submitTransfer({
+      txMsg: toBase64(serializedTransfer),
+      type,
+    });
   }
 
   /**

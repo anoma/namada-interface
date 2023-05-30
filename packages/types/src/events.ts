@@ -6,6 +6,7 @@ export enum Events {
   TransferStarted = "namada-transfer-started",
   TransferCompleted = "namada-transfer-completed",
   UpdatedBalances = "namada-updated-balances",
+  UpdatedStaking = "namada-updated-staking",
 }
 
 // Keplr extension events

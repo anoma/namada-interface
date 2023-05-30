@@ -1,14 +1,15 @@
 import {
-  Namada as INamada,
+  AccountType,
   Chain,
   DerivedAccount,
+  Namada as INamada,
   Signer as ISigner,
 } from "@namada/types";
 import { InjectedProxy } from "./InjectedProxy";
 import { Signer } from "./Signer";
 
 export class InjectedNamada implements INamada {
-  constructor(private readonly _version: string) {}
+  constructor(private readonly _version: string) { }
 
   public async connect(chainId: string): Promise<void> {
     return await InjectedProxy.requestMethod<string, void>("connect", chainId);
@@ -49,8 +50,20 @@ export class InjectedNamada implements INamada {
     return new Signer(chainId, this);
   }
 
-  public async submitBond(txMsg: string): Promise<void> {
-    return await InjectedProxy.requestMethod<string, void>("submitBond", txMsg);
+  public async submitBond(props: {
+    txMsg: string;
+    type: AccountType;
+    publicKey?: string;
+  }): Promise<void> {
+    const { txMsg, type, publicKey } = props;
+    return await InjectedProxy.requestMethod<
+      { txMsg: string; type: AccountType; publicKey?: string },
+      void
+    >("submitBond", {
+      txMsg,
+      type,
+      publicKey,
+    });
   }
 
   public async submitUnbond(txMsg: string): Promise<void> {
@@ -60,11 +73,18 @@ export class InjectedNamada implements INamada {
     );
   }
 
-  public async submitTransfer(txMsg: string): Promise<void> {
-    return await InjectedProxy.requestMethod<string, void>(
-      "submitTransfer",
-      txMsg
-    );
+  public async submitTransfer(props: {
+    txMsg: string;
+    type: AccountType;
+  }): Promise<void> {
+    const { txMsg, type } = props;
+    return await InjectedProxy.requestMethod<
+      { txMsg: string; type: AccountType },
+      void
+    >("submitTransfer", {
+      txMsg,
+      type,
+    });
   }
 
   public async submitIbcTransfer(txMsg: string): Promise<void> {

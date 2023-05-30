@@ -5,6 +5,7 @@ import {
   LockKeyRingMsg,
   UnlockKeyRingMsg,
   CheckPasswordMsg,
+  QueryPublicKeyMsg,
   ResetPasswordMsg,
   GenerateMnemonicMsg,
   SaveMnemonicMsg,
@@ -23,8 +24,6 @@ import {
   QueryAccountsMsg,
   QueryBalancesMsg,
   EncodeRevealPkMsg,
-  SubmitBondMsg,
-  SubmitUnbondMsg,
   SubmitIbcTransferMsg,
   FetchAndStoreMaspParamsMsg,
   HasMaspParamsMsg,
@@ -36,6 +35,7 @@ import { KeyRingService } from "./service";
 export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(CheckIsLockedMsg);
   router.registerMessage(CheckPasswordMsg);
+  router.registerMessage(QueryPublicKeyMsg);
   router.registerMessage(CloseOffscreenDocumentMsg);
   router.registerMessage(ConnectInterfaceMsg);
   router.registerMessage(DeriveAccountMsg);
@@ -51,9 +51,7 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(SaveMnemonicMsg);
   router.registerMessage(ScanAccountsMsg);
   router.registerMessage(SetActiveAccountMsg);
-  router.registerMessage(SubmitBondMsg);
   router.registerMessage(SubmitIbcTransferMsg);
-  router.registerMessage(SubmitUnbondMsg);
   router.registerMessage(TransferCompletedEvent);
   router.registerMessage(UnlockKeyRingMsg);
   router.registerMessage(DeleteAccountMsg);

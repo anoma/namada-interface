@@ -44,9 +44,9 @@ const toMyValidators = (
     index == -1
       ? (arr: MyValidators[]) => arr
       : (arr: MyValidators[], idx: number) => [
-          ...arr.slice(0, idx),
-          ...arr.slice(idx + 1),
-        ];
+        ...arr.slice(0, idx),
+        ...arr.slice(idx + 1),
+      ];
 
   const stakedAmount = new BigNumber(stake)
     .plus(new BigNumber(v?.stakedAmount || 0))
@@ -159,20 +159,30 @@ export const postNewBonding = createAsyncThunk<
   { state: RootState }
 >(POST_NEW_STAKING, async (change, thunkApi) => {
   const { chainId } = thunkApi.getState().settings;
+  const { derived } = thunkApi.getState().accounts;
   const integration = getIntegration(chainId);
   const signer = integration.signer() as Signer;
-  await signer.submitBond({
-    source: change.owner,
-    validator: change.validatorId,
-    amount: new BigNumber(change.amount),
-    nativeToken: Tokens.NAM.address || "",
-    tx: {
-      token: Tokens.NAM.address || "",
-      feeAmount: new BigNumber(0),
-      gasLimit: new BigNumber(0),
-      chainId,
+  const { owner, validatorId, amount } = change;
+  const account = derived[chainId][owner];
+  const { type, publicKey } = account.details;
+
+  await signer.submitBond(
+    {
+      source: owner,
+      validator: validatorId,
+      amount: new BigNumber(amount),
+      nativeToken: Tokens.NAM.address || "",
+      tx: {
+        token: Tokens.NAM.address || "",
+        feeAmount: new BigNumber(0),
+        gasLimit: new BigNumber(0),
+        chainId,
+        publicKey,
+      },
     },
-  });
+    type,
+    publicKey
+  );
 });
 
 // we post an unstake transaction

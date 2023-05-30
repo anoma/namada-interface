@@ -1,3 +1,4 @@
+import { StoredRecord } from "@namada/storage";
 import { AccountType, Bip44Path, DerivedAccount } from "@namada/types";
 
 export enum KdfType {
@@ -34,19 +35,22 @@ export type CryptoRecord<T = Argon2Params> = {
   };
 };
 
-export interface KeyStore<T = Argon2Params> {
-  id: string;
+export interface AccountStore extends StoredRecord {
   alias: string;
   address: string;
   owner: string;
   chainId: string;
+  publicKey?: string;
+  path: Bip44Path;
+  parentId?: string;
+  type: AccountType;
+}
+
+export interface KeyStore<T = Argon2Params> extends AccountStore {
   crypto: CryptoRecord<T>;
   meta?: {
     [key: string]: string;
   };
-  path: Bip44Path;
-  parentId?: string;
-  type: AccountType;
 }
 
 export type AccountState = DerivedAccount & {
@@ -67,12 +71,19 @@ export type TabStore = {
   timestamp: number;
 };
 
-export type UtilityStore = string | { [id: string]: CryptoRecord };
-
 export enum ResetPasswordError {
   BadPassword,
   KeyStoreError,
 }
+
+export type ParentAccount = AccountType.Mnemonic | AccountType.Ledger;
+
+export type ActiveAccountStore = {
+  id: string;
+  type: ParentAccount;
+};
+
+export type UtilityStore = ActiveAccountStore | { [id: string]: CryptoRecord };
 
 export enum DeleteAccountError {
   BadPassword,

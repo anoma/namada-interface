@@ -4,6 +4,7 @@ import BigNumber from "bignumber.js";
 
 import {
   AccountMsgValue,
+  AccountType,
   IbcTransferMsgValue,
   IbcTransferProps,
   Message,
@@ -16,7 +17,7 @@ import {
 import { KVKeys } from "router";
 import { init, KVStoreMock } from "test/init";
 import { chains as defaultChains } from "@namada/chains";
-import { chain, keyStore, password, ACTIVE_ACCOUNT_ID } from "./data.mock";
+import { chain, keyStore, password, ACTIVE_ACCOUNT } from "./data.mock";
 import {
   KeyRing,
   KeyRingService,
@@ -68,9 +69,9 @@ describe("Namada", () => {
 
   it("should return all accounts", async () => {
     iDBStore.set(KEYSTORE_KEY, keyStore);
-    utilityStore.set(PARENT_ACCOUNT_ID_KEY, ACTIVE_ACCOUNT_ID);
+    utilityStore.set(PARENT_ACCOUNT_ID_KEY, ACTIVE_ACCOUNT);
     const storedKeyStore = keyStore.map(
-      ({ crypto: _crypto, owner: _owner, ...account }) => account
+      ({ crypto: _crypto, ...account }) => account
     );
     const storedAccounts = await namada.accounts(chain.chainId);
 
@@ -108,7 +109,10 @@ describe("Namada", () => {
     const serializedTransfer = transferMessage.encode(transferMsgValue);
 
     jest.spyOn(keyRingService, "submitTransfer");
-    namada.submitTransfer(toBase64(serializedTransfer));
+    namada.submitTransfer({
+      txMsg: toBase64(serializedTransfer),
+      type: AccountType.PrivateKey,
+    });
 
     expect(keyRingService.submitTransfer).toBeCalled();
   });

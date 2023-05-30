@@ -1,11 +1,13 @@
 use masp_primitives::{transaction::components::Amount, zip32::ExtendedFullViewingKey};
 use namada::ledger::masp::ShieldedContext;
 use namada::ledger::queries::RPC;
-use namada::ledger::rpc::get_token_balance;
-use namada::types::address::Address;
-use namada::types::masp::ExtendedViewingKey;
-use namada::types::token::{self, TokenAddress};
-use namada::types::uint::I256;
+use namada::ledger::rpc::{get_public_key, get_token_balance};
+use namada::types::{
+    address::Address,
+    masp::ExtendedViewingKey,
+    token::{self, TokenAddress},
+    uint::I256,
+};
 use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 use wasm_bindgen::prelude::*;
@@ -209,6 +211,18 @@ impl Query {
             .into_iter()
             .map(|(addr, amount)| (addr, amount.to_string_native()))
             .collect();
+
+        to_js_result(result)
+    }
+
+    pub async fn query_public_key(&self, address: &str) -> Result<JsValue, JsError> {
+        let addr = Address::from_str(address).map_err(JsError::from)?;
+        let pk = get_public_key(&self.client, &addr).await;
+
+        let result = match pk {
+            Some(v) => Some(v.to_string()),
+            None => None,
+        };
 
         to_js_result(result)
     }

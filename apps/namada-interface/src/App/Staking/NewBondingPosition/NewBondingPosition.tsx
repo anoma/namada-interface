@@ -68,8 +68,11 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
   const currentBondingPosition = currentBondingPositions.find(
     (pos) => pos.owner === currentAccount?.details.address
   );
-  const stakedAmount: BigNumber = new BigNumber(currentBondingPosition?.stakedAmount || "0");
-  const currentNAMBalance: BigNumber = currentAccount.balance["NAM"] || new BigNumber(0);
+  const stakedAmount: BigNumber = new BigNumber(
+    currentBondingPosition?.stakedAmount || "0"
+  );
+  const currentNAMBalance: BigNumber =
+    currentAccount.balance["NAM"] || new BigNumber(0);
 
   const handleAddressChange = (
     e: React.ChangeEvent<HTMLSelectElement>

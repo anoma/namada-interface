@@ -8,7 +8,7 @@ type TimeoutOpts = {
   error?: string;
 };
 
-const DEFAULT_TIMEOUT = 5000;
+const DEFAULT_TIMEOUT = 60000;
 
 const DEFAULT_OPTS: TimeoutOpts = {
   timeout: DEFAULT_TIMEOUT,
@@ -23,19 +23,19 @@ const promiseWithTimeout =
     fn: (...args: U) => Promise<T>,
     opts?: TimeoutOpts
   ) =>
-  (...args: U): Promise<T> => {
-    const { timeout, error } = { ...DEFAULT_OPTS, ...opts };
+    (...args: U): Promise<T> => {
+      const { timeout, error } = { ...DEFAULT_OPTS, ...opts };
 
-    return new Promise(async (resolve, reject) => {
-      const t = setTimeout(() => {
-        reject(error);
-      }, timeout);
+      return new Promise(async (resolve, reject) => {
+        const t = setTimeout(() => {
+          reject(error);
+        }, timeout);
 
-      const res = await fn(...args);
-      clearTimeout(t);
-      resolve(res);
-    });
-  };
+        const res = await fn(...args);
+        clearTimeout(t);
+        resolve(res);
+      });
+    };
 
 export class Query extends RustQuery {
   query_balance = promiseWithTimeout(super.query_balance.bind(this), {
