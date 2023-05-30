@@ -52,8 +52,11 @@ export class SubmitApprovedTransferMsg extends Message<void> {
       throw new Error("address must not be empty!");
     }
     if (!this.password) {
-      throw new Error("Password is required to submitTx!");
+      throw new Error(
+        "Password is required to submitTx for this type of account!"
+      );
     }
+
     return;
   }
 

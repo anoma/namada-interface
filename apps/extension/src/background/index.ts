@@ -26,7 +26,9 @@ import {
   SDK_KEY,
   PARENT_ACCOUNT_ID_KEY,
   UtilityStore,
+  ActiveAccountStore,
 } from "./keyring";
+import { LedgerService, init as initLedger } from "./ledger";
 
 const store = new IndexedDBKVStore(KVPrefix.IndexedDB);
 
@@ -72,10 +74,12 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
   const sdkData: Record<string, string> | undefined = await sdkStore.get(
     SDK_KEY
   );
-  const activeAccount = await utilityStore.get<string>(PARENT_ACCOUNT_ID_KEY);
+  const activeAccount = await utilityStore.get<ActiveAccountStore>(
+    PARENT_ACCOUNT_ID_KEY
+  );
 
   if (sdkData && activeAccount) {
-    const data = new TextEncoder().encode(sdkData[activeAccount]);
+    const data = new TextEncoder().encode(sdkData[activeAccount.id]);
     sdk.decode(data);
   }
 
@@ -92,18 +96,26 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
     cryptoMemory,
     requester
   );
+  const ledgerService = new LedgerService(
+    keyRingService,
+    store,
+    connectedTabsStore,
+    txStore,
+    defaultChainId,
+    sdk
+  );
   const approvalsService = new ApprovalsService(
     txStore,
     connectedTabsStore,
     keyRingService,
-    defaultChainId,
-    requester
+    ledgerService
   );
 
   // Initialize messages and handlers
   initApprovals(router, approvalsService);
   initChains(router, chainsService);
   initKeyRing(router, keyRingService);
+  initLedger(router, ledgerService);
 
   router.listen(Ports.Background);
 })();

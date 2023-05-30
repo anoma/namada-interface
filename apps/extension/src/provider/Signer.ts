@@ -25,14 +25,16 @@ export class Signer implements ISigner {
   constructor(
     protected readonly chainId: string,
     private readonly _anoma: Anoma
-  ) {}
+  ) { }
 
   public async accounts(): Promise<Account[] | undefined> {
     return (await this._anoma.accounts(this.chainId))?.map(
-      ({ alias, address, chainId, type }) => ({
+      ({ alias, address, chainId, type, publicKey }) => ({
         alias,
         address,
         chainId,
+        type,
+        publicKey,
         isShielded: type === AccountType.ShieldedKeys,
       })
     );
@@ -65,15 +67,22 @@ export class Signer implements ISigner {
   /**
    * Submit a transfer
    */
-  public async submitTransfer(args: TransferProps): Promise<void> {
+  public async submitTransfer(
+    args: TransferProps,
+    type: AccountType
+  ): Promise<void> {
     const transferMsgValue = new TransferMsgValue(args);
     const transferMessage = new Message<TransferMsgValue>();
+
     const serializedTransfer = transferMessage.encode(
       SubmitTransferMsgSchema,
       transferMsgValue
     );
 
-    return await this._anoma.submitTransfer(toBase64(serializedTransfer));
+    return await this._anoma.submitTransfer({
+      txMsg: toBase64(serializedTransfer),
+      type,
+    });
   }
 
   /**

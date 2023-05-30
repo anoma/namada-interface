@@ -155,19 +155,23 @@ export const submitTransferTransaction = createAsyncThunk<
     const integration = getIntegration(chainId);
     const signer = integration.signer() as Signer;
 
-    await signer.submitTransfer({
-      tx: {
+    await signer.submitTransfer(
+      {
+        tx: {
+          token: Tokens.NAM.address || "",
+          feeAmount: new BigNumber(0),
+          gasLimit: new BigNumber(0),
+          chainId,
+          publicKey: txTransferArgs.account.publicKey,
+        },
+        source: txTransferArgs.account.address,
+        target: txTransferArgs.target,
         token: Tokens.NAM.address || "",
-        feeAmount: new BigNumber(0),
-        gasLimit: new BigNumber(0),
-        chainId,
+        amount: txTransferArgs.amount,
+        nativeToken: Tokens.NAM.address || "",
       },
-      source: txTransferArgs.account.address,
-      target: txTransferArgs.target,
-      token: Tokens.NAM.address || "",
-      amount: txTransferArgs.amount,
-      nativeToken: Tokens.NAM.address || "",
-    });
+      txTransferArgs.account.type
+    );
   }
 );
 

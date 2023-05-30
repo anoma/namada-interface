@@ -1,4 +1,4 @@
-import { DerivedAccount } from "./account";
+import { AccountType, DerivedAccount } from "./account";
 import { Chain } from "./chain";
 import { Signer } from "./signer";
 
@@ -13,7 +13,10 @@ export interface Anoma {
   chains: () => Promise<Chain[] | undefined>;
   submitBond: (txMsg: string) => Promise<void>;
   submitUnbond: (txMsg: string) => Promise<void>;
-  submitTransfer: (txMsg: string) => Promise<void>;
+  submitTransfer: (props: {
+    txMsg: string;
+    type: AccountType;
+  }) => Promise<void>;
   submitIbcTransfer: (txMsg: string) => Promise<void>;
   encodeInitAccount: (props: {
     txMsg: string;

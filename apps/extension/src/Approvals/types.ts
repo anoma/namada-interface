@@ -3,4 +3,5 @@ export enum TopLevelRoute {
   ApproveConnection = "/connection",
   ApproveTx = "/tx",
   ConfirmTx = "/confirm",
+  ConfirmLedgerTx = "/confirm-ledger",
 }

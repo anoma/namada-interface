@@ -12,18 +12,25 @@ export enum AccountType {
   PrivateKey = "private-key",
   // Stored, stringified spending and viewing keys
   ShieldedKeys = "shielded-keys",
+  // Ledger account
+  Ledger = "ledger",
 }
 
 export type DerivedAccount = {
   id: string;
   chainId: string;
   address: string;
+  owner?: string;
+  publicKey?: string;
   alias: string;
   parentId?: string;
   path: Bip44Path;
   type: AccountType;
 };
 
-export type Account = Pick<DerivedAccount, "address" | "alias" | "chainId"> & {
+export type Account = Pick<
+  DerivedAccount,
+  "address" | "alias" | "chainId" | "type" | "publicKey"
+> & {
   isShielded: boolean;
 };

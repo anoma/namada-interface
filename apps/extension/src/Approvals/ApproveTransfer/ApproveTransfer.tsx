@@ -3,7 +3,7 @@ import { useEffect } from "react";
 
 import { Button, ButtonVariant } from "@anoma/components";
 import { shortenAddress } from "@anoma/utils";
-import { Tokens } from "@anoma/types";
+import { AccountType, Tokens } from "@anoma/types";
 
 import { useQuery } from "hooks";
 import { Address } from "App/Accounts/AccountListing.components";
@@ -28,6 +28,7 @@ export const ApproveTransfer: React.FC<Props> = ({ setAddress, setMsgId }) => {
 
   const query = useQuery();
   // TODO: Get current parent account alias to display to user
+  const type = query.get("type") || "";
   const id = query.get("id") || "";
   const amount = query.get("amount") || "";
   const source = query.get("source") || "";
@@ -45,6 +46,9 @@ export const ApproveTransfer: React.FC<Props> = ({ setAddress, setMsgId }) => {
 
   const handleApproveClick = (): void => {
     setMsgId(id);
+    if (type === AccountType.Ledger) {
+      return navigate(`${TopLevelRoute.ConfirmLedgerTx}`);
+    }
     navigate(TopLevelRoute.ConfirmTx);
   };
 
@@ -64,7 +68,6 @@ export const ApproveTransfer: React.FC<Props> = ({ setAddress, setMsgId }) => {
   return (
     <ApprovalContainer>
       <p>Approve this Transaction?</p>
-      <p>ID: {id}</p>
       <p>Target:&nbsp;</p>
       <Address>{shortenAddress(target)}</Address>
       <p>Source:&nbsp;</p>

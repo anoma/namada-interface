@@ -56,6 +56,7 @@ export const ConfirmTransfer: React.FC<Props> = ({ msgId, address }) => {
         Ports.Background,
         new SubmitApprovedTransferMsg(msgId, address, password)
       );
+      setStatus(Status.Completed);
     } catch (e) {
       setError("Unable to authenticate Tx!");
       setStatus(Status.Failed);

@@ -14,6 +14,7 @@ import {
 import { ApproveTransfer, ConfirmTransfer } from "./ApproveTransfer";
 import { ApproveConnection } from "./ApproveConnection";
 import { TopLevelRoute } from "Approvals/types";
+import { ConfirmLedgerTransfer } from "./ApproveTransfer/ConfirmLedgerTransfer";
 
 export enum Status {
   Completed,
@@ -45,6 +46,11 @@ export const Approvals: React.FC = () => {
               path={TopLevelRoute.ConfirmTx}
               element={<ConfirmTransfer msgId={msgId} address={address} />}
             />
+            <Route
+              path={TopLevelRoute.ConfirmLedgerTx}
+              element={<ConfirmLedgerTransfer msgId={msgId} />}
+            />
+
             <Route
               path={TopLevelRoute.ApproveConnection}
               element={<ApproveConnection />}

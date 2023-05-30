@@ -1,4 +1,9 @@
-import { Anoma as IAnoma, Chain, DerivedAccount } from "@anoma/types";
+import {
+  AccountType,
+  Anoma as IAnoma,
+  Chain,
+  DerivedAccount,
+} from "@anoma/types";
 import { Ports, MessageRequester } from "router";
 
 import {
@@ -97,10 +102,14 @@ export class Anoma implements IAnoma {
     );
   }
 
-  public async submitTransfer(txMsg: string): Promise<void> {
+  public async submitTransfer(props: {
+    txMsg: string;
+    type?: AccountType;
+  }): Promise<void> {
+    const { txMsg, type } = props;
     return await this.requester?.sendMessage(
       Ports.Background,
-      new ApproveTransferMsg(txMsg)
+      new ApproveTransferMsg(txMsg, type)
     );
   }
 

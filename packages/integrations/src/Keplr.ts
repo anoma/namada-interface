@@ -12,7 +12,13 @@ import {
 import { Coin } from "@cosmjs/launchpad";
 import Long from "long";
 
-import { Account, Chain, CosmosTokens, TokenBalance } from "@anoma/types";
+import {
+  Account,
+  AccountType,
+  Chain,
+  CosmosTokens,
+  TokenBalance,
+} from "@anoma/types";
 import { shortenAddress } from "@anoma/utils";
 import { BridgeProps, Integration } from "./types/Integration";
 
@@ -35,7 +41,7 @@ class Keplr implements Integration<Account, OfflineSigner> {
    * override keplr instance for testing
    * @param chain
    */
-  constructor(public readonly chain: Chain) {}
+  constructor(public readonly chain: Chain) { }
 
   private init(): void {
     if (!this._keplr) {
@@ -116,6 +122,7 @@ class Keplr implements Integration<Account, OfflineSigner> {
           alias: shortenAddress(account.address, 16),
           chainId: this.chain.chainId,
           address: account.address,
+          type: AccountType.PrivateKey,
           isShielded: false,
         })
       );

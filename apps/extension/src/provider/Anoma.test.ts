@@ -14,12 +14,13 @@ import {
   TransferProps,
   Chain,
   Anoma,
+  AccountType,
 } from "@anoma/types";
 
 import { KVKeys } from "router";
 import { init, KVStoreMock } from "test/init";
 import { chains as defaultChains } from "@anoma/chains";
-import { chain, keyStore, password, ACTIVE_ACCOUNT_ID } from "./data.mock";
+import { chain, keyStore, password, ACTIVE_ACCOUNT } from "./data.mock";
 import {
   KeyRing,
   KeyRingService,
@@ -71,9 +72,9 @@ describe("Anoma", () => {
 
   it("should return all accounts", async () => {
     iDBStore.set(KEYSTORE_KEY, keyStore);
-    utilityStore.set(PARENT_ACCOUNT_ID_KEY, ACTIVE_ACCOUNT_ID);
+    utilityStore.set(PARENT_ACCOUNT_ID_KEY, ACTIVE_ACCOUNT);
     const storedKeyStore = keyStore.map(
-      ({ crypto: _crypto, owner: _owner, ...account }) => account
+      ({ crypto: _crypto, ...account }) => account
     );
     const storedAccounts = await anoma.accounts(chain.chainId);
 
@@ -114,7 +115,10 @@ describe("Anoma", () => {
     );
 
     jest.spyOn(keyRingService, "submitTransfer");
-    anoma.submitTransfer(toBase64(serializedTransfer));
+    anoma.submitTransfer({
+      txMsg: toBase64(serializedTransfer),
+      type: AccountType.PrivateKey,
+    });
 
     expect(keyRingService.submitTransfer).toBeCalled();
   });

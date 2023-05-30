@@ -1,20 +1,23 @@
+import { chains } from "@anoma/chains";
+import { Query, Sdk } from "@anoma/shared";
 import { KVStore } from "@anoma/storage";
+import { Chain } from "@anoma/types";
 
 import {
   ExtensionRouter,
   ExtensionMessengerMock,
   ExtensionRequester,
   getAnomaRouterId,
-} from "../extension";
-import { Ports, KVPrefix } from "../router";
-import { chains } from "@anoma/chains";
-import { ChainsService, init as initChains } from "../background/chains";
+} from "extension";
+import { Ports, KVPrefix } from "router";
+import { ChainsService, init as initChains } from "background/chains";
 import {
   KeyRingService,
   init as initKeyRing,
   KeyStore,
   TabStore,
   UtilityStore,
+  AccountStore,
 } from "../background/keyring";
 
 import {
@@ -23,8 +26,7 @@ import {
 } from "../background/approvals";
 
 import { Anoma } from "provider";
-import { Chain } from "@anoma/types";
-import { Query, Sdk } from "@anoma/shared";
+import { LedgerService } from "background/ledger";
 
 // __wasm is not exported in crypto.d.ts so need to use require instead of import
 /* eslint-disable @typescript-eslint/no-var-requires */
@@ -102,12 +104,21 @@ export const init = async (): Promise<{
     cryptoMemory,
     requester
   );
+
+  const ledgerService = new LedgerService(
+    keyRingService,
+    iDBStore as KVStore<AccountStore[]>,
+    connectedTabsStore,
+    txStore,
+    chainId,
+    sdk
+  );
+
   const approvalsService = new ApprovalsService(
     txStore,
     connectedTabsStore,
     keyRingService,
-    chainId,
-    requester
+    ledgerService
   );
 
   // Initialize messages and handlers

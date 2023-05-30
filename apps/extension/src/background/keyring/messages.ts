@@ -2,7 +2,12 @@ import { PhraseSize } from "@anoma/crypto";
 import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
 import { Message } from "router";
 import { ROUTE } from "./constants";
-import { KeyRingStatus, ResetPasswordError, DeleteAccountError } from "./types";
+import {
+  KeyRingStatus,
+  ResetPasswordError,
+  DeleteAccountError,
+  ParentAccount,
+} from "./types";
 import { Result } from "@anoma/utils";
 
 enum MessageType {
@@ -237,7 +242,7 @@ export class ScanAccountsMsg extends Message<void> {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  validate(): void {}
+  validate(): void { }
 
   route(): string {
     return ROUTE;
@@ -294,13 +299,20 @@ export class SetActiveAccountMsg extends Message<void> {
     return MessageType.SetActiveAccount;
   }
 
-  constructor(public readonly accountId: string) {
+  constructor(
+    public readonly accountId: string,
+    public readonly accountType: ParentAccount
+  ) {
     super();
   }
 
   validate(): void {
     if (!this.accountId) {
       throw new Error("Account ID is not set!");
+    }
+
+    if (!this.accountType) {
+      throw new Error("Account Type is required!");
     }
   }
 
@@ -313,7 +325,9 @@ export class SetActiveAccountMsg extends Message<void> {
   }
 }
 
-export class GetActiveAccountMsg extends Message<string | undefined> {
+export class GetActiveAccountMsg extends Message<
+  { id: string; type: ParentAccount } | undefined
+> {
   public static type(): MessageType {
     return MessageType.GetActiveAccount;
   }

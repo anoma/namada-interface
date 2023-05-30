@@ -1,8 +1,12 @@
 import { JsonRpcRequest } from "@cosmjs/json-rpc";
 import { DateTime } from "luxon";
-import { JsonCompatibleArray, JsonCompatibleDictionary } from "@anoma/types";
 import BigNumber from "bignumber.js";
 import BN from "bn.js";
+import {
+  Bip44Path,
+  JsonCompatibleArray,
+  JsonCompatibleDictionary,
+} from "@anoma/types";
 
 const MICRO_FACTOR = 1000000; // 1,000,000
 
@@ -174,14 +178,13 @@ export const Result = {
   },
 };
 
-
 // Translates Borsh type to JS type
 type FromBorsh<T> =
   T extends "u8" | "u16" | "u32" ? number :
   T extends "u64" | "u128" | "u256" | "u512" ? BN :
   T extends "string" ? string :
   T extends { kind: "option", type: infer S } ? FromBorsh<S> :
-  T extends new(...args: infer _) => infer Res ? Res :
+  T extends new (...args: infer _) => infer Res ? Res :
   T extends readonly unknown[] ? Uint8Array :
   unknown;
 
@@ -229,14 +232,41 @@ type Value<T> =
  */
 export type SchemaObject<T> =
   T extends readonly [unknown, { kind: "struct", fields: infer Fields }] ?
-    Fields extends readonly (infer FieldEntry extends (readonly [string, unknown]))[] ?
-      {
-        // optional types need special handling to add the '?' suffix to their keys
-        [KV in FieldEntry as Value<KV> extends { kind: "option" } ? Key<KV> : never]?:
-          Value<KV> extends { type: infer S } ? FromBorsh<S> : unknown;
-      } & {
-        [KV in FieldEntry as Value<KV> extends { kind: "option" } ? never : Key<KV>]:
-          FromBorsh<Value<KV>>;
-      } :
-      never :
-    never;
+  Fields extends readonly (infer FieldEntry extends (readonly [string, unknown]))[] ?
+  {
+    // optional types need special handling to add the '?' suffix to their keys
+    [KV in FieldEntry as Value<KV> extends { kind: "option" } ? Key<KV> : never]?:
+    Value<KV> extends { type: infer S } ? FromBorsh<S> : unknown;
+  } & {
+    [KV in FieldEntry as Value<KV> extends { kind: "option" } ? never : Key<KV>]:
+    FromBorsh<Value<KV>>;
+  } :
+  never :
+  never;
+
+/**
+ * Return a properly formatted BIP-044 path
+ *
+ * @param {number} coinType - SLIP-044 Coin designation
+ * @param {Bip44Path} bip44Path - path object
+ * @returns {string}
+ */
+export const makeBip44Path = (
+  coinType: number,
+  bip44Path: Bip44Path
+): string => {
+  const { account, change, index } = bip44Path;
+  const basePath = `m/44'/${coinType}'/${account}'/${change}`;
+
+  return typeof index === "number" ? `${basePath}/${index}` : basePath;
+};
+
+/**
+ * Pick object parameters
+ */
+export function pick<T, K extends keyof T>(obj: T, ...keys: K[]): Pick<T, K> {
+  return keys.reduce((acc, val) => {
+    return (acc[val] = obj[val]), acc;
+  }, {} as Pick<T, K>);
+}
+

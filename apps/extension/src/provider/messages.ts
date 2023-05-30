@@ -1,4 +1,4 @@
-import { Chain, DerivedAccount } from "@anoma/types";
+import { AccountType, Chain, DerivedAccount } from "@anoma/types";
 import { Message } from "router";
 
 /**
@@ -19,6 +19,7 @@ enum MessageType {
   ApproveTransfer = "approve-tx",
   QueryBalances = "query-balances",
   SubmitIbcTransfer = "submit-ibc-transfer",
+  SubmitLedgerTransfer = "submit-ledger-transfer",
   EncodeInitAccount = "encode-init-account",
   EncodeRevealPublicKey = "encode-reveal-public-key",
   GetChain = "get-chain",
@@ -313,7 +314,10 @@ export class ApproveTransferMsg extends Message<void> {
     return MessageType.ApproveTransfer;
   }
 
-  constructor(public readonly txMsg: string) {
+  constructor(
+    public readonly txMsg: string,
+    public readonly accountType?: AccountType
+  ) {
     super();
   }
 

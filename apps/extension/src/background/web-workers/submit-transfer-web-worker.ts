@@ -10,6 +10,7 @@ import {
   TRANSFER_FAILED_MSG,
   TRANSFER_SUCCESSFUL_MSG,
 } from "./types";
+import { ActiveAccountStore } from "background/keyring";
 
 (async function init() {
   await initShared();
@@ -22,10 +23,12 @@ import {
   const sdkData: Record<string, string> | undefined = await sdkStore.get(
     "sdk-store"
   );
-  const activeAccount = await utilityStore.get<string>("parent-account-id");
+  const activeAccount = await utilityStore.get<ActiveAccountStore>(
+    "parent-account-id"
+  );
 
   if (sdkData && activeAccount) {
-    const data = new TextEncoder().encode(sdkData[activeAccount]);
+    const data = new TextEncoder().encode(sdkData[activeAccount.id]);
     sdk.decode(data);
   }
 

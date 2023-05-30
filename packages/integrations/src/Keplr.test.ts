@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { mock } from "jest-mock-extended";
 
-import { Chain } from "@anoma/types";
+import { AccountType, Chain } from "@anoma/types";
 import { Key, Keplr as IKeplr } from "@keplr-wallet/types";
 
 import Keplr from "./Keplr";
@@ -131,6 +131,7 @@ describe("Keplr class", () => {
         alias: `${a}...${a}`,
         chainId: mockChain.chainId,
         address: a,
+        type: AccountType.PrivateKey,
         isShielded: false,
       }))
     );

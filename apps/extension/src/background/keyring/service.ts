@@ -1,19 +1,22 @@
 import { fromBase64, toBase64 } from "@cosmjs/encoding";
 
 import { PhraseSize } from "@anoma/crypto";
-import { KVStore } from "@anoma/storage";
+import { KVStore, Store } from "@anoma/storage";
 import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
 import { Query, Sdk } from "@anoma/shared";
 import { Result } from "@anoma/utils";
 
-import { KeyRing } from "./keyring";
+import { KeyRing, KEYSTORE_KEY } from "./keyring";
 import {
+  AccountStore,
   KeyRingStatus,
   KeyStore,
   TabStore,
   ResetPasswordError,
   DeleteAccountError,
   UtilityStore,
+  ParentAccount,
+  ActiveAccountStore,
 } from "./types";
 import { syncTabs, updateTabStorage } from "./utils";
 import { ExtensionRequester, getAnomaRouterId } from "extension";
@@ -31,9 +34,13 @@ import {
   SUBMIT_TRANSFER_MSG_TYPE,
 } from "background/offscreen";
 import { init as initSubmitTransferWebWorker } from "background/web-workers";
+import { LEDGERSTORE_KEY } from "background/ledger";
+import { getAccountValuesFromStore } from "utils";
 
 export class KeyRingService {
   private _keyRing: KeyRing;
+  private _keyRingStore: Store<AccountStore>;
+  private _ledgerStore: Store<AccountStore>;
 
   constructor(
     protected readonly kvStore: KVStore<KeyStore[]>,
@@ -57,6 +64,8 @@ export class KeyRingService {
       query,
       cryptoMemory
     );
+    this._ledgerStore = new Store(LEDGERSTORE_KEY, kvStore);
+    this._keyRingStore = new Store(KEYSTORE_KEY, kvStore);
   }
 
   lock(): { status: KeyRingStatus } {
@@ -146,11 +155,36 @@ export class KeyRingService {
   }
 
   async queryAccounts(): Promise<DerivedAccount[]> {
-    return await this._keyRing.queryAccounts();
+    const { id, type } = (await this.getActiveAccount()) || {};
+
+    if (type !== AccountType.Ledger && id) {
+      // Query KeyRing accounts
+      return await this._keyRing.queryAccounts(id);
+    }
+
+    // Query Ledger accounts
+    const parent = await this._ledgerStore.getRecord("id", id);
+
+    if (parent) {
+      const accounts = [
+        parent,
+        ...((await this._ledgerStore.getRecords("parentId", id)) || []),
+      ];
+
+      return getAccountValuesFromStore(accounts);
+    }
+
+    throw new Error(`No accounts found for ${id} ${type}`);
   }
 
   async queryParentAccounts(): Promise<DerivedAccount[]> {
-    return await this._keyRing.queryParentAccounts();
+    const ledgerAccounts =
+      (await this._ledgerStore.getRecords("parentId", undefined)) || [];
+
+    return [
+      ...(await this._keyRing.queryParentAccounts()),
+      ...getAccountValuesFromStore(ledgerAccounts),
+    ];
   }
 
   async submitBond(txMsg: string): Promise<void> {
@@ -283,14 +317,13 @@ export class KeyRingService {
     return toBase64(tx_data);
   }
 
-  async setActiveAccountId(accountId: string): Promise<void> {
-    await this._keyRing.setActiveAccountId(accountId);
-
+  async setActiveAccount(id: string, type: ParentAccount): Promise<void> {
+    await this._keyRing.setActiveAccount(id, type);
     await this.broadcastAccountsChanged();
   }
 
-  async getActiveAccountId(): Promise<string | undefined> {
-    return await this._keyRing.getActiveAccountId();
+  async getActiveAccount(): Promise<ActiveAccountStore | undefined> {
+    return await this._keyRing.getActiveAccount();
   }
 
   async handleTransferCompleted(
@@ -391,8 +424,20 @@ export class KeyRingService {
   }
 
   async queryBalances(
-    owner: string
+    address: string
   ): Promise<{ token: string; amount: string }[]> {
-    return this._keyRing.queryBalances(owner);
+    // Validate account
+    const account =
+      (await this._keyRingStore.getRecord("address", address)) ||
+      (await this._ledgerStore.getRecord("address", address));
+
+    if (!account) {
+      throw new Error("Account not found!");
+    }
+    return this._keyRing.queryBalances(account.owner);
+  }
+
+  async initSdkStore(activeAccountId: string): Promise<void> {
+    return await this._keyRing.initSdkStore(activeAccountId);
   }
 }

@@ -1,7 +1,7 @@
 import { type MetaMaskInpageProvider } from "@metamask/providers";
 import MetaMaskSDK from "@metamask/sdk";
 
-import { Account, Chain, TokenBalance } from "@anoma/types";
+import { Account, AccountType, Chain, TokenBalance } from "@anoma/types";
 import { shortenAddress } from "@anoma/utils";
 import { BridgeProps, Integration } from "./types/Integration";
 
@@ -15,7 +15,7 @@ type MetamaskWindow = Window &
 
 class Metamask implements Integration<Account, unknown> {
   private _ethereum: MetaMaskInpageProvider | undefined;
-  constructor(public readonly chain: Chain) {}
+  constructor(public readonly chain: Chain) { }
 
   private init(): void {
     if ((<MetamaskWindow>window).ethereum) {
@@ -48,6 +48,7 @@ class Metamask implements Integration<Account, unknown> {
       address,
       alias: shortenAddress(address, 16),
       chainId: this.chain.chainId,
+      type: AccountType.PrivateKey,
       isShielded: false,
     }));
 

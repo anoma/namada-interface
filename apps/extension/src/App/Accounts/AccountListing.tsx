@@ -29,6 +29,24 @@ const textToClipboard = (content: string): void => {
   navigator.clipboard.writeText(content);
 };
 
+const isChild = (type: AccountType, path: Bip44Path): boolean => {
+  // All PrivateKey accounts are child accounts
+  if (type === AccountType.PrivateKey) {
+    return true;
+  }
+
+  if (type === AccountType.Ledger) {
+    // If this is a Ledger account, a child account is any account
+    // with a path that isn't the default path (/0'/0/0). This is for display
+    // purposes only. If the sum of the path components is greater than
+    // zero, it is a child.
+    const { account, change, index = 0 } = path;
+    return account + change + index > 0;
+  }
+
+  return false;
+};
+
 const formatDerivationPath = (
   isChildAccount: boolean,
   { account, change, index = 0 }: Bip44Path,
@@ -36,14 +54,14 @@ const formatDerivationPath = (
 ): string =>
   isChildAccount
     ? `/${account}'/${
-        type === AccountType.PrivateKey ? `${change}/` : ""
+        type !== AccountType.Mnemonic ? `${change}/` : ""
       }${index}`
     : "";
 
 const AccountListing = ({ account, parentAlias }: Props): JSX.Element => {
   const { address, alias, path, type } = account;
   const navigate = useNavigate();
-  const isChildAccount = type !== AccountType.Mnemonic;
+  const isChildAccount = isChild(type, path);
 
   return (
     <AccountListingContainer>

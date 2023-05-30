@@ -11,10 +11,8 @@ import {
   Input,
   InputVariants,
 } from "@anoma/components";
-import { shortenAddress } from "@anoma/utils";
 
 import { initLedgerHIDTransport, Ledger as LedgerApp } from "background/ledger";
-import { ExtensionRequester } from "extension";
 import { LedgerError } from "./Ledger.components";
 import {
   TopSection,
@@ -24,31 +22,37 @@ import {
   SubViewContainer,
   UpperContentContainer,
   Header1,
-  BodyText,
   FormContainer,
 } from "Setup/Setup.components";
+import { TopLevelRoute } from "Setup/types";
 
-type Props = {
-  requester: ExtensionRequester;
-};
-
-const Ledger: React.FC<Props> = ({ requester: _ }) => {
+const Ledger: React.FC = () => {
   const navigate = useNavigate();
   const themeContext = useContext(ThemeContext);
 
   const [alias, setAlias] = useState("");
   const [error, setError] = useState<string>();
-  const [isConnected, setIsConnected] = useState(false);
-  const [publicKey, setPublicKey] = useState<string>();
-  const [appInfo, setAppInfo] = useState<{ name: string; version: string }>();
 
   const queryLedger = async (ledger: LedgerApp): Promise<void> => {
-    const pk = await ledger.getPublicKey();
-    const { appName, appVersion } = ledger.status();
+    try {
+      // Get address and public key for default account
+      const { address, publicKey } = await ledger.getAddressAndPublicKey();
+      navigate(
+        `/${TopLevelRoute.LedgerConfirmation}/${alias}/${address}/${publicKey}`
+      );
+    } catch (_) {
+      checkErrors(ledger);
+    }
+  };
 
-    setAppInfo({ name: appName, version: appVersion });
-    setPublicKey(pk);
-    setIsConnected(true);
+  const checkErrors = async (ledger: LedgerApp): Promise<void> => {
+    const errorMessage = await ledger.queryErrors();
+
+    if (errorMessage) {
+      await ledger.closeTransport();
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    }
   };
 
   /**
@@ -56,7 +60,8 @@ const Ledger: React.FC<Props> = ({ requester: _ }) => {
    */
   const handleConnectUSB = async (): Promise<void> => {
     try {
-      queryLedger(await LedgerApp.init());
+      const ledger = await LedgerApp.init();
+      queryLedger(ledger);
     } catch (e) {
       setError(`Failed to connect to Ledger: ${e}`);
     }
@@ -68,7 +73,8 @@ const Ledger: React.FC<Props> = ({ requester: _ }) => {
   const handleConnectHID = async (): Promise<void> => {
     try {
       const transport = await initLedgerHIDTransport();
-      queryLedger(await LedgerApp.init(transport));
+      const ledger = await LedgerApp.init(transport);
+      queryLedger(ledger);
     } catch (e) {
       setError(`Failed to connect to Ledger: ${e}`);
     }
@@ -94,51 +100,30 @@ const Ledger: React.FC<Props> = ({ requester: _ }) => {
       </UpperContentContainer>
 
       {error && <LedgerError>{error}</LedgerError>}
-      {/* TODO: Navigate to next step for adding this account to background service. The following is temporary: */}
-      {isConnected && (
-        <>
-          <BodyText>
-            Connection successful for <b>&quot;{alias}&quot;</b>!
-          </BodyText>
-          <BodyText>
-            Public key: {publicKey && shortenAddress(publicKey)}
-          </BodyText>
-          {appInfo && (
-            <>
-              <BodyText>Name: {appInfo.name}</BodyText>
-              <BodyText>Version: {appInfo.version}</BodyText>
-            </>
-          )}
-        </>
-      )}
-      {!isConnected && (
-        <>
-          <FormContainer>
-            <Input
-              label={"Alias"}
-              value={alias}
-              onChangeCallback={(e) => setAlias(e.target.value)}
-              variant={InputVariants.Text}
-            />
-          </FormContainer>
-          <ButtonsContainer>
-            <Button
-              onClick={() => handleConnectUSB()}
-              variant={ButtonVariant.Contained}
-              disabled={alias === ""}
-            >
-              Connect USB
-            </Button>
-            <Button
-              onClick={() => handleConnectHID()}
-              variant={ButtonVariant.Contained}
-              disabled={alias === ""}
-            >
-              Connect HID
-            </Button>
-          </ButtonsContainer>
-        </>
-      )}
+      <FormContainer>
+        <Input
+          label={"Alias"}
+          value={alias}
+          onChangeCallback={(e) => setAlias(e.target.value)}
+          variant={InputVariants.Text}
+        />
+      </FormContainer>
+      <ButtonsContainer>
+        <Button
+          onClick={() => handleConnectUSB()}
+          variant={ButtonVariant.Contained}
+          disabled={alias === ""}
+        >
+          Connect USB
+        </Button>
+        <Button
+          onClick={() => handleConnectHID()}
+          variant={ButtonVariant.Contained}
+          disabled={alias === ""}
+        >
+          Connect HID
+        </Button>
+      </ButtonsContainer>
     </SubViewContainer>
   );
 };

@@ -4,24 +4,26 @@ import { deserialize } from "borsh";
 import { v4 as uuid } from "uuid";
 import BigNumber from "bignumber.js";
 
-import { SubmitTransferMsgSchema, TransferMsgValue } from "@anoma/types";
+import {
+  AccountType,
+  SubmitTransferMsgSchema,
+  TransferMsgValue,
+} from "@anoma/types";
 import { KVStore } from "@anoma/storage";
 
-import { ExtensionRequester } from "extension";
-import { KeyRingService } from "background/keyring";
-import { TabStore } from "background/keyring";
+import { KeyRingService, TabStore } from "background/keyring";
+import { LedgerService } from "background/ledger";
 
 export class ApprovalsService {
   constructor(
     protected readonly txStore: KVStore<string>,
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
     protected readonly keyRingService: KeyRingService,
-    protected readonly chainId: string,
-    protected readonly requester: ExtensionRequester
+    protected readonly ledgerService: LedgerService
   ) {}
 
   // Deserialize transfer details and prompt user
-  async approveTransfer(txMsg: string): Promise<void> {
+  async approveTransfer(txMsg: string, type?: AccountType): Promise<void> {
     const txMsgBuffer = Buffer.from(fromBase64(txMsg));
     const id = uuid();
     this.txStore.set(id, txMsg);
@@ -36,7 +38,7 @@ export class ApprovalsService {
     const amount = new BigNumber(amountBN.toString());
     const url = `${browser.runtime.getURL(
       "approvals.html"
-    )}#/tx?id=${id}&source=${source}&target=${target}&token=${token}&amount=${amount}`;
+    )}#/tx?type=${type}&id=${id}&source=${source}&target=${target}&token=${token}&amount=${amount}`;
 
     browser.windows.create({
       url,
@@ -53,20 +55,21 @@ export class ApprovalsService {
     await this._clearPendingTx(msgId);
   }
 
-  // Authenticate keyring, submit approved transaction from storage
+  // Authenticate keyring and submit approved transaction from storage
   async submitTransfer(msgId: string, password: string): Promise<void> {
-    // TODO: Use executeUntil here:
     try {
       await this.keyRingService.unlock(password);
     } catch (e) {
       throw new Error(`${e}`);
     }
 
+    // Fetch pending tx
     const tx = await this.txStore.get(msgId);
 
+    // Validate account type
     if (tx) {
       await this.keyRingService.submitTransfer(tx, msgId);
-      // Clean up storage
+
       return await this._clearPendingTx(msgId);
     }
 

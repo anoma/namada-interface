@@ -1,4 +1,5 @@
 import {
+  AccountType,
   Anoma as IAnoma,
   Chain,
   DerivedAccount,
@@ -8,7 +9,7 @@ import { InjectedProxy } from "./InjectedProxy";
 import { Signer } from "./Signer";
 
 export class InjectedAnoma implements IAnoma {
-  constructor(private readonly _version: string) {}
+  constructor(private readonly _version: string) { }
 
   public async connect(chainId: string): Promise<void> {
     return await InjectedProxy.requestMethod<string, void>("connect", chainId);
@@ -60,11 +61,18 @@ export class InjectedAnoma implements IAnoma {
     );
   }
 
-  public async submitTransfer(txMsg: string): Promise<void> {
-    return await InjectedProxy.requestMethod<string, void>(
-      "submitTransfer",
-      txMsg
-    );
+  public async submitTransfer(props: {
+    txMsg: string;
+    type: AccountType;
+  }): Promise<void> {
+    const { txMsg, type } = props;
+    return await InjectedProxy.requestMethod<
+      { txMsg: string; type: AccountType },
+      void
+    >("submitTransfer", {
+      txMsg,
+      type,
+    });
   }
 
   public async submitIbcTransfer(txMsg: string): Promise<void> {

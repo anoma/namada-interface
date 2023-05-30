@@ -283,8 +283,8 @@ const handleSetActiveAccountMsg: (
   service: KeyRingService
 ) => InternalHandler<SetActiveAccountMsg> = (service) => {
   return async (_, msg) => {
-    const { accountId } = msg;
-    return await service.setActiveAccountId(accountId);
+    const { accountId, accountType } = msg;
+    return await service.setActiveAccount(accountId, accountType);
   };
 };
 
@@ -292,7 +292,7 @@ const handleGetActiveAccountMsg: (
   service: KeyRingService
 ) => InternalHandler<GetActiveAccountMsg> = (service) => {
   return async (_, _msg) => {
-    return await service.getActiveAccountId();
+    return await service.getActiveAccount();
   };
 };
 

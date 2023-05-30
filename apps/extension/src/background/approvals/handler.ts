@@ -24,8 +24,8 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
 const handleApproveTxMsg: (
   service: ApprovalsService
 ) => InternalHandler<ApproveTransferMsg> = (service) => {
-  return async (_, { txMsg }) => {
-    return await service.approveTransfer(txMsg);
+  return async (_, { txMsg, accountType }) => {
+    return await service.approveTransfer(txMsg, accountType);
   };
 };
 

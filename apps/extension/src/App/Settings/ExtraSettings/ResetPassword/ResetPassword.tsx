@@ -1,9 +1,6 @@
 import { useState } from "react";
-import {
-  Button,
-  ButtonVariant
-} from "@anoma/components";
-import zxcvbn, { ZXCVBNFeedback } from "zxcvbn";
+import { Button, ButtonVariant } from "@anoma/components";
+import zxcvbn from "zxcvbn";
 
 import {
   Input,
@@ -23,12 +20,12 @@ enum Status {
   Unsubmitted,
   Pending,
   Complete,
-  Failed
-};
+  Failed,
+}
 
 export type Props = {
-  accountId: string,
-  requester: ExtensionRequester
+  accountId: string;
+  requester: ExtensionRequester;
 };
 
 const ResetPassword: React.FC<Props> = ({ accountId, requester }) => {
@@ -42,8 +39,8 @@ const ResetPassword: React.FC<Props> = ({ accountId, requester }) => {
 
   const match = newPassword === confirmNewPassword;
   const { feedback } = zxcvbn(newPassword);
-  const hasFeedback = feedback.warning !== "" ||
-    feedback.suggestions.length > 0;
+  const hasFeedback =
+    feedback.warning !== "" || feedback.suggestions.length > 0;
 
   const shouldDisableSubmit =
     status === Status.Pending ||
@@ -52,7 +49,7 @@ const ResetPassword: React.FC<Props> = ({ accountId, requester }) => {
     !match ||
     (process.env.NODE_ENV !== "development" && hasFeedback);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (): Promise<void> => {
     setStatus(Status.Pending);
 
     const result = await requester.sendMessage<ResetPasswordMsg>(
@@ -87,7 +84,7 @@ const ResetPassword: React.FC<Props> = ({ accountId, requester }) => {
             <Input
               type="password"
               value={currentPassword}
-              onChange={e => setCurrentPassword(e.target.value)}
+              onChange={(e) => setCurrentPassword(e.target.value)}
             />
           </InputContainer>
 
@@ -96,16 +93,16 @@ const ResetPassword: React.FC<Props> = ({ accountId, requester }) => {
             <Input
               type="password"
               value={newPassword}
-              onChange={e => setNewPassword(e.target.value)}
+              onChange={(e) => setNewPassword(e.target.value)}
             />
 
             <InputFeedback className="warning">
               {feedback.warning}
             </InputFeedback>
 
-            {feedback.suggestions.map((suggestion, i) =>
+            {feedback.suggestions.map((suggestion, i) => (
               <InputFeedback key={i}>{suggestion}</InputFeedback>
-            )}
+            ))}
           </InputContainer>
 
           <InputContainer className="medium">
@@ -113,35 +110,27 @@ const ResetPassword: React.FC<Props> = ({ accountId, requester }) => {
             <Input
               type="password"
               value={confirmNewPassword}
-              onChange={e => setConfirmNewPassword(e.target.value)}
+              onChange={(e) => setConfirmNewPassword(e.target.value)}
             />
 
-            {!match && (
-              <InputFeedback>Passwords do not match</InputFeedback>
-            )}
+            {!match && <InputFeedback>Passwords do not match</InputFeedback>}
           </InputContainer>
 
-          {errorMessage && (
-            <ErrorFeedback>{errorMessage}</ErrorFeedback>
-          )}
+          {errorMessage && <ErrorFeedback>{errorMessage}</ErrorFeedback>}
 
           <Button
             variant={ButtonVariant.Contained}
             onClick={handleSubmit}
             disabled={shouldDisableSubmit}
           >
-            {status === Status.Pending ?
-              "Pending..." :
-              "Reset password"}
+            {status === Status.Pending ? "Pending..." : "Reset password"}
           </Button>
         </>
       )}
 
-      {status === Status.Complete && (
-        <p>Complete!</p>
-      )}
+      {status === Status.Complete && <p>Complete!</p>}
     </>
   );
-}
+};
 
 export default ResetPassword;

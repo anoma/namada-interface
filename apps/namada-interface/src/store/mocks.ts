@@ -1,5 +1,6 @@
 import BigNumber from "bignumber.js";
 
+import { AccountType } from "@anoma/types";
 import { RootState } from "./store";
 import { TransferType } from "slices/transfers";
 import { StakingOrUnstakingState } from "slices/StakingAndGovernance";
@@ -9,20 +10,21 @@ export const mockAppState: RootState = {
     derived: {
       "anoma-masp-1.5.32ccad5356012a7": {
         atest1v4ehgw36xqcyz3zrxsenzd3kxsunsvzzxymyywpkg4zrjv2pxepyyd3cgse5gwzxgsm5x3zrkf2pwp:
-          {
-            details: {
-              chainId: "anoma-masp-1.5.32ccad5356012a7",
-              alias: "Namada",
-              address:
-                "atest1v4ehgw36xqcyz3zrxsenzd3kxsunsvzzxymyywpkg4zrjv2pxepyyd3cgse5gwzxgsm5x3zrkf2pwp",
-              isShielded: false,
-            },
-            balance: {
-              NAM: new BigNumber(1000),
-              ATOM: new BigNumber(1000),
-              ETH: new BigNumber(1000),
-            },
+        {
+          details: {
+            chainId: "anoma-masp-1.5.32ccad5356012a7",
+            alias: "Namada",
+            address:
+              "atest1v4ehgw36xqcyz3zrxsenzd3kxsunsvzzxymyywpkg4zrjv2pxepyyd3cgse5gwzxgsm5x3zrkf2pwp",
+            type: AccountType.PrivateKey,
+            isShielded: false,
           },
+          balance: {
+            NAM: new BigNumber(1000),
+            ATOM: new BigNumber(1000),
+            ETH: new BigNumber(1000),
+          },
+        },
       },
       "anoma-test.1e670ba91369ec891fc": {
         "39UL18": {
@@ -31,6 +33,7 @@ export const mockAppState: RootState = {
             alias: "Namada",
             address:
               "atest1v4ehgw36xqcyz3zrxsenzd3kxsunsvzzxymyywpkg4zrjv2pxepyyd3cgse5gwzxgsm5x3zrkf2pwp",
+            type: AccountType.PrivateKey,
             isShielded: false,
           },
           balance: {
@@ -46,6 +49,7 @@ export const mockAppState: RootState = {
             chainId: "anoma-test.89060614ce340f4baae",
             alias: "Namada",
             address: "L1qDtV8TRwYLSHdMDW518hgRw9nWnRjFTenkcBYNJruyYoLjaj8F",
+            type: AccountType.PrivateKey,
             isShielded: false,
           },
 
