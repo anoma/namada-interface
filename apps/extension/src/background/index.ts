@@ -1,5 +1,9 @@
 import browser from "webextension-polyfill";
-import { ExtensionKVStore, IndexedDBKVStore } from "@anoma/storage";
+import {
+  ExtensionKVStore,
+  IndexedDBKVStore,
+  MemoryKVStore,
+} from "@anoma/storage";
 import { defaultChainId, chains } from "@anoma/chains";
 import { init as initCrypto } from "@anoma/crypto/src/init";
 import { init as initShared } from "@anoma/shared/src/init";
@@ -31,10 +35,8 @@ const connectedTabsStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
   get: browser.storage.local.get,
   set: browser.storage.local.set,
 });
-const txStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
-  get: browser.storage.local.get,
-  set: browser.storage.local.set,
-});
+
+const txStore = new MemoryKVStore(KVPrefix.Memory);
 
 const DEFAULT_URL =
   "https://d3brk13lbhxfdb.cloudfront.net/qc-testnet-5.1.025a61165acd05e";

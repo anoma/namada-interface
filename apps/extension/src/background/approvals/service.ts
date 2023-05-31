@@ -18,7 +18,7 @@ export class ApprovalsService {
     protected readonly keyRingService: KeyRingService,
     protected readonly chainId: string,
     protected readonly requester: ExtensionRequester
-  ) { }
+  ) {}
 
   // Deserialize transfer details and prompt user
   async approveTx(txMsg: string): Promise<void> {
