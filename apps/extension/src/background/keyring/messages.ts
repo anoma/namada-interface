@@ -2,7 +2,11 @@ import { PhraseSize } from "@anoma/crypto";
 import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
 import { Message } from "router";
 import { ROUTE } from "./constants";
-import { KeyRingStatus, ResetPasswordError } from "./types";
+import {
+  KeyRingStatus,
+  ResetPasswordError,
+  DeleteAccountError,
+} from "./types";
 import { Result } from "@anoma/utils";
 
 enum MessageType {
@@ -20,6 +24,7 @@ enum MessageType {
   SetActiveAccount = "set-active-account",
   UnlockKeyRing = "unlock-keyring",
   TransferCompletedEvent = "transfer-completed-event",
+  DeleteAccount = "delete-account",
 }
 
 export class CheckIsLockedMsg extends Message<boolean> {
@@ -353,5 +358,27 @@ export class TransferCompletedEvent extends Message<void> {
 
   type(): string {
     return TransferCompletedEvent.type();
+  }
+}
+
+export class DeleteAccountMsg extends Message<Result<null, DeleteAccountError>> {
+  public static type(): MessageType {
+    return MessageType.DeleteAccount;
+  }
+
+  constructor(public accountId: string, public password: string) {
+    super();
+  }
+
+  validate(): void {
+    return;
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return DeleteAccountMsg.type();
   }
 }

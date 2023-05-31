@@ -67,3 +67,8 @@ export enum ResetPasswordError {
   BadPassword,
   KeyStoreError
 };
+
+export enum DeleteAccountError {
+  BadPassword,
+  KeyStoreError
+};

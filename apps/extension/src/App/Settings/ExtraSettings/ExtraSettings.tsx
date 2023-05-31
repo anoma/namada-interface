@@ -3,6 +3,7 @@ import { ExtensionRequester } from "extension";
 
 import { Mode, ExtraSetting } from "./types";
 import { ResetPassword } from "./ResetPassword";
+import { DeleteAccount } from "./DeleteAccount";
 import {
   ExtraSettingsContainer,
   CloseLink
@@ -15,10 +16,12 @@ const ExtraSettings: React.FC<{
   extraSetting: ExtraSetting | null;
   requester: ExtensionRequester;
   onClose: () => void;
+  onDeleteAccount: (id: string) => void;
 }> = ({
   extraSetting,
   requester,
   onClose,
+  onDeleteAccount,
 }) => {
   return (
     <ExtraSettingsContainer>
@@ -34,6 +37,13 @@ const ExtraSettings: React.FC<{
           <ResetPassword
             accountId={extraSetting.accountId}
             requester={requester}
+          /> :
+
+        extraSetting.mode === Mode.DeleteAccount ?
+          <DeleteAccount
+            accountId={extraSetting.accountId}
+            requester={requester}
+            onDeleteAccount={onDeleteAccount}
           /> :
 
         assertNever(extraSetting.mode)

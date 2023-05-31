@@ -7,7 +7,13 @@ import { Sdk } from "@anoma/shared";
 import { Result } from "@anoma/utils";
 
 import { KeyRing } from "./keyring";
-import { KeyRingStatus, KeyStore, TabStore, ResetPasswordError } from "./types";
+import {
+  KeyRingStatus,
+  KeyStore,
+  TabStore,
+  ResetPasswordError,
+  DeleteAccountError,
+} from "./types";
 import { syncTabs, updateTabStorage } from "./utils";
 import { ExtensionRequester, getAnomaRouterId } from "extension";
 import { Ports } from "router";
@@ -304,6 +310,13 @@ export class KeyRingService {
         "Trying to close offscreen document for nor supported browser"
       );
     }
+  }
+
+  async deleteAccount(
+    accountId: string,
+    password: string
+  ): Promise<Result<null, DeleteAccountError>> {
+    return await this._keyRing.deleteAccount(accountId, password);
   }
 
   private async broadcastAccountsChanged(): Promise<void> {

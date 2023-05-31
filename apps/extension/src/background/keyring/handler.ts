@@ -14,6 +14,7 @@ import {
   GetActiveAccountMsg,
   QueryParentAccountsMsg,
   TransferCompletedEvent,
+  DeleteAccountMsg,
 } from "./messages";
 import {
   ConnectInterfaceMsg,
@@ -92,7 +93,8 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
           env,
           msg as TransferCompletedEvent
         );
-
+      case DeleteAccountMsg:
+        return handleDeleteAccountMsg(service)(env, msg as DeleteAccountMsg);
       default:
         throw new Error("Unknown msg type");
     }
@@ -260,5 +262,13 @@ const handleCloseOffscreenDocumentMsg: (
 ) => InternalHandler<CloseOffscreenDocumentMsg> = (service) => {
   return async () => {
     return await service.closeOffscreenDocument();
+  };
+};
+
+const handleDeleteAccountMsg: (
+  service: KeyRingService
+) => InternalHandler<DeleteAccountMsg> = (service) => {
+  return async (_, msg) => {
+    return await service.deleteAccount(msg.accountId, msg.password);
   };
 };

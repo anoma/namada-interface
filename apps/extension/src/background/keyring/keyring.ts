@@ -25,7 +25,12 @@ import {
 } from "@anoma/types";
 import { chains } from "@anoma/chains";
 import { Crypto } from "./crypto";
-import { KeyRingStatus, KeyStore, ResetPasswordError } from "./types";
+import {
+  KeyRingStatus,
+  KeyStore,
+  ResetPasswordError,
+  DeleteAccountError,
+} from "./types";
 import {
   readVecStringPointer,
   readStringPointer,
@@ -559,6 +564,36 @@ export class KeyRing {
     } catch (e) {
       throw new Error(`Could not submit ibc transfer tx: ${e}`);
     }
+  }
+
+  async deleteAccount(
+    accountId: string,
+    password: string
+  ): Promise<Result<null, DeleteAccountError>> {
+    const passwordOk = await this.checkPassword(password, accountId);
+
+    if (!passwordOk) {
+      return Result.err(DeleteAccountError.BadPassword);
+    }
+
+    const derivedAccounts =
+      (await this._keyStore.getRecords("parentId", accountId)) || [];
+
+    const accountIds = [
+      accountId,
+      ...derivedAccounts.map(({id}) => id)
+    ]
+
+    for (const id of accountIds) {
+      id && await this._keyStore.remove(id);
+    }
+
+    // remove password held locally if active account deleted
+    if (accountId === await this.getActiveAccountId()) {
+      this._password = undefined;
+    }
+
+    return Result.ok(null);
   }
 
   private async addSecretKey(

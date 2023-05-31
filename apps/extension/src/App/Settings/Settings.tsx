@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import browser from "webextension-polyfill";
 
@@ -95,6 +95,29 @@ const Settings: React.FC<{
     }
   };
 
+  const handleDeleteAccount = async (deletedAccountId: string): Promise<void> => {
+    await fetchParentAccounts();
+  };
+
+  // we use a ref to make sure the effect does not run on the first
+  // render, which would be before parent accounts have loaded
+  const firstRender = useRef(true);
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    (async () => {
+      if (parentAccounts.length === 0) {
+        // the last account has been deleted so navigate to setup
+        navigate(TopLevelRoute.Setup);
+      } else if (!parentAccounts.some(({ id }) => id === activeAccountId)) {
+        // the active account was deleted so make the first account active
+        await handleSelectAccount(parentAccounts[0]);
+      }
+    })();
+  }, [parentAccounts]);
+
   return (
     <SettingsContainer>
       <AccountsContainer>
@@ -143,6 +166,7 @@ const Settings: React.FC<{
             extraSetting={extraSetting}
             requester={requester}
             onClose={() => setExtraSetting(null)}
+            onDeleteAccount={handleDeleteAccount}
           />
 
         </ThemedScrollbarContainer>
@@ -204,6 +228,7 @@ const ModeSelect: React.FC<{
 }) => {
   const modes = [
     Mode.ResetPassword,
+    Mode.DeleteAccount,
   ];
 
   return (

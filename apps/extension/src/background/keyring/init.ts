@@ -13,6 +13,7 @@ import {
   QueryParentAccountsMsg,
   TransferCompletedEvent,
   CloseOffscreenDocumentMsg,
+  DeleteAccountMsg,
 } from "./messages";
 import {
   ConnectInterfaceMsg,
@@ -48,6 +49,7 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(SubmitUnbondMsg);
   router.registerMessage(TransferCompletedEvent);
   router.registerMessage(UnlockKeyRingMsg);
+  router.registerMessage(DeleteAccountMsg);
 
   router.addHandler(ROUTE, getHandler(service));
 }
