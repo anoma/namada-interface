@@ -1,15 +1,15 @@
 import { Router } from "router";
-import { ApproveTxMsg } from "provider";
-import { RejectTxMsg, SubmitApprovedTxMsg } from "./messages";
+import { ApproveTransferMsg } from "provider";
+import { RejectTransferMsg, SubmitApprovedTransferMsg } from "./messages";
 
 import { ROUTE } from "./constants";
 import { ApprovalsService } from "./service";
 import { getHandler } from "./handler";
 
 export function init(router: Router, service: ApprovalsService): void {
-  router.registerMessage(ApproveTxMsg);
-  router.registerMessage(RejectTxMsg);
-  router.registerMessage(SubmitApprovedTxMsg);
+  router.registerMessage(ApproveTransferMsg);
+  router.registerMessage(RejectTransferMsg);
+  router.registerMessage(SubmitApprovedTransferMsg);
 
   router.addHandler(ROUTE, getHandler(service));
 }

@@ -185,12 +185,11 @@ export class KeyRingService {
    *
    * @async
    * @param {string} txMsg - borsh serialized transfer transaction
+   * @param {string} msgId - id of a tx if originating from approval process
    * @throws {Error} - if unable to submit transfer
    * @returns {Promise<void>} - resolves when transfer is successfull (resolves for failed VPs)
    */
-  async submitTransfer(txMsg: string, txId?: string): Promise<void> {
-    const msgId = txId || uuidv4();
-
+  async submitTransfer(txMsg: string, msgId: string): Promise<void> {
     // Passing submit handler simplifies worker code when using Firefox
     const submit = async (password: string, xsk?: string): Promise<void> => {
       const { TARGET } = process.env;

@@ -16,8 +16,7 @@ enum Route {
 enum MessageType {
   ConnectInterface = "connect-interface",
   QueryAccounts = "query-accounts",
-  ApproveTx = "approve-tx",
-  SubmitTransfer = "submit-transfer",
+  ApproveTransfer = "approve-tx",
   SubmitIbcTransfer = "submit-ibc-transfer",
   EncodeInitAccount = "encode-init-account",
   EncodeRevealPublicKey = "encode-reveal-public-key",
@@ -151,31 +150,6 @@ export class QueryAccountsMsg extends Message<DerivedAccount[]> {
   }
 }
 
-export class SubmitTransferMsg extends Message<void> {
-  public static type(): MessageType {
-    return MessageType.SubmitTransfer;
-  }
-
-  constructor(public readonly txMsg: string) {
-    super();
-  }
-
-  validate(): void {
-    if (!this.txMsg) {
-      throw new Error("An encoded txMsg is required!");
-    }
-    return;
-  }
-
-  route(): string {
-    return Route.KeyRing;
-  }
-
-  type(): string {
-    return SubmitTransferMsg.type();
-  }
-}
-
 export class SubmitIbcTransferMsg extends Message<void> {
   public static type(): MessageType {
     return MessageType.SubmitIbcTransfer;
@@ -304,9 +278,9 @@ export class SubmitUnbondMsg extends Message<void> {
   }
 }
 
-export class ApproveTxMsg extends Message<void> {
+export class ApproveTransferMsg extends Message<void> {
   public static type(): MessageType {
-    return MessageType.ApproveTx;
+    return MessageType.ApproveTransfer;
   }
 
   constructor(public readonly txMsg: string) {
@@ -325,6 +299,6 @@ export class ApproveTxMsg extends Message<void> {
   }
 
   type(): string {
-    return ApproveTxMsg.type();
+    return ApproveTransferMsg.type();
   }
 }

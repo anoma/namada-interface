@@ -11,16 +11,16 @@ import {
 } from "Approvals/Approvals.components";
 import { Ports } from "router";
 import { useRequester } from "hooks/useRequester";
-import { SubmitApprovedTxMsg } from "background/approvals";
+import { SubmitApprovedTransferMsg } from "background/approvals";
 import { shortenAddress } from "@anoma/utils";
 import { Address } from "App/Accounts/AccountListing.components";
 
 type Props = {
-  txId: string;
+  msgId: string;
   address: string;
 };
 
-export const ConfirmTx: React.FC<Props> = ({ txId, address }) => {
+export const ConfirmTransfer: React.FC<Props> = ({ msgId, address }) => {
   const navigate = useNavigate();
   const requester = useRequester();
   const [password, setPassword] = useState("");
@@ -33,7 +33,7 @@ export const ConfirmTx: React.FC<Props> = ({ txId, address }) => {
       // TODO: use executeUntil here!
       await requester.sendMessage(
         Ports.Background,
-        new SubmitApprovedTxMsg(txId, address, password)
+        new SubmitApprovedTransferMsg(msgId, address, password)
       );
       setStatus(Status.Completed);
     } catch (e) {

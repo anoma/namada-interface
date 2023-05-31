@@ -13,16 +13,16 @@ import {
 } from "Approvals/Approvals.components";
 import { TopLevelRoute } from "Approvals/types";
 import { Ports } from "router";
-import { RejectTxMsg } from "background/approvals";
+import { RejectTransferMsg } from "background/approvals";
 import { useEffect } from "react";
 import { useRequester } from "hooks/useRequester";
 
 type Props = {
-  setTxId: (txId: string) => void;
+  setMsgId: (msgId: string) => void;
   setAddress: (address: string) => void;
 };
 
-export const ApproveTx: React.FC<Props> = ({ setAddress, setTxId }) => {
+export const ApproveTransfer: React.FC<Props> = ({ setAddress, setMsgId }) => {
   const navigate = useNavigate();
   const requester = useRequester();
 
@@ -44,14 +44,14 @@ export const ApproveTx: React.FC<Props> = ({ setAddress, setTxId }) => {
   }, [source]);
 
   const handleApproveClick = (): void => {
-    setTxId(id);
+    setMsgId(id);
     navigate(TopLevelRoute.ConfirmTx);
   };
 
   const handleReject = async (): Promise<void> => {
     try {
       // TODO: use executeUntil here!
-      await requester.sendMessage(Ports.Background, new RejectTxMsg(id));
+      await requester.sendMessage(Ports.Background, new RejectTransferMsg(id));
 
       // Close tab
       const tab = await browser.tabs.getCurrent();

@@ -11,7 +11,7 @@ import {
   TopSection,
   Heading,
 } from "./Approvals.components";
-import { ApproveTx, ConfirmTx } from "./ApproveTx";
+import { ApproveTransfer, ConfirmTransfer } from "./ApproveTransfer";
 import { ApproveConnection } from "./ApproveConnection";
 import { TopLevelRoute } from "Approvals/types";
 
@@ -23,7 +23,7 @@ export enum Status {
 
 export const Approvals: React.FC = () => {
   const theme = getTheme("dark");
-  const [txId, setTxId] = useState("");
+  const [msgId, setMsgId] = useState("");
   const [address, setAddress] = useState("");
 
   return (
@@ -37,11 +37,13 @@ export const Approvals: React.FC = () => {
           <Routes>
             <Route
               path={TopLevelRoute.ApproveTx}
-              element={<ApproveTx setTxId={setTxId} setAddress={setAddress} />}
+              element={
+                <ApproveTransfer setMsgId={setMsgId} setAddress={setAddress} />
+              }
             />
             <Route
               path={TopLevelRoute.ConfirmTx}
-              element={<ConfirmTx txId={txId} address={address} />}
+              element={<ConfirmTransfer msgId={msgId} address={address} />}
             />
             <Route
               path={TopLevelRoute.ApproveConnection}

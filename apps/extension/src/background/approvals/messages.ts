@@ -2,22 +2,22 @@ import { Message } from "router";
 import { ROUTE } from "./constants";
 
 enum MessageType {
-  RejectTx = "reject-tx",
-  SubmitApprovedTx = "submit-approved-tx",
+  RejectTransfer = "reject-transfer",
+  SubmitApprovedTransfer = "submit-approved-transfer",
 }
 
-export class RejectTxMsg extends Message<void> {
+export class RejectTransferMsg extends Message<void> {
   public static type(): MessageType {
-    return MessageType.RejectTx;
+    return MessageType.RejectTransfer;
   }
 
-  constructor(public readonly txId: string) {
+  constructor(public readonly msgId: string) {
     super();
   }
 
   validate(): void {
-    if (!this.txId || this.txId === "") {
-      throw new Error("txId was not provided!");
+    if (!this.msgId || this.msgId === "") {
+      throw new Error("msgId was not provided!");
     }
     return;
   }
@@ -27,17 +27,17 @@ export class RejectTxMsg extends Message<void> {
   }
 
   type(): string {
-    return RejectTxMsg.type();
+    return RejectTransferMsg.type();
   }
 }
 
-export class SubmitApprovedTxMsg extends Message<void> {
+export class SubmitApprovedTransferMsg extends Message<void> {
   public static type(): MessageType {
-    return MessageType.SubmitApprovedTx;
+    return MessageType.SubmitApprovedTransfer;
   }
 
   constructor(
-    public readonly txId: string,
+    public readonly msgId: string,
     public readonly address: string,
     public readonly password: string
   ) {
@@ -45,8 +45,8 @@ export class SubmitApprovedTxMsg extends Message<void> {
   }
 
   validate(): void {
-    if (!this.txId || this.txId === "") {
-      throw new Error("txId was not provided!");
+    if (!this.msgId || this.msgId === "") {
+      throw new Error("msgId was not provided!");
     }
     if (!this.address || this.address === "") {
       throw new Error("address was not provided");
@@ -62,6 +62,6 @@ export class SubmitApprovedTxMsg extends Message<void> {
   }
 
   type(): string {
-    return SubmitApprovedTxMsg.type();
+    return SubmitApprovedTransferMsg.type();
   }
 }

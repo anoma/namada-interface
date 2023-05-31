@@ -18,10 +18,10 @@ export class ApprovalsService {
     protected readonly keyRingService: KeyRingService,
     protected readonly chainId: string,
     protected readonly requester: ExtensionRequester
-  ) {}
+  ) { }
 
   // Deserialize transfer details and prompt user
-  async approveTx(txMsg: string): Promise<void> {
+  async approveTransfer(txMsg: string): Promise<void> {
     const txMsgBuffer = Buffer.from(fromBase64(txMsg));
     const id = uuid();
     this.txStore.set(id, txMsg);
@@ -49,12 +49,12 @@ export class ApprovalsService {
   }
 
   // Remove pending transaction from storage
-  async rejectTx(txId: string): Promise<void> {
-    await this._clearPendingTx(txId);
+  async rejectTransfer(msgId: string): Promise<void> {
+    await this._clearPendingTx(msgId);
   }
 
   // Authenticate keyring, submit approved transaction from storage
-  async submitTx(txId: string, password: string): Promise<void> {
+  async submitTransfer(msgId: string, password: string): Promise<void> {
     // TODO: Use executeUntil here:
     try {
       await this.keyRingService.unlock(password);
@@ -62,18 +62,18 @@ export class ApprovalsService {
       throw new Error(`${e}`);
     }
 
-    const tx = await this.txStore.get(txId);
+    const tx = await this.txStore.get(msgId);
 
     if (tx) {
-      await this.keyRingService.submitTransfer(tx, txId);
+      await this.keyRingService.submitTransfer(tx, msgId);
       // Clean up storage
-      return await this._clearPendingTx(txId);
+      return await this._clearPendingTx(msgId);
     }
 
     throw new Error("Pending transfer not found!");
   }
 
-  private async _clearPendingTx(txId: string): Promise<void> {
-    return await this.txStore.set(txId, null);
+  private async _clearPendingTx(msgId: string): Promise<void> {
+    return await this.txStore.set(msgId, null);
   }
 }
