@@ -1,15 +1,9 @@
 /* eslint-disable max-len */
 export enum TxWasm {
-  InitAccount = "tx_init_account.706f2f36dd8eabda16ee26c8b73775498d0e57d07e7d347498a59a0721430e5c.wasm",
-  Transfer = "tx_transfer.4818a531571879a6133c5d6894b966c35fa7f93dca6bae4c74481c2da900186b.wasm",
-  IBC = "tx_ibc.812d7dc0ad55047939c099194ba6d7623336dd7d37533919728cbda746103c7a.wasm",
-  RevealPK = "tx_reveal_pk.7e74e22f8ae345dd27e3de3f126b157ee783821aae469ce995587987ba6c1cbb.wasm",
-  Bond = "tx_bond.67b2a627f3e21e727d2dcef0b7d2d8eb3580d2ae584509f8b89531fc00781d8a.wasm",
-  Unbond = "tx_unbond.8a741bec102bb7793d6ab395c0e571d3adc31f415fa04cb83cfd743e5f18146f.wasm",
-}
-
-export enum VpWasm {
-  User = "vp_user.a527e535f901c286f1a18cb653c4354edce9cb09cc50cc311a0b9bf868bc8066.wasm",
-  Token = "vp_token.58095a19447581f95c9c7152aeca2bcfeaeed766adb976c003581ebbc24fde85.wasm",
-  Masp = "vp_masp.7c88ec34a3c0a6eb6cea6809371545cd17cdfc3796081faa45693c59d643603d.wasm",
+  InitAccount = "tx_init_account.8f368fd2ecaa9224e5d54d56b1960a4fb7d30373f63b6dd9f46d2842ec9a5a2a.wasm",
+  Transfer = "tx_transfer.e043efd16389e27cc8c4ee1bf661798a96589316bfd079ad50410621d24f3f17.wasm",
+  IBC = "tx_ibc.5c875e03e01d3835340fa82d399393222a09355ebd557b17166e3c249e01c393.wasm",
+  RevealPK = "tx_reveal_pk.fcfe996cbc71038b7b58cde82c45d6506164e81f2d603e12197ba9911657fce0.wasm",
+  Bond = "tx_bond.15f90f17f9da06689d6dc18f995fb08db5db8c6c58445f0aa88b3218eb1ec017.wasm",
+  Unbond = "tx_unbond.06d578d1d0a685920f75304e7b7e5610ebd359096f54e885c0d286f56d639908.wasm",
 }

@@ -1,7 +1,7 @@
-import { RequesterProvider } from "App/Requester";
 import React from "react";
 import ReactDOM from "react-dom";
 import { HashRouter } from "react-router-dom";
+import { RequesterProvider } from "services";
 
 import { Setup } from "./Setup";
 

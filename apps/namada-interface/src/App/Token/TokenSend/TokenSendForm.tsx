@@ -420,7 +420,7 @@ const TokenSendForm = ({
         <Button
           loading={isTransferSubmitting}
           variant={ButtonVariant.Contained}
-          disabled={isFormInvalid}
+          // disabled={isFormInvalid}
           onClick={handleOnSendClick}
         >
           Continue

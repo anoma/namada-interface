@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{path::PathBuf, str::FromStr};
 
 use borsh::{BorshDeserialize, BorshSerialize};
 use namada::{
@@ -7,7 +7,7 @@ use namada::{
     types::{
         address::Address,
         chain::ChainId,
-        masp::{PaymentAddress, TransferSource, TransferTarget},
+        masp::{ExtendedSpendingKey, PaymentAddress, TransferSource, TransferTarget},
         token::Amount,
         transaction::GasLimit,
     },
@@ -52,7 +52,7 @@ pub fn bond_tx_args(tx_msg: &[u8], password: Option<String>) -> Result<args::Bon
         source,
         validator,
         amount,
-        tx_code: bond_tx_code,
+        tx_code: _bond_tx_code,
         tx,
     } = tx_msg;
 
@@ -67,7 +67,7 @@ pub fn bond_tx_args(tx_msg: &[u8], password: Option<String>) -> Result<args::Bon
         amount,
         source: Some(source),
         native_token,
-        tx_code_path: bond_tx_code,
+        tx_code_path: PathBuf::from("tx_bond.wasm"),
     };
 
     Ok(args)
@@ -100,7 +100,7 @@ pub fn unbond_tx_args(tx_msg: &[u8], password: Option<String>) -> Result<args::U
         source,
         validator,
         amount,
-        tx_code: bond_tx_code,
+        tx_code: _unbond_tx_code,
         tx,
     } = tx_msg;
 
@@ -113,7 +113,7 @@ pub fn unbond_tx_args(tx_msg: &[u8], password: Option<String>) -> Result<args::U
         validator,
         amount,
         source: Some(source),
-        tx_code_path: bond_tx_code,
+        tx_code_path: PathBuf::from("tx_unbond.wasm"),
     };
 
     Ok(args)
@@ -145,6 +145,7 @@ pub struct SubmitTransferMsg {
 pub fn transfer_tx_args(
     tx_msg: &[u8],
     password: Option<String>,
+    xsk: Option<String>,
 ) -> Result<args::TxTransfer, JsError> {
     let tx_msg = SubmitTransferMsg::try_from_slice(tx_msg)?;
     let SubmitTransferMsg {
@@ -155,15 +156,30 @@ pub fn transfer_tx_args(
         sub_prefix,
         amount,
         native_token,
-        tx_code: transfer_tx_code,
+        tx_code: _transfer_tx_code,
     } = tx_msg;
 
-    let source = Address::from_str(&source)?;
+    let source = match Address::from_str(&source) {
+        Ok(v) => Ok(TransferSource::Address(v)),
+        Err(e1) => match ExtendedSpendingKey::from_str(
+            &xsk.expect("Extended spending key to be present, if address type is shielded."),
+        ) {
+            Ok(v) => Ok(TransferSource::ExtendedSpendingKey(v)),
+            Err(e2) => Err(JsError::new(&format!(
+                "Can't compute the transfer source. {}, {}",
+                e1, e2
+            ))),
+        },
+    }?;
+
     let target = match Address::from_str(&target) {
         Ok(v) => Ok(TransferTarget::Address(v)),
         Err(e1) => match PaymentAddress::from_str(&target) {
             Ok(v) => Ok(TransferTarget::PaymentAddress(v)),
-            Err(e2) => Err(JsError::new(&format!("Hello2 {}, {}", e1, e2))),
+            Err(e2) => Err(JsError::new(&format!(
+                "Can't compute the transfer target. {}, {}",
+                e1, e2
+            ))),
         },
     }?;
     let native_token = Address::from_str(&native_token)?;
@@ -172,13 +188,13 @@ pub fn transfer_tx_args(
 
     let args = args::TxTransfer {
         tx: tx_msg_into_args(tx, password)?,
-        source: TransferSource::Address(source),
+        source,
         target,
         token,
         sub_prefix,
         amount,
         native_token,
-        tx_code_path: transfer_tx_code,
+        tx_code_path: PathBuf::from("tx_transfer.wasm"),
     };
     Ok(args)
 }
@@ -225,15 +241,14 @@ pub fn ibc_transfer_tx_args(
         channel_id,
         timeout_height,
         timeout_sec_offset,
-        tx_code: transfer_tx_code,
+        tx_code: _transfer_tx_code,
     } = tx_msg;
 
     let source = Address::from_str(&source)?;
     let token = Address::from_str(&token)?;
     let amount = Amount::from(amount);
-    //TODO: fix unwraps
-    let port_id = PortId::from_str(&port_id).unwrap();
-    let channel_id = ChannelId::from_str(&channel_id).unwrap();
+    let port_id = PortId::from_str(&port_id).expect("Port id to be valid");
+    let channel_id = ChannelId::from_str(&channel_id).expect("Channel id to be valid");
 
     let args = args::TxIbcTransfer {
         tx: tx_msg_into_args(tx, password)?,
@@ -246,7 +261,7 @@ pub fn ibc_transfer_tx_args(
         channel_id,
         timeout_height,
         timeout_sec_offset,
-        tx_code_path: transfer_tx_code,
+        tx_code_path: PathBuf::from("tx_ibc.wasm"),
     };
     Ok(args)
 }
@@ -267,7 +282,8 @@ fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> Result<args::Tx,
         token,
         fee_amount,
         gas_limit,
-        tx_code,
+        // TODO: remove all the unused tx codes
+        tx_code: _tx_code,
         chain_id,
     } = tx_msg;
 
@@ -290,7 +306,7 @@ fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> Result<args::Tx,
         chain_id: Some(ChainId(String::from(chain_id))),
         signing_key: None,
         signer: None,
-        tx_reveal_code_path: tx_code,
+        tx_reveal_code_path: PathBuf::from("tx_reveal_pk.wasm"),
         password,
     };
     Ok(args)

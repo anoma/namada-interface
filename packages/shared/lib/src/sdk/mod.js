@@ -2,7 +2,9 @@ export const PREFIX = "Anoma::SDK";
 
 async function fetchParams(params) {
   //TODO: pass env
-  return fetch(`http://localhost:3000/assets/${params}`)
+  return fetch(
+    `https://github.com/anoma/masp-mpc/releases/download/namada-trusted-setup/${params}`
+  )
     .then((response) => response.arrayBuffer())
     .then((ab) => new Uint8Array(ab));
 }

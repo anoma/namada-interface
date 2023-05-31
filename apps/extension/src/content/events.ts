@@ -55,7 +55,7 @@ export class TransferCompletedEvent extends Message<void> {
     return Events.TransferCompleted;
   }
 
-  constructor(readonly msgId: string) {
+  constructor(readonly msgId: string, readonly success: boolean) {
     super();
   }
 
@@ -74,28 +74,37 @@ export class TransferCompletedEvent extends Message<void> {
   }
 }
 
+// Used by Firefox to copy the object from the content script scope to the
+// page script scope.
+declare function cloneInto<T>(data: T, global: Window | null): T;
+
 export function initEvents(router: Router): void {
   router.registerMessage(AccountChangedEventMsg);
   router.registerMessage(TransferStartedEvent);
   router.registerMessage(TransferCompletedEvent);
 
   router.addHandler(Routes.InteractionForeground, (_, msg) => {
+    const clonedMsg =
+      typeof cloneInto !== "undefined"
+        ? cloneInto(msg, document.defaultView)
+        : msg;
+
     switch (msg.constructor) {
       case AccountChangedEventMsg:
         if ((msg as AccountChangedEventMsg).chainId) {
           window.dispatchEvent(
-            new CustomEvent(Events.AccountChanged, { detail: msg })
+            new CustomEvent(Events.AccountChanged, { detail: clonedMsg })
           );
         }
         break;
       case TransferStartedEvent:
         window.dispatchEvent(
-          new CustomEvent(Events.TransferStarted, { detail: msg })
+          new CustomEvent(Events.TransferStarted, { detail: clonedMsg })
         );
         break;
       case TransferCompletedEvent:
         window.dispatchEvent(
-          new CustomEvent(Events.TransferCompleted, { detail: msg })
+          new CustomEvent(Events.TransferCompleted, { detail: clonedMsg })
         );
         break;
       default:

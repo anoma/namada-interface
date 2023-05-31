@@ -1,11 +1,9 @@
-import { CloseOffscreenDocumentMsg } from "background/keyring";
-import { init as initSubmitTransferWebWorker } from "background/web-workers";
 import {
-  Msg,
-  SubmitTransferMessage,
-  TRANSFER_FAILED_MSG,
-  TRANSFER_SUCCESSFUL_MSG,
-} from "background/web-workers/types";
+  CloseOffscreenDocumentMsg,
+  TransferCompletedEvent,
+} from "background/keyring";
+import { init as initSubmitTransferWebWorker } from "background/web-workers";
+import { SubmitTransferMessage } from "background/web-workers/types";
 import { ExtensionMessenger, ExtensionRequester } from "extension";
 import { Ports } from "router";
 import { OFFSCREEN_TARGET, SUBMIT_TRANSFER_MSG_TYPE } from "./utils";
@@ -33,11 +31,22 @@ const SW_TTL = 20000;
     const messenger = new ExtensionMessenger();
     const requester = new ExtensionRequester(messenger, routerId);
 
-    const onmessage = (e: MessageEvent<Msg>): void => {
-      if ([TRANSFER_SUCCESSFUL_MSG, TRANSFER_FAILED_MSG].includes(e.data)) {
-        ww_count--;
-      }
+    const transferCompletedHandler = async (
+      msgId: string,
+      success: boolean
+    ): Promise<void> => {
+      // We are sending the message to the background script
+      await requester.sendMessage(
+        Ports.Background,
+        new TransferCompletedEvent(success, msgId)
+      );
 
+      // Reducing a number of tracked web workers
+      ww_count--;
+
+      // If number of trached web workers is 0, we are
+      // closing the offscreen document and stopping the
+      // service worker ping.
       if (ww_count === 0) {
         requester.sendMessage<CloseOffscreenDocumentMsg>(
           Ports.Background,
@@ -48,7 +57,7 @@ const SW_TTL = 20000;
     };
 
     if (type == SUBMIT_TRANSFER_MSG_TYPE) {
-      initSubmitTransferWebWorker(data, routerId, onmessage);
+      initSubmitTransferWebWorker(data, transferCompletedHandler);
       ww_count++;
     } else {
       console.warn(`Unexpected message type received: '${type}'.`);

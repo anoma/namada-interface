@@ -16,7 +16,13 @@ import {
   Sdk,
 } from "@anoma/shared";
 import { IStore, KVStore, Store } from "@anoma/storage";
-import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
+import {
+  AccountType,
+  Bip44Path,
+  DerivedAccount,
+  SubmitTransferMsgSchema,
+  TransferMsgValue,
+} from "@anoma/types";
 import { chains } from "@anoma/chains";
 import { Crypto } from "./crypto";
 import { KeyRingStatus, KeyStore } from "./types";
@@ -24,15 +30,7 @@ import {
   readVecStringPointer,
   readStringPointer,
 } from "@anoma/crypto/src/utils";
-import { toBase64 } from "@cosmjs/encoding";
-import {
-  createOffscreenWithTxWorker,
-  hasOffscreenDocument,
-  OFFSCREEN_TARGET,
-  SUBMIT_TRANSFER_MSG_TYPE,
-} from "../offscreen";
-import { init as initSubmitTransferWebWorker } from "background/web-workers";
-import { getAnomaRouterId } from "extension";
+import { deserialize } from "borsh";
 
 // Generated UUID namespace for uuid v5
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
@@ -470,56 +468,36 @@ export class KeyRing {
       throw new Error(`Could not submit unbond tx: ${e}`);
     }
   }
-  private async submitTransferChrome(
+
+  async submitTransfer(
     txMsg: Uint8Array,
-    msgId: string,
-    password: string
+    submit: (password: string, xsk?: string) => Promise<void>
   ): Promise<void> {
-    const offscreenDocumentPath = "offscreen.html";
-    const routerId = await getAnomaRouterId(this.extensionStore);
-
-    if (!(await hasOffscreenDocument(offscreenDocumentPath))) {
-      await createOffscreenWithTxWorker(offscreenDocumentPath);
-    }
-
-    await chrome.runtime.sendMessage({
-      type: SUBMIT_TRANSFER_MSG_TYPE,
-      target: OFFSCREEN_TARGET,
-      routerId,
-      data: { txMsg: toBase64(txMsg), msgId, password },
-    });
-  }
-
-  private async submitTransferFirefox(
-    txMsg: Uint8Array,
-    msgId: string,
-    password: string
-  ): Promise<void> {
-    const routerId = await getAnomaRouterId(this.extensionStore);
-
-    initSubmitTransferWebWorker(
-      {
-        txMsg: toBase64(txMsg),
-        msgId,
-        password,
-      },
-      routerId
-    );
-  }
-
-  async submitTransfer(txMsg: Uint8Array, msgId: string): Promise<void> {
     if (!this._password) {
       throw new Error("Not authenticated!");
     }
 
-    const { TARGET } = process.env;
-    if (TARGET === "chrome") {
-      this.submitTransferChrome(txMsg, msgId, this._password);
-    } else if (TARGET === "firefox") {
-      this.submitTransferFirefox(txMsg, msgId, this._password);
-    } else {
-      console.warn("Submitting transfers is not supported with your browser.");
+    // We need to get the source address in case it is shielded one, so we can
+    // decrypt the extended spending key for a transfer.
+    const { source } = deserialize(
+      SubmitTransferMsgSchema,
+      TransferMsgValue,
+      Buffer.from(txMsg)
+    );
+
+    const account = await this._keyStore.getRecord("address", source);
+    if (!account) {
+      throw new Error(`Account not found.`);
     }
+    const text = crypto.decrypt(account, this._password, this._cryptoMemory);
+
+    // For shielded accounts we need to return the spending key as well.
+    const extendedSpendingKey =
+      account.type === AccountType.ShieldedKeys
+        ? JSON.parse(text).spendingKey
+        : undefined;
+
+    await submit(this._password, extendedSpendingKey);
   }
 
   async submitIbcTransfer(txMsg: Uint8Array): Promise<void> {

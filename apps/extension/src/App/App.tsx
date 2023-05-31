@@ -29,7 +29,7 @@ import { Login } from "./Login";
 import { Setup } from "./Setup";
 import { Settings } from "./Settings";
 import { ApproveConnection, ApproveTx } from "./Approvals";
-import { useRequester } from "./Requester";
+import { useRequester } from "hooks/useRequester";
 
 export enum Status {
   Completed,
