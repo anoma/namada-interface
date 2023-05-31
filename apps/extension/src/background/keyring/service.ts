@@ -177,8 +177,31 @@ export class KeyRingService {
     );
   }
 
+  /**
+   * Submits a transfer transaction to the chain.
+   * Handles both Shielded and Transparent transfers.
+   *
+   * @async
+   * @param {string} txMsg - borsh serialized transfer transaction
+   * @throws {Error} - if unable to submit transfer
+   * @returns {Promise<void>} - resolves when transfer is successfull (resolves for failed VPs)
+   */
   async submitTransfer(txMsg: string): Promise<void> {
     const msgId = uuidv4();
+
+    // Passing submit handler simplifies worker code when using Firefox
+    const submit = async (password: string, xsk?: string): Promise<void> => {
+      const { TARGET } = process.env;
+      if (TARGET === "chrome") {
+        this.submitTransferChrome(txMsg, msgId, password, xsk);
+      } else if (TARGET === "firefox") {
+        this.submitTransferFirefox(txMsg, msgId, password, xsk);
+      } else {
+        console.warn(
+          "Submitting transfers is not supported with your browser."
+        );
+      }
+    };
 
     const tabs = await syncTabs(
       this.connectedTabsStore,
@@ -199,23 +222,10 @@ export class KeyRingService {
     }
 
     try {
-      const { password, spendingKey } = await this._keyRing.transferData(
-        fromBase64(txMsg)
-      );
-
-      const { TARGET } = process.env;
-      if (TARGET === "chrome") {
-        this.submitTransferChrome(txMsg, msgId, password, spendingKey);
-      } else if (TARGET === "firefox") {
-        this.submitTransferFirefox(txMsg, msgId, password, spendingKey);
-      } else {
-        console.warn(
-          "Submitting transfers is not supported with your browser."
-        );
-      }
+      await this._keyRing.submitTransfer(fromBase64(txMsg), submit.bind(this));
     } catch (e) {
       console.warn(e);
-      throw new Error(`Unable to load transfer data! ${e}`);
+      throw new Error(`Unable to submit the transfer! ${e}`);
     }
   }
 

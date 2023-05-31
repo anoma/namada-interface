@@ -17,10 +17,6 @@ const copyPatterns = [
     to: "./wasm/[name].wasm",
   },
   {
-    from: "./public/assets/*.params",
-    to: "./assets/[name].params",
-  },
-  {
     from: "./public/*.png",
     to: "./assets/[name].png",
   },

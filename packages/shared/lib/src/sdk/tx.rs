@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{path::PathBuf, str::FromStr};
 
 use borsh::{BorshDeserialize, BorshSerialize};
 use namada::{
@@ -52,7 +52,7 @@ pub fn bond_tx_args(tx_msg: &[u8], password: Option<String>) -> Result<args::Bon
         source,
         validator,
         amount,
-        tx_code: bond_tx_code,
+        tx_code: _bond_tx_code,
         tx,
     } = tx_msg;
 
@@ -67,7 +67,7 @@ pub fn bond_tx_args(tx_msg: &[u8], password: Option<String>) -> Result<args::Bon
         amount,
         source: Some(source),
         native_token,
-        tx_code_path: bond_tx_code,
+        tx_code_path: PathBuf::from("tx_bond.wasm"),
     };
 
     Ok(args)
@@ -100,7 +100,7 @@ pub fn unbond_tx_args(tx_msg: &[u8], password: Option<String>) -> Result<args::U
         source,
         validator,
         amount,
-        tx_code: bond_tx_code,
+        tx_code: _unbond_tx_code,
         tx,
     } = tx_msg;
 
@@ -113,7 +113,7 @@ pub fn unbond_tx_args(tx_msg: &[u8], password: Option<String>) -> Result<args::U
         validator,
         amount,
         source: Some(source),
-        tx_code_path: bond_tx_code,
+        tx_code_path: PathBuf::from("tx_unbond.wasm"),
     };
 
     Ok(args)
@@ -156,7 +156,7 @@ pub fn transfer_tx_args(
         sub_prefix,
         amount,
         native_token,
-        tx_code: transfer_tx_code,
+        tx_code: _transfer_tx_code,
     } = tx_msg;
 
     let source = match Address::from_str(&source) {
@@ -194,7 +194,7 @@ pub fn transfer_tx_args(
         sub_prefix,
         amount,
         native_token,
-        tx_code_path: transfer_tx_code,
+        tx_code_path: PathBuf::from("tx_transfer.wasm"),
     };
     Ok(args)
 }
@@ -241,7 +241,7 @@ pub fn ibc_transfer_tx_args(
         channel_id,
         timeout_height,
         timeout_sec_offset,
-        tx_code: transfer_tx_code,
+        tx_code: _transfer_tx_code,
     } = tx_msg;
 
     let source = Address::from_str(&source)?;
@@ -261,7 +261,7 @@ pub fn ibc_transfer_tx_args(
         channel_id,
         timeout_height,
         timeout_sec_offset,
-        tx_code_path: transfer_tx_code,
+        tx_code_path: PathBuf::from("tx_ibc.wasm"),
     };
     Ok(args)
 }
@@ -282,7 +282,8 @@ fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> Result<args::Tx,
         token,
         fee_amount,
         gas_limit,
-        tx_code,
+        // TODO: remove all the unused tx codes
+        tx_code: _tx_code,
         chain_id,
     } = tx_msg;
 
@@ -305,7 +306,7 @@ fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> Result<args::Tx,
         chain_id: Some(ChainId(String::from(chain_id))),
         signing_key: None,
         signer: None,
-        tx_reveal_code_path: tx_code,
+        tx_reveal_code_path: PathBuf::from("tx_reveal_pk.wasm"),
         password,
     };
     Ok(args)

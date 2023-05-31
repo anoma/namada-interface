@@ -469,9 +469,10 @@ export class KeyRing {
     }
   }
 
-  async transferData(
-    txMsg: Uint8Array
-  ): Promise<{ password: string; spendingKey?: string }> {
+  async submitTransfer(
+    txMsg: Uint8Array,
+    submit: (password: string, xsk?: string) => Promise<void>
+  ): Promise<void> {
     if (!this._password) {
       throw new Error("Not authenticated!");
     }
@@ -491,12 +492,12 @@ export class KeyRing {
     const text = crypto.decrypt(account, this._password, this._cryptoMemory);
 
     // For shielded accounts we need to return the spending key as well.
-    if (account.type === AccountType.ShieldedKeys) {
-      const { spendingKey }: { spendingKey: string } = JSON.parse(text);
-      return { password: this._password, spendingKey };
-    }
+    const extendedSpendingKey =
+      account.type === AccountType.ShieldedKeys
+        ? JSON.parse(text).spendingKey
+        : undefined;
 
-    return { password: this._password };
+    await submit(this._password, extendedSpendingKey);
   }
 
   async submitIbcTransfer(txMsg: Uint8Array): Promise<void> {
