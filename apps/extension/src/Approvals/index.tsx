@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { HashRouter } from "react-router-dom";
 
-import { RequesterProvider } from "App/Requester";
+import { RequesterProvider } from "services";
 import { Approvals } from "./Approvals";
 
 export default ((): void => {

@@ -9,8 +9,8 @@ import {
   ApprovalContainer,
   ButtonContainer,
 } from "Approvals/Approvals.components";
-import { ExtensionRequester } from "extension";
 import { Ports } from "router";
+import { useRequester } from "hooks/useRequester";
 import { SubmitApprovedTxMsg } from "background/approvals";
 import { shortenAddress } from "@anoma/utils";
 import { Address } from "App/Accounts/AccountListing.components";
@@ -18,11 +18,11 @@ import { Address } from "App/Accounts/AccountListing.components";
 type Props = {
   txId: string;
   address: string;
-  requester: ExtensionRequester;
 };
 
-export const ConfirmTx: React.FC<Props> = ({ txId, address, requester }) => {
+export const ConfirmTx: React.FC<Props> = ({ txId, address }) => {
   const navigate = useNavigate();
+  const requester = useRequester();
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState<Status>();

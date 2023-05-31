@@ -281,6 +281,7 @@ export class KeyRingService {
           new TransferCompletedEvent(msgId, success)
         );
       });
+      this.broadcastUpdateBalance();
     } catch (e) {
       console.warn(e);
     }

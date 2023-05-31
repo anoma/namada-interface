@@ -1,9 +1,7 @@
-import browser from "webextension-polyfill";
 import React, { useState } from "react";
 import { ThemeProvider } from "styled-components";
 import { Routes, Route } from "react-router-dom";
 
-import { ExtensionKVStore } from "@anoma/storage";
 import { getTheme } from "@anoma/utils";
 
 import {
@@ -16,7 +14,6 @@ import {
 import { ApproveTx, ConfirmTx } from "./ApproveTx";
 import { ApproveConnection } from "./ApproveConnection";
 import { TopLevelRoute } from "Approvals/types";
-import { useRequester } from "App/Requester";
 
 export enum Status {
   Completed,
@@ -25,7 +22,6 @@ export enum Status {
 }
 
 export const Approvals: React.FC = () => {
-  const requester = useRequester();
   const theme = getTheme("dark");
   const [txId, setTxId] = useState("");
   const [address, setAddress] = useState("");
@@ -41,23 +37,11 @@ export const Approvals: React.FC = () => {
           <Routes>
             <Route
               path={TopLevelRoute.ApproveTx}
-              element={
-                <ApproveTx
-                  setTxId={setTxId}
-                  setAddress={setAddress}
-                  requester={requester}
-                />
-              }
+              element={<ApproveTx setTxId={setTxId} setAddress={setAddress} />}
             />
             <Route
               path={TopLevelRoute.ConfirmTx}
-              element={
-                <ConfirmTx
-                  txId={txId}
-                  address={address}
-                  requester={requester}
-                />
-              }
+              element={<ConfirmTx txId={txId} address={address} />}
             />
             <Route
               path={TopLevelRoute.ApproveConnection}
