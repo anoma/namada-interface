@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import browser from "webextension-polyfill";
 
 import { Button, ButtonVariant, Input, InputVariants } from "@anoma/components";
-import { Status } from "Approvals/Approvals";
+import { shortenAddress } from "@anoma/utils";
 
+import { Status } from "Approvals/Approvals";
 import {
   ApprovalContainer,
   ButtonContainer,
@@ -12,8 +12,8 @@ import {
 import { Ports } from "router";
 import { useRequester } from "hooks/useRequester";
 import { SubmitApprovedTransferMsg } from "background/approvals";
-import { shortenAddress } from "@anoma/utils";
 import { Address } from "App/Accounts/AccountListing.components";
+import { closeCurrentTab } from "utils";
 
 type Props = {
   msgId: string;
@@ -46,10 +46,7 @@ export const ConfirmTransfer: React.FC<Props> = ({ msgId, address }) => {
   useEffect(() => {
     (async () => {
       if (status === Status.Completed) {
-        const tab = await browser.tabs.getCurrent();
-        if (tab.id) {
-          browser.tabs.remove(tab.id);
-        }
+        await closeCurrentTab();
       }
     })();
   }, [status]);

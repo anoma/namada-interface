@@ -1,5 +1,5 @@
-import browser from "webextension-polyfill";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 import { Button, ButtonVariant } from "@anoma/components";
 import { shortenAddress } from "@anoma/utils";
@@ -14,8 +14,8 @@ import {
 import { TopLevelRoute } from "Approvals/types";
 import { Ports } from "router";
 import { RejectTransferMsg } from "background/approvals";
-import { useEffect } from "react";
 import { useRequester } from "hooks/useRequester";
+import { closeCurrentTab } from "utils";
 
 type Props = {
   setMsgId: (msgId: string) => void;
@@ -54,10 +54,7 @@ export const ApproveTransfer: React.FC<Props> = ({ setAddress, setMsgId }) => {
       await requester.sendMessage(Ports.Background, new RejectTransferMsg(id));
 
       // Close tab
-      const tab = await browser.tabs.getCurrent();
-      if (tab.id) {
-        browser.tabs.remove(tab.id);
-      }
+      await closeCurrentTab();
     } catch (e) {
       console.warn(e);
     }

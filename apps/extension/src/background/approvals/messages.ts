@@ -16,8 +16,8 @@ export class RejectTransferMsg extends Message<void> {
   }
 
   validate(): void {
-    if (!this.msgId || this.msgId === "") {
-      throw new Error("msgId was not provided!");
+    if (!this.msgId) {
+      throw new Error("msgId must not be empty!");
     }
     return;
   }
@@ -45,13 +45,13 @@ export class SubmitApprovedTransferMsg extends Message<void> {
   }
 
   validate(): void {
-    if (!this.msgId || this.msgId === "") {
-      throw new Error("msgId was not provided!");
+    if (!this.msgId) {
+      throw new Error("msgId must not be empty!");
     }
-    if (!this.address || this.address === "") {
-      throw new Error("address was not provided");
+    if (!this.address) {
+      throw new Error("address must not be empty!");
     }
-    if (!this.password || this.password === "") {
+    if (!this.password) {
       throw new Error("Password is required to submitTx!");
     }
     return;

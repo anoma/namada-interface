@@ -288,7 +288,7 @@ export class ApproveTransferMsg extends Message<void> {
   }
 
   validate(): void {
-    if (!this.txMsg || this.txMsg === "") {
+    if (!this.txMsg) {
       throw new Error("txMsg was not provided!");
     }
     return;
