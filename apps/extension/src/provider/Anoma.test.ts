@@ -86,12 +86,7 @@ describe("Anoma", () => {
     expect(chains?.pop()).toEqual(chain);
   });
 
-  //TODO: figure out how to make this test valueable
-  it.skip("should be able to submit a transfer through the sdk", async () => {
-    jest
-      .spyOn(Sdk.prototype, "submit_transfer")
-      .mockReturnValueOnce(Promise.resolve());
-
+  it.skip("should be able to submit a transfer to the approval process", async () => {
     const token =
       "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5";
     const transferProps: TransferProps = {

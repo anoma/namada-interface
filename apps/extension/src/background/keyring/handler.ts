@@ -16,7 +16,6 @@ import {
 } from "./messages";
 import {
   ConnectInterfaceMsg,
-  SubmitTransferMsg,
   EncodeInitAccountMsg,
   QueryAccountsMsg,
   SubmitBondMsg,
@@ -70,8 +69,6 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleSubmitBondMsg(service)(env, msg as SubmitBondMsg);
       case SubmitUnbondMsg:
         return handleSubmitUnbondMsg(service)(env, msg as SubmitUnbondMsg);
-      case SubmitTransferMsg:
-        return handleSubmitTransferMsg(service)(env, msg as SubmitTransferMsg);
       case SubmitIbcTransferMsg:
         return handleSubmitIbcTransferMsg(service)(
           env,
@@ -199,15 +196,6 @@ const handleSubmitUnbondMsg: (
   return async (_, msg) => {
     const { txMsg } = msg;
     return await service.submitUnbond(txMsg);
-  };
-};
-
-const handleSubmitTransferMsg: (
-  service: KeyRingService
-) => InternalHandler<SubmitTransferMsg> = (service) => {
-  return async (_, msg) => {
-    const { txMsg } = msg;
-    return await service.submitTransfer(txMsg);
   };
 };
 

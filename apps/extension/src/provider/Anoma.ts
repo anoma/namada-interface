@@ -2,6 +2,7 @@ import { Anoma as IAnoma, Chain, DerivedAccount } from "@anoma/types";
 import { Ports, MessageRequester } from "router";
 
 import {
+  ApproveTransferMsg,
   ConnectInterfaceMsg,
   GetChainMsg,
   GetChainsMsg,
@@ -10,7 +11,6 @@ import {
   QueryAccountsMsg,
   SubmitBondMsg,
   SubmitUnbondMsg,
-  SubmitTransferMsg,
   SubmitIbcTransferMsg,
 } from "./messages";
 
@@ -18,7 +18,7 @@ export class Anoma implements IAnoma {
   constructor(
     private readonly _version: string,
     protected readonly requester?: MessageRequester
-  ) {}
+  ) { }
 
   public async connect(chainId: string): Promise<void> {
     return await this.requester?.sendMessage(
@@ -74,7 +74,7 @@ export class Anoma implements IAnoma {
   public async submitTransfer(txMsg: string): Promise<void> {
     return await this.requester?.sendMessage(
       Ports.Background,
-      new SubmitTransferMsg(txMsg)
+      new ApproveTransferMsg(txMsg)
     );
   }
 

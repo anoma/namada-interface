@@ -15,6 +15,12 @@ import {
   KeyStore,
   TabStore,
 } from "../background/keyring";
+
+import {
+  ApprovalsService,
+  init as initApprovals,
+} from "../background/approvals";
+
 import { Anoma } from "provider";
 import { Chain } from "@anoma/types";
 import { Sdk } from "@anoma/shared";
@@ -22,6 +28,7 @@ import { Sdk } from "@anoma/shared";
 // __wasm is not exported in crypto.d.ts so need to use require instead of import
 /* eslint-disable @typescript-eslint/no-var-requires */
 const cryptoMemory = require("@anoma/crypto").__wasm.memory;
+const chainId = "namada-75a7e12.69483d59a9fb174";
 
 export class KVStoreMock<T> implements KVStore<T> {
   private storage: { [key: string]: T | null } = {};
@@ -58,6 +65,7 @@ export const init = async (): Promise<{
   );
   const anomaRouterId = await getAnomaRouterId(extStore);
   const requester = new ExtensionRequester(messenger, anomaRouterId);
+  const txStore = new KVStoreMock<string>(KVPrefix.LocalStorage);
 
   const router = new ExtensionRouter(
     () => ({
@@ -83,15 +91,23 @@ export const init = async (): Promise<{
     activeAccountStore,
     connectedTabsStore,
     extStore,
-    "namada-75a7e12.69483d59a9fb174",
+    chainId,
     sdk,
     cryptoMemory,
+    requester
+  );
+  const approvalsService = new ApprovalsService(
+    txStore,
+    connectedTabsStore,
+    keyRingService,
+    chainId,
     requester
   );
 
   // Initialize messages and handlers
   initChains(router, chainsService);
   initKeyRing(router, keyRingService);
+  initApprovals(router, approvalsService);
 
   router.listen(Ports.Background);
 

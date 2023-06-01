@@ -15,7 +15,6 @@ import {
 } from "./messages";
 import {
   ConnectInterfaceMsg,
-  SubmitTransferMsg,
   EncodeInitAccountMsg,
   QueryAccountsMsg,
   EncodeRevealPkMsg,
@@ -44,7 +43,6 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(SetActiveAccountMsg);
   router.registerMessage(SubmitBondMsg);
   router.registerMessage(SubmitIbcTransferMsg);
-  router.registerMessage(SubmitTransferMsg);
   router.registerMessage(SubmitUnbondMsg);
   router.registerMessage(TransferCompletedEvent);
   router.registerMessage(UnlockKeyRingMsg);
