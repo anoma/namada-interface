@@ -101,10 +101,12 @@ export class KeyRingService {
     currentPassword: string,
     newPassword: string,
     accountId: string
-  ):
-    Promise<Result<null, ResetPasswordError>> {
-    return await this._keyRing.resetPassword(currentPassword, newPassword,
-      accountId);
+  ): Promise<Result<null, ResetPasswordError>> {
+    return await this._keyRing.resetPassword(
+      currentPassword,
+      newPassword,
+      accountId
+    );
   }
 
   async generateMnemonic(size?: PhraseSize): Promise<string[]> {
@@ -359,5 +361,11 @@ export class KeyRingService {
     }
 
     return;
+  }
+
+  async queryBalances(
+    owner: string
+  ): Promise<{ token: string; amount: number }[]> {
+    return this._keyRing.queryBalances(owner);
   }
 }

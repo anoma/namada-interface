@@ -36,6 +36,15 @@ export class InjectedAnoma implements IAnoma {
     );
   }
 
+  public async balances(
+    owner: string
+  ): Promise<{ token: string; amount: number }[]> {
+    return await InjectedProxy.requestMethod<
+      string,
+      { token: string; amount: number }[]
+    >("balances", owner);
+  }
+
   public getSigner(chainId: string): ISigner | undefined {
     return new Signer(chainId, this);
   }

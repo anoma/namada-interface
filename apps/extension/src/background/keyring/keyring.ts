@@ -72,6 +72,7 @@ type DerivedShieldedAccountInfo = {
   address: string;
   id: string;
   spendingKey: Uint8Array;
+  viewingKey: string;
   text: string;
 };
 
@@ -125,7 +126,10 @@ export class KeyRing {
     await this.activeAccountStore.set(PARENT_ACCOUNT_ID_KEY, parentId);
   }
 
-  public async checkPassword(password: string, accountId?: string): Promise<boolean> {
+  public async checkPassword(
+    password: string,
+    accountId?: string
+  ): Promise<boolean> {
     // default to active account if no account provided
     const idToCheck = accountId ?? (await this.getActiveAccountId());
 
@@ -165,18 +169,21 @@ export class KeyRing {
         const allAccounts = [topLevelAccount, ...derivedAccounts];
 
         for (const account of allAccounts) {
-          const decryptedSecret = crypto.decrypt(account, currentPassword,
-            this._cryptoMemory);
+          const decryptedSecret = crypto.decrypt(
+            account,
+            currentPassword,
+            this._cryptoMemory
+          );
           const reencrypted = crypto.encrypt({
             ...account,
             password: newPassword,
-            text: decryptedSecret
+            text: decryptedSecret,
           });
           await this._keyStore.update(account.id, reencrypted);
         }
 
         // change password held locally if active account password changed
-        if (accountId === await this.getActiveAccountId()) {
+        if (accountId === (await this.getActiveAccountId())) {
           this._password = newPassword;
         }
       } catch (error) {
@@ -239,6 +246,7 @@ export class KeyRing {
         id,
         alias,
         address,
+        xvk: "",
         chainId,
         password,
         path: {
@@ -328,6 +336,7 @@ export class KeyRing {
       address,
       id,
       spendingKey: xsk,
+      viewingKey,
       text: JSON.stringify({ spendingKey, viewingKey }),
     };
   }
@@ -365,6 +374,7 @@ export class KeyRing {
       let id: string;
       let address: string;
       let text: string;
+      let xvk: string;
 
       if (type === AccountType.ShieldedKeys) {
         const { spendingKey, ...shieldedAccount } =
@@ -372,6 +382,7 @@ export class KeyRing {
         id = shieldedAccount.id;
         address = shieldedAccount.address;
         text = shieldedAccount.text;
+        xvk = shieldedAccount.viewingKey;
 
         this.addSpendingKey(spendingKey, this._password, alias);
       } else {
@@ -385,6 +396,7 @@ export class KeyRing {
         id = transparentAccount.id;
         address = transparentAccount.address;
         text = transparentAccount.text;
+        xvk = "";
 
         this.addSecretKey(text, this._password, alias);
       }
@@ -395,6 +407,7 @@ export class KeyRing {
         crypto.encrypt({
           alias,
           address,
+          xvk,
           chainId,
           id,
           parentId,
@@ -408,6 +421,7 @@ export class KeyRing {
       return {
         id,
         address,
+        xvk,
         alias,
         chainId,
         parentId,
@@ -435,8 +449,9 @@ export class KeyRing {
       // Return only non-encrypted data
 
       return accounts.map(
-        ({ address, alias, chainId, path, parentId, id, type }) => ({
+        ({ address, xvk, alias, chainId, path, parentId, id, type }) => ({
           address,
+          xvk,
           alias,
           chainId,
           id,
@@ -459,8 +474,9 @@ export class KeyRing {
     );
     // Return only non-encrypted data
     return (accounts || []).map(
-      ({ address, alias, chainId, path, parentId, id, type }) => ({
+      ({ address, xvk, alias, chainId, path, parentId, id, type }) => ({
         address,
+        xvk,
         alias,
         chainId,
         id,
@@ -579,21 +595,40 @@ export class KeyRing {
     const derivedAccounts =
       (await this._keyStore.getRecords("parentId", accountId)) || [];
 
-    const accountIds = [
-      accountId,
-      ...derivedAccounts.map(({id}) => id)
-    ]
+    const accountIds = [accountId, ...derivedAccounts.map(({ id }) => id)];
 
     for (const id of accountIds) {
-      id && await this._keyStore.remove(id);
+      id && (await this._keyStore.remove(id));
     }
 
     // remove password held locally if active account deleted
-    if (accountId === await this.getActiveAccountId()) {
+    if (accountId === (await this.getActiveAccountId())) {
       this._password = undefined;
     }
 
     return Result.ok(null);
+  }
+
+  async queryBalances(
+    address: string
+  ): Promise<{ token: string; amount: number }[]> {
+    const account = await this._keyStore.getRecord("address", address);
+    if (!account) {
+      throw new Error(`Account not found.`);
+    }
+
+    //TODO: store owner instead of xvk in store
+    // transparent ? owner = address : owner = xvk
+    const owner = account.xvk || account.address;
+
+    return (await this.sdk.query_balance(owner)).map(
+      ([token, amount]: [string, number]) => {
+        return {
+          token,
+          amount,
+        };
+      }
+    );
   }
 
   private async addSecretKey(

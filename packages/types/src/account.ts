@@ -18,6 +18,7 @@ export type DerivedAccount = {
   id: string;
   chainId: string;
   address: string;
+  xvk: string;
   alias: string;
   parentId?: string;
   path: Bip44Path;
