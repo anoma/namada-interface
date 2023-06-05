@@ -63,7 +63,13 @@ impl Sdk {
 
     pub fn decode(&mut self, data: Vec<u8>) -> Result<(), JsError> {
         let mut wallet = wallet::decode(data)?;
+        //TODO: Figure out if we can do something better than adding token addresses manually
+        // NAM
         wallet.add_vp_type_to_address(AddressVpType::Token, Address::from_str("atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5").unwrap());
+        // ATOM
+        wallet.add_vp_type_to_address(AddressVpType::Token, Address::from_str("atest1v4ehgw36gfryydj9g3p5zv3kg9znyd358ycnzsfcggc5gvecgc6ygs2rxv6ry3zpg4zrwdfeumqcz9").unwrap());
+        // ETH
+        wallet.add_vp_type_to_address(AddressVpType::Token, Address::from_str("atest1v4ehgw36xqmr2d3nx3ryvd2xxgmrq33j8qcns33sxezrgv6zxdzrydjrxveygd2yxumrsdpsf9jc2p").unwrap());
         self.wallet = wallet;
         Ok(())
     }
