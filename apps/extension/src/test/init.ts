@@ -23,7 +23,7 @@ import {
 
 import { Anoma } from "provider";
 import { Chain } from "@anoma/types";
-import { Sdk } from "@anoma/shared";
+import { Query, Sdk } from "@anoma/shared";
 
 // __wasm is not exported in crypto.d.ts so need to use require instead of import
 /* eslint-disable @typescript-eslint/no-var-requires */
@@ -80,6 +80,7 @@ export const init = async (): Promise<{
   );
 
   const sdk = new Sdk("");
+  const query = new Query("");
 
   const chainsService = new ChainsService(
     iDBStore as KVStore<Chain[]>,
@@ -93,6 +94,7 @@ export const init = async (): Promise<{
     extStore,
     chainId,
     sdk,
+    query,
     cryptoMemory,
     requester
   );

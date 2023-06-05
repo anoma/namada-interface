@@ -81,7 +81,7 @@ export default class Anoma implements Integration<Account, Signer> {
 
   public async queryBalances(owner: string): Promise<TokenBalance[]> {
     const balance = (await this._anoma?.balances(owner)) || [];
-    const tokenBalances2 = Object.keys(Tokens).map((tokenType: string) => {
+    const tokenBalances = Object.keys(Tokens).map((tokenType: string) => {
       const { address: tokenAddress = "" } = Tokens[tokenType as TokenType];
       const amount =
         balance.find(({ token }) => token === tokenAddress)?.amount || 0;
@@ -93,6 +93,6 @@ export default class Anoma implements Integration<Account, Signer> {
       };
     });
 
-    return tokenBalances2;
+    return tokenBalances;
   }
 }

@@ -18,8 +18,6 @@ enum MessageType {
   QueryAccounts = "query-accounts",
   ApproveTransfer = "approve-tx",
   QueryBalances = "query-balances",
-  SignTx = "sign-tx",
-  SubmitTransfer = "submit-transfer",
   SubmitIbcTransfer = "submit-ibc-transfer",
   EncodeInitAccount = "encode-init-account",
   EncodeRevealPublicKey = "encode-reveal-public-key",
@@ -177,31 +175,6 @@ export class QueryBalancesMsg extends Message<
 
   type(): string {
     return QueryBalancesMsg.type();
-  }
-}
-
-export class SubmitTransferMsg extends Message<void> {
-  public static type(): MessageType {
-    return MessageType.SubmitTransfer;
-  }
-
-  constructor(public readonly txMsg: string) {
-    super();
-  }
-
-  validate(): void {
-    if (!this.txMsg) {
-      throw new Error("An encoded txMsg is required!");
-    }
-    return;
-  }
-
-  route(): string {
-    return Route.KeyRing;
-  }
-
-  type(): string {
-    return SubmitTransferMsg.type();
   }
 }
 

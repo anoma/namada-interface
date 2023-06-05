@@ -3,7 +3,7 @@ import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import { PhraseSize } from "@anoma/crypto";
 import { KVStore } from "@anoma/storage";
 import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
-import { Sdk } from "@anoma/shared";
+import { Query, Sdk } from "@anoma/shared";
 import { Result } from "@anoma/utils";
 
 import { KeyRing } from "./keyring";
@@ -42,6 +42,7 @@ export class KeyRingService {
     protected readonly extensionStore: KVStore<number>,
     protected readonly chainId: string,
     protected readonly sdk: Sdk,
+    protected readonly query: Query,
     protected readonly cryptoMemory: WebAssembly.Memory,
     protected readonly requester: ExtensionRequester
   ) {
@@ -52,6 +53,7 @@ export class KeyRingService {
       extensionStore,
       chainId,
       sdk,
+      query,
       cryptoMemory
     );
   }

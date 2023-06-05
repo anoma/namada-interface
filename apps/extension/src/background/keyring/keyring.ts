@@ -14,6 +14,7 @@ import {
   ExtendedViewingKey,
   PaymentAddress,
   Sdk,
+  Query,
 } from "@anoma/shared";
 import { IStore, KVStore, Store } from "@anoma/storage";
 import {
@@ -92,6 +93,7 @@ export class KeyRing {
     protected readonly extensionStore: KVStore<number>,
     protected readonly chainId: string,
     protected readonly sdk: Sdk,
+    protected readonly query: Query,
     protected readonly cryptoMemory: WebAssembly.Memory
   ) {
     this._keyStore = new Store(KEYSTORE_KEY, kvStore);
@@ -614,7 +616,7 @@ export class KeyRing {
       throw new Error(`Account not found.`);
     }
 
-    return (await this.sdk.query_balance(account.owner)).map(
+    return (await this.query.query_balance(account.owner)).map(
       ([token, amount]: [string, number]) => {
         return {
           token,
