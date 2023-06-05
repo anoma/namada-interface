@@ -10,7 +10,6 @@ import {
   WindowWithAnoma,
 } from "@anoma/types";
 import { fetchWasmCode } from "@anoma/utils";
-import { RpcClient } from "@anoma/rpc";
 
 import { BridgeProps, Integration } from "./types/Integration";
 
