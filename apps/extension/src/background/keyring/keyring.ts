@@ -246,7 +246,7 @@ export class KeyRing {
         id,
         alias,
         address,
-        xvk: "",
+        owner: address,
         chainId,
         password,
         path: {
@@ -374,7 +374,7 @@ export class KeyRing {
       let id: string;
       let address: string;
       let text: string;
-      let xvk: string;
+      let owner: string;
 
       if (type === AccountType.ShieldedKeys) {
         const { spendingKey, ...shieldedAccount } =
@@ -382,7 +382,7 @@ export class KeyRing {
         id = shieldedAccount.id;
         address = shieldedAccount.address;
         text = shieldedAccount.text;
-        xvk = shieldedAccount.viewingKey;
+        owner = shieldedAccount.viewingKey;
 
         this.addSpendingKey(spendingKey, this._password, alias);
       } else {
@@ -396,7 +396,7 @@ export class KeyRing {
         id = transparentAccount.id;
         address = transparentAccount.address;
         text = transparentAccount.text;
-        xvk = "";
+        owner = transparentAccount.address;
 
         this.addSecretKey(text, this._password, alias);
       }
@@ -407,7 +407,7 @@ export class KeyRing {
         crypto.encrypt({
           alias,
           address,
-          xvk,
+          owner,
           chainId,
           id,
           parentId,
@@ -421,7 +421,6 @@ export class KeyRing {
       return {
         id,
         address,
-        xvk,
         alias,
         chainId,
         parentId,
@@ -449,9 +448,8 @@ export class KeyRing {
       // Return only non-encrypted data
 
       return accounts.map(
-        ({ address, xvk, alias, chainId, path, parentId, id, type }) => ({
+        ({ address, alias, chainId, path, parentId, id, type }) => ({
           address,
-          xvk,
           alias,
           chainId,
           id,
@@ -474,9 +472,8 @@ export class KeyRing {
     );
     // Return only non-encrypted data
     return (accounts || []).map(
-      ({ address, xvk, alias, chainId, path, parentId, id, type }) => ({
+      ({ address, alias, chainId, path, parentId, id, type }) => ({
         address,
-        xvk,
         alias,
         chainId,
         id,
@@ -617,11 +614,7 @@ export class KeyRing {
       throw new Error(`Account not found.`);
     }
 
-    //TODO: store owner instead of xvk in store
-    // transparent ? owner = address : owner = xvk
-    const owner = account.xvk || account.address;
-
-    return (await this.sdk.query_balance(owner)).map(
+    return (await this.sdk.query_balance(account.owner)).map(
       ([token, amount]: [string, number]) => {
         return {
           token,

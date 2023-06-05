@@ -7,7 +7,7 @@ import { readVecU8Pointer } from "@anoma/crypto/src/utils";
 type CryptoArgs = {
   alias: string;
   address: string;
-  xvk: string;
+  owner: string;
   chainId: string;
   path: Bip44Path;
   id: string;
@@ -21,7 +21,7 @@ export class Crypto {
   public encrypt(args: CryptoArgs): KeyStore {
     const {
       address,
-      xvk,
+      owner,
       alias,
       chainId,
       path,
@@ -50,7 +50,7 @@ export class Crypto {
     return {
       alias,
       address,
-      xvk,
+      owner,
       chainId,
       id,
       parentId,
