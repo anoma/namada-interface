@@ -6,10 +6,8 @@ import {
   Tokens,
   TokenType,
   TokenBalance,
-  TxWasm,
   WindowWithAnoma,
 } from "@anoma/types";
-import { fetchWasmCode } from "@anoma/utils";
 
 import { BridgeProps, Integration } from "./types/Integration";
 
@@ -61,7 +59,6 @@ export default class Anoma implements Integration<Account, Signer> {
           token: Tokens.NAM.address || "",
           feeAmount: 0,
           gasLimit: 0,
-          txCode: await fetchWasmCode(TxWasm.RevealPK),
         },
         source,
         receiver,
@@ -69,7 +66,6 @@ export default class Anoma implements Integration<Account, Signer> {
         portId,
         token: tokenAddress || "",
         amount,
-        txCode: await fetchWasmCode(TxWasm.IBC),
       });
     } else if (props.bridgeProps) {
       console.log("TODO: Implement Ethereum Bridge transfer");

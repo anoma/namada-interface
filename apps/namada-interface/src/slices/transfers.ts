@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
-import { Account, TxWasm, Tokens, TokenType, Signer } from "@anoma/types";
-import { amountToMicro, fetchWasmCode } from "@anoma/utils";
+import { Account, Tokens, TokenType, Signer } from "@anoma/types";
+import { amountToMicro } from "@anoma/utils";
 import { getIntegration } from "@anoma/hooks";
 
 import {
@@ -160,7 +160,6 @@ export const submitTransferTransaction = createAsyncThunk<
         token: Tokens.NAM.address || "",
         feeAmount: 0,
         gasLimit: 0,
-        txCode: await fetchWasmCode(TxWasm.RevealPK),
         chainId,
       },
       source: txTransferArgs.account.address,
@@ -168,7 +167,6 @@ export const submitTransferTransaction = createAsyncThunk<
       token: Tokens.NAM.address || "",
       amount: amountToMicro(txTransferArgs.amount),
       nativeToken: Tokens.NAM.address || "",
-      txCode: await fetchWasmCode(TxWasm.Transfer),
     });
   }
 );
@@ -196,12 +194,10 @@ export const submitIbcTransferTransaction = createAsyncThunk<
           feeAmount: 0,
           gasLimit: 0,
           chainId,
-          txCode: await fetchWasmCode(TxWasm.RevealPK),
         },
         source: txIbcTransferArgs.account.address,
         receiver: txIbcTransferArgs.target,
         token: Tokens.NAM.address || "",
-        txCode: await fetchWasmCode(TxWasm.RevealPK),
         amount: txIbcTransferArgs.amount,
         portId: txIbcTransferArgs.portId,
         channelId: txIbcTransferArgs.channelId,
@@ -233,7 +229,7 @@ export const submitBridgeTransferTransaction = createAsyncThunk<
     );
 
     await integration.submitBridgeTransfer({
-      // TODO: tx and txCode (below) are *not* required for Keplr, but are required for this type.
+      // TODO: tx (below) is *not* required for Keplr, but are required for this type.
       // This should be accounted for in the type declarations and integration.
       bridgeProps: {
         tx: {
@@ -241,14 +237,12 @@ export const submitBridgeTransferTransaction = createAsyncThunk<
           feeAmount: 0,
           gasLimit: 0,
           chainId,
-          txCode: await fetchWasmCode(TxWasm.RevealPK),
         },
         source: txBridgeTransferArgs.account.address,
         target: txBridgeTransferArgs.target,
         token: txBridgeTransferArgs.token,
         // TODO: Check to see if amountToMicro is needed here once implemented for ETH Bridge:
         amount: amountToMicro(txBridgeTransferArgs.amount),
-        txCode: await fetchWasmCode(TxWasm.IBC),
       },
     });
 

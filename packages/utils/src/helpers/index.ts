@@ -1,6 +1,6 @@
 import { JsonRpcRequest } from "@cosmjs/json-rpc";
 import { DateTime } from "luxon";
-import { JsonCompatibleArray, JsonCompatibleDictionary } from "@anoma/rpc";
+import { JsonCompatibleArray, JsonCompatibleDictionary } from "@anoma/types";
 
 const MICRO_FACTOR = 1000000; // 1,000,000
 
@@ -136,11 +136,10 @@ export const truncateInMiddle = (
 export const assertNever = (x: never): never => {
   throw new Error("this should never happen");
   return x;
-}
+};
 
-
-export type Ok<T> = { ok: true, value: T };
-export type Err<E> = { ok: false, error: E };
+export type Ok<T> = { ok: true; value: T };
+export type Err<E> = { ok: false; error: E };
 
 /**
  * Result type used to indicate success or failure.

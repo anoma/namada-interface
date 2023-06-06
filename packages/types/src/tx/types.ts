@@ -2,7 +2,6 @@ export type SubmitBondProps = {
   validator: string;
   amount: number;
   source: string;
-  txCode: Uint8Array;
   nativeToken: string;
   tx: TxProps;
 };
@@ -11,7 +10,6 @@ export type SubmitUnbondProps = {
   validator: string;
   amount: number;
   source: string;
-  txCode: Uint8Array;
   tx: TxProps;
 };
 
@@ -19,7 +17,6 @@ export type TxProps = {
   token: string;
   feeAmount: number;
   gasLimit: number;
-  txCode: Uint8Array;
   chainId: string;
 };
 
@@ -31,7 +28,6 @@ export type TransferProps = {
   subPrefix?: string;
   amount: number;
   nativeToken: string;
-  txCode: Uint8Array;
 };
 
 export type IbcTransferProps = {
@@ -45,7 +41,6 @@ export type IbcTransferProps = {
   channelId: string;
   timeoutHeight?: number;
   timeoutSecOffset?: number;
-  txCode: Uint8Array;
 };
 
 // TODO: This is a placeholder
@@ -55,7 +50,6 @@ export type BridgeTransferProps = {
   target: string;
   token: string;
   amount: number;
-  txCode: Uint8Array;
 };
 
 export type InitAccountProps = {

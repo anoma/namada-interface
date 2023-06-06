@@ -1,8 +1,8 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 import { Query } from "@anoma/shared";
-import { amountToMicro, fetchWasmCode } from "@anoma/utils";
-import { Signer, Tokens, TxWasm } from "@anoma/types";
+import { amountToMicro } from "@anoma/utils";
+import { Signer, Tokens } from "@anoma/types";
 import { chains } from "@anoma/chains";
 import { getIntegration } from "@anoma/hooks";
 
@@ -164,13 +164,11 @@ export const postNewBonding = createAsyncThunk<
     source: change.owner,
     validator: change.validatorId,
     amount: amountToMicro(Number(change.amount)),
-    txCode: await fetchWasmCode(TxWasm.Bond),
     nativeToken: Tokens.NAM.address || "",
     tx: {
       token: Tokens.NAM.address || "",
       feeAmount: 0,
       gasLimit: 0,
-      txCode: await fetchWasmCode(TxWasm.RevealPK),
       chainId,
     },
   });
@@ -193,12 +191,10 @@ export const postNewUnbonding = createAsyncThunk<
     source: change.owner,
     validator: change.validatorId,
     amount: amountToMicro(Number(change.amount)),
-    txCode: await fetchWasmCode(TxWasm.Unbond),
     tx: {
       token: Tokens.NAM.address || "",
       feeAmount: 0,
       gasLimit: 0,
-      txCode: await fetchWasmCode(TxWasm.RevealPK),
       chainId,
     },
   });

@@ -13,10 +13,6 @@ const createStyledComponentsTransformer =
 
 const copyPatterns = [
   {
-    from: "./public/wasm/*.wasm",
-    to: "./wasm/[name].wasm",
-  },
-  {
     from: "./public/*.png",
     to: "./assets/[name].png",
   },

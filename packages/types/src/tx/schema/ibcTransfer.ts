@@ -14,7 +14,6 @@ export class IbcTransferMsgValue {
   channel_id: string;
   timeout_height?: BN;
   timeout_sec_offset?: BN;
-  tx_code: Uint8Array;
 
   constructor(properties: IbcTransferProps) {
     const timeoutHeight = properties.timeoutHeight
@@ -34,7 +33,6 @@ export class IbcTransferMsgValue {
     this.channel_id = properties.channelId;
     this.timeout_height = timeoutHeight;
     this.timeout_sec_offset = timeoutSecOffset;
-    this.tx_code = properties.txCode;
   }
 }
 
@@ -53,7 +51,6 @@ const IbcTransferMsgSchema: [unknown, unknown] = [
       ["channel_id", "string"],
       ["timeout_height", { kind: "option", type: "u64" }],
       ["timeout_sec_offset", { kind: "option", type: "u64" }],
-      ["tx_code", ["u8"]],
     ],
   },
 ];
