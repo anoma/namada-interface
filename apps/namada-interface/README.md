@@ -108,7 +108,6 @@ See [IBC Testing Setup](https://hackmd.io/vCawBZZYQYGRxZXeMgIqGw?view) for more 
 │   └── wasm.ts           # Wasm source constants
 ├── lib
 │   ├── rpc
-│   │   ├── RpcClient.ts    # RPC HTTP library
 │   │   ├── SocketClient.ts # RPC WebSocket library
 │   │   └── types.ts        # RPC Request/Response types
 │   ├── tx

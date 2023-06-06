@@ -19,6 +19,7 @@ import {
   ConnectInterfaceMsg,
   EncodeInitAccountMsg,
   QueryAccountsMsg,
+  QueryBalancesMsg,
   EncodeRevealPkMsg,
   SubmitBondMsg,
   SubmitUnbondMsg,
@@ -40,6 +41,7 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(GetActiveAccountMsg);
   router.registerMessage(LockKeyRingMsg);
   router.registerMessage(QueryAccountsMsg);
+  router.registerMessage(QueryBalancesMsg);
   router.registerMessage(QueryParentAccountsMsg);
   router.registerMessage(ResetPasswordMsg);
   router.registerMessage(SaveMnemonicMsg);

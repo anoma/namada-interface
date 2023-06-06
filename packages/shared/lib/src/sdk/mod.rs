@@ -6,7 +6,7 @@ use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 
 use crate::{rpc_client::HttpClient, sdk::masp::WebShieldedUtils, utils::to_bytes};
 
-mod masp;
+pub mod masp;
 mod tx;
 mod wallet;
 

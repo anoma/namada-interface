@@ -27,6 +27,8 @@ export const keyStore: KeyStore[] = [
     alias: "Parent Account",
     address:
       "atest1d9khqw36gvurxv6yxcmyvv6pgdzyxwp3g9z5gv6px5cyxs348yenjd6ygse5y32xxapy2dph26clnv",
+    owner:
+      "atest1d9khqw36gvurxv6yxcmyvv6pgdzyxwp3g9z5gv6px5cyxs348yenjd6ygse5y32xxapy2dph26clnv",
     chainId: "namada-75a7e12.69483d59a9fb174",
     id: ACTIVE_ACCOUNT_ID,
     path: {
@@ -63,6 +65,8 @@ export const keyStore: KeyStore[] = [
   {
     alias: "Derived Account",
     address:
+      "atest1d9khqw36geprgd2yxgcyy3fnxymnzwf4xpprgdzxgccryvp489qn2wzyxcmrgd2xxdznvv2p8akmfs",
+    owner:
       "atest1d9khqw36geprgd2yxgcyy3fnxymnzwf4xpprgdzxgccryvp489qn2wzyxcmrgd2xxdznvv2p8akmfs",
     chainId: "namada-75a7e12.69483d59a9fb174",
     id: "123e4567-e89b-12d3-a456-426614174000",

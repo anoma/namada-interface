@@ -7,6 +7,7 @@ import { readVecU8Pointer } from "@anoma/crypto/src/utils";
 type CryptoArgs = {
   alias: string;
   address: string;
+  owner: string;
   chainId: string;
   path: Bip44Path;
   id: string;
@@ -20,6 +21,7 @@ export class Crypto {
   public encrypt(args: CryptoArgs): KeyStore {
     const {
       address,
+      owner,
       alias,
       chainId,
       path,
@@ -48,6 +50,7 @@ export class Crypto {
     return {
       alias,
       address,
+      owner,
       chainId,
       id,
       parentId,
@@ -60,25 +63,30 @@ export class Crypto {
         },
         kdf: {
           type: KdfType.Argon2,
-          params: { m_cost: params.m_cost, t_cost: params.t_cost, p_cost: params.p_cost, salt },
+          params: {
+            m_cost: params.m_cost,
+            t_cost: params.t_cost,
+            p_cost: params.p_cost,
+            salt,
+          },
         },
       },
       type,
     };
   }
 
-  public decrypt(store: KeyStore, password: string, cryptoMemory: WebAssembly.Memory): string {
+  public decrypt(
+    store: KeyStore,
+    password: string,
+    cryptoMemory: WebAssembly.Memory
+  ): string {
     const { crypto } = store;
     const { cipher, kdf } = crypto;
     const { m_cost, t_cost, p_cost, salt } = kdf.params;
 
     const argon2Params = new Argon2Params(m_cost, t_cost, p_cost);
 
-    const newKey = new Argon2(
-      password,
-      salt,
-      argon2Params
-    ).key();
+    const newKey = new Argon2(password, salt, argon2Params).key();
 
     const aes = new AES(newKey, cipher.iv);
     const vecU8Pointer = aes.decrypt(cipher.text);

@@ -73,7 +73,9 @@ describe("Anoma", () => {
   it("should return all accounts", async () => {
     iDBStore.set(KEYSTORE_KEY, keyStore);
     activeAccountStore.set(PARENT_ACCOUNT_ID_KEY, ACTIVE_ACCOUNT_ID);
-    const storedKeyStore = keyStore.map(({ crypto: _, ...account }) => account);
+    const storedKeyStore = keyStore.map(
+      ({ crypto: _crypto, owner: _owner, ...account }) => account
+    );
     const storedAccounts = await anoma.accounts(chain.chainId);
 
     expect(storedAccounts).toEqual(storedKeyStore);

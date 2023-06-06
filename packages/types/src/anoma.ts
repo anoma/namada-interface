@@ -5,6 +5,9 @@ import { Signer } from "./signer";
 export interface Anoma {
   connect(chainId: string): Promise<void>;
   accounts(chainId: string): Promise<DerivedAccount[] | undefined>;
+  balances(
+    owner: string
+  ): Promise<{ token: string; amount: number }[] | undefined>;
   suggestChain(chainConfig: Chain): Promise<void>;
   chain: (chainId: string) => Promise<Chain | undefined>;
   chains: () => Promise<Chain[] | undefined>;

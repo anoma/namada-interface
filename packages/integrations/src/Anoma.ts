@@ -10,14 +10,13 @@ import {
   WindowWithAnoma,
 } from "@anoma/types";
 import { fetchWasmCode } from "@anoma/utils";
-import { RpcClient } from "@anoma/rpc";
 
 import { BridgeProps, Integration } from "./types/Integration";
 
 export default class Anoma implements Integration<Account, Signer> {
   private _anoma: WindowWithAnoma["anoma"] | undefined;
 
-  constructor(public readonly chain: Chain) { }
+  constructor(public readonly chain: Chain) {}
 
   public get instance(): IAnoma | undefined {
     return this._anoma;
@@ -81,19 +80,19 @@ export default class Anoma implements Integration<Account, Signer> {
   }
 
   public async queryBalances(owner: string): Promise<TokenBalance[]> {
-    const rpcClient = new RpcClient(this.chain.rpc);
-
-    const tokenBalances = Object.keys(Tokens).map(async (tokenType: string) => {
+    const balance = (await this._anoma?.balances(owner)) || [];
+    const tokenBalances = Object.keys(Tokens).map((tokenType: string) => {
       const { address: tokenAddress = "" } = Tokens[tokenType as TokenType];
-      const amount = await rpcClient.queryBalance(tokenAddress, owner);
+      const amount =
+        balance.find(({ token }) => token === tokenAddress)?.amount || 0;
 
       return {
         token: tokenType as TokenType,
         // TODO: Implement balance fetching via SDK
-        amount: amount || 0,
+        amount,
       };
     });
 
-    return Promise.all(tokenBalances);
+    return tokenBalances;
   }
 }

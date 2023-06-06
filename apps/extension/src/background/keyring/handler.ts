@@ -20,6 +20,7 @@ import {
   ConnectInterfaceMsg,
   EncodeInitAccountMsg,
   QueryAccountsMsg,
+  QueryBalancesMsg,
   SubmitBondMsg,
   SubmitUnbondMsg,
   SubmitIbcTransferMsg,
@@ -54,6 +55,8 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleDeriveAccountMsg(service)(env, msg as DeriveAccountMsg);
       case QueryAccountsMsg:
         return handleQueryAccountsMsg(service)(env, msg as QueryAccountsMsg);
+      case QueryBalancesMsg:
+        return handleQueryBalancesMsg(service)(env, msg as QueryBalancesMsg);
       case SetActiveAccountMsg:
         return handleSetActiveAccountMsg(service)(
           env,
@@ -184,6 +187,14 @@ const handleQueryAccountsMsg: (
 ) => InternalHandler<QueryAccountsMsg> = (service) => {
   return async (_, _msg) => {
     return await service.queryAccounts();
+  };
+};
+
+const handleQueryBalancesMsg: (
+  service: KeyRingService
+) => InternalHandler<QueryBalancesMsg> = (service) => {
+  return async (_, msg) => {
+    return await service.queryBalances(msg.owner);
   };
 };
 

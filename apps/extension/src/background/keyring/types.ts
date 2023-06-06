@@ -25,6 +25,7 @@ export interface KeyStore<T = Argon2Params> {
   id: string;
   alias: string;
   address: string;
+  owner: string;
   chainId: string;
   crypto: {
     cipher: {
@@ -65,10 +66,10 @@ export type TabStore = {
 
 export enum ResetPasswordError {
   BadPassword,
-  KeyStoreError
-};
+  KeyStoreError,
+}
 
 export enum DeleteAccountError {
   BadPassword,
-  KeyStoreError
-};
+  KeyStoreError,
+}

@@ -9,6 +9,7 @@ import {
   SuggestChainMsg,
   EncodeInitAccountMsg,
   QueryAccountsMsg,
+  QueryBalancesMsg,
   SubmitBondMsg,
   SubmitUnbondMsg,
   SubmitIbcTransferMsg,
@@ -47,6 +48,15 @@ export class Anoma implements IAnoma {
     return await this.requester?.sendMessage(
       Ports.Background,
       new QueryAccountsMsg(chainId)
+    );
+  }
+
+  public async balances(
+    owner: string
+  ): Promise<{ token: string; amount: number }[] | undefined> {
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new QueryBalancesMsg(owner)
     );
   }
 

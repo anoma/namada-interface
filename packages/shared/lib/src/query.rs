@@ -1,13 +1,17 @@
-use gloo_utils::format::JsValueSerdeExt;
+use masp_primitives::{transaction::components::Amount, zip32::ExtendedFullViewingKey};
+use namada::ledger::masp::ShieldedContext;
 use namada::ledger::queries::RPC;
+use namada::ledger::rpc::get_token_balance;
 use namada::types::address::Address;
-use namada::types::token::Amount;
-use serde::Serialize;
+use namada::types::masp::ExtendedViewingKey;
+use namada::types::token;
 use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 use wasm_bindgen::prelude::*;
 
 use crate::rpc_client::HttpClient;
+use crate::sdk::masp;
+use crate::utils::to_js_result;
 
 #[wasm_bindgen]
 /// Represents an API for querying the ledger
@@ -17,20 +21,6 @@ pub struct Query {
 
 #[wasm_bindgen]
 impl Query {
-    /// Maps a result to a JsValue using Serde and Error into a JsError
-    ///
-    /// # Arguments
-    ///
-    /// * `result` - The result to map
-    fn to_js_result<T>(result: T) -> Result<JsValue, JsError>
-    where
-        T: Serialize,
-    {
-        match JsValue::from_serde(&result) {
-            Ok(v) => Ok(v),
-            Err(e) => Err(JsError::new(&e.to_string())),
-        }
-    }
     #[wasm_bindgen(constructor)]
     pub fn new(url: String) -> Query {
         console_error_panic_hook::set_once();
@@ -46,7 +36,7 @@ impl Query {
     pub async fn query_epoch(&self) -> Result<JsValue, JsError> {
         let epoch = RPC.shell().epoch(&self.client).await?;
 
-        Query::to_js_result(epoch)
+        to_js_result(epoch)
     }
 
     /// Gets all active validators with their total bonds
@@ -61,7 +51,7 @@ impl Query {
             .validator_addresses(&self.client, &None)
             .await?;
 
-        let mut result: Vec<(Address, Amount)> = Vec::new();
+        let mut result: Vec<(Address, token::Amount)> = Vec::new();
 
         for address in validator_addresses.into_iter() {
             let total_bonds = RPC
@@ -70,10 +60,10 @@ impl Query {
                 .validator_stake(&self.client, &address, &None)
                 .await?;
 
-            result.push((address, total_bonds.unwrap_or(Amount::whole(0))));
+            result.push((address, total_bonds.unwrap_or(token::Amount::whole(0))));
         }
 
-        Query::to_js_result(result)
+        to_js_result(result)
     }
 
     /// Gets all delegations for every provided address.
@@ -113,7 +103,7 @@ impl Query {
 
         //TODO: Change to Vec of structs
         //Owner, Validator, Amount
-        let mut result: Vec<(Address, Address, Amount)> = Vec::new();
+        let mut result: Vec<(Address, Address, token::Amount)> = Vec::new();
 
         for (owner, validators) in validators_per_address.into_iter() {
             for validator in validators.into_iter() {
@@ -127,6 +117,88 @@ impl Query {
             }
         }
 
-        Query::to_js_result(result)
+        to_js_result(result)
+    }
+
+    fn get_decoded_balance(decoded_balance: Amount<Address>) -> Vec<(Address, token::Amount)> {
+        let mut result = Vec::new();
+
+        for (addr, value) in decoded_balance.components() {
+            let asset_value = token::Amount::from(*value as u64);
+            result.push((addr.clone(), asset_value));
+        }
+
+        result
+    }
+
+    /// Queries transparent balance for a given address
+    ///
+    /// # Arguments
+    ///
+    /// * `owner` - Account address in form of bech32, base64 encoded string
+    async fn query_transparent_balance(&self, owner: Address) -> Vec<(Address, token::Amount)> {
+        //TODO: Move hardoced tokens somewhere else
+        let tokens: HashSet<Address> = HashSet::from([Address::from_str(
+            "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5",
+        )
+        .unwrap(), Address::from_str(
+            "atest1v4ehgw36gfryydj9g3p5zv3kg9znyd358ycnzsfcggc5gvecgc6ygs2rxv6ry3zpg4zrwdfeumqcz9",
+        )
+        .unwrap(), Address::from_str(
+            "atest1v4ehgw36xqmr2d3nx3ryvd2xxgmrq33j8qcns33sxezrgv6zxdzrydjrxveygd2yxumrsdpsf9jc2p",
+        )
+        .unwrap()]);
+
+        let mut result = vec![];
+        for token in tokens {
+            let balances = get_token_balance(&self.client, &token, &owner)
+                .await
+                .unwrap_or(token::Amount::whole(0));
+            result.push((token, balances));
+        }
+        result
+    }
+
+    /// Queries shielded balance for a given extended viewing key
+    ///
+    /// # Arguments
+    ///
+    /// * `xvk` - Extended viewing key
+    async fn query_shielded_balance(
+        &self,
+        xvk: ExtendedViewingKey,
+    ) -> Vec<(Address, token::Amount)> {
+        let viewing_key = ExtendedFullViewingKey::from(xvk).fvk.vk;
+        // We are recreating shielded context to avoid multiple mutable borrows
+        let mut shielded: ShieldedContext<masp::WebShieldedUtils> = ShieldedContext::default();
+
+        let _ = shielded.load();
+        let fvks: Vec<_> = vec![xvk]
+            .iter()
+            .map(|fvk| ExtendedFullViewingKey::from(*fvk).fvk.vk)
+            .collect();
+
+        shielded.fetch(&self.client, &[], &fvks).await;
+
+        let epoch = namada::ledger::rpc::query_epoch(&self.client).await;
+        let balance = shielded
+            .compute_exchanged_balance(&self.client, &viewing_key, epoch)
+            .await
+            .expect("context should contain viewing key");
+        let decoded_balance = shielded.decode_amount(&self.client, balance, epoch).await;
+
+        Self::get_decoded_balance(decoded_balance)
+    }
+
+    pub async fn query_balance(&self, owner: String) -> Result<JsValue, JsError> {
+        let result = match Address::from_str(&owner) {
+            Ok(addr) => self.query_transparent_balance(addr).await,
+            Err(e1) => match ExtendedViewingKey::from_str(&owner) {
+                Ok(xvk) => self.query_shielded_balance(xvk).await,
+                Err(e2) => return Err(JsError::new(&format!("{} {}", e1, e2))),
+            },
+        };
+
+        to_js_result(result)
     }
 }

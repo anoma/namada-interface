@@ -1,4 +1,6 @@
+use gloo_utils::format::JsValueSerdeExt;
 use js_sys::{Uint8Array, JSON};
+use serde::Serialize;
 use std::fmt::Debug;
 use wasm_bindgen::prelude::*;
 
@@ -27,4 +29,19 @@ pub fn to_io_error(js_value: JsValue) -> std::io::Error {
     let e = JSON::stringify(&js_value).expect("Error to be serializable");
     let e_str: String = e.into();
     std::io::Error::new(std::io::ErrorKind::Other, e_str)
+}
+
+/// Maps a result to a JsValue using Serde and Error into a JsError
+///
+/// # Arguments
+///
+/// * `result` - The result to map
+pub fn to_js_result<T>(result: T) -> Result<JsValue, JsError>
+where
+    T: Serialize,
+{
+    match JsValue::from_serde(&result) {
+        Ok(v) => Ok(v),
+        Err(e) => Err(JsError::new(&e.to_string())),
+    }
 }
