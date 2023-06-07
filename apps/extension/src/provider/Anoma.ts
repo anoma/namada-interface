@@ -9,6 +9,8 @@ import {
   SuggestChainMsg,
   EncodeInitAccountMsg,
   QueryAccountsMsg,
+  LoadMaspParamsMsg,
+  HasMaspParamsMsg,
   QueryBalancesMsg,
   SubmitBondMsg,
   SubmitUnbondMsg,
@@ -19,7 +21,7 @@ export class Anoma implements IAnoma {
   constructor(
     private readonly _version: string,
     protected readonly requester?: MessageRequester
-  ) { }
+  ) {}
 
   public async connect(chainId: string): Promise<void> {
     return await this.requester?.sendMessage(
@@ -48,6 +50,20 @@ export class Anoma implements IAnoma {
     return await this.requester?.sendMessage(
       Ports.Background,
       new QueryAccountsMsg(chainId)
+    );
+  }
+
+  public async fetchMaspParams(): Promise<void> {
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new LoadMaspParamsMsg()
+    );
+  }
+
+  public async hasMaspParams(): Promise<boolean | undefined> {
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new HasMaspParamsMsg()
     );
   }
 

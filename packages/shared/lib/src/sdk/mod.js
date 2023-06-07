@@ -1,15 +1,6 @@
 export const PREFIX = "Anoma::SDK";
 
-async function fetchParams(params) {
-  //TODO: pass env
-  return fetch(
-    `https://github.com/anoma/masp-mpc/releases/download/namada-trusted-setup/${params}`
-  )
-    .then((response) => response.arrayBuffer())
-    .then((ab) => new Uint8Array(ab));
-}
-
-export async function fetchAndStore(params) {
+export async function getMaspParams(params) {
   const stored = await get(params);
   let data;
 
@@ -21,6 +12,18 @@ export async function fetchAndStore(params) {
   }
 
   return data;
+}
+
+export async function hasMaspParams(params) {
+  return await has(params);
+}
+
+async function fetchParams(params) {
+  return fetch(
+    `https://github.com/anoma/masp-mpc/releases/download/namada-trusted-setup/${params}`
+  )
+    .then((response) => response.arrayBuffer())
+    .then((ab) => new Uint8Array(ab));
 }
 
 function getDB() {
@@ -43,7 +46,7 @@ function getDB() {
   });
 }
 
-export async function get(key) {
+async function get(key) {
   const tx = (await getDB()).transaction(PREFIX, "readonly");
   const store = tx.objectStore(PREFIX);
 
@@ -64,7 +67,25 @@ export async function get(key) {
   });
 }
 
-export async function set(key, data) {
+async function has(key) {
+  const tx = (await getDB()).transaction(PREFIX, "readonly");
+  const store = tx.objectStore(PREFIX);
+
+  return new Promise((resolve, reject) => {
+    const request = store.openCursor(key);
+    request.onerror = (event) => {
+      event.stopPropagation();
+
+      reject(event.target);
+    };
+    request.onsuccess = (e) => {
+      const cursor = e.target.result;
+      resolve(!!cursor);
+    };
+  });
+}
+
+async function set(key, data) {
   const tx = (await getDB()).transaction(PREFIX, "readwrite");
   const store = tx.objectStore(PREFIX);
 

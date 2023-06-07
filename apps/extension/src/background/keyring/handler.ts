@@ -24,6 +24,8 @@ import {
   SubmitBondMsg,
   SubmitUnbondMsg,
   SubmitIbcTransferMsg,
+  LoadMaspParamsMsg,
+  HasMaspParamsMsg,
 } from "provider/messages";
 
 export const getHandler: (service: KeyRingService) => Handler = (service) => {
@@ -98,6 +100,13 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         );
       case DeleteAccountMsg:
         return handleDeleteAccountMsg(service)(env, msg as DeleteAccountMsg);
+      case LoadMaspParamsMsg:
+        return handleLoadMaspParamsMsg(service)(
+          env,
+          msg as LoadMaspParamsMsg
+        );
+      case HasMaspParamsMsg:
+        return handleHasMaspParamsMsg(service)(env, msg as HasMaspParamsMsg);
       default:
         throw new Error("Unknown msg type");
     }
@@ -148,8 +157,11 @@ const handleResetPasswordMsg: (
   service: KeyRingService
 ) => InternalHandler<ResetPasswordMsg> = (service) => {
   return async (_, msg) => {
-    return await service.resetPassword(msg.currentPassword, msg.newPassword,
-      msg.accountId);
+    return await service.resetPassword(
+      msg.currentPassword,
+      msg.newPassword,
+      msg.accountId
+    );
   };
 };
 
@@ -281,5 +293,21 @@ const handleDeleteAccountMsg: (
 ) => InternalHandler<DeleteAccountMsg> = (service) => {
   return async (_, msg) => {
     return await service.deleteAccount(msg.accountId, msg.password);
+  };
+};
+
+const handleLoadMaspParamsMsg: (
+  service: KeyRingService
+) => InternalHandler<LoadMaspParamsMsg> = (service) => {
+  return async (_, _msg) => {
+    return await service.loadMaspParams();
+  };
+};
+
+const handleHasMaspParamsMsg: (
+  service: KeyRingService
+) => InternalHandler<HasMaspParamsMsg> = (service) => {
+  return async (_, _msg) => {
+    return await service.hasMaspParams();
   };
 };

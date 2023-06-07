@@ -8,7 +8,11 @@ import { Icon, IconName } from "@anoma/components";
 import { useUntil } from "@anoma/hooks";
 
 import { Ports } from "router";
-import { QueryAccountsMsg } from "provider/messages";
+import {
+  LoadMaspParamsMsg,
+  HasMaspParamsMsg,
+  QueryAccountsMsg,
+} from "provider/messages";
 import { GetActiveAccountMsg } from "background/keyring";
 import { useQuery } from "hooks";
 import {
@@ -31,9 +35,9 @@ import { Settings } from "./Settings";
 import { useRequester } from "hooks/useRequester";
 
 export enum Status {
-  Completed,
-  Pending,
-  Failed,
+  Completed = "Completed",
+  Pending = "Pending",
+  Failed = "Failed",
 }
 
 export const App: React.FC = () => {
@@ -46,6 +50,7 @@ export const App: React.FC = () => {
   const [accounts, setAccounts] = useState<DerivedAccount[]>([]);
   const [parentAccount, setParentAccount] = useState<DerivedAccount>();
   const [error, setError] = useState("");
+  const [statusInfo, setStatusInfo] = useState("");
   const requester = useRequester();
 
   const fetchAccounts = async (): Promise<void> => {
@@ -89,10 +94,26 @@ export const App: React.FC = () => {
       predFn: async () => {
         setStatus(Status.Pending);
         try {
+          setStatusInfo("Fetching accounts...");
           const accounts = await requester.sendMessage(
             Ports.Background,
             new QueryAccountsMsg()
           );
+
+          setStatusInfo("Checking MASP parameters...");
+          const hasMaspParams = await requester.sendMessage(
+            Ports.Background,
+            new HasMaspParamsMsg()
+          );
+
+          if (!hasMaspParams) {
+            setStatusInfo("Fetching MASP parameters...");
+            await requester.sendMessage(
+              Ports.Background,
+              new LoadMaspParamsMsg()
+            );
+          }
+
           setAccounts(accounts);
           return true;
         } catch (e) {
@@ -101,6 +122,7 @@ export const App: React.FC = () => {
         }
       },
       onSuccess: () => {
+        setStatusInfo("");
         setStatus(Status.Completed);
       },
       onFail: () => {
@@ -155,7 +177,9 @@ export const App: React.FC = () => {
           <Routes>
             <Route
               path="*"
-              element={<Loading status={status} error={error} />}
+              element={
+                <Loading status={status} info={statusInfo} error={error} />
+              }
             />
             <Route path={TopLevelRoute.Setup} element={<Setup />} />
             <Route

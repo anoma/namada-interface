@@ -17,7 +17,7 @@ import {
   //TODO: import sdk-store key - can't import from the keyring
   const sdkDataStr: string | undefined = await sdkStore.get("sdk-store");
   const sdk = new Sdk(chains[defaultChainId].rpc);
-  await sdk.fetch_masp_params();
+  await sdk.load_masp_params();
 
   if (sdkDataStr) {
     const sdkData = new TextEncoder().encode(sdkDataStr);

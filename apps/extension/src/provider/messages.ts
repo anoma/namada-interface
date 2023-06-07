@@ -26,6 +26,8 @@ enum MessageType {
   SuggestChain = "suggest-chain",
   SubmitBond = "submit-bond",
   SubmitUnbond = "submit-unbond",
+  LoadMaspParams = "load-masp-params",
+  HasMaspParams = "has-masp-params",
 }
 
 /**
@@ -328,5 +330,39 @@ export class ApproveTransferMsg extends Message<void> {
 
   type(): string {
     return ApproveTransferMsg.type();
+  }
+}
+
+export class LoadMaspParamsMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.LoadMaspParams;
+  }
+  validate(): void {
+    return;
+  }
+
+  route(): string {
+    return Route.KeyRing;
+  }
+
+  type(): string {
+    return LoadMaspParamsMsg.type();
+  }
+}
+
+export class HasMaspParamsMsg extends Message<boolean> {
+  public static type(): MessageType {
+    return MessageType.HasMaspParams;
+  }
+  validate(): void {
+    return;
+  }
+
+  route(): string {
+    return Route.KeyRing;
+  }
+
+  type(): string {
+    return HasMaspParamsMsg.type();
   }
 }

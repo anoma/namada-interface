@@ -32,10 +32,21 @@ impl Sdk {
         }
     }
 
-    pub async fn fetch_masp_params(&mut self) -> Result<(), JsValue> {
-        let spend = fetch_and_store("masp-spend.params").await?;
-        let output = fetch_and_store("masp-output.params").await?;
-        let convert = fetch_and_store("masp-convert.params").await?;
+    pub async fn has_masp_params(&mut self) -> Result<JsValue, JsValue> {
+        let spend = has_masp_params("masp-spend.params").await?;
+        let output = has_masp_params("masp-output.params").await?;
+        let convert = has_masp_params("masp-output.params").await?;
+
+        let has =
+            spend.as_bool().unwrap() && output.as_bool().unwrap() && convert.as_bool().unwrap();
+
+        Ok(js_sys::Boolean::from(has).into())
+    }
+
+    pub async fn load_masp_params(&mut self) -> Result<(), JsValue> {
+        let spend = get_masp_params("masp-spend.params").await?;
+        let output = get_masp_params("masp-output.params").await?;
+        let convert = get_masp_params("masp-convert.params").await?;
 
         self.shielded_ctx =
             WebShieldedUtils::new(to_bytes(spend), to_bytes(output), to_bytes(convert));
@@ -117,6 +128,8 @@ impl Sdk {
 
 #[wasm_bindgen(module = "/src/sdk/mod.js")]
 extern "C" {
-    #[wasm_bindgen(catch, js_name = "fetchAndStore")]
-    async fn fetch_and_store(params: &str) -> Result<JsValue, JsValue>;
+    #[wasm_bindgen(catch, js_name = "getMaspParams")]
+    async fn get_masp_params(params: &str) -> Result<JsValue, JsValue>;
+    #[wasm_bindgen(catch, js_name = "hasMaspParams")]
+    async fn has_masp_params(params: &str) -> Result<JsValue, JsValue>;
 }
