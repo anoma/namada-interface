@@ -617,10 +617,10 @@ export class KeyRing {
     }
 
     return (await this.query.query_balance(account.owner)).map(
-      ([token, amount]: [string, number]) => {
+      ([token, amount]: [string, string]) => {
         return {
           token,
-          amount,
+          amount: Number.parseInt(amount),
         };
       }
     );
