@@ -11,7 +11,6 @@ export class TransferMsgValue {
   sub_prefix?: string;
   amount: BN;
   native_token: string;
-  tx_code: Uint8Array;
 
   constructor(properties: TransferProps) {
     this.tx = new TxMsgValue(properties.tx);
@@ -21,7 +20,6 @@ export class TransferMsgValue {
     this.sub_prefix = properties.subPrefix;
     this.amount = new BN(properties.amount, 64);
     this.native_token = properties.nativeToken;
-    this.tx_code = properties.txCode;
   }
 }
 
@@ -37,7 +35,6 @@ export const TransferMsgSchema: [unknown, unknown] = [
       ["sub_prefix", { kind: "option", type: "string" }],
       ["amount", "u64"],
       ["native_token", "string"],
-      ["tx_code", ["u8"]],
     ],
   },
 ];

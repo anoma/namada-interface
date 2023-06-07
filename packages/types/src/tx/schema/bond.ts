@@ -7,7 +7,6 @@ export class SubmitBondMsgValue {
   source: string;
   validator: string;
   amount: BN;
-  tx_code: Uint8Array;
   native_token: string;
   tx: TxMsgValue;
 
@@ -15,7 +14,6 @@ export class SubmitBondMsgValue {
     this.source = properties.source;
     this.validator = properties.validator;
     this.amount = new BN(properties.amount, 64);
-    this.tx_code = properties.txCode;
     this.native_token = properties.nativeToken;
     this.tx = new TxMsgValue(properties.tx);
   }
@@ -29,7 +27,6 @@ export const BondMsgSchema: [unknown, unknown] = [
       ["source", "string"],
       ["validator", "string"],
       ["amount", "u64"],
-      ["tx_code", ["u8"]],
       ["native_token", "string"],
       ["tx", TxMsgValue],
     ],

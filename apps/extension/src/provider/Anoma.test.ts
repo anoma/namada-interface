@@ -96,7 +96,6 @@ describe("Anoma", () => {
         token,
         feeAmount: 0,
         gasLimit: 0,
-        txCode: new Uint8Array(),
         chainId: chain.chainId,
       },
       source: keyStore[0].address,
@@ -105,7 +104,6 @@ describe("Anoma", () => {
       token,
       amount: 1000,
       nativeToken: token,
-      txCode: new Uint8Array(),
     };
 
     const transferMsgValue = new TransferMsgValue(transferProps);
@@ -134,7 +132,6 @@ describe("Anoma", () => {
         token,
         feeAmount: 0,
         gasLimit: 0,
-        txCode: new Uint8Array(),
         chainId: chain.chainId,
       },
       source: keyStore[0].address,
@@ -144,7 +141,6 @@ describe("Anoma", () => {
       amount: 1000,
       portId: "transfer",
       channelId: "channel-0",
-      txCode: new Uint8Array(),
     };
 
     const transferMsgValue = new IbcTransferMsgValue(transferProps);
