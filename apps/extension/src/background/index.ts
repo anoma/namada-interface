@@ -64,7 +64,6 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
   //TODO: Most likely sdk and query should be a one thing
   const sdk = new Sdk(REACT_APP_NAMADA_URL);
   const query = new Query(REACT_APP_NAMADA_URL);
-  await sdk.fetch_masp_params();
 
   if (sdkDataStr) {
     const sdkData = new TextEncoder().encode(sdkDataStr);

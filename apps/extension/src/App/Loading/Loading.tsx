@@ -1,19 +1,20 @@
 import { Status } from "App/App";
 import React from "react";
-import { LoadingError } from "./Loading.components";
+import { LoadingContainer, LoadingError } from "./Loading.components";
 
 type Props = {
   status?: Status;
+  info?: string;
   error?: string;
 };
 
-const Loading: React.FC<Props> = ({ error, status }) => {
+const Loading: React.FC<Props> = ({ error, status, info }) => {
   return (
-    <div>
+    <LoadingContainer className={error ? "" : "is-loading"}>
       {(status === Status.Failed && (
         <LoadingError>Error: {error}</LoadingError>
-      )) || <p>Loading...</p>}
-    </div>
+      )) || <p>{info ?? "Loading..."}</p>}
+    </LoadingContainer>
   );
 };
 
