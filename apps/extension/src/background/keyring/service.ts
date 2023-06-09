@@ -344,12 +344,12 @@ export class KeyRingService {
     return;
   }
 
-  async loadMaspParams(): Promise<void> {
-    await this.sdk.load_masp_params();
+  async fetchAndStoreMaspParams(): Promise<void> {
+    await Sdk.fetch_and_store_masp_params();
   }
 
   async hasMaspParams(): Promise<boolean> {
-    return this.sdk.has_masp_params();
+    return Sdk.has_masp_params();
   }
 
   private async broadcastUpdateBalance(): Promise<void> {

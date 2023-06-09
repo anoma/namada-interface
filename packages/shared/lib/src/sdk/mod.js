@@ -1,21 +1,32 @@
 export const PREFIX = "Anoma::SDK";
 
-export async function getMaspParams(params) {
-  const stored = await get(params);
-  let data;
-
-  if (!stored) {
-    data = await fetchParams(params);
-    await set(params, data);
-  } else {
-    data = await get(params);
-  }
-
-  return data;
+export async function hasMaspParams() {
+  return (
+    (await has("masp-spend.params")) &&
+    (await has("masp-output.params")) &&
+    (await has("masp-convert.params"))
+  );
 }
 
-export async function hasMaspParams(params) {
-  return await has(params);
+export async function fetchAndStoreMaspParams() {
+  return Promise.all([
+    fetchAndStore("masp-spend.params"),
+    fetchAndStore("masp-output.params"),
+    fetchAndStore("masp-convert.params"),
+  ]);
+}
+
+export async function getMaspParams() {
+  return Promise.all([
+    get("masp-spend.params"),
+    get("masp-output.params"),
+    get("masp-convert.params"),
+  ]);
+}
+
+async function fetchAndStore(params) {
+  const data = await fetchParams(params);
+  await set(params, data);
 }
 
 async function fetchParams(params) {

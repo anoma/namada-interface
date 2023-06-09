@@ -32,24 +32,30 @@ impl Sdk {
         }
     }
 
-    pub async fn has_masp_params(&mut self) -> Result<JsValue, JsValue> {
-        let spend = has_masp_params("masp-spend.params").await?;
-        let output = has_masp_params("masp-output.params").await?;
-        let convert = has_masp_params("masp-output.params").await?;
+    pub async fn has_masp_params() -> Result<JsValue, JsValue> {
+        let has = has_masp_params().await?;
 
-        let has =
-            spend.as_bool().unwrap() && output.as_bool().unwrap() && convert.as_bool().unwrap();
+        Ok(js_sys::Boolean::from(has.as_bool().unwrap()).into())
+    }
 
-        Ok(js_sys::Boolean::from(has).into())
+    pub async fn fetch_and_store_masp_params() -> Result<(), JsValue> {
+        fetch_and_store_masp_params().await?;
+        Ok(())
     }
 
     pub async fn load_masp_params(&mut self) -> Result<(), JsValue> {
-        let spend = get_masp_params("masp-spend.params").await?;
-        let output = get_masp_params("masp-output.params").await?;
-        let convert = get_masp_params("masp-convert.params").await?;
+        let params = get_masp_params().await?;
+        let params_iter = js_sys::try_iter(&params)?.ok_or_else(|| "Can't iterate over JsValue")?;
+        let mut params_bytes = params_iter.map(|p| to_bytes(p.unwrap()));
 
-        self.shielded_ctx =
-            WebShieldedUtils::new(to_bytes(spend), to_bytes(output), to_bytes(convert));
+        let spend = params_bytes.next().unwrap();
+        let output = params_bytes.next().unwrap();
+        let convert = params_bytes.next().unwrap();
+
+        // We are making sure that there are no more params left
+        assert_eq!(params_bytes.next(), None);
+
+        self.shielded_ctx = WebShieldedUtils::new(spend, output, convert);
 
         Ok(())
     }
@@ -129,7 +135,9 @@ impl Sdk {
 #[wasm_bindgen(module = "/src/sdk/mod.js")]
 extern "C" {
     #[wasm_bindgen(catch, js_name = "getMaspParams")]
-    async fn get_masp_params(params: &str) -> Result<JsValue, JsValue>;
+    async fn get_masp_params() -> Result<JsValue, JsValue>;
     #[wasm_bindgen(catch, js_name = "hasMaspParams")]
-    async fn has_masp_params(params: &str) -> Result<JsValue, JsValue>;
+    async fn has_masp_params() -> Result<JsValue, JsValue>;
+    #[wasm_bindgen(catch, js_name = "fetchAndStoreMaspParams")]
+    async fn fetch_and_store_masp_params() -> Result<JsValue, JsValue>;
 }

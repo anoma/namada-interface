@@ -24,7 +24,7 @@ import {
   SubmitBondMsg,
   SubmitUnbondMsg,
   SubmitIbcTransferMsg,
-  LoadMaspParamsMsg,
+  FetchAndStoreMaspParamsMsg,
   HasMaspParamsMsg,
 } from "provider/messages";
 import { ROUTE } from "./constants";
@@ -54,7 +54,7 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(TransferCompletedEvent);
   router.registerMessage(UnlockKeyRingMsg);
   router.registerMessage(DeleteAccountMsg);
-  router.registerMessage(LoadMaspParamsMsg);
+  router.registerMessage(FetchAndStoreMaspParamsMsg);
   router.registerMessage(HasMaspParamsMsg);
 
   router.addHandler(ROUTE, getHandler(service));

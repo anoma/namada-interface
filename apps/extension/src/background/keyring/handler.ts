@@ -24,7 +24,7 @@ import {
   SubmitBondMsg,
   SubmitUnbondMsg,
   SubmitIbcTransferMsg,
-  LoadMaspParamsMsg,
+  FetchAndStoreMaspParamsMsg,
   HasMaspParamsMsg,
 } from "provider/messages";
 
@@ -100,10 +100,10 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         );
       case DeleteAccountMsg:
         return handleDeleteAccountMsg(service)(env, msg as DeleteAccountMsg);
-      case LoadMaspParamsMsg:
-        return handleLoadMaspParamsMsg(service)(
+      case FetchAndStoreMaspParamsMsg:
+        return handleFetchAndStoreMaspParamsMsg(service)(
           env,
-          msg as LoadMaspParamsMsg
+          msg as FetchAndStoreMaspParamsMsg
         );
       case HasMaspParamsMsg:
         return handleHasMaspParamsMsg(service)(env, msg as HasMaspParamsMsg);
@@ -296,11 +296,11 @@ const handleDeleteAccountMsg: (
   };
 };
 
-const handleLoadMaspParamsMsg: (
+const handleFetchAndStoreMaspParamsMsg: (
   service: KeyRingService
-) => InternalHandler<LoadMaspParamsMsg> = (service) => {
+) => InternalHandler<FetchAndStoreMaspParamsMsg> = (service) => {
   return async (_, _msg) => {
-    return await service.loadMaspParams();
+    return await service.fetchAndStoreMaspParams();
   };
 };
 
