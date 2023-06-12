@@ -1,14 +1,11 @@
 import { useEffect } from "react";
 
+import { executeUntil, Config } from "@anoma/utils";
+
 type Options = {
   predFn: () => Promise<boolean>;
   onSuccess: () => unknown;
   onFail: () => unknown;
-};
-
-type Config = {
-  tries: number;
-  ms: number;
 };
 
 /**
@@ -23,28 +20,12 @@ export const useUntil = (
   config: Config,
   deps?: React.DependencyList
 ): void => {
-  const { predFn, onSuccess, onFail } = options;
-  let { tries } = config;
-
-  const wait = async (ms: number): Promise<unknown> => {
-    return new Promise((resolve) => {
-      setTimeout(resolve, ms);
-    });
-  };
-
   useEffect(() => {
-    const execute = async (): Promise<void> => {
-      let succ = false;
-      while (!succ && tries > 0) {
-        succ = await predFn();
-        tries--;
-        await wait(config.ms);
-      }
-
+    const { predFn, onSuccess, onFail } = options;
+    (async () => {
+      const succ = await executeUntil(predFn, config);
       const fn = succ ? onSuccess : onFail;
       fn();
-    };
-
-    execute();
+    })();
   }, deps);
 };

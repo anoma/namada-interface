@@ -3,6 +3,7 @@ import { ExtensionRequester } from "extension";
 import browser from "webextension-polyfill";
 
 import { Button, ButtonVariant } from "@anoma/components";
+import { useUntil } from "@anoma/hooks";
 import { SaveMnemonicMsg } from "background/keyring";
 import { Ports } from "router";
 
@@ -32,24 +33,30 @@ const Completion: React.FC<Props> = (props) => {
   const [mnemonicStatus, setMnemonicStatus] = useState<Status>(Status.Pending);
   const [isComplete, setIsComplete] = useState(false);
 
-  useEffect(() => {
-    if (password && mnemonic) {
-      (async () => {
+  useUntil(
+    {
+      predFn: async () => {
         try {
           await requester.sendMessage<SaveMnemonicMsg>(
             Ports.Background,
             new SaveMnemonicMsg(mnemonic, password, alias)
           );
-          setMnemonicStatus(Status.Completed);
-        } catch (e) {
-          console.error(e);
-          setMnemonicStatus(Status.Failed);
+          return true;
+        } catch (_) {
+          return false;
         }
-
+      },
+      onSuccess: () => {
+        setMnemonicStatus(Status.Completed);
         setIsComplete(true);
-      })();
-    }
-  }, []);
+      },
+      onFail: () => {
+        setMnemonicStatus(Status.Failed);
+        setIsComplete(true);
+      },
+    },
+    { tries: 10, ms: 100 }
+  );
 
   return (
     <SubViewContainer>
