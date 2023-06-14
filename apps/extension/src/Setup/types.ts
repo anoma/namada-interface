@@ -16,6 +16,15 @@ export enum AccountCreationRoute {
   Completion = "completion",
 }
 
+export enum AccountImportRoute {
+  // Type in/paste a seed phrase
+  SeedPhrase = "seed-phrase",
+  // Secure wallet with a password
+  Password = "password",
+  // Final screen with confirmation
+  Completion = "completion",
+}
+
 // Alias and optional password (in the case of Ledger accounts)
 export type AccountDetails = {
   alias: string;

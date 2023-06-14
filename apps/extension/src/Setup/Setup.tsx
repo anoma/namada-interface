@@ -17,12 +17,18 @@ import {
   SeedPhraseConfirmation,
   Password,
 } from "Setup/AccountCreation/Steps";
-import { TopLevelRoute, AccountCreationRoute, AccountDetails } from "./types";
+import {
+  TopLevelRoute,
+  AccountCreationRoute,
+  AccountDetails,
+  AccountImportRoute,
+} from "./types";
 import { Ledger } from "./Ledger";
 import { Start } from "./Start";
 import { AnimatePresence } from "framer-motion";
 import { ImportAccount } from "./ImportAccount";
 import { useRequester } from "hooks/useRequester";
+import { SeedPhraseImport } from "./ImportAccount/Steps";
 
 type AnimatedTransitionProps = {
   elementKey: string;
@@ -174,7 +180,80 @@ export const Setup: React.FC = () => {
               <Route
                 path={`/${TopLevelRoute.ImportAccount}`}
                 element={<ImportAccount />}
-              />
+              >
+                <Route
+                  path={AccountImportRoute.SeedPhrase}
+                  element={
+                    <AnimatedTransition
+                      elementKey={AccountImportRoute.SeedPhrase}
+                    >
+                      <SeedPhraseImport
+                        requester={requester}
+                        onConfirm={(seedPhrase: string[]) => {
+                          setSeedPhrase(seedPhrase);
+                          navigate(
+                            formatRouterPath([
+                              TopLevelRoute.ImportAccount,
+                              AccountImportRoute.Password,
+                            ])
+                          );
+                        }}
+                      />
+                    </AnimatedTransition>
+                  }
+                />
+
+                <Route
+                  path={AccountImportRoute.Password}
+                  element={
+                    <AnimatedTransition
+                      elementKey={AccountImportRoute.Password}
+                    >
+                      <Password
+                        accountCreationDetails={accountCreationDetails}
+                        onSetAccountCreationDetails={(
+                          accountCreationDetailsDelta
+                        ) => {
+                          setAccountCreationDetails(
+                            (accountCreationDetails) => {
+                              return {
+                                ...accountCreationDetails,
+                                ...accountCreationDetailsDelta,
+                              };
+                            }
+                          );
+                        }}
+                        onSubmitAccountCreationDetails={(
+                          accountCreationDetails
+                        ) => {
+                          setAccountCreationDetails(accountCreationDetails);
+                          navigate(
+                            formatRouterPath([
+                              TopLevelRoute.ImportAccount,
+                              AccountImportRoute.Completion,
+                            ])
+                          );
+                        }}
+                      />
+                    </AnimatedTransition>
+                  }
+                />
+                <Route
+                  path={AccountImportRoute.Completion}
+                  element={
+                    <AnimatedTransition
+                      elementKey={AccountImportRoute.Completion}
+                    >
+                      <Completion
+                        alias={accountCreationDetails.alias || ""}
+                        requester={requester}
+                        mnemonic={seedPhrase || []}
+                        password={accountCreationDetails.password || ""}
+                      />
+                    </AnimatedTransition>
+                  }
+                />
+              </Route>
               <Route
                 path={`/${TopLevelRoute.Ledger}`}
                 element={

@@ -2,11 +2,7 @@ import { PhraseSize } from "@anoma/crypto";
 import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
 import { Message } from "router";
 import { ROUTE } from "./constants";
-import {
-  KeyRingStatus,
-  ResetPasswordError,
-  DeleteAccountError,
-} from "./types";
+import { KeyRingStatus, ResetPasswordError, DeleteAccountError } from "./types";
 import { Result } from "@anoma/utils";
 
 enum MessageType {
@@ -25,6 +21,7 @@ enum MessageType {
   UnlockKeyRing = "unlock-keyring",
   TransferCompletedEvent = "transfer-completed-event",
   DeleteAccount = "delete-account",
+  ValidateMnemonic = "validate-mnemonic",
 }
 
 export class CheckIsLockedMsg extends Message<boolean> {
@@ -119,7 +116,9 @@ export class CheckPasswordMsg extends Message<boolean> {
   }
 }
 
-export class ResetPasswordMsg extends Message<Result<null, ResetPasswordError>> {
+export class ResetPasswordMsg extends Message<
+  Result<null, ResetPasswordError>
+> {
   public static type(): MessageType {
     return MessageType.ResetPassword;
   }
@@ -127,7 +126,7 @@ export class ResetPasswordMsg extends Message<Result<null, ResetPasswordError>> 
   constructor(
     public readonly currentPassword: string,
     public readonly newPassword: string,
-    public readonly accountId: string,
+    public readonly accountId: string
   ) {
     super();
   }
@@ -164,6 +163,28 @@ export class GenerateMnemonicMsg extends Message<string[]> {
 
   type(): string {
     return GenerateMnemonicMsg.type();
+  }
+}
+
+export class ValidateMnemonicMsg extends Message<boolean> {
+  public static type(): MessageType {
+    return MessageType.ValidateMnemonic;
+  }
+
+  constructor(public readonly phrase: string) {
+    super();
+  }
+
+  validate(): void {
+    return;
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return ValidateMnemonicMsg.type();
   }
 }
 
@@ -361,7 +382,9 @@ export class TransferCompletedEvent extends Message<void> {
   }
 }
 
-export class DeleteAccountMsg extends Message<Result<null, DeleteAccountError>> {
+export class DeleteAccountMsg extends Message<
+  Result<null, DeleteAccountError>
+> {
   public static type(): MessageType {
     return MessageType.DeleteAccount;
   }

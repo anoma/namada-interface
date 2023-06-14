@@ -115,6 +115,10 @@ export class KeyRingService {
     return await this._keyRing.generateMnemonic(size);
   }
 
+  validateMnemonic(phrase: string): boolean {
+    return this._keyRing.validateMnemonic(phrase);
+  }
+
   async saveMnemonic(
     words: string[],
     password: string,
@@ -275,6 +279,7 @@ export class KeyRingService {
 
   async setActiveAccountId(accountId: string): Promise<void> {
     await this._keyRing.setActiveAccountId(accountId);
+
     await this.broadcastAccountsChanged();
   }
 

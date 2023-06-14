@@ -23,3 +23,10 @@ export const BodyText = styled.p`
   font-weight: 300;
   color: ${(props) => props.theme.colors.utility2.main80};
 `;
+
+export const PhraseRecoveryContainer = styled.div`
+  display: grid;
+  grid-auto-flow: row;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+`;

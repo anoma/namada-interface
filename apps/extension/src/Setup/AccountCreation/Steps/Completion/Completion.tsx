@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { ExtensionRequester } from "extension";
 import browser from "webextension-polyfill";
 
 import { Button, ButtonVariant } from "@anoma/components";
 import { useUntil } from "@anoma/hooks";
-import { SaveMnemonicMsg } from "background/keyring";
+import { CheckIsLockedMsg, SaveMnemonicMsg } from "background/keyring";
 import { Ports } from "router";
 
 import {
@@ -55,7 +55,8 @@ const Completion: React.FC<Props> = (props) => {
         setIsComplete(true);
       },
     },
-    { tries: 10, ms: 100 }
+    { tries: 10, ms: 100 },
+    []
   );
 
   return (

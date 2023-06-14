@@ -205,6 +205,10 @@ export class KeyRing {
     return Result.ok(null);
   }
 
+  public validateMnemonic(phrase: string): boolean {
+    return Mnemonic.validate(phrase);
+  }
+
   // Return new mnemonic to client for validation
   public async generateMnemonic(
     size: PhraseSize = PhraseSize.N12

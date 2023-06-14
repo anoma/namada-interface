@@ -15,6 +15,7 @@ import {
   QueryParentAccountsMsg,
   TransferCompletedEvent,
   DeleteAccountMsg,
+  ValidateMnemonicMsg,
 } from "./messages";
 import {
   ConnectInterfaceMsg,
@@ -50,6 +51,11 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleGenerateMnemonicMsg(service)(
           env,
           msg as GenerateMnemonicMsg
+        );
+      case ValidateMnemonicMsg:
+        return handleValidateMnemonicMsg(service)(
+          env,
+          msg as ValidateMnemonicMsg
         );
       case SaveMnemonicMsg:
         return handleSaveMnemonicMsg(service)(env, msg as SaveMnemonicMsg);
@@ -170,6 +176,14 @@ const handleGenerateMnemonicMsg: (
 ) => InternalHandler<GenerateMnemonicMsg> = (service) => {
   return async (_, msg) => {
     return await service.generateMnemonic(msg.size);
+  };
+};
+
+const handleValidateMnemonicMsg: (
+  service: KeyRingService
+) => InternalHandler<ValidateMnemonicMsg> = (service) => {
+  return async (_, msg) => {
+    return service.validateMnemonic(msg.phrase);
   };
 };
 
