@@ -88,7 +88,7 @@ export class KeyRing {
 
   constructor(
     protected readonly kvStore: KVStore<KeyStore[]>,
-    protected readonly sdkStore: KVStore<string>,
+    protected readonly sdkStore: KVStore<Record<string, string>>,
     protected readonly activeAccountStore: KVStore<string>,
     protected readonly extensionStore: KVStore<number>,
     protected readonly chainId: string,
@@ -126,6 +126,12 @@ export class KeyRing {
 
   public async setActiveAccountId(parentId: string): Promise<void> {
     await this.activeAccountStore.set(PARENT_ACCOUNT_ID_KEY, parentId);
+
+    // To sync sdk wallet with DB
+    const sdkData = await this.sdkStore.get(SDK_KEY);
+    if (sdkData) {
+      this.sdk.decode(new TextEncoder().encode(sdkData[parentId]));
+    }
   }
 
   public async checkPassword(
@@ -260,7 +266,10 @@ export class KeyRing {
       });
 
       await this._keyStore.append(mnemonicStore);
-      await this.addSecretKey(sk, password, alias);
+      // When we are adding new top level account we have to clear the storage
+      // to prevent adding top level secret key to existing keys
+      this.sdk.clear_storage();
+      await this.addSecretKey(sk, password, alias, id);
       await this.setActiveAccountId(id);
 
       this._password = password;
@@ -386,7 +395,7 @@ export class KeyRing {
         text = shieldedAccount.text;
         owner = shieldedAccount.viewingKey;
 
-        this.addSpendingKey(spendingKey, this._password, alias);
+        this.addSpendingKey(spendingKey, this._password, alias, parentId);
       } else {
         const transparentAccount = KeyRing.deriveTransparentAccount(
           seed,
@@ -400,7 +409,7 @@ export class KeyRing {
         text = transparentAccount.text;
         owner = transparentAccount.address;
 
-        this.addSecretKey(text, this._password, alias);
+        this.addSecretKey(text, this._password, alias, parentId);
       }
 
       const { chainId } = this;
@@ -629,18 +638,31 @@ export class KeyRing {
   private async addSecretKey(
     secretKey: string,
     password: string,
-    alias: string
+    alias: string,
+    activeAccountId: string
   ): Promise<void> {
     this.sdk.add_key(secretKey, password, alias);
-    this.sdkStore.set(SDK_KEY, new TextDecoder().decode(this.sdk.encode()));
+    const store = (await this.sdkStore.get(SDK_KEY)) || {};
+
+    this.sdkStore.set(SDK_KEY, {
+      ...store,
+      [activeAccountId]: new TextDecoder().decode(this.sdk.encode()),
+    });
   }
 
   private async addSpendingKey(
     spendingKey: Uint8Array,
     password: string,
-    alias: string
+    alias: string,
+    activeAccountId: string
   ): Promise<void> {
     this.sdk.add_spending_key(spendingKey, password, alias);
-    this.sdkStore.set(SDK_KEY, new TextDecoder().decode(this.sdk.encode()));
+    const store = (await this.sdkStore.get(SDK_KEY)) || {};
+
+    //TODO: reuse logic from addSecretKey, potentially use Object.assign instead of rest spread operator
+    this.sdkStore.set(SDK_KEY, {
+      ...store,
+      [activeAccountId]: new TextDecoder().decode(this.sdk.encode()),
+    });
   }
 }

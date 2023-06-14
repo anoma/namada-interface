@@ -14,14 +14,21 @@ import {
 (async function init() {
   await initShared();
   const sdkStore = new IndexedDBKVStore(KVPrefix.SDK);
-  //TODO: import sdk-store key - can't import from the keyring
-  const sdkDataStr: string | undefined = await sdkStore.get("sdk-store");
+  const activeAccountStore = new IndexedDBKVStore(KVPrefix.ActiveAccount);
   const sdk = new Sdk(chains[defaultChainId].rpc);
   await sdk.load_masp_params();
 
-  if (sdkDataStr) {
-    const sdkData = new TextEncoder().encode(sdkDataStr);
-    sdk.decode(sdkData);
+  //TODO: import sdk-store and parent-account-id keys - can't import from the keyring
+  const sdkData: Record<string, string> | undefined = await sdkStore.get(
+    "sdk-store"
+  );
+  const activeAccount = await activeAccountStore.get<string>(
+    "parent-account-id"
+  );
+
+  if (sdkData && activeAccount) {
+    const data = new TextEncoder().encode(sdkData[activeAccount]);
+    sdk.decode(data);
   }
 
   addEventListener(

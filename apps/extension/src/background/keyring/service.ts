@@ -36,7 +36,7 @@ export class KeyRingService {
 
   constructor(
     protected readonly kvStore: KVStore<KeyStore[]>,
-    protected readonly sdkStore: KVStore<string>,
+    protected readonly sdkStore: KVStore<Record<string, string>>,
     protected readonly accountAccountStore: KVStore<string>,
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
     protected readonly extensionStore: KVStore<number>,
