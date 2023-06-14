@@ -9,7 +9,7 @@ import {
   SuggestChainMsg,
   EncodeInitAccountMsg,
   QueryAccountsMsg,
-  LoadMaspParamsMsg,
+  FetchAndStoreMaspParamsMsg,
   HasMaspParamsMsg,
   QueryBalancesMsg,
   SubmitBondMsg,
@@ -53,10 +53,10 @@ export class Anoma implements IAnoma {
     );
   }
 
-  public async fetchMaspParams(): Promise<void> {
+  public async fetchAndStoreMaspParams(): Promise<void> {
     return await this.requester?.sendMessage(
       Ports.Background,
-      new LoadMaspParamsMsg()
+      new FetchAndStoreMaspParamsMsg()
     );
   }
 

@@ -9,7 +9,7 @@ import { useUntil } from "@anoma/hooks";
 
 import { Ports } from "router";
 import {
-  LoadMaspParamsMsg,
+  FetchAndStoreMaspParamsMsg,
   HasMaspParamsMsg,
   QueryAccountsMsg,
 } from "provider/messages";
@@ -24,6 +24,7 @@ import {
   Heading,
   HeadingButtons,
   SettingsButton,
+  HeadingLoader,
 } from "./App.components";
 import { TopLevelRoute } from "./types";
 import { LockWrapper } from "./LockWrapper";
@@ -47,10 +48,13 @@ export const App: React.FC = () => {
   const navigate = useNavigate();
   const [isLocked, setIsLocked] = useState(true);
   const [status, setStatus] = useState<Status>();
+  const [maspStatus, setMaspStatus] = useState<{
+    status: Status;
+    info: string;
+  }>({ status: Status.Completed, info: "" });
   const [accounts, setAccounts] = useState<DerivedAccount[]>([]);
   const [parentAccount, setParentAccount] = useState<DerivedAccount>();
   const [error, setError] = useState("");
-  const [statusInfo, setStatusInfo] = useState("");
   const requester = useRequester();
 
   const fetchAccounts = async (): Promise<void> => {
@@ -94,25 +98,10 @@ export const App: React.FC = () => {
       predFn: async () => {
         setStatus(Status.Pending);
         try {
-          setStatusInfo("Fetching accounts...");
           const accounts = await requester.sendMessage(
             Ports.Background,
             new QueryAccountsMsg()
           );
-
-          setStatusInfo("Checking MASP parameters...");
-          const hasMaspParams = await requester.sendMessage(
-            Ports.Background,
-            new HasMaspParamsMsg()
-          );
-
-          if (!hasMaspParams) {
-            setStatusInfo("Fetching MASP parameters...");
-            await requester.sendMessage(
-              Ports.Background,
-              new LoadMaspParamsMsg()
-            );
-          }
 
           setAccounts(accounts);
           return true;
@@ -122,7 +111,6 @@ export const App: React.FC = () => {
         }
       },
       onSuccess: () => {
-        setStatusInfo("");
         setStatus(Status.Completed);
       },
       onFail: () => {
@@ -133,6 +121,43 @@ export const App: React.FC = () => {
     { tries: 10, ms: 100 },
     []
   );
+
+  // Fetch Masp params if they don't exist
+  useEffect(() => {
+    if (status === Status.Completed) {
+      (async () => {
+        const hasMaspParams = await requester.sendMessage(
+          Ports.Background,
+          new HasMaspParamsMsg()
+        );
+
+        if (!hasMaspParams) {
+          setMaspStatus({
+            status: Status.Pending,
+            info: "Fetching MASP parameters...",
+          });
+          try {
+            await requester.sendMessage(
+              Ports.Background,
+              new FetchAndStoreMaspParamsMsg()
+            );
+
+            setMaspStatus({
+              status: Status.Completed,
+              info: "",
+            });
+          } catch (e) {
+            setMaspStatus({
+              status: Status.Failed,
+              info: `Fetching MASP parameters failed: ${e}`,
+            });
+            //TODO: Notify user in a better way
+            console.error(e);
+          }
+        }
+      })();
+    }
+  }, [status]);
 
   useEffect(() => {
     if (redirect) {
@@ -164,6 +189,12 @@ export const App: React.FC = () => {
         <ContentContainer>
           <TopSection>
             <Heading>Anoma Browser Extension</Heading>
+            <HeadingLoader
+              className={
+                maspStatus.status === Status.Pending ? "is-loading" : ""
+              }
+              title={maspStatus.info}
+            />
             <HeadingButtons>
               {parentAccount && (
                 <SettingsButton
@@ -177,9 +208,7 @@ export const App: React.FC = () => {
           <Routes>
             <Route
               path="*"
-              element={
-                <Loading status={status} info={statusInfo} error={error} />
-              }
+              element={<Loading status={status} error={error} />}
             />
             <Route path={TopLevelRoute.Setup} element={<Setup />} />
             <Route

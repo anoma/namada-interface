@@ -8,12 +8,12 @@ type Props = {
   error?: string;
 };
 
-const Loading: React.FC<Props> = ({ error, status, info }) => {
+const Loading: React.FC<Props> = ({ error, status }) => {
   return (
     <LoadingContainer className={error ? "" : "is-loading"}>
       {(status === Status.Failed && (
         <LoadingError>Error: {error}</LoadingError>
-      )) || <p>{info ?? "Loading..."}</p>}
+      )) || <p>Fetching accounts...</p>}
     </LoadingContainer>
   );
 };

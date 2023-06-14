@@ -1,8 +1,31 @@
-import styled, { createGlobalStyle } from "styled-components";
+import styled, { createGlobalStyle, css } from "styled-components";
 
 export const GlobalStyles = createGlobalStyle`
   html, body {
     background-color: #000;
+  }
+`;
+
+export const Spinner = css`
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-top-color: ${(props) => props.theme.colors.primary.main};
+    border-radius: 50%;
+    animation: button-loading-spinner 1s ease infinite;
+
+    @keyframes button-loading-spinner {
+      from {
+        transform: rotate(0turn);
+      }
+
+      to {
+        transform: rotate(1turn);
+      }
+    }
   }
 `;
 
@@ -40,6 +63,19 @@ export const Heading = styled.h1`
   font-weight: 700;
   color: ${(props) => props.theme.colors.utility1.main20};
   padding-left: 12px;
+`;
+
+export const HeadingLoader = styled.div`
+  position: relative;
+  width: 20px;
+  height: 20px;
+
+  &.is-loading::after {
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    ${Spinner}
+  }
 `;
 
 export const HeadingButtons = styled.div`
