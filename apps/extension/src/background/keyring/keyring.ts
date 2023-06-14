@@ -614,6 +614,13 @@ export class KeyRing {
       this._password = undefined;
     }
 
+    // remove account from sdk store
+    const records = await this.sdkStore.get(SDK_KEY);
+    if (records) {
+      const { [accountId]: _, ...rest } = records;
+      await this.sdkStore.set(SDK_KEY, rest);
+    }
+
     return Result.ok(null);
   }
 
