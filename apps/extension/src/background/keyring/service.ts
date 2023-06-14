@@ -375,7 +375,7 @@ export class KeyRingService {
 
   async queryBalances(
     owner: string
-  ): Promise<{ token: string; amount: number }[]> {
+  ): Promise<{ token: string; amount: string }[]> {
     return this._keyRing.queryBalances(owner);
   }
 }

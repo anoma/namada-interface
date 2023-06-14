@@ -7,7 +7,7 @@ export interface Anoma {
   accounts(chainId: string): Promise<DerivedAccount[] | undefined>;
   balances(
     owner: string
-  ): Promise<{ token: string; amount: number }[] | undefined>;
+  ): Promise<{ token: string; amount: string }[] | undefined>;
   suggestChain(chainConfig: Chain): Promise<void>;
   chain: (chainId: string) => Promise<Chain | undefined>;
   chains: () => Promise<Chain[] | undefined>;

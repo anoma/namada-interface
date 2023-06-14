@@ -1,21 +1,22 @@
 import { JsonRpcRequest } from "@cosmjs/json-rpc";
 import { DateTime } from "luxon";
 import { JsonCompatibleArray, JsonCompatibleDictionary } from "@anoma/types";
+import BigNumber from "bignumber.js";
 
 const MICRO_FACTOR = 1000000; // 1,000,000
 
 /**
  * Amount to Micro
  */
-export const amountToMicro = (amount: number): number => {
-  return amount * MICRO_FACTOR;
+export const amountToMicro = (amount: BigNumber): BigNumber => {
+  return amount.multipliedBy(MICRO_FACTOR);
 };
 
 /**
  * Amount from Micro
  */
-export const amountFromMicro = (micro: number): number => {
-  return micro / MICRO_FACTOR;
+export const amountFromMicro = (micro: BigNumber): BigNumber => {
+  return micro.dividedBy(MICRO_FACTOR);
 };
 
 /**
@@ -77,18 +78,29 @@ export const getParams = (
 };
 
 /**
- * Format by currency using the user's locale
+ * Format by currency using the user's locale.
+ * Returns null if the value cannot fit in a number primitive.
  * @param currency
  * @param value
  * @returns {string}
  */
-export const formatCurrency = (currency = "USD", value = 0): string => {
-  const formatter = Intl.NumberFormat(undefined, {
-    style: "currency",
-    currency,
-  });
+export const formatCurrency = (
+  currency = "USD",
+  value: BigNumber = new BigNumber(0)
+): string | null => {
+  // only allow -1 * Number.MAX_VALUE <= value <= Number.MAX_VALUE
+  if (value.absoluteValue().isGreaterThan(Number.MAX_VALUE)) {
+    return null;
+  } else {
+    const asNumber = value.toNumber();
 
-  return formatter.format(value);
+    const formatter = Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency,
+    });
+
+    return formatter.format(asNumber);
+  }
 };
 
 /**

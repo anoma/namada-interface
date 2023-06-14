@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import BigNumber from "bignumber.js";
 
 import { chains } from "@anoma/chains";
 import {
@@ -67,7 +68,7 @@ export const AccountOverview = (): JSX.Element => {
   const currentExtensionAttachStatus =
     extensionAttachStatus[chain.extension.id];
 
-  const [total, setTotal] = useState(0);
+  const [total, setTotal] = useState<BigNumber>(new BigNumber(0));
 
   const handleDownloadExtension = (url: string): void => {
     window.open(url, "_blank", "noopener,noreferrer");

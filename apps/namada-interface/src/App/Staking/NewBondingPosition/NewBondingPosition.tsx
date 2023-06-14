@@ -1,4 +1,6 @@
 import { useState } from "react";
+import BigNumber from "bignumber.js";
+
 import {
   BondingPositionContainer,
   BondingAmountInputContainer,
@@ -66,8 +68,8 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
   const currentBondingPosition = currentBondingPositions.find(
     (pos) => pos.owner === currentAccount?.details.address
   );
-  const stakedAmount = Number(currentBondingPosition?.stakedAmount || "0");
-  const currentNAMBalance = currentAccount.balance["NAM"] || 0;
+  const stakedAmount: BigNumber = new BigNumber(currentBondingPosition?.stakedAmount || "0");
+  const currentNAMBalance: BigNumber = currentAccount.balance["NAM"] || new BigNumber(0);
 
   const handleAddressChange = (
     e: React.ChangeEvent<HTMLSelectElement>
@@ -89,13 +91,13 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
   // unbonding amount and displayed value with a very naive validation
   // TODO (https://github.com/anoma/namada-interface/issues/4#issuecomment-1260564499)
   // do proper validation as part of input
-  const amountToBondNumber = Number(amountToBond);
+  const amountToBondNumber: BigNumber = new BigNumber(amountToBond);
 
   // if this is the case, we display error message
   const isEntryIncorrect =
-    (amountToBond !== "" && amountToBondNumber <= 0) ||
-    amountToBondNumber > currentNAMBalance ||
-    Number.isNaN(amountToBondNumber);
+    (amountToBond !== "" && amountToBondNumber.isLessThanOrEqualTo(0)) ||
+    amountToBondNumber.isGreaterThan(currentNAMBalance) ||
+    amountToBondNumber.isNaN();
 
   // if incorrect or empty value we disable the button
   const isEntryIncorrectOrEmpty = isEntryIncorrect || amountToBond === "";
@@ -103,7 +105,7 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
   // we convey this with an object that can be used
   const remainsBondedToDisplay = isEntryIncorrect
     ? `The bonding amount can be more than 0 and at most ${currentNAMBalance}`
-    : `${stakedAmount + amountToBondNumber}`;
+    : `${stakedAmount.plus(amountToBondNumber).toString()}`;
 
   // data for the table
   const bondingSummary = [

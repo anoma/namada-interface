@@ -51,7 +51,7 @@ export class ShieldedDataMsgValue {
     this.vout = properties.vout;
     this.lock_time = new BN(properties.lockTime, 64);
     this.expiry_height = new BN(properties.expiryHeight, 64);
-    this.value_balance = new BN(properties.valueBalance, 64);
+    this.value_balance = new BN(properties.valueBalance.toString(), 64);
     this.shielded_spends = properties.shieldedSpends;
     this.shielded_converts = properties.shieldedConverts;
     this.shielded_outputs = properties.shieldedOutputs;

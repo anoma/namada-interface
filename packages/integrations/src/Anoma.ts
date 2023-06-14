@@ -8,6 +8,7 @@ import {
   TokenBalance,
   WindowWithAnoma,
 } from "@anoma/types";
+import BigNumber from "bignumber.js";
 
 import { BridgeProps, Integration } from "./types/Integration";
 
@@ -57,8 +58,8 @@ export default class Anoma implements Integration<Account, Signer> {
         tx: {
           chainId: this.chain.chainId,
           token: Tokens.NAM.address || "",
-          feeAmount: 0,
-          gasLimit: 0,
+          feeAmount: new BigNumber(0),
+          gasLimit: new BigNumber(0),
         },
         source,
         receiver,
@@ -80,12 +81,15 @@ export default class Anoma implements Integration<Account, Signer> {
     const tokenBalances = Object.keys(Tokens).map((tokenType: string) => {
       const { address: tokenAddress = "" } = Tokens[tokenType as TokenType];
       const amount =
-        balance.find(({ token }) => token === tokenAddress)?.amount || 0;
+        balance.find(({ token }) => token === tokenAddress)?.amount || new BigNumber(0);
 
+      // TODO: Implement balance fetching via SDK
       return {
         token: tokenType as TokenType,
-        // TODO: Implement balance fetching via SDK
-        amount,
+        // BigNumber is converted to string because BigNumber methods are lost
+        // when a BigNumber is sent using postMessage.
+        // See https://github.com/MikeMcl/bignumber.js/issues/245.
+        amount: amount.toString(),
       };
     });
 

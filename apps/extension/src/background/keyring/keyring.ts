@@ -626,7 +626,7 @@ export class KeyRing {
 
   async queryBalances(
     address: string
-  ): Promise<{ token: string; amount: number }[]> {
+  ): Promise<{ token: string; amount: string }[]> {
     const account = await this._keyStore.getRecord("address", address);
     if (!account) {
       throw new Error(`Account not found.`);
@@ -636,7 +636,7 @@ export class KeyRing {
       ([token, amount]: [string, string]) => {
         return {
           token,
-          amount: Number.parseInt(amount),
+          amount,
         };
       }
     );

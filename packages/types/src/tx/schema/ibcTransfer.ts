@@ -28,7 +28,7 @@ export class IbcTransferMsgValue {
     this.receiver = properties.receiver;
     this.token = properties.token;
     this.sub_prefix = properties.subPrefix;
-    this.amount = new BN(properties.amount, 64);
+    this.amount = new BN(properties.amount.toString(), 64);
     this.port_id = properties.portId;
     this.channel_id = properties.channelId;
     this.timeout_height = timeoutHeight;

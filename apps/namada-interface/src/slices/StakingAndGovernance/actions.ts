@@ -1,4 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
+import BigNumber from "bignumber.js";
 
 import { Query } from "@anoma/shared";
 import { amountToMicro } from "@anoma/utils";
@@ -28,7 +29,7 @@ const toValidator = ([address, votingPower]: [string, string]): Validator => ({
   name: address,
   // TODO: voting power is multiplied by votes_per_token value defined in genesis file
   // currently it is 10
-  votingPower: String(BigInt(votingPower) * BigInt(10)),
+  votingPower: (new BigNumber(votingPower)).multipliedBy(10).toString(),
   homepageUrl: "http://namada.net",
   commission: "TBD",
   description: "TBD",
@@ -48,15 +49,18 @@ const toMyValidators = (
           ...arr.slice(idx + 1),
         ];
 
+  const stakedAmount =
+    (new BigNumber(stake)).plus(new BigNumber(v?.stakedAmount || 0)).toString();
+
   return [
     ...sliceFn(acc, index),
     {
       uuid: validator,
       stakingStatus: "Bonded",
-      stakedAmount: String(Number(stake) + Number(v?.stakedAmount || 0)),
+      stakedAmount,
       validator: toValidator([
         validator,
-        String(Number(stake) + Number(v?.stakedAmount || 0)),
+        stakedAmount,
       ]),
     },
   ];
@@ -163,12 +167,12 @@ export const postNewBonding = createAsyncThunk<
   await signer.submitBond({
     source: change.owner,
     validator: change.validatorId,
-    amount: amountToMicro(Number(change.amount)),
+    amount: amountToMicro(new BigNumber(change.amount)),
     nativeToken: Tokens.NAM.address || "",
     tx: {
       token: Tokens.NAM.address || "",
-      feeAmount: 0,
-      gasLimit: 0,
+      feeAmount: new BigNumber(0),
+      gasLimit: new BigNumber(0),
       chainId,
     },
   });
@@ -190,11 +194,11 @@ export const postNewUnbonding = createAsyncThunk<
   await signer.submitUnbond({
     source: change.owner,
     validator: change.validatorId,
-    amount: amountToMicro(Number(change.amount)),
+    amount: amountToMicro(new BigNumber(change.amount)),
     tx: {
       token: Tokens.NAM.address || "",
-      feeAmount: 0,
-      gasLimit: 0,
+      feeAmount: new BigNumber(0),
+      gasLimit: new BigNumber(0),
       chainId,
     },
   });

@@ -2,6 +2,7 @@ import { useEffect, useState, useContext, CSSProperties } from "react";
 import { useNavigate } from "react-router-dom";
 import { ThemeContext } from "styled-components";
 import QrReader from "react-qr-reader";
+import BigNumber from "bignumber.js";
 
 import { Tokens, TokenType } from "@anoma/types";
 import { ColorMode, DesignConfiguration } from "@anoma/utils";
@@ -86,16 +87,16 @@ type Props = {
  */
 const getIsFormInvalid = (
   target: string | undefined,
-  amount: number,
-  balance: number,
+  amount: BigNumber,
+  balance: BigNumber,
   isTargetValid: boolean,
   isTransferSubmitting: boolean
 ): boolean => {
   return (
     target === "" ||
-    isNaN(amount) ||
-    amount > balance ||
-    amount === 0 ||
+    amount.isNaN() ||
+    amount.isGreaterThan(balance) ||
+    amount.isEqualTo(0) ||
     !isTargetValid ||
     isTransferSubmitting
   );
@@ -128,7 +129,7 @@ const TokenSendForm = ({
   const dispatch = useAppDispatch();
   const themeContext = useContext(ThemeContext);
   const [target, setTarget] = useState<string | undefined>(defaultTarget);
-  const [amount, setAmount] = useState(0);
+  const [amount, setAmount] = useState<BigNumber>(new BigNumber(0));
 
   const [isTargetValid, setIsTargetValid] = useState(true);
   const [isShieldedTarget, setIsShieldedTarget] = useState(false);
@@ -138,9 +139,9 @@ const TokenSendForm = ({
   // TODO: This will likely be calculated per token, as any one of these numbers
   // will be difference for each token specified:
   enum GasFee {
-    "Low" = 0.0001,
-    "Medium" = 0.0005,
-    "High" = 0.001,
+    "Low" = "0.0001",
+    "Medium" = "0.0005",
+    "High" = "0.001",
   }
 
   const [gasFee, setGasFee] = useState<GasFee>(GasFee.Medium);
@@ -169,7 +170,7 @@ const TokenSendForm = ({
   const isFormInvalid = getIsFormInvalid(
     target,
     amount,
-    balance[tokenType] || 0,
+    balance[tokenType] || new BigNumber(0),
     isTargetValid,
     isTransferSubmitting
   );
@@ -186,12 +187,13 @@ const TokenSendForm = ({
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
 
-  const getFiatForCurrency = (fee: number): number => {
+  const getFiatForCurrency = (feeString: string): BigNumber => {
+    const fee = new BigNumber(feeString);
     const rate =
       rates[tokenType] && rates[tokenType][fiatCurrency]
         ? rates[tokenType][fiatCurrency].rate
         : 1;
-    return Math.ceil(fee * rate * 10000) / 10000;
+    return fee.multipliedBy(rate).decimalPlaces(5);
   };
 
   const gasFees = {
@@ -245,7 +247,7 @@ const TokenSendForm = ({
   useEffect(() => {
     if (isTransferSubmitting === false) {
       // Reset amount
-      setAmount(0);
+      setAmount(new BigNumber(0));
     }
   }, [isTransferSubmitting]);
 
@@ -258,7 +260,7 @@ const TokenSendForm = ({
           target,
           amount,
           token: tokenType,
-          feeAmount: gasFee,
+          feeAmount: new BigNumber(gasFee),
           notify: true,
         })
       );
@@ -285,7 +287,7 @@ const TokenSendForm = ({
   const isAmountValid = (
     address: string,
     token: TokenType,
-    transferAmount: number,
+    transferAmount: BigNumber,
     targetAddress: string | undefined
   ): string | undefined => {
     const balance = derivedAccounts[address].balance[token] || 0;
@@ -296,7 +298,9 @@ const TokenSendForm = ({
     if (transferTypeBasedOnTarget === TransferType.Shielded) {
       return undefined;
     }
-    return transferAmount <= balance ? undefined : "Invalid amount!";
+    return transferAmount.isLessThanOrEqualTo(balance) ?
+      undefined :
+      "Invalid amount!";
   };
 
   // these are passed to button for the custom gas fee buttons
@@ -342,10 +346,10 @@ const TokenSendForm = ({
           <Input
             variant={InputVariants.Number}
             label={"Amount"}
-            value={amount}
+            value={amount.toString()}
             onChangeCallback={(e) => {
               const { value } = e.target;
-              setAmount(parseFloat(`${value}`));
+              setAmount(new BigNumber(`${value}`));
             }}
             onFocus={handleFocus}
             error={isAmountValid(address, tokenType, amount, target)}
@@ -369,7 +373,7 @@ const TokenSendForm = ({
               <br />
               &lt; {gasFees[GasFee.Low].fee} {tokenType}
               <br />
-              &lt; {gasFees[GasFee.Low].fiat} {fiatCurrency}
+              &lt; {gasFees[GasFee.Low].fiat.toString()} {fiatCurrency}
             </p>
           </Button>
           <Button
@@ -386,7 +390,7 @@ const TokenSendForm = ({
               <br />
               &lt; {gasFees[GasFee.Medium].fee} {tokenType}
               <br />
-              &lt; {gasFees[GasFee.Medium].fiat} {fiatCurrency}
+              &lt; {gasFees[GasFee.Medium].fiat.toString()} {fiatCurrency}
             </p>
           </Button>
           <Button
@@ -403,7 +407,7 @@ const TokenSendForm = ({
               <br />
               &lt; {gasFees[GasFee.High].fee} {tokenType}
               <br />
-              &lt; {gasFees[GasFee.High].fiat} {fiatCurrency}
+              &lt; {gasFees[GasFee.High].fiat.toString()} {fiatCurrency}
             </p>
           </Button>
         </GasButtonsContainer>

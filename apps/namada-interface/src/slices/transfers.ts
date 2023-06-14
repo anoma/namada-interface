@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import BigNumber from "bignumber.js";
 
 import { Account, Tokens, TokenType, Signer } from "@anoma/types";
 import { amountToMicro } from "@anoma/utils";
@@ -115,10 +116,10 @@ type TxArgs = {
   account: Account;
   token: TokenType;
   target: string;
-  amount: number;
+  amount: BigNumber;
   memo?: string;
-  feeAmount?: number;
-  gasLimit?: number;
+  feeAmount?: BigNumber;
+  gasLimit?: BigNumber;
 };
 
 type TxTransferArgs = TxArgs & {
@@ -158,8 +159,8 @@ export const submitTransferTransaction = createAsyncThunk<
     await signer.submitTransfer({
       tx: {
         token: Tokens.NAM.address || "",
-        feeAmount: 0,
-        gasLimit: 0,
+        feeAmount: new BigNumber(0),
+        gasLimit: new BigNumber(0),
         chainId,
       },
       source: txTransferArgs.account.address,
@@ -191,8 +192,8 @@ export const submitIbcTransferTransaction = createAsyncThunk<
       ibcProps: {
         tx: {
           token: Tokens.NAM.address || "",
-          feeAmount: 0,
-          gasLimit: 0,
+          feeAmount: new BigNumber(0),
+          gasLimit: new BigNumber(0),
           chainId,
         },
         source: txIbcTransferArgs.account.address,
@@ -234,8 +235,8 @@ export const submitBridgeTransferTransaction = createAsyncThunk<
       bridgeProps: {
         tx: {
           token: Tokens.NAM.address || "",
-          feeAmount: 0,
-          gasLimit: 0,
+          feeAmount: new BigNumber(0),
+          gasLimit: new BigNumber(0),
           chainId,
         },
         source: txBridgeTransferArgs.account.address,

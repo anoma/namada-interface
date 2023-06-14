@@ -12,7 +12,7 @@ export class SubmitUnbondMsgValue {
   constructor(properties: SubmitUnbondProps) {
     this.source = properties.source;
     this.validator = properties.validator;
-    this.amount = new BN(properties.amount, 64);
+    this.amount = new BN(properties.amount.toString(), 64);
     this.tx = new TxMsgValue(properties.tx);
   }
 }

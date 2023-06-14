@@ -2,6 +2,7 @@
 import { deepMock } from "mockzilla";
 import type { Browser } from "webextension-polyfill";
 import { toBase64 } from "@cosmjs/encoding";
+import BigNumber from "bignumber.js";
 
 import {
   AccountMsgSchema,
@@ -94,15 +95,15 @@ describe("Anoma", () => {
     const transferProps: TransferProps = {
       tx: {
         token,
-        feeAmount: 0,
-        gasLimit: 0,
+        feeAmount: new BigNumber(0),
+        gasLimit: new BigNumber(0),
         chainId: chain.chainId,
       },
       source: keyStore[0].address,
       target:
         "atest1d9khqw36gdz5ydzygvcnyvesxgcn2s6zxyung3zzgcmrjwzzgvmnyd3kxym52vzzg5unxve5cm87cr",
       token,
-      amount: 1000,
+      amount: new BigNumber(1000),
       nativeToken: token,
     };
 
@@ -130,15 +131,15 @@ describe("Anoma", () => {
     const transferProps: IbcTransferProps = {
       tx: {
         token,
-        feeAmount: 0,
-        gasLimit: 0,
+        feeAmount: new BigNumber(0),
+        gasLimit: new BigNumber(0),
         chainId: chain.chainId,
       },
       source: keyStore[0].address,
       receiver:
         "atest1d9khqw36gdz5ydzygvcnyvesxgcn2s6zxyung3zzgcmrjwzzgvmnyd3kxym52vzzg5unxve5cm87cr",
       token,
-      amount: 1000,
+      amount: new BigNumber(1000),
       portId: "transfer",
       channelId: "channel-0",
     };
