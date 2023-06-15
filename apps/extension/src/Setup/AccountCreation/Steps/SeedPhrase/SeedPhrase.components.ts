@@ -11,7 +11,7 @@ export const SeedPhraseCard = styled.div`
   box-sizing: border-box;
   color: ${(props) => props.theme.colors.utility2.main80};
   font-weight: bold;
-  user-select: ${() => process.env.NODE_ENV === 'development' ? '' : 'none'};
+  user-select: ${() => (process.env.NODE_ENV === "development" ? "" : "none")};
 `;
 
 export const SeedPhraseContainer = styled.div`
@@ -23,19 +23,6 @@ export const SeedPhraseIndexLabel = styled.span`
   margin: 2px 8px 0 0;
   font-size: 11px;
   color: ${(props) => props.theme.colors.utility2.main80};
-`;
-
-export const SeedPhraseLengthContainer = styled.div`
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: right;
-  flex-direction: row;
-  margin: 4px 0 12px;
-`;
-
-export const SeedPhraseLength = styled.div`
-  padding: 0 8px;
 `;
 
 export const ExportSeedPhraseButtonsContainer = styled.div`

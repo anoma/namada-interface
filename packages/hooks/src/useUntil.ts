@@ -25,7 +25,7 @@ export const useUntil = (
     (async () => {
       const succ = await executeUntil(predFn, config);
       const fn = succ ? onSuccess : onFail;
-      await fn();
+      fn();
     })();
   }, deps);
 };

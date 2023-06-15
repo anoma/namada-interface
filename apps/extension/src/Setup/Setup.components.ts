@@ -114,3 +114,24 @@ export const InputContainer = styled.div`
   height: 92px;
   margin: 0 0 24px;
 `;
+
+export const RouteContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+`;
+
+export const SeedPhraseLengthContainer = styled.div`
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: right;
+  flex-direction: row;
+  margin: 4px 0 12px;
+`;
+
+export const SeedPhraseLength = styled.div`
+  padding: 0 8px;
+`;

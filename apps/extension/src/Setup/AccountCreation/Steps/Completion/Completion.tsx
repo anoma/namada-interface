@@ -4,7 +4,7 @@ import browser from "webextension-polyfill";
 
 import { Button, ButtonVariant } from "@anoma/components";
 import { useUntil } from "@anoma/hooks";
-import { CheckIsLockedMsg, SaveMnemonicMsg } from "background/keyring";
+import { SaveMnemonicMsg } from "background/keyring";
 import { Ports } from "router";
 
 import {

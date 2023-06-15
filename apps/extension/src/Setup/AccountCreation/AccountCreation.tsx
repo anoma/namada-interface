@@ -4,12 +4,12 @@ import { AnimatePresence } from "framer-motion";
 import { ThemeContext } from "styled-components";
 
 import { Icon, IconName, IconSize } from "@anoma/components";
-import { RouteContainer } from "./AccountCreation.components";
 import {
   TopSection,
   TopSectionHeaderContainer,
   TopSectionButtonContainer,
   SubViewContainer,
+  RouteContainer,
 } from "Setup/Setup.components";
 
 /**
