@@ -1,8 +1,12 @@
 import { createContext } from "react";
 
-import { Events } from "@anoma/types";
-import { chains, defaultChainId } from "@anoma/chains";
-import { Anoma, Keplr } from "@anoma/integrations";
+import { Events, KeplrEvents, MetamaskEvents } from "@anoma/types";
+import {
+  defaultChainId,
+  defaultCosmosChainId,
+  defaultEthereumChainId,
+} from "@anoma/chains";
+import { Anoma, Keplr, Metamask } from "@anoma/integrations";
 import { useEventListenerOnce, useIntegration } from "@anoma/hooks";
 
 import { useAppDispatch } from "store";
@@ -11,16 +15,17 @@ import {
   AnomaTransferCompletedHandler,
   AnomaTransferStartedHandler,
   AnomaUpdatedBalancesHandler,
-} from "./handlers/anoma";
-import { KeplrAccountChangedHandler } from "./handlers";
+  KeplrAccountChangedHandler,
+  MetamaskAccountChangedHandler,
+} from "./handlers";
 
 export const ExtensionEventsContext = createContext({});
 
 export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
   const dispatch = useAppDispatch();
   const anomaIntegration = useIntegration(defaultChainId);
-  // TODO: Don't hardcode chain id here!
-  const keplrIntegration = useIntegration("cosmoshub-4");
+  const keplrIntegration = useIntegration(defaultCosmosChainId);
+  const metamaskIntegration = useIntegration(defaultEthereumChainId);
 
   // Instantiate handlers:
   const anomaAccountChangedHandler = AnomaAccountChangedHandler(
@@ -37,12 +42,23 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
     keplrIntegration as Keplr
   );
 
+  // Metamask handlers
+  const metamaskAccountChangedHandler = MetamaskAccountChangedHandler(
+    dispatch,
+    metamaskIntegration as Metamask
+  );
+
   // Register handlers:
   useEventListenerOnce(Events.AccountChanged, anomaAccountChangedHandler);
   useEventListenerOnce(Events.TransferStarted, anomaTransferStartedHandler);
   useEventListenerOnce(Events.TransferCompleted, anomaTransferCompletedHandler);
   useEventListenerOnce(Events.UpdatedBalances, anomaUpdatedBalancesHandler);
-  useEventListenerOnce("keplr_keystorechange", keplrAccountChangedHandler);
+  useEventListenerOnce(KeplrEvents.AccountChanged, keplrAccountChangedHandler);
+  // TODO: This should be bound to window.ethereum:
+  useEventListenerOnce(
+    MetamaskEvents.AccountChanged,
+    metamaskAccountChangedHandler
+  );
 
   return (
     <ExtensionEventsContext.Provider value={{}}>
