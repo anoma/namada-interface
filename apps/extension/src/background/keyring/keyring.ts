@@ -419,6 +419,7 @@ export class KeyRing {
       );
       await this.addSecretKey(info.text, this._password, alias, parentId);
     }
+    seed.free();
   }
 
   private async getParentSeed(password: string): Promise<{
@@ -530,11 +531,6 @@ export class KeyRing {
     const parentAccount = await this._keyStore.getRecord("id", activeAccountId);
     const derivedAccounts =
       (await this._keyStore.getRecords("parentId", activeAccountId)) || [];
-
-    const sdkData: Record<string, string> | undefined = await this.sdkStore.get(
-      SDK_KEY
-    );
-    console.log(sdkData);
 
     if (parentAccount) {
       const accounts = [parentAccount, ...derivedAccounts];
