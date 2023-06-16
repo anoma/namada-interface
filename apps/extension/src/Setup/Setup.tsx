@@ -172,6 +172,7 @@ export const Setup: React.FC = () => {
                         requester={requester}
                         mnemonic={seedPhrase || []}
                         password={accountCreationDetails.password || ""}
+                        scanAccounts={false}
                       />
                     </AnimatedTransition>
                   }
@@ -249,6 +250,7 @@ export const Setup: React.FC = () => {
                         requester={requester}
                         mnemonic={seedPhrase || []}
                         password={accountCreationDetails.password || ""}
+                        scanAccounts={true}
                       />
                     </AnimatedTransition>
                   }

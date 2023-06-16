@@ -17,6 +17,7 @@ enum MessageType {
   QueryParentAccounts = "query-parent-accounts",
   ResetPassword = "reset-password",
   SaveMnemonic = "save-mnemonic",
+  ScanAccounts = "scan-accounts",
   SetActiveAccount = "set-active-account",
   UnlockKeyRing = "unlock-keyring",
   TransferCompletedEvent = "transfer-completed-event",
@@ -224,6 +225,26 @@ export class SaveMnemonicMsg extends Message<boolean> {
 
   type(): string {
     return SaveMnemonicMsg.type();
+  }
+}
+export class ScanAccountsMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.ScanAccounts;
+  }
+
+  constructor() {
+    super();
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  validate(): void {}
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return ScanAccountsMsg.type();
   }
 }
 

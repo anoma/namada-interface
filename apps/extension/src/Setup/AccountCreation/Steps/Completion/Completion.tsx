@@ -4,7 +4,11 @@ import browser from "webextension-polyfill";
 
 import { Button, ButtonVariant } from "@anoma/components";
 import { useUntil } from "@anoma/hooks";
-import { CheckIsLockedMsg, SaveMnemonicMsg } from "background/keyring";
+import {
+  CheckIsLockedMsg,
+  SaveMnemonicMsg,
+  ScanAccountsMsg,
+} from "background/keyring";
 import { Ports } from "router";
 
 import {
@@ -20,6 +24,7 @@ type Props = {
   requester: ExtensionRequester;
   mnemonic: string[];
   password: string;
+  scanAccounts: boolean;
 };
 
 enum Status {
@@ -29,7 +34,7 @@ enum Status {
 }
 
 const Completion: React.FC<Props> = (props) => {
-  const { alias, mnemonic, password, requester } = props;
+  const { alias, mnemonic, password, requester, scanAccounts } = props;
   const [mnemonicStatus, setMnemonicStatus] = useState<Status>(Status.Pending);
   const [isComplete, setIsComplete] = useState(false);
 
@@ -51,6 +56,13 @@ const Completion: React.FC<Props> = (props) => {
           Ports.Background,
           new SaveMnemonicMsg(mnemonic, password, alias)
         );
+
+        if (scanAccounts) {
+          await requester.sendMessage<ScanAccountsMsg>(
+            Ports.Background,
+            new ScanAccountsMsg()
+          );
+        }
         setMnemonicStatus(Status.Completed);
         setIsComplete(true);
       },

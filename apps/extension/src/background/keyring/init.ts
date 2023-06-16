@@ -8,6 +8,7 @@ import {
   ResetPasswordMsg,
   GenerateMnemonicMsg,
   SaveMnemonicMsg,
+  ScanAccountsMsg,
   SetActiveAccountMsg,
   GetActiveAccountMsg,
   QueryParentAccountsMsg,
@@ -48,6 +49,7 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(QueryParentAccountsMsg);
   router.registerMessage(ResetPasswordMsg);
   router.registerMessage(SaveMnemonicMsg);
+  router.registerMessage(ScanAccountsMsg);
   router.registerMessage(SetActiveAccountMsg);
   router.registerMessage(SubmitBondMsg);
   router.registerMessage(SubmitIbcTransferMsg);

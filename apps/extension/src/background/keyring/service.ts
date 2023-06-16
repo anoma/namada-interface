@@ -125,9 +125,13 @@ export class KeyRingService {
     alias: string
   ): Promise<boolean> {
     const results = await this._keyRing.storeMnemonic(words, password, alias);
-    await this._keyRing.discoverAddresses();
     await this.broadcastAccountsChanged();
     return results;
+  }
+
+  async scanAccounts(): Promise<void> {
+    await this._keyRing.discoverAddresses();
+    await this.broadcastAccountsChanged();
   }
 
   async deriveAccount(
