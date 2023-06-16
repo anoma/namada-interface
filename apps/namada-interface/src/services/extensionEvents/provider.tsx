@@ -54,10 +54,11 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
   useEventListenerOnce(Events.TransferCompleted, anomaTransferCompletedHandler);
   useEventListenerOnce(Events.UpdatedBalances, anomaUpdatedBalancesHandler);
   useEventListenerOnce(KeplrEvents.AccountChanged, keplrAccountChangedHandler);
-  // TODO: This should be bound to window.ethereum:
   useEventListenerOnce(
     MetamaskEvents.AccountChanged,
-    metamaskAccountChangedHandler
+    metamaskAccountChangedHandler,
+    false,
+    true
   );
 
   return (
