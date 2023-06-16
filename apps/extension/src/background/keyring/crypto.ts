@@ -4,7 +4,7 @@ import { Argon2Config } from "config";
 import { KdfType, KeyStore } from "./types";
 import { readVecU8Pointer } from "@anoma/crypto/src/utils";
 
-export type CryptoArgs = {
+type CryptoArgs = {
   alias: string;
   address: string;
   owner: string;
