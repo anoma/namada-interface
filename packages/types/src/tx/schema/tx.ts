@@ -9,8 +9,8 @@ export class TxMsgValue {
 
   constructor(properties: TxProps) {
     this.token = properties.token;
-    this.fee_amount = new BN(properties.feeAmount.toString(), 64);
-    this.gas_limit = new BN(properties.gasLimit.toString(), 64);
+    this.fee_amount = new BN(properties.feeAmount.toString());
+    this.gas_limit = new BN(properties.gasLimit.toString());
     this.chain_id = properties.chainId;
   }
 }

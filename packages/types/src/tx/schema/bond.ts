@@ -13,7 +13,7 @@ export class SubmitBondMsgValue {
   constructor(properties: SubmitBondProps) {
     this.source = properties.source;
     this.validator = properties.validator;
-    this.amount = new BN(properties.amount.toString(), 64);
+    this.amount = new BN(properties.amount.toString());
     this.native_token = properties.nativeToken;
     this.tx = new TxMsgValue(properties.tx);
   }

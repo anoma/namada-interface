@@ -17,10 +17,10 @@ export class IbcTransferMsgValue {
 
   constructor(properties: IbcTransferProps) {
     const timeoutHeight = properties.timeoutHeight
-      ? new BN(properties.timeoutHeight, 64)
+      ? new BN(properties.timeoutHeight)
       : undefined;
     const timeoutSecOffset = properties.timeoutSecOffset
-      ? new BN(properties.timeoutSecOffset, 64)
+      ? new BN(properties.timeoutSecOffset)
       : undefined;
 
     this.tx = new TxMsgValue(properties.tx);
@@ -28,7 +28,7 @@ export class IbcTransferMsgValue {
     this.receiver = properties.receiver;
     this.token = properties.token;
     this.sub_prefix = properties.subPrefix;
-    this.amount = new BN(properties.amount.toString(), 64);
+    this.amount = new BN(properties.amount.toString());
     this.port_id = properties.portId;
     this.channel_id = properties.channelId;
     this.timeout_height = timeoutHeight;

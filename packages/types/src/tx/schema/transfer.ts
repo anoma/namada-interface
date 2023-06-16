@@ -18,7 +18,7 @@ export class TransferMsgValue {
     this.target = properties.target;
     this.token = properties.token;
     this.sub_prefix = properties.subPrefix;
-    this.amount = new BN(properties.amount.toString(), 64);
+    this.amount = new BN(properties.amount.toString());
     this.native_token = properties.nativeToken;
   }
 }
