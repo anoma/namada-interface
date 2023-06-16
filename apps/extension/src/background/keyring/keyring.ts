@@ -399,7 +399,7 @@ export class KeyRing {
     }
   }
 
-  public async discoverAddresses(): Promise<void> {
+  public async scanAddresses(): Promise<void> {
     if (!this._password) {
       throw new Error("No password is set!");
     }
@@ -417,9 +417,7 @@ export class KeyRing {
         alias,
         info
       );
-      console.log("Discovered address", info.address);
       await this.addSecretKey(info.text, this._password, alias, parentId);
-      console.log("Added secret key", info.address);
     }
   }
 

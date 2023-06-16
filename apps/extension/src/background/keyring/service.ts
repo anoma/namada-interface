@@ -130,7 +130,7 @@ export class KeyRingService {
   }
 
   async scanAccounts(): Promise<void> {
-    await this._keyRing.discoverAddresses();
+    await this._keyRing.scanAddresses();
     await this.broadcastAccountsChanged();
   }
 
