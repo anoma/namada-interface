@@ -4,7 +4,7 @@ import browser from "webextension-polyfill";
 
 import { Button, ButtonVariant } from "@anoma/components";
 import { useUntil } from "@anoma/hooks";
-import { SaveMnemonicMsg } from "background/keyring";
+import { CheckIsLockedMsg, SaveMnemonicMsg } from "background/keyring";
 import { Ports } from "router";
 
 import {
@@ -37,16 +37,20 @@ const Completion: React.FC<Props> = (props) => {
     {
       predFn: async () => {
         try {
-          await requester.sendMessage<SaveMnemonicMsg>(
+          await requester.sendMessage<CheckIsLockedMsg>(
             Ports.Background,
-            new SaveMnemonicMsg(mnemonic, password, alias)
+            new CheckIsLockedMsg()
           );
           return true;
         } catch (_) {
           return false;
         }
       },
-      onSuccess: () => {
+      onSuccess: async () => {
+        await requester.sendMessage<SaveMnemonicMsg>(
+          Ports.Background,
+          new SaveMnemonicMsg(mnemonic, password, alias)
+        );
         setMnemonicStatus(Status.Completed);
         setIsComplete(true);
       },

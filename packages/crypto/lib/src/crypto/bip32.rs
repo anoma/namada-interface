@@ -1,8 +1,8 @@
+use crate::crypto::pointer_types::{StringPointer, VecU8Pointer};
 use bip32::XPrv;
 use thiserror::Error;
 use wasm_bindgen::prelude::*;
 use zeroize::{Zeroize, ZeroizeOnDrop};
-use crate::crypto::pointer_types::{StringPointer, VecU8Pointer};
 
 #[derive(Debug, Error)]
 pub enum HDWalletError {
@@ -34,9 +34,7 @@ impl Key {
             Err(err) => return Err(format!("{}: {:?}", HDWalletError::InvalidKeySize, err)),
         };
 
-        Ok(Key {
-            bytes,
-        })
+        Ok(Key { bytes })
     }
 
     pub fn to_bytes(&self) -> VecU8Pointer {
@@ -67,11 +65,15 @@ pub struct Keypair {
 #[wasm_bindgen]
 impl Keypair {
     pub fn private(&self) -> Key {
-        Key { bytes: self.private.bytes }
+        Key {
+            bytes: self.private.bytes,
+        }
     }
 
     pub fn public(&self) -> Key {
-        Key { bytes: self.public.bytes }
+        Key {
+            bytes: self.public.bytes,
+        }
     }
 }
 
@@ -91,15 +93,14 @@ impl HDWallet {
             Err(err) => return Err(format!("{}: {:?}", HDWalletError::InvalidSeed, err)),
         };
 
-        Ok(HDWallet {
-            seed,
-        })
+        Ok(HDWallet { seed })
     }
 
     /// Derive account from a seed and a path
     pub fn derive(&self, path: String) -> Result<Keypair, String> {
         // BIP32 Extended Private Key
-        let path = path.parse()
+        let path = path
+            .parse()
             .map_err(|err| format!("{}: {:?}", HDWalletError::PathError, err))?;
         let xprv = XPrv::derive_from_path(&self.seed, &path)
             .map_err(|_| HDWalletError::DerivationError.to_string())?;
@@ -113,13 +114,10 @@ impl HDWallet {
 
         prv_bytes.zeroize();
 
-        let private  = Key::new(Vec::from(secret_key.to_bytes()))?;
+        let private = Key::new(Vec::from(secret_key.to_bytes()))?;
         let public = Key::new(Vec::from(public_key.to_bytes()))?;
 
-        Ok(Keypair {
-            private,
-            public,
-        })
+        Ok(Keypair { private, public })
     }
 }
 
@@ -132,13 +130,16 @@ mod tests {
     fn can_derive_keys_from_path() {
         let phrase = "caught pig embody hip goose like become worry face oval manual flame \
                       pizza steel viable proud eternal speed chapter sunny boat because view bullet";
-        let mnemonic = Mnemonic::from_phrase(phrase.into()).expect("Should not fail with a valid phrase!");
+        let mnemonic =
+            Mnemonic::from_phrase(phrase.into()).expect("Should not fail with a valid phrase!");
         let seed = mnemonic.to_seed(None).unwrap();
         let bip44: HDWallet = HDWallet::new(seed).unwrap();
         // Account (/0'/0) - External path
         let path = "m/44'/0'/0'/0";
 
-        let keys = bip44.derive(path.to_string()).expect("Should derive keys from a path");
+        let keys = bip44
+            .derive(path.to_string())
+            .expect("Should derive keys from a path");
 
         assert_eq!(keys.private.to_bytes().vec.len(), 32);
         assert_eq!(keys.public.to_bytes().vec.len(), 32);
@@ -147,23 +148,37 @@ mod tests {
         assert_eq!(secret_b64, "xiB2bcoA7Zo0XdnTqjyql8rzM1lNvckot6oXLvo+J8M=");
 
         let secret_hex = &keys.private.to_hex().string;
-        assert_eq!(secret_hex, "c620766dca00ed9a345dd9d3aa3caa97caf333594dbdc928b7aa172efa3e27c3");
+        assert_eq!(
+            secret_hex,
+            "c620766dca00ed9a345dd9d3aa3caa97caf333594dbdc928b7aa172efa3e27c3"
+        );
 
         let public_b64 = keys.public.to_base64();
         assert_eq!(public_b64, "JxUtX29qv87BzMilM0WSBRyyE00EzWTprsEGmNxd54I=");
 
         let public_hex = &keys.public.to_hex().string;
-        assert_eq!(public_hex, "27152d5f6f6abfcec1ccc8a5334592051cb2134d04cd64e9aec10698dc5de782");
+        assert_eq!(
+            public_hex,
+            "27152d5f6f6abfcec1ccc8a5334592051cb2134d04cd64e9aec10698dc5de782"
+        );
 
         // Sub-Account (/0'/0/0) - External path
         let path = "m/44'/0'/0'/0/0";
 
-        let keys = bip44.derive(path.to_string()).expect("Should derive keys from a path");
+        let keys = bip44
+            .derive(path.to_string())
+            .expect("Should derive keys from a path");
         let secret_hex = &keys.private.to_hex().string;
-        assert_eq!(secret_hex, "2493640b28d0ab262451713fdff14d6fb5e5c4d2652f1e3aba301e23fe5c4442");
+        assert_eq!(
+            secret_hex,
+            "2493640b28d0ab262451713fdff14d6fb5e5c4d2652f1e3aba301e23fe5c4442"
+        );
 
         let public_hex = &keys.public.to_hex().string;
-        assert_eq!(public_hex, "cb312d148b5e615ee2854307b0b0c17133cd24c44f35d3cb554cf29c7b2addb1");
+        assert_eq!(
+            public_hex,
+            "cb312d148b5e615ee2854307b0b0c17133cd24c44f35d3cb554cf29c7b2addb1"
+        );
     }
 
     #[test]

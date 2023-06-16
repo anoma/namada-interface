@@ -284,16 +284,14 @@ export class KeyRing {
     return false;
   }
 
-  public static deriveTransparentAccount(
+  public deriveTransparentAccount(
     seed: VecU8Pointer,
     path: Bip44Path,
-    parentId: string,
-    chainId: string,
-    cryptoMemory: WebAssembly.Memory
+    parentId: string
   ): DerivedAccountInfo {
     const { account, change, index = 0 } = path;
     const root = "m/44'";
-    const { coinType } = chains[chainId].bip44;
+    const { coinType } = chains[this.chainId].bip44;
     const derivationPath = [
       root,
       `${coinType}'`,
@@ -306,11 +304,11 @@ export class KeyRing {
 
     const privateKey = derivedAccount.private();
     const hex = privateKey.to_hex();
-    const text = readStringPointer(hex, cryptoMemory);
+    const text = readStringPointer(hex, this.cryptoMemory);
     const address = new Address(text).implicit();
     const id = getId("account", parentId, account, change, index);
 
-    bip44.free();
+    // bip44.free();
     derivedAccount.free();
     privateKey.free();
     hex.free();
@@ -354,6 +352,158 @@ export class KeyRing {
       viewingKey,
       text: JSON.stringify({ spendingKey, viewingKey }),
     };
+  }
+
+  private async *generator(
+    seed: VecU8Pointer,
+    parentId: string
+  ): AsyncGenerator<
+    {
+      path: Bip44Path;
+      info: DerivedAccountInfo;
+    },
+    void,
+    void
+  > {
+    let index = 0;
+    let emptyBalanceCount = 0;
+
+    const f = async (
+      index: number
+    ): Promise<{
+      path: Bip44Path;
+      info: DerivedAccountInfo;
+      balances: [string, string][];
+    }> => {
+      const seedClone = seed.clone();
+      const path = { account: 0, change: 0, index };
+      const accountInfo = this.deriveTransparentAccount(
+        seedClone,
+        path,
+        parentId
+      );
+      const balances: [string, string][] = await this.query.query_balance(
+        accountInfo.address
+      );
+
+      return { path, info: accountInfo, balances };
+    };
+
+    while (index < 999999999 && emptyBalanceCount < 20) {
+      const { path, info, balances } = await f(index++);
+      //TODO: pretty shitty check
+      const hasBalance = balances.some(([, value]) => value !== "0");
+
+      if (hasBalance) {
+        emptyBalanceCount = 0;
+        yield { path, info };
+      } else {
+        emptyBalanceCount++;
+      }
+    }
+  }
+
+  public async discoverAddresses(): Promise<void> {
+    if (!this._password) {
+      throw new Error("No password is set!");
+    }
+
+    const { seed, parentId } = await this.getParentSeed(this._password);
+
+    for await (const value of this.generator(seed, parentId)) {
+      const alias = `Address - ${value.path.index}`;
+      const { info, path } = value;
+      await this.persistAccount(
+        path,
+        parentId,
+        AccountType.PrivateKey,
+        alias,
+        info
+      );
+
+      await this.addSecretKey(info.text, this._password, alias, parentId);
+    }
+  }
+
+  public async getParentSeed(password: string): Promise<{
+    parentId: string;
+    seed: VecU8Pointer;
+  }> {
+    const storedMnemonic = await this._keyStore.getRecord(
+      "id",
+      await this.getActiveAccountId()
+    );
+
+    if (!storedMnemonic) {
+      throw new Error("Mnemonic is not set!");
+    }
+
+    const parentId = storedMnemonic.id;
+
+    const phrase = crypto.decrypt(storedMnemonic, password, this._cryptoMemory);
+    const mnemonic = Mnemonic.from_phrase(phrase);
+    const seed = mnemonic.to_seed();
+    mnemonic.free();
+    return { parentId, seed };
+  }
+
+  public async persistAccount(
+    path: Bip44Path,
+    parentId: string,
+    type: AccountType,
+    alias: string,
+    derivedAccountInfo: DerivedAccountInfo
+  ): Promise<DerivedAccount> {
+    if (!this._password) {
+      throw new Error("No password is set!");
+    }
+
+    const { address, id, text } = derivedAccountInfo;
+
+    this._keyStore.append(
+      crypto.encrypt({
+        alias,
+        address,
+        owner: address,
+        chainId: this.chainId,
+        id,
+        parentId,
+        password: this._password,
+        path,
+        text,
+        type,
+      })
+    );
+
+    return {
+      id,
+      address,
+      alias,
+      chainId: this.chainId,
+      parentId,
+      path,
+      type,
+    };
+  }
+
+  public async deriveAccount2(
+    alias: string,
+    path: Bip44Path
+  ): Promise<DerivedAccount> {
+    if (!this._password) {
+      throw new Error("No password is set!");
+    }
+    const { seed, parentId } = await this.getParentSeed(this._password);
+    const accountInfo = this.deriveTransparentAccount(seed, path, parentId);
+    const derivedAccount = await this.persistAccount(
+      path,
+      parentId,
+      AccountType.PrivateKey,
+      alias,
+      accountInfo
+    );
+
+    return derivedAccount;
   }
 
   public async deriveAccount(
@@ -401,12 +551,10 @@ export class KeyRing {
 
         this.addSpendingKey(spendingKey, this._password, alias, parentId);
       } else {
-        const transparentAccount = KeyRing.deriveTransparentAccount(
+        const transparentAccount = this.deriveTransparentAccount(
           seed,
           path,
-          parentId,
-          this.chainId,
-          this._cryptoMemory
+          parentId
         );
         id = transparentAccount.id;
         address = transparentAccount.address;
