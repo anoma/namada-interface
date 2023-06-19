@@ -1,5 +1,6 @@
 import BN from "bn.js";
 import { TxProps } from "../types";
+import { SchemaObject } from "@anoma/utils";
 
 export class TxMsgValue {
   token: string;
@@ -7,15 +8,21 @@ export class TxMsgValue {
   gas_limit: BN;
   chain_id: string;
 
-  constructor(properties: TxProps) {
+  constructor(properties: TxProps | SchemaObject<typeof TxMsgSchema>) {
     this.token = properties.token;
-    this.fee_amount = new BN(properties.feeAmount.toString());
-    this.gas_limit = new BN(properties.gasLimit.toString());
-    this.chain_id = properties.chainId;
+    this.fee_amount = 'feeAmount' in properties ?
+      new BN(properties.feeAmount.toString()) :
+      properties.fee_amount;
+    this.gas_limit = 'gasLimit' in properties ?
+      new BN(properties.gasLimit.toString()) :
+      properties.gas_limit;
+    this.chain_id = 'chainId' in properties ?
+      properties.chainId :
+      properties.chain_id;
   }
 }
 
-export const TxMsgSchema: [unknown, unknown] = [
+export const TxMsgSchema = [
   TxMsgValue,
   {
     kind: "struct",
@@ -26,4 +33,4 @@ export const TxMsgSchema: [unknown, unknown] = [
       ["chain_id", "string"],
     ],
   },
-];
+] as const; // needed for SchemaObject to deduce types correctly
