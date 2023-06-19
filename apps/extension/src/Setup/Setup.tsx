@@ -12,10 +12,8 @@ import {
   MotionContainer,
 } from "./Setup.components";
 import {
-  Completion,
   SeedPhrase,
   SeedPhraseConfirmation,
-  Password,
 } from "Setup/AccountCreation/Steps";
 import {
   TopLevelRoute,
@@ -29,6 +27,7 @@ import { AnimatePresence } from "framer-motion";
 import { ImportAccount } from "./ImportAccount";
 import { useRequester } from "hooks/useRequester";
 import { SeedPhraseImport } from "./ImportAccount/Steps";
+import { Completion, Password } from "./Common";
 
 type AnimatedTransitionProps = {
   elementKey: string;
