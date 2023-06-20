@@ -13,7 +13,7 @@
     "lint:ci": "yarn lint --max-warnings 0"
   },
   "dependencies": {
-    "typescript": "^4.8.2"
+    "typescript": "^5.1.3"
   },
   "devDependencies": {
     "@types/firefox-webext-browser": "^94.0.1",
