@@ -1,7 +1,6 @@
 import { v5 as uuid } from "uuid";
 
 import {
-  HDWallet,
   Mnemonic,
   PhraseSize,
   ShieldedHDWallet,
@@ -9,7 +8,6 @@ import {
 } from "@anoma/crypto";
 import {
   Account,
-  Address,
   ExtendedSpendingKey,
   ExtendedViewingKey,
   PaymentAddress,
@@ -32,10 +30,7 @@ import {
   ResetPasswordError,
   DeleteAccountError,
 } from "./types";
-import {
-  readStringPointer,
-  readVecStringPointer,
-} from "@anoma/crypto/src/utils";
+import { readVecStringPointer } from "@anoma/crypto/src/utils";
 import { deserialize } from "borsh";
 import { Result } from "@anoma/utils";
 
@@ -229,31 +224,23 @@ export class KeyRing {
     if (!password) {
       throw new Error("Password is not provided! Cannot store mnemonic");
     }
+    const { chainId } = this;
     const phrase = mnemonic.join(" ");
+    const id = getId(phrase, (await this._keyStore.get()).length);
+    const { coinType } = chains[this.chainId].bip44;
+    const path = `m/44'/${coinType}'/0'/0`;
 
+    const [aliasOrPkh, address, sk] = this.sdk.derive_address(
+      "ed25519",
+      phrase,
+      path,
+      password,
+      alias
+    );
     try {
-      const mnemonic = Mnemonic.from_phrase(phrase);
-      const seed = mnemonic.to_seed();
-      const { coinType } = chains[this.chainId].bip44;
-      const path = `m/44'/${coinType}'/0'/0`;
-      const bip44 = new HDWallet(seed);
-      const account = bip44.derive(path);
-      const stringPointer = account.private().to_hex();
-      const sk = readStringPointer(stringPointer, this._cryptoMemory);
-      const address = new Address(sk).implicit();
-      const { chainId } = this;
-
-      // Generate unique ID for new parent account:
-      const id = getId(phrase, (await this._keyStore.get()).length);
-
-      mnemonic.free();
-      bip44.free();
-      account.free();
-      stringPointer.free();
-
       const mnemonicStore = crypto.encrypt({
         id,
-        alias,
+        alias: aliasOrPkh,
         address,
         owner: address,
         chainId,
@@ -282,9 +269,10 @@ export class KeyRing {
   }
 
   public deriveTransparentAccount(
-    seed: VecU8Pointer,
+    phrase: string,
     path: Bip44Path,
-    parentId: string
+    parentId: string,
+    password: string
   ): DerivedAccountInfo {
     const { account, change, index = 0 } = path;
     const root = "m/44'";
@@ -296,25 +284,20 @@ export class KeyRing {
       change,
       index,
     ].join("/");
-    const bip44 = new HDWallet(seed);
-    const derivedAccount = bip44.derive(derivationPath);
 
-    const privateKey = derivedAccount.private();
-    const hex = privateKey.to_hex();
-    const text = readStringPointer(hex, this.cryptoMemory);
-    const address = new Address(text).implicit();
+    const [_aliasOrPkh, address, sk] = this.sdk.derive_address(
+      "ed25519",
+      phrase,
+      derivationPath,
+      password
+    );
     const id = getId("account", parentId, account, change, index);
-
-    bip44.free();
-    derivedAccount.free();
-    privateKey.free();
-    hex.free();
 
     return {
       address,
       owner: address,
       id,
-      text,
+      text: sk,
     };
   }
 
@@ -354,8 +337,9 @@ export class KeyRing {
   }
 
   private async *getAddressWithBalance(
-    seed: VecU8Pointer,
-    parentId: string
+    phrase: string,
+    parentId: string,
+    password: string
   ): AsyncGenerator<
     {
       path: Bip44Path;
@@ -374,13 +358,12 @@ export class KeyRing {
       info: DerivedAccountInfo;
       balances: [string, string][];
     }> => {
-      // Cloning the seed, otherwise it gets zeroized in deriveTransparentAccount
-      const seedClone = seed.clone();
       const path = { account: 0, change: 0, index };
       const accountInfo = this.deriveTransparentAccount(
-        seedClone,
+        phrase,
         path,
-        parentId
+        parentId,
+        password
       );
       const balances: [string, string][] = await this.query.query_balance(
         accountInfo.address
@@ -408,9 +391,13 @@ export class KeyRing {
       throw new Error("No password is set!");
     }
 
-    const { seed, parentId } = await this.getParentSeed(this._password);
+    const { phrase, parentId } = await this.getParentAndPhrase(this._password);
 
-    for await (const value of this.getAddressWithBalance(seed, parentId)) {
+    for await (const value of this.getAddressWithBalance(
+      phrase,
+      parentId,
+      this._password
+    )) {
       const alias = `Address - ${value.path.index}`;
       const { info, path } = value;
       await this.persistAccount(
@@ -423,12 +410,11 @@ export class KeyRing {
       );
       await this.addSecretKey(info.text, this._password, alias, parentId);
     }
-    seed.free();
   }
 
-  private async getParentSeed(password: string): Promise<{
+  private async getParentAndPhrase(password: string): Promise<{
     parentId: string;
-    seed: VecU8Pointer;
+    phrase: string;
   }> {
     const storedMnemonic = await this._keyStore.getRecord(
       "id",
@@ -446,10 +432,7 @@ export class KeyRing {
         password,
         this._cryptoMemory
       );
-      const mnemonic = Mnemonic.from_phrase(phrase);
-      const seed = mnemonic.to_seed();
-      mnemonic.free();
-      return { parentId, seed };
+      return { parentId, phrase };
     } catch (e) {
       throw Error("Could not decrypt mnemonic from password");
     }
@@ -502,14 +485,20 @@ export class KeyRing {
     if (type !== AccountType.PrivateKey && type !== AccountType.ShieldedKeys) {
       throw new Error("Unsupported account type");
     }
-    const deriveFn = (
+    //TODO:
+    const _deriveFn = (
       type === AccountType.PrivateKey
         ? this.deriveTransparentAccount
         : this.deriveShieldedAccount
     ).bind(this);
 
-    const { seed, parentId } = await this.getParentSeed(this._password);
-    const info = deriveFn(seed, path, parentId);
+    const { phrase, parentId } = await this.getParentAndPhrase(this._password);
+    const info = this.deriveTransparentAccount(
+      phrase,
+      path,
+      parentId,
+      this._password
+    );
     const derivedAccount = await this.persistAccount(
       this._password,
       path,

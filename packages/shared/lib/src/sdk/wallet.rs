@@ -2,14 +2,14 @@ use std::str::FromStr;
 
 use masp_primitives::zip32::ExtendedFullViewingKey;
 use namada::{
-    bip39::{Mnemonic, MnemonicType},
+    bip39::{Mnemonic, MnemonicType, Seed},
     ledger::wallet::{
         alias::Alias, ConfirmationResponse, GenRestoreKeyError, Store, StoredKeypair, Wallet,
         WalletUtils,
     },
     types::{
         address::{Address, ImplicitAddress},
-        key::{self, common::SecretKey, PublicKeyHash, RefTo},
+        key::{self, common::SecretKey, PublicKeyHash, RefTo, SchemeType},
         masp::ExtendedSpendingKey,
     },
 };
@@ -79,6 +79,30 @@ pub fn decode(data: Vec<u8>) -> Result<Wallet<BrowserWalletUtils>, JsError> {
     Ok(wallet)
 }
 
+pub fn derive_address(
+    wallet: &mut Wallet<BrowserWalletUtils>,
+    scheme: SchemeType,
+    mnemonic: Mnemonic,
+    path: String,
+    password: Option<String>,
+    alias: Option<String>,
+) -> Result<(Alias, Address, String), GenRestoreKeyError> {
+    // let zeroized_pwd = zeroize::Zeroizing::new(password.clone());
+    let password = password.map(|pwd| zeroize::Zeroizing::new(pwd));
+    let parsed_path = Wallet::<BrowserWalletUtils>::parse_path(Some(&path), scheme)?;
+
+    let store = wallet.store_mut();
+    let seed_and_derivation_path //: Option<Result<Seed, GenRestoreKeyError>>
+        = parsed_path.map(|path| {
+            Ok((Seed::new(&mnemonic, &password.clone().unwrap()), path))
+        }).transpose()?;
+
+    let (alias, address, _pkh, raw_keypair, _keypair_to_store) =
+        store.gen_key::<BrowserWalletUtils>(scheme, alias, seed_and_derivation_path, password);
+
+    Ok((alias, address, serde_json::to_string(&raw_keypair).unwrap()))
+}
+
 /// Adds keypair and the address to the wallet.
 /// It's needed because we create addresses without using the Sdk.
 /// Panics if inserting keypair or address is impossible.
@@ -95,10 +119,10 @@ pub fn add_key(
     password: Option<String>,
     alias: Option<String>,
 ) {
-    let sk = key::ed25519::SecretKey::from_str(private_key)
-        .map_err(|err| format!("ed25519 encoding failed: {:?}", err))
-        .unwrap();
-    let sk = SecretKey::Ed25519(sk);
+    web_sys::console::log_1(&format!("add_key3 {}", private_key).into());
+
+    let sk = serde_json::from_str::<SecretKey>(private_key).expect("Invalid private key");
+    // let sk = SecretKey::from_str(private_key).expect("Invalid private key");
     let pkh: PublicKeyHash = PublicKeyHash::from(&sk.ref_to());
     let password = password.map(|pwd| zeroize::Zeroizing::new(pwd));
     let (keypair_to_store, _raw_keypair) = StoredKeypair::new(sk, password);

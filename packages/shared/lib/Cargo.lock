@@ -2336,7 +2336,6 @@ checksum = "e5ce46fe64a9d73be07dcbe690a38ce1b293be448fd8ce1e6c1b8062c9f72c6a"
 [[package]]
 name = "namada"
 version = "0.17.3"
-source = "git+https://github.com/anoma/namada#85e7eff6c663641d0cdf42deca78d3db9a31e5db"
 dependencies = [
  "async-std",
  "async-trait",
@@ -2384,7 +2383,6 @@ dependencies = [
 [[package]]
 name = "namada_core"
 version = "0.17.3"
-source = "git+https://github.com/anoma/namada#85e7eff6c663641d0cdf42deca78d3db9a31e5db"
 dependencies = [
  "ark-bls12-381",
  "ark-ec",
@@ -2428,7 +2426,6 @@ dependencies = [
 [[package]]
 name = "namada_macros"
 version = "0.17.3"
-source = "git+https://github.com/anoma/namada#85e7eff6c663641d0cdf42deca78d3db9a31e5db"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2438,7 +2435,6 @@ dependencies = [
 [[package]]
 name = "namada_proof_of_stake"
 version = "0.17.3"
-source = "git+https://github.com/anoma/namada#85e7eff6c663641d0cdf42deca78d3db9a31e5db"
 dependencies = [
  "borsh",
  "data-encoding",

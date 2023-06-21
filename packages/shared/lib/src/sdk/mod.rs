@@ -1,10 +1,13 @@
+use std::{error::Error, str::FromStr};
+
 use crypto::crypto::pointer_types::{new_vec_string_pointer, VecStringPointer};
 use namada::{
-    bip39::MnemonicType,
+    bip39::{Language, Mnemonic, MnemonicType},
     ledger::{
         masp::ShieldedContext,
         wallet::{Store, Wallet},
     },
+    types::key::SchemeType,
 };
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 
@@ -98,6 +101,27 @@ impl Sdk {
         Ok(new_vec_string_pointer(words))
     }
 
+    pub fn derive_address(
+        &mut self,
+        scheme: String,
+        phrase: String,
+        path: String,
+        password: Option<String>,
+        alias: Option<String>,
+    ) -> Result<JsValue, JsError> {
+        let scheme =
+            SchemeType::from_str(&scheme).map_err(|_| JsError::new("Invalid scheme type"))?;
+        let mnemonic = Mnemonic::from_phrase(&phrase, Language::English).map_err(|e| {
+            let e: &dyn Error = e.as_ref();
+            JsError::from(e)
+        })?;
+
+        match wallet::derive_address(&mut self.wallet, scheme, mnemonic, path, password, alias) {
+            Ok(res) => to_js_result(res),
+            Err(e) => Err(JsError::from(e)),
+        }
+    }
+
     pub fn add_key(&mut self, private_key: &str, password: Option<String>, alias: Option<String>) {
         wallet::add_key(&mut self.wallet, private_key, password, alias)
     }
@@ -115,7 +139,7 @@ impl Sdk {
 
         namada::ledger::tx::submit_bond(&mut self.client, &mut self.wallet, args)
             .await
-            .map_err(|e| JsError::from(e))
+            .map_err(JsError::from)
     }
 
     pub async fn submit_unbond(
@@ -127,7 +151,7 @@ impl Sdk {
 
         namada::ledger::tx::submit_unbond(&mut self.client, &mut self.wallet, args)
             .await
-            .map_err(|e| JsError::from(e))
+            .map_err(JsError::from)
     }
 
     pub async fn submit_transfer(
@@ -144,7 +168,7 @@ impl Sdk {
             args,
         )
         .await
-        .map_err(|e| JsError::from(e))
+        .map_err(JsError::from)
     }
 
     pub async fn submit_ibc_transfer(
@@ -156,7 +180,7 @@ impl Sdk {
 
         namada::ledger::tx::submit_ibc_transfer(&self.client, &mut self.wallet, args)
             .await
-            .map_err(|e| JsError::from(e))
+            .map_err(JsError::from)
     }
 }
 
