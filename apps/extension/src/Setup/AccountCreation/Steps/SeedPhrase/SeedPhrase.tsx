@@ -11,6 +11,8 @@ import {
   ButtonsContainer,
   FormContainer,
   Header1,
+  SeedPhraseLength,
+  SeedPhraseLengthContainer,
   SubViewContainer,
   UpperContentContainer,
 } from "Setup/Setup.components";
@@ -18,8 +20,6 @@ import {
   SeedPhraseCard,
   SeedPhraseContainer,
   SeedPhraseIndexLabel,
-  SeedPhraseLengthContainer,
-  SeedPhraseLength,
   ExportSeedPhraseButtonsContainer,
   CopyToClipboard,
 } from "./SeedPhrase.components";

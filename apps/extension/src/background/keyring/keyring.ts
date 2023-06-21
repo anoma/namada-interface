@@ -67,14 +67,7 @@ type DerivedAccountInfo = {
   address: string;
   id: string;
   text: string;
-};
-
-type DerivedShieldedAccountInfo = {
-  address: string;
-  id: string;
-  spendingKey: Uint8Array;
-  viewingKey: string;
-  text: string;
+  owner: string;
 };
 
 /**
@@ -205,6 +198,10 @@ export class KeyRing {
     return Result.ok(null);
   }
 
+  public validateMnemonic(phrase: string): boolean {
+    return Mnemonic.validate(phrase);
+  }
+
   // Return new mnemonic to client for validation
   public async generateMnemonic(
     size: PhraseSize = PhraseSize.N12
@@ -280,16 +277,14 @@ export class KeyRing {
     return false;
   }
 
-  public static deriveTransparentAccount(
+  public deriveTransparentAccount(
     seed: VecU8Pointer,
     path: Bip44Path,
-    parentId: string,
-    chainId: string,
-    cryptoMemory: WebAssembly.Memory
+    parentId: string
   ): DerivedAccountInfo {
     const { account, change, index = 0 } = path;
     const root = "m/44'";
-    const { coinType } = chains[chainId].bip44;
+    const { coinType } = chains[this.chainId].bip44;
     const derivationPath = [
       root,
       `${coinType}'`,
@@ -302,7 +297,7 @@ export class KeyRing {
 
     const privateKey = derivedAccount.private();
     const hex = privateKey.to_hex();
-    const text = readStringPointer(hex, cryptoMemory);
+    const text = readStringPointer(hex, this.cryptoMemory);
     const address = new Address(text).implicit();
     const id = getId("account", parentId, account, change, index);
 
@@ -313,16 +308,17 @@ export class KeyRing {
 
     return {
       address,
+      owner: address,
       id,
       text,
     };
   }
 
-  public static deriveShieldedAccount(
+  public deriveShieldedAccount(
     seed: VecU8Pointer,
     path: Bip44Path,
     parentId: string
-  ): DerivedShieldedAccountInfo {
+  ): DerivedAccountInfo {
     const { index = 0 } = path;
     const id = getId("shielded-account", parentId, index);
     const zip32 = new ShieldedHDWallet(seed);
@@ -334,21 +330,160 @@ export class KeyRing {
     const payment_address = account.payment_address();
 
     // Deserialize and encode keys and address
-    const spendingKey = new ExtendedSpendingKey(xsk).encode();
+    const extendedSpendingKey = new ExtendedSpendingKey(xsk);
     const extendedViewingKey = new ExtendedViewingKey(xfvk);
-    const viewingKey = extendedViewingKey.encode();
     const address = new PaymentAddress(payment_address).encode();
+    const spendingKey = extendedSpendingKey.encode();
+    const viewingKey = extendedViewingKey.encode();
 
     zip32.free();
     account.free();
     extendedViewingKey.free();
+    extendedSpendingKey.free();
 
     return {
       address,
       id,
-      spendingKey: xsk,
-      viewingKey,
+      owner: viewingKey,
       text: JSON.stringify({ spendingKey, viewingKey }),
+    };
+  }
+
+  private async *getAddressWithBalance(
+    seed: VecU8Pointer,
+    parentId: string
+  ): AsyncGenerator<
+    {
+      path: Bip44Path;
+      info: DerivedAccountInfo;
+    },
+    void,
+    void
+  > {
+    let index = 0;
+    let emptyBalanceCount = 0;
+
+    const get = async (
+      index: number
+    ): Promise<{
+      path: Bip44Path;
+      info: DerivedAccountInfo;
+      balances: [string, string][];
+    }> => {
+      // Cloning the seed, otherwise it gets zeroized in deriveTransparentAccount
+      const seedClone = seed.clone();
+      const path = { account: 0, change: 0, index };
+      const accountInfo = this.deriveTransparentAccount(
+        seedClone,
+        path,
+        parentId
+      );
+      const balances: [string, string][] = await this.query.query_balance(
+        accountInfo.address
+      );
+
+      return { path, info: accountInfo, balances };
+    };
+
+    while (index < 999999999 && emptyBalanceCount < 20) {
+      const { path, info, balances } = await get(index++);
+      //TODO: Change after fixes to balances :)
+      const hasBalance = balances.some(([, value]) => value !== "0");
+
+      if (hasBalance) {
+        emptyBalanceCount = 0;
+        yield { path, info };
+      } else {
+        emptyBalanceCount++;
+      }
+    }
+  }
+
+  public async scanAddresses(): Promise<void> {
+    if (!this._password) {
+      throw new Error("No password is set!");
+    }
+
+    const { seed, parentId } = await this.getParentSeed(this._password);
+
+    for await (const value of this.getAddressWithBalance(seed, parentId)) {
+      const alias = `Address - ${value.path.index}`;
+      const { info, path } = value;
+      await this.persistAccount(
+        this._password,
+        path,
+        parentId,
+        AccountType.PrivateKey,
+        alias,
+        info
+      );
+      await this.addSecretKey(info.text, this._password, alias, parentId);
+    }
+    seed.free();
+  }
+
+  private async getParentSeed(password: string): Promise<{
+    parentId: string;
+    seed: VecU8Pointer;
+  }> {
+    const storedMnemonic = await this._keyStore.getRecord(
+      "id",
+      await this.getActiveAccountId()
+    );
+
+    if (!storedMnemonic) {
+      throw new Error("Mnemonic is not set!");
+    }
+
+    const parentId = storedMnemonic.id;
+    try {
+      const phrase = crypto.decrypt(
+        storedMnemonic,
+        password,
+        this._cryptoMemory
+      );
+      const mnemonic = Mnemonic.from_phrase(phrase);
+      const seed = mnemonic.to_seed();
+      mnemonic.free();
+      return { parentId, seed };
+    } catch (e) {
+      throw Error("Could not decrypt mnemonic from password");
+    }
+  }
+
+  private async persistAccount(
+    password: string,
+    path: Bip44Path,
+    parentId: string,
+    type: AccountType,
+    alias: string,
+    derivedAccountInfo: DerivedAccountInfo
+  ): Promise<DerivedAccount> {
+    const { address, id, text } = derivedAccountInfo;
+
+    this._keyStore.append(
+      crypto.encrypt({
+        alias,
+        address,
+        owner: address,
+        chainId: this.chainId,
+        id,
+        parentId,
+        password,
+        path,
+        text,
+        type,
+      })
+    );
+
+    return {
+      id,
+      address,
+      alias,
+      chainId: this.chainId,
+      parentId,
+      path,
+      type,
     };
   }
 
@@ -360,88 +495,32 @@ export class KeyRing {
     if (!this._password) {
       throw new Error("No password is set!");
     }
+    if (type !== AccountType.PrivateKey && type !== AccountType.ShieldedKeys) {
+      throw new Error("Unsupported account type");
+    }
+    const deriveFn = (
+      type === AccountType.PrivateKey
+        ? this.deriveTransparentAccount
+        : this.deriveShieldedAccount
+    ).bind(this);
 
-    const storedMnemonic = await this._keyStore.getRecord(
-      "id",
-      await this.getActiveAccountId()
+    const { seed, parentId } = await this.getParentSeed(this._password);
+    const info = deriveFn(seed, path, parentId);
+    const derivedAccount = await this.persistAccount(
+      this._password,
+      path,
+      parentId,
+      type,
+      alias,
+      info
     );
 
-    if (!storedMnemonic) {
-      throw new Error("Mnemonic is not set!");
-    }
+    const addSecretFn = (
+      type === AccountType.PrivateKey ? this.addSecretKey : this.addSpendingKey
+    ).bind(this);
+    await addSecretFn(info.text, this._password, alias, parentId);
 
-    const parentId = storedMnemonic.id;
-
-    try {
-      const phrase = crypto.decrypt(
-        storedMnemonic,
-        this._password,
-        this._cryptoMemory
-      );
-      const mnemonic = Mnemonic.from_phrase(phrase);
-      const seed = mnemonic.to_seed();
-      mnemonic.free();
-
-      let id: string;
-      let address: string;
-      let text: string;
-      let owner: string;
-
-      if (type === AccountType.ShieldedKeys) {
-        const { spendingKey, ...shieldedAccount } =
-          KeyRing.deriveShieldedAccount(seed, path, parentId);
-        id = shieldedAccount.id;
-        address = shieldedAccount.address;
-        text = shieldedAccount.text;
-        owner = shieldedAccount.viewingKey;
-
-        this.addSpendingKey(spendingKey, this._password, alias, parentId);
-      } else {
-        const transparentAccount = KeyRing.deriveTransparentAccount(
-          seed,
-          path,
-          parentId,
-          this.chainId,
-          this._cryptoMemory
-        );
-        id = transparentAccount.id;
-        address = transparentAccount.address;
-        text = transparentAccount.text;
-        owner = transparentAccount.address;
-
-        this.addSecretKey(text, this._password, alias, parentId);
-      }
-
-      const { chainId } = this;
-
-      this._keyStore.append(
-        crypto.encrypt({
-          alias,
-          address,
-          owner,
-          chainId,
-          id,
-          parentId,
-          password: this._password,
-          path,
-          text,
-          type,
-        })
-      );
-
-      return {
-        id,
-        address,
-        alias,
-        chainId,
-        parentId,
-        path,
-        type,
-      };
-    } catch (e) {
-      console.error(e);
-      throw new Error("Could not decrypt mnemonic from password!");
-    }
+    return derivedAccount;
   }
 
   /**
@@ -658,11 +737,13 @@ export class KeyRing {
   }
 
   private async addSpendingKey(
-    spendingKey: Uint8Array,
+    text: string,
     password: string,
     alias: string,
     activeAccountId: string
   ): Promise<void> {
+    const { spendingKey } = JSON.parse(text);
+
     this.sdk.add_spending_key(spendingKey, password, alias);
     const store = (await this.sdkStore.get(SDK_KEY)) || {};
 

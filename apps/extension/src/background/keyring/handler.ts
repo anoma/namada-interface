@@ -15,6 +15,8 @@ import {
   QueryParentAccountsMsg,
   TransferCompletedEvent,
   DeleteAccountMsg,
+  ValidateMnemonicMsg,
+  ScanAccountsMsg,
 } from "./messages";
 import {
   ConnectInterfaceMsg,
@@ -51,8 +53,15 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
           env,
           msg as GenerateMnemonicMsg
         );
+      case ValidateMnemonicMsg:
+        return handleValidateMnemonicMsg(service)(
+          env,
+          msg as ValidateMnemonicMsg
+        );
       case SaveMnemonicMsg:
         return handleSaveMnemonicMsg(service)(env, msg as SaveMnemonicMsg);
+      case ScanAccountsMsg:
+        return handleScanAccountsMsg(service)(env, msg as ScanAccountsMsg);
       case DeriveAccountMsg:
         return handleDeriveAccountMsg(service)(env, msg as DeriveAccountMsg);
       case QueryAccountsMsg:
@@ -173,6 +182,14 @@ const handleGenerateMnemonicMsg: (
   };
 };
 
+const handleValidateMnemonicMsg: (
+  service: KeyRingService
+) => InternalHandler<ValidateMnemonicMsg> = (service) => {
+  return async (_, msg) => {
+    return service.validateMnemonic(msg.phrase);
+  };
+};
+
 const handleSaveMnemonicMsg: (
   service: KeyRingService
 ) => InternalHandler<SaveMnemonicMsg> = (service) => {
@@ -182,6 +199,14 @@ const handleSaveMnemonicMsg: (
       return await service.saveMnemonic(words, password, alias);
     }
     return false;
+  };
+};
+
+const handleScanAccountsMsg: (
+  service: KeyRingService
+) => InternalHandler<ScanAccountsMsg> = (service) => {
+  return async () => {
+    await service.scanAccounts();
   };
 };
 

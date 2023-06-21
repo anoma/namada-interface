@@ -1,12 +1,9 @@
-use wasm_bindgen::prelude::*;
-use bip0039::Count;
-use zeroize::{Zeroize, ZeroizeOnDrop};
 use crate::crypto::pointer_types::{
-    StringPointer,
-    VecU8Pointer,
-    VecStringPointer,
-    new_vec_string_pointer
+    new_vec_string_pointer, StringPointer, VecStringPointer, VecU8Pointer,
 };
+use bip0039::Count;
+use wasm_bindgen::prelude::*;
+use zeroize::{Zeroize, ZeroizeOnDrop};
 
 #[wasm_bindgen]
 #[derive(Copy, Clone)]
@@ -31,25 +28,19 @@ impl Mnemonic {
         };
         let mnemonic = bip0039::Mnemonic::generate(count);
 
-        Ok(Mnemonic { phrase: mnemonic.to_string() })
+        Ok(Mnemonic {
+            phrase: mnemonic.to_string(),
+        })
     }
 
-    fn validate(phrase: &str) -> Result<(), String> {
-        let split = &phrase.split(' ');
-        let words: Vec<&str> = split.clone().collect();
-
-        if words.len() != PhraseSize::N12 as usize
-            && words.len() != PhraseSize::N24 as usize {
-            return Err("Invalid mnemonic phrase!".into());
-        }
-
-        Ok(())
+    pub fn validate(phrase: &str) -> bool {
+        bip0039::Mnemonic::validate(phrase).is_ok()
     }
 
     pub fn from_phrase(mut phrase: String) -> Result<Mnemonic, String> {
-        if let Err(e) = Mnemonic::validate(&phrase) {
+        if Mnemonic::validate(&phrase) == false {
             phrase.zeroize();
-            return Err(e)
+            return Err(String::from("Invalid mnemonic phrase!"));
         }
 
         Ok(Mnemonic { phrase })
@@ -72,9 +63,12 @@ impl Mnemonic {
     }
 
     pub fn to_words(&self) -> Result<VecStringPointer, String> {
-        let words: Vec<String> = self.phrase.clone().split(' ')
-             .map(|word| String::from(word))
-             .collect();
+        let words: Vec<String> = self
+            .phrase
+            .clone()
+            .split(' ')
+            .map(|word| String::from(word))
+            .collect();
         Ok(new_vec_string_pointer(words))
     }
 }
@@ -86,15 +80,15 @@ mod tests {
 
     #[test]
     fn can_generate_mnemonic_from_size() {
-        let mnemonic = Mnemonic::new(PhraseSize::N12)
-            .expect("Should generate mnemonic of length 12");
+        let mnemonic =
+            Mnemonic::new(PhraseSize::N12).expect("Should generate mnemonic of length 12");
         let split = mnemonic.phrase.split(' ');
         let words: Vec<&str> = split.collect();
 
         assert_eq!(words.iter().len(), 12);
 
-        let mnemonic = Mnemonic::new(PhraseSize::N24)
-            .expect("Should generate mnemonic of length 24");
+        let mnemonic =
+            Mnemonic::new(PhraseSize::N24).expect("Should generate mnemonic of length 24");
         let split = mnemonic.phrase.split(' ');
         let words: Vec<&str> = split.collect();
 
@@ -106,7 +100,9 @@ mod tests {
         let phrase = "caught pig embody hip goose like become worry face oval manual flame \
                       pizza steel viable proud eternal speed chapter sunny boat because view bullet";
         let mnemonic = Mnemonic::from_phrase(phrase.into()).unwrap();
-        let seed = mnemonic.to_seed(None).expect("Should return seed from mnemonic phrase");
+        let seed = mnemonic
+            .to_seed(None)
+            .expect("Should return seed from mnemonic phrase");
 
         assert_eq!(seed.vec.len(), 64);
     }
@@ -120,16 +116,18 @@ mod tests {
 
     #[wasm_bindgen_test]
     fn can_generate_word_list_from_mnemonic() {
-        let mnemonic = Mnemonic::new(PhraseSize::N12)
-            .expect("Should generate mnemonic of length 12");
-        let words = mnemonic.to_words()
+        let mnemonic =
+            Mnemonic::new(PhraseSize::N12).expect("Should generate mnemonic of length 12");
+        let words = mnemonic
+            .to_words()
             .expect("Should return a VecStringPointer containing the words");
 
         assert_eq!(words.strings.len(), 12);
 
-        let mnemonic = Mnemonic::new(PhraseSize::N24)
-            .expect("Should generate mnemonic of length 24");
-        let words = mnemonic.to_words()
+        let mnemonic =
+            Mnemonic::new(PhraseSize::N24).expect("Should generate mnemonic of length 24");
+        let words = mnemonic
+            .to_words()
             .expect("Should return a VecStringPointer containing the words");
 
         assert_eq!(words.strings.len(), 24);

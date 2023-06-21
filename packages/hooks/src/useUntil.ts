@@ -18,14 +18,14 @@ type Options = {
 export const useUntil = (
   options: Options,
   config: Config,
-  deps?: React.DependencyList
+  deps: React.DependencyList
 ): void => {
   useEffect(() => {
     const { predFn, onSuccess, onFail } = options;
     (async () => {
       const succ = await executeUntil(predFn, config);
       const fn = succ ? onSuccess : onFail;
-      fn();
+      await fn();
     })();
   }, deps);
 };

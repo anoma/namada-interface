@@ -8,12 +8,14 @@ import {
   ResetPasswordMsg,
   GenerateMnemonicMsg,
   SaveMnemonicMsg,
+  ScanAccountsMsg,
   SetActiveAccountMsg,
   GetActiveAccountMsg,
   QueryParentAccountsMsg,
   TransferCompletedEvent,
   CloseOffscreenDocumentMsg,
   DeleteAccountMsg,
+  ValidateMnemonicMsg,
 } from "./messages";
 import {
   ConnectInterfaceMsg,
@@ -47,6 +49,7 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(QueryParentAccountsMsg);
   router.registerMessage(ResetPasswordMsg);
   router.registerMessage(SaveMnemonicMsg);
+  router.registerMessage(ScanAccountsMsg);
   router.registerMessage(SetActiveAccountMsg);
   router.registerMessage(SubmitBondMsg);
   router.registerMessage(SubmitIbcTransferMsg);
@@ -56,6 +59,7 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(DeleteAccountMsg);
   router.registerMessage(FetchAndStoreMaspParamsMsg);
   router.registerMessage(HasMaspParamsMsg);
+  router.registerMessage(ValidateMnemonicMsg);
 
   router.addHandler(ROUTE, getHandler(service));
 }

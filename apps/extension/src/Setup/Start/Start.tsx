@@ -10,7 +10,11 @@ import {
   SubViewContainer,
   UpperContentContainer,
 } from "Setup/Setup.components";
-import { AccountCreationRoute, TopLevelRoute } from "../types";
+import {
+  AccountCreationRoute,
+  AccountImportRoute,
+  TopLevelRoute,
+} from "../types";
 import { StartViewContainer } from "./Start.components";
 
 const Start: React.FC = () => {
@@ -39,7 +43,14 @@ const Start: React.FC = () => {
           Create an account
         </Button>
         <Button
-          onClick={() => navigate(TopLevelRoute.ImportAccount)}
+          onClick={() =>
+            navigate(
+              formatRouterPath([
+                TopLevelRoute.ImportAccount,
+                AccountImportRoute.SeedPhrase,
+              ])
+            )
+          }
           variant={ButtonVariant.Contained}
         >
           Import an account

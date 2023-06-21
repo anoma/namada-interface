@@ -1,6 +1,5 @@
 use std::str::FromStr;
 
-use borsh::BorshDeserialize;
 use masp_primitives::zip32::ExtendedFullViewingKey;
 use namada::{
     ledger::wallet::{
@@ -124,19 +123,17 @@ pub fn add_key(
 /// # Arguments
 ///
 /// * `wallet` - Instance of a wallet struct.
-/// * `xsk` - Bytearray representing serialized ExtendedSpendingKey.
+/// * `xsk` - String representing serialized ExtendedSpendingKey.
 /// * `password` - Password to encrypt the spending key.
 /// * `alias` - Spending key alias.
 pub fn add_spending_key(
     wallet: &mut Wallet<BrowserWalletUtils>,
-    xsk: &[u8],
+    xsk: &str,
     password: Option<String>,
     alias: &str,
 ) {
-    let xsk: masp_primitives::zip32::ExtendedSpendingKey =
-        BorshDeserialize::try_from_slice(xsk).expect("XSK deserialization failed.");
-
-    let xsk = ExtendedSpendingKey::from(xsk);
+    let xsk = ExtendedSpendingKey::from_str(xsk)
+        .expect("XSK deserialization failed.");
     let viewkey = ExtendedFullViewingKey::from(&xsk.into()).into();
     let password = password.map(|pwd| zeroize::Zeroizing::new(pwd));
     let (spendkey_to_store, _raw_spendkey) = StoredKeypair::new(xsk, password);

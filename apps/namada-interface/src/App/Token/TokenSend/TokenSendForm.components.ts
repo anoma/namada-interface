@@ -22,7 +22,7 @@ export const InputContainer = styled.div`
   textarea {
     margin: 0;
     padding: 8px;
-    height: 26px;
+    height: 42px;
     width: calc(100% - 20px);
   }
 `;

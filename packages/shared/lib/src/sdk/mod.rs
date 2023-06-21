@@ -79,7 +79,7 @@ impl Sdk {
         wallet::add_key(&mut self.wallet, private_key, password, alias)
     }
 
-    pub fn add_spending_key(&mut self, xsk: &[u8], password: Option<String>, alias: &str) {
+    pub fn add_spending_key(&mut self, xsk: &str, password: Option<String>, alias: &str) {
         wallet::add_spending_key(&mut self.wallet, xsk, password, alias)
     }
 

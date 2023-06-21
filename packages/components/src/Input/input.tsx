@@ -19,6 +19,7 @@ export type InputProps = {
   error?: string;
   onChangeCallback?: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
   onFocus?: FocusEventHandler<HTMLInputElement>;
+  onPaste?: React.ClipboardEventHandler<HTMLInputElement>;
   placeholder?: string;
 };
 
@@ -29,6 +30,7 @@ export const Input = ({
   label,
   error,
   onChangeCallback,
+  onPaste,
   onFocus,
   placeholder,
 }: InputProps): JSX.Element => {
@@ -45,6 +47,7 @@ export const Input = ({
               error={!!error}
               onChange={onChangeCallback}
               onFocus={onFocus}
+              onPaste={onPaste}
               placeholder={placeholder}
               value={value}
               autoFocus={autoFocus}
@@ -88,6 +91,30 @@ export const Input = ({
               />
             </IconContainer>
           </PasswordContainer>
+          <ErrorTooltip>{error}</ErrorTooltip>
+        </Label>
+      );
+    case InputVariants.PasswordOnBlur:
+      return (
+        <Label>
+          {label}
+          <InputWrapper>
+            <TextInput
+              error={!!error}
+              onChange={onChangeCallback}
+              onFocus={(e) => {
+                setPasswordShown(true);
+                onFocus && onFocus(e);
+              }}
+              onBlur={() => setPasswordShown(false)}
+              onPaste={onPaste}
+              placeholder={placeholder}
+              value={value}
+              autoFocus={autoFocus}
+              type={passwordShown ? "text" : "password"}
+            />
+            <br />
+          </InputWrapper>
           <ErrorTooltip>{error}</ErrorTooltip>
         </Label>
       );

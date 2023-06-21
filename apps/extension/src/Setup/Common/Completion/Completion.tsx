@@ -1,10 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { ExtensionRequester } from "extension";
 import browser from "webextension-polyfill";
 
 import { Button, ButtonVariant } from "@anoma/components";
 import { useUntil } from "@anoma/hooks";
-import { SaveMnemonicMsg } from "background/keyring";
+import {
+  CheckIsLockedMsg,
+  SaveMnemonicMsg,
+  ScanAccountsMsg,
+} from "background/keyring";
 import { Ports } from "router";
 
 import {
@@ -14,12 +18,14 @@ import {
   SubViewContainer,
   UpperContentContainer,
 } from "Setup/Setup.components";
+import { StatusInfo, StatusLoader } from "./Completion.components";
 
 type Props = {
   alias: string;
   requester: ExtensionRequester;
   mnemonic: string[];
   password: string;
+  scanAccounts: boolean;
 };
 
 enum Status {
@@ -29,54 +35,70 @@ enum Status {
 }
 
 const Completion: React.FC<Props> = (props) => {
-  const { alias, mnemonic, password, requester } = props;
+  const { alias, mnemonic, password, requester, scanAccounts } = props;
   const [mnemonicStatus, setMnemonicStatus] = useState<Status>(Status.Pending);
-  const [isComplete, setIsComplete] = useState(false);
+  const [statusInfo, setStatusInfo] = useState(
+    "Encrypting and storing mnemonic."
+  );
 
   useUntil(
     {
       predFn: async () => {
         try {
-          await requester.sendMessage<SaveMnemonicMsg>(
+          //TODO: replace with something else
+          await requester.sendMessage<CheckIsLockedMsg>(
             Ports.Background,
-            new SaveMnemonicMsg(mnemonic, password, alias)
+            new CheckIsLockedMsg()
           );
           return true;
         } catch (_) {
           return false;
         }
       },
-      onSuccess: () => {
+      onSuccess: async () => {
+        await requester.sendMessage<SaveMnemonicMsg>(
+          Ports.Background,
+          new SaveMnemonicMsg(mnemonic, password, alias)
+        );
+
+        if (scanAccounts) {
+          setStatusInfo("Scanning accounts.");
+          await requester.sendMessage<ScanAccountsMsg>(
+            Ports.Background,
+            new ScanAccountsMsg()
+          );
+        }
         setMnemonicStatus(Status.Completed);
-        setIsComplete(true);
+        setStatusInfo("Done!");
       },
       onFail: () => {
+        setStatusInfo((s) => `Failed while "${s}"`);
         setMnemonicStatus(Status.Failed);
-        setIsComplete(true);
       },
     },
-    { tries: 10, ms: 100 }
+    { tries: 10, ms: 100 },
+    []
   );
 
   return (
     <SubViewContainer>
       <UpperContentContainer>
         <Header1>Creating your wallet</Header1>
-        {isComplete && (
+        {mnemonicStatus === Status.Completed && (
           <BodyText>
             Setup is complete! You may close this tab and access the extension
             popup to view your accounts.
           </BodyText>
         )}
-        {!isComplete && (
+        {mnemonicStatus !== Status.Completed && (
           <BodyText>One moment while your wallet is being created...</BodyText>
         )}
-        <BodyText>
-          Encrypting and storing mnemonic:{" "}
-          {mnemonicStatus === Status.Completed && <i>Complete!</i>}
-          {mnemonicStatus === Status.Pending && <i>Pending...</i>}
-          {mnemonicStatus === Status.Failed && <i>Failed</i>}
-        </BodyText>
+        <StatusInfo>
+          <StatusLoader
+            className={mnemonicStatus === Status.Pending ? "is-loading" : ""}
+          />
+          <BodyText>{statusInfo}</BodyText>
+        </StatusInfo>
       </UpperContentContainer>
       <ButtonsContainer>
         <Button
@@ -87,7 +109,7 @@ const Completion: React.FC<Props> = (props) => {
               browser.tabs.remove(tab.id);
             }
           }}
-          disabled={!isComplete}
+          disabled={mnemonicStatus !== Status.Completed}
         >
           Close
         </Button>

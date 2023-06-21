@@ -36,6 +36,8 @@ export const TextInput = styled.input<{ error: boolean }>`
   font-weight: 500;
   margin-top: 10px;
   padding: 0.875em 1em;
+  width: 100%;
+  box-sizing: border-box;
 
   &:focus {
     border-color: ${(props) =>
