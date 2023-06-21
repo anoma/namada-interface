@@ -1,10 +1,18 @@
-use namada::ledger::{
-    masp::ShieldedContext,
-    wallet::{Store, Wallet},
+use crypto::crypto::pointer_types::{new_vec_string_pointer, VecStringPointer};
+use namada::{
+    bip39::MnemonicType,
+    ledger::{
+        masp::ShieldedContext,
+        wallet::{Store, Wallet},
+    },
 };
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 
-use crate::{rpc_client::HttpClient, sdk::masp::WebShieldedUtils, utils::to_bytes};
+use crate::{
+    rpc_client::HttpClient,
+    sdk::masp::WebShieldedUtils,
+    utils::{to_bytes, to_js_result},
+};
 
 pub mod masp;
 mod tx;
@@ -73,6 +81,21 @@ impl Sdk {
     pub fn clear_storage(&mut self) -> Result<(), JsError> {
         self.wallet = Wallet::new(wallet::STORAGE_PATH.to_owned(), Store::default());
         Ok(())
+    }
+
+    pub fn generate_mnemonic(size: usize) -> Result<VecStringPointer, JsError> {
+        let mnemonic_type =
+            MnemonicType::for_word_count(size).map_err(|e| JsError::new(&e.to_string()))?;
+        let mnemonic =
+            wallet::generate_mnemonic_code(mnemonic_type).map_err(|e| JsError::from(e))?;
+
+        let words: Vec<String> = mnemonic
+            .into_phrase()
+            .split(' ')
+            .map(String::from)
+            .collect();
+
+        Ok(new_vec_string_pointer(words))
     }
 
     pub fn add_key(&mut self, private_key: &str, password: Option<String>, alias: Option<String>) {

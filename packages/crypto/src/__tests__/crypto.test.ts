@@ -8,17 +8,17 @@ import {
   PhraseSize,
   Rng,
   Salt,
-  ShieldedHDWallet
+  ShieldedHDWallet,
 } from "../crypto/crypto";
 
 import {
   readStringPointer,
   readVecStringPointer,
-  readVecU8Pointer
+  readVecU8Pointer,
 } from "../utils";
 
 // __wasm is not exported in crypto.d.ts so need to use require instead of import
-const memory = (require("../crypto/crypto")).__wasm.memory;
+const memory = require("../crypto/crypto").__wasm.memory;
 
 const KEY_LENGTH = 32;
 const SEED_LENGTH = 64;
@@ -80,8 +80,12 @@ describe("HDWallet", () => {
 
     expect(root.private().to_bytes().length).toBe(KEY_LENGTH);
     expect(root.public().to_bytes().length).toBe(KEY_LENGTH);
-    expect(readStringPointer(root.private().to_hex(), memory)).toBe(expectedRootPk);
-    expect(readStringPointer(root.public().to_hex(), memory)).toBe(expectedRootPub);
+    expect(readStringPointer(root.private().to_hex(), memory)).toBe(
+      expectedRootPk
+    );
+    expect(readStringPointer(root.public().to_hex(), memory)).toBe(
+      expectedRootPub
+    );
 
     // Account 1: m/44'/1'/0'/0/0
     const account1 = b.derive(`${rootPath}/0`);
@@ -92,8 +96,12 @@ describe("HDWallet", () => {
 
     expect(account1.private().to_bytes().length).toBe(KEY_LENGTH);
     expect(account1.public().to_bytes().length).toBe(KEY_LENGTH);
-    expect(readStringPointer(account1.private().to_hex(), memory)).toBe(expectedAccount1Pk);
-    expect(readStringPointer(account1.public().to_hex(), memory)).toBe(expectedAccount1Pub);
+    expect(readStringPointer(account1.private().to_hex(), memory)).toBe(
+      expectedAccount1Pk
+    );
+    expect(readStringPointer(account1.public().to_hex(), memory)).toBe(
+      expectedAccount1Pub
+    );
 
     // Account2: m/44'/1'/0'/0/1
     const account2 = b.derive(`${rootPath}/1`);
@@ -103,8 +111,12 @@ describe("HDWallet", () => {
       "f99b467f2d4f3a59ccab3d86bd9c62436959687655cff56a393a88f70f49434d";
     expect(account2.private().to_bytes().length).toBe(KEY_LENGTH);
     expect(account2.public().to_bytes().length).toBe(KEY_LENGTH);
-    expect(readStringPointer(account2.private().to_hex(), memory)).toBe(expectedAccount2Pk);
-    expect(readStringPointer(account2.public().to_hex(), memory)).toBe(expectedAccount2Pub);
+    expect(readStringPointer(account2.private().to_hex(), memory)).toBe(
+      expectedAccount2Pk
+    );
+    expect(readStringPointer(account2.public().to_hex(), memory)).toBe(
+      expectedAccount2Pub
+    );
   });
 });
 
@@ -163,11 +175,7 @@ describe("AES", () => {
     // to confirm that we can reconstruct the key originally used to encrypt:
     const { m_cost, t_cost, p_cost } = params;
     const argon2Params = new Argon2Params(m_cost, t_cost, p_cost);
-    const newKey = new Argon2(
-      password,
-      salt,
-      argon2Params
-    ).key();
+    const newKey = new Argon2(password, salt, argon2Params).key();
 
     const aes2 = new AES(newKey, iv);
     const decrypted = readVecU8Pointer(aes2.decrypt(encrypted), memory);

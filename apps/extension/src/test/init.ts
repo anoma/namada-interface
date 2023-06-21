@@ -28,6 +28,7 @@ import { Query, Sdk } from "@anoma/shared";
 // __wasm is not exported in crypto.d.ts so need to use require instead of import
 /* eslint-disable @typescript-eslint/no-var-requires */
 const cryptoMemory = require("@anoma/crypto").__wasm.memory;
+const sharedMemory = require("@anoma/shared").__wasm.memory;
 const chainId = "namada-75a7e12.69483d59a9fb174";
 
 export class KVStoreMock<T> implements KVStore<T> {
@@ -96,6 +97,7 @@ export const init = async (): Promise<{
     sdk,
     query,
     cryptoMemory,
+    sharedMemory,
     requester
   );
   const approvalsService = new ApprovalsService(

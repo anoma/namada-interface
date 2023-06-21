@@ -44,6 +44,7 @@ export class KeyRingService {
     protected readonly sdk: Sdk,
     protected readonly query: Query,
     protected readonly cryptoMemory: WebAssembly.Memory,
+    protected readonly sharedMemory: WebAssembly.Memory,
     protected readonly requester: ExtensionRequester
   ) {
     this._keyRing = new KeyRing(
@@ -54,7 +55,8 @@ export class KeyRingService {
       chainId,
       sdk,
       query,
-      cryptoMemory
+      cryptoMemory,
+      sharedMemory
     );
   }
 

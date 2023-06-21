@@ -49,8 +49,7 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
 
 (async function init() {
   const { memory: cryptoMemory } = await initCrypto();
-
-  await initShared();
+  const { memory: sharedMemory } = await initShared();
 
   const routerId = await getAnomaRouterId(extensionStore);
   const messenger = new ExtensionMessenger();
@@ -91,6 +90,7 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
     sdk,
     query,
     cryptoMemory,
+    sharedMemory,
     requester
   );
   const approvalsService = new ApprovalsService(

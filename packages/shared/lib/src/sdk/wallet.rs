@@ -2,6 +2,7 @@ use std::str::FromStr;
 
 use masp_primitives::zip32::ExtendedFullViewingKey;
 use namada::{
+    bip39::{Mnemonic, MnemonicType},
     ledger::wallet::{
         alias::Alias, ConfirmationResponse, GenRestoreKeyError, Store, StoredKeypair, Wallet,
         WalletUtils,
@@ -48,6 +49,10 @@ impl WalletUtils for BrowserWalletUtils {
         // Automatically replace aliases in non-interactive mode
         ConfirmationResponse::Replace
     }
+}
+
+pub fn generate_mnemonic_code(mnemonic_type: MnemonicType) -> Result<Mnemonic, GenRestoreKeyError> {
+    BrowserWalletUtils::generate_mnemonic_code(mnemonic_type, &mut OsRng)
 }
 
 /// We get the data from the IndexedDB, that's why we don't need to specify the path.

@@ -33,8 +33,8 @@ import {
   DeleteAccountError,
 } from "./types";
 import {
-  readVecStringPointer,
   readStringPointer,
+  readVecStringPointer,
 } from "@anoma/crypto/src/utils";
 import { deserialize } from "borsh";
 import { Result } from "@anoma/utils";
@@ -87,7 +87,8 @@ export class KeyRing {
     protected readonly chainId: string,
     protected readonly sdk: Sdk,
     protected readonly query: Query,
-    protected readonly cryptoMemory: WebAssembly.Memory
+    protected readonly cryptoMemory: WebAssembly.Memory,
+    protected readonly sharedMemory: WebAssembly.Memory
   ) {
     this._keyStore = new Store(KEYSTORE_KEY, kvStore);
     this._cryptoMemory = cryptoMemory;
@@ -206,12 +207,15 @@ export class KeyRing {
   public async generateMnemonic(
     size: PhraseSize = PhraseSize.N12
   ): Promise<string[]> {
-    const mnemonic = new Mnemonic(size);
-    const vecStringPointer = mnemonic.to_words();
-    const words = readVecStringPointer(vecStringPointer, this._cryptoMemory);
-
-    mnemonic.free();
+    const vecStringPointer = Sdk.generate_mnemonic(size);
+    const words = readVecStringPointer(vecStringPointer, this.sharedMemory);
     vecStringPointer.free();
+
+    if (words.length !== size) {
+      throw new Error(
+        `Mnemonic size mismatch. Expected ${size}. Received ${words.length}.`
+      );
+    }
 
     return words;
   }
