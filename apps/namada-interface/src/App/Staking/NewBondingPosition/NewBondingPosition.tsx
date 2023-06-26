@@ -91,7 +91,7 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
   // unbonding amount and displayed value with a very naive validation
   // TODO (https://github.com/anoma/namada-interface/issues/4#issuecomment-1260564499)
   // do proper validation as part of input
-  const amountToBondNumber: BigNumber = new BigNumber(amountToBond);
+  const amountToBondNumber = new BigNumber(amountToBond);
 
   // if this is the case, we display error message
   const isEntryIncorrect =
