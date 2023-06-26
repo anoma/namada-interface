@@ -38,10 +38,10 @@ export class InjectedAnoma implements IAnoma {
 
   public async balances(
     owner: string
-  ): Promise<{ token: string; amount: number }[]> {
+  ): Promise<{ token: string; amount: string }[]> {
     return await InjectedProxy.requestMethod<
       string,
-      { token: string; amount: number }[]
+      { token: string; amount: string }[]
     >("balances", owner);
   }
 

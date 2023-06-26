@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import BigNumber from "bignumber.js";
 
 import { chains } from "@anoma/chains";
 import {
@@ -103,7 +104,7 @@ const IBCTransfer = (): JSX.Element => {
     label: channel,
   }));
 
-  const [amount, setAmount] = useState(0);
+  const [amount, setAmount] = useState<BigNumber>(new BigNumber(0));
   const [selectedChannelId, setSelectedChannelId] = useState("");
   const [showAddChannelForm, setShowAddChannelForm] = useState(false);
   const [channelId, setChannelId] = useState<string>();
@@ -386,13 +387,13 @@ const IBCTransfer = (): JSX.Element => {
             <Input
               variant={InputVariants.Number}
               label={"Amount"}
-              value={amount}
+              value={amount.toString()}
               onChangeCallback={(e) => {
                 const { value } = e.target;
-                setAmount(parseFloat(`${value}`));
+                setAmount(new BigNumber(`${value}`));
               }}
               onFocus={handleFocus}
-              error={amount <= currentBalance ? undefined : "Invalid amount!"}
+              error={amount.isLessThanOrEqualTo(currentBalance) ? undefined : "Invalid amount!"}
             />
           </InputContainer>
 
@@ -415,8 +416,8 @@ const IBCTransfer = (): JSX.Element => {
             <Button
               variant={ButtonVariant.Contained}
               disabled={
-                amount > currentBalance ||
-                amount === 0 ||
+                amount.isGreaterThan(currentBalance) ||
+                amount.isZero() ||
                 !recipient ||
                 isBridgeTransferSubmitting ||
                 !(destinationChain.bridgeType.indexOf(BridgeType.IBC) > -1

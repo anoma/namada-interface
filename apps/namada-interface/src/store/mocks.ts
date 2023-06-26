@@ -1,3 +1,5 @@
+import BigNumber from "bignumber.js";
+
 import { RootState } from "./store";
 import { TransferType } from "slices/transfers";
 import { StakingOrUnstakingState } from "slices/StakingAndGovernance";
@@ -16,9 +18,9 @@ export const mockAppState: RootState = {
               isShielded: false,
             },
             balance: {
-              NAM: 1000,
-              ATOM: 1000,
-              ETH: 1000,
+              NAM: new BigNumber(1000),
+              ATOM: new BigNumber(1000),
+              ETH: new BigNumber(1000),
             },
           },
       },
@@ -32,9 +34,9 @@ export const mockAppState: RootState = {
             isShielded: false,
           },
           balance: {
-            NAM: 1000,
-            ATOM: 1000,
-            ETH: 1000,
+            NAM: new BigNumber(1000),
+            ATOM: new BigNumber(1000),
+            ETH: new BigNumber(1000),
           },
         },
       },
@@ -48,9 +50,9 @@ export const mockAppState: RootState = {
           },
 
           balance: {
-            NAM: 1000,
-            ATOM: 1000,
-            ETH: 1000,
+            NAM: new BigNumber(1000),
+            ATOM: new BigNumber(1000),
+            ETH: new BigNumber(1000),
           },
         },
       },

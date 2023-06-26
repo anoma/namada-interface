@@ -156,7 +156,7 @@ export class QueryAccountsMsg extends Message<DerivedAccount[]> {
 export class QueryBalancesMsg extends Message<
   {
     token: string;
-    amount: number;
+    amount: string;
   }[]
 > {
   public static type(): MessageType {

@@ -8,7 +8,7 @@
   "license": "MIT",
   "private": false,
   "dependencies": {
-    "typescript": "^4.9.3",
+    "typescript": "^5.1.3",
     "@anoma/types": "0.1.0"
   },
   "devDependencies": {

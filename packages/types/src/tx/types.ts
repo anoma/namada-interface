@@ -1,6 +1,8 @@
+import BigNumber from "bignumber.js";
+
 export type SubmitBondProps = {
   validator: string;
-  amount: number;
+  amount: BigNumber;
   source: string;
   nativeToken: string;
   tx: TxProps;
@@ -8,15 +10,15 @@ export type SubmitBondProps = {
 
 export type SubmitUnbondProps = {
   validator: string;
-  amount: number;
+  amount: BigNumber;
   source: string;
   tx: TxProps;
 };
 
 export type TxProps = {
   token: string;
-  feeAmount: number;
-  gasLimit: number;
+  feeAmount: BigNumber;
+  gasLimit: BigNumber;
   chainId: string;
 };
 
@@ -26,7 +28,7 @@ export type TransferProps = {
   target: string;
   token: string;
   subPrefix?: string;
-  amount: number;
+  amount: BigNumber;
   nativeToken: string;
 };
 
@@ -36,7 +38,7 @@ export type IbcTransferProps = {
   receiver: string;
   token: string;
   subPrefix?: string;
-  amount: number;
+  amount: BigNumber;
   portId: string;
   channelId: string;
   timeoutHeight?: number;
@@ -49,7 +51,7 @@ export type BridgeTransferProps = {
   source: string;
   target: string;
   token: string;
-  amount: number;
+  amount: BigNumber;
 };
 
 export type InitAccountProps = {
@@ -64,7 +66,7 @@ export type ShieldedDataProps = {
   vout: Uint8Array;
   lockTime: number;
   expiryHeight: number;
-  valueBalance: number;
+  valueBalance: BigNumber;
   shieldedSpends: Uint8Array;
   shieldedConverts: Uint8Array;
   shieldedOutputs: Uint8Array;

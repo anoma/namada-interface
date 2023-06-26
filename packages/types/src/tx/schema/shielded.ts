@@ -49,9 +49,9 @@ export class ShieldedDataMsgValue {
     this.version_group_id = properties.versionGroupId;
     this.vin = properties.vin;
     this.vout = properties.vout;
-    this.lock_time = new BN(properties.lockTime, 64);
-    this.expiry_height = new BN(properties.expiryHeight, 64);
-    this.value_balance = new BN(properties.valueBalance, 64);
+    this.lock_time = new BN(properties.lockTime);
+    this.expiry_height = new BN(properties.expiryHeight);
+    this.value_balance = new BN(properties.valueBalance.toString());
     this.shielded_spends = properties.shieldedSpends;
     this.shielded_converts = properties.shieldedConverts;
     this.shielded_outputs = properties.shieldedOutputs;

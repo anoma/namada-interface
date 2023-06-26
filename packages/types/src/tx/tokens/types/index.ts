@@ -53,4 +53,4 @@ Tokens["ETH"].address =
   "atest1v4ehgw36xqmr2d3nx3ryvd2xxgmrq33j8qcns33sxezrgv6zxdzrydjrxveygd2yxumrsdpsf9jc2p";
 Tokens["ETH"].coinGeckoId = "ethereum";
 
-export type TokenBalance = { token: TokenType; amount: number };
+export type TokenBalance = { token: TokenType; amount: string };

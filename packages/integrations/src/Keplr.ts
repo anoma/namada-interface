@@ -152,7 +152,7 @@ class Keplr implements Integration<Account, OfflineSigner> {
       const response = await client.sendIbcTokens(
         source,
         receiver,
-        coin(amount, CosmosTokens[token]),
+        coin(amount.toString(), CosmosTokens[token]),
         portId,
         channelId,
         {
@@ -180,7 +180,7 @@ class Keplr implements Integration<Account, OfflineSigner> {
     // Query balance for ATOM:
     return ((await client.getAllBalances(owner)) || []).map((coin: Coin) => ({
       token: CosmosTokens[coin.denom] || "ATOM",
-      amount: parseInt(coin.amount),
+      amount: coin.amount,
     }));
   }
 }

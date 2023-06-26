@@ -2,6 +2,7 @@ import browser from "webextension-polyfill";
 import { fromBase64 } from "@cosmjs/encoding";
 import { deserialize } from "borsh";
 import { v4 as uuid } from "uuid";
+import BigNumber from "bignumber.js";
 
 import { SubmitTransferMsgSchema, TransferMsgValue } from "@anoma/types";
 import { amountFromMicro } from "@anoma/utils";
@@ -33,7 +34,7 @@ export class ApprovalsService {
       txMsgBuffer
     );
     const { source, target, token, amount: amountBN } = txDetails;
-    const amount = amountFromMicro(amountBN.toNumber());
+    const amount = amountFromMicro(new BigNumber(amountBN.toString()));
     const url = `${browser.runtime.getURL(
       "approvals.html"
     )}#/tx?id=${id}&source=${source}&target=${target}&token=${token}&amount=${amount}`;

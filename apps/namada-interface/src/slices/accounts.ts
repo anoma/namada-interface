@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import BigNumber from "bignumber.js";
 
 import { Account as AccountDetails, TokenType } from "@anoma/types";
 import { chains } from "@anoma/chains";
@@ -10,7 +11,7 @@ type ChainId = string;
 type Address = string;
 type Details = AccountDetails;
 
-export type Balance = Partial<Record<TokenType, number>>;
+export type Balance = Partial<Record<TokenType, BigNumber>>;
 export type Account = { details: Details; balance: Balance };
 
 export type AccountsState = {
@@ -56,7 +57,7 @@ export const fetchBalances = createAsyncThunk<
         const results = await integration.queryBalances(address);
 
         const balance = results.reduce(
-          (acc, curr) => ({ ...acc, [curr.token]: curr.amount }),
+          (acc, curr) => ({ ...acc, [curr.token]: new BigNumber(curr.amount) }),
           {} as Balance
         );
 
@@ -93,7 +94,7 @@ const accountsSlice = createSlice({
             isShielded,
           },
           balance: {
-            [currencySymbol]: 0,
+            [currencySymbol]: new BigNumber(0),
           },
         };
       });

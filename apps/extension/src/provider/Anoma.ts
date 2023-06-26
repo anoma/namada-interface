@@ -69,7 +69,7 @@ export class Anoma implements IAnoma {
 
   public async balances(
     owner: string
-  ): Promise<{ token: string; amount: number }[] | undefined> {
+  ): Promise<{ token: string; amount: string }[] | undefined> {
     return await this.requester?.sendMessage(
       Ports.Background,
       new QueryBalancesMsg(owner)

@@ -1,3 +1,4 @@
+import BigNumber from "bignumber.js";
 import { Table, TableLink, TableConfigurations } from "@anoma/components";
 import { Account } from "slices/accounts";
 import { Validator, MyValidators } from "slices/StakingAndGovernance";
@@ -128,29 +129,29 @@ export const StakingOverview = (props: Props): JSX.Element => {
     navigateToValidatorDetails
   );
   const totalBonded = myValidators.reduce(
-    (acc, validator) => acc + Number(validator.stakedAmount),
-    0
+    (acc, validator) => acc.plus(validator.stakedAmount),
+    new BigNumber(0)
   );
   const totalBalance = accounts.reduce((acc, curr) => {
-    return acc + (curr.balance["NAM"] ?? 0);
-  }, 0);
+    return acc.plus(curr.balance["NAM"] ?? new BigNumber(0));
+  }, new BigNumber(0));
 
   return (
     <StakingOverviewContainer>
       {/* my balances */}
       <StakingBalances>
         <StakingBalancesLabel>Total Balance</StakingBalancesLabel>
-        <StakingBalancesValue>NAM {totalBalance}</StakingBalancesValue>
+        <StakingBalancesValue>NAM {totalBalance.toString()}</StakingBalancesValue>
 
         <StakingBalancesLabel>Total Bonded</StakingBalancesLabel>
-        <StakingBalancesValue>NAM {totalBonded}</StakingBalancesValue>
+        <StakingBalancesValue>NAM {totalBonded.toString()}</StakingBalancesValue>
 
         <StakingBalancesLabel>Pending Rewards</StakingBalancesLabel>
         <StakingBalancesValue>TBD</StakingBalancesValue>
 
         <StakingBalancesLabel>Available for bonding</StakingBalancesLabel>
         <StakingBalancesValue>
-          NAM {totalBalance - totalBonded}
+          NAM {totalBalance.minus(totalBonded).toString()}
         </StakingBalancesValue>
       </StakingBalances>
 

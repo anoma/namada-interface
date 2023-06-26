@@ -2,6 +2,7 @@ import BN from "bn.js";
 import { Schema } from "borsh";
 import { SubmitUnbondProps } from "../types";
 import { TxMsgSchema, TxMsgValue } from "./tx";
+import { SchemaObject } from "@anoma/utils";
 
 export class SubmitUnbondMsgValue {
   source: string;
@@ -9,15 +10,15 @@ export class SubmitUnbondMsgValue {
   amount: BN;
   tx: TxMsgValue;
 
-  constructor(properties: SubmitUnbondProps) {
+  constructor(properties: SubmitUnbondProps | SchemaObject<typeof UnbondMsgSchema>) {
     this.source = properties.source;
     this.validator = properties.validator;
-    this.amount = new BN(properties.amount, 64);
+    this.amount = new BN(properties.amount.toString());
     this.tx = new TxMsgValue(properties.tx);
   }
 }
 
-export const UnbondMsgSchema: [unknown, unknown] = [
+export const UnbondMsgSchema = [
   SubmitUnbondMsgValue,
   {
     kind: "struct",
@@ -28,9 +29,9 @@ export const UnbondMsgSchema: [unknown, unknown] = [
       ["tx", TxMsgValue],
     ],
   },
-];
+] as const; // needed for SchemaObject to deduce types correctly
 
 export const SubmitUnbondMsgSchema = new Map([
-  TxMsgSchema,
-  UnbondMsgSchema,
+  TxMsgSchema as [unknown, unknown],
+  UnbondMsgSchema as [unknown, unknown],
 ]) as Schema;

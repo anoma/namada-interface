@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { ThemeContext } from "styled-components";
 import { useNavigate } from "react-router-dom";
+import BigNumber from "bignumber.js";
 
 import { chains } from "@anoma/chains";
 import { useAppDispatch, useAppSelector } from "store";
@@ -38,7 +39,7 @@ import { CoinsState, fetchConversionRates } from "slices/coins";
 import Config from "config";
 
 type Props = {
-  setTotal: (total: number) => void;
+  setTotal: (total: BigNumber) => void;
 };
 
 const assetIconByToken: Record<TokenType, { light: string; dark: string }> = {
@@ -86,21 +87,20 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
     setActiveAccountAddress(address === activeAccountAddress ? "" : address);
   };
 
-  const balanceToFiat = (balance: Balance): number => {
+  const balanceToFiat = (balance: Balance): BigNumber => {
     return Object.entries(balance).reduce((acc, [token, value]) => {
-      return (
-        acc +
+      return acc.plus(
         (rates[token] && rates[token][fiatCurrency]
-          ? value * rates[token][fiatCurrency].rate
+          ? value.multipliedBy(rates[token][fiatCurrency].rate)
           : value)
       );
-    }, 0);
+    }, new BigNumber(0));
   };
 
   useEffect(() => {
     const total = accounts.reduce((acc, { balance }) => {
-      return acc + balanceToFiat(balance);
-    }, 0);
+      return acc.plus(balanceToFiat(balance));
+    }, new BigNumber(0));
     setTotal(total);
     setActiveAccountAddress(accounts[0]?.details.address);
   }, [derived[chainId], chainId]);
@@ -174,7 +174,7 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
                                 );
                               }}
                             />
-                            {amount} {token}
+                            {amount.toString()} {token}
                           </TokenBalance>
                         );
                       })}

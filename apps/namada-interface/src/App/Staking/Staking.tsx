@@ -148,7 +148,7 @@ export const Staking = (props: Props): JSX.Element => {
       // triggers fetching of further details
       setBreadcrumb(newBreadcrumb);
     }
-  }, [location, JSON.stringify(breadcrumb)]);
+  }, [location.pathname, JSON.stringify(breadcrumb)]);
 
   const navigateToValidatorDetails = (validatorId: string): void => {
     navigate(
