@@ -45,3 +45,14 @@ where
         Err(e) => Err(JsError::new(&e.to_string())),
     }
 }
+
+#[cfg(feature = "dev")]
+pub fn set_panic_hook() {
+    web_sys::console::log_1(&"Set panic hook".into());
+    console_error_panic_hook::set_once();
+}
+
+#[cfg(not(feature = "dev"))]
+pub fn set_panic_hook() {
+    web_sys::console::log_1(&"Do not set panic hook".into());
+}

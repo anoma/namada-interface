@@ -8,7 +8,8 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "wasm:build": "./scripts/build.sh",
+    "wasm:build": "./scripts/build.sh --release",
+    "wasm:build:dev": "./scripts/build.sh",
     "wasm:build:node": "./scripts/build-test.sh",
     "test-wasm:ci": "cd ./lib && cargo test"
   },
