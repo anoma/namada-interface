@@ -1,16 +1,35 @@
 import { Query as RustQuery } from "./shared/shared";
 export * from "./shared/shared";
 
+type TimeoutOpts = {
+  // Timeout in miliseconds
+  timeout?: number;
+  // Error message
+  error?: string;
+};
+
+const DEFAULT_TIMEOUT = 5000;
+
+const DEFAULT_OPTS: TimeoutOpts = {
+  timeout: DEFAULT_TIMEOUT,
+  error: `Promise timed out after ${DEFAULT_TIMEOUT} ms.`,
+};
+
 /**
- *  CallWithTimeout - calls a function with specified timeout
+ *  promiseWithTimeout - calls an async function with specified timeout
  */
-const cwt =
-  <U extends unknown[], T>(fn: (...args: U) => Promise<T>, timeout = 5) =>
+const promiseWithTimeout =
+  <U extends unknown[], T>(
+    fn: (...args: U) => Promise<T>,
+    opts?: TimeoutOpts
+  ) =>
   (...args: U): Promise<T> => {
+    const { timeout, error } = { ...DEFAULT_OPTS, ...opts };
+
     return new Promise(async (resolve, reject) => {
       const t = setTimeout(() => {
-        reject(`Balance query timed out after ${timeout}s.`);
-      }, timeout * 1000);
+        reject(error);
+      }, timeout);
 
       const res = await fn(...args);
       clearTimeout(t);
@@ -19,8 +38,14 @@ const cwt =
   };
 
 export class Query extends RustQuery {
-  query_balance = cwt(super.query_balance.bind(this), 10);
-  query_epoch = cwt(super.query_epoch.bind(this));
-  query_all_validators = cwt(super.query_all_validators.bind(this));
-  query_my_validators = cwt(super.query_my_validators.bind(this));
+  query_balance = promiseWithTimeout(super.query_balance.bind(this), {
+    timeout: 10000,
+  });
+  query_epoch = promiseWithTimeout(super.query_epoch.bind(this));
+  query_all_validators = promiseWithTimeout(
+    super.query_all_validators.bind(this)
+  );
+  query_my_validators = promiseWithTimeout(
+    super.query_my_validators.bind(this)
+  );
 }
