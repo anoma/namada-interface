@@ -1,20 +1,24 @@
 import { useEffect } from "react";
 
+type EventHandler = (e: CustomEventInit) => void;
+type EventCallback = (event: string, handler: EventHandler) => void;
+
 export const useEventListener = (
   event: string,
-  handler: (e: CustomEventInit) => void,
+  handler: EventHandler,
   deps?: React.DependencyList,
   useCapture = false,
-  isEthereumEvent = false
+  registerCallback?: EventCallback,
+  removeCallback?: EventCallback
 ): void => {
   useEffect(() => {
-    isEthereumEvent
-      ? window.ethereum.on(event, handler)
+    registerCallback
+      ? registerCallback(event, handler)
       : window.addEventListener(event, handler, useCapture);
 
     return () => {
-      if (isEthereumEvent) {
-        return window.ethereum.removeListener(event, handler);
+      if (removeCallback) {
+        return removeCallback(event, handler);
       }
       window.removeEventListener(event, handler);
     };
@@ -23,9 +27,17 @@ export const useEventListener = (
 
 export const useEventListenerOnce = (
   event: string,
-  handler: (e: CustomEventInit) => void,
+  handler: EventHandler,
   useCapture = false,
-  isEthereumEvent = false
+  registerCallback?: EventCallback,
+  removeCallback?: EventCallback
 ): void => {
-  useEventListener(event, handler, [], useCapture, isEthereumEvent);
+  useEventListener(
+    event,
+    handler,
+    [],
+    useCapture,
+    registerCallback,
+    removeCallback
+  );
 };
