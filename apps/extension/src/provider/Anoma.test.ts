@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { deepMock } from "mockzilla";
-import type { Browser } from "webextension-polyfill";
 import { toBase64 } from "@cosmjs/encoding";
 import BigNumber from "bignumber.js";
 
@@ -33,8 +31,7 @@ import { Sdk } from "@anoma/shared";
 import * as utils from "extension/utils";
 
 // Needed for now as utils import webextension-polyfill directly
-const [browser] = deepMock<Browser>("browser", false);
-jest.mock("webextension-polyfill", () => browser);
+jest.mock("webextension-polyfill", () => ({}));
 
 describe("Anoma", () => {
   let anoma: Anoma;

@@ -22,7 +22,8 @@
     "test": "./scripts/build-node.sh && yarn jest",
     "test:watch": "./scripts/build-node.sh && yarn jest --watchAll=true",
     "test:ci": "jest",
-    "wasm:build": "./scripts/build.sh"
+    "wasm:build": "./scripts/build.sh --release",
+    "wasm:build:dev": "./scripts/build.sh"
   },
   "dependencies": {
     "@anoma/chains": "0.1.0",

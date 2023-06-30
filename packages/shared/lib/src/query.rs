@@ -11,7 +11,7 @@ use wasm_bindgen::prelude::*;
 
 use crate::rpc_client::HttpClient;
 use crate::sdk::masp;
-use crate::utils::to_js_result;
+use crate::utils::{set_panic_hook, to_js_result};
 
 #[wasm_bindgen]
 /// Represents an API for querying the ledger
@@ -23,7 +23,7 @@ pub struct Query {
 impl Query {
     #[wasm_bindgen(constructor)]
     pub fn new(url: String) -> Query {
-        console_error_panic_hook::set_once();
+        set_panic_hook();
         let client = HttpClient::new(url);
         Query { client }
     }

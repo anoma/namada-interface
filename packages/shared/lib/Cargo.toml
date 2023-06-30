@@ -10,6 +10,9 @@ license = "MIT"
 [lib]
 crate-type = ["cdylib", "rlib"]
 
+[features]
+dev = []
+
 [dependencies]
 async-trait = {version = "0.1.51"}
 tiny-bip39 = "0.8.2"
@@ -65,8 +68,15 @@ borsh-schema-derive-internal = {git = "https://github.com/heliaxdev/borsh-rs.git
 bumpalo = {git = "https://github.com/fitzgen/bumpalo", version = "3.8.0"}
 
 [package.metadata.wasm-pack.profile.release]
+wasm-opt = true
+
+[package.metadata.wasm-pack.profile.dev]
 wasm-opt = false
 
 [profile.release]
-debug = true
+lto = true
+opt-level = "s"
+
+[profile.dev]
+# TODO: we can experiment with optimization levels
 opt-level = "s"

@@ -42,15 +42,16 @@
     "lint": "npx eslint src --ext .ts,.tsx",
     "lint:fix": "yarn lint -- --fix",
     "lint:ci": "yarn lint --max-warnings 0",
-    "test": "yarn wasm:build-node && yarn jest",
-    "test:watch": "yarn wasm:build-node && yarn jest --watchAll=true",
-    "test:coverage": "yarn wasm:build-node && yarn test --coverage",
+    "test": "yarn wasm:build:node && yarn jest",
+    "test:watch": "yarn wasm:build:node && yarn jest --watchAll=true",
+    "test:coverage": "yarn wasm:build:node && yarn test --coverage",
     "test:ci": "jest",
     "e2e-test": "PLAYWRIGHT_BASE_URL=http://localhost:3000 yarn playwright test",
     "e2e-test:headed": "PLAYWRIGHT_BASE_URL=http://localhost:3000 yarn playwright test --project=chromium --headed",
     "eject": "npx react-scripts eject",
-    "wasm:build": "./scripts/build.sh",
-    "wasm:build-node": "./scripts/build-node.sh"
+    "wasm:build": "./scripts/build.sh --release",
+    "wasm:build:dev": "./scripts/build.sh",
+    "wasm:build:node": "./scripts/build-node.sh"
   },
   "browserslist": {
     "production": [

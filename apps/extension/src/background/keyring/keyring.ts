@@ -735,14 +735,19 @@ export class KeyRing {
       throw new Error(`Account not found.`);
     }
 
-    return (await this.query.query_balance(account.owner)).map(
-      ([token, amount]: [string, string]) => {
-        return {
-          token,
-          amount,
-        };
-      }
-    );
+    try {
+      return (await this.query.query_balance(account.owner)).map(
+        ([token, amount]: [string, string]) => {
+          return {
+            token,
+            amount,
+          };
+        }
+      );
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
   }
 
   private async addSecretKey(

@@ -4,7 +4,11 @@ use namada::ledger::{
 };
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 
-use crate::{rpc_client::HttpClient, sdk::masp::WebShieldedUtils, utils::to_bytes};
+use crate::{
+    rpc_client::HttpClient,
+    sdk::masp::WebShieldedUtils,
+    utils::{set_panic_hook, to_bytes},
+};
 
 pub mod masp;
 mod tx;
@@ -24,7 +28,7 @@ pub struct Sdk {
 impl Sdk {
     #[wasm_bindgen(constructor)]
     pub fn new(url: String) -> Self {
-        console_error_panic_hook::set_once();
+        set_panic_hook();
         Sdk {
             client: HttpClient::new(url),
             wallet: Wallet::new(wallet::STORAGE_PATH.to_owned(), Store::default()),
