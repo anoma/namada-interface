@@ -14,6 +14,7 @@ import {
   init as initKeyRing,
   KeyStore,
   TabStore,
+  CryptoRecord,
 } from "../background/keyring";
 
 import {
@@ -60,6 +61,9 @@ export const init = async (): Promise<{
   const sdkStore = new KVStoreMock<Record<string, string>>(KVPrefix.SDK);
   const extStore = new KVStoreMock<number>(KVPrefix.IndexedDB);
   const activeAccountStore = new KVStoreMock<string>(KVPrefix.ActiveAccount);
+  const authKeyStore = new KVStoreMock<{ [id: string]: CryptoRecord }>(
+    KVPrefix.ActiveAccount
+  );
   const connectedTabsStore = new KVStoreMock<TabStore[]>(
     KVPrefix.ConnectedTabs
   );
@@ -90,6 +94,7 @@ export const init = async (): Promise<{
     iDBStore as KVStore<KeyStore[]>,
     sdkStore,
     activeAccountStore,
+    authKeyStore,
     connectedTabsStore,
     extStore,
     chainId,
