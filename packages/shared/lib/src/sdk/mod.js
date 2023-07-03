@@ -57,7 +57,7 @@ function getDB() {
   });
 }
 
-async function get(key) {
+export async function get(key) {
   const tx = (await getDB()).transaction(PREFIX, "readonly");
   const store = tx.objectStore(PREFIX);
 
@@ -96,7 +96,7 @@ async function has(key) {
   });
 }
 
-async function set(key, data) {
+export async function set(key, data) {
   const tx = (await getDB()).transaction(PREFIX, "readwrite");
   const store = tx.objectStore(PREFIX);
 
