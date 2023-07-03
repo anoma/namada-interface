@@ -67,6 +67,8 @@ export type TabStore = {
   timestamp: number;
 };
 
+export type UtilityStore = string | { [id: string]: CryptoRecord };
+
 export enum ResetPasswordError {
   BadPassword,
   KeyStoreError,

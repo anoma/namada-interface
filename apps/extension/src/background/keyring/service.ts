@@ -13,7 +13,7 @@ import {
   TabStore,
   ResetPasswordError,
   DeleteAccountError,
-  CryptoRecord,
+  UtilityStore,
 } from "./types";
 import { syncTabs, updateTabStorage } from "./utils";
 import { ExtensionRequester, getAnomaRouterId } from "extension";
@@ -38,8 +38,7 @@ export class KeyRingService {
   constructor(
     protected readonly kvStore: KVStore<KeyStore[]>,
     protected readonly sdkStore: KVStore<Record<string, string>>,
-    protected readonly accountAccountStore: KVStore<string>,
-    protected readonly authkeyStore: KVStore<{ [id: string]: CryptoRecord }>,
+    protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
     protected readonly extensionStore: KVStore<number>,
     protected readonly chainId: string,
@@ -51,8 +50,7 @@ export class KeyRingService {
     this._keyRing = new KeyRing(
       kvStore,
       sdkStore,
-      accountAccountStore,
-      authkeyStore,
+      utilityStore,
       extensionStore,
       chainId,
       sdk,

@@ -102,12 +102,12 @@ export class Crypto {
     const aes = new AES(newKey, cipher.iv);
     const vecU8Pointer = aes.decrypt(cipher.text);
     const decrypted = readVecU8Pointer(vecU8Pointer, cryptoMemory);
-    const phrase = new TextDecoder().decode(decrypted);
+    const plainText = new TextDecoder().decode(decrypted);
 
     aes.free();
     vecU8Pointer.free();
 
-    return phrase;
+    return plainText;
   }
 
   private encryptionParams(password: string): {
