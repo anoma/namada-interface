@@ -16,5 +16,4 @@ export enum KeplrEvents {
 // Metamask extension window.ethereum events
 export enum MetamaskEvents {
   AccountChanged = "accountsChanged",
-  NetworkChanged = "networkChanged",
 }
