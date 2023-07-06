@@ -2,7 +2,6 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import BigNumber from "bignumber.js";
 
 import { Account, Tokens, TokenType, Signer } from "@anoma/types";
-import { amountToMicro } from "@anoma/utils";
 import { getIntegration } from "@anoma/hooks";
 
 import {
@@ -166,7 +165,7 @@ export const submitTransferTransaction = createAsyncThunk<
       source: txTransferArgs.account.address,
       target: txTransferArgs.target,
       token: Tokens.NAM.address || "",
-      amount: amountToMicro(txTransferArgs.amount),
+      amount: txTransferArgs.amount,
       nativeToken: Tokens.NAM.address || "",
     });
   }
@@ -242,8 +241,7 @@ export const submitBridgeTransferTransaction = createAsyncThunk<
         source: txBridgeTransferArgs.account.address,
         target: txBridgeTransferArgs.target,
         token: txBridgeTransferArgs.token,
-        // TODO: Check to see if amountToMicro is needed here once implemented for ETH Bridge:
-        amount: amountToMicro(txBridgeTransferArgs.amount),
+        amount: txBridgeTransferArgs.amount,
       },
     });
 

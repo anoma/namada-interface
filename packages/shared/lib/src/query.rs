@@ -4,7 +4,8 @@ use namada::ledger::queries::RPC;
 use namada::ledger::rpc::get_token_balance;
 use namada::types::address::Address;
 use namada::types::masp::ExtendedViewingKey;
-use namada::types::token;
+use namada::types::token::{self, TokenAddress};
+use namada::types::uint::I256;
 use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 use wasm_bindgen::prelude::*;
@@ -60,7 +61,7 @@ impl Query {
                 .validator_stake(&self.client, &address, &None)
                 .await?;
 
-            result.push((address, total_bonds.unwrap_or(token::Amount::whole(0))));
+            result.push((address, total_bonds.unwrap_or(token::Amount::zero())));
         }
 
         to_js_result(result)
@@ -120,13 +121,18 @@ impl Query {
         to_js_result(result)
     }
 
-    fn get_decoded_balance(decoded_balance: Amount<Address>) -> Vec<(Address, token::Amount)> {
+    fn get_decoded_balance(
+        decoded_balance: HashMap<TokenAddress, I256>,
+    ) -> Vec<(Address, token::Amount)> {
         let mut result = Vec::new();
 
-        for (addr, value) in decoded_balance.components() {
-            let asset_value = token::Amount::from(*value as u64);
-            result.push((addr.clone(), asset_value));
-        }
+        decoded_balance
+            .iter()
+            .into_iter()
+            .for_each(|(token_address, change)| {
+                let amount = token::Amount::from_change(*change);
+                result.push((token_address.address.clone(), amount));
+            });
 
         result
     }
@@ -153,7 +159,7 @@ impl Query {
         for token in tokens {
             let balances = get_token_balance(&self.client, &token, &owner)
                 .await
-                .unwrap_or(token::Amount::whole(0));
+                .unwrap_or(token::Amount::zero());
             result.push((token, balances));
         }
         result
@@ -185,6 +191,7 @@ impl Query {
             .compute_exchanged_balance(&self.client, &viewing_key, epoch)
             .await
             .expect("context should contain viewing key");
+        let balance = Amount::from(balance);
         let decoded_balance = shielded.decode_amount(&self.client, balance, epoch).await;
 
         Self::get_decoded_balance(decoded_balance)
@@ -198,6 +205,10 @@ impl Query {
                 Err(e2) => return Err(JsError::new(&format!("{} {}", e1, e2))),
             },
         };
+        let result: Vec<(Address, String)> = result
+            .into_iter()
+            .map(|(addr, amount)| (addr, amount.to_string_native()))
+            .collect();
 
         to_js_result(result)
     }

@@ -33,12 +33,13 @@ const SW_TTL = 20000;
 
     const transferCompletedHandler = async (
       msgId: string,
-      success: boolean
+      success: boolean,
+      payload?: string
     ): Promise<void> => {
       // We are sending the message to the background script
       await requester.sendMessage(
         Ports.Background,
-        new TransferCompletedEvent(success, msgId)
+        new TransferCompletedEvent(success, msgId, payload)
       );
 
       // Reducing a number of tracked web workers

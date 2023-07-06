@@ -2,7 +2,6 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import BigNumber from "bignumber.js";
 
 import { Query } from "@anoma/shared";
-import { amountToMicro } from "@anoma/utils";
 import { Signer, Tokens } from "@anoma/types";
 import { chains } from "@anoma/chains";
 import { getIntegration } from "@anoma/hooks";
@@ -29,7 +28,7 @@ const toValidator = ([address, votingPower]: [string, string]): Validator => ({
   name: address,
   // TODO: voting power is multiplied by votes_per_token value defined in genesis file
   // currently it is 10
-  votingPower: (new BigNumber(votingPower)).multipliedBy(10).toString(),
+  votingPower: new BigNumber(votingPower).multipliedBy(10).toString(),
   homepageUrl: "http://namada.net",
   commission: "TBD",
   description: "TBD",
@@ -49,8 +48,9 @@ const toMyValidators = (
           ...arr.slice(idx + 1),
         ];
 
-  const stakedAmount =
-    (new BigNumber(stake)).plus(new BigNumber(v?.stakedAmount || 0)).toString();
+  const stakedAmount = new BigNumber(stake)
+    .plus(new BigNumber(v?.stakedAmount || 0))
+    .toString();
 
   return [
     ...sliceFn(acc, index),
@@ -58,10 +58,7 @@ const toMyValidators = (
       uuid: validator,
       stakingStatus: "Bonded",
       stakedAmount,
-      validator: toValidator([
-        validator,
-        stakedAmount,
-      ]),
+      validator: toValidator([validator, stakedAmount]),
     },
   ];
 };
@@ -167,7 +164,7 @@ export const postNewBonding = createAsyncThunk<
   await signer.submitBond({
     source: change.owner,
     validator: change.validatorId,
-    amount: amountToMicro(new BigNumber(change.amount)),
+    amount: new BigNumber(change.amount),
     nativeToken: Tokens.NAM.address || "",
     tx: {
       token: Tokens.NAM.address || "",
@@ -194,7 +191,7 @@ export const postNewUnbonding = createAsyncThunk<
   await signer.submitUnbond({
     source: change.owner,
     validator: change.validatorId,
-    amount: amountToMicro(new BigNumber(change.amount)),
+    amount: new BigNumber(change.amount),
     tx: {
       token: Tokens.NAM.address || "",
       feeAmount: new BigNumber(0),
