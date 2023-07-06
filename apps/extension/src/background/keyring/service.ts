@@ -294,8 +294,14 @@ export class KeyRingService {
 
   async handleTransferCompleted(
     msgId: string,
-    success: boolean
+    success: boolean,
+    payload?: string
   ): Promise<void> {
+    if (!success) {
+      //TODO: pass error message to the TransferStartedEvent and display it in the UI
+      console.error(payload);
+    }
+
     const tabs = await syncTabs(
       this.connectedTabsStore,
       this.requester,

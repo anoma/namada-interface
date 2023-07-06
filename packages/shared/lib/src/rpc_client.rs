@@ -1,4 +1,7 @@
 use js_sys::JSON::stringify;
+use std::fmt::Debug;
+use std::fmt::Display;
+use thiserror::Error;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use wasm_bindgen_futures::JsFuture;
@@ -8,12 +11,45 @@ use namada::ledger::queries::{Client, EncodedResponseQuery};
 use namada::tendermint::abci::Code;
 use namada::tendermint_rpc::{Response as RpcResponse, SimpleRequest};
 use namada::types::storage::BlockHeight;
-use namada::{tendermint, tendermint_rpc::error::Error as RpcError};
+use namada::{tendermint, tendermint_rpc::error::Error as TendermintRpcError};
 
 #[wasm_bindgen(module = "/src/rpc_client.js")]
 extern "C" {
     #[wasm_bindgen(catch, js_name = "wasmFetch")]
     async fn wasmFetch(url: JsValue, method: JsValue, body: JsValue) -> Result<JsValue, JsValue>;
+}
+
+#[derive(Clone, Error, Debug)]
+pub struct RpcError(String);
+
+impl RpcError {
+    pub fn new(msg: &str) -> Self {
+        RpcError(String::from(msg))
+    }
+}
+
+impl Display for RpcError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        Display::fmt(&self.0, f)
+    }
+}
+
+impl From<std::io::Error> for RpcError {
+    fn from(error: std::io::Error) -> Self {
+        RpcError::new(&error.to_string())
+    }
+}
+
+impl From<namada::tendermint::Error> for RpcError {
+    fn from(error: namada::tendermint::Error) -> Self {
+        RpcError::new(&error.to_string())
+    }
+}
+
+impl From<namada::tendermint_rpc::Error> for RpcError {
+    fn from(error: namada::tendermint_rpc::Error) -> Self {
+        RpcError::new(&error.to_string())
+    }
 }
 
 pub struct HttpClient {
@@ -43,7 +79,7 @@ impl HttpClient {
 impl Client for HttpClient {
     /// Implementation of the `Client` trait for the `HttpClient` struct.
     /// It's used by the Sdk to perform queries to the blockchain.
-    type Error = JsError;
+    type Error = RpcError;
 
     /// Wrapper for tendermint specific abci_query.
     ///
@@ -83,7 +119,7 @@ impl Client for HttpClient {
                 info: response.info,
                 proof: response.proof,
             }),
-            Code::Err(code) => Err(JsError::new(&format!("Error code {}", code))),
+            Code::Err(code) => Err(RpcError::new(&format!("Error code {}", code))),
         }
     }
 
@@ -92,7 +128,7 @@ impl Client for HttpClient {
     /// # Arguments
     ///
     /// * `request` - request type to be performed. Check `Client` trait for avaialble requests.
-    async fn perform<R>(&self, request: R) -> Result<R::Response, RpcError>
+    async fn perform<R>(&self, request: R) -> Result<R::Response, TendermintRpcError>
     where
         R: SimpleRequest,
     {
@@ -105,7 +141,7 @@ impl Client for HttpClient {
                 let e_str: String = e.into();
                 // There is no "generic" RpcError, so we have to pick
                 // one with error msg as an argument.
-                RpcError::server(e_str)
+                TendermintRpcError::server(e_str)
             })?;
         let response_json: String = stringify(&response)
             .expect("JS object to be serializable")

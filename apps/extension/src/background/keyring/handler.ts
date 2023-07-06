@@ -300,8 +300,8 @@ const handleTransferCompletedEvent: (
   service: KeyRingService
 ) => InternalHandler<TransferCompletedEvent> = (service) => {
   return async (_, msg) => {
-    const { msgId, success } = msg;
-    return await service.handleTransferCompleted(msgId, success);
+    const { msgId, success, payload } = msg;
+    return await service.handleTransferCompleted(msgId, success, payload);
   };
 };
 

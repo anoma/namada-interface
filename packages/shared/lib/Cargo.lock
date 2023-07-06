@@ -1541,6 +1541,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "impl-num-traits"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "951641f13f873bff03d4bf19ae8bec531935ac0ac2cc775f84d7edfdcfed3f17"
+dependencies = [
+ "integer-sqrt",
+ "num-traits",
+ "uint",
+]
+
+[[package]]
 name = "impl-serde"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1602,6 +1613,15 @@ dependencies = [
  "js-sys",
  "wasm-bindgen",
  "web-sys",
+]
+
+[[package]]
+name = "integer-sqrt"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "276ec31bcb4a9ee45f58bec6f9ec700ae4cf4f4f8f2fa7e06cb406bd5ffdd770"
+dependencies = [
+ "num-traits",
 ]
 
 [[package]]
@@ -1768,7 +1788,7 @@ dependencies = [
 [[package]]
 name = "masp_note_encryption"
 version = "0.2.0"
-source = "git+https://github.com/anoma/masp?rev=cfea8c95d3f73077ca3e25380fd27e5b46e828fd#cfea8c95d3f73077ca3e25380fd27e5b46e828fd"
+source = "git+https://github.com/anoma/masp?rev=9320c6b69b5d2e97134866871e960f0a31703813#9320c6b69b5d2e97134866871e960f0a31703813"
 dependencies = [
  "borsh",
  "chacha20 0.9.1",
@@ -1781,7 +1801,7 @@ dependencies = [
 [[package]]
 name = "masp_primitives"
 version = "0.9.0"
-source = "git+https://github.com/anoma/masp?rev=cfea8c95d3f73077ca3e25380fd27e5b46e828fd#cfea8c95d3f73077ca3e25380fd27e5b46e828fd"
+source = "git+https://github.com/anoma/masp?rev=9320c6b69b5d2e97134866871e960f0a31703813#9320c6b69b5d2e97134866871e960f0a31703813"
 dependencies = [
  "aes",
  "bip0039",
@@ -1811,7 +1831,7 @@ dependencies = [
 [[package]]
 name = "masp_proofs"
 version = "0.9.0"
-source = "git+https://github.com/anoma/masp?rev=cfea8c95d3f73077ca3e25380fd27e5b46e828fd#cfea8c95d3f73077ca3e25380fd27e5b46e828fd"
+source = "git+https://github.com/anoma/masp?rev=9320c6b69b5d2e97134866871e960f0a31703813#9320c6b69b5d2e97134866871e960f0a31703813"
 dependencies = [
  "bellman",
  "blake2b_simd",
@@ -1905,8 +1925,8 @@ checksum = "e5ce46fe64a9d73be07dcbe690a38ce1b293be448fd8ce1e6c1b8062c9f72c6a"
 
 [[package]]
 name = "namada"
-version = "0.17.5"
-source = "git+https://github.com/anoma/namada#ce6abb08c6ce5c8b2030946097f687411171cb5a"
+version = "0.18.0"
+source = "git+https://github.com/anoma/namada#c2779df63b226036c345f4ad645664933cd412d0"
 dependencies = [
  "async-std",
  "async-trait",
@@ -1928,8 +1948,6 @@ dependencies = [
  "rand 0.8.5",
  "rand_core 0.6.4",
  "ripemd",
- "rust_decimal",
- "rust_decimal_macros",
  "serde",
  "serde_json",
  "sha2 0.9.9",
@@ -1947,8 +1965,8 @@ dependencies = [
 
 [[package]]
 name = "namada_core"
-version = "0.17.5"
-source = "git+https://github.com/anoma/namada#ce6abb08c6ce5c8b2030946097f687411171cb5a"
+version = "0.18.0"
+source = "git+https://github.com/anoma/namada#c2779df63b226036c345f4ad645664933cd412d0"
 dependencies = [
  "ark-bls12-381",
  "ark-ec",
@@ -1959,23 +1977,24 @@ dependencies = [
  "data-encoding",
  "derivative",
  "ed25519-consensus",
+ "eyre",
  "ferveo",
  "ferveo-common",
  "group-threshold-cryptography",
  "ibc",
  "ibc-proto",
  "ics23",
+ "impl-num-traits",
  "index-set",
  "itertools",
  "libsecp256k1 0.7.0",
  "masp_primitives",
  "namada_macros",
+ "num-traits",
  "prost 0.11.9",
  "prost-types 0.11.9",
  "rand 0.8.5",
  "rand_core 0.6.4",
- "rust_decimal",
- "rust_decimal_macros",
  "serde",
  "serde_json",
  "sha2 0.9.9",
@@ -1985,13 +2004,14 @@ dependencies = [
  "thiserror",
  "tonic-build",
  "tracing",
+ "uint",
  "zeroize",
 ]
 
 [[package]]
 name = "namada_macros"
-version = "0.17.5"
-source = "git+https://github.com/anoma/namada#ce6abb08c6ce5c8b2030946097f687411171cb5a"
+version = "0.18.0"
+source = "git+https://github.com/anoma/namada#c2779df63b226036c345f4ad645664933cd412d0"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2000,16 +2020,14 @@ dependencies = [
 
 [[package]]
 name = "namada_proof_of_stake"
-version = "0.17.5"
-source = "git+https://github.com/anoma/namada#ce6abb08c6ce5c8b2030946097f687411171cb5a"
+version = "0.18.0"
+source = "git+https://github.com/anoma/namada#c2779df63b226036c345f4ad645664933cd412d0"
 dependencies = [
  "borsh",
  "data-encoding",
  "derivative",
  "namada_core",
  "once_cell",
- "rust_decimal",
- "rust_decimal_macros",
  "thiserror",
  "tracing",
 ]
@@ -2637,28 +2655,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "rust_decimal"
-version = "1.26.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ee9164faf726e4f3ece4978b25ca877ddc6802fa77f38cdccb32c7f805ecd70c"
-dependencies = [
- "arrayvec",
- "borsh",
- "num-traits",
- "serde",
-]
-
-[[package]]
-name = "rust_decimal_macros"
-version = "1.26.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4903d8db81d2321699ca8318035d6ff805c548868df435813968795a802171b2"
-dependencies = [
- "quote",
- "rust_decimal",
-]
-
-[[package]]
 name = "rustc-hash"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2670,7 +2666,7 @@ version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f0dfe2087c51c460008730de8b57e6a320782fbfb312e1f4d520e6c6fae155ee"
 dependencies = [
- "semver",
+ "semver 0.11.0",
 ]
 
 [[package]]
@@ -2791,6 +2787,12 @@ checksum = "f301af10236f6df4160f7c3f04eec6dbc70ace82d23326abad5edee88801c6b6"
 dependencies = [
  "semver-parser",
 ]
+
+[[package]]
+name = "semver"
+version = "1.0.17"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bebd363326d05ec3e2f532ab7660680f3b02130d780c299bca73469d521bc0ed"
 
 [[package]]
 name = "semver-parser"
@@ -3497,9 +3499,9 @@ checksum = "9c8d87e72b64a3b4db28d11ce29237c246188f4f51057d65a7eab63b7987e423"
 
 [[package]]
 name = "wasm-bindgen"
-version = "0.2.86"
+version = "0.2.87"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5bba0e8cb82ba49ff4e229459ff22a191bbe9a1cb3a341610c9c33efc27ddf73"
+checksum = "7706a72ab36d8cb1f80ffbf0e071533974a60d0a308d01a5d0375bf60499a342"
 dependencies = [
  "cfg-if",
  "wasm-bindgen-macro",
@@ -3507,9 +3509,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-backend"
-version = "0.2.86"
+version = "0.2.87"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "19b04bc93f9d6bdee709f6bd2118f57dd6679cf1176a1af464fca3ab0d66d8fb"
+checksum = "5ef2b6d3c510e9625e5fe6f509ab07d66a760f0885d858736483c32ed7809abd"
 dependencies = [
  "bumpalo",
  "log",
@@ -3534,9 +3536,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-macro"
-version = "0.2.86"
+version = "0.2.87"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "14d6b024f1a526bb0234f52840389927257beb670610081360e5a03c5df9c258"
+checksum = "dee495e55982a3bd48105a7b947fd2a9b4a8ae3010041b9e0faab3f9cd028f1d"
 dependencies = [
  "quote",
  "wasm-bindgen-macro-support",
@@ -3544,9 +3546,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-macro-support"
-version = "0.2.86"
+version = "0.2.87"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e128beba882dd1eb6200e1dc92ae6c5dbaa4311aa7bb211ca035779e5efc39f8"
+checksum = "54681b18a46765f095758388f2d0cf16eb8d4169b639ab575a8f5693af210c7b"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3557,9 +3559,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-shared"
-version = "0.2.86"
+version = "0.2.87"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ed9d5b4305409d1fc9482fee2d7f9bcbf24b3972bf59817ef757e23982242a93"
+checksum = "ca6ad05a4870b2bf5fe995117d3728437bd27d7cd5f06f13c17443ef369775a1"
 
 [[package]]
 name = "wasm-bindgen-test"
@@ -3587,9 +3589,13 @@ dependencies = [
 
 [[package]]
 name = "wasmparser"
-version = "0.83.0"
+version = "0.107.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "718ed7c55c2add6548cca3ddd6383d738cd73b892df400e96b9aa876f0141d7a"
+checksum = "29e3ac9b780c7dda0cac7a52a5d6d2d6707cc6e3451c9db209b6c758f40d7acb"
+dependencies = [
+ "indexmap",
+ "semver 1.0.17",
+]
 
 [[package]]
 name = "web-sys"

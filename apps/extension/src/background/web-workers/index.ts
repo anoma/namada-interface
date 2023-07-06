@@ -8,17 +8,26 @@ import {
 
 export const init = (
   data: SubmitTransferMessageData,
-  transferCompletedHandler: (msgId: string, success: boolean) => Promise<void>
+  transferCompletedHandler: (
+    msgId: string,
+    success: boolean,
+    payload?: string
+  ) => Promise<void>
 ): void => {
   const w = new Worker("submit-transfer-web-worker.anoma.js");
 
   w.onmessage = (e: MessageEvent<Msg>) => {
-    if (e.data === INIT_MSG) {
+    const { msgName, payload } = e.data;
+    if (msgName === INIT_MSG) {
       w.postMessage(data);
-    } else if (e.data === TRANSFER_SUCCESSFUL_MSG) {
-      transferCompletedHandler(data.msgId, true).then(() => w.terminate());
-    } else if (e.data === TRANSFER_FAILED_MSG) {
-      transferCompletedHandler(data.msgId, false).then(() => w.terminate());
+    } else if (msgName === TRANSFER_SUCCESSFUL_MSG) {
+      transferCompletedHandler(data.msgId, true, payload).then(() =>
+        w.terminate()
+      );
+    } else if (msgName === TRANSFER_FAILED_MSG) {
+      transferCompletedHandler(data.msgId, false, payload).then(() =>
+        w.terminate()
+      );
     } else {
       console.warn("Not supporeted msg type.");
     }

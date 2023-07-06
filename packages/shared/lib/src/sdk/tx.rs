@@ -3,12 +3,12 @@ use std::{path::PathBuf, str::FromStr};
 use borsh::{BorshDeserialize, BorshSerialize};
 use namada::{
     ibc::core::ics24_host::identifier::{ChannelId, PortId},
-    ledger::args,
+    ledger::args::{self, InputAmount},
     types::{
         address::Address,
         chain::ChainId,
         masp::{ExtendedSpendingKey, PaymentAddress, TransferSource, TransferTarget},
-        token::Amount,
+        token::{Amount, DenominatedAmount, Denomination},
         transaction::GasLimit,
     },
 };
@@ -177,7 +177,9 @@ pub fn transfer_tx_args(
     }?;
     let native_token = Address::from_str(&native_token)?;
     let token = Address::from_str(&token)?;
-    let amount = Amount::from(amount);
+    let amount_str = amount.to_string();
+    let denom_amount = DenominatedAmount::from_str(&amount_str).expect("Amount to be valid.");
+    let amount = InputAmount::Unvalidated(denom_amount);
 
     let args = args::TxTransfer {
         tx: tx_msg_into_args(tx, password)?,
@@ -278,8 +280,15 @@ fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> Result<args::Tx,
     } = tx_msg;
 
     let token = Address::from_str(&token)?;
+
     let fee_amount = Amount::from(fee_amount);
+    let fee_input_amount = InputAmount::Unvalidated(DenominatedAmount {
+        amount: fee_amount,
+        denom: Denomination::from(0),
+    });
+
     let password = password.map(|pwd| zeroize::Zeroizing::new(pwd));
+    let gas_limit = Amount::from(gas_limit);
 
     let args = args::Tx {
         dry_run: false,
@@ -289,7 +298,7 @@ fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> Result<args::Tx,
         ledger_address: (),
         wallet_alias_force: false,
         initialized_account_alias: None,
-        fee_amount,
+        fee_amount: fee_input_amount,
         fee_token: token.clone(),
         gas_limit: GasLimit::from(gas_limit),
         expiration: None,

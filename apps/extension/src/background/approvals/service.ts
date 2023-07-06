@@ -5,7 +5,6 @@ import { v4 as uuid } from "uuid";
 import BigNumber from "bignumber.js";
 
 import { SubmitTransferMsgSchema, TransferMsgValue } from "@anoma/types";
-import { amountFromMicro } from "@anoma/utils";
 import { KVStore } from "@anoma/storage";
 
 import { ExtensionRequester } from "extension";
@@ -19,7 +18,7 @@ export class ApprovalsService {
     protected readonly keyRingService: KeyRingService,
     protected readonly chainId: string,
     protected readonly requester: ExtensionRequester
-  ) { }
+  ) {}
 
   // Deserialize transfer details and prompt user
   async approveTransfer(txMsg: string): Promise<void> {
@@ -34,7 +33,7 @@ export class ApprovalsService {
       txMsgBuffer
     );
     const { source, target, token, amount: amountBN } = txDetails;
-    const amount = amountFromMicro(new BigNumber(amountBN.toString()));
+    const amount = new BigNumber(amountBN.toString());
     const url = `${browser.runtime.getURL(
       "approvals.html"
     )}#/tx?id=${id}&source=${source}&target=${target}&token=${token}&amount=${amount}`;

@@ -125,7 +125,7 @@ jobs:
         run: rustup target add wasm32-unknown-unknown
 
       - name: Install wasm-bindgen-cli
-        run: cargo install wasm-bindgen-cli@0.2.86
+        run: cargo install wasm-bindgen-cli@0.2.87
 
       - name: build the site
         working-directory: ./apps/namada-interface
