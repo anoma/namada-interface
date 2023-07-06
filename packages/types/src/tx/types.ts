@@ -20,7 +20,7 @@ export type TxProps = {
   feeAmount: BigNumber;
   gasLimit: BigNumber;
   chainId: string;
-  publicKey?: string;
+  publicKey: string | undefined;
 };
 
 export type TransferProps = {
@@ -28,7 +28,7 @@ export type TransferProps = {
   source: string;
   target: string;
   token: string;
-  subPrefix?: string;
+  subPrefix: string | undefined;
   amount: BigNumber;
   nativeToken: string;
 };
@@ -38,12 +38,12 @@ export type IbcTransferProps = {
   source: string;
   receiver: string;
   token: string;
-  subPrefix?: string;
+  subPrefix: string | undefined;
   amount: BigNumber;
   portId: string;
   channelId: string;
-  timeoutHeight?: number;
-  timeoutSecOffset?: number;
+  timeoutHeight: bigint | undefined;
+  timeoutSecOffset: bigint | undefined;
 };
 
 // TODO: This is a placeholder

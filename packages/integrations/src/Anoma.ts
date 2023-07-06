@@ -60,13 +60,17 @@ export default class Anoma implements Integration<Account, Signer> {
           token: Tokens.NAM.address || "",
           feeAmount: new BigNumber(0),
           gasLimit: new BigNumber(0),
+          publicKey: undefined,
         },
+        subPrefix: undefined,
         source,
         receiver,
         channelId,
         portId,
         token: tokenAddress || "",
         amount,
+        timeoutHeight: undefined,
+        timeoutSecOffset: undefined,
       });
     } else if (props.bridgeProps) {
       console.log("TODO: Implement Ethereum Bridge transfer");
@@ -81,7 +85,8 @@ export default class Anoma implements Integration<Account, Signer> {
     const tokenBalances = Object.keys(Tokens).map((tokenType: string) => {
       const { address: tokenAddress = "" } = Tokens[tokenType as TokenType];
       const amount =
-        balance.find(({ token }) => token === tokenAddress)?.amount || new BigNumber(0);
+        balance.find(({ token }) => token === tokenAddress)?.amount ||
+        new BigNumber(0);
 
       // TODO: Implement balance fetching via SDK
       return {

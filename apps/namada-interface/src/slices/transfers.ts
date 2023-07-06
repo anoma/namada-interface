@@ -161,12 +161,14 @@ export const submitTransferTransaction = createAsyncThunk<
         feeAmount: new BigNumber(0),
         gasLimit: new BigNumber(0),
         chainId,
+        publicKey: undefined,
       },
       source: txTransferArgs.account.address,
       target: txTransferArgs.target,
       token: Tokens.NAM.address || "",
       amount: txTransferArgs.amount,
       nativeToken: Tokens.NAM.address || "",
+      subPrefix: undefined,
     });
   }
 );
@@ -194,6 +196,7 @@ export const submitIbcTransferTransaction = createAsyncThunk<
           feeAmount: new BigNumber(0),
           gasLimit: new BigNumber(0),
           chainId,
+          publicKey: undefined,
         },
         source: txIbcTransferArgs.account.address,
         receiver: txIbcTransferArgs.target,
@@ -201,6 +204,9 @@ export const submitIbcTransferTransaction = createAsyncThunk<
         amount: txIbcTransferArgs.amount,
         portId: txIbcTransferArgs.portId,
         channelId: txIbcTransferArgs.channelId,
+        subPrefix: undefined,
+        timeoutHeight: undefined,
+        timeoutSecOffset: undefined,
       },
     });
 
@@ -237,6 +243,7 @@ export const submitBridgeTransferTransaction = createAsyncThunk<
           feeAmount: new BigNumber(0),
           gasLimit: new BigNumber(0),
           chainId,
+          publicKey: undefined,
         },
         source: txBridgeTransferArgs.account.address,
         target: txBridgeTransferArgs.target,

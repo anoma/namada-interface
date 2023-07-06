@@ -1,15 +1,15 @@
 import browser from "webextension-polyfill";
 import { fromBase64 } from "@cosmjs/encoding";
-import { deserialize } from "borsh";
 import { v4 as uuid } from "uuid";
 import BigNumber from "bignumber.js";
 
-import { SubmitTransferMsgSchema, TransferMsgValue } from "@anoma/types";
+import { TransferMsgValue } from "@anoma/types";
 import { KVStore } from "@anoma/storage";
 
 import { ExtensionRequester } from "extension";
 import { KeyRingService } from "background/keyring";
 import { TabStore } from "background/keyring";
+import { deserialize } from "@dao-xyz/borsh";
 
 export class ApprovalsService {
   constructor(
@@ -27,11 +27,7 @@ export class ApprovalsService {
     this.txStore.set(id, txMsg);
 
     // Decode tx details and launch approval screen
-    const txDetails = deserialize(
-      SubmitTransferMsgSchema,
-      TransferMsgValue,
-      txMsgBuffer
-    );
+    const txDetails = deserialize(txMsgBuffer, TransferMsgValue);
     const { source, target, token, amount: amountBN } = txDetails;
     const amount = new BigNumber(amountBN.toString());
     const url = `${browser.runtime.getURL(

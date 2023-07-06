@@ -3,8 +3,6 @@ import {
   Account,
   Anoma,
   AccountMsgValue,
-  AccountMsgSchema,
-  SubmitIbcTransferMsgSchema,
   IbcTransferMsgValue,
   IbcTransferProps,
   InitAccountProps,
@@ -15,10 +13,7 @@ import {
   AccountType,
   SubmitBondProps,
   SubmitBondMsgValue,
-  SubmitBondMsgSchema,
-  SubmitTransferMsgSchema,
   SubmitUnbondMsgValue,
-  SubmitUnbondMsgSchema,
 } from "@anoma/types";
 
 export class Signer implements ISigner {
@@ -45,7 +40,7 @@ export class Signer implements ISigner {
     const msgValue = new SubmitBondMsgValue(args);
 
     const msg = new Message<SubmitBondMsgValue>();
-    const encoded = msg.encode(SubmitBondMsgSchema, msgValue);
+    const encoded = msg.encode(msgValue);
 
     return await this._anoma.submitBond(toBase64(encoded));
   }
@@ -57,7 +52,7 @@ export class Signer implements ISigner {
     const msgValue = new SubmitUnbondMsgValue(args);
 
     const msg = new Message<SubmitUnbondMsgValue>();
-    const encoded = msg.encode(SubmitUnbondMsgSchema, msgValue);
+    const encoded = msg.encode(msgValue);
 
     return await this._anoma.submitUnbond(toBase64(encoded));
   }
@@ -68,10 +63,7 @@ export class Signer implements ISigner {
   public async submitTransfer(args: TransferProps): Promise<void> {
     const transferMsgValue = new TransferMsgValue(args);
     const transferMessage = new Message<TransferMsgValue>();
-    const serializedTransfer = transferMessage.encode(
-      SubmitTransferMsgSchema,
-      transferMsgValue
-    );
+    const serializedTransfer = transferMessage.encode(transferMsgValue);
 
     return await this._anoma.submitTransfer(toBase64(serializedTransfer));
   }
@@ -82,10 +74,8 @@ export class Signer implements ISigner {
   public async submitIbcTransfer(args: IbcTransferProps): Promise<void> {
     const ibcTransferMsgValue = new IbcTransferMsgValue(args);
     const ibcTransferMessage = new Message<IbcTransferMsgValue>();
-    const serializedIbcTransfer = ibcTransferMessage.encode(
-      SubmitIbcTransferMsgSchema,
-      ibcTransferMsgValue
-    );
+    const serializedIbcTransfer =
+      ibcTransferMessage.encode(ibcTransferMsgValue);
 
     return await this._anoma.submitIbcTransfer(toBase64(serializedIbcTransfer));
   }
@@ -102,7 +92,7 @@ export class Signer implements ISigner {
       vpCode,
     });
     const accountMessage = new Message<AccountMsgValue>();
-    const serialized = accountMessage.encode(AccountMsgSchema, accountMsgValue);
+    const serialized = accountMessage.encode(accountMsgValue);
 
     return await this._anoma.encodeInitAccount({
       txMsg: toBase64(serialized),
