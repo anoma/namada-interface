@@ -56,16 +56,25 @@ borsh-derive = {git = "https://github.com/heliaxdev/borsh-rs.git", rev = "cd5223
 borsh-derive-internal = {git = "https://github.com/heliaxdev/borsh-rs.git", rev = "cd5223e5103c4f139e0c54cf8259b7ec5ec4073a"}
 borsh-schema-derive-internal = {git = "https://github.com/heliaxdev/borsh-rs.git", rev = "cd5223e5103c4f139e0c54cf8259b7ec5ec4073a"}
 
-[package.metadata.wasm-pack.profile.release]
-wasm-opt = true
-
-[package.metadata.wasm-pack.profile.dev]
-wasm-opt = false
-
+# https://doc.rust-lang.org/cargo/reference/profiles.html
 [profile.release]
 lto = true
 opt-level = "s"
 
 [profile.dev]
-# TODO: we can experiment with optimization levels
-opt-level = "s"
+# We do not wan't to make any optimizations for dev
+opt-level = 0
+
+# wasm-pack sepcific configuration
+[package.metadata.wasm-pack.profile.release]
+# https://docs.rs/wasm-opt/latest/wasm_opt/
+wasm-opt = ['-O4']
+
+[package.metadata.wasm-pack.profile.dev]
+wasm-opt = false
+
+[package.metadata.wasm-pack.profile.dev.wasm-bindgen]
+omit-default-module-path = true
+
+[package.metadata.wasm-pack.profile.release.wasm-bindgen]
+omit-default-module-path = true

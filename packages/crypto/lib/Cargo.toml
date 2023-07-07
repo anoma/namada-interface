@@ -34,15 +34,25 @@ zeroize = "1.6.0"
 [dev-dependencies]
 wasm-bindgen-test = "0.3.13"
 
-[package.metadata.wasm-pack.profile.release]
-wasm-opt = true
-
-[package.metadata.wasm-pack.profile.dev]
-wasm-opt = false
-
+# https://doc.rust-lang.org/cargo/reference/profiles.html
 [profile.release]
 lto = true
 opt-level = "s"
 
 [profile.dev]
-opt-level = "s"
+# We do not wan't to make any optimizations for dev
+opt-level = 0
+
+# wasm-pack sepcific configuration
+[package.metadata.wasm-pack.profile.release]
+# https://docs.rs/wasm-opt/latest/wasm_opt/
+wasm-opt = ['-O4']
+
+[package.metadata.wasm-pack.profile.dev]
+wasm-opt = false
+
+[package.metadata.wasm-pack.profile.dev.wasm-bindgen]
+omit-default-module-path = true
+
+[package.metadata.wasm-pack.profile.release.wasm-bindgen]
+omit-default-module-path = true
