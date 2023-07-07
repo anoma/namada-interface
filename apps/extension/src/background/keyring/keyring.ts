@@ -1,4 +1,5 @@
 import { v5 as uuid } from "uuid";
+import BigNumber from "bignumber.js";
 
 import {
   HDWallet,
@@ -389,7 +390,9 @@ export class KeyRing {
 
     while (index < 999999999 && emptyBalanceCount < 20) {
       const { path, info, balances } = await get(index++);
-      const hasBalance = balances.some(([, value]) => value !== "0");
+      const hasBalance = balances.some(([, value]) => {
+        return !new BigNumber(value).isZero();
+      });
 
       if (hasBalance) {
         emptyBalanceCount = 0;
