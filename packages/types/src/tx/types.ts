@@ -20,6 +20,7 @@ export type TxProps = {
   feeAmount: BigNumber;
   gasLimit: BigNumber;
   chainId: string;
+  publicKey?: string;
 };
 
 export type TransferProps = {
