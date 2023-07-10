@@ -7,6 +7,8 @@ use namada::{
     types::{
         address::Address,
         chain::ChainId,
+        key::common::PublicKey as PK,
+        key::ed25519::PublicKey,
         masp::{ExtendedSpendingKey, PaymentAddress, TransferSource, TransferTarget},
         token::{Amount, DenominatedAmount, Denomination},
         transaction::GasLimit,
@@ -20,6 +22,7 @@ pub struct TxMsg {
     fee_amount: u64,
     gas_limit: u64,
     chain_id: String,
+    public_key: Option<String>,
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -175,6 +178,7 @@ pub fn transfer_tx_args(
             ))),
         },
     }?;
+
     let native_token = Address::from_str(&native_token)?;
     let token = Address::from_str(&token)?;
     let amount_str = amount.to_string();
@@ -275,8 +279,8 @@ fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> Result<args::Tx,
         token,
         fee_amount,
         gas_limit,
-        // TODO: remove all the unused tx codes
         chain_id,
+        public_key,
     } = tx_msg;
 
     let token = Address::from_str(&token)?;
@@ -289,6 +293,13 @@ fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> Result<args::Tx,
 
     let password = password.map(|pwd| zeroize::Zeroizing::new(pwd));
     let gas_limit = Amount::from(gas_limit);
+    let public_key = match public_key {
+        Some(v) => {
+            let pk = PublicKey::from_str(&v).map_err(JsError::from)?;
+            Some(PK::Ed25519(pk))
+        }
+        _ => None,
+    };
 
     let args = args::Tx {
         dry_run: false,
@@ -306,6 +317,7 @@ fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> Result<args::Tx,
         signing_key: None,
         signer: None,
         tx_reveal_code_path: PathBuf::from("tx_reveal_pk.wasm"),
+        verification_key: public_key,
         password,
     };
     Ok(args)
