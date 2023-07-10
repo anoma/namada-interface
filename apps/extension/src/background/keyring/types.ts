@@ -13,7 +13,6 @@ export type Argon2Params = KdfParams & {
   m_cost: number;
   t_cost: number;
   p_cost: number;
-  salt: string;
 };
 
 export type ScryptParams = KdfParams & {
@@ -22,25 +21,23 @@ export type ScryptParams = KdfParams & {
   p: number;
 };
 
-export type CryptoRecord<T = Argon2Params> = {
-  cipher: {
-    type: "aes-256-gcm";
-    iv: Uint8Array;
-    text: Uint8Array;
-  };
-  kdf: {
-    type: KdfType;
-    params: T;
-  };
-};
-
 export interface KeyStore<T = Argon2Params> {
   id: string;
   alias: string;
   address: string;
   owner: string;
   chainId: string;
-  crypto: CryptoRecord<T>;
+  crypto: {
+    cipher: {
+      type: "aes-256-gcm";
+      iv: Uint8Array;
+      text: Uint8Array;
+    };
+    kdf: {
+      type: KdfType;
+      params: T;
+    };
+  };
   meta?: {
     [key: string]: string;
   };
@@ -66,8 +63,6 @@ export type TabStore = {
   tabId: number;
   timestamp: number;
 };
-
-export type UtilityStore = string | { [id: string]: CryptoRecord };
 
 export enum ResetPasswordError {
   BadPassword,

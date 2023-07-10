@@ -1,11 +1,11 @@
 import { KVStore } from "./types";
 
-export class IndexedDBKVStore<T> implements KVStore<T> {
+export class IndexedDBKVStore<T> implements KVStore<T[]> {
   protected cachedDB?: IDBDatabase;
 
   constructor(protected readonly _prefix: string) {}
 
-  public async get<U extends T>(key: string): Promise<U | undefined> {
+  public async get<T = unknown>(key: string): Promise<T | undefined> {
     const tx = (await this.getDB()).transaction([this.prefix()], "readonly");
     const store = tx.objectStore(this.prefix());
 
@@ -26,7 +26,7 @@ export class IndexedDBKVStore<T> implements KVStore<T> {
     });
   }
 
-  public async set<U extends T>(key: string, data: U | null): Promise<void> {
+  public async set<T = unknown>(key: string, data: T | null): Promise<void> {
     if (data === null) {
       const tx = (await this.getDB()).transaction([this.prefix()], "readwrite");
       const store = tx.objectStore(this.prefix());

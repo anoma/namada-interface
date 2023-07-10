@@ -26,7 +26,6 @@ import {
   KeyStore,
   KEYSTORE_KEY,
   PARENT_ACCOUNT_ID_KEY,
-  UtilityStore,
 } from "background/keyring";
 import { Sdk } from "@anoma/shared";
 import * as utils from "extension/utils";
@@ -37,12 +36,12 @@ jest.mock("webextension-polyfill", () => ({}));
 describe("Anoma", () => {
   let anoma: Anoma;
   let iDBStore: KVStoreMock<Chain[] | KeyStore[]>;
-  let utilityStore: KVStoreMock<UtilityStore>;
+  let activeAccountStore: KVStoreMock<string>;
   let keyRingService: KeyRingService;
 
   beforeAll(async () => {
     jest.spyOn(utils, "getAnomaRouterId").mockResolvedValue(1);
-    ({ anoma, iDBStore, utilityStore, keyRingService } = await init());
+    ({ anoma, iDBStore, activeAccountStore, keyRingService } = await init());
 
     jest
       .spyOn(KeyRing.prototype, "checkPassword")
@@ -71,7 +70,7 @@ describe("Anoma", () => {
 
   it("should return all accounts", async () => {
     iDBStore.set(KEYSTORE_KEY, keyStore);
-    utilityStore.set(PARENT_ACCOUNT_ID_KEY, ACTIVE_ACCOUNT_ID);
+    activeAccountStore.set(PARENT_ACCOUNT_ID_KEY, ACTIVE_ACCOUNT_ID);
     const storedKeyStore = keyStore.map(
       ({ crypto: _crypto, owner: _owner, ...account }) => account
     );

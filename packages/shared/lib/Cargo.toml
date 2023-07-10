@@ -62,7 +62,8 @@ lto = true
 opt-level = "s"
 
 [profile.dev]
-opt-level = "s"
+# We do not wan't to make any optimizations for dev
+opt-level = 0
 
 # wasm-pack sepcific configuration
 [package.metadata.wasm-pack.profile.release]

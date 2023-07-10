@@ -18,7 +18,7 @@ export enum KVPrefix {
   LocalStorage = "Anoma::LocalStorage",
   Memory = "Anoma::Memory",
   SDK = "Anoma::SDK",
-  Utility = "Anoma::Utility",
+  ActiveAccount = "Anoma::ActiveAccount",
   ConnectedTabs = "Anoma::ConnectedTabs",
 }
 

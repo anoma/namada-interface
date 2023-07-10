@@ -14,7 +14,6 @@ import {
   init as initKeyRing,
   KeyStore,
   TabStore,
-  UtilityStore,
 } from "../background/keyring";
 
 import {
@@ -34,15 +33,12 @@ const chainId = "namada-75a7e12.69483d59a9fb174";
 export class KVStoreMock<T> implements KVStore<T> {
   private storage: { [key: string]: T | null } = {};
 
-  constructor(readonly _prefix: string) {}
+  constructor(private readonly _prefix: string) {}
 
-  get<U extends T>(key: string): Promise<U | undefined> {
-    return new Promise((resolve) => {
-      const data = this.storage[key];
-      return resolve(data ? (data as U) : undefined);
-    });
+  get(key: string): Promise<T | undefined> {
+    return Promise.resolve(this.storage[key] || undefined);
   }
-  set<U extends T>(key: string, data: U | null): Promise<void> {
+  set(key: string, data: T | null): Promise<void> {
     this.storage[key] = data;
     return Promise.resolve();
   }
@@ -55,7 +51,7 @@ export const init = async (): Promise<{
   anoma: Anoma;
   iDBStore: KVStoreMock<Chain[] | KeyStore[]>;
   extStore: KVStoreMock<number>;
-  utilityStore: KVStoreMock<UtilityStore>;
+  activeAccountStore: KVStoreMock<string>;
   chainsService: ChainsService;
   keyRingService: KeyRingService;
 }> => {
@@ -63,7 +59,7 @@ export const init = async (): Promise<{
   const iDBStore = new KVStoreMock<Chain[] | KeyStore[]>(KVPrefix.IndexedDB);
   const sdkStore = new KVStoreMock<Record<string, string>>(KVPrefix.SDK);
   const extStore = new KVStoreMock<number>(KVPrefix.IndexedDB);
-  const utilityStore = new KVStoreMock<UtilityStore>(KVPrefix.Utility);
+  const activeAccountStore = new KVStoreMock<string>(KVPrefix.ActiveAccount);
   const connectedTabsStore = new KVStoreMock<TabStore[]>(
     KVPrefix.ConnectedTabs
   );
@@ -93,7 +89,7 @@ export const init = async (): Promise<{
   const keyRingService = new KeyRingService(
     iDBStore as KVStore<KeyStore[]>,
     sdkStore,
-    utilityStore,
+    activeAccountStore,
     connectedTabsStore,
     extStore,
     chainId,
@@ -124,7 +120,7 @@ export const init = async (): Promise<{
     anoma,
     iDBStore,
     extStore,
-    utilityStore,
+    activeAccountStore,
     chainsService,
     keyRingService,
   };
