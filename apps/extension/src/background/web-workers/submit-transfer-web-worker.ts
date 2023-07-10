@@ -14,7 +14,7 @@ import {
 (async function init() {
   await initShared();
   const sdkStore = new IndexedDBKVStore(KVPrefix.SDK);
-  const activeAccountStore = new IndexedDBKVStore(KVPrefix.ActiveAccount);
+  const utilityStore = new IndexedDBKVStore(KVPrefix.Utility);
   const sdk = new Sdk(chains[defaultChainId].rpc);
   await sdk.load_masp_params();
 
@@ -22,9 +22,7 @@ import {
   const sdkData: Record<string, string> | undefined = await sdkStore.get(
     "sdk-store"
   );
-  const activeAccount = await activeAccountStore.get<string>(
-    "parent-account-id"
-  );
+  const activeAccount = await utilityStore.get<string>("parent-account-id");
 
   if (sdkData && activeAccount) {
     const data = new TextEncoder().encode(sdkData[activeAccount]);

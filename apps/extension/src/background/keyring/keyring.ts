@@ -1,5 +1,5 @@
-import { v5 as uuid } from "uuid";
 import BigNumber from "bignumber.js";
+import { v5 as uuid, v4 as uuidV4 } from "uuid";
 
 import {
   HDWallet,
@@ -32,6 +32,8 @@ import {
   KeyStore,
   ResetPasswordError,
   DeleteAccountError,
+  CryptoRecord,
+  UtilityStore,
 } from "./types";
 import {
   readVecStringPointer,
@@ -61,6 +63,7 @@ const getId = (name: string, ...args: (number | string)[]): string => {
 export const KEYSTORE_KEY = "key-store";
 export const SDK_KEY = "sdk-store";
 export const PARENT_ACCOUNT_ID_KEY = "parent-account-id";
+export const AUTHKEY_KEY = "auth-key-store";
 
 const crypto = new Crypto();
 
@@ -83,7 +86,7 @@ export class KeyRing {
   constructor(
     protected readonly kvStore: KVStore<KeyStore[]>,
     protected readonly sdkStore: KVStore<Record<string, string>>,
-    protected readonly activeAccountStore: KVStore<string>,
+    protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly extensionStore: KVStore<number>,
     protected readonly chainId: string,
     protected readonly sdk: Sdk,
@@ -115,11 +118,11 @@ export class KeyRing {
   }
 
   public async getActiveAccountId(): Promise<string | undefined> {
-    return await this.activeAccountStore.get(PARENT_ACCOUNT_ID_KEY);
+    return await this.utilityStore.get(PARENT_ACCOUNT_ID_KEY);
   }
 
   public async setActiveAccountId(parentId: string): Promise<void> {
-    await this.activeAccountStore.set(PARENT_ACCOUNT_ID_KEY, parentId);
+    await this.utilityStore.set(PARENT_ACCOUNT_ID_KEY, parentId);
 
     // To sync sdk wallet with DB
     const sdkData = await this.sdkStore.get(SDK_KEY);
@@ -134,12 +137,16 @@ export class KeyRing {
   ): Promise<boolean> {
     // default to active account if no account provided
     const idToCheck = accountId ?? (await this.getActiveAccountId());
+    if (!idToCheck) {
+      throw new Error("No account to check password against");
+    }
 
-    const mnemonic = await this._keyStore.getRecord("id", idToCheck);
-    // TODO: Generate arbitrary data to check decryption against
-    if (mnemonic) {
+    const authKeys = await this.utilityStore.get<{
+      [id: string]: CryptoRecord;
+    }>(AUTHKEY_KEY);
+    if (authKeys) {
       try {
-        crypto.decrypt(mnemonic, password, this._cryptoMemory);
+        crypto.decrypt(authKeys[idToCheck], password, this._cryptoMemory);
         return true;
       } catch (error) {
         console.warn(error);
@@ -172,7 +179,7 @@ export class KeyRing {
 
         for (const account of allAccounts) {
           const decryptedSecret = crypto.decrypt(
-            account,
+            account.crypto,
             currentPassword,
             this._cryptoMemory
           );
@@ -264,6 +271,7 @@ export class KeyRing {
       });
 
       await this._keyStore.append(mnemonicStore);
+      await this.generateAuthKey(id, password);
       // When we are adding new top level account we have to clear the storage
       // to prevent adding top level secret key to existing keys
       this.sdk.clear_storage();
@@ -276,6 +284,21 @@ export class KeyRing {
       console.error(e);
     }
     return false;
+  }
+
+  public async generateAuthKey(
+    accountId: string,
+    password: string
+  ): Promise<void> {
+    const id = uuidV4();
+    const authKey = crypto.encryptAuthKey(password, id);
+    const entries = await this.utilityStore.get<{ [id: string]: CryptoRecord }>(
+      AUTHKEY_KEY
+    );
+    await this.utilityStore.set(AUTHKEY_KEY, {
+      ...entries,
+      [accountId]: authKey,
+    });
   }
 
   public deriveTransparentAccount(
@@ -465,7 +488,7 @@ export class KeyRing {
     const parentId = storedMnemonic.id;
     try {
       const phrase = crypto.decrypt(
-        storedMnemonic,
+        storedMnemonic.crypto,
         password,
         this._cryptoMemory
       );
@@ -616,7 +639,7 @@ export class KeyRing {
     let pk: string;
 
     try {
-      pk = crypto.decrypt(account, this._password, this._cryptoMemory);
+      pk = crypto.decrypt(account.crypto, this._password, this._cryptoMemory);
     } catch (e) {
       throw new Error(`Could not unlock account for ${address}: ${e}`);
     }
@@ -673,7 +696,11 @@ export class KeyRing {
     if (!account) {
       throw new Error(`Account not found.`);
     }
-    const text = crypto.decrypt(account, this._password, this._cryptoMemory);
+    const text = crypto.decrypt(
+      account.crypto,
+      this._password,
+      this._cryptoMemory
+    );
 
     // For shielded accounts we need to return the spending key as well.
     const extendedSpendingKey =
