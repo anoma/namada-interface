@@ -59,10 +59,14 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
     metamaskAccountChangedHandler,
     false,
     (event, handler) => {
-      window.ethereum.on(event, handler);
+      if (window.ethereum) {
+        window.ethereum.on(event, handler);
+      }
     },
     (event, handler) => {
-      window.ethereum.removeListener(event, handler);
+      if (window.ethereum) {
+        window.ethereum.removeListener(event, handler);
+      }
     }
   );
 
