@@ -16,7 +16,9 @@ enum Route {
 enum MessageType {
   ConnectInterface = "connect-interface",
   QueryAccounts = "query-accounts",
-  ApproveTransfer = "approve-tx",
+  ApproveTransfer = "approve-transfer",
+  ApproveBond = "approve-bond",
+  ApproveUnbond = "approve-unbond",
   QueryBalances = "query-balances",
   SubmitIbcTransfer = "submit-ibc-transfer",
   SubmitLedgerTransfer = "submit-ledger-transfer",
@@ -25,8 +27,6 @@ enum MessageType {
   GetChain = "get-chain",
   GetChains = "get-chains",
   SuggestChain = "suggest-chain",
-  SubmitBond = "submit-bond",
-  SubmitUnbond = "submit-unbond",
   FetchAndStoreMaspParams = "fetch-and-store-masp-params",
   HasMaspParams = "has-masp-params",
 }
@@ -259,56 +259,6 @@ export class EncodeRevealPkMsg extends Message<string> {
   }
 }
 
-export class SubmitBondMsg extends Message<void> {
-  public static type(): MessageType {
-    return MessageType.SubmitBond;
-  }
-
-  constructor(public readonly txMsg: string) {
-    super();
-  }
-
-  validate(): void {
-    if (!this.txMsg) {
-      throw new Error("An encoded txMsg is required!");
-    }
-    return;
-  }
-
-  route(): string {
-    return Route.KeyRing;
-  }
-
-  type(): string {
-    return SubmitBondMsg.type();
-  }
-}
-
-export class SubmitUnbondMsg extends Message<void> {
-  public static type(): MessageType {
-    return MessageType.SubmitUnbond;
-  }
-
-  constructor(public readonly txMsg: string) {
-    super();
-  }
-
-  validate(): void {
-    if (!this.txMsg) {
-      throw new Error("An encoded txMsg is required!");
-    }
-    return;
-  }
-
-  route(): string {
-    return Route.KeyRing;
-  }
-
-  type(): string {
-    return SubmitUnbondMsg.type();
-  }
-}
-
 export class ApproveTransferMsg extends Message<void> {
   public static type(): MessageType {
     return MessageType.ApproveTransfer;
@@ -334,6 +284,62 @@ export class ApproveTransferMsg extends Message<void> {
 
   type(): string {
     return ApproveTransferMsg.type();
+  }
+}
+
+export class ApproveBondMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.ApproveBond;
+  }
+
+  constructor(
+    public readonly txMsg: string,
+    public readonly accountType?: AccountType
+  ) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.txMsg) {
+      throw new Error("txMsg was not provided!");
+    }
+    return;
+  }
+
+  route(): string {
+    return Route.Approvals;
+  }
+
+  type(): string {
+    return ApproveBondMsg.type();
+  }
+}
+
+export class ApproveUnbondMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.ApproveUnbond;
+  }
+
+  constructor(
+    public readonly txMsg: string,
+    public readonly accountType?: AccountType
+  ) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.txMsg) {
+      throw new Error("txMsg was not provided!");
+    }
+    return;
+  }
+
+  route(): string {
+    return Route.Approvals;
+  }
+
+  type(): string {
+    return ApproveUnbondMsg.type();
   }
 }
 

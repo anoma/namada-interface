@@ -8,6 +8,8 @@ import { Ports, MessageRequester } from "router";
 
 import {
   ApproveTransferMsg,
+  ApproveBondMsg,
+  ApproveUnbondMsg,
   ConnectInterfaceMsg,
   GetChainMsg,
   GetChainsMsg,
@@ -17,8 +19,6 @@ import {
   FetchAndStoreMaspParamsMsg,
   HasMaspParamsMsg,
   QueryBalancesMsg,
-  SubmitBondMsg,
-  SubmitUnbondMsg,
   SubmitIbcTransferMsg,
 } from "./messages";
 
@@ -26,7 +26,7 @@ export class Anoma implements IAnoma {
   constructor(
     private readonly _version: string,
     protected readonly requester?: MessageRequester
-  ) {}
+  ) { }
 
   public async connect(chainId: string): Promise<void> {
     return await this.requester?.sendMessage(
@@ -88,17 +88,21 @@ export class Anoma implements IAnoma {
     );
   }
 
-  public async submitBond(txMsg: string): Promise<void> {
+  public async submitBond(props: {
+    txMsg: string;
+    type?: AccountType;
+  }): Promise<void> {
+    const { txMsg, type } = props;
     return await this.requester?.sendMessage(
       Ports.Background,
-      new SubmitBondMsg(txMsg)
+      new ApproveBondMsg(txMsg, type)
     );
   }
 
   public async submitUnbond(txMsg: string): Promise<void> {
     return await this.requester?.sendMessage(
       Ports.Background,
-      new SubmitUnbondMsg(txMsg)
+      new ApproveUnbondMsg(txMsg)
     );
   }
 

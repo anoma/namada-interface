@@ -11,7 +11,7 @@ export interface Anoma {
   suggestChain(chainConfig: Chain): Promise<void>;
   chain: (chainId: string) => Promise<Chain | undefined>;
   chains: () => Promise<Chain[] | undefined>;
-  submitBond: (txMsg: string) => Promise<void>;
+  submitBond: (props: { txMsg: string; type: AccountType }) => Promise<void>;
   submitUnbond: (txMsg: string) => Promise<void>;
   submitTransfer: (props: {
     txMsg: string;

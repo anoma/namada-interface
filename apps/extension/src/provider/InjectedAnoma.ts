@@ -50,8 +50,18 @@ export class InjectedAnoma implements IAnoma {
     return new Signer(chainId, this);
   }
 
-  public async submitBond(txMsg: string): Promise<void> {
-    return await InjectedProxy.requestMethod<string, void>("submitBond", txMsg);
+  public async submitBond(props: {
+    txMsg: string;
+    type: AccountType;
+  }): Promise<void> {
+    const { txMsg, type } = props;
+    return await InjectedProxy.requestMethod<
+      { txMsg: string; type: AccountType },
+      void
+    >("submitBond", {
+      txMsg,
+      type,
+    });
   }
 
   public async submitUnbond(txMsg: string): Promise<void> {

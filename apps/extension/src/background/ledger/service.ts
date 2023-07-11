@@ -1,10 +1,12 @@
-import { fromBase64, toHex } from "@cosmjs/encoding";
+import { fromBase64 } from "@cosmjs/encoding";
 import { deserialize } from "borsh";
-import { ResponseSign } from "@zondax/ledger-namada";
+import { ResponseSign } from "@anoma/ledger-namada";
 
 import {
   AccountType,
   Bip44Path,
+  BondMsgValue,
+  SubmitBondMsgSchema,
   SubmitTransferMsgSchema,
   TransferMsgValue,
 } from "@anoma/types";
@@ -71,8 +73,7 @@ export class LedgerService {
   async submitTransfer(
     msgId: string,
     bytes: string,
-    signatures: ResponseSign,
-    publicKey: string
+    signatures: ResponseSign
   ): Promise<void> {
     const txMsg = await this.txStore.get(msgId);
 
@@ -80,20 +81,108 @@ export class LedgerService {
       throw new Error(`Transaction ${msgId} not found!`);
     }
 
-    const { headerSignature, dataSignature } = signatures;
+    const {
+      wrapperSignature: { raw: wrapperSig },
+      rawSignature: { raw: rawSig },
+    } = signatures;
+
+    if (!wrapperSig) {
+      throw new Error("No wrapper signature was produced!");
+    }
+
+    if (!rawSig) {
+      throw new Error("No raw signature was produced!");
+    }
 
     const signedTransfer = await this.sdk.sign_tx(
       fromBase64(bytes),
-      toHex(dataSignature.signature),
-      toHex(headerSignature.signature)
+      new Uint8Array(wrapperSig),
+      new Uint8Array(rawSig)
     );
 
     try {
-      await this.sdk.submit_signed_transfer(
-        publicKey,
-        fromBase64(txMsg),
-        signedTransfer
+      await this.sdk.submit_signed_transfer(fromBase64(txMsg), signedTransfer);
+
+      // Clear pending tx if successful
+      await this.txStore.set(msgId, null);
+    } catch (e) {
+      console.warn(e);
+    }
+  }
+
+  async getBondBytes(
+    msgId: string
+  ): Promise<{ bytes: Uint8Array; path: string }> {
+    const txMsg = await this.txStore.get(msgId);
+    const { coinType } = chains[this.chainId].bip44;
+
+    if (!txMsg) {
+      throw new Error(`Transfer Transaction ${msgId} not found!`);
+    }
+
+    try {
+      // Deserialize txMsg to retrieve source
+      const { source } = deserialize(
+        SubmitBondMsgSchema,
+        BondMsgValue,
+        Buffer.from(fromBase64(txMsg))
       );
+
+      // Query account from Ledger storage to determine path for signer
+      const account = await this._ledgerStore.getRecord("address", source);
+
+      if (!account) {
+        throw new Error(`Ledger account not found for ${source}`);
+      }
+
+      const bytes = await this.sdk.build_bond(fromBase64(txMsg));
+      const path = makeBip44Path(coinType, account.path);
+
+      return { bytes, path };
+    } catch (e) {
+      console.warn(e);
+      throw new Error(`${e}`);
+    }
+  }
+
+  /* Submit a bond with provided signatures */
+  async submitBond(
+    msgId: string,
+    bytes: string,
+    signatures: ResponseSign
+  ): Promise<void> {
+    const txMsg = await this.txStore.get(msgId);
+
+    if (!txMsg) {
+      throw new Error(`Bond Transaction ${msgId} not found!`);
+    }
+
+    const {
+      wrapperSignature: {
+        raw: { data: wrapperSig },
+      },
+      rawSignature: {
+        raw: { data: rawSig },
+      },
+      // TODO: We need the correct type updated in ResponseSign
+    } = signatures as any; // eslint-disable-line
+
+    if (!wrapperSig) {
+      throw new Error("No wrapper signature was produced!");
+    }
+
+    if (!rawSig) {
+      throw new Error("No raw signature was produced!");
+    }
+
+    const signedBond = await this.sdk.sign_tx(
+      fromBase64(bytes),
+      new Uint8Array(wrapperSig),
+      new Uint8Array(rawSig)
+    );
+
+    try {
+      await this.sdk.submit_signed_bond(fromBase64(txMsg), signedBond);
 
       // Clear pending tx if successful
       await this.txStore.set(msgId, null);

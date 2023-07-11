@@ -1,13 +1,13 @@
 import { useCallback, useState } from "react";
-import { LedgerError } from "@anoma/ledger-namada";
 import { toBase64 } from "@cosmjs/encoding";
 
+import { LedgerError } from "@anoma/ledger-namada";
 import { Button, ButtonVariant } from "@anoma/components";
 
 import { Ledger } from "background/ledger";
 import {
-  GetTransferBytesMsg,
-  SubmitSignedTransferMsg,
+  GetBondBytesMsg,
+  SubmitSignedBondMsg,
 } from "background/ledger/messages";
 import { Ports } from "router";
 import { closeCurrentTab } from "utils";
@@ -17,33 +17,33 @@ import {
   ApprovalContainer,
   ButtonContainer,
 } from "Approvals/Approvals.components";
+import { InfoHeader, InfoLoader } from "Approvals/Approvals.components";
 
 type Props = {
   msgId: string;
 };
 
-export const ConfirmLedgerTransfer: React.FC<Props> = ({ msgId }) => {
+export const ConfirmLedgerBond: React.FC<Props> = ({ msgId }) => {
   const requester = useRequester();
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState<Status>();
+  const [statusInfo, setStatusInfo] = useState("");
 
-  const submitTransfer = async (): Promise<void> => {
+  const submitBond = async (): Promise<void> => {
     setStatus(Status.Pending);
+    setStatusInfo("Review and approve transaction on your Ledger");
     const ledger = await Ledger.init();
 
     try {
       // Constuct tx bytes from SDK
       const { bytes, path } = await requester.sendMessage(
         Ports.Background,
-        new GetTransferBytesMsg(msgId)
+        new GetBondBytesMsg(msgId)
       );
 
       // Sign with Ledger
       const signatures = await ledger.sign(bytes, path);
       const { errorMessage, returnCode } = signatures;
-
-      // Close transport so that it may be re-opened on a subsequent attempt (due to error)
-      await ledger.closeTransport();
 
       if (returnCode !== LedgerError.NoErrors) {
         setError(errorMessage);
@@ -51,9 +51,10 @@ export const ConfirmLedgerTransfer: React.FC<Props> = ({ msgId }) => {
       }
 
       // Submit signatures for tx
+      setStatusInfo("Submitting transaction...");
       await requester.sendMessage(
         Ports.Background,
-        new SubmitSignedTransferMsg(msgId, toBase64(bytes), signatures)
+        new SubmitSignedBondMsg(msgId, toBase64(bytes), signatures)
       );
       setStatus(Status.Completed);
     } catch (e) {
@@ -61,6 +62,8 @@ export const ConfirmLedgerTransfer: React.FC<Props> = ({ msgId }) => {
       const ledgerErrors = await ledger.queryErrors();
       setError(ledgerErrors);
       setStatus(Status.Failed);
+    } finally {
+      ledger.closeTransport();
     }
   };
 
@@ -77,12 +80,17 @@ export const ConfirmLedgerTransfer: React.FC<Props> = ({ msgId }) => {
           Try again
         </p>
       )}
-      {status === Status.Pending && <p>Submitting transfer...</p>}
+      {status === Status.Pending && (
+        <InfoHeader>
+          <InfoLoader />
+          {statusInfo}
+        </InfoHeader>
+      )}
       {status !== Status.Pending && status !== Status.Completed && (
         <>
           <p>Make sure your Ledger is unlocked, and click &quot;Submit&quot;</p>
           <ButtonContainer>
-            <Button variant={ButtonVariant.Contained} onClick={submitTransfer}>
+            <Button variant={ButtonVariant.Contained} onClick={submitBond}>
               Submit
             </Button>
           </ButtonContainer>

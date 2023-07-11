@@ -22,17 +22,15 @@ type Props = {
   setAddress: (address: string) => void;
 };
 
-export const ApproveTransfer: React.FC<Props> = ({ setAddress, setMsgId }) => {
+export const ApproveBond: React.FC<Props> = ({ setAddress, setMsgId }) => {
   const navigate = useNavigate();
   const requester = useRequester();
 
   const query = useQuery();
-  // TODO: Get current parent account alias to display to user
   const type = query.get("type") || "";
   const id = query.get("id") || "";
   const amount = query.get("amount") || "";
   const source = query.get("source") || "";
-  const target = query.get("target") || "";
   const tokenAddress = query.get("token") || "";
   const tokenType =
     Object.values(Tokens).find((token) => token.address === tokenAddress)
@@ -47,9 +45,9 @@ export const ApproveTransfer: React.FC<Props> = ({ setAddress, setMsgId }) => {
   const handleApproveClick = (): void => {
     setMsgId(id);
     if (type === AccountType.Ledger) {
-      return navigate(`${TopLevelRoute.ConfirmLedgerTransfer}`);
+      return navigate(`${TopLevelRoute.ConfirmLedgerBond}`);
     }
-    navigate(TopLevelRoute.ConfirmTransfer);
+    navigate(TopLevelRoute.ConfirmBond);
   };
 
   const handleReject = async (): Promise<void> => {
@@ -67,9 +65,7 @@ export const ApproveTransfer: React.FC<Props> = ({ setAddress, setMsgId }) => {
 
   return (
     <ApprovalContainer>
-      <p>Approve this Transaction?</p>
-      <p>Target:&nbsp;</p>
-      <Address>{shortenAddress(target)}</Address>
+      <p>Approve this Bond?</p>
       <p>Source:&nbsp;</p>
       <Address>{shortenAddress(source)}</Address>
       <p>

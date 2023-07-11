@@ -13,17 +13,16 @@ import {
 } from "Approvals/Approvals.components";
 import { Ports } from "router";
 import { useRequester } from "hooks/useRequester";
-import { SubmitApprovedTransferMsg } from "background/approvals";
+import { SubmitApprovedBondMsg } from "background/approvals";
 import { Address } from "App/Accounts/AccountListing.components";
 import { closeCurrentTab } from "utils";
-import { FetchAndStoreMaspParamsMsg, HasMaspParamsMsg } from "provider";
 
 type Props = {
   msgId: string;
   address: string;
 };
 
-export const ConfirmTransfer: React.FC<Props> = ({ msgId, address }) => {
+export const ConfirmBond: React.FC<Props> = ({ msgId, address }) => {
   const navigate = useNavigate();
   const requester = useRequester();
   const [password, setPassword] = useState("");
@@ -31,31 +30,14 @@ export const ConfirmTransfer: React.FC<Props> = ({ msgId, address }) => {
   const [status, setStatus] = useState<Status>();
   const [statusInfo, setStatusInfo] = useState<string>("");
 
-  const handleApproveTransfer = async (): Promise<void> => {
+  const handleApproveBond = async (): Promise<void> => {
     setStatus(Status.Pending);
-    const hasMaspParams = await requester.sendMessage(
-      Ports.Background,
-      new HasMaspParamsMsg()
-    );
-
-    if (!hasMaspParams) {
-      setStatusInfo("Fetching MASP parameters...");
-      try {
-        await requester.sendMessage(
-          Ports.Background,
-          new FetchAndStoreMaspParamsMsg()
-        );
-      } catch (e) {
-        setError(`Fetching MASP parameters failed: ${e}`);
-        setStatus(Status.Failed);
-      }
-    }
     try {
       // TODO: use executeUntil here!
       setStatusInfo("Decrypting keys and submitting transfer...");
       await requester.sendMessage(
         Ports.Background,
-        new SubmitApprovedTransferMsg(msgId, address, password)
+        new SubmitApprovedBondMsg(msgId, address, password)
       );
       setStatus(Status.Completed);
     } catch (e) {
@@ -102,7 +84,7 @@ export const ConfirmTransfer: React.FC<Props> = ({ msgId, address }) => {
           />
           <ButtonContainer>
             <Button
-              onClick={handleApproveTransfer}
+              onClick={handleApproveBond}
               disabled={!password}
               variant={ButtonVariant.Contained}
             >

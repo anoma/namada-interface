@@ -23,8 +23,6 @@ import {
   EncodeInitAccountMsg,
   QueryAccountsMsg,
   QueryBalancesMsg,
-  SubmitBondMsg,
-  SubmitUnbondMsg,
   SubmitIbcTransferMsg,
   FetchAndStoreMaspParamsMsg,
   HasMaspParamsMsg,
@@ -83,10 +81,6 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
           env,
           msg as QueryParentAccountsMsg
         );
-      case SubmitBondMsg:
-        return handleSubmitBondMsg(service)(env, msg as SubmitBondMsg);
-      case SubmitUnbondMsg:
-        return handleSubmitUnbondMsg(service)(env, msg as SubmitUnbondMsg);
       case SubmitIbcTransferMsg:
         return handleSubmitIbcTransferMsg(service)(
           env,
@@ -240,24 +234,6 @@ const handleQueryParentAccountsMsg: (
 ) => InternalHandler<QueryParentAccountsMsg> = (service) => {
   return async (_, _msg) => {
     return await service.queryParentAccounts();
-  };
-};
-
-const handleSubmitBondMsg: (
-  service: KeyRingService
-) => InternalHandler<SubmitBondMsg> = (service) => {
-  return async (_, msg) => {
-    const { txMsg } = msg;
-    return await service.submitBond(txMsg);
-  };
-};
-
-const handleSubmitUnbondMsg: (
-  service: KeyRingService
-) => InternalHandler<SubmitUnbondMsg> = (service) => {
-  return async (_, msg) => {
-    const { txMsg } = msg;
-    return await service.submitUnbond(txMsg);
   };
 };
 

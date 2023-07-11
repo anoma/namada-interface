@@ -4,6 +4,7 @@ import {
   Anoma,
   AccountMsgValue,
   AccountMsgSchema,
+  BondMsgValue,
   SubmitIbcTransferMsgSchema,
   IbcTransferMsgValue,
   IbcTransferProps,
@@ -14,10 +15,9 @@ import {
   TransferProps,
   AccountType,
   SubmitBondProps,
-  SubmitBondMsgValue,
   SubmitBondMsgSchema,
   SubmitTransferMsgSchema,
-  SubmitUnbondMsgValue,
+  UnbondMsgValue,
   SubmitUnbondMsgSchema,
 } from "@anoma/types";
 
@@ -43,22 +43,27 @@ export class Signer implements ISigner {
   /**
    * Submit bond transaction
    */
-  public async submitBond(args: SubmitBondProps): Promise<void> {
-    const msgValue = new SubmitBondMsgValue(args);
+  public async submitBond(
+    args: SubmitBondProps,
+    type: AccountType
+  ): Promise<void> {
+    const bondValue = new BondMsgValue(args);
+    const bondMsg = new Message<BondMsgValue>();
+    const serializedBond = bondMsg.encode(SubmitBondMsgSchema, bondValue);
 
-    const msg = new Message<SubmitBondMsgValue>();
-    const encoded = msg.encode(SubmitBondMsgSchema, msgValue);
-
-    return await this._anoma.submitBond(toBase64(encoded));
+    return await this._anoma.submitBond({
+      txMsg: toBase64(serializedBond),
+      type,
+    });
   }
 
   /**
    * Submit unbond transaction
    */
   public async submitUnbond(args: SubmitBondProps): Promise<void> {
-    const msgValue = new SubmitUnbondMsgValue(args);
+    const msgValue = new UnbondMsgValue(args);
 
-    const msg = new Message<SubmitUnbondMsgValue>();
+    const msg = new Message<UnbondMsgValue>();
     const encoded = msg.encode(SubmitUnbondMsgSchema, msgValue);
 
     return await this._anoma.submitUnbond(toBase64(encoded));

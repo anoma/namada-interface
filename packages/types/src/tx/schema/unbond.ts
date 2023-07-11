@@ -4,13 +4,15 @@ import { SubmitUnbondProps } from "../types";
 import { TxMsgSchema, TxMsgValue } from "./tx";
 import { SchemaObject } from "@anoma/utils";
 
-export class SubmitUnbondMsgValue {
+export class UnbondMsgValue {
   source: string;
   validator: string;
   amount: BN;
   tx: TxMsgValue;
 
-  constructor(properties: SubmitUnbondProps | SchemaObject<typeof UnbondMsgSchema>) {
+  constructor(
+    properties: SubmitUnbondProps | SchemaObject<typeof UnbondMsgSchema>
+  ) {
     this.source = properties.source;
     this.validator = properties.validator;
     this.amount = new BN(properties.amount.toString());
@@ -19,7 +21,7 @@ export class SubmitUnbondMsgValue {
 }
 
 export const UnbondMsgSchema = [
-  SubmitUnbondMsgValue,
+  UnbondMsgValue,
   {
     kind: "struct",
     fields: [

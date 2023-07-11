@@ -4,7 +4,7 @@ import {
   ResponseSign,
   ResponseVersion,
   LedgerError,
-} from "@zondax/ledger-namada";
+} from "@anoma/ledger-namada";
 import TransportUSB from "@ledgerhq/hw-transport-webusb";
 import TransportHID from "@ledgerhq/hw-transport-webhid";
 import Transport from "@ledgerhq/hw-transport";
@@ -30,7 +30,7 @@ export const DEFAULT_LEDGER_BIP44_PATH = makeBip44Path(coinType, {
 });
 
 export class Ledger {
-  constructor(public readonly namadaApp: NamadaApp | undefined = undefined) {}
+  constructor(public readonly namadaApp: NamadaApp | undefined = undefined) { }
 
   /**
    * Returns an initialized Ledger class instance with initialized Transport

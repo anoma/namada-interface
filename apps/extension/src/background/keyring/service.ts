@@ -187,7 +187,8 @@ export class KeyRingService {
     ];
   }
 
-  async submitBond(txMsg: string): Promise<void> {
+  async submitBond(txMsg: string, msgId: string): Promise<void> {
+    console.log(`TODO: Broadcast notification for ${msgId}`);
     try {
       await this._keyRing.submitBond(fromBase64(txMsg));
     } catch (e) {
@@ -196,7 +197,8 @@ export class KeyRingService {
     }
   }
 
-  async submitUnbond(txMsg: string): Promise<void> {
+  async submitUnbond(txMsg: string, msgId: string): Promise<void> {
+    console.log(`TODO: Broadcast notification for ${msgId}`);
     try {
       await this._keyRing.submitUnbond(fromBase64(txMsg));
     } catch (e) {
