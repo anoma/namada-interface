@@ -93,7 +93,6 @@ describe("Anoma", () => {
         feeAmount: new BigNumber(0),
         gasLimit: new BigNumber(0),
         chainId: chain.chainId,
-        publicKey: undefined,
       },
       source: keyStore[0].address,
       target:
@@ -101,7 +100,6 @@ describe("Anoma", () => {
       token,
       amount: new BigNumber(1000),
       nativeToken: token,
-      subPrefix: undefined,
     };
 
     const transferMsgValue = new TransferMsgValue(transferProps);
@@ -128,7 +126,6 @@ describe("Anoma", () => {
         feeAmount: new BigNumber(0),
         gasLimit: new BigNumber(0),
         chainId: chain.chainId,
-        publicKey: undefined,
       },
       source: keyStore[0].address,
       receiver:
@@ -137,9 +134,6 @@ describe("Anoma", () => {
       amount: new BigNumber(1000),
       portId: "transfer",
       channelId: "channel-0",
-      subPrefix: undefined,
-      timeoutHeight: undefined,
-      timeoutSecOffset: undefined,
     };
 
     const transferMsgValue = new IbcTransferMsgValue(transferProps);

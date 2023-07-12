@@ -60,17 +60,13 @@ export default class Anoma implements Integration<Account, Signer> {
           token: Tokens.NAM.address || "",
           feeAmount: new BigNumber(0),
           gasLimit: new BigNumber(0),
-          publicKey: undefined,
         },
-        subPrefix: undefined,
         source,
         receiver,
         channelId,
         portId,
         token: tokenAddress || "",
         amount,
-        timeoutHeight: undefined,
-        timeoutSecOffset: undefined,
       });
     } else if (props.bridgeProps) {
       console.log("TODO: Implement Ethereum Bridge transfer");

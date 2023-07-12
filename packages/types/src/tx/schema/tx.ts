@@ -2,6 +2,7 @@
 import BigNumber from "bignumber.js";
 import { field, option } from "@dao-xyz/borsh";
 import { BigNumberSerializer } from "./utils";
+import { TxProps } from "../types";
 
 export class TxMsgValue {
   @field({ type: "string" })
@@ -17,9 +18,9 @@ export class TxMsgValue {
   chainId!: string;
 
   @field({ type: option("string") })
-  publicKey!: string | undefined;
+  publicKey?: string;
 
-  constructor(data: TxMsgValue) {
+  constructor(data: TxProps) {
     Object.assign(this, data);
   }
 }

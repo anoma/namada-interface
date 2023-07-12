@@ -19,7 +19,7 @@ export class TransferMsgValue {
   token!: string;
 
   @field({ type: option("string") })
-  subPrefix!: string | undefined;
+  subPrefix?: string;
 
   @field(BigNumberSerializer)
   amount!: BigNumber;

@@ -171,7 +171,6 @@ export const postNewBonding = createAsyncThunk<
       feeAmount: new BigNumber(0),
       gasLimit: new BigNumber(0),
       chainId,
-      publicKey: undefined,
     },
   });
 });
@@ -198,7 +197,6 @@ export const postNewUnbonding = createAsyncThunk<
       feeAmount: new BigNumber(0),
       gasLimit: new BigNumber(0),
       chainId,
-      publicKey: undefined,
     },
   });
 });

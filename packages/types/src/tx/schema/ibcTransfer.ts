@@ -19,7 +19,7 @@ export class IbcTransferMsgValue {
   token!: string;
 
   @field({ type: option("string") })
-  subPrefix!: string | undefined;
+  subPrefix?: string;
 
   @field(BigNumberSerializer)
   amount!: BigNumber;
@@ -31,10 +31,10 @@ export class IbcTransferMsgValue {
   channelId!: string;
 
   @field({ type: option("u64") })
-  timeoutHeight!: bigint | undefined;
+  timeoutHeight?: bigint;
 
   @field({ type: option("u64") })
-  timeoutSecOffset!: bigint | undefined;
+  timeoutSecOffset?: bigint;
 
   constructor(data: IbcTransferProps) {
     Object.assign(this, data);

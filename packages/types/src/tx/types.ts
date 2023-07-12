@@ -20,7 +20,7 @@ export type TxProps = {
   feeAmount: BigNumber;
   gasLimit: BigNumber;
   chainId: string;
-  publicKey: string | undefined;
+  publicKey?: string;
 };
 
 export type TransferProps = {
@@ -28,7 +28,7 @@ export type TransferProps = {
   source: string;
   target: string;
   token: string;
-  subPrefix: string | undefined;
+  subPrefix?: string;
   amount: BigNumber;
   nativeToken: string;
 };
@@ -38,12 +38,12 @@ export type IbcTransferProps = {
   source: string;
   receiver: string;
   token: string;
-  subPrefix: string | undefined;
+  subPrefix?: string;
   amount: BigNumber;
   portId: string;
   channelId: string;
-  timeoutHeight: bigint | undefined;
-  timeoutSecOffset: bigint | undefined;
+  timeoutHeight?: bigint;
+  timeoutSecOffset?: bigint;
 };
 
 // TODO: This is a placeholder
@@ -57,27 +57,4 @@ export type BridgeTransferProps = {
 
 export type InitAccountProps = {
   vpCode: Uint8Array;
-};
-
-export type ShieldedDataProps = {
-  overwintered: boolean;
-  version: string;
-  versionGroupId: string;
-  vin: Uint8Array;
-  vout: Uint8Array;
-  lockTime: number;
-  expiryHeight: number;
-  valueBalance: BigNumber;
-  shieldedSpends: Uint8Array;
-  shieldedConverts: Uint8Array;
-  shieldedOutputs: Uint8Array;
-  joinSplits: string;
-  joinSplitPubKey?: Uint8Array;
-  joinSplitSig?: Uint8Array;
-  bindingSig?: Uint8Array;
-};
-
-export type ShieldedProps = {
-  txId: Uint8Array;
-  data: Uint8Array; // Encoded ShieldedData
 };
