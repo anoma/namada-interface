@@ -22,10 +22,10 @@ mod tx;
 mod wallet;
 
 // Require that a public key is present
-fn validate_pk(pk: Option<PublicKey>) -> PublicKey {
+fn validate_pk(pk: Option<PublicKey>) -> Result<PublicKey, JsError> {
     match pk {
-        Some(v) => v,
-        None => panic!("No public key was provided!"),
+        Some(v) => Ok(v),
+        None => Err(JsError::new("No public key was provided!")),
     }
 }
 
@@ -120,7 +120,7 @@ impl Sdk {
         .await?;
 
         // Sign and submit reveal pk
-        if let Some((mut rtx, _, pk)) = reveal_pk {
+        if let Some((mut rtx, _, _)) = reveal_pk {
             // Sign the reveal public key transaction with the fee payer
             signing::sign_tx(&mut self.wallet, &mut rtx, &args, &pk).await?;
             // Submit the reveal public key transaction first
@@ -191,11 +191,11 @@ impl Sdk {
     pub async fn build_unbond(&mut self, tx_msg: &[u8]) -> Result<JsValue, JsError> {
         let args = tx::unbond_tx_args(tx_msg, None)?;
 
-        let bond = namada::ledger::tx::build_unbond(&self.client, &mut self.wallet, args.clone())
+        let unbond = namada::ledger::tx::build_unbond(&self.client, &mut self.wallet, args.clone())
             .await
             .map_err(JsError::from)?;
 
-        let bytes = bond.0.try_to_vec().map_err(JsError::from)?;
+        let bytes = unbond.0.try_to_vec().map_err(JsError::from)?;
 
         to_js_result(bytes)
     }
@@ -226,10 +226,10 @@ impl Sdk {
         tx_msg: &[u8],
         tx_bytes: &[u8],
     ) -> Result<(), JsError> {
-        let transfer_tx = Tx::try_from_slice(&tx_bytes).map_err(|e| JsError::from(e))?;
-        let args = tx::transfer_tx_args(tx_msg, None, None).map_err(|e| JsError::from(e))?;
+        let transfer_tx = Tx::try_from_slice(&tx_bytes).map_err(JsError::from)?;
+        let args = tx::transfer_tx_args(tx_msg, None, None).map_err(JsError::from)?;
         let verification_key = args.tx.verification_key.clone();
-        let pk = validate_pk(verification_key);
+        let pk = validate_pk(verification_key)?;
 
         self.submit_reveal_pk(&args.tx, transfer_tx.clone(), &pk)
             .await?;
@@ -302,10 +302,10 @@ impl Sdk {
         tx_msg: &[u8],
         tx_bytes: &[u8],
     ) -> Result<(), JsError> {
-        let bond_tx = Tx::try_from_slice(&tx_bytes).map_err(|e| JsError::from(e))?;
-        let args = tx::bond_tx_args(tx_msg, None).map_err(|e| JsError::from(e))?;
+        let bond_tx = Tx::try_from_slice(&tx_bytes).map_err(JsError::from)?;
+        let args = tx::bond_tx_args(tx_msg, None).map_err(JsError::from)?;
         let verification_key = args.tx.verification_key.clone();
-        let pk = validate_pk(verification_key);
+        let pk = validate_pk(verification_key)?;
 
         self.submit_reveal_pk(&args.tx, bond_tx.clone(), &pk)
             .await?;
@@ -341,10 +341,10 @@ impl Sdk {
         tx_msg: &[u8],
         tx_bytes: &[u8],
     ) -> Result<(), JsError> {
-        let bond_tx = Tx::try_from(tx_bytes).map_err(|e| JsError::from(e))?;
-        let args = tx::unbond_tx_args(tx_msg, None).map_err(|e| JsError::from(e))?;
+        let bond_tx = Tx::try_from(tx_bytes).map_err(JsError::from)?;
+        let args = tx::unbond_tx_args(tx_msg, None).map_err(JsError::from)?;
         let verification_key = args.tx.verification_key.clone();
-        let pk = validate_pk(verification_key);
+        let pk = validate_pk(verification_key)?;
 
         self.submit_reveal_pk(&args.tx, bond_tx.clone(), &pk)
             .await?;
