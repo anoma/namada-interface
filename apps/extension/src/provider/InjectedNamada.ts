@@ -73,6 +73,13 @@ export class InjectedNamada implements INamada {
     );
   }
 
+  public async submitWithdraw(txMsg: string): Promise<void> {
+    return await InjectedProxy.requestMethod<string, void>(
+      "submitWithdraw",
+      txMsg
+    );
+  }
+
   public async submitTransfer(props: {
     txMsg: string;
     type: AccountType;

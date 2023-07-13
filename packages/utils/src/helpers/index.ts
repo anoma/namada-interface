@@ -221,3 +221,17 @@ export function paramsToUrl(
   }
   return url;
 }
+
+export const formatPercentage = (bigNumber: BigNumber): string =>
+  bigNumber.multipliedBy(100).toString() + "%";
+
+/**
+ * Applies a function to a value that is possibly undefined.
+ */
+export const mapUndefined = <A, B>(f: (a: A) => B, a: A | undefined): B | undefined =>
+  a === undefined
+    ? undefined
+    : f(a);
+
+export const showMaybeNam = (maybeNam: BigNumber | undefined): string =>
+  mapUndefined(nam => `NAM ${nam.toString()}`, maybeNam) ?? "-";

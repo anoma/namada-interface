@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
+import BigNumber from "bignumber.js";
 
-import { truncateInMiddle } from "@namada/utils";
+import { truncateInMiddle, formatPercentage, showMaybeNam } from "@namada/utils";
 import {
   Button,
   ButtonVariant,
@@ -14,14 +15,15 @@ import {
   ValidatorDetailsContainer,
   StakeButtonContainer,
 } from "./ValidatorDetails.components";
-import { Validator, StakingPosition } from "slices/StakingAndGovernance";
+import { Validator, StakingPosition, postNewWithdraw } from "slices/StakingAndGovernance";
 import { ModalState } from "../Staking";
+import { useAppSelector, RootState, useAppDispatch } from "store";
 
 const validatorDetailsConfigurations: TableConfigurations<KeyValueData, never> =
   {
     rowRenderer: (rowData: KeyValueData) => {
       // we have to figure if this is the row for validator homepage, hench an anchor
-      const linkOrText = rowData.value.startsWith("https:") ? (
+      const linkOrText = /^https?:/.test(rowData.value) ? (
         <a href={rowData.value} target="_blank" rel="noopener noreferrer">
           {rowData.value}
         </a>
@@ -44,7 +46,9 @@ const validatorDetailsConfigurations: TableConfigurations<KeyValueData, never> =
 
 const getMyStakingWithValidatorConfigurations = (
   setModalState: React.Dispatch<React.SetStateAction<ModalState>>,
-  navigateToUnbonding: (validatorId: string, owner: string) => void
+  navigateToUnbonding: (validatorId: string, owner: string) => void,
+  dispatchWithdraw: (validatorId: string, owner: string) => void,
+  epoch?: BigNumber,
 ): TableConfigurations<
   StakingPosition,
   {
@@ -57,20 +61,33 @@ const getMyStakingWithValidatorConfigurations = (
       return (
         <>
           <td>{truncateInMiddle(stakingPosition.owner || "", 5, 5)}</td>
-          <td>{stakingPosition.stakingStatus}</td>
+          <td>{stakingPosition.bonded ? "Bonded" : "Unbonded"}</td>
           <td>
-            NAM {stakingPosition.stakedAmount}{" "}
-            <TableLink
-              onClick={() => {
-                setModalState(ModalState.Unbond);
-                navigateToUnbonding(
-                  stakingPosition.validatorId,
-                  stakingPosition.owner
-                );
-              }}
-            >
-              unstake
-            </TableLink>
+            {showMaybeNam(stakingPosition.stakedAmount)}{" "}
+            {
+              stakingPosition.bonded ?
+                <TableLink
+                  onClick={() => {
+                    setModalState(ModalState.Unbond);
+                    navigateToUnbonding(
+                      stakingPosition.validatorId,
+                      stakingPosition.owner
+                    );
+                  }}
+                >
+                  unstake
+                </TableLink> :
+
+              epoch && stakingPosition.withdrawableEpoch?.isLessThanOrEqualTo(epoch) &&
+                <TableLink
+                  onClick={() => dispatchWithdraw(
+                    stakingPosition.validatorId,
+                    stakingPosition.owner,
+                  )}
+                >
+                  withdraw
+                </TableLink>
+            }
           </td>
           <td>{stakingPosition.totalRewards}</td>
         </>
@@ -79,7 +96,7 @@ const getMyStakingWithValidatorConfigurations = (
     columns: [
       { uuid: "1", columnLabel: "Owner", width: "25%" },
       { uuid: "2", columnLabel: "State", width: "25%" },
-      { uuid: "3", columnLabel: "Amount Staked", width: "25%" },
+      { uuid: "3", columnLabel: "Amount", width: "25%" },
       { uuid: "4", columnLabel: "Total Rewards", width: "25%" },
     ],
   };
@@ -101,8 +118,12 @@ const validatorToDataRows = (
   }
   return [
     { uuid: "1", key: "Name", value: truncateInMiddle(validator.name, 5, 5) },
-    { uuid: "2", key: "Commission", value: validator.commission },
-    { uuid: "3", key: "Voting Power", value: validator.votingPower },
+    {
+      uuid: "2",
+      key: "Commission",
+      value: formatPercentage(validator.commission),
+    },
+    { uuid: "3", key: "Voting Power", value: validator.votingPower?.toString() ?? "" },
     {
       uuid: "4",
       key: "Description",
@@ -119,9 +140,23 @@ export const ValidatorDetails = (props: Props): JSX.Element => {
     navigateToUnbonding,
     stakingPositionsWithSelectedValidator = [],
   } = props;
+
+  const epoch = useAppSelector((state: RootState) =>
+    state.stakingAndGovernance.epoch);
+
+  const dispatch = useAppDispatch();
+  const dispatchWithdraw = (validatorId: string, owner: string): void => {
+    dispatch(postNewWithdraw({ validatorId, owner }));
+  }
+
   const validatorDetailsData = validatorToDataRows(validator);
   const myStakingWithValidatorConfigurations =
-    getMyStakingWithValidatorConfigurations(setModalState, navigateToUnbonding);
+    getMyStakingWithValidatorConfigurations(
+      setModalState,
+      navigateToUnbonding,
+      dispatchWithdraw,
+      epoch
+    );
 
   return (
     <ValidatorDetailsContainer>

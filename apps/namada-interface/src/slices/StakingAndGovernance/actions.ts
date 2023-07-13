@@ -11,6 +11,7 @@ import {
   FETCH_VALIDATOR_DETAILS,
   FETCH_MY_VALIDATORS,
   FETCH_MY_STAKING_POSITIONS,
+  FETCH_EPOCH,
   POST_NEW_STAKING,
   POST_UNSTAKING,
   Validator,
@@ -19,24 +20,24 @@ import {
   StakingPosition,
   ChangeInStakingPosition,
 } from "./types";
-import { myStakingData } from "./fakeData";
 import { RootState } from "store";
 import { Account } from "slices/accounts";
 
-const toValidator = ([address, votingPower]: [string, string]): Validator => ({
+const toValidator = (
+  [address, stake]: [string, string | null]
+): Validator => ({
   uuid: address,
   name: address,
-  // TODO: voting power is multiplied by votes_per_token value defined in genesis file
-  // currently it is 10
-  votingPower: new BigNumber(votingPower).multipliedBy(10).toString(),
+  // TODO: get votes per token from Namada
+  votingPower: stake === null ? undefined : new BigNumber(stake).multipliedBy(1_000_000),
   homepageUrl: "http://namada.net",
-  commission: "TBD",
+  commission: new BigNumber(0), // TODO: implement commission
   description: "TBD",
 });
 
 const toMyValidators = (
   acc: MyValidators[],
-  [_, validator, stake]: [string, string, string]
+  [_, validator, stake, unbonded, withdrawable]: [string, string, string, string, string]
 ): MyValidators[] => {
   const index = acc.findIndex((myValidator) => myValidator.uuid === validator);
   const v = acc[index];
@@ -49,8 +50,14 @@ const toMyValidators = (
       ];
 
   const stakedAmount = new BigNumber(stake)
-    .plus(new BigNumber(v?.stakedAmount || 0))
-    .toString();
+    .plus(new BigNumber(v?.stakedAmount || 0));
+
+  const unbondedAmount =
+    (new BigNumber(unbonded)).plus(new BigNumber(v?.unbondedAmount || 0));
+
+  const withdrawableAmount =
+    (new BigNumber(withdrawable)).plus(new BigNumber(v?.withdrawableAmount || 0));
+
 
   return [
     ...sliceFn(acc, index),
@@ -58,26 +65,38 @@ const toMyValidators = (
       uuid: validator,
       stakingStatus: "Bonded",
       stakedAmount,
-      validator: toValidator([validator, stakedAmount]),
+      unbondedAmount,
+      withdrawableAmount,
+      validator: toValidator([validator, stakedAmount.toString()]),
     },
   ];
 };
 
-const toStakingPosition = ([owner, validator, stake]: [
-  string,
-  string,
-  string
-]): StakingPosition => ({
-  uuid: owner + validator,
-  stakingStatus: "Bonded",
-  stakedAmount: stake,
-  owner,
-  totalRewards: "TBD",
-  validatorId: validator,
-});
-// this retrieves the validators
-// this dispatches further actions that are depending on
-// validators data
+const toBond = ([owner, validator, amount, startEpoch]:
+  [string, string, string, string]): StakingPosition => {
+
+  return  {
+    uuid: owner + validator + startEpoch,
+    bonded: true,
+    stakedAmount: new BigNumber(amount),
+    owner,
+    validatorId: validator,
+    totalRewards: "TBD",
+  };
+}
+
+const toUnbond = ([owner, validator, amount, startEpoch, withdrawableEpoch]:
+  [string, string, string, string, string]): StakingPosition => {
+
+  const bond = toBond([owner, validator, amount, startEpoch]);
+
+  return {
+    ...bond,
+    bonded: false,
+    withdrawableEpoch: new BigNumber(withdrawableEpoch),
+  }
+}
+
 export const fetchValidators = createAsyncThunk<
   { allValidators: Validator[] },
   void,
@@ -87,9 +106,14 @@ export const fetchValidators = createAsyncThunk<
   const { rpc } = chains[chainId];
 
   const query = new Query(rpc);
-  const allValidators = (await query.query_all_validators()).map(toValidator);
+  const queryResult =
+    (await query.query_all_validators()) as [string, string | null][];
+  const allValidators = queryResult.map(toValidator);
 
   thunkApi.dispatch(fetchMyValidators(allValidators));
+  thunkApi.dispatch(fetchMyStakingPositions());
+  thunkApi.dispatch(fetchEpoch());
+
   return Promise.resolve({ allValidators });
 });
 
@@ -113,7 +137,7 @@ export const fetchValidatorDetails = createAsyncThunk<
 // TODO this or fetchMyStakingPositions is likely redundant based on
 // real data model stored in the chain, adjust when implementing the real data
 export const fetchMyValidators = createAsyncThunk<
-  { myValidators: MyValidators[]; myStakingPositions: StakingPosition[] },
+  { myValidators: MyValidators[] },
   Validator[],
   { state: RootState }
 >(FETCH_MY_VALIDATORS, async (_, thunkApi) => {
@@ -131,9 +155,8 @@ export const fetchMyValidators = createAsyncThunk<
     const myValidatorsRes = await query.query_my_validators(addresses);
 
     const myValidators = myValidatorsRes.reduce(toMyValidators, []);
-    const myStakingPositions = myValidatorsRes.map(toStakingPosition);
 
-    return Promise.resolve({ myValidators, myStakingPositions });
+    return Promise.resolve({ myValidators });
   } catch (error) {
     console.warn(`error: ${error}`);
     return Promise.reject({});
@@ -142,9 +165,47 @@ export const fetchMyValidators = createAsyncThunk<
 
 export const fetchMyStakingPositions = createAsyncThunk<
   { myStakingPositions: StakingPosition[] },
-  void
->(FETCH_MY_STAKING_POSITIONS, async () => {
-  return Promise.resolve({ myStakingPositions: myStakingData });
+  void,
+  { state: RootState }
+>(FETCH_MY_STAKING_POSITIONS, async (_, thunkApi) => {
+  try {
+    const { chainId } = thunkApi.getState().settings;
+    const { rpc } = chains[chainId];
+
+    const accounts: Account[] = Object.values(
+      thunkApi.getState().accounts.derived[chainId]
+    );
+    const addresses = accounts
+      .filter(({ details }) => !details.isShielded)
+      .map(({ details }) => details.address);
+    const query = new Query(rpc);
+
+    const [bonds, unbonds] = await query.query_staking_positions(addresses);
+
+    return Promise.resolve({
+      myStakingPositions: [
+        ...bonds.map(toBond),
+        ...unbonds.map(toUnbond),
+      ]
+    });
+  } catch (error) {
+    console.warn(`error: ${error}`);
+    return Promise.reject({});
+  }
+});
+
+export const fetchEpoch = createAsyncThunk<
+  { epoch: BigNumber },
+  void,
+  { state: RootState }
+>(FETCH_EPOCH, async (_, thunkApi) => {
+  const { chainId } = thunkApi.getState().settings;
+  const { rpc } = chains[chainId];
+
+  const query = new Query(rpc);
+  const epochString = await query.query_epoch();
+
+  return Promise.resolve({ epoch: new BigNumber(epochString) });
 });
 
 // we generate the new staking transaction
@@ -198,10 +259,32 @@ export const postNewUnbonding = createAsyncThunk<
   const { chainId } = thunkApi.getState().settings;
   const integration = getIntegration(chainId);
   const signer = integration.signer() as Signer;
+
   await signer.submitUnbond({
     source: change.owner,
     validator: change.validatorId,
-    amount: new BigNumber(change.amount),
+    amount: change.amount,
+    tx: {
+      token: Tokens.NAM.address || "",
+      feeAmount: new BigNumber(0),
+      gasLimit: new BigNumber(0),
+      chainId,
+    },
+  });
+});
+
+export const postNewWithdraw = createAsyncThunk<
+  void,
+  { owner: string, validatorId: string },
+  { state: RootState }
+>(POST_UNSTAKING, async ({ owner, validatorId }, thunkApi) => {
+  const { chainId } = thunkApi.getState().settings;
+  const integration = getIntegration(chainId);
+  const signer = integration.signer() as Signer;
+
+  await signer.submitWithdraw({
+    source: owner,
+    validator: validatorId,
     tx: {
       token: Tokens.NAM.address || "",
       feeAmount: new BigNumber(0),

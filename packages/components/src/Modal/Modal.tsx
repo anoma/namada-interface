@@ -1,4 +1,6 @@
 import { default as ReactModal } from "react-modal";
+import { ThemeProvider } from "styled-components";
+import { loadColorMode, getTheme } from "@namada/utils";
 import {
   ModalContainer,
   ModalContent,
@@ -14,6 +16,9 @@ type Props = {
 
 export const Modal = (props: Props): JSX.Element => {
   const { children, isOpen, title, onBackdropClick } = props;
+
+  const theme = getTheme(loadColorMode());
+
   return (
     <ReactModal
       shouldCloseOnOverlayClick={onBackdropClick !== undefined}
@@ -39,17 +44,20 @@ export const Modal = (props: Props): JSX.Element => {
           width: "80%",
           maxWidth: "640px",
           height: "80%",
+          padding: 0,
         },
       }}
       isOpen={isOpen}
       ariaHideApp={false}
     >
-      <ModalContainer>
-        <ModalHeader>
-          <ModalTitle>{title}</ModalTitle>
-        </ModalHeader>
-        <ModalContent>{children}</ModalContent>
-      </ModalContainer>
+      <ThemeProvider theme={theme}>
+        <ModalContainer>
+          <ModalHeader>
+            <ModalTitle>{title}</ModalTitle>
+          </ModalHeader>
+          <ModalContent>{children}</ModalContent>
+        </ModalContainer>
+      </ThemeProvider>
     </ReactModal>
   );
 };

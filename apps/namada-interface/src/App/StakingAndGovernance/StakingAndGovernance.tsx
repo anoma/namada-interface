@@ -45,7 +45,7 @@ export const StakingAndGovernance = (): JSX.Element => {
   const [_integration, _status, withConnection] =
     useIntegrationConnection(chainId);
 
-  const { validators, myValidators, selectedValidatorId, myStakingPositions } =
+  const { validators, selectedValidatorId, myStakingPositions } =
     stakingAndGovernance;
 
   // we need one of the sub routes, staking alone has nothing
@@ -97,7 +97,6 @@ export const StakingAndGovernance = (): JSX.Element => {
             <Staking
               accounts={accounts}
               validators={validators}
-              myValidators={myValidators}
               myStakingPositions={myStakingPositions}
               selectedValidatorId={selectedValidatorId}
               onInitCallback={onStakingComponentInitCallback}

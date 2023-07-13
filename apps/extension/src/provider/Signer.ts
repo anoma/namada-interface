@@ -14,6 +14,7 @@ import {
   SubmitBondProps,
   SubmitBondMsgValue,
   SubmitUnbondMsgValue,
+  SubmitWithdrawMsgValue,
 } from "@namada/types";
 
 export class Signer implements ISigner {
@@ -64,6 +65,18 @@ export class Signer implements ISigner {
     const encoded = msg.encode(msgValue);
 
     return await this._namada.submitUnbond(toBase64(encoded));
+  }
+
+  /**
+   * Submit withdraw transaction
+   */
+  public async submitWithdraw(args: SubmitBondProps): Promise<void> {
+    const msgValue = new SubmitWithdrawMsgValue(args);
+
+    const msg = new Message<SubmitWithdrawMsgValue>();
+    const encoded = msg.encode(msgValue);
+
+    return await this._namada.submitWithdraw(toBase64(encoded));
   }
 
   /**

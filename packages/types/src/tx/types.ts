@@ -15,6 +15,12 @@ export type SubmitUnbondProps = {
   tx: TxProps;
 };
 
+export type SubmitWithdrawProps = {
+  validator: string;
+  source: string;
+  tx: TxProps;
+};
+
 export type TxProps = {
   token: string;
   feeAmount: BigNumber;

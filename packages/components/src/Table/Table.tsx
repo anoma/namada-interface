@@ -6,6 +6,7 @@ export type Props<RowType extends RowBase, Callbacks> = {
   data: RowType[];
   tableConfigurations: TableConfigurations<RowType, Callbacks>;
   className?: string;
+  subheadingSlot?: JSX.Element;
 };
 
 const getRenderedHeaderRow = (
@@ -22,6 +23,7 @@ const getRenderedHeaderRow = (
       <th
         key={`header_${columnDefinition.uuid}`}
         style={{ textAlign: "left", width: `${columnDefinition.width}` }}
+        onClick={columnDefinition.onClick}
       >
         {columnDefinition.columnLabel}
       </th>
@@ -54,7 +56,7 @@ const getRenderedDataRows = <RowType extends RowBase, Callbacks>(
 export const Table = <RowType extends RowBase, Callbacks>(
   props: Props<RowType, Callbacks>
 ): JSX.Element => {
-  const { data, tableConfigurations, title, className } = props;
+  const { data, tableConfigurations, title, className, subheadingSlot } = props;
   const { columns, rowRenderer, callbacks } =
     tableConfigurations && tableConfigurations;
 
@@ -69,6 +71,7 @@ export const Table = <RowType extends RowBase, Callbacks>(
   return (
     <TableContainer className={className}>
       <h3>{title}</h3>
+      {subheadingSlot}
       <TableElement style={{ borderCollapse: "collapse" }}>
         <tbody>{renderedRows}</tbody>
       </TableElement>

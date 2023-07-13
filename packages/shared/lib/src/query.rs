@@ -54,7 +54,7 @@ impl Query {
             .validator_addresses(&self.client, &None)
             .await?;
 
-        let mut result: Vec<(Address, token::Amount)> = Vec::new();
+        let mut result: Vec<(Address, Option<String>)> = Vec::new();
 
         for address in validator_addresses.into_iter() {
             let total_bonds = RPC
@@ -63,7 +63,7 @@ impl Query {
                 .validator_stake(&self.client, &address, &None)
                 .await?;
 
-            result.push((address, total_bonds.unwrap_or(token::Amount::zero())));
+            result.push((address, total_bonds.map(|amount| amount.to_string_native())));
         }
 
         to_js_result(result)
@@ -104,19 +104,28 @@ impl Query {
             validators_per_address.insert(address, validators);
         }
 
-        //TODO: Change to Vec of structs
-        //Owner, Validator, Amount
-        let mut result: Vec<(Address, Address, token::Amount)> = Vec::new();
+        let mut result: Vec<(Address, Address, String, String, String)> =
+          Vec::new();
 
+        let epoch = namada::ledger::rpc::query_epoch(&self.client).await;
         for (owner, validators) in validators_per_address.into_iter() {
             for validator in validators.into_iter() {
-                let total_bonds = RPC
+                let owner_option = &Some(owner.clone());
+                let validator_option = &Some(validator.clone());
+
+                let enriched = RPC
                     .vp()
                     .pos()
-                    .bond(&self.client, &owner, &validator, &None)
+                    .enriched_bonds_and_unbonds(&self.client, epoch, owner_option, validator_option)
                     .await?;
 
-                result.push((owner.clone(), validator, total_bonds));
+                result.push((
+                    owner.clone(),
+                    validator,
+                    enriched.bonds_total.to_string_native(),
+                    enriched.unbonds_total.to_string_native(),
+                    enriched.total_withdrawable.to_string_native(),
+                ));
             }
         }
 
@@ -137,6 +146,70 @@ impl Query {
             });
 
         result
+    }
+
+    pub async fn query_staking_positions(
+        &self,
+        owner_addresses: Box<[JsValue]>,
+    ) -> Result<JsValue, JsError> {
+        let owner_addresses: Vec<Address> = owner_addresses
+            .into_iter()
+            .filter_map(|address| address.as_string())
+            .filter_map(|address| Address::from_str(&address).ok())
+            .collect();
+
+        let mut validators_per_address: HashMap<Address, HashSet<Address>> = HashMap::new();
+
+        for address in owner_addresses.into_iter() {
+            let validators = RPC
+                .vp()
+                .pos()
+                .delegation_validators(&self.client, &address)
+                .await?;
+
+            validators_per_address.insert(address, validators);
+        }
+
+        let mut bonds = vec![];
+        let mut unbonds = vec![];
+
+        let epoch = namada::ledger::rpc::query_epoch(&self.client).await;
+        for (owner, validators) in validators_per_address.into_iter() {
+            for validator in validators.into_iter() {
+                let owner_option = &Some(owner.clone());
+                let validator_option = &Some(validator.clone());
+
+                let enriched = RPC
+                    .vp()
+                    .pos()
+                    .enriched_bonds_and_unbonds(&self.client, epoch, owner_option, validator_option)
+                    .await?;
+
+                for (bond_id, details) in &enriched.data {
+                    for bond in &details.data.bonds {
+                        bonds.push((
+                            bond_id.source.clone(),
+                            bond_id.validator.clone(),
+                            bond.amount.to_string_native(),
+                            bond.start.to_string(),
+                        ));
+                    }
+
+                    for unbond in &details.data.unbonds {
+                        unbonds.push((
+                            bond_id.source.clone(),
+                            bond_id.validator.clone(),
+                            unbond.amount.to_string_native(),
+                            unbond.start.to_string(),
+                            unbond.withdraw.to_string(),
+                        ));
+                    }
+
+                }
+            }
+        }
+
+        to_js_result((bonds, unbonds))
     }
 
     /// Queries transparent balance for a given address

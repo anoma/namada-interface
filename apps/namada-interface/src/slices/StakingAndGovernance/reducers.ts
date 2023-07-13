@@ -4,6 +4,7 @@ import {
   fetchValidators,
   fetchMyValidators,
   fetchMyStakingPositions,
+  fetchEpoch,
   postNewBonding,
   postNewUnbonding,
 } from "./actions";
@@ -15,9 +16,10 @@ import {
 
 const initialState: StakingAndGovernanceState = {
   validators: [],
-  myValidators: [],
+  myValidators: undefined,
   myStakingPositions: [],
   stakingOrUnstakingState: StakingOrUnstakingState.Idle,
+  epoch: undefined,
 };
 
 export const stakingAndGovernanceSlice = createSlice({
@@ -37,7 +39,6 @@ export const stakingAndGovernanceSlice = createSlice({
       .addCase(fetchMyValidators.fulfilled, (state, action) => {
         // stop the loader
         state.myValidators = action.payload.myValidators;
-        state.myStakingPositions = action.payload.myStakingPositions;
       })
       .addCase(fetchMyValidators.rejected, (state, _action) => {
         // stop the loader
@@ -54,6 +55,9 @@ export const stakingAndGovernanceSlice = createSlice({
       .addCase(fetchMyStakingPositions.fulfilled, (state, action) => {
         // stop the loader
         state.myStakingPositions = action.payload?.myStakingPositions;
+      })
+      .addCase(fetchEpoch.fulfilled, (state, action) => {
+        state.epoch = action.payload.epoch;
       })
       .addCase(postNewBonding.pending, (state, _action) => {
         // stop the loader

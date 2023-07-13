@@ -1,7 +1,10 @@
+import BigNumber from "bignumber.js";
+
 export const STAKING_AND_GOVERNANCE = "stakingAndGovernance";
 export const FETCH_VALIDATORS = `${STAKING_AND_GOVERNANCE}/FETCH_VALIDATORS`;
 export const FETCH_MY_VALIDATORS = `${STAKING_AND_GOVERNANCE}/FETCH_MY_VALIDATORS`;
 export const FETCH_MY_STAKING_POSITIONS = `${STAKING_AND_GOVERNANCE}/FETCH_MY_STAKING_POSITIONS`;
+export const FETCH_EPOCH = `${STAKING_AND_GOVERNANCE}/FETCH_EPOCH`;
 export const FETCH_VALIDATOR_DETAILS = `${STAKING_AND_GOVERNANCE}/FETCH_VALIDATOR_DETAILS`;
 export const POST_NEW_STAKING = `${STAKING_AND_GOVERNANCE}/POST_NEW_STAKING`;
 export const POST_UNSTAKING = `${STAKING_AND_GOVERNANCE}/POST_UNSTAKING`;
@@ -21,16 +24,17 @@ type Unique = {
 // represents the details of a validator
 export type Validator = Unique & {
   name: string;
-  votingPower: string;
+  votingPower?: BigNumber;
   homepageUrl: string;
-  commission: string;
+  commission: BigNumber;
   description: string;
 };
 
 // represents users staking position
 export type StakingPosition = Unique & {
-  stakingStatus: string;
-  stakedAmount: string;
+  bonded: boolean;
+  withdrawableEpoch?: BigNumber;
+  stakedAmount: BigNumber;
   owner: string;
   totalRewards: string;
   validatorId: ValidatorId;
@@ -39,7 +43,9 @@ export type StakingPosition = Unique & {
 // represents users staking position combined with the validator
 export type MyValidators = Unique & {
   stakingStatus: string;
-  stakedAmount: string;
+  stakedAmount?: BigNumber;
+  unbondedAmount?: BigNumber;
+  withdrawableAmount?: BigNumber;
   validator: Validator;
 };
 
@@ -63,18 +69,17 @@ export enum StakingOrUnstakingState {
 }
 
 // this represents a change in staking position
-// if positive, we are posting new bonding
-// negative, we are decreasing it
 export type ChangeInStakingPosition = {
   validatorId: ValidatorId;
   owner: string;
-  amount: string;
+  amount: BigNumber;
 };
 
 export type StakingAndGovernanceState = {
   validators: Validator[];
-  myValidators: MyValidators[];
+  myValidators?: MyValidators[];
   myStakingPositions: StakingPosition[];
   selectedValidatorId?: ValidatorId;
   stakingOrUnstakingState: StakingOrUnstakingState;
+  epoch?: BigNumber;
 };

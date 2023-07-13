@@ -4,6 +4,7 @@ export {
   fetchValidatorDetails,
   postNewBonding,
   postNewUnbonding,
+  postNewWithdraw,
 } from "./actions";
 export { reducer as stakingAndGovernanceReducers } from "./reducers";
 export type {

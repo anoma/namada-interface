@@ -1,0 +1,1 @@
+export { MyValidatorsTable } from "./MyValidatorsTable";

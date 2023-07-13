@@ -10,6 +10,7 @@ import {
   ApproveTransferMsg,
   ApproveBondMsg,
   ApproveUnbondMsg,
+  ApproveWithdrawMsg,
   ConnectInterfaceMsg,
   GetChainMsg,
   GetChainsMsg,
@@ -104,6 +105,13 @@ export class Namada implements INamada {
     return await this.requester?.sendMessage(
       Ports.Background,
       new ApproveUnbondMsg(txMsg)
+    );
+  }
+
+  public async submitWithdraw(txMsg: string): Promise<void> {
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new ApproveWithdrawMsg(txMsg)
     );
   }
 

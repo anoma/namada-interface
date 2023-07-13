@@ -2,6 +2,7 @@ export type ColumnDefinition = {
   uuid: string;
   columnLabel: string;
   width: string;
+  onClick?: () => void;
 };
 
 export type TableConfigurations<RowType, Callbacks> = {

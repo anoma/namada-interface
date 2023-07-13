@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
+import BigNumber from "bignumber.js";
 
 import { truncateInMiddle } from "@namada/utils";
 import { Modal } from "@namada/components";
@@ -11,7 +12,6 @@ import { ValidatorDetails } from "./ValidatorDetails";
 import { TopLevelRoute, StakingAndGovernanceSubRoute } from "App/types";
 import {
   Validator,
-  MyValidators,
   StakingPosition,
   ChangeInStakingPosition,
 } from "slices/StakingAndGovernance";
@@ -52,8 +52,8 @@ const validatorNameFromUrl = (path: string): string | undefined => {
 
 const emptyStakingPosition = (validatorId: string): StakingPosition => ({
   uuid: validatorId,
-  stakingStatus: "",
-  stakedAmount: "",
+  bonded: true,
+  stakedAmount: new BigNumber(0),
   owner: "",
   totalRewards: "",
   validatorId: validatorId,
@@ -62,7 +62,6 @@ const emptyStakingPosition = (validatorId: string): StakingPosition => ({
 type Props = {
   accounts: Account[];
   validators: Validator[];
-  myValidators: MyValidators[];
   myStakingPositions: StakingPosition[];
   selectedValidatorId: string | undefined;
   // will be called at first load, parent decides what happens
@@ -106,7 +105,6 @@ export const Staking = (props: Props): JSX.Element => {
     postNewBonding,
     postNewUnbonding,
     validators,
-    myValidators,
     myStakingPositions,
     selectedValidatorId,
   } = props;
@@ -228,9 +226,6 @@ export const Staking = (props: Props): JSX.Element => {
           element={
             <StakingOverview
               navigateToValidatorDetails={navigateToValidatorDetails}
-              myValidators={myValidators}
-              validators={validators}
-              accounts={accounts}
             />
           }
         />

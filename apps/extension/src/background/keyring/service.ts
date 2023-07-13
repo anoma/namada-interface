@@ -207,6 +207,15 @@ export class KeyRingService {
     }
   }
 
+  async submitWithdraw(txMsg: string): Promise<void> {
+    try {
+      await this._keyRing.submitWithdraw(fromBase64(txMsg));
+    } catch (e) {
+      console.warn(e);
+      throw new Error(`Unable to submit withdraw tx! ${e}`);
+    }
+  }
+
   private async submitTransferChrome(
     txMsg: string,
     msgId: string,

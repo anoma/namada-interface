@@ -1,4 +1,5 @@
 import { useState } from "react";
+import BigNumber from "bignumber.js";
 
 import {
   Button,
@@ -74,7 +75,7 @@ export const UnbondPosition = (props: Props): JSX.Element => {
     (pos) => pos.owner === owner
   );
 
-  const stakedAmount = Number(currentBondingPosition?.stakedAmount || "0");
+  const stakedAmount = new BigNumber(currentBondingPosition?.stakedAmount || "0");
 
   // storing the bonding amount input value locally here as string
   // we threat them as strings except below in validation
@@ -95,14 +96,14 @@ export const UnbondPosition = (props: Props): JSX.Element => {
   // unbonding amount and displayed value with a very naive validation
   // TODO (https://github.com/anoma/namada-interface/issues/4#issuecomment-1260564499)
   // do proper validation as part of input
-  const amountToUnstakeAsNumber = Number(amountToBondOrUnbond);
-  const remainsBonded = stakedAmount - amountToUnstakeAsNumber;
+  const amountToUnstakeAsNumber = new BigNumber(amountToBondOrUnbond);
+  const remainsBonded = stakedAmount.minus(amountToUnstakeAsNumber);
 
   // if the input value is incorrect we display an error
   const isEntryIncorrect =
-    (amountToBondOrUnbond !== "" && amountToUnstakeAsNumber <= 0) ||
-    remainsBonded < 0 ||
-    Number.isNaN(amountToUnstakeAsNumber);
+    (amountToBondOrUnbond !== "" && amountToUnstakeAsNumber.isLessThanOrEqualTo(0)) ||
+    remainsBonded.isLessThan(0) ||
+    amountToUnstakeAsNumber.isNaN();
 
   // if the input value is incorrect or empty we disable the confirm button
   const isEntryIncorrectOrEmpty =
@@ -112,10 +113,6 @@ export const UnbondPosition = (props: Props): JSX.Element => {
   const remainsBondedToDisplay = isEntryIncorrect
     ? `The unbonding amount can be more than 0 and at most ${stakedAmount}`
     : `${remainsBonded}`;
-
-  // This is the value that we pass to be dispatch to the action
-  const delta = amountToUnstakeAsNumber * -1;
-  const deltaAsString = `${delta}`;
 
   // data for the summary table
   const unbondingSummary = [
@@ -151,7 +148,7 @@ export const UnbondPosition = (props: Props): JSX.Element => {
         variant={ButtonVariant.Contained}
         onClick={() => {
           const changeInStakingPosition: ChangeInStakingPosition = {
-            amount: deltaAsString,
+            amount: amountToUnstakeAsNumber,
             owner: owner as string,
             validatorId: currentBondingPositions[0].validatorId,
           };

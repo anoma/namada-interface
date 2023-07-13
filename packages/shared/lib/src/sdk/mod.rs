@@ -397,6 +397,23 @@ impl Sdk {
 
         Ok(())
     }
+
+    pub async fn submit_withdraw(
+        &mut self,
+        tx_msg: &[u8],
+        password: Option<String>,
+    ) -> Result<(), JsError> {
+        let args = tx::withdraw_tx_args(tx_msg, password)?;
+
+        let (tx, _, pk) =
+            namada::ledger::tx::build_withdraw(&mut self.client, &mut self.wallet, args.clone())
+                .await
+                .map_err(JsError::from)?;
+
+        self.sign_and_process_tx(args.tx, tx, pk).await?;
+
+        Ok(())
+    }
 }
 
 #[wasm_bindgen(module = "/src/sdk/mod.js")]

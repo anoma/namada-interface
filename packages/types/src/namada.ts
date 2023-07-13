@@ -17,6 +17,7 @@ export interface Namada {
     publicKey?: string;
   }) => Promise<void>;
   submitUnbond: (txMsg: string) => Promise<void>;
+  submitWithdraw: (txMsg: string) => Promise<void>;
   submitTransfer: (props: {
     txMsg: string;
     type: AccountType;

@@ -4,6 +4,7 @@ import {
   InitAccountProps,
   SubmitBondProps,
   SubmitUnbondProps,
+  SubmitWithdrawProps,
   TransferProps,
 } from "./tx";
 
@@ -15,6 +16,7 @@ export interface Signer {
     publicKey?: string
   ): Promise<void>;
   submitUnbond(args: SubmitUnbondProps): Promise<void>;
+  submitWithdraw(args: SubmitWithdrawProps): Promise<void>;
   submitTransfer(args: TransferProps, type: AccountType): Promise<void>;
   submitIbcTransfer(args: IbcTransferProps): Promise<void>;
   encodeInitAccount(

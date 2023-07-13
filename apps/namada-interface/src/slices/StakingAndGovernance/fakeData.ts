@@ -1,3 +1,5 @@
+import BigNumber from "bignumber.js";
+
 import { Validator, StakingPosition, MyBalanceEntry } from "./types";
 export const myBalancesData: MyBalanceEntry[] = [
   {
@@ -29,24 +31,24 @@ export const myBalancesData: MyBalanceEntry[] = [
 export const myStakingData: StakingPosition[] = [
   {
     uuid: "1",
-    stakingStatus: "Bonded",
-    stakedAmount: "10.00",
+    bonded: true,
+    stakedAmount: new BigNumber(10_000_000),
     owner: "some-owner",
     totalRewards: "0.55",
     validatorId: "polychain-capital",
   },
   {
     uuid: "2",
-    stakingStatus: "Bonded Pending",
-    stakedAmount: "3.00",
+    bonded: true,
+    stakedAmount: new BigNumber(3_000_000),
     owner: "some-owner",
     totalRewards: "0.15",
     validatorId: "coinbase-custody",
   },
   {
     uuid: "3",
-    stakingStatus: "Unboding (22 days left)",
-    stakedAmount: "20.00",
+    bonded: true,
+    stakedAmount: new BigNumber(20_000_000),
     owner: "some-owner",
     totalRewards: "1.05",
     validatorId: "kraken",
@@ -58,8 +60,8 @@ export const allValidatorsData: Validator[] = [
     uuid: "polychain-capital",
     name: "Polychain capital",
     homepageUrl: "https://polychain.capital",
-    votingPower: "NAM 100 000",
-    commission: "22%",
+    votingPower: new BigNumber(100_000),
+    commission: new BigNumber(0.22),
     description:
       "Polychain is an investment firm committed to exceptional returns for investors through actively managed portfolios of blockchain assets.",
   },
@@ -67,8 +69,8 @@ export const allValidatorsData: Validator[] = [
     uuid: "figment",
     name: "Figment",
     homepageUrl: "https://figment.io",
-    votingPower: "NAM 100 000",
-    commission: "20%",
+    votingPower: new BigNumber(100_000),
+    commission: new BigNumber(0.20),
     description:
       "Makers of Hubble and Canada’s largest Cosmos validator, Figment is the easiest and most secure way to stake your Atoms.",
   },
@@ -76,8 +78,8 @@ export const allValidatorsData: Validator[] = [
     uuid: "p2p",
     name: "P2P",
     homepageUrl: "https://p2p.org",
-    votingPower: "NAM 100 000",
-    commission: "20%",
+    votingPower: new BigNumber(100_000),
+    commission: new BigNumber(0.20),
     description:
       "One of the winners of Cosmos Game of Stakes. We provide a simple, secure and intelligent staking service to help you generate rewards on your blockchain assets across 9+ networks within a single interface. Let’s stake together - p2p.org.",
   },
@@ -85,16 +87,16 @@ export const allValidatorsData: Validator[] = [
     uuid: "coinbase-custody",
     name: "Coinbase Custody",
     homepageUrl: "https://custody.coinbase.com",
-    votingPower: "NAM 100 000",
-    commission: "20%",
+    votingPower: new BigNumber(100_000),
+    commission: new BigNumber(0.20),
     description: "Coinbase Custody Cosmos Validator",
   },
   {
     uuid: "chorus-one",
     name: "Chorus One",
     homepageUrl: "https://chorus.one",
-    votingPower: "NAM 100 000",
-    commission: "20%",
+    votingPower: new BigNumber(100_000),
+    commission: new BigNumber(0.20),
     description:
       "Secure Cosmos and shape its future by delegating to Chorus One, a highly secure and stable validator. By delegating, you agree to the terms of service at: https://chorus.one/cosmos/tos",
   },
@@ -102,16 +104,16 @@ export const allValidatorsData: Validator[] = [
     uuid: "binance-staking",
     name: "Binance Staking",
     homepageUrl: "https://binance.com",
-    votingPower: "NAM 100 000",
-    commission: "20%",
+    votingPower: new BigNumber(100_000),
+    commission: new BigNumber(0.20),
     description: "Exchange the world",
   },
   {
     uuid: "dokiacapital",
     name: "DokiaCapital",
     homepageUrl: "https://staking.dokia.cloud",
-    votingPower: "NAM 100 000",
-    commission: "20%",
+    votingPower: new BigNumber(100_000),
+    commission: new BigNumber(0.20),
     description:
       "Downtime is not an option for Dokia Capital. We operate an enterprise-grade infrastructure that is robust and secure.",
   },
@@ -119,16 +121,16 @@ export const allValidatorsData: Validator[] = [
     uuid: "kraken",
     name: "Kraken",
     homepageUrl: "https://kraken.com",
-    votingPower: "NAM 100 000",
-    commission: "20%",
+    votingPower: new BigNumber(100_000),
+    commission: new BigNumber(0.20),
     description: "Kraken Exchange validator",
   },
   {
     uuid: "zero-knowledge-validator-(ZKV)",
     name: "Zero Knowledge Validator (ZKV)",
     homepageUrl: "https://zkvalidator.com",
-    votingPower: "NAM 100 000",
-    commission: "20%",
+    votingPower: new BigNumber(100_000),
+    commission: new BigNumber(0.20),
     description:
       "Zero Knowledge Validator: Stake & Support ZKP Research & Privacy Tech",
   },
@@ -136,8 +138,8 @@ export const allValidatorsData: Validator[] = [
     uuid: "paradigm",
     name: "Paradigm",
     homepageUrl: "https://www.paradigm.xyz",
-    votingPower: "NAM 100 000",
-    commission: "20%",
+    votingPower: new BigNumber(100_000),
+    commission: new BigNumber(0.20),
     description: "",
   },
 ];

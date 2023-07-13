@@ -10,7 +10,7 @@ use namada::{
         key::common::PublicKey as PK,
         key::ed25519::PublicKey,
         masp::{ExtendedSpendingKey, PaymentAddress, TransferSource, TransferTarget},
-        token::{Amount, DenominatedAmount},
+        token::{Amount, DenominatedAmount, NATIVE_MAX_DECIMAL_PLACES},
         transaction::GasLimit,
     },
 };
@@ -88,9 +88,7 @@ pub fn bond_tx_args(tx_msg: &[u8], password: Option<String>) -> Result<args::Bon
     let source = Address::from_str(&source)?;
     let native_token = Address::from_str(&native_token)?;
     let validator = Address::from_str(&validator)?;
-    let amount: Amount = DenominatedAmount::from_str(&amount)
-        .expect(format!("Amount has to be valid. Received {}", amount).as_str())
-        .into();
+    let amount = Amount::from_str(&amount, NATIVE_MAX_DECIMAL_PLACES)?;
 
     let args = args::Bond {
         tx: tx_msg_into_args(tx, password)?,
@@ -145,6 +143,46 @@ pub fn unbond_tx_args(tx_msg: &[u8], password: Option<String>) -> Result<args::U
         amount,
         source: Some(source),
         tx_code_path: PathBuf::from("tx_unbond.wasm"),
+    };
+
+    Ok(args)
+}
+
+#[derive(BorshSerialize, BorshDeserialize)]
+pub struct SubmitWithdrawMsg {
+    source: String,
+    validator: String,
+    tx: TxMsg,
+}
+
+/// Maps serialized tx_msg into WithdrawTx args.
+///
+/// # Arguments
+///
+/// * `tx_msg` - Borsh serialized tx_msg.
+/// * `password` - Password used for storage decryption.
+///
+/// # Errors
+///
+/// Returns JsError if the tx_msg can't be deserialized or
+/// Rust structs can't be created.
+pub fn withdraw_tx_args(tx_msg: &[u8], password: Option<String>) -> Result<args::Withdraw, JsError> {
+    let tx_msg = SubmitWithdrawMsg::try_from_slice(tx_msg)?;
+
+    let SubmitWithdrawMsg {
+        source,
+        validator,
+        tx,
+    } = tx_msg;
+
+    let source = Address::from_str(&source)?;
+    let validator = Address::from_str(&validator)?;
+
+    let args = args::Withdraw {
+        tx: tx_msg_into_args(tx, password)?,
+        validator,
+        source: Some(source),
+        tx_code_path: PathBuf::from("tx_withdraw.wasm"),
     };
 
     Ok(args)

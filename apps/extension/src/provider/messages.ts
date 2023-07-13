@@ -19,6 +19,7 @@ enum MessageType {
   ApproveTransfer = "approve-transfer",
   ApproveBond = "approve-bond",
   ApproveUnbond = "approve-unbond",
+  ApproveWithdraw = "approve-withdraw",
   QueryBalances = "query-balances",
   SubmitIbcTransfer = "submit-ibc-transfer",
   SubmitLedgerTransfer = "submit-ledger-transfer",
@@ -334,6 +335,31 @@ export class ApproveUnbondMsg extends Message<void> {
   validate(): void {
     if (!this.txMsg) {
       throw new Error("txMsg was not provided!");
+    }
+    return;
+  }
+
+  route(): string {
+    return Route.Approvals;
+  }
+
+  type(): string {
+    return ApproveUnbondMsg.type();
+  }
+}
+
+export class ApproveWithdrawMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.ApproveWithdraw;
+  }
+
+  constructor(public readonly txMsg: string) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.txMsg) {
+      throw new Error("An encoded txMsg is required!");
     }
     return;
   }

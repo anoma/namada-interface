@@ -166,7 +166,7 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
         variant={ButtonVariant.Contained}
         onClick={() => {
           const changeInStakingPosition: ChangeInStakingPosition = {
-            amount: amountToBond,
+            amount: amountToBondNumber,
             owner: currentAddress,
             validatorId: currentBondingPositions[0].validatorId,
           };
