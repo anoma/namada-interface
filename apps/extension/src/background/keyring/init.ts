@@ -5,6 +5,7 @@ import {
   LockKeyRingMsg,
   UnlockKeyRingMsg,
   CheckPasswordMsg,
+  CheckIsPublicKeyRevealedMsg,
   ResetPasswordMsg,
   GenerateMnemonicMsg,
   SaveMnemonicMsg,
@@ -34,6 +35,7 @@ import { KeyRingService } from "./service";
 export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(CheckIsLockedMsg);
   router.registerMessage(CheckPasswordMsg);
+  router.registerMessage(CheckIsPublicKeyRevealedMsg);
   router.registerMessage(CloseOffscreenDocumentMsg);
   router.registerMessage(ConnectInterfaceMsg);
   router.registerMessage(DeriveAccountMsg);

@@ -13,6 +13,7 @@ import { Result } from "@anoma/utils";
 enum MessageType {
   CheckIsLocked = "check-is-locked",
   CheckPassword = "check-password",
+  CheckIsPublicKeyRevealed = "check-is-public-key-revealed",
   CloseOffscreenDocument = "close-offscreen-document",
   DeriveAccount = "derive-account",
   DeriveShieldedAccount = "derive-shielded-account",
@@ -119,6 +120,30 @@ export class CheckPasswordMsg extends Message<boolean> {
 
   type(): string {
     return CheckPasswordMsg.type();
+  }
+}
+
+export class CheckIsPublicKeyRevealedMsg extends Message<boolean> {
+  public static type(): MessageType {
+    return MessageType.CheckIsPublicKeyRevealed;
+  }
+
+  constructor(public readonly address: string) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.address) {
+      throw new Error("address not set");
+    }
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return CheckIsPublicKeyRevealedMsg.type();
   }
 }
 

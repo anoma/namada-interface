@@ -3,6 +3,7 @@ import { KeyRingService } from "./service";
 import {
   CheckIsLockedMsg,
   CheckPasswordMsg,
+  CheckIsPublicKeyRevealedMsg,
   CloseOffscreenDocumentMsg,
   ResetPasswordMsg,
   DeriveAccountMsg,
@@ -44,6 +45,12 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleUnlockKeyRingMsg(service)(env, msg as UnlockKeyRingMsg);
       case CheckPasswordMsg:
         return handleCheckPasswordMsg(service)(env, msg as CheckPasswordMsg);
+      case CheckIsPublicKeyRevealedMsg:
+        return handleCheckIsPublicKeyRevealedMsg(service)(
+          env,
+          msg as CheckIsPublicKeyRevealedMsg
+        );
+
       case ResetPasswordMsg:
         return handleResetPasswordMsg(service)(env, msg as ResetPasswordMsg);
       case GenerateMnemonicMsg:
@@ -153,6 +160,15 @@ const handleCheckPasswordMsg: (
 ) => InternalHandler<CheckPasswordMsg> = (service) => {
   return async (_, msg) => {
     return await service.checkPassword(msg.password);
+  };
+};
+
+const handleCheckIsPublicKeyRevealedMsg: (
+  service: KeyRingService
+) => InternalHandler<CheckIsPublicKeyRevealedMsg> = (service) => {
+  return async (_, msg) => {
+    const { address } = msg;
+    return await service.checkIsPublicKeyRevealed(address);
   };
 };
 
