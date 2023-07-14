@@ -22,8 +22,8 @@ import {
   ButtonContainer,
 } from "Approvals/Approvals.components";
 import { InfoHeader, InfoLoader } from "Approvals/Approvals.components";
-import { Message, Tokens, TxProps } from "@anoma/types";
-import { SubmitTxMsgSchema, TxMsgValue } from "@anoma/types/src/tx/schema/tx";
+import { Message, RevealPKProps, Tokens, TxProps } from "@anoma/types";
+import { SubmitRevealPKMsgSchema, RevealPKMsgValue } from "@anoma/types";
 import { QueryPublicKeyMsg } from "background/keyring";
 
 type Props = {
@@ -43,38 +43,46 @@ export const ConfirmLedgerBond: React.FC<Props> = ({
   const [statusInfo, setStatusInfo] = useState("");
 
   const revealPk = async (ledger: Ledger, publicKey: string): Promise<void> => {
-    const txArgs: TxProps = {
-      token: Tokens.NAM.address || "",
-      feeAmount: new BigNumber(0),
-      gasLimit: new BigNumber(0),
-      chainId,
+    const revealPKArgs: RevealPKProps = {
+      tx: {
+        token: Tokens.NAM.address || "",
+        feeAmount: new BigNumber(0),
+        gasLimit: new BigNumber(0),
+        chainId,
+        publicKey,
+      },
       publicKey,
     };
 
-    const txValue = new TxMsgValue(txArgs);
-    const txMsg = new Message<TxMsgValue>();
-    const serializedTx = txMsg.encode(SubmitTxMsgSchema, txValue);
+    const revealTxValue = new RevealPKMsgValue(revealPKArgs);
+    const txMsg = new Message<RevealPKMsgValue>();
+    const serializedTx = txMsg.encode(SubmitRevealPKMsgSchema, revealTxValue);
 
-    const { bytes, path } = await requester.sendMessage(
-      Ports.Background,
-      new GetRevealPKBytesMsg(toBase64(serializedTx))
-    );
+    try {
+      const { bytes, path } = await requester.sendMessage(
+        Ports.Background,
+        new GetRevealPKBytesMsg(toBase64(serializedTx))
+      );
 
-    // Sign with Ledger
-    const signatures = await ledger.sign(bytes, path);
-    const { errorMessage, returnCode } = signatures;
+      // Sign with Ledger
+      const signatures = await ledger.sign(bytes, path);
+      const { errorMessage, returnCode } = signatures;
 
-    if (returnCode !== LedgerError.NoErrors) {
-      setError(errorMessage);
-      return setStatus(Status.Failed);
+      if (returnCode !== LedgerError.NoErrors) {
+        setError(errorMessage);
+        return setStatus(Status.Failed);
+      }
+
+      // Submit signatures for tx
+      setStatusInfo("Submitting reveal pk tx...");
+      await requester.sendMessage(
+        Ports.Background,
+        new SubmitSignedRevealPKMsg(msgId, toBase64(bytes), signatures)
+      );
+    } catch (e) {
+      console.warn(e);
+      throw new Error(`${e}`);
     }
-
-    // Submit signatures for tx
-    setStatusInfo("Submitting reveal pk tx...");
-    await requester.sendMessage(
-      Ports.Background,
-      new SubmitSignedRevealPKMsg(msgId, toBase64(bytes), signatures)
-    );
   };
 
   const queryPublicKey = async (
@@ -90,16 +98,16 @@ export const ConfirmLedgerBond: React.FC<Props> = ({
     setStatus(Status.Pending);
     const ledger = await Ledger.init();
 
-    const pk = await queryPublicKey(address);
-
-    if (!pk) {
-      setStatusInfo("Review and approve reveal pk on your Ledger");
-      await revealPk(ledger, publicKey);
-    }
-
-    setStatusInfo("Review and approve transaction on your Ledger");
-
     try {
+      const pk = await queryPublicKey(address);
+
+      if (!pk) {
+        setStatusInfo("Review and approve reveal pk on your Ledger");
+        await revealPk(ledger, publicKey);
+      }
+
+      setStatusInfo("Review and approve transaction on your Ledger");
+
       // Constuct tx bytes from SDK
       const { bytes, path } = await requester.sendMessage(
         Ports.Background,

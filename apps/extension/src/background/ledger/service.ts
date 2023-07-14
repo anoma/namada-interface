@@ -6,7 +6,9 @@ import {
   AccountType,
   Bip44Path,
   BondMsgValue,
+  RevealPKMsgValue,
   SubmitBondMsgSchema,
+  SubmitRevealPKMsgSchema,
   SubmitTransferMsgSchema,
   TransferMsgValue,
 } from "@anoma/types";
@@ -17,7 +19,6 @@ import { makeBip44Path } from "@anoma/utils";
 
 import { AccountStore, KeyRingService, TabStore } from "background/keyring";
 import { generateId } from "utils";
-import { SubmitTxMsgSchema, TxMsgValue } from "@anoma/types/src/tx/schema/tx";
 
 export const LEDGERSTORE_KEY = "ledger-store";
 const UUID_NAMESPACE = "be9fdaee-ffa2-11ed-8ef1-325096b39f47";
@@ -36,7 +37,7 @@ export class LedgerService {
     this._ledgerStore = new Store(LEDGERSTORE_KEY, kvStore);
   }
 
-  async getRevealPkBytes(
+  async getRevealPKBytes(
     txMsg: string
   ): Promise<{ bytes: Uint8Array; path: string }> {
     const { coinType } = chains[this.chainId].bip44;
@@ -44,8 +45,8 @@ export class LedgerService {
     try {
       // Deserialize txMsg to retrieve source
       const { public_key } = deserialize(
-        SubmitTxMsgSchema,
-        TxMsgValue,
+        SubmitRevealPKMsgSchema,
+        RevealPKMsgValue,
         Buffer.from(fromBase64(txMsg))
       );
 
@@ -59,7 +60,7 @@ export class LedgerService {
         throw new Error(`Ledger account not found for ${public_key}`);
       }
 
-      const bytes = await this.sdk.build_transfer(fromBase64(txMsg));
+      const bytes = await this.sdk.build_reveal_pk(fromBase64(txMsg));
       const path = makeBip44Path(coinType, account.path);
 
       return { bytes, path };

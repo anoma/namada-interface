@@ -103,7 +103,7 @@ const handleGetRevealPKBytesMsg: (
 ) => InternalHandler<GetRevealPKBytesMsg> = (service) => {
   return async (_, msg) => {
     const { txMsg } = msg;
-    return await service.getBondBytes(txMsg);
+    return await service.getRevealPKBytes(txMsg);
   };
 };
 

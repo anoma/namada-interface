@@ -159,15 +159,13 @@ impl Sdk {
     /// Contruct reveal pk data for external signers, returns byte array
     pub async fn build_reveal_pk(&mut self, tx_msg: &[u8]) -> Result<JsValue, JsError> {
         let args = tx::reveal_pk_tx_args(tx_msg)?;
-        let verification_key = args.tx.verification_key.clone();
-        let pk = validate_pk(verification_key)?;
 
         let reveal_pk = namada::ledger::tx::build_reveal_pk(
             &self.client,
             &mut self.wallet,
             args::RevealPk {
                 tx: args.tx.clone(),
-                public_key: pk.clone(),
+                public_key: args.public_key.clone(),
             },
         )
         .await?;
