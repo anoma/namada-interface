@@ -294,7 +294,8 @@ export class ApproveBondMsg extends Message<void> {
 
   constructor(
     public readonly txMsg: string,
-    public readonly accountType?: AccountType
+    public readonly accountType: AccountType,
+    public readonly publicKey?: string
   ) {
     super();
   }
@@ -302,6 +303,9 @@ export class ApproveBondMsg extends Message<void> {
   validate(): void {
     if (!this.txMsg) {
       throw new Error("txMsg was not provided!");
+    }
+    if (!this.accountType) {
+      throw new Error("accountType was not provided!");
     }
     return;
   }

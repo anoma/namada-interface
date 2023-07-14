@@ -3,9 +3,11 @@ import { LedgerService } from "./service";
 import {
   AddLedgerAccountMsg,
   GetBondBytesMsg,
+  GetRevealPKBytesMsg,
   GetTransferBytesMsg,
   SubmitSignedTransferMsg,
   SubmitSignedBondMsg,
+  SubmitSignedRevealPKMsg,
 } from "./messages";
 
 export const getHandler: (service: LedgerService) => Handler = (service) => {
@@ -16,10 +18,21 @@ export const getHandler: (service: LedgerService) => Handler = (service) => {
           env,
           msg as AddLedgerAccountMsg
         );
+      case GetRevealPKBytesMsg:
+        return handleGetRevealPKBytesMsg(service)(
+          env,
+          msg as GetRevealPKBytesMsg
+        );
+
       case GetTransferBytesMsg:
         return handleGetTransferBytesMsg(service)(
           env,
           msg as GetTransferBytesMsg
+        );
+      case SubmitSignedRevealPKMsg:
+        return handleSubmitSignedRevealPKMsg(service)(
+          env,
+          msg as SubmitSignedRevealPKMsg
         );
       case SubmitSignedTransferMsg:
         return handleSubmitSignedTransferMsg(service)(
@@ -82,5 +95,23 @@ const handleSubmitSignedBondMsg: (
   return async (_, msg) => {
     const { bytes, msgId, signatures } = msg;
     return await service.submitBond(msgId, bytes, signatures);
+  };
+};
+
+const handleGetRevealPKBytesMsg: (
+  service: LedgerService
+) => InternalHandler<GetRevealPKBytesMsg> = (service) => {
+  return async (_, msg) => {
+    const { txMsg } = msg;
+    return await service.getBondBytes(txMsg);
+  };
+};
+
+const handleSubmitSignedRevealPKMsg: (
+  service: LedgerService
+) => InternalHandler<SubmitSignedRevealPKMsg> = (service) => {
+  return async (_, msg) => {
+    const { txMsg, bytes, signatures } = msg;
+    return await service.submitBond(txMsg, bytes, signatures);
   };
 };

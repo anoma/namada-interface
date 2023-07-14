@@ -27,6 +27,7 @@ export const Approvals: React.FC = () => {
   const theme = getTheme("dark");
   const [msgId, setMsgId] = useState("");
   const [address, setAddress] = useState("");
+  const [publicKey, setPublicKey] = useState("");
 
   return (
     <ThemeProvider theme={theme}>
@@ -54,7 +55,11 @@ export const Approvals: React.FC = () => {
             <Route
               path={TopLevelRoute.ApproveBond}
               element={
-                <ApproveBond setMsgId={setMsgId} setAddress={setAddress} />
+                <ApproveBond
+                  setAddress={setAddress}
+                  setMsgId={setMsgId}
+                  setPublicKey={setPublicKey}
+                />
               }
             />
             <Route
@@ -63,7 +68,13 @@ export const Approvals: React.FC = () => {
             />
             <Route
               path={TopLevelRoute.ConfirmLedgerBond}
-              element={<ConfirmLedgerBond msgId={msgId} />}
+              element={
+                <ConfirmLedgerBond
+                  address={address}
+                  msgId={msgId}
+                  publicKey={publicKey}
+                />
+              }
             />
 
             <Route

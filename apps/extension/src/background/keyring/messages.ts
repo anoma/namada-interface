@@ -13,7 +13,7 @@ import { Result } from "@anoma/utils";
 enum MessageType {
   CheckIsLocked = "check-is-locked",
   CheckPassword = "check-password",
-  CheckIsPublicKeyRevealed = "check-is-public-key-revealed",
+  QueryPublicKey = "query-public-key",
   CloseOffscreenDocument = "close-offscreen-document",
   DeriveAccount = "derive-account",
   DeriveShieldedAccount = "derive-shielded-account",
@@ -123,9 +123,9 @@ export class CheckPasswordMsg extends Message<boolean> {
   }
 }
 
-export class CheckIsPublicKeyRevealedMsg extends Message<boolean> {
+export class QueryPublicKeyMsg extends Message<string | undefined> {
   public static type(): MessageType {
-    return MessageType.CheckIsPublicKeyRevealed;
+    return MessageType.QueryPublicKey;
   }
 
   constructor(public readonly address: string) {
@@ -143,7 +143,7 @@ export class CheckIsPublicKeyRevealedMsg extends Message<boolean> {
   }
 
   type(): string {
-    return CheckIsPublicKeyRevealedMsg.type();
+    return QueryPublicKeyMsg.type();
   }
 }
 
@@ -267,7 +267,7 @@ export class ScanAccountsMsg extends Message<void> {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  validate(): void { }
+  validate(): void {}
 
   route(): string {
     return ROUTE;

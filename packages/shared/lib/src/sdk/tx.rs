@@ -34,6 +34,34 @@ pub struct SubmitBondMsg {
     tx: TxMsg,
 }
 
+/// Maps serialized tx_msg into RevealPk args
+///
+/// # Arguments
+///
+/// * `tx_msg` - Borsh serialized tx_msg.
+///
+/// # Errors
+///
+/// Returns JsError if the tx_msg can't be deserialized or
+/// Rust structs can't be created.
+pub fn reveal_pk_tx_args(tx_msg: &[u8]) -> Result<args::RevealPk, JsError> {
+    let tx_msg = TxMsg::try_from_slice(tx_msg)?;
+    let public_key = match &tx_msg.public_key {
+        Some(v) => {
+            let pk = PublicKey::from_str(&v).map_err(JsError::from)?;
+            PK::Ed25519(pk)
+        }
+        None => panic!("A public key is required for reveal_pk_tx!"),
+    };
+
+    let args = args::RevealPk {
+        tx: tx_msg_into_args(tx_msg, None)?,
+        public_key,
+    };
+
+    Ok(args)
+}
+
 /// Maps serialized tx_msg into BondTx args.
 ///
 /// # Arguments

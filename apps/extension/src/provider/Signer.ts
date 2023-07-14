@@ -45,7 +45,8 @@ export class Signer implements ISigner {
    */
   public async submitBond(
     args: SubmitBondProps,
-    type: AccountType
+    type: AccountType,
+    publicKey?: string
   ): Promise<void> {
     const bondValue = new BondMsgValue(args);
     const bondMsg = new Message<BondMsgValue>();
@@ -54,6 +55,7 @@ export class Signer implements ISigner {
     return await this._anoma.submitBond({
       txMsg: toBase64(serializedBond),
       type,
+      publicKey,
     });
   }
 

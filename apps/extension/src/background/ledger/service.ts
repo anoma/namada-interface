@@ -17,6 +17,7 @@ import { makeBip44Path } from "@anoma/utils";
 
 import { AccountStore, KeyRingService, TabStore } from "background/keyring";
 import { generateId } from "utils";
+import { SubmitTxMsgSchema, TxMsgValue } from "@anoma/types/src/tx/schema/tx";
 
 export const LEDGERSTORE_KEY = "ledger-store";
 const UUID_NAMESPACE = "be9fdaee-ffa2-11ed-8ef1-325096b39f47";
@@ -33,6 +34,70 @@ export class LedgerService {
     protected readonly sdk: Sdk
   ) {
     this._ledgerStore = new Store(LEDGERSTORE_KEY, kvStore);
+  }
+
+  async getRevealPkBytes(
+    txMsg: string
+  ): Promise<{ bytes: Uint8Array; path: string }> {
+    const { coinType } = chains[this.chainId].bip44;
+
+    try {
+      // Deserialize txMsg to retrieve source
+      const { public_key } = deserialize(
+        SubmitTxMsgSchema,
+        TxMsgValue,
+        Buffer.from(fromBase64(txMsg))
+      );
+
+      // Query account from Ledger storage to determine path for signer
+      const account = await this._ledgerStore.getRecord(
+        "publicKey",
+        public_key
+      );
+
+      if (!account) {
+        throw new Error(`Ledger account not found for ${public_key}`);
+      }
+
+      const bytes = await this.sdk.build_transfer(fromBase64(txMsg));
+      const path = makeBip44Path(coinType, account.path);
+
+      return { bytes, path };
+    } catch (e) {
+      console.warn(e);
+      throw new Error(`${e}`);
+    }
+  }
+
+  async submitRevealPk(
+    txMsg: string,
+    bytes: string,
+    signatures: ResponseSign
+  ): Promise<void> {
+    const {
+      wrapperSignature: { raw: wrapperSig },
+      rawSignature: { raw: rawSig },
+    } = signatures;
+
+    if (!wrapperSig) {
+      throw new Error("No wrapper signature was produced!");
+    }
+
+    if (!rawSig) {
+      throw new Error("No raw signature was produced!");
+    }
+
+    const signedRevealPk = await this.sdk.sign_tx(
+      fromBase64(bytes),
+      new Uint8Array(wrapperSig),
+      new Uint8Array(rawSig)
+    );
+
+    try {
+      await this.sdk.submit_signed_reveal_pk(fromBase64(txMsg), signedRevealPk);
+    } catch (e) {
+      console.warn(e);
+    }
   }
 
   async getTransferBytes(

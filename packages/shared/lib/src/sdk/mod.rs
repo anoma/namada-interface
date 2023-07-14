@@ -156,6 +156,46 @@ impl Sdk {
         Ok(())
     }
 
+    /// Contruct reveal pk data for external signers, returns byte array
+    pub async fn build_reveal_pk(&mut self, tx_msg: &[u8]) -> Result<JsValue, JsError> {
+        let args = tx::reveal_pk_tx_args(tx_msg)?;
+        let verification_key = args.tx.verification_key.clone();
+        let pk = validate_pk(verification_key)?;
+
+        let reveal_pk = namada::ledger::tx::build_reveal_pk(
+            &self.client,
+            &mut self.wallet,
+            args::RevealPk {
+                tx: args.tx.clone(),
+                public_key: pk.clone(),
+            },
+        )
+        .await?;
+
+        let bytes = match reveal_pk {
+            Some(v) => v.0.try_to_vec().map_err(JsError::from)?,
+            None => vec![],
+        };
+
+        to_js_result(bytes)
+    }
+
+    /// Submit signed reveal pk tx
+    pub async fn submit_signed_reveal_pk(
+        &mut self,
+        tx_msg: &[u8],
+        tx_bytes: &[u8],
+    ) -> Result<(), JsError> {
+        let reveal_pk_tx = Tx::try_from_slice(&tx_bytes).map_err(JsError::from)?;
+        let args = tx::reveal_pk_tx_args(tx_msg).map_err(JsError::from)?;
+
+        namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args.tx, reveal_pk_tx)
+            .await
+            .map_err(JsError::from)?;
+
+        Ok(())
+    }
+
     /// Contruct transfer data for external signers, returns byte array
     pub async fn build_transfer(&mut self, tx_msg: &[u8]) -> Result<JsValue, JsError> {
         let args = tx::transfer_tx_args(tx_msg, None, None)?;

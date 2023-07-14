@@ -8,6 +8,10 @@ import { ROUTE } from "./constants";
 enum MessageType {
   AddLedgerAccount = "add-ledger-account",
 
+  // Reveal PK
+  GetRevealPKBytes = "get-reveal-pk-bytes",
+  SubmitSignedRevealPK = "submit-signed-reveal-pk",
+
   // Transfers
   GetTransferBytes = "get-transfer-bytes",
   SubmitSignedTransfer = "submit-signed-transfer",
@@ -56,6 +60,33 @@ export class AddLedgerAccountMsg extends Message<void> {
 
   type(): string {
     return AddLedgerAccountMsg.type();
+  }
+}
+
+export class GetRevealPKBytesMsg extends Message<{
+  bytes: Uint8Array;
+  path: string;
+}> {
+  public static type(): MessageType {
+    return MessageType.GetRevealPKBytes;
+  }
+
+  constructor(public readonly txMsg: string) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.txMsg) {
+      throw new Error("txMsg was not provided!");
+    }
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return GetRevealPKBytesMsg.type();
   }
 }
 
@@ -110,6 +141,42 @@ export class GetBondBytesMsg extends Message<{
 
   type(): string {
     return GetBondBytesMsg.type();
+  }
+}
+
+export class SubmitSignedRevealPKMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.SubmitSignedRevealPK;
+  }
+
+  constructor(
+    public readonly txMsg: string,
+    public readonly bytes: string,
+    public readonly signatures: ResponseSign
+  ) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.txMsg) {
+      throw new Error("txMsg was not provided!");
+    }
+
+    if (!this.bytes) {
+      throw new Error("bytes were not provided!");
+    }
+
+    if (!this.signatures) {
+      throw new Error("No signatures were provided!");
+    }
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return SubmitSignedRevealPKMsg.type();
   }
 }
 

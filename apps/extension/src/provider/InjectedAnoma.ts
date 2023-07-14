@@ -53,14 +53,16 @@ export class InjectedAnoma implements IAnoma {
   public async submitBond(props: {
     txMsg: string;
     type: AccountType;
+    publicKey?: string;
   }): Promise<void> {
-    const { txMsg, type } = props;
+    const { txMsg, type, publicKey } = props;
     return await InjectedProxy.requestMethod<
-      { txMsg: string; type: AccountType },
+      { txMsg: string; type: AccountType; publicKey?: string },
       void
     >("submitBond", {
       txMsg,
       type,
+      publicKey,
     });
   }
 

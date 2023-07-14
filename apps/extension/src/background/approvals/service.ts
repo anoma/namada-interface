@@ -46,7 +46,11 @@ export class ApprovalsService {
   }
 
   // Deserialize bond details and prompt user
-  async approveBond(txMsg: string, type?: AccountType): Promise<void> {
+  async approveBond(
+    txMsg: string,
+    type: AccountType,
+    publicKey?: string
+  ): Promise<void> {
     const txMsgBuffer = Buffer.from(fromBase64(txMsg));
     const id = uuid();
     this.txStore.set(id, txMsg);
@@ -60,9 +64,13 @@ export class ApprovalsService {
 
     const { source, native_token, amount: amountBN } = txDetails;
     const amount = new BigNumber(amountBN.toString());
-    const url = `${browser.runtime.getURL(
+    let url = `${browser.runtime.getURL(
       "approvals.html"
     )}#/approve-bond?type=${type}&id=${id}&source=${source}&token=${native_token}&amount=${amount}`;
+
+    if (publicKey) {
+      url += `&publicKey=${publicKey}`;
+    }
 
     this._launchApprovalWindow(url);
   }
@@ -83,6 +91,7 @@ export class ApprovalsService {
 
     const { source, native_token, amount: amountBN } = txDetails;
     const amount = new BigNumber(amountBN.toString());
+    // TODO: This query should include perhaps a "type" indicating whether it's a bond or unbond tx:
     const url = `${browser.runtime.getURL(
       "approvals.html"
     )}#/approve-bond?type=${type}&id=${id}&source=${source}&token=${native_token}&amount=${amount}`;

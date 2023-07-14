@@ -443,7 +443,7 @@ export class KeyRingService {
     return await this._keyRing.initSdkStore(activeAccountId);
   }
 
-  async checkIsPublicKeyRevealed(address: string): Promise<boolean> {
+  async queryPublicKey(address: string): Promise<string | undefined> {
     return await this.query.query_public_key(address);
   }
 }

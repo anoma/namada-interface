@@ -90,12 +90,13 @@ export class Anoma implements IAnoma {
 
   public async submitBond(props: {
     txMsg: string;
-    type?: AccountType;
+    type: AccountType;
+    publicKey?: string;
   }): Promise<void> {
-    const { txMsg, type } = props;
+    const { txMsg, type, publicKey } = props;
     return await this.requester?.sendMessage(
       Ports.Background,
-      new ApproveBondMsg(txMsg, type)
+      new ApproveBondMsg(txMsg, type, publicKey)
     );
   }
 

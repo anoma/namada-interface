@@ -18,11 +18,16 @@ import { useRequester } from "hooks/useRequester";
 import { closeCurrentTab } from "utils";
 
 type Props = {
-  setMsgId: (msgId: string) => void;
   setAddress: (address: string) => void;
+  setMsgId: (msgId: string) => void;
+  setPublicKey: (publicKey: string) => void;
 };
 
-export const ApproveBond: React.FC<Props> = ({ setAddress, setMsgId }) => {
+export const ApproveBond: React.FC<Props> = ({
+  setAddress,
+  setMsgId,
+  setPublicKey,
+}) => {
   const navigate = useNavigate();
   const requester = useRequester();
 
@@ -35,10 +40,14 @@ export const ApproveBond: React.FC<Props> = ({ setAddress, setMsgId }) => {
   const tokenType =
     Object.values(Tokens).find((token) => token.address === tokenAddress)
       ?.symbol || "";
+  const publicKey = query.get("publicKey") || "";
 
   useEffect(() => {
     if (source) {
       setAddress(source);
+    }
+    if (publicKey) {
+      setPublicKey(publicKey);
     }
   }, [source]);
 

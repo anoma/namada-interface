@@ -1,6 +1,7 @@
 import BN from "bn.js";
 import { TxProps } from "../types";
 import { SchemaObject } from "@anoma/utils";
+import { Schema } from "borsh";
 
 export class TxMsgValue {
   token: string;
@@ -39,3 +40,7 @@ export const TxMsgSchema = [
     ],
   },
 ] as const; // needed for SchemaObject to deduce types correctly
+
+export const SubmitTxMsgSchema = new Map([
+  TxMsgSchema as [unknown, unknown],
+]) as Schema;

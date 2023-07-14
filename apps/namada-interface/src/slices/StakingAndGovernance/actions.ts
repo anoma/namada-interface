@@ -180,7 +180,8 @@ export const postNewBonding = createAsyncThunk<
         publicKey,
       },
     },
-    type
+    type,
+    publicKey
   );
 });
 
