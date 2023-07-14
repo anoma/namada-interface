@@ -1,4 +1,4 @@
-use crate::utils::to_js_result;
+use crate::utils::{console_log, to_js_result};
 use crate::{
     rpc_client::HttpClient,
     sdk::masp::WebShieldedUtils,
@@ -183,8 +183,10 @@ impl Sdk {
         &mut self,
         tx_msg: &[u8],
         tx_bytes: &[u8],
+        wrapper_sig_bytes: &[u8],
+        raw_sig_bytes: &[u8],
     ) -> Result<(), JsError> {
-        let reveal_pk_tx = Tx::try_from_slice(&tx_bytes).map_err(JsError::from)?;
+        let reveal_pk_tx = self.sign_tx(tx_bytes, wrapper_sig_bytes, raw_sig_bytes)?;
         let args = tx::reveal_pk_tx_args(tx_msg).map_err(JsError::from)?;
 
         namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args.tx, reveal_pk_tx)
@@ -239,12 +241,12 @@ impl Sdk {
     }
 
     // Append signatures and return tx bytes
-    pub fn sign_tx(
+    fn sign_tx(
         &self,
         tx_bytes: &[u8],
         wrapper_sig_bytes: &[u8],
         raw_sig_bytes: &[u8],
-    ) -> Result<JsValue, JsError> {
+    ) -> Result<Tx, JsError> {
         let mut tx: Tx = Tx::try_from_slice(tx_bytes).map_err(JsError::from)?;
 
         let wrapper_sig = Signature::try_from_slice(wrapper_sig_bytes).map_err(JsError::from)?;
@@ -254,8 +256,9 @@ impl Sdk {
         tx.protocol_filter();
         tx.add_section(Section::Signature(wrapper_sig));
 
-        let bytes = tx.try_to_vec().map_err(JsError::from)?;
-        to_js_result(Vec::from(bytes))
+        console_log(&format!("Tx: {:?}", &tx));
+
+        Ok(tx)
     }
 
     /// Submit signed transfer tx
@@ -263,8 +266,10 @@ impl Sdk {
         &mut self,
         tx_msg: &[u8],
         tx_bytes: &[u8],
+        wrapper_sig_bytes: &[u8],
+        raw_sig_bytes: &[u8],
     ) -> Result<(), JsError> {
-        let transfer_tx = Tx::try_from_slice(&tx_bytes).map_err(JsError::from)?;
+        let transfer_tx = self.sign_tx(tx_bytes, wrapper_sig_bytes, raw_sig_bytes)?;
         let args = tx::transfer_tx_args(tx_msg, None, None).map_err(JsError::from)?;
         let verification_key = args.tx.verification_key.clone();
         let pk = validate_pk(verification_key)?;
@@ -339,8 +344,10 @@ impl Sdk {
         &mut self,
         tx_msg: &[u8],
         tx_bytes: &[u8],
+        wrapper_sig_bytes: &[u8],
+        raw_sig_bytes: &[u8],
     ) -> Result<(), JsError> {
-        let bond_tx = Tx::try_from_slice(&tx_bytes).map_err(JsError::from)?;
+        let bond_tx = self.sign_tx(tx_bytes, wrapper_sig_bytes, raw_sig_bytes)?;
         let args = tx::bond_tx_args(tx_msg, None).map_err(JsError::from)?;
 
         namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args.tx, bond_tx)
@@ -373,8 +380,10 @@ impl Sdk {
         &mut self,
         tx_msg: &[u8],
         tx_bytes: &[u8],
+        wrapper_sig_bytes: &[u8],
+        raw_sig_bytes: &[u8],
     ) -> Result<(), JsError> {
-        let bond_tx = Tx::try_from(tx_bytes).map_err(JsError::from)?;
+        let bond_tx = self.sign_tx(tx_bytes, wrapper_sig_bytes, raw_sig_bytes)?;
         let args = tx::unbond_tx_args(tx_msg, None).map_err(JsError::from)?;
         let verification_key = args.tx.verification_key.clone();
         let pk = validate_pk(verification_key)?;

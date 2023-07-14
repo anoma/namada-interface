@@ -99,10 +99,13 @@ export const ConfirmLedgerBond: React.FC<Props> = ({
     const ledger = await Ledger.init();
 
     try {
+      setStatusInfo("Querying for public key on chain...");
       const pk = await queryPublicKey(address);
 
       if (!pk) {
-        setStatusInfo("Review and approve reveal pk on your Ledger");
+        setStatusInfo(
+          "Public key not found! Review and approve reveal pk on your Ledger"
+        );
         await revealPk(ledger, publicKey);
       }
 

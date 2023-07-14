@@ -76,9 +76,14 @@ export class LedgerService {
     signatures: ResponseSign
   ): Promise<void> {
     const {
-      wrapperSignature: { raw: wrapperSig },
-      rawSignature: { raw: rawSig },
-    } = signatures;
+      wrapperSignature: {
+        raw: { data: wrapperSig },
+      },
+      rawSignature: {
+        raw: { data: rawSig },
+      },
+      // TODO: We need the correct type updated in ResponseSign
+    } = signatures as any; // eslint-disable-line
 
     if (!wrapperSig) {
       throw new Error("No wrapper signature was produced!");
@@ -88,14 +93,13 @@ export class LedgerService {
       throw new Error("No raw signature was produced!");
     }
 
-    const signedRevealPk = await this.sdk.sign_tx(
-      fromBase64(bytes),
-      new Uint8Array(wrapperSig),
-      new Uint8Array(rawSig)
-    );
-
     try {
-      await this.sdk.submit_signed_reveal_pk(fromBase64(txMsg), signedRevealPk);
+      await this.sdk.submit_signed_reveal_pk(
+        fromBase64(txMsg),
+        fromBase64(bytes),
+        new Uint8Array(wrapperSig),
+        new Uint8Array(rawSig)
+      );
     } catch (e) {
       console.warn(e);
     }
@@ -148,9 +152,14 @@ export class LedgerService {
     }
 
     const {
-      wrapperSignature: { raw: wrapperSig },
-      rawSignature: { raw: rawSig },
-    } = signatures;
+      wrapperSignature: {
+        raw: { data: wrapperSig },
+      },
+      rawSignature: {
+        raw: { data: rawSig },
+      },
+      // TODO: We need the correct type updated in ResponseSign
+    } = signatures as any; // eslint-disable-line
 
     if (!wrapperSig) {
       throw new Error("No wrapper signature was produced!");
@@ -160,14 +169,13 @@ export class LedgerService {
       throw new Error("No raw signature was produced!");
     }
 
-    const signedTransfer = await this.sdk.sign_tx(
-      fromBase64(bytes),
-      new Uint8Array(wrapperSig),
-      new Uint8Array(rawSig)
-    );
-
     try {
-      await this.sdk.submit_signed_transfer(fromBase64(txMsg), signedTransfer);
+      await this.sdk.submit_signed_transfer(
+        fromBase64(txMsg),
+        fromBase64(bytes),
+        new Uint8Array(wrapperSig),
+        new Uint8Array(rawSig)
+      );
 
       // Clear pending tx if successful
       await this.txStore.set(msgId, null);
@@ -233,6 +241,7 @@ export class LedgerService {
       // TODO: We need the correct type updated in ResponseSign
     } = signatures as any; // eslint-disable-line
 
+    console.log({ wrapperSig, rawSig });
     if (!wrapperSig) {
       throw new Error("No wrapper signature was produced!");
     }
@@ -241,14 +250,13 @@ export class LedgerService {
       throw new Error("No raw signature was produced!");
     }
 
-    const signedBond = await this.sdk.sign_tx(
-      fromBase64(bytes),
-      new Uint8Array(wrapperSig),
-      new Uint8Array(rawSig)
-    );
-
     try {
-      await this.sdk.submit_signed_bond(fromBase64(txMsg), signedBond);
+      await this.sdk.submit_signed_bond(
+        fromBase64(txMsg),
+        fromBase64(bytes),
+        new Uint8Array(wrapperSig),
+        new Uint8Array(rawSig)
+      );
 
       // Clear pending tx if successful
       await this.txStore.set(msgId, null);
