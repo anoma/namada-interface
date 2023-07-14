@@ -22,7 +22,7 @@ import {
   ButtonContainer,
 } from "Approvals/Approvals.components";
 import { InfoHeader, InfoLoader } from "Approvals/Approvals.components";
-import { Message, RevealPKProps, Tokens, TxProps } from "@anoma/types";
+import { Message, RevealPKProps, Tokens } from "@anoma/types";
 import { SubmitRevealPKMsgSchema, RevealPKMsgValue } from "@anoma/types";
 import { QueryPublicKeyMsg } from "background/keyring";
 

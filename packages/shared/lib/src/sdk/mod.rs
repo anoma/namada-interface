@@ -342,11 +342,6 @@ impl Sdk {
     ) -> Result<(), JsError> {
         let bond_tx = Tx::try_from_slice(&tx_bytes).map_err(JsError::from)?;
         let args = tx::bond_tx_args(tx_msg, None).map_err(JsError::from)?;
-        let verification_key = args.tx.verification_key.clone();
-        let pk = validate_pk(verification_key)?;
-
-        self.submit_reveal_pk(&args.tx, bond_tx.clone(), &pk)
-            .await?;
 
         namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args.tx, bond_tx)
             .await

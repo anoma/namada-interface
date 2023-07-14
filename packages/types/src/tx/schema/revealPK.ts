@@ -5,18 +5,19 @@ import { RevealPKProps } from "../types";
 import { TxMsgSchema, TxMsgValue } from "./tx";
 
 export class RevealPKMsgValue {
-  public_key: string;
   tx: TxMsgValue;
+  public_key: string;
 
   constructor(
     properties: RevealPKProps | SchemaObject<typeof RevealPKMsgSchema>
   ) {
-    this.public_key =
-      "publicKey" in properties ? properties.publicKey : properties.public_key;
     this.tx =
       properties.tx instanceof TxMsgValue
         ? properties.tx
         : new TxMsgValue(properties.tx);
+
+    this.public_key =
+      "publicKey" in properties ? properties.publicKey : properties.public_key;
   }
 }
 
