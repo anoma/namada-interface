@@ -10,7 +10,7 @@ use namada::{
         key::common::PublicKey as PK,
         key::ed25519::PublicKey,
         masp::{ExtendedSpendingKey, PaymentAddress, TransferSource, TransferTarget},
-        token::{Amount, DenominatedAmount, Denomination},
+        token::{Amount, DenominatedAmount},
         transaction::GasLimit,
     },
 };

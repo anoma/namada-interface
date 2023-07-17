@@ -16,7 +16,7 @@ export class SubmitUnbondMsgValue {
   amount!: BigNumber;
 
   @field({ type: TxMsgValue })
-  tx!: TxMsgValue;
+  tx!: InstanceType<typeof TxMsgValue>;
 
   constructor(data: SubmitUnbondProps) {
     Object.assign(this, data);

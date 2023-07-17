@@ -7,7 +7,7 @@ import { TransferProps } from "../types";
 
 export class TransferMsgValue {
   @field({ type: TxMsgValue })
-  tx!: TxMsgValue;
+  tx!: InstanceType<typeof TxMsgValue>;
 
   @field({ type: "string" })
   source!: string;

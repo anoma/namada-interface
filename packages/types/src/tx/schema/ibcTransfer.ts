@@ -7,7 +7,7 @@ import { IbcTransferProps } from "../types";
 
 export class IbcTransferMsgValue {
   @field({ type: TxMsgValue })
-  tx!: TxMsgValue;
+  tx!: InstanceType<typeof TxMsgValue>;
 
   @field({ type: "string" })
   source!: string;

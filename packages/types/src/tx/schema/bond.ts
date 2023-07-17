@@ -19,7 +19,7 @@ export class SubmitBondMsgValue {
   nativeToken!: string;
 
   @field({ type: TxMsgValue })
-  tx!: TxMsgValue;
+  tx!: InstanceType<typeof TxMsgValue>;
 
   constructor(data: SubmitBondProps) {
     Object.assign(this, data);
