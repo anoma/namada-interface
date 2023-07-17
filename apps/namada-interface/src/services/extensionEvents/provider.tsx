@@ -15,6 +15,7 @@ import {
   AnomaTransferCompletedHandler,
   AnomaTransferStartedHandler,
   AnomaUpdatedBalancesHandler,
+  AnomaUpdatedStakingHandler,
   KeplrAccountChangedHandler,
   MetamaskAccountChangedHandler,
 } from "./handlers";
@@ -35,6 +36,7 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
   const anomaTransferStartedHandler = AnomaTransferStartedHandler(dispatch);
   const anomaTransferCompletedHandler = AnomaTransferCompletedHandler(dispatch);
   const anomaUpdatedBalancesHandler = AnomaUpdatedBalancesHandler(dispatch);
+  const anomaUpdatedStakingHandler = AnomaUpdatedStakingHandler(dispatch);
 
   // Keplr handlers
   const keplrAccountChangedHandler = KeplrAccountChangedHandler(
@@ -53,6 +55,7 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
   useEventListenerOnce(Events.TransferStarted, anomaTransferStartedHandler);
   useEventListenerOnce(Events.TransferCompleted, anomaTransferCompletedHandler);
   useEventListenerOnce(Events.UpdatedBalances, anomaUpdatedBalancesHandler);
+  useEventListenerOnce(Events.UpdatedStaking, anomaUpdatedStakingHandler);
   useEventListenerOnce(KeplrEvents.AccountChanged, keplrAccountChangedHandler);
   useEventListenerOnce(
     MetamaskEvents.AccountChanged,

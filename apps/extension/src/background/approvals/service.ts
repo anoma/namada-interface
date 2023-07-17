@@ -22,7 +22,7 @@ export class ApprovalsService {
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
     protected readonly keyRingService: KeyRingService,
     protected readonly ledgerService: LedgerService
-  ) { }
+  ) {}
 
   // Deserialize transfer details and prompt user
   async approveTransfer(txMsg: string, type?: AccountType): Promise<void> {
@@ -136,6 +136,7 @@ export class ApprovalsService {
 
     if (tx) {
       await this.keyRingService.submitBond(tx, msgId);
+      await this.ledgerService.broadcastUpdateStaking();
 
       return await this._clearPendingTx(msgId);
     }

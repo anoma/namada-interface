@@ -17,8 +17,16 @@ import { IStore, KVStore, Store } from "@anoma/storage";
 import { chains } from "@anoma/chains";
 import { makeBip44Path } from "@anoma/utils";
 
-import { AccountStore, KeyRingService, TabStore } from "background/keyring";
+import {
+  AccountStore,
+  KeyRingService,
+  TabStore,
+  syncTabs,
+} from "background/keyring";
 import { generateId } from "utils";
+import { ExtensionRequester } from "extension";
+import { Ports } from "router";
+import { UpdatedStakingEventMsg } from "content/events";
 
 export const LEDGERSTORE_KEY = "ledger-store";
 const UUID_NAMESPACE = "be9fdaee-ffa2-11ed-8ef1-325096b39f47";
@@ -32,7 +40,8 @@ export class LedgerService {
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
     protected readonly txStore: KVStore<string>,
     protected readonly chainId: string,
-    protected readonly sdk: Sdk
+    protected readonly sdk: Sdk,
+    protected readonly requester: ExtensionRequester
   ) {
     this._ledgerStore = new Store(LEDGERSTORE_KEY, kvStore);
   }
@@ -257,11 +266,15 @@ export class LedgerService {
         new Uint8Array(rawSig)
       );
 
+      await this.broadcastUpdateStaking();
+
       // Clear pending tx if successful
       await this.txStore.set(msgId, null);
     } catch (e) {
       console.warn(e);
     }
+
+    await this.keyring.broadcastUpdateBalance();
   }
 
   /**
@@ -300,5 +313,26 @@ export class LedgerService {
 
     // Set active account ID
     await this.keyring.setActiveAccount(id, AccountType.Ledger);
+  }
+
+  async broadcastUpdateStaking(): Promise<void> {
+    const tabs = await syncTabs(
+      this.connectedTabsStore,
+      this.requester,
+      this.chainId
+    );
+    try {
+      tabs?.forEach(({ tabId }: TabStore) => {
+        this.requester.sendMessageToTab(
+          tabId,
+          Ports.WebBrowser,
+          new UpdatedStakingEventMsg(this.chainId)
+        );
+      });
+    } catch (e) {
+      console.warn(e);
+    }
+
+    return;
   }
 }

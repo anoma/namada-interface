@@ -6,6 +6,7 @@ export enum Events {
   TransferStarted = "anoma-transfer-started",
   TransferCompleted = "anoma-transfer-completed",
   UpdatedBalances = "anoma-updated-balances",
+  UpdatedStaking = "anoma-updated-staking",
 }
 
 // Keplr extension events

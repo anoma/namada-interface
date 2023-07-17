@@ -111,7 +111,8 @@ export const init = async (): Promise<{
     connectedTabsStore,
     txStore,
     chainId,
-    sdk
+    sdk,
+    requester
   );
 
   const approvalsService = new ApprovalsService(

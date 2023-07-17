@@ -404,7 +404,7 @@ export class KeyRingService {
     return Sdk.has_masp_params();
   }
 
-  private async broadcastUpdateBalance(): Promise<void> {
+  async broadcastUpdateBalance(): Promise<void> {
     const tabs = await syncTabs(
       this.connectedTabsStore,
       this.requester,

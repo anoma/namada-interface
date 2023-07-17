@@ -6,6 +6,7 @@ import { Anoma } from "@anoma/integrations";
 import { addAccounts, fetchBalances } from "slices/accounts";
 import { actions as notificationsActions } from "slices/notifications";
 import { getToast, Toasts } from "slices/transfers";
+import { fetchValidators } from "slices/StakingAndGovernance/actions";
 
 export const AnomaAccountChangedHandler =
   (dispatch: Dispatch<unknown>, integration: Anoma) =>
@@ -24,6 +25,11 @@ export const AnomaAccountChangedHandler =
 export const AnomaUpdatedBalancesHandler =
   (dispatch: Dispatch<unknown>) => async () => {
     dispatch(fetchBalances());
+  };
+
+export const AnomaUpdatedStakingHandler =
+  (dispatch: Dispatch<unknown>) => async () => {
+    dispatch(fetchValidators());
   };
 
 export const AnomaTransferStartedHandler =
