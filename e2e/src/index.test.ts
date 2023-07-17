@@ -3,9 +3,15 @@
  */
 import * as puppeteer from "puppeteer";
 import nodePath from "node:path";
+import { ChildProcess, exec } from "child_process";
+import terminate from "terminate/promise";
+import util from "node:util";
 
 import { mnemonic, pwdOrAlias } from "./utils/values";
 import { targetPage, waitForXpath } from "./utils/helpers";
+
+// promisify exec
+const execPromise = util.promisify(exec);
 
 const root = nodePath.resolve(process.cwd(), "..");
 const path = `${root}/apps/extension/build/chrome`;
@@ -15,7 +21,7 @@ const puppeteerArgs = [
   `--load-extension=${path}`,
   "--disable-features=DialMediaRouteProvider",
 ];
-jest.setTimeout(120000);
+jest.setTimeout(70000);
 
 let browser: puppeteer.Browser;
 let page: puppeteer.Page;
@@ -36,7 +42,7 @@ const getExtensionId = async (): Promise<string> => {
 };
 
 const openInterface = async (): Promise<void> => {
-  await page.goto("http://localhost:3000", {
+  await page.goto("http://localhost:8080", {
     waitUntil: ["domcontentloaded"],
   });
 };
@@ -59,8 +65,27 @@ const openSetup = async (): Promise<void> => {
   });
 };
 
+function startNamada(namRefs: Set<ChildProcess>): ChildProcess {
+  const nam = exec(`sh ${process.cwd()}/start-namada.sh`);
+  namRefs.add(nam);
+  return nam;
+}
+
+async function setupNamada(): Promise<void> {
+  await execPromise(`sh ${process.cwd()}/setup-namada.sh`);
+}
+
+async function stopNamada(namada: ChildProcess): Promise<void> {
+  if (namada.pid) {
+    await terminate(namada.pid);
+  }
+}
+
 describe("Namada extension", () => {
+  const namRefs = new Set<ChildProcess>();
+
   beforeEach(async function () {
+    await setupNamada();
     browser = await puppeteer.launch({
       headless: false,
       slowMo: 50,
@@ -71,6 +96,20 @@ describe("Namada extension", () => {
 
   afterEach(async function () {
     await browser.close();
+  });
+
+  afterAll(async () => {
+    for await (const namada of namRefs) {
+      // We want to stop the namada process only if:
+      // - process is NOT about to stop - SIGKILL
+      // - process is NOT already stopped - exitCode is not set
+      const stop = !(
+        namada.signalCode === "SIGKILL" || namada.exitCode !== null
+      );
+      if (stop) {
+        await stopNamada(namada);
+      }
+    }
   });
 
   describe("open the popup", () => {
@@ -84,6 +123,8 @@ describe("Namada extension", () => {
 
   describe("send transfer", () => {
     test("should send transfer", async () => {
+      const nam = startNamada(namRefs);
+
       await openSetup();
 
       // Check H1
@@ -205,6 +246,8 @@ describe("Namada extension", () => {
       const toast = await page.waitForXPath(
         "//div[contains(., 'Transfer successful!')]"
       );
+
+      await stopNamada(nam);
       expect(toast).toBeDefined();
     });
   });

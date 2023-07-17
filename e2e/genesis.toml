@@ -41,6 +41,10 @@ Ester = "1000000"
 faucet = "9223372036854"
 "faucet.public_key" = "100"
 "validator-0.public_key" = "100"
+TestA = "1000"
+"TestA.public_key" = "1000"
+TestB = "1000"
+"TestB.public_key" = "1000"
 
 [token.BTC]
 address = "atest1v4ehgw36xdzryve5gsc52veeg5cnsv2yx5eygvp38qcrvd29xy6rys6p8yc5xvp4xfpy2v694wgwcp"
@@ -136,8 +140,11 @@ vp = "vp_masp"
 
 [implicit.Ester]
 
-[implicit.Test]
+[established.TestA]
 address = "atest1d9khqw36xccyydp3xpznjvzrx3zrq3fexep5y33nxverqdz9xcc5ydeexgm52djrxvuyxsjr44hd2f"
+
+[established.TestB]
+address = "atest1d9khqw368qury3phx3prsvp4gezrssenxqmyxwpn8qmrqvpsg4znjdjp8ycry3p3g4p5vd6x66dnmw"
 
 # Wasm VP definitions
 
