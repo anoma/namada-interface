@@ -1,4 +1,4 @@
-use crate::utils::{console_log, to_js_result};
+use crate::utils::to_js_result;
 use crate::{
     rpc_client::HttpClient,
     sdk::masp::WebShieldedUtils,
@@ -255,8 +255,6 @@ impl Sdk {
         tx.add_section(Section::Signature(raw_sig));
         tx.protocol_filter();
         tx.add_section(Section::Signature(wrapper_sig));
-
-        console_log(&format!("Tx: {:?}", &tx));
 
         Ok(tx)
     }

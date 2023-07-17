@@ -66,12 +66,6 @@ export const ConfirmLedgerBond: React.FC<Props> = ({
 
       // Sign with Ledger
       const signatures = await ledger.sign(bytes, path);
-      const { errorMessage, returnCode } = signatures;
-
-      if (returnCode !== LedgerError.NoErrors) {
-        setError(errorMessage);
-        return setStatus(Status.Failed);
-      }
 
       // Submit signatures for tx
       setStatusInfo("Submitting reveal pk tx...");

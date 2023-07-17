@@ -241,7 +241,6 @@ export class LedgerService {
       // TODO: We need the correct type updated in ResponseSign
     } = signatures as any; // eslint-disable-line
 
-    console.log({ wrapperSig, rawSig });
     if (!wrapperSig) {
       throw new Error("No wrapper signature was produced!");
     }
