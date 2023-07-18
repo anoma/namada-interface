@@ -3,13 +3,10 @@ import { toBase64 } from "@cosmjs/encoding";
 import BigNumber from "bignumber.js";
 
 import {
-  AccountMsgSchema,
   AccountMsgValue,
-  SubmitIbcTransferMsgSchema,
   IbcTransferMsgValue,
   IbcTransferProps,
   Message,
-  SubmitTransferMsgSchema,
   TransferMsgValue,
   TransferProps,
   Chain,
@@ -108,10 +105,7 @@ describe("Anoma", () => {
     const transferMsgValue = new TransferMsgValue(transferProps);
 
     const transferMessage = new Message<TransferMsgValue>();
-    const serializedTransfer = transferMessage.encode(
-      SubmitTransferMsgSchema,
-      transferMsgValue
-    );
+    const serializedTransfer = transferMessage.encode(transferMsgValue);
 
     jest.spyOn(keyRingService, "submitTransfer");
     anoma.submitTransfer(toBase64(serializedTransfer));
@@ -145,10 +139,7 @@ describe("Anoma", () => {
     const transferMsgValue = new IbcTransferMsgValue(transferProps);
 
     const transferMessage = new Message<IbcTransferMsgValue>();
-    const serializedTransfer = transferMessage.encode(
-      SubmitIbcTransferMsgSchema,
-      transferMsgValue
-    );
+    const serializedTransfer = transferMessage.encode(transferMsgValue);
 
     const res = anoma.submitIbcTransfer(toBase64(serializedTransfer));
 
@@ -162,7 +153,7 @@ describe("Anoma", () => {
       vpCode: new Uint8Array(),
     });
     const accountMessage = new Message<AccountMsgValue>();
-    const serialized = accountMessage.encode(AccountMsgSchema, accountMsgValue);
+    const serialized = accountMessage.encode(accountMsgValue);
 
     await expect(
       anoma.encodeInitAccount({

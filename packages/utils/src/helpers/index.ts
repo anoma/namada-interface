@@ -2,7 +2,6 @@ import { JsonRpcRequest } from "@cosmjs/json-rpc";
 import { DateTime } from "luxon";
 import { JsonCompatibleArray, JsonCompatibleDictionary } from "@anoma/types";
 import BigNumber from "bignumber.js";
-import BN from "bn.js";
 
 const MICRO_FACTOR = 1000000; // 1,000,000
 
@@ -173,70 +172,3 @@ export const Result = {
     return { ok: false as const, error };
   },
 };
-
-
-// Translates Borsh type to JS type
-type FromBorsh<T> =
-  T extends "u8" | "u16" | "u32" ? number :
-  T extends "u64" | "u128" | "u256" | "u512" ? BN :
-  T extends "string" ? string :
-  T extends { kind: "option", type: infer S } ? FromBorsh<S> :
-  T extends new(...args: infer _) => infer Res ? Res :
-  T extends readonly unknown[] ? Uint8Array :
-  unknown;
-
-// Gets first element of a tuple pair
-type Key<T> =
-  T extends readonly [infer Key, unknown] ? Key : never;
-
-// Gets second element of a tuple pair
-type Value<T> =
-  T extends readonly [unknown, infer Value] ? Value : never;
-
-/**
- * Turns a Borsh schema value into a type with fields translated from
- * Borsh types to JS types.
- *
- * Useful when deserializing for making sure the object passed by
- * Borsh to a constructor is properly typed. Without this, there is no
- * guarantee that the object the constructor expects will match what
- * Borsh passes to it as an argument.
- *
- * Usage:
- *
- *     class TxMsgValue {
- *
- *       constructor(args: SchemaObject<typeof TxMsgSchema>) {  // note use of typeof
- *         args.token      // : string
- *         args.fee_amount // : BN
- *         ...
- *       }
- *     }
- *
- *     // schema value must match the following form:
- *     const TxMsgSchema = [
- *       TxMsgValue,
- *       {
- *         kind: "struct",
- *         fields: [
- *           ["token", "string"],
- *           ["fee_amount", "u64"],
- *           ["gas_limit", "u64"],
- *           ["chain_id", "string"],
- *         ],
- *       },
- *     ] as const; // as const needed for typeof to deduce types correctly
- */
-export type SchemaObject<T> =
-  T extends readonly [unknown, { kind: "struct", fields: infer Fields }] ?
-    Fields extends readonly (infer FieldEntry extends (readonly [string, unknown]))[] ?
-      {
-        // optional types need special handling to add the '?' suffix to their keys
-        [KV in FieldEntry as Value<KV> extends { kind: "option" } ? Key<KV> : never]?:
-          Value<KV> extends { type: infer S } ? FromBorsh<S> : unknown;
-      } & {
-        [KV in FieldEntry as Value<KV> extends { kind: "option" } ? never : Key<KV>]:
-          FromBorsh<Value<KV>>;
-      } :
-      never :
-    never;

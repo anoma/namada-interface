@@ -1,32 +1,23 @@
-import {
-  serialize,
-  deserialize,
-  BinaryReader,
-  BinaryWriter,
-  Schema,
-} from "borsh";
+import { Constructor, deserialize, serialize } from "@dao-xyz/borsh";
+import { Schema } from "../schema";
 
-export type ClassType<T> = {
-  new (args: unknown): T;
-};
-
-export interface IMessage<T> {
-  encode(schema: Schema, value: T): Uint8Array;
-  decode(schema: Schema, buffer: Uint8Array, parser: ClassType<T>): T;
+export interface IMessage<T extends Schema> {
+  encode(value: T): Uint8Array;
+  decode(buffer: Uint8Array, parser: Constructor<T>): T;
 }
 
-export class Message<T> implements IMessage<T> {
-  public encode(schema: Schema, value: T): Uint8Array {
+export class Message<T extends Schema> implements IMessage<T> {
+  public encode(value: T): Uint8Array {
     try {
-      return serialize(schema, value, BinaryWriter);
+      return serialize(value);
     } catch (e) {
       throw new Error(`Unable to serialize message: ${e}`);
     }
   }
 
-  public decode(schema: Schema, buffer: Uint8Array, parser: ClassType<T>): T {
+  public decode(buffer: Uint8Array, parser: Constructor<T>): T {
     try {
-      return deserialize(schema, parser, Buffer.from(buffer), BinaryReader);
+      return deserialize(Buffer.from(buffer), parser);
     } catch (e) {
       throw new Error(`Unable to deserialize message: ${e}`);
     }

@@ -22,7 +22,6 @@ import {
   AccountType,
   Bip44Path,
   DerivedAccount,
-  SubmitTransferMsgSchema,
   TransferMsgValue,
 } from "@anoma/types";
 import { chains } from "@anoma/chains";
@@ -39,8 +38,8 @@ import {
   readVecStringPointer,
   readStringPointer,
 } from "@anoma/crypto/src/utils";
-import { deserialize } from "borsh";
 import { Result } from "@anoma/utils";
+import { deserialize } from "@dao-xyz/borsh";
 
 // Generated UUID namespace for uuid v5
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
@@ -686,11 +685,7 @@ export class KeyRing {
 
     // We need to get the source address in case it is shielded one, so we can
     // decrypt the extended spending key for a transfer.
-    const { source } = deserialize(
-      SubmitTransferMsgSchema,
-      TransferMsgValue,
-      Buffer.from(txMsg)
-    );
+    const { source } = deserialize(Buffer.from(txMsg), TransferMsgValue);
 
     const account = await this._keyStore.getRecord("address", source);
     if (!account) {

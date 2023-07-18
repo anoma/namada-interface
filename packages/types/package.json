@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "bn.js": "^5.2.1",
-    "borsh": "^0.7.0",
+    "@dao-xyz/borsh": "^5.1.5",
     "slip44": "^2.0.4",
     "typescript": "^5.1.3"
   },

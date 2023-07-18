@@ -10,7 +10,7 @@ use namada::{
         key::common::PublicKey as PK,
         key::ed25519::PublicKey,
         masp::{ExtendedSpendingKey, PaymentAddress, TransferSource, TransferTarget},
-        token::{Amount, DenominatedAmount, Denomination},
+        token::{Amount, DenominatedAmount},
         transaction::GasLimit,
     },
 };
@@ -19,8 +19,8 @@ use wasm_bindgen::JsError;
 #[derive(BorshSerialize, BorshDeserialize)]
 pub struct TxMsg {
     token: String,
-    fee_amount: u64,
-    gas_limit: u64,
+    fee_amount: String,
+    gas_limit: String,
     chain_id: String,
     public_key: Option<String>,
 }
@@ -29,7 +29,7 @@ pub struct TxMsg {
 pub struct SubmitBondMsg {
     source: String,
     validator: String,
-    amount: u64,
+    amount: String,
     native_token: String,
     tx: TxMsg,
 }
@@ -59,7 +59,9 @@ pub fn bond_tx_args(tx_msg: &[u8], password: Option<String>) -> Result<args::Bon
     let source = Address::from_str(&source)?;
     let native_token = Address::from_str(&native_token)?;
     let validator = Address::from_str(&validator)?;
-    let amount = Amount::from(amount);
+    let amount: Amount = DenominatedAmount::from_str(&amount)
+        .expect(format!("Amount has to be valid. Received {}", amount).as_str())
+        .into();
 
     let args = args::Bond {
         tx: tx_msg_into_args(tx, password)?,
@@ -77,7 +79,7 @@ pub fn bond_tx_args(tx_msg: &[u8], password: Option<String>) -> Result<args::Bon
 pub struct SubmitUnbondMsg {
     source: String,
     validator: String,
-    amount: u64,
+    amount: String,
     tx: TxMsg,
 }
 
@@ -104,7 +106,9 @@ pub fn unbond_tx_args(tx_msg: &[u8], password: Option<String>) -> Result<args::U
 
     let source = Address::from_str(&source)?;
     let validator = Address::from_str(&validator)?;
-    let amount = Amount::from(amount);
+    let amount: Amount = DenominatedAmount::from_str(&amount)
+        .expect(format!("Amount has to be valid. Received {}", amount).as_str())
+        .into();
 
     let args = args::Unbond {
         tx: tx_msg_into_args(tx, password)?,
@@ -124,7 +128,7 @@ pub struct SubmitTransferMsg {
     target: String,
     token: String,
     sub_prefix: Option<String>,
-    amount: u64,
+    amount: String,
     native_token: String,
 }
 
@@ -205,7 +209,7 @@ pub struct SubmitIbcTransferMsg {
     receiver: String,
     token: String,
     sub_prefix: Option<String>,
-    amount: u64,
+    amount: String,
     port_id: String,
     channel_id: String,
     timeout_height: Option<u64>,
@@ -243,7 +247,9 @@ pub fn ibc_transfer_tx_args(
 
     let source = Address::from_str(&source)?;
     let token = Address::from_str(&token)?;
-    let amount = Amount::from(amount);
+    let amount: Amount = DenominatedAmount::from_str(&amount)
+        .expect(format!("Amount has to be valid. Received {}", amount).as_str())
+        .into();
     let port_id = PortId::from_str(&port_id).expect("Port id to be valid");
     let channel_id = ChannelId::from_str(&channel_id).expect("Channel id to be valid");
 
@@ -285,14 +291,14 @@ fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> Result<args::Tx,
 
     let token = Address::from_str(&token)?;
 
-    let fee_amount = Amount::from(fee_amount);
-    let fee_input_amount = InputAmount::Unvalidated(DenominatedAmount {
-        amount: fee_amount,
-        denom: Denomination::from(0),
-    });
+    let fee_amount = DenominatedAmount::from_str(&fee_amount)
+        .expect(format!("Fee amount has to be valid. Received {}", fee_amount).as_str());
+    let fee_input_amount = InputAmount::Unvalidated(fee_amount);
 
     let password = password.map(|pwd| zeroize::Zeroizing::new(pwd));
-    let gas_limit = Amount::from(gas_limit);
+    let gas_limit: Amount = DenominatedAmount::from_str(&gas_limit)
+        .expect(format!("Gas limit amount has to be valid. Received {}", gas_limit).as_str())
+        .into();
     let public_key = match public_key {
         Some(v) => {
             let pk = PublicKey::from_str(&v).map_err(JsError::from)?;
