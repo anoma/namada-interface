@@ -28,7 +28,7 @@ export class ApprovalsService {
   async approveTransfer(txMsg: string, type?: AccountType): Promise<void> {
     const txMsgBuffer = Buffer.from(fromBase64(txMsg));
     const id = uuid();
-    this.txStore.set(id, txMsg);
+    await this.txStore.set(id, txMsg);
 
     // Decode tx details and launch approval screen
     const txDetails = deserialize(
@@ -53,7 +53,7 @@ export class ApprovalsService {
   ): Promise<void> {
     const txMsgBuffer = Buffer.from(fromBase64(txMsg));
     const id = uuid();
-    this.txStore.set(id, txMsg);
+    await this.txStore.set(id, txMsg);
 
     // Decode tx details and launch approval screen
     const txDetails = deserialize(
@@ -80,7 +80,7 @@ export class ApprovalsService {
   async approveUnbond(txMsg: string, type?: AccountType): Promise<void> {
     const txMsgBuffer = Buffer.from(fromBase64(txMsg));
     const id = uuid();
-    this.txStore.set(id, txMsg);
+    await this.txStore.set(id, txMsg);
 
     // Decode tx details and launch approval screen
     const txDetails = deserialize(

@@ -112,6 +112,6 @@ const handleSubmitSignedRevealPKMsg: (
 ) => InternalHandler<SubmitSignedRevealPKMsg> = (service) => {
   return async (_, msg) => {
     const { txMsg, bytes, signatures } = msg;
-    return await service.submitBond(txMsg, bytes, signatures);
+    return await service.submitRevealPk(txMsg, bytes, signatures);
   };
 };

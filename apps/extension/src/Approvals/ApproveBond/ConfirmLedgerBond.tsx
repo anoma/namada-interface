@@ -42,7 +42,7 @@ export const ConfirmLedgerBond: React.FC<Props> = ({
   const [status, setStatus] = useState<Status>();
   const [statusInfo, setStatusInfo] = useState("");
 
-  const revealPk = async (ledger: Ledger, publicKey: string): Promise<void> => {
+  const revealPk = async (publicKey: string): Promise<void> => {
     const revealPKArgs: RevealPKProps = {
       tx: {
         token: Tokens.NAM.address || "",
@@ -58,24 +58,33 @@ export const ConfirmLedgerBond: React.FC<Props> = ({
     const txMsg = new Message<RevealPKMsgValue>();
     const serializedTx = txMsg.encode(SubmitRevealPKMsgSchema, revealTxValue);
 
+    // Open Ledger transport
+    const ledger = await Ledger.init();
+
     try {
       const { bytes, path } = await requester.sendMessage(
         Ports.Background,
         new GetRevealPKBytesMsg(toBase64(serializedTx))
       );
 
-      // Sign with Ledger
+      // Sign with Ledgeg
       const signatures = await ledger.sign(bytes, path);
 
       // Submit signatures for tx
       setStatusInfo("Submitting reveal pk tx...");
       await requester.sendMessage(
         Ports.Background,
-        new SubmitSignedRevealPKMsg(msgId, toBase64(bytes), signatures)
+        new SubmitSignedRevealPKMsg(
+          toBase64(serializedTx),
+          toBase64(bytes),
+          signatures
+        )
       );
     } catch (e) {
-      console.warn(e);
+      console.warn("An error occured: ", e);
       throw new Error(`${e}`);
+    } finally {
+      await ledger.closeTransport();
     }
   };
 
@@ -90,38 +99,43 @@ export const ConfirmLedgerBond: React.FC<Props> = ({
 
   const submitBond = async (): Promise<void> => {
     setStatus(Status.Pending);
+    setStatusInfo("Querying for public key on chain...");
+
+    const pk = await queryPublicKey(address);
+
+    if (!pk) {
+      setStatusInfo(
+        "Public key not found! Review and approve reveal pk on your Ledger"
+      );
+      await revealPk(publicKey);
+    }
+
+    // Open ledger transport
     const ledger = await Ledger.init();
 
     try {
-      setStatusInfo("Querying for public key on chain...");
-      const pk = await queryPublicKey(address);
-
-      if (!pk) {
-        setStatusInfo(
-          "Public key not found! Review and approve reveal pk on your Ledger"
-        );
-        await revealPk(ledger, publicKey);
-      }
-
-      setStatusInfo("Review and approve transaction on your Ledger");
-
       // Constuct tx bytes from SDK
       const { bytes, path } = await requester.sendMessage(
         Ports.Background,
         new GetBondBytesMsg(msgId)
       );
 
+      setStatusInfo("Review and approve bond transaction on your Ledger");
       // Sign with Ledger
       const signatures = await ledger.sign(bytes, path);
       const { errorMessage, returnCode } = signatures;
 
       if (returnCode !== LedgerError.NoErrors) {
+        console.warn("Bond sign errors encountered, exiting: ", {
+          returnCode,
+          errorMessage,
+        });
         setError(errorMessage);
         return setStatus(Status.Failed);
       }
 
       // Submit signatures for tx
-      setStatusInfo("Submitting transaction...");
+      setStatusInfo("Submitting bond transaction...");
       await requester.sendMessage(
         Ports.Background,
         new SubmitSignedBondMsg(msgId, toBase64(bytes), signatures)
@@ -129,11 +143,8 @@ export const ConfirmLedgerBond: React.FC<Props> = ({
       setStatus(Status.Completed);
     } catch (e) {
       console.warn(e);
-      const ledgerErrors = await ledger.queryErrors();
-      setError(ledgerErrors);
       setStatus(Status.Failed);
-    } finally {
-      ledger.closeTransport();
+      await ledger.closeTransport();
     }
   };
 

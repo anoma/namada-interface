@@ -197,11 +197,13 @@ export class LedgerService {
     msgId: string
   ): Promise<{ bytes: Uint8Array; path: string }> {
     const txMsg = await this.txStore.get(msgId);
-    const { coinType } = chains[this.chainId].bip44;
 
     if (!txMsg) {
+      console.warn(`txMsg not found for msgId: ${msgId}`);
       throw new Error(`Transfer Transaction ${msgId} not found!`);
     }
+
+    const { coinType } = chains[this.chainId].bip44;
 
     try {
       // Deserialize txMsg to retrieve source
