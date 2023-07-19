@@ -38,13 +38,11 @@ Christel = "1000000"
 "Christel.public_key" = "100"
 Daewon = "1000000"
 Ester = "1000000"
+TestA = "1000"
+TestB = "1000"
 faucet = "9223372036854"
 "faucet.public_key" = "100"
 "validator-0.public_key" = "100"
-TestA = "1000"
-"TestA.public_key" = "1000"
-TestB = "1000"
-"TestB.public_key" = "1000"
 
 [token.BTC]
 address = "atest1v4ehgw36xdzryve5gsc52veeg5cnsv2yx5eygvp38qcrvd29xy6rys6p8yc5xvp4xfpy2v694wgwcp"
@@ -56,6 +54,7 @@ Bertha = "1000000"
 Christel = "1000000"
 Daewon = "1000000"
 Ester = "1000000"
+TestA = "1000000"
 faucet = "9223372036854"
 
 [token.ETH]
@@ -137,15 +136,15 @@ address = "atest1v4ehgw36xaryysfsx5unvve4g5my2vjz89p52sjxxgenzd348yuyyv3hg3pnjs3
 vp = "vp_masp"
 
 [implicit.Daewon]
+public_key = "002b5b8fda66fb6fc4ef0d86f84b21f250034077effc459fc2403a77a35aa95e3f"
 
 [implicit.Ester]
 
-[established.TestA]
-address = "atest1d9khqw36xccyydp3xpznjvzrx3zrq3fexep5y33nxverqdz9xcc5ydeexgm52djrxvuyxsjr44hd2f"
+[implicit.TestA]
+public_key = "0076a9df923fd0746a17682429ca1a5ff859f066c4be6c0bcdaaadb5f45524ad8a"
 
-[established.TestB]
-address = "atest1d9khqw368qury3phx3prsvp4gezrssenxqmyxwpn8qmrqvpsg4znjdjp8ycry3p3g4p5vd6x66dnmw"
-
+[implicit.TestB]
+public_key = "000e5a813e23821025d56dd8f578b9bbfe6a215beb9d016807b16c1afb182c8e05"
 # Wasm VP definitions
 
 # Implicit VP
