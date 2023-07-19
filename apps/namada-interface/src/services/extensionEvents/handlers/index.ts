@@ -1,3 +1,3 @@
-export * from "./anoma";
+export * from "./namada";
 export * from "./keplr";
 export * from "./metamask";

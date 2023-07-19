@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { ColorMode, DesignConfiguration } from "@anoma/utils";
+import { ColorMode, DesignConfiguration } from "@namada/utils";
 
 const COMPONENT_WIDTH_PIXELS = 46;
 const CIRCLE_DIAMETER_PIXELS = 20;

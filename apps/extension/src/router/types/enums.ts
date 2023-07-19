@@ -5,21 +5,21 @@ export enum Ports {
 }
 
 export enum Events {
-  KeystoreChanged = "anoma-keystore-changed",
-  PushEventData = "anoma-push-event-data",
+  KeystoreChanged = "namada-keystore-changed",
+  PushEventData = "namada-push-event-data",
 }
 
 export enum Routes {
-  InteractionForeground = "anoma-interaction-foreground",
+  InteractionForeground = "namada-interaction-foreground",
 }
 
 export enum KVPrefix {
-  IndexedDB = "Anoma::IndexedDB",
-  LocalStorage = "Anoma::LocalStorage",
-  Memory = "Anoma::Memory",
-  SDK = "Anoma::SDK",
-  Utility = "Anoma::Utility",
-  ConnectedTabs = "Anoma::ConnectedTabs",
+  IndexedDB = "Namada::IndexedDB",
+  LocalStorage = "Namada::LocalStorage",
+  Memory = "Namada::Memory",
+  SDK = "Namada::SDK",
+  Utility = "Namada::Utility",
+  ConnectedTabs = "Namada::ConnectedTabs",
 }
 
 export enum KVKeys {

@@ -10,7 +10,7 @@ import {
   Icon,
   IconName,
   NavigationContainer,
-} from "@anoma/components";
+} from "@namada/components";
 import {
   SettingsContainer,
   SettingsContent,

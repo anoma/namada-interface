@@ -1,4 +1,4 @@
-import { getAnomaRouterId } from "./utils";
+import { getNamadaRouterId } from "./utils";
 import {
   EnvProducer,
   MessageSender,
@@ -6,7 +6,7 @@ import {
   RoutedMessage,
   Router,
 } from "router";
-import { KVStore } from "@anoma/storage";
+import { KVStore } from "@namada/storage";
 import { Messenger } from "./ExtensionMessenger";
 
 export class ExtensionRouter extends Router {
@@ -43,7 +43,7 @@ export class ExtensionRouter extends Router {
 
     if (
       message.msg?.meta?.routerId &&
-      message.msg.meta.routerId !== (await getAnomaRouterId(this.store))
+      message.msg.meta.routerId !== (await getNamadaRouterId(this.store))
     ) {
       return;
     }

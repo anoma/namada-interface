@@ -16,7 +16,7 @@ export enum BridgeType {
 }
 
 // Define keys for supported extensions
-export type ExtensionKey = "anoma" | "keplr" | "metamask";
+export type ExtensionKey = "namada" | "keplr" | "metamask";
 
 export type ExtensionInfo = {
   alias: string;
@@ -26,9 +26,9 @@ export type ExtensionInfo = {
 
 // Define constant with extension properties
 export const Extensions: Record<ExtensionKey, ExtensionInfo> = {
-  anoma: {
-    alias: "Anoma",
-    id: "anoma",
+  namada: {
+    alias: "Namada",
+    id: "namada",
     url: "https://namada.me/",
   },
   keplr: {

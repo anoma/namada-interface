@@ -1,8 +1,8 @@
-import { Anoma } from "./Anoma";
+import { Namada } from "./Namada";
 import { ProxyRequest, ProxyRequestResponse, ProxyRequestTypes } from "./types";
 
 export class Proxy {
-  static start(anoma: Anoma): void {
+  static start(namada: Namada): void {
     Proxy.addMessageListener(async (e) => {
       const message = e.data;
 
@@ -13,11 +13,11 @@ export class Proxy {
       const { method, args } = message;
 
       try {
-        if (!anoma[method] || typeof anoma[method] !== "function") {
+        if (!namada[method] || typeof namada[method] !== "function") {
           throw new Error(`${message.method} not found!`);
         }
 
-        const result = await anoma[method](args);
+        const result = await namada[method](args);
         const proxyResponse: ProxyRequestResponse = {
           type: ProxyRequestTypes.Response,
           id: message.id,

@@ -14,7 +14,7 @@ export const init = (
     payload?: string
   ) => Promise<void>
 ): void => {
-  const w = new Worker("submit-transfer-web-worker.anoma.js");
+  const w = new Worker("submit-transfer-web-worker.namada.js");
 
   w.onmessage = (e: MessageEvent<Msg>) => {
     const { msgName, payload } = e.data;

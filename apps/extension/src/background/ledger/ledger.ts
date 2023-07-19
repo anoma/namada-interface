@@ -8,7 +8,7 @@ import TransportUSB from "@ledgerhq/hw-transport-webusb";
 import TransportHID from "@ledgerhq/hw-transport-webhid";
 import Transport from "@ledgerhq/hw-transport";
 
-import { defaultChainId, chains } from "@anoma/chains";
+import { defaultChainId, chains } from "@namada/chains";
 
 const namadaChain = chains[defaultChainId];
 const bip44CoinType = namadaChain.bip44.coinType;

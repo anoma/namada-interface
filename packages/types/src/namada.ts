@@ -2,7 +2,7 @@ import { DerivedAccount } from "./account";
 import { Chain } from "./chain";
 import { Signer } from "./signer";
 
-export interface Anoma {
+export interface Namada {
   connect(chainId: string): Promise<void>;
   accounts(chainId: string): Promise<DerivedAccount[] | undefined>;
   balances(
@@ -22,9 +22,9 @@ export interface Anoma {
   version: () => string;
 }
 
-export type WindowWithAnoma = Window &
+export type WindowWithNamada = Window &
   typeof globalThis & {
-    anoma: Anoma & {
+    namada: Namada & {
       getSigner: (chainId: string) => Signer;
     };
   };

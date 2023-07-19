@@ -1,4 +1,4 @@
-import { Button, ButtonVariant } from "@anoma/components";
+import { Button, ButtonVariant } from "@namada/components";
 import { useQuery } from "hooks";
 
 import {

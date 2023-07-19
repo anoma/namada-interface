@@ -34,7 +34,7 @@ Contains the logic for:
 
 ### Why we are not using key generation functions from the Namada Shared?
 
-Currently, the Anoma extension derives keys based on a mnemonic, while Namada derives keys based on a source of randomness (`OsRng`). As such, we have introduced functions that allow us to add keys derived within the extension into Sdk's wallet storage. This will most likely change in future after Namada introduces support for mnemonics into the Sdk.
+Currently, the Namada extension derives keys based on a mnemonic, while Namada derives keys based on a source of randomness (`OsRng`). As such, we have introduced functions that allow us to add keys derived within the extension into Sdk's wallet storage. This will most likely change in future after Namada introduces support for mnemonics into the Sdk.
 
 ## sdk
 
@@ -42,5 +42,5 @@ Sdk struct wraps logic from the other modules, creating public API using `wasm_b
 
 ## About wallet storage
 
-At the moment, the client of the Sdk is responsible for keeping storage in sync with the Sdk's wallet instance. What does that mean? The Anoma extension has its own key storage, which is modified by user actions. Every time the extension storage changes (for example, when a new address is derived), we must manually sync the extension and Sdk wallet storage
+At the moment, the client of the Sdk is responsible for keeping storage in sync with the Sdk's wallet instance. What does that mean? The Namada extension has its own key storage, which is modified by user actions. Every time the extension storage changes (for example, when a new address is derived), we must manually sync the extension and Sdk wallet storage
 using functions provided by `wallet` module. This is something that will most likely change in the future.

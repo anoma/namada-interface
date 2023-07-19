@@ -1,6 +1,6 @@
 # shared
 
-Anoma shared library functionality, providing wasm-compability for features in `namada/shared`.
+Namada shared library functionality, providing wasm-compability for features in `namada/shared`.
 
 ## Usage
 

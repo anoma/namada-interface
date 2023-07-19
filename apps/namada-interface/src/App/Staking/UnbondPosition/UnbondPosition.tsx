@@ -6,14 +6,14 @@ import {
   Table,
   TableConfigurations,
   KeyValueData,
-} from "@anoma/components";
+} from "@namada/components";
 
 import {
   StakingPosition,
   ChangeInStakingPosition,
 } from "slices/StakingAndGovernance";
 import { UnstakePositionContainer } from "./UnbondPosition.components";
-import { useSanitizedParams } from "@anoma/hooks";
+import { useSanitizedParams } from "@namada/hooks";
 
 // keys for the table that we want to act upon in table configuration
 const AMOUNT_TO_UNBOND_KEY = "Amount to unbond";

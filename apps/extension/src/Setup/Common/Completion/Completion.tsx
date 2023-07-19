@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { ExtensionRequester } from "extension";
 import browser from "webextension-polyfill";
 
-import { Button, ButtonVariant } from "@anoma/components";
-import { useUntil } from "@anoma/hooks";
+import { Button, ButtonVariant } from "@namada/components";
+import { useUntil } from "@namada/hooks";
 import {
   CheckIsLockedMsg,
   SaveMnemonicMsg,

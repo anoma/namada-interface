@@ -1,7 +1,7 @@
 import { useEffect, useContext, useCallback } from "react";
 import { AnimatePresence } from "framer-motion";
 
-import { Icon, IconName } from "@anoma/components";
+import { Icon, IconName } from "@namada/components";
 
 import { useAppSelector, useAppDispatch } from "store";
 import { ThemeContext } from "styled-components";

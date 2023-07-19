@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { ThemeContext } from "styled-components";
 
-import { Icon, IconName, IconSize } from "@anoma/components";
+import { Icon, IconName, IconSize } from "@namada/components";
 
 import {
   SubViewContainer,

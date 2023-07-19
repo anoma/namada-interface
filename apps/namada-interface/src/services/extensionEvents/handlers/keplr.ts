@@ -1,6 +1,6 @@
 import { Dispatch } from "react";
 
-import { Keplr } from "@anoma/integrations";
+import { Keplr } from "@namada/integrations";
 
 import { addAccounts, fetchBalances } from "slices/accounts";
 

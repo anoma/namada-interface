@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { executeUntil, Config } from "@anoma/utils";
+import { executeUntil, Config } from "@namada/utils";
 
 type Options = {
   predFn: () => Promise<boolean>;

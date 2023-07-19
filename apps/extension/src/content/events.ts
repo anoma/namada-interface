@@ -1,4 +1,4 @@
-import { Events } from "@anoma/types";
+import { Events } from "@namada/types";
 
 import { Message, Router, Routes } from "../router";
 

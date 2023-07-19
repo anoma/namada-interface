@@ -1,4 +1,4 @@
-import { IntegrationsContext, integrations } from "@anoma/hooks";
+import { IntegrationsContext, integrations } from "@namada/hooks";
 
 export const IntegrationsProvider: React.FC = (props): JSX.Element => {
   return (

@@ -6,11 +6,11 @@ import {
   Rng,
   Salt,
   VecU8Pointer,
-} from "@anoma/crypto";
-import { AccountType, Bip44Path } from "@anoma/types";
+} from "@namada/crypto";
+import { AccountType, Bip44Path } from "@namada/types";
 import { Argon2Config } from "config";
 import { CryptoRecord, KdfType, KeyStore } from "./types";
-import { readVecU8Pointer } from "@anoma/crypto/src/utils";
+import { readVecU8Pointer } from "@namada/crypto/src/utils";
 
 type CryptoArgs = {
   alias: string;

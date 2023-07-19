@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, ButtonVariant } from "@anoma/components";
+import { Button, ButtonVariant } from "@namada/components";
 import browser from "webextension-polyfill";
 
 const Setup: React.FC = () => {

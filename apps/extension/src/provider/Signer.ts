@@ -1,7 +1,7 @@
 import { toBase64 } from "@cosmjs/encoding";
 import {
   Account,
-  Anoma,
+  Namada,
   AccountMsgValue,
   IbcTransferMsgValue,
   IbcTransferProps,
@@ -14,16 +14,16 @@ import {
   SubmitBondProps,
   SubmitBondMsgValue,
   SubmitUnbondMsgValue,
-} from "@anoma/types";
+} from "@namada/types";
 
 export class Signer implements ISigner {
   constructor(
     protected readonly chainId: string,
-    private readonly _anoma: Anoma
+    private readonly _namada: Namada
   ) {}
 
   public async accounts(): Promise<Account[] | undefined> {
-    return (await this._anoma.accounts(this.chainId))?.map(
+    return (await this._namada.accounts(this.chainId))?.map(
       ({ alias, address, chainId, type }) => ({
         alias,
         address,
@@ -42,7 +42,7 @@ export class Signer implements ISigner {
     const msg = new Message<SubmitBondMsgValue>();
     const encoded = msg.encode(msgValue);
 
-    return await this._anoma.submitBond(toBase64(encoded));
+    return await this._namada.submitBond(toBase64(encoded));
   }
 
   /**
@@ -54,7 +54,7 @@ export class Signer implements ISigner {
     const msg = new Message<SubmitUnbondMsgValue>();
     const encoded = msg.encode(msgValue);
 
-    return await this._anoma.submitUnbond(toBase64(encoded));
+    return await this._namada.submitUnbond(toBase64(encoded));
   }
 
   /**
@@ -65,7 +65,7 @@ export class Signer implements ISigner {
     const transferMessage = new Message<TransferMsgValue>();
     const serializedTransfer = transferMessage.encode(transferMsgValue);
 
-    return await this._anoma.submitTransfer(toBase64(serializedTransfer));
+    return await this._namada.submitTransfer(toBase64(serializedTransfer));
   }
 
   /**
@@ -77,7 +77,7 @@ export class Signer implements ISigner {
     const serializedIbcTransfer =
       ibcTransferMessage.encode(ibcTransferMsgValue);
 
-    return await this._anoma.submitIbcTransfer(toBase64(serializedIbcTransfer));
+    return await this._namada.submitIbcTransfer(toBase64(serializedIbcTransfer));
   }
 
   /**
@@ -94,7 +94,7 @@ export class Signer implements ISigner {
     const accountMessage = new Message<AccountMsgValue>();
     const serialized = accountMessage.encode(accountMsgValue);
 
-    return await this._anoma.encodeInitAccount({
+    return await this._namada.encodeInitAccount({
       txMsg: toBase64(serialized),
       address: signer,
     });

@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import { ThemeProvider } from "styled-components";
 import { Routes, Route, useNavigate } from "react-router-dom";
 
-import { DerivedAccount } from "@anoma/types";
-import { getTheme } from "@anoma/utils";
-import { Icon, IconName } from "@anoma/components";
-import { useUntil } from "@anoma/hooks";
+import { DerivedAccount } from "@namada/types";
+import { getTheme } from "@namada/utils";
+import { Icon, IconName } from "@namada/components";
+import { useUntil } from "@namada/hooks";
 
 import { Ports } from "router";
 import {
@@ -188,7 +188,7 @@ export const App: React.FC = () => {
         <GlobalStyles />
         <ContentContainer>
           <TopSection>
-            <Heading>Anoma Browser Extension</Heading>
+            <Heading>Namada Browser Extension</Heading>
             <HeadingLoader
               className={
                 maspStatus.status === Status.Pending ? "is-loading" : ""

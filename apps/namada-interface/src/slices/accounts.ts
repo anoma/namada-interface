@@ -1,9 +1,9 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import BigNumber from "bignumber.js";
 
-import { Account as AccountDetails, TokenType } from "@anoma/types";
-import { chains } from "@anoma/chains";
-import { getIntegration } from "@anoma/hooks";
+import { Account as AccountDetails, TokenType } from "@namada/types";
+import { chains } from "@namada/chains";
+import { getIntegration } from "@namada/hooks";
 
 import { RootState } from "store";
 

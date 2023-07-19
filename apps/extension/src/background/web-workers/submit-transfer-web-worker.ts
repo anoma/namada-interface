@@ -1,7 +1,7 @@
-import { defaultChainId, chains } from "@anoma/chains";
-import { Sdk } from "@anoma/shared";
-import { init as initShared } from "@anoma/shared/src/init";
-import { IndexedDBKVStore } from "@anoma/storage";
+import { defaultChainId, chains } from "@namada/chains";
+import { Sdk } from "@namada/shared";
+import { init as initShared } from "@namada/shared/src/init";
+import { IndexedDBKVStore } from "@namada/storage";
 import { fromBase64 } from "@cosmjs/encoding";
 import { KVPrefix } from "router";
 import {

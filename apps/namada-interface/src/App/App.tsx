@@ -10,7 +10,7 @@ import {
   loadColorMode,
   storeColorMode,
   ColorMode,
-} from "@anoma/utils";
+} from "@namada/utils";
 
 import { TopNavigation } from "./TopNavigation";
 import {
@@ -25,11 +25,11 @@ import {
 import { persistor, store, useAppDispatch, useAppSelector } from "store";
 import { Toasts } from "App/Toast";
 import { SettingsState } from "slices/settings";
-import { chains } from "@anoma/chains";
-import { useIntegration, useUntilIntegrationAttached } from "@anoma/hooks";
+import { chains } from "@namada/chains";
+import { useIntegration, useUntilIntegrationAttached } from "@namada/hooks";
 import { Outlet } from "react-router-dom";
 import { addAccounts, fetchBalances } from "slices/accounts";
-import { Account } from "@anoma/types";
+import { Account } from "@namada/types";
 
 export const history = createBrowserHistory({ window });
 

@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 
-import { Icon, IconName, Toggle } from "@anoma/components";
-import { ColorMode } from "@anoma/utils";
+import { Icon, IconName, Toggle } from "@namada/components";
+import { ColorMode } from "@namada/utils";
 
 import { TopLevelRoute } from "App/types";
 import { ColorModeContainer, OnlyInMedium } from "./topNavigation.components";

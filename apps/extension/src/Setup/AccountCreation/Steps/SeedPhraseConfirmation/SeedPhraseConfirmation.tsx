@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, ButtonVariant, Input, InputVariants } from "@anoma/components";
+import { Button, ButtonVariant, Input, InputVariants } from "@namada/components";
 
 import {
   BodyText,

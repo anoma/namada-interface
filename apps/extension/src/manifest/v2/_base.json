@@ -2,10 +2,10 @@
   "manifest_version": 2,
   "browser_action": {
     "default_popup": "popup.html",
-    "default_title": "Anoma Extension"
+    "default_title": "Namada Extension"
   },
   "background": {
-    "scripts": ["background.anoma.js"],
+    "scripts": ["background.namada.js"],
     "persistent": true
   },
   "permissions": [
@@ -18,10 +18,10 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.anoma.js"],
+      "js": ["content.namada.js"],
       "run_at": "document_start",
       "all_frames": true
     }
   ],
-  "web_accessible_resources": ["injected.anoma.js", "assets/app.css"]
+  "web_accessible_resources": ["injected.namada.js", "assets/app.css"]
 }

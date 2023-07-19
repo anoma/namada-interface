@@ -1,6 +1,6 @@
-import { KVStore } from "@anoma/storage";
-import { debounce } from "@anoma/utils";
-import { Chain } from "@anoma/types";
+import { KVStore } from "@namada/storage";
+import { debounce } from "@namada/utils";
+import { Chain } from "@namada/types";
 import { Env, KVKeys } from "router";
 
 type ChainRemovedHandler = (chainId: string, identifier: string) => void;

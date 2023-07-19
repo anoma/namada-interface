@@ -2,9 +2,9 @@ import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import browser from "webextension-polyfill";
 
-import { DerivedAccount } from "@anoma/types";
-import { Button, ButtonVariant } from "@anoma/components";
-import { assertNever } from "@anoma/utils";
+import { DerivedAccount } from "@namada/types";
+import { Button, ButtonVariant } from "@namada/components";
+import { assertNever } from "@namada/utils";
 
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";

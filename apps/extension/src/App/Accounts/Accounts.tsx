@@ -1,5 +1,5 @@
 import React from "react";
-import { DerivedAccount } from "@anoma/types";
+import { DerivedAccount } from "@namada/types";
 import {
   AccountsContainer,
   AccountsList,

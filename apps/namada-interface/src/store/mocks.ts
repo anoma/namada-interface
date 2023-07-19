@@ -7,11 +7,11 @@ import { StakingOrUnstakingState } from "slices/StakingAndGovernance";
 export const mockAppState: RootState = {
   accounts: {
     derived: {
-      "anoma-masp-1.5.32ccad5356012a7": {
+      "namada-masp-1.5.32ccad5356012a7": {
         atest1v4ehgw36xqcyz3zrxsenzd3kxsunsvzzxymyywpkg4zrjv2pxepyyd3cgse5gwzxgsm5x3zrkf2pwp:
           {
             details: {
-              chainId: "anoma-masp-1.5.32ccad5356012a7",
+              chainId: "namada-masp-1.5.32ccad5356012a7",
               alias: "Namada",
               address:
                 "atest1v4ehgw36xqcyz3zrxsenzd3kxsunsvzzxymyywpkg4zrjv2pxepyyd3cgse5gwzxgsm5x3zrkf2pwp",
@@ -24,10 +24,10 @@ export const mockAppState: RootState = {
             },
           },
       },
-      "anoma-test.1e670ba91369ec891fc": {
+      "namada-test.1e670ba91369ec891fc": {
         "39UL18": {
           details: {
-            chainId: "anoma-test.1e670ba91369ec891fc",
+            chainId: "namada-test.1e670ba91369ec891fc",
             alias: "Namada",
             address:
               "atest1v4ehgw36xqcyz3zrxsenzd3kxsunsvzzxymyywpkg4zrjv2pxepyyd3cgse5gwzxgsm5x3zrkf2pwp",
@@ -40,10 +40,10 @@ export const mockAppState: RootState = {
           },
         },
       },
-      "anoma-test.89060614ce340f4baae": {
+      "namada-test.89060614ce340f4baae": {
         "2MLGVA": {
           details: {
-            chainId: "anoma-test.89060614ce340f4baae",
+            chainId: "namada-test.89060614ce340f4baae",
             alias: "Namada",
             address: "L1qDtV8TRwYLSHdMDW518hgRw9nWnRjFTenkcBYNJruyYoLjaj8F",
             isShielded: false,
@@ -61,7 +61,7 @@ export const mockAppState: RootState = {
   transfers: {
     transactions: [
       {
-        chainId: "anoma-masp-1.5.32ccad5356012a7",
+        chainId: "namada-masp-1.5.32ccad5356012a7",
         source:
           "atest1v4ehgw36gc6yxvpjxccyzvphxycrxw2xxsuyydesxgcnjs3cg9znwv3cxgmnj32yxy6rssf5tcqjm3",
         target:
@@ -77,7 +77,7 @@ export const mockAppState: RootState = {
         type: TransferType.NonShielded,
       },
       {
-        chainId: "anoma-masp-1.5.32ccad5356012a7",
+        chainId: "namada-masp-1.5.32ccad5356012a7",
         source:
           "atest1v4ehgw36gc6yxvpjxccyzvphxycrxw2xxsuyydesxgcnjs3cg9znwv3cxgmnj32yxy6rssf5tcqjm3",
         target:
@@ -93,7 +93,7 @@ export const mockAppState: RootState = {
         type: TransferType.NonShielded,
       },
       {
-        chainId: "anoma-masp-1.5.32ccad5356012a7",
+        chainId: "namada-masp-1.5.32ccad5356012a7",
         source:
           "atest1v4ehgw36gc6yxvpjxccyzvphxycrxw2xxsuyydesxgcnjs3cg9znwv3cxgmnj32yxy6rssf5tcqjm3",
         target:
@@ -116,17 +116,17 @@ export const mockAppState: RootState = {
   },
   channels: {
     channelsByChain: {
-      "anoma-test.1e670ba91369ec891fc": {
-        "anoma-test.89060614ce340f4baae": ["channel-0"],
+      "namada-test.1e670ba91369ec891fc": {
+        "namada-test.89060614ce340f4baae": ["channel-0"],
       },
-      "anoma-test.89060614ce340f4baae": {
-        "anoma-test.1e670ba91369ec891fc": ["channel-0"],
+      "namada-test.89060614ce340f4baae": {
+        "namada-test.1e670ba91369ec891fc": ["channel-0"],
       },
     },
   },
   settings: {
     fiatCurrency: "USD",
-    chainId: "anoma-masp-1.5.32ccad5356012a7",
+    chainId: "namada-masp-1.5.32ccad5356012a7",
     connectedChains: [],
   },
   coins: {

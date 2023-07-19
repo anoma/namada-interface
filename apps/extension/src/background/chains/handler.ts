@@ -1,4 +1,4 @@
-import { Chain } from "@anoma/types";
+import { Chain } from "@namada/types";
 import { Handler, Env, Message, InternalHandler } from "router";
 import { ChainsService } from "./service";
 import { RemoveChainMsg } from "./messages";

@@ -1,6 +1,6 @@
 import { JsonRpcRequest } from "@cosmjs/json-rpc";
 import { DateTime } from "luxon";
-import { JsonCompatibleArray, JsonCompatibleDictionary } from "@anoma/types";
+import { JsonCompatibleArray, JsonCompatibleDictionary } from "@namada/types";
 import BigNumber from "bignumber.js";
 
 const MICRO_FACTOR = 1000000; // 1,000,000

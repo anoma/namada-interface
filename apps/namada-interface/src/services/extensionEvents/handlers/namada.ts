@@ -1,19 +1,19 @@
 import { Dispatch } from "react";
 
-import { chains } from "@anoma/chains";
-import { Anoma } from "@anoma/integrations";
+import { chains } from "@namada/chains";
+import { Namada } from "@namada/integrations";
 
 import { addAccounts, fetchBalances } from "slices/accounts";
 import { actions as notificationsActions } from "slices/notifications";
 import { getToast, Toasts } from "slices/transfers";
 
-export const AnomaAccountChangedHandler =
-  (dispatch: Dispatch<unknown>, integration: Anoma) =>
+export const NamadaAccountChangedHandler =
+  (dispatch: Dispatch<unknown>, integration: Namada) =>
     async (event: CustomEventInit) => {
       const chainId = event.detail?.chainId;
       const chain = chains[chainId];
 
-      if (chain.extension.id === "anoma") {
+      if (chain.extension.id === "namada") {
         const accounts = (await integration.accounts()) || [];
 
         dispatch(addAccounts(accounts));
@@ -21,12 +21,12 @@ export const AnomaAccountChangedHandler =
       }
     };
 
-export const AnomaUpdatedBalancesHandler =
+export const NamadaUpdatedBalancesHandler =
   (dispatch: Dispatch<unknown>) => async () => {
     dispatch(fetchBalances());
   };
 
-export const AnomaTransferStartedHandler =
+export const NamadaTransferStartedHandler =
   (dispatch: Dispatch<unknown>) => async (event: CustomEventInit) => {
     const { msgId } = event.detail;
     dispatch(
@@ -39,7 +39,7 @@ export const AnomaTransferStartedHandler =
     );
   };
 
-export const AnomaTransferCompletedHandler =
+export const NamadaTransferCompletedHandler =
   (dispatch: Dispatch<unknown>) => async (event: CustomEventInit) => {
     const { msgId, success } = event.detail;
     dispatch(

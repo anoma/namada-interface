@@ -3,11 +3,11 @@ import {
   ExtensionKVStore,
   IndexedDBKVStore,
   MemoryKVStore,
-} from "@anoma/storage";
-import { defaultChainId, chains } from "@anoma/chains";
-import { init as initCrypto } from "@anoma/crypto/src/init";
-import { init as initShared } from "@anoma/shared/src/init";
-import { Query, Sdk } from "@anoma/shared";
+} from "@namada/storage";
+import { defaultChainId, chains } from "@namada/chains";
+import { init as initCrypto } from "@namada/crypto/src/init";
+import { init as initShared } from "@namada/shared/src/init";
+import { Query, Sdk } from "@namada/shared";
 
 import {
   ExtensionRouter,
@@ -15,7 +15,7 @@ import {
   ContentScriptEnv,
   ExtensionMessenger,
   ExtensionRequester,
-  getAnomaRouterId,
+  getNamadaRouterId,
 } from "extension";
 import { Ports, KVPrefix } from "router";
 import { ApprovalsService, init as initApprovals } from "./approvals";
@@ -53,7 +53,7 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
 
   await initShared();
 
-  const routerId = await getAnomaRouterId(extensionStore);
+  const routerId = await getNamadaRouterId(extensionStore);
   const messenger = new ExtensionMessenger();
   const requester = new ExtensionRequester(messenger, routerId);
 

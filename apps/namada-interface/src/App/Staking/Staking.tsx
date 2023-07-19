@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 
-import { truncateInMiddle } from "@anoma/utils";
-import { Modal } from "@anoma/components";
+import { truncateInMiddle } from "@namada/utils";
+import { Modal } from "@namada/components";
 
 import { MainContainerNavigation } from "App/StakingAndGovernance/MainContainerNavigation";
 import { StakingContainer } from "./Staking.components";
@@ -18,7 +18,7 @@ import {
 import { NewBondingPosition } from "./NewBondingPosition";
 import { UnbondPosition } from "./UnbondPosition";
 import { Account } from "slices/accounts";
-import { useSanitizedLocation } from "@anoma/hooks";
+import { useSanitizedLocation } from "@namada/hooks";
 
 const initialTitle = "Staking";
 

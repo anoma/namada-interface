@@ -1,4 +1,4 @@
-import { KVStore } from "@anoma/storage";
+import { KVStore } from "@namada/storage";
 
 import { TabStore } from "./types";
 import { ExtensionRequester } from "extension";

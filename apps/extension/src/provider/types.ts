@@ -1,11 +1,11 @@
-import { Anoma } from "./Anoma";
+import { Namada } from "./Namada";
 import { Result } from "router/types";
 
-export type ProxyMethod = keyof Omit<Anoma, "version">;
+export type ProxyMethod = keyof Omit<Namada, "version">;
 
 export enum ProxyRequestTypes {
-  Request = "anoma-proxy-request",
-  Response = "anoma-proxy-request-response",
+  Request = "namada-proxy-request",
+  Response = "namada-proxy-request-response",
 }
 
 // TODO: Look into better generic typing for this:

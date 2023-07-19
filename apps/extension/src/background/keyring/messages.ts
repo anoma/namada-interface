@@ -1,9 +1,9 @@
-import { PhraseSize } from "@anoma/crypto";
-import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
+import { PhraseSize } from "@namada/crypto";
+import { AccountType, Bip44Path, DerivedAccount } from "@namada/types";
 import { Message } from "router";
 import { ROUTE } from "./constants";
 import { KeyRingStatus, ResetPasswordError, DeleteAccountError } from "./types";
-import { Result } from "@anoma/utils";
+import { Result } from "@namada/utils";
 
 enum MessageType {
   CheckIsLocked = "check-is-locked",

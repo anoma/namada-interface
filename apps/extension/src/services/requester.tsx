@@ -1,12 +1,12 @@
 import browser from "webextension-polyfill";
 import { createContext, useEffect, useState } from "react";
 
-import { ExtensionKVStore } from "@anoma/storage";
+import { ExtensionKVStore } from "@namada/storage";
 import { KVPrefix } from "router";
 import {
   ExtensionMessenger,
   ExtensionRequester,
-  getAnomaRouterId,
+  getNamadaRouterId,
 } from "extension";
 
 const store = new ExtensionKVStore(KVPrefix.LocalStorage, {
@@ -22,7 +22,7 @@ export const RequesterProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     const getRequester = async (): Promise<void> => {
-      const routerId = await getAnomaRouterId(store);
+      const routerId = await getNamadaRouterId(store);
       const requester = new ExtensionRequester(messenger, routerId);
       setRequester(requester);
     };

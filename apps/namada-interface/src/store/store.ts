@@ -15,7 +15,7 @@ import {
 import { LocalStorageKeys } from "App/types";
 import { createTransform } from "redux-persist";
 import { SettingsState } from "slices/settings";
-import { chains, defaultChainId } from "@anoma/chains";
+import { chains, defaultChainId } from "@namada/chains";
 
 const { REACT_APP_LOCAL, NODE_ENV } = process.env;
 const POSTFIX =

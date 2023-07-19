@@ -6,7 +6,7 @@ import {
   Input,
   InputVariants,
   Toggle,
-} from "@anoma/components";
+} from "@namada/components";
 
 import { ExtensionRequester } from "extension";
 import { ValidateMnemonicMsg } from "background/keyring";

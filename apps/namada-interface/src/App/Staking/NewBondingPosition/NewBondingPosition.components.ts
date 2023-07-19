@@ -3,7 +3,7 @@ import {
   Select,
   Table,
   Props as TableProps,
-} from "@anoma/components";
+} from "@namada/components";
 import { FC } from "react";
 import styled from "styled-components";
 

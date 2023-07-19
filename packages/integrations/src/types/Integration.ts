@@ -2,7 +2,7 @@ import {
   BridgeTransferProps,
   IbcTransferProps,
   TokenBalance,
-} from "@anoma/types";
+} from "@namada/types";
 
 export type BridgeProps = {
   ibcProps?: IbcTransferProps;

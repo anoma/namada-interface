@@ -2,12 +2,12 @@
 
 **NOTE**: The following documentation is outdated, but included below while updated functionality which incorporates the Namada SDK is being integrated:
 
-Shielded transfers are based on [MASP](https://github.com/anoma/masp) and allows users of Anoma to performs transactions where only the recipient, sender and a holder of a viewing key can see the transactions details. It is based on the specifications defined at [Shielded execution](../../ledger/shielded-execution/masp.md).
+Shielded transfers are based on [MASP](https://github.com/anoma/masp) and allows users of Namada to performs transactions where only the recipient, sender and a holder of a viewing key can see the transactions details. It is based on the specifications defined at [Shielded execution](../../ledger/shielded-execution/masp.md).
 
 - [Shielded Transfers In Web Client](#shielded-transfers-in-web-client)
   - [Codebase](#codebase)
   - [High level data flow in the client](#high-level-data-flow-in-the-client)
-  - [Relation to MASP/Anoma CLI](#relation-to-maspanoma-cli)
+  - [Relation to MASP/Namada CLI](#relation-to-maspnamada-cli)
   - [The API](#the-api)
     - [`getMaspWeb`](#getmaspweb)
     - [`MaspWeb`](#maspweb)
@@ -26,7 +26,7 @@ Shielded transfers are based on [MASP](https://github.com/anoma/masp) and allows
 
 The code for interacting with the shielded transfers is split in 2 places:
 
-- `anoma-wallet` (TypeScript)
+- `namada-wallet` (TypeScript)
   - capturing the user interactions
   - providing user feedback
   - fetching the existing MASP transactions from the ledger
@@ -38,7 +38,7 @@ The code for interacting with the shielded transfers is split in 2 places:
 ```
 packages
 │   ├── masp-web                # MASP specific Rust code
-│   ├── anoma-wallet            # anoma web wallet
+│   ├── namada-wallet           # namada web wallet
 ```
 
 ## High level data flow in the client
@@ -47,10 +47,10 @@ In the current implementation whenever a user start to perform a new action rela
 
 This process can be further optimized:
 
-- Anoma CLI already does caching of fetched transfers, so that logic can be ru-used by providing virtual filesystem (for example [memfs](https://github.com/streamich/memfs#readme)) implementation to Rust:
+- Namada CLI already does caching of fetched transfers, so that logic can be ru-used by providing virtual filesystem (for example [memfs](https://github.com/streamich/memfs#readme)) implementation to Rust:
 - Likely the scanning can already start parallel while the fetching is running and if a sufficient amount of notes are found in scanning the fetching could be terminated.
 
-## Relation to MASP/Anoma CLI
+## Relation to MASP/Namada CLI
 
 The feature set and logic between the CLI and the web client should be the same. There are however a few differences in how they work, they are listed here:
 

@@ -39,7 +39,7 @@ Aside from `wasm-bindgen` bindings for Rust crypography libraries, this package 
 ## integrations
 
 This package introduces an `Intergration` interface, which wraps the APIs of various extensions to expose a
-single API to the interface. Currently, this supports integrations with Keplr, Metamask, and the Anoma browser extension.
+single API to the interface. Currently, this supports integrations with Keplr, Metamask, and the Namada browser extension.
 
 ## rpc
 

@@ -83,8 +83,8 @@ export const locationToStakingAndGovernanceSubRoute = (
 };
 
 export enum LocalStorageKeys {
-  MasterSeed = "com.anoma.network:seed",
-  Session = "com.anoma.network:session",
-  Persist = "com.anoma.network:state",
-  ColorMode = "com.anoma.color-mode",
+  MasterSeed = "com.namada.network:seed",
+  Session = "com.namada.network:session",
+  Persist = "com.namada.network:state",
+  ColorMode = "com.namada.color-mode",
 }

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Button, ButtonVariant, Input, InputVariants } from "@anoma/components";
+import { Button, ButtonVariant, Input, InputVariants } from "@namada/components";
 
 import { TopLevelRoute } from "App/types";
 import { ExtensionRequester } from "extension";

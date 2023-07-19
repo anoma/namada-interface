@@ -2,7 +2,7 @@ import { useState } from "react";
 import {
   Button,
   ButtonVariant
-} from "@anoma/components";
+} from "@namada/components";
 import zxcvbn, { ZXCVBNFeedback } from "zxcvbn";
 
 import {
@@ -17,7 +17,7 @@ import { ResetPasswordMsg } from "background/keyring";
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
 import { ResetPasswordError } from "background/keyring/types";
-import { assertNever } from "@anoma/utils";
+import { assertNever } from "@namada/utils";
 
 enum Status {
   Unsubmitted,

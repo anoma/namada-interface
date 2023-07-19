@@ -1,4 +1,4 @@
-export const PREFIX = "Anoma::SDK";
+export const PREFIX = "Namada::SDK";
 
 export async function hasMaspParams() {
   return (

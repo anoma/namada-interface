@@ -77,7 +77,7 @@ let data = transfer
 ```
 
 _In namada CLI:_
-https://github.com/namada/namada/blob/f6e78278608aaef253617885bb7ef95a50057268/apps/src/lib/client/tx.rs#L406-L411
+https://github.com/anoma/namada/blob/f6e78278608aaef253617885bb7ef95a50057268/apps/src/lib/client/tx.rs#L406-L411
 
 #### Creating and signing the `proto::Tx` struct
 
@@ -100,7 +100,7 @@ impl Tx {
 **NOTE** Here we provide a work around to an issue with `proto::Tx::new()` in wasm - instead of calling the method directly on `Tx`, we create a new implementation that returns a `proto::Tx`, with the timestamp being set using `js_sys` in order to make this wasm-compatible.
 
 _In namada CLI:_
-https://github.com/namada/namada/blob/f6e78278608aaef253617885bb7ef95a50057268/apps/src/lib/client/tx.rs#L417-L419
+https://github.com/anoma/namada/blob/f6e78278608aaef253617885bb7ef95a50057268/apps/src/lib/client/tx.rs#L417-L419
 
 ### 1.2 - Creating the `namada::types::transaction::WrapperTx` struct
 
@@ -133,7 +133,7 @@ transaction::WrapperTx::new(
 **NOTE** Here we can directly invoke `WrapperTx::new`, so we only need to concern ourselves with convering the JavaScript-provided values into the appropriate types.
 
 _In namada CLI:_
-https://github.com/namada/namada/blob/f6e78278608aaef253617885bb7ef95a50057268/apps/src/lib/client/tx.rs#L687-L696
+https://github.com/anoma/namada/blob/f6e78278608aaef253617885bb7ef95a50057268/apps/src/lib/client/tx.rs#L687-L696
 
 #### 1.3 - Create a new `Tx` with `WrapperTx` and sign it
 
@@ -186,7 +186,7 @@ Ok(Transaction {
 ```
 
 _In namada CLI:_
-https://github.com/namada/namada/blob/f6e78278608aaef253617885bb7ef95a50057268/apps/src/lib/client/tx.rs#L810-L814
+https://github.com/anoma/namada/blob/f6e78278608aaef253617885bb7ef95a50057268/apps/src/lib/client/tx.rs#L810-L814
 
 ## Part 2 - Initialize Account Transaction
 

@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 
-import { truncateInMiddle } from "@anoma/utils";
+import { truncateInMiddle } from "@namada/utils";
 import {
   Button,
   ButtonVariant,
@@ -8,7 +8,7 @@ import {
   TableConfigurations,
   KeyValueData,
   TableLink,
-} from "@anoma/components";
+} from "@namada/components";
 
 import {
   ValidatorDetailsContainer,

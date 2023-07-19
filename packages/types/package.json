@@ -1,7 +1,7 @@
 {
-  "name": "@anoma/types",
+  "name": "@namada/types",
   "version": "0.1.0",
-  "description": "Types related to the Anoma Extension",
+  "description": "Types related to the Namada Extension",
   "main": "src/index.ts",
   "repository": "https://github.com/anoma/namada-interface/",
   "author": "Heliax AG <hello@heliax.dev>",

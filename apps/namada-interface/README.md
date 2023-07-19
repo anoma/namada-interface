@@ -61,7 +61,7 @@ By default, running the wallet in local-development mode (`yarn dev:local`), wil
 the following options are available:
 
 ```bash
-REACT_APP_LOCAL_LEDGER_CHAIN_ID=anoma-test.fd58c789bc11e6c6392
+REACT_APP_LOCAL_LEDGER_CHAIN_ID=local.3424d591c781bb2c788b9201
 REACT_APP_LOCAL_LEDGER_URL=172.0.00.123
 REACT_APP_LOCAL_LEDGER_PORT=27657
 REACT_APP_LOCAL_FAUCET=atest1v4ehgw36gfprwdekgg6rsdesg3rry3pjx9prqv3exumrg3zzx3q5vv3nx4zr2v6yggurgwp4rzjk2v
@@ -75,15 +75,15 @@ We can configure the app to work with two chains, both with IBC enabled (assumin
 
 ```bash
 # CHAIN A - Default Chain
-REACT_APP_CHAIN_A_ALIAS=Anoma Fractal Instance - 1 # OPTIONAL - Defaults to "IBC - 1"
-REACT_APP_CHAIN_A_ID=anoma-test.1e670ba91369ec891fc # REQUIRED
+REACT_APP_CHAIN_A_ALIAS=Namada - 1 # OPTIONAL - Defaults to "IBC - 1"
+REACT_APP_CHAIN_A_ID=local.3424d591c781bb2c788b9201 # REQUIRED
 REACT_APP_CHAIN_A_URL=10.0.1.123 # OPTIONAL - Defaults to 127.0.0.1
 REACT_APP_CHAIN_A_PORT=27657 # OPTIONAL - Defaults to 27657
 REACT_APP_CHAIN_A_FAUCET=atest1v4ehgw36gfprwdekgg6rsdesg3rry3pjx9prqv3exumrg3zzx3q5vv3nx4zr2v6yggurgwp4rzjk2v
 
 # CHAIN B
-REACT_APP_CHAIN_B_ALIAS=Anoma Fractal Instance - 2 # OPTIONAL - Defaults to "IBC - 2"
-REACT_APP_CHAIN_B_ID=anoma-test.89060614ce340f4baae # REQUIRED
+REACT_APP_CHAIN_B_ALIAS=Namada - 2 # OPTIONAL - Defaults to "IBC - 2"
+REACT_APP_CHAIN_B_ID=local.11350caf633557b1f9a22d44 # REQUIRED
 REACT_APP_CHAIN_B_URL=10.0.1.123 # OPTIONAL - Defaults to 127.0.0.1
 REACT_APP_CHAIN_B_PORT=28657 # OPTIONAL - Defaults to 28657
 REACT_APP_CHAIN_B_FAUCET=atest1v4ehgw36xscyvdpcxgenvdf3x5c523j98pqnz3fjgfq5yvp4xpqnvv69x5erzvjzgse5yd3suq5pd0

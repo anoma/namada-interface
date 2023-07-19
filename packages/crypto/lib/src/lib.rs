@@ -1,5 +1,5 @@
 //! # crypto
 //!
-//! A library of cryptographic functions for use in the Anoma ecosystem
+//! A library of cryptographic functions for use in the Namada ecosystem
 
 pub mod crypto;

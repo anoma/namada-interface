@@ -2,7 +2,7 @@
 // our Figma, which is considered to be the source of truth.
 // https://www.figma.com/file/aiWZpaXjPLW6fDjE7dpFaU/Projects-2021?node-id=9102%3A8806
 
-const ColorModeStorageKey = "com.anoma.color-mode";
+const ColorModeStorageKey = "com.namada.color-mode";
 
 type Colors = {
   primary: {

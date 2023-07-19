@@ -1,7 +1,7 @@
 {
-  "name": "@anoma/utils",
+  "name": "@namada/utils",
   "version": "0.1.0",
-  "description": "Anoma Wallet Utilities",
+  "description": "Namada Wallet Utilities",
   "main": "src/index.ts",
   "repository": "https://github.com/anoma/namada-interface/",
   "author": "Heliax Dev <info@heliax.dev>",

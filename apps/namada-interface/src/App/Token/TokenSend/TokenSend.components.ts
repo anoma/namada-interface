@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { ColorMode, DesignConfiguration } from "@anoma/utils";
+import { ColorMode, DesignConfiguration } from "@namada/utils";
 
 enum ComponentColor {
   TabBackgroundColorActive,

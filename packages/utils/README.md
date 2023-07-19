@@ -1,5 +1,5 @@
 # util
 
-Anoma Wallet utility library
+Namada Wallet utility library
 
 _TBD_

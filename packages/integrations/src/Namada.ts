@@ -1,50 +1,50 @@
 import {
   Account,
-  Anoma as IAnoma,
+  Namada as INamada,
   Chain,
   Signer,
   Tokens,
   TokenType,
   TokenBalance,
-  WindowWithAnoma,
-} from "@anoma/types";
+  WindowWithNamada,
+} from "@namada/types";
 import BigNumber from "bignumber.js";
 
 import { BridgeProps, Integration } from "./types/Integration";
 
-export default class Anoma implements Integration<Account, Signer> {
-  private _anoma: WindowWithAnoma["anoma"] | undefined;
+export default class Namada implements Integration<Account, Signer> {
+  private _namada: WindowWithNamada["namada"] | undefined;
 
   constructor(public readonly chain: Chain) {}
 
-  public get instance(): IAnoma | undefined {
-    return this._anoma;
+  public get instance(): INamada | undefined {
+    return this._namada;
   }
 
   private _init(): void {
-    if (!this._anoma) {
-      this._anoma = (<WindowWithAnoma>window)?.anoma;
+    if (!this._namada) {
+      this._namada = (<WindowWithNamada>window)?.namada;
     }
   }
 
   public detect(): boolean {
     this._init();
-    return !!this._anoma;
+    return !!this._namada;
   }
 
   public async connect(): Promise<void> {
     this._init();
-    await this._anoma?.connect(this.chain.chainId);
+    await this._namada?.connect(this.chain.chainId);
   }
 
   public async accounts(): Promise<readonly Account[] | undefined> {
     await this.connect();
-    const signer = this._anoma?.getSigner(this.chain.chainId);
+    const signer = this._namada?.getSigner(this.chain.chainId);
     return await signer?.accounts();
   }
 
   public signer(): Signer | undefined {
-    return this._anoma?.getSigner(this.chain.chainId);
+    return this._namada?.getSigner(this.chain.chainId);
   }
 
   public async submitBridgeTransfer(props: BridgeProps): Promise<void> {
@@ -52,7 +52,7 @@ export default class Anoma implements Integration<Account, Signer> {
       const { source, receiver, channelId, portId, amount, token } =
         props.ibcProps;
       const tokenAddress = Tokens[token as TokenType]?.address;
-      const signer = this._anoma?.getSigner(this.chain.chainId);
+      const signer = this._namada?.getSigner(this.chain.chainId);
 
       return await signer?.submitIbcTransfer({
         tx: {
@@ -77,7 +77,7 @@ export default class Anoma implements Integration<Account, Signer> {
   }
 
   public async queryBalances(owner: string): Promise<TokenBalance[]> {
-    const balance = (await this._anoma?.balances(owner)) || [];
+    const balance = (await this._namada?.balances(owner)) || [];
     const tokenBalances = Object.keys(Tokens).map((tokenType: string) => {
       const { address: tokenAddress = "" } = Tokens[tokenType as TokenType];
       const amount =

@@ -1,5 +1,5 @@
 {
-  "name": "@anoma/hooks",
+  "name": "@namada/hooks",
   "version": "0.1.0",
   "description": "A collection of React hooks",
   "main": "src/index.ts",
@@ -13,10 +13,10 @@
     "lint:ci": "yarn lint --max-warnings 0"
   },
   "dependencies": {
-    "@anoma/chains": "0.1.0",
-    "@anoma/integrations": "0.1.0",
-    "@anoma/types": "0.1.0",
-    "@anoma/utils": "0.1.0",
+    "@namada/chains": "0.1.0",
+    "@namada/integrations": "0.1.0",
+    "@namada/types": "0.1.0",
+    "@namada/utils": "0.1.0",
     "react": "^17.0.2",
     "typescript": "^5.1.3"
   },

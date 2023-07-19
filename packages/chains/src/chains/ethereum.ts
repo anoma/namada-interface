@@ -1,4 +1,4 @@
-import { BridgeType, Chain, Extensions } from "@anoma/types";
+import { BridgeType, Chain, Extensions } from "@namada/types";
 
 const DEFAULT_ALIAS = "Goerli Testnet";
 const DEFAULT_CHAIN_ID = "0x5";

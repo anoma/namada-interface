@@ -1,4 +1,4 @@
-import { Chain, DerivedAccount } from "@anoma/types";
+import { Chain, DerivedAccount } from "@namada/types";
 import { Message } from "router";
 
 /**

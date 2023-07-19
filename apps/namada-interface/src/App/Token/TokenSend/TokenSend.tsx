@@ -5,16 +5,16 @@ import { SettingsState } from "slices/settings";
 import { TransferType } from "slices/transfers";
 import { useAppSelector } from "store";
 
-import { TokenType } from "@anoma/types";
+import { TokenType } from "@namada/types";
 import {
   Heading,
   HeadingLevel,
   NavigationContainer,
   Select,
   Option,
-} from "@anoma/components";
+} from "@namada/components";
 import TokenSendForm from "./TokenSendForm";
-import { useSanitizedParams } from "@anoma/hooks";
+import { useSanitizedParams } from "@namada/hooks";
 
 import {
   TokenSendContainer,
@@ -28,7 +28,7 @@ import {
   ESTABLISHED_ADDRESS_LENGTH,
   ESTABLISHED_ADDRESS_PREFIX,
 } from "./types";
-import { chains } from "@anoma/chains";
+import { chains } from "@namada/chains";
 
 export const parseTarget = (target: string): TransferType | undefined => {
   if (

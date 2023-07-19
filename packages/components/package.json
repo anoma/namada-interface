@@ -1,7 +1,7 @@
 {
-  "name": "@anoma/components",
+  "name": "@namada/components",
   "version": "0.1.0",
-  "description": "A collection of components for use with the Anoma ecosystem",
+  "description": "A collection of components for use with the Namada ecosystem",
   "main": "src/index.ts",
   "repository": "https://github.com/anoma/namada-interface",
   "author": "Heliax Dev <info@heliax.dev>",
@@ -13,7 +13,7 @@
     "lint:ci": "yarn lint --max-warnings 0"
   },
   "dependencies": {
-    "@anoma/utils": "0.1.0",
+    "@namada/utils": "0.1.0",
     "react": "^17.0.2",
     "styled-components": "^5.3.5",
     "typescript": "^5.1.3"

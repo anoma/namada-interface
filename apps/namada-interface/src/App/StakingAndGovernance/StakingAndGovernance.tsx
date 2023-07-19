@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useAppDispatch, useAppSelector, RootState } from "store";
 import { Routes, Route, useNavigate } from "react-router-dom";
 
-import { useIntegrationConnection } from "@anoma/hooks";
+import { useIntegrationConnection } from "@namada/hooks";
 import { Staking } from "App/Staking";
 import { Governance } from "App/Governance";
 import { PublicGoodsFunding } from "App/PublicGoodsFunding";
@@ -12,7 +12,7 @@ import {
   StakingAndGovernanceSubRoute,
   locationToStakingAndGovernanceSubRoute,
 } from "App/types";
-import { useSanitizedLocation } from "@anoma/hooks";
+import { useSanitizedLocation } from "@namada/hooks";
 
 import {
   fetchValidators,

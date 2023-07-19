@@ -1,11 +1,11 @@
 import browser from "webextension-polyfill";
-import { KVStore } from "@anoma/storage";
+import { KVStore } from "@namada/storage";
 import { Env, MessageSender } from "router/types";
 
-const ROUTER_ID_KEY = "anomaExtensionRouterId";
+const ROUTER_ID_KEY = "namadaExtensionRouterId";
 const NO_TAB_ID = -2;
 
-export const getAnomaRouterId = async (
+export const getNamadaRouterId = async (
   store: KVStore<number>
 ): Promise<number> => {
   const storedId = await store.get(ROUTER_ID_KEY);

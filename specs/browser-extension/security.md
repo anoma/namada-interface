@@ -19,7 +19,7 @@ when communicating between the web client and the content scripts. This requires
 
 ## Routing
 
-When the extension is installed, the content and background scripts establish a shared state variable, `anomaExtensionRouterId`, stored in the extension's `localStorage`, which allows
+When the extension is installed, the content and background scripts establish a shared state variable, `namadaExtensionRouterId`, stored in the extension's `localStorage`, which allows
 us to validate messages between the two before performing any actions in the background scripts.
 
 ## Handling sensitive data in WASM memory

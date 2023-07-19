@@ -1,13 +1,13 @@
 {
   "manifest_version": 3,
   "background": {
-    "service_worker": "background.anoma.js",
+    "service_worker": "background.namada.js",
     "type": "module"
   },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.anoma.js"]
+      "js": ["content.namada.js"]
     }
   ],
   "action": {
@@ -19,7 +19,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["injected.anoma.js", "assets/app.css"],
+      "resources": ["injected.namada.js", "assets/app.css"],
       "matches": ["<all_urls>"]
     }
   ]

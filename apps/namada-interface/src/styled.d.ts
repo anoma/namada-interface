@@ -1,5 +1,5 @@
 import "styled-components";
-import { DesignConfiguration } from "@anoma/utils";
+import { DesignConfiguration } from "@namada/utils";
 interface IPalette {
   main: string;
   contrastText: string;

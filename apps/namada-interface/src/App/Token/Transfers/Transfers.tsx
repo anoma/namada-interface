@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 
-import { TokenType } from "@anoma/types";
-import { formatRoute, stringFromTimestamp } from "@anoma/utils";
+import { TokenType } from "@namada/types";
+import { formatRoute, stringFromTimestamp } from "@namada/utils";
 import {
   Button,
   ButtonVariant,
@@ -10,7 +10,7 @@ import {
   Icon,
   IconName,
   NavigationContainer,
-} from "@anoma/components";
+} from "@namada/components";
 
 import { TopLevelRoute } from "App/types";
 import { Account, AccountsState } from "slices/accounts";
@@ -26,7 +26,7 @@ import {
   TransfersContent,
 } from "./Transfers.components";
 import { BackButton } from "../TokenSend/TokenSendForm.components";
-import { useSanitizedParams } from "@anoma/hooks";
+import { useSanitizedParams } from "@namada/hooks";
 
 type TokenDetailsParams = {
   id: string;

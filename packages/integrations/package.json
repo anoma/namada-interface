@@ -1,7 +1,7 @@
 {
-  "name": "@anoma/integrations",
+  "name": "@namada/integrations",
   "version": "0.1.0",
-  "description": "Anoma Wallet third-party integrations",
+  "description": "Namada Wallet third-party integrations",
   "main": "src/index.ts",
   "repository": "https://github.com/anoma/namada-interface",
   "author": "Heliax Dev <info@heliax.dev>",
@@ -30,8 +30,8 @@
     "ts-node": "^10.9.1"
   },
   "dependencies": {
-    "@anoma/types": "0.1.0",
-    "@anoma/utils": "0.1.0",
+    "@namada/types": "0.1.0",
+    "@namada/utils": "0.1.0",
     "@cosmjs/launchpad": "^0.27.1",
     "@cosmjs/proto-signing": "^0.27.1",
     "@cosmjs/stargate": "^0.29.5",

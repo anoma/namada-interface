@@ -1,15 +1,15 @@
 import { useNavigate } from "react-router-dom";
 
-import { chains } from "@anoma/chains";
-import { Chain, Tokens } from "@anoma/types";
-import { formatRoute, stringFromTimestamp } from "@anoma/utils";
+import { chains } from "@namada/chains";
+import { Chain, Tokens } from "@namada/types";
+import { formatRoute, stringFromTimestamp } from "@namada/utils";
 import {
   Button,
   ButtonVariant,
   Heading,
   HeadingLevel,
   NavigationContainer,
-} from "@anoma/components";
+} from "@namada/components";
 
 import { TopLevelRoute } from "App/types";
 import { AccountsState } from "slices/accounts";
@@ -23,7 +23,7 @@ import {
   TransactionListItem,
   AccountsDetailsNavContainer,
 } from "./TokenDetails.components";
-import { useSanitizedParams } from "@anoma/hooks";
+import { useSanitizedParams } from "@namada/hooks";
 
 type TokenDetailsParams = {
   id: string;

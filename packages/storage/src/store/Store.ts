@@ -1,4 +1,4 @@
-import { KVStore } from "@anoma/storage";
+import { KVStore } from "@namada/storage";
 
 // StoredRecords in storage should have a unique identifier
 export type StoredRecord = { id: string };

@@ -1,22 +1,22 @@
 import { useNavigate } from "react-router-dom";
 
-import { chains } from "@anoma/chains";
-import { Chain } from "@anoma/types";
-import { stringFromTimestamp } from "@anoma/utils";
+import { chains } from "@namada/chains";
+import { Chain } from "@namada/types";
+import { stringFromTimestamp } from "@namada/utils";
 import {
   Heading,
   HeadingLevel,
   NavigationContainer,
   Icon,
   IconName,
-} from "@anoma/components";
+} from "@namada/components";
 
 import { TransfersState } from "slices/transfers";
 import { useAppSelector } from "store";
 import { Address, TransferDetailContainer } from "./TransferDetails.components";
 import { BackButton } from "../TokenSend/TokenSendForm.components";
 import { ButtonsContainer, TransfersContent } from "./Transfers.components";
-import { useSanitizedParams } from "@anoma/hooks";
+import { useSanitizedParams } from "@namada/hooks";
 
 type TransferDetailsParams = {
   id: string;

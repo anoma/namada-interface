@@ -1,5 +1,5 @@
 import { Dispatch } from "react";
-import { Metamask } from "@anoma/integrations";
+import { Metamask } from "@namada/integrations";
 import { addAccounts, fetchBalances } from "slices/accounts";
 
 export const MetamaskAccountChangedHandler =

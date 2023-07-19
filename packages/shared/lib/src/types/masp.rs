@@ -1,5 +1,5 @@
 //! PaymentAddress - Provide wasm_bindgen bindings for shielded addresses
-//! See @anoma/crypto for zip32 HD wallet functionality.
+//! See @namada/crypto for zip32 HD wallet functionality.
 use borsh::BorshDeserialize;
 use masp_primitives::{sapling, zip32};
 use namada::types::masp;
@@ -105,7 +105,7 @@ mod tests {
 
     #[test]
     fn can_deserialize_an_extended_spending_key() {
-        // BorshSerialize'd slice, generated from @anoma/crypto - zip32
+        // BorshSerialize'd slice, generated from @namada/crypto - zip32
         let encoded_xsk: &[u8] = &[
             1, 233, 222, 184, 155, 1, 0, 0, 0, 232, 94, 130, 41, 9, 58, 197, 35, 245, 249, 232,
             225, 222, 38, 148, 105, 204, 14, 230, 30, 241, 22, 214, 38, 221, 49, 17, 147, 255, 136,
@@ -135,7 +135,7 @@ mod tests {
 
     #[test]
     fn can_deserialize_an_extended_viewing_key() {
-        // BorshSerialize'd slice, generated from @anoma/crypto - zip32
+        // BorshSerialize'd slice, generated from @namada/crypto - zip32
         let encoded_xfvk: &[u8] = &[
             1, 233, 222, 184, 155, 1, 0, 0, 0, 232, 94, 130, 41, 9, 58, 197, 35, 245, 249, 232,
             225, 222, 38, 148, 105, 204, 14, 230, 30, 241, 22, 214, 38, 221, 49, 17, 147, 255, 136,
@@ -164,7 +164,7 @@ mod tests {
 
     #[test]
     fn can_deserialize_a_payment_address() {
-        // BorshSerialize'd slice, generated from @anoma/crypto - zip32
+        // BorshSerialize'd slice, generated from @namada/crypto - zip32
         let encoded_payment_address: &[u8] = &[
             100, 199, 34, 96, 93, 67, 18, 95, 86, 139, 123, 213, 141, 228, 147, 169, 218, 247, 75,
             83, 195, 72, 73, 44, 65, 232, 243, 229, 209, 63, 183, 1, 87, 87, 203, 40, 180, 242,

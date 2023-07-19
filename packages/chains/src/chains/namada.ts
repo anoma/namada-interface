@@ -1,4 +1,4 @@
-import { BridgeType, Chain, Extensions } from "@anoma/types";
+import { BridgeType, Chain, Extensions } from "@namada/types";
 
 const DEFAULT_ALIAS = "Namada Testnet";
 const DEFAULT_CHAIN_ID = "qc-testnet-5.1.025a61165acd05e";
@@ -28,7 +28,7 @@ const namada: Chain = {
     symbol: "NAM",
     gasPriceStep: { low: 0.01, average: 0.025, high: 0.03 },
   },
-  extension: Extensions["anoma"],
+  extension: Extensions["namada"],
   ibc: {
     portId: "transfer",
   },

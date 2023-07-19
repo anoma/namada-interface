@@ -1,6 +1,6 @@
 # integrations
 
-Anoma Wallet third-party integrations.
+Namada Wallet third-party integrations.
 
 - Keplr Wallet
 - Metamask Wallet

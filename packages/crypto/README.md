@@ -1,6 +1,6 @@
 # crypto
 
-The `@anoma/crypto` package is to provide cryptography functionality with Rust via WebAssembly.
+The `@namada/crypto` package is to provide cryptography functionality with Rust via WebAssembly.
 
 The Rust source code lives in `lib/`, and currently provides the following crates:
 

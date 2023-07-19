@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { MainContainerNavigation } from "App/StakingAndGovernance/MainContainerNavigation";
 import { PublicGoodsFundingContainer } from "./PublicGoodsFunding.components";
-import { Button, ButtonVariant } from "@anoma/components";
+import { Button, ButtonVariant } from "@namada/components";
 
 const initialTitle = "Public Goods Funding";
 

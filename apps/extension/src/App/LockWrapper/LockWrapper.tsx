@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Icon, IconName } from "@anoma/components";
+import { Icon, IconName } from "@namada/components";
 import { ButtonContainer, LockExtensionButton } from "./LockWrapper.components";
 import { LockKeyRingMsg } from "background/keyring";
 import { Ports } from "router";

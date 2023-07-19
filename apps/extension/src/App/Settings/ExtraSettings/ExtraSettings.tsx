@@ -1,4 +1,4 @@
-import { assertNever } from "@anoma/utils";
+import { assertNever } from "@namada/utils";
 import { ExtensionRequester } from "extension";
 
 import { Mode, ExtraSetting } from "./types";

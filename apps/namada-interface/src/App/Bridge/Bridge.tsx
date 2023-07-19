@@ -1,4 +1,4 @@
-import { Heading, HeadingLevel, NavigationContainer } from "@anoma/components";
+import { Heading, HeadingLevel, NavigationContainer } from "@namada/components";
 import { BridgeContainer } from "./Bridge.components";
 import IBCTransfer from "App/Token/IBCTransfer/IBCTransfer";
 

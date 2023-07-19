@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { DesignConfiguration, ColorMode } from "@anoma/utils";
+import { DesignConfiguration, ColorMode } from "@namada/utils";
 
 enum ComponentColor {
   ButtonBackground,

@@ -1,4 +1,4 @@
-import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
+import { AccountType, Bip44Path, DerivedAccount } from "@namada/types";
 
 export enum KdfType {
   Argon2 = "argon2",

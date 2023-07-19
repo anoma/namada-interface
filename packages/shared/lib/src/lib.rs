@@ -1,6 +1,6 @@
 //! # shared
 //!
-//! A library of functions to integrate shared functionality from the Anoma ecosystem
+//! A library of functions to integrate shared functionality from the Namada ecosystem
 
 pub mod account;
 pub mod query;

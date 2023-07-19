@@ -9,7 +9,7 @@ The extension is able to be integrated with in a similar fasion to Keplr and Met
 If the extension is installed, and the domain is enabled (currently, all domains are enabled by the extension), detection can be achieved simply by doing the following:
 
 ```typescript=
-const isExtensionInstalled = typeof window.anoma === 'object';
+const isExtensionInstalled = typeof window.namada === 'object';
 ```
 
 ## 2. Connecting to the extension
@@ -18,7 +18,7 @@ To connect your application to the extension, you can invoke the following, prov
 
 ```typescript=
 const chainId = 'namada-test.XXXXXXXXXX';
-await anoma.connect(chainId);
+await namada.connect(chainId);
 ```
 
 Soon, this will prompt the user to either `Accept` or `Reject` a connection, but this isn't currently implemented.
@@ -28,7 +28,7 @@ Soon, this will prompt the user to either `Accept` or `Reject` a connection, but
 To query available accounts in the extension, we first instantiate a signing client:
 
 ```typescript=
-const client = await anoma.getSigner(chainId);
+const client = await namada.getSigner(chainId);
 
 const accounts = await client.accounts();
 
@@ -49,7 +49,7 @@ const accounts = await client.accounts();
 There are two types that can be imported from `namada-interface`:
 
 ```typescript=
-import { TxProps, TransferProps } from "@anoma/types";
+import { TxProps, TransferProps } from "@namada/types";
 ```
 
 Where the following is defined (for reference - these are the properties we will need to provide to the signing client):
@@ -76,7 +76,7 @@ export type TransferProps = {
 We will need to import a pre-built `tx-transfer` wasm file to provide to `TxProps`. There is a utility (see the following) that handles fetching these:
 
 ```typescript=
-import { fetchWasmCode } from "@anoma/utils";
+import { fetchWasmCode } from "@namada/utils";
 
 (async () {
     const txCode = await fetchWasmCode('./path/to/tx-transfer.wasm');
@@ -87,7 +87,7 @@ import { fetchWasmCode } from "@anoma/utils";
 ### 4.2 Encoding a transfer tx
 
 ```typescript=
-const client = anoma.getSigner("namada-test.XXXXXXXXXXX");
+const client = namada.getSigner("namada-test.XXXXXXXXXXX");
 
 const address = "atest1v4ehgw368ycryv2z8qcnxv3cxgmrgvjpxs6yg333gym5vv2zxepnj334g4rryvj9xucrgve4x3xvr4";
 // NOTE: Transfer amount is converted to micro-units

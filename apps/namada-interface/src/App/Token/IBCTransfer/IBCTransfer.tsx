@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import BigNumber from "bignumber.js";
 
-import { chains } from "@anoma/chains";
+import { chains } from "@namada/chains";
 import {
   Account as AccountType,
   BridgeType,
@@ -10,7 +10,7 @@ import {
   Extensions,
   Tokens,
   TokenType,
-} from "@anoma/types";
+} from "@namada/types";
 import {
   Button,
   ButtonVariant,
@@ -20,12 +20,12 @@ import {
   InputVariants,
   Option,
   Select,
-} from "@anoma/components";
+} from "@namada/components";
 
 import {
   useIntegrationConnection,
   useUntilIntegrationAttached,
-} from "@anoma/hooks";
+} from "@namada/hooks";
 import { useAppDispatch, useAppSelector } from "store";
 import {
   Account,
@@ -65,7 +65,7 @@ const IBCTransfer = (): JSX.Element => {
   const [isExtensionConnected, setIsExtensionConnected] = useState<
     Record<ExtensionKey, boolean>
   >({
-    anoma: false,
+    namada: false,
     keplr: false,
     metamask: false,
   });

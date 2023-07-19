@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 /**
- * TODO: Add onBlur callback to @anoma/components/Input to avoid
+ * TODO: Add onBlur callback to @namada/components/Input to avoid
  * defining it below:
  */
 export const Input = styled.input`

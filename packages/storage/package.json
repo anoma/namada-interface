@@ -1,7 +1,7 @@
 {
-  "name": "@anoma/storage",
+  "name": "@namada/storage",
   "version": "0.1.0",
-  "description": "Browser storage for Anoma apps",
+  "description": "Browser storage for Namada apps",
   "main": "src/index.ts",
   "repository": "https://github.com/anoma/namada-interface",
   "author": "Heliax Dev <info@heliax.dev>",

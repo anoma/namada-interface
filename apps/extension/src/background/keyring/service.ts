@@ -1,10 +1,10 @@
 import { fromBase64, toBase64 } from "@cosmjs/encoding";
 
-import { PhraseSize } from "@anoma/crypto";
-import { KVStore } from "@anoma/storage";
-import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
-import { Query, Sdk } from "@anoma/shared";
-import { Result } from "@anoma/utils";
+import { PhraseSize } from "@namada/crypto";
+import { KVStore } from "@namada/storage";
+import { AccountType, Bip44Path, DerivedAccount } from "@namada/types";
+import { Query, Sdk } from "@namada/shared";
+import { Result } from "@namada/utils";
 
 import { KeyRing } from "./keyring";
 import {
@@ -16,7 +16,7 @@ import {
   UtilityStore,
 } from "./types";
 import { syncTabs, updateTabStorage } from "./utils";
-import { ExtensionRequester, getAnomaRouterId } from "extension";
+import { ExtensionRequester, getNamadaRouterId } from "extension";
 import { Ports } from "router";
 import {
   AccountChangedEventMsg,
@@ -178,7 +178,7 @@ export class KeyRingService {
     xsk?: string
   ): Promise<void> {
     const offscreenDocumentPath = "offscreen.html";
-    const routerId = await getAnomaRouterId(this.extensionStore);
+    const routerId = await getNamadaRouterId(this.extensionStore);
 
     if (!(await hasOffscreenDocument(offscreenDocumentPath))) {
       await createOffscreenWithTxWorker(offscreenDocumentPath);

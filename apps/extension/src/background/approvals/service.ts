@@ -3,8 +3,8 @@ import { fromBase64 } from "@cosmjs/encoding";
 import { v4 as uuid } from "uuid";
 import BigNumber from "bignumber.js";
 
-import { TransferMsgValue } from "@anoma/types";
-import { KVStore } from "@anoma/storage";
+import { TransferMsgValue } from "@namada/types";
+import { KVStore } from "@namada/storage";
 
 import { ExtensionRequester } from "extension";
 import { KeyRingService } from "background/keyring";

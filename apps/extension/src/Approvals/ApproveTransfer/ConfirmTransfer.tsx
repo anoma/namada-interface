@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Button, ButtonVariant, Input, InputVariants } from "@anoma/components";
-import { shortenAddress } from "@anoma/utils";
+import { Button, ButtonVariant, Input, InputVariants } from "@namada/components";
+import { shortenAddress } from "@namada/utils";
 
 import { Status } from "Approvals/Approvals";
 import {

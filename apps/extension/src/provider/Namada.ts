@@ -1,4 +1,4 @@
-import { Anoma as IAnoma, Chain, DerivedAccount } from "@anoma/types";
+import { Namada as INamada, Chain, DerivedAccount } from "@namada/types";
 import { Ports, MessageRequester } from "router";
 
 import {
@@ -17,7 +17,7 @@ import {
   SubmitIbcTransferMsg,
 } from "./messages";
 
-export class Anoma implements IAnoma {
+export class Namada implements INamada {
   constructor(
     private readonly _version: string,
     protected readonly requester?: MessageRequester

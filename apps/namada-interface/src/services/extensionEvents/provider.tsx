@@ -1,20 +1,20 @@
 import { createContext } from "react";
 
-import { Events, KeplrEvents, MetamaskEvents } from "@anoma/types";
+import { Events, KeplrEvents, MetamaskEvents } from "@namada/types";
 import {
   defaultChainId,
   defaultCosmosChainId,
   defaultEthereumChainId,
-} from "@anoma/chains";
-import { Anoma, Keplr, Metamask } from "@anoma/integrations";
-import { useEventListenerOnce, useIntegration } from "@anoma/hooks";
+} from "@namada/chains";
+import { Namada, Keplr, Metamask } from "@namada/integrations";
+import { useEventListenerOnce, useIntegration } from "@namada/hooks";
 
 import { useAppDispatch } from "store";
 import {
-  AnomaAccountChangedHandler,
-  AnomaTransferCompletedHandler,
-  AnomaTransferStartedHandler,
-  AnomaUpdatedBalancesHandler,
+  NamadaAccountChangedHandler,
+  NamadaTransferCompletedHandler,
+  NamadaTransferStartedHandler,
+  NamadaUpdatedBalancesHandler,
   KeplrAccountChangedHandler,
   MetamaskAccountChangedHandler,
 } from "./handlers";
@@ -23,18 +23,18 @@ export const ExtensionEventsContext = createContext({});
 
 export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
   const dispatch = useAppDispatch();
-  const anomaIntegration = useIntegration(defaultChainId);
+  const namadaIntegration = useIntegration(defaultChainId);
   const keplrIntegration = useIntegration(defaultCosmosChainId);
   const metamaskIntegration = useIntegration(defaultEthereumChainId);
 
   // Instantiate handlers:
-  const anomaAccountChangedHandler = AnomaAccountChangedHandler(
+  const namadaAccountChangedHandler = NamadaAccountChangedHandler(
     dispatch,
-    anomaIntegration as Anoma
+    namadaIntegration as Namada
   );
-  const anomaTransferStartedHandler = AnomaTransferStartedHandler(dispatch);
-  const anomaTransferCompletedHandler = AnomaTransferCompletedHandler(dispatch);
-  const anomaUpdatedBalancesHandler = AnomaUpdatedBalancesHandler(dispatch);
+  const namadaTransferStartedHandler = NamadaTransferStartedHandler(dispatch);
+  const namadaTransferCompletedHandler = NamadaTransferCompletedHandler(dispatch);
+  const namadaUpdatedBalancesHandler = NamadaUpdatedBalancesHandler(dispatch);
 
   // Keplr handlers
   const keplrAccountChangedHandler = KeplrAccountChangedHandler(
@@ -49,10 +49,10 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
   );
 
   // Register handlers:
-  useEventListenerOnce(Events.AccountChanged, anomaAccountChangedHandler);
-  useEventListenerOnce(Events.TransferStarted, anomaTransferStartedHandler);
-  useEventListenerOnce(Events.TransferCompleted, anomaTransferCompletedHandler);
-  useEventListenerOnce(Events.UpdatedBalances, anomaUpdatedBalancesHandler);
+  useEventListenerOnce(Events.AccountChanged, namadaAccountChangedHandler);
+  useEventListenerOnce(Events.TransferStarted, namadaTransferStartedHandler);
+  useEventListenerOnce(Events.TransferCompleted, namadaTransferCompletedHandler);
+  useEventListenerOnce(Events.UpdatedBalances, namadaUpdatedBalancesHandler);
   useEventListenerOnce(KeplrEvents.AccountChanged, keplrAccountChangedHandler);
   useEventListenerOnce(
     MetamaskEvents.AccountChanged,

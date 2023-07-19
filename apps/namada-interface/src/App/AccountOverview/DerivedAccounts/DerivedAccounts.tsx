@@ -3,12 +3,12 @@ import { ThemeContext } from "styled-components";
 import { useNavigate } from "react-router-dom";
 import BigNumber from "bignumber.js";
 
-import { chains } from "@anoma/chains";
+import { chains } from "@namada/chains";
 import { useAppDispatch, useAppSelector } from "store";
 import { AccountsState, Balance } from "slices/accounts";
 import { SettingsState } from "slices/settings";
-import { TokenType } from "@anoma/types";
-import { formatCurrency, formatRoute } from "@anoma/utils";
+import { TokenType } from "@namada/types";
+import { formatCurrency, formatRoute } from "@namada/utils";
 
 import {
   DerivedAccountsContainer,

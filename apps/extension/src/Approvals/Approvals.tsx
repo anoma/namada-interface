@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ThemeProvider } from "styled-components";
 import { Routes, Route } from "react-router-dom";
 
-import { getTheme } from "@anoma/utils";
+import { getTheme } from "@namada/utils";
 
 import {
   AppContainer,
@@ -32,7 +32,7 @@ export const Approvals: React.FC = () => {
         <GlobalStyles />
         <ContentContainer>
           <TopSection>
-            <Heading>Anoma Browser Extension</Heading>
+            <Heading>Namada Browser Extension</Heading>
           </TopSection>
           <Routes>
             <Route

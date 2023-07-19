@@ -1,10 +1,10 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import BigNumber from "bignumber.js";
 
-import { Query } from "@anoma/shared";
-import { Signer, Tokens } from "@anoma/types";
-import { chains } from "@anoma/chains";
-import { getIntegration } from "@anoma/hooks";
+import { Query } from "@namada/shared";
+import { Signer, Tokens } from "@namada/types";
+import { chains } from "@namada/chains";
+import { getIntegration } from "@namada/hooks";
 
 import {
   FETCH_VALIDATORS,

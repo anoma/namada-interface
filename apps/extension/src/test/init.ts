@@ -1,13 +1,13 @@
-import { KVStore } from "@anoma/storage";
+import { KVStore } from "@namada/storage";
 
 import {
   ExtensionRouter,
   ExtensionMessengerMock,
   ExtensionRequester,
-  getAnomaRouterId,
+  getNamadaRouterId,
 } from "../extension";
 import { Ports, KVPrefix } from "../router";
-import { chains } from "@anoma/chains";
+import { chains } from "@namada/chains";
 import { ChainsService, init as initChains } from "../background/chains";
 import {
   KeyRingService,
@@ -22,13 +22,13 @@ import {
   init as initApprovals,
 } from "../background/approvals";
 
-import { Anoma } from "provider";
-import { Chain } from "@anoma/types";
-import { Query, Sdk } from "@anoma/shared";
+import { Namada } from "provider";
+import { Chain } from "@namada/types";
+import { Query, Sdk } from "@namada/shared";
 
 // __wasm is not exported in crypto.d.ts so need to use require instead of import
 /* eslint-disable @typescript-eslint/no-var-requires */
-const cryptoMemory = require("@anoma/crypto").__wasm.memory;
+const cryptoMemory = require("@namada/crypto").__wasm.memory;
 const chainId = "namada-75a7e12.69483d59a9fb174";
 
 export class KVStoreMock<T> implements KVStore<T> {
@@ -52,7 +52,7 @@ export class KVStoreMock<T> implements KVStore<T> {
 }
 
 export const init = async (): Promise<{
-  anoma: Anoma;
+  namada: Namada;
   iDBStore: KVStoreMock<Chain[] | KeyStore[]>;
   extStore: KVStoreMock<number>;
   utilityStore: KVStoreMock<UtilityStore>;
@@ -67,8 +67,8 @@ export const init = async (): Promise<{
   const connectedTabsStore = new KVStoreMock<TabStore[]>(
     KVPrefix.ConnectedTabs
   );
-  const anomaRouterId = await getAnomaRouterId(extStore);
-  const requester = new ExtensionRequester(messenger, anomaRouterId);
+  const namadaRouterId = await getNamadaRouterId(extStore);
+  const requester = new ExtensionRequester(messenger, namadaRouterId);
   const txStore = new KVStoreMock<string>(KVPrefix.LocalStorage);
 
   const router = new ExtensionRouter(
@@ -118,10 +118,10 @@ export const init = async (): Promise<{
   router.listen(Ports.Background);
 
   const version = "0.1.0";
-  const anoma = new Anoma(version, requester);
+  const namada = new Namada(version, requester);
 
   return {
-    anoma,
+    namada,
     iDBStore,
     extStore,
     utilityStore,

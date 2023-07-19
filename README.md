@@ -39,8 +39,6 @@ for solving possible issue see [Troubleshooting](#troubleshooting)
 
 ## Introduction
 
-This is the main app of the project and it is the user interface of the application. It is based on create-react-app and uses TypeScript. Some of its' functionality is split to external project living in this repository, under the directory `packages`. They are: [anoma-lib](#anoma-lib), [key-management](#key-management), [masp-web](#masp-web). All of those dependencies use Rust code that is compiled to WASM with [bindgen](https://rustwasm.github.io/wasm-bindgen). Anoma-wallet and its developers do not have to care about this fact, except when compiling the dependencies in the beginning. All of the libraries using WASM exposes a usual TypeScript interface.
-
 This is the `namada-interface` monorepo. Within it, you will find the code for the web wallet implementation. it contains the following packages:
 
 ```bash
@@ -49,14 +47,14 @@ namada-interface/
     ├── namada-interface/   # Main wallet React App
     ├── extension/          # Browser Extension React App
 └── packages/
-    ├── crypto/          # Crypto functions related to anoma extension and interface
+    ├── crypto/          # Crypto functions related to namada extension and interface
     ├── integrations/    # Third-party wallet integrations
     ├── masp-web/        # utilities for performing MASP actions
     ├── rpc/             # Library for handling HTTP and WebSocket RPC calls
     ├── seed-management/ # Seed management library
     ├── session/         # Session management library
     ├── shared/          # Package for interfacing with `namada/shared`
-    ├── tx/              # Library for interfacing with Anoma transactions
+    ├── tx/              # Library for interfacing with Namada transactions
     ├── utils/           # Shared utilities
     ├── wallet/          # Library for deriving keys
     └── wasm/            # Legacy wasm library

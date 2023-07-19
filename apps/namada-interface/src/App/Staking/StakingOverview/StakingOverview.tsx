@@ -1,5 +1,5 @@
 import BigNumber from "bignumber.js";
-import { Table, TableLink, TableConfigurations } from "@anoma/components";
+import { Table, TableLink, TableConfigurations } from "@namada/components";
 import { Account } from "slices/accounts";
 import { Validator, MyValidators } from "slices/StakingAndGovernance";
 import {

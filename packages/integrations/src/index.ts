@@ -1,5 +1,5 @@
-import Anoma from "./Anoma";
+import Namada from "./Namada";
 import Keplr from "./Keplr";
 import Metamask from "./Metamask";
 
-export { Anoma, Keplr, Metamask };
+export { Namada, Keplr, Metamask };

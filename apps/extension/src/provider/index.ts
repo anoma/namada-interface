@@ -1,5 +1,5 @@
-export * from "./Anoma";
-export * from "./InjectedAnoma";
+export * from "./Namada";
+export * from "./InjectedNamada";
 export * from "./InjectedProxy";
 export * from "./messages";
 export * from "./Proxy";

@@ -2,13 +2,13 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BigNumber from "bignumber.js";
 
-import { chains } from "@anoma/chains";
+import { chains } from "@namada/chains";
 import {
   useIntegrationConnection,
   useUntilIntegrationAttached,
-} from "@anoma/hooks";
-import { Account, ExtensionKey, Extensions } from "@anoma/types";
-import { formatCurrency } from "@anoma/utils";
+} from "@namada/hooks";
+import { Account, ExtensionKey, Extensions } from "@namada/types";
+import { formatCurrency } from "@namada/utils";
 
 import { useAppSelector, useAppDispatch } from "store";
 import { AccountsState, addAccounts, fetchBalances } from "slices/accounts";
@@ -20,7 +20,7 @@ import {
   ButtonVariant,
   Heading,
   HeadingLevel,
-} from "@anoma/components";
+} from "@namada/components";
 import {
   AccountOverviewContainer,
   AccountOverviewContent,
@@ -48,7 +48,7 @@ export const AccountOverview = (): JSX.Element => {
   const [isExtensionConnected, setIsExtensionConnected] = useState<
     Record<ExtensionKey, boolean>
   >({
-    anoma: false,
+    namada: false,
     keplr: false,
     metamask: false,
   });

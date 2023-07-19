@@ -1,4 +1,4 @@
-import { Chain } from "@anoma/types";
+import { Chain } from "@namada/types";
 import { Message } from "router";
 import { ROUTE } from "./constants";
 

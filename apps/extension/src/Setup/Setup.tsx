@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 
-import { formatRouterPath, getTheme } from "@anoma/utils";
+import { formatRouterPath, getTheme } from "@namada/utils";
 
 import { AccountCreation } from "./AccountCreation";
 import {

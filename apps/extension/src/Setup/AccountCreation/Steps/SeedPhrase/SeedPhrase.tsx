@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
-import { Button, ButtonVariant, Toggle } from "@anoma/components";
-import { executeUntil } from "@anoma/utils";
+import { Button, ButtonVariant, Toggle } from "@namada/components";
+import { executeUntil } from "@namada/utils";
 
 import { GenerateMnemonicMsg } from "background/keyring";
 import { ExtensionRequester } from "extension";

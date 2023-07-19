@@ -89,7 +89,7 @@ module.exports = {
   output: {
     publicPath: "",
     path: resolve(__dirname, `./build/${TARGET}`),
-    filename: "[name].anoma.js",
+    filename: "[name].namada.js",
   },
   module: {
     rules: [

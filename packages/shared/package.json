@@ -1,7 +1,7 @@
 {
-  "name": "@anoma/shared",
+  "name": "@namada/shared",
   "version": "0.1.0",
-  "description": "Anoma shared functionality",
+  "description": "Namada shared functionality",
   "main": "src/index.ts",
   "repository": "https://github.com/anoma/namada-interface/",
   "author": "Heliax Dev <info@heliax.dev>",

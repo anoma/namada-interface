@@ -7,7 +7,7 @@ import {
   PhraseSize,
   ShieldedHDWallet,
   VecU8Pointer,
-} from "@anoma/crypto";
+} from "@namada/crypto";
 import {
   Account,
   Address,
@@ -16,15 +16,15 @@ import {
   PaymentAddress,
   Sdk,
   Query,
-} from "@anoma/shared";
-import { IStore, KVStore, Store } from "@anoma/storage";
+} from "@namada/shared";
+import { IStore, KVStore, Store } from "@namada/storage";
 import {
   AccountType,
   Bip44Path,
   DerivedAccount,
   TransferMsgValue,
-} from "@anoma/types";
-import { chains } from "@anoma/chains";
+} from "@namada/types";
+import { chains } from "@namada/chains";
 import { Crypto } from "./crypto";
 import {
   KeyRingStatus,
@@ -37,8 +37,8 @@ import {
 import {
   readVecStringPointer,
   readStringPointer,
-} from "@anoma/crypto/src/utils";
-import { Result } from "@anoma/utils";
+} from "@namada/crypto/src/utils";
+import { Result } from "@namada/utils";
 import { deserialize } from "@dao-xyz/borsh";
 
 // Generated UUID namespace for uuid v5

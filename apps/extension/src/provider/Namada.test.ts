@@ -10,12 +10,12 @@ import {
   TransferMsgValue,
   TransferProps,
   Chain,
-  Anoma,
-} from "@anoma/types";
+  Namada,
+} from "@namada/types";
 
 import { KVKeys } from "router";
 import { init, KVStoreMock } from "test/init";
-import { chains as defaultChains } from "@anoma/chains";
+import { chains as defaultChains } from "@namada/chains";
 import { chain, keyStore, password, ACTIVE_ACCOUNT_ID } from "./data.mock";
 import {
   KeyRing,
@@ -25,21 +25,21 @@ import {
   PARENT_ACCOUNT_ID_KEY,
   UtilityStore,
 } from "background/keyring";
-import { Sdk } from "@anoma/shared";
+import { Sdk } from "@namada/shared";
 import * as utils from "extension/utils";
 
 // Needed for now as utils import webextension-polyfill directly
 jest.mock("webextension-polyfill", () => ({}));
 
-describe("Anoma", () => {
-  let anoma: Anoma;
+describe("Namada", () => {
+  let namada: Namada;
   let iDBStore: KVStoreMock<Chain[] | KeyStore[]>;
   let utilityStore: KVStoreMock<UtilityStore>;
   let keyRingService: KeyRingService;
 
   beforeAll(async () => {
-    jest.spyOn(utils, "getAnomaRouterId").mockResolvedValue(1);
-    ({ anoma, iDBStore, utilityStore, keyRingService } = await init());
+    jest.spyOn(utils, "getNamadaRouterId").mockResolvedValue(1);
+    ({ namada, iDBStore, utilityStore, keyRingService } = await init());
 
     jest
       .spyOn(KeyRing.prototype, "checkPassword")
@@ -54,14 +54,14 @@ describe("Anoma", () => {
 
   it("should return chain by chainId", async () => {
     iDBStore.set(KVKeys.Chains, [chain]);
-    const storedChain = await anoma.chain(chain.chainId);
+    const storedChain = await namada.chain(chain.chainId);
 
     expect(storedChain).toEqual(chain);
   });
 
   it("should return all chains", async () => {
     iDBStore.set(KVKeys.Chains, [chain]);
-    const storedChains = await anoma.chains();
+    const storedChains = await namada.chains();
 
     expect(storedChains).toEqual([...Object.values(defaultChains), chain]);
   });
@@ -72,13 +72,13 @@ describe("Anoma", () => {
     const storedKeyStore = keyStore.map(
       ({ crypto: _crypto, owner: _owner, ...account }) => account
     );
-    const storedAccounts = await anoma.accounts(chain.chainId);
+    const storedAccounts = await namada.accounts(chain.chainId);
 
     expect(storedAccounts).toEqual(storedKeyStore);
   });
 
   it("should add a chain configuration", async () => {
-    await anoma.suggestChain(chain);
+    await namada.suggestChain(chain);
 
     const chains = await iDBStore.get("chains");
     expect(chains?.pop()).toEqual(chain);
@@ -108,7 +108,7 @@ describe("Anoma", () => {
     const serializedTransfer = transferMessage.encode(transferMsgValue);
 
     jest.spyOn(keyRingService, "submitTransfer");
-    anoma.submitTransfer(toBase64(serializedTransfer));
+    namada.submitTransfer(toBase64(serializedTransfer));
 
     expect(keyRingService.submitTransfer).toBeCalled();
   });
@@ -141,7 +141,7 @@ describe("Anoma", () => {
     const transferMessage = new Message<IbcTransferMsgValue>();
     const serializedTransfer = transferMessage.encode(transferMsgValue);
 
-    const res = anoma.submitIbcTransfer(toBase64(serializedTransfer));
+    const res = namada.submitIbcTransfer(toBase64(serializedTransfer));
 
     await expect(res).resolves.not.toBeDefined();
   });
@@ -156,7 +156,7 @@ describe("Anoma", () => {
     const serialized = accountMessage.encode(accountMsgValue);
 
     await expect(
-      anoma.encodeInitAccount({
+      namada.encodeInitAccount({
         txMsg: toBase64(serialized),
         address: keyStore[0].address,
       })

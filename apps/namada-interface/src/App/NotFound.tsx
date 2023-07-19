@@ -7,7 +7,7 @@ import {
   Icon,
   IconName,
   NavigationContainer,
-} from "@anoma/components";
+} from "@namada/components";
 
 import { TopLevelRoute } from "./types";
 import {

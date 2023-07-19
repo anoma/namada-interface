@@ -3,7 +3,7 @@ import { useNavigate, Outlet } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { ThemeContext } from "styled-components";
 
-import { Icon, IconName, IconSize } from "@anoma/components";
+import { Icon, IconName, IconSize } from "@namada/components";
 import {
   TopSection,
   TopSectionHeaderContainer,

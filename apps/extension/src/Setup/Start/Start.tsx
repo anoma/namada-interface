@@ -1,8 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Button, ButtonVariant } from "@anoma/components";
-import { formatRouterPath } from "@anoma/utils";
+import { Button, ButtonVariant } from "@namada/components";
+import { formatRouterPath } from "@namada/utils";
 
 import {
   BodyText,

@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { RouterProvider } from "react-router-dom";
 import reportWebVitals from "./reportWebVitals";
-import { init as initShared } from "@anoma/shared/src/init";
+import { init as initShared } from "@namada/shared/src/init";
 import "./index.css";
 import { store } from "store/store";
 import { getRouter } from "./App/AppRoutes";

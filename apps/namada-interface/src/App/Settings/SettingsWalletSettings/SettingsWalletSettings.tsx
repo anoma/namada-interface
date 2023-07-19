@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { chains } from "@anoma/chains";
-import { Chain } from "@anoma/types";
+import { chains } from "@namada/chains";
+import { Chain } from "@namada/types";
 
 import { setFiatCurrency, setChainId, SettingsState } from "slices/settings";
 import { useAppDispatch, useAppSelector } from "store";
@@ -16,7 +16,7 @@ import {
   IconName,
   Select,
   Option,
-} from "@anoma/components";
+} from "@namada/components";
 import { InputContainer } from "App/AccountOverview/AccountOverview.components";
 import { BackButton } from "App/Token/TokenSend/TokenSendForm.components";
 import { ButtonsContainer, SettingsContent } from "../Settings.components";

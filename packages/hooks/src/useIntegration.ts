@@ -6,12 +6,12 @@ import {
   useState,
 } from "react";
 
-import { chains } from "@anoma/chains";
-import { Anoma, Keplr, Metamask } from "@anoma/integrations";
-import { Chain, ExtensionKey } from "@anoma/types";
-import { useUntil } from "@anoma/hooks";
+import { chains } from "@namada/chains";
+import { Namada, Keplr, Metamask } from "@namada/integrations";
+import { Chain, ExtensionKey } from "@namada/types";
+import { useUntil } from "@namada/hooks";
 
-type Integration = typeof Anoma | typeof Keplr | typeof Metamask;
+type Integration = typeof Namada | typeof Keplr | typeof Metamask;
 type ChainId = string;
 type IntegrationsMap = Record<string, Integration>;
 export type Integrations = Record<ChainId, InstanceType<Integration>>;
@@ -21,7 +21,7 @@ type ExtensionConnection<T, U> = (
 ) => Promise<void>;
 
 const extensionMap: IntegrationsMap = {
-  anoma: Anoma,
+  namada: Namada,
   keplr: Keplr,
   metamask: Metamask,
 };
@@ -106,7 +106,7 @@ export const useUntilIntegrationAttached = (chain: Chain): AttachStatusMap => {
   const integration = useIntegration(chainId);
 
   const [attachStatusMap, setAttachStatus] = useState<AttachStatusMap>({
-    anoma: "pending",
+    namada: "pending",
     keplr: "pending",
     metamask: "pending",
   });

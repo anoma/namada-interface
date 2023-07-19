@@ -7,9 +7,9 @@ import {
   Input,
   InputVariants,
   Toggle,
-} from "@anoma/components";
-import { AccountType, DerivedAccount } from "@anoma/types";
-import { chains, defaultChainId } from "@anoma/chains";
+} from "@namada/components";
+import { AccountType, DerivedAccount } from "@namada/types";
+import { chains, defaultChainId } from "@namada/chains";
 
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";

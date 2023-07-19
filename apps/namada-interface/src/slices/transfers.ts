@@ -1,8 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import BigNumber from "bignumber.js";
 
-import { Account, Tokens, TokenType, Signer } from "@anoma/types";
-import { getIntegration } from "@anoma/hooks";
+import { Account, Tokens, TokenType, Signer } from "@namada/types";
+import { getIntegration } from "@namada/hooks";
 
 import {
   actions as notificationsActions,

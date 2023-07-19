@@ -1,13 +1,13 @@
 import {
-  Anoma as IAnoma,
+  Namada as INamada,
   Chain,
   DerivedAccount,
   Signer as ISigner,
-} from "@anoma/types";
+} from "@namada/types";
 import { InjectedProxy } from "./InjectedProxy";
 import { Signer } from "./Signer";
 
-export class InjectedAnoma implements IAnoma {
+export class InjectedNamada implements INamada {
   constructor(private readonly _version: string) {}
 
   public async connect(chainId: string): Promise<void> {

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQRCode } from "next-qrcode";
 
-import { formatRoute } from "@anoma/utils";
+import { formatRoute } from "@namada/utils";
 import {
   Heading,
   HeadingLevel,
@@ -10,7 +10,7 @@ import {
   IconName,
   NavigationContainer,
   Select,
-} from "@anoma/components";
+} from "@namada/components";
 
 import { Address } from "../Transfers/TransferDetails.components";
 import {

@@ -1,5 +1,5 @@
 import styled, { css, FlattenSimpleInterpolation } from "styled-components";
-import { ColorMode, DesignConfiguration } from "@anoma/utils";
+import { ColorMode, DesignConfiguration } from "@namada/utils";
 
 enum ComponentColor {
   Logo,

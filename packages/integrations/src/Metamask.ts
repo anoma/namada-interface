@@ -1,8 +1,8 @@
 import { type MetaMaskInpageProvider } from "@metamask/providers";
 import MetaMaskSDK from "@metamask/sdk";
 
-import { Account, Chain, TokenBalance } from "@anoma/types";
-import { shortenAddress } from "@anoma/utils";
+import { Account, Chain, TokenBalance } from "@namada/types";
+import { shortenAddress } from "@namada/utils";
 import { BridgeProps, Integration } from "./types/Integration";
 
 const MULTIPLE_WALLETS = "Multiple wallets installed!";

@@ -6,9 +6,9 @@ import {
   Location,
 } from "react-router-dom";
 
-import { ColorMode } from "@anoma/utils";
-import { chains } from "@anoma/chains";
-import { Chain } from "@anoma/types";
+import { ColorMode } from "@namada/utils";
+import { chains } from "@namada/chains";
+import { Chain } from "@namada/types";
 import {
   Icon,
   IconName,
@@ -16,8 +16,8 @@ import {
   ImageName,
   Toggle,
   Select,
-} from "@anoma/components";
-import { useSanitizedLocation } from "@anoma/hooks";
+} from "@namada/components";
+import { useSanitizedLocation } from "@namada/hooks";
 
 import { useAppDispatch, useAppSelector } from "store";
 import { AppStore } from "store/store";

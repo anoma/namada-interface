@@ -4,7 +4,7 @@ authors = ["Heliax AG <hello@heliax.dev>"]
 version = "0.1.0"
 edition = "2021"
 repository = "https://github.com/anoma/namada-interface/"
-description = "Shared functionality from Anoma protocol"
+description = "Shared functionality from Namada protocol"
 license = "MIT"
 
 [lib]

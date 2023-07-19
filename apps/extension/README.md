@@ -1,6 +1,6 @@
-# Anoma Browser Extension
+# Namada Browser Extension
 
-This is the Anoma Browser Extension project.
+This is the Namada Browser Extension project.
 
 ## Usage
 
@@ -52,10 +52,10 @@ Once you have run `yarn build`, you can use the files in `./dist` to install the
 
 1. In Firefox, navigate to `about:debugging#/runtime/this-firefox`
 2. Select `Load Temporary Add-On...`
-3. Navigate to either the `build/browser/manifest.json` or the `build/firefox/anoma_extension-0.1.0.zip` file to install
+3. Navigate to either the `build/browser/manifest.json` or the `build/firefox/namada_extension-0.1.0.zip` file to install
 
 The extension should be installed. Currently, this is enabled for `namada.me`, so navigating to that page will call the `content` scripts,
-hopefully instantiating an instance of the `Anoma()` class API for handling communication between client and key store.
+hopefully instantiating an instance of the `Namada()` class API for handling communication between client and key store.
 
 ## Notes
 

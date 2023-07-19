@@ -12,8 +12,8 @@ import {
   ButtonVariant,
   TableConfigurations,
   KeyValueData,
-} from "@anoma/components";
-import { truncateInMiddle } from "@anoma/utils";
+} from "@namada/components";
+import { truncateInMiddle } from "@namada/utils";
 import {
   StakingPosition,
   ChangeInStakingPosition,

@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
 
-import { Icon, IconName } from "@anoma/components";
-import { AccountType, Bip44Path, DerivedAccount } from "@anoma/types";
-import { shortenAddress } from "@anoma/utils";
+import { Icon, IconName } from "@namada/components";
+import { AccountType, Bip44Path, DerivedAccount } from "@namada/types";
+import { shortenAddress } from "@namada/utils";
 
 import { TopLevelRoute } from "App/types";
 import {

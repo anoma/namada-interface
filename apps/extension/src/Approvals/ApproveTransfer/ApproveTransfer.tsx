@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 
-import { Button, ButtonVariant } from "@anoma/components";
-import { shortenAddress } from "@anoma/utils";
-import { Tokens } from "@anoma/types";
+import { Button, ButtonVariant } from "@namada/components";
+import { shortenAddress } from "@namada/utils";
+import { Tokens } from "@namada/types";
 
 import { useQuery } from "hooks";
 import { Address } from "App/Accounts/AccountListing.components";

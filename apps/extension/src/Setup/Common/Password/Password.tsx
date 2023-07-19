@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import zxcvbn from "zxcvbn";
 
-import { Button, ButtonVariant } from "@anoma/components";
+import { Button, ButtonVariant } from "@namada/components";
 
 import {
   BodyText,

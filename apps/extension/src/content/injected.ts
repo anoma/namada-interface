@@ -1,20 +1,20 @@
-import { InjectedAnoma } from "provider";
+import { InjectedNamada } from "provider";
 import manifest from "manifest/_base.json";
 
 declare global {
   // NOTE: var is required to extend globalThis
   // eslint-disable-next-line
-  var anoma: InjectedAnoma;
+  var namada: InjectedNamada;
 }
 
-export function init(anoma: InjectedAnoma): void {
+export function init(namada: InjectedNamada): void {
   if (process.env.NODE_ENV !== "production") {
-    if (!window.anoma) {
-      window.anoma = anoma;
+    if (!window.namada) {
+      window.namada = namada;
     }
   } else {
-    window.anoma = anoma;
+    window.namada = namada;
   }
 }
 
-init(new InjectedAnoma(manifest.version));
+init(new InjectedNamada(manifest.version));

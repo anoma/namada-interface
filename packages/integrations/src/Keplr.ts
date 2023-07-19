@@ -12,8 +12,8 @@ import {
 import { Coin } from "@cosmjs/launchpad";
 import Long from "long";
 
-import { Account, Chain, CosmosTokens, TokenBalance } from "@anoma/types";
-import { shortenAddress } from "@anoma/utils";
+import { Account, Chain, CosmosTokens, TokenBalance } from "@namada/types";
+import { shortenAddress } from "@namada/utils";
 import { BridgeProps, Integration } from "./types/Integration";
 
 const KEPLR_NOT_FOUND = "Keplr extension not found!";

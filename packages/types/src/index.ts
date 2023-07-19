@@ -1,5 +1,5 @@
 export * from "./account";
-export * from "./anoma";
+export * from "./namada";
 export * from "./chain";
 export * from "./events";
 export * from "./signer";

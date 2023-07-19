@@ -24,4 +24,4 @@ export const createOffscreenWithTxWorker = async (
 };
 
 export const SUBMIT_TRANSFER_MSG_TYPE = "submit-transfer-offscreen";
-export const OFFSCREEN_TARGET = "offscreen.anoma";
+export const OFFSCREEN_TARGET = "offscreen.namada";

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { mock } from "jest-mock-extended";
 
-import { Chain } from "@anoma/types";
+import { Chain } from "@namada/types";
 import { Key, Keplr as IKeplr } from "@keplr-wallet/types";
 
 import Keplr from "./Keplr";

@@ -4,8 +4,8 @@ import { ThemeContext } from "styled-components";
 import QrReader from "react-qr-reader";
 import BigNumber from "bignumber.js";
 
-import { Tokens, TokenType } from "@anoma/types";
-import { ColorMode, DesignConfiguration } from "@anoma/utils";
+import { Tokens, TokenType } from "@namada/types";
+import { ColorMode, DesignConfiguration } from "@namada/utils";
 import {
   Button,
   ButtonVariant,
@@ -13,7 +13,7 @@ import {
   IconName,
   Input,
   InputVariants,
-} from "@anoma/components";
+} from "@namada/components";
 
 import { AccountsState } from "slices/accounts";
 import {

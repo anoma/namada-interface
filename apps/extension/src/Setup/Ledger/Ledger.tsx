@@ -10,8 +10,8 @@ import {
   IconSize,
   Input,
   InputVariants,
-} from "@anoma/components";
-import { shortenAddress } from "@anoma/utils";
+} from "@namada/components";
+import { shortenAddress } from "@namada/utils";
 
 import { initLedgerHIDTransport, Ledger as LedgerApp } from "background/ledger";
 import { ExtensionRequester } from "extension";
