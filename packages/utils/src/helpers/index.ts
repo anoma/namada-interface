@@ -1,7 +1,11 @@
 import { JsonRpcRequest } from "@cosmjs/json-rpc";
 import { DateTime } from "luxon";
-import { JsonCompatibleArray, JsonCompatibleDictionary } from "@namada/types";
 import BigNumber from "bignumber.js";
+import {
+  Bip44Path,
+  JsonCompatibleArray,
+  JsonCompatibleDictionary,
+} from "@namada/types";
 
 const MICRO_FACTOR = 1000000; // 1,000,000
 
@@ -172,3 +176,48 @@ export const Result = {
     return { ok: false as const, error };
   },
 };
+
+/**
+ * Return a properly formatted BIP-044 path
+ *
+ * @param {number} coinType - SLIP-044 Coin designation
+ * @param {Bip44Path} bip44Path - path object
+ * @returns {string}
+ */
+export const makeBip44Path = (
+  coinType: number,
+  bip44Path: Bip44Path
+): string => {
+  const { account, change, index } = bip44Path;
+  const basePath = `m/44'/${coinType}'/${account}'/${change}`;
+
+  return typeof index === "number" ? `${basePath}/${index}` : basePath;
+};
+
+/**
+ * Pick object parameters
+ */
+export function pick<T, K extends keyof T>(obj: T, ...keys: K[]): Pick<T, K> {
+  return keys.reduce((acc, val) => {
+    return (acc[val] = obj[val]), acc;
+  }, {} as Pick<T, K>);
+}
+
+/**
+ * Format url with query string params using an object
+ *
+ * @param {string} url
+ * @param {object} params
+ * @returns {string}
+ */
+export function paramsToUrl(
+  url: string,
+  params: Record<string, string>
+): string {
+  const queryString = new URLSearchParams(params).toString();
+
+  if (queryString) {
+    return `${url}?${queryString}`;
+  }
+  return url;
+}

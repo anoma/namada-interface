@@ -80,7 +80,8 @@ const accountsSlice = createSlice({
       state.derived[accounts[0].chainId] = {};
 
       accounts.forEach((account) => {
-        const { address, alias, isShielded, chainId } = account;
+        const { address, alias, isShielded, chainId, type, publicKey } =
+          account;
         const currencySymbol = chains[chainId].currency.symbol;
         if (!state.derived[chainId]) {
           state.derived[chainId] = {};
@@ -91,6 +92,8 @@ const accountsSlice = createSlice({
             address,
             alias,
             chainId,
+            type,
+            publicKey,
             isShielded,
           },
           balance: {

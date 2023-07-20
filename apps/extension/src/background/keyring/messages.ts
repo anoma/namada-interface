@@ -2,12 +2,18 @@ import { PhraseSize } from "@namada/crypto";
 import { AccountType, Bip44Path, DerivedAccount } from "@namada/types";
 import { Message } from "router";
 import { ROUTE } from "./constants";
-import { KeyRingStatus, ResetPasswordError, DeleteAccountError } from "./types";
+import {
+  KeyRingStatus,
+  ResetPasswordError,
+  DeleteAccountError,
+  ParentAccount,
+} from "./types";
 import { Result } from "@namada/utils";
 
 enum MessageType {
   CheckIsLocked = "check-is-locked",
   CheckPassword = "check-password",
+  QueryPublicKey = "query-public-key",
   CloseOffscreenDocument = "close-offscreen-document",
   DeriveAccount = "derive-account",
   DeriveShieldedAccount = "derive-shielded-account",
@@ -114,6 +120,30 @@ export class CheckPasswordMsg extends Message<boolean> {
 
   type(): string {
     return CheckPasswordMsg.type();
+  }
+}
+
+export class QueryPublicKeyMsg extends Message<string | undefined> {
+  public static type(): MessageType {
+    return MessageType.QueryPublicKey;
+  }
+
+  constructor(public readonly address: string) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.address) {
+      throw new Error("address not set");
+    }
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return QueryPublicKeyMsg.type();
   }
 }
 
@@ -237,7 +267,7 @@ export class ScanAccountsMsg extends Message<void> {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  validate(): void {}
+  validate(): void { }
 
   route(): string {
     return ROUTE;
@@ -294,13 +324,20 @@ export class SetActiveAccountMsg extends Message<void> {
     return MessageType.SetActiveAccount;
   }
 
-  constructor(public readonly accountId: string) {
+  constructor(
+    public readonly accountId: string,
+    public readonly accountType: ParentAccount
+  ) {
     super();
   }
 
   validate(): void {
     if (!this.accountId) {
       throw new Error("Account ID is not set!");
+    }
+
+    if (!this.accountType) {
+      throw new Error("Account Type is required!");
     }
   }
 
@@ -313,7 +350,9 @@ export class SetActiveAccountMsg extends Message<void> {
   }
 }
 
-export class GetActiveAccountMsg extends Message<string | undefined> {
+export class GetActiveAccountMsg extends Message<
+  { id: string; type: ParentAccount } | undefined
+> {
   public static type(): MessageType {
     return MessageType.GetActiveAccount;
   }

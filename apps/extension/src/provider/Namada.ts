@@ -1,8 +1,15 @@
-import { Namada as INamada, Chain, DerivedAccount } from "@namada/types";
+import {
+  AccountType,
+  Namada as INamada,
+  Chain,
+  DerivedAccount,
+} from "@namada/types";
 import { Ports, MessageRequester } from "router";
 
 import {
   ApproveTransferMsg,
+  ApproveBondMsg,
+  ApproveUnbondMsg,
   ConnectInterfaceMsg,
   GetChainMsg,
   GetChainsMsg,
@@ -12,8 +19,6 @@ import {
   FetchAndStoreMaspParamsMsg,
   HasMaspParamsMsg,
   QueryBalancesMsg,
-  SubmitBondMsg,
-  SubmitUnbondMsg,
   SubmitIbcTransferMsg,
 } from "./messages";
 
@@ -21,7 +26,7 @@ export class Namada implements INamada {
   constructor(
     private readonly _version: string,
     protected readonly requester?: MessageRequester
-  ) {}
+  ) { }
 
   public async connect(chainId: string): Promise<void> {
     return await this.requester?.sendMessage(
@@ -83,24 +88,33 @@ export class Namada implements INamada {
     );
   }
 
-  public async submitBond(txMsg: string): Promise<void> {
+  public async submitBond(props: {
+    txMsg: string;
+    type: AccountType;
+    publicKey?: string;
+  }): Promise<void> {
+    const { txMsg, type, publicKey } = props;
     return await this.requester?.sendMessage(
       Ports.Background,
-      new SubmitBondMsg(txMsg)
+      new ApproveBondMsg(txMsg, type, publicKey)
     );
   }
 
   public async submitUnbond(txMsg: string): Promise<void> {
     return await this.requester?.sendMessage(
       Ports.Background,
-      new SubmitUnbondMsg(txMsg)
+      new ApproveUnbondMsg(txMsg)
     );
   }
 
-  public async submitTransfer(txMsg: string): Promise<void> {
+  public async submitTransfer(props: {
+    txMsg: string;
+    type?: AccountType;
+  }): Promise<void> {
+    const { txMsg, type } = props;
     return await this.requester?.sendMessage(
       Ports.Background,
-      new ApproveTransferMsg(txMsg)
+      new ApproveTransferMsg(txMsg, type)
     );
   }
 

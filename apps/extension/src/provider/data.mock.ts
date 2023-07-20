@@ -1,7 +1,10 @@
 import { AccountType, BridgeType, Chain, Extensions } from "@namada/types";
-import { KdfType, KeyStore } from "background/keyring";
+import { ActiveAccountStore, KdfType, KeyStore } from "background/keyring";
 
-export const ACTIVE_ACCOUNT_ID = "324bfe0e-cb19-5f1a-9630-9daaaecadabe";
+export const ACTIVE_ACCOUNT: ActiveAccountStore = {
+  id: "324bfe0e-cb19-5f1a-9630-9daaaecadabe",
+  type: AccountType.Mnemonic,
+};
 
 export const chain: Chain = {
   alias: "Namada Testnet",
@@ -30,7 +33,8 @@ export const keyStore: KeyStore[] = [
     owner:
       "atest1d9khqw36gvurxv6yxcmyvv6pgdzyxwp3g9z5gv6px5cyxs348yenjd6ygse5y32xxapy2dph26clnv",
     chainId: "namada-75a7e12.69483d59a9fb174",
-    id: ACTIVE_ACCOUNT_ID,
+    id: ACTIVE_ACCOUNT.id,
+    parentId: undefined,
     path: {
       account: 0,
       change: 0,
@@ -60,7 +64,8 @@ export const keyStore: KeyStore[] = [
         },
       },
     },
-    type: AccountType.Mnemonic,
+    publicKey: undefined,
+    type: ACTIVE_ACCOUNT.type,
   },
   {
     alias: "Derived Account",
@@ -70,7 +75,7 @@ export const keyStore: KeyStore[] = [
       "atest1d9khqw36geprgd2yxgcyy3fnxymnzwf4xpprgdzxgccryvp489qn2wzyxcmrgd2xxdznvv2p8akmfs",
     chainId: "namada-75a7e12.69483d59a9fb174",
     id: "123e4567-e89b-12d3-a456-426614174000",
-    parentId: ACTIVE_ACCOUNT_ID,
+    parentId: ACTIVE_ACCOUNT.id,
     path: {
       account: 0,
       change: 0,
@@ -101,6 +106,7 @@ export const keyStore: KeyStore[] = [
         },
       },
     },
+    publicKey: undefined,
     type: AccountType.PrivateKey,
   },
 ];

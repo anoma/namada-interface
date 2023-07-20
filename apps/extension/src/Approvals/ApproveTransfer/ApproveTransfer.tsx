@@ -3,7 +3,7 @@ import { useEffect } from "react";
 
 import { Button, ButtonVariant } from "@namada/components";
 import { shortenAddress } from "@namada/utils";
-import { Tokens } from "@namada/types";
+import { AccountType, Tokens } from "@namada/types";
 
 import { useQuery } from "hooks";
 import { Address } from "App/Accounts/AccountListing.components";
@@ -13,7 +13,7 @@ import {
 } from "Approvals/Approvals.components";
 import { TopLevelRoute } from "Approvals/types";
 import { Ports } from "router";
-import { RejectTransferMsg } from "background/approvals";
+import { RejectTxMsg } from "background/approvals";
 import { useRequester } from "hooks/useRequester";
 import { closeCurrentTab } from "utils";
 
@@ -28,6 +28,7 @@ export const ApproveTransfer: React.FC<Props> = ({ setAddress, setMsgId }) => {
 
   const query = useQuery();
   // TODO: Get current parent account alias to display to user
+  const type = query.get("type") || "";
   const id = query.get("id") || "";
   const amount = query.get("amount") || "";
   const source = query.get("source") || "";
@@ -45,13 +46,16 @@ export const ApproveTransfer: React.FC<Props> = ({ setAddress, setMsgId }) => {
 
   const handleApproveClick = (): void => {
     setMsgId(id);
-    navigate(TopLevelRoute.ConfirmTx);
+    if (type === AccountType.Ledger) {
+      return navigate(`${TopLevelRoute.ConfirmLedgerTransfer}`);
+    }
+    navigate(TopLevelRoute.ConfirmTransfer);
   };
 
   const handleReject = async (): Promise<void> => {
     try {
       // TODO: use executeUntil here!
-      await requester.sendMessage(Ports.Background, new RejectTransferMsg(id));
+      await requester.sendMessage(Ports.Background, new RejectTxMsg(id));
 
       // Close tab
       await closeCurrentTab();
@@ -64,7 +68,6 @@ export const ApproveTransfer: React.FC<Props> = ({ setAddress, setMsgId }) => {
   return (
     <ApprovalContainer>
       <p>Approve this Transaction?</p>
-      <p>ID: {id}</p>
       <p>Target:&nbsp;</p>
       <Address>{shortenAddress(target)}</Address>
       <p>Source:&nbsp;</p>

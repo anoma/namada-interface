@@ -3,6 +3,7 @@ export enum TopLevelRoute {
   AccountCreation = "account-creation",
   ImportAccount = "restore-account",
   Ledger = "ledger",
+  LedgerConfirmation = "ledger-confirmation",
 }
 
 export enum AccountCreationRoute {

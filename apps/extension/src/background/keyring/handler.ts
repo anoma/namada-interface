@@ -3,6 +3,7 @@ import { KeyRingService } from "./service";
 import {
   CheckIsLockedMsg,
   CheckPasswordMsg,
+  QueryPublicKeyMsg,
   CloseOffscreenDocumentMsg,
   ResetPasswordMsg,
   DeriveAccountMsg,
@@ -23,8 +24,6 @@ import {
   EncodeInitAccountMsg,
   QueryAccountsMsg,
   QueryBalancesMsg,
-  SubmitBondMsg,
-  SubmitUnbondMsg,
   SubmitIbcTransferMsg,
   FetchAndStoreMaspParamsMsg,
   HasMaspParamsMsg,
@@ -46,6 +45,8 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleUnlockKeyRingMsg(service)(env, msg as UnlockKeyRingMsg);
       case CheckPasswordMsg:
         return handleCheckPasswordMsg(service)(env, msg as CheckPasswordMsg);
+      case QueryPublicKeyMsg:
+        return handleQueryPublicKey(service)(env, msg as QueryPublicKeyMsg);
       case ResetPasswordMsg:
         return handleResetPasswordMsg(service)(env, msg as ResetPasswordMsg);
       case GenerateMnemonicMsg:
@@ -83,10 +84,6 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
           env,
           msg as QueryParentAccountsMsg
         );
-      case SubmitBondMsg:
-        return handleSubmitBondMsg(service)(env, msg as SubmitBondMsg);
-      case SubmitUnbondMsg:
-        return handleSubmitUnbondMsg(service)(env, msg as SubmitUnbondMsg);
       case SubmitIbcTransferMsg:
         return handleSubmitIbcTransferMsg(service)(
           env,
@@ -159,6 +156,15 @@ const handleCheckPasswordMsg: (
 ) => InternalHandler<CheckPasswordMsg> = (service) => {
   return async (_, msg) => {
     return await service.checkPassword(msg.password);
+  };
+};
+
+const handleQueryPublicKey: (
+  service: KeyRingService
+) => InternalHandler<QueryPublicKeyMsg> = (service) => {
+  return async (_, msg) => {
+    const { address } = msg;
+    return await service.queryPublicKey(address);
   };
 };
 
@@ -243,24 +249,6 @@ const handleQueryParentAccountsMsg: (
   };
 };
 
-const handleSubmitBondMsg: (
-  service: KeyRingService
-) => InternalHandler<SubmitBondMsg> = (service) => {
-  return async (_, msg) => {
-    const { txMsg } = msg;
-    return await service.submitBond(txMsg);
-  };
-};
-
-const handleSubmitUnbondMsg: (
-  service: KeyRingService
-) => InternalHandler<SubmitUnbondMsg> = (service) => {
-  return async (_, msg) => {
-    const { txMsg } = msg;
-    return await service.submitUnbond(txMsg);
-  };
-};
-
 const handleSubmitIbcTransferMsg: (
   service: KeyRingService
 ) => InternalHandler<SubmitIbcTransferMsg> = (service) => {
@@ -283,8 +271,8 @@ const handleSetActiveAccountMsg: (
   service: KeyRingService
 ) => InternalHandler<SetActiveAccountMsg> = (service) => {
   return async (_, msg) => {
-    const { accountId } = msg;
-    return await service.setActiveAccountId(accountId);
+    const { accountId, accountType } = msg;
+    return await service.setActiveAccount(accountId, accountType);
   };
 };
 
@@ -292,7 +280,7 @@ const handleGetActiveAccountMsg: (
   service: KeyRingService
 ) => InternalHandler<GetActiveAccountMsg> = (service) => {
   return async (_, _msg) => {
-    return await service.getActiveAccountId();
+    return await service.getActiveAccount();
   };
 };
 

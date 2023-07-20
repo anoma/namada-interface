@@ -102,11 +102,36 @@ export class UpdatedBalancesEventMsg extends Message<void> {
   }
 }
 
+export class UpdatedStakingEventMsg extends Message<void> {
+  public static type(): Events {
+    return Events.UpdatedStaking;
+  }
+
+  constructor(public readonly chainId: string) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.chainId) {
+      throw new Error("chainId must not be empty");
+    }
+  }
+
+  route(): string {
+    return Routes.InteractionForeground;
+  }
+
+  type(): string {
+    return UpdatedBalancesEventMsg.type();
+  }
+}
+
 export function initEvents(router: Router): void {
   router.registerMessage(AccountChangedEventMsg);
   router.registerMessage(TransferStartedEvent);
   router.registerMessage(TransferCompletedEvent);
   router.registerMessage(UpdatedBalancesEventMsg);
+  router.registerMessage(UpdatedStakingEventMsg);
 
   router.addHandler(Routes.InteractionForeground, (_, msg) => {
     const clonedMsg =
@@ -134,6 +159,9 @@ export function initEvents(router: Router): void {
         break;
       case UpdatedBalancesEventMsg:
         window.dispatchEvent(new CustomEvent(Events.UpdatedBalances));
+        break;
+      case UpdatedStakingEventMsg:
+        window.dispatchEvent(new CustomEvent(Events.UpdatedStaking));
         break;
       default:
         throw new Error("Unknown msg type");

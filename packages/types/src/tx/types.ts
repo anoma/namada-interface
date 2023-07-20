@@ -23,6 +23,11 @@ export type TxProps = {
   publicKey?: string;
 };
 
+export type RevealPKProps = {
+  publicKey: string;
+  tx: TxProps;
+};
+
 export type TransferProps = {
   tx: TxProps;
   source: string;

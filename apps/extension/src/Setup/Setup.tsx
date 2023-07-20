@@ -28,6 +28,7 @@ import { ImportAccount } from "./ImportAccount";
 import { useRequester } from "hooks/useRequester";
 import { SeedPhraseImport } from "./ImportAccount/Steps";
 import { Completion, Password } from "./Common";
+import LedgerConfirmation from "./Ledger/LedgerConfirmation";
 
 type AnimatedTransitionProps = {
   elementKey: string;
@@ -259,7 +260,17 @@ export const Setup: React.FC = () => {
                 path={`/${TopLevelRoute.Ledger}`}
                 element={
                   <AnimatedTransition elementKey={TopLevelRoute.Ledger}>
-                    <Ledger requester={requester} />
+                    <Ledger />
+                  </AnimatedTransition>
+                }
+              />
+              <Route
+                path={`/${TopLevelRoute.LedgerConfirmation}/:alias/:address/:publicKey`}
+                element={
+                  <AnimatedTransition
+                    elementKey={TopLevelRoute.LedgerConfirmation}
+                  >
+                    <LedgerConfirmation />
                   </AnimatedTransition>
                 }
               />

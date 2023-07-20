@@ -4,7 +4,7 @@ use crate::{
     sdk::masp::WebShieldedUtils,
     utils::{set_panic_hook, to_bytes},
 };
-use borsh::BorshSerialize;
+use borsh::{BorshDeserialize, BorshSerialize};
 use namada::{
     ledger::{
         args,
@@ -13,14 +13,21 @@ use namada::{
         wallet::{Store, Wallet},
     },
     proto::{Section, Signature, Tx},
-    types::{key::common::PublicKey, key::common::SecretKey as SK, key::ed25519::SecretKey},
+    types::key::common::PublicKey,
 };
-use std::str::FromStr;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 
 pub mod masp;
 mod tx;
 mod wallet;
+
+// Require that a public key is present
+fn validate_pk(pk: Option<PublicKey>) -> Result<PublicKey, JsError> {
+    match pk {
+        Some(v) => Ok(v),
+        None => Err(JsError::new("No public key was provided!")),
+    }
+}
 
 /// Represents the Sdk public API.
 #[wasm_bindgen]
@@ -113,7 +120,7 @@ impl Sdk {
         .await?;
 
         // Sign and submit reveal pk
-        if let Some((mut rtx, _, pk)) = reveal_pk {
+        if let Some((mut rtx, _, _)) = reveal_pk {
             // Sign the reveal public key transaction with the fee payer
             signing::sign_tx(&mut self.wallet, &mut rtx, &args, &pk).await?;
             // Submit the reveal public key transaction first
@@ -149,6 +156,46 @@ impl Sdk {
         Ok(())
     }
 
+    /// Contruct reveal pk data for external signers, returns byte array
+    pub async fn build_reveal_pk(&mut self, tx_msg: &[u8]) -> Result<JsValue, JsError> {
+        let args = tx::reveal_pk_tx_args(tx_msg)?;
+
+        let reveal_pk = namada::ledger::tx::build_reveal_pk(
+            &self.client,
+            &mut self.wallet,
+            args::RevealPk {
+                tx: args.tx.clone(),
+                public_key: args.public_key.clone(),
+            },
+        )
+        .await?;
+
+        let bytes = match reveal_pk {
+            Some(v) => v.0.try_to_vec().map_err(JsError::from)?,
+            None => vec![],
+        };
+
+        to_js_result(bytes)
+    }
+
+    /// Submit signed reveal pk tx
+    pub async fn submit_signed_reveal_pk(
+        &mut self,
+        tx_msg: &[u8],
+        tx_bytes: &[u8],
+        wrapper_sig_bytes: &[u8],
+        raw_sig_bytes: &[u8],
+    ) -> Result<(), JsError> {
+        let reveal_pk_tx = self.sign_tx(tx_bytes, wrapper_sig_bytes, raw_sig_bytes)?;
+        let args = tx::reveal_pk_tx_args(tx_msg).map_err(JsError::from)?;
+
+        namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args.tx, reveal_pk_tx)
+            .await
+            .map_err(JsError::from)?;
+
+        Ok(())
+    }
+
     /// Contruct transfer data for external signers, returns byte array
     pub async fn build_transfer(&mut self, tx_msg: &[u8]) -> Result<JsValue, JsError> {
         let args = tx::transfer_tx_args(tx_msg, None, None)?;
@@ -167,45 +214,63 @@ impl Sdk {
         to_js_result(bytes)
     }
 
+    /// Contruct bond data for external signers, returns byte array
+    pub async fn build_bond(&mut self, tx_msg: &[u8]) -> Result<JsValue, JsError> {
+        let args = tx::bond_tx_args(tx_msg, None)?;
+
+        let bond = namada::ledger::tx::build_bond(&self.client, &mut self.wallet, args.clone())
+            .await
+            .map_err(JsError::from)?;
+
+        let bytes = bond.0.try_to_vec().map_err(JsError::from)?;
+
+        to_js_result(bytes)
+    }
+
+    /// Contruct unbond data for external signers, returns byte array
+    pub async fn build_unbond(&mut self, tx_msg: &[u8]) -> Result<JsValue, JsError> {
+        let args = tx::unbond_tx_args(tx_msg, None)?;
+
+        let unbond = namada::ledger::tx::build_unbond(&self.client, &mut self.wallet, args.clone())
+            .await
+            .map_err(JsError::from)?;
+
+        let bytes = unbond.0.try_to_vec().map_err(JsError::from)?;
+
+        to_js_result(bytes)
+    }
+
     // Append signatures and return tx bytes
-    pub fn sign_tx(
+    fn sign_tx(
         &self,
         tx_bytes: &[u8],
-        data_key: String,
-        header_key: String,
-    ) -> Result<JsValue, JsError> {
-        let mut tx: Tx = Tx::try_from(tx_bytes).map_err(JsError::from)?;
-        let data_secret = SecretKey::from_str(&data_key).map_err(JsError::from)?;
-        let header_secret = SecretKey::from_str(&header_key).map_err(JsError::from)?;
+        wrapper_sig_bytes: &[u8],
+        raw_sig_bytes: &[u8],
+    ) -> Result<Tx, JsError> {
+        let mut tx: Tx = Tx::try_from_slice(tx_bytes).map_err(JsError::from)?;
 
-        // Sign over the transaction data
-        tx.add_section(Section::Signature(Signature::new(
-            vec![*tx.data_sechash(), *tx.code_sechash()],
-            &SK::Ed25519(data_secret),
-        )));
+        let wrapper_sig = Signature::try_from_slice(wrapper_sig_bytes).map_err(JsError::from)?;
+        let raw_sig = Signature::try_from_slice(raw_sig_bytes).map_err(JsError::from)?;
 
+        tx.add_section(Section::Signature(raw_sig));
         tx.protocol_filter();
+        tx.add_section(Section::Signature(wrapper_sig));
 
-        // Then sign over the bound wrapper
-        tx.add_section(Section::Signature(Signature::new(
-            tx.sechashes(),
-            &SK::Ed25519(header_secret),
-        )));
-
-        let bytes = tx.try_to_vec().map_err(|e| JsError::from(e))?;
-        to_js_result(Vec::from(bytes))
+        Ok(tx)
     }
 
     /// Submit signed transfer tx
     pub async fn submit_signed_transfer(
         &mut self,
-        pk: String,
         tx_msg: &[u8],
         tx_bytes: &[u8],
+        wrapper_sig_bytes: &[u8],
+        raw_sig_bytes: &[u8],
     ) -> Result<(), JsError> {
-        let transfer_tx = Tx::try_from(tx_bytes).map_err(|e| JsError::from(e))?;
-        let args = tx::transfer_tx_args(tx_msg, None, None).map_err(|e| JsError::from(e))?;
-        let pk = PublicKey::from_str(&pk).map_err(JsError::from)?;
+        let transfer_tx = self.sign_tx(tx_bytes, wrapper_sig_bytes, raw_sig_bytes)?;
+        let args = tx::transfer_tx_args(tx_msg, None, None).map_err(JsError::from)?;
+        let verification_key = args.tx.verification_key.clone();
+        let pk = validate_pk(verification_key)?;
 
         self.submit_reveal_pk(&args.tx, transfer_tx.clone(), &pk)
             .await?;
@@ -272,6 +337,25 @@ impl Sdk {
         Ok(())
     }
 
+    /// Submit signed bond
+    pub async fn submit_signed_bond(
+        &mut self,
+        tx_msg: &[u8],
+        tx_bytes: &[u8],
+        wrapper_sig_bytes: &[u8],
+        raw_sig_bytes: &[u8],
+    ) -> Result<(), JsError> {
+        let bond_tx = self.sign_tx(tx_bytes, wrapper_sig_bytes, raw_sig_bytes)?;
+        let args = tx::bond_tx_args(tx_msg, None).map_err(JsError::from)?;
+
+        namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args.tx, bond_tx)
+            .await
+            .map_err(JsError::from)?;
+
+        Ok(())
+    }
+
+    /// Submit unbond
     pub async fn submit_unbond(
         &mut self,
         tx_msg: &[u8],
@@ -285,6 +369,29 @@ impl Sdk {
                 .map_err(JsError::from)?;
 
         self.sign_and_process_tx(args.tx, tx, pk).await?;
+
+        Ok(())
+    }
+
+    /// Submit signed unbond tx
+    pub async fn submit_signed_unbond(
+        &mut self,
+        tx_msg: &[u8],
+        tx_bytes: &[u8],
+        wrapper_sig_bytes: &[u8],
+        raw_sig_bytes: &[u8],
+    ) -> Result<(), JsError> {
+        let bond_tx = self.sign_tx(tx_bytes, wrapper_sig_bytes, raw_sig_bytes)?;
+        let args = tx::unbond_tx_args(tx_msg, None).map_err(JsError::from)?;
+        let verification_key = args.tx.verification_key.clone();
+        let pk = validate_pk(verification_key)?;
+
+        self.submit_reveal_pk(&args.tx, bond_tx.clone(), &pk)
+            .await?;
+
+        namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args.tx, bond_tx)
+            .await
+            .map_err(JsError::from)?;
 
         Ok(())
     }

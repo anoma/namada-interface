@@ -1,20 +1,23 @@
+import { chains } from "@namada/chains";
+import { Query, Sdk } from "@namada/shared";
 import { KVStore } from "@namada/storage";
+import { Chain } from "@namada/types";
 
 import {
   ExtensionRouter,
   ExtensionMessengerMock,
   ExtensionRequester,
   getNamadaRouterId,
-} from "../extension";
-import { Ports, KVPrefix } from "../router";
-import { chains } from "@namada/chains";
-import { ChainsService, init as initChains } from "../background/chains";
+} from "extension";
+import { Ports, KVPrefix } from "router";
+import { ChainsService, init as initChains } from "background/chains";
 import {
   KeyRingService,
   init as initKeyRing,
   KeyStore,
   TabStore,
   UtilityStore,
+  AccountStore,
 } from "../background/keyring";
 
 import {
@@ -23,8 +26,7 @@ import {
 } from "../background/approvals";
 
 import { Namada } from "provider";
-import { Chain } from "@namada/types";
-import { Query, Sdk } from "@namada/shared";
+import { LedgerService } from "background/ledger";
 
 // __wasm is not exported in crypto.d.ts so need to use require instead of import
 /* eslint-disable @typescript-eslint/no-var-requires */
@@ -34,7 +36,7 @@ const chainId = "namada-75a7e12.69483d59a9fb174";
 export class KVStoreMock<T> implements KVStore<T> {
   private storage: { [key: string]: T | null } = {};
 
-  constructor(readonly _prefix: string) {}
+  constructor(readonly _prefix: string) { }
 
   get<U extends T>(key: string): Promise<U | undefined> {
     return new Promise((resolve) => {
@@ -102,12 +104,22 @@ export const init = async (): Promise<{
     cryptoMemory,
     requester
   );
+
+  const ledgerService = new LedgerService(
+    keyRingService,
+    iDBStore as KVStore<AccountStore[]>,
+    connectedTabsStore,
+    txStore,
+    chainId,
+    sdk,
+    requester
+  );
+
   const approvalsService = new ApprovalsService(
     txStore,
     connectedTabsStore,
     keyRingService,
-    chainId,
-    requester
+    ledgerService
   );
 
   // Initialize messages and handlers
