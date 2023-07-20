@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 
 import { Button, ButtonVariant } from "@namada/components";
 import { shortenAddress } from "@namada/utils";
@@ -49,7 +49,7 @@ export const ApproveBond: React.FC<Props> = ({
     if (publicKey) {
       setPublicKey(publicKey);
     }
-  }, [source]);
+  }, [source, publicKey]);
 
   const handleApproveClick = (): void => {
     setMsgId(id);
@@ -59,7 +59,7 @@ export const ApproveBond: React.FC<Props> = ({
     navigate(TopLevelRoute.ConfirmBond);
   };
 
-  const handleReject = async (): Promise<void> => {
+  const handleReject = useCallback(async (): Promise<void> => {
     try {
       // TODO: use executeUntil here!
       await requester.sendMessage(Ports.Background, new RejectTxMsg(id));
@@ -70,7 +70,7 @@ export const ApproveBond: React.FC<Props> = ({
       console.warn(e);
     }
     return;
-  };
+  }, [id]);
 
   return (
     <ApprovalContainer>

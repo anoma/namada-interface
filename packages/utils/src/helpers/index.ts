@@ -202,3 +202,22 @@ export function pick<T, K extends keyof T>(obj: T, ...keys: K[]): Pick<T, K> {
     return (acc[val] = obj[val]), acc;
   }, {} as Pick<T, K>);
 }
+
+/**
+ * Format url with query string params using an object
+ *
+ * @param {string} url
+ * @param {object} params
+ * @returns {string}
+ */
+export function paramsToUrl(
+  url: string,
+  params: Record<string, string>
+): string {
+  const queryString = new URLSearchParams(params).toString();
+
+  if (queryString) {
+    return `${url}?${queryString}`;
+  }
+  return url;
+}

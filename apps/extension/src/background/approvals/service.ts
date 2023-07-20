@@ -13,6 +13,7 @@ import { KVStore } from "@namada/storage";
 
 import { KeyRingService, TabStore } from "background/keyring";
 import { LedgerService } from "background/ledger";
+import { paramsToUrl } from "@namada/utils";
 
 export class ApprovalsService {
   constructor(
@@ -32,9 +33,18 @@ export class ApprovalsService {
     const txDetails = deserialize(txMsgBuffer, TransferMsgValue);
     const { source, target, token, amount: amountBN } = txDetails;
     const amount = new BigNumber(amountBN.toString());
-    const url = `${browser.runtime.getURL(
+    const baseUrl = `${browser.runtime.getURL(
       "approvals.html"
-    )}#/approve-transfer?type=${type}&id=${id}&source=${source}&target=${target}&token=${token}&amount=${amount}`;
+    )}#/approve-transfer`;
+
+    const url = paramsToUrl(baseUrl, {
+      id,
+      source,
+      target,
+      token,
+      amount: amount.toString(),
+      type: type as string,
+    });
 
     this._launchApprovalWindow(url);
   }
@@ -52,15 +62,18 @@ export class ApprovalsService {
     // Decode tx details and launch approval screen
     const txDetails = deserialize(txMsgBuffer, SubmitBondMsgValue);
 
-    const { source, nativeToken, amount: amountBN } = txDetails;
+    const { source, nativeToken: token, amount: amountBN } = txDetails;
     const amount = new BigNumber(amountBN.toString());
-    let url = `${browser.runtime.getURL(
-      "approvals.html"
-    )}#/approve-bond?type=${type}&id=${id}&source=${source}&token=${nativeToken}&amount=${amount}`;
+    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-bond`;
 
-    if (publicKey) {
-      url += `&publicKey=${publicKey}`;
-    }
+    const url = paramsToUrl(baseUrl, {
+      id,
+      source,
+      token,
+      amount: amount.toString(),
+      publicKey: publicKey || "",
+      type: type as string,
+    });
 
     this._launchApprovalWindow(url);
   }
@@ -78,9 +91,15 @@ export class ApprovalsService {
     const { source, nativeToken, amount: amountBN } = txDetails;
     const amount = new BigNumber(amountBN.toString());
     // TODO: This query should include perhaps a "type" indicating whether it's a bond or unbond tx:
-    const url = `${browser.runtime.getURL(
-      "approvals.html"
-    )}#/approve-bond?type=${type}&id=${id}&source=${source}&token=${nativeToken}&amount=${amount}`;
+    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-bond`;
+
+    const url = paramsToUrl(baseUrl, {
+      id,
+      source,
+      token: nativeToken,
+      amount: amount.toString(),
+      type: type as string,
+    });
 
     this._launchApprovalWindow(url);
   }
@@ -92,11 +111,7 @@ export class ApprovalsService {
 
   // Authenticate keyring and submit approved transfer transaction from storage
   async submitTransfer(msgId: string, password: string): Promise<void> {
-    try {
-      await this.keyRingService.unlock(password);
-    } catch (e) {
-      throw new Error(`${e}`);
-    }
+    await this.keyRingService.unlock(password);
 
     // Fetch pending transfer tx
     const tx = await this.txStore.get(msgId);
@@ -112,11 +127,8 @@ export class ApprovalsService {
 
   // Authenticate keyring and submit approved bond transaction from storage
   async submitBond(msgId: string, password: string): Promise<void> {
-    try {
-      await this.keyRingService.unlock(password);
-    } catch (e) {
-      throw new Error(`${e}`);
-    }
+    await this.keyRingService.unlock(password);
+
     // Fetch pending bond tx
     const tx = await this.txStore.get(msgId);
 
@@ -131,11 +143,8 @@ export class ApprovalsService {
   }
 
   async submitUnbond(msgId: string, password: string): Promise<void> {
-    try {
-      await this.keyRingService.unlock(password);
-    } catch (e) {
-      throw new Error(`${e}`);
-    }
+    await this.keyRingService.unlock(password);
+
     // Fetch pending bond tx
     const tx = await this.txStore.get(msgId);
 
