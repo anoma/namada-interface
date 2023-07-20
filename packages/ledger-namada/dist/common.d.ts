@@ -34,8 +34,8 @@ export declare const ERROR_CODE: {
     NoError: number;
 };
 export declare const enum SignatureType {
-    WrapperSignature = 0,
-    RawSignature = 1
+    RawSignature = 0,
+    WrapperSignature = 1
 }
 export declare enum LedgerError {
     U2FUnknown = 1,

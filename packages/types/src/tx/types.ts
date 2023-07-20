@@ -63,3 +63,11 @@ export type BridgeTransferProps = {
 export type InitAccountProps = {
   vpCode: Uint8Array;
 };
+
+export type SignatureProps = {
+  raw: Uint8Array;
+  salt: Uint8Array;
+  indicies: Uint8Array;
+  pubkey: Uint8Array;
+  signature: Uint8Array;
+};

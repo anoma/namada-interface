@@ -2,6 +2,7 @@ export * from "./account";
 export * from "./ibcTransfer";
 export * from "./transfer";
 export * from "./bond";
+export * from "./signature";
 export * from "./revealPK";
 export * from "./unbond";
 
@@ -11,6 +12,7 @@ import { TransferMsgValue } from "./transfer";
 import { SubmitBondMsgValue } from "./bond";
 import { SubmitUnbondMsgValue } from "./unbond";
 import { SubmitRevealPKMsgValue } from "./revealPK";
+import { SignatureMsgValue } from "./signature";
 
 export type Schema =
   | AccountMsgValue
@@ -18,4 +20,5 @@ export type Schema =
   | TransferMsgValue
   | SubmitBondMsgValue
   | SubmitUnbondMsgValue
-  | SubmitRevealPKMsgValue;
+  | SubmitRevealPKMsgValue
+  | SignatureMsgValue;

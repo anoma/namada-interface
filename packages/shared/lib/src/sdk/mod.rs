@@ -12,12 +12,13 @@ use namada::{
         signing,
         wallet::{Store, Wallet},
     },
-    proto::{Section, Signature, Tx},
+    proto::{Section, Tx},
     types::key::common::PublicKey,
 };
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 
 pub mod masp;
+mod signature;
 mod tx;
 mod wallet;
 
@@ -249,12 +250,13 @@ impl Sdk {
     ) -> Result<Tx, JsError> {
         let mut tx: Tx = Tx::try_from_slice(tx_bytes).map_err(JsError::from)?;
 
-        let wrapper_sig = Signature::try_from_slice(wrapper_sig_bytes).map_err(JsError::from)?;
-        let raw_sig = Signature::try_from_slice(raw_sig_bytes).map_err(JsError::from)?;
-
+        let raw_sig = signature::construct_signature(raw_sig_bytes, &tx)?;
         tx.add_section(Section::Signature(raw_sig));
-        tx.protocol_filter();
+
+        let wrapper_sig = signature::construct_signature(wrapper_sig_bytes, &tx)?;
         tx.add_section(Section::Signature(wrapper_sig));
+
+        tx.protocol_filter();
 
         Ok(tx)
     }

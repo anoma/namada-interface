@@ -78,14 +78,9 @@ export class LedgerService {
     signatures: ResponseSign
   ): Promise<void> {
     const {
-      wrapperSignature: {
-        raw: { data: wrapperSig },
-      },
-      rawSignature: {
-        raw: { data: rawSig },
-      },
-      // TODO: We need the correct type updated in ResponseSign
-    } = signatures as any; // eslint-disable-line
+      wrapperSignature: { raw: wrapperSig },
+      rawSignature: { raw: rawSig },
+    } = signatures;
 
     if (!wrapperSig) {
       throw new Error("No wrapper signature was produced!");
@@ -153,14 +148,9 @@ export class LedgerService {
     }
 
     const {
-      wrapperSignature: {
-        raw: { data: wrapperSig },
-      },
-      rawSignature: {
-        raw: { data: rawSig },
-      },
-      // TODO: We need the correct type updated in ResponseSign
-    } = signatures as any; // eslint-disable-line
+      wrapperSignature: { raw: wrapperSig },
+      rawSignature: { raw: rawSig },
+    } = signatures;
 
     if (!wrapperSig) {
       throw new Error("No wrapper signature was produced!");
@@ -234,14 +224,9 @@ export class LedgerService {
     }
 
     const {
-      wrapperSignature: {
-        raw: { data: wrapperSig },
-      },
-      rawSignature: {
-        raw: { data: rawSig },
-      },
-      // TODO: We need the correct type updated in ResponseSign
-    } = signatures as any; // eslint-disable-line
+      wrapperSignature: { raw: wrapperSig },
+      rawSignature: { raw: rawSig },
+    } = signatures;
 
     if (!wrapperSig) {
       throw new Error("No wrapper signature was produced!");
