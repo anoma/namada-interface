@@ -27,7 +27,7 @@ export class Namada implements INamada {
   constructor(
     private readonly _version: string,
     protected readonly requester?: MessageRequester
-  ) { }
+  ) {}
 
   public async connect(chainId: string): Promise<void> {
     return await this.requester?.sendMessage(
@@ -94,10 +94,10 @@ export class Namada implements INamada {
     type: AccountType;
     publicKey?: string;
   }): Promise<void> {
-    const { txMsg, type, publicKey } = props;
+    const { txMsg, type } = props;
     return await this.requester?.sendMessage(
       Ports.Background,
-      new ApproveBondMsg(txMsg, type, publicKey)
+      new ApproveBondMsg(txMsg, type)
     );
   }
 

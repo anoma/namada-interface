@@ -9,7 +9,7 @@ import {
   TransferMsgValue,
 } from "@namada/types";
 import { ResponseSign } from "@namada/ledger-namada";
-import { Sdk } from "@namada/shared";
+import { Sdk, TxType } from "@namada/shared";
 import { IStore, KVStore, Store } from "@namada/storage";
 import { chains } from "@namada/chains";
 import { makeBip44Path } from "@namada/utils";
@@ -62,7 +62,7 @@ export class LedgerService {
         throw new Error(`Ledger account not found for ${publicKey}`);
       }
 
-      const bytes = await this.sdk.build_reveal_pk(fromBase64(txMsg));
+      const bytes = await this.sdk.build_tx(TxType.RevealPK, fromBase64(txMsg));
       const path = makeBip44Path(coinType, account.path);
 
       return { bytes, path };
@@ -119,7 +119,7 @@ export class LedgerService {
         throw new Error(`Ledger account not found for ${source}`);
       }
 
-      const bytes = await this.sdk.build_transfer(fromBase64(txMsg));
+      const bytes = await this.sdk.build_tx(TxType.Transfer, fromBase64(txMsg));
       const path = makeBip44Path(coinType, account.path);
 
       return { bytes, path };
@@ -187,7 +187,7 @@ export class LedgerService {
         throw new Error(`Ledger account not found for ${source}`);
       }
 
-      const bytes = await this.sdk.build_bond(fromBase64(txMsg));
+      const bytes = await this.sdk.build_tx(TxType.Bond, fromBase64(txMsg));
       const path = makeBip44Path(coinType, account.path);
 
       return { bytes, path };

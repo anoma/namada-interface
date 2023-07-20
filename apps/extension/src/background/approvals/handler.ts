@@ -71,8 +71,8 @@ const handleSubmitApprovedTransferMsg: (
 const handleApproveBondMsg: (
   service: ApprovalsService
 ) => InternalHandler<ApproveBondMsg> = (service) => {
-  return async (_, { txMsg, accountType, publicKey }) => {
-    return await service.approveBond(txMsg, accountType, publicKey);
+  return async (_, { txMsg, accountType }) => {
+    return await service.approveBond(txMsg, accountType);
   };
 };
 

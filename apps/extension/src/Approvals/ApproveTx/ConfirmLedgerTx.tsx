@@ -2,49 +2,49 @@ import { useCallback, useState } from "react";
 import { toBase64 } from "@cosmjs/encoding";
 import BigNumber from "bignumber.js";
 
-import { LedgerError } from "@namada/ledger-namada";
+import { LedgerError, ResponseSign } from "@namada/ledger-namada";
 import { Button, ButtonVariant } from "@namada/components";
 import { defaultChainId as chainId } from "@namada/chains";
-
-import { Ledger } from "background/ledger";
-import {
-  GetBondBytesMsg,
-  GetRevealPKBytesMsg,
-  SubmitSignedBondMsg,
-  SubmitSignedRevealPKMsg,
-} from "background/ledger/messages";
-import { Ports } from "router";
-import { closeCurrentTab } from "utils";
-import { useRequester } from "hooks/useRequester";
-import { Status } from "Approvals/Approvals";
-import {
-  ApprovalContainer,
-  ButtonContainer,
-} from "Approvals/Approvals.components";
-import { InfoHeader, InfoLoader } from "Approvals/Approvals.components";
+import { TxType } from "@namada/shared";
 import {
   Message,
   RevealPKProps,
   SubmitRevealPKMsgValue,
   Tokens,
 } from "@namada/types";
+
+import { Ledger } from "background/ledger";
+import {
+  GetBondBytesMsg,
+  GetTransferBytesMsg,
+  GetRevealPKBytesMsg,
+  SubmitSignedBondMsg,
+  SubmitSignedRevealPKMsg,
+  SubmitSignedTransferMsg,
+} from "background/ledger/messages";
+import { Ports } from "router";
+import { closeCurrentTab } from "utils";
+import { useRequester } from "hooks/useRequester";
+import { ApprovalDetails, Status } from "Approvals/Approvals";
+import {
+  ApprovalContainer,
+  ButtonContainer,
+} from "Approvals/Approvals.components";
+import { InfoHeader, InfoLoader } from "Approvals/Approvals.components";
+
 import { QueryPublicKeyMsg } from "background/keyring";
+import { TxTypeLabel } from "Approvals/types";
 
 type Props = {
-  address: string;
-  msgId: string;
-  publicKey: string;
+  details?: ApprovalDetails;
 };
 
-export const ConfirmLedgerBond: React.FC<Props> = ({
-  address,
-  msgId,
-  publicKey,
-}) => {
+export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
   const requester = useRequester();
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState<Status>();
   const [statusInfo, setStatusInfo] = useState("");
+  const { source, msgId = "", publicKey, txType } = details || {};
 
   const revealPk = async (publicKey: string): Promise<void> => {
     const revealPKArgs: RevealPKProps = {
@@ -101,36 +101,81 @@ export const ConfirmLedgerBond: React.FC<Props> = ({
     );
   };
 
-  const submitBond = async (): Promise<void> => {
+  const handleSubmitTx = useCallback(async (): Promise<void> => {
     setStatus(Status.Pending);
     setStatusInfo("Querying for public key on chain...");
 
-    const pk = await queryPublicKey(address);
+    if (source && publicKey) {
+      const pk = await queryPublicKey(source);
 
-    if (!pk) {
-      setStatusInfo(
-        "Public key not found! Review and approve reveal pk on your Ledger"
-      );
-      await revealPk(publicKey);
+      if (!pk) {
+        setStatusInfo(
+          "Public key not found! Review and approve reveal pk on your Ledger"
+        );
+        await revealPk(publicKey);
+      }
+
+      return await submitTx();
     }
+  }, [source, publicKey]);
 
+  const getBytesByType = async (
+    type?: TxType
+  ): Promise<{ bytes: Uint8Array; path: string }> => {
+    switch (type) {
+      case TxType.Bond:
+        return await requester.sendMessage(
+          Ports.Background,
+          new GetBondBytesMsg(msgId)
+        );
+      case TxType.Transfer:
+        return await requester.sendMessage(
+          Ports.Background,
+          new GetTransferBytesMsg(msgId)
+        );
+      default:
+        throw new Error("Invalid transaction type!");
+    }
+  };
+
+  // TODO: This will not be necessary when `submit_signed_tx` is implemented!
+  const submitByType = async (
+    bytes: Uint8Array,
+    signatures: ResponseSign,
+    type?: TxType
+  ): Promise<void> => {
+    switch (type) {
+      case TxType.Bond:
+        return await requester.sendMessage(
+          Ports.Background,
+          new SubmitSignedBondMsg(msgId, toBase64(bytes), signatures)
+        );
+      case TxType.Transfer:
+        return await requester.sendMessage(
+          Ports.Background,
+          new SubmitSignedTransferMsg(msgId, toBase64(bytes), signatures)
+        );
+      default:
+        throw new Error("Invalid transaction type!");
+    }
+  };
+
+  const submitTx = async (): Promise<void> => {
     // Open ledger transport
     const ledger = await Ledger.init();
+    const txLabel = TxTypeLabel[txType as TxType];
 
     try {
       // Constuct tx bytes from SDK
-      const { bytes, path } = await requester.sendMessage(
-        Ports.Background,
-        new GetBondBytesMsg(msgId)
-      );
+      const { bytes, path } = await getBytesByType(txType);
+      setStatusInfo(`Review and approve ${txLabel} transaction on your Ledger`);
 
-      setStatusInfo("Review and approve bond transaction on your Ledger");
       // Sign with Ledger
       const signatures = await ledger.sign(bytes, path);
       const { errorMessage, returnCode } = signatures;
 
       if (returnCode !== LedgerError.NoErrors) {
-        console.warn("Bond sign errors encountered, exiting: ", {
+        console.warn(`${txLabel} signing errors encountered, exiting: `, {
           returnCode,
           errorMessage,
         });
@@ -139,11 +184,8 @@ export const ConfirmLedgerBond: React.FC<Props> = ({
       }
 
       // Submit signatures for tx
-      setStatusInfo("Submitting bond transaction...");
-      await requester.sendMessage(
-        Ports.Background,
-        new SubmitSignedBondMsg(msgId, toBase64(bytes), signatures)
-      );
+      setStatusInfo(`Submitting ${txLabel} transaction...`);
+      await submitByType(bytes, signatures, txType);
       setStatus(Status.Completed);
     } catch (e) {
       console.warn(e);
@@ -175,7 +217,7 @@ export const ConfirmLedgerBond: React.FC<Props> = ({
         <>
           <p>Make sure your Ledger is unlocked, and click &quot;Submit&quot;</p>
           <ButtonContainer>
-            <Button variant={ButtonVariant.Contained} onClick={submitBond}>
+            <Button variant={ButtonVariant.Contained} onClick={handleSubmitTx}>
               Submit
             </Button>
           </ButtonContainer>

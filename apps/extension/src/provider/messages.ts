@@ -295,8 +295,7 @@ export class ApproveBondMsg extends Message<void> {
 
   constructor(
     public readonly txMsg: string,
-    public readonly accountType: AccountType,
-    public readonly publicKey?: string
+    public readonly accountType: AccountType
   ) {
     super();
   }

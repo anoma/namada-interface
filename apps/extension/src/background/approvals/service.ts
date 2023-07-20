@@ -9,6 +9,7 @@ import {
   SubmitBondMsgValue,
   TransferMsgValue,
 } from "@namada/types";
+import { TxType } from "@namada/shared";
 import { KVStore } from "@namada/storage";
 
 import { KeyRingService, TabStore } from "background/keyring";
@@ -21,7 +22,7 @@ export class ApprovalsService {
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
     protected readonly keyRingService: KeyRingService,
     protected readonly ledgerService: LedgerService
-  ) { }
+  ) {}
 
   // Deserialize transfer details and prompt user
   async approveTransfer(txMsg: string, type?: AccountType): Promise<void> {
@@ -31,11 +32,17 @@ export class ApprovalsService {
 
     // Decode tx details and launch approval screen
     const txDetails = deserialize(txMsgBuffer, TransferMsgValue);
-    const { source, target, token, amount: amountBN } = txDetails;
+    const {
+      source,
+      target,
+      token,
+      amount: amountBN,
+      tx: { publicKey = "" },
+    } = txDetails;
     const amount = new BigNumber(amountBN.toString());
-    const baseUrl = `${browser.runtime.getURL(
-      "approvals.html"
-    )}#/approve-transfer`;
+    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
+      TxType.Transfer
+    }`;
 
     const url = paramsToUrl(baseUrl, {
       id,
@@ -43,18 +50,15 @@ export class ApprovalsService {
       target,
       token,
       amount: amount.toString(),
-      type: type as string,
+      accountType: type as string,
+      publicKey,
     });
 
     this._launchApprovalWindow(url);
   }
 
   // Deserialize bond details and prompt user
-  async approveBond(
-    txMsg: string,
-    type: AccountType,
-    publicKey?: string
-  ): Promise<void> {
+  async approveBond(txMsg: string, type: AccountType): Promise<void> {
     const txMsgBuffer = Buffer.from(fromBase64(txMsg));
     const id = uuid();
     await this.txStore.set(id, txMsg);
@@ -62,17 +66,24 @@ export class ApprovalsService {
     // Decode tx details and launch approval screen
     const txDetails = deserialize(txMsgBuffer, SubmitBondMsgValue);
 
-    const { source, nativeToken: token, amount: amountBN } = txDetails;
+    const {
+      source,
+      nativeToken: token,
+      amount: amountBN,
+      tx: { publicKey = "" },
+    } = txDetails;
     const amount = new BigNumber(amountBN.toString());
-    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-bond`;
+    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
+      TxType.Bond
+    }`;
 
     const url = paramsToUrl(baseUrl, {
       id,
       source,
       token,
       amount: amount.toString(),
-      publicKey: publicKey || "",
-      type: type as string,
+      publicKey,
+      accountType: type as string,
     });
 
     this._launchApprovalWindow(url);
@@ -91,14 +102,16 @@ export class ApprovalsService {
     const { source, nativeToken, amount: amountBN } = txDetails;
     const amount = new BigNumber(amountBN.toString());
     // TODO: This query should include perhaps a "type" indicating whether it's a bond or unbond tx:
-    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-bond`;
+    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
+      TxType.Unbond
+    }`;
 
     const url = paramsToUrl(baseUrl, {
       id,
       source,
       token: nativeToken,
       amount: amount.toString(),
-      type: type as string,
+      accountType: type as string,
     });
 
     this._launchApprovalWindow(url);

@@ -22,6 +22,16 @@ mod signature;
 mod tx;
 mod wallet;
 
+#[wasm_bindgen]
+#[derive(Copy, Clone, Debug)]
+pub enum TxType {
+    Bond = 0,
+    Unbond = 1,
+    Withdraw = 2,
+    Transfer = 3,
+    RevealPK = 4,
+}
+
 // Require that a public key is present
 fn validate_pk(pk: Option<PublicKey>) -> Result<PublicKey, JsError> {
     match pk {
@@ -197,48 +207,68 @@ impl Sdk {
         Ok(())
     }
 
-    /// Contruct transfer data for external signers, returns byte array
-    pub async fn build_transfer(&mut self, tx_msg: &[u8]) -> Result<JsValue, JsError> {
-        let args = tx::transfer_tx_args(tx_msg, None, None)?;
+    /// Build transaction for specified type, return bytes to client
+    pub async fn build_tx(&mut self, tx_type: TxType, tx_msg: &[u8]) -> Result<JsValue, JsError> {
+        let tx = match tx_type {
+            TxType::Bond => {
+                let args = tx::bond_tx_args(tx_msg, None)?;
+                let bond =
+                    namada::ledger::tx::build_bond(&self.client, &mut self.wallet, args.clone())
+                        .await
+                        .map_err(JsError::from)?;
+                bond.0
+            }
+            TxType::RevealPK => {
+                let args = tx::reveal_pk_tx_args(tx_msg)?;
 
-        let transfer = namada::ledger::tx::build_transfer(
-            &self.client,
-            &mut self.wallet,
-            &mut self.shielded_ctx,
-            args.clone(),
-        )
-        .await
-        .map_err(JsError::from)?;
+                let reveal_pk = namada::ledger::tx::build_reveal_pk(
+                    &self.client,
+                    &mut self.wallet,
+                    args::RevealPk {
+                        tx: args.tx.clone(),
+                        public_key: args.public_key.clone(),
+                    },
+                )
+                .await?;
 
-        let bytes = transfer.0.try_to_vec().map_err(JsError::from)?;
+                match reveal_pk {
+                    Some(v) => v.0,
+                    None => {
+                        return Err(JsError::new(
+                            "Attempted to build reveal pk for existing public key!",
+                        ))
+                    }
+                }
+            }
+            TxType::Transfer => {
+                let args = tx::transfer_tx_args(tx_msg, None, None)?;
+                let transfer = namada::ledger::tx::build_transfer(
+                    &self.client,
+                    &mut self.wallet,
+                    &mut self.shielded_ctx,
+                    args.clone(),
+                )
+                .await
+                .map_err(JsError::from)?;
+                transfer.0
+            }
+            TxType::Unbond => {
+                let args = tx::unbond_tx_args(tx_msg, None)?;
+                let unbond =
+                    namada::ledger::tx::build_unbond(&self.client, &mut self.wallet, args.clone())
+                        .await
+                        .map_err(JsError::from)?;
+                unbond.0
+            }
+            _ => {
+                return Err(JsError::new(&format!(
+                    "TxType \"{:?}\" not implemented!",
+                    tx_type,
+                )))
+            }
+        };
 
-        to_js_result(bytes)
-    }
-
-    /// Contruct bond data for external signers, returns byte array
-    pub async fn build_bond(&mut self, tx_msg: &[u8]) -> Result<JsValue, JsError> {
-        let args = tx::bond_tx_args(tx_msg, None)?;
-
-        let bond = namada::ledger::tx::build_bond(&self.client, &mut self.wallet, args.clone())
-            .await
-            .map_err(JsError::from)?;
-
-        let bytes = bond.0.try_to_vec().map_err(JsError::from)?;
-
-        to_js_result(bytes)
-    }
-
-    /// Contruct unbond data for external signers, returns byte array
-    pub async fn build_unbond(&mut self, tx_msg: &[u8]) -> Result<JsValue, JsError> {
-        let args = tx::unbond_tx_args(tx_msg, None)?;
-
-        let unbond = namada::ledger::tx::build_unbond(&self.client, &mut self.wallet, args.clone())
-            .await
-            .map_err(JsError::from)?;
-
-        let bytes = unbond.0.try_to_vec().map_err(JsError::from)?;
-
-        to_js_result(bytes)
+        to_js_result(tx.try_to_vec().map_err(JsError::from)?)
     }
 
     // Append signatures and return tx bytes
@@ -278,6 +308,29 @@ impl Sdk {
             .await?;
 
         namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args.tx, transfer_tx)
+            .await
+            .map_err(JsError::from)?;
+
+        Ok(())
+    }
+
+    /// Submit signed tx
+    pub async fn submit_signed_tx(
+        &mut self,
+        tx_msg: &[u8],
+        tx_bytes: &[u8],
+        raw_sig_bytes: &[u8],
+        wrapper_sig_bytes: &[u8],
+    ) -> Result<(), JsError> {
+        let transfer_tx = self.sign_tx(tx_bytes, raw_sig_bytes, wrapper_sig_bytes)?;
+        let args = tx::tx_args_from_slice(tx_msg)?;
+        let verification_key = args.verification_key.clone();
+        let pk = validate_pk(verification_key)?;
+
+        self.submit_reveal_pk(&args, transfer_tx.clone(), &pk)
+            .await?;
+
+        namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args, transfer_tx)
             .await
             .map_err(JsError::from)?;
 

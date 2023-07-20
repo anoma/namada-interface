@@ -336,6 +336,13 @@ pub fn ibc_transfer_tx_args(
     Ok(args)
 }
 
+pub fn tx_args_from_slice(tx_msg_bytes: &[u8]) -> Result<args::Tx, JsError> {
+    let tx_msg = TxMsg::try_from_slice(tx_msg_bytes).map_err(JsError::from)?;
+    let args = tx_msg_into_args(tx_msg, None)?;
+
+    Ok(args)
+}
+
 /// Maps serialized tx_msg into Tx args.
 /// This is common for all tx types.
 ///
