@@ -21,7 +21,7 @@ const puppeteerArgs = [
   `--load-extension=${path}`,
   "--disable-features=DialMediaRouteProvider",
 ];
-jest.setTimeout(70000);
+jest.setTimeout(120000);
 
 let browser: puppeteer.Browser;
 let page: puppeteer.Page;
@@ -117,7 +117,7 @@ describe("Namada extension", () => {
       await openPopup();
       // Check H1
       const h1 = await page.$eval("h1", (e) => e.innerText);
-      expect(h1).toEqual("Anoma Browser Extension");
+      expect(h1).toEqual("Namada Browser Extension");
     });
   });
 
@@ -206,7 +206,7 @@ describe("Namada extension", () => {
       // Fill transfer data
       const [recipentInput, amountInput] = await page.$$("input");
       await recipentInput.type(
-        "atest1d9khqw368qury3phx3prsvp4gezrssenxqmyxwpn8qmrqvpsg4znjdjp8ycry3p3g4p5vd6x66dnmw"
+        "atest1d9khqw36x9zr2s6pxymrv3z9xcen2s33gvmrxsfjgccnzd2rxez5z3fex5urgsjzg4qnsw2pef6prn"
       );
       await amountInput.type("10");
 

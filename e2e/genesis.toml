@@ -144,7 +144,7 @@ public_key = "002b5b8fda66fb6fc4ef0d86f84b21f250034077effc459fc2403a77a35aa95e3f
 public_key = "0076a9df923fd0746a17682429ca1a5ff859f066c4be6c0bcdaaadb5f45524ad8a"
 
 [implicit.TestB]
-public_key = "000e5a813e23821025d56dd8f578b9bbfe6a215beb9d016807b16c1afb182c8e05"
+public_key = "0041cca22e607fca642fb42640927f1d459e33f5e12e676ca1aa292fc6d9affbfa"
 # Wasm VP definitions
 
 # Implicit VP

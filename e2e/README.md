@@ -10,7 +10,6 @@ Package containing extension and web interface e2e tests.
 - WIP :)
 
 ## Other stuff
-- **So far only downloads namada linux binaries**
 - **So far only works for namada 0.19** - you can change version in `./setup-namada.sh`
 - **So far downloads MASP params every time we load extension**
 - **Namada binaries, wasm checksums and wasms are cached** - they will dl again only if namada version changes

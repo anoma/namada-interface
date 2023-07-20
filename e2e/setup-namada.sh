@@ -4,6 +4,11 @@ VERSION="v0.19.0"
 CURRENT_VERSION=""
 NAMADA_DIR=".namada"
 NAMADA_BASE_DIR=".namada/basedir"
+OS="Linux"
+
+if [[ $OSTYPE == "darwin"* ]]; then
+    OS="Darwin"
+fi
 
 # Read current version
 CURRENT_VERSION_PATH="${NAMADA_DIR}/.version"
@@ -17,7 +22,7 @@ fi
 
 if [ "$CURRENT_VERSION" != "$VERSION" ]; then
     # Download Namada binaries
-    FILENAME="namada-${VERSION}-Linux-x86_64.tar.gz"
+    FILENAME="namada-${VERSION}-${OS}-x86_64.tar.gz"
     curl --location --remote-header-name --remote-name  https://github.com/anoma/namada/releases/download/${VERSION}/${FILENAME}
     mkdir $NAMADA_DIR
     tar -xzf ${FILENAME} --directory $NAMADA_DIR --strip-components 1
@@ -37,7 +42,7 @@ if [ "$CURRENT_VERSION" != "$VERSION" ]; then
 
     while read -r line; 
     do
-        WASM=$(echo "$line" | sed -E "s/\".+\":\s\"//g" | sed -E "s/\".*//g");
+        WASM=$(echo "$line" | sed -E "s/\".+\":[[:space:]]\"//g" | sed -E "s/\".*//g");
         curl "${S3}/${WASM}" --output "${NAMADA_DIR}/wasm/${WASM}"
 
     done < "$CHECKSUMS"
@@ -71,5 +76,10 @@ cp -f ${NAMADA_DIR}/wasm/*.wasm ${NAMADA_BASE_DIR}/${CHAIN_ID}/setup/validator-0
 cp -f ${NAMADA_DIR}/wasm/*.wasm ${NAMADA_BASE_DIR}/${CHAIN_ID}/wasm/
 
 # Override envs - so we do not have to rebuild extension and app
-find ../apps/extension/build/chrome -type f -exec sed -i -E "s/dev-test\..{21}/$CHAIN_ID/g" {} +
-find ../apps/namada-interface/build -type f -exec sed -i -E "s/dev-test\..{21}/$CHAIN_ID/g" {} +
+if [[ $OS == "Darwin" ]]; then
+    LC_ALL=C find ../apps/extension/build/chrome -type f -name "*.js" -exec sed -i "" -E "s/dev-test\..{21}/$CHAIN_ID/g" {} +
+    LC_ALL=C find ../apps/namada-interface/build -type f -name "*.js" -exec sed -i "" -E "s/dev-test\..{21}/$CHAIN_ID/g" {} +
+else
+    find ../apps/extension/build/chrome -type f -name "*.js" -exec sed -i -E "s/dev-test\..{21}/$CHAIN_ID/g" {} +
+    find ../apps/namada-interface/build -type f -name "*.js" -exec sed -i -E "s/dev-test\..{21}/$CHAIN_ID/g" {} +
+fi
