@@ -140,25 +140,18 @@ export class LedgerService {
       throw new Error(`Transaction ${msgId} not found!`);
     }
 
-    const {
-      wrapperSignature: { raw: wrapperSig },
-      rawSignature: { raw: rawSig },
-    } = signatures;
+    const { wrapperSignature, rawSignature } = signatures;
 
-    if (!wrapperSig) {
-      throw new Error("No wrapper signature was produced!");
-    }
-
-    if (!rawSig) {
-      throw new Error("No raw signature was produced!");
-    }
+    // Serialize signatures
+    const rawSig = encodeSignature(rawSignature);
+    const wrapperSig = encodeSignature(wrapperSignature);
 
     try {
       await this.sdk.submit_signed_transfer(
         fromBase64(txMsg),
         fromBase64(bytes),
-        new Uint8Array(wrapperSig),
-        new Uint8Array(rawSig)
+        rawSig,
+        wrapperSig
       );
 
       // Clear pending tx if successful
@@ -216,7 +209,7 @@ export class LedgerService {
       throw new Error(`Bond Transaction ${msgId} not found!`);
     }
 
-    const { wrapperSignature, rawSignature } = signatures;
+    const { rawSignature, wrapperSignature } = signatures;
 
     try {
       const rawSig = encodeSignature(rawSignature);

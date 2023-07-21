@@ -266,10 +266,10 @@ impl Sdk {
         &mut self,
         tx_msg: &[u8],
         tx_bytes: &[u8],
-        wrapper_sig_bytes: &[u8],
         raw_sig_bytes: &[u8],
+        wrapper_sig_bytes: &[u8],
     ) -> Result<(), JsError> {
-        let transfer_tx = self.sign_tx(tx_bytes, wrapper_sig_bytes, raw_sig_bytes)?;
+        let transfer_tx = self.sign_tx(tx_bytes, raw_sig_bytes, wrapper_sig_bytes)?;
         let args = tx::transfer_tx_args(tx_msg, None, None).map_err(JsError::from)?;
         let verification_key = args.tx.verification_key.clone();
         let pk = validate_pk(verification_key)?;
@@ -344,10 +344,10 @@ impl Sdk {
         &mut self,
         tx_msg: &[u8],
         tx_bytes: &[u8],
-        wrapper_sig_bytes: &[u8],
         raw_sig_bytes: &[u8],
+        wrapper_sig_bytes: &[u8],
     ) -> Result<(), JsError> {
-        let bond_tx = self.sign_tx(tx_bytes, wrapper_sig_bytes, raw_sig_bytes)?;
+        let bond_tx = self.sign_tx(tx_bytes, raw_sig_bytes, wrapper_sig_bytes)?;
         let args = tx::bond_tx_args(tx_msg, None).map_err(JsError::from)?;
 
         namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args.tx, bond_tx)
@@ -380,10 +380,10 @@ impl Sdk {
         &mut self,
         tx_msg: &[u8],
         tx_bytes: &[u8],
-        wrapper_sig_bytes: &[u8],
         raw_sig_bytes: &[u8],
+        wrapper_sig_bytes: &[u8],
     ) -> Result<(), JsError> {
-        let bond_tx = self.sign_tx(tx_bytes, wrapper_sig_bytes, raw_sig_bytes)?;
+        let bond_tx = self.sign_tx(tx_bytes, raw_sig_bytes, wrapper_sig_bytes)?;
         let args = tx::unbond_tx_args(tx_msg, None).map_err(JsError::from)?;
         let verification_key = args.tx.verification_key.clone();
         let pk = validate_pk(verification_key)?;
