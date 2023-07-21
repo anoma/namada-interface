@@ -44,7 +44,7 @@ pub fn construct_signature(sig_msg: &[u8], tx: &Tx) -> Result<Signature, JsError
     for i in 0..indicies.len() {
         let sechash = match indicies[i] {
             0 => tx.header_hash(),
-            _ => tx.sections[indicies[i - 1] as usize].get_hash(),
+            _ => tx.sections[indicies[i] as usize - 1].get_hash(),
         };
 
         sig.append(&mut sechash.to_vec());
