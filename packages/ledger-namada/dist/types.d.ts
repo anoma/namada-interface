@@ -49,14 +49,14 @@ export interface ResponseNullifier extends ResponseBase {
 export interface ISignature {
     raw: Buffer;
     salt: Buffer;
-    hashes: Buffer[];
+    indicies: Buffer;
     pubkey: Buffer;
     signature: Buffer | null;
 }
 export declare class Signature implements ISignature {
     raw: Buffer;
     salt: Buffer;
-    hashes: Buffer[];
+    indicies: Buffer;
     pubkey: Buffer;
     signature: Buffer | null;
     isFilled: boolean;

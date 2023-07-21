@@ -185,8 +185,8 @@ class NamadaApp {
         if (signCommand.returnCode !== common_1.LedgerError.NoErrors) {
             return result;
         }
-        result.wrapperSignature = new types_1.Signature(await this.getSignature(0 /* SignatureType.WrapperSignature */));
-        result.rawSignature = new types_1.Signature(await this.getSignature(1 /* SignatureType.RawSignature */));
+        result.wrapperSignature = new types_1.Signature(await this.getSignature(1 /* SignatureType.WrapperSignature */));
+        result.rawSignature = new types_1.Signature(await this.getSignature(0 /* SignatureType.RawSignature */));
         return result;
     }
 }

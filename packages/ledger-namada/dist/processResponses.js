@@ -25,11 +25,8 @@ function processGetSignatureResponse(response) {
     offset += config_1.SALT_LEN;
     const hashesLen = response[offset] + response[offset + 1] * 0x100 + response[offset + 2] * 0x10000 + response[offset + 3] * 0x1000000;
     offset += 4;
-    const hashes = [];
-    for (let i = 0; i < hashesLen; i++) {
-        hashes.push(Buffer.from(response.subarray(offset, offset + config_1.HASH_LEN)));
-        offset += config_1.HASH_LEN;
-    }
+    const indicies = Buffer.from(response.subarray(offset, offset + hashesLen));
+    offset += hashesLen;
     const pubkey = Buffer.from(response.subarray(offset, offset + config_1.PK_LEN_25519 + 1));
     offset += config_1.PK_LEN_25519 + 1;
     const hasSignature = response[offset];
@@ -42,7 +39,7 @@ function processGetSignatureResponse(response) {
     const raw = Buffer.from(response.subarray(0, offset));
     return {
         salt,
-        hashes,
+        indicies,
         pubkey,
         signature,
         raw,
