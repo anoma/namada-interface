@@ -1,9 +1,10 @@
 import browser from "webextension-polyfill";
 import { v5 as uuid } from "uuid";
 
-import { DerivedAccount } from "@namada/types";
+import { DerivedAccount, Message, SignatureMsgValue } from "@namada/types";
 import { pick } from "@namada/utils";
 import { AccountStore } from "background/keyring";
+import { ISignature } from "@namada/ledger-namada";
 
 /**
  * Query the current extension tab and close it
@@ -47,4 +48,32 @@ export const generateId = (
   ...args: (number | string)[]
 ): string => {
   return uuid(args.join(":"), namespace);
+};
+
+/**
+ * Convert ISignature into serialized and encoded signature
+ */
+export const encodeSignature = (sig: ISignature): Uint8Array => {
+  const { salt, indicies, pubkey, signature } = sig;
+
+  // Validate props
+  if (!salt || !indicies || !pubkey || !signature) {
+    throw new Error("Invalid signature!");
+  }
+
+  // TODO: Note that the following "any" type usage below is a result of the buffer responses
+  // from the Ledger do not match the ISignature type! This will be fixed in a future release.
+
+  /* eslint-disable */
+  const props = {
+    salt: new Uint8Array((salt as any).data),
+    indicies: new Uint8Array((indicies as any).data),
+    pubkey: new Uint8Array((pubkey as any).data),
+    signature: new Uint8Array((signature as any).data),
+  };
+  /* eslint-enable */
+
+  const value = new SignatureMsgValue(props);
+  const msg = new Message<SignatureMsgValue>();
+  return msg.encode(value);
 };

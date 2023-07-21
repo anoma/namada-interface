@@ -20,7 +20,7 @@ import {
   TabStore,
   syncTabs,
 } from "background/keyring";
-import { generateId } from "utils";
+import { encodeSignature, generateId } from "utils";
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
 import { UpdatedStakingEventMsg } from "content/events";
@@ -77,25 +77,18 @@ export class LedgerService {
     bytes: string,
     signatures: ResponseSign
   ): Promise<void> {
-    const {
-      wrapperSignature: { raw: wrapperSig },
-      rawSignature: { raw: rawSig },
-    } = signatures;
-
-    if (!wrapperSig) {
-      throw new Error("No wrapper signature was produced!");
-    }
-
-    if (!rawSig) {
-      throw new Error("No raw signature was produced!");
-    }
+    const { wrapperSignature, rawSignature } = signatures;
 
     try {
+      // Serialize signatures
+      const rawSig = encodeSignature(rawSignature);
+      const wrapperSig = encodeSignature(wrapperSignature);
+
       await this.sdk.submit_signed_reveal_pk(
         fromBase64(txMsg),
         fromBase64(bytes),
-        new Uint8Array(wrapperSig),
-        new Uint8Array(rawSig)
+        rawSig,
+        wrapperSig
       );
     } catch (e) {
       console.warn(e);
@@ -223,25 +216,16 @@ export class LedgerService {
       throw new Error(`Bond Transaction ${msgId} not found!`);
     }
 
-    const {
-      wrapperSignature: { raw: wrapperSig },
-      rawSignature: { raw: rawSig },
-    } = signatures;
-
-    if (!wrapperSig) {
-      throw new Error("No wrapper signature was produced!");
-    }
-
-    if (!rawSig) {
-      throw new Error("No raw signature was produced!");
-    }
+    const { wrapperSignature, rawSignature } = signatures;
 
     try {
+      const rawSig = encodeSignature(rawSignature);
+      const wrapperSig = encodeSignature(wrapperSignature);
       await this.sdk.submit_signed_bond(
         fromBase64(txMsg),
         fromBase64(bytes),
-        new Uint8Array(wrapperSig),
-        new Uint8Array(rawSig)
+        rawSig,
+        wrapperSig
       );
 
       await this.broadcastUpdateStaking();

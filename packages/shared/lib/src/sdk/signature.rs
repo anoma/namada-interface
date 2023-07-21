@@ -26,8 +26,8 @@ pub fn construct_signature(sig_msg: &[u8], tx: &Tx) -> Result<Signature, JsError
 
     let SignatureMsg {
         salt,
-        pubkey,
         indicies,
+        pubkey,
         signature,
     } = sig_msg;
 

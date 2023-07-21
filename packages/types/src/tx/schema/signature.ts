@@ -4,9 +4,6 @@ import { SignatureProps } from "../types";
 
 export class SignatureMsgValue {
   @field({ type: vec("u8") })
-  raw!: Uint8Array;
-
-  @field({ type: vec("u8") })
   salt!: Uint8Array;
 
   @field({ type: vec("u8") })

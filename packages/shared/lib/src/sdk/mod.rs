@@ -184,10 +184,10 @@ impl Sdk {
         &mut self,
         tx_msg: &[u8],
         tx_bytes: &[u8],
-        wrapper_sig_bytes: &[u8],
         raw_sig_bytes: &[u8],
+        wrapper_sig_bytes: &[u8],
     ) -> Result<(), JsError> {
-        let reveal_pk_tx = self.sign_tx(tx_bytes, wrapper_sig_bytes, raw_sig_bytes)?;
+        let reveal_pk_tx = self.sign_tx(tx_bytes, raw_sig_bytes, wrapper_sig_bytes)?;
         let args = tx::reveal_pk_tx_args(tx_msg).map_err(JsError::from)?;
 
         namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args.tx, reveal_pk_tx)
@@ -245,8 +245,8 @@ impl Sdk {
     fn sign_tx(
         &self,
         tx_bytes: &[u8],
-        wrapper_sig_bytes: &[u8],
         raw_sig_bytes: &[u8],
+        wrapper_sig_bytes: &[u8],
     ) -> Result<Tx, JsError> {
         let mut tx: Tx = Tx::try_from_slice(tx_bytes).map_err(JsError::from)?;
 

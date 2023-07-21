@@ -65,7 +65,6 @@ export type InitAccountProps = {
 };
 
 export type SignatureProps = {
-  raw: Uint8Array;
   salt: Uint8Array;
   indicies: Uint8Array;
   pubkey: Uint8Array;
