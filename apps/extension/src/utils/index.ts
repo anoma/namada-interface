@@ -56,11 +56,6 @@ export const generateId = (
 export const encodeSignature = (sig: ISignature): Uint8Array => {
   const { salt, indicies, pubkey, signature } = sig;
 
-  // Validate props
-  if (!salt || !indicies || !pubkey || !signature) {
-    throw new Error("Invalid signature!");
-  }
-
   // TODO: Note that the following "any" type usage below is a result of the buffer responses
   // from the Ledger do not match the ISignature type! This will be fixed in a future release.
 
