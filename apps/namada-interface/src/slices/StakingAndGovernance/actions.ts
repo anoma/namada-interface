@@ -269,20 +269,29 @@ export const postNewUnbonding = createAsyncThunk<
   { state: RootState }
 >(POST_UNSTAKING, async (change, thunkApi) => {
   const { chainId } = thunkApi.getState().settings;
+  const { derived } = thunkApi.getState().accounts;
   const integration = getIntegration(chainId);
   const signer = integration.signer() as Signer;
+  const { owner } = change;
+  const {
+    details: { type, publicKey },
+  } = derived[chainId][owner];
 
-  await signer.submitUnbond({
-    source: change.owner,
-    validator: change.validatorId,
-    amount: change.amount,
-    tx: {
-      token: Tokens.NAM.address || "",
-      feeAmount: new BigNumber(0),
-      gasLimit: new BigNumber(0),
-      chainId,
+  await signer.submitUnbond(
+    {
+      source: change.owner,
+      validator: change.validatorId,
+      amount: change.amount,
+      tx: {
+        token: Tokens.NAM.address || "",
+        feeAmount: new BigNumber(0),
+        gasLimit: new BigNumber(0),
+        chainId,
+        publicKey,
+      },
     },
-  });
+    type
+  );
 });
 
 export const postNewWithdraw = createAsyncThunk<
@@ -291,17 +300,24 @@ export const postNewWithdraw = createAsyncThunk<
   { state: RootState }
 >(POST_UNSTAKING, async ({ owner, validatorId }, thunkApi) => {
   const { chainId } = thunkApi.getState().settings;
+  const { derived } = thunkApi.getState().accounts;
   const integration = getIntegration(chainId);
   const signer = integration.signer() as Signer;
+  const {
+    details: { type },
+  } = derived[chainId][owner];
 
-  await signer.submitWithdraw({
-    source: owner,
-    validator: validatorId,
-    tx: {
-      token: Tokens.NAM.address || "",
-      feeAmount: new BigNumber(0),
-      gasLimit: new BigNumber(0),
-      chainId,
+  await signer.submitWithdraw(
+    {
+      source: owner,
+      validator: validatorId,
+      tx: {
+        token: Tokens.NAM.address || "",
+        feeAmount: new BigNumber(0),
+        gasLimit: new BigNumber(0),
+        chainId,
+      },
     },
-  });
+    type
+  );
 });

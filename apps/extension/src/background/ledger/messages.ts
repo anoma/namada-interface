@@ -241,8 +241,7 @@ export class SubmitSignedUnbondMsg extends Message<void> {
   constructor(
     public readonly msgId: string,
     public readonly bytes: string,
-    public readonly signatures: ResponseSign,
-    public readonly publicKey: string
+    public readonly signatures: ResponseSign
   ) {
     super();
   }
@@ -258,10 +257,6 @@ export class SubmitSignedUnbondMsg extends Message<void> {
 
     if (!this.signatures) {
       throw new Error("No signatures were provided!");
-    }
-
-    if (!this.publicKey) {
-      throw new Error("No publicKey provided!");
     }
   }
 

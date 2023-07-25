@@ -5,6 +5,7 @@ import {
   AccountType,
   Bip44Path,
   SubmitBondMsgValue,
+  SubmitUnbondMsgValue,
   TransferMsgValue,
 } from "@namada/types";
 import { ResponseSign } from "@namada/ledger-namada";
@@ -208,6 +209,44 @@ export class LedgerService {
     }
 
     const { tx } = deserialize(fromBase64(txMsg), SubmitBondMsgValue);
+    const encodedTx = encodeTx(tx);
+
+    const { rawSignature, wrapperSignature } = signatures;
+
+    try {
+      const rawSig = encodeSignature(rawSignature);
+      const wrapperSig = encodeSignature(wrapperSignature);
+      await this.sdk.submit_signed_tx(
+        encodedTx,
+        fromBase64(bytes),
+        rawSig,
+        wrapperSig
+      );
+
+      await this.broadcastUpdateStaking();
+
+      // Clear pending tx if successful
+      await this.txStore.set(msgId, null);
+    } catch (e) {
+      console.warn(e);
+    }
+
+    await this.keyring.broadcastUpdateBalance();
+  }
+
+  /* Submit a bond with provided signatures */
+  async submitUnbond(
+    msgId: string,
+    bytes: string,
+    signatures: ResponseSign
+  ): Promise<void> {
+    const txMsg = await this.txStore.get(msgId);
+
+    if (!txMsg) {
+      throw new Error(`Bond Transaction ${msgId} not found!`);
+    }
+
+    const { tx } = deserialize(fromBase64(txMsg), SubmitUnbondMsgValue);
     const encodedTx = encodeTx(tx);
 
     const { rawSignature, wrapperSignature } = signatures;

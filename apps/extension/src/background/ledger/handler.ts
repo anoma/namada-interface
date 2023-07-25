@@ -7,6 +7,7 @@ import {
   SubmitSignedBondMsg,
   SubmitSignedRevealPKMsg,
   GetRevealPKBytesMsg,
+  SubmitSignedUnbondMsg,
 } from "./messages";
 
 export const getHandler: (service: LedgerService) => Handler = (service) => {
@@ -37,7 +38,11 @@ export const getHandler: (service: LedgerService) => Handler = (service) => {
           env,
           msg as SubmitSignedBondMsg
         );
-
+      case SubmitSignedUnbondMsg:
+        return handleSubmitSignedUnbondMsg(service)(
+          env,
+          msg as SubmitSignedBondMsg
+        );
       default:
         throw new Error("Unknown msg type");
     }
@@ -71,6 +76,15 @@ const handleSubmitSignedBondMsg: (
   };
 };
 
+const handleSubmitSignedUnbondMsg: (
+  service: LedgerService
+) => InternalHandler<SubmitSignedUnbondMsg> = (service) => {
+  return async (_, msg) => {
+    const { bytes, msgId, signatures } = msg;
+    return await service.submitUnbond(msgId, bytes, signatures);
+  };
+};
+``;
 const handleGetTxBytesMsg: (
   service: LedgerService
 ) => InternalHandler<GetTxBytesMsg> = (service) => {

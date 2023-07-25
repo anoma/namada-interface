@@ -1,16 +1,21 @@
 import browser from "webextension-polyfill";
-import {fromBase64} from "@cosmjs/encoding";
-import {v4 as uuid} from "uuid";
+import { fromBase64 } from "@cosmjs/encoding";
+import { v4 as uuid } from "uuid";
 import BigNumber from "bignumber.js";
-import {deserialize} from "@dao-xyz/borsh";
+import { deserialize } from "@dao-xyz/borsh";
 
-import {AccountType, SubmitBondMsgValue, TransferMsgValue} from "@namada/types";
-import {TxType} from "@namada/shared";
-import {KVStore} from "@namada/storage";
+import {
+  AccountType,
+  SubmitBondMsgValue,
+  SubmitUnbondMsgValue,
+  TransferMsgValue,
+} from "@namada/types";
+import { TxType } from "@namada/shared";
+import { KVStore } from "@namada/storage";
 
-import {KeyRingService, TabStore} from "background/keyring";
-import {LedgerService} from "background/ledger";
-import {paramsToUrl} from "@namada/utils";
+import { KeyRingService, TabStore } from "background/keyring";
+import { LedgerService } from "background/ledger";
+import { paramsToUrl } from "@namada/utils";
 
 export class ApprovalsService {
   constructor(
@@ -33,7 +38,7 @@ export class ApprovalsService {
       target,
       token,
       amount: amountBN,
-      tx: {publicKey = ""},
+      tx: { publicKey = "" },
     } = txDetails;
     const amount = new BigNumber(amountBN.toString());
     const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
@@ -66,7 +71,7 @@ export class ApprovalsService {
       source,
       nativeToken: token,
       amount: amountBN,
-      tx: {publicKey = ""},
+      tx: { publicKey = "" },
     } = txDetails;
     const amount = new BigNumber(amountBN.toString());
     const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
@@ -85,16 +90,20 @@ export class ApprovalsService {
     this._launchApprovalWindow(url);
   }
 
-  // Deserialize bond details and prompt user
-  async approveUnbond(txMsg: string, type?: AccountType): Promise<void> {
+  // Deserialize unbond details and prompt user
+  async approveUnbond(txMsg: string, type: AccountType): Promise<void> {
     const txMsgBuffer = Buffer.from(fromBase64(txMsg));
     const id = uuid();
     await this.txStore.set(id, txMsg);
 
     // Decode tx details and launch approval screen
-    const txDetails = deserialize(txMsgBuffer, SubmitBondMsgValue);
+    const txDetails = deserialize(txMsgBuffer, SubmitUnbondMsgValue);
 
-    const {source, nativeToken, amount: amountBN} = txDetails;
+    const {
+      source,
+      amount: amountBN,
+      tx: { publicKey = "" },
+    } = txDetails;
     const amount = new BigNumber(amountBN.toString());
     const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
       TxType.Unbond
@@ -103,9 +112,9 @@ export class ApprovalsService {
     const url = paramsToUrl(baseUrl, {
       id,
       source,
-      token: nativeToken,
       amount: amount.toString(),
       accountType: type as string,
+      publicKey,
     });
 
     this._launchApprovalWindow(url);

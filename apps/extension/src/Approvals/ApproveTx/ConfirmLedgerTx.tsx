@@ -15,6 +15,7 @@ import {
   SubmitSignedBondMsg,
   SubmitSignedRevealPKMsg,
   SubmitSignedTransferMsg,
+  SubmitSignedUnbondMsg,
 } from "background/ledger/messages";
 import { Ports } from "router";
 import { closeCurrentTab } from "utils";
@@ -123,6 +124,11 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
         return await requester.sendMessage(
           Ports.Background,
           new SubmitSignedBondMsg(msgId, toBase64(bytes), signatures)
+        );
+      case TxType.Unbond:
+        return await requester.sendMessage(
+          Ports.Background,
+          new SubmitSignedUnbondMsg(msgId, toBase64(bytes), signatures)
         );
       case TxType.Transfer:
         return await requester.sendMessage(
