@@ -1,13 +1,7 @@
 import { fromBase64 } from "@cosmjs/encoding";
 import { deserialize } from "@dao-xyz/borsh";
 
-import {
-  AccountType,
-  Bip44Path,
-  Message,
-  SubmitBondMsgValue,
-  TransferMsgValue,
-} from "@namada/types";
+import { AccountType, Bip44Path, TransferMsgValue } from "@namada/types";
 import { ResponseSign } from "@namada/ledger-namada";
 import { Sdk, TxType } from "@namada/shared";
 import { IStore, KVStore, Store } from "@namada/storage";
