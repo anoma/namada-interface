@@ -10,9 +10,8 @@ import { Message, Tokens, TxProps } from "@namada/types";
 
 import { Ledger } from "background/ledger";
 import {
-  GetBondBytesMsg,
-  GetTransferBytesMsg,
   GetRevealPKBytesMsg,
+  GetTxBytesMsg,
   SubmitSignedBondMsg,
   SubmitSignedRevealPKMsg,
   SubmitSignedTransferMsg,
@@ -113,25 +112,6 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
     }
   }, [source, publicKey]);
 
-  const getBytesByType = async (
-    type?: TxType
-  ): Promise<{ bytes: Uint8Array; path: string }> => {
-    switch (type) {
-      case TxType.Bond:
-        return await requester.sendMessage(
-          Ports.Background,
-          new GetBondBytesMsg(msgId)
-        );
-      case TxType.Transfer:
-        return await requester.sendMessage(
-          Ports.Background,
-          new GetTransferBytesMsg(msgId)
-        );
-      default:
-        throw new Error("Invalid transaction type!");
-    }
-  };
-
   // TODO: This will not be necessary when `submit_signed_tx` is implemented!
   const submitByType = async (
     bytes: Uint8Array,
@@ -161,7 +141,18 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
 
     try {
       // Constuct tx bytes from SDK
-      const { bytes, path } = await getBytesByType(txType);
+      if (!txType) {
+        throw new Error("txType was not provided!");
+      }
+      if (!source) {
+        throw new Error("source was not provided!");
+      }
+
+      const { bytes, path } = await requester.sendMessage(
+        Ports.Background,
+        new GetTxBytesMsg(txType, msgId, source)
+      );
+
       setStatusInfo(`Review and approve ${txLabel} transaction on your Ledger`);
 
       // Sign with Ledger

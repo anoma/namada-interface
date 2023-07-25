@@ -3,20 +3,21 @@ import { Bip44Path } from "@namada/types";
 
 import { Message } from "router";
 import { ROUTE } from "./constants";
+import { TxType } from "@namada/shared";
 
 enum MessageType {
   AddLedgerAccount = "add-ledger-account",
+
+  GetTxBytes = "get-tx-bytes",
 
   // Reveal PK
   GetRevealPKBytes = "get-reveal-pk-bytes",
   SubmitSignedRevealPK = "submit-signed-reveal-pk",
 
   // Transfers
-  GetTransferBytes = "get-transfer-bytes",
   SubmitSignedTransfer = "submit-signed-transfer",
 
   // Bonds
-  GetBondBytes = "get-bond-bytes",
   SubmitSignedBond = "submit-signed-bond",
   SubmitSignedUnbond = "submit-signed-unbond",
 }
@@ -62,6 +63,43 @@ export class AddLedgerAccountMsg extends Message<void> {
   }
 }
 
+export class GetTxBytesMsg extends Message<{
+  bytes: Uint8Array;
+  path: string;
+}> {
+  public static type(): MessageType {
+    return MessageType.GetTxBytes;
+  }
+
+  constructor(
+    public readonly txType: TxType,
+    public readonly txMsg: string,
+    public readonly address: string
+  ) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.txType) {
+      throw new Error("txType is required!");
+    }
+    if (!this.txMsg) {
+      throw new Error("txMsg was not provided!");
+    }
+    if (!this.address) {
+      throw new Error("address was not provided!");
+    }
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return GetTxBytesMsg.type();
+  }
+}
+
 export class GetRevealPKBytesMsg extends Message<{
   bytes: Uint8Array;
   path: string;
@@ -86,60 +124,6 @@ export class GetRevealPKBytesMsg extends Message<{
 
   type(): string {
     return GetRevealPKBytesMsg.type();
-  }
-}
-
-export class GetTransferBytesMsg extends Message<{
-  bytes: Uint8Array;
-  path: string;
-}> {
-  public static type(): MessageType {
-    return MessageType.GetTransferBytes;
-  }
-
-  constructor(public readonly msgId: string) {
-    super();
-  }
-
-  validate(): void {
-    if (!this.msgId) {
-      throw new Error("Transfer Tx msgId was not provided!");
-    }
-  }
-
-  route(): string {
-    return ROUTE;
-  }
-
-  type(): string {
-    return GetTransferBytesMsg.type();
-  }
-}
-
-export class GetBondBytesMsg extends Message<{
-  bytes: Uint8Array;
-  path: string;
-}> {
-  public static type(): MessageType {
-    return MessageType.GetBondBytes;
-  }
-
-  constructor(public readonly msgId: string) {
-    super();
-  }
-
-  validate(): void {
-    if (!this.msgId) {
-      throw new Error("Bond Tx msgId was not provided!");
-    }
-  }
-
-  route(): string {
-    return ROUTE;
-  }
-
-  type(): string {
-    return GetBondBytesMsg.type();
   }
 }
 

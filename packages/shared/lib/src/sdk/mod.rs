@@ -25,11 +25,11 @@ mod wallet;
 #[wasm_bindgen]
 #[derive(Copy, Clone, Debug)]
 pub enum TxType {
-    Bond = 0,
-    Unbond = 1,
-    Withdraw = 2,
-    Transfer = 3,
-    RevealPK = 4,
+    Bond = 1,
+    Unbond = 2,
+    Withdraw = 3,
+    Transfer = 4,
+    RevealPK = 5,
 }
 
 // Require that a public key is present

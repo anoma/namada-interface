@@ -4,6 +4,7 @@ import { deserialize } from "@dao-xyz/borsh";
 import {
   AccountType,
   Bip44Path,
+  Message,
   SubmitBondMsgValue,
   TransferMsgValue,
 } from "@namada/types";
@@ -161,8 +162,10 @@ export class LedgerService {
     }
   }
 
-  async getBondBytes(
-    msgId: string
+  async getTxBytes(
+    txType: TxType,
+    msgId: string,
+    address: string
   ): Promise<{ bytes: Uint8Array; path: string }> {
     const txMsg = await this.txStore.get(msgId);
 
@@ -174,20 +177,14 @@ export class LedgerService {
     const { coinType } = chains[this.chainId].bip44;
 
     try {
-      // Deserialize txMsg to retrieve source
-      const { source } = deserialize(
-        Buffer.from(fromBase64(txMsg)),
-        SubmitBondMsgValue
-      );
-
       // Query account from Ledger storage to determine path for signer
-      const account = await this._ledgerStore.getRecord("address", source);
+      const account = await this._ledgerStore.getRecord("address", address);
 
       if (!account) {
-        throw new Error(`Ledger account not found for ${source}`);
+        throw new Error(`Ledger account not found for ${address}`);
       }
 
-      const bytes = await this.sdk.build_tx(TxType.Bond, fromBase64(txMsg));
+      const bytes = await this.sdk.build_tx(txType, fromBase64(txMsg));
       const path = makeBip44Path(coinType, account.path);
 
       return { bytes, path };

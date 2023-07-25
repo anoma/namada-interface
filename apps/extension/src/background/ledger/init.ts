@@ -2,9 +2,8 @@ import { Router } from "router";
 import { ROUTE } from "./constants";
 import {
   AddLedgerAccountMsg,
-  GetBondBytesMsg,
+  GetTxBytesMsg,
   GetRevealPKBytesMsg,
-  GetTransferBytesMsg,
   SubmitSignedBondMsg,
   SubmitSignedRevealPKMsg,
   SubmitSignedUnbondMsg,
@@ -15,9 +14,8 @@ import { LedgerService } from "./service";
 
 export function init(router: Router, service: LedgerService): void {
   router.registerMessage(AddLedgerAccountMsg);
-  router.registerMessage(GetBondBytesMsg);
+  router.registerMessage(GetTxBytesMsg);
   router.registerMessage(GetRevealPKBytesMsg);
-  router.registerMessage(GetTransferBytesMsg);
   router.registerMessage(SubmitSignedBondMsg);
   router.registerMessage(SubmitSignedRevealPKMsg);
   router.registerMessage(SubmitSignedUnbondMsg);
