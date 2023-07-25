@@ -22,6 +22,26 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Restore yarn cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./node_modules
+            ./apps/namada-interface/node_modules
+            ./apps/extension/node_modules
+            ./packages/chains/node_modules
+            ./packages/components/node_modules
+            ./packages/crypto/node_modules
+            ./packages/hooks/node_modules
+            ./packages/integrations/node_modules
+            ./packages/ledger-namada/node_modules
+            ./packages/rpc/node_modules
+            ./packages/shared/node_modules
+            ./packages/storage/node_modules
+            ./packages/types/node_modules
+            ./packages/utils/node_modules
+          key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
+
       - name: Install dependencies
         run: yarn
 
@@ -33,6 +53,26 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Restore yarn cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./node_modules
+            ./apps/namada-interface/node_modules
+            ./apps/extension/node_modules
+            ./packages/chains/node_modules
+            ./packages/components/node_modules
+            ./packages/crypto/node_modules
+            ./packages/hooks/node_modules
+            ./packages/integrations/node_modules
+            ./packages/ledger-namada/node_modules
+            ./packages/rpc/node_modules
+            ./packages/shared/node_modules
+            ./packages/storage/node_modules
+            ./packages/types/node_modules
+            ./packages/utils/node_modules
+          key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
 
       - name: Install protoc
         run: sudo apt-get install -y protobuf-compiler
@@ -72,6 +112,26 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Restore yarn cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./node_modules
+            ./apps/namada-interface/node_modules
+            ./apps/extension/node_modules
+            ./packages/chains/node_modules
+            ./packages/components/node_modules
+            ./packages/crypto/node_modules
+            ./packages/hooks/node_modules
+            ./packages/integrations/node_modules
+            ./packages/ledger-namada/node_modules
+            ./packages/rpc/node_modules
+            ./packages/shared/node_modules
+            ./packages/storage/node_modules
+            ./packages/types/node_modules
+            ./packages/utils/node_modules
+          key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
+
       - name: Install protoc
         run: sudo apt-get install -y protobuf-compiler
 
@@ -106,6 +166,26 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+
+      - name: Restore yarn cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./node_modules
+            ./apps/namada-interface/node_modules
+            ./apps/extension/node_modules
+            ./packages/chains/node_modules
+            ./packages/components/node_modules
+            ./packages/crypto/node_modules
+            ./packages/hooks/node_modules
+            ./packages/integrations/node_modules
+            ./packages/ledger-namada/node_modules
+            ./packages/rpc/node_modules
+            ./packages/shared/node_modules
+            ./packages/storage/node_modules
+            ./packages/types/node_modules
+            ./packages/utils/node_modules
+          key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
 
       - name: Install protoc
         run: sudo apt-get install -y protobuf-compiler
@@ -158,9 +238,31 @@ jobs:
         working-directory: ./apps/namada-interface
     steps:
       - uses: actions/checkout@v2
+
+      - name: Restore yarn cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./node_modules
+            ./apps/namada-interface/node_modules
+            ./apps/extension/node_modules
+            ./packages/chains/node_modules
+            ./packages/components/node_modules
+            ./packages/crypto/node_modules
+            ./packages/hooks/node_modules
+            ./packages/integrations/node_modules
+            ./packages/ledger-namada/node_modules
+            ./packages/rpc/node_modules
+            ./packages/shared/node_modules
+            ./packages/storage/node_modules
+            ./packages/types/node_modules
+            ./packages/utils/node_modules
+          key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
+
       - uses: actions/setup-node@v2
         with:
           node-version: "18.x"
+
       - name: Install wasm-pack
         uses: jetli/wasm-pack-action@v0.3.0
         with:
