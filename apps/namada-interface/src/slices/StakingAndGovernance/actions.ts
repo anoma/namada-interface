@@ -23,13 +23,12 @@ import {
 import { RootState } from "store";
 import { Account } from "slices/accounts";
 
-const toValidator = (
-  [address, stake]: [string, string | null]
-): Validator => ({
+const toValidator = ([address, stake]: [string, string | null]): Validator => ({
   uuid: address,
   name: address,
   // TODO: get votes per token from Namada
-  votingPower: stake === null ? undefined : new BigNumber(stake).multipliedBy(1_000_000),
+  votingPower:
+    stake === null ? undefined : new BigNumber(stake).multipliedBy(1_000_000),
   homepageUrl: "http://namada.net",
   commission: new BigNumber(0), // TODO: implement commission
   description: "TBD",
@@ -37,7 +36,13 @@ const toValidator = (
 
 const toMyValidators = (
   acc: MyValidators[],
-  [_, validator, stake, unbonded, withdrawable]: [string, string, string, string, string]
+  [_, validator, stake, unbonded, withdrawable]: [
+    string,
+    string,
+    string,
+    string,
+    string
+  ]
 ): MyValidators[] => {
   const index = acc.findIndex((myValidator) => myValidator.uuid === validator);
   const v = acc[index];
@@ -49,15 +54,17 @@ const toMyValidators = (
         ...arr.slice(idx + 1),
       ];
 
-  const stakedAmount = new BigNumber(stake)
-    .plus(new BigNumber(v?.stakedAmount || 0));
+  const stakedAmount = new BigNumber(stake).plus(
+    new BigNumber(v?.stakedAmount || 0)
+  );
 
-  const unbondedAmount =
-    (new BigNumber(unbonded)).plus(new BigNumber(v?.unbondedAmount || 0));
+  const unbondedAmount = new BigNumber(unbonded).plus(
+    new BigNumber(v?.unbondedAmount || 0)
+  );
 
-  const withdrawableAmount =
-    (new BigNumber(withdrawable)).plus(new BigNumber(v?.withdrawableAmount || 0));
-
+  const withdrawableAmount = new BigNumber(withdrawable).plus(
+    new BigNumber(v?.withdrawableAmount || 0)
+  );
 
   return [
     ...sliceFn(acc, index),
@@ -72,10 +79,13 @@ const toMyValidators = (
   ];
 };
 
-const toBond = ([owner, validator, amount, startEpoch]:
-  [string, string, string, string]): StakingPosition => {
-
-  return  {
+const toBond = ([owner, validator, amount, startEpoch]: [
+  string,
+  string,
+  string,
+  string
+]): StakingPosition => {
+  return {
     uuid: owner + validator + startEpoch,
     bonded: true,
     stakedAmount: new BigNumber(amount),
@@ -83,19 +93,23 @@ const toBond = ([owner, validator, amount, startEpoch]:
     validatorId: validator,
     totalRewards: "TBD",
   };
-}
+};
 
-const toUnbond = ([owner, validator, amount, startEpoch, withdrawableEpoch]:
-  [string, string, string, string, string]): StakingPosition => {
-
+const toUnbond = ([owner, validator, amount, startEpoch, withdrawableEpoch]: [
+  string,
+  string,
+  string,
+  string,
+  string
+]): StakingPosition => {
   const bond = toBond([owner, validator, amount, startEpoch]);
 
   return {
     ...bond,
     bonded: false,
     withdrawableEpoch: new BigNumber(withdrawableEpoch),
-  }
-}
+  };
+};
 
 export const fetchValidators = createAsyncThunk<
   { allValidators: Validator[] },
@@ -106,8 +120,10 @@ export const fetchValidators = createAsyncThunk<
   const { rpc } = chains[chainId];
 
   const query = new Query(rpc);
-  const queryResult =
-    (await query.query_all_validators()) as [string, string | null][];
+  const queryResult = (await query.query_all_validators()) as [
+    string,
+    string | null
+  ][];
   const allValidators = queryResult.map(toValidator);
 
   thunkApi.dispatch(fetchMyValidators(allValidators));
@@ -183,10 +199,7 @@ export const fetchMyStakingPositions = createAsyncThunk<
     const [bonds, unbonds] = await query.query_staking_positions(addresses);
 
     return Promise.resolve({
-      myStakingPositions: [
-        ...bonds.map(toBond),
-        ...unbonds.map(toUnbond),
-      ]
+      myStakingPositions: [...bonds.map(toBond), ...unbonds.map(toUnbond)],
     });
   } catch (error) {
     console.warn(`error: ${error}`);
@@ -241,8 +254,7 @@ export const postNewBonding = createAsyncThunk<
         publicKey,
       },
     },
-    type,
-    publicKey
+    type
   );
 });
 
@@ -275,7 +287,7 @@ export const postNewUnbonding = createAsyncThunk<
 
 export const postNewWithdraw = createAsyncThunk<
   void,
-  { owner: string, validatorId: string },
+  { owner: string; validatorId: string },
   { state: RootState }
 >(POST_UNSTAKING, async ({ owner, validatorId }, thunkApi) => {
   const { chainId } = thunkApi.getState().settings;

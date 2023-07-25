@@ -235,31 +235,6 @@ export class EncodeInitAccountMsg extends Message<string> {
   }
 }
 
-export class EncodeRevealPkMsg extends Message<string> {
-  public static type(): MessageType {
-    return MessageType.EncodeRevealPublicKey;
-  }
-
-  constructor(public readonly signer: string) {
-    super();
-  }
-
-  validate(): void {
-    if (!this.signer) {
-      throw new Error("An signer is required!");
-    }
-    return;
-  }
-
-  route(): string {
-    return Route.KeyRing;
-  }
-
-  type(): string {
-    return EncodeRevealPkMsg.type();
-  }
-}
-
 export class ApproveTransferMsg extends Message<void> {
   public static type(): MessageType {
     return MessageType.ApproveTransfer;

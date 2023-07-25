@@ -1,7 +1,12 @@
 import { fromBase64 } from "@cosmjs/encoding";
 import { deserialize } from "@dao-xyz/borsh";
 
-import { AccountType, Bip44Path, TransferMsgValue } from "@namada/types";
+import {
+  AccountType,
+  Bip44Path,
+  SubmitBondMsgValue,
+  TransferMsgValue,
+} from "@namada/types";
 import { ResponseSign } from "@namada/ledger-namada";
 import { Sdk, TxType } from "@namada/shared";
 import { IStore, KVStore, Store } from "@namada/storage";
@@ -14,7 +19,7 @@ import {
   TabStore,
   syncTabs,
 } from "background/keyring";
-import { encodeSignature, generateId } from "utils";
+import { encodeSignature, encodeTx, generateId } from "utils";
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
 import { UpdatedStakingEventMsg } from "content/events";
@@ -134,6 +139,8 @@ export class LedgerService {
     if (!txMsg) {
       throw new Error(`Transaction ${msgId} not found!`);
     }
+    const { tx } = deserialize(fromBase64(txMsg), TransferMsgValue);
+    const encodedTx = encodeTx(tx);
 
     const { wrapperSignature, rawSignature } = signatures;
 
@@ -142,8 +149,8 @@ export class LedgerService {
     const wrapperSig = encodeSignature(wrapperSignature);
 
     try {
-      await this.sdk.submit_signed_transfer(
-        fromBase64(txMsg),
+      await this.sdk.submit_signed_tx(
+        encodedTx,
         fromBase64(bytes),
         rawSig,
         wrapperSig
@@ -200,13 +207,16 @@ export class LedgerService {
       throw new Error(`Bond Transaction ${msgId} not found!`);
     }
 
+    const { tx } = deserialize(fromBase64(txMsg), SubmitBondMsgValue);
+    const encodedTx = encodeTx(tx);
+
     const { rawSignature, wrapperSignature } = signatures;
 
     try {
       const rawSig = encodeSignature(rawSignature);
       const wrapperSig = encodeSignature(wrapperSignature);
-      await this.sdk.submit_signed_bond(
-        fromBase64(txMsg),
+      await this.sdk.submit_signed_tx(
+        encodedTx,
         fromBase64(bytes),
         rawSig,
         wrapperSig

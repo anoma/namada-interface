@@ -7,17 +7,15 @@ import { TxType } from "@namada/shared";
 
 enum MessageType {
   AddLedgerAccount = "add-ledger-account",
-
   GetTxBytes = "get-tx-bytes",
-
-  // Reveal PK
   GetRevealPKBytes = "get-reveal-pk-bytes",
+
+  // TODO: - Implement for single SubmitSignedTx
+  SubmitSignedTx = "submit-signed-tx",
+
+  // TODO: Remove:
   SubmitSignedRevealPK = "submit-signed-reveal-pk",
-
-  // Transfers
   SubmitSignedTransfer = "submit-signed-transfer",
-
-  // Bonds
   SubmitSignedBond = "submit-signed-bond",
   SubmitSignedUnbond = "submit-signed-unbond",
 }

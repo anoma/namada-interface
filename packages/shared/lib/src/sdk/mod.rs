@@ -278,29 +278,6 @@ impl Sdk {
         Ok(tx)
     }
 
-    /// Submit signed transfer tx
-    pub async fn submit_signed_transfer(
-        &mut self,
-        tx_msg: &[u8],
-        tx_bytes: &[u8],
-        raw_sig_bytes: &[u8],
-        wrapper_sig_bytes: &[u8],
-    ) -> Result<(), JsError> {
-        let transfer_tx = self.sign_tx(tx_bytes, raw_sig_bytes, wrapper_sig_bytes)?;
-        let args = tx::transfer_tx_args(tx_msg, None, None).map_err(JsError::from)?;
-        let verification_key = args.tx.verification_key.clone();
-        let pk = validate_pk(verification_key)?;
-
-        self.submit_reveal_pk(&args.tx, transfer_tx.clone(), &pk)
-            .await?;
-
-        namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args.tx, transfer_tx)
-            .await
-            .map_err(JsError::from)?;
-
-        Ok(())
-    }
-
     /// Submit signed tx
     pub async fn submit_signed_tx(
         &mut self,
@@ -379,24 +356,6 @@ impl Sdk {
         Ok(())
     }
 
-    /// Submit signed bond
-    pub async fn submit_signed_bond(
-        &mut self,
-        tx_msg: &[u8],
-        tx_bytes: &[u8],
-        raw_sig_bytes: &[u8],
-        wrapper_sig_bytes: &[u8],
-    ) -> Result<(), JsError> {
-        let bond_tx = self.sign_tx(tx_bytes, raw_sig_bytes, wrapper_sig_bytes)?;
-        let args = tx::bond_tx_args(tx_msg, None).map_err(JsError::from)?;
-
-        namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args.tx, bond_tx)
-            .await
-            .map_err(JsError::from)?;
-
-        Ok(())
-    }
-
     /// Submit unbond
     pub async fn submit_unbond(
         &mut self,
@@ -411,29 +370,6 @@ impl Sdk {
                 .map_err(JsError::from)?;
 
         self.sign_and_process_tx(args.tx, tx, pk).await?;
-
-        Ok(())
-    }
-
-    /// Submit signed unbond tx
-    pub async fn submit_signed_unbond(
-        &mut self,
-        tx_msg: &[u8],
-        tx_bytes: &[u8],
-        raw_sig_bytes: &[u8],
-        wrapper_sig_bytes: &[u8],
-    ) -> Result<(), JsError> {
-        let bond_tx = self.sign_tx(tx_bytes, raw_sig_bytes, wrapper_sig_bytes)?;
-        let args = tx::unbond_tx_args(tx_msg, None).map_err(JsError::from)?;
-        let verification_key = args.tx.verification_key.clone();
-        let pk = validate_pk(verification_key)?;
-
-        self.submit_reveal_pk(&args.tx, bond_tx.clone(), &pk)
-            .await?;
-
-        namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args.tx, bond_tx)
-            .await
-            .map_err(JsError::from)?;
 
         Ok(())
     }

@@ -34,12 +34,6 @@ pub struct SubmitBondMsg {
     tx: TxMsg,
 }
 
-#[derive(BorshSerialize, BorshDeserialize)]
-pub struct SubmitRevealPKMsg {
-    tx: TxMsg,
-    public_key: String,
-}
-
 /// Maps serialized tx_msg into BondTx args.
 ///
 /// # Arguments

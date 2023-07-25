@@ -1,10 +1,16 @@
 import browser from "webextension-polyfill";
 import { v5 as uuid } from "uuid";
 
-import { DerivedAccount, Message, SignatureMsgValue } from "@namada/types";
+import {
+  DerivedAccount,
+  Message,
+  SignatureMsgValue,
+  TxProps,
+} from "@namada/types";
 import { pick } from "@namada/utils";
 import { AccountStore } from "background/keyring";
 import { ISignature } from "@namada/ledger-namada";
+import { TxMsgValue } from "@namada/types/src/tx/schema/tx";
 
 /**
  * Query the current extension tab and close it
@@ -71,4 +77,13 @@ export const encodeSignature = (sig: ISignature): Uint8Array => {
   const value = new SignatureMsgValue(props);
   const msg = new Message<SignatureMsgValue>();
   return msg.encode(value);
+};
+
+/**
+ * Helper to encode Tx given TxProps
+ */
+export const encodeTx = (tx: TxProps): Uint8Array => {
+  const txMsgValue = new TxMsgValue(tx);
+  const msg = new Message<TxMsgValue>();
+  return msg.encode(txMsgValue);
 };

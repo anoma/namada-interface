@@ -23,7 +23,6 @@ import {
   EncodeInitAccountMsg,
   QueryAccountsMsg,
   QueryBalancesMsg,
-  EncodeRevealPkMsg,
   SubmitIbcTransferMsg,
   FetchAndStoreMaspParamsMsg,
   HasMaspParamsMsg,
@@ -40,7 +39,6 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(ConnectInterfaceMsg);
   router.registerMessage(DeriveAccountMsg);
   router.registerMessage(EncodeInitAccountMsg);
-  router.registerMessage(EncodeRevealPkMsg);
   router.registerMessage(GenerateMnemonicMsg);
   router.registerMessage(GetActiveAccountMsg);
   router.registerMessage(LockKeyRingMsg);

@@ -1,20 +1,16 @@
 import browser from "webextension-polyfill";
-import { fromBase64 } from "@cosmjs/encoding";
-import { v4 as uuid } from "uuid";
+import {fromBase64} from "@cosmjs/encoding";
+import {v4 as uuid} from "uuid";
 import BigNumber from "bignumber.js";
-import { deserialize } from "@dao-xyz/borsh";
+import {deserialize} from "@dao-xyz/borsh";
 
-import {
-  AccountType,
-  SubmitBondMsgValue,
-  TransferMsgValue,
-} from "@namada/types";
-import { TxType } from "@namada/shared";
-import { KVStore } from "@namada/storage";
+import {AccountType, SubmitBondMsgValue, TransferMsgValue} from "@namada/types";
+import {TxType} from "@namada/shared";
+import {KVStore} from "@namada/storage";
 
-import { KeyRingService, TabStore } from "background/keyring";
-import { LedgerService } from "background/ledger";
-import { paramsToUrl } from "@namada/utils";
+import {KeyRingService, TabStore} from "background/keyring";
+import {LedgerService} from "background/ledger";
+import {paramsToUrl} from "@namada/utils";
 
 export class ApprovalsService {
   constructor(
@@ -37,7 +33,7 @@ export class ApprovalsService {
       target,
       token,
       amount: amountBN,
-      tx: { publicKey = "" },
+      tx: {publicKey = ""},
     } = txDetails;
     const amount = new BigNumber(amountBN.toString());
     const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
@@ -70,7 +66,7 @@ export class ApprovalsService {
       source,
       nativeToken: token,
       amount: amountBN,
-      tx: { publicKey = "" },
+      tx: {publicKey = ""},
     } = txDetails;
     const amount = new BigNumber(amountBN.toString());
     const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
@@ -90,7 +86,6 @@ export class ApprovalsService {
   }
 
   // Deserialize bond details and prompt user
-  // TODO: Finish implementing!
   async approveUnbond(txMsg: string, type?: AccountType): Promise<void> {
     const txMsgBuffer = Buffer.from(fromBase64(txMsg));
     const id = uuid();
@@ -99,9 +94,8 @@ export class ApprovalsService {
     // Decode tx details and launch approval screen
     const txDetails = deserialize(txMsgBuffer, SubmitBondMsgValue);
 
-    const { source, nativeToken, amount: amountBN } = txDetails;
+    const {source, nativeToken, amount: amountBN} = txDetails;
     const amount = new BigNumber(amountBN.toString());
-    // TODO: This query should include perhaps a "type" indicating whether it's a bond or unbond tx:
     const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
       TxType.Unbond
     }`;
