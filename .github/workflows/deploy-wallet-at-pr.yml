@@ -74,6 +74,16 @@ jobs:
             ./packages/utils/node_modules
           key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
 
+      - name: Restore Rust unit-tests-js cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ./packages/shared/lib/target
+            ./packages/crypto/lib/target
+          key: ${{ runner.os }}-rust-cache-unit-tests-js-${{ hashFiles('**/Cargo.lock') }}
+
       - name: Install protoc
         run: sudo apt-get install -y protobuf-compiler
 
@@ -132,6 +142,16 @@ jobs:
             ./packages/utils/node_modules
           key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
 
+      - name: Restore Rust unit-tests-wasm cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ./packages/shared/lib/target
+            ./packages/crypto/lib/target
+          key: ${{ runner.os }}-rust-cache-unit-tests-wasm-${{ hashFiles('**/Cargo.lock') }}
+
       - name: Install protoc
         run: sudo apt-get install -y protobuf-compiler
 
@@ -186,6 +206,16 @@ jobs:
             ./packages/types/node_modules
             ./packages/utils/node_modules
           key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Restore Rust build cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ./packages/shared/lib/target
+            ./packages/crypto/lib/target
+          key: ${{ runner.os }}-rust-cache-build-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install protoc
         run: sudo apt-get install -y protobuf-compiler
