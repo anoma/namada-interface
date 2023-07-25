@@ -64,7 +64,7 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
         new GetRevealPKBytesMsg(toBase64(encoded))
       );
 
-      // Sign with Ledgeg
+      // Sign with Ledger
       const signatures = await ledger.sign(bytes, path);
 
       // Submit signatures for tx
@@ -113,7 +113,6 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
     }
   }, [source, publicKey]);
 
-  // TODO: This will not be necessary when `submit_signed_tx` is implemented!
   const submitByType = async (
     bytes: Uint8Array,
     signatures: ResponseSign,

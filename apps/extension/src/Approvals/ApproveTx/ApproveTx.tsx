@@ -76,7 +76,7 @@ export const ApproveTx: React.FC<Props> = ({ setDetails }) => {
   return (
     <ApprovalContainer>
       <p>
-        Approve this <strong>{TxTypeLabel[txType as TxType]}</strong>
+        Approve this <strong>{TxTypeLabel[txType as TxType]}</strong>{" "}
         transaction?
       </p>
       <p>Source:&nbsp;</p>
@@ -90,7 +90,6 @@ export const ApproveTx: React.FC<Props> = ({ setDetails }) => {
       <p>
         Amount: {amount} {tokenType}
       </p>
-
       <ButtonContainer>
         <Button onClick={handleApproveClick} variant={ButtonVariant.Contained}>
           Approve

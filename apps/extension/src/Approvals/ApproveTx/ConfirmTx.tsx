@@ -48,57 +48,57 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
       `Decrypting keys and submitting ${TxTypeLabel[txType as TxType]}...`
     );
 
-    switch (txType) {
-      case TxType.Bond: {
-        await requester.sendMessage(
-          Ports.Background,
-          new SubmitApprovedBondMsg(msgId, password)
-        );
-        setStatusInfo("");
-        setStatus(Status.Completed);
-        break;
-      }
-      case TxType.Transfer: {
-        const hasMaspParams = await requester.sendMessage(
-          Ports.Background,
-          new HasMaspParamsMsg()
-        );
-
-        if (!hasMaspParams) {
-          setStatusInfo("Fetching MASP parameters...");
-          try {
-            await requester.sendMessage(
-              Ports.Background,
-              new FetchAndStoreMaspParamsMsg()
-            );
-          } catch (e) {
-            setError(`Fetching MASP parameters failed: ${e}`);
-            setStatus(Status.Failed);
-          }
+    try {
+      switch (txType) {
+        case TxType.Bond: {
+          await requester.sendMessage(
+            Ports.Background,
+            new SubmitApprovedBondMsg(msgId, password)
+          );
+          setStatusInfo("");
+          setStatus(Status.Completed);
+          break;
         }
-        try {
+        case TxType.Transfer: {
+          const hasMaspParams = await requester.sendMessage(
+            Ports.Background,
+            new HasMaspParamsMsg()
+          );
+
+          if (!hasMaspParams) {
+            setStatusInfo("Fetching MASP parameters...");
+            try {
+              await requester.sendMessage(
+                Ports.Background,
+                new FetchAndStoreMaspParamsMsg()
+              );
+            } catch (e) {
+              setError(`Fetching MASP parameters failed: ${e}`);
+              setStatus(Status.Failed);
+            }
+          }
           await requester.sendMessage(
             Ports.Background,
             new SubmitApprovedTransferMsg(msgId, password)
           );
           setStatusInfo("");
           setStatus(Status.Completed);
-        } catch (e) {
-          console.info(e);
-          setError(`${e}`);
-          setStatus(Status.Failed);
+          break;
         }
-        break;
+        case TxType.Unbond: {
+          await requester.sendMessage(
+            Ports.Background,
+            new SubmitApprovedUnbondMsg(msgId, password)
+          );
+          setStatusInfo("");
+          setStatus(Status.Completed);
+          break;
+        }
       }
-      case TxType.Unbond: {
-        await requester.sendMessage(
-          Ports.Background,
-          new SubmitApprovedUnbondMsg(msgId, password)
-        );
-        setStatusInfo("");
-        setStatus(Status.Completed);
-        break;
-      }
+    } catch (e) {
+      console.info(e);
+      setError(`${e}`);
+      setStatus(Status.Failed);
     }
   }, [password]);
 
