@@ -29,7 +29,6 @@ jobs:
         run: yarn lint:ci
 
   unit-tests-js:
-    needs: lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -68,7 +67,6 @@ jobs:
           ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
 
   unit-tests-wasm:
-    needs: lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
