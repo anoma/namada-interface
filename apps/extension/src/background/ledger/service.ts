@@ -5,7 +5,6 @@ import {
   AccountType,
   Bip44Path,
   SubmitBondMsgValue,
-  SubmitRevealPKMsgValue,
   TransferMsgValue,
 } from "@namada/types";
 import { ResponseSign } from "@namada/ledger-namada";
@@ -24,6 +23,7 @@ import { encodeSignature, generateId } from "utils";
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
 import { UpdatedStakingEventMsg } from "content/events";
+import { TxMsgValue } from "@namada/types/src/tx/schema/tx";
 
 export const LEDGERSTORE_KEY = "ledger-store";
 const UUID_NAMESPACE = "be9fdaee-ffa2-11ed-8ef1-325096b39f47";
@@ -52,7 +52,7 @@ export class LedgerService {
       // Deserialize txMsg to retrieve source
       const { publicKey } = deserialize(
         Buffer.from(fromBase64(txMsg)),
-        SubmitRevealPKMsgValue
+        TxMsgValue
       );
 
       // Query account from Ledger storage to determine path for signer

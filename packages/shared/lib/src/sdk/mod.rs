@@ -167,28 +167,6 @@ impl Sdk {
         Ok(())
     }
 
-    /// Contruct reveal pk data for external signers, returns byte array
-    pub async fn build_reveal_pk(&mut self, tx_msg: &[u8]) -> Result<JsValue, JsError> {
-        let args = tx::reveal_pk_tx_args(tx_msg)?;
-
-        let reveal_pk = namada::ledger::tx::build_reveal_pk(
-            &self.client,
-            &mut self.wallet,
-            args::RevealPk {
-                tx: args.tx.clone(),
-                public_key: args.public_key.clone(),
-            },
-        )
-        .await?;
-
-        let bytes = match reveal_pk {
-            Some(v) => v.0.try_to_vec().map_err(JsError::from)?,
-            None => vec![],
-        };
-
-        to_js_result(bytes)
-    }
-
     /// Submit signed reveal pk tx
     pub async fn submit_signed_reveal_pk(
         &mut self,
@@ -198,9 +176,9 @@ impl Sdk {
         wrapper_sig_bytes: &[u8],
     ) -> Result<(), JsError> {
         let reveal_pk_tx = self.sign_tx(tx_bytes, raw_sig_bytes, wrapper_sig_bytes)?;
-        let args = tx::reveal_pk_tx_args(tx_msg).map_err(JsError::from)?;
+        let args = tx::tx_args_from_slice(&tx_msg).map_err(JsError::from)?;
 
-        namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args.tx, reveal_pk_tx)
+        namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args, reveal_pk_tx)
             .await
             .map_err(JsError::from)?;
 
@@ -219,14 +197,23 @@ impl Sdk {
                 bond.0
             }
             TxType::RevealPK => {
-                let args = tx::reveal_pk_tx_args(tx_msg)?;
+                let args = tx::tx_args_from_slice(tx_msg)?;
+
+                let public_key = match args.verification_key.clone() {
+                    Some(v) => PublicKey::from(v),
+                    _ => {
+                        return Err(JsError::new(
+                            "verification_key is required in this context!",
+                        ))
+                    }
+                };
 
                 let reveal_pk = namada::ledger::tx::build_reveal_pk(
                     &self.client,
                     &mut self.wallet,
                     args::RevealPk {
-                        tx: args.tx.clone(),
-                        public_key: args.public_key.clone(),
+                        tx: args.clone(),
+                        public_key,
                     },
                 )
                 .await?;

@@ -6,12 +6,7 @@ import { LedgerError, ResponseSign } from "@namada/ledger-namada";
 import { Button, ButtonVariant } from "@namada/components";
 import { defaultChainId as chainId } from "@namada/chains";
 import { TxType } from "@namada/shared";
-import {
-  Message,
-  RevealPKProps,
-  SubmitRevealPKMsgValue,
-  Tokens,
-} from "@namada/types";
+import { Message, Tokens, TxProps } from "@namada/types";
 
 import { Ledger } from "background/ledger";
 import {
@@ -34,6 +29,7 @@ import { InfoHeader, InfoLoader } from "Approvals/Approvals.components";
 
 import { QueryPublicKeyMsg } from "background/keyring";
 import { TxTypeLabel } from "Approvals/types";
+import { TxMsgValue } from "@namada/types/src/tx/schema/tx";
 
 type Props = {
   details?: ApprovalDetails;
@@ -47,19 +43,16 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
   const { source, msgId = "", publicKey, txType } = details || {};
 
   const revealPk = async (publicKey: string): Promise<void> => {
-    const revealPKArgs: RevealPKProps = {
-      tx: {
-        token: Tokens.NAM.address || "",
-        feeAmount: new BigNumber(0),
-        gasLimit: new BigNumber(0),
-        chainId,
-        publicKey,
-      },
+    const txArgs: TxProps = {
+      token: Tokens.NAM.address || "",
+      feeAmount: new BigNumber(0),
+      gasLimit: new BigNumber(0),
+      chainId,
       publicKey,
     };
 
-    const msgValue = new SubmitRevealPKMsgValue(revealPKArgs);
-    const msg = new Message<SubmitRevealPKMsgValue>();
+    const msgValue = new TxMsgValue(txArgs);
+    const msg = new Message<TxMsgValue>();
     const encoded = msg.encode(msgValue);
 
     // Open Ledger transport
@@ -86,6 +79,7 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
       );
     } catch (e) {
       console.warn("An error occured: ", e);
+      await ledger.closeTransport();
       throw new Error(`${e}`);
     } finally {
       await ledger.closeTransport();
