@@ -33,7 +33,6 @@ export type TransferProps = {
   source: string;
   target: string;
   token: string;
-  subPrefix?: string;
   amount: BigNumber;
   nativeToken: string;
 };
@@ -43,7 +42,6 @@ export type IbcTransferProps = {
   source: string;
   receiver: string;
   token: string;
-  subPrefix?: string;
   amount: BigNumber;
   portId: string;
   channelId: string;

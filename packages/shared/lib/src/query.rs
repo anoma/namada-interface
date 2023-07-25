@@ -5,7 +5,7 @@ use namada::ledger::rpc::{get_public_key, get_token_balance};
 use namada::types::{
     address::Address,
     masp::ExtendedViewingKey,
-    token::{self, TokenAddress},
+    token::{self},
     uint::I256,
 };
 use std::collections::{HashMap, HashSet};
@@ -124,7 +124,7 @@ impl Query {
     }
 
     fn get_decoded_balance(
-        decoded_balance: HashMap<TokenAddress, I256>,
+        decoded_balance: HashMap<Address, I256>,
     ) -> Vec<(Address, token::Amount)> {
         let mut result = Vec::new();
 
@@ -133,7 +133,7 @@ impl Query {
             .into_iter()
             .for_each(|(token_address, change)| {
                 let amount = token::Amount::from_change(*change);
-                result.push((token_address.address.clone(), amount));
+                result.push((token_address.clone(), amount));
             });
 
         result
@@ -159,9 +159,7 @@ impl Query {
 
         let mut result = vec![];
         for token in tokens {
-            let balances = get_token_balance(&self.client, &token, &owner)
-                .await
-                .unwrap_or(token::Amount::zero());
+            let balances = get_token_balance(&self.client, &token, &owner).await;
             result.push((token, balances));
         }
         result
