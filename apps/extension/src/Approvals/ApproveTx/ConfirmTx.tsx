@@ -23,6 +23,7 @@ import {
   SubmitApprovedBondMsg,
   SubmitApprovedTransferMsg,
   SubmitApprovedUnbondMsg,
+  SubmitApprovedWithdrawMsg,
 } from "background/approvals";
 import { Address } from "App/Accounts/AccountListing.components";
 import { closeCurrentTab } from "utils";
@@ -89,6 +90,15 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
           await requester.sendMessage(
             Ports.Background,
             new SubmitApprovedUnbondMsg(msgId, password)
+          );
+          setStatusInfo("");
+          setStatus(Status.Completed);
+          break;
+        }
+        case TxType.Withdraw: {
+          await requester.sendMessage(
+            Ports.Background,
+            new SubmitApprovedWithdrawMsg(msgId, password)
           );
           setStatusInfo("");
           setStatus(Status.Completed);

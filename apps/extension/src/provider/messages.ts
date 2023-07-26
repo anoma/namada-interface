@@ -354,7 +354,7 @@ export class ApproveWithdrawMsg extends Message<void> {
   }
 
   type(): string {
-    return ApproveUnbondMsg.type();
+    return ApproveWithdrawMsg.type();
   }
 }
 

@@ -8,6 +8,7 @@ import {
   AccountType,
   SubmitBondMsgValue,
   SubmitUnbondMsgValue,
+  SubmitWithdrawMsgValue,
   TransferMsgValue,
 } from "@namada/types";
 import { TxType } from "@namada/shared";
@@ -23,7 +24,7 @@ export class ApprovalsService {
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
     protected readonly keyRingService: KeyRingService,
     protected readonly ledgerService: LedgerService
-  ) {}
+  ) { }
 
   // Deserialize transfer details and prompt user
   async approveTransfer(txMsg: string, type?: AccountType): Promise<void> {
@@ -41,9 +42,8 @@ export class ApprovalsService {
       tx: { publicKey = "" },
     } = txDetails;
     const amount = new BigNumber(amountBN.toString());
-    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
-      TxType.Transfer
-    }`;
+    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${TxType.Transfer
+      }`;
 
     const url = paramsToUrl(baseUrl, {
       id,
@@ -74,9 +74,8 @@ export class ApprovalsService {
       tx: { publicKey = "" },
     } = txDetails;
     const amount = new BigNumber(amountBN.toString());
-    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
-      TxType.Bond
-    }`;
+    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${TxType.Bond
+      }`;
 
     const url = paramsToUrl(baseUrl, {
       id,
@@ -105,9 +104,8 @@ export class ApprovalsService {
       tx: { publicKey = "" },
     } = txDetails;
     const amount = new BigNumber(amountBN.toString());
-    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
-      TxType.Unbond
-    }`;
+    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${TxType.Unbond
+      }`;
 
     const url = paramsToUrl(baseUrl, {
       id,
@@ -120,6 +118,33 @@ export class ApprovalsService {
     this._launchApprovalWindow(url);
   }
 
+  // Deserialize withdraw details and prompt user
+  async approveWithdraw(txMsg: string, type: AccountType): Promise<void> {
+    const txMsgBuffer = Buffer.from(fromBase64(txMsg));
+    const id = uuid();
+    await this.txStore.set(id, txMsg);
+
+    // Decode tx details and launch approval screen
+    const txDetails = deserialize(txMsgBuffer, SubmitWithdrawMsgValue);
+
+    const {
+      source,
+      validator,
+      tx: { publicKey = "" },
+    } = txDetails;
+    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${TxType.Withdraw
+      }`;
+
+    const url = paramsToUrl(baseUrl, {
+      id,
+      source,
+      validator,
+      publicKey,
+      accountType: type as string,
+    });
+
+    this._launchApprovalWindow(url);
+  }
   // Remove pending transaction from storage
   async rejectTx(msgId: string): Promise<void> {
     await this._clearPendingTx(msgId);
@@ -138,7 +163,7 @@ export class ApprovalsService {
       return await this._clearPendingTx(msgId);
     }
 
-    throw new Error("Pending transfer not found!");
+    throw new Error("Pending Transfer tx not found!");
   }
 
   // Authenticate keyring and submit approved bond transaction from storage
@@ -155,7 +180,7 @@ export class ApprovalsService {
       return await this._clearPendingTx(msgId);
     }
 
-    throw new Error("Pending bond not found!");
+    throw new Error("Pending Bond tx not found!");
   }
 
   async submitUnbond(msgId: string, password: string): Promise<void> {
@@ -170,7 +195,22 @@ export class ApprovalsService {
       return await this._clearPendingTx(msgId);
     }
 
-    throw new Error("Pending bond not found!");
+    throw new Error("Pending Unbond tx not found!");
+  }
+
+  async submitWithdraw(msgId: string, password: string): Promise<void> {
+    await this.keyRingService.unlock(password);
+
+    // Fetch pending bond tx
+    const tx = await this.txStore.get(msgId);
+
+    if (tx) {
+      await this.keyRingService.submitWithdraw(tx, msgId);
+
+      return await this._clearPendingTx(msgId);
+    }
+
+    throw new Error("Pending Withdraw tx not found!");
   }
 
   private async _clearPendingTx(msgId: string): Promise<void> {

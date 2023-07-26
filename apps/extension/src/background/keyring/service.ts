@@ -207,7 +207,8 @@ export class KeyRingService {
     }
   }
 
-  async submitWithdraw(txMsg: string): Promise<void> {
+  async submitWithdraw(txMsg: string, msgId: string): Promise<void> {
+    console.log(`TODO: Broadcast notification for ${msgId}`);
     try {
       await this._keyRing.submitWithdraw(fromBase64(txMsg));
     } catch (e) {

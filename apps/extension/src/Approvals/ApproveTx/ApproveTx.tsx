@@ -37,6 +37,7 @@ export const ApproveTx: React.FC<Props> = ({ setDetails }) => {
   const amount = query.get("amount") || "";
   const source = query.get("source") || "";
   const target = query.get("target") || "";
+  const validator = query.get("validator") || "";
   const tokenAddress = query.get("token") || "";
   const tokenType =
     Object.values(Tokens).find((token) => token.address === tokenAddress)
@@ -87,9 +88,12 @@ export const ApproveTx: React.FC<Props> = ({ setDetails }) => {
           <Address>{shortenAddress(target)}</Address>
         </>
       )}
-      <p>
-        Amount: {amount} {tokenType}
-      </p>
+      {amount && (
+        <p>
+          Amount: {amount} {tokenType}
+        </p>
+      )}
+      {validator && <p>Validator: {shortenAddress(validator)}</p>}
       <ButtonContainer>
         <Button onClick={handleApproveClick} variant={ButtonVariant.Contained}>
           Approve

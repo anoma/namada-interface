@@ -304,7 +304,7 @@ export const postNewWithdraw = createAsyncThunk<
   const integration = getIntegration(chainId);
   const signer = integration.signer() as Signer;
   const {
-    details: { type },
+    details: { type, publicKey },
   } = derived[chainId][owner];
 
   await signer.submitWithdraw(
@@ -316,6 +316,7 @@ export const postNewWithdraw = createAsyncThunk<
         feeAmount: new BigNumber(0),
         gasLimit: new BigNumber(0),
         chainId,
+        publicKey,
       },
     },
     type

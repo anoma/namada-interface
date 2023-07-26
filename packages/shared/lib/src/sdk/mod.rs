@@ -247,11 +247,16 @@ impl Sdk {
                         .map_err(JsError::from)?;
                 unbond.0
             }
-            _ => {
-                return Err(JsError::new(&format!(
-                    "TxType \"{:?}\" not implemented!",
-                    tx_type,
-                )))
+            TxType::Withdraw => {
+                let args = tx::withdraw_tx_args(tx_msg, None)?;
+                let unbond = namada::ledger::tx::build_withdraw(
+                    &self.client,
+                    &mut self.wallet,
+                    args.clone(),
+                )
+                .await
+                .map_err(JsError::from)?;
+                unbond.0
             }
         };
 
