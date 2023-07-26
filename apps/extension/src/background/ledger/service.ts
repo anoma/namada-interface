@@ -1,7 +1,7 @@
 import { fromBase64 } from "@cosmjs/encoding";
 import { deserialize } from "@dao-xyz/borsh";
 
-import { AccountType, Bip44Path } from "@namada/types";
+import { AccountType, Bip44Path, TxMsgValue } from "@namada/types";
 import { ResponseSign } from "@namada/ledger-namada";
 import { Sdk, TxType } from "@namada/shared";
 import { IStore, KVStore, Store } from "@namada/storage";
@@ -18,7 +18,6 @@ import { encodeSignature, generateId, getEncodedTxByType } from "utils";
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
 import { UpdatedStakingEventMsg } from "content/events";
-import { TxMsgValue } from "@namada/types/src/tx/schema/tx";
 
 export const LEDGERSTORE_KEY = "ledger-store";
 const UUID_NAMESPACE = "be9fdaee-ffa2-11ed-8ef1-325096b39f47";

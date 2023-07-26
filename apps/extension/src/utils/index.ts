@@ -10,11 +10,11 @@ import {
   SubmitWithdrawMsgValue,
   TransferMsgValue,
   TxProps,
+  TxMsgValue,
 } from "@namada/types";
 import { pick } from "@namada/utils";
 import { AccountStore } from "background/keyring";
 import { ISignature } from "@namada/ledger-namada";
-import { TxMsgValue } from "@namada/types/src/tx/schema/tx";
 import { TxType } from "@namada/shared";
 import { deserialize } from "@dao-xyz/borsh";
 import { fromBase64 } from "@cosmjs/encoding";

@@ -5,6 +5,7 @@ export * from "./bond";
 export * from "./signature";
 export * from "./unbond";
 export * from "./withdraw";
+export * from "./tx";
 
 import { AccountMsgValue } from "./account";
 import { IbcTransferMsgValue } from "./ibcTransfer";

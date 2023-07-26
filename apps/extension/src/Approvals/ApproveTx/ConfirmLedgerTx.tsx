@@ -6,7 +6,7 @@ import { LedgerError } from "@namada/ledger-namada";
 import { Button, ButtonVariant } from "@namada/components";
 import { defaultChainId as chainId } from "@namada/chains";
 import { TxType } from "@namada/shared";
-import { Message, Tokens, TxProps } from "@namada/types";
+import { Message, Tokens, TxProps, TxMsgValue } from "@namada/types";
 
 import { Ledger } from "background/ledger";
 import {
@@ -27,7 +27,6 @@ import { InfoHeader, InfoLoader } from "Approvals/Approvals.components";
 
 import { QueryPublicKeyMsg } from "background/keyring";
 import { TxTypeLabel } from "Approvals/types";
-import { TxMsgValue } from "@namada/types/src/tx/schema/tx";
 
 type Props = {
   details?: ApprovalDetails;
