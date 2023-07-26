@@ -7,7 +7,7 @@ export class SignatureMsgValue {
   salt!: Uint8Array;
 
   @field({ type: vec("u8") })
-  indicies!: Uint8Array;
+  indices!: Uint8Array;
 
   @field({ type: vec("u8") })
   pubkey!: Uint8Array;
