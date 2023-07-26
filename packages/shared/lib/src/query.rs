@@ -1,7 +1,10 @@
 use masp_primitives::transaction::components::I128Sum;
 use masp_primitives::zip32::ExtendedFullViewingKey;
+use namada::core::ledger::governance::storage::keys as gov_storage;
+use namada::core::ledger::governance::storage::proposal::ProposalType;
 use namada::ledger::eth_bridge::bridge_pool::query_signed_bridge_pool;
 use namada::ledger::queries::RPC;
+use namada::proof_of_stake::Epoch;
 use namada::sdk::masp::ShieldedContext;
 use namada::sdk::rpc::{
     format_denominated_amount, get_public_key_at, get_token_balance, query_epoch,
@@ -346,5 +349,162 @@ impl Query {
             .collect();
 
         to_js_result(result)
+    }
+
+    pub async fn query_proposals(&self) -> Result<JsValue, JsError> {
+        async fn print_proposal<C: namada::ledger::queries::Client + Sync>(
+            client: &C,
+            id: u64,
+            current_epoch: Epoch,
+            details: bool,
+        ) -> Option<HashMap<&str, String>> {
+            let author_key = gov_storage::get_author_key(id);
+            let start_epoch_key = gov_storage::get_voting_start_epoch_key(id);
+            let end_epoch_key = gov_storage::get_voting_end_epoch_key(id);
+            let proposal_type_key = gov_storage::get_proposal_type_key(id);
+
+            let author = query_storage_value::<C, Address>(client, &author_key).await?;
+            let start_epoch = query_storage_value::<C, Epoch>(client, &start_epoch_key).await?;
+            let end_epoch = query_storage_value::<C, Epoch>(client, &end_epoch_key).await?;
+            let proposal_type =
+                query_storage_value::<C, ProposalType>(client, &proposal_type_key).await?;
+
+            if details {
+                let content_key = gov_storage::get_content_key(id);
+                let grace_epoch_key = gov_storage::get_grace_epoch_key(id);
+                let content =
+                    query_storage_value::<C, HashMap<String, String>>(client, &content_key).await?;
+                let grace_epoch = query_storage_value::<C, Epoch>(client, &grace_epoch_key).await?;
+
+                println!("Proposal: {}", id);
+                println!("{:4}Type: {}", "", proposal_type);
+                println!("{:4}Author: {}", "", author);
+                println!("{:4}Content:", "");
+                for (key, value) in &content {
+                    println!("{:8}{}: {}", "", key, value);
+                }
+                println!("{:4}Start Epoch: {}", "", start_epoch);
+                println!("{:4}End Epoch: {}", "", end_epoch);
+                println!("{:4}Grace Epoch: {}", "", grace_epoch);
+                // let votes = get_proposal_votes(client, start_epoch, id).await;
+                // let total_stake = get_total_staked_tokens(client, start_epoch)
+                //     .await
+                //     .try_into()
+                //     .unwrap();
+                // if start_epoch > current_epoch {
+                //     println!("{:4}Status: pending", "");
+                // } else if start_epoch <= current_epoch && current_epoch <= end_epoch {
+                //     match utils::compute_tally(votes, total_stake, &proposal_type) {
+                //         Ok(partial_proposal_result) => {
+                //             println!(
+                //                 "{:4}Yay votes: {}",
+                //                 "", partial_proposal_result.total_yay_power
+                //             );
+                //             println!(
+                //                 "{:4}Nay votes: {}",
+                //                 "", partial_proposal_result.total_nay_power
+                //             );
+                //             println!("{:4}Status: on-going", "");
+                //         }
+                //         Err(msg) => {
+                //             eprintln!("Error in tally computation: {}", msg)
+                //         }
+                //     }
+                // } else {
+                //     match utils::compute_tally(votes, total_stake, &proposal_type) {
+                //         Ok(proposal_result) => {
+                //             println!("{:4}Status: done", "");
+                //             println!("{:4}Result: {}", "", proposal_result);
+                //         }
+                //         Err(msg) => {
+                //             eprintln!("Error in tally computation: {}", msg)
+                //         }
+                //     }
+                // }
+            } else {
+                web_sys::console::log_1(&format!("Proposal: {}", id).into());
+                web_sys::console::log_1(&format!("{:4}Type: {}", "", proposal_type).into());
+                web_sys::console::log_1(&format!("{:4}Author: {}", "", author).into());
+                web_sys::console::log_1(&format!("{:4}Start Epoch: {}", "", start_epoch).into());
+                web_sys::console::log_1(&format!("{:4}End Epoch: {}", "", end_epoch).into());
+                // println!("Proposal: {}", id);
+                // println!("{:4}Type: {}", "", proposal_type);
+                // println!("{:4}Author: {}", "", author);
+                // println!("{:4}Start Epoch: {}", "", start_epoch);
+                // println!("{:4}End Epoch: {}", "", end_epoch);
+                // if start_epoch > current_epoch {
+                //     println!("{:4}Status: pending", "");
+                // } else if start_epoch <= current_epoch && current_epoch <= end_epoch {
+                //     println!("{:4}Status: on-going", "");
+                // } else {
+                //     println!("{:4}Status: done", "");
+                // }
+            }
+
+            // let votes = get_proposal_votes(client, start_epoch, id).await;
+            // let total_stake = get_total_staked_tokens(client, start_epoch)
+            //     .await
+            //     .try_into()
+            //     .unwrap();
+            // if start_epoch > current_epoch {
+            //     println!("{:4}Status: pending", "");
+            // } else if start_epoch <= current_epoch && current_epoch <= end_epoch {
+            //     match utils::compute_tally(votes, total_stake, &proposal_type) {
+            //         Ok(partial_proposal_result) => {
+            //             println!(
+            //                 "{:4}Yay votes: {}",
+            //                 "", partial_proposal_result.total_yay_power
+            //             );
+            //             println!(
+            //                 "{:4}Nay votes: {}",
+            //                 "", partial_proposal_result.total_nay_power
+            //             );
+            //             println!("{:4}Status: on-going", "");
+            //         }
+            //         Err(msg) => {
+            //             eprintln!("Error in tally computation: {}", msg)
+            //         }
+            //     }
+            // } else {
+            //     match utils::compute_tally(votes, total_stake, &proposal_type) {
+            //         Ok(proposal_result) => {
+            //             println!("{:4}Status: done", "");
+            //             println!("{:4}Result: {}", "", proposal_result);
+            //         }
+            //         Err(msg) => {
+            //             eprintln!("Error in tally computation: {}", msg)
+            //         }
+            //     }
+            // }
+
+            let res = HashMap::from([
+                ("id", id.to_string()),
+                ("type", proposal_type.to_string()),
+                ("author", author.to_string()),
+                ("startEpoch", start_epoch.to_string()),
+                ("endEpoch", end_epoch.to_string()),
+            ]);
+
+            Some(res)
+
+            // Some(())
+        }
+        let last_proposal_id_key = gov_storage::get_counter_key();
+        let last_proposal_id =
+            query_storage_value::<HttpClient, u64>(&self.client, &last_proposal_id_key)
+                .await
+                .unwrap();
+
+        let current_epoch = namada::ledger::rpc::query_epoch(&self.client).await?;
+        let mut results = vec![];
+
+        for id in 0..last_proposal_id {
+            let v = print_proposal(&self.client, id, current_epoch, false)
+                .await
+                .expect("WORK");
+            results.push(v);
+        }
+
+        to_js_result(results)
     }
 }

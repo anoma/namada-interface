@@ -741,6 +741,8 @@ export class KeyRing {
     owner: string
   ): Promise<{ token: string; amount: string }[]> {
     try {
+      const res = await this.query.query_proposals();
+      console.log(res);
       return (await this.query.query_balance(owner)).map(
         ([token, amount]: [string, string]) => {
           return {

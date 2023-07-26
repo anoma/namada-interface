@@ -158,19 +158,6 @@ const SecondMenuRow = (props: SecondMenuRowProps): React.ReactElement => {
           <MenuItemForSecondRow
             onClick={() => {
               navigate(
-                `${TopLevelRoute.StakingAndGovernance}${StakingAndGovernanceSubRoute.Governance}`
-              );
-            }}
-            isSelected={
-              stakingAndGovernanceSubRoute ===
-              StakingAndGovernanceSubRoute.Governance
-            }
-          >
-            Governance
-          </MenuItemForSecondRow>
-          <MenuItemForSecondRow
-            onClick={() => {
-              navigate(
                 `${TopLevelRoute.StakingAndGovernance}${StakingAndGovernanceSubRoute.PublicGoodsFunding}`
               );
             }}
@@ -376,14 +363,9 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
               <MenuItemSubComponent
                 onClick={() => {
                   setShowMenu(false);
-                  navigate(
-                    `${TopLevelRoute.StakingAndGovernance}${StakingAndGovernanceSubRoute.Governance}`
-                  );
+                  navigate(`${TopLevelRoute.Governance}`);
                 }}
-                isSelected={
-                  stakingAndGovernanceSubRoute ===
-                  StakingAndGovernanceSubRoute.Governance
-                }
+                isSelected={topLevelRoute === TopLevelRoute.Governance}
               >
                 Governance
               </MenuItemSubComponent>

@@ -43,7 +43,6 @@ export enum StakingAndGovernanceSubRoute {
   Staking = "/staking",
   StakingOverview = "/staking-overview",
   ValidatorDetails = "/validator-details",
-  Governance = "/governance",
   PublicGoodsFunding = "/public-goods-funding",
 }
 
