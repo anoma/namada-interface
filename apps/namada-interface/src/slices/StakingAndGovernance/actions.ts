@@ -236,14 +236,14 @@ export const postNewBonding = createAsyncThunk<
   const { derived } = thunkApi.getState().accounts;
   const integration = getIntegration(chainId);
   const signer = integration.signer() as Signer;
-  const { owner, validatorId, amount } = change;
-  const account = derived[chainId][owner];
+  const { owner: source, validatorId: validator, amount } = change;
+  const account = derived[chainId][source];
   const { type, publicKey } = account.details;
 
   await signer.submitBond(
     {
-      source: owner,
-      validator: validatorId,
+      source,
+      validator,
       amount: new BigNumber(amount),
       nativeToken: Tokens.NAM.address || "",
       tx: {
@@ -272,16 +272,16 @@ export const postNewUnbonding = createAsyncThunk<
   const { derived } = thunkApi.getState().accounts;
   const integration = getIntegration(chainId);
   const signer = integration.signer() as Signer;
-  const { owner } = change;
+  const { owner: source, validatorId: validator, amount } = change;
   const {
     details: { type, publicKey },
-  } = derived[chainId][owner];
+  } = derived[chainId][source];
 
   await signer.submitUnbond(
     {
-      source: change.owner,
-      validator: change.validatorId,
-      amount: change.amount,
+      source,
+      validator,
+      amount: new BigNumber(amount),
       tx: {
         token: Tokens.NAM.address || "",
         feeAmount: new BigNumber(0),
