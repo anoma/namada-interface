@@ -35,7 +35,7 @@ type Props = {
 };
 
 export const ConfirmTx: React.FC<Props> = ({ details }) => {
-  const { source = "", msgId = "", txType } = details || {};
+  const { source, msgId, txType } = details || {};
   const navigate = useNavigate();
   const requester = useRequester();
   const [password, setPassword] = useState("");
@@ -50,6 +50,9 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
     );
 
     try {
+      if (!msgId) {
+        throw new Error("msgId was not provided!");
+      }
       switch (txType) {
         case TxType.Bond: {
           await requester.sendMessage(
@@ -135,7 +138,7 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
           Try again
         </p>
       )}
-      {status !== (Status.Pending || Status.Completed) && (
+      {status !== (Status.Pending || Status.Completed) && source && (
         <>
           <div>
             Decrypt keys for <Address>{shortenAddress(source)}</Address>

@@ -24,32 +24,33 @@ export class ApprovalsService {
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
     protected readonly keyRingService: KeyRingService,
     protected readonly ledgerService: LedgerService
-  ) { }
+  ) {}
 
   // Deserialize transfer details and prompt user
   async approveTransfer(txMsg: string, type?: AccountType): Promise<void> {
     const txMsgBuffer = Buffer.from(fromBase64(txMsg));
-    const id = uuid();
-    await this.txStore.set(id, txMsg);
+    const msgId = uuid();
+    await this.txStore.set(msgId, txMsg);
 
     // Decode tx details and launch approval screen
     const txDetails = deserialize(txMsgBuffer, TransferMsgValue);
     const {
       source,
       target,
-      token,
+      token: tokenAddress,
       amount: amountBN,
       tx: { publicKey = "" },
     } = txDetails;
     const amount = new BigNumber(amountBN.toString());
-    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${TxType.Transfer
-      }`;
+    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
+      TxType.Transfer
+    }`;
 
     const url = paramsToUrl(baseUrl, {
-      id,
+      msgId,
       source,
       target,
-      token,
+      tokenAddress,
       amount: amount.toString(),
       accountType: type as string,
       publicKey,
@@ -61,26 +62,27 @@ export class ApprovalsService {
   // Deserialize bond details and prompt user
   async approveBond(txMsg: string, type: AccountType): Promise<void> {
     const txMsgBuffer = Buffer.from(fromBase64(txMsg));
-    const id = uuid();
-    await this.txStore.set(id, txMsg);
+    const msgId = uuid();
+    await this.txStore.set(msgId, txMsg);
 
     // Decode tx details and launch approval screen
     const txDetails = deserialize(txMsgBuffer, SubmitBondMsgValue);
 
     const {
       source,
-      nativeToken: token,
+      nativeToken: tokenAddress,
       amount: amountBN,
       tx: { publicKey = "" },
     } = txDetails;
     const amount = new BigNumber(amountBN.toString());
-    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${TxType.Bond
-      }`;
+    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
+      TxType.Bond
+    }`;
 
     const url = paramsToUrl(baseUrl, {
-      id,
+      msgId,
       source,
-      token,
+      tokenAddress,
       amount: amount.toString(),
       publicKey,
       accountType: type as string,
@@ -92,8 +94,8 @@ export class ApprovalsService {
   // Deserialize unbond details and prompt user
   async approveUnbond(txMsg: string, type: AccountType): Promise<void> {
     const txMsgBuffer = Buffer.from(fromBase64(txMsg));
-    const id = uuid();
-    await this.txStore.set(id, txMsg);
+    const msgId = uuid();
+    await this.txStore.set(msgId, txMsg);
 
     // Decode tx details and launch approval screen
     const txDetails = deserialize(txMsgBuffer, SubmitUnbondMsgValue);
@@ -104,11 +106,12 @@ export class ApprovalsService {
       tx: { publicKey = "" },
     } = txDetails;
     const amount = new BigNumber(amountBN.toString());
-    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${TxType.Unbond
-      }`;
+    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
+      TxType.Unbond
+    }`;
 
     const url = paramsToUrl(baseUrl, {
-      id,
+      msgId,
       source,
       amount: amount.toString(),
       accountType: type as string,
@@ -121,8 +124,8 @@ export class ApprovalsService {
   // Deserialize withdraw details and prompt user
   async approveWithdraw(txMsg: string, type: AccountType): Promise<void> {
     const txMsgBuffer = Buffer.from(fromBase64(txMsg));
-    const id = uuid();
-    await this.txStore.set(id, txMsg);
+    const msgId = uuid();
+    await this.txStore.set(msgId, txMsg);
 
     // Decode tx details and launch approval screen
     const txDetails = deserialize(txMsgBuffer, SubmitWithdrawMsgValue);
@@ -132,11 +135,12 @@ export class ApprovalsService {
       validator,
       tx: { publicKey = "" },
     } = txDetails;
-    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${TxType.Withdraw
-      }`;
+    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
+      TxType.Withdraw
+    }`;
 
     const url = paramsToUrl(baseUrl, {
-      id,
+      msgId,
       source,
       validator,
       publicKey,

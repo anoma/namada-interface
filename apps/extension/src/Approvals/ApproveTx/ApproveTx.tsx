@@ -32,17 +32,20 @@ export const ApproveTx: React.FC<Props> = ({ setDetails }) => {
   const txType = parseInt(params?.type || "0");
 
   const query = useQuery();
-  const accountType = query.get("accountType") || "";
-  const msgId = query.get("id") || "";
-  const amount = query.get("amount") || "";
-  const source = query.get("source") || "";
-  const target = query.get("target") || "";
-  const validator = query.get("validator") || "";
-  const tokenAddress = query.get("token") || "";
+  const {
+    accountType,
+    msgId,
+    amount,
+    source,
+    target,
+    validator,
+    tokenAddress,
+    publicKey,
+  } = query.getAll();
+
   const tokenType =
     Object.values(Tokens).find((token) => token.address === tokenAddress)
       ?.symbol || "";
-  const publicKey = query.get("publicKey") || "";
 
   useEffect(() => {
     setDetails({
@@ -64,10 +67,12 @@ export const ApproveTx: React.FC<Props> = ({ setDetails }) => {
   const handleReject = useCallback(async (): Promise<void> => {
     try {
       // TODO: use executeUntil here!
-      await requester.sendMessage(Ports.Background, new RejectTxMsg(msgId));
-
-      // Close tab
-      await closeCurrentTab();
+      if (msgId) {
+        await requester.sendMessage(Ports.Background, new RejectTxMsg(msgId));
+        // Close tab
+        return await closeCurrentTab();
+      }
+      throw new Error("msgId was not provided!");
     } catch (e) {
       console.warn(e);
     }
@@ -80,8 +85,12 @@ export const ApproveTx: React.FC<Props> = ({ setDetails }) => {
         Approve this <strong>{TxTypeLabel[txType as TxType]}</strong>{" "}
         transaction?
       </p>
-      <p>Source:&nbsp;</p>
-      <Address>{shortenAddress(source)}</Address>
+      {source && (
+        <>
+          <p>Source:&nbsp;</p>
+          <Address>{shortenAddress(source)}</Address>
+        </>
+      )}
       {target && (
         <>
           <p>Target:&nbsp;</p>

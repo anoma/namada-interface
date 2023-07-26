@@ -37,7 +37,7 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState<Status>();
   const [statusInfo, setStatusInfo] = useState("");
-  const { source, msgId = "", publicKey, txType } = details || {};
+  const { source, msgId, publicKey, txType } = details || {};
 
   const revealPk = async (publicKey: string): Promise<void> => {
     const txArgs: TxProps = {
@@ -122,6 +122,9 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
       }
       if (!source) {
         throw new Error("source was not provided!");
+      }
+      if (!msgId) {
+        throw new Error("msgId was not provided!");
       }
 
       const { bytes, path } = await requester.sendMessage(
