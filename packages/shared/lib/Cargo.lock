@@ -2917,7 +2917,7 @@ checksum = "e5ce46fe64a9d73be07dcbe690a38ce1b293be448fd8ce1e6c1b8062c9f72c6a"
 [[package]]
 name = "namada"
 version = "0.20.0"
-source = "git+https://github.com/anoma/namada#b6714b5eca577c520b2b42b5f7f8048d46bb9d8b"
+source = "git+https://github.com/anoma/namada?branch=bat/generic-io#c5a2ce2215f464ede671889b580a00d1ffdaa5a3"
 dependencies = [
  "async-trait",
  "bimap",
@@ -2966,7 +2966,7 @@ dependencies = [
 [[package]]
 name = "namada_core"
 version = "0.20.0"
-source = "git+https://github.com/anoma/namada#b6714b5eca577c520b2b42b5f7f8048d46bb9d8b"
+source = "git+https://github.com/anoma/namada?branch=bat/generic-io#c5a2ce2215f464ede671889b580a00d1ffdaa5a3"
 dependencies = [
  "ark-bls12-381",
  "ark-ec",
@@ -3017,7 +3017,7 @@ dependencies = [
 [[package]]
 name = "namada_ethereum_bridge"
 version = "0.20.0"
-source = "git+https://github.com/anoma/namada#b6714b5eca577c520b2b42b5f7f8048d46bb9d8b"
+source = "git+https://github.com/anoma/namada?branch=bat/generic-io#c5a2ce2215f464ede671889b580a00d1ffdaa5a3"
 dependencies = [
  "borsh",
  "ethers",
@@ -3038,7 +3038,7 @@ dependencies = [
 [[package]]
 name = "namada_macros"
 version = "0.20.0"
-source = "git+https://github.com/anoma/namada#b6714b5eca577c520b2b42b5f7f8048d46bb9d8b"
+source = "git+https://github.com/anoma/namada?branch=bat/generic-io#c5a2ce2215f464ede671889b580a00d1ffdaa5a3"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3048,7 +3048,7 @@ dependencies = [
 [[package]]
 name = "namada_proof_of_stake"
 version = "0.20.0"
-source = "git+https://github.com/anoma/namada#b6714b5eca577c520b2b42b5f7f8048d46bb9d8b"
+source = "git+https://github.com/anoma/namada?branch=bat/generic-io#c5a2ce2215f464ede671889b580a00d1ffdaa5a3"
 dependencies = [
  "borsh",
  "data-encoding",

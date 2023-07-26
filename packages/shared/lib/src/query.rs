@@ -7,14 +7,18 @@ use namada::types::{
     masp::ExtendedViewingKey,
     token::{self},
     uint::I256,
+    io::Io
 };
 use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 use wasm_bindgen::prelude::*;
 
 use crate::rpc_client::HttpClient;
+use crate::sdk::io;
 use crate::sdk::masp;
 use crate::utils::{set_panic_hook, to_js_result};
+
+type IO = io::BrowserIo;
 
 #[wasm_bindgen]
 /// Represents an API for querying the ledger
@@ -188,7 +192,7 @@ impl Query {
 
         let epoch = namada::ledger::rpc::query_epoch(&self.client).await;
         let balance = shielded
-            .compute_exchanged_balance(&self.client, &viewing_key, epoch)
+            .compute_exchanged_balance::<_, IO>(&self.client, &viewing_key, epoch)
             .await
             .expect("context should contain viewing key");
         let balance = Amount::from(balance);

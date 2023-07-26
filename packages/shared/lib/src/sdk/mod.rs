@@ -21,6 +21,7 @@ pub mod masp;
 mod signature;
 mod tx;
 mod wallet;
+pub mod io;
 
 // Require that a public key is present
 fn validate_pk(pk: Option<PublicKey>) -> Result<PublicKey, JsError> {
@@ -37,6 +38,8 @@ pub struct Sdk {
     wallet: Wallet<wallet::BrowserWalletUtils>,
     shielded_ctx: ShieldedContext<masp::WebShieldedUtils>,
 }
+
+type IO = io::BrowserIo;
 
 #[wasm_bindgen]
 /// Sdk mostly wraps the logic of the Sdk struct members, making it a part of public API.
@@ -110,7 +113,7 @@ impl Sdk {
         pk: &PublicKey,
     ) -> Result<(), JsError> {
         // Build a transaction to reveal the signer of this transaction
-        let reveal_pk = namada::ledger::tx::build_reveal_pk(
+        let reveal_pk = namada::ledger::tx::build_reveal_pk::<_, _, IO>(
             &self.client,
             &mut self.wallet,
             args::RevealPk {
@@ -125,10 +128,17 @@ impl Sdk {
             // Sign the reveal public key transaction with the fee payer
             signing::sign_tx(&mut self.wallet, &mut rtx, &args, &pk).await?;
             // Submit the reveal public key transaction first
-            namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args, rtx).await?;
+            namada::ledger::tx::process_tx::<_, _, IO>(
+                &self.client,
+                &mut self.wallet,
+                &args,
+                rtx,
+            )
+            .await?;
             // Update the stateful PoW challenge of the outer transaction
             #[cfg(not(feature = "mainnet"))]
-            signing::update_pow_challenge(&self.client, &args, &mut tx, &pk, false).await;
+            signing::update_pow_challenge::<_, IO>(&self.client, &args, &mut tx, &pk, false)
+                .await;
         }
 
         Ok(())
@@ -150,7 +160,7 @@ impl Sdk {
             .map_err(JsError::from)?;
 
         // Submit tx
-        namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args, tx)
+        namada::ledger::tx::process_tx::<_, _, IO>(&self.client, &mut self.wallet, &args, tx)
             .await
             .map_err(JsError::from)?;
 
@@ -161,7 +171,7 @@ impl Sdk {
     pub async fn build_reveal_pk(&mut self, tx_msg: &[u8]) -> Result<JsValue, JsError> {
         let args = tx::reveal_pk_tx_args(tx_msg)?;
 
-        let reveal_pk = namada::ledger::tx::build_reveal_pk(
+        let reveal_pk = namada::ledger::tx::build_reveal_pk::<_, _, IO>(
             &self.client,
             &mut self.wallet,
             args::RevealPk {
@@ -190,9 +200,14 @@ impl Sdk {
         let reveal_pk_tx = self.sign_tx(tx_bytes, raw_sig_bytes, wrapper_sig_bytes)?;
         let args = tx::reveal_pk_tx_args(tx_msg).map_err(JsError::from)?;
 
-        namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args.tx, reveal_pk_tx)
-            .await
-            .map_err(JsError::from)?;
+        namada::ledger::tx::process_tx::<_, _, IO>(
+            &self.client,
+            &mut self.wallet,
+            &args.tx,
+            reveal_pk_tx,
+        )
+        .await
+        .map_err(JsError::from)?;
 
         Ok(())
     }
@@ -201,7 +216,7 @@ impl Sdk {
     pub async fn build_transfer(&mut self, tx_msg: &[u8]) -> Result<JsValue, JsError> {
         let args = tx::transfer_tx_args(tx_msg, None, None)?;
 
-        let transfer = namada::ledger::tx::build_transfer(
+        let transfer = namada::ledger::tx::build_transfer::<_, _, _, IO>(
             &self.client,
             &mut self.wallet,
             &mut self.shielded_ctx,
@@ -219,9 +234,13 @@ impl Sdk {
     pub async fn build_bond(&mut self, tx_msg: &[u8]) -> Result<JsValue, JsError> {
         let args = tx::bond_tx_args(tx_msg, None)?;
 
-        let bond = namada::ledger::tx::build_bond(&self.client, &mut self.wallet, args.clone())
-            .await
-            .map_err(JsError::from)?;
+        let bond = namada::ledger::tx::build_bond::<_, _, IO>(
+            &self.client,
+            &mut self.wallet,
+            args.clone(),
+        )
+        .await
+        .map_err(JsError::from)?;
 
         let bytes = bond.0.try_to_vec().map_err(JsError::from)?;
 
@@ -232,9 +251,13 @@ impl Sdk {
     pub async fn build_unbond(&mut self, tx_msg: &[u8]) -> Result<JsValue, JsError> {
         let args = tx::unbond_tx_args(tx_msg, None)?;
 
-        let unbond = namada::ledger::tx::build_unbond(&self.client, &mut self.wallet, args.clone())
-            .await
-            .map_err(JsError::from)?;
+        let unbond = namada::ledger::tx::build_unbond::<_, _, IO>(
+            &self.client,
+            &mut self.wallet,
+            args.clone(),
+        )
+        .await
+        .map_err(JsError::from)?;
 
         let bytes = unbond.0.try_to_vec().map_err(JsError::from)?;
 
@@ -277,9 +300,14 @@ impl Sdk {
         self.submit_reveal_pk(&args.tx, transfer_tx.clone(), &pk)
             .await?;
 
-        namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args.tx, transfer_tx)
-            .await
-            .map_err(JsError::from)?;
+        namada::ledger::tx::process_tx::<_, _, IO>(
+            &self.client,
+            &mut self.wallet,
+            &args.tx,
+            transfer_tx,
+        )
+        .await
+        .map_err(JsError::from)?;
 
         Ok(())
     }
@@ -291,7 +319,7 @@ impl Sdk {
         xsk: Option<String>,
     ) -> Result<(), JsError> {
         let args = tx::transfer_tx_args(tx_msg, password, xsk)?;
-        let (tx, _, pk, _, _) = namada::ledger::tx::build_transfer(
+        let (tx, _, pk, _, _) = namada::ledger::tx::build_transfer::<_, _, _, IO>(
             &self.client,
             &mut self.wallet,
             &mut self.shielded_ctx,
@@ -313,7 +341,7 @@ impl Sdk {
         let args = tx::ibc_transfer_tx_args(tx_msg, password)?;
 
         let (tx, _, pk) =
-            namada::ledger::tx::build_ibc_transfer(&self.client, &mut self.wallet, args.clone())
+            namada::ledger::tx::build_ibc_transfer::<_, _, IO>(&self.client, &mut self.wallet, args.clone())
                 .await
                 .map_err(JsError::from)?;
 
@@ -330,7 +358,7 @@ impl Sdk {
         let args = tx::bond_tx_args(tx_msg, password)?;
 
         let (tx, _, pk) =
-            namada::ledger::tx::build_bond(&mut self.client, &mut self.wallet, args.clone())
+            namada::ledger::tx::build_bond::<_, _, IO>(&mut self.client, &mut self.wallet, args.clone())
                 .await
                 .map_err(JsError::from)?;
 
@@ -350,7 +378,7 @@ impl Sdk {
         let bond_tx = self.sign_tx(tx_bytes, raw_sig_bytes, wrapper_sig_bytes)?;
         let args = tx::bond_tx_args(tx_msg, None).map_err(JsError::from)?;
 
-        namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args.tx, bond_tx)
+        namada::ledger::tx::process_tx::<_, _, IO>(&self.client, &mut self.wallet, &args.tx, bond_tx)
             .await
             .map_err(JsError::from)?;
 
@@ -366,7 +394,7 @@ impl Sdk {
         let args = tx::unbond_tx_args(tx_msg, password)?;
 
         let (tx, _, pk, _) =
-            namada::ledger::tx::build_unbond(&mut self.client, &mut self.wallet, args.clone())
+            namada::ledger::tx::build_unbond::<_, _, IO>(&mut self.client, &mut self.wallet, args.clone())
                 .await
                 .map_err(JsError::from)?;
 
@@ -391,7 +419,7 @@ impl Sdk {
         self.submit_reveal_pk(&args.tx, bond_tx.clone(), &pk)
             .await?;
 
-        namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args.tx, bond_tx)
+        namada::ledger::tx::process_tx::<_, _, IO>(&self.client, &mut self.wallet, &args.tx, bond_tx)
             .await
             .map_err(JsError::from)?;
 
