@@ -95,7 +95,13 @@ export const encodeTx = (tx: TxProps): Uint8Array => {
   return msg.encode(txMsgValue);
 };
 
-export const getEncodedTx = (txType: TxType, txMsg: string): Uint8Array => {
+/**
+ * Helper to get encoded Tx information by TxType
+ */
+export const getEncodedTxByType = (
+  txType: TxType,
+  txMsg: string
+): Uint8Array => {
   switch (txType) {
     case TxType.Transfer: {
       const { tx } = deserialize(fromBase64(txMsg), TransferMsgValue);

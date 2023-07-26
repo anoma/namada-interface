@@ -4,15 +4,15 @@ import { sanitize } from "dompurify";
 
 interface SanitizedURLSearchParams {
   get(name: string): string | null;
-};
+}
 
-const toSanitized = (urlSearchParams: URLSearchParams): SanitizedURLSearchParams => ({
+const toSanitized = (
+  urlSearchParams: URLSearchParams
+): SanitizedURLSearchParams => ({
   get: (name: string): string | null => {
     const unsanitized = urlSearchParams.get(name);
-    return unsanitized === null ?
-      unsanitized :
-      sanitize(unsanitized);
-  }
+    return unsanitized === null ? unsanitized : sanitize(unsanitized);
+  },
 });
 
 const useQuery = (): SanitizedURLSearchParams => {
