@@ -9,15 +9,8 @@ enum MessageType {
   AddLedgerAccount = "add-ledger-account",
   GetTxBytes = "get-tx-bytes",
   GetRevealPKBytes = "get-reveal-pk-bytes",
-
-  // TODO: - Implement for single SubmitSignedTx
   SubmitSignedTx = "submit-signed-tx",
-
-  // TODO: Remove:
   SubmitSignedRevealPK = "submit-signed-reveal-pk",
-  SubmitSignedTransfer = "submit-signed-transfer",
-  SubmitSignedBond = "submit-signed-bond",
-  SubmitSignedUnbond = "submit-signed-unbond",
 }
 
 export class AddLedgerAccountMsg extends Message<void> {
@@ -161,12 +154,13 @@ export class SubmitSignedRevealPKMsg extends Message<void> {
   }
 }
 
-export class SubmitSignedTransferMsg extends Message<void> {
+export class SubmitSignedTxMsg extends Message<void> {
   public static type(): MessageType {
-    return MessageType.SubmitSignedTransfer;
+    return MessageType.SubmitSignedTx;
   }
 
   constructor(
+    public readonly txType: TxType,
     public readonly msgId: string,
     public readonly bytes: string,
     public readonly signatures: ResponseSign
@@ -175,6 +169,10 @@ export class SubmitSignedTransferMsg extends Message<void> {
   }
 
   validate(): void {
+    if (!this.txType) {
+      throw new Error("txType was not provided!");
+    }
+
     if (!this.msgId) {
       throw new Error("msgId was not provided!");
     }
@@ -193,78 +191,6 @@ export class SubmitSignedTransferMsg extends Message<void> {
   }
 
   type(): string {
-    return SubmitSignedTransferMsg.type();
-  }
-}
-
-export class SubmitSignedBondMsg extends Message<void> {
-  public static type(): MessageType {
-    return MessageType.SubmitSignedBond;
-  }
-
-  constructor(
-    public readonly msgId: string,
-    public readonly bytes: string,
-    public readonly signatures: ResponseSign
-  ) {
-    super();
-  }
-
-  validate(): void {
-    if (!this.msgId) {
-      throw new Error("msgId was not provided!");
-    }
-
-    if (!this.bytes) {
-      throw new Error("bytes were not provided!");
-    }
-
-    if (!this.signatures) {
-      throw new Error("No signatures were provided!");
-    }
-  }
-
-  route(): string {
-    return ROUTE;
-  }
-
-  type(): string {
-    return SubmitSignedBondMsg.type();
-  }
-}
-
-export class SubmitSignedUnbondMsg extends Message<void> {
-  public static type(): MessageType {
-    return MessageType.SubmitSignedUnbond;
-  }
-
-  constructor(
-    public readonly msgId: string,
-    public readonly bytes: string,
-    public readonly signatures: ResponseSign
-  ) {
-    super();
-  }
-
-  validate(): void {
-    if (!this.msgId) {
-      throw new Error("msgId was not provided!");
-    }
-
-    if (!this.bytes) {
-      throw new Error("bytes were not provided!");
-    }
-
-    if (!this.signatures) {
-      throw new Error("No signatures were provided!");
-    }
-  }
-
-  route(): string {
-    return ROUTE;
-  }
-
-  type(): string {
-    return SubmitSignedUnbondMsg.type();
+    return SubmitSignedTxMsg.type();
   }
 }

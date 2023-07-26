@@ -3,11 +3,9 @@ import { LedgerService } from "./service";
 import {
   AddLedgerAccountMsg,
   GetTxBytesMsg,
-  SubmitSignedTransferMsg,
-  SubmitSignedBondMsg,
   SubmitSignedRevealPKMsg,
   GetRevealPKBytesMsg,
-  SubmitSignedUnbondMsg,
+  SubmitSignedTxMsg,
 } from "./messages";
 
 export const getHandler: (service: LedgerService) => Handler = (service) => {
@@ -28,21 +26,8 @@ export const getHandler: (service: LedgerService) => Handler = (service) => {
           env,
           msg as SubmitSignedRevealPKMsg
         );
-      case SubmitSignedTransferMsg:
-        return handleSubmitSignedTransferMsg(service)(
-          env,
-          msg as SubmitSignedTransferMsg
-        );
-      case SubmitSignedBondMsg:
-        return handleSubmitSignedBondMsg(service)(
-          env,
-          msg as SubmitSignedBondMsg
-        );
-      case SubmitSignedUnbondMsg:
-        return handleSubmitSignedUnbondMsg(service)(
-          env,
-          msg as SubmitSignedBondMsg
-        );
+      case SubmitSignedTxMsg:
+        return handleSubmitSignedTxMsg(service)(env, msg as SubmitSignedTxMsg);
       default:
         throw new Error("Unknown msg type");
     }
@@ -58,33 +43,6 @@ const handleAddLedgerAccountMsg: (
   };
 };
 
-const handleSubmitSignedTransferMsg: (
-  service: LedgerService
-) => InternalHandler<SubmitSignedTransferMsg> = (service) => {
-  return async (_, msg) => {
-    const { bytes, msgId, signatures } = msg;
-    return await service.submitTransfer(msgId, bytes, signatures);
-  };
-};
-
-const handleSubmitSignedBondMsg: (
-  service: LedgerService
-) => InternalHandler<SubmitSignedBondMsg> = (service) => {
-  return async (_, msg) => {
-    const { bytes, msgId, signatures } = msg;
-    return await service.submitBond(msgId, bytes, signatures);
-  };
-};
-
-const handleSubmitSignedUnbondMsg: (
-  service: LedgerService
-) => InternalHandler<SubmitSignedUnbondMsg> = (service) => {
-  return async (_, msg) => {
-    const { bytes, msgId, signatures } = msg;
-    return await service.submitUnbond(msgId, bytes, signatures);
-  };
-};
-``;
 const handleGetTxBytesMsg: (
   service: LedgerService
 ) => InternalHandler<GetTxBytesMsg> = (service) => {
@@ -109,5 +67,14 @@ const handleSubmitSignedRevealPKMsg: (
   return async (_, msg) => {
     const { txMsg, bytes, signatures } = msg;
     return await service.submitRevealPk(txMsg, bytes, signatures);
+  };
+};
+
+const handleSubmitSignedTxMsg: (
+  service: LedgerService
+) => InternalHandler<SubmitSignedTxMsg> = (service) => {
+  return async (_, msg) => {
+    const { txType, bytes, msgId, signatures } = msg;
+    return await service.submitTx(txType, msgId, bytes, signatures);
   };
 };

@@ -5,12 +5,19 @@ import {
   DerivedAccount,
   Message,
   SignatureMsgValue,
+  SubmitBondMsgValue,
+  SubmitUnbondMsgValue,
+  SubmitWithdrawMsgValue,
+  TransferMsgValue,
   TxProps,
 } from "@namada/types";
 import { pick } from "@namada/utils";
 import { AccountStore } from "background/keyring";
 import { ISignature } from "@namada/ledger-namada";
 import { TxMsgValue } from "@namada/types/src/tx/schema/tx";
+import { TxType } from "@namada/shared";
+import { deserialize } from "@dao-xyz/borsh";
+import { fromBase64 } from "@cosmjs/encoding";
 
 /**
  * Query the current extension tab and close it
@@ -86,4 +93,27 @@ export const encodeTx = (tx: TxProps): Uint8Array => {
   const txMsgValue = new TxMsgValue(tx);
   const msg = new Message<TxMsgValue>();
   return msg.encode(txMsgValue);
+};
+
+export const getEncodedTx = (txType: TxType, txMsg: string): Uint8Array => {
+  switch (txType) {
+    case TxType.Transfer: {
+      const { tx } = deserialize(fromBase64(txMsg), TransferMsgValue);
+      return encodeTx(tx);
+    }
+    case TxType.Bond: {
+      const { tx } = deserialize(fromBase64(txMsg), SubmitBondMsgValue);
+      return encodeTx(tx);
+    }
+    case TxType.Unbond: {
+      const { tx } = deserialize(fromBase64(txMsg), SubmitUnbondMsgValue);
+      return encodeTx(tx);
+    }
+    case TxType.Withdraw: {
+      const { tx } = deserialize(fromBase64(txMsg), SubmitWithdrawMsgValue);
+      return encodeTx(tx);
+    }
+    default:
+      throw new Error("Valid txType not provided!");
+  }
 };

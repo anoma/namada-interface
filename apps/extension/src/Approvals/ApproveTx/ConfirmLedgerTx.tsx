@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { toBase64 } from "@cosmjs/encoding";
 import BigNumber from "bignumber.js";
 
-import { LedgerError, ResponseSign } from "@namada/ledger-namada";
+import { LedgerError } from "@namada/ledger-namada";
 import { Button, ButtonVariant } from "@namada/components";
 import { defaultChainId as chainId } from "@namada/chains";
 import { TxType } from "@namada/shared";
@@ -12,10 +12,8 @@ import { Ledger } from "background/ledger";
 import {
   GetRevealPKBytesMsg,
   GetTxBytesMsg,
-  SubmitSignedBondMsg,
   SubmitSignedRevealPKMsg,
-  SubmitSignedTransferMsg,
-  SubmitSignedUnbondMsg,
+  SubmitSignedTxMsg,
 } from "background/ledger/messages";
 import { Ports } from "router";
 import { closeCurrentTab } from "utils";
@@ -113,32 +111,6 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
     }
   }, [source, publicKey]);
 
-  const submitByType = async (
-    bytes: Uint8Array,
-    signatures: ResponseSign,
-    type?: TxType
-  ): Promise<void> => {
-    switch (type) {
-      case TxType.Bond:
-        return await requester.sendMessage(
-          Ports.Background,
-          new SubmitSignedBondMsg(msgId, toBase64(bytes), signatures)
-        );
-      case TxType.Unbond:
-        return await requester.sendMessage(
-          Ports.Background,
-          new SubmitSignedUnbondMsg(msgId, toBase64(bytes), signatures)
-        );
-      case TxType.Transfer:
-        return await requester.sendMessage(
-          Ports.Background,
-          new SubmitSignedTransferMsg(msgId, toBase64(bytes), signatures)
-        );
-      default:
-        throw new Error("Invalid transaction type!");
-    }
-  };
-
   const submitTx = async (): Promise<void> => {
     // Open ledger transport
     const ledger = await Ledger.init();
@@ -175,7 +147,11 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
 
       // Submit signatures for tx
       setStatusInfo(`Submitting ${txLabel} transaction...`);
-      await submitByType(bytes, signatures, txType);
+      await requester.sendMessage(
+        Ports.Background,
+        new SubmitSignedTxMsg(txType, msgId, toBase64(bytes), signatures)
+      );
+
       setStatus(Status.Completed);
     } catch (e) {
       console.warn(e);

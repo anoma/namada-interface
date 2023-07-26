@@ -4,10 +4,8 @@ import {
   AddLedgerAccountMsg,
   GetTxBytesMsg,
   GetRevealPKBytesMsg,
-  SubmitSignedBondMsg,
+  SubmitSignedTxMsg,
   SubmitSignedRevealPKMsg,
-  SubmitSignedUnbondMsg,
-  SubmitSignedTransferMsg,
 } from "./messages";
 import { getHandler } from "./handler";
 import { LedgerService } from "./service";
@@ -16,10 +14,8 @@ export function init(router: Router, service: LedgerService): void {
   router.registerMessage(AddLedgerAccountMsg);
   router.registerMessage(GetTxBytesMsg);
   router.registerMessage(GetRevealPKBytesMsg);
-  router.registerMessage(SubmitSignedBondMsg);
+  router.registerMessage(SubmitSignedTxMsg);
   router.registerMessage(SubmitSignedRevealPKMsg);
-  router.registerMessage(SubmitSignedUnbondMsg);
-  router.registerMessage(SubmitSignedTransferMsg);
 
   router.addHandler(ROUTE, getHandler(service));
 }
