@@ -104,10 +104,8 @@ pub fn unbond_tx_args(tx_msg: &[u8], password: Option<String>) -> Result<args::U
 
     let source = Address::from_str(&source)?;
     let validator = Address::from_str(&validator)?;
-    let amount: Amount = DenominatedAmount::from_str(&amount)
-        .expect(format!("Amount has to be valid. Received {}", amount).as_str())
-        .into();
 
+    let amount = Amount::from_str(&amount, NATIVE_MAX_DECIMAL_PLACES)?;
     let args = args::Unbond {
         tx: tx_msg_into_args(tx, password)?,
         validator,

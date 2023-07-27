@@ -19,16 +19,10 @@ import {
 } from "Approvals/Approvals.components";
 import { Ports } from "router";
 import { useRequester } from "hooks/useRequester";
-import {
-  SubmitApprovedBondMsg,
-  SubmitApprovedTransferMsg,
-  SubmitApprovedUnbondMsg,
-  SubmitApprovedWithdrawMsg,
-} from "background/approvals";
 import { Address } from "App/Accounts/AccountListing.components";
 import { closeCurrentTab } from "utils";
 import { FetchAndStoreMaspParamsMsg, HasMaspParamsMsg } from "provider";
-import { TxTypeLabel } from "Approvals/types";
+import { ApproveMsg, SupportedTx, TxTypeLabel, txMap } from "Approvals/types";
 
 type Props = {
   details?: ApprovalDetails;
@@ -50,64 +44,33 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
     );
 
     try {
+      const Msg: ApproveMsg | undefined = txMap.get(txType as SupportedTx);
       if (!msgId) {
         throw new Error("msgId was not provided!");
       }
-      switch (txType) {
-        case TxType.Bond: {
-          await requester.sendMessage(
-            Ports.Background,
-            new SubmitApprovedBondMsg(msgId, password)
-          );
-          setStatusInfo("");
-          setStatus(Status.Completed);
-          break;
-        }
-        case TxType.Transfer: {
-          const hasMaspParams = await requester.sendMessage(
-            Ports.Background,
-            new HasMaspParamsMsg()
-          );
+      if (!Msg) {
+        throw new Error("Unsupported transaction!");
+      }
 
-          if (!hasMaspParams) {
-            setStatusInfo("Fetching MASP parameters...");
-            try {
-              await requester.sendMessage(
-                Ports.Background,
-                new FetchAndStoreMaspParamsMsg()
-              );
-            } catch (e) {
-              setError(`Fetching MASP parameters failed: ${e}`);
-              setStatus(Status.Failed);
-            }
-          }
+      const hasMaspParams = await requester.sendMessage(
+        Ports.Background,
+        new HasMaspParamsMsg()
+      );
+
+      if (!hasMaspParams) {
+        setStatusInfo("Fetching MASP parameters...");
+        try {
           await requester.sendMessage(
             Ports.Background,
-            new SubmitApprovedTransferMsg(msgId, password)
+            new FetchAndStoreMaspParamsMsg()
           );
-          setStatusInfo("");
-          setStatus(Status.Completed);
-          break;
-        }
-        case TxType.Unbond: {
-          await requester.sendMessage(
-            Ports.Background,
-            new SubmitApprovedUnbondMsg(msgId, password)
-          );
-          setStatusInfo("");
-          setStatus(Status.Completed);
-          break;
-        }
-        case TxType.Withdraw: {
-          await requester.sendMessage(
-            Ports.Background,
-            new SubmitApprovedWithdrawMsg(msgId, password)
-          );
-          setStatusInfo("");
-          setStatus(Status.Completed);
-          break;
+        } catch (e) {
+          setError(`Fetching MASP parameters failed: ${e}`);
+          setStatus(Status.Failed);
         }
       }
+
+      await requester.sendMessage(Ports.Background, new Msg(msgId, password));
     } catch (e) {
       console.info(e);
       setError(`${e}`);
