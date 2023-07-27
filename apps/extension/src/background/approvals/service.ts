@@ -85,7 +85,7 @@ export class ApprovalsService {
       tokenAddress,
       amount: amount.toString(),
       publicKey,
-      accountType: type as string,
+      accountType: type,
     });
 
     this._launchApprovalWindow(url);
@@ -114,7 +114,7 @@ export class ApprovalsService {
       msgId,
       source,
       amount: amount.toString(),
-      accountType: type as string,
+      accountType: type,
       publicKey,
     });
 
@@ -144,7 +144,7 @@ export class ApprovalsService {
       source,
       validator,
       publicKey,
-      accountType: type as string,
+      accountType: type,
     });
 
     this._launchApprovalWindow(url);
