@@ -1,4 +1,3 @@
-import { Button, ButtonVariant } from "@namada/components";
 import {
   GovernanceContainer,
   ProposalCard,
@@ -12,17 +11,60 @@ import {
   ProposalCardVotes,
   ProposalsContainer,
 } from "./Governance.components";
+import { chains } from "@namada/chains";
+import { SettingsState } from "slices/settings";
+import { useAppSelector } from "store";
+import { useEffect, useState } from "react";
+import { Query } from "@namada/shared";
+import BigNumber from "bignumber.js";
 
-const getStatus = (status: string, result: string): string => {
-  return status !== "done" ? status : result;
+const getStatus = (status: string, result?: string): string => {
+  return result || status;
+};
+
+const ProposalCardVotes2 = ({
+  yes,
+  total,
+}: {
+  yes: string;
+  total: string;
+}): JSX.Element => {
+  const yesNo = new BigNumber(yes);
+  const totalNo = new BigNumber(total);
+
+  const yesPercentage = yesNo.div(totalNo).times(100).toNumber();
+  const noPercentage = 100 - yesPercentage;
+
+  return (
+    <ProposalCardVotes
+      title={`Yes: ${yes}, Total: ${total} (${yesPercentage.toFixed(2)})%`}
+      yes={yesPercentage}
+      no={noPercentage}
+    />
+  );
 };
 
 export const Governance = (): JSX.Element => {
+  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
+  const [proposals, setProposals] = useState<Proposal[]>(fakeProposals);
+
+  const { rpc } = chains[chainId];
+
+  useEffect(() => {
+    const fetchProposals = async (): Promise<void> => {
+      const query = new Query(rpc);
+      const proposals = await query.query_proposals();
+      console.log(proposals);
+      setProposals((p) => [...proposals, ...p]);
+    };
+    fetchProposals();
+  }, []);
+
   return (
     <GovernanceContainer>
       <h1>Proposals</h1>
       <ProposalsContainer>
-        {fakeProposals.map((proposal, i) => (
+        {proposals.map((proposal, i) => (
           <ProposalCard key={i}>
             <ProposalCardStatusContainer>
               <ProposalCardStatusInfo
@@ -30,20 +72,23 @@ export const Governance = (): JSX.Element => {
               >
                 {getStatus(proposal.status, proposal.result)}
               </ProposalCardStatusInfo>
-              <ProposalCardVoteButtons>
-                <ProposalCardVoteButton>Vote</ProposalCardVoteButton>
-              </ProposalCardVoteButtons>
+              {proposal.status === "on-going" && !proposal.result && (
+                <ProposalCardVoteButtons>
+                  <ProposalCardVoteButton>Vote</ProposalCardVoteButton>
+                </ProposalCardVoteButtons>
+              )}
             </ProposalCardStatusContainer>
             <ProposalCardInfoContainer>
               <ProposalCardText>
                 <ProposalCardId>{"#" + proposal.id}</ProposalCardId>
-                {proposal.type}
+                {proposal.content.title}: {proposal.content.details}
               </ProposalCardText>
-              <ProposalCardVotes
-                title={`Yes: ${proposal.yesVotes}, No: ${proposal.noVotes}`}
-                yes={proposal.yesVotes}
-                no={proposal.noVotes}
-              />
+              {proposal.yes_votes && proposal.total_voting_power && (
+                <ProposalCardVotes2
+                  yes={proposal.yes_votes}
+                  total={proposal.total_voting_power}
+                />
+              )}
             </ProposalCardInfoContainer>
           </ProposalCard>
         ))}
@@ -52,30 +97,55 @@ export const Governance = (): JSX.Element => {
   );
 };
 
-type Proposal = {
-  id: string;
-  type: string;
-  author: string;
-  startEpoch: number;
-  endEpoch: number;
-  yesVotes: number;
-  noVotes: number;
-  status: string;
-  result: string;
+type Content = {
+  abstract: string;
+  authors: string;
+  created: string;
+  details: string;
+  "discussions-to": string;
+  license: string;
+  motivation: string;
+  requires: string;
+  title: string;
 };
 
-const status = ["pending", "on-going", "done"];
-const result = ["pending", "passed", "rejected"];
+type Proposal = {
+  id: string;
+  proposal_type: string;
+  author: string;
+  start_epoch: number;
+  end_epoch: number;
+  grace_epoch: number;
+  content: Content;
+  status: string;
+  yes_votes?: string;
+  total_voting_power?: string;
+  result?: string;
+};
+
+const status = ["pending", "on-going"];
+const result = [undefined, "passed", "rejected"];
 const fakeProposals: Proposal[] = [...Array(9).keys()].map((i) => ({
   id: i + "",
-  type:
-    "Type asd adasd wadwdasd wdwwdwas dawdasd wdasdas dwadsada dwadsada wda dwadsadads" +
-    i,
+  proposal_type: "Fake",
   author: "Author " + i,
-  startEpoch: i,
-  endEpoch: i + 1,
-  yesVotes: 40,
-  noVotes: 60,
+  start_epoch: i,
+  end_epoch: i + 10,
+  grace_epoch: i + 15,
+  content: {
+    abstract: "Abstract " + i,
+    authors: "Authors " + i,
+    created: "Created " + i,
+    details:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+    "discussions-to": "Discussions-to " + i,
+    license: "License " + i,
+    motivation: "Motivation " + i,
+    requires: "Requires " + i,
+    title: "Title " + i,
+  },
   status: status[Math.floor(Math.random() * status.length)],
+  yes_votes: "400",
+  total_voting_power: "6000",
   result: result[Math.floor(Math.random() * result.length)],
 }));
