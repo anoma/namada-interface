@@ -36,7 +36,7 @@ const chainId = "namada-75a7e12.69483d59a9fb174";
 export class KVStoreMock<T> implements KVStore<T> {
   private storage: { [key: string]: T | null } = {};
 
-  constructor(readonly _prefix: string) { }
+  constructor(readonly _prefix: string) {}
 
   get<U extends T>(key: string): Promise<U | undefined> {
     return new Promise((resolve) => {
@@ -108,6 +108,7 @@ export const init = async (): Promise<{
   const ledgerService = new LedgerService(
     keyRingService,
     iDBStore as KVStore<AccountStore[]>,
+    sdkStore,
     connectedTabsStore,
     txStore,
     chainId,

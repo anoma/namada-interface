@@ -5,6 +5,7 @@ import { Button, ButtonVariant } from "@namada/components";
 import { shortenAddress } from "@namada/utils";
 import { AccountType, Tokens } from "@namada/types";
 import { TxType } from "@namada/shared";
+import { useSanitizedParams } from "@namada/hooks";
 
 import { useQuery } from "hooks";
 import { Address } from "App/Accounts/AccountListing.components";
@@ -17,7 +18,6 @@ import { Ports } from "router";
 import { RejectTxMsg } from "background/approvals";
 import { useRequester } from "hooks/useRequester";
 import { closeCurrentTab } from "utils";
-import { useSanitizedParams } from "@namada/hooks";
 import { ApprovalDetails } from "Approvals/Approvals";
 
 type Props = {

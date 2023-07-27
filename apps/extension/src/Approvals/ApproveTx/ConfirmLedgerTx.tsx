@@ -8,13 +8,13 @@ import { defaultChainId as chainId } from "@namada/chains";
 import { TxType } from "@namada/shared";
 import { Message, Tokens, TxProps, TxMsgValue } from "@namada/types";
 
-import { Ledger } from "background/ledger";
 import {
   GetRevealPKBytesMsg,
   GetTxBytesMsg,
+  Ledger,
   SubmitSignedRevealPKMsg,
   SubmitSignedTxMsg,
-} from "background/ledger/messages";
+} from "background/ledger";
 import { Ports } from "router";
 import { closeCurrentTab } from "utils";
 import { useRequester } from "hooks/useRequester";

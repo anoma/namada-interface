@@ -335,7 +335,7 @@ export class KeyRing {
     parentId: string
   ): DerivedAccountInfo {
     const { index = 0 } = path;
-    const id = generateId("shielded-account", parentId, index);
+    const id = generateId(UUID_NAMESPACE, "shielded-account", parentId, index);
     const zip32 = new ShieldedHDWallet(seed);
     const account = zip32.derive_to_serialized_keys(index);
 
