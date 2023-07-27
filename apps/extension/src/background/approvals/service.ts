@@ -7,8 +7,11 @@ import { deserialize } from "@dao-xyz/borsh";
 import {
   AccountType,
   SubmitBondMsgValue,
+  SubmitUnbondMsgValue,
+  SubmitWithdrawMsgValue,
   TransferMsgValue,
 } from "@namada/types";
+import { TxType } from "@namada/shared";
 import { KVStore } from "@namada/storage";
 
 import { KeyRingService, TabStore } from "background/keyring";
@@ -21,89 +24,131 @@ export class ApprovalsService {
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
     protected readonly keyRingService: KeyRingService,
     protected readonly ledgerService: LedgerService
-  ) { }
+  ) {}
 
   // Deserialize transfer details and prompt user
-  async approveTransfer(txMsg: string, type?: AccountType): Promise<void> {
+  async approveTransfer(txMsg: string, type: AccountType): Promise<void> {
     const txMsgBuffer = Buffer.from(fromBase64(txMsg));
-    const id = uuid();
-    await this.txStore.set(id, txMsg);
+    const msgId = uuid();
+    await this.txStore.set(msgId, txMsg);
 
     // Decode tx details and launch approval screen
     const txDetails = deserialize(txMsgBuffer, TransferMsgValue);
-    const { source, target, token, amount: amountBN } = txDetails;
-    const amount = new BigNumber(amountBN.toString());
-    const baseUrl = `${browser.runtime.getURL(
-      "approvals.html"
-    )}#/approve-transfer`;
-
-    const url = paramsToUrl(baseUrl, {
-      id,
+    const {
       source,
       target,
-      token,
+      token: tokenAddress,
+      amount: amountBN,
+      tx: { publicKey = "" },
+    } = txDetails;
+    const amount = new BigNumber(amountBN.toString());
+    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
+      TxType.Transfer
+    }`;
+
+    const url = paramsToUrl(baseUrl, {
+      msgId,
+      source,
+      target,
+      tokenAddress,
       amount: amount.toString(),
-      type: type as string,
+      accountType: type,
+      publicKey,
     });
 
     this._launchApprovalWindow(url);
   }
 
   // Deserialize bond details and prompt user
-  async approveBond(
-    txMsg: string,
-    type: AccountType,
-    publicKey?: string
-  ): Promise<void> {
+  async approveBond(txMsg: string, type: AccountType): Promise<void> {
     const txMsgBuffer = Buffer.from(fromBase64(txMsg));
-    const id = uuid();
-    await this.txStore.set(id, txMsg);
+    const msgId = uuid();
+    await this.txStore.set(msgId, txMsg);
 
     // Decode tx details and launch approval screen
     const txDetails = deserialize(txMsgBuffer, SubmitBondMsgValue);
 
-    const { source, nativeToken: token, amount: amountBN } = txDetails;
+    const {
+      source,
+      nativeToken: tokenAddress,
+      amount: amountBN,
+      tx: { publicKey = "" },
+    } = txDetails;
     const amount = new BigNumber(amountBN.toString());
-    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-bond`;
+    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
+      TxType.Bond
+    }`;
 
     const url = paramsToUrl(baseUrl, {
-      id,
+      msgId,
       source,
-      token,
+      tokenAddress,
       amount: amount.toString(),
-      publicKey: publicKey || "",
-      type: type as string,
+      publicKey,
+      accountType: type,
     });
 
     this._launchApprovalWindow(url);
   }
 
-  // Deserialize bond details and prompt user
-  // TODO: Finish implementing!
-  async approveUnbond(txMsg: string, type?: AccountType): Promise<void> {
+  // Deserialize unbond details and prompt user
+  async approveUnbond(txMsg: string, type: AccountType): Promise<void> {
     const txMsgBuffer = Buffer.from(fromBase64(txMsg));
-    const id = uuid();
-    await this.txStore.set(id, txMsg);
+    const msgId = uuid();
+    await this.txStore.set(msgId, txMsg);
 
     // Decode tx details and launch approval screen
-    const txDetails = deserialize(txMsgBuffer, SubmitBondMsgValue);
+    const txDetails = deserialize(txMsgBuffer, SubmitUnbondMsgValue);
 
-    const { source, nativeToken, amount: amountBN } = txDetails;
+    const {
+      source,
+      amount: amountBN,
+      tx: { publicKey = "" },
+    } = txDetails;
     const amount = new BigNumber(amountBN.toString());
-    // TODO: This query should include perhaps a "type" indicating whether it's a bond or unbond tx:
-    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-bond`;
+    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
+      TxType.Unbond
+    }`;
 
     const url = paramsToUrl(baseUrl, {
-      id,
+      msgId,
       source,
-      token: nativeToken,
       amount: amount.toString(),
-      type: type as string,
+      accountType: type,
+      publicKey,
     });
 
     this._launchApprovalWindow(url);
   }
 
+  // Deserialize withdraw details and prompt user
+  async approveWithdraw(txMsg: string, type: AccountType): Promise<void> {
+    const txMsgBuffer = Buffer.from(fromBase64(txMsg));
+    const msgId = uuid();
+    await this.txStore.set(msgId, txMsg);
+
+    // Decode tx details and launch approval screen
+    const txDetails = deserialize(txMsgBuffer, SubmitWithdrawMsgValue);
+
+    const {
+      source,
+      validator,
+      tx: { publicKey = "" },
+    } = txDetails;
+    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
+      TxType.Withdraw
+    }`;
+
+    const url = paramsToUrl(baseUrl, {
+      msgId,
+      source,
+      validator,
+      publicKey,
+      accountType: type,
+    });
+
+    this._launchApprovalWindow(url);
+  }
   // Remove pending transaction from storage
   async rejectTx(msgId: string): Promise<void> {
     await this._clearPendingTx(msgId);
@@ -122,7 +167,7 @@ export class ApprovalsService {
       return await this._clearPendingTx(msgId);
     }
 
-    throw new Error("Pending transfer not found!");
+    throw new Error("Pending Transfer tx not found!");
   }
 
   // Authenticate keyring and submit approved bond transaction from storage
@@ -139,7 +184,7 @@ export class ApprovalsService {
       return await this._clearPendingTx(msgId);
     }
 
-    throw new Error("Pending bond not found!");
+    throw new Error("Pending Bond tx not found!");
   }
 
   async submitUnbond(msgId: string, password: string): Promise<void> {
@@ -154,7 +199,22 @@ export class ApprovalsService {
       return await this._clearPendingTx(msgId);
     }
 
-    throw new Error("Pending bond not found!");
+    throw new Error("Pending Unbond tx not found!");
+  }
+
+  async submitWithdraw(msgId: string, password: string): Promise<void> {
+    await this.keyRingService.unlock(password);
+
+    // Fetch pending bond tx
+    const tx = await this.txStore.get(msgId);
+
+    if (tx) {
+      await this.keyRingService.submitWithdraw(tx, msgId);
+
+      return await this._clearPendingTx(msgId);
+    }
+
+    throw new Error("Pending Withdraw tx not found!");
   }
 
   private async _clearPendingTx(msgId: string): Promise<void> {

@@ -5,12 +5,12 @@ use wasm_bindgen::JsError;
 #[derive(BorshSerialize, BorshDeserialize)]
 pub struct SignatureMsg {
     salt: Vec<u8>,
-    indicies: Vec<u8>,
+    indices: Vec<u8>,
     pubkey: Vec<u8>,
     signature: Vec<u8>,
 }
 
-/// Reconstructs a proto::Signature using the provided indicies to retrieve hashes from Tx
+/// Reconstructs a proto::Signature using the provided indices to retrieve hashes from Tx
 ///
 /// # Arguments
 ////
@@ -26,7 +26,7 @@ pub fn construct_signature(sig_msg: &[u8], tx: &Tx) -> Result<Signature, JsError
 
     let SignatureMsg {
         salt,
-        indicies,
+        indices,
         pubkey,
         signature,
     } = sig_msg;
@@ -37,14 +37,14 @@ pub fn construct_signature(sig_msg: &[u8], tx: &Tx) -> Result<Signature, JsError
     let mut signature = signature;
 
     // Which is followed the number of sections
-    let mut indicies_length = vec![indicies.len() as u8, 0, 0, 0];
-    sig.append(&mut indicies_length);
+    let mut indices_length = vec![indices.len() as u8, 0, 0, 0];
+    sig.append(&mut indices_length);
 
     // Which is followed by the hash of each section in the order specified
-    for i in 0..indicies.len() {
-        let sechash = match indicies[i] {
+    for i in 0..indices.len() {
+        let sechash = match indices[i] {
             0 => tx.header_hash(),
-            _ => tx.sections[indicies[i] as usize - 1].get_hash(),
+            _ => tx.sections[indices[i] as usize - 1].get_hash(),
         };
 
         sig.append(&mut sechash.to_vec());

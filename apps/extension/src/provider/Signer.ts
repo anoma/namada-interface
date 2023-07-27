@@ -41,8 +41,7 @@ export class Signer implements ISigner {
    */
   public async submitBond(
     args: SubmitBondProps,
-    type: AccountType,
-    publicKey?: string
+    type: AccountType
   ): Promise<void> {
     const msgValue = new SubmitBondMsgValue(args);
     const msg = new Message<SubmitBondMsgValue>();
@@ -51,32 +50,38 @@ export class Signer implements ISigner {
     return await this._namada.submitBond({
       txMsg: toBase64(encoded),
       type,
-      publicKey,
     });
   }
 
   /**
    * Submit unbond transaction
    */
-  public async submitUnbond(args: SubmitBondProps): Promise<void> {
+  public async submitUnbond(
+    args: SubmitBondProps,
+    type: AccountType
+  ): Promise<void> {
     const msgValue = new SubmitUnbondMsgValue(args);
-
     const msg = new Message<SubmitUnbondMsgValue>();
     const encoded = msg.encode(msgValue);
 
-    return await this._namada.submitUnbond(toBase64(encoded));
+    return await this._namada.submitUnbond({ txMsg: toBase64(encoded), type });
   }
 
   /**
    * Submit withdraw transaction
    */
-  public async submitWithdraw(args: SubmitBondProps): Promise<void> {
+  public async submitWithdraw(
+    args: SubmitBondProps,
+    type: AccountType
+  ): Promise<void> {
     const msgValue = new SubmitWithdrawMsgValue(args);
-
     const msg = new Message<SubmitWithdrawMsgValue>();
     const encoded = msg.encode(msgValue);
 
-    return await this._namada.submitWithdraw(toBase64(encoded));
+    return await this._namada.submitWithdraw({
+      txMsg: toBase64(encoded),
+      type,
+    });
   }
 
   /**
@@ -105,7 +110,9 @@ export class Signer implements ISigner {
     const serializedIbcTransfer =
       ibcTransferMessage.encode(ibcTransferMsgValue);
 
-    return await this._namada.submitIbcTransfer(toBase64(serializedIbcTransfer));
+    return await this._namada.submitIbcTransfer(
+      toBase64(serializedIbcTransfer)
+    );
   }
 
   /**

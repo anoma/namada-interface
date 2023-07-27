@@ -27,7 +27,7 @@ export class Namada implements INamada {
   constructor(
     private readonly _version: string,
     protected readonly requester?: MessageRequester
-  ) { }
+  ) {}
 
   public async connect(chainId: string): Promise<void> {
     return await this.requester?.sendMessage(
@@ -92,32 +92,39 @@ export class Namada implements INamada {
   public async submitBond(props: {
     txMsg: string;
     type: AccountType;
-    publicKey?: string;
   }): Promise<void> {
-    const { txMsg, type, publicKey } = props;
+    const { txMsg, type } = props;
     return await this.requester?.sendMessage(
       Ports.Background,
-      new ApproveBondMsg(txMsg, type, publicKey)
+      new ApproveBondMsg(txMsg, type)
     );
   }
 
-  public async submitUnbond(txMsg: string): Promise<void> {
+  public async submitUnbond(props: {
+    txMsg: string;
+    type: AccountType;
+  }): Promise<void> {
+    const { txMsg, type } = props;
     return await this.requester?.sendMessage(
       Ports.Background,
-      new ApproveUnbondMsg(txMsg)
+      new ApproveUnbondMsg(txMsg, type)
     );
   }
 
-  public async submitWithdraw(txMsg: string): Promise<void> {
+  public async submitWithdraw(props: {
+    txMsg: string;
+    type: AccountType;
+  }): Promise<void> {
+    const { txMsg, type } = props;
     return await this.requester?.sendMessage(
       Ports.Background,
-      new ApproveWithdrawMsg(txMsg)
+      new ApproveWithdrawMsg(txMsg, type)
     );
   }
 
   public async submitTransfer(props: {
     txMsg: string;
-    type?: AccountType;
+    type: AccountType;
   }): Promise<void> {
     const { txMsg, type } = props;
     return await this.requester?.sendMessage(

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -8,8 +8,9 @@ import {
   InputVariants,
 } from "@namada/components";
 import { shortenAddress } from "@namada/utils";
+import { TxType } from "@namada/shared";
 
-import { Status } from "Approvals/Approvals";
+import { ApprovalDetails, Status } from "Approvals/Approvals";
 import {
   ApprovalContainer,
   ButtonContainer,
@@ -18,41 +19,64 @@ import {
 } from "Approvals/Approvals.components";
 import { Ports } from "router";
 import { useRequester } from "hooks/useRequester";
-import { SubmitApprovedBondMsg } from "background/approvals";
 import { Address } from "App/Accounts/AccountListing.components";
 import { closeCurrentTab } from "utils";
+import { FetchAndStoreMaspParamsMsg, HasMaspParamsMsg } from "provider";
+import { ApproveMsg, SupportedTx, TxTypeLabel, txMap } from "Approvals/types";
 
 type Props = {
-  msgId: string;
-  address: string;
+  details?: ApprovalDetails;
 };
 
-export const ConfirmBond: React.FC<Props> = ({ msgId, address }) => {
+export const ConfirmTx: React.FC<Props> = ({ details }) => {
+  const { source, msgId, txType } = details || {};
   const navigate = useNavigate();
   const requester = useRequester();
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState<Status>();
-  const [statusInfo, setStatusInfo] = useState<string>("");
+  const [statusInfo, setStatusInfo] = useState("");
 
-  const handleApproveBond = async (): Promise<void> => {
+  const handleApproveTx = useCallback(async (): Promise<void> => {
     setStatus(Status.Pending);
+    setStatusInfo(
+      `Decrypting keys and submitting ${TxTypeLabel[txType as TxType]}...`
+    );
+
     try {
-      // TODO: use executeUntil here!
-      setStatusInfo("Decrypting keys and submitting transfer...");
-      await requester.sendMessage(
+      const Msg: ApproveMsg | undefined = txMap.get(txType as SupportedTx);
+      if (!msgId) {
+        throw new Error("msgId was not provided!");
+      }
+      if (!Msg) {
+        throw new Error("Unsupported transaction!");
+      }
+
+      const hasMaspParams = await requester.sendMessage(
         Ports.Background,
-        new SubmitApprovedBondMsg(msgId, address, password)
+        new HasMaspParamsMsg()
       );
-      setStatus(Status.Completed);
+
+      if (!hasMaspParams) {
+        setStatusInfo("Fetching MASP parameters...");
+        try {
+          await requester.sendMessage(
+            Ports.Background,
+            new FetchAndStoreMaspParamsMsg()
+          );
+        } catch (e) {
+          setError(`Fetching MASP parameters failed: ${e}`);
+          setStatus(Status.Failed);
+        }
+      }
+
+      await requester.sendMessage(Ports.Background, new Msg(msgId, password));
     } catch (e) {
-      setError("Unable to authenticate Tx!");
+      console.info(e);
+      setError(`${e}`);
       setStatus(Status.Failed);
     }
-    setStatusInfo("");
-    setStatus(Status.Completed);
-    return;
-  };
+  }, [password]);
 
   useEffect(() => {
     (async () => {
@@ -77,10 +101,10 @@ export const ConfirmBond: React.FC<Props> = ({ msgId, address }) => {
           Try again
         </p>
       )}
-      {status !== (Status.Pending || Status.Completed) && (
+      {status !== (Status.Pending || Status.Completed) && source && (
         <>
           <div>
-            Decrypt keys for <Address>{shortenAddress(address)}</Address>
+            Decrypt keys for <Address>{shortenAddress(source)}</Address>
           </div>
           <Input
             variant={InputVariants.Password}
@@ -89,7 +113,7 @@ export const ConfirmBond: React.FC<Props> = ({ msgId, address }) => {
           />
           <ButtonContainer>
             <Button
-              onClick={handleApproveBond}
+              onClick={handleApproveTx}
               disabled={!password}
               variant={ButtonVariant.Contained}
             >

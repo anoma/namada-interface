@@ -34,35 +34,6 @@ pub struct SubmitBondMsg {
     tx: TxMsg,
 }
 
-#[derive(BorshSerialize, BorshDeserialize)]
-pub struct SubmitRevealPKMsg {
-    tx: TxMsg,
-    public_key: String,
-}
-
-/// Maps serialized tx_msg into RevealPk args
-///
-/// # Arguments
-///
-/// * `tx_msg` - Borsh serialized tx_msg.
-///
-/// # Errors
-///
-/// Returns JsError if the tx_msg can't be deserialized or
-/// Rust structs can't be created.
-pub fn reveal_pk_tx_args(tx_msg: &[u8]) -> Result<args::RevealPk, JsError> {
-    let tx_msg = SubmitRevealPKMsg::try_from_slice(tx_msg)?;
-    let SubmitRevealPKMsg { tx, public_key } = tx_msg;
-    let public_key = PK::Ed25519(PublicKey::from_str(&public_key).map_err(JsError::from)?);
-
-    let args = args::RevealPk {
-        tx: tx_msg_into_args(tx, None)?,
-        public_key,
-    };
-
-    Ok(args)
-}
-
 /// Maps serialized tx_msg into BondTx args.
 ///
 /// # Arguments
@@ -133,10 +104,8 @@ pub fn unbond_tx_args(tx_msg: &[u8], password: Option<String>) -> Result<args::U
 
     let source = Address::from_str(&source)?;
     let validator = Address::from_str(&validator)?;
-    let amount: Amount = DenominatedAmount::from_str(&amount)
-        .expect(format!("Amount has to be valid. Received {}", amount).as_str())
-        .into();
 
+    let amount = Amount::from_str(&amount, NATIVE_MAX_DECIMAL_PLACES)?;
     let args = args::Unbond {
         tx: tx_msg_into_args(tx, password)?,
         validator,
@@ -166,7 +135,10 @@ pub struct SubmitWithdrawMsg {
 ///
 /// Returns JsError if the tx_msg can't be deserialized or
 /// Rust structs can't be created.
-pub fn withdraw_tx_args(tx_msg: &[u8], password: Option<String>) -> Result<args::Withdraw, JsError> {
+pub fn withdraw_tx_args(
+    tx_msg: &[u8],
+    password: Option<String>,
+) -> Result<args::Withdraw, JsError> {
     let tx_msg = SubmitWithdrawMsg::try_from_slice(tx_msg)?;
 
     let SubmitWithdrawMsg {
@@ -333,6 +305,13 @@ pub fn ibc_transfer_tx_args(
         timeout_sec_offset,
         tx_code_path: PathBuf::from("tx_ibc.wasm"),
     };
+    Ok(args)
+}
+
+pub fn tx_args_from_slice(tx_msg_bytes: &[u8]) -> Result<args::Tx, JsError> {
+    let tx_msg = TxMsg::try_from_slice(tx_msg_bytes).map_err(JsError::from)?;
+    let args = tx_msg_into_args(tx_msg, None)?;
+
     Ok(args)
 }
 

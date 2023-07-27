@@ -6,6 +6,7 @@ enum MessageType {
   SubmitApprovedTransfer = "submit-approved-transfer",
   SubmitApprovedBond = "submit-approved-bond",
   SubmitApprovedUnbond = "submit-approved-unbond",
+  SubmitApprovedWithdraw = "submit-approved-withdraw",
 }
 
 export class RejectTxMsg extends Message<void> {
@@ -38,20 +39,13 @@ export class SubmitApprovedTransferMsg extends Message<void> {
     return MessageType.SubmitApprovedTransfer;
   }
 
-  constructor(
-    public readonly msgId: string,
-    public readonly address: string,
-    public readonly password: string
-  ) {
+  constructor(public readonly msgId: string, public readonly password: string) {
     super();
   }
 
   validate(): void {
     if (!this.msgId) {
       throw new Error("msgId must not be empty!");
-    }
-    if (!this.address) {
-      throw new Error("address must not be empty!");
     }
     if (!this.password) {
       throw new Error(
@@ -76,20 +70,13 @@ export class SubmitApprovedBondMsg extends Message<void> {
     return MessageType.SubmitApprovedBond;
   }
 
-  constructor(
-    public readonly msgId: string,
-    public readonly address: string,
-    public readonly password: string
-  ) {
+  constructor(public readonly msgId: string, public readonly password: string) {
     super();
   }
 
   validate(): void {
     if (!this.msgId) {
       throw new Error("msgId must not be empty!");
-    }
-    if (!this.address) {
-      throw new Error("address must not be empty!");
     }
     if (!this.password) {
       throw new Error("Password is required to submit bond tx!");
@@ -112,20 +99,13 @@ export class SubmitApprovedUnbondMsg extends Message<void> {
     return MessageType.SubmitApprovedUnbond;
   }
 
-  constructor(
-    public readonly msgId: string,
-    public readonly address: string,
-    public readonly password: string
-  ) {
+  constructor(public readonly msgId: string, public readonly password: string) {
     super();
   }
 
   validate(): void {
     if (!this.msgId) {
       throw new Error("msgId must not be empty!");
-    }
-    if (!this.address) {
-      throw new Error("address must not be empty!");
     }
     if (!this.password) {
       throw new Error("Password is required to submit unbond tx!");
@@ -140,5 +120,34 @@ export class SubmitApprovedUnbondMsg extends Message<void> {
 
   type(): string {
     return SubmitApprovedUnbondMsg.type();
+  }
+}
+
+export class SubmitApprovedWithdrawMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.SubmitApprovedWithdraw;
+  }
+
+  constructor(public readonly msgId: string, public readonly password: string) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.msgId) {
+      throw new Error("msgId must not be empty!");
+    }
+    if (!this.password) {
+      throw new Error("Password is required to submit unbond tx!");
+    }
+
+    return;
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return SubmitApprovedWithdrawMsg.type();
   }
 }

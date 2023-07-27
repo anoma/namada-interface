@@ -1,10 +1,23 @@
 import browser from "webextension-polyfill";
 import { v5 as uuid } from "uuid";
 
-import { DerivedAccount, Message, SignatureMsgValue } from "@namada/types";
+import {
+  DerivedAccount,
+  Message,
+  SignatureMsgValue,
+  SubmitBondMsgValue,
+  SubmitUnbondMsgValue,
+  SubmitWithdrawMsgValue,
+  TransferMsgValue,
+  TxProps,
+  TxMsgValue,
+} from "@namada/types";
 import { pick } from "@namada/utils";
 import { AccountStore } from "background/keyring";
 import { ISignature } from "@namada/ledger-namada";
+import { TxType } from "@namada/shared";
+import { deserialize } from "@dao-xyz/borsh";
+import { fromBase64 } from "@cosmjs/encoding";
 
 /**
  * Query the current extension tab and close it
@@ -54,7 +67,7 @@ export const generateId = (
  * Convert ISignature into serialized and encoded signature
  */
 export const encodeSignature = (sig: ISignature): Uint8Array => {
-  const { salt, indicies, pubkey, signature } = sig;
+  const { salt, indices, pubkey, signature } = sig;
 
   // TODO: Note that the following "any" type usage below is a result of the buffer responses
   // from the Ledger do not match the ISignature type! This will be fixed in a future release.
@@ -62,7 +75,7 @@ export const encodeSignature = (sig: ISignature): Uint8Array => {
   /* eslint-disable */
   const props = {
     salt: new Uint8Array((salt as any).data),
-    indicies: new Uint8Array((indicies as any).data),
+    indices: new Uint8Array((indices as any).data),
     pubkey: new Uint8Array((pubkey as any).data),
     signature: new Uint8Array((signature as any).data),
   };
@@ -71,4 +84,42 @@ export const encodeSignature = (sig: ISignature): Uint8Array => {
   const value = new SignatureMsgValue(props);
   const msg = new Message<SignatureMsgValue>();
   return msg.encode(value);
+};
+
+/**
+ * Helper to encode Tx given TxProps
+ */
+export const encodeTx = (tx: TxProps): Uint8Array => {
+  const txMsgValue = new TxMsgValue(tx);
+  const msg = new Message<TxMsgValue>();
+  return msg.encode(txMsgValue);
+};
+
+/**
+ * Helper to get encoded Tx information by TxType
+ */
+export const getEncodedTxByType = (
+  txType: TxType,
+  txMsg: string
+): Uint8Array => {
+  switch (txType) {
+    case TxType.Transfer: {
+      const { tx } = deserialize(fromBase64(txMsg), TransferMsgValue);
+      return encodeTx(tx);
+    }
+    case TxType.Bond: {
+      const { tx } = deserialize(fromBase64(txMsg), SubmitBondMsgValue);
+      return encodeTx(tx);
+    }
+    case TxType.Unbond: {
+      const { tx } = deserialize(fromBase64(txMsg), SubmitUnbondMsgValue);
+      return encodeTx(tx);
+    }
+    case TxType.Withdraw: {
+      const { tx } = deserialize(fromBase64(txMsg), SubmitWithdrawMsgValue);
+      return encodeTx(tx);
+    }
+    default:
+      throw new Error("Valid txType not provided!");
+  }
 };

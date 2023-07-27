@@ -4,27 +4,18 @@ declare global {
       NODE_ENV: "development" | "production";
       REACT_APP_LOCAL?: "true" | "false";
 
-      // Default ledger
-      REACT_APP_LEDGER_URL?: string;
-      REACT_APP_LEDGER_PORT?: string;
-      REACT_APP_CHAIN_ID?: string;
-      REACT_APP_FAUCET?: string;
+      REACT_APP_NAMADA_ALIAS?: string;
+      REACT_APP_NAMADA_CHAIN_ID?: string;
+      REACT_APP_NAMADA_URL?: string;
+      REACT_APP_NAMADA_BECH32_PREFIX?: string;
 
-      // IBC Chain A
-      REACT_APP_CHAIN_A_ALIAS?: string;
-      REACT_APP_CHAIN_A_ID?: string;
-      REACT_APP_CHAIN_A_URL?: string;
-      REACT_APP_CHAIN_A_PORT?: string;
-      REACT_APP_CHAIN_A_FAUCET?: string;
-      REACT_APP_CHAIN_A_PORT_ID?: string;
+      REACT_APP_COSMOS_ALIAS?: string;
+      REACT_APP_COSMOS_CHAIN_ID?: string;
+      REACT_APP_COSMOS_CHAIN_URL?: string;
 
-      // IBC Chain B
-      REACT_APP_CHAIN_B_ALIAS?: string;
-      REACT_APP_CHAIN_B_ID?: string;
-      REACT_APP_CHAIN_B_URL?: string;
-      REACT_APP_CHAIN_B_PORT?: string;
-      REACT_APP_CHAIN_B_FAUCET?: string;
-      REACT_APP_CHAIN_B_PORT_ID?: string;
+      REACT_APP_OSMOSIS_ALIAS?: string;
+      REACT_APP_OSMOSIS_CHAIN_ID?: string;
+      REACT_APP_OSMOSIS_URL?: string;
 
       // CoinGecko
       REACT_APP_API_URL?: string;

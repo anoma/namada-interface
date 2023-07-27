@@ -1,11 +1,17 @@
 import { Handler, Env, Message, InternalHandler } from "router";
 import { ApprovalsService } from "./service";
-import { ApproveBondMsg, ApproveUnbondMsg, ApproveTransferMsg } from "provider";
+import {
+  ApproveBondMsg,
+  ApproveUnbondMsg,
+  ApproveTransferMsg,
+  ApproveWithdrawMsg,
+} from "provider";
 import {
   RejectTxMsg,
   SubmitApprovedTransferMsg,
   SubmitApprovedBondMsg,
   SubmitApprovedUnbondMsg,
+  SubmitApprovedWithdrawMsg,
 } from "./messages";
 
 export const getHandler: (service: ApprovalsService) => Handler = (service) => {
@@ -20,6 +26,11 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
         return handleApproveBondMsg(service)(env, msg as ApproveBondMsg);
       case ApproveUnbondMsg:
         return handleApproveUnbondMsg(service)(env, msg as ApproveUnbondMsg);
+      case ApproveWithdrawMsg:
+        return handleApproveWithdrawMsg(service)(
+          env,
+          msg as ApproveWithdrawMsg
+        );
       case RejectTxMsg:
         return handleRejectTxMsg(service)(env, msg as RejectTxMsg);
       case SubmitApprovedTransferMsg:
@@ -37,7 +48,11 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
           env,
           msg as SubmitApprovedUnbondMsg
         );
-
+      case SubmitApprovedWithdrawMsg:
+        return handleSubmitApprovedWithdrawMsg(service)(
+          env,
+          msg as SubmitApprovedUnbondMsg
+        );
       default:
         throw new Error("Unknown msg type");
     }
@@ -71,8 +86,8 @@ const handleSubmitApprovedTransferMsg: (
 const handleApproveBondMsg: (
   service: ApprovalsService
 ) => InternalHandler<ApproveBondMsg> = (service) => {
-  return async (_, { txMsg, accountType, publicKey }) => {
-    return await service.approveBond(txMsg, accountType, publicKey);
+  return async (_, { txMsg, accountType }) => {
+    return await service.approveBond(txMsg, accountType);
   };
 };
 
@@ -81,6 +96,14 @@ const handleApproveUnbondMsg: (
 ) => InternalHandler<ApproveUnbondMsg> = (service) => {
   return async (_, { txMsg, accountType }) => {
     return await service.approveUnbond(txMsg, accountType);
+  };
+};
+
+const handleApproveWithdrawMsg: (
+  service: ApprovalsService
+) => InternalHandler<ApproveWithdrawMsg> = (service) => {
+  return async (_, { txMsg, accountType }) => {
+    return await service.approveWithdraw(txMsg, accountType);
   };
 };
 
@@ -97,5 +120,13 @@ const handleSubmitApprovedUnbondMsg: (
 ) => InternalHandler<SubmitApprovedUnbondMsg> = (service) => {
   return async (_, { msgId, password }) => {
     return await service.submitUnbond(msgId, password);
+  };
+};
+
+const handleSubmitApprovedWithdrawMsg: (
+  service: ApprovalsService
+) => InternalHandler<SubmitApprovedWithdrawMsg> = (service) => {
+  return async (_, { msgId, password }) => {
+    return await service.submitWithdraw(msgId, password);
   };
 };

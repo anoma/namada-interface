@@ -235,31 +235,6 @@ export class EncodeInitAccountMsg extends Message<string> {
   }
 }
 
-export class EncodeRevealPkMsg extends Message<string> {
-  public static type(): MessageType {
-    return MessageType.EncodeRevealPublicKey;
-  }
-
-  constructor(public readonly signer: string) {
-    super();
-  }
-
-  validate(): void {
-    if (!this.signer) {
-      throw new Error("An signer is required!");
-    }
-    return;
-  }
-
-  route(): string {
-    return Route.KeyRing;
-  }
-
-  type(): string {
-    return EncodeRevealPkMsg.type();
-  }
-}
-
 export class ApproveTransferMsg extends Message<void> {
   public static type(): MessageType {
     return MessageType.ApproveTransfer;
@@ -267,7 +242,7 @@ export class ApproveTransferMsg extends Message<void> {
 
   constructor(
     public readonly txMsg: string,
-    public readonly accountType?: AccountType
+    public readonly accountType: AccountType
   ) {
     super();
   }
@@ -295,8 +270,7 @@ export class ApproveBondMsg extends Message<void> {
 
   constructor(
     public readonly txMsg: string,
-    public readonly accountType: AccountType,
-    public readonly publicKey?: string
+    public readonly accountType: AccountType
   ) {
     super();
   }
@@ -327,7 +301,7 @@ export class ApproveUnbondMsg extends Message<void> {
 
   constructor(
     public readonly txMsg: string,
-    public readonly accountType?: AccountType
+    public readonly accountType: AccountType
   ) {
     super();
   }
@@ -336,6 +310,10 @@ export class ApproveUnbondMsg extends Message<void> {
     if (!this.txMsg) {
       throw new Error("txMsg was not provided!");
     }
+    if (!this.accountType) {
+      throw new Error("accountType was not provided!");
+    }
+
     return;
   }
 
@@ -353,7 +331,10 @@ export class ApproveWithdrawMsg extends Message<void> {
     return MessageType.ApproveWithdraw;
   }
 
-  constructor(public readonly txMsg: string) {
+  constructor(
+    public readonly txMsg: string,
+    public readonly accountType: AccountType
+  ) {
     super();
   }
 
@@ -361,6 +342,10 @@ export class ApproveWithdrawMsg extends Message<void> {
     if (!this.txMsg) {
       throw new Error("An encoded txMsg is required!");
     }
+    if (!this.accountType) {
+      throw new Error("accountType was not provided!");
+    }
+
     return;
   }
 
@@ -369,7 +354,7 @@ export class ApproveWithdrawMsg extends Message<void> {
   }
 
   type(): string {
-    return ApproveUnbondMsg.type();
+    return ApproveWithdrawMsg.type();
   }
 }
 

@@ -5,61 +5,51 @@ import BigNumber from "bignumber.js";
 import { LedgerError } from "@namada/ledger-namada";
 import { Button, ButtonVariant } from "@namada/components";
 import { defaultChainId as chainId } from "@namada/chains";
+import { TxType } from "@namada/shared";
+import { Message, Tokens, TxProps, TxMsgValue } from "@namada/types";
 
 import { Ledger } from "background/ledger";
 import {
-  GetBondBytesMsg,
   GetRevealPKBytesMsg,
-  SubmitSignedBondMsg,
+  GetTxBytesMsg,
   SubmitSignedRevealPKMsg,
+  SubmitSignedTxMsg,
 } from "background/ledger/messages";
 import { Ports } from "router";
 import { closeCurrentTab } from "utils";
 import { useRequester } from "hooks/useRequester";
-import { Status } from "Approvals/Approvals";
+import { ApprovalDetails, Status } from "Approvals/Approvals";
 import {
   ApprovalContainer,
   ButtonContainer,
 } from "Approvals/Approvals.components";
 import { InfoHeader, InfoLoader } from "Approvals/Approvals.components";
-import {
-  Message,
-  RevealPKProps,
-  SubmitRevealPKMsgValue,
-  Tokens,
-} from "@namada/types";
+
 import { QueryPublicKeyMsg } from "background/keyring";
+import { TxTypeLabel } from "Approvals/types";
 
 type Props = {
-  address: string;
-  msgId: string;
-  publicKey: string;
+  details?: ApprovalDetails;
 };
 
-export const ConfirmLedgerBond: React.FC<Props> = ({
-  address,
-  msgId,
-  publicKey,
-}) => {
+export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
   const requester = useRequester();
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState<Status>();
   const [statusInfo, setStatusInfo] = useState("");
+  const { source, msgId, publicKey, txType } = details || {};
 
   const revealPk = async (publicKey: string): Promise<void> => {
-    const revealPKArgs: RevealPKProps = {
-      tx: {
-        token: Tokens.NAM.address || "",
-        feeAmount: new BigNumber(0),
-        gasLimit: new BigNumber(0),
-        chainId,
-        publicKey,
-      },
+    const txArgs: TxProps = {
+      token: Tokens.NAM.address || "",
+      feeAmount: new BigNumber(0),
+      gasLimit: new BigNumber(0),
+      chainId,
       publicKey,
     };
 
-    const msgValue = new SubmitRevealPKMsgValue(revealPKArgs);
-    const msg = new Message<SubmitRevealPKMsgValue>();
+    const msgValue = new TxMsgValue(txArgs);
+    const msg = new Message<TxMsgValue>();
     const encoded = msg.encode(msgValue);
 
     // Open Ledger transport
@@ -71,7 +61,7 @@ export const ConfirmLedgerBond: React.FC<Props> = ({
         new GetRevealPKBytesMsg(toBase64(encoded))
       );
 
-      // Sign with Ledgeg
+      // Sign with Ledger
       const signatures = await ledger.sign(bytes, path);
 
       // Submit signatures for tx
@@ -86,6 +76,7 @@ export const ConfirmLedgerBond: React.FC<Props> = ({
       );
     } catch (e) {
       console.warn("An error occured: ", e);
+      await ledger.closeTransport();
       throw new Error(`${e}`);
     } finally {
       await ledger.closeTransport();
@@ -101,36 +92,54 @@ export const ConfirmLedgerBond: React.FC<Props> = ({
     );
   };
 
-  const submitBond = async (): Promise<void> => {
+  const handleSubmitTx = useCallback(async (): Promise<void> => {
     setStatus(Status.Pending);
     setStatusInfo("Querying for public key on chain...");
 
-    const pk = await queryPublicKey(address);
+    if (source && publicKey) {
+      const pk = await queryPublicKey(source);
 
-    if (!pk) {
-      setStatusInfo(
-        "Public key not found! Review and approve reveal pk on your Ledger"
-      );
-      await revealPk(publicKey);
+      if (!pk) {
+        setStatusInfo(
+          "Public key not found! Review and approve reveal pk on your Ledger"
+        );
+        await revealPk(publicKey);
+      }
+
+      return await submitTx();
     }
+  }, [source, publicKey]);
 
+  const submitTx = async (): Promise<void> => {
     // Open ledger transport
     const ledger = await Ledger.init();
+    const txLabel = TxTypeLabel[txType as TxType];
 
     try {
       // Constuct tx bytes from SDK
+      if (!txType) {
+        throw new Error("txType was not provided!");
+      }
+      if (!source) {
+        throw new Error("source was not provided!");
+      }
+      if (!msgId) {
+        throw new Error("msgId was not provided!");
+      }
+
       const { bytes, path } = await requester.sendMessage(
         Ports.Background,
-        new GetBondBytesMsg(msgId)
+        new GetTxBytesMsg(txType, msgId, source)
       );
 
-      setStatusInfo("Review and approve bond transaction on your Ledger");
+      setStatusInfo(`Review and approve ${txLabel} transaction on your Ledger`);
+
       // Sign with Ledger
       const signatures = await ledger.sign(bytes, path);
       const { errorMessage, returnCode } = signatures;
 
       if (returnCode !== LedgerError.NoErrors) {
-        console.warn("Bond sign errors encountered, exiting: ", {
+        console.warn(`${txLabel} signing errors encountered, exiting: `, {
           returnCode,
           errorMessage,
         });
@@ -139,11 +148,12 @@ export const ConfirmLedgerBond: React.FC<Props> = ({
       }
 
       // Submit signatures for tx
-      setStatusInfo("Submitting bond transaction...");
+      setStatusInfo(`Submitting ${txLabel} transaction...`);
       await requester.sendMessage(
         Ports.Background,
-        new SubmitSignedBondMsg(msgId, toBase64(bytes), signatures)
+        new SubmitSignedTxMsg(txType, msgId, toBase64(bytes), signatures)
       );
+
       setStatus(Status.Completed);
     } catch (e) {
       console.warn(e);
@@ -175,7 +185,7 @@ export const ConfirmLedgerBond: React.FC<Props> = ({
         <>
           <p>Make sure your Ledger is unlocked, and click &quot;Submit&quot;</p>
           <ButtonContainer>
-            <Button variant={ButtonVariant.Contained} onClick={submitBond}>
+            <Button variant={ButtonVariant.Contained} onClick={handleSubmitTx}>
               Submit
             </Button>
           </ButtonContainer>

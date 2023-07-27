@@ -7,7 +7,7 @@ class Signature {
             this.raw = Buffer.from([]);
             this.isFilled = false;
             this.salt = Buffer.from([]);
-            this.indicies = Buffer.from([]);
+            this.indices = Buffer.from([]);
             this.pubkey = Buffer.from([]);
             this.signature = null;
         }
@@ -15,7 +15,7 @@ class Signature {
             this.isFilled = true;
             this.raw = signature.raw;
             this.salt = signature.salt;
-            this.indicies = signature.indicies;
+            this.indices = signature.indices;
             this.pubkey = signature.pubkey;
             this.signature = signature.signature;
         }
