@@ -27,7 +27,7 @@ export class ApprovalsService {
   ) {}
 
   // Deserialize transfer details and prompt user
-  async approveTransfer(txMsg: string, type?: AccountType): Promise<void> {
+  async approveTransfer(txMsg: string, type: AccountType): Promise<void> {
     const txMsgBuffer = Buffer.from(fromBase64(txMsg));
     const msgId = uuid();
     await this.txStore.set(msgId, txMsg);
@@ -52,7 +52,7 @@ export class ApprovalsService {
       target,
       tokenAddress,
       amount: amount.toString(),
-      accountType: type as string,
+      accountType: type,
       publicKey,
     });
 

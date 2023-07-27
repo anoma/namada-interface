@@ -25,11 +25,11 @@ export enum Status {
 }
 
 export type ApprovalDetails = {
-  source: string | null;
-  msgId: string | null;
-  txType: TxType | null;
-  publicKey: string | null;
-  target: string | null;
+  source: string;
+  msgId: string;
+  txType: TxType;
+  publicKey?: string;
+  target?: string;
 };
 
 export const Approvals: React.FC = () => {

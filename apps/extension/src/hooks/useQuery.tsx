@@ -4,7 +4,7 @@ import { sanitize } from "dompurify";
 
 interface SanitizedURLSearchParams {
   get(name: string): string | null;
-  getAll(): Record<string, string | null>;
+  getAll(): Record<string, string>;
 }
 
 const toSanitized = (
@@ -14,12 +14,14 @@ const toSanitized = (
     const unsanitized = urlSearchParams.get(name);
     return unsanitized === null ? unsanitized : sanitize(unsanitized);
   },
-  getAll: (): Record<string, string | null> => {
-    const values: Record<string, string | null> = {};
+  getAll: (): Record<string, string> => {
+    const values: Record<string, string> = {};
 
     urlSearchParams.forEach((val, key) => {
       const unsanitized = val;
-      values[key] = unsanitized === null ? unsanitized : sanitize(unsanitized);
+      if (unsanitized) {
+        values[sanitize(key)] = sanitize(unsanitized);
+      }
     });
 
     return values;

@@ -48,21 +48,23 @@ export const ApproveTx: React.FC<Props> = ({ setDetails }) => {
       ?.symbol || "";
 
   useEffect(() => {
-    setDetails({
-      source,
-      txType,
-      msgId,
-      publicKey,
-      target,
-    });
+    if (source && txType && msgId) {
+      setDetails({
+        source,
+        txType,
+        msgId,
+        publicKey,
+        target,
+      });
+    }
   }, [source, publicKey, txType, target, msgId]);
 
-  const handleApproveClick = (): void => {
+  const handleApproveClick = useCallback((): void => {
     if (accountType === AccountType.Ledger) {
       return navigate(`${TopLevelRoute.ConfirmLedgerTx}`);
     }
     navigate(TopLevelRoute.ConfirmTx);
-  };
+  }, [accountType]);
 
   const handleReject = useCallback(async (): Promise<void> => {
     try {

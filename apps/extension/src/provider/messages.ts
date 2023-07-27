@@ -242,7 +242,7 @@ export class ApproveTransferMsg extends Message<void> {
 
   constructor(
     public readonly txMsg: string,
-    public readonly accountType?: AccountType
+    public readonly accountType: AccountType
   ) {
     super();
   }
