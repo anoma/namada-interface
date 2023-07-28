@@ -18,9 +18,6 @@ export class IbcTransferMsgValue {
   @field({ type: "string" })
   token!: string;
 
-  @field({ type: option("string") })
-  subPrefix?: string;
-
   @field(BigNumberSerializer)
   amount!: BigNumber;
 

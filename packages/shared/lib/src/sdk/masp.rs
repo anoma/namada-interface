@@ -4,10 +4,7 @@ use masp_proofs::prover::LocalTxProver;
 use namada::ledger::masp::{ShieldedContext, ShieldedUtils};
 use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
-use crate::{
-    rpc_client::HttpClient,
-    utils::{to_bytes, to_io_error},
-};
+use crate::utils::{to_bytes, to_io_error};
 
 const SHIELDED_CONTEXT: &str = "shielded-context";
 
@@ -38,8 +35,6 @@ impl WebShieldedUtils {
 
 #[async_trait(?Send)]
 impl ShieldedUtils for WebShieldedUtils {
-    type C = HttpClient;
-
     fn local_tx_prover(&self) -> LocalTxProver {
         LocalTxProver::from_bytes(
             &self.spend_param_bytes,
