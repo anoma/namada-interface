@@ -11,6 +11,7 @@ See our `specs` for more detailed documentation in [/specs](https://github.com/a
   - [macOS](#macos)
   - [Apple Silicon](#apple-silicon)
 - [Usage](#usage)
+  - [Local Chain](#local-chain)
   - [Extension](#extension)
   - [Interface](#interface)
   - [Testing](#testing)
@@ -122,6 +123,54 @@ export AR=/opt/homebrew/opt/llvm/bin/llvm-ar
 ```
 
 ## Usage
+
+### Local chain
+
+Before you start the extension and interface, you will need at least a chain ID and an RPC URL. This can either be a local chain or an
+existing network. If you know the chain ID and URL, you can skip the following and simply enter these values in the `apps/namada-interface/.env`
+file (to see an example of the values you can set, see [.env.sample](./apps/namada-interface/.env.sample).)
+
+To build and run the chain locally, you will need to clone <http://github.com/anoma/namada>.
+
+1. In `namada/`, first run `make build`
+2. Then initialize a local chain with:
+
+   ```bash
+   namadac utils init-network --genesis-path genesis/e2e-tests-single-node.toml --wasm-checksums-path wasm/checksums.json --chain-prefix local --unsafe-dont-encrypt --localhost --allow-duplicate-ip
+   ```
+
+   Make note of the chain ID from this output! This will be used below where `{CHAIN_ID}` is denoted (replace these instances
+   with the actual chain ID). 3. To transfer funds from faucet via the CLI, you will need to create a wallet:
+
+   ```bash
+   namadaw key gen --alias my-key
+   ```
+
+3. Before running the chain, you will need to change one configuration file:
+   - On Linux: Edit `~/.local/share/namada/{CHAIN_ID}/setup/validator-0/.namada/{CHAIN_ID}/config.toml`
+   - On macOS: Edit `~/Library/Application\ Support/Namada/{CHAIN_ID}/setup/validator-0/.namada/{CHAIN_ID}/config.toml`
+4. In `config.toml`, change the line `cors_allowed_origins = []` to `cors_allowed_origins = ["*"]`, then save and close.
+5. You can now start the local chain
+
+   - On Linux:
+
+   ```bash
+   namadan --chain-id {CHAIN_ID} --base-dir ~/.local/share/Namada/{CHAIN_ID}/setup/validator-0/.namada ledger run
+   ```
+
+   - On macOS:
+
+   ```bash
+   namadan --chain-id {CHAIN_ID} --base-dir ~/Library/Application\ Support/Namada/{CHAIN_ID}/setup/validator-0/.namada ledger run
+   ```
+
+6. Edit the following value in `namada-interface/apps/namada-interface/.env` (remember to replace `{CHAIN_ID}`
+   with the actual chain ID from above):
+
+   ```bash
+   REACT_APP_NAMADA_CHAIN_ID={CHAIN_ID}
+   REACT_APP_NAMADA_URL=http://127.0.0.1:27657/
+   ```
 
 ### Extension
 
