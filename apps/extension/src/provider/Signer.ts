@@ -21,6 +21,8 @@ import {
   TxMsgValue,
   Schema,
   SupportedTx,
+  SubmitVoteProposalProps,
+  SubmitVoteProposalMsgValue,
 } from "@namada/types";
 import { TxType } from "@namada/shared";
 
@@ -28,7 +30,7 @@ export class Signer implements ISigner {
   constructor(
     protected readonly chainId: string,
     private readonly _namada: Namada
-  ) { }
+  ) {}
 
   public async accounts(): Promise<Account[] | undefined> {
     return (await this._namada.accounts(this.chainId))?.map(
@@ -48,7 +50,7 @@ export class Signer implements ISigner {
     constructor: new (args: Args) => T,
     args: Args,
     txArgs: TxProps,
-    type: AccountType,
+    type: AccountType
   ): Promise<void> {
     const msgValue = new constructor(args);
     const msg = new Message<T>();
@@ -85,7 +87,13 @@ export class Signer implements ISigner {
     txArgs: TxProps,
     type: AccountType
   ): Promise<void> {
-    return this.submitTx(TxType.Unbond, SubmitUnbondMsgValue, args, txArgs, type);
+    return this.submitTx(
+      TxType.Unbond,
+      SubmitUnbondMsgValue,
+      args,
+      txArgs,
+      type
+    );
   }
 
   /**
@@ -96,7 +104,30 @@ export class Signer implements ISigner {
     txArgs: TxProps,
     type: AccountType
   ): Promise<void> {
-    return this.submitTx(TxType.Withdraw, SubmitWithdrawMsgValue, args, txArgs, type);
+    return this.submitTx(
+      TxType.Withdraw,
+      SubmitWithdrawMsgValue,
+      args,
+      txArgs,
+      type
+    );
+  }
+
+  /**
+   * Submit vote proposal transaction
+   */
+  public async submitVoteProposal(
+    args: SubmitVoteProposalProps,
+    txArgs: TxProps,
+    type: AccountType
+  ): Promise<void> {
+    return this.submitTx(
+      TxType.VoteProposal,
+      SubmitVoteProposalMsgValue,
+      args,
+      txArgs,
+      type
+    );
   }
 
   /**
@@ -118,7 +149,13 @@ export class Signer implements ISigner {
     txArgs: TxProps,
     type: AccountType
   ): Promise<void> {
-    return this.submitTx(TxType.IBCTransfer, IbcTransferMsgValue, args, txArgs, type);
+    return this.submitTx(
+      TxType.IBCTransfer,
+      IbcTransferMsgValue,
+      args,
+      txArgs,
+      type
+    );
   }
 
   /**
@@ -129,6 +166,12 @@ export class Signer implements ISigner {
     txArgs: TxProps,
     type: AccountType
   ): Promise<void> {
-    return this.submitTx(TxType.EthBridgeTransfer, EthBridgeTransferMsgValue, args, txArgs, type);
+    return this.submitTx(
+      TxType.EthBridgeTransfer,
+      EthBridgeTransferMsgValue,
+      args,
+      txArgs,
+      type
+    );
   }
 }

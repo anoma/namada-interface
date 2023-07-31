@@ -637,6 +637,18 @@ export class KeyRing {
     }
   }
 
+  async submitVoteProposal(txMsg: Uint8Array): Promise<void> {
+    if (!this._password) {
+      throw new Error("Not authenticated!");
+    }
+
+    try {
+      await this.sdk.submit_vote_proposal(txMsg, this._password);
+    } catch (e) {
+      throw new Error(`Could not submit vote proposal tx: ${e}`);
+    }
+  }
+
   async submitTransfer(
     transferMsg: Uint8Array,
     submit: (password: string, xsk?: string) => Promise<void>

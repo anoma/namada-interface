@@ -10,6 +10,7 @@ import {
   IbcTransferMsgValue,
   SubmitBondMsgValue,
   SubmitUnbondMsgValue,
+  SubmitVoteProposalMsgValue,
   SubmitWithdrawMsgValue,
   TransferMsgValue,
   TxMsgValue,
@@ -23,13 +24,18 @@ import { LedgerService } from "background/ledger";
 import { paramsToUrl, assertNever } from "@namada/utils";
 
 import { ApprovedOriginsStore, TxStore } from "./types";
-import { addApprovedOrigin, removeApprovedOrigin, APPROVED_ORIGINS_KEY } from "./utils";
+import {
+  addApprovedOrigin,
+  removeApprovedOrigin,
+  APPROVED_ORIGINS_KEY,
+} from "./utils";
 
-type GetParams =
-  (specificMsg: Uint8Array, txDetails: TxMsgValue) => Record<string, string>;
+type GetParams = (
+  specificMsg: Uint8Array,
+  txDetails: TxMsgValue
+) => Record<string, string>;
 
 export class ApprovalsService {
-
   // holds promises which can be resolved with a message from a pop-up window
   protected resolverMap: Record<
     number,
@@ -50,7 +56,7 @@ export class ApprovalsService {
     txType: SupportedTx,
     txMsg: string,
     specificMsg: string,
-    type: AccountType,
+    type: AccountType
   ): Promise<void> {
     const msgId = uuid();
     await this.txStore.set(msgId, { txType, txMsg, specificMsg });
@@ -62,21 +68,28 @@ export class ApprovalsService {
     const specificMsgBuffer = Buffer.from(fromBase64(specificMsg));
 
     const getParams =
-      txType === TxType.Bond ? ApprovalsService.getParamsBond :
-      txType === TxType.Unbond ? ApprovalsService.getParamsUnbond :
-      txType === TxType.Withdraw ? ApprovalsService.getParamsWithdraw :
-      txType === TxType.Transfer ? ApprovalsService.getParamsTransfer :
-      txType === TxType.IBCTransfer ? ApprovalsService.getParamsIbcTransfer :
-      txType === TxType.EthBridgeTransfer ? ApprovalsService.getParamsEthBridgeTransfer :
-      assertNever(txType);
+      txType === TxType.Bond
+        ? ApprovalsService.getParamsBond
+        : txType === TxType.Unbond
+        ? ApprovalsService.getParamsUnbond
+        : txType === TxType.Withdraw
+        ? ApprovalsService.getParamsWithdraw
+        : txType === TxType.Transfer
+        ? ApprovalsService.getParamsTransfer
+        : txType === TxType.IBCTransfer
+        ? ApprovalsService.getParamsIbcTransfer
+        : txType === TxType.EthBridgeTransfer
+        ? ApprovalsService.getParamsEthBridgeTransfer
+        : assertNever(txType);
 
-    const baseUrl =
-      `${browser.runtime.getURL("approvals.html")}#/approve-tx/${txType}`;
+    const baseUrl = `${browser.runtime.getURL(
+      "approvals.html"
+    )}#/approve-tx/${txType}`;
 
     const url = paramsToUrl(baseUrl, {
       ...getParams(specificMsgBuffer, txDetails),
       msgId,
-      accountType: type
+      accountType: type,
     });
 
     this._launchApprovalWindow(url);
@@ -102,7 +115,7 @@ export class ApprovalsService {
       amount: amount.toString(),
       publicKey,
     };
-  }
+  };
 
   static getParamsIbcTransfer: GetParams = (specificMsg, txDetails) => {
     const specificDetails = deserialize(specificMsg, IbcTransferMsgValue);
@@ -124,7 +137,7 @@ export class ApprovalsService {
       amount: amount.toString(),
       publicKey,
     };
-  }
+  };
 
   static getParamsEthBridgeTransfer: GetParams = (specificMsg, txDetails) => {
     const specificDetails = deserialize(specificMsg, EthBridgeTransferMsgValue);
@@ -145,7 +158,7 @@ export class ApprovalsService {
       amount: amount.toString(),
       publicKey,
     };
-  }
+  };
 
   static getParamsBond: GetParams = (specificMsg, txDetails) => {
     const specificDetails = deserialize(specificMsg, SubmitBondMsgValue);
@@ -165,15 +178,12 @@ export class ApprovalsService {
       amount: amount.toString(),
       publicKey,
     };
-  }
+  };
 
   static getParamsUnbond: GetParams = (specificMsg, txDetails) => {
     const specificDetails = deserialize(specificMsg, SubmitUnbondMsgValue);
 
-    const {
-      source,
-      amount: amountBN,
-    } = specificDetails;
+    const { source, amount: amountBN } = specificDetails;
     const amount = new BigNumber(amountBN.toString());
 
     const { publicKey = "" } = txDetails;
@@ -183,15 +193,12 @@ export class ApprovalsService {
       amount: amount.toString(),
       publicKey,
     };
-  }
+  };
 
   static getParamsWithdraw: GetParams = (specificMsg, txDetails) => {
     const specificDetails = deserialize(specificMsg, SubmitWithdrawMsgValue);
 
-    const {
-      source,
-      validator,
-    } = specificDetails;
+    const { source, validator } = specificDetails;
 
     const { publicKey = "" } = txDetails;
 
@@ -200,7 +207,7 @@ export class ApprovalsService {
       validator,
       publicKey,
     };
-  }
+  };
 
   // Remove pending transaction from storage
   async rejectTx(msgId: string): Promise<void> {
@@ -221,13 +228,19 @@ export class ApprovalsService {
     const { txType, specificMsg, txMsg } = tx;
 
     const submitFn =
-      txType === TxType.Bond ? this.keyRingService.submitBond :
-      txType === TxType.Unbond ? this.keyRingService.submitUnbond :
-      txType === TxType.Transfer ? this.keyRingService.submitTransfer :
-      txType === TxType.IBCTransfer ? this.keyRingService.submitIbcTransfer :
-      txType === TxType.EthBridgeTransfer ? this.keyRingService.submitEthBridgeTransfer :
-      txType === TxType.Withdraw ? this.keyRingService.submitWithdraw :
-      assertNever(txType);
+      txType === TxType.Bond
+        ? this.keyRingService.submitBond
+        : txType === TxType.Unbond
+        ? this.keyRingService.submitUnbond
+        : txType === TxType.Transfer
+        ? this.keyRingService.submitTransfer
+        : txType === TxType.IBCTransfer
+        ? this.keyRingService.submitIbcTransfer
+        : txType === TxType.EthBridgeTransfer
+        ? this.keyRingService.submitEthBridgeTransfer
+        : txType === TxType.Withdraw
+        ? this.keyRingService.submitWithdraw
+        : assertNever(txType);
 
     await submitFn.call(this.keyRingService, specificMsg, txMsg, msgId);
 
@@ -239,15 +252,18 @@ export class ApprovalsService {
     chainId: string,
     interfaceOrigin: string
   ): Promise<void> {
-    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-connection`;
+    const baseUrl = `${browser.runtime.getURL(
+      "approvals.html"
+    )}#/approve-connection`;
 
     const url = paramsToUrl(baseUrl, {
       interfaceTabId: interfaceTabId.toString(),
       chainId,
-      interfaceOrigin
+      interfaceOrigin,
     });
 
-    const approvedOrigins = await this.approvedOriginsStore.get(APPROVED_ORIGINS_KEY) || [];
+    const approvedOrigins =
+      (await this.approvedOriginsStore.get(APPROVED_ORIGINS_KEY)) || [];
 
     if (!approvedOrigins.includes(interfaceOrigin)) {
       const approvalWindow = await this._launchApprovalWindow(url);
@@ -272,7 +288,7 @@ export class ApprovalsService {
     chainId: string,
     interfaceOrigin: string,
     allowConnection: boolean,
-    popupTabId: number,
+    popupTabId: number
   ): Promise<void> {
     const resolvers = this.resolverMap[popupTabId];
     if (!resolvers) {
@@ -290,6 +306,21 @@ export class ApprovalsService {
 
   async revokeConnection(originToRevoke: string): Promise<void> {
     return removeApprovedOrigin(this.approvedOriginsStore, originToRevoke);
+  }
+
+  async submitVoteProposal(msgId: string, password: string): Promise<void> {
+    await this.keyRingService.unlock(password);
+
+    // Fetch pending bond tx
+    const tx = await this.txStore.get(msgId);
+
+    if (tx) {
+      await this.keyRingService.submitVoteProposal(tx, msgId);
+
+      return await this._clearPendingTx(msgId);
+    }
+
+    throw new Error("Pending Withdraw tx not found!");
   }
 
   private async _clearPendingTx(msgId: string): Promise<void> {

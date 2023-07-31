@@ -150,10 +150,7 @@ pub fn withdraw_tx_args(
 ) -> Result<(args::Withdraw, Option<Address>), JsError> {
     let withdraw_msg = SubmitWithdrawMsg::try_from_slice(withdraw_msg)?;
 
-    let SubmitWithdrawMsg {
-        source,
-        validator,
-    } = withdraw_msg;
+    let SubmitWithdrawMsg { source, validator } = withdraw_msg;
 
     let source = Address::from_str(&source)?;
     let validator = Address::from_str(&validator)?;
@@ -164,6 +161,53 @@ pub fn withdraw_tx_args(
         validator,
         source: Some(source),
         tx_code_path: PathBuf::from("tx_withdraw.wasm"),
+    };
+
+    Ok((args, faucet_signer))
+}
+
+#[derive(BorshSerialize, BorshDeserialize)]
+pub struct SubmitVoteProposalMsg {
+    signer: String,
+    proposal_id: u64,
+    vote: String,
+    tx: TxMsg,
+}
+
+/// Maps serialized tx_msg into VoteProposalTx args.
+///
+/// # Arguments
+///
+/// * `tx_msg` - Borsh serialized tx_msg.
+/// * `password` - Password used for storage decryption.
+///
+/// # Errors
+///
+/// Returns JsError if the tx_msg can't be deserialized or
+/// Rust structs can't be created.
+pub fn vote_proposal_tx_args(
+    tx_msg: &[u8],
+    password: Option<String>,
+) -> Result<(args::VoteProposal, Option<Address>), JsError> {
+    let vote_proposal_msg = SubmitVoteProposalMsg::try_from_slice(tx_msg)?;
+
+    let SubmitVoteProposalMsg {
+        signer,
+        proposal_id,
+        vote,
+        tx,
+    } = vote_proposal_msg;
+    let (tx, faucet_signer) = tx_msg_into_args(tx_msg, password)?;
+    let voter = Address::from_str(&signer)?;
+
+    let args = args::VoteProposal {
+        tx,
+        proposal_id: Some(proposal_id),
+        vote,
+        voter,
+        is_offline: false,
+        proposal_data: None,
+        tx_code_path: PathBuf::from("tx_vote_proposal.wasm"),
     };
 
     Ok((args, faucet_signer))
@@ -329,7 +373,8 @@ pub fn eth_bridge_transfer_tx_args(
     tx_msg: &[u8],
     password: Option<String>,
 ) -> Result<(args::EthereumBridgePool, Option<Address>), JsError> {
-    let eth_bridge_transfer_msg = SubmitEthBridgeTransferMsg::try_from_slice(eth_bridge_transfer_msg)?;
+    let eth_bridge_transfer_msg =
+        SubmitEthBridgeTransferMsg::try_from_slice(eth_bridge_transfer_msg)?;
     let SubmitEthBridgeTransferMsg {
         nut,
         asset,

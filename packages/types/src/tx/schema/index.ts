@@ -2,26 +2,31 @@ export * from "./ethBridgeTransfer";
 export * from "./ibcTransfer";
 export * from "./transfer";
 export * from "./bond";
+export * from "./ibcTransfer";
 export * from "./signature";
-export * from "./unbond";
-export * from "./withdraw";
+export * from "./transfer";
 export * from "./tx";
+export * from "./unbond";
+export * from "./voteProposal";
+export * from "./withdraw";
 
 import { EthBridgeTransferMsgValue } from "./ethBridgeTransfer";
 import { IbcTransferMsgValue } from "./ibcTransfer";
-import { TransferMsgValue } from "./transfer";
+import { SignatureMsgValue } from "./signature";
 import { SubmitBondMsgValue } from "./bond";
 import { SubmitUnbondMsgValue } from "./unbond";
+import { SubmitVoteProposalMsgValue } from "./voteProposal";
 import { SubmitWithdrawMsgValue } from "./withdraw";
-import { SignatureMsgValue } from "./signature";
+import { TransferMsgValue } from "./transfer";
 import { TxMsgValue } from "./tx";
 
 export type Schema =
   | EthBridgeTransferMsgValue
   | IbcTransferMsgValue
-  | TransferMsgValue
+  | SignatureMsgValue
   | SubmitBondMsgValue
   | SubmitUnbondMsgValue
+  | SubmitVoteProposalMsgValue
   | SubmitWithdrawMsgValue
-  | SignatureMsgValue
+  | TransferMsgValue
   | TxMsgValue;

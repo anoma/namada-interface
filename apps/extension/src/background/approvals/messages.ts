@@ -36,32 +36,6 @@ export class RejectTxMsg extends Message<void> {
   }
 }
 
-export class SubmitApprovedTxMsg extends Message<void> {
-  public static type(): MessageType {
-    return MessageType.SubmitApprovedTx;
-  }
-
-  constructor(
-    public readonly txType: SupportedTx,
-    public readonly msgId: string,
-    public readonly password: string
-  ) {
-    super();
-  }
-
-  validate(): void {
-    validateProps(this, ["txType", "msgId", "password"]);
-  }
-
-  route(): string {
-    return ROUTE;
-  }
-
-  type(): string {
-    return SubmitApprovedTxMsg.type();
-  }
-}
-
 export class ConnectInterfaceResponseMsg extends Message<void> {
   public static type(): MessageType {
     return MessageType.ConnectInterfaceResponse;
@@ -71,7 +45,7 @@ export class ConnectInterfaceResponseMsg extends Message<void> {
     public readonly interfaceTabId: number,
     public readonly chainId: string,
     public readonly interfaceOrigin: string,
-    public readonly allowConnection: boolean,
+    public readonly allowConnection: boolean
   ) {
     super();
   }
@@ -104,9 +78,7 @@ export class RevokeConnectionMsg extends Message<void> {
     return MessageType.RevokeConnection;
   }
 
-  constructor(
-    public readonly originToRevoke: string
-  ) {
+  constructor(public readonly originToRevoke: string) {
     super();
   }
 

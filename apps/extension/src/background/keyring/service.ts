@@ -227,6 +227,16 @@ export class KeyRingService {
     }
   }
 
+  async submitVoteProposal(txMsg: string, msgId: string): Promise<void> {
+    console.log(`TODO: Broadcast notification for ${msgId}`);
+    try {
+      await this._keyRing.submitVoteProposal(fromBase64(txMsg));
+    } catch (e) {
+      console.warn(e);
+      throw new Error(`Unable to submit withdraw tx! ${e}`);
+    }
+  }
+
   private async submitTransferChrome(
     transferMsg: string,
     txMsg: string,

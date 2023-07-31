@@ -3,21 +3,25 @@ import { ApprovalsService } from "./service";
 import {
   ApproveTxMsg,
   ApproveConnectInterfaceMsg,
+  ApproveVoteProposalMsg,
 } from "provider";
 import {
   RejectTxMsg,
   SubmitApprovedTxMsg,
   ConnectInterfaceResponseMsg,
   RevokeConnectionMsg,
+  SubmitApprovedVoteProposalMsg,
 } from "./messages";
 
 export const getHandler: (service: ApprovalsService) => Handler = (service) => {
   return (env: Env, msg: Message<unknown>) => {
     switch (msg.constructor) {
       case ApproveTxMsg:
-        return handleApproveTxMsg(service)(
+        return handleApproveTxMsg(service)(env, msg as ApproveTxMsg);
+      case ApproveVoteProposalMsg:
+        return handleApproveVoteProposalMsg(service)(
           env,
-          msg as ApproveTxMsg
+          msg as ApproveVoteProposalMsg
         );
       case RejectTxMsg:
         return handleRejectTxMsg(service)(env, msg as RejectTxMsg);
@@ -40,6 +44,11 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
         return handleRevokeConnectionMsg(service)(
           env,
           msg as RevokeConnectionMsg
+        );
+      case SubmitApprovedVoteProposalMsg:
+        return handleSubmitApprovedVoteProposalMsg(service)(
+          env,
+          msg as SubmitApprovedUnbondMsg
         );
       default:
         throw new Error("Unknown msg type");
@@ -82,9 +91,16 @@ const handleApproveConnectInterfaceMsg: (
 const handleConnectInterfaceResponseMsg: (
   service: ApprovalsService
 ) => InternalHandler<ConnectInterfaceResponseMsg> = (service) => {
-  return async ({ senderTabId: popupTabId }, { interfaceTabId, chainId, interfaceOrigin, allowConnection }) => {
+  return async (
+    { senderTabId: popupTabId },
+    { interfaceTabId, chainId, interfaceOrigin, allowConnection }
+  ) => {
     return await service.approveConnectionResponse(
-      interfaceTabId, chainId, interfaceOrigin, allowConnection, popupTabId
+      interfaceTabId,
+      chainId,
+      interfaceOrigin,
+      allowConnection,
+      popupTabId
     );
   };
 };
@@ -94,5 +110,13 @@ const handleRevokeConnectionMsg: (
 ) => InternalHandler<RevokeConnectionMsg> = (service) => {
   return async (_, { originToRevoke }) => {
     return await service.revokeConnection(originToRevoke);
+  };
+};
+
+const handleSubmitApprovedVoteProposalMsg: (
+  service: ApprovalsService
+) => InternalHandler<SubmitApprovedVoteProposalMsg> = (service) => {
+  return async (_, { msgId, password }) => {
+    return await service.submitVoteProposal(msgId, password);
   };
 };

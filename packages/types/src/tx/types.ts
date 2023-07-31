@@ -10,6 +10,7 @@ import {
   TransferMsgValue,
   EthBridgeTransferMsgValue,
   SignatureMsgValue,
+  SubmitVoteProposalMsgValue,
 } from "./schema";
 
 export type SupportedTx = Extract<
@@ -20,6 +21,7 @@ export type SupportedTx = Extract<
   | TxType.IBCTransfer
   | TxType.EthBridgeTransfer
   | TxType.Withdraw
+  | TxType.VoteProposal
 >;
 
 // TODO: These could probably be removed altogether, but maybe they're useful to
@@ -32,6 +34,7 @@ export type SubmitWithdrawProps = SubmitWithdrawMsgValue;
 export type TransferProps = TransferMsgValue;
 export type BridgeTransferProps = EthBridgeTransferMsgValue;
 export type SignatureProps = SignatureMsgValue;
+export type SubmitVoteProposalProps = SubmitVoteProposalMsgValue;
 
 export type IbcTransferProps = {
   source: string;

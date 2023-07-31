@@ -14,9 +14,11 @@ import {
 import { chains } from "@namada/chains";
 import { SettingsState } from "slices/settings";
 import { useAppSelector } from "store";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Query } from "@namada/shared";
 import BigNumber from "bignumber.js";
+import { getIntegration } from "@namada/hooks";
+import { AccountType, Signer, Tokens } from "@namada/types";
 
 const getStatus = (status: string, result?: string): string => {
   return result || status;
@@ -46,9 +48,30 @@ const ProposalCardVotes2 = ({
 
 export const Governance = (): JSX.Element => {
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
-  const [proposals, setProposals] = useState<Proposal[]>(fakeProposals);
+  const [proposals, setProposals] = useState<Proposal[]>([]);
 
   const { rpc } = chains[chainId];
+
+  const voteYes = useCallback(async () => {
+    const integration = getIntegration(chainId);
+    const signer = integration.signer() as Signer;
+    await signer.submitVoteProposal(
+      {
+        tx: {
+          token: Tokens.NAM.address || "",
+          feeAmount: new BigNumber(0),
+          gasLimit: new BigNumber(0),
+          chainId,
+        },
+        signer:
+          "atest1d9khqw368qmnys6r8ymnzdzzgfrr2dpjxseryd338prrg33nxumnzdjrxdq5gwpexv6yzd2zsc6ned",
+        vote: "yay",
+        proposalId: BigInt(0),
+      },
+
+      AccountType.Mnemonic
+    );
+  }, []);
 
   useEffect(() => {
     const fetchProposals = async (): Promise<void> => {
@@ -74,7 +97,9 @@ export const Governance = (): JSX.Element => {
               </ProposalCardStatusInfo>
               {proposal.status === "on-going" && !proposal.result && (
                 <ProposalCardVoteButtons>
-                  <ProposalCardVoteButton>Vote</ProposalCardVoteButton>
+                  <ProposalCardVoteButton onClick={voteYes}>
+                    Vote
+                  </ProposalCardVoteButton>
                 </ProposalCardVoteButtons>
               )}
             </ProposalCardStatusContainer>
