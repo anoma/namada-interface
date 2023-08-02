@@ -1,4 +1,3 @@
-import { Button } from "@namada/components";
 import styled from "styled-components";
 
 export const GovernanceContainer = styled.div`
@@ -26,6 +25,7 @@ export const ProposalCard = styled.div`
   gap: 8px;
   border-radius: 8px;
   background-color: ${(props) => props.theme.colors.primary.main20};
+  cursor: pointer;
 `;
 
 export const ProposalCardStatusInfo = styled.div`
@@ -47,7 +47,8 @@ export const ProposalCardStatusInfo = styled.div`
 `;
 
 export const ProposalCardVoteButtons = styled.div``;
-// FIX THAT
+
+// FIX THAT - aka. try to reuse button
 export const ProposalCardVoteButton = styled.button`
   padding: 8px;
   font-weight: 700;
@@ -56,10 +57,16 @@ export const ProposalCardVoteButton = styled.button`
   border: none;
   background-color: ${(props) => props.theme.colors.primary.main};
   color: ${(props) => props.theme.colors.utility1.main};
+  border: 1px solid ${(props) => props.theme.colors.utility1.main};
 
   &:disabled {
     opacity: 50%;
     cursor: initial;
+  }
+  &.inverse {
+    background-color: ${(props) => props.theme.colors.utility1.main};
+    color: ${(props) => props.theme.colors.primary.main};
+    border: 1px solid ${(props) => props.theme.colors.primary.main};
   }
 `;
 
@@ -105,4 +112,38 @@ export const ProposalCardInfoContainer = styled.div`
   & ${ProposalCardText} {
     flex-grow: 1;
   }
+`;
+
+export const ProposalDetails = styled.dialog`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 0;
+  margin: 0;
+  border: none;
+`;
+
+export const ProposalDetailsContent = styled.div`
+  width: 600px;
+  padding: 24px;
+  background-color: ${(props) => props.theme.colors.primary.main};
+  color: ${(props) => props.theme.colors.utility1.main};
+`;
+
+export const ProposalDetailsAddresses = styled.div``;
+export const ProposalDetailsAddressesHeader = styled.h4`
+  margin-bottom: 0px;
+`;
+
+export const ProposalDetailsButtons = styled.div`
+  display: flex;
+  justify-content: center;
+  gap 16px;
+  margin-top: 16px;
 `;

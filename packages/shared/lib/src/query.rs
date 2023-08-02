@@ -362,6 +362,7 @@ impl Query {
             id: u64,
             current_epoch: Epoch,
         ) -> Option<ProposalInfo> {
+            web_sys::console::log_1(&format!("Proposal id: {}", id).into());
             let author_key = gov_storage::get_author_key(id);
             let start_epoch_key = gov_storage::get_voting_start_epoch_key(id);
             let end_epoch_key = gov_storage::get_voting_end_epoch_key(id);
@@ -385,6 +386,7 @@ impl Query {
                 .await
                 .try_into()
                 .unwrap();
+            web_sys::console::log_1(&"ASD3!".into());
             let status;
             let mut yes_votes = None;
             let mut total_voting_power = None;
@@ -446,15 +448,79 @@ impl Query {
         let current_epoch = namada::ledger::rpc::query_epoch(&self.client).await?;
         let mut results = vec![];
 
-        for id in 0..last_proposal_id {
-            let v = print_proposal(&self.client, id, current_epoch)
-                .await
-                .expect("WORK");
-            results.push(v);
-        }
+        // for id in 0..last_proposal_id {
+        //     let v = print_proposal(&self.client, id, current_epoch)
+        //         .await
+        //         .expect("WORK");
+        //     results.push(v);
+        // }
+
+        let v = print_proposal(&self.client, last_proposal_id - 1, current_epoch)
+            .await
+            .expect("WORK");
+        results.push(v);
 
         to_js_result(results)
     }
+
+    pub async fn get_total_delegations(
+        &self,
+        addresses: Box<[JsValue]>,
+        epoch: Option<u64>,
+    ) -> Result<JsValue, JsError> {
+        let owner_addresses: Vec<Address> = addresses
+            .into_iter()
+            .filter_map(|address| address.as_string())
+            .filter_map(|address| Address::from_str(&address).ok())
+            .collect();
+
+        let epoch = epoch.map(Epoch);
+
+        let mut validators_per_address: HashMap<Address, token::Amount> = HashMap::new();
+
+        for address in owner_addresses.into_iter() {
+            let validators: HashMap<Address, token::Amount> = RPC
+                .vp()
+                .pos()
+                .delegations(&self.client, &address, &epoch)
+                .await?;
+            let total_voting_power = validators
+                .into_values()
+                .fold(token::Amount::zero(), |acc, curr| {
+                    acc.checked_add(curr).expect("Amount overflow")
+                });
+
+            validators_per_address.insert(address, total_voting_power);
+        }
+
+        to_js_result(validators_per_address)
+    }
+
+    pub async fn get_proposal_votes(&self, proposal_id: u64) -> Result<JsValue, JsError> {
+        let epoch = RPC.shell().epoch(&self.client).await?;
+        let votes = namada::ledger::rpc::get_proposal_votes(&self.client, epoch, proposal_id).await;
+        let res: Vec<(Address, bool)> = votes
+            .delegators
+            .into_iter()
+            .map(|(k, v)| {
+                let vote = v.into_iter().fold(false, |acc, (_, (_, proposal_vote))| {
+                    acc || match proposal_vote {
+                        ProposalVote::Nay => false,
+                        ProposalVote::Yay(_) => true,
+                    }
+                });
+                (k, vote)
+            })
+            .collect();
+
+        to_js_result(res)
+    }
+}
+
+#[derive(Serialize)]
+struct Votes {
+    pub validator_votes: HashMap<Address, (VotePower, ProposalVote)>,
+    pub delegator_votes: HashMap<Address, HashMap<Address, (VotePower, ProposalVote)>>,
 }
 
 #[derive(Serialize)]
