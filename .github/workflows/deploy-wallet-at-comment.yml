@@ -21,23 +21,49 @@ jobs:
             const comment = context.payload.comment.body;
             const matches = keywords.some(keyword => comment.includes(keyword));
             return { matches };
+        
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
 
       - name: Trigger workflow if deployment is requested
         if: steps.check-comment.outputs.matches == true
         run: |
-          # Extract environment variable values from the comment
-          # Example comment: "pls deploy [Namada Devnet, internal-devnet-6be.86067e06a5, https://proxy.heliax.click/internal-devnet-6be.86067e06a5]"
+          # Extract JSON string from the comment
+          # Example comment: "pls deploy {"REACT_APP_NAMADA_ALIAS": "Namada Devnet", "REACT_APP_NAMADA_CHAIN_ID": "internal-devnet-6be.86067e06a5"}"
           # Note: Make sure the comment format matches the pattern below
           comment_text="${{ github.event.comment.body }}"
-          env_vars=$(echo "$comment_text" | sed 's/^.*\[\(.*\)\].*$/\1/' | tr -d '[]')
-          IFS=', ' read -ra env_values <<< "$env_vars"
-          alias="${env_values[0]}"
-          chain_id="${env_values[1]}"
-          url="${env_values[2]}"
+          json_str=$(echo "$comment_text" | sed 's/.*{\(.*\)}.*$/\1/')
+
+          # Use jq to parse JSON string and set environment variables
+          alias=$(echo "$json_str" | jq -r '.REACT_APP_NAMADA_ALIAS // "Namada Devnet"')
+          chain_id=$(echo "$json_str" | jq -r '.REACT_APP_NAMADA_CHAIN_ID // "internal-devnet-6be.86067e06a5"'))
+          url=$(echo "$json_str" | jq -r '.REACT_APP_NAMADA_URL // "https://proxy.heliax.click/internal-devnet-6be.86067e06a5"'))
+
+          cosmos_alias=$(echo "$json_str" | jq -r '.REACT_APP_COSMOS_ALIAS // "Cosmos Testnet"')
+          cosmos_chain_id=$(echo "$json_str" | jq -r '.REACT_APP_COSMOS_CHAIN_ID // "cosmoshub-4"')
+          cosmos_chain_url=$(echo "$json_str" | jq -r '.REACT_APP_COSMOS_CHAIN_URL // "https://rpc.sentry-01.theta-testnet.polypore.xyz"')
+
+          osmosis_alias=$(echo "$json_str" | jq -r '.REACT_APP_OSMOSIS_ALIAS // "Osmosis Testnet"')
+          osmosis_chain_id=$(echo "$json_str" | jq -r '.REACT_APP_OSMOSIS_CHAIN_ID // "osmosis-testnet.123412341234"')
+          osmosis_url=$(echo "$json_str" | jq -r '.REACT_APP_OSMOSIS_URL // "http://127.0.0.1:54321"')
+
+          api_url=$(echo "$json_str" | jq -r '.REACT_APP_API_URL')
+          api_key=$(echo "$json_str" | jq -r '.REACT_APP_API_KEY')
+          api_ttl=$(echo "$json_str" | jq -r '.REACT_APP_API_TTL')
+
           # Set environment variables for the workflow
           echo "REACT_APP_NAMADA_ALIAS=$alias" >> $GITHUB_ENV
           echo "REACT_APP_NAMADA_CHAIN_ID=$chain_id" >> $GITHUB_ENV
           echo "REACT_APP_NAMADA_URL=$url" >> $GITHUB_ENV
+          echo "REACT_APP_COSMOS_ALIAS=$cosmos_alias" >> $GITHUB_ENV
+          echo "REACT_APP_COSMOS_CHAIN_ID=$cosmos_chain_id" >> $GITHUB_ENV
+          echo "REACT_APP_COSMOS_CHAIN_URL=$cosmos_chain_url" >> $GITHUB_ENV
+          echo "REACT_APP_OSMOSIS_ALIAS=$osmosis_alias" >> $GITHUB_ENV
+          echo "REACT_APP_OSMOSIS_CHAIN_ID=$osmosis_chain_id" >> $GITHUB_ENV
+          echo "REACT_APP_OSMOSIS_URL=$osmosis_url" >> $GITHUB_ENV
+          echo "REACT_APP_API_URL=$api_url" >> $GITHUB_ENV
+          echo "REACT_APP_API_KEY=$api_key" >> $GITHUB_ENV
+          echo "REACT_APP_API_TTL=$api_ttl" >> $GITHUB_ENV
 
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -58,10 +84,6 @@ jobs:
         uses: borales/actions-yarn@v4
         working-directory: ./apps/namada-interface
         run: yarn build
-        env:
-          REACT_APP_NAMADA_ALIAS: "Namada Devnet"
-          REACT_APP_NAMADA_CHAIN_ID: "internal-devnet-6be.86067e06a5"
-          REACT_APP_NAMADA_URL: "https://proxy.heliax.click/internal-devnet-6be.86067e06a5"
 
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v1.2.3
