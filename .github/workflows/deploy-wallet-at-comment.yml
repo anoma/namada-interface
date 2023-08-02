@@ -91,7 +91,7 @@ jobs:
           publish-dir: "./apps/namada-interface/build"
           production-branch: main
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: "Merged PR ${{ github.event.number }} to main"
+          deploy-message: "Deployed $REACT_APP_NAMADA_ALIAS to netlify"
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_ACCESS_TOKEN_WALLET_PREVIEW }}
           NETLIFY_SITE_ID: 2380782e-9b20-477a-bc27-b4e9d05e16f3
