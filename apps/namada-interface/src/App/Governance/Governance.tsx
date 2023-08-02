@@ -134,24 +134,27 @@ export const Governance = (): JSX.Element => {
     fetchProposals();
   }, []);
 
-  const onProposalClick = useCallback(async (proposal: Proposal) => {
-    try {
-      setActiveProposal(Option.some(proposal));
+  const onProposalClick = useCallback(
+    async (proposal: Proposal) => {
+      try {
+        setActiveProposal(Option.some(proposal));
 
-      const votes = await query.get_proposal_votes(BigInt(proposal.id));
-      setActiveProposalVotes(new Map(votes));
+        const votes = await query.get_proposal_votes(BigInt(proposal.id));
+        setActiveProposalVotes(new Map(votes));
 
-      const totalDelegations = await query.get_total_delegations(
-        addresses,
-        //TODO: start_epoch should be BigInt
-        proposal.start_epoch - BigInt(1)
-      );
-      setDelegators(Option.some(totalDelegations));
-      setActiveDelegator(Option.some(Object.keys(totalDelegations)[0]));
-    } catch (e) {
-      // TODO: handle rpc error
-    }
-  }, []);
+        const totalDelegations = await query.get_total_delegations(
+          addresses,
+          //TODO: start_epoch should be BigInt
+          proposal.start_epoch - BigInt(1)
+        );
+        setDelegators(Option.some(totalDelegations));
+        setActiveDelegator(Option.some(Object.keys(totalDelegations)[0]));
+      } catch (e) {
+        // TODO: handle rpc error
+      }
+    },
+    [addresses]
+  );
 
   return (
     <GovernanceContainer>
