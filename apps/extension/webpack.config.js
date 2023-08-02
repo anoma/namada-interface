@@ -15,6 +15,7 @@ const MANIFEST_VERSION = TARGET === "firefox" ? "v2" : "v3";
 const MANIFEST_BASE_PATH = `./src/manifest/_base.json`;
 const MANIFEST_BASE_VERSION_PATH = `./src/manifest/${MANIFEST_VERSION}/_base.json`;
 const MANIFEST_PATH = `./src/manifest/${MANIFEST_VERSION}/${TARGET}.json`;
+const MANIFEST_V2_DEV_ONLY_PATH = `./src/manifest/v2/_devOnly.json`;
 
 const copyPatterns = [
   {
@@ -41,7 +42,12 @@ const plugins = [
     patterns: copyPatterns,
   }),
   new MergeJsonWebpackPlugin({
-    files: [MANIFEST_BASE_PATH, MANIFEST_BASE_VERSION_PATH, MANIFEST_PATH],
+    files: [
+      MANIFEST_BASE_PATH,
+      MANIFEST_BASE_VERSION_PATH,
+      MANIFEST_PATH,
+      ...(NODE_ENV === "development" && TARGET === "firefox" ? [MANIFEST_V2_DEV_ONLY_PATH] : [])
+    ],
     output: {
       fileName: "./manifest.json",
     },
@@ -74,7 +80,7 @@ if (NODE_ENV === "development") {
 module.exports = {
   mode: NODE_ENV,
   target: "web",
-  devtool: false,
+  devtool: TARGET === "firefox" ? "eval-source-map" : false,
   entry: {
     content: "./src/content",
     background: "./src/background",

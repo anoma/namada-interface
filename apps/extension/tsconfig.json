@@ -16,6 +16,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
+    "sourceMap": true,
     "target": "es2015"
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
