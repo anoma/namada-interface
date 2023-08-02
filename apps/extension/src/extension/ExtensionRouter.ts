@@ -61,7 +61,14 @@ export class ExtensionRouter extends Router {
         return: result,
       };
     } catch (e) {
-      return Promise.resolve({ error: e });
+      if (!(e instanceof Error)) {
+        throw e;
+      }
+      // Error is not JSON-ifiable so we make a new object with the
+      // data needed to reconstruct the Error later.
+      // See https://github.com/anoma/namada-interface/issues/139
+      const { message, stack } = e;
+      return Promise.resolve({ error: { message, stack } });
     }
   }
 }

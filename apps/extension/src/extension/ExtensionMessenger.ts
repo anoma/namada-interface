@@ -12,7 +12,7 @@ export type Callback = (
 ) => Promise<RouterResult | void>;
 
 export type Result<M> = {
-  error?: string;
+  error?: { message: string, stack: string };
   return: Promise<M extends Message<infer R> ? R : never>;
 };
 

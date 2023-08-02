@@ -33,7 +33,10 @@ export class ExtensionRequester {
     }
 
     if (result.error) {
-      throw new Error(result.error);
+      const { message, stack } = result.error;
+      const error = new Error(message);
+      error.stack = stack;
+      throw error;
     }
 
     return result.return;
