@@ -117,32 +117,40 @@ export const Governance = (): JSX.Element => {
 
   useEffect(() => {
     const fetchProposals = async (): Promise<void> => {
-      const proposals = await query.query_proposals();
-      const p = proposals.map((proposal: any) => ({
-        ...proposal,
-        start_epoch: BigInt(proposal.start_epoch),
-        end_epoch: BigInt(proposal.end_epoch),
-        grace_epoch: BigInt(proposal.grace_epoch),
-      }));
-      setProposals(p);
+      try {
+        const proposals = await query.query_proposals();
+        const p = proposals.map((proposal: any) => ({
+          ...proposal,
+          start_epoch: BigInt(proposal.start_epoch),
+          end_epoch: BigInt(proposal.end_epoch),
+          grace_epoch: BigInt(proposal.grace_epoch),
+        }));
+        setProposals(p);
+      } catch (e) {
+        console.error(e);
+        setProposals([]);
+      }
     };
     fetchProposals();
   }, []);
 
   const onProposalClick = useCallback(async (proposal: Proposal) => {
-    setActiveProposal(Option.some(proposal));
-    const votes = await query.get_proposal_votes(BigInt(proposal.id));
-    setActiveProposalVotes(new Map(votes));
-    console.log(proposal);
-    console.log(votes, proposal.start_epoch - BigInt(1), addresses);
-    const totalDelegations = await query.get_total_delegations(
-      addresses,
-      //TODO: start_epoch should be BigInt
-      proposal.start_epoch - BigInt(1)
-    );
-    console.log(totalDelegations);
-    setDelegators(Option.some(totalDelegations));
-    setActiveDelegator(Option.some(Object.keys(totalDelegations)[0]));
+    try {
+      setActiveProposal(Option.some(proposal));
+
+      const votes = await query.get_proposal_votes(BigInt(proposal.id));
+      setActiveProposalVotes(new Map(votes));
+
+      const totalDelegations = await query.get_total_delegations(
+        addresses,
+        //TODO: start_epoch should be BigInt
+        proposal.start_epoch - BigInt(1)
+      );
+      setDelegators(Option.some(totalDelegations));
+      setActiveDelegator(Option.some(Object.keys(totalDelegations)[0]));
+    } catch (e) {
+      // TODO: handle rpc error
+    }
   }, []);
 
   return (
