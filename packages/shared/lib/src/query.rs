@@ -422,13 +422,19 @@ impl Query {
                 }
             }
 
+            let proposal_type = match proposal_type {
+                ProposalType::ETHBridge => "eth_bridge",
+                ProposalType::PGFCouncil => "pgf_council",
+                ProposalType::Default(_) => "default",
+            };
+
             let res = ProposalInfo {
                 id: id.to_string(),
-                proposal_type,
+                proposal_type: String::from(proposal_type),
                 author,
-                start_epoch,
-                end_epoch,
-                grace_epoch,
+                start_epoch: start_epoch.to_string(),
+                end_epoch: end_epoch.to_string(),
+                grace_epoch: grace_epoch.to_string(),
                 content,
                 status: status.to_string(),
                 yes_votes: yes_votes.map(|v| v.to_string()),
@@ -526,11 +532,11 @@ struct Votes {
 #[derive(Serialize)]
 struct ProposalInfo {
     id: String,
-    proposal_type: ProposalType,
+    proposal_type: String,
     author: Address,
-    start_epoch: Epoch,
-    end_epoch: Epoch,
-    grace_epoch: Epoch,
+    start_epoch: String,
+    end_epoch: String,
+    grace_epoch: String,
     content: HashMap<String, String>,
     status: String,
     yes_votes: Option<String>,

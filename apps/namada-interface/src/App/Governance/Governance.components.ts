@@ -87,9 +87,12 @@ export const ProposalCardId = styled.span`
   margin-right: 4px;
 `;
 
-export const ProposalCardVotes = styled.div<{ yes: number; no: number }>`
-  width: 32px;
-  height: 32px;
+export const ProposalCardVotesContainer = styled.div<{
+  yes: number;
+  no: number;
+}>`
+  width: 40px;
+  height: 40px;
   background-image: conic-gradient(
     ${(props) => props.theme.colors.primary.main} 0,
     ${(props) => props.theme.colors.primary.main} ${(p) => p.yes}%,
@@ -104,7 +107,7 @@ export const ProposalCardInfoContainer = styled.div`
   height: 40px;
   gap: 4px;
 
-  & ${ProposalCardVotes} {
+  & ${ProposalCardVotesContainer} {
     flex-shrink: 0;
     align-self: center;
   }
@@ -114,7 +117,7 @@ export const ProposalCardInfoContainer = styled.div`
   }
 `;
 
-export const ProposalDetails = styled.dialog`
+export const ProposalDetailsContainer = styled.dialog`
   display: flex;
   align-items: center;
   justify-content: center;
