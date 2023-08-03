@@ -1,6 +1,15 @@
-import { useAppSelector } from "store";
+import * as O from "fp-ts/Option";
+import BigNumber from "bignumber.js";
 
 import { Select } from "@namada/components";
+import { chains } from "@namada/chains";
+import { Query } from "@namada/shared";
+import { AccountType, Signer, Tokens } from "@namada/types";
+import { shortenAddress } from "@namada/utils";
+import { getIntegration } from "@namada/hooks";
+
+import { useAppSelector } from "store";
+
 import {
   ProposalCardVoteButton,
   ProposalDetailsContainer,
@@ -10,25 +19,20 @@ import {
   ProposalDetailsContent,
 } from "./Governance.components";
 import { Proposal } from "slices/proposals";
-import BigNumber from "bignumber.js";
-import { MouseEventHandler, useCallback, useEffect, useState } from "react";
-import { getIntegration } from "@namada/hooks";
+import { useCallback, useEffect, useState } from "react";
 import { SettingsState } from "slices/settings";
-import { AccountType, Signer, Tokens } from "@namada/types";
-import { Option, shortenAddress } from "@namada/utils";
-import { chains } from "@namada/chains";
-import { Query } from "@namada/shared";
 import { AccountsState } from "slices/accounts";
 import { AppLoader } from "App/App.components";
+import { pipe } from "fp-ts/lib/function";
 
 export type ProposalDetailsProps = {
   open: boolean;
   onClose: () => void;
-  maybeProposal: Option<Proposal>;
+  maybeProposal: O.Option<Proposal>;
 };
 
 export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
-  if (!props.maybeProposal.some) {
+  if (O.isNone(props.maybeProposal)) {
     return <></>;
   }
 
@@ -43,10 +47,10 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
     Map<string, boolean>
   >(new Map());
   const [delegators, setDelegators] = useState<
-    Option<Record<string, BigNumber>>
-  >(Option.none());
-  const [activeDelegator, setActiveDelegator] = useState<Option<string>>(
-    Option.none()
+    O.Option<Record<string, BigNumber>>
+  >(O.none);
+  const [activeDelegator, setActiveDelegator] = useState<O.Option<string>>(
+    O.none
   );
   const [open, setOpen] = useState<boolean>(props.open);
 
@@ -68,13 +72,10 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
       const voteStr = vote ? "yay" : "nay";
       const integration = getIntegration(chainId);
       const signer = integration.signer() as Signer;
-      const delegator = Option.match(
-        activeDelegator,
-        (d) => d,
-        () => {
-          throw new Error("No active delegator");
-        }
-      );
+
+      if (O.isNone(activeDelegator)) {
+        throw new Error("No active delegator");
+      }
 
       await signer.submitVoteProposal(
         {
@@ -84,7 +85,7 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
             gasLimit: new BigNumber(0),
             chainId,
           },
-          signer: delegator,
+          signer: activeDelegator.value,
           vote: voteStr,
           proposalId: BigInt(proposal.id),
         },
@@ -105,8 +106,8 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
           addresses,
           proposal.startEpoch - BigInt(1)
         );
-        setDelegators(Option.some(totalDelegations));
-        setActiveDelegator(Option.some(totalDelegations[0]));
+        setDelegators(O.some(totalDelegations));
+        setActiveDelegator(O.some(totalDelegations[0]));
       } catch (e) {
         // TODO: handle rpc error
       }
@@ -117,7 +118,7 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
     }
   }, [JSON.stringify(addresses)]);
 
-  if (activeDelegator.some && delegators.some) {
+  if (O.isSome(activeDelegator) && O.isSome(delegators)) {
     const delegatorAddress = activeDelegator.value;
     const delegations = delegators.value;
 
@@ -148,7 +149,7 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
                     label: shortenAddress(a, 32, 32),
                   }))}
                   onChange={(e) => {
-                    setActiveDelegator(Option.some(e.target.value));
+                    setActiveDelegator(O.some(e.target.value));
                   }}
                 />
                 Power: {delegations[delegatorAddress]}

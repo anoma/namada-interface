@@ -1,3 +1,9 @@
+import * as O from "fp-ts/Option";
+import BigNumber from "bignumber.js";
+
+import { Query } from "@namada/shared";
+import { chains } from "@namada/chains";
+
 import {
   GovernanceContainer,
   ProposalCard,
@@ -9,13 +15,9 @@ import {
   ProposalCardVotesContainer,
   ProposalsContainer,
 } from "./Governance.components";
-import { chains } from "@namada/chains";
 import { SettingsState } from "slices/settings";
 import { useAppSelector } from "store";
 import { useCallback, useEffect, useState } from "react";
-import { Query } from "@namada/shared";
-import BigNumber from "bignumber.js";
-import { Option } from "@namada/utils";
 import { ProposalDetails } from "./ProposalDetails";
 
 export type Proposal = {
@@ -73,8 +75,8 @@ const ProposalCardVotes = ({
 export const Governance = (): JSX.Element => {
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const [proposals, setProposals] = useState<Proposal[]>([]);
-  const [activeProposal, setActiveProposal] = useState<Option<Proposal>>(
-    Option.none()
+  const [activeProposal, setActiveProposal] = useState<O.Option<Proposal>>(
+    O.none
   );
 
   const { rpc } = chains[chainId];
@@ -106,11 +108,11 @@ export const Governance = (): JSX.Element => {
   }, []);
 
   const onProposalClick = useCallback((proposal: Proposal) => {
-    setActiveProposal(Option.some(proposal));
+    setActiveProposal(O.some(proposal));
   }, []);
 
   const onDetailsClose = useCallback(() => {
-    setActiveProposal(Option.none());
+    setActiveProposal(O.none);
   }, []);
 
   return (
@@ -142,7 +144,7 @@ export const Governance = (): JSX.Element => {
         ))}
       </ProposalsContainer>
       <ProposalDetails
-        open={activeProposal.some}
+        open={O.isSome(activeProposal)}
         onClose={onDetailsClose}
         maybeProposal={activeProposal}
       />
