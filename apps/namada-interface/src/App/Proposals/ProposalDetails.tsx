@@ -135,7 +135,7 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
   ) {
     const delegatorAddress = activeDelegator.value;
     const delegations = delegators.value;
-    const { id, content, status, result } = maybeProposal.value;
+    const { id, content, status, proposalType } = maybeProposal.value;
     const { title, authors, details, motivation, license } = content;
 
     const unexpectedFields = Object.entries(content).filter(
@@ -206,7 +206,10 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
           {/* status */}
 
           {/* voting section */}
-          {status === "on-going" && !result && (
+          {/* We only want to allow to vote when:
+            - the proposal is on-going
+            - the proposal is not a eth_bridge proposal */}
+          {proposalType !== "eth_bridge" && status === "on-going" && (
             <>
               <ProposalDetailsAddresses>
                 <ProposalDetailsAddressesHeader>
