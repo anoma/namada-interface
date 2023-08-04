@@ -118,6 +118,7 @@ export const ProposalCardInfoContainer = styled.div`
 `;
 
 export const ProposalDetailsContainer = styled.dialog`
+  position: fixed;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -130,6 +131,7 @@ export const ProposalDetailsContainer = styled.dialog`
   padding: 0;
   margin: 0;
   border: none;
+  overflow-y: auto;
 `;
 
 export const ProposalDetailsContent = styled.div`

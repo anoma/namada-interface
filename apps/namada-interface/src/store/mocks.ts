@@ -90,4 +90,5 @@ export const mockAppState: RootState = {
     toasts: {},
     pendingActions: [],
   },
+  proposals: { proposals: [] },
 };

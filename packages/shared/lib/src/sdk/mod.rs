@@ -603,7 +603,6 @@ impl Sdk {
         tx_msg: &[u8],
         password: Option<String>,
     ) -> Result<(), JsError> {
-        web_sys::console::log_1(&format!("submit_vote_proposal: {:?}", tx_msg).into());
         let (args, signer) = tx::submit_vote_proposal_tx_args(tx_msg, password)?;
 
         let proposal_vote = namada::ledger::tx::construct_proposal_vote(args.clone())

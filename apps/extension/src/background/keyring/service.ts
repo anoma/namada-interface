@@ -24,6 +24,7 @@ import {
   ExtensionRequester,
   getNamadaRouterId,
 } from "extension";
+import { ProposalsUpdatedEventMsg } from "content/events";
 import {
   createOffscreenWithTxWorker,
   hasOffscreenDocument,
@@ -33,6 +34,7 @@ import {
 import { init as initSubmitTransferWebWorker } from "background/web-workers";
 import { LEDGERSTORE_KEY } from "background/ledger";
 import { getAccountValuesFromStore } from "utils";
+import { Ports } from "router";
 
 export class KeyRingService {
   private _keyRing: KeyRing;
@@ -231,6 +233,20 @@ export class KeyRingService {
     console.log(`TODO: Broadcast notification for ${msgId}`);
     try {
       await this._keyRing.submitVoteProposal(fromBase64(txMsg));
+
+      //TODO: fix that
+      const tabs = await syncTabs(
+        this.connectedTabsStore,
+        this.requester,
+        this.chainId
+      );
+      tabs?.forEach(({ tabId }: TabStore) => {
+        this.requester.sendMessageToTab(
+          tabId,
+          Ports.WebBrowser,
+          new ProposalsUpdatedEventMsg(this.chainId)
+        );
+      });
     } catch (e) {
       console.warn(e);
       throw new Error(`Unable to submit withdraw tx! ${e}`);

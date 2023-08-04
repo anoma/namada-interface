@@ -11,14 +11,15 @@ import { useEventListenerOnce, useIntegration } from "@namada/hooks";
 
 import { useAppDispatch } from "store";
 import {
+  KeplrAccountChangedHandler,
+  MetamaskAccountChangedHandler,
   NamadaAccountChangedHandler,
   NamadaTxStartedHandler,
   NamadaTxCompletedHandler,
   NamadaUpdatedBalancesHandler,
   NamadaUpdatedStakingHandler,
-  KeplrAccountChangedHandler,
-  MetamaskAccountChangedHandler,
   MetamaskBridgeTransferCompletedHandler,
+  NamadaProposalsUpdatedHandler,
 } from "./handlers";
 
 export const ExtensionEventsContext = createContext({});
@@ -38,6 +39,7 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
   const namadaTxCompletedHandler = NamadaTxCompletedHandler(dispatch);
   const namadaUpdatedBalancesHandler = NamadaUpdatedBalancesHandler(dispatch);
   const namadaUpdatedStakingHandler = NamadaUpdatedStakingHandler(dispatch);
+  const namadaProposalsUpdatedHandler = NamadaProposalsUpdatedHandler(dispatch);
 
   // Keplr handlers
   const keplrAccountChangedHandler = KeplrAccountChangedHandler(
@@ -60,6 +62,7 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
   useEventListenerOnce(Events.UpdatedStaking, namadaUpdatedStakingHandler);
   useEventListenerOnce(Events.TxStarted, namadaTxStartedHandler);
   useEventListenerOnce(Events.TxCompleted, namadaTxCompletedHandler);
+  useEventListenerOnce(Events.ProposalsUpdated, namadaProposalsUpdatedHandler);
   useEventListenerOnce(KeplrEvents.AccountChanged, keplrAccountChangedHandler);
   useEventListenerOnce(
     MetamaskEvents.AccountChanged,

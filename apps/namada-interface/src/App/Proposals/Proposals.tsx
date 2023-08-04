@@ -1,8 +1,6 @@
 import * as O from "fp-ts/Option";
+import * as A from "fp-ts/Array";
 import BigNumber from "bignumber.js";
-
-import { Query } from "@namada/shared";
-import { chains } from "@namada/chains";
 
 import {
   ProposalsList,
@@ -15,11 +13,15 @@ import {
   ProposalCardVotesContainer,
   ProposalsContainer,
 } from "./Proposals.components";
-import { SettingsState } from "slices/settings";
-import { useAppSelector } from "store";
-import { useCallback, useEffect, useState } from "react";
+import { useAppDispatch, useAppSelector } from "store";
+import { useCallback, useEffect } from "react";
 import { ProposalDetails } from "./ProposalDetails";
-import { Proposal } from "./types";
+import {
+  ProposalsState,
+  fetchProposals,
+  setActiveProposal,
+} from "slices/proposals";
+import { pipe } from "fp-ts/lib/function";
 
 const getStatus = (status: string, result?: string): string => {
   return result || status;
@@ -48,46 +50,34 @@ const ProposalCardVotes = ({
 };
 
 export const Proposals = (): JSX.Element => {
-  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
-  const [proposals, setProposals] = useState<Proposal[]>([]);
-  const [activeProposal, setActiveProposal] = useState<O.Option<Proposal>>(
-    O.none
+  const dispatch = useAppDispatch();
+  const { proposals, activeProposalId } = useAppSelector<ProposalsState>(
+    (state) => state.proposals
   );
 
-  const { rpc } = chains[chainId];
-  const query = new Query(rpc);
-
   useEffect(() => {
-    const fetchProposals = async (): Promise<void> => {
-      try {
-        const sdkProposals = await query.queryProposals();
-        const proposals = sdkProposals.map((proposal) => ({
-          ...proposal,
-          content: JSON.parse(proposal.contentJSON) as Record<string, string>,
-        }));
-        setProposals(proposals);
-      } catch (e) {
-        console.error(e);
-        setProposals([]);
-      }
-    };
-    fetchProposals();
+    dispatch(fetchProposals());
   }, []);
 
-  const onProposalClick = useCallback((proposal: Proposal) => {
-    setActiveProposal(O.some(proposal));
+  const onProposalClick = useCallback((proposalId: string) => {
+    dispatch(setActiveProposal(proposalId));
   }, []);
 
   const onDetailsClose = useCallback(() => {
-    setActiveProposal(O.none);
+    dispatch(setActiveProposal());
   }, []);
+
+  const maybeProposal = pipe(
+    proposals,
+    A.findFirst((p) => p.id === activeProposalId)
+  );
 
   return (
     <ProposalsContainer>
       <h1>Proposals</h1>
       <ProposalsList>
         {proposals.map((proposal, i) => (
-          <ProposalCard key={i} onClick={() => onProposalClick(proposal)}>
+          <ProposalCard key={i} onClick={() => onProposalClick(proposal.id)}>
             <ProposalCardStatusContainer>
               <ProposalCardStatusInfo
                 className={getStatus(proposal.status, proposal.result)}
@@ -112,9 +102,9 @@ export const Proposals = (): JSX.Element => {
         ))}
       </ProposalsList>
       <ProposalDetails
-        open={O.isSome(activeProposal)}
+        open={O.isSome(maybeProposal)}
         onClose={onDetailsClose}
-        maybeProposal={activeProposal}
+        maybeProposal={maybeProposal}
       />
     </ProposalsContainer>
   );

@@ -99,7 +99,7 @@ const TopNavigationMenuItems = (props: {
         }}
         isSelected={topLevelPath === TopLevelRoute.Proposals}
       >
-        <MenuItemTextContainer>Governance</MenuItemTextContainer>
+        <MenuItemTextContainer>Proposals</MenuItemTextContainer>
       </MenuItem>
     </>
   );

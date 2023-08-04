@@ -24,7 +24,7 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { SettingsState } from "slices/settings";
 import { AccountsState } from "slices/accounts";
-import { Proposal } from "./types";
+import { Proposal } from "slices/proposals";
 
 export type ProposalDetailsProps = {
   open: boolean;
@@ -116,8 +116,20 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
           addresses,
           proposal.startEpoch - BigInt(1)
         );
+
+        //TODO: change to fpts, test if order does not change after voting
+        // and if status(yey buttons) updates~!!!!
+        const asd = addresses.reduce((acc, address) => {
+          const value = BigNumber(totalDelegations[address]);
+          if (value.isGreaterThan(0)) {
+            acc[address] = value;
+          }
+          return acc;
+        }, {} as Record<string, BigNumber>);
+        console.log(asd);
+
         setDelegators(O.some(totalDelegations));
-        setActiveDelegator(O.some(totalDelegations[0]));
+        setActiveDelegator(O.some(Object.keys(totalDelegations)[0]));
       } catch (e) {
         // TODO: handle rpc error
       }
@@ -192,15 +204,15 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
               </ProposalDetailsContentParagraph>
             </>
           )}
-          {unexpectedFields.map(([k, v]) => (
-            <>
+          {unexpectedFields.map(([k, v], i) => (
+            <div key={`field-${i}`}>
               <ProposalDetailsContentSubHeader>
                 {k}:
               </ProposalDetailsContentSubHeader>
               <ProposalDetailsContentParagraph>
                 {v}
               </ProposalDetailsContentParagraph>
-            </>
+            </div>
           ))}
 
           {/* status */}
@@ -217,9 +229,9 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
                 </ProposalDetailsAddressesHeader>
                 <Select
                   value={delegatorAddress}
-                  data={Object.keys(delegations).map((a) => ({
-                    value: a,
-                    label: shortenAddress(a, 32, 32),
+                  data={Object.keys(delegations).map((address) => ({
+                    value: address,
+                    label: shortenAddress(address, 32, 32),
                   }))}
                   onChange={(e) => {
                     setActiveDelegator(O.some(e.target.value));

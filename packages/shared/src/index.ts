@@ -1,10 +1,7 @@
-import { isLeft } from "fp-ts/Either";
-import { PathReporter } from "io-ts/PathReporter";
+import { deserialize } from "@dao-xyz/borsh";
 
 import { Query as RustQuery } from "./shared/shared";
-import { Type } from "io-ts";
 import { Proposal, Proposals } from "./types";
-import { deserialize } from "@dao-xyz/borsh";
 export * from "./shared/shared";
 export * from "./types";
 
