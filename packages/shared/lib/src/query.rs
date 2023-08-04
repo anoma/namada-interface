@@ -31,6 +31,7 @@ use wasm_bindgen::prelude::*;
 
 use crate::rpc_client::HttpClient;
 use crate::sdk::{io::WebIo, masp};
+use crate::types::query::ProposalInfo;
 use crate::utils::{set_panic_hook, to_js_result};
 
 #[wasm_bindgen]
@@ -359,8 +360,9 @@ impl Query {
         to_js_result(result)
     }
 
+    /// Returns a list of all proposals
     pub async fn query_proposals(&self) -> Result<Uint8Array, JsError> {
-        async fn print_proposal<C: namada::ledger::queries::Client + Sync>(
+        async fn get_proposal<C: namada::ledger::queries::Client + Sync>(
             client: &C,
             id: u64,
             current_epoch: Epoch,
@@ -382,7 +384,7 @@ impl Query {
             let content_key = gov_storage::get_content_key(id);
             let content =
                 query_storage_value::<C, HashMap<String, String>>(client, &content_key).await?;
-            let content = serde_json::to_string(&content).expect("TODO: handle error");
+            let content = serde_json::to_string(&content).ok()?;
 
             let votes = get_proposal_votes(client, start_epoch, id).await;
             let total_stake = get_total_staked_tokens(client, start_epoch)
@@ -430,7 +432,7 @@ impl Query {
                 ProposalType::Default(_) => "default",
             };
 
-            let res = ProposalInfo {
+            let proposal = ProposalInfo {
                 id: id.to_string(),
                 proposal_type: String::from(proposal_type),
                 author: author.to_string(),
@@ -444,7 +446,7 @@ impl Query {
                 result,
             };
 
-            Some(res)
+            Some(proposal)
         }
 
         let last_proposal_id_key = gov_storage::get_counter_key();
@@ -453,33 +455,34 @@ impl Query {
                 .await
                 .unwrap();
 
-        let current_epoch = namada::ledger::rpc::query_epoch(&self.client).await?;
-        let mut results = vec![];
+        let current_epoch = namada::ledger::rpc::query_epoch(&self.client).await;
+        let mut proposals = vec![];
 
-        // for id in 0..last_proposal_id {
-        //     let v = print_proposal(&self.client, id, current_epoch)
-        //         .await
-        //         .expect("WORK");
-        //     results.push(v);
-        // }
+        for id in 0..last_proposal_id {
+            let proposal = get_proposal(&self.client, id, current_epoch)
+                .await
+                .ok_or(JsError::new("Unable to get proposal"))?;
+            proposals.push(proposal);
+        }
 
-        let v = print_proposal(&self.client, last_proposal_id - 1, current_epoch)
-            .await
-            .expect("WORK");
         let mut writer = vec![];
-
-        results.push(v);
-        BorshSerialize::serialize(&results, &mut writer)?;
+        BorshSerialize::serialize(&proposals, &mut writer)?;
 
         Ok(Uint8Array::from(writer.as_slice()))
     }
 
+    /// Returns a list of all delegations for given addresses and epoch
+    ///
+    /// # Arguments
+    ///
+    /// * `addresses` - delegators addresses
+    /// * `epoch` - epoch in which we want to query delegations
     pub async fn get_total_delegations(
         &self,
         addresses: Box<[JsValue]>,
         epoch: Option<u64>,
     ) -> Result<JsValue, JsError> {
-        let owner_addresses: Vec<Address> = addresses
+        let addresses: Vec<Address> = addresses
             .into_iter()
             .filter_map(|address| address.as_string())
             .filter_map(|address| Address::from_str(&address).ok())
@@ -487,27 +490,32 @@ impl Query {
 
         let epoch = epoch.map(Epoch);
 
-        let mut validators_per_address: HashMap<Address, token::Amount> = HashMap::new();
+        let mut delegations: HashMap<Address, token::Amount> = HashMap::new();
 
-        for address in owner_addresses.into_iter() {
+        for address in addresses.into_iter() {
             let validators: HashMap<Address, token::Amount> = RPC
                 .vp()
                 .pos()
                 .delegations(&self.client, &address, &epoch)
                 .await?;
-            let total_voting_power = validators
+            let sum_of_delegations = validators
                 .into_values()
                 .fold(token::Amount::zero(), |acc, curr| {
                     acc.checked_add(curr).expect("Amount overflow")
                 });
 
-            validators_per_address.insert(address, total_voting_power);
+            delegations.insert(address, sum_of_delegations);
         }
 
-        to_js_result(validators_per_address)
+        to_js_result(delegations)
     }
 
-    pub async fn get_proposal_votes(&self, proposal_id: u64) -> Result<JsValue, JsError> {
+    /// Returns list of delegators that already voted on a proposal
+    ///
+    /// # Arguments
+    ///
+    /// * `proposal_id` - id of proposal to get delegators votes from
+    pub async fn delegators_votes(&self, proposal_id: u64) -> Result<JsValue, JsError> {
         let epoch = RPC.shell().epoch(&self.client).await?;
         let votes = namada::ledger::rpc::get_proposal_votes(&self.client, epoch, proposal_id).await;
         let res: Vec<(Address, bool)> = votes
@@ -526,24 +534,4 @@ impl Query {
 
         to_js_result(res)
     }
-}
-
-#[derive(Serialize)]
-struct ContentInfo {
-    content: HashMap<String, String>,
-}
-
-#[derive(BorshSerialize)]
-struct ProposalInfo {
-    id: String,
-    proposal_type: String,
-    author: String,
-    start_epoch: u64,
-    end_epoch: u64,
-    grace_epoch: u64,
-    content: String,
-    status: String,
-    yes_votes: Option<String>,
-    total_voting_power: Option<String>,
-    result: Option<String>,
 }

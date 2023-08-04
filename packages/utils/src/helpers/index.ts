@@ -177,28 +177,6 @@ export const Result = {
   },
 };
 
-export type Some<T> = { some: true; value: T };
-export type None = { some: false };
-export type Option<T> = Some<T> | None;
-
-export const Option = {
-  some: function <T>(value: T): Some<T> {
-    return { some: true as const, value };
-  },
-
-  none: function (): None {
-    return { some: false as const };
-  },
-
-  match<T, U>(option: Option<T>, some: (o: T) => U, none: () => U): U {
-    if (option.some) {
-      return some(option.value);
-    } else {
-      return none();
-    }
-  },
-};
-
 /**
  * Return a properly formatted BIP-044 path
  *

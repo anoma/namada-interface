@@ -609,7 +609,6 @@ impl Sdk {
         let proposal_vote = namada::ledger::tx::construct_proposal_vote(args.clone())
             .ok_or("Error constructing proposal vote.")
             .map_err(JsError::new)?;
-        web_sys::console::log_1(&format!("proposal_vote: {:?}", proposal_vote).into());
 
         let (tx, _, pk) = namada::ledger::tx::build_vote_proposal(
             &mut self.client,
@@ -620,7 +619,6 @@ impl Sdk {
         )
         .await
         .map_err(JsError::from)?;
-        web_sys::console::log_1(&format!("tx: {:?}", tx).into());
 
         self.sign_and_process_tx(args.tx, tx, pk).await?;
 

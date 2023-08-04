@@ -109,7 +109,7 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
   useEffect(() => {
     const fetchData = async (proposal: Proposal): Promise<void> => {
       try {
-        const votes = await query.get_proposal_votes(BigInt(proposal.id));
+        const votes = await query.delegators_votes(BigInt(proposal.id));
         setActiveProposalVotes(new Map(votes));
 
         const totalDelegations = await query.get_total_delegations(

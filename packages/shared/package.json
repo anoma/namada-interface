@@ -14,8 +14,6 @@
     "test-wasm:ci": "cd ./lib && cargo test"
   },
   "dependencies": {
-    "fp-ts": "^2.16.1",
-    "io-ts": "^2.2.20",
     "typescript": "^5.1.3"
   },
   "devDependencies": {

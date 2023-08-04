@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { field } from "@dao-xyz/borsh";
 import { TxMsgValue } from "./tx";
 import { SubmitVoteProposalProps } from "../types";

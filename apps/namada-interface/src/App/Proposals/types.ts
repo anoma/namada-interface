@@ -1,6 +1,5 @@
 import BigNumber from "bignumber.js";
 
-// TODO: move types to @namada/types
 export type Proposal = {
   id: string;
   proposalType: string;
