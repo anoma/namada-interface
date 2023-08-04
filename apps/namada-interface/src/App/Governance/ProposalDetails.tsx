@@ -17,13 +17,14 @@ import {
   ProposalDetailsAddressesHeader,
   ProposalDetailsButtons,
   ProposalDetailsContent,
+  ProposalDetailsContentSubHeader,
+  ProposalDetailsContentParagraph,
+  ProposalDetailsContentMainHeader,
 } from "./Governance.components";
-import { Proposal } from "slices/proposals";
 import { useCallback, useEffect, useState } from "react";
 import { SettingsState } from "slices/settings";
 import { AccountsState } from "slices/accounts";
-import { AppLoader } from "App/App.components";
-import { pipe } from "fp-ts/lib/function";
+import { Proposal } from "./types";
 
 export type ProposalDetailsProps = {
   open: boolean;
@@ -31,13 +32,17 @@ export type ProposalDetailsProps = {
   maybeProposal: O.Option<Proposal>;
 };
 
-export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
-  if (O.isNone(props.maybeProposal)) {
-    return <></>;
-  }
+const EXPECTED_CONTENT_FIELDS = [
+  "id",
+  "title",
+  "authors",
+  "details",
+  "motivation",
+  "license",
+];
 
-  const proposal = props.maybeProposal.value;
-  const { onClose } = props;
+export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
+  const { onClose, maybeProposal } = props;
 
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
@@ -73,9 +78,14 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
       const integration = getIntegration(chainId);
       const signer = integration.signer() as Signer;
 
+      if (O.isNone(maybeProposal)) {
+        throw new Error("No proposal");
+      }
+
       if (O.isNone(activeDelegator)) {
         throw new Error("No active delegator");
       }
+      const proposal = maybeProposal.value;
 
       await signer.submitVoteProposal(
         {
@@ -93,11 +103,11 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
         AccountType.Mnemonic
       );
     },
-    [activeDelegator, proposal]
+    [activeDelegator, maybeProposal]
   );
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = async (proposal: Proposal): Promise<void> => {
       try {
         const votes = await query.get_proposal_votes(BigInt(proposal.id));
         setActiveProposalVotes(new Map(votes));
@@ -113,30 +123,90 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
       }
     };
 
-    if (addresses.length > 0) {
-      fetchData();
+    if (addresses.length > 0 && O.isSome(maybeProposal)) {
+      fetchData(maybeProposal.value);
     }
-  }, [JSON.stringify(addresses)]);
+  }, [JSON.stringify(addresses), maybeProposal]);
 
-  if (O.isSome(activeDelegator) && O.isSome(delegators)) {
+  if (
+    O.isSome(activeDelegator) &&
+    O.isSome(delegators) &&
+    O.isSome(maybeProposal)
+  ) {
     const delegatorAddress = activeDelegator.value;
     const delegations = delegators.value;
+    const { id, content, status, result } = maybeProposal.value;
+    const { title, authors, details, motivation, license } = content;
+
+    const unexpectedFields = Object.entries(content).filter(
+      ([k]) => !EXPECTED_CONTENT_FIELDS.includes(k)
+    );
 
     return (
       <ProposalDetailsContainer open={open} onClick={onContainerClick}>
         <ProposalDetailsContent>
-          <h1>
-            #{proposal.id} {proposal.content.title}
-          </h1>
-          <p>by: {proposal.content.authors}</p>
-          <h3>Details:</h3>
-          <p>{proposal.content.details}</p>
-          <h3>Motivation:</h3>
-          <p>{proposal.content.motivation}</p>
-          <h3>License:</h3>
-          <p>{proposal.content.license}</p>
+          {/* main header */}
+          <ProposalDetailsContentMainHeader>
+            #{id} {title}
+          </ProposalDetailsContentMainHeader>
 
-          {proposal.status === "on-going" && !proposal.result && (
+          {/* authors */}
+          {authors && (
+            <ProposalDetailsContentParagraph>
+              by: {authors}
+            </ProposalDetailsContentParagraph>
+          )}
+
+          {/* details */}
+          {details && (
+            <>
+              <ProposalDetailsContentSubHeader>
+                Details:
+              </ProposalDetailsContentSubHeader>
+              <ProposalDetailsContentParagraph>
+                {details}
+              </ProposalDetailsContentParagraph>
+            </>
+          )}
+
+          {/* motivation */}
+          {motivation && (
+            <>
+              <ProposalDetailsContentSubHeader>
+                Motivation:
+              </ProposalDetailsContentSubHeader>
+              <ProposalDetailsContentParagraph>
+                {motivation}
+              </ProposalDetailsContentParagraph>
+            </>
+          )}
+
+          {/* license */}
+          {license && (
+            <>
+              <ProposalDetailsContentSubHeader>
+                License:
+              </ProposalDetailsContentSubHeader>
+              <ProposalDetailsContentParagraph>
+                {license}
+              </ProposalDetailsContentParagraph>
+            </>
+          )}
+          {unexpectedFields.map(([k, v]) => (
+            <>
+              <ProposalDetailsContentSubHeader>
+                {k}:
+              </ProposalDetailsContentSubHeader>
+              <ProposalDetailsContentParagraph>
+                {v}
+              </ProposalDetailsContentParagraph>
+            </>
+          ))}
+
+          {/* status */}
+
+          {/* voting section */}
+          {status === "on-going" && !result && (
             <>
               <ProposalDetailsAddresses>
                 <ProposalDetailsAddressesHeader>
@@ -185,6 +255,6 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
       </ProposalDetailsContainer>
     );
   } else {
-    return <AppLoader />;
+    return <></>;
   }
 };

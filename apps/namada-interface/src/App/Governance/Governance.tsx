@@ -19,32 +19,7 @@ import { SettingsState } from "slices/settings";
 import { useAppSelector } from "store";
 import { useCallback, useEffect, useState } from "react";
 import { ProposalDetails } from "./ProposalDetails";
-
-export type Proposal = {
-  id: string;
-  proposalType: string;
-  author: string;
-  startEpoch: bigint;
-  endEpoch: bigint;
-  graceEpoch: bigint;
-  content: Content;
-  status: string;
-  yesVotes?: string;
-  totalVotingPower?: string;
-  result?: string;
-};
-
-export type Content = {
-  abstract: string;
-  authors: string;
-  created: string;
-  details: string;
-  discussionsTo: string;
-  license: string;
-  motivation: string;
-  requires: string;
-  title: string;
-};
+import { Proposal } from "./types";
 
 const getStatus = (status: string, result?: string): string => {
   return result || status;
@@ -85,18 +60,10 @@ export const Governance = (): JSX.Element => {
   useEffect(() => {
     const fetchProposals = async (): Promise<void> => {
       try {
-        const sdkProposals = await query.query_proposals();
+        const sdkProposals = await query.queryProposals();
         const proposals = sdkProposals.map((proposal) => ({
           ...proposal,
-          proposalType: proposal.proposal_type,
-          startEpoch: BigInt(proposal.start_epoch),
-          endEpoch: BigInt(proposal.end_epoch),
-          graceEpoch: BigInt(proposal.grace_epoch),
-          content: {
-            ...proposal.content,
-            discussionsTo: proposal.content["discussions-to"],
-          },
-          totalVotingPower: proposal.total_voting_power,
+          content: JSON.parse(proposal.contentJSON) as Record<string, string>,
         }));
         setProposals(proposals);
       } catch (e) {
@@ -131,12 +98,13 @@ export const Governance = (): JSX.Element => {
             <ProposalCardInfoContainer>
               <ProposalCardText>
                 <ProposalCardId>{"#" + proposal.id}</ProposalCardId>
-                {proposal.content.title}: {proposal.content.details}
+                {proposal.content.title && `${proposal.content.title}: `}
+                {proposal.content.details || ""}
               </ProposalCardText>
               {proposal.yesVotes && proposal.totalVotingPower && (
                 <ProposalCardVotes
-                  yes={proposal.yesVotes}
-                  total={proposal.totalVotingPower}
+                  yes={proposal.yesVotes.toString()}
+                  total={proposal.totalVotingPower.toString()}
                 />
               )}
             </ProposalCardInfoContainer>

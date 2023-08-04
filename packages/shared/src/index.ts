@@ -1,10 +1,10 @@
 import { isLeft } from "fp-ts/Either";
 import { PathReporter } from "io-ts/PathReporter";
 
-import { Proposals } from "./types";
-import type { Proposal } from "./types";
 import { Query as RustQuery } from "./shared/shared";
 import { Type } from "io-ts";
+import { Proposal, Proposals } from "./types";
+import { deserialize } from "@dao-xyz/borsh";
 export * from "./shared/shared";
 export * from "./types";
 
@@ -71,11 +71,12 @@ export class Query extends RustQuery {
   query_total_bonds = promiseWithTimeout(
     super.query_total_bonds.bind(this)
   get_proposal_votes = promiseWithTimeout(super.get_proposal_votes.bind(this));
-  query_proposals = async (): Promise<Proposal[]> => {
+  // query_proposals = promiseWithTimeout(super.query_proposals.bind(this));
+  queryProposals = async (): Promise<Proposal[]> => {
     const fn = this._query_proposals;
     const proposals = await fn();
-    console.log(proposals);
-    return validateData(proposals, Proposals);
+    const deserialized = deserialize(proposals, Proposals);
+    return deserialized.proposals;
   };
   get_total_delegations = promiseWithTimeout(
     super.get_total_delegations.bind(this)

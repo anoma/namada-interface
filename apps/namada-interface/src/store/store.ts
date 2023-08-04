@@ -10,7 +10,6 @@ import {
   coinsReducer,
   notificationsReducer,
   stakingAndGovernanceReducers,
-  proposalsReducer,
 } from "slices";
 import { LocalStorageKeys } from "App/types";
 import { createTransform } from "redux-persist";
@@ -41,7 +40,6 @@ const reducers = combineReducers({
   coins: coinsReducer,
   notifications: notificationsReducer,
   stakingAndGovernance: stakingAndGovernanceReducers,
-  proposals: proposalsReducer,
 });
 
 const persistConfig = {

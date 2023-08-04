@@ -1,5 +1,8 @@
+use borsh::BorshSerialize;
+use js_sys::Uint8Array;
 use masp_primitives::transaction::components::I128Sum;
 use masp_primitives::zip32::ExtendedFullViewingKey;
+use masp_primitives::{transaction::components::Amount, zip32::ExtendedFullViewingKey};
 use namada::core::ledger::governance::storage::keys as gov_storage;
 use namada::core::ledger::governance::storage::proposal::ProposalType;
 use namada::ledger::eth_bridge::bridge_pool::query_signed_bridge_pool;
@@ -356,13 +359,12 @@ impl Query {
         to_js_result(result)
     }
 
-    pub async fn query_proposals(&self) -> Result<JsValue, JsError> {
+    pub async fn query_proposals(&self) -> Result<Uint8Array, JsError> {
         async fn print_proposal<C: namada::ledger::queries::Client + Sync>(
             client: &C,
             id: u64,
             current_epoch: Epoch,
         ) -> Option<ProposalInfo> {
-            web_sys::console::log_1(&format!("Proposal id: {}", id).into());
             let author_key = gov_storage::get_author_key(id);
             let start_epoch_key = gov_storage::get_voting_start_epoch_key(id);
             let end_epoch_key = gov_storage::get_voting_end_epoch_key(id);
@@ -380,13 +382,13 @@ impl Query {
             let content_key = gov_storage::get_content_key(id);
             let content =
                 query_storage_value::<C, HashMap<String, String>>(client, &content_key).await?;
+            let content = serde_json::to_string(&content).expect("TODO: handle error");
 
-            let votes = get_proposal_votes(client, start_epoch, id);
+            let votes = get_proposal_votes(client, start_epoch, id).await;
             let total_stake = get_total_staked_tokens(client, start_epoch)
                 .await
                 .try_into()
                 .unwrap();
-            web_sys::console::log_1(&"ASD3!".into());
             let status;
             let mut yes_votes = None;
             let mut total_voting_power = None;
@@ -431,10 +433,10 @@ impl Query {
             let res = ProposalInfo {
                 id: id.to_string(),
                 proposal_type: String::from(proposal_type),
-                author,
-                start_epoch: start_epoch.to_string(),
-                end_epoch: end_epoch.to_string(),
-                grace_epoch: grace_epoch.to_string(),
+                author: author.to_string(),
+                start_epoch: start_epoch.0,
+                end_epoch: end_epoch.0,
+                grace_epoch: grace_epoch.0,
                 content,
                 status: status.to_string(),
                 yes_votes: yes_votes.map(|v| v.to_string()),
@@ -464,9 +466,12 @@ impl Query {
         let v = print_proposal(&self.client, last_proposal_id - 1, current_epoch)
             .await
             .expect("WORK");
-        results.push(v);
+        let mut writer = vec![];
 
-        to_js_result(results)
+        results.push(v);
+        BorshSerialize::serialize(&results, &mut writer)?;
+
+        Ok(Uint8Array::from(writer.as_slice()))
     }
 
     pub async fn get_total_delegations(
@@ -524,20 +529,19 @@ impl Query {
 }
 
 #[derive(Serialize)]
-struct Votes {
-    pub validator_votes: HashMap<Address, (VotePower, ProposalVote)>,
-    pub delegator_votes: HashMap<Address, HashMap<Address, (VotePower, ProposalVote)>>,
+struct ContentInfo {
+    content: HashMap<String, String>,
 }
 
-#[derive(Serialize)]
+#[derive(BorshSerialize)]
 struct ProposalInfo {
     id: String,
     proposal_type: String,
-    author: Address,
-    start_epoch: String,
-    end_epoch: String,
-    grace_epoch: String,
-    content: HashMap<String, String>,
+    author: String,
+    start_epoch: u64,
+    end_epoch: u64,
+    grace_epoch: u64,
+    content: String,
     status: String,
     yes_votes: Option<String>,
     total_voting_power: Option<String>,

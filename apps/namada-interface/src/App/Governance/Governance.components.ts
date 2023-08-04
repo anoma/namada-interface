@@ -139,6 +139,12 @@ export const ProposalDetailsContent = styled.div`
   color: ${(props) => props.theme.colors.utility1.main};
 `;
 
+export const ProposalDetailsContentMainHeader = styled.h1``;
+export const ProposalDetailsContentSubHeader = styled.h3`
+  text-transform: capitalize;
+`;
+export const ProposalDetailsContentParagraph = styled.p``;
+
 export const ProposalDetailsAddresses = styled.div``;
 export const ProposalDetailsAddressesHeader = styled.h4`
   margin-bottom: 0px;
