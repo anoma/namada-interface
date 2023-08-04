@@ -1,4 +1,6 @@
 import * as O from "fp-ts/Option";
+import * as A from "fp-ts/Array";
+import * as R from "fp-ts/Record";
 import BigNumber from "bignumber.js";
 
 import { Select } from "@namada/components";
@@ -25,6 +27,7 @@ import { useCallback, useEffect, useState } from "react";
 import { SettingsState } from "slices/settings";
 import { AccountsState } from "slices/accounts";
 import { Proposal } from "slices/proposals";
+import { pipe } from "fp-ts/lib/function";
 
 export type ProposalDetailsProps = {
   open: boolean;
@@ -51,10 +54,10 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
   const [activeProposalVotes, setActiveProposalVotes] = useState<
     Map<string, boolean>
   >(new Map());
-  const [delegators, setDelegators] = useState<
+  const [maybeDelegations, setDelegations] = useState<
     O.Option<Record<string, BigNumber>>
   >(O.none);
-  const [activeDelegator, setActiveDelegator] = useState<O.Option<string>>(
+  const [maybeActiveDelegator, setActiveDelegator] = useState<O.Option<string>>(
     O.none
   );
   const [open, setOpen] = useState<boolean>(props.open);
@@ -82,7 +85,7 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
         throw new Error("No proposal");
       }
 
-      if (O.isNone(activeDelegator)) {
+      if (O.isNone(maybeActiveDelegator)) {
         throw new Error("No active delegator");
       }
       const proposal = maybeProposal.value;
@@ -95,7 +98,7 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
             gasLimit: new BigNumber(0),
             chainId,
           },
-          signer: activeDelegator.value,
+          signer: maybeActiveDelegator.value,
           vote: voteStr,
           proposalId: BigInt(proposal.id),
         },
@@ -103,12 +106,13 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
         AccountType.Mnemonic
       );
     },
-    [activeDelegator, maybeProposal]
+    [maybeActiveDelegator, maybeProposal]
   );
 
   useEffect(() => {
     const fetchData = async (proposal: Proposal): Promise<void> => {
       try {
+        //TODO: fp-ts promise
         const votes = await query.delegators_votes(BigInt(proposal.id));
         setActiveProposalVotes(new Map(votes));
 
@@ -117,18 +121,23 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
           proposal.startEpoch - BigInt(1)
         );
 
-        //TODO: change to fpts, test if order does not change after voting
+        //TODO: test if order does not change after voting
         // and if status(yey buttons) updates~!!!!
-        const asd = addresses.reduce((acc, address) => {
-          const value = BigNumber(totalDelegations[address]);
-          if (value.isGreaterThan(0)) {
-            acc[address] = value;
-          }
-          return acc;
-        }, {} as Record<string, BigNumber>);
-        console.log(asd);
 
-        setDelegators(O.some(totalDelegations));
+        // We filter over addresses to be sure that the order is correct
+        const delegations = pipe(
+          addresses,
+          A.filterMap((address) => {
+            return pipe(
+              BigNumber(totalDelegations[address]),
+              O.fromPredicate((v) => !v.isZero()),
+              O.map((v) => [address, v] as [string, BigNumber])
+            );
+          }),
+          R.fromEntries
+        );
+
+        setDelegations(O.some(delegations));
         setActiveDelegator(O.some(Object.keys(totalDelegations)[0]));
       } catch (e) {
         // TODO: handle rpc error
@@ -141,12 +150,12 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
   }, [JSON.stringify(addresses), maybeProposal]);
 
   if (
-    O.isSome(activeDelegator) &&
-    O.isSome(delegators) &&
+    O.isSome(maybeActiveDelegator) &&
+    O.isSome(maybeDelegations) &&
     O.isSome(maybeProposal)
   ) {
-    const delegatorAddress = activeDelegator.value;
-    const delegations = delegators.value;
+    const delegatorAddress = maybeActiveDelegator.value;
+    const delegations = maybeDelegations.value;
     const { id, content, status, proposalType } = maybeProposal.value;
     const { title, authors, details, motivation, license } = content;
 
