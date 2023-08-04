@@ -20,7 +20,7 @@ import {
   ProposalDetailsContentSubHeader,
   ProposalDetailsContentParagraph,
   ProposalDetailsContentMainHeader,
-} from "./Governance.components";
+} from "./Proposals.components";
 import { useCallback, useEffect, useState } from "react";
 import { SettingsState } from "slices/settings";
 import { AccountsState } from "slices/accounts";

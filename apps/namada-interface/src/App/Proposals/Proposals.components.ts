@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-export const GovernanceContainer = styled.div`
+export const ProposalsContainer = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: start;
@@ -11,7 +11,7 @@ export const GovernanceContainer = styled.div`
   background-color: ${(props) => props.theme.colors.utility1.main80};
 `;
 
-export const ProposalsContainer = styled.div`
+export const ProposalsList = styled.div`
   width: 100%;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

@@ -95,9 +95,9 @@ const TopNavigationMenuItems = (props: {
       {/* Governance */}
       <MenuItem
         onClick={() => {
-          navigate(`${TopLevelRoute.Governance}`);
+          navigate(`${TopLevelRoute.Proposals}`);
         }}
-        isSelected={topLevelPath === TopLevelRoute.Governance}
+        isSelected={topLevelPath === TopLevelRoute.Proposals}
       >
         <MenuItemTextContainer>Governance</MenuItemTextContainer>
       </MenuItem>
@@ -363,9 +363,9 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
               <MenuItemSubComponent
                 onClick={() => {
                   setShowMenu(false);
-                  navigate(`${TopLevelRoute.Governance}`);
+                  navigate(`${TopLevelRoute.Proposals}`);
                 }}
-                isSelected={topLevelRoute === TopLevelRoute.Governance}
+                isSelected={topLevelRoute === TopLevelRoute.Proposals}
               >
                 Governance
               </MenuItemSubComponent>

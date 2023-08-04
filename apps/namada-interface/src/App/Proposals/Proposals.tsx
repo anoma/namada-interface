@@ -5,7 +5,7 @@ import { Query } from "@namada/shared";
 import { chains } from "@namada/chains";
 
 import {
-  GovernanceContainer,
+  ProposalsList,
   ProposalCard,
   ProposalCardId,
   ProposalCardInfoContainer,
@@ -14,7 +14,7 @@ import {
   ProposalCardText,
   ProposalCardVotesContainer,
   ProposalsContainer,
-} from "./Governance.components";
+} from "./Proposals.components";
 import { SettingsState } from "slices/settings";
 import { useAppSelector } from "store";
 import { useCallback, useEffect, useState } from "react";
@@ -47,7 +47,7 @@ const ProposalCardVotes = ({
   );
 };
 
-export const Governance = (): JSX.Element => {
+export const Proposals = (): JSX.Element => {
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [activeProposal, setActiveProposal] = useState<O.Option<Proposal>>(
@@ -83,9 +83,9 @@ export const Governance = (): JSX.Element => {
   }, []);
 
   return (
-    <GovernanceContainer>
+    <ProposalsContainer>
       <h1>Proposals</h1>
-      <ProposalsContainer>
+      <ProposalsList>
         {proposals.map((proposal, i) => (
           <ProposalCard key={i} onClick={() => onProposalClick(proposal)}>
             <ProposalCardStatusContainer>
@@ -110,12 +110,12 @@ export const Governance = (): JSX.Element => {
             </ProposalCardInfoContainer>
           </ProposalCard>
         ))}
-      </ProposalsContainer>
+      </ProposalsList>
       <ProposalDetails
         open={O.isSome(activeProposal)}
         onClose={onDetailsClose}
         maybeProposal={activeProposal}
       />
-    </GovernanceContainer>
+    </ProposalsContainer>
   );
 };
