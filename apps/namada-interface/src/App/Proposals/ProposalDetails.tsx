@@ -1,6 +1,5 @@
 import * as O from "fp-ts/Option";
 import * as A from "fp-ts/Array";
-import * as R from "fp-ts/Record";
 import BigNumber from "bignumber.js";
 
 import { Select } from "@namada/components";
@@ -55,7 +54,7 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
     Map<string, boolean>
   >(new Map());
   const [maybeDelegations, setDelegations] = useState<
-    O.Option<Record<string, BigNumber>>
+    O.Option<{ delegations: Record<string, BigNumber>; order: string[] }>
   >(O.none);
   const [maybeActiveDelegator, setActiveDelegator] = useState<O.Option<string>>(
     O.none
@@ -112,32 +111,27 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
   useEffect(() => {
     const fetchData = async (proposal: Proposal): Promise<void> => {
       try {
-        //TODO: fp-ts promise
         const votes = await query.delegators_votes(BigInt(proposal.id));
         setActiveProposalVotes(new Map(votes));
 
-        const totalDelegations = await query.get_total_delegations(
+        const totalDelegations: Record<string, BigNumber> =
+          await query.get_total_delegations(
+            addresses,
+            // BigInt(8)
+            proposal.startEpoch - BigInt(1)
+          );
+        const order = pipe(
           addresses,
-          proposal.startEpoch - BigInt(1)
-        );
-
-        //TODO: test if order does not change after voting
-        // and if status(yey buttons) updates~!!!!
-
-        // We filter over addresses to be sure that the order is correct
-        const delegations = pipe(
-          addresses,
-          A.filterMap((address) => {
+          A.filter((address) => {
             return pipe(
               BigNumber(totalDelegations[address]),
               O.fromPredicate((v) => !v.isZero()),
-              O.map((v) => [address, v] as [string, BigNumber])
+              O.isSome
             );
-          }),
-          R.fromEntries
+          })
         );
 
-        setDelegations(O.some(delegations));
+        setDelegations(O.some({ delegations: totalDelegations, order }));
         setActiveDelegator(O.some(Object.keys(totalDelegations)[0]));
       } catch (e) {
         // TODO: handle rpc error
@@ -155,13 +149,13 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
     O.isSome(maybeProposal)
   ) {
     const delegatorAddress = maybeActiveDelegator.value;
-    const delegations = maybeDelegations.value;
-    const { id, content, status, proposalType } = maybeProposal.value;
+    const { delegations, order: delegationsOrder } = maybeDelegations.value;
+    const { id, content, status } = maybeProposal.value;
     const { title, authors, details, motivation, license } = content;
 
-    const unexpectedFields = Object.entries(content).filter(
-      ([k]) => !EXPECTED_CONTENT_FIELDS.includes(k)
-    );
+    const unexpectedFields = Object.entries(content)
+      .filter(([k]) => !EXPECTED_CONTENT_FIELDS.includes(k))
+      .sort(([a], [b]) => a.localeCompare(b));
 
     return (
       <ProposalDetailsContainer open={open} onClick={onContainerClick}>
@@ -229,52 +223,60 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
           {/* voting section */}
           {/* We only want to allow to vote when:
             - the proposal is on-going
-            - the proposal is not a eth_bridge proposal */}
-          {proposalType !== "eth_bridge" && status === "on-going" && (
-            <>
-              <ProposalDetailsAddresses>
-                <ProposalDetailsAddressesHeader>
-                  Vote with address:
-                </ProposalDetailsAddressesHeader>
-                <Select
-                  value={delegatorAddress}
-                  data={Object.keys(delegations).map((address) => ({
-                    value: address,
-                    label: shortenAddress(address, 32, 32),
-                  }))}
-                  onChange={(e) => {
-                    setActiveDelegator(O.some(e.target.value));
-                  }}
-                />
-                Power: {delegations[delegatorAddress]}
-              </ProposalDetailsAddresses>
-              <ProposalDetailsButtons>
-                <ProposalCardVoteButton
-                  onClick={() => vote(true)}
-                  disabled={activeProposalVotes.get(delegatorAddress) === true}
-                  title={
-                    activeProposalVotes.get(delegatorAddress)
-                      ? "You have already voted YAY"
-                      : ""
-                  }
-                >
-                  Vote YAY
-                </ProposalCardVoteButton>
-                <ProposalCardVoteButton
-                  onClick={() => vote(false)}
-                  disabled={activeProposalVotes.get(delegatorAddress) === false}
-                  title={
-                    !activeProposalVotes.get(delegatorAddress)
-                      ? "You have already voted NAY"
-                      : ""
-                  }
-                  className="inverse"
-                >
-                  Vote NAY
-                </ProposalCardVoteButton>
-              </ProposalDetailsButtons>
-            </>
-          )}
+          */}
+          {status === "ongoing" &&
+            //TODO: move it
+            !Object.values(delegations)
+              .reduce((acc, curr) => acc.plus(curr), BigNumber(0))
+              .eq(0) && (
+              <>
+                <ProposalDetailsAddresses>
+                  <ProposalDetailsAddressesHeader>
+                    Vote with address:
+                  </ProposalDetailsAddressesHeader>
+                  <Select
+                    value={delegatorAddress}
+                    data={delegationsOrder.map((address) => ({
+                      value: address,
+                      label: shortenAddress(address, 32, 32),
+                    }))}
+                    onChange={(e) => {
+                      setActiveDelegator(O.some(e.target.value));
+                    }}
+                  />
+                  Power: {delegations[delegatorAddress].toString()}
+                </ProposalDetailsAddresses>
+                <ProposalDetailsButtons>
+                  <ProposalCardVoteButton
+                    onClick={() => vote(true)}
+                    disabled={
+                      activeProposalVotes.get(delegatorAddress) === true
+                    }
+                    title={
+                      activeProposalVotes.get(delegatorAddress)
+                        ? "You have already voted YAY"
+                        : ""
+                    }
+                  >
+                    Vote YAY
+                  </ProposalCardVoteButton>
+                  <ProposalCardVoteButton
+                    onClick={() => vote(false)}
+                    disabled={
+                      activeProposalVotes.get(delegatorAddress) === false
+                    }
+                    title={
+                      !activeProposalVotes.get(delegatorAddress)
+                        ? "You have already voted NAY"
+                        : ""
+                    }
+                    className="inverse"
+                  >
+                    Vote NAY
+                  </ProposalCardVoteButton>
+                </ProposalDetailsButtons>
+              </>
+            )}
         </ProposalDetailsContent>
       </ProposalDetailsContainer>
     );

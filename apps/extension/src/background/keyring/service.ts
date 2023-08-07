@@ -24,7 +24,11 @@ import {
   ExtensionRequester,
   getNamadaRouterId,
 } from "extension";
-import { ProposalsUpdatedEventMsg } from "content/events";
+import {
+  ProposalsUpdatedEventMsg,
+  TxStartedEvent,
+  TxCompletedEvent,
+} from "content/events";
 import {
   createOffscreenWithTxWorker,
   hasOffscreenDocument,
@@ -230,21 +234,37 @@ export class KeyRingService {
   }
 
   async submitVoteProposal(txMsg: string, msgId: string): Promise<void> {
-    console.log(`TODO: Broadcast notification for ${msgId}`);
     try {
       await this._keyRing.submitVoteProposal(fromBase64(txMsg));
 
-      //TODO: fix that
       const tabs = await syncTabs(
         this.connectedTabsStore,
         this.requester,
         this.chainId
       );
+
+      tabs?.forEach(({ tabId }: TabStore) => {
+        console.log(`TODO: Broadcast notification for ${msgId}`);
+        this.requester.sendMessageToTab(
+          tabId,
+          Ports.WebBrowser,
+          new TxStartedEvent(this.chainId, msgId, TxType.VoteProposal)
+        );
+      });
+
+      await this._keyRing.submitVoteProposal(fromBase64(txMsg));
+
       tabs?.forEach(({ tabId }: TabStore) => {
         this.requester.sendMessageToTab(
           tabId,
           Ports.WebBrowser,
           new ProposalsUpdatedEventMsg(this.chainId)
+        );
+
+        this.requester.sendMessageToTab(
+          tabId,
+          Ports.WebBrowser,
+          new TxCompletedEvent(this.chainId, msgId, TxType.VoteProposal)
         );
       });
     } catch (e) {

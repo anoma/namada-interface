@@ -17,14 +17,15 @@ import { useAppDispatch, useAppSelector } from "store";
 import { useCallback, useEffect } from "react";
 import { ProposalDetails } from "./ProposalDetails";
 import {
+  Proposal,
   ProposalsState,
   fetchProposals,
   setActiveProposal,
 } from "slices/proposals";
 import { pipe } from "fp-ts/lib/function";
 
-const getStatus = (status: string, result?: string): string => {
-  return result || status;
+const getStatus = (proposal: Proposal): string => {
+  return proposal.status !== "finished" ? proposal.status : proposal.result;
 };
 
 const ProposalCardVotes = ({
@@ -76,13 +77,11 @@ export const Proposals = (): JSX.Element => {
     <ProposalsContainer>
       <h1>Proposals</h1>
       <ProposalsList>
-        {proposals.map((proposal, i) => (
+        {[...proposals].reverse().map((proposal, i) => (
           <ProposalCard key={i} onClick={() => onProposalClick(proposal.id)}>
             <ProposalCardStatusContainer>
-              <ProposalCardStatusInfo
-                className={getStatus(proposal.status, proposal.result)}
-              >
-                {getStatus(proposal.status, proposal.result)}
+              <ProposalCardStatusInfo className={getStatus(proposal)}>
+                {getStatus(proposal)}
               </ProposalCardStatusInfo>
             </ProposalCardStatusContainer>
             <ProposalCardInfoContainer>
@@ -91,9 +90,9 @@ export const Proposals = (): JSX.Element => {
                 {proposal.content.title && `${proposal.content.title}: `}
                 {proposal.content.details || ""}
               </ProposalCardText>
-              {proposal.yesVotes && proposal.totalVotingPower && (
+              {proposal.totalYayPower && proposal.totalVotingPower && (
                 <ProposalCardVotes
-                  yes={proposal.yesVotes.toString()}
+                  yes={proposal.totalYayPower.toString()}
                   total={proposal.totalVotingPower.toString()}
                 />
               )}

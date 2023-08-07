@@ -203,9 +203,9 @@ pub fn vote_proposal_tx_args(
     let args = args::VoteProposal {
         tx,
         proposal_id: Some(proposal_id),
+        is_offline: false,
         vote,
         voter,
-        is_offline: false,
         proposal_data: None,
         tx_code_path: PathBuf::from("tx_vote_proposal.wasm"),
     };

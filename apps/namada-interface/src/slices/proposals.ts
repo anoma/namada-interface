@@ -6,16 +6,17 @@ import { RootState } from "store";
 
 export type Proposal = {
   id: string;
-  proposalType: string;
+  proposalType: "pgf_steward" | "pgf_payment" | "default";
   author: string;
   startEpoch: bigint;
   endEpoch: bigint;
   graceEpoch: bigint;
   content: Partial<{ [key: string]: string }>;
-  status: string;
-  yesVotes?: BigNumber;
-  totalVotingPower?: BigNumber;
-  result?: string;
+  status: "ongoing" | "finished" | "upcoming";
+  result: string;
+  totalVotingPower: BigNumber;
+  totalYayPower: BigNumber;
+  totalNayPower: BigNumber;
 };
 
 export type ProposalsState = {

@@ -2,15 +2,17 @@ use borsh::BorshSerialize;
 use js_sys::Uint8Array;
 use masp_primitives::transaction::components::I128Sum;
 use masp_primitives::zip32::ExtendedFullViewingKey;
-use masp_primitives::{transaction::components::Amount, zip32::ExtendedFullViewingKey};
-use namada::core::ledger::governance::storage::keys as gov_storage;
+use namada::core::ledger::governance::storage::keys as governance_storage;
 use namada::core::ledger::governance::storage::proposal::ProposalType;
+use namada::core::ledger::governance::storage::vote::StorageProposalVote;
+use namada::core::ledger::governance::utils::{
+    compute_proposal_result, ProposalVotes, TallyVote, VotePower,
+};
 use namada::ledger::eth_bridge::bridge_pool::query_signed_bridge_pool;
 use namada::ledger::queries::RPC;
 use namada::ledger::rpc::{
     format_denominated_amount, get_public_key_at, get_token_balance, query_storage_value,
 };
-use namada::ledger::storage_api::governance::get_proposal_votes;
 use namada::proof_of_stake::Epoch;
 use namada::sdk::masp::ShieldedContext;
 use namada::sdk::rpc::{
@@ -24,7 +26,6 @@ use namada::types::{
     token::{self},
     uint::I256,
 };
-use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 use wasm_bindgen::prelude::*;
@@ -362,107 +363,70 @@ impl Query {
 
     /// Returns a list of all proposals
     pub async fn query_proposals(&self) -> Result<Uint8Array, JsError> {
-        async fn get_proposal<C: namada::ledger::queries::Client + Sync>(
-            client: &C,
-            id: u64,
-            current_epoch: Epoch,
-        ) -> Option<ProposalInfo> {
-            let author_key = gov_storage::get_author_key(id);
-            let start_epoch_key = gov_storage::get_voting_start_epoch_key(id);
-            let end_epoch_key = gov_storage::get_voting_end_epoch_key(id);
-            let proposal_type_key = gov_storage::get_proposal_type_key(id);
-
-            let author = query_storage_value::<C, Address>(client, &author_key).await?;
-            let start_epoch = query_storage_value::<C, Epoch>(client, &start_epoch_key).await?;
-            let end_epoch = query_storage_value::<C, Epoch>(client, &end_epoch_key).await?;
-            let proposal_type =
-                query_storage_value::<C, ProposalType>(client, &proposal_type_key).await?;
-
-            let grace_epoch_key = gov_storage::get_grace_epoch_key(id);
-            let grace_epoch = query_storage_value::<C, Epoch>(client, &grace_epoch_key).await?;
-
-            let content_key = gov_storage::get_content_key(id);
-            let content =
-                query_storage_value::<C, HashMap<String, String>>(client, &content_key).await?;
-            let content = serde_json::to_string(&content).ok()?;
-
-            let votes = get_proposal_votes(client, start_epoch, id).await;
-            let total_stake = get_total_staked_tokens(client, start_epoch)
-                .await
-                .try_into()
-                .unwrap();
-            let status;
-            let mut yes_votes = None;
-            let mut total_voting_power = None;
-            let mut result = None;
-
-            if start_epoch > current_epoch {
-                status = "pending";
-            } else if start_epoch <= current_epoch && current_epoch <= end_epoch {
-                status = "on-going";
-                match utils::compute_tally(votes, total_stake, &proposal_type) {
-                    Ok(partial_proposal_result) => {
-                        yes_votes = Some(partial_proposal_result.total_yay_power);
-                        total_voting_power = Some(partial_proposal_result.total_voting_power);
-                    }
-                    Err(msg) => {
-                        eprintln!("Error in tally computation: {}", msg)
-                    }
-                }
-            } else {
-                status = "done";
-                match utils::compute_tally(votes, total_stake, &proposal_type) {
-                    Ok(proposal_result) => {
-                        yes_votes = Some(proposal_result.total_yay_power);
-                        total_voting_power = Some(proposal_result.total_voting_power);
-                        result = match proposal_result.result {
-                            TallyResult::Passed(_) => Some("passed".to_string()),
-                            TallyResult::Rejected => Some("rejected".to_string()),
-                        };
-                    }
-                    Err(msg) => {
-                        eprintln!("Error in tally computation: {}", msg)
-                    }
-                }
-            }
-
-            let proposal_type = match proposal_type {
-                ProposalType::ETHBridge => "eth_bridge",
-                ProposalType::PGFCouncil => "pgf_council",
-                ProposalType::Default(_) => "default",
-            };
-
-            let proposal = ProposalInfo {
-                id: id.to_string(),
-                proposal_type: String::from(proposal_type),
-                author: author.to_string(),
-                start_epoch: start_epoch.0,
-                end_epoch: end_epoch.0,
-                grace_epoch: grace_epoch.0,
-                content,
-                status: status.to_string(),
-                yes_votes: yes_votes.map(|v| v.to_string()),
-                total_voting_power: total_voting_power.map(|v| v.to_string()),
-                result,
-            };
-
-            Some(proposal)
-        }
-
-        let last_proposal_id_key = gov_storage::get_counter_key();
+        let last_proposal_id_key = governance_storage::get_counter_key();
         let last_proposal_id =
             query_storage_value::<HttpClient, u64>(&self.client, &last_proposal_id_key)
                 .await
                 .unwrap();
 
-        let current_epoch = namada::ledger::rpc::query_epoch(&self.client).await;
-        let mut proposals = vec![];
+        let from_id = if last_proposal_id > 10 {
+            last_proposal_id - 10
+        } else {
+            0
+        };
 
-        for id in 0..last_proposal_id {
-            let proposal = get_proposal(&self.client, id, current_epoch)
+        let mut proposals: Vec<ProposalInfo> = vec![];
+        let epoch = RPC.shell().epoch(&self.client).await?;
+
+        for id in from_id..last_proposal_id {
+            let proposal = namada::ledger::rpc::query_proposal_by_id(&self.client, id)
                 .await
-                .ok_or(JsError::new("Unable to get proposal"))?;
-            proposals.push(proposal);
+                .unwrap()
+                .expect("Proposal should be written to storage.");
+            let votes = compute_proposal_votes(&self.client, id, proposal.voting_end_epoch).await;
+            let total_voting_power = namada::ledger::rpc::get_total_staked_tokens(
+                &self.client,
+                proposal.voting_end_epoch,
+            )
+            .await
+            .unwrap();
+            //TODO: for now we ignore stewards
+            let tally_type = proposal.get_tally_type(false);
+
+            let proposal_type = match proposal.r#type {
+                ProposalType::PGFSteward(_) => "pgf_steward",
+                ProposalType::PGFPayment(_) => "pgf_payment",
+                ProposalType::Default(_) => "default",
+            };
+            let status =
+                if proposal.voting_start_epoch <= epoch && proposal.voting_end_epoch >= epoch {
+                    "ongoing"
+                } else if proposal.voting_end_epoch < epoch {
+                    "finished"
+                } else {
+                    "upcoming"
+                };
+
+            let content = serde_json::to_string(&proposal.content)?;
+
+            let proposal_result = compute_proposal_result(votes, total_voting_power, tally_type);
+
+            let proposal_info = ProposalInfo {
+                id: proposal.id.to_string(),
+                proposal_type: proposal_type.to_string(),
+                author: proposal.author.to_string(),
+                start_epoch: proposal.voting_start_epoch.0,
+                end_epoch: proposal.voting_end_epoch.0,
+                grace_epoch: proposal.grace_epoch.0,
+                content,
+                status: status.to_string(),
+                result: proposal_result.result.to_string(),
+                total_voting_power: proposal_result.total_voting_power.to_string_native(),
+                total_yay_power: proposal_result.total_yay_power.to_string_native(),
+                total_nay_power: proposal_result.total_nay_power.to_string_native(),
+            };
+
+            proposals.push(proposal_info);
         }
 
         let mut writer = vec![];
@@ -516,22 +480,70 @@ impl Query {
     ///
     /// * `proposal_id` - id of proposal to get delegators votes from
     pub async fn delegators_votes(&self, proposal_id: u64) -> Result<JsValue, JsError> {
-        let epoch = RPC.shell().epoch(&self.client).await?;
-        let votes = namada::ledger::rpc::get_proposal_votes(&self.client, epoch, proposal_id).await;
+        let votes = namada::ledger::rpc::query_proposal_votes(&self.client, proposal_id).await?;
         let res: Vec<(Address, bool)> = votes
-            .delegators
             .into_iter()
-            .map(|(k, v)| {
-                let vote = v.into_iter().fold(false, |acc, (_, (_, proposal_vote))| {
-                    acc || match proposal_vote {
-                        ProposalVote::Nay => false,
-                        ProposalVote::Yay(_) => true,
-                    }
-                });
-                (k, vote)
+            .map(|vote| {
+                let is_yay = match vote.data {
+                    StorageProposalVote::Yay(_) => true,
+                    StorageProposalVote::Nay => false,
+                };
+                (vote.delegator, is_yay)
             })
             .collect();
 
         to_js_result(res)
+    }
+}
+
+//TODO: remove after mving this fn  from apps to shared
+pub async fn compute_proposal_votes(
+    client: &HttpClient,
+    proposal_id: u64,
+    epoch: Epoch,
+) -> ProposalVotes {
+    let votes = namada::ledger::rpc::query_proposal_votes(client, proposal_id)
+        .await
+        .unwrap();
+
+    let mut validators_vote: HashMap<Address, TallyVote> = HashMap::default();
+    let mut validator_voting_power: HashMap<Address, VotePower> = HashMap::default();
+    let mut delegators_vote: HashMap<Address, TallyVote> = HashMap::default();
+    let mut delegator_voting_power: HashMap<Address, HashMap<Address, VotePower>> =
+        HashMap::default();
+
+    for vote in votes {
+        if vote.is_validator() {
+            let validator_stake = RPC
+                .vp()
+                .pos()
+                .validator_stake(client, &vote.validator.clone(), &Some(epoch))
+                .await
+                .expect("Validator stake should be present")
+                .unwrap_or_default();
+
+            validators_vote.insert(vote.validator.clone(), vote.data.into());
+            validator_voting_power.insert(vote.validator, validator_stake);
+        } else {
+            let (_, delegator_stake) = RPC
+                .vp()
+                .pos()
+                .bond_with_slashing(client, &vote.delegator, &vote.validator, &Some(epoch))
+                .await
+                .expect("Delegator stake should be present");
+
+            delegators_vote.insert(vote.delegator.clone(), vote.data.into());
+            delegator_voting_power
+                .entry(vote.delegator.clone())
+                .or_default()
+                .insert(vote.validator, delegator_stake);
+        }
+    }
+
+    ProposalVotes {
+        validators_vote,
+        validator_voting_power,
+        delegators_vote,
+        delegator_voting_power,
     }
 }

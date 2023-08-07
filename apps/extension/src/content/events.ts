@@ -179,11 +179,11 @@ export class ProposalsUpdatedEventMsg extends Message<void> {
 
 export function initEvents(router: Router): void {
   router.registerMessage(AccountChangedEventMsg);
-  router.registerMessage(TxStartedEvent);
-  router.registerMessage(TxCompletedEvent);
   router.registerMessage(UpdatedBalancesEventMsg);
   router.registerMessage(UpdatedStakingEventMsg);
   router.registerMessage(ProposalsUpdatedEventMsg);
+  router.registerMessage(TxStartedEvent);
+  router.registerMessage(TxCompletedEvent);
 
   router.addHandler(Routes.InteractionForeground, (_, msg) => {
     const clonedMsg =

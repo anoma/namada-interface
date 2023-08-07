@@ -246,23 +246,8 @@ impl Sdk {
             TxType::VoteProposal => {
                 self.build_vote_proposal(specific_msg, tx_msg, None, Some(gas_payer))
                     .await?
-            } // TxType::VoteProposal => {
-              //     let (args, signer) = tx::submit_vote_proposal_tx_args(tx_msg, None)?;
-              //     let proposal_vote = namada::ledger::tx::construct_proposal_vote(args.clone())
-              //         .ok_or("Error constructing proposal vote.")
-              //         .map_err(JsError::new)?;
-
-              //     let (tx, _, _) = namada::ledger::tx::build_vote_proposal(
-              //         &mut self.client,
-              //         &mut self.wallet,
-              //         proposal_vote,
-              //         signer,
-              //         args.clone(),
-              //     )
-              //     .await
-              //     .map_err(JsError::from)?;
-              //     tx
-              // }
+                    .tx
+            }
         };
 
         to_js_result(tx.try_to_vec()?)
@@ -603,23 +588,31 @@ impl Sdk {
         tx_msg: &[u8],
         password: Option<String>,
     ) -> Result<(), JsError> {
-        let (args, signer) = tx::submit_vote_proposal_tx_args(tx_msg, password)?;
+        let (args, faucet_signer) = tx::submit_vote_proposal_tx_args(tx_msg, password)?;
+        let source = args.voter.clone();
+        let default_signer = faucet_signer.clone().or(Some(source.clone()));
+        let signing_data = signing::aux_signing_data(
+            &self.client,
+            &mut self.wallet,
+            &args.tx.clone(),
+            &Some(source),
+            default_signer,
+        )
+        .await?;
+        let current_epoch = query_epoch(&self.client).await?;
 
-        let proposal_vote = namada::ledger::tx::construct_proposal_vote(args.clone())
-            .ok_or("Error constructing proposal vote.")
-            .map_err(JsError::new)?;
-
-        let (tx, _, pk) = namada::ledger::tx::build_vote_proposal(
+        let (tx, _) = namada::ledger::tx::build_vote_proposal(
             &mut self.client,
             &mut self.wallet,
-            proposal_vote,
-            signer,
+            &mut self.shielded_ctx,
             args.clone(),
+            current_epoch,
+            signing_data.fee_payer.clone(),
         )
-        .await
-        .map_err(JsError::from)?;
+        .await?;
 
-        self.sign_and_process_tx(args.tx, tx, pk).await?;
+        self.sign_and_process_tx(args.tx, tx, signing_data, faucet_signer.is_some())
+            .await?;
 
         Ok(())
     }

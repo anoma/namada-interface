@@ -1,4 +1,5 @@
-import { field, option, vec } from "@dao-xyz/borsh";
+import { TxType } from "./shared/shared";
+import { field, vec } from "@dao-xyz/borsh";
 import BigNumber from "bignumber.js";
 import { BinaryWriter, BinaryReader } from "@dao-xyz/borsh";
 
@@ -17,7 +18,7 @@ export class Proposal {
   id!: string;
 
   @field({ type: "string" })
-  proposalType!: string;
+  proposalType!: "pgf_steward" | "pgf_payment" | "default";
 
   @field({ type: "string" })
   author!: string;
@@ -35,16 +36,19 @@ export class Proposal {
   contentJSON!: string;
 
   @field({ type: "string" })
-  status!: string;
+  status!: "ongoing" | "finished" | "upcoming";
 
-  @field({ type: option(BigNumberSerializer) })
-  yesVotes?: BigNumber;
+  @field({ type: "string" })
+  result!: "passed" | "rejected";
 
-  @field({ type: option(BigNumberSerializer) })
-  totalVotingPower?: BigNumber;
+  @field({ type: BigNumberSerializer })
+  totalVotingPower!: BigNumber;
 
-  @field({ type: option("string") })
-  result?: string;
+  @field({ type: BigNumberSerializer })
+  totalYayPower!: BigNumber;
+
+  @field({ type: BigNumberSerializer })
+  totalNayPower!: BigNumber;
 
   constructor(data: Proposal) {
     Object.assign(this, data);
@@ -59,3 +63,39 @@ export class Proposals {
     Object.assign(this, data);
   }
 }
+
+export type TxLabel =
+  | "Bond"
+  | "Unbond"
+  | "Transfer"
+  | "IBC Transfer"
+  | "Add to Eth Bridge Pool"
+  | "Withdraw"
+  | "RevealPK"
+  | "Vote Proposal";
+
+export const TxTypeLabel: Record<TxType, TxLabel> = {
+  [TxType.Bond]: "Bond",
+  [TxType.Unbond]: "Unbond",
+  [TxType.Withdraw]: "Withdraw",
+  [TxType.Transfer]: "Transfer",
+  [TxType.IBCTransfer]: "IBC Transfer",
+  [TxType.EthBridgeTransfer]: "Add to Eth Bridge Pool",
+  [TxType.RevealPK]: "RevealPK",
+  [TxType.VoteProposal]: "Vote Proposal",
+};
+
+type TransferToEthereumKind = "Erc20" | "Nut";
+
+export type TransferToEthereum = {
+  /// The kind of transfer to Ethereum.
+  kind: TransferToEthereumKind;
+  /// The type of token
+  asset: string;
+  /// The recipient address
+  recipient: string;
+  /// The sender of the transfer
+  sender: string;
+  /// The amount to be transferred
+  amount: string;
+};

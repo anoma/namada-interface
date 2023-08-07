@@ -65,6 +65,7 @@ export const AccountOverview = (): JSX.Element => {
   const extensionAttachStatus = useUntilIntegrationAttached(chain);
   const currentExtensionAttachStatus =
     extensionAttachStatus[chain.extension.id];
+  console.log(currentExtensionAttachStatus);
 
   const [total, setTotal] = useState(new BigNumber(0));
 
@@ -159,7 +160,7 @@ export const AccountOverview = (): JSX.Element => {
                 }
               >
                 {currentExtensionAttachStatus === "attached" ||
-                  currentExtensionAttachStatus === "pending"
+                currentExtensionAttachStatus === "pending"
                   ? `Connect to ${extensionAlias} Extension`
                   : "Click to download the extension"}
               </Button>
