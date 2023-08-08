@@ -64,7 +64,12 @@ export class LedgerService {
         throw new Error(`Ledger account not found for ${publicKey}`);
       }
 
-      const bytes = await this.sdk.build_tx(TxType.RevealPK, fromBase64(txMsg));
+      const bytes = await this.sdk.build_tx(
+        TxType.RevealPK,
+        fromBase64(txMsg),
+        //TODO:
+        publicKey as string
+      );
       const path = makeBip44Path(coinType, account.path);
 
       return { bytes, path };
@@ -168,7 +173,12 @@ export class LedgerService {
         throw new Error(`Ledger account not found for ${address}`);
       }
 
-      const bytes = await this.sdk.build_tx(txType, fromBase64(txMsg));
+      //TODO:
+      const bytes = await this.sdk.build_tx(
+        txType,
+        fromBase64(txMsg),
+        account.publicKey as string
+      );
       const path = makeBip44Path(coinType, account.path);
 
       return { bytes, path };

@@ -11,7 +11,6 @@ import {
   VecU8Pointer,
 } from "@namada/crypto";
 import {
-  Account,
   Address,
   ExtendedSpendingKey,
   ExtendedViewingKey,
@@ -596,32 +595,12 @@ export class KeyRing {
     return getAccountValuesFromStore(accounts);
   }
 
+  //TOOD: remove
   async encodeInitAccount(
-    address: string,
-    txMsg: Uint8Array
+    _address: string,
+    _txMsg: Uint8Array
   ): Promise<Uint8Array> {
-    if (!this._password) {
-      throw new Error("Not authenticated!");
-    }
-    const account = await this._keyStore.getRecord("address", address);
-    if (!account) {
-      throw new Error(`Account not found for ${address}`);
-    }
-
-    let pk: string;
-
-    try {
-      pk = crypto.decrypt(account.crypto, this._password, this._cryptoMemory);
-    } catch (e) {
-      throw new Error(`Could not unlock account for ${address}: ${e}`);
-    }
-
-    try {
-      const { tx_data } = new Account(txMsg, pk).to_serialized();
-      return tx_data;
-    } catch (e) {
-      throw new Error(`Could not encode InitAccount for ${address}: ${e}`);
-    }
+    return Promise.resolve(new Uint8Array());
   }
 
   async submitBond(txMsg: Uint8Array): Promise<void> {

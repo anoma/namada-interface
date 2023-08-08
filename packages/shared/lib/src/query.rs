@@ -1,7 +1,7 @@
 use masp_primitives::{transaction::components::Amount, zip32::ExtendedFullViewingKey};
 use namada::ledger::masp::ShieldedContext;
 use namada::ledger::queries::RPC;
-use namada::ledger::rpc::{get_public_key, get_token_balance};
+use namada::ledger::rpc::{get_public_key_at, get_token_balance};
 use namada::types::{
     address::Address,
     masp::ExtendedViewingKey,
@@ -104,8 +104,7 @@ impl Query {
             validators_per_address.insert(address, validators);
         }
 
-        let mut result: Vec<(Address, Address, String, String, String)> =
-          Vec::new();
+        let mut result: Vec<(Address, Address, String, String, String)> = Vec::new();
 
         let epoch = namada::ledger::rpc::query_epoch(&self.client).await;
         for (owner, validators) in validators_per_address.into_iter() {
@@ -204,7 +203,6 @@ impl Query {
                             unbond.withdraw.to_string(),
                         ));
                     }
-
                 }
             }
         }
@@ -288,7 +286,7 @@ impl Query {
 
     pub async fn query_public_key(&self, address: &str) -> Result<JsValue, JsError> {
         let addr = Address::from_str(address).map_err(JsError::from)?;
-        let pk = get_public_key(&self.client, &addr).await;
+        let pk = get_public_key_at(&self.client, &addr, 0).await;
 
         let result = match pk {
             Some(v) => Some(v.to_string()),
