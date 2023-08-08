@@ -25,7 +25,7 @@ import {
   BodyText,
 } from "Setup/Setup.components";
 import { Ports } from "router";
-import { AddLedgerAccountMsg } from "background/ledger/messages";
+import { AddLedgerParentAccountMsg } from "background/ledger";
 import { closeCurrentTab } from "utils";
 
 const LedgerConfirmation: React.FC = () => {
@@ -39,7 +39,7 @@ const LedgerConfirmation: React.FC = () => {
     try {
       await requester.sendMessage(
         Ports.Background,
-        new AddLedgerAccountMsg(alias, address, publicKey, {
+        new AddLedgerParentAccountMsg(alias, address, publicKey, {
           account: 0,
           change: 0,
           index: 0,

@@ -1,3 +1,5 @@
+import { ParentAccount } from "background/keyring";
+
 // Extra settings modes
 export enum Mode {
   ResetPassword = "Reset password",
@@ -7,4 +9,5 @@ export enum Mode {
 export type ExtraSetting = {
   mode: Mode;
   accountId: string;
+  accountType: ParentAccount;
 };

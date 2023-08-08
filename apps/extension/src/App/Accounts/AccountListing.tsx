@@ -62,6 +62,7 @@ const AccountListing = ({ account, parentAlias }: Props): JSX.Element => {
   const { address, alias, path, type } = account;
   const navigate = useNavigate();
   const isChildAccount = isChild(type, path);
+  const isLedgerParent = type === AccountType.Ledger && !isChildAccount;
 
   return (
     <AccountListingContainer>
@@ -76,7 +77,7 @@ const AccountListing = ({ account, parentAlias }: Props): JSX.Element => {
         <Address>{shortenAddress(address)}</Address>
       </Details>
       <Buttons>
-        {type === AccountType.Mnemonic && (
+        {(type === AccountType.Mnemonic || isLedgerParent) && (
           <Button
             onClick={() => {
               navigate(TopLevelRoute.AddAccount);

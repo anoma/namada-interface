@@ -2,9 +2,8 @@ import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import browser from "webextension-polyfill";
 
-import { DerivedAccount } from "@namada/types";
+import { AccountType, DerivedAccount } from "@namada/types";
 import { Button, ButtonVariant } from "@namada/components";
-import { assertNever } from "@namada/utils";
 
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
@@ -90,9 +89,7 @@ const Settings: React.FC<{
     }
   };
 
-  const handleDeleteAccount = async (
-    deletedAccountId: string
-  ): Promise<void> => {
+  const onDeleteAccount = async (): Promise<void> => {
     await fetchParentAccounts();
   };
 
@@ -135,6 +132,7 @@ const Settings: React.FC<{
                   setExtraSetting({
                     mode,
                     accountId: account.id,
+                    accountType: account.type as ParentAccount,
                   })
                 }
               />
@@ -164,7 +162,7 @@ const Settings: React.FC<{
             extraSetting={extraSetting}
             requester={requester}
             onClose={() => setExtraSetting(null)}
-            onDeleteAccount={handleDeleteAccount}
+            onDeleteAccount={onDeleteAccount}
           />
         </ThemedScrollbarContainer>
       </AccountsContainer>
@@ -196,6 +194,7 @@ const AccountListItem: React.FC<{
 
       {expanded && (
         <ModeSelect
+          type={account.type}
           onSelectMode={(mode) => {
             setExpanded(false);
             onSelectMode(mode);
@@ -211,8 +210,13 @@ const AccountListItem: React.FC<{
  */
 const ModeSelect: React.FC<{
   onSelectMode: (mode: Mode) => void;
-}> = ({ onSelectMode }) => {
-  const modes = [Mode.ResetPassword, Mode.DeleteAccount];
+  type: AccountType;
+}> = ({ onSelectMode, type }) => {
+  const modes = [Mode.DeleteAccount];
+
+  if (type !== AccountType.Ledger) {
+    modes.unshift(Mode.ResetPassword);
+  }
 
   return (
     <ModeSelectContainer>

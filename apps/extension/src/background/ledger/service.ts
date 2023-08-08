@@ -1,16 +1,23 @@
 import { fromBase64 } from "@cosmjs/encoding";
 import { deserialize } from "@dao-xyz/borsh";
 
-import { AccountType, Bip44Path, TxMsgValue } from "@namada/types";
+import {
+  AccountType,
+  Bip44Path,
+  DerivedAccount,
+  TxMsgValue,
+} from "@namada/types";
 import { ResponseSign } from "@namada/ledger-namada";
 import { Sdk, TxType } from "@namada/shared";
 import { IStore, KVStore, Store } from "@namada/storage";
 import { chains } from "@namada/chains";
-import { makeBip44Path } from "@namada/utils";
+import { Result, makeBip44Path } from "@namada/utils";
 
 import {
   AccountStore,
+  DeleteAccountError,
   KeyRingService,
+  SDK_KEY,
   TabStore,
   syncTabs,
 } from "background/keyring";
@@ -26,8 +33,9 @@ export class LedgerService {
   private _ledgerStore: IStore<AccountStore>;
 
   constructor(
-    protected readonly keyring: KeyRingService,
+    protected readonly keyringService: KeyRingService,
     protected readonly kvStore: KVStore<AccountStore[]>,
+    protected readonly sdkStore: KVStore<Record<string, string>>,
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
     protected readonly txStore: KVStore<string>,
     protected readonly chainId: string,
@@ -154,6 +162,7 @@ export class LedgerService {
       throw new Error(`${e}`);
     }
   }
+
   /**
    * Append a new address record for use with Ledger
    */
@@ -161,12 +170,13 @@ export class LedgerService {
     alias: string,
     address: string,
     publicKey: string,
-    bip44Path: Bip44Path
-  ): Promise<void> {
+    bip44Path: Bip44Path,
+    parentId?: string
+  ): Promise<DerivedAccount> {
     // Check if account exists in storage, return if so:
     const record = await this._ledgerStore.getRecord("address", address);
     if (record) {
-      return;
+      return record;
     }
 
     // Generate a UUID v5 unique id from alias & path
@@ -176,6 +186,7 @@ export class LedgerService {
       id,
       alias,
       address,
+      parentId,
       publicKey,
       owner: address,
       chainId: this.chainId,
@@ -186,10 +197,37 @@ export class LedgerService {
 
     // Prepare SDK store
     this.sdk.clear_storage();
-    await this.keyring.initSdkStore(id);
+    await this.keyringService.initSdkStore(id);
 
-    // Set active account ID
-    await this.keyring.setActiveAccount(id, AccountType.Ledger);
+    // Set active account ID, triggers account refresh in interface
+    await this.keyringService.setActiveAccount(
+      parentId || id,
+      AccountType.Ledger
+    );
+
+    return account;
+  }
+
+  async deleteAccount(
+    accountId: string
+  ): Promise<Result<null, DeleteAccountError>> {
+    const derivedAccounts =
+      (await this._ledgerStore.getRecords("parentId", accountId)) || [];
+
+    const accountIds = [accountId, ...derivedAccounts.map(({ id }) => id)];
+
+    for (const id of accountIds) {
+      id && (await this._ledgerStore.remove(id));
+    }
+
+    // remove account from sdk store
+    const records = await this.sdkStore.get(SDK_KEY);
+    if (records) {
+      const { [accountId]: _, ...rest } = records;
+      await this.sdkStore.set(SDK_KEY, rest);
+    }
+
+    return Result.ok(null);
   }
 
   async broadcastUpdateStaking(): Promise<void> {

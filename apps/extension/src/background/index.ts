@@ -99,6 +99,7 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
   const ledgerService = new LedgerService(
     keyRingService,
     store,
+    sdkStore,
     connectedTabsStore,
     txStore,
     defaultChainId,

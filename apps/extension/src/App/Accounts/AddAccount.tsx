@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -10,6 +10,8 @@ import {
 } from "@namada/components";
 import { AccountType, DerivedAccount } from "@namada/types";
 import { chains, defaultChainId } from "@namada/chains";
+import { makeBip44Path } from "@namada/utils";
+import { LedgerError } from "@namada/ledger-namada";
 
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
@@ -31,6 +33,7 @@ import {
 } from "./AddAccount.components";
 import { TopLevelRoute } from "App/types";
 import { useAuth } from "hooks";
+import { AddLedgerAccountMsg, Ledger } from "background/ledger";
 
 type Props = {
   accounts: DerivedAccount[];
@@ -88,14 +91,10 @@ const validateAliasInUse = (
  * Validates if alias is required
  *
  * @param {string} alias - alias of the new address
- * @param {boolean} isTransparent - is new address a transparent one
  * @returns {boolean} retursn true when alias is valid
  */
-const validateAliasIsRequired = (
-  alias: string,
-  isTransparent: boolean
-): boolean => {
-  return !(!isTransparent && alias === "");
+const validateAliasIsRequired = (alias: string): boolean => {
+  return alias !== "";
 };
 
 const findNextIndex = (
@@ -105,10 +104,7 @@ const findNextIndex = (
   let maxIndex = 0;
 
   accounts
-    .filter(
-      (account) =>
-        account.type !== AccountType.Mnemonic && account.type === accountType
-    )
+    .filter((account) => account.type === accountType)
     .forEach((account) => {
       const { index = 0 } = account.path;
       maxIndex = index + 1;
@@ -127,7 +123,7 @@ enum Validation {
   Valid = "",
   PathInUse = "Invalid path! This path is already in use.",
   AliasInUse = "This alias is already in use.",
-  AliasRequired = "Alias is required for shielded addresses.",
+  AliasRequired = "Alias is required!",
 }
 
 const AddAccount: React.FC<Props> = ({
@@ -146,26 +142,43 @@ const AddAccount: React.FC<Props> = ({
   const [formError, setFormError] = useState("");
   const [formStatus, setFormStatus] = useState(Status.Idle);
   const [isTransparent, setIsTransparent] = useState(true);
+  const {
+    id: parentId,
+    type: parentAccountType,
+    path: { account: parentAccountIndex },
+  } = parentAccount;
+
+  const getChildAccountType = (
+    parentAccountType: AccountType,
+    isTransparent: boolean
+  ): AccountType => {
+    if (parentAccountType === AccountType.Ledger) {
+      return parentAccountType;
+    }
+    return isTransparent ? AccountType.PrivateKey : AccountType.ShieldedKeys;
+  };
+
   const [index, setIndex] = useState(
     findNextIndex(
       accounts,
-      isTransparent ? AccountType.PrivateKey : AccountType.ShieldedKeys
+      getChildAccountType(parentAccountType, isTransparent)
     )
   );
 
   const bip44Prefix = "m/44";
   const zip32Prefix = "m/32";
   const { coinType } = chains[defaultChainId].bip44;
-  const parentAccountIndex = parentAccount.path.account;
 
   const authorize = useAuth(requester);
 
   useEffect(() => {
-    authorize(
-      TopLevelRoute.AddAccount,
-      `A password for "${parentAccount.alias}" is required to add an account!`,
-      unlockKeyRing
-    );
+    if (parentAccountType === AccountType.Mnemonic) {
+      authorize(
+        TopLevelRoute.AddAccount,
+        `A password for "${parentAccount.alias}" is required to add an account!`,
+        unlockKeyRing
+      );
+    }
   }, []);
 
   useEffect(() => {
@@ -174,59 +187,108 @@ const AddAccount: React.FC<Props> = ({
       parentAccountIndex,
       { change, index },
       accounts,
-      isTransparent ? AccountType.PrivateKey : AccountType.ShieldedKeys
+      parentAccountType
     );
-    const _validateAliasInUse = validateAliasInUse.bind(null, accounts, alias);
-    const _validateAliasIsRequired = validateAliasIsRequired.bind(
-      null,
-      alias,
-      isTransparent
-    );
-
-    if (!_validateAliasIsRequired()) {
-      setValidation(Validation.AliasRequired);
-    } else if (!_validateAliasInUse()) {
-      setValidation(Validation.AliasInUse);
-    } else if (!_validatePath()) {
+    if (!_validatePath()) {
       setValidation(Validation.PathInUse);
     } else {
       setValidation(Validation.Valid);
     }
-  }, [parentAccountIndex, change, index, alias, isTransparent]);
+  }, [parentAccountIndex, change, index, isTransparent]);
 
   useEffect(() => {
     setIndex(
       findNextIndex(
         accounts,
-        isTransparent ? AccountType.PrivateKey : AccountType.ShieldedKeys
+        getChildAccountType(parentAccountType, isTransparent)
       )
     );
-  }, [isTransparent]);
+  }, [accounts, parentAccountType, isTransparent]);
 
-  const handleAccountAdd = async (): Promise<void> => {
-    setFormStatus(Status.Pending);
+  const validateAlias = (accounts: DerivedAccount[], alias: string): void => {
+    const _validateAliasInUse = validateAliasInUse.bind(null, accounts, alias);
+    const _validateAliasIsRequired = validateAliasIsRequired.bind(null, alias);
+
+    if (!_validateAliasIsRequired()) {
+      setValidation(Validation.AliasRequired);
+    } else if (!_validateAliasInUse()) {
+      setValidation(Validation.AliasInUse);
+    } else {
+      setValidation(Validation.Valid);
+    }
+  };
+
+  const addLedgerAccount = async (): Promise<DerivedAccount | void> => {
+    const bip44Path = {
+      account: parentAccount.path.account,
+      change,
+      index,
+    };
+    const bip44PathString = makeBip44Path(
+      chains[defaultChainId].bip44.coinType,
+      bip44Path
+    );
+
+    const ledger = await Ledger.init();
+
     try {
-      const derivedAccount: DerivedAccount =
-        await requester.sendMessage<DeriveAccountMsg>(
-          Ports.Background,
-          new DeriveAccountMsg(
-            {
-              account: parentAccountIndex,
-              change,
-              index,
-            },
-            isTransparent ? AccountType.PrivateKey : AccountType.ShieldedKeys,
-            alias
-          )
-        );
-      setAccounts([...accounts, derivedAccount]);
-      navigate(TopLevelRoute.Accounts);
+      const {
+        info: { errorMessage, returnCode },
+      } = await ledger.status();
+
+      if (returnCode !== LedgerError.NoErrors) {
+        throw new Error(errorMessage);
+      }
+
+      setFormStatus(Status.Pending);
+      const { address, publicKey } = await ledger.getAddressAndPublicKey(
+        bip44PathString
+      );
+
+      return await requester.sendMessage(
+        Ports.Background,
+        new AddLedgerAccountMsg(alias, address, parentId, publicKey, bip44Path)
+      );
+    } catch (e) {
+      setFormError(`${e}`);
+      setFormStatus(Status.Failed);
+    } finally {
+      await ledger.closeTransport();
+    }
+  };
+
+  const addPrivateKeyAccount = async (): Promise<DerivedAccount> => {
+    setFormStatus(Status.Pending);
+    return await requester.sendMessage<DeriveAccountMsg>(
+      Ports.Background,
+      new DeriveAccountMsg(
+        {
+          account: parentAccountIndex,
+          change,
+          index,
+        },
+        isTransparent ? AccountType.PrivateKey : AccountType.ShieldedKeys,
+        alias
+      )
+    );
+  };
+
+  const handleAccountAdd = useCallback(async (): Promise<void> => {
+    try {
+      const derivedAccount =
+        parentAccountType === AccountType.Ledger
+          ? await addLedgerAccount()
+          : await addPrivateKeyAccount();
+      if (derivedAccount) {
+        setAccounts([...accounts, derivedAccount]);
+        navigate(TopLevelRoute.Accounts);
+      }
     } catch (e) {
       console.error(e);
       setFormStatus(Status.Failed);
       setFormError("An error occurred adding this account!");
     }
-  };
+  }, [accounts, alias, change, index]);
 
   const handleNumericChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -245,7 +307,7 @@ const AddAccount: React.FC<Props> = ({
 
   return (
     <AddAccountContainer>
-      {!isLocked && (
+      {!(parentAccountType === AccountType.Mnemonic && isLocked) && (
         <>
           <AddAccountForm
             onKeyDown={(e) => {
@@ -260,7 +322,11 @@ const AddAccount: React.FC<Props> = ({
                 label="Alias"
                 autoFocus={true}
                 value={alias}
-                onChangeCallback={(e) => setAlias(e.target.value)}
+                onChangeCallback={(e) => {
+                  const { value } = e.target;
+                  setAlias(value);
+                  validateAlias(accounts, value);
+                }}
               />
             </InputContainer>
             <InputContainer>
@@ -293,22 +359,23 @@ const AddAccount: React.FC<Props> = ({
                 </Bip44PathContainer>
               </Label>
             </InputContainer>
-            <InputContainer>
-              <ShieldedToggleContainer>
-                <span>Transparent&nbsp;</span>
-                <Toggle
-                  onClick={() => setIsTransparent(!isTransparent)}
-                  checked={isTransparent}
-                />
-                <span>&nbsp;Shielded</span>
-              </ShieldedToggleContainer>
-            </InputContainer>
+            {parentAccountType !== AccountType.Ledger && (
+              <InputContainer>
+                <ShieldedToggleContainer>
+                  <span>Transparent&nbsp;</span>
+                  <Toggle
+                    onClick={() => setIsTransparent(!isTransparent)}
+                    checked={isTransparent}
+                  />
+                  <span>&nbsp;Shielded</span>
+                </ShieldedToggleContainer>
+              </InputContainer>
+            )}
 
             <Bip44Path>
               Derivation path:{" "}
-              <span>{`${parentDerivationPath}${
-                isTransparent ? `${change}/` : ""
-              }${index}`}</span>
+              <span>{`${parentDerivationPath}${isTransparent ? `${change}/` : ""
+                }${index}`}</span>
             </Bip44Path>
             <FormValidationMsg>{validation}</FormValidationMsg>
           </AddAccountForm>
@@ -325,7 +392,9 @@ const AddAccount: React.FC<Props> = ({
             </Button>
             <Button
               variant={ButtonVariant.Contained}
-              disabled={!isFormValid || formStatus === Status.Pending}
+              disabled={
+                !isFormValid || formStatus === Status.Pending || alias === ""
+              }
               onClick={handleAccountAdd}
             >
               Add

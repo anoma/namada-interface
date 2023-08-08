@@ -1,39 +1,38 @@
-import { useState } from "react";
-import {
-  Button,
-  ButtonVariant
-} from "@namada/components";
-import zxcvbn, { ZXCVBNFeedback } from "zxcvbn";
+import { useCallback, useState } from "react";
+
+import { Button, ButtonVariant } from "@namada/components";
+import { assertNever } from "@namada/utils";
+import { AccountType } from "@namada/types";
 
 import {
   Input,
   InputContainer,
-  InputFeedback,
   Header5,
   ErrorFeedback,
 } from "./DeleteAccount.components";
-
 import { DeleteAccountMsg } from "background/keyring";
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
-import { DeleteAccountError } from "background/keyring/types";
-import { assertNever } from "@namada/utils";
+import { DeleteAccountError, ParentAccount } from "background/keyring/types";
+import { DeleteLedgerAccountMsg } from "background/ledger";
 
 enum Status {
   Unsubmitted,
   Pending,
   Complete,
-  Failed
-};
+  Failed,
+}
 
 export type Props = {
-  accountId: string,
-  requester: ExtensionRequester,
-  onDeleteAccount: (id: string) => void
+  accountId: string;
+  accountType: ParentAccount;
+  requester: ExtensionRequester;
+  onDeleteAccount: (id: string) => void;
 };
 
 const DeleteAccount: React.FC<Props> = ({
   accountId,
+  accountType,
   requester,
   onDeleteAccount,
 }) => {
@@ -41,15 +40,23 @@ const DeleteAccount: React.FC<Props> = ({
   const [status, setStatus] = useState<Status>(Status.Unsubmitted);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const shouldDisableSubmit = status === Status.Pending || !password;
+  const shouldDisableSubmit =
+    status === Status.Pending ||
+    (accountType !== AccountType.Ledger && !password);
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async (): Promise<void> => {
     setStatus(Status.Pending);
 
-    const result = await requester.sendMessage<DeleteAccountMsg>(
-      Ports.Background,
-      new DeleteAccountMsg(accountId, password)
-    );
+    const result =
+      accountType === AccountType.Ledger
+        ? await requester.sendMessage<DeleteLedgerAccountMsg>(
+          Ports.Background,
+          new DeleteLedgerAccountMsg(accountId)
+        )
+        : await requester.sendMessage<DeleteAccountMsg>(
+          Ports.Background,
+          new DeleteAccountMsg(accountId, password)
+        );
 
     if (result.ok) {
       setStatus(Status.Complete);
@@ -68,42 +75,38 @@ const DeleteAccount: React.FC<Props> = ({
           assertNever(result.error);
       }
     }
-  };
+  }, [accountId, password]);
 
   return (
     <>
       {status !== Status.Complete && (
         <>
-          <InputContainer>
-            <Header5>Password</Header5>
-            <Input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-            />
-          </InputContainer>
-
-          {errorMessage && (
-            <ErrorFeedback>{errorMessage}</ErrorFeedback>
+          {accountType !== AccountType.Ledger && (
+            <InputContainer>
+              <Header5>Password</Header5>
+              <Input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </InputContainer>
           )}
+
+          {errorMessage && <ErrorFeedback>{errorMessage}</ErrorFeedback>}
 
           <Button
             variant={ButtonVariant.Contained}
             onClick={handleSubmit}
             disabled={shouldDisableSubmit}
           >
-            {status === Status.Pending ?
-              "Pending..." :
-              "Delete account"}
+            {status === Status.Pending ? "Pending..." : "Delete account"}
           </Button>
         </>
       )}
 
-      {status === Status.Complete && (
-        <p>Complete!</p>
-      )}
+      {status === Status.Complete && <p>Complete!</p>}
     </>
   );
-}
+};
 
 export default DeleteAccount;

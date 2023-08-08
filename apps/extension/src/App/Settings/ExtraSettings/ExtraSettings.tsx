@@ -1,6 +1,6 @@
 import { assertNever } from "@namada/utils";
-import { ExtensionRequester } from "extension";
 
+import { ExtensionRequester } from "extension";
 import { Mode, ExtraSetting } from "./types";
 import { ResetPassword } from "./ResetPassword";
 import { DeleteAccount } from "./DeleteAccount";
@@ -29,6 +29,7 @@ const ExtraSettings: React.FC<{
       ) : extraSetting.mode === Mode.DeleteAccount ? (
         <DeleteAccount
           accountId={extraSetting.accountId}
+          accountType={extraSetting.accountType}
           requester={requester}
           onDeleteAccount={onDeleteAccount}
         />
