@@ -71,6 +71,7 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
       }
 
       await requester.sendMessage(Ports.Background, new Msg(msgId, password));
+      setStatus(Status.Completed);
     } catch (e) {
       console.info(e);
       setError(`${e}`);
