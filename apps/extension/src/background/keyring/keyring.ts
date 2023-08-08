@@ -595,14 +595,6 @@ export class KeyRing {
     return getAccountValuesFromStore(accounts);
   }
 
-  //TOOD: remove
-  async encodeInitAccount(
-    _address: string,
-    _txMsg: Uint8Array
-  ): Promise<Uint8Array> {
-    return Promise.resolve(new Uint8Array());
-  }
-
   async submitBond(txMsg: Uint8Array): Promise<void> {
     if (!this._password) {
       throw new Error("Not authenticated!");

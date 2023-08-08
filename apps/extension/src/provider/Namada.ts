@@ -15,7 +15,6 @@ import {
   GetChainMsg,
   GetChainsMsg,
   SuggestChainMsg,
-  EncodeInitAccountMsg,
   QueryAccountsMsg,
   FetchAndStoreMaspParamsMsg,
   HasMaspParamsMsg,
@@ -141,17 +140,6 @@ export class Namada implements INamada {
     return await this.requester?.sendMessage(
       Ports.Background,
       new ApproveIbcTransferMsg(txMsg, type)
-    );
-  }
-
-  public async encodeInitAccount(props: {
-    txMsg: string;
-    address: string;
-  }): Promise<string | undefined> {
-    const { txMsg, address } = props;
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new EncodeInitAccountMsg(txMsg, address)
     );
   }
 

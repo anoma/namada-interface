@@ -1,4 +1,4 @@
-import { fromBase64, toBase64 } from "@cosmjs/encoding";
+import { fromBase64 } from "@cosmjs/encoding";
 
 import { PhraseSize } from "@namada/crypto";
 import { KVStore, Store } from "@namada/storage";
@@ -321,19 +321,6 @@ export class KeyRingService {
       this.broadcaster.completeTx(msgId, TxType.IBCTransfer, false, `${e}`);
       throw new Error(`Unable to encode IBC transfer! ${e}`);
     }
-  }
-
-  /**
-   * Creating an InitAccount for Namada requires a secret,
-   * therefore, we need to query the private key for this account from
-   * storage
-   */
-  async encodeInitAccount(txMsg: string, address: string): Promise<string> {
-    const tx_data = await this._keyRing.encodeInitAccount(
-      address,
-      fromBase64(txMsg)
-    );
-    return toBase64(tx_data);
   }
 
   async setActiveAccount(id: string, type: ParentAccount): Promise<void> {

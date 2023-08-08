@@ -105,15 +105,6 @@ export class InjectedNamada implements INamada {
       type,
     });
   }
-  public async encodeInitAccount(props: {
-    txMsg: string;
-    address: string;
-  }): Promise<string | undefined> {
-    return await InjectedProxy.requestMethod<
-      { txMsg: string; address: string },
-      string
-    >("encodeInitAccount", props);
-  }
 
   public version(): string {
     return this._version;

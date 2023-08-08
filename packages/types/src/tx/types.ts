@@ -65,10 +65,6 @@ export type BridgeTransferProps = {
   amount: BigNumber;
 };
 
-export type InitAccountProps = {
-  vpCode: Uint8Array;
-};
-
 export type SignatureProps = {
   salt: Uint8Array;
   indices: Uint8Array;

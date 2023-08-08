@@ -8,6 +8,7 @@ use crate::{
 };
 use borsh::{BorshDeserialize, BorshSerialize};
 use namada::ledger::signing::SigningTxData;
+use namada::ledger::tx::Error;
 use namada::types::address::Address;
 use namada::types::key::common::SecretKey;
 use namada::types::tx::TxBuilder;
@@ -116,22 +117,23 @@ impl Sdk {
         &mut self,
         args: &args::Tx,
         pk: &PublicKey,
-        gas_payer: &PublicKey,
-        sk: Option<SecretKey>,
+        gas_payer: Option<SecretKey>,
     ) -> Result<(), JsError> {
         // Build a transaction to reveal the signer of this transaction
         let mut tx_builder = namada::ledger::tx::build_reveal_pk(
             &self.client,
             args,
-            //TODO: This is only needed for logging, we can remove it later
+            //TODO: This is only needed for logging, I imagine it will be cleaned up in Namada
             &args.gas_token,
             &pk,
-            &gas_payer,
+            // In the case of web interface gas_payer is the same as the signer
+            &pk,
         )
         .await?;
 
-        if let Some(sk) = sk {
-            tx_builder = tx_builder.add_gas_payer(sk);
+        // Add gas payer - hardware wallets should do it automatically
+        if let Some(gas_payer) = gas_payer {
+            tx_builder = tx_builder.add_gas_payer(gas_payer);
         }
 
         namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args, tx_builder.build())
@@ -147,8 +149,8 @@ impl Sdk {
         tx_builder: TxBuilder,
         signing_data: SigningTxData,
     ) -> Result<(), JsError> {
-        // In our case "signer" is the one we want to reveal.
-        // We support only one signer.
+        // We are revealing the signer of this transaction(if needed)
+        // We only support one signer(for now)
         let pk = &signing_data
             .public_keys
             .clone()
@@ -160,9 +162,9 @@ impl Sdk {
             .find_key_by_pk(pk, args.clone().password)
             .expect("No secret key found");
 
+        // Submit a reveal pk tx if necessary
         // TODO: do not submit when faucet
-        self.submit_reveal_pk(&args, &pk, &signing_data.gas_payer, Some(sk))
-            .await?;
+        self.submit_reveal_pk(&args, &pk, Some(sk)).await?;
 
         // Sign tx
         let tx_builder = signing::sign_tx(&mut self.wallet, &args, tx_builder, signing_data)?;
@@ -196,6 +198,7 @@ impl Sdk {
         tx_msg: &[u8],
         gas_payer: String,
     ) -> Result<JsValue, JsError> {
+        //TODO: verify if this works
         let gas_payer = PublicKey::from_str(&gas_payer)?;
 
         let tx_builder = match tx_type {
@@ -268,8 +271,6 @@ impl Sdk {
                 namada::ledger::tx::build_withdraw(&self.client, args.clone(), &gas_payer).await?
             }
         };
-        // TODO:
-        // tx.add_gas_payer(gas_payer);
         let tx = tx_builder.build();
 
         to_js_result(tx.try_to_vec()?)
@@ -308,12 +309,27 @@ impl Sdk {
         let verification_key = args.verification_key.clone();
         let pk = validate_pk(verification_key)?;
 
-        //TODO: gas_payer &pk
-        self.submit_reveal_pk(&args, &pk, &pk, None).await?;
+        self.submit_reveal_pk(&args, &pk, None).await?;
 
         namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args, transfer_tx).await?;
 
         Ok(())
+    }
+
+    async fn signing_data(
+        &mut self,
+        address: Address,
+        tx_args: args::Tx,
+    ) -> Result<SigningTxData, Error> {
+        let default_signer = signing::signer_from_address(Some(address.clone()));
+        signing::aux_signing_data(
+            &self.client,
+            &mut self.wallet,
+            &tx_args,
+            &address,
+            default_signer,
+        )
+        .await
     }
 
     pub async fn submit_transfer(
@@ -323,15 +339,9 @@ impl Sdk {
         xsk: Option<String>,
     ) -> Result<(), JsError> {
         let args = tx::transfer_tx_args(tx_msg, password, xsk)?;
-        let default_signer = signing::signer_from_address(Some(args.source.effective_address()));
-        let signing_data = signing::aux_signing_data(
-            &self.client,
-            &mut self.wallet,
-            &args.tx,
-            &args.source.effective_address(),
-            default_signer,
-        )
-        .await?;
+        let signing_data = self
+            .signing_data(args.source.effective_address(), args.tx.clone())
+            .await?;
 
         let (tx_builder, _) = namada::ledger::tx::build_transfer(
             &self.client,
@@ -353,15 +363,9 @@ impl Sdk {
         password: Option<String>,
     ) -> Result<(), JsError> {
         let args = tx::ibc_transfer_tx_args(tx_msg, password)?;
-        let default_signer = signing::signer_from_address(Some(args.source.clone()));
-        let signing_data = signing::aux_signing_data(
-            &self.client,
-            &mut self.wallet,
-            &args.tx,
-            &args.source,
-            default_signer,
-        )
-        .await?;
+        let signing_data = self
+            .signing_data(args.source.clone(), args.tx.clone())
+            .await?;
 
         let tx_builder = namada::ledger::tx::build_ibc_transfer(
             &self.client,
@@ -383,15 +387,7 @@ impl Sdk {
     ) -> Result<(), JsError> {
         let args = tx::bond_tx_args(tx_msg, password)?;
         let source = args.source.as_ref().expect("Source address is required");
-        let default_signer = signing::signer_from_address(Some(source.clone()));
-        let signing_data = signing::aux_signing_data(
-            &self.client,
-            &mut self.wallet,
-            &args.tx,
-            &source,
-            default_signer,
-        )
-        .await?;
+        let signing_data = self.signing_data(source.clone(), args.tx.clone()).await?;
 
         let tx_builder =
             namada::ledger::tx::build_bond(&mut self.client, args.clone(), &signing_data.gas_payer)
@@ -411,15 +407,7 @@ impl Sdk {
     ) -> Result<(), JsError> {
         let args = tx::unbond_tx_args(tx_msg, password)?;
         let source = args.source.as_ref().expect("Source address is required");
-        let default_signer = signing::signer_from_address(Some(source.clone()));
-        let signing_data = signing::aux_signing_data(
-            &self.client,
-            &mut self.wallet,
-            &args.tx,
-            &source,
-            default_signer,
-        )
-        .await?;
+        let signing_data = self.signing_data(source.clone(), args.tx.clone()).await?;
 
         let (tx_builder, _) = namada::ledger::tx::build_unbond(
             &mut self.client,
@@ -442,15 +430,7 @@ impl Sdk {
     ) -> Result<(), JsError> {
         let args = tx::withdraw_tx_args(tx_msg, password)?;
         let source = args.source.as_ref().expect("Source address is required");
-        let default_signer = signing::signer_from_address(Some(source.clone()));
-        let signing_data = signing::aux_signing_data(
-            &self.client,
-            &mut self.wallet,
-            &args.tx,
-            &source,
-            default_signer,
-        )
-        .await?;
+        let signing_data = self.signing_data(source.clone(), args.tx.clone()).await?;
 
         let tx_builder = namada::ledger::tx::build_withdraw(
             &mut self.client,

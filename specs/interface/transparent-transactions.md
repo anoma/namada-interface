@@ -188,26 +188,6 @@ Ok(Transaction {
 _In namada CLI:_
 https://github.com/anoma/namada/blob/f6e78278608aaef253617885bb7ef95a50057268/apps/src/lib/client/tx.rs#L810-L814
 
-## Part 2 - Initialize Account Transaction
-
-Constructing an Initialize Account transaction follows a similar process to a transfer, however, in addition to providing a `tx_init_account` wasm, we need to provide the `vp_user` wasm as well, as this is required when constructing the transaction:
-
-```rust
-// namada-lib/src/account.rs
-
-let vp_code: Vec<u8> = vp_code.to_vec();
-let keypair = &Keypair::deserialize(serialized_keypair.clone())
-    .expect("Keypair could not be deserialized");
-let public_key = PublicKey::from(keypair.0.public.clone());
-
-let data = InitAccount {
-    public_key,
-    vp_code: vp_code.clone(),
-};
-```
-
-Following this, we will pass `data` into to our new transaction as before, along with `tx_code` and required values for `WrapperTx`, returning the final result in a `JsValue` containing the transaction hash and returned byte array.
-
 ## Submitting Transparent Transactions
 
 See [RPC](./rpc.md) for more information on HTTP and WebSocket RPC interaction with ledger.

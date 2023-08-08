@@ -57,6 +57,10 @@ export class LedgerService {
         TxMsgValue
       );
 
+      if (!publicKey) {
+        throw new Error("Public key not found in txMsg");
+      }
+
       // Query account from Ledger storage to determine path for signer
       const account = await this._ledgerStore.getRecord("publicKey", publicKey);
 
@@ -67,8 +71,7 @@ export class LedgerService {
       const bytes = await this.sdk.build_tx(
         TxType.RevealPK,
         fromBase64(txMsg),
-        //TODO:
-        publicKey as string
+        publicKey
       );
       const path = makeBip44Path(coinType, account.path);
 
@@ -173,11 +176,14 @@ export class LedgerService {
         throw new Error(`Ledger account not found for ${address}`);
       }
 
-      //TODO:
+      if (!account.publicKey) {
+        throw new Error(`Ledger account missing public key for ${address}`);
+      }
+
       const bytes = await this.sdk.build_tx(
         txType,
         fromBase64(txMsg),
-        account.publicKey as string
+        account.publicKey
       );
       const path = makeBip44Path(coinType, account.path);
 
