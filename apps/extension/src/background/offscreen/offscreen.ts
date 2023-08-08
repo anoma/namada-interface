@@ -18,12 +18,15 @@ const SW_TTL = 20000;
     chrome.runtime.sendMessage({ keepAlive: true });
   }, SW_TTL);
 
-  async function handleMessages({
-    data,
-    type,
-    routerId,
-    target,
-  }: SubmitTransferMessage): Promise<boolean> {
+  // Return value of true indicates response will be asynchronously
+  // sent using sendResponse; false otherwise.
+  function handleMessages(
+    submitTransferMessage: SubmitTransferMessage,
+    sender: unknown,
+    sendResponse: (response?: unknown) => void
+  ): boolean {
+    const {data, type, routerId, target} = submitTransferMessage;
+
     if (target !== OFFSCREEN_TARGET) {
       return false;
     }
@@ -54,17 +57,19 @@ const SW_TTL = 20000;
           new CloseOffscreenDocumentMsg()
         );
         clearInterval(pingSw);
+        // send blank response since returning true requires we send a response
+        sendResponse();
       }
     };
 
     if (type == SUBMIT_TRANSFER_MSG_TYPE) {
-      initSubmitTransferWebWorker(data, transferCompletedHandler);
+      initSubmitTransferWebWorker(data, transferCompletedHandler, sendResponse);
       ww_count++;
     } else {
       console.warn(`Unexpected message type received: '${type}'.`);
       return false;
     }
 
-    return false;
+    return true;
   }
 })();

@@ -9,6 +9,7 @@ import {
   SubmitTransferMessageData,
   TRANSFER_FAILED_MSG,
   TRANSFER_SUCCESSFUL_MSG,
+  WEB_WORKER_ERROR_MSG,
 } from "./types";
 import { ActiveAccountStore } from "background/keyring";
 
@@ -49,4 +50,10 @@ import { ActiveAccountStore } from "background/keyring";
   );
 
   postMessage({ msgName: INIT_MSG });
-})();
+})().catch(error => {
+  const { message, stack } = error;
+  postMessage({
+    msgName: WEB_WORKER_ERROR_MSG,
+    payload: { message, stack }
+  });
+});

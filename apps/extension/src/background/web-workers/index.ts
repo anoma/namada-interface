@@ -4,6 +4,7 @@ import {
   SubmitTransferMessageData,
   TRANSFER_FAILED_MSG,
   TRANSFER_SUCCESSFUL_MSG,
+  WEB_WORKER_ERROR_MSG,
 } from "./types";
 
 export const init = (
@@ -12,7 +13,8 @@ export const init = (
     msgId: string,
     success: boolean,
     payload?: string
-  ) => Promise<void>
+  ) => Promise<void>,
+  sendResponse?: (response?: unknown) => void
 ): void => {
   const w = new Worker("submit-transfer-web-worker.namada.js");
 
@@ -28,8 +30,10 @@ export const init = (
       transferCompletedHandler(data.msgId, false, payload).then(() =>
         w.terminate()
       );
+    } else if (msgName === WEB_WORKER_ERROR_MSG) {
+      sendResponse?.({ error: payload });
     } else {
-      console.warn("Not supporeted msg type.");
+      console.warn("Not supported msg type.");
     }
   };
 };

@@ -230,12 +230,18 @@ export class KeyRingService {
       await createOffscreenWithTxWorker(offscreenDocumentPath);
     }
 
-    await chrome.runtime.sendMessage({
+    const result = await chrome.runtime.sendMessage({
       type: SUBMIT_TRANSFER_MSG_TYPE,
       target: OFFSCREEN_TARGET,
       routerId,
       data: { txMsg, msgId, password, xsk },
     });
+
+    if (result?.error) {
+      const error = new Error(result.error?.message || "Error in web worker");
+      error.stack = result.error.stack;
+      throw error;
+    };
   }
 
   private async submitTransferFirefox(
