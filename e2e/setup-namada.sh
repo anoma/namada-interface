@@ -1,6 +1,6 @@
 #!/bin/bash -x
 
-VERSION="v0.19.0"
+VERSION="v0.20.1"
 CURRENT_VERSION=""
 NAMADA_DIR=".namada"
 NAMADA_BASE_DIR=".namada/basedir"
@@ -75,6 +75,7 @@ done < "$CONFIG"
 cp -f ${NAMADA_DIR}/wasm/*.wasm ${NAMADA_BASE_DIR}/${CHAIN_ID}/setup/validator-0/.namada/${CHAIN_ID}/wasm/
 cp -f ${NAMADA_DIR}/wasm/*.wasm ${NAMADA_BASE_DIR}/${CHAIN_ID}/wasm/
 
+echo "Replacing CHAIN_ID: $CHAIN_ID"
 # Override envs - so we do not have to rebuild extension and app
 if [[ $OS == "Darwin" ]]; then
     LC_ALL=C find ../apps/extension/build/chrome -type f -name "*.js" -exec sed -i "" -E "s/dev-test\..{21}/$CHAIN_ID/g" {} +
