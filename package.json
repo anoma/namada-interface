@@ -4,7 +4,8 @@
   "private": true,
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/*",
+    "e2e"
   ],
   "scripts": {
     "wasm:build-test": "./scripts/build-test.sh",
@@ -19,8 +20,8 @@
     "@cosmjs/encoding": "^0.27.1",
     "@cosmjs/json-rpc": "^0.27.1",
     "@cosmjs/tendermint-rpc": "^0.27.1",
-    "bn.js": "^5.2.0",
     "@dao-xyz/borsh": "^5.1.5",
+    "bn.js": "^5.2.0",
     "bs58": "^5.0.0",
     "buffer": "^6.0.3",
     "typescript": "^5.1.3",
