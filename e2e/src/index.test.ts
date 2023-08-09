@@ -2,95 +2,36 @@
  * @jest-environment node
  */
 import * as puppeteer from "puppeteer";
-import nodePath from "node:path";
-import { ChildProcess, exec } from "child_process";
-import terminate from "terminate/promise";
-import util from "node:util";
+import { ChildProcess } from "child_process";
 
-import { mnemonic, pwdOrAlias } from "./utils/values";
-import { targetPage, waitForXpath } from "./utils/helpers";
+import {
+  address0Alias,
+  pwdOrAlias,
+  shieldedAddress0Alias,
+} from "./utils/values";
+import {
+  launchPuppeteer,
+  openPopup,
+  setupNamada,
+  startNamada,
+  stopNamada,
+  targetPage,
+  waitForInputValue,
+  waitForXpath,
+} from "./utils/helpers";
+import { createAccount, importAccount } from "./partial/setup";
 
-// promisify exec
-const execPromise = util.promisify(exec);
-
-const root = nodePath.resolve(process.cwd(), "..");
-const path = `${root}/apps/extension/build/chrome`;
-
-const puppeteerArgs = [
-  `--disable-extensions-except=${path}`,
-  `--load-extension=${path}`,
-  "--disable-features=DialMediaRouteProvider",
-];
 jest.setTimeout(120000);
 
 let browser: puppeteer.Browser;
 let page: puppeteer.Page;
-
-const getExtensionId = async (): Promise<string> => {
-  // TODO: replace with poll check
-  await new Promise((r) => setTimeout(r, 200));
-  const targets = browser.targets();
-  const extensionTarget = targets.find(
-    (target) => target.type() === "service_worker"
-  );
-  if (!extensionTarget) {
-    throw new Error("No extension target found");
-  }
-  const partialExtensionUrl = extensionTarget.url() || "";
-  const [, , extensionId] = partialExtensionUrl.split("/");
-  return extensionId;
-};
-
-const openInterface = async (): Promise<void> => {
-  await page.goto("http://localhost:8080", {
-    waitUntil: ["domcontentloaded"],
-  });
-};
-
-const openPopup = async (): Promise<void> => {
-  const extensionId = await getExtensionId();
-  const popupUrl = `chrome-extension://${extensionId}/popup.html`;
-
-  await page.goto(popupUrl, {
-    waitUntil: ["domcontentloaded"],
-  });
-};
-
-const openSetup = async (): Promise<void> => {
-  const extensionId = await getExtensionId();
-  const popupUrl = `chrome-extension://${extensionId}/setup.html`;
-
-  await page.goto(popupUrl, {
-    waitUntil: ["domcontentloaded"],
-  });
-};
-
-function startNamada(namRefs: Set<ChildProcess>): ChildProcess {
-  const nam = exec(`sh ${process.cwd()}/start-namada.sh`);
-  namRefs.add(nam);
-  return nam;
-}
-
-async function setupNamada(): Promise<void> {
-  await execPromise(`sh ${process.cwd()}/setup-namada.sh`);
-}
-
-async function stopNamada(namada: ChildProcess): Promise<void> {
-  if (namada.pid) {
-    await terminate(namada.pid);
-  }
-}
 
 describe("Namada extension", () => {
   const namRefs = new Set<ChildProcess>();
 
   beforeEach(async function () {
     await setupNamada();
-    browser = await puppeteer.launch({
-      headless: false,
-      slowMo: 50,
-      args: puppeteerArgs,
-    });
+    browser = await launchPuppeteer();
     [page] = await browser.pages();
   });
 
@@ -114,10 +55,94 @@ describe("Namada extension", () => {
 
   describe("open the popup", () => {
     test("should open the popup", async () => {
-      await openPopup();
+      await openPopup(browser, page);
       // Check H1
       const h1 = await page.$eval("h1", (e) => e.innerText);
       expect(h1).toEqual("Namada Browser Extension");
+    });
+  });
+
+  describe("account", () => {
+    test("create account & derive transparent address", async () => {
+      await createAccount(browser, page);
+
+      // Check if address was added
+      openPopup(browser, page);
+      await page.waitForNavigation();
+
+      const addresses = await page.$$("li[class*='AccountsListItem']");
+
+      expect(addresses.length).toEqual(1);
+
+      // Click to derive new address
+      await page.$eval(
+        "div[class*='AccountListingContainer-'] a[class*='Button']",
+        (e) => e.click()
+      );
+
+      // Derive new address
+      const input = await page.$("input");
+      input?.type(address0Alias);
+      await waitForInputValue(page, input, address0Alias);
+
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Add')]"
+        )
+      ).click();
+
+      // Check if address was added
+      await page.waitForSelector("ul[class*='AccountsList']");
+      const itemsLength = await page.$$eval(
+        "li[class*='AccountsListItem']",
+        (e) => e.length
+      );
+
+      expect(itemsLength).toEqual(2);
+    });
+
+    test("create account & derive shielded address", async () => {
+      await createAccount(browser, page);
+
+      // Check if address was added
+      openPopup(browser, page);
+      await page.waitForNavigation();
+
+      const addresses = await page.$$("li[class*='AccountsListItem']");
+
+      expect(addresses.length).toEqual(1);
+
+      // Click to derive new address
+      await page.$eval(
+        "div[class*='AccountListingContainer-'] a[class*='Button']",
+        (e) => e.click()
+      );
+
+      // Input text and wait
+      const input = await page.$("input");
+      input?.type(shieldedAddress0Alias);
+      await waitForInputValue(page, input, shieldedAddress0Alias);
+
+      // Switch to shielded
+      page.$eval("button[data-testid='Toggle']", (e) => e.click());
+
+      // Derive new address
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Add')]"
+        )
+      ).click();
+
+      // Check if address was added
+      await page.waitForSelector("ul[class*='AccountsList']");
+      const itemsLength = await page.$$eval(
+        "li[class*='AccountsListItem']",
+        (e) => e.length
+      );
+
+      expect(itemsLength).toEqual(2);
     });
   });
 
@@ -125,67 +150,7 @@ describe("Namada extension", () => {
     test("should send transfer", async () => {
       const nam = startNamada(namRefs);
 
-      await openSetup();
-
-      // Check H1
-      const setupH1 = await page.$eval("h1", (e) => e.innerText);
-      expect(setupH1).toEqual("Create Your Account");
-
-      // Click on import account
-      (
-        await waitForXpath<HTMLButtonElement>(
-          page,
-          "//button[contains(., 'Import an account')]"
-        )
-      ).click();
-      await page.waitForNavigation();
-
-      // Check H1
-      const mnemonicH1 = await page.$eval("h1", (e) => e.innerText);
-      expect(mnemonicH1).toEqual("Import Account");
-
-      // Fill mnemonic
-      const wordInputs = await page.$$("input");
-      let index = 0;
-      for await (const input of wordInputs) {
-        await input.type(mnemonic[index]);
-        index++;
-      }
-
-      // Click on import account
-      (
-        await waitForXpath<HTMLButtonElement>(
-          page,
-          "//button[contains(., 'Import')]"
-        )
-      ).click();
-      await page.waitForNavigation();
-
-      const pwdInputs = await page.$$("input");
-      for await (const input of pwdInputs) {
-        await input.type(pwdOrAlias);
-      }
-
-      // Click on create account
-      (
-        await waitForXpath<HTMLButtonElement>(
-          page,
-          "//button[contains(., 'Create an Account')]"
-        )
-      ).click();
-      await page.waitForNavigation();
-
-      // Wait for setup completion and open the interface
-      await page.waitForXPath("//p[contains(., 'Setup is complete')]");
-      await openInterface();
-
-      // Click on connect to extension
-      (
-        await waitForXpath<HTMLButtonElement>(
-          page,
-          "//button[contains(., 'Connect to')]"
-        )
-      ).click();
+      await importAccount(browser, page);
 
       // Click on send button
       (
