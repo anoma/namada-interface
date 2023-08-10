@@ -15,9 +15,9 @@
     "setup:frontend:watch": "./setup-frontend.sh --watch",
     "wasm:build": "./build-wasm.sh --release",
     "wasm:build:dev": "./build-wasm.sh",
-    "test": "jest --runInBand",
-    "test:watch": "jest --watch --runInBand",
-    "test:ci": "yarn wasm:build:dev && start-server-and-test 'yarn setup:frontend' http://localhost:8080 'yarn test'"
+    "test-e2e": "jest --runInBand",
+    "test-e2e:watch": "jest --watch --runInBand",
+    "test-e2e:ci": "start-server-and-test 'yarn setup:frontend' http://127.0.0.1:8080 'yarn test-e2e'"
   },
   "dependencies": {
     "typescript": "^5.1.3"

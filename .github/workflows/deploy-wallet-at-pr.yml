@@ -221,13 +221,32 @@ jobs:
       - name: Restore yarn cache
         uses: actions/cache@v3
         with:
-          path: $YARN_CACHE_PATHS
+          path: |
+            ./node_modules
+            ./apps/namada-interface/node_modules
+            ./apps/extension/node_modules
+            ./packages/chains/node_modules
+            ./packages/components/node_modules
+            ./packages/crypto/node_modules
+            ./packages/hooks/node_modules
+            ./packages/integrations/node_modules
+            ./packages/ledger-namada/node_modules
+            ./packages/rpc/node_modules
+            ./packages/shared/node_modules
+            ./packages/storage/node_modules
+            ./packages/types/node_modules
+            ./packages/utils/node_modules
+
           key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
 
       - name: Restore Rust build cache
         uses: actions/cache@v3
         with:
-          path: $CARGO_CACHE_PATHS
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ./packages/shared/lib/target
+            ./packages/crypto/lib/target
           key: ${{ runner.os }}-rust-cache-e2e-${{ hashFiles('**/Cargo.lock') }}
 
       - uses: actions/setup-node@v2
@@ -243,9 +262,11 @@ jobs:
           version: "v0.10.3"
       - name: Install dependencies
         run: yarn
-      - name: Run e2e tests
+      - name: Build wasm
+        run: cd e2e && yarn wasm:build:dev
+      - name: Build frontend and run e2e tests
         id: run-e2e-tests
-        run: cd e2e && yarn test:ci
+        run: cd e2e && yarn test-e2e:ci
       - name: Report success
         if: steps.run-unit-tests.outcome == 'success'
         run: |
