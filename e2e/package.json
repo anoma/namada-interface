@@ -11,9 +11,13 @@
     "lint": "npx eslint src --ext .ts",
     "lint:fix": "yarn lint -- --fix",
     "lint:ci": "yarn lint --max-warnings 0",
-    "setup": "./setup-frontend.sh",
+    "setup:frontend": "./setup-frontend.sh",
+    "setup:frontend:watch": "./setup-frontend.sh --watch",
+    "wasm:build": "./build-wasm.sh --release",
+    "wasm:build:dev": "./build-wasm.sh",
     "test": "jest --runInBand",
-    "test:watch": "jest --watch --runInBand"
+    "test:watch": "jest --watch --runInBand",
+    "test:ci": "yarn wasm:build:dev && start-server-and-test 'yarn setup:frontend' http://localhost:8080 'yarn test'"
   },
   "dependencies": {
     "typescript": "^5.1.3"

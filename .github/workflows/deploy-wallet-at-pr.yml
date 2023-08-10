@@ -15,6 +15,27 @@ on:
 
 env:
   CI: false
+  YARN_CACHE_PATHS: |
+    ./node_modules
+    ./apps/namada-interface/node_modules
+    ./apps/extension/node_modules
+    ./packages/chains/node_modules
+    ./packages/components/node_modules
+    ./packages/crypto/node_modules
+    ./packages/hooks/node_modules
+    ./packages/integrations/node_modules
+    ./packages/ledger-namada/node_modules
+    ./packages/rpc/node_modules
+    ./packages/shared/node_modules
+    ./packages/storage/node_modules
+    ./packages/types/node_modules
+    ./packages/utils/node_modules
+  CARGO_CACHE_PATHS: |
+    ~/.cargo/registry
+    ~/.cargo/git
+    ./packages/shared/lib/target
+    ./packages/crypto/lib/target
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -25,21 +46,7 @@ jobs:
       - name: Restore yarn cache
         uses: actions/cache@v3
         with:
-          path: |
-            ./node_modules
-            ./apps/namada-interface/node_modules
-            ./apps/extension/node_modules
-            ./packages/chains/node_modules
-            ./packages/components/node_modules
-            ./packages/crypto/node_modules
-            ./packages/hooks/node_modules
-            ./packages/integrations/node_modules
-            ./packages/ledger-namada/node_modules
-            ./packages/rpc/node_modules
-            ./packages/shared/node_modules
-            ./packages/storage/node_modules
-            ./packages/types/node_modules
-            ./packages/utils/node_modules
+          path: $YARN_CACHE_PATHS
           key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
 
       - name: Install dependencies
@@ -57,31 +64,13 @@ jobs:
       - name: Restore yarn cache
         uses: actions/cache@v3
         with:
-          path: |
-            ./node_modules
-            ./apps/namada-interface/node_modules
-            ./apps/extension/node_modules
-            ./packages/chains/node_modules
-            ./packages/components/node_modules
-            ./packages/crypto/node_modules
-            ./packages/hooks/node_modules
-            ./packages/integrations/node_modules
-            ./packages/ledger-namada/node_modules
-            ./packages/rpc/node_modules
-            ./packages/shared/node_modules
-            ./packages/storage/node_modules
-            ./packages/types/node_modules
-            ./packages/utils/node_modules
+          path: $YARN_CACHE_PATHS
           key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
 
       - name: Restore Rust unit-tests-js cache
         uses: actions/cache@v3
         with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            ./packages/shared/lib/target
-            ./packages/crypto/lib/target
+          path: $CARGO_CACHE_PATHS
           key: ${{ runner.os }}-rust-cache-unit-tests-js-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install protoc
@@ -125,31 +114,13 @@ jobs:
       - name: Restore yarn cache
         uses: actions/cache@v3
         with:
-          path: |
-            ./node_modules
-            ./apps/namada-interface/node_modules
-            ./apps/extension/node_modules
-            ./packages/chains/node_modules
-            ./packages/components/node_modules
-            ./packages/crypto/node_modules
-            ./packages/hooks/node_modules
-            ./packages/integrations/node_modules
-            ./packages/ledger-namada/node_modules
-            ./packages/rpc/node_modules
-            ./packages/shared/node_modules
-            ./packages/storage/node_modules
-            ./packages/types/node_modules
-            ./packages/utils/node_modules
+          path: $YARN_CACHE_PATHS
           key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
 
       - name: Restore Rust unit-tests-wasm cache
         uses: actions/cache@v3
         with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            ./packages/shared/lib/target
-            ./packages/crypto/lib/target
+          path: $CARGO_CACHE_PATHS
           key: ${{ runner.os }}-rust-cache-unit-tests-wasm-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install protoc
@@ -190,31 +161,13 @@ jobs:
       - name: Restore yarn cache
         uses: actions/cache@v3
         with:
-          path: |
-            ./node_modules
-            ./apps/namada-interface/node_modules
-            ./apps/extension/node_modules
-            ./packages/chains/node_modules
-            ./packages/components/node_modules
-            ./packages/crypto/node_modules
-            ./packages/hooks/node_modules
-            ./packages/integrations/node_modules
-            ./packages/ledger-namada/node_modules
-            ./packages/rpc/node_modules
-            ./packages/shared/node_modules
-            ./packages/storage/node_modules
-            ./packages/types/node_modules
-            ./packages/utils/node_modules
+          path: $YARN_CACHE_PATHS
           key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
 
       - name: Restore Rust build cache
         uses: actions/cache@v3
         with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            ./packages/shared/lib/target
-            ./packages/crypto/lib/target
+          path: $CARGO_CACHE_PATHS
           key: ${{ runner.os }}-rust-cache-build-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install protoc
@@ -260,38 +213,29 @@ jobs:
           --data '{"message":"New deployment for a PR\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
           ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
   E2E-tests:
-    needs: build
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./apps/namada-interface
     steps:
       - uses: actions/checkout@v2
 
       - name: Restore yarn cache
         uses: actions/cache@v3
         with:
-          path: |
-            ./node_modules
-            ./apps/namada-interface/node_modules
-            ./apps/extension/node_modules
-            ./packages/chains/node_modules
-            ./packages/components/node_modules
-            ./packages/crypto/node_modules
-            ./packages/hooks/node_modules
-            ./packages/integrations/node_modules
-            ./packages/ledger-namada/node_modules
-            ./packages/rpc/node_modules
-            ./packages/shared/node_modules
-            ./packages/storage/node_modules
-            ./packages/types/node_modules
-            ./packages/utils/node_modules
+          path: $YARN_CACHE_PATHS
           key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Restore Rust build cache
+        uses: actions/cache@v3
+        with:
+          path: $CARGO_CACHE_PATHS
+          key: ${{ runner.os }}-rust-cache-e2e-${{ hashFiles('**/Cargo.lock') }}
 
       - uses: actions/setup-node@v2
         with:
           node-version: "18.x"
+
+      - name: Install protoc
+        run: sudo apt-get install -y protobuf-compiler
 
       - name: Install wasm-pack
         uses: jetli/wasm-pack-action@v0.3.0
@@ -299,28 +243,20 @@ jobs:
           version: "v0.10.3"
       - name: Install dependencies
         run: yarn
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
-      - name: Run Playwright tests
-        id: run-playwright-tests
-        run: PLAYWRIGHT_BASE_URL=https://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app NETLIFY_SITE_PROTECTION_PASSWORD=${{ secrets.NETLIFY_SITE_PROTECTION_PASSWORD }} yarn playwright test
-      - name: report success
-        if: steps.run-playwright-tests.outcome == 'success'
+      - name: Run e2e tests
+        id: run-e2e-tests
+        run: cd e2e && yarn test:ci
+      - name: Report success
+        if: steps.run-unit-tests.outcome == 'success'
         run: |
           curl --header "Content-Type: application/json" \
           --request POST \
-          --data '{"message":"E2E tests succeeded ✅\n \n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nReview\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
+          --data '{"message":"Unit tests succeeded ✅\n \n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nReview\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
           ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
-      - name: report failure
-        if: failure() && steps.run-playwright-tests.outcome != 'success'
+      - name: Report failure
+        if: steps.run-unit-tests.outcome != 'success'
         run: |
           curl --header "Content-Type: application/json" \
           --request POST \
-          --data '{"message":"E2E tests failed ⛔️ \n \n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nReview\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
+          --data '{"message":"Unit tests failed ⛔️ \n \n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nReview\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
           ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
-      - uses: actions/upload-artifact@v2
-        if: always()
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 30
