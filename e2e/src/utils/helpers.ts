@@ -104,11 +104,16 @@ export const launchPuppeteer = async (): Promise<puppeteer.Browser> => {
     `--disable-extensions-except=${path}`,
     `--load-extension=${path}`,
     "--disable-features=DialMediaRouteProvider",
+    // Required for running in Docker(github actions)
+    "--no-sandbox",
   ];
   const browser = await puppeteer.launch({
     headless: false,
     slowMo: 50,
     args: puppeteerArgs,
+    env: {
+      DISPLAY: ":0",
+    },
   });
 
   return browser;
