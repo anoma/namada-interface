@@ -46,7 +46,9 @@ const plugins = [
       MANIFEST_BASE_PATH,
       MANIFEST_BASE_VERSION_PATH,
       MANIFEST_PATH,
-      ...(NODE_ENV === "development" && TARGET === "firefox" ? [MANIFEST_V2_DEV_ONLY_PATH] : [])
+      ...(NODE_ENV === "development" && TARGET === "firefox"
+        ? [MANIFEST_V2_DEV_ONLY_PATH]
+        : []),
     ],
     output: {
       fileName: "./manifest.json",
@@ -63,7 +65,7 @@ const plugins = [
   }),
 ];
 
-if (NODE_ENV === "development") {
+if (false && NODE_ENV === "development") {
   plugins.push(
     new ExtensionReloader({
       port: 9999,
@@ -160,7 +162,7 @@ module.exports = {
     hints: "warning",
     maxAssetSize: 200000,
     maxEntrypointSize: 400000,
-    assetFilter: function(assetFilename) {
+    assetFilter: function (assetFilename) {
       assetFilename.endsWith(".wasm");
     },
   },

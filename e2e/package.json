@@ -13,11 +13,12 @@
     "lint:ci": "yarn lint --max-warnings 0",
     "setup:frontend": "./setup-frontend.sh",
     "setup:frontend:watch": "./setup-frontend.sh --watch",
+    "start-server": "./setup-frontend2.sh",
     "wasm:build": "./build-wasm.sh --release",
     "wasm:build:dev": "./build-wasm.sh",
     "test-e2e": "jest --runInBand",
     "test-e2e:watch": "jest --watch --runInBand",
-    "test-e2e:ci": "start-server-and-test 'yarn setup:frontend' http://127.0.0.1:8080 'yarn test-e2e'"
+    "test-e2e:ci": "start-server-and-test 'yarn start-server' http://127.0.0.1:8080 'yarn test-e2e'"
   },
   "dependencies": {
     "typescript": "^5.1.3"

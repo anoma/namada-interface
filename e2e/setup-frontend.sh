@@ -17,7 +17,7 @@ cd ../apps/extension && \
     export TARGET=chrome; \
     export REACT_APP_NAMADA_CHAIN_ID=${CHAIN_ID}; \
     export REACT_APP_NAMADA_URL=http://127.0.0.1:27657 && \
-    npx webpack $ext_mode &
+    npx webpack
 
 # Run the interface
 cd ../namada-interface && \
@@ -27,12 +27,12 @@ cd ../namada-interface && \
     export REACT_APP_NAMADA_URL=http://127.0.0.1:27657 && \
     npx webpack $interface_mode
 
-cd ../../e2e
+# cd ../../e2e
 
-npx http-server -p 8080 -c-1 ../apps/namada-interface/build
+# npx http-server -p 8080 -c-1 ../apps/namada-interface/build
 
-# Sleep indefinitely/ TODO: check if needed as http-server is running
-while :; do sleep 86400; done
+# # Sleep indefinitely/ TODO: check if needed as http-server is running
+# while :; do sleep 86400; done
 
-# Kill all processes on exit
-trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
+# # Kill all processes on exit
+# trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT

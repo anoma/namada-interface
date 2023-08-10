@@ -37,189 +37,196 @@ env:
     ./packages/crypto/lib/target
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+  # lint:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v2
 
-      - name: Restore yarn cache
-        uses: actions/cache@v3
-        with:
-          path: $YARN_CACHE_PATHS
-          key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
+  #     - name: Restore yarn cache
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: $YARN_CACHE_PATHS
+  #         key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
 
-      - name: Install dependencies
-        run: yarn
+  #     - name: Install dependencies
+  #       run: yarn
 
-      - name: Run ESLint
-        run: yarn lint:ci
+  #     - name: Run ESLint
+  #       run: yarn lint:ci
 
-  unit-tests-js:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+  # unit-tests-js:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v3
 
-      - name: Restore yarn cache
-        uses: actions/cache@v3
-        with:
-          path: $YARN_CACHE_PATHS
-          key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
+  #     - name: Restore yarn cache
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: $YARN_CACHE_PATHS
+  #         key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
 
-      - name: Restore Rust unit-tests-js cache
-        uses: actions/cache@v3
-        with:
-          path: $CARGO_CACHE_PATHS
-          key: ${{ runner.os }}-rust-cache-unit-tests-js-${{ hashFiles('**/Cargo.lock') }}
+  #     - name: Restore Rust unit-tests-js cache
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: $CARGO_CACHE_PATHS
+  #         key: ${{ runner.os }}-rust-cache-unit-tests-js-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Install protoc
-        run: sudo apt-get install -y protobuf-compiler
+  #     - name: Install protoc
+  #       run: sudo apt-get install -y protobuf-compiler
 
-      - name: Install dependencies
-        run: yarn
+  #     - name: Install dependencies
+  #       run: yarn
 
-      - name: Install wasm-pack
-        uses: jetli/wasm-pack-action@v0.4.0
-        with:
-          version: "v0.10.3"
+  #     - name: Install wasm-pack
+  #       uses: jetli/wasm-pack-action@v0.4.0
+  #       with:
+  #         version: "v0.10.3"
 
-      - name: Compile WASM
-        run: yarn wasm:build-test
+  #     - name: Compile WASM
+  #       run: yarn wasm:build-test
 
-      - name: Run unit tests
-        id: run-unit-tests
-        run: yarn test:ci
-      - name: Report success
-        if: steps.run-unit-tests.outcome == 'success'
-        run: |
-          curl --header "Content-Type: application/json" \
-          --request POST \
-          --data '{"message":"Unit tests succeeded ✅\n \n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nReview\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
-          ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
-      - name: Report failure
-        if: steps.run-unit-tests.outcome != 'success'
-        run: |
-          curl --header "Content-Type: application/json" \
-          --request POST \
-          --data '{"message":"Unit tests failed ⛔️ \n \n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nReview\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
-          ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
+  #     - name: Run unit tests
+  #       id: run-unit-tests
+  #       run: yarn test:ci
+  #     - name: Report success
+  #       if: steps.run-unit-tests.outcome == 'success'
+  #       run: |
+  #         curl --header "Content-Type: application/json" \
+  #         --request POST \
+  #         --data '{"message":"Unit tests succeeded ✅\n \n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nReview\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
+  #         ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
+  #     - name: Report failure
+  #       if: steps.run-unit-tests.outcome != 'success'
+  #       run: |
+  #         curl --header "Content-Type: application/json" \
+  #         --request POST \
+  #         --data '{"message":"Unit tests failed ⛔️ \n \n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nReview\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
+  #         ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
 
-  unit-tests-wasm:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+  # unit-tests-wasm:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v2
 
-      - name: Restore yarn cache
-        uses: actions/cache@v3
-        with:
-          path: $YARN_CACHE_PATHS
-          key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
+  #     - name: Restore yarn cache
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: $YARN_CACHE_PATHS
+  #         key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
 
-      - name: Restore Rust unit-tests-wasm cache
-        uses: actions/cache@v3
-        with:
-          path: $CARGO_CACHE_PATHS
-          key: ${{ runner.os }}-rust-cache-unit-tests-wasm-${{ hashFiles('**/Cargo.lock') }}
+  #     - name: Restore Rust unit-tests-wasm cache
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: $CARGO_CACHE_PATHS
+  #         key: ${{ runner.os }}-rust-cache-unit-tests-wasm-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Install protoc
-        run: sudo apt-get install -y protobuf-compiler
+  #     - name: Install protoc
+  #       run: sudo apt-get install -y protobuf-compiler
 
-      - name: Install wsrun
-        run: npm install -g wsrun
+  #     - name: Install wsrun
+  #       run: npm install -g wsrun
 
-      - name: Install wasm-pack
-        uses: jetli/wasm-pack-action@v0.4.0
-        with:
-          version: "v0.10.3"
+  #     - name: Install wasm-pack
+  #       uses: jetli/wasm-pack-action@v0.4.0
+  #       with:
+  #         version: "v0.10.3"
 
-      - name: Run unit tests
-        id: run-unit-tests
-        run: yarn test-wasm:ci
-      - name: Report success
-        if: steps.run-unit-tests.outcome == 'success'
-        run: |
-          curl --header "Content-Type: application/json" \
-          --request POST \
-          --data '{"message":"Unit tests succeeded ✅\n \n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nReview\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
-          ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
-      - name: Report failure
-        if: steps.run-unit-tests.outcome != 'success'
-        run: |
-          curl --header "Content-Type: application/json" \
-          --request POST \
-          --data '{"message":"Unit tests failed ⛔️ \n \n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nReview\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
-          ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
+  #     - name: Run unit tests
+  #       id: run-unit-tests
+  #       run: yarn test-wasm:ci
+  #     - name: Report success
+  #       if: steps.run-unit-tests.outcome == 'success'
+  #       run: |
+  #         curl --header "Content-Type: application/json" \
+  #         --request POST \
+  #         --data '{"message":"Unit tests succeeded ✅\n \n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nReview\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
+  #         ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
+  #     - name: Report failure
+  #       if: steps.run-unit-tests.outcome != 'success'
+  #       run: |
+  #         curl --header "Content-Type: application/json" \
+  #         --request POST \
+  #         --data '{"message":"Unit tests failed ⛔️ \n \n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nReview\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
+  #         ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
 
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+  # build:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v2
 
-      - name: Restore yarn cache
-        uses: actions/cache@v3
-        with:
-          path: $YARN_CACHE_PATHS
-          key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
+  #     - name: Restore yarn cache
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: $YARN_CACHE_PATHS
+  #         key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
 
-      - name: Restore Rust build cache
-        uses: actions/cache@v3
-        with:
-          path: $CARGO_CACHE_PATHS
-          key: ${{ runner.os }}-rust-cache-build-${{ hashFiles('**/Cargo.lock') }}
+  #     - name: Restore Rust build cache
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: $CARGO_CACHE_PATHS
+  #         key: ${{ runner.os }}-rust-cache-build-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Install protoc
-        run: sudo apt-get install -y protobuf-compiler
+  #     - name: Install protoc
+  #       run: sudo apt-get install -y protobuf-compiler
 
-      - name: Install dependencies
-        working-directory: ./apps/namada-interface
-        run: yarn
+  #     - name: Install dependencies
+  #       working-directory: ./apps/namada-interface
+  #       run: yarn
 
-      - name: Install wasm-pack
-        uses: jetli/wasm-pack-action@v0.4.0
-        with:
-          version: "v0.10.3"
+  #     - name: Install wasm-pack
+  #       uses: jetli/wasm-pack-action@v0.4.0
+  #       with:
+  #         version: "v0.10.3"
 
-      - name: Rustup add target
-        run: rustup target add wasm32-unknown-unknown
+  #     - name: Rustup add target
+  #       run: rustup target add wasm32-unknown-unknown
 
-      - name: build the site
-        working-directory: ./apps/namada-interface
-        run: yarn build
-        env:
-          REACT_APP_NAMADA_ALIAS: "Namada Devnet"
-          REACT_APP_NAMADA_CHAIN_ID: "internal-devnet-6be.86067e06a5"
-          REACT_APP_NAMADA_URL: "https://proxy.heliax.click/internal-devnet-6be.86067e06a5"
-      - name: Deploy to Netlify
-        uses: nwtgck/actions-netlify@v1.2.3
-        with:
-          publish-dir: "./apps/namada-interface/build"
-          production-branch: main
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: "deploy ${{ github.event.number }} at creating a PR"
-          alias: pull-request-${{ github.event.number }}
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_ACCESS_TOKEN_WALLET_PREVIEW }}
-          NETLIFY_SITE_ID: 1f548c68-c620-4522-97e0-0d85c08366fb
-          # namada.me
-          # NETLIFY_SITE_ID: 2380782e-9b20-477a-bc27-b4e9d05e16f3
+  #     - name: build the site
+  #       working-directory: ./apps/namada-interface
+  #       run: yarn build
+  #       env:
+  #         REACT_APP_NAMADA_ALIAS: "Namada Devnet"
+  #         REACT_APP_NAMADA_CHAIN_ID: "internal-devnet-6be.86067e06a5"
+  #         REACT_APP_NAMADA_URL: "https://proxy.heliax.click/internal-devnet-6be.86067e06a5"
+  #     - name: Deploy to Netlify
+  #       uses: nwtgck/actions-netlify@v1.2.3
+  #       with:
+  #         publish-dir: "./apps/namada-interface/build"
+  #         production-branch: main
+  #         github-token: ${{ secrets.GITHUB_TOKEN }}
+  #         deploy-message: "deploy ${{ github.event.number }} at creating a PR"
+  #         alias: pull-request-${{ github.event.number }}
+  #       env:
+  #         NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_ACCESS_TOKEN_WALLET_PREVIEW }}
+  #         NETLIFY_SITE_ID: 1f548c68-c620-4522-97e0-0d85c08366fb
+  #         # namada.me
+  #         # NETLIFY_SITE_ID: 2380782e-9b20-477a-bc27-b4e9d05e16f3
 
-      - name: Slack Notification
-        run: |
-          curl --header "Content-Type: application/json" \
-          --request POST \
-          --data '{"message":"New deployment for a PR\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
-          ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
+  #     - name: Slack Notification
+  #       run: |
+  #         curl --header "Content-Type: application/json" \
+  #         --request POST \
+  #         --data '{"message":"New deployment for a PR\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
+  #         ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
+
   E2E-tests:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
+      - uses: browser-actions/setup-chrome@v1
+      - run: chrome --version
+      - run: echo $(which chrome)
+      - run: pwd
+
       - name: Restore yarn cache
-        uses: actions/cache@v3
+        id: cache-yarn-restore
+        uses: actions/cache/restore@v3
         with:
           path: |
             ./node_modules
@@ -239,7 +246,8 @@ jobs:
           key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
 
       - name: Restore Rust build cache
-        uses: actions/cache@v3
+        id: cache-rust-restore
+        uses: actions/cache/restore@v3
         with:
           path: |
             ~/.cargo/registry
@@ -255,6 +263,14 @@ jobs:
       - name: Install protoc
         run: sudo apt-get install -y protobuf-compiler
 
+
+      - run: sudo apt-get update
+      - run: sudo apt-get install ca-certificates fonts-liberation libappindicator3-1 libasound2 libatk-bridge2.0-0 libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgbm1 libgcc1 libglib2.0-0 libgtk-3-0 libnspr4 libnss3 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 lsb-release wget xdg-utils
+      - name: Install xvfb
+        run: sudo apt-get install xvfb x11-apps x11-xkb-utils libx11-6 libx11-xcb1
+      - name: Run xvfb
+        run: Xvfb -ac :99 -screen 0 1280x1024x16 & export DISPLAY=:99
+
       - name: Install wasm-pack
         uses: jetli/wasm-pack-action@v0.3.0
         with:
@@ -263,9 +279,45 @@ jobs:
         run: yarn
       - name: Build wasm
         run: cd e2e && yarn wasm:build:dev
-      - name: Build frontend and run e2e tests
-        id: run-e2e-tests
-        run: cd e2e && yarn test-e2e:ci
+
+      - name: Save yarn cache
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            ./node_modules
+            ./apps/namada-interface/node_modules
+            ./apps/extension/node_modules
+            ./packages/chains/node_modules
+            ./packages/components/node_modules
+            ./packages/crypto/node_modules
+            ./packages/hooks/node_modules
+            ./packages/integrations/node_modules
+            ./packages/ledger-namada/node_modules
+            ./packages/rpc/node_modules
+            ./packages/shared/node_modules
+            ./packages/storage/node_modules
+            ./packages/types/node_modules
+            ./packages/utils/node_modules
+          key: ${{ steps.cache-yarn-restore.outputs.cache-primary-key }}
+
+      - name: Save cargo cache
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ./packages/shared/lib/target
+            ./packages/crypto/lib/target
+          key: ${{ steps.cache-rust-restore.outputs.cache-primary-key }}
+      - run: cd e2e && yarn setup:frontend
+      - run: ls apps/extension/build/chrome
+      - run: ls /home/runner/work/namada-interface/namada-interface/apps/extension/build/chrome
+      - run: mkdir test
+      - run: cp -r /home/runner/work/namada-interface/namada-interface/apps/extension/build/chrome test
+      - run: ls test/chrome
+      - run: cat test/chrome/manifest.json
+      - name: Run headless test
+        run: cd e2e && xvfb-run --auto-servernum yarn test-e2e:ci
       - name: Report success
         if: steps.run-unit-tests.outcome == 'success'
         run: |

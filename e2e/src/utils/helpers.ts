@@ -37,8 +37,9 @@ export const targetPage = async (
 
 const getExtensionId = async (browser: puppeteer.Browser): Promise<string> => {
   // TODO: replace with poll check
-  await new Promise((r) => setTimeout(r, 200));
+  await new Promise((r) => setTimeout(r, 5000));
   const targets = browser.targets();
+  console.log("HAPPA 2222", targets, browser);
   const extensionTarget = targets.find(
     (target) => target.type() === "service_worker"
   );
@@ -51,7 +52,7 @@ const getExtensionId = async (browser: puppeteer.Browser): Promise<string> => {
 };
 
 export const openInterface = async (page: puppeteer.Page): Promise<void> => {
-  await page.goto("http://localhost:8080", {
+  await page.goto("http://127.0.0.1:8080", {
     waitUntil: ["domcontentloaded"],
   });
 };
@@ -99,21 +100,25 @@ export const stopNamada = async (namada: ChildProcess): Promise<void> => {
 export const launchPuppeteer = async (): Promise<puppeteer.Browser> => {
   const root = nodePath.resolve(process.cwd(), "..");
   const path = `${root}/apps/extension/build/chrome`;
+  console.log("HAPPA", path);
 
   const puppeteerArgs = [
     `--disable-extensions-except=${path}`,
     `--load-extension=${path}`,
     "--disable-features=DialMediaRouteProvider",
     // Required for running in Docker(github actions)
-    "--no-sandbox",
+    // "--no-sandbox",
+    // "--disable-setuid-sandbox",
+    // "--disable-dev-shm-usage",
+    // "--disable-accelerated-2d-canvas",
+    // "--no-first-run",
+    // "--no-zygote",
   ];
+
   const browser = await puppeteer.launch({
     headless: false,
     slowMo: 50,
     args: puppeteerArgs,
-    env: {
-      DISPLAY: ":0",
-    },
   });
 
   return browser;
