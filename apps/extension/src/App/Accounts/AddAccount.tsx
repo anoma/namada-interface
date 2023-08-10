@@ -219,6 +219,8 @@ const AddAccount: React.FC<Props> = ({
   };
 
   const addLedgerAccount = async (): Promise<DerivedAccount | void> => {
+    setFormStatus(Status.Pending);
+
     const bip44Path = {
       account: parentAccount.path.account,
       change,
@@ -229,18 +231,24 @@ const AddAccount: React.FC<Props> = ({
       bip44Path
     );
 
-    const ledger = await Ledger.init();
+    const ledger = await Ledger.init().catch((e) => {
+      setFormError(`${e}`);
+      setFormStatus(Status.Failed);
+    });
+
+    if (!ledger) {
+      return;
+    }
 
     try {
       const {
-        info: { errorMessage, returnCode },
+        version: { errorMessage, returnCode },
       } = await ledger.status();
 
       if (returnCode !== LedgerError.NoErrors) {
         throw new Error(errorMessage);
       }
 
-      setFormStatus(Status.Pending);
       const { address, publicKey } = await ledger.getAddressAndPublicKey(
         bip44PathString
       );
@@ -374,8 +382,9 @@ const AddAccount: React.FC<Props> = ({
 
             <Bip44Path>
               Derivation path:{" "}
-              <span>{`${parentDerivationPath}${isTransparent ? `${change}/` : ""
-                }${index}`}</span>
+              <span>{`${parentDerivationPath}${
+                isTransparent ? `${change}/` : ""
+              }${index}`}</span>
             </Bip44Path>
             <FormValidationMsg>{validation}</FormValidationMsg>
           </AddAccountForm>

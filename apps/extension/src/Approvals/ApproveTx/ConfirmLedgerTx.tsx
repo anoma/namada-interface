@@ -22,6 +22,7 @@ import { ApprovalDetails, Status } from "Approvals/Approvals";
 import {
   ApprovalContainer,
   ButtonContainer,
+  ErrorMessage,
 } from "Approvals/Approvals.components";
 import { InfoHeader, InfoLoader } from "Approvals/Approvals.components";
 
@@ -39,7 +40,11 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
   const [statusInfo, setStatusInfo] = useState("");
   const { source, msgId, publicKey, txType } = details || {};
 
-  const revealPk = async (publicKey: string): Promise<void> => {
+  const revealPk = async (ledger: Ledger, publicKey: string): Promise<void> => {
+    setStatusInfo(
+      "Public key not found! Review and approve reveal pk on your Ledger"
+    );
+
     const txArgs: TxProps = {
       token: Tokens.NAM.address || "",
       feeAmount: new BigNumber(0),
@@ -53,34 +58,36 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
     const encoded = msg.encode(msgValue);
 
     // Open Ledger transport
-    const ledger = await Ledger.init();
+    const { bytes, path } = await requester
+      .sendMessage(Ports.Background, new GetRevealPKBytesMsg(toBase64(encoded)))
+      .catch((e) => {
+        throw new Error(`Requester error: ${e}`);
+      });
 
-    try {
-      const { bytes, path } = await requester.sendMessage(
-        Ports.Background,
-        new GetRevealPKBytesMsg(toBase64(encoded))
-      );
+    // Sign with Ledger
+    const signatures = await ledger.sign(bytes, path);
 
-      // Sign with Ledger
-      const signatures = await ledger.sign(bytes, path);
+    const { returnCode, errorMessage } = signatures;
 
-      // Submit signatures for tx
-      setStatusInfo("Submitting reveal pk tx...");
-      await requester.sendMessage(
+    if (returnCode !== LedgerError.NoErrors) {
+      throw new Error(`Reveal PK error encountered: ${errorMessage}`);
+    }
+
+    // Submit signatures for tx
+    setStatusInfo("Submitting reveal pk tx...");
+
+    await requester
+      .sendMessage(
         Ports.Background,
         new SubmitSignedRevealPKMsg(
           toBase64(encoded),
           toBase64(bytes),
           signatures
         )
-      );
-    } catch (e) {
-      console.warn("An error occured: ", e);
-      await ledger.closeTransport();
-      throw new Error(`${e}`);
-    } finally {
-      await ledger.closeTransport();
-    }
+      )
+      .catch((e) => {
+        throw new Error(`Requester error: ${e}`);
+      });
   };
 
   const queryPublicKey = async (
@@ -92,75 +99,92 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
     );
   };
 
+  const submitTx = async (ledger: Ledger): Promise<void> => {
+    // Open ledger transport
+    const txLabel = TxTypeLabel[txType as TxType];
+
+    // Constuct tx bytes from SDK
+    if (!txType) {
+      throw new Error("txType was not provided!");
+    }
+    if (!source) {
+      throw new Error("source was not provided!");
+    }
+    if (!msgId) {
+      throw new Error("msgId was not provided!");
+    }
+
+    const { bytes, path } = await requester
+      .sendMessage(Ports.Background, new GetTxBytesMsg(txType, msgId, source))
+      .catch((e) => {
+        throw new Error(`Requester error: ${e}`);
+      });
+
+    setStatusInfo(`Review and approve ${txLabel} transaction on your Ledger`);
+
+    // Sign with Ledger
+    const signatures = await ledger.sign(bytes, path);
+    const { errorMessage, returnCode } = signatures;
+
+    if (returnCode !== LedgerError.NoErrors) {
+      throw new Error(`Signing error encountered: ${errorMessage}`);
+    }
+
+    // Submit signatures for tx
+    setStatusInfo(`Submitting ${txLabel} transaction...`);
+
+    await requester
+      .sendMessage(
+        Ports.Background,
+        new SubmitSignedTxMsg(txType, msgId, toBase64(bytes), signatures)
+      )
+      .catch((e) => {
+        throw new Error(`Requester error: ${e}`);
+      });
+  };
+
   const handleSubmitTx = useCallback(async (): Promise<void> => {
+    const ledger = await Ledger.init().catch((e) => {
+      setError(`${e}`);
+      setStatus(Status.Failed);
+    });
+
+    if (!ledger) {
+      return;
+    }
+
+    const {
+      version: { returnCode, errorMessage },
+    } = await ledger.status();
+
+    // Validate Ledger state first
+    if (returnCode !== LedgerError.NoErrors) {
+      await ledger.closeTransport();
+      setError(errorMessage);
+      return setStatus(Status.Failed);
+    }
+
     setStatus(Status.Pending);
     setStatusInfo("Querying for public key on chain...");
 
-    if (source && publicKey) {
-      const pk = await queryPublicKey(source);
+    try {
+      if (source && publicKey) {
+        const pk = await queryPublicKey(source);
 
-      if (!pk) {
-        setStatusInfo(
-          "Public key not found! Review and approve reveal pk on your Ledger"
-        );
-        await revealPk(publicKey);
+        if (!pk) {
+          await revealPk(ledger, publicKey);
+        }
+
+        await submitTx(ledger);
+
+        return setStatus(Status.Completed);
       }
-
-      return await submitTx();
+    } catch (e) {
+      await ledger.closeTransport();
+      setError(`${e}`);
+      setStatus(Status.Failed);
     }
   }, [source, publicKey]);
-
-  const submitTx = async (): Promise<void> => {
-    // Open ledger transport
-    const ledger = await Ledger.init();
-    const txLabel = TxTypeLabel[txType as TxType];
-
-    try {
-      // Constuct tx bytes from SDK
-      if (!txType) {
-        throw new Error("txType was not provided!");
-      }
-      if (!source) {
-        throw new Error("source was not provided!");
-      }
-      if (!msgId) {
-        throw new Error("msgId was not provided!");
-      }
-
-      const { bytes, path } = await requester.sendMessage(
-        Ports.Background,
-        new GetTxBytesMsg(txType, msgId, source)
-      );
-
-      setStatusInfo(`Review and approve ${txLabel} transaction on your Ledger`);
-
-      // Sign with Ledger
-      const signatures = await ledger.sign(bytes, path);
-      const { errorMessage, returnCode } = signatures;
-
-      if (returnCode !== LedgerError.NoErrors) {
-        console.warn(`${txLabel} signing errors encountered, exiting: `, {
-          returnCode,
-          errorMessage,
-        });
-        setError(errorMessage);
-        return setStatus(Status.Failed);
-      }
-
-      // Submit signatures for tx
-      setStatusInfo(`Submitting ${txLabel} transaction...`);
-      await requester.sendMessage(
-        Ports.Background,
-        new SubmitSignedTxMsg(txType, msgId, toBase64(bytes), signatures)
-      );
-
-      setStatus(Status.Completed);
-    } catch (e) {
-      console.warn(e);
-      setStatus(Status.Failed);
-      await ledger.closeTransport();
-    }
-  };
 
   const handleCloseTab = useCallback(async (): Promise<void> => {
     await closeCurrentTab();
@@ -169,11 +193,11 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
   return (
     <ApprovalContainer>
       {status === Status.Failed && (
-        <p>
+        <ErrorMessage>
           {error}
           <br />
           Try again
-        </p>
+        </ErrorMessage>
       )}
       {status === Status.Pending && (
         <InfoHeader>
