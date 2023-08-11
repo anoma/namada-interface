@@ -99,7 +99,7 @@ export const stopNamada = async (namada: ChildProcess): Promise<void> => {
 
 export const launchPuppeteer = async (): Promise<puppeteer.Browser> => {
   const root = nodePath.resolve(process.cwd(), "..");
-  const path = `${root}/apps/extension/build/chrome`;
+  const path = `${root}/simple-ext`;
   console.log("HAPPA", path);
 
   const puppeteerArgs = [
@@ -107,12 +107,12 @@ export const launchPuppeteer = async (): Promise<puppeteer.Browser> => {
     `--load-extension=${path}`,
     "--disable-features=DialMediaRouteProvider",
     // Required for running in Docker(github actions)
-    // "--no-sandbox",
-    // "--disable-setuid-sandbox",
-    // "--disable-dev-shm-usage",
-    // "--disable-accelerated-2d-canvas",
-    // "--no-first-run",
-    // "--no-zygote",
+    "--no-sandbox",
+    "--disable-setuid-sandbox",
+    "--disable-dev-shm-usage",
+    "--disable-accelerated-2d-canvas",
+    "--no-first-run",
+    "--no-zygote",
   ];
 
   const browser = await puppeteer.launch({

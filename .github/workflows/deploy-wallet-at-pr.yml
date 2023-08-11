@@ -310,12 +310,8 @@ jobs:
             ./packages/crypto/lib/target
           key: ${{ steps.cache-rust-restore.outputs.cache-primary-key }}
       - run: cd e2e && yarn setup:frontend
-      - run: ls apps/extension/build/chrome
-      - run: ls /home/runner/work/namada-interface/namada-interface/apps/extension/build/chrome
-      - run: mkdir test
-      - run: cp -r /home/runner/work/namada-interface/namada-interface/apps/extension/build/chrome test
-      - run: ls test/chrome
-      - run: cat test/chrome/manifest.json
+      - run: ls simple-ext
+      - run: ls /home/runner/work/namada-interface/namada-interface/simple-ext
       - name: Run headless test
         run: cd e2e && xvfb-run --auto-servernum yarn test-e2e:ci
       - name: Report success
