@@ -13,7 +13,7 @@ import { shortenAddress } from "@namada/utils";
 import { useSanitizedParams } from "@namada/hooks";
 
 import { useRequester } from "hooks/useRequester";
-import { LedgerError } from "./Ledger.components";
+import { LedgerErrorMessage } from "./Ledger.components";
 import {
   TopSection,
   TopSectionHeaderContainer,
@@ -25,8 +25,8 @@ import {
   BodyText,
 } from "Setup/Setup.components";
 import { Ports } from "router";
-import { AddLedgerParentAccountMsg } from "background/ledger";
 import { closeCurrentTab } from "utils";
+import { AddLedgerParentAccountMsg } from "background/ledger";
 
 const LedgerConfirmation: React.FC = () => {
   const navigate = useNavigate();
@@ -71,7 +71,7 @@ const LedgerConfirmation: React.FC = () => {
         <Header1>Confirm Ledger Connection</Header1>
       </UpperContentContainer>
 
-      {error && <LedgerError>{error}</LedgerError>}
+      {error && <LedgerErrorMessage>{error}</LedgerErrorMessage>}
       <BodyText>
         Connection successful for <b>&quot;{alias}&quot;</b>!
       </BodyText>

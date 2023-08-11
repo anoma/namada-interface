@@ -293,11 +293,6 @@ impl Sdk {
     ) -> Result<(), JsError> {
         let transfer_tx = self.sign_tx(tx_bytes, raw_sig_bytes, wrapper_sig_bytes)?;
         let args = tx::tx_args_from_slice(tx_msg)?;
-        let verification_key = args.verification_key.clone();
-        let pk = validate_pk(verification_key)?;
-
-        self.submit_reveal_pk(&args, transfer_tx.clone(), &pk)
-            .await?;
 
         namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args, transfer_tx)
             .await

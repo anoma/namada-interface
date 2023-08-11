@@ -135,3 +135,10 @@ export const InfoLoader = styled.div`
     ${Spinner}
   }
 `;
+
+export const ErrorMessage = styled.div`
+  font-family: "Space Grotesk", sans-serif;
+  color: ${(props) => props.theme.colors.utility3.highAttention};
+  font-size: 12px;
+  padding: 0 0 8px;
+`;

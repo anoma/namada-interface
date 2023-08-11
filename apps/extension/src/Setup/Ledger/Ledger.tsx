@@ -11,10 +11,9 @@ import {
   Input,
   InputVariants,
 } from "@namada/components";
-import { shortenAddress } from "@namada/utils";
+import { LedgerError } from "@namada/ledger-namada";
 
 import { initLedgerHIDTransport, Ledger as LedgerApp } from "background/ledger";
-import { LedgerError } from "./Ledger.components";
 import {
   TopSection,
   TopSectionHeaderContainer,
@@ -26,6 +25,7 @@ import {
   FormContainer,
 } from "Setup/Setup.components";
 import { TopLevelRoute } from "Setup/types";
+import { LedgerErrorMessage } from "./Ledger.components";
 
 const Ledger: React.FC = () => {
   const navigate = useNavigate();
@@ -36,23 +36,22 @@ const Ledger: React.FC = () => {
 
   const queryLedger = async (ledger: LedgerApp): Promise<void> => {
     try {
-      // Get address and public key for default account
+      const {
+        version: { errorMessage, returnCode },
+      } = await ledger.status();
+
+      if (returnCode !== LedgerError.NoErrors) {
+        throw new Error(errorMessage);
+      }
+
       const { address, publicKey } = await ledger.getAddressAndPublicKey();
       navigate(
         `/${TopLevelRoute.LedgerConfirmation}/${alias}/${address}/${publicKey}`
       );
-    } catch (_) {
-      checkErrors(ledger);
-    }
-  };
-
-  const checkErrors = async (ledger: LedgerApp): Promise<void> => {
-    const errorMessage = await ledger.queryErrors();
-
-    if (errorMessage) {
+    } catch (e) {
+      setError(`${e}`);
+    } finally {
       await ledger.closeTransport();
-      setError(errorMessage);
-      throw new Error(errorMessage);
     }
   };
 
@@ -64,7 +63,7 @@ const Ledger: React.FC = () => {
       const ledger = await LedgerApp.init();
       queryLedger(ledger);
     } catch (e) {
-      setError(`Failed to connect to Ledger: ${e}`);
+      setError(`${e}`);
     }
   };
 
@@ -72,12 +71,12 @@ const Ledger: React.FC = () => {
    * Connect using HID transport
    */
   const handleConnectHID = async (): Promise<void> => {
+    const transport = await initLedgerHIDTransport();
     try {
-      const transport = await initLedgerHIDTransport();
       const ledger = await LedgerApp.init(transport);
       queryLedger(ledger);
     } catch (e) {
-      setError(`Failed to connect to Ledger: ${e}`);
+      setError(`${e}`);
     }
   };
 
@@ -100,7 +99,7 @@ const Ledger: React.FC = () => {
         <Header1>Connect Ledger</Header1>
       </UpperContentContainer>
 
-      {error && <LedgerError>{error}</LedgerError>}
+      {error && <LedgerErrorMessage>{error}</LedgerErrorMessage>}
       <FormContainer>
         <Input
           label={"Alias"}
