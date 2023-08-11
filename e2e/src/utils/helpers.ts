@@ -99,7 +99,8 @@ export const stopNamada = async (namada: ChildProcess): Promise<void> => {
 
 export const launchPuppeteer = async (): Promise<puppeteer.Browser> => {
   const root = nodePath.resolve(process.cwd(), "..");
-  const path = `${root}/simple-ext`;
+  const path = `${root}/apps/extension/build/chrome`;
+  // const path = `${root}/simple-ext`;
   console.log("HAPPA", path);
 
   const puppeteerArgs = [
@@ -119,6 +120,14 @@ export const launchPuppeteer = async (): Promise<puppeteer.Browser> => {
     headless: false,
     slowMo: 50,
     args: puppeteerArgs,
+  });
+  const [page] = await browser.pages();
+  const cdp = await page.target().createCDPSession();
+
+  await cdp.send("Log.enable");
+
+  cdp.on("Log.entryAdded", async ({ entry }) => {
+    console.log(entry);
   });
 
   return browser;
