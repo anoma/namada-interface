@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Button, ButtonVariant, Input, InputVariants } from "@namada/components";
+import {
+  Button,
+  ButtonVariant,
+  Input,
+  InputVariants,
+} from "@namada/components";
 
 import {
-  BodyText,
   ButtonsContainer,
-  InputContainer,
   Header1,
-  Header5,
   SubViewContainer,
   UpperContentContainer,
   FormContainer,

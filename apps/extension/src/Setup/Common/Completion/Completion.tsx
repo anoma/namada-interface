@@ -1,14 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ExtensionRequester } from "extension";
 import browser from "webextension-polyfill";
 
 import { Button, ButtonVariant } from "@namada/components";
-import { useUntil } from "@namada/hooks";
-import {
-  CheckIsLockedMsg,
-  SaveMnemonicMsg,
-  ScanAccountsMsg,
-} from "background/keyring";
+import { SaveMnemonicMsg, ScanAccountsMsg } from "background/keyring";
 import { Ports } from "router";
 
 import {
@@ -41,21 +36,9 @@ const Completion: React.FC<Props> = (props) => {
     "Encrypting and storing mnemonic."
   );
 
-  useUntil(
-    {
-      predFn: async () => {
-        try {
-          //TODO: replace with something else
-          await requester.sendMessage<CheckIsLockedMsg>(
-            Ports.Background,
-            new CheckIsLockedMsg()
-          );
-          return true;
-        } catch (_) {
-          return false;
-        }
-      },
-      onSuccess: async () => {
+  useEffect(() => {
+    const saveMnemonic = async (): Promise<void> => {
+      try {
         await requester.sendMessage<SaveMnemonicMsg>(
           Ports.Background,
           new SaveMnemonicMsg(mnemonic, password, alias)
@@ -70,15 +53,13 @@ const Completion: React.FC<Props> = (props) => {
         }
         setMnemonicStatus(Status.Completed);
         setStatusInfo("Done!");
-      },
-      onFail: () => {
+      } catch (e) {
         setStatusInfo((s) => `Failed while "${s}"`);
         setMnemonicStatus(Status.Failed);
-      },
-    },
-    { tries: 10, ms: 100 },
-    []
-  );
+      }
+    };
+    saveMnemonic();
+  }, [alias, mnemonic, password, scanAccounts]);
 
   return (
     <SubViewContainer>

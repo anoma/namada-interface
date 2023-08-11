@@ -50,24 +50,20 @@ const DEFAULT_URL =
   "https://d3brk13lbhxfdb.cloudfront.net/qc-testnet-5.1.025a61165acd05e";
 const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
 
-(async function init() {
+const messenger = new ExtensionMessenger();
+const router = new ExtensionRouter(
+  ContentScriptEnv.produceEnv,
+  messenger,
+  extensionStore
+);
+
+router.addGuard(ExtensionGuards.checkOriginIsValid);
+router.addGuard(ExtensionGuards.checkMessageIsInternal);
+
+const init = new Promise<void>(async (resolve) => {
   const { memory: cryptoMemory } = await initCrypto();
 
   await initShared();
-
-  const routerId = await getNamadaRouterId(extensionStore);
-  const messenger = new ExtensionMessenger();
-  const requester = new ExtensionRequester(messenger, routerId);
-
-  const router = new ExtensionRouter(
-    ContentScriptEnv.produceEnv,
-    messenger,
-    extensionStore
-  );
-  router.addGuard(ExtensionGuards.checkOriginIsValid);
-  router.addGuard(ExtensionGuards.checkMessageIsInternal);
-
-  //TODO: Most likely sdk and query should be a one thing
   const sdk = new Sdk(REACT_APP_NAMADA_URL);
   const query = new Query(REACT_APP_NAMADA_URL);
 
@@ -82,6 +78,9 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
     const data = new TextEncoder().encode(sdkData[activeAccount.id]);
     sdk.decode(data);
   }
+
+  const routerId = await getNamadaRouterId(extensionStore);
+  const requester = new ExtensionRequester(messenger, routerId);
 
   const chainsService = new ChainsService(store, [chains[defaultChainId]]);
   const keyRingService = new KeyRingService(
@@ -119,5 +118,7 @@ const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
   initKeyRing(router, keyRingService);
   initLedger(router, ledgerService);
 
-  router.listen(Ports.Background);
-})();
+  resolve();
+});
+
+router.listen(Ports.Background, init);

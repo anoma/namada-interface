@@ -18,14 +18,16 @@ export class ExtensionRouter extends Router {
     super(envProducer);
   }
 
-  listen(port: string): void {
+  listen(port: string, initPromise: Promise<void>): void {
     if (!port) {
       throw new Error("Empty port");
     }
 
     console.info(`Listening on port ${port}`);
     this.port = port;
-    this.messenger.addListener(this.onMessage);
+    this.messenger.addListener(async (message, sender) =>
+      initPromise.then(() => this.onMessage(message, sender))
+    );
   }
 
   unlisten(): void {

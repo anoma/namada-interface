@@ -68,7 +68,6 @@ export const ApproveTx: React.FC<Props> = ({ setDetails }) => {
 
   const handleReject = useCallback(async (): Promise<void> => {
     try {
-      // TODO: use executeUntil here!
       if (msgId) {
         await requester.sendMessage(Ports.Background, new RejectTxMsg(msgId));
         // Close tab

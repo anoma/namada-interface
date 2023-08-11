@@ -31,7 +31,7 @@ export abstract class Router {
     this.guards.push(guard);
   }
 
-  public abstract listen(port: string): void;
+  public abstract listen(port: string, init: Promise<void>): void;
 
   public abstract unlisten(): void;
 
