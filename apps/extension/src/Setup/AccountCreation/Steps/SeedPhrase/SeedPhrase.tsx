@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 
 import { Button, ButtonVariant, Toggle } from "@namada/components";
-import { executeUntil } from "@namada/utils";
 
 import { GenerateMnemonicMsg } from "background/keyring";
 import { ExtensionRequester } from "extension";
@@ -52,21 +51,14 @@ const SeedPhrase: React.FC<Props> = (props) => {
     // if a mnemonic was passed in we do not generate it again
     if (defaultSeedPhrase?.length && defaultSeedPhrase?.length > 0) return;
 
-    executeUntil(
-      async (): Promise<boolean> => {
-        try {
-          const words = await requester.sendMessage<GenerateMnemonicMsg>(
-            Ports.Background,
-            new GenerateMnemonicMsg(mnemonicLength)
-          );
-          setSeedPhrase(words);
-          return true;
-        } catch (_) {
-          return false;
-        }
-      },
-      { tries: 10, ms: 100 }
-    );
+    const setPhrase = async (): Promise<void> => {
+      const words = await requester.sendMessage<GenerateMnemonicMsg>(
+        Ports.Background,
+        new GenerateMnemonicMsg(mnemonicLength)
+      );
+      setSeedPhrase(words);
+    };
+    setPhrase();
   }, [mnemonicLength]);
 
   return (

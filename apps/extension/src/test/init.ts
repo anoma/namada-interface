@@ -123,12 +123,15 @@ export const init = async (): Promise<{
     ledgerService
   );
 
-  // Initialize messages and handlers
-  initChains(router, chainsService);
-  initKeyRing(router, keyRingService);
-  initApprovals(router, approvalsService);
+  const init = new Promise<void>(async (resolve) => {
+    // Initialize messages and handlers
+    initChains(router, chainsService);
+    initKeyRing(router, keyRingService);
+    initApprovals(router, approvalsService);
+    resolve();
+  });
 
-  router.listen(Ports.Background);
+  router.listen(Ports.Background, init);
 
   const version = "0.1.0";
   const namada = new Namada(version, requester);

@@ -32,14 +32,6 @@ pub enum TxType {
     RevealPK = 5,
 }
 
-// Require that a public key is present
-fn validate_pk(pk: Option<PublicKey>) -> Result<PublicKey, JsError> {
-    match pk {
-        Some(v) => Ok(v),
-        None => Err(JsError::new("No public key was provided!")),
-    }
-}
-
 /// Represents the Sdk public API.
 #[wasm_bindgen]
 pub struct Sdk {

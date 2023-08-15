@@ -241,7 +241,7 @@ export class KeyRingService {
       const error = new Error(result.error?.message || "Error in web worker");
       error.stack = result.error.stack;
       throw error;
-    };
+    }
   }
 
   private async submitTransferFirefox(
