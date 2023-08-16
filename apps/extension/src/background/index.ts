@@ -43,7 +43,10 @@ const connectedTabsStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
   get: browser.storage.local.get,
   set: browser.storage.local.set,
 });
-
+const revealedPKStore = new ExtensionKVStore(KVPrefix.RevealedPK, {
+  get: browser.storage.local.get,
+  set: browser.storage.local.set,
+});
 const txStore = new MemoryKVStore(KVPrefix.Memory);
 
 const DEFAULT_URL =
@@ -101,6 +104,7 @@ const init = new Promise<void>(async (resolve) => {
     sdkStore,
     connectedTabsStore,
     txStore,
+    revealedPKStore,
     defaultChainId,
     sdk,
     requester

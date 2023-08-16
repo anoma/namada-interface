@@ -48,9 +48,6 @@ export interface AccountStore extends StoredRecord {
 
 export interface KeyStore<T = Argon2Params> extends AccountStore {
   crypto: CryptoRecord<T>;
-  meta?: {
-    [key: string]: string;
-  };
 }
 
 export type AccountState = DerivedAccount & {
@@ -84,6 +81,8 @@ export type ActiveAccountStore = {
 };
 
 export type UtilityStore = ActiveAccountStore | { [id: string]: CryptoRecord };
+
+export type RevealedPKStore = { [id: string]: string };
 
 export enum DeleteAccountError {
   BadPassword,
