@@ -17,12 +17,6 @@ export type Argon2Params = KdfParams & {
   salt: string;
 };
 
-export type ScryptParams = KdfParams & {
-  log_n: number;
-  r: number;
-  p: number;
-};
-
 export type CryptoRecord<T = Argon2Params> = {
   cipher: {
     type: "aes-256-gcm";

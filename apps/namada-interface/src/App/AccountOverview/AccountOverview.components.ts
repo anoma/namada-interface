@@ -32,6 +32,7 @@ export const AccountOverviewContainer = styled.div`
   align-items: center;
   width: 100%;
   height: 100%;
+  padding: 24px 0 0 0;
   h1 {
     margin: 0;
   }
@@ -56,40 +57,6 @@ export const AccountOverviewContent = styled.div`
   box-sizing: border-box;
   background-color: ${(props) =>
     getColor(ComponentColor.BackgroundActive, props.theme)};
-`;
-
-export const AccountTabsContainer = styled.div`
-  width: 100%;
-  height: 60px;
-  display: flex;
-  flex-direction: row;
-  padding: 0;
-  margin: 0;
-`;
-
-export const AccountTab = styled.div`
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 52px;
-  color: ${(props) => props.theme.colors.utility2.main80};
-  background-color: ${(props) => props.theme.colors.utility1.main60};
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-
-  &.active {
-    cursor: default;
-    color: ${(props) => getColor(ComponentColor.TabLabelActive, props.theme)};
-    background-color: ${(props) =>
-      getColor(ComponentColor.BackgroundActive, props.theme)};
-  }
-
-  &.disabled {
-    pointer-events: auto !important;
-    cursor: not-allowed !important;
-  }
 `;
 
 export const InputContainer = styled.div`
