@@ -26,6 +26,7 @@ import {
   TransferCompletedEvent,
   TransferStartedEvent,
   UpdatedBalancesEventMsg,
+  UpdatedStakingEventMsg,
 } from "content/events";
 import {
   createOffscreenWithTxWorker,
@@ -191,6 +192,8 @@ export class KeyRingService {
     console.log(`TODO: Broadcast notification for ${msgId}`);
     try {
       await this._keyRing.submitBond(fromBase64(txMsg));
+      this.broadcastUpdateStaking();
+      this.broadcastUpdateBalance();
     } catch (e) {
       console.warn(e);
       throw new Error(`Unable to submit bond tx! ${e}`);
@@ -201,6 +204,8 @@ export class KeyRingService {
     console.log(`TODO: Broadcast notification for ${msgId}`);
     try {
       await this._keyRing.submitUnbond(fromBase64(txMsg));
+      this.broadcastUpdateStaking();
+      this.broadcastUpdateBalance();
     } catch (e) {
       console.warn(e);
       throw new Error(`Unable to submit unbond tx! ${e}`);
@@ -211,6 +216,8 @@ export class KeyRingService {
     console.log(`TODO: Broadcast notification for ${msgId}`);
     try {
       await this._keyRing.submitWithdraw(fromBase64(txMsg));
+      this.broadcastUpdateStaking();
+      this.broadcastUpdateBalance();
     } catch (e) {
       console.warn(e);
       throw new Error(`Unable to submit withdraw tx! ${e}`);
@@ -432,6 +439,27 @@ export class KeyRingService {
           tabId,
           Ports.WebBrowser,
           new UpdatedBalancesEventMsg(this.chainId)
+        );
+      });
+    } catch (e) {
+      console.warn(e);
+    }
+
+    return;
+  }
+
+  async broadcastUpdateStaking(): Promise<void> {
+    const tabs = await syncTabs(
+      this.connectedTabsStore,
+      this.requester,
+      this.chainId
+    );
+    try {
+      tabs?.forEach(({ tabId }: TabStore) => {
+        this.requester.sendMessageToTab(
+          tabId,
+          Ports.WebBrowser,
+          new UpdatedStakingEventMsg(this.chainId)
         );
       });
     } catch (e) {

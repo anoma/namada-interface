@@ -19,12 +19,9 @@ import {
   KeyRingService,
   SDK_KEY,
   TabStore,
-  syncTabs,
 } from "background/keyring";
 import { encodeSignature, generateId, getEncodedTxByType } from "utils";
 import { ExtensionRequester } from "extension";
-import { Ports } from "router";
-import { UpdatedStakingEventMsg } from "content/events";
 
 export const LEDGERSTORE_KEY = "ledger-store";
 const UUID_NAMESPACE = "be9fdaee-ffa2-11ed-8ef1-325096b39f47";
@@ -128,6 +125,13 @@ export class LedgerService {
 
       // Clear pending tx if successful
       await this.txStore.set(msgId, null);
+
+      // Broadcast update events
+      this.keyringService.broadcastUpdateBalance();
+
+      if ([TxType.Bond, TxType.Unbond, TxType.Withdraw].includes(txType)) {
+        await this.keyringService.broadcastUpdateStaking();
+      }
     } catch (e) {
       console.warn(e);
     }
@@ -230,27 +234,6 @@ export class LedgerService {
     }
 
     return Result.ok(null);
-  }
-
-  async broadcastUpdateStaking(): Promise<void> {
-    const tabs = await syncTabs(
-      this.connectedTabsStore,
-      this.requester,
-      this.chainId
-    );
-    try {
-      tabs?.forEach(({ tabId }: TabStore) => {
-        this.requester.sendMessageToTab(
-          tabId,
-          Ports.WebBrowser,
-          new UpdatedStakingEventMsg(this.chainId)
-        );
-      });
-    } catch (e) {
-      console.warn(e);
-    }
-
-    return;
   }
 
   async queryStoredRevealedPK(publicKey: string): Promise<boolean> {
