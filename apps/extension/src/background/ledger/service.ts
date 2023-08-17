@@ -28,6 +28,7 @@ import { UpdatedStakingEventMsg } from "content/events";
 
 export const LEDGERSTORE_KEY = "ledger-store";
 const UUID_NAMESPACE = "be9fdaee-ffa2-11ed-8ef1-325096b39f47";
+const REVEALED_PK_STORE = "revealed-pk-store";
 
 export class LedgerService {
   private _ledgerStore: IStore<AccountStore>;
@@ -38,6 +39,7 @@ export class LedgerService {
     protected readonly sdkStore: KVStore<Record<string, string>>,
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
     protected readonly txStore: KVStore<string>,
+    protected readonly revealedPKStore: KVStore<string[]>,
     protected readonly chainId: string,
     protected readonly sdk: Sdk,
     protected readonly requester: ExtensionRequester
@@ -249,5 +251,18 @@ export class LedgerService {
     }
 
     return;
+  }
+
+  async queryStoredRevealedPK(publicKey: string): Promise<boolean> {
+    const pks = await this.revealedPKStore.get(REVEALED_PK_STORE);
+    return pks?.includes(publicKey) || false;
+  }
+
+  async storeRevealedPK(publicKey: string): Promise<void> {
+    const pks = (await this.revealedPKStore.get(REVEALED_PK_STORE)) || [];
+    if (!pks.includes(publicKey)) {
+      pks.push(publicKey);
+    }
+    await this.revealedPKStore.set(REVEALED_PK_STORE, pks);
   }
 }

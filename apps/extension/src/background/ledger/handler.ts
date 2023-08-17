@@ -8,6 +8,8 @@ import {
   SubmitSignedTxMsg,
   AddLedgerParentAccountMsg,
   DeleteLedgerAccountMsg,
+  QueryStoredPK,
+  StoreRevealedPK,
 } from "./messages";
 
 export const getHandler: (service: LedgerService) => Handler = (service) => {
@@ -40,6 +42,11 @@ export const getHandler: (service: LedgerService) => Handler = (service) => {
         );
       case SubmitSignedTxMsg:
         return handleSubmitSignedTxMsg(service)(env, msg as SubmitSignedTxMsg);
+      case QueryStoredPK:
+        return handleQueryStoredPKMsg(service)(env, msg as QueryStoredPK);
+
+      case StoreRevealedPK:
+        return handleStoreRevealedPK(service)(env, msg as StoreRevealedPK);
       default:
         throw new Error("Unknown msg type");
     }
@@ -112,5 +119,23 @@ const handleSubmitSignedTxMsg: (
   return async (_, msg) => {
     const { txType, bytes, msgId, signatures } = msg;
     return await service.submitTx(txType, msgId, bytes, signatures);
+  };
+};
+
+const handleQueryStoredPKMsg: (
+  service: LedgerService
+) => InternalHandler<QueryStoredPK> = (service) => {
+  return async (_, msg) => {
+    const { publicKey } = msg;
+    return await service.queryStoredRevealedPK(publicKey);
+  };
+};
+
+const handleStoreRevealedPK: (
+  service: LedgerService
+) => InternalHandler<StoreRevealedPK> = (service) => {
+  return async (_, msg) => {
+    const { publicKey } = msg;
+    return await service.storeRevealedPK(publicKey);
   };
 };

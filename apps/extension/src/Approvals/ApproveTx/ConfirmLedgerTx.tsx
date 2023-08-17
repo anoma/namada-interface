@@ -12,6 +12,8 @@ import {
   GetRevealPKBytesMsg,
   GetTxBytesMsg,
   Ledger,
+  QueryStoredPK,
+  StoreRevealedPK,
   SubmitSignedRevealPKMsg,
   SubmitSignedTxMsg,
 } from "background/ledger";
@@ -93,10 +95,19 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
   const queryPublicKey = async (
     address: string
   ): Promise<string | undefined> => {
-    return await requester.sendMessage(
-      Ports.Background,
-      new QueryPublicKeyMsg(address)
-    );
+    return await requester
+      .sendMessage(Ports.Background, new QueryPublicKeyMsg(address))
+      .catch((e) => {
+        throw new Error(`Query Public Key error: ${e}`);
+      });
+  };
+
+  const storePublicKey = async (publicKey: string): Promise<void> => {
+    return await requester
+      .sendMessage(Ports.Background, new StoreRevealedPK(publicKey))
+      .catch((e) => {
+        throw new Error(`Requester error: ${e}`);
+      });
   };
 
   const submitTx = async (ledger: Ledger): Promise<void> => {
@@ -165,14 +176,38 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
     }
 
     setStatus(Status.Pending);
-    setStatusInfo("Querying for public key on chain...");
 
     try {
       if (source && publicKey) {
-        const pk = await queryPublicKey(source);
+        // Query extension storage for revealed public key
+        const isPkRevealed = await requester
+          .sendMessage(Ports.Background, new QueryStoredPK(publicKey))
+          .catch((e) => {
+            throw new Error(`Requester error: ${e}`);
+          });
 
-        if (!pk) {
-          await revealPk(ledger, publicKey);
+        if (!isPkRevealed) {
+          setStatusInfo("Querying for public key on chain...");
+          const pk = await queryPublicKey(source);
+
+          if (pk) {
+            // If found on chain, but not in storage, commit to storage
+            await storePublicKey(publicKey);
+          } else {
+            // Submit RevealPK Tx
+            await revealPk(ledger, publicKey);
+
+            // Follow up with a query to ensure that PK Reveal was successful
+            setStatusInfo("Querying for public key status on chain...");
+            const wasPkRevealed = !!(await queryPublicKey(source));
+
+            if (!wasPkRevealed) {
+              throw new Error("Public key was not revealed!");
+            }
+
+            // Commit newly revealed public key to storage
+            await storePublicKey(publicKey);
+          }
         }
 
         await submitTx(ledger);

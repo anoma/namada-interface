@@ -9,6 +9,12 @@ import {
 } from "@namada/hooks";
 import { Account, ExtensionKey, Extensions } from "@namada/types";
 import { formatCurrency } from "@namada/utils";
+import {
+  Button,
+  ButtonVariant,
+  Heading,
+  HeadingLevel,
+} from "@namada/components";
 
 import { useAppSelector, useAppDispatch } from "store";
 import { AccountsState, addAccounts, fetchBalances } from "slices/accounts";
@@ -16,16 +22,8 @@ import { setIsConnected, SettingsState } from "slices/settings";
 import { TopLevelRoute } from "App/types";
 import { DerivedAccounts } from "./DerivedAccounts";
 import {
-  Button,
-  ButtonVariant,
-  Heading,
-  HeadingLevel,
-} from "@namada/components";
-import {
   AccountOverviewContainer,
   AccountOverviewContent,
-  AccountTab,
-  AccountTabsContainer,
   ButtonsContainer,
   ButtonsWrapper,
   HeadingContainer,
@@ -100,10 +98,6 @@ export const AccountOverview = (): JSX.Element => {
 
   return (
     <AccountOverviewContainer>
-      <AccountTabsContainer>
-        <AccountTab className={"active"}>Fungible</AccountTab>
-        <AccountTab className={"disabled"}>Non-Fungible</AccountTab>
-      </AccountTabsContainer>
       <AccountOverviewContent>
         <HeadingContainer>
           <div>
@@ -165,7 +159,7 @@ export const AccountOverview = (): JSX.Element => {
                 }
               >
                 {currentExtensionAttachStatus === "attached" ||
-                currentExtensionAttachStatus === "pending"
+                  currentExtensionAttachStatus === "pending"
                   ? `Connect to ${extensionAlias} Extension`
                   : "Click to download the extension"}
               </Button>

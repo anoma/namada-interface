@@ -15,7 +15,10 @@ enum MessageType {
   GetRevealPKBytes = "get-reveal-pk-bytes",
   SubmitSignedTx = "submit-signed-tx",
   SubmitSignedRevealPK = "submit-signed-reveal-pk",
+  QueryStoredPK = "query-stored-pk",
+  StoreRevealedPK = "store-revealed-pk",
 }
+
 export class AddLedgerParentAccountMsg extends Message<DerivedAccount> {
   public static type(): MessageType {
     return MessageType.AddLedgerParentAccount;
@@ -267,5 +270,53 @@ export class DeleteLedgerAccountMsg extends Message<
 
   type(): string {
     return DeleteLedgerAccountMsg.type();
+  }
+}
+
+export class QueryStoredPK extends Message<boolean> {
+  public static type(): MessageType {
+    return MessageType.QueryStoredPK;
+  }
+
+  constructor(public publicKey: string) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.publicKey) {
+      throw new Error("publicKey not provided!");
+    }
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return QueryStoredPK.type();
+  }
+}
+
+export class StoreRevealedPK extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.StoreRevealedPK;
+  }
+
+  constructor(public publicKey: string) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.publicKey) {
+      throw new Error("publicKey not provided!");
+    }
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return StoreRevealedPK.type();
   }
 }

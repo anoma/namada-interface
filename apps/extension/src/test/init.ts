@@ -69,6 +69,7 @@ export const init = async (): Promise<{
   const connectedTabsStore = new KVStoreMock<TabStore[]>(
     KVPrefix.ConnectedTabs
   );
+  const revealedPKStore = new KVStoreMock<string[]>(KVPrefix.RevealedPK);
   const namadaRouterId = await getNamadaRouterId(extStore);
   const requester = new ExtensionRequester(messenger, namadaRouterId);
   const txStore = new KVStoreMock<string>(KVPrefix.LocalStorage);
@@ -111,6 +112,7 @@ export const init = async (): Promise<{
     sdkStore,
     connectedTabsStore,
     txStore,
+    revealedPKStore,
     chainId,
     sdk,
     requester
