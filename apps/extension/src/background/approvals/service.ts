@@ -179,7 +179,6 @@ export class ApprovalsService {
 
     if (tx) {
       await this.keyRingService.submitBond(tx, msgId);
-      await this.ledgerService.broadcastUpdateStaking();
 
       return await this._clearPendingTx(msgId);
     }

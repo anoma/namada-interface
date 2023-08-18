@@ -122,7 +122,7 @@ export class UpdatedStakingEventMsg extends Message<void> {
   }
 
   type(): string {
-    return UpdatedBalancesEventMsg.type();
+    return UpdatedStakingEventMsg.type();
   }
 }
 
