@@ -34,6 +34,7 @@ import {
 import { TopLevelRoute } from "App/types";
 import { useAuth } from "hooks";
 import { AddLedgerAccountMsg, Ledger } from "background/ledger";
+import { isKeyChainLocked, redirectToLogin } from "hooks/useAuth";
 
 type Props = {
   accounts: DerivedAccount[];
@@ -265,20 +266,37 @@ const AddAccount: React.FC<Props> = ({
     }
   };
 
-  const addPrivateKeyAccount = async (): Promise<DerivedAccount> => {
+  const addPrivateKeyAccount = async (): Promise<
+    DerivedAccount | undefined
+  > => {
+    const isLocked = await isKeyChainLocked(requester);
+
+    if (isLocked) {
+      redirectToLogin(
+        navigate,
+        TopLevelRoute.AddAccount,
+        `Session timed out! A password for "${parentAccount.alias}" is required!`
+      );
+      return;
+    }
+
     setFormStatus(Status.Pending);
-    return await requester.sendMessage<DeriveAccountMsg>(
-      Ports.Background,
-      new DeriveAccountMsg(
-        {
-          account: parentAccountIndex,
-          change,
-          index,
-        },
-        isTransparent ? AccountType.PrivateKey : AccountType.ShieldedKeys,
-        alias
+    return await requester
+      .sendMessage<DeriveAccountMsg>(
+        Ports.Background,
+        new DeriveAccountMsg(
+          {
+            account: parentAccountIndex,
+            change,
+            index,
+          },
+          isTransparent ? AccountType.PrivateKey : AccountType.ShieldedKeys,
+          alias
+        )
       )
-    );
+      .catch((e) => {
+        throw new Error(`Requester error: ${e}`);
+      });
   };
 
   const handleAccountAdd = useCallback(async (): Promise<void> => {
@@ -382,9 +400,8 @@ const AddAccount: React.FC<Props> = ({
 
             <Bip44Path>
               Derivation path:{" "}
-              <span>{`${parentDerivationPath}${
-                isTransparent ? `${change}/` : ""
-              }${index}`}</span>
+              <span>{`${parentDerivationPath}${isTransparent ? `${change}/` : ""
+                }${index}`}</span>
             </Bip44Path>
             <FormValidationMsg>{validation}</FormValidationMsg>
           </AddAccountForm>

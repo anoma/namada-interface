@@ -5,7 +5,6 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import { DerivedAccount } from "@namada/types";
 import { getTheme } from "@namada/utils";
 import { Icon, IconName } from "@namada/components";
-import { useUntil } from "@namada/hooks";
 
 import { Ports } from "router";
 import {
@@ -95,34 +94,22 @@ export const App: React.FC = () => {
     }
   };
 
-  useUntil(
-    {
-      predFn: async () => {
-        setStatus(Status.Pending);
-        try {
-          const accounts = await requester.sendMessage(
-            Ports.Background,
-            new QueryAccountsMsg()
-          );
+  useEffect(() => {
+    setStatus(Status.Pending);
+    const fetchAccounts = async (): Promise<void> => {
+      const accounts = await requester
+        .sendMessage(Ports.Background, new QueryAccountsMsg())
+        .catch((e) => {
+          setError(`Requester error: ${e}`);
+        });
 
-          setAccounts(accounts);
-          return true;
-        } catch (e) {
-          console.warn(e);
-          return false;
-        }
-      },
-      onSuccess: () => {
-        setStatus(Status.Completed);
-      },
-      onFail: () => {
-        setError("An error occurred connecting to extension");
-        setStatus(Status.Completed);
-      },
-    },
-    { tries: 10, ms: 100 },
-    []
-  );
+      if (accounts) {
+        setAccounts(accounts);
+      }
+      setStatus(Status.Completed);
+    };
+    fetchAccounts();
+  }, []);
 
   // Fetch Masp params if they don't exist
   useEffect(() => {
