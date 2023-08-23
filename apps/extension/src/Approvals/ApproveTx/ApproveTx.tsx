@@ -3,7 +3,7 @@ import { useCallback, useEffect } from "react";
 
 import { Button, ButtonVariant } from "@namada/components";
 import { shortenAddress } from "@namada/utils";
-import { AccountType, Tokens } from "@namada/types";
+import { AccountType, Tokens, TxTypeLabel } from "@namada/types";
 import { TxType } from "@namada/shared";
 import { useSanitizedParams } from "@namada/hooks";
 
@@ -13,7 +13,7 @@ import {
   ApprovalContainer,
   ButtonContainer,
 } from "Approvals/Approvals.components";
-import { TopLevelRoute, TxTypeLabel } from "Approvals/types";
+import { TopLevelRoute } from "Approvals/types";
 import { Ports } from "router";
 import { RejectTxMsg } from "background/approvals";
 import { useRequester } from "hooks/useRequester";

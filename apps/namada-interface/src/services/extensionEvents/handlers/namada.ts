@@ -7,6 +7,7 @@ import { addAccounts, fetchBalances } from "slices/accounts";
 import { actions as notificationsActions } from "slices/notifications";
 import { getToast, Toasts } from "slices/transfers";
 import { fetchValidators } from "slices/StakingAndGovernance/actions";
+import { TxType } from "@namada/shared";
 
 export const NamadaAccountChangedHandler =
   (dispatch: Dispatch<unknown>, integration: Namada) =>
@@ -32,6 +33,18 @@ export const NamadaUpdatedStakingHandler =
     dispatch(fetchValidators());
   };
 
+export const NamadaTxStartedHandler =
+  (dispatch: Dispatch<unknown>) => async (event: CustomEventInit) => {
+    const { msgId, txType } = event.detail;
+    dispatch(notificationsActions.txStartedToast({ id: msgId, txType }));
+  };
+
+export const NamadaTxCompletedHandler =
+  (dispatch: Dispatch<unknown>) => async (event: CustomEventInit) => {
+    const { msgId, txType } = event.detail;
+    dispatch(notificationsActions.txCompletedToast({ id: msgId, txType }));
+  };
+
 export const NamadaTransferStartedHandler =
   (dispatch: Dispatch<unknown>) => async (event: CustomEventInit) => {
     const { msgId } = event.detail;
@@ -40,7 +53,7 @@ export const NamadaTransferStartedHandler =
         getToast(
           `${event.detail.msgId}-transfer`,
           Toasts.TransferStarted
-        )({ msgId })
+        )({ msgId, txType: TxType.Transfer })
       )
     );
   };
@@ -53,7 +66,7 @@ export const NamadaTransferCompletedHandler =
         getToast(
           `${event.detail.msgId}-transfer`,
           Toasts.TransferCompleted
-        )({ msgId, success })
+        )({ msgId, success, txType: TxType.Transfer })
       )
     );
   };

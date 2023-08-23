@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toBase64 } from "@cosmjs/encoding";
 import BigNumber from "bignumber.js";
 
@@ -6,7 +6,13 @@ import { LedgerError } from "@namada/ledger-namada";
 import { Button, ButtonVariant } from "@namada/components";
 import { defaultChainId as chainId } from "@namada/chains";
 import { TxType } from "@namada/shared";
-import { Message, Tokens, TxProps, TxMsgValue } from "@namada/types";
+import {
+  Message,
+  Tokens,
+  TxProps,
+  TxMsgValue,
+  TxTypeLabel,
+} from "@namada/types";
 
 import {
   GetRevealPKBytesMsg,
@@ -29,7 +35,6 @@ import {
 import { InfoHeader, InfoLoader } from "Approvals/Approvals.components";
 
 import { QueryPublicKeyMsg } from "background/keyring";
-import { TxTypeLabel } from "Approvals/types";
 
 type Props = {
   details?: ApprovalDetails;
@@ -41,6 +46,12 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
   const [status, setStatus] = useState<Status>();
   const [statusInfo, setStatusInfo] = useState("");
   const { source, msgId, publicKey, txType } = details || {};
+
+  useEffect(() => {
+    if (status === Status.Completed) {
+      closeCurrentTab();
+    }
+  }, [status]);
 
   const revealPk = async (ledger: Ledger, publicKey: string): Promise<void> => {
     setStatusInfo(
@@ -142,9 +153,7 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
     }
 
     // Submit signatures for tx
-    setStatusInfo(`Submitting ${txLabel} transaction...`);
-
-    await requester
+    requester
       .sendMessage(
         Ports.Background,
         new SubmitSignedTxMsg(txType, msgId, toBase64(bytes), signatures)
@@ -152,6 +161,8 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
       .catch((e) => {
         throw new Error(`Requester error: ${e}`);
       });
+
+    setStatus(Status.Completed);
   };
 
   const handleSubmitTx = useCallback(async (): Promise<void> => {
@@ -210,9 +221,7 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
           }
         }
 
-        await submitTx(ledger);
-
-        return setStatus(Status.Completed);
+        submitTx(ledger);
       }
     } catch (e) {
       await ledger.closeTransport();
@@ -220,10 +229,6 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
       setStatus(Status.Failed);
     }
   }, [source, publicKey]);
-
-  const handleCloseTab = useCallback(async (): Promise<void> => {
-    await closeCurrentTab();
-  }, []);
 
   return (
     <ApprovalContainer>
@@ -246,16 +251,6 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
           <ButtonContainer>
             <Button variant={ButtonVariant.Contained} onClick={handleSubmitTx}>
               Submit
-            </Button>
-          </ButtonContainer>
-        </>
-      )}
-      {status === Status.Completed && (
-        <>
-          <p>Success! You may close this window.</p>
-          <ButtonContainer>
-            <Button variant={ButtonVariant.Contained} onClick={handleCloseTab}>
-              Close
             </Button>
           </ButtonContainer>
         </>

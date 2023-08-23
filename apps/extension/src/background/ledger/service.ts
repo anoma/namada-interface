@@ -115,6 +115,8 @@ export class LedgerService {
     const rawSig = encodeSignature(rawSignature);
     const wrapperSig = encodeSignature(wrapperSignature);
 
+    await this.keyringService.broadcastTxStarted(msgId, txType);
+
     try {
       await this.sdk.submit_signed_tx(
         encodedTx,
@@ -123,6 +125,7 @@ export class LedgerService {
         wrapperSig
       );
 
+      await this.keyringService.broadcastTxCompleted(msgId, txType, true);
       // Clear pending tx if successful
       await this.txStore.set(msgId, null);
 
@@ -134,6 +137,7 @@ export class LedgerService {
       }
     } catch (e) {
       console.warn(e);
+      await this.keyringService.broadcastTxCompleted(msgId, txType, false);
     }
   }
 

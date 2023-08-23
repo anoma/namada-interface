@@ -19,14 +19,6 @@ export enum TopLevelRoute {
   ConfirmLedgerTx = "/confirm-ledger-tx",
 }
 
-export const TxTypeLabel: Record<TxType, string> = {
-  [TxType.Bond]: "bond",
-  [TxType.Unbond]: "unbond",
-  [TxType.Transfer]: "transfer",
-  [TxType.Withdraw]: "withdraw",
-  [TxType.RevealPK]: "reveal-pk",
-};
-
 export type SupportedTx = Extract<
   TxType,
   TxType.Bond | TxType.Unbond | TxType.Transfer | TxType.Withdraw

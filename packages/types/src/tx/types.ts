@@ -1,5 +1,7 @@
 import BigNumber from "bignumber.js";
 
+import { TxType } from "@namada/shared";
+
 export type SubmitBondProps = {
   validator: string;
   amount: BigNumber;
@@ -73,4 +75,12 @@ export type SignatureProps = {
   indices: Uint8Array;
   pubkey: Uint8Array;
   signature: Uint8Array;
+};
+
+export const TxTypeLabel: Record<TxType, string> = {
+  [TxType.Bond]: "Bond",
+  [TxType.Unbond]: "Unbond",
+  [TxType.Transfer]: "Transfer",
+  [TxType.Withdraw]: "Withdraw",
+  [TxType.RevealPK]: "RevealPK",
 };

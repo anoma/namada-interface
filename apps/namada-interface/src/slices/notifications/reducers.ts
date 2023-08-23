@@ -14,6 +14,8 @@ import {
   NotificationsState,
   ToastTimeout,
 } from "./types";
+import { TxType } from "@namada/shared";
+import { TxTypeLabel } from "@namada/types";
 
 export const DEFAULT_TIMEOUT = 2000;
 export const THUNK_MATCH_REGEXP = /^.*(?=\/(pending|fulfilled|rejected)$)/;
@@ -40,6 +42,34 @@ export const reducers = {
   ) => {
     const { [action.payload.id]: _, ...newToasts } = state.toasts;
     state.toasts = newToasts;
+  },
+  txStartedToast(
+    state: NotificationsState,
+    action: PayloadAction<{ id: ToastId; txType: TxType }>
+  ) {
+    state.toasts = {
+      ...state.toasts,
+      [action.payload.id]: {
+        title: `${TxTypeLabel[action.payload.txType]} Tx started`,
+        message: "Waiting for transaction confirmation",
+        type: "info",
+        timeout: ToastTimeout.None(),
+      },
+    };
+  },
+  txCompletedToast(
+    state: NotificationsState,
+    action: PayloadAction<{ id: ToastId; txType: TxType }>
+  ) {
+    state.toasts = {
+      ...state.toasts,
+      [action.payload.id]: {
+        title: `${TxTypeLabel[action.payload.txType]} Tx completed`,
+        message: "Transaction confirmed",
+        type: "success",
+        timeout: ToastTimeout.Default(),
+      },
+    };
   },
 };
 

@@ -3,7 +3,7 @@ import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import { PhraseSize } from "@namada/crypto";
 import { KVStore, Store } from "@namada/storage";
 import { AccountType, Bip44Path, DerivedAccount } from "@namada/types";
-import { Query, Sdk } from "@namada/shared";
+import { Query, Sdk, TxType } from "@namada/shared";
 import { Result } from "@namada/utils";
 
 import { KeyRing, KEYSTORE_KEY } from "./keyring";
@@ -25,6 +25,8 @@ import {
   AccountChangedEventMsg,
   TransferCompletedEvent,
   TransferStartedEvent,
+  TxCompletedEvent,
+  TxStartedEvent,
   UpdatedBalancesEventMsg,
   UpdatedStakingEventMsg,
 } from "content/events";
@@ -189,37 +191,43 @@ export class KeyRingService {
   }
 
   async submitBond(txMsg: string, msgId: string): Promise<void> {
-    console.log(`TODO: Broadcast notification for ${msgId}`);
+    await this.broadcastTxStarted(msgId, TxType.Bond);
     try {
       await this._keyRing.submitBond(fromBase64(txMsg));
+      await this.broadcastTxCompleted(msgId, TxType.Bond, true);
       this.broadcastUpdateStaking();
       this.broadcastUpdateBalance();
     } catch (e) {
       console.warn(e);
+      await this.broadcastTxCompleted(msgId, TxType.Bond, false);
       throw new Error(`Unable to submit bond tx! ${e}`);
     }
   }
 
   async submitUnbond(txMsg: string, msgId: string): Promise<void> {
-    console.log(`TODO: Broadcast notification for ${msgId}`);
+    await this.broadcastTxStarted(msgId, TxType.Unbond);
     try {
       await this._keyRing.submitUnbond(fromBase64(txMsg));
+      await this.broadcastTxCompleted(msgId, TxType.Unbond, true);
       this.broadcastUpdateStaking();
       this.broadcastUpdateBalance();
     } catch (e) {
       console.warn(e);
+      await this.broadcastTxCompleted(msgId, TxType.Unbond, false);
       throw new Error(`Unable to submit unbond tx! ${e}`);
     }
   }
 
   async submitWithdraw(txMsg: string, msgId: string): Promise<void> {
-    console.log(`TODO: Broadcast notification for ${msgId}`);
+    await this.broadcastTxStarted(msgId, TxType.Withdraw);
     try {
       await this._keyRing.submitWithdraw(fromBase64(txMsg));
+      await this.broadcastTxCompleted(msgId, TxType.Withdraw, true);
       this.broadcastUpdateStaking();
       this.broadcastUpdateBalance();
     } catch (e) {
       console.warn(e);
+      await this.broadcastTxCompleted(msgId, TxType.Withdraw, false);
       throw new Error(`Unable to submit withdraw tx! ${e}`);
     }
   }
@@ -425,6 +433,56 @@ export class KeyRingService {
 
   async hasMaspParams(): Promise<boolean> {
     return Sdk.has_masp_params();
+  }
+
+  async broadcastTxStarted(msgId: string, txType: TxType): Promise<void> {
+    const tabs = await syncTabs(
+      this.connectedTabsStore,
+      this.requester,
+      this.chainId
+    );
+
+    try {
+      tabs?.forEach(({ tabId }: TabStore) => {
+        this.requester.sendMessageToTab(
+          tabId,
+          Ports.WebBrowser,
+          new TxStartedEvent(this.chainId, msgId, txType)
+        );
+      });
+    } catch (e) {
+      console.warn(`${e}`);
+    }
+  }
+
+  async broadcastTxCompleted(
+    msgId: string,
+    txType: TxType,
+    success: boolean,
+    payload?: string
+  ): Promise<void> {
+    if (!success) {
+      //TODO: pass error message to the TxCompletedEvent and display it in the UI
+      console.error(payload);
+    }
+
+    const tabs = await syncTabs(
+      this.connectedTabsStore,
+      this.requester,
+      this.chainId
+    );
+
+    try {
+      tabs?.forEach(({ tabId }: TabStore) => {
+        this.requester.sendMessageToTab(
+          tabId,
+          Ports.WebBrowser,
+          new TxCompletedEvent(this.chainId, msgId, txType)
+        );
+      });
+    } catch (e) {
+      console.warn(`${e}`);
+    }
   }
 
   async broadcastUpdateBalance(): Promise<void> {

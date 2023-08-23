@@ -14,6 +14,8 @@ import {
   NamadaAccountChangedHandler,
   NamadaTransferCompletedHandler,
   NamadaTransferStartedHandler,
+  NamadaTxStartedHandler,
+  NamadaTxCompletedHandler,
   NamadaUpdatedBalancesHandler,
   NamadaUpdatedStakingHandler,
   KeplrAccountChangedHandler,
@@ -36,6 +38,8 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
   const namadaTransferStartedHandler = NamadaTransferStartedHandler(dispatch);
   const namadaTransferCompletedHandler =
     NamadaTransferCompletedHandler(dispatch);
+  const namadaTxStartedHandler = NamadaTxStartedHandler(dispatch);
+  const namadaTxCompletedHandler = NamadaTxCompletedHandler(dispatch);
   const namadaUpdatedBalancesHandler = NamadaUpdatedBalancesHandler(dispatch);
   const namadaUpdatedStakingHandler = NamadaUpdatedStakingHandler(dispatch);
 
@@ -60,6 +64,8 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
   );
   useEventListenerOnce(Events.UpdatedBalances, namadaUpdatedBalancesHandler);
   useEventListenerOnce(Events.UpdatedStaking, namadaUpdatedStakingHandler);
+  useEventListenerOnce(Events.TxStarted, namadaTxStartedHandler);
+  useEventListenerOnce(Events.TxCompleted, namadaTxCompletedHandler);
   useEventListenerOnce(KeplrEvents.AccountChanged, keplrAccountChangedHandler);
   useEventListenerOnce(
     MetamaskEvents.AccountChanged,
