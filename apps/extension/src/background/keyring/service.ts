@@ -19,16 +19,16 @@ import {
   ActiveAccountStore,
 } from "./types";
 import { syncTabs, updateTabStorage } from "./utils";
-import { ExtensionRequester, getNamadaRouterId } from "extension";
+import {
+  ExtensionBroadcaster,
+  ExtensionRequester,
+  getNamadaRouterId,
+} from "extension";
 import { Ports } from "router";
 import {
   AccountChangedEventMsg,
   TransferCompletedEvent,
   TransferStartedEvent,
-  TxCompletedEvent,
-  TxStartedEvent,
-  UpdatedBalancesEventMsg,
-  UpdatedStakingEventMsg,
 } from "content/events";
 import {
   createOffscreenWithTxWorker,
@@ -55,7 +55,8 @@ export class KeyRingService {
     protected readonly sdk: Sdk,
     protected readonly query: Query,
     protected readonly cryptoMemory: WebAssembly.Memory,
-    protected readonly requester: ExtensionRequester
+    protected readonly requester: ExtensionRequester,
+    protected readonly broadcaster: ExtensionBroadcaster
   ) {
     this._keyRing = new KeyRing(
       kvStore,
@@ -138,13 +139,13 @@ export class KeyRingService {
     alias: string
   ): Promise<boolean> {
     const results = await this._keyRing.storeMnemonic(words, password, alias);
-    await this.broadcastAccountsChanged();
+    this.broadcastAccountsChanged();
     return results;
   }
 
   async scanAccounts(): Promise<void> {
     await this._keyRing.scanAddresses();
-    await this.broadcastAccountsChanged();
+    this.broadcastAccountsChanged();
   }
 
   async deriveAccount(
@@ -153,7 +154,7 @@ export class KeyRingService {
     alias: string
   ): Promise<DerivedAccount> {
     const account = await this._keyRing.deriveAccount(path, type, alias);
-    await this.broadcastAccountsChanged();
+    this.broadcastAccountsChanged();
     return account;
   }
 
@@ -191,43 +192,43 @@ export class KeyRingService {
   }
 
   async submitBond(txMsg: string, msgId: string): Promise<void> {
-    await this.broadcastTxStarted(msgId, TxType.Bond);
+    await this.broadcaster.startTx(msgId, TxType.Bond);
     try {
       await this._keyRing.submitBond(fromBase64(txMsg));
-      await this.broadcastTxCompleted(msgId, TxType.Bond, true);
-      this.broadcastUpdateStaking();
-      this.broadcastUpdateBalance();
+      this.broadcaster.completeTx(msgId, TxType.Bond, true);
+      this.broadcaster.updateStaking();
+      this.broadcaster.updateBalance();
     } catch (e) {
       console.warn(e);
-      await this.broadcastTxCompleted(msgId, TxType.Bond, false);
+      this.broadcaster.completeTx(msgId, TxType.Bond, false);
       throw new Error(`Unable to submit bond tx! ${e}`);
     }
   }
 
   async submitUnbond(txMsg: string, msgId: string): Promise<void> {
-    await this.broadcastTxStarted(msgId, TxType.Unbond);
+    await this.broadcaster.startTx(msgId, TxType.Unbond);
     try {
       await this._keyRing.submitUnbond(fromBase64(txMsg));
-      await this.broadcastTxCompleted(msgId, TxType.Unbond, true);
-      this.broadcastUpdateStaking();
-      this.broadcastUpdateBalance();
+      this.broadcaster.completeTx(msgId, TxType.Unbond, true);
+      this.broadcaster.updateStaking();
+      this.broadcaster.updateBalance();
     } catch (e) {
       console.warn(e);
-      await this.broadcastTxCompleted(msgId, TxType.Unbond, false);
+      this.broadcaster.completeTx(msgId, TxType.Unbond, false);
       throw new Error(`Unable to submit unbond tx! ${e}`);
     }
   }
 
   async submitWithdraw(txMsg: string, msgId: string): Promise<void> {
-    await this.broadcastTxStarted(msgId, TxType.Withdraw);
+    await this.broadcaster.startTx(msgId, TxType.Withdraw);
     try {
       await this._keyRing.submitWithdraw(fromBase64(txMsg));
-      await this.broadcastTxCompleted(msgId, TxType.Withdraw, true);
-      this.broadcastUpdateStaking();
-      this.broadcastUpdateBalance();
+      this.broadcaster.completeTx(msgId, TxType.Withdraw, true);
+      this.broadcaster.updateStaking();
+      this.broadcaster.updateBalance();
     } catch (e) {
       console.warn(e);
-      await this.broadcastTxCompleted(msgId, TxType.Withdraw, false);
+      this.broadcaster.completeTx(msgId, TxType.Withdraw, false);
       throw new Error(`Unable to submit withdraw tx! ${e}`);
     }
   }
@@ -325,7 +326,7 @@ export class KeyRingService {
       console.warn(e);
       throw new Error(`Unable to submit the transfer! ${e}`);
     }
-    return await this.broadcastUpdateBalance();
+    this.broadcaster.updateBalance();
   }
 
   async submitIbcTransfer(txMsg: string): Promise<void> {
@@ -352,7 +353,7 @@ export class KeyRingService {
 
   async setActiveAccount(id: string, type: ParentAccount): Promise<void> {
     await this._keyRing.setActiveAccount(id, type);
-    await this.broadcastAccountsChanged();
+    this.broadcastAccountsChanged();
   }
 
   async getActiveAccount(): Promise<ActiveAccountStore | undefined> {
@@ -383,7 +384,7 @@ export class KeyRingService {
           new TransferCompletedEvent(msgId, success)
         );
       });
-      this.broadcastUpdateBalance();
+      this.broadcaster.updateBalance();
     } catch (e) {
       console.warn(e);
     }
@@ -433,98 +434,6 @@ export class KeyRingService {
 
   async hasMaspParams(): Promise<boolean> {
     return Sdk.has_masp_params();
-  }
-
-  async broadcastTxStarted(msgId: string, txType: TxType): Promise<void> {
-    const tabs = await syncTabs(
-      this.connectedTabsStore,
-      this.requester,
-      this.chainId
-    );
-
-    try {
-      tabs?.forEach(({ tabId }: TabStore) => {
-        this.requester.sendMessageToTab(
-          tabId,
-          Ports.WebBrowser,
-          new TxStartedEvent(this.chainId, msgId, txType)
-        );
-      });
-    } catch (e) {
-      console.warn(`${e}`);
-    }
-  }
-
-  async broadcastTxCompleted(
-    msgId: string,
-    txType: TxType,
-    success: boolean,
-    payload?: string
-  ): Promise<void> {
-    if (!success) {
-      //TODO: pass error message to the TxCompletedEvent and display it in the UI
-      console.error(payload);
-    }
-
-    const tabs = await syncTabs(
-      this.connectedTabsStore,
-      this.requester,
-      this.chainId
-    );
-
-    try {
-      tabs?.forEach(({ tabId }: TabStore) => {
-        this.requester.sendMessageToTab(
-          tabId,
-          Ports.WebBrowser,
-          new TxCompletedEvent(this.chainId, msgId, txType)
-        );
-      });
-    } catch (e) {
-      console.warn(`${e}`);
-    }
-  }
-
-  async broadcastUpdateBalance(): Promise<void> {
-    const tabs = await syncTabs(
-      this.connectedTabsStore,
-      this.requester,
-      this.chainId
-    );
-    try {
-      tabs?.forEach(({ tabId }: TabStore) => {
-        this.requester.sendMessageToTab(
-          tabId,
-          Ports.WebBrowser,
-          new UpdatedBalancesEventMsg(this.chainId)
-        );
-      });
-    } catch (e) {
-      console.warn(e);
-    }
-
-    return;
-  }
-
-  async broadcastUpdateStaking(): Promise<void> {
-    const tabs = await syncTabs(
-      this.connectedTabsStore,
-      this.requester,
-      this.chainId
-    );
-    try {
-      tabs?.forEach(({ tabId }: TabStore) => {
-        this.requester.sendMessageToTab(
-          tabId,
-          Ports.WebBrowser,
-          new UpdatedStakingEventMsg(this.chainId)
-        );
-      });
-    } catch (e) {
-      console.warn(e);
-    }
-
-    return;
   }
 
   async queryBalances(

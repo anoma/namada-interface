@@ -10,6 +10,7 @@ import { init as initShared } from "@namada/shared/src/init";
 import { Query, Sdk } from "@namada/shared";
 
 import {
+  ExtensionBroadcaster,
   ExtensionRouter,
   ExtensionGuards,
   ContentScriptEnv,
@@ -84,6 +85,11 @@ const init = new Promise<void>(async (resolve) => {
 
   const routerId = await getNamadaRouterId(extensionStore);
   const requester = new ExtensionRequester(messenger, routerId);
+  const broadcaster = new ExtensionBroadcaster(
+    connectedTabsStore,
+    defaultChainId,
+    requester
+  );
 
   const chainsService = new ChainsService(store, [chains[defaultChainId]]);
   const keyRingService = new KeyRingService(
@@ -96,7 +102,8 @@ const init = new Promise<void>(async (resolve) => {
     sdk,
     query,
     cryptoMemory,
-    requester
+    requester,
+    broadcaster
   );
   const ledgerService = new LedgerService(
     keyRingService,
@@ -107,7 +114,8 @@ const init = new Promise<void>(async (resolve) => {
     revealedPKStore,
     defaultChainId,
     sdk,
-    requester
+    requester,
+    broadcaster
   );
   const approvalsService = new ApprovalsService(
     txStore,

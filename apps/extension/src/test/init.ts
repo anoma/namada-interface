@@ -4,6 +4,7 @@ import { KVStore } from "@namada/storage";
 import { Chain } from "@namada/types";
 
 import {
+  ExtensionBroadcaster,
   ExtensionRouter,
   ExtensionMessengerMock,
   ExtensionRequester,
@@ -36,7 +37,7 @@ const chainId = "namada-75a7e12.69483d59a9fb174";
 export class KVStoreMock<T> implements KVStore<T> {
   private storage: { [key: string]: T | null } = {};
 
-  constructor(readonly _prefix: string) {}
+  constructor(readonly _prefix: string) { }
 
   get<U extends T>(key: string): Promise<U | undefined> {
     return new Promise((resolve) => {
@@ -73,6 +74,11 @@ export const init = async (): Promise<{
   const namadaRouterId = await getNamadaRouterId(extStore);
   const requester = new ExtensionRequester(messenger, namadaRouterId);
   const txStore = new KVStoreMock<string>(KVPrefix.LocalStorage);
+  const broadcaster = new ExtensionBroadcaster(
+    connectedTabsStore,
+    chainId,
+    requester
+  );
 
   const router = new ExtensionRouter(
     () => ({
@@ -103,7 +109,8 @@ export const init = async (): Promise<{
     sdk,
     query,
     cryptoMemory,
-    requester
+    requester,
+    broadcaster
   );
 
   const ledgerService = new LedgerService(
@@ -115,7 +122,8 @@ export const init = async (): Promise<{
     revealedPKStore,
     chainId,
     sdk,
-    requester
+    requester,
+    broadcaster
   );
 
   const approvalsService = new ApprovalsService(

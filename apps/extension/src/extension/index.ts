@@ -1,3 +1,4 @@
+export * from "./ExtensionBroadcaster";
 export * from "./ExtensionRequester";
 export * from "./ExtensionMessenger";
 export * from "./ExtensionMessengerMock";

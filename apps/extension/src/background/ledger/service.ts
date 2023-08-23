@@ -21,7 +21,7 @@ import {
   TabStore,
 } from "background/keyring";
 import { encodeSignature, generateId, getEncodedTxByType } from "utils";
-import { ExtensionRequester } from "extension";
+import { ExtensionBroadcaster, ExtensionRequester } from "extension";
 
 export const LEDGERSTORE_KEY = "ledger-store";
 const UUID_NAMESPACE = "be9fdaee-ffa2-11ed-8ef1-325096b39f47";
@@ -39,7 +39,8 @@ export class LedgerService {
     protected readonly revealedPKStore: KVStore<string[]>,
     protected readonly chainId: string,
     protected readonly sdk: Sdk,
-    protected readonly requester: ExtensionRequester
+    protected readonly requester: ExtensionRequester,
+    protected readonly broadcaster: ExtensionBroadcaster
   ) {
     this._ledgerStore = new Store(LEDGERSTORE_KEY, kvStore);
   }
@@ -115,7 +116,7 @@ export class LedgerService {
     const rawSig = encodeSignature(rawSignature);
     const wrapperSig = encodeSignature(wrapperSignature);
 
-    await this.keyringService.broadcastTxStarted(msgId, txType);
+    await this.broadcaster.startTx(msgId, txType);
 
     try {
       await this.sdk.submit_signed_tx(
@@ -125,19 +126,19 @@ export class LedgerService {
         wrapperSig
       );
 
-      await this.keyringService.broadcastTxCompleted(msgId, txType, true);
       // Clear pending tx if successful
       await this.txStore.set(msgId, null);
 
       // Broadcast update events
-      this.keyringService.broadcastUpdateBalance();
+      this.broadcaster.completeTx(msgId, txType, true);
+      this.broadcaster.updateBalance();
 
       if ([TxType.Bond, TxType.Unbond, TxType.Withdraw].includes(txType)) {
-        await this.keyringService.broadcastUpdateStaking();
+        this.broadcaster.updateStaking();
       }
     } catch (e) {
       console.warn(e);
-      await this.keyringService.broadcastTxCompleted(msgId, txType, false);
+      this.broadcaster.completeTx(msgId, txType, false);
     }
   }
 
