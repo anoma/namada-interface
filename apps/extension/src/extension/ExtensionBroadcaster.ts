@@ -2,6 +2,7 @@ import { TxType } from "@namada/shared";
 import { KVStore } from "@namada/storage";
 import { TabStore, syncTabs } from "background/keyring";
 import {
+  AccountChangedEventMsg,
   TxCompletedEvent,
   TxStartedEvent,
   UpdatedBalancesEventMsg,
@@ -37,7 +38,7 @@ export class ExtensionBroadcaster {
     }
     try {
       await this.sendMsgToTabs(
-        new TxCompletedEvent(this.chainId, msgId, txType)
+        new TxCompletedEvent(this.chainId, msgId, txType, success, payload)
       );
     } catch (e) {
       console.warn(`${e}`);
@@ -74,5 +75,26 @@ export class ExtensionBroadcaster {
     } catch (e) {
       console.warn(e);
     }
+  }
+
+  async updateAccounts(): Promise<void> {
+    const tabs = await syncTabs(
+      this.connectedTabsStore,
+      this.requester,
+      this.chainId
+    );
+    try {
+      tabs?.forEach(({ tabId }: TabStore) => {
+        this.requester.sendMessageToTab(
+          tabId,
+          Ports.WebBrowser,
+          new AccountChangedEventMsg(this.chainId)
+        );
+      });
+    } catch (e) {
+      console.warn(e);
+    }
+
+    return;
   }
 }

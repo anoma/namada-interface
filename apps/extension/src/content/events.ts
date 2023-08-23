@@ -171,7 +171,9 @@ export class TxCompletedEvent extends Message<void> {
   constructor(
     public readonly chainId: string,
     public readonly msgId: string,
-    public readonly txType: TxType
+    public readonly txType: TxType,
+    public readonly success: boolean,
+    public readonly payload?: string
   ) {
     super();
   }
@@ -187,6 +189,10 @@ export class TxCompletedEvent extends Message<void> {
 
     if (!this.txType) {
       throw new Error("txType should not be empty");
+    }
+
+    if (!this.success) {
+      throw new Error("success should not be empty");
     }
   }
 

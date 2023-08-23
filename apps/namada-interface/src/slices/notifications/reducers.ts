@@ -59,14 +59,15 @@ export const reducers = {
   },
   txCompletedToast(
     state: NotificationsState,
-    action: PayloadAction<{ id: ToastId; txType: TxType }>
+    action: PayloadAction<{ id: ToastId; txType: TxType; success: boolean }>
   ) {
+    const { id, txType, success } = action.payload;
     state.toasts = {
       ...state.toasts,
-      [action.payload.id]: {
-        title: `${TxTypeLabel[action.payload.txType]} Tx completed`,
-        message: "Transaction confirmed",
-        type: "success",
+      [id]: {
+        title: `${TxTypeLabel[txType]} Tx completed`,
+        message: `Transaction ${success ? "confirmed" : "rejected"}`,
+        type: success ? "success" : "error",
         timeout: ToastTimeout.Default(),
       },
     };

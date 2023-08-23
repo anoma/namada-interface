@@ -41,8 +41,10 @@ export const NamadaTxStartedHandler =
 
 export const NamadaTxCompletedHandler =
   (dispatch: Dispatch<unknown>) => async (event: CustomEventInit) => {
-    const { msgId, txType } = event.detail;
-    dispatch(notificationsActions.txCompletedToast({ id: msgId, txType }));
+    const { msgId, txType, success } = event.detail;
+    dispatch(
+      notificationsActions.txCompletedToast({ id: msgId, txType, success })
+    );
   };
 
 export const NamadaTransferStartedHandler =
