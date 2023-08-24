@@ -8,6 +8,8 @@ declare global {
       REACT_APP_NAMADA_CHAIN_ID?: string;
       REACT_APP_NAMADA_URL?: string;
       REACT_APP_NAMADA_BECH32_PREFIX?: string;
+      REACT_APP_NAMADA_FAUCET_ADDRESS?: string;
+      REACT_APP_NAMADA_FAUCET_LIMIT?: string;
 
       REACT_APP_COSMOS_ALIAS?: string;
       REACT_APP_COSMOS_CHAIN_ID?: string;
@@ -25,4 +27,4 @@ declare global {
   }
 }
 
-export {};
+export { };
