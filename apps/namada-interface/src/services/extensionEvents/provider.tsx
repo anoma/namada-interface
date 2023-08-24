@@ -12,8 +12,6 @@ import { useEventListenerOnce, useIntegration } from "@namada/hooks";
 import { useAppDispatch } from "store";
 import {
   NamadaAccountChangedHandler,
-  NamadaTransferCompletedHandler,
-  NamadaTransferStartedHandler,
   NamadaTxStartedHandler,
   NamadaTxCompletedHandler,
   NamadaUpdatedBalancesHandler,
@@ -35,9 +33,6 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
     dispatch,
     namadaIntegration as Namada
   );
-  const namadaTransferStartedHandler = NamadaTransferStartedHandler(dispatch);
-  const namadaTransferCompletedHandler =
-    NamadaTransferCompletedHandler(dispatch);
   const namadaTxStartedHandler = NamadaTxStartedHandler(dispatch);
   const namadaTxCompletedHandler = NamadaTxCompletedHandler(dispatch);
   const namadaUpdatedBalancesHandler = NamadaUpdatedBalancesHandler(dispatch);
@@ -57,11 +52,6 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
 
   // Register handlers:
   useEventListenerOnce(Events.AccountChanged, namadaAccountChangedHandler);
-  useEventListenerOnce(Events.TransferStarted, namadaTransferStartedHandler);
-  useEventListenerOnce(
-    Events.TransferCompleted,
-    namadaTransferCompletedHandler
-  );
   useEventListenerOnce(Events.UpdatedBalances, namadaUpdatedBalancesHandler);
   useEventListenerOnce(Events.UpdatedStaking, namadaUpdatedStakingHandler);
   useEventListenerOnce(Events.TxStarted, namadaTxStartedHandler);

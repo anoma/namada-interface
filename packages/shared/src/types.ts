@@ -1,6 +1,8 @@
 import { TxType } from "./shared/shared";
 
-export const TxTypeLabel: Record<TxType, string> = {
+export type TxLabel = "Bond" | "Unbond" | "Transfer" | "Withdraw" | "RevealPK";
+
+export const TxTypeLabel: Record<TxType, TxLabel> = {
   [TxType.Bond]: "Bond",
   [TxType.Unbond]: "Unbond",
   [TxType.Transfer]: "Transfer",

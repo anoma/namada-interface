@@ -2,66 +2,10 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import BigNumber from "bignumber.js";
 
 import { Account, Tokens, TokenType, Signer } from "@namada/types";
-import { assertNever } from "@namada/utils";
 import { getIntegration } from "@namada/hooks";
 
-import {
-  CreateToastPayload,
-  ToastId,
-  ToastTimeout,
-  ToastType,
-} from "slices/notifications";
 import { RootState } from "store";
-import { TxType } from "@namada/shared";
-
-export enum Toasts {
-  TransferStarted,
-  TransferCompleted,
-}
-
-type TransferCompletedToastProps = {
-  msgId: string;
-  txType: TxType;
-  success: boolean;
-};
-type TransferStartedToastProps = { msgId: string; txType: TxType };
-type GetToastProps<T extends Toasts> = T extends Toasts.TransferStarted
-  ? TransferStartedToastProps
-  : T extends Toasts.TransferCompleted
-  ? TransferCompletedToastProps
-  : never;
-
-export const getToast = <T extends Toasts>(
-  toastId: ToastId,
-  toast: T
-): ((props: GetToastProps<T>) => CreateToastPayload) => {
-  const toastFunction =
-    toast === Toasts.TransferStarted
-      ? (payload: TransferCompletedToastProps) => ({
-          id: toastId,
-          data: {
-            title: "Transfer in progress!",
-            message: payload.msgId,
-            type: "pending-info" as ToastType,
-            timeout: ToastTimeout.None(),
-          },
-        })
-      : toast === Toasts.TransferCompleted
-      ? ({ success, msgId }: TransferCompletedToastProps) => ({
-          id: toastId,
-          data: {
-            title: success ? "Transfer successful!" : "Transfer failed.",
-            message: msgId,
-            type: success ? "success" : "error",
-          },
-        })
-      : assertNever(toast);
-
-  return toastFunction as (props: GetToastProps<T>) => CreateToastPayload;
-};
-
 const TRANSFERS_ACTIONS_BASE = "transfers";
-/* const MASP_ADDRESS = TRANSFER_CONFIGURATION.maspAddress; */
 
 export type IBCTransferAttributes = {
   sourceChannel: string;
@@ -186,16 +130,9 @@ export const submitIbcTransferTransaction = createAsyncThunk<
   { state: RootState }
 >(
   `${TRANSFERS_ACTIONS_BASE}/${TransfersThunkActions.SubmitIbcTransferTransaction}`,
-  async (txIbcTransferArgs, { getState /* dispatch, requestId */ }) => {
+  async (txIbcTransferArgs, { getState }) => {
     const { chainId } = getState().settings;
     const integration = getIntegration(chainId);
-
-    // TODO: Add toast props
-    //dispatch(
-    //  notificationsActions.createToast(
-    //    getToast(`${requestId}-pending`, Toasts.TransferStarted)()
-    //  )
-    //);
 
     await integration.submitBridgeTransfer({
       ibcProps: {
@@ -213,13 +150,6 @@ export const submitIbcTransferTransaction = createAsyncThunk<
         channelId: txIbcTransferArgs.channelId,
       },
     });
-
-    // TODO: Add toast props
-    //dispatch(
-    //  notificationsActions.createToast(
-    //    getToast(`${requestId}-fullfilled`, Toasts.TransferCompleted)()
-    //  )
-    //);
   }
 );
 
@@ -229,16 +159,9 @@ export const submitBridgeTransferTransaction = createAsyncThunk<
   { state: RootState }
 >(
   `${TRANSFERS_ACTIONS_BASE}/${TransfersThunkActions.SubmitBridgeTransferTransaction}`,
-  async (txBridgeTransferArgs, { getState /* dispatch, requestId */ }) => {
+  async (txBridgeTransferArgs, { getState }) => {
     const { chainId } = getState().settings;
     const integration = getIntegration(chainId);
-
-    // TODO: Add toast props
-    //dispatch(
-    //  notificationsActions.createToast(
-    //    getToast(`${requestId}-pending`, Toasts.TransferStarted)()
-    //  )
-    //);
 
     await integration.submitBridgeTransfer({
       // TODO: tx (below) is *not* required for Keplr, but are required for this type.
@@ -256,13 +179,6 @@ export const submitBridgeTransferTransaction = createAsyncThunk<
         amount: txBridgeTransferArgs.amount,
       },
     });
-
-    // TODO: Add toast props
-    //dispatch(
-    //  notificationsActions.createToast(
-    //    getToast(`${requestId}-fullfilled`, Toasts.TransferCompleted)()
-    //  )
-    //);
   }
 );
 

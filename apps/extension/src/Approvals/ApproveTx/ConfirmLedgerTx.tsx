@@ -81,7 +81,7 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
     }
 
     // Submit signatures for tx
-    setStatusInfo("Submitting reveal pk tx...");
+    setStatusInfo("Revealing public key on chain...");
 
     await requester
       .sendMessage(
@@ -180,6 +180,7 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
       return setStatus(Status.Failed);
     }
 
+    setStatusInfo("Preparing transaction...");
     setStatus(Status.Pending);
 
     try {

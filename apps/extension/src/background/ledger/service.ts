@@ -138,7 +138,7 @@ export class LedgerService {
       }
     } catch (e) {
       console.warn(e);
-      this.broadcaster.completeTx(msgId, txType, false);
+      this.broadcaster.completeTx(msgId, txType, false, `${e}`);
     }
   }
 
