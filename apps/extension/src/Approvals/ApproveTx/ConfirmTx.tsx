@@ -8,8 +8,7 @@ import {
   InputVariants,
 } from "@namada/components";
 import { shortenAddress } from "@namada/utils";
-import { TxType } from "@namada/shared";
-import { TxTypeLabel } from "@namada/types";
+import { TxType, TxTypeLabel } from "@namada/shared";
 
 import { ApprovalDetails, Status } from "Approvals/Approvals";
 import {

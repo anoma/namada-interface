@@ -3,8 +3,8 @@ import { useCallback, useEffect } from "react";
 
 import { Button, ButtonVariant } from "@namada/components";
 import { shortenAddress } from "@namada/utils";
-import { AccountType, Tokens, TxTypeLabel } from "@namada/types";
-import { TxType } from "@namada/shared";
+import { AccountType, Tokens } from "@namada/types";
+import { TxType, TxTypeLabel } from "@namada/shared";
 import { useSanitizedParams } from "@namada/hooks";
 
 import { useQuery } from "hooks";

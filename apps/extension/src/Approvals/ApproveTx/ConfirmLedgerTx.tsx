@@ -5,14 +5,8 @@ import BigNumber from "bignumber.js";
 import { LedgerError } from "@namada/ledger-namada";
 import { Button, ButtonVariant } from "@namada/components";
 import { defaultChainId as chainId } from "@namada/chains";
-import { TxType } from "@namada/shared";
-import {
-  Message,
-  Tokens,
-  TxProps,
-  TxMsgValue,
-  TxTypeLabel,
-} from "@namada/types";
+import { TxType, TxTypeLabel } from "@namada/shared";
+import { Message, Tokens, TxProps, TxMsgValue } from "@namada/types";
 
 import {
   GetRevealPKBytesMsg,
