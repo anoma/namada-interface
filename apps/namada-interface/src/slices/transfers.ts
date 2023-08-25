@@ -109,25 +109,25 @@ export const submitTransferTransaction = createAsyncThunk<
       amount,
       faucet,
       target,
+      token,
     } = txTransferArgs;
 
-    await signer.submitTransfer(
-      {
-        tx: {
-          token: Tokens.NAM.address || "",
-          feeAmount: new BigNumber(0),
-          gasLimit: new BigNumber(0),
-          chainId,
-          publicKey: publicKey,
-        },
-        source: faucet || address,
-        target,
+    const transferArgs = {
+      tx: {
         token: Tokens.NAM.address || "",
-        amount,
-        nativeToken: Tokens.NAM.address || "",
+        feeAmount: new BigNumber(0),
+        gasLimit: new BigNumber(0),
+        chainId,
+        publicKey: publicKey,
       },
-      txTransferArgs.account.type
-    );
+      source: faucet || address,
+      target,
+      token: Tokens[token].address || Tokens.NAM.address || "",
+      amount,
+      nativeToken: Tokens.NAM.address || "",
+    };
+
+    await signer.submitTransfer(transferArgs, txTransferArgs.account.type);
   }
 );
 

@@ -44,6 +44,8 @@ import { makeBip44Path, Result } from "@namada/utils";
 import { Crypto } from "./crypto";
 import { getAccountValuesFromStore, generateId } from "utils";
 
+const { REACT_APP_NAMADA_FAUCET_ADDRESS: faucetAddress } = process.env;
+
 // Generated UUID namespace for uuid v5
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
 
@@ -668,9 +670,14 @@ export class KeyRing {
 
     // We need to get the source address in case it is shielded one, so we can
     // decrypt the extended spending key for a transfer.
-    const { source } = deserialize(Buffer.from(txMsg), TransferMsgValue);
+    const { source, target } = deserialize(
+      Buffer.from(txMsg),
+      TransferMsgValue
+    );
 
-    const account = await this._keyStore.getRecord("address", source);
+    const signerAddress = source === faucetAddress ? target : source;
+    const account = await this._keyStore.getRecord("address", signerAddress);
+
     if (!account) {
       throw new Error(`Account not found.`);
     }

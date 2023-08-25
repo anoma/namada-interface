@@ -17,6 +17,7 @@ import {
   SubmitSignedRevealPKMsg,
   SubmitSignedTxMsg,
 } from "background/ledger";
+import { QueryPublicKeyMsg } from "background/keyring";
 import { Ports } from "router";
 import { closeCurrentTab } from "utils";
 import { useRequester } from "hooks/useRequester";
@@ -28,7 +29,7 @@ import {
 } from "Approvals/Approvals.components";
 import { InfoHeader, InfoLoader } from "Approvals/Approvals.components";
 
-import { QueryPublicKeyMsg } from "background/keyring";
+const { REACT_APP_NAMADA_FAUCET_ADDRESS: faucetAddress } = process.env;
 
 type Props = {
   details?: ApprovalDetails;
@@ -130,8 +131,14 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
       throw new Error("msgId was not provided!");
     }
 
+    const signerAddress =
+      faucetAddress === source && details?.target ? details.target : source;
+
     const { bytes, path } = await requester
-      .sendMessage(Ports.Background, new GetTxBytesMsg(txType, msgId, source))
+      .sendMessage(
+        Ports.Background,
+        new GetTxBytesMsg(txType, msgId, signerAddress)
+      )
       .catch((e) => {
         throw new Error(`Requester error: ${e}`);
       });
@@ -185,37 +192,41 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
 
     try {
       if (source && publicKey) {
-        // Query extension storage for revealed public key
-        const isPkRevealed = await requester
-          .sendMessage(Ports.Background, new QueryStoredPK(publicKey))
-          .catch((e) => {
-            throw new Error(`Requester error: ${e}`);
-          });
+        // If the source is the faucet address, this is a testnet faucet transfer, and
+        // we do not need to reveal the public key, as it is an Established Address
 
-        if (!isPkRevealed) {
-          setStatusInfo("Querying for public key on chain...");
-          const pk = await queryPublicKey(source);
+        if (source !== faucetAddress) {
+          // Query extension storage for revealed public key
+          const isPkRevealed = await requester
+            .sendMessage(Ports.Background, new QueryStoredPK(publicKey))
+            .catch((e) => {
+              throw new Error(`Requester error: ${e}`);
+            });
 
-          if (pk) {
-            // If found on chain, but not in storage, commit to storage
-            await storePublicKey(publicKey);
-          } else {
-            // Submit RevealPK Tx
-            await revealPk(ledger, publicKey);
+          if (!isPkRevealed) {
+            setStatusInfo("Querying for public key on chain...");
+            const pk = await queryPublicKey(source);
 
-            // Follow up with a query to ensure that PK Reveal was successful
-            setStatusInfo("Querying for public key status on chain...");
-            const wasPkRevealed = !!(await queryPublicKey(source));
+            if (pk) {
+              // If found on chain, but not in storage, commit to storage
+              await storePublicKey(publicKey);
+            } else {
+              // Submit RevealPK Tx
+              await revealPk(ledger, publicKey);
 
-            if (!wasPkRevealed) {
-              throw new Error("Public key was not revealed!");
+              // Follow up with a query to ensure that PK Reveal was successful
+              setStatusInfo("Querying for public key status on chain...");
+              const wasPkRevealed = !!(await queryPublicKey(source));
+
+              if (!wasPkRevealed) {
+                throw new Error("Public key was not revealed!");
+              }
+
+              // Commit newly revealed public key to storage
+              await storePublicKey(publicKey);
             }
-
-            // Commit newly revealed public key to storage
-            await storePublicKey(publicKey);
           }
         }
-
         submitTx(ledger);
       }
     } catch (e) {

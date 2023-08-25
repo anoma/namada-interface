@@ -178,11 +178,13 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
                   }
                 >
                   <TokenBalances>
-                    {faucetAddress && chainId === defaultChainId && (
-                      <TestnetTokensButton onClick={toggleModal}>
-                        Get testnet tokens
-                      </TestnetTokensButton>
-                    )}
+                    {faucetAddress &&
+                      chainId === defaultChainId &&
+                      !details.isShielded && (
+                        <TestnetTokensButton onClick={toggleModal}>
+                          Get testnet tokens
+                        </TestnetTokensButton>
+                      )}
 
                     {Object.entries(balance)
                       .sort(([tokenType]) => {

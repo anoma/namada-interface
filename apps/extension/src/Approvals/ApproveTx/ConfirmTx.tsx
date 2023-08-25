@@ -24,12 +24,16 @@ import { closeCurrentTab } from "utils";
 import { FetchAndStoreMaspParamsMsg, HasMaspParamsMsg } from "provider";
 import { ApproveMsg, SupportedTx, txMap } from "Approvals/types";
 
+const { REACT_APP_NAMADA_FAUCET_ADDRESS: faucetAddress } = process.env;
+
 type Props = {
   details?: ApprovalDetails;
 };
 
 export const ConfirmTx: React.FC<Props> = ({ details }) => {
-  const { source, msgId, txType } = details || {};
+  const { source, msgId, txType, target } = details || {};
+  const signerAddress = source === faucetAddress && target ? target : source;
+
   const navigate = useNavigate();
   const requester = useRequester();
   const [password, setPassword] = useState("");
@@ -100,10 +104,10 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
           Try again
         </p>
       )}
-      {status !== (Status.Pending || Status.Completed) && source && (
+      {status !== (Status.Pending || Status.Completed) && signerAddress && (
         <>
           <div>
-            Decrypt keys for <Address>{shortenAddress(source)}</Address>
+            Decrypt keys for <Address>{shortenAddress(signerAddress)}</Address>
           </div>
           <Input
             variant={InputVariants.Password}

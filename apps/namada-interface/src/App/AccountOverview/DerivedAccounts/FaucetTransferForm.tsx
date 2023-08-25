@@ -45,6 +45,7 @@ export const FaucetTransferForm = ({
     e.target.select();
 
   const validateAmount = (): string => {
+    // Ignore empty input
     if (amount === 0 || !amount) {
       return "";
     }
