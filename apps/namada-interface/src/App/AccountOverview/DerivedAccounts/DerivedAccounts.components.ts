@@ -222,3 +222,20 @@ export const TransparentLabel = styled.div`
   border-radius: 12px;
   border: 1px solid ${(props) => props.theme.colors.utility2.main20};
 `;
+
+export const TestnetTokensButton = styled.button`
+  background-color: transparent;
+  color: ${(props) => props.theme.colors.utility2.main60};
+  cursor: pointer;
+  border: none;
+
+  &:active,
+  &:hover {
+    color: white;
+  }
+
+  &:disabled {
+    opacity: 30%;
+    cursor: initial;
+  }
+`;

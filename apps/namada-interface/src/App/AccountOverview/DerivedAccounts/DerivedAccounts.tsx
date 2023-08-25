@@ -4,11 +4,9 @@ import { useNavigate } from "react-router-dom";
 import BigNumber from "bignumber.js";
 
 import { chains } from "@namada/chains";
-import { useAppDispatch, useAppSelector } from "store";
-import { AccountsState, Balance } from "slices/accounts";
-import { SettingsState } from "slices/settings";
 import { TokenType } from "@namada/types";
 import { formatCurrency, formatRoute } from "@namada/utils";
+import { Modal } from "@namada/components";
 
 import {
   DerivedAccountsContainer,
@@ -26,6 +24,7 @@ import {
   NoTokens,
   TokenTotals,
   TokenBalances,
+  TestnetTokensButton,
 } from "./DerivedAccounts.components";
 
 // Import PNG images assets
@@ -35,8 +34,14 @@ import AssetCosmosAtom from "./assets/asset-cosmos-atom.png";
 import AssetEthereumEther from "./assets/asset-ethereum-ether.png";
 
 import { TopLevelRoute } from "App/types";
+import { useAppDispatch, useAppSelector } from "store";
+import { AccountsState, Balance } from "slices/accounts";
 import { CoinsState, fetchConversionRates } from "slices/coins";
+import { SettingsState } from "slices/settings";
 import Config from "config";
+import { FaucetTransferForm } from "./FaucetTransferForm";
+
+const { REACT_APP_NAMADA_FAUCET_ADDRESS: faucetAddress } = process.env;
 
 type Props = {
   setTotal: (total: BigNumber) => void;
@@ -63,6 +68,7 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
   const themeContext = useContext(ThemeContext);
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const [activeAccountAddress, setActiveAccountAddress] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { chainId, fiatCurrency } = useAppSelector<SettingsState>(
     (state) => state.settings
@@ -90,9 +96,9 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
   const balanceToFiat = (balance: Balance): BigNumber => {
     return Object.entries(balance).reduce((acc, [token, value]) => {
       return acc.plus(
-        (rates[token] && rates[token][fiatCurrency]
+        rates[token] && rates[token][fiatCurrency]
           ? value.multipliedBy(rates[token][fiatCurrency].rate)
-          : value)
+          : value
       );
     }, new BigNumber(0));
   };
@@ -114,6 +120,13 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
     }
   }, [timestamp]);
 
+  const toggleModal = (): void => setIsModalOpen(!isModalOpen);
+
+  const activeAccount =
+    activeAccountAddress &&
+    accounts.find((account) => account.details.address === activeAccountAddress)
+      ?.details;
+
   return (
     <DerivedAccountsContainer>
       {accounts.length === 0 && (
@@ -121,7 +134,19 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
           <p>You have no token balances to display on {alias}!</p>
         </NoTokens>
       )}
-
+      {faucetAddress && (
+        <Modal isOpen={isModalOpen} onBackdropClick={toggleModal}>
+          <div>
+            {activeAccount && (
+              <FaucetTransferForm
+                account={activeAccount}
+                faucetAddress={faucetAddress}
+                cancelCallback={() => setIsModalOpen(false)}
+              />
+            )}
+          </div>
+        </Modal>
+      )}
       <DerivedAccountsList>
         {accounts
           .sort(({ details }) => (details.isShielded ? -1 : 1))
@@ -153,6 +178,12 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
                   }
                 >
                   <TokenBalances>
+                    {faucetAddress && (
+                      <TestnetTokensButton onClick={toggleModal}>
+                        Get testnet tokens
+                      </TestnetTokensButton>
+                    )}
+
                     {Object.entries(balance)
                       .sort(([tokenType]) => {
                         // Show native token first
