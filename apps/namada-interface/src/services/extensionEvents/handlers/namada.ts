@@ -2,10 +2,10 @@ import { Dispatch } from "react";
 
 import { chains } from "@namada/chains";
 import { Namada } from "@namada/integrations";
+import { TxType, TxTypeLabel } from "@namada/shared";
 
 import { addAccounts, fetchBalances } from "slices/accounts";
 import { actions as notificationsActions } from "slices/notifications";
-import { getToast, Toasts } from "slices/transfers";
 import { fetchValidators } from "slices/StakingAndGovernance/actions";
 
 export const NamadaAccountChangedHandler =
@@ -32,28 +32,26 @@ export const NamadaUpdatedStakingHandler =
     dispatch(fetchValidators());
   };
 
-export const NamadaTransferStartedHandler =
+export const NamadaTxStartedHandler =
   (dispatch: Dispatch<unknown>) => async (event: CustomEventInit) => {
-    const { msgId } = event.detail;
+    const { msgId, txType } = event.detail;
     dispatch(
-      notificationsActions.createToast(
-        getToast(
-          `${event.detail.msgId}-transfer`,
-          Toasts.TransferStarted
-        )({ msgId })
-      )
+      notificationsActions.txStartedToast({
+        id: msgId,
+        txTypeLabel: TxTypeLabel[txType as TxType],
+      })
     );
   };
 
-export const NamadaTransferCompletedHandler =
+export const NamadaTxCompletedHandler =
   (dispatch: Dispatch<unknown>) => async (event: CustomEventInit) => {
-    const { msgId, success } = event.detail;
+    const { msgId, txType, success, payload } = event.detail;
     dispatch(
-      notificationsActions.createToast(
-        getToast(
-          `${event.detail.msgId}-transfer`,
-          Toasts.TransferCompleted
-        )({ msgId, success })
-      )
+      notificationsActions.txCompletedToast({
+        id: msgId,
+        txTypeLabel: TxTypeLabel[txType as TxType],
+        success,
+        error: payload || "",
+      })
     );
   };

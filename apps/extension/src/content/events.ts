@@ -1,6 +1,11 @@
 import { Events } from "@namada/types";
 
 import { Message, Router, Routes } from "../router";
+import { TxType } from "@namada/shared";
+
+// Used by Firefox to copy the object from the content script scope to the
+// page script scope.
+declare function cloneInto<T>(data: T, global: Window | null): T;
 
 export class AccountChangedEventMsg extends Message<void> {
   public static type(): Events {
@@ -25,58 +30,6 @@ export class AccountChangedEventMsg extends Message<void> {
     return AccountChangedEventMsg.type();
   }
 }
-
-export class TransferStartedEvent extends Message<void> {
-  public static type(): Events {
-    return Events.TransferStarted;
-  }
-
-  constructor(readonly msgId: string) {
-    super();
-  }
-
-  validate(): void {
-    if (!this.msgId) {
-      throw new Error("msgId should not be empty");
-    }
-  }
-
-  route(): string {
-    return Routes.InteractionForeground;
-  }
-
-  type(): string {
-    return TransferStartedEvent.type();
-  }
-}
-
-export class TransferCompletedEvent extends Message<void> {
-  public static type(): Events {
-    return Events.TransferCompleted;
-  }
-
-  constructor(readonly msgId: string, readonly success: boolean) {
-    super();
-  }
-
-  validate(): void {
-    if (!this.msgId) {
-      throw new Error("msgId should not be empty");
-    }
-  }
-
-  route(): string {
-    return Routes.InteractionForeground;
-  }
-
-  type(): string {
-    return TransferCompletedEvent.type();
-  }
-}
-
-// Used by Firefox to copy the object from the content script scope to the
-// page script scope.
-declare function cloneInto<T>(data: T, global: Window | null): T;
 
 export class UpdatedBalancesEventMsg extends Message<void> {
   public static type(): Events {
@@ -126,10 +79,84 @@ export class UpdatedStakingEventMsg extends Message<void> {
   }
 }
 
+export class TxStartedEvent extends Message<void> {
+  public static type(): Events {
+    return Events.TxStarted;
+  }
+
+  constructor(
+    public readonly chainId: string,
+    public readonly msgId: string,
+    public readonly txType: TxType
+  ) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.chainId) {
+      throw new Error("chainId must not be empty");
+    }
+
+    if (!this.msgId) {
+      throw new Error("msgId should not be empty");
+    }
+
+    if (!this.txType) {
+      throw new Error("txType should not be empty");
+    }
+  }
+
+  route(): string {
+    return Routes.InteractionForeground;
+  }
+
+  type(): string {
+    return TxStartedEvent.type();
+  }
+}
+
+export class TxCompletedEvent extends Message<void> {
+  public static type(): Events {
+    return Events.TxCompleted;
+  }
+
+  constructor(
+    public readonly chainId: string,
+    public readonly msgId: string,
+    public readonly txType: TxType,
+    public readonly success?: boolean,
+    public readonly payload?: string
+  ) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.chainId) {
+      throw new Error("chainId must not be empty");
+    }
+
+    if (!this.msgId) {
+      throw new Error("msgId should not be empty");
+    }
+
+    if (!this.txType) {
+      throw new Error("txType should not be empty");
+    }
+  }
+
+  route(): string {
+    return Routes.InteractionForeground;
+  }
+
+  type(): string {
+    return TxCompletedEvent.type();
+  }
+}
+
 export function initEvents(router: Router): void {
   router.registerMessage(AccountChangedEventMsg);
-  router.registerMessage(TransferStartedEvent);
-  router.registerMessage(TransferCompletedEvent);
+  router.registerMessage(TxStartedEvent);
+  router.registerMessage(TxCompletedEvent);
   router.registerMessage(UpdatedBalancesEventMsg);
   router.registerMessage(UpdatedStakingEventMsg);
 
@@ -147,14 +174,14 @@ export function initEvents(router: Router): void {
           );
         }
         break;
-      case TransferStartedEvent:
+      case TxStartedEvent:
         window.dispatchEvent(
-          new CustomEvent(Events.TransferStarted, { detail: clonedMsg })
+          new CustomEvent(Events.TxStarted, { detail: clonedMsg })
         );
         break;
-      case TransferCompletedEvent:
+      case TxCompletedEvent:
         window.dispatchEvent(
-          new CustomEvent(Events.TransferCompleted, { detail: clonedMsg })
+          new CustomEvent(Events.TxCompleted, { detail: clonedMsg })
         );
         break;
       case UpdatedBalancesEventMsg:

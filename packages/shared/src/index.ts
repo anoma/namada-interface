@@ -49,3 +49,5 @@ export class Query extends RustQuery {
     super.query_my_validators.bind(this)
   );
 }
+
+export * from "./types";

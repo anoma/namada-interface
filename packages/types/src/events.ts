@@ -5,6 +5,8 @@ export enum Events {
   AccountChanged = "namada-account-changed",
   TransferStarted = "namada-transfer-started",
   TransferCompleted = "namada-transfer-completed",
+  TxStarted = "namada-tx-started",
+  TxCompleted = "namada-tx-completed",
   UpdatedBalances = "namada-updated-balances",
   UpdatedStaking = "namada-updated-staking",
 }

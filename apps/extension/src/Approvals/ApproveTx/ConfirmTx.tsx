@@ -8,7 +8,7 @@ import {
   InputVariants,
 } from "@namada/components";
 import { shortenAddress } from "@namada/utils";
-import { TxType } from "@namada/shared";
+import { TxType, TxTypeLabel } from "@namada/shared";
 
 import { ApprovalDetails, Status } from "Approvals/Approvals";
 import {
@@ -22,7 +22,7 @@ import { useRequester } from "hooks/useRequester";
 import { Address } from "App/Accounts/AccountListing.components";
 import { closeCurrentTab } from "utils";
 import { FetchAndStoreMaspParamsMsg, HasMaspParamsMsg } from "provider";
-import { ApproveMsg, SupportedTx, TxTypeLabel, txMap } from "Approvals/types";
+import { ApproveMsg, SupportedTx, txMap } from "Approvals/types";
 
 type Props = {
   details?: ApprovalDetails;
@@ -70,7 +70,7 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
         }
       }
 
-      await requester.sendMessage(Ports.Background, new Msg(msgId, password));
+      requester.sendMessage(Ports.Background, new Msg(msgId, password));
       setStatus(Status.Completed);
     } catch (e) {
       console.info(e);
@@ -80,11 +80,9 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
   }, [password]);
 
   useEffect(() => {
-    (async () => {
-      if (status === Status.Completed) {
-        await closeCurrentTab();
-      }
-    })();
+    if (status === Status.Completed) {
+      closeCurrentTab();
+    }
   }, [status]);
 
   return (
