@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import {
   Button,
@@ -7,8 +7,9 @@ import {
   HeadingLevel,
   Input,
   InputVariants,
+  Select,
 } from "@namada/components";
-import { Account } from "@namada/types";
+import { Account, Symbols, TokenType, Tokens } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
 
 import {
@@ -17,6 +18,10 @@ import {
   FaucetTransferContent,
 } from "./FaucetTransferForm.components";
 import { InputContainer } from "App/Token/TokenSend/TokenSendForm.components";
+import { useAppDispatch } from "store";
+import { submitTransferTransaction } from "slices/transfers";
+import BigNumber from "bignumber.js";
+import { defaultChainId } from "@namada/chains";
 
 const { REACT_APP_NAMADA_FAUCET_LIMIT: faucetLimit = "1000" } = process.env;
 
@@ -31,8 +36,10 @@ export const FaucetTransferForm = ({
   faucetAddress,
   cancelCallback,
 }: Props): JSX.Element => {
+  const dispatch = useAppDispatch();
   const [amount, setAmount] = useState(0);
   const { address, alias } = account;
+  const [tokenType, setTokenType] = useState<TokenType>("NAM");
 
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
@@ -51,6 +58,21 @@ export const FaucetTransferForm = ({
     return amount > 0 && amount <= parseInt(faucetLimit);
   };
 
+  const handleSubmit = useCallback(() => {
+    const transferArgs = {
+      account,
+      amount: new BigNumber(`${amount}`),
+      chainId: defaultChainId,
+      faucet: faucetAddress,
+      feeAmount: new BigNumber("0"),
+      target: account.address,
+      token: tokenType as TokenType,
+      notify: true,
+    };
+    dispatch(submitTransferTransaction(transferArgs));
+    cancelCallback && cancelCallback();
+  }, [amount]);
+
   return (
     <FaucetTransferContainer>
       <Heading level={HeadingLevel.Two}>Transfer testnet tokens</Heading>
@@ -58,6 +80,17 @@ export const FaucetTransferForm = ({
         <Heading level={HeadingLevel.Three}>{alias}</Heading>
         <p>From: {shortenAddress(faucetAddress)}</p>
         <p>To: {shortenAddress(address)}</p>
+        <InputContainer>
+          <Select
+            value={tokenType}
+            data={Symbols.map((symbol) => ({
+              value: symbol,
+              label: `${symbol} - ${Tokens[symbol].coin}`,
+            }))}
+            label={"Token"}
+            onChange={(e) => setTokenType(e.target.value as TokenType)}
+          />
+        </InputContainer>
         <InputContainer>
           <Input
             variant={InputVariants.Number}
@@ -75,6 +108,7 @@ export const FaucetTransferForm = ({
           <Button
             variant={ButtonVariant.Contained}
             disabled={!isAmountValid(amount)}
+            onClick={handleSubmit}
           >
             Submit
           </Button>

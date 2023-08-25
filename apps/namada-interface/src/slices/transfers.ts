@@ -104,6 +104,13 @@ export const submitTransferTransaction = createAsyncThunk<
     const integration = getIntegration(chainId);
     const signer = integration.signer() as Signer;
 
+    const {
+      account: { publicKey, address },
+      amount,
+      faucet,
+      target,
+    } = txTransferArgs;
+
     await signer.submitTransfer(
       {
         tx: {
@@ -111,12 +118,12 @@ export const submitTransferTransaction = createAsyncThunk<
           feeAmount: new BigNumber(0),
           gasLimit: new BigNumber(0),
           chainId,
-          publicKey: txTransferArgs.account.publicKey,
+          publicKey: publicKey,
         },
-        source: txTransferArgs.account.address,
-        target: txTransferArgs.target,
+        source: faucet || address,
+        target,
         token: Tokens.NAM.address || "",
-        amount: txTransferArgs.amount,
+        amount,
         nativeToken: Tokens.NAM.address || "",
       },
       txTransferArgs.account.type

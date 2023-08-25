@@ -3,7 +3,7 @@ import { ThemeContext } from "styled-components";
 import { useNavigate } from "react-router-dom";
 import BigNumber from "bignumber.js";
 
-import { chains } from "@namada/chains";
+import { chains, defaultChainId } from "@namada/chains";
 import { TokenType } from "@namada/types";
 import { formatCurrency, formatRoute } from "@namada/utils";
 import { Modal } from "@namada/components";
@@ -134,7 +134,7 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
           <p>You have no token balances to display on {alias}!</p>
         </NoTokens>
       )}
-      {faucetAddress && (
+      {faucetAddress && chainId === defaultChainId && (
         <Modal isOpen={isModalOpen} onBackdropClick={toggleModal}>
           <div>
             {activeAccount && (
@@ -178,7 +178,7 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
                   }
                 >
                   <TokenBalances>
-                    {faucetAddress && (
+                    {faucetAddress && chainId === defaultChainId && (
                       <TestnetTokensButton onClick={toggleModal}>
                         Get testnet tokens
                       </TestnetTokensButton>
