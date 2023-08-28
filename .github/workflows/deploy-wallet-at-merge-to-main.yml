@@ -28,7 +28,6 @@ jobs:
           version: "v0.10.3"
 
       - name: build the site
-        uses: borales/actions-yarn@v4
         working-directory: ./apps/namada-interface
         run: yarn build
         env:
