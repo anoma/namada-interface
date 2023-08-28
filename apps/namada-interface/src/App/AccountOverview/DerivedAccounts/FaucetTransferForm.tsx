@@ -72,7 +72,7 @@ export const FaucetTransferForm = ({
     };
     dispatch(submitTransferTransaction(transferArgs));
     cancelCallback && cancelCallback();
-  }, [amount]);
+  }, [account, amount]);
 
   return (
     <FaucetTransferContainer>

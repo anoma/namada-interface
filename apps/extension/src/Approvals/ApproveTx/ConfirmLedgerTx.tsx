@@ -132,7 +132,7 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
     }
 
     const signerAddress =
-      faucetAddress === source && details?.target ? details.target : source;
+      source === faucetAddress && details?.target ? details.target : source;
 
     const { bytes, path } = await requester
       .sendMessage(

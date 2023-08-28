@@ -119,6 +119,7 @@ export const submitTransferTransaction = createAsyncThunk<
         gasLimit: new BigNumber(0),
         chainId,
         publicKey: publicKey,
+        signer: faucet ? target : undefined,
       },
       source: faucet || address,
       target,

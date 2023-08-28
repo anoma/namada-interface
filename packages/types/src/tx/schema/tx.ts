@@ -20,6 +20,9 @@ export class TxMsgValue {
   @field({ type: option("string") })
   publicKey?: string;
 
+  @field({ type: option("string") })
+  signer?: string;
+
   constructor(data: TxProps) {
     Object.assign(this, data);
   }
