@@ -1,0 +1,19 @@
+name: Rust cache
+description: Restores rust cache
+
+inputs:
+  cache-name:
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Restore Rust cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          ./packages/shared/lib/target
+          ./packages/crypto/lib/target
+        key: ${{ runner.os }}-rust-cache-${{ inputs.cache-name }}-${{ hashFiles('**/Cargo.lock') }}

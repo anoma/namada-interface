@@ -22,28 +22,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Restore yarn cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ./node_modules
-            ./apps/namada-interface/node_modules
-            ./apps/extension/node_modules
-            ./packages/chains/node_modules
-            ./packages/components/node_modules
-            ./packages/crypto/node_modules
-            ./packages/hooks/node_modules
-            ./packages/integrations/node_modules
-            ./packages/ledger-namada/node_modules
-            ./packages/rpc/node_modules
-            ./packages/shared/node_modules
-            ./packages/storage/node_modules
-            ./packages/types/node_modules
-            ./packages/utils/node_modules
-          key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
-
-      - name: Install dependencies
-        run: yarn
+      - name: Install yarn dependencies
+        uses: ./.github/actions/yarn-cache
 
       - name: Run ESLint
         run: yarn lint:ci
@@ -54,41 +34,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Restore yarn cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ./node_modules
-            ./apps/namada-interface/node_modules
-            ./apps/extension/node_modules
-            ./packages/chains/node_modules
-            ./packages/components/node_modules
-            ./packages/crypto/node_modules
-            ./packages/hooks/node_modules
-            ./packages/integrations/node_modules
-            ./packages/ledger-namada/node_modules
-            ./packages/rpc/node_modules
-            ./packages/shared/node_modules
-            ./packages/storage/node_modules
-            ./packages/types/node_modules
-            ./packages/utils/node_modules
-          key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
+      - name: Install yarn dependencies
+        uses: ./.github/actions/yarn-cache
 
-      - name: Restore Rust unit-tests-js cache
-        uses: actions/cache@v3
+      - name: Restore Rust cache
+        uses: ./.github/actions/rust-cache
         with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            ./packages/shared/lib/target
-            ./packages/crypto/lib/target
-          key: ${{ runner.os }}-rust-cache-unit-tests-js-${{ hashFiles('**/Cargo.lock') }}
+          cache-name: unit-tests-js
 
       - name: Install protoc
         run: sudo apt-get install -y protobuf-compiler
-
-      - name: Install dependencies
-        run: yarn
 
       - name: Install wasm-pack
         uses: jetli/wasm-pack-action@v0.4.0
@@ -122,35 +77,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Restore yarn cache
-        uses: actions/cache@v3
+      - name: Restore Rust cache
+        uses: ./.github/actions/rust-cache
         with:
-          path: |
-            ./node_modules
-            ./apps/namada-interface/node_modules
-            ./apps/extension/node_modules
-            ./packages/chains/node_modules
-            ./packages/components/node_modules
-            ./packages/crypto/node_modules
-            ./packages/hooks/node_modules
-            ./packages/integrations/node_modules
-            ./packages/ledger-namada/node_modules
-            ./packages/rpc/node_modules
-            ./packages/shared/node_modules
-            ./packages/storage/node_modules
-            ./packages/types/node_modules
-            ./packages/utils/node_modules
-          key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
-
-      - name: Restore Rust unit-tests-wasm cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            ./packages/shared/lib/target
-            ./packages/crypto/lib/target
-          key: ${{ runner.os }}-rust-cache-unit-tests-wasm-${{ hashFiles('**/Cargo.lock') }}
+          cache-name: unit-tests-wasm
 
       - name: Install protoc
         run: sudo apt-get install -y protobuf-compiler
@@ -187,42 +117,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Restore yarn cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ./node_modules
-            ./apps/namada-interface/node_modules
-            ./apps/extension/node_modules
-            ./packages/chains/node_modules
-            ./packages/components/node_modules
-            ./packages/crypto/node_modules
-            ./packages/hooks/node_modules
-            ./packages/integrations/node_modules
-            ./packages/ledger-namada/node_modules
-            ./packages/rpc/node_modules
-            ./packages/shared/node_modules
-            ./packages/storage/node_modules
-            ./packages/types/node_modules
-            ./packages/utils/node_modules
-          key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
+      - name: Install yarn dependencies
+        uses: ./.github/actions/yarn-cache
 
-      - name: Restore Rust build cache
-        uses: actions/cache@v3
+      - name: Restore Rust cache
+        uses: ./.github/actions/rust-cache
         with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            ./packages/shared/lib/target
-            ./packages/crypto/lib/target
-          key: ${{ runner.os }}-rust-cache-build-${{ hashFiles('**/Cargo.lock') }}
+          cache-name: build
 
       - name: Install protoc
         run: sudo apt-get install -y protobuf-compiler
-
-      - name: Install dependencies
-        working-directory: ./apps/namada-interface
-        run: yarn
 
       - name: Install wasm-pack
         uses: jetli/wasm-pack-action@v0.4.0
@@ -269,25 +173,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Restore yarn cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ./node_modules
-            ./apps/namada-interface/node_modules
-            ./apps/extension/node_modules
-            ./packages/chains/node_modules
-            ./packages/components/node_modules
-            ./packages/crypto/node_modules
-            ./packages/hooks/node_modules
-            ./packages/integrations/node_modules
-            ./packages/ledger-namada/node_modules
-            ./packages/rpc/node_modules
-            ./packages/shared/node_modules
-            ./packages/storage/node_modules
-            ./packages/types/node_modules
-            ./packages/utils/node_modules
-          key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
+      - name: Install yarn dependencies
+        uses: ./.github/actions/yarn-cache
 
       - uses: actions/setup-node@v2
         with:
@@ -297,8 +184,6 @@ jobs:
         uses: jetli/wasm-pack-action@v0.3.0
         with:
           version: "v0.10.3"
-      - name: Install dependencies
-        run: yarn
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run Playwright tests
