@@ -11,14 +11,15 @@ import { Query, Sdk } from "@namada/shared";
 
 import {
   ExtensionBroadcaster,
-  ExtensionRouter,
   ExtensionGuards,
   ContentScriptEnv,
-  ExtensionMessenger,
   ExtensionRequester,
   getNamadaRouterId,
-} from "extension";
-import { Ports, KVPrefix } from "router";
+} from "../extension";
+
+import { ExtensionMessenger } from "../extension/ExtensionMessenger";
+import { ExtensionRouter } from "../extension/ExtensionRouter";
+import { Ports, KVPrefix } from "../router/types";
 import { ApprovalsService, init as initApprovals } from "./approvals";
 import { ChainsService, init as initChains } from "./chains";
 import {
@@ -55,84 +56,80 @@ const DEFAULT_URL =
 const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
 
 const messenger = new ExtensionMessenger();
-const router = new ExtensionRouter(
-  ContentScriptEnv.produceEnv,
-  messenger,
-  extensionStore
-);
-
-router.addGuard(ExtensionGuards.checkOriginIsValid);
-router.addGuard(ExtensionGuards.checkMessageIsInternal);
-
-// const init = new Promise<void>(async (resolve) => {
-// const { memory: cryptoMemory } = await initCrypto();
-
-// await initShared();
-// const sdk = new Sdk(REACT_APP_NAMADA_URL);
-// const query = new Query(REACT_APP_NAMADA_URL);
-
-// const sdkData: Record<string, string> | undefined = await sdkStore.get(
-//   SDK_KEY
-// );
-// const activeAccount = await utilityStore.get<ActiveAccountStore>(
-//   PARENT_ACCOUNT_ID_KEY
+// const router = new ExtensionRouter(
+//   ContentScriptEnv.produceEnv,
+//   messenger,
+//   extensionStore
 // );
 
-// if (sdkData && activeAccount) {
-//   const data = new TextEncoder().encode(sdkData[activeAccount.id]);
-//   sdk.decode(data);
-// }
+// router.addGuard(ExtensionGuards.checkOriginIsValid);
+// router.addGuard(ExtensionGuards.checkMessageIsInternal);
 
-// const routerId = await getNamadaRouterId(extensionStore);
-// const requester = new ExtensionRequester(messenger, routerId);
-// const broadcaster = new ExtensionBroadcaster(
-//   connectedTabsStore,
-//   defaultChainId,
-//   requester
-// );
+const init = new Promise<void>(async (resolve) => {
+  const { memory: cryptoMemory } = await initCrypto();
+  // await initShared();
+  // const sdk = new Sdk(REACT_APP_NAMADA_URL);
+  // const query = new Query(REACT_APP_NAMADA_URL);
+  // const sdkData: Record<string, string> | undefined = await sdkStore.get(
+  //   SDK_KEY
+  // );
+  // const activeAccount = await utilityStore.get<ActiveAccountStore>(
+  //   PARENT_ACCOUNT_ID_KEY
+  // );
+  // if (sdkData && activeAccount) {
+  //   const data = new TextEncoder().encode(sdkData[activeAccount.id]);
+  //   sdk.decode(data);
+  // }
+  // const routerId = await getNamadaRouterId(extensionStore);
+  // const requester = new ExtensionRequester(messenger, routerId);
+  // const broadcaster = new ExtensionBroadcaster(
+  //   connectedTabsStore,
+  //   defaultChainId,
+  //   requester
+  // );
+  // const chainsService = new ChainsService(store, [chains[defaultChainId]]);
+  // const keyRingService = new KeyRingService(
+  //   store,
+  //   sdkStore,
+  //   utilityStore,
+  //   connectedTabsStore,
+  //   extensionStore,
+  //   defaultChainId,
+  //   sdk,
+  //   query,
+  //   cryptoMemory,
+  //   requester,
+  //   broadcaster
+  // );
+  // const ledgerService = new LedgerService(
+  //   keyRingService,
+  //   store,
+  //   sdkStore,
+  //   connectedTabsStore,
+  //   txStore,
+  //   revealedPKStore,
+  //   defaultChainId,
+  //   sdk,
+  //   requester,
+  //   broadcaster
+  // );
+  // const approvalsService = new ApprovalsService(
+  //   txStore,
+  //   connectedTabsStore,
+  //   keyRingService,
+  //   ledgerService
+  // );
+  // // Initialize messages and handlers
+  // // initApprovals(router, approvalsService);
+  // // initChains(router, chainsService);
+  // // initKeyRing(router, keyRingService);
+  // // initLedger(router, ledgerService);
+  resolve();
+  // console.log("Background script initialized");
+});
 
-// const chainsService = new ChainsService(store, [chains[defaultChainId]]);
-// const keyRingService = new KeyRingService(
-//   store,
-//   sdkStore,
-//   utilityStore,
-//   connectedTabsStore,
-//   extensionStore,
-//   defaultChainId,
-//   sdk,
-//   query,
-//   cryptoMemory,
-//   requester,
-//   broadcaster
-// );
-// const ledgerService = new LedgerService(
-//   keyRingService,
-//   store,
-//   sdkStore,
-//   connectedTabsStore,
-//   txStore,
-//   revealedPKStore,
-//   defaultChainId,
-//   sdk,
-//   requester,
-//   broadcaster
-// );
-// const approvalsService = new ApprovalsService(
-//   txStore,
-//   connectedTabsStore,
-//   keyRingService,
-//   ledgerService
-// );
-
-// // Initialize messages and handlers
-// initApprovals(router, approvalsService);
-// initChains(router, chainsService);
-// initKeyRing(router, keyRingService);
-// initLedger(router, ledgerService);
-
-// resolve();
-
-// console.log("Background script initialized");
-// });
+init.then(() => {
+  console.log("Background script initialized");
+});
 
 // router.listen(Ports.Background, init);

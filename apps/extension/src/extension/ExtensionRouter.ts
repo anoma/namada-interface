@@ -4,8 +4,8 @@ import {
   MessageSender,
   Result,
   RoutedMessage,
-  Router,
-} from "router";
+} from "../router/types";
+import { Router } from "../router/Router";
 import { KVStore } from "@namada/storage";
 import { Messenger } from "./ExtensionMessenger";
 
