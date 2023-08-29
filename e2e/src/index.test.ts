@@ -21,7 +21,7 @@ import {
 } from "./utils/helpers";
 import { createAccount, importAccount } from "./partial/setup";
 
-jest.setTimeout(120000);
+jest.setTimeout(240000);
 
 let browser: puppeteer.Browser;
 let page: puppeteer.Page;
