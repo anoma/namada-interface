@@ -19,6 +19,7 @@ export const ModalContent = styled.div`
   justify-content: center;
   align-items: center;
   width: 100%;
+  background-color: ${(props) => props.theme.colors.utility1.main80};
 `;
 
 export const ModalTitle = styled.h3``;

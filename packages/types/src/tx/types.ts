@@ -27,6 +27,7 @@ export type TxProps = {
   gasLimit: BigNumber;
   chainId: string;
   publicKey?: string;
+  signer?: string;
 };
 
 export type RevealPKProps = {

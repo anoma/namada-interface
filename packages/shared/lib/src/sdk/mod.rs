@@ -143,8 +143,12 @@ impl Sdk {
         mut tx: Tx,
         pk: PublicKey,
     ) -> Result<(), JsError> {
+        let signer = &args.signer;
+
         // Submit a reveal pk tx if necessary
-        self.submit_reveal_pk(&args, tx.clone(), &pk).await?;
+        if *signer == None {
+            self.submit_reveal_pk(&args, tx.clone(), &pk).await?;
+        }
 
         // Sign tx
         signing::sign_tx(&mut self.wallet, &mut tx, &args, &pk)

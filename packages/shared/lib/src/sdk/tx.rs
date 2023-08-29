@@ -23,6 +23,7 @@ pub struct TxMsg {
     gas_limit: String,
     chain_id: String,
     public_key: Option<String>,
+    signer: Option<String>,
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -327,6 +328,7 @@ fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> Result<args::Tx,
         gas_limit,
         chain_id,
         public_key,
+        signer,
     } = tx_msg;
 
     let token = Address::from_str(&token)?;
@@ -346,6 +348,10 @@ fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> Result<args::Tx,
         }
         _ => None,
     };
+    let signer = match signer {
+        Some(v) => Some(Address::from_str(&v)?),
+        _ => None,
+    };
 
     let args = args::Tx {
         dry_run: false,
@@ -361,7 +367,7 @@ fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> Result<args::Tx,
         expiration: None,
         chain_id: Some(ChainId(String::from(chain_id))),
         signing_key: None,
-        signer: None,
+        signer,
         tx_reveal_code_path: PathBuf::from("tx_reveal_pk.wasm"),
         verification_key: public_key,
         password,

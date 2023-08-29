@@ -7,6 +7,7 @@ import {
   ModalHeader,
   ModalTitle,
 } from "./Modal.components";
+
 type Props = {
   children: JSX.Element;
   isOpen: boolean;
