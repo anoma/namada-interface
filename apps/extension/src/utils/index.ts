@@ -11,6 +11,7 @@ import {
   TransferMsgValue,
   TxProps,
   TxMsgValue,
+  IbcTransferMsgValue,
 } from "@namada/types";
 import { pick } from "@namada/utils";
 import { AccountStore } from "background/keyring";
@@ -105,6 +106,10 @@ export const getEncodedTxByType = (
   switch (txType) {
     case TxType.Transfer: {
       const { tx } = deserialize(fromBase64(txMsg), TransferMsgValue);
+      return encodeTx(tx);
+    }
+    case TxType.IBCTransfer: {
+      const { tx } = deserialize(fromBase64(txMsg), IbcTransferMsgValue);
       return encodeTx(tx);
     }
     case TxType.Bond: {

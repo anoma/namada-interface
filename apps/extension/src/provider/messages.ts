@@ -17,6 +17,7 @@ enum MessageType {
   ConnectInterface = "connect-interface",
   QueryAccounts = "query-accounts",
   ApproveTransfer = "approve-transfer",
+  ApproveIbcTransfer = "approve-ibc-transfer",
   ApproveBond = "approve-bond",
   ApproveUnbond = "approve-unbond",
   ApproveWithdraw = "approve-withdraw",
@@ -182,31 +183,6 @@ export class QueryBalancesMsg extends Message<
   }
 }
 
-export class SubmitIbcTransferMsg extends Message<void> {
-  public static type(): MessageType {
-    return MessageType.SubmitIbcTransfer;
-  }
-
-  constructor(public readonly txMsg: string) {
-    super();
-  }
-
-  validate(): void {
-    if (!this.txMsg) {
-      throw new Error("An encoded txMsg is required!");
-    }
-    return;
-  }
-
-  route(): string {
-    return Route.KeyRing;
-  }
-
-  type(): string {
-    return SubmitIbcTransferMsg.type();
-  }
-}
-
 export class EncodeInitAccountMsg extends Message<string> {
   public static type(): MessageType {
     return MessageType.EncodeInitAccount;
@@ -260,6 +236,34 @@ export class ApproveTransferMsg extends Message<void> {
 
   type(): string {
     return ApproveTransferMsg.type();
+  }
+}
+
+export class ApproveIbcTransferMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.ApproveIbcTransfer;
+  }
+
+  constructor(
+    public readonly txMsg: string,
+    public readonly accountType: AccountType
+  ) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.txMsg) {
+      throw new Error("txMsg was not provided!");
+    }
+    return;
+  }
+
+  route(): string {
+    return Route.Approvals;
+  }
+
+  type(): string {
+    return ApproveIbcTransferMsg.type();
   }
 }
 

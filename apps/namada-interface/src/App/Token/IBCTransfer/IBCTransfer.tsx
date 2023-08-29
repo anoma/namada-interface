@@ -27,12 +27,7 @@ import {
   useUntilIntegrationAttached,
 } from "@namada/hooks";
 import { useAppDispatch, useAppSelector } from "store";
-import {
-  Account,
-  AccountsState,
-  addAccounts,
-  fetchBalances,
-} from "slices/accounts";
+import { Account, AccountsState, addAccounts } from "slices/accounts";
 import { addChannel, ChannelsState } from "slices/channels";
 import {
   clearErrors,
@@ -69,6 +64,7 @@ const IBCTransfer = (): JSX.Element => {
     keplr: false,
     metamask: false,
   });
+  const [isFormValid, setIsFormValid] = useState(false);
 
   const bridgedChains = Object.values(chains).filter(
     (chain: Chain) => chain.chainId !== chainId
@@ -109,20 +105,27 @@ const IBCTransfer = (): JSX.Element => {
   const [showAddChannelForm, setShowAddChannelForm] = useState(false);
   const [channelId, setChannelId] = useState<string>();
   const [recipient, setRecipient] = useState("");
+  const [destinationAccounts, setDestinationAccounts] = useState<Account[]>([]);
+  const [destinationAccountData, setDestinationAccountData] = useState<
+    Option<string>[]
+  >([]);
   const accounts = Object.values(derived[chainId]);
 
-  const destinationAccounts = Object.values(derived[selectedChainId]).filter(
-    (account) => !account.details.isShielded
-  );
-  const destinationAccountsData = destinationAccounts.map(
-    ({ details: { alias, address } }) => ({
-      label: alias || "",
-      value: address,
-    })
-  );
+  useEffect(() => {
+    const destinationAccounts = Object.values(derived[selectedChainId]).filter(
+      (account) => !account.details.isShielded
+    );
+    setDestinationAccounts(destinationAccounts);
+    const destinationAccountsData = destinationAccounts.map(
+      ({ details: { alias, address } }) => ({
+        label: alias || "",
+        value: address,
+      })
+    );
+    setDestinationAccountData(destinationAccountsData);
+  }, [derived, selectedChainId]);
 
   const sourceAccounts = accounts.filter(({ details }) => !details.isShielded);
-
   const [sourceAccount, setSourceAccount] = useState(sourceAccounts[0]);
 
   const tokenData: Option<string>[] = sourceAccounts.flatMap(
@@ -157,10 +160,11 @@ const IBCTransfer = (): JSX.Element => {
   }, []);
 
   useEffect(() => {
-    if (destinationAccounts.length > 0) {
+    // Set recipient to first destination account
+    if (destinationAccounts?.length > 0) {
       setRecipient(destinationAccounts[0].details.address);
     }
-  }, [selectedChainId]);
+  }, [selectedChainId, destinationAccounts]);
 
   useEffect(() => {
     if (bridgedChains.length > 0) {
@@ -169,12 +173,6 @@ const IBCTransfer = (): JSX.Element => {
       setSourceAccount(sourceAccounts[0]);
     }
   }, [chainId]);
-
-  useEffect(() => {
-    if (sourceAccount && !isBridgeTransferSubmitting) {
-      dispatch(fetchBalances());
-    }
-  }, [isBridgeTransferSubmitting]);
 
   useEffect(() => {
     // Set a default selectedChannelId if none are selected, but channels are available
@@ -234,7 +232,6 @@ const IBCTransfer = (): JSX.Element => {
         const accounts = await integration?.accounts();
         if (accounts) {
           dispatch(addAccounts(accounts as AccountType[]));
-          dispatch(fetchBalances());
           dispatch(setIsConnected(chainId));
         }
 
@@ -255,6 +252,43 @@ const IBCTransfer = (): JSX.Element => {
   const handleDownloadExtension = (url: string): void => {
     window.open(url, "_blank", "noopener,noreferrer");
   };
+
+  const validateForm = (): boolean => {
+    // Validate IBC requirements if selected as bridge type
+    if (destinationChain.bridgeType.includes(BridgeType.IBC)) {
+      if (!selectedChannelId) {
+        return false;
+      }
+    }
+
+    // Validate amounts
+    if (amount.isGreaterThan(currentBalance) || amount.isZero()) {
+      return false;
+    }
+
+    // Validate recipient
+    if (!recipient) {
+      return false;
+    }
+
+    // Form is invalid if transfer is being submitted
+    if (isBridgeTransferSubmitting) {
+      return false;
+    }
+
+    return true;
+  };
+
+  useEffect(() => {
+    const isValid = validateForm();
+    setIsFormValid(isValid);
+  }, [
+    recipient,
+    amount,
+    selectedChannelId,
+    destinationChain,
+    isBridgeTransferSubmitting,
+  ]);
 
   return (
     <IBCTransferFormContainer>
@@ -359,7 +393,7 @@ const IBCTransfer = (): JSX.Element => {
               >
                 {currentExtensionAttachStatus === "attached" ||
                   currentExtensionAttachStatus === "pending"
-                  ? `Connect to ${extensionAlias} Extension`
+                  ? `Load accounts from ${extensionAlias} Extension`
                   : "Click to download the extension"}
               </Button>
             )}
@@ -368,7 +402,7 @@ const IBCTransfer = (): JSX.Element => {
             {destinationAccounts.length > 0 && (
               <Select
                 label={"Recipient"}
-                data={destinationAccountsData}
+                data={destinationAccountData}
                 value={recipient}
                 onChange={(e) => setRecipient(e.target.value)}
               />
@@ -393,7 +427,11 @@ const IBCTransfer = (): JSX.Element => {
                 setAmount(new BigNumber(`${value}`));
               }}
               onFocus={handleFocus}
-              error={amount.isLessThanOrEqualTo(currentBalance) ? undefined : "Invalid amount!"}
+              error={
+                amount.isLessThanOrEqualTo(currentBalance)
+                  ? undefined
+                  : "Invalid amount!"
+              }
             />
           </InputContainer>
 
@@ -415,15 +453,7 @@ const IBCTransfer = (): JSX.Element => {
           <ButtonsContainer>
             <Button
               variant={ButtonVariant.Contained}
-              disabled={
-                amount.isGreaterThan(currentBalance) ||
-                amount.isZero() ||
-                !recipient ||
-                isBridgeTransferSubmitting ||
-                !(destinationChain.bridgeType.indexOf(BridgeType.IBC) > -1
-                  ? selectedChannelId
-                  : true)
-              }
+              disabled={!isFormValid}
               onClick={handleSubmit}
             >
               Continue

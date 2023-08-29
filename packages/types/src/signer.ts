@@ -14,7 +14,7 @@ export interface Signer {
   submitUnbond(args: SubmitUnbondProps, type: AccountType): Promise<void>;
   submitWithdraw(args: SubmitWithdrawProps, type: AccountType): Promise<void>;
   submitTransfer(args: TransferProps, type: AccountType): Promise<void>;
-  submitIbcTransfer(args: IbcTransferProps): Promise<void>;
+  submitIbcTransfer(args: IbcTransferProps, type: AccountType): Promise<void>;
   encodeInitAccount(
     args: InitAccountProps,
     signer: string

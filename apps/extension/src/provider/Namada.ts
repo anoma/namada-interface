@@ -20,14 +20,14 @@ import {
   FetchAndStoreMaspParamsMsg,
   HasMaspParamsMsg,
   QueryBalancesMsg,
-  SubmitIbcTransferMsg,
+  ApproveIbcTransferMsg,
 } from "./messages";
 
 export class Namada implements INamada {
   constructor(
     private readonly _version: string,
     protected readonly requester?: MessageRequester
-  ) {}
+  ) { }
 
   public async connect(chainId: string): Promise<void> {
     return await this.requester?.sendMessage(
@@ -133,10 +133,14 @@ export class Namada implements INamada {
     );
   }
 
-  public async submitIbcTransfer(txMsg: string): Promise<void> {
+  public async submitIbcTransfer(props: {
+    txMsg: string;
+    type: AccountType;
+  }): Promise<void> {
+    const { txMsg, type } = props;
     return await this.requester?.sendMessage(
       Ports.Background,
-      new SubmitIbcTransferMsg(txMsg)
+      new ApproveIbcTransferMsg(txMsg, type)
     );
   }
 

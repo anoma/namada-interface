@@ -7,6 +7,7 @@ import {
   TokenType,
   TokenBalance,
   WindowWithNamada,
+  AccountType,
 } from "@namada/types";
 import BigNumber from "bignumber.js";
 
@@ -15,7 +16,7 @@ import { BridgeProps, Integration } from "./types/Integration";
 export default class Namada implements Integration<Account, Signer> {
   private _namada: WindowWithNamada["namada"] | undefined;
 
-  constructor(public readonly chain: Chain) {}
+  constructor(public readonly chain: Chain) { }
 
   public get instance(): INamada | undefined {
     return this._namada;
@@ -47,27 +48,13 @@ export default class Namada implements Integration<Account, Signer> {
     return this._namada?.getSigner(this.chain.chainId);
   }
 
-  public async submitBridgeTransfer(props: BridgeProps): Promise<void> {
+  public async submitBridgeTransfer(
+    props: BridgeProps,
+    type: AccountType
+  ): Promise<void> {
     if (props.ibcProps) {
-      const { source, receiver, channelId, portId, amount, token } =
-        props.ibcProps;
-      const tokenAddress = Tokens[token as TokenType]?.address;
       const signer = this._namada?.getSigner(this.chain.chainId);
-
-      return await signer?.submitIbcTransfer({
-        tx: {
-          chainId: this.chain.chainId,
-          token: Tokens.NAM.address || "",
-          feeAmount: new BigNumber(0),
-          gasLimit: new BigNumber(0),
-        },
-        source,
-        receiver,
-        channelId,
-        portId,
-        token: tokenAddress || "",
-        amount,
-      });
+      return await signer?.submitIbcTransfer(props.ibcProps, type);
     } else if (props.bridgeProps) {
       console.log("TODO: Implement Ethereum Bridge transfer");
       return;

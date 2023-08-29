@@ -29,7 +29,8 @@ pub enum TxType {
     Unbond = 2,
     Withdraw = 3,
     Transfer = 4,
-    RevealPK = 5,
+    IBCTransfer = 5,
+    RevealPK = 6,
 }
 
 /// Represents the Sdk public API.
@@ -229,6 +230,17 @@ impl Sdk {
                     &self.client,
                     &mut self.wallet,
                     &mut self.shielded_ctx,
+                    args.clone(),
+                )
+                .await
+                .map_err(JsError::from)?;
+                transfer.0
+            }
+            TxType::IBCTransfer => {
+                let args = tx::ibc_transfer_tx_args(tx_msg, None)?;
+                let transfer = namada::ledger::tx::build_ibc_transfer(
+                    &self.client,
+                    &mut self.wallet,
                     args.clone(),
                 )
                 .await

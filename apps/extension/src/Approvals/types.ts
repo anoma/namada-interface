@@ -2,6 +2,7 @@ import { TxType } from "@namada/shared";
 import {
   SubmitApprovedBondMsg,
   SubmitApprovedTransferMsg,
+  SubmitApprovedIbcTransferMsg,
   SubmitApprovedUnbondMsg,
   SubmitApprovedWithdrawMsg,
 } from "background/approvals";
@@ -21,7 +22,11 @@ export enum TopLevelRoute {
 
 export type SupportedTx = Extract<
   TxType,
-  TxType.Bond | TxType.Unbond | TxType.Transfer | TxType.Withdraw
+  | TxType.Bond
+  | TxType.Unbond
+  | TxType.Transfer
+  | TxType.IBCTransfer
+  | TxType.Withdraw
 >;
 
 export type ApproveMsg = new (msgId: string, password: string) => unknown &
@@ -31,5 +36,6 @@ export const txMap: Map<SupportedTx, ApproveMsg> = new Map([
   [TxType.Bond, SubmitApprovedBondMsg],
   [TxType.Unbond, SubmitApprovedUnbondMsg],
   [TxType.Transfer, SubmitApprovedTransferMsg],
+  [TxType.IBCTransfer, SubmitApprovedIbcTransferMsg],
   [TxType.Withdraw, SubmitApprovedWithdrawMsg],
 ]);

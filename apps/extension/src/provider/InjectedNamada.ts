@@ -6,8 +6,8 @@ import {
   Signer as ISigner,
   TxMsgProps,
 } from "@namada/types";
-import {InjectedProxy} from "./InjectedProxy";
-import {Signer} from "./Signer";
+import { InjectedProxy } from "./InjectedProxy";
+import { Signer } from "./Signer";
 
 export class InjectedNamada implements INamada {
   constructor(private readonly _version: string) {}
@@ -40,10 +40,10 @@ export class InjectedNamada implements INamada {
 
   public async balances(
     owner: string
-  ): Promise<{token: string; amount: string}[]> {
+  ): Promise<{ token: string; amount: string }[]> {
     return await InjectedProxy.requestMethod<
       string,
-      {token: string; amount: string}[]
+      { token: string; amount: string }[]
     >("balances", owner);
   }
 
@@ -52,9 +52,9 @@ export class InjectedNamada implements INamada {
   }
 
   public async submitBond(props: TxMsgProps): Promise<void> {
-    const {txMsg, type} = props;
+    const { txMsg, type } = props;
     return await InjectedProxy.requestMethod<
-      {txMsg: string; type: AccountType},
+      { txMsg: string; type: AccountType },
       void
     >("submitBond", {
       txMsg,
@@ -63,28 +63,28 @@ export class InjectedNamada implements INamada {
   }
 
   public async submitUnbond(props: TxMsgProps): Promise<void> {
-    const {txMsg, type} = props;
+    const { txMsg, type } = props;
     return await InjectedProxy.requestMethod<
-      {txMsg: string; type: AccountType},
+      { txMsg: string; type: AccountType },
       void
-    >("submitUnbond", {txMsg, type});
+    >("submitUnbond", { txMsg, type });
   }
 
   public async submitWithdraw(props: TxMsgProps): Promise<void> {
-    const {txMsg, type} = props;
+    const { txMsg, type } = props;
     return await InjectedProxy.requestMethod<
-      {txMsg: string; type: AccountType},
+      { txMsg: string; type: AccountType },
       void
-    >("submitWithdraw", {txMsg, type});
+    >("submitWithdraw", { txMsg, type });
   }
 
   public async submitTransfer(props: {
     txMsg: string;
     type: AccountType;
   }): Promise<void> {
-    const {txMsg, type} = props;
+    const { txMsg, type } = props;
     return await InjectedProxy.requestMethod<
-      {txMsg: string; type: AccountType},
+      { txMsg: string; type: AccountType },
       void
     >("submitTransfer", {
       txMsg,
@@ -92,19 +92,25 @@ export class InjectedNamada implements INamada {
     });
   }
 
-  public async submitIbcTransfer(txMsg: string): Promise<void> {
-    return await InjectedProxy.requestMethod<string, void>(
-      "submitIbcTransfer",
-      txMsg
-    );
+  public async submitIbcTransfer(props: {
+    txMsg: string;
+    type: AccountType;
+  }): Promise<void> {
+    const { txMsg, type } = props;
+    return await InjectedProxy.requestMethod<
+      { txMsg: string; type: AccountType },
+      void
+    >("submitIbcTransfer", {
+      txMsg,
+      type,
+    });
   }
-
   public async encodeInitAccount(props: {
     txMsg: string;
     address: string;
   }): Promise<string | undefined> {
     return await InjectedProxy.requestMethod<
-      {txMsg: string; address: string},
+      { txMsg: string; address: string },
       string
     >("encodeInitAccount", props);
   }

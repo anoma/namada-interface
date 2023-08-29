@@ -142,22 +142,26 @@ export const submitIbcTransferTransaction = createAsyncThunk<
     const { chainId } = getState().settings;
     const integration = getIntegration(chainId);
 
-    await integration.submitBridgeTransfer({
-      ibcProps: {
-        tx: {
+    await integration.submitBridgeTransfer(
+      {
+        ibcProps: {
+          tx: {
+            token: Tokens.NAM.address || "",
+            feeAmount: new BigNumber(0),
+            gasLimit: new BigNumber(0),
+            publicKey: txIbcTransferArgs.account.publicKey,
+            chainId,
+          },
+          source: txIbcTransferArgs.account.address,
+          receiver: txIbcTransferArgs.target,
           token: Tokens.NAM.address || "",
-          feeAmount: new BigNumber(0),
-          gasLimit: new BigNumber(0),
-          chainId,
+          amount: txIbcTransferArgs.amount,
+          portId: txIbcTransferArgs.portId,
+          channelId: txIbcTransferArgs.channelId,
         },
-        source: txIbcTransferArgs.account.address,
-        receiver: txIbcTransferArgs.target,
-        token: Tokens.NAM.address || "",
-        amount: txIbcTransferArgs.amount,
-        portId: txIbcTransferArgs.portId,
-        channelId: txIbcTransferArgs.channelId,
       },
-    });
+      txIbcTransferArgs.account.type
+    );
   }
 );
 
@@ -171,22 +175,25 @@ export const submitBridgeTransferTransaction = createAsyncThunk<
     const { chainId } = getState().settings;
     const integration = getIntegration(chainId);
 
-    await integration.submitBridgeTransfer({
-      // TODO: tx (below) is *not* required for Keplr, but are required for this type.
-      // This should be accounted for in the type declarations and integration.
-      bridgeProps: {
-        tx: {
-          token: Tokens.NAM.address || "",
-          feeAmount: new BigNumber(0),
-          gasLimit: new BigNumber(0),
-          chainId,
+    await integration.submitBridgeTransfer(
+      {
+        // TODO: tx (below) is *not* required for Keplr, but are required for this type.
+        // This should be accounted for in the type declarations and integration.
+        bridgeProps: {
+          tx: {
+            token: Tokens.NAM.address || "",
+            feeAmount: new BigNumber(0),
+            gasLimit: new BigNumber(0),
+            chainId,
+          },
+          source: txBridgeTransferArgs.account.address,
+          target: txBridgeTransferArgs.target,
+          token: txBridgeTransferArgs.token,
+          amount: txBridgeTransferArgs.amount,
         },
-        source: txBridgeTransferArgs.account.address,
-        target: txBridgeTransferArgs.target,
-        token: txBridgeTransferArgs.token,
-        amount: txBridgeTransferArgs.amount,
       },
-    });
+      txBridgeTransferArgs.account.type
+    );
   }
 );
 
