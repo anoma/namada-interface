@@ -39,7 +39,7 @@ const getExtensionId = async (browser: puppeteer.Browser): Promise<string> => {
   // TODO: replace with poll check
   await new Promise((r) => setTimeout(r, 5000));
   const targets = browser.targets();
-  console.log("HAPPA 2222", targets, browser);
+  console.log("HAPPA 2", targets, browser);
   const extensionTarget = targets.find(
     (target) => target.type() === "service_worker"
   );
@@ -101,7 +101,6 @@ export const launchPuppeteer = async (): Promise<puppeteer.Browser> => {
   const root = nodePath.resolve(process.cwd(), "..");
   const path = `${root}/apps/extension/build/chrome`;
   // const path = `${root}/simple-ext`;
-  console.log("HAPPA", path);
 
   const puppeteerArgs = [
     `--disable-extensions-except=${path}`,
@@ -127,7 +126,7 @@ export const launchPuppeteer = async (): Promise<puppeteer.Browser> => {
   await cdp.send("Log.enable");
 
   cdp.on("Log.entryAdded", async ({ entry }) => {
-    console.log(entry);
+    console.log("ENTRY: ", entry);
   });
 
   return browser;

@@ -16,7 +16,7 @@ export class ExtensionMessengerMock implements Messenger {
   async sendMessage<M extends Message<unknown>>(
     payload: RoutedMessage<M>
   ): Promise<Result<M>> {
-    const promise = Array.from(this.callbacks)[0](payload, {});
+    const promise = Array.from(this.callbacks)[0](payload, {} as any);
 
     // We have to cast because listeners return types are different than
     // sendMessage one

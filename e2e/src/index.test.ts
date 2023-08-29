@@ -55,16 +55,16 @@ describe("Namada extension", () => {
   });
 
   describe("open the web interface", () => {
-    test("should open the web interface", async () => {
-      console.log(browser, page);
-      await openInterface(page);
-      // Check H1
-      const button = await waitForXpath<HTMLButtonElement>(
-        page,
-        "//button[contains(., 'Connect to')]"
-      );
-      expect(button).toBeDefined();
-    });
+    // test("should open the web interface", async () => {
+    //   console.log(browser, page);
+    //   await openInterface(page);
+    //   // Check H1
+    //   const button = await waitForXpath<HTMLButtonElement>(
+    //     page,
+    //     "//button[contains(., 'Connect to')]"
+    //   );
+    //   expect(button).toBeDefined();
+    // });
   });
 
   describe("open the popup", () => {

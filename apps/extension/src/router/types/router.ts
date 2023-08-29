@@ -1,7 +1,6 @@
-import { Runtime } from "webextension-polyfill";
 import { Message } from "../Message";
 
-export type MessageSender = Pick<Runtime.MessageSender, "id" | "url" | "tab">;
+export type MessageSender = Partial<{ id: string; url: string; tab: any }>;
 
 export interface Env {
   readonly isInternalMsg: boolean;
