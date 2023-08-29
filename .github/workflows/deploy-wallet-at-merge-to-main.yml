@@ -40,6 +40,7 @@ jobs:
           REACT_APP_NAMADA_URL: "https://proxy.heliax.click/internal-devnet-6be.86067e06a5"
 
       - name: Deploy to Netlify
+        if: false
         uses: nwtgck/actions-netlify@v1.2.3
         with:
           publish-dir: "./apps/namada-interface/build"
