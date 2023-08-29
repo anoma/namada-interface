@@ -1,0 +1,19 @@
+name: Yarn cache
+description: Restores yarn cache and installs yarn dependencies
+
+runs:
+  using: composite
+  steps:
+    - name: Restore yarn cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          ./node_modules
+          ./apps/*/node_modules
+          ./packages/*/node_modules
+          ./e2e/node_modules
+        key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
+
+    - name: Install dependencies
+      run: yarn
+      shell: bash

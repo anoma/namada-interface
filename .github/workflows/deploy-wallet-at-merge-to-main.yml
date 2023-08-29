@@ -15,9 +15,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install dependencies
-        working-directory: ./apps/namada-interface
-        run: yarn
+      - name: Install yarn dependencies
+        uses: ./.github/actions/yarn-cache
+
+      - name: Restore Rust cache
+        uses: ./.github/actions/rust-cache
+        with:
+          cache-name: build
 
       - name: Install protoc
         run: sudo apt-get install -y protobuf-compiler
@@ -28,7 +32,6 @@ jobs:
           version: "v0.10.3"
 
       - name: build the site
-        uses: borales/actions-yarn@v4
         working-directory: ./apps/namada-interface
         run: yarn build
         env:
@@ -53,3 +56,51 @@ jobs:
           --request POST \
           --data '{"message":"https://wallet-preview-heliax-dev.netlify.app"}' \
           ${{ secrets.SLACK_WEBHOOK_WALLET_RELEASE }}
+
+  rust-unit-test-js-cache:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Restore Rust cache
+        uses: ./.github/actions/rust-cache
+        with:
+          cache-name: unit-tests-js
+
+      - name: Install protoc
+        run: sudo apt-get install -y protobuf-compiler
+
+      - name: Install wasm-pack
+        uses: jetli/wasm-pack-action@v0.4.0
+        with:
+          version: "v0.10.3"
+
+      - name: Compile WASM
+        run: yarn wasm:build-test
+
+  rust-unit-test-wasm-cache:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Restore Rust cache
+        uses: ./.github/actions/rust-cache
+        with:
+          cache-name: unit-tests-wasm
+
+      - name: Install protoc
+        run: sudo apt-get install -y protobuf-compiler
+
+      - name: Install wsrun
+        run: npm install -g wsrun
+
+      - name: Install wasm-pack
+        uses: jetli/wasm-pack-action@v0.4.0
+        with:
+          version: "v0.10.3"
+
+      - name: Run unit tests
+        id: run-unit-tests
+        run: yarn test-wasm:ci
