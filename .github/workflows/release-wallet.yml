@@ -1,0 +1,263 @@
+name: Deploy interface and release extension
+on:
+  workflow_dispatch:
+    inputs:
+      REACT_APP_NAMADA_ALIAS:
+        required: true
+        type: string
+        default: "Namada Devnet"
+      REACT_APP_NAMADA_CHAIN_ID:
+        required: true
+        type: string
+      REACT_APP_NAMADA_URL:
+        required: true
+        type: string
+      REACT_APP_NAMADA_FAUCET_ADDRESS:
+        type: string
+      REACT_APP_NAMADA_FAUCET_LIMIT:
+        type: number
+        default: 1000
+env:
+  CI: false
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      VERSION: ${{ steps.set-environment-variables.outputs.VERSION }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set environment variables
+        id: set-environment-variables
+        run: |
+          COMMIT_HASH=$(git rev-parse --short $SHA)
+          BASE_VERSION=$(node -e 'console.log(require("./package.json").version)')
+          echo "VERSION=v$BASE_VERSION-$COMMIT_HASH" >> "$GITHUB_OUTPUT"
+        env:
+          SHA: ${{ github.sha }}
+
+      - name: Print workflow inputs
+        run: |
+          echo "REACT_APP_NAMADA_ALIAS: $REACT_APP_NAMADA_ALIAS" >> $GITHUB_STEP_SUMMARY
+          echo "REACT_APP_NAMADA_CHAIN_ID: $REACT_APP_NAMADA_CHAIN_ID" >> $GITHUB_STEP_SUMMARY
+          echo "REACT_APP_NAMADA_URL: $REACT_APP_NAMADA_URL" >> $GITHUB_STEP_SUMMARY
+          echo "REACT_APP_NAMADA_FAUCET_ADDRESS: $REACT_APP_NAMADA_FAUCET_ADDRESS" >> $GITHUB_STEP_SUMMARY
+          echo "REACT_APP_NAMADA_FAUCET_LIMIT: $REACT_APP_NAMADA_FAUCET_LIMIT" >> $GITHUB_STEP_SUMMARY
+        env:
+          REACT_APP_NAMADA_ALIAS: ${{ inputs.REACT_APP_NAMADA_ALIAS }}
+          REACT_APP_NAMADA_CHAIN_ID: ${{ inputs.REACT_APP_NAMADA_CHAIN_ID }}
+          REACT_APP_NAMADA_URL: ${{ inputs.REACT_APP_NAMADA_URL }}
+          REACT_APP_NAMADA_FAUCET_ADDRESS: ${{ inputs.REACT_APP_NAMADA_FAUCET_ADDRESS }}
+          REACT_APP_NAMADA_FAUCET_LIMIT: ${{ inputs.REACT_APP_NAMADA_FAUCET_LIMIT }}
+
+  build-interface:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install yarn dependencies
+        uses: ./.github/actions/yarn-cache
+
+      - name: Restore Rust cache
+        uses: ./.github/actions/rust-cache
+        with:
+          cache-name: build
+
+      - name: Install protoc
+        run: sudo apt-get install -y protobuf-compiler
+
+      - name: Install wasm-pack
+        uses: jetli/wasm-pack-action@v0.3.0
+        with:
+          version: "v0.10.3"
+
+      - name: Build the interface
+        working-directory: ./apps/namada-interface
+        run: yarn build
+        env:
+          REACT_APP_NAMADA_ALIAS: ${{ inputs.REACT_APP_NAMADA_ALIAS }}
+          REACT_APP_NAMADA_CHAIN_ID: ${{ inputs.REACT_APP_NAMADA_CHAIN_ID }}
+          REACT_APP_NAMADA_URL: ${{ inputs.REACT_APP_NAMADA_URL }}
+          REACT_APP_NAMADA_FAUCET_ADDRESS: ${{ inputs.REACT_APP_NAMADA_FAUCET_ADDRESS }}
+          REACT_APP_NAMADA_FAUCET_LIMIT: ${{ inputs.REACT_APP_NAMADA_FAUCET_LIMIT }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: namada-interface
+          path: ./apps/namada-interface/build
+
+  build-extension-chrome:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install yarn dependencies
+        uses: ./.github/actions/yarn-cache
+
+      - name: Restore Rust cache
+        uses: ./.github/actions/rust-cache
+        with:
+          cache-name: build
+
+      - name: Install protoc
+        run: sudo apt-get install -y protobuf-compiler
+
+      - name: Install wasm-pack
+        uses: jetli/wasm-pack-action@v0.3.0
+        with:
+          version: "v0.10.3"
+
+      - name: Install web-ext
+        run: yarn global add web-ext
+
+      - name: Build WASM dependencies
+        working-directory: ./apps/extension
+        run: yarn wasm:build
+
+      - name: Build the extension
+        working-directory: ./apps/extension
+        run: yarn build:chrome
+        env:
+          REACT_APP_NAMADA_ALIAS: ${{ inputs.REACT_APP_NAMADA_ALIAS }}
+          REACT_APP_NAMADA_CHAIN_ID: ${{ inputs.REACT_APP_NAMADA_CHAIN_ID }}
+          REACT_APP_NAMADA_URL: ${{ inputs.REACT_APP_NAMADA_URL }}
+          REACT_APP_NAMADA_FAUCET_ADDRESS: ${{ inputs.REACT_APP_NAMADA_FAUCET_ADDRESS }}
+          REACT_APP_NAMADA_FAUCET_LIMIT: ${{ inputs.REACT_APP_NAMADA_FAUCET_LIMIT }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: namada-extension-chrome
+          path: ./apps/extension/build/chrome/namada_extension-*.zip
+
+  build-extension-firefox:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install yarn dependencies
+        uses: ./.github/actions/yarn-cache
+
+      - name: Restore Rust cache
+        uses: ./.github/actions/rust-cache
+        with:
+          cache-name: build
+
+      - name: Install protoc
+        run: sudo apt-get install -y protobuf-compiler
+
+      - name: Install wasm-pack
+        uses: jetli/wasm-pack-action@v0.3.0
+        with:
+          version: "v0.10.3"
+
+      - name: Install web-ext
+        run: yarn global add web-ext
+
+      - name: Build WASM dependencies
+        working-directory: ./apps/extension
+        run: yarn wasm:build
+
+      - name: Build the extension
+        working-directory: ./apps/extension
+        run: yarn build:firefox
+        env:
+          REACT_APP_NAMADA_ALIAS: ${{ inputs.REACT_APP_NAMADA_ALIAS }}
+          REACT_APP_NAMADA_CHAIN_ID: ${{ inputs.REACT_APP_NAMADA_CHAIN_ID }}
+          REACT_APP_NAMADA_URL: ${{ inputs.REACT_APP_NAMADA_URL }}
+          REACT_APP_NAMADA_FAUCET_ADDRESS: ${{ inputs.REACT_APP_NAMADA_FAUCET_ADDRESS }}
+          REACT_APP_NAMADA_FAUCET_LIMIT: ${{ inputs.REACT_APP_NAMADA_FAUCET_LIMIT }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: namada-extension-firefox
+          path: ./apps/extension/build/firefox/namada_extension-*.zip
+
+  release:
+    needs: [setup, build-interface, build-extension-chrome, build-extension-firefox]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download interface build
+        uses: actions/download-artifact@v3
+        with:
+          name: namada-interface
+          path: ./namada-interface
+
+      - name: Download Chrome extension build
+        uses: actions/download-artifact@v3
+        with:
+          name: namada-extension-chrome
+          path: ./namada-extension-chrome
+
+      - name: Download Firefox extension build
+        uses: actions/download-artifact@v3
+        with:
+          name: namada-extension-firefox
+          path: ./namada-extension-firefox
+
+      - name: Get extension filenames
+        id: get-filenames
+        run: |
+          echo "CHROME_FILENAME=$(ls -1 ./namada-extension-chrome)" >> "$GITHUB_OUTPUT"
+          echo "FIREFOX_FILENAME=$(ls -1 ./namada-extension-firefox)" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy interface to Netlify
+        uses: nwtgck/actions-netlify@v1.2.3
+        with:
+          publish-dir: ./namada-interface
+          production-branch: main
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Deployed release ${{ needs.setup.outputs.VERSION }}"
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_ACCESS_TOKEN_WALLET_PREVIEW }}
+          NETLIFY_SITE_ID: 2380782e-9b20-477a-bc27-b4e9d05e16f3
+
+      - name: Make release body text
+        run: |
+          echo "REACT_APP_NAMADA_ALIAS: $REACT_APP_NAMADA_ALIAS" >> RELEASE
+          echo "REACT_APP_NAMADA_CHAIN_ID: $REACT_APP_NAMADA_CHAIN_ID" >> RELEASE
+          echo "REACT_APP_NAMADA_URL: $REACT_APP_NAMADA_URL" >> RELEASE
+          echo "REACT_APP_NAMADA_FAUCET_ADDRESS: $REACT_APP_NAMADA_FAUCET_ADDRESS" >> RELEASE
+          echo "REACT_APP_NAMADA_FAUCET_LIMIT: $REACT_APP_NAMADA_FAUCET_LIMIT" >> RELEASE
+        env:
+          REACT_APP_NAMADA_ALIAS: ${{ inputs.REACT_APP_NAMADA_ALIAS }}
+          REACT_APP_NAMADA_CHAIN_ID: ${{ inputs.REACT_APP_NAMADA_CHAIN_ID }}
+          REACT_APP_NAMADA_URL: ${{ inputs.REACT_APP_NAMADA_URL }}
+          REACT_APP_NAMADA_FAUCET_ADDRESS: ${{ inputs.REACT_APP_NAMADA_FAUCET_ADDRESS }}
+          REACT_APP_NAMADA_FAUCET_LIMIT: ${{ inputs.REACT_APP_NAMADA_FAUCET_LIMIT }}
+
+      - name: Create release
+        id: create-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          release_name: ${{ needs.setup.outputs.VERSION }}
+          tag_name: ${{ needs.setup.outputs.VERSION }}
+          body_path: ./RELEASE
+
+      - name: Add Chrome extension to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ./namada-extension-chrome/${{ steps.get-filenames.outputs.CHROME_FILENAME }}
+          asset_name: namada-extension-chrome_${{ needs.setup.outputs.VERSION }}.zip
+          asset_content_type: application/zip
+
+      - name: Add Firefox extension to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ./namada-extension-firefox/${{ steps.get-filenames.outputs.FIREFOX_FILENAME }}
+          asset_name: namada-extension-firefox_${{ needs.setup.outputs.VERSION }}.zip
+          asset_content_type: application/zip
