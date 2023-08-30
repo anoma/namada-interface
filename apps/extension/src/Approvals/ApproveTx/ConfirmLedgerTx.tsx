@@ -191,44 +191,48 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
     setStatus(Status.Pending);
 
     try {
-      if (!publicKey) {
-        throw new Error("Public key was not provided and is required!");
-      }
-
       if (!source) {
         throw new Error("Source was not provided and is required!");
       }
-      // Query extension storage for revealed public key
-      const isPkRevealed = await requester
-        .sendMessage(Ports.Background, new QueryStoredPK(publicKey))
-        .catch((e) => {
-          throw new Error(`Requester error: ${e}`);
-        });
 
-      if (!isPkRevealed) {
-        setStatusInfo("Querying for public key on chain...");
-        const pk = await queryPublicKey(source);
+      // If the source is the faucet address, this is a testnet faucet transfer, and
+      // we do not need to reveal the public key, as it is an Established Address
+      if (source !== faucetAddress) {
+        if (!publicKey) {
+          throw new Error("Public key was not provided and is required!");
+        }
 
-        if (pk) {
-          // If found on chain, but not in storage, commit to storage
-          await storePublicKey(publicKey);
-        } else {
-          // Submit RevealPK Tx
-          await revealPk(ledger, publicKey);
+        // Query extension storage for revealed public key
+        const isPkRevealed = await requester
+          .sendMessage(Ports.Background, new QueryStoredPK(publicKey))
+          .catch((e) => {
+            throw new Error(`Requester error: ${e}`);
+          });
 
-          // Follow up with a query to ensure that PK Reveal was successful
-          setStatusInfo("Querying for public key status on chain...");
-          const wasPkRevealed = !!(await queryPublicKey(source));
+        if (!isPkRevealed) {
+          setStatusInfo("Querying for public key on chain...");
+          const pk = await queryPublicKey(source);
 
-          if (!wasPkRevealed) {
-            throw new Error("Public key was not revealed!");
+          if (pk) {
+            // If found on chain, but not in storage, commit to storage
+            await storePublicKey(publicKey);
+          } else {
+            // Submit RevealPK Tx
+            await revealPk(ledger, publicKey);
+
+            // Follow up with a query to ensure that PK Reveal was successful
+            setStatusInfo("Querying for public key status on chain...");
+            const wasPkRevealed = !!(await queryPublicKey(source));
+
+            if (!wasPkRevealed) {
+              throw new Error("Public key was not revealed!");
+            }
+
+            // Commit newly revealed public key to storage
+            await storePublicKey(publicKey);
           }
-
-          // Commit newly revealed public key to storage
-          await storePublicKey(publicKey);
         }
       }
-
       submitTx(ledger);
     } catch (e) {
       await ledger.closeTransport();
