@@ -18,8 +18,7 @@ import {
   FaucetTransferContent,
 } from "./FaucetTransferForm.components";
 import { InputContainer } from "App/Token/TokenSend/TokenSendForm.components";
-import { useAppDispatch } from "store";
-import { submitTransferTransaction } from "slices/transfers";
+import { submitTransferTransaction } from "App/Token/TokenSend/TokenSendForm";
 import BigNumber from "bignumber.js";
 import { defaultChainId } from "@namada/chains";
 
@@ -36,7 +35,6 @@ export const FaucetTransferForm = ({
   faucetAddress,
   cancelCallback,
 }: Props): JSX.Element => {
-  const dispatch = useAppDispatch();
   const [amount, setAmount] = useState(0);
   const { address, alias } = account;
   const [tokenType, setTokenType] = useState<TokenType>("NAM");
@@ -70,7 +68,7 @@ export const FaucetTransferForm = ({
       token: tokenType as TokenType,
       notify: true,
     };
-    dispatch(submitTransferTransaction(transferArgs));
+    submitTransferTransaction(transferArgs);
     cancelCallback && cancelCallback();
   }, [account, amount]);
 

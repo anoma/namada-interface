@@ -311,7 +311,9 @@ export class KeyRingService {
     await this.broadcaster.startTx(msgId, TxType.IBCTransfer);
 
     try {
-      await this._keyRing.submitIbcTransfer(fromBase64(txMsg));
+      console.warn("submitIbcTransfer disabled!", txMsg);
+      // TODO: Re-enable this!
+      // await this._keyRing.submitIbcTransfer(fromBase64(txMsg));
       this.broadcaster.completeTx(msgId, TxType.IBCTransfer, true);
       this.broadcaster.updateBalance();
     } catch (e) {

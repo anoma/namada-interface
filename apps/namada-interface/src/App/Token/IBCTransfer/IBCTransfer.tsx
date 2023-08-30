@@ -23,30 +23,88 @@ import {
 } from "@namada/components";
 
 import {
+  getIntegration,
   useIntegrationConnection,
   useUntilIntegrationAttached,
 } from "@namada/hooks";
 import { useAppDispatch, useAppSelector } from "store";
 import { Account, AccountsState, addAccounts } from "slices/accounts";
 import { addChannel, ChannelsState } from "slices/channels";
-import {
-  clearErrors,
-  clearEvents,
-  submitIbcTransferTransaction,
-  TransfersState,
-} from "slices/transfers";
 import { setIsConnected, SettingsState } from "slices/settings";
 
 import {
   ButtonsContainer,
   InputContainer,
-  StatusMessage,
 } from "../TokenSend/TokenSendForm.components";
 import {
   AddChannelButton,
   IBCTransferFormContainer,
 } from "./IBCTransfer.components";
-import { Address } from "../Transfers/TransferDetails.components";
+import { TxBridgeTransferArgs, TxIbcTransferArgs } from "../types";
+
+export const submitIbcTransferTransaction = async (
+  ibcArgs: TxIbcTransferArgs
+): Promise<void> => {
+  const {
+    account: { address, chainId, publicKey, type },
+    token,
+    target,
+    amount,
+    portId,
+    channelId,
+  } = ibcArgs;
+  const integration = getIntegration(chainId);
+
+  await integration.submitBridgeTransfer(
+    {
+      ibcProps: {
+        tx: {
+          token: Tokens.NAM.address || "",
+          feeAmount: new BigNumber(0),
+          gasLimit: new BigNumber(0),
+          publicKey,
+          chainId,
+        },
+        source: address,
+        receiver: target,
+        token: Tokens[token as TokenType]?.address || "",
+        amount,
+        portId,
+        channelId,
+      },
+    },
+    type
+  );
+};
+
+export const submitBridgeTransferTransaction = async (
+  bridgeArgs: TxBridgeTransferArgs
+): Promise<void> => {
+  const {
+    account: { address, chainId, type },
+    target,
+    token,
+    amount,
+  } = bridgeArgs;
+  const integration = getIntegration(chainId);
+  await integration.submitBridgeTransfer(
+    {
+      bridgeProps: {
+        tx: {
+          token: Tokens.NAM.address || "",
+          feeAmount: new BigNumber(0),
+          gasLimit: new BigNumber(0),
+          chainId,
+        },
+        source: address,
+        target,
+        token: Tokens[token as TokenType]?.address || "",
+        amount,
+      },
+    },
+    type
+  );
+};
 
 const IBCTransfer = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -55,8 +113,6 @@ const IBCTransfer = (): JSX.Element => {
   const { channelsByChain = {} } = useAppSelector<ChannelsState>(
     (state) => state.channels
   );
-  const { isBridgeTransferSubmitting, transferError, events } =
-    useAppSelector<TransfersState>((state) => state.transfers);
   const [isExtensionConnected, setIsExtensionConnected] = useState<
     Record<ExtensionKey, boolean>
   >({
@@ -153,13 +209,6 @@ const IBCTransfer = (): JSX.Element => {
   const { portId = "transfer" } = sourceChain.ibc || {};
 
   useEffect(() => {
-    return () => {
-      dispatch(clearEvents());
-      dispatch(clearErrors());
-    };
-  }, []);
-
-  useEffect(() => {
     // Set recipient to first destination account
     if (destinationAccounts?.length > 0) {
       setRecipient(destinationAccounts[0].details.address);
@@ -213,17 +262,15 @@ const IBCTransfer = (): JSX.Element => {
   };
 
   const handleSubmit = (): void => {
-    dispatch(
-      submitIbcTransferTransaction({
-        account: sourceAccount.details,
-        token,
-        amount,
-        chainId,
-        target: recipient,
-        channelId: selectedChannelId,
-        portId,
-      })
-    );
+    submitIbcTransferTransaction({
+      account: sourceAccount.details,
+      token,
+      amount,
+      chainId,
+      target: recipient,
+      channelId: selectedChannelId,
+      portId,
+    });
   };
 
   const handleConnectExtension = async (): Promise<void> => {
@@ -271,24 +318,13 @@ const IBCTransfer = (): JSX.Element => {
       return false;
     }
 
-    // Form is invalid if transfer is being submitted
-    if (isBridgeTransferSubmitting) {
-      return false;
-    }
-
     return true;
   };
 
   useEffect(() => {
     const isValid = validateForm();
     setIsFormValid(isValid);
-  }, [
-    recipient,
-    amount,
-    selectedChannelId,
-    destinationChain,
-    isBridgeTransferSubmitting,
-  ]);
+  }, [recipient, amount, selectedChannelId, destinationChain]);
 
   return (
     <IBCTransferFormContainer>
@@ -435,28 +471,13 @@ const IBCTransfer = (): JSX.Element => {
             />
           </InputContainer>
 
-          {isBridgeTransferSubmitting && <p>Submitting bridge transfer...</p>}
-          {transferError && (
-            <pre style={{ overflow: "auto" }}>{transferError}</pre>
-          )}
-          {events && (
-            <>
-              <StatusMessage>
-                Successfully submitted bridge transfer! It will take some time
-                for the receiver to see an updated balance.
-              </StatusMessage>
-              <StatusMessage>Gas used: {events.gas}</StatusMessage>
-              <StatusMessage>Applied hash:</StatusMessage>
-              <Address>{events.appliedHash}</Address>
-            </>
-          )}
           <ButtonsContainer>
             <Button
               variant={ButtonVariant.Contained}
               disabled={!isFormValid}
               onClick={handleSubmit}
             >
-              Continue
+              Submit
             </Button>
           </ButtonsContainer>
         </>

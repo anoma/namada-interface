@@ -119,12 +119,16 @@ export class LedgerService {
     await this.broadcaster.startTx(msgId, txType);
 
     try {
-      await this.sdk.submit_signed_tx(
-        encodedTx,
-        fromBase64(bytes),
-        rawSig,
-        wrapperSig
-      );
+      // TODO: Remove this check once IBC Transfer is supported on Ledger!
+      // Disable tx submission for Ledger devices
+      if (txType !== TxType.IBCTransfer) {
+        await this.sdk.submit_signed_tx(
+          encodedTx,
+          fromBase64(bytes),
+          rawSig,
+          wrapperSig
+        );
+      }
 
       // Clear pending tx if successful
       await this.txStore.set(msgId, null);

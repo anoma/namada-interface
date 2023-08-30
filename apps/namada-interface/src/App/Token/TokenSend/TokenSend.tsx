@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import { Account, AccountsState } from "slices/accounts";
 import { SettingsState } from "slices/settings";
-import { TransferType } from "slices/transfers";
+import { TransferType } from "App/Token/types";
 import { useAppSelector } from "store";
 
 import { TokenType } from "@namada/types";
@@ -40,7 +40,7 @@ export const parseTarget = (target: string): TransferType | undefined => {
     target.startsWith(ESTABLISHED_ADDRESS_PREFIX) &&
     target.length === ESTABLISHED_ADDRESS_LENGTH
   ) {
-    return TransferType.NonShielded;
+    return TransferType.Transparent;
   }
 
   // likely we can unify the form errors and return an object describing the error here
@@ -114,13 +114,13 @@ const TokenSend = (): JSX.Element => {
 
   const handleTokenChange =
     (selectAccountFn: (accId: string) => void) =>
-    (e: React.ChangeEvent<HTMLSelectElement>): void => {
-      const { value } = e.target;
-      const [accountId, tokenSymbol] = value.split("|");
+      (e: React.ChangeEvent<HTMLSelectElement>): void => {
+        const { value } = e.target;
+        const [accountId, tokenSymbol] = value.split("|");
 
-      selectAccountFn(accountId);
-      setToken(tokenSymbol as TokenType);
-    };
+        selectAccountFn(accountId);
+        setToken(tokenSymbol as TokenType);
+      };
 
   return (
     <TokenSendContainer>

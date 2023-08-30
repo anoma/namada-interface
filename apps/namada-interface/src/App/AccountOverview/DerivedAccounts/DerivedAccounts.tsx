@@ -1,11 +1,10 @@
 import { useContext, useEffect, useState } from "react";
 import { ThemeContext } from "styled-components";
-import { useNavigate } from "react-router-dom";
 import BigNumber from "bignumber.js";
 
 import { chains, defaultChainId } from "@namada/chains";
 import { TokenType } from "@namada/types";
-import { formatCurrency, formatRoute } from "@namada/utils";
+import { formatCurrency } from "@namada/utils";
 import { Modal } from "@namada/components";
 
 import {
@@ -33,7 +32,6 @@ import AssetNamadaNamDark from "./assets/asset-namada-nam-dark.png";
 import AssetCosmosAtom from "./assets/asset-cosmos-atom.png";
 import AssetEthereumEther from "./assets/asset-ethereum-ether.png";
 
-import { TopLevelRoute } from "App/types";
 import { useAppDispatch, useAppSelector } from "store";
 import { AccountsState, Balance } from "slices/accounts";
 import { CoinsState, fetchConversionRates } from "slices/coins";
@@ -63,7 +61,6 @@ const assetIconByToken: Record<TokenType, { light: string; dark: string }> = {
 };
 
 const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
-  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const themeContext = useContext(ThemeContext);
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
@@ -198,14 +195,6 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
                           <TokenBalance key={`${address}-${token}`}>
                             <TokenIcon
                               src={getAssetIconByTheme(token as TokenType)}
-                              onClick={() => {
-                                navigate(
-                                  formatRoute(TopLevelRoute.TokenTransfers, {
-                                    id: address,
-                                    token,
-                                  })
-                                );
-                              }}
                             />
                             {amount.toString()} {token}
                           </TokenBalance>

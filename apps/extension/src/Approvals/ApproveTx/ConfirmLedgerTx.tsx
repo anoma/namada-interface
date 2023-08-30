@@ -153,13 +153,6 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
       throw new Error(`Signing error encountered: ${errorMessage}`);
     }
 
-    // TODO: Remove this once IBC Transfer is supported on Ledger!
-    // Disable tx submission for Ledger devices
-    if (txType === TxType.IBCTransfer) {
-      setStatus(Status.Completed);
-      return;
-    }
-
     // Submit signatures for tx
     requester
       .sendMessage(

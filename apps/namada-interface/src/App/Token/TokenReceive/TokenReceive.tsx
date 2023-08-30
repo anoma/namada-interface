@@ -12,12 +12,12 @@ import {
   Select,
 } from "@namada/components";
 
-import { Address } from "../Transfers/TransferDetails.components";
 import {
   CanvasContainer,
   TokenReceiveContainer,
   ButtonsContainer,
   TokenReceiveContent,
+  Address,
 } from "./TokenReceive.components";
 import { BackButton } from "../TokenSend/TokenSendForm.components";
 import { TopLevelRoute } from "App/types";
@@ -38,9 +38,8 @@ const TokenReceive = (): JSX.Element => {
 
   const accountsData = accounts.map(({ details }) => ({
     value: details.address,
-    label: `${details.alias} - ${
-      details.isShielded ? "Shielded" : "Transparent"
-    }`,
+    label: `${details.alias} - ${details.isShielded ? "Shielded" : "Transparent"
+      }`,
   }));
 
   useEffect(() => {

@@ -59,7 +59,7 @@ export class ApprovalsService {
     this._launchApprovalWindow(url);
   }
 
-  // Deserialize transfer details and prompt user
+  // Deserialize IBC transfer details and prompt user
   async approveIbcTransfer(txMsg: string, type: AccountType): Promise<void> {
     const txMsgBuffer = Buffer.from(fromBase64(txMsg));
     const msgId = uuid();
@@ -69,7 +69,7 @@ export class ApprovalsService {
     const txDetails = deserialize(txMsgBuffer, IbcTransferMsgValue);
     const {
       source,
-      receiver,
+      receiver: target,
       token: tokenAddress,
       amount: amountBN,
       tx: { publicKey = "" },
@@ -82,7 +82,7 @@ export class ApprovalsService {
     const url = paramsToUrl(baseUrl, {
       msgId,
       source,
-      target: receiver,
+      target,
       tokenAddress,
       amount: amount.toString(),
       accountType: type,
