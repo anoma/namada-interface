@@ -42,7 +42,7 @@ import {
 } from "./IBCTransfer.components";
 import { TxBridgeTransferArgs, TxIbcTransferArgs } from "../types";
 
-export const submitIbcTransferTransaction = async (
+export const submitIbcTransfer = async (
   ibcArgs: TxIbcTransferArgs
 ): Promise<void> => {
   const {
@@ -77,7 +77,7 @@ export const submitIbcTransferTransaction = async (
   );
 };
 
-export const submitBridgeTransferTransaction = async (
+export const submitBridgeTransfer = async (
   bridgeArgs: TxBridgeTransferArgs
 ): Promise<void> => {
   const {
@@ -190,8 +190,9 @@ const IBCTransfer = (): JSX.Element => {
 
       return Object.entries(balance).map(([tokenType, amount]) => ({
         value: `${address}|${tokenType}`,
-        label: `${alias !== "Namada" ? alias + " - " : ""}${Tokens[tokenType as TokenType].coin
-          } (${amount} ${tokenType})`,
+        label: `${alias !== "Namada" ? alias + " - " : ""}${
+          Tokens[tokenType as TokenType].coin
+        } (${amount} ${tokenType})`,
       }));
     }
   );
@@ -262,15 +263,23 @@ const IBCTransfer = (): JSX.Element => {
   };
 
   const handleSubmit = (): void => {
-    submitIbcTransferTransaction({
-      account: sourceAccount.details,
-      token,
-      amount,
-      chainId,
-      target: recipient,
-      channelId: selectedChannelId,
-      portId,
-    });
+    destinationChain.bridgeType.includes(BridgeType.IBC)
+      ? submitIbcTransfer({
+          account: sourceAccount.details,
+          token,
+          amount,
+          chainId,
+          target: recipient,
+          channelId: selectedChannelId,
+          portId,
+        })
+      : submitBridgeTransfer({
+          account: sourceAccount.details,
+          chainId,
+          token,
+          target: recipient,
+          amount,
+        });
   };
 
   const handleConnectExtension = async (): Promise<void> => {
@@ -324,7 +333,14 @@ const IBCTransfer = (): JSX.Element => {
   useEffect(() => {
     const isValid = validateForm();
     setIsFormValid(isValid);
-  }, [recipient, amount, selectedChannelId, destinationChain]);
+  }, [
+    amount,
+    destinationChain,
+    recipient,
+    selectedChainId,
+    selectedChannelId,
+    sourceAccount,
+  ]);
 
   return (
     <IBCTransferFormContainer>
@@ -413,9 +429,9 @@ const IBCTransfer = (): JSX.Element => {
                   currentExtensionAttachStatus === "attached"
                     ? handleConnectExtension
                     : handleDownloadExtension.bind(
-                      null,
-                      destinationChain.extension.url
-                    )
+                        null,
+                        destinationChain.extension.url
+                      )
                 }
                 loading={
                   currentExtensionAttachStatus === "pending" ||
@@ -428,7 +444,7 @@ const IBCTransfer = (): JSX.Element => {
                 }
               >
                 {currentExtensionAttachStatus === "attached" ||
-                  currentExtensionAttachStatus === "pending"
+                currentExtensionAttachStatus === "pending"
                   ? `Load accounts from ${extensionAlias} Extension`
                   : "Click to download the extension"}
               </Button>
