@@ -233,8 +233,7 @@ pub fn transfer_tx_args(
 
     let native_token = Address::from_str(&native_token)?;
     let token = Address::from_str(&token)?;
-    let amount_str = amount.to_string();
-    let denom_amount = DenominatedAmount::from_str(&amount_str).expect("Amount to be valid.");
+    let denom_amount = DenominatedAmount::from_str(&amount).expect("Amount to be valid.");
     let amount = InputAmount::Unvalidated(denom_amount);
     let (tx, faucet_signer) = tx_msg_into_args(tx, password)?;
 
@@ -294,9 +293,8 @@ pub fn ibc_transfer_tx_args(
 
     let source = Address::from_str(&source)?;
     let token = Address::from_str(&token)?;
-    let amount: Amount = DenominatedAmount::from_str(&amount)
-        .expect(format!("Amount has to be valid. Received {}", amount).as_str())
-        .into();
+    let denom_amount = DenominatedAmount::from_str(&amount).expect("Amount to be valid.");
+    let amount = InputAmount::Unvalidated(denom_amount);
     let port_id = PortId::from_str(&port_id).expect("Port id to be valid");
     let channel_id = ChannelId::from_str(&channel_id).expect("Channel id to be valid");
     let (tx, faucet_signer) = tx_msg_into_args(tx, password)?;
@@ -356,9 +354,6 @@ fn tx_msg_into_args(
     let fee_input_amount = InputAmount::Unvalidated(fee_amount);
 
     let password = password.map(|pwd| zeroize::Zeroizing::new(pwd));
-    let gas_limit: Amount = DenominatedAmount::from_str(&gas_limit)
-        .expect(format!("Gas limit amount has to be valid. Received {}", gas_limit).as_str())
-        .into();
     let public_key = match public_key {
         Some(v) => {
             let pk = PublicKey::from_str(&v)?;
@@ -367,19 +362,23 @@ fn tx_msg_into_args(
         _ => None,
     };
     let signer = signer.map(|v| Address::from_str(&v).ok()).flatten();
+    web_sys::console::log_1(&format!("Gas limit: {:?}", &gas_limit).into());
 
     let args = args::Tx {
         dry_run: false,
+        dry_run_wrapper: false,
+        disposable_signing_key: false,
         dump_tx: false,
         force: false,
         broadcast_only: false,
         ledger_address: (),
         wallet_alias_force: false,
         initialized_account_alias: None,
-        gas_amount: fee_input_amount,
-        gas_token: token.clone(),
-        gas_limit: GasLimit::from(gas_limit),
-        gas_payer: None,
+        fee_amount: Some(fee_input_amount),
+        fee_token: token.clone(),
+        fee_unshield: None,
+        gas_limit: GasLimit::from_str(&gas_limit).expect("Gas limit to be valid"),
+        wrapper_fee_payer: None,
         output_folder: None,
         expiration: None,
         chain_id: Some(ChainId(String::from(chain_id))),

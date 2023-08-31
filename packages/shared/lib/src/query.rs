@@ -1,4 +1,5 @@
-use masp_primitives::{transaction::components::Amount, zip32::ExtendedFullViewingKey};
+use masp_primitives::transaction::components::I128Sum;
+use masp_primitives::zip32::ExtendedFullViewingKey;
 use namada::ledger::masp::ShieldedContext;
 use namada::ledger::queries::RPC;
 use namada::ledger::rpc::{get_public_key_at, get_token_balance};
@@ -106,7 +107,7 @@ impl Query {
 
         let mut result: Vec<(Address, Address, String, String, String)> = Vec::new();
 
-        let epoch = namada::ledger::rpc::query_epoch(&self.client).await;
+        let epoch = namada::ledger::rpc::query_epoch(&self.client).await?;
         for (owner, validators) in validators_per_address.into_iter() {
             for validator in validators.into_iter() {
                 let owner_option = &Some(owner.clone());
@@ -172,7 +173,7 @@ impl Query {
         let mut bonds = vec![];
         let mut unbonds = vec![];
 
-        let epoch = namada::ledger::rpc::query_epoch(&self.client).await;
+        let epoch = namada::ledger::rpc::query_epoch(&self.client).await?;
         for (owner, validators) in validators_per_address.into_iter() {
             for validator in validators.into_iter() {
                 let owner_option = &Some(owner.clone());
@@ -215,25 +216,26 @@ impl Query {
     /// # Arguments
     ///
     /// * `owner` - Account address in form of bech32, base64 encoded string
-    async fn query_transparent_balance(&self, owner: Address) -> Vec<(Address, token::Amount)> {
+    async fn query_transparent_balance(
+        &self,
+        owner: Address,
+    ) -> Result<Vec<(Address, token::Amount)>, JsError> {
         //TODO: Move hardoced tokens somewhere else
         let tokens: HashSet<Address> = HashSet::from([Address::from_str(
             "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5",
-        )
-        .unwrap(), Address::from_str(
+        )?, Address::from_str(
             "atest1v4ehgw36gfryydj9g3p5zv3kg9znyd358ycnzsfcggc5gvecgc6ygs2rxv6ry3zpg4zrwdfeumqcz9",
-        )
-        .unwrap(), Address::from_str(
+        )?, Address::from_str(
             "atest1v4ehgw36xqmr2d3nx3ryvd2xxgmrq33j8qcns33sxezrgv6zxdzrydjrxveygd2yxumrsdpsf9jc2p",
-        )
-        .unwrap()]);
+        )?]);
 
         let mut result = vec![];
         for token in tokens {
-            let balances = get_token_balance(&self.client, &token, &owner).await;
+            let balances = get_token_balance(&self.client, &token, &owner).await?;
             result.push((token, balances));
         }
-        result
+
+        Ok(result)
     }
 
     /// Queries shielded balance for a given extended viewing key
@@ -244,7 +246,7 @@ impl Query {
     async fn query_shielded_balance(
         &self,
         xvk: ExtendedViewingKey,
-    ) -> Vec<(Address, token::Amount)> {
+    ) -> Result<Vec<(Address, token::Amount)>, JsError> {
         let viewing_key = ExtendedFullViewingKey::from(xvk).fvk.vk;
         // We are recreating shielded context to avoid multiple mutable borrows
         let mut shielded: ShieldedContext<masp::WebShieldedUtils> = ShieldedContext::default();
@@ -255,17 +257,18 @@ impl Query {
             .map(|fvk| ExtendedFullViewingKey::from(*fvk).fvk.vk)
             .collect();
 
-        shielded.fetch(&self.client, &[], &fvks).await;
+        shielded.fetch(&self.client, &[], &fvks).await?;
 
-        let epoch = namada::ledger::rpc::query_epoch(&self.client).await;
+        let epoch = namada::ledger::rpc::query_epoch(&self.client).await?;
         let balance = shielded
             .compute_exchanged_balance(&self.client, &viewing_key, epoch)
-            .await
+            .await?
             .expect("context should contain viewing key");
-        let balance = Amount::from(balance);
-        let decoded_balance = shielded.decode_amount(&self.client, balance, epoch).await;
+        let decoded_balance = shielded
+            .decode_amount(&self.client, I128Sum::from(balance), epoch)
+            .await;
 
-        Self::get_decoded_balance(decoded_balance)
+        Ok(Self::get_decoded_balance(decoded_balance))
     }
 
     pub async fn query_balance(&self, owner: String) -> Result<JsValue, JsError> {
@@ -275,7 +278,7 @@ impl Query {
                 Ok(xvk) => self.query_shielded_balance(xvk).await,
                 Err(e2) => return Err(JsError::new(&format!("{} {}", e1, e2))),
             },
-        };
+        }?;
         let result: Vec<(Address, String)> = result
             .into_iter()
             .map(|(addr, amount)| (addr, amount.to_string_native()))
@@ -286,7 +289,7 @@ impl Query {
 
     pub async fn query_public_key(&self, address: &str) -> Result<JsValue, JsError> {
         let addr = Address::from_str(address).map_err(JsError::from)?;
-        let pk = get_public_key_at(&self.client, &addr, 0).await;
+        let pk = get_public_key_at(&self.client, &addr, 0).await?;
 
         let result = match pk {
             Some(v) => Some(v.to_string()),

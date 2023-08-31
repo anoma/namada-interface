@@ -25,7 +25,7 @@ const SW_TTL = 20000;
     sender: unknown,
     sendResponse: (response?: unknown) => void
   ): boolean {
-    const {data, type, routerId, target} = submitTransferMessage;
+    const { data, type, routerId, target } = submitTransferMessage;
 
     if (target !== OFFSCREEN_TARGET) {
       return false;
