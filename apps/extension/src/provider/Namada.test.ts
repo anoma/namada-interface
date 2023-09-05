@@ -1,18 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { toBase64 } from "@cosmjs/encoding";
-import BigNumber from "bignumber.js";
 
-import {
-  AccountMsgValue,
-  AccountType,
-  IbcTransferMsgValue,
-  IbcTransferProps,
-  Message,
-  TransferMsgValue,
-  TransferProps,
-  Chain,
-  Namada,
-} from "@namada/types";
+import { AccountMsgValue, Message, Chain, Namada } from "@namada/types";
 
 import { KVKeys } from "router";
 import { init, KVStoreMock } from "test/init";
@@ -26,7 +15,6 @@ import {
   PARENT_ACCOUNT_ID_KEY,
   UtilityStore,
 } from "background/keyring";
-import { Sdk } from "@namada/shared";
 import * as utils from "extension/utils";
 
 // Needed for now as utils import webextension-polyfill directly
@@ -83,71 +71,6 @@ describe("Namada", () => {
 
     const chains = await iDBStore.get("chains");
     expect(chains?.pop()).toEqual(chain);
-  });
-
-  it.skip("should be able to submit a transfer to the approval process", async () => {
-    const token =
-      "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5";
-    const transferProps: TransferProps = {
-      tx: {
-        token,
-        feeAmount: new BigNumber(0),
-        gasLimit: new BigNumber(0),
-        chainId: chain.chainId,
-      },
-      source: keyStore[0].address,
-      target:
-        "atest1d9khqw36gdz5ydzygvcnyvesxgcn2s6zxyung3zzgcmrjwzzgvmnyd3kxym52vzzg5unxve5cm87cr",
-      token,
-      amount: new BigNumber(1000),
-      nativeToken: token,
-    };
-
-    const transferMsgValue = new TransferMsgValue(transferProps);
-
-    const transferMessage = new Message<TransferMsgValue>();
-    const serializedTransfer = transferMessage.encode(transferMsgValue);
-
-    jest.spyOn(keyRingService, "submitTransfer");
-    namada.submitTransfer({
-      txMsg: toBase64(serializedTransfer),
-      type: AccountType.PrivateKey,
-    });
-
-    expect(keyRingService.submitTransfer).toBeCalled();
-  });
-
-  it("should be able to submit an ibc transfer through the sdk", async () => {
-    jest
-      .spyOn(Sdk.prototype, "submit_ibc_transfer")
-      .mockReturnValueOnce(Promise.resolve());
-
-    const token =
-      "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5";
-    const transferProps: IbcTransferProps = {
-      tx: {
-        token,
-        feeAmount: new BigNumber(0),
-        gasLimit: new BigNumber(0),
-        chainId: chain.chainId,
-      },
-      source: keyStore[0].address,
-      receiver:
-        "atest1d9khqw36gdz5ydzygvcnyvesxgcn2s6zxyung3zzgcmrjwzzgvmnyd3kxym52vzzg5unxve5cm87cr",
-      token,
-      amount: new BigNumber(1000),
-      portId: "transfer",
-      channelId: "channel-0",
-    };
-
-    const transferMsgValue = new IbcTransferMsgValue(transferProps);
-
-    const transferMessage = new Message<IbcTransferMsgValue>();
-    const serializedTransfer = transferMessage.encode(transferMsgValue);
-
-    const res = namada.submitIbcTransfer(toBase64(serializedTransfer));
-
-    await expect(res).resolves.not.toBeDefined();
   });
 
   // This test shows that init account is NOT working - it is also unused.

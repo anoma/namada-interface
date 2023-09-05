@@ -29,7 +29,8 @@ pub enum TxType {
     Unbond = 2,
     Withdraw = 3,
     Transfer = 4,
-    RevealPK = 5,
+    IBCTransfer = 5,
+    RevealPK = 6,
 }
 
 /// Represents the Sdk public API.
@@ -151,14 +152,10 @@ impl Sdk {
         }
 
         // Sign tx
-        signing::sign_tx(&mut self.wallet, &mut tx, &args, &pk)
-            .await
-            .map_err(JsError::from)?;
+        signing::sign_tx(&mut self.wallet, &mut tx, &args, &pk).await?;
 
         // Submit tx
-        namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args, tx)
-            .await
-            .map_err(JsError::from)?;
+        namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args, tx).await?;
 
         Ok(())
     }
@@ -172,11 +169,9 @@ impl Sdk {
         wrapper_sig_bytes: &[u8],
     ) -> Result<(), JsError> {
         let reveal_pk_tx = self.sign_tx(tx_bytes, raw_sig_bytes, wrapper_sig_bytes)?;
-        let args = tx::tx_args_from_slice(&tx_msg).map_err(JsError::from)?;
+        let args = tx::tx_args_from_slice(&tx_msg)?;
 
-        namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args, reveal_pk_tx)
-            .await
-            .map_err(JsError::from)?;
+        namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args, reveal_pk_tx).await?;
 
         Ok(())
     }
@@ -188,8 +183,7 @@ impl Sdk {
                 let args = tx::bond_tx_args(tx_msg, None)?;
                 let bond =
                     namada::ledger::tx::build_bond(&self.client, &mut self.wallet, args.clone())
-                        .await
-                        .map_err(JsError::from)?;
+                        .await?;
                 bond.0
             }
             TxType::RevealPK => {
@@ -231,16 +225,24 @@ impl Sdk {
                     &mut self.shielded_ctx,
                     args.clone(),
                 )
-                .await
-                .map_err(JsError::from)?;
+                .await?;
                 transfer.0
+            }
+            TxType::IBCTransfer => {
+                let args = tx::ibc_transfer_tx_args(tx_msg, None)?;
+                let ibc_transfer = namada::ledger::tx::build_ibc_transfer(
+                    &self.client,
+                    &mut self.wallet,
+                    args.clone(),
+                )
+                .await?;
+                ibc_transfer.0
             }
             TxType::Unbond => {
                 let args = tx::unbond_tx_args(tx_msg, None)?;
                 let unbond =
                     namada::ledger::tx::build_unbond(&self.client, &mut self.wallet, args.clone())
-                        .await
-                        .map_err(JsError::from)?;
+                        .await?;
                 unbond.0
             }
             TxType::Withdraw => {
@@ -250,13 +252,12 @@ impl Sdk {
                     &mut self.wallet,
                     args.clone(),
                 )
-                .await
-                .map_err(JsError::from)?;
+                .await?;
                 unbond.0
             }
         };
 
-        to_js_result(tx.try_to_vec().map_err(JsError::from)?)
+        to_js_result(tx.try_to_vec()?)
     }
 
     // Append signatures and return tx bytes
@@ -266,7 +267,7 @@ impl Sdk {
         raw_sig_bytes: &[u8],
         wrapper_sig_bytes: &[u8],
     ) -> Result<Tx, JsError> {
-        let mut tx: Tx = Tx::try_from_slice(tx_bytes).map_err(JsError::from)?;
+        let mut tx: Tx = Tx::try_from_slice(tx_bytes)?;
 
         let raw_sig = signature::construct_signature(raw_sig_bytes, &tx)?;
         tx.add_section(Section::Signature(raw_sig));
@@ -290,9 +291,7 @@ impl Sdk {
         let transfer_tx = self.sign_tx(tx_bytes, raw_sig_bytes, wrapper_sig_bytes)?;
         let args = tx::tx_args_from_slice(tx_msg)?;
 
-        namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args, transfer_tx)
-            .await
-            .map_err(JsError::from)?;
+        namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args, transfer_tx).await?;
 
         Ok(())
     }
@@ -310,8 +309,7 @@ impl Sdk {
             &mut self.shielded_ctx,
             args.clone(),
         )
-        .await
-        .map_err(JsError::from)?;
+        .await?;
 
         self.sign_and_process_tx(args.tx, tx, pk).await?;
 
@@ -327,8 +325,7 @@ impl Sdk {
 
         let (tx, _, pk) =
             namada::ledger::tx::build_ibc_transfer(&self.client, &mut self.wallet, args.clone())
-                .await
-                .map_err(JsError::from)?;
+                .await?;
 
         self.sign_and_process_tx(args.tx, tx, pk).await?;
 
@@ -344,8 +341,7 @@ impl Sdk {
 
         let (tx, _, pk) =
             namada::ledger::tx::build_bond(&mut self.client, &mut self.wallet, args.clone())
-                .await
-                .map_err(JsError::from)?;
+                .await?;
 
         self.sign_and_process_tx(args.tx, tx, pk).await?;
 
@@ -362,8 +358,7 @@ impl Sdk {
 
         let (tx, _, pk, _) =
             namada::ledger::tx::build_unbond(&mut self.client, &mut self.wallet, args.clone())
-                .await
-                .map_err(JsError::from)?;
+                .await?;
 
         self.sign_and_process_tx(args.tx, tx, pk).await?;
 
@@ -379,8 +374,7 @@ impl Sdk {
 
         let (tx, _, pk) =
             namada::ledger::tx::build_withdraw(&mut self.client, &mut self.wallet, args.clone())
-                .await
-                .map_err(JsError::from)?;
+                .await?;
 
         self.sign_and_process_tx(args.tx, tx, pk).await?;
 

@@ -1,4 +1,5 @@
 import {
+  AccountType,
   BridgeTransferProps,
   IbcTransferProps,
   TokenBalance,
@@ -14,6 +15,9 @@ export interface Integration<T, S> {
   connect: () => Promise<void>;
   accounts: () => Promise<readonly T[] | undefined>;
   signer: () => S | undefined;
-  submitBridgeTransfer: (props: BridgeProps) => Promise<void>;
+  submitBridgeTransfer: (
+    props: BridgeProps,
+    type: AccountType
+  ) => Promise<void>;
   queryBalances: (owner: string) => Promise<TokenBalance[]>;
 }

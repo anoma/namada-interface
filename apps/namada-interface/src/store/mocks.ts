@@ -2,7 +2,6 @@ import BigNumber from "bignumber.js";
 
 import { AccountType } from "@namada/types";
 import { RootState } from "./store";
-import { TransferType } from "slices/transfers";
 import { StakingOrUnstakingState } from "slices/StakingAndGovernance";
 
 export const mockAppState: RootState = {
@@ -61,62 +60,6 @@ export const mockAppState: RootState = {
         },
       },
     },
-  },
-  transfers: {
-    transactions: [
-      {
-        chainId: "namada-masp-1.5.32ccad5356012a7",
-        source:
-          "atest1v4ehgw36gc6yxvpjxccyzvphxycrxw2xxsuyydesxgcnjs3cg9znwv3cxgmnj32yxy6rssf5tcqjm3",
-        target:
-          "atest1v4ehgw36xqcyz3zrxsenzd3kxsunsvzzxymyywpkg4zrjv2pxepyyd3cgse5gwzxgsm5x3zrkf2pwp",
-        appliedHash:
-          "C90CE1D0FBF4562A01207C9C126A401C64D9CC6D2203A8D219E6A9EF645F9F0E",
-        tokenType: "NAM",
-        amount: 1000,
-        memo: "Initial funds",
-        gas: 1.232945,
-        height: 226619,
-        timestamp: 1659444390179,
-        type: TransferType.NonShielded,
-      },
-      {
-        chainId: "namada-masp-1.5.32ccad5356012a7",
-        source:
-          "atest1v4ehgw36gc6yxvpjxccyzvphxycrxw2xxsuyydesxgcnjs3cg9znwv3cxgmnj32yxy6rssf5tcqjm3",
-        target:
-          "atest1v4ehgw36xqcyz3zrxsenzd3kxsunsvzzxymyywpkg4zrjv2pxepyyd3cgse5gwzxgsm5x3zrkf2pwp",
-        appliedHash:
-          "C90CE1D0FBF4562A01207C9C126A401C64D9CC6D2203A8D219E6A9EF645F9F0E",
-        tokenType: "ETH",
-        amount: 1000,
-        memo: "Initial funds",
-        gas: 1.232945,
-        height: 226619,
-        timestamp: 1659444390683,
-        type: TransferType.NonShielded,
-      },
-      {
-        chainId: "namada-masp-1.5.32ccad5356012a7",
-        source:
-          "atest1v4ehgw36gc6yxvpjxccyzvphxycrxw2xxsuyydesxgcnjs3cg9znwv3cxgmnj32yxy6rssf5tcqjm3",
-        target:
-          "atest1v4ehgw36xqcyz3zrxsenzd3kxsunsvzzxymyywpkg4zrjv2pxepyyd3cgse5gwzxgsm5x3zrkf2pwp",
-        appliedHash:
-          "C90CE1D0FBF4562A01207C9C126A401C64D9CC6D2203A8D219E6A9EF645F9F0E",
-        tokenType: "ATOM",
-        amount: 1000,
-        memo: "Initial funds",
-        gas: 1.232945,
-        height: 226619,
-        timestamp: 1659444390845,
-        type: TransferType.NonShielded,
-      },
-    ],
-    isTransferSubmitting: false,
-    isBridgeTransferSubmitting: false,
-    transferError:
-      "Async actions timed out when submitting Token Transfer after 20 seconds",
   },
   channels: {
     channelsByChain: {

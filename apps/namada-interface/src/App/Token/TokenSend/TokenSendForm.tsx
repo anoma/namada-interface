@@ -4,7 +4,8 @@ import { ThemeContext } from "styled-components";
 import QrReader from "react-qr-reader";
 import BigNumber from "bignumber.js";
 
-import { Tokens, TokenType } from "@namada/types";
+import { getIntegration } from "@namada/hooks";
+import { Signer, Tokens, TokenType } from "@namada/types";
 import { ColorMode, DesignConfiguration } from "@namada/utils";
 import {
   Button,
@@ -16,15 +17,8 @@ import {
 } from "@namada/components";
 
 import { AccountsState } from "slices/accounts";
-import {
-  clearEvents,
-  submitTransferTransaction,
-  actionTypes,
-  TransfersState,
-  TransferType,
-} from "slices/transfers";
 import { CoinsState } from "slices/coins";
-import { useAppDispatch, useAppSelector } from "store";
+import { useAppSelector } from "store";
 
 import {
   BackButton,
@@ -33,13 +27,12 @@ import {
   InputContainer,
   QrReaderContainer,
   QrReaderError,
-  StatusContainer,
-  StatusMessage,
   TokenSendFormContainer,
 } from "./TokenSendForm.components";
 import { parseTarget } from "./TokenSend";
 import { SettingsState } from "slices/settings";
 import { TopLevelRoute } from "App/types";
+import { TransferType, TxTransferArgs } from "../types";
 
 enum ComponentColor {
   GasButtonBorder,
@@ -66,6 +59,38 @@ const getColor = (
   return colorMap[colorMode][color];
 };
 
+export const submitTransferTransaction = async (
+  txArgs: TxTransferArgs
+): Promise<void> => {
+  const {
+    account: { address, chainId, publicKey, type },
+    amount,
+    faucet,
+    target,
+    token,
+  } = txArgs;
+  const integration = getIntegration(chainId);
+  const signer = integration.signer() as Signer;
+
+  const transferArgs = {
+    tx: {
+      token: Tokens.NAM.address || "",
+      feeAmount: new BigNumber(0),
+      gasLimit: new BigNumber(0),
+      chainId,
+      publicKey: publicKey,
+      signer: faucet ? target : undefined,
+    },
+    source: faucet || address,
+    target,
+    token: Tokens[token].address || Tokens.NAM.address || "",
+    amount,
+    nativeToken: Tokens.NAM.address || "",
+  };
+
+  await signer.submitTransfer(transferArgs, type);
+};
+
 type Props = {
   address: string;
   defaultTarget?: string;
@@ -81,24 +106,20 @@ type Props = {
  * @param amount amount to transfer, in format as the user sees it
  * @param balance - balance of user
  * @param isTargetValid - pre-validated target, TODO: partly naive and likely better to call from within this function
- * @param isTransferSubmitting - a flag telling whether this transfer is currently on flight TODO,
- *                               should be outside of this so we can do more than just disable the button
  * @returns
  */
 const getIsFormInvalid = (
   target: string | undefined,
   amount: BigNumber,
   balance: BigNumber,
-  isTargetValid: boolean,
-  isTransferSubmitting: boolean
+  isTargetValid: boolean
 ): boolean => {
   return (
     target === "" ||
     amount.isNaN() ||
     amount.isGreaterThan(balance) ||
     amount.isEqualTo(0) ||
-    !isTargetValid ||
-    isTransferSubmitting
+    !isTargetValid
   );
 };
 
@@ -126,7 +147,6 @@ const TokenSendForm = ({
   defaultTarget,
 }: Props): JSX.Element => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   const themeContext = useContext(ThemeContext);
   const [target, setTarget] = useState<string | undefined>(defaultTarget);
   const [amount, setAmount] = useState<BigNumber>(new BigNumber(0));
@@ -153,16 +173,6 @@ const TokenSendForm = ({
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const derivedAccounts = derived[chainId];
 
-  const isTransferSubmitting = useAppSelector<boolean>((state) =>
-    state.notifications.pendingActions.includes(
-      actionTypes.SUBMIT_TRANSFER_ACTION_TYPE
-    )
-  );
-
-  const { transferError } = useAppSelector<TransfersState>(
-    (state) => state.transfers
-  );
-
   const { details, balance } = derivedAccounts[address];
   const isShieldedSource = details.isShielded;
   const token = Tokens[tokenType];
@@ -171,8 +181,7 @@ const TokenSendForm = ({
     target,
     amount,
     balance[tokenType] || new BigNumber(0),
-    isTargetValid,
-    isTransferSubmitting
+    isTargetValid
   );
 
   const accountSourceTargetDescription = isFormInvalid ? (
@@ -222,7 +231,7 @@ const TokenSendForm = ({
           setIsShieldedTarget(true);
           setIsTargetValid(true);
           return;
-        } else if (transferTypeBasedOnAddress === TransferType.NonShielded) {
+        } else if (transferTypeBasedOnAddress === TransferType.Transparent) {
           setIsShieldedTarget(false);
         } else {
           setIsShieldedTarget(false);
@@ -238,32 +247,16 @@ const TokenSendForm = ({
     })();
   }, [target]);
 
-  useEffect(() => {
-    return () => {
-      dispatch(clearEvents());
-    };
-  }, []);
-
-  useEffect(() => {
-    if (isTransferSubmitting === false) {
-      // Reset amount
-      setAmount(new BigNumber(0));
-    }
-  }, [isTransferSubmitting]);
-
   const handleOnSendClick = (): void => {
     if ((isShieldedTarget && target) || (target && token.address)) {
-      dispatch(
-        submitTransferTransaction({
-          chainId,
-          account: details,
-          target,
-          amount,
-          token: tokenType,
-          feeAmount: new BigNumber(gasFee),
-          notify: true,
-        })
-      );
+      submitTransferTransaction({
+        chainId,
+        account: details,
+        target,
+        amount,
+        token: tokenType,
+        feeAmount: new BigNumber(gasFee),
+      });
     }
   };
 
@@ -298,9 +291,9 @@ const TokenSendForm = ({
     if (transferTypeBasedOnTarget === TransferType.Shielded) {
       return undefined;
     }
-    return transferAmount.isLessThanOrEqualTo(balance) ?
-      undefined :
-      "Invalid amount!";
+    return transferAmount.isLessThanOrEqualTo(balance)
+      ? undefined
+      : "Invalid amount!";
   };
 
   // these are passed to button for the custom gas fee buttons
@@ -413,16 +406,11 @@ const TokenSendForm = ({
         </GasButtonsContainer>
       </TokenSendFormContainer>
 
-      <StatusContainer>
-        {transferError && <StatusMessage>{transferError}</StatusMessage>}
-      </StatusContainer>
-
       <ButtonsContainer>
         <BackButton onClick={() => navigate(TopLevelRoute.Wallet)}>
           <Icon iconName={IconName.ChevronLeft} />
         </BackButton>
         <Button
-          loading={isTransferSubmitting}
           variant={ButtonVariant.Contained}
           disabled={isFormInvalid}
           onClick={handleOnSendClick}

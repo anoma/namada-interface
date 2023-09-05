@@ -304,7 +304,7 @@ pub fn ibc_transfer_tx_args(
 }
 
 pub fn tx_args_from_slice(tx_msg_bytes: &[u8]) -> Result<args::Tx, JsError> {
-    let tx_msg = TxMsg::try_from_slice(tx_msg_bytes).map_err(JsError::from)?;
+    let tx_msg = TxMsg::try_from_slice(tx_msg_bytes)?;
     let args = tx_msg_into_args(tx_msg, None)?;
 
     Ok(args)
@@ -343,7 +343,7 @@ fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> Result<args::Tx,
         .into();
     let public_key = match public_key {
         Some(v) => {
-            let pk = PublicKey::from_str(&v).map_err(JsError::from)?;
+            let pk = PublicKey::from_str(&v)?;
             Some(PK::Ed25519(pk))
         }
         _ => None,

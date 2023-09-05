@@ -21,7 +21,7 @@ export class Signer implements ISigner {
   constructor(
     protected readonly chainId: string,
     private readonly _namada: Namada
-  ) { }
+  ) {}
 
   public async accounts(): Promise<Account[] | undefined> {
     return (await this._namada.accounts(this.chainId))?.map(
@@ -104,15 +104,19 @@ export class Signer implements ISigner {
   /**
    * Submit an ibc transfer
    */
-  public async submitIbcTransfer(args: IbcTransferProps): Promise<void> {
+  public async submitIbcTransfer(
+    args: IbcTransferProps,
+    type: AccountType
+  ): Promise<void> {
     const ibcTransferMsgValue = new IbcTransferMsgValue(args);
     const ibcTransferMessage = new Message<IbcTransferMsgValue>();
     const serializedIbcTransfer =
       ibcTransferMessage.encode(ibcTransferMsgValue);
 
-    return await this._namada.submitIbcTransfer(
-      toBase64(serializedIbcTransfer)
-    );
+    return await this._namada.submitIbcTransfer({
+      txMsg: toBase64(serializedIbcTransfer),
+      type,
+    });
   }
 
   /**

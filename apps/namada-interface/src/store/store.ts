@@ -5,7 +5,6 @@ import { persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import {
   accountsReducer,
-  transfersReducer,
   settingsReducer,
   channelsReducer,
   coinsReducer,
@@ -36,7 +35,6 @@ const ChainIdTransform = createTransform(
 
 const reducers = combineReducers({
   accounts: accountsReducer || {},
-  transfers: transfersReducer || {},
   channels: channelsReducer,
   settings: settingsReducer,
   coins: coinsReducer,

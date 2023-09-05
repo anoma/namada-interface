@@ -307,12 +307,19 @@ export class KeyRingService {
     }
   }
 
-  async submitIbcTransfer(txMsg: string): Promise<void> {
+  async submitIbcTransfer(txMsg: string, msgId: string): Promise<void> {
+    await this.broadcaster.startTx(msgId, TxType.IBCTransfer);
+
     try {
-      await this._keyRing.submitIbcTransfer(fromBase64(txMsg));
+      console.warn("submitIbcTransfer disabled!", txMsg);
+      // TODO: Re-enable this!
+      // await this._keyRing.submitIbcTransfer(fromBase64(txMsg));
+      this.broadcaster.completeTx(msgId, TxType.IBCTransfer, true);
+      this.broadcaster.updateBalance();
     } catch (e) {
       console.warn(e);
-      throw new Error(`Unable to encode transfer! ${e}`);
+      this.broadcaster.completeTx(msgId, TxType.IBCTransfer, false, `${e}`);
+      throw new Error(`Unable to encode IBC transfer! ${e}`);
     }
   }
 

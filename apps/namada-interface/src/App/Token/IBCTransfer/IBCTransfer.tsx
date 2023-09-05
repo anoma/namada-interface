@@ -23,35 +23,88 @@ import {
 } from "@namada/components";
 
 import {
+  getIntegration,
   useIntegrationConnection,
   useUntilIntegrationAttached,
 } from "@namada/hooks";
 import { useAppDispatch, useAppSelector } from "store";
-import {
-  Account,
-  AccountsState,
-  addAccounts,
-  fetchBalances,
-} from "slices/accounts";
+import { Account, AccountsState, addAccounts } from "slices/accounts";
 import { addChannel, ChannelsState } from "slices/channels";
-import {
-  clearErrors,
-  clearEvents,
-  submitIbcTransferTransaction,
-  TransfersState,
-} from "slices/transfers";
 import { setIsConnected, SettingsState } from "slices/settings";
 
 import {
   ButtonsContainer,
   InputContainer,
-  StatusMessage,
 } from "../TokenSend/TokenSendForm.components";
 import {
   AddChannelButton,
   IBCTransferFormContainer,
 } from "./IBCTransfer.components";
-import { Address } from "../Transfers/TransferDetails.components";
+import { TxBridgeTransferArgs, TxIbcTransferArgs } from "../types";
+
+export const submitIbcTransfer = async (
+  ibcArgs: TxIbcTransferArgs
+): Promise<void> => {
+  const {
+    account: { address, chainId, publicKey, type },
+    token,
+    target,
+    amount,
+    portId,
+    channelId,
+  } = ibcArgs;
+  const integration = getIntegration(chainId);
+
+  await integration.submitBridgeTransfer(
+    {
+      ibcProps: {
+        tx: {
+          token: Tokens.NAM.address || "",
+          feeAmount: new BigNumber(0),
+          gasLimit: new BigNumber(0),
+          publicKey,
+          chainId,
+        },
+        source: address,
+        receiver: target,
+        token: Tokens[token as TokenType]?.address || "",
+        amount,
+        portId,
+        channelId,
+      },
+    },
+    type
+  );
+};
+
+export const submitBridgeTransfer = async (
+  bridgeArgs: TxBridgeTransferArgs
+): Promise<void> => {
+  const {
+    account: { address, chainId, type },
+    target,
+    token,
+    amount,
+  } = bridgeArgs;
+  const integration = getIntegration(chainId);
+  await integration.submitBridgeTransfer(
+    {
+      bridgeProps: {
+        tx: {
+          token: Tokens.NAM.address || "",
+          feeAmount: new BigNumber(0),
+          gasLimit: new BigNumber(0),
+          chainId,
+        },
+        source: address,
+        target,
+        token: Tokens[token as TokenType]?.address || "",
+        amount,
+      },
+    },
+    type
+  );
+};
 
 const IBCTransfer = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -60,8 +113,6 @@ const IBCTransfer = (): JSX.Element => {
   const { channelsByChain = {} } = useAppSelector<ChannelsState>(
     (state) => state.channels
   );
-  const { isBridgeTransferSubmitting, transferError, events } =
-    useAppSelector<TransfersState>((state) => state.transfers);
   const [isExtensionConnected, setIsExtensionConnected] = useState<
     Record<ExtensionKey, boolean>
   >({
@@ -69,6 +120,7 @@ const IBCTransfer = (): JSX.Element => {
     keplr: false,
     metamask: false,
   });
+  const [isFormValid, setIsFormValid] = useState(false);
 
   const bridgedChains = Object.values(chains).filter(
     (chain: Chain) => chain.chainId !== chainId
@@ -109,20 +161,27 @@ const IBCTransfer = (): JSX.Element => {
   const [showAddChannelForm, setShowAddChannelForm] = useState(false);
   const [channelId, setChannelId] = useState<string>();
   const [recipient, setRecipient] = useState("");
+  const [destinationAccounts, setDestinationAccounts] = useState<Account[]>([]);
+  const [destinationAccountData, setDestinationAccountData] = useState<
+    Option<string>[]
+  >([]);
   const accounts = Object.values(derived[chainId]);
 
-  const destinationAccounts = Object.values(derived[selectedChainId]).filter(
-    (account) => !account.details.isShielded
-  );
-  const destinationAccountsData = destinationAccounts.map(
-    ({ details: { alias, address } }) => ({
-      label: alias || "",
-      value: address,
-    })
-  );
+  useEffect(() => {
+    const destinationAccounts = Object.values(derived[selectedChainId]).filter(
+      (account) => !account.details.isShielded
+    );
+    setDestinationAccounts(destinationAccounts);
+    const destinationAccountsData = destinationAccounts.map(
+      ({ details: { alias, address } }) => ({
+        label: alias || "",
+        value: address,
+      })
+    );
+    setDestinationAccountData(destinationAccountsData);
+  }, [derived, selectedChainId]);
 
   const sourceAccounts = accounts.filter(({ details }) => !details.isShielded);
-
   const [sourceAccount, setSourceAccount] = useState(sourceAccounts[0]);
 
   const tokenData: Option<string>[] = sourceAccounts.flatMap(
@@ -131,8 +190,9 @@ const IBCTransfer = (): JSX.Element => {
 
       return Object.entries(balance).map(([tokenType, amount]) => ({
         value: `${address}|${tokenType}`,
-        label: `${alias !== "Namada" ? alias + " - " : ""}${Tokens[tokenType as TokenType].coin
-          } (${amount} ${tokenType})`,
+        label: `${alias !== "Namada" ? alias + " - " : ""}${
+          Tokens[tokenType as TokenType].coin
+        } (${amount} ${tokenType})`,
       }));
     }
   );
@@ -150,17 +210,11 @@ const IBCTransfer = (): JSX.Element => {
   const { portId = "transfer" } = sourceChain.ibc || {};
 
   useEffect(() => {
-    return () => {
-      dispatch(clearEvents());
-      dispatch(clearErrors());
-    };
-  }, []);
-
-  useEffect(() => {
-    if (destinationAccounts.length > 0) {
+    // Set recipient to first destination account
+    if (destinationAccounts?.length > 0) {
       setRecipient(destinationAccounts[0].details.address);
     }
-  }, [selectedChainId]);
+  }, [selectedChainId, destinationAccounts]);
 
   useEffect(() => {
     if (bridgedChains.length > 0) {
@@ -169,12 +223,6 @@ const IBCTransfer = (): JSX.Element => {
       setSourceAccount(sourceAccounts[0]);
     }
   }, [chainId]);
-
-  useEffect(() => {
-    if (sourceAccount && !isBridgeTransferSubmitting) {
-      dispatch(fetchBalances());
-    }
-  }, [isBridgeTransferSubmitting]);
 
   useEffect(() => {
     // Set a default selectedChannelId if none are selected, but channels are available
@@ -215,17 +263,23 @@ const IBCTransfer = (): JSX.Element => {
   };
 
   const handleSubmit = (): void => {
-    dispatch(
-      submitIbcTransferTransaction({
-        account: sourceAccount.details,
-        token,
-        amount,
-        chainId,
-        target: recipient,
-        channelId: selectedChannelId,
-        portId,
-      })
-    );
+    destinationChain.bridgeType.includes(BridgeType.IBC)
+      ? submitIbcTransfer({
+          account: sourceAccount.details,
+          token,
+          amount,
+          chainId,
+          target: recipient,
+          channelId: selectedChannelId,
+          portId,
+        })
+      : submitBridgeTransfer({
+          account: sourceAccount.details,
+          chainId,
+          token,
+          target: recipient,
+          amount,
+        });
   };
 
   const handleConnectExtension = async (): Promise<void> => {
@@ -234,7 +288,6 @@ const IBCTransfer = (): JSX.Element => {
         const accounts = await integration?.accounts();
         if (accounts) {
           dispatch(addAccounts(accounts as AccountType[]));
-          dispatch(fetchBalances());
           dispatch(setIsConnected(chainId));
         }
 
@@ -255,6 +308,39 @@ const IBCTransfer = (): JSX.Element => {
   const handleDownloadExtension = (url: string): void => {
     window.open(url, "_blank", "noopener,noreferrer");
   };
+
+  const validateForm = (): boolean => {
+    // Validate IBC requirements if selected as bridge type
+    if (destinationChain.bridgeType.includes(BridgeType.IBC)) {
+      if (!selectedChannelId) {
+        return false;
+      }
+    }
+
+    // Validate amounts
+    if (amount.isGreaterThan(currentBalance) || amount.isZero()) {
+      return false;
+    }
+
+    // Validate recipient
+    if (!recipient) {
+      return false;
+    }
+
+    return true;
+  };
+
+  useEffect(() => {
+    const isValid = validateForm();
+    setIsFormValid(isValid);
+  }, [
+    amount,
+    destinationChain,
+    recipient,
+    selectedChainId,
+    selectedChannelId,
+    sourceAccount,
+  ]);
 
   return (
     <IBCTransferFormContainer>
@@ -343,9 +429,9 @@ const IBCTransfer = (): JSX.Element => {
                   currentExtensionAttachStatus === "attached"
                     ? handleConnectExtension
                     : handleDownloadExtension.bind(
-                      null,
-                      destinationChain.extension.url
-                    )
+                        null,
+                        destinationChain.extension.url
+                      )
                 }
                 loading={
                   currentExtensionAttachStatus === "pending" ||
@@ -358,8 +444,8 @@ const IBCTransfer = (): JSX.Element => {
                 }
               >
                 {currentExtensionAttachStatus === "attached" ||
-                  currentExtensionAttachStatus === "pending"
-                  ? `Connect to ${extensionAlias} Extension`
+                currentExtensionAttachStatus === "pending"
+                  ? `Load accounts from ${extensionAlias} Extension`
                   : "Click to download the extension"}
               </Button>
             )}
@@ -368,7 +454,7 @@ const IBCTransfer = (): JSX.Element => {
             {destinationAccounts.length > 0 && (
               <Select
                 label={"Recipient"}
-                data={destinationAccountsData}
+                data={destinationAccountData}
                 value={recipient}
                 onChange={(e) => setRecipient(e.target.value)}
               />
@@ -393,40 +479,21 @@ const IBCTransfer = (): JSX.Element => {
                 setAmount(new BigNumber(`${value}`));
               }}
               onFocus={handleFocus}
-              error={amount.isLessThanOrEqualTo(currentBalance) ? undefined : "Invalid amount!"}
+              error={
+                amount.isLessThanOrEqualTo(currentBalance)
+                  ? undefined
+                  : "Invalid amount!"
+              }
             />
           </InputContainer>
 
-          {isBridgeTransferSubmitting && <p>Submitting bridge transfer...</p>}
-          {transferError && (
-            <pre style={{ overflow: "auto" }}>{transferError}</pre>
-          )}
-          {events && (
-            <>
-              <StatusMessage>
-                Successfully submitted bridge transfer! It will take some time
-                for the receiver to see an updated balance.
-              </StatusMessage>
-              <StatusMessage>Gas used: {events.gas}</StatusMessage>
-              <StatusMessage>Applied hash:</StatusMessage>
-              <Address>{events.appliedHash}</Address>
-            </>
-          )}
           <ButtonsContainer>
             <Button
               variant={ButtonVariant.Contained}
-              disabled={
-                amount.isGreaterThan(currentBalance) ||
-                amount.isZero() ||
-                !recipient ||
-                isBridgeTransferSubmitting ||
-                !(destinationChain.bridgeType.indexOf(BridgeType.IBC) > -1
-                  ? selectedChannelId
-                  : true)
-              }
+              disabled={!isFormValid}
               onClick={handleSubmit}
             >
-              Continue
+              Submit
             </Button>
           </ButtonsContainer>
         </>

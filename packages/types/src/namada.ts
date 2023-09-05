@@ -17,7 +17,7 @@ export interface Namada {
   submitUnbond: (props: TxMsgProps) => Promise<void>;
   submitWithdraw: (props: TxMsgProps) => Promise<void>;
   submitTransfer: (props: TxMsgProps) => Promise<void>;
-  submitIbcTransfer: (txMsg: string) => Promise<void>;
+  submitIbcTransfer: (props: TxMsgProps) => Promise<void>;
   encodeInitAccount: (props: {
     txMsg: string;
     address: string;

@@ -4,11 +4,13 @@ import {
   ApproveBondMsg,
   ApproveUnbondMsg,
   ApproveTransferMsg,
+  ApproveIbcTransferMsg,
   ApproveWithdrawMsg,
 } from "provider";
 import {
   RejectTxMsg,
   SubmitApprovedTransferMsg,
+  SubmitApprovedIbcTransferMsg,
   SubmitApprovedBondMsg,
   SubmitApprovedUnbondMsg,
   SubmitApprovedWithdrawMsg,
@@ -22,6 +24,12 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
           env,
           msg as ApproveTransferMsg
         );
+      case ApproveIbcTransferMsg:
+        return handleApproveIbcTransferMsg(service)(
+          env,
+          msg as ApproveIbcTransferMsg
+        );
+
       case ApproveBondMsg:
         return handleApproveBondMsg(service)(env, msg as ApproveBondMsg);
       case ApproveUnbondMsg:
@@ -38,6 +46,12 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
           env,
           msg as SubmitApprovedTransferMsg
         );
+      case SubmitApprovedIbcTransferMsg:
+        return handleSubmitApprovedIBCTransferMsg(service)(
+          env,
+          msg as SubmitApprovedIbcTransferMsg
+        );
+
       case SubmitApprovedBondMsg:
         return handleSubmitApprovedBondMsg(service)(
           env,
@@ -67,6 +81,14 @@ const handleApproveTransferMsg: (
   };
 };
 
+const handleApproveIbcTransferMsg: (
+  service: ApprovalsService
+) => InternalHandler<ApproveIbcTransferMsg> = (service) => {
+  return async (_, { txMsg, accountType }) => {
+    return await service.approveIbcTransfer(txMsg, accountType);
+  };
+};
+
 const handleRejectTxMsg: (
   service: ApprovalsService
 ) => InternalHandler<RejectTxMsg> = (service) => {
@@ -80,6 +102,14 @@ const handleSubmitApprovedTransferMsg: (
 ) => InternalHandler<SubmitApprovedTransferMsg> = (service) => {
   return async (_, { msgId, password }) => {
     return await service.submitTransfer(msgId, password);
+  };
+};
+
+const handleSubmitApprovedIBCTransferMsg: (
+  service: ApprovalsService
+) => InternalHandler<SubmitApprovedIbcTransferMsg> = (service) => {
+  return async (_, { msgId, password }) => {
+    return await service.submitIbcTransfer(msgId, password);
   };
 };
 

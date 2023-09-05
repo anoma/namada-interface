@@ -22,7 +22,7 @@ pub struct SignatureMsg {
 /// Returns JsError if the sig_msg can't be deserialized or
 /// Rust structs can't be created.
 pub fn construct_signature(sig_msg: &[u8], tx: &Tx) -> Result<Signature, JsError> {
-    let sig_msg = SignatureMsg::try_from_slice(sig_msg).map_err(JsError::from)?;
+    let sig_msg = SignatureMsg::try_from_slice(sig_msg)?;
 
     let SignatureMsg {
         salt,
@@ -59,5 +59,5 @@ pub fn construct_signature(sig_msg: &[u8], tx: &Tx) -> Result<Signature, JsError
     // Followed by the signature
     sig.append(&mut signature);
 
-    Ok(Signature::try_from_slice(&sig).map_err(JsError::from)?)
+    Ok(Signature::try_from_slice(&sig)?)
 }

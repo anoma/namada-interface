@@ -4,6 +4,7 @@ import { ROUTE } from "./constants";
 enum MessageType {
   RejectTx = "reject-tx",
   SubmitApprovedTransfer = "submit-approved-transfer",
+  SubmitApprovedIbcTransfer = "submit-approved-ibc-transfer",
   SubmitApprovedBond = "submit-approved-bond",
   SubmitApprovedUnbond = "submit-approved-unbond",
   SubmitApprovedWithdraw = "submit-approved-withdraw",
@@ -62,6 +63,37 @@ export class SubmitApprovedTransferMsg extends Message<void> {
 
   type(): string {
     return SubmitApprovedTransferMsg.type();
+  }
+}
+
+export class SubmitApprovedIbcTransferMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.SubmitApprovedIbcTransfer;
+  }
+
+  constructor(public readonly msgId: string, public readonly password: string) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.msgId) {
+      throw new Error("msgId must not be empty!");
+    }
+    if (!this.password) {
+      throw new Error(
+        "Password is required to submitTx for this type of account!"
+      );
+    }
+
+    return;
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return SubmitApprovedIbcTransferMsg.type();
   }
 }
 

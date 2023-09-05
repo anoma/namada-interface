@@ -10,10 +10,8 @@ import { Settings, SettingsWalletSettings } from "./Settings";
 import { Bridge } from "./Bridge";
 import { StakingAndGovernance } from "./StakingAndGovernance";
 import { TopLevelRoute } from "./types";
-import { TokenDetails } from "./Token";
 import { TokenSend } from "./Token/TokenSend";
 import { TokenReceive } from "./Token/TokenReceive";
-import { TransferDetails, Transfers } from "./Token/Transfers";
 import { Router } from "@remix-run/router";
 
 export const getRouter = (): Router => {
@@ -26,14 +24,6 @@ export const getRouter = (): Router => {
             // eslint-disable-next-line react/jsx-no-undef
             <AnimatedTransition elementKey={TopLevelRoute.Wallet}>
               <AccountOverview />
-            </AnimatedTransition>
-          }
-        />
-        <Route
-          path={TopLevelRoute.Token}
-          element={
-            <AnimatedTransition elementKey={TopLevelRoute.Token}>
-              <TokenDetails />
             </AnimatedTransition>
           }
         />
@@ -61,22 +51,7 @@ export const getRouter = (): Router => {
             </AnimatedTransition>
           }
         />
-        <Route
-          path={TopLevelRoute.TokenTransfers}
-          element={
-            <AnimatedTransition elementKey={TopLevelRoute.TokenTransfers}>
-              <Transfers />
-            </AnimatedTransition>
-          }
-        />
-        <Route
-          path={TopLevelRoute.TokenTransferDetails}
-          element={
-            <AnimatedTransition elementKey={TopLevelRoute.TokenTransferDetails}>
-              <TransferDetails />
-            </AnimatedTransition>
-          }
-        />
+
         <Route
           path={TopLevelRoute.Bridge}
           element={
