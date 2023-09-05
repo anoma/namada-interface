@@ -1,4 +1,8 @@
-import { registeredCoinTypes, RegisteredCoinType } from "slip44";
+import {
+  registeredCoinTypes,
+  RegisteredCoinType,
+  RegisteredCoinSymbol,
+} from "slip44";
 
 type TokenInfo = {
   symbol: string;
@@ -11,16 +15,27 @@ type TokenInfo = {
 };
 
 // Declare symbols for tokens we support:
-export const Symbols = ["NAM", "ATOM", "ETH"] as const;
+export const Symbols = ["NAM", "ATOM", "ETH", "ERC", "NUTERC"] as const;
 
-export type TokenType = typeof Symbols[number];
+export type TokenType = (typeof Symbols)[number];
 type Tokens = Record<TokenType, TokenInfo>;
 
-export const Tokens = registeredCoinTypes
-  .filter(([, , symbol]) => {
+const nut = [
+  -999,
+  -999,
+  "NUTERC" as RegisteredCoinSymbol,
+  "NUTERC",
+] as RegisteredCoinType;
+
+const supportedCoinTypes: RegisteredCoinType[] = [
+  ...registeredCoinTypes.filter(([, , symbol]) => {
     return Symbols.indexOf(`${symbol as TokenType}`) > -1;
-  })
-  .reduce((tokens: Tokens, coinType: RegisteredCoinType) => {
+  }),
+  nut,
+];
+
+export const Tokens = supportedCoinTypes.reduce(
+  (tokens: Tokens, coinType: RegisteredCoinType) => {
     const [type, path, symbol = "", coin, url = ""] = coinType;
 
     tokens[`${symbol as TokenType}`] = {
@@ -32,7 +47,9 @@ export const Tokens = registeredCoinTypes
     };
 
     return tokens;
-  }, {} as Tokens);
+  },
+  {} as Tokens
+);
 
 // Map a few test addresses for now:
 Tokens["NAM"] = {
@@ -52,5 +69,12 @@ Tokens["ATOM"].coinGeckoId = "cosmos";
 Tokens["ETH"].address =
   "atest1v4ehgw36xqmr2d3nx3ryvd2xxgmrq33j8qcns33sxezrgv6zxdzrydjrxveygd2yxumrsdpsf9jc2p";
 Tokens["ETH"].coinGeckoId = "ethereum";
+
+Tokens["ERC"].address =
+  "atest1v46xsw368psnwwf3xcerqeryxcervvpsxuukye3cxsukgce4x5mrwctyvvekvvnxv33nxvfc0kmacx";
+Tokens["ERC"].coinGeckoId = "erc20";
+
+Tokens["NUTERC"].address =
+  "atest1de6hgw368pqnwwf3xcerqeryxcervvpsxuu5y33cxsu5gce4x5mrwc2ygve5vvjxv3pnxvfcq8rzzq";
 
 export type TokenBalance = { token: TokenType; amount: string };

@@ -227,6 +227,11 @@ impl Query {
             "atest1v4ehgw36gfryydj9g3p5zv3kg9znyd358ycnzsfcggc5gvecgc6ygs2rxv6ry3zpg4zrwdfeumqcz9",
         )?, Address::from_str(
             "atest1v4ehgw36xqmr2d3nx3ryvd2xxgmrq33j8qcns33sxezrgv6zxdzrydjrxveygd2yxumrsdpsf9jc2p",
+        )?, Address::from_str(
+            "atest1v46xsw368psnwwf3xcerqeryxcervvpsxuukye3cxsukgce4x5mrwctyvvekvvnxv33nxvfc0kmacx",
+        )?,
+        Address::from_str(
+            "atest1de6hgw368pqnwwf3xcerqeryxcervvpsxuu5y33cxsu5gce4x5mrwc2ygve5vvjxv3pnxvfcq8rzzq",
         )?]);
 
         let mut result = vec![];
@@ -283,6 +288,8 @@ impl Query {
             .into_iter()
             .map(|(addr, amount)| (addr, amount.to_string_native()))
             .collect();
+
+        web_sys::console::log_1(&JsValue::from_str(&format!("result: {:?}", result)));
 
         to_js_result(result)
     }
