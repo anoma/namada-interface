@@ -7,6 +7,7 @@ export * from "./Modal";
 export * from "./NavigationContainer";
 export * from "./Select";
 export * from "./Table";
+export * from "./TabsGroup";
 export * from "./Toggle";
 export * from "./Tooltip";
 export * from "./WordChip";

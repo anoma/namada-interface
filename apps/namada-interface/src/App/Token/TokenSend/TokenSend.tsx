@@ -12,16 +12,13 @@ import {
   NavigationContainer,
   Select,
   Option,
+  TabsGroup,
+  Tab,
 } from "@namada/components";
 import TokenSendForm from "./TokenSendForm";
 import { useSanitizedParams } from "@namada/hooks";
 
-import {
-  TokenSendContainer,
-  TokenSendTab,
-  TokenSendTabsGroup,
-  TokenSendContent,
-} from "./TokenSend.components";
+import { TokenSendContainer, TokenSendContent } from "./TokenSend.components";
 import {
   PAYMENT_ADDRESS_LENGTH,
   PAYMENT_ADDRESS_PREFIX,
@@ -114,13 +111,13 @@ const TokenSend = (): JSX.Element => {
 
   const handleTokenChange =
     (selectAccountFn: (accId: string) => void) =>
-      (e: React.ChangeEvent<HTMLSelectElement>): void => {
-        const { value } = e.target;
-        const [accountId, tokenSymbol] = value.split("|");
+    (e: React.ChangeEvent<HTMLSelectElement>): void => {
+      const { value } = e.target;
+      const [accountId, tokenSymbol] = value.split("|");
 
-        selectAccountFn(accountId);
-        setToken(tokenSymbol as TokenType);
-      };
+      selectAccountFn(accountId);
+      setToken(tokenSymbol as TokenType);
+    };
 
   return (
     <TokenSendContainer>
@@ -128,17 +125,17 @@ const TokenSend = (): JSX.Element => {
         <Heading level={HeadingLevel.One}>Send</Heading>
       </NavigationContainer>
 
-      <TokenSendTabsGroup>
+      <TabsGroup>
         {tabs.map((tab) => (
-          <TokenSendTab
+          <Tab
             className={tab === activeTab ? "active" : ""}
             onClick={() => setActiveTab(tab)}
             key={tab}
           >
             {tab}
-          </TokenSendTab>
+          </Tab>
         ))}
-      </TokenSendTabsGroup>
+      </TabsGroup>
 
       {activeTab === "Shielded" && (
         <TokenSendContent>

@@ -54,11 +54,11 @@ const assetIconByToken: Record<TokenType, { light: string; dark: string }> = {
     light: AssetEthereumEther,
     dark: AssetEthereumEther,
   },
-  ["ERC"]: {
+  ["ERC20"]: {
     light: AssetEthereumEther,
     dark: AssetEthereumEther,
   },
-  ["NUTERC"]: {
+  ["NUTERC20"]: {
     light: AssetEthereumEther,
     dark: AssetEthereumEther,
   },
