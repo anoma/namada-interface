@@ -129,7 +129,6 @@ impl Sdk {
 
         let address = Address::from(pk);
 
-        //TODO: add cehck for faucet
         if !is_faucet_transfer
             && namada::ledger::tx::is_reveal_pk_needed(&self.client, &address, false).await?
         {
