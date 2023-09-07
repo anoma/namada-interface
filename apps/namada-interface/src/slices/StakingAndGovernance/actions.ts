@@ -50,9 +50,9 @@ const toMyValidators = (
     index == -1
       ? (arr: MyValidators[]) => arr
       : (arr: MyValidators[], idx: number) => [
-        ...arr.slice(0, idx),
-        ...arr.slice(idx + 1),
-      ];
+          ...arr.slice(0, idx),
+          ...arr.slice(idx + 1),
+        ];
 
   const stakedAmount = new BigNumber(stake).plus(
     new BigNumber(v?.stakedAmount || 0)
@@ -249,7 +249,7 @@ export const postNewBonding = createAsyncThunk<
       tx: {
         token: Tokens.NAM.address || "",
         feeAmount: new BigNumber(0),
-        gasLimit: new BigNumber(0),
+        gasLimit: new BigNumber(20_000),
         chainId,
         publicKey,
       },
@@ -285,7 +285,7 @@ export const postNewUnbonding = createAsyncThunk<
       tx: {
         token: Tokens.NAM.address || "",
         feeAmount: new BigNumber(0),
-        gasLimit: new BigNumber(0),
+        gasLimit: new BigNumber(20_000),
         chainId,
         publicKey,
       },
@@ -314,7 +314,7 @@ export const postNewWithdraw = createAsyncThunk<
       tx: {
         token: Tokens.NAM.address || "",
         feeAmount: new BigNumber(0),
-        gasLimit: new BigNumber(0),
+        gasLimit: new BigNumber(20_000),
         chainId,
         publicKey,
       },

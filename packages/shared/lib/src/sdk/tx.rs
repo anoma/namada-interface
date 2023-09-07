@@ -46,7 +46,10 @@ pub struct SubmitBondMsg {
 ///
 /// Returns JsError if the tx_msg can't be deserialized or
 /// Rust structs can't be created.
-pub fn bond_tx_args(tx_msg: &[u8], password: Option<String>) -> Result<args::Bond, JsError> {
+pub fn bond_tx_args(
+    tx_msg: &[u8],
+    password: Option<String>,
+) -> Result<(args::Bond, Option<Address>), JsError> {
     let tx_msg = SubmitBondMsg::try_from_slice(tx_msg)?;
 
     let SubmitBondMsg {
@@ -61,9 +64,10 @@ pub fn bond_tx_args(tx_msg: &[u8], password: Option<String>) -> Result<args::Bon
     let native_token = Address::from_str(&native_token)?;
     let validator = Address::from_str(&validator)?;
     let amount = Amount::from_str(&amount, NATIVE_MAX_DECIMAL_PLACES)?;
+    let (tx, faucet_signer) = tx_msg_into_args(tx, password)?;
 
     let args = args::Bond {
-        tx: tx_msg_into_args(tx, password)?,
+        tx,
         validator,
         amount,
         source: Some(source),
@@ -71,7 +75,7 @@ pub fn bond_tx_args(tx_msg: &[u8], password: Option<String>) -> Result<args::Bon
         tx_code_path: PathBuf::from("tx_bond.wasm"),
     };
 
-    Ok(args)
+    Ok((args, faucet_signer))
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -93,7 +97,10 @@ pub struct SubmitUnbondMsg {
 ///
 /// Returns JsError if the tx_msg can't be deserialized or
 /// Rust structs can't be created.
-pub fn unbond_tx_args(tx_msg: &[u8], password: Option<String>) -> Result<args::Unbond, JsError> {
+pub fn unbond_tx_args(
+    tx_msg: &[u8],
+    password: Option<String>,
+) -> Result<(args::Unbond, Option<Address>), JsError> {
     let tx_msg = SubmitUnbondMsg::try_from_slice(tx_msg)?;
 
     let SubmitUnbondMsg {
@@ -107,15 +114,17 @@ pub fn unbond_tx_args(tx_msg: &[u8], password: Option<String>) -> Result<args::U
     let validator = Address::from_str(&validator)?;
 
     let amount = Amount::from_str(&amount, NATIVE_MAX_DECIMAL_PLACES)?;
+    let (tx, faucet_signer) = tx_msg_into_args(tx, password)?;
+
     let args = args::Unbond {
-        tx: tx_msg_into_args(tx, password)?,
+        tx,
         validator,
         amount,
         source: Some(source),
         tx_code_path: PathBuf::from("tx_unbond.wasm"),
     };
 
-    Ok(args)
+    Ok((args, faucet_signer))
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -139,7 +148,7 @@ pub struct SubmitWithdrawMsg {
 pub fn withdraw_tx_args(
     tx_msg: &[u8],
     password: Option<String>,
-) -> Result<args::Withdraw, JsError> {
+) -> Result<(args::Withdraw, Option<Address>), JsError> {
     let tx_msg = SubmitWithdrawMsg::try_from_slice(tx_msg)?;
 
     let SubmitWithdrawMsg {
@@ -150,15 +159,16 @@ pub fn withdraw_tx_args(
 
     let source = Address::from_str(&source)?;
     let validator = Address::from_str(&validator)?;
+    let (tx, faucet_signer) = tx_msg_into_args(tx, password)?;
 
     let args = args::Withdraw {
-        tx: tx_msg_into_args(tx, password)?,
+        tx,
         validator,
         source: Some(source),
         tx_code_path: PathBuf::from("tx_withdraw.wasm"),
     };
 
-    Ok(args)
+    Ok((args, faucet_signer))
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -186,7 +196,7 @@ pub fn transfer_tx_args(
     tx_msg: &[u8],
     password: Option<String>,
     xsk: Option<String>,
-) -> Result<args::TxTransfer, JsError> {
+) -> Result<(args::TxTransfer, Option<Address>), JsError> {
     let tx_msg = SubmitTransferMsg::try_from_slice(tx_msg)?;
     let SubmitTransferMsg {
         tx,
@@ -223,12 +233,12 @@ pub fn transfer_tx_args(
 
     let native_token = Address::from_str(&native_token)?;
     let token = Address::from_str(&token)?;
-    let amount_str = amount.to_string();
-    let denom_amount = DenominatedAmount::from_str(&amount_str).expect("Amount to be valid.");
+    let denom_amount = DenominatedAmount::from_str(&amount).expect("Amount to be valid.");
     let amount = InputAmount::Unvalidated(denom_amount);
+    let (tx, faucet_signer) = tx_msg_into_args(tx, password)?;
 
     let args = args::TxTransfer {
-        tx: tx_msg_into_args(tx, password)?,
+        tx,
         source,
         target,
         token,
@@ -236,7 +246,8 @@ pub fn transfer_tx_args(
         native_token,
         tx_code_path: PathBuf::from("tx_transfer.wasm"),
     };
-    Ok(args)
+
+    Ok((args, faucet_signer))
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -266,7 +277,7 @@ pub struct SubmitIbcTransferMsg {
 pub fn ibc_transfer_tx_args(
     tx_msg: &[u8],
     password: Option<String>,
-) -> Result<args::TxIbcTransfer, JsError> {
+) -> Result<(args::TxIbcTransfer, Option<Address>), JsError> {
     let tx_msg = SubmitIbcTransferMsg::try_from_slice(tx_msg)?;
     let SubmitIbcTransferMsg {
         tx,
@@ -282,14 +293,15 @@ pub fn ibc_transfer_tx_args(
 
     let source = Address::from_str(&source)?;
     let token = Address::from_str(&token)?;
-    let amount: Amount = DenominatedAmount::from_str(&amount)
-        .expect(format!("Amount has to be valid. Received {}", amount).as_str())
-        .into();
+    let denom_amount = DenominatedAmount::from_str(&amount).expect("Amount to be valid.");
+    let amount = InputAmount::Unvalidated(denom_amount);
     let port_id = PortId::from_str(&port_id).expect("Port id to be valid");
     let channel_id = ChannelId::from_str(&channel_id).expect("Channel id to be valid");
+    let (tx, faucet_signer) = tx_msg_into_args(tx, password)?;
 
     let args = args::TxIbcTransfer {
-        tx: tx_msg_into_args(tx, password)?,
+        tx,
+        memo: None,
         source,
         receiver,
         token,
@@ -300,12 +312,13 @@ pub fn ibc_transfer_tx_args(
         timeout_sec_offset,
         tx_code_path: PathBuf::from("tx_ibc.wasm"),
     };
-    Ok(args)
+
+    Ok((args, faucet_signer))
 }
 
 pub fn tx_args_from_slice(tx_msg_bytes: &[u8]) -> Result<args::Tx, JsError> {
     let tx_msg = TxMsg::try_from_slice(tx_msg_bytes)?;
-    let args = tx_msg_into_args(tx_msg, None)?;
+    let (args, _) = tx_msg_into_args(tx_msg, None)?;
 
     Ok(args)
 }
@@ -321,7 +334,10 @@ pub fn tx_args_from_slice(tx_msg_bytes: &[u8]) -> Result<args::Tx, JsError> {
 /// # Errors
 ///
 /// Returns JsError if token address is invalid.
-fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> Result<args::Tx, JsError> {
+fn tx_msg_into_args(
+    tx_msg: TxMsg,
+    password: Option<String>,
+) -> Result<(args::Tx, Option<Address>), JsError> {
     let TxMsg {
         token,
         fee_amount,
@@ -338,9 +354,6 @@ fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> Result<args::Tx,
     let fee_input_amount = InputAmount::Unvalidated(fee_amount);
 
     let password = password.map(|pwd| zeroize::Zeroizing::new(pwd));
-    let gas_limit: Amount = DenominatedAmount::from_str(&gas_limit)
-        .expect(format!("Gas limit amount has to be valid. Received {}", gas_limit).as_str())
-        .into();
     let public_key = match public_key {
         Some(v) => {
             let pk = PublicKey::from_str(&v)?;
@@ -348,29 +361,32 @@ fn tx_msg_into_args(tx_msg: TxMsg, password: Option<String>) -> Result<args::Tx,
         }
         _ => None,
     };
-    let signer = match signer {
-        Some(v) => Some(Address::from_str(&v)?),
-        _ => None,
-    };
+    let signer = signer.map(|v| Address::from_str(&v).ok()).flatten();
 
     let args = args::Tx {
         dry_run: false,
+        dry_run_wrapper: false,
+        disposable_signing_key: false,
         dump_tx: false,
         force: false,
         broadcast_only: false,
         ledger_address: (),
         wallet_alias_force: false,
         initialized_account_alias: None,
-        fee_amount: fee_input_amount,
+        fee_amount: Some(fee_input_amount),
         fee_token: token.clone(),
-        gas_limit: GasLimit::from(gas_limit),
+        fee_unshield: None,
+        gas_limit: GasLimit::from_str(&gas_limit).expect("Gas limit to be valid"),
+        wrapper_fee_payer: None,
+        output_folder: None,
         expiration: None,
         chain_id: Some(ChainId(String::from(chain_id))),
-        signing_key: None,
-        signer,
+        signatures: vec![],
+        signing_keys: vec![],
         tx_reveal_code_path: PathBuf::from("tx_reveal_pk.wasm"),
         verification_key: public_key,
         password,
     };
-    Ok(args)
+
+    Ok((args, signer))
 }

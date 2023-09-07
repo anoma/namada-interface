@@ -244,7 +244,7 @@ describe("Namada extension", () => {
 
       // Wait for success toast
       const toast = await page.waitForXPath(
-        "//div[contains(., 'Transfer successful!')]"
+        "//div[contains(., 'Transaction completed!')]"
       );
 
       await stopNamada(nam);

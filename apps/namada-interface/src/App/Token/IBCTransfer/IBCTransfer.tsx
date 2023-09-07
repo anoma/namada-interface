@@ -61,7 +61,7 @@ export const submitIbcTransfer = async (
         tx: {
           token: Tokens.NAM.address || "",
           feeAmount: new BigNumber(0),
-          gasLimit: new BigNumber(0),
+          gasLimit: new BigNumber(20_000),
           publicKey,
           chainId,
         },
@@ -93,7 +93,7 @@ export const submitBridgeTransfer = async (
         tx: {
           token: Tokens.NAM.address || "",
           feeAmount: new BigNumber(0),
-          gasLimit: new BigNumber(0),
+          gasLimit: new BigNumber(20_000),
           chainId,
         },
         source: address,

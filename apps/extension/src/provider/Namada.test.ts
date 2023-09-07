@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { toBase64 } from "@cosmjs/encoding";
 
-import { AccountMsgValue, Message, Chain, Namada } from "@namada/types";
+import { Chain, Namada } from "@namada/types";
 
 import { KVKeys } from "router";
 import { init, KVStoreMock } from "test/init";
@@ -71,22 +70,5 @@ describe("Namada", () => {
 
     const chains = await iDBStore.get("chains");
     expect(chains?.pop()).toEqual(chain);
-  });
-
-  // This test shows that init account is NOT working - it is also unused.
-  // We will have to change assertion after fixing initAccount fn
-  it("should THROW AN ERROR on encode init account", async () => {
-    const accountMsgValue = new AccountMsgValue({
-      vpCode: new Uint8Array(),
-    });
-    const accountMessage = new Message<AccountMsgValue>();
-    const serialized = accountMessage.encode(accountMsgValue);
-
-    await expect(
-      namada.encodeInitAccount({
-        txMsg: toBase64(serialized),
-        address: keyStore[0].address,
-      })
-    ).rejects.toThrow();
   });
 });

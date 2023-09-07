@@ -24,7 +24,6 @@ enum MessageType {
   QueryBalances = "query-balances",
   SubmitIbcTransfer = "submit-ibc-transfer",
   SubmitLedgerTransfer = "submit-ledger-transfer",
-  EncodeInitAccount = "encode-init-account",
   EncodeRevealPublicKey = "encode-reveal-public-key",
   GetChain = "get-chain",
   GetChains = "get-chains",
@@ -180,34 +179,6 @@ export class QueryBalancesMsg extends Message<
 
   type(): string {
     return QueryBalancesMsg.type();
-  }
-}
-
-export class EncodeInitAccountMsg extends Message<string> {
-  public static type(): MessageType {
-    return MessageType.EncodeInitAccount;
-  }
-
-  constructor(public readonly txMsg: string, public readonly address: string) {
-    super();
-  }
-
-  validate(): void {
-    if (!this.address) {
-      throw new Error("An address is required!");
-    }
-    if (!this.txMsg) {
-      throw new Error("An encoded txMsg is required!");
-    }
-    return;
-  }
-
-  route(): string {
-    return Route.KeyRing;
-  }
-
-  type(): string {
-    return EncodeInitAccountMsg.type();
   }
 }
 

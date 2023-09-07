@@ -2,10 +2,8 @@ import { toBase64 } from "@cosmjs/encoding";
 import {
   Account,
   Namada,
-  AccountMsgValue,
   IbcTransferMsgValue,
   IbcTransferProps,
-  InitAccountProps,
   Message,
   Signer as ISigner,
   TransferMsgValue,
@@ -116,26 +114,6 @@ export class Signer implements ISigner {
     return await this._namada.submitIbcTransfer({
       txMsg: toBase64(serializedIbcTransfer),
       type,
-    });
-  }
-
-  /**
-   * Encode an InitAccount message
-   */
-  public async encodeInitAccount(
-    args: InitAccountProps,
-    signer: string
-  ): Promise<string | undefined> {
-    const { vpCode } = args;
-    const accountMsgValue = new AccountMsgValue({
-      vpCode,
-    });
-    const accountMessage = new Message<AccountMsgValue>();
-    const serialized = accountMessage.encode(accountMsgValue);
-
-    return await this._namada.encodeInitAccount({
-      txMsg: toBase64(serialized),
-      address: signer,
     });
   }
 }

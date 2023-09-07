@@ -21,7 +21,6 @@ import {
 } from "./messages";
 import {
   ConnectInterfaceMsg,
-  EncodeInitAccountMsg,
   QueryAccountsMsg,
   QueryBalancesMsg,
   FetchAndStoreMaspParamsMsg,
@@ -82,11 +81,6 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleQueryParentAccountsMsg(service)(
           env,
           msg as QueryParentAccountsMsg
-        );
-      case EncodeInitAccountMsg:
-        return handleEncodeInitAccountMsg(service)(
-          env,
-          msg as EncodeInitAccountMsg
         );
       case CloseOffscreenDocumentMsg:
         return handleCloseOffscreenDocumentMsg(service)(
@@ -240,15 +234,6 @@ const handleQueryParentAccountsMsg: (
 ) => InternalHandler<QueryParentAccountsMsg> = (service) => {
   return async (_, _msg) => {
     return await service.queryParentAccounts();
-  };
-};
-
-const handleEncodeInitAccountMsg: (
-  service: KeyRingService
-) => InternalHandler<EncodeInitAccountMsg> = (service) => {
-  return (_, msg) => {
-    const { address, txMsg } = msg;
-    return service.encodeInitAccount(txMsg, address);
   };
 };
 
