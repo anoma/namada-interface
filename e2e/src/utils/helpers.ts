@@ -10,9 +10,10 @@ const execPromise = util.promisify(exec);
 
 export const waitForXpath = async <T extends Node>(
   page: puppeteer.Page,
-  xpath: string
+  xpath: string,
+  options?: puppeteer.WaitForSelectorOptions
 ): Promise<puppeteer.ElementHandle<T>> => {
-  const element = await page.waitForXPath(xpath);
+  const element = await page.waitForXPath(xpath, options);
 
   return element as puppeteer.ElementHandle<T>;
 };
@@ -37,7 +38,7 @@ export const targetPage = async (
 
 const getExtensionId = async (browser: puppeteer.Browser): Promise<string> => {
   // TODO: replace with poll check
-  await new Promise((r) => setTimeout(r, 200));
+  await new Promise((r) => setTimeout(r, 500));
   const targets = browser.targets();
   const extensionTarget = targets.find(
     (target) => target.type() === "service_worker"
