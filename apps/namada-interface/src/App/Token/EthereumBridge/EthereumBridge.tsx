@@ -13,10 +13,11 @@ import {
 } from "../TokenSend/TokenSendForm.components";
 import { Account, AccountsState } from "slices/accounts";
 import { SettingsState } from "slices/settings";
-import { TokenType, Tokens } from "@namada/types";
+import { AccountType, TokenType, Tokens } from "@namada/types";
 import { FormContainer } from "./EthereumBridge.components";
 import { useState } from "react";
 import BigNumber from "bignumber.js";
+import { getIntegration } from "@namada/hooks";
 
 const SUPPORTED_TOKENS = ["ERC20", "NUTERC20"];
 
@@ -57,6 +58,38 @@ export const EthereumBridge = (): JSX.Element => {
   const [token, setToken] = useState<string>(transferableTokenData[0]?.value);
   const tokenData = toTokenData(accounts);
   const [feeToken, setFeeToken] = useState<string>(tokenData[0]?.value);
+
+  const handleSubmit = async (): Promise<void> => {
+    //TODO: figure out if we need symbol later later
+    const [accountId, _tokenSymbol] = token.split("|");
+    const account = accounts.find(
+      (account) => account?.details?.address === accountId
+    ) as Account;
+
+    const integration = getIntegration(chainId);
+    await integration.submitBridgeTransfer(
+      {
+        bridgeProps: {
+          nut: false,
+          tx: {
+            token: Tokens.NAM.address || "",
+            feeAmount: new BigNumber(0),
+            gasLimit: new BigNumber(0),
+            publicKey: account.details.publicKey,
+            chainId,
+          },
+          asset: token,
+          recipient,
+          sender: account.details.address,
+          amount,
+          feeAmount,
+          feeToken,
+        },
+      },
+      //TODO: fix later
+      AccountType.Mnemonic
+    );
+  };
 
   return (
     <FormContainer>
@@ -125,12 +158,7 @@ export const EthereumBridge = (): JSX.Element => {
       </InputContainer>
 
       <ButtonsContainer>
-        <Button
-          variant={ButtonVariant.Contained}
-          onClick={() => {
-            console.log("clicked");
-          }}
-        >
+        <Button variant={ButtonVariant.Contained} onClick={handleSubmit}>
           Submit
         </Button>
       </ButtonsContainer>

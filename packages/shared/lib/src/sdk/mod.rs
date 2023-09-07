@@ -34,7 +34,8 @@ pub enum TxType {
     Withdraw = 3,
     Transfer = 4,
     IBCTransfer = 5,
-    RevealPK = 6,
+    EthBridgeTransfer = 6,
+    RevealPK = 7,
 }
 
 /// Represents the Sdk public API.
@@ -239,6 +240,19 @@ impl Sdk {
                 tx
             }
             TxType::IBCTransfer => {
+                let (args, _faucet_signer) = tx::ibc_transfer_tx_args(tx_msg, None)?;
+
+                let (tx, _) = namada::ledger::tx::build_ibc_transfer(
+                    &self.client,
+                    &mut self.wallet,
+                    &mut self.shielded_ctx,
+                    args.clone(),
+                    gas_payer,
+                )
+                .await?;
+                tx
+            }
+            TxType::EthBridgeTransfer => {
                 let (args, _faucet_signer) = tx::ibc_transfer_tx_args(tx_msg, None)?;
 
                 let (tx, _) = namada::ledger::tx::build_ibc_transfer(

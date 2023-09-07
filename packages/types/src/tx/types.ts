@@ -56,13 +56,16 @@ export type IbcTransferProps = {
   timeoutSecOffset?: bigint;
 };
 
-// TODO: This is a placeholder
 export type BridgeTransferProps = {
+  nut: boolean;
   tx: TxProps;
-  source: string;
-  target: string;
-  token: string;
+  asset: string;
+  recipient: string;
+  sender: string;
   amount: BigNumber;
+  feeAmount: BigNumber;
+  feePayer?: string;
+  feeToken: string;
 };
 
 export type SignatureProps = {

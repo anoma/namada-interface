@@ -15,7 +15,7 @@ type MetamaskWindow = Window &
 
 class Metamask implements Integration<Account, unknown> {
   private _ethereum: MetaMaskInpageProvider | undefined;
-  constructor(public readonly chain: Chain) { }
+  constructor(public readonly chain: Chain) {}
 
   private init(): void {
     if ((<MetamaskWindow>window).ethereum) {
@@ -76,11 +76,11 @@ class Metamask implements Integration<Account, unknown> {
   }
 
   public async submitBridgeTransfer(props: BridgeProps): Promise<void> {
-    const { source, target, amount } = props.bridgeProps || {};
+    const { sender, recipient, amount } = props.bridgeProps || {};
     // TODO: Submit transfer via Ethereum Bridge
     console.log("Metamask.submitBridgeTransfer", {
-      source,
-      target,
+      sender,
+      recipient,
       amount,
     });
     return;

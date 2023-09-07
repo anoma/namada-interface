@@ -5,6 +5,7 @@ import {
   SubmitApprovedIbcTransferMsg,
   SubmitApprovedUnbondMsg,
   SubmitApprovedWithdrawMsg,
+  SubmitApprovedEthBridgeTransferMsg,
 } from "background/approvals";
 import { Message } from "router";
 
@@ -26,6 +27,7 @@ export type SupportedTx = Extract<
   | TxType.Unbond
   | TxType.Transfer
   | TxType.IBCTransfer
+  | TxType.EthBridgeTransfer
   | TxType.Withdraw
 >;
 
@@ -37,5 +39,6 @@ export const txMap: Map<SupportedTx, ApproveMsg> = new Map([
   [TxType.Unbond, SubmitApprovedUnbondMsg],
   [TxType.Transfer, SubmitApprovedTransferMsg],
   [TxType.IBCTransfer, SubmitApprovedIbcTransferMsg],
+  [TxType.EthBridgeTransfer, SubmitApprovedEthBridgeTransferMsg],
   [TxType.Withdraw, SubmitApprovedWithdrawMsg],
 ]);

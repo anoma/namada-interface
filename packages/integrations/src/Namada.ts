@@ -52,12 +52,11 @@ export default class Namada implements Integration<Account, Signer> {
     props: BridgeProps,
     type: AccountType
   ): Promise<void> {
+    const signer = this._namada?.getSigner(this.chain.chainId);
     if (props.ibcProps) {
-      const signer = this._namada?.getSigner(this.chain.chainId);
       return await signer?.submitIbcTransfer(props.ibcProps, type);
     } else if (props.bridgeProps) {
-      console.log("TODO: Implement Ethereum Bridge transfer");
-      return;
+      return await signer?.submitEthBridgeTransfer(props.bridgeProps, type);
     }
 
     return Promise.reject("Invalid bridge transfer props!");

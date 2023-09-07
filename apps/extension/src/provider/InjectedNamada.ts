@@ -106,6 +106,20 @@ export class InjectedNamada implements INamada {
     });
   }
 
+  public async submitEthBridgeTransfer(props: {
+    txMsg: string;
+    type: AccountType;
+  }): Promise<void> {
+    const { txMsg, type } = props;
+    return await InjectedProxy.requestMethod<
+      { txMsg: string; type: AccountType },
+      void
+    >("submitEthBridgeTransfer", {
+      txMsg,
+      type,
+    });
+  }
+
   public version(): string {
     return this._version;
   }
