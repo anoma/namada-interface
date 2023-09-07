@@ -14,3 +14,5 @@ export const mnemonic = [
 ];
 
 export const pwdOrAlias = "Asd";
+export const address0Alias = "address0";
+export const shieldedAddress0Alias = "shieldedAddress0";
