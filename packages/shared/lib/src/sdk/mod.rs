@@ -253,9 +253,9 @@ impl Sdk {
                 tx
             }
             TxType::EthBridgeTransfer => {
-                let (args, _faucet_signer) = tx::ibc_transfer_tx_args(tx_msg, None)?;
+                let (args, _faucet_signer) = tx::eth_bridge_transfer_tx_args(tx_msg, None)?;
 
-                let (tx, _) = namada::ledger::tx::build_ibc_transfer(
+                let (tx, _) = namada::ledger::eth_bridge::bridge_pool::build_bridge_pool_tx(
                     &self.client,
                     &mut self.wallet,
                     &mut self.shielded_ctx,
