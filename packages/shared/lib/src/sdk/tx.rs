@@ -362,7 +362,6 @@ fn tx_msg_into_args(
         _ => None,
     };
     let signer = signer.map(|v| Address::from_str(&v).ok()).flatten();
-    web_sys::console::log_1(&format!("Gas limit: {:?}", &gas_limit).into());
 
     let args = args::Tx {
         dry_run: false,

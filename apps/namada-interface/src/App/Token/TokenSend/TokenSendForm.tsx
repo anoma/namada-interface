@@ -76,7 +76,7 @@ export const submitTransferTransaction = async (
     tx: {
       token: Tokens.NAM.address || "",
       feeAmount: new BigNumber(0),
-      gasLimit: new BigNumber(0),
+      gasLimit: new BigNumber(20_000),
       chainId,
       publicKey: publicKey,
       signer: faucet ? target : undefined,
