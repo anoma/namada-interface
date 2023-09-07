@@ -14,8 +14,9 @@
  *  limitations under the License.
  ******************************************************************************* */
 /// <reference types="node" />
+import { SignatureType } from './common';
 import { ISignature } from './types';
-export declare function processGetSignatureResponse(response: Buffer): ISignature;
+export declare function processGetSignatureResponse(signatureType: SignatureType, response: Buffer): ISignature;
 export declare function processGetAddrResponse(response: Buffer): {
     publicKey: Buffer;
     address: Buffer;
