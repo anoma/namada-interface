@@ -11,6 +11,7 @@ import {
 } from "@cosmjs/stargate";
 import { Coin } from "@cosmjs/launchpad";
 import Long from "long";
+import BigNumber from "bignumber.js";
 
 import {
   Account,
@@ -187,7 +188,7 @@ class Keplr implements Integration<Account, OfflineSigner> {
     // Query balance for ATOM:
     return ((await client.getAllBalances(owner)) || []).map((coin: Coin) => ({
       token: CosmosTokens[coin.denom] || "ATOM",
-      amount: coin.amount,
+      amount: new BigNumber(coin.amount).dividedBy(1_000_000).toString(),
     }));
   }
 }

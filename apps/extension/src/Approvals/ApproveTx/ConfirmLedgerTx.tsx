@@ -72,30 +72,36 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
         throw new Error(`Requester error: ${e}`);
       });
 
-    // Sign with Ledger
-    const signatures = await ledger.sign(bytes, path);
+    try {
 
-    const { returnCode, errorMessage } = signatures;
+      // Sign with Ledger
+      const signatures = await ledger.sign(bytes, path);
 
-    if (returnCode !== LedgerError.NoErrors) {
-      throw new Error(`Reveal PK error encountered: ${errorMessage}`);
-    }
+      const { returnCode, errorMessage } = signatures;
 
-    // Submit signatures for tx
-    setStatusInfo("Revealing public key on chain...");
+      if (returnCode !== LedgerError.NoErrors) {
+        throw new Error(`Reveal PK error encountered: ${errorMessage}`);
+      }
 
-    await requester
-      .sendMessage(
-        Ports.Background,
-        new SubmitSignedRevealPKMsg(
-          toBase64(encoded),
-          toBase64(bytes),
-          signatures
+      // Submit signatures for tx
+      setStatusInfo("Revealing public key on chain...");
+
+      await requester
+        .sendMessage(
+          Ports.Background,
+          new SubmitSignedRevealPKMsg(
+            toBase64(encoded),
+            toBase64(bytes),
+            signatures
+          )
         )
-      )
-      .catch((e) => {
-        throw new Error(`Requester error: ${e}`);
-      });
+        .catch((e) => {
+          throw new Error(`Requester error: ${e}`);
+        });
+
+    } catch (e) {
+      throw new Error(`Unable to parse tx on Ledger: ${e}`);
+    }
   };
 
   const queryPublicKey = async (
@@ -145,25 +151,32 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
 
     setStatusInfo(`Review and approve ${txLabel} transaction on your Ledger`);
 
-    // Sign with Ledger
-    const signatures = await ledger.sign(bytes, path);
-    const { errorMessage, returnCode } = signatures;
+    try {
+      // Sign with Ledger
+      const signatures = await ledger.sign(bytes, path);
+      const { errorMessage, returnCode } = signatures;
 
-    if (returnCode !== LedgerError.NoErrors) {
-      throw new Error(`Signing error encountered: ${errorMessage}`);
+      if (returnCode !== LedgerError.NoErrors) {
+        throw new Error(`Signing error encountered: ${errorMessage}`);
+      }
+
+      // Submit signatures for tx
+      requester
+        .sendMessage(
+          Ports.Background,
+          new SubmitSignedTxMsg(txType, msgId, toBase64(bytes), signatures)
+        )
+        .catch((e) => {
+          throw new Error(`Requester error: ${e}`);
+        });
+
+      setStatus(Status.Completed);
+
+    } catch (e) {
+      await ledger.closeTransport();
+      setError(`${e}`);
+      setStatus(Status.Failed);
     }
-
-    // Submit signatures for tx
-    requester
-      .sendMessage(
-        Ports.Background,
-        new SubmitSignedTxMsg(txType, msgId, toBase64(bytes), signatures)
-      )
-      .catch((e) => {
-        throw new Error(`Requester error: ${e}`);
-      });
-
-    setStatus(Status.Completed);
   };
 
   const handleSubmitTx = useCallback(async (): Promise<void> => {
