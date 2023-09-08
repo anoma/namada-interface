@@ -70,13 +70,15 @@ export const generateId = (
 export const encodeSignature = (sig: ISignature): Uint8Array => {
   const { secIndices, singlesig, sigType, multisigIndices, multisig } = sig;
 
+  /* eslint-disable */
   const props = {
-    secIndices: new Uint8Array(secIndices),
-    singlesig: singlesig ? new Uint8Array(singlesig) : null,
+    secIndices: new Uint8Array((secIndices as any).data),
+    singlesig: singlesig ? new Uint8Array((singlesig as any).data) : undefined,
     sigType,
-    multisigIndices: new Uint8Array(multisigIndices),
-    multisig: multisig.map((sig) => new Uint8Array(sig))
+    multisigIndices: new Uint8Array((multisigIndices as any).data),
+    multisig: multisig.map((sig) => new Uint8Array((sig as any).data))
   };
+  /* eslint-enable */
 
   const value = new SignatureMsgValue(props);
   const msg = new Message<SignatureMsgValue>();

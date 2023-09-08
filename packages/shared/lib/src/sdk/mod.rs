@@ -268,10 +268,10 @@ impl Sdk {
     ) -> Result<Tx, JsError> {
         let mut tx: Tx = Tx::try_from_slice(tx_bytes)?;
 
-        let raw_sig_section = signature::construct_signature(raw_sig_bytes, &tx)?;
+        let raw_sig_section = signature::construct_signature(&raw_sig_bytes, &tx)?;
         tx.add_section(raw_sig_section);
 
-        let wrapper_sig_section = signature::construct_signature(wrapper_sig_bytes, &tx)?;
+        let wrapper_sig_section = signature::construct_signature(&wrapper_sig_bytes, &tx)?;
         tx.add_section(wrapper_sig_section);
 
         tx.protocol_filter();

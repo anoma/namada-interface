@@ -68,7 +68,7 @@ export type BridgeTransferProps = {
 
 export type SignatureProps = {
   secIndices: Uint8Array;
-  singlesig: Uint8Array | null;
+  singlesig?: Uint8Array;
   sigType: SignatureType;
   multisigIndices: Uint8Array;
   multisig: Uint8Array[];

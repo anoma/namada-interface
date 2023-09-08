@@ -12,10 +12,10 @@ pub enum SignatureType {
 #[derive(BorshSerialize, BorshDeserialize)]
 pub struct SignatureMsg {
     sec_indices: Vec<u8>,
-    singlesig: Vec<u8>,
+    singlesig: Option<Vec<u8>>,
     sig_type: SignatureType,
     multisig_indices: Vec<u8>,
-    multisig: Vec<u8>,
+    multisig: Vec<Vec<u8>>,
 }
 
 /// Reconstructs a proto::Signature using the provided indices to retrieve hashes from Tx
@@ -30,19 +30,17 @@ pub struct SignatureMsg {
 /// Returns JsError if the sig_msg can't be deserialized or
 /// Rust structs can't be created.
 pub fn construct_signature(sig_msg: &[u8], tx: &Tx) -> Result<Section, JsError> {
-    let sig_msg = SignatureMsg::try_from_slice(sig_msg)?;
-
     let SignatureMsg {
         sec_indices,
         singlesig,
         sig_type,
         multisig_indices,
         multisig,
-    } = sig_msg;
+    } = SignatureMsg::try_from_slice(sig_msg)?;
 
-    // Which is followed the number of sections
-    let indices_length = vec![sec_indices.len() as u8, 0, 0, 0];
-    let mut sig = indices_length;
+    // Start with the number of section indices with a pad
+    let indices = vec![sec_indices.len() as u8, 0, 0, 0];
+    let mut sig = indices;
 
     // Which is followed by the hash of each section in the order specified
     for i in 0..sec_indices.len() {
@@ -60,7 +58,13 @@ pub fn construct_signature(sig_msg: &[u8], tx: &Tx) -> Result<Section, JsError> 
             sig.extend_from_slice(&vec![0x01]);
 
             // Followed by the signature
-            sig.extend_from_slice(&singlesig);
+            match singlesig {
+                Some(v) => {
+                    sig.extend_from_slice(&v);
+                }
+                // This shouldn't happen:
+                None => panic!("singlesig is required for SignatureType::Wrapper"),
+            }
             Ok(Section::Signature(Signature::try_from_slice(&sig)?))
         }
         SignatureType::Raw => {
@@ -69,13 +73,13 @@ pub fn construct_signature(sig_msg: &[u8], tx: &Tx) -> Result<Section, JsError> 
             // Followed by a sequence of signature - index pairs
             for (signature, idx) in multisig.iter().zip(multisig_indices) {
                 // Add the bytes of the signature
-                sig.extend_from_slice(&signature.try_to_vec()?);
+                sig.extend_from_slice(&signature);
                 // Add a byte representing the index of the signature
                 sig.push(idx);
             }
-            Ok(Section::SectionSignature(MultiSignature::try_from_slice(
-                &sig,
-            )?))
+            let multisignature = MultiSignature::try_from_slice(&sig)?;
+
+            Ok(Section::SectionSignature(multisignature))
         }
     }
 }
