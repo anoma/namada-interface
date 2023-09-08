@@ -233,7 +233,7 @@ impl Sdk {
                 let args = tx::ibc_transfer_tx_args(tx_msg, None)?;
                 let ibc_transfer = namada::ledger::tx::build_ibc_transfer(
                     &self.client,
-                    args.clone(),
+                    args.clone().0,
                     &gas_payer
                 )
                 .await?;
