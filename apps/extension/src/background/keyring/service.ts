@@ -329,7 +329,7 @@ export class KeyRingService {
     try {
       console.warn("submitEthBridgeTransfer disabled!", txMsg);
       // TODO: Re-enable this!
-      // await this._keyRing.submitIbcTransfer(fromBase64(txMsg));
+      await this._keyRing.submitEthBridgeTransfer(fromBase64(txMsg));
       this.broadcaster.completeTx(msgId, TxType.EthBridgeTransfer, true);
       this.broadcaster.updateBalance();
     } catch (e) {

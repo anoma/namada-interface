@@ -2,10 +2,14 @@ use masp_primitives::transaction::components::I128Sum;
 use masp_primitives::zip32::ExtendedFullViewingKey;
 use namada::ledger::masp::ShieldedContext;
 use namada::ledger::queries::RPC;
-use namada::ledger::rpc::{get_public_key_at, get_token_balance};
+use namada::ledger::rpc::{
+    format_denominated_amount, get_public_key_at, get_token_balance, query_storage_prefix,
+};
+use namada::proof_of_stake::KeySeg;
 use namada::types::{
     address::Address,
     masp::ExtendedViewingKey,
+    storage::Key,
     token::{self},
     uint::I256,
 };
@@ -284,14 +288,18 @@ impl Query {
                 Err(e2) => return Err(JsError::new(&format!("{} {}", e1, e2))),
             },
         }?;
-        let result: Vec<(Address, String)> = result
-            .into_iter()
-            .map(|(addr, amount)| (addr, amount.to_string_native()))
-            .collect();
 
-        web_sys::console::log_1(&JsValue::from_str(&format!("result: {:?}", result)));
+        let mut mapped_result: Vec<(Address, String)> = vec![];
+        for (token, amount) in result {
+            mapped_result.push((
+                token.clone(),
+                format_denominated_amount(&self.client, &token, amount)
+                    .await
+                    .clone(),
+            ))
+        }
 
-        to_js_result(result)
+        to_js_result(mapped_result)
     }
 
     pub async fn query_public_key(&self, address: &str) -> Result<JsValue, JsError> {

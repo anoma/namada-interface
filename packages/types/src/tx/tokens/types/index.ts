@@ -11,11 +11,18 @@ type TokenInfo = {
   coin: string;
   url: string;
   address?: string;
+  nativeAddress?: string;
   coinGeckoId?: string;
 };
 
 // Declare symbols for tokens we support:
-export const Symbols = ["NAM", "ATOM", "ETH", "ERC20", "NUTERC20"] as const;
+export const Symbols = [
+  "NAM",
+  "ATOM",
+  "ETH",
+  "TESTERC20",
+  "NUTTESTERC20",
+] as const;
 
 export type TokenType = (typeof Symbols)[number];
 type Tokens = Record<TokenType, TokenInfo>;
@@ -23,15 +30,15 @@ type Tokens = Record<TokenType, TokenInfo>;
 const nuterc20 = [
   -999,
   -999,
-  "NUTERC20" as RegisteredCoinSymbol,
-  "nuterc20",
+  "NUTTESTERC20" as RegisteredCoinSymbol,
+  "NUTtesterc20",
 ] as RegisteredCoinType;
 
 const erc20 = [
   -999,
   -999,
-  "ERC20" as RegisteredCoinSymbol,
-  "erc20",
+  "TESTERC20" as RegisteredCoinSymbol,
+  "testerc20",
 ] as RegisteredCoinType;
 
 const supportedCoinTypes: RegisteredCoinType[] = [
@@ -78,12 +85,14 @@ Tokens["ETH"].address =
   "atest1v4ehgw36xqmr2d3nx3ryvd2xxgmrq33j8qcns33sxezrgv6zxdzrydjrxveygd2yxumrsdpsf9jc2p";
 Tokens["ETH"].coinGeckoId = "ethereum";
 
-Tokens["ERC20"].address =
+Tokens["TESTERC20"].address =
   "atest1v46xsw368psnwwf3xcerqeryxcervvpsxuukye3cxsukgce4x5mrwctyvvekvvnxv33nxvfc0kmacx";
-Tokens["ERC20"].coinGeckoId = "erc20";
+Tokens["TESTERC20"].nativeAddress =
+  "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318";
+Tokens["TESTERC20"].coinGeckoId = "testerc20";
 
-Tokens["NUTERC20"].address =
-  "atest1de6hgw368pqnwwf3xcerqeryxcervvpsxuu5y33cxsu5gce4x5mrwc2ygve5vvjxv3pnxvfcq8rzzq";
-Tokens["NUTERC20"].coinGeckoId = "NUTerc20";
+Tokens["NUTTESTERC20"].address =
+  "atest1de6hgw368psnwwf3xcerqeryxcervvpsxuukye3cxsukgce4x5mrwctyvvekvvnxv33nxvfcmh3pul";
+Tokens["NUTTESTERC20"].coinGeckoId = "NUTtesterc20";
 
 export type TokenBalance = { token: TokenType; amount: string };

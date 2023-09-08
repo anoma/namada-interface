@@ -19,7 +19,7 @@ import { useState } from "react";
 import BigNumber from "bignumber.js";
 import { getIntegration } from "@namada/hooks";
 
-const SUPPORTED_TOKENS = ["ERC20", "NUTERC20"];
+const SUPPORTED_TOKENS = ["TESTERC20", "NUTTESTERC20"];
 
 const toTokenData = (
   accounts: Account[],
@@ -46,7 +46,6 @@ export const EthereumBridge = (): JSX.Element => {
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState<BigNumber>(new BigNumber(0));
   const [feeAmount, setFeeAmount] = useState<BigNumber>(new BigNumber(0));
-  const [erc20, setErc20] = useState("");
 
   const accounts = Object.values(derived[chainId]).filter(
     ({ details }) => !details.isShielded
@@ -61,7 +60,8 @@ export const EthereumBridge = (): JSX.Element => {
 
   const handleSubmit = async (): Promise<void> => {
     //TODO: figure out if we need symbol later later
-    const [accountId, _tokenSymbol] = token.split("|");
+    const [accountId, tokenSymbol] = token.split("|");
+    const [_, feeTokenSymbol] = feeToken.split("|");
     const account = accounts.find(
       (account) => account?.details?.address === accountId
     ) as Account;
@@ -74,16 +74,16 @@ export const EthereumBridge = (): JSX.Element => {
           tx: {
             token: Tokens.NAM.address || "",
             feeAmount: new BigNumber(0),
-            gasLimit: new BigNumber(0),
+            gasLimit: new BigNumber(20_000),
             publicKey: account.details.publicKey,
             chainId,
           },
-          asset: token,
+          asset: Tokens[tokenSymbol as TokenType]?.nativeAddress || "",
           recipient,
           sender: account.details.address,
           amount,
           feeAmount,
-          feeToken,
+          feeToken: Tokens[feeTokenSymbol as TokenType]?.address || "",
         },
       },
       //TODO: fix later
@@ -96,7 +96,7 @@ export const EthereumBridge = (): JSX.Element => {
       <InputContainer>
         <Select
           data={transferableTokenData}
-          value="0"
+          value={token}
           label="Token"
           onChange={(e) => {
             setToken(e.target.value);
@@ -128,7 +128,7 @@ export const EthereumBridge = (): JSX.Element => {
       <InputContainer>
         <Select
           data={tokenData}
-          value="0"
+          value={feeToken}
           label="Fee Token"
           onChange={(e) => {
             setFeeToken(e.target.value);
@@ -140,20 +140,11 @@ export const EthereumBridge = (): JSX.Element => {
         <Input
           variant={InputVariants.Number}
           label="Fee Amount"
-          value={amount.toString()}
+          value={feeAmount.toString()}
           onChangeCallback={(e) => {
             const { value } = e.target;
             setFeeAmount(new BigNumber(`${value}`));
           }}
-        />
-      </InputContainer>
-
-      <InputContainer>
-        <Input
-          variant={InputVariants.Number}
-          label="ERC20"
-          value={erc20.toString()}
-          onChangeCallback={(e) => setErc20(e.target.value)}
         />
       </InputContainer>
 
