@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { LedgerError } from './common';
+import { LedgerError, SignatureType } from './common';
 export interface ResponseBase {
     errorMessage: string;
     returnCode: LedgerError;
@@ -48,17 +48,19 @@ export interface ResponseNullifier extends ResponseBase {
 }
 export interface ISignature {
     raw: Buffer;
-    salt: Buffer;
-    indices: Buffer;
-    pubkey: Buffer;
-    signature: Buffer | null;
+    secIndices: Buffer;
+    sigType: SignatureType;
+    singlesig: Buffer | null;
+    multisigIndices: Buffer;
+    multisig: Buffer[];
 }
 export declare class Signature implements ISignature {
     raw: Buffer;
-    salt: Buffer;
-    indices: Buffer;
-    pubkey: Buffer;
-    signature: Buffer | null;
+    secIndices: Buffer;
+    sigType: SignatureType;
+    singlesig: Buffer | null;
+    multisigIndices: Buffer;
+    multisig: Buffer[];
     isFilled: boolean;
     constructor(signature?: ISignature);
 }

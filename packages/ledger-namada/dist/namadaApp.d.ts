@@ -17,7 +17,7 @@
 import Transport from '@ledgerhq/hw-transport';
 import { ResponseAddress, ResponseAppInfo, ResponseBase, ResponseSign, ResponseVersion } from './types';
 import { LedgerError, SignatureType } from './common';
-export { LedgerError };
+export { LedgerError, SignatureType };
 export * from './types';
 export declare class NamadaApp {
     transport: Transport;

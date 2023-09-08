@@ -17,7 +17,7 @@ use namada::{
         signing,
         wallet::{Store, Wallet},
     },
-    proto::{Section, Tx},
+    proto::Tx,
     types::key::common::PublicKey,
 };
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
@@ -234,7 +234,7 @@ impl Sdk {
                 let ibc_transfer = namada::ledger::tx::build_ibc_transfer(
                     &self.client,
                     args.clone().0,
-                    &gas_payer
+                    &gas_payer,
                 )
                 .await?;
                 ibc_transfer
@@ -268,11 +268,11 @@ impl Sdk {
     ) -> Result<Tx, JsError> {
         let mut tx: Tx = Tx::try_from_slice(tx_bytes)?;
 
-        let raw_sig = signature::construct_signature(raw_sig_bytes, &tx)?;
-        tx.add_section(Section::Signature(raw_sig));
+        let raw_sig_section = signature::construct_signature(raw_sig_bytes, &tx)?;
+        tx.add_section(raw_sig_section);
 
-        let wrapper_sig = signature::construct_signature(wrapper_sig_bytes, &tx)?;
-        tx.add_section(Section::Signature(wrapper_sig));
+        let wrapper_sig_section = signature::construct_signature(wrapper_sig_bytes, &tx)?;
+        tx.add_section(wrapper_sig_section);
 
         tx.protocol_filter();
 

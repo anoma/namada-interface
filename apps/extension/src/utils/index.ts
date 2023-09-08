@@ -68,19 +68,15 @@ export const generateId = (
  * Convert ISignature into serialized and encoded signature
  */
 export const encodeSignature = (sig: ISignature): Uint8Array => {
-  const { salt, indices, pubkey, signature } = sig;
+  const { secIndices, singlesig, sigType, multisigIndices, multisig } = sig;
 
-  // TODO: Note that the following "any" type usage below is a result of the buffer responses
-  // from the Ledger do not match the ISignature type! This will be fixed in a future release.
-
-  /* eslint-disable */
   const props = {
-    salt: new Uint8Array((salt as any).data),
-    indices: new Uint8Array((indices as any).data),
-    pubkey: new Uint8Array((pubkey as any).data),
-    signature: new Uint8Array((signature as any).data),
+    secIndices: new Uint8Array(secIndices),
+    singlesig: singlesig ? new Uint8Array(singlesig) : null,
+    sigType,
+    multisigIndices: new Uint8Array(multisigIndices),
+    multisig: multisig.map((sig) => new Uint8Array(sig))
   };
-  /* eslint-enable */
 
   const value = new SignatureMsgValue(props);
   const msg = new Message<SignatureMsgValue>();

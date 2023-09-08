@@ -4,16 +4,19 @@ import { SignatureProps } from "../types";
 
 export class SignatureMsgValue {
   @field({ type: vec("u8") })
-  salt!: Uint8Array;
+  sec_indicies!: Uint8Array;
 
   @field({ type: vec("u8") })
-  indices!: Uint8Array;
+  singlesig!: Uint8Array;
+
+  @field({ type: "u8" })
+  sigType!: number;
 
   @field({ type: vec("u8") })
-  pubkey!: Uint8Array;
+  multisigIndicies!: Uint8Array;
 
   @field({ type: vec("u8") })
-  signature!: Uint8Array;
+  multisig!: Uint8Array[];
 
   constructor(data: SignatureProps) {
     Object.assign(this, data);
