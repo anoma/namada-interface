@@ -20,6 +20,7 @@ import BigNumber from "bignumber.js";
 import { getIntegration } from "@namada/hooks";
 
 const SUPPORTED_TOKENS = ["TESTERC20", "NUTTESTERC20"];
+type FormFields = "recipient" | "amount" | "feeAmount";
 
 const toTokenData = (
   accounts: Account[],
@@ -32,7 +33,7 @@ const toTokenData = (
     return Object.entries(balance)
       .filter(filterFn)
       .map(([tokenType, amount]) => ({
-        value: `${address}|${tokenType}`,
+        value: `${address}|${tokenType}|${amount}`,
         label: `${alias !== "Namada" ? alias + " - " : ""}${
           Tokens[tokenType as TokenType].coin
         } (${amount} ${tokenType})`,
@@ -55,12 +56,16 @@ export const EthereumBridge = (): JSX.Element => {
     SUPPORTED_TOKENS.includes(tokenType)
   );
   const [token, setToken] = useState<string>(transferableTokenData[0]?.value);
+  const tokenBalance = BigNumber(token?.split("|").pop() || 0);
   const tokenData = toTokenData(
     accounts,
     ([tokenType]) => !Boolean(Tokens[tokenType as TokenType]?.isNut)
   );
 
   const [feeToken, setFeeToken] = useState<string>(tokenData[0]?.value);
+  const feeTokenBalance = BigNumber(feeToken?.split("|").pop() || 0);
+
+  const [dirtyFields, setDirtyFields] = useState<Set<FormFields>>(new Set());
 
   const handleSubmit = async (): Promise<void> => {
     const [accountId, tokenSymbol] = token.split("|");
@@ -89,10 +94,16 @@ export const EthereumBridge = (): JSX.Element => {
           feeToken: Tokens[feeTokenSymbol as TokenType]?.address || "",
         },
       },
-      //TODO: fix later
       AccountType.Mnemonic
     );
   };
+
+  const recipientValid = recipient.length > 0;
+  const amountValid =
+    amount.isLessThan(tokenBalance) && amount.isGreaterThan(0);
+  const feeAmountValid =
+    feeAmount.isLessThan(feeTokenBalance) && feeAmount.isGreaterThan(0);
+  const isValid = recipientValid && amountValid && feeAmountValid;
 
   return (
     <FormContainer>
@@ -112,7 +123,15 @@ export const EthereumBridge = (): JSX.Element => {
           variant={InputVariants.Text}
           label="Recipient"
           value={recipient}
-          onChangeCallback={(e) => setRecipient(e.target.value)}
+          onChangeCallback={(e) => {
+            setRecipient(e.target.value);
+            setDirtyFields((prev) => new Set(prev).add("recipient"));
+          }}
+          error={
+            recipientValid || !dirtyFields.has("recipient")
+              ? ""
+              : "Invalid recipient"
+          }
         />
       </InputContainer>
 
@@ -124,7 +143,13 @@ export const EthereumBridge = (): JSX.Element => {
           onChangeCallback={(e) => {
             const { value } = e.target;
             setAmount(new BigNumber(`${value}`));
+            setDirtyFields((prev) => new Set(prev).add("amount"));
           }}
+          error={
+            amountValid || !dirtyFields.has("amount")
+              ? ""
+              : "Insufficient balance"
+          }
         />
       </InputContainer>
 
@@ -147,12 +172,22 @@ export const EthereumBridge = (): JSX.Element => {
           onChangeCallback={(e) => {
             const { value } = e.target;
             setFeeAmount(new BigNumber(`${value}`));
+            setDirtyFields((prev) => new Set(prev).add("feeAmount"));
           }}
+          error={
+            feeAmountValid || !dirtyFields.has("feeAmount")
+              ? ""
+              : "Insufficient balance"
+          }
         />
       </InputContainer>
 
       <ButtonsContainer>
-        <Button variant={ButtonVariant.Contained} onClick={handleSubmit}>
+        <Button
+          variant={ButtonVariant.Contained}
+          onClick={handleSubmit}
+          disabled={!isValid}
+        >
           Submit
         </Button>
       </ButtonsContainer>
