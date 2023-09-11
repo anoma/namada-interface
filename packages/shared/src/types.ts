@@ -5,7 +5,7 @@ export type TxLabel =
   | "Unbond"
   | "Transfer"
   | "IBC Transfer"
-  | "Eth Bridge Transfer"
+  | "Add to Eth Bridge Pool"
   | "Withdraw"
   | "RevealPK";
 
@@ -14,7 +14,7 @@ export const TxTypeLabel: Record<TxType, TxLabel> = {
   [TxType.Unbond]: "Unbond",
   [TxType.Transfer]: "Transfer",
   [TxType.IBCTransfer]: "IBC Transfer",
-  [TxType.EthBridgeTransfer]: "Eth Bridge Transfer",
+  [TxType.EthBridgeTransfer]: "Add to Eth Bridge Pool",
   [TxType.Withdraw]: "Withdraw",
   [TxType.RevealPK]: "RevealPK",
 };

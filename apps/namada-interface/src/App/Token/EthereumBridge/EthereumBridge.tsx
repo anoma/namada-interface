@@ -94,6 +94,7 @@ export const EthereumBridge = (): JSX.Element => {
           feeToken: Tokens[feeTokenSymbol as TokenType]?.address || "",
         },
       },
+      //TODO: support ledger?
       AccountType.Mnemonic
     );
   };

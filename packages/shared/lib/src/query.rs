@@ -2,14 +2,10 @@ use masp_primitives::transaction::components::I128Sum;
 use masp_primitives::zip32::ExtendedFullViewingKey;
 use namada::ledger::masp::ShieldedContext;
 use namada::ledger::queries::RPC;
-use namada::ledger::rpc::{
-    format_denominated_amount, get_public_key_at, get_token_balance, query_storage_prefix,
-};
-use namada::proof_of_stake::KeySeg;
+use namada::ledger::rpc::{format_denominated_amount, get_public_key_at, get_token_balance};
 use namada::types::{
     address::Address,
     masp::ExtendedViewingKey,
-    storage::Key,
     token::{self},
     uint::I256,
 };

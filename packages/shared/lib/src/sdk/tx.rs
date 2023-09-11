@@ -348,16 +348,15 @@ pub fn eth_bridge_transfer_tx_args(
     } = tx_msg;
 
     let (tx, faucet_signer) = tx_msg_into_args(tx, password)?;
-    web_sys::console::log_1(&format!("asset: {:?}", asset).into());
-    let asset = EthAddress::from_str(&asset).expect("TODO: map err");
-    let recipient = EthAddress::from_str(&recipient).expect("TODO: map err");
+    let asset = EthAddress::from_str(&asset).map_err(|e| JsError::new(&format!("{}", e)))?;
+    let recipient =
+        EthAddress::from_str(&recipient).map_err(|e| JsError::new(&format!("{}", e)))?;
     let sender = Address::from_str(&sender)?;
     let denom_amount = DenominatedAmount::from_str(&amount).expect("Amount to be valid.");
     let amount = InputAmount::Unvalidated(denom_amount);
     let denom_amount = DenominatedAmount::from_str(&fee_amount).expect("Amount to be valid.");
     let fee_amount = InputAmount::Unvalidated(denom_amount);
     let fee_payer = fee_payer.map(|v| Address::from_str(&v)).transpose()?;
-    web_sys::console::log_1(&format!("fee token: {:?}", fee_token).into());
     let fee_token = Address::from_str(&fee_token)?;
     let code_path = PathBuf::from("tx_bridge_pool.wasm");
 
