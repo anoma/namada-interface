@@ -324,11 +324,9 @@ export class KeyRingService {
   }
 
   async submitEthBridgeTransfer(txMsg: string, msgId: string): Promise<void> {
-    await this.broadcaster.startTx(msgId, TxType.IBCTransfer);
+    await this.broadcaster.startTx(msgId, TxType.EthBridgeTransfer);
 
     try {
-      console.warn("submitEthBridgeTransfer disabled!", txMsg);
-      // TODO: Re-enable this!
       await this._keyRing.submitEthBridgeTransfer(fromBase64(txMsg));
       this.broadcaster.completeTx(msgId, TxType.EthBridgeTransfer, true);
       this.broadcaster.updateBalance();

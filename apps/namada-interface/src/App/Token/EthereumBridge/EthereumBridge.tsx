@@ -55,11 +55,14 @@ export const EthereumBridge = (): JSX.Element => {
     SUPPORTED_TOKENS.includes(tokenType)
   );
   const [token, setToken] = useState<string>(transferableTokenData[0]?.value);
-  const tokenData = toTokenData(accounts);
+  const tokenData = toTokenData(
+    accounts,
+    ([tokenType]) => !Boolean(Tokens[tokenType as TokenType]?.isNut)
+  );
+
   const [feeToken, setFeeToken] = useState<string>(tokenData[0]?.value);
 
   const handleSubmit = async (): Promise<void> => {
-    //TODO: figure out if we need symbol later later
     const [accountId, tokenSymbol] = token.split("|");
     const [_, feeTokenSymbol] = feeToken.split("|");
     const account = accounts.find(
@@ -70,7 +73,7 @@ export const EthereumBridge = (): JSX.Element => {
     await integration.submitBridgeTransfer(
       {
         bridgeProps: {
-          nut: false,
+          nut: Boolean(Tokens[tokenSymbol as TokenType]?.isNut),
           tx: {
             token: Tokens.NAM.address || "",
             feeAmount: new BigNumber(0),

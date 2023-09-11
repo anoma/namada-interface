@@ -12,6 +12,7 @@ type TokenInfo = {
   url: string;
   address?: string;
   nativeAddress?: string;
+  isNut?: boolean;
   coinGeckoId?: string;
 };
 
@@ -93,6 +94,9 @@ Tokens["TESTERC20"].coinGeckoId = "testerc20";
 
 Tokens["NUTTESTERC20"].address =
   "atest1de6hgw368psnwwf3xcerqeryxcervvpsxuukye3cxsukgce4x5mrwctyvvekvvnxv33nxvfcmh3pul";
+Tokens["NUTTESTERC20"].nativeAddress =
+  "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318";
+Tokens["NUTTESTERC20"].isNut = true;
 Tokens["NUTTESTERC20"].coinGeckoId = "NUTtesterc20";
 
 export type TokenBalance = { token: TokenType; amount: string };
