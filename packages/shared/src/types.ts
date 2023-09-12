@@ -18,3 +18,18 @@ export const TxTypeLabel: Record<TxType, TxLabel> = {
   [TxType.Withdraw]: "Withdraw",
   [TxType.RevealPK]: "RevealPK",
 };
+
+type TransferToEthereumKind = "Erc20" | "Nut";
+
+export type TransferToEthereum = {
+  /// The kind of transfer to Ethereum.
+  kind: TransferToEthereumKind;
+  /// The type of token
+  asset: string;
+  /// The recipient address
+  recipient: string;
+  /// The sender of the transfer
+  sender: string;
+  /// The amount to be transferred
+  amount: string;
+};

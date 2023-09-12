@@ -1,8 +1,11 @@
 use masp_primitives::transaction::components::I128Sum;
 use masp_primitives::zip32::ExtendedFullViewingKey;
+use namada::ledger::eth_bridge::bridge_pool::query_signed_bridge_pool;
 use namada::ledger::masp::ShieldedContext;
 use namada::ledger::queries::RPC;
 use namada::ledger::rpc::{format_denominated_amount, get_public_key_at, get_token_balance};
+use namada::types::control_flow::ProceedOrElse;
+use namada::types::eth_bridge_pool::TransferToEthereum;
 use namada::types::{
     address::Address,
     masp::ExtendedViewingKey,
@@ -306,6 +309,34 @@ impl Query {
             Some(v) => Some(v.to_string()),
             None => None,
         };
+
+        to_js_result(result)
+    }
+
+    pub async fn query_signed_bridge_pool(
+        &self,
+        owner_addresses: Box<[JsValue]>,
+    ) -> Result<JsValue, JsError> {
+        let bridge_pool = query_signed_bridge_pool(&self.client)
+            .await
+            .proceed_or_else(|| JsError::new("TODO:"))?;
+
+        let owner_addresses: Vec<Address> = owner_addresses
+            .into_iter()
+            .filter_map(|address| address.as_string())
+            .filter_map(|address| Address::from_str(&address).ok())
+            .collect();
+
+        let result: Vec<TransferToEthereum> = bridge_pool
+            .into_iter()
+            .filter_map(|(_hash, pending_transfer)| {
+                if owner_addresses.contains(&pending_transfer.transfer.sender) {
+                    Some(pending_transfer.transfer)
+                } else {
+                    None
+                }
+            })
+            .collect();
 
         to_js_result(result)
     }
