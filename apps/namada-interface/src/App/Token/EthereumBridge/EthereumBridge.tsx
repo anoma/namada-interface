@@ -6,6 +6,7 @@ import {
   Button,
   ButtonVariant,
 } from "@namada/components";
+import { chains } from "@namada/chains";
 import { useAppSelector } from "store";
 import {
   ButtonsContainer,
@@ -13,19 +14,15 @@ import {
 } from "../TokenSend/TokenSendForm.components";
 import { Account, AccountsState } from "slices/accounts";
 import { SettingsState } from "slices/settings";
-import { AccountType, TokenType, Tokens } from "@namada/types";
+import { TokenType, Tokens } from "@namada/types";
 import {
+  FeeSection,
   FormContainer,
-  TransferCol,
-  TransferRow,
-  TransfersContainer,
+  GeneralSection,
 } from "./EthereumBridge.components";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import BigNumber from "bignumber.js";
 import { getIntegration } from "@namada/hooks";
-import { Query, TransferToEthereum } from "@namada/shared";
-import { chains } from "@namada/chains";
-import { shortenAddress } from "@namada/utils";
 
 const SUPPORTED_TOKENS = ["TESTERC20", "NUTTESTERC20"];
 type FormFields = "recipient" | "amount" | "feeAmount";
@@ -102,114 +99,104 @@ export const EthereumBridge = (): JSX.Element => {
           feeToken: Tokens[feeTokenSymbol as TokenType]?.address || "",
         },
       },
-      //TODO: support ledger?
-      AccountType.Mnemonic
+      account.details.type
     );
   };
 
-  // Validat form
+  const extensionKey = chains[chainId].extension.id;
+
+  // Validate form
   const recipientValid = recipient.length > 0;
   const amountValid =
     amount.isLessThan(tokenBalance) && amount.isGreaterThan(0);
   const feeAmountValid =
-    feeAmount.isLessThan(feeTokenBalance) && feeAmount.isGreaterThan(0);
+    (feeAmount.isLessThan(feeTokenBalance) && feeAmount.isGreaterThan(0)) ||
+    extensionKey === "metamask";
   const isValid = recipientValid && amountValid && feeAmountValid;
-
-  // Load pending transfers
-  const [pendingTransfers, setPendingTransfers] = useState<
-    TransferToEthereum[]
-  >([]);
-  const [transfersLoaded, setTransfersLoaded] = useState(false);
-  useEffect(() => {
-    console.log("accounts", JSON.stringify(accounts));
-    (async () => {
-      const { rpc } = chains[chainId];
-      const query = new Query(rpc);
-      const addresses = accounts.map(({ details }) => details.address);
-      const bridgePool: TransferToEthereum[] =
-        await query.query_signed_bridge_pool(addresses);
-      setPendingTransfers(bridgePool);
-      setTransfersLoaded(true);
-    })();
-  }, [JSON.stringify(accounts)]);
 
   return (
     <>
       <FormContainer>
-        <InputContainer>
-          <Select
-            data={transferableTokenData}
-            value={token}
-            label="Token"
-            onChange={(e) => {
-              setToken(e.target.value);
-            }}
-          />
-        </InputContainer>
+        <GeneralSection>
+          <InputContainer>
+            <Select
+              data={transferableTokenData}
+              value={token}
+              label="Token"
+              onChange={(e) => {
+                setToken(e.target.value);
+              }}
+            />
+          </InputContainer>
 
-        <InputContainer>
-          <Input
-            variant={InputVariants.Text}
-            label="Recipient"
-            value={recipient}
-            onChangeCallback={(e) => {
-              setRecipient(e.target.value);
-              setDirtyFields((prev) => new Set(prev).add("recipient"));
-            }}
-            error={
-              recipientValid || !dirtyFields.has("recipient")
-                ? ""
-                : "Invalid recipient"
-            }
-          />
-        </InputContainer>
+          <InputContainer>
+            <Input
+              variant={InputVariants.Text}
+              label="Recipient"
+              value={recipient}
+              onChangeCallback={(e) => {
+                setRecipient(e.target.value);
+                setDirtyFields((prev) => new Set(prev).add("recipient"));
+              }}
+              error={
+                recipientValid || !dirtyFields.has("recipient")
+                  ? ""
+                  : "Invalid recipient"
+              }
+            />
+          </InputContainer>
 
-        <InputContainer>
-          <Input
-            variant={InputVariants.Number}
-            label="Amount"
-            value={amount.toString()}
-            onChangeCallback={(e) => {
-              const { value } = e.target;
-              setAmount(new BigNumber(`${value}`));
-              setDirtyFields((prev) => new Set(prev).add("amount"));
-            }}
-            error={
-              amountValid || !dirtyFields.has("amount")
-                ? ""
-                : "Insufficient balance"
-            }
-          />
-        </InputContainer>
+          <InputContainer>
+            <Input
+              variant={InputVariants.Number}
+              label="Amount"
+              value={amount.toString()}
+              onChangeCallback={(e) => {
+                const { value } = e.target;
+                setAmount(new BigNumber(`${value}`));
+                setDirtyFields((prev) => new Set(prev).add("amount"));
+              }}
+              error={
+                amountValid || !dirtyFields.has("amount")
+                  ? ""
+                  : "Insufficient balance"
+              }
+            />
+          </InputContainer>
+        </GeneralSection>
 
-        <InputContainer>
-          <Select
-            data={tokenData}
-            value={feeToken}
-            label="Fee Token"
-            onChange={(e) => {
-              setFeeToken(e.target.value);
-            }}
-          />
-        </InputContainer>
+        {extensionKey == "namada" && (
+          <FeeSection>
+            <InputContainer>
+              <Select
+                data={tokenData}
+                value={feeToken}
+                label="Fee Token"
+                onChange={(e) => {
+                  setFeeToken(e.target.value);
+                }}
+              />
+            </InputContainer>
 
-        <InputContainer>
-          <Input
-            variant={InputVariants.Number}
-            label="Fee Amount"
-            value={feeAmount.toString()}
-            onChangeCallback={(e) => {
-              const { value } = e.target;
-              setFeeAmount(new BigNumber(`${value}`));
-              setDirtyFields((prev) => new Set(prev).add("feeAmount"));
-            }}
-            error={
-              feeAmountValid || !dirtyFields.has("feeAmount")
-                ? ""
-                : "Insufficient balance"
-            }
-          />
-        </InputContainer>
+            <InputContainer>
+              <Input
+                variant={InputVariants.Number}
+                label="Fee Amount"
+                value={feeAmount.toString()}
+                onChangeCallback={(e) => {
+                  const { value } = e.target;
+                  setFeeAmount(new BigNumber(`${value}`));
+                  setDirtyFields((prev) => new Set(prev).add("feeAmount"));
+                }}
+                error={
+                  feeAmountValid || !dirtyFields.has("feeAmount")
+                    ? ""
+                    : "Insufficient balance"
+                }
+              />
+            </InputContainer>
+          </FeeSection>
+        )}
 
         <ButtonsContainer>
           <Button
@@ -221,29 +208,6 @@ export const EthereumBridge = (): JSX.Element => {
           </Button>
         </ButtonsContainer>
       </FormContainer>
-      {transfersLoaded && pendingTransfers.length > 0 && (
-        <TransfersContainer>
-          <h3>Pending Transfers</h3>
-          <TransferRow>
-            <TransferCol>Kind</TransferCol>
-            <TransferCol>Sender</TransferCol>
-            <TransferCol>Recipient</TransferCol>
-            <TransferCol>Amount</TransferCol>
-            <TransferCol>Asset</TransferCol>
-          </TransferRow>
-          {pendingTransfers.map((transfer, i) => (
-            <TransferRow key={i}>
-              <TransferCol>{transfer.kind}</TransferCol>
-              <TransferCol>{shortenAddress(transfer.sender, 4, 4)}</TransferCol>
-              <TransferCol>
-                {shortenAddress(transfer.recipient, 4, 4)}
-              </TransferCol>
-              <TransferCol>{transfer.amount}</TransferCol>
-              <TransferCol>{shortenAddress(transfer.asset, 4, 4)}</TransferCol>
-            </TransferRow>
-          ))}
-        </TransfersContainer>
-      )}
     </>
   );
 };

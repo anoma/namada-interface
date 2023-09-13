@@ -687,7 +687,6 @@ export class KeyRing {
     try {
       await this.sdk.submit_eth_bridge_transfer(txMsg, this._password);
     } catch (e) {
-      console.log(e);
       throw new Error(`Could not submit submit_eth_bridge_transfer tx: ${e}`);
     }
   }
