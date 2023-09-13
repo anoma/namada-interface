@@ -18,32 +18,55 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.processGetAddrResponse = exports.processGetSignatureResponse = void 0;
 const common_1 = require("./common");
 const config_1 = require("./config");
-function processGetSignatureResponse(response) {
+function processGetSignatureResponse(signatureType, response) {
     console.log('Processing get signature response');
     let offset = 0;
-    const salt = Buffer.from(response.subarray(offset, offset + config_1.SALT_LEN));
-    offset += config_1.SALT_LEN;
     const hashesLen = response[offset] + response[offset + 1] * 0x100 + response[offset + 2] * 0x10000 + response[offset + 3] * 0x1000000;
     offset += 4;
-    const indices = Buffer.from(response.subarray(offset, offset + hashesLen));
+    const secIndices = Buffer.from(response.subarray(offset, offset + hashesLen));
     offset += hashesLen;
-    const pubkey = Buffer.from(response.subarray(offset, offset + config_1.PK_LEN_25519 + 1));
-    offset += config_1.PK_LEN_25519 + 1;
-    const hasSignature = response[offset];
-    offset += 1;
-    let signature = null;
-    if (hasSignature) {
-        signature = Buffer.from(response.subarray(offset, offset + 65));
-        offset += 65;
+    switch (signatureType) {
+        case 1 /* SignatureType.WrapperSignature */: {
+            const hasSignature = response[offset];
+            offset += 1;
+            let singlesig = null;
+            if (hasSignature) {
+                singlesig = Buffer.from(response.subarray(offset, offset + 65));
+                offset += 65;
+            }
+            const raw = Buffer.from(response.subarray(0, offset));
+            return {
+                sigType: signatureType,
+                secIndices,
+                singlesig,
+                multisig: [],
+                multisigIndices: Buffer.from([]),
+                raw,
+            };
+        }
+        case 0 /* SignatureType.RawSignature */: {
+            const multisigLen = response[offset] + response[offset + 1] * 0x100 + response[offset + 2] * 0x10000 + response[offset + 3] * 0x1000000;
+            offset += 4;
+            var multisig = [];
+            var multisigIndices = Buffer.alloc(multisigLen);
+            for (let i = 0; i < multisigLen; i += 1) {
+                let signature = Buffer.from(response.subarray(offset, offset + 65));
+                offset += 65;
+                multisig.push(signature);
+                multisigIndices.writeInt8(response[offset]);
+                offset += 1;
+            }
+            const raw = Buffer.from(response.subarray(0, offset));
+            return {
+                sigType: signatureType,
+                secIndices,
+                multisig,
+                multisigIndices,
+                singlesig: null,
+                raw,
+            };
+        }
     }
-    const raw = Buffer.from(response.subarray(0, offset));
-    return {
-        salt,
-        indices,
-        pubkey,
-        signature,
-        raw,
-    };
 }
 exports.processGetSignatureResponse = processGetSignatureResponse;
 function processGetAddrResponse(response) {

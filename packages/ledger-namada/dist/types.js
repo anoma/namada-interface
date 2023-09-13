@@ -4,20 +4,22 @@ exports.Signature = void 0;
 class Signature {
     constructor(signature) {
         if (signature == null) {
-            this.raw = Buffer.from([]);
             this.isFilled = false;
-            this.salt = Buffer.from([]);
-            this.indices = Buffer.from([]);
-            this.pubkey = Buffer.from([]);
-            this.signature = null;
+            this.raw = Buffer.from([]);
+            this.secIndices = Buffer.from([]);
+            this.sigType = 0 /* SignatureType.RawSignature */;
+            this.singlesig = null;
+            this.multisigIndices = Buffer.from([]);
+            this.multisig = [];
         }
         else {
             this.isFilled = true;
             this.raw = signature.raw;
-            this.salt = signature.salt;
-            this.indices = signature.indices;
-            this.pubkey = signature.pubkey;
-            this.signature = signature.signature;
+            this.secIndices = signature.secIndices;
+            this.sigType = signature.sigType;
+            this.singlesig = signature.singlesig;
+            this.multisigIndices = signature.multisigIndices;
+            this.multisig = signature.multisig;
         }
     }
 }

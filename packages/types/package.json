@@ -13,6 +13,7 @@
     "lint:ci": "yarn lint --max-warnings 0"
   },
   "dependencies": {
+    "@namada/ledger-namada": "0.0.1",
     "bn.js": "^5.2.1",
     "@dao-xyz/borsh": "^5.1.5",
     "slip44": "^2.0.4",

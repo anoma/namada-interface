@@ -154,7 +154,7 @@ class NamadaApp {
     async getSignature(signatureType) {
         return this.transport
             .send(config_1.CLA, config_1.INS.GET_SIGNATURE, common_1.P1_VALUES.ONLY_RETRIEVE, signatureType, Buffer.from([]), [common_1.LedgerError.NoErrors])
-            .then(processResponses_1.processGetSignatureResponse, common_1.processErrorResponse);
+            .then((response) => { return (0, processResponses_1.processGetSignatureResponse)(signatureType, response); }, common_1.processErrorResponse);
     }
     async _sign(path, message) {
         const serializedPath = (0, common_1.serializePath)(path);
