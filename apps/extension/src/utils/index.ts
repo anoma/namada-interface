@@ -68,15 +68,15 @@ export const generateId = (
  * Convert ISignature into serialized and encoded signature
  */
 export const encodeSignature = (sig: ISignature): Uint8Array => {
-  const { secIndices, singlesig, sigType, multisigIndices, multisig } = sig;
+  const { pubkey, raw_indices, raw_signature, wrapper_indices, wrapper_signature } = sig;
 
   /* eslint-disable */
   const props = {
-    secIndices: new Uint8Array((secIndices as any).data),
-    singlesig: singlesig ? new Uint8Array((singlesig as any).data) : undefined,
-    sigType,
-    multisigIndices: new Uint8Array((multisigIndices as any).data),
-    multisig: multisig.map((sig) => new Uint8Array((sig as any).data))
+    pubkey: new Uint8Array((pubkey as any).data),
+    rawIndices: new Uint8Array((raw_indices as any).data),
+    rawSignature: new Uint8Array((raw_signature as any).data),
+    wrapperIndices: new Uint8Array((wrapper_indices as any).data),
+    wrapperSignature: new Uint8Array((wrapper_signature as any).data),
   };
   /* eslint-enable */
 

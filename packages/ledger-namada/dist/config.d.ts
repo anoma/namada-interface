@@ -22,9 +22,8 @@ export declare const INS: {
     GET_IVK: number;
     GET_OVK: number;
     GET_NF: number;
-    GET_SIGNATURE: number;
 };
 export declare const SALT_LEN = 8;
 export declare const HASH_LEN = 32;
-export declare const PK_LEN_25519 = 32;
-export declare const ED25519_SIGNATURE_LEN = 64;
+export declare const PK_LEN_PLUS_TAG = 33;
+export declare const SIG_LEN_PLUS_TAG = 65;

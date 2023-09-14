@@ -15,7 +15,6 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NamadaApp = exports.LedgerError = void 0;
-const types_1 = require("./types");
 const common_1 = require("./common");
 Object.defineProperty(exports, "LedgerError", { enumerable: true, get: function () { return common_1.LedgerError; } });
 const config_1 = require("./config");
@@ -145,18 +144,20 @@ class NamadaApp {
                 returnCode === common_1.LedgerError.SignVerifyError) {
                 errorMessage = `${errorMessage} : ${response.subarray(0, response.length - 2).toString('ascii')}`;
             }
+            if (returnCode === common_1.LedgerError.NoErrors && response.length > 2) {
+                return {
+                    signature: (0, processResponses_1.getSignatureResponse)(response),
+                    returnCode,
+                    errorMessage,
+                };
+            }
             return {
                 returnCode: returnCode,
                 errorMessage: errorMessage,
             };
         }, common_1.processErrorResponse);
     }
-    async getSignature(signatureType) {
-        return this.transport
-            .send(config_1.CLA, config_1.INS.GET_SIGNATURE, common_1.P1_VALUES.ONLY_RETRIEVE, signatureType, Buffer.from([]), [common_1.LedgerError.NoErrors])
-            .then((response) => { return (0, processResponses_1.processGetSignatureResponse)(signatureType, response); }, common_1.processErrorResponse);
-    }
-    async _sign(path, message) {
+    async sign(path, message) {
         const serializedPath = (0, common_1.serializePath)(path);
         return this.prepareChunks(serializedPath, message).then(chunks => {
             return this.signSendChunk(1, chunks.length, chunks[0], config_1.INS.SIGN).then(async (response) => {
@@ -173,21 +174,6 @@ class NamadaApp {
                 return result;
             }, common_1.processErrorResponse);
         }, common_1.processErrorResponse);
-    }
-    async sign(path, message) {
-        const signCommand = await this._sign(path, message);
-        const result = {
-            returnCode: signCommand.returnCode,
-            errorMessage: signCommand.errorMessage,
-            wrapperSignature: new types_1.Signature(),
-            rawSignature: new types_1.Signature(),
-        };
-        if (signCommand.returnCode !== common_1.LedgerError.NoErrors) {
-            return result;
-        }
-        result.wrapperSignature = new types_1.Signature(await this.getSignature(1 /* SignatureType.WrapperSignature */));
-        result.rawSignature = new types_1.Signature(await this.getSignature(0 /* SignatureType.RawSignature */));
-        return result;
     }
 }
 exports.NamadaApp = NamadaApp;

@@ -33,10 +33,6 @@ export declare const SIGN_VALUES_P2: {
 export declare const ERROR_CODE: {
     NoError: number;
 };
-export declare const enum SignatureType {
-    RawSignature = 0,
-    WrapperSignature = 1
-}
 export declare enum LedgerError {
     U2FUnknown = 1,
     U2FBadRequest = 2,

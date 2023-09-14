@@ -163,10 +163,9 @@ impl Sdk {
         &mut self,
         tx_msg: &[u8],
         tx_bytes: &[u8],
-        raw_sig_bytes: &[u8],
-        wrapper_sig_bytes: &[u8],
+        sig_msg_bytes: &[u8],
     ) -> Result<(), JsError> {
-        let reveal_pk_tx = self.sign_tx(tx_bytes, raw_sig_bytes, wrapper_sig_bytes)?;
+        let reveal_pk_tx = self.sign_tx(tx_bytes, sig_msg_bytes)?;
         let args = tx::tx_args_from_slice(&tx_msg)?;
 
         namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args, reveal_pk_tx).await?;
@@ -224,7 +223,6 @@ impl Sdk {
                     &gas_payer,
                 )
                 .await?;
-
                 reveal_pk
             }
             TxType::Transfer => {
@@ -287,7 +285,6 @@ impl Sdk {
                     gas_payer,
                 )
                 .await?;
-
                 withdraw
             }
         };
@@ -296,18 +293,26 @@ impl Sdk {
     }
 
     // Append signatures and return tx bytes
-    fn sign_tx(
-        &self,
-        tx_bytes: &[u8],
-        raw_sig_bytes: &[u8],
-        wrapper_sig_bytes: &[u8],
-    ) -> Result<Tx, JsError> {
+    fn sign_tx(&self, tx_bytes: &[u8], sig_msg_bytes: &[u8]) -> Result<Tx, JsError> {
         let mut tx: Tx = Tx::try_from_slice(tx_bytes)?;
+        let signature::SignatureMsg {
+            pubkey,
+            raw_indices,
+            raw_signature,
+            wrapper_indices,
+            wrapper_signature,
+        } = signature::SignatureMsg::try_from_slice(&sig_msg_bytes)?;
 
-        let raw_sig_section = signature::construct_signature(raw_sig_bytes, &tx)?;
+        let raw_sig_section =
+            signature::construct_signature_section(&pubkey, &raw_indices, &raw_signature, &tx)?;
         tx.add_section(raw_sig_section);
 
-        let wrapper_sig_section = signature::construct_signature(wrapper_sig_bytes, &tx)?;
+        let wrapper_sig_section = signature::construct_signature_section(
+            &pubkey,
+            &wrapper_indices,
+            &wrapper_signature,
+            &tx,
+        )?;
         tx.add_section(wrapper_sig_section);
 
         tx.protocol_filter();
@@ -320,10 +325,9 @@ impl Sdk {
         &mut self,
         tx_msg: &[u8],
         tx_bytes: &[u8],
-        raw_sig_bytes: &[u8],
-        wrapper_sig_bytes: &[u8],
+        sig_msg_bytes: &[u8],
     ) -> Result<(), JsError> {
-        let transfer_tx = self.sign_tx(tx_bytes, raw_sig_bytes, wrapper_sig_bytes)?;
+        let transfer_tx = self.sign_tx(tx_bytes, sig_msg_bytes)?;
         let args = tx::tx_args_from_slice(tx_msg)?;
 
         namada::ledger::tx::process_tx(&self.client, &mut self.wallet, &args, transfer_tx).await?;
@@ -345,7 +349,7 @@ impl Sdk {
             &self.client,
             &mut self.wallet,
             &args.tx.clone(),
-            &Some(effective_address.clone()),
+            Some(effective_address.clone()),
             default_signer,
         )
         .await?;
@@ -378,7 +382,7 @@ impl Sdk {
             &self.client,
             &mut self.wallet,
             &args.tx.clone(),
-            &Some(source.clone()),
+            Some(source.clone()),
             default_signer,
         )
         .await?;
@@ -444,7 +448,7 @@ impl Sdk {
             &self.client,
             &mut self.wallet,
             &args.tx.clone(),
-            &source,
+            source,
             default_signer,
         )
         .await?;
@@ -477,7 +481,7 @@ impl Sdk {
             &self.client,
             &mut self.wallet,
             &args.tx.clone(),
-            &source,
+            source,
             default_signer,
         )
         .await?;
@@ -509,7 +513,7 @@ impl Sdk {
             &self.client,
             &mut self.wallet,
             &args.tx.clone(),
-            &source,
+            source,
             default_signer,
         )
         .await?;

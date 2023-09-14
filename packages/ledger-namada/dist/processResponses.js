@@ -15,71 +15,47 @@
  *  limitations under the License.
  ******************************************************************************* */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.processGetAddrResponse = exports.processGetSignatureResponse = void 0;
+exports.processGetAddrResponse = exports.getSignatureResponse = void 0;
 const common_1 = require("./common");
 const config_1 = require("./config");
-function processGetSignatureResponse(signatureType, response) {
+function getSignatureResponse(response) {
     console.log('Processing get signature response');
+    // App sign response: [ pubkey(33) | raw_salt(8) | raw_signature(65) | wrapper_salt(8) | wrapper_signature(65) |
+    // raw_indices_len(1) | wrapper_indices_len(1) | indices(wrapper_indices_len) ]
     let offset = 0;
-    const hashesLen = response[offset] + response[offset + 1] * 0x100 + response[offset + 2] * 0x10000 + response[offset + 3] * 0x1000000;
-    offset += 4;
-    const secIndices = Buffer.from(response.subarray(offset, offset + hashesLen));
-    offset += hashesLen;
-    switch (signatureType) {
-        case 1 /* SignatureType.WrapperSignature */: {
-            const hasSignature = response[offset];
-            offset += 1;
-            let singlesig = null;
-            if (hasSignature) {
-                singlesig = Buffer.from(response.subarray(offset, offset + 65));
-                offset += 65;
-            }
-            const raw = Buffer.from(response.subarray(0, offset));
-            return {
-                sigType: signatureType,
-                secIndices,
-                singlesig,
-                multisig: [],
-                multisigIndices: Buffer.from([]),
-                raw,
-            };
-        }
-        case 0 /* SignatureType.RawSignature */: {
-            const multisigLen = response[offset] + response[offset + 1] * 0x100 + response[offset + 2] * 0x10000 + response[offset + 3] * 0x1000000;
-            offset += 4;
-            var multisig = [];
-            var multisigIndices = Buffer.alloc(multisigLen);
-            for (let i = 0; i < multisigLen; i += 1) {
-                let signature = Buffer.from(response.subarray(offset, offset + 65));
-                offset += 65;
-                multisig.push(signature);
-                multisigIndices.writeInt8(response[offset]);
-                offset += 1;
-            }
-            const raw = Buffer.from(response.subarray(0, offset));
-            return {
-                sigType: signatureType,
-                secIndices,
-                multisig,
-                multisigIndices,
-                singlesig: null,
-                raw,
-            };
-        }
-    }
+    const pubkey = Buffer.from(response.subarray(offset, offset + config_1.PK_LEN_PLUS_TAG));
+    offset += config_1.PK_LEN_PLUS_TAG;
+    const raw_salt = Buffer.from(response.subarray(offset, offset + config_1.SALT_LEN));
+    offset += config_1.SALT_LEN;
+    const raw_signature = Buffer.from(response.subarray(offset, offset + config_1.SIG_LEN_PLUS_TAG));
+    offset += config_1.SIG_LEN_PLUS_TAG;
+    const wrapper_salt = Buffer.from(response.subarray(offset, offset + config_1.SALT_LEN));
+    offset += config_1.SALT_LEN;
+    const wrapper_signature = Buffer.from(response.subarray(offset, offset + config_1.SIG_LEN_PLUS_TAG));
+    offset += config_1.SIG_LEN_PLUS_TAG;
+    const raw_indices_len = response[offset];
+    offset += 1;
+    const wrapper_indices_len = response[offset];
+    offset += 1;
+    const raw_indices = Buffer.from(response.subarray(offset, offset + raw_indices_len));
+    const wrapper_indices = Buffer.from(response.subarray(offset, offset + wrapper_indices_len));
+    return {
+        pubkey,
+        raw_salt,
+        raw_signature,
+        wrapper_salt,
+        wrapper_signature,
+        raw_indices,
+        wrapper_indices,
+    };
 }
-exports.processGetSignatureResponse = processGetSignatureResponse;
+exports.getSignatureResponse = getSignatureResponse;
 function processGetAddrResponse(response) {
     console.log('Processing get address response');
-    let partialResponse = response;
-    const errorCodeData = partialResponse.subarray(-2);
+    const errorCodeData = response.subarray(-2);
     const returnCode = errorCodeData[0] * 256 + errorCodeData[1];
-    //get public key len (variable)
-    const publicKey = Buffer.from(partialResponse.slice(0, config_1.PK_LEN_25519));
-    //"advance" buffer
-    partialResponse = partialResponse.slice(config_1.PK_LEN_25519);
-    // get the implicit address corresponding to the public key
-    const address = Buffer.from(partialResponse.slice(0, -2));
+    const publicKey = Buffer.from(response.subarray(0, config_1.PK_LEN_PLUS_TAG));
+    const address = Buffer.from(response.subarray(config_1.PK_LEN_PLUS_TAG, -2));
     return {
         publicKey,
         address,

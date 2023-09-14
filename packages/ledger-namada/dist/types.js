@@ -5,21 +5,23 @@ class Signature {
     constructor(signature) {
         if (signature == null) {
             this.isFilled = false;
-            this.raw = Buffer.from([]);
-            this.secIndices = Buffer.from([]);
-            this.sigType = 0 /* SignatureType.RawSignature */;
-            this.singlesig = null;
-            this.multisigIndices = Buffer.from([]);
-            this.multisig = [];
+            this.pubkey = Buffer.from([]);
+            this.raw_salt = Buffer.from([]);
+            this.raw_signature = Buffer.from([]);
+            this.wrapper_salt = Buffer.from([]);
+            this.wrapper_signature = Buffer.from([]);
+            this.raw_indices = Buffer.from([]);
+            this.wrapper_indices = Buffer.from([]);
         }
         else {
             this.isFilled = true;
-            this.raw = signature.raw;
-            this.secIndices = signature.secIndices;
-            this.sigType = signature.sigType;
-            this.singlesig = signature.singlesig;
-            this.multisigIndices = signature.multisigIndices;
-            this.multisig = signature.multisig;
+            this.pubkey = signature.pubkey;
+            this.raw_salt = signature.raw_salt;
+            this.raw_signature = signature.raw_signature;
+            this.wrapper_salt = signature.wrapper_salt;
+            this.wrapper_signature = signature.wrapper_signature;
+            this.raw_indices = signature.raw_indices;
+            this.wrapper_indices = signature.wrapper_indices;
         }
     }
 }

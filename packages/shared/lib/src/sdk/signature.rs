@@ -1,84 +1,48 @@
 use borsh::{BorshDeserialize, BorshSerialize};
-use namada::proto::{MultiSignature, Section, Signature, Tx};
+use namada::{
+    ledger::pos::common::Signature,
+    proto::{CompressedSignature, Section, Signer, Tx},
+    types::key::common::PublicKey,
+};
+use std::collections::BTreeMap;
 use wasm_bindgen::JsError;
-
-#[derive(Copy, Clone, Debug, BorshSerialize, BorshDeserialize)]
-pub enum SignatureType {
-    Raw = 0,
-    Wrapper = 1,
-}
 
 #[derive(BorshSerialize, BorshDeserialize)]
 pub struct SignatureMsg {
-    sec_indices: Vec<u8>,
-    singlesig: Option<Vec<u8>>,
-    sig_type: SignatureType,
-    multisig_indices: Vec<u8>,
-    multisig: Vec<Vec<u8>>,
+    pub pubkey: Vec<u8>,
+    pub raw_indices: Vec<u8>,
+    pub raw_signature: Vec<u8>,
+    pub wrapper_indices: Vec<u8>,
+    pub wrapper_signature: Vec<u8>,
 }
 
-/// Reconstructs a proto::Signature using the provided indices to retrieve hashes from Tx
+/// Reconstructs a proto::Section signature using the provided indices to retrieve hashes
+/// from Tx
 ///
 /// # Arguments
 ////
-/// * `sig_msg` - A Borshed serialized SignatureMsg struct
+/// * `pubkey` - Public key bytes
+/// * `sec_indices` - Indices indicating hash location
+/// * `signature` - Signature bytes
 /// * `tx` - A proto::Tx
 ///
 /// # Errors
 ///
 /// Returns JsError if the sig_msg can't be deserialized or
 /// Rust structs can't be created.
-pub fn construct_signature(sig_msg: &[u8], tx: &Tx) -> Result<Section, JsError> {
-    let SignatureMsg {
-        sec_indices,
-        singlesig,
-        sig_type,
-        multisig_indices,
-        multisig,
-    } = SignatureMsg::try_from_slice(sig_msg)?;
+pub fn construct_signature_section(
+    pubkey: &[u8],
+    sec_indices: &[u8],
+    signature: &[u8],
+    tx: &Tx,
+) -> Result<Section, JsError> {
+    let signatures = BTreeMap::from([(0, Signature::try_from_slice(signature)?)]);
 
-    // Start with the number of section indices with a pad
-    let indices = vec![sec_indices.len() as u8, 0, 0, 0];
-    let mut sig = indices;
+    let compressed_signature = CompressedSignature {
+        targets: sec_indices.to_vec(),
+        signer: Signer::PubKeys(vec![PublicKey::try_from_slice(pubkey)?]),
+        signatures,
+    };
 
-    // Which is followed by the hash of each section in the order specified
-    for i in 0..sec_indices.len() {
-        let sechash = match sec_indices[i] {
-            0 => tx.header_hash(),
-            _ => tx.sections[sec_indices[i] as usize - 1].get_hash(),
-        };
-
-        sig.extend_from_slice(&sechash.to_vec());
-    }
-
-    match sig_type {
-        SignatureType::Wrapper => {
-            // Indicates that a signature follows
-            sig.extend_from_slice(&vec![0x01]);
-
-            // Followed by the signature
-            match singlesig {
-                Some(v) => {
-                    sig.extend_from_slice(&v);
-                }
-                // This shouldn't happen:
-                None => panic!("singlesig is required for SignatureType::Wrapper"),
-            }
-            Ok(Section::Signature(Signature::try_from_slice(&sig)?))
-        }
-        SignatureType::Raw => {
-            // Multisigs start with the number of signatures
-            sig.extend_from_slice(&vec![multisig_indices.len() as u8, 0, 0, 0]);
-            // Followed by a sequence of signature - index pairs
-            for (signature, idx) in multisig.iter().zip(multisig_indices) {
-                // Add the bytes of the signature
-                sig.extend_from_slice(&signature);
-                // Add a byte representing the index of the signature
-                sig.push(idx);
-            }
-            let multisignature = MultiSignature::try_from_slice(&sig)?;
-
-            Ok(Section::SectionSignature(multisignature))
-        }
-    }
+    Ok(Section::Signature(compressed_signature.expand(&tx)))
 }

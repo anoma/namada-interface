@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ED25519_SIGNATURE_LEN = exports.PK_LEN_25519 = exports.HASH_LEN = exports.SALT_LEN = exports.INS = exports.CLA = void 0;
+exports.SIG_LEN_PLUS_TAG = exports.PK_LEN_PLUS_TAG = exports.HASH_LEN = exports.SALT_LEN = exports.INS = exports.CLA = void 0;
 /** ******************************************************************************
  *  (c) 2018 - 2022 Zondax AG
  *
@@ -25,10 +25,9 @@ exports.INS = {
     GET_IVK: 0x04,
     GET_OVK: 0x05,
     GET_NF: 0x06,
-    GET_SIGNATURE: 0x0a,
 };
 exports.SALT_LEN = 8;
 exports.HASH_LEN = 32;
-exports.PK_LEN_25519 = 32;
-exports.ED25519_SIGNATURE_LEN = 64;
+exports.PK_LEN_PLUS_TAG = 33;
+exports.SIG_LEN_PLUS_TAG = 65;
 //# sourceMappingURL=config.js.map
