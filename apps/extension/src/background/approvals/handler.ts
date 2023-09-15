@@ -6,6 +6,7 @@ import {
   ApproveTransferMsg,
   ApproveIbcTransferMsg,
   ApproveWithdrawMsg,
+  ApproveConnectInterfaceMsg,
 } from "provider";
 import {
   RejectTxMsg,
@@ -14,6 +15,8 @@ import {
   SubmitApprovedBondMsg,
   SubmitApprovedUnbondMsg,
   SubmitApprovedWithdrawMsg,
+  ConnectInterfaceResponseMsg,
+  RevokeConnectionMsg,
 } from "./messages";
 
 export const getHandler: (service: ApprovalsService) => Handler = (service) => {
@@ -66,6 +69,21 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
         return handleSubmitApprovedWithdrawMsg(service)(
           env,
           msg as SubmitApprovedUnbondMsg
+        );
+      case ApproveConnectInterfaceMsg:
+        return handleApproveConnectInterfaceMsg(service)(
+          env,
+          msg as ApproveConnectInterfaceMsg
+        );
+      case ConnectInterfaceResponseMsg:
+        return handleConnectInterfaceResponseMsg(service)(
+          env,
+          msg as ConnectInterfaceResponseMsg
+        );
+      case RevokeConnectionMsg:
+        return handleRevokeConnectionMsg(service)(
+          env,
+          msg as RevokeConnectionMsg
         );
       default:
         throw new Error("Unknown msg type");
@@ -158,5 +176,31 @@ const handleSubmitApprovedWithdrawMsg: (
 ) => InternalHandler<SubmitApprovedWithdrawMsg> = (service) => {
   return async (_, { msgId, password }) => {
     return await service.submitWithdraw(msgId, password);
+  };
+};
+
+const handleApproveConnectInterfaceMsg: (
+  service: ApprovalsService
+) => InternalHandler<ApproveConnectInterfaceMsg> = (service) => {
+  return async ({ senderTabId: interfaceTabId }, { chainId, origin }) => {
+    return await service.approveConnection(interfaceTabId, chainId, origin);
+  };
+};
+
+const handleConnectInterfaceResponseMsg: (
+  service: ApprovalsService
+) => InternalHandler<ConnectInterfaceResponseMsg> = (service) => {
+  return async ({ senderTabId: popupTabId }, { interfaceTabId, chainId, interfaceOrigin, allowConnection }) => {
+    return await service.approveConnectionResponse(
+      interfaceTabId, chainId, interfaceOrigin, allowConnection, popupTabId
+    );
+  };
+};
+
+const handleRevokeConnectionMsg: (
+  service: ApprovalsService
+) => InternalHandler<RevokeConnectionMsg> = (service) => {
+  return async (_, { originToRevoke }) => {
+    return await service.revokeConnection(originToRevoke);
   };
 };

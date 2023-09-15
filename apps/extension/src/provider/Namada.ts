@@ -11,7 +11,7 @@ import {
   ApproveBondMsg,
   ApproveUnbondMsg,
   ApproveWithdrawMsg,
-  ConnectInterfaceMsg,
+  ApproveConnectInterfaceMsg,
   GetChainMsg,
   GetChainsMsg,
   SuggestChainMsg,
@@ -31,7 +31,7 @@ export class Namada implements INamada {
   public async connect(chainId: string): Promise<void> {
     return await this.requester?.sendMessage(
       Ports.Background,
-      new ConnectInterfaceMsg(chainId)
+      new ApproveConnectInterfaceMsg(chainId)
     );
   }
 

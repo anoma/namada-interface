@@ -25,11 +25,17 @@ const router = new ExtensionRouter(
   extensionStore
 );
 
+const approvedOriginsStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
+  get: browser.storage.local.get,
+  set: browser.storage.local.set,
+});
+
 const init = new Promise<void>(async (resolve) => {
   // Start proxying messages from Namada to InjectedNamada
   const routerId = await getNamadaRouterId(extensionStore);
   Proxy.start(
-    new Namada(manifest.version, new ExtensionRequester(messenger, routerId))
+    new Namada(manifest.version, new ExtensionRequester(messenger, routerId)),
+    approvedOriginsStore
   );
   resolve();
 });

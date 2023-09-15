@@ -14,7 +14,7 @@ enum Route {
 }
 
 enum MessageType {
-  ConnectInterface = "connect-interface",
+  ApproveConnectInterface = "approve-connect-interface",
   QueryAccounts = "query-accounts",
   ApproveTransfer = "approve-transfer",
   ApproveIbcTransfer = "approve-ibc-transfer",
@@ -36,9 +36,9 @@ enum MessageType {
  * Messages routed from providers to Chains service
  */
 
-export class ConnectInterfaceMsg extends Message<void> {
+export class ApproveConnectInterfaceMsg extends Message<void> {
   public static type(): MessageType {
-    return MessageType.ConnectInterface;
+    return MessageType.ApproveConnectInterface;
   }
 
   constructor(public readonly chainId: string) {
@@ -52,11 +52,11 @@ export class ConnectInterfaceMsg extends Message<void> {
   }
 
   route(): string {
-    return Route.KeyRing;
+    return Route.Approvals;
   }
 
   type(): string {
-    return ConnectInterfaceMsg.type();
+    return ApproveConnectInterfaceMsg.type();
   }
 }
 

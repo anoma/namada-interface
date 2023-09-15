@@ -1,8 +1,14 @@
+import { KVStore } from "@namada/storage";
+import { ApprovedOriginsStore, APPROVED_ORIGINS_KEY } from "background/approvals";
+
 import { Namada } from "./Namada";
 import { ProxyRequest, ProxyRequestResponse, ProxyRequestTypes } from "./types";
 
 export class Proxy {
-  static start(namada: Namada): void {
+  static start(
+    namada: Namada,
+    approvedOriginsStore: KVStore<ApprovedOriginsStore>,
+  ): void {
     Proxy.addMessageListener(async (e) => {
       const message = e.data;
 
@@ -11,6 +17,13 @@ export class Proxy {
       }
 
       const { method, args } = message;
+
+      if (method !== "connect") {
+        const approvedOrigins = await approvedOriginsStore.get(APPROVED_ORIGINS_KEY) || [];
+        if (!approvedOrigins.includes(e.origin)) {
+          return;
+        }
+      }
 
       try {
         if (!namada[method] || typeof namada[method] !== "function") {

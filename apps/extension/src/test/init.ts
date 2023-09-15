@@ -70,6 +70,9 @@ export const init = async (): Promise<{
   const connectedTabsStore = new KVStoreMock<TabStore[]>(
     KVPrefix.ConnectedTabs
   );
+  const approvedOriginsStore = new KVStoreMock<TabStore[]>(
+    KVPrefix.LocalStorage
+  );
   const revealedPKStore = new KVStoreMock<string[]>(KVPrefix.RevealedPK);
   const namadaRouterId = await getNamadaRouterId(extStore);
   const requester = new ExtensionRequester(messenger, namadaRouterId);
@@ -129,6 +132,7 @@ export const init = async (): Promise<{
   const approvalsService = new ApprovalsService(
     txStore,
     connectedTabsStore,
+    approvedOriginsStore,
     keyRingService,
     ledgerService
   );

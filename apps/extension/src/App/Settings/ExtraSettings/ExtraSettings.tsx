@@ -4,6 +4,7 @@ import { ExtensionRequester } from "extension";
 import { Mode, ExtraSetting } from "./types";
 import { ResetPassword } from "./ResetPassword";
 import { DeleteAccount } from "./DeleteAccount";
+import { ConnectedSites } from "./ConnectedSites";
 import { ExtraSettingsContainer, CloseLink } from "./ExtraSettings.components";
 
 /**
@@ -33,8 +34,10 @@ const ExtraSettings: React.FC<{
           requester={requester}
           onDeleteAccount={onDeleteAccount}
         />
+      ) : extraSetting.mode === Mode.ConnectedSites ? (
+        <ConnectedSites />
       ) : (
-        assertNever(extraSetting.mode)
+        assertNever(extraSetting)
       )}
     </ExtraSettingsContainer>
   );

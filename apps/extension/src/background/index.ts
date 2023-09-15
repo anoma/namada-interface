@@ -44,6 +44,10 @@ const connectedTabsStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
   get: browser.storage.local.get,
   set: browser.storage.local.set,
 });
+const approvedOriginsStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
+  get: browser.storage.local.get,
+  set: browser.storage.local.set,
+});
 const revealedPKStore = new ExtensionKVStore(KVPrefix.RevealedPK, {
   get: browser.storage.local.get,
   set: browser.storage.local.set,
@@ -120,6 +124,7 @@ const init = new Promise<void>(async (resolve) => {
   const approvalsService = new ApprovalsService(
     txStore,
     connectedTabsStore,
+    approvedOriginsStore,
     keyRingService,
     ledgerService
   );

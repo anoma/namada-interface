@@ -1,4 +1,7 @@
-import { InjectedNamada } from "provider";
+// import needs to be "provider/InjectedNamada" since "provider" will make
+// webpack bundle webextension-polyfill, which causes a runtime crash
+import { InjectedNamada } from "provider/InjectedNamada";
+
 import manifest from "manifest/_base.json";
 
 declare global {

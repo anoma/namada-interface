@@ -20,6 +20,7 @@ import {
 } from "./messages";
 import {
   ConnectInterfaceMsg,
+  EncodeInitAccountMsg,
   QueryAccountsMsg,
   QueryBalancesMsg,
   FetchAndStoreMaspParamsMsg,
@@ -34,7 +35,6 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(CheckPasswordMsg);
   router.registerMessage(QueryPublicKeyMsg);
   router.registerMessage(CloseOffscreenDocumentMsg);
-  router.registerMessage(ConnectInterfaceMsg);
   router.registerMessage(DeriveAccountMsg);
   router.registerMessage(GenerateMnemonicMsg);
   router.registerMessage(GetActiveAccountMsg);
