@@ -30,7 +30,14 @@ module.exports = {
         "allowExpressions": true
       }
     ],
-    "import/prefer-default-export": "off"
+    "import/prefer-default-export": "off",
+    "no-restricted-globals": [
+      "error",
+      {
+        "name": "browser",
+        "message": "You probably need to import webextension-polyfill."
+      }
+    ]
   },
   "settings": {
     "import/parsers": {

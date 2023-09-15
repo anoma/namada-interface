@@ -6,6 +6,7 @@ import {
   ApproveEthBridgeTransferMsg,
   ApproveUnbondMsg,
   ApproveWithdrawMsg,
+  ApproveConnectInterfaceMsg,
 } from "provider";
 import {
   RejectTxMsg,
@@ -15,6 +16,8 @@ import {
   SubmitApprovedIbcTransferMsg,
   SubmitApprovedEthBridgeTransferMsg,
   SubmitApprovedWithdrawMsg,
+  ConnectInterfaceResponseMsg,
+  RevokeConnectionMsg,
 } from "./messages";
 
 import { ROUTE } from "./constants";
@@ -35,6 +38,9 @@ export function init(router: Router, service: ApprovalsService): void {
   router.registerMessage(SubmitApprovedIbcTransferMsg);
   router.registerMessage(SubmitApprovedEthBridgeTransferMsg);
   router.registerMessage(SubmitApprovedWithdrawMsg);
+  router.registerMessage(ApproveConnectInterfaceMsg);
+  router.registerMessage(ConnectInterfaceResponseMsg);
+  router.registerMessage(RevokeConnectionMsg);
 
   router.addHandler(ROUTE, getHandler(service));
 }

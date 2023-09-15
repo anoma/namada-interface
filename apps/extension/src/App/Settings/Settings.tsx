@@ -158,6 +158,14 @@ const Settings: React.FC<{
             </Button>
           </ButtonsContainer>
 
+          <ModeSelectContainer>
+            <ModeSelectLink
+              onClick={() => setExtraSetting({ mode: Mode.ConnectedSites })}
+            >
+              {Mode.ConnectedSites}
+            </ModeSelectLink>
+          </ModeSelectContainer>
+
           <ExtraSettings
             extraSetting={extraSetting}
             requester={requester}
@@ -177,7 +185,7 @@ const AccountListItem: React.FC<{
   account: DerivedAccount;
   activeAccountId: string;
   onSelectAccount: () => void;
-  onSelectMode: (mode: Mode) => void;
+  onSelectMode: (mode: Mode.ResetPassword | Mode.DeleteAccount) => void;
 }> = ({ account, activeAccountId, onSelectAccount, onSelectMode }) => {
   const [expanded, setExpanded] = useState<boolean>(false);
 
@@ -209,14 +217,12 @@ const AccountListItem: React.FC<{
  * Contains a list of possible settings to open for a given account.
  */
 const ModeSelect: React.FC<{
-  onSelectMode: (mode: Mode) => void;
+  onSelectMode: (mode: Mode.ResetPassword | Mode.DeleteAccount) => void;
   type: AccountType;
 }> = ({ onSelectMode, type }) => {
-  const modes = [Mode.DeleteAccount];
-
-  if (type !== AccountType.Ledger) {
-    modes.unshift(Mode.ResetPassword);
-  }
+  const modes = type === AccountType.Ledger
+    ? [Mode.DeleteAccount] as const
+    : [Mode.ResetPassword, Mode.DeleteAccount] as const;
 
   return (
     <ModeSelectContainer>

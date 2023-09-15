@@ -24,6 +24,7 @@ import {
 import {
   ApprovalsService,
   init as initApprovals,
+  ApprovedOriginsStore
 } from "../background/approvals";
 
 import { Namada } from "provider";
@@ -69,6 +70,9 @@ export const init = async (): Promise<{
   const utilityStore = new KVStoreMock<UtilityStore>(KVPrefix.Utility);
   const connectedTabsStore = new KVStoreMock<TabStore[]>(
     KVPrefix.ConnectedTabs
+  );
+  const approvedOriginsStore = new KVStoreMock<ApprovedOriginsStore>(
+    KVPrefix.LocalStorage
   );
   const revealedPKStore = new KVStoreMock<string[]>(KVPrefix.RevealedPK);
   const namadaRouterId = await getNamadaRouterId(extStore);
@@ -129,6 +133,7 @@ export const init = async (): Promise<{
   const approvalsService = new ApprovalsService(
     txStore,
     connectedTabsStore,
+    approvedOriginsStore,
     keyRingService,
     ledgerService
   );

@@ -1,4 +1,4 @@
-import browser from "webextension-polyfill";
+import browser, { Windows } from "webextension-polyfill";
 import { fromBase64 } from "@cosmjs/encoding";
 import { v4 as uuid } from "uuid";
 import BigNumber from "bignumber.js";
@@ -20,10 +20,23 @@ import { KeyRingService, TabStore } from "background/keyring";
 import { LedgerService } from "background/ledger";
 import { paramsToUrl } from "@namada/utils";
 
+import { ApprovedOriginsStore } from "./types";
+import { addApprovedOrigin, removeApprovedOrigin, APPROVED_ORIGINS_KEY } from "./utils";
+
 export class ApprovalsService {
+
+  // holds promises which can be resolved with a message from a pop-up window
+  protected resolverMap: Record<
+    number,
+    // TODO: there should be better typing for this
+    // eslint-disable-next-line
+    { resolve: (result?: any) => void; reject: (error?: any) => void }
+  > = {};
+
   constructor(
     protected readonly txStore: KVStore<string>,
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
+    protected readonly approvedOriginsStore: KVStore<ApprovedOriginsStore>,
     protected readonly keyRingService: KeyRingService,
     protected readonly ledgerService: LedgerService
   ) {}
@@ -324,12 +337,70 @@ export class ApprovalsService {
     throw new Error("Pending Withdraw tx not found!");
   }
 
+  async approveConnection(
+    interfaceTabId: number,
+    chainId: string,
+    interfaceOrigin: string
+  ): Promise<void> {
+    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-connection`;
+
+    const url = paramsToUrl(baseUrl, {
+      interfaceTabId: interfaceTabId.toString(),
+      chainId,
+      interfaceOrigin
+    });
+
+    const approvedOrigins = await this.approvedOriginsStore.get(APPROVED_ORIGINS_KEY) || [];
+
+    if (!approvedOrigins.includes(interfaceOrigin)) {
+      const approvalWindow = await this._launchApprovalWindow(url);
+      const popupTabId = approvalWindow.tabs?.[0]?.id;
+
+      if (!popupTabId) {
+        throw new Error("no popup tab ID");
+      }
+
+      if (popupTabId in this.resolverMap) {
+        throw new Error(`tab ID ${popupTabId} already exists in promise map`);
+      }
+
+      return new Promise((resolve, reject) => {
+        this.resolverMap[popupTabId] = { resolve, reject };
+      });
+    }
+  }
+
+  async approveConnectionResponse(
+    interfaceTabId: number,
+    chainId: string,
+    interfaceOrigin: string,
+    allowConnection: boolean,
+    popupTabId: number,
+  ): Promise<void> {
+    const resolvers = this.resolverMap[popupTabId];
+    if (!resolvers) {
+      throw new Error(`no resolvers found for tab ID ${interfaceTabId}`);
+    }
+
+    if (allowConnection) {
+      await addApprovedOrigin(this.approvedOriginsStore, interfaceOrigin);
+      await this.keyRingService.connect(interfaceTabId, chainId);
+      resolvers.resolve();
+    } else {
+      resolvers.reject();
+    }
+  }
+
+  async revokeConnection(originToRevoke: string): Promise<void> {
+    return removeApprovedOrigin(this.approvedOriginsStore, originToRevoke);
+  }
+
   private async _clearPendingTx(msgId: string): Promise<void> {
     return await this.txStore.set(msgId, null);
   }
 
-  private _launchApprovalWindow = (url: string): void => {
-    browser.windows.create({
+  private _launchApprovalWindow = (url: string): Promise<Windows.Window> => {
+    return browser.windows.create({
       url,
       width: 415,
       height: 510,

@@ -4,10 +4,11 @@ import { ParentAccount } from "background/keyring";
 export enum Mode {
   ResetPassword = "Reset password",
   DeleteAccount = "Delete account",
+  ConnectedSites = "Connected sites",
 }
 
-export type ExtraSetting = {
-  mode: Mode;
-  accountId: string;
-  accountType: ParentAccount;
-};
+
+export type ExtraSetting =
+  | { mode: Mode.ResetPassword, accountId: string }
+  | { mode: Mode.DeleteAccount, accountId: string, accountType: ParentAccount }
+  | { mode: Mode.ConnectedSites };
