@@ -6,6 +6,7 @@ import {
   Account,
   AccountType,
   Chain,
+  MetamaskEvents,
   TokenBalance,
   Tokens,
 } from "@namada/types";
@@ -110,9 +111,11 @@ class Metamask implements Integration<Account, unknown> {
       ethereumBridgeAbi,
       signer
     );
-
     await erc.approve(bridge.target, amountNumber);
-    await bridge.transferToNamada([tx], 1);
+    const pendingTx = await bridge.transferToNamada([tx], 1);
+    await pendingTx.wait();
+
+    window.dispatchEvent(new Event(MetamaskEvents.BridgeTransferCompleted));
   }
 
   public async queryBalances(owner: string): Promise<TokenBalance[]> {
