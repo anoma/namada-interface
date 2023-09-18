@@ -1,4 +1,5 @@
 import { BridgeType, Chain, Extensions } from "@namada/types";
+import { ProxyMappings } from "../types";
 
 const DEFAULT_ALIAS = "Namada Testnet";
 const DEFAULT_CHAIN_ID = "qc-testnet-5.1.025a61165acd05e";
@@ -7,6 +8,7 @@ const DEFAULT_RPC =
 const DEFAULT_BECH32_PREFIX = "atest";
 
 const {
+  REACT_APP_PROXY: isProxied,
   REACT_APP_NAMADA_ALIAS: alias = DEFAULT_ALIAS,
   REACT_APP_NAMADA_CHAIN_ID: chainId = DEFAULT_CHAIN_ID,
   REACT_APP_NAMADA_URL: rpc = DEFAULT_RPC,
@@ -21,7 +23,7 @@ const namada: Chain = {
     coinType: 877,
   },
   bridgeType: [BridgeType.IBC, BridgeType.Ethereum],
-  rpc,
+  rpc: isProxied ? ProxyMappings["namada"] : rpc,
   chainId,
   currency: {
     token: "Nam",

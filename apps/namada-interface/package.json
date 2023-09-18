@@ -37,8 +37,10 @@
   },
   "scripts": {
     "start": "webpack-dev-server",
+    "start:proxy": "node ./scripts/startProxies.js",
     "dev": "export NODE_ENV=development && yarn start",
     "dev:local": "export NODE_ENV=development; export REACT_APP_LOCAL=\"true\" && yarn dev",
+    "dev:proxy": "export REACT_APP_PROXY=true; ./scripts/start-proxies.sh; yarn dev:local",
     "build": "export NODE_ENV=production && yarn wasm:build && webpack",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "yarn lint -- --fix",
