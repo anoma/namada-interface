@@ -1,9 +1,6 @@
 import { useState } from "react";
-import {
-  Button,
-  ButtonVariant
-} from "@namada/components";
-import zxcvbn, { ZXCVBNFeedback } from "zxcvbn";
+import { Button, ButtonVariant } from "@namada/components";
+import zxcvbn from "zxcvbn";
 
 import {
   Input,

@@ -14,7 +14,7 @@ const Redirect = ({ password }: Props): JSX.Element => {
   useEffect(() => {
     if (!password) {
       const { pathname } = location;
-      navigate(`${TopLevelRoute.Home}?redirect=${pathname}`);
+      navigate(`${TopLevelRoute.Wallet}?redirect=${pathname}`);
     }
   });
 

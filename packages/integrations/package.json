@@ -12,7 +12,7 @@
     "test": "yarn wasm:build && jest",
     "test:watch": "yarn wasm:build && jest --watchAll",
     "test:ci": "jest",
-    "lint": "npx eslint src --ext .ts",
+    "lint": "eslint src --ext .ts",
     "lint:fix": "yarn lint -- --fix",
     "lint:ci": "yarn lint --max-warnings 0"
   },

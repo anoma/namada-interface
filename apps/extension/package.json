@@ -13,7 +13,7 @@
     "build": "yarn wasm:build && yarn clean && yarn build:chrome && yarn build:firefox",
     "build:chrome": "yarn clean:chrome && NODE_ENV=production TARGET=chrome webpack && web-ext build --s ./build/chrome -a ./build/chrome",
     "build:firefox": "yarn clean:firefox && NODE_ENV=production TARGET=firefox webpack && web-ext build --s ./build/firefox -a ./build/firefox",
-    "lint": "npx eslint src --ext .ts",
+    "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "yarn lint -- --fix",
     "lint:ci": "yarn lint --max-warnings 0",
     "start": "yarn start:chrome",
