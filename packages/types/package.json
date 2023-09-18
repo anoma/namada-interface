@@ -8,7 +8,7 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "lint": "npx eslint src --ext .ts",
+    "lint": "eslint src --ext .ts",
     "lint:fix": "yarn lint -- --fix",
     "lint:ci": "yarn lint --max-warnings 0"
   },

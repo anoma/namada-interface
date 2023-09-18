@@ -1,10 +1,6 @@
 import React, { useState, useContext } from "react";
 import { ThemeContext } from "styled-components";
-import {
-  useNavigate,
-  NavigateFunction,
-  Location,
-} from "react-router-dom";
+import { useNavigate, NavigateFunction, Location } from "react-router-dom";
 
 import { ColorMode } from "@namada/utils";
 import { chains } from "@namada/chains";
@@ -227,7 +223,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
             &nbsp;
             <LogoContainer
               onClick={() => {
-                navigate(TopLevelRoute.Home);
+                navigate(TopLevelRoute.Wallet);
               }}
             >
               <Image
@@ -283,7 +279,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
           <MiddleSection>
             <LogoContainer
               onClick={() => {
-                navigate(TopLevelRoute.Home);
+                navigate(TopLevelRoute.Wallet);
               }}
             >
               <Image
@@ -321,7 +317,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
             </MenuCloseButton>
             <LogoContainer
               onClick={() => {
-                navigate(TopLevelRoute.Home);
+                navigate(TopLevelRoute.Wallet);
               }}
             >
               <Image
@@ -344,7 +340,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
               <MenuItem
                 onClick={() => {
                   setShowMenu(false);
-                  navigate(TopLevelRoute.Home);
+                  navigate(TopLevelRoute.Wallet);
                 }}
                 isSelected={topLevelRoute === TopLevelRoute.Wallet}
               >

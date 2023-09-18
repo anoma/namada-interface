@@ -10,7 +10,6 @@ export const TopLevelRouteGenerator = {
 
 export enum TopLevelRoute {
   /* INITIAL ACCOUNT */
-  Home = "/",
   AccountCreation = "/account-creation",
 
   /* WALLET */

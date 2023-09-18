@@ -40,7 +40,7 @@
     "dev": "export NODE_ENV=development && yarn start",
     "dev:local": "export NODE_ENV=development; export REACT_APP_LOCAL=\"true\" && yarn dev",
     "build": "export NODE_ENV=production && yarn wasm:build && webpack",
-    "lint": "npx eslint src --ext .ts,.tsx",
+    "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "yarn lint -- --fix",
     "lint:ci": "yarn lint --max-warnings 0",
     "test": "yarn wasm:build:node && yarn jest",
