@@ -7,6 +7,7 @@ use namada::{
     types::{
         address::Address,
         chain::ChainId,
+        ethereum_events::EthAddress,
         key::common::PublicKey as PK,
         key::ed25519::PublicKey,
         masp::{ExtendedSpendingKey, PaymentAddress, TransferSource, TransferTarget},
@@ -311,6 +312,65 @@ pub fn ibc_transfer_tx_args(
         timeout_height,
         timeout_sec_offset,
         tx_code_path: PathBuf::from("tx_ibc.wasm"),
+    };
+
+    Ok((args, faucet_signer))
+}
+
+#[derive(BorshSerialize, BorshDeserialize)]
+pub struct SubmitEthBridgeTransferMsg {
+    nut: bool,
+    tx: TxMsg,
+    asset: String,
+    recipient: String,
+    sender: String,
+    amount: String,
+    fee_amount: String,
+    fee_payer: Option<String>,
+    fee_token: String,
+}
+
+pub fn eth_bridge_transfer_tx_args(
+    tx_msg: &[u8],
+    password: Option<String>,
+) -> Result<(args::EthereumBridgePool, Option<Address>), JsError> {
+    let tx_msg = SubmitEthBridgeTransferMsg::try_from_slice(tx_msg)?;
+    let SubmitEthBridgeTransferMsg {
+        nut,
+        tx,
+        asset,
+        recipient,
+        sender,
+        amount,
+        fee_amount,
+        fee_payer,
+        fee_token,
+    } = tx_msg;
+
+    let (tx, faucet_signer) = tx_msg_into_args(tx, password)?;
+    let asset = EthAddress::from_str(&asset).map_err(|e| JsError::new(&format!("{}", e)))?;
+    let recipient =
+        EthAddress::from_str(&recipient).map_err(|e| JsError::new(&format!("{}", e)))?;
+    let sender = Address::from_str(&sender)?;
+    let denom_amount = DenominatedAmount::from_str(&amount).expect("Amount to be valid.");
+    let amount = InputAmount::Unvalidated(denom_amount);
+    let denom_amount = DenominatedAmount::from_str(&fee_amount).expect("Amount to be valid.");
+    let fee_amount = InputAmount::Unvalidated(denom_amount);
+    let fee_payer = fee_payer.map(|v| Address::from_str(&v)).transpose()?;
+    let fee_token = Address::from_str(&fee_token)?;
+    let code_path = PathBuf::from("tx_bridge_pool.wasm");
+
+    let args = args::EthereumBridgePool {
+        nut,
+        tx,
+        asset,
+        recipient,
+        sender,
+        amount,
+        fee_amount,
+        fee_payer,
+        fee_token,
+        code_path,
     };
 
     Ok((args, faucet_signer))

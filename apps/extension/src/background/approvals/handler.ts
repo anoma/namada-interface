@@ -6,11 +6,13 @@ import {
   ApproveTransferMsg,
   ApproveIbcTransferMsg,
   ApproveWithdrawMsg,
+  ApproveEthBridgeTransferMsg,
 } from "provider";
 import {
   RejectTxMsg,
   SubmitApprovedTransferMsg,
   SubmitApprovedIbcTransferMsg,
+  SubmitApprovedEthBridgeTransferMsg,
   SubmitApprovedBondMsg,
   SubmitApprovedUnbondMsg,
   SubmitApprovedWithdrawMsg,
@@ -29,7 +31,11 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
           env,
           msg as ApproveIbcTransferMsg
         );
-
+      case ApproveEthBridgeTransferMsg:
+        return handleApproveEthBridgeTransferMsg(service)(
+          env,
+          msg as ApproveEthBridgeTransferMsg
+        );
       case ApproveBondMsg:
         return handleApproveBondMsg(service)(env, msg as ApproveBondMsg);
       case ApproveUnbondMsg:
@@ -50,6 +56,11 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
         return handleSubmitApprovedIBCTransferMsg(service)(
           env,
           msg as SubmitApprovedIbcTransferMsg
+        );
+      case SubmitApprovedEthBridgeTransferMsg:
+        return handleSubmitApprovedEthBridgeTransferMsg(service)(
+          env,
+          msg as SubmitApprovedEthBridgeTransferMsg
         );
 
       case SubmitApprovedBondMsg:
@@ -89,6 +100,14 @@ const handleApproveIbcTransferMsg: (
   };
 };
 
+const handleApproveEthBridgeTransferMsg: (
+  service: ApprovalsService
+) => InternalHandler<ApproveEthBridgeTransferMsg> = (service) => {
+  return async (_, { txMsg, accountType }) => {
+    return await service.approveEthBridgeTransfer(txMsg, accountType);
+  };
+};
+
 const handleRejectTxMsg: (
   service: ApprovalsService
 ) => InternalHandler<RejectTxMsg> = (service) => {
@@ -110,6 +129,14 @@ const handleSubmitApprovedIBCTransferMsg: (
 ) => InternalHandler<SubmitApprovedIbcTransferMsg> = (service) => {
   return async (_, { msgId, password }) => {
     return await service.submitIbcTransfer(msgId, password);
+  };
+};
+
+const handleSubmitApprovedEthBridgeTransferMsg: (
+  service: ApprovalsService
+) => InternalHandler<SubmitApprovedEthBridgeTransferMsg> = (service) => {
+  return async (_, { msgId, password }) => {
+    return await service.submitEthBridgeTransfer(msgId, password);
   };
 };
 

@@ -5,6 +5,7 @@ enum MessageType {
   RejectTx = "reject-tx",
   SubmitApprovedTransfer = "submit-approved-transfer",
   SubmitApprovedIbcTransfer = "submit-approved-ibc-transfer",
+  SubmitApprovedEthBridgeTransferMsg = "submit-approved-eth-bridge-transfer",
   SubmitApprovedBond = "submit-approved-bond",
   SubmitApprovedUnbond = "submit-approved-unbond",
   SubmitApprovedWithdraw = "submit-approved-withdraw",
@@ -94,6 +95,37 @@ export class SubmitApprovedIbcTransferMsg extends Message<void> {
 
   type(): string {
     return SubmitApprovedIbcTransferMsg.type();
+  }
+}
+
+export class SubmitApprovedEthBridgeTransferMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.SubmitApprovedEthBridgeTransferMsg;
+  }
+
+  constructor(public readonly msgId: string, public readonly password: string) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.msgId) {
+      throw new Error("msgId must not be empty!");
+    }
+    if (!this.password) {
+      throw new Error(
+        "Password is required to submitTx for this type of account!"
+      );
+    }
+
+    return;
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return SubmitApprovedEthBridgeTransferMsg.type();
   }
 }
 

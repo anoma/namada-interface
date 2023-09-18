@@ -1,8 +1,11 @@
 use masp_primitives::transaction::components::I128Sum;
 use masp_primitives::zip32::ExtendedFullViewingKey;
+use namada::ledger::eth_bridge::bridge_pool::query_signed_bridge_pool;
 use namada::ledger::masp::ShieldedContext;
 use namada::ledger::queries::RPC;
-use namada::ledger::rpc::{get_public_key_at, get_token_balance};
+use namada::ledger::rpc::{format_denominated_amount, get_public_key_at, get_token_balance};
+use namada::types::control_flow::ProceedOrElse;
+use namada::types::eth_bridge_pool::TransferToEthereum;
 use namada::types::{
     address::Address,
     masp::ExtendedViewingKey,
@@ -227,6 +230,11 @@ impl Query {
             "atest1v4ehgw36gfryydj9g3p5zv3kg9znyd358ycnzsfcggc5gvecgc6ygs2rxv6ry3zpg4zrwdfeumqcz9",
         )?, Address::from_str(
             "atest1v4ehgw36xqmr2d3nx3ryvd2xxgmrq33j8qcns33sxezrgv6zxdzrydjrxveygd2yxumrsdpsf9jc2p",
+        )?, Address::from_str(
+            "atest1v46xsw368psnwwf3xcerqeryxcervvpsxuukye3cxsukgce4x5mrwctyvvekvvnxv33nxvfc0kmacx",
+        )?,
+        Address::from_str(
+            "atest1de6hgw368pqnwwf3xcerqeryxcervvpsxuu5y33cxsu5gce4x5mrwc2ygve5vvjxv3pnxvfcq8rzzq",
         )?]);
 
         let mut result = vec![];
@@ -279,12 +287,18 @@ impl Query {
                 Err(e2) => return Err(JsError::new(&format!("{} {}", e1, e2))),
             },
         }?;
-        let result: Vec<(Address, String)> = result
-            .into_iter()
-            .map(|(addr, amount)| (addr, amount.to_string_native()))
-            .collect();
 
-        to_js_result(result)
+        let mut mapped_result: Vec<(Address, String)> = vec![];
+        for (token, amount) in result {
+            mapped_result.push((
+                token.clone(),
+                format_denominated_amount(&self.client, &token, amount)
+                    .await
+                    .clone(),
+            ))
+        }
+
+        to_js_result(mapped_result)
     }
 
     pub async fn query_public_key(&self, address: &str) -> Result<JsValue, JsError> {
@@ -295,6 +309,34 @@ impl Query {
             Some(v) => Some(v.to_string()),
             None => None,
         };
+
+        to_js_result(result)
+    }
+
+    pub async fn query_signed_bridge_pool(
+        &self,
+        owner_addresses: Box<[JsValue]>,
+    ) -> Result<JsValue, JsError> {
+        let bridge_pool = query_signed_bridge_pool(&self.client)
+            .await
+            .proceed_or_else(|| JsError::new("TODO:"))?;
+
+        let owner_addresses: Vec<Address> = owner_addresses
+            .into_iter()
+            .filter_map(|address| address.as_string())
+            .filter_map(|address| Address::from_str(&address).ok())
+            .collect();
+
+        let result: Vec<TransferToEthereum> = bridge_pool
+            .into_iter()
+            .filter_map(|(_hash, pending_transfer)| {
+                if owner_addresses.contains(&pending_transfer.transfer.sender) {
+                    Some(pending_transfer.transfer)
+                } else {
+                    None
+                }
+            })
+            .collect();
 
         to_js_result(result)
     }

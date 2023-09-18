@@ -52,8 +52,3 @@ export type TxIbcTransferArgs = TxArgs & {
   channelId: string;
   portId: string;
 };
-
-export type TxBridgeTransferArgs = TxArgs & {
-  chainId: string;
-  target: string;
-};

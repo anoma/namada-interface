@@ -6,6 +6,7 @@ import { deserialize } from "@dao-xyz/borsh";
 
 import {
   AccountType,
+  EthBridgeTransferMsgValue,
   IbcTransferMsgValue,
   SubmitBondMsgValue,
   SubmitUnbondMsgValue,
@@ -25,7 +26,7 @@ export class ApprovalsService {
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
     protected readonly keyRingService: KeyRingService,
     protected readonly ledgerService: LedgerService
-  ) { }
+  ) {}
 
   // Deserialize transfer details and prompt user
   async approveTransfer(txMsg: string, type: AccountType): Promise<void> {
@@ -43,8 +44,9 @@ export class ApprovalsService {
       tx: { publicKey = "" },
     } = txDetails;
     const amount = new BigNumber(amountBN.toString());
-    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${TxType.Transfer
-      }`;
+    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
+      TxType.Transfer
+    }`;
 
     const url = paramsToUrl(baseUrl, {
       msgId,
@@ -76,8 +78,45 @@ export class ApprovalsService {
     } = txDetails;
 
     const amount = new BigNumber(amountBN.toString());
-    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${TxType.IBCTransfer
-      }`;
+    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
+      TxType.IBCTransfer
+    }`;
+
+    const url = paramsToUrl(baseUrl, {
+      msgId,
+      source,
+      target,
+      tokenAddress,
+      amount: amount.toString(),
+      accountType: type,
+      publicKey,
+    });
+
+    this._launchApprovalWindow(url);
+  }
+
+  // Deserialize eth bridge transfer details and prompt user
+  async approveEthBridgeTransfer(
+    txMsg: string,
+    type: AccountType
+  ): Promise<void> {
+    const txMsgBuffer = Buffer.from(fromBase64(txMsg));
+    const msgId = uuid();
+    await this.txStore.set(msgId, txMsg);
+
+    // Decode tx details and launch approval screen
+    const txDetails = deserialize(txMsgBuffer, EthBridgeTransferMsgValue);
+    const {
+      tx: { publicKey = "" },
+      asset: tokenAddress,
+      recipient: target,
+      sender: source,
+      amount,
+    } = txDetails;
+
+    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
+      TxType.EthBridgeTransfer
+    }`;
 
     const url = paramsToUrl(baseUrl, {
       msgId,
@@ -108,8 +147,9 @@ export class ApprovalsService {
       tx: { publicKey = "" },
     } = txDetails;
     const amount = new BigNumber(amountBN.toString());
-    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${TxType.Bond
-      }`;
+    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
+      TxType.Bond
+    }`;
 
     const url = paramsToUrl(baseUrl, {
       msgId,
@@ -138,8 +178,9 @@ export class ApprovalsService {
       tx: { publicKey = "" },
     } = txDetails;
     const amount = new BigNumber(amountBN.toString());
-    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${TxType.Unbond
-      }`;
+    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
+      TxType.Unbond
+    }`;
 
     const url = paramsToUrl(baseUrl, {
       msgId,
@@ -166,8 +207,9 @@ export class ApprovalsService {
       validator,
       tx: { publicKey = "" },
     } = txDetails;
-    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${TxType.Withdraw
-      }`;
+    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
+      TxType.Withdraw
+    }`;
 
     const url = paramsToUrl(baseUrl, {
       msgId,
@@ -210,6 +252,25 @@ export class ApprovalsService {
 
     if (tx) {
       await this.keyRingService.submitIbcTransfer(tx, msgId);
+
+      return await this._clearPendingTx(msgId);
+    }
+
+    throw new Error("Pending Transfer tx not found!");
+  }
+
+  // Authenticate keyring and submit approved IBC transfer transaction from storage
+  async submitEthBridgeTransfer(
+    msgId: string,
+    password: string
+  ): Promise<void> {
+    await this.keyRingService.unlock(password);
+
+    // Fetch pending transfer tx
+    const tx = await this.txStore.get(msgId);
+
+    if (tx) {
+      await this.keyRingService.submitEthBridgeTransfer(tx, msgId);
 
       return await this._clearPendingTx(msgId);
     }

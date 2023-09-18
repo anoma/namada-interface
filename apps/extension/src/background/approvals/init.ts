@@ -3,6 +3,7 @@ import {
   ApproveBondMsg,
   ApproveTransferMsg,
   ApproveIbcTransferMsg,
+  ApproveEthBridgeTransferMsg,
   ApproveUnbondMsg,
   ApproveWithdrawMsg,
 } from "provider";
@@ -12,6 +13,7 @@ import {
   SubmitApprovedUnbondMsg,
   SubmitApprovedTransferMsg,
   SubmitApprovedIbcTransferMsg,
+  SubmitApprovedEthBridgeTransferMsg,
   SubmitApprovedWithdrawMsg,
 } from "./messages";
 
@@ -23,6 +25,7 @@ export function init(router: Router, service: ApprovalsService): void {
   router.registerMessage(ApproveBondMsg);
   router.registerMessage(ApproveTransferMsg);
   router.registerMessage(ApproveIbcTransferMsg);
+  router.registerMessage(ApproveEthBridgeTransferMsg);
   router.registerMessage(ApproveUnbondMsg);
   router.registerMessage(ApproveWithdrawMsg);
   router.registerMessage(RejectTxMsg);
@@ -30,6 +33,7 @@ export function init(router: Router, service: ApprovalsService): void {
   router.registerMessage(SubmitApprovedUnbondMsg);
   router.registerMessage(SubmitApprovedTransferMsg);
   router.registerMessage(SubmitApprovedIbcTransferMsg);
+  router.registerMessage(SubmitApprovedEthBridgeTransferMsg);
   router.registerMessage(SubmitApprovedWithdrawMsg);
 
   router.addHandler(ROUTE, getHandler(service));

@@ -18,6 +18,7 @@ import {
   NamadaUpdatedStakingHandler,
   KeplrAccountChangedHandler,
   MetamaskAccountChangedHandler,
+  MetamaskBridgeTransferCompletedHandler,
 } from "./handlers";
 
 export const ExtensionEventsContext = createContext({});
@@ -50,6 +51,9 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
     metamaskIntegration as Metamask
   );
 
+  const metamaskBridgeTransferCompletedHandler =
+    MetamaskBridgeTransferCompletedHandler(dispatch);
+
   // Register handlers:
   useEventListenerOnce(Events.AccountChanged, namadaAccountChangedHandler);
   useEventListenerOnce(Events.UpdatedBalances, namadaUpdatedBalancesHandler);
@@ -71,6 +75,10 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
         window.ethereum.removeListener(event, handler);
       }
     }
+  );
+  useEventListenerOnce(
+    MetamaskEvents.BridgeTransferCompleted,
+    metamaskBridgeTransferCompletedHandler
   );
 
   return (

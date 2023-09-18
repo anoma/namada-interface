@@ -40,7 +40,7 @@ import {
   AddChannelButton,
   IBCTransferFormContainer,
 } from "./IBCTransfer.components";
-import { TxBridgeTransferArgs, TxIbcTransferArgs } from "../types";
+import { TxIbcTransferArgs } from "../types";
 
 export const submitIbcTransfer = async (
   ibcArgs: TxIbcTransferArgs
@@ -71,35 +71,6 @@ export const submitIbcTransfer = async (
         amount,
         portId,
         channelId,
-      },
-    },
-    type
-  );
-};
-
-export const submitBridgeTransfer = async (
-  bridgeArgs: TxBridgeTransferArgs
-): Promise<void> => {
-  const {
-    account: { address, chainId, type },
-    target,
-    token,
-    amount,
-  } = bridgeArgs;
-  const integration = getIntegration(chainId);
-  await integration.submitBridgeTransfer(
-    {
-      bridgeProps: {
-        tx: {
-          token: Tokens.NAM.address || "",
-          feeAmount: new BigNumber(0),
-          gasLimit: new BigNumber(20_000),
-          chainId,
-        },
-        source: address,
-        target,
-        token: Tokens[token as TokenType]?.address || "",
-        amount,
       },
     },
     type
@@ -263,23 +234,15 @@ const IBCTransfer = (): JSX.Element => {
   };
 
   const handleSubmit = (): void => {
-    destinationChain.bridgeType.includes(BridgeType.IBC)
-      ? submitIbcTransfer({
-          account: sourceAccount.details,
-          token,
-          amount,
-          chainId,
-          target: recipient,
-          channelId: selectedChannelId,
-          portId,
-        })
-      : submitBridgeTransfer({
-          account: sourceAccount.details,
-          chainId,
-          token,
-          target: recipient,
-          amount,
-        });
+    submitIbcTransfer({
+      account: sourceAccount.details,
+      token,
+      amount,
+      chainId,
+      target: recipient,
+      channelId: selectedChannelId,
+      portId,
+    });
   };
 
   const handleConnectExtension = async (): Promise<void> => {

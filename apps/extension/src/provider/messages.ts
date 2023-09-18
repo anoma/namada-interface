@@ -30,6 +30,7 @@ enum MessageType {
   SuggestChain = "suggest-chain",
   FetchAndStoreMaspParams = "fetch-and-store-masp-params",
   HasMaspParams = "has-masp-params",
+  ApproveEthBridgeTransfer = "approve-eth-bridge-transfer",
 }
 
 /**
@@ -235,6 +236,34 @@ export class ApproveIbcTransferMsg extends Message<void> {
 
   type(): string {
     return ApproveIbcTransferMsg.type();
+  }
+}
+
+export class ApproveEthBridgeTransferMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.ApproveEthBridgeTransfer;
+  }
+
+  constructor(
+    public readonly txMsg: string,
+    public readonly accountType: AccountType
+  ) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.txMsg) {
+      throw new Error("txMsg was not provided!");
+    }
+    return;
+  }
+
+  route(): string {
+    return Route.Approvals;
+  }
+
+  type(): string {
+    return ApproveEthBridgeTransferMsg.type();
   }
 }
 

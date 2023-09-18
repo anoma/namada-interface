@@ -11,3 +11,8 @@ export const MetamaskAccountChangedHandler =
       dispatch(fetchBalances());
     }
   };
+
+export const MetamaskBridgeTransferCompletedHandler =
+  (dispatch: Dispatch<unknown>) => async () => {
+    dispatch(fetchBalances());
+  };

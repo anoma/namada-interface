@@ -34,7 +34,8 @@ pub enum TxType {
     Withdraw = 3,
     Transfer = 4,
     IBCTransfer = 5,
-    RevealPK = 6,
+    EthBridgeTransfer = 6,
+    RevealPK = 7,
 }
 
 /// Represents the Sdk public API.
@@ -251,6 +252,19 @@ impl Sdk {
                 .await?;
                 tx
             }
+            TxType::EthBridgeTransfer => {
+                let (args, _faucet_signer) = tx::eth_bridge_transfer_tx_args(tx_msg, None)?;
+
+                let (tx, _) = namada::ledger::eth_bridge::bridge_pool::build_bridge_pool_tx(
+                    &self.client,
+                    &mut self.wallet,
+                    &mut self.shielded_ctx,
+                    args.clone(),
+                    gas_payer,
+                )
+                .await?;
+                tx
+            }
             TxType::Unbond => {
                 let (args, _faucet_signer) = tx::unbond_tx_args(tx_msg, None)?;
                 let (tx, _, _) = namada::ledger::tx::build_unbond(
@@ -370,6 +384,39 @@ impl Sdk {
         .await?;
 
         let (tx, _) = namada::ledger::tx::build_ibc_transfer(
+            &self.client,
+            &mut self.wallet,
+            &mut self.shielded_ctx,
+            args.clone(),
+            signing_data.fee_payer.clone(),
+        )
+        .await?;
+
+        self.sign_and_process_tx(args.tx, tx, signing_data, faucet_signer.is_some())
+            .await?;
+
+        Ok(())
+    }
+
+    pub async fn submit_eth_bridge_transfer(
+        &mut self,
+        tx_msg: &[u8],
+        password: Option<String>,
+    ) -> Result<(), JsError> {
+        let (args, faucet_signer) = tx::eth_bridge_transfer_tx_args(tx_msg, password)?;
+        let sender = args.sender.clone();
+        let default_signer = faucet_signer.clone().or(Some(sender.clone()));
+
+        let signing_data = signing::aux_signing_data(
+            &self.client,
+            &mut self.wallet,
+            &args.tx.clone(),
+            &Some(sender.clone()),
+            default_signer,
+        )
+        .await?;
+
+        let (tx, _) = namada::ledger::eth_bridge::bridge_pool::build_bridge_pool_tx(
             &self.client,
             &mut self.wallet,
             &mut self.shielded_ctx,

@@ -1,12 +1,24 @@
 import { type MetaMaskInpageProvider } from "@metamask/providers";
 import MetaMaskSDK from "@metamask/sdk";
+import { ethers } from "ethers";
 
-import { Account, AccountType, Chain, TokenBalance } from "@namada/types";
+import {
+  Account,
+  AccountType,
+  Chain,
+  MetamaskEvents,
+  TokenBalance,
+  Tokens,
+} from "@namada/types";
 import { shortenAddress } from "@namada/utils";
 import { BridgeProps, Integration } from "./types/Integration";
+import { erc20Abi, ethereumBridgeAbi } from "./abi";
 
 const MULTIPLE_WALLETS = "Multiple wallets installed!";
 const CANT_FETCH_ACCOUNTS = "Can't fetch accounts!";
+const {
+  CONTRACT_ADDR_ETH_BRIDGE = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+} = process.env;
 
 type MetamaskWindow = Window &
   typeof globalThis & {
@@ -15,7 +27,7 @@ type MetamaskWindow = Window &
 
 class Metamask implements Integration<Account, unknown> {
   private _ethereum: MetaMaskInpageProvider | undefined;
-  constructor(public readonly chain: Chain) { }
+  constructor(public readonly chain: Chain) {}
 
   private init(): void {
     if ((<MetamaskWindow>window).ethereum) {
@@ -69,6 +81,7 @@ class Metamask implements Integration<Account, unknown> {
 
   private async syncChainId(): Promise<void> {
     const { chainId } = this.chain;
+
     await this._ethereum?.request<null>({
       method: "wallet_switchEthereumChain",
       params: [{ chainId }],
@@ -76,19 +89,52 @@ class Metamask implements Integration<Account, unknown> {
   }
 
   public async submitBridgeTransfer(props: BridgeProps): Promise<void> {
-    const { source, target, amount } = props.bridgeProps || {};
-    // TODO: Submit transfer via Ethereum Bridge
-    console.log("Metamask.submitBridgeTransfer", {
-      source,
-      target,
-      amount,
-    });
-    return;
+    if (!props.bridgeProps) {
+      throw new Error("No bridge props");
+    }
+
+    const { sender, recipient, amount, asset } = props.bridgeProps;
+    //TODO: check this shit
+    const amountNumber = amount?.toNumber() || 0;
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner(sender);
+
+    const tx = {
+      from: asset,
+      to: recipient,
+      amount: amountNumber,
+    };
+
+    const erc = new ethers.Contract(asset, erc20Abi, signer);
+    const bridge = new ethers.Contract(
+      CONTRACT_ADDR_ETH_BRIDGE,
+      ethereumBridgeAbi,
+      signer
+    );
+    await erc.approve(bridge.target, amountNumber);
+    const pendingTx = await bridge.transferToNamada([tx], 1);
+    await pendingTx.wait();
+
+    window.dispatchEvent(new Event(MetamaskEvents.BridgeTransferCompleted));
   }
 
   public async queryBalances(owner: string): Promise<TokenBalance[]> {
-    console.log("Metamask.queryBalance", owner);
-    return [];
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const ethBalance = await provider.getBalance(owner);
+    const signer = await provider.getSigner(owner);
+
+    const erc = new ethers.Contract(
+      //TODO: fix after we support add support for any kind of Erc20 token
+      Tokens["TESTERC20"].nativeAddress as string,
+      erc20Abi,
+      signer
+    );
+    const testErc20Balance: bigint = await erc.balanceOf(signer.address);
+
+    return [
+      { token: "ETH", amount: String(ethBalance) || "0" },
+      { token: "TESTERC20", amount: String(testErc20Balance) || "0" },
+    ];
   }
 }
 

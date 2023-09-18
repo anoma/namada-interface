@@ -1,5 +1,6 @@
 import { Account, AccountType } from "./account";
 import {
+  BridgeTransferProps,
   IbcTransferProps,
   SubmitBondProps,
   SubmitUnbondProps,
@@ -14,4 +15,8 @@ export interface Signer {
   submitWithdraw(args: SubmitWithdrawProps, type: AccountType): Promise<void>;
   submitTransfer(args: TransferProps, type: AccountType): Promise<void>;
   submitIbcTransfer(args: IbcTransferProps, type: AccountType): Promise<void>;
+  submitEthBridgeTransfer(
+    args: BridgeTransferProps,
+    type: AccountType
+  ): Promise<void>;
 }

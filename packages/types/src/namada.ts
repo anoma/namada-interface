@@ -18,6 +18,7 @@ export interface Namada {
   submitWithdraw: (props: TxMsgProps) => Promise<void>;
   submitTransfer: (props: TxMsgProps) => Promise<void>;
   submitIbcTransfer: (props: TxMsgProps) => Promise<void>;
+  submitEthBridgeTransfer: (props: TxMsgProps) => Promise<void>;
   version: () => string;
 }
 

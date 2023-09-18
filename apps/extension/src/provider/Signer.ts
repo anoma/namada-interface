@@ -13,6 +13,8 @@ import {
   SubmitBondMsgValue,
   SubmitUnbondMsgValue,
   SubmitWithdrawMsgValue,
+  BridgeTransferProps,
+  EthBridgeTransferMsgValue,
 } from "@namada/types";
 
 export class Signer implements ISigner {
@@ -112,6 +114,24 @@ export class Signer implements ISigner {
       ibcTransferMessage.encode(ibcTransferMsgValue);
 
     return await this._namada.submitIbcTransfer({
+      txMsg: toBase64(serializedIbcTransfer),
+      type,
+    });
+  }
+
+  /**
+   * Submit an eth bridge transfer
+   */
+  public async submitEthBridgeTransfer(
+    args: BridgeTransferProps,
+    type: AccountType
+  ): Promise<void> {
+    const ibcTransferMsgValue = new EthBridgeTransferMsgValue(args);
+    const ibcTransferMessage = new Message<EthBridgeTransferMsgValue>();
+    const serializedIbcTransfer =
+      ibcTransferMessage.encode(ibcTransferMsgValue);
+
+    return await this._namada.submitEthBridgeTransfer({
       txMsg: toBase64(serializedIbcTransfer),
       type,
     });
