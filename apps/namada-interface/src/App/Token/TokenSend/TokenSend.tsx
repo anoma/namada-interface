@@ -5,7 +5,7 @@ import { SettingsState } from "slices/settings";
 import { TransferType } from "App/Token/types";
 import { useAppSelector } from "store";
 
-import { TokenType } from "@namada/types";
+import { TokenType, Tokens } from "@namada/types";
 import {
   Heading,
   HeadingLevel,
@@ -52,10 +52,12 @@ const accountsWithBalanceIntoSelectData = (
   accountsWithBalance: Account[]
 ): Option<string>[] =>
   accountsWithBalance.flatMap(({ details, balance }) =>
-    Object.entries(balance).map(([tokenType, amount]) => ({
-      value: `${details.address}|${tokenType}`,
-      label: `${details.alias} ${amount} (${tokenType})`,
-    }))
+    Object.entries(balance)
+      .filter(([tokenType]) => !Tokens[tokenType as TokenType].isNut)
+      .map(([tokenType, amount]) => ({
+        value: `${details.address}|${tokenType}`,
+        label: `${details.alias} ${amount} (${tokenType})`,
+      }))
   );
 
 const TokenSend = (): JSX.Element => {
