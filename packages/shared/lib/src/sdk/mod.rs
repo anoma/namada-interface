@@ -415,7 +415,7 @@ impl Sdk {
             &self.client,
             &mut self.wallet,
             &args.tx.clone(),
-            &Some(sender.clone()),
+            Some(sender.clone()),
             default_signer,
         )
         .await?;
