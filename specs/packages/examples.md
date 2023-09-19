@@ -5,8 +5,8 @@
 - [Loading the SDK and Query](#loading-the-sdk-and-query)
 - [Transaction requirements](#transaction-requirements)
 - [Sending a transaction](#sending-a-transaction)
-- [Querying for balance](#querying-for-balance)
-- [Sending a tx with the extension]()
+- [Querying for data](#querying-for-data)
+- [Sending a tx with the extension](#sending-a-transaction-with-the-extension-api)
 
 ## Loading the SDK and Query from wasm
 
@@ -83,7 +83,13 @@ const transfer = createTransfer({
 
 ```
 
-The serialized `transfer` in the above example is ready to send via the SDK:
+The serialized `transfer` in the above example is ready to send via the SDK.
+
+[ [Table of Contents](#table-of-contents) ]
+
+## Sending a transaction
+
+Building on the previous section, we can send transaction through the SDK as follows:
 
 ```ts
 import { Sdk } from "@namada/shared";
@@ -135,15 +141,46 @@ init();
 
 [ [Table of Contents](#table-of-contents) ]
 
-## Sending a transaction
+## Querying for data
 
-**TODO**
+We make use of the `Query` class instance for querying the chain for data. This is instantiated much like the SDK:
 
-[ [Table of Contents](#table-of-contents) ]
+```ts
+import { Query } from "@namada/shared";
+// Import wasm initialization function
+import { init as initShared } from "@namada/shared/src/init";
 
-## Querying for balance
+const RPC_URL = "http://127.0.0.1:26657";
 
-**TODO**
+async function init() {
+  await initShared();
+
+  const query = new Query(RPC_URL);
+
+  // Query is now ready to use
+
+  const ownerAddress = "atest1d9khqw36g3ryxd29xgmrjsjr89znsse5g5cn2wpsgs6nqv33xguryw2p89znsd2rxqcnzvehcnyzxw";
+  const tokenAddress = "atest1d9khqw36xcmyzve3gvmrqdfexdz5zd2rxu6nv3zp8ym5zwfcgyeygv2x8pzrz3fcgscngs3nchvahj";
+
+  // Balance query
+  // NOTE: `query_balance` contains logic to determine whether this is a "transparent" or "shielded" balance query. The API is simply this:
+  const balance = await query.query_balance(ownerAddress, tokenAddress);
+
+  // Epoch query
+  const epoch = await query.query_epoch();
+
+  // Query all validators
+  const allValidators = await query.query_all_validators();
+
+  // Query my validators - accepts an array of addresses
+  const myValidators = await query.query_my_validators([ownerAddress]);
+
+  // Query public key - used to determine if the public key has been revealed on chain
+  const pk = await query.query_public_key(ownerAddress);
+}
+
+init();
+```
 
 [ [Table of Contents](#table-of-contents) ]
 
