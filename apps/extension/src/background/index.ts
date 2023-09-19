@@ -4,7 +4,7 @@ import {
   IndexedDBKVStore,
   MemoryKVStore,
 } from "@namada/storage";
-import { defaultChainId, chains } from "@namada/chains";
+import { defaultChainId, chains, ProxyMappings } from "@namada/chains";
 import { init as initCrypto } from "@namada/crypto/src/init";
 import { init as initShared } from "@namada/shared/src/init";
 import { Query, Sdk } from "@namada/shared";
@@ -52,7 +52,9 @@ const txStore = new MemoryKVStore(KVPrefix.Memory);
 
 const DEFAULT_URL =
   "https://d3brk13lbhxfdb.cloudfront.net/qc-testnet-5.1.025a61165acd05e";
-const { REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
+const { REACT_APP_PROXY, REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
+
+const NamadaRpcEndpoint = REACT_APP_PROXY ? ProxyMappings["namada"] : REACT_APP_NAMADA_URL;
 
 const messenger = new ExtensionMessenger();
 const router = new ExtensionRouter(
@@ -68,8 +70,8 @@ const init = new Promise<void>(async (resolve) => {
   const { memory: cryptoMemory } = await initCrypto();
 
   await initShared();
-  const sdk = new Sdk(REACT_APP_NAMADA_URL);
-  const query = new Query(REACT_APP_NAMADA_URL);
+  const sdk = new Sdk(NamadaRpcEndpoint);
+  const query = new Query(NamadaRpcEndpoint);
 
   const sdkData: Record<string, string> | undefined = await sdkStore.get(
     SDK_KEY
