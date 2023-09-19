@@ -26,6 +26,10 @@ yarn start
 yarn start:chrome  # Same as yarn start, which defaults to a Chrome target
 yarn start:firefox # Run development extension in Firefox - use ./build/firefox
 
+# If you are running `yarn dev:proxy` in the `namada-interface`, you can make use of that proxy by using:
+yarn start:chrome:proxy
+yarn start:firefox:proxy
+
 # Run tests
 yarn test
 yarn test:watch

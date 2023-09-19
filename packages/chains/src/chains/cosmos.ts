@@ -1,13 +1,15 @@
 import { BridgeType, Chain, Extensions } from "@namada/types";
+import { ProxyMappings } from "../types";
 
 const DEFAULT_ALIAS = "Cosmos Hub";
 const DEFAULT_CHAIN_ID = "cosmoshub-4";
 const DEFAULT_RPC = "https://api.cosmos.network/";
 
 const {
+  REACT_APP_PROXY: isProxied,
   REACT_APP_COSMOS_ALIAS: alias = DEFAULT_ALIAS,
   REACT_APP_COSMOS_CHAIN_ID: chainId = DEFAULT_CHAIN_ID,
-  REACT_APP_COSMOS_CHAIN_URL: rpc = DEFAULT_RPC,
+  REACT_APP_COSMOS_URL: rpc = DEFAULT_RPC,
 } = process.env;
 
 const cosmos: Chain = {
@@ -17,7 +19,7 @@ const cosmos: Chain = {
     coinType: 118,
   },
   bridgeType: [BridgeType.IBC],
-  rpc,
+  rpc: isProxied ? ProxyMappings["cosmos"] : rpc,
   chainId,
   currency: {
     token: "uatom",

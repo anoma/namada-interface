@@ -11,3 +11,5 @@ export const chains = {
   [namada.chainId]: namada,
   [ethereum.chainId]: ethereum,
 };
+
+export * from "./types";
