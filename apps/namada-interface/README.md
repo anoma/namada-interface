@@ -34,6 +34,9 @@ yarn dev
 # ledger and a testnet):
 yarn dev:local
 
+# If you are running chains locally, it is recommended that you instead proxy RPC requests:
+yarn dev:proxy
+
 # Build production release:
 yarn build
 
