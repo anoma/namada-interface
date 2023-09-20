@@ -3,7 +3,7 @@ import { ThemeContext } from "styled-components";
 import BigNumber from "bignumber.js";
 
 import { chains, defaultChainId } from "@namada/chains";
-import { TokenType } from "@namada/types";
+import { TokenType, Tokens } from "@namada/types";
 import { formatCurrency } from "@namada/utils";
 import { Modal } from "@namada/components";
 
@@ -65,6 +65,10 @@ const assetIconByToken: Record<TokenType, { light: string; dark: string }> = {
   ["ATOM"]: {
     light: AssetCosmosAtom,
     dark: AssetCosmosAtom,
+  },
+  ["IBC"]: {
+    light: AssetNamadaNamLight,
+    dark: AssetNamadaNamDark,
   },
 };
 
@@ -204,7 +208,7 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
                             <TokenIcon
                               src={getAssetIconByTheme(token as TokenType)}
                             />
-                            {amount.toString()} {token}
+                            {amount.toString()} {Tokens[token as TokenType].symbol}
                           </TokenBalance>
                         );
                       })}

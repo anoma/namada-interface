@@ -20,6 +20,7 @@ type TokenInfo = {
 export const Symbols = [
   "NAM",
   "ATOM",
+  "IBC",
   "ETH",
   "TESTERC20",
   "NUTTESTERC20",
@@ -76,6 +77,12 @@ Tokens["NAM"] = {
   url: "https://namada.net",
   address:
     "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5",
+};
+
+// TODO - IBC tokens need to be handled better than this!
+Tokens["IBC"] = {
+  ...Tokens["NAM"],
+  address: "atest1v4ehgw36gfryydj9g3p5zv3kg9znyd358ycnzsfcggc5gvecgc6ygs2rxv6ry3zpg4zrwdfeumqcz8"
 };
 
 Tokens["ATOM"].address =

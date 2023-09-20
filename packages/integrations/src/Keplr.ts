@@ -140,6 +140,7 @@ class Keplr implements Integration<Account, OfflineSigner> {
       const {
         source,
         receiver,
+        // TODO: Fix value being passed as a valid Cosmos denom, should not be token address!
         token,
         amount,
         portId = "transfer",
@@ -153,19 +154,22 @@ class Keplr implements Integration<Account, OfflineSigner> {
       );
 
       const fee = {
-        amount: coins(2000, CosmosTokens[token]),
+        amount: coins(2000, token),
+        // TODO: Configure gas from interface
         gas: "222000",
       };
 
       const response = await client.sendIbcTokens(
         source,
         receiver,
-        coin(amount.toString(), CosmosTokens[token]),
+        // TODO: Use `token` here, once it is a valid Cosmos denom
+        coin(amount.toString(), token),
         portId,
         channelId,
+        // TODO: Should we enable timeout height?
         {
-          revisionHeight: Long.fromNumber(123),
-          revisionNumber: Long.fromNumber(456),
+          revisionHeight: Long.fromNumber(0),
+          revisionNumber: Long.fromNumber(0),
         },
         Math.floor(Date.now() / 1000) + 60,
         fee,
@@ -173,7 +177,8 @@ class Keplr implements Integration<Account, OfflineSigner> {
       );
 
       if (response.code !== 0) {
-        return Promise.reject(`Transaction failed with code ${response.code}!`);
+        console.error("Transaction failed:", { response })
+        return Promise.reject(`Transaction failed with code ${response.code}! Message: ${response.rawLog}`);
       }
 
       return;
@@ -184,12 +189,15 @@ class Keplr implements Integration<Account, OfflineSigner> {
 
   public async queryBalances(owner: string): Promise<TokenBalance[]> {
     const client = await StargateClient.connect(this.chain.rpc);
+    const balances = await client.getAllBalances(owner) || []
 
-    // Query balance for ATOM:
-    return ((await client.getAllBalances(owner)) || []).map((coin: Coin) => ({
-      token: CosmosTokens[coin.denom] || "ATOM",
-      amount: new BigNumber(coin.amount).dividedBy(1_000_000).toString(),
-    }));
+    return (balances).map((coin: Coin) => {
+      const amount = new BigNumber(coin.amount);
+      return {
+        token: CosmosTokens[coin.denom],
+        amount: (coin.denom === "uatom" ? amount.dividedBy(1_000_000) : amount).toString(),
+      }
+    });
   }
 }
 
