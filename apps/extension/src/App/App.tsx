@@ -5,6 +5,7 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import { DerivedAccount } from "@namada/types";
 import { getTheme } from "@namada/utils";
 import { Icon, IconName } from "@namada/components";
+import { init as initShared } from "@namada/shared/src/init";
 
 import { Ports } from "router";
 import {
@@ -33,6 +34,8 @@ import { Login } from "./Login";
 import { Setup } from "./Setup";
 import { Settings } from "./Settings";
 import { useRequester } from "hooks/useRequester";
+import { Tokens } from "./Tokens";
+import { AddTokens } from "./Tokens/AddTokens";
 
 export enum Status {
   Completed = "Completed",
@@ -106,6 +109,7 @@ export const App: React.FC = () => {
       if (accounts) {
         setAccounts(accounts);
       }
+      await initShared();
       setStatus(Status.Completed);
     };
     fetchAccounts();
@@ -186,11 +190,18 @@ export const App: React.FC = () => {
             />
             <HeadingButtons>
               {parentAccount && (
-                <SettingsButton
-                  onClick={() => navigate(TopLevelRoute.Settings)}
-                >
-                  <Icon iconName={IconName.Settings} />
-                </SettingsButton>
+                <>
+                  <SettingsButton
+                    onClick={() => navigate(TopLevelRoute.Settings)}
+                  >
+                    <Icon iconName={IconName.Settings} />
+                  </SettingsButton>
+                  <SettingsButton
+                    onClick={() => navigate(TopLevelRoute.Tokens)}
+                  >
+                    <Icon iconName={IconName.Key} />
+                  </SettingsButton>
+                </>
               )}
             </HeadingButtons>
           </TopSection>
@@ -241,6 +252,20 @@ export const App: React.FC = () => {
                       onSelectAccount={fetchAccounts}
                       activeAccountId={parentAccount.id}
                     />
+                  }
+                />
+                <Route path={TopLevelRoute.Tokens} element={<Tokens />} />
+                <Route
+                  path={TopLevelRoute.AddTokens}
+                  element={
+                    <LockWrapper
+                      requester={requester}
+                      setStatus={setStatus}
+                      isLocked={isLocked}
+                      lockKeyRing={() => setIsLocked(true)}
+                    >
+                      <AddTokens />
+                    </LockWrapper>
                   }
                 />
               </>

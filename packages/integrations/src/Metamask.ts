@@ -8,7 +8,6 @@ import {
   Chain,
   MetamaskEvents,
   TokenBalance,
-  Tokens,
 } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
 import { BridgeProps, Integration } from "./types/Integration";
@@ -123,12 +122,7 @@ class Metamask implements Integration<Account, unknown> {
     const ethBalance = await provider.getBalance(owner);
     const signer = await provider.getSigner(owner);
 
-    const erc = new ethers.Contract(
-      //TODO: fix after we support add support for any kind of Erc20 token
-      Tokens["TESTERC20"].nativeAddress as string,
-      erc20Abi,
-      signer
-    );
+    const erc = new ethers.Contract("TODO://", erc20Abi, signer);
     const testErc20Balance: bigint = await erc.balanceOf(signer.address);
 
     return [

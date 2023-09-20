@@ -9,21 +9,20 @@ export const mockAppState: RootState = {
     derived: {
       "namada-masp-1.5.32ccad5356012a7": {
         atest1v4ehgw36xqcyz3zrxsenzd3kxsunsvzzxymyywpkg4zrjv2pxepyyd3cgse5gwzxgsm5x3zrkf2pwp:
-        {
-          details: {
-            chainId: "namada-masp-1.5.32ccad5356012a7",
-            alias: "Namada",
-            address:
-              "atest1v4ehgw36xqcyz3zrxsenzd3kxsunsvzzxymyywpkg4zrjv2pxepyyd3cgse5gwzxgsm5x3zrkf2pwp",
-            isShielded: false,
-            type: AccountType.PrivateKey,
+          {
+            details: {
+              chainId: "namada-masp-1.5.32ccad5356012a7",
+              alias: "Namada",
+              address:
+                "atest1v4ehgw36xqcyz3zrxsenzd3kxsunsvzzxymyywpkg4zrjv2pxepyyd3cgse5gwzxgsm5x3zrkf2pwp",
+              isShielded: false,
+              type: AccountType.PrivateKey,
+            },
+            balance: {
+              NAM: new BigNumber(1000),
+              ATOM: new BigNumber(1000),
+            },
           },
-          balance: {
-            NAM: new BigNumber(1000),
-            ATOM: new BigNumber(1000),
-            ETH: new BigNumber(1000),
-          },
-        },
       },
       "namada-test.1e670ba91369ec891fc": {
         "39UL18": {
@@ -38,7 +37,6 @@ export const mockAppState: RootState = {
           balance: {
             NAM: new BigNumber(1000),
             ATOM: new BigNumber(1000),
-            ETH: new BigNumber(1000),
           },
         },
       },
@@ -55,7 +53,6 @@ export const mockAppState: RootState = {
           balance: {
             NAM: new BigNumber(1000),
             ATOM: new BigNumber(1000),
-            ETH: new BigNumber(1000),
           },
         },
       },
