@@ -33,6 +33,7 @@ import {
   DeleteAccountError,
   CryptoRecord,
   UtilityStore,
+  TokenAddressesStore,
 } from "./types";
 import {
   readVecStringPointer,
@@ -51,6 +52,7 @@ const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
 export const KEYSTORE_KEY = "key-store";
 export const SDK_KEY = "sdk-store";
 export const PARENT_ACCOUNT_ID_KEY = "parent-account-id";
+export const REGISTERED_TOKENS_KEY = "registered-tokens-store";
 export const AUTHKEY_KEY = "auth-key-store";
 
 const crypto = new Crypto();
@@ -741,6 +743,24 @@ export class KeyRing {
       console.error(e);
       return [];
     }
+  }
+
+  async importToken(alias: string, address: string): Promise<void> {
+    const tokens =
+      (await this.utilityStore.get<TokenAddressesStore>(
+        REGISTERED_TOKENS_KEY
+      )) || [];
+
+    const exists = tokens.find((token) => token.address === address);
+    if (!exists) {
+      tokens.push({ alias, address });
+    }
+    console.log(tokens);
+
+    await this.utilityStore.set<TokenAddressesStore>(
+      REGISTERED_TOKENS_KEY,
+      tokens
+    );
   }
 
   private async addSecretKey(

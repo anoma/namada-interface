@@ -21,11 +21,21 @@ import {
 import { shortenAddress } from "@namada/utils";
 import { TopLevelRoute } from "App/types";
 import { useNavigate } from "react-router-dom";
+import { ExtensionRequester } from "extension";
+import { ImportTokenMsg } from "background/keyring";
+import { Ports } from "router";
 
-export const AddTokens: React.FC = () => {
+type Props = {
+  requester: ExtensionRequester;
+};
+
+export const AddTokens: React.FC<Props> = ({ requester }) => {
   const [tokenAddress, setTokenAddress] = useState("");
+  const [alias, setAlias] = useState("");
   const [tokenBech32mAddress, setTokenBech32mAddress] = useState("");
   const [nutBech32mAddress, setNutBech32mAddress] = useState("");
+  const [pending, setPending] = useState(false);
+  const aliasValid = alias !== "";
   const addressValid = tokenBech32mAddress !== "" && nutBech32mAddress !== "";
 
   useEffect(() => {
@@ -41,6 +51,7 @@ export const AddTokens: React.FC = () => {
       let interval: NodeJS.Timeout | null;
 
       return (tokenAddress: string) => {
+        setPending(true);
         interval && clearTimeout(interval);
         interval = setTimeout(() => {
           interval = null;
@@ -51,6 +62,8 @@ export const AddTokens: React.FC = () => {
           } catch (error) {
             setTokenBech32mAddress("");
             setNutBech32mAddress("");
+          } finally {
+            setPending(false);
           }
         }, 300);
       };
@@ -63,8 +76,20 @@ export const AddTokens: React.FC = () => {
       <InputContainer>
         <Input
           variant={InputVariants.Text}
-          label="ERC20 Token Address"
+          label="Alias"
           autoFocus={true}
+          value={alias}
+          onChangeCallback={(e) => {
+            const { value } = e.target;
+            setAlias(value);
+          }}
+        />
+      </InputContainer>
+
+      <InputContainer>
+        <Input
+          variant={InputVariants.Text}
+          label="ERC20 Token Address"
           value={tokenAddress}
           onChangeCallback={(e) => {
             const { value } = e.target;
@@ -74,32 +99,37 @@ export const AddTokens: React.FC = () => {
       </InputContainer>
 
       {addressValid && (
-        <>
-          <TokensContainer>
-            <TokensList>
-              <Token>
-                <TokenSymbol>Namada Token Address</TokenSymbol>
-                <TokenAddress>
-                  {shortenAddress(tokenBech32mAddress, 32, 4)}
-                </TokenAddress>
-              </Token>
-              <Token>
-                <TokenSymbol>Namada NUT Address</TokenSymbol>
-                <TokenAddress>
-                  {shortenAddress(nutBech32mAddress, 32, 4)}
-                </TokenAddress>
-              </Token>
-            </TokensList>
-          </TokensContainer>
-
-          <Button
-            variant={ButtonVariant.ContainedAlternative}
-            onClick={() => navigate(TopLevelRoute.Tokens)}
-          >
-            Add
-          </Button>
-        </>
+        <TokensContainer>
+          <TokensList>
+            <Token>
+              <TokenSymbol>Namada Token Address</TokenSymbol>
+              <TokenAddress>
+                {shortenAddress(tokenBech32mAddress, 32, 4)}
+              </TokenAddress>
+            </Token>
+            <Token>
+              <TokenSymbol>Namada NUT Address</TokenSymbol>
+              <TokenAddress>
+                {shortenAddress(nutBech32mAddress, 32, 4)}
+              </TokenAddress>
+            </Token>
+          </TokensList>
+        </TokensContainer>
       )}
+
+      <Button
+        disabled={pending || !aliasValid || !addressValid}
+        variant={ButtonVariant.ContainedAlternative}
+        onClick={async () => {
+          await requester.sendMessage<ImportTokenMsg>(
+            Ports.Background,
+            new ImportTokenMsg(alias, tokenAddress)
+          );
+          navigate(TopLevelRoute.Tokens);
+        }}
+      >
+        Add
+      </Button>
     </AddAccountContainer>
   );
 };

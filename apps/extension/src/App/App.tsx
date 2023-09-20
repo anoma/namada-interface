@@ -264,7 +264,7 @@ export const App: React.FC = () => {
                       isLocked={isLocked}
                       lockKeyRing={() => setIsLocked(true)}
                     >
-                      <AddTokens />
+                      <AddTokens requester={requester} />
                     </LockWrapper>
                   }
                 />

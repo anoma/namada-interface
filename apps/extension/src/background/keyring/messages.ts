@@ -29,6 +29,7 @@ enum MessageType {
   TransferCompletedEvent = "transfer-completed-event",
   DeleteAccount = "delete-account",
   ValidateMnemonic = "validate-mnemonic",
+  ImportToken = "import-token",
 }
 
 export class CheckIsLockedMsg extends Message<boolean> {
@@ -267,7 +268,7 @@ export class ScanAccountsMsg extends Message<void> {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  validate(): void { }
+  validate(): void {}
 
   route(): string {
     return ROUTE;
@@ -316,6 +317,33 @@ export class DeriveAccountMsg extends Message<DerivedAccount> {
 
   type(): string {
     return DeriveAccountMsg.type();
+  }
+}
+
+export class ImportTokenMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.ImportToken;
+  }
+
+  constructor(public readonly alias: string, public readonly address: string) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.alias) {
+      throw new Error("An alias is required!");
+    }
+    if (!this.address) {
+      throw new Error("An address must be provided!");
+    }
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return ImportTokenMsg.type();
   }
 }
 

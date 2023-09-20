@@ -406,4 +406,8 @@ export class KeyRingService {
   async queryPublicKey(address: string): Promise<string | undefined> {
     return await this.query.query_public_key(address);
   }
+
+  async importToken(alias: string, address: string): Promise<void> {
+    return await this._keyRing.importToken(alias, address);
+  }
 }

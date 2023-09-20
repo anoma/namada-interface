@@ -7,6 +7,7 @@ import {
   CloseOffscreenDocumentMsg,
   ResetPasswordMsg,
   DeriveAccountMsg,
+  ImportTokenMsg,
   GenerateMnemonicMsg,
   LockKeyRingMsg,
   SaveMnemonicMsg,
@@ -63,6 +64,8 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleScanAccountsMsg(service)(env, msg as ScanAccountsMsg);
       case DeriveAccountMsg:
         return handleDeriveAccountMsg(service)(env, msg as DeriveAccountMsg);
+      case ImportTokenMsg:
+        return handleImportTokenMsg(service)(env, msg as ImportTokenMsg);
       case QueryAccountsMsg:
         return handleQueryAccountsMsg(service)(env, msg as QueryAccountsMsg);
       case QueryBalancesMsg:
@@ -210,6 +213,15 @@ const handleDeriveAccountMsg: (
   return async (_, msg) => {
     const { path, accountType, alias } = msg;
     return await service.deriveAccount(path, accountType, alias);
+  };
+};
+
+const handleImportTokenMsg: (
+  service: KeyRingService
+) => InternalHandler<ImportTokenMsg> = (service) => {
+  return async (_, msg) => {
+    const { alias, address } = msg;
+    return await service.importToken(alias, address);
   };
 };
 

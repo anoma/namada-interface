@@ -74,7 +74,15 @@ export type ActiveAccountStore = {
   type: ParentAccount;
 };
 
-export type UtilityStore = ActiveAccountStore | { [id: string]: CryptoRecord };
+export type TokenAddressesStore = {
+  alias: string;
+  address: string;
+}[];
+
+export type UtilityStore =
+  | ActiveAccountStore
+  | { [id: string]: CryptoRecord }
+  | TokenAddressesStore;
 
 export type RevealedPKStore = { [id: string]: string };
 
