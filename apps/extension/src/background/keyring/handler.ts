@@ -23,6 +23,7 @@ import {
 import {
   ConnectInterfaceMsg,
   QueryAccountsMsg,
+  QueryTokensMsg,
   QueryBalancesMsg,
   FetchAndStoreMaspParamsMsg,
   HasMaspParamsMsg,
@@ -68,6 +69,8 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleImportTokenMsg(service)(env, msg as ImportTokenMsg);
       case QueryAccountsMsg:
         return handleQueryAccountsMsg(service)(env, msg as QueryAccountsMsg);
+      case QueryTokensMsg:
+        return handleQueryTokensMsg(service)(env, msg as QueryTokensMsg);
       case QueryBalancesMsg:
         return handleQueryBalancesMsg(service)(env, msg as QueryBalancesMsg);
       case SetActiveAccountMsg:
@@ -230,6 +233,14 @@ const handleQueryAccountsMsg: (
 ) => InternalHandler<QueryAccountsMsg> = (service) => {
   return async (_, _msg) => {
     return await service.queryAccounts();
+  };
+};
+
+const handleQueryTokensMsg: (
+  service: KeyRingService
+) => InternalHandler<QueryTokensMsg> = (service) => {
+  return async (_, _msg) => {
+    return await service.queryTokens();
   };
 };
 

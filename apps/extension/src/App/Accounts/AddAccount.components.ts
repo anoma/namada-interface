@@ -2,6 +2,7 @@ import styled from "styled-components";
 
 export const AddAccountContainer = styled.div`
   display: flex;
+  flex-grow: 1;
   flex-direction: column;
   width: 100%;
   padding: 0 12px;
@@ -15,6 +16,10 @@ export const AddAccountForm = styled.div`
   input {
     width: 92%;
   }
+`;
+
+export const InputsContainer = styled.div`
+  flex-grow: 1;
 `;
 
 export const InputContainer = styled.div`

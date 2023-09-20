@@ -763,6 +763,19 @@ export class KeyRing {
     );
   }
 
+  async queryTokens(): Promise<{ alias: string; address: string }[]> {
+    const tokens =
+      (await this.utilityStore.get<TokenAddressesStore>(
+        REGISTERED_TOKENS_KEY
+      )) || [];
+
+    //TODO: make it prettier, maybe return whole tuple?
+    return tokens.map(({ alias, address }) => ({
+      alias,
+      address: Address.from_erc20(address)[0],
+    }));
+  }
+
   private async addSecretKey(
     secretKey: string,
     password: string,

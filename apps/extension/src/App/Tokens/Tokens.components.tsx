@@ -1,6 +1,7 @@
 import styled from "styled-components";
 
 export const TokensContainer = styled.div`
+  flex-grow: 1;
   width: 100%;
 `;
 

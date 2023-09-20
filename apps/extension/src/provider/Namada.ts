@@ -16,6 +16,7 @@ import {
   GetChainsMsg,
   SuggestChainMsg,
   QueryAccountsMsg,
+  QueryTokensMsg,
   FetchAndStoreMaspParamsMsg,
   HasMaspParamsMsg,
   QueryBalancesMsg,
@@ -56,6 +57,15 @@ export class Namada implements INamada {
     return await this.requester?.sendMessage(
       Ports.Background,
       new QueryAccountsMsg(chainId)
+    );
+  }
+
+  public async tokens(): Promise<
+    { alias: string; address: string }[] | undefined
+  > {
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new QueryTokensMsg()
     );
   }
 

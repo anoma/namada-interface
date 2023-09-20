@@ -9,6 +9,7 @@ import { Address } from "@namada/shared";
 import {
   AddAccountContainer,
   InputContainer,
+  InputsContainer,
 } from "App/Accounts/AddAccount.components";
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -73,30 +74,32 @@ export const AddTokens: React.FC<Props> = ({ requester }) => {
 
   return (
     <AddAccountContainer>
-      <InputContainer>
-        <Input
-          variant={InputVariants.Text}
-          label="Alias"
-          autoFocus={true}
-          value={alias}
-          onChangeCallback={(e) => {
-            const { value } = e.target;
-            setAlias(value);
-          }}
-        />
-      </InputContainer>
+      <InputsContainer>
+        <InputContainer>
+          <Input
+            variant={InputVariants.Text}
+            label="Alias"
+            autoFocus={true}
+            value={alias}
+            onChangeCallback={(e) => {
+              const { value } = e.target;
+              setAlias(value);
+            }}
+          />
+        </InputContainer>
 
-      <InputContainer>
-        <Input
-          variant={InputVariants.Text}
-          label="ERC20 Token Address"
-          value={tokenAddress}
-          onChangeCallback={(e) => {
-            const { value } = e.target;
-            setTokenAddress(value);
-          }}
-        />
-      </InputContainer>
+        <InputContainer>
+          <Input
+            variant={InputVariants.Text}
+            label="ERC20 Token Address"
+            value={tokenAddress}
+            onChangeCallback={(e) => {
+              const { value } = e.target;
+              setTokenAddress(value);
+            }}
+          />
+        </InputContainer>
+      </InputsContainer>
 
       {addressValid && (
         <TokensContainer>

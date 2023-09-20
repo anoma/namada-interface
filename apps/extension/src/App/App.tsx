@@ -254,7 +254,10 @@ export const App: React.FC = () => {
                     />
                   }
                 />
-                <Route path={TopLevelRoute.Tokens} element={<Tokens />} />
+                <Route
+                  path={TopLevelRoute.Tokens}
+                  element={<Tokens requester={requester} />}
+                />
                 <Route
                   path={TopLevelRoute.AddTokens}
                   element={

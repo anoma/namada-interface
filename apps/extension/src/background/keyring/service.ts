@@ -410,4 +410,8 @@ export class KeyRingService {
   async importToken(alias: string, address: string): Promise<void> {
     return await this._keyRing.importToken(alias, address);
   }
+
+  async queryTokens(): Promise<{ alias: string; address: string }[]> {
+    return await this._keyRing.queryTokens();
+  }
 }

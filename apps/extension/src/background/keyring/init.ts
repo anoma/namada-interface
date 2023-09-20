@@ -22,6 +22,7 @@ import {
 import {
   ConnectInterfaceMsg,
   QueryAccountsMsg,
+  QueryTokensMsg,
   QueryBalancesMsg,
   FetchAndStoreMaspParamsMsg,
   HasMaspParamsMsg,
@@ -42,6 +43,7 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(GetActiveAccountMsg);
   router.registerMessage(LockKeyRingMsg);
   router.registerMessage(QueryAccountsMsg);
+  router.registerMessage(QueryTokensMsg);
   router.registerMessage(QueryBalancesMsg);
   router.registerMessage(QueryParentAccountsMsg);
   router.registerMessage(ResetPasswordMsg);

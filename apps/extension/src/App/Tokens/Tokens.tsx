@@ -12,11 +12,57 @@ import { TopLevelRoute } from "App/types";
 import { useNavigate } from "react-router-dom";
 //TODO: extract
 import { AddAccountContainer } from "App/Accounts/AddAccount.components";
+import { useEffect, useState } from "react";
+import { ExtensionRequester } from "extension";
+import { QueryTokensMsg } from "provider";
+import { Ports } from "router";
 
-const tokens = Object.values(SupportedTokens);
+const supportedTokens = Object.values(SupportedTokens).map(
+  ({ symbol, address }) => ({
+    symbol,
+    address: address || "",
+  })
+);
 
-export const Tokens: React.FC = () => {
+export enum Status {
+  Completed = "Completed",
+  Pending = "Pending",
+  Failed = "Failed",
+}
+
+type Props = {
+  requester: ExtensionRequester;
+};
+
+export const Tokens: React.FC<Props> = ({ requester }) => {
   const navigate = useNavigate();
+  const [status, setStatus] = useState<Status>();
+  const [tokens, setTokens] =
+    useState<{ symbol: string; address: string }[]>(supportedTokens);
+
+  useEffect(() => {
+    setStatus(Status.Pending);
+    const fetchTokens = async (): Promise<void> => {
+      const fetchedTokens = await requester
+        .sendMessage(Ports.Background, new QueryTokensMsg())
+        .catch((e) => {
+          //TODO:
+          // setError(`Requester error: ${e}`);
+        });
+      if (fetchedTokens) {
+        setTokens((tokens) => [
+          ...tokens,
+          //TOD:rename alias to symbol
+          ...fetchedTokens.map(({ alias, address }) => ({
+            symbol: alias,
+            address,
+          })),
+        ]);
+      }
+      setStatus(Status.Completed);
+    };
+    fetchTokens();
+  }, []);
 
   return (
     <AddAccountContainer>
@@ -37,7 +83,7 @@ export const Tokens: React.FC = () => {
         variant={ButtonVariant.ContainedAlternative}
         onClick={() => navigate(TopLevelRoute.AddTokens)}
       >
-        Add Token
+        Import Token
       </Button>
     </AddAccountContainer>
   );

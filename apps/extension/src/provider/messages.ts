@@ -31,6 +31,7 @@ enum MessageType {
   FetchAndStoreMaspParams = "fetch-and-store-masp-params",
   HasMaspParams = "has-masp-params",
   ApproveEthBridgeTransfer = "approve-eth-bridge-transfer",
+  QueryTokens = "query-tokens",
 }
 
 /**
@@ -153,6 +154,30 @@ export class QueryAccountsMsg extends Message<DerivedAccount[]> {
 
   type(): string {
     return QueryAccountsMsg.type();
+  }
+}
+
+export class QueryTokensMsg extends Message<
+  { alias: string; address: string }[]
+> {
+  public static type(): MessageType {
+    return MessageType.QueryTokens;
+  }
+
+  constructor(public readonly chainId?: string) {
+    super();
+  }
+
+  validate(): void {
+    return;
+  }
+
+  route(): string {
+    return Route.KeyRing;
+  }
+
+  type(): string {
+    return QueryTokensMsg.type();
   }
 }
 
