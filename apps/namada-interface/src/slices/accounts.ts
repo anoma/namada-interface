@@ -55,6 +55,7 @@ export const fetchBalances = createAsyncThunk<
         const { chainId, address } = details;
 
         const results = await integration.queryBalances(address);
+        console.log(results);
 
         const balance = results.reduce(
           (acc, curr) => ({ ...acc, [curr.token]: new BigNumber(curr.amount) }),

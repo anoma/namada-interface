@@ -23,6 +23,7 @@ import {
   AccountType,
   Bip44Path,
   DerivedAccount,
+  Tokens,
   TransferMsgValue,
 } from "@namada/types";
 import {
@@ -398,8 +399,11 @@ export class KeyRing {
       const seedClone = seed.clone();
       const path = { account: 0, change: 0, index };
       const accountInfo = deriveFn(seedClone, path, parentId);
+      //TODO: think if we also need tokens from DB
+      const tokens = Object.values(Tokens).map(({ address }) => address);
       const balances: [string, string][] = await this.query.query_balance(
-        accountInfo.owner
+        accountInfo.owner,
+        tokens
       );
 
       return { path, info: accountInfo, balances };
@@ -730,15 +734,22 @@ export class KeyRing {
   async queryBalances(
     owner: string
   ): Promise<{ token: string; amount: string }[]> {
+    const tokens = Object.values(Tokens).map(({ address }) => address);
+    const importedTokens =
+      (
+        await this.utilityStore.get<TokenAddressesStore>(REGISTERED_TOKENS_KEY)
+      )?.flatMap(({ address }) => Address.from_erc20(address)) || [];
+
     try {
-      return (await this.query.query_balance(owner)).map(
-        ([token, amount]: [string, string]) => {
-          return {
-            token,
-            amount,
-          };
-        }
-      );
+      const ret = (
+        await this.query.query_balance(owner, [...tokens, ...importedTokens])
+      ).map(([token, amount]: [string, string]) => {
+        return {
+          token,
+          amount,
+        };
+      });
+      return ret;
     } catch (e) {
       console.error(e);
       return [];
@@ -755,7 +766,6 @@ export class KeyRing {
     if (!exists) {
       tokens.push({ alias, address });
     }
-    console.log(tokens);
 
     await this.utilityStore.set<TokenAddressesStore>(
       REGISTERED_TOKENS_KEY,

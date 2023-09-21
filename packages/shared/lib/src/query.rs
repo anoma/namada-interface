@@ -222,23 +222,10 @@ impl Query {
     async fn query_transparent_balance(
         &self,
         owner: Address,
+        tokens_addresses: Vec<Address>,
     ) -> Result<Vec<(Address, token::Amount)>, JsError> {
-        //TODO: Move hardoced tokens somewhere else
-        let tokens: HashSet<Address> = HashSet::from([Address::from_str(
-            "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5",
-        )?, Address::from_str(
-            "atest1v4ehgw36gfryydj9g3p5zv3kg9znyd358ycnzsfcggc5gvecgc6ygs2rxv6ry3zpg4zrwdfeumqcz9",
-        )?, Address::from_str(
-            "atest1v4ehgw36xqmr2d3nx3ryvd2xxgmrq33j8qcns33sxezrgv6zxdzrydjrxveygd2yxumrsdpsf9jc2p",
-        )?, Address::from_str(
-            "atest1v46xsw368psnwwf3xcerqeryxcervvpsxuukye3cxsukgce4x5mrwctyvvekvvnxv33nxvfc0kmacx",
-        )?,
-        Address::from_str(
-            "atest1de6hgw368pqnwwf3xcerqeryxcervvpsxuu5y33cxsu5gce4x5mrwc2ygve5vvjxv3pnxvfcq8rzzq",
-        )?]);
-
         let mut result = vec![];
-        for token in tokens {
+        for token in tokens_addresses {
             let balances = get_token_balance(&self.client, &token, &owner).await?;
             result.push((token, balances));
         }
@@ -279,9 +266,19 @@ impl Query {
         Ok(Self::get_decoded_balance(decoded_balance))
     }
 
-    pub async fn query_balance(&self, owner: String) -> Result<JsValue, JsError> {
+    pub async fn query_balance(
+        &self,
+        owner: String,
+        tokens_addresses: Box<[JsValue]>,
+    ) -> Result<JsValue, JsError> {
+        let owner_addresses: Vec<Address> = tokens_addresses
+            .into_iter()
+            .filter_map(|address| address.as_string())
+            .filter_map(|address| Address::from_str(&address).ok())
+            .collect();
+
         let result = match Address::from_str(&owner) {
-            Ok(addr) => self.query_transparent_balance(addr).await,
+            Ok(addr) => self.query_transparent_balance(addr, owner_addresses).await,
             Err(e1) => match ExtendedViewingKey::from_str(&owner) {
                 Ok(xvk) => self.query_shielded_balance(xvk).await,
                 Err(e2) => return Err(JsError::new(&format!("{} {}", e1, e2))),

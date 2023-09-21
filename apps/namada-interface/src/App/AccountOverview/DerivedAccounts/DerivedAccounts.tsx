@@ -45,20 +45,28 @@ type Props = {
   setTotal: (total: BigNumber) => void;
 };
 
-const assetIconByToken: Record<TokenType, { light: string; dark: string }> = {
-  ["NAM"]: {
-    light: AssetNamadaNamLight,
-    dark: AssetNamadaNamDark,
-  },
-  ["ETH"]: {
-    light: AssetEthereumEther,
-    dark: AssetEthereumEther,
-  },
-  ["ATOM"]: {
-    light: AssetCosmosAtom,
-    dark: AssetCosmosAtom,
-  },
+const defaultTokenIcons = {
+  light: AssetNamadaNamLight,
+  dark: AssetNamadaNamDark,
 };
+
+const assetIconByToken = new Map([
+  ["NAM", defaultTokenIcons],
+  [
+    "ETH",
+    {
+      light: AssetEthereumEther,
+      dark: AssetEthereumEther,
+    },
+  ],
+  [
+    "ATOM",
+    {
+      light: AssetCosmosAtom,
+      dark: AssetCosmosAtom,
+    },
+  ],
+]) as ReadonlyMap<string, { light: string; dark: string }>;
 
 const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -80,10 +88,11 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
   const accounts = Object.values(derived[chainId]);
   const { colorMode } = themeContext.themeConfigurations;
 
-  const getAssetIconByTheme = (symbol: TokenType): string => {
-    return colorMode === "dark"
-      ? assetIconByToken[symbol].dark
-      : assetIconByToken[symbol].light;
+  const getAssetIconByTheme = (symbol: string): string => {
+    //TODO: we fallback to NAM for now
+    const assetIcon = assetIconByToken.get(symbol) || defaultTokenIcons;
+
+    return colorMode === "dark" ? assetIcon.dark : assetIcon.light;
   };
 
   const handleAccountClick = (address: string): void => {

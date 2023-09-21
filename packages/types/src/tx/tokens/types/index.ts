@@ -14,16 +14,16 @@ type TokenInfo = {
 
 // Declare symbols for tokens we support:
 // TODO: remove ETH
-const SupportedSymbols = ["NAM", "ATOM", "ETH"] as const;
+export const Symbols = ["NAM", "ATOM", "ETH"] as const;
 
-export type TokenType = (typeof SupportedSymbols)[number];
+export type TokenType = (typeof Symbols)[number];
 
 type Tokens = Record<TokenType, TokenInfo>;
 
 export const Tokens = registeredCoinTypes
   .filter(
     ([, , symbol]: RegisteredCoinType) =>
-      symbol && SupportedSymbols.includes(symbol as TokenType)
+      symbol && Symbols.includes(symbol as TokenType)
   )
   .reduce((tokens: Tokens, coinType: RegisteredCoinType) => {
     const [type, path, symbol = "", coin, url = ""] = coinType;
