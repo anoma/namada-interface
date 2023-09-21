@@ -154,7 +154,7 @@ class Keplr implements Integration<Account, OfflineSigner> {
       );
 
       const fee = {
-        amount: coins(2000, token),
+        amount: coins(2000, token.symbol),
         // TODO: Configure gas from interface
         gas: "222000",
       };
@@ -163,7 +163,7 @@ class Keplr implements Integration<Account, OfflineSigner> {
         source,
         receiver,
         // TODO: Use `token` here, once it is a valid Cosmos denom
-        coin(amount.toString(), token),
+        coin(amount.toString(), token.symbol),
         portId,
         channelId,
         // TODO: Should we enable timeout height?

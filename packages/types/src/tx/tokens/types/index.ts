@@ -4,13 +4,13 @@ import {
   RegisteredCoinSymbol,
 } from "slip44";
 
-type TokenInfo = {
+export type TokenInfo = {
   symbol: string;
   type: number;
   path: number;
   coin: string;
   url: string;
-  address?: string;
+  address: string;
   nativeAddress?: string;
   isNut?: boolean;
   coinGeckoId?: string;
@@ -56,6 +56,7 @@ export const Tokens = supportedCoinTypes.reduce(
     const [type, path, symbol = "", coin, url = ""] = coinType;
 
     tokens[`${symbol as TokenType}`] = {
+      address: "",
       type,
       path,
       symbol,

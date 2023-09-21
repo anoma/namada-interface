@@ -1,4 +1,4 @@
-import { Account, TokenType } from "@namada/types";
+import { Account, TokenInfo, TokenType } from "@namada/types";
 import BigNumber from "bignumber.js";
 
 export enum TransferType {
@@ -47,8 +47,9 @@ export type TxTransferArgs = TxArgs & {
   faucet?: string;
 };
 
-export type TxIbcTransferArgs = TxArgs & {
+export type TxIbcTransferArgs = Omit<TxArgs, "token"> & {
   chainId: string;
   channelId: string;
   portId: string;
+  token: TokenInfo
 };

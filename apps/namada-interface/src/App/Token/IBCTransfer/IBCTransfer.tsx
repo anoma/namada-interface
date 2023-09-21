@@ -249,7 +249,7 @@ const IBCTransfer = (): JSX.Element => {
     if (sourceAccount && token) {
       submitIbcTransfer({
         account: sourceAccount.details,
-        token,
+        token: Tokens[token as TokenType],
         amount,
         chainId,
         target: recipient,
