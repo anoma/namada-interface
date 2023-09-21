@@ -10,7 +10,7 @@ import {
   SigningStargateClientOptions,
 } from "@cosmjs/stargate";
 import { Coin } from "@cosmjs/launchpad";
-import Long from "long";
+// import Long from "long";
 import BigNumber from "bignumber.js";
 
 import {
@@ -140,11 +140,11 @@ class Keplr implements Integration<Account, OfflineSigner> {
       const {
         source,
         receiver,
-        // TODO: Fix value being passed as a valid Cosmos denom, should not be token address!
         token,
         amount,
         portId = "transfer",
         channelId,
+        tx: { feeAmount }
       } = props.ibcProps;
 
       const client = await SigningStargateClient.connectWithSigner(
@@ -154,26 +154,25 @@ class Keplr implements Integration<Account, OfflineSigner> {
       );
 
       const fee = {
-        amount: coins(2000, token.symbol),
-        // TODO: Configure gas from interface
+        amount: coins(feeAmount.toString(), "uatom"),
         gas: "222000",
       };
 
       const response = await client.sendIbcTokens(
         source,
         receiver,
-        // TODO: Use `token` here, once it is a valid Cosmos denom
         coin(amount.toString(), token.symbol),
         portId,
         channelId,
-        // TODO: Should we enable timeout height?
-        {
-          revisionHeight: Long.fromNumber(0),
-          revisionNumber: Long.fromNumber(0),
-        },
-        Math.floor(Date.now() / 1000) + 60,
+        // TODO: Should we enable timeout height versus timestamp?
+        // {
+        //   revisionHeight: Long.fromNumber(0),
+        //   revisionNumber: Long.fromNumber(0),
+        // },
+        undefined, // timeout height
+        Math.floor(Date.now() / 1000) + 60, // timeout timestamp
         fee,
-        "IBC Transfer Keplr<->Namada"
+        `${this.chain.alias} (${this.chain.chainId})->Namada`
       );
 
       if (response.code !== 0) {
