@@ -1,4 +1,5 @@
 import BigNumber from "bignumber.js";
+import { TokenInfo } from "./tokens";
 
 export type SubmitBondProps = {
   validator: string;

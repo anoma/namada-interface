@@ -66,10 +66,6 @@ const assetIconByToken: Record<TokenType, { light: string; dark: string }> = {
     light: AssetCosmosAtom,
     dark: AssetCosmosAtom,
   },
-  ["IBC"]: {
-    light: AssetNamadaNamLight,
-    dark: AssetNamadaNamDark,
-  },
 };
 
 const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {

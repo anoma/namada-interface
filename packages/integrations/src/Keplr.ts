@@ -18,10 +18,11 @@ import {
   AccountType,
   Chain,
   CosmosMinDenom,
-  CosmosTokens,
-  CosmosTokensByMinDenom,
-  CosmosTokenTypes,
+  CosmosTokenType,
   TokenBalance,
+  TokenType,
+  minDenomByToken,
+  tokenByMinDenom,
 } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
 import { BridgeProps, Integration } from "./types/Integration";
@@ -164,7 +165,7 @@ class Keplr implements Integration<Account, OfflineSigner> {
       const response = await client.sendIbcTokens(
         source,
         receiver,
-        coin(amount.toString(), CosmosTokens[token.symbol as CosmosTokenTypes]),
+        coin(amount.toString(), minDenomByToken(token.symbol as CosmosTokenType)),
         portId,
         channelId,
         // TODO: Should we enable timeout height versus timestamp?
@@ -193,8 +194,9 @@ class Keplr implements Integration<Account, OfflineSigner> {
     const client = await StargateClient.connect(this.chain.rpc);
     const balances = await client.getAllBalances(owner) || []
 
-    return (balances).map((coin: Coin) => {
-      const token = CosmosTokensByMinDenom[coin.denom as CosmosMinDenom];
+    // TODO: Remove filter once we can handle IBC tokens properly
+    return (balances).filter((balance) => balance.denom === "uatom").map((coin: Coin) => {
+      const token = tokenByMinDenom(coin.denom as CosmosMinDenom) as TokenType;
       const amount = new BigNumber(coin.amount);
       return {
         token,
