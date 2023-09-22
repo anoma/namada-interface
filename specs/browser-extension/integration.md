@@ -16,13 +16,13 @@ For integrating an application with the extension, it is recommended that you im
 
 If the extension is installed, and the domain is enabled (currently, all domains are enabled by the extension), detection can be achieved simply by doing the following:
 
-```typescript
+```ts
 const isExtensionInstalled = typeof window.namada === 'object';
 ```
 
 A better practice would be to use the `Namada` integration, which provides functionality for interacting with the Extension's public API:
 
-```typescript
+```ts
 import { Namada } from "@namada/integrations";
 
 // Create integration instance
@@ -41,7 +41,7 @@ The `@namada/integrations` package provides a common interface for interacting w
 
 To connect your application to the extension, you can invoke the following, providing a `chainId`:
 
-```typescript
+```ts
 import { Namada } from "@namada/integrations";
 
 const chainId = 'namada-test.XXXXXXXXXX';
@@ -62,7 +62,7 @@ This will prompt the user to either `Accept` or `Reject` a connection, and a cli
 
 The `Namada` integration provides a convenience method to query all accounts from the extension:
 
-```typescript
+```ts
 async function myApp(): Promise<void> {
   // Connect to extension
   await namada.connect(chainId);
@@ -90,7 +90,7 @@ async function myApp(): Promise<void> {
 
 The `Namada` integration can also be used to query balances for these accounts:
 
-```typescript
+```ts
 const owner = "atest1d9khqw36xc65xwp3xc6rwsfcxpprssesxsenjs3cxpznqvfkxppnxw2989pnssfkgsenzvphx0u6kj";
 const balances = await client.queryBalances(owner)
 ```
@@ -109,32 +109,36 @@ a portion of the public API exposed when the extension is installed.
 
 In order to submit a `Transfer` transaction via the extension integration, we can make use of the `AccountType`, TransferProps` and `TxProps` type definitions.
 
-```typescript
+```ts
 import { AccountType, TransferProps, TxProps } from "@namada/types";
 ```
 
 `TxProps` represents the transaction parameters, whereas `TransferProp` represents the details of the transfer itself.
 We use the `AccountType` enum to specify the type of account, which in turn will determine how signing occurs (e.g., if
-the account is of type `AccountType.Ledger`, we will expect signing to occur externally, otherwise, we will 
-query the extension keystore to the keys associated with the `source` address).
+the account is of type `AccountType.Ledger`, we will expect signing to occur externally on the hardware wallet, otherwise,
+the extension will query the keystore for the keys associated with that `source` address, and sign via the SDK).
 
 Consider this example:
 
-```typescript
+```ts
 import { AccountType, TransferProps, TxProps } from "@namada/types";
+
+// Address for NAM token
+const token = "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5";
+const chainId = "namada-devnet.95bcc8eaf0f39f1d3fa27629";
 
 const myTransferTx: TransferProps = {
     source: "atest1d9khqw36g3ryxd29xgmrjsjr89znsse5g5cn2wpsgs6nqv33xguryw2p89znsd2rxqcnzvehcnyzxw",
     target: "atest1d9khqw36xcmyzve3gvmrqdfexdz5zd2rxu6nv3zp8ym5zwfcgyeygv2x8pzrz3fcgscngs3nchvahj",
-    token: tokenAddress,
+    token,
     amount: new BigNumber(1.234),
     nativeToken: "NAM",
     // NOTE: tx adheres to the TxProps type
     tx: {
-        token: tokenAddress,
+        token,
         feeAmount: new BigNumber(100),
         gasLimit: new BigNumber(200),
-        chainId: "namada-devnet.95bcc8eaf0f39f1d3fa27629",
+        chainId,
     }
 }
 
@@ -148,7 +152,7 @@ async function myApp(): Promise<void> {
   const client = namada.signer();
 
   await client.submitTransfer(myTransferTx, AccountType.PrivateKey)
-    .then(() => console.log("Transaction was approved and submitted via the SDK"))
+    .then(() => console.log("Transaction was approved by user and submitted via the SDK"))
     .catch((e) => console.error(`Transaction was rejected: ${e}`));
 }
 
@@ -161,7 +165,7 @@ is approved, an event is dispatched from the extension indicating that a transac
 the transaction type. When the transaction is completed, another event will fire indicating it's status.
 If the transaction fails in the SDK, the returned error will be dispatched in the completion event.
 
-See [Handling Extension Events](#handling-extension-events) for more information on these events.
+See [Handling Extension Events](#handling-extension-events) for more information on what extension events may be subscribed to.
 
 [ [Table of Contents](#table-of-contents) ]
 
@@ -175,7 +179,7 @@ In the `@namada/types` package, you can import an enum providing the various eve
 
 The currently dispatched events are as follows:
 
-```typescript
+```ts
 export enum Events {
   AccountChanged = "namada-account-changed",
   TxStarted = "namada-tx-started",
@@ -185,6 +189,6 @@ export enum Events {
 }
 ```
 
-These events will prove useful when syncronizing the state of the interface with the connected extension.
+These events will prove useful when synchronizing the state of the interface with the connected extension.
 
 [ [Table of Contents](#table-of-contents) ]

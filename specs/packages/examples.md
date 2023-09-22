@@ -5,6 +5,8 @@
 - [Loading the SDK and Query](#loading-the-sdk-and-query)
 - [Transaction requirements](#transaction-requirements)
 - [Sending a transaction](#sending-a-transaction)
+  - [Using stored keys](#using-stored-keys)
+  - [Using a Ledger HW Wallet](#using-a-ledger-hw-wallet)
 - [Querying for data](#querying-for-data)
 - [Sending a tx with the extension](#sending-a-transaction-with-the-extension-api)
 
@@ -89,7 +91,10 @@ The serialized `transfer` in the above example is ready to send via the SDK.
 
 ## Sending a transaction
 
-Building on the previous section, we can send transaction through the SDK as follows:
+Building on the previous section, we can send transaction through the SDK using two approaches. The first approach assumes you have
+a locally stored keypair with which you want to sign. The second approach involves signing a transaction using a Ledger Hardware Wallet.
+
+### Using Stored Keys
 
 ```ts
 import { Sdk } from "@namada/shared";
@@ -136,7 +141,133 @@ async function init() {
 }
 
 init();
+```
 
+Other transaction types follow a similar pattern. The only exception is if the transaction is to be signed by the [Ledger hardware wallet](#using-a-ledger-hw-wallet).
+
+[ [Table of Contents](#table-of-contents) ]
+
+### Using a Ledger HW Wallet
+
+This process differs from using keypairs for signing as it requires additional steps for signing to occur externally:
+
+1. With transaction details gathered from user, we first _build_ the transaction
+2. The bytes of this transaction are passed to the Ledger HW wallet for signing
+3. The signatures from the Ledger, along with the original transaction bytes, are passed into the SDK where the signatures will be appended, and finally broadcasted
+
+```ts
+import { Sdk, TxType } from "@namada/shared";
+// Import wasm initialization function
+import { init as initShared } from "@namada/shared/src/init";
+import { Message, Tokens, SignatureMsgValue } from "@namada/types";
+import { createTransfer } from "example";
+import {
+  NamadaApp,
+  ResponseAppInfo,
+  ResponseSign,
+  ResponseVersion,
+  LedgerError,
+} from "@namada/ledger-namada";
+
+// Import Ledger transports
+import TransportUSB from "@ledgerhq/hw-transport-webusb";
+import Transport from "@ledgerhq/hw-transport";
+
+const RPC_URL = "http://127.0.0.1:26657";
+
+// For this example, let's use the following Ledger account:
+const account = {
+    alias: "My Ledger Account",
+    address: "atest1d9khqw36g3ryxd29xgmrjsjr89znsse5g5cn2wpsgs6nqv33xguryw2p89znsd2rxqcnzvehcnyzxw",
+    path: "m/44'/877'/0'/0/0",
+};
+
+async function myApp(): Promise<void> {
+  await initShared();
+
+  const sdk = new Sdk(RPC_URL);
+
+  // Initialize Ledger transport and Namada ledger app
+  // NOTE: A class exists in the extension which simplifies the handling of the Ledger, which will
+  // be moved to a public package in the future. Following is the manual process:
+  const transport = await TransportUSB.create()
+  const namadaApp = new NamadaApp(transport);
+  const ledger = new Ledger(namadaApp);
+
+  if (!ledger) {
+      throw new Error("Ledger initialization failed!");
+  }
+
+  const {
+    version: { returnCode, errorMessage },
+  } = await ledger.status();
+
+  // Validate Ledger state first
+  if (returnCode !== LedgerError.NoErrors) {
+    await ledger.closeTransport();
+    throw new Error(errorMessage);
+  }
+
+  // Query public key from Ledger 
+  const { address } = ledger.getAddressAndPubKey(account.path);
+  account.publicKey = address.toString();
+
+  // Construct transfer details
+  const tokenAddress = Tokens["NAM"].address;
+
+  const transferMsg = createTransfer({
+    source: account.address,
+    target: "atest1d9khqw36xcmyzve3gvmrqdfexdz5zd2rxu6nv3zp8ym5zwfcgyeygv2x8pzrz3fcgscngs3nchvahj",
+    token: tokenAddress,
+    amount: new BigNumber(1.234),
+    nativeToken: "NAM",
+    // NOTE: tx must adhere to the TxProps type
+    tx: {
+        token: tokenAddress,
+        feeAmount: new BigNumber(100),
+        gasLimit: new BigNumber(200),
+        chainId: "namada-devnet.95bcc8eaf0f39f1d3fa27629",
+        // Public key is required for Ledger tx!
+        publicKey: account.publicKey,
+    }
+  });
+
+  try {
+    // Get tx bytes from SDK
+    const txBytes = await sdk.get_tx_bytes(transferMsg, TxType.Transfer);
+
+    // Sign with Ledger
+    const response = await ledger.sign(account.path, txBytes);
+    // NOTE: A helper utility `encodeSignature` exists in the extension utils - this
+    // will be moved to a public package in the future. The following is how we encode a signature
+    // manually
+    const { pubkey, raw_indices, raw_signature, wrapper_indices, wrapper_signature } = sig;
+
+    // Due to how data is serialized on the Ledger, we have to coerce the types to
+    // get the correct data for now:
+    /* eslint-disable */
+    pubkey: new Uint8Array((pubkey as any).data),
+    rawIndices: new Uint8Array((raw_indices as any).data),
+    rawSignature: new Uint8Array((raw_signature as any).data),
+    wrapperIndices: new Uint8Array((wrapper_indices as any).data),
+    wrapperSignature: new Uint8Array((wrapper_signature as any).data),
+    /* eslint-enable */
+
+    // Encode the signatures for passing into the SDK
+    const value = new SignatureMsgValue(props);
+    const msg = new Message<SignatureMsgValue>();
+    const sig = msg.encode(value);
+
+    // Finally, submit the tx along with the encoded signatures to the SDK for signing and broadcasting
+    await sdk.submit_signed_tx(tx, sig)
+      .then(() => console.log("Successfully submitted tx"))
+      .catch((e) => console.error(`An error occured: ${e}`));
+  } catch (e) {
+    console.error(`Ledger signing failed: ${e}`);
+  }
+}
+
+init();
 ```
 
 [ [Table of Contents](#table-of-contents) ]
@@ -186,7 +317,8 @@ init();
 
 ## Sending a transaction with the Extension API
 
-**TODO**
+An overview of interacting with the Extension API (which is exposed to interfaces when the extension is installed), can be found in [integration.md](../browser-extension/integration.md).
+This API is preferred if your goal is only to integrate an application with the extension, and not interact directly with the SDK.
 
 [ [Table of Contents](#table-of-contents) ]
 
