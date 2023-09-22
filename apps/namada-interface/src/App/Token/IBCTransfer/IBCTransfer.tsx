@@ -134,7 +134,7 @@ const IBCTransfer = (): JSX.Element => {
 
   const channels =
     channelsByChain[chainId] && channelsByChain[chainId][selectedChainId]
-      ? channelsByChain[chainId][selectedChainId]
+      ? [...channelsByChain[chainId][selectedChainId]].reverse()
       : [];
 
   const selectChannelsData = channels.map((channel: string) => ({
@@ -209,7 +209,7 @@ const IBCTransfer = (): JSX.Element => {
       const chains = channelsByChain[chainId] || {};
       const channels = chains[selectedChainId] || [];
       if (channels && channels.length > 0) {
-        setSelectedChannelId(channels[0]);
+        setSelectedChannelId(channels[channels.length - 1]);
       }
     }
   }, [selectedChainId, channelsByChain]);
@@ -286,6 +286,9 @@ const IBCTransfer = (): JSX.Element => {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
+  const isAmountValid = (amount: BigNumber, balance: BigNumber): boolean =>
+    amount.isLessThan((token === "ATOM" ? balance.multipliedBy(1_000_000) : balance));
+
   const validateForm = (): boolean => {
     // Validate IBC requirements if selected as bridge type
     if (destinationChain.bridgeType.includes(BridgeType.IBC)) {
@@ -294,7 +297,7 @@ const IBCTransfer = (): JSX.Element => {
       }
     }
 
-    if (amount.isGreaterThan(currentBalance) || amount.isZero()) {
+    if (!isAmountValid(amount, currentBalance) || amount.isZero()) {
       return false;
     }
 
@@ -457,7 +460,7 @@ const IBCTransfer = (): JSX.Element => {
               }}
               onFocus={handleFocus}
               error={
-                amount.isLessThanOrEqualTo(currentBalance)
+                isAmountValid(amount, currentBalance) || amount.isZero()
                   ? undefined
                   : "Invalid amount!"
               }

@@ -17,7 +17,10 @@ import {
   Account,
   AccountType,
   Chain,
+  CosmosMinDenom,
   CosmosTokens,
+  CosmosTokensByMinDenom,
+  CosmosTokenTypes,
   TokenBalance,
 } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
@@ -161,7 +164,7 @@ class Keplr implements Integration<Account, OfflineSigner> {
       const response = await client.sendIbcTokens(
         source,
         receiver,
-        coin(amount.toString(), token.symbol),
+        coin(amount.toString(), CosmosTokens[token.symbol as CosmosTokenTypes]),
         portId,
         channelId,
         // TODO: Should we enable timeout height versus timestamp?
@@ -191,9 +194,10 @@ class Keplr implements Integration<Account, OfflineSigner> {
     const balances = await client.getAllBalances(owner) || []
 
     return (balances).map((coin: Coin) => {
+      const token = CosmosTokensByMinDenom[coin.denom as CosmosMinDenom];
       const amount = new BigNumber(coin.amount);
       return {
-        token: CosmosTokens[coin.denom],
+        token,
         amount: (coin.denom === "uatom" ? amount.dividedBy(1_000_000) : amount).toString(),
       }
     });
