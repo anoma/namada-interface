@@ -85,7 +85,9 @@ export class Namada implements INamada {
 
   public async balances(
     owner: string
-  ): Promise<{ token: string; amount: string }[] | undefined> {
+  ): Promise<
+    { symbol: string; address: string; amount: string }[] | undefined
+  > {
     return await this.requester?.sendMessage(
       Ports.Background,
       new QueryBalancesMsg(owner)

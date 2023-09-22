@@ -1,12 +1,9 @@
-import { registeredCoinTypes, RegisteredCoinType } from "slip44";
+import { registeredCoinTypes } from "slip44";
 
 type TokenInfo = {
   symbol: string;
-  type: number;
-  path: number;
   coin: string;
-  url: string;
-  address?: string;
+  address: string;
   nativeAddress?: string;
   isNut?: boolean;
   coinGeckoId?: string;
@@ -20,43 +17,32 @@ export type TokenType = (typeof Symbols)[number];
 
 type Tokens = Record<TokenType, TokenInfo>;
 
-export const Tokens = registeredCoinTypes
-  .filter(
-    ([, , symbol]: RegisteredCoinType) =>
-      symbol && Symbols.includes(symbol as TokenType)
-  )
-  .reduce((tokens: Tokens, coinType: RegisteredCoinType) => {
-    const [type, path, symbol = "", coin, url = ""] = coinType;
+const ATOM = registeredCoinTypes[118];
+const ETH = registeredCoinTypes[60];
 
-    tokens[`${symbol as TokenType}`] = {
-      type,
-      path,
-      symbol,
-      coin,
-      url,
-    };
-
-    return tokens;
-  }, {} as Tokens);
-
-// Map a few test addresses for now:
-Tokens["NAM"] = {
-  type: 123456,
-  path: 2147483651,
-  symbol: "NAM",
-  coin: "Namada",
-  url: "https://namada.net",
-  address:
-    "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5",
+export const Tokens: Tokens = {
+  NAM: {
+    address:
+      "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5",
+    coin: "Mamada",
+    coinGeckoId: "namada",
+    symbol: "NAM",
+  },
+  ATOM: {
+    address:
+      "atest1v4ehgw36gfryydj9g3p5zv3kg9znyd358ycnzsfcggc5gvecgc6ygs2rxv6ry3zpg4zrwdfeumqcz9",
+    coin: ATOM[2] as string,
+    coinGeckoId: "cosmons",
+    symbol: ATOM[3],
+  },
+  ETH: {
+    address:
+      "atest1v4ehgw36xqmr2d3nx3ryvd2xxgmrq33j8qcns33sxezrgv6zxdzrydjrxveygd2yxumrsdpsf9jc2p",
+    coin: ETH[2] as string,
+    coinGeckoId: "cosmons",
+    symbol: ETH[3],
+  },
 };
 
-Tokens["ATOM"].address =
-  "atest1v4ehgw36gfryydj9g3p5zv3kg9znyd358ycnzsfcggc5gvecgc6ygs2rxv6ry3zpg4zrwdfeumqcz9";
-Tokens["ATOM"].coinGeckoId = "cosmos";
-
-Tokens["ETH"].address =
-  "atest1v4ehgw36xqmr2d3nx3ryvd2xxgmrq33j8qcns33sxezrgv6zxdzrydjrxveygd2yxumrsdpsf9jc2p";
-Tokens["ETH"].coinGeckoId = "ethereum";
-
-//TODO:
-export type TokenBalance = { token: string; amount: string };
+//TODO: Not sure if it is even needed
+export type TokenBalance = { symbol: string; address: string; amount: string };

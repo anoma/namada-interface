@@ -40,10 +40,10 @@ export class InjectedNamada implements INamada {
 
   public async balances(
     owner: string
-  ): Promise<{ token: string; amount: string }[]> {
+  ): Promise<{ symbol: string; address: string; amount: string }[]> {
     return await InjectedProxy.requestMethod<
       string,
-      { token: string; amount: string }[]
+      { symbol: string; address: string; amount: string }[]
     >("balances", owner);
   }
 

@@ -183,7 +183,8 @@ export class QueryTokensMsg extends Message<
 
 export class QueryBalancesMsg extends Message<
   {
-    token: string;
+    symbol: string;
+    address: string;
     amount: string;
   }[]
 > {

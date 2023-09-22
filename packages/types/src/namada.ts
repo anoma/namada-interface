@@ -9,7 +9,7 @@ export interface Namada {
   accounts(chainId: string): Promise<DerivedAccount[] | undefined>;
   balances(
     owner: string
-  ): Promise<{ token: string; amount: string }[] | undefined>;
+  ): Promise<{ symbol: string; address: string; amount: string }[] | undefined>;
   suggestChain(chainConfig: Chain): Promise<void>;
   chain: (chainId: string) => Promise<Chain | undefined>;
   chains: () => Promise<Chain[] | undefined>;

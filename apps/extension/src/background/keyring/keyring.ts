@@ -733,19 +733,43 @@ export class KeyRing {
 
   async queryBalances(
     owner: string
-  ): Promise<{ token: string; amount: string }[]> {
-    const tokens = Object.values(Tokens).map(({ address }) => address);
-    const importedTokens =
-      (
-        await this.utilityStore.get<TokenAddressesStore>(REGISTERED_TOKENS_KEY)
-      )?.flatMap(({ address }) => Address.from_erc20(address)) || [];
+  ): Promise<{ symbol: string; address: string; amount: string }[]> {
+    const supporetedTokens = Object.values(Tokens).map(
+      ({ address, symbol }) => ({
+        address,
+        symbol,
+      })
+    );
+
+    const storedTokens =
+      (await this.utilityStore.get<TokenAddressesStore>(
+        REGISTERED_TOKENS_KEY
+      )) || [];
+
+    const importedTokens = storedTokens.flatMap(({ address, alias }) => {
+      const [addr, NUTaddr]: [string, string] = Address.from_erc20(address);
+
+      return [
+        { address: addr, symbol: alias },
+        { address: NUTaddr, symbol: `NUT${alias}` },
+      ];
+    });
+
+    const tokens = [...supporetedTokens, ...importedTokens];
 
     try {
       const ret = (
-        await this.query.query_balance(owner, [...tokens, ...importedTokens])
-      ).map(([token, amount]: [string, string]) => {
+        await this.query.query_balance(
+          owner,
+          tokens.map(({ address }) => address)
+        )
+      ).map(([address, amount]: [string, string]) => {
+        const symbol =
+          tokens.find(({ address: a }) => address === a)?.symbol || address;
+
         return {
-          token,
+          symbol,
+          address,
           amount,
         };
       });

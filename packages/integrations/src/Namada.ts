@@ -64,22 +64,5 @@ export default class Namada implements Integration<Account, Signer> {
 
   public async queryBalances(owner: string): Promise<TokenBalance[]> {
     return (await this._namada?.balances(owner)) || [];
-    // const tokenBalances = Object.keys(Tokens).map((tokenType: string) => {
-    //   const { address: tokenAddress = "" } = Tokens[tokenType as TokenType];
-    //   const amount =
-    //     balance.find(({ token }) => token === tokenAddress)?.amount ||
-    //     new BigNumber(0);
-
-    //   // TODO: Implement balance fetching via SDK
-    //   return {
-    //     token: tokenType as TokenType,
-    //     // BigNumber is converted to string because BigNumber methods are lost
-    //     // when a BigNumber is sent using postMessage.
-    //     // See https://github.com/MikeMcl/bignumber.js/issues/245.
-    //     amount: amount.toString(),
-    //   };
-    // });
-
-    // return tokenBalances;
   }
 }

@@ -387,7 +387,7 @@ export class KeyRingService {
 
   async queryBalances(
     address: string
-  ): Promise<{ token: string; amount: string }[]> {
+  ): Promise<{ symbol: string; address: string; amount: string }[]> {
     // Validate account
     const account =
       (await this._keyRingStore.getRecord("address", address)) ||
