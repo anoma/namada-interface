@@ -241,17 +241,20 @@ async function myApp(): Promise<void> {
     // NOTE: A helper utility `encodeSignature` exists in the extension utils - this
     // will be moved to a public package in the future. The following is how we encode a signature
     // manually
-    const { pubkey, raw_indices, raw_signature, wrapper_indices, wrapper_signature } = sig;
+    const { pubkey, raw_indices, raw_signature, wrapper_indices, wrapper_signature } = response;
 
     // Due to how data is serialized on the Ledger, we have to coerce the types to
     // get the correct data for now:
-    /* eslint-disable */
-    pubkey: new Uint8Array((pubkey as any).data),
-    rawIndices: new Uint8Array((raw_indices as any).data),
-    rawSignature: new Uint8Array((raw_signature as any).data),
-    wrapperIndices: new Uint8Array((wrapper_indices as any).data),
-    wrapperSignature: new Uint8Array((wrapper_signature as any).data),
-    /* eslint-enable */
+
+    const props = {
+      /* eslint-disable */
+      pubkey: new Uint8Array((pubkey as any).data),
+      rawIndices: new Uint8Array((raw_indices as any).data),
+      rawSignature: new Uint8Array((raw_signature as any).data),
+      wrapperIndices: new Uint8Array((wrapper_indices as any).data),
+      wrapperSignature: new Uint8Array((wrapper_signature as any).data),
+      /* eslint-enable */
+    };
 
     // Encode the signatures for passing into the SDK
     const value = new SignatureMsgValue(props);
