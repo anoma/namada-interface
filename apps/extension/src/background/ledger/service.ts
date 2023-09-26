@@ -87,18 +87,20 @@ export class LedgerService {
     bytes: string,
     signatures: ResponseSign
   ): Promise<void> {
-    const { wrapperSignature, rawSignature } = signatures;
+    const { signature } = signatures;
+
+    if (!signature) {
+      throw new Error("Signature not provided")
+    }
 
     try {
       // Serialize signatures
-      const rawSig = encodeSignature(rawSignature);
-      const wrapperSig = encodeSignature(wrapperSignature);
+      const sig = encodeSignature(signature);
 
       await this.sdk.submit_signed_reveal_pk(
         fromBase64(txMsg),
         fromBase64(bytes),
-        rawSig,
-        wrapperSig
+        sig,
       );
     } catch (e) {
       console.warn(e);
@@ -118,25 +120,23 @@ export class LedgerService {
     }
 
     const encodedTx = getEncodedTxByType(txType, txMsg);
-    const { wrapperSignature, rawSignature } = signatures;
+    const { signature } = signatures;
+
+    if (!signature) {
+      throw new Error("Signature not provided!")
+    }
 
     // Serialize signatures
-    const rawSig = encodeSignature(rawSignature);
-    const wrapperSig = encodeSignature(wrapperSignature);
+    const sig = encodeSignature(signature);
 
     await this.broadcaster.startTx(msgId, txType);
 
     try {
-      // TODO: Remove this check once IBC Transfer is supported on Ledger!
-      // Disable tx submission for Ledger devices
-      if (txType !== TxType.IBCTransfer) {
-        await this.sdk.submit_signed_tx(
-          encodedTx,
-          fromBase64(bytes),
-          rawSig,
-          wrapperSig
-        );
-      }
+      await this.sdk.submit_signed_tx(
+        encodedTx,
+        fromBase64(bytes),
+        sig,
+      );
 
       // Clear pending tx if successful
       await this.txStore.set(msgId, null);

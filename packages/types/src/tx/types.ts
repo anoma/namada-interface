@@ -1,5 +1,4 @@
 import BigNumber from "bignumber.js";
-import { SignatureType } from "@namada/ledger-namada"
 
 export type SubmitBondProps = {
   validator: string;
@@ -70,9 +69,9 @@ export type BridgeTransferProps = {
 };
 
 export type SignatureProps = {
-  secIndices: Uint8Array;
-  singlesig?: Uint8Array;
-  sigType: SignatureType;
-  multisigIndices: Uint8Array;
-  multisig: Uint8Array[];
+  pubkey: Uint8Array;
+  rawIndices: Uint8Array;
+  rawSignature: Uint8Array;
+  wrapperIndices: Uint8Array;
+  wrapperSignature: Uint8Array;
 };

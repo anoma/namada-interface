@@ -16,8 +16,8 @@
  ******************************************************************************* */
 import Transport from '@ledgerhq/hw-transport';
 import { ResponseAddress, ResponseAppInfo, ResponseBase, ResponseSign, ResponseVersion } from './types';
-import { LedgerError, SignatureType } from './common';
-export { LedgerError, SignatureType };
+import { LedgerError } from './common';
+export { LedgerError };
 export * from './types';
 export declare class NamadaApp {
     transport: Transport;
@@ -28,7 +28,5 @@ export declare class NamadaApp {
     getAddressAndPubKey(path: string): Promise<ResponseAddress>;
     showAddressAndPubKey(path: string): Promise<ResponseAddress>;
     signSendChunk(chunkIdx: number, chunkNum: number, chunk: Buffer, ins: number): Promise<ResponseBase>;
-    getSignature(signatureType: SignatureType): Promise<any>;
-    _sign(path: string, message: Buffer): Promise<any>;
     sign(path: string, message: Buffer): Promise<ResponseSign>;
 }
