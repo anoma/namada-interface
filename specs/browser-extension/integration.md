@@ -1,9 +1,10 @@
 # Browser Extension - API & Integration
 
-The extension is able to be integrated with in a similar fasion to Keplr and Metamask. If the extension has been installed (and assuming the user has gone through the process of
+The extension is able to be integrated with in a similar fashion to Keplr and Metamask. If the extension has been installed (and assuming the user has gone through the process of
 setting up an account), we can use the following to integrate with another interface.
 
 For integrating an application with the extension, it is recommended that you import the `@namada/integrations` and `@namada/types` packages.
+
 ## Table of Contents
 - [Detecting the Extension](#detecting-the-extension)
 - [Connecting to the Extension](#connecting-to-the-extension)
