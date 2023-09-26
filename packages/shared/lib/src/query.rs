@@ -1,11 +1,14 @@
 use masp_primitives::transaction::components::I128Sum;
 use masp_primitives::zip32::ExtendedFullViewingKey;
 use namada::ledger::eth_bridge::bridge_pool::query_signed_bridge_pool;
-use namada::ledger::masp::ShieldedContext;
 use namada::ledger::queries::RPC;
-use namada::ledger::rpc::{format_denominated_amount, get_public_key_at, get_token_balance};
+use namada::sdk::masp::ShieldedContext;
+use namada::sdk::rpc::{
+    format_denominated_amount, get_public_key_at, get_token_balance, query_epoch,
+};
 use namada::types::control_flow::ProceedOrElse;
 use namada::types::eth_bridge_pool::TransferToEthereum;
+use namada::types::io::DefaultIo;
 use namada::types::{
     address::Address,
     masp::ExtendedViewingKey,
@@ -110,7 +113,7 @@ impl Query {
 
         let mut result: Vec<(Address, Address, String, String, String)> = Vec::new();
 
-        let epoch = namada::ledger::rpc::query_epoch(&self.client).await?;
+        let epoch = query_epoch(&self.client).await?;
         for (owner, validators) in validators_per_address.into_iter() {
             for validator in validators.into_iter() {
                 let owner_option = &Some(owner.clone());
@@ -176,7 +179,7 @@ impl Query {
         let mut bonds = vec![];
         let mut unbonds = vec![];
 
-        let epoch = namada::ledger::rpc::query_epoch(&self.client).await?;
+        let epoch = query_epoch(&self.client).await?;
         for (owner, validators) in validators_per_address.into_iter() {
             for validator in validators.into_iter() {
                 let owner_option = &Some(owner.clone());
@@ -267,9 +270,9 @@ impl Query {
 
         shielded.fetch(&self.client, &[], &fvks).await?;
 
-        let epoch = namada::ledger::rpc::query_epoch(&self.client).await?;
+        let epoch = query_epoch(&self.client).await?;
         let balance = shielded
-            .compute_exchanged_balance(&self.client, &viewing_key, epoch)
+            .compute_exchanged_balance::<_, DefaultIo>(&self.client, &viewing_key, epoch)
             .await?
             .expect("context should contain viewing key");
         let decoded_balance = shielded
@@ -292,7 +295,7 @@ impl Query {
         for (token, amount) in result {
             mapped_result.push((
                 token.clone(),
-                format_denominated_amount(&self.client, &token, amount)
+                format_denominated_amount::<_, DefaultIo>(&self.client, &token, amount)
                     .await
                     .clone(),
             ))
@@ -317,7 +320,7 @@ impl Query {
         &self,
         owner_addresses: Box<[JsValue]>,
     ) -> Result<JsValue, JsError> {
-        let bridge_pool = query_signed_bridge_pool(&self.client)
+        let bridge_pool = query_signed_bridge_pool::<_, DefaultIo>(&self.client)
             .await
             .proceed_or_else(|| JsError::new("TODO:"))?;
 

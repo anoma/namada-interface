@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use masp_primitives::zip32::ExtendedFullViewingKey;
 use namada::{
-    ledger::wallet::{
+    sdk::wallet::{
         alias::Alias, ConfirmationResponse, GenRestoreKeyError, Store, StoredKeypair, Wallet,
         WalletUtils,
     },
@@ -41,10 +41,7 @@ impl WalletUtils for BrowserWalletUtils {
         panic!("attempted to prompt for mnemonic in non-interactive mode");
     }
 
-    fn show_overwrite_confirmation(
-        _alias: &Alias,
-        _alias_for: &str,
-    ) -> namada::ledger::wallet::store::ConfirmationResponse {
+    fn show_overwrite_confirmation(_alias: &Alias, _alias_for: &str) -> ConfirmationResponse {
         // Automatically replace aliases in non-interactive mode
         ConfirmationResponse::Replace
     }
@@ -132,8 +129,7 @@ pub fn add_spending_key(
     password: Option<String>,
     alias: &str,
 ) {
-    let xsk = ExtendedSpendingKey::from_str(xsk)
-        .expect("XSK deserialization failed.");
+    let xsk = ExtendedSpendingKey::from_str(xsk).expect("XSK deserialization failed.");
     let viewkey = ExtendedFullViewingKey::from(&xsk.into()).into();
     let password = password.map(|pwd| zeroize::Zeroizing::new(pwd));
     let (spendkey_to_store, _raw_spendkey) = StoredKeypair::new(xsk, password);
