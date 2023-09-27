@@ -90,7 +90,7 @@ export const Proposals = (): JSX.Element => {
                 {proposal.content.title && `${proposal.content.title}: `}
                 {proposal.content.details || ""}
               </ProposalCardText>
-              {proposal.totalYayPower && proposal.totalVotingPower && (
+              {proposal.status === "ongoing" && (
                 <ProposalCardVotes
                   yes={proposal.totalYayPower.toString()}
                   total={proposal.totalVotingPower.toString()}

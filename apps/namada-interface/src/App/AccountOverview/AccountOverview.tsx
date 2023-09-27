@@ -65,7 +65,6 @@ export const AccountOverview = (): JSX.Element => {
   const extensionAttachStatus = useUntilIntegrationAttached(chain);
   const currentExtensionAttachStatus =
     extensionAttachStatus[chain.extension.id];
-  console.log(currentExtensionAttachStatus);
 
   const [total, setTotal] = useState(new BigNumber(0));
 

@@ -94,7 +94,7 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
           tx: {
             token: Tokens.NAM.address || "",
             feeAmount: new BigNumber(0),
-            gasLimit: new BigNumber(0),
+            gasLimit: new BigNumber(20_000),
             chainId,
           },
           signer: maybeActiveDelegator.value,
@@ -117,7 +117,6 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
         const totalDelegations: Record<string, BigNumber> =
           await query.get_total_delegations(
             addresses,
-            // BigInt(8)
             proposal.startEpoch - BigInt(1)
           );
         const order = pipe(

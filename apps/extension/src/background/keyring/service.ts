@@ -234,42 +234,14 @@ export class KeyRingService {
   }
 
   async submitVoteProposal(txMsg: string, msgId: string): Promise<void> {
+    await this.broadcaster.startTx(msgId, TxType.VoteProposal);
     try {
       await this._keyRing.submitVoteProposal(fromBase64(txMsg));
-
-      const tabs = await syncTabs(
-        this.connectedTabsStore,
-        this.requester,
-        this.chainId
-      );
-
-      tabs?.forEach(({ tabId }: TabStore) => {
-        console.log(`TODO: Broadcast notification for ${msgId}`);
-        this.requester.sendMessageToTab(
-          tabId,
-          Ports.WebBrowser,
-          new TxStartedEvent(this.chainId, msgId, TxType.VoteProposal)
-        );
-      });
-
-      await this._keyRing.submitVoteProposal(fromBase64(txMsg));
-
-      tabs?.forEach(({ tabId }: TabStore) => {
-        this.requester.sendMessageToTab(
-          tabId,
-          Ports.WebBrowser,
-          new ProposalsUpdatedEventMsg(this.chainId)
-        );
-
-        this.requester.sendMessageToTab(
-          tabId,
-          Ports.WebBrowser,
-          new TxCompletedEvent(this.chainId, msgId, TxType.VoteProposal)
-        );
-      });
+      this.broadcaster.completeTx(msgId, TxType.VoteProposal, true);
     } catch (e) {
       console.warn(e);
-      throw new Error(`Unable to submit withdraw tx! ${e}`);
+      this.broadcaster.completeTx(msgId, TxType.VoteProposal, false, `${e}`);
+      throw new Error(`Unable to submit vote proposal tx! ${e}`);
     }
   }
 
