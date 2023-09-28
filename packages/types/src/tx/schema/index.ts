@@ -9,6 +9,7 @@ export * from "./tx";
 export * from "./unbond";
 export * from "./voteProposal";
 export * from "./withdraw";
+export * from "./utils";
 
 import { EthBridgeTransferMsgValue } from "./ethBridgeTransfer";
 import { IbcTransferMsgValue } from "./ibcTransfer";

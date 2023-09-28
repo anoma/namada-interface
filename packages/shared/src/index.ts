@@ -1,7 +1,7 @@
 import { deserialize } from "@dao-xyz/borsh";
 
 import { Query as RustQuery } from "./shared/shared";
-import { Proposal, Proposals } from "./types";
+import { Proposal, Proposals } from "./borsh-schemas";
 export * from "./shared/shared";
 export * from "./types";
 
@@ -58,7 +58,6 @@ export class Query extends RustQuery {
     super.query_total_bonds.bind(this)
   get_proposal_votes = promiseWithTimeout(super.get_proposal_votes.bind(this));
   delegators_votes = promiseWithTimeout(super.delegators_votes.bind(this));
-  // query_proposals = promiseWithTimeout(super.query_proposals.bind(this));
   queryProposals = async (): Promise<Proposal[]> => {
     const fn = this._query_proposals;
     const serializedProposals = await fn();
