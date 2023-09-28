@@ -28,7 +28,11 @@ export class IndexedDBKVStore<T> implements KVStore<T> {
 
   public async set<U extends T>(key: string, data: U | null): Promise<void> {
     if (data === null) {
-      const tx = (await this.getDB()).transaction([this.prefix()], "readwrite");
+      const tx = (await this.getDB()).transaction(
+        [this.prefix()],
+        "readwrite",
+        { durability: "strict" }
+      );
       const store = tx.objectStore(this.prefix());
 
       return new Promise((resolve, reject) => {
@@ -43,7 +47,11 @@ export class IndexedDBKVStore<T> implements KVStore<T> {
         };
       });
     } else {
-      const tx = (await this.getDB()).transaction([this.prefix()], "readwrite");
+      const tx = (await this.getDB()).transaction(
+        [this.prefix()],
+        "readwrite",
+        { durability: "strict" }
+      );
       const store = tx.objectStore(this.prefix());
 
       return new Promise((resolve, reject) => {
