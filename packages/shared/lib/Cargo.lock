@@ -1370,8 +1370,8 @@ dependencies = [
 
 [[package]]
 name = "ethbridge-bridge-contract"
-version = "0.23.0"
-source = "git+https://github.com/heliaxdev/ethbridge-rs?tag=v0.23.0#1bb96e06cbc3889aa46a01e3768bf25f0c78168a"
+version = "0.24.0"
+source = "git+https://github.com/heliaxdev/ethbridge-rs?tag=v0.24.0#d66708bb8a734111988b9eaf08c7473bd7020c00"
 dependencies = [
  "ethbridge-bridge-events",
  "ethbridge-structs",
@@ -1381,30 +1381,8 @@ dependencies = [
 
 [[package]]
 name = "ethbridge-bridge-events"
-version = "0.23.0"
-source = "git+https://github.com/heliaxdev/ethbridge-rs?tag=v0.23.0#1bb96e06cbc3889aa46a01e3768bf25f0c78168a"
-dependencies = [
- "ethabi",
- "ethbridge-structs",
- "ethers",
- "ethers-contract",
-]
-
-[[package]]
-name = "ethbridge-governance-contract"
-version = "0.23.0"
-source = "git+https://github.com/heliaxdev/ethbridge-rs?tag=v0.23.0#1bb96e06cbc3889aa46a01e3768bf25f0c78168a"
-dependencies = [
- "ethbridge-governance-events",
- "ethbridge-structs",
- "ethers",
- "ethers-contract",
-]
-
-[[package]]
-name = "ethbridge-governance-events"
-version = "0.23.0"
-source = "git+https://github.com/heliaxdev/ethbridge-rs?tag=v0.23.0#1bb96e06cbc3889aa46a01e3768bf25f0c78168a"
+version = "0.24.0"
+source = "git+https://github.com/heliaxdev/ethbridge-rs?tag=v0.24.0#d66708bb8a734111988b9eaf08c7473bd7020c00"
 dependencies = [
  "ethabi",
  "ethbridge-structs",
@@ -1414,8 +1392,8 @@ dependencies = [
 
 [[package]]
 name = "ethbridge-structs"
-version = "0.23.0"
-source = "git+https://github.com/heliaxdev/ethbridge-rs?tag=v0.23.0#1bb96e06cbc3889aa46a01e3768bf25f0c78168a"
+version = "0.24.0"
+source = "git+https://github.com/heliaxdev/ethbridge-rs?tag=v0.24.0#d66708bb8a734111988b9eaf08c7473bd7020c00"
 dependencies = [
  "ethabi",
  "ethers",
@@ -2943,8 +2921,8 @@ checksum = "e5ce46fe64a9d73be07dcbe690a38ce1b293be448fd8ce1e6c1b8062c9f72c6a"
 
 [[package]]
 name = "namada"
-version = "0.22.0"
-source = "git+https://github.com/anoma/namada?rev=6eff4a928b3dbef3b3ba52351b6a4d4520931e2f#6eff4a928b3dbef3b3ba52351b6a4d4520931e2f"
+version = "0.23.0"
+source = "git+https://github.com/anoma/namada#8635da4f742e983cf5caa00a2825c03660345957"
 dependencies = [
  "async-trait",
  "bimap",
@@ -2955,7 +2933,6 @@ dependencies = [
  "derivation-path",
  "derivative",
  "ethbridge-bridge-contract",
- "ethbridge-governance-contract",
  "ethers",
  "eyre",
  "futures",
@@ -2992,8 +2969,8 @@ dependencies = [
 
 [[package]]
 name = "namada_core"
-version = "0.22.0"
-source = "git+https://github.com/anoma/namada?rev=6eff4a928b3dbef3b3ba52351b6a4d4520931e2f#6eff4a928b3dbef3b3ba52351b6a4d4520931e2f"
+version = "0.23.0"
+source = "git+https://github.com/anoma/namada#8635da4f742e983cf5caa00a2825c03660345957"
 dependencies = [
  "ark-bls12-381",
  "ark-ec",
@@ -3044,8 +3021,8 @@ dependencies = [
 
 [[package]]
 name = "namada_ethereum_bridge"
-version = "0.22.0"
-source = "git+https://github.com/anoma/namada?rev=6eff4a928b3dbef3b3ba52351b6a4d4520931e2f#6eff4a928b3dbef3b3ba52351b6a4d4520931e2f"
+version = "0.23.0"
+source = "git+https://github.com/anoma/namada#8635da4f742e983cf5caa00a2825c03660345957"
 dependencies = [
  "borsh 0.9.4",
  "ethers",
@@ -3065,8 +3042,8 @@ dependencies = [
 
 [[package]]
 name = "namada_macros"
-version = "0.22.0"
-source = "git+https://github.com/anoma/namada?rev=6eff4a928b3dbef3b3ba52351b6a4d4520931e2f#6eff4a928b3dbef3b3ba52351b6a4d4520931e2f"
+version = "0.23.0"
+source = "git+https://github.com/anoma/namada#8635da4f742e983cf5caa00a2825c03660345957"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3075,8 +3052,8 @@ dependencies = [
 
 [[package]]
 name = "namada_proof_of_stake"
-version = "0.22.0"
-source = "git+https://github.com/anoma/namada?rev=6eff4a928b3dbef3b3ba52351b6a4d4520931e2f#6eff4a928b3dbef3b3ba52351b6a4d4520931e2f"
+version = "0.23.0"
+source = "git+https://github.com/anoma/namada#8635da4f742e983cf5caa00a2825c03660345957"
 dependencies = [
  "borsh 0.9.4",
  "data-encoding",

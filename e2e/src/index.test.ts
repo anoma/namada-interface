@@ -152,6 +152,28 @@ describe("Namada extension", () => {
 
       await importAccount(browser, page);
 
+      // Click on connect to extension
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Connect to')]"
+        )
+      ).click();
+
+      // Wait for approvals window to show up
+      const at = await browser.waitForTarget((t) =>
+        t.url().includes("approvals.html")
+      );
+      const ap = await targetPage(at);
+
+      // Click approve button
+      (
+        await waitForXpath<HTMLButtonElement>(
+          ap,
+          "//button[contains(., 'Approve')]"
+        )
+      ).click();
+
       // Click on send button
       (
         await waitForXpath<HTMLButtonElement>(

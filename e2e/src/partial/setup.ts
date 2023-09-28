@@ -66,14 +66,6 @@ export const importAccount = async (
   // Wait for setup completion and open the interface
   await page.waitForXPath("//p[contains(., 'Setup is complete')]");
   await openInterface(page);
-
-  // Click on connect to extension
-  (
-    await waitForXpath<HTMLButtonElement>(
-      page,
-      "//button[contains(., 'Connect to')]"
-    )
-  ).click();
 };
 
 export const createAccount = async (
