@@ -1,36 +1,81 @@
 # Browser Extension - API & Integration
 
-The extension is able to be integrated with in a similar fasion to Keplr and Metamask. If the extension has been installed (and assuming the user has gone through the process of setting up an account), we can use the following to integrate with another interface.
+The extension is able to be integrated with in a similar fashion to Keplr and Metamask. If the extension has been installed (and assuming the user has gone through the process of
+setting up an account), we can use the following to integrate with another interface.
 
-**NOTE** The user would need to link their `package.json` to `https://github.com/anoma/namada-interface` to import any public packages from this repo - this isn't required for integration, but it provides useful types and utilities.
+For integrating an application with the extension, it is recommended that you import the `@namada/integrations` and `@namada/types` packages.
 
-## 1. Detecting the extension
+## Table of Contents
+- [Detecting the Extension](#detecting-the-extension)
+- [Connecting to the Extension](#connecting-to-the-extension)
+- [Using the Namada Integration](#using-the-namada-integration)
+- [Using the SDK client](#using-the-sdk-client)
+  - [Submitting a Transfer](#submitting-a-transfer)
+- [Handling Extension Events](#handling-extension-events)
+
+## Detecting the extension
 
 If the extension is installed, and the domain is enabled (currently, all domains are enabled by the extension), detection can be achieved simply by doing the following:
 
-```typescript=
+```ts
 const isExtensionInstalled = typeof window.namada === 'object';
 ```
 
-## 2. Connecting to the extension
+A better practice would be to use the `Namada` integration, which provides functionality for interacting with the Extension's public API:
 
-To connect your application to the extension, you can invoke the following, providing a `chainId` for which you want to pull accounts from:
+```ts
+import { Namada } from "@namada/integrations";
 
-```typescript=
-const chainId = 'namada-test.XXXXXXXXXX';
-await namada.connect(chainId);
+// Create integration instance
+const chainId = 'namada-test.XXXXXXXXXX'; // Replace with chain ID
+const namada = new Namada(chainId);
+
+// Detect extension
+const isDetected = namada.detect(); // boolean
 ```
 
-Soon, this will prompt the user to either `Accept` or `Reject` a connection, but this isn't currently implemented.
+The `@namada/integrations` package provides a common interface for interacting with extensions, with Keplr & Metamask currently supported alongside Namada.
 
-## 3. Querying accounts
+[ [Table of Contents](#table-of-contents) ]
 
-To query available accounts in the extension, we first instantiate a signing client:
+## Connecting to the extension
 
-```typescript=
-const client = await namada.getSigner(chainId);
+To connect your application to the extension, you can invoke the following, providing a `chainId`:
 
-const accounts = await client.accounts();
+```ts
+import { Namada } from "@namada/integrations";
+
+const chainId = 'namada-test.XXXXXXXXXX';
+const namada = new Namada(chainId);
+
+async function myApp(): Promise<void> {
+  await namada.connect(chainId);
+}
+
+myApp();
+```
+
+This will prompt the user to either `Accept` or `Reject` a connection, and a client application can `await` this response and handle it accordingly. 
+
+[ [Table of Contents](#table-of-contents) ]
+
+## Using the Namada Integration
+
+The `Namada` integration provides a convenience method to query all accounts from the extension:
+
+```ts
+async function myApp(): Promise<void> {
+  // Connect to extension
+  await namada.connect(chainId);
+
+  // Query accounts with integration
+  const accounts = await client.accounts();
+
+  // Alternatively, and as is most often the case, you will be interacting with the SDK client,
+  // which contains this function as well:
+  const client = await namada.signer();
+  console.log(await client.accounts());
+}
 
 // Example accounts results:
 [
@@ -44,81 +89,107 @@ const accounts = await client.accounts();
 ]
 ```
 
-## 4. Encoding and signing transfer transactions
+The `Namada` integration can also be used to query balances for these accounts:
 
-There are two types that can be imported from `namada-interface`:
-
-```typescript=
-import { TxProps, TransferProps } from "@namada/types";
+```ts
+const owner = "atest1d9khqw36xc65xwp3xc6rwsfcxpprssesxsenjs3cxpznqvfkxppnxw2989pnssfkgsenzvphx0u6kj";
+const balances = await client.queryBalances(owner)
 ```
 
-Where the following is defined (for reference - these are the properties we will need to provide to the signing client):
+[ [Table of Contents](#table-of-contents) ]
 
-```typescript
-export type TxProps = {
-  token: string;
-  epoch: number;
-  feeAmount: number;
-  gasLimit: number;
-  txCode: Uint8Array;
-};
+## Using the SDK client 
 
-export type TransferProps = {
-  source: string;
-  target: string;
-  token: string;
-  amount: number;
-};
+The SDK client (an instance of the `Signer` class, defined in [Signer.ts](https://github.com/anoma/namada-interface/blob/main/apps/extension/src/provider/Signer.ts)),
+provides the functionality of encoding transactions to be signed and broadcasted by the SDK, passing
+these encoded transactions to the [Namada.ts](https://github.com/anoma/namada-interface/blob/main/apps/extension/src/provider/Namada.ts)
+provider (which is responsible for constructing messages to pass into the extension). The `Signer` represents
+a portion of the public API exposed when the extension is installed. 
+
+### Submitting a Transfer
+
+In order to submit a `Transfer` transaction via the extension integration, we can make use of the `AccountType`, TransferProps` and `TxProps` type definitions.
+
+```ts
+import { AccountType, TransferProps, TxProps } from "@namada/types";
 ```
 
-### 4.1 Fetching a pre-built wasm
+`TxProps` represents the transaction parameters, whereas `TransferProp` represents the details of the transfer itself.
+We use the `AccountType` enum to specify the type of account, which in turn will determine how signing occurs (e.g., if
+the account is of type `AccountType.Ledger`, we will expect signing to occur externally on the hardware wallet, otherwise,
+the extension will query the keystore for the keys associated with that `source` address, and sign via the SDK).
 
-We will need to import a pre-built `tx-transfer` wasm file to provide to `TxProps`. There is a utility (see the following) that handles fetching these:
+Consider this example:
 
-```typescript=
-import { fetchWasmCode } from "@namada/utils";
+```ts
+import { AccountType, TransferProps, TxProps } from "@namada/types";
 
-(async () {
-    const txCode = await fetchWasmCode('./path/to/tx-transfer.wasm');
-    // Construct transfer transaction...
-})();
+// Address for NAM token
+const token = "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5";
+const chainId = "namada-devnet.95bcc8eaf0f39f1d3fa27629";
+
+const myTransferTx: TransferProps = {
+    source: "atest1d9khqw36g3ryxd29xgmrjsjr89znsse5g5cn2wpsgs6nqv33xguryw2p89znsd2rxqcnzvehcnyzxw",
+    target: "atest1d9khqw36xcmyzve3gvmrqdfexdz5zd2rxu6nv3zp8ym5zwfcgyeygv2x8pzrz3fcgscngs3nchvahj",
+    token,
+    amount: new BigNumber(1.234),
+    nativeToken: "NAM",
+    // NOTE: tx adheres to the TxProps type
+    tx: {
+        token,
+        feeAmount: new BigNumber(100),
+        gasLimit: new BigNumber(200),
+        chainId,
+    }
+}
+
+async function myApp(): Promise<void> {
+  const namada = new Namada('namada-test.XXXXXXXXXX');
+
+  if (!namada.detect()) {
+    throw new Error("The extension is not installed!")
+  }
+   
+  const client = namada.signer();
+
+  await client.submitTransfer(myTransferTx, AccountType.PrivateKey)
+    .then(() => console.log("Transaction was approved by user and submitted via the SDK"))
+    .catch((e) => console.error(`Transaction was rejected: ${e}`));
+}
+
+myApp();
 ```
 
-### 4.2 Encoding a transfer tx
+In the above example, we define the transfer transaction properties, connect to the extension, and submit
+a transfer transaction. The extension will launch a popup prompting the user for approval. Once the transfer
+is approved, an event is dispatched from the extension indicating that a transaction has started, along with
+the transaction type. When the transaction is completed, another event will fire indicating it's status.
+If the transaction fails in the SDK, the returned error will be dispatched in the completion event.
 
-```typescript=
-const client = namada.getSigner("namada-test.XXXXXXXXXXX");
+See [Handling Extension Events](#handling-extension-events) for more information on what extension events may be subscribed to.
 
-const address = "atest1v4ehgw368ycryv2z8qcnxv3cxgmrgvjpxs6yg333gym5vv2zxepnj334g4rryvj9xucrgve4x3xvr4";
-// NOTE: Transfer amount is converted to micro-units
-const amount = 1.23 * 1_000_000;
+[ [Table of Contents](#table-of-contents) ]
 
-const transferArgs = {
-  source: address,
-  token: "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5",
-  target: "atest1v4ehgw36xvcyyvejgvenxs34g3zygv3jxqunjd6rxyeyys3sxy6rwvfkx4qnj33hg9qnvse4lsfctw",
-  amount,
-};
+## Handling Extension Events
 
-const encodedTransfer = await client.encodeTransfer(transferArgs);
+In the `@namada/types` package, you can import an enum providing the various events you can subscribe to in your interface.
+
+```typscript
+@import { Events } from "@namada/types";
 ```
 
-### 4.3 Signing an encoded transfer tx
+The currently dispatched events are as follows:
 
-```typescript=
-// Set up transaction parameters:
-const txProps = {
-    token: "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5",
-    // Client will need to fetch the current epoch
-    epoch: 5,
-    feeAmount: 1000,
-    gasLimit: 1000000,
-    // txCode fetched above
-    txCode,
-};
-
-// Retrieve tx hash and signed bytes
-const { hash, bytes } = await client.signTx(address, txProps, encodedTx);
+```ts
+export enum Events {
+  AccountChanged = "namada-account-changed",
+  TxStarted = "namada-tx-started",
+  TxCompleted = "namada-tx-completed",
+  UpdatedBalances = "namada-updated-balances",
+  UpdatedStaking = "namada-updated-staking",
+}
 ```
 
-The resulting `bytes` can now be broadcasted to the ledger, and we can use the `hash` returned to query the status of the transaction.
+These events will prove useful when synchronizing the state of the interface with the connected extension.
+
+[ [Table of Contents](#table-of-contents) ]

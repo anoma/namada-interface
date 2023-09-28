@@ -1,6 +1,6 @@
 # Sdk
 
-Sdk is a part of shared package. It's main purpose is to wrap shared logic from the namada crate, so it can be used in the context of the browser.
+Sdk is a part of shared package. It's main purpose is to wrap shared logic from the namada crate, so it can be used in the context of the browser. For examples of usage, see [examples.md](./examples.md).
 
 Modules:
 
