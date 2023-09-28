@@ -25,11 +25,6 @@ import {
   getNamadaRouterId,
 } from "extension";
 import {
-  ProposalsUpdatedEventMsg,
-  TxStartedEvent,
-  TxCompletedEvent,
-} from "content/events";
-import {
   createOffscreenWithTxWorker,
   hasOffscreenDocument,
   OFFSCREEN_TARGET,
@@ -38,7 +33,6 @@ import {
 import { init as initSubmitTransferWebWorker } from "background/web-workers";
 import { LEDGERSTORE_KEY } from "background/ledger";
 import { getAccountValuesFromStore } from "utils";
-import { Ports } from "router";
 
 export class KeyRingService {
   private _keyRing: KeyRing;
@@ -238,6 +232,7 @@ export class KeyRingService {
     try {
       await this._keyRing.submitVoteProposal(fromBase64(txMsg));
       this.broadcaster.completeTx(msgId, TxType.VoteProposal, true);
+      this.broadcaster.updateProposals();
     } catch (e) {
       console.warn(e);
       this.broadcaster.completeTx(msgId, TxType.VoteProposal, false, `${e}`);

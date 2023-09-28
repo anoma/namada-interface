@@ -10,13 +10,11 @@ use namada::core::ledger::governance::utils::{
 };
 use namada::ledger::eth_bridge::bridge_pool::query_signed_bridge_pool;
 use namada::ledger::queries::RPC;
-use namada::ledger::rpc::{
-    format_denominated_amount, get_public_key_at, get_token_balance, query_storage_value,
-};
 use namada::proof_of_stake::Epoch;
 use namada::sdk::masp::ShieldedContext;
 use namada::sdk::rpc::{
-    format_denominated_amount, get_public_key_at, get_token_balance, query_epoch,
+    format_denominated_amount, get_public_key_at, get_token_balance, get_total_staked_tokens,
+    query_epoch, query_proposal_by_id, query_proposal_votes, query_storage_value,
 };
 use namada::types::control_flow::ProceedOrElse;
 use namada::types::eth_bridge_pool::TransferToEthereum;
@@ -379,18 +377,16 @@ impl Query {
         let epoch = RPC.shell().epoch(&self.client).await?;
 
         for id in from_id..last_proposal_id {
-            let proposal = namada::ledger::rpc::query_proposal_by_id(&self.client, id)
+            let proposal = query_proposal_by_id(&self.client, id)
                 .await
                 .unwrap()
                 .expect("Proposal should be written to storage.");
             let votes = compute_proposal_votes(&self.client, id, proposal.voting_end_epoch).await;
-            let total_voting_power = namada::ledger::rpc::get_total_staked_tokens(
-                &self.client,
-                proposal.voting_end_epoch,
-            )
-            .await
-            .unwrap();
-            //TODO: for now we ignore stewards
+            let total_voting_power =
+                get_total_staked_tokens(&self.client, proposal.voting_end_epoch)
+                    .await
+                    .unwrap();
+            //TODO: for now we assume that interface does not support steward accounts
             let tally_type = proposal.get_tally_type(false);
 
             let proposal_type = match proposal.r#type {
@@ -480,7 +476,7 @@ impl Query {
     ///
     /// * `proposal_id` - id of proposal to get delegators votes from
     pub async fn delegators_votes(&self, proposal_id: u64) -> Result<JsValue, JsError> {
-        let votes = namada::ledger::rpc::query_proposal_votes(&self.client, proposal_id).await?;
+        let votes = query_proposal_votes(&self.client, proposal_id).await?;
         let res: Vec<(Address, bool)> = votes
             .into_iter()
             .map(|vote| {
@@ -496,15 +492,13 @@ impl Query {
     }
 }
 
-//TODO: remove after mving this fn  from apps to shared
+//TODO: remove after moving this fn from apps to shared
 pub async fn compute_proposal_votes(
     client: &HttpClient,
     proposal_id: u64,
     epoch: Epoch,
 ) -> ProposalVotes {
-    let votes = namada::ledger::rpc::query_proposal_votes(client, proposal_id)
-        .await
-        .unwrap();
+    let votes = query_proposal_votes(client, proposal_id).await.unwrap();
 
     let mut validators_vote: HashMap<Address, TallyVote> = HashMap::default();
     let mut validator_voting_power: HashMap<Address, VotePower> = HashMap::default();

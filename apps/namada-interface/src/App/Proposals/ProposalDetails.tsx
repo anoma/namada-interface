@@ -115,10 +115,7 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
         setActiveProposalVotes(new Map(votes));
 
         const totalDelegations: Record<string, BigNumber> =
-          await query.get_total_delegations(
-            addresses,
-            proposal.startEpoch - BigInt(1)
-          );
+          await query.get_total_delegations(addresses, proposal.startEpoch);
         const order = pipe(
           addresses,
           A.filter((address) => {
@@ -133,7 +130,7 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
         setDelegations(O.some({ delegations: totalDelegations, order }));
         setActiveDelegator(O.some(Object.keys(totalDelegations)[0]));
       } catch (e) {
-        // TODO: handle rpc error
+        console.error(e);
       }
     };
 
@@ -151,6 +148,9 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
     const { delegations, order: delegationsOrder } = maybeDelegations.value;
     const { id, content, status } = maybeProposal.value;
     const { title, authors, details, motivation, license } = content;
+    const canVote = !Object.values(delegations)
+      .reduce((acc, curr) => acc.plus(curr), BigNumber(0))
+      .eq(0);
 
     const unexpectedFields = Object.entries(content)
       .filter(([k]) => !EXPECTED_CONTENT_FIELDS.includes(k))
@@ -223,59 +223,51 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
           {/* We only want to allow to vote when:
             - the proposal is on-going
           */}
-          {status === "ongoing" &&
-            //TODO: move it
-            !Object.values(delegations)
-              .reduce((acc, curr) => acc.plus(curr), BigNumber(0))
-              .eq(0) && (
-              <>
-                <ProposalDetailsAddresses>
-                  <ProposalDetailsAddressesHeader>
-                    Vote with address:
-                  </ProposalDetailsAddressesHeader>
-                  <Select
-                    value={delegatorAddress}
-                    data={delegationsOrder.map((address) => ({
-                      value: address,
-                      label: shortenAddress(address, 32, 32),
-                    }))}
-                    onChange={(e) => {
-                      setActiveDelegator(O.some(e.target.value));
-                    }}
-                  />
-                  Power: {delegations[delegatorAddress].toString()}
-                </ProposalDetailsAddresses>
-                <ProposalDetailsButtons>
-                  <ProposalCardVoteButton
-                    onClick={() => vote(true)}
-                    disabled={
-                      activeProposalVotes.get(delegatorAddress) === true
-                    }
-                    title={
-                      activeProposalVotes.get(delegatorAddress)
-                        ? "You have already voted YAY"
-                        : ""
-                    }
-                  >
-                    Vote YAY
-                  </ProposalCardVoteButton>
-                  <ProposalCardVoteButton
-                    onClick={() => vote(false)}
-                    disabled={
-                      activeProposalVotes.get(delegatorAddress) === false
-                    }
-                    title={
-                      !activeProposalVotes.get(delegatorAddress)
-                        ? "You have already voted NAY"
-                        : ""
-                    }
-                    className="inverse"
-                  >
-                    Vote NAY
-                  </ProposalCardVoteButton>
-                </ProposalDetailsButtons>
-              </>
-            )}
+          {status === "ongoing" && canVote && (
+            <>
+              <ProposalDetailsAddresses>
+                <ProposalDetailsAddressesHeader>
+                  Vote with address:
+                </ProposalDetailsAddressesHeader>
+                <Select
+                  value={delegatorAddress}
+                  data={delegationsOrder.map((address) => ({
+                    value: address,
+                    label: shortenAddress(address, 32, 32),
+                  }))}
+                  onChange={(e) => {
+                    setActiveDelegator(O.some(e.target.value));
+                  }}
+                />
+                Power: {delegations[delegatorAddress].toString()}
+              </ProposalDetailsAddresses>
+              <ProposalDetailsButtons>
+                <ProposalCardVoteButton
+                  onClick={() => vote(true)}
+                  disabled={activeProposalVotes.get(delegatorAddress) === true}
+                  title={
+                    activeProposalVotes.get(delegatorAddress)
+                      ? "You have already voted YAY"
+                      : ""
+                  }
+                >
+                  Vote YAY
+                </ProposalCardVoteButton>
+                <ProposalCardVoteButton
+                  onClick={() => vote(false)}
+                  disabled={activeProposalVotes.get(delegatorAddress) === false}
+                  title={
+                    !activeProposalVotes.get(delegatorAddress)
+                      ? "You have already voted NAY"
+                      : ""
+                  }
+                  className="inverse"
+                >
+                  Vote NAY
+                </ProposalCardVoteButton>
+              </ProposalDetailsButtons>
+            </>
+          )}
         </ProposalDetailsContent>
       </ProposalDetailsContainer>
     );

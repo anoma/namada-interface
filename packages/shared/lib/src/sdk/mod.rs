@@ -591,17 +591,17 @@ impl Sdk {
         let (args, faucet_signer) = tx::submit_vote_proposal_tx_args(tx_msg, password)?;
         let source = args.voter.clone();
         let default_signer = faucet_signer.clone().or(Some(source.clone()));
-        let signing_data = signing::aux_signing_data(
+        let signing_data = aux_signing_data::<_, _, DefaultIo>(
             &self.client,
             &mut self.wallet,
             &args.tx.clone(),
-            &Some(source),
+            Some(source),
             default_signer,
         )
         .await?;
         let current_epoch = query_epoch(&self.client).await?;
 
-        let (tx, _) = namada::ledger::tx::build_vote_proposal(
+        let (tx, _) = build_vote_proposal::<_, _, _, DefaultIo>(
             &mut self.client,
             &mut self.wallet,
             &mut self.shielded_ctx,
