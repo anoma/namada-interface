@@ -24,6 +24,7 @@ import {
   QueryBalancesMsg,
   FetchAndStoreMaspParamsMsg,
   HasMaspParamsMsg,
+  CheckDurabilityMsg,
 } from "provider/messages";
 
 export const getHandler: (service: KeyRingService) => Handler = (service) => {
@@ -95,6 +96,11 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         );
       case HasMaspParamsMsg:
         return handleHasMaspParamsMsg(service)(env, msg as HasMaspParamsMsg);
+      case CheckDurabilityMsg:
+        return handleCheckDurabilityMsg(service)(
+          env,
+          msg as CheckDurabilityMsg
+        );
       default:
         throw new Error("Unknown msg type");
     }
@@ -278,5 +284,13 @@ const handleHasMaspParamsMsg: (
 ) => InternalHandler<HasMaspParamsMsg> = (service) => {
   return async (_, _msg) => {
     return await service.hasMaspParams();
+  };
+};
+
+const handleCheckDurabilityMsg: (
+  service: KeyRingService
+) => InternalHandler<CheckDurabilityMsg> = (service) => {
+  return async (_, _msg) => {
+    return await service.checkDurability();
   };
 };

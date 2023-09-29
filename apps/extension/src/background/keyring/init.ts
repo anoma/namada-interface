@@ -23,6 +23,7 @@ import {
   QueryBalancesMsg,
   FetchAndStoreMaspParamsMsg,
   HasMaspParamsMsg,
+  CheckDurabilityMsg,
 } from "provider/messages";
 import { ROUTE } from "./constants";
 import { getHandler } from "./handler";
@@ -50,6 +51,7 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(FetchAndStoreMaspParamsMsg);
   router.registerMessage(HasMaspParamsMsg);
   router.registerMessage(ValidateMnemonicMsg);
+  router.registerMessage(CheckDurabilityMsg);
 
   router.addHandler(ROUTE, getHandler(service));
 }

@@ -31,6 +31,7 @@ enum MessageType {
   FetchAndStoreMaspParams = "fetch-and-store-masp-params",
   HasMaspParams = "has-masp-params",
   ApproveEthBridgeTransfer = "approve-eth-bridge-transfer",
+  CheckDurability = "check-durability",
 }
 
 /**
@@ -393,5 +394,22 @@ export class HasMaspParamsMsg extends Message<boolean> {
 
   type(): string {
     return HasMaspParamsMsg.type();
+  }
+}
+
+export class CheckDurabilityMsg extends Message<boolean> {
+  public static type(): MessageType {
+    return MessageType.CheckDurability;
+  }
+  validate(): void {
+    return;
+  }
+
+  route(): string {
+    return Route.KeyRing;
+  }
+
+  type(): string {
+    return CheckDurabilityMsg.type();
   }
 }
