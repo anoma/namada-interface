@@ -1,5 +1,6 @@
 use std::str::FromStr;
 
+use crate::sdk::io::WebIo;
 use crate::utils::to_js_result;
 use crate::{
     rpc_client::HttpClient,
@@ -17,10 +18,10 @@ use namada::sdk::tx::{
 };
 use namada::sdk::wallet::{Store, Wallet};
 use namada::types::address::Address;
-use namada::types::io::DefaultIo;
 use namada::{proto::Tx, types::key::common::PublicKey};
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 
+pub mod io;
 pub mod masp;
 mod signature;
 mod tx;
@@ -131,7 +132,7 @@ impl Sdk {
         let address = Address::from(pk);
 
         if !is_faucet_transfer && is_reveal_pk_needed(&self.client, &address, false).await? {
-            let (mut tx, _) = build_reveal_pk::<_, _, _, DefaultIo>(
+            let (mut tx, _) = build_reveal_pk::<_, _, _, WebIo>(
                 &self.client,
                 &mut self.wallet,
                 &mut self.shielded_ctx,
@@ -144,14 +145,14 @@ impl Sdk {
 
             sign_tx(&mut self.wallet, &args, &mut tx, signing_data.clone())?;
 
-            process_tx::<_, _, DefaultIo>(&self.client, &mut self.wallet, &args, tx).await?;
+            process_tx::<_, _, WebIo>(&self.client, &mut self.wallet, &args, tx).await?;
         }
 
         // Sign tx
         sign_tx(&mut self.wallet, &args, &mut tx, signing_data.clone())?;
 
         // Submit tx
-        process_tx::<_, _, DefaultIo>(&self.client, &mut self.wallet, &args, tx).await?;
+        process_tx::<_, _, WebIo>(&self.client, &mut self.wallet, &args, tx).await?;
 
         Ok(())
     }
@@ -166,7 +167,7 @@ impl Sdk {
         let reveal_pk_tx = self.sign_tx(tx_bytes, sig_msg_bytes)?;
         let args = tx::tx_args_from_slice(&tx_msg)?;
 
-        process_tx::<_, _, DefaultIo>(&self.client, &mut self.wallet, &args, reveal_pk_tx).await?;
+        process_tx::<_, _, WebIo>(&self.client, &mut self.wallet, &args, reveal_pk_tx).await?;
 
         Ok(())
     }
@@ -186,7 +187,7 @@ impl Sdk {
         let tx = match tx_type {
             TxType::Bond => {
                 let (args, _) = tx::bond_tx_args(tx_msg, None)?;
-                let (bond, _) = build_bond::<_, _, _, DefaultIo>(
+                let (bond, _) = build_bond::<_, _, _, WebIo>(
                     &self.client,
                     &mut self.wallet,
                     &mut self.shielded_ctx,
@@ -211,7 +212,7 @@ impl Sdk {
 
                 let address = Address::from(&public_key);
 
-                let (reveal_pk, _) = build_reveal_pk::<_, _, _, DefaultIo>(
+                let (reveal_pk, _) = build_reveal_pk::<_, _, _, WebIo>(
                     &self.client,
                     &mut self.wallet,
                     &mut self.shielded_ctx,
@@ -225,7 +226,7 @@ impl Sdk {
             }
             TxType::Transfer => {
                 let (args, _faucet_signer) = tx::transfer_tx_args(tx_msg, None, None)?;
-                let (tx, _) = build_transfer::<_, _, _, DefaultIo>(
+                let (tx, _) = build_transfer::<_, _, _, WebIo>(
                     &self.client,
                     &mut self.wallet,
                     &mut self.shielded_ctx,
@@ -238,7 +239,7 @@ impl Sdk {
             TxType::IBCTransfer => {
                 let (args, _faucet_signer) = tx::ibc_transfer_tx_args(tx_msg, None)?;
 
-                let (tx, _) = build_ibc_transfer::<_, _, _, DefaultIo>(
+                let (tx, _) = build_ibc_transfer::<_, _, _, WebIo>(
                     &self.client,
                     &mut self.wallet,
                     &mut self.shielded_ctx,
@@ -251,7 +252,7 @@ impl Sdk {
             TxType::EthBridgeTransfer => {
                 let (args, _faucet_signer) = tx::eth_bridge_transfer_tx_args(tx_msg, None)?;
 
-                let (tx, _) = build_bridge_pool_tx::<_, _, _, DefaultIo>(
+                let (tx, _) = build_bridge_pool_tx::<_, _, _, WebIo>(
                     &self.client,
                     &mut self.wallet,
                     &mut self.shielded_ctx,
@@ -263,7 +264,7 @@ impl Sdk {
             }
             TxType::Unbond => {
                 let (args, _faucet_signer) = tx::unbond_tx_args(tx_msg, None)?;
-                let (tx, _, _) = build_unbond::<_, _, _, DefaultIo>(
+                let (tx, _, _) = build_unbond::<_, _, _, WebIo>(
                     &self.client,
                     &mut self.wallet,
                     &mut self.shielded_ctx,
@@ -275,7 +276,7 @@ impl Sdk {
             }
             TxType::Withdraw => {
                 let (args, _faucet_signer) = tx::withdraw_tx_args(tx_msg, None)?;
-                let (withdraw, _) = build_withdraw::<_, _, _, DefaultIo>(
+                let (withdraw, _) = build_withdraw::<_, _, _, WebIo>(
                     &self.client,
                     &mut self.wallet,
                     &mut self.shielded_ctx,
@@ -328,7 +329,7 @@ impl Sdk {
         let transfer_tx = self.sign_tx(tx_bytes, sig_msg_bytes)?;
         let args = tx::tx_args_from_slice(tx_msg)?;
 
-        process_tx::<_, _, DefaultIo>(&self.client, &mut self.wallet, &args, transfer_tx).await?;
+        process_tx::<_, _, WebIo>(&self.client, &mut self.wallet, &args, transfer_tx).await?;
 
         Ok(())
     }
@@ -343,7 +344,7 @@ impl Sdk {
         let effective_address = args.source.effective_address();
         let default_signer = faucet_signer.clone().or(Some(effective_address.clone()));
 
-        let signing_data = aux_signing_data::<_, _, DefaultIo>(
+        let signing_data = aux_signing_data::<_, _, WebIo>(
             &self.client,
             &mut self.wallet,
             &args.tx.clone(),
@@ -352,7 +353,7 @@ impl Sdk {
         )
         .await?;
 
-        let (tx, _) = build_transfer::<_, _, _, DefaultIo>(
+        let (tx, _) = build_transfer::<_, _, _, WebIo>(
             &self.client,
             &mut self.wallet,
             &mut self.shielded_ctx,
@@ -376,7 +377,7 @@ impl Sdk {
         let source = args.source.clone();
         let default_signer = faucet_signer.clone().or(Some(source.clone()));
 
-        let signing_data = aux_signing_data::<_, _, DefaultIo>(
+        let signing_data = aux_signing_data::<_, _, WebIo>(
             &self.client,
             &mut self.wallet,
             &args.tx.clone(),
@@ -385,7 +386,7 @@ impl Sdk {
         )
         .await?;
 
-        let (tx, _) = build_ibc_transfer::<_, _, _, DefaultIo>(
+        let (tx, _) = build_ibc_transfer::<_, _, _, WebIo>(
             &self.client,
             &mut self.wallet,
             &mut self.shielded_ctx,
@@ -409,7 +410,7 @@ impl Sdk {
         let sender = args.sender.clone();
         let default_signer = faucet_signer.clone().or(Some(sender.clone()));
 
-        let signing_data = aux_signing_data::<_, _, DefaultIo>(
+        let signing_data = aux_signing_data::<_, _, WebIo>(
             &self.client,
             &mut self.wallet,
             &args.tx.clone(),
@@ -419,7 +420,7 @@ impl Sdk {
         .await?;
 
         let (tx, _) =
-            namada::ledger::eth_bridge::bridge_pool::build_bridge_pool_tx::<_, _, _, DefaultIo>(
+            namada::ledger::eth_bridge::bridge_pool::build_bridge_pool_tx::<_, _, _, WebIo>(
                 &self.client,
                 &mut self.wallet,
                 &mut self.shielded_ctx,
@@ -443,7 +444,7 @@ impl Sdk {
         let source = args.source.clone();
         let default_signer = faucet_signer.clone().or(source.clone());
 
-        let signing_data = aux_signing_data::<_, _, DefaultIo>(
+        let signing_data = aux_signing_data::<_, _, WebIo>(
             &self.client,
             &mut self.wallet,
             &args.tx.clone(),
@@ -452,7 +453,7 @@ impl Sdk {
         )
         .await?;
 
-        let (tx, _) = build_bond::<_, _, _, DefaultIo>(
+        let (tx, _) = build_bond::<_, _, _, WebIo>(
             &mut self.client,
             &mut self.wallet,
             &mut self.shielded_ctx,
@@ -476,7 +477,7 @@ impl Sdk {
         let (args, faucet_signer) = tx::unbond_tx_args(tx_msg, password)?;
         let source = args.source.clone();
         let default_signer = faucet_signer.clone().or(source.clone());
-        let signing_data = aux_signing_data::<_, _, DefaultIo>(
+        let signing_data = aux_signing_data::<_, _, WebIo>(
             &self.client,
             &mut self.wallet,
             &args.tx.clone(),
@@ -485,7 +486,7 @@ impl Sdk {
         )
         .await?;
 
-        let (tx, _, _) = build_unbond::<_, _, _, DefaultIo>(
+        let (tx, _, _) = build_unbond::<_, _, _, WebIo>(
             &mut self.client,
             &mut self.wallet,
             &mut self.shielded_ctx,
@@ -508,7 +509,7 @@ impl Sdk {
         let (args, faucet_signer) = tx::withdraw_tx_args(tx_msg, password)?;
         let source = args.source.clone();
         let default_signer = faucet_signer.clone().or(source.clone());
-        let signing_data = aux_signing_data::<_, _, DefaultIo>(
+        let signing_data = aux_signing_data::<_, _, WebIo>(
             &self.client,
             &mut self.wallet,
             &args.tx.clone(),
@@ -517,7 +518,7 @@ impl Sdk {
         )
         .await?;
 
-        let (tx, _) = build_withdraw::<_, _, _, DefaultIo>(
+        let (tx, _) = build_withdraw::<_, _, _, WebIo>(
             &mut self.client,
             &mut self.wallet,
             &mut self.shielded_ctx,

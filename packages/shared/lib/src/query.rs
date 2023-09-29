@@ -8,7 +8,6 @@ use namada::sdk::rpc::{
 };
 use namada::types::control_flow::ProceedOrElse;
 use namada::types::eth_bridge_pool::TransferToEthereum;
-use namada::types::io::DefaultIo;
 use namada::types::{
     address::Address,
     masp::ExtendedViewingKey,
@@ -20,7 +19,7 @@ use std::str::FromStr;
 use wasm_bindgen::prelude::*;
 
 use crate::rpc_client::HttpClient;
-use crate::sdk::masp;
+use crate::sdk::{io::WebIo, masp};
 use crate::utils::{set_panic_hook, to_js_result};
 
 #[wasm_bindgen]
@@ -272,7 +271,7 @@ impl Query {
 
         let epoch = query_epoch(&self.client).await?;
         let balance = shielded
-            .compute_exchanged_balance::<_, DefaultIo>(&self.client, &viewing_key, epoch)
+            .compute_exchanged_balance::<_, WebIo>(&self.client, &viewing_key, epoch)
             .await?
             .expect("context should contain viewing key");
         let decoded_balance = shielded
@@ -295,7 +294,7 @@ impl Query {
         for (token, amount) in result {
             mapped_result.push((
                 token.clone(),
-                format_denominated_amount::<_, DefaultIo>(&self.client, &token, amount)
+                format_denominated_amount::<_, WebIo>(&self.client, &token, amount)
                     .await
                     .clone(),
             ))
@@ -320,7 +319,7 @@ impl Query {
         &self,
         owner_addresses: Box<[JsValue]>,
     ) -> Result<JsValue, JsError> {
-        let bridge_pool = query_signed_bridge_pool::<_, DefaultIo>(&self.client)
+        let bridge_pool = query_signed_bridge_pool::<_, WebIo>(&self.client)
             .await
             .proceed_or_else(|| JsError::new("TODO:"))?;
 
