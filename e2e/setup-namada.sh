@@ -84,3 +84,5 @@ else
     find ../apps/extension/build/chrome -type f -name "*.js" -exec sed -i -E "s/dev-test\..{21}/$CHAIN_ID/g" {} +
     find ../apps/namada-interface/build -type f -name "*.js" -exec sed -i -E "s/dev-test\..{21}/$CHAIN_ID/g" {} +
 fi
+
+find .namada/basedir -type f -name "config.toml" -exec sed -i -E "s/cors_allowed_origins[[:space:]]=[[:space:]]\[\]/cors_allowed_origins = [\"*\"]/g" {} +

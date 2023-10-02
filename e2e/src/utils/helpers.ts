@@ -110,6 +110,10 @@ export const launchPuppeteer = async (): Promise<puppeteer.Browser> => {
     headless: false,
     slowMo: 50,
     args: puppeteerArgs,
+    defaultViewport: {
+      width: 1200,
+      height: 800,
+    },
   });
 
   return browser;

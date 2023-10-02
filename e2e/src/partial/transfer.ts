@@ -1,5 +1,6 @@
 import * as puppeteer from "puppeteer";
-import { targetPage, waitForXpath, pwdOrAlias } from "../utils";
+import { approveTransaction } from "./approvals";
+import { waitForXpath } from "../utils/helpers";
 
 export type TransferFromOptions = {
   targetAddress: string;
@@ -37,29 +38,7 @@ export const transferFromTransparent = async (
     )
   ).click();
 
-  // Wait for approvals window to show up
-  const approvalsTarget = await browser.waitForTarget((t) =>
-    t.url().includes("approvals.html")
-  );
-  const approvalsPage = await targetPage(approvalsTarget);
-
-  // Click approve button
-  (
-    await waitForXpath<HTMLButtonElement>(
-      approvalsPage,
-      "//button[contains(., 'Approve')]"
-    )
-  ).click();
-
-  (await approvalsPage.$("input"))?.type(pwdOrAlias);
-
-  // Click approve auth button
-  (
-    await waitForXpath<HTMLButtonElement>(
-      approvalsPage,
-      "//button[contains(., 'Authenticate')]"
-    )
-  ).click();
+  await approveTransaction(browser);
 
   // Wait for success toast
   const toast = await page.waitForXPath(
