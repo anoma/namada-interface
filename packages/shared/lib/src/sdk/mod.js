@@ -30,9 +30,11 @@ async function fetchAndStore(params) {
 }
 
 async function fetchParams(params) {
-  return fetch(
-    `https://github.com/anoma/masp-mpc/releases/download/namada-trusted-setup/${params}`
-  )
+  const path =
+    process.env.MASP_PARAMS_PATH ||
+    "https://github.com/anoma/masp-mpc/releases/download/namada-trusted-setup/";
+
+  return fetch(`${path}${params}`)
     .then((response) => response.arrayBuffer())
     .then((ab) => new Uint8Array(ab));
 }

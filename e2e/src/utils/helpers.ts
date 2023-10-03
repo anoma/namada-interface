@@ -144,3 +144,16 @@ export const waitForInputValue = async <T>(
     input,
     value
   );
+
+export const pasteValueInto = async (
+  page: puppeteer.Page,
+  input: puppeteer.ElementHandle<HTMLInputElement>,
+  value: string
+): Promise<void> => {
+  await page.evaluate((value) => navigator.clipboard.writeText(value), value);
+
+  input.focus();
+  await page.keyboard.down("Control");
+  await page.keyboard.press("V");
+  await page.keyboard.up("Control");
+};

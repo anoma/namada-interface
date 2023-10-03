@@ -32,7 +32,7 @@ jest.setTimeout(240000);
 let browser: puppeteer.Browser;
 let page: puppeteer.Page;
 
-describe("Namada extension", () => {
+describe("Namada", () => {
   const namRefs = new Set<ChildProcess>();
 
   beforeEach(async function () {
@@ -42,7 +42,7 @@ describe("Namada extension", () => {
   });
 
   afterEach(async function () {
-    // await browser.close();
+    await browser.close();
   });
 
   afterAll(async () => {
@@ -59,8 +59,8 @@ describe("Namada extension", () => {
     }
   });
 
-  describe("open the popup", () => {
-    test("should open the popup", async () => {
+  describe("popup", () => {
+    test("open the popup", async () => {
       await openPopup(browser, page);
       // Check H1
       const h1 = await page.$eval("h1", (e) => e.innerText);
@@ -153,7 +153,7 @@ describe("Namada extension", () => {
   });
 
   describe("transfer", () => {
-    test("(transparent->transparent)", async () => {
+    test("transparent->transparent", async () => {
       const nam = startNamada(namRefs);
 
       await importAccount(browser, page);
@@ -166,7 +166,7 @@ describe("Namada extension", () => {
       await stopNamada(nam);
     });
 
-    test("(transparent->shielded)", async () => {
+    test("transparent->shielded", async () => {
       const nam = startNamada(namRefs);
 
       await importAccount(browser, page);
@@ -182,7 +182,9 @@ describe("Namada extension", () => {
   });
 
   describe("staking", () => {
-    test("bond and unbond", async () => {
+    test("bond -> unbond -> withdraw", async () => {
+      jest.setTimeout(360000);
+
       const nam = startNamada(namRefs);
 
       await importAccount(browser, page);
@@ -261,6 +263,43 @@ describe("Namada extension", () => {
       );
 
       expect(unbondCompletedToast).toBeDefined();
+
+      // Wait for new epoch
+      await new Promise((resolve) => setTimeout(resolve, 60000));
+
+      // Click on send button
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Staking')]"
+        )
+      ).click();
+      await page.waitForNavigation();
+
+      // Click on validator
+      (
+        await waitForXpath<HTMLSpanElement>(
+          page,
+          "//span[contains(., 'atest1v4')]"
+        )
+      ).click();
+
+      // Click on withdraw
+      (
+        await waitForXpath<HTMLSpanElement>(
+          page,
+          "//span[contains(., 'withdraw')]"
+        )
+      ).click();
+
+      await approveTransaction(browser);
+
+      // Wait for success toast
+      const withdrawCompletedToast = await page.waitForXPath(
+        "//div[contains(., 'Transaction completed!')]"
+      );
+
+      expect(withdrawCompletedToast).toBeDefined();
 
       await stopNamada(nam);
     });

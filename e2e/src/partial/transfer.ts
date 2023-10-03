@@ -1,6 +1,6 @@
 import * as puppeteer from "puppeteer";
 import { approveTransaction } from "./approvals";
-import { waitForXpath } from "../utils/helpers";
+import { pasteValueInto, waitForXpath } from "../utils/helpers";
 
 export type TransferFromOptions = {
   targetAddress: string;
@@ -27,7 +27,9 @@ export const transferFromTransparent = async (
 
   // Fill transfer data
   const [recipentInput, amountInput] = await page.$$("input");
-  await recipentInput.type(targetAddress);
+
+  await pasteValueInto(page, recipentInput, targetAddress);
+
   await amountInput.type("10");
 
   // Continue transfer
