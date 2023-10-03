@@ -28,9 +28,7 @@ const {
   REACT_APP_PROXY_PORT: proxyPort = 9000,
 } = process.env;
 
-const apiUrl = isProxied
-  ? `https://127.0.0.1:${proxyPort}/proxy`
-  : faucetApiUrl;
+const apiUrl = isProxied ? `http://127.0.0.1:${proxyPort}/proxy` : faucetApiUrl;
 
 enum Status {
   Pending,
@@ -44,6 +42,7 @@ export const FaucetForm: React.FC = () => {
   const [amount, setAmount] = useState(0);
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState(Status.Completed);
+  const [statusText, setStatusText] = useState<string>();
 
   const handleSubmit = useCallback(async () => {
     if (!targetAddress) {
@@ -51,6 +50,7 @@ export const FaucetForm: React.FC = () => {
     }
 
     setStatus(Status.Pending);
+    setStatusText(undefined);
 
     const url = `${apiUrl}${faucetApiEndpoint}`;
 
@@ -88,6 +88,7 @@ export const FaucetForm: React.FC = () => {
       setAmount(0);
       setError(undefined);
       setStatus(Status.Completed);
+      setStatusText("Transfer succeeded!");
       console.info(response);
     } catch (e) {
       setError(`${e}`);
@@ -143,6 +144,7 @@ export const FaucetForm: React.FC = () => {
       {status !== Status.Error && (
         <FormStatus>
           {status === Status.Pending && "Processing faucet transfer..."}
+          {status === Status.Completed && statusText}
         </FormStatus>
       )}
       {status === Status.Error && <FormError>{error}</FormError>}

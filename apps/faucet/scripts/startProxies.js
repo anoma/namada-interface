@@ -3,7 +3,7 @@ require("dotenv").config();
 
 const {
   REACT_APP_FAUCET_API_URL: apiUrl = "http://127.0.0.1:5000",
-  REACT_APP_PROXY_PORT: proxyPort = "8000",
+  REACT_APP_PROXY_PORT: proxyPort = "9000",
 } = process.env;
 
 const lcpCommand = `lcp --proxyUrl ${apiUrl} --port ${proxyPort}`;

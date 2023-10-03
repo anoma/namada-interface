@@ -105,6 +105,8 @@ export const getSolution = (int: number): string => {
   const buffer = new ArrayBuffer(64);
   const view = new DataView(buffer, 60, 4);
   view.setInt32(0, int, false);
+
+  // Return byte string
   return new TextDecoder().decode(buffer, {});
 };
 
@@ -124,13 +126,16 @@ export const computePowSolution = (
 
   while (i >= 0) {
     const solutionBytes = getSolution(i);
-    const challengeBytes = new TextDecoder().decode(fromHex(challenge));
+    const challengeBytes = String.fromCharCode.apply(null, [
+      ...fromHex(challenge),
+    ]);
 
     const hasher = sha256.create();
-    hasher.update(challengeBytes, "raw");
-    hasher.update(solutionBytes, "utf8");
+    hasher.update(challengeBytes);
+    hasher.update(solutionBytes);
 
-    const hash = fromHex(hasher.digest().toHex());
+    const digestHex = hasher.digest().toHex();
+    const hash = fromHex(digestHex);
     const isValid = isValidPow(hash, difficulty);
 
     if (isValid) {
