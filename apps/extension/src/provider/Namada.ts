@@ -18,6 +18,7 @@ import {
   QueryAccountsMsg,
   FetchAndStoreMaspParamsMsg,
   HasMaspParamsMsg,
+  CheckDurabilityMsg,
   QueryBalancesMsg,
   ApproveIbcTransferMsg,
   ApproveEthBridgeTransferMsg,
@@ -70,6 +71,13 @@ export class Namada implements INamada {
     return await this.requester?.sendMessage(
       Ports.Background,
       new HasMaspParamsMsg()
+    );
+  }
+
+  public async checkDurability(): Promise<boolean | undefined> {
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new CheckDurabilityMsg()
     );
   }
 

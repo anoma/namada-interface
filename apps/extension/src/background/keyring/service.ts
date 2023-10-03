@@ -1,7 +1,7 @@
 import { fromBase64 } from "@cosmjs/encoding";
 
 import { PhraseSize } from "@namada/crypto";
-import { KVStore, Store } from "@namada/storage";
+import { IndexedDBKVStore, KVStore, Store } from "@namada/storage";
 import { AccountType, Bip44Path, DerivedAccount } from "@namada/types";
 import { Query, Sdk, TxType } from "@namada/shared";
 import { Result } from "@namada/utils";
@@ -405,5 +405,9 @@ export class KeyRingService {
 
   async queryPublicKey(address: string): Promise<string | undefined> {
     return await this.query.query_public_key(address);
+  }
+
+  async checkDurability(): Promise<boolean> {
+    return await IndexedDBKVStore.durabilityCheck();
   }
 }

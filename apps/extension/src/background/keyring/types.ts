@@ -74,6 +74,10 @@ export type ActiveAccountStore = {
   type: ParentAccount;
 };
 
+export type DurablityStore = {
+  isDurable: string;
+};
+
 export type UtilityStore = ActiveAccountStore | { [id: string]: CryptoRecord };
 
 export type RevealedPKStore = { [id: string]: string };

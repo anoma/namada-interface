@@ -66,6 +66,7 @@ export const Heading = styled.h1`
 `;
 
 export const HeadingLoader = styled.div`
+  display: flex;
   position: relative;
   width: 20px;
   height: 20px;
@@ -81,8 +82,23 @@ export const HeadingLoader = styled.div`
 export const HeadingButtons = styled.div`
   display: flex;
   justify-content: flex-end;
-  width: 100px;
   padding-right: 12px;
+`;
+
+export const Info = styled.div`
+  min-width: 20px;
+  min-height: 20px;
+
+  & svg {
+    display: none;
+  }
+
+  &.visible svg {
+    display: block;
+    min-width: 20px;
+    min-height: 20px;
+    stroke: ${(props) => props.theme.colors.utility3.warning};
+  }
 `;
 
 export const SettingsButton = styled.a`

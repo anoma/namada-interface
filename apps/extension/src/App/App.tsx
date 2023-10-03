@@ -8,6 +8,7 @@ import { Icon, IconName } from "@namada/components";
 
 import { Ports } from "router";
 import {
+  CheckDurabilityMsg,
   FetchAndStoreMaspParamsMsg,
   HasMaspParamsMsg,
   QueryAccountsMsg,
@@ -24,6 +25,7 @@ import {
   HeadingButtons,
   SettingsButton,
   HeadingLoader,
+  Info,
 } from "./App.components";
 import { TopLevelRoute } from "./types";
 import { LockWrapper } from "./LockWrapper";
@@ -39,6 +41,9 @@ export enum Status {
   Pending = "Pending",
   Failed = "Failed",
 }
+const STORE_DURABILITY_INFO =
+  'Store is not durable. This might cause problems when persisting data on disk.\
+ To fix this issue, please navigate to "about:config" and set "dom.indexedDB.experimental" to true.';
 
 export const App: React.FC = () => {
   const theme = getTheme("dark");
@@ -46,6 +51,7 @@ export const App: React.FC = () => {
   const redirect = query.get("redirect");
   const navigate = useNavigate();
   const [isLocked, setIsLocked] = useState(true);
+  const [isDurable, setIsDurable] = useState<boolean>();
   const [status, setStatus] = useState<Status>();
   const [maspStatus, setMaspStatus] = useState<{
     status: Status;
@@ -171,6 +177,16 @@ export const App: React.FC = () => {
     }
   }, [status, parentAccount]);
 
+  useEffect(() => {
+    (async () => {
+      const isDurable = await requester.sendMessage(
+        Ports.Background,
+        new CheckDurabilityMsg()
+      );
+      setIsDurable(isDurable);
+    })();
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <AppContainer>
@@ -184,6 +200,12 @@ export const App: React.FC = () => {
               }
               title={maspStatus.info}
             />
+            <Info
+              title={isDurable ? "" : STORE_DURABILITY_INFO}
+              className={isDurable === false ? "visible" : ""}
+            >
+              <Icon iconName={IconName.Info} />
+            </Info>
             <HeadingButtons>
               {parentAccount && (
                 <SettingsButton
