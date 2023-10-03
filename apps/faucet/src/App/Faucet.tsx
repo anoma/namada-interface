@@ -1,11 +1,6 @@
 import React, { useCallback, useState } from "react";
-import {
-  ButtonContainer,
-  FaucetFormContainer,
-  FormError,
-  FormStatus,
-  InputContainer,
-} from "./Faucet.components";
+import { sanitize } from "dompurify";
+import { bech32m } from "bech32";
 import {
   Button,
   ButtonVariant,
@@ -13,8 +8,22 @@ import {
   InputVariants,
   Select,
 } from "@namada/components";
+
+import {
+  ButtonContainer,
+  FaucetFormContainer,
+  FormError,
+  FormStatus,
+  InputContainer,
+  PreFormatted,
+} from "./Faucet.components";
 import { TokenData } from "config";
-import { computePowSolution, requestChallenge, requestTransfer } from "utils";
+import {
+  TransferResponse,
+  computePowSolution,
+  requestChallenge,
+  requestTransfer,
+} from "utils";
 
 const DEFAULT_URL = "http://127.0.0.1:5000";
 const DEFAULT_ENDPOINT = "/api/v1/faucet";
@@ -43,9 +52,27 @@ export const FaucetForm: React.FC = () => {
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState(Status.Completed);
   const [statusText, setStatusText] = useState<string>();
+  const [responseDetails, setResponseDetails] = useState<TransferResponse>();
 
   const handleSubmit = useCallback(async () => {
     if (!targetAddress) {
+      return;
+    }
+
+    // Validate target input
+    const sanitizedTarget = sanitize(targetAddress);
+
+    if (!sanitizedTarget) {
+      setStatus(Status.Error);
+      setError("Invalid target!");
+      return;
+    }
+
+    try {
+      bech32m.decode(sanitizedTarget);
+    } catch (e) {
+      setError("Invalid bech32 address!");
+      setStatus(Status.Error);
       return;
     }
 
@@ -71,7 +98,7 @@ export const FaucetForm: React.FC = () => {
         tag,
         challenge,
         transfer: {
-          target: targetAddress,
+          target: sanitizedTarget,
           token: tokenAddress,
           amount: amount * 1_000_000,
         },
@@ -83,12 +110,20 @@ export const FaucetForm: React.FC = () => {
         }
       );
 
-      // Reset form if successful
-      setTargetAddress(undefined);
-      setAmount(0);
-      setError(undefined);
-      setStatus(Status.Completed);
-      setStatusText("Transfer succeeded!");
+      if (response.sent) {
+        // Reset form if successful
+        setTargetAddress(undefined);
+        setAmount(0);
+        setError(undefined);
+        setStatus(Status.Completed);
+        setStatusText("Transfer succeeded!");
+        setResponseDetails(response);
+        return;
+      } else {
+        setStatus(Status.Completed);
+        setStatusText("Transfer did not succeed.");
+      }
+
       console.info(response);
     } catch (e) {
       setError(`${e}`);
@@ -145,6 +180,12 @@ export const FaucetForm: React.FC = () => {
         <FormStatus>
           {status === Status.Pending && "Processing faucet transfer..."}
           {status === Status.Completed && statusText}
+
+          {responseDetails && status !== Status.Pending && (
+            <PreFormatted>
+              {JSON.stringify(responseDetails, null, 2)}
+            </PreFormatted>
+          )}
         </FormStatus>
       )}
       {status === Status.Error && <FormError>{error}</FormError>}

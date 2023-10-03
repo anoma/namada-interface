@@ -19,11 +19,12 @@ export const ButtonContainer = styled.div`
   margin: 36px 0;
 `;
 
-export const Address = styled.code`
+export const PreFormatted = styled.pre`
   font-size: 12px;
-  background-color: ${(props) => props.theme.colors.utility1.main20};
+  background-color: ${(props) => props.theme.colors.utility2.main20};
   border-radius: 4px;
   padding: 4px;
+  overflow-x: scroll;
 `;
 
 export const FormError = styled.div`

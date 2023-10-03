@@ -46,6 +46,13 @@ export type Data = {
   transfer: TransferDetails;
 };
 
+export type TransferResponse = {
+  amount: number;
+  sent: boolean;
+  target: string;
+  token: string;
+};
+
 /**
  * Submit a transfer request
  *
@@ -56,7 +63,7 @@ export type Data = {
 export const requestTransfer = async (
   url: string,
   data: Data
-): Promise<unknown> => {
+): Promise<TransferResponse> => {
   return await fetch(new URL(url), {
     method: "POST",
     body: JSON.stringify(data),
