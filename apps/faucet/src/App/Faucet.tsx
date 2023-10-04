@@ -45,7 +45,11 @@ enum Status {
   Error,
 }
 
-export const FaucetForm: React.FC = () => {
+type Props = {
+  isTestnetLive: boolean;
+};
+
+export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
   const [targetAddress, setTargetAddress] = useState<string>();
   const [tokenAddress, setTokenAddress] = useState(TokenData[0].value);
   const [amount, setAmount] = useState(0);
@@ -197,7 +201,8 @@ export const FaucetForm: React.FC = () => {
             amount === 0 ||
             amount > parseInt(faucetLimit) ||
             !targetAddress ||
-            status === Status.Pending
+            status === Status.Pending ||
+            !isTestnetLive
           }
         >
           Get Testnet Tokens
