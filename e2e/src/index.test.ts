@@ -324,7 +324,16 @@ describe("Namada", () => {
       expect(unbondCompletedToast).toBeDefined();
 
       // Wait for new epoch
-      await new Promise((resolve) => setTimeout(resolve, 60000));
+      page.on("dialog", async (dialog) => {
+        await new Promise((resolve) => setTimeout(resolve, 60000));
+        await dialog.accept();
+      });
+
+      await page.evaluate(() =>
+        alert(
+          'E2E info: We need to wait a minute before we can withdraw funds :|\n[do not touch "Ok" :), this window will close automatically]'
+        )
+      );
 
       // Click on send button
       (
