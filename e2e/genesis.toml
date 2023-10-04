@@ -24,6 +24,11 @@ max_commission_rate_change = "0.01"
 net_address = "127.0.0.1:27656"
 
 # Some tokens present at genesis.
+[token.TestERC20]
+address = "atest1v46xsw368psnwwf3xcerqeryxcervvpsxuukye3cxsukgce4x5mrwctyvvekvvnxv33nxvfc0kmacx"
+denom = 6
+[token.TestERC20.balances]
+TestA = "1000"
 
 [token.NAM]
 address = "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5"

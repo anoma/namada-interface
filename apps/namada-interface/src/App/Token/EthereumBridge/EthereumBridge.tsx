@@ -166,7 +166,7 @@ export const EthereumBridge = (): JSX.Element => {
         </GeneralSection>
 
         {extensionKey == "namada" && (
-          <FeeSection>
+          <FeeSection data-testid="eth-bridge-fee">
             <InputContainer>
               <Select
                 data={tokenData}

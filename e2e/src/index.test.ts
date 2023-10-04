@@ -14,6 +14,7 @@ import {
 import {
   launchPuppeteer,
   openPopup,
+  pasteValueInto,
   setupNamada,
   startNamada,
   stopNamada,
@@ -23,6 +24,7 @@ import {
 import {
   address0Alias,
   address1,
+  ethAddress0,
   shieldedAddress0,
   shieldedAddress0Alias,
 } from "./utils/values";
@@ -181,6 +183,63 @@ describe("Namada", () => {
     });
   });
 
+  describe("bridge", () => {
+    test("add to bridge pool", async () => {
+      const nam = startNamada(namRefs);
+      await importAccount(browser, page);
+      await approveConnection(browser, page);
+
+      // Click on staking button
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Bridge')]"
+        )
+      ).click();
+
+      // Click on "Ethereum" button
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Ethereum')]"
+        )
+      ).click();
+
+      const [recipient, amount, feeAmount] = await page.$$("input");
+      await pasteValueInto(page, recipient, ethAddress0);
+      await amount.type("100");
+
+      const value =
+        (await page.$$eval(
+          "[data-testid='eth-bridge-fee'] option",
+          (options) =>
+            options.find((option) => option.value.includes("NAM"))?.value
+        )) || "";
+
+      await page.select("[data-testid='eth-bridge-fee'] select", value);
+      await feeAmount.type("1");
+
+      // Click on submit button
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Submit')]"
+        )
+      ).click();
+
+      await approveTransaction(browser);
+
+      // Wait for success toast
+      const toast = await page.waitForXPath(
+        "//div[contains(., 'Transaction completed!')]"
+      );
+
+      expect(toast).toBeDefined();
+
+      await stopNamada(nam);
+    });
+  });
+
   describe("staking", () => {
     test("bond -> unbond -> withdraw", async () => {
       jest.setTimeout(360000);
@@ -190,7 +249,7 @@ describe("Namada", () => {
       await importAccount(browser, page);
       await approveConnection(browser, page);
 
-      // Click on send button
+      // Click on staking button
       (
         await waitForXpath<HTMLButtonElement>(
           page,
