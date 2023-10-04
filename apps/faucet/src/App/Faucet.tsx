@@ -104,11 +104,11 @@ export const FaucetForm: React.FC = () => {
         },
       };
 
-      const response = await requestTransfer(url, submitData).catch(
-        (e: unknown) => {
-          throw new Error(`Error requesting transfer: ${e}`);
-        }
-      );
+      const response = await requestTransfer(url, submitData).catch((e) => {
+        console.info(e);
+        const { code, message } = e;
+        throw new Error(`Unable to request transfer: ${code} ${message}`);
+      });
 
       if (response.sent) {
         // Reset form if successful

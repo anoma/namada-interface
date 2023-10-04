@@ -75,8 +75,13 @@ export const requestTransfer = async (
       if (response.ok) {
         return response.json();
       }
-      console.warn(response);
-      return Promise.reject(response.type);
+      // Handle ReadableStream
+      const reader = response?.body?.getReader();
+      return reader
+        ?.read()
+        .then(({ value }) =>
+          Promise.reject(JSON.parse(new TextDecoder().decode(value)))
+        );
     })
     .catch((e) => {
       return Promise.reject(e);
