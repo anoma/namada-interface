@@ -119,11 +119,10 @@ export const FaucetForm: React.FC = () => {
         setStatusText("Transfer succeeded!");
         setResponseDetails(response);
         return;
-      } else {
-        setStatus(Status.Completed);
-        setStatusText("Transfer did not succeed.");
       }
 
+      setStatus(Status.Completed);
+      setStatusText("Transfer did not succeed.");
       console.info(response);
     } catch (e) {
       setError(`${e}`);

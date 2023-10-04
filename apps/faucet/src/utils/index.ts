@@ -103,18 +103,18 @@ export const isValidPow = (
 };
 
 /**
- * Get padded solution
+ * Provided an integer, convert to bytes and pad
  *
  * @param {number} int
- * @returns {string}
+ * @returns {Uint8Array}
  */
-export const getSolution = (int: number): string => {
+export const getSolutionBytes = (int: number): Uint8Array => {
   const buffer = new ArrayBuffer(64);
   const view = new DataView(buffer, 60, 4);
   view.setInt32(0, int, false);
 
-  // Return byte string
-  return new TextDecoder().decode(buffer, {});
+  // Return solution byte array
+  return new Uint8Array(buffer);
 };
 
 /**
@@ -132,21 +132,25 @@ export const computePowSolution = (
   let solution: string = "";
 
   while (i >= 0) {
-    const solutionBytes = getSolution(i);
-    const challengeBytes = String.fromCharCode.apply(null, [
+    const solutionBytes = getSolutionBytes(i);
+
+    const solutionByteString = String.fromCharCode.apply(null, [
+      ...solutionBytes,
+    ]);
+    const challengeByteString = String.fromCharCode.apply(null, [
       ...fromHex(challenge),
     ]);
 
     const hasher = sha256.create();
-    hasher.update(challengeBytes);
-    hasher.update(solutionBytes);
+    hasher.update(challengeByteString);
+    hasher.update(solutionByteString);
 
     const digestHex = hasher.digest().toHex();
     const hash = fromHex(digestHex);
     const isValid = isValidPow(hash, difficulty);
 
     if (isValid) {
-      solution = toHex(new TextEncoder().encode(solutionBytes));
+      solution = toHex(solutionBytes);
       break;
     }
 
