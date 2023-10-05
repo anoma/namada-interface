@@ -1,21 +1,11 @@
 import { Router } from "router";
 import {
-  ApproveBondMsg,
-  ApproveTransferMsg,
-  ApproveIbcTransferMsg,
-  ApproveEthBridgeTransferMsg,
-  ApproveUnbondMsg,
-  ApproveWithdrawMsg,
+  ApproveTxMsg,
   ApproveConnectInterfaceMsg,
 } from "provider";
 import {
   RejectTxMsg,
-  SubmitApprovedBondMsg,
-  SubmitApprovedUnbondMsg,
-  SubmitApprovedTransferMsg,
-  SubmitApprovedIbcTransferMsg,
-  SubmitApprovedEthBridgeTransferMsg,
-  SubmitApprovedWithdrawMsg,
+  SubmitApprovedTxMsg,
   ConnectInterfaceResponseMsg,
   RevokeConnectionMsg,
 } from "./messages";
@@ -25,19 +15,9 @@ import { ApprovalsService } from "./service";
 import { getHandler } from "./handler";
 
 export function init(router: Router, service: ApprovalsService): void {
-  router.registerMessage(ApproveBondMsg);
-  router.registerMessage(ApproveTransferMsg);
-  router.registerMessage(ApproveIbcTransferMsg);
-  router.registerMessage(ApproveEthBridgeTransferMsg);
-  router.registerMessage(ApproveUnbondMsg);
-  router.registerMessage(ApproveWithdrawMsg);
+  router.registerMessage(ApproveTxMsg);
   router.registerMessage(RejectTxMsg);
-  router.registerMessage(SubmitApprovedBondMsg);
-  router.registerMessage(SubmitApprovedUnbondMsg);
-  router.registerMessage(SubmitApprovedTransferMsg);
-  router.registerMessage(SubmitApprovedIbcTransferMsg);
-  router.registerMessage(SubmitApprovedEthBridgeTransferMsg);
-  router.registerMessage(SubmitApprovedWithdrawMsg);
+  router.registerMessage(SubmitApprovedTxMsg);
   router.registerMessage(ApproveConnectInterfaceMsg);
   router.registerMessage(ConnectInterfaceResponseMsg);
   router.registerMessage(RevokeConnectionMsg);

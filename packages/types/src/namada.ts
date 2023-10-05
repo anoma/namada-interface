@@ -1,8 +1,14 @@
+import { SupportedTx } from "@namada/types";
 import { AccountType, DerivedAccount } from "./account";
 import { Chain } from "./chain";
 import { Signer } from "./signer";
 
-export type TxMsgProps = { txMsg: string; type: AccountType };
+export type TxMsgProps = {
+  txType: SupportedTx,
+  specificMsg: string;
+  txMsg: string;
+  type: AccountType
+};
 
 export interface Namada {
   connect(chainId: string): Promise<void>;
@@ -13,12 +19,7 @@ export interface Namada {
   suggestChain(chainConfig: Chain): Promise<void>;
   chain: (chainId: string) => Promise<Chain | undefined>;
   chains: () => Promise<Chain[] | undefined>;
-  submitBond: (props: TxMsgProps) => Promise<void>;
-  submitUnbond: (props: TxMsgProps) => Promise<void>;
-  submitWithdraw: (props: TxMsgProps) => Promise<void>;
-  submitTransfer: (props: TxMsgProps) => Promise<void>;
-  submitIbcTransfer: (props: TxMsgProps) => Promise<void>;
-  submitEthBridgeTransfer: (props: TxMsgProps) => Promise<void>;
+  submitTx: (props: TxMsgProps) => Promise<void>;
   version: () => string;
 }
 

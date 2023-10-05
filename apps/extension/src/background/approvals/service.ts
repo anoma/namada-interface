@@ -12,16 +12,21 @@ import {
   SubmitUnbondMsgValue,
   SubmitWithdrawMsgValue,
   TransferMsgValue,
+  TxMsgValue,
+  SupportedTx,
 } from "@namada/types";
 import { TxType } from "@namada/shared";
 import { KVStore } from "@namada/storage";
 
 import { KeyRingService, TabStore } from "background/keyring";
 import { LedgerService } from "background/ledger";
-import { paramsToUrl } from "@namada/utils";
+import { paramsToUrl, assertNever } from "@namada/utils";
 
-import { ApprovedOriginsStore } from "./types";
+import { ApprovedOriginsStore, TxStore } from "./types";
 import { addApprovedOrigin, removeApprovedOrigin, APPROVED_ORIGINS_KEY } from "./utils";
+
+type GetParams =
+  (specificMsg: Uint8Array, txDetails: TxMsgValue) => Record<string, string>;
 
 export class ApprovalsService {
 
@@ -34,205 +39,167 @@ export class ApprovalsService {
   > = {};
 
   constructor(
-    protected readonly txStore: KVStore<string>,
+    protected readonly txStore: KVStore<TxStore>,
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
     protected readonly approvedOriginsStore: KVStore<ApprovedOriginsStore>,
     protected readonly keyRingService: KeyRingService,
     protected readonly ledgerService: LedgerService
   ) {}
 
-  // Deserialize transfer details and prompt user
-  async approveTransfer(txMsg: string, type: AccountType): Promise<void> {
-    const txMsgBuffer = Buffer.from(fromBase64(txMsg));
+  async approveTx(
+    txType: SupportedTx,
+    txMsg: string,
+    specificMsg: string,
+    type: AccountType,
+  ): Promise<void> {
     const msgId = uuid();
-    await this.txStore.set(msgId, txMsg);
+    await this.txStore.set(msgId, { txType, txMsg, specificMsg });
 
     // Decode tx details and launch approval screen
-    const txDetails = deserialize(txMsgBuffer, TransferMsgValue);
-    const {
-      source,
-      target,
-      token: tokenAddress,
-      amount: amountBN,
-      tx: { publicKey = "" },
-    } = txDetails;
-    const amount = new BigNumber(amountBN.toString());
-    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
-      TxType.Transfer
-    }`;
+    const txMsgBuffer = Buffer.from(fromBase64(txMsg));
+    const txDetails = deserialize(txMsgBuffer, TxMsgValue);
+
+    const specificMsgBuffer = Buffer.from(fromBase64(specificMsg));
+
+    const getParams =
+      txType === TxType.Bond ? ApprovalsService.getParamsBond :
+      txType === TxType.Unbond ? ApprovalsService.getParamsUnbond :
+      txType === TxType.Withdraw ? ApprovalsService.getParamsWithdraw :
+      txType === TxType.Transfer ? ApprovalsService.getParamsTransfer :
+      txType === TxType.IBCTransfer ? ApprovalsService.getParamsIbcTransfer :
+      txType === TxType.EthBridgeTransfer ? ApprovalsService.getParamsEthBridgeTransfer :
+      assertNever(txType);
+
+    const baseUrl =
+      `${browser.runtime.getURL("approvals.html")}#/approve-tx/${txType}`;
 
     const url = paramsToUrl(baseUrl, {
+      ...getParams(specificMsgBuffer, txDetails),
       msgId,
-      source,
-      target,
-      tokenAddress,
-      amount: amount.toString(),
-      accountType: type,
-      publicKey,
+      accountType: type
     });
 
     this._launchApprovalWindow(url);
   }
 
-  // Deserialize IBC transfer details and prompt user
-  async approveIbcTransfer(txMsg: string, type: AccountType): Promise<void> {
-    const txMsgBuffer = Buffer.from(fromBase64(txMsg));
-    const msgId = uuid();
-    await this.txStore.set(msgId, txMsg);
+  static getParamsTransfer: GetParams = (specificMsg, txDetails) => {
+    const specificDetails = deserialize(specificMsg, TransferMsgValue);
 
-    // Decode tx details and launch approval screen
-    const txDetails = deserialize(txMsgBuffer, IbcTransferMsgValue);
+    const {
+      source,
+      target,
+      token: tokenAddress,
+      amount: amountBN,
+    } = specificDetails;
+    const amount = new BigNumber(amountBN.toString());
+
+    const { publicKey = "" } = txDetails;
+
+    return {
+      source,
+      target,
+      tokenAddress,
+      amount: amount.toString(),
+      publicKey,
+    };
+  }
+
+  static getParamsIbcTransfer: GetParams = (specificMsg, txDetails) => {
+    const specificDetails = deserialize(specificMsg, IbcTransferMsgValue);
+
     const {
       source,
       receiver: target,
       token: tokenAddress,
       amount: amountBN,
-      tx: { publicKey = "" },
-    } = txDetails;
-
+    } = specificDetails;
     const amount = new BigNumber(amountBN.toString());
-    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
-      TxType.IBCTransfer
-    }`;
 
-    const url = paramsToUrl(baseUrl, {
-      msgId,
+    const { publicKey = "" } = txDetails;
+
+    return {
       source,
       target,
       tokenAddress,
       amount: amount.toString(),
-      accountType: type,
       publicKey,
-    });
-
-    this._launchApprovalWindow(url);
+    };
   }
 
-  // Deserialize eth bridge transfer details and prompt user
-  async approveEthBridgeTransfer(
-    txMsg: string,
-    type: AccountType
-  ): Promise<void> {
-    const txMsgBuffer = Buffer.from(fromBase64(txMsg));
-    const msgId = uuid();
-    await this.txStore.set(msgId, txMsg);
+  static getParamsEthBridgeTransfer: GetParams = (specificMsg, txDetails) => {
+    const specificDetails = deserialize(specificMsg, EthBridgeTransferMsgValue);
 
-    // Decode tx details and launch approval screen
-    const txDetails = deserialize(txMsgBuffer, EthBridgeTransferMsgValue);
     const {
-      tx: { publicKey = "" },
       asset: tokenAddress,
       recipient: target,
       sender: source,
       amount,
-    } = txDetails;
+    } = specificDetails;
 
-    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
-      TxType.EthBridgeTransfer
-    }`;
+    const { publicKey = "" } = txDetails;
 
-    const url = paramsToUrl(baseUrl, {
-      msgId,
+    return {
       source,
       target,
       tokenAddress,
       amount: amount.toString(),
-      accountType: type,
       publicKey,
-    });
-
-    this._launchApprovalWindow(url);
+    };
   }
 
-  // Deserialize bond details and prompt user
-  async approveBond(txMsg: string, type: AccountType): Promise<void> {
-    const txMsgBuffer = Buffer.from(fromBase64(txMsg));
-    const msgId = uuid();
-    await this.txStore.set(msgId, txMsg);
-
-    // Decode tx details and launch approval screen
-    const txDetails = deserialize(txMsgBuffer, SubmitBondMsgValue);
+  static getParamsBond: GetParams = (specificMsg, txDetails) => {
+    const specificDetails = deserialize(specificMsg, SubmitBondMsgValue);
 
     const {
       source,
       nativeToken: tokenAddress,
       amount: amountBN,
-      tx: { publicKey = "" },
-    } = txDetails;
+    } = specificDetails;
     const amount = new BigNumber(amountBN.toString());
-    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
-      TxType.Bond
-    }`;
 
-    const url = paramsToUrl(baseUrl, {
-      msgId,
+    const { publicKey = "" } = txDetails;
+
+    return {
       source,
       tokenAddress,
       amount: amount.toString(),
       publicKey,
-      accountType: type,
-    });
-
-    this._launchApprovalWindow(url);
+    };
   }
 
-  // Deserialize unbond details and prompt user
-  async approveUnbond(txMsg: string, type: AccountType): Promise<void> {
-    const txMsgBuffer = Buffer.from(fromBase64(txMsg));
-    const msgId = uuid();
-    await this.txStore.set(msgId, txMsg);
-
-    // Decode tx details and launch approval screen
-    const txDetails = deserialize(txMsgBuffer, SubmitUnbondMsgValue);
+  static getParamsUnbond: GetParams = (specificMsg, txDetails) => {
+    const specificDetails = deserialize(specificMsg, SubmitUnbondMsgValue);
 
     const {
       source,
       amount: amountBN,
-      tx: { publicKey = "" },
-    } = txDetails;
+    } = specificDetails;
     const amount = new BigNumber(amountBN.toString());
-    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
-      TxType.Unbond
-    }`;
 
-    const url = paramsToUrl(baseUrl, {
-      msgId,
+    const { publicKey = "" } = txDetails;
+
+    return {
       source,
       amount: amount.toString(),
-      accountType: type,
       publicKey,
-    });
-
-    this._launchApprovalWindow(url);
+    };
   }
 
-  // Deserialize withdraw details and prompt user
-  async approveWithdraw(txMsg: string, type: AccountType): Promise<void> {
-    const txMsgBuffer = Buffer.from(fromBase64(txMsg));
-    const msgId = uuid();
-    await this.txStore.set(msgId, txMsg);
-
-    // Decode tx details and launch approval screen
-    const txDetails = deserialize(txMsgBuffer, SubmitWithdrawMsgValue);
+  static getParamsWithdraw: GetParams = (specificMsg, txDetails) => {
+    const specificDetails = deserialize(specificMsg, SubmitWithdrawMsgValue);
 
     const {
       source,
       validator,
-      tx: { publicKey = "" },
-    } = txDetails;
-    const baseUrl = `${browser.runtime.getURL("approvals.html")}#/approve-tx/${
-      TxType.Withdraw
-    }`;
+    } = specificDetails;
 
-    const url = paramsToUrl(baseUrl, {
-      msgId,
+    const { publicKey = "" } = txDetails;
+
+    return {
       source,
       validator,
       publicKey,
-      accountType: type,
-    });
-
-    this._launchApprovalWindow(url);
+    };
   }
 
   // Remove pending transaction from storage
@@ -240,101 +207,31 @@ export class ApprovalsService {
     await this._clearPendingTx(msgId);
   }
 
-  // Authenticate keyring and submit approved transfer transaction from storage
-  async submitTransfer(msgId: string, password: string): Promise<void> {
+  // Authenticate keyring and submit approved transaction from storage
+  async submitTx(msgId: string, password: string): Promise<void> {
     await this.keyRingService.unlock(password);
 
     // Fetch pending transfer tx
     const tx = await this.txStore.get(msgId);
 
-    if (tx) {
-      await this.keyRingService.submitTransfer(tx, msgId);
-
-      return await this._clearPendingTx(msgId);
+    if (!tx) {
+      throw new Error("Pending tx not found!");
     }
 
-    throw new Error("Pending Transfer tx not found!");
-  }
+    const { txType, specificMsg, txMsg } = tx;
 
-  // Authenticate keyring and submit approved IBC transfer transaction from storage
-  async submitIbcTransfer(msgId: string, password: string): Promise<void> {
-    await this.keyRingService.unlock(password);
+    const submitFn =
+      txType === TxType.Bond ? this.keyRingService.submitBond :
+      txType === TxType.Unbond ? this.keyRingService.submitUnbond :
+      txType === TxType.Transfer ? this.keyRingService.submitTransfer :
+      txType === TxType.IBCTransfer ? this.keyRingService.submitIbcTransfer :
+      txType === TxType.EthBridgeTransfer ? this.keyRingService.submitEthBridgeTransfer :
+      txType === TxType.Withdraw ? this.keyRingService.submitWithdraw :
+      assertNever(txType);
 
-    // Fetch pending transfer tx
-    const tx = await this.txStore.get(msgId);
+    await submitFn.call(this.keyRingService, specificMsg, txMsg, msgId);
 
-    if (tx) {
-      await this.keyRingService.submitIbcTransfer(tx, msgId);
-
-      return await this._clearPendingTx(msgId);
-    }
-
-    throw new Error("Pending Transfer tx not found!");
-  }
-
-  // Authenticate keyring and submit approved IBC transfer transaction from storage
-  async submitEthBridgeTransfer(
-    msgId: string,
-    password: string
-  ): Promise<void> {
-    await this.keyRingService.unlock(password);
-
-    // Fetch pending transfer tx
-    const tx = await this.txStore.get(msgId);
-
-    if (tx) {
-      await this.keyRingService.submitEthBridgeTransfer(tx, msgId);
-
-      return await this._clearPendingTx(msgId);
-    }
-
-    throw new Error("Pending Transfer tx not found!");
-  }
-
-  // Authenticate keyring and submit approved bond transaction from storage
-  async submitBond(msgId: string, password: string): Promise<void> {
-    await this.keyRingService.unlock(password);
-
-    // Fetch pending bond tx
-    const tx = await this.txStore.get(msgId);
-
-    if (tx) {
-      await this.keyRingService.submitBond(tx, msgId);
-
-      return await this._clearPendingTx(msgId);
-    }
-
-    throw new Error("Pending Bond tx not found!");
-  }
-
-  async submitUnbond(msgId: string, password: string): Promise<void> {
-    await this.keyRingService.unlock(password);
-
-    // Fetch pending bond tx
-    const tx = await this.txStore.get(msgId);
-
-    if (tx) {
-      await this.keyRingService.submitUnbond(tx, msgId);
-
-      return await this._clearPendingTx(msgId);
-    }
-
-    throw new Error("Pending Unbond tx not found!");
-  }
-
-  async submitWithdraw(msgId: string, password: string): Promise<void> {
-    await this.keyRingService.unlock(password);
-
-    // Fetch pending bond tx
-    const tx = await this.txStore.get(msgId);
-
-    if (tx) {
-      await this.keyRingService.submitWithdraw(tx, msgId);
-
-      return await this._clearPendingTx(msgId);
-    }
-
-    throw new Error("Pending Withdraw tx not found!");
+    return await this._clearPendingTx(msgId);
   }
 
   async approveConnection(

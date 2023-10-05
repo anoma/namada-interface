@@ -6,6 +6,7 @@ export type SubmitTransferMessage = {
 };
 
 export type SubmitTransferMessageData = {
+  transferMsg: string;
   txMsg: string;
   msgId: string;
   password: string;

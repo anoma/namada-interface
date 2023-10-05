@@ -1,52 +1,39 @@
 import BigNumber from "bignumber.js";
 import { TokenInfo } from "./tokens";
+import { TxType } from "@namada/shared";
 
-export type SubmitBondProps = {
-  validator: string;
-  amount: BigNumber;
-  source: string;
-  nativeToken: string;
-  tx: TxProps;
-};
+import {
+  TxMsgValue,
+  SubmitBondMsgValue,
+  SubmitUnbondMsgValue,
+  SubmitWithdrawMsgValue,
+  TransferMsgValue,
+  EthBridgeTransferMsgValue,
+  SignatureMsgValue,
+} from "./schema";
 
-export type SubmitUnbondProps = {
-  validator: string;
-  amount: BigNumber;
-  source: string;
-  tx: TxProps;
-};
+export type SupportedTx = Extract<
+  TxType,
+  | TxType.Bond
+  | TxType.Unbond
+  | TxType.Transfer
+  | TxType.IBCTransfer
+  | TxType.EthBridgeTransfer
+  | TxType.Withdraw
+>;
 
-export type SubmitWithdrawProps = {
-  validator: string;
-  source: string;
-  tx: TxProps;
-};
-
-export type TxProps = {
-  token: string;
-  feeAmount: BigNumber;
-  gasLimit: BigNumber;
-  chainId: string;
-  publicKey?: string;
-  signer?: string;
-};
-
-export type RevealPKProps = {
-  publicKey: string;
-  tx: TxProps;
-};
-
-export type TransferProps = {
-  tx: TxProps;
-  source: string;
-  target: string;
-  token: string;
-  amount: BigNumber;
-  nativeToken: string;
-};
+// TODO: These could probably be removed altogether, but maybe they're useful to
+// distinguish between values created as plain object literals and values
+// created using a class constructor.
+export type TxProps = TxMsgValue;
+export type SubmitBondProps = SubmitBondMsgValue;
+export type SubmitUnbondProps = SubmitUnbondMsgValue;
+export type SubmitWithdrawProps = SubmitWithdrawMsgValue;
+export type TransferProps = TransferMsgValue;
+export type BridgeTransferProps = EthBridgeTransferMsgValue;
+export type SignatureProps = SignatureMsgValue;
 
 export type IbcTransferProps = {
-  tx: TxProps;
   source: string;
   receiver: string;
   token: TokenInfo;
@@ -55,24 +42,4 @@ export type IbcTransferProps = {
   channelId: string;
   timeoutHeight?: bigint;
   timeoutSecOffset?: bigint;
-};
-
-export type BridgeTransferProps = {
-  nut: boolean;
-  tx: TxProps;
-  asset: string;
-  recipient: string;
-  sender: string;
-  amount: BigNumber;
-  feeAmount: BigNumber;
-  feePayer?: string;
-  feeToken: string;
-};
-
-export type SignatureProps = {
-  pubkey: Uint8Array;
-  rawIndices: Uint8Array;
-  rawSignature: Uint8Array;
-  wrapperIndices: Uint8Array;
-  wrapperSignature: Uint8Array;
 };

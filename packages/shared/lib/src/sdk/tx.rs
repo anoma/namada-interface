@@ -33,7 +33,6 @@ pub struct SubmitBondMsg {
     validator: String,
     amount: String,
     native_token: String,
-    tx: TxMsg,
 }
 
 /// Maps serialized tx_msg into BondTx args.
@@ -48,24 +47,24 @@ pub struct SubmitBondMsg {
 /// Returns JsError if the tx_msg can't be deserialized or
 /// Rust structs can't be created.
 pub fn bond_tx_args(
+    bond_msg: &[u8],
     tx_msg: &[u8],
     password: Option<String>,
 ) -> Result<(args::Bond, Option<Address>), JsError> {
-    let tx_msg = SubmitBondMsg::try_from_slice(tx_msg)?;
+    let bond_msg = SubmitBondMsg::try_from_slice(bond_msg)?;
 
     let SubmitBondMsg {
         native_token,
         source,
         validator,
         amount,
-        tx,
-    } = tx_msg;
+    } = bond_msg;
 
     let source = Address::from_str(&source)?;
     let native_token = Address::from_str(&native_token)?;
     let validator = Address::from_str(&validator)?;
     let amount = Amount::from_str(&amount, NATIVE_MAX_DECIMAL_PLACES)?;
-    let (tx, faucet_signer) = tx_msg_into_args(tx, password)?;
+    let (tx, faucet_signer) = tx_msg_into_args(tx_msg, password)?;
 
     let args = args::Bond {
         tx,
@@ -84,7 +83,6 @@ pub struct SubmitUnbondMsg {
     source: String,
     validator: String,
     amount: String,
-    tx: TxMsg,
 }
 
 /// Maps serialized tx_msg into UnbondTx args.
@@ -99,23 +97,23 @@ pub struct SubmitUnbondMsg {
 /// Returns JsError if the tx_msg can't be deserialized or
 /// Rust structs can't be created.
 pub fn unbond_tx_args(
+    unbond_msg: &[u8],
     tx_msg: &[u8],
     password: Option<String>,
 ) -> Result<(args::Unbond, Option<Address>), JsError> {
-    let tx_msg = SubmitUnbondMsg::try_from_slice(tx_msg)?;
+    let unbond_msg = SubmitUnbondMsg::try_from_slice(unbond_msg)?;
 
     let SubmitUnbondMsg {
         source,
         validator,
         amount,
-        tx,
-    } = tx_msg;
+    } = unbond_msg;
 
     let source = Address::from_str(&source)?;
     let validator = Address::from_str(&validator)?;
 
     let amount = Amount::from_str(&amount, NATIVE_MAX_DECIMAL_PLACES)?;
-    let (tx, faucet_signer) = tx_msg_into_args(tx, password)?;
+    let (tx, faucet_signer) = tx_msg_into_args(tx_msg, password)?;
 
     let args = args::Unbond {
         tx,
@@ -132,7 +130,6 @@ pub fn unbond_tx_args(
 pub struct SubmitWithdrawMsg {
     source: String,
     validator: String,
-    tx: TxMsg,
 }
 
 /// Maps serialized tx_msg into WithdrawTx args.
@@ -147,20 +144,20 @@ pub struct SubmitWithdrawMsg {
 /// Returns JsError if the tx_msg can't be deserialized or
 /// Rust structs can't be created.
 pub fn withdraw_tx_args(
+    withdraw_msg: &[u8],
     tx_msg: &[u8],
     password: Option<String>,
 ) -> Result<(args::Withdraw, Option<Address>), JsError> {
-    let tx_msg = SubmitWithdrawMsg::try_from_slice(tx_msg)?;
+    let withdraw_msg = SubmitWithdrawMsg::try_from_slice(withdraw_msg)?;
 
     let SubmitWithdrawMsg {
         source,
         validator,
-        tx,
-    } = tx_msg;
+    } = withdraw_msg;
 
     let source = Address::from_str(&source)?;
     let validator = Address::from_str(&validator)?;
-    let (tx, faucet_signer) = tx_msg_into_args(tx, password)?;
+    let (tx, faucet_signer) = tx_msg_into_args(tx_msg, password)?;
 
     let args = args::Withdraw {
         tx,
@@ -174,7 +171,6 @@ pub fn withdraw_tx_args(
 
 #[derive(BorshSerialize, BorshDeserialize)]
 pub struct SubmitTransferMsg {
-    tx: TxMsg,
     source: String,
     target: String,
     token: String,
@@ -194,19 +190,19 @@ pub struct SubmitTransferMsg {
 /// Returns JsError if the tx_msg can't be deserialized or
 /// Rust structs can't be created.
 pub fn transfer_tx_args(
+    transfer_msg: &[u8],
     tx_msg: &[u8],
     password: Option<String>,
     xsk: Option<String>,
 ) -> Result<(args::TxTransfer, Option<Address>), JsError> {
-    let tx_msg = SubmitTransferMsg::try_from_slice(tx_msg)?;
+    let transfer_msg = SubmitTransferMsg::try_from_slice(transfer_msg)?;
     let SubmitTransferMsg {
-        tx,
         source,
         target,
         token,
         amount,
         native_token,
-    } = tx_msg;
+    } = transfer_msg;
 
     let source = match Address::from_str(&source) {
         Ok(v) => Ok(TransferSource::Address(v)),
@@ -236,7 +232,7 @@ pub fn transfer_tx_args(
     let token = Address::from_str(&token)?;
     let denom_amount = DenominatedAmount::from_str(&amount).expect("Amount to be valid.");
     let amount = InputAmount::Unvalidated(denom_amount);
-    let (tx, faucet_signer) = tx_msg_into_args(tx, password)?;
+    let (tx, faucet_signer) = tx_msg_into_args(tx_msg, password)?;
 
     let args = args::TxTransfer {
         tx,
@@ -253,7 +249,6 @@ pub fn transfer_tx_args(
 
 #[derive(BorshSerialize, BorshDeserialize)]
 pub struct SubmitIbcTransferMsg {
-    tx: TxMsg,
     source: String,
     receiver: String,
     token: String,
@@ -276,12 +271,12 @@ pub struct SubmitIbcTransferMsg {
 /// Returns JsError if the tx_msg can't be deserialized or
 /// Rust structs can't be created.
 pub fn ibc_transfer_tx_args(
+    ibc_transfer_msg: &[u8],
     tx_msg: &[u8],
     password: Option<String>,
 ) -> Result<(args::TxIbcTransfer, Option<Address>), JsError> {
-    let tx_msg = SubmitIbcTransferMsg::try_from_slice(tx_msg)?;
+    let ibc_transfer_msg = SubmitIbcTransferMsg::try_from_slice(ibc_transfer_msg)?;
     let SubmitIbcTransferMsg {
-        tx,
         source,
         receiver,
         token,
@@ -290,7 +285,7 @@ pub fn ibc_transfer_tx_args(
         channel_id,
         timeout_height,
         timeout_sec_offset,
-    } = tx_msg;
+    } = ibc_transfer_msg;
 
     let source = Address::from_str(&source)?;
     let token = Address::from_str(&token)?;
@@ -298,7 +293,7 @@ pub fn ibc_transfer_tx_args(
     let amount = InputAmount::Unvalidated(denom_amount);
     let port_id = PortId::from_str(&port_id).expect("Port id to be valid");
     let channel_id = ChannelId::from_str(&channel_id).expect("Channel id to be valid");
-    let (tx, faucet_signer) = tx_msg_into_args(tx, password)?;
+    let (tx, faucet_signer) = tx_msg_into_args(tx_msg, password)?;
 
     let args = args::TxIbcTransfer {
         tx,
@@ -320,7 +315,6 @@ pub fn ibc_transfer_tx_args(
 #[derive(BorshSerialize, BorshDeserialize)]
 pub struct SubmitEthBridgeTransferMsg {
     nut: bool,
-    tx: TxMsg,
     asset: String,
     recipient: String,
     sender: String,
@@ -331,13 +325,13 @@ pub struct SubmitEthBridgeTransferMsg {
 }
 
 pub fn eth_bridge_transfer_tx_args(
+    eth_bridge_transfer_msg: &[u8],
     tx_msg: &[u8],
     password: Option<String>,
 ) -> Result<(args::EthereumBridgePool, Option<Address>), JsError> {
-    let tx_msg = SubmitEthBridgeTransferMsg::try_from_slice(tx_msg)?;
+    let eth_bridge_transfer_msg = SubmitEthBridgeTransferMsg::try_from_slice(eth_bridge_transfer_msg)?;
     let SubmitEthBridgeTransferMsg {
         nut,
-        tx,
         asset,
         recipient,
         sender,
@@ -345,9 +339,9 @@ pub fn eth_bridge_transfer_tx_args(
         fee_amount,
         fee_payer,
         fee_token,
-    } = tx_msg;
+    } = eth_bridge_transfer_msg;
 
-    let (tx, faucet_signer) = tx_msg_into_args(tx, password)?;
+    let (tx, faucet_signer) = tx_msg_into_args(tx_msg, password)?;
     let asset = EthAddress::from_str(&asset).map_err(|e| JsError::new(&format!("{}", e)))?;
     let recipient =
         EthAddress::from_str(&recipient).map_err(|e| JsError::new(&format!("{}", e)))?;
@@ -377,8 +371,7 @@ pub fn eth_bridge_transfer_tx_args(
 }
 
 pub fn tx_args_from_slice(tx_msg_bytes: &[u8]) -> Result<args::Tx, JsError> {
-    let tx_msg = TxMsg::try_from_slice(tx_msg_bytes)?;
-    let (args, _) = tx_msg_into_args(tx_msg, None)?;
+    let (args, _) = tx_msg_into_args(tx_msg_bytes, None)?;
 
     Ok(args)
 }
@@ -395,9 +388,10 @@ pub fn tx_args_from_slice(tx_msg_bytes: &[u8]) -> Result<args::Tx, JsError> {
 ///
 /// Returns JsError if token address is invalid.
 fn tx_msg_into_args(
-    tx_msg: TxMsg,
+    tx_msg: &[u8],
     password: Option<String>,
 ) -> Result<(args::Tx, Option<Address>), JsError> {
+    let tx_msg = TxMsg::try_from_slice(tx_msg)?;
     let TxMsg {
         token,
         fee_amount,

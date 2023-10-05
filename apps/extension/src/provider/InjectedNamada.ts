@@ -1,5 +1,4 @@
 import {
-  AccountType,
   Chain,
   DerivedAccount,
   Namada as INamada,
@@ -51,73 +50,11 @@ export class InjectedNamada implements INamada {
     return new Signer(chainId, this);
   }
 
-  public async submitBond(props: TxMsgProps): Promise<void> {
-    const { txMsg, type } = props;
+  public async submitTx(props: TxMsgProps): Promise<void> {
     return await InjectedProxy.requestMethod<
-      { txMsg: string; type: AccountType },
+      TxMsgProps,
       void
-    >("submitBond", {
-      txMsg,
-      type,
-    });
-  }
-
-  public async submitUnbond(props: TxMsgProps): Promise<void> {
-    const { txMsg, type } = props;
-    return await InjectedProxy.requestMethod<
-      { txMsg: string; type: AccountType },
-      void
-    >("submitUnbond", { txMsg, type });
-  }
-
-  public async submitWithdraw(props: TxMsgProps): Promise<void> {
-    const { txMsg, type } = props;
-    return await InjectedProxy.requestMethod<
-      { txMsg: string; type: AccountType },
-      void
-    >("submitWithdraw", { txMsg, type });
-  }
-
-  public async submitTransfer(props: {
-    txMsg: string;
-    type: AccountType;
-  }): Promise<void> {
-    const { txMsg, type } = props;
-    return await InjectedProxy.requestMethod<
-      { txMsg: string; type: AccountType },
-      void
-    >("submitTransfer", {
-      txMsg,
-      type,
-    });
-  }
-
-  public async submitIbcTransfer(props: {
-    txMsg: string;
-    type: AccountType;
-  }): Promise<void> {
-    const { txMsg, type } = props;
-    return await InjectedProxy.requestMethod<
-      { txMsg: string; type: AccountType },
-      void
-    >("submitIbcTransfer", {
-      txMsg,
-      type,
-    });
-  }
-
-  public async submitEthBridgeTransfer(props: {
-    txMsg: string;
-    type: AccountType;
-  }): Promise<void> {
-    const { txMsg, type } = props;
-    return await InjectedProxy.requestMethod<
-      { txMsg: string; type: AccountType },
-      void
-    >("submitEthBridgeTransfer", {
-      txMsg,
-      type,
-    });
+    >("submitTx", props);
   }
 
   public version(): string {

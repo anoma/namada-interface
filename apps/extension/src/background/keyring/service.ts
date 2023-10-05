@@ -185,10 +185,10 @@ export class KeyRingService {
     ];
   }
 
-  async submitBond(txMsg: string, msgId: string): Promise<void> {
+  async submitBond(bondMsg: string, txMsg: string, msgId: string): Promise<void> {
     await this.broadcaster.startTx(msgId, TxType.Bond);
     try {
-      await this._keyRing.submitBond(fromBase64(txMsg));
+      await this._keyRing.submitBond(fromBase64(bondMsg), fromBase64(txMsg));
       this.broadcaster.completeTx(msgId, TxType.Bond, true);
       this.broadcaster.updateStaking();
       this.broadcaster.updateBalance();
@@ -199,10 +199,10 @@ export class KeyRingService {
     }
   }
 
-  async submitUnbond(txMsg: string, msgId: string): Promise<void> {
+  async submitUnbond(unbondMsg: string, txMsg: string, msgId: string): Promise<void> {
     await this.broadcaster.startTx(msgId, TxType.Unbond);
     try {
-      await this._keyRing.submitUnbond(fromBase64(txMsg));
+      await this._keyRing.submitUnbond(fromBase64(unbondMsg), fromBase64(txMsg));
       this.broadcaster.completeTx(msgId, TxType.Unbond, true);
       this.broadcaster.updateStaking();
       this.broadcaster.updateBalance();
@@ -213,10 +213,10 @@ export class KeyRingService {
     }
   }
 
-  async submitWithdraw(txMsg: string, msgId: string): Promise<void> {
+  async submitWithdraw(withdrawMsg: string, txMsg: string, msgId: string): Promise<void> {
     await this.broadcaster.startTx(msgId, TxType.Withdraw);
     try {
-      await this._keyRing.submitWithdraw(fromBase64(txMsg));
+      await this._keyRing.submitWithdraw(fromBase64(withdrawMsg), fromBase64(txMsg));
       this.broadcaster.completeTx(msgId, TxType.Withdraw, true);
       this.broadcaster.updateStaking();
       this.broadcaster.updateBalance();
@@ -228,6 +228,7 @@ export class KeyRingService {
   }
 
   private async submitTransferChrome(
+    transferMsg: string,
     txMsg: string,
     msgId: string,
     password: string,
@@ -244,7 +245,7 @@ export class KeyRingService {
       type: SUBMIT_TRANSFER_MSG_TYPE,
       target: OFFSCREEN_TARGET,
       routerId,
-      data: { txMsg, msgId, password, xsk },
+      data: { transferMsg, txMsg, msgId, password, xsk },
     });
 
     if (result?.error) {
@@ -255,6 +256,7 @@ export class KeyRingService {
   }
 
   private async submitTransferFirefox(
+    transferMsg: string,
     txMsg: string,
     msgId: string,
     password: string,
@@ -262,6 +264,7 @@ export class KeyRingService {
   ): Promise<void> {
     initSubmitTransferWebWorker(
       {
+        transferMsg,
         txMsg,
         msgId,
         password,
@@ -281,14 +284,14 @@ export class KeyRingService {
    * @throws {Error} - if unable to submit transfer
    * @returns {Promise<void>} - resolves when transfer is successfull (resolves for failed VPs)
    */
-  async submitTransfer(txMsg: string, msgId: string): Promise<void> {
+  async submitTransfer(transferMsg: string, txMsg: string, msgId: string): Promise<void> {
     // Passing submit handler simplifies worker code when using Firefox
     const submit = async (password: string, xsk?: string): Promise<void> => {
       const { TARGET } = process.env;
       if (TARGET === "chrome") {
-        this.submitTransferChrome(txMsg, msgId, password, xsk);
+        this.submitTransferChrome(transferMsg, txMsg, msgId, password, xsk);
       } else if (TARGET === "firefox") {
-        this.submitTransferFirefox(txMsg, msgId, password, xsk);
+        this.submitTransferFirefox(transferMsg, txMsg, msgId, password, xsk);
       } else {
         console.warn(
           "Submitting transfers is not supported with your browser."
@@ -299,7 +302,7 @@ export class KeyRingService {
     await this.broadcaster.startTx(msgId, TxType.Transfer);
 
     try {
-      await this._keyRing.submitTransfer(fromBase64(txMsg), submit.bind(this));
+      await this._keyRing.submitTransfer(fromBase64(transferMsg), submit.bind(this));
       this.broadcaster.updateBalance();
     } catch (e) {
       console.warn(e);
@@ -307,11 +310,11 @@ export class KeyRingService {
     }
   }
 
-  async submitIbcTransfer(txMsg: string, msgId: string): Promise<void> {
+  async submitIbcTransfer(ibcTransferMsg: string, txMsg: string, msgId: string): Promise<void> {
     await this.broadcaster.startTx(msgId, TxType.IBCTransfer);
 
     try {
-      await this._keyRing.submitIbcTransfer(fromBase64(txMsg));
+      await this._keyRing.submitIbcTransfer(fromBase64(ibcTransferMsg), fromBase64(txMsg));
       this.broadcaster.completeTx(msgId, TxType.IBCTransfer, true);
       this.broadcaster.updateBalance();
     } catch (e) {
@@ -321,11 +324,14 @@ export class KeyRingService {
     }
   }
 
-  async submitEthBridgeTransfer(txMsg: string, msgId: string): Promise<void> {
+  async submitEthBridgeTransfer(ethBridgeTransferMsg: string, txMsg: string, msgId: string): Promise<void> {
     await this.broadcaster.startTx(msgId, TxType.EthBridgeTransfer);
 
     try {
-      await this._keyRing.submitEthBridgeTransfer(fromBase64(txMsg));
+      await this._keyRing.submitEthBridgeTransfer(
+        fromBase64(ethBridgeTransferMsg),
+        fromBase64(txMsg)
+      );
       this.broadcaster.completeTx(msgId, TxType.EthBridgeTransfer, true);
       this.broadcaster.updateBalance();
     } catch (e) {

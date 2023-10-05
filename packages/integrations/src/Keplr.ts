@@ -148,8 +148,8 @@ class Keplr implements Integration<Account, OfflineSigner> {
         amount,
         portId = "transfer",
         channelId,
-        tx: { feeAmount }
       } = props.ibcProps;
+      const { feeAmount } = props.txProps;
 
       const client = await SigningStargateClient.connectWithSigner(
         this.chain.rpc,

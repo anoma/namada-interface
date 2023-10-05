@@ -9,6 +9,7 @@ import {
 } from "@namada/components";
 import { shortenAddress } from "@namada/utils";
 import { TxType, TxTypeLabel } from "@namada/shared";
+import { SupportedTx } from "@namada/types";
 
 import { ApprovalDetails, Status } from "Approvals/Approvals";
 import {
@@ -22,7 +23,7 @@ import { useRequester } from "hooks/useRequester";
 import { Address } from "App/Accounts/AccountListing.components";
 import { closeCurrentTab } from "utils";
 import { FetchAndStoreMaspParamsMsg, HasMaspParamsMsg } from "provider";
-import { ApproveMsg, SupportedTx, txMap } from "Approvals/types";
+import { SubmitApprovedTxMsg } from "background/approvals";
 
 const { REACT_APP_NAMADA_FAUCET_ADDRESS: faucetAddress } = process.env;
 
@@ -48,12 +49,8 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
     );
 
     try {
-      const Msg: ApproveMsg | undefined = txMap.get(txType as SupportedTx);
       if (!msgId) {
         throw new Error("msgId was not provided!");
-      }
-      if (!Msg) {
-        throw new Error("Unsupported transaction!");
       }
 
       const hasMaspParams = await requester.sendMessage(
@@ -74,7 +71,10 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
         }
       }
 
-      requester.sendMessage(Ports.Background, new Msg(msgId, password));
+      requester.sendMessage(
+        Ports.Background,
+        new SubmitApprovedTxMsg(txType as SupportedTx, msgId, password)
+      );
       setStatus(Status.Completed);
     } catch (e) {
       console.info(e);

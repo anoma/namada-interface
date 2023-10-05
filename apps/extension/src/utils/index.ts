@@ -5,20 +5,12 @@ import {
   DerivedAccount,
   Message,
   SignatureMsgValue,
-  SubmitBondMsgValue,
-  SubmitUnbondMsgValue,
-  SubmitWithdrawMsgValue,
-  TransferMsgValue,
   TxProps,
   TxMsgValue,
-  IbcTransferMsgValue,
 } from "@namada/types";
 import { pick } from "@namada/utils";
 import { AccountStore } from "background/keyring";
 import { ISignature } from "@namada/ledger-namada";
-import { TxType } from "@namada/shared";
-import { deserialize } from "@dao-xyz/borsh";
-import { fromBase64 } from "@cosmjs/encoding";
 
 /**
  * Query the current extension tab and close it
@@ -94,35 +86,10 @@ export const encodeTx = (tx: TxProps): Uint8Array => {
   return msg.encode(txMsgValue);
 };
 
-/**
- * Helper to get encoded Tx information by TxType
- */
-export const getEncodedTxByType = (
-  txType: TxType,
-  txMsg: string
-): Uint8Array => {
-  switch (txType) {
-    case TxType.Transfer: {
-      const { tx } = deserialize(fromBase64(txMsg), TransferMsgValue);
-      return encodeTx(tx);
+export const validateProps = <T,>(object: T, props: (keyof T)[]): void => {
+  props.forEach(prop => {
+    if (!object[prop]) {
+      throw new Error(`${String(prop)} was not provided!`);
     }
-    case TxType.IBCTransfer: {
-      const { tx } = deserialize(fromBase64(txMsg), IbcTransferMsgValue);
-      return encodeTx(tx);
-    }
-    case TxType.Bond: {
-      const { tx } = deserialize(fromBase64(txMsg), SubmitBondMsgValue);
-      return encodeTx(tx);
-    }
-    case TxType.Unbond: {
-      const { tx } = deserialize(fromBase64(txMsg), SubmitUnbondMsgValue);
-      return encodeTx(tx);
-    }
-    case TxType.Withdraw: {
-      const { tx } = deserialize(fromBase64(txMsg), SubmitWithdrawMsgValue);
-      return encodeTx(tx);
-    }
-    default:
-      throw new Error("Valid txType not provided!");
-  }
-};
+  });
+}

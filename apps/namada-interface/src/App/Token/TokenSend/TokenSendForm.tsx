@@ -60,7 +60,7 @@ const getColor = (
 };
 
 export const submitTransferTransaction = async (
-  txArgs: TxTransferArgs
+  txTransferArgs: TxTransferArgs
 ): Promise<void> => {
   const {
     account: { address, chainId, publicKey, type },
@@ -68,19 +68,11 @@ export const submitTransferTransaction = async (
     faucet,
     target,
     token,
-  } = txArgs;
+  } = txTransferArgs;
   const integration = getIntegration(chainId);
   const signer = integration.signer() as Signer;
 
   const transferArgs = {
-    tx: {
-      token: Tokens.NAM.address || "",
-      feeAmount: new BigNumber(0),
-      gasLimit: new BigNumber(20_000),
-      chainId,
-      publicKey: publicKey,
-      signer: faucet ? target : undefined,
-    },
     source: faucet || address,
     target,
     token: Tokens[token].address || Tokens.NAM.address || "",
@@ -88,7 +80,16 @@ export const submitTransferTransaction = async (
     nativeToken: Tokens.NAM.address || "",
   };
 
-  await signer.submitTransfer(transferArgs, type);
+  const txArgs = {
+    token: Tokens.NAM.address || "",
+    feeAmount: new BigNumber(0),
+    gasLimit: new BigNumber(20_000),
+    chainId,
+    publicKey: publicKey,
+    signer: faucet ? target : undefined,
+  };
+
+  await signer.submitTransfer(transferArgs, txArgs, type);
 };
 
 type Props = {

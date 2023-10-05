@@ -18,11 +18,7 @@ export class SubmitBondMsgValue {
   @field({ type: "string" })
   nativeToken!: string;
 
-  @field({ type: TxMsgValue })
-  tx!: InstanceType<typeof TxMsgValue>;
-
   constructor(data: SubmitBondProps) {
     Object.assign(this, data);
-    this.tx = new TxMsgValue(data.tx);
   }
 }

@@ -6,9 +6,6 @@ import { BigNumberSerializer } from "./utils";
 import { TransferProps } from "../types";
 
 export class TransferMsgValue {
-  @field({ type: TxMsgValue })
-  tx!: InstanceType<typeof TxMsgValue>;
-
   @field({ type: "string" })
   source!: string;
 
@@ -26,6 +23,5 @@ export class TransferMsgValue {
 
   constructor(data: TransferProps) {
     Object.assign(this, data);
-    this.tx = new TxMsgValue(data.tx);
   }
 }

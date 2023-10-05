@@ -3,11 +3,13 @@ import {
   BridgeTransferProps,
   IbcTransferProps,
   TokenBalance,
+  TxProps,
 } from "@namada/types";
 
 export type BridgeProps = {
   ibcProps?: IbcTransferProps;
   bridgeProps?: BridgeTransferProps;
+  txProps: TxProps;
 };
 
 export interface Integration<T, S> {

@@ -20,7 +20,8 @@ import {
   SDK_KEY,
   TabStore,
 } from "background/keyring";
-import { encodeSignature, generateId, getEncodedTxByType } from "utils";
+import { TxStore } from "background/approvals";
+import { encodeSignature, generateId } from "utils";
 import { ExtensionBroadcaster, ExtensionRequester } from "extension";
 
 export const LEDGERSTORE_KEY = "ledger-store";
@@ -35,7 +36,7 @@ export class LedgerService {
     protected readonly kvStore: KVStore<AccountStore[]>,
     protected readonly sdkStore: KVStore<Record<string, string>>,
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
-    protected readonly txStore: KVStore<string>,
+    protected readonly txStore: KVStore<TxStore>,
     protected readonly revealedPKStore: KVStore<string[]>,
     protected readonly chainId: string,
     protected readonly sdk: Sdk,
@@ -70,6 +71,7 @@ export class LedgerService {
 
       const bytes = await this.sdk.build_tx(
         TxType.RevealPK,
+        new Uint8Array(), // TODO: this is a dummy value. Is there a cleaner way?
         fromBase64(txMsg),
         publicKey
       );
@@ -97,10 +99,13 @@ export class LedgerService {
       // Serialize signatures
       const sig = encodeSignature(signature);
 
-      await this.sdk.submit_signed_reveal_pk(
-        fromBase64(txMsg),
+      const signedTxBytes = await this.sdk.append_signature(
         fromBase64(bytes),
         sig,
+      );
+      await this.sdk.process_tx(
+        signedTxBytes,
+        fromBase64(txMsg)
       );
     } catch (e) {
       console.warn(e);
@@ -113,13 +118,14 @@ export class LedgerService {
     bytes: string,
     signatures: ResponseSign
   ): Promise<void> {
-    const txMsg = await this.txStore.get(msgId);
+    const storeResult = await this.txStore.get(msgId);
 
-    if (!txMsg) {
+    if (!storeResult) {
       throw new Error(`Transaction ${msgId} not found!`);
     }
 
-    const encodedTx = getEncodedTxByType(txType, txMsg);
+    const { txMsg } = storeResult;
+
     const { signature } = signatures;
 
     if (!signature) {
@@ -132,10 +138,13 @@ export class LedgerService {
     await this.broadcaster.startTx(msgId, txType);
 
     try {
-      await this.sdk.submit_signed_tx(
-        encodedTx,
+      const signedTxBytes = await this.sdk.append_signature(
         fromBase64(bytes),
         sig,
+      );
+      await this.sdk.process_tx(
+        signedTxBytes,
+        fromBase64(txMsg)
       );
 
       // Clear pending tx if successful
@@ -159,12 +168,14 @@ export class LedgerService {
     msgId: string,
     address: string
   ): Promise<{ bytes: Uint8Array; path: string }> {
-    const txMsg = await this.txStore.get(msgId);
+    const storeResult = await this.txStore.get(msgId);
 
-    if (!txMsg) {
+    if (!storeResult) {
       console.warn(`txMsg not found for msgId: ${msgId}`);
       throw new Error(`Transfer Transaction ${msgId} not found!`);
     }
+
+    const { txMsg, specificMsg } = storeResult;
 
     const { coinType } = chains[this.chainId].bip44;
 
@@ -182,6 +193,7 @@ export class LedgerService {
 
       const bytes = await this.sdk.build_tx(
         txType,
+        fromBase64(specificMsg),
         fromBase64(txMsg),
         account.publicKey
       );

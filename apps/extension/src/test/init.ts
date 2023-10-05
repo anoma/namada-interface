@@ -24,7 +24,8 @@ import {
 import {
   ApprovalsService,
   init as initApprovals,
-  ApprovedOriginsStore
+  ApprovedOriginsStore,
+  TxStore,
 } from "../background/approvals";
 
 import { Namada } from "provider";
@@ -77,7 +78,7 @@ export const init = async (): Promise<{
   const revealedPKStore = new KVStoreMock<string[]>(KVPrefix.RevealedPK);
   const namadaRouterId = await getNamadaRouterId(extStore);
   const requester = new ExtensionRequester(messenger, namadaRouterId);
-  const txStore = new KVStoreMock<string>(KVPrefix.LocalStorage);
+  const txStore = new KVStoreMock<TxStore>(KVPrefix.LocalStorage);
   const broadcaster = new ExtensionBroadcaster(
     connectedTabsStore,
     chainId,

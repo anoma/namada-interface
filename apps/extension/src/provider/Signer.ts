@@ -11,11 +11,18 @@ import {
   AccountType,
   SubmitBondProps,
   SubmitBondMsgValue,
+  SubmitUnbondProps,
   SubmitUnbondMsgValue,
+  SubmitWithdrawProps,
   SubmitWithdrawMsgValue,
   BridgeTransferProps,
   EthBridgeTransferMsgValue,
+  TxProps,
+  TxMsgValue,
+  Schema,
+  SupportedTx,
 } from "@namada/types";
+import { TxType } from "@namada/shared";
 
 export class Signer implements ISigner {
   constructor(
@@ -36,52 +43,60 @@ export class Signer implements ISigner {
     );
   }
 
+  private async submitTx<T extends Schema, Args>(
+    txType: SupportedTx,
+    constructor: new (args: Args) => T,
+    args: Args,
+    txArgs: TxProps,
+    type: AccountType,
+  ): Promise<void> {
+    const msgValue = new constructor(args);
+    const msg = new Message<T>();
+    const encoded = msg.encode(msgValue);
+
+    const txMsgValue = new TxMsgValue(txArgs);
+    const txMsg = new Message<TxMsgValue>();
+    const txEncoded = txMsg.encode(txMsgValue);
+
+    return await this._namada.submitTx({
+      txType,
+      specificMsg: toBase64(encoded),
+      txMsg: toBase64(txEncoded),
+      type,
+    });
+  }
+
   /**
    * Submit bond transaction
    */
   public async submitBond(
     args: SubmitBondProps,
+    txArgs: TxProps,
     type: AccountType
   ): Promise<void> {
-    const msgValue = new SubmitBondMsgValue(args);
-    const msg = new Message<SubmitBondMsgValue>();
-    const encoded = msg.encode(msgValue);
-
-    return await this._namada.submitBond({
-      txMsg: toBase64(encoded),
-      type,
-    });
+    return this.submitTx(TxType.Bond, SubmitBondMsgValue, args, txArgs, type);
   }
 
   /**
    * Submit unbond transaction
    */
   public async submitUnbond(
-    args: SubmitBondProps,
+    args: SubmitUnbondProps,
+    txArgs: TxProps,
     type: AccountType
   ): Promise<void> {
-    const msgValue = new SubmitUnbondMsgValue(args);
-    const msg = new Message<SubmitUnbondMsgValue>();
-    const encoded = msg.encode(msgValue);
-
-    return await this._namada.submitUnbond({ txMsg: toBase64(encoded), type });
+    return this.submitTx(TxType.Unbond, SubmitUnbondMsgValue, args, txArgs, type);
   }
 
   /**
    * Submit withdraw transaction
    */
   public async submitWithdraw(
-    args: SubmitBondProps,
+    args: SubmitWithdrawProps,
+    txArgs: TxProps,
     type: AccountType
   ): Promise<void> {
-    const msgValue = new SubmitWithdrawMsgValue(args);
-    const msg = new Message<SubmitWithdrawMsgValue>();
-    const encoded = msg.encode(msgValue);
-
-    return await this._namada.submitWithdraw({
-      txMsg: toBase64(encoded),
-      type,
-    });
+    return this.submitTx(TxType.Withdraw, SubmitWithdrawMsgValue, args, txArgs, type);
   }
 
   /**
@@ -89,16 +104,10 @@ export class Signer implements ISigner {
    */
   public async submitTransfer(
     args: TransferProps,
+    txArgs: TxProps,
     type: AccountType
   ): Promise<void> {
-    const transferMsgValue = new TransferMsgValue(args);
-    const transferMessage = new Message<TransferMsgValue>();
-    const serializedTransfer = transferMessage.encode(transferMsgValue);
-
-    return await this._namada.submitTransfer({
-      txMsg: toBase64(serializedTransfer),
-      type,
-    });
+    return this.submitTx(TxType.Transfer, TransferMsgValue, args, txArgs, type);
   }
 
   /**
@@ -106,17 +115,10 @@ export class Signer implements ISigner {
    */
   public async submitIbcTransfer(
     args: IbcTransferProps,
+    txArgs: TxProps,
     type: AccountType
   ): Promise<void> {
-    const ibcTransferMsgValue = new IbcTransferMsgValue(args);
-    const ibcTransferMessage = new Message<IbcTransferMsgValue>();
-    const serializedIbcTransfer =
-      ibcTransferMessage.encode(ibcTransferMsgValue);
-
-    return await this._namada.submitIbcTransfer({
-      txMsg: toBase64(serializedIbcTransfer),
-      type,
-    });
+    return this.submitTx(TxType.IBCTransfer, IbcTransferMsgValue, args, txArgs, type);
   }
 
   /**
@@ -124,16 +126,9 @@ export class Signer implements ISigner {
    */
   public async submitEthBridgeTransfer(
     args: BridgeTransferProps,
+    txArgs: TxProps,
     type: AccountType
   ): Promise<void> {
-    const ibcTransferMsgValue = new EthBridgeTransferMsgValue(args);
-    const ibcTransferMessage = new Message<EthBridgeTransferMsgValue>();
-    const serializedIbcTransfer =
-      ibcTransferMessage.encode(ibcTransferMsgValue);
-
-    return await this._namada.submitEthBridgeTransfer({
-      txMsg: toBase64(serializedIbcTransfer),
-      type,
-    });
+    return this.submitTx(TxType.EthBridgeTransfer, EthBridgeTransferMsgValue, args, txArgs, type);
   }
 }

@@ -9,9 +9,6 @@ export class EthBridgeTransferMsgValue {
   @field({ type: "bool" })
   nut!: boolean;
 
-  @field({ type: TxMsgValue })
-  tx!: InstanceType<typeof TxMsgValue>;
-
   @field({ type: "string" })
   asset!: string;
 
@@ -35,6 +32,5 @@ export class EthBridgeTransferMsgValue {
 
   constructor(data: BridgeTransferProps) {
     Object.assign(this, data);
-    this.tx = new TxMsgValue(data.tx);
   }
 }

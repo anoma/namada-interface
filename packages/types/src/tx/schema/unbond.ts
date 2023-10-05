@@ -15,11 +15,7 @@ export class SubmitUnbondMsgValue {
   @field(BigNumberSerializer)
   amount!: BigNumber;
 
-  @field({ type: TxMsgValue })
-  tx!: InstanceType<typeof TxMsgValue>;
-
   constructor(data: SubmitUnbondProps) {
     Object.assign(this, data);
-    this.tx = new TxMsgValue(data.tx);
   }
 }

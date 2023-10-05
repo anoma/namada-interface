@@ -10,11 +10,7 @@ export class SubmitWithdrawMsgValue {
   @field({ type: "string" })
   validator!: string;
 
-  @field({ type: TxMsgValue })
-  tx!: TxMsgValue;
-
   constructor(data: SubmitWithdrawProps) {
     Object.assign(this, data);
-    this.tx = new TxMsgValue({ ...data.tx, publicKey: data.tx.publicKey });
   }
 }

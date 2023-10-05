@@ -1,16 +1,13 @@
 import {
-  AccountType,
   Namada as INamada,
   Chain,
   DerivedAccount,
+  TxMsgProps,
 } from "@namada/types";
 import { Ports, MessageRequester } from "router";
 
 import {
-  ApproveTransferMsg,
-  ApproveBondMsg,
-  ApproveUnbondMsg,
-  ApproveWithdrawMsg,
+  ApproveTxMsg,
   ApproveConnectInterfaceMsg,
   GetChainMsg,
   GetChainsMsg,
@@ -20,8 +17,6 @@ import {
   HasMaspParamsMsg,
   CheckDurabilityMsg,
   QueryBalancesMsg,
-  ApproveIbcTransferMsg,
-  ApproveEthBridgeTransferMsg,
 } from "./messages";
 
 export class Namada implements INamada {
@@ -97,69 +92,15 @@ export class Namada implements INamada {
     );
   }
 
-  public async submitBond(props: {
-    txMsg: string;
-    type: AccountType;
-  }): Promise<void> {
-    const { txMsg, type } = props;
+  public async submitTx(props: TxMsgProps): Promise<void> {
     return await this.requester?.sendMessage(
       Ports.Background,
-      new ApproveBondMsg(txMsg, type)
-    );
-  }
-
-  public async submitUnbond(props: {
-    txMsg: string;
-    type: AccountType;
-  }): Promise<void> {
-    const { txMsg, type } = props;
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new ApproveUnbondMsg(txMsg, type)
-    );
-  }
-
-  public async submitWithdraw(props: {
-    txMsg: string;
-    type: AccountType;
-  }): Promise<void> {
-    const { txMsg, type } = props;
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new ApproveWithdrawMsg(txMsg, type)
-    );
-  }
-
-  public async submitTransfer(props: {
-    txMsg: string;
-    type: AccountType;
-  }): Promise<void> {
-    const { txMsg, type } = props;
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new ApproveTransferMsg(txMsg, type)
-    );
-  }
-
-  public async submitIbcTransfer(props: {
-    txMsg: string;
-    type: AccountType;
-  }): Promise<void> {
-    const { txMsg, type } = props;
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new ApproveIbcTransferMsg(txMsg, type)
-    );
-  }
-
-  public async submitEthBridgeTransfer(props: {
-    txMsg: string;
-    type: AccountType;
-  }): Promise<void> {
-    const { txMsg, type } = props;
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new ApproveEthBridgeTransferMsg(txMsg, type)
+      new ApproveTxMsg(
+        props.txType,
+        props.specificMsg,
+        props.txMsg,
+        props.type
+      )
     );
   }
 

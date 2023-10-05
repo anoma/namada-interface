@@ -84,19 +84,19 @@ export const EthereumBridge = (): JSX.Element => {
       {
         bridgeProps: {
           nut: Boolean(Tokens[tokenSymbol as TokenType]?.isNut),
-          tx: {
-            token: Tokens.NAM.address || "",
-            feeAmount: new BigNumber(0),
-            gasLimit: new BigNumber(20_000),
-            publicKey: account.details.publicKey,
-            chainId,
-          },
           asset: Tokens[tokenSymbol as TokenType]?.nativeAddress || "",
           recipient,
           sender: account.details.address,
           amount,
           feeAmount,
           feeToken: Tokens[feeTokenSymbol as TokenType]?.address || "",
+        },
+        txProps: {
+          token: Tokens.NAM.address || "",
+          feeAmount: new BigNumber(0),
+          gasLimit: new BigNumber(20_000),
+          publicKey: account.details.publicKey,
+          chainId,
         },
       },
       account.details.type

@@ -1,5 +1,11 @@
-import { AccountType, Chain, DerivedAccount } from "@namada/types";
+import {
+  AccountType,
+  Chain,
+  DerivedAccount,
+  SupportedTx
+} from "@namada/types";
 import { Message } from "router";
+import { validateProps } from "utils";
 
 /**
  * Message for use with providers: These messages are called outside of the
@@ -16,11 +22,7 @@ enum Route {
 enum MessageType {
   ApproveConnectInterface = "approve-connect-interface",
   QueryAccounts = "query-accounts",
-  ApproveTransfer = "approve-transfer",
-  ApproveIbcTransfer = "approve-ibc-transfer",
-  ApproveBond = "approve-bond",
-  ApproveUnbond = "approve-unbond",
-  ApproveWithdraw = "approve-withdraw",
+  ApproveTx = "approve-tx",
   QueryBalances = "query-balances",
   SubmitIbcTransfer = "submit-ibc-transfer",
   SubmitLedgerTransfer = "submit-ledger-transfer",
@@ -184,23 +186,22 @@ export class QueryBalancesMsg extends Message<
   }
 }
 
-export class ApproveTransferMsg extends Message<void> {
+export class ApproveTxMsg extends Message<void> {
   public static type(): MessageType {
-    return MessageType.ApproveTransfer;
+    return MessageType.ApproveTx;
   }
 
   constructor(
+    public readonly txType: SupportedTx,
     public readonly txMsg: string,
+    public readonly specificMsg: string,
     public readonly accountType: AccountType
   ) {
     super();
   }
 
   validate(): void {
-    if (!this.txMsg) {
-      throw new Error("txMsg was not provided!");
-    }
-    return;
+    validateProps(this, ["txType", "txMsg", "specificMsg", "accountType"]);
   }
 
   route(): string {
@@ -208,158 +209,7 @@ export class ApproveTransferMsg extends Message<void> {
   }
 
   type(): string {
-    return ApproveTransferMsg.type();
-  }
-}
-
-export class ApproveIbcTransferMsg extends Message<void> {
-  public static type(): MessageType {
-    return MessageType.ApproveIbcTransfer;
-  }
-
-  constructor(
-    public readonly txMsg: string,
-    public readonly accountType: AccountType
-  ) {
-    super();
-  }
-
-  validate(): void {
-    if (!this.txMsg) {
-      throw new Error("txMsg was not provided!");
-    }
-    return;
-  }
-
-  route(): string {
-    return Route.Approvals;
-  }
-
-  type(): string {
-    return ApproveIbcTransferMsg.type();
-  }
-}
-
-export class ApproveEthBridgeTransferMsg extends Message<void> {
-  public static type(): MessageType {
-    return MessageType.ApproveEthBridgeTransfer;
-  }
-
-  constructor(
-    public readonly txMsg: string,
-    public readonly accountType: AccountType
-  ) {
-    super();
-  }
-
-  validate(): void {
-    if (!this.txMsg) {
-      throw new Error("txMsg was not provided!");
-    }
-    return;
-  }
-
-  route(): string {
-    return Route.Approvals;
-  }
-
-  type(): string {
-    return ApproveEthBridgeTransferMsg.type();
-  }
-}
-
-export class ApproveBondMsg extends Message<void> {
-  public static type(): MessageType {
-    return MessageType.ApproveBond;
-  }
-
-  constructor(
-    public readonly txMsg: string,
-    public readonly accountType: AccountType
-  ) {
-    super();
-  }
-
-  validate(): void {
-    if (!this.txMsg) {
-      throw new Error("txMsg was not provided!");
-    }
-    if (!this.accountType) {
-      throw new Error("accountType was not provided!");
-    }
-    return;
-  }
-
-  route(): string {
-    return Route.Approvals;
-  }
-
-  type(): string {
-    return ApproveBondMsg.type();
-  }
-}
-
-export class ApproveUnbondMsg extends Message<void> {
-  public static type(): MessageType {
-    return MessageType.ApproveUnbond;
-  }
-
-  constructor(
-    public readonly txMsg: string,
-    public readonly accountType: AccountType
-  ) {
-    super();
-  }
-
-  validate(): void {
-    if (!this.txMsg) {
-      throw new Error("txMsg was not provided!");
-    }
-    if (!this.accountType) {
-      throw new Error("accountType was not provided!");
-    }
-
-    return;
-  }
-
-  route(): string {
-    return Route.Approvals;
-  }
-
-  type(): string {
-    return ApproveUnbondMsg.type();
-  }
-}
-
-export class ApproveWithdrawMsg extends Message<void> {
-  public static type(): MessageType {
-    return MessageType.ApproveWithdraw;
-  }
-
-  constructor(
-    public readonly txMsg: string,
-    public readonly accountType: AccountType
-  ) {
-    super();
-  }
-
-  validate(): void {
-    if (!this.txMsg) {
-      throw new Error("An encoded txMsg is required!");
-    }
-    if (!this.accountType) {
-      throw new Error("accountType was not provided!");
-    }
-
-    return;
-  }
-
-  route(): string {
-    return Route.Approvals;
-  }
-
-  type(): string {
-    return ApproveWithdrawMsg.type();
+    return ApproveTxMsg.type();
   }
 }
 

@@ -53,9 +53,9 @@ export default class Namada implements Integration<Account, Signer> {
   ): Promise<void> {
     const signer = this._namada?.getSigner(this.chain.chainId);
     if (props.ibcProps) {
-      return await signer?.submitIbcTransfer(props.ibcProps, type);
+      return await signer?.submitIbcTransfer(props.ibcProps, props.txProps, type);
     } else if (props.bridgeProps) {
-      return await signer?.submitEthBridgeTransfer(props.bridgeProps, type);
+      return await signer?.submitEthBridgeTransfer(props.bridgeProps, props.txProps, type);
     }
 
     return Promise.reject("Invalid bridge transfer props!");
