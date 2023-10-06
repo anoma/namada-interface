@@ -1,4 +1,5 @@
 import BigNumber from "bignumber.js";
+import { TokenInfo } from "./tokens";
 
 export type SubmitBondProps = {
   validator: string;
@@ -48,7 +49,7 @@ export type IbcTransferProps = {
   tx: TxProps;
   source: string;
   receiver: string;
-  token: string;
+  token: TokenInfo;
   amount: BigNumber;
   portId: string;
   channelId: string;

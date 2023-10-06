@@ -35,6 +35,7 @@ export class IbcTransferMsgValue {
 
   constructor(data: IbcTransferProps) {
     Object.assign(this, data);
+    this.token = data.token.address
     this.tx = new TxMsgValue(data.tx);
   }
 }

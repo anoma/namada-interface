@@ -67,7 +67,7 @@ export const submitIbcTransfer = async (
         },
         source: address,
         receiver: target,
-        token: Tokens[token as TokenType]?.address || "",
+        token,
         amount,
         portId,
         channelId,
@@ -81,6 +81,7 @@ const IBCTransfer = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
+  const [currentBalance, setCurrentBalance] = useState(new BigNumber(0));
   const { channelsByChain = {} } = useAppSelector<ChannelsState>(
     (state) => state.channels
   );
@@ -110,22 +111,6 @@ const IBCTransfer = (): JSX.Element => {
 
   const [integration, isConnectingToExtension, withConnection] =
     useIntegrationConnection(destinationChain.chainId);
-  const chain = chains[chainId];
-  const extensionAlias = Extensions[destinationChain.extension.id].alias;
-
-  const extensionAttachStatus = useUntilIntegrationAttached(chain);
-  const currentExtensionAttachStatus =
-    extensionAttachStatus[chain.extension.id];
-
-  const channels =
-    channelsByChain[chainId] && channelsByChain[chainId][selectedChainId]
-      ? channelsByChain[chainId][selectedChainId]
-      : [];
-
-  const selectChannelsData = channels.map((channel: string) => ({
-    value: channel,
-    label: channel,
-  }));
 
   const [amount, setAmount] = useState<BigNumber>(new BigNumber(0));
   const [selectedChannelId, setSelectedChannelId] = useState("");
@@ -136,7 +121,58 @@ const IBCTransfer = (): JSX.Element => {
   const [destinationAccountData, setDestinationAccountData] = useState<
     Option<string>[]
   >([]);
+
+  const [sourceAccount, setSourceAccount] = useState<Account>();
+  const [token, setToken] = useState<TokenType>();
+
+  const chain = chains[chainId];
+  const extensionAlias = Extensions[destinationChain.extension.id].alias;
+
+  const extensionAttachStatus = useUntilIntegrationAttached(chain);
+  const currentExtensionAttachStatus =
+    extensionAttachStatus[chain.extension.id];
+
+  const channels =
+    channelsByChain[chainId] && channelsByChain[chainId][selectedChainId]
+      ? [...channelsByChain[chainId][selectedChainId]].reverse()
+      : [];
+
+  const selectChannelsData = channels.map((channel: string) => ({
+    value: channel,
+    label: channel,
+  }));
+
   const accounts = Object.values(derived[chainId]);
+  const sourceAccounts = accounts.filter(({ details }) => !details.isShielded);
+  const tokenData: Option<string>[] = sourceAccounts.flatMap(
+    ({ balance, details }) => {
+      const { address, alias } = details;
+
+      return Object.entries(balance).map(([tokenType, amount]) => {
+        // If token isn't set, set it now
+        if (!token && tokenType) {
+          setToken(tokenType as TokenType)
+        }
+        return {
+          value: `${address}|${tokenType}`,
+          label: `${alias !== "Namada" ? alias + " - " : ""}${Tokens[tokenType as TokenType].coin
+            } (${amount} ${tokenType})`,
+        }
+      });
+    }
+  );
+
+  useEffect(() => {
+    if (sourceAccounts.length > 0) {
+      setSourceAccount(sourceAccounts[0])
+    }
+  }, [sourceAccounts])
+
+  useEffect(() => {
+    if (sourceAccount && token) {
+      setCurrentBalance(sourceAccount.balance[token] || new BigNumber(0));
+    }
+  }, [sourceAccount, token])
 
   useEffect(() => {
     const destinationAccounts = Object.values(derived[selectedChainId]).filter(
@@ -151,34 +187,6 @@ const IBCTransfer = (): JSX.Element => {
     );
     setDestinationAccountData(destinationAccountsData);
   }, [derived, selectedChainId]);
-
-  const sourceAccounts = accounts.filter(({ details }) => !details.isShielded);
-  const [sourceAccount, setSourceAccount] = useState(sourceAccounts[0]);
-
-  const tokenData: Option<string>[] = sourceAccounts.flatMap(
-    ({ balance, details }) => {
-      const { address, alias } = details;
-
-      return Object.entries(balance).map(([tokenType, amount]) => ({
-        value: `${address}|${tokenType}`,
-        label: `${alias !== "Namada" ? alias + " - " : ""}${
-          Tokens[tokenType as TokenType].coin
-        } (${amount} ${tokenType})`,
-      }));
-    }
-  );
-
-  const [token, setToken] = useState<TokenType>("NAM");
-
-  const currentBalance =
-    sourceAccounts.find(
-      ({ details }) => details.address === sourceAccount?.details.address
-    )?.balance[token] || 0;
-
-  const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
-    e.target.select();
-
-  const { portId = "transfer" } = sourceChain.ibc || {};
 
   useEffect(() => {
     // Set recipient to first destination account
@@ -201,11 +209,15 @@ const IBCTransfer = (): JSX.Element => {
       const chains = channelsByChain[chainId] || {};
       const channels = chains[selectedChainId] || [];
       if (channels && channels.length > 0) {
-        setSelectedChannelId(channels[0]);
+        setSelectedChannelId(channels[channels.length - 1]);
       }
     }
   }, [selectedChainId, channelsByChain]);
 
+  const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
+    e.target.select();
+
+  const { portId = "transfer" } = sourceChain.ibc || {};
   const handleAddChannel = (): void => {
     if (channelId) {
       dispatch(
@@ -234,15 +246,17 @@ const IBCTransfer = (): JSX.Element => {
   };
 
   const handleSubmit = (): void => {
-    submitIbcTransfer({
-      account: sourceAccount.details,
-      token,
-      amount,
-      chainId,
-      target: recipient,
-      channelId: selectedChannelId,
-      portId,
-    });
+    if (sourceAccount && token) {
+      submitIbcTransfer({
+        account: sourceAccount.details,
+        token: Tokens[token as TokenType],
+        amount,
+        chainId,
+        target: recipient,
+        channelId: selectedChannelId,
+        portId,
+      });
+    }
   };
 
   const handleConnectExtension = async (): Promise<void> => {
@@ -272,6 +286,9 @@ const IBCTransfer = (): JSX.Element => {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
+  const isAmountValid = (amount: BigNumber, balance: BigNumber): boolean =>
+    amount.isLessThan((token === "ATOM" ? balance.multipliedBy(1_000_000) : balance));
+
   const validateForm = (): boolean => {
     // Validate IBC requirements if selected as bridge type
     if (destinationChain.bridgeType.includes(BridgeType.IBC)) {
@@ -280,8 +297,7 @@ const IBCTransfer = (): JSX.Element => {
       }
     }
 
-    // Validate amounts
-    if (amount.isGreaterThan(currentBalance) || amount.isZero()) {
+    if (!isAmountValid(amount, currentBalance) || amount.isZero()) {
       return false;
     }
 
@@ -298,6 +314,7 @@ const IBCTransfer = (): JSX.Element => {
     setIsFormValid(isValid);
   }, [
     amount,
+    currentBalance,
     destinationChain,
     recipient,
     selectedChainId,
@@ -392,9 +409,9 @@ const IBCTransfer = (): JSX.Element => {
                   currentExtensionAttachStatus === "attached"
                     ? handleConnectExtension
                     : handleDownloadExtension.bind(
-                        null,
-                        destinationChain.extension.url
-                      )
+                      null,
+                      destinationChain.extension.url
+                    )
                 }
                 loading={
                   currentExtensionAttachStatus === "pending" ||
@@ -407,7 +424,7 @@ const IBCTransfer = (): JSX.Element => {
                 }
               >
                 {currentExtensionAttachStatus === "attached" ||
-                currentExtensionAttachStatus === "pending"
+                  currentExtensionAttachStatus === "pending"
                   ? `Load accounts from ${extensionAlias} Extension`
                   : "Click to download the extension"}
               </Button>
@@ -443,7 +460,7 @@ const IBCTransfer = (): JSX.Element => {
               }}
               onFocus={handleFocus}
               error={
-                amount.isLessThanOrEqualTo(currentBalance)
+                isAmountValid(amount, currentBalance) || amount.isZero()
                   ? undefined
                   : "Invalid amount!"
               }

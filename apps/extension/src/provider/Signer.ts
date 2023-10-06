@@ -21,7 +21,7 @@ export class Signer implements ISigner {
   constructor(
     protected readonly chainId: string,
     private readonly _namada: Namada
-  ) {}
+  ) { }
 
   public async accounts(): Promise<Account[] | undefined> {
     return (await this._namada.accounts(this.chainId))?.map(

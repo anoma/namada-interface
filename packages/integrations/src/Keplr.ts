@@ -10,14 +10,19 @@ import {
   SigningStargateClientOptions,
 } from "@cosmjs/stargate";
 import { Coin } from "@cosmjs/launchpad";
-import Long from "long";
+// import Long from "long";
+import BigNumber from "bignumber.js";
 
 import {
   Account,
   AccountType,
   Chain,
-  CosmosTokens,
+  CosmosMinDenom,
+  CosmosTokenType,
   TokenBalance,
+  TokenType,
+  minDenomByToken,
+  tokenByMinDenom,
 } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
 import { BridgeProps, Integration } from "./types/Integration";
@@ -143,6 +148,7 @@ class Keplr implements Integration<Account, OfflineSigner> {
         amount,
         portId = "transfer",
         channelId,
+        tx: { feeAmount }
       } = props.ibcProps;
 
       const client = await SigningStargateClient.connectWithSigner(
@@ -152,27 +158,30 @@ class Keplr implements Integration<Account, OfflineSigner> {
       );
 
       const fee = {
-        amount: coins(2000, CosmosTokens[token]),
+        amount: coins(feeAmount.toString(), "uatom"),
         gas: "222000",
       };
 
       const response = await client.sendIbcTokens(
         source,
         receiver,
-        coin(amount.toString(), CosmosTokens[token]),
+        coin(amount.toString(), minDenomByToken(token.symbol as CosmosTokenType)),
         portId,
         channelId,
-        {
-          revisionHeight: Long.fromNumber(123),
-          revisionNumber: Long.fromNumber(456),
-        },
-        Math.floor(Date.now() / 1000) + 60,
+        // TODO: Should we enable timeout height versus timestamp?
+        // {
+        //   revisionHeight: Long.fromNumber(0),
+        //   revisionNumber: Long.fromNumber(0),
+        // },
+        undefined, // timeout height
+        Math.floor(Date.now() / 1000) + 60, // timeout timestamp
         fee,
-        "IBC Transfer Keplr<->Namada"
+        `${this.chain.alias} (${this.chain.chainId})->Namada`
       );
 
       if (response.code !== 0) {
-        return Promise.reject(`Transaction failed with code ${response.code}!`);
+        console.error("Transaction failed:", { response })
+        return Promise.reject(`Transaction failed with code ${response.code}! Message: ${response.rawLog}`);
       }
 
       return;
@@ -183,12 +192,17 @@ class Keplr implements Integration<Account, OfflineSigner> {
 
   public async queryBalances(owner: string): Promise<TokenBalance[]> {
     const client = await StargateClient.connect(this.chain.rpc);
+    const balances = await client.getAllBalances(owner) || []
 
-    // Query balance for ATOM:
-    return ((await client.getAllBalances(owner)) || []).map((coin: Coin) => ({
-      token: CosmosTokens[coin.denom] || "ATOM",
-      amount: coin.amount,
-    }));
+    // TODO: Remove filter once we can handle IBC tokens properly
+    return (balances).filter((balance) => balance.denom === "uatom").map((coin: Coin) => {
+      const token = tokenByMinDenom(coin.denom as CosmosMinDenom) as TokenType;
+      const amount = new BigNumber(coin.amount);
+      return {
+        token,
+        amount: (coin.denom === "uatom" ? amount.dividedBy(1_000_000) : amount).toString(),
+      }
+    });
   }
 }
 
