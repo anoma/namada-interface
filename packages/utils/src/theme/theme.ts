@@ -104,6 +104,7 @@ export type DesignConfiguration = {
   typography: Typography;
   themeConfigurations: {
     colorMode: ColorMode;
+    isLightMode?: boolean;
     themeName: ThemeName;
   };
 };

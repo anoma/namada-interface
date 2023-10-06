@@ -21,6 +21,8 @@ export type InputProps = {
   onFocus?: FocusEventHandler<HTMLInputElement>;
   onPaste?: React.ClipboardEventHandler<HTMLInputElement>;
   placeholder?: string;
+  step?: number;
+  min?: number;
 };
 
 export const Input = ({
@@ -33,6 +35,8 @@ export const Input = ({
   onPaste,
   onFocus,
   placeholder,
+  step,
+  min,
 }: InputProps): JSX.Element => {
   const [passwordShown, setPasswordShown] = useState(false);
   const togglePasswordShown = (): void => setPasswordShown(!passwordShown);
@@ -131,6 +135,8 @@ export const Input = ({
               onChange={onChangeCallback}
               onFocus={onFocus}
               autoFocus={autoFocus}
+              step={step}
+              min={min}
             />
           </InputWrapper>
           <ErrorTooltip>{error}</ErrorTooltip>
