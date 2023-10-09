@@ -5,31 +5,36 @@ import * as puppeteer from "puppeteer";
 import { ChildProcess } from "child_process";
 
 import {
-  address0Alias,
-  address1,
-  shieldedAddress0,
-  shieldedAddress0Alias,
-  launchPuppeteer,
-  openPopup,
-  setupNamada,
-  startNamada,
-  stopNamada,
-  targetPage,
-  waitForInputValue,
-  waitForXpath,
-} from "./utils";
-import {
+  approveTransaction,
+  approveConnection,
   createAccount,
   importAccount,
   transferFromTransparent,
 } from "./partial";
+import {
+  launchPuppeteer,
+  openPopup,
+  pasteValueInto,
+  setupNamada,
+  startNamada,
+  stopNamada,
+  waitForInputValue,
+  waitForXpath,
+} from "./utils/helpers";
+import {
+  address0Alias,
+  address1,
+  ethAddress0,
+  shieldedAddress0,
+  shieldedAddress0Alias,
+} from "./utils/values";
 
 jest.setTimeout(240000);
 
 let browser: puppeteer.Browser;
 let page: puppeteer.Page;
 
-describe("Namada extension", () => {
+describe("Namada", () => {
   const namRefs = new Set<ChildProcess>();
 
   beforeEach(async function () {
@@ -56,8 +61,8 @@ describe("Namada extension", () => {
     }
   });
 
-  describe("open the popup", () => {
-    test("should open the popup", async () => {
+  describe("popup", () => {
+    test("open the popup", async () => {
       await openPopup(browser, page);
       // Check H1
       const h1 = await page.$eval("h1", (e) => e.innerText);
@@ -149,33 +154,12 @@ describe("Namada extension", () => {
     });
   });
 
-  describe("send transfer (transparent->transparent)", () => {
-    test("should send transfer", async () => {
+  describe("transfer", () => {
+    test("transparent->transparent", async () => {
       const nam = startNamada(namRefs);
 
       await importAccount(browser, page);
-
-      // Click on connect to extension
-      (
-        await waitForXpath<HTMLButtonElement>(
-          page,
-          "//button[contains(., 'Connect to')]"
-        )
-      ).click();
-
-      // Wait for approvals window to show up
-      const at = await browser.waitForTarget((t) =>
-        t.url().includes("approvals.html")
-      );
-      const ap = await targetPage(at);
-
-      // Click approve button
-      (
-        await waitForXpath<HTMLButtonElement>(
-          ap,
-          "//button[contains(., 'Approve')]"
-        )
-      ).click();
+      await approveConnection(browser, page);
 
       await transferFromTransparent(browser, page, {
         targetAddress: address1,
@@ -183,40 +167,207 @@ describe("Namada extension", () => {
 
       await stopNamada(nam);
     });
-  });
 
-  describe("send transfer (transparent->shielded)", () => {
-    test("should send transfer", async () => {
+    test("transparent->shielded", async () => {
       const nam = startNamada(namRefs);
 
       await importAccount(browser, page);
-
-      // Click on connect to extension
-      (
-        await waitForXpath<HTMLButtonElement>(
-          page,
-          "//button[contains(., 'Connect to')]"
-        )
-      ).click();
-
-      // Wait for approvals window to show up
-      const at = await browser.waitForTarget((t) =>
-        t.url().includes("approvals.html")
-      );
-      const ap = await targetPage(at);
-
-      // Click approve button
-      (
-        await waitForXpath<HTMLButtonElement>(
-          ap,
-          "//button[contains(., 'Approve')]"
-        )
-      ).click();
+      await approveConnection(browser, page);
 
       await transferFromTransparent(browser, page, {
         targetAddress: shieldedAddress0,
         transferTimeout: 120000,
       });
+
+      await stopNamada(nam);
+    });
+  });
+
+  describe("bridge", () => {
+    test("add to bridge pool", async () => {
+      const nam = startNamada(namRefs);
+      await importAccount(browser, page);
+      await approveConnection(browser, page);
+
+      // Click on staking button
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Bridge')]"
+        )
+      ).click();
+
+      // Click on "Ethereum" button
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Ethereum')]"
+        )
+      ).click();
+
+      const [recipient, amount, feeAmount] = await page.$$("input");
+      await pasteValueInto(page, recipient, ethAddress0);
+      await amount.type("100");
+
+      const value =
+        (await page.$$eval(
+          "[data-testid='eth-bridge-fee'] option",
+          (options) =>
+            options.find((option) => option.value.includes("NAM"))?.value
+        )) || "";
+
+      await page.select("[data-testid='eth-bridge-fee'] select", value);
+      await feeAmount.type("1");
+
+      // Click on submit button
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Submit')]"
+        )
+      ).click();
+
+      await approveTransaction(browser);
+
+      // Wait for success toast
+      const toast = await page.waitForXPath(
+        "//div[contains(., 'Transaction completed!')]"
+      );
+
+      expect(toast).toBeDefined();
+
+      await stopNamada(nam);
+    });
+  });
+
+  describe("staking", () => {
+    test("bond -> unbond -> withdraw", async () => {
+      jest.setTimeout(360000);
+
+      const nam = startNamada(namRefs);
+
+      await importAccount(browser, page);
+      await approveConnection(browser, page);
+
+      // Click on staking button
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Staking')]"
+        )
+      ).click();
+
+      // Click on validator
+      (
+        await waitForXpath<HTMLSpanElement>(
+          page,
+          "//span[contains(., 'atest1v4')]"
+        )
+      ).click();
+
+      // Click on stake button
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Stake')]"
+        )
+      ).click();
+
+      // Type staking amount
+      const [stakeInput] = await page.$$("input");
+      await stakeInput.type("100");
+
+      // Click confirm
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Confirm')]"
+        )
+      ).click();
+
+      await approveTransaction(browser);
+
+      // Wait for success toast
+      const bondCompletedToast = await page.waitForXPath(
+        "//div[contains(., 'Transaction completed!')]"
+      );
+
+      expect(bondCompletedToast).toBeDefined();
+
+      // Click on unstake
+      (
+        await waitForXpath<HTMLSpanElement>(
+          page,
+          "//span[contains(., 'unstake')]"
+        )
+      ).click();
+
+      await page.waitForNavigation();
+      const [unstakeInput] = await page.$$("input");
+      await unstakeInput.type("100");
+
+      // Click confirm
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Confirm')]"
+        )
+      ).click();
+
+      await approveTransaction(browser);
+
+      // Wait for success toast
+      const unbondCompletedToast = await page.waitForXPath(
+        "//div[contains(., 'Transaction completed!')]"
+      );
+
+      expect(unbondCompletedToast).toBeDefined();
+
+      // Wait for new epoch
+      page.on("dialog", async (dialog) => {
+        await new Promise((resolve) => setTimeout(resolve, 60000));
+        await dialog.accept();
+      });
+
+      await page.evaluate(() =>
+        alert(
+          'E2E info: We need to wait a minute before we can withdraw funds :|\n[do not touch "Ok" :), this window will close automatically]'
+        )
+      );
+
+      // Click on send button
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Staking')]"
+        )
+      ).click();
+      await page.waitForNavigation();
+
+      // Click on validator
+      (
+        await waitForXpath<HTMLSpanElement>(
+          page,
+          "//span[contains(., 'atest1v4')]"
+        )
+      ).click();
+
+      // Click on withdraw
+      (
+        await waitForXpath<HTMLSpanElement>(
+          page,
+          "//span[contains(., 'withdraw')]"
+        )
+      ).click();
+
+      await approveTransaction(browser);
+
+      // Wait for success toast
+      const withdrawCompletedToast = await page.waitForXPath(
+        "//div[contains(., 'Transaction completed!')]"
+      );
+
+      expect(withdrawCompletedToast).toBeDefined();
 
       await stopNamada(nam);
     });

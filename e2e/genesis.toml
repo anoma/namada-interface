@@ -24,6 +24,11 @@ max_commission_rate_change = "0.01"
 net_address = "127.0.0.1:27656"
 
 # Some tokens present at genesis.
+[token.TestERC20]
+address = "atest1v46xsw368psnwwf3xcerqeryxcervvpsxuukye3cxsukgce4x5mrwctyvvekvvnxv33nxvfc0kmacx"
+denom = 6
+[token.TestERC20.balances]
+TestA = "1000"
 
 [token.NAM]
 address = "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5"
@@ -185,10 +190,10 @@ max_signatures_per_transaction = 15
 max_validator_slots = 128
 # Pipeline length (in epochs). Any change in the validator set made in
 # epoch 'n' will become active in epoch 'n + pipeline_len'.
-pipeline_len = 2
+pipeline_len = 0
 # Unbonding length (in epochs). Validators may have their stake slashed
 # for a fault in epoch 'n' up through epoch 'n + unbonding_len'.
-unbonding_len = 3
+unbonding_len = 0
 # Votes per fundamental staking token (namnam) - for testnets this should be 1. For e2e toml, a decimal is used for testing purposes.
 tm_votes_per_token = "0.1"
 # Reward for proposing a block.

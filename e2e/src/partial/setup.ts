@@ -4,8 +4,9 @@ import {
   openInterface,
   openSetup,
   waitForXpath,
-  allowClipboardRead,
   $x,
+  pasteValueInto,
+  allowClipboardRead,
 } from "../utils/helpers";
 import { mnemonic, pwdOrAlias } from "../utils/values";
 
@@ -32,13 +33,10 @@ export const importAccount = async (
   const mnemonicH1 = await page.$eval("h1", (e) => e.innerText);
   expect(mnemonicH1).toEqual("Import Account");
 
-  // Fill mnemonic
   const wordInputs = await page.$$("input");
-  let index = 0;
-  for await (const input of wordInputs) {
-    await input.type(mnemonic[index]);
-    index++;
-  }
+
+  // Fill mnemonic
+  await pasteValueInto(page, wordInputs[5], mnemonic.join(" "));
 
   // Click on import account
   (

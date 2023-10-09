@@ -32,6 +32,12 @@ if [ "$CURRENT_VERSION" != "$VERSION" ]; then
     curl --location --remote-header-name --remote-name https://raw.githubusercontent.com/anoma/namada/${VERSION}/wasm/checksums.json
     mv checksums.json "${NAMADA_DIR}/checksums.json"
 
+    #  Download masp params
+    curl --location --remote-header-name --remote-name https://github.com/anoma/masp-mpc/releases/download/namada-trusted-setup/masp-output.params 
+    curl --location --remote-header-name --remote-name https://github.com/anoma/masp-mpc/releases/download/namada-trusted-setup/masp-convert.params 
+    curl --location --remote-header-name --remote-name https://github.com/anoma/masp-mpc/releases/download/namada-trusted-setup/masp-spend.params
+    mv masp-*.params "${NAMADA_DIR}"
+
     # Download wasms
     CHECKSUMS="${NAMADA_DIR}/checksums.json"
     WASM=""
@@ -84,3 +90,9 @@ else
     find ../apps/extension/build/chrome -type f -name "*.js" -exec sed -i -E "s/dev-test\..{21}/$CHAIN_ID/g" {} +
     find ../apps/namada-interface/build -type f -name "*.js" -exec sed -i -E "s/dev-test\..{21}/$CHAIN_ID/g" {} +
 fi
+
+echo "Fixing CORS"
+find .namada/basedir -type f -name "config.toml" -exec sed -i -E "s/cors_allowed_origins[[:space:]]=[[:space:]]\[\]/cors_allowed_origins = [\"*\"]/g" {} +
+
+echo "Moving MASP params"
+cp .namada/masp-*.params ../apps/namada-interface/build/assets
