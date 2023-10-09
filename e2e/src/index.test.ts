@@ -6,10 +6,9 @@ import { ChildProcess } from "child_process";
 
 import {
   address0Alias,
-  pwdOrAlias,
+  address1,
+  shieldedAddress0,
   shieldedAddress0Alias,
-} from "./utils/values";
-import {
   launchPuppeteer,
   openPopup,
   setupNamada,
@@ -18,8 +17,12 @@ import {
   targetPage,
   waitForInputValue,
   waitForXpath,
-} from "./utils/helpers";
-import { createAccount, importAccount } from "./partial/setup";
+} from "./utils";
+import {
+  createAccount,
+  importAccount,
+  transferFromTransparent,
+} from "./partial";
 
 jest.setTimeout(240000);
 
@@ -146,7 +149,7 @@ describe("Namada extension", () => {
     });
   });
 
-  describe("send transfer", () => {
+  describe("send transfer (transparent->transparent)", () => {
     test("should send transfer", async () => {
       const nam = startNamada(namRefs);
 
@@ -174,69 +177,48 @@ describe("Namada extension", () => {
         )
       ).click();
 
-      // Click on send button
+      await transferFromTransparent(browser, page, {
+        targetAddress: address1,
+      });
+
+      await stopNamada(nam);
+    });
+  });
+
+  describe("send transfer (transparent->shielded)", () => {
+    test("should send transfer", async () => {
+      const nam = startNamada(namRefs);
+
+      await importAccount(browser, page);
+
+      // Click on connect to extension
       (
         await waitForXpath<HTMLButtonElement>(
           page,
-          "//button[contains(., 'Send')]"
-        )
-      ).click();
-
-      // Navigate to transparent transfers
-      (
-        await waitForXpath<HTMLButtonElement>(
-          page,
-          "//button[contains(., 'Transparent')]"
-        )
-      ).click();
-
-      // Fill transfer data
-      const [recipentInput, amountInput] = await page.$$("input");
-      await recipentInput.type(
-        "atest1d9khqw36x9zr2s6pxymrv3z9xcen2s33gvmrxsfjgccnzd2rxez5z3fex5urgsjzg4qnsw2pef6prn"
-      );
-      await amountInput.type("10");
-
-      // Continue transfer
-      (
-        await waitForXpath<HTMLButtonElement>(
-          page,
-          "//button[contains(., 'Continue')]"
+          "//button[contains(., 'Connect to')]"
         )
       ).click();
 
       // Wait for approvals window to show up
-      const approvalsTarget = await browser.waitForTarget((t) =>
+      const at = await browser.waitForTarget((t) =>
         t.url().includes("approvals.html")
       );
-      const approvalsPage = await targetPage(approvalsTarget);
+      const ap = await targetPage(at);
 
       // Click approve button
       (
         await waitForXpath<HTMLButtonElement>(
-          approvalsPage,
+          ap,
           "//button[contains(., 'Approve')]"
         )
       ).click();
 
-      (await approvalsPage.$("input"))?.type(pwdOrAlias);
-
-      // Click approve auth button
-      (
-        await waitForXpath<HTMLButtonElement>(
-          approvalsPage,
-          "//button[contains(., 'Authenticate')]"
-        )
-      ).click();
-
-      // Wait for success toast
-      const toast = await page.waitForXPath(
-        "//div[contains(., 'Transaction completed!')]",
-        { timeout: 60_000 }
-      );
+      await transferFromTransparent(browser, page, {
+        targetAddress: shieldedAddress0,
+        transferTimeout: 120000,
+      });
 
       await stopNamada(nam);
-      expect(toast).toBeDefined();
     });
   });
 });
