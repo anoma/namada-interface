@@ -26,7 +26,10 @@ import { persistor, store, useAppDispatch, useAppSelector } from "store";
 import { Toasts } from "App/Toast";
 import { SettingsState } from "slices/settings";
 import { chains } from "@namada/chains";
-import { useIntegration, useUntilIntegrationAttached } from "@namada/hooks";
+import {
+  useIntegrationConnection,
+  useUntilIntegrationAttached,
+} from "@namada/hooks";
 import { Outlet } from "react-router-dom";
 import { addAccounts, fetchBalances } from "slices/accounts";
 import { Account } from "@namada/types";
@@ -60,17 +63,15 @@ function App(): JSX.Element {
   const toggleColorMode = (): void => {
     setColorMode((currentMode) => (currentMode === "dark" ? "light" : "dark"));
   };
-
   const { chainId, connectedChains } = useAppSelector<SettingsState>(
     (state) => state.settings
   );
   const chain = chains[chainId];
-
-  const integration = useIntegration(chainId);
+  const [integration] = useIntegrationConnection("namada");
 
   useEffect(() => storeColorMode(colorMode), [colorMode]);
 
-  const extensionAttachStatus = useUntilIntegrationAttached(chain);
+  const extensionAttachStatus = useUntilIntegrationAttached("namada");
   const currentExtensionAttachStatus =
     extensionAttachStatus[chain.extension.id];
 

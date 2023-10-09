@@ -58,11 +58,11 @@ export const AccountOverview = (): JSX.Element => {
   );
 
   const [integration, isConnectingToExtension, withConnection] =
-    useIntegrationConnection(chainId);
+    useIntegrationConnection("namada");
   const chain = chains[chainId];
   const extensionAlias = Extensions[chain.extension.id].alias;
 
-  const extensionAttachStatus = useUntilIntegrationAttached(chain);
+  const extensionAttachStatus = useUntilIntegrationAttached("namada");
   const currentExtensionAttachStatus =
     extensionAttachStatus[chain.extension.id];
 
@@ -159,7 +159,7 @@ export const AccountOverview = (): JSX.Element => {
                 }
               >
                 {currentExtensionAttachStatus === "attached" ||
-                  currentExtensionAttachStatus === "pending"
+                currentExtensionAttachStatus === "pending"
                   ? `Connect to ${extensionAlias} Extension`
                   : "Click to download the extension"}
               </Button>

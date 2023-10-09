@@ -23,7 +23,6 @@ import {
 } from "@namada/components";
 
 import {
-  getIntegration,
   useIntegrationConnection,
   useUntilIntegrationAttached,
 } from "@namada/hooks";
@@ -41,6 +40,7 @@ import {
   IBCTransferFormContainer,
 } from "./IBCTransfer.components";
 import { TxIbcTransferArgs } from "../types";
+import { extensions } from "@namada/integrations";
 
 export const submitIbcTransfer = async (
   ibcArgs: TxIbcTransferArgs
@@ -53,9 +53,8 @@ export const submitIbcTransfer = async (
     portId,
     channelId,
   } = ibcArgs;
-  const integration = getIntegration(chainId);
 
-  await integration.submitBridgeTransfer(
+  await extensions.namada.submitBridgeTransfer(
     {
       ibcProps: {
         tx: {
@@ -110,7 +109,7 @@ const IBCTransfer = (): JSX.Element => {
   }));
 
   const [integration, isConnectingToExtension, withConnection] =
-    useIntegrationConnection(destinationChain.chainId);
+    useIntegrationConnection("namada");
 
   const [amount, setAmount] = useState<BigNumber>(new BigNumber(0));
   const [selectedChannelId, setSelectedChannelId] = useState("");
@@ -128,7 +127,7 @@ const IBCTransfer = (): JSX.Element => {
   const chain = chains[chainId];
   const extensionAlias = Extensions[destinationChain.extension.id].alias;
 
-  const extensionAttachStatus = useUntilIntegrationAttached(chain);
+  const extensionAttachStatus = useUntilIntegrationAttached("namada");
   const currentExtensionAttachStatus =
     extensionAttachStatus[chain.extension.id];
 
@@ -151,28 +150,29 @@ const IBCTransfer = (): JSX.Element => {
       return Object.entries(balance).map(([tokenType, amount]) => {
         // If token isn't set, set it now
         if (!token && tokenType) {
-          setToken(tokenType as TokenType)
+          setToken(tokenType as TokenType);
         }
         return {
           value: `${address}|${tokenType}`,
-          label: `${alias !== "Namada" ? alias + " - " : ""}${Tokens[tokenType as TokenType].coin
-            } (${amount} ${tokenType})`,
-        }
+          label: `${alias !== "Namada" ? alias + " - " : ""}${
+            Tokens[tokenType as TokenType].coin
+          } (${amount} ${tokenType})`,
+        };
       });
     }
   );
 
   useEffect(() => {
     if (sourceAccounts.length > 0) {
-      setSourceAccount(sourceAccounts[0])
+      setSourceAccount(sourceAccounts[0]);
     }
-  }, [sourceAccounts])
+  }, [sourceAccounts]);
 
   useEffect(() => {
     if (sourceAccount && token) {
       setCurrentBalance(sourceAccount.balance[token] || new BigNumber(0));
     }
-  }, [sourceAccount, token])
+  }, [sourceAccount, token]);
 
   useEffect(() => {
     const destinationAccounts = Object.values(derived[selectedChainId]).filter(
@@ -287,7 +287,9 @@ const IBCTransfer = (): JSX.Element => {
   };
 
   const isAmountValid = (amount: BigNumber, balance: BigNumber): boolean =>
-    amount.isLessThan((token === "ATOM" ? balance.multipliedBy(1_000_000) : balance));
+    amount.isLessThan(
+      token === "ATOM" ? balance.multipliedBy(1_000_000) : balance
+    );
 
   const validateForm = (): boolean => {
     // Validate IBC requirements if selected as bridge type
@@ -409,9 +411,9 @@ const IBCTransfer = (): JSX.Element => {
                   currentExtensionAttachStatus === "attached"
                     ? handleConnectExtension
                     : handleDownloadExtension.bind(
-                      null,
-                      destinationChain.extension.url
-                    )
+                        null,
+                        destinationChain.extension.url
+                      )
                 }
                 loading={
                   currentExtensionAttachStatus === "pending" ||
@@ -424,7 +426,7 @@ const IBCTransfer = (): JSX.Element => {
                 }
               >
                 {currentExtensionAttachStatus === "attached" ||
-                  currentExtensionAttachStatus === "pending"
+                currentExtensionAttachStatus === "pending"
                   ? `Load accounts from ${extensionAlias} Extension`
                   : "Click to download the extension"}
               </Button>

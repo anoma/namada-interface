@@ -22,7 +22,7 @@ import {
 } from "./EthereumBridge.components";
 import { useState } from "react";
 import BigNumber from "bignumber.js";
-import { getIntegration } from "@namada/hooks";
+import { extensions } from "@namada/integrations";
 
 const SUPPORTED_TOKENS = ["TESTERC20", "NUTTESTERC20"];
 type FormFields = "recipient" | "amount" | "feeAmount";
@@ -79,7 +79,7 @@ export const EthereumBridge = (): JSX.Element => {
       (account) => account?.details?.address === accountId
     ) as Account;
 
-    const integration = getIntegration(chainId);
+    const integration = extensions.namada;
     await integration.submitBridgeTransfer(
       {
         bridgeProps: {

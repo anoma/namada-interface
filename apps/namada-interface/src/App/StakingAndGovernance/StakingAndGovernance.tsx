@@ -43,7 +43,7 @@ export const StakingAndGovernance = (): JSX.Element => {
 
   const accounts = Object.values(derivedAccounts);
   const [_integration, _status, withConnection] =
-    useIntegrationConnection(chainId);
+    useIntegrationConnection("namada");
 
   const { validators, selectedValidatorId, myStakingPositions } =
     stakingAndGovernance;

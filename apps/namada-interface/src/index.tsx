@@ -6,18 +6,16 @@ import { init as initShared } from "@namada/shared/src/init";
 import "./index.css";
 import { store } from "store/store";
 import { getRouter } from "./App/AppRoutes";
-import { ExtensionEventsProvider, IntegrationsProvider } from "services";
+import { ExtensionEventsProvider } from "services";
 import { Provider } from "react-redux";
 
 ReactDOM.render(
   <React.StrictMode>
-    <IntegrationsProvider>
-      <Provider store={store}>
-        <ExtensionEventsProvider>
-          <RouterProvider router={getRouter()} />
-        </ExtensionEventsProvider>
-      </Provider>
-    </IntegrationsProvider>
+    <Provider store={store}>
+      <ExtensionEventsProvider>
+        <RouterProvider router={getRouter()} />
+      </ExtensionEventsProvider>
+    </Provider>
   </React.StrictMode>,
   document.getElementById("root")
 );

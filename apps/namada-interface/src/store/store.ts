@@ -26,6 +26,7 @@ const ChainIdTransform = createTransform(
   },
   (outboundState: SettingsState) => {
     const savedChainId = outboundState.chainId;
+    //TODO: check if chains ENV changed
     const chainId = savedChainId in chains ? savedChainId : defaultChainId;
 
     return { ...outboundState, chainId };

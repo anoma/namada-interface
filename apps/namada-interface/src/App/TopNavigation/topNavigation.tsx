@@ -3,19 +3,9 @@ import { ThemeContext } from "styled-components";
 import { useNavigate, NavigateFunction, Location } from "react-router-dom";
 
 import { ColorMode } from "@namada/utils";
-import { chains } from "@namada/chains";
-import { Chain } from "@namada/types";
-import {
-  Icon,
-  IconName,
-  Image,
-  ImageName,
-  Toggle,
-  Select,
-} from "@namada/components";
+import { Icon, IconName, Image, ImageName, Toggle } from "@namada/components";
 import { useSanitizedLocation } from "@namada/hooks";
 
-import { useAppDispatch, useAppSelector } from "store";
 import { AppStore } from "store/store";
 import {
   TopLevelRoute,
@@ -47,7 +37,6 @@ import {
   MenuCloseButton,
   SubMenuContainer,
 } from "./topNavigation.components";
-import { setChainId, SettingsState } from "slices/settings";
 import TopNavigationLoggedIn from "./topNavigationLoggedIn";
 
 /**
@@ -113,28 +102,12 @@ type SecondMenuRowProps = {
 };
 
 const SecondMenuRow = (props: SecondMenuRowProps): React.ReactElement => {
-  const dispatch = useAppDispatch();
   const { navigate, location } = props;
   const topLevelRoute = locationToTopLevelRoute(location);
   const stakingAndGovernanceSubRoute =
     locationToStakingAndGovernanceSubRoute(location);
   const isSubMenuContentVisible =
     topLevelRoute === TopLevelRoute.StakingAndGovernance;
-  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
-
-  // callback func for select component
-  const handleNetworkSelect = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ): void => {
-    const { value } = event.target;
-    dispatch(setChainId(value));
-  };
-
-  // transform for select component
-  const networks = Object.values(chains).map(({ chainId, alias }: Chain) => ({
-    label: alias,
-    value: chainId,
-  }));
 
   return (
     <TopNavigationSecondRowInnerContainer
@@ -183,14 +156,6 @@ const SecondMenuRow = (props: SecondMenuRowProps): React.ReactElement => {
           </MenuItemForSecondRow>
         </SubMenuContainer>
       )}
-
-      <RightSection>
-        <Select
-          value={chainId}
-          data={networks}
-          onChange={handleNetworkSelect}
-        />
-      </RightSection>
     </TopNavigationSecondRowInnerContainer>
   );
 };

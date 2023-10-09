@@ -46,7 +46,7 @@ class Keplr implements Integration<Account, OfflineSigner> {
    * override keplr instance for testing
    * @param chain
    */
-  constructor(public readonly chain: Chain) { }
+  constructor(public readonly chain: Chain) {}
 
   private init(): void {
     if (!this._keplr) {
@@ -148,7 +148,7 @@ class Keplr implements Integration<Account, OfflineSigner> {
         amount,
         portId = "transfer",
         channelId,
-        tx: { feeAmount }
+        tx: { feeAmount },
       } = props.ibcProps;
 
       const client = await SigningStargateClient.connectWithSigner(
@@ -165,7 +165,10 @@ class Keplr implements Integration<Account, OfflineSigner> {
       const response = await client.sendIbcTokens(
         source,
         receiver,
-        coin(amount.toString(), minDenomByToken(token.symbol as CosmosTokenType)),
+        coin(
+          amount.toString(),
+          minDenomByToken(token.symbol as CosmosTokenType)
+        ),
         portId,
         channelId,
         // TODO: Should we enable timeout height versus timestamp?
@@ -180,8 +183,10 @@ class Keplr implements Integration<Account, OfflineSigner> {
       );
 
       if (response.code !== 0) {
-        console.error("Transaction failed:", { response })
-        return Promise.reject(`Transaction failed with code ${response.code}! Message: ${response.rawLog}`);
+        console.error("Transaction failed:", { response });
+        return Promise.reject(
+          `Transaction failed with code ${response.code}! Message: ${response.rawLog}`
+        );
       }
 
       return;
@@ -192,17 +197,24 @@ class Keplr implements Integration<Account, OfflineSigner> {
 
   public async queryBalances(owner: string): Promise<TokenBalance[]> {
     const client = await StargateClient.connect(this.chain.rpc);
-    const balances = await client.getAllBalances(owner) || []
+    const balances = (await client.getAllBalances(owner)) || [];
 
     // TODO: Remove filter once we can handle IBC tokens properly
-    return (balances).filter((balance) => balance.denom === "uatom").map((coin: Coin) => {
-      const token = tokenByMinDenom(coin.denom as CosmosMinDenom) as TokenType;
-      const amount = new BigNumber(coin.amount);
-      return {
-        token,
-        amount: (coin.denom === "uatom" ? amount.dividedBy(1_000_000) : amount).toString(),
-      }
-    });
+    return balances
+      .filter((balance) => balance.denom === "uatom")
+      .map((coin: Coin) => {
+        const token = tokenByMinDenom(
+          coin.denom as CosmosMinDenom
+        ) as TokenType;
+        const amount = new BigNumber(coin.amount);
+        return {
+          token,
+          amount: (coin.denom === "uatom"
+            ? amount.dividedBy(1_000_000)
+            : amount
+          ).toString(),
+        };
+      });
   }
 }
 

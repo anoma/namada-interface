@@ -3,9 +3,9 @@ import BigNumber from "bignumber.js";
 
 import { Account as AccountDetails, TokenType } from "@namada/types";
 import { chains } from "@namada/chains";
-import { getIntegration } from "@namada/hooks";
 
 import { RootState } from "store";
+import { extensions } from "@namada/integrations";
 
 type ChainId = string;
 type Address = string;
@@ -45,7 +45,7 @@ export const fetchBalances = createAsyncThunk<
   `${ACCOUNTS_ACTIONS_BASE}/${AccountsThunkActions.FetchBalance}`,
   async (_, thunkApi) => {
     const { chainId } = thunkApi.getState().settings;
-    const integration = getIntegration(chainId);
+    const extension = extensions.namada;
     const accounts: Account[] = Object.values(
       thunkApi.getState().accounts.derived[chainId]
     );
@@ -54,7 +54,7 @@ export const fetchBalances = createAsyncThunk<
       accounts.map(async ({ details }) => {
         const { chainId, address } = details;
 
-        const results = await integration.queryBalances(address);
+        const results = await extension.queryBalances(address);
 
         const balance = results.reduce(
           (acc, curr) => ({ ...acc, [curr.token]: new BigNumber(curr.amount) }),
@@ -82,7 +82,6 @@ const accountsSlice = createSlice({
       accounts.forEach((account) => {
         const { address, alias, isShielded, chainId, type, publicKey } =
           account;
-        const currencySymbol = chains[chainId].currency.symbol;
         if (!state.derived[chainId]) {
           state.derived[chainId] = {};
         }
@@ -97,7 +96,7 @@ const accountsSlice = createSlice({
             isShielded,
           },
           balance: {
-            [currencySymbol]: new BigNumber(0),
+            NAM: new BigNumber(0),
           },
         };
       });

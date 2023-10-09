@@ -4,7 +4,6 @@ import { ThemeContext } from "styled-components";
 import QrReader from "react-qr-reader";
 import BigNumber from "bignumber.js";
 
-import { getIntegration } from "@namada/hooks";
 import { Signer, Tokens, TokenType } from "@namada/types";
 import { ColorMode, DesignConfiguration } from "@namada/utils";
 import {
@@ -33,6 +32,7 @@ import { parseTarget } from "./TokenSend";
 import { SettingsState } from "slices/settings";
 import { TopLevelRoute } from "App/types";
 import { TransferType, TxTransferArgs } from "../types";
+import { extensions } from "@namada/integrations";
 
 enum ComponentColor {
   GasButtonBorder,
@@ -69,7 +69,7 @@ export const submitTransferTransaction = async (
     target,
     token,
   } = txArgs;
-  const integration = getIntegration(chainId);
+  const integration = extensions.namada;
   const signer = integration.signer() as Signer;
 
   const transferArgs = {

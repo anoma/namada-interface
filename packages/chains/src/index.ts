@@ -13,3 +13,4 @@ export const chains = {
 };
 
 export * from "./types";
+export { cosmos, namada, ethereum };

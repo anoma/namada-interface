@@ -8,9 +8,9 @@ import { showMaybeNam, mapUndefined } from "@namada/utils";
 import { useAppSelector, RootState } from "store";
 
 type Totals = {
-  totalBonded: BigNumber,
-  totalUnbonded: BigNumber,
-  totalWithdrawable: BigNumber,
+  totalBonded: BigNumber;
+  totalUnbonded: BigNumber;
+  totalWithdrawable: BigNumber;
 };
 
 const selectStakingTotals = (state: RootState): Totals | undefined => {
@@ -50,8 +50,10 @@ const selectTotalNamBalance = (state: RootState): BigNumber => {
   }, new BigNumber(0));
 };
 
-const showTotalIfDefined = (totals: Totals | undefined, key: keyof Totals): string =>
-  showMaybeNam(mapUndefined(t => t[key], totals));
+const showTotalIfDefined = (
+  totals: Totals | undefined,
+  key: keyof Totals
+): string => showMaybeNam(mapUndefined((t) => t[key], totals));
 
 export const StakingBalancesList: React.FC = () => {
   const totals = useAppSelector(selectStakingTotals);
@@ -60,16 +62,24 @@ export const StakingBalancesList: React.FC = () => {
   return (
     <StakingBalances>
       <StakingBalancesLabel>Available for bonding</StakingBalancesLabel>
-      <StakingBalancesValue>NAM {availableForBonding.toString()}</StakingBalancesValue>
+      <StakingBalancesValue>
+        NAM {availableForBonding.toString()}
+      </StakingBalancesValue>
 
       <StakingBalancesLabel>Total Bonded</StakingBalancesLabel>
-      <StakingBalancesValue>{showTotalIfDefined(totals, "totalBonded")}</StakingBalancesValue>
+      <StakingBalancesValue>
+        {showTotalIfDefined(totals, "totalBonded")}
+      </StakingBalancesValue>
 
       <StakingBalancesLabel>Total Unbonded</StakingBalancesLabel>
-      <StakingBalancesValue>{showTotalIfDefined(totals, "totalUnbonded")}</StakingBalancesValue>
+      <StakingBalancesValue>
+        {showTotalIfDefined(totals, "totalUnbonded")}
+      </StakingBalancesValue>
 
       <StakingBalancesLabel>Total Withdrawable</StakingBalancesLabel>
-      <StakingBalancesValue>{showTotalIfDefined(totals, "totalWithdrawable")}</StakingBalancesValue>
+      <StakingBalancesValue>
+        {showTotalIfDefined(totals, "totalWithdrawable")}
+      </StakingBalancesValue>
 
       <StakingBalancesLabel>Pending Rewards</StakingBalancesLabel>
       <StakingBalancesValue>TBD</StakingBalancesValue>
