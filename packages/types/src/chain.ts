@@ -29,7 +29,8 @@ export const Extensions: Record<ExtensionKey, ExtensionInfo> = {
   namada: {
     alias: "Namada",
     id: "namada",
-    url: "https://namada.me/",
+    // TODO: Update to most recent release
+    url: "https://github.com/anoma/namada-interface/releases/tag/v0.1.0-48adf43",
   },
   keplr: {
     alias: "Keplr",

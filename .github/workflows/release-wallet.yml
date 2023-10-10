@@ -5,18 +5,34 @@ on:
       REACT_APP_NAMADA_ALIAS:
         required: true
         type: string
-        default: "Namada Devnet"
+        default: "Namada Testnet"
       REACT_APP_NAMADA_CHAIN_ID:
         required: true
         type: string
       REACT_APP_NAMADA_URL:
         required: true
         type: string
-      REACT_APP_NAMADA_FAUCET_ADDRESS:
+      REACT_APP_COSMOS_ALIAS:
+        required: false
         type: string
-      REACT_APP_NAMADA_FAUCET_LIMIT:
-        type: number
-        default: 1000
+        default: "Cosmos Testnet"
+      REACT_APP_COSMOS_CHAIN_ID:
+        required: false
+        type: string
+      REACT_APP_COSMOS_URL:
+        required: false
+        type: string
+      REACT_APP_ETH_ALIAS:
+        required: false
+        type: string
+        default: "Goerli Testnet"
+      REACT_APP_ETH_CHAIN_ID:
+        required: false
+        type: string
+      REACT_APP_ETH_URL:
+        required: false
+        type: string
+
 env:
   CI: false
 jobs:
@@ -42,14 +58,23 @@ jobs:
           echo "REACT_APP_NAMADA_ALIAS: $REACT_APP_NAMADA_ALIAS" >> $GITHUB_STEP_SUMMARY
           echo "REACT_APP_NAMADA_CHAIN_ID: $REACT_APP_NAMADA_CHAIN_ID" >> $GITHUB_STEP_SUMMARY
           echo "REACT_APP_NAMADA_URL: $REACT_APP_NAMADA_URL" >> $GITHUB_STEP_SUMMARY
-          echo "REACT_APP_NAMADA_FAUCET_ADDRESS: $REACT_APP_NAMADA_FAUCET_ADDRESS" >> $GITHUB_STEP_SUMMARY
-          echo "REACT_APP_NAMADA_FAUCET_LIMIT: $REACT_APP_NAMADA_FAUCET_LIMIT" >> $GITHUB_STEP_SUMMARY
+          echo "REACT_APP_COSMOS_ALIAS: $REACT_APP_COSMOS_ALIAS" >> $GITHUB_STEP_SUMMARY
+          echo "REACT_APP_COSMOS_CHAIN_ID: $REACT_APP_COSMOS_CHAIN_ID" >> $GITHUB_STEP_SUMMARY
+          echo "REACT_APP_COSMOS_URL: $REACT_APP_COSMOS_URL" >> $GITHUB_STEP_SUMMARY
+          echo "REACT_APP_ETH_ALIAS: $REACT_APP_ETH_ALIAS" >> $GITHUB_STEP_SUMMARY
+          echo "REACT_APP_ETH_CHAIN_ID: $REACT_APP_ETH_CHAIN_ID" >> $GITHUB_STEP_SUMMARY
+          echo "REACT_APP_ETH_URL: $REACT_APP_ETH_URL" >> $GITHUB_STEP_SUMMARY
+        env:
         env:
           REACT_APP_NAMADA_ALIAS: ${{ inputs.REACT_APP_NAMADA_ALIAS }}
           REACT_APP_NAMADA_CHAIN_ID: ${{ inputs.REACT_APP_NAMADA_CHAIN_ID }}
           REACT_APP_NAMADA_URL: ${{ inputs.REACT_APP_NAMADA_URL }}
-          REACT_APP_NAMADA_FAUCET_ADDRESS: ${{ inputs.REACT_APP_NAMADA_FAUCET_ADDRESS }}
-          REACT_APP_NAMADA_FAUCET_LIMIT: ${{ inputs.REACT_APP_NAMADA_FAUCET_LIMIT }}
+          REACT_APP_COSMOS_ALIAS: ${{ inputs.REACT_APP_COSMOS_ALIAS }}
+          REACT_APP_COSMOS_CHAIN_ID: ${{ inputs.REACT_APP_COSMOS_CHAIN_ID }}
+          REACT_APP_COSMOS_URL: ${{ inputs.REACT_APP_COSMOS_URL }}
+          REACT_APP_ETH_ALIAS: ${{ inputs.REACT_APP_ETH_ALIAS }}
+          REACT_APP_ETH_CHAIN_ID: ${{ inputs.REACT_APP_ETH_CHAIN_ID }}
+          REACT_APP_ETH_URL: ${{ inputs.REACT_APP_ETH_URL }}
 
   build-interface:
     needs: setup
@@ -81,8 +106,12 @@ jobs:
           REACT_APP_NAMADA_ALIAS: ${{ inputs.REACT_APP_NAMADA_ALIAS }}
           REACT_APP_NAMADA_CHAIN_ID: ${{ inputs.REACT_APP_NAMADA_CHAIN_ID }}
           REACT_APP_NAMADA_URL: ${{ inputs.REACT_APP_NAMADA_URL }}
-          REACT_APP_NAMADA_FAUCET_ADDRESS: ${{ inputs.REACT_APP_NAMADA_FAUCET_ADDRESS }}
-          REACT_APP_NAMADA_FAUCET_LIMIT: ${{ inputs.REACT_APP_NAMADA_FAUCET_LIMIT }}
+          REACT_APP_COSMOS_ALIAS: ${{ inputs.REACT_APP_COSMOS_ALIAS }}
+          REACT_APP_COSMOS_CHAIN_ID: ${{ inputs.REACT_APP_COSMOS_CHAIN_ID }}
+          REACT_APP_COSMOS_URL: ${{ inputs.REACT_APP_COSMOS_URL }}
+          REACT_APP_ETH_ALIAS: ${{ inputs.REACT_APP_ETH_ALIAS }}
+          REACT_APP_ETH_CHAIN_ID: ${{ inputs.REACT_APP_ETH_CHAIN_ID }}
+          REACT_APP_ETH_URL: ${{ inputs.REACT_APP_ETH_URL }}
 
       - uses: actions/upload-artifact@v3
         with:
@@ -126,8 +155,12 @@ jobs:
           REACT_APP_NAMADA_ALIAS: ${{ inputs.REACT_APP_NAMADA_ALIAS }}
           REACT_APP_NAMADA_CHAIN_ID: ${{ inputs.REACT_APP_NAMADA_CHAIN_ID }}
           REACT_APP_NAMADA_URL: ${{ inputs.REACT_APP_NAMADA_URL }}
-          REACT_APP_NAMADA_FAUCET_ADDRESS: ${{ inputs.REACT_APP_NAMADA_FAUCET_ADDRESS }}
-          REACT_APP_NAMADA_FAUCET_LIMIT: ${{ inputs.REACT_APP_NAMADA_FAUCET_LIMIT }}
+          REACT_APP_COSMOS_ALIAS: ${{ inputs.REACT_APP_COSMOS_ALIAS }}
+          REACT_APP_COSMOS_CHAIN_ID: ${{ inputs.REACT_APP_COSMOS_CHAIN_ID }}
+          REACT_APP_COSMOS_URL: ${{ inputs.REACT_APP_COSMOS_URL }}
+          REACT_APP_ETH_ALIAS: ${{ inputs.REACT_APP_ETH_ALIAS }}
+          REACT_APP_ETH_CHAIN_ID: ${{ inputs.REACT_APP_ETH_CHAIN_ID }}
+          REACT_APP_ETH_URL: ${{ inputs.REACT_APP_ETH_URL }}
 
       - uses: actions/upload-artifact@v3
         with:
@@ -171,8 +204,12 @@ jobs:
           REACT_APP_NAMADA_ALIAS: ${{ inputs.REACT_APP_NAMADA_ALIAS }}
           REACT_APP_NAMADA_CHAIN_ID: ${{ inputs.REACT_APP_NAMADA_CHAIN_ID }}
           REACT_APP_NAMADA_URL: ${{ inputs.REACT_APP_NAMADA_URL }}
-          REACT_APP_NAMADA_FAUCET_ADDRESS: ${{ inputs.REACT_APP_NAMADA_FAUCET_ADDRESS }}
-          REACT_APP_NAMADA_FAUCET_LIMIT: ${{ inputs.REACT_APP_NAMADA_FAUCET_LIMIT }}
+          REACT_APP_COSMOS_ALIAS: ${{ inputs.REACT_APP_COSMOS_ALIAS }}
+          REACT_APP_COSMOS_CHAIN_ID: ${{ inputs.REACT_APP_COSMOS_CHAIN_ID }}
+          REACT_APP_COSMOS_URL: ${{ inputs.REACT_APP_COSMOS_URL }}
+          REACT_APP_ETH_ALIAS: ${{ inputs.REACT_APP_ETH_ALIAS }}
+          REACT_APP_ETH_CHAIN_ID: ${{ inputs.REACT_APP_ETH_CHAIN_ID }}
+          REACT_APP_ETH_URL: ${{ inputs.REACT_APP_ETH_URL }}
 
       - uses: actions/upload-artifact@v3
         with:
@@ -223,14 +260,22 @@ jobs:
           echo "REACT_APP_NAMADA_ALIAS: $REACT_APP_NAMADA_ALIAS" >> RELEASE
           echo "REACT_APP_NAMADA_CHAIN_ID: $REACT_APP_NAMADA_CHAIN_ID" >> RELEASE
           echo "REACT_APP_NAMADA_URL: $REACT_APP_NAMADA_URL" >> RELEASE
-          echo "REACT_APP_NAMADA_FAUCET_ADDRESS: $REACT_APP_NAMADA_FAUCET_ADDRESS" >> RELEASE
-          echo "REACT_APP_NAMADA_FAUCET_LIMIT: $REACT_APP_NAMADA_FAUCET_LIMIT" >> RELEASE
+          echo "REACT_APP_COSMOS_ALIAS: $REACT_APP_COSMOS_ALIAS" >> RELEASE
+          echo "REACT_APP_COSMOS_CHAIN_ID: $REACT_APP_COSMOS_CHAIN_ID" >> RELEASE
+          echo "REACT_APP_COSMOS_URL: $REACT_APP_COSMOS_URL" >> RELEASE
+          echo "REACT_APP_ETH_ALIAS: $REACT_APP_ETH_ALIAS" >> RELEASE
+          echo "REACT_APP_ETH_CHAIN_ID: $REACT_APP_ETH_CHAIN_ID" >> RELEASE
+          echo "REACT_APP_ETH_URL: $REACT_APP_ETH_URL" >> RELEASE
         env:
           REACT_APP_NAMADA_ALIAS: ${{ inputs.REACT_APP_NAMADA_ALIAS }}
           REACT_APP_NAMADA_CHAIN_ID: ${{ inputs.REACT_APP_NAMADA_CHAIN_ID }}
           REACT_APP_NAMADA_URL: ${{ inputs.REACT_APP_NAMADA_URL }}
-          REACT_APP_NAMADA_FAUCET_ADDRESS: ${{ inputs.REACT_APP_NAMADA_FAUCET_ADDRESS }}
-          REACT_APP_NAMADA_FAUCET_LIMIT: ${{ inputs.REACT_APP_NAMADA_FAUCET_LIMIT }}
+          REACT_APP_COSMOS_ALIAS: ${{ inputs.REACT_APP_COSMOS_ALIAS }}
+          REACT_APP_COSMOS_CHAIN_ID: ${{ inputs.REACT_APP_COSMOS_CHAIN_ID }}
+          REACT_APP_COSMOS_URL: ${{ inputs.REACT_APP_COSMOS_URL }}
+          REACT_APP_ETH_ALIAS: ${{ inputs.REACT_APP_ETH_ALIAS }}
+          REACT_APP_ETH_CHAIN_ID: ${{ inputs.REACT_APP_ETH_CHAIN_ID }}
+          REACT_APP_ETH_URL: ${{ inputs.REACT_APP_ETH_URL }}
 
       - name: Create release
         id: create-release
