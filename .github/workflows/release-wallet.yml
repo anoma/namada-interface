@@ -2,6 +2,10 @@ name: Deploy interface and release extension
 on:
   workflow_dispatch:
     inputs:
+      REF:
+        required: true
+        type: string
+        default: "main"
       REACT_APP_NAMADA_ALIAS:
         required: true
         type: string
@@ -43,6 +47,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.REF }}
 
       - name: Set environment variables
         id: set-environment-variables
@@ -81,6 +87,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.REF }}
 
       - name: Install yarn dependencies
         uses: ./.github/actions/yarn-cache
@@ -96,7 +104,7 @@ jobs:
       - name: Install wasm-pack
         uses: jetli/wasm-pack-action@v0.3.0
         with:
-          version: "v0.10.3"
+          version: "v0.12.1"
 
       - name: Build the interface
         working-directory: ./apps/namada-interface
@@ -111,6 +119,7 @@ jobs:
           REACT_APP_ETH_ALIAS: ${{ inputs.REACT_APP_ETH_ALIAS }}
           REACT_APP_ETH_CHAIN_ID: ${{ inputs.REACT_APP_ETH_CHAIN_ID }}
           REACT_APP_ETH_URL: ${{ inputs.REACT_APP_ETH_URL }}
+          REACT_APP_EXTENSION_URL: https://github.com/anoma/namada-interface/releases/tag/${{ needs.setup.outputs.VERSION }}/
 
       - uses: actions/upload-artifact@v3
         with:
@@ -123,6 +132,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.REF }}
 
       - name: Install yarn dependencies
         uses: ./.github/actions/yarn-cache
@@ -172,6 +183,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.REF }}
 
       - name: Install yarn dependencies
         uses: ./.github/actions/yarn-cache
