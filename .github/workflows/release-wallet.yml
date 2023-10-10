@@ -65,7 +65,6 @@ jobs:
           echo "REACT_APP_ETH_CHAIN_ID: $REACT_APP_ETH_CHAIN_ID" >> $GITHUB_STEP_SUMMARY
           echo "REACT_APP_ETH_URL: $REACT_APP_ETH_URL" >> $GITHUB_STEP_SUMMARY
         env:
-        env:
           REACT_APP_NAMADA_ALIAS: ${{ inputs.REACT_APP_NAMADA_ALIAS }}
           REACT_APP_NAMADA_CHAIN_ID: ${{ inputs.REACT_APP_NAMADA_CHAIN_ID }}
           REACT_APP_NAMADA_URL: ${{ inputs.REACT_APP_NAMADA_URL }}
