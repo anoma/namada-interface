@@ -113,7 +113,7 @@ jobs:
           version: "v0.10.3"
 
       - name: Install web-ext
-        run: yarn global add web-ext
+        run: yarn global add node-gyp && yarn global add web-ext
 
       - name: Build WASM dependencies
         working-directory: ./apps/extension
@@ -158,7 +158,7 @@ jobs:
           version: "v0.10.3"
 
       - name: Install web-ext
-        run: yarn global add web-ext
+        run: yarn global add node-gyp && yarn global add web-ext
 
       - name: Build WASM dependencies
         working-directory: ./apps/extension
