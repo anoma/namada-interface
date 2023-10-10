@@ -111,6 +111,7 @@ jobs:
           REACT_APP_ETH_ALIAS: ${{ inputs.REACT_APP_ETH_ALIAS }}
           REACT_APP_ETH_CHAIN_ID: ${{ inputs.REACT_APP_ETH_CHAIN_ID }}
           REACT_APP_ETH_URL: ${{ inputs.REACT_APP_ETH_URL }}
+          REACT_APP_EXTENSION_URL: https://github.com/anoma/namada-interface/releases/tag/${{ needs.setup.outputs.VERSION }}-$(git rev-parse --short $SHA)/
 
       - uses: actions/upload-artifact@v3
         with:
