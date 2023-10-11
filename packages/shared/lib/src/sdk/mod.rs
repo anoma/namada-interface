@@ -1,6 +1,5 @@
 use std::str::FromStr;
 
-use crate::sdk::io::WebIo;
 use crate::utils::to_js_result;
 use crate::{
     rpc_client::HttpClient,
@@ -9,6 +8,7 @@ use crate::{
 };
 use borsh::{BorshDeserialize, BorshSerialize};
 use namada::ledger::eth_bridge::bridge_pool::build_bridge_pool_tx;
+use namada::ledger::NamadaImpl;
 use namada::sdk::args;
 use namada::sdk::masp::ShieldedContext;
 use namada::sdk::rpc::query_epoch;
@@ -21,6 +21,9 @@ use namada::sdk::wallet::{Store, Wallet};
 use namada::types::address::Address;
 use namada::{proto::Tx, types::key::common::PublicKey};
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
+
+use self::io::WebIo;
+use self::wallet::BrowserWalletUtils;
 
 pub mod io;
 pub mod masp;
@@ -72,9 +75,22 @@ impl Sdk {
         set_panic_hook();
         Sdk {
             client: HttpClient::new(url),
-            wallet: Wallet::new(wallet::STORAGE_PATH.to_owned(), Store::default()),
+            wallet: Wallet::new(BrowserWalletUtils {}, Store::default()),
             shielded_ctx: ShieldedContext::default(),
         }
+    }
+
+    fn get_namada(&self) -> NamadaImpl<HttpClient, BrowserWalletUtils, WebShieldedUtils, WebIo> {
+        let namada: NamadaImpl<HttpClient, BrowserWalletUtils, WebShieldedUtils, WebIo> =
+            NamadaImpl::native_new(
+                &self.client,
+                &mut self.wallet,
+                &mut self.shielded_ctx,
+                //TODO: replace
+                &WebIo,
+                Address::from_str("TODO").unwrap(),
+            );
+        namada
     }
 
     pub async fn has_masp_params() -> Result<JsValue, JsValue> {
@@ -116,7 +132,7 @@ impl Sdk {
     }
 
     pub fn clear_storage(&mut self) -> Result<(), JsError> {
-        self.wallet = Wallet::new(wallet::STORAGE_PATH.to_owned(), Store::default());
+        self.wallet = Wallet::new(BrowserWalletUtils {}, Store::default());
         Ok(())
     }
 
@@ -147,19 +163,11 @@ impl Sdk {
             .expect("No public key provided");
 
         let address = Address::from(pk);
+        let namada = self.get_namada();
 
         let reveal_pk_tx_bytes =
             if !is_faucet_transfer && is_reveal_pk_needed(&self.client, &address, false).await? {
-                let (mut tx, _) = build_reveal_pk::<_, _, _, WebIo>(
-                    &self.client,
-                    &mut self.wallet,
-                    &mut self.shielded_ctx,
-                    &args,
-                    &address,
-                    &pk,
-                    &signing_data.fee_payer,
-                )
-                .await?;
+                let (mut tx, _, _) = build_reveal_pk(&namada, &args, &pk).await?;
 
                 sign_tx(&mut self.wallet, &args, &mut tx, signing_data.clone())?;
 
@@ -183,14 +191,15 @@ impl Sdk {
         reveal_pk_tx_bytes: Option<Vec<u8>>,
     ) -> Result<(), JsError> {
         let args = tx::tx_args_from_slice(tx_msg)?;
+        let namada = self.get_namada();
 
         if let Some(bytes) = reveal_pk_tx_bytes {
             let reveal_pk_tx = Tx::try_from_slice(bytes.as_slice())?;
-            process_tx::<_, _, WebIo>(&self.client, &mut self.wallet, &args, reveal_pk_tx).await?;
+            process_tx(&namada, &args, reveal_pk_tx).await?;
         }
 
         let tx = Tx::try_from_slice(tx_bytes)?;
-        process_tx::<_, _, WebIo>(&self.client, &mut self.wallet, &args, tx).await?;
+        process_tx(&namada, &args, tx).await?;
 
         Ok(())
     }
@@ -284,14 +293,8 @@ impl Sdk {
         default_signer: Option<Address>,
         gas_payer: Option<String>,
     ) -> Result<(SigningTxData, PublicKey), JsError> {
-        let signing_data = aux_signing_data::<_, _, WebIo>(
-            &self.client,
-            &mut self.wallet,
-            args,
-            owner,
-            default_signer,
-        )
-        .await?;
+        let namada = self.get_namada();
+        let signing_data = aux_signing_data(&namada, args, owner, default_signer).await?;
 
         let fee_payer = match gas_payer {
             Some(gas_payer) =>
@@ -315,7 +318,7 @@ impl Sdk {
         xsk: Option<String>,
         gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let (args, faucet_signer) = tx::transfer_tx_args(transfer_msg, tx_msg, password, xsk)?;
+        let (mut args, faucet_signer) = tx::transfer_tx_args(transfer_msg, tx_msg, password, xsk)?;
 
         let effective_address = args.source.effective_address();
         let default_signer = faucet_signer.clone().or(Some(effective_address.clone()));
@@ -329,14 +332,8 @@ impl Sdk {
             )
             .await?;
 
-        let (tx, _) = build_transfer::<_, _, _, WebIo>(
-            &self.client,
-            &mut self.wallet,
-            &mut self.shielded_ctx,
-            args.clone(),
-            fee_payer,
-        )
-        .await?;
+        let namada = self.get_namada();
+        let (tx, _, _) = build_transfer(&namada, &mut args).await?;
 
         Ok(BuiltTx {
             tx,
@@ -361,14 +358,8 @@ impl Sdk {
             .signing_data_and_fee_payer(&args.tx, Some(source), default_signer, gas_payer)
             .await?;
 
-        let (tx, _) = build_ibc_transfer::<_, _, _, WebIo>(
-            &self.client,
-            &mut self.wallet,
-            &mut self.shielded_ctx,
-            args.clone(),
-            fee_payer,
-        )
-        .await?;
+        let namada = self.get_namada();
+        let (tx, _, _) = build_ibc_transfer(&namada, &args).await?;
 
         Ok(BuiltTx {
             tx,
@@ -394,14 +385,8 @@ impl Sdk {
             .signing_data_and_fee_payer(&args.tx, Some(sender), default_signer, gas_payer)
             .await?;
 
-        let (tx, _) = build_bridge_pool_tx::<_, _, _, WebIo>(
-            &self.client,
-            &mut self.wallet,
-            &mut self.shielded_ctx,
-            args.clone(),
-            fee_payer,
-        )
-        .await?;
+        let namada = self.get_namada();
+        let (tx, _, _) = build_bridge_pool_tx(&namada, args.clone()).await?;
 
         Ok(BuiltTx {
             tx,
@@ -427,17 +412,11 @@ impl Sdk {
             .await?;
 
         let epoch = query_epoch(&self.client).await?;
+        let namada = self.get_namada();
 
-        let (tx, _) = build_vote_proposal::<_, _, _, WebIo>(
-            &mut self.client,
-            &mut self.wallet,
-            &mut self.shielded_ctx,
-            args.clone(),
-            epoch,
-            fee_payer,
-        )
-        .await
-        .map_err(JsError::from)?;
+        let (tx, _, _) = build_vote_proposal(&namada, &args, epoch)
+            .await
+            .map_err(JsError::from)?;
 
         Ok(BuiltTx {
             tx,
@@ -462,14 +441,9 @@ impl Sdk {
             .signing_data_and_fee_payer(&args.tx, source, default_signer, gas_payer)
             .await?;
 
-        let (tx, _) = build_bond::<_, _, _, WebIo>(
-            &mut self.client,
-            &mut self.wallet,
-            &mut self.shielded_ctx,
-            args.clone(),
-            fee_payer,
-        )
-        .await?;
+        let namada = self.get_namada();
+        //TODO: use signingData
+        let (tx, _signingData, _) = build_bond(&namada, &args).await?;
 
         Ok(BuiltTx {
             tx,
@@ -486,22 +460,9 @@ impl Sdk {
         gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
         let (args, faucet_signer) = tx::unbond_tx_args(unbond_msg, tx_msg, password)?;
-
         let source = args.source.clone();
-        let default_signer = faucet_signer.clone().or(source.clone());
-
-        let (signing_data, fee_payer) = self
-            .signing_data_and_fee_payer(&args.tx, source, default_signer, gas_payer)
-            .await?;
-
-        let (tx, _, _) = build_unbond::<_, _, _, WebIo>(
-            &mut self.client,
-            &mut self.wallet,
-            &mut self.shielded_ctx,
-            args.clone(),
-            fee_payer,
-        )
-        .await?;
+        let namada = self.get_namada();
+        let (tx, signing_data, _, _) = build_unbond(&namada, &args).await?;
 
         Ok(BuiltTx {
             tx,
@@ -520,20 +481,8 @@ impl Sdk {
         let (args, faucet_signer) = tx::withdraw_tx_args(withdraw_msg, tx_msg, password)?;
 
         let source = args.source.clone();
-        let default_signer = faucet_signer.clone().or(source.clone());
-
-        let (signing_data, fee_payer) = self
-            .signing_data_and_fee_payer(&args.tx, source, default_signer, gas_payer)
-            .await?;
-
-        let (tx, _) = build_withdraw::<_, _, _, WebIo>(
-            &mut self.client,
-            &mut self.wallet,
-            &mut self.shielded_ctx,
-            args.clone(),
-            fee_payer,
-        )
-        .await?;
+        let namada = self.get_namada();
+        let (tx, signing_data, _) = build_withdraw(&namada, &args).await?;
 
         Ok(BuiltTx {
             tx,
@@ -560,17 +509,9 @@ impl Sdk {
         };
 
         let address = Address::from(&public_key);
+        let namada = self.get_namada();
 
-        let (reveal_pk, _) = build_reveal_pk::<_, _, _, WebIo>(
-            &self.client,
-            &mut self.wallet,
-            &mut self.shielded_ctx,
-            &args.clone(),
-            &address,
-            &public_key,
-            &gas_payer,
-        )
-        .await?;
+        let (reveal_pk, _, _) = build_reveal_pk(&namada, &args.clone(), &public_key).await?;
 
         Ok(reveal_pk)
     }

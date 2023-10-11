@@ -2,10 +2,7 @@ use std::str::FromStr;
 
 use masp_primitives::zip32::ExtendedFullViewingKey;
 use namada::{
-    sdk::wallet::{
-        alias::Alias, ConfirmationResponse, GenRestoreKeyError, Store, StoredKeypair, Wallet,
-        WalletUtils,
-    },
+    sdk::wallet::{alias::Alias, Store, StoredKeypair, Wallet, WalletIo, WalletStorage},
     types::{
         address::{Address, ImplicitAddress},
         key::{self, common::SecretKey, PublicKeyHash, RefTo},
@@ -15,35 +12,20 @@ use namada::{
 use rand::rngs::OsRng;
 use wasm_bindgen::JsError;
 
+#[derive(Clone)]
 pub struct BrowserWalletUtils {}
 
-impl WalletUtils for BrowserWalletUtils {
-    type Storage = String;
+impl WalletIo for BrowserWalletUtils {
     type Rng = OsRng;
+}
 
-    fn read_decryption_password() -> zeroize::Zeroizing<std::string::String> {
-        panic!("attempted to prompt for password in non-interactive mode");
+impl WalletStorage for BrowserWalletUtils {
+    fn save<U>(&self, wallet: &Wallet<U>) -> Result<(), namada::sdk::wallet::LoadStoreError> {
+        todo!()
     }
 
-    fn read_encryption_password() -> zeroize::Zeroizing<std::string::String> {
-        panic!("attempted to prompt for password in non-interactive mode");
-    }
-
-    fn read_alias(_prompt_msg: &str) -> std::string::String {
-        panic!("attempted to prompt for alias in non-interactive mode");
-    }
-
-    fn read_mnemonic_code() -> std::result::Result<namada::bip39::Mnemonic, GenRestoreKeyError> {
-        panic!("attempted to prompt for mnemonic in non-interactive mode");
-    }
-
-    fn read_mnemonic_passphrase(_confirm: bool) -> zeroize::Zeroizing<std::string::String> {
-        panic!("attempted to prompt for mnemonic in non-interactive mode");
-    }
-
-    fn show_overwrite_confirmation(_alias: &Alias, _alias_for: &str) -> ConfirmationResponse {
-        // Automatically replace aliases in non-interactive mode
-        ConfirmationResponse::Replace
+    fn load<U>(&self, wallet: &mut Wallet<U>) -> Result<(), namada::sdk::wallet::LoadStoreError> {
+        todo!()
     }
 }
 
@@ -67,7 +49,7 @@ pub fn encode(wallet: &Wallet<BrowserWalletUtils>) -> Vec<u8> {
 /// Returns a JsError if the wallet data can't be deserialized.
 pub fn decode(data: Vec<u8>) -> Result<Wallet<BrowserWalletUtils>, JsError> {
     let store = Store::decode(data)?;
-    let wallet = Wallet::new(STORAGE_PATH.to_owned(), store);
+    let wallet = Wallet::new(BrowserWalletUtils {}, Store::default());
     Ok(wallet)
 }
 
