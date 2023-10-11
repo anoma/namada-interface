@@ -39,13 +39,13 @@ export const fetchBalances = createAsyncThunk<
     address: string;
     balance: Balance;
   }[],
-  void,
+  string | undefined,
   { state: RootState }
 >(
   `${ACCOUNTS_ACTIONS_BASE}/${AccountsThunkActions.FetchBalance}`,
-  async (_, thunkApi) => {
-    const { chainId } = thunkApi.getState().settings;
-    const extension = extensions.namada;
+  async (maybeChainId, thunkApi) => {
+    const chainId = maybeChainId || thunkApi.getState().settings.chainId;
+    const extension = extensions[chains[chainId].extension.id];
     const accounts: Account[] = Object.values(
       thunkApi.getState().accounts.derived[chainId]
     );

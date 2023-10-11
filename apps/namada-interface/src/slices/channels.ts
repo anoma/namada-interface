@@ -8,6 +8,7 @@ type ChannelsByChain = {
 
 export type ChannelsState = {
   channelsByChain: ChannelsByChain;
+  selectedChannel?: Channel;
 };
 
 const CHANNELS_ACTIONS_BASE = "channels";
@@ -19,6 +20,9 @@ const channelsSlice = createSlice({
   name: CHANNELS_ACTIONS_BASE,
   initialState,
   reducers: {
+    selectChannel: (state, action: PayloadAction<Channel>) => {
+      state.selectedChannel = action.payload;
+    },
     addChannel: (
       state,
       action: PayloadAction<{
@@ -48,6 +52,6 @@ const channelsSlice = createSlice({
 });
 
 const { actions, reducer } = channelsSlice;
-export const { addChannel } = actions;
+export const { addChannel, selectChannel } = actions;
 
 export default reducer;
