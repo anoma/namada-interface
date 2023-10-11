@@ -12,13 +12,13 @@ use namada::ledger::eth_bridge::bridge_pool::query_signed_bridge_pool;
 use namada::ledger::queries::RPC;
 use namada::proof_of_stake::Epoch;
 use namada::sdk::masp::ShieldedContext;
+use namada::sdk::masp::{MaspAmount, ShieldedContext};
 use namada::sdk::rpc::{
     format_denominated_amount, get_public_key_at, get_token_balance, get_total_staked_tokens,
     query_epoch, query_proposal_by_id, query_proposal_votes, query_storage_value,
 };
 use namada::types::control_flow::ProceedOrElse;
 use namada::types::eth_bridge_pool::TransferToEthereum;
-use namada::types::io::StdIo;
 use namada::types::{
     address::Address,
     masp::ExtendedViewingKey,
@@ -274,7 +274,7 @@ impl Query {
         &self,
         xvk: ExtendedViewingKey,
     ) -> Result<Vec<(Address, token::Amount)>, JsError> {
-        let viewing_key = ExtendedFullViewingKey::from(xvk).fvk.vk;
+        let _viewing_key = ExtendedFullViewingKey::from(xvk).fvk.vk;
         // We are recreating shielded context to avoid multiple mutable borrows
         let mut shielded: ShieldedContext<masp::WebShieldedUtils> = ShieldedContext::default();
 
@@ -308,12 +308,13 @@ impl Query {
         }?;
 
         let mut mapped_result: Vec<(Address, String)> = vec![];
-        for (token, amount) in result {
+        for (token, _amount) in result {
             mapped_result.push((
                 token.clone(),
-                format_denominated_amount(&self.client, &token, amount)
-                    .await
-                    .clone(),
+                // format_denominated_amount(&self.client, &token, amount)
+                //     .await
+                //     .clone(),
+                "0".to_string(),
             ))
         }
 
@@ -336,7 +337,7 @@ impl Query {
         &self,
         owner_addresses: Box<[JsValue]>,
     ) -> Result<JsValue, JsError> {
-        let bridge_pool = query_signed_bridge_pool(&self.client, &StdIo)
+        let bridge_pool = query_signed_bridge_pool(&self.client, &WebIo)
             .await
             .proceed_or_else(|| JsError::new("TODO:"))?;
 

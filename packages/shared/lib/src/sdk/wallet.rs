@@ -19,18 +19,16 @@ impl WalletIo for BrowserWalletUtils {
     type Rng = OsRng;
 }
 
+//TODO: check if we need to impl those
 impl WalletStorage for BrowserWalletUtils {
-    fn save<U>(&self, wallet: &Wallet<U>) -> Result<(), namada::sdk::wallet::LoadStoreError> {
+    fn save<U>(&self, _wallet: &Wallet<U>) -> Result<(), namada::sdk::wallet::LoadStoreError> {
         todo!()
     }
 
-    fn load<U>(&self, wallet: &mut Wallet<U>) -> Result<(), namada::sdk::wallet::LoadStoreError> {
+    fn load<U>(&self, _wallet: &mut Wallet<U>) -> Result<(), namada::sdk::wallet::LoadStoreError> {
         todo!()
     }
 }
-
-/// We get the data from the IndexedDB, that's why we don't need to specify the path.
-pub(crate) const STORAGE_PATH: &str = "";
 
 /// Encodes wallet data.
 pub fn encode(wallet: &Wallet<BrowserWalletUtils>) -> Vec<u8> {
@@ -49,7 +47,7 @@ pub fn encode(wallet: &Wallet<BrowserWalletUtils>) -> Vec<u8> {
 /// Returns a JsError if the wallet data can't be deserialized.
 pub fn decode(data: Vec<u8>) -> Result<Wallet<BrowserWalletUtils>, JsError> {
     let store = Store::decode(data)?;
-    let wallet = Wallet::new(BrowserWalletUtils {}, Store::default());
+    let wallet = Wallet::new(BrowserWalletUtils {}, store);
     Ok(wallet)
 }
 

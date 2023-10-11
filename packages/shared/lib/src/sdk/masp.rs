@@ -46,8 +46,6 @@ impl ShieldedUtils for WebShieldedUtils {
     async fn load<U: ShieldedUtils>(&self, ctx: &mut ShieldedContext<U>) -> std::io::Result<()> {
         let stored_ctx = get(SHIELDED_CONTEXT).await.map_err(|e| to_io_error(e))?;
         let stored_ctx_bytes = to_bytes(stored_ctx);
-        let mut new_ctx: ShieldedContext<WebShieldedUtils> =
-            ShieldedContext::deserialize(&mut &stored_ctx_bytes[..])?;
 
         *ctx = ShieldedContext {
             utils: ctx.utils.clone(),
