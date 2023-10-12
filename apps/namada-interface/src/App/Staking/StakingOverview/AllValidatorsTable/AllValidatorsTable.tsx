@@ -4,7 +4,7 @@ import { Validator } from "slices/StakingAndGovernance";
 import {
   AllValidatorsSearchBar
 } from "./AllValidatorsTable.components";
-import { formatPercentage, assertNever } from "@namada/utils";
+import { formatPercentage, assertNever, truncateInMiddle } from "@namada/utils";
 import { useAppSelector, RootState } from "store";
 import { ValidatorsCallbacks } from "../StakingOverview";
 
@@ -26,7 +26,7 @@ const AllValidatorsRowRenderer = (
             callbacks && callbacks.onClickValidator(formattedValidatorName);
           }}
         >
-          {validator.name}
+          {truncateInMiddle(validator.name, 10, 16)}
         </TableLink>
       </td>
       <td>{validator.votingPower?.toString() ?? ""}</td>
@@ -87,13 +87,13 @@ const sortValidators = (sort: Sort, validators: Validator[]): Validator[] => {
   const ascendingSortFn: (a: Validator, b: Validator) => number =
     sort.column === AllValidatorsColumn.Validator ?
       (a, b) => a.name.localeCompare(b.name) :
-    sort.column === AllValidatorsColumn.VotingPower ?
-      ((a, b) =>
-        !a.votingPower || !b.votingPower ? 0 :
-        a.votingPower.isLessThan(b.votingPower) ? -1 : 1) :
-    sort.column === AllValidatorsColumn.Commission ?
-      ((a, b) => a.commission.isLessThan(b.commission) ? -1 : 1) :
-    assertNever(sort.column);
+      sort.column === AllValidatorsColumn.VotingPower ?
+        ((a, b) =>
+          !a.votingPower || !b.votingPower ? 0 :
+            a.votingPower.isLessThan(b.votingPower) ? -1 : 1) :
+        sort.column === AllValidatorsColumn.Commission ?
+          ((a, b) => a.commission.isLessThan(b.commission) ? -1 : 1) :
+          assertNever(sort.column);
 
   const cloned = validators.slice();
   cloned.sort((a, b) => direction * ascendingSortFn(a, b));
@@ -134,48 +134,48 @@ export const AllValidatorsTable: React.FC<{
 }> = ({
   navigateToValidatorDetails,
 }) => {
-  const [search, setSearch] = useState("");
+    const [search, setSearch] = useState("");
 
-  const [sort, setSort] = useState<Sort>({
-    column: AllValidatorsColumn.Validator,
-    ascending: true
-  });
+    const [sort, setSort] = useState<Sort>({
+      column: AllValidatorsColumn.Validator,
+      ascending: true
+    });
 
-  const sortedFilteredValidators = useAppSelector(
-    selectSortedFilteredValidators(sort, search)
-  );
+    const sortedFilteredValidators = useAppSelector(
+      selectSortedFilteredValidators(sort, search)
+    );
 
-  const handleColumnClick = useCallback(
-    (column: AllValidatorsColumn): void =>
-      setSort({
-        column,
-        ascending: sort.column === column ? !sort.ascending : true
-      }),
-    [sort]
-  );
+    const handleColumnClick = useCallback(
+      (column: AllValidatorsColumn): void =>
+        setSort({
+          column,
+          ascending: sort.column === column ? !sort.ascending : true
+        }),
+      [sort]
+    );
 
-  const allValidatorsConfiguration = getAllValidatorsConfiguration(
-    navigateToValidatorDetails,
-    handleColumnClick,
-    sort
-  );
+    const allValidatorsConfiguration = getAllValidatorsConfiguration(
+      navigateToValidatorDetails,
+      handleColumnClick,
+      sort
+    );
 
-  return (
-    <Table
-      title="All Validators"
-      subheadingSlot={
-        <AllValidatorsSearchBar>
-          <input
-            type="search"
-            placeholder="Validator"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          >
-          </input>
-        </AllValidatorsSearchBar>
-      }
-      data={sortedFilteredValidators}
-      tableConfigurations={allValidatorsConfiguration}
-    />
-  );
-};
+    return (
+      <Table
+        title="All Validators"
+        subheadingSlot={
+          <AllValidatorsSearchBar>
+            <input
+              type="search"
+              placeholder="Validator"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            >
+            </input>
+          </AllValidatorsSearchBar>
+        }
+        data={sortedFilteredValidators}
+        tableConfigurations={allValidatorsConfiguration}
+      />
+    );
+  };

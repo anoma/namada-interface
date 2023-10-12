@@ -50,9 +50,9 @@ const toMyValidators = (
     index == -1
       ? (arr: MyValidators[]) => arr
       : (arr: MyValidators[], idx: number) => [
-          ...arr.slice(0, idx),
-          ...arr.slice(idx + 1),
-        ];
+        ...arr.slice(0, idx),
+        ...arr.slice(idx + 1),
+      ];
 
   const stakedAmount = new BigNumber(stake).plus(
     new BigNumber(v?.stakedAmount || 0)
@@ -120,7 +120,7 @@ export const fetchValidators = createAsyncThunk<
   const { rpc } = chains[chainId];
 
   const query = new Query(rpc);
-  const queryResult = (await query.query_all_validators()) as [
+  const queryResult = (await query.query_all_validator_addresses()).map((result: string) => [result]) as [
     string,
     string | null
   ][];
