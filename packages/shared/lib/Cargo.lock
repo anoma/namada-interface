@@ -2922,7 +2922,7 @@ checksum = "e5ce46fe64a9d73be07dcbe690a38ce1b293be448fd8ce1e6c1b8062c9f72c6a"
 [[package]]
 name = "namada"
 version = "0.23.0"
-source = "git+https://github.com/anoma/namada?branch=murisi/sdk-refactor-rebased#615ebc8e7dbf3531c446f60ec7ac77676aef3b63"
+source = "git+https://github.com/anoma/namada?branch=murisi/sdk-refactor-rebased#94b2d4bdd0b4d668db7cf4e10358ba1a5cb98db4"
 dependencies = [
  "async-trait",
  "bimap",
@@ -2942,6 +2942,7 @@ dependencies = [
  "namada_core",
  "namada_ethereum_bridge",
  "namada_proof_of_stake",
+ "namada_sdk",
  "num256",
  "orion",
  "owo-colors",
@@ -2970,7 +2971,7 @@ dependencies = [
 [[package]]
 name = "namada_core"
 version = "0.23.0"
-source = "git+https://github.com/anoma/namada?branch=murisi/sdk-refactor-rebased#615ebc8e7dbf3531c446f60ec7ac77676aef3b63"
+source = "git+https://github.com/anoma/namada?branch=murisi/sdk-refactor-rebased#94b2d4bdd0b4d668db7cf4e10358ba1a5cb98db4"
 dependencies = [
  "ark-bls12-381",
  "ark-ec",
@@ -3022,7 +3023,7 @@ dependencies = [
 [[package]]
 name = "namada_ethereum_bridge"
 version = "0.23.0"
-source = "git+https://github.com/anoma/namada?branch=murisi/sdk-refactor-rebased#615ebc8e7dbf3531c446f60ec7ac77676aef3b63"
+source = "git+https://github.com/anoma/namada?branch=murisi/sdk-refactor-rebased#94b2d4bdd0b4d668db7cf4e10358ba1a5cb98db4"
 dependencies = [
  "borsh 0.9.4",
  "ethers",
@@ -3043,7 +3044,7 @@ dependencies = [
 [[package]]
 name = "namada_macros"
 version = "0.23.0"
-source = "git+https://github.com/anoma/namada?branch=murisi/sdk-refactor-rebased#615ebc8e7dbf3531c446f60ec7ac77676aef3b63"
+source = "git+https://github.com/anoma/namada?branch=murisi/sdk-refactor-rebased#94b2d4bdd0b4d668db7cf4e10358ba1a5cb98db4"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3053,7 +3054,7 @@ dependencies = [
 [[package]]
 name = "namada_proof_of_stake"
 version = "0.23.0"
-source = "git+https://github.com/anoma/namada?branch=murisi/sdk-refactor-rebased#615ebc8e7dbf3531c446f60ec7ac77676aef3b63"
+source = "git+https://github.com/anoma/namada?branch=murisi/sdk-refactor-rebased#94b2d4bdd0b4d668db7cf4e10358ba1a5cb98db4"
 dependencies = [
  "borsh 0.9.4",
  "data-encoding",
@@ -3062,6 +3063,50 @@ dependencies = [
  "once_cell",
  "thiserror",
  "tracing",
+]
+
+[[package]]
+name = "namada_sdk"
+version = "0.23.0"
+source = "git+https://github.com/anoma/namada?branch=murisi/sdk-refactor-rebased#94b2d4bdd0b4d668db7cf4e10358ba1a5cb98db4"
+dependencies = [
+ "async-trait",
+ "bimap",
+ "borsh 0.9.4",
+ "circular-queue",
+ "data-encoding",
+ "derivation-path",
+ "ethbridge-bridge-contract",
+ "ethers",
+ "futures",
+ "itertools",
+ "masp_primitives",
+ "masp_proofs",
+ "namada_core",
+ "namada_ethereum_bridge",
+ "namada_proof_of_stake",
+ "num256",
+ "orion",
+ "owo-colors",
+ "parse_duration",
+ "paste",
+ "prost 0.11.9",
+ "rand 0.8.5",
+ "rand_core 0.6.4",
+ "ripemd",
+ "serde",
+ "serde_json",
+ "sha2 0.9.9",
+ "slip10_ed25519",
+ "tendermint-rpc",
+ "thiserror",
+ "tiny-bip39 0.8.2 (git+https://github.com/anoma/tiny-bip39.git?rev=bf0f6d8713589b83af7a917366ec31f5275c0e57)",
+ "tiny-hderive",
+ "tokio",
+ "toml 0.5.11",
+ "tracing",
+ "wasmtimer",
+ "zeroize",
 ]
 
 [[package]]

@@ -10,13 +10,12 @@ use namada::core::ledger::governance::utils::{
 };
 use namada::ledger::eth_bridge::bridge_pool::query_signed_bridge_pool;
 use namada::ledger::queries::RPC;
-use namada::proof_of_stake::Epoch;
-use namada::sdk::masp::ShieldedContext;
-use namada::sdk::masp::{MaspAmount, ShieldedContext};
-use namada::sdk::rpc::{
+use namada::namada_sdk::masp::ShieldedContext;
+use namada::namada_sdk::rpc::{
     format_denominated_amount, get_public_key_at, get_token_balance, get_total_staked_tokens,
     query_epoch, query_proposal_by_id, query_proposal_votes, query_storage_value,
 };
+use namada::proof_of_stake::Epoch;
 use namada::types::control_flow::ProceedOrElse;
 use namada::types::eth_bridge_pool::TransferToEthereum;
 use namada::types::{
@@ -274,7 +273,7 @@ impl Query {
         &self,
         xvk: ExtendedViewingKey,
     ) -> Result<Vec<(Address, token::Amount)>, JsError> {
-        let _viewing_key = ExtendedFullViewingKey::from(xvk).fvk.vk;
+        let viewing_key = ExtendedFullViewingKey::from(xvk).fvk.vk;
         // We are recreating shielded context to avoid multiple mutable borrows
         let mut shielded: ShieldedContext<masp::WebShieldedUtils> = ShieldedContext::default();
 
@@ -288,7 +287,7 @@ impl Query {
 
         let epoch = query_epoch(&self.client).await?;
         let balance = shielded
-            .compute_exchanged_balance(&self.client, &viewing_key, epoch)
+            .compute_exchanged_balance(&self.client, &WebIo, &viewing_key, epoch)
             .await?
             .expect("context should contain viewing key");
         let decoded_balance = shielded
@@ -308,13 +307,12 @@ impl Query {
         }?;
 
         let mut mapped_result: Vec<(Address, String)> = vec![];
-        for (token, _amount) in result {
+        for (token, amount) in result {
             mapped_result.push((
                 token.clone(),
-                // format_denominated_amount(&self.client, &token, amount)
-                //     .await
-                //     .clone(),
-                "0".to_string(),
+                format_denominated_amount(&self.client, &WebIo, &token, amount)
+                    .await
+                    .clone(),
             ))
         }
 

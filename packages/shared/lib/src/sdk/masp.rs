@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use borsh::{BorshDeserialize, BorshSerialize};
 use masp_proofs::prover::LocalTxProver;
-use namada::sdk::masp::{ShieldedContext, ShieldedUtils};
+use namada::namada_sdk::masp::{ShieldedContext, ShieldedUtils};
 use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
 use crate::utils::{to_bytes, to_io_error};

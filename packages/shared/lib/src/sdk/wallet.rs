@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use masp_primitives::zip32::ExtendedFullViewingKey;
 use namada::{
-    sdk::wallet::{alias::Alias, Store, StoredKeypair, Wallet, WalletIo, WalletStorage},
+    namada_sdk::wallet::{alias::Alias, Store, StoredKeypair, Wallet, WalletIo, WalletStorage},
     types::{
         address::{Address, ImplicitAddress},
         key::{self, common::SecretKey, PublicKeyHash, RefTo},
@@ -21,11 +21,17 @@ impl WalletIo for BrowserWalletUtils {
 
 //TODO: check if we need to impl those
 impl WalletStorage for BrowserWalletUtils {
-    fn save<U>(&self, _wallet: &Wallet<U>) -> Result<(), namada::sdk::wallet::LoadStoreError> {
+    fn save<U>(
+        &self,
+        _wallet: &Wallet<U>,
+    ) -> Result<(), namada::namada_sdk::wallet::LoadStoreError> {
         todo!()
     }
 
-    fn load<U>(&self, _wallet: &mut Wallet<U>) -> Result<(), namada::sdk::wallet::LoadStoreError> {
+    fn load<U>(
+        &self,
+        _wallet: &mut Wallet<U>,
+    ) -> Result<(), namada::namada_sdk::wallet::LoadStoreError> {
         todo!()
     }
 }

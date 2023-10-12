@@ -8,16 +8,16 @@ use crate::{
 };
 use borsh::{BorshDeserialize, BorshSerialize};
 use namada::ledger::eth_bridge::bridge_pool::build_bridge_pool_tx;
-use namada::ledger::{Namada, NamadaImpl};
-use namada::sdk::masp::ShieldedContext;
-use namada::sdk::rpc::query_epoch;
-use namada::sdk::signing::{aux_signing_data, sign_tx, SigningTxData};
-use namada::sdk::signing::{sign_tx, SigningTxData};
-use namada::sdk::tx::{
+use namada::namada_sdk::masp::ShieldedContext;
+use namada::namada_sdk::rpc::query_epoch;
+use namada::namada_sdk::signing::{sign_tx, SigningTxData};
+use namada::namada_sdk::tx::{
     build_bond, build_ibc_transfer, build_reveal_pk, build_transfer, build_unbond,
     build_vote_proposal, build_withdraw, is_reveal_pk_needed, process_tx,
 };
-use namada::sdk::wallet::{Store, Wallet};
+
+use namada::namada_sdk::wallet::{Store, Wallet};
+use namada::namada_sdk::{Namada, NamadaImpl};
 use namada::types::address::Address;
 use namada::{proto::Tx, types::key::common::PublicKey};
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
@@ -85,9 +85,9 @@ impl Sdk {
             &self.client,
             &mut self.wallet,
             &mut self.shielded_ctx,
-            //TODO: replace
             &WebIo,
-            Address::from_str("TODO").unwrap(),
+            //NAM address
+            Address::from_str("atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5").unwrap(),
         )
     }
 
@@ -165,7 +165,7 @@ impl Sdk {
         let mut w = namada.wallet_mut().await;
 
         let reveal_pk_tx_bytes = if !is_faucet_transfer
-            && is_reveal_pk_needed(&namada.client(), &address, false).await?
+            && is_reveal_pk_needed(namada.client(), &address, false).await?
         {
             let (mut tx, _, _) = build_reveal_pk(&namada, &args, &pk).await?;
             sign_tx(&mut w, &args, &mut tx, signing_data.clone())?;
