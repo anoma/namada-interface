@@ -46,7 +46,7 @@ sudo apt-get install -y libssl-dev
 sudo apt-get install -y protobuf-compiler
 
 # Install wasm-pack
- curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
 # Install yarn and JS dependencies
 npm install -g yarn
@@ -83,7 +83,7 @@ brew install libssl-dev
 brew install protobuf
 
 # Install wasm-pack
- curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
 # Install yarn and JS dependencies
 npm install -g yarn
@@ -132,8 +132,8 @@ file (to see an example of the values you can set, see [.env.sample](./apps/nama
 
 To build and run the chain locally, you will need to clone <http://github.com/anoma/namada>.
 
-1. In `namada/`, first run `make build`
-2. Then initialize a local chain with:
+1. In `namada/`, first run `make build`, then `make install`
+2. Initialize a local chain with:
 
    ```bash
    namadac utils init-network --genesis-path genesis/e2e-tests-single-node.toml --wasm-checksums-path wasm/checksums.json --chain-prefix local --unsafe-dont-encrypt --localhost --allow-duplicate-ip
@@ -178,10 +178,10 @@ Within `apps/extension/`, we may issue the following commands:
 
 ```bash
 # Build wasm dependencies
-yarn build:wasm
+yarn wasm:build
 
 # Build wasm dependencies with debugging enabled
-yarn build:wasm:dev
+yarn wasm:build:dev
 
 # Run development extension for Chrome
 yarn start:chrome
@@ -201,6 +201,9 @@ yarn build:firefox
 Within `apps/namada-interface/`, we may issue the following commands:
 
 ```bash
+# Make sure to build wasm dependencies before starting development server
+yarn wasm:build
+
 # Run development interface, hosted at http://localhost:3000
 yarn dev:local
 
