@@ -5,14 +5,14 @@ type TimeoutOpts = {
   // Timeout in miliseconds
   timeout?: number;
   // Error message
-  error?: string;
+  error?: (timeout: number) => string;
 };
 
 const DEFAULT_TIMEOUT = 60000;
 
-const DEFAULT_OPTS: TimeoutOpts = {
+const DEFAULT_OPTS: Required<TimeoutOpts> = {
   timeout: DEFAULT_TIMEOUT,
-  error: `Promise timed out after ${DEFAULT_TIMEOUT} ms.`,
+  error: timeout => `Promise timed out after ${timeout} ms.`,
 };
 
 /**
@@ -28,7 +28,7 @@ const promiseWithTimeout =
 
       return new Promise(async (resolve, reject) => {
         const t = setTimeout(() => {
-          reject(error);
+          reject(error(timeout));
         }, timeout);
 
         const res = await fn(...args);
