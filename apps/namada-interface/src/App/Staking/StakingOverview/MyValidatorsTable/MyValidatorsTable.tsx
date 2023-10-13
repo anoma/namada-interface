@@ -1,6 +1,9 @@
 import { Table, TableLink, TableConfigurations } from "@namada/components";
-import { MyValidators, StakingAndGovernanceState } from "slices/StakingAndGovernance";
-import { showMaybeNam } from "@namada/utils";
+import {
+  MyValidators,
+  StakingAndGovernanceState,
+} from "slices/StakingAndGovernance";
+import { showMaybeNam, truncateInMiddle } from "@namada/utils";
 import { useAppSelector } from "store";
 import { ValidatorsCallbacks } from "../StakingOverview";
 
@@ -18,10 +21,11 @@ const MyValidatorsRowRenderer = (
             // that was passed to it by its' parent <StakingAndGovernance />
             // in that callback function that is defined in <StakingAndGovernance />
             // an action is dispatched to fetch validator data and make in available
-            callbacks && callbacks.onClickValidator(myValidatorRow.validator.name);
+            callbacks &&
+              callbacks.onClickValidator(myValidatorRow.validator.name);
           }}
         >
-          {myValidatorRow.validator.name}
+          {truncateInMiddle(myValidatorRow.validator.name, 10, 12)}
         </TableLink>
       </td>
       <td>{myValidatorRow.stakingStatus}</td>
@@ -52,22 +56,21 @@ const getMyValidatorsConfiguration = (
 
 export const MyValidatorsTable: React.FC<{
   navigateToValidatorDetails: (validatorId: string) => void;
-}> = ({
-  navigateToValidatorDetails,
-}) => {
-    const stakingAndGovernanceState = useAppSelector<StakingAndGovernanceState>(
-      state => state.stakingAndGovernance);
-    const myValidators = stakingAndGovernanceState.myValidators ?? [];
+}> = ({ navigateToValidatorDetails }) => {
+  const stakingAndGovernanceState = useAppSelector<StakingAndGovernanceState>(
+    (state) => state.stakingAndGovernance
+  );
+  const myValidators = stakingAndGovernanceState.myValidators ?? [];
 
-    const myValidatorsConfiguration = getMyValidatorsConfiguration(
-      navigateToValidatorDetails
-    );
+  const myValidatorsConfiguration = getMyValidatorsConfiguration(
+    navigateToValidatorDetails
+  );
 
-    return (
-      <Table
-        title="My Validators"
-        data={myValidators}
-        tableConfigurations={myValidatorsConfiguration}
-      />
-    );
-  };
+  return (
+    <Table
+      title="My Validators"
+      data={myValidators}
+      tableConfigurations={myValidatorsConfiguration}
+    />
+  );
+};

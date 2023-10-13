@@ -1,4 +1,7 @@
-import { StakingOverviewContainer, ValidatorsContainer } from "./StakingOverview.components";
+import {
+  StakingOverviewContainer,
+  ValidatorsContainer,
+} from "./StakingOverview.components";
 import { AllValidatorsTable } from "./AllValidatorsTable";
 import { MyValidatorsTable } from "./MyValidatorsTable";
 import { StakingBalancesList } from "./StakingBalancesList";
@@ -34,7 +37,6 @@ export const StakingOverview = (props: Props): JSX.Element => {
           navigateToValidatorDetails={navigateToValidatorDetails}
         />
       </ValidatorsContainer>
-
     </StakingOverviewContainer>
   );
 };

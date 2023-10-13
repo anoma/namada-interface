@@ -120,10 +120,9 @@ export const fetchValidators = createAsyncThunk<
   const { rpc } = chains[chainId];
 
   const query = new Query(rpc);
-  const queryResult = (await query.query_all_validator_addresses()).map((result: string) => [result]) as [
-    string,
-    string | null
-  ][];
+  const queryResult = (await query.query_all_validator_addresses()).map(
+    (result: string) => [result]
+  ) as [string, string | null][];
   const allValidators = queryResult.map(toValidator);
 
   thunkApi.dispatch(fetchMyValidators(allValidators));

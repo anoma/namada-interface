@@ -1,9 +1,7 @@
 import { useState, useCallback } from "react";
 import { Table, TableLink, TableConfigurations } from "@namada/components";
 import { Validator } from "slices/StakingAndGovernance";
-import {
-  AllValidatorsSearchBar
-} from "./AllValidatorsTable.components";
+import { AllValidatorsSearchBar } from "./AllValidatorsTable.components";
 import { formatPercentage, assertNever, truncateInMiddle } from "@namada/utils";
 import { useAppSelector, RootState } from "store";
 import { ValidatorsCallbacks } from "../StakingOverview";
@@ -34,7 +32,7 @@ const AllValidatorsRowRenderer = (
 const getAllValidatorsConfiguration = (
   navigateToValidatorDetails: (validatorId: string) => void,
   onColumnClick: (column: AllValidatorsColumn) => void,
-  sort: Sort,
+  sort: Sort
 ): TableConfigurations<Validator, ValidatorsCallbacks> => {
   const getLabelWithTriangle = (column: AllValidatorsColumn): string => {
     let triangle = "";
@@ -47,7 +45,7 @@ const getAllValidatorsConfiguration = (
     }
 
     return `${column}${triangle}`;
-  }
+  };
 
   return {
     rowRenderer: AllValidatorsRowRenderer,
@@ -81,30 +79,35 @@ const sortValidators = (sort: Sort, validators: Validator[]): Validator[] => {
   const direction = sort.ascending ? 1 : -1;
 
   const ascendingSortFn: (a: Validator, b: Validator) => number =
-    sort.column === AllValidatorsColumn.Validator ?
-      (a, b) => a.name.localeCompare(b.name) :
-      sort.column === AllValidatorsColumn.VotingPower ?
-        ((a, b) =>
-          !a.votingPower || !b.votingPower ? 0 :
-            a.votingPower.isLessThan(b.votingPower) ? -1 : 1) :
-        sort.column === AllValidatorsColumn.Commission ?
-          ((a, b) => a.commission.isLessThan(b.commission) ? -1 : 1) :
-          assertNever(sort.column);
+    sort.column === AllValidatorsColumn.Validator
+      ? (a, b) => a.name.localeCompare(b.name)
+      : sort.column === AllValidatorsColumn.VotingPower
+      ? (a, b) =>
+          !a.votingPower || !b.votingPower
+            ? 0
+            : a.votingPower.isLessThan(b.votingPower)
+            ? -1
+            : 1
+      : sort.column === AllValidatorsColumn.Commission
+      ? (a, b) => (a.commission.isLessThan(b.commission) ? -1 : 1)
+      : assertNever(sort.column);
 
   const cloned = validators.slice();
   cloned.sort((a, b) => direction * ascendingSortFn(a, b));
 
   return cloned;
-}
+};
 
-const filterValidators = (search: string, validators: Validator[]): Validator[] =>
-  validators.filter(v =>
-    search === ""
-      ? true
-      : v.name.toLowerCase().startsWith(search.toLowerCase())
+const filterValidators = (
+  search: string,
+  validators: Validator[]
+): Validator[] =>
+  validators.filter((v) =>
+    search === "" ? true : v.name.toLowerCase().startsWith(search.toLowerCase())
   );
 
-const selectSortedFilteredValidators = (sort: Sort, search: string) =>
+const selectSortedFilteredValidators =
+  (sort: Sort, search: string) =>
   (state: RootState): Validator[] => {
     const validators = state.stakingAndGovernance.validators;
 
@@ -117,8 +120,8 @@ const selectSortedFilteredValidators = (sort: Sort, search: string) =>
 enum AllValidatorsColumn {
   Validator = "Validator",
   VotingPower = "Voting power",
-  Commission = "Commission"
-};
+  Commission = "Commission",
+}
 
 type Sort = {
   column: AllValidatorsColumn;
@@ -127,51 +130,48 @@ type Sort = {
 
 export const AllValidatorsTable: React.FC<{
   navigateToValidatorDetails: (validatorId: string) => void;
-}> = ({
-  navigateToValidatorDetails,
-}) => {
-    const [search, setSearch] = useState("");
+}> = ({ navigateToValidatorDetails }) => {
+  const [search, setSearch] = useState("");
 
-    const [sort, setSort] = useState<Sort>({
-      column: AllValidatorsColumn.Validator,
-      ascending: true
-    });
+  const [sort, setSort] = useState<Sort>({
+    column: AllValidatorsColumn.Validator,
+    ascending: true,
+  });
 
-    const sortedFilteredValidators = useAppSelector(
-      selectSortedFilteredValidators(sort, search)
-    );
+  const sortedFilteredValidators = useAppSelector(
+    selectSortedFilteredValidators(sort, search)
+  );
 
-    const handleColumnClick = useCallback(
-      (column: AllValidatorsColumn): void =>
-        setSort({
-          column,
-          ascending: sort.column === column ? !sort.ascending : true
-        }),
-      [sort]
-    );
+  const handleColumnClick = useCallback(
+    (column: AllValidatorsColumn): void =>
+      setSort({
+        column,
+        ascending: sort.column === column ? !sort.ascending : true,
+      }),
+    [sort]
+  );
 
-    const allValidatorsConfiguration = getAllValidatorsConfiguration(
-      navigateToValidatorDetails,
-      handleColumnClick,
-      sort
-    );
+  const allValidatorsConfiguration = getAllValidatorsConfiguration(
+    navigateToValidatorDetails,
+    handleColumnClick,
+    sort
+  );
 
-    return (
-      <Table
-        title="All Validators"
-        subheadingSlot={
-          <AllValidatorsSearchBar>
-            <input
-              type="search"
-              placeholder="Validator"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            >
-            </input>
-          </AllValidatorsSearchBar>
-        }
-        data={sortedFilteredValidators}
-        tableConfigurations={allValidatorsConfiguration}
-      />
-    );
-  };
+  return (
+    <Table
+      title="All Validators"
+      subheadingSlot={
+        <AllValidatorsSearchBar>
+          <input
+            type="search"
+            placeholder="Validator"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          ></input>
+        </AllValidatorsSearchBar>
+      }
+      data={sortedFilteredValidators}
+      tableConfigurations={allValidatorsConfiguration}
+    />
+  );
+};
