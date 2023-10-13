@@ -9,6 +9,7 @@ import { getIntegration } from "@namada/hooks";
 import {
   FETCH_VALIDATORS,
   FETCH_VALIDATOR_DETAILS,
+  FETCH_TOTAL_BONDS,
   FETCH_MY_VALIDATORS,
   FETCH_MY_STAKING_POSITIONS,
   FETCH_EPOCH,
@@ -111,6 +112,19 @@ const toUnbond = ([owner, validator, amount, startEpoch, withdrawableEpoch]: [
   };
 };
 
+export const fetchTotalBonds = createAsyncThunk<
+  { address: string; totalBonds: number },
+  string,
+  { state: RootState }
+>(FETCH_TOTAL_BONDS, async (address: string, thunkApi) => {
+  const { chainId } = thunkApi.getState().settings;
+  const { rpc } = chains[chainId];
+  const query = new Query(rpc);
+  const result = await query.query_total_bonds(address);
+
+  return Promise.resolve({ address, totalBonds: result || 0 });
+});
+
 export const fetchValidators = createAsyncThunk<
   { allValidators: Validator[] },
   void,
@@ -121,13 +135,21 @@ export const fetchValidators = createAsyncThunk<
 
   const query = new Query(rpc);
   const queryResult = (await query.query_all_validator_addresses()).map(
-    (result: string) => [result]
+    (result: string) => [result, 0]
   ) as [string, string | null][];
   const allValidators = queryResult.map(toValidator);
 
   thunkApi.dispatch(fetchMyValidators(allValidators));
   thunkApi.dispatch(fetchMyStakingPositions());
   thunkApi.dispatch(fetchEpoch());
+
+  allValidators.forEach((validator, i) => {
+    // TODO: Only fetch for current page
+    // TODO: This should take into account how validators are sorted in the view!
+    if (i < 25) {
+      thunkApi.dispatch(fetchTotalBonds(validator.name));
+    }
+  });
 
   return Promise.resolve({ allValidators });
 });
