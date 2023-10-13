@@ -7,7 +7,6 @@ export const StakingContainer = styled.div`
   align-items: center;
   width: 100%;
   height: 100%;
-  overflow-y: scroll;
   padding: 0 32px;
   box-sizing: border-box;
   color: ${(props) => props.theme.colors.utility2.main};

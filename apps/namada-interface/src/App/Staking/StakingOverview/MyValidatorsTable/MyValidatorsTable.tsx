@@ -13,16 +13,12 @@ const MyValidatorsRowRenderer = (
       <td>
         <TableLink
           onClick={() => {
-            const formattedValidatorName = myValidatorRow.validator.name
-              .replace(" ", "-")
-              .toLowerCase();
-
             // this function is defined at <Staking />
             // there it triggers a navigation. It then calls a callback
             // that was passed to it by its' parent <StakingAndGovernance />
             // in that callback function that is defined in <StakingAndGovernance />
             // an action is dispatched to fetch validator data and make in available
-            callbacks && callbacks.onClickValidator(formattedValidatorName);
+            callbacks && callbacks.onClickValidator(myValidatorRow.validator.name);
           }}
         >
           {myValidatorRow.validator.name}
@@ -59,19 +55,19 @@ export const MyValidatorsTable: React.FC<{
 }> = ({
   navigateToValidatorDetails,
 }) => {
-  const stakingAndGovernanceState = useAppSelector<StakingAndGovernanceState>(
-    state => state.stakingAndGovernance);
-  const myValidators = stakingAndGovernanceState.myValidators ?? [];
+    const stakingAndGovernanceState = useAppSelector<StakingAndGovernanceState>(
+      state => state.stakingAndGovernance);
+    const myValidators = stakingAndGovernanceState.myValidators ?? [];
 
-  const myValidatorsConfiguration = getMyValidatorsConfiguration(
-    navigateToValidatorDetails
-  );
+    const myValidatorsConfiguration = getMyValidatorsConfiguration(
+      navigateToValidatorDetails
+    );
 
-  return (
-    <Table
-      title="My Validators"
-      data={myValidators}
-      tableConfigurations={myValidatorsConfiguration}
-    />
-  );
-};
+    return (
+      <Table
+        title="My Validators"
+        data={myValidators}
+        tableConfigurations={myValidatorsConfiguration}
+      />
+    );
+  };

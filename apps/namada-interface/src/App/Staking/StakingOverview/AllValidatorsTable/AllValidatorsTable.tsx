@@ -19,11 +19,7 @@ const AllValidatorsRowRenderer = (
       <td>
         <TableLink
           onClick={() => {
-            const formattedValidatorName = validator.name
-              .replace(" ", "-")
-              .toLowerCase();
-
-            callbacks && callbacks.onClickValidator(formattedValidatorName);
+            callbacks && callbacks.onClickValidator(validator.name);
           }}
         >
           {truncateInMiddle(validator.name, 10, 16)}

@@ -70,9 +70,6 @@ export const StakingBalancesList: React.FC = () => {
 
       <StakingBalancesLabel>Total Withdrawable</StakingBalancesLabel>
       <StakingBalancesValue>{showTotalIfDefined(totals, "totalWithdrawable")}</StakingBalancesValue>
-
-      <StakingBalancesLabel>Pending Rewards</StakingBalancesLabel>
-      <StakingBalancesValue>TBD</StakingBalancesValue>
     </StakingBalances>
   );
 };
