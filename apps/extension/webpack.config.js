@@ -80,7 +80,7 @@ if (NODE_ENV === "development") {
 module.exports = {
   mode: NODE_ENV,
   target: "web",
-  devtool: TARGET === "firefox" ? "eval-source-map" : false,
+  devtool: NODE_ENV === "development" && TARGET === "firefox" ? "eval-source-map" : false,
   entry: {
     content: "./src/content",
     background: "./src/background",
