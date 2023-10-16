@@ -24,12 +24,9 @@ import {
 import { RootState } from "store";
 import { Account } from "slices/accounts";
 
-const toValidator = ([address, stake]: [string, string | null]): Validator => ({
+const toValidator = (address: string): Validator => ({
   uuid: address,
   name: address,
-  // TODO: get votes per token from Namada
-  votingPower:
-    stake === null ? undefined : new BigNumber(stake).multipliedBy(1_000_000),
   homepageUrl: "http://namada.net",
   commission: new BigNumber(0), // TODO: implement commission
   description: "TBD",
@@ -51,9 +48,9 @@ const toMyValidators = (
     index == -1
       ? (arr: MyValidators[]) => arr
       : (arr: MyValidators[], idx: number) => [
-        ...arr.slice(0, idx),
-        ...arr.slice(idx + 1),
-      ];
+          ...arr.slice(0, idx),
+          ...arr.slice(idx + 1),
+        ];
 
   const stakedAmount = new BigNumber(stake).plus(
     new BigNumber(v?.stakedAmount || 0)
@@ -75,7 +72,7 @@ const toMyValidators = (
       stakedAmount,
       unbondedAmount,
       withdrawableAmount,
-      validator: toValidator([validator, stakedAmount.toString()]),
+      validator: toValidator(validator),
     },
   ];
 };
@@ -134,22 +131,12 @@ export const fetchValidators = createAsyncThunk<
   const { rpc } = chains[chainId];
 
   const query = new Query(rpc);
-  const queryResult = (await query.query_all_validator_addresses()).map(
-    (result: string) => [result, 0]
-  ) as [string, string | null][];
+  const queryResult = (await query.query_all_validator_addresses()) as string[];
   const allValidators = queryResult.map(toValidator);
 
   thunkApi.dispatch(fetchMyValidators(allValidators));
   thunkApi.dispatch(fetchMyStakingPositions());
   thunkApi.dispatch(fetchEpoch());
-
-  allValidators.forEach((validator, i) => {
-    // TODO: Only fetch for current page
-    // TODO: This should take into account how validators are sorted in the view!
-    if (i < 25) {
-      thunkApi.dispatch(fetchTotalBonds(validator.name));
-    }
-  });
 
   return Promise.resolve({ allValidators });
 });

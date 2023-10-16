@@ -1,10 +1,30 @@
-import { useState, useCallback } from "react";
-import { Table, TableLink, TableConfigurations } from "@namada/components";
-import { Validator } from "slices/StakingAndGovernance";
-import { AllValidatorsSearchBar } from "./AllValidatorsTable.components";
+import { useState, useCallback, useEffect } from "react";
+import BigNumber from "bignumber.js";
+
+import {
+  Table,
+  TableLink,
+  TableConfigurations,
+  Input,
+  InputVariants,
+} from "@namada/components";
 import { formatPercentage, assertNever, truncateInMiddle } from "@namada/utils";
-import { useAppSelector, RootState } from "store";
+import { useDebounce } from "@namada/hooks";
+
+import {
+  StakingAndGovernanceState,
+  Validator,
+} from "slices/StakingAndGovernance";
+import { useAppDispatch, useAppSelector } from "store";
+import {
+  AllValidatorsSearchBar,
+  AllValidatorsSubheadingContainer,
+  Paginator,
+} from "./AllValidatorsTable.components";
 import { ValidatorsCallbacks } from "../StakingOverview";
+import { fetchTotalBonds } from "slices/StakingAndGovernance/actions";
+
+const ITEMS_PER_PAGE = 25;
 
 // AllValidators table row renderer and configuration
 // it contains callbacks defined in AllValidatorsCallbacks
@@ -82,15 +102,15 @@ const sortValidators = (sort: Sort, validators: Validator[]): Validator[] => {
     sort.column === AllValidatorsColumn.Validator
       ? (a, b) => a.name.localeCompare(b.name)
       : sort.column === AllValidatorsColumn.VotingPower
-      ? (a, b) =>
+        ? (a, b) =>
           !a.votingPower || !b.votingPower
             ? 0
             : a.votingPower.isLessThan(b.votingPower)
-            ? -1
-            : 1
-      : sort.column === AllValidatorsColumn.Commission
-      ? (a, b) => (a.commission.isLessThan(b.commission) ? -1 : 1)
-      : assertNever(sort.column);
+              ? -1
+              : 1
+        : sort.column === AllValidatorsColumn.Commission
+          ? (a, b) => (a.commission.isLessThan(b.commission) ? -1 : 1)
+          : assertNever(sort.column);
 
   const cloned = validators.slice();
   cloned.sort((a, b) => direction * ascendingSortFn(a, b));
@@ -103,19 +123,8 @@ const filterValidators = (
   validators: Validator[]
 ): Validator[] =>
   validators.filter((v) =>
-    search === "" ? true : v.name.toLowerCase().startsWith(search.toLowerCase())
+    search === "" ? true : v.name.toLowerCase().includes(search.toLowerCase())
   );
-
-const selectSortedFilteredValidators =
-  (sort: Sort, search: string) =>
-  (state: RootState): Validator[] => {
-    const validators = state.stakingAndGovernance.validators;
-
-    const sorted = sortValidators(sort, validators);
-    const sortedAndFiltered = filterValidators(search, sorted);
-
-    return sortedAndFiltered;
-  };
 
 enum AllValidatorsColumn {
   Validator = "Validator",
@@ -131,16 +140,53 @@ type Sort = {
 export const AllValidatorsTable: React.FC<{
   navigateToValidatorDetails: (validatorId: string) => void;
 }> = ({ navigateToValidatorDetails }) => {
+  const dispatch = useAppDispatch();
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search);
 
   const [sort, setSort] = useState<Sort>({
     column: AllValidatorsColumn.Validator,
     ascending: true,
   });
+  const [itemOffset, setItemOffset] = useState(0);
 
-  const sortedFilteredValidators = useAppSelector(
-    selectSortedFilteredValidators(sort, search)
+  const { validators, validatorAssets } =
+    useAppSelector<StakingAndGovernanceState>(
+      (state) => state.stakingAndGovernance
+    );
+  const [filteredValidators, setFilteredValidators] = useState<Validator[]>([]);
+  const [currentValidators, setCurrentValidators] = useState<Validator[]>([]);
+  const endOffset = itemOffset + ITEMS_PER_PAGE;
+
+  useEffect(() => {
+    setFilteredValidators(filterValidators(debouncedSearch, validators));
+  }, [debouncedSearch, validators]);
+
+  useEffect(() => {
+    setCurrentValidators(
+      search ? filteredValidators : validators.slice(itemOffset, endOffset)
+    );
+  }, [filteredValidators, itemOffset]);
+
+  const pageCount = Math.ceil(filteredValidators.length / ITEMS_PER_PAGE);
+  const sortedValidators = sortValidators(sort, currentValidators).map(
+    (validator) => ({
+      ...validator,
+      votingPower:
+        validatorAssets[validator.name]?.votingPower || new BigNumber(0),
+      commission:
+        validatorAssets[validator.name]?.commission || new BigNumber(0),
+    })
   );
+
+  useEffect(() => {
+    sortedValidators.forEach((validator) => {
+      const { name: address } = validator;
+      if (!validatorAssets[address]) {
+        dispatch(fetchTotalBonds(address));
+      }
+    });
+  }, [currentValidators]);
 
   const handleColumnClick = useCallback(
     (column: AllValidatorsColumn): void =>
@@ -157,20 +203,38 @@ export const AllValidatorsTable: React.FC<{
     sort
   );
 
+  const handlePageClick = (event: { selected: number }): void => {
+    const newOffset = (event.selected * ITEMS_PER_PAGE) % validators.length;
+    setItemOffset(newOffset);
+  };
+
   return (
     <Table
       title="All Validators"
       subheadingSlot={
-        <AllValidatorsSearchBar>
-          <input
-            type="search"
-            placeholder="Validator"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          ></input>
-        </AllValidatorsSearchBar>
+        <AllValidatorsSubheadingContainer>
+          <AllValidatorsSearchBar>
+            <Input
+              label={""}
+              placeholder="Search validators"
+              variant={InputVariants.Text}
+              value={search}
+              onChangeCallback={(e) => setSearch(e.target.value)}
+            />
+          </AllValidatorsSearchBar>
+          <Paginator
+            breakLabel="..."
+            nextLabel="next >"
+            onPageChange={handlePageClick}
+            pageRangeDisplayed={5}
+            pageCount={pageCount}
+            previousLabel="< previous"
+            renderOnZeroPageCount={null}
+            activeLinkClassName={"active-paginate-link"}
+          />
+        </AllValidatorsSubheadingContainer>
       }
-      data={sortedFilteredValidators}
+      data={sortedValidators}
       tableConfigurations={allValidatorsConfiguration}
     />
   );

@@ -25,11 +25,20 @@ type Unique = {
 // represents the details of a validator
 export type Validator = Unique & {
   name: string;
-  votingPower?: BigNumber;
   homepageUrl: string;
+  votingPower?: BigNumber;
   commission: BigNumber;
   description: string;
 };
+
+// Look up validator assets by address
+export type ValidatorAssets = Record<
+  string,
+  {
+    votingPower: BigNumber;
+    commission: BigNumber;
+  }
+>;
 
 // represents users staking position
 export type StakingPosition = Unique & {
@@ -78,6 +87,7 @@ export type ChangeInStakingPosition = {
 
 export type StakingAndGovernanceState = {
   validators: Validator[];
+  validatorAssets: ValidatorAssets;
   myValidators?: MyValidators[];
   myStakingPositions: StakingPosition[];
   selectedValidatorId?: ValidatorId;

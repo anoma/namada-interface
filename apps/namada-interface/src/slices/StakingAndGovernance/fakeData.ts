@@ -70,7 +70,7 @@ export const allValidatorsData: Validator[] = [
     name: "Figment",
     homepageUrl: "https://figment.io",
     votingPower: new BigNumber(100_000),
-    commission: new BigNumber(0.20),
+    commission: new BigNumber(0.2),
     description:
       "Makers of Hubble and Canada’s largest Cosmos validator, Figment is the easiest and most secure way to stake your Atoms.",
   },
@@ -79,7 +79,7 @@ export const allValidatorsData: Validator[] = [
     name: "P2P",
     homepageUrl: "https://p2p.org",
     votingPower: new BigNumber(100_000),
-    commission: new BigNumber(0.20),
+    commission: new BigNumber(0.2),
     description:
       "One of the winners of Cosmos Game of Stakes. We provide a simple, secure and intelligent staking service to help you generate rewards on your blockchain assets across 9+ networks within a single interface. Let’s stake together - p2p.org.",
   },
@@ -88,7 +88,7 @@ export const allValidatorsData: Validator[] = [
     name: "Coinbase Custody",
     homepageUrl: "https://custody.coinbase.com",
     votingPower: new BigNumber(100_000),
-    commission: new BigNumber(0.20),
+    commission: new BigNumber(0.2),
     description: "Coinbase Custody Cosmos Validator",
   },
   {
@@ -96,7 +96,7 @@ export const allValidatorsData: Validator[] = [
     name: "Chorus One",
     homepageUrl: "https://chorus.one",
     votingPower: new BigNumber(100_000),
-    commission: new BigNumber(0.20),
+    commission: new BigNumber(0.2),
     description:
       "Secure Cosmos and shape its future by delegating to Chorus One, a highly secure and stable validator. By delegating, you agree to the terms of service at: https://chorus.one/cosmos/tos",
   },
@@ -105,7 +105,7 @@ export const allValidatorsData: Validator[] = [
     name: "Binance Staking",
     homepageUrl: "https://binance.com",
     votingPower: new BigNumber(100_000),
-    commission: new BigNumber(0.20),
+    commission: new BigNumber(0.2),
     description: "Exchange the world",
   },
   {
@@ -113,7 +113,7 @@ export const allValidatorsData: Validator[] = [
     name: "DokiaCapital",
     homepageUrl: "https://staking.dokia.cloud",
     votingPower: new BigNumber(100_000),
-    commission: new BigNumber(0.20),
+    commission: new BigNumber(0.2),
     description:
       "Downtime is not an option for Dokia Capital. We operate an enterprise-grade infrastructure that is robust and secure.",
   },
@@ -122,7 +122,7 @@ export const allValidatorsData: Validator[] = [
     name: "Kraken",
     homepageUrl: "https://kraken.com",
     votingPower: new BigNumber(100_000),
-    commission: new BigNumber(0.20),
+    commission: new BigNumber(0.2),
     description: "Kraken Exchange validator",
   },
   {
@@ -130,7 +130,7 @@ export const allValidatorsData: Validator[] = [
     name: "Zero Knowledge Validator (ZKV)",
     homepageUrl: "https://zkvalidator.com",
     votingPower: new BigNumber(100_000),
-    commission: new BigNumber(0.20),
+    commission: new BigNumber(0.2),
     description:
       "Zero Knowledge Validator: Stake & Support ZKP Research & Privacy Tech",
   },
@@ -139,7 +139,7 @@ export const allValidatorsData: Validator[] = [
     name: "Paradigm",
     homepageUrl: "https://www.paradigm.xyz",
     votingPower: new BigNumber(100_000),
-    commission: new BigNumber(0.20),
+    commission: new BigNumber(0.2),
     description: "",
   },
 ];
