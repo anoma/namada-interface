@@ -93,11 +93,6 @@ jobs:
       - name: Install protoc
         run: sudo apt-get install -y protobuf-compiler
 
-      - name: Install wasm-pack
-        uses: jetli/wasm-pack-action@v0.3.0
-        with:
-          version: "v0.10.3"
-
       - name: Build the interface
         working-directory: ./apps/namada-interface
         run: yarn build
@@ -134,11 +129,6 @@ jobs:
 
       - name: Install protoc
         run: sudo apt-get install -y protobuf-compiler
-
-      - name: Install wasm-pack
-        uses: jetli/wasm-pack-action@v0.3.0
-        with:
-          version: "v0.10.3"
 
       - name: Install web-ext
         run: yarn global add node-gyp && yarn global add web-ext
@@ -183,11 +173,6 @@ jobs:
 
       - name: Install protoc
         run: sudo apt-get install -y protobuf-compiler
-
-      - name: Install wasm-pack
-        uses: jetli/wasm-pack-action@v0.3.0
-        with:
-          version: "v0.10.3"
 
       - name: Install web-ext
         run: yarn global add node-gyp && yarn global add web-ext
