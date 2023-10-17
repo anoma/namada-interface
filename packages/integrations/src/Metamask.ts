@@ -111,9 +111,14 @@ class Metamask implements Integration<Account, unknown> {
       ethereumBridgeAbi,
       signer
     );
-    await erc.approve(bridge.target, amountNumber);
-    const pendingTx = await bridge.transferToNamada([tx], 1);
-    await pendingTx.wait();
+    try {
+      await erc.approve(bridge.target, amountNumber);
+      const pendingTx = await bridge.transferToNamada([tx], 1);
+      await pendingTx.wait();
+    } catch (e) {
+      //TODO: add error toast
+      console.warn(e);
+    }
 
     window.dispatchEvent(new Event(MetamaskEvents.BridgeTransferCompleted));
   }
@@ -129,7 +134,9 @@ class Metamask implements Integration<Account, unknown> {
       erc20Abi,
       signer
     );
-    const testErc20Balance: bigint = await erc.balanceOf(signer.address);
+    const testErc20Balance: bigint = (await erc.getDeployedCode())
+      ? await erc.balanceOf(signer.address)
+      : BigInt(0);
 
     return [
       { token: "ETH", amount: String(ethBalance) || "0" },

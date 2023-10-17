@@ -3,9 +3,9 @@ import BigNumber from "bignumber.js";
 
 import { chains, cosmos, namada } from "@namada/chains";
 import {
-  Account as AccountType,
   BridgeType,
   Chain,
+  ExtensionKey,
   Tokens,
   TokenType,
 } from "@namada/types";
@@ -18,10 +18,6 @@ import {
   Select,
 } from "@namada/components";
 
-import {
-  useIntegrationConnection,
-  useUntilIntegrationAttached,
-} from "@namada/hooks";
 import { useAppDispatch, useAppSelector } from "store";
 import {
   Account,
@@ -30,7 +26,7 @@ import {
   fetchBalances,
 } from "slices/accounts";
 import { ChannelsState } from "slices/channels";
-import { SettingsState, setIsConnected } from "slices/settings";
+import { SettingsState } from "slices/settings";
 
 import {
   ButtonsContainer,
@@ -40,8 +36,11 @@ import { IBCTransferFormContainer } from "./IBCTransfer.components";
 import { TxIbcTransferArgs } from "../types";
 import { extensions } from "@namada/integrations";
 import { IBCTransferChannelsForm } from "./IBCTransferChannelsForm";
+import { ConnectExtensionButton } from "../ConnectExtensionButton";
+import { useIntegrationConnection } from "@namada/hooks";
 
 export const submitIbcTransfer = async (
+  extensionKey: ExtensionKey,
   ibcArgs: TxIbcTransferArgs
 ): Promise<void> => {
   const {
@@ -53,7 +52,8 @@ export const submitIbcTransfer = async (
     channelId,
   } = ibcArgs;
 
-  await extensions.namada.submitBridgeTransfer(
+  const integration = extensions[extensionKey];
+  await integration.submitBridgeTransfer(
     {
       ibcProps: {
         tx: {
@@ -116,10 +116,10 @@ const IBCTransfer = (): JSX.Element => {
       value: chain.chainId,
       label: chain.alias,
     }));
-  const [isKeplrConnected, setIsKeplrConnected] = useState(
+  const isNamadaSource = source.extension.id === "namada";
+  const isKeplrConnected =
     connectedChains.includes(source.chainId) &&
-      connectedChains.includes(destination.chainId)
-  );
+    connectedChains.includes(destination.chainId);
 
   const currentBalance =
     sourceAccount?.balance[token as TokenType] || new BigNumber(0);
@@ -144,15 +144,6 @@ const IBCTransfer = (): JSX.Element => {
       value: address,
     })
   );
-
-  // Integrations connection
-  const [integration, isConnectingToExtension, withConnection] =
-    useIntegrationConnection(cosmos.extension.id);
-  const extensionAttachStatus = useUntilIntegrationAttached(
-    cosmos.extension.id
-  );
-  const currentExtensionAttachStatus =
-    extensionAttachStatus[cosmos.extension.id];
 
   // Handlers
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
@@ -195,7 +186,7 @@ const IBCTransfer = (): JSX.Element => {
 
   const handleSubmit = (): void => {
     if (sourceAccount && token && selectedChannel && source.ibc) {
-      submitIbcTransfer({
+      submitIbcTransfer(source.extension.id, {
         account: sourceAccount.details,
         token: Tokens[token as TokenType],
         amount,
@@ -205,27 +196,6 @@ const IBCTransfer = (): JSX.Element => {
         portId: source.ibc.portId,
       });
     }
-  };
-
-  const handleConnectExtension = async (): Promise<void> => {
-    withConnection(
-      async () => {
-        const accounts = await integration?.accounts();
-        if (accounts) {
-          dispatch(addAccounts(accounts as AccountType[]));
-          dispatch(fetchBalances(destinationChainId));
-          dispatch(setIsConnected(destinationChainId));
-        }
-        setIsKeplrConnected(true);
-      },
-      async () => {
-        setIsKeplrConnected(true);
-      }
-    );
-  };
-
-  const handleDownloadExtension = (url: string): void => {
-    window.open(url, "_blank", "noopener,noreferrer");
   };
 
   // Validation
@@ -246,16 +216,23 @@ const IBCTransfer = (): JSX.Element => {
   }, [amount, recipient, destinationChainId, sourceAccount]);
 
   // Query Keplr accounts if connected
+  const [integration, _, withConnection] = useIntegrationConnection("keplr");
+
   useEffect(() => {
     const queryKeplr = async (): Promise<void> => {
-      const accounts = await integration?.accounts();
-      if (accounts) {
-        dispatch(addAccounts(accounts as AccountType[]));
-        dispatch(fetchBalances(destinationChainId));
-        dispatch(setIsConnected(destinationChainId));
-        // We are setting recipient after we query destination accounts
-        setRecipient(accounts[0].address);
-      }
+      withConnection(
+        async () => {
+          const accounts = await integration.accounts();
+          if (accounts) {
+            dispatch(addAccounts(accounts));
+            dispatch(fetchBalances(destinationChainId));
+            setRecipient(accounts[0].address);
+          }
+        },
+        async () => {
+          //TODO: handle error
+        }
+      );
     };
     if (isKeplrConnected) {
       queryKeplr();
@@ -264,31 +241,8 @@ const IBCTransfer = (): JSX.Element => {
 
   return (
     <IBCTransferFormContainer>
-      {!isKeplrConnected && (
-        <Button
-          variant={ButtonVariant.Contained}
-          onClick={
-            currentExtensionAttachStatus === "attached"
-              ? handleConnectExtension
-              : handleDownloadExtension.bind(null, cosmos.extension.url)
-          }
-          loading={
-            currentExtensionAttachStatus === "pending" ||
-            isConnectingToExtension
-          }
-          style={
-            currentExtensionAttachStatus === "pending"
-              ? { color: "transparent" }
-              : {}
-          }
-        >
-          {currentExtensionAttachStatus === "attached" ||
-          currentExtensionAttachStatus === "pending"
-            ? source.extension.id === "namada"
-              ? `Load accounts from Keplr Extension`
-              : `Connect to Keplr to perform a transfer`
-            : `Click to download the Keplr extension`}
-        </Button>
+      {!isNamadaSource && !isKeplrConnected && (
+        <ConnectExtensionButton chain={source} text="Connect to Keplr" />
       )}
       <InputContainer>
         <Select<string>
@@ -300,7 +254,7 @@ const IBCTransfer = (): JSX.Element => {
       </InputContainer>
 
       {/* We only show the following section if we are doing a transfer from Namada or we are connected to Keplr */}
-      {(source.extension.id === "namada" || isKeplrConnected) && (
+      {(isNamadaSource || isKeplrConnected) && (
         <>
           <InputContainer>
             <Select
@@ -324,6 +278,12 @@ const IBCTransfer = (): JSX.Element => {
             destinationChainId={destinationChainId}
           ></IBCTransferChannelsForm>
 
+          {isNamadaSource && !isKeplrConnected && (
+            <ConnectExtensionButton
+              chain={destination}
+              text="Load accounts from Keplr Extension"
+            />
+          )}
           <InputContainer>
             {destinationAccounts.length > 0 && (
               <Select
