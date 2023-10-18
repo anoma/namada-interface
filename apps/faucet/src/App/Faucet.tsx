@@ -25,7 +25,7 @@ import {
   requestTransfer,
 } from "utils";
 
-const DEFAULT_URL = "http://127.0.0.1:5000";
+const DEFAULT_URL = "http://localhost:5000";
 const DEFAULT_ENDPOINT = "/api/v1/faucet";
 const DEFAULT_FAUCET_LIMIT = "1000";
 
@@ -37,7 +37,7 @@ const {
   REACT_APP_PROXY_PORT: proxyPort = 9000,
 } = process.env;
 
-const apiUrl = isProxied ? `http://127.0.0.1:${proxyPort}/proxy` : faucetApiUrl;
+const apiUrl = isProxied ? `http://localhost:${proxyPort}/proxy` : faucetApiUrl;
 
 enum Status {
   Pending,

@@ -102,15 +102,15 @@ const sortValidators = (sort: Sort, validators: Validator[]): Validator[] => {
     sort.column === AllValidatorsColumn.Validator
       ? (a, b) => a.name.localeCompare(b.name)
       : sort.column === AllValidatorsColumn.VotingPower
-        ? (a, b) =>
+      ? (a, b) =>
           !a.votingPower || !b.votingPower
             ? 0
             : a.votingPower.isLessThan(b.votingPower)
-              ? -1
-              : 1
-        : sort.column === AllValidatorsColumn.Commission
-          ? (a, b) => (a.commission.isLessThan(b.commission) ? -1 : 1)
-          : assertNever(sort.column);
+            ? -1
+            : 1
+      : sort.column === AllValidatorsColumn.Commission
+      ? (a, b) => (a.commission.isLessThan(b.commission) ? -1 : 1)
+      : assertNever(sort.column);
 
   const cloned = validators.slice();
   cloned.sort((a, b) => direction * ascendingSortFn(a, b));
@@ -122,9 +122,11 @@ const filterValidators = (
   search: string,
   validators: Validator[]
 ): Validator[] =>
-  validators.filter((v) =>
-    search === "" ? true : v.name.toLowerCase().includes(search.toLowerCase())
-  );
+  search
+    ? validators.filter((v) =>
+        v.name.toLowerCase().includes(search.toLowerCase())
+      )
+    : validators;
 
 enum AllValidatorsColumn {
   Validator = "Validator",
@@ -149,6 +151,7 @@ export const AllValidatorsTable: React.FC<{
     ascending: true,
   });
   const [itemOffset, setItemOffset] = useState(0);
+  const [forcePage, setForcePage] = useState<number>();
 
   const { validators, validatorAssets } =
     useAppSelector<StakingAndGovernanceState>(
@@ -157,36 +160,34 @@ export const AllValidatorsTable: React.FC<{
   const [filteredValidators, setFilteredValidators] = useState<Validator[]>([]);
   const [currentValidators, setCurrentValidators] = useState<Validator[]>([]);
   const endOffset = itemOffset + ITEMS_PER_PAGE;
+  const pageCount = Math.ceil(filteredValidators.length / ITEMS_PER_PAGE);
 
   useEffect(() => {
     setFilteredValidators(filterValidators(debouncedSearch, validators));
-  }, [debouncedSearch, validators]);
+    if (search) {
+      // Show first page of results if search is entered
+      setItemOffset(0);
+      // Set to first page of paginator
+      setForcePage(0);
+    } else {
+      setForcePage(undefined);
+    }
+  }, [debouncedSearch, validators, validatorAssets]);
 
   useEffect(() => {
-    setCurrentValidators(
-      search ? filteredValidators : validators.slice(itemOffset, endOffset)
+    const sortedValidators = sortValidators(
+      sort,
+      filteredValidators.slice(itemOffset, endOffset)
     );
-  }, [filteredValidators, itemOffset]);
 
-  const pageCount = Math.ceil(filteredValidators.length / ITEMS_PER_PAGE);
-  const sortedValidators = sortValidators(sort, currentValidators).map(
-    (validator) => ({
-      ...validator,
-      votingPower:
-        validatorAssets[validator.name]?.votingPower || new BigNumber(0),
-      commission:
-        validatorAssets[validator.name]?.commission || new BigNumber(0),
-    })
-  );
-
-  useEffect(() => {
+    setCurrentValidators(sortedValidators);
     sortedValidators.forEach((validator) => {
       const { name: address } = validator;
       if (!validatorAssets[address]) {
         dispatch(fetchTotalBonds(address));
       }
     });
-  }, [currentValidators]);
+  }, [filteredValidators, itemOffset, debouncedSearch]);
 
   const handleColumnClick = useCallback(
     (column: AllValidatorsColumn): void =>
@@ -203,10 +204,17 @@ export const AllValidatorsTable: React.FC<{
     sort
   );
 
-  const handlePageClick = (event: { selected: number }): void => {
-    const newOffset = (event.selected * ITEMS_PER_PAGE) % validators.length;
+  const handlePageClick = ({ selected }: { selected: number }): void => {
+    const newOffset = (selected * ITEMS_PER_PAGE) % validators.length;
     setItemOffset(newOffset);
   };
+
+  const allValidators = currentValidators.map((validator) => ({
+    ...validator,
+    votingPower:
+      validatorAssets[validator.name]?.votingPower || new BigNumber(0),
+    commission: validatorAssets[validator.name]?.commission || new BigNumber(0),
+  }));
 
   return (
     <Table
@@ -231,10 +239,11 @@ export const AllValidatorsTable: React.FC<{
             previousLabel="< previous"
             renderOnZeroPageCount={null}
             activeLinkClassName={"active-paginate-link"}
+            forcePage={forcePage}
           />
         </AllValidatorsSubheadingContainer>
       }
-      data={sortedValidators}
+      data={allValidators}
       tableConfigurations={allValidatorsConfiguration}
     />
   );
