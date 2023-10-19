@@ -1,5 +1,10 @@
 import { TokenType } from "./tx";
 
+const {
+  // Load extension download URL from env
+  REACT_APP_EXTENSION_URL: extensionUrl,
+} = process.env;
+
 export type Currency = {
   token: string;
   symbol: TokenType;
@@ -30,7 +35,7 @@ export const Extensions: Record<ExtensionKey, ExtensionInfo> = {
     alias: "Namada",
     id: "namada",
     // TODO: Update to most recent release
-    url: "https://github.com/anoma/namada-interface/releases/tag/v0.1.0-48adf43",
+    url: extensionUrl || "https://namada.me",
   },
   keplr: {
     alias: "Keplr",
