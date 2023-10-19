@@ -33,3 +33,16 @@ export type TransferToEthereum = {
   /// The amount to be transferred
   amount: string;
 };
+
+export type TransferToEthereumStatus = {
+  queried_height: number;
+  /// Transfers in the query whose status it was determined
+  /// to be `pending`.
+  pending: string[];
+  /// Transfers in the query whose status it was determined
+  /// to be `relayed`.
+  relayed: string[];
+  /// Transfers in the query whose status it was determined
+  /// to be `expired`.
+  expired: string[];
+};

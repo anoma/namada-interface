@@ -1,6 +1,8 @@
 use masp_primitives::transaction::components::I128Sum;
 use masp_primitives::zip32::ExtendedFullViewingKey;
-use namada::ledger::eth_bridge::bridge_pool::query_signed_bridge_pool;
+use namada::ledger::eth_bridge::bridge_pool::{
+    query_eth_transfer_status, query_signed_bridge_pool,
+};
 use namada::ledger::queries::RPC;
 use namada::sdk::masp::ShieldedContext;
 use namada::sdk::rpc::{
@@ -8,6 +10,7 @@ use namada::sdk::rpc::{
 };
 use namada::types::control_flow::ProceedOrElse;
 use namada::types::eth_bridge_pool::TransferToEthereum;
+use namada::types::keccak::KeccakHash;
 use namada::types::{
     address::Address,
     masp::ExtendedViewingKey,
@@ -329,16 +332,31 @@ impl Query {
             .filter_map(|address| Address::from_str(&address).ok())
             .collect();
 
-        let result: Vec<TransferToEthereum> = bridge_pool
+        let result: Vec<(String, TransferToEthereum)> = bridge_pool
             .into_iter()
-            .filter_map(|(_hash, pending_transfer)| {
+            .filter_map(|(hash, pending_transfer)| {
                 if owner_addresses.contains(&pending_transfer.transfer.sender) {
-                    Some(pending_transfer.transfer)
+                    Some((hash, pending_transfer.transfer))
                 } else {
                     None
                 }
             })
             .collect();
+
+        to_js_result(result)
+    }
+
+    pub async fn query_eth_transfer_status(
+        &self,
+        hashes: Box<[JsValue]>,
+    ) -> Result<JsValue, JsError> {
+        let hashes: Vec<KeccakHash> = hashes
+            .into_iter()
+            .map(|hash| KeccakHash::try_from(hash.as_string().unwrap()).unwrap())
+            .collect();
+        let hashes: HashSet<KeccakHash> = HashSet::from_iter(hashes.iter().cloned());
+
+        let result = query_eth_transfer_status(&self.client, hashes).await?;
 
         to_js_result(result)
     }

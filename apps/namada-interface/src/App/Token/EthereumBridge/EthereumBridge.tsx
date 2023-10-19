@@ -23,6 +23,7 @@ import {
 import { useState } from "react";
 import BigNumber from "bignumber.js";
 import { getIntegration } from "@namada/hooks";
+import { EthereumBridgeTransfers } from "./EthereumBridgeTransfer";
 
 const SUPPORTED_TOKENS = ["TESTERC20", "NUTTESTERC20"];
 type FormFields = "recipient" | "amount" | "feeAmount";
@@ -208,6 +209,7 @@ export const EthereumBridge = (): JSX.Element => {
           </Button>
         </ButtonsContainer>
       </FormContainer>
+      <EthereumBridgeTransfers accounts={accounts} chainId={chainId} />
     </>
   );
 };

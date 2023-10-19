@@ -19,7 +19,7 @@ export const TransferCol = styled.div`
     min-width: 50px;
   }
   &:nth-child(2) {
-    min-width: 30%;
+    min-width: 80px;
     justify-content: center;
   }
   &:nth-child(3) {
@@ -27,10 +27,14 @@ export const TransferCol = styled.div`
     justify-content: center;
   }
   &:nth-child(4) {
-    min-width: calc(40% - 150px);
+    min-width: 30%;
     justify-content: center;
   }
   &:nth-child(5) {
+    min-width: calc(40% - 230px);
+    justify-content: center;
+  }
+  &:nth-child(6) {
     min-width: 100px;
     justify-content: flex-end;
   }
