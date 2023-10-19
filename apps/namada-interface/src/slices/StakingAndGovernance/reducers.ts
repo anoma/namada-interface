@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import {
   fetchValidatorDetails,
   fetchValidators,
+  fetchTotalBonds,
   fetchMyValidators,
   fetchMyStakingPositions,
   fetchEpoch,
@@ -13,9 +14,11 @@ import {
   StakingAndGovernanceState,
   StakingOrUnstakingState,
 } from "./types";
+import BigNumber from "bignumber.js";
 
 const initialState: StakingAndGovernanceState = {
   validators: [],
+  validatorAssets: {},
   myValidators: undefined,
   myStakingPositions: [],
   stakingOrUnstakingState: StakingOrUnstakingState.Idle,
@@ -35,6 +38,14 @@ export const stakingAndGovernanceSlice = createSlice({
       .addCase(fetchValidators.rejected, (state, _action) => {
         // stop the loader
         state.validators = [];
+      })
+      .addCase(fetchTotalBonds.fulfilled, (state, action) => {
+        const { address, totalBonds } = action.payload;
+        state.validatorAssets[address] = {
+          votingPower: new BigNumber(totalBonds),
+          commission:
+            state.validatorAssets[address]?.commission || new BigNumber(0),
+        };
       })
       .addCase(fetchMyValidators.fulfilled, (state, action) => {
         // stop the loader

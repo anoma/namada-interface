@@ -1,4 +1,4 @@
-const getProxyURL = (port: number): string => `http://127.0.0.1:${port}/proxy`;
+const getProxyURL = (port: number): string => `http://localhost:${port}/proxy`;
 
 type ProxiedChains = "namada" | "cosmos" | "ethereum";
 
@@ -7,4 +7,4 @@ export const ProxyMappings: Record<ProxiedChains, string> = {
   namada: getProxyURL(8010),
   cosmos: getProxyURL(8011),
   ethereum: getProxyURL(8012),
-}
+};

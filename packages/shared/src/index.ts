@@ -42,11 +42,14 @@ export class Query extends RustQuery {
     timeout: 10000,
   });
   query_epoch = promiseWithTimeout(super.query_epoch.bind(this));
-  query_all_validators = promiseWithTimeout(
-    super.query_all_validators.bind(this)
+  query_all_validator_addresses = promiseWithTimeout(
+    super.query_all_validator_addresses.bind(this)
   );
   query_my_validators = promiseWithTimeout(
     super.query_my_validators.bind(this)
+  );
+  query_total_bonds = promiseWithTimeout(
+    super.query_total_bonds.bind(this)
   );
 }
 

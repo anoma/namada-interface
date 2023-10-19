@@ -2,6 +2,7 @@ import BigNumber from "bignumber.js";
 
 export const STAKING_AND_GOVERNANCE = "stakingAndGovernance";
 export const FETCH_VALIDATORS = `${STAKING_AND_GOVERNANCE}/FETCH_VALIDATORS`;
+export const FETCH_TOTAL_BONDS = `${STAKING_AND_GOVERNANCE}/FETCH_TOTAL_BONDS`;
 export const FETCH_MY_VALIDATORS = `${STAKING_AND_GOVERNANCE}/FETCH_MY_VALIDATORS`;
 export const FETCH_MY_STAKING_POSITIONS = `${STAKING_AND_GOVERNANCE}/FETCH_MY_STAKING_POSITIONS`;
 export const FETCH_EPOCH = `${STAKING_AND_GOVERNANCE}/FETCH_EPOCH`;
@@ -24,11 +25,20 @@ type Unique = {
 // represents the details of a validator
 export type Validator = Unique & {
   name: string;
-  votingPower?: BigNumber;
   homepageUrl: string;
+  votingPower?: BigNumber;
   commission: BigNumber;
   description: string;
 };
+
+// Look up validator assets by address
+export type ValidatorAssets = Record<
+  string,
+  {
+    votingPower: BigNumber;
+    commission: BigNumber;
+  }
+>;
 
 // represents users staking position
 export type StakingPosition = Unique & {
@@ -77,6 +87,7 @@ export type ChangeInStakingPosition = {
 
 export type StakingAndGovernanceState = {
   validators: Validator[];
+  validatorAssets: ValidatorAssets;
   myValidators?: MyValidators[];
   myStakingPositions: StakingPosition[];
   selectedValidatorId?: ValidatorId;

@@ -17,10 +17,9 @@ export const TableLink = styled.span`
   cursor: pointer;
   color: ${(props) => props.theme.colors.secondary.main};
   display: block;
-  width: 150px;
+  width: 250px;
   overflow: hidden;
   white-space: nowrap;
-  text-overflow: ellipsis;
 `;
 
 export const TableDimmedCell = styled.span`

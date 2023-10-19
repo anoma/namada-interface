@@ -1,6 +1,9 @@
 import { Table, TableLink, TableConfigurations } from "@namada/components";
-import { MyValidators, StakingAndGovernanceState } from "slices/StakingAndGovernance";
-import { showMaybeNam } from "@namada/utils";
+import {
+  MyValidators,
+  StakingAndGovernanceState,
+} from "slices/StakingAndGovernance";
+import { showMaybeNam, truncateInMiddle } from "@namada/utils";
 import { useAppSelector } from "store";
 import { ValidatorsCallbacks } from "../StakingOverview";
 
@@ -13,19 +16,16 @@ const MyValidatorsRowRenderer = (
       <td>
         <TableLink
           onClick={() => {
-            const formattedValidatorName = myValidatorRow.validator.name
-              .replace(" ", "-")
-              .toLowerCase();
-
             // this function is defined at <Staking />
             // there it triggers a navigation. It then calls a callback
             // that was passed to it by its' parent <StakingAndGovernance />
             // in that callback function that is defined in <StakingAndGovernance />
             // an action is dispatched to fetch validator data and make in available
-            callbacks && callbacks.onClickValidator(formattedValidatorName);
+            callbacks &&
+              callbacks.onClickValidator(myValidatorRow.validator.name);
           }}
         >
-          {myValidatorRow.validator.name}
+          {truncateInMiddle(myValidatorRow.validator.name, 10, 12)}
         </TableLink>
       </td>
       <td>{myValidatorRow.stakingStatus}</td>
@@ -56,11 +56,10 @@ const getMyValidatorsConfiguration = (
 
 export const MyValidatorsTable: React.FC<{
   navigateToValidatorDetails: (validatorId: string) => void;
-}> = ({
-  navigateToValidatorDetails,
-}) => {
+}> = ({ navigateToValidatorDetails }) => {
   const stakingAndGovernanceState = useAppSelector<StakingAndGovernanceState>(
-    state => state.stakingAndGovernance);
+    (state) => state.stakingAndGovernance
+  );
   const myValidators = stakingAndGovernanceState.myValidators ?? [];
 
   const myValidatorsConfiguration = getMyValidatorsConfiguration(

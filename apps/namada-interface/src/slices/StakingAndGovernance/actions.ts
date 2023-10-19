@@ -9,6 +9,7 @@ import { getIntegration } from "@namada/hooks";
 import {
   FETCH_VALIDATORS,
   FETCH_VALIDATOR_DETAILS,
+  FETCH_TOTAL_BONDS,
   FETCH_MY_VALIDATORS,
   FETCH_MY_STAKING_POSITIONS,
   FETCH_EPOCH,
@@ -23,12 +24,9 @@ import {
 import { RootState } from "store";
 import { Account } from "slices/accounts";
 
-const toValidator = ([address, stake]: [string, string | null]): Validator => ({
+const toValidator = (address: string): Validator => ({
   uuid: address,
   name: address,
-  // TODO: get votes per token from Namada
-  votingPower:
-    stake === null ? undefined : new BigNumber(stake).multipliedBy(1_000_000),
   homepageUrl: "http://namada.net",
   commission: new BigNumber(0), // TODO: implement commission
   description: "TBD",
@@ -74,7 +72,7 @@ const toMyValidators = (
       stakedAmount,
       unbondedAmount,
       withdrawableAmount,
-      validator: toValidator([validator, stakedAmount.toString()]),
+      validator: toValidator(validator),
     },
   ];
 };
@@ -111,6 +109,19 @@ const toUnbond = ([owner, validator, amount, startEpoch, withdrawableEpoch]: [
   };
 };
 
+export const fetchTotalBonds = createAsyncThunk<
+  { address: string; totalBonds: number },
+  string,
+  { state: RootState }
+>(FETCH_TOTAL_BONDS, async (address: string, thunkApi) => {
+  const { chainId } = thunkApi.getState().settings;
+  const { rpc } = chains[chainId];
+  const query = new Query(rpc);
+  const result = await query.query_total_bonds(address);
+
+  return Promise.resolve({ address, totalBonds: result || 0 });
+});
+
 export const fetchValidators = createAsyncThunk<
   { allValidators: Validator[] },
   void,
@@ -120,10 +131,7 @@ export const fetchValidators = createAsyncThunk<
   const { rpc } = chains[chainId];
 
   const query = new Query(rpc);
-  const queryResult = (await query.query_all_validators()) as [
-    string,
-    string | null
-  ][];
+  const queryResult = (await query.query_all_validator_addresses()) as string[];
   const allValidators = queryResult.map(toValidator);
 
   thunkApi.dispatch(fetchMyValidators(allValidators));

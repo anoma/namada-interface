@@ -12,7 +12,6 @@ export const Title = css`
   color: ${(props) => props.theme.colors.utility2.main};
   width: 100%;
   white-space: nowrap;
-  text-overflow: ellipsis;
   overflow: hidden;
   text-overflow: ellipsis;
   align-content: center;

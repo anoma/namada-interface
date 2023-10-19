@@ -48,31 +48,36 @@ impl Query {
         to_js_result(epoch)
     }
 
-    /// Gets all active validators with their total bonds
+    /// Gets all active validator addresses
     ///
     /// # Errors
     ///
     /// Returns an error if the RPC call fails
-    pub async fn query_all_validators(&self) -> Result<JsValue, JsError> {
+    pub async fn query_all_validator_addresses(&self) -> Result<JsValue, JsError> {
         let validator_addresses = RPC
             .vp()
             .pos()
             .validator_addresses(&self.client, &None)
             .await?;
 
-        let mut result: Vec<(Address, Option<String>)> = Vec::new();
+        to_js_result(validator_addresses)
+    }
 
-        for address in validator_addresses.into_iter() {
-            let total_bonds = RPC
-                .vp()
-                .pos()
-                .validator_stake(&self.client, &address, &None)
-                .await?;
+    /// Gets total bonds by validator address
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the RPC call fails
+    pub async fn query_total_bonds(&self, address: String) -> Result<JsValue, JsError> {
+        let address = Address::from_str(&address)?;
 
-            result.push((address, total_bonds.map(|amount| amount.to_string_native())));
-        }
+        let total_bonds = RPC
+            .vp()
+            .pos()
+            .validator_stake(&self.client, &address, &None)
+            .await?;
 
-        to_js_result(result)
+        to_js_result(total_bonds)
     }
 
     /// Gets all delegations for every provided address.
