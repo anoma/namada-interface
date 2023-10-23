@@ -12,6 +12,7 @@ import {
   transferFromTransparent,
 } from "./partial";
 import {
+  initProposal,
   launchPuppeteer,
   openPopup,
   pasteValueInto,
@@ -380,6 +381,8 @@ describe("Namada", () => {
       await importAccount(browser, page);
       await approveConnection(browser, page);
 
+      initProposal();
+
       // Click on staking button
       (
         await waitForXpath<HTMLButtonElement>(
@@ -424,6 +427,57 @@ describe("Namada", () => {
       );
 
       expect(bondCompletedToast).toBeDefined();
+
+      await new Promise((resolve) => setTimeout(resolve, 30000));
+
+      // Click on proposals button
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Proposals')]"
+        )
+      ).click();
+
+      // Click on ongoing proposal
+      (
+        await page.waitForSelector(
+          "div[data-testid='proposals-list'] > div:nth-child(1)"
+        )
+      )?.click();
+
+      // Click on Vote YAY button
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Vote YAY')]"
+        )
+      ).click();
+
+      await approveTransaction(browser);
+
+      // Wait for success toast
+      const yayCompletedToast = await page.waitForXPath(
+        "//div[contains(., 'Transaction completed!')]"
+      );
+
+      expect(yayCompletedToast).toBeDefined();
+
+      // Click on Vote NAY button
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Vote NAY')]"
+        )
+      ).click();
+
+      await approveTransaction(browser);
+
+      // Wait for success toast
+      const nayCompletedToast = await page.waitForXPath(
+        "//div[contains(., 'Transaction completed!')]"
+      );
+
+      expect(nayCompletedToast).toBeDefined();
 
       await stopNamada(nam);
     });

@@ -217,15 +217,13 @@ export class ApprovalsService {
       SubmitVoteProposalMsgValue
     );
 
-    const { signer, proposalId, vote } = specificDetails;
+    const { signer } = specificDetails;
 
     const { publicKey = "" } = txDetails;
 
     //TODO: check this
     return {
-      signer,
-      proposalId: proposalId.toString(),
-      vote,
+      source: signer,
       publicKey,
     };
   };

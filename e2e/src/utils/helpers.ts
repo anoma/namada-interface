@@ -91,6 +91,10 @@ export const setupNamada = async (): Promise<void> => {
   await execPromise(`sh ${process.cwd()}/setup-namada.sh`);
 };
 
+export const initProposal = async (): Promise<void> => {
+  await execPromise(`sh ${process.cwd()}/init-proposal.sh`);
+};
+
 export const stopNamada = async (namada: ChildProcess): Promise<void> => {
   if (namada.pid) {
     await terminate(namada.pid);

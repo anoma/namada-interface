@@ -12,8 +12,8 @@
       "requires": "2"
     },
     "author": "atest1v4ehgw36xpz52sf5gyu5xwpjgg65gd69gcmnq3p5xymrgdecx3pnvs3sg4prg3psxg6rzs2p68ayjd",
-    "voting_start_epoch": 3,
-    "voting_end_epoch": 18,
-    "grace_epoch": 24
+    "voting_start_epoch": 6,
+    "voting_end_epoch": 21,
+    "grace_epoch": 27
   }
 }

@@ -76,7 +76,7 @@ export const Proposals = (): JSX.Element => {
   return (
     <ProposalsContainer>
       <h1>Proposals</h1>
-      <ProposalsList>
+      <ProposalsList data-testid="proposals-list">
         {[...proposals].reverse().map((proposal, i) => (
           <ProposalCard key={i} onClick={() => onProposalClick(proposal.id)}>
             <ProposalCardStatusContainer>
