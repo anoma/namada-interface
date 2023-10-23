@@ -171,7 +171,6 @@ pub struct SubmitVoteProposalMsg {
     signer: String,
     proposal_id: u64,
     vote: String,
-    tx: TxMsg,
 }
 
 /// Maps serialized tx_msg into VoteProposalTx args.
@@ -186,16 +185,16 @@ pub struct SubmitVoteProposalMsg {
 /// Returns JsError if the tx_msg can't be deserialized or
 /// Rust structs can't be created.
 pub fn vote_proposal_tx_args(
+    vote_proposal_msg: &[u8],
     tx_msg: &[u8],
     password: Option<String>,
 ) -> Result<(args::VoteProposal, Option<Address>), JsError> {
-    let vote_proposal_msg = SubmitVoteProposalMsg::try_from_slice(tx_msg)?;
+    let vote_proposal_msg = SubmitVoteProposalMsg::try_from_slice(vote_proposal_msg)?;
 
     let SubmitVoteProposalMsg {
         signer,
         proposal_id,
         vote,
-        tx,
     } = vote_proposal_msg;
     let (tx, faucet_signer) = tx_msg_into_args(tx_msg, password)?;
     let voter = Address::from_str(&signer)?;

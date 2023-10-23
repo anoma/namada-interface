@@ -41,14 +41,6 @@ pub enum TxType {
     VoteProposal = 8,
 }
 
-// Require that a public key is present
-fn validate_pk(pk: Option<PublicKey>) -> Result<PublicKey, JsError> {
-    match pk {
-        Some(v) => Ok(v),
-        None => Err(JsError::new("No public key was provided!")),
-    }
-}
-
 #[wasm_bindgen]
 pub struct BuiltTx {
     tx: Tx,
@@ -425,7 +417,7 @@ impl Sdk {
         password: Option<String>,
         gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let (args, faucet_signer) = tx::vote_proposal_tx_args(tx_msg, None)?;
+        let (args, faucet_signer) = tx::vote_proposal_tx_args(vote_proposal_msg, tx_msg, password)?;
 
         let voter = args.voter.clone();
         let default_signer = faucet_signer.clone().or(Some(voter.clone()));
@@ -581,40 +573,6 @@ impl Sdk {
         .await?;
 
         Ok(reveal_pk)
-    }
-
-    pub async fn submit_vote_proposal(
-        &mut self,
-        tx_msg: &[u8],
-        password: Option<String>,
-    ) -> Result<(), JsError> {
-        let (args, faucet_signer) = tx::submit_vote_proposal_tx_args(tx_msg, password)?;
-        let source = args.voter.clone();
-        let default_signer = faucet_signer.clone().or(Some(source.clone()));
-        let signing_data = aux_signing_data::<_, _, WebIo>(
-            &self.client,
-            &mut self.wallet,
-            &args.tx.clone(),
-            Some(source),
-            default_signer,
-        )
-        .await?;
-        let current_epoch = query_epoch(&self.client).await?;
-
-        let (tx, _) = build_vote_proposal::<_, _, _, WebIo>(
-            &mut self.client,
-            &mut self.wallet,
-            &mut self.shielded_ctx,
-            args.clone(),
-            current_epoch,
-            signing_data.fee_payer.clone(),
-        )
-        .await?;
-
-        self.sign_and_process_tx(args.tx, tx, signing_data, faucet_signer.is_some())
-            .await?;
-
-        Ok(())
     }
 }
 

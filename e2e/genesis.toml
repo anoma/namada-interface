@@ -173,7 +173,7 @@ implicit_vp = "vp_implicit"
 # Expected number of epochs per year (also sets the min duration of an epoch in seconds).
 # Remember to set this to a more reasonable number for production networks. Also, expect most masp
 # txs to fail due to epoch boundary errors.
-epochs_per_year = 525_600
+epochs_per_year = 3153600 # equals epoch every 10 sec
 # The P gain factor in the Proof of Stake rewards controller
 pos_gain_p = "0.1"
 # The D gain factor in the Proof of Stake rewards controller
@@ -190,10 +190,10 @@ max_signatures_per_transaction = 15
 max_validator_slots = 128
 # Pipeline length (in epochs). Any change in the validator set made in
 # epoch 'n' will become active in epoch 'n + pipeline_len'.
-pipeline_len = 0
+pipeline_len = 2
 # Unbonding length (in epochs). Validators may have their stake slashed
 # for a fault in epoch 'n' up through epoch 'n + unbonding_len'.
-unbonding_len = 0
+unbonding_len = 2
 # Votes per fundamental staking token (namnam) - for testnets this should be 1. For e2e toml, a decimal is used for testing purposes.
 tm_votes_per_token = "0.1"
 # Reward for proposing a block.

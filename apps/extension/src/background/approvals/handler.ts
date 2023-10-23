@@ -1,16 +1,11 @@
 import { Handler, Env, Message, InternalHandler } from "router";
 import { ApprovalsService } from "./service";
-import {
-  ApproveTxMsg,
-  ApproveConnectInterfaceMsg,
-  ApproveVoteProposalMsg,
-} from "provider";
+import { ApproveTxMsg, ApproveConnectInterfaceMsg } from "provider";
 import {
   RejectTxMsg,
-  SubmitApprovedTxMsg,
   ConnectInterfaceResponseMsg,
   RevokeConnectionMsg,
-  SubmitApprovedVoteProposalMsg,
+  SubmitApprovedTxMsg,
 } from "./messages";
 
 export const getHandler: (service: ApprovalsService) => Handler = (service) => {
@@ -18,11 +13,6 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
     switch (msg.constructor) {
       case ApproveTxMsg:
         return handleApproveTxMsg(service)(env, msg as ApproveTxMsg);
-      case ApproveVoteProposalMsg:
-        return handleApproveVoteProposalMsg(service)(
-          env,
-          msg as ApproveVoteProposalMsg
-        );
       case RejectTxMsg:
         return handleRejectTxMsg(service)(env, msg as RejectTxMsg);
       case SubmitApprovedTxMsg:
@@ -44,11 +34,6 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
         return handleRevokeConnectionMsg(service)(
           env,
           msg as RevokeConnectionMsg
-        );
-      case SubmitApprovedVoteProposalMsg:
-        return handleSubmitApprovedVoteProposalMsg(service)(
-          env,
-          msg as SubmitApprovedUnbondMsg
         );
       default:
         throw new Error("Unknown msg type");
@@ -110,13 +95,5 @@ const handleRevokeConnectionMsg: (
 ) => InternalHandler<RevokeConnectionMsg> = (service) => {
   return async (_, { originToRevoke }) => {
     return await service.revokeConnection(originToRevoke);
-  };
-};
-
-const handleSubmitApprovedVoteProposalMsg: (
-  service: ApprovalsService
-) => InternalHandler<SubmitApprovedVoteProposalMsg> = (service) => {
-  return async (_, { msgId, password }) => {
-    return await service.submitVoteProposal(msgId, password);
   };
 };

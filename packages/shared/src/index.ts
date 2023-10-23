@@ -16,7 +16,7 @@ const DEFAULT_TIMEOUT = 60000;
 
 const DEFAULT_OPTS: Required<TimeoutOpts> = {
   timeout: DEFAULT_TIMEOUT,
-  error: timeout => `Promise timed out after ${timeout} ms.`,
+  error: (timeout) => `Promise timed out after ${timeout} ms.`,
 };
 
 /**
@@ -30,10 +30,10 @@ const promiseWithTimeout =
   (...args: U): Promise<T> => {
     const { timeout, error } = { ...DEFAULT_OPTS, ...opts };
 
-      return new Promise(async (resolve, reject) => {
-        const t = setTimeout(() => {
-          reject(error(timeout));
-        }, timeout);
+    return new Promise(async (resolve, reject) => {
+      const t = setTimeout(() => {
+        reject(error(timeout));
+      }, timeout);
 
       const res = await fn(...args);
       clearTimeout(t);
@@ -54,9 +54,7 @@ export class Query extends RustQuery {
   query_my_validators = promiseWithTimeout(
     super.query_my_validators.bind(this)
   );
-  query_total_bonds = promiseWithTimeout(
-    super.query_total_bonds.bind(this)
-  get_proposal_votes = promiseWithTimeout(super.get_proposal_votes.bind(this));
+  query_total_bonds = promiseWithTimeout(super.query_total_bonds.bind(this));
   delegators_votes = promiseWithTimeout(super.delegators_votes.bind(this));
   queryProposals = async (): Promise<Proposal[]> => {
     const fn = this._query_proposals;

@@ -91,17 +91,16 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
 
       await signer.submitVoteProposal(
         {
-          tx: {
-            token: Tokens.NAM.address || "",
-            feeAmount: new BigNumber(0),
-            gasLimit: new BigNumber(20_000),
-            chainId,
-          },
           signer: maybeActiveDelegator.value,
           vote: voteStr,
           proposalId: BigInt(proposal.id),
         },
-
+        {
+          token: Tokens.NAM.address || "",
+          feeAmount: new BigNumber(0),
+          gasLimit: new BigNumber(20_000),
+          chainId,
+        },
         AccountType.Mnemonic
       );
     },

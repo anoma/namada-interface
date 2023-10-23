@@ -36,6 +36,32 @@ export class RejectTxMsg extends Message<void> {
   }
 }
 
+export class SubmitApprovedTxMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.SubmitApprovedTx;
+  }
+
+  constructor(
+    public readonly txType: SupportedTx,
+    public readonly msgId: string,
+    public readonly password: string
+  ) {
+    super();
+  }
+
+  validate(): void {
+    validateProps(this, ["txType", "msgId", "password"]);
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return SubmitApprovedTxMsg.type();
+  }
+}
+
 export class ConnectInterfaceResponseMsg extends Message<void> {
   public static type(): MessageType {
     return MessageType.ConnectInterfaceResponse;

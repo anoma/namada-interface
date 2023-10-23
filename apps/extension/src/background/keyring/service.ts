@@ -185,7 +185,11 @@ export class KeyRingService {
     ];
   }
 
-  async submitBond(bondMsg: string, txMsg: string, msgId: string): Promise<void> {
+  async submitBond(
+    bondMsg: string,
+    txMsg: string,
+    msgId: string
+  ): Promise<void> {
     await this.broadcaster.startTx(msgId, TxType.Bond);
     try {
       await this._keyRing.submitBond(fromBase64(bondMsg), fromBase64(txMsg));
@@ -199,10 +203,17 @@ export class KeyRingService {
     }
   }
 
-  async submitUnbond(unbondMsg: string, txMsg: string, msgId: string): Promise<void> {
+  async submitUnbond(
+    unbondMsg: string,
+    txMsg: string,
+    msgId: string
+  ): Promise<void> {
     await this.broadcaster.startTx(msgId, TxType.Unbond);
     try {
-      await this._keyRing.submitUnbond(fromBase64(unbondMsg), fromBase64(txMsg));
+      await this._keyRing.submitUnbond(
+        fromBase64(unbondMsg),
+        fromBase64(txMsg)
+      );
       this.broadcaster.completeTx(msgId, TxType.Unbond, true);
       this.broadcaster.updateStaking();
       this.broadcaster.updateBalance();
@@ -213,10 +224,17 @@ export class KeyRingService {
     }
   }
 
-  async submitWithdraw(withdrawMsg: string, txMsg: string, msgId: string): Promise<void> {
+  async submitWithdraw(
+    withdrawMsg: string,
+    txMsg: string,
+    msgId: string
+  ): Promise<void> {
     await this.broadcaster.startTx(msgId, TxType.Withdraw);
     try {
-      await this._keyRing.submitWithdraw(fromBase64(withdrawMsg), fromBase64(txMsg));
+      await this._keyRing.submitWithdraw(
+        fromBase64(withdrawMsg),
+        fromBase64(txMsg)
+      );
       this.broadcaster.completeTx(msgId, TxType.Withdraw, true);
       this.broadcaster.updateStaking();
       this.broadcaster.updateBalance();
@@ -227,10 +245,17 @@ export class KeyRingService {
     }
   }
 
-  async submitVoteProposal(txMsg: string, msgId: string): Promise<void> {
+  async submitVoteProposal(
+    voteProposalMsg: string,
+    txMsg: string,
+    msgId: string
+  ): Promise<void> {
     await this.broadcaster.startTx(msgId, TxType.VoteProposal);
     try {
-      await this._keyRing.submitVoteProposal(fromBase64(txMsg));
+      await this._keyRing.submitVoteProposal(
+        fromBase64(voteProposalMsg),
+        fromBase64(txMsg)
+      );
       this.broadcaster.completeTx(msgId, TxType.VoteProposal, true);
       this.broadcaster.updateProposals();
     } catch (e) {
@@ -297,7 +322,11 @@ export class KeyRingService {
    * @throws {Error} - if unable to submit transfer
    * @returns {Promise<void>} - resolves when transfer is successfull (resolves for failed VPs)
    */
-  async submitTransfer(transferMsg: string, txMsg: string, msgId: string): Promise<void> {
+  async submitTransfer(
+    transferMsg: string,
+    txMsg: string,
+    msgId: string
+  ): Promise<void> {
     // Passing submit handler simplifies worker code when using Firefox
     const submit = async (password: string, xsk?: string): Promise<void> => {
       const { TARGET } = process.env;
@@ -315,7 +344,10 @@ export class KeyRingService {
     await this.broadcaster.startTx(msgId, TxType.Transfer);
 
     try {
-      await this._keyRing.submitTransfer(fromBase64(transferMsg), submit.bind(this));
+      await this._keyRing.submitTransfer(
+        fromBase64(transferMsg),
+        submit.bind(this)
+      );
       this.broadcaster.updateBalance();
     } catch (e) {
       console.warn(e);
@@ -323,11 +355,18 @@ export class KeyRingService {
     }
   }
 
-  async submitIbcTransfer(ibcTransferMsg: string, txMsg: string, msgId: string): Promise<void> {
+  async submitIbcTransfer(
+    ibcTransferMsg: string,
+    txMsg: string,
+    msgId: string
+  ): Promise<void> {
     await this.broadcaster.startTx(msgId, TxType.IBCTransfer);
 
     try {
-      await this._keyRing.submitIbcTransfer(fromBase64(ibcTransferMsg), fromBase64(txMsg));
+      await this._keyRing.submitIbcTransfer(
+        fromBase64(ibcTransferMsg),
+        fromBase64(txMsg)
+      );
       this.broadcaster.completeTx(msgId, TxType.IBCTransfer, true);
       this.broadcaster.updateBalance();
     } catch (e) {
@@ -337,7 +376,11 @@ export class KeyRingService {
     }
   }
 
-  async submitEthBridgeTransfer(ethBridgeTransferMsg: string, txMsg: string, msgId: string): Promise<void> {
+  async submitEthBridgeTransfer(
+    ethBridgeTransferMsg: string,
+    txMsg: string,
+    msgId: string
+  ): Promise<void> {
     await this.broadcaster.startTx(msgId, TxType.EthBridgeTransfer);
 
     try {

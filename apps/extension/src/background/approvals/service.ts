@@ -80,6 +80,8 @@ export class ApprovalsService {
         ? ApprovalsService.getParamsIbcTransfer
         : txType === TxType.EthBridgeTransfer
         ? ApprovalsService.getParamsEthBridgeTransfer
+        : txType === TxType.VoteProposal
+        ? ApprovalsService.getParamsVoteProposal
         : assertNever(txType);
 
     const baseUrl = `${browser.runtime.getURL(
@@ -209,6 +211,25 @@ export class ApprovalsService {
     };
   };
 
+  static getParamsVoteProposal: GetParams = (specificMsg, txDetails) => {
+    const specificDetails = deserialize(
+      specificMsg,
+      SubmitVoteProposalMsgValue
+    );
+
+    const { signer, proposalId, vote } = specificDetails;
+
+    const { publicKey = "" } = txDetails;
+
+    //TODO: check this
+    return {
+      signer,
+      proposalId: proposalId.toString(),
+      vote,
+      publicKey,
+    };
+  };
+
   // Remove pending transaction from storage
   async rejectTx(msgId: string): Promise<void> {
     await this._clearPendingTx(msgId);
@@ -240,6 +261,8 @@ export class ApprovalsService {
         ? this.keyRingService.submitEthBridgeTransfer
         : txType === TxType.Withdraw
         ? this.keyRingService.submitWithdraw
+        : txType === TxType.VoteProposal
+        ? this.keyRingService.submitVoteProposal
         : assertNever(txType);
 
     await submitFn.call(this.keyRingService, specificMsg, txMsg, msgId);
@@ -306,21 +329,6 @@ export class ApprovalsService {
 
   async revokeConnection(originToRevoke: string): Promise<void> {
     return removeApprovedOrigin(this.approvedOriginsStore, originToRevoke);
-  }
-
-  async submitVoteProposal(msgId: string, password: string): Promise<void> {
-    await this.keyRingService.unlock(password);
-
-    // Fetch pending bond tx
-    const tx = await this.txStore.get(msgId);
-
-    if (tx) {
-      await this.keyRingService.submitVoteProposal(tx, msgId);
-
-      return await this._clearPendingTx(msgId);
-    }
-
-    throw new Error("Pending Withdraw tx not found!");
   }
 
   private async _clearPendingTx(msgId: string): Promise<void> {

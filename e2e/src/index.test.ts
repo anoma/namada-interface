@@ -325,7 +325,7 @@ describe("Namada", () => {
 
       // Wait for new epoch
       page.on("dialog", async (dialog) => {
-        await new Promise((resolve) => setTimeout(resolve, 60000));
+        await new Promise((resolve) => setTimeout(resolve, 70000));
         await dialog.accept();
       });
 
