@@ -111,6 +111,7 @@ Ester = "1000000"
 # Some established accounts present at genesis.
 [established.Albert]
 vp = "vp_user"
+address = "atest1v4ehgw36xpz52sf5gyu5xwpjgg65gd69gcmnq3p5xymrgdecx3pnvs3sg4prg3psxg6rzs2p68ayjd"
 
 [established.Bertha]
 vp = "vp_user"

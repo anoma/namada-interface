@@ -372,4 +372,60 @@ describe("Namada", () => {
       await stopNamada(nam);
     });
   });
+
+  describe("proposals", () => {
+    test.only("vote", async () => {
+      const nam = startNamada(namRefs);
+
+      await importAccount(browser, page);
+      await approveConnection(browser, page);
+
+      // Click on staking button
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Staking')]"
+        )
+      ).click();
+
+      // Click on validator
+      (
+        await waitForXpath<HTMLSpanElement>(
+          page,
+          "//span[contains(., 'atest1v4')]"
+        )
+      ).click();
+
+      // Click on stake button
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Stake')]"
+        )
+      ).click();
+
+      // Type staking amount
+      const [stakeInput] = await page.$$("input");
+      await stakeInput.type("100");
+
+      // Click confirm
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Confirm')]"
+        )
+      ).click();
+
+      await approveTransaction(browser);
+
+      // Wait for success toast
+      const bondCompletedToast = await page.waitForXPath(
+        "//div[contains(., 'Transaction completed!')]"
+      );
+
+      expect(bondCompletedToast).toBeDefined();
+
+      await stopNamada(nam);
+    });
+  });
 });
