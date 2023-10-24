@@ -6,7 +6,7 @@ use crate::{
     sdk::masp::WebShieldedUtils,
     utils::{set_panic_hook, to_bytes},
 };
-use borsh::{BorshDeserialize, BorshSerialize};
+use borsh::BorshDeserialize;
 use namada::ledger::eth_bridge::bridge_pool::build_bridge_pool_tx;
 use namada::namada_sdk::masp::ShieldedContext;
 use namada::namada_sdk::rpc::query_epoch;
@@ -54,7 +54,7 @@ pub struct BuiltTx {
 #[wasm_bindgen]
 impl BuiltTx {
     pub fn tx_bytes(&self) -> Result<Vec<u8>, JsError> {
-        Ok(self.tx.try_to_vec()?)
+        Ok(borsh::to_vec(&self.tx)?)
     }
 }
 
@@ -149,9 +149,7 @@ impl Sdk {
             is_faucet_transfer,
         } = built_tx;
 
-        let args = tx::tx_args_from_slice(tx_msg)?;
-
-        // We are revealing the signer of this transaction(if needed)
+        let mut args = tx::tx_args_from_slice(tx_msg)?;
         // We only support one signer(for now)
         let pk = &signing_data
             .public_keys
@@ -160,38 +158,46 @@ impl Sdk {
             .nth(0)
             .expect("No public key provided");
 
+        // TODO: this is a workaround so it is possible to sign reveal_pk tx
+        // ideally we want to always pass the verification_key/signing keys in the tx_msg
+        let vk = match args.verification_key {
+            Some(vk) => vk,
+            None => pk.clone(),
+        };
+        args.verification_key = Some(vk);
+
         let address = Address::from(pk);
         let namada = self.get_namada();
-        let mut w = namada.wallet_mut().await;
+        let mut wallet = namada.wallet_mut().await;
 
         let reveal_pk_tx_bytes = if !is_faucet_transfer
             && is_reveal_pk_needed(namada.client(), &address, false).await?
         {
             let (mut tx, _, _) = build_reveal_pk(&namada, &args, &pk).await?;
-            sign_tx(&mut w, &args, &mut tx, signing_data.clone())?;
+            sign_tx(&mut wallet, &args, &mut tx, signing_data.clone())?;
 
-            Some(tx)
+            borsh::to_vec(&tx)?
         } else {
-            None
+            vec![]
         };
 
         // Sign tx
-        sign_tx(&mut w, &args, &mut tx, signing_data.clone())?;
+        sign_tx(&mut wallet, &args, &mut tx, signing_data.clone())?;
 
-        to_js_result((tx.try_to_vec()?, reveal_pk_tx_bytes))
+        to_js_result((borsh::to_vec(&tx)?, reveal_pk_tx_bytes))
     }
 
     pub async fn process_tx(
         &mut self,
         tx_bytes: &[u8],
         tx_msg: &[u8],
-        reveal_pk_tx_bytes: Option<Vec<u8>>,
+        reveal_pk_tx_bytes: &[u8],
     ) -> Result<(), JsError> {
         let args = tx::tx_args_from_slice(tx_msg)?;
         let namada = self.get_namada();
 
-        if let Some(bytes) = reveal_pk_tx_bytes {
-            let reveal_pk_tx = Tx::try_from_slice(bytes.as_slice())?;
+        if reveal_pk_tx_bytes.is_empty() == false {
+            let reveal_pk_tx = Tx::try_from_slice(reveal_pk_tx_bytes)?;
             process_tx(&namada, &args, reveal_pk_tx).await?;
         }
 
@@ -248,7 +254,7 @@ impl Sdk {
             }
         };
 
-        to_js_result(tx.try_to_vec()?)
+        to_js_result(borsh::to_vec(&tx)?)
     }
 
     // Append signatures and return tx bytes
@@ -280,7 +286,7 @@ impl Sdk {
 
         tx.protocol_filter();
 
-        to_js_result(tx.try_to_vec()?)
+        to_js_result(borsh::to_vec(&tx)?)
     }
 
     pub async fn build_transfer(

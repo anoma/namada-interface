@@ -92,7 +92,7 @@ export class LedgerService {
     const { signature } = signatures;
 
     if (!signature) {
-      throw new Error("Signature not provided")
+      throw new Error("Signature not provided");
     }
 
     try {
@@ -101,11 +101,12 @@ export class LedgerService {
 
       const signedTxBytes = await this.sdk.append_signature(
         fromBase64(bytes),
-        sig,
+        sig
       );
       await this.sdk.process_tx(
         signedTxBytes,
-        fromBase64(txMsg)
+        fromBase64(txMsg),
+        new Uint8Array()
       );
     } catch (e) {
       console.warn(e);
@@ -129,7 +130,7 @@ export class LedgerService {
     const { signature } = signatures;
 
     if (!signature) {
-      throw new Error("Signature not provided!")
+      throw new Error("Signature not provided!");
     }
 
     // Serialize signatures
@@ -140,11 +141,12 @@ export class LedgerService {
     try {
       const signedTxBytes = await this.sdk.append_signature(
         fromBase64(bytes),
-        sig,
+        sig
       );
       await this.sdk.process_tx(
         signedTxBytes,
-        fromBase64(txMsg)
+        fromBase64(txMsg),
+        new Uint8Array()
       );
 
       // Clear pending tx if successful

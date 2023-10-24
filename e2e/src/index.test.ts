@@ -184,7 +184,8 @@ describe("Namada", () => {
     });
   });
 
-  describe("bridge", () => {
+  // TODO: we need to upload contract first
+  describe.skip("bridge", () => {
     test("add to bridge pool", async () => {
       const nam = startNamada(namRefs);
       await importAccount(browser, page);

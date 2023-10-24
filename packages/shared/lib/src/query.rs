@@ -16,7 +16,6 @@ use namada::namada_sdk::rpc::{
     query_epoch, query_proposal_by_id, query_proposal_votes, query_storage_value,
 };
 use namada::proof_of_stake::Epoch;
-use namada::types::control_flow::ProceedOrElse;
 use namada::types::eth_bridge_pool::TransferToEthereum;
 use namada::types::{
     address::Address,
@@ -335,9 +334,7 @@ impl Query {
         &self,
         owner_addresses: Box<[JsValue]>,
     ) -> Result<JsValue, JsError> {
-        let bridge_pool = query_signed_bridge_pool(&self.client, &WebIo)
-            .await
-            .proceed_or_else(|| JsError::new("TODO:"))?;
+        let bridge_pool = query_signed_bridge_pool(&self.client, &WebIo).await?;
 
         let owner_addresses: Vec<Address> = owner_addresses
             .into_iter()

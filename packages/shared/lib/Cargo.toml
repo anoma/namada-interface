@@ -16,14 +16,15 @@ dev = []
 [dependencies]
 async-trait = {version = "0.1.51"}
 tiny-bip39 = "0.8.2"
-borsh = "0.9.0"
+borsh = {version = "1.0.0-alpha.4", features = ["schema", "derive"]}
+borsh-ext = {tag = "v1.0.0-alpha.4", git = "https://github.com/heliaxdev/borsh-ext"}
 chrono = "0.4.22"
 getrandom = { version = "0.2.7", features = ["js"] }
 gloo-utils = { version = "0.1.5", features = ["serde"] }
 js-sys = "0.3.60"
-masp_primitives = { git = "https://github.com/anoma/masp", rev = "50acc5028fbcd52a05970fe7991c7850ab04358e" }
-masp_proofs = { git = "https://github.com/anoma/masp", rev = "50acc5028fbcd52a05970fe7991c7850ab04358e", default-features = false, features = ["local-prover"] }
-namada = { git = "https://github.com/anoma/namada", branch = "murisi/sdk-refactor-rebased", default-features = false, features = ["abciplus", "namada-sdk"] }
+masp_primitives = { git = "https://github.com/anoma/masp", rev = "77e009626f3f52fe83c81ec6ee38fc2547d38da3" }
+masp_proofs = { git = "https://github.com/anoma/masp", rev = "77e009626f3f52fe83c81ec6ee38fc2547d38da3", default-features = false, features = ["local-prover"] }
+namada = { git = "https://github.com/anoma/namada", version = "0.24.0", default-features = false, features = ["abciplus", "namada-sdk"] }
 prost = "0.9.0"
 prost-types = "0.9.0"
 rand = "0.8.5"
@@ -49,12 +50,6 @@ features = [
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.13"
-
-[patch.crates-io]
-borsh = {git = "https://github.com/heliaxdev/borsh-rs.git", rev = "cd5223e5103c4f139e0c54cf8259b7ec5ec4073a"}
-borsh-derive = {git = "https://github.com/heliaxdev/borsh-rs.git", rev = "cd5223e5103c4f139e0c54cf8259b7ec5ec4073a"}
-borsh-derive-internal = {git = "https://github.com/heliaxdev/borsh-rs.git", rev = "cd5223e5103c4f139e0c54cf8259b7ec5ec4073a"}
-borsh-schema-derive-internal = {git = "https://github.com/heliaxdev/borsh-rs.git", rev = "cd5223e5103c4f139e0c54cf8259b7ec5ec4073a"}
 
 # https://doc.rust-lang.org/cargo/reference/profiles.html
 [profile.release]

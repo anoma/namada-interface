@@ -2,15 +2,10 @@
 //! Imports from masp_primitives::zip32, instead of zcash_primitives::zip32, as
 //! the value for constant ZIP32_SAPLING_MASTER_PERSONALIZATION is different!
 //! Otherwise, these implementations should be equivalent.
-use masp_primitives::zip32::{
-    ChildIndex,
-    ExtendedSpendingKey,
-    ExtendedFullViewingKey,
-};
-use borsh::BorshSerialize;
+use crate::crypto::pointer_types::VecU8Pointer;
+use masp_primitives::zip32::{ChildIndex, ExtendedFullViewingKey, ExtendedSpendingKey};
 use thiserror::Error;
 use wasm_bindgen::prelude::*;
-use crate::crypto::pointer_types::VecU8Pointer;
 use zeroize::{Zeroize, ZeroizeOnDrop};
 
 const SEED_SIZE: usize = 64;
@@ -28,10 +23,10 @@ pub enum Zip32Error {
 }
 
 #[wasm_bindgen]
-pub struct ExtSpendingKey(pub (crate) ExtendedSpendingKey);
+pub struct ExtSpendingKey(pub(crate) ExtendedSpendingKey);
 
 #[wasm_bindgen]
-pub struct ExtFullViewingKey(pub (crate) ExtendedFullViewingKey);
+pub struct ExtFullViewingKey(pub(crate) ExtendedFullViewingKey);
 
 #[wasm_bindgen]
 pub struct ExtendedKeys {
@@ -88,38 +83,32 @@ impl ShieldedHDWallet {
         // enforce it here:
         let mut seed: [u8; SEED_SIZE] = match seed.vec.clone().try_into() {
             Ok(bytes) => bytes,
-            Err(err) => return Err(
-                format!("{}: {:?}", Zip32Error::InvalidSeedSize, err),
-            ),
+            Err(err) => return Err(format!("{}: {:?}", Zip32Error::InvalidSeedSize, err)),
         };
 
         let xsk_m = ExtendedSpendingKey::master(&seed);
         seed.zeroize();
         let xfvk_m = ExtendedFullViewingKey::from(&xsk_m);
 
-        Ok(ShieldedHDWallet {
-            xsk_m,
-            xfvk_m,
-        })
+        Ok(ShieldedHDWallet { xsk_m, xfvk_m })
     }
 
-    pub fn derive_to_serialized_keys(
-        &self,
-        index: u32,
-    ) -> Result<Serialized, String> {
+    pub fn derive_to_serialized_keys(&self, index: u32) -> Result<Serialized, String> {
         let c_index = ChildIndex::NonHardened(index);
         let child_sk = self.xsk_m.derive_child(c_index);
-        let child_fvk = self.xfvk_m.derive_child(c_index)
+        let child_fvk = self
+            .xfvk_m
+            .derive_child(c_index)
             .map_err(|err| format!("{}: {:?}", Zip32Error::ChildDerivationError, err))?;
 
         let (_, address) = child_sk.default_address();
 
         // BorshSerialize the payment address and keys for resulting children
-        let payment_address = address.try_to_vec()
+        let payment_address = borsh::to_vec(&address)
             .map_err(|err| format!("{}: {:?}", Zip32Error::BorshSerialize, err))?;
-        let child_sk = child_sk.try_to_vec()
+        let child_sk = borsh::to_vec(&child_sk)
             .map_err(|err| format!("{}: {:?}", Zip32Error::BorshSerialize, err))?;
-        let child_fvk = child_fvk.try_to_vec()
+        let child_fvk = borsh::to_vec(&child_fvk)
             .map_err(|err| format!("{}: {:?}", Zip32Error::BorshSerialize, err))?;
 
         Ok(Serialized {
@@ -179,11 +168,17 @@ mod tests {
         let shielded_wallet = ShieldedHDWallet::new(VecU8Pointer::new(Vec::from(seed)))
             .expect("Instantiating ShieldedHDWallet should not fail");
 
-        let Serialized { ref payment_address, ref xsk, ref xfvk } = shielded_wallet.derive_to_serialized_keys(1)
+        let Serialized {
+            ref payment_address,
+            ref xsk,
+            ref xfvk,
+        } = shielded_wallet
+            .derive_to_serialized_keys(1)
             .expect("Deriving from ExtendedKeys should not fail");
 
-        let payment_address: PaymentAddress = borsh::BorshDeserialize::try_from_slice(&payment_address)
-            .expect("Should be able to deserialize payment address!");
+        let payment_address: PaymentAddress =
+            borsh::BorshDeserialize::try_from_slice(&payment_address)
+                .expect("Should be able to deserialize payment address!");
         let xsk: ExtendedSpendingKey = borsh::BorshDeserialize::try_from_slice(&xsk)
             .expect("Should be able to deserialize extended spending key!");
         let xfvk: ExtendedFullViewingKey = borsh::BorshDeserialize::try_from_slice(&xfvk)
