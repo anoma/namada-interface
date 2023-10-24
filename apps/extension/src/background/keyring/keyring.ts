@@ -226,17 +226,22 @@ export class KeyRing {
     const phrase = mnemonic.join(" ");
 
     try {
-      const mnemonic = Mnemonic.from_phrase(phrase);
-      const seed = mnemonic.to_seed();
+      console.log(phrase);
+      // const mnemonic = Mnemonic.from_phrase(phrase);
+      // const seed = mnemonic.to_seed();
       const { coinType } = chains[this.chainId].bip44;
-      const path = { account: 0, change: 0 };
+      const path = { account: 0, change: 0, index: 0 };
       const bip44Path = makeBip44Path(coinType, path);
-      const hdWallet = new HDWallet(seed);
-      const account = hdWallet.derive(bip44Path);
-      const stringPointer = account.private().to_hex();
-      const sk = readStringPointer(stringPointer, this._cryptoMemory);
-      const address = new Address(sk).implicit();
+      // console.log("path", bip44Path);
+      // const hdWallet = new HDWallet(seed);
+      // const account = hdWallet.derive(bip44Path);
+      // const stringPointer = account.private().to_hex();
+      // const sk = readStringPointer(stringPointer, this._cryptoMemory);
+      // const address = new Address(sk).implicit();
       const { chainId } = this;
+      const seed = Sdk.seed(phrase, password);
+      const { sk } = Sdk.derive(bip44Path, seed);
+      const address = new Address(sk).implicit();
 
       // Generate unique ID for new parent account:
       const id = generateId(
@@ -245,10 +250,10 @@ export class KeyRing {
         (await this._keyStore.get()).length
       );
 
-      mnemonic.free();
-      hdWallet.free();
-      account.free();
-      stringPointer.free();
+      // mnemonic.free();
+      // hdWallet.free();
+      // account.free();
+      // stringPointer.free();
 
       const mnemonicStore = crypto.encrypt({
         id,
@@ -294,20 +299,22 @@ export class KeyRing {
   }
 
   public deriveTransparentAccount(
-    seed: VecU8Pointer,
+    seed: Uint8Array,
     path: Bip44Path,
     parentId: string
   ): DerivedAccountInfo {
     const { coinType } = chains[this.chainId].bip44;
     const derivationPath = makeBip44Path(coinType, path);
-    const hdWallet = new HDWallet(seed);
-    const derivedAccount = hdWallet.derive(derivationPath);
-    const privateKey = derivedAccount.private();
-    const hex = privateKey.to_hex();
-    const text = readStringPointer(hex, this.cryptoMemory);
-    const address = new Address(text).implicit();
+    const { sk } = Sdk.derive(derivationPath, seed);
+    // const hdWallet = new HDWallet(seed);
+    // const derivedAccount = hdWallet.derive(derivationPath);
+    // const privateKey = derivedAccount.private();
+    // const hex = privateKey.to_hex();
+    // const text = readStringPointer(hex, this.cryptoMemory);
+    const address = new Address(sk).implicit();
 
-    const { account, change, index = 0 } = path;
+    //TODO: validate that index is not 0 - 0' is root address
+    const { account, change, index = 1 } = path;
     const id = generateId(
       UUID_NAMESPACE,
       "account",
@@ -317,21 +324,21 @@ export class KeyRing {
       index
     );
 
-    hdWallet.free();
-    derivedAccount.free();
-    privateKey.free();
-    hex.free();
+    // hdWallet.free();
+    // derivedAccount.free();
+    // privateKey.free();
+    // hex.free();
 
     return {
       address,
       owner: address,
       id,
-      text,
+      text: sk,
     };
   }
 
   public deriveShieldedAccount(
-    seed: VecU8Pointer,
+    seed: Uint8Array,
     path: Bip44Path,
     parentId: string
   ): DerivedAccountInfo {
@@ -366,7 +373,7 @@ export class KeyRing {
   }
 
   private async *getAddressWithBalance(
-    seed: VecU8Pointer,
+    seed: Uint8Array,
     parentId: string,
     type: AccountType
   ): AsyncGenerator<
@@ -377,7 +384,7 @@ export class KeyRing {
     void,
     void
   > {
-    let index = 0;
+    let index = 1;
     let emptyBalanceCount = 0;
     const deriveFn = (
       type === AccountType.PrivateKey
@@ -393,9 +400,9 @@ export class KeyRing {
       balances: [string, string][];
     }> => {
       // Cloning the seed, otherwise it gets zeroized in deriveTransparentAccount
-      const seedClone = seed.clone();
+      // const seedClone = seed.clone();
       const path = { account: 0, change: 0, index };
-      const accountInfo = deriveFn(seedClone, path, parentId);
+      const accountInfo = deriveFn(seed, path, parentId);
       const balances: [string, string][] = await this.query.query_balance(
         accountInfo.owner
       );
@@ -461,12 +468,12 @@ export class KeyRing {
       await this.addSpendingKey(info.text, this._password, alias, parentId);
     }
 
-    seed.free();
+    // seed.free();
   }
 
   private async getParentSeed(password: string): Promise<{
     parentId: string;
-    seed: VecU8Pointer;
+    seed: Uint8Array;
   }> {
     const activeAccount = await this.getActiveAccount();
     const storedMnemonic = await this._keyStore.getRecord(
@@ -485,9 +492,7 @@ export class KeyRing {
         password,
         this._cryptoMemory
       );
-      const mnemonic = Mnemonic.from_phrase(phrase);
-      const seed = mnemonic.to_seed();
-      mnemonic.free();
+      const seed = Sdk.seed(phrase, password);
       return { parentId, seed };
     } catch (e) {
       throw Error("Could not decrypt mnemonic from password");

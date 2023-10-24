@@ -7,6 +7,7 @@ use crate::{
     sdk::masp::WebShieldedUtils,
     utils::{set_panic_hook, to_bytes},
 };
+use bip39::{Language, Mnemonic, Seed};
 use borsh::{BorshDeserialize, BorshSerialize};
 use namada::ledger::eth_bridge::bridge_pool::build_bridge_pool_tx;
 use namada::sdk::args;
@@ -16,9 +17,14 @@ use namada::sdk::tx::{
     build_bond, build_ibc_transfer, build_reveal_pk, build_transfer, build_unbond, build_withdraw,
     is_reveal_pk_needed, process_tx,
 };
+use namada::sdk::wallet::store::gen_sk_from_seed_and_derivation_path;
+use namada::sdk::wallet::DerivationPath;
 use namada::sdk::wallet::{Store, Wallet};
 use namada::types::address::Address;
+use namada::types::key::common::SecretKey;
+use namada::types::key::{ed25519, SchemeType};
 use namada::{proto::Tx, types::key::common::PublicKey};
+use serde::Serialize;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 
 pub mod io;
@@ -536,6 +542,45 @@ impl Sdk {
 
         Ok(reveal_pk)
     }
+
+    pub fn seed(phrase: String, passphrase: String) -> Result<Vec<u8>, JsError> {
+        let mnemonic = Mnemonic::from_phrase(phrase.as_ref(), Language::English)
+            .map_err(|_| JsError::new("Failed to parse mnemonic phrase."))?;
+
+        let seed = Seed::new(&mnemonic, &passphrase);
+
+        Ok(seed.as_bytes().to_vec())
+    }
+
+    pub fn derive(path: String, seed: Vec<u8>) -> Result<JsValue, JsError> {
+        let scheme = SchemeType::Ed25519;
+        let path = DerivationPath::from_path_str(scheme, &path)
+            .map_err(|_| JsError::new("Failed to parse derivation path: {}"))?;
+
+        if !path.is_compatible(scheme) {
+            println!(
+                "WARNING: the specified derivation path may be incompatible \
+                 with the chosen cryptography scheme."
+            )
+        }
+
+        let sk = gen_sk_from_seed_and_derivation_path(scheme, &seed, path);
+        let pk = sk.to_public();
+        let sk = match sk {
+            SecretKey::Ed25519(a) => a,
+            _ => panic!("Wrong secret key type"),
+        };
+
+        let pk = match pk {
+            PublicKey::Ed25519(a) => a,
+            _ => panic!("Wrong public key type"),
+        };
+
+        let sk = sk.to_string();
+        let pk = pk.to_string();
+
+        to_js_result(Keypair { sk, pk })
+    }
 }
 
 #[wasm_bindgen(module = "/src/sdk/mod.js")]
@@ -546,4 +591,10 @@ extern "C" {
     async fn has_masp_params() -> Result<JsValue, JsValue>;
     #[wasm_bindgen(catch, js_name = "fetchAndStoreMaspParams")]
     async fn fetch_and_store_masp_params() -> Result<JsValue, JsValue>;
+}
+
+#[derive(Serialize)]
+struct Keypair {
+    sk: String,
+    pk: String,
 }

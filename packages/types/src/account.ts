@@ -1,7 +1,7 @@
 export type Bip44Path = {
   account: number;
   change: number;
-  index?: number;
+  index: number;
 };
 
 // Type of account for storage
