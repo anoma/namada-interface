@@ -375,7 +375,7 @@ describe("Namada", () => {
   });
 
   describe("proposals", () => {
-    test.only("vote", async () => {
+    test("vote", async () => {
       const nam = startNamada(namRefs);
 
       await importAccount(browser, page);
@@ -428,7 +428,7 @@ describe("Namada", () => {
 
       expect(bondCompletedToast).toBeDefined();
 
-      await new Promise((resolve) => setTimeout(resolve, 30000));
+      await new Promise((resolve) => setTimeout(resolve, 40000));
 
       // Click on proposals button
       (

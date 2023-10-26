@@ -61,9 +61,6 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
   );
   const [open, setOpen] = useState<boolean>(props.open);
 
-  const { rpc } = chains[chainId];
-  const query = new Query(rpc);
-
   const onContainerClick = useCallback(
     (e: React.MouseEvent<HTMLDialogElement>) => {
       if (e.target === e.currentTarget) {
@@ -109,6 +106,8 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
 
   useEffect(() => {
     const fetchData = async (proposal: Proposal): Promise<void> => {
+      const { rpc } = chains[chainId];
+      const query = new Query(rpc);
       try {
         const votes = await query.delegators_votes(BigInt(proposal.id));
         setActiveProposalVotes(new Map(votes));
@@ -127,7 +126,7 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
         );
 
         setDelegations(O.some({ delegations: totalDelegations, order }));
-        setActiveDelegator(O.some(Object.keys(totalDelegations)[0]));
+        setActiveDelegator(O.some(order[0]));
       } catch (e) {
         console.error(e);
       }
