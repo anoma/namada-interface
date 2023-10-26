@@ -1,11 +1,10 @@
 {
-  "name": "@namada/ledger-namada",
+  "name": "@zondax/ledger-namada",
   "author": "Zondax AG",
   "license": "Apache-2.0",
   "version": "0.0.1",
   "description": "Node API for the Namada App (Ledger Nano S/X/S+)",
   "main": "./dist/index.js",
-  "private": false,
   "typings": "./dist/index.d.ts",
   "types": "./dist/index.d.ts",
   "homepage": "https://github.com/zondax/ledger-namada",

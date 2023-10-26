@@ -516,7 +516,7 @@ pub async fn compute_proposal_votes(
             validators_vote.insert(vote.validator.clone(), vote.data.into());
             validator_voting_power.insert(vote.validator, validator_stake);
         } else {
-            let (_, delegator_stake) = RPC
+            let delegator_stake = RPC
                 .vp()
                 .pos()
                 .bond_with_slashing(client, &vote.delegator, &vote.validator, &Some(epoch))
