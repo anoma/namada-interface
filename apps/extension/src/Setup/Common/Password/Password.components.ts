@@ -16,13 +16,7 @@ export const Input = styled.input`
   border-radius: 12px;
 `;
 
-export const InputFeedback = styled.div`
-  font-size: 12px;
-  margin-top: 4px;
-  &.warning {
-    color: ${(props) => props.theme.colors.primary.main};
-  }
-`;
+export const InputFeedback = styled.div``;
 
 export const RecoveryPhraseLengthRadioButton = styled.input`
   color: ${(props) => props.theme.colors.utility2.main80};
