@@ -7,6 +7,8 @@ export enum TopLevelRoute {
 }
 
 export enum AccountCreationRoute {
+  // Security warning / recommentations
+  SeedPhraseWarning = "warning",
   // Generate new seed phrase
   SeedPhrase = "seed-phrase",
   // Validate seed phrase
