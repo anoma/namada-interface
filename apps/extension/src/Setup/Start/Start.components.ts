@@ -1,10 +1,12 @@
+import { color, spacement } from "@namada/utils";
 import styled from "styled-components";
 
-export const StartViewContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 440px;
-  width: 100%;
+export const LogoContainer = styled.div`
+  max-width: 244px;
+  margin: ${spacement(7)} auto ${spacement(15)};
+`;
+
+export const HeaderContainer = styled.header`
+  color: ${color("primary", "main")};
+  margin-bottom: ${spacement(8)};
 `;
