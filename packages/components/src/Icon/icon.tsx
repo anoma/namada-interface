@@ -18,6 +18,7 @@ import { ReactComponent as Info } from "./assets/info.svg";
 import { ReactComponent as Lock } from "./assets/lock.svg";
 import { ReactComponent as Menu } from "./assets/menu.svg";
 import { ReactComponent as Copy } from "./assets/copy.svg";
+import { ReactComponent as Warning } from "./assets/warning.svg";
 
 import { IconName, IconSize } from "./types";
 import { IconContainer, StyledIcon } from "./icon.components";
@@ -54,6 +55,7 @@ const icons: Record<IconName, ComponentType> = {
   [IconName.Lock]: Lock,
   [IconName.Menu]: Menu,
   [IconName.Copy]: Copy,
+  [IconName.Warning]: Warning,
 };
 
 /**

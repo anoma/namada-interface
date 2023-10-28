@@ -16,6 +16,7 @@ export const StyledIcon = styled.div<{
   min-width: ${(props) => props.$iconSize};
   height: ${(props) => props.$iconSize};
   width: ${(props) => props.$iconSize};
+
   // if stroke is passed in we use it, otherwise default
   path {
     stroke: ${(props) =>

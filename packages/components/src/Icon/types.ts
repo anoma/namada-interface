@@ -20,10 +20,12 @@ export enum IconName {
   Lock,
   Menu,
   Copy,
+  Warning,
 }
 
 export enum IconSize {
   S = "16px",
   M = "24px",
   L = "36px",
+  Full = "100%",
 }
