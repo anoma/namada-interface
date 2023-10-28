@@ -19,7 +19,6 @@ import {
   AppContainer,
   BottomSection,
   ContentContainer,
-  GlobalStyles,
   TopSection,
   Heading,
   HeadingButtons,
@@ -190,7 +189,6 @@ export const App: React.FC = () => {
   return (
     <ThemeProvider theme={theme}>
       <AppContainer>
-        <GlobalStyles />
         <ContentContainer>
           <TopSection>
             <Heading>Namada Browser Extension</Heading>

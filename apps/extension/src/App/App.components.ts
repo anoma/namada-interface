@@ -1,10 +1,4 @@
-import styled, { createGlobalStyle, css } from "styled-components";
-
-export const GlobalStyles = createGlobalStyle`
-  html, body {
-    background-color: #000;
-  }
-`;
+import styled, { css } from "styled-components";
 
 export const Spinner = css`
     content: "";
