@@ -1,146 +1,103 @@
-import { Icon, IconName } from "../";
-import React, { ChangeEventHandler, FocusEventHandler, useState } from "react";
+import React, { ChangeEventHandler, useState } from "react";
+import { Icon, IconName } from "@namada/components";
 import {
   ErrorTooltip,
+  HintTooltip,
   IconContainer,
   InputWrapper,
   Label,
-  PasswordContainer,
+  LabelWrapper,
   TextAreaInput,
   TextInput,
 } from "./input.components";
 import { InputVariants } from "./types";
 
 export type InputProps = {
-  autoFocus?: boolean;
   variant?: InputVariants;
-  value?: string | number;
   label: string | React.ReactNode;
   error?: string;
+  hint?: string | React.ReactNode;
   onChangeCallback?: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
-  onFocus?: FocusEventHandler<HTMLInputElement>;
-  onPaste?: React.ClipboardEventHandler<HTMLInputElement>;
-  placeholder?: string;
-  step?: number;
-  min?: number;
-};
+} & React.ComponentPropsWithoutRef<"input">;
 
 export const Input = ({
-  autoFocus,
   variant = InputVariants.Text,
-  value = "",
   label,
   error,
+  hint,
   onChangeCallback,
-  onPaste,
-  onFocus,
-  placeholder,
-  step,
-  min,
+  ...props
 }: InputProps): JSX.Element => {
   const [passwordShown, setPasswordShown] = useState(false);
   const togglePasswordShown = (): void => setPasswordShown(!passwordShown);
 
+  let inputElement: React.ReactNode;
+
   switch (variant) {
-    case InputVariants.Text:
-      return (
-        <Label>
-          {label}
-          <InputWrapper>
-            <TextInput
-              error={!!error}
-              onChange={onChangeCallback}
-              onFocus={onFocus}
-              onPaste={onPaste}
-              placeholder={placeholder}
-              value={value}
-              autoFocus={autoFocus}
-            />
-            <br />
-          </InputWrapper>
-          <ErrorTooltip>{error}</ErrorTooltip>
-        </Label>
-      );
     case InputVariants.Textarea:
-      return (
-        <Label>
-          {label}
-          <InputWrapper>
-            <TextAreaInput
-              error={!!error}
-              onChange={onChangeCallback}
-              value={value}
-              autoFocus={autoFocus}
-            />
-          </InputWrapper>
-          <ErrorTooltip>{error}</ErrorTooltip>
-        </Label>
+      inputElement = (
+        <TextAreaInput error={!!error} onChange={onChangeCallback} />
       );
+      break;
+
     case InputVariants.Password:
-      return (
-        <Label>
-          {label}
-          <PasswordContainer>
-            <TextInput
-              error={!!error}
-              placeholder={placeholder}
-              onChange={onChangeCallback}
-              onFocus={onFocus}
-              type={passwordShown ? "text" : "password"}
-              autoFocus={autoFocus}
+      inputElement = (
+        <InputWrapper>
+          <TextInput
+            type={passwordShown ? "text" : "password"}
+            error={!!error}
+            onChange={onChangeCallback}
+            {...props}
+          />
+          <IconContainer onClick={() => togglePasswordShown()}>
+            <Icon
+              iconName={passwordShown ? IconName.Eye : IconName.EyeHidden}
             />
-            <IconContainer onClick={() => togglePasswordShown()}>
-              <Icon
-                iconName={passwordShown ? IconName.Eye : IconName.EyeHidden}
-              />
-            </IconContainer>
-          </PasswordContainer>
-          <ErrorTooltip>{error}</ErrorTooltip>
-        </Label>
+          </IconContainer>
+        </InputWrapper>
       );
+      break;
+
     case InputVariants.PasswordOnBlur:
-      return (
-        <Label>
-          {label}
-          <InputWrapper>
-            <TextInput
-              error={!!error}
-              onChange={onChangeCallback}
-              onFocus={(e) => {
-                setPasswordShown(true);
-                onFocus && onFocus(e);
-              }}
-              onBlur={() => setPasswordShown(false)}
-              onPaste={onPaste}
-              placeholder={placeholder}
-              value={value}
-              autoFocus={autoFocus}
-              type={passwordShown ? "text" : "password"}
-            />
-            <br />
-          </InputWrapper>
-          <ErrorTooltip>{error}</ErrorTooltip>
-        </Label>
+      inputElement = (
+        <TextInput
+          type={passwordShown ? "text" : "password"}
+          error={!!error}
+          onChange={onChangeCallback}
+          onBlur={() => setPasswordShown(false)}
+          onFocus={(e) => {
+            setPasswordShown(true);
+            props.onFocus && props.onFocus(e);
+          }}
+          {...props}
+        />
       );
+      break;
+
     case InputVariants.Number:
-      return (
-        <Label>
-          {label}
-          <InputWrapper>
-            <TextInput
-              error={!!error}
-              placeholder={placeholder}
-              type={"number"}
-              value={value}
-              onChange={onChangeCallback}
-              onFocus={onFocus}
-              autoFocus={autoFocus}
-              step={step}
-              min={min}
-            />
-          </InputWrapper>
-          <ErrorTooltip>{error}</ErrorTooltip>
-        </Label>
+      inputElement = (
+        <TextInput
+          type={"number"}
+          error={!!error}
+          onChange={onChangeCallback}
+          {...props}
+        />
       );
+      break;
+
+    default:
+      inputElement = (
+        <TextInput error={!!error} onChange={onChangeCallback} {...props} />
+      );
+      break;
   }
+
+  return (
+    <Label>
+      <LabelWrapper>{label}</LabelWrapper>
+      {inputElement}
+      {<ErrorTooltip>{error}</ErrorTooltip>}
+      {<HintTooltip>{hint}</HintTooltip>}
+    </Label>
+  );
 };
