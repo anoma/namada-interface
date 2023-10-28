@@ -1,16 +1,20 @@
-import { BaseHeading } from "./heading.components";
+import { FontSize } from "@namada/utils";
+import { BaseHeading } from "./Heading.components";
 import { HeadingLevel } from "./types";
 
 type HeadingProps = {
   level: HeadingLevel;
+  size: keyof FontSize;
   children: React.ReactNode;
-  onClick?: React.MouseEventHandler<HTMLDivElement> | undefined;
 };
 
-export const Heading = (props: HeadingProps): JSX.Element => {
-  const { level, children, onClick } = props;
+export const Heading = ({
+  level,
+  children,
+  size,
+}: HeadingProps): JSX.Element => {
   return (
-    <BaseHeading onClick={onClick} as={level}>
+    <BaseHeading as={level} size={size}>
       {children}
     </BaseHeading>
   );
