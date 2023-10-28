@@ -1,11 +1,6 @@
-import styled, { createGlobalStyle } from "styled-components";
+import styled from "styled-components";
 import { motion } from "framer-motion";
-
-export const GlobalStyles = createGlobalStyle`
-  html, body {
-    background-color: #000;
-  }
-`;
+import { color, fontSize, spacement } from "@namada/utils";
 
 export const AppContainer = styled.div`
   display: flex;
@@ -22,6 +17,26 @@ export const AppContainer = styled.div`
   width: 480px;
   transition: background-color 0.3s linear;
   margin: 36px auto;
+`;
+
+export const UpperContentContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+export const Subtitle = styled.p`
+  color: ${color("utility2", "main")};
+  font-size: ${fontSize("xl")};
+  margin: ${spacement(1)} auto;
+  max-width: 90%;
+  text-align: center;
+  font-weight: 500;
+`;
+
+export const LogoContainer = styled.div`
+  max-width: 200px;
+  margin: 0 auto;
 `;
 
 export const SubViewContainer = styled.div`
@@ -67,10 +82,13 @@ export const ContentContainer = styled.div`
   align-items: center;
 `;
 
-export const UpperContentContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+export const HeaderContainer = styled.hgroup`
+  color: ${color("utility2", "main")};
+  margin-bottom: ${spacement(6)};
+`;
+
+export const WordSizeSelectorContainer = styled.div`
+  margin-bottom: ${spacement(4)};
 `;
 
 export const FormContainer = styled.div`

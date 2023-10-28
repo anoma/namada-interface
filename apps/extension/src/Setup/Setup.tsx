@@ -1,34 +1,41 @@
 import React, { useState } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
+import {
+  Outlet,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 
 import { formatRouterPath, getTheme } from "@namada/utils";
+import {
+  Container,
+  Image,
+  ImageName,
+  LifecycleExecutionWrapper,
+  ProgressIndicator,
+} from "@namada/components";
 
-import { AccountCreation } from "./AccountCreation";
+import { AnimatePresence } from "framer-motion";
+import { useRequester } from "hooks/useRequester";
+import { SeedPhrase, SeedPhraseConfirmation } from "./AccountCreation/Steps";
+import { Completion, Password } from "./Common";
+import { ImportAccount } from "./ImportAccount";
+import { SeedPhraseImport } from "./ImportAccount/Steps";
+import { Ledger } from "./Ledger";
+import { LogoContainer, MotionContainer } from "./Setup.components";
+import { Start } from "./Start";
+
+import LedgerConfirmation from "./Ledger/LedgerConfirmation";
+
 import {
-  AppContainer,
-  ContentContainer,
-  GlobalStyles,
-  MotionContainer,
-} from "./Setup.components";
-import {
-  SeedPhrase,
-  SeedPhraseConfirmation,
-} from "Setup/AccountCreation/Steps";
-import {
-  TopLevelRoute,
   AccountCreationRoute,
   AccountDetails,
   AccountImportRoute,
+  TopLevelRoute,
 } from "./types";
-import { Ledger } from "./Ledger";
-import { Start } from "./Start";
-import { AnimatePresence } from "framer-motion";
-import { ImportAccount } from "./ImportAccount";
-import { useRequester } from "hooks/useRequester";
-import { SeedPhraseImport } from "./ImportAccount/Steps";
-import { Completion, Password } from "./Common";
-import LedgerConfirmation from "./Ledger/LedgerConfirmation";
+import { SeedPhraseWarning } from "./AccountCreation/Steps/SeedPhraseWarning";
 
 type AnimatedTransitionProps = {
   elementKey: string;
@@ -56,39 +63,80 @@ export const Setup: React.FC = () => {
   const requester = useRequester();
   const theme = getTheme("dark");
   const navigate = useNavigate();
+  const location = useLocation();
   const [accountCreationDetails, setAccountCreationDetails] =
     useState<AccountDetails>({
       alias: "",
     });
   const [seedPhrase, setSeedPhrase] = useState<string[]>();
+  const [currentStep, setCurrentStep] = useState(0);
+  const [totalSteps, setTotalSteps] = useState(0);
+
+  const containerHeader = (
+    <>
+      {totalSteps === 0 && (
+        <LogoContainer>
+          <Image imageName={ImageName.Logo} />
+        </LogoContainer>
+      )}
+      {totalSteps > 0 && (
+        <ProgressIndicator
+          keyName="test"
+          totalSteps={totalSteps}
+          currentStep={currentStep}
+        />
+      )}
+    </>
+  );
+
+  const goToStep = (step: number) => () => setCurrentStep(step);
 
   return (
     <ThemeProvider theme={theme}>
-      <AppContainer>
-        <GlobalStyles />
-        <ContentContainer>
-          <AnimatePresence>
+      <Container size="md" header={containerHeader}>
+        <AnimatePresence>
+          <AnimatedTransition elementKey={location.pathname}>
             <Routes>
+              {/* Index */}
               <Route
                 path={formatRouterPath([TopLevelRoute.Start])}
-                element={<Start />}
+                element={
+                  <LifecycleExecutionWrapper onLoad={() => setTotalSteps(0)}>
+                    <Start />
+                  </LifecycleExecutionWrapper>
+                }
               />
+
+              {/* Create New Keys */}
               <Route
                 path={`/${TopLevelRoute.AccountCreation}`}
                 element={
-                  <AnimatedTransition
-                    elementKey={TopLevelRoute.AccountCreation}
-                  >
-                    <AccountCreation />
-                  </AnimatedTransition>
+                  <LifecycleExecutionWrapper onLoad={() => setTotalSteps(4)}>
+                    <Outlet />
+                  </LifecycleExecutionWrapper>
                 }
               >
                 <Route
+                  path={AccountCreationRoute.SeedPhraseWarning}
+                  element={
+                    <LifecycleExecutionWrapper onLoad={goToStep(1)}>
+                      <SeedPhraseWarning
+                        onComplete={() => {
+                          navigate(
+                            formatRouterPath([
+                              TopLevelRoute.AccountCreation,
+                              AccountCreationRoute.SeedPhrase,
+                            ])
+                          );
+                        }}
+                      />
+                    </LifecycleExecutionWrapper>
+                  }
+                />
+                <Route
                   path={AccountCreationRoute.SeedPhrase}
                   element={
-                    <AnimatedTransition
-                      elementKey={AccountCreationRoute.SeedPhrase}
-                    >
+                    <LifecycleExecutionWrapper onLoad={goToStep(2)}>
                       <SeedPhrase
                         requester={requester}
                         accountCreationDetails={accountCreationDetails}
@@ -103,37 +151,16 @@ export const Setup: React.FC = () => {
                           );
                         }}
                       />
-                    </AnimatedTransition>
+                    </LifecycleExecutionWrapper>
                   }
                 />
                 <Route
                   path={AccountCreationRoute.SeedPhraseConfirmation}
                   element={
-                    <AnimatedTransition
-                      elementKey={AccountCreationRoute.SeedPhraseConfirmation}
-                    >
+                    <LifecycleExecutionWrapper onLoad={goToStep(3)}>
                       <SeedPhraseConfirmation
-                        seedPhrase={seedPhrase || []}
-                        onConfirm={() =>
-                          navigate(
-                            formatRouterPath([
-                              TopLevelRoute.AccountCreation,
-                              AccountCreationRoute.Password,
-                            ])
-                          )
-                        }
-                      />
-                    </AnimatedTransition>
-                  }
-                />
-                <Route
-                  path={AccountCreationRoute.Password}
-                  element={
-                    <AnimatedTransition
-                      elementKey={AccountCreationRoute.Password}
-                    >
-                      <Password
                         accountCreationDetails={accountCreationDetails}
+                        seedPhrase={seedPhrase || []}
                         onSetAccountCreationDetails={(
                           accountCreationDetailsDelta
                         ) => {
@@ -146,9 +173,7 @@ export const Setup: React.FC = () => {
                             }
                           );
                         }}
-                        onSubmitAccountCreationDetails={(
-                          accountCreationDetails
-                        ) => {
+                        onConfirm={(accountCreationDetails: AccountDetails) => {
                           setAccountCreationDetails(accountCreationDetails);
                           navigate(
                             formatRouterPath([
@@ -158,15 +183,13 @@ export const Setup: React.FC = () => {
                           );
                         }}
                       />
-                    </AnimatedTransition>
+                    </LifecycleExecutionWrapper>
                   }
                 />
                 <Route
                   path={AccountCreationRoute.Completion}
                   element={
-                    <AnimatedTransition
-                      elementKey={AccountCreationRoute.Completion}
-                    >
+                    <LifecycleExecutionWrapper onLoad={goToStep(4)}>
                       <Completion
                         alias={accountCreationDetails.alias || ""}
                         requester={requester}
@@ -174,10 +197,12 @@ export const Setup: React.FC = () => {
                         password={accountCreationDetails.password || ""}
                         scanAccounts={false}
                       />
-                    </AnimatedTransition>
+                    </LifecycleExecutionWrapper>
                   }
                 />
               </Route>
+
+              {/* Import Existing Keys */}
               <Route
                 path={`/${TopLevelRoute.ImportAccount}`}
                 element={<ImportAccount />}
@@ -185,99 +210,75 @@ export const Setup: React.FC = () => {
                 <Route
                   path={AccountImportRoute.SeedPhrase}
                   element={
-                    <AnimatedTransition
-                      elementKey={AccountImportRoute.SeedPhrase}
-                    >
-                      <SeedPhraseImport
-                        requester={requester}
-                        onConfirm={(seedPhrase: string[]) => {
-                          setSeedPhrase(seedPhrase);
-                          navigate(
-                            formatRouterPath([
-                              TopLevelRoute.ImportAccount,
-                              AccountImportRoute.Password,
-                            ])
-                          );
-                        }}
-                      />
-                    </AnimatedTransition>
+                    <SeedPhraseImport
+                      requester={requester}
+                      onConfirm={(seedPhrase: string[]) => {
+                        setSeedPhrase(seedPhrase);
+                        navigate(
+                          formatRouterPath([
+                            TopLevelRoute.ImportAccount,
+                            AccountImportRoute.Password,
+                          ])
+                        );
+                      }}
+                    />
                   }
                 />
-
                 <Route
                   path={AccountImportRoute.Password}
-                  element={
-                    <AnimatedTransition
-                      elementKey={AccountImportRoute.Password}
-                    >
-                      <Password
-                        accountCreationDetails={accountCreationDetails}
-                        onSetAccountCreationDetails={(
-                          accountCreationDetailsDelta
-                        ) => {
-                          setAccountCreationDetails(
-                            (accountCreationDetails) => {
-                              return {
-                                ...accountCreationDetails,
-                                ...accountCreationDetailsDelta,
-                              };
-                            }
-                          );
-                        }}
-                        onSubmitAccountCreationDetails={(
-                          accountCreationDetails
-                        ) => {
-                          setAccountCreationDetails(accountCreationDetails);
-                          navigate(
-                            formatRouterPath([
-                              TopLevelRoute.ImportAccount,
-                              AccountImportRoute.Completion,
-                            ])
-                          );
-                        }}
-                      />
-                    </AnimatedTransition>
-                  }
+                  // element={
+                  //   <Password
+                  //     accountCreationDetails={accountCreationDetails}
+                  //     onSetAccountCreationDetails={(
+                  //       accountCreationDetailsDelta
+                  //     ) => {
+                  //       setAccountCreationDetails((accountCreationDetails) => {
+                  //         return {
+                  //           ...accountCreationDetails,
+                  //           ...accountCreationDetailsDelta,
+                  //         };
+                  //       });
+                  //     }}
+                  //     onSubmitAccountCreationDetails={(
+                  //       accountCreationDetails
+                  //     ) => {
+                  //       setAccountCreationDetails(accountCreationDetails);
+                  //       navigate(
+                  //         formatRouterPath([
+                  //           TopLevelRoute.ImportAccount,
+                  //           AccountImportRoute.Completion,
+                  //         ])
+                  //       );
+                  //     }}
+                  //   />
+                  // }
                 />
                 <Route
                   path={AccountImportRoute.Completion}
                   element={
-                    <AnimatedTransition
-                      elementKey={AccountImportRoute.Completion}
-                    >
-                      <Completion
-                        alias={accountCreationDetails.alias || ""}
-                        requester={requester}
-                        mnemonic={seedPhrase || []}
-                        password={accountCreationDetails.password || ""}
-                        scanAccounts={true}
-                      />
-                    </AnimatedTransition>
+                    <Completion
+                      alias={accountCreationDetails.alias || ""}
+                      requester={requester}
+                      mnemonic={seedPhrase || []}
+                      password={accountCreationDetails.password || ""}
+                      scanAccounts={true}
+                    />
                   }
                 />
               </Route>
-              <Route
-                path={`/${TopLevelRoute.Ledger}`}
-                element={
-                  <AnimatedTransition elementKey={TopLevelRoute.Ledger}>
-                    <Ledger />
-                  </AnimatedTransition>
-                }
-              />
+
+              {/* Connect to Ledger */}
+              <Route path={`/${TopLevelRoute.Ledger}`} element={<Ledger />} />
+
+              {/* Ledger Connected */}
               <Route
                 path={`/${TopLevelRoute.LedgerConfirmation}/:alias/:address/:publicKey`}
-                element={
-                  <AnimatedTransition
-                    elementKey={TopLevelRoute.LedgerConfirmation}
-                  >
-                    <LedgerConfirmation />
-                  </AnimatedTransition>
-                }
+                element={<LedgerConfirmation />}
               />
             </Routes>
-          </AnimatePresence>
-        </ContentContainer>
-      </AppContainer>
+          </AnimatedTransition>
+        </AnimatePresence>
+      </Container>
     </ThemeProvider>
   );
 };
