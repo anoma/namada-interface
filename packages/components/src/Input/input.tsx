@@ -1,5 +1,8 @@
-import React, { ChangeEventHandler, useState } from "react";
-import { Icon, IconName } from "@namada/components";
+import React, { useState } from "react";
+
+import { Icon, IconName, ContentMasker } from "@namada/components";
+import { copyToClipboard } from "@namada/utils";
+import { ComponentProps, InputProps, InputVariants } from "./types";
 import {
   ErrorTooltip,
   HintTooltip,
@@ -7,95 +10,95 @@ import {
   InputWrapper,
   Label,
   LabelWrapper,
-  TextAreaInput,
   TextInput,
 } from "./input.components";
-import { InputVariants } from "./types";
 
-export type InputProps = {
-  variant?: InputVariants;
-  label: string | React.ReactNode;
-  error?: string;
-  hint?: string | React.ReactNode;
-  onChangeCallback?: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
-} & React.ComponentPropsWithoutRef<"input">;
+type Props = ComponentProps & InputProps & { variant?: InputVariants };
 
 export const Input = ({
   variant = InputVariants.Text,
   label,
   error,
   hint,
-  onChangeCallback,
+  theme,
+  sensitive = false,
   ...props
-}: InputProps): JSX.Element => {
+}: Props): JSX.Element => {
   const [passwordShown, setPasswordShown] = useState(false);
   const togglePasswordShown = (): void => setPasswordShown(!passwordShown);
 
-  let inputElement: React.ReactNode;
+  let inputElement: InputProps = {};
+  let icon: React.ReactNode | null = null;
 
   switch (variant) {
-    case InputVariants.Textarea:
-      inputElement = (
-        <TextAreaInput error={!!error} onChange={onChangeCallback} />
+    case InputVariants.Password:
+      inputElement = {
+        ...props,
+        type: passwordShown ? "text" : "password",
+      };
+
+      icon = (
+        <IconContainer onClick={() => togglePasswordShown()}>
+          <Icon iconName={passwordShown ? IconName.Eye : IconName.EyeHidden} />
+        </IconContainer>
       );
       break;
 
-    case InputVariants.Password:
-      inputElement = (
-        <InputWrapper>
-          <TextInput
-            type={passwordShown ? "text" : "password"}
-            error={!!error}
-            onChange={onChangeCallback}
-            {...props}
-          />
-          <IconContainer onClick={() => togglePasswordShown()}>
-            <Icon
-              iconName={passwordShown ? IconName.Eye : IconName.EyeHidden}
-            />
-          </IconContainer>
-        </InputWrapper>
+    case InputVariants.ReadOnlyCopy:
+      inputElement = {
+        ...props,
+        readOnly: true,
+      };
+
+      icon = (
+        <IconContainer
+          onClick={() => copyToClipboard(props.value?.toString() || "")}
+        >
+          <Icon iconName={IconName.Copy} />
+        </IconContainer>
       );
       break;
 
     case InputVariants.PasswordOnBlur:
-      inputElement = (
-        <TextInput
-          type={passwordShown ? "text" : "password"}
-          error={!!error}
-          onChange={onChangeCallback}
-          onBlur={() => setPasswordShown(false)}
-          onFocus={(e) => {
-            setPasswordShown(true);
-            props.onFocus && props.onFocus(e);
-          }}
-          {...props}
-        />
-      );
+      inputElement = {
+        ...props,
+        type: passwordShown ? "text" : "password",
+        onBlur: () => setPasswordShown(false),
+        onFocus: () => setPasswordShown(true),
+      };
       break;
 
     case InputVariants.Number:
-      inputElement = (
-        <TextInput
-          type={"number"}
-          error={!!error}
-          onChange={onChangeCallback}
-          {...props}
-        />
-      );
+      inputElement = {
+        ...props,
+        type: "number",
+      };
       break;
 
     default:
-      inputElement = (
-        <TextInput error={!!error} onChange={onChangeCallback} {...props} />
-      );
+      inputElement = { ...props };
       break;
   }
+
+  const field = (
+    <TextInput
+      error={!!error}
+      inputTheme={sensitive ? undefined : theme}
+      {...inputElement}
+    />
+  );
 
   return (
     <Label>
       <LabelWrapper>{label}</LabelWrapper>
-      {inputElement}
+      <InputWrapper>
+        {sensitive ? (
+          <ContentMasker themeColor={theme}>{field}</ContentMasker>
+        ) : (
+          field
+        )}
+        {icon}
+      </InputWrapper>
       {<ErrorTooltip>{error}</ErrorTooltip>}
       {<HintTooltip>{hint}</HintTooltip>}
     </Label>
