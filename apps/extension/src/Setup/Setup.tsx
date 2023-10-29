@@ -20,7 +20,7 @@ import {
 import { AnimatePresence } from "framer-motion";
 import { useRequester } from "hooks/useRequester";
 import { SeedPhrase, SeedPhraseConfirmation } from "./AccountCreation/Steps";
-import { Completion, Password } from "./Common";
+import { Completion } from "./Common";
 import { ImportAccount } from "./ImportAccount";
 import { SeedPhraseImport } from "./ImportAccount/Steps";
 import { Ledger } from "./Ledger";
@@ -161,18 +161,6 @@ export const Setup: React.FC = () => {
                       <SeedPhraseConfirmation
                         accountCreationDetails={accountCreationDetails}
                         seedPhrase={seedPhrase || []}
-                        onSetAccountCreationDetails={(
-                          accountCreationDetailsDelta
-                        ) => {
-                          setAccountCreationDetails(
-                            (accountCreationDetails) => {
-                              return {
-                                ...accountCreationDetails,
-                                ...accountCreationDetailsDelta,
-                              };
-                            }
-                          );
-                        }}
                         onConfirm={(accountCreationDetails: AccountDetails) => {
                           setAccountCreationDetails(accountCreationDetails);
                           navigate(

@@ -13,8 +13,6 @@ export enum AccountCreationRoute {
   SeedPhrase = "seed-phrase",
   // Validate seed phrase
   SeedPhraseConfirmation = "seed-phrase-confirmation",
-  // Secure wallet with a password
-  Password = "password",
   // Final screen with confirmation
   Completion = "completion",
 }
