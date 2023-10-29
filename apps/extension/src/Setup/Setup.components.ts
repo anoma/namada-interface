@@ -84,7 +84,7 @@ export const ContentContainer = styled.div`
 
 export const HeaderContainer = styled.hgroup`
   color: ${color("utility2", "main")};
-  margin-bottom: ${spacement(6)};
+  margin-bottom: ${spacement(7)};
 `;
 
 export const WordSizeSelectorContainer = styled.div`
@@ -153,3 +153,5 @@ export const SeedPhraseLengthContainer = styled.div`
 export const SeedPhraseLength = styled.div`
   padding: 0 8px;
 `;
+
+export const Form = styled.form``;
