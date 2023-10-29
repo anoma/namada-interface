@@ -104,7 +104,7 @@ const Ledger: React.FC = () => {
         <Input
           label={"Alias"}
           value={alias}
-          onChangeCallback={(e) => setAlias(e.target.value)}
+          onChange={(e) => setAlias(e.target.value)}
           variant={InputVariants.Text}
         />
       </FormContainer>

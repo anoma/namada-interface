@@ -95,7 +95,7 @@ export const FaucetTransferForm = ({
             variant={InputVariants.Number}
             label={"Amount"}
             value={amount.toString()}
-            onChangeCallback={(e) => {
+            onChange={(e) => {
               const { value } = e.target;
               setAmount(parseFloat(value));
             }}

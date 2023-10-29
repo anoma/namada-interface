@@ -67,7 +67,7 @@ const Login: React.FC<Props> = ({ requester }) => {
           autoFocus={true}
           variant={InputVariants.Password}
           value={password}
-          onChangeCallback={(e) => setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
         />
         <Button
           variant={ButtonVariant.Contained}

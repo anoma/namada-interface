@@ -134,7 +134,7 @@ export const EthereumBridge = (): JSX.Element => {
               variant={InputVariants.Text}
               label="Recipient"
               value={recipient}
-              onChangeCallback={(e) => {
+              onChange={(e) => {
                 setRecipient(e.target.value);
                 setDirtyFields((prev) => new Set(prev).add("recipient"));
               }}
@@ -151,7 +151,7 @@ export const EthereumBridge = (): JSX.Element => {
               variant={InputVariants.Number}
               label="Amount"
               value={amount.toString()}
-              onChangeCallback={(e) => {
+              onChange={(e) => {
                 const { value } = e.target;
                 setAmount(new BigNumber(`${value}`));
                 setDirtyFields((prev) => new Set(prev).add("amount"));
@@ -183,7 +183,7 @@ export const EthereumBridge = (): JSX.Element => {
                 variant={InputVariants.Number}
                 label="Fee Amount"
                 value={feeAmount.toString()}
-                onChangeCallback={(e) => {
+                onChange={(e) => {
                   const { value } = e.target;
                   setFeeAmount(new BigNumber(`${value}`));
                   setDirtyFields((prev) => new Set(prev).add("feeAmount"));

@@ -151,28 +151,29 @@ const IBCTransfer = (): JSX.Element => {
       return Object.entries(balance).map(([tokenType, amount]) => {
         // If token isn't set, set it now
         if (!token && tokenType) {
-          setToken(tokenType as TokenType)
+          setToken(tokenType as TokenType);
         }
         return {
           value: `${address}|${tokenType}`,
-          label: `${alias !== "Namada" ? alias + " - " : ""}${Tokens[tokenType as TokenType].coin
-            } (${amount} ${tokenType})`,
-        }
+          label: `${alias !== "Namada" ? alias + " - " : ""}${
+            Tokens[tokenType as TokenType].coin
+          } (${amount} ${tokenType})`,
+        };
       });
     }
   );
 
   useEffect(() => {
     if (sourceAccounts.length > 0) {
-      setSourceAccount(sourceAccounts[0])
+      setSourceAccount(sourceAccounts[0]);
     }
-  }, [sourceAccounts])
+  }, [sourceAccounts]);
 
   useEffect(() => {
     if (sourceAccount && token) {
       setCurrentBalance(sourceAccount.balance[token] || new BigNumber(0));
     }
-  }, [sourceAccount, token])
+  }, [sourceAccount, token]);
 
   useEffect(() => {
     const destinationAccounts = Object.values(derived[selectedChainId]).filter(
@@ -287,7 +288,9 @@ const IBCTransfer = (): JSX.Element => {
   };
 
   const isAmountValid = (amount: BigNumber, balance: BigNumber): boolean =>
-    amount.isLessThan((token === "ATOM" ? balance.multipliedBy(1_000_000) : balance));
+    amount.isLessThan(
+      token === "ATOM" ? balance.multipliedBy(1_000_000) : balance
+    );
 
   const validateForm = (): boolean => {
     // Validate IBC requirements if selected as bridge type
@@ -373,7 +376,7 @@ const IBCTransfer = (): JSX.Element => {
                   variant={InputVariants.Text}
                   label="Add Channel ID"
                   value={channelId}
-                  onChangeCallback={(e) => {
+                  onChange={(e) => {
                     const { value } = e.target;
                     setChannelId(value);
                   }}
@@ -409,9 +412,9 @@ const IBCTransfer = (): JSX.Element => {
                   currentExtensionAttachStatus === "attached"
                     ? handleConnectExtension
                     : handleDownloadExtension.bind(
-                      null,
-                      destinationChain.extension.url
-                    )
+                        null,
+                        destinationChain.extension.url
+                      )
                 }
                 loading={
                   currentExtensionAttachStatus === "pending" ||
@@ -424,7 +427,7 @@ const IBCTransfer = (): JSX.Element => {
                 }
               >
                 {currentExtensionAttachStatus === "attached" ||
-                  currentExtensionAttachStatus === "pending"
+                currentExtensionAttachStatus === "pending"
                   ? `Load accounts from ${extensionAlias} Extension`
                   : "Click to download the extension"}
               </Button>
@@ -444,7 +447,7 @@ const IBCTransfer = (): JSX.Element => {
                 variant={InputVariants.Text}
                 label="Recipient"
                 value={recipient}
-                onChangeCallback={(e) => setRecipient(e.target.value)}
+                onChange={(e) => setRecipient(e.target.value)}
               />
             )}
           </InputContainer>
@@ -454,7 +457,7 @@ const IBCTransfer = (): JSX.Element => {
               variant={InputVariants.Number}
               label={"Amount"}
               value={amount.toString()}
-              onChangeCallback={(e) => {
+              onChange={(e) => {
                 const { value } = e.target;
                 setAmount(new BigNumber(`${value}`));
               }}

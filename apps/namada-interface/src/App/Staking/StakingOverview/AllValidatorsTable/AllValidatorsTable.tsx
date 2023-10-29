@@ -227,7 +227,7 @@ export const AllValidatorsTable: React.FC<{
               placeholder="Search validators"
               variant={InputVariants.Text}
               value={search}
-              onChangeCallback={(e) => setSearch(e.target.value)}
+              onChange={(e) => setSearch(e.target.value)}
             />
           </AllValidatorsSearchBar>
           <Paginator

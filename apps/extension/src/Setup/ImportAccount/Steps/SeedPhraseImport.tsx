@@ -122,7 +122,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm, requester }) => {
               key={`word-${word}`}
               label={`Word ${word + 1}`}
               variant={InputVariants.PasswordOnBlur}
-              onChangeCallback={onInputChange.bind(null, index)}
+              onChange={onInputChange.bind(null, index)}
               onPaste={onPaste.bind(null, index)}
               value={mnemonics.at(index) || ""}
             />

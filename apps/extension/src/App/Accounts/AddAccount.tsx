@@ -348,7 +348,7 @@ const AddAccount: React.FC<Props> = ({
                 label="Alias"
                 autoFocus={true}
                 value={alias}
-                onChangeCallback={(e) => {
+                onChange={(e) => {
                   const { value } = e.target;
                   setAlias(value);
                   validateAlias(accounts, value);
@@ -400,8 +400,9 @@ const AddAccount: React.FC<Props> = ({
 
             <Bip44Path>
               Derivation path:{" "}
-              <span>{`${parentDerivationPath}${isTransparent ? `${change}/` : ""
-                }${index}`}</span>
+              <span>{`${parentDerivationPath}${
+                isTransparent ? `${change}/` : ""
+              }${index}`}</span>
             </Bip44Path>
             <FormValidationMsg>{validation}</FormValidationMsg>
           </AddAccountForm>

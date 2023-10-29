@@ -318,7 +318,7 @@ const TokenSendForm = ({
           <Input
             variant={InputVariants.Text}
             label={"Recipient"}
-            onChangeCallback={(e) => {
+            onChange={(e) => {
               const { value } = e.target;
               setTarget(value);
             }}
@@ -341,7 +341,7 @@ const TokenSendForm = ({
             variant={InputVariants.Number}
             label={"Amount"}
             value={amount.toString()}
-            onChangeCallback={(e) => {
+            onChange={(e) => {
               const { value } = e.target;
               setAmount(new BigNumber(`${value}`));
             }}
