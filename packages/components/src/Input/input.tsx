@@ -38,7 +38,11 @@ export const Input = ({
       };
 
       icon = (
-        <IconContainer onClick={() => togglePasswordShown()}>
+        <IconContainer
+          role="button"
+          aria-labelledby={passwordShown ? "Hide password" : "Display password"}
+          onClick={() => togglePasswordShown()}
+        >
           <Icon iconName={passwordShown ? IconName.Eye : IconName.EyeHidden} />
         </IconContainer>
       );
@@ -52,6 +56,8 @@ export const Input = ({
 
       icon = (
         <IconContainer
+          role="button"
+          aria-labelledby="Copy to clipboard"
           onClick={() => copyToClipboard(props.value?.toString() || "")}
         >
           <Icon iconName={IconName.Copy} />
