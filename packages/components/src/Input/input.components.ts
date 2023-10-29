@@ -1,30 +1,41 @@
-import { borderRadius, color, fontSize, spacement } from "@namada/utils";
-import styled, { css } from "styled-components";
+import styled, { ThemeProps, css } from "styled-components";
+import {
+  DesignConfiguration,
+  ThemeColor,
+  borderRadius,
+  color,
+  fontSize,
+  spacement,
+} from "@namada/utils";
 
-export const Label = styled.label`
-  color: ${color("utility2", "main")};
-  font-size: ${fontSize("base")};
-  font-weight: 500;
+type FieldProps = {
+  inputTheme?: ThemeColor;
+  error: boolean;
+};
 
-  & > p {
-    padding: 0 0 4px;
-    margin: 0;
-  }
-`;
+const getFocusColor = (
+  props: ThemeProps<DesignConfiguration>,
+  error: boolean,
+  inputTheme?: ThemeColor
+): string => {
+  if (error) return color("utility3", "error")(props);
+  if (inputTheme) return "";
+  return color("primary", "main")(props);
+};
 
-export const LabelWrapper = styled.span`
-  padding-left: ${spacement(1.5)};
-`;
-
-const inputStyles = css`
+const commonStyles = css<FieldProps>`
   background-color: ${color("utility1", "main")};
-  border: 1px solid ${color("utility1", "main50")};
+  border: 1px solid;
   border-radius: ${borderRadius("sm")};
+  border-color: ${(props) =>
+    props.inputTheme
+      ? color(props.inputTheme, "main")
+      : color("utility1", "main50")};
   color: ${color("utility2", "main")};
   font-family: inherit;
   font-size: ${fontSize("base")};
   font-weight: 500;
-  margin: ${spacement(2)} 0 ${spacement(1)};
+  line-height: 1.25;
   padding: ${spacement(5)} ${spacement(4)};
   transition: border-color 100ms ease-out;
   width: 100%;
@@ -49,56 +60,73 @@ const inputStyles = css`
   &::selection {
     background-color: ${color("utility1", "main60")};
   }
-`;
-
-export const TextInput = styled.input<{ error: boolean }>`
-  ${inputStyles}
 
   &:focus {
     border-color: ${(props) =>
-      props.error
-        ? color("utility3", "error")(props)
-        : color("primary", "main")(props)}
-`;
+      getFocusColor(props, props.error, props.inputTheme)};
+  }
 
-export const TextAreaInput = styled.textarea<{ error: boolean }>`
-  ${inputStyles}
-  
-  &:focus {
-    border-color: ${(props) =>
-      props.error
-        ? color("utility3", "error")(props)
-        : color("primary", "main")(props)}
-    }
+  &[readonly] {
+    user-select: none;
+    pointer-events: none;
   }
 `;
 
+export const Label = styled.label`
+  color: ${color("utility2", "main")};
+  font-size: ${fontSize("base")};
+  font-weight: 500;
+
+  & > p {
+    padding: 0 0 4px;
+    margin: 0;
+  }
+`;
+
+export const LabelWrapper = styled.span`
+  padding-left: ${spacement(1.5)};
+`;
+
+export const TextInput = styled.input<FieldProps>`
+  ${commonStyles}
+`;
+
+export const TextAreaInput = styled.textarea<FieldProps>`
+  ${commonStyles}
+`;
+
 export const ErrorTooltip = styled.span`
+  color: ${color("utility3", "error")};
   display: ${(props) => (props.children ? "inline-block" : "none")};
   font-size: ${fontSize("xs")};
-  color: ${color("utility3", "error")};
   font-weight: 400;
   padding-left: ${spacement(1.5)};
 `;
 
 export const InputWrapper = styled.div`
-  position: relative;
   display: flex;
+  margin: ${spacement(2)} 0 ${spacement(1)};
+  position: relative;
 `;
 
 export const IconContainer = styled.span`
-  position: absolute;
-  top: 38%;
-  right: 16px;
   cursor: pointer;
+  position: absolute;
+  right: 16px;
+  top: 38%;
+
   & path {
+    stroke: ${color("primary", "main")};
+  }
+
+  & rect {
     stroke: ${color("primary", "main")};
   }
 `;
 
 export const HintTooltip = styled.div`
-  display: ${(props) => (props.children ? "inline-block" : "none")};
   color: ${color("utility2", "main80")};
+  display: ${(props) => (props.children ? "inline-block" : "none")};
   font-size: ${fontSize("xs")};
   font-weight: 300;
   padding-left: ${spacement(1.5)};
