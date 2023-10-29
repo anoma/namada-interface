@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
-
+import { Ports } from "router";
 import { ActionButton, Heading, RadioGroup, Stack } from "@namada/components";
 import { HeaderContainer } from "Setup/Setup.components";
 import { SeedPhraseInstructions, SeedPhraseList } from "Setup/Common";
 import { AccountDetails } from "Setup/types";
 import { GenerateMnemonicMsg } from "background/keyring";
 import { ExtensionRequester } from "extension";
-import { Ports } from "router";
+import { copyToClipboard } from "@namada/utils";
+
 import {
   CopyToClipboard,
   ExportSeedPhraseButtonsContainer,
@@ -20,11 +21,6 @@ type Props = {
   accountCreationDetails?: AccountDetails;
   // depending if first load this might or might not be available
   defaultSeedPhrase?: string[];
-};
-
-// saves the content to clipboard
-const textToClipboard = (content: string): void => {
-  navigator.clipboard.writeText(content);
 };
 
 const SeedPhrase: React.FC<Props> = (props) => {
@@ -87,7 +83,7 @@ const SeedPhrase: React.FC<Props> = (props) => {
           <CopyToClipboard
             onClick={(e) => {
               e.preventDefault();
-              textToClipboard(seedPhrase.join(" "));
+              copyToClipboard(seedPhrase.join(" "));
             }}
             href="#"
           >

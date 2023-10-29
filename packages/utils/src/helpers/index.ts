@@ -239,3 +239,9 @@ export const showMaybeNam = (maybeNam: BigNumber | undefined): string =>
 export const isEmptyObject = (object: Record<string, unknown>): boolean => {
   return Object.keys(object).length === 0;
 };
+
+export const copyToClipboard = (value: string): void => {
+  if (typeof navigator !== "undefined") {
+    navigator.clipboard.writeText(value);
+  }
+};
