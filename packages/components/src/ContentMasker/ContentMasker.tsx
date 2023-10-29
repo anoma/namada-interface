@@ -4,14 +4,19 @@ import {
   ContentMaskerContainer,
   EyeIcon,
 } from "./ContentMasker.components";
+import { ThemeColor } from "@namada/utils";
 
 type ContentMaskerType = {
   children: React.ReactNode;
+  themeColor?: ThemeColor;
 };
 
-export const ContentMasker = ({ children }: ContentMaskerType): JSX.Element => {
+export const ContentMasker = ({
+  children,
+  themeColor,
+}: ContentMaskerType): JSX.Element => {
   return (
-    <ContentMaskerContainer>
+    <ContentMaskerContainer themeColor={themeColor}>
       <BlurredContainer>{children}</BlurredContainer>
       <EyeIcon>
         <Icon
