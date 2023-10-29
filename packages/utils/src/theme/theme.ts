@@ -54,6 +54,8 @@ export type Colors = {
   };
 };
 
+export type ThemeColor = keyof Omit<Colors, "utility3">;
+
 export type BorderRadius = {
   sm: string;
   md: string;
@@ -198,11 +200,11 @@ const namadaDarkColors: Colors = {
     main20: "#333300",
   },
   secondary: {
-    main: "#11DFDF",
-    main80: "#41E5E5",
-    main60: "#70ECEC",
-    main40: "#A0F2F2",
-    main20: "#CFF9F9",
+    main: "#00FFFF",
+    main80: "#00C7C7",
+    main60: "#008F8F",
+    main40: "#005757",
+    main20: "#000303",
   },
   tertiary: {
     main: "#11DFDF",

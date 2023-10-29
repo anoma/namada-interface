@@ -5,6 +5,7 @@ export type {
   ColorMode,
   Sizing,
   Colors,
+  ThemeColor,
   ContainerSize,
   Typography,
   BorderRadius,
