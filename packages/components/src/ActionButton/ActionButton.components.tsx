@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import {
   Colors,
+  FontSize,
   borderRadius,
   color,
   fontSize,
@@ -17,6 +18,8 @@ export type ButtonVariants = keyof Pick<
   "primary" | "secondary" | "utility1"
 >;
 
+export type ButtonSize = keyof Pick<FontSize, "xl" | "base" | "sm">;
+
 const Button = ({
   children,
   forwardedAs,
@@ -27,6 +30,7 @@ const Button = ({
 
 export const ButtonContainer = styled(Button)<{
   variant: ButtonVariants;
+  size: ButtonSize;
 }>`
   all: unset;
   align-items: center;
@@ -36,10 +40,10 @@ export const ButtonContainer = styled(Button)<{
   color: ${(props) => color(props.variant, "main20")(props)};
   cursor: pointer;
   display: flex;
-  font-size: ${fontSize("xl")};
+  font-size: ${(props) => fontSize(props.size)(props)};
   font-weight: 500;
   justify-content: center;
-  min-height: 56px;
+  min-height: 2.8em;
   user-select: none;
   padding: ${spacement(3)} ${spacement(6)};
   position: relative;
