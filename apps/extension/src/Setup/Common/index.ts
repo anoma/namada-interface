@@ -3,3 +3,4 @@ export * from "./Completion";
 export * from "./SeedPhraseInstructions";
 export * from "./SeedPhraseList";
 export * from "./Loading";
+export * from "./ContainerHeader";

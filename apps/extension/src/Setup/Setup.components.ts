@@ -11,11 +11,6 @@ export const Subtitle = styled.p`
   font-weight: 500;
 `;
 
-export const LogoContainer = styled.div`
-  max-width: 200px;
-  margin: 0 auto;
-`;
-
 export const MotionContainer = styled(motion.div)`
   height: 100%;
   box-sizing: border-box;

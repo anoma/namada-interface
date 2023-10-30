@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { ThemeProvider } from "styled-components";
 import {
   Outlet,
   Route,
@@ -7,35 +6,29 @@ import {
   useLocation,
   useNavigate,
 } from "react-router-dom";
+import { ThemeProvider } from "styled-components";
 
+import { Container, LifecycleExecutionWrapper } from "@namada/components";
 import { formatRouterPath, getTheme } from "@namada/utils";
-import {
-  Container,
-  Image,
-  ImageName,
-  LifecycleExecutionWrapper,
-  ProgressIndicator,
-} from "@namada/components";
-
 import { AnimatePresence } from "framer-motion";
 import { useRequester } from "hooks/useRequester";
 import { SeedPhrase, SeedPhraseConfirmation } from "./AccountCreation/Steps";
-import { Completion } from "./Common";
+import { Completion, ContainerHeader } from "./Common";
 import { SeedPhraseImport } from "./ImportAccount";
 import { Ledger } from "./Ledger";
-import { LogoContainer, MotionContainer } from "./Setup.components";
+import { MotionContainer } from "./Setup.components";
 import { Start } from "./Start";
 
 import LedgerConfirmation from "./Ledger/LedgerConfirmation";
 
+import { SeedPhraseWarning } from "./AccountCreation/Steps/SeedPhraseWarning";
+import SeedPhraseSetup from "./ImportAccount/Steps/SeedPhraseSetup/SeedPhraseSetup";
 import {
   AccountCreationRoute,
   AccountDetails,
   AccountImportRoute,
   TopLevelRoute,
 } from "./types";
-import { SeedPhraseWarning } from "./AccountCreation/Steps/SeedPhraseWarning";
-import SeedPhraseSetup from "./ImportAccount/Steps/SeedPhraseSetup/SeedPhraseSetup";
 
 type AnimatedTransitionProps = {
   elementKey: string;
@@ -72,28 +65,16 @@ export const Setup: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [totalSteps, setTotalSteps] = useState(0);
 
-  const containerHeader = (
-    <>
-      {totalSteps === 0 && (
-        <LogoContainer>
-          <Image imageName={ImageName.Logo} />
-        </LogoContainer>
-      )}
-      {totalSteps > 0 && (
-        <ProgressIndicator
-          keyName="test"
-          totalSteps={totalSteps}
-          currentStep={currentStep}
-        />
-      )}
-    </>
-  );
-
   const goToStep = (step: number) => () => setCurrentStep(step);
 
   return (
     <ThemeProvider theme={theme}>
-      <Container size="md" header={containerHeader}>
+      <Container
+        size="md"
+        header={
+          <ContainerHeader currentStep={currentStep} totalSteps={totalSteps} />
+        }
+      >
         <AnimatePresence>
           <AnimatedTransition elementKey={location.pathname}>
             <Routes>

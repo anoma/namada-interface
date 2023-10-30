@@ -3,14 +3,14 @@ import styled from "styled-components";
 import { ContainerSize } from "@namada/utils";
 
 export const Page = styled.div`
+  align-items: center;
   background-color: ${color("utility3", "black")};
   display: flex;
-  align-items: center;
   justify-content: center;
-  min-height: 100vh;
   margin: 0;
-  padding-top: ${spacement(8)};
+  min-height: 100vh;
   padding-bottom: ${spacement(8)};
+  padding-top: ${spacement(8)};
 `;
 
 export const ContainerWrapper = styled.section<{ maxW: keyof ContainerSize }>`
@@ -26,8 +26,9 @@ export const ContainerBody = styled.div`
 `;
 
 export const Header = styled.header`
-  padding: ${spacement(5)} 0;
   border-bottom: 1px solid ${color("utility3", "black")};
+  padding: ${spacement(5)} 0;
+  position: relative;
 `;
 
 export const ReturnButton = styled.button``;
