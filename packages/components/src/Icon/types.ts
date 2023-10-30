@@ -6,6 +6,7 @@ export enum IconName {
   Sun,
   Key,
   Camera,
+  ArrowLeft,
   ChevronUp,
   ChevronRight,
   ChevronDown,
