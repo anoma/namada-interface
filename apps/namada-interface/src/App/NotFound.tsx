@@ -3,7 +3,6 @@ import {
   Button,
   ButtonVariant,
   Heading,
-  HeadingLevel,
   Icon,
   IconName,
   NavigationContainer,
@@ -25,10 +24,10 @@ const NotFound = (): JSX.Element => {
   return (
     <NotFoundContainer>
       <NavigationContainer>
-        <Heading level={HeadingLevel.One}>Oops!</Heading>
+        <Heading level="h1">Oops!</Heading>
       </NavigationContainer>
       <NotFoundContent>
-        <Heading level={HeadingLevel.One}>Page not found.</Heading>
+        <Heading level="h1">Page not found.</Heading>
         <Button onClick={handleWalletClick} variant={ButtonVariant.Contained}>
           Return to wallet
         </Button>

@@ -9,12 +9,7 @@ import {
 } from "@namada/hooks";
 import { Account, ExtensionKey, Extensions } from "@namada/types";
 import { formatCurrency } from "@namada/utils";
-import {
-  Button,
-  ButtonVariant,
-  Heading,
-  HeadingLevel,
-} from "@namada/components";
+import { Button, ButtonVariant, Heading } from "@namada/components";
 
 import { useAppSelector, useAppDispatch } from "store";
 import { AccountsState, addAccounts, fetchBalances } from "slices/accounts";
@@ -101,9 +96,9 @@ export const AccountOverview = (): JSX.Element => {
       <AccountOverviewContent>
         <HeadingContainer>
           <div>
-            <Heading level={HeadingLevel.Four}>Your wallet</Heading>
+            <Heading level="h1">Your wallet</Heading>
             <TotalHeading>
-              <Heading level={HeadingLevel.One}>Total Balance</Heading>
+              <Heading level="h2">Total Balance</Heading>
             </TotalHeading>
           </div>
           <TotalContainer>
@@ -159,7 +154,7 @@ export const AccountOverview = (): JSX.Element => {
                 }
               >
                 {currentExtensionAttachStatus === "attached" ||
-                  currentExtensionAttachStatus === "pending"
+                currentExtensionAttachStatus === "pending"
                   ? `Connect to ${extensionAlias} Extension`
                   : "Click to download the extension"}
               </Button>

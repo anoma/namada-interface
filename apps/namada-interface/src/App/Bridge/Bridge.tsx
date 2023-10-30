@@ -1,6 +1,5 @@
 import {
   Heading,
-  HeadingLevel,
   NavigationContainer,
   Tab,
   TabsGroup,
@@ -17,7 +16,7 @@ export const Bridge = (): JSX.Element => {
   return (
     <BridgeContainer>
       <NavigationContainer>
-        <Heading level={HeadingLevel.One}>Bridge</Heading>
+        <Heading level="h1">Bridge</Heading>
       </NavigationContainer>
 
       <TabsGroup>

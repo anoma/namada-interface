@@ -6,7 +6,6 @@ import {
   Button,
   ButtonVariant,
   Heading,
-  HeadingLevel,
   Icon,
   IconName,
   NavigationContainer,
@@ -28,7 +27,7 @@ export const Settings = (): JSX.Element => {
   return (
     <SettingsContainer>
       <NavigationContainer>
-        <Heading level={HeadingLevel.One}>Settings</Heading>
+        <Heading level="h1">Settings</Heading>
       </NavigationContainer>
 
       <SettingsContent>

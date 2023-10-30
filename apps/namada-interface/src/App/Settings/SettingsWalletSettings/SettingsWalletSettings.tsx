@@ -10,7 +10,6 @@ import { SettingsWalletSettingsContainer } from "./SettingsWalletSettings.compon
 import {
   NavigationContainer,
   Heading,
-  HeadingLevel,
   Tooltip,
   Icon,
   IconName,
@@ -60,7 +59,7 @@ export const SettingsWalletSettings = (): JSX.Element => {
   return (
     <SettingsWalletSettingsContainer>
       <NavigationContainer>
-        <Heading level={HeadingLevel.One}>Wallet Settings</Heading>
+        <Heading level="h1">Wallet Settings</Heading>
       </NavigationContainer>
 
       <SettingsContent>

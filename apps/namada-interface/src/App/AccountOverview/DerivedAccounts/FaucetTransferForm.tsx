@@ -4,7 +4,6 @@ import {
   Button,
   ButtonVariant,
   Heading,
-  HeadingLevel,
   Input,
   InputVariants,
   Select,
@@ -74,9 +73,9 @@ export const FaucetTransferForm = ({
 
   return (
     <FaucetTransferContainer>
-      <Heading level={HeadingLevel.Two}>Transfer testnet tokens</Heading>
+      <Heading level="h1">Transfer testnet tokens</Heading>
       <FaucetTransferContent>
-        <Heading level={HeadingLevel.Three}>{alias}</Heading>
+        <Heading level="h2">{alias}</Heading>
         <p>From: {shortenAddress(faucetAddress)}</p>
         <p>To: {shortenAddress(address)}</p>
         <InputContainer>

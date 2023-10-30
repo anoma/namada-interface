@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ThemeProvider } from "styled-components";
 
 import { ColorMode, getTheme } from "@namada/utils";
-import { Heading, HeadingLevel } from "@namada/components";
+import { Heading } from "@namada/components";
 
 import {
   AppContainer,
@@ -70,7 +70,7 @@ export const App: React.FC = () => {
       )}
       <AppContainer>
         <TopSection>
-          <Heading level={HeadingLevel.One}>Namada Faucet</Heading>
+          <Heading level="h1">Namada Faucet</Heading>
         </TopSection>
         <ContentContainer>
           <FaucetForm isTestnetLive={isTestnetLive} />
