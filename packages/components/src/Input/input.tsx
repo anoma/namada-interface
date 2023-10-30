@@ -21,6 +21,7 @@ export const Input = ({
   error,
   hint,
   theme,
+  hideIcon = false,
   sensitive = false,
   ...props
 }: Props): JSX.Element => {
@@ -96,14 +97,14 @@ export const Input = ({
 
   return (
     <Label>
-      <LabelWrapper>{label}</LabelWrapper>
+      {label && <LabelWrapper>{label}</LabelWrapper>}
       <InputWrapper>
         {sensitive ? (
           <ContentMasker themeColor={theme}>{field}</ContentMasker>
         ) : (
           field
         )}
-        {icon}
+        {!hideIcon && icon}
       </InputWrapper>
       {<ErrorTooltip>{error}</ErrorTooltip>}
       {<HintTooltip>{hint}</HintTooltip>}

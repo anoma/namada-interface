@@ -32,7 +32,7 @@ export const Textarea = ({
 
   return (
     <Label>
-      <LabelWrapper>{label}</LabelWrapper>
+      {label && <LabelWrapper>{label}</LabelWrapper>}
       <InputWrapper>
         {sensitive ? (
           <ContentMasker themeColor={theme}>{field}</ContentMasker>

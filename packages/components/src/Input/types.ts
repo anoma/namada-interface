@@ -10,11 +10,12 @@ export enum InputVariants {
 }
 
 export type ComponentProps = {
-  label: string | React.ReactNode;
+  label?: string | React.ReactNode;
   error?: string;
   sensitive?: boolean;
   hint?: string | React.ReactNode;
   theme?: ThemeColor;
+  hideIcon?: boolean;
 };
 
 export type InputProps = React.ComponentPropsWithoutRef<"input">;
