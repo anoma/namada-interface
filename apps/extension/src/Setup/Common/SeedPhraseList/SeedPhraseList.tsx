@@ -1,20 +1,50 @@
-import { ContentMasker } from "@namada/components";
-import { SeedList, SeedListItem, Word } from "./SeedPhraseList.components";
+import { ContentMasker, Input, InputVariants } from "@namada/components";
+import {
+  SeedList,
+  SeedListItem,
+  Word,
+  WordInput,
+} from "./SeedPhraseList.components";
 
 type SeedPhraseListProps = {
   words: string[];
+  sensitive?: boolean;
+  onChange?: (index: number, value: string) => void;
+  onPaste?: (index: number, e: React.ClipboardEvent<HTMLInputElement>) => void;
 };
 
-export const SeedPhraseList = ({ words }: SeedPhraseListProps): JSX.Element => {
-  return (
-    <ContentMasker>
-      <SeedList columns={3}>
-        {words.map((word, idx) => (
-          <SeedListItem key={`seed-phrase-list-${idx}`}>
+export const SeedPhraseList = ({
+  words,
+  onChange,
+  onPaste,
+  sensitive = true,
+}: SeedPhraseListProps): JSX.Element => {
+  const list = (
+    <SeedList columns={3}>
+      {words.map((word, idx) => (
+        <SeedListItem key={`seed-phrase-list-${idx}`}>
+          {onChange ? (
+            <WordInput>
+              <Input
+                label=""
+                variant={InputVariants.PasswordOnBlur}
+                hideIcon={true}
+                onChange={(e) => onChange(idx, e.target.value)}
+                onPaste={(e) => onPaste && onPaste(idx, e)}
+                value={word}
+              />
+            </WordInput>
+          ) : (
             <Word>{word}</Word>
-          </SeedListItem>
-        ))}
-      </SeedList>
-    </ContentMasker>
+          )}
+        </SeedListItem>
+      ))}
+    </SeedList>
   );
+
+  if (sensitive) {
+    return <ContentMasker>{list}</ContentMasker>;
+  }
+
+  return list;
 };

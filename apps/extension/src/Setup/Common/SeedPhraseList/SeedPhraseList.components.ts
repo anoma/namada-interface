@@ -28,3 +28,16 @@ export const Word = styled.span`
   top: 1.2em;
   user-select: none;
 `;
+
+export const WordInput = styled.span`
+  position: absolute;
+  left: 0;
+  top: -${spacement(2)}; // 🫣
+  width: 100%;
+  height: 100%;
+
+  input {
+    background-color: transparent;
+    padding-left: ${spacement(10)};
+  }
+`;
