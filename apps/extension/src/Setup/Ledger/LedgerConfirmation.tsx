@@ -1,37 +1,18 @@
-import React, { useCallback, useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { ThemeContext } from "styled-components";
+import React, { useCallback, useState } from "react";
 
-import {
-  Button,
-  ButtonVariant,
-  Icon,
-  IconName,
-  IconSize,
-} from "@namada/components";
-import { shortenAddress } from "@namada/utils";
+import { Button, ButtonVariant, Heading } from "@namada/components";
 import { useSanitizedParams } from "@namada/hooks";
+import { shortenAddress } from "@namada/utils";
 
+import { BodyText, HeaderContainer } from "Setup/Setup.components";
+import { AddLedgerParentAccountMsg } from "background/ledger";
 import { useRequester } from "hooks/useRequester";
-import { LedgerErrorMessage } from "./Ledger.components";
-import {
-  TopSection,
-  TopSectionHeaderContainer,
-  TopSectionButtonContainer,
-  ButtonsContainer,
-  SubViewContainer,
-  UpperContentContainer,
-  Header1,
-  BodyText,
-} from "Setup/Setup.components";
 import { Ports } from "router";
 import { closeCurrentTab } from "utils";
-import { AddLedgerParentAccountMsg } from "background/ledger";
+import { LedgerErrorMessage } from "./Ledger.components";
 
 const LedgerConfirmation: React.FC = () => {
-  const navigate = useNavigate();
   const requester = useRequester();
-  const themeContext = useContext(ThemeContext);
   const { alias = "", address = "", publicKey = "" } = useSanitizedParams();
   const [error, setError] = useState<string>();
 
@@ -53,23 +34,12 @@ const LedgerConfirmation: React.FC = () => {
   }, []);
 
   return (
-    <SubViewContainer>
-      <TopSection>
-        <TopSectionButtonContainer>
-          <a onClick={() => navigate(-1)} style={{ cursor: "pointer" }}>
-            <Icon
-              iconName={IconName.ChevronLeft}
-              strokeColorOverride={themeContext.colors.utility2.main60}
-              iconSize={IconSize.L}
-            />
-          </a>
-        </TopSectionButtonContainer>
-        <TopSectionHeaderContainer></TopSectionHeaderContainer>
-      </TopSection>
-
-      <UpperContentContainer>
-        <Header1>Confirm Ledger Connection</Header1>
-      </UpperContentContainer>
+    <>
+      <HeaderContainer>
+        <Heading level="h1" size="3xl">
+          Confirm Ledger Connection
+        </Heading>
+      </HeaderContainer>
 
       {error && <LedgerErrorMessage>{error}</LedgerErrorMessage>}
       <BodyText>
@@ -77,12 +47,10 @@ const LedgerConfirmation: React.FC = () => {
       </BodyText>
       <BodyText>Address: {address && shortenAddress(address)}</BodyText>
       <BodyText>Add this address to your wallet?</BodyText>
-      <ButtonsContainer>
-        <Button variant={ButtonVariant.Contained} onClick={handleSubmitClick}>
-          Add to wallet and close
-        </Button>
-      </ButtonsContainer>
-    </SubViewContainer>
+      <Button variant={ButtonVariant.Contained} onClick={handleSubmitClick}>
+        Add to wallet and close
+      </Button>
+    </>
   );
 };
 

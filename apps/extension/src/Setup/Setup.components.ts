@@ -26,4 +26,6 @@ export const HeaderContainer = styled.hgroup`
   margin-bottom: ${spacement(7)};
 `;
 
+export const BodyText = styled.p``;
+
 export const Form = styled.form``;
