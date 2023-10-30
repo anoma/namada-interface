@@ -3,15 +3,15 @@ import { BaseHeading } from "./Heading.components";
 import { HeadingLevel } from "./types";
 
 type HeadingProps = {
-  level: HeadingLevel;
-  size: keyof FontSize;
+  level?: HeadingLevel;
+  size?: keyof FontSize;
   children: React.ReactNode;
 };
 
 export const Heading = ({
-  level,
+  level = "h1",
+  size = "3xl",
   children,
-  size,
 }: HeadingProps): JSX.Element => {
   return (
     <BaseHeading as={level} size={size}>
