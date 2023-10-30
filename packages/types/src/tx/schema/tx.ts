@@ -8,8 +8,8 @@ export class TxMsgValue {
   @field({ type: "string" })
   token!: string;
 
-  @field(BigNumberSerializer)
-  feeAmount!: BigNumber;
+  @field({ type: option(BigNumberSerializer) })
+  gasPrice?: BigNumber;
 
   @field(BigNumberSerializer)
   gasLimit!: BigNumber;
@@ -22,6 +22,9 @@ export class TxMsgValue {
 
   @field({ type: option("string") })
   signer?: string;
+
+  @field({ type: "bool" })
+  disposableGasPayer!: boolean;
 
   constructor(data: TxProps) {
     Object.assign(this, data);

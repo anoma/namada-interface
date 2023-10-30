@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { ThemeContext } from "styled-components";
 import BigNumber from "bignumber.js";
 
-import { chains, defaultChainId } from "@namada/chains";
+import { chains } from "@namada/chains";
 import { TokenType, Tokens } from "@namada/types";
 import { formatCurrency } from "@namada/utils";
 
@@ -22,7 +22,6 @@ import {
   NoTokens,
   TokenTotals,
   TokenBalances,
-  TestnetTokensButton,
 } from "./DerivedAccounts.components";
 
 // Import PNG images assets
@@ -119,11 +118,6 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
       dispatch(fetchConversionRates());
     }
   }, [timestamp]);
-
-  const activeAccount =
-    activeAccountAddress &&
-    accounts.find((account) => account.details.address === activeAccountAddress)
-      ?.details;
 
   return (
     <DerivedAccountsContainer>

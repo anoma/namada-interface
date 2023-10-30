@@ -67,10 +67,11 @@ export const submitIbcTransfer = async (
       },
       txProps: {
         token: Tokens.NAM.address || "",
-        feeAmount: new BigNumber(0),
+        gasPrice: new BigNumber(0),
         gasLimit: new BigNumber(20_000),
         publicKey,
         chainId,
+        disposableGasPayer: false,
       },
     },
     type

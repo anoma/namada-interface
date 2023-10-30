@@ -19,6 +19,7 @@ use namada::namada_sdk::tx::{
 use namada::namada_sdk::wallet::{Store, Wallet};
 use namada::namada_sdk::{Namada, NamadaImpl};
 use namada::types::address::Address;
+use namada::types::masp::TransferSource;
 use namada::{proto::Tx, types::key::common::PublicKey};
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 
@@ -49,6 +50,7 @@ pub struct BuiltTx {
     tx: Tx,
     signing_data: SigningTxData,
     is_faucet_transfer: bool,
+    transfer_source: Option<TransferSource>
 }
 
 #[wasm_bindgen]
@@ -147,9 +149,10 @@ impl Sdk {
             mut tx,
             signing_data,
             is_faucet_transfer,
+            transfer_source
         } = built_tx;
 
-        let mut args = tx::tx_args_from_slice(tx_msg)?;
+        let mut args = tx::tx_args_from_slice(tx_msg, transfer_source)?;
         // We only support one signer(for now)
         let pk = &signing_data
             .public_keys
@@ -193,7 +196,7 @@ impl Sdk {
         tx_msg: &[u8],
         reveal_pk_tx_bytes: &[u8],
     ) -> Result<(), JsError> {
-        let args = tx::tx_args_from_slice(tx_msg)?;
+        let args = tx::tx_args_from_slice(tx_msg, None)?;
         let namada = self.get_namada();
 
         if reveal_pk_tx_bytes.is_empty() == false {
@@ -306,6 +309,7 @@ impl Sdk {
             tx,
             signing_data,
             is_faucet_transfer: faucet_signer.is_some(),
+            transfer_source: Some(args.source.clone())
         })
     }
 
@@ -325,6 +329,7 @@ impl Sdk {
             tx,
             signing_data,
             is_faucet_transfer: faucet_signer.is_some(),
+            transfer_source: None
         })
     }
 
@@ -345,6 +350,7 @@ impl Sdk {
             tx,
             signing_data,
             is_faucet_transfer: faucet_signer.is_some(),
+            transfer_source: None
         })
     }
 
@@ -368,6 +374,7 @@ impl Sdk {
             tx,
             signing_data,
             is_faucet_transfer: faucet_signer.is_some(),
+            transfer_source: None
         })
     }
 
@@ -387,6 +394,7 @@ impl Sdk {
             tx,
             signing_data,
             is_faucet_transfer: faucet_signer.is_some(),
+            transfer_source: None
         })
     }
 
@@ -406,6 +414,7 @@ impl Sdk {
             tx,
             signing_data,
             is_faucet_transfer: faucet_signer.is_some(),
+            transfer_source: None
         })
     }
 
@@ -425,11 +434,12 @@ impl Sdk {
             tx,
             signing_data,
             is_faucet_transfer: faucet_signer.is_some(),
+            transfer_source: None
         })
     }
 
     async fn build_reveal_pk(&mut self, tx_msg: &[u8], _gas_payer: String) -> Result<Tx, JsError> {
-        let args = tx::tx_args_from_slice(tx_msg)?;
+        let args = tx::tx_args_from_slice(tx_msg, None)?;
 
         let public_key = match args.verification_key.clone() {
             Some(v) => PublicKey::from(v),

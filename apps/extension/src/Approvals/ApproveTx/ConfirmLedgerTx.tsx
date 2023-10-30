@@ -55,10 +55,11 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
 
     const txArgs: TxProps = {
       token: Tokens.NAM.address || "",
-      feeAmount: new BigNumber(0),
+      gasPrice: new BigNumber(0),
       gasLimit: new BigNumber(20_000),
       chainId,
       publicKey,
+      disposableGasPayer: false,
     };
 
     const msgValue = new TxMsgValue(txArgs);

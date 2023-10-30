@@ -20,11 +20,12 @@ use wasm_bindgen::JsError;
 #[derive(BorshSerialize, BorshDeserialize)]
 pub struct TxMsg {
     token: String,
-    fee_amount: String,
+    gas_price: Option<String>,
     gas_limit: String,
     chain_id: String,
     public_key: Option<String>,
     signer: Option<String>,
+    disposable_gas_payer: bool
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -64,7 +65,7 @@ pub fn bond_tx_args(
     let native_token = Address::from_str(&native_token)?;
     let validator = Address::from_str(&validator)?;
     let amount = Amount::from_str(&amount, NATIVE_MAX_DECIMAL_PLACES)?;
-    let (tx, faucet_signer) = tx_msg_into_args(tx_msg, password)?;
+    let (tx, faucet_signer) = tx_msg_into_args(tx_msg, password, None)?;
 
     let args = args::Bond {
         tx,
@@ -113,7 +114,7 @@ pub fn unbond_tx_args(
     let validator = Address::from_str(&validator)?;
 
     let amount = Amount::from_str(&amount, NATIVE_MAX_DECIMAL_PLACES)?;
-    let (tx, faucet_signer) = tx_msg_into_args(tx_msg, password)?;
+    let (tx, faucet_signer) = tx_msg_into_args(tx_msg, password, None)?;
 
     let args = args::Unbond {
         tx,
@@ -154,7 +155,7 @@ pub fn withdraw_tx_args(
 
     let source = Address::from_str(&source)?;
     let validator = Address::from_str(&validator)?;
-    let (tx, faucet_signer) = tx_msg_into_args(tx_msg, password)?;
+    let (tx, faucet_signer) = tx_msg_into_args(tx_msg, password, None)?;
 
     let args = args::Withdraw {
         tx,
@@ -196,7 +197,7 @@ pub fn vote_proposal_tx_args(
         proposal_id,
         vote,
     } = vote_proposal_msg;
-    let (tx, faucet_signer) = tx_msg_into_args(tx_msg, password)?;
+    let (tx, faucet_signer) = tx_msg_into_args(tx_msg, password, None)?;
     let voter = Address::from_str(&signer)?;
 
     let args = args::VoteProposal {
@@ -275,7 +276,7 @@ pub fn transfer_tx_args(
     let token = Address::from_str(&token)?;
     let denom_amount = DenominatedAmount::from_str(&amount).expect("Amount to be valid.");
     let amount = InputAmount::Unvalidated(denom_amount);
-    let (tx, faucet_signer) = tx_msg_into_args(tx_msg, password)?;
+    let (tx, faucet_signer) = tx_msg_into_args(tx_msg, password, Some(source.clone()))?;
 
     let args = args::TxTransfer {
         tx,
@@ -336,7 +337,7 @@ pub fn ibc_transfer_tx_args(
     let amount = InputAmount::Unvalidated(denom_amount);
     let port_id = PortId::from_str(&port_id).expect("Port id to be valid");
     let channel_id = ChannelId::from_str(&channel_id).expect("Channel id to be valid");
-    let (tx, faucet_signer) = tx_msg_into_args(tx_msg, password)?;
+    let (tx, faucet_signer) = tx_msg_into_args(tx_msg, password, None)?;
 
     let args = args::TxIbcTransfer {
         tx,
@@ -385,7 +386,7 @@ pub fn eth_bridge_transfer_tx_args(
         fee_token,
     } = eth_bridge_transfer_msg;
 
-    let (tx, faucet_signer) = tx_msg_into_args(tx_msg, password)?;
+    let (tx, faucet_signer) = tx_msg_into_args(tx_msg, password, None)?;
     let asset = EthAddress::from_str(&asset).map_err(|e| JsError::new(&format!("{}", e)))?;
     let recipient =
         EthAddress::from_str(&recipient).map_err(|e| JsError::new(&format!("{}", e)))?;
@@ -414,8 +415,11 @@ pub fn eth_bridge_transfer_tx_args(
     Ok((args, faucet_signer))
 }
 
-pub fn tx_args_from_slice(tx_msg_bytes: &[u8]) -> Result<args::Tx, JsError> {
-    let (args, _) = tx_msg_into_args(tx_msg_bytes, None)?;
+pub fn tx_args_from_slice(
+    tx_msg_bytes: &[u8],
+    transfer_source: Option<TransferSource>
+) -> Result<args::Tx, JsError> {
+    let (args, _) = tx_msg_into_args(tx_msg_bytes, None, transfer_source)?;
 
     Ok(args)
 }
@@ -434,22 +438,26 @@ pub fn tx_args_from_slice(tx_msg_bytes: &[u8]) -> Result<args::Tx, JsError> {
 fn tx_msg_into_args(
     tx_msg: &[u8],
     password: Option<String>,
+    source: Option<TransferSource>
 ) -> Result<(args::Tx, Option<Address>), JsError> {
     let tx_msg = TxMsg::try_from_slice(tx_msg)?;
     let TxMsg {
         token,
-        fee_amount,
+        gas_price,
         gas_limit,
         chain_id,
         public_key,
         signer,
+        disposable_gas_payer,
     } = tx_msg;
 
     let token = Address::from_str(&token)?;
 
-    let fee_amount = DenominatedAmount::from_str(&fee_amount)
-        .expect(format!("Fee amount has to be valid. Received {}", fee_amount).as_str());
-    let fee_input_amount = InputAmount::Unvalidated(fee_amount);
+    let gas_price = gas_price.map(|v| {
+        let denominated = DenominatedAmount::from_str(&v)
+            .expect(format!("Fee amount has to be valid. Received {}", v).as_str());
+        InputAmount::Unvalidated(denominated)
+    });
 
     let password = password.map(|pwd| zeroize::Zeroizing::new(pwd));
     let public_key = match public_key {
@@ -464,16 +472,16 @@ fn tx_msg_into_args(
     let args = args::Tx {
         dry_run: false,
         dry_run_wrapper: false,
-        disposable_signing_key: false,
+        disposable_signing_key: disposable_gas_payer,
         dump_tx: false,
         force: false,
         broadcast_only: false,
         ledger_address: (),
         wallet_alias_force: false,
         initialized_account_alias: None,
-        fee_amount: Some(fee_input_amount),
+        fee_amount: gas_price,
         fee_token: token.clone(),
-        fee_unshield: None,
+        fee_unshield: source,
         gas_limit: GasLimit::from_str(&gas_limit).expect("Gas limit to be valid"),
         wrapper_fee_payer: None,
         output_folder: None,

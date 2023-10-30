@@ -257,10 +257,11 @@ export const postNewBonding = createAsyncThunk<
     },
     {
       token: Tokens.NAM.address || "",
-      feeAmount: new BigNumber(0),
+      gasPrice: new BigNumber(0),
       gasLimit: new BigNumber(20_000),
       chainId,
       publicKey,
+      disposableGasPayer: false,
     },
     type
   );
@@ -293,10 +294,11 @@ export const postNewUnbonding = createAsyncThunk<
     },
     {
       token: Tokens.NAM.address || "",
-      feeAmount: new BigNumber(0),
+      gasPrice: new BigNumber(0),
       gasLimit: new BigNumber(20_000),
       chainId,
       publicKey,
+      disposableGasPayer: false,
     },
     type
   );
@@ -322,10 +324,11 @@ export const postNewWithdraw = createAsyncThunk<
     },
     {
       token: Tokens.NAM.address || "",
-      feeAmount: new BigNumber(0),
+      gasPrice: new BigNumber(0),
       gasLimit: new BigNumber(20_000),
       chainId,
       publicKey,
+      disposableGasPayer: false,
     },
     type
   );

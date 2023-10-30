@@ -47,39 +47,6 @@ export const InputWithButtonContainer = styled.div`
   }
 `;
 
-export const QrReaderContainer = styled.div`
-  padding-top: 20px;
-`;
-
-export const QrReaderError = styled.p`
-  color: ${(props) => props.theme.colors.utility3.error};
-`;
-
-export const GasButtonsContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  width: 100%;
-  padding: 0;
-  margin: 0;
-  font-weight: normal;
-  font-size: 14px;
-
-  button {
-    margin: 0 0 20px 0;
-    width: 30%;
-    padding: 4px;
-    border-radius: 8px;
-    color: ${(props) => props.theme.colors.utility2.main80};
-    border-width: 2px;
-    border-color: ${(props) => props.theme.colors.utility2.main60};
-
-    span {
-      font-weight: bold;
-    }
-  }
-`;
-
 export const ButtonsContainer = styled.div`
   position: relative;
   display: flex;

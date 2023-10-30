@@ -39,7 +39,7 @@ type TxArgs = {
   target: string;
   amount: BigNumber;
   memo?: string;
-  feeAmount?: BigNumber;
+  gasPrice?: BigNumber;
   gasLimit?: BigNumber;
 };
 

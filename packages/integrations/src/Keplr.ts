@@ -149,7 +149,7 @@ class Keplr implements Integration<Account, OfflineSigner> {
         portId = "transfer",
         channelId,
       } = props.ibcProps;
-      const { feeAmount } = props.txProps;
+      const { gasPrice } = props.txProps;
 
       const client = await SigningStargateClient.connectWithSigner(
         this.chain.rpc,
@@ -157,8 +157,13 @@ class Keplr implements Integration<Account, OfflineSigner> {
         defaultSigningClientOptions
       );
 
+      // TODO: is there a sensible default that can be used here instead?
+      if (!gasPrice) {
+        throw new Error("Gas price is not set");
+      }
+
       const fee = {
-        amount: coins(feeAmount.toString(), "uatom"),
+        amount: coins(gasPrice.toString(), "uatom"),
         gas: "222000",
       };
 

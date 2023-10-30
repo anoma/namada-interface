@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import BigNumber from "bignumber.js";
 
 import { Account, AccountsState } from "slices/accounts";
 import { SettingsState } from "slices/settings";
@@ -17,6 +18,7 @@ import {
 } from "@namada/components";
 import TokenSendForm from "./TokenSendForm";
 import { useSanitizedParams } from "@namada/hooks";
+import { Query } from "@namada/shared";
 
 import { TokenSendContainer, TokenSendContent } from "./TokenSend.components";
 import {
@@ -121,6 +123,24 @@ const TokenSend = (): JSX.Element => {
       setToken(tokenSymbol as TokenType);
     };
 
+  const [minimumGasPrice, setMinimumGasPrice] = useState<BigNumber>();
+
+  useEffect(() => {
+    (async () => {
+      const { rpc } = chains[chainId];
+      const query = new Query(rpc);
+      const result = await query.query_gas_costs() as [string, string][];
+
+      const namCost = result.find(([token]) => token === Tokens.NAM.address);
+
+      if (!namCost) {
+        throw new Error("Error querying minimum gas price");
+      }
+
+      setMinimumGasPrice(new BigNumber(namCost[1]));
+    })();
+  }, []);
+
   return (
     <TokenSendContainer>
       <NavigationContainer>
@@ -149,13 +169,14 @@ const TokenSend = (): JSX.Element => {
                 label="Token"
                 onChange={handleTokenChange(setSelectedShieldedAccountAddress)}
               />
-              {selectedShieldedAccountAddress && (
+              {selectedShieldedAccountAddress && minimumGasPrice && (
                 <TokenSendForm
                   address={selectedShieldedAccountAddress}
                   tokenType={token}
                   defaultTarget={
                     target?.startsWith("patest") ? target : undefined
                   }
+                  minimumGasPrice={minimumGasPrice}
                 />
               )}
             </>
@@ -177,13 +198,14 @@ const TokenSend = (): JSX.Element => {
                   setSelectedTransparentAccountAddress
                 )}
               />
-              {selectedTransparentAccountAddress && (
+              {selectedTransparentAccountAddress && minimumGasPrice && (
                 <TokenSendForm
                   address={selectedTransparentAccountAddress}
                   tokenType={token}
                   defaultTarget={
                     target?.startsWith("atest") ? target : undefined
                   }
+                  minimumGasPrice={minimumGasPrice}
                 />
               )}
             </>

@@ -94,9 +94,10 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
         },
         {
           token: Tokens.NAM.address || "",
-          feeAmount: new BigNumber(0),
+          gasPrice: new BigNumber(0),
           gasLimit: new BigNumber(20_000),
           chainId,
+          disposableGasPayer: false
         },
         AccountType.Mnemonic
       );
