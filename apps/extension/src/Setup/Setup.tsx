@@ -21,8 +21,7 @@ import { AnimatePresence } from "framer-motion";
 import { useRequester } from "hooks/useRequester";
 import { SeedPhrase, SeedPhraseConfirmation } from "./AccountCreation/Steps";
 import { Completion } from "./Common";
-import { ImportAccount } from "./ImportAccount";
-import { SeedPhraseImport } from "./ImportAccount/Steps";
+import { SeedPhraseImport } from "./ImportAccount";
 import { Ledger } from "./Ledger";
 import { LogoContainer, MotionContainer } from "./Setup.components";
 import { Start } from "./Start";
@@ -36,6 +35,7 @@ import {
   TopLevelRoute,
 } from "./types";
 import { SeedPhraseWarning } from "./AccountCreation/Steps/SeedPhraseWarning";
+import SeedPhraseSetup from "./ImportAccount/Steps/SeedPhraseSetup/SeedPhraseSetup";
 
 type AnimatedTransitionProps = {
   elementKey: string;
@@ -179,6 +179,8 @@ export const Setup: React.FC = () => {
                   element={
                     <LifecycleExecutionWrapper onLoad={goToStep(4)}>
                       <Completion
+                        pageTitle="Namada Keys Created"
+                        pageSubtitle="Here are the accounts generated from your keys"
                         alias={accountCreationDetails.alias || ""}
                         requester={requester}
                         mnemonic={seedPhrase || []}
@@ -193,64 +195,65 @@ export const Setup: React.FC = () => {
               {/* Import Existing Keys */}
               <Route
                 path={`/${TopLevelRoute.ImportAccount}`}
-                element={<ImportAccount />}
+                element={
+                  <LifecycleExecutionWrapper onLoad={() => setTotalSteps(3)}>
+                    <Outlet />
+                  </LifecycleExecutionWrapper>
+                }
               >
                 <Route
                   path={AccountImportRoute.SeedPhrase}
                   element={
-                    <SeedPhraseImport
-                      requester={requester}
-                      onConfirm={(seedPhrase: string[]) => {
-                        setSeedPhrase(seedPhrase);
-                        navigate(
-                          formatRouterPath([
-                            TopLevelRoute.ImportAccount,
-                            AccountImportRoute.Password,
-                          ])
-                        );
-                      }}
-                    />
+                    <LifecycleExecutionWrapper onLoad={goToStep(1)}>
+                      <SeedPhraseImport
+                        requester={requester}
+                        onConfirm={(seedPhrase: string[]) => {
+                          setSeedPhrase(seedPhrase);
+                          navigate(
+                            formatRouterPath([
+                              TopLevelRoute.ImportAccount,
+                              AccountImportRoute.Password,
+                            ])
+                          );
+                        }}
+                      />
+                    </LifecycleExecutionWrapper>
                   }
                 />
                 <Route
                   path={AccountImportRoute.Password}
-                  // element={
-                  //   <Password
-                  //     accountCreationDetails={accountCreationDetails}
-                  //     onSetAccountCreationDetails={(
-                  //       accountCreationDetailsDelta
-                  //     ) => {
-                  //       setAccountCreationDetails((accountCreationDetails) => {
-                  //         return {
-                  //           ...accountCreationDetails,
-                  //           ...accountCreationDetailsDelta,
-                  //         };
-                  //       });
-                  //     }}
-                  //     onSubmitAccountCreationDetails={(
-                  //       accountCreationDetails
-                  //     ) => {
-                  //       setAccountCreationDetails(accountCreationDetails);
-                  //       navigate(
-                  //         formatRouterPath([
-                  //           TopLevelRoute.ImportAccount,
-                  //           AccountImportRoute.Completion,
-                  //         ])
-                  //       );
-                  //     }}
-                  //   />
-                  // }
+                  element={
+                    <LifecycleExecutionWrapper onLoad={goToStep(2)}>
+                      <SeedPhraseSetup
+                        accountCreationDetails={accountCreationDetails}
+                        seedPhrase={seedPhrase}
+                        onConfirm={(accountCreationDetails: AccountDetails) => {
+                          setAccountCreationDetails(accountCreationDetails);
+                          navigate(
+                            formatRouterPath([
+                              TopLevelRoute.ImportAccount,
+                              AccountImportRoute.Completion,
+                            ])
+                          );
+                        }}
+                      />
+                    </LifecycleExecutionWrapper>
+                  }
                 />
                 <Route
                   path={AccountImportRoute.Completion}
                   element={
-                    <Completion
-                      alias={accountCreationDetails.alias || ""}
-                      requester={requester}
-                      mnemonic={seedPhrase || []}
-                      password={accountCreationDetails.password || ""}
-                      scanAccounts={true}
-                    />
+                    <LifecycleExecutionWrapper onLoad={goToStep(3)}>
+                      <Completion
+                        pageTitle="Namada Keys Imported"
+                        pageSubtitle="Here are the accounts generated from your keys"
+                        alias={accountCreationDetails.alias || ""}
+                        requester={requester}
+                        mnemonic={seedPhrase || []}
+                        password={accountCreationDetails.password || ""}
+                        scanAccounts={false}
+                      />
+                    </LifecycleExecutionWrapper>
                   }
                 />
               </Route>
