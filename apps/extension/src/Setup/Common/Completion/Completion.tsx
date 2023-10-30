@@ -26,6 +26,8 @@ type Props = {
   mnemonic: string[];
   password: string;
   scanAccounts: boolean;
+  pageTitle: string;
+  pageSubtitle: string;
 };
 
 enum Status {
@@ -35,7 +37,16 @@ enum Status {
 }
 
 const Completion: React.FC<Props> = (props) => {
-  const { alias, mnemonic, password, requester, scanAccounts } = props;
+  const {
+    alias,
+    mnemonic,
+    password,
+    requester,
+    scanAccounts,
+    pageTitle,
+    pageSubtitle,
+  } = props;
+
   const [mnemonicStatus, setMnemonicStatus] = useState<Status>(
     Status.Completed
   );
@@ -84,9 +95,9 @@ const Completion: React.FC<Props> = (props) => {
         <>
           <HeaderContainer>
             <Heading level="h1" size="3xl">
-              Namada Keys Created
+              {pageTitle}
             </Heading>
-            <Subtitle>Here are the accounts generated from your keys</Subtitle>
+            <Subtitle>{pageSubtitle}</Subtitle>
           </HeaderContainer>
           <Stack as="section" gap={8}>
             <Stack gap={4}>
