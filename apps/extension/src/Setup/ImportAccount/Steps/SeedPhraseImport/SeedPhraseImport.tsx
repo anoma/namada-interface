@@ -1,26 +1,12 @@
 import React, { useCallback, useState } from "react";
 
-import {
-  Button,
-  ButtonVariant,
-  Input,
-  InputVariants,
-  Toggle,
-} from "@namada/components";
-
-import { ExtensionRequester } from "extension";
+import { ActionButton, Heading, RadioGroup, Stack } from "@namada/components";
+import { SeedPhraseList } from "Setup/Common";
+import { HeaderContainer } from "Setup/Setup.components";
 import { ValidateMnemonicMsg } from "background/keyring";
+import { ExtensionRequester } from "extension";
 import { Ports } from "router";
-import {
-  SubViewContainer,
-  UpperContentContainer,
-  Header1,
-  BodyText,
-  ButtonsContainer,
-  SeedPhraseLengthContainer,
-  SeedPhraseLength,
-} from "Setup/Setup.components";
-import { PhraseRecoveryContainer } from "./SeedPhraseImport.components";
+import { Instruction, InstructionList } from "./SeedPhraseImport.components";
 
 type Props = {
   onConfirm: (seedPhraseAsArray: string[]) => void;
@@ -32,10 +18,15 @@ const LONG_PHRASE_COUNT = 24;
 
 export const SeedPhraseImport: React.FC<Props> = ({ onConfirm, requester }) => {
   const [mnemonicLength, setMnemonicLength] = useState(SHORT_PHRASE_COUNT);
-  const mnemonicsRange = Array.from(Array(mnemonicLength).keys());
-  const [mnemonics, setMnemonics] = useState<string[]>(
-    mnemonicsRange.map(() => "")
+
+  const mnemonicsRange = Array.from(Array(LONG_PHRASE_COUNT).keys()).map(
+    () => ""
   );
+
+  const [mnemonics, setMnemonics] = useState<string[]>(
+    Array.from(mnemonicsRange)
+  );
+
   const isSubmitButtonDisabled = mnemonics.some((mnemonic) => !mnemonic);
 
   const onPaste = useCallback(
@@ -53,6 +44,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm, requester }) => {
         setMnemonicLength(LONG_PHRASE_COUNT);
         currentLength = LONG_PHRASE_COUNT;
       }
+
       // If pasted text is exactly the same length as the mnemonic length, we want to replace all inputs
       if (pastedMnemonicsLength === currentLength) {
         e.preventDefault();
@@ -75,69 +67,70 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm, requester }) => {
   );
 
   const onInputChange = useCallback(
-    (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    (index: number, value: string) => {
       const newMnemonics = [...mnemonics];
-      newMnemonics[index] = e.target.value;
+      newMnemonics[index] = value;
       setMnemonics(newMnemonics);
     },
     [mnemonics]
   );
 
-  const onImportClick = useCallback(async () => {
+  const onSubmit = useCallback(async () => {
+    const actualMnemonics = mnemonics.slice(0, mnemonicLength);
+    const phrase = actualMnemonics.join(" ");
     const isValid = await requester.sendMessage<ValidateMnemonicMsg>(
       Ports.Background,
-      new ValidateMnemonicMsg(mnemonics.join(" "))
+      new ValidateMnemonicMsg(phrase)
     );
     if (isValid) {
-      onConfirm(mnemonics);
+      onConfirm(actualMnemonics);
     } else {
       alert("Invalid mnemonic");
     }
   }, [mnemonics]);
 
   return (
-    <SubViewContainer>
-      <UpperContentContainer>
-        <Header1>Import Account</Header1>
-      </UpperContentContainer>
-      <BodyText>Please enter or paste in recovery phrase.</BodyText>
-      <SeedPhraseLengthContainer>
-        <SeedPhraseLength>{SHORT_PHRASE_COUNT}</SeedPhraseLength>
-        <Toggle
-          checked={mnemonicLength === SHORT_PHRASE_COUNT}
-          onClick={() => {
-            setMnemonicLength(
-              mnemonicLength === LONG_PHRASE_COUNT
-                ? SHORT_PHRASE_COUNT
-                : LONG_PHRASE_COUNT
-            );
-          }}
-        />
-        <SeedPhraseLength>{LONG_PHRASE_COUNT}</SeedPhraseLength>
-      </SeedPhraseLengthContainer>
-      <PhraseRecoveryContainer>
-        {mnemonicsRange.map((word, index) => {
-          return (
-            <Input
-              key={`word-${word}`}
-              label={`Word ${word + 1}`}
-              variant={InputVariants.PasswordOnBlur}
-              onChange={onInputChange.bind(null, index)}
-              onPaste={onPaste.bind(null, index)}
-              value={mnemonics.at(index) || ""}
-            />
-          );
-        })}
-      </PhraseRecoveryContainer>
-      <ButtonsContainer>
-        <Button
-          onClick={onImportClick}
-          disabled={isSubmitButtonDisabled}
-          variant={ButtonVariant.Contained}
-        >
-          Import
-        </Button>
-      </ButtonsContainer>
-    </SubViewContainer>
+    <>
+      <HeaderContainer>
+        <Heading level="h1" size="3xl">
+          Import Account
+        </Heading>
+      </HeaderContainer>
+      <InstructionList>
+        <Instruction>
+          Enter your recovery phrase in the right order without capitalisation,
+          punctuation symbols or spaces.
+        </Instruction>
+        <Instruction>Or copy and paste your entire phrase. </Instruction>
+      </InstructionList>
+      <Stack
+        as="form"
+        gap={14}
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSubmit();
+        }}
+      >
+        <Stack direction="vertical" gap={6}>
+          <RadioGroup
+            id="mnemonicLength"
+            groupLabel="Number of seeds"
+            value={mnemonicLength.toString()}
+            options={[
+              { text: "12 words", value: "12" },
+              { text: "24 words", value: "24" },
+            ]}
+            onChange={(value: string) => setMnemonicLength(Number(value))}
+          />
+          <SeedPhraseList
+            sensitive={false}
+            words={mnemonics.slice(0, mnemonicLength)}
+            onChange={onInputChange}
+            onPaste={onPaste}
+          />
+        </Stack>
+        <ActionButton disabled={isSubmitButtonDisabled}>Import</ActionButton>
+      </Stack>
+    </>
   );
 };
