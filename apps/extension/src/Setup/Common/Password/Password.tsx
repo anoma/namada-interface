@@ -83,7 +83,9 @@ const Password = ({
         error={zxcvbnFeedback.warning}
         hint={zxcvbnFeedback.suggestions.map(
           (suggestion: string, index: number) => (
-            <InputFeedback key={index}>{suggestion}</InputFeedback>
+            <InputFeedback key={`input-feedback-${index}`}>
+              {suggestion}
+            </InputFeedback>
           )
         )}
         placeholder="At least 8 characters"
