@@ -1,5 +1,5 @@
 import { FontSize } from "@namada/utils";
-import { BaseHeading } from "./Heading.components";
+import { BaseHeading } from "./heading.components";
 import { HeadingLevel } from "./types";
 
 type HeadingProps = {
