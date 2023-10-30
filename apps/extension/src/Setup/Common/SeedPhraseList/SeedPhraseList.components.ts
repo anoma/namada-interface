@@ -7,6 +7,7 @@ export const SeedList = styled.ol<{ columns: number }>`
   grid-gap: ${spacement(2)};
   padding: 0;
   margin: 0;
+  min-height: ${spacement(60)};
 `;
 
 export const SeedListItem = styled.li`
