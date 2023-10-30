@@ -5,7 +5,6 @@ import BigNumber from "bignumber.js";
 import { chains, defaultChainId } from "@namada/chains";
 import { TokenType, Tokens } from "@namada/types";
 import { formatCurrency } from "@namada/utils";
-import { Modal } from "@namada/components";
 
 import {
   DerivedAccountsContainer,
@@ -37,9 +36,6 @@ import { AccountsState, Balance } from "slices/accounts";
 import { CoinsState, fetchConversionRates } from "slices/coins";
 import { SettingsState } from "slices/settings";
 import Config from "config";
-import { FaucetTransferForm } from "./FaucetTransferForm";
-
-const { REACT_APP_NAMADA_FAUCET_ADDRESS: faucetAddress } = process.env;
 
 type Props = {
   setTotal: (total: BigNumber) => void;
@@ -73,7 +69,6 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
   const themeContext = useContext(ThemeContext);
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const [activeAccountAddress, setActiveAccountAddress] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { chainId, fiatCurrency } = useAppSelector<SettingsState>(
     (state) => state.settings
@@ -125,8 +120,6 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
     }
   }, [timestamp]);
 
-  const toggleModal = (): void => setIsModalOpen(!isModalOpen);
-
   const activeAccount =
     activeAccountAddress &&
     accounts.find((account) => account.details.address === activeAccountAddress)
@@ -138,19 +131,6 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
         <NoTokens>
           <p>You have no token balances to display on {alias}!</p>
         </NoTokens>
-      )}
-      {faucetAddress && chainId === defaultChainId && (
-        <Modal isOpen={isModalOpen} onBackdropClick={toggleModal}>
-          <div>
-            {activeAccount && (
-              <FaucetTransferForm
-                account={activeAccount}
-                faucetAddress={faucetAddress}
-                cancelCallback={() => setIsModalOpen(false)}
-              />
-            )}
-          </div>
-        </Modal>
       )}
       <DerivedAccountsList>
         {accounts
@@ -183,14 +163,6 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
                   }
                 >
                   <TokenBalances>
-                    {faucetAddress &&
-                      chainId === defaultChainId &&
-                      !details.isShielded && (
-                        <TestnetTokensButton onClick={toggleModal}>
-                          Get testnet tokens
-                        </TestnetTokensButton>
-                      )}
-
                     {Object.entries(balance)
                       .sort(([tokenType]) => {
                         // Show native token first
