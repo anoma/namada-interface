@@ -153,12 +153,37 @@ export class TxCompletedEvent extends Message<void> {
   }
 }
 
+export class ProposalsUpdatedEventMsg extends Message<void> {
+  public static type(): Events {
+    return Events.ProposalsUpdated;
+  }
+
+  constructor(public readonly chainId: string) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.chainId) {
+      throw new Error("chainId must not be empty");
+    }
+  }
+
+  route(): string {
+    return Routes.InteractionForeground;
+  }
+
+  type(): string {
+    return ProposalsUpdatedEventMsg.type();
+  }
+}
+
 export function initEvents(router: Router): void {
   router.registerMessage(AccountChangedEventMsg);
-  router.registerMessage(TxStartedEvent);
-  router.registerMessage(TxCompletedEvent);
   router.registerMessage(UpdatedBalancesEventMsg);
   router.registerMessage(UpdatedStakingEventMsg);
+  router.registerMessage(ProposalsUpdatedEventMsg);
+  router.registerMessage(TxStartedEvent);
+  router.registerMessage(TxCompletedEvent);
 
   router.addHandler(Routes.InteractionForeground, (_, msg) => {
     const clonedMsg =
@@ -189,6 +214,9 @@ export function initEvents(router: Router): void {
         break;
       case UpdatedStakingEventMsg:
         window.dispatchEvent(new CustomEvent(Events.UpdatedStaking));
+        break;
+      case ProposalsUpdatedEventMsg:
+        window.dispatchEvent(new CustomEvent(Events.ProposalsUpdated));
         break;
       default:
         throw new Error("Unknown msg type");

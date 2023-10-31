@@ -30,7 +30,7 @@ export enum TopLevelRoute {
 
   /* STAKING AND GOVERNANCE */
   StakingAndGovernance = "/staking-and-governance",
-  Governance = "/governance",
+  Proposals = "/proposals",
 
   /* SETTINGS */
   Settings = "/settings",
@@ -43,7 +43,6 @@ export enum StakingAndGovernanceSubRoute {
   Staking = "/staking",
   StakingOverview = "/staking-overview",
   ValidatorDetails = "/validator-details",
-  Governance = "/governance",
   PublicGoodsFunding = "/public-goods-funding",
 }
 

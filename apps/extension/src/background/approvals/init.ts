@@ -1,8 +1,5 @@
 import { Router } from "router";
-import {
-  ApproveTxMsg,
-  ApproveConnectInterfaceMsg,
-} from "provider";
+import { ApproveTxMsg, ApproveConnectInterfaceMsg } from "provider";
 import {
   RejectTxMsg,
   SubmitApprovedTxMsg,

@@ -13,6 +13,7 @@ import { TopLevelRoute } from "./types";
 import { TokenSend } from "./Token/TokenSend";
 import { TokenReceive } from "./Token/TokenReceive";
 import { Router } from "@remix-run/router";
+import { Proposals } from "./Proposals";
 
 export const getRouter = (): Router => {
   return createBrowserRouter(
@@ -65,6 +66,14 @@ export const getRouter = (): Router => {
           element={
             <AnimatedTransition elementKey={TopLevelRoute.StakingAndGovernance}>
               <StakingAndGovernance />
+            </AnimatedTransition>
+          }
+        />
+        <Route
+          path={`${TopLevelRoute.Proposals}`}
+          element={
+            <AnimatedTransition elementKey={TopLevelRoute.Proposals}>
+              <Proposals />
             </AnimatedTransition>
           }
         />

@@ -11,10 +11,11 @@ use borsh::{BorshDeserialize, BorshSerialize};
 use namada::ledger::eth_bridge::bridge_pool::build_bridge_pool_tx;
 use namada::sdk::args;
 use namada::sdk::masp::ShieldedContext;
+use namada::sdk::rpc::query_epoch;
 use namada::sdk::signing::{aux_signing_data, sign_tx, SigningTxData};
 use namada::sdk::tx::{
-    build_bond, build_ibc_transfer, build_reveal_pk, build_transfer, build_unbond, build_withdraw,
-    is_reveal_pk_needed, process_tx,
+    build_bond, build_ibc_transfer, build_reveal_pk, build_transfer, build_unbond,
+    build_vote_proposal, build_withdraw, is_reveal_pk_needed, process_tx,
 };
 use namada::sdk::wallet::{Store, Wallet};
 use namada::types::address::Address;
@@ -37,13 +38,14 @@ pub enum TxType {
     IBCTransfer = 5,
     EthBridgeTransfer = 6,
     RevealPK = 7,
+    VoteProposal = 8,
 }
 
 #[wasm_bindgen]
 pub struct BuiltTx {
     tx: Tx,
     signing_data: SigningTxData,
-    is_faucet_transfer: bool
+    is_faucet_transfer: bool,
 }
 
 #[wasm_bindgen]
@@ -126,15 +128,11 @@ impl Sdk {
         wallet::add_spending_key(&mut self.wallet, xsk, password, alias)
     }
 
-    pub async fn sign_tx(
-        &mut self,
-        built_tx: BuiltTx,
-        tx_msg: &[u8]
-    ) -> Result<JsValue, JsError> {
+    pub async fn sign_tx(&mut self, built_tx: BuiltTx, tx_msg: &[u8]) -> Result<JsValue, JsError> {
         let BuiltTx {
             mut tx,
             signing_data,
-            is_faucet_transfer
+            is_faucet_transfer,
         } = built_tx;
 
         let args = tx::tx_args_from_slice(tx_msg)?;
@@ -150,26 +148,27 @@ impl Sdk {
 
         let address = Address::from(pk);
 
-        let reveal_pk_tx_bytes = if !is_faucet_transfer && is_reveal_pk_needed(&self.client, &address, false).await? {
-            let (mut tx, _) = build_reveal_pk::<_, _, _, WebIo>(
-                &self.client,
-                &mut self.wallet,
-                &mut self.shielded_ctx,
-                &args,
-                &address,
-                &pk,
-                &signing_data.fee_payer,
-            )
-            .await?;
+        let reveal_pk_tx_bytes =
+            if !is_faucet_transfer && is_reveal_pk_needed(&self.client, &address, false).await? {
+                let (mut tx, _) = build_reveal_pk::<_, _, _, WebIo>(
+                    &self.client,
+                    &mut self.wallet,
+                    &mut self.shielded_ctx,
+                    &args,
+                    &address,
+                    &pk,
+                    &signing_data.fee_payer,
+                )
+                .await?;
 
-            sign_tx(&mut self.wallet, &args, &mut tx, signing_data.clone())?;
+                sign_tx(&mut self.wallet, &args, &mut tx, signing_data.clone())?;
 
-            let bytes = tx.try_to_vec()?;
+                let bytes = tx.try_to_vec()?;
 
-            Some(bytes)
-        } else {
-            None
-        };
+                Some(bytes)
+            } else {
+                None
+            };
 
         // Sign tx
         sign_tx(&mut self.wallet, &args, &mut tx, signing_data.clone())?;
@@ -181,7 +180,7 @@ impl Sdk {
         &mut self,
         tx_bytes: &[u8],
         tx_msg: &[u8],
-        reveal_pk_tx_bytes: Option<Vec<u8>>
+        reveal_pk_tx_bytes: Option<Vec<u8>>,
     ) -> Result<(), JsError> {
         let args = tx::tx_args_from_slice(tx_msg)?;
 
@@ -196,7 +195,6 @@ impl Sdk {
         Ok(())
     }
 
-
     /// Build transaction for specified type, return bytes to client
     pub async fn build_tx(
         &mut self,
@@ -206,27 +204,53 @@ impl Sdk {
         gas_payer: String,
     ) -> Result<JsValue, JsError> {
         let tx = match tx_type {
-            TxType::Bond =>
-                self.build_bond(specific_msg, tx_msg, None, Some(gas_payer)).await?.tx,
-            TxType::Unbond =>
-                self.build_unbond(specific_msg, tx_msg, None, Some(gas_payer)).await?.tx,
-            TxType::Withdraw =>
-                self.build_withdraw(specific_msg, tx_msg, None, Some(gas_payer)).await?.tx,
-            TxType::Transfer =>
-                self.build_transfer(specific_msg, tx_msg, None, None, Some(gas_payer)).await?.tx,
-            TxType::IBCTransfer =>
-                self.build_ibc_transfer(specific_msg, tx_msg, None, Some(gas_payer)).await?.tx,
-            TxType::EthBridgeTransfer =>
-                self.build_eth_bridge_transfer(specific_msg, tx_msg, None, Some(gas_payer)).await?.tx,
-            TxType::RevealPK =>
-                self.build_reveal_pk(tx_msg, gas_payer).await?,
+            TxType::Bond => {
+                self.build_bond(specific_msg, tx_msg, None, Some(gas_payer))
+                    .await?
+                    .tx
+            }
+            TxType::Unbond => {
+                self.build_unbond(specific_msg, tx_msg, None, Some(gas_payer))
+                    .await?
+                    .tx
+            }
+            TxType::Withdraw => {
+                self.build_withdraw(specific_msg, tx_msg, None, Some(gas_payer))
+                    .await?
+                    .tx
+            }
+            TxType::Transfer => {
+                self.build_transfer(specific_msg, tx_msg, None, None, Some(gas_payer))
+                    .await?
+                    .tx
+            }
+            TxType::IBCTransfer => {
+                self.build_ibc_transfer(specific_msg, tx_msg, None, Some(gas_payer))
+                    .await?
+                    .tx
+            }
+            TxType::EthBridgeTransfer => {
+                self.build_eth_bridge_transfer(specific_msg, tx_msg, None, Some(gas_payer))
+                    .await?
+                    .tx
+            }
+            TxType::RevealPK => self.build_reveal_pk(tx_msg, gas_payer).await?,
+            TxType::VoteProposal => {
+                self.build_vote_proposal(specific_msg, tx_msg, None, Some(gas_payer))
+                    .await?
+                    .tx
+            }
         };
 
         to_js_result(tx.try_to_vec()?)
     }
 
     // Append signatures and return tx bytes
-    pub fn append_signature(&self, tx_bytes: &[u8], sig_msg_bytes: &[u8]) -> Result<JsValue, JsError> {
+    pub fn append_signature(
+        &self,
+        tx_bytes: &[u8],
+        sig_msg_bytes: &[u8],
+    ) -> Result<JsValue, JsError> {
         let mut tx: Tx = Tx::try_from_slice(tx_bytes)?;
         let signature::SignatureMsg {
             pubkey,
@@ -258,7 +282,7 @@ impl Sdk {
         args: &args::Tx,
         owner: Option<Address>,
         default_signer: Option<Address>,
-        gas_payer: Option<String>
+        gas_payer: Option<String>,
     ) -> Result<(SigningTxData, PublicKey), JsError> {
         let signing_data = aux_signing_data::<_, _, WebIo>(
             &self.client,
@@ -271,12 +295,13 @@ impl Sdk {
 
         let fee_payer = match gas_payer {
             Some(gas_payer) =>
-                //TODO: verify if this works
-                // We prefix 00 because PublicKey is an enum.
-                // TODO: fix when ledger is updated to handle payment addresses
-                PublicKey::from_str(&format!("00{}", gas_payer))?,
-            None =>
-                signing_data.fee_payer.clone()
+            //TODO: verify if this works
+            // We prefix 00 because PublicKey is an enum.
+            // TODO: fix when ledger is updated to handle payment addresses
+            {
+                PublicKey::from_str(&format!("00{}", gas_payer))?
+            }
+            None => signing_data.fee_payer.clone(),
         };
 
         Ok((signing_data, fee_payer))
@@ -288,20 +313,21 @@ impl Sdk {
         tx_msg: &[u8],
         password: Option<String>,
         xsk: Option<String>,
-        gas_payer: Option<String>
+        gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let (args, faucet_signer) =
-            tx::transfer_tx_args(transfer_msg, tx_msg, password, xsk)?;
+        let (args, faucet_signer) = tx::transfer_tx_args(transfer_msg, tx_msg, password, xsk)?;
 
         let effective_address = args.source.effective_address();
         let default_signer = faucet_signer.clone().or(Some(effective_address.clone()));
 
-        let (signing_data, fee_payer) = self.signing_data_and_fee_payer(
-            &args.tx,
-            Some(effective_address.clone()),
-            default_signer,
-            gas_payer
-        ).await?;
+        let (signing_data, fee_payer) = self
+            .signing_data_and_fee_payer(
+                &args.tx,
+                Some(effective_address.clone()),
+                default_signer,
+                gas_payer,
+            )
+            .await?;
 
         let (tx, _) = build_transfer::<_, _, _, WebIo>(
             &self.client,
@@ -315,7 +341,7 @@ impl Sdk {
         Ok(BuiltTx {
             tx,
             signing_data,
-            is_faucet_transfer: faucet_signer.is_some()
+            is_faucet_transfer: faucet_signer.is_some(),
         })
     }
 
@@ -324,34 +350,30 @@ impl Sdk {
         ibc_transfer_msg: &[u8],
         tx_msg: &[u8],
         password: Option<String>,
-        gas_payer: Option<String>
+        gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let (args, faucet_signer) =
-            tx::ibc_transfer_tx_args(ibc_transfer_msg, tx_msg, password)?;
+        let (args, faucet_signer) = tx::ibc_transfer_tx_args(ibc_transfer_msg, tx_msg, password)?;
 
         let source = args.source.clone();
         let default_signer = faucet_signer.clone().or(Some(source.clone()));
 
-        let (signing_data, fee_payer) = self.signing_data_and_fee_payer(
-            &args.tx,
-            Some(source),
-            default_signer,
-            gas_payer
-        ).await?;
+        let (signing_data, fee_payer) = self
+            .signing_data_and_fee_payer(&args.tx, Some(source), default_signer, gas_payer)
+            .await?;
 
         let (tx, _) = build_ibc_transfer::<_, _, _, WebIo>(
             &self.client,
             &mut self.wallet,
             &mut self.shielded_ctx,
             args.clone(),
-            fee_payer
+            fee_payer,
         )
         .await?;
 
         Ok(BuiltTx {
             tx,
             signing_data,
-            is_faucet_transfer: faucet_signer.is_some()
+            is_faucet_transfer: faucet_signer.is_some(),
         })
     }
 
@@ -360,7 +382,7 @@ impl Sdk {
         eth_bridge_transfer_msg: &[u8],
         tx_msg: &[u8],
         password: Option<String>,
-        gas_payer: Option<String>
+        gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
         let (args, faucet_signer) =
             tx::eth_bridge_transfer_tx_args(eth_bridge_transfer_msg, tx_msg, password)?;
@@ -368,27 +390,59 @@ impl Sdk {
         let sender = args.sender.clone();
         let default_signer = faucet_signer.clone().or(Some(sender.clone()));
 
-        let (signing_data, fee_payer) = self.signing_data_and_fee_payer(
-            &args.tx,
-            Some(sender),
-            default_signer,
-            gas_payer
-        ).await?;
-
-        let (tx, _) =
-            build_bridge_pool_tx::<_, _, _, WebIo>(
-                &self.client,
-                &mut self.wallet,
-                &mut self.shielded_ctx,
-                args.clone(),
-                fee_payer,
-            )
+        let (signing_data, fee_payer) = self
+            .signing_data_and_fee_payer(&args.tx, Some(sender), default_signer, gas_payer)
             .await?;
+
+        let (tx, _) = build_bridge_pool_tx::<_, _, _, WebIo>(
+            &self.client,
+            &mut self.wallet,
+            &mut self.shielded_ctx,
+            args.clone(),
+            fee_payer,
+        )
+        .await?;
 
         Ok(BuiltTx {
             tx,
             signing_data,
-            is_faucet_transfer: faucet_signer.is_some()
+            is_faucet_transfer: faucet_signer.is_some(),
+        })
+    }
+
+    pub async fn build_vote_proposal(
+        &mut self,
+        vote_proposal_msg: &[u8],
+        tx_msg: &[u8],
+        password: Option<String>,
+        gas_payer: Option<String>,
+    ) -> Result<BuiltTx, JsError> {
+        let (args, faucet_signer) = tx::vote_proposal_tx_args(vote_proposal_msg, tx_msg, password)?;
+
+        let voter = args.voter.clone();
+        let default_signer = faucet_signer.clone().or(Some(voter.clone()));
+
+        let (signing_data, fee_payer) = self
+            .signing_data_and_fee_payer(&args.tx, Some(voter), default_signer, gas_payer)
+            .await?;
+
+        let epoch = query_epoch(&self.client).await?;
+
+        let (tx, _) = build_vote_proposal::<_, _, _, WebIo>(
+            &mut self.client,
+            &mut self.wallet,
+            &mut self.shielded_ctx,
+            args.clone(),
+            epoch,
+            fee_payer,
+        )
+        .await
+        .map_err(JsError::from)?;
+
+        Ok(BuiltTx {
+            tx,
+            signing_data,
+            is_faucet_transfer: false,
         })
     }
 
@@ -397,20 +451,16 @@ impl Sdk {
         bond_msg: &[u8],
         tx_msg: &[u8],
         password: Option<String>,
-        gas_payer: Option<String>
+        gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let (args, faucet_signer) =
-            tx::bond_tx_args(bond_msg, tx_msg, password)?;
+        let (args, faucet_signer) = tx::bond_tx_args(bond_msg, tx_msg, password)?;
 
         let source = args.source.clone();
         let default_signer = faucet_signer.clone().or(source.clone());
 
-        let (signing_data, fee_payer) = self.signing_data_and_fee_payer(
-            &args.tx,
-            source,
-            default_signer,
-            gas_payer
-        ).await?;
+        let (signing_data, fee_payer) = self
+            .signing_data_and_fee_payer(&args.tx, source, default_signer, gas_payer)
+            .await?;
 
         let (tx, _) = build_bond::<_, _, _, WebIo>(
             &mut self.client,
@@ -424,7 +474,7 @@ impl Sdk {
         Ok(BuiltTx {
             tx,
             signing_data,
-            is_faucet_transfer: faucet_signer.is_some()
+            is_faucet_transfer: faucet_signer.is_some(),
         })
     }
 
@@ -433,20 +483,16 @@ impl Sdk {
         unbond_msg: &[u8],
         tx_msg: &[u8],
         password: Option<String>,
-        gas_payer: Option<String>
+        gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let (args, faucet_signer) =
-            tx::unbond_tx_args(unbond_msg, tx_msg, password)?;
+        let (args, faucet_signer) = tx::unbond_tx_args(unbond_msg, tx_msg, password)?;
 
         let source = args.source.clone();
         let default_signer = faucet_signer.clone().or(source.clone());
 
-        let (signing_data, fee_payer) = self.signing_data_and_fee_payer(
-            &args.tx,
-            source,
-            default_signer,
-            gas_payer
-        ).await?;
+        let (signing_data, fee_payer) = self
+            .signing_data_and_fee_payer(&args.tx, source, default_signer, gas_payer)
+            .await?;
 
         let (tx, _, _) = build_unbond::<_, _, _, WebIo>(
             &mut self.client,
@@ -460,7 +506,7 @@ impl Sdk {
         Ok(BuiltTx {
             tx,
             signing_data,
-            is_faucet_transfer: faucet_signer.is_some()
+            is_faucet_transfer: faucet_signer.is_some(),
         })
     }
 
@@ -469,20 +515,16 @@ impl Sdk {
         withdraw_msg: &[u8],
         tx_msg: &[u8],
         password: Option<String>,
-        gas_payer: Option<String>
+        gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let (args, faucet_signer) =
-            tx::withdraw_tx_args(withdraw_msg, tx_msg, password)?;
+        let (args, faucet_signer) = tx::withdraw_tx_args(withdraw_msg, tx_msg, password)?;
 
         let source = args.source.clone();
         let default_signer = faucet_signer.clone().or(source.clone());
 
-        let (signing_data, fee_payer) = self.signing_data_and_fee_payer(
-            &args.tx,
-            source,
-            default_signer,
-            gas_payer
-        ).await?;
+        let (signing_data, fee_payer) = self
+            .signing_data_and_fee_payer(&args.tx, source, default_signer, gas_payer)
+            .await?;
 
         let (tx, _) = build_withdraw::<_, _, _, WebIo>(
             &mut self.client,
@@ -496,18 +538,14 @@ impl Sdk {
         Ok(BuiltTx {
             tx,
             signing_data,
-            is_faucet_transfer: faucet_signer.is_some()
+            is_faucet_transfer: faucet_signer.is_some(),
         })
     }
 
-    async fn build_reveal_pk(
-        &mut self,
-        tx_msg: &[u8],
-        gas_payer: String,
-    ) -> Result<Tx, JsError> {
-         //TODO: verify if this works
-         // We prefix 00 because PublicKey is an enum.
-         // TODO: fix when ledger is updated to handle payment addresses
+    async fn build_reveal_pk(&mut self, tx_msg: &[u8], gas_payer: String) -> Result<Tx, JsError> {
+        //TODO: verify if this works
+        // We prefix 00 because PublicKey is an enum.
+        // TODO: fix when ledger is updated to handle payment addresses
         let gas_payer = PublicKey::from_str(&format!("00{}", gas_payer))?;
 
         let args = tx::tx_args_from_slice(tx_msg)?;

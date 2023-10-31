@@ -1,24 +1,18 @@
 import { Handler, Env, Message, InternalHandler } from "router";
 import { ApprovalsService } from "./service";
-import {
-  ApproveTxMsg,
-  ApproveConnectInterfaceMsg,
-} from "provider";
+import { ApproveTxMsg, ApproveConnectInterfaceMsg } from "provider";
 import {
   RejectTxMsg,
-  SubmitApprovedTxMsg,
   ConnectInterfaceResponseMsg,
   RevokeConnectionMsg,
+  SubmitApprovedTxMsg,
 } from "./messages";
 
 export const getHandler: (service: ApprovalsService) => Handler = (service) => {
   return (env: Env, msg: Message<unknown>) => {
     switch (msg.constructor) {
       case ApproveTxMsg:
-        return handleApproveTxMsg(service)(
-          env,
-          msg as ApproveTxMsg
-        );
+        return handleApproveTxMsg(service)(env, msg as ApproveTxMsg);
       case RejectTxMsg:
         return handleRejectTxMsg(service)(env, msg as RejectTxMsg);
       case SubmitApprovedTxMsg:
@@ -82,9 +76,16 @@ const handleApproveConnectInterfaceMsg: (
 const handleConnectInterfaceResponseMsg: (
   service: ApprovalsService
 ) => InternalHandler<ConnectInterfaceResponseMsg> = (service) => {
-  return async ({ senderTabId: popupTabId }, { interfaceTabId, chainId, interfaceOrigin, allowConnection }) => {
+  return async (
+    { senderTabId: popupTabId },
+    { interfaceTabId, chainId, interfaceOrigin, allowConnection }
+  ) => {
     return await service.approveConnectionResponse(
-      interfaceTabId, chainId, interfaceOrigin, allowConnection, popupTabId
+      interfaceTabId,
+      chainId,
+      interfaceOrigin,
+      allowConnection,
+      popupTabId
     );
   };
 };

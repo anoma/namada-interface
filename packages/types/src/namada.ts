@@ -4,10 +4,10 @@ import { Chain } from "./chain";
 import { Signer } from "./signer";
 
 export type TxMsgProps = {
-  txType: SupportedTx,
+  txType: SupportedTx;
   specificMsg: string;
   txMsg: string;
-  type: AccountType
+  type: AccountType;
 };
 
 export interface Namada {

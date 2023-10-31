@@ -92,7 +92,10 @@ else
 fi
 
 echo "Fixing CORS"
-find .namada/basedir -type f -name "config.toml" -exec sed -i -E "s/cors_allowed_origins[[:space:]]=[[:space:]]\[\]/cors_allowed_origins = [\"*\"]/g" {} +
+find ${NAMADA_BASE_DIR} -type f -name "config.toml" -exec sed -i -E "s/cors_allowed_origins[[:space:]]=[[:space:]]\[\]/cors_allowed_origins = [\"*\"]/g" {} +
 
 echo "Moving MASP params"
-cp .namada/masp-*.params ../apps/namada-interface/build/assets
+cp ${NAMADA_DIR}/masp-*.params ../apps/namada-interface/build/assets
+
+echo "Moving wallet"
+cp ${NAMADA_BASE_DIR}/${CHAIN_ID}/setup/other/wallet.toml ${NAMADA_BASE_DIR}/${CHAIN_ID}

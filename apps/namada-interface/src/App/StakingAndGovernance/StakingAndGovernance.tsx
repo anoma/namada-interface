@@ -4,7 +4,6 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 
 import { useIntegrationConnection } from "@namada/hooks";
 import { Staking } from "App/Staking";
-import { Governance } from "App/Governance";
 import { PublicGoodsFunding } from "App/PublicGoodsFunding";
 import { StakingAndGovernanceContainer } from "./StakingAndGovernance.components";
 import {
@@ -105,10 +104,6 @@ export const StakingAndGovernance = (): JSX.Element => {
               postNewUnbonding={postNewUnbonding}
             />
           }
-        />
-        <Route
-          path={StakingAndGovernanceSubRoute.Governance}
-          element={<Governance />}
         />
         <Route
           path={StakingAndGovernanceSubRoute.PublicGoodsFunding}
