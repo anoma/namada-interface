@@ -76,6 +76,14 @@ export const AccountOverview = (): JSX.Element => {
     withConnection(
       async () => {
         const accounts = await integration?.accounts();
+
+        if (accounts?.[0]) {
+          const { publicKey, address } = accounts[0];
+
+          console.log(publicKey);
+          console.log(address);
+        }
+
         if (accounts) {
           dispatch(addAccounts(accounts as Account[]));
           dispatch(fetchBalances());
