@@ -17,6 +17,7 @@ export const Dropdown = styled.ul<{ align: string }>`
   list-style: none;
   padding: 0 0 ${spacement(7)};
   margin: 0;
+  overflow: hidden;
   position: absolute;
   right: -${spacement(2)};
   text-align: ${(props) => props.align};
@@ -31,14 +32,18 @@ export const DropdownItem = styled.li<{ disabled: boolean }>`
     props.disabled
       ? color("utility1", "main50")(props)
       : color("utility2", "main80")(props)};
+  cursor: ${(props) => (props.disabled ? "default" : "pointer")};
   font-size: 18px;
   padding: ${spacement(3)} ${spacement(6)};
-  cursor: pointer;
   transition: border-color 100ms ease-out;
+  user-select: none;
 
   &:hover {
-    border-color: ${color("primary", "main")};
-    color: ${color("utility2", "main")};
+    background-color: ${(props) =>
+      props.disabled ? null : color("primary", "main")(props)};
+
+    color: ${(props) =>
+      props.disabled ? null : color("utility1", "main")(props)};
   }
 `;
 
