@@ -2,25 +2,27 @@ import { Checkbox, DropdownMenu } from "@namada/components";
 import { Alias, ItemContainer } from "./KeyListItem.components";
 
 type KeyListItemProps = {
+  as?: keyof JSX.IntrinsicElements;
   alias: string;
   isMainKey: boolean;
   onRename: () => void;
   onDelete: () => void;
   onViewAccount: () => void;
-  onCheck: () => void;
+  onSelectAccount: () => void;
 };
 
 export const KeyListItem = ({
+  as = "div",
   alias,
   isMainKey,
   onRename,
   onDelete,
   onViewAccount,
-  onCheck,
+  onSelectAccount,
 }: KeyListItemProps): JSX.Element => {
   return (
-    <ItemContainer>
-      <Checkbox onChange={() => onCheck()} checked={isMainKey} />
+    <ItemContainer as={as}>
+      <Checkbox onChange={() => onSelectAccount()} checked={isMainKey} />
       <Alias>{alias}</Alias>
       <DropdownMenu
         id={alias}
