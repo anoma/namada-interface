@@ -29,14 +29,17 @@ export const DropdownMenu = ({
   const [isOpen, setOpen] = useState(false);
   const overlayRef = useRef<HTMLDivElement>(null);
 
+  const close = (): void => {
+    setOpen(false);
+  };
+
+  const handleClick = (callback: DropdownClickFn) => (): void => {
+    close();
+    callback();
+  };
+
   useEffect(() => {
     if (!overlayRef.current) return;
-
-    const close = (): void => {
-      if (isOpen) {
-        setOpen(false);
-      }
-    };
 
     overlayRef.current.addEventListener("click", close);
     return () => {
@@ -44,11 +47,6 @@ export const DropdownMenu = ({
       overlayRef.current.removeEventListener("click", close);
     };
   }, [isOpen]);
-
-  const handleClick = (callback: DropdownClickFn) => (): void => {
-    setOpen(false);
-    callback();
-  };
 
   return (
     <>
@@ -59,6 +57,7 @@ export const DropdownMenu = ({
             fillColorOverride="currentColor"
           />
         </OpenDropdownIcon>
+
         {isOpen && (
           <Dropdown align={align}>
             {items.map((item, index) => (
