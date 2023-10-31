@@ -22,7 +22,7 @@ export const Container = (props: ContainerProps): JSX.Element => {
   }, [location]);
 
   return (
-    <Page>
+    <Page isPopup={props.size === "popup"}>
       <ContainerWrapper maxW={props.size || "md"}>
         {(props.header || props.onReturn) && <Header>{props.header}</Header>}
         <ContainerBody>{props.children}</ContainerBody>

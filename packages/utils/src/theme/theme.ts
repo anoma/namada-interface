@@ -161,6 +161,7 @@ export type ContainerSize = {
   lg: string;
   xl: string;
   full: string;
+  popup: string;
 };
 
 export type FontSize = {
@@ -420,6 +421,7 @@ const containerSizes: ContainerSize = {
   lg: "768px",
   xl: "1024px",
   full: "100%",
+  popup: "100%",
 };
 
 // we want to have the name as we might alter the usage

@@ -2,27 +2,36 @@ import { container, spacement, color, borderRadius } from "@namada/utils";
 import styled from "styled-components";
 import { ContainerSize } from "@namada/utils";
 
-export const Page = styled.div`
-  align-items: center;
+export const Page = styled.div<{ isPopup: boolean }>`
+  align-items: ${(props) => (props.isPopup ? "stretch" : "center")};
   background-color: ${color("utility3", "black")};
   display: flex;
   justify-content: center;
   margin: 0;
   min-height: 100vh;
-  padding-bottom: ${spacement(8)};
-  padding-top: ${spacement(8)};
+  padding-bottom: ${(props) => (props.isPopup ? 0 : spacement(8)(props))};
+  padding-top: ${(props) => (props.isPopup ? 0 : spacement(8)(props))};
+  width: ${(props) => (props.isPopup ? "420px" : "auto")};
 `;
 
 export const ContainerWrapper = styled.section<{ maxW: keyof ContainerSize }>`
   background-color: ${color("utility1", "main70")};
-  border-radius: ${borderRadius("md")};
+  border-radius: ${(props) =>
+    props.maxW === "popup" ? 0 : borderRadius("md")(props)};
   max-width: ${(props) => container(props.maxW)};
   position: relative;
   width: 100%;
+  display: flex;
+  flex-direction: column;
 `;
 
 export const ContainerBody = styled.div`
-  padding: ${spacement(8)} ${spacement(10)};
+  padding: ${spacement(6)} ${spacement(7)};
+  flex: 1;
+
+  @media (min-width: 480px) {
+    padding: ${spacement(8)} ${spacement(10)};
+  }
 `;
 
 export const Header = styled.header`
