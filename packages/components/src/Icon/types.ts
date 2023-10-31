@@ -22,6 +22,8 @@ export enum IconName {
   Menu,
   Copy,
   Warning,
+  Checked,
+  ThreeDotsVertical,
 }
 
 export enum IconSize {

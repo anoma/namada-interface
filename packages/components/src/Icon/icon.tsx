@@ -20,6 +20,8 @@ import { ReactComponent as Menu } from "./assets/menu.svg";
 import { ReactComponent as Copy } from "./assets/copy.svg";
 import { ReactComponent as Warning } from "./assets/warning.svg";
 import { ReactComponent as ArrowLeft } from "./assets/arrow-left.svg";
+import { ReactComponent as Checked } from "./assets/checked.svg";
+import { ReactComponent as ThreeDotsVertical } from "./assets/three-dots-vertical.svg";
 
 import { IconName, IconSize } from "./types";
 import { IconContainer, StyledIcon } from "./icon.components";
@@ -58,6 +60,8 @@ const icons: Record<IconName, ComponentType> = {
   [IconName.Menu]: Menu,
   [IconName.Copy]: Copy,
   [IconName.Warning]: Warning,
+  [IconName.Checked]: Checked,
+  [IconName.ThreeDotsVertical]: ThreeDotsVertical,
 };
 
 /**
