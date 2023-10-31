@@ -235,7 +235,10 @@ export class KeyRing {
       const account = hdWallet.derive(bip44Path);
       const stringPointer = account.private().to_hex();
       const sk = readStringPointer(stringPointer, this._cryptoMemory);
-      const address = new Address(sk).implicit();
+      const address = new Address(sk);
+      const implicitAddress = address.implicit();
+      const publicKey = address.public();
+
       const { chainId } = this;
 
       // Generate unique ID for new parent account:
@@ -253,13 +256,14 @@ export class KeyRing {
       const mnemonicStore = crypto.encrypt({
         id,
         alias,
-        address,
-        owner: address,
+        address: implicitAddress,
+        owner: implicitAddress,
         chainId,
         password,
         path,
         text: phrase,
         type: AccountType.Mnemonic,
+        publicKey,
       });
 
       await this._keyStore.append(mnemonicStore);

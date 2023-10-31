@@ -23,6 +23,7 @@ type CryptoArgs = {
   password: string;
   text: string;
   type: AccountType;
+  publicKey?: string;
 };
 
 export class Crypto {
@@ -38,6 +39,7 @@ export class Crypto {
       password,
       text,
       type,
+      publicKey,
     } = args;
 
     const { params, key, iv, salt } = this.encryptionParams(password);
@@ -54,6 +56,7 @@ export class Crypto {
       path,
       crypto,
       type,
+      publicKey
     };
   }
 
