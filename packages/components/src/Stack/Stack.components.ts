@@ -12,4 +12,5 @@ export const StackContainer = styled.div<{
   list-style: none;
   padding: 0;
   margin: 0;
+  list-style: none;
 `;
