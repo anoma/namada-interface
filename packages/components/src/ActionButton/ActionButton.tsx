@@ -1,12 +1,9 @@
-import {
-  ButtonContainer,
-  ButtonSize,
-  ButtonVariants,
-} from "./ActionButton.components";
+import { ThemeColor } from "@namada/utils";
+import { ButtonContainer, ButtonSize } from "./ActionButton.components";
 
 type ActionButtonProps<HtmlTag extends keyof JSX.IntrinsicElements> = {
   as?: HtmlTag;
-  variant?: ButtonVariants;
+  variant?: ThemeColor;
   size?: ButtonSize;
 } & React.ComponentPropsWithoutRef<HtmlTag>;
 

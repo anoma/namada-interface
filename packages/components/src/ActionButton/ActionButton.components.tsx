@@ -3,6 +3,7 @@ import styled from "styled-components";
 import {
   Colors,
   FontSize,
+  ThemeColor,
   borderRadius,
   color,
   fontSize,
@@ -12,11 +13,6 @@ import {
 type ButtonProps = {
   forwardedAs: keyof JSX.IntrinsicElements;
 } & React.ComponentPropsWithoutRef<"button">;
-
-export type ButtonVariants = keyof Pick<
-  Colors,
-  "primary" | "secondary" | "utility1"
->;
 
 export type ButtonSize = keyof Pick<FontSize, "xl" | "base" | "sm">;
 
@@ -29,7 +25,7 @@ const Button = ({
 };
 
 export const ButtonContainer = styled(Button)<{
-  variant: ButtonVariants;
+  variant: ThemeColor;
   size: ButtonSize;
 }>`
   all: unset;
