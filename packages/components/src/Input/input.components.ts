@@ -110,10 +110,13 @@ export const InputWrapper = styled.div`
 `;
 
 export const IconContainer = styled.span`
+  align-items: center;
   cursor: pointer;
+  display: flex;
+  height: 100%;
   position: absolute;
   right: 16px;
-  top: 38%;
+  top: 0;
 
   & path {
     stroke: ${color("primary", "main")};
