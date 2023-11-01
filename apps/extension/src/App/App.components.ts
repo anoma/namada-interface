@@ -1,3 +1,4 @@
+import { spacement } from "@namada/utils";
 import styled, { css } from "styled-components";
 
 export const Spinner = css`
@@ -21,6 +22,11 @@ export const Spinner = css`
       }
     }
   }
+`;
+
+export const LogoContainer = styled.div`
+  max-width: ${spacement(50)};
+  margin: 0 auto;
 `;
 
 export const AppContainer = styled.div`
@@ -120,12 +126,9 @@ export const BottomSection = styled.section`
 `;
 
 export const ContentContainer = styled.div`
-  display: flex;
-  height: 100%;
+  max-height: 100%;
   min-height: 360px;
+  min-width: 360px;
+  display: flex;
   flex-direction: column;
-  justify-content: start;
-  align-items: center;
-  background-color: ${(props) => props.theme.colors.utility1.main80};
-  color: ${(props) => props.theme.colors.utility1.main20};
 `;

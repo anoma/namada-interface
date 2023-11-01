@@ -1,39 +1,31 @@
 import React, { useEffect, useState } from "react";
+import { Outlet, Route, Routes, useNavigate } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
-import { Routes, Route, useNavigate } from "react-router-dom";
 
+import { Container, Image, ImageName } from "@namada/components";
 import { DerivedAccount } from "@namada/types";
-import { getTheme } from "@namada/utils";
-import { Icon, IconName } from "@namada/components";
+import { formatRouterPath, getTheme } from "@namada/utils";
 
-import { Ports } from "router";
+import { GetActiveAccountMsg } from "background/keyring";
+import { useQuery } from "hooks";
+import { useRequester } from "hooks/useRequester";
 import {
   CheckDurabilityMsg,
   FetchAndStoreMaspParamsMsg,
   HasMaspParamsMsg,
   QueryAccountsMsg,
 } from "provider/messages";
-import { GetActiveAccountMsg } from "background/keyring";
-import { useQuery } from "hooks";
-import {
-  AppContainer,
-  BottomSection,
-  ContentContainer,
-  TopSection,
-  Heading,
-  HeadingButtons,
-  SettingsButton,
-  HeadingLoader,
-  Info,
-} from "./App.components";
-import { TopLevelRoute } from "./types";
-import { LockWrapper } from "./LockWrapper";
+import { Ports } from "router";
 import { Accounts, AddAccount } from "./Accounts";
+import { DeleteAccount } from "./Accounts/DeleteAccount";
+import ParentAccounts from "./Accounts/ParentAccounts";
+import { ContentContainer, LogoContainer } from "./App.components";
 import { Loading } from "./Loading";
+import { LockWrapper } from "./LockWrapper";
 import { Login } from "./Login";
 import { Setup } from "./Setup";
-import { Settings } from "./Settings";
-import { useRequester } from "hooks/useRequester";
+import { AccountManagementRoute, TopLevelRoute } from "./types";
+import { ConnectedSites } from "./ConnectedSites";
 
 export enum Status {
   Completed = "Completed",
@@ -80,7 +72,6 @@ export const App: React.FC = () => {
 
   const fetchParentAccountId = async (): Promise<void> => {
     setStatus(Status.Pending);
-
     try {
       const parent = await requester.sendMessage(
         Ports.Background,
@@ -99,57 +90,41 @@ export const App: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    setStatus(Status.Pending);
-    const fetchAccounts = async (): Promise<void> => {
-      const accounts = await requester
-        .sendMessage(Ports.Background, new QueryAccountsMsg())
-        .catch((e) => {
-          setError(`Requester error: ${e}`);
-        });
-
-      if (accounts) {
-        setAccounts(accounts);
-      }
-      setStatus(Status.Completed);
-    };
-    fetchAccounts();
-  }, []);
-
   // Fetch Masp params if they don't exist
+  const fetchMaspParams = async (): Promise<void> => {
+    const hasMaspParams = await requester.sendMessage(
+      Ports.Background,
+      new HasMaspParamsMsg()
+    );
+
+    if (!hasMaspParams) {
+      setMaspStatus({
+        status: Status.Pending,
+        info: "Fetching MASP parameters...",
+      });
+      try {
+        await requester.sendMessage(
+          Ports.Background,
+          new FetchAndStoreMaspParamsMsg()
+        );
+        setMaspStatus({
+          status: Status.Completed,
+          info: "",
+        });
+      } catch (e) {
+        setMaspStatus({
+          status: Status.Failed,
+          info: `Fetching MASP parameters failed: ${e}`,
+        });
+        //TODO: Notify user in a better way
+        console.error(e);
+      }
+    }
+  };
+
   useEffect(() => {
     if (status === Status.Completed) {
-      (async () => {
-        const hasMaspParams = await requester.sendMessage(
-          Ports.Background,
-          new HasMaspParamsMsg()
-        );
-
-        if (!hasMaspParams) {
-          setMaspStatus({
-            status: Status.Pending,
-            info: "Fetching MASP parameters...",
-          });
-          try {
-            await requester.sendMessage(
-              Ports.Background,
-              new FetchAndStoreMaspParamsMsg()
-            );
-
-            setMaspStatus({
-              status: Status.Completed,
-              info: "",
-            });
-          } catch (e) {
-            setMaspStatus({
-              status: Status.Failed,
-              info: `Fetching MASP parameters failed: ${e}`,
-            });
-            //TODO: Notify user in a better way
-            console.error(e);
-          }
-        }
-      })();
+      fetchMaspParams();
     }
   }, [status]);
 
@@ -158,6 +133,10 @@ export const App: React.FC = () => {
       // Provide a redirect in the case of transaction/connection approvals
       navigate(redirect);
     }
+  }, []);
+
+  useEffect(() => {
+    fetchAccounts();
   }, []);
 
   useEffect(() => {
@@ -171,7 +150,12 @@ export const App: React.FC = () => {
       if (!parentAccount) {
         navigate(TopLevelRoute.Setup);
       } else {
-        navigate(TopLevelRoute.Accounts);
+        navigate(
+          formatRouterPath([
+            TopLevelRoute.Accounts,
+            AccountManagementRoute.ParentAccounts,
+          ])
+        );
       }
     }
   }, [status, parentAccount]);
@@ -188,32 +172,28 @@ export const App: React.FC = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <AppContainer>
+      <Container
+        size="popup"
+        header={
+          <LogoContainer>
+            <Image imageName={ImageName.Logo} />
+          </LogoContainer>
+        }
+      >
+        {/* <HeadingLoader
+          className={maspStatus.status === Status.Pending ? "is-loading" : ""}
+          title={maspStatus.info}
+        />
+
+        <Info
+          title={isDurable ? "" : STORE_DURABILITY_INFO}
+          className={isDurable === false ? "visible" : ""}
+        >
+          <Icon iconName={IconName.Info} />
+        </Info>
+      */}
+
         <ContentContainer>
-          <TopSection>
-            <Heading>Namada Browser Extension</Heading>
-            <HeadingLoader
-              className={
-                maspStatus.status === Status.Pending ? "is-loading" : ""
-              }
-              title={maspStatus.info}
-            />
-            <Info
-              title={isDurable ? "" : STORE_DURABILITY_INFO}
-              className={isDurable === false ? "visible" : ""}
-            >
-              <Icon iconName={IconName.Info} />
-            </Info>
-            <HeadingButtons>
-              {parentAccount && (
-                <SettingsButton
-                  onClick={() => navigate(TopLevelRoute.Settings)}
-                >
-                  <Icon iconName={IconName.Settings} />
-                </SettingsButton>
-              )}
-            </HeadingButtons>
-          </TopSection>
           <Routes>
             <Route
               path="*"
@@ -224,51 +204,66 @@ export const App: React.FC = () => {
               path={TopLevelRoute.Login}
               element={<Login requester={requester} />}
             />
+
             {/* Routes that depend on a parent account existing in storage */}
             {parentAccount && (
               <>
                 <Route
-                  path={TopLevelRoute.Accounts}
-                  element={
-                    <Accounts accounts={accounts} requester={requester} />
-                  }
+                  path={TopLevelRoute.ConnectedSites}
+                  element={<ConnectedSites />}
                 />
-                <Route
-                  path={TopLevelRoute.AddAccount}
-                  element={
-                    <LockWrapper
-                      requester={requester}
-                      setStatus={setStatus}
-                      isLocked={isLocked}
-                      lockKeyRing={() => setIsLocked(true)}
-                    >
-                      <AddAccount
-                        accounts={accounts}
-                        parentAccount={parentAccount}
+                <Route path={TopLevelRoute.Accounts} element={<Outlet />}>
+                  <Route
+                    path={AccountManagementRoute.ParentAccounts}
+                    element={
+                      <ParentAccounts
                         requester={requester}
-                        setAccounts={setAccounts}
-                        isLocked={isLocked}
-                        unlockKeyRing={() => setIsLocked(false)}
+                        onSelectAccount={fetchAccounts}
+                        activeAccountId={parentAccount.id}
                       />
-                    </LockWrapper>
-                  }
-                />
-                <Route
-                  path={TopLevelRoute.Settings}
-                  element={
-                    <Settings
-                      requester={requester}
-                      onSelectAccount={fetchAccounts}
-                      activeAccountId={parentAccount.id}
-                    />
-                  }
-                />
+                    }
+                  />
+                  <Route
+                    path={AccountManagementRoute.DeleteAccount}
+                    element={
+                      <DeleteAccount
+                        requester={requester}
+                        onComplete={() => {}}
+                      />
+                    }
+                  />
+                  <Route
+                    path={AccountManagementRoute.ViewAccount}
+                    element={
+                      <Accounts accounts={accounts} requester={requester} />
+                    }
+                  />
+                  <Route
+                    path={AccountManagementRoute.AddAccount}
+                    element={
+                      <LockWrapper
+                        requester={requester}
+                        setStatus={setStatus}
+                        isLocked={isLocked}
+                        lockKeyRing={() => setIsLocked(true)}
+                      >
+                        <AddAccount
+                          accounts={accounts}
+                          parentAccount={parentAccount}
+                          requester={requester}
+                          setAccounts={setAccounts}
+                          isLocked={isLocked}
+                          unlockKeyRing={() => setIsLocked(false)}
+                        />
+                      </LockWrapper>
+                    }
+                  />
+                </Route>
               </>
             )}
           </Routes>
         </ContentContainer>
-        <BottomSection></BottomSection>
-      </AppContainer>
+      </Container>
     </ThemeProvider>
   );
 };

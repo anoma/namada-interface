@@ -6,10 +6,15 @@ export enum TopLevelRoute {
   Setup = "/setup",
 
   /* WALLET */
-  Accounts = "/accounts",
-  AddAccount = "/accounts/add",
+  Accounts = "accounts",
+  AddAccount = "accounts/add",
+  ConnectedSites = "connected-sites",
+}
 
-  /* SETTINGS */
-  // NOTE: The following are not used as of now, but will be in the future:
-  Settings = "/settings",
+export enum AccountManagementRoute {
+  ParentAccounts = "parent-accounts",
+  ViewAccount = "view/:accountId",
+  DeleteAccount = "delete/:accountId",
+  RenameAccount = "rename/:accountId",
+  AddAccount = "add",
 }
