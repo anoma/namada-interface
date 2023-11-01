@@ -18,7 +18,18 @@ export const AlertWarning = styled(AlertContainer)`
   background-color: ${color("primary", "main20")};
 `;
 
-export const AlertInfo = styled(AlertContainer)``;
+export const AlertInfo = styled(AlertContainer)`
+  background-color: ${color("utility1", "main80")};
+  color: ${color("utility2", "main")};
+  border: 0;
+  font-weight: 500;
+  padding-left: ${spacement(8)};
+  padding-right: ${spacement(8)};
+
+  & > strong {
+    color: ${color("primary", "main")};
+  }
+`;
 
 export const AlertSuccess = styled(AlertContainer)``;
 
