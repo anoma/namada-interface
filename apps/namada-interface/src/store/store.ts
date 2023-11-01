@@ -9,6 +9,7 @@ import {
   channelsReducer,
   coinsReducer,
   notificationsReducer,
+  proposalsReducers,
   stakingAndGovernanceReducers,
 } from "slices";
 import { LocalStorageKeys } from "App/types";
@@ -40,6 +41,7 @@ const reducers = combineReducers({
   coins: coinsReducer,
   notifications: notificationsReducer,
   stakingAndGovernance: stakingAndGovernanceReducers,
+  proposals: proposalsReducers,
 });
 
 const persistConfig = {

@@ -1,10 +1,20 @@
+use borsh::BorshSerialize;
+use js_sys::Uint8Array;
 use masp_primitives::transaction::components::I128Sum;
 use masp_primitives::zip32::ExtendedFullViewingKey;
+use namada::core::ledger::governance::storage::keys as governance_storage;
+use namada::core::ledger::governance::storage::proposal::ProposalType;
+use namada::core::ledger::governance::storage::vote::StorageProposalVote;
+use namada::core::ledger::governance::utils::{
+    compute_proposal_result, ProposalVotes, TallyVote, VotePower,
+};
 use namada::ledger::eth_bridge::bridge_pool::query_signed_bridge_pool;
 use namada::ledger::queries::RPC;
+use namada::proof_of_stake::Epoch;
 use namada::sdk::masp::ShieldedContext;
 use namada::sdk::rpc::{
-    format_denominated_amount, get_public_key_at, get_token_balance, query_epoch,
+    format_denominated_amount, get_public_key_at, get_token_balance, get_total_staked_tokens,
+    query_epoch, query_proposal_by_id, query_proposal_votes, query_storage_value,
 };
 use namada::types::control_flow::ProceedOrElse;
 use namada::types::eth_bridge_pool::TransferToEthereum;
@@ -20,6 +30,7 @@ use wasm_bindgen::prelude::*;
 
 use crate::rpc_client::HttpClient;
 use crate::sdk::{io::WebIo, masp};
+use crate::types::query::ProposalInfo;
 use crate::utils::{set_panic_hook, to_js_result};
 
 #[wasm_bindgen]
@@ -346,5 +357,187 @@ impl Query {
             .collect();
 
         to_js_result(result)
+    }
+
+    /// Returns a list of all proposals
+    pub async fn query_proposals(&self) -> Result<Uint8Array, JsError> {
+        let last_proposal_id_key = governance_storage::get_counter_key();
+        let last_proposal_id =
+            query_storage_value::<HttpClient, u64>(&self.client, &last_proposal_id_key)
+                .await
+                .unwrap();
+
+        let from_id = if last_proposal_id > 10 {
+            last_proposal_id - 10
+        } else {
+            0
+        };
+
+        let mut proposals: Vec<ProposalInfo> = vec![];
+        let epoch = RPC.shell().epoch(&self.client).await?;
+
+        for id in from_id..last_proposal_id {
+            let proposal = query_proposal_by_id(&self.client, id)
+                .await
+                .unwrap()
+                .expect("Proposal should be written to storage.");
+            let votes = compute_proposal_votes(&self.client, id, proposal.voting_end_epoch).await;
+            let total_voting_power =
+                get_total_staked_tokens(&self.client, proposal.voting_end_epoch)
+                    .await
+                    .unwrap();
+            //TODO: for now we assume that interface does not support steward accounts
+            let tally_type = proposal.get_tally_type(false);
+
+            let proposal_type = match proposal.r#type {
+                ProposalType::PGFSteward(_) => "pgf_steward",
+                ProposalType::PGFPayment(_) => "pgf_payment",
+                ProposalType::Default(_) => "default",
+            };
+            let status =
+                if proposal.voting_start_epoch <= epoch && proposal.voting_end_epoch >= epoch {
+                    "ongoing"
+                } else if proposal.voting_end_epoch < epoch {
+                    "finished"
+                } else {
+                    "upcoming"
+                };
+
+            let content = serde_json::to_string(&proposal.content)?;
+
+            let proposal_result = compute_proposal_result(votes, total_voting_power, tally_type);
+
+            let proposal_info = ProposalInfo {
+                id: proposal.id.to_string(),
+                proposal_type: proposal_type.to_string(),
+                author: proposal.author.to_string(),
+                start_epoch: proposal.voting_start_epoch.0,
+                end_epoch: proposal.voting_end_epoch.0,
+                grace_epoch: proposal.grace_epoch.0,
+                content,
+                status: status.to_string(),
+                result: proposal_result.result.to_string(),
+                total_voting_power: proposal_result.total_voting_power.to_string_native(),
+                total_yay_power: proposal_result.total_yay_power.to_string_native(),
+                total_nay_power: proposal_result.total_nay_power.to_string_native(),
+            };
+
+            proposals.push(proposal_info);
+        }
+
+        let mut writer = vec![];
+        BorshSerialize::serialize(&proposals, &mut writer)?;
+
+        Ok(Uint8Array::from(writer.as_slice()))
+    }
+
+    /// Returns a list of all delegations for given addresses and epoch
+    ///
+    /// # Arguments
+    ///
+    /// * `addresses` - delegators addresses
+    /// * `epoch` - epoch in which we want to query delegations
+    pub async fn get_total_delegations(
+        &self,
+        addresses: Box<[JsValue]>,
+        epoch: Option<u64>,
+    ) -> Result<JsValue, JsError> {
+        let addresses: Vec<Address> = addresses
+            .into_iter()
+            .filter_map(|address| address.as_string())
+            .filter_map(|address| Address::from_str(&address).ok())
+            .collect();
+
+        let epoch = epoch.map(Epoch);
+
+        let mut delegations: HashMap<Address, token::Amount> = HashMap::new();
+
+        for address in addresses.into_iter() {
+            let validators: HashMap<Address, token::Amount> = RPC
+                .vp()
+                .pos()
+                .delegations(&self.client, &address, &epoch)
+                .await?;
+            let sum_of_delegations = validators
+                .into_values()
+                .fold(token::Amount::zero(), |acc, curr| {
+                    acc.checked_add(curr).expect("Amount overflow")
+                });
+
+            delegations.insert(address, sum_of_delegations);
+        }
+
+        to_js_result(delegations)
+    }
+
+    /// Returns list of delegators that already voted on a proposal
+    ///
+    /// # Arguments
+    ///
+    /// * `proposal_id` - id of proposal to get delegators votes from
+    pub async fn delegators_votes(&self, proposal_id: u64) -> Result<JsValue, JsError> {
+        let votes = query_proposal_votes(&self.client, proposal_id).await?;
+        let res: Vec<(Address, bool)> = votes
+            .into_iter()
+            .map(|vote| {
+                let is_yay = match vote.data {
+                    StorageProposalVote::Yay(_) => true,
+                    StorageProposalVote::Nay => false,
+                };
+                (vote.delegator, is_yay)
+            })
+            .collect();
+
+        to_js_result(res)
+    }
+}
+
+//TODO: remove after moving this fn from apps to shared
+pub async fn compute_proposal_votes(
+    client: &HttpClient,
+    proposal_id: u64,
+    epoch: Epoch,
+) -> ProposalVotes {
+    let votes = query_proposal_votes(client, proposal_id).await.unwrap();
+
+    let mut validators_vote: HashMap<Address, TallyVote> = HashMap::default();
+    let mut validator_voting_power: HashMap<Address, VotePower> = HashMap::default();
+    let mut delegators_vote: HashMap<Address, TallyVote> = HashMap::default();
+    let mut delegator_voting_power: HashMap<Address, HashMap<Address, VotePower>> =
+        HashMap::default();
+
+    for vote in votes {
+        if vote.is_validator() {
+            let validator_stake = RPC
+                .vp()
+                .pos()
+                .validator_stake(client, &vote.validator.clone(), &Some(epoch))
+                .await
+                .expect("Validator stake should be present")
+                .unwrap_or_default();
+
+            validators_vote.insert(vote.validator.clone(), vote.data.into());
+            validator_voting_power.insert(vote.validator, validator_stake);
+        } else {
+            let (_, delegator_stake) = RPC
+                .vp()
+                .pos()
+                .bond_with_slashing(client, &vote.delegator, &vote.validator, &Some(epoch))
+                .await
+                .expect("Delegator stake should be present");
+
+            delegators_vote.insert(vote.delegator.clone(), vote.data.into());
+            delegator_voting_power
+                .entry(vote.delegator.clone())
+                .or_default()
+                .insert(vote.validator, delegator_stake);
+        }
+    }
+
+    ProposalVotes {
+        validators_vote,
+        validator_voting_power,
+        delegators_vote,
+        delegator_voting_power,
     }
 }

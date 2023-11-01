@@ -12,6 +12,7 @@ import {
   transferFromTransparent,
 } from "./partial";
 import {
+  initProposal,
   launchPuppeteer,
   openPopup,
   pasteValueInto,
@@ -325,7 +326,7 @@ describe("Namada", () => {
 
       // Wait for new epoch
       page.on("dialog", async (dialog) => {
-        await new Promise((resolve) => setTimeout(resolve, 60000));
+        await new Promise((resolve) => setTimeout(resolve, 70000));
         await dialog.accept();
       });
 
@@ -368,6 +369,115 @@ describe("Namada", () => {
       );
 
       expect(withdrawCompletedToast).toBeDefined();
+
+      await stopNamada(nam);
+    });
+  });
+
+  describe("proposals", () => {
+    test("vote", async () => {
+      const nam = startNamada(namRefs);
+
+      await importAccount(browser, page);
+      await approveConnection(browser, page);
+
+      initProposal();
+
+      // Click on staking button
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Staking')]"
+        )
+      ).click();
+
+      // Click on validator
+      (
+        await waitForXpath<HTMLSpanElement>(
+          page,
+          "//span[contains(., 'atest1v4')]"
+        )
+      ).click();
+
+      // Click on stake button
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Stake')]"
+        )
+      ).click();
+
+      // Type staking amount
+      const [stakeInput] = await page.$$("input");
+      await stakeInput.type("100");
+
+      // Click confirm
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Confirm')]"
+        )
+      ).click();
+
+      await approveTransaction(browser);
+
+      // Wait for success toast
+      const bondCompletedToast = await page.waitForXPath(
+        "//div[contains(., 'Transaction completed!')]"
+      );
+
+      expect(bondCompletedToast).toBeDefined();
+
+      await new Promise((resolve) => setTimeout(resolve, 40000));
+
+      // Click on proposals button
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Proposals')]"
+        )
+      ).click();
+
+      // Click on ongoing proposal
+      (
+        await page.waitForSelector(
+          "div[data-testid='proposals-list'] > div:nth-child(1)"
+        )
+      )?.click();
+
+      // Click on Vote YAY button
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Vote YAY')]"
+        )
+      ).click();
+
+      await approveTransaction(browser);
+
+      // Wait for success toast
+      const yayCompletedToast = await page.waitForXPath(
+        "//div[contains(., 'Transaction completed!')]"
+      );
+
+      expect(yayCompletedToast).toBeDefined();
+
+      // Click on Vote NAY button
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Vote NAY')]"
+        )
+      ).click();
+
+      await approveTransaction(browser);
+
+      // Wait for success toast
+      const nayCompletedToast = await page.waitForXPath(
+        "//div[contains(., 'Transaction completed!')]"
+      );
+
+      expect(nayCompletedToast).toBeDefined();
 
       await stopNamada(nam);
     });

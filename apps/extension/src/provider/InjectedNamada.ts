@@ -51,10 +51,10 @@ export class InjectedNamada implements INamada {
   }
 
   public async submitTx(props: TxMsgProps): Promise<void> {
-    return await InjectedProxy.requestMethod<
-      TxMsgProps,
-      void
-    >("submitTx", props);
+    return await InjectedProxy.requestMethod<TxMsgProps, void>(
+      "submitTx",
+      props
+    );
   }
 
   public version(): string {

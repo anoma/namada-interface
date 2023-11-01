@@ -71,7 +71,7 @@ export class ConnectInterfaceResponseMsg extends Message<void> {
     public readonly interfaceTabId: number,
     public readonly chainId: string,
     public readonly interfaceOrigin: string,
-    public readonly allowConnection: boolean,
+    public readonly allowConnection: boolean
   ) {
     super();
   }
@@ -104,9 +104,7 @@ export class RevokeConnectionMsg extends Message<void> {
     return MessageType.RevokeConnection;
   }
 
-  constructor(
-    public readonly originToRevoke: string
-  ) {
+  constructor(public readonly originToRevoke: string) {
     super();
   }
 
