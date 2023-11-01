@@ -2,18 +2,21 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import {
-  Button,
-  ButtonVariant,
+  ActionButton,
+  Alert,
+  Image,
+  ImageName,
   Input,
   InputVariants,
+  Stack,
 } from "@namada/components";
 
 import { TopLevelRoute } from "App/types";
+import { KeyRingStatus, UnlockKeyRingMsg } from "background/keyring";
 import { ExtensionRequester } from "extension";
 import { useQuery } from "hooks";
 import { Ports } from "router";
-import { UnlockKeyRingMsg, KeyRingStatus } from "background/keyring";
-import { LoginContainer, LoginError } from "./Login.components";
+import { LoginContainer, LogoContainer } from "./Login.components";
 
 enum Status {
   InvalidPassword,
@@ -52,38 +55,39 @@ const Login: React.FC<Props> = ({ requester }) => {
     }
   };
 
+  let errorMessage = "";
+
+  if (status === Status.Failed) {
+    errorMessage = "An error has occurred";
+  }
+
+  if (status === Status.InvalidPassword) {
+    errorMessage = "Incorrect Password";
+  }
+
   return (
-    <>
-      {prompt && <p>{prompt}</p>}
-      <LoginContainer
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && password.length > 0) {
-            handleSubmit();
-          }
-        }}
-      >
+    <LoginContainer>
+      {prompt && <Alert type="info">{prompt}</Alert>}
+      <Stack gap={8} as="form" onSubmit={handleSubmit}>
+        <LogoContainer>
+          <Image imageName={ImageName.LogoMinimal} />
+        </LogoContainer>
         <Input
-          label="Enter password"
+          label="Enter your password"
           autoFocus={true}
+          placeholder="Password"
           variant={InputVariants.Password}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          error={errorMessage}
         />
-        <Button
-          variant={ButtonVariant.Contained}
+        <ActionButton
           disabled={status === Status.Pending || !(password.length > 0)}
-          onClick={handleSubmit}
         >
           Unlock
-        </Button>
-        {status === Status.Failed && (
-          <LoginError>An error has occured!</LoginError>
-        )}
-        {status === Status.InvalidPassword && (
-          <LoginError>Incorrect password!</LoginError>
-        )}
-      </LoginContainer>
-    </>
+        </ActionButton>
+      </Stack>
+    </LoginContainer>
   );
 };
 
