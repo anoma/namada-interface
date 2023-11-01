@@ -1,3 +1,4 @@
+import { AnyStyledComponent } from "styled-components";
 import {
   AlertContent,
   AlertError,
@@ -7,7 +8,7 @@ import {
   AlertWarning,
 } from "./Alert.components";
 
-const AlertType = {
+const AlertType: Record<string, AnyStyledComponent> = {
   error: AlertError,
   warning: AlertWarning,
   info: AlertInfo,
