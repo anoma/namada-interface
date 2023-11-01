@@ -1,19 +1,30 @@
+import { ActionButton, Image, ImageName } from "@namada/components";
 import React from "react";
-import { Button, ButtonVariant } from "@namada/components";
 import browser from "webextension-polyfill";
+import { SetupContainer } from "./Setup.components";
 
 const Setup: React.FC = () => {
   return (
-    <Button
-      variant={ButtonVariant.ContainedAlternative}
-      onClick={() => {
-        browser.tabs.create({
-          url: browser.runtime.getURL("setup.html"),
-        });
-      }}
-    >
-      Launch Initial Set-Up
-    </Button>
+    <SetupContainer>
+      <Image
+        styleOverrides={{
+          flex: 1,
+          width: "100%",
+          maxWidth: "50%",
+          margin: "0 auto",
+        }}
+        imageName={ImageName.LogoMinimal}
+      />
+      <ActionButton
+        onClick={() => {
+          browser.tabs.create({
+            url: browser.runtime.getURL("setup.html"),
+          });
+        }}
+      >
+        Launch Initial Set-up
+      </ActionButton>
+    </SetupContainer>
   );
 };
 
