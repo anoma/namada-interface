@@ -4,8 +4,9 @@ import { useNavigate } from "react-router-dom";
 import {
   ActionButton,
   Alert,
+  Button,
+  ButtonVariant,
   Heading,
-  Icon,
   Image,
   ImageName,
   Stack,
@@ -14,14 +15,13 @@ import {
 import { LedgerError } from "@namada/ledger-namada";
 
 import { initLedgerHIDTransport, Ledger as LedgerApp } from "background/ledger";
-import { HeaderContainer } from "Setup/Setup.components";
+import { Password } from "Setup/Common";
 import { TopLevelRoute } from "Setup/types";
 import {
   LedgerIcon,
   LedgerItemContainer,
   LedgerListItem,
 } from "./Ledger.components";
-import { Password } from "Setup/Common";
 
 const Ledger: React.FC = () => {
   const navigate = useNavigate();
@@ -124,7 +124,8 @@ const Ledger: React.FC = () => {
         </Stack>
         <ActionButton disabled={true}>Next</ActionButton>
 
-        {/* <Button
+        {/* Old buttons - need migration */}
+        <Button
           onClick={() => handleConnectUSB()}
           variant={ButtonVariant.Contained}
           disabled={alias === ""}
@@ -138,7 +139,7 @@ const Ledger: React.FC = () => {
           disabled={alias === ""}
         >
           Connect HID
-        </Button> */}
+        </Button>
       </Stack>
 
       {/* TODO: This should appear after the previous flow is complete: */}

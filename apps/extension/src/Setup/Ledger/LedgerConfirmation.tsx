@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 
-import { Button, ButtonVariant, Heading } from "@namada/components";
+import { Alert, Button, ButtonVariant, Heading } from "@namada/components";
 import { useSanitizedParams } from "@namada/hooks";
 import { shortenAddress } from "@namada/utils";
 
@@ -9,7 +9,6 @@ import { AddLedgerParentAccountMsg } from "background/ledger";
 import { useRequester } from "hooks/useRequester";
 import { Ports } from "router";
 import { closeCurrentTab } from "utils";
-import { LedgerErrorMessage } from "./Ledger.components";
 
 const LedgerConfirmation: React.FC = () => {
   const requester = useRequester();
@@ -40,8 +39,7 @@ const LedgerConfirmation: React.FC = () => {
           Confirm Ledger Connection
         </Heading>
       </HeaderContainer>
-
-      {error && <LedgerErrorMessage>{error}</LedgerErrorMessage>}
+      {error && <Alert type="error">{error}</Alert>}
       <BodyText>
         Connection successful for <b>&quot;{alias}&quot;</b>!
       </BodyText>
