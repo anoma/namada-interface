@@ -144,7 +144,7 @@ impl ShieldedHDWallet {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use masp_primitives::primitives::PaymentAddress;
+    use masp_primitives::sapling::PaymentAddress;
 
     const KEY_SIZE: usize = 96;
 

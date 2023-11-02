@@ -353,28 +353,21 @@ impl Sdk {
         vote_proposal_msg: &[u8],
         tx_msg: &[u8],
         password: Option<String>,
-        gas_payer: Option<String>,
+        _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
         let (args, faucet_signer) = tx::vote_proposal_tx_args(vote_proposal_msg, tx_msg, password)?;
-
-        let voter = args.voter.clone();
-        let default_signer = faucet_signer.clone().or(Some(voter.clone()));
-
-        let (signing_data, fee_payer) = self
-            .signing_data_and_fee_payer(&args.tx, Some(voter), default_signer, gas_payer)
-            .await?;
-
         let epoch = query_epoch(&self.client).await?;
         let namada = self.get_namada();
 
-        let (tx, _, _) = build_vote_proposal(&namada, &args, epoch)
+        let (tx, signing_data, _) = build_vote_proposal(&namada, &args, epoch)
             .await
+
             .map_err(JsError::from)?;
 
         Ok(BuiltTx {
             tx,
             signing_data,
-            is_faucet_transfer: false,
+            is_faucet_transfer: faucet_signer.is_some(),
         })
     }
 
