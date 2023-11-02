@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use borsh::{BorshDeserialize, BorshSerialize};
 use masp_proofs::prover::LocalTxProver;
-use namada::sdk::masp::{ShieldedContext, ShieldedUtils};
+use namada::namada_sdk::masp::{ShieldedContext, ShieldedUtils};
 use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
 use crate::utils::{to_bytes, to_io_error};
@@ -43,16 +43,19 @@ impl ShieldedUtils for WebShieldedUtils {
         )
     }
 
-    async fn load(self) -> std::io::Result<ShieldedContext<Self>> {
-        let ctx = get(SHIELDED_CONTEXT).await.map_err(|e| to_io_error(e))?;
-        let ctx_bytes = to_bytes(ctx);
-        let mut new_ctx = ShieldedContext::deserialize(&mut &ctx_bytes[..])?;
+    async fn load<U: ShieldedUtils>(&self, ctx: &mut ShieldedContext<U>) -> std::io::Result<()> {
+        let stored_ctx = get(SHIELDED_CONTEXT).await.map_err(|e| to_io_error(e))?;
+        let stored_ctx_bytes = to_bytes(stored_ctx);
 
-        new_ctx.utils = self;
-        Ok(new_ctx)
+        *ctx = ShieldedContext {
+            utils: ctx.utils.clone(),
+            ..ShieldedContext::deserialize(&mut &stored_ctx_bytes[..])?
+        };
+
+        Ok(())
     }
 
-    async fn save(&self, ctx: &ShieldedContext<Self>) -> std::io::Result<()> {
+    async fn save<U: ShieldedUtils>(&self, ctx: &ShieldedContext<U>) -> std::io::Result<()> {
         let mut bytes = Vec::new();
         ctx.serialize(&mut bytes)
             .expect("cannot serialize shielded context");

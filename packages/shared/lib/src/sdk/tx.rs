@@ -3,7 +3,7 @@ use std::{path::PathBuf, str::FromStr};
 use borsh::{BorshDeserialize, BorshSerialize};
 use namada::{
     ibc::core::ics24_host::identifier::{ChannelId, PortId},
-    sdk::args::{self, InputAmount},
+    namada_sdk::args::{self, InputAmount},
     types::{
         address::Address,
         chain::ChainId,

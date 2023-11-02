@@ -27,7 +27,7 @@ impl Io for WebIo {
     /// # Arguments
     ///
     /// * `output` - The output to print
-    fn print(output: impl AsRef<str>) {
+    fn print(&self, output: impl AsRef<str>) {
         web_sys::console::log_1(&output.as_ref().into());
     }
 
@@ -36,7 +36,7 @@ impl Io for WebIo {
     /// # Arguments
     ///
     /// * `output` - The output to print
-    fn println(output: impl AsRef<str>) {
+    fn println(&self, output: impl AsRef<str>) {
         let js_output: JsValue = format!("{}\n", output.as_ref()).into();
         web_sys::console::log_1(&js_output);
     }
@@ -46,7 +46,7 @@ impl Io for WebIo {
     /// # Arguments
     ///
     /// * `output` - The output to print
-    fn eprintln(output: impl AsRef<str>) {
+    fn eprintln(&self, output: impl AsRef<str>) {
         let js_output: JsValue = format!("{}\n", output.as_ref()).into();
         web_sys::console::error_1(&js_output);
     }
@@ -54,14 +54,14 @@ impl Io for WebIo {
     /// Read from the prompt
     ///
     /// **Note**: Works only in the context of a document(WebWorkers and ServiceWorkers are not supported)
-    async fn read() -> std::io::Result<String> {
+    async fn read(&self) -> std::io::Result<String> {
         read(None)
     }
 
     /// Read from the prompt with a question
     ///
     /// **Note**: Works only in the context of a document(WebWorkers and ServiceWorkers are not supported)
-    async fn prompt(question: impl AsRef<str>) -> String {
+    async fn prompt(&self, question: impl AsRef<str>) -> String {
         read(Some(question.as_ref())).unwrap_or(String::from(""))
     }
 }
