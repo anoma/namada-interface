@@ -137,6 +137,19 @@ class Metamask implements Integration<Account, unknown> {
       // { token: "TESTERC20", amount: String(testErc20Balance) || "0" },
     ];
   }
+
+  public async signArbitrary(
+    chainId: string,
+    signer: string,
+    data: string
+  ): Promise<string> {
+    if (!this._ethereum) {
+      throw Error("Metamask not found");
+    }
+    console.log(chainId, signer, data);
+
+    return "todo";
+  }
 }
 
 export default Metamask;

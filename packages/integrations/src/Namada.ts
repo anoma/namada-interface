@@ -16,7 +16,7 @@ import { BridgeProps, Integration } from "./types/Integration";
 export default class Namada implements Integration<Account, Signer> {
   private _namada: WindowWithNamada["namada"] | undefined;
 
-  constructor(public readonly chain: Chain) { }
+  constructor(public readonly chain: Chain) {}
 
   public get instance(): INamada | undefined {
     return this._namada;
@@ -93,5 +93,18 @@ export default class Namada implements Integration<Account, Signer> {
     });
 
     return tokenBalances;
+  }
+
+  public async signArbitrary(
+    chainId: string,
+    signer: string,
+    data: string
+  ): Promise<string> {
+    if (!this._namada) {
+      throw Error("Namada not found");
+    }
+    console.log(chainId, signer, data);
+
+    return "todo";
   }
 }
