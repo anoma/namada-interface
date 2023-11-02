@@ -22,4 +22,9 @@ export interface Integration<T, S> {
     type: AccountType
   ) => Promise<void>;
   queryBalances: (owner: string) => Promise<TokenBalance[]>;
+  signArbitrary: (
+    chainId: string,
+    signer: string,
+    data: string
+  ) => Promise<string>;
 }

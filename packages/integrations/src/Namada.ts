@@ -16,7 +16,7 @@ import { BridgeProps, Integration } from "./types/Integration";
 export default class Namada implements Integration<Account, Signer> {
   private _namada: WindowWithNamada["namada"] | undefined;
 
-  constructor(public readonly chain: Chain) { }
+  constructor(public readonly chain: Chain) {}
 
   public get instance(): INamada | undefined {
     return this._namada;
@@ -53,9 +53,17 @@ export default class Namada implements Integration<Account, Signer> {
   ): Promise<void> {
     const signer = this._namada?.getSigner(this.chain.chainId);
     if (props.ibcProps) {
-      return await signer?.submitIbcTransfer(props.ibcProps, props.txProps, type);
+      return await signer?.submitIbcTransfer(
+        props.ibcProps,
+        props.txProps,
+        type
+      );
     } else if (props.bridgeProps) {
-      return await signer?.submitEthBridgeTransfer(props.bridgeProps, props.txProps, type);
+      return await signer?.submitEthBridgeTransfer(
+        props.bridgeProps,
+        props.txProps,
+        type
+      );
     }
 
     return Promise.reject("Invalid bridge transfer props!");
@@ -80,5 +88,18 @@ export default class Namada implements Integration<Account, Signer> {
     });
 
     return tokenBalances;
+  }
+
+  public async signArbitrary(
+    chainId: string,
+    signer: string,
+    data: string
+  ): Promise<string> {
+    if (!this._namada) {
+      throw Error("Namada not found");
+    }
+    console.log(chainId, signer, data);
+
+    return "todo";
   }
 }
