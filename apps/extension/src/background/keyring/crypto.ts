@@ -7,23 +7,14 @@ import {
   Salt,
   VecU8Pointer,
 } from "@namada/crypto";
-import { AccountType, Bip44Path } from "@namada/types";
 import { Argon2Config } from "config";
-import { CryptoRecord, KdfType, KeyStore } from "./types";
+import { AccountStore, CryptoRecord, KdfType, KeyStore } from "./types";
 import { readVecU8Pointer } from "@namada/crypto/src/utils";
 
 type CryptoArgs = {
-  alias: string;
-  address: string;
-  owner: string;
-  chainId: string;
-  path: Bip44Path;
-  id: string;
-  parentId?: string;
   password: string;
   text: string;
-  type: AccountType;
-};
+} & AccountStore;
 
 export class Crypto {
   public encrypt(args: CryptoArgs): KeyStore {
