@@ -4,13 +4,19 @@ import browser from "webextension-polyfill";
 
 import {
   ActionButton,
+  Alert,
   Heading,
   Input,
   InputVariants,
   Stack,
   Textarea,
 } from "@namada/components";
-import { SaveMnemonicMsg, ScanAccountsMsg } from "background/keyring";
+import {
+  AccountStore,
+  DeriveAccountMsg,
+  SaveMnemonicMsg,
+  ScanAccountsMsg,
+} from "background/keyring";
 import { Ports } from "router";
 import { HeaderContainer, Subtitle } from "Setup/Setup.components";
 import { Loading } from "../Loading";
@@ -19,6 +25,7 @@ import {
   WarningPanel,
   WarningPanelTitle,
 } from "./Completion.components";
+import { AccountType } from "@namada/types";
 
 type Props = {
   alias: string;
@@ -47,12 +54,13 @@ const Completion: React.FC<Props> = (props) => {
     pageSubtitle,
   } = props;
 
-  const [mnemonicStatus, setMnemonicStatus] = useState<Status>(
-    Status.Completed
-  );
-  const [statusInfo, setStatusInfo] = useState(
-    "Encrypting and storing mnemonic."
-  );
+  const [mnemonicStatus, setMnemonicStatus] = useState<Status>(Status.Pending);
+
+  const [statusInfo, setStatusInfo] = useState<string>("");
+  const [transparentAccountAddress, setTransparentAccountAddress] =
+    useState<string>("");
+  const [shieldedAccountAddress, setShieldedAccountAddress] =
+    useState<string>("");
 
   const closeCurrentTab = async (): Promise<void> => {
     const tab = await browser.tabs.getCurrent();
@@ -64,10 +72,24 @@ const Completion: React.FC<Props> = (props) => {
   useEffect(() => {
     const saveMnemonic = async (): Promise<void> => {
       try {
-        await requester.sendMessage<SaveMnemonicMsg>(
+        setStatusInfo("Encrypting and storing mnemonic.");
+        const account = (await requester.sendMessage<SaveMnemonicMsg>(
           Ports.Background,
           new SaveMnemonicMsg(mnemonic, password, alias)
+        )) as AccountStore;
+        setTransparentAccountAddress(account.address);
+
+        setStatusInfo("Generating Shielded Account");
+        const shieldedAccount = await requester.sendMessage<DeriveAccountMsg>(
+          Ports.Background,
+          new DeriveAccountMsg(
+            account.path,
+            AccountType.ShieldedKeys,
+            account.alias
+          )
         );
+        setShieldedAccountAddress(shieldedAccount.address);
+
         if (scanAccounts) {
           setStatusInfo("Scanning accounts.");
           await requester.sendMessage<ScanAccountsMsg>(
@@ -91,6 +113,9 @@ const Completion: React.FC<Props> = (props) => {
         status={statusInfo}
         visible={mnemonicStatus === Status.Pending}
       />
+      {mnemonicStatus === Status.Failed && (
+        <Alert type="error">{statusInfo}</Alert>
+      )}
       {mnemonicStatus === Status.Completed && (
         <>
           <HeaderContainer>
@@ -104,13 +129,13 @@ const Completion: React.FC<Props> = (props) => {
               <Input
                 label="Your Transparent Account"
                 variant={InputVariants.ReadOnlyCopy}
-                value="<transparent-account>"
+                value={transparentAccountAddress}
                 theme={"primary"}
               />
               <Textarea
                 label="Your Shielded Account"
                 readOnly={true}
-                value="<transparent-account>"
+                value={shieldedAccountAddress}
                 theme={"secondary"}
                 sensitive={true}
               />

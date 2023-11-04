@@ -131,7 +131,7 @@ export class KeyRingService {
     words: string[],
     password: string,
     alias: string
-  ): Promise<boolean> {
+  ): Promise<AccountStore | false> {
     const results = await this._keyRing.storeMnemonic(words, password, alias);
     this.broadcaster.updateAccounts();
     return results;

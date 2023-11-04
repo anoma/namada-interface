@@ -60,7 +60,13 @@ export const generateId = (
  * Convert ISignature into serialized and encoded signature
  */
 export const encodeSignature = (sig: ISignature): Uint8Array => {
-  const { pubkey, raw_indices, raw_signature, wrapper_indices, wrapper_signature } = sig;
+  const {
+    pubkey,
+    raw_indices,
+    raw_signature,
+    wrapper_indices,
+    wrapper_signature,
+  } = sig;
 
   /* eslint-disable */
   const props = {
@@ -86,10 +92,10 @@ export const encodeTx = (tx: TxProps): Uint8Array => {
   return msg.encode(txMsgValue);
 };
 
-export const validateProps = <T,>(object: T, props: (keyof T)[]): void => {
-  props.forEach(prop => {
+export const validateProps = <T>(object: T, props: (keyof T)[]): void => {
+  props.forEach((prop) => {
     if (!object[prop]) {
       throw new Error(`${String(prop)} was not provided!`);
     }
   });
-}
+};

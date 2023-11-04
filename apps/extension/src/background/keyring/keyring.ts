@@ -33,6 +33,7 @@ import {
   DeleteAccountError,
   CryptoRecord,
   UtilityStore,
+  AccountStore,
 } from "./types";
 import {
   readVecStringPointer,
@@ -219,7 +220,7 @@ export class KeyRing {
     mnemonic: string[],
     password: string,
     alias: string
-  ): Promise<boolean> {
+  ): Promise<AccountStore | false> {
     if (!password) {
       throw new Error("Password is not provided! Cannot store mnemonic");
     }
@@ -229,7 +230,7 @@ export class KeyRing {
       const mnemonic = Mnemonic.from_phrase(phrase);
       const seed = mnemonic.to_seed();
       const { coinType } = chains[this.chainId].bip44;
-      const path = { account: 0, change: 0 };
+      const path = { account: 0, change: 0, index: 0 };
       const bip44Path = makeBip44Path(coinType, path);
       const hdWallet = new HDWallet(seed);
       const account = hdWallet.derive(bip44Path);
@@ -245,22 +246,26 @@ export class KeyRing {
         (await this._keyStore.get()).length
       );
 
-      mnemonic.free();
-      hdWallet.free();
-      account.free();
-      stringPointer.free();
-
-      const mnemonicStore = crypto.encrypt({
+      const accountStore: AccountStore = {
         id,
         alias,
         address,
         owner: address,
         chainId,
-        password,
         path,
-        text: phrase,
         type: AccountType.Mnemonic,
+      };
+
+      const mnemonicStore = crypto.encrypt({
+        ...accountStore,
+        password,
+        text: phrase,
       });
+
+      mnemonic.free();
+      hdWallet.free();
+      account.free();
+      stringPointer.free();
 
       await this._keyStore.append(mnemonicStore);
       await this.generateAuthKey(id, password);
@@ -271,7 +276,7 @@ export class KeyRing {
       await this.setActiveAccount(id, AccountType.Mnemonic);
 
       this._password = password;
-      return true;
+      return accountStore;
     } catch (e) {
       console.error(e);
     }
