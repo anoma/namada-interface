@@ -1,3 +1,4 @@
+import { color, spacement } from "@namada/utils";
 import styled from "styled-components";
 
 export const AccountsContainer = styled.div`
@@ -29,19 +30,19 @@ export const ThemedScrollbarContainer = styled.div`
 
   /* Custom CSS Scrollbar for div containers*/
   /* NOTE - Firefox will only show max width on hover, otherwise is thin profile */
-  scrollbar-width: 10px;
-  scrollbar-color: ${(props) => props.theme.colors.primary.main};
+  scrollbar-width: ${spacement(2)};
+  scrollbar-color: ${color("primary", "main")};
 
   &::-webkit-scrollbar {
     height: 12px;
-    width: 10px;
+    width: ${spacement(2)};
     background: transparent;
     box-shadow: none;
     -webkit-box-shadow: none;
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: ${(props) => props.theme.colors.primary.main};
+    background-color: ${color("primary", "main")};
     border-radius: 1ex;
     -webkit-border-radius: 1ex;
     box-shadow: none;
