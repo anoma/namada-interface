@@ -9,6 +9,7 @@ import {
 type SeedPhraseListProps = {
   words: string[];
   sensitive?: boolean;
+  columns?: number;
   onChange?: (index: number, value: string) => void;
   onPaste?: (index: number, e: React.ClipboardEvent<HTMLInputElement>) => void;
 };
@@ -17,10 +18,11 @@ export const SeedPhraseList = ({
   words,
   onChange,
   onPaste,
+  columns = 3,
   sensitive = true,
 }: SeedPhraseListProps): JSX.Element => {
   const list = (
-    <SeedList columns={3}>
+    <SeedList columns={columns}>
       {words.map((word, idx) => (
         <SeedListItem key={`seed-phrase-list-${idx}`}>
           {onChange ? (

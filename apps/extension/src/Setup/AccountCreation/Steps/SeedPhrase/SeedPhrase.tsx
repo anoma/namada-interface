@@ -64,7 +64,10 @@ const SeedPhrase: React.FC<Props> = (props) => {
           ]}
           onChange={(value) => setMnemonicLength(Number(value))}
         />
-        <SeedPhraseList words={seedPhrase} />
+        <SeedPhraseList
+          columns={mnemonicLength === 24 ? 4 : 3}
+          words={seedPhrase}
+        />
         <SeedPhraseInstructions />
       </Stack>
 

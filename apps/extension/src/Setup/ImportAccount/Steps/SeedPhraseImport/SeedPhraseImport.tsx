@@ -1,6 +1,13 @@
 import React, { useCallback, useState } from "react";
 
-import { ActionButton, Heading, RadioGroup, Stack } from "@namada/components";
+import {
+  ActionButton,
+  Heading,
+  Input,
+  InputVariants,
+  RadioGroup,
+  Stack,
+} from "@namada/components";
 import { SeedPhraseList } from "Setup/Common";
 import { HeaderContainer } from "Setup/Setup.components";
 import { ValidateMnemonicMsg } from "background/keyring";
@@ -16,8 +23,17 @@ type Props = {
 const SHORT_PHRASE_COUNT = 12;
 const LONG_PHRASE_COUNT = 24;
 
+enum MnemonicTypes {
+  PrivateKey = 1,
+  TwelveWords = SHORT_PHRASE_COUNT,
+  TwentyFourWords = LONG_PHRASE_COUNT,
+}
+
 export const SeedPhraseImport: React.FC<Props> = ({ onConfirm, requester }) => {
-  const [mnemonicLength, setMnemonicLength] = useState(SHORT_PHRASE_COUNT);
+  const [privateKey, setPrivateKey] = useState("");
+  const [mnemonicType, setMnemonicType] = useState<MnemonicTypes>(
+    MnemonicTypes.TwelveWords
+  );
 
   const mnemonicsRange = Array.from(Array(LONG_PHRASE_COUNT).keys()).map(
     () => ""
@@ -31,7 +47,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm, requester }) => {
 
   const onPaste = useCallback(
     (index: number, e: React.ClipboardEvent<HTMLInputElement>) => {
-      let currentLength = mnemonicLength;
+      let currentLength = mnemonicType;
       const text = e.clipboardData.getData("Text");
       const pastedMnemonics = text
         .trim()
@@ -41,8 +57,8 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm, requester }) => {
 
       // If pasted text has more than SHORT_PHRASE_COUNT words, we automatically toggle words count
       if (pastedMnemonicsLength > SHORT_PHRASE_COUNT) {
-        setMnemonicLength(LONG_PHRASE_COUNT);
-        currentLength = LONG_PHRASE_COUNT;
+        setMnemonicType(MnemonicTypes.TwentyFourWords);
+        currentLength = MnemonicTypes.TwentyFourWords;
       }
 
       // If pasted text is exactly the same length as the mnemonic length, we want to replace all inputs
@@ -50,6 +66,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm, requester }) => {
         e.preventDefault();
         setMnemonics(pastedMnemonics);
       }
+
       // If the pasted text is more than one word, we want to fill multiple inputs
       else if (pastedMnemonicsLength > 1) {
         e.preventDefault();
@@ -63,7 +80,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm, requester }) => {
       }
       // Otherwise we just paste the text into the focused input - default behavior
     },
-    [mnemonicLength]
+    [mnemonicType]
   );
 
   const onInputChange = useCallback(
@@ -76,7 +93,11 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm, requester }) => {
   );
 
   const onSubmit = useCallback(async () => {
-    const actualMnemonics = mnemonics.slice(0, mnemonicLength);
+    if (mnemonicType === MnemonicTypes.PrivateKey) {
+      return;
+    }
+
+    const actualMnemonics = mnemonics.slice(0, mnemonicType);
     const phrase = actualMnemonics.join(" ");
     const isValid = await requester.sendMessage<ValidateMnemonicMsg>(
       Ports.Background,
@@ -115,19 +136,40 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm, requester }) => {
           <RadioGroup
             id="mnemonicLength"
             groupLabel="Number of seeds"
-            value={mnemonicLength.toString()}
+            value={mnemonicType.toString()}
             options={[
-              { text: "12 words", value: "12" },
-              { text: "24 words", value: "24" },
+              { text: "12 words", value: MnemonicTypes.TwelveWords.toString() },
+              {
+                text: "24 words",
+                value: MnemonicTypes.TwentyFourWords.toString(),
+              },
+              {
+                text: "Private Key",
+                value: MnemonicTypes.PrivateKey.toString(),
+              },
             ]}
-            onChange={(value: string) => setMnemonicLength(Number(value))}
+            onChange={(value: string) => setMnemonicType(Number(value))}
           />
-          <SeedPhraseList
-            sensitive={false}
-            words={mnemonics.slice(0, mnemonicLength)}
-            onChange={onInputChange}
-            onPaste={onPaste}
-          />
+
+          {mnemonicType !== MnemonicTypes.PrivateKey && (
+            <SeedPhraseList
+              sensitive={false}
+              columns={mnemonicType === MnemonicTypes.TwentyFourWords ? 4 : 3}
+              words={mnemonics.slice(0, mnemonicType)}
+              onChange={onInputChange}
+              onPaste={onPaste}
+            />
+          )}
+
+          {mnemonicType === MnemonicTypes.PrivateKey && (
+            <Input
+              label="Private key"
+              variant={InputVariants.PasswordOnBlur}
+              value={privateKey}
+              placeholder="Enter your private key"
+              onChange={(e) => setPrivateKey(e.target.value)}
+            />
+          )}
         </Stack>
         <ActionButton disabled={isSubmitButtonDisabled}>Import</ActionButton>
       </Stack>
