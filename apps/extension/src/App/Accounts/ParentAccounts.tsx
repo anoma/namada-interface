@@ -78,10 +78,6 @@ const ParentAccounts: React.FC<{
     }
   };
 
-  // const onDeleteAccount = async (): Promise<void> => {
-  //   await fetchParentAccounts();
-  // };
-
   const goToSetupPage = (): void => {
     browser.tabs.create({
       url: browser.runtime.getURL("setup.html"),
@@ -99,7 +95,7 @@ const ParentAccounts: React.FC<{
   };
 
   const goToConnectedSites = (): void => {
-    navigate(TopLevelRoute.ConnectedSites);
+    navigate(formatRouterPath([TopLevelRoute.ConnectedSites]));
   };
 
   // we use a ref to make sure the effect does not run on the first
@@ -138,7 +134,7 @@ const ParentAccounts: React.FC<{
           </ActionButton>
         </SettingsHeader>
         <Stack as="ul" gap={4}>
-          {parentAccounts.map((account) => (
+          {[...parentAccounts].reverse().map((account) => (
             <KeyListItem
               key={`key-listitem-${account.id}`}
               as="li"
