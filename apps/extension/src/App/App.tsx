@@ -6,6 +6,7 @@ import { Container, Image, ImageName } from "@namada/components";
 import { DerivedAccount } from "@namada/types";
 import { formatRouterPath, getTheme } from "@namada/utils";
 
+import { Loading } from "@namada/components";
 import { GetActiveAccountMsg } from "background/keyring";
 import { useQuery } from "hooks";
 import { useRequester } from "hooks/useRequester";
@@ -20,12 +21,11 @@ import { Accounts, AddAccount } from "./Accounts";
 import { DeleteAccount } from "./Accounts/DeleteAccount";
 import ParentAccounts from "./Accounts/ParentAccounts";
 import { ContentContainer, LogoContainer } from "./App.components";
-import { Loading } from "./Loading";
+import { ConnectedSites } from "./ConnectedSites";
 import { LockWrapper } from "./LockWrapper";
 import { Login } from "./Login";
 import { Setup } from "./Setup";
 import { AccountManagementRoute, TopLevelRoute } from "./types";
-import { ConnectedSites } from "./ConnectedSites";
 
 export enum Status {
   Completed = "Completed",
@@ -51,6 +51,7 @@ export const App: React.FC = () => {
   const [accounts, setAccounts] = useState<DerivedAccount[]>([]);
   const [parentAccount, setParentAccount] = useState<DerivedAccount>();
   const [error, setError] = useState("");
+  const [loadingStatus, setLoadingStatus] = useState("");
   const requester = useRequester();
 
   const fetchAccounts = async (): Promise<void> => {
@@ -122,6 +123,24 @@ export const App: React.FC = () => {
     }
   };
 
+  const goToStartPage = (): void => {
+    if (!parentAccount) {
+      navigate(TopLevelRoute.Setup);
+    } else {
+      navigate(
+        formatRouterPath([
+          TopLevelRoute.Accounts,
+          AccountManagementRoute.ParentAccounts,
+        ])
+      );
+    }
+  };
+
+  const onDeleteKey = async (): Promise<void> => {
+    await fetchAccounts();
+    goToStartPage();
+  };
+
   useEffect(() => {
     if (status === Status.Completed) {
       fetchMaspParams();
@@ -147,16 +166,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     if (status === Status.Completed) {
-      if (!parentAccount) {
-        navigate(TopLevelRoute.Setup);
-      } else {
-        navigate(
-          formatRouterPath([
-            TopLevelRoute.Accounts,
-            AccountManagementRoute.ParentAccounts,
-          ])
-        );
-      }
+      goToStartPage();
     }
   }, [status, parentAccount]);
 
@@ -192,26 +202,22 @@ export const App: React.FC = () => {
           <Icon iconName={IconName.Info} />
         </Info>
       */}
-
+        <Loading status={loadingStatus} visible={!!loadingStatus} />
         <ContentContainer>
           <Routes>
-            <Route
-              path="*"
-              element={<Loading status={status} error={error} />}
-            />
             <Route path={TopLevelRoute.Setup} element={<Setup />} />
             <Route
               path={TopLevelRoute.Login}
               element={<Login requester={requester} />}
             />
+            <Route
+              path={TopLevelRoute.ConnectedSites}
+              element={<ConnectedSites />}
+            />
 
             {/* Routes that depend on a parent account existing in storage */}
             {parentAccount && (
               <>
-                <Route
-                  path={TopLevelRoute.ConnectedSites}
-                  element={<ConnectedSites />}
-                />
                 <Route path={TopLevelRoute.Accounts} element={<Outlet />}>
                   <Route
                     path={AccountManagementRoute.ParentAccounts}
@@ -228,7 +234,7 @@ export const App: React.FC = () => {
                     element={
                       <DeleteAccount
                         requester={requester}
-                        onComplete={() => {}}
+                        onComplete={onDeleteKey}
                       />
                     }
                   />

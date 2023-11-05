@@ -6,6 +6,7 @@ import {
   Heading,
   Input,
   InputVariants,
+  Loading,
   Stack,
   Text,
 } from "@namada/components";
@@ -43,6 +44,7 @@ const DeleteAccount: React.FC<Props> = ({ requester, onComplete }) => {
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<Status>(Status.Unsubmitted);
+  const [loadingState, setLoadingState] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
   const accountType = state.account?.type;
@@ -55,6 +57,7 @@ const DeleteAccount: React.FC<Props> = ({ requester, onComplete }) => {
     async (e: React.FormEvent): Promise<void> => {
       e.preventDefault();
       setStatus(Status.Pending);
+      setLoadingState("Deleting Key...");
 
       const result =
         accountType === AccountType.Ledger
@@ -67,12 +70,12 @@ const DeleteAccount: React.FC<Props> = ({ requester, onComplete }) => {
               new DeleteAccountMsg(accountId, password)
             );
 
+      setLoadingState("");
       if (result.ok) {
         setStatus(Status.Complete);
         onComplete();
       } else {
         setStatus(Status.Failed);
-
         switch (result.error) {
           case DeleteAccountError.BadPassword:
             setErrorMessage("Password is incorrect");
@@ -101,31 +104,34 @@ const DeleteAccount: React.FC<Props> = ({ requester, onComplete }) => {
   }, [accountId, state]);
 
   return (
-    <Stack as="form" onSubmit={handleSubmit} gap={9}>
-      <Stack as="header" gap={4}>
-        <Heading>Delete Keys</Heading>
-        <Alert type="warning" title="Alert!">
-          Make sure that you&apos;ve backed up your recovery phrase and private
-          key.
-        </Alert>
+    <>
+      <Stack as="form" onSubmit={handleSubmit} gap={9}>
+        <Stack as="header" gap={4}>
+          <Heading>Delete Keys</Heading>
+          <Alert type="warning" title="Alert!">
+            Make sure that you&apos;ve backed up your recovery phrase and
+            private key.
+          </Alert>
+        </Stack>
+        <Text>
+          After deletion, you will be required to import your seed phrase to
+          restore your access to it
+        </Text>
+        {accountType !== AccountType.Ledger && (
+          <Input
+            label="Password"
+            variant={InputVariants.Password}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            error={errorMessage}
+          />
+        )}
+        <ActionButton disabled={shouldDisableSubmit}>
+          Delete Account
+        </ActionButton>
       </Stack>
-
-      <Text>
-        After deletion, you will be required to import your seed phrase to
-        restore your access to it
-      </Text>
-
-      {accountType !== AccountType.Ledger && (
-        <Input
-          label="Password"
-          variant={InputVariants.Password}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          error={errorMessage}
-        />
-      )}
-      <ActionButton disabled={shouldDisableSubmit}>Delete Account</ActionButton>
-    </Stack>
+      <Loading variant="full" status={loadingState} visible={!!loadingState} />
+    </>
   );
 };
 
