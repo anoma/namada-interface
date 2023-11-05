@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Outlet, Route, Routes, useNavigate } from "react-router-dom";
+import {
+  Outlet,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 
-import { Container, Image, ImageName } from "@namada/components";
+import { Container, Loading } from "@namada/components";
 import { DerivedAccount } from "@namada/types";
 import { formatRouterPath, getTheme } from "@namada/utils";
-
-import { Loading } from "@namada/components";
 import { GetActiveAccountMsg } from "background/keyring";
 import { useQuery } from "hooks";
 import { useRequester } from "hooks/useRequester";
@@ -20,7 +24,8 @@ import { Ports } from "router";
 import { Accounts, AddAccount } from "./Accounts";
 import { DeleteAccount } from "./Accounts/DeleteAccount";
 import ParentAccounts from "./Accounts/ParentAccounts";
-import { ContentContainer, LogoContainer } from "./App.components";
+import { ContentContainer } from "./App.components";
+import { AppHeader } from "./Common/AppHeader";
 import { ConnectedSites } from "./ConnectedSites";
 import { LockWrapper } from "./LockWrapper";
 import { Login } from "./Login";
@@ -41,6 +46,7 @@ export const App: React.FC = () => {
   const query = useQuery();
   const redirect = query.get("redirect");
   const navigate = useNavigate();
+  const location = useLocation();
   const [isLocked, setIsLocked] = useState(true);
   const [isDurable, setIsDurable] = useState<boolean>();
   const [status, setStatus] = useState<Status>();
@@ -123,17 +129,22 @@ export const App: React.FC = () => {
     }
   };
 
-  const goToStartPage = (): void => {
+  const getStartPage = (): string => {
     if (!parentAccount) {
-      navigate(TopLevelRoute.Setup);
+      return formatRouterPath([TopLevelRoute.Setup]);
     } else {
-      navigate(
-        formatRouterPath([
-          TopLevelRoute.Accounts,
-          AccountManagementRoute.ParentAccounts,
-        ])
-      );
+      return formatRouterPath([
+        TopLevelRoute.Accounts,
+        AccountManagementRoute.ParentAccounts,
+      ]);
     }
+  };
+
+  const goToStartPage = (): void => navigate(getStartPage());
+
+  const isStartPage = (): boolean => {
+    const startPage = getStartPage();
+    return !!location.pathname.match(startPage);
   };
 
   const onDeleteKey = async (): Promise<void> => {
@@ -184,23 +195,12 @@ export const App: React.FC = () => {
     <ThemeProvider theme={theme}>
       <Container
         size="popup"
-        header={
-          <LogoContainer>
-            <Image imageName={ImageName.Logo} />
-          </LogoContainer>
-        }
+        header={<AppHeader returnButton={!isStartPage()} />}
       >
         {/* <HeadingLoader
           className={maspStatus.status === Status.Pending ? "is-loading" : ""}
           title={maspStatus.info}
         />
-
-        <Info
-          title={isDurable ? "" : STORE_DURABILITY_INFO}
-          className={isDurable === false ? "visible" : ""}
-        >
-          <Icon iconName={IconName.Info} />
-        </Info>
       */}
         <Loading status={loadingStatus} visible={!!loadingStatus} />
         <ContentContainer>

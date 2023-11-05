@@ -24,11 +24,6 @@ export const Spinner = css`
   }
 `;
 
-export const LogoContainer = styled.div`
-  max-width: ${spacement(50)};
-  margin: 0 auto;
-`;
-
 export const AppContainer = styled.div`
   display: flex;
   justify-content: space-between;

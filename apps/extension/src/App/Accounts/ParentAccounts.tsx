@@ -29,7 +29,7 @@ import { SettingsHeader } from "./ParentAccounts.components";
 /**
  * Represents the extension's settings page.
  */
-const ParentAccounts: React.FC<{
+export const ParentAccounts: React.FC<{
   activeAccountId: string;
   requester: ExtensionRequester;
   onSelectAccount: (account: DerivedAccount) => void;
@@ -158,5 +158,3 @@ const ParentAccounts: React.FC<{
     </>
   );
 };
-
-export default ParentAccounts;
