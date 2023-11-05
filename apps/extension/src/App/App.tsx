@@ -23,7 +23,7 @@ import {
 import { Ports } from "router";
 import { Accounts, AddAccount } from "./Accounts";
 import { DeleteAccount } from "./Accounts/DeleteAccount";
-import ParentAccounts from "./Accounts/ParentAccounts";
+import { ParentAccounts } from "./Accounts/ParentAccounts";
 import { ContentContainer } from "./App.components";
 import { AppHeader } from "./Common/AppHeader";
 import { ConnectedSites } from "./ConnectedSites";
