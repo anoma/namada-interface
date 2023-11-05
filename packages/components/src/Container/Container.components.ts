@@ -18,11 +18,14 @@ export const ContainerWrapper = styled.section<{ maxW: keyof ContainerSize }>`
   background-color: ${color("utility1", "main70")};
   border-radius: ${(props) =>
     props.maxW === "popup" ? 0 : borderRadius("md")(props)};
-  max-width: ${(props) => container(props.maxW)};
+  min-width: ${(props) => container(props.maxW)};
   position: relative;
-  width: 100%;
   display: flex;
+  flex-basis: min-content;
   flex-direction: column;
+  flex-grow: 0;
+  max-width: 100%;
+  transition: all 100ms ease-out;
 `;
 
 export const ContainerBody = styled.div`
