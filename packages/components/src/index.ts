@@ -23,3 +23,4 @@ export * from "./DropdownMenu";
 export * from "./KeyListItem";
 export * from "./Alert";
 export * from "./Text";
+export * from "./Loading";

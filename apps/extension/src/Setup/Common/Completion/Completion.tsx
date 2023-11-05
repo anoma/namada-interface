@@ -8,9 +8,12 @@ import {
   Heading,
   Input,
   InputVariants,
+  Loading,
   Stack,
   Textarea,
 } from "@namada/components";
+import { AccountType } from "@namada/types";
+import { HeaderContainer, Subtitle } from "Setup/Setup.components";
 import {
   AccountStore,
   DeriveAccountMsg,
@@ -18,14 +21,11 @@ import {
   ScanAccountsMsg,
 } from "background/keyring";
 import { Ports } from "router";
-import { HeaderContainer, Subtitle } from "Setup/Setup.components";
-import { Loading } from "../Loading";
 import {
   DownloadPanel,
   WarningPanel,
   WarningPanelTitle,
 } from "./Completion.components";
-import { AccountType } from "@namada/types";
 
 type Props = {
   alias: string;

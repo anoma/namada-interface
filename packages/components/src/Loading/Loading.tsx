@@ -6,12 +6,17 @@ import {
 
 type LoadingProps = {
   status: string;
-  visible: boolean;
+  visible?: boolean;
+  variant?: "full" | "contained";
 };
 
-export const Loading = ({ status, visible }: LoadingProps): JSX.Element => {
+export const Loading = ({
+  status,
+  visible = true,
+  variant = "contained",
+}: LoadingProps): JSX.Element => {
   return (
-    <LoadingContainer visible={visible}>
+    <LoadingContainer variant={variant} visible={visible}>
       <LoadingPanel>
         <LoadingHeader>{status}</LoadingHeader>
         {/* Temporary SVG, will be replaced by a GIF */}

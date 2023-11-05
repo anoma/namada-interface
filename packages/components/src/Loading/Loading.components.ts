@@ -1,19 +1,26 @@
-import { borderRadius, color, fontSize, spacement } from "@namada/utils";
+import { color, fontSize, spacement } from "@namada/utils";
 import styled from "styled-components";
 
-export const LoadingContainer = styled.div<{ visible: boolean }>`
+export const LoadingContainer = styled.div<{
+  visible: boolean;
+  variant: "contained" | "full";
+}>`
   display: block;
+  height: 100%;
+  left: 0;
   min-height: 50vh;
   opacity: ${(props) => (props.visible ? 1 : 0)};
   pointer-events: ${(props) => (props.visible ? "auto" : "none")};
-  position: ${(props) => (props.visible ? "static" : "absolute")};
+  position: ${(props) =>
+    props.variant === "contained" && props.visible ? "static" : "absolute"};
+  top: 0;
   transition: 150ms ease-out opacity;
+  width: 100%;
 `;
 
 export const LoadingPanel = styled.div`
   align-items: center;
   background-color: ${color("primary", "main")};
-  border-radius: ${borderRadius("md")};
   display: flex;
   flex-direction: column;
   gap: ${spacement(10)};
