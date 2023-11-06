@@ -6,11 +6,8 @@ import {
   ActionButton,
   Alert,
   Heading,
-  Input,
-  InputVariants,
   Loading,
-  Stack,
-  Textarea,
+  ViewKeys,
 } from "@namada/components";
 import { AccountType } from "@namada/types";
 import { HeaderContainer, Subtitle } from "Setup/Setup.components";
@@ -21,11 +18,6 @@ import {
   ScanAccountsMsg,
 } from "background/keyring";
 import { Ports } from "router";
-import {
-  DownloadPanel,
-  WarningPanel,
-  WarningPanelTitle,
-} from "./Completion.components";
 
 type Props = {
   alias: string;
@@ -57,6 +49,7 @@ const Completion: React.FC<Props> = (props) => {
   const [mnemonicStatus, setMnemonicStatus] = useState<Status>(Status.Pending);
 
   const [statusInfo, setStatusInfo] = useState<string>("");
+  const [publicKeyAddress, setPublicKeyAddress] = useState("");
   const [transparentAccountAddress, setTransparentAccountAddress] =
     useState<string>("");
   const [shieldedAccountAddress, setShieldedAccountAddress] =
@@ -77,6 +70,8 @@ const Completion: React.FC<Props> = (props) => {
           Ports.Background,
           new SaveMnemonicMsg(mnemonic, password, alias)
         )) as AccountStore;
+
+        setPublicKeyAddress(account.publicKey || "");
         setTransparentAccountAddress(account.address);
 
         setStatusInfo("Generating Shielded Account");
@@ -124,45 +119,16 @@ const Completion: React.FC<Props> = (props) => {
             </Heading>
             <Subtitle>{pageSubtitle}</Subtitle>
           </HeaderContainer>
-          <Stack as="section" gap={8}>
-            <Stack gap={4}>
-              <Input
-                label="Your Transparent Account"
-                variant={InputVariants.ReadOnlyCopy}
-                value={transparentAccountAddress}
-                theme={"primary"}
-              />
-              <Textarea
-                label="Your Shielded Account"
-                readOnly={true}
-                value={shieldedAccountAddress}
-                theme={"secondary"}
-                sensitive={true}
-              />
-              <DownloadPanel>
-                Viewing keys of shielded account
-                <ActionButton size="base" variant="secondary">
-                  Download
-                </ActionButton>
-              </DownloadPanel>
-            </Stack>
-            <Stack as="footer" gap={4}>
-              <WarningPanel>
-                <WarningPanelTitle>
-                  BEFORE SHARING YOUR VIEWING KEYS
-                </WarningPanelTitle>
-                <p>
-                  Note that ANYONE with your viewing keys can see the assets,
-                  transaction value, memo field and receiver address of all
-                  transactions received by or sent by the corresponding shielded
-                  account.
-                </p>
-              </WarningPanel>
+          <ViewKeys
+            publicKeyAddress={publicKeyAddress}
+            transparentAccountAddress={transparentAccountAddress}
+            shieldedAccountAddress={shieldedAccountAddress}
+            footer={
               <ActionButton onClick={closeCurrentTab}>
                 Close this page
               </ActionButton>
-            </Stack>
-          </Stack>
+            }
+          />
         </>
       )}
     </>
