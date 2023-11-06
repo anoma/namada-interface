@@ -5,9 +5,11 @@ import { deserialize } from "@dao-xyz/borsh";
 import { chains } from "@namada/chains";
 import {
   HDWallet,
+  ShieldedHDWallet,
   Mnemonic,
   PhraseSize,
-  ShieldedHDWallet,
+  readVecStringPointer,
+  readStringPointer,
   VecU8Pointer,
 } from "@namada/crypto";
 import {
@@ -35,10 +37,6 @@ import {
   UtilityStore,
   AccountStore,
 } from "./types";
-import {
-  readVecStringPointer,
-  readStringPointer,
-} from "@namada/crypto/src/utils";
 import { makeBip44Path, Result } from "@namada/utils";
 
 import { Crypto } from "./crypto";

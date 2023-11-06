@@ -31,6 +31,7 @@ thiserror = "1.0.30"
 rand = {version = "0.7", features = ["wasm-bindgen"]}
 wasm-bindgen = "0.2.86"
 zeroize = "1.6.0"
+tiny-bip39 = "1.0.0"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.13"

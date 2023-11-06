@@ -196,7 +196,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn invalid_derivation_path_should_panic() {
-        let m = Mnemonic::new(PhraseSize::N12).expect("New mnemonic should not fail");
+        let m = Mnemonic::new(PhraseSize::N12);
         let seed = m.to_seed(None).expect("Mnemonic to seed should not fail");
         let b = HDWallet::new(seed).expect("HDWallet from seed should not fail");
 
