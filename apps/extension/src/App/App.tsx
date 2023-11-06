@@ -74,6 +74,10 @@ export const App: React.FC = () => {
       setStatus(Status.Failed);
     } finally {
       setStatus(Status.Completed);
+
+      if (accounts.length === 0) {
+        setParentAccount(undefined);
+      }
     }
   };
 
@@ -206,10 +210,6 @@ export const App: React.FC = () => {
         <ContentContainer>
           <Routes>
             <Route path={TopLevelRoute.Setup} element={<Setup />} />
-            <Route
-              path={TopLevelRoute.Login}
-              element={<Login requester={requester} />}
-            />
             <Route
               path={TopLevelRoute.ConnectedSites}
               element={<ConnectedSites />}
