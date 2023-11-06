@@ -234,8 +234,13 @@ export class KeyRing {
       const bip44Path = makeBip44Path(coinType, path);
       const hdWallet = new HDWallet(seed);
       const account = hdWallet.derive(bip44Path);
-      const stringPointer = account.private().to_hex();
-      const sk = readStringPointer(stringPointer, this._cryptoMemory);
+      const privateKeyStringPtr = account.private().to_hex();
+      const publicKeyStringPtr = account.public().to_hex();
+      const sk = readStringPointer(privateKeyStringPtr, this._cryptoMemory);
+      const publicKey = readStringPointer(
+        publicKeyStringPtr,
+        this._cryptoMemory
+      );
       const address = new Address(sk).implicit();
       const { chainId } = this;
 
@@ -253,6 +258,7 @@ export class KeyRing {
         owner: address,
         chainId,
         path,
+        publicKey,
         type: AccountType.Mnemonic,
       };
 
@@ -265,7 +271,7 @@ export class KeyRing {
       mnemonic.free();
       hdWallet.free();
       account.free();
-      stringPointer.free();
+      privateKeyStringPtr.free();
 
       await this._keyStore.append(mnemonicStore);
       await this.generateAuthKey(id, password);

@@ -152,9 +152,10 @@ export class KeyRingService {
     return account;
   }
 
-  async queryAccounts(): Promise<DerivedAccount[]> {
-    const { id, type } = (await this.getActiveAccount()) || {};
-
+  async queryAccountById(
+    id: string,
+    type: ParentAccount = AccountType.Mnemonic
+  ): Promise<DerivedAccount[]> {
     if (type !== AccountType.Ledger && id) {
       // Query KeyRing accounts
       return await this._keyRing.queryAccounts(id);
@@ -162,7 +163,6 @@ export class KeyRingService {
 
     // Query Ledger accounts
     const parent = await this._ledgerStore.getRecord("id", id);
-
     if (parent) {
       const accounts = [
         parent,
@@ -173,6 +173,15 @@ export class KeyRingService {
     }
 
     throw new Error(`No accounts found for ${id} ${type}`);
+  }
+
+  async queryAccounts(): Promise<DerivedAccount[]> {
+    const { id, type } = (await this.getActiveAccount()) || {};
+    if (!id || !type) {
+      throw new Error("No active account has been found");
+    }
+
+    return await this.queryAccountById(id, type);
   }
 
   async queryParentAccounts(): Promise<DerivedAccount[]> {

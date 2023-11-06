@@ -137,7 +137,10 @@ export class QueryAccountsMsg extends Message<DerivedAccount[]> {
     return MessageType.QueryAccounts;
   }
 
-  constructor(public readonly chainId?: string) {
+  constructor(
+    public readonly chainId?: string,
+    public readonly accountId?: string
+  ) {
     super();
   }
 
