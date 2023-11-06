@@ -12,9 +12,9 @@ import {
 } from "./ViewKeys.components";
 
 type ViewKeysProps = {
-  publicKeyAddress: string;
-  transparentAccountAddress: string;
-  shieldedAccountAddress: string;
+  publicKeyAddress?: string;
+  transparentAccountAddress?: string;
+  shieldedAccountAddress?: string;
   viewingKeys?: string;
   footer?: React.ReactNode;
 };
@@ -29,25 +29,31 @@ export const ViewKeys = ({
   return (
     <Stack as="section" gap={8}>
       <Stack gap={4}>
-        <Input
-          label="Your Transparent Address"
-          variant={InputVariants.ReadOnlyCopy}
-          value={transparentAccountAddress}
-          theme={"primary"}
-        />
-        <Input
-          label="Public Key"
-          variant={InputVariants.ReadOnlyCopy}
-          value={publicKeyAddress}
-          theme={"primary"}
-        />
-        <Textarea
-          label="Your Shielded Address"
-          readOnly={true}
-          value={shieldedAccountAddress}
-          theme={"secondary"}
-          sensitive={true}
-        />
+        {transparentAccountAddress && (
+          <Input
+            label="Your Transparent Address"
+            variant={InputVariants.ReadOnlyCopy}
+            value={transparentAccountAddress}
+            theme={"primary"}
+          />
+        )}
+        {publicKeyAddress && (
+          <Input
+            label="Public Key"
+            variant={InputVariants.ReadOnlyCopy}
+            value={publicKeyAddress}
+            theme={"primary"}
+          />
+        )}
+        {shieldedAccountAddress && (
+          <Textarea
+            label="Your Shielded Address"
+            readOnly={true}
+            value={shieldedAccountAddress}
+            theme={"secondary"}
+            sensitive={true}
+          />
+        )}
         {viewingKeys && (
           <DownloadPanel>
             Viewing keys of shielded account
