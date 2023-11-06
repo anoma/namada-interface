@@ -71,7 +71,7 @@ const Completion: React.FC<Props> = (props) => {
           new SaveMnemonicMsg(mnemonic, password, alias)
         )) as AccountStore;
 
-        setPublicKeyAddress(account.publicKey || "");
+        setPublicKeyAddress(account.publicKey ?? "");
         setTransparentAccountAddress(account.address);
 
         setStatusInfo("Generating Shielded Account");

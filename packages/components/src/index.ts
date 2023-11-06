@@ -25,3 +25,4 @@ export * from "./Alert";
 export * from "./Text";
 export * from "./Loading";
 export * from "./ViewKeys";
+export * from "./LinkButton";

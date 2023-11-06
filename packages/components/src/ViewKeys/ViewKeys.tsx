@@ -30,19 +30,19 @@ export const ViewKeys = ({
     <Stack as="section" gap={8}>
       <Stack gap={4}>
         <Input
+          label="Your Transparent Address"
+          variant={InputVariants.ReadOnlyCopy}
+          value={transparentAccountAddress}
+          theme={"primary"}
+        />
+        <Input
           label="Public Key"
           variant={InputVariants.ReadOnlyCopy}
           value={publicKeyAddress}
           theme={"primary"}
         />
-        <Input
-          label="Your Transparent Account"
-          variant={InputVariants.ReadOnlyCopy}
-          value={transparentAccountAddress}
-          theme={"primary"}
-        />
         <Textarea
-          label="Your Shielded Account"
+          label="Your Shielded Address"
           readOnly={true}
           value={shieldedAccountAddress}
           theme={"secondary"}
@@ -57,22 +57,24 @@ export const ViewKeys = ({
           </DownloadPanel>
         )}
       </Stack>
-      <Stack as="footer" gap={4}>
-        {viewingKeys && (
-          <WarningPanel>
-            <WarningPanelTitle>
-              BEFORE SHARING YOUR VIEWING KEYS
-            </WarningPanelTitle>
-            <p>
-              Note that ANYONE with your viewing keys can see the assets,
-              transaction value, memo field and receiver address of all
-              transactions received by or sent by the corresponding shielded
-              account.
-            </p>
-          </WarningPanel>
-        )}
-        {footer}
-      </Stack>
+      {(viewingKeys || footer) && (
+        <Stack as="footer" gap={4}>
+          {viewingKeys && (
+            <WarningPanel>
+              <WarningPanelTitle>
+                BEFORE SHARING YOUR VIEWING KEYS
+              </WarningPanelTitle>
+              <p>
+                Note that ANYONE with your viewing keys can see the assets,
+                transaction value, memo field and receiver address of all
+                transactions received by or sent by the corresponding shielded
+                account.
+              </p>
+            </WarningPanel>
+          )}
+          {footer}
+        </Stack>
+      )}
     </Stack>
   );
 };
