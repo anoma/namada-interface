@@ -51,7 +51,7 @@ export class Namada implements INamada {
   ): Promise<DerivedAccount[] | undefined> {
     return await this.requester?.sendMessage(
       Ports.Background,
-      new QueryAccountsMsg(chainId)
+      new QueryAccountsMsg({ chainId })
     );
   }
 

@@ -33,7 +33,7 @@ export const ViewAccount = ({ requester }: ViewAccountProps): JSX.Element => {
     try {
       const accounts = await requester.sendMessage(
         Ports.Background,
-        new QueryAccountsMsg(undefined, accountId)
+        new QueryAccountsMsg({ accountId })
       );
       setAccounts(accounts);
 
@@ -41,7 +41,10 @@ export const ViewAccount = ({ requester }: ViewAccountProps): JSX.Element => {
       setParentAccount(parentAccount);
 
       accounts.forEach((account) => {
-        if (account.type === AccountType.Mnemonic) {
+        if (
+          account.type === AccountType.Mnemonic ||
+          account.type === AccountType.Ledger
+        ) {
           setTransparentAddress(account.address);
         }
 

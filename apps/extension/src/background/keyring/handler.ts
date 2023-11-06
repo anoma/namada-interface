@@ -209,10 +209,14 @@ const handleQueryAccountsMsg: (
   service: KeyRingService
 ) => InternalHandler<QueryAccountsMsg> = (service) => {
   return async (_, msg) => {
-    const { accountId } = msg;
-    return accountId
-      ? await service.queryAccountById(accountId)
-      : await service.queryAccounts();
+    const { query } = msg;
+
+    const output =
+      query && query.accountId
+        ? await service.queryAccountById(query.accountId, query.type)
+        : await service.queryAccounts();
+
+    return output;
   };
 };
 
