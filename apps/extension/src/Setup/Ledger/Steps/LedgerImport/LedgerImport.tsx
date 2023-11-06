@@ -38,33 +38,40 @@ export const LedgerImport = (): JSX.Element => {
     }
   }, [locationState]);
 
-  const handleSubmitClick = useCallback(async (): Promise<void> => {
-    try {
-      setLoading(true);
-      const account = await requester.sendMessage(
-        Ports.Background,
-        new AddLedgerParentAccountMsg(
-          keysName,
-          locationState.address,
-          locationState.publicKey,
-          {
-            account: 0,
-            change: 0,
-            index: 0,
-          }
-        )
-      );
-      navigate(
-        formatRouterPath([TopLevelRoute.Ledger, LedgerConnectRoute.Completion]),
-        { state: { account: { ...account } } }
-      );
-    } catch (e) {
-      console.warn(e);
-      setError(`${e}`);
-    } finally {
-      setLoading(false);
-    }
-  }, [keysName, password, locationState]);
+  const handleSubmitClick = useCallback(
+    async (e: React.FormEvent): Promise<void> => {
+      try {
+        e.preventDefault();
+        setLoading(true);
+        const account = await requester.sendMessage(
+          Ports.Background,
+          new AddLedgerParentAccountMsg(
+            keysName,
+            locationState.address,
+            locationState.publicKey,
+            {
+              account: 0,
+              change: 0,
+              index: 0,
+            }
+          )
+        );
+        navigate(
+          formatRouterPath([
+            TopLevelRoute.Ledger,
+            LedgerConnectRoute.Completion,
+          ]),
+          { state: { account: { ...account } } }
+        );
+      } catch (e) {
+        console.warn(e);
+        setError(`${e}`);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [keysName, password, locationState]
+  );
 
   return (
     <>
