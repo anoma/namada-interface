@@ -8,7 +8,7 @@ import {
 } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 
-import { Container, Loading } from "@namada/components";
+import { Alert, Container, Loading } from "@namada/components";
 import { DerivedAccount } from "@namada/types";
 import { formatRouterPath, getTheme } from "@namada/utils";
 import { GetActiveAccountMsg } from "background/keyring";
@@ -37,6 +37,7 @@ export enum Status {
   Pending = "Pending",
   Failed = "Failed",
 }
+
 const STORE_DURABILITY_INFO =
   'Store is not durable. This might cause problems when persisting data on disk.\
  To fix this issue, please navigate to "about:config" and set "dom.indexedDB.experimental" to true.';
@@ -48,7 +49,7 @@ export const App: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isLocked, setIsLocked] = useState(true);
-  const [isDurable, setIsDurable] = useState<boolean>();
+  const [isDurable, setIsDurable] = useState<boolean | undefined>();
   const [status, setStatus] = useState<Status>();
   const [maspStatus, setMaspStatus] = useState<{
     status: Status;
@@ -74,10 +75,6 @@ export const App: React.FC = () => {
       setStatus(Status.Failed);
     } finally {
       setStatus(Status.Completed);
-
-      if (accounts.length === 0) {
-        setParentAccount(undefined);
-      }
     }
   };
 
@@ -208,6 +205,9 @@ export const App: React.FC = () => {
       */}
         <Loading status={loadingStatus} visible={!!loadingStatus} />
         <ContentContainer>
+          {isDurable === false && (
+            <Alert type="warning">{STORE_DURABILITY_INFO}</Alert>
+          )}
           <Routes>
             <Route path={TopLevelRoute.Setup} element={<Setup />} />
             <Route
