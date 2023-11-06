@@ -46,18 +46,19 @@ export const App: React.FC = () => {
   const redirect = query.get("redirect");
   const navigate = useNavigate();
   const location = useLocation();
+  const requester = useRequester();
+
   const [isLocked, setIsLocked] = useState(true);
   const [isDurable, setIsDurable] = useState<boolean | undefined>();
   const [status, setStatus] = useState<Status>();
-  const [maspStatus, setMaspStatus] = useState<{
-    status: Status;
-    info: string;
-  }>({ status: Status.Completed, info: "" });
   const [accounts, setAccounts] = useState<DerivedAccount[]>([]);
   const [parentAccount, setParentAccount] = useState<DerivedAccount>();
   const [error, setError] = useState("");
   const [loadingStatus, setLoadingStatus] = useState("");
-  const requester = useRequester();
+  const [maspStatus, setMaspStatus] = useState<{
+    status: Status;
+    info: string;
+  }>({ status: Status.Completed, info: "" });
 
   const fetchAccounts = async (): Promise<void> => {
     setLoadingStatus("Loading accounts...");
@@ -138,7 +139,7 @@ export const App: React.FC = () => {
     } else {
       return formatRouterPath([
         TopLevelRoute.Accounts,
-        AccountManagementRoute.ParentAccounts,
+        AccountManagementRoute.ViewAccounts,
       ]);
     }
   };
@@ -161,9 +162,9 @@ export const App: React.FC = () => {
     }
   }, [status]);
 
+  // Provide a redirect in the case of transaction/connection approvals
   useEffect(() => {
     if (redirect) {
-      // Provide a redirect in the case of transaction/connection approvals
       navigate(redirect);
     }
   }, []);
@@ -230,7 +231,7 @@ export const App: React.FC = () => {
               <>
                 <Route path={TopLevelRoute.Accounts} element={<Outlet />}>
                   <Route
-                    path={AccountManagementRoute.ParentAccounts}
+                    path={AccountManagementRoute.ViewAccounts}
                     element={
                       <ParentAccounts
                         requester={requester}
