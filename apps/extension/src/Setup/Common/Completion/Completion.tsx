@@ -18,6 +18,9 @@ import {
   ScanAccountsMsg,
 } from "background/keyring";
 import { Ports } from "router";
+import { useNavigate } from "react-router-dom";
+import { formatRouterPath } from "@namada/utils";
+import { TopLevelRoute } from "Setup/types";
 
 type Props = {
   alias: string;
@@ -47,7 +50,6 @@ const Completion: React.FC<Props> = (props) => {
   } = props;
 
   const [mnemonicStatus, setMnemonicStatus] = useState<Status>(Status.Pending);
-
   const [statusInfo, setStatusInfo] = useState<string>("");
   const [publicKeyAddress, setPublicKeyAddress] = useState("");
   const [transparentAccountAddress, setTransparentAccountAddress] =
@@ -55,12 +57,20 @@ const Completion: React.FC<Props> = (props) => {
   const [shieldedAccountAddress, setShieldedAccountAddress] =
     useState<string>("");
 
+  const navigate = useNavigate();
+
   const closeCurrentTab = async (): Promise<void> => {
     const tab = await browser.tabs.getCurrent();
     if (tab.id) {
       browser.tabs.remove(tab.id);
     }
   };
+
+  useEffect(() => {
+    if (!alias || !mnemonic || !password) {
+      navigate(formatRouterPath([TopLevelRoute.Start]));
+    }
+  }, []);
 
   useEffect(() => {
     const saveMnemonic = async (): Promise<void> => {
