@@ -84,6 +84,15 @@ export const ParentAccounts: React.FC<{
     });
   };
 
+  const goToViewAccount = (account: DerivedAccount): void => {
+    navigate(
+      formatRouterPath([
+        TopLevelRoute.Accounts,
+        AccountManagementRoute.ViewAccount.replace(":accountId", account.id),
+      ])
+    );
+  };
+
   const goToDeletePage = (account: DerivedAccount): void => {
     navigate(
       formatRouterPath([
@@ -141,9 +150,9 @@ export const ParentAccounts: React.FC<{
               alias={account.alias}
               isMainKey={activeAccountId === account.id}
               onSelectAccount={() => handleSelectAccount(account)}
-              onRename={() => {}}
               onDelete={() => goToDeletePage(account)}
-              onViewAccount={() => {}}
+              onViewAccount={() => goToViewAccount(account)}
+              onRename={() => {}}
             />
           ))}
         </Stack>

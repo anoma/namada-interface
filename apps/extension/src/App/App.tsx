@@ -21,8 +21,8 @@ import {
   QueryAccountsMsg,
 } from "provider/messages";
 import { Ports } from "router";
-import { Accounts, AddAccount } from "./Accounts";
-import { DeleteAccount } from "./Accounts/DeleteAccount";
+import { Accounts, AddAccount, ViewAccount } from "./Accounts";
+import { DeleteAccount } from "./Accounts";
 import { ParentAccounts } from "./Accounts/ParentAccounts";
 import { ContentContainer } from "./App.components";
 import { AppHeader } from "./Common/AppHeader";
@@ -240,9 +240,7 @@ export const App: React.FC = () => {
                   />
                   <Route
                     path={AccountManagementRoute.ViewAccount}
-                    element={
-                      <Accounts accounts={accounts} requester={requester} />
-                    }
+                    element={<ViewAccount requester={requester} />}
                   />
                   <Route
                     path={AccountManagementRoute.AddAccount}

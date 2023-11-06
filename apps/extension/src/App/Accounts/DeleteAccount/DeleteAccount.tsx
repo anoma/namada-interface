@@ -36,7 +36,7 @@ export type DeleteAccountLocationState = {
   account?: DerivedAccount;
 };
 
-const DeleteAccount: React.FC<Props> = ({ requester, onComplete }) => {
+export const DeleteAccount: React.FC<Props> = ({ requester, onComplete }) => {
   // TODO: When state is not passed, query by accountId
   const { state }: { state: DeleteAccountLocationState } = useLocation();
   const { accountId = "" } = useParams();
@@ -134,5 +134,3 @@ const DeleteAccount: React.FC<Props> = ({ requester, onComplete }) => {
     </>
   );
 };
-
-export default DeleteAccount;
