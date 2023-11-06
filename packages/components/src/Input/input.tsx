@@ -91,6 +91,7 @@ export const Input = ({
     <TextInput
       error={!!error}
       inputTheme={sensitive ? undefined : theme}
+      hasIcon={!!icon}
       {...inputElement}
     />
   );

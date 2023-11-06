@@ -10,6 +10,7 @@ import {
 
 type FieldProps = {
   inputTheme?: ThemeColor;
+  hasIcon?: boolean;
   error: boolean;
 };
 
@@ -36,7 +37,9 @@ const commonStyles = css<FieldProps>`
   font-size: ${fontSize("base")};
   font-weight: 500;
   line-height: 1.25;
-  padding: ${spacement(5)} ${spacement(4)};
+  padding: ${spacement(5)}
+    ${(props) => (props.hasIcon ? spacement(12)(props) : spacement(4)(props))}
+    ${spacement(5)} ${spacement(4)};
   transition: border-color 100ms ease-out;
   width: 100%;
 
