@@ -1,17 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { Ports } from "router";
 import { ActionButton, Heading, RadioGroup, Stack } from "@namada/components";
-import { HeaderContainer } from "Setup/Setup.components";
+import { copyToClipboard } from "@namada/utils";
 import { SeedPhraseInstructions, SeedPhraseList } from "Setup/Common";
+import { HeaderContainer } from "Setup/Setup.components";
 import { AccountDetails } from "Setup/types";
 import { GenerateMnemonicMsg } from "background/keyring";
 import { ExtensionRequester } from "extension";
-import { copyToClipboard } from "@namada/utils";
+import React, { useEffect, useState } from "react";
+import { Ports } from "router";
 
-import {
-  CopyToClipboard,
-  ExportSeedPhraseButtonsContainer,
-} from "./SeedPhrase.components";
+import { CopyToClipboard } from "./SeedPhrase.components";
 
 type Props = {
   requester: ExtensionRequester;
@@ -61,10 +58,21 @@ const SeedPhrase: React.FC<Props> = (props) => {
           ]}
           onChange={(value) => setMnemonicLength(Number(value))}
         />
-        <SeedPhraseList
-          columns={mnemonicLength === 24 ? 4 : 3}
-          words={seedPhrase}
-        />
+        <Stack gap={2}>
+          <SeedPhraseList
+            columns={mnemonicLength === 24 ? 4 : 3}
+            words={seedPhrase}
+          />
+          <CopyToClipboard
+            onClick={(e) => {
+              e.preventDefault();
+              copyToClipboard(seedPhrase.join(" "));
+            }}
+            href="#"
+          >
+            Copy to clipboard
+          </CopyToClipboard>
+        </Stack>
         <SeedPhraseInstructions />
       </Stack>
 
@@ -76,21 +84,6 @@ const SeedPhrase: React.FC<Props> = (props) => {
       >
         Next
       </ActionButton>
-
-      {/* copy seed phrase */}
-      {process.env.NODE_ENV === "development" && (
-        <ExportSeedPhraseButtonsContainer>
-          <CopyToClipboard
-            onClick={(e) => {
-              e.preventDefault();
-              copyToClipboard(seedPhrase.join(" "));
-            }}
-            href="#"
-          >
-            Copy to clipboard (Dev Only)
-          </CopyToClipboard>
-        </ExportSeedPhraseButtonsContainer>
-      )}
     </>
   );
 };
