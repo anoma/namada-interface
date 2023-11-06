@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 
 import { ActionButton, Heading, Text, ViewKeys } from "@namada/components";
 import { formatRouterPath } from "@namada/utils";
@@ -8,22 +8,18 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { closeCurrentTab } from "utils";
 import { DerivedAccount } from "@namada/types";
 
-type LedgerConfirmationStateProps = {
-  account: DerivedAccount;
-};
-
-const LedgerConfirmation: React.FC = () => {
+export const LedgerConfirmation = (): React.ReactNode => {
   const navigate = useNavigate();
   const location = useLocation();
-  const locationState = location.state as LedgerConfirmationStateProps;
 
-  if (!locationState || !locationState.account) {
+  if (!location.state || !location.state.account) {
     navigate(
       formatRouterPath([TopLevelRoute.Ledger, LedgerConnectRoute.Connect])
     );
     return null;
   }
 
+  const account = location.state as DerivedAccount;
   return (
     <>
       <HeaderContainer>
@@ -33,8 +29,8 @@ const LedgerConfirmation: React.FC = () => {
         <Text>Here are the accounts generated from your keys</Text>
       </HeaderContainer>
       <ViewKeys
-        publicKeyAddress={locationState.account.publicKey}
-        transparentAccountAddress={locationState.account.address}
+        publicKeyAddress={account.publicKey}
+        transparentAccountAddress={account.address}
         footer={
           <ActionButton onClick={closeCurrentTab}>Close this page</ActionButton>
         }
@@ -42,5 +38,3 @@ const LedgerConfirmation: React.FC = () => {
     </>
   );
 };
-
-export default LedgerConfirmation;

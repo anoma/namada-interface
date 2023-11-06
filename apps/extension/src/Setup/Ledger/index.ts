@@ -1,2 +1,3 @@
-export * from "./Steps/Connect";
-export * from "./Steps/Import";
+export * from "./Steps/LedgerConnect";
+export * from "./Steps/LedgerImport";
+export * from "./Steps/LedgerConfirmation";

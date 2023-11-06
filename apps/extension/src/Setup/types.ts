@@ -29,7 +29,7 @@ export enum AccountImportRoute {
 export enum LedgerConnectRoute {
   Connect = "connect",
   Import = "confirm",
-  Completion = "completion",
+  Completion = "completion/:account-id",
 }
 
 // Alias and optional password (in the case of Ledger accounts)

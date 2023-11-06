@@ -54,8 +54,10 @@ export const LedgerImport = (): JSX.Element => {
           }
         )
       );
-
-      //TODO: go to view key screen
+      navigate(
+        formatRouterPath([TopLevelRoute.Ledger, LedgerConnectRoute.Completion]),
+        { state: { account: { ...account } } }
+      );
     } catch (e) {
       console.warn(e);
       setError(`${e}`);

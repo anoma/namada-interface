@@ -244,26 +244,36 @@ export const Setup: React.FC = () => {
               <Route
                 path={`/${TopLevelRoute.Ledger}`}
                 element={
-                  <LifecycleExecutionWrapper onLoad={() => setTotalSteps(4)}>
+                  <LifecycleExecutionWrapper onLoad={() => setTotalSteps(3)}>
                     <Outlet />
                   </LifecycleExecutionWrapper>
                 }
               >
                 <Route
                   path={`${LedgerConnectRoute.Connect}`}
-                  element={<LedgerConnect />}
+                  element={
+                    <LifecycleExecutionWrapper onLoad={() => setCurrentStep(1)}>
+                      <LedgerConnect />
+                    </LifecycleExecutionWrapper>
+                  }
                 />
                 <Route
                   path={`${LedgerConnectRoute.Import}`}
-                  element={<LedgerImport />}
+                  element={
+                    <LifecycleExecutionWrapper onLoad={() => setCurrentStep(2)}>
+                      <LedgerImport />
+                    </LifecycleExecutionWrapper>
+                  }
                 />
-
                 <Route
-                  path={`/${TopLevelRoute.LedgerConfirmation}/:alias/:address/:publicKey`}
-                  element={<LedgerConfirmation />}
+                  path={`${LedgerConnectRoute.Completion}`}
+                  element={
+                    <LifecycleExecutionWrapper onLoad={() => setCurrentStep(3)}>
+                      <LedgerConfirmation />
+                    </LifecycleExecutionWrapper>
+                  }
                 />
               </Route>
-              {/* Ledger Connected */}
             </Routes>
           </AnimatedTransition>
         </AnimatePresence>
