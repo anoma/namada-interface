@@ -1,4 +1,3 @@
-import { ExtensionRequester } from "extension";
 import React, { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 
@@ -10,21 +9,21 @@ import {
   ViewKeys,
 } from "@namada/components";
 import { AccountType } from "@namada/types";
+import { formatRouterPath } from "@namada/utils";
 import { HeaderContainer, Subtitle } from "Setup/Setup.components";
+import { TopLevelRoute } from "Setup/types";
 import {
   AccountStore,
   DeriveAccountMsg,
   SaveMnemonicMsg,
   ScanAccountsMsg,
 } from "background/keyring";
-import { Ports } from "router";
+import { useRequester } from "hooks/useRequester";
 import { useNavigate } from "react-router-dom";
-import { formatRouterPath } from "@namada/utils";
-import { TopLevelRoute } from "Setup/types";
+import { Ports } from "router";
 
 type Props = {
   alias: string;
-  requester: ExtensionRequester;
   mnemonic: string[];
   password: string;
   scanAccounts: boolean;
@@ -39,15 +38,8 @@ enum Status {
 }
 
 const Completion: React.FC<Props> = (props) => {
-  const {
-    alias,
-    mnemonic,
-    password,
-    requester,
-    scanAccounts,
-    pageTitle,
-    pageSubtitle,
-  } = props;
+  const { alias, mnemonic, password, scanAccounts, pageTitle, pageSubtitle } =
+    props;
 
   const [mnemonicStatus, setMnemonicStatus] = useState<Status>(Status.Pending);
   const [statusInfo, setStatusInfo] = useState<string>("");
@@ -57,6 +49,7 @@ const Completion: React.FC<Props> = (props) => {
   const [shieldedAccountAddress, setShieldedAccountAddress] =
     useState<string>("");
 
+  const requester = useRequester();
   const navigate = useNavigate();
 
   const closeCurrentTab = async (): Promise<void> => {

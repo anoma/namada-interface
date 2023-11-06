@@ -234,7 +234,6 @@ export const App: React.FC = () => {
                     path={AccountManagementRoute.ViewAccounts}
                     element={
                       <ParentAccounts
-                        requester={requester}
                         onSelectAccount={fetchAccounts}
                         activeAccountId={parentAccount.id}
                       />
@@ -242,16 +241,11 @@ export const App: React.FC = () => {
                   />
                   <Route
                     path={AccountManagementRoute.DeleteAccount}
-                    element={
-                      <DeleteAccount
-                        requester={requester}
-                        onComplete={onDeleteKey}
-                      />
-                    }
+                    element={<DeleteAccount onComplete={onDeleteKey} />}
                   />
                   <Route
                     path={AccountManagementRoute.ViewAccount}
-                    element={<ViewAccount requester={requester} />}
+                    element={<ViewAccount />}
                   />
                   <Route
                     path={AccountManagementRoute.AddAccount}

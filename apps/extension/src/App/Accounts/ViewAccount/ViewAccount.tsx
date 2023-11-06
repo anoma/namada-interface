@@ -8,31 +8,28 @@ import {
 } from "@namada/components";
 import { AccountType, DerivedAccount } from "@namada/types";
 import { ParentAccount } from "background/keyring";
-import { ExtensionRequester } from "extension";
+import { useRequester } from "hooks/useRequester";
 import { QueryAccountsMsg } from "provider";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Ports } from "router";
-
-type ViewAccountProps = {
-  requester: ExtensionRequester;
-};
 
 type ViewAccountUrlParams = {
   accountId: string;
   type?: ParentAccount;
 };
 
-export const ViewAccount = ({ requester }: ViewAccountProps): JSX.Element => {
+export const ViewAccount = (): JSX.Element => {
   const [loadingStatus, setLoadingStatus] = useState("");
   const [accounts, setAccounts] = useState<DerivedAccount[]>([]);
   const [parentAccount, setParentAccount] = useState<DerivedAccount>();
   const [transparentAddress, setTransparentAddress] = useState("");
   const [shieldedAddress, setShieldedAddress] = useState("");
-
   const [error, setError] = useState("");
+
   const { accountId, type } = useParams<ViewAccountUrlParams>();
   const navigate = useNavigate();
+  const requester = useRequester();
 
   const fetchAccounts = async (accountId: string): Promise<void> => {
     setLoadingStatus("Loading...");

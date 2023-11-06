@@ -20,24 +20,24 @@ import {
 } from "background/keyring";
 
 import { formatRouterPath } from "@namada/utils";
-import { ExtensionRequester } from "extension";
 import { Ports } from "router";
 import { Status } from "../App";
 import { AccountManagementRoute, TopLevelRoute } from "../types";
 import { SettingsHeader } from "./ParentAccounts.components";
+import { useRequester } from "hooks/useRequester";
 
 /**
  * Represents the extension's settings page.
  */
 export const ParentAccounts: React.FC<{
   activeAccountId: string;
-  requester: ExtensionRequester;
   onSelectAccount: (account: DerivedAccount) => void;
-}> = ({ activeAccountId, requester, onSelectAccount }) => {
+}> = ({ activeAccountId, onSelectAccount }) => {
   const [status, setStatus] = useState<Status>(Status.Pending);
   const [error, setError] = useState<string>("");
   const [parentAccounts, setParentAccounts] = useState<DerivedAccount[]>([]);
 
+  const requester = useRequester();
   const navigate = useNavigate();
 
   const fetchParentAccounts = async (): Promise<void> => {

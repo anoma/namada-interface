@@ -120,7 +120,6 @@ export const Setup: React.FC = () => {
                   element={
                     <LifecycleExecutionWrapper onLoad={goToStep(2)}>
                       <SeedPhrase
-                        requester={requester}
                         accountCreationDetails={accountCreationDetails}
                         defaultSeedPhrase={seedPhrase}
                         onConfirm={(seedPhrase: string[]) => {
@@ -164,7 +163,6 @@ export const Setup: React.FC = () => {
                         pageTitle="Namada Keys Created"
                         pageSubtitle="Here are the accounts generated from your keys"
                         alias={accountCreationDetails.alias || ""}
-                        requester={requester}
                         mnemonic={seedPhrase || []}
                         password={accountCreationDetails.password || ""}
                         scanAccounts={false}
@@ -188,7 +186,6 @@ export const Setup: React.FC = () => {
                   element={
                     <LifecycleExecutionWrapper onLoad={goToStep(1)}>
                       <SeedPhraseImport
-                        requester={requester}
                         onConfirm={(seedPhrase: string[]) => {
                           setSeedPhrase(seedPhrase);
                           navigate(
@@ -230,7 +227,6 @@ export const Setup: React.FC = () => {
                         pageTitle="Namada Keys Imported"
                         pageSubtitle="Here are the accounts generated from your keys"
                         alias={accountCreationDetails.alias || ""}
-                        requester={requester}
                         mnemonic={seedPhrase || []}
                         password={accountCreationDetails.password || ""}
                         scanAccounts={false}

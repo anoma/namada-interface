@@ -16,7 +16,7 @@ import { TopLevelRoute } from "App/types";
 import { DeleteAccountMsg } from "background/keyring";
 import { DeleteAccountError } from "background/keyring/types";
 import { DeleteLedgerAccountMsg } from "background/ledger";
-import { ExtensionRequester } from "extension";
+import { useRequester } from "hooks/useRequester";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Ports } from "router";
 
@@ -28,7 +28,6 @@ enum Status {
 }
 
 export type Props = {
-  requester: ExtensionRequester;
   onComplete: () => void;
 };
 
@@ -36,17 +35,18 @@ export type DeleteAccountLocationState = {
   account?: DerivedAccount;
 };
 
-export const DeleteAccount: React.FC<Props> = ({ requester, onComplete }) => {
+export const DeleteAccount: React.FC<Props> = ({ onComplete }) => {
   // TODO: When state is not passed, query by accountId
   const { state }: { state: DeleteAccountLocationState } = useLocation();
   const { accountId = "" } = useParams();
 
-  const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<Status>(Status.Unsubmitted);
   const [loadingState, setLoadingState] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
+  const navigate = useNavigate();
+  const requester = useRequester();
   const accountType = state.account?.type;
 
   const shouldDisableSubmit =

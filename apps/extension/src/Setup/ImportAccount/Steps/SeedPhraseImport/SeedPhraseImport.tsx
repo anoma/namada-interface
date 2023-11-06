@@ -11,13 +11,12 @@ import {
 import { SeedPhraseList } from "Setup/Common";
 import { HeaderContainer } from "Setup/Setup.components";
 import { ValidateMnemonicMsg } from "background/keyring";
-import { ExtensionRequester } from "extension";
 import { Ports } from "router";
 import { Instruction, InstructionList } from "./SeedPhraseImport.components";
+import { useRequester } from "hooks/useRequester";
 
 type Props = {
   onConfirm: (seedPhraseAsArray: string[]) => void;
-  requester: ExtensionRequester;
 };
 
 const SHORT_PHRASE_COUNT = 12;
@@ -29,7 +28,8 @@ enum MnemonicTypes {
   TwentyFourWords = LONG_PHRASE_COUNT,
 }
 
-export const SeedPhraseImport: React.FC<Props> = ({ onConfirm, requester }) => {
+export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
+  const requester = useRequester();
   const [privateKey, setPrivateKey] = useState("");
   const [mnemonicType, setMnemonicType] = useState<MnemonicTypes>(
     MnemonicTypes.TwelveWords

@@ -1,17 +1,17 @@
+import React, { useEffect, useState } from "react";
+
 import { ActionButton, Heading, RadioGroup, Stack } from "@namada/components";
 import { copyToClipboard } from "@namada/utils";
 import { SeedPhraseInstructions, SeedPhraseList } from "Setup/Common";
 import { HeaderContainer } from "Setup/Setup.components";
 import { AccountDetails } from "Setup/types";
 import { GenerateMnemonicMsg } from "background/keyring";
-import { ExtensionRequester } from "extension";
-import React, { useEffect, useState } from "react";
 import { Ports } from "router";
 
 import { CopyToClipboard } from "./SeedPhrase.components";
+import { useRequester } from "hooks/useRequester";
 
 type Props = {
-  requester: ExtensionRequester;
   // go to next screen
   onConfirm: (seedPhraseAsArray: string[]) => void;
   // depending if first load this might or might not be available
@@ -21,11 +21,13 @@ type Props = {
 };
 
 const SeedPhrase: React.FC<Props> = (props) => {
-  const { requester, onConfirm, defaultSeedPhrase } = props;
+  const { onConfirm, defaultSeedPhrase } = props;
 
   const [seedPhrase, setSeedPhrase] = useState(defaultSeedPhrase || []);
   const [mnemonicLength, setMnemonicLength] = useState(12);
   const isSubmitButtonDisabled = seedPhrase.length === 0;
+
+  const requester = useRequester();
 
   useEffect(() => {
     const setPhrase = async (): Promise<void> => {

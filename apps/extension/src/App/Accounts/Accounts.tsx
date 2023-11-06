@@ -7,11 +7,9 @@ import {
   ThemedScrollbarContainer,
 } from "./Accounts.components";
 import { AccountListing } from "App/Accounts";
-import { ExtensionRequester } from "extension";
 
 type Props = {
   accounts: DerivedAccount[];
-  requester: ExtensionRequester;
 };
 
 const Accounts: React.FC<Props> = ({ accounts }) => {
