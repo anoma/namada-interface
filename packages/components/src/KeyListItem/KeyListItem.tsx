@@ -29,13 +29,17 @@ export const KeyListItem = ({
         align="right"
         items={[
           {
+            label: "Set default account",
+            onClick: !isMainKey ? onSelectAccount : undefined,
+          },
+          {
             label: "View Accounts",
             onClick: onViewAccount,
           },
-          {
-            label: "Change key name",
-            onClick: onRename,
-          },
+          // {
+          //   label: "Change key name",
+          //   onClick: onRename,
+          // },
           {
             label: "Delete keys",
             onClick: onDelete,
