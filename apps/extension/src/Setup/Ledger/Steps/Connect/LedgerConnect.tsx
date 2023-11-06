@@ -4,8 +4,6 @@ import { useNavigate } from "react-router-dom";
 import {
   ActionButton,
   Alert,
-  Button,
-  ButtonVariant,
   Heading,
   Image,
   ImageName,
@@ -15,22 +13,19 @@ import {
 import { LedgerError } from "@namada/ledger-namada";
 
 import { initLedgerHIDTransport, Ledger as LedgerApp } from "background/ledger";
-import { Password } from "Setup/Common";
-import { TopLevelRoute } from "Setup/types";
+import { LedgerConnectRoute, TopLevelRoute } from "Setup/types";
 import {
+  ButtonContainer,
   LedgerIcon,
   LedgerItemContainer,
   LedgerListItem,
-} from "./Ledger.components";
+} from "./LedgerConnect.components";
+import { formatRouterPath } from "@namada/utils";
 
-const Ledger: React.FC = () => {
+export const LedgerConnect: React.FC = () => {
   const navigate = useNavigate();
-
-  const [alias, setAlias] = useState("");
   const [error, setError] = useState<string>();
-
-  const [password, setPassword] = useState<string | null>("");
-  const [keysName, setKeysName] = useState("");
+  const [ledger, setLedger] = useState<LedgerApp>();
 
   const queryLedger = async (ledger: LedgerApp): Promise<void> => {
     try {
@@ -44,7 +39,8 @@ const Ledger: React.FC = () => {
 
       const { address, publicKey } = await ledger.getAddressAndPublicKey();
       navigate(
-        `/${TopLevelRoute.LedgerConfirmation}/${alias}/${address}/${publicKey}`
+        formatRouterPath([TopLevelRoute.Ledger, LedgerConnectRoute.Import]),
+        { state: { address, publicKey } }
       );
     } catch (e) {
       setError(`${e}`);
@@ -53,22 +49,25 @@ const Ledger: React.FC = () => {
     }
   };
 
-  /**
-   * Connect using default USB transport
-   */
-  const handleConnectUSB = async (): Promise<void> => {
+  const connectUSB = async (): Promise<void> => {
     try {
       const ledger = await LedgerApp.init();
-      queryLedger(ledger);
+      setLedger(ledger);
     } catch (e) {
       setError(`${e}`);
+    }
+  };
+
+  const connectNamadaApp = async (): Promise<void> => {
+    if (ledger) {
+      queryLedger(ledger);
     }
   };
 
   /**
    * Connect using HID transport
    */
-  const handleConnectHID = async (): Promise<void> => {
+  const _handleConnectHID = async (): Promise<void> => {
     const transport = await initLedgerHIDTransport();
     try {
       const ledger = await LedgerApp.init(transport);
@@ -76,11 +75,6 @@ const Ledger: React.FC = () => {
     } catch (e) {
       setError(`${e}`);
     }
-  };
-
-  const importKeys = (e: React.FormEvent): void => {
-    e.preventDefault();
-    // TODO: import keys
   };
 
   return (
@@ -92,7 +86,7 @@ const Ledger: React.FC = () => {
         {error && <Alert type="error">{error}</Alert>}
 
         <Stack as="ul" gap={4}>
-          <LedgerListItem active={true} complete={false}>
+          <LedgerListItem active={!ledger} complete={!!ledger}>
             <LedgerIcon>
               <Image
                 styleOverrides={{ width: "100%" }}
@@ -104,10 +98,19 @@ const Ledger: React.FC = () => {
                 Step 1
               </Heading>
               <Text>Connect and unlock your ledger Hardware Wallet</Text>
+              <ButtonContainer>
+                <ActionButton
+                  disabled={!!ledger}
+                  size="xs"
+                  onClick={() => connectUSB()}
+                >
+                  Next
+                </ActionButton>
+              </ButtonContainer>
             </LedgerItemContainer>
           </LedgerListItem>
 
-          <LedgerListItem active={false} complete={true}>
+          <LedgerListItem active={!!ledger} complete={false}>
             <LedgerIcon>
               <Image
                 styleOverrides={{ width: "100%" }}
@@ -119,45 +122,19 @@ const Ledger: React.FC = () => {
                 Step 2
               </Heading>
               <Text>Open the Namada App on your ledger device</Text>
+              <ButtonContainer>
+                <ActionButton
+                  disabled={!ledger}
+                  size="xs"
+                  onClick={() => connectNamadaApp()}
+                >
+                  Next
+                </ActionButton>
+              </ButtonContainer>
             </LedgerItemContainer>
           </LedgerListItem>
         </Stack>
-        <ActionButton disabled={true}>Next</ActionButton>
-
-        {/* Old buttons - need migration */}
-        <Button
-          onClick={() => handleConnectUSB()}
-          variant={ButtonVariant.Contained}
-          disabled={alias === ""}
-        >
-          Connect USB
-        </Button>
-
-        <Button
-          onClick={() => handleConnectHID()}
-          variant={ButtonVariant.Contained}
-          disabled={alias === ""}
-        >
-          Connect HID
-        </Button>
-      </Stack>
-
-      {/* TODO: This should appear after the previous flow is complete: */}
-      <Stack gap={12}>
-        <Heading level="h1" size="3xl">
-          Import your Keys from Ledger HW
-        </Heading>
-        <Stack as="form" gap={6} onSubmit={importKeys}>
-          <Password
-            onChangeKeysName={setKeysName}
-            onValidPassword={setPassword}
-            keysName={keysName}
-          />
-        </Stack>
-        <ActionButton disabled={true}>Next</ActionButton>
       </Stack>
     </>
   );
 };
-
-export default Ledger;

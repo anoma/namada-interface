@@ -14,7 +14,7 @@ type ButtonProps = {
   forwardedAs: keyof JSX.IntrinsicElements;
 } & React.ComponentPropsWithoutRef<"button">;
 
-export type ButtonSize = keyof Pick<FontSize, "xl" | "base" | "sm">;
+export type ButtonSize = keyof Pick<FontSize, "xl" | "base" | "sm" | "xs">;
 
 const Button = ({
   children,
@@ -39,9 +39,9 @@ export const ButtonContainer = styled(Button)<{
   font-size: ${(props) => fontSize(props.size)(props)};
   font-weight: 500;
   justify-content: center;
-  min-height: 2.8em;
+  min-height: 2em;
   user-select: none;
-  padding: ${spacement(3)} ${spacement(6)};
+  padding: 0.6em ${spacement(6)};
   position: relative;
   text-align: center;
   width: 100%;

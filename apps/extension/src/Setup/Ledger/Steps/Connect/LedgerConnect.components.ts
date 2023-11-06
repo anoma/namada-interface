@@ -1,6 +1,11 @@
 import styled from "styled-components";
 import { borderRadius, color, spacement } from "@namada/utils";
 
+export const ButtonContainer = styled.div`
+  max-width: ${spacement(20)};
+  margin-top: ${spacement(1)};
+`;
+
 export const LedgerListItem = styled.li<{
   active: boolean;
   complete: boolean;

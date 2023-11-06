@@ -13,6 +13,7 @@ import { formatRouterPath } from "@namada/utils";
 import {
   AccountCreationRoute,
   AccountImportRoute,
+  LedgerConnectRoute,
   TopLevelRoute,
 } from "../types";
 
@@ -60,7 +61,16 @@ const Start: React.FC = () => {
           Import existing keys
         </ActionButton>
 
-        <ActionButton onClick={() => navigate(TopLevelRoute.Ledger)}>
+        <ActionButton
+          onClick={() =>
+            navigate(
+              formatRouterPath([
+                TopLevelRoute.Ledger,
+                LedgerConnectRoute.Connect,
+              ])
+            )
+          }
+        >
           Connect to Ledger Hardware Wallet
         </ActionButton>
       </Stack>

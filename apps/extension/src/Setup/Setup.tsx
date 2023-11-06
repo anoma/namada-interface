@@ -15,7 +15,7 @@ import { useRequester } from "hooks/useRequester";
 import { SeedPhrase, SeedPhraseConfirmation } from "./AccountCreation/Steps";
 import { Completion, ContainerHeader } from "./Common";
 import { SeedPhraseImport } from "./ImportAccount";
-import { Ledger } from "./Ledger";
+import { LedgerConnect, LedgerImport } from "./Ledger";
 import { MotionContainer } from "./Setup.components";
 import { Start } from "./Start";
 
@@ -27,6 +27,7 @@ import {
   AccountCreationRoute,
   AccountDetails,
   AccountImportRoute,
+  LedgerConnectRoute,
   TopLevelRoute,
 } from "./types";
 
@@ -240,13 +241,29 @@ export const Setup: React.FC = () => {
               </Route>
 
               {/* Connect to Ledger */}
-              <Route path={`/${TopLevelRoute.Ledger}`} element={<Ledger />} />
-
-              {/* Ledger Connected */}
               <Route
-                path={`/${TopLevelRoute.LedgerConfirmation}/:alias/:address/:publicKey`}
-                element={<LedgerConfirmation />}
-              />
+                path={`/${TopLevelRoute.Ledger}`}
+                element={
+                  <LifecycleExecutionWrapper onLoad={() => setTotalSteps(4)}>
+                    <Outlet />
+                  </LifecycleExecutionWrapper>
+                }
+              >
+                <Route
+                  path={`${LedgerConnectRoute.Connect}`}
+                  element={<LedgerConnect />}
+                />
+                <Route
+                  path={`${LedgerConnectRoute.Import}`}
+                  element={<LedgerImport />}
+                />
+
+                <Route
+                  path={`/${TopLevelRoute.LedgerConfirmation}/:alias/:address/:publicKey`}
+                  element={<LedgerConfirmation />}
+                />
+              </Route>
+              {/* Ledger Connected */}
             </Routes>
           </AnimatedTransition>
         </AnimatePresence>
