@@ -11,7 +11,6 @@ import {
   Text,
 } from "@namada/components";
 import { LedgerError } from "@namada/ledger-namada";
-
 import { formatRouterPath } from "@namada/utils";
 import { initLedgerHIDTransport, Ledger as LedgerApp } from "background/ledger";
 import { LedgerConnectRoute, TopLevelRoute } from "Setup/types";
@@ -43,7 +42,7 @@ export const LedgerConnect: React.FC = () => {
         { state: { address, publicKey } }
       );
     } catch (e) {
-      setError(`${e}`);
+      handleError(e);
     } finally {
       await ledger.closeTransport();
     }
@@ -54,7 +53,7 @@ export const LedgerConnect: React.FC = () => {
       const ledger = await LedgerApp.init();
       setLedger(ledger);
     } catch (e) {
-      setError(`${e}`);
+      handleError(e);
     }
   };
 
@@ -62,6 +61,21 @@ export const LedgerConnect: React.FC = () => {
     if (ledger) {
       queryLedger(ledger);
     }
+  };
+
+  const resetOnError = (): void => {
+    setLedger(undefined);
+  };
+
+  const handleError = (e: unknown): void => {
+    resetOnError();
+
+    if (e instanceof Error) {
+      setError(e.message);
+      return;
+    }
+
+    setError(`${e}`);
   };
 
   /**
@@ -83,9 +97,13 @@ export const LedgerConnect: React.FC = () => {
         <Heading level="h1" size="3xl">
           Connect Your Ledger HW
         </Heading>
-        {error && <Alert type="error">{error}</Alert>}
 
-        <Stack as="ul" gap={4}>
+        <Stack as="ol" gap={4}>
+          {error && (
+            <Alert title="Error" type="error">
+              {error}
+            </Alert>
+          )}
           <LedgerListItem active={!ledger} complete={!!ledger}>
             <LedgerIcon>
               <Image
