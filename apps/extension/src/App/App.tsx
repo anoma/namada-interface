@@ -21,14 +21,12 @@ import {
   QueryAccountsMsg,
 } from "provider/messages";
 import { Ports } from "router";
-import { Accounts, AddAccount, ViewAccount } from "./Accounts";
-import { DeleteAccount } from "./Accounts";
+import { AddAccount, DeleteAccount, ViewAccount } from "./Accounts";
 import { ParentAccounts } from "./Accounts/ParentAccounts";
 import { ContentContainer } from "./App.components";
 import { AppHeader } from "./Common/AppHeader";
 import { ConnectedSites } from "./ConnectedSites";
 import { LockWrapper } from "./LockWrapper";
-import { Login } from "./Login";
 import { Setup } from "./Setup";
 import { AccountManagementRoute, TopLevelRoute } from "./types";
 
@@ -62,6 +60,7 @@ export const App: React.FC = () => {
   const requester = useRequester();
 
   const fetchAccounts = async (): Promise<void> => {
+    setLoadingStatus("Loading accounts...");
     setStatus(Status.Pending);
     try {
       const accounts = await requester.sendMessage(
@@ -75,10 +74,12 @@ export const App: React.FC = () => {
       setStatus(Status.Failed);
     } finally {
       setStatus(Status.Completed);
+      setLoadingStatus("");
     }
   };
 
   const fetchParentAccountId = async (): Promise<void> => {
+    setLoadingStatus("Loading parent...");
     setStatus(Status.Pending);
     try {
       const parent = await requester.sendMessage(
@@ -95,6 +96,7 @@ export const App: React.FC = () => {
       setStatus(Status.Failed);
     } finally {
       setStatus(Status.Completed);
+      setLoadingStatus("");
     }
   };
 
@@ -198,16 +200,24 @@ export const App: React.FC = () => {
         size="popup"
         header={<AppHeader returnButton={!isStartPage()} />}
       >
-        {/* <HeadingLoader
-          className={maspStatus.status === Status.Pending ? "is-loading" : ""}
-          title={maspStatus.info}
-        />
-      */}
         <Loading status={loadingStatus} visible={!!loadingStatus} />
         <ContentContainer>
           {isDurable === false && (
             <Alert type="warning">{STORE_DURABILITY_INFO}</Alert>
           )}
+
+          {maspStatus.status === Status.Completed && maspStatus.info && (
+            <Alert title="MASP Status" type="warning">
+              {maspStatus.info}
+            </Alert>
+          )}
+
+          {error && (
+            <Alert title="Error" type="error">
+              {error}
+            </Alert>
+          )}
+
           <Routes>
             <Route path={TopLevelRoute.Setup} element={<Setup />} />
             <Route

@@ -12,6 +12,7 @@ import {
 } from "@namada/components";
 import { LedgerError } from "@namada/ledger-namada";
 
+import { formatRouterPath } from "@namada/utils";
 import { initLedgerHIDTransport, Ledger as LedgerApp } from "background/ledger";
 import { LedgerConnectRoute, TopLevelRoute } from "Setup/types";
 import {
@@ -20,7 +21,6 @@ import {
   LedgerItemContainer,
   LedgerListItem,
 } from "./LedgerConnect.components";
-import { formatRouterPath } from "@namada/utils";
 
 export const LedgerConnect: React.FC = () => {
   const navigate = useNavigate();

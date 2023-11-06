@@ -77,7 +77,7 @@ const Password = ({
       />
 
       <Input
-        label="Create Extension Password"
+        label="Create Key Password"
         variant={InputVariants.Password}
         value={password}
         error={zxcvbnFeedback.warning}
@@ -98,7 +98,7 @@ const Password = ({
       />
 
       <Input
-        label="Confirm Extension Password"
+        label="Confirm Key Password"
         placeholder="At least 8 characters"
         variant={InputVariants.Password}
         value={passwordMatch}

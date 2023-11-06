@@ -126,4 +126,5 @@ export const ContentContainer = styled.div`
   min-width: 360px;
   display: flex;
   flex-direction: column;
+  gap: ${spacement(6)};
 `;
