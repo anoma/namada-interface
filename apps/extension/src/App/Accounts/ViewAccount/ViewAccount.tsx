@@ -7,6 +7,7 @@ import {
   ViewKeys,
 } from "@namada/components";
 import { AccountType, DerivedAccount } from "@namada/types";
+import { ParentAccount } from "background/keyring";
 import { ExtensionRequester } from "extension";
 import { QueryAccountsMsg } from "provider";
 import { useEffect, useState } from "react";
@@ -17,6 +18,11 @@ type ViewAccountProps = {
   requester: ExtensionRequester;
 };
 
+type ViewAccountUrlParams = {
+  accountId: string;
+  type?: ParentAccount;
+};
+
 export const ViewAccount = ({ requester }: ViewAccountProps): JSX.Element => {
   const [loadingStatus, setLoadingStatus] = useState("");
   const [accounts, setAccounts] = useState<DerivedAccount[]>([]);
@@ -25,7 +31,7 @@ export const ViewAccount = ({ requester }: ViewAccountProps): JSX.Element => {
   const [shieldedAddress, setShieldedAddress] = useState("");
 
   const [error, setError] = useState("");
-  const { accountId } = useParams();
+  const { accountId, type } = useParams<ViewAccountUrlParams>();
   const navigate = useNavigate();
 
   const fetchAccounts = async (accountId: string): Promise<void> => {
@@ -33,7 +39,7 @@ export const ViewAccount = ({ requester }: ViewAccountProps): JSX.Element => {
     try {
       const accounts = await requester.sendMessage(
         Ports.Background,
-        new QueryAccountsMsg({ accountId })
+        new QueryAccountsMsg({ accountId, type })
       );
       setAccounts(accounts);
 

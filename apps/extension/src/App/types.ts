@@ -13,7 +13,7 @@ export enum TopLevelRoute {
 
 export enum AccountManagementRoute {
   ParentAccounts = "parent-accounts",
-  ViewAccount = "view/:accountId",
+  ViewAccount = "view/:accountId/:type",
   DeleteAccount = "delete/:accountId",
   RenameAccount = "rename/:accountId",
   AddAccount = "add",

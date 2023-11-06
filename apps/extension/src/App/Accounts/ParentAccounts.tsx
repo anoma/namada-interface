@@ -88,7 +88,10 @@ export const ParentAccounts: React.FC<{
     navigate(
       formatRouterPath([
         TopLevelRoute.Accounts,
-        AccountManagementRoute.ViewAccount.replace(":accountId", account.id),
+        AccountManagementRoute.ViewAccount.replace(
+          ":accountId",
+          account.id
+        ).replace(":type", account.type),
       ])
     );
   };
