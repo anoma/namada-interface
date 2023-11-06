@@ -31,9 +31,6 @@ const SeedPhrase: React.FC<Props> = (props) => {
   const isSubmitButtonDisabled = seedPhrase.length === 0;
 
   useEffect(() => {
-    // if a mnemonic was passed in we do not generate it again
-    if (defaultSeedPhrase?.length && defaultSeedPhrase?.length > 0) return;
-
     const setPhrase = async (): Promise<void> => {
       const words = await requester.sendMessage<GenerateMnemonicMsg>(
         Ports.Background,
