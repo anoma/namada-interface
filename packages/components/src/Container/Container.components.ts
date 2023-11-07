@@ -8,7 +8,7 @@ export const Page = styled.div<{ isPopup: boolean }>`
   display: flex;
   justify-content: center;
   margin: 0;
-  min-height: 100vh;
+  min-height: ${(props) => (props.isPopup ? "320px" : "100vh")};
   padding-bottom: ${(props) => (props.isPopup ? 0 : spacement(8)(props))};
   padding-top: ${(props) => (props.isPopup ? 0 : spacement(8)(props))};
   width: ${(props) => (props.isPopup ? "420px" : "auto")};
