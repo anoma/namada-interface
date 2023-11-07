@@ -49,7 +49,6 @@ export const LedgerImport = (): JSX.Element => {
             keysName,
             locationState.address,
             locationState.publicKey,
-            password || "",
             {
               account: 0,
               change: 0,

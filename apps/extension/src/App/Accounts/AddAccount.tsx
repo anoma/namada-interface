@@ -257,14 +257,7 @@ const AddAccount: React.FC<Props> = ({
       // TODO: provide a password for ledger
       return await requester.sendMessage(
         Ports.Background,
-        new AddLedgerAccountMsg(
-          alias,
-          address,
-          parentId,
-          publicKey,
-          "",
-          bip44Path
-        )
+        new AddLedgerAccountMsg(alias, address, parentId, publicKey, bip44Path)
       );
     } catch (e) {
       setFormError(`${e}`);
