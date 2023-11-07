@@ -86,7 +86,7 @@ const init = new Promise<void>(async (resolve) => {
     PARENT_ACCOUNT_ID_KEY
   );
 
-  if (sdkData && activeAccount) {
+  if (sdkData && Object.keys(sdkData).length > 0 && activeAccount) {
     const data = new TextEncoder().encode(sdkData[activeAccount.id]);
     sdk.decode(data);
   }
