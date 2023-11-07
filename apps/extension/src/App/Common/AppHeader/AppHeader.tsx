@@ -25,12 +25,6 @@ export const AppHeader = ({ returnButton }: AppHeaderProps): JSX.Element => {
       )}
       <LogoContainer>
         <Image imageName={ImageName.Logo} />
-        {/* <Info
-      title={isDurable ? "" : STORE_DURABILITY_INFO}
-      className={isDurable === false ? "visible" : ""}
-    >
-      <Icon iconName={IconName.Info} />
-    </Info> */}
       </LogoContainer>
     </HeaderContainer>
   );

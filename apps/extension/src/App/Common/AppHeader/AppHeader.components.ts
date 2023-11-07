@@ -10,7 +10,7 @@ export const HeaderContainer = styled.header``;
 
 export const ReturnIcon = styled.span`
   align-items: center;
-  color: ${color("utility1", "main80")};
+  color: ${color("utility1", "main")};
   cursor: pointer;
   display: flex;
   height: 100%;
