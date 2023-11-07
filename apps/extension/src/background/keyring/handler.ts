@@ -135,7 +135,7 @@ const handleCheckPasswordMsg: (
   service: KeyRingService
 ) => InternalHandler<CheckPasswordMsg> = (service) => {
   return async (_, msg) => {
-    return await service.checkPassword(msg.password);
+    return await service.checkPassword(msg.password, msg.accountId);
   };
 };
 

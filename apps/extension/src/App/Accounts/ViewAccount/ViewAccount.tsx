@@ -7,6 +7,9 @@ import {
   ViewKeys,
 } from "@namada/components";
 import { AccountType, DerivedAccount } from "@namada/types";
+import { formatRouterPath } from "@namada/utils";
+import { LockKey } from "App/Common/LockKey";
+import { AccountManagementRoute, TopLevelRoute } from "App/types";
 import { ParentAccount } from "background/keyring";
 import { useRequester } from "hooks/useRequester";
 import { QueryAccountsMsg } from "provider";
@@ -20,14 +23,15 @@ type ViewAccountUrlParams = {
 };
 
 export const ViewAccount = (): JSX.Element => {
+  const { accountId = "", type } = useParams<ViewAccountUrlParams>();
   const [loadingStatus, setLoadingStatus] = useState("");
   const [accounts, setAccounts] = useState<DerivedAccount[]>([]);
   const [parentAccount, setParentAccount] = useState<DerivedAccount>();
   const [transparentAddress, setTransparentAddress] = useState("");
   const [shieldedAddress, setShieldedAddress] = useState("");
   const [error, setError] = useState("");
+  const [isUnlocked, setUnlocked] = useState(type === AccountType.Ledger);
 
-  const { accountId, type } = useParams<ViewAccountUrlParams>();
   const navigate = useNavigate();
   const requester = useRequester();
 
@@ -64,11 +68,24 @@ export const ViewAccount = (): JSX.Element => {
   };
 
   useEffect(() => {
-    accountId && fetchAccounts(accountId);
-  }, [accountId]);
+    accountId && isUnlocked && fetchAccounts(accountId);
+  }, [accountId, isUnlocked]);
+
+  if (!accountId) {
+    navigate(
+      formatRouterPath([
+        TopLevelRoute.Accounts,
+        AccountManagementRoute.ViewAccounts,
+      ])
+    );
+  }
 
   return (
-    <>
+    <LockKey
+      accountId={accountId}
+      unlocked={isUnlocked}
+      onUnlock={() => setUnlocked(true)}
+    >
       <Loading
         status={loadingStatus}
         visible={!!loadingStatus}
@@ -92,6 +109,6 @@ export const ViewAccount = (): JSX.Element => {
           <LinkButton onClick={() => navigate(-1)}>Back</LinkButton>
         </Stack>
       )}
-    </>
+    </LockKey>
   );
 };

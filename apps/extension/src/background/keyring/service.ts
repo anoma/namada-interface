@@ -103,8 +103,8 @@ export class KeyRingService {
     throw new Error("Connect: Invalid chainId");
   }
 
-  async checkPassword(password: string): Promise<boolean> {
-    return await this._keyRing.checkPassword(password);
+  async checkPassword(password: string, accountId?: string): Promise<boolean> {
+    return await this._keyRing.checkPassword(password, accountId);
   }
 
   async resetPassword(
