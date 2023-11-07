@@ -15,7 +15,6 @@ import { Result, makeBip44Path } from "@namada/utils";
 
 import {
   AccountStore,
-  Crypto,
   DeleteAccountError,
   KeyRingService,
   SDK_KEY,
@@ -104,7 +103,11 @@ export class LedgerService {
         fromBase64(bytes),
         sig
       );
-      await this.sdk.process_tx(signedTxBytes, fromBase64(txMsg));
+      await this.sdk.process_tx(
+        signedTxBytes,
+        fromBase64(txMsg),
+        new Uint8Array()
+      );
     } catch (e) {
       console.warn(e);
     }
@@ -140,7 +143,11 @@ export class LedgerService {
         fromBase64(bytes),
         sig
       );
-      await this.sdk.process_tx(signedTxBytes, fromBase64(txMsg));
+      await this.sdk.process_tx(
+        signedTxBytes,
+        fromBase64(txMsg),
+        new Uint8Array()
+      );
 
       // Clear pending tx if successful
       await this.txStore.set(msgId, null);
@@ -208,7 +215,6 @@ export class LedgerService {
     alias: string,
     address: string,
     publicKey: string,
-    password: string,
     bip44Path: Bip44Path,
     parentId?: string
   ): Promise<DerivedAccount> {
@@ -221,8 +227,6 @@ export class LedgerService {
     // Generate a UUID v5 unique id from alias & path
     const id = generateId(UUID_NAMESPACE, alias, address);
 
-    const crypto = new Crypto();
-
     const account = {
       id,
       alias,
@@ -234,10 +238,7 @@ export class LedgerService {
       path: bip44Path,
       type: AccountType.Ledger,
     };
-
-    await this._ledgerStore.append(
-      crypto.encrypt({ ...account, password, text: password })
-    );
+    await this._ledgerStore.append(account);
 
     // Prepare SDK store
     this.sdk.clear_storage();
