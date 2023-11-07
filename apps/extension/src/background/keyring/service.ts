@@ -172,7 +172,7 @@ export class KeyRingService {
       return getAccountValuesFromStore(accounts);
     }
 
-    throw new Error(`No accounts found for ${id} ${type}`);
+    return [];
   }
 
   async queryAccounts(): Promise<DerivedAccount[]> {
