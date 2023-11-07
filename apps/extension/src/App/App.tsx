@@ -3,6 +3,7 @@ import {
   Outlet,
   Route,
   Routes,
+  matchPath,
   useLocation,
   useNavigate,
 } from "react-router-dom";
@@ -148,7 +149,7 @@ export const App: React.FC = () => {
 
   const isStartPage = (): boolean => {
     const startPage = getStartPage();
-    return !!location.pathname.match(startPage);
+    return !!matchPath({ path: startPage }, location.pathname);
   };
 
   const onDeleteKey = async (): Promise<void> => {
