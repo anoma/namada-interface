@@ -8,7 +8,6 @@ import {
 } from "@namada/components";
 import { AccountType, DerivedAccount } from "@namada/types";
 import { formatRouterPath } from "@namada/utils";
-import { LockKey } from "App/Common/LockKey";
 import { AccountManagementRoute, TopLevelRoute } from "App/types";
 import { ParentAccount } from "background/keyring";
 import { useRequester } from "hooks/useRequester";
