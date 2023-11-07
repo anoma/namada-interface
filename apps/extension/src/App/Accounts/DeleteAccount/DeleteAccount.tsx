@@ -117,15 +117,13 @@ export const DeleteAccount: React.FC<Props> = ({ onComplete }) => {
           After deletion, you will be required to import your seed phrase to
           restore your access to it
         </Text>
-        {accountType !== AccountType.Ledger && (
-          <Input
-            label="Password"
-            variant={InputVariants.Password}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            error={errorMessage}
-          />
-        )}
+        <Input
+          label="Password"
+          variant={InputVariants.Password}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          error={errorMessage}
+        />
         <ActionButton disabled={shouldDisableSubmit}>
           Delete Account
         </ActionButton>

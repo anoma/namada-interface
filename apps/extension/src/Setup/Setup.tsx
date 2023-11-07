@@ -11,7 +11,6 @@ import { ThemeProvider } from "styled-components";
 import { Container, LifecycleExecutionWrapper } from "@namada/components";
 import { formatRouterPath, getTheme } from "@namada/utils";
 import { AnimatePresence } from "framer-motion";
-import { useRequester } from "hooks/useRequester";
 import { SeedPhrase, SeedPhraseConfirmation } from "./AccountCreation/Steps";
 import { Completion, ContainerHeader } from "./Common";
 import { SeedPhraseImport } from "./ImportAccount";

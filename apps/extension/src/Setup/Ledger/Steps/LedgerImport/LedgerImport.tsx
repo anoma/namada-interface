@@ -38,7 +38,7 @@ export const LedgerImport = (): JSX.Element => {
     }
   }, [locationState]);
 
-  const handleSubmitClick = useCallback(
+  const onSubmit = useCallback(
     async (e: React.FormEvent): Promise<void> => {
       try {
         e.preventDefault();
@@ -49,6 +49,7 @@ export const LedgerImport = (): JSX.Element => {
             keysName,
             locationState.address,
             locationState.publicKey,
+            password || "",
             {
               account: 0,
               change: 0,
@@ -81,7 +82,7 @@ export const LedgerImport = (): JSX.Element => {
           Import your Keys from Ledger HW
         </Heading>
         {error && <Alert type="error">{error}</Alert>}
-        <Stack as="form" gap={6} onSubmit={handleSubmitClick}>
+        <Stack as="form" gap={6} onSubmit={onSubmit}>
           <Password
             onChangeKeysName={setKeysName}
             onValidPassword={setPassword}

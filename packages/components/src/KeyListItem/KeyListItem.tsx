@@ -15,7 +15,6 @@ export const KeyListItem = ({
   as = "div",
   alias,
   isMainKey,
-  onRename,
   onDelete,
   onViewAccount,
   onSelectAccount,

@@ -15,6 +15,7 @@ import { Result, makeBip44Path } from "@namada/utils";
 
 import {
   AccountStore,
+  Crypto,
   DeleteAccountError,
   KeyRingService,
   SDK_KEY,
@@ -92,7 +93,7 @@ export class LedgerService {
     const { signature } = signatures;
 
     if (!signature) {
-      throw new Error("Signature not provided")
+      throw new Error("Signature not provided");
     }
 
     try {
@@ -101,12 +102,9 @@ export class LedgerService {
 
       const signedTxBytes = await this.sdk.append_signature(
         fromBase64(bytes),
-        sig,
+        sig
       );
-      await this.sdk.process_tx(
-        signedTxBytes,
-        fromBase64(txMsg)
-      );
+      await this.sdk.process_tx(signedTxBytes, fromBase64(txMsg));
     } catch (e) {
       console.warn(e);
     }
@@ -129,7 +127,7 @@ export class LedgerService {
     const { signature } = signatures;
 
     if (!signature) {
-      throw new Error("Signature not provided!")
+      throw new Error("Signature not provided!");
     }
 
     // Serialize signatures
@@ -140,12 +138,9 @@ export class LedgerService {
     try {
       const signedTxBytes = await this.sdk.append_signature(
         fromBase64(bytes),
-        sig,
+        sig
       );
-      await this.sdk.process_tx(
-        signedTxBytes,
-        fromBase64(txMsg)
-      );
+      await this.sdk.process_tx(signedTxBytes, fromBase64(txMsg));
 
       // Clear pending tx if successful
       await this.txStore.set(msgId, null);
@@ -213,6 +208,7 @@ export class LedgerService {
     alias: string,
     address: string,
     publicKey: string,
+    password: string,
     bip44Path: Bip44Path,
     parentId?: string
   ): Promise<DerivedAccount> {
@@ -225,6 +221,8 @@ export class LedgerService {
     // Generate a UUID v5 unique id from alias & path
     const id = generateId(UUID_NAMESPACE, alias, address);
 
+    const crypto = new Crypto();
+
     const account = {
       id,
       alias,
@@ -236,7 +234,10 @@ export class LedgerService {
       path: bip44Path,
       type: AccountType.Ledger,
     };
-    await this._ledgerStore.append(account);
+
+    await this._ledgerStore.append(
+      crypto.encrypt({ ...account, password, text: password })
+    );
 
     // Prepare SDK store
     this.sdk.clear_storage();

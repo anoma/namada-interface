@@ -57,8 +57,14 @@ const handleAddLedgerParentAccountMsg: (
   service: LedgerService
 ) => InternalHandler<AddLedgerParentAccountMsg> = (service) => {
   return async (_, msg) => {
-    const { alias, address, publicKey, bip44Path } = msg;
-    return await service.addAccount(alias, address, publicKey, bip44Path);
+    const { alias, address, publicKey, password, bip44Path } = msg;
+    return await service.addAccount(
+      alias,
+      address,
+      publicKey,
+      password,
+      bip44Path
+    );
   };
 };
 
@@ -66,11 +72,12 @@ const handleAddLedgerAccountMsg: (
   service: LedgerService
 ) => InternalHandler<AddLedgerAccountMsg> = (service) => {
   return async (_, msg) => {
-    const { alias, address, parentId, publicKey, bip44Path } = msg;
+    const { alias, address, parentId, publicKey, password, bip44Path } = msg;
     return await service.addAccount(
       alias,
       address,
       publicKey,
+      password,
       bip44Path,
       parentId
     );

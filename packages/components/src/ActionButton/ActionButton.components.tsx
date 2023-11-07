@@ -1,7 +1,4 @@
-import React from "react";
-import styled from "styled-components";
 import {
-  Colors,
   FontSize,
   ThemeColor,
   borderRadius,
@@ -9,6 +6,8 @@ import {
   fontSize,
   spacement,
 } from "@namada/utils";
+import React from "react";
+import styled from "styled-components";
 
 type ButtonProps = {
   forwardedAs: keyof JSX.IntrinsicElements;

@@ -30,7 +30,7 @@ export const ViewAccount = (): JSX.Element => {
   const [transparentAddress, setTransparentAddress] = useState("");
   const [shieldedAddress, setShieldedAddress] = useState("");
   const [error, setError] = useState("");
-  const [isUnlocked, setUnlocked] = useState(type === AccountType.Ledger);
+  const [isUnlocked, setUnlocked] = useState(false);
 
   const navigate = useNavigate();
   const requester = useRequester();

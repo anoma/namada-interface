@@ -178,7 +178,7 @@ export class KeyRingService {
   async queryAccounts(): Promise<DerivedAccount[]> {
     const { id, type } = (await this.getActiveAccount()) || {};
     if (!id || !type) {
-      throw new Error("No active account has been found");
+      return [];
     }
 
     return await this.queryAccountById(id, type);

@@ -28,6 +28,7 @@ export class AddLedgerParentAccountMsg extends Message<DerivedAccount> {
     public readonly alias: string,
     public readonly address: string,
     public readonly publicKey: string,
+    public readonly password: string,
     public readonly bip44Path: Bip44Path
   ) {
     super();
@@ -49,6 +50,10 @@ export class AddLedgerParentAccountMsg extends Message<DerivedAccount> {
     if (!this.bip44Path) {
       throw new Error("BIP44 Path was not provided!");
     }
+
+    if (!this.password) {
+      throw new Error("A password must be provided");
+    }
   }
 
   route(): string {
@@ -69,6 +74,7 @@ export class AddLedgerAccountMsg extends Message<DerivedAccount> {
     public readonly alias: string,
     public readonly address: string,
     public readonly parentId: string,
+    public readonly password: string,
     public readonly publicKey: string,
     public readonly bip44Path: Bip44Path
   ) {
