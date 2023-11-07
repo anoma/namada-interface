@@ -17,7 +17,7 @@ import {
   TopLevelRoute,
 } from "../types";
 
-import { HeaderContainer, LogoContainer } from "./start.components";
+import { HeaderContainer, LogoContainer } from "./Start.components";
 
 const Start: React.FC = () => {
   const navigate = useNavigate();
