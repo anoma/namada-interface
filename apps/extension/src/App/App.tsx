@@ -61,7 +61,7 @@ export const App: React.FC = () => {
     info: string;
   }>({ status: Status.Completed, info: "" });
 
-  const fetchAccounts = async (): Promise<void> => {
+  const fetchAccounts = async (): Promise<DerivedAccount[]> => {
     setLoadingStatus("Loading accounts...");
     setStatus(Status.Pending);
     try {
@@ -70,6 +70,7 @@ export const App: React.FC = () => {
         new QueryAccountsMsg()
       );
       setAccounts(accounts);
+      return accounts;
     } catch (e) {
       console.error(e);
       setError(`An error occurred while loading extension: ${e}`);
@@ -78,6 +79,7 @@ export const App: React.FC = () => {
       setStatus(Status.Completed);
       setLoadingStatus("");
     }
+    return [];
   };
 
   const fetchParentAccountId = async (): Promise<void> => {
@@ -134,8 +136,8 @@ export const App: React.FC = () => {
     }
   };
 
-  const getStartPage = (): string => {
-    if (!parentAccount) {
+  const getStartPage = (accounts: DerivedAccount[]): string => {
+    if (accounts.length === 0) {
       return formatRouterPath([TopLevelRoute.Setup]);
     } else {
       return formatRouterPath([
@@ -145,16 +147,14 @@ export const App: React.FC = () => {
     }
   };
 
-  const goToStartPage = (): void => navigate(getStartPage());
-
   const isStartPage = (): boolean => {
-    const startPage = getStartPage();
+    const startPage = getStartPage(accounts);
     return !!matchPath({ path: startPage }, location.pathname);
   };
 
   const onDeleteKey = async (): Promise<void> => {
-    await fetchAccounts();
-    goToStartPage();
+    const accounts = await fetchAccounts();
+    navigate(getStartPage(accounts));
   };
 
   useEffect(() => {
@@ -182,7 +182,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     if (status === Status.Completed) {
-      goToStartPage();
+      navigate(getStartPage(accounts));
     }
   }, [status, parentAccount]);
 
