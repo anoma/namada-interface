@@ -30,7 +30,6 @@ export const ViewAccount = (): JSX.Element => {
   const [transparentAddress, setTransparentAddress] = useState("");
   const [shieldedAddress, setShieldedAddress] = useState("");
   const [error, setError] = useState("");
-  const [isUnlocked, setUnlocked] = useState(false);
 
   const navigate = useNavigate();
   const requester = useRequester();
@@ -68,8 +67,8 @@ export const ViewAccount = (): JSX.Element => {
   };
 
   useEffect(() => {
-    accountId && isUnlocked && fetchAccounts(accountId);
-  }, [accountId, isUnlocked]);
+    accountId && fetchAccounts(accountId);
+  }, [accountId]);
 
   if (!accountId) {
     navigate(
@@ -81,11 +80,7 @@ export const ViewAccount = (): JSX.Element => {
   }
 
   return (
-    <LockKey
-      accountId={accountId}
-      unlocked={isUnlocked}
-      onUnlock={() => setUnlocked(true)}
-    >
+    <>
       <Loading
         status={loadingStatus}
         visible={!!loadingStatus}
@@ -109,6 +104,6 @@ export const ViewAccount = (): JSX.Element => {
           <LinkButton onClick={() => navigate(-1)}>Back</LinkButton>
         </Stack>
       )}
-    </LockKey>
+    </>
   );
 };
