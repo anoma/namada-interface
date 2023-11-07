@@ -10,16 +10,37 @@ import {
 } from "@namada/components";
 
 import {
-  Addresses,
+  Address,
   AppContainer,
   BottomSection,
+  Claim,
+  ClaimLabel,
+  ClaimValue,
+  Claims,
+  ClaimsSection,
   ContentContainer,
+  EligibilityInfo,
   GlobalStyles,
+  Header,
+  HeaderTwo,
+  NamadaSection,
+  TextButton,
   TopSection,
 } from "App/App.components";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { useIntegrationConnection } from "@namada/hooks";
 import { Account } from "@namada/types";
+
+type GithubClaim = {
+  eligible: boolean;
+  amount: number;
+  github_token?: string;
+  claimed: boolean;
+};
+
+type GithubClaimResponse = {
+  confirmed: boolean;
+};
 
 const {
   REACT_APP_CLIENT_ID: clientId = "",
@@ -28,23 +49,29 @@ const {
   REACT_APP_COSMOS_CHAIN_ID: cosmosChainId = "cosmosChainId",
 } = process.env;
 
-const getAccessToken = async (code: string): Promise<string> => {
-  // Request to exchange code for an access token
+const getAccessToken = async (code: string): Promise<GithubClaim> => {
   const response = await fetch(
-    `http://localhost:5000/api/v1/access_token/${code}`,
+    `http://localhost:5000/api/v1/airdrop/github/${code}`,
     {
       method: "GET",
     }
   );
-  const text = await response.text();
-  const params = new URLSearchParams(text);
-  const access_token = params.get("access_token");
+  const json = await response.json();
 
-  if (!access_token) {
-    throw new Error("No access token");
-  }
+  return { ...json, claimed: false };
+};
 
-  return access_token;
+const claimWithGithub = async (
+  access_token: string,
+  airdrop_address: string
+): Promise<GithubClaimResponse> => {
+  const response = await fetch("http://localhost:5000/api/v1/airdrop/github", {
+    method: "POST",
+    headers: new Headers({ "content-type": "application/json" }),
+    body: JSON.stringify({ access_token, airdrop_address }),
+  });
+
+  return response.json();
 };
 
 export const App: React.FC = () => {
@@ -52,7 +79,12 @@ export const App: React.FC = () => {
   const [colorMode, _] = useState<ColorMode>(initialColorMode);
   const [isExtensionConnected, setIsExtensionConnected] = useState(false);
   const [isGithubConnected, setIsGithubConnected] = useState(false);
-  const [account, setAccount] = useState<Account | null>(null);
+  const [githubClaimInfo, setGithubClaimInfo] = useState<GithubClaim | null>(
+    null
+  );
+  const [account, setAccount] = useState<string | null>(
+    localStorage.getItem("namada_address")
+  );
   const navigate = useNavigate();
   const theme = getTheme(colorMode);
 
@@ -69,7 +101,9 @@ export const App: React.FC = () => {
       async () => {
         const accounts = await namada?.accounts();
         if (accounts && accounts.length > 0) {
-          setAccount(accounts[0]);
+          const account = accounts[0].address;
+          setAccount(account);
+          localStorage.setItem("namada_address", account);
         }
 
         setIsExtensionConnected(true);
@@ -113,8 +147,9 @@ export const App: React.FC = () => {
     //TODO: check if access_token is valid, backend call?
     if (hasCode) {
       const code = url.split("?code=")[1];
-      getAccessToken(code).then((access_token) => {
+      getAccessToken(code).then((json) => {
         setIsGithubConnected(true);
+        setGithubClaimInfo(json);
         navigate("/", { replace: true });
       });
     }
@@ -133,46 +168,128 @@ export const App: React.FC = () => {
             path={`/`}
             element={
               <ContentContainer>
-                {!isGithubConnected && (
-                  <a
-                    className="login-link"
-                    href={`https://github.com/login/oauth/authorize?scope=user&client_id=${clientId}&redirect_uri=${redirectUrl}`}
-                  >
-                    <Button variant={ButtonVariant.Contained}>
-                      Login with GitHub
+                <NamadaSection>
+                  <Header>1. Get your Namada address</Header>
+                  {!account && (
+                    <Button
+                      variant={ButtonVariant.Contained}
+                      onClick={
+                        namadaAttachStatus === "attached"
+                          ? handleNamadaConnection
+                          : handleDownloadExtension.bind(
+                              null,
+                              "https://namada.me"
+                            )
+                      }
+                    >
+                      {["attached", "pending"].includes(namadaAttachStatus)
+                        ? "Connect to Namada"
+                        : "Click to download the Namada extension"}
                     </Button>
-                  </a>
-                )}
+                  )}
+                  {account && (
+                    <>
+                      <HeaderTwo>Address:</HeaderTwo>
+                      <Address>{account}</Address>
+                      <Address>
+                        <b>NOTE:</b> Please review if the address is correct.
+                        Otherwise change the account in the extension and
+                        <TextButton
+                          onClick={() => {
+                            localStorage.removeItem("namada_address");
+                            handleNamadaConnection();
+                          }}
+                        >
+                          {" "}
+                          CLICK HERE TO RESET.
+                        </TextButton>
+                      </Address>
+                    </>
+                  )}
+                </NamadaSection>
+                <ClaimsSection>
+                  {account && (
+                    <>
+                      <Header>2. Check your claims</Header>
+                      <Claims>
+                        <Claim>
+                          {!githubClaimInfo && (
+                            <Button
+                              variant={ButtonVariant.Contained}
+                              onClick={() =>
+                                window.open(
+                                  `https://github.com/login/oauth/authorize?client_id=Iv1.dbd15f7e1b50c0d7&redirect_uri=${redirectUrl}`,
+                                  "_self"
+                                )
+                              }
+                            >
+                              With GitHub
+                            </Button>
+                          )}
 
-                <Button
-                  variant={ButtonVariant.Contained}
-                  onClick={
-                    namadaAttachStatus === "attached"
-                      ? handleNamadaConnection
-                      : handleDownloadExtension.bind(null, "https://namada.me")
-                  }
-                >
-                  {["attached", "pending"].includes(namadaAttachStatus)
-                    ? "Get addresses"
-                    : "Click to download the Namada extension"}
-                </Button>
+                          {githubClaimInfo && (
+                            <>
+                              <HeaderTwo>With GitHub:</HeaderTwo>
+                              <EligibilityInfo>
+                                <ClaimLabel>Eligible: </ClaimLabel>
+                                <ClaimValue>
+                                  {githubClaimInfo.eligible ? "Yes" : "No"}
+                                </ClaimValue>
+                                <ClaimLabel>Amount: </ClaimLabel>
+                                <ClaimValue>
+                                  {githubClaimInfo.amount} NAM
+                                </ClaimValue>
+                              </EligibilityInfo>
+                            </>
+                          )}
+                          {account &&
+                            githubClaimInfo &&
+                            githubClaimInfo.eligible &&
+                            githubClaimInfo.github_token &&
+                            !githubClaimInfo.claimed && (
+                              <Button
+                                variant={ButtonVariant.Contained}
+                                onClick={() =>
+                                  claimWithGithub(
+                                    githubClaimInfo.github_token as string,
+                                    account
+                                  ).then((response) => {
+                                    setGithubClaimInfo({
+                                      ...githubClaimInfo,
+                                      claimed: response.confirmed,
+                                    });
+                                  })
+                                }
+                              >
+                                Claim
+                              </Button>
+                            )}
+                          {githubClaimInfo && githubClaimInfo.claimed && (
+                            <ClaimLabel>Claimed</ClaimLabel>
+                          )}
+                        </Claim>
 
-                <Button
-                  variant={ButtonVariant.Contained}
-                  onClick={
-                    keplrAttachStatus === "attached"
-                      ? handleKeplrConnection
-                      : handleDownloadExtension.bind(
-                          null,
-                          "https://www.keplr.app/"
-                        )
-                  }
-                >
-                  {["attached", "pending"].includes(keplrAttachStatus)
-                    ? "Connect to Keplr"
-                    : "Click to download the Keplr extension"}
-                </Button>
-                <Addresses>Address: {account?.address}</Addresses>
+                        <Claim>
+                          <Button
+                            variant={ButtonVariant.Contained}
+                            onClick={
+                              keplrAttachStatus === "attached"
+                                ? handleKeplrConnection
+                                : handleDownloadExtension.bind(
+                                    null,
+                                    "https://www.keplr.app/"
+                                  )
+                            }
+                          >
+                            {["attached", "pending"].includes(keplrAttachStatus)
+                              ? "With cosmos"
+                              : "Click to download the Keplr extension"}
+                          </Button>
+                        </Claim>
+                      </Claims>
+                    </>
+                  )}
+                </ClaimsSection>
               </ContentContainer>
             }
           />

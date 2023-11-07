@@ -78,12 +78,12 @@ export const ContentContainer = styled.div`
   justify-content: start;
   align-items: center;
   box-sizing: border-box;
+  padding: 20px;
   background-color: ${(props) =>
     getColor(ComponentColor.BackgroundColor, props.theme)};
   border: 1px solid
     ${(props) => getColor(ComponentColor.BorderColor, props.theme)};
 
-  padding: 0;
   min-height: 620px;
   width: 100%;
   max-width: 762px;
@@ -92,6 +92,58 @@ export const ContentContainer = styled.div`
   transition: background-color 0.3s linear;
 `;
 
-export const Addresses = styled.div`
+export const ButtonsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+export const Header = styled.h2`
+  color: ${(props) => props.theme.colors.primary.main};
+`;
+
+export const HeaderTwo = styled.h3`
+  color: ${(props) => props.theme.colors.primary.main};
+`;
+
+export const ClaimsSection = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+export const Claims = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+`;
+
+export const Claim = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+export const EligibilityInfo = styled.div`
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+`;
+
+export const ClaimLabel = styled.span`
+  color: ${(props) => props.theme.colors.utility2.main};
+  font-weight: bold;
+`;
+export const ClaimValue = styled.span`
+  color: ${(props) => props.theme.colors.utility2.main};
+`;
+
+export const NamadaSection = styled.div``;
+
+export const Address = styled.div`
   color: white;
+  font-size: 12px;
+  margin-top: 10px;
+`;
+
+export const TextButton = styled.div`
+  cursor: pointer;
+  color: ${(props) => props.theme.colors.primary.main};
 `;
