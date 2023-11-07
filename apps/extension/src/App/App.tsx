@@ -30,7 +30,6 @@ import { ConnectedSites } from "./ConnectedSites";
 import { LockWrapper } from "./LockWrapper";
 import { Setup } from "./Setup";
 import { AccountManagementRoute, TopLevelRoute } from "./types";
-import { LockKey } from "./Common/LockKey";
 
 export enum Status {
   Completed = "Completed",

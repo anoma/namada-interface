@@ -1,12 +1,12 @@
-import React, { useEffect } from "react";
+import React from "react";
 
 import { ActionButton, Heading, Text, ViewKeys } from "@namada/components";
+import { DerivedAccount } from "@namada/types";
 import { formatRouterPath } from "@namada/utils";
 import { HeaderContainer } from "Setup/Setup.components";
 import { LedgerConnectRoute, TopLevelRoute } from "Setup/types";
 import { useLocation, useNavigate } from "react-router-dom";
 import { closeCurrentTab } from "utils";
-import { DerivedAccount } from "@namada/types";
 
 type LedgerConfirmationStateProps = {
   account: DerivedAccount;

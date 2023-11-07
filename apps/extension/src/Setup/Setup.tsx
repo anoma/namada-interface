@@ -54,7 +54,6 @@ const AnimatedTransition: React.FC<AnimatedTransitionProps> = (props) => {
 };
 
 export const Setup: React.FC = () => {
-  const requester = useRequester();
   const theme = getTheme("dark");
   const navigate = useNavigate();
   const location = useLocation();
