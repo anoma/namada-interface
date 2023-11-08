@@ -3,7 +3,7 @@ use crate::crypto::pointer_types::{
 };
 use bip39::{Language, Mnemonic as M, MnemonicType, Seed};
 use wasm_bindgen::prelude::*;
-use zeroize::{Zeroize, ZeroizeOnDrop};
+use zeroize::Zeroize;
 
 #[wasm_bindgen]
 #[derive(Copy, Clone)]
@@ -12,7 +12,6 @@ pub enum PhraseSize {
     N24 = 24,
 }
 
-// #[derive(Zeroize, ZeroizeOnDrop)]
 #[wasm_bindgen]
 pub struct Mnemonic {
     mnemonic: M,
