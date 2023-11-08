@@ -141,13 +141,13 @@ class Metamask implements Integration<Account, unknown> {
     chainId: string,
     signer: string,
     data: string
-  ): Promise<string> {
+  ): Promise<{ signature: string; pub_key: { type: string; value: string } }> {
     if (!this._ethereum) {
       throw Error("Metamask not found");
     }
     console.log(chainId, signer, data);
 
-    return "todo";
+    return { signature: "test", pub_key: { type: "test", value: "test" } };
   }
 }
 

@@ -94,12 +94,12 @@ export default class Namada implements Integration<Account, Signer> {
     chainId: string,
     signer: string,
     data: string
-  ): Promise<string> {
+  ): Promise<{ signature: string; pub_key: { type: string; value: string } }> {
     if (!this._namada) {
       throw Error("Namada not found");
     }
     console.log(chainId, signer, data);
 
-    return "todo";
+    return { signature: "test", pub_key: { type: "test", value: "test" } };
   }
 }
