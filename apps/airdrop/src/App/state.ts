@@ -1,3 +1,4 @@
+import { atom } from "jotai";
 import { Reducer } from "react";
 
 export const DEFAULT_STATE: State = {
@@ -21,3 +22,28 @@ export const reducer: Reducer<State, Action> = (
   }
   throw Error("Unknown action.");
 };
+
+export type GithubState = {
+  eligible: boolean;
+  amount: number;
+  githubToken?: string;
+  hasClaimed: boolean;
+};
+
+export const githubAtom = atom<GithubState>({
+  eligible: false,
+  amount: 0,
+  hasClaimed: false,
+});
+
+export type ConfirmationState = {
+  confirmed: boolean;
+  address: string;
+  amount: number;
+};
+
+export const confirmationAtom = atom<ConfirmationState>({
+  confirmed: false,
+  address: "",
+  amount: 0,
+});
