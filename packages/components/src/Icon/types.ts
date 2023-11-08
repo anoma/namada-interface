@@ -6,6 +6,7 @@ export enum IconName {
   Sun,
   Key,
   Camera,
+  ArrowLeft,
   ChevronUp,
   ChevronRight,
   ChevronDown,
@@ -20,10 +21,14 @@ export enum IconName {
   Lock,
   Menu,
   Copy,
+  Warning,
+  Checked,
+  ThreeDotsVertical,
 }
 
 export enum IconSize {
   S = "16px",
   M = "24px",
   L = "36px",
+  Full = "100%",
 }

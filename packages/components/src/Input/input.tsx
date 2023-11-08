@@ -1,146 +1,114 @@
-import { Icon, IconName } from "../";
-import React, { ChangeEventHandler, FocusEventHandler, useState } from "react";
+import React, { useState } from "react";
+
+import { Icon, IconName, ContentMasker } from "@namada/components";
+import { copyToClipboard } from "@namada/utils";
+import { ComponentProps, InputProps, InputVariants } from "./types";
 import {
   ErrorTooltip,
+  HintTooltip,
   IconContainer,
   InputWrapper,
   Label,
-  PasswordContainer,
-  TextAreaInput,
+  LabelWrapper,
   TextInput,
 } from "./input.components";
-import { InputVariants } from "./types";
 
-export type InputProps = {
-  autoFocus?: boolean;
-  variant?: InputVariants;
-  value?: string | number;
-  label: string | React.ReactNode;
-  error?: string;
-  onChangeCallback?: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
-  onFocus?: FocusEventHandler<HTMLInputElement>;
-  onPaste?: React.ClipboardEventHandler<HTMLInputElement>;
-  placeholder?: string;
-  step?: number;
-  min?: number;
-};
+type Props = ComponentProps & InputProps & { variant?: InputVariants };
 
 export const Input = ({
-  autoFocus,
   variant = InputVariants.Text,
-  value = "",
   label,
   error,
-  onChangeCallback,
-  onPaste,
-  onFocus,
-  placeholder,
-  step,
-  min,
-}: InputProps): JSX.Element => {
+  hint,
+  theme,
+  hideIcon = false,
+  sensitive = false,
+  ...props
+}: Props): JSX.Element => {
   const [passwordShown, setPasswordShown] = useState(false);
   const togglePasswordShown = (): void => setPasswordShown(!passwordShown);
 
+  let inputElement: InputProps = {};
+  let icon: React.ReactNode | null = null;
+
   switch (variant) {
-    case InputVariants.Text:
-      return (
-        <Label>
-          {label}
-          <InputWrapper>
-            <TextInput
-              error={!!error}
-              onChange={onChangeCallback}
-              onFocus={onFocus}
-              onPaste={onPaste}
-              placeholder={placeholder}
-              value={value}
-              autoFocus={autoFocus}
-            />
-            <br />
-          </InputWrapper>
-          <ErrorTooltip>{error}</ErrorTooltip>
-        </Label>
-      );
-    case InputVariants.Textarea:
-      return (
-        <Label>
-          {label}
-          <InputWrapper>
-            <TextAreaInput
-              error={!!error}
-              onChange={onChangeCallback}
-              value={value}
-              autoFocus={autoFocus}
-            />
-          </InputWrapper>
-          <ErrorTooltip>{error}</ErrorTooltip>
-        </Label>
-      );
     case InputVariants.Password:
-      return (
-        <Label>
-          {label}
-          <PasswordContainer>
-            <TextInput
-              error={!!error}
-              placeholder={placeholder}
-              onChange={onChangeCallback}
-              onFocus={onFocus}
-              type={passwordShown ? "text" : "password"}
-              autoFocus={autoFocus}
-            />
-            <IconContainer onClick={() => togglePasswordShown()}>
-              <Icon
-                iconName={passwordShown ? IconName.Eye : IconName.EyeHidden}
-              />
-            </IconContainer>
-          </PasswordContainer>
-          <ErrorTooltip>{error}</ErrorTooltip>
-        </Label>
+      inputElement = {
+        ...props,
+        type: passwordShown ? "text" : "password",
+      };
+
+      icon = (
+        <IconContainer
+          role="button"
+          aria-labelledby={passwordShown ? "Hide password" : "Display password"}
+          onClick={() => togglePasswordShown()}
+        >
+          <Icon iconName={passwordShown ? IconName.Eye : IconName.EyeHidden} />
+        </IconContainer>
       );
+      break;
+
+    case InputVariants.ReadOnlyCopy:
+      inputElement = {
+        ...props,
+        readOnly: true,
+      };
+
+      icon = (
+        <IconContainer
+          role="button"
+          aria-labelledby="Copy to clipboard"
+          onClick={() => copyToClipboard(props.value?.toString() || "")}
+        >
+          <Icon iconName={IconName.Copy} />
+        </IconContainer>
+      );
+      break;
+
     case InputVariants.PasswordOnBlur:
-      return (
-        <Label>
-          {label}
-          <InputWrapper>
-            <TextInput
-              error={!!error}
-              onChange={onChangeCallback}
-              onFocus={(e) => {
-                setPasswordShown(true);
-                onFocus && onFocus(e);
-              }}
-              onBlur={() => setPasswordShown(false)}
-              onPaste={onPaste}
-              placeholder={placeholder}
-              value={value}
-              autoFocus={autoFocus}
-              type={passwordShown ? "text" : "password"}
-            />
-            <br />
-          </InputWrapper>
-          <ErrorTooltip>{error}</ErrorTooltip>
-        </Label>
-      );
+      inputElement = {
+        ...props,
+        type: passwordShown ? "text" : "password",
+        onBlur: () => setPasswordShown(false),
+        onFocus: () => setPasswordShown(true),
+      };
+      break;
+
     case InputVariants.Number:
-      return (
-        <Label>
-          {label}
-          <InputWrapper>
-            <TextInput
-              error={!!error}
-              placeholder={placeholder}
-              type={"number"}
-              value={value}
-              onChange={onChangeCallback}
-              onFocus={onFocus}
-              autoFocus={autoFocus}
-              step={step}
-              min={min}
-            />
-          </InputWrapper>
-          <ErrorTooltip>{error}</ErrorTooltip>
-        </Label>
-      );
+      inputElement = {
+        ...props,
+        type: "number",
+      };
+      break;
+
+    default:
+      inputElement = { ...props };
+      break;
   }
+
+  const field = (
+    <TextInput
+      error={!!error}
+      inputTheme={sensitive ? undefined : theme}
+      hasIcon={!!icon}
+      {...inputElement}
+    />
+  );
+
+  return (
+    <Label>
+      {label && <LabelWrapper>{label}</LabelWrapper>}
+      <InputWrapper>
+        {sensitive ? (
+          <ContentMasker themeColor={theme}>{field}</ContentMasker>
+        ) : (
+          field
+        )}
+        {!hideIcon && icon}
+      </InputWrapper>
+      {<ErrorTooltip>{error}</ErrorTooltip>}
+      {<HintTooltip>{hint}</HintTooltip>}
+    </Label>
+  );
 };

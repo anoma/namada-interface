@@ -1,10 +1,5 @@
-import styled, { createGlobalStyle, css } from "styled-components";
-
-export const GlobalStyles = createGlobalStyle`
-  html, body {
-    background-color: #000;
-  }
-`;
+import { spacement } from "@namada/utils";
+import styled, { css } from "styled-components";
 
 export const Spinner = css`
     content: "";
@@ -126,12 +121,10 @@ export const BottomSection = styled.section`
 `;
 
 export const ContentContainer = styled.div`
-  display: flex;
-  height: 100%;
+  max-height: 100%;
   min-height: 360px;
+  min-width: 360px;
+  display: flex;
   flex-direction: column;
-  justify-content: start;
-  align-items: center;
-  background-color: ${(props) => props.theme.colors.utility1.main80};
-  color: ${(props) => props.theme.colors.utility1.main20};
+  gap: ${spacement(6)};
 `;

@@ -7,12 +7,12 @@ export enum TopLevelRoute {
 }
 
 export enum AccountCreationRoute {
+  // Security warning / recommentations
+  SeedPhraseWarning = "warning",
   // Generate new seed phrase
   SeedPhrase = "seed-phrase",
   // Validate seed phrase
   SeedPhraseConfirmation = "seed-phrase-confirmation",
-  // Secure wallet with a password
-  Password = "password",
   // Final screen with confirmation
   Completion = "completion",
 }
@@ -24,6 +24,12 @@ export enum AccountImportRoute {
   Password = "password",
   // Final screen with confirmation
   Completion = "completion",
+}
+
+export enum LedgerConnectRoute {
+  Connect = "connect",
+  Import = "confirm",
+  Completion = "completion/:account-id",
 }
 
 // Alias and optional password (in the case of Ledger accounts)

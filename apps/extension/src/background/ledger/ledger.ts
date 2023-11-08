@@ -30,7 +30,7 @@ export const DEFAULT_LEDGER_BIP44_PATH = makeBip44Path(coinType, {
 });
 
 export class Ledger {
-  constructor(public readonly namadaApp: NamadaApp | undefined = undefined) { }
+  constructor(public readonly namadaApp: NamadaApp | undefined = undefined) {}
 
   /**
    * Returns an initialized Ledger class instance with initialized Transport

@@ -5,6 +5,8 @@ export const IconContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  max-width: 100%;
+  max-height: 100%;
 `;
 
 export const StyledIcon = styled.div<{
@@ -16,6 +18,7 @@ export const StyledIcon = styled.div<{
   min-width: ${(props) => props.$iconSize};
   height: ${(props) => props.$iconSize};
   width: ${(props) => props.$iconSize};
+
   // if stroke is passed in we use it, otherwise default
   path {
     stroke: ${(props) =>
@@ -25,7 +28,7 @@ export const StyledIcon = styled.div<{
   // if fill is passed in we use it
   ${(props) =>
     props.$fillColorOverride
-      ? `path {
+      ? `path, circle {
           fill: ${props.$fillColorOverride};}`
       : ``}
 `;

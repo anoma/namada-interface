@@ -18,6 +18,10 @@ import { ReactComponent as Info } from "./assets/info.svg";
 import { ReactComponent as Lock } from "./assets/lock.svg";
 import { ReactComponent as Menu } from "./assets/menu.svg";
 import { ReactComponent as Copy } from "./assets/copy.svg";
+import { ReactComponent as Warning } from "./assets/warning.svg";
+import { ReactComponent as ArrowLeft } from "./assets/arrow-left.svg";
+import { ReactComponent as Checked } from "./assets/checked.svg";
+import { ReactComponent as ThreeDotsVertical } from "./assets/three-dots-vertical.svg";
 
 import { IconName, IconSize } from "./types";
 import { IconContainer, StyledIcon } from "./icon.components";
@@ -44,6 +48,7 @@ const icons: Record<IconName, ComponentType> = {
   [IconName.ChevronRight]: ChevronRight,
   [IconName.ChevronDown]: ChevronDown,
   [IconName.ChevronLeft]: ChevronLeft,
+  [IconName.ArrowLeft]: ArrowLeft,
   [IconName.Eye]: EyeDark,
   [IconName.EyeHidden]: EyeHiddenDark,
   [IconName.ThumbsUp]: ThumbsUp,
@@ -54,6 +59,9 @@ const icons: Record<IconName, ComponentType> = {
   [IconName.Lock]: Lock,
   [IconName.Menu]: Menu,
   [IconName.Copy]: Copy,
+  [IconName.Warning]: Warning,
+  [IconName.Checked]: Checked,
+  [IconName.ThreeDotsVertical]: ThreeDotsVertical,
 };
 
 /**

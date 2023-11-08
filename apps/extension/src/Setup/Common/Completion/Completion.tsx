@@ -1,26 +1,34 @@
 import React, { useEffect, useState } from "react";
-import { ExtensionRequester } from "extension";
 import browser from "webextension-polyfill";
 
-import { Button, ButtonVariant } from "@namada/components";
-import { SaveMnemonicMsg, ScanAccountsMsg } from "background/keyring";
-import { Ports } from "router";
-
 import {
-  BodyText,
-  ButtonsContainer,
-  Header1,
-  SubViewContainer,
-  UpperContentContainer,
-} from "Setup/Setup.components";
-import { StatusInfo, StatusLoader } from "./Completion.components";
+  ActionButton,
+  Alert,
+  Heading,
+  Loading,
+  ViewKeys,
+} from "@namada/components";
+import { AccountType } from "@namada/types";
+import { formatRouterPath } from "@namada/utils";
+import { HeaderContainer, Subtitle } from "Setup/Setup.components";
+import { TopLevelRoute } from "Setup/types";
+import {
+  AccountStore,
+  DeriveAccountMsg,
+  SaveMnemonicMsg,
+  ScanAccountsMsg,
+} from "background/keyring";
+import { useRequester } from "hooks/useRequester";
+import { useNavigate } from "react-router-dom";
+import { Ports } from "router";
 
 type Props = {
   alias: string;
-  requester: ExtensionRequester;
   mnemonic: string[];
   password: string;
   scanAccounts: boolean;
+  pageTitle: string;
+  pageSubtitle: string;
 };
 
 enum Status {
@@ -30,19 +38,55 @@ enum Status {
 }
 
 const Completion: React.FC<Props> = (props) => {
-  const { alias, mnemonic, password, requester, scanAccounts } = props;
+  const { alias, mnemonic, password, scanAccounts, pageTitle, pageSubtitle } =
+    props;
+
   const [mnemonicStatus, setMnemonicStatus] = useState<Status>(Status.Pending);
-  const [statusInfo, setStatusInfo] = useState(
-    "Encrypting and storing mnemonic."
-  );
+  const [statusInfo, setStatusInfo] = useState<string>("");
+  const [publicKeyAddress, setPublicKeyAddress] = useState("");
+  const [transparentAccountAddress, setTransparentAccountAddress] =
+    useState<string>("");
+  const [shieldedAccountAddress, setShieldedAccountAddress] =
+    useState<string>("");
+
+  const requester = useRequester();
+  const navigate = useNavigate();
+
+  const closeCurrentTab = async (): Promise<void> => {
+    const tab = await browser.tabs.getCurrent();
+    if (tab.id) {
+      browser.tabs.remove(tab.id);
+    }
+  };
+
+  useEffect(() => {
+    if (!alias || !mnemonic || !password) {
+      navigate(formatRouterPath([TopLevelRoute.Start]));
+    }
+  }, []);
 
   useEffect(() => {
     const saveMnemonic = async (): Promise<void> => {
       try {
-        await requester.sendMessage<SaveMnemonicMsg>(
+        setStatusInfo("Encrypting and storing mnemonic.");
+        const account = (await requester.sendMessage<SaveMnemonicMsg>(
           Ports.Background,
           new SaveMnemonicMsg(mnemonic, password, alias)
+        )) as AccountStore;
+
+        setPublicKeyAddress(account.publicKey ?? "");
+        setTransparentAccountAddress(account.address);
+
+        setStatusInfo("Generating Shielded Account");
+        const shieldedAccount = await requester.sendMessage<DeriveAccountMsg>(
+          Ports.Background,
+          new DeriveAccountMsg(
+            account.path,
+            AccountType.ShieldedKeys,
+            account.alias
+          )
         );
+        setShieldedAccountAddress(shieldedAccount.address);
 
         if (scanAccounts) {
           setStatusInfo("Scanning accounts.");
@@ -62,40 +106,35 @@ const Completion: React.FC<Props> = (props) => {
   }, [alias, mnemonic, password, scanAccounts]);
 
   return (
-    <SubViewContainer>
-      <UpperContentContainer>
-        <Header1>Creating your wallet</Header1>
-        {mnemonicStatus === Status.Completed && (
-          <BodyText>
-            Setup is complete! You may close this tab and access the extension
-            popup to view your accounts.
-          </BodyText>
-        )}
-        {mnemonicStatus !== Status.Completed && (
-          <BodyText>One moment while your wallet is being created...</BodyText>
-        )}
-        <StatusInfo>
-          <StatusLoader
-            className={mnemonicStatus === Status.Pending ? "is-loading" : ""}
-          />
-          <BodyText>{statusInfo}</BodyText>
-        </StatusInfo>
-      </UpperContentContainer>
-      <ButtonsContainer>
-        <Button
-          variant={ButtonVariant.Contained}
-          onClick={async () => {
-            const tab = await browser.tabs.getCurrent();
-            if (tab.id) {
-              browser.tabs.remove(tab.id);
+    <>
+      <Loading
+        status={statusInfo}
+        visible={mnemonicStatus === Status.Pending}
+      />
+      {mnemonicStatus === Status.Failed && (
+        <Alert type="error">{statusInfo}</Alert>
+      )}
+      {mnemonicStatus === Status.Completed && (
+        <>
+          <HeaderContainer>
+            <Heading level="h1" size="3xl">
+              {pageTitle}
+            </Heading>
+            <Subtitle>{pageSubtitle}</Subtitle>
+          </HeaderContainer>
+          <ViewKeys
+            publicKeyAddress={publicKeyAddress}
+            transparentAccountAddress={transparentAccountAddress}
+            shieldedAccountAddress={shieldedAccountAddress}
+            footer={
+              <ActionButton onClick={closeCurrentTab}>
+                Close this page
+              </ActionButton>
             }
-          }}
-          disabled={mnemonicStatus !== Status.Completed}
-        >
-          Close
-        </Button>
-      </ButtonsContainer>
-    </SubViewContainer>
+          />
+        </>
+      )}
+    </>
   );
 };
 

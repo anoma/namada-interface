@@ -1,4 +1,5 @@
 import { AccountType, Chain, DerivedAccount, SupportedTx } from "@namada/types";
+import { ParentAccount } from "background/keyring";
 import { Message } from "router";
 import { validateProps } from "utils";
 
@@ -129,6 +130,12 @@ export class GetChainMsg extends Message<Chain> {
   }
 }
 
+type QueryAccountMsgParams = {
+  chainId?: string;
+  accountId?: string;
+  type?: ParentAccount;
+};
+
 /**
  * Messages routed from providers to KeyRing service
  */
@@ -137,7 +144,7 @@ export class QueryAccountsMsg extends Message<DerivedAccount[]> {
     return MessageType.QueryAccounts;
   }
 
-  constructor(public readonly chainId?: string) {
+  constructor(public readonly query?: QueryAccountMsgParams) {
     super();
   }
 

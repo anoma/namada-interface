@@ -7,6 +7,7 @@ import {
   ResetPasswordError,
   DeleteAccountError,
   ParentAccount,
+  AccountStore,
 } from "./types";
 import { Result } from "@namada/utils";
 
@@ -104,7 +105,10 @@ export class CheckPasswordMsg extends Message<boolean> {
     return MessageType.CheckPassword;
   }
 
-  constructor(public readonly password: string) {
+  constructor(
+    public readonly password: string,
+    public readonly accountId?: string
+  ) {
     super();
   }
 
@@ -219,7 +223,7 @@ export class ValidateMnemonicMsg extends Message<boolean> {
   }
 }
 
-export class SaveMnemonicMsg extends Message<boolean> {
+export class SaveMnemonicMsg extends Message<AccountStore | false> {
   public static type(): MessageType {
     return MessageType.SaveMnemonic;
   }
@@ -267,7 +271,7 @@ export class ScanAccountsMsg extends Message<void> {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  validate(): void { }
+  validate(): void {}
 
   route(): string {
     return ROUTE;

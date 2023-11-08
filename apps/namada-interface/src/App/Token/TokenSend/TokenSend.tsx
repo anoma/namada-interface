@@ -8,7 +8,6 @@ import { useAppSelector } from "store";
 import { TokenType, Tokens } from "@namada/types";
 import {
   Heading,
-  HeadingLevel,
   NavigationContainer,
   Select,
   Option,
@@ -124,7 +123,7 @@ const TokenSend = (): JSX.Element => {
   return (
     <TokenSendContainer>
       <NavigationContainer>
-        <Heading level={HeadingLevel.One}>Send</Heading>
+        <Heading level="h1">Send</Heading>
       </NavigationContainer>
 
       <TabsGroup>

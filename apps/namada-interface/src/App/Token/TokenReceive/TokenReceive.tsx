@@ -5,7 +5,6 @@ import { useQRCode } from "next-qrcode";
 import { formatRoute } from "@namada/utils";
 import {
   Heading,
-  HeadingLevel,
   Icon,
   IconName,
   NavigationContainer,
@@ -38,8 +37,9 @@ const TokenReceive = (): JSX.Element => {
 
   const accountsData = accounts.map(({ details }) => ({
     value: details.address,
-    label: `${details.alias} - ${details.isShielded ? "Shielded" : "Transparent"
-      }`,
+    label: `${details.alias} - ${
+      details.isShielded ? "Shielded" : "Transparent"
+    }`,
   }));
 
   useEffect(() => {
@@ -67,7 +67,7 @@ const TokenReceive = (): JSX.Element => {
   return (
     <TokenReceiveContainer>
       <NavigationContainer>
-        <Heading level={HeadingLevel.One}>Receive</Heading>
+        <Heading level="h1">Receive</Heading>
       </NavigationContainer>
 
       <TokenReceiveContent>

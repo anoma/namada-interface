@@ -135,7 +135,7 @@ const handleCheckPasswordMsg: (
   service: KeyRingService
 ) => InternalHandler<CheckPasswordMsg> = (service) => {
   return async (_, msg) => {
-    return await service.checkPassword(msg.password);
+    return await service.checkPassword(msg.password, msg.accountId);
   };
 };
 
@@ -208,8 +208,15 @@ const handleDeriveAccountMsg: (
 const handleQueryAccountsMsg: (
   service: KeyRingService
 ) => InternalHandler<QueryAccountsMsg> = (service) => {
-  return async (_, _msg) => {
-    return await service.queryAccounts();
+  return async (_, msg) => {
+    const { query } = msg;
+
+    const output =
+      query && query.accountId
+        ? await service.queryAccountById(query.accountId, query.type)
+        : await service.queryAccounts();
+
+    return output;
   };
 };
 

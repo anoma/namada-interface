@@ -1,31 +1,17 @@
 import React, { useEffect, useState } from "react";
 
-import { Button, ButtonVariant, Toggle } from "@namada/components";
-
-import { GenerateMnemonicMsg } from "background/keyring";
-import { ExtensionRequester } from "extension";
-import { Ports } from "router";
-import {
-  BodyText,
-  ButtonsContainer,
-  FormContainer,
-  Header1,
-  SeedPhraseLength,
-  SeedPhraseLengthContainer,
-  SubViewContainer,
-  UpperContentContainer,
-} from "Setup/Setup.components";
-import {
-  SeedPhraseCard,
-  SeedPhraseContainer,
-  SeedPhraseIndexLabel,
-  ExportSeedPhraseButtonsContainer,
-  CopyToClipboard,
-} from "./SeedPhrase.components";
+import { ActionButton, Heading, RadioGroup, Stack } from "@namada/components";
+import { copyToClipboard } from "@namada/utils";
+import { SeedPhraseInstructions, SeedPhraseList } from "Setup/Common";
+import { HeaderContainer } from "Setup/Setup.components";
 import { AccountDetails } from "Setup/types";
+import { GenerateMnemonicMsg } from "background/keyring";
+import { Ports } from "router";
+
+import { CopyToClipboard } from "./SeedPhrase.components";
+import { useRequester } from "hooks/useRequester";
 
 type Props = {
-  requester: ExtensionRequester;
   // go to next screen
   onConfirm: (seedPhraseAsArray: string[]) => void;
   // depending if first load this might or might not be available
@@ -34,23 +20,16 @@ type Props = {
   defaultSeedPhrase?: string[];
 };
 
-// saves the content to clipboard
-const textToClipboard = (content: string): void => {
-  navigator.clipboard.writeText(content);
-};
-
 const SeedPhrase: React.FC<Props> = (props) => {
-  const { requester, onConfirm, defaultSeedPhrase } = props;
-  const [seedPhrase, setSeedPhrase] = useState(defaultSeedPhrase || []);
+  const { onConfirm, defaultSeedPhrase } = props;
 
+  const [seedPhrase, setSeedPhrase] = useState(defaultSeedPhrase || []);
+  const [mnemonicLength, setMnemonicLength] = useState(12);
   const isSubmitButtonDisabled = seedPhrase.length === 0;
 
-  const [mnemonicLength, setMnemonicLength] = useState(12);
+  const requester = useRequester();
 
   useEffect(() => {
-    // if a mnemonic was passed in we do not generate it again
-    if (defaultSeedPhrase?.length && defaultSeedPhrase?.length > 0) return;
-
     const setPhrase = async (): Promise<void> => {
       const words = await requester.sendMessage<GenerateMnemonicMsg>(
         Ports.Background,
@@ -62,67 +41,52 @@ const SeedPhrase: React.FC<Props> = (props) => {
   }, [mnemonicLength]);
 
   return (
-    <SubViewContainer>
+    <>
       {/* header */}
-      <UpperContentContainer>
-        <Header1>Seed Phrase</Header1>
-      </UpperContentContainer>
+      <HeaderContainer>
+        <Heading level="h1" size="3xl">
+          New Seed Phrase
+        </Heading>
+      </HeaderContainer>
 
-      {/* form */}
-      <FormContainer>
-        {/* description */}
-        <BodyText>Write down your seed phrase.</BodyText>
-        <BodyText>
-          WARNING! It is not recommended to screenshot your seed phrase.
-        </BodyText>
-        <SeedPhraseLengthContainer>
-          <SeedPhraseLength>12</SeedPhraseLength>
-          <Toggle
-            checked={mnemonicLength === 12}
-            onClick={() => {
-              setMnemonicLength(mnemonicLength === 24 ? 12 : 24);
-            }}
+      <Stack gap={6}>
+        <RadioGroup
+          id="mnemonicLength"
+          groupLabel="Number of seeds"
+          value={mnemonicLength.toString()}
+          options={[
+            { text: "12 words", value: "12" },
+            { text: "24 words", value: "24" },
+          ]}
+          onChange={(value) => setMnemonicLength(Number(value))}
+        />
+        <Stack gap={2}>
+          <SeedPhraseList
+            columns={mnemonicLength === 24 ? 4 : 3}
+            words={seedPhrase}
           />
-          <SeedPhraseLength>24</SeedPhraseLength>
-        </SeedPhraseLengthContainer>
-        <SeedPhraseContainer>
-          {seedPhrase.map((word, index) => {
-            return (
-              <SeedPhraseCard key={`${word}:${index}`}>
-                <SeedPhraseIndexLabel>{`${index + 1}`}</SeedPhraseIndexLabel>
-                {`${word}`}
-              </SeedPhraseCard>
-            );
-          })}
-        </SeedPhraseContainer>
-        {/* copy seed phrase */}
-        {process.env.NODE_ENV === "development" && (
-          <ExportSeedPhraseButtonsContainer>
-            <CopyToClipboard
-              onClick={(e) => {
-                e.preventDefault();
-                textToClipboard(seedPhrase.join(" "));
-              }}
-              href="#"
-            >
-              Copy to clipboard
-            </CopyToClipboard>
-          </ExportSeedPhraseButtonsContainer>
-        )}
-        {/* continue */}
-        <ButtonsContainer>
-          <Button
-            onClick={() => {
-              onConfirm(seedPhrase);
+          <CopyToClipboard
+            onClick={(e) => {
+              e.preventDefault();
+              copyToClipboard(seedPhrase.join(" "));
             }}
-            disabled={isSubmitButtonDisabled}
-            variant={ButtonVariant.Contained}
+            href="#"
           >
-            I wrote down my mnemonic
-          </Button>
-        </ButtonsContainer>
-      </FormContainer>
-    </SubViewContainer>
+            Copy to clipboard
+          </CopyToClipboard>
+        </Stack>
+        <SeedPhraseInstructions />
+      </Stack>
+
+      <ActionButton
+        disabled={isSubmitButtonDisabled}
+        onClick={() => {
+          onConfirm(seedPhrase);
+        }}
+      >
+        Next
+      </ActionButton>
+    </>
   );
 };
 

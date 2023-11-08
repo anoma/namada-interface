@@ -3,13 +3,18 @@ export enum TopLevelRoute {
   ApproveConnection = "/connection",
   ApproveTx = "/tx",
   Login = "/login",
-  Setup = "/setup",
+  Setup = "setup",
 
   /* WALLET */
-  Accounts = "/accounts",
-  AddAccount = "/accounts/add",
+  Accounts = "accounts",
+  AddAccount = "accounts/add",
+  ConnectedSites = "connected-sites",
+}
 
-  /* SETTINGS */
-  // NOTE: The following are not used as of now, but will be in the future:
-  Settings = "/settings",
+export enum AccountManagementRoute {
+  ViewAccounts = "view",
+  ViewAccount = "view/:accountId/:type",
+  DeleteAccount = "delete/:accountId",
+  RenameAccount = "rename/:accountId",
+  AddAccount = "add",
 }

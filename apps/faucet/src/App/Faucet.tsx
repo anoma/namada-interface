@@ -144,7 +144,7 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
           variant={InputVariants.Text}
           label="Target Address"
           value={targetAddress}
-          onChangeCallback={(e) => setTargetAddress(e.target.value)}
+          onChange={(e) => setTargetAddress(e.target.value)}
         />
       </InputContainer>
 
@@ -165,7 +165,7 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
           min={0}
           step={0.001}
           onFocus={handleFocus}
-          onChangeCallback={(e) => {
+          onChange={(e) => {
             const { value } = e.target;
             if (value && /^\d*(\.\d{0,3})?$/.test(value)) {
               return setAmount(parseFloat(value));

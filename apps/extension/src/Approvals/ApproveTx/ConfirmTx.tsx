@@ -112,7 +112,7 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
           <Input
             variant={InputVariants.Password}
             label={"Password"}
-            onChangeCallback={(e) => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
           />
           <ButtonContainer>
             <Button

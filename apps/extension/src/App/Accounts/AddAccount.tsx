@@ -254,6 +254,7 @@ const AddAccount: React.FC<Props> = ({
         bip44PathString
       );
 
+      // TODO: provide a password for ledger
       return await requester.sendMessage(
         Ports.Background,
         new AddLedgerAccountMsg(alias, address, parentId, publicKey, bip44Path)
@@ -348,7 +349,7 @@ const AddAccount: React.FC<Props> = ({
                 label="Alias"
                 autoFocus={true}
                 value={alias}
-                onChangeCallback={(e) => {
+                onChange={(e) => {
                   const { value } = e.target;
                   setAlias(value);
                   validateAlias(accounts, value);
@@ -400,8 +401,9 @@ const AddAccount: React.FC<Props> = ({
 
             <Bip44Path>
               Derivation path:{" "}
-              <span>{`${parentDerivationPath}${isTransparent ? `${change}/` : ""
-                }${index}`}</span>
+              <span>{`${parentDerivationPath}${
+                isTransparent ? `${change}/` : ""
+              }${index}`}</span>
             </Bip44Path>
             <FormValidationMsg>{validation}</FormValidationMsg>
           </AddAccountForm>

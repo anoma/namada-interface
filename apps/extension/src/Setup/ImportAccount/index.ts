@@ -1,1 +1,1 @@
-export { default as ImportAccount } from "./ImportAccount";
+export { SeedPhraseImport } from "./Steps/SeedPhraseImport";

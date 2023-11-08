@@ -1,16 +1,22 @@
+import { FontSize, ThemeColor } from "@namada/utils";
 import { BaseHeading } from "./heading.components";
 import { HeadingLevel } from "./types";
 
 type HeadingProps = {
-  level: HeadingLevel;
+  level?: HeadingLevel;
+  size?: keyof FontSize;
+  themeColor?: ThemeColor;
   children: React.ReactNode;
-  onClick?: React.MouseEventHandler<HTMLDivElement> | undefined;
 };
 
-export const Heading = (props: HeadingProps): JSX.Element => {
-  const { level, children, onClick } = props;
+export const Heading = ({
+  level = "h1",
+  size = "3xl",
+  themeColor = "utility2",
+  children,
+}: HeadingProps): JSX.Element => {
   return (
-    <BaseHeading onClick={onClick} as={level}>
+    <BaseHeading as={level} size={size} themeColor={themeColor}>
       {children}
     </BaseHeading>
   );

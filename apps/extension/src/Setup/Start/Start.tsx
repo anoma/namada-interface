@@ -1,48 +1,54 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Button, ButtonVariant } from "@namada/components";
+import {
+  ActionButton,
+  Heading,
+  Image,
+  ImageName,
+  Stack,
+} from "@namada/components";
 import { formatRouterPath } from "@namada/utils";
 
 import {
-  BodyText,
-  Header1,
-  SubViewContainer,
-  UpperContentContainer,
-} from "Setup/Setup.components";
-import {
   AccountCreationRoute,
   AccountImportRoute,
+  LedgerConnectRoute,
   TopLevelRoute,
 } from "../types";
-import { StartViewContainer } from "./Start.components";
+
+import { HeaderContainer, LogoContainer } from "./Start.components";
 
 const Start: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <SubViewContainer>
-      <StartViewContainer>
-        <UpperContentContainer>
-          <Header1>Create Your Account</Header1>
-          <BodyText>
-            Create an account for your wallet, or connect to Ledger.
-          </BodyText>
-        </UpperContentContainer>
-        <Button
+    <>
+      <LogoContainer>
+        <Image imageName={ImageName.LogoMinimal} />
+      </LogoContainer>
+
+      <HeaderContainer>
+        <Heading size="xl" level="h1">
+          Your Keys to Multichain Privacy
+        </Heading>
+      </HeaderContainer>
+
+      <Stack as="div" direction="vertical" gap={4}>
+        <ActionButton
           onClick={() =>
             navigate(
               formatRouterPath([
                 TopLevelRoute.AccountCreation,
-                AccountCreationRoute.SeedPhrase,
+                AccountCreationRoute.SeedPhraseWarning,
               ])
             )
           }
-          variant={ButtonVariant.Contained}
         >
-          Create an account
-        </Button>
-        <Button
+          Create new keys
+        </ActionButton>
+
+        <ActionButton
           onClick={() =>
             navigate(
               formatRouterPath([
@@ -51,18 +57,24 @@ const Start: React.FC = () => {
               ])
             )
           }
-          variant={ButtonVariant.Contained}
         >
-          Import an account
-        </Button>
-        <Button
-          onClick={() => navigate(TopLevelRoute.Ledger)}
-          variant={ButtonVariant.Contained}
+          Import existing keys
+        </ActionButton>
+
+        <ActionButton
+          onClick={() =>
+            navigate(
+              formatRouterPath([
+                TopLevelRoute.Ledger,
+                LedgerConnectRoute.Connect,
+              ])
+            )
+          }
         >
-          Connect to Ledger
-        </Button>
-      </StartViewContainer>
-    </SubViewContainer>
+          Connect to Ledger Hardware Wallet
+        </ActionButton>
+      </Stack>
+    </>
   );
 };
 
