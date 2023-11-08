@@ -221,17 +221,12 @@ class Keplr implements Integration<Account, OfflineSigner> {
     chainId: string,
     signer: string,
     data: string
-  ): Promise<string> {
+  ): Promise<{ signature: string; pub_key: { type: string; value: string } }> {
     if (!this._keplr) {
       throw Error("Keplr not found");
     }
-    const { signature } = await this._keplr.signArbitrary(
-      chainId,
-      signer,
-      data
-    );
 
-    return signature;
+    return this._keplr.signArbitrary(chainId, signer, data);
   }
 }
 

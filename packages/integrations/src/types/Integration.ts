@@ -26,5 +26,5 @@ export interface Integration<T, S> {
     chainId: string,
     signer: string,
     data: string
-  ) => Promise<string>;
+  ) => Promise<{ signature: string; pub_key: { type: string; value: string } }>;
 }

@@ -97,14 +97,6 @@ export const ButtonsContainer = styled.div`
   flex-direction: column;
 `;
 
-export const Header = styled.h2`
-  color: ${(props) => props.theme.colors.primary.main};
-`;
-
-export const HeaderTwo = styled.h3`
-  color: ${(props) => props.theme.colors.primary.main};
-`;
-
 export const ClaimsSection = styled.div`
   display: flex;
   flex-direction: column;
@@ -137,7 +129,7 @@ export const ClaimValue = styled.span`
 
 export const NamadaSection = styled.div``;
 
-export const Address = styled.div`
+export const AddressText = styled.div`
   color: white;
   font-size: 12px;
   margin-top: 10px;
