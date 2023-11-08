@@ -97,10 +97,10 @@ export const ButtonsContainer = styled.div`
   flex-direction: column;
 `;
 
-export const ClaimsSection = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
+// export const ClaimsSection = styled.div`
+//   display: flex;
+//   flex-direction: column;
+// `;
 
 export const Claims = styled.div`
   display: grid;
@@ -138,4 +138,156 @@ export const AddressText = styled.div`
 export const TextButton = styled.div`
   cursor: pointer;
   color: ${(props) => props.theme.colors.primary.main};
+`;
+
+// Common.components
+export const Breadcrumb = styled.div`
+  font-size: 20px;
+  font-weight: bold;
+  color: ${(props) => props.theme.colors.utility2.main};
+
+  &.active {
+    color: ${(props) => props.theme.colors.primary.main};
+  }
+`;
+
+// Main.components
+export const MainContainer = styled.div`
+  width: 800px;
+`;
+export const MainHeader = styled.div`
+  text-align: center;
+`;
+
+export const MainSection = styled.div`
+  box-sizing: border-box;
+  border: 1px solid ${(props) => props.theme.colors.utility2.main20};
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 20px;
+  padding: 20px;
+  margin-top: 40px;
+`;
+
+export const MainSectionTime = styled.div`
+  color: ${(props) => props.theme.colors.utility2.main};
+  text-align: center;
+`;
+
+export const MainFooter = styled.div`
+  margin-top: 40px;
+  color: ${(props) => props.theme.colors.utility2.main};
+`;
+
+export const MainModal = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 20px;
+  & > button {
+    margin: 10px 0;
+  }
+`;
+export const TOSToggle = styled.div`
+  display: flex;
+  color: ${(props) => props.theme.colors.utility2.main};
+  gap: 10px;
+  align-items: center;
+  margin-top: 20px;
+  & > button {
+    min-width: 45px;
+  }
+
+  & > span {
+    cursor: pointer;
+  }
+`;
+
+//Github.components
+export const GithubContainer = styled.div`
+  width: 800px;
+`;
+
+export const GithubHeader = styled.div`
+  margin-top: 20px;
+  & > button {
+    margin: 0;
+  }
+`;
+
+export const GithubBreadcrumb = styled.div`
+  display: flex;
+  gap: 10px;
+  margin-top: 40px;
+`;
+
+export const GithubSection = styled.div`
+  box-sizing: border-box;
+  border: 1px solid ${(props) => props.theme.colors.utility2.main20};
+  padding: 20px;
+`;
+
+export const EligibilitySection = styled.div`
+  display: flex;
+  gap: 20px;
+  color: ${(props) => props.theme.colors.utility2.main};
+  justify-content: space-between;
+
+  & > button {
+    align-self: center;
+  }
+`;
+
+export const ClaimsSection = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  color: ${(props) => props.theme.colors.utility2.main};
+  & > button {
+    margin-top: 10px;
+    width: 200px;
+    align-self: center;
+  }
+`;
+
+export const GithubFooter = styled.div``;
+
+export const AirdropAddress = styled.div`
+  display: flex;
+  flex-direction: row;
+
+  & > label {
+    flex: 1;
+  }
+
+  & > button {
+    width: 80px;
+    align-self: flex-end;
+    margin: 0 0 2px 10px;
+    padding: 10px;
+  }
+`;
+
+export const ExtensionInfo = styled.div`
+  margin-top: 20px;
+  padding: 20px;
+  box-sizing: border-box;
+  border: 1px solid ${(props) => props.theme.colors.utility2.main20};
+`;
+
+// AirdropConfirmation.components
+export const AirdropConfirmationContainer = styled.div`
+  width: 800px;
+`;
+
+export const AirdropConfirmationHeader = styled.div`
+  margin-top: 20px;
+  & > button {
+    margin: 0;
+  }
+`;
+
+export const AirdropConfirmationSection = styled.div`
+  text-align: center;
+  color: ${(props) => props.theme.colors.utility2.main};
 `;
