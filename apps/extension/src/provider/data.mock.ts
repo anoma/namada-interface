@@ -38,6 +38,7 @@ export const keyStore: KeyStore[] = [
     path: {
       account: 0,
       change: 0,
+      index: 0,
     },
     crypto: {
       cipher: {

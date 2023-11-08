@@ -37,7 +37,7 @@ import {
   UtilityStore,
   AccountStore,
 } from "./types";
-import { makeBip44Path, Result } from "@namada/utils";
+import { Result } from "@namada/utils";
 
 import { Crypto } from "./crypto";
 import { getAccountValuesFromStore, generateId } from "utils";
@@ -229,17 +229,16 @@ export class KeyRing {
       const seed = mnemonic.to_seed();
       const { coinType } = chains[this.chainId].bip44;
       const path = { account: 0, change: 0, index: 0 };
-      const bip44Path = makeBip44Path(coinType, path);
+      const bip44Path = [44, coinType, path.account, path.change, path.index];
       const hdWallet = new HDWallet(seed);
-      const account = hdWallet.derive(bip44Path);
+      const account = hdWallet.derive(new Uint32Array(bip44Path));
       const privateKeyStringPtr = account.private().to_hex();
-      const publicKeyStringPtr = account.public().to_hex();
       const sk = readStringPointer(privateKeyStringPtr, this._cryptoMemory);
-      const publicKey = readStringPointer(
-        publicKeyStringPtr,
-        this._cryptoMemory
-      );
-      const address = new Address(sk).implicit();
+
+      const addr = new Address(sk);
+      const address = addr.implicit();
+      const publicKey = addr.public();
+
       const { chainId } = this;
 
       // Generate unique ID for new parent account:
@@ -308,9 +307,15 @@ export class KeyRing {
     parentId: string
   ): DerivedAccountInfo {
     const { coinType } = chains[this.chainId].bip44;
-    const derivationPath = makeBip44Path(coinType, path);
+    const derivationPath = [
+      44,
+      coinType,
+      path.account,
+      path.change,
+      path.index || 0,
+    ];
     const hdWallet = new HDWallet(seed);
-    const derivedAccount = hdWallet.derive(derivationPath);
+    const derivedAccount = hdWallet.derive(new Uint32Array(derivationPath));
     const privateKey = derivedAccount.private();
     const hex = privateKey.to_hex();
     const text = readStringPointer(hex, this.cryptoMemory);
