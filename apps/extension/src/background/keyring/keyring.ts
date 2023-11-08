@@ -180,7 +180,11 @@ export class KeyRing {
       const mnemonic = Mnemonic.from_phrase(phrase);
       const seed = mnemonic.to_seed();
       const { coinType } = chains[this.chainId].bip44;
-      const path = { account: 0, change: 0, index: 0 };
+      const path = {
+        account: 0,
+        change: 0,
+        index: 0,
+      };
       const bip44Path = makeBip44PathArray(coinType, path);
       const hdWallet = new HDWallet(seed);
       const key = hdWallet.derive(new Uint32Array(bip44Path));
