@@ -1,5 +1,6 @@
 import { AccountType, BridgeType, Chain, Extensions } from "@namada/types";
-import { ActiveAccountStore, KdfType, KeyStore } from "background/keyring";
+import { ActiveAccountStore } from "background/keyring";
+import { KdfType, KeyStore } from "background/vault";
 
 export const ACTIVE_ACCOUNT: ActiveAccountStore = {
   id: "324bfe0e-cb19-5f1a-9630-9daaaecadabe",

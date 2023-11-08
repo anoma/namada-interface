@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
-import { CheckIsLockedMsg } from "background/keyring";
+import { CheckIsLockedMsg } from "background/vault";
 import { TopLevelRoute } from "App/types";
 import { paramsToUrl } from "@namada/utils";
 

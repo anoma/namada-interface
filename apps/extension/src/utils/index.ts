@@ -1,16 +1,8 @@
-import browser from "webextension-polyfill";
 import { v5 as uuid } from "uuid";
+import browser from "webextension-polyfill";
 
-import {
-  DerivedAccount,
-  Message,
-  SignatureMsgValue,
-  TxProps,
-  TxMsgValue,
-} from "@namada/types";
-import { pick } from "@namada/utils";
-import { AccountStore } from "background/keyring";
 import { ISignature } from "@namada/ledger-namada";
+import { Message, SignatureMsgValue, TxMsgValue, TxProps } from "@namada/types";
 
 /**
  * Query the current extension tab and close it
@@ -20,28 +12,6 @@ export const closeCurrentTab = async (): Promise<void> => {
   if (tab.id) {
     browser.tabs.remove(tab.id);
   }
-};
-
-/**
- * Return all unencrypted values from key store
- */
-export const getAccountValuesFromStore = (
-  accounts: AccountStore[]
-): DerivedAccount[] => {
-  return accounts.map((account) =>
-    pick<DerivedAccount, keyof DerivedAccount>(
-      account,
-      "address",
-      "alias",
-      "chainId",
-      "id",
-      "owner",
-      "parentId",
-      "publicKey",
-      "path",
-      "type"
-    )
-  );
 };
 
 /**

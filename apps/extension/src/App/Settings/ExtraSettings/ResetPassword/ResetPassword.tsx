@@ -1,20 +1,18 @@
-import { useState } from "react";
 import { Button, ButtonVariant } from "@namada/components";
+import { useState } from "react";
 import zxcvbn from "zxcvbn";
 
 import {
+  ErrorFeedback,
+  Header5,
   Input,
   InputContainer,
   InputFeedback,
-  Header5,
-  ErrorFeedback,
 } from "./ResetPassword.components";
 
-import { ResetPasswordMsg } from "background/keyring";
-import { ExtensionRequester } from "extension";
+import { ResetPasswordError, ResetPasswordMsg } from "background/vault";
+import { useRequester } from "hooks/useRequester";
 import { Ports } from "router";
-import { ResetPasswordError } from "background/keyring/types";
-import { assertNever } from "@namada/utils";
 
 enum Status {
   Unsubmitted,
@@ -23,18 +21,12 @@ enum Status {
   Failed,
 }
 
-export type Props = {
-  accountId: string;
-  requester: ExtensionRequester;
-};
-
-const ResetPassword: React.FC<Props> = ({ accountId, requester }) => {
+const ResetPassword: React.FC = () => {
+  const requester = useRequester();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
-
   const [status, setStatus] = useState<Status>(Status.Unsubmitted);
-
   const [errorMessage, setErrorMessage] = useState("");
 
   const match = newPassword === confirmNewPassword;
@@ -51,27 +43,29 @@ const ResetPassword: React.FC<Props> = ({ accountId, requester }) => {
 
   const handleSubmit = async (): Promise<void> => {
     setStatus(Status.Pending);
-
-    const result = await requester.sendMessage<ResetPasswordMsg>(
+    const result = await requester.sendMessage(
       Ports.Background,
-      new ResetPasswordMsg(currentPassword, newPassword, accountId)
+      new ResetPasswordMsg(currentPassword, newPassword)
     );
 
-    if (result.ok) {
-      setStatus(Status.Complete);
-    } else {
-      setStatus(Status.Failed);
-
-      switch (result.error) {
-        case ResetPasswordError.BadPassword:
-          setErrorMessage("Current password is incorrect!");
-          break;
-        case ResetPasswordError.KeyStoreError:
-          setErrorMessage("Unknown error");
-          break;
-        default:
-          assertNever(result.error);
+    try {
+      if (result.ok) {
+        setStatus(Status.Complete);
+      } else {
+        setStatus(Status.Failed);
+        switch (result.error) {
+          case ResetPasswordError.BadPassword:
+            setErrorMessage("Current password is incorrect!");
+            break;
+          case ResetPasswordError.KeyStoreError:
+            setErrorMessage("Unknown error");
+            break;
+          default:
+        }
       }
+    } catch (err) {
+      setStatus(Status.Failed);
+      setErrorMessage(`${err}`);
     }
   };
 

@@ -13,12 +13,12 @@ import {
 import { DerivedAccount } from "@namada/types";
 
 import {
-  LockKeyRingMsg,
   ParentAccount,
   QueryParentAccountsMsg,
   SetActiveAccountMsg,
 } from "background/keyring";
 
+import { LockVaultMsg } from "background/vault";
 import { formatRouterPath } from "@namada/utils";
 import { Ports } from "router";
 import { Status } from "../App";
@@ -67,7 +67,7 @@ export const ParentAccounts: React.FC<{
       );
 
       // Lock current wallet keyring:
-      await requester.sendMessage(Ports.Background, new LockKeyRingMsg());
+      await requester.sendMessage(Ports.Background, new LockVaultMsg());
 
       // Fetch accounts for selected parent account
       onSelectAccount(account);

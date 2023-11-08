@@ -2,19 +2,17 @@
 
 import { Chain, Namada } from "@namada/types";
 
-import { KVKeys } from "router";
-import { init, KVStoreMock } from "test/init";
 import { chains as defaultChains } from "@namada/chains";
-import { chain, keyStore, password, ACTIVE_ACCOUNT } from "./data.mock";
 import {
-  KeyRing,
-  KeyRingService,
-  KeyStore,
   KEYSTORE_KEY,
   PARENT_ACCOUNT_ID_KEY,
   UtilityStore,
 } from "background/keyring";
+import { KeyStore, VaultService } from "background/vault";
 import * as utils from "extension/utils";
+import { KVKeys } from "router";
+import { init, KVStoreMock } from "test/init";
+import { ACTIVE_ACCOUNT, chain, keyStore, password } from "./data.mock";
 
 // Needed for now as utils import webextension-polyfill directly
 jest.mock("webextension-polyfill", () => ({}));
@@ -23,21 +21,21 @@ describe("Namada", () => {
   let namada: Namada;
   let iDBStore: KVStoreMock<Chain[] | KeyStore[]>;
   let utilityStore: KVStoreMock<UtilityStore>;
-  let keyRingService: KeyRingService;
+  let vaultService: VaultService;
 
   beforeAll(async () => {
     jest.spyOn(utils, "getNamadaRouterId").mockResolvedValue(1);
-    ({ namada, iDBStore, utilityStore, keyRingService } = await init());
+    ({ namada, iDBStore, utilityStore, vaultService } = await init());
 
     jest
-      .spyOn(KeyRing.prototype, "checkPassword")
+      .spyOn(VaultService.prototype, "checkPassword")
       .mockReturnValue(Promise.resolve(true));
 
-    keyRingService.unlock(password);
+    vaultService.unlock(password);
   });
 
   afterAll(() => {
-    keyRingService.lock();
+    vaultService.lock();
   });
 
   it("should return chain by chainId", async () => {

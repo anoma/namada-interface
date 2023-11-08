@@ -30,9 +30,9 @@ import {
   ActiveAccountStore,
 } from "./keyring";
 import { LedgerService, init as initLedger } from "./ledger";
+import { VaultService } from "./vault";
 
 const store = new IndexedDBKVStore(KVPrefix.IndexedDB);
-
 const utilityStore = new IndexedDBKVStore<UtilityStore>(KVPrefix.Utility);
 // TODO: For now we will be running two stores side by side
 const sdkStore = new IndexedDBKVStore(KVPrefix.SDK);
@@ -99,9 +99,10 @@ const init = new Promise<void>(async (resolve) => {
     requester
   );
 
+  const vaultService = new VaultService(store, cryptoMemory);
   const chainsService = new ChainsService(store, [chains[defaultChainId]]);
   const keyRingService = new KeyRingService(
-    store,
+    vaultService,
     sdkStore,
     utilityStore,
     connectedTabsStore,
@@ -130,7 +131,8 @@ const init = new Promise<void>(async (resolve) => {
     connectedTabsStore,
     approvedOriginsStore,
     keyRingService,
-    ledgerService
+    ledgerService,
+    vaultService
   );
 
   // Initialize messages and handlers

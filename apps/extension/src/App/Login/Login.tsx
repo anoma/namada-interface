@@ -12,7 +12,7 @@ import {
 } from "@namada/components";
 
 import { TopLevelRoute } from "App/types";
-import { KeyRingStatus, UnlockKeyRingMsg } from "background/keyring";
+import { UnlockVaultMsg } from "background/vault";
 import { ExtensionRequester } from "extension";
 import { useQuery } from "hooks";
 import { Ports } from "router";
@@ -40,11 +40,12 @@ const Login: React.FC<Props> = ({ requester }) => {
   const handleSubmit = async (): Promise<void> => {
     setStatus(Status.Pending);
     try {
-      const { status: lockStatus } = await requester.sendMessage(
+      const unlocked = await requester.sendMessage(
         Ports.Background,
-        new UnlockKeyRingMsg(password)
+        new UnlockVaultMsg(password)
       );
-      if (lockStatus === KeyRingStatus.Unlocked) {
+
+      if (unlocked) {
         navigate(redirect);
       } else {
         setStatus(Status.InvalidPassword);

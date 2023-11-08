@@ -1,47 +1,32 @@
-import { Handler, Env, Message, InternalHandler } from "router";
-import { KeyRingService } from "./service";
 import {
-  CheckIsLockedMsg,
-  CheckPasswordMsg,
-  QueryPublicKeyMsg,
-  CloseOffscreenDocumentMsg,
-  ResetPasswordMsg,
-  DeriveAccountMsg,
-  GenerateMnemonicMsg,
-  LockKeyRingMsg,
-  SaveMnemonicMsg,
-  UnlockKeyRingMsg,
-  SetActiveAccountMsg,
-  GetActiveAccountMsg,
-  QueryParentAccountsMsg,
-  TransferCompletedEvent,
-  DeleteAccountMsg,
-  ValidateMnemonicMsg,
-  ScanAccountsMsg,
-} from "./messages";
-import {
-  QueryAccountsMsg,
-  QueryBalancesMsg,
+  CheckDurabilityMsg,
   FetchAndStoreMaspParamsMsg,
   HasMaspParamsMsg,
-  CheckDurabilityMsg,
+  QueryAccountsMsg,
+  QueryBalancesMsg,
 } from "provider/messages";
+import { Env, Handler, InternalHandler, Message } from "router";
+import {
+  CloseOffscreenDocumentMsg,
+  DeleteAccountMsg,
+  DeriveAccountMsg,
+  GenerateMnemonicMsg,
+  GetActiveAccountMsg,
+  QueryParentAccountsMsg,
+  QueryPublicKeyMsg,
+  SaveMnemonicMsg,
+  ScanAccountsMsg,
+  SetActiveAccountMsg,
+  TransferCompletedEvent,
+  ValidateMnemonicMsg,
+} from "./messages";
+import { KeyRingService } from "./service";
 
 export const getHandler: (service: KeyRingService) => Handler = (service) => {
   return (env: Env, msg: Message<unknown>) => {
     switch (msg.constructor) {
-      case CheckIsLockedMsg:
-        return handleCheckIsLockedMsg(service)(env, msg as CheckIsLockedMsg);
-      case LockKeyRingMsg:
-        return handleLockKeyRingMsg(service)(env, msg as LockKeyRingMsg);
-      case UnlockKeyRingMsg:
-        return handleUnlockKeyRingMsg(service)(env, msg as UnlockKeyRingMsg);
-      case CheckPasswordMsg:
-        return handleCheckPasswordMsg(service)(env, msg as CheckPasswordMsg);
       case QueryPublicKeyMsg:
         return handleQueryPublicKey(service)(env, msg as QueryPublicKeyMsg);
-      case ResetPasswordMsg:
-        return handleResetPasswordMsg(service)(env, msg as ResetPasswordMsg);
       case GenerateMnemonicMsg:
         return handleGenerateMnemonicMsg(service)(
           env,
@@ -107,56 +92,12 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
   };
 };
 
-const handleCheckIsLockedMsg: (
-  service: KeyRingService
-) => InternalHandler<CheckIsLockedMsg> = (service) => {
-  return () => {
-    return service.isLocked();
-  };
-};
-
-const handleLockKeyRingMsg: (
-  service: KeyRingService
-) => InternalHandler<LockKeyRingMsg> = (service) => {
-  return () => {
-    return service.lock();
-  };
-};
-
-const handleUnlockKeyRingMsg: (
-  service: KeyRingService
-) => InternalHandler<UnlockKeyRingMsg> = (service) => {
-  return async (_, msg) => {
-    return await service.unlock(msg.password);
-  };
-};
-
-const handleCheckPasswordMsg: (
-  service: KeyRingService
-) => InternalHandler<CheckPasswordMsg> = (service) => {
-  return async (_, msg) => {
-    return await service.checkPassword(msg.password, msg.accountId);
-  };
-};
-
 const handleQueryPublicKey: (
   service: KeyRingService
 ) => InternalHandler<QueryPublicKeyMsg> = (service) => {
   return async (_, msg) => {
     const { address } = msg;
     return await service.queryPublicKey(address);
-  };
-};
-
-const handleResetPasswordMsg: (
-  service: KeyRingService
-) => InternalHandler<ResetPasswordMsg> = (service) => {
-  return async (_, msg) => {
-    return await service.resetPassword(
-      msg.currentPassword,
-      msg.newPassword,
-      msg.accountId
-    );
   };
 };
 
@@ -213,7 +154,7 @@ const handleQueryAccountsMsg: (
 
     const output =
       query && query.accountId
-        ? await service.queryAccountById(query.accountId, query.type)
+        ? await service.queryAccountById(query.accountId)
         : await service.queryAccounts();
 
     return output;

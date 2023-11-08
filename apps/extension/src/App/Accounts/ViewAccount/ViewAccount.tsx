@@ -22,7 +22,7 @@ type ViewAccountUrlParams = {
 };
 
 export const ViewAccount = (): JSX.Element => {
-  const { accountId = "", type } = useParams<ViewAccountUrlParams>();
+  const { accountId = "" } = useParams<ViewAccountUrlParams>();
   const [loadingStatus, setLoadingStatus] = useState("");
   const [accounts, setAccounts] = useState<DerivedAccount[]>([]);
   const [parentAccount, setParentAccount] = useState<DerivedAccount>();
@@ -38,7 +38,7 @@ export const ViewAccount = (): JSX.Element => {
     try {
       const accounts = await requester.sendMessage(
         Ports.Background,
-        new QueryAccountsMsg({ accountId, type })
+        new QueryAccountsMsg({ accountId })
       );
       setAccounts(accounts);
 

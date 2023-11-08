@@ -1,46 +1,41 @@
 import { fromBase64 } from "@cosmjs/encoding";
 
 import { PhraseSize } from "@namada/crypto";
-import { IndexedDBKVStore, KVStore, Store } from "@namada/storage";
-import { AccountType, Bip44Path, DerivedAccount } from "@namada/types";
 import { Query, Sdk, TxType } from "@namada/shared";
+import { IndexedDBKVStore, KVStore } from "@namada/storage";
+import { AccountType, Bip44Path, DerivedAccount } from "@namada/types";
 import { Result } from "@namada/utils";
 
-import { KeyRing, KEYSTORE_KEY } from "./keyring";
-import {
-  AccountStore,
-  KeyRingStatus,
-  KeyStore,
-  TabStore,
-  ResetPasswordError,
-  DeleteAccountError,
-  UtilityStore,
-  ParentAccount,
-  ActiveAccountStore,
-} from "./types";
-import { syncTabs, updateTabStorage } from "./utils";
-import {
-  ExtensionBroadcaster,
-  ExtensionRequester,
-  getNamadaRouterId,
-} from "extension";
 import {
   createOffscreenWithTxWorker,
   hasOffscreenDocument,
   OFFSCREEN_TARGET,
   SUBMIT_TRANSFER_MSG_TYPE,
 } from "background/offscreen";
+import { VaultService } from "background/vault";
 import { init as initSubmitTransferWebWorker } from "background/web-workers";
-import { LEDGERSTORE_KEY } from "background/ledger";
-import { getAccountValuesFromStore } from "utils";
+import {
+  ExtensionBroadcaster,
+  ExtensionRequester,
+  getNamadaRouterId,
+} from "extension";
+import { KeyRing, KEYSTORE_KEY } from "./keyring";
+import {
+  AccountStore,
+  ActiveAccountStore,
+  DeleteAccountError,
+  ParentAccount,
+  TabStore,
+  UtilityStore,
+} from "./types";
+import { syncTabs, updateTabStorage } from "./utils";
 
 export class KeyRingService {
   private _keyRing: KeyRing;
-  private _keyRingStore: Store<AccountStore>;
-  private _ledgerStore: Store<AccountStore>;
 
   constructor(
-    protected readonly kvStore: KVStore<KeyStore[]>,
+    //protected readonly kvStore: KVStore<KeyStore[]>,
+    protected readonly vaultService: VaultService,
     protected readonly sdkStore: KVStore<Record<string, string>>,
     protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
@@ -53,7 +48,7 @@ export class KeyRingService {
     protected readonly broadcaster: ExtensionBroadcaster
   ) {
     this._keyRing = new KeyRing(
-      kvStore,
+      vaultService,
       sdkStore,
       utilityStore,
       extensionStore,
@@ -62,25 +57,6 @@ export class KeyRingService {
       query,
       cryptoMemory
     );
-    this._ledgerStore = new Store(LEDGERSTORE_KEY, kvStore);
-    this._keyRingStore = new Store(KEYSTORE_KEY, kvStore);
-  }
-
-  lock(): { status: KeyRingStatus } {
-    this._keyRing.lock();
-    return { status: this._keyRing.status };
-  }
-
-  async unlock(password: string): Promise<{ status: KeyRingStatus }> {
-    if (!password) {
-      throw new Error("A password is required to unlock keystore!");
-    }
-    await this._keyRing.unlock(password);
-    return { status: this._keyRing.status };
-  }
-
-  isLocked(): boolean {
-    return this._keyRing.isLocked();
   }
 
   // Track connected tabs by ID
@@ -101,22 +77,6 @@ export class KeyRingService {
       );
     }
     throw new Error("Connect: Invalid chainId");
-  }
-
-  async checkPassword(password: string, accountId?: string): Promise<boolean> {
-    return await this._keyRing.checkPassword(password, accountId);
-  }
-
-  async resetPassword(
-    currentPassword: string,
-    newPassword: string,
-    accountId: string
-  ): Promise<Result<null, ResetPasswordError>> {
-    return await this._keyRing.resetPassword(
-      currentPassword,
-      newPassword,
-      accountId
-    );
   }
 
   async generateMnemonic(size?: PhraseSize): Promise<string[]> {
@@ -152,46 +112,20 @@ export class KeyRingService {
     return account;
   }
 
-  async queryAccountById(
-    id: string,
-    type: ParentAccount = AccountType.Mnemonic
-  ): Promise<DerivedAccount[]> {
-    if (type !== AccountType.Ledger && id) {
-      // Query KeyRing accounts
-      return await this._keyRing.queryAccounts(id);
-    }
-
-    // Query Ledger accounts
-    const parent = await this._ledgerStore.getRecord("id", id);
-    if (parent) {
-      const accounts = [
-        parent,
-        ...((await this._ledgerStore.getRecords("parentId", id)) || []),
-      ];
-
-      return getAccountValuesFromStore(accounts);
-    }
-
-    return [];
+  async queryAccountById(id: string): Promise<DerivedAccount[]> {
+    return await this._keyRing.queryAccounts(id);
   }
 
   async queryAccounts(): Promise<DerivedAccount[]> {
-    const { id, type } = (await this.getActiveAccount()) || {};
-    if (!id || !type) {
+    const { id } = (await this.getActiveAccount()) || {};
+    if (!id) {
       return [];
     }
-
-    return await this.queryAccountById(id, type);
+    return await this.queryAccountById(id);
   }
 
   async queryParentAccounts(): Promise<DerivedAccount[]> {
-    const ledgerAccounts =
-      (await this._ledgerStore.getRecords("parentId", undefined)) || [];
-
-    return [
-      ...(await this._keyRing.queryParentAccounts()),
-      ...getAccountValuesFromStore(ledgerAccounts),
-    ];
+    return [...(await this._keyRing.queryParentAccounts())];
   }
 
   async submitBond(
@@ -457,15 +391,12 @@ export class KeyRingService {
   async queryBalances(
     address: string
   ): Promise<{ token: string; amount: string }[]> {
-    // Validate account
-    const account =
-      (await this._keyRingStore.getRecord("address", address)) ||
-      (await this._ledgerStore.getRecord("address", address));
-
-    if (!account) {
-      throw new Error("Account not found!");
-    }
-    return this._keyRing.queryBalances(account.owner);
+    const account = await this.vaultService.findOneOrFail<AccountStore>(
+      KEYSTORE_KEY,
+      "address",
+      address
+    );
+    return this._keyRing.queryBalances(account.public.owner);
   }
 
   async initSdkStore(activeAccountId: string): Promise<void> {

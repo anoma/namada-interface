@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { Icon, IconName } from "@namada/components";
 import { ButtonContainer, LockExtensionButton } from "./LockWrapper.components";
-import { LockKeyRingMsg } from "background/keyring";
+import { LockVaultMsg } from "background/vault";
 import { Ports } from "router";
 import { Status } from "App/App";
 import { TopLevelRoute } from "App/types";
@@ -28,7 +28,7 @@ const LockWrapper: React.FC<Props> = ({
 
   const handleLock = async (): Promise<void> => {
     try {
-      await requester.sendMessage(Ports.Background, new LockKeyRingMsg());
+      await requester.sendMessage(Ports.Background, new LockVaultMsg());
       setStatus(undefined);
       lockKeyRing();
     } catch (e) {
