@@ -5,7 +5,7 @@ const DEFAULT_ALIAS = "Namada Testnet";
 const DEFAULT_CHAIN_ID = "qc-testnet-5.1.025a61165acd05e";
 const DEFAULT_RPC =
   "https://d3brk13lbhxfdb.cloudfront.net/qc-testnet-5.1.025a61165acd05e";
-const DEFAULT_BECH32_PREFIX = "atest";
+const DEFAULT_BECH32_PREFIX = "tnam";
 
 const {
   REACT_APP_PROXY: isProxied,

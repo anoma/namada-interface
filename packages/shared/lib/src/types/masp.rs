@@ -124,12 +124,12 @@ mod tests {
         let expected_key =
             format!(
                 "{}{}{}",
-                "xsktest1q85aawymqyqqqq8gt6pzjzf6c53lt70gu80zd9rfes8wv8h3zmtzdhf3zxfllzxmlfr7dcszjf94a602l6qga52fgx6yp6ul",
-                "05vy6r8kwxhznkg9hmtsvn9axu0kq4tjzmtl4rrz5f0uhx45qrnj3tpy3y0gad0p376xapcz6k676e3hkt9qy7apdqc4kff7xjzysec8",
-                "83h2kvgkvjfzcn7dwqvjgvlzuskl9jwu6nwr5hrl9ltrht4kffdyredmf3qlvghdd0gt9uc8v6hz3",
+                "zsknam1q85aawymqyqqqq8gt6pzjzf6c53lt70gu80zd9rfes8wv8h3zmtzdhf3zxfllzxmlfr7dcszjf94a602l6qga52fgx6yp6ul05vy6r",
+                "8kwxhznkg9hmtsvn9axu0kq4tjzmtl4rrz5f0uhx45qrnj3tpy3y0gad0p376xapcz6k676e3hkt9qy7apdqc4kff7xjzysec883h2kvgkvjf",
+                "zcn7dwqvjgvlzuskl9jwu6nwr5hrl9ltrht4kffdyredmf3qlvghdd0gt9ucw4ccj7",
             );
 
-        assert!(key.starts_with("xsktest"));
+        assert!(key.starts_with("zsknam"));
         assert_eq!(key, expected_key);
     }
 
@@ -154,11 +154,11 @@ mod tests {
         let expected_key =
             format!(
                 "{}{}{}",
-                "xfvktest1q85aawymqyqqqq8gt6pzjzf6c53lt70gu80zd9rfes8wv8h3zmtzdhf3zxfllzxmltncmlfp35kjll27vvpr4625nz8rctd",
-                "0vs9q2gr7s5hdvv5ga0ayjltsv7880nxdfv0dqa7lmgf43n4dh86wfcpqdrqmmlcfjvtptu9l6k676e3hkt9qy7apdqc4kff7xjzysec8",
-                "83h2kvgkvjfzcn7dwqvjgvlzuskl9jwu6nwr5hrl9ltrht4kffdyredmf3qlvghdd0gt9ucvxyquf",
+                "zvknam1q85aawymqyqqqq8gt6pzjzf6c53lt70gu80zd9rfes8wv8h3zmtzdhf3zxfllzxmltncmlfp35kjll27vvpr4625nz8rctd0vs9",
+                "q2gr7s5hdvv5ga0ayjltsv7880nxdfv0dqa7lmgf43n4dh86wfcpqdrqmmlcfjvtptu9l6k676e3hkt9qy7apdqc4kff7xjzysec883h2k",
+                "vgkvjfzcn7dwqvjgvlzuskl9jwu6nwr5hrl9ltrht4kffdyredmf3qlvghdd0gt9uce7vx4v",
             );
-        assert!(key.starts_with("xfvktest"));
+        assert!(key.starts_with("zvknam"));
         assert_eq!(key, expected_key);
     }
 
@@ -177,10 +177,11 @@ mod tests {
         let hash = payment_address.hash();
 
         let expected_address =
-            "patest1vnrjyczagvf9745t002cmeyn48d0wj6ncdyyjtzpare7t5flkuq4w47t9z60yeam7hszga07g7t";
+            "znam1qpjvwgnqt4p3yh6k3daatr0yjw5a4a6t20p5sjfvg8508ew387msz46hev5tfun8h067qfqh3s64t";
+
         let expected_hash = "DBF7C3440E0C0B81EBBB95AD26DA6D875C19BC45";
 
-        assert!(address.starts_with("patest"));
+        assert!(address.starts_with("znam"));
         assert_eq!(address, expected_address);
         assert_eq!(hash, expected_hash);
     }

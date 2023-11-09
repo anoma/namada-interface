@@ -25,7 +25,7 @@ export const Symbols = [
   "NUTTESTERC20",
 ] as const;
 
-export type TokenType = (typeof Symbols)[number];
+export type TokenType = typeof Symbols[number];
 type Tokens = Record<TokenType, TokenInfo>;
 
 const nuterc20 = [
@@ -75,16 +75,15 @@ Tokens["NAM"] = {
   symbol: "NAM",
   coin: "Namada",
   url: "https://namada.net",
-  address:
-    "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5",
+  address: "tnam1q99c37u38grkdcc2qze0hz4zjjd8zr3yucd3mzgz",
 };
 
-Tokens["ATOM"].address =
-  "atest1v4ehgw36gfryydj9g3p5zv3kg9znyd358ycnzsfcggc5gvecgc6ygs2rxv6ry3zpg4zrwdfeumqcz9";
+// TODO: We don't have a address for this. The address for DOT
+// from the dev & e2e genesis is being used here:
+Tokens["ATOM"].address = "tnam1qx6k4wau5t6m8g2hjq55fje2ynpvh5t27s8p3p0l";
 Tokens["ATOM"].coinGeckoId = "cosmos";
 
-Tokens["ETH"].address =
-  "atest1v4ehgw36xqmr2d3nx3ryvd2xxgmrq33j8qcns33sxezrgv6zxdzrydjrxveygd2yxumrsdpsf9jc2p";
+Tokens["ETH"].address = "tnam1qyr9vd8ltunq72qc7pk58v7jdsedt4mggqqpxs03";
 Tokens["ETH"].coinGeckoId = "ethereum";
 
 Tokens["TESTERC20"].address =

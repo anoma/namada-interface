@@ -8,30 +8,27 @@ export const mockAppState: RootState = {
   accounts: {
     derived: {
       "namada-masp-1.5.32ccad5356012a7": {
-        atest1v4ehgw36xqcyz3zrxsenzd3kxsunsvzzxymyywpkg4zrjv2pxepyyd3cgse5gwzxgsm5x3zrkf2pwp:
-          {
-            details: {
-              chainId: "namada-masp-1.5.32ccad5356012a7",
-              alias: "Namada",
-              address:
-                "atest1v4ehgw36xqcyz3zrxsenzd3kxsunsvzzxymyywpkg4zrjv2pxepyyd3cgse5gwzxgsm5x3zrkf2pwp",
-              isShielded: false,
-              type: AccountType.PrivateKey,
-            },
-            balance: {
-              NAM: new BigNumber(1000),
-              ATOM: new BigNumber(1000),
-              ETH: new BigNumber(1000),
-            },
+        tnam1q8gpzlamqksqjagt2xs3p6tnfcldy0fcd53fs4jh: {
+          details: {
+            chainId: "namada-masp-1.5.32ccad5356012a7",
+            alias: "Namada",
+            address: "tnam1q8gpzlamqksqjagt2xs3p6tnfcldy0fcd53fs4jh",
+            isShielded: false,
+            type: AccountType.PrivateKey,
           },
+          balance: {
+            NAM: new BigNumber(1000),
+            ATOM: new BigNumber(1000),
+            ETH: new BigNumber(1000),
+          },
+        },
       },
       "namada-test.1e670ba91369ec891fc": {
         "39UL18": {
           details: {
             chainId: "namada-test.1e670ba91369ec891fc",
             alias: "Namada",
-            address:
-              "atest1v4ehgw36xqcyz3zrxsenzd3kxsunsvzzxymyywpkg4zrjv2pxepyyd3cgse5gwzxgsm5x3zrkf2pwp",
+            address: "tnam1qz4sdx5jlh909j44uz46pf29ty0ztftfzc98s8dx",
             type: AccountType.PrivateKey,
             isShielded: false,
           },

@@ -60,10 +60,7 @@ mod tests {
         let address = Address::new(secret);
         let implicit = address.implicit();
 
-        assert_eq!(
-            implicit,
-            "atest1d9khqw36x5cnvvjpgfzyxsjpgfqnqwf5xpq5zv34gvunswp4g3znww2yxqursdpnxdz5yw2ypna253"
-        );
+        assert_eq!(implicit, "tnam1qpgk927uh2aqjs92yhycsh08n5yggvltn5nk92zp");
         assert_eq!(implicit.len(), address::ADDRESS_LEN);
     }
 
@@ -77,7 +74,7 @@ mod tests {
 
         assert_eq!(
             public,
-            "pktest1qzm68sfdcryvwj9tqaf9kuq3y2ugh4u0vqx8vdpdyle9uhujg3xdurhznu9"
+            "tpknam1qzm68sfdcryvwj9tqaf9kuq3y2ugh4u0vqx8vdpdyle9uhujg3xduf408cn"
         );
         assert_eq!(public.len(), pad.len() + 64);
     }

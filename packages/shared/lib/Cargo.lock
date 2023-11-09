@@ -1534,7 +1534,7 @@ dependencies = [
  "generic-array 0.14.7",
  "hex",
  "k256",
- "num_enum",
+ "num_enum 0.6.1",
  "once_cell",
  "open-fastrlp",
  "rand 0.8.5",
@@ -2864,7 +2864,7 @@ checksum = "e5ce46fe64a9d73be07dcbe690a38ce1b293be448fd8ce1e6c1b8062c9f72c6a"
 [[package]]
 name = "namada"
 version = "0.25.0"
-source = "git+https://github.com/anoma/namada#8dcfddc2f1fcd4d8c1ae88f3eb1bc1815f90af3d"
+source = "git+https://github.com/anoma/namada?branch=tiago/new-addresses#3b632b0261175e90d08e60a37e5b531deb9d8aed"
 dependencies = [
  "async-trait",
  "bimap",
@@ -2914,7 +2914,7 @@ dependencies = [
 [[package]]
 name = "namada_core"
 version = "0.25.0"
-source = "git+https://github.com/anoma/namada#8dcfddc2f1fcd4d8c1ae88f3eb1bc1815f90af3d"
+source = "git+https://github.com/anoma/namada?branch=tiago/new-addresses#3b632b0261175e90d08e60a37e5b531deb9d8aed"
 dependencies = [
  "ark-bls12-381",
  "ark-ec",
@@ -2945,6 +2945,7 @@ dependencies = [
  "num-rational 0.4.1",
  "num-traits",
  "num256",
+ "num_enum 0.7.1",
  "primitive-types",
  "prost 0.11.9",
  "prost-types 0.11.9",
@@ -2967,7 +2968,7 @@ dependencies = [
 [[package]]
 name = "namada_ethereum_bridge"
 version = "0.25.0"
-source = "git+https://github.com/anoma/namada#8dcfddc2f1fcd4d8c1ae88f3eb1bc1815f90af3d"
+source = "git+https://github.com/anoma/namada?branch=tiago/new-addresses#3b632b0261175e90d08e60a37e5b531deb9d8aed"
 dependencies = [
  "borsh 1.0.0-alpha.4",
  "borsh-ext",
@@ -2989,7 +2990,7 @@ dependencies = [
 [[package]]
 name = "namada_macros"
 version = "0.25.0"
-source = "git+https://github.com/anoma/namada#8dcfddc2f1fcd4d8c1ae88f3eb1bc1815f90af3d"
+source = "git+https://github.com/anoma/namada?branch=tiago/new-addresses#3b632b0261175e90d08e60a37e5b531deb9d8aed"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2999,7 +3000,7 @@ dependencies = [
 [[package]]
 name = "namada_proof_of_stake"
 version = "0.25.0"
-source = "git+https://github.com/anoma/namada#8dcfddc2f1fcd4d8c1ae88f3eb1bc1815f90af3d"
+source = "git+https://github.com/anoma/namada?branch=tiago/new-addresses#3b632b0261175e90d08e60a37e5b531deb9d8aed"
 dependencies = [
  "borsh 1.0.0-alpha.4",
  "data-encoding",
@@ -3013,7 +3014,7 @@ dependencies = [
 [[package]]
 name = "namada_sdk"
 version = "0.25.0"
-source = "git+https://github.com/anoma/namada#8dcfddc2f1fcd4d8c1ae88f3eb1bc1815f90af3d"
+source = "git+https://github.com/anoma/namada?branch=tiago/new-addresses#3b632b0261175e90d08e60a37e5b531deb9d8aed"
 dependencies = [
  "async-trait",
  "bimap",
@@ -3231,7 +3232,16 @@ version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a015b430d3c108a207fd776d2e2196aaf8b1cf8cf93253e3a097ff3085076a1"
 dependencies = [
- "num_enum_derive",
+ "num_enum_derive 0.6.1",
+]
+
+[[package]]
+name = "num_enum"
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "683751d591e6d81200c39fb0d1032608b77724f34114db54f571ff1317b337c0"
+dependencies = [
+ "num_enum_derive 0.7.1",
 ]
 
 [[package]]
@@ -3239,6 +3249,18 @@ name = "num_enum_derive"
 version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "96667db765a921f7b295ffee8b60472b686a51d4f21c2ee4ffdb94c7013b65a6"
+dependencies = [
+ "proc-macro-crate 1.3.1",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.16",
+]
+
+[[package]]
+name = "num_enum_derive"
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6c11e44798ad209ccdd91fc192f0526a369a01234f7373e1b141c96d7cee4f0e"
 dependencies = [
  "proc-macro-crate 1.3.1",
  "proc-macro2",
@@ -3729,9 +3751,9 @@ dependencies = [
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.57"
+version = "1.0.69"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c4ec6d5fe0b140acb27c9a0444118cf55bfbb4e0b259739429abb4521dd67c16"
+checksum = "134c189feb4956b20f6f547d2cf727d4c0fe06722b20a0eec87ed445a97f92da"
 dependencies = [
  "unicode-ident",
 ]
@@ -4543,6 +4565,7 @@ dependencies = [
  "masp_primitives",
  "masp_proofs",
  "namada",
+ "proc-macro2",
  "prost 0.9.0",
  "prost-types 0.9.0",
  "rand 0.8.5",

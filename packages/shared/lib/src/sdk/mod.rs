@@ -87,7 +87,7 @@ impl Sdk {
             &mut self.shielded_ctx,
             &WebIo,
             //NAM address
-            Address::from_str("atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5").unwrap(),
+            Address::from_str("tnam1q99c37u38grkdcc2qze0hz4zjjd8zr3yucd3mzgz").unwrap(),
         )
     }
 
@@ -361,7 +361,6 @@ impl Sdk {
 
         let (tx, signing_data, _) = build_vote_proposal(&namada, &args, epoch)
             .await
-
             .map_err(JsError::from)?;
 
         Ok(BuiltTx {

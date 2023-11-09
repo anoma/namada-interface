@@ -240,13 +240,13 @@ impl Query {
         &self,
         owner: Address,
     ) -> Result<Vec<(Address, token::Amount)>, JsError> {
-        //TODO: Move hardoced tokens somewhere else
+        //TODO: Move hardcoded tokens somewhere else
         let tokens: HashSet<Address> = HashSet::from([Address::from_str(
-            "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5",
+            "tnam1q99c37u38grkdcc2qze0hz4zjjd8zr3yucd3mzgz",
         )?, Address::from_str(
-            "atest1v4ehgw36gfryydj9g3p5zv3kg9znyd358ycnzsfcggc5gvecgc6ygs2rxv6ry3zpg4zrwdfeumqcz9",
+            "tnam1qx6k4wau5t6m8g2hjq55fje2ynpvh5t27s8p3p0l",
         )?, Address::from_str(
-            "atest1v4ehgw36xqmr2d3nx3ryvd2xxgmrq33j8qcns33sxezrgv6zxdzrydjrxveygd2yxumrsdpsf9jc2p",
+            "tnam1qyr9vd8ltunq72qc7pk58v7jdsedt4mggqqpxs03",
         )?, Address::from_str(
             "atest1v46xsw368psnwwf3xcerqeryxcervvpsxuukye3cxsukgce4x5mrwctyvvekvvnxv33nxvfc0kmacx",
         )?,
