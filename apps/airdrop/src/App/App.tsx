@@ -4,7 +4,6 @@ import { ColorMode, getTheme } from "@namada/utils";
 import { AppContainer, BottomSection, GlobalStyles } from "App/App.components";
 import { Route, Routes } from "react-router-dom";
 import { Main } from "./Main";
-import { Heading, HeadingLevel } from "@namada/components";
 import { GithubEligible } from "./GithubEligible";
 import { AirdropConfirmation } from "./AirdropConfirmation";
 
