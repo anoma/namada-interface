@@ -9,6 +9,29 @@ enum MessageType {
   LockKeyRing = "lock-keyring",
   ResetPassword = "reset-password",
   UnlockKeyRing = "unlock-keyring",
+  PasswordInitialized = "password-initialized",
+  CreatePassword = "create-password",
+}
+export class CheckPasswordInitializedMsg extends Message<boolean> {
+  public static type(): MessageType {
+    return MessageType.PasswordInitialized;
+  }
+
+  constructor() {
+    super();
+  }
+
+  validate(): void {
+    return;
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return CheckPasswordInitializedMsg.type();
+  }
 }
 
 export class CheckIsLockedMsg extends Message<boolean> {
@@ -130,5 +153,27 @@ export class ResetPasswordMsg extends Message<
 
   type(): string {
     return ResetPasswordMsg.type();
+  }
+}
+
+export class CreatePasswordMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.CreatePassword;
+  }
+
+  constructor(public readonly password: string) {
+    super();
+  }
+
+  validate(): void {
+    return;
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return CreatePasswordMsg.type();
   }
 }

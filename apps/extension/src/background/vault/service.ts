@@ -9,6 +9,7 @@ import {
   VaultStoreData,
 } from "./types";
 import { Result } from "@namada/utils";
+import { ExtensionBroadcaster } from "extension";
 
 export const VAULT_KEY = "vault";
 const crypto = new Crypto();
@@ -18,7 +19,8 @@ export class VaultService {
 
   public constructor(
     protected vaultStore: KVStore<VaultStore>,
-    protected readonly cryptoMemory: WebAssembly.Memory
+    protected readonly cryptoMemory: WebAssembly.Memory,
+    protected readonly broadcaster?: ExtensionBroadcaster
   ) {
     this.initialize();
     this.migrate();
@@ -58,6 +60,9 @@ export class VaultService {
 
   public async lock(): Promise<void> {
     this.setPassword(undefined);
+    if (this.broadcaster) {
+      this.broadcaster.lockExtension();
+    }
   }
 
   public async unlock(password: string): Promise<boolean> {
@@ -104,26 +109,30 @@ export class VaultService {
     return this.vaultStore.get(VAULT_KEY);
   }
 
+  public async getStoreOrFail(): Promise<VaultStore> {
+    const storedData = await this.getStoreData();
+    if (!storedData) {
+      throw new Error("Vault store data has not been initialized");
+    }
+    return storedData;
+  }
+
   public async add<P, T>(
     key: string,
     publicData: P,
     sensitiveData?: T
-  ): Promise<void> {
+  ): Promise<Vault<P>> {
     this.assertIsUnlocked();
-
     const entry = await this.createVaultEntry<P, T>(publicData, sensitiveData);
-    const storedData = await this.getStoreData();
-
-    if (!storedData) {
-      throw new Error("Store data has not been initialized");
-    }
+    const storedData = await this.getStoreOrFail();
 
     if (!Array.isArray(storedData.data[key])) {
       storedData.data[key] = [];
     }
 
     storedData.data[key].push(entry);
-    this.vaultStore.set(VAULT_KEY, JSON.parse(JSON.stringify(storedData)));
+    this.vaultStore.set(VAULT_KEY, storedData);
+    return entry;
   }
 
   protected async find<P>(
@@ -131,21 +140,15 @@ export class VaultService {
     prop: keyof P,
     value: PrimitiveType
   ): Promise<Vault<P>[]> {
-    const storedData = await this.getStoreData();
-    if (!storedData) {
-      throw new Error("Store data has not been initialized");
-    }
-
+    const storedData = await this.getStoreOrFail();
     if (!storedData.data.hasOwnProperty(key)) {
       return [];
     }
 
-    const found = storedData.data[key].filter((entry) => {
+    return storedData.data[key].filter((entry) => {
       const props = entry.public as P;
       return props[prop] === value;
     }) as Vault<P>[];
-
-    return found;
   }
 
   public async findOne<P>(
@@ -197,11 +200,7 @@ export class VaultService {
     prop: keyof P,
     value: PrimitiveType
   ): Promise<Vault<P>[]> {
-    const storedData = await this.getStoreData();
-    if (!storedData) {
-      throw new Error("Store data has not been initialized");
-    }
-
+    const storedData = await this.getStoreOrFail();
     if (!storedData.data.hasOwnProperty(key)) {
       return [];
     }
@@ -212,7 +211,7 @@ export class VaultService {
     }) as Vault<P>[];
 
     storedData.data[key] = newStore;
-    this.vaultStore.set(VAULT_KEY, JSON.parse(JSON.stringify(storedData)));
+    this.vaultStore.set(VAULT_KEY, storedData);
     return newStore;
   }
 
@@ -220,10 +219,11 @@ export class VaultService {
     if (await this.passwordInitialized()) {
       throw new Error("Password already set");
     }
-    this.vaultStore.set(VAULT_KEY, {
+    await this.vaultStore.set(VAULT_KEY, {
       password: this.getEncryptedPassword(password),
       data: {},
     });
+    await this.unlock(password);
   }
 
   public async reveal<S>(entry: Vault): Promise<S | undefined> {
@@ -238,6 +238,7 @@ export class VaultService {
       );
       return JSON.parse(decryptedJson) as S;
     } catch (error) {
+      console.error(error);
       throw new Error("An error occurred decrypting the Vault");
     }
   }
@@ -251,11 +252,7 @@ export class VaultService {
       return Result.err(ResetPasswordError.BadPassword);
     }
 
-    const storedData = await this.getStoreData();
-    if (!storedData) {
-      throw new Error("VaultStore has not been initialized");
-    }
-
+    const storedData = await this.getStoreOrFail();
     try {
       const newStore: VaultStoreData = {};
       for (const key in storedData.data) {
@@ -294,7 +291,7 @@ export class VaultService {
     }
     return {
       public: { ...publicData },
-      sensitive: encryptedData,
+      sensitive: { ...encryptedData } as CryptoRecord,
     };
   }
 

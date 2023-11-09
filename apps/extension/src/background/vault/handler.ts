@@ -5,6 +5,8 @@ import {
   LockVaultMsg,
   ResetPasswordMsg,
   UnlockVaultMsg,
+  CheckPasswordInitializedMsg,
+  CreatePasswordMsg,
 } from "./messages";
 
 import { VaultService } from "./service";
@@ -26,6 +28,15 @@ export const getHandler: (service: VaultService) => Handler = (service) => {
 
       case ResetPasswordMsg:
         return handleResetPasswordMsg(service)(env, msg as ResetPasswordMsg);
+
+      case CheckPasswordInitializedMsg:
+        return handleCheckPasswordInitializedMsg(service)(
+          env,
+          msg as CheckPasswordInitializedMsg
+        );
+
+      case CreatePasswordMsg:
+        return handleCreatePasswordMsg(service)(env, msg as CreatePasswordMsg);
 
       default:
         throw new Error("Unknown msg type");
@@ -70,5 +81,21 @@ const handleResetPasswordMsg: (
 ) => InternalHandler<ResetPasswordMsg> = (service) => {
   return async (_, msg) => {
     return await service.resetPassword(msg.currentPassword, msg.newPassword);
+  };
+};
+
+const handleCheckPasswordInitializedMsg: (
+  service: VaultService
+) => InternalHandler<CheckPasswordInitializedMsg> = (service) => {
+  return async (_, _msg) => {
+    return await service.passwordInitialized();
+  };
+};
+
+const handleCreatePasswordMsg: (
+  service: VaultService
+) => InternalHandler<CreatePasswordMsg> = (service) => {
+  return async (_, msg) => {
+    return await service.createPassword(msg.password);
   };
 };
