@@ -44,8 +44,8 @@ export class VaultService {
   }
 
   public async getLength(): Promise<number> {
-    const store = await this.getStoreData();
-    return Object.keys(store?.data || {}).length;
+    const store = await this.getStoreOrFail();
+    return Object.keys(store.data || {}).length;
   }
 
   public isLocked(): boolean {
@@ -90,8 +90,8 @@ export class VaultService {
   }
 
   public async checkPassword(password: string): Promise<boolean> {
-    const store = await this.getStoreData();
-    if (!store?.password) {
+    const store = await this.getStoreOrFail();
+    if (!store.password) {
       throw new Error("Password not initialized");
     }
 
@@ -137,8 +137,8 @@ export class VaultService {
 
   protected async find<P>(
     key: string,
-    prop: keyof P,
-    value: PrimitiveType
+    prop?: keyof P,
+    value?: PrimitiveType
   ): Promise<Vault<P>[]> {
     const storedData = await this.getStoreOrFail();
     if (!storedData.data.hasOwnProperty(key)) {
@@ -147,50 +147,48 @@ export class VaultService {
 
     return storedData.data[key].filter((entry) => {
       const props = entry.public as P;
+      if (!prop) return true;
       return props[prop] === value;
     }) as Vault<P>[];
   }
 
   public async findOne<P>(
     key: string,
-    prop: keyof P,
-    value: PrimitiveType
+    prop?: keyof P,
+    value?: PrimitiveType
   ): Promise<Vault<P> | null> {
-    this.assertIsUnlocked();
     const result = await this.find<P>(key, prop, value);
     return result.length > 0 ? result[0] : null;
   }
 
   public async findAll<P>(
     key: string,
-    prop: keyof P,
-    value: PrimitiveType
+    prop?: keyof P,
+    value?: PrimitiveType
   ): Promise<Vault<P>[]> {
-    this.assertIsUnlocked();
     return await this.find<P>(key, prop, value);
   }
 
   public async findAllOrFail<P>(
     key: string,
-    prop: keyof P,
-    value: PrimitiveType
+    prop?: keyof P,
+    value?: PrimitiveType
   ): Promise<Vault<P>[]> {
-    this.assertIsUnlocked();
     const result = await this.findAll<P>(key, prop, value);
-    if (result.length === 0)
-      throw new Error("No results have been found on Vault Service");
+    if (result.length === 0) {
+      throw new Error("No results have been found on Vault");
+    }
     return result;
   }
 
   public async findOneOrFail<P>(
     key: string,
-    prop: keyof P,
-    value: PrimitiveType
+    prop?: keyof P,
+    value?: PrimitiveType
   ): Promise<Vault<P>> {
-    this.assertIsUnlocked();
     const result = await this.find<P>(key, prop, value);
     if (result.length === 0) {
-      throw new Error("No results have been found on Vault Service");
+      throw new Error("No results have been found on Vault");
     }
     return result[0];
   }

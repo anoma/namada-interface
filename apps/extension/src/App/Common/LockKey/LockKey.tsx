@@ -19,7 +19,6 @@ type LockKeyParams = {
 };
 
 export const LockKey = ({
-  accountId,
   children,
   unlocked,
   onUnlock,
@@ -42,7 +41,7 @@ export const LockKey = ({
     setVerifying(true);
     const isValid = await requester.sendMessage<CheckPasswordMsg>(
       Ports.Background,
-      new CheckPasswordMsg(password, accountId)
+      new CheckPasswordMsg(password)
     );
 
     if (isValid) {

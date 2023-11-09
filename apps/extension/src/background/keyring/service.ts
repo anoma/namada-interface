@@ -112,15 +112,11 @@ export class KeyRingService {
   }
 
   async queryAccountById(id: string): Promise<DerivedAccount[]> {
-    return await this._keyRing.queryAccounts(id);
+    return await this._keyRing.queryAccountById(id);
   }
 
   async queryAccounts(): Promise<DerivedAccount[]> {
-    const { id } = (await this.getActiveAccount()) || {};
-    if (!id) {
-      return [];
-    }
-    return await this.queryAccountById(id);
+    return await this._keyRing.queryAllAccounts();
   }
 
   async queryParentAccounts(): Promise<DerivedAccount[]> {
@@ -373,10 +369,9 @@ export class KeyRingService {
   }
 
   async deleteAccount(
-    accountId: string,
-    password: string
+    accountId: string
   ): Promise<Result<null, DeleteAccountError>> {
-    return await this._keyRing.deleteAccount(accountId, password);
+    return await this._keyRing.deleteAccount(accountId);
   }
 
   async fetchAndStoreMaspParams(): Promise<void> {

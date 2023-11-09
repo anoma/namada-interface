@@ -107,10 +107,7 @@ export class CheckPasswordMsg extends Message<boolean> {
     return MessageType.CheckPassword;
   }
 
-  constructor(
-    public readonly password: string,
-    public readonly accountId?: string
-  ) {
+  constructor(public readonly password: string) {
     super();
   }
 

@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import browser from "webextension-polyfill";
 
 import {
   ActionButton,
-  Alert,
   Heading,
   KeyListItem,
   LinkButton,
@@ -12,70 +11,31 @@ import {
   Text,
 } from "@namada/components";
 import { DerivedAccount } from "@namada/types";
-
-import {
-  ParentAccount,
-  QueryParentAccountsMsg,
-  SetActiveAccountMsg,
-} from "background/keyring";
-
 import { formatRouterPath } from "@namada/utils";
-import { useRequester } from "hooks/useRequester";
-import { Ports } from "router";
-import { LoadingStatus } from "../types";
+import { ParentAccount } from "background/keyring";
 import { AccountManagementRoute, TopLevelRoute } from "../types";
 import { SettingsHeader } from "./ParentAccounts.components";
+
+type ParentAccountsProps = {
+  activeAccountId: string;
+  parentAccounts: DerivedAccount[];
+  onChangeActiveAccount: (
+    accountId: string,
+    accountType: ParentAccount
+  ) => void;
+  onLockApp: () => void;
+};
 
 /**
  * Represents the extension's settings page.
  */
-export const ParentAccounts: React.FC<{
-  activeAccountId: string;
-  onLockApp: () => void;
-  onSelectAccount: (account: DerivedAccount) => void;
-}> = ({ activeAccountId, onSelectAccount, onLockApp }) => {
-  const [status, setStatus] = useState<LoadingStatus>(LoadingStatus.Pending);
-  const [error, setError] = useState<string>("");
-  const [parentAccounts, setParentAccounts] = useState<DerivedAccount[]>([]);
-
-  const requester = useRequester();
+export const ParentAccounts: React.FC<ParentAccountsProps> = ({
+  activeAccountId,
+  onLockApp,
+  parentAccounts,
+  onChangeActiveAccount,
+}) => {
   const navigate = useNavigate();
-
-  const fetchParentAccounts = async (): Promise<void> => {
-    setStatus(LoadingStatus.Pending);
-    try {
-      const accounts = await requester.sendMessage(
-        Ports.Background,
-        new QueryParentAccountsMsg()
-      );
-      setParentAccounts(accounts);
-      setStatus(LoadingStatus.Completed);
-    } catch (e) {
-      console.error(e);
-      setError(`An error occurred while loading extension: ${e}`);
-      setStatus(LoadingStatus.Failed);
-    }
-  };
-
-  const handleSelectAccount = async (
-    account: DerivedAccount
-  ): Promise<void> => {
-    const { id, type } = account;
-    try {
-      await requester.sendMessage(
-        Ports.Background,
-        new SetActiveAccountMsg(id, type as ParentAccount)
-      );
-
-      // Fetch accounts for selected parent account
-      onSelectAccount(account);
-    } catch (e) {
-      console.error(e);
-      setError(`An error occurred while setting active account: ${e}`);
-      setStatus(LoadingStatus.Failed);
-    }
-  };
-
   const goToSetupPage = (): void => {
     browser.tabs.create({
       url: browser.runtime.getURL("setup.html"),
@@ -108,16 +68,10 @@ export const ParentAccounts: React.FC<{
     navigate(formatRouterPath([TopLevelRoute.ConnectedSites]));
   };
 
-  useEffect(() => {
-    fetchParentAccounts();
-  }, []);
-
   return (
     <>
       <Heading>Namada Keys</Heading>
       <Stack gap={4}>
-        {error && <Alert type="error">{error}</Alert>}
-        {status === LoadingStatus.Pending && "loading"}
         <SettingsHeader>
           <Text>Set default keys</Text>
           <ActionButton size="sm" onClick={goToSetupPage}>
@@ -131,10 +85,15 @@ export const ParentAccounts: React.FC<{
               as="li"
               alias={account.alias}
               isMainKey={activeAccountId === account.id}
-              onSelectAccount={() => handleSelectAccount(account)}
+              onRename={() => {}}
               onDelete={() => goToDeletePage(account)}
               onViewAccount={() => goToViewAccount(account)}
-              onRename={() => {}}
+              onSelectAccount={() => {
+                onChangeActiveAccount(
+                  account.id,
+                  account.type as ParentAccount
+                );
+              }}
             />
           ))}
         </Stack>

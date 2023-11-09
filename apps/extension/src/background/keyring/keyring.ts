@@ -457,23 +457,28 @@ export class KeyRing {
     return derivedAccount;
   }
 
+  public async queryAllAccounts(): Promise<DerivedAccount[]> {
+    const accounts = await this.vaultService.findAll<AccountStore>(
+      KEYSTORE_KEY
+    );
+    return accounts.map((entry) => entry.public as AccountStore);
+  }
+
   /**
    * Query accounts from storage (active parent account + associated derived child accounts)
    */
-  public async queryAccounts(
-    activeAccountId: string
-  ): Promise<DerivedAccount[]> {
+  public async queryAccountById(accountId: string): Promise<DerivedAccount[]> {
     const parentAccount = await this.vaultService.findOne<AccountStore>(
       KEYSTORE_KEY,
       "id",
-      activeAccountId
+      accountId
     );
 
     const derivedAccounts =
       (await this.vaultService.findAll<AccountStore>(
         KEYSTORE_KEY,
         "parentId",
-        activeAccountId
+        accountId
       )) || [];
 
     if (parentAccount) {
@@ -636,14 +641,8 @@ export class KeyRing {
   }
 
   async deleteAccount(
-    accountId: string,
-    password: string
+    accountId: string
   ): Promise<Result<null, DeleteAccountError>> {
-    const passwordOk = await this.vaultService.checkPassword(password);
-    if (!passwordOk) {
-      return Result.err(DeleteAccountError.BadPassword);
-    }
-
     const derivedAccounts =
       (await this.vaultService.findAll<AccountStore>(
         KEYSTORE_KEY,
@@ -664,8 +663,15 @@ export class KeyRing {
     // remove account from sdk store
     const records = await this.sdkStore.get(SDK_KEY);
     if (records) {
-      const { [accountId]: _, ...rest } = records;
-      await this.sdkStore.set(SDK_KEY, rest);
+      const updatedRecords = Object.keys(records).reduce((acc, recordId) => {
+        if (accountIds.indexOf(recordId) >= 0) return acc;
+        return {
+          ...acc,
+          [recordId]: records[recordId],
+        };
+      }, {});
+
+      await this.sdkStore.set(SDK_KEY, updatedRecords);
     }
 
     return Result.ok(null);

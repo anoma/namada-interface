@@ -40,7 +40,7 @@ const SeedPhraseConfirmation = (
   const notVerified =
     verificationInput1 !== seedPhrase[index1ToConfirm] ||
     verificationInput2 !== seedPhrase[index2ToConfirm] ||
-    !password ||
+    (passwordRequired && !password) ||
     !accountName;
 
   const getRandomIndex = (): number =>

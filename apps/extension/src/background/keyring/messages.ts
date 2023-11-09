@@ -315,7 +315,7 @@ export class DeleteAccountMsg extends Message<
     return MessageType.DeleteAccount;
   }
 
-  constructor(public accountId: string, public password: string) {
+  constructor(public accountId: string) {
     super();
   }
 

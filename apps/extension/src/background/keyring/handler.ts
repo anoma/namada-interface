@@ -215,7 +215,7 @@ const handleDeleteAccountMsg: (
   service: KeyRingService
 ) => InternalHandler<DeleteAccountMsg> = (service) => {
   return async (_, msg) => {
-    return await service.deleteAccount(msg.accountId, msg.password);
+    return await service.deleteAccount(msg.accountId);
   };
 };
 

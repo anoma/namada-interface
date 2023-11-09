@@ -1,20 +1,19 @@
 import { useEffect, useState } from "react";
 import { Outlet, Route, Routes, useNavigate } from "react-router-dom";
 
-import { Alert, Loading } from "@namada/components";
+import { Alert } from "@namada/components";
 import { DerivedAccount } from "@namada/types";
 import { formatRouterPath } from "@namada/utils";
-import { GetActiveAccountMsg } from "background/keyring";
+import { ParentAccount } from "background/keyring";
 import { useQuery } from "hooks";
 import { useRequester } from "hooks/useRequester";
 import {
   CheckDurabilityMsg,
   FetchAndStoreMaspParamsMsg,
   HasMaspParamsMsg,
-  QueryAccountsMsg,
 } from "provider/messages";
 import { Ports } from "router";
-import { AddAccount, DeleteAccount, ViewAccount } from "./Accounts";
+import { DeleteAccount, ViewAccount } from "./Accounts";
 import { ParentAccounts } from "./Accounts/ParentAccounts";
 import { ContentContainer } from "./App.components";
 import { ConnectedSites } from "./ConnectedSites";
@@ -27,68 +26,34 @@ const STORE_DURABILITY_INFO =
 
 type AppContentParams = {
   onLockApp: () => void;
+  accounts: DerivedAccount[];
+  parentAccounts: DerivedAccount[];
+  activeAccountId: string | undefined;
+  onDeleteAccount: (accountId: string) => Promise<void>;
+  onChangeActiveAccount: (
+    accountId: string,
+    accountType: ParentAccount
+  ) => void;
 };
 
-export const AppContent = ({ onLockApp }: AppContentParams): JSX.Element => {
+export const AppContent = ({
+  onLockApp,
+  accounts,
+  parentAccounts,
+  activeAccountId,
+  onDeleteAccount,
+  onChangeActiveAccount,
+}: AppContentParams): JSX.Element => {
   const query = useQuery();
   const redirect = query.get("redirect");
   const navigate = useNavigate();
   const requester = useRequester();
 
-  const [isLocked, setIsLocked] = useState(true);
   const [isDurable, setIsDurable] = useState<boolean | undefined>();
-  const [status, setStatus] = useState<LoadingStatus>();
-  const [accounts, setAccounts] = useState<DerivedAccount[]>([]);
-  const [parentAccount, setParentAccount] = useState<DerivedAccount>();
-  const [error, setError] = useState("");
-  const [loadingStatus, setLoadingStatus] = useState("");
   const [maspStatus, setMaspStatus] = useState<{
     status: LoadingStatus;
     info: string;
   }>({ status: LoadingStatus.Completed, info: "" });
-
-  const fetchAccounts = async (): Promise<DerivedAccount[]> => {
-    setLoadingStatus("Loading accounts...");
-    setStatus(LoadingStatus.Pending);
-    try {
-      const accounts = await requester.sendMessage(
-        Ports.Background,
-        new QueryAccountsMsg()
-      );
-      setAccounts(accounts);
-      return accounts;
-    } catch (e) {
-      console.error(e);
-      setError(`An error occurred while loading extension: ${e}`);
-      setStatus(LoadingStatus.Failed);
-    } finally {
-      setStatus(LoadingStatus.Completed);
-      setLoadingStatus("");
-    }
-    return [];
-  };
-
-  const fetchParentAccountId = async (): Promise<void> => {
-    setLoadingStatus("Loading parent...");
-    setStatus(LoadingStatus.Pending);
-    try {
-      const parent = await requester.sendMessage(
-        Ports.Background,
-        new GetActiveAccountMsg()
-      );
-      const parentAccount = accounts.find(
-        (account) => account.id === parent?.id
-      );
-      setParentAccount(parentAccount);
-    } catch (e) {
-      console.error(e);
-      setError(`An error occurred while loading extension: ${e}`);
-      setStatus(LoadingStatus.Failed);
-    } finally {
-      setStatus(LoadingStatus.Completed);
-      setLoadingStatus("");
-    }
-  };
 
   // Fetch Masp params if they don't exist
   const fetchMaspParams = async (): Promise<void> => {
@@ -133,16 +98,9 @@ export const AppContent = ({ onLockApp }: AppContentParams): JSX.Element => {
     }
   };
 
-  const onDeleteKey = async (): Promise<void> => {
-    const accounts = await fetchAccounts();
-    navigate(getStartPage(accounts));
-  };
-
   useEffect(() => {
-    if (status === LoadingStatus.Completed) {
-      fetchMaspParams();
-    }
-  }, [status]);
+    fetchMaspParams();
+  }, []);
 
   // Provide a redirect in the case of transaction/connection approvals
   useEffect(() => {
@@ -152,20 +110,8 @@ export const AppContent = ({ onLockApp }: AppContentParams): JSX.Element => {
   }, []);
 
   useEffect(() => {
-    fetchAccounts();
-  }, []);
-
-  useEffect(() => {
-    if (accounts.length > 0) {
-      fetchParentAccountId();
-    }
-  }, [accounts]);
-
-  useEffect(() => {
-    if (status === LoadingStatus.Completed) {
-      navigate(getStartPage(accounts));
-    }
-  }, [status, parentAccount]);
+    navigate(getStartPage(accounts));
+  }, [accounts, activeAccountId]);
 
   useEffect(() => {
     (async () => {
@@ -179,7 +125,6 @@ export const AppContent = ({ onLockApp }: AppContentParams): JSX.Element => {
 
   return (
     <ContentContainer>
-      <Loading status={loadingStatus} visible={!!loadingStatus} />
       {isDurable === false && (
         <Alert type="warning">{STORE_DURABILITY_INFO}</Alert>
       )}
@@ -187,12 +132,6 @@ export const AppContent = ({ onLockApp }: AppContentParams): JSX.Element => {
       {maspStatus.status === LoadingStatus.Completed && maspStatus.info && (
         <Alert title="MASP Status" type="warning">
           {maspStatus.info}
-        </Alert>
-      )}
-
-      {error && (
-        <Alert title="Error" type="error">
-          {error}
         </Alert>
       )}
 
@@ -204,39 +143,27 @@ export const AppContent = ({ onLockApp }: AppContentParams): JSX.Element => {
         />
 
         {/* Routes that depend on a parent account existing in storage */}
-        {parentAccount && (
+        {activeAccountId && (
           <>
             <Route path={TopLevelRoute.Accounts} element={<Outlet />}>
               <Route
                 path={AccountManagementRoute.ViewAccounts}
                 element={
                   <ParentAccounts
-                    onSelectAccount={fetchAccounts}
-                    activeAccountId={parentAccount.id}
+                    parentAccounts={parentAccounts}
+                    activeAccountId={activeAccountId}
                     onLockApp={onLockApp}
+                    onChangeActiveAccount={onChangeActiveAccount}
                   />
                 }
               />
               <Route
                 path={AccountManagementRoute.DeleteAccount}
-                element={<DeleteAccount onComplete={onDeleteKey} />}
+                element={<DeleteAccount onDelete={onDeleteAccount} />}
               />
               <Route
                 path={AccountManagementRoute.ViewAccount}
                 element={<ViewAccount />}
-              />
-              <Route
-                path={AccountManagementRoute.AddAccount}
-                element={
-                  <AddAccount
-                    accounts={accounts}
-                    parentAccount={parentAccount}
-                    requester={requester}
-                    setAccounts={setAccounts}
-                    isLocked={isLocked}
-                    unlockKeyRing={() => setIsLocked(false)}
-                  />
-                }
               />
             </Route>
           </>
