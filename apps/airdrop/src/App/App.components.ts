@@ -186,7 +186,6 @@ export const AirdropAddress = styled.div`
   & > button {
     width: 80px;
     align-self: flex-end;
-    margin: 0 0 2px 10px;
     padding: 10px;
   }
 `;

@@ -12,7 +12,6 @@ import {
   Button,
   ButtonVariant,
   Heading,
-  HeadingLevel,
   Input,
   InputVariants,
   Toggle,
@@ -175,7 +174,7 @@ export const GithubEligible: React.FC = () => {
         {step === "eligibility" && (
           <EligibilitySection>
             <span>
-              <Heading level={HeadingLevel.One}>You are eligible</Heading>
+              <Heading level={"h1"}>You are eligible</Heading>
               <p>Congrats, you are eligible for the Namada RPGF Drop!</p>
             </span>
             <Button
@@ -191,41 +190,39 @@ export const GithubEligible: React.FC = () => {
 
         {step === "claim" && (
           <ClaimsSection>
-            <Heading level={HeadingLevel.One}>Claim NAM</Heading>
-            <ClaimsSectionSignature>
-              <p>Generate a signature with your Trusted Setup keys</p>
-              <p>Use this nonce in the CLI tool (Copy and paste this nonce)</p>
+            <Heading level={"h1"}>Claim NAM</Heading>
+            {github && github.type === "ts" && (
+              <ClaimsSectionSignature>
+                <p>Generate a signature with your Trusted Setup keys</p>
+                <p>
+                  Use this nonce in the CLI tool (Copy and paste this nonce)
+                </p>
 
-              {github && github.type === "ts" && (
-                <>
-                  <AirdropAddress>
-                    {/*TODO: should be disabled*/}
-                    <Input
-                      variant={InputVariants.Text}
-                      value={(github as TSState).nonce}
-                      label="Nonce"
-                      onChangeCallback={() => {}}
-                    />
-                    <Button
-                      variant={ButtonVariant.Small}
-                      onClick={() =>
-                        handleNonceButton((github as TSState).nonce)
-                      }
-                    >
-                      Copy
-                    </Button>
-                  </AirdropAddress>
-                  <p>Paste the signature generated in the clipboard</p>
-
+                <AirdropAddress>
+                  {/*TODO: should be disabled*/}
                   <Input
                     variant={InputVariants.Text}
-                    value={tsSignature}
-                    onChangeCallback={(e) => setTsSignature(e.target.value)}
-                    label="Trusted setup signature"
+                    value={(github as TSState).nonce}
+                    label="Nonce"
+                    onChange={() => {}}
                   />
-                </>
-              )}
-            </ClaimsSectionSignature>
+                  <Button
+                    variant={ButtonVariant.Small}
+                    onClick={() => handleNonceButton((github as TSState).nonce)}
+                  >
+                    Copy
+                  </Button>
+                </AirdropAddress>
+                <p>Paste the signature generated in the clipboard</p>
+
+                <Input
+                  variant={InputVariants.Text}
+                  value={tsSignature}
+                  onChange={(e) => setTsSignature(e.target.value)}
+                  label="Trusted setup signature"
+                />
+              </ClaimsSectionSignature>
+            )}
             <p>
               Submit your Namada public key to be included in the genesis
               proposal
@@ -234,7 +231,7 @@ export const GithubEligible: React.FC = () => {
               <Input
                 variant={InputVariants.Text}
                 value={airdropAddress}
-                onChangeCallback={(e) => setNamadaAddress(e.target.value)}
+                onChange={(e) => setNamadaAddress(e.target.value)}
                 label="Namada airdrop address"
               />
               <Button
@@ -278,7 +275,7 @@ export const GithubEligible: React.FC = () => {
             </Button>
 
             <ExtensionInfo>
-              <Heading level={HeadingLevel.Two}>
+              <Heading level={"h2"}>
                 {`Don't have a Namada address yet?`}{" "}
               </Heading>
               <p>
