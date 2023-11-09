@@ -19,6 +19,7 @@ export const ContainerWrapper = styled.section<{ maxW: keyof ContainerSize }>`
   border-radius: ${(props) =>
     props.maxW === "popup" ? 0 : borderRadius("md")(props)};
   min-width: ${(props) => container(props.maxW)};
+  min-height: ${(props) => (props.maxW === "popup" ? "480px" : "0")};
   position: relative;
   display: flex;
   flex-basis: min-content;

@@ -18,3 +18,9 @@ export enum AccountManagementRoute {
   RenameAccount = "rename/:accountId",
   AddAccount = "add",
 }
+
+export enum LoadingStatus {
+  Completed = "Completed",
+  Pending = "Pending",
+  Failed = "Failed",
+}

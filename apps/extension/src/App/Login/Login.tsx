@@ -8,10 +8,6 @@ import {
   Stack,
 } from "@namada/components";
 
-import { UnlockVaultMsg } from "background/vault";
-import { useRequester } from "hooks/useRequester";
-import { Ports } from "router";
-
 enum Status {
   InvalidPassword,
   Pending,
@@ -19,11 +15,10 @@ enum Status {
 }
 
 type LoginProps = {
-  onUnlock: () => void;
+  onLogin: (password: string) => Promise<boolean>;
 };
 
-export const Login = ({ onUnlock }: LoginProps): JSX.Element => {
-  const requester = useRequester();
+export const Login = ({ onLogin }: LoginProps): JSX.Element => {
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<Status>();
 
@@ -31,13 +26,8 @@ export const Login = ({ onUnlock }: LoginProps): JSX.Element => {
     e.preventDefault();
     setStatus(Status.Pending);
     try {
-      const unlocked = await requester.sendMessage(
-        Ports.Background,
-        new UnlockVaultMsg(password)
-      );
-      if (unlocked) {
-        onUnlock();
-      } else {
+      const unlocked = await onLogin(password);
+      if (!unlocked) {
         setStatus(Status.InvalidPassword);
       }
     } catch (e) {

@@ -262,7 +262,7 @@ export const Setup: React.FC = () => {
                   path={`${LedgerConnectRoute.Import}`}
                   element={
                     <LifecycleExecutionWrapper onLoad={() => setCurrentStep(2)}>
-                      <LedgerImport />
+                      <LedgerImport passwordRequired={!passwordInitialized} />
                     </LifecycleExecutionWrapper>
                   }
                 />

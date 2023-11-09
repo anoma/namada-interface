@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import browser from "webextension-polyfill";
 
@@ -7,6 +7,7 @@ import {
   Alert,
   Heading,
   KeyListItem,
+  LinkButton,
   Stack,
   Text,
 } from "@namada/components";
@@ -18,22 +19,22 @@ import {
   SetActiveAccountMsg,
 } from "background/keyring";
 
-import { LockVaultMsg } from "background/vault";
 import { formatRouterPath } from "@namada/utils";
+import { useRequester } from "hooks/useRequester";
 import { Ports } from "router";
-import { Status } from "../App";
+import { LoadingStatus } from "../types";
 import { AccountManagementRoute, TopLevelRoute } from "../types";
 import { SettingsHeader } from "./ParentAccounts.components";
-import { useRequester } from "hooks/useRequester";
 
 /**
  * Represents the extension's settings page.
  */
 export const ParentAccounts: React.FC<{
   activeAccountId: string;
+  onLockApp: () => void;
   onSelectAccount: (account: DerivedAccount) => void;
-}> = ({ activeAccountId, onSelectAccount }) => {
-  const [status, setStatus] = useState<Status>(Status.Pending);
+}> = ({ activeAccountId, onSelectAccount, onLockApp }) => {
+  const [status, setStatus] = useState<LoadingStatus>(LoadingStatus.Pending);
   const [error, setError] = useState<string>("");
   const [parentAccounts, setParentAccounts] = useState<DerivedAccount[]>([]);
 
@@ -41,18 +42,18 @@ export const ParentAccounts: React.FC<{
   const navigate = useNavigate();
 
   const fetchParentAccounts = async (): Promise<void> => {
-    setStatus(Status.Pending);
+    setStatus(LoadingStatus.Pending);
     try {
       const accounts = await requester.sendMessage(
         Ports.Background,
         new QueryParentAccountsMsg()
       );
       setParentAccounts(accounts);
-      setStatus(Status.Completed);
+      setStatus(LoadingStatus.Completed);
     } catch (e) {
       console.error(e);
       setError(`An error occurred while loading extension: ${e}`);
-      setStatus(Status.Failed);
+      setStatus(LoadingStatus.Failed);
     }
   };
 
@@ -66,15 +67,12 @@ export const ParentAccounts: React.FC<{
         new SetActiveAccountMsg(id, type as ParentAccount)
       );
 
-      // Lock current wallet keyring:
-      await requester.sendMessage(Ports.Background, new LockVaultMsg());
-
       // Fetch accounts for selected parent account
       onSelectAccount(account);
     } catch (e) {
       console.error(e);
       setError(`An error occurred while setting active account: ${e}`);
-      setStatus(Status.Failed);
+      setStatus(LoadingStatus.Failed);
     }
   };
 
@@ -110,25 +108,6 @@ export const ParentAccounts: React.FC<{
     navigate(formatRouterPath([TopLevelRoute.ConnectedSites]));
   };
 
-  // we use a ref to make sure the effect does not run on the first
-  // render, which would be before parent accounts have loaded
-  const firstRender = useRef(true);
-  useEffect(() => {
-    if (firstRender.current) {
-      firstRender.current = false;
-      return;
-    }
-    (async () => {
-      if (parentAccounts.length === 0) {
-        // the last account has been deleted so navigate to setup
-        navigate(TopLevelRoute.Setup);
-      } else if (!parentAccounts.some(({ id }) => id === activeAccountId)) {
-        // the active account was deleted so make the first account active
-        await handleSelectAccount(parentAccounts[0]);
-      }
-    })();
-  }, [parentAccounts]);
-
   useEffect(() => {
     fetchParentAccounts();
   }, []);
@@ -138,7 +117,7 @@ export const ParentAccounts: React.FC<{
       <Heading>Namada Keys</Heading>
       <Stack gap={4}>
         {error && <Alert type="error">{error}</Alert>}
-        {status === Status.Pending && "loading"}
+        {status === LoadingStatus.Pending && "loading"}
         <SettingsHeader>
           <Text>Set default keys</Text>
           <ActionButton size="sm" onClick={goToSetupPage}>
@@ -166,6 +145,9 @@ export const ParentAccounts: React.FC<{
         >
           View Connected Sites
         </ActionButton>
+        <LinkButton onClick={onLockApp} size="sm">
+          Lock Wallet
+        </LinkButton>
       </Stack>
     </>
   );
