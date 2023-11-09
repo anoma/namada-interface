@@ -177,6 +177,26 @@ export class ProposalsUpdatedEventMsg extends Message<void> {
   }
 }
 
+export class VaultLockedEventMsg extends Message<void> {
+  public static type(): Events {
+    return Events.ExtensionLocked;
+  }
+
+  constructor() {
+    super();
+  }
+
+  validate(): void {}
+
+  route(): string {
+    return Routes.InteractionForeground;
+  }
+
+  type(): string {
+    return VaultLockedEventMsg.type();
+  }
+}
+
 export function initEvents(router: Router): void {
   router.registerMessage(AccountChangedEventMsg);
   router.registerMessage(UpdatedBalancesEventMsg);
@@ -184,6 +204,7 @@ export function initEvents(router: Router): void {
   router.registerMessage(ProposalsUpdatedEventMsg);
   router.registerMessage(TxStartedEvent);
   router.registerMessage(TxCompletedEvent);
+  router.registerMessage(VaultLockedEventMsg);
 
   router.addHandler(Routes.InteractionForeground, (_, msg) => {
     const clonedMsg =
@@ -217,6 +238,9 @@ export function initEvents(router: Router): void {
         break;
       case ProposalsUpdatedEventMsg:
         window.dispatchEvent(new CustomEvent(Events.ProposalsUpdated));
+        break;
+      case VaultLockedEventMsg:
+        window.dispatchEvent(new CustomEvent(Events.ExtensionLocked));
         break;
       default:
         throw new Error("Unknown msg type");

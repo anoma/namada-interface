@@ -14,14 +14,14 @@ import { AnimatePresence } from "framer-motion";
 import { SeedPhrase, SeedPhraseConfirmation } from "./AccountCreation/Steps";
 import { Completion, ContainerHeader } from "./Common";
 import { SeedPhraseImport } from "./ImportAccount";
-import { LedgerConnect, LedgerImport } from "./Ledger";
+import { LedgerConfirmation, LedgerConnect, LedgerImport } from "./Ledger";
 import { MotionContainer } from "./Setup.components";
 import { Start } from "./Start";
 
-import LedgerConfirmation from "./Ledger/LedgerConfirmation";
-
+import { useCloseTabOnExtensionLock } from "hooks/useCloseTabOnExtensionLock";
+import { usePasswordInitialized } from "hooks/usePasswordInitialized";
 import { SeedPhraseWarning } from "./AccountCreation/Steps/SeedPhraseWarning";
-import SeedPhraseSetup from "./ImportAccount/Steps/SeedPhraseSetup/SeedPhraseSetup";
+import { SeedPhraseSetup } from "./ImportAccount";
 import {
   AccountCreationRoute,
   AccountDetails,
@@ -53,6 +53,9 @@ const AnimatedTransition: React.FC<AnimatedTransitionProps> = (props) => {
 };
 
 export const Setup: React.FC = () => {
+  useCloseTabOnExtensionLock();
+
+  const passwordInitialized = usePasswordInitialized();
   const theme = getTheme("dark");
   const navigate = useNavigate();
   const location = useLocation();
@@ -140,6 +143,7 @@ export const Setup: React.FC = () => {
                       <SeedPhraseConfirmation
                         accountCreationDetails={accountCreationDetails}
                         seedPhrase={seedPhrase || []}
+                        passwordRequired={!passwordInitialized}
                         onConfirm={(accountCreationDetails: AccountDetails) => {
                           setAccountCreationDetails(accountCreationDetails);
                           navigate(
@@ -158,6 +162,7 @@ export const Setup: React.FC = () => {
                   element={
                     <LifecycleExecutionWrapper onLoad={goToStep(4)}>
                       <Completion
+                        passwordRequired={!passwordInitialized}
                         pageTitle="Namada Keys Created"
                         pageSubtitle="Here are the accounts generated from your keys"
                         alias={accountCreationDetails.alias || ""}
@@ -202,6 +207,7 @@ export const Setup: React.FC = () => {
                   element={
                     <LifecycleExecutionWrapper onLoad={goToStep(2)}>
                       <SeedPhraseSetup
+                        passwordRequired={!passwordInitialized}
                         accountCreationDetails={accountCreationDetails}
                         seedPhrase={seedPhrase}
                         onConfirm={(accountCreationDetails: AccountDetails) => {
@@ -222,6 +228,7 @@ export const Setup: React.FC = () => {
                   element={
                     <LifecycleExecutionWrapper onLoad={goToStep(3)}>
                       <Completion
+                        passwordRequired={!passwordInitialized}
                         pageTitle="Namada Keys Imported"
                         pageSubtitle="Here are the accounts generated from your keys"
                         alias={accountCreationDetails.alias || ""}

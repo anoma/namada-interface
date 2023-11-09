@@ -27,9 +27,9 @@ import { ParentAccounts } from "./Accounts/ParentAccounts";
 import { ContentContainer } from "./App.components";
 import { AppHeader } from "./Common/AppHeader";
 import { ConnectedSites } from "./ConnectedSites";
-import { LockWrapper } from "./LockWrapper";
 import { Setup } from "./Setup";
 import { AccountManagementRoute, TopLevelRoute } from "./types";
+import { LockWrapper } from "./LockWrapper";
 
 export enum Status {
   Completed = "Completed",
@@ -202,61 +202,56 @@ export const App: React.FC = () => {
         size="popup"
         header={<AppHeader returnButton={!isStartPage()} />}
       >
-        <Loading status={loadingStatus} visible={!!loadingStatus} />
-        <ContentContainer>
-          {isDurable === false && (
-            <Alert type="warning">{STORE_DURABILITY_INFO}</Alert>
-          )}
+        <LockWrapper>
+          <Loading status={loadingStatus} visible={!!loadingStatus} />
+          <ContentContainer>
+            {isDurable === false && (
+              <Alert type="warning">{STORE_DURABILITY_INFO}</Alert>
+            )}
 
-          {maspStatus.status === Status.Completed && maspStatus.info && (
-            <Alert title="MASP Status" type="warning">
-              {maspStatus.info}
-            </Alert>
-          )}
+            {maspStatus.status === Status.Completed && maspStatus.info && (
+              <Alert title="MASP Status" type="warning">
+                {maspStatus.info}
+              </Alert>
+            )}
 
-          {error && (
-            <Alert title="Error" type="error">
-              {error}
-            </Alert>
-          )}
+            {error && (
+              <Alert title="Error" type="error">
+                {error}
+              </Alert>
+            )}
 
-          <Routes>
-            <Route path={TopLevelRoute.Setup} element={<Setup />} />
-            <Route
-              path={TopLevelRoute.ConnectedSites}
-              element={<ConnectedSites />}
-            />
+            <Routes>
+              <Route path={TopLevelRoute.Setup} element={<Setup />} />
+              <Route
+                path={TopLevelRoute.ConnectedSites}
+                element={<ConnectedSites />}
+              />
 
-            {/* Routes that depend on a parent account existing in storage */}
-            {parentAccount && (
-              <>
-                <Route path={TopLevelRoute.Accounts} element={<Outlet />}>
-                  <Route
-                    path={AccountManagementRoute.ViewAccounts}
-                    element={
-                      <ParentAccounts
-                        onSelectAccount={fetchAccounts}
-                        activeAccountId={parentAccount.id}
-                      />
-                    }
-                  />
-                  <Route
-                    path={AccountManagementRoute.DeleteAccount}
-                    element={<DeleteAccount onComplete={onDeleteKey} />}
-                  />
-                  <Route
-                    path={AccountManagementRoute.ViewAccount}
-                    element={<ViewAccount />}
-                  />
-                  <Route
-                    path={AccountManagementRoute.AddAccount}
-                    element={
-                      <LockWrapper
-                        requester={requester}
-                        setStatus={setStatus}
-                        isLocked={isLocked}
-                        lockKeyRing={() => setIsLocked(true)}
-                      >
+              {/* Routes that depend on a parent account existing in storage */}
+              {parentAccount && (
+                <>
+                  <Route path={TopLevelRoute.Accounts} element={<Outlet />}>
+                    <Route
+                      path={AccountManagementRoute.ViewAccounts}
+                      element={
+                        <ParentAccounts
+                          onSelectAccount={fetchAccounts}
+                          activeAccountId={parentAccount.id}
+                        />
+                      }
+                    />
+                    <Route
+                      path={AccountManagementRoute.DeleteAccount}
+                      element={<DeleteAccount onComplete={onDeleteKey} />}
+                    />
+                    <Route
+                      path={AccountManagementRoute.ViewAccount}
+                      element={<ViewAccount />}
+                    />
+                    <Route
+                      path={AccountManagementRoute.AddAccount}
+                      element={
                         <AddAccount
                           accounts={accounts}
                           parentAccount={parentAccount}
@@ -265,14 +260,14 @@ export const App: React.FC = () => {
                           isLocked={isLocked}
                           unlockKeyRing={() => setIsLocked(false)}
                         />
-                      </LockWrapper>
-                    }
-                  />
-                </Route>
-              </>
-            )}
-          </Routes>
-        </ContentContainer>
+                      }
+                    />
+                  </Route>
+                </>
+              )}
+            </Routes>
+          </ContentContainer>
+        </LockWrapper>
       </Container>
     </ThemeProvider>
   );

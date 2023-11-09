@@ -1,22 +1,16 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 import {
   ActionButton,
-  Alert,
-  Image,
-  ImageName,
+  Heading,
   Input,
   InputVariants,
   Stack,
 } from "@namada/components";
 
-import { TopLevelRoute } from "App/types";
 import { UnlockVaultMsg } from "background/vault";
-import { ExtensionRequester } from "extension";
-import { useQuery } from "hooks";
+import { useRequester } from "hooks/useRequester";
 import { Ports } from "router";
-import { LoginContainer, LogoContainer } from "./Login.components";
 
 enum Status {
   InvalidPassword,
@@ -24,29 +18,25 @@ enum Status {
   Failed,
 }
 
-type Props = {
-  requester: ExtensionRequester;
+type LoginProps = {
+  onUnlock: () => void;
 };
 
-const Login: React.FC<Props> = ({ requester }) => {
-  const navigate = useNavigate();
+export const Login = ({ onUnlock }: LoginProps): JSX.Element => {
+  const requester = useRequester();
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<Status>();
 
-  const query = useQuery();
-  const redirect = query.get("redirect") || TopLevelRoute.Accounts;
-  const prompt = query.get("prompt");
-
-  const handleSubmit = async (): Promise<void> => {
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault();
     setStatus(Status.Pending);
     try {
       const unlocked = await requester.sendMessage(
         Ports.Background,
         new UnlockVaultMsg(password)
       );
-
       if (unlocked) {
-        navigate(redirect);
+        onUnlock();
       } else {
         setStatus(Status.InvalidPassword);
       }
@@ -57,7 +47,6 @@ const Login: React.FC<Props> = ({ requester }) => {
   };
 
   let errorMessage = "";
-
   if (status === Status.Failed) {
     errorMessage = "An error has occurred";
   }
@@ -67,29 +56,23 @@ const Login: React.FC<Props> = ({ requester }) => {
   }
 
   return (
-    <LoginContainer>
-      {prompt && <Alert type="info">{prompt}</Alert>}
-      <Stack gap={8} as="form" onSubmit={handleSubmit}>
-        <LogoContainer>
-          <Image imageName={ImageName.LogoMinimal} />
-        </LogoContainer>
-        <Input
-          label="Enter your password"
-          autoFocus={true}
-          placeholder="Password"
-          variant={InputVariants.Password}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          error={errorMessage}
-        />
-        <ActionButton
-          disabled={status === Status.Pending || !(password.length > 0)}
-        >
-          Unlock
-        </ActionButton>
-      </Stack>
-    </LoginContainer>
+    <Stack gap={6} as="form" onSubmit={handleSubmit}>
+      <Heading>Please type in your password to process</Heading>
+      <Input
+        label="Enter your password"
+        autoFocus={true}
+        placeholder="Password"
+        variant={InputVariants.Password}
+        value={password}
+        disabled={status === Status.Pending}
+        onChange={(e) => setPassword(e.target.value)}
+        error={errorMessage}
+      />
+      <ActionButton
+        disabled={status === Status.Pending || !(password.length > 0)}
+      >
+        Unlock
+      </ActionButton>
+    </Stack>
   );
 };
-
-export default Login;

@@ -8,7 +8,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { closeCurrentTab } from "utils";
 import { DerivedAccount } from "@namada/types";
 
-export const LedgerConfirmation = (): React.ReactNode => {
+export const LedgerConfirmation = (): JSX.Element => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -16,7 +16,7 @@ export const LedgerConfirmation = (): React.ReactNode => {
     navigate(
       formatRouterPath([TopLevelRoute.Ledger, LedgerConnectRoute.Connect])
     );
-    return null;
+    return <></>;
   }
 
   const account = location.state as DerivedAccount;

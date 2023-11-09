@@ -1,55 +1,47 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 
-import { Icon, IconName } from "@namada/components";
-import { ButtonContainer, LockExtensionButton } from "./LockWrapper.components";
-import { LockVaultMsg } from "background/vault";
+import { Login } from "App/Login";
+import { CheckIsLockedMsg } from "background/vault";
+import { useRequester } from "hooks/useRequester";
 import { Ports } from "router";
-import { Status } from "App/App";
-import { TopLevelRoute } from "App/types";
-import { ExtensionRequester } from "extension";
+import { useEventListener } from "@namada/hooks";
+import { Events } from "@namada/types";
 
 type Props = {
-  requester: ExtensionRequester;
-  isLocked: boolean;
-  setStatus: (status?: Status) => void;
-  lockKeyRing: () => void;
-  children: JSX.Element;
+  children: React.ReactNode;
 };
 
-const LockWrapper: React.FC<Props> = ({
-  requester,
-  isLocked,
-  lockKeyRing,
-  setStatus,
-  children,
-}) => {
-  const navigate = useNavigate();
+export const LockWrapper: React.FC<Props> = ({ children }) => {
+  const [isLocked, setLocked] = useState<undefined | boolean>();
+  const requester = useRequester();
 
-  const handleLock = async (): Promise<void> => {
+  const queryIsLocked = async (): Promise<void> => {
     try {
-      await requester.sendMessage(Ports.Background, new LockVaultMsg());
-      setStatus(undefined);
-      lockKeyRing();
-    } catch (e) {
-      console.error(e);
-    } finally {
-      navigate(TopLevelRoute.Accounts);
+      setLocked(
+        await requester.sendMessage(Ports.Background, new CheckIsLockedMsg())
+      );
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  return (
-    <>
-      {!isLocked && (
-        <ButtonContainer>
-          <LockExtensionButton onClick={handleLock}>
-            <span>Lock</span> <Icon iconName={IconName.Lock} />
-          </LockExtensionButton>
-        </ButtonContainer>
-      )}
-      {children}
-    </>
-  );
+  useEffect(() => {
+    queryIsLocked();
+  }, []);
+
+  useEventListener(Events.ExtensionLocked, () => {
+    setLocked(true);
+  });
+
+  if (isLocked === undefined) {
+    return <></>;
+  }
+
+  if (isLocked) {
+    return <Login onUnlock={() => setLocked(false)} />;
+  }
+
+  return <>{children}</>;
 };
 
 export default LockWrapper;

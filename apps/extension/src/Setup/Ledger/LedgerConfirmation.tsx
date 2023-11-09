@@ -12,7 +12,7 @@ type LedgerConfirmationStateProps = {
   account: DerivedAccount;
 };
 
-const LedgerConfirmation: React.FC = () => {
+export const LedgerConfirmation: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const locationState = location.state as LedgerConfirmationStateProps;
@@ -42,5 +42,3 @@ const LedgerConfirmation: React.FC = () => {
     </>
   );
 };
-
-export default LedgerConfirmation;

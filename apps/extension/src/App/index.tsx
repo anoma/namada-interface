@@ -2,7 +2,6 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { HashRouter } from "react-router-dom";
 import { RequesterProvider } from "services";
-
 import { App } from "./App";
 
 export default ((): void => {

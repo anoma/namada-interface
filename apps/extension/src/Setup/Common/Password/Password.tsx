@@ -6,9 +6,7 @@ import { InputFeedback } from "./Password.components";
 
 // the data of this form
 type PasswordProps = {
-  onValidPassword: (password: string | null) => void;
-  keysName: string;
-  onChangeKeysName: (value: string) => void;
+  onValidPassword: (password: string | undefined) => void;
 };
 
 const validatePassword = (
@@ -21,17 +19,12 @@ const validatePassword = (
     : warning === "" && suggestions.length === 0 && password === passwordMatch;
 };
 
-const Password = ({
-  onValidPassword,
-  keysName,
-  onChangeKeysName,
-}: PasswordProps): JSX.Element => {
+const Password = ({ onValidPassword }: PasswordProps): JSX.Element => {
   // we store passwords locally as we would not like to pass them in
   // when the user switches between the screens
   const [password, setPassword] = useState("");
   const [passwordMatch, setPasswordMatch] = useState("");
   const [passwordMatchFeedback, setPasswordMatchFeedback] = useState("");
-  const [keysNameError, setKeysNameError] = useState("");
   const [zxcvbnFeedback, setZxcvbnFeedback] = useState(zxcvbn("").feedback);
 
   useEffect(() => {
@@ -44,7 +37,7 @@ const Password = ({
     if (isPasswordValid) {
       onValidPassword(password);
     } else {
-      onValidPassword(null);
+      onValidPassword(undefined);
     }
   }, [password, passwordMatch, zxcvbnFeedback]);
 
@@ -56,28 +49,10 @@ const Password = ({
     }
   };
 
-  const verifyKeysName = (): void => {
-    if (keysName === "") {
-      setKeysNameError("Required field");
-      return;
-    }
-
-    setKeysNameError("");
-  };
-
   return (
     <>
       <Input
-        label="Keys Name"
-        value={keysName}
-        onChange={(e) => onChangeKeysName(e.target.value)}
-        onBlur={() => verifyKeysName()}
-        placeholder="e.g Namada Shielded Wallet"
-        error={keysNameError}
-      />
-
-      <Input
-        label="Create Key Password"
+        label="Create Extension Password"
         variant={InputVariants.Password}
         value={password}
         error={zxcvbnFeedback.warning}
@@ -98,7 +73,7 @@ const Password = ({
       />
 
       <Input
-        label="Confirm Key Password"
+        label="Confirm Extension Password"
         placeholder="At least 8 characters"
         variant={InputVariants.Password}
         value={passwordMatch}

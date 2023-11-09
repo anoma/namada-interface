@@ -1,1 +1,1 @@
-export { default as LockWrapper } from "./LockWrapper";
+export * from "./LockWrapper";

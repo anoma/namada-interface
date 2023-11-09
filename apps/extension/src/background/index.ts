@@ -30,7 +30,7 @@ import {
   ActiveAccountStore,
 } from "./keyring";
 import { LedgerService, init as initLedger } from "./ledger";
-import { VaultService } from "./vault";
+import { VaultService, init as initVault } from "./vault";
 
 const store = new IndexedDBKVStore(KVPrefix.IndexedDB);
 const utilityStore = new IndexedDBKVStore<UtilityStore>(KVPrefix.Utility);
@@ -99,7 +99,7 @@ const init = new Promise<void>(async (resolve) => {
     requester
   );
 
-  const vaultService = new VaultService(store, cryptoMemory);
+  const vaultService = new VaultService(store, cryptoMemory, broadcaster);
   const chainsService = new ChainsService(store, [chains[defaultChainId]]);
   const keyRingService = new KeyRingService(
     vaultService,
@@ -140,6 +140,7 @@ const init = new Promise<void>(async (resolve) => {
   initChains(router, chainsService);
   initKeyRing(router, keyRingService);
   initLedger(router, ledgerService);
+  initVault(router, vaultService);
 
   resolve();
 });

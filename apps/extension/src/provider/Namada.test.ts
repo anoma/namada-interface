@@ -13,13 +13,14 @@ import * as utils from "extension/utils";
 import { KVKeys } from "router";
 import { init, KVStoreMock } from "test/init";
 import { ACTIVE_ACCOUNT, chain, keyStore, password } from "./data.mock";
+import { VaultStore } from "../background/vault/types";
 
 // Needed for now as utils import webextension-polyfill directly
 jest.mock("webextension-polyfill", () => ({}));
 
 describe("Namada", () => {
   let namada: Namada;
-  let iDBStore: KVStoreMock<Chain[] | KeyStore[]>;
+  let iDBStore: KVStoreMock<Chain[] | KeyStore[] | VaultStore[]>;
   let utilityStore: KVStoreMock<UtilityStore>;
   let vaultService: VaultService;
 
