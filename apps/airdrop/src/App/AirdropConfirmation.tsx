@@ -11,24 +11,13 @@ import {
   AirdropConfirmationHeader,
   AirdropConfirmationSection,
 } from "./App.components";
-import { useNavigate } from "react-router-dom";
 
 export const AirdropConfirmation: React.FC = () => {
-  const [confirmation, setConfirmation] = useAtom(confirmationAtom);
+  const [confirmation] = useAtom(confirmationAtom);
 
-  const navigate = useNavigate();
   return (
     <AirdropConfirmationContainer>
-      <AirdropConfirmationHeader>
-        <Button
-          variant={ButtonVariant.Small}
-          onClick={() => {
-            navigate("/");
-          }}
-        >
-          Start over
-        </Button>
-      </AirdropConfirmationHeader>
+      <AirdropConfirmationHeader></AirdropConfirmationHeader>
       <AirdropConfirmationSection>
         <Heading level={HeadingLevel.One}>
           Namada Genesis

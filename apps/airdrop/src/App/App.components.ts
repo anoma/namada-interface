@@ -42,102 +42,22 @@ export const GlobalStyles = createGlobalStyle<GlobalStyleProps>`
 `;
 export const AppContainer = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: center;
   flex-direction: column;
   height: 100vh;
-  width: 100%;
+  width: 800px;
+  margin: 0 auto;
   background-color: ${(props) => props.theme.colors.utility1.main};
   transition: all 0.3s linear;
   box-sizing: border-box;
+`;
 
-  @media screen and (max-width: 860px) {
-    padding: 0 36px;
-    min-width: 480px;
+export const AppContainerHeader = styled.div`
+  align-self: flex-start;
+
+  & > button {
+    margin: 10px 0 0 0;
   }
-`;
-
-export const TopSection = styled.section`
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  height: ${topSectionHeight};
-  width: 100%;
-`;
-
-export const BottomSection = styled.section`
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  height: calc(100% - ${topSectionHeight});
-  width: 100%;
-`;
-
-export const ContentContainer = styled.div`
-  flex-direction: column;
-  justify-content: start;
-  align-items: center;
-  box-sizing: border-box;
-  padding: 20px;
-  background-color: ${(props) =>
-    getColor(ComponentColor.BackgroundColor, props.theme)};
-  border: 1px solid
-    ${(props) => getColor(ComponentColor.BorderColor, props.theme)};
-
-  min-height: 620px;
-  width: 100%;
-  max-width: 762px;
-  border-radius: ${(props) => props.theme.borderRadius.mainContainer};
-  overflow-x: hidden;
-  transition: background-color 0.3s linear;
-`;
-
-export const ButtonsContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-// export const ClaimsSection = styled.div`
-//   display: flex;
-//   flex-direction: column;
-// `;
-
-export const Claims = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-`;
-
-export const Claim = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-export const EligibilityInfo = styled.div`
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 10px;
-  margin-bottom: 10px;
-`;
-
-export const ClaimLabel = styled.span`
-  color: ${(props) => props.theme.colors.utility2.main};
-  font-weight: bold;
-`;
-export const ClaimValue = styled.span`
-  color: ${(props) => props.theme.colors.utility2.main};
-`;
-
-export const NamadaSection = styled.div``;
-
-export const AddressText = styled.div`
-  color: white;
-  font-size: 12px;
-  margin-top: 10px;
-`;
-
-export const TextButton = styled.div`
-  cursor: pointer;
-  color: ${(props) => props.theme.colors.primary.main};
 `;
 
 // Common.components
@@ -153,7 +73,7 @@ export const Breadcrumb = styled.div`
 
 // Main.components
 export const MainContainer = styled.div`
-  width: 800px;
+  width: 100%;
 `;
 export const MainHeader = styled.div`
   text-align: center;
@@ -205,7 +125,7 @@ export const TOSToggle = styled.div`
 
 //Github.components
 export const GithubContainer = styled.div`
-  width: 800px;
+  width: 100%;
 `;
 
 export const GithubHeader = styled.div`
@@ -250,8 +170,11 @@ export const ClaimsSection = styled.div`
   }
 `;
 
+export const ClaimsSectionSignature = styled.div``;
+
 export const GithubFooter = styled.div``;
 
+// TODO: rename to sth more generic like InputWIthButton idk
 export const AirdropAddress = styled.div`
   display: flex;
   flex-direction: row;
@@ -276,9 +199,7 @@ export const ExtensionInfo = styled.div`
 `;
 
 // AirdropConfirmation.components
-export const AirdropConfirmationContainer = styled.div`
-  width: 800px;
-`;
+export const AirdropConfirmationContainer = styled.div``;
 
 export const AirdropConfirmationHeader = styled.div`
   margin-top: 20px;
@@ -290,4 +211,14 @@ export const AirdropConfirmationHeader = styled.div`
 export const AirdropConfirmationSection = styled.div`
   text-align: center;
   color: ${(props) => props.theme.colors.utility2.main};
+`;
+
+// TSEligibility.components
+//
+export const TSEligibilityContainer = styled.div`
+  width: 100%;
+  color: ${(props) => props.theme.colors.utility2.main};
+  & > button {
+    margin: 10px 0 0 0;
+  }
 `;

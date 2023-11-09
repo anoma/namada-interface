@@ -63,7 +63,8 @@ const checkClaim = async (
   return response.json();
 };
 
-const navigatePostCheck = (
+//TODO: move to shared
+export const navigatePostCheck = (
   navigate: NavigateFunction,
   eligible: boolean,
   hasClaimed: boolean
@@ -192,7 +193,10 @@ export const Main: React.FC = () => {
           <Button disabled={true} variant={ButtonVariant.Contained}>
             Ethereum Wallet
           </Button>
-          <Button disabled={true} variant={ButtonVariant.Contained}>
+          <Button
+            variant={ButtonVariant.Contained}
+            onClick={() => navigate("/check-ts-eligibility")}
+          >
             Namada Trusted Setup
           </Button>
           <Button
