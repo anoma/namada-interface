@@ -12,6 +12,7 @@ import { GithubEligible } from "./GithubEligible";
 import { AirdropConfirmation } from "./AirdropConfirmation";
 import { Button, ButtonVariant } from "@namada/components";
 import { TSEligibility } from "./TSEligibility";
+import { NonEligible } from "./NonEligible";
 
 export const App: React.FC = () => {
   const initialColorMode = "dark";
@@ -39,6 +40,7 @@ export const App: React.FC = () => {
           <Route path={`/`} element={<Main />} />
           <Route path={`/eligible-with-github`} element={<GithubEligible />} />
           <Route path={`/check-ts-eligibility`} element={<TSEligibility />} />
+          <Route path={`/non-eligible`} element={<NonEligible />} />
           <Route
             path={`/airdrop-confirmed`}
             element={<AirdropConfirmation />}

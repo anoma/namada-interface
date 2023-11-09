@@ -123,13 +123,13 @@ export const TOSToggle = styled.div`
   }
 `;
 
-//Github.components
-export const GithubContainer = styled.div`
+//Eligibility.components
+export const EligibilityContainer = styled.div`
+  margin-top: 20px;
   width: 100%;
 `;
 
 export const GithubHeader = styled.div`
-  margin-top: 20px;
   & > button {
     margin: 0;
   }
@@ -141,7 +141,7 @@ export const GithubBreadcrumb = styled.div`
   margin-top: 40px;
 `;
 
-export const GithubSection = styled.div`
+export const EligibilitySectionWrapper = styled.div`
   box-sizing: border-box;
   border: 1px solid ${(props) => props.theme.colors.utility2.main20};
   padding: 20px;
@@ -152,6 +152,9 @@ export const EligibilitySection = styled.div`
   gap: 20px;
   color: ${(props) => props.theme.colors.utility2.main};
   justify-content: space-between;
+  & h1 {
+    text-align: left;
+  }
 
   & > button {
     align-self: center;
@@ -167,6 +170,25 @@ export const ClaimsSection = styled.div`
     margin-top: 10px;
     width: 200px;
     align-self: center;
+  }
+`;
+
+export const AnotherWays = styled.div`
+  margin-top: 30px;
+
+  & > h2 {
+    text-align: left;
+  }
+`;
+
+export const AnotherWaysButtons = styled.div`
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+
+  & > button {
+    margin: 0;
   }
 `;
 
