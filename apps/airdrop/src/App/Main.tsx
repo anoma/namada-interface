@@ -29,6 +29,7 @@ type GithubClaim = {
   amount: number;
   github_token?: string;
   has_claimed: boolean;
+  eligibilities: string[];
 };
 
 type KeplrClaim = {
@@ -118,11 +119,7 @@ export const Main: React.FC = () => {
     await keplr.enable(chainId);
 
     const { bech32Address: address } = await keplr.getKey(chainId);
-    const response = {
-      ...(await checkClaim(address, type)),
-      nonce:
-        "atest1d9khqw36gsmrzsfn8quyy33exumrgdp3ggcy2v2zx9rygwfjgyc5zd3ng3qnz33sgcursvzyuqv2mh",
-    };
+    const response = await checkClaim(address, type);
     if (response.eligible && !response.has_claimed) {
       const signature = await keplr?.signArbitrary(
         chainId,
@@ -136,6 +133,7 @@ export const Main: React.FC = () => {
         type,
         signature: { ...signature, pubKey: signature.pub_key },
         address,
+        nonce: response.nonce,
       });
     }
     navigatePostCheck(navigate, response.eligible, response.has_claimed);

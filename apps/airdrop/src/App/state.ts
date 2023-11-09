@@ -46,6 +46,7 @@ export type KeplrState = {
   type: ClaimType;
   signature: Signature;
   address: string;
+  nonce: string;
 };
 
 export type TSState = {

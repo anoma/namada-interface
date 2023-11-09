@@ -60,7 +60,8 @@ const claimWithKeplr = async (
   signer_public_key: string,
   signer_public_key_type: string,
   signature: string,
-  airdrop_address: string
+  airdrop_address: string,
+  message: string
 ): Promise<ClaimResponse> => {
   const response = await fetch(`http://localhost:5000/api/v1/airdrop/${type}`, {
     method: "POST",
@@ -71,6 +72,7 @@ const claimWithKeplr = async (
       signer_public_key_type,
       signature,
       airdrop_address,
+      message,
     }),
   });
 
@@ -80,7 +82,8 @@ const claimWithKeplr = async (
 const claimWithTS = async (
   signer_public_key: string,
   signature: string,
-  airdrop_address: string
+  airdrop_address: string,
+  message: string
 ): Promise<ClaimResponse> => {
   const response = await fetch(`http://localhost:5000/api/v1/airdrop/ts`, {
     method: "POST",
@@ -89,6 +92,7 @@ const claimWithTS = async (
       signer_public_key,
       signature,
       airdrop_address,
+      message,
     }),
   });
   return response.json();
@@ -104,17 +108,18 @@ const claim = (
     const { githubToken } = state as GithubState;
     return claimWithGithub(githubToken, airdropAddress);
   } else if (type === "ts") {
-    const { publicKey } = state as TSState;
-    return claimWithTS(publicKey, tsSignature, airdropAddress);
+    const { publicKey, nonce } = state as TSState;
+    return claimWithTS(publicKey, tsSignature, airdropAddress, nonce);
   } else if (["cosmos", "osmosis", "stargate"].includes(type)) {
-    const { signature, address } = state as KeplrState;
+    const { signature, address, nonce } = state as KeplrState;
     return claimWithKeplr(
       type,
       address,
       signature.pubKey.value,
       signature.pubKey.type,
       signature.signature,
-      airdropAddress
+      airdropAddress,
+      nonce
     );
   } else {
     throw new Error("Unsupported claim type");
@@ -126,9 +131,7 @@ export const GithubEligible: React.FC = () => {
   const [_confirmation, setConfirmation] = useAtom(confirmationAtom);
   const [step, setStep] = useState<Step>("eligibility");
   const [airdropAddress, setNamadaAddress] = useState<string>("");
-  const [tsSignature, setTsSignature] = useState<string>(
-    "e0a261c82b6258af6242f963d3af8c1160c3f4bf21a737933e28aaf8bc8c9f4a09818aa992ea8014d26d5a48ccc1f549824a770ff351ed58e71c71b119ea960d"
-  );
+  const [tsSignature, setTsSignature] = useState<string>("");
   const [isToggleChecked, setIsToggleChecked] = useState(false);
 
   const [namada, _, withNamadaConnection] =

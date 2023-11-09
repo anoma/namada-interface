@@ -79,9 +79,7 @@ export const TSEligibility: React.FC = () => {
               amount: response.amount,
               hasClaimed: response.has_claimed,
               type: "ts",
-              nonce:
-                "atest1d9khqw36gsmrzsfn8quyy33exumrgdp3ggcy2v2zx9rygwfjgyc5zd3ng3qnz33sgcursvzyuqv2mh" ||
-                response.nonce,
+              nonce: response.nonce,
               publicKey,
             });
           }
