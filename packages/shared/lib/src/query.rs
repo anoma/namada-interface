@@ -241,18 +241,11 @@ impl Query {
         owner: Address,
     ) -> Result<Vec<(Address, token::Amount)>, JsError> {
         //TODO: Move hardcoded tokens somewhere else
-        let tokens: HashSet<Address> = HashSet::from([Address::from_str(
-            "tnam1q99c37u38grkdcc2qze0hz4zjjd8zr3yucd3mzgz",
-        )?, Address::from_str(
-            "tnam1qx6k4wau5t6m8g2hjq55fje2ynpvh5t27s8p3p0l",
-        )?, Address::from_str(
-            "tnam1qyr9vd8ltunq72qc7pk58v7jdsedt4mggqqpxs03",
-        )?, Address::from_str(
-            "atest1v46xsw368psnwwf3xcerqeryxcervvpsxuukye3cxsukgce4x5mrwctyvvekvvnxv33nxvfc0kmacx",
-        )?,
-        Address::from_str(
-            "atest1de6hgw368pqnwwf3xcerqeryxcervvpsxuu5y33cxsu5gce4x5mrwc2ygve5vvjxv3pnxvfcq8rzzq",
-        )?]);
+        let tokens: HashSet<Address> = HashSet::from([
+            Address::from_str("tnam1q99c37u38grkdcc2qze0hz4zjjd8zr3yucd3mzgz")?,
+            Address::from_str("tnam1qx6k4wau5t6m8g2hjq55fje2ynpvh5t27s8p3p0l")?,
+            Address::from_str("tnam1qyr9vd8ltunq72qc7pk58v7jdsedt4mggqqpxs03")?,
+        ]);
 
         let mut result = vec![];
         for token in tokens {
