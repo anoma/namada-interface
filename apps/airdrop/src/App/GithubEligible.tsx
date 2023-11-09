@@ -21,13 +21,13 @@ import {
   Breadcrumb,
   ClaimsSection,
   ClaimsSectionSignature,
+  EligibilityContainer,
   EligibilitySection,
+  EligibilitySectionWrapper,
   ExtensionInfo,
   GithubBreadcrumb,
-  GithubContainer,
   GithubFooter,
   GithubHeader,
-  GithubSection,
   TOSToggle,
 } from "./App.components";
 import { useNavigate } from "react-router-dom";
@@ -159,7 +159,7 @@ export const GithubEligible: React.FC = () => {
 
   const navigate = useNavigate();
   return (
-    <GithubContainer>
+    <EligibilityContainer>
       <GithubHeader>
         <GithubBreadcrumb>
           <Breadcrumb className={step === "eligibility" ? "active" : ""}>
@@ -170,7 +170,7 @@ export const GithubEligible: React.FC = () => {
           </Breadcrumb>
         </GithubBreadcrumb>
       </GithubHeader>
-      <GithubSection>
+      <EligibilitySectionWrapper>
         {step === "eligibility" && (
           <EligibilitySection>
             <span>
@@ -303,8 +303,8 @@ export const GithubEligible: React.FC = () => {
             </ExtensionInfo>
           </ClaimsSection>
         )}
-      </GithubSection>
+      </EligibilitySectionWrapper>
       <GithubFooter></GithubFooter>
-    </GithubContainer>
+    </EligibilityContainer>
   );
 };

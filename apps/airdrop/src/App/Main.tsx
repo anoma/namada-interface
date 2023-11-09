@@ -74,7 +74,7 @@ export const navigatePostCheck = (
   } else if (eligible && hasClaimed) {
     navigate("/already-claimed");
   } else if (!eligible) {
-    navigate("/not-eligible");
+    navigate("/non-eligible");
   }
 };
 
