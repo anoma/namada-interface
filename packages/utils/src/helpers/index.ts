@@ -195,6 +195,21 @@ export const makeBip44Path = (
 };
 
 /**
+ * Return a properly formatted BIP-044 path array
+ *
+ * @param {number} coinType - SLIP-044 Coin designation
+ * @param {Bip44Path} path - path object
+ * @returns {string}
+ */
+export const makeBip44PathArray = (
+  coinType: number,
+  path: Bip44Path
+): Uint32Array => {
+  const { account, change, index } = path;
+  return new Uint32Array([44, coinType, account, change, index]);
+};
+
+/**
  * Pick object parameters
  */
 export function pick<T, K extends keyof T>(obj: T, ...keys: K[]): Pick<T, K> {

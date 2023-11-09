@@ -5,9 +5,11 @@ import { deserialize } from "@dao-xyz/borsh";
 import { chains } from "@namada/chains";
 import {
   HDWallet,
+  ShieldedHDWallet,
   Mnemonic,
   PhraseSize,
-  ShieldedHDWallet,
+  readVecStringPointer,
+  readStringPointer,
   VecU8Pointer,
 } from "@namada/crypto";
 import {
@@ -35,11 +37,7 @@ import {
   UtilityStore,
   AccountStore,
 } from "./types";
-import {
-  readVecStringPointer,
-  readStringPointer,
-} from "@namada/crypto/src/utils";
-import { makeBip44Path, Result } from "@namada/utils";
+import { Result, makeBip44PathArray } from "@namada/utils";
 
 import { Crypto } from "./crypto";
 import { getAccountValuesFromStore, generateId } from "utils";
@@ -231,17 +229,16 @@ export class KeyRing {
       const seed = mnemonic.to_seed();
       const { coinType } = chains[this.chainId].bip44;
       const path = { account: 0, change: 0, index: 0 };
-      const bip44Path = makeBip44Path(coinType, path);
+      const bip44Path = makeBip44PathArray(coinType, path);
       const hdWallet = new HDWallet(seed);
-      const account = hdWallet.derive(bip44Path);
-      const privateKeyStringPtr = account.private().to_hex();
-      const publicKeyStringPtr = account.public().to_hex();
+      const key = hdWallet.derive(new Uint32Array(bip44Path));
+      const privateKeyStringPtr = key.to_hex();
       const sk = readStringPointer(privateKeyStringPtr, this._cryptoMemory);
-      const publicKey = readStringPointer(
-        publicKeyStringPtr,
-        this._cryptoMemory
-      );
-      const address = new Address(sk).implicit();
+
+      const addr = new Address(sk);
+      const address = addr.implicit();
+      const publicKey = addr.public();
+
       const { chainId } = this;
 
       // Generate unique ID for new parent account:
@@ -270,7 +267,7 @@ export class KeyRing {
 
       mnemonic.free();
       hdWallet.free();
-      account.free();
+      key.free();
       privateKeyStringPtr.free();
 
       await this._keyStore.append(mnemonicStore);
@@ -310,12 +307,11 @@ export class KeyRing {
     parentId: string
   ): DerivedAccountInfo {
     const { coinType } = chains[this.chainId].bip44;
-    const derivationPath = makeBip44Path(coinType, path);
+    const derivationPath = makeBip44PathArray(coinType, path);
     const hdWallet = new HDWallet(seed);
-    const derivedAccount = hdWallet.derive(derivationPath);
-    const privateKey = derivedAccount.private();
-    const hex = privateKey.to_hex();
-    const text = readStringPointer(hex, this.cryptoMemory);
+    const key = hdWallet.derive(new Uint32Array(derivationPath));
+    const privateKey = key.to_hex();
+    const text = readStringPointer(privateKey, this.cryptoMemory);
     const address = new Address(text).implicit();
 
     const { account, change, index = 0 } = path;
@@ -329,9 +325,8 @@ export class KeyRing {
     );
 
     hdWallet.free();
-    derivedAccount.free();
+    key.free();
     privateKey.free();
-    hex.free();
 
     return {
       address,
