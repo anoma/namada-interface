@@ -3,7 +3,6 @@ import {
   Button,
   ButtonVariant,
   Heading,
-  HeadingLevel,
   Modal,
   Toggle,
 } from "@namada/components";
@@ -142,7 +141,7 @@ export const Main: React.FC = () => {
   return (
     <MainContainer>
       <MainHeader>
-        <Heading level={HeadingLevel.One}>
+        <Heading level={"h1"}>
           No Privacy
           <br />
           Without Public Goods
@@ -164,7 +163,7 @@ export const Main: React.FC = () => {
         </Button>
       </MainSection>
       <MainFooter>
-        <Heading level={HeadingLevel.One}>Namada RPGF Drop</Heading>
+        <Heading level={"h1"}>Namada RPGF Drop</Heading>
         <p>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris semper
           tempor ante eu ullamcorper. Morbi fringilla gravida mi in cursus.

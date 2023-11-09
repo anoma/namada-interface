@@ -2,7 +2,6 @@ import {
   Button,
   ButtonVariant,
   Heading,
-  HeadingLevel,
   Input,
   InputVariants,
 } from "@namada/components";
@@ -41,7 +40,7 @@ export const TSEligibility: React.FC = () => {
 
   return (
     <TSEligibilityContainer>
-      <Heading level={HeadingLevel.One}>
+      <Heading level={"h1"}>
         Check Eligibility for Trusted Setup Participants
       </Heading>
       <p>
@@ -65,7 +64,7 @@ export const TSEligibility: React.FC = () => {
       <Input
         variant={InputVariants.Text}
         value={publicKey}
-        onChangeCallback={(e) => setPublicKey(e.target.value)}
+        onChange={(e) => setPublicKey(e.target.value)}
         label="Trusted Setup Public Key"
       />
 
