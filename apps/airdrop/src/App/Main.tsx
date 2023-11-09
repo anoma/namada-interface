@@ -19,8 +19,12 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { githubAtom } from "./state";
 import { useAtom } from "jotai";
+import { useIntegrationConnection } from "@namada/hooks";
 
-const { REACT_APP_REDIRECT_URI: redirectUrl = "" } = process.env;
+const {
+  REACT_APP_REDIRECT_URI: redirectUrl = "",
+  REACT_APP_COSMOS_CHAIN_ID: cosmosChainId = "cosmosChainId",
+} = process.env;
 
 type GithubClaim = {
   eligible: boolean;
@@ -29,7 +33,14 @@ type GithubClaim = {
   has_claimed: boolean;
 };
 
-const getGithubClaimInfo = async (code: string): Promise<GithubClaim> => {
+type KeplrClaim = {
+  eligible: boolean;
+  amount: number;
+  has_claimed: boolean;
+  nonce: string;
+};
+
+const checkGithubClaim = async (code: string): Promise<GithubClaim> => {
   const response = await fetch(
     `http://localhost:5000/api/v1/airdrop/github/${code}`,
     {
@@ -39,6 +50,16 @@ const getGithubClaimInfo = async (code: string): Promise<GithubClaim> => {
   const json = await response.json();
 
   return { ...json, has_claimed: false };
+};
+
+const checkClaim = async (address: string): Promise<KeplrClaim> => {
+  const response = await fetch(
+    `http://localhost:5000/api/v1/airdrop/cosmos/${address}`,
+    {
+      method: "GET",
+    }
+  );
+  return response.json();
 };
 
 export const Main: React.FC = () => {
@@ -54,13 +75,14 @@ export const Main: React.FC = () => {
     if (hasCode) {
       (async () => {
         const code = url.split("?code=")[1];
-        const response = await getGithubClaimInfo(code);
+        const response = await checkGithubClaim(code);
         if (response.eligible) {
           setGithub({
             eligible: response.eligible,
             amount: response.amount,
-            githubToken: response.github_token,
+            githubToken: response.github_token as string,
             hasClaimed: response.has_claimed,
+            type: "github",
           });
           navigate("/eligible-with-github");
         } else {
@@ -69,6 +91,42 @@ export const Main: React.FC = () => {
       })();
     }
   }, []);
+
+  const [keplr, _isConnectingToKeplr, withKeplrConnection] =
+    useIntegrationConnection(cosmosChainId);
+
+  const handleKeplrConnection = async (): Promise<void> => {
+    withKeplrConnection(async () => {
+      const accounts = await keplr?.accounts();
+      if (accounts && accounts.length > 0) {
+        const address = accounts[0].address;
+        //TODO: get correct nonce from response when backend is ready
+        const response = {
+          ...(await checkClaim(address)),
+          nonce:
+            "atest1d9khqw36gsmrzsfn8quyy33exumrgdp3ggcy2v2zx9rygwfjgyc5zd3ng3qnz33sgcursvzyuqv2mh",
+        };
+        if (response.eligible) {
+          const signature = await keplr?.signArbitrary(
+            "cosmoshub-4",
+            address,
+            response.nonce
+          );
+          setGithub({
+            eligible: response.eligible,
+            amount: response.amount,
+            hasClaimed: response.has_claimed,
+            type: "cosmos",
+            signature: { ...signature, pubKey: signature.pub_key },
+            address,
+          });
+          navigate("/eligible-with-github");
+        } else {
+          navigate("/not-eligible");
+        }
+      }
+    });
+  };
 
   return (
     <MainContainer>
@@ -119,11 +177,18 @@ export const Main: React.FC = () => {
           >
             Github
           </Button>
-          <Button variant={ButtonVariant.Contained}>Ethereum Wallet</Button>
-          <Button variant={ButtonVariant.Contained}>
+          <Button disabled={true} variant={ButtonVariant.Contained}>
+            Ethereum Wallet
+          </Button>
+          <Button disabled={true} variant={ButtonVariant.Contained}>
             Namada Trusted Setup
           </Button>
-          <Button variant={ButtonVariant.Contained}>Cosmos Wallet</Button>
+          <Button
+            onClick={handleKeplrConnection}
+            variant={ButtonVariant.Contained}
+          >
+            Cosmos Wallet
+          </Button>
           <Button variant={ButtonVariant.Contained}>Osmosis Wallet</Button>
           <Button variant={ButtonVariant.Contained}>Stargate Wallet</Button>
           <TOSToggle>

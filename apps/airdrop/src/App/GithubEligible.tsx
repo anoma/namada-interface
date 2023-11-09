@@ -1,5 +1,12 @@
 import { useAtom } from "jotai";
-import { confirmationAtom, githubAtom } from "./state";
+import {
+  CommonState,
+  GithubState,
+  GithubState2,
+  KeplrState,
+  confirmationAtom,
+  githubAtom,
+} from "./state";
 import {
   Button,
   ButtonVariant,
@@ -45,18 +52,62 @@ const claimWithGithub = async (
   return response.json();
 };
 
+const claimWithKeplr = async (
+  signer_address: string,
+  signer_public_key: string,
+  signer_public_key_type: string,
+  signature: string,
+  airdrop_address: string
+): Promise<ClaimResponse> => {
+  const response = await fetch("http://localhost:5000/api/v1/airdrop/cosmos", {
+    method: "POST",
+    headers: new Headers({ "content-type": "application/json" }),
+    body: JSON.stringify({
+      signer_address,
+      signer_public_key,
+      signer_public_key_type,
+      signature,
+      airdrop_address,
+    }),
+  });
+
+  return response.json();
+};
+
+const claim = (
+  state: CommonState,
+  airdropAddress: string
+): Promise<ClaimResponse> => {
+  const { type } = state;
+  if (type === "github") {
+    const { githubToken } = state as GithubState2;
+    return claimWithGithub(githubToken, airdropAddress);
+  } else if (type === "cosmos") {
+    const { signature, address } = state as KeplrState;
+    return claimWithKeplr(
+      address,
+      signature.pubKey.value,
+      signature.pubKey.type,
+      signature.signature,
+      airdropAddress
+    );
+  } else {
+    throw new Error("Unsupported claim type");
+  }
+};
+
 export const GithubEligible: React.FC = () => {
   const [github] = useAtom(githubAtom);
   const [_confirmation, setConfirmation] = useAtom(confirmationAtom);
   const [step, setStep] = useState<Step>("eligibility");
-  const [namadaAddress, setNamadaAddress] = useState<string>("");
+  const [airdropAddress, setNamadaAddress] = useState<string>("");
   const [isToggleChecked, setIsToggleChecked] = useState(false);
 
   const [namada, _, withNamadaConnection] =
     useIntegrationConnection(namadaChainId);
 
   const handleImportButton = async (): Promise<void> => {
-    if (namadaAddress === "") {
+    if (airdropAddress === "") {
       withNamadaConnection(async () => {
         const accounts = await namada?.accounts();
         if (accounts && accounts.length > 0) {
@@ -122,7 +173,7 @@ export const GithubEligible: React.FC = () => {
             <AirdropAddress>
               <Input
                 variant={InputVariants.Text}
-                value={namadaAddress}
+                value={airdropAddress}
                 onChangeCallback={(e) => setNamadaAddress(e.target.value)}
                 label="Namada airdrop address"
               />
@@ -130,7 +181,7 @@ export const GithubEligible: React.FC = () => {
                 variant={ButtonVariant.Small}
                 onClick={handleImportButton}
               >
-                {namadaAddress ? "Clear" : "Import"}
+                {airdropAddress ? "Clear" : "Import"}
               </Button>
             </AirdropAddress>
 
@@ -149,13 +200,11 @@ export const GithubEligible: React.FC = () => {
             <Button
               variant={ButtonVariant.Contained}
               onClick={async () => {
-                if (!github.githubToken) {
+                if (!github) {
                   throw new Error("Github token not found");
                 }
-                const res = await claimWithGithub(
-                  github.githubToken,
-                  namadaAddress
-                );
+                const res = await claim(github, airdropAddress);
+
                 setConfirmation({
                   confirmed: res.confirmed,
                   address: res.airdrop_address || "",
@@ -163,7 +212,7 @@ export const GithubEligible: React.FC = () => {
                 });
                 navigate("/airdrop-confirmed");
               }}
-              disabled={namadaAddress === "" || !isToggleChecked}
+              disabled={airdropAddress === "" || !isToggleChecked}
             >
               Claim NAM
             </Button>

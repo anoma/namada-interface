@@ -23,18 +23,40 @@ export const reducer: Reducer<State, Action> = (
   throw Error("Unknown action.");
 };
 
+export type Signature = {
+  signature: string;
+  pubKey: { type: string; value: string };
+};
+
+export type GithubState2 = {
+  eligible: boolean;
+  amount: number;
+  hasClaimed: boolean;
+  type: "github";
+  githubToken: string;
+};
+
+export type KeplrState = {
+  eligible: boolean;
+  amount: number;
+  hasClaimed: boolean;
+  type: "github" | "cosmos" | "";
+  signature: Signature;
+  address: string;
+};
+
+export type CommonState = GithubState2 | KeplrState;
+
 export type GithubState = {
   eligible: boolean;
   amount: number;
-  githubToken?: string;
   hasClaimed: boolean;
+  type: "github" | "cosmos" | "";
+  githubToken?: string;
+  signature?: Signature;
 };
 
-export const githubAtom = atom<GithubState>({
-  eligible: false,
-  amount: 0,
-  hasClaimed: false,
-});
+export const githubAtom = atom<CommonState | null>(null);
 
 export type ConfirmationState = {
   confirmed: boolean;
