@@ -16,7 +16,7 @@ import {
   TOSToggle,
 } from "./App.components";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { NavigateFunction, useNavigate } from "react-router-dom";
 import { githubAtom } from "./state";
 import { useAtom } from "jotai";
 import { useIntegrationConnection } from "@namada/hooks";
@@ -62,6 +62,20 @@ const checkClaim = async (address: string): Promise<KeplrClaim> => {
   return response.json();
 };
 
+const navigatePostCheck = (
+  navigate: NavigateFunction,
+  eligible: boolean,
+  hasClaimed: boolean
+): void => {
+  if (eligible && !hasClaimed) {
+    navigate("/eligible-with-github");
+  } else if (eligible && hasClaimed) {
+    navigate("/already-claimed");
+  } else if (!eligible) {
+    navigate("/not-eligible");
+  }
+};
+
 export const Main: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isToggleChecked, setIsToggleChecked] = useState(false);
@@ -76,7 +90,7 @@ export const Main: React.FC = () => {
       (async () => {
         const code = url.split("?code=")[1];
         const response = await checkGithubClaim(code);
-        if (response.eligible) {
+        if (response.eligible && !response.has_claimed) {
           setGithub({
             eligible: response.eligible,
             amount: response.amount,
@@ -84,10 +98,8 @@ export const Main: React.FC = () => {
             hasClaimed: response.has_claimed,
             type: "github",
           });
-          navigate("/eligible-with-github");
-        } else {
-          navigate("/not-eligible");
         }
+        navigatePostCheck(navigate, response.eligible, response.has_claimed);
       })();
     }
   }, []);
@@ -106,7 +118,7 @@ export const Main: React.FC = () => {
           nonce:
             "atest1d9khqw36gsmrzsfn8quyy33exumrgdp3ggcy2v2zx9rygwfjgyc5zd3ng3qnz33sgcursvzyuqv2mh",
         };
-        if (response.eligible) {
+        if (response.eligible && !response.has_claimed) {
           const signature = await keplr?.signArbitrary(
             "cosmoshub-4",
             address,
@@ -120,10 +132,8 @@ export const Main: React.FC = () => {
             signature: { ...signature, pubKey: signature.pub_key },
             address,
           });
-          navigate("/eligible-with-github");
-        } else {
-          navigate("/not-eligible");
         }
+        navigatePostCheck(navigate, response.eligible, response.has_claimed);
       }
     });
   };
