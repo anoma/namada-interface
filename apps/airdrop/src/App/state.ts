@@ -28,11 +28,14 @@ export type Signature = {
   pubKey: { type: string; value: string };
 };
 
+export type KeplrClaimType = "cosmos" | "osmosis" | "stargaze";
+export type ClaimType = "github" | KeplrClaimType;
+
 export type GithubState2 = {
   eligible: boolean;
   amount: number;
   hasClaimed: boolean;
-  type: "github";
+  type: ClaimType;
   githubToken: string;
 };
 
@@ -40,7 +43,7 @@ export type KeplrState = {
   eligible: boolean;
   amount: number;
   hasClaimed: boolean;
-  type: "github" | "cosmos" | "";
+  type: ClaimType;
   signature: Signature;
   address: string;
 };

@@ -1,8 +1,8 @@
 import { useAtom } from "jotai";
 import {
   CommonState,
-  GithubState,
   GithubState2,
+  KeplrClaimType,
   KeplrState,
   confirmationAtom,
   githubAtom,
@@ -53,13 +53,14 @@ const claimWithGithub = async (
 };
 
 const claimWithKeplr = async (
+  type: KeplrClaimType,
   signer_address: string,
   signer_public_key: string,
   signer_public_key_type: string,
   signature: string,
   airdrop_address: string
 ): Promise<ClaimResponse> => {
-  const response = await fetch("http://localhost:5000/api/v1/airdrop/cosmos", {
+  const response = await fetch(`http://localhost:5000/api/v1/airdrop/${type}`, {
     method: "POST",
     headers: new Headers({ "content-type": "application/json" }),
     body: JSON.stringify({
@@ -82,9 +83,10 @@ const claim = (
   if (type === "github") {
     const { githubToken } = state as GithubState2;
     return claimWithGithub(githubToken, airdropAddress);
-  } else if (type === "cosmos") {
+  } else if (["cosmos", "osmosis", "stargate"].includes(type)) {
     const { signature, address } = state as KeplrState;
     return claimWithKeplr(
+      type,
       address,
       signature.pubKey.value,
       signature.pubKey.type,

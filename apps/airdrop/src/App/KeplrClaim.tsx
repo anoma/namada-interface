@@ -20,9 +20,6 @@ type KeplrClaim = {
   has_claimed: boolean;
 };
 
-const { REACT_APP_COSMOS_CHAIN_ID: cosmosChainId = "cosmosChainId" } =
-  process.env;
-
 //TODO: replace cosmos with argument: either cosmos or osmosis
 const checkClaim = async (address: string): Promise<KeplrClaim> => {
   const response = await fetch(
@@ -64,7 +61,7 @@ export const KeplrClaim: React.FC<Props> = ({ namadaAddress }: Props) => {
   const keplrAttachStatus = "attached";
 
   const [keplr, _isConnectingToKeplr, withKeplrConnection] =
-    useIntegrationConnection(cosmosChainId);
+    useIntegrationConnection("cosmoshub-4");
 
   const handleKeplrConnection = async (): Promise<void> => {
     withKeplrConnection(async () => {

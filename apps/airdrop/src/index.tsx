@@ -8,14 +8,13 @@ import { Keplr, Namada } from "@namada/integrations";
 import namada from "@namada/chains/src/chains/namada";
 import cosmos from "@namada/chains/src/chains/cosmos";
 
-const {
-  REACT_APP_NAMADA_CHAIN_ID: namadaChainId = "namadaChainId",
-  REACT_APP_COSMOS_CHAIN_ID: cosmosChainId = "cosmosChainId",
-} = process.env;
+const { REACT_APP_NAMADA_CHAIN_ID: namadaChainId = "namadaChainId" } =
+  process.env;
 
 const integrations = {
   [namadaChainId]: new Namada(namada),
-  [cosmosChainId]: new Keplr(cosmos),
+  ["cosmoshub-4"]: new Keplr(cosmos),
+  ["osmosis-1"]: new Keplr(cosmos),
 };
 //TODO: move to shares
 export const IntegrationsProvider: React.FC = (props): JSX.Element => {

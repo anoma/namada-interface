@@ -1,3 +1,4 @@
+import { Window as KeplrWindow } from "@keplr-wallet/types";
 import {
   Button,
   ButtonVariant,
@@ -17,14 +18,11 @@ import {
 } from "./App.components";
 import { useEffect, useState } from "react";
 import { NavigateFunction, useNavigate } from "react-router-dom";
-import { githubAtom } from "./state";
+import { KeplrClaimType, githubAtom } from "./state";
 import { useAtom } from "jotai";
-import { useIntegrationConnection } from "@namada/hooks";
 
-const {
-  REACT_APP_REDIRECT_URI: redirectUrl = "",
-  REACT_APP_COSMOS_CHAIN_ID: cosmosChainId = "cosmosChainId",
-} = process.env;
+//TODO: move chainIds to const / create claimType -> chainId map
+const { REACT_APP_REDIRECT_URI: redirectUrl = "" } = process.env;
 
 type GithubClaim = {
   eligible: boolean;
@@ -52,9 +50,12 @@ const checkGithubClaim = async (code: string): Promise<GithubClaim> => {
   return { ...json, has_claimed: false };
 };
 
-const checkClaim = async (address: string): Promise<KeplrClaim> => {
+const checkClaim = async (
+  address: string,
+  type: KeplrClaimType
+): Promise<KeplrClaim> => {
   const response = await fetch(
-    `http://localhost:5000/api/v1/airdrop/cosmos/${address}`,
+    `http://localhost:5000/api/v1/airdrop/${type}/${address}`,
     {
       method: "GET",
     }
@@ -104,38 +105,39 @@ export const Main: React.FC = () => {
     }
   }, []);
 
-  const [keplr, _isConnectingToKeplr, withKeplrConnection] =
-    useIntegrationConnection(cosmosChainId);
+  const handleKeplrConnection = async (
+    type: KeplrClaimType,
+    chainId: string
+  ): Promise<void> => {
+    const keplr = (window as KeplrWindow).keplr;
+    if (!keplr) {
+      //TODO: proper handling
+      throw new Error("Keplr extension not installed");
+    }
+    await keplr.enable(chainId);
 
-  const handleKeplrConnection = async (): Promise<void> => {
-    withKeplrConnection(async () => {
-      const accounts = await keplr?.accounts();
-      if (accounts && accounts.length > 0) {
-        const address = accounts[0].address;
-        //TODO: get correct nonce from response when backend is ready
-        const response = {
-          ...(await checkClaim(address)),
-          nonce:
-            "atest1d9khqw36gsmrzsfn8quyy33exumrgdp3ggcy2v2zx9rygwfjgyc5zd3ng3qnz33sgcursvzyuqv2mh",
-        };
-        if (response.eligible && !response.has_claimed) {
-          const signature = await keplr?.signArbitrary(
-            "cosmoshub-4",
-            address,
-            response.nonce
-          );
-          setGithub({
-            eligible: response.eligible,
-            amount: response.amount,
-            hasClaimed: response.has_claimed,
-            type: "cosmos",
-            signature: { ...signature, pubKey: signature.pub_key },
-            address,
-          });
-        }
-        navigatePostCheck(navigate, response.eligible, response.has_claimed);
-      }
-    });
+    const { bech32Address: address } = await keplr.getKey(chainId);
+    const response = {
+      ...(await checkClaim(address, type)),
+      nonce:
+        "atest1d9khqw36gsmrzsfn8quyy33exumrgdp3ggcy2v2zx9rygwfjgyc5zd3ng3qnz33sgcursvzyuqv2mh",
+    };
+    if (response.eligible && !response.has_claimed) {
+      const signature = await keplr?.signArbitrary(
+        chainId,
+        address,
+        response.nonce
+      );
+      setGithub({
+        eligible: response.eligible,
+        amount: response.amount,
+        hasClaimed: response.has_claimed,
+        type,
+        signature: { ...signature, pubKey: signature.pub_key },
+        address,
+      });
+    }
+    navigatePostCheck(navigate, response.eligible, response.has_claimed);
   };
 
   return (
@@ -194,13 +196,20 @@ export const Main: React.FC = () => {
             Namada Trusted Setup
           </Button>
           <Button
-            onClick={handleKeplrConnection}
             variant={ButtonVariant.Contained}
+            onClick={() => handleKeplrConnection("cosmos", "cosmoshub-4")}
           >
             Cosmos Wallet
           </Button>
-          <Button variant={ButtonVariant.Contained}>Osmosis Wallet</Button>
-          <Button variant={ButtonVariant.Contained}>Stargate Wallet</Button>
+          <Button
+            variant={ButtonVariant.Contained}
+            onClick={() => handleKeplrConnection("osmosis", "osmosis-1")}
+          >
+            Osmosis Wallet
+          </Button>
+          <Button disabled={true} variant={ButtonVariant.Contained}>
+            Stargaze Wallet
+          </Button>
           <TOSToggle>
             <Toggle
               checked={isToggleChecked}
