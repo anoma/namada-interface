@@ -29,9 +29,9 @@ export type Signature = {
 };
 
 export type KeplrClaimType = "cosmos" | "osmosis" | "stargaze";
-export type ClaimType = "github" | KeplrClaimType;
+export type ClaimType = "github" | "ts" | KeplrClaimType;
 
-export type GithubState2 = {
+export type GithubState = {
   eligible: boolean;
   amount: number;
   hasClaimed: boolean;
@@ -48,16 +48,16 @@ export type KeplrState = {
   address: string;
 };
 
-export type CommonState = GithubState2 | KeplrState;
-
-export type GithubState = {
+export type TSState = {
   eligible: boolean;
   amount: number;
   hasClaimed: boolean;
-  type: "github" | "cosmos" | "";
-  githubToken?: string;
-  signature?: Signature;
+  type: ClaimType;
+  nonce: string;
+  publicKey: string;
 };
+
+export type CommonState = GithubState | KeplrState | TSState;
 
 export const githubAtom = atom<CommonState | null>(null);
 

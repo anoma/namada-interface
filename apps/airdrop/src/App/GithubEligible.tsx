@@ -1,9 +1,10 @@
 import { useAtom } from "jotai";
 import {
   CommonState,
-  GithubState2,
+  GithubState,
   KeplrClaimType,
   KeplrState,
+  TSState,
   confirmationAtom,
   githubAtom,
 } from "./state";
@@ -20,6 +21,7 @@ import {
   AirdropAddress,
   Breadcrumb,
   ClaimsSection,
+  ClaimsSectionSignature,
   EligibilitySection,
   ExtensionInfo,
   GithubBreadcrumb,
@@ -75,14 +77,35 @@ const claimWithKeplr = async (
   return response.json();
 };
 
+const claimWithTS = async (
+  signer_public_key: string,
+  signature: string,
+  airdrop_address: string
+): Promise<ClaimResponse> => {
+  const response = await fetch(`http://localhost:5000/api/v1/airdrop/ts`, {
+    method: "POST",
+    headers: new Headers({ "content-type": "application/json" }),
+    body: JSON.stringify({
+      signer_public_key,
+      signature,
+      airdrop_address,
+    }),
+  });
+  return response.json();
+};
+
 const claim = (
   state: CommonState,
-  airdropAddress: string
+  airdropAddress: string,
+  tsSignature: string
 ): Promise<ClaimResponse> => {
   const { type } = state;
   if (type === "github") {
-    const { githubToken } = state as GithubState2;
+    const { githubToken } = state as GithubState;
     return claimWithGithub(githubToken, airdropAddress);
+  } else if (type === "ts") {
+    const { publicKey } = state as TSState;
+    return claimWithTS(publicKey, tsSignature, airdropAddress);
   } else if (["cosmos", "osmosis", "stargate"].includes(type)) {
     const { signature, address } = state as KeplrState;
     return claimWithKeplr(
@@ -103,6 +126,9 @@ export const GithubEligible: React.FC = () => {
   const [_confirmation, setConfirmation] = useAtom(confirmationAtom);
   const [step, setStep] = useState<Step>("eligibility");
   const [airdropAddress, setNamadaAddress] = useState<string>("");
+  const [tsSignature, setTsSignature] = useState<string>(
+    "e0a261c82b6258af6242f963d3af8c1160c3f4bf21a737933e28aaf8bc8c9f4a09818aa992ea8014d26d5a48ccc1f549824a770ff351ed58e71c71b119ea960d"
+  );
   const [isToggleChecked, setIsToggleChecked] = useState(false);
 
   const [namada, _, withNamadaConnection] =
@@ -125,19 +151,14 @@ export const GithubEligible: React.FC = () => {
   const handleDownloadExtension = (url: string): void => {
     window.open(url, "_blank", "noopener,noreferrer");
   };
+  const handleNonceButton = async (nonce: string): Promise<void> => {
+    await navigator.clipboard.writeText(nonce);
+  };
 
   const navigate = useNavigate();
   return (
     <GithubContainer>
       <GithubHeader>
-        <Button
-          variant={ButtonVariant.Small}
-          onClick={() => {
-            navigate("/");
-          }}
-        >
-          Start over
-        </Button>
         <GithubBreadcrumb>
           <Breadcrumb className={step === "eligibility" ? "active" : ""}>
             1. Eligibility
@@ -168,6 +189,40 @@ export const GithubEligible: React.FC = () => {
         {step === "claim" && (
           <ClaimsSection>
             <Heading level={HeadingLevel.One}>Claim NAM</Heading>
+            <ClaimsSectionSignature>
+              <p>Generate a signature with your Trusted Setup keys</p>
+              <p>Use this nonce in the CLI tool (Copy and paste this nonce)</p>
+
+              {github && github.type === "ts" && (
+                <>
+                  <AirdropAddress>
+                    {/*TODO: should be disabled*/}
+                    <Input
+                      variant={InputVariants.Text}
+                      value={(github as TSState).nonce}
+                      label="Nonce"
+                      onChangeCallback={() => {}}
+                    />
+                    <Button
+                      variant={ButtonVariant.Small}
+                      onClick={() =>
+                        handleNonceButton((github as TSState).nonce)
+                      }
+                    >
+                      Copy
+                    </Button>
+                  </AirdropAddress>
+                  <p>Paste the signature generated in the clipboard</p>
+
+                  <Input
+                    variant={InputVariants.Text}
+                    value={tsSignature}
+                    onChangeCallback={(e) => setTsSignature(e.target.value)}
+                    label="Trusted setup signature"
+                  />
+                </>
+              )}
+            </ClaimsSectionSignature>
             <p>
               Submit your Namada public key to be included in the genesis
               proposal
@@ -205,7 +260,7 @@ export const GithubEligible: React.FC = () => {
                 if (!github) {
                   throw new Error("Github token not found");
                 }
-                const res = await claim(github, airdropAddress);
+                const res = await claim(github, airdropAddress, tsSignature);
 
                 setConfirmation({
                   confirmed: res.confirmed,
