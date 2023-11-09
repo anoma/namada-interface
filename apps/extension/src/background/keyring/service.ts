@@ -89,10 +89,9 @@ export class KeyRingService {
 
   async saveMnemonic(
     words: string[],
-    password: string,
     alias: string
   ): Promise<AccountStore | false> {
-    const results = await this._keyRing.storeMnemonic(words, password, alias);
+    const results = await this._keyRing.storeMnemonic(words, alias);
     this.broadcaster.updateAccounts();
     return results;
   }

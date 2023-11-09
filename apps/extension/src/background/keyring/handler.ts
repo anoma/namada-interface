@@ -121,9 +121,9 @@ const handleSaveMnemonicMsg: (
   service: KeyRingService
 ) => InternalHandler<SaveMnemonicMsg> = (service) => {
   return async (_, msg) => {
-    const { words, password, alias } = msg;
-    if (words && password) {
-      return await service.saveMnemonic(words, password, alias);
+    const { words, alias } = msg;
+    if (words) {
+      return await service.saveMnemonic(words, alias);
     }
     return false;
   };

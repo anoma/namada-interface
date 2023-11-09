@@ -94,19 +94,11 @@ export class SaveMnemonicMsg extends Message<AccountStore | false> {
     return MessageType.SaveMnemonic;
   }
 
-  constructor(
-    public readonly words: string[],
-    public readonly password: string,
-    public readonly alias: string
-  ) {
+  constructor(public readonly words: string[], public readonly alias: string) {
     super();
   }
 
   validate(): void {
-    if (!this.password) {
-      throw new Error("A password is required to save a mnemonic!");
-    }
-
     if (!this.words) {
       throw new Error("A wordlist is required to save a mnemonic!");
     }

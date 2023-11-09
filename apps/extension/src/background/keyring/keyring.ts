@@ -119,13 +119,9 @@ export class KeyRing {
   // Store validated mnemonic
   public async storeMnemonic(
     mnemonic: string[],
-    password: string,
     alias: string
   ): Promise<AccountStore | false> {
-    if (!password) {
-      throw new Error("Password is not provided! Cannot store mnemonic");
-    }
-
+    this.vaultService.assertIsUnlocked();
     const phrase = mnemonic.join(" ");
     try {
       const mnemonic = Mnemonic.from_phrase(phrase);
@@ -167,14 +163,22 @@ export class KeyRing {
         type: AccountType.Mnemonic,
       };
       const sensitiveData: SensitiveAccountStoreData = { text: phrase };
-      this.vaultService.add(KEYSTORE_KEY, accountStore, sensitiveData);
+      await this.vaultService.add<AccountStore, SensitiveAccountStoreData>(
+        KEYSTORE_KEY,
+        accountStore,
+        sensitiveData
+      );
 
       // When we are adding new top level account we have to clear the storage
       // to prevent adding top level secret key to existing keys
       this.sdk.clear_storage();
-      await this.addSecretKey(sk, password, alias, id);
+      await this.addSecretKey(
+        sk,
+        this.vaultService.UNSAFE_getPassword(),
+        alias,
+        id
+      );
       await this.setActiveAccount(id, AccountType.Mnemonic);
-
       return accountStore;
     } catch (e) {
       console.error(e);
@@ -381,7 +385,8 @@ export class KeyRing {
       mnemonic.free();
       return { parentId, seed };
     } catch (e) {
-      throw Error("Could not decrypt mnemonic from password");
+      console.error(e);
+      throw Error("Could not decrypt mnemonic using the provided password");
     }
   }
 
