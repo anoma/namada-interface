@@ -4,6 +4,7 @@ export enum TopLevelRoute {
   ApproveTx = "/tx",
   Login = "/login",
   Setup = "setup",
+  ChangePassword = "change-password",
 
   /* WALLET */
   Accounts = "accounts",

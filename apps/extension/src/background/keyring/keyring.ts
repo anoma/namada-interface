@@ -144,7 +144,7 @@ export class KeyRing {
       const id = generateId(
         UUID_NAMESPACE,
         phrase,
-        await this.vaultService.getLength()
+        await this.vaultService.getLength(KEYSTORE_KEY)
       );
 
       mnemonic.free();

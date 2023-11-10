@@ -15,6 +15,7 @@ import {
 import { Ports } from "router";
 import { DeleteAccount, ViewAccount } from "./Accounts";
 import { ParentAccounts } from "./Accounts/ParentAccounts";
+import { ChangePassword } from "./Settings/ChangePassword";
 import { ConnectedSites } from "./ConnectedSites";
 import { Setup } from "./Setup";
 import { AccountManagementRoute, LoadingStatus, TopLevelRoute } from "./types";
@@ -139,6 +140,15 @@ export const AppContent = ({
         <Route
           path={TopLevelRoute.ConnectedSites}
           element={<ConnectedSites />}
+        />
+
+        <Route
+          path={TopLevelRoute.ChangePassword}
+          element={
+            <ChangePassword
+              onComplete={() => navigate(getStartPage(accounts))}
+            />
+          }
         />
 
         {/* Routes that depend on a parent account existing in storage */}

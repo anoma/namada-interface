@@ -43,9 +43,9 @@ export class VaultService {
     return store?.password !== undefined;
   }
 
-  public async getLength(): Promise<number> {
+  public async getLength(key: string): Promise<number> {
     const store = await this.getStoreOrFail();
-    return Object.keys(store.data || {}).length;
+    return Object.keys(store.data[key] || {}).length;
   }
 
   public isLocked(): boolean {

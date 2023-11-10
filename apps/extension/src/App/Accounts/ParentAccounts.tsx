@@ -105,6 +105,9 @@ export const ParentAccounts: React.FC<ParentAccountsProps> = ({
         >
           View Connected Sites
         </ActionButton>
+        <ActionButton onClick={() => navigate("/change-password")} size="sm">
+          Change password
+        </ActionButton>
         <LinkButton onClick={onLockApp} size="sm">
           Lock Wallet
         </LinkButton>
