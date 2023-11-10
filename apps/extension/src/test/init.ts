@@ -1,7 +1,7 @@
 import { chains } from "@namada/chains";
 import { Query, Sdk } from "@namada/shared";
 import { KVStore } from "@namada/storage";
-import { Chain } from "@namada/types";
+import { Chain, DerivedAccount } from "@namada/types";
 
 import {
   ExtensionBroadcaster,
@@ -20,7 +20,7 @@ import {
   AccountStore,
 } from "../background/keyring";
 
-import { KeyStore, VaultService } from "background/vault";
+import { KeyStore, Vault, VaultService, VaultStore } from "background/vault";
 
 import {
   ApprovalsService,
@@ -57,9 +57,11 @@ export class KVStoreMock<T> implements KVStore<T> {
   }
 }
 
+export type DBType = Chain[] | KeyStore[] | VaultStore;
+
 export const init = async (): Promise<{
   namada: Namada;
-  iDBStore: KVStoreMock<Chain[] | KeyStore[]>;
+  iDBStore: KVStoreMock<DBType>;
   extStore: KVStoreMock<number>;
   utilityStore: KVStoreMock<UtilityStore>;
   chainsService: ChainsService;
@@ -67,7 +69,7 @@ export const init = async (): Promise<{
   vaultService: VaultService;
 }> => {
   const messenger = new ExtensionMessengerMock();
-  const iDBStore = new KVStoreMock<Chain[] | KeyStore[]>(KVPrefix.IndexedDB);
+  const iDBStore = new KVStoreMock<DBType>(KVPrefix.IndexedDB);
   const sdkStore = new KVStoreMock<Record<string, string>>(KVPrefix.SDK);
   const extStore = new KVStoreMock<number>(KVPrefix.IndexedDB);
   const utilityStore = new KVStoreMock<UtilityStore>(KVPrefix.Utility);

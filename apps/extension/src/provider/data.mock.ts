@@ -1,6 +1,12 @@
-import { AccountType, BridgeType, Chain, Extensions } from "@namada/types";
-import { ActiveAccountStore } from "background/keyring";
-import { KdfType, KeyStore } from "background/vault";
+import {
+  AccountType,
+  BridgeType,
+  Chain,
+  DerivedAccount,
+  Extensions,
+} from "@namada/types";
+import { AccountStore, ActiveAccountStore } from "background/keyring";
+import { KdfType, Vault } from "background/vault";
 
 export const ACTIVE_ACCOUNT: ActiveAccountStore = {
   id: "324bfe0e-cb19-5f1a-9630-9daaaecadabe",
@@ -26,22 +32,26 @@ export const chain: Chain = {
   },
 };
 
-export const keyStore: KeyStore[] = [
+export const keyStore: Vault<DerivedAccount>[] = [
   {
-    alias: "Parent Account",
-    address:
-      "atest1d9khqw36gvurxv6yxcmyvv6pgdzyxwp3g9z5gv6px5cyxs348yenjd6ygse5y32xxapy2dph26clnv",
-    owner:
-      "atest1d9khqw36gvurxv6yxcmyvv6pgdzyxwp3g9z5gv6px5cyxs348yenjd6ygse5y32xxapy2dph26clnv",
-    chainId: "namada-75a7e12.69483d59a9fb174",
-    id: ACTIVE_ACCOUNT.id,
-    parentId: undefined,
-    path: {
-      account: 0,
-      change: 0,
-      index: 0,
+    public: {
+      alias: "Parent Account",
+      address:
+        "atest1d9khqw36gvurxv6yxcmyvv6pgdzyxwp3g9z5gv6px5cyxs348yenjd6ygse5y32xxapy2dph26clnv",
+      owner:
+        "atest1d9khqw36gvurxv6yxcmyvv6pgdzyxwp3g9z5gv6px5cyxs348yenjd6ygse5y32xxapy2dph26clnv",
+      chainId: "namada-75a7e12.69483d59a9fb174",
+      id: ACTIVE_ACCOUNT.id,
+      parentId: undefined,
+      path: {
+        account: 0,
+        change: 0,
+        index: 0,
+      },
+      publicKey: undefined,
+      type: ACTIVE_ACCOUNT.type,
     },
-    crypto: {
+    sensitive: {
       cipher: {
         type: "aes-256-gcm",
         iv: new Uint8Array([
@@ -66,24 +76,26 @@ export const keyStore: KeyStore[] = [
         },
       },
     },
-    publicKey: undefined,
-    type: ACTIVE_ACCOUNT.type,
   },
   {
-    alias: "Derived Account",
-    address:
-      "atest1d9khqw36geprgd2yxgcyy3fnxymnzwf4xpprgdzxgccryvp489qn2wzyxcmrgd2xxdznvv2p8akmfs",
-    owner:
-      "atest1d9khqw36geprgd2yxgcyy3fnxymnzwf4xpprgdzxgccryvp489qn2wzyxcmrgd2xxdznvv2p8akmfs",
-    chainId: "namada-75a7e12.69483d59a9fb174",
-    id: "123e4567-e89b-12d3-a456-426614174000",
-    parentId: ACTIVE_ACCOUNT.id,
-    path: {
-      account: 0,
-      change: 0,
-      index: 0,
+    public: {
+      alias: "Derived Account",
+      address:
+        "atest1d9khqw36geprgd2yxgcyy3fnxymnzwf4xpprgdzxgccryvp489qn2wzyxcmrgd2xxdznvv2p8akmfs",
+      owner:
+        "atest1d9khqw36geprgd2yxgcyy3fnxymnzwf4xpprgdzxgccryvp489qn2wzyxcmrgd2xxdznvv2p8akmfs",
+      chainId: "namada-75a7e12.69483d59a9fb174",
+      id: "123e4567-e89b-12d3-a456-426614174000",
+      parentId: ACTIVE_ACCOUNT.id,
+      path: {
+        account: 0,
+        change: 0,
+        index: 0,
+      },
+      publicKey: undefined,
+      type: AccountType.PrivateKey,
     },
-    crypto: {
+    sensitive: {
       cipher: {
         type: "aes-256-gcm",
         iv: new Uint8Array([
@@ -108,8 +120,6 @@ export const keyStore: KeyStore[] = [
         },
       },
     },
-    publicKey: undefined,
-    type: AccountType.PrivateKey,
   },
 ];
 
