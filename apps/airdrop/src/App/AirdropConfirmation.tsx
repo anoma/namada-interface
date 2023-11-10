@@ -11,7 +11,7 @@ export const AirdropConfirmation: React.FC = () => {
   const [confirmation] = useAtom(confirmationAtom);
 
   if (confirmation === null) {
-    return <></>;
+    throw new Error("Confirmation state is empty!");
   }
 
   return (

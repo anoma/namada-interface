@@ -32,10 +32,7 @@ const checkClaim = async (publicKey: string): Promise<TSClaim> => {
 
 export const TSEligibility: React.FC = () => {
   const navigate = useNavigate();
-  //TODO: remove later
-  const [publicKey, setPublicKey] = useState(
-    "47c873cc46fa202996e2a2084aa67c9f7bd03bb149c37c51398579050573cebf"
-  );
+  const [publicKey, setPublicKey] = useState("");
 
   const [_claim, setClaimState] = useAtom(githubAtom);
   const [_conf, setConfirmation] = useAtom(confirmationAtom);
