@@ -48,7 +48,7 @@ export const Login = ({ onLogin }: LoginProps): JSX.Element => {
 
   return (
     <Stack gap={GapPatterns.TitleContent}>
-      <Heading>Please type in your password to process</Heading>
+      <Heading>Please type in your password to unlock</Heading>
       <Stack gap={GapPatterns.FormFields} as="form" onSubmit={handleSubmit}>
         <Input
           label="Enter your password"
