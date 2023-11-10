@@ -30,6 +30,7 @@ export const LoadingPanel = styled.div`
   position: absolute;
   top: 0;
   width: 100%;
+  z-index: 50;
 `;
 
 export const LoadingHeader = styled.header`

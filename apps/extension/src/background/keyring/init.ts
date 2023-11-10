@@ -12,6 +12,7 @@ import {
   CloseOffscreenDocumentMsg,
   DeleteAccountMsg,
   ValidateMnemonicMsg,
+  AddLedgerAccountMsg,
 } from "./messages";
 import {
   QueryAccountsMsg,
@@ -42,6 +43,7 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(HasMaspParamsMsg);
   router.registerMessage(ValidateMnemonicMsg);
   router.registerMessage(CheckDurabilityMsg);
+  router.registerMessage(AddLedgerAccountMsg);
 
   router.addHandler(ROUTE, getHandler(service));
 }

@@ -7,6 +7,7 @@ import {
 } from "provider/messages";
 import { Env, Handler, InternalHandler, Message } from "router";
 import {
+  AddLedgerAccountMsg,
   CloseOffscreenDocumentMsg,
   DeleteAccountMsg,
   DeriveAccountMsg,
@@ -86,9 +87,29 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
           env,
           msg as CheckDurabilityMsg
         );
+      case AddLedgerAccountMsg:
+        return handleAddLedgerAccountMsg(service)(
+          env,
+          msg as AddLedgerAccountMsg
+        );
       default:
         throw new Error("Unknown msg type");
     }
+  };
+};
+
+const handleAddLedgerAccountMsg: (
+  service: KeyRingService
+) => InternalHandler<AddLedgerAccountMsg> = (service) => {
+  return async (_, msg) => {
+    const { alias, address, parentId, publicKey, bip44Path } = msg;
+    return await service.saveLedger(
+      alias,
+      address,
+      publicKey,
+      bip44Path,
+      parentId
+    );
   };
 };
 

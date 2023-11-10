@@ -8,7 +8,7 @@ import {
 import { formatRouterPath } from "@namada/utils";
 import { AccountAlias, Password } from "Setup/Common";
 import { LedgerConnectRoute, TopLevelRoute } from "Setup/types";
-import { AddLedgerParentAccountMsg } from "background/ledger";
+import { AddLedgerAccountMsg } from "background/keyring";
 import { useRequester } from "hooks/useRequester";
 import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -51,7 +51,7 @@ export const LedgerImport = ({
         setLoading(true);
         const account = await requester.sendMessage(
           Ports.Background,
-          new AddLedgerParentAccountMsg(
+          new AddLedgerAccountMsg(
             keysName,
             locationState.address,
             locationState.publicKey,

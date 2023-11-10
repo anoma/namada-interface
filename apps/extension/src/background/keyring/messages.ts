@@ -19,6 +19,7 @@ enum MessageType {
   TransferCompletedEvent = "transfer-completed-event",
   DeleteAccount = "delete-account",
   ValidateMnemonic = "validate-mnemonic",
+  AddLedgerAccount = "add-ledger-account",
 }
 
 export class QueryPublicKeyMsg extends Message<string | undefined> {
@@ -117,6 +118,48 @@ export class SaveMnemonicMsg extends Message<AccountStore | false> {
 
   type(): string {
     return SaveMnemonicMsg.type();
+  }
+}
+
+export class AddLedgerAccountMsg extends Message<AccountStore | false> {
+  public static type(): MessageType {
+    return MessageType.AddLedgerAccount;
+  }
+
+  constructor(
+    public readonly alias: string,
+    public readonly address: string,
+    public readonly publicKey: string,
+    public readonly bip44Path: Bip44Path,
+    public readonly parentId?: string
+  ) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.alias) {
+      throw new Error("Alias must not be empty!");
+    }
+
+    if (!this.address) {
+      throw new Error("Address was not provided!");
+    }
+
+    if (!this.publicKey) {
+      throw new Error("Public key was not provided!");
+    }
+
+    if (!this.bip44Path) {
+      throw new Error("BIP44 Path was not provided!");
+    }
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return AddLedgerAccountMsg.type();
   }
 }
 export class ScanAccountsMsg extends Message<void> {

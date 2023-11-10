@@ -116,6 +116,38 @@ export class KeyRing {
     return words;
   }
 
+  public async storeLedger(
+    alias: string,
+    address: string,
+    publicKey: string,
+    bip44Path: Bip44Path,
+    parentId?: string
+  ): Promise<AccountStore | false> {
+    const id = generateId(UUID_NAMESPACE, alias, address);
+    const accountStore: AccountStore = {
+      id,
+      alias,
+      address,
+      publicKey,
+      owner: address,
+      chainId: this.chainId,
+      path: bip44Path,
+      type: AccountType.Ledger,
+      parentId,
+    };
+    await this.vaultService.add<AccountStore, SensitiveAccountStoreData>(
+      KEYSTORE_KEY,
+      accountStore,
+      { text: "" }
+    );
+
+    // Prepare SDK store
+    this.sdk.clear_storage();
+    await this.initSdkStore(id);
+    await this.setActiveAccount(parentId || id, AccountType.Ledger);
+    return accountStore;
+  }
+
   // Store validated mnemonic
   public async storeMnemonic(
     mnemonic: string[],
@@ -133,7 +165,6 @@ export class KeyRing {
       const key = hdWallet.derive(new Uint32Array(bip44Path));
       const privateKeyStringPtr = key.to_hex();
       const sk = readStringPointer(privateKeyStringPtr, this.cryptoMemory);
-
       const addr = new Address(sk);
       const address = addr.implicit();
       const publicKey = addr.public();
@@ -479,6 +510,30 @@ export class KeyRing {
         KEYSTORE_KEY,
         "parentId",
         accountId
+      )) || [];
+
+    if (parentAccount) {
+      const accounts = [parentAccount, ...derivedAccounts];
+      return accounts.map((entry) => entry.public as AccountStore);
+    }
+
+    return [];
+  }
+
+  public async queryAccountByPublicKey(
+    publicKey: string
+  ): Promise<DerivedAccount[]> {
+    const parentAccount = await this.vaultService.findOne<AccountStore>(
+      KEYSTORE_KEY,
+      "publicKey",
+      publicKey
+    );
+
+    const derivedAccounts =
+      (await this.vaultService.findAll<AccountStore>(
+        KEYSTORE_KEY,
+        "parentId",
+        parentAccount?.public.id
       )) || [];
 
     if (parentAccount) {

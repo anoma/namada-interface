@@ -19,7 +19,7 @@ export const LedgerConfirmation = (): JSX.Element => {
     return <></>;
   }
 
-  const account = location.state as DerivedAccount;
+  const account = location.state.account as DerivedAccount;
   return (
     <>
       <HeaderContainer>

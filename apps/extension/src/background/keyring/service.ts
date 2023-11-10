@@ -96,6 +96,22 @@ export class KeyRingService {
     return results;
   }
 
+  async saveLedger(
+    alias: string,
+    address: string,
+    publicKey: string,
+    bip44Path: Bip44Path,
+    parentId?: string
+  ): Promise<AccountStore | false> {
+    return await this._keyRing.storeLedger(
+      alias,
+      address,
+      publicKey,
+      bip44Path,
+      parentId
+    );
+  }
+
   async scanAccounts(): Promise<void> {
     await this._keyRing.scanAddresses();
     this.broadcaster.updateAccounts();
@@ -121,6 +137,27 @@ export class KeyRingService {
 
   async queryParentAccounts(): Promise<DerivedAccount[]> {
     return [...(await this._keyRing.queryParentAccounts())];
+  }
+
+  async findParentByPublicKey(
+    publicKey: string
+  ): Promise<DerivedAccount | null> {
+    const accounts = await this.vaultService.findAll<DerivedAccount>(
+      KEYSTORE_KEY,
+      "publicKey",
+      publicKey
+    );
+    const account = accounts.find((k) => !k.public.parentId);
+    return account?.public ?? null;
+  }
+
+  async findByAddress(address: string): Promise<DerivedAccount | null> {
+    const account = await this.vaultService.findOne<DerivedAccount>(
+      KEYSTORE_KEY,
+      "address",
+      address
+    );
+    return account?.public ?? null;
   }
 
   async submitBond(
