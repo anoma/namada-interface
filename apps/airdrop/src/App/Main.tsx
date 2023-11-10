@@ -69,14 +69,15 @@ const checkClaim = async (
 export const navigatePostCheck = (
   navigate: NavigateFunction,
   eligible: boolean,
-  hasClaimed: boolean
+  hasClaimed: boolean,
+  replace = false
 ): void => {
   if (eligible && !hasClaimed) {
-    navigate("/eligible-with-github");
+    navigate("/claim/info", { replace });
   } else if (eligible && hasClaimed) {
-    navigate("/airdrop-confirmed");
+    navigate("/airdrop-confirmed", { replace });
   } else if (!eligible) {
-    navigate("/non-eligible");
+    navigate("/non-eligible", { replace });
   }
 };
 
@@ -111,7 +112,12 @@ export const Main: React.FC = () => {
           });
         }
 
-        navigatePostCheck(navigate, response.eligible, response.has_claimed);
+        navigatePostCheck(
+          navigate,
+          response.eligible,
+          response.has_claimed,
+          true
+        );
       })();
     }
   }, []);
