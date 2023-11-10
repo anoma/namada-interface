@@ -21,7 +21,10 @@ import { KeplrClaimType, confirmationAtom, claimAtom } from "./state";
 import { useAtom } from "jotai";
 import { navigatePostCheck } from "./utils";
 
-const { REACT_APP_REDIRECT_URI: redirectUrl = "" } = process.env;
+const {
+  REACT_APP_REDIRECT_URI: redirectUrl = "",
+  AIRDROP_BACKEND_SERVICE_URL: backendUrl = "",
+} = process.env;
 
 type GithubClaim = {
   eligible: boolean;
@@ -41,12 +44,9 @@ type KeplrClaim = {
 };
 
 const checkGithubClaim = async (code: string): Promise<GithubClaim> => {
-  const response = await fetch(
-    `http://localhost:5000/api/v1/airdrop/github/${code}`,
-    {
-      method: "GET",
-    }
-  );
+  const response = await fetch(`${backendUrl}/api/v1/airdrop/github/${code}`, {
+    method: "GET",
+  });
   const json = await response.json();
 
   return json;
@@ -57,7 +57,7 @@ const checkClaim = async (
   type: KeplrClaimType
 ): Promise<KeplrClaim> => {
   const response = await fetch(
-    `http://localhost:5000/api/v1/airdrop/${type}/${address}`,
+    `${backendUrl}/api/v1/airdrop/${type}/${address}`,
     {
       method: "GET",
     }

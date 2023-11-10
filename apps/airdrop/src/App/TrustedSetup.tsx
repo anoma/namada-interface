@@ -20,13 +20,12 @@ type TSClaim = {
   nonce: string;
 };
 
+const { AIRDROP_BACKEND_SERVICE_URL: backendUrl = "" } = process.env;
+
 const checkClaim = async (publicKey: string): Promise<TSClaim> => {
-  const response = await fetch(
-    `http://localhost:5000/api/v1/airdrop/ts/${publicKey}`,
-    {
-      method: "GET",
-    }
-  );
+  const response = await fetch(`${backendUrl}/api/v1/airdrop/ts/${publicKey}`, {
+    method: "GET",
+  });
   return response.json();
 };
 
