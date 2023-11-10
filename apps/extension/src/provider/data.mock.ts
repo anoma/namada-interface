@@ -5,7 +5,7 @@ import {
   DerivedAccount,
   Extensions,
 } from "@namada/types";
-import { AccountStore, ActiveAccountStore } from "background/keyring";
+import { ActiveAccountStore } from "background/keyring";
 import { KdfType, Vault } from "background/vault";
 
 export const ACTIVE_ACCOUNT: ActiveAccountStore = {

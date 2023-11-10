@@ -1,36 +1,36 @@
 import { chains } from "@namada/chains";
 import { Query, Sdk } from "@namada/shared";
 import { KVStore } from "@namada/storage";
-import { Chain, DerivedAccount } from "@namada/types";
+import { Chain } from "@namada/types";
 
-import {
-  ExtensionBroadcaster,
-  ExtensionRouter,
-  ExtensionMessengerMock,
-  ExtensionRequester,
-  getNamadaRouterId,
-} from "extension";
-import { Ports, KVPrefix } from "router";
 import { ChainsService, init as initChains } from "background/chains";
 import {
+  ExtensionBroadcaster,
+  ExtensionMessengerMock,
+  ExtensionRequester,
+  ExtensionRouter,
+  getNamadaRouterId,
+} from "extension";
+import { KVPrefix, Ports } from "router";
+import {
+  AccountStore,
   KeyRingService,
-  init as initKeyRing,
   TabStore,
   UtilityStore,
-  AccountStore,
+  init as initKeyRing,
 } from "../background/keyring";
 
-import { KeyStore, Vault, VaultService, VaultStore } from "background/vault";
+import { KeyStore, VaultService, VaultStore } from "background/vault";
 
 import {
   ApprovalsService,
-  init as initApprovals,
   ApprovedOriginsStore,
   TxStore,
+  init as initApprovals,
 } from "../background/approvals";
 
-import { Namada } from "provider";
 import { LedgerService } from "background/ledger";
+import { Namada } from "provider";
 
 // __wasm is not exported in crypto.d.ts so need to use require instead of import
 /* eslint-disable @typescript-eslint/no-var-requires */
