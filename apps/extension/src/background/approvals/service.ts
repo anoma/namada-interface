@@ -29,6 +29,7 @@ import {
   removeApprovedOrigin,
   APPROVED_ORIGINS_KEY,
 } from "./utils";
+import { VaultService } from "background/vault";
 
 type GetParams = (
   specificMsg: Uint8Array,
@@ -49,7 +50,8 @@ export class ApprovalsService {
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
     protected readonly approvedOriginsStore: KVStore<ApprovedOriginsStore>,
     protected readonly keyRingService: KeyRingService,
-    protected readonly ledgerService: LedgerService
+    protected readonly ledgerService: LedgerService,
+    protected readonly vaultService: VaultService
   ) {}
 
   async approveTx(
@@ -235,7 +237,7 @@ export class ApprovalsService {
 
   // Authenticate keyring and submit approved transaction from storage
   async submitTx(msgId: string, password: string): Promise<void> {
-    await this.keyRingService.unlock(password);
+    await this.vaultService.unlock(password);
 
     // Fetch pending transfer tx
     const tx = await this.txStore.get(msgId);

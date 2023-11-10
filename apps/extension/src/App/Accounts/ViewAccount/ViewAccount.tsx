@@ -1,5 +1,6 @@
 import {
   Alert,
+  GapPatterns,
   Heading,
   LinkButton,
   Loading,
@@ -22,7 +23,7 @@ type ViewAccountUrlParams = {
 };
 
 export const ViewAccount = (): JSX.Element => {
-  const { accountId = "", type } = useParams<ViewAccountUrlParams>();
+  const { accountId = "" } = useParams<ViewAccountUrlParams>();
   const [loadingStatus, setLoadingStatus] = useState("");
   const [accounts, setAccounts] = useState<DerivedAccount[]>([]);
   const [parentAccount, setParentAccount] = useState<DerivedAccount>();
@@ -38,7 +39,7 @@ export const ViewAccount = (): JSX.Element => {
     try {
       const accounts = await requester.sendMessage(
         Ports.Background,
-        new QueryAccountsMsg({ accountId, type })
+        new QueryAccountsMsg({ accountId })
       );
       setAccounts(accounts);
 
@@ -93,7 +94,7 @@ export const ViewAccount = (): JSX.Element => {
       )}
 
       {!loadingStatus && !error && parentAccount && accounts.length > 0 && (
-        <Stack gap={6}>
+        <Stack gap={GapPatterns.TitleContent}>
           <Heading>{parentAccount.alias}</Heading>
           <ViewKeys
             publicKeyAddress={parentAccount.publicKey ?? ""}

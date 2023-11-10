@@ -1,5 +1,10 @@
 import { ThemeColor } from "@namada/utils";
-import { ButtonContainer, ButtonSize } from "./ActionButton.components";
+import {
+  ButtonContainer,
+  ButtonHover,
+  ButtonSize,
+  ButtonText,
+} from "./ActionButton.components";
 
 type ActionButtonProps<HtmlTag extends keyof JSX.IntrinsicElements> = {
   as?: HtmlTag;
@@ -16,7 +21,8 @@ export const ActionButton = ({
 }: ActionButtonProps<keyof JSX.IntrinsicElements>): JSX.Element => {
   return (
     <ButtonContainer size={size} variant={variant} as={as} {...props}>
-      {children}
+      <ButtonText>{children}</ButtonText>
+      <ButtonHover />
     </ButtonContainer>
   );
 };

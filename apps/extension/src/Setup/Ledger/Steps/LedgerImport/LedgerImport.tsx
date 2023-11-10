@@ -6,9 +6,9 @@ import {
   Stack,
 } from "@namada/components";
 import { formatRouterPath } from "@namada/utils";
-import { Password } from "Setup/Common";
+import { AccountAlias, Password } from "Setup/Common";
 import { LedgerConnectRoute, TopLevelRoute } from "Setup/types";
-import { AddLedgerParentAccountMsg } from "background/ledger";
+import { AddLedgerAccountMsg } from "background/keyring";
 import { useRequester } from "hooks/useRequester";
 import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -19,13 +19,19 @@ type LedgerImportLocationState = {
   publicKey: string;
 };
 
-export const LedgerImport = (): JSX.Element => {
+type LedgerProps = {
+  passwordRequired: boolean;
+};
+
+export const LedgerImport = ({
+  passwordRequired,
+}: LedgerProps): JSX.Element => {
   const location = useLocation();
   const navigate = useNavigate();
   const requester = useRequester();
   const locationState = location.state as LedgerImportLocationState;
 
-  const [password, setPassword] = useState<string | null>("");
+  const [password, setPassword] = useState<string | undefined>();
   const [keysName, setKeysName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -45,7 +51,7 @@ export const LedgerImport = (): JSX.Element => {
         setLoading(true);
         const account = await requester.sendMessage(
           Ports.Background,
-          new AddLedgerParentAccountMsg(
+          new AddLedgerAccountMsg(
             keysName,
             locationState.address,
             locationState.publicKey,
@@ -77,17 +83,16 @@ export const LedgerImport = (): JSX.Element => {
     <>
       <Loading status="Importing Keys..." variant="full" visible={loading} />
       <Stack gap={12}>
-        <Heading level="h1" size="3xl">
+        <Heading uppercase level="h1" size="3xl">
           Import your Keys from Ledger HW
         </Heading>
         {error && <Alert type="error">{error}</Alert>}
         <Stack as="form" gap={6} onSubmit={onSubmit}>
-          <Password
-            onChangeKeysName={setKeysName}
-            onValidPassword={setPassword}
-            keysName={keysName}
-          />
-          <ActionButton disabled={!password || !keysName}>Next</ActionButton>
+          <AccountAlias value={keysName} onChange={setKeysName} />
+          {passwordRequired && <Password onValidPassword={setPassword} />}
+          <ActionButton disabled={(passwordRequired && !password) || !keysName}>
+            Next
+          </ActionButton>
         </Stack>
       </Stack>
     </>

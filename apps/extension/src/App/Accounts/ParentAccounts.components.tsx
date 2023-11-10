@@ -6,7 +6,6 @@ export const SettingsContainer = styled.section`
 `;
 
 export const SettingsHeader = styled.nav`
-  margin-top: ${spacement(4)};
   display: grid;
   grid-template-columns: auto ${spacement(30)};
   align-items: end;

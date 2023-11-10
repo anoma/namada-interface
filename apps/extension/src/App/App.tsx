@@ -1,278 +1,74 @@
-import React, { useEffect, useState } from "react";
-import {
-  Outlet,
-  Route,
-  Routes,
-  matchPath,
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
-import { ThemeProvider } from "styled-components";
-
-import { Alert, Container, Loading } from "@namada/components";
-import { DerivedAccount } from "@namada/types";
+import { Alert, Container } from "@namada/components";
 import { formatRouterPath, getTheme } from "@namada/utils";
-import { GetActiveAccountMsg } from "background/keyring";
-import { useQuery } from "hooks";
-import { useRequester } from "hooks/useRequester";
-import {
-  CheckDurabilityMsg,
-  FetchAndStoreMaspParamsMsg,
-  HasMaspParamsMsg,
-  QueryAccountsMsg,
-} from "provider/messages";
-import { Ports } from "router";
-import { AddAccount, DeleteAccount, ViewAccount } from "./Accounts";
-import { ParentAccounts } from "./Accounts/ParentAccounts";
-import { ContentContainer } from "./App.components";
+import { useAccounts } from "hooks/useAccount";
+import { useSystemLock } from "hooks/useSystemLock";
+import { matchPath, useLocation } from "react-router-dom";
+import { ThemeProvider } from "styled-components";
+import { AppContent } from "./AppContent";
 import { AppHeader } from "./Common/AppHeader";
-import { ConnectedSites } from "./ConnectedSites";
-import { LockWrapper } from "./LockWrapper";
-import { Setup } from "./Setup";
-import { AccountManagementRoute, TopLevelRoute } from "./types";
-
-export enum Status {
-  Completed = "Completed",
-  Pending = "Pending",
-  Failed = "Failed",
-}
-
-const STORE_DURABILITY_INFO =
-  'Store is not durable. This might cause problems when persisting data on disk.\
- To fix this issue, please navigate to "about:config" and set "dom.indexedDB.experimental" to true.';
+import { Login } from "./Login";
+import { AccountManagementRoute, LoadingStatus, TopLevelRoute } from "./types";
 
 export const App: React.FC = () => {
   const theme = getTheme("dark");
-  const query = useQuery();
-  const redirect = query.get("redirect");
-  const navigate = useNavigate();
   const location = useLocation();
-  const requester = useRequester();
 
-  const [isLocked, setIsLocked] = useState(true);
-  const [isDurable, setIsDurable] = useState<boolean | undefined>();
-  const [status, setStatus] = useState<Status>();
-  const [accounts, setAccounts] = useState<DerivedAccount[]>([]);
-  const [parentAccount, setParentAccount] = useState<DerivedAccount>();
-  const [error, setError] = useState("");
-  const [loadingStatus, setLoadingStatus] = useState("");
-  const [maspStatus, setMaspStatus] = useState<{
-    status: Status;
-    info: string;
-  }>({ status: Status.Completed, info: "" });
+  const { isLocked, unlock, lock } = useSystemLock();
+  const {
+    accounts,
+    parentAccounts,
+    status: accountLoadingStatus,
+    activeAccountId,
+    changeActiveAccountId,
+    error,
+    remove: removeAccount,
+  } = useAccounts();
 
-  const fetchAccounts = async (): Promise<DerivedAccount[]> => {
-    setLoadingStatus("Loading accounts...");
-    setStatus(Status.Pending);
-    try {
-      const accounts = await requester.sendMessage(
-        Ports.Background,
-        new QueryAccountsMsg()
-      );
-      setAccounts(accounts);
-      return accounts;
-    } catch (e) {
-      console.error(e);
-      setError(`An error occurred while loading extension: ${e}`);
-      setStatus(Status.Failed);
-    } finally {
-      setStatus(Status.Completed);
-      setLoadingStatus("");
-    }
-    return [];
-  };
+  const displayReturnButton = (): boolean => {
+    const setupRoute = formatRouterPath([TopLevelRoute.Setup]);
+    const indexRoute = formatRouterPath([
+      TopLevelRoute.Accounts,
+      AccountManagementRoute.ViewAccounts,
+    ]);
 
-  const fetchParentAccountId = async (): Promise<void> => {
-    setLoadingStatus("Loading parent...");
-    setStatus(Status.Pending);
-    try {
-      const parent = await requester.sendMessage(
-        Ports.Background,
-        new GetActiveAccountMsg()
-      );
-      const parentAccount = accounts.find(
-        (account) => account.id === parent?.id
-      );
-      setParentAccount(parentAccount);
-    } catch (e) {
-      console.error(e);
-      setError(`An error occurred while loading extension: ${e}`);
-      setStatus(Status.Failed);
-    } finally {
-      setStatus(Status.Completed);
-      setLoadingStatus("");
-    }
-  };
-
-  // Fetch Masp params if they don't exist
-  const fetchMaspParams = async (): Promise<void> => {
-    const hasMaspParams = await requester.sendMessage(
-      Ports.Background,
-      new HasMaspParamsMsg()
+    return Boolean(
+      !isLocked &&
+        isLocked !== undefined &&
+        !matchPath(setupRoute, location.pathname) &&
+        !matchPath(indexRoute, location.pathname)
     );
-
-    if (!hasMaspParams) {
-      setMaspStatus({
-        status: Status.Pending,
-        info: "Fetching MASP parameters...",
-      });
-      try {
-        await requester.sendMessage(
-          Ports.Background,
-          new FetchAndStoreMaspParamsMsg()
-        );
-        setMaspStatus({
-          status: Status.Completed,
-          info: "",
-        });
-      } catch (e) {
-        setMaspStatus({
-          status: Status.Failed,
-          info: `Fetching MASP parameters failed: ${e}`,
-        });
-        //TODO: Notify user in a better way
-        console.error(e);
-      }
-    }
   };
 
-  const getStartPage = (accounts: DerivedAccount[]): string => {
-    if (accounts.length === 0) {
-      return formatRouterPath([TopLevelRoute.Setup]);
-    } else {
-      return formatRouterPath([
-        TopLevelRoute.Accounts,
-        AccountManagementRoute.ViewAccounts,
-      ]);
-    }
-  };
+  const accountLoadingComplete =
+    accountLoadingStatus === LoadingStatus.Completed;
 
-  const isStartPage = (): boolean => {
-    const startPage = getStartPage(accounts);
-    return !!matchPath({ path: startPage }, location.pathname);
-  };
+  const userHasAccounts = accountLoadingComplete && accounts.length > 0;
 
-  const onDeleteKey = async (): Promise<void> => {
-    const accounts = await fetchAccounts();
-    navigate(getStartPage(accounts));
-  };
-
-  useEffect(() => {
-    if (status === Status.Completed) {
-      fetchMaspParams();
-    }
-  }, [status]);
-
-  // Provide a redirect in the case of transaction/connection approvals
-  useEffect(() => {
-    if (redirect) {
-      navigate(redirect);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchAccounts();
-  }, []);
-
-  useEffect(() => {
-    if (accounts.length > 0) {
-      fetchParentAccountId();
-    }
-  }, [accounts]);
-
-  useEffect(() => {
-    if (status === Status.Completed) {
-      navigate(getStartPage(accounts));
-    }
-  }, [status, parentAccount]);
-
-  useEffect(() => {
-    (async () => {
-      const isDurable = await requester.sendMessage(
-        Ports.Background,
-        new CheckDurabilityMsg()
-      );
-      setIsDurable(isDurable);
-    })();
-  }, []);
+  const shouldDisplayAppContent =
+    (accountLoadingComplete && !userHasAccounts) || isLocked === false;
 
   return (
     <ThemeProvider theme={theme}>
       <Container
         size="popup"
-        header={<AppHeader returnButton={!isStartPage()} />}
+        header={<AppHeader returnButton={displayReturnButton()} />}
       >
-        <Loading status={loadingStatus} visible={!!loadingStatus} />
-        <ContentContainer>
-          {isDurable === false && (
-            <Alert type="warning">{STORE_DURABILITY_INFO}</Alert>
-          )}
-
-          {maspStatus.status === Status.Completed && maspStatus.info && (
-            <Alert title="MASP Status" type="warning">
-              {maspStatus.info}
-            </Alert>
-          )}
-
-          {error && (
-            <Alert title="Error" type="error">
-              {error}
-            </Alert>
-          )}
-
-          <Routes>
-            <Route path={TopLevelRoute.Setup} element={<Setup />} />
-            <Route
-              path={TopLevelRoute.ConnectedSites}
-              element={<ConnectedSites />}
-            />
-
-            {/* Routes that depend on a parent account existing in storage */}
-            {parentAccount && (
-              <>
-                <Route path={TopLevelRoute.Accounts} element={<Outlet />}>
-                  <Route
-                    path={AccountManagementRoute.ViewAccounts}
-                    element={
-                      <ParentAccounts
-                        onSelectAccount={fetchAccounts}
-                        activeAccountId={parentAccount.id}
-                      />
-                    }
-                  />
-                  <Route
-                    path={AccountManagementRoute.DeleteAccount}
-                    element={<DeleteAccount onComplete={onDeleteKey} />}
-                  />
-                  <Route
-                    path={AccountManagementRoute.ViewAccount}
-                    element={<ViewAccount />}
-                  />
-                  <Route
-                    path={AccountManagementRoute.AddAccount}
-                    element={
-                      <LockWrapper
-                        requester={requester}
-                        setStatus={setStatus}
-                        isLocked={isLocked}
-                        lockKeyRing={() => setIsLocked(true)}
-                      >
-                        <AddAccount
-                          accounts={accounts}
-                          parentAccount={parentAccount}
-                          requester={requester}
-                          setAccounts={setAccounts}
-                          isLocked={isLocked}
-                          unlockKeyRing={() => setIsLocked(false)}
-                        />
-                      </LockWrapper>
-                    }
-                  />
-                </Route>
-              </>
-            )}
-          </Routes>
-        </ContentContainer>
+        {error && (
+          <Alert title="Error" type="error">
+            {error}
+          </Alert>
+        )}
+        {isLocked && userHasAccounts && <Login onLogin={unlock} />}
+        {shouldDisplayAppContent && (
+          <AppContent
+            accounts={accounts}
+            parentAccounts={parentAccounts}
+            activeAccountId={activeAccountId}
+            onChangeActiveAccount={changeActiveAccountId}
+            onDeleteAccount={removeAccount}
+            onLockApp={lock}
+          />
+        )}
       </Container>
     </ThemeProvider>
   );

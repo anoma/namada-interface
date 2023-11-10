@@ -1,22 +1,13 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 import {
   ActionButton,
-  Alert,
-  Image,
-  ImageName,
+  GapPatterns,
+  Heading,
   Input,
   InputVariants,
   Stack,
 } from "@namada/components";
-
-import { TopLevelRoute } from "App/types";
-import { KeyRingStatus, UnlockKeyRingMsg } from "background/keyring";
-import { ExtensionRequester } from "extension";
-import { useQuery } from "hooks";
-import { Ports } from "router";
-import { LoginContainer, LogoContainer } from "./Login.components";
 
 enum Status {
   InvalidPassword,
@@ -24,29 +15,20 @@ enum Status {
   Failed,
 }
 
-type Props = {
-  requester: ExtensionRequester;
+type LoginProps = {
+  onLogin: (password: string) => Promise<boolean>;
 };
 
-const Login: React.FC<Props> = ({ requester }) => {
-  const navigate = useNavigate();
+export const Login = ({ onLogin }: LoginProps): JSX.Element => {
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<Status>();
 
-  const query = useQuery();
-  const redirect = query.get("redirect") || TopLevelRoute.Accounts;
-  const prompt = query.get("prompt");
-
-  const handleSubmit = async (): Promise<void> => {
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault();
     setStatus(Status.Pending);
     try {
-      const { status: lockStatus } = await requester.sendMessage(
-        Ports.Background,
-        new UnlockKeyRingMsg(password)
-      );
-      if (lockStatus === KeyRingStatus.Unlocked) {
-        navigate(redirect);
-      } else {
+      const unlocked = await onLogin(password);
+      if (!unlocked) {
         setStatus(Status.InvalidPassword);
       }
     } catch (e) {
@@ -56,7 +38,6 @@ const Login: React.FC<Props> = ({ requester }) => {
   };
 
   let errorMessage = "";
-
   if (status === Status.Failed) {
     errorMessage = "An error has occurred";
   }
@@ -66,18 +47,16 @@ const Login: React.FC<Props> = ({ requester }) => {
   }
 
   return (
-    <LoginContainer>
-      {prompt && <Alert type="info">{prompt}</Alert>}
-      <Stack gap={8} as="form" onSubmit={handleSubmit}>
-        <LogoContainer>
-          <Image imageName={ImageName.LogoMinimal} />
-        </LogoContainer>
+    <Stack gap={GapPatterns.TitleContent}>
+      <Heading>Please type in your password to unlock</Heading>
+      <Stack gap={GapPatterns.FormFields} as="form" onSubmit={handleSubmit}>
         <Input
           label="Enter your password"
           autoFocus={true}
           placeholder="Password"
           variant={InputVariants.Password}
           value={password}
+          disabled={status === Status.Pending}
           onChange={(e) => setPassword(e.target.value)}
           error={errorMessage}
         />
@@ -87,8 +66,6 @@ const Login: React.FC<Props> = ({ requester }) => {
           Unlock
         </ActionButton>
       </Stack>
-    </LoginContainer>
+    </Stack>
   );
 };
-
-export default Login;

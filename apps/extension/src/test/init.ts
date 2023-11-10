@@ -3,33 +3,34 @@ import { Query, Sdk } from "@namada/shared";
 import { KVStore } from "@namada/storage";
 import { Chain } from "@namada/types";
 
-import {
-  ExtensionBroadcaster,
-  ExtensionRouter,
-  ExtensionMessengerMock,
-  ExtensionRequester,
-  getNamadaRouterId,
-} from "extension";
-import { Ports, KVPrefix } from "router";
 import { ChainsService, init as initChains } from "background/chains";
 import {
+  ExtensionBroadcaster,
+  ExtensionMessengerMock,
+  ExtensionRequester,
+  ExtensionRouter,
+  getNamadaRouterId,
+} from "extension";
+import { KVPrefix, Ports } from "router";
+import {
+  AccountStore,
   KeyRingService,
-  init as initKeyRing,
-  KeyStore,
   TabStore,
   UtilityStore,
-  AccountStore,
+  init as initKeyRing,
 } from "../background/keyring";
+
+import { KeyStore, VaultService, VaultStore } from "background/vault";
 
 import {
   ApprovalsService,
-  init as initApprovals,
   ApprovedOriginsStore,
   TxStore,
+  init as initApprovals,
 } from "../background/approvals";
 
-import { Namada } from "provider";
 import { LedgerService } from "background/ledger";
+import { Namada } from "provider";
 
 // __wasm is not exported in crypto.d.ts so need to use require instead of import
 /* eslint-disable @typescript-eslint/no-var-requires */
@@ -39,7 +40,7 @@ const chainId = "namada-75a7e12.69483d59a9fb174";
 export class KVStoreMock<T> implements KVStore<T> {
   private storage: { [key: string]: T | null } = {};
 
-  constructor(readonly _prefix: string) { }
+  constructor(readonly _prefix: string) {}
 
   get<U extends T>(key: string): Promise<U | undefined> {
     return new Promise((resolve) => {
@@ -56,16 +57,19 @@ export class KVStoreMock<T> implements KVStore<T> {
   }
 }
 
+export type DBType = Chain[] | KeyStore[] | VaultStore;
+
 export const init = async (): Promise<{
   namada: Namada;
-  iDBStore: KVStoreMock<Chain[] | KeyStore[]>;
+  iDBStore: KVStoreMock<DBType>;
   extStore: KVStoreMock<number>;
   utilityStore: KVStoreMock<UtilityStore>;
   chainsService: ChainsService;
   keyRingService: KeyRingService;
+  vaultService: VaultService;
 }> => {
   const messenger = new ExtensionMessengerMock();
-  const iDBStore = new KVStoreMock<Chain[] | KeyStore[]>(KVPrefix.IndexedDB);
+  const iDBStore = new KVStoreMock<DBType>(KVPrefix.IndexedDB);
   const sdkStore = new KVStoreMock<Record<string, string>>(KVPrefix.SDK);
   const extStore = new KVStoreMock<number>(KVPrefix.IndexedDB);
   const utilityStore = new KVStoreMock<UtilityStore>(KVPrefix.Utility);
@@ -104,8 +108,14 @@ export const init = async (): Promise<{
     iDBStore as KVStore<Chain[]>,
     Object.values(chains)
   );
-  const keyRingService = new KeyRingService(
+
+  const vaultService = new VaultService(
     iDBStore as KVStore<KeyStore[]>,
+    cryptoMemory
+  );
+
+  const keyRingService = new KeyRingService(
+    vaultService,
     sdkStore,
     utilityStore,
     connectedTabsStore,
@@ -136,7 +146,8 @@ export const init = async (): Promise<{
     connectedTabsStore,
     approvedOriginsStore,
     keyRingService,
-    ledgerService
+    ledgerService,
+    vaultService
   );
 
   const init = new Promise<void>(async (resolve) => {
@@ -159,5 +170,6 @@ export const init = async (): Promise<{
     utilityStore,
     chainsService,
     keyRingService,
+    vaultService,
   };
 };

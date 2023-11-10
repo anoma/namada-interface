@@ -9,9 +9,9 @@ export const Page = styled.div<{ isPopup: boolean }>`
   justify-content: center;
   margin: 0;
   min-height: ${(props) => (props.isPopup ? "320px" : "100vh")};
-  padding-bottom: ${(props) => (props.isPopup ? 0 : spacement(8)(props))};
-  padding-top: ${(props) => (props.isPopup ? 0 : spacement(8)(props))};
-  width: ${(props) => (props.isPopup ? "420px" : "auto")};
+  padding-bottom: ${(props) => (props.isPopup ? 0 : spacement(7)(props))};
+  padding-top: ${(props) => (props.isPopup ? 0 : spacement(7)(props))};
+  width: ${(props) => (props.isPopup ? "380px" : "auto")};
 `;
 
 export const ContainerWrapper = styled.section<{ maxW: keyof ContainerSize }>`
@@ -19,6 +19,7 @@ export const ContainerWrapper = styled.section<{ maxW: keyof ContainerSize }>`
   border-radius: ${(props) =>
     props.maxW === "popup" ? 0 : borderRadius("md")(props)};
   min-width: ${(props) => container(props.maxW)};
+  min-height: ${(props) => (props.maxW === "popup" ? "320px" : "0")};
   position: relative;
   display: flex;
   flex-basis: min-content;
@@ -29,7 +30,7 @@ export const ContainerWrapper = styled.section<{ maxW: keyof ContainerSize }>`
 `;
 
 export const ContainerBody = styled.div`
-  padding: ${spacement(6)} ${spacement(7)};
+  padding: ${spacement(6)} ${spacement(7)} ${spacement(8)};
   flex: 1;
 
   @media (min-width: 480px) {
@@ -39,7 +40,7 @@ export const ContainerBody = styled.div`
 
 export const Header = styled.header`
   border-bottom: 1px solid ${color("utility3", "black")};
-  padding: ${spacement(5)} 0;
+  padding: ${spacement(4)} 0;
   position: relative;
 `;
 

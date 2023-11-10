@@ -12,7 +12,7 @@ export const ItemContainer = styled.div`
   font-weight: 500;
   grid-gap: ${spacement(8)};
   grid-template-columns: ${spacement(7)} auto ${spacement(2)};
-  padding: ${spacement(8)} ${spacement(6)};
+  padding: ${spacement(6)} ${spacement(5)};
 `;
 
 export const Alias = styled.label``;

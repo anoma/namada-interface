@@ -1,130 +1,25 @@
 import { PhraseSize } from "@namada/crypto";
 import { AccountType, Bip44Path, DerivedAccount } from "@namada/types";
+import { Result } from "@namada/utils";
 import { Message } from "router";
 import { ROUTE } from "./constants";
-import {
-  KeyRingStatus,
-  ResetPasswordError,
-  DeleteAccountError,
-  ParentAccount,
-  AccountStore,
-} from "./types";
-import { Result } from "@namada/utils";
+import { AccountStore, DeleteAccountError, ParentAccount } from "./types";
 
 enum MessageType {
-  CheckIsLocked = "check-is-locked",
-  CheckPassword = "check-password",
   QueryPublicKey = "query-public-key",
   CloseOffscreenDocument = "close-offscreen-document",
   DeriveAccount = "derive-account",
   DeriveShieldedAccount = "derive-shielded-account",
   GenerateMnemonic = "generate-mnemonic",
   GetActiveAccount = "get-active-account",
-  LockKeyRing = "lock-keyring",
   QueryParentAccounts = "query-parent-accounts",
-  ResetPassword = "reset-password",
   SaveMnemonic = "save-mnemonic",
   ScanAccounts = "scan-accounts",
   SetActiveAccount = "set-active-account",
-  UnlockKeyRing = "unlock-keyring",
   TransferCompletedEvent = "transfer-completed-event",
   DeleteAccount = "delete-account",
   ValidateMnemonic = "validate-mnemonic",
-}
-
-export class CheckIsLockedMsg extends Message<boolean> {
-  public static type(): MessageType {
-    return MessageType.CheckIsLocked;
-  }
-
-  constructor() {
-    super();
-  }
-
-  validate(): void {
-    return;
-  }
-
-  route(): string {
-    return ROUTE;
-  }
-
-  type(): string {
-    return CheckIsLockedMsg.type();
-  }
-}
-
-export class LockKeyRingMsg extends Message<{ status: KeyRingStatus }> {
-  public static type(): MessageType {
-    return MessageType.LockKeyRing;
-  }
-
-  constructor() {
-    super();
-  }
-
-  validate(): void {
-    return;
-  }
-
-  route(): string {
-    return ROUTE;
-  }
-
-  type(): string {
-    return LockKeyRingMsg.type();
-  }
-}
-
-export class UnlockKeyRingMsg extends Message<{ status: KeyRingStatus }> {
-  public static type(): MessageType {
-    return MessageType.UnlockKeyRing;
-  }
-
-  constructor(public readonly password = "") {
-    super();
-  }
-
-  validate(): void {
-    if (!this.password) {
-      throw new Error("Password not set");
-    }
-  }
-
-  route(): string {
-    return ROUTE;
-  }
-
-  type(): string {
-    return UnlockKeyRingMsg.type();
-  }
-}
-
-export class CheckPasswordMsg extends Message<boolean> {
-  public static type(): MessageType {
-    return MessageType.CheckPassword;
-  }
-
-  constructor(
-    public readonly password: string,
-    public readonly accountId?: string
-  ) {
-    super();
-  }
-
-  validate(): void {
-    if (!this.password) {
-      throw new Error("Password not set");
-    }
-  }
-
-  route(): string {
-    return ROUTE;
-  }
-
-  type(): string {
-    return CheckPasswordMsg.type();
-  }
+  AddLedgerAccount = "add-ledger-account",
 }
 
 export class QueryPublicKeyMsg extends Message<string | undefined> {
@@ -148,34 +43,6 @@ export class QueryPublicKeyMsg extends Message<string | undefined> {
 
   type(): string {
     return QueryPublicKeyMsg.type();
-  }
-}
-
-export class ResetPasswordMsg extends Message<
-  Result<null, ResetPasswordError>
-> {
-  public static type(): MessageType {
-    return MessageType.ResetPassword;
-  }
-
-  constructor(
-    public readonly currentPassword: string,
-    public readonly newPassword: string,
-    public readonly accountId: string
-  ) {
-    super();
-  }
-
-  validate(): void {
-    return;
-  }
-
-  route(): string {
-    return ROUTE;
-  }
-
-  type(): string {
-    return ResetPasswordMsg.type();
   }
 }
 
@@ -228,19 +95,11 @@ export class SaveMnemonicMsg extends Message<AccountStore | false> {
     return MessageType.SaveMnemonic;
   }
 
-  constructor(
-    public readonly words: string[],
-    public readonly password: string,
-    public readonly alias: string
-  ) {
+  constructor(public readonly words: string[], public readonly alias: string) {
     super();
   }
 
   validate(): void {
-    if (!this.password) {
-      throw new Error("A password is required to save a mnemonic!");
-    }
-
     if (!this.words) {
       throw new Error("A wordlist is required to save a mnemonic!");
     }
@@ -259,6 +118,48 @@ export class SaveMnemonicMsg extends Message<AccountStore | false> {
 
   type(): string {
     return SaveMnemonicMsg.type();
+  }
+}
+
+export class AddLedgerAccountMsg extends Message<AccountStore | false> {
+  public static type(): MessageType {
+    return MessageType.AddLedgerAccount;
+  }
+
+  constructor(
+    public readonly alias: string,
+    public readonly address: string,
+    public readonly publicKey: string,
+    public readonly bip44Path: Bip44Path,
+    public readonly parentId?: string
+  ) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.alias) {
+      throw new Error("Alias must not be empty!");
+    }
+
+    if (!this.address) {
+      throw new Error("Address was not provided!");
+    }
+
+    if (!this.publicKey) {
+      throw new Error("Public key was not provided!");
+    }
+
+    if (!this.bip44Path) {
+      throw new Error("BIP44 Path was not provided!");
+    }
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return AddLedgerAccountMsg.type();
   }
 }
 export class ScanAccountsMsg extends Message<void> {
@@ -457,7 +358,7 @@ export class DeleteAccountMsg extends Message<
     return MessageType.DeleteAccount;
   }
 
-  constructor(public accountId: string, public password: string) {
+  constructor(public accountId: string) {
     super();
   }
 

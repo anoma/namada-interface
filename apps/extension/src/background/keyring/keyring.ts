@@ -1,46 +1,47 @@
 import BigNumber from "bignumber.js";
-import { v4 as uuidV4 } from "uuid";
+
 import { deserialize } from "@dao-xyz/borsh";
 
 import { chains } from "@namada/chains";
 import {
   HDWallet,
-  ShieldedHDWallet,
   Mnemonic,
   PhraseSize,
-  readVecStringPointer,
-  readStringPointer,
+  ShieldedHDWallet,
   VecU8Pointer,
+  readStringPointer,
+  readVecStringPointer,
 } from "@namada/crypto";
+
 import {
   Address,
   ExtendedSpendingKey,
   ExtendedViewingKey,
   PaymentAddress,
-  Sdk,
   Query,
+  Sdk,
 } from "@namada/shared";
-import { IStore, KVStore, Store } from "@namada/storage";
+import { KVStore } from "@namada/storage";
 import {
   AccountType,
   Bip44Path,
   DerivedAccount,
   TransferMsgValue,
 } from "@namada/types";
+
 import {
-  ActiveAccountStore,
-  KeyRingStatus,
-  KeyStore,
-  ResetPasswordError,
-  DeleteAccountError,
-  CryptoRecord,
-  UtilityStore,
   AccountStore,
+  ActiveAccountStore,
+  DeleteAccountError,
+  KeyRingStatus,
+  SensitiveAccountStoreData,
+  UtilityStore,
 } from "./types";
+
 import { Result, makeBip44PathArray } from "@namada/utils";
 
-import { Crypto } from "./crypto";
-import { getAccountValuesFromStore, generateId } from "utils";
+import { VaultService } from "background/vault";
+import { generateId } from "utils";
 
 const { REACT_APP_NAMADA_FAUCET_ADDRESS: faucetAddress } = process.env;
 
@@ -51,8 +52,6 @@ export const KEYSTORE_KEY = "key-store";
 export const SDK_KEY = "sdk-store";
 export const PARENT_ACCOUNT_ID_KEY = "parent-account-id";
 export const AUTHKEY_KEY = "auth-key-store";
-
-const crypto = new Crypto();
 
 type DerivedAccountInfo = {
   address: string;
@@ -65,13 +64,10 @@ type DerivedAccountInfo = {
  * Keyring stores keys in persisted backround.
  */
 export class KeyRing {
-  private _keyStore: IStore<KeyStore>;
-  private _password: string | undefined;
   private _status: KeyRingStatus = KeyRingStatus.Empty;
-  private _cryptoMemory: WebAssembly.Memory;
 
   constructor(
-    protected readonly kvStore: KVStore<KeyStore[]>,
+    protected readonly vaultService: VaultService,
     protected readonly sdkStore: KVStore<Record<string, string>>,
     protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly extensionStore: KVStore<number>,
@@ -79,29 +75,10 @@ export class KeyRing {
     protected readonly sdk: Sdk,
     protected readonly query: Query,
     protected readonly cryptoMemory: WebAssembly.Memory
-  ) {
-    this._keyStore = new Store(KEYSTORE_KEY, kvStore);
-    this._cryptoMemory = cryptoMemory;
-  }
-
-  public isLocked(): boolean {
-    return this._password === undefined;
-  }
+  ) {}
 
   public get status(): KeyRingStatus {
     return this._status;
-  }
-
-  public async lock(): Promise<void> {
-    this._status = KeyRingStatus.Locked;
-    this._password = undefined;
-  }
-
-  public async unlock(password: string): Promise<void> {
-    if (await this.checkPassword(password)) {
-      this._password = password;
-      this._status = KeyRingStatus.Unlocked;
-    }
   }
 
   public async getActiveAccount(): Promise<ActiveAccountStore | undefined> {
@@ -113,86 +90,12 @@ export class KeyRing {
     type: AccountType.Mnemonic | AccountType.Ledger
   ): Promise<void> {
     await this.utilityStore.set(PARENT_ACCOUNT_ID_KEY, { id, type });
+
     // To sync sdk wallet with DB
     const sdkData = await this.sdkStore.get(SDK_KEY);
     if (sdkData) {
       this.sdk.decode(new TextEncoder().encode(sdkData[id]));
     }
-  }
-
-  public async checkPassword(
-    password: string,
-    accountId?: string
-  ): Promise<boolean> {
-    // default to active account if no account provided
-    const idToCheck = accountId ?? (await this.getActiveAccount())?.id;
-    if (!idToCheck) {
-      throw new Error("No account to check password against");
-    }
-
-    const authKeys = await this.utilityStore.get<{
-      [id: string]: CryptoRecord;
-    }>(AUTHKEY_KEY);
-    if (authKeys) {
-      try {
-        crypto.decrypt(authKeys[idToCheck], password, this._cryptoMemory);
-        return true;
-      } catch (error) {
-        console.warn(error);
-      }
-    }
-
-    return false;
-  }
-
-  // Reset password by re-encrypting secrets with new password
-  public async resetPassword(
-    currentPassword: string,
-    newPassword: string,
-    accountId: string
-  ): Promise<Result<null, ResetPasswordError>> {
-    const passwordOk = await this.checkPassword(currentPassword, accountId);
-
-    if (!passwordOk) {
-      return Result.err(ResetPasswordError.BadPassword);
-    }
-
-    const topLevelAccount = await this._keyStore.getRecord("id", accountId);
-
-    const derivedAccounts =
-      (await this._keyStore.getRecords("parentId", accountId)) || [];
-
-    if (topLevelAccount) {
-      try {
-        const allAccounts = [topLevelAccount, ...derivedAccounts];
-
-        for (const account of allAccounts) {
-          const decryptedSecret = crypto.decrypt(
-            account.crypto,
-            currentPassword,
-            this._cryptoMemory
-          );
-          const reencrypted = crypto.encrypt({
-            ...account,
-            password: newPassword,
-            text: decryptedSecret,
-          });
-          await this._keyStore.update(account.id, reencrypted);
-        }
-
-        // change password held locally if active account password changed
-        if (accountId === (await this.getActiveAccount())?.id) {
-          this._password = newPassword;
-        }
-      } catch (error) {
-        console.warn(error);
-        return Result.err(ResetPasswordError.KeyStoreError);
-      }
-    } else {
-      return Result.err(ResetPasswordError.KeyStoreError);
-    }
-
-    return Result.ok(null);
   }
 
   public validateMnemonic(phrase: string): boolean {
@@ -205,7 +108,7 @@ export class KeyRing {
   ): Promise<string[]> {
     const mnemonic = new Mnemonic(size);
     const vecStringPointer = mnemonic.to_words();
-    const words = readVecStringPointer(vecStringPointer, this._cryptoMemory);
+    const words = readVecStringPointer(vecStringPointer, this.cryptoMemory);
 
     mnemonic.free();
     vecStringPointer.free();
@@ -213,17 +116,45 @@ export class KeyRing {
     return words;
   }
 
+  public async storeLedger(
+    alias: string,
+    address: string,
+    publicKey: string,
+    bip44Path: Bip44Path,
+    parentId?: string
+  ): Promise<AccountStore | false> {
+    const id = generateId(UUID_NAMESPACE, alias, address);
+    const accountStore: AccountStore = {
+      id,
+      alias,
+      address,
+      publicKey,
+      owner: address,
+      chainId: this.chainId,
+      path: bip44Path,
+      type: AccountType.Ledger,
+      parentId,
+    };
+    await this.vaultService.add<AccountStore, SensitiveAccountStoreData>(
+      KEYSTORE_KEY,
+      accountStore,
+      { text: "" }
+    );
+
+    // Prepare SDK store
+    this.sdk.clear_storage();
+    await this.initSdkStore(id);
+    await this.setActiveAccount(parentId || id, AccountType.Ledger);
+    return accountStore;
+  }
+
   // Store validated mnemonic
   public async storeMnemonic(
     mnemonic: string[],
-    password: string,
     alias: string
   ): Promise<AccountStore | false> {
-    if (!password) {
-      throw new Error("Password is not provided! Cannot store mnemonic");
-    }
+    this.vaultService.assertIsUnlocked();
     const phrase = mnemonic.join(" ");
-
     try {
       const mnemonic = Mnemonic.from_phrase(phrase);
       const seed = mnemonic.to_seed();
@@ -233,8 +164,7 @@ export class KeyRing {
       const hdWallet = new HDWallet(seed);
       const key = hdWallet.derive(new Uint32Array(bip44Path));
       const privateKeyStringPtr = key.to_hex();
-      const sk = readStringPointer(privateKeyStringPtr, this._cryptoMemory);
-
+      const sk = readStringPointer(privateKeyStringPtr, this.cryptoMemory);
       const addr = new Address(sk);
       const address = addr.implicit();
       const publicKey = addr.public();
@@ -245,8 +175,13 @@ export class KeyRing {
       const id = generateId(
         UUID_NAMESPACE,
         phrase,
-        (await this._keyStore.get()).length
+        await this.vaultService.getLength(KEYSTORE_KEY)
       );
+
+      mnemonic.free();
+      hdWallet.free();
+      key.free();
+      privateKeyStringPtr.free();
 
       const accountStore: AccountStore = {
         id,
@@ -258,47 +193,28 @@ export class KeyRing {
         publicKey,
         type: AccountType.Mnemonic,
       };
+      const sensitiveData: SensitiveAccountStoreData = { text: phrase };
+      await this.vaultService.add<AccountStore, SensitiveAccountStoreData>(
+        KEYSTORE_KEY,
+        accountStore,
+        sensitiveData
+      );
 
-      const mnemonicStore = crypto.encrypt({
-        ...accountStore,
-        password,
-        text: phrase,
-      });
-
-      mnemonic.free();
-      hdWallet.free();
-      key.free();
-      privateKeyStringPtr.free();
-
-      await this._keyStore.append(mnemonicStore);
-      await this.generateAuthKey(id, password);
       // When we are adding new top level account we have to clear the storage
       // to prevent adding top level secret key to existing keys
       this.sdk.clear_storage();
-      await this.addSecretKey(sk, password, alias, id);
+      await this.addSecretKey(
+        sk,
+        this.vaultService.UNSAFE_getPassword(),
+        alias,
+        id
+      );
       await this.setActiveAccount(id, AccountType.Mnemonic);
-
-      this._password = password;
       return accountStore;
     } catch (e) {
       console.error(e);
     }
     return false;
-  }
-
-  public async generateAuthKey(
-    accountId: string,
-    password: string
-  ): Promise<void> {
-    const id = uuidV4();
-    const authKey = crypto.encryptAuthKey(password, id);
-    const entries = await this.utilityStore.get<{ [id: string]: CryptoRecord }>(
-      AUTHKEY_KEY
-    );
-    await this.utilityStore.set(AUTHKEY_KEY, {
-      ...entries,
-      [accountId]: authKey,
-    });
   }
 
   public deriveTransparentAccount(
@@ -425,83 +341,87 @@ export class KeyRing {
   }
 
   public async scanAddresses(): Promise<void> {
-    if (!this._password) {
-      throw new Error("No password is set!");
-    }
-
-    const { seed, parentId } = await this.getParentSeed(this._password);
-
-    for await (const value of this.getAddressWithBalance(
-      seed,
-      parentId,
-      AccountType.PrivateKey
-    )) {
-      const alias = `Address - ${value.path.index}`;
-      const { info, path } = value;
-      await this.persistAccount(
-        this._password,
-        path,
-        parentId,
-        AccountType.PrivateKey,
-        alias,
-        info
-      );
-      await this.addSecretKey(info.text, this._password, alias, parentId);
-    }
-
-    for await (const value of this.getAddressWithBalance(
-      seed,
-      parentId,
-      AccountType.ShieldedKeys
-    )) {
-      const alias = `Shielded Address - ${value.path.index}`;
-      const { info, path } = value;
-      await this.persistAccount(
-        this._password,
-        path,
-        parentId,
-        AccountType.ShieldedKeys,
-        alias,
-        info
-      );
-      await this.addSpendingKey(info.text, this._password, alias, parentId);
-    }
-
-    seed.free();
+    // if (!this._password) {
+    //   throw new Error("No password is set!");
+    // }
+    // const { seed, parentId } = await this.getParentSeed(this._password);
+    // for await (const value of this.getAddressWithBalance(
+    //   seed,
+    //   parentId,
+    //   AccountType.PrivateKey
+    // )) {
+    //   const alias = `Address - ${value.path.index}`;
+    //   const { info, path } = value;
+    //   await this.persistAccount(
+    //     this._password,
+    //     path,
+    //     parentId,
+    //     AccountType.PrivateKey,
+    //     alias,
+    //     info
+    //   );
+    //   await this.addSecretKey(info.text, this._password, alias, parentId);
+    // }
+    // for await (const value of this.getAddressWithBalance(
+    //   seed,
+    //   parentId,
+    //   AccountType.ShieldedKeys
+    // )) {
+    //   const alias = `Shielded Address - ${value.path.index}`;
+    //   const { info, path } = value;
+    //   await this.persistAccount(
+    //     this._password,
+    //     path,
+    //     parentId,
+    //     AccountType.ShieldedKeys,
+    //     alias,
+    //     info
+    //   );
+    //   await this.addSpendingKey(info.text, this._password, alias, parentId);
+    // }
+    // seed.free();
   }
 
-  private async getParentSeed(password: string): Promise<{
+  private async getParentSeed(): Promise<{
     parentId: string;
     seed: VecU8Pointer;
   }> {
     const activeAccount = await this.getActiveAccount();
-    const storedMnemonic = await this._keyStore.getRecord(
-      "id",
-      activeAccount?.id
-    );
 
-    if (!storedMnemonic) {
-      throw new Error("Mnemonic is not set!");
+    if (!activeAccount) {
+      throw "No active account has been found";
     }
 
-    const parentId = storedMnemonic.id;
+    const storedMnemonic = await this.vaultService.findOneOrFail<AccountStore>(
+      KEYSTORE_KEY,
+      "id",
+      activeAccount.id
+    );
+
+    const parentId = storedMnemonic.public.id;
     try {
-      const phrase = crypto.decrypt(
-        storedMnemonic.crypto,
-        password,
-        this._cryptoMemory
-      );
-      const mnemonic = Mnemonic.from_phrase(phrase);
+      const sensitiveData =
+        await this.vaultService.reveal<SensitiveAccountStoreData>(
+          storedMnemonic
+        );
+
+      if (!sensitiveData) {
+        throw new Error(
+          "Returned an empty value while decrypting mnemonic from password"
+        );
+      }
+
+      const mnemonic = Mnemonic.from_phrase(sensitiveData.text);
       const seed = mnemonic.to_seed();
       mnemonic.free();
       return { parentId, seed };
     } catch (e) {
-      throw Error("Could not decrypt mnemonic from password");
+      console.error(e);
+      throw Error("Could not decrypt mnemonic using the provided password");
     }
   }
 
   private async persistAccount(
-    password: string,
     path: Bip44Path,
     parentId: string,
     type: AccountType,
@@ -509,23 +429,7 @@ export class KeyRing {
     derivedAccountInfo: DerivedAccountInfo
   ): Promise<DerivedAccount> {
     const { address, id, text, owner } = derivedAccountInfo;
-
-    this._keyStore.append(
-      crypto.encrypt({
-        alias,
-        address,
-        owner,
-        chainId: this.chainId,
-        id,
-        parentId,
-        password,
-        path,
-        text,
-        type,
-      })
-    );
-
-    return {
+    const account: AccountStore = {
       id,
       address,
       alias,
@@ -533,7 +437,14 @@ export class KeyRing {
       parentId,
       path,
       type,
+      owner,
     };
+    this.vaultService.add<AccountStore, SensitiveAccountStoreData>(
+      KEYSTORE_KEY,
+      { ...account, owner },
+      { text }
+    );
+    return account;
   }
 
   public async deriveAccount(
@@ -541,22 +452,21 @@ export class KeyRing {
     type: AccountType,
     alias: string
   ): Promise<DerivedAccount> {
-    if (!this._password) {
-      throw new Error("No password is set!");
-    }
+    this.vaultService.assertIsUnlocked();
+
     if (type !== AccountType.PrivateKey && type !== AccountType.ShieldedKeys) {
       throw new Error("Unsupported account type");
     }
+
     const deriveFn = (
       type === AccountType.PrivateKey
         ? this.deriveTransparentAccount
         : this.deriveShieldedAccount
     ).bind(this);
 
-    const { seed, parentId } = await this.getParentSeed(this._password);
+    const { seed, parentId } = await this.getParentSeed();
     const info = deriveFn(seed, path, parentId);
     const derivedAccount = await this.persistAccount(
-      this._password,
       path,
       parentId,
       type,
@@ -567,27 +477,70 @@ export class KeyRing {
     const addSecretFn = (
       type === AccountType.PrivateKey ? this.addSecretKey : this.addSpendingKey
     ).bind(this);
-    await addSecretFn(info.text, this._password, alias, parentId);
+
+    await addSecretFn(
+      info.text,
+      this.vaultService.UNSAFE_getPassword(),
+      alias,
+      parentId
+    );
 
     return derivedAccount;
+  }
+
+  public async queryAllAccounts(): Promise<DerivedAccount[]> {
+    const accounts = await this.vaultService.findAll<AccountStore>(
+      KEYSTORE_KEY
+    );
+    return accounts.map((entry) => entry.public as AccountStore);
   }
 
   /**
    * Query accounts from storage (active parent account + associated derived child accounts)
    */
-  public async queryAccounts(
-    activeAccountId: string
-  ): Promise<DerivedAccount[]> {
-    const parentAccount = await this._keyStore.getRecord("id", activeAccountId);
+  public async queryAccountById(accountId: string): Promise<DerivedAccount[]> {
+    const parentAccount = await this.vaultService.findOne<AccountStore>(
+      KEYSTORE_KEY,
+      "id",
+      accountId
+    );
 
     const derivedAccounts =
-      (await this._keyStore.getRecords("parentId", activeAccountId)) || [];
+      (await this.vaultService.findAll<AccountStore>(
+        KEYSTORE_KEY,
+        "parentId",
+        accountId
+      )) || [];
 
     if (parentAccount) {
       const accounts = [parentAccount, ...derivedAccounts];
-
-      return getAccountValuesFromStore(accounts);
+      return accounts.map((entry) => entry.public as AccountStore);
     }
+
+    return [];
+  }
+
+  public async queryAccountByPublicKey(
+    publicKey: string
+  ): Promise<DerivedAccount[]> {
+    const parentAccount = await this.vaultService.findOne<AccountStore>(
+      KEYSTORE_KEY,
+      "publicKey",
+      publicKey
+    );
+
+    const derivedAccounts =
+      (await this.vaultService.findAll<AccountStore>(
+        KEYSTORE_KEY,
+        "parentId",
+        parentAccount?.public.id
+      )) || [];
+
+    if (parentAccount) {
+      const accounts = [parentAccount, ...derivedAccounts];
+      return accounts.map((entry) => entry.public as AccountStore);
+    }
+
     return [];
   }
 
@@ -596,18 +549,22 @@ export class KeyRing {
    */
   public async queryParentAccounts(): Promise<DerivedAccount[]> {
     const accounts =
-      (await this._keyStore.getRecords("type", AccountType.Mnemonic)) || [];
-    // Return only non-encrypted data
-    return getAccountValuesFromStore(accounts);
+      (await this.vaultService.findAll<AccountStore>(
+        KEYSTORE_KEY,
+        "type",
+        AccountType.Mnemonic
+      )) || [];
+    return accounts.map((account) => account.public as AccountStore);
   }
 
   async submitBond(bondMsg: Uint8Array, txMsg: Uint8Array): Promise<void> {
-    if (!this._password) {
-      throw new Error("Not authenticated!");
-    }
-
+    this.vaultService.assertIsUnlocked();
     try {
-      const builtTx = await this.sdk.build_bond(bondMsg, txMsg, this._password);
+      const builtTx = await this.sdk.build_bond(
+        bondMsg,
+        txMsg,
+        this.vaultService.UNSAFE_getPassword()
+      );
       const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
     } catch (e) {
@@ -616,15 +573,12 @@ export class KeyRing {
   }
 
   async submitUnbond(unbondMsg: Uint8Array, txMsg: Uint8Array): Promise<void> {
-    if (!this._password) {
-      throw new Error("Not authenticated!");
-    }
-
+    this.vaultService.assertIsUnlocked();
     try {
       const builtTx = await this.sdk.build_unbond(
         unbondMsg,
         txMsg,
-        this._password
+        this.vaultService.UNSAFE_getPassword()
       );
       const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
@@ -637,15 +591,12 @@ export class KeyRing {
     withdrawMsg: Uint8Array,
     txMsg: Uint8Array
   ): Promise<void> {
-    if (!this._password) {
-      throw new Error("Not authenticated!");
-    }
-
+    this.vaultService.assertIsUnlocked();
     try {
       const builtTx = await this.sdk.build_withdraw(
         withdrawMsg,
         txMsg,
-        this._password
+        this.vaultService.UNSAFE_getPassword()
       );
       const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
@@ -658,15 +609,12 @@ export class KeyRing {
     voteProposalMsg: Uint8Array,
     txMsg: Uint8Array
   ): Promise<void> {
-    if (!this._password) {
-      throw new Error("Not authenticated!");
-    }
-
+    this.vaultService.assertIsUnlocked();
     try {
       const builtTx = await this.sdk.build_vote_proposal(
         voteProposalMsg,
         txMsg,
-        this._password
+        this.vaultService.UNSAFE_getPassword()
       );
       const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
@@ -679,9 +627,7 @@ export class KeyRing {
     transferMsg: Uint8Array,
     submit: (password: string, xsk?: string) => Promise<void>
   ): Promise<void> {
-    if (!this._password) {
-      throw new Error("Not authenticated!");
-    }
+    this.vaultService.assertIsUnlocked();
 
     // We need to get the source address in case it is shielded one, so we can
     // decrypt the extended spending key for a transfer.
@@ -691,39 +637,38 @@ export class KeyRing {
     );
 
     const signerAddress = source === faucetAddress ? target : source;
-    const account = await this._keyStore.getRecord("address", signerAddress);
-
-    if (!account) {
-      throw new Error(`Account not found.`);
-    }
-    const text = crypto.decrypt(
-      account.crypto,
-      this._password,
-      this._cryptoMemory
+    const account = await this.vaultService.findOneOrFail<AccountStore>(
+      KEYSTORE_KEY,
+      "address",
+      signerAddress
     );
+    const sensitiveProps =
+      await this.vaultService.reveal<SensitiveAccountStoreData>(account);
+
+    if (!sensitiveProps) {
+      throw new Error("Error decrypting AccountStore data");
+    }
 
     // For shielded accounts we need to return the spending key as well.
+    // TODO: check if this .spendingKey is working
     const extendedSpendingKey =
-      account.type === AccountType.ShieldedKeys
-        ? JSON.parse(text).spendingKey
+      account.public.type === AccountType.ShieldedKeys
+        ? JSON.parse(sensitiveProps.text).spendingKey
         : undefined;
 
-    await submit(this._password, extendedSpendingKey);
+    await submit(this.vaultService.UNSAFE_getPassword(), extendedSpendingKey);
   }
 
   async submitIbcTransfer(
     ibcTransferMsg: Uint8Array,
     txMsg: Uint8Array
   ): Promise<void> {
-    if (!this._password) {
-      throw new Error("Not authenticated!");
-    }
-
+    this.vaultService.assertIsUnlocked();
     try {
       const builtTx = await this.sdk.build_ibc_transfer(
         ibcTransferMsg,
         txMsg,
-        this._password
+        this.vaultService.UNSAFE_getPassword()
       );
       const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
@@ -736,15 +681,12 @@ export class KeyRing {
     ethBridgeTransferMsg: Uint8Array,
     txMsg: Uint8Array
   ): Promise<void> {
-    if (!this._password) {
-      throw new Error("Not authenticated!");
-    }
-
+    this.vaultService.assertIsUnlocked();
     try {
       const builtTx = await this.sdk.build_eth_bridge_transfer(
         ethBridgeTransferMsg,
         txMsg,
-        this._password
+        this.vaultService.UNSAFE_getPassword()
       );
       const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
@@ -754,34 +696,37 @@ export class KeyRing {
   }
 
   async deleteAccount(
-    accountId: string,
-    password: string
+    accountId: string
   ): Promise<Result<null, DeleteAccountError>> {
-    const passwordOk = await this.checkPassword(password, accountId);
-
-    if (!passwordOk) {
-      return Result.err(DeleteAccountError.BadPassword);
-    }
-
     const derivedAccounts =
-      (await this._keyStore.getRecords("parentId", accountId)) || [];
+      (await this.vaultService.findAll<AccountStore>(
+        KEYSTORE_KEY,
+        "parentId",
+        accountId
+      )) || [];
 
-    const accountIds = [accountId, ...derivedAccounts.map(({ id }) => id)];
+    const accountIds = [
+      accountId,
+      ...derivedAccounts.map((account) => account.public.id),
+    ];
 
     for (const id of accountIds) {
-      id && (await this._keyStore.remove(id));
-    }
-
-    // remove password held locally if active account deleted
-    if (accountId === (await this.getActiveAccount())?.id) {
-      this._password = undefined;
+      id &&
+        (await this.vaultService.remove<AccountStore>(KEYSTORE_KEY, "id", id));
     }
 
     // remove account from sdk store
     const records = await this.sdkStore.get(SDK_KEY);
     if (records) {
-      const { [accountId]: _, ...rest } = records;
-      await this.sdkStore.set(SDK_KEY, rest);
+      const updatedRecords = Object.keys(records).reduce((acc, recordId) => {
+        if (accountIds.indexOf(recordId) >= 0) return acc;
+        return {
+          ...acc,
+          [recordId]: records[recordId],
+        };
+      }, {});
+
+      await this.sdkStore.set(SDK_KEY, updatedRecords);
     }
 
     return Result.ok(null);

@@ -21,14 +21,16 @@ import {
 import { useRequester } from "hooks/useRequester";
 import { useNavigate } from "react-router-dom";
 import { Ports } from "router";
+import { CreatePasswordMsg } from "background/vault";
 
 type Props = {
   alias: string;
   mnemonic: string[];
-  password: string;
   scanAccounts: boolean;
   pageTitle: string;
   pageSubtitle: string;
+  password?: string;
+  passwordRequired: boolean | undefined;
 };
 
 enum Status {
@@ -38,8 +40,15 @@ enum Status {
 }
 
 const Completion: React.FC<Props> = (props) => {
-  const { alias, mnemonic, password, scanAccounts, pageTitle, pageSubtitle } =
-    props;
+  const {
+    alias,
+    mnemonic,
+    password,
+    scanAccounts,
+    pageTitle,
+    pageSubtitle,
+    passwordRequired,
+  } = props;
 
   const [mnemonicStatus, setMnemonicStatus] = useState<Status>(Status.Pending);
   const [statusInfo, setStatusInfo] = useState<string>("");
@@ -60,7 +69,7 @@ const Completion: React.FC<Props> = (props) => {
   };
 
   useEffect(() => {
-    if (!alias || !mnemonic || !password) {
+    if (!alias || !mnemonic || (passwordRequired && !password)) {
       navigate(formatRouterPath([TopLevelRoute.Start]));
     }
   }, []);
@@ -68,10 +77,23 @@ const Completion: React.FC<Props> = (props) => {
   useEffect(() => {
     const saveMnemonic = async (): Promise<void> => {
       try {
+        setStatusInfo("Setting a password for the extension.");
+
+        if (passwordRequired && !password) {
+          throw new Error("Password is required and it was not provided");
+        }
+
+        if (passwordRequired) {
+          await requester.sendMessage<CreatePasswordMsg>(
+            Ports.Background,
+            new CreatePasswordMsg(password || "")
+          );
+        }
+
         setStatusInfo("Encrypting and storing mnemonic.");
         const account = (await requester.sendMessage<SaveMnemonicMsg>(
           Ports.Background,
-          new SaveMnemonicMsg(mnemonic, password, alias)
+          new SaveMnemonicMsg(mnemonic, alias)
         )) as AccountStore;
 
         setPublicKeyAddress(account.publicKey ?? "");
@@ -99,6 +121,7 @@ const Completion: React.FC<Props> = (props) => {
         setStatusInfo("Done!");
       } catch (e) {
         setStatusInfo((s) => `Failed while "${s}"`);
+        console.error(e);
         setMnemonicStatus(Status.Failed);
       }
     };
@@ -117,7 +140,7 @@ const Completion: React.FC<Props> = (props) => {
       {mnemonicStatus === Status.Completed && (
         <>
           <HeaderContainer>
-            <Heading level="h1" size="3xl">
+            <Heading uppercase level="h1" size="3xl">
               {pageTitle}
             </Heading>
             <Subtitle>{pageSubtitle}</Subtitle>

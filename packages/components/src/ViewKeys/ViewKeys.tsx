@@ -1,5 +1,6 @@
 import {
   ActionButton,
+  GapPatterns,
   Input,
   InputVariants,
   Stack,
@@ -27,7 +28,7 @@ export const ViewKeys = ({
   footer,
 }: ViewKeysProps): JSX.Element => {
   return (
-    <Stack as="section" gap={8}>
+    <Stack as="section" gap={GapPatterns.FormFields}>
       <Stack gap={4}>
         {transparentAccountAddress && (
           <Input

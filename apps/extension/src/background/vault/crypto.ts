@@ -7,47 +7,15 @@ import {
   Salt,
   VecU8Pointer,
 } from "@namada/crypto";
-import { Argon2Config } from "config";
-import { AccountStore, CryptoRecord, KdfType, KeyStore } from "./types";
 import { readVecU8Pointer } from "@namada/crypto/src/utils";
-
-type CryptoArgs = {
-  password: string;
-  text: string;
-} & AccountStore;
+import { Argon2Config } from "config";
+import { CryptoRecord, KdfType } from "./types";
 
 export class Crypto {
-  public encrypt(args: CryptoArgs): KeyStore {
-    const {
-      address,
-      owner,
-      alias,
-      chainId,
-      path,
-      id,
-      parentId,
-      publicKey,
-      password,
-      text,
-      type,
-    } = args;
-
+  public encrypt(json: string, password: string): CryptoRecord {
     const { params, key, iv, salt } = this.encryptionParams(password);
-    const cipherText = this.encryptWithAES(key, iv, text);
-    const crypto = this.cryptoRecord(cipherText, params, iv, salt);
-
-    return {
-      alias,
-      address,
-      owner,
-      chainId,
-      id,
-      parentId,
-      publicKey,
-      path,
-      crypto,
-      type,
-    };
+    const cipherText = this.encryptWithAES(key, iv, json);
+    return this.cryptoRecord(cipherText, params, iv, salt);
   }
 
   private cryptoRecord(
@@ -89,7 +57,6 @@ export class Crypto {
     const { m_cost, t_cost, p_cost, salt } = kdf.params;
 
     const argon2Params = new Argon2Params(m_cost, t_cost, p_cost);
-
     const newKey = new Argon2(password, salt, argon2Params).key();
 
     const aes = new AES(newKey, cipher.iv);
@@ -122,7 +89,6 @@ export class Crypto {
     argon2.free();
 
     const iv = Rng.generate_bytes(ByteSize.N12);
-
     return { params, key, salt, iv };
   }
 

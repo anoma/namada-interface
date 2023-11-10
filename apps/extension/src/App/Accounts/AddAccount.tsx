@@ -33,7 +33,8 @@ import {
 } from "./AddAccount.components";
 import { TopLevelRoute } from "App/types";
 import { useAuth } from "hooks";
-import { AddLedgerAccountMsg, Ledger } from "background/ledger";
+import { Ledger } from "background/ledger";
+import { AddLedgerAccountMsg } from "background/keyring";
 import { isKeyChainLocked, redirectToLogin } from "hooks/useAuth";
 
 type Props = {
@@ -219,7 +220,7 @@ const AddAccount: React.FC<Props> = ({
     }
   };
 
-  const addLedgerAccount = async (): Promise<DerivedAccount | void> => {
+  const addLedgerAccount = async (): Promise<DerivedAccount | false | void> => {
     setFormStatus(Status.Pending);
 
     const bip44Path = {
@@ -257,7 +258,7 @@ const AddAccount: React.FC<Props> = ({
       // TODO: provide a password for ledger
       return await requester.sendMessage(
         Ports.Background,
-        new AddLedgerAccountMsg(alias, address, parentId, publicKey, bip44Path)
+        new AddLedgerAccountMsg(alias, address, publicKey, bip44Path, parentId)
       );
     } catch (e) {
       setFormError(`${e}`);

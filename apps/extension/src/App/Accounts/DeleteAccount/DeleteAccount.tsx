@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import {
   ActionButton,
   Alert,
+  GapPatterns,
   Heading,
   Input,
   InputVariants,
@@ -11,11 +12,9 @@ import {
   Text,
 } from "@namada/components";
 import { AccountType, DerivedAccount } from "@namada/types";
-import { assertNever } from "@namada/utils";
-import { TopLevelRoute } from "App/types";
-import { DeleteAccountMsg } from "background/keyring";
-import { DeleteAccountError } from "background/keyring/types";
-import { DeleteLedgerAccountMsg } from "background/ledger";
+import { formatRouterPath } from "@namada/utils";
+import { AccountManagementRoute, TopLevelRoute } from "App/types";
+import { CheckPasswordMsg } from "background/vault";
 import { useRequester } from "hooks/useRequester";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Ports } from "router";
@@ -28,14 +27,14 @@ enum Status {
 }
 
 export type Props = {
-  onComplete: () => void;
+  onDelete: (accountId: string) => void;
 };
 
 export type DeleteAccountLocationState = {
   account?: DerivedAccount;
 };
 
-export const DeleteAccount: React.FC<Props> = ({ onComplete }) => {
+export const DeleteAccount: React.FC<Props> = ({ onDelete }) => {
   // TODO: When state is not passed, query by accountId
   const { state }: { state: DeleteAccountLocationState } = useLocation();
   const { accountId = "" } = useParams();
@@ -56,56 +55,46 @@ export const DeleteAccount: React.FC<Props> = ({ onComplete }) => {
   const handleSubmit = useCallback(
     async (e: React.FormEvent): Promise<void> => {
       e.preventDefault();
-      setStatus(Status.Pending);
-      setLoadingState("Deleting Key...");
+      try {
+        setStatus(Status.Pending);
+        setLoadingState("Deleting Key...");
 
-      const result =
-        accountType === AccountType.Ledger
-          ? await requester.sendMessage<DeleteLedgerAccountMsg>(
-              Ports.Background,
-              new DeleteLedgerAccountMsg(accountId)
-            )
-          : await requester.sendMessage<DeleteAccountMsg>(
-              Ports.Background,
-              new DeleteAccountMsg(accountId, password)
-            );
+        const verifyPassword = await requester.sendMessage<CheckPasswordMsg>(
+          Ports.Background,
+          new CheckPasswordMsg(password)
+        );
 
-      setLoadingState("");
-      if (result.ok) {
-        setStatus(Status.Complete);
-        onComplete();
-      } else {
-        setStatus(Status.Failed);
-        switch (result.error) {
-          case DeleteAccountError.BadPassword:
-            setErrorMessage("Password is incorrect");
-            break;
-          case DeleteAccountError.KeyStoreError:
-            setErrorMessage("Unknown error");
-            break;
-          default:
-            assertNever(result.error);
+        if (!verifyPassword) {
+          setErrorMessage("Password is incorrect");
+          setStatus(Status.Failed);
+          setLoadingState("");
+          return;
         }
+
+        await onDelete(accountId);
+      } catch (error) {
+        setLoadingState("");
+        setErrorMessage(`${error}`);
+        setStatus(Status.Failed);
       }
     },
     [accountId, password]
   );
 
   useEffect(() => {
-    if (status === Status.Complete) {
-      navigate(TopLevelRoute.Accounts);
-    }
-  }, [status]);
-
-  useEffect(() => {
     if (!accountId || !state.account) {
-      navigate(TopLevelRoute.Accounts);
+      navigate(
+        formatRouterPath([
+          TopLevelRoute.Accounts,
+          AccountManagementRoute.ViewAccounts,
+        ])
+      );
     }
   }, [accountId, state]);
 
   return (
     <>
-      <Stack as="form" onSubmit={handleSubmit} gap={9}>
+      <Stack as="form" onSubmit={handleSubmit} gap={GapPatterns.TitleContent}>
         <Stack as="header" gap={4}>
           <Heading>Delete Keys</Heading>
           <Alert type="warning" title="Alert!">

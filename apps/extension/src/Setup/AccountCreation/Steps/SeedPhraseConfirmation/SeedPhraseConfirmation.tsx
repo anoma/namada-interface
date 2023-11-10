@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { ActionButton, Heading, Input, Stack } from "@namada/components";
-import { Password } from "Setup/Common";
+import { Password, AccountAlias } from "Setup/Common";
 import { Form, HeaderContainer, Subtitle } from "Setup/Setup.components";
 import { AccountDetails } from "Setup/types";
 import {
@@ -14,6 +14,7 @@ import { TopLevelRoute } from "App/types";
 
 type SeedPhraseConfirmationProps = {
   seedPhrase: string[];
+  passwordRequired: boolean | undefined;
   accountCreationDetails?: AccountDetails;
   onConfirm: (accountCreationDetails: AccountDetails) => void;
 };
@@ -22,7 +23,8 @@ const SeedPhraseConfirmation = (
   props: SeedPhraseConfirmationProps
 ): JSX.Element => {
   const navigate = useNavigate();
-  const { seedPhrase, accountCreationDetails, onConfirm } = props;
+  const { seedPhrase, passwordRequired, accountCreationDetails, onConfirm } =
+    props;
 
   const [verificationInput1, setVerificationInput1] = useState("");
   const [index1ToConfirm, setIndex1ToConfirm] = useState(-1);
@@ -30,16 +32,16 @@ const SeedPhraseConfirmation = (
   const [verificationInput2, setVerificationInput2] = useState("");
   const [index2ToConfirm, setIndex2ToConfirm] = useState(-1);
   const [index2Error, setIndex2Error] = useState("");
-  const [password, setPassword] = useState<string | null>(null);
-  const [keysName, setKeysName] = useState<string>("");
+  const [password, setPassword] = useState<string | undefined>();
+  const [accountName, setAccountName] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const seedPhraseLength = seedPhrase.length;
   const notVerified =
     verificationInput1 !== seedPhrase[index1ToConfirm] ||
     verificationInput2 !== seedPhrase[index2ToConfirm] ||
-    !password ||
-    !keysName;
+    (passwordRequired && !password) ||
+    !accountName;
 
   const getRandomIndex = (): number =>
     Math.floor(Math.random() * seedPhraseLength);
@@ -82,7 +84,7 @@ const SeedPhraseConfirmation = (
     setIsSubmitting(true);
     const accountCreationDetailsToSubmit: AccountDetails = {
       ...accountCreationDetails,
-      alias: keysName,
+      alias: accountName,
       password,
     };
     onConfirm(accountCreationDetailsToSubmit);
@@ -91,7 +93,7 @@ const SeedPhraseConfirmation = (
   return (
     <>
       <HeaderContainer>
-        <Heading level="h1" size="3xl">
+        <Heading uppercase level="h1" size="3xl">
           Verify your seed phrase
         </Heading>
         <Subtitle>fill out the words according to their numbers</Subtitle>
@@ -130,11 +132,8 @@ const SeedPhraseConfirmation = (
               }}
             />
           </VerifyPanelContainer>
-          <Password
-            keysName={keysName}
-            onChangeKeysName={setKeysName}
-            onValidPassword={setPassword}
-          />
+          <AccountAlias value={accountName} onChange={setAccountName} />
+          {passwordRequired && <Password onValidPassword={setPassword} />}
         </Stack>
         <Footer>
           <ActionButton disabled={notVerified}>Next</ActionButton>

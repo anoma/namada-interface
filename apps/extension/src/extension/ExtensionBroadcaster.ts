@@ -8,6 +8,7 @@ import {
   TxStartedEvent,
   UpdatedBalancesEventMsg,
   UpdatedStakingEventMsg,
+  VaultLockedEventMsg,
 } from "content/events";
 import { ExtensionRequester } from "extension";
 import { Message, Ports } from "router";
@@ -48,6 +49,10 @@ export class ExtensionBroadcaster {
 
   async updateProposals(): Promise<void> {
     await this.sendMsgToTabs(new ProposalsUpdatedEventMsg(this.chainId));
+  }
+
+  async lockExtension(): Promise<void> {
+    await this.sendMsgToTabs(new VaultLockedEventMsg());
   }
 
   /**

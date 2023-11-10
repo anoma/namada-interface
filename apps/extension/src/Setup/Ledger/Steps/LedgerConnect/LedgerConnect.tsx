@@ -94,7 +94,7 @@ export const LedgerConnect: React.FC = () => {
   return (
     <>
       <Stack gap={12}>
-        <Heading level="h1" size="3xl">
+        <Heading uppercase level="h1" size="3xl">
           Connect Your Ledger HW
         </Heading>
 

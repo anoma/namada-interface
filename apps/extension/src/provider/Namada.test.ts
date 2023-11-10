@@ -2,42 +2,40 @@
 
 import { Chain, Namada } from "@namada/types";
 
-import { KVKeys } from "router";
-import { init, KVStoreMock } from "test/init";
 import { chains as defaultChains } from "@namada/chains";
-import { chain, keyStore, password, ACTIVE_ACCOUNT } from "./data.mock";
 import {
-  KeyRing,
-  KeyRingService,
-  KeyStore,
   KEYSTORE_KEY,
   PARENT_ACCOUNT_ID_KEY,
   UtilityStore,
 } from "background/keyring";
+import { VAULT_KEY, VaultService, VaultStore } from "background/vault";
 import * as utils from "extension/utils";
+import { KVKeys } from "router";
+import { DBType, KVStoreMock, init } from "test/init";
+import { ACTIVE_ACCOUNT, chain, keyStore, password } from "./data.mock";
 
 // Needed for now as utils import webextension-polyfill directly
 jest.mock("webextension-polyfill", () => ({}));
 
 describe("Namada", () => {
   let namada: Namada;
-  let iDBStore: KVStoreMock<Chain[] | KeyStore[]>;
+  let iDBStore: KVStoreMock<DBType>;
   let utilityStore: KVStoreMock<UtilityStore>;
-  let keyRingService: KeyRingService;
+  let vaultService: VaultService;
 
   beforeAll(async () => {
     jest.spyOn(utils, "getNamadaRouterId").mockResolvedValue(1);
-    ({ namada, iDBStore, utilityStore, keyRingService } = await init());
+    ({ namada, iDBStore, utilityStore, vaultService } = await init());
 
     jest
-      .spyOn(KeyRing.prototype, "checkPassword")
+      .spyOn(VaultService.prototype, "checkPassword")
       .mockReturnValue(Promise.resolve(true));
 
-    keyRingService.unlock(password);
+    vaultService.unlock(password);
   });
 
   afterAll(() => {
-    keyRingService.lock();
+    vaultService.lock();
   });
 
   it("should return chain by chainId", async () => {
@@ -55,20 +53,25 @@ describe("Namada", () => {
   });
 
   it("should return all accounts", async () => {
-    iDBStore.set(KEYSTORE_KEY, keyStore);
-    utilityStore.set(PARENT_ACCOUNT_ID_KEY, ACTIVE_ACCOUNT);
-    const storedKeyStore = keyStore.map(
-      ({ crypto: _crypto, ...account }) => account
-    );
-    const storedAccounts = await namada.accounts(chain.chainId);
+    const store: VaultStore = {
+      password: undefined,
+      data: {
+        [KEYSTORE_KEY]: keyStore,
+      },
+    };
 
+    iDBStore.set(VAULT_KEY, store);
+    utilityStore.set(PARENT_ACCOUNT_ID_KEY, ACTIVE_ACCOUNT);
+    const storedKeyStore = keyStore.map((store) => store.public);
+    const storedAccounts = await namada.accounts(chain.chainId);
+    console.log(storedAccounts);
     expect(storedAccounts).toEqual(storedKeyStore);
   });
 
   it("should add a chain configuration", async () => {
     await namada.suggestChain(chain);
 
-    const chains = await iDBStore.get("chains");
+    const chains = (await iDBStore.get("chains")) as Chain[];
     expect(chains?.pop()).toEqual(chain);
   });
 });

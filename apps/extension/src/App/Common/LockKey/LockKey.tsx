@@ -6,7 +6,7 @@ import {
   Stack,
   Text,
 } from "@namada/components";
-import { CheckPasswordMsg } from "background/keyring";
+import { CheckPasswordMsg } from "background/vault";
 import { useRequester } from "hooks/useRequester";
 import { useState } from "react";
 import { Ports } from "router";
@@ -19,7 +19,6 @@ type LockKeyParams = {
 };
 
 export const LockKey = ({
-  accountId,
   children,
   unlocked,
   onUnlock,
@@ -42,7 +41,7 @@ export const LockKey = ({
     setVerifying(true);
     const isValid = await requester.sendMessage<CheckPasswordMsg>(
       Ports.Background,
-      new CheckPasswordMsg(password, accountId)
+      new CheckPasswordMsg(password)
     );
 
     if (isValid) {

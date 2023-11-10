@@ -4,6 +4,7 @@ export enum TopLevelRoute {
   ApproveTx = "/tx",
   Login = "/login",
   Setup = "setup",
+  ChangePassword = "change-password",
 
   /* WALLET */
   Accounts = "accounts",
@@ -17,4 +18,10 @@ export enum AccountManagementRoute {
   DeleteAccount = "delete/:accountId",
   RenameAccount = "rename/:accountId",
   AddAccount = "add",
+}
+
+export enum LoadingStatus {
+  Completed = "Completed",
+  Pending = "Pending",
+  Failed = "Failed",
 }

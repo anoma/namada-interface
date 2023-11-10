@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { ActionButton, Heading, Stack } from "@namada/components";
-import { Password } from "Setup/Common";
+import { AccountAlias, Password } from "Setup/Common";
 import { Form, HeaderContainer } from "Setup/Setup.components";
 import { AccountDetails } from "Setup/types";
 import { useNavigate } from "react-router-dom";
@@ -13,18 +13,20 @@ type SeedPhraseSetupProps = {
   seedPhrase?: string[];
   accountCreationDetails?: AccountDetails;
   onConfirm: (accountCreationDetails: AccountDetails) => void;
+  passwordRequired: boolean | undefined;
 };
 
-const SeedPhraseSetup = (props: SeedPhraseSetupProps): JSX.Element => {
+export const SeedPhraseSetup = (props: SeedPhraseSetupProps): JSX.Element => {
   const navigate = useNavigate();
-  const { seedPhrase, accountCreationDetails, onConfirm } = props;
+  const { seedPhrase, accountCreationDetails, onConfirm, passwordRequired } =
+    props;
 
-  const [password, setPassword] = useState<string | null>(null);
-  const [keysName, setKeysName] = useState<string>("");
+  const [password, setPassword] = useState<string | undefined>();
+  const [accountName, setAccountName] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const seedPhraseLength = seedPhrase ? seedPhrase.length : 0;
-  const notVerified = !password || !keysName;
+  const notVerified = (passwordRequired && !password) || !accountName;
 
   useEffect(() => {
     if (seedPhraseLength === 0) {
@@ -40,7 +42,7 @@ const SeedPhraseSetup = (props: SeedPhraseSetupProps): JSX.Element => {
     setIsSubmitting(true);
     const accountCreationDetailsToSubmit: AccountDetails = {
       ...accountCreationDetails,
-      alias: keysName,
+      alias: accountName,
       password,
     };
     onConfirm(accountCreationDetailsToSubmit);
@@ -49,17 +51,14 @@ const SeedPhraseSetup = (props: SeedPhraseSetupProps): JSX.Element => {
   return (
     <>
       <HeaderContainer>
-        <Heading level="h1" size="3xl">
+        <Heading uppercase level="h1" size="3xl">
           Set up your imported keys
         </Heading>
       </HeaderContainer>
       <Form onSubmit={onSubmitForm}>
         <Stack gap={5}>
-          <Password
-            keysName={keysName}
-            onChangeKeysName={setKeysName}
-            onValidPassword={setPassword}
-          />
+          <AccountAlias value={accountName} onChange={setAccountName} />
+          {passwordRequired && <Password onValidPassword={setPassword} />}
         </Stack>
         <Footer>
           <ActionButton disabled={notVerified}>Next</ActionButton>
@@ -68,5 +67,3 @@ const SeedPhraseSetup = (props: SeedPhraseSetupProps): JSX.Element => {
     </>
   );
 };
-
-export default SeedPhraseSetup;

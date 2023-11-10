@@ -1,36 +1,21 @@
 import { fromBase64 } from "@cosmjs/encoding";
 import { deserialize } from "@dao-xyz/borsh";
 
-import {
-  AccountType,
-  Bip44Path,
-  DerivedAccount,
-  TxMsgValue,
-} from "@namada/types";
+import { chains } from "@namada/chains";
 import { ResponseSign } from "@namada/ledger-namada";
 import { Sdk, TxType } from "@namada/shared";
-import { IStore, KVStore, Store } from "@namada/storage";
-import { chains } from "@namada/chains";
-import { Result, makeBip44Path } from "@namada/utils";
-
-import {
-  AccountStore,
-  DeleteAccountError,
-  KeyRingService,
-  SDK_KEY,
-  TabStore,
-} from "background/keyring";
+import { KVStore } from "@namada/storage";
+import { AccountType, TxMsgValue } from "@namada/types";
+import { makeBip44Path } from "@namada/utils";
 import { TxStore } from "background/approvals";
-import { encodeSignature, generateId } from "utils";
+import { AccountStore, KeyRingService, TabStore } from "background/keyring";
 import { ExtensionBroadcaster, ExtensionRequester } from "extension";
+import { encodeSignature } from "utils";
 
 export const LEDGERSTORE_KEY = "ledger-store";
-const UUID_NAMESPACE = "be9fdaee-ffa2-11ed-8ef1-325096b39f47";
 const REVEALED_PK_STORE = "revealed-pk-store";
 
 export class LedgerService {
-  private _ledgerStore: IStore<AccountStore>;
-
   constructor(
     protected readonly keyringService: KeyRingService,
     protected readonly kvStore: KVStore<AccountStore[]>,
@@ -42,9 +27,7 @@ export class LedgerService {
     protected readonly sdk: Sdk,
     protected readonly requester: ExtensionRequester,
     protected readonly broadcaster: ExtensionBroadcaster
-  ) {
-    this._ledgerStore = new Store(LEDGERSTORE_KEY, kvStore);
-  }
+  ) {}
 
   async getRevealPKBytes(
     txMsg: string
@@ -63,10 +46,16 @@ export class LedgerService {
       }
 
       // Query account from Ledger storage to determine path for signer
-      const account = await this._ledgerStore.getRecord("publicKey", publicKey);
+      const account = await this.keyringService.findParentByPublicKey(
+        publicKey
+      );
 
       if (!account) {
         throw new Error(`Ledger account not found for ${publicKey}`);
+      }
+
+      if (account.type !== AccountType.Ledger) {
+        throw new Error(`Returned Account is not a Ledger`);
       }
 
       const bytes = await this.sdk.build_tx(
@@ -183,7 +172,7 @@ export class LedgerService {
 
     try {
       // Query account from Ledger storage to determine path for signer
-      const account = await this._ledgerStore.getRecord("address", address);
+      const account = await this.keyringService.findByAddress(address);
 
       if (!account) {
         throw new Error(`Ledger account not found for ${address}`);
@@ -191,6 +180,10 @@ export class LedgerService {
 
       if (!account.publicKey) {
         throw new Error(`Ledger account missing public key for ${address}`);
+      }
+
+      if (account.type !== AccountType.Ledger) {
+        throw new Error(`Ledger account not found for ${address}`);
       }
 
       const bytes = await this.sdk.build_tx(
@@ -206,73 +199,6 @@ export class LedgerService {
       console.warn(e);
       throw new Error(`${e}`);
     }
-  }
-
-  /**
-   * Append a new address record for use with Ledger
-   */
-  async addAccount(
-    alias: string,
-    address: string,
-    publicKey: string,
-    bip44Path: Bip44Path,
-    parentId?: string
-  ): Promise<DerivedAccount> {
-    // Check if account exists in storage, return if so:
-    const record = await this._ledgerStore.getRecord("address", address);
-    if (record) {
-      return record;
-    }
-
-    // Generate a UUID v5 unique id from alias & path
-    const id = generateId(UUID_NAMESPACE, alias, address);
-
-    const account = {
-      id,
-      alias,
-      address,
-      parentId,
-      publicKey,
-      owner: address,
-      chainId: this.chainId,
-      path: bip44Path,
-      type: AccountType.Ledger,
-    };
-    await this._ledgerStore.append(account);
-
-    // Prepare SDK store
-    this.sdk.clear_storage();
-    await this.keyringService.initSdkStore(id);
-
-    // Set active account ID, triggers account refresh in interface
-    await this.keyringService.setActiveAccount(
-      parentId || id,
-      AccountType.Ledger
-    );
-
-    return account;
-  }
-
-  async deleteAccount(
-    accountId: string
-  ): Promise<Result<null, DeleteAccountError>> {
-    const derivedAccounts =
-      (await this._ledgerStore.getRecords("parentId", accountId)) || [];
-
-    const accountIds = [accountId, ...derivedAccounts.map(({ id }) => id)];
-
-    for (const id of accountIds) {
-      id && (await this._ledgerStore.remove(id));
-    }
-
-    // remove account from sdk store
-    const records = await this.sdkStore.get(SDK_KEY);
-    if (records) {
-      const { [accountId]: _, ...rest } = records;
-      await this.sdkStore.set(SDK_KEY, rest);
-    }
-
-    return Result.ok(null);
   }
 
   async queryStoredRevealedPK(publicKey: string): Promise<boolean> {

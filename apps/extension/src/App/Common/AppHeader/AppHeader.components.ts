@@ -2,7 +2,7 @@ import { color, spacement } from "@namada/utils";
 import styled from "styled-components";
 
 export const LogoContainer = styled.div`
-  max-width: ${spacement(50)};
+  max-width: ${spacement(42)};
   margin: 0 auto;
 `;
 

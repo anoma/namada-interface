@@ -32,7 +32,7 @@ export const KeyListItem = ({
             onClick: !isMainKey ? onSelectAccount : undefined,
           },
           {
-            label: "View Accounts",
+            label: "View Keys",
             onClick: onViewAccount,
           },
           // {

@@ -1,13 +1,10 @@
 import { Handler, Env, Message, InternalHandler } from "router";
 import { LedgerService } from "./service";
 import {
-  AddLedgerAccountMsg,
   GetTxBytesMsg,
   SubmitSignedRevealPKMsg,
   GetRevealPKBytesMsg,
   SubmitSignedTxMsg,
-  AddLedgerParentAccountMsg,
-  DeleteLedgerAccountMsg,
   QueryStoredPK,
   StoreRevealedPK,
 } from "./messages";
@@ -15,24 +12,8 @@ import {
 export const getHandler: (service: LedgerService) => Handler = (service) => {
   return (env: Env, msg: Message<unknown>) => {
     switch (msg.constructor) {
-      case AddLedgerParentAccountMsg:
-        return handleAddLedgerParentAccountMsg(service)(
-          env,
-          msg as AddLedgerParentAccountMsg
-        );
-      case AddLedgerAccountMsg:
-        return handleAddLedgerAccountMsg(service)(
-          env,
-          msg as AddLedgerAccountMsg
-        );
-      case DeleteLedgerAccountMsg:
-        return handleDeleteLedgerAccountMsg(service)(
-          env,
-          msg as DeleteLedgerAccountMsg
-        );
       case GetTxBytesMsg:
         return handleGetTxBytesMsg(service)(env, msg as GetTxBytesMsg);
-
       case GetRevealPKBytesMsg:
         return handleGetRevealPKBytesMsg(service)(env, msg as GetTxBytesMsg);
       case SubmitSignedRevealPKMsg:
@@ -44,45 +25,11 @@ export const getHandler: (service: LedgerService) => Handler = (service) => {
         return handleSubmitSignedTxMsg(service)(env, msg as SubmitSignedTxMsg);
       case QueryStoredPK:
         return handleQueryStoredPKMsg(service)(env, msg as QueryStoredPK);
-
       case StoreRevealedPK:
         return handleStoreRevealedPK(service)(env, msg as StoreRevealedPK);
       default:
         throw new Error("Unknown msg type");
     }
-  };
-};
-
-const handleAddLedgerParentAccountMsg: (
-  service: LedgerService
-) => InternalHandler<AddLedgerParentAccountMsg> = (service) => {
-  return async (_, msg) => {
-    const { alias, address, publicKey, bip44Path } = msg;
-    return await service.addAccount(alias, address, publicKey, bip44Path);
-  };
-};
-
-const handleAddLedgerAccountMsg: (
-  service: LedgerService
-) => InternalHandler<AddLedgerAccountMsg> = (service) => {
-  return async (_, msg) => {
-    const { alias, address, parentId, publicKey, bip44Path } = msg;
-    return await service.addAccount(
-      alias,
-      address,
-      publicKey,
-      bip44Path,
-      parentId
-    );
-  };
-};
-
-const handleDeleteLedgerAccountMsg: (
-  service: LedgerService
-) => InternalHandler<DeleteLedgerAccountMsg> = (service) => {
-  return async (_, msg) => {
-    const { accountId } = msg;
-    return await service.deleteAccount(accountId);
   };
 };
 

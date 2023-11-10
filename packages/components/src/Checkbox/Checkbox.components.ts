@@ -7,10 +7,10 @@ export const CheckboxContainer = styled.label`
   border: 1px solid ${color("primary", "main")};
   cursor: pointer;
   display: inline-flex;
-  height: ${spacement(7)};
+  height: ${spacement(6)};
   padding: ${spacement(0.5)};
   position: relative;
-  width: ${spacement(7)};
+  width: ${spacement(6)};
 
   &:hover > i {
     opacity: 0.5;
