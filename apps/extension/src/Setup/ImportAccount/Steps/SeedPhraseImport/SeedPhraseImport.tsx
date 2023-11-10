@@ -113,7 +113,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
   return (
     <>
       <HeaderContainer>
-        <Heading level="h1" size="3xl">
+        <Heading uppercase level="h1" size="3xl">
           Import Account
         </Heading>
       </HeaderContainer>

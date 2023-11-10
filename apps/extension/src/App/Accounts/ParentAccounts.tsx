@@ -4,6 +4,7 @@ import browser from "webextension-polyfill";
 
 import {
   ActionButton,
+  GapPatterns,
   Heading,
   KeyListItem,
   LinkButton,
@@ -69,7 +70,7 @@ export const ParentAccounts: React.FC<ParentAccountsProps> = ({
   };
 
   return (
-    <>
+    <Stack gap={GapPatterns.TitleContent}>
       <Heading>Namada Keys</Heading>
       <Stack gap={4}>
         <SettingsHeader>
@@ -108,6 +109,6 @@ export const ParentAccounts: React.FC<ParentAccountsProps> = ({
           Lock Wallet
         </LinkButton>
       </Stack>
-    </>
+    </Stack>
   );
 };

@@ -1,4 +1,4 @@
-import { borderRadius, color, spacement } from "@namada/utils";
+import { borderRadius, color, fontSize, spacement } from "@namada/utils";
 import styled from "styled-components";
 
 export const DropdownMenuContainer = styled.div`
@@ -22,7 +22,7 @@ export const Dropdown = styled.ul<{ align: string }>`
   right: -${spacement(2)};
   text-align: ${(props) => props.align};
   top: -${spacement(2)};
-  width: ${spacement(63)};
+  width: ${spacement(55)};
   z-index: 20;
 `;
 
@@ -33,7 +33,7 @@ export const DropdownItem = styled.li<{ disabled: boolean }>`
       ? color("utility1", "main50")(props)
       : color("utility2", "main80")(props)};
   cursor: ${(props) => (props.disabled ? "default" : "pointer")};
-  font-size: 18px;
+  font-size: ${fontSize("base")};
   padding: ${spacement(3)} ${spacement(6)};
   transition: border-color 100ms ease-out;
   user-select: none;

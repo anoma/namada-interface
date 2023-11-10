@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import {
   ActionButton,
   Alert,
+  GapPatterns,
   Heading,
   Input,
   InputVariants,
@@ -93,7 +94,7 @@ export const DeleteAccount: React.FC<Props> = ({ onDelete }) => {
 
   return (
     <>
-      <Stack as="form" onSubmit={handleSubmit} gap={9}>
+      <Stack as="form" onSubmit={handleSubmit} gap={GapPatterns.TitleContent}>
         <Stack as="header" gap={4}>
           <Heading>Delete Keys</Heading>
           <Alert type="warning" title="Alert!">

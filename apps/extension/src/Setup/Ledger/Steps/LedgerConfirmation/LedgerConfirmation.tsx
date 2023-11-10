@@ -23,7 +23,7 @@ export const LedgerConfirmation = (): JSX.Element => {
   return (
     <>
       <HeaderContainer>
-        <Heading level="h1" size="3xl">
+        <Heading uppercase level="h1" size="3xl">
           Namada Keys Imported
         </Heading>
         <Text>Here are the accounts generated from your keys</Text>

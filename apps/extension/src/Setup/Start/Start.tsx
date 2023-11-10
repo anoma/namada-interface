@@ -29,7 +29,7 @@ const Start: React.FC = () => {
       </LogoContainer>
 
       <HeaderContainer>
-        <Heading size="xl" level="h1">
+        <Heading uppercase size="xl" level="h1">
           Your Keys to Multichain Privacy
         </Heading>
       </HeaderContainer>

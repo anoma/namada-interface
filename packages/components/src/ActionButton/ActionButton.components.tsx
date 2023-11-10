@@ -40,7 +40,7 @@ export const ButtonContainer = styled(Button)<{
   justify-content: center;
   min-height: 2em;
   user-select: none;
-  padding: 0.6em ${spacement(6)};
+  padding: 0.75em ${spacement(6)};
   position: relative;
   text-align: center;
   width: 100%;

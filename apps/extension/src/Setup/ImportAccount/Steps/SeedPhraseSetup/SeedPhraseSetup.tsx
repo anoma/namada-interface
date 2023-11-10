@@ -51,7 +51,7 @@ export const SeedPhraseSetup = (props: SeedPhraseSetupProps): JSX.Element => {
   return (
     <>
       <HeaderContainer>
-        <Heading level="h1" size="3xl">
+        <Heading uppercase level="h1" size="3xl">
           Set up your imported keys
         </Heading>
       </HeaderContainer>

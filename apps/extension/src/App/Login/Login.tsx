@@ -2,6 +2,7 @@ import React, { useState } from "react";
 
 import {
   ActionButton,
+  GapPatterns,
   Heading,
   Input,
   InputVariants,
@@ -46,23 +47,25 @@ export const Login = ({ onLogin }: LoginProps): JSX.Element => {
   }
 
   return (
-    <Stack gap={6} as="form" onSubmit={handleSubmit}>
+    <Stack gap={GapPatterns.TitleContent}>
       <Heading>Please type in your password to process</Heading>
-      <Input
-        label="Enter your password"
-        autoFocus={true}
-        placeholder="Password"
-        variant={InputVariants.Password}
-        value={password}
-        disabled={status === Status.Pending}
-        onChange={(e) => setPassword(e.target.value)}
-        error={errorMessage}
-      />
-      <ActionButton
-        disabled={status === Status.Pending || !(password.length > 0)}
-      >
-        Unlock
-      </ActionButton>
+      <Stack gap={GapPatterns.FormFields} as="form" onSubmit={handleSubmit}>
+        <Input
+          label="Enter your password"
+          autoFocus={true}
+          placeholder="Password"
+          variant={InputVariants.Password}
+          value={password}
+          disabled={status === Status.Pending}
+          onChange={(e) => setPassword(e.target.value)}
+          error={errorMessage}
+        />
+        <ActionButton
+          disabled={status === Status.Pending || !(password.length > 0)}
+        >
+          Unlock
+        </ActionButton>
+      </Stack>
     </Stack>
   );
 };

@@ -83,7 +83,7 @@ export const LedgerImport = ({
     <>
       <Loading status="Importing Keys..." variant="full" visible={loading} />
       <Stack gap={12}>
-        <Heading level="h1" size="3xl">
+        <Heading uppercase level="h1" size="3xl">
           Import your Keys from Ledger HW
         </Heading>
         {error && <Alert type="error">{error}</Alert>}

@@ -408,11 +408,11 @@ const baseFontSizes: FontSize = {
   xs: "0.8rem",
   sm: "0.9rem",
   base: "1rem",
-  xl: "1.25rem",
-  "2xl": "1.563rem",
-  "3xl": "2.25rem",
-  "4xl": "2.441rem",
-  "5xl": "3.052rem",
+  xl: "1.15rem",
+  "2xl": "1.33rem",
+  "3xl": "2rem",
+  "4xl": "2.25rem",
+  "5xl": "2.85rem",
 };
 
 const containerSizes: ContainerSize = {

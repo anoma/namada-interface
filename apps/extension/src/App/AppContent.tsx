@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Outlet, Route, Routes, useNavigate } from "react-router-dom";
 
-import { Alert } from "@namada/components";
+import { Alert, Stack } from "@namada/components";
 import { DerivedAccount } from "@namada/types";
 import { formatRouterPath } from "@namada/utils";
 import { ParentAccount } from "background/keyring";
@@ -15,7 +15,6 @@ import {
 import { Ports } from "router";
 import { DeleteAccount, ViewAccount } from "./Accounts";
 import { ParentAccounts } from "./Accounts/ParentAccounts";
-import { ContentContainer } from "./App.components";
 import { ConnectedSites } from "./ConnectedSites";
 import { Setup } from "./Setup";
 import { AccountManagementRoute, LoadingStatus, TopLevelRoute } from "./types";
@@ -124,7 +123,7 @@ export const AppContent = ({
   }, []);
 
   return (
-    <ContentContainer>
+    <Stack gap={6}>
       {isDurable === false && (
         <Alert type="warning">{STORE_DURABILITY_INFO}</Alert>
       )}
@@ -169,6 +168,6 @@ export const AppContent = ({
           </>
         )}
       </Routes>
-    </ContentContainer>
+    </Stack>
   );
 };

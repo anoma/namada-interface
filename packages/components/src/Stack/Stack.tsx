@@ -8,6 +8,11 @@ type StackProps<T extends keyof JSX.IntrinsicElements> = {
   as?: T;
 };
 
+export enum GapPatterns {
+  TitleContent = 8,
+  FormFields = 5,
+}
+
 export const Stack = <T extends keyof JSX.IntrinsicElements>({
   children,
   gap = 4,

@@ -1,5 +1,6 @@
 import {
   Alert,
+  GapPatterns,
   Heading,
   LinkButton,
   Loading,
@@ -93,7 +94,7 @@ export const ViewAccount = (): JSX.Element => {
       )}
 
       {!loadingStatus && !error && parentAccount && accounts.length > 0 && (
-        <Stack gap={6}>
+        <Stack gap={GapPatterns.TitleContent}>
           <Heading>{parentAccount.alias}</Heading>
           <ViewKeys
             publicKeyAddress={parentAccount.publicKey ?? ""}

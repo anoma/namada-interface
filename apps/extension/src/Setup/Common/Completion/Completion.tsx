@@ -140,7 +140,7 @@ const Completion: React.FC<Props> = (props) => {
       {mnemonicStatus === Status.Completed && (
         <>
           <HeaderContainer>
-            <Heading level="h1" size="3xl">
+            <Heading uppercase level="h1" size="3xl">
               {pageTitle}
             </Heading>
             <Subtitle>{pageSubtitle}</Subtitle>
