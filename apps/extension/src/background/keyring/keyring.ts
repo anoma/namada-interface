@@ -255,7 +255,7 @@ export class KeyRing {
     const text = readStringPointer(privateKey, this.cryptoMemory);
     const address = new Address(text).implicit();
 
-    const { account, change, index = 0 } = path;
+    const { account, change, index } = path;
     const id = generateId(
       UUID_NAMESPACE,
       "account",
@@ -282,7 +282,7 @@ export class KeyRing {
     path: Bip44Path,
     parentId: string
   ): DerivedAccountInfo {
-    const { index = 0 } = path;
+    const { index } = path;
     const id = generateId(UUID_NAMESPACE, "shielded-account", parentId, index);
     const zip32 = new ShieldedHDWallet(seed);
     const account = zip32.derive_to_serialized_keys(index);

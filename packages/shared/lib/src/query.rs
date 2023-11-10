@@ -17,12 +17,7 @@ use namada::namada_sdk::rpc::{
 };
 use namada::proof_of_stake::Epoch;
 use namada::types::eth_bridge_pool::TransferToEthereum;
-use namada::types::{
-    address::Address,
-    masp::ExtendedViewingKey,
-    token::{self},
-    uint::I256,
-};
+use namada::types::{address::Address, masp::ExtendedViewingKey, token, uint::I256};
 use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 use wasm_bindgen::prelude::*;
