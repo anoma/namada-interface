@@ -258,7 +258,7 @@ export const GithubEligible: React.FC = () => {
               variant={ButtonVariant.Contained}
               onClick={async () => {
                 if (!github) {
-                  throw new Error("Github token not found");
+                  throw new Error("TODO");
                 }
                 const res = await claim(github, airdropAddress, tsSignature);
 
@@ -275,7 +275,7 @@ export const GithubEligible: React.FC = () => {
             </Button>
 
             <ExtensionInfo>
-              <Heading level={"h2"}>
+              <Heading level={"h2"} size={"2xl"}>
                 {`Don't have a Namada address yet?`}{" "}
               </Heading>
               <p>

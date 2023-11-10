@@ -17,7 +17,7 @@ import {
 } from "./App.components";
 import { useEffect, useState } from "react";
 import { NavigateFunction, useNavigate } from "react-router-dom";
-import { KeplrClaimType, githubAtom } from "./state";
+import { KeplrClaimType, confirmationAtom, githubAtom } from "./state";
 import { useAtom } from "jotai";
 
 //TODO: move chainIds to const / create claimType -> chainId map
@@ -28,6 +28,7 @@ type GithubClaim = {
   amount: number;
   github_token?: string;
   has_claimed: boolean;
+  airdrop_address?: string;
   eligibilities: string[];
 };
 
@@ -35,6 +36,7 @@ type KeplrClaim = {
   eligible: boolean;
   amount: number;
   has_claimed: boolean;
+  airdrop_address?: string;
   nonce: string;
 };
 
@@ -47,7 +49,7 @@ const checkGithubClaim = async (code: string): Promise<GithubClaim> => {
   );
   const json = await response.json();
 
-  return { ...json, has_claimed: false };
+  return json;
 };
 
 const checkClaim = async (
@@ -72,7 +74,7 @@ export const navigatePostCheck = (
   if (eligible && !hasClaimed) {
     navigate("/eligible-with-github");
   } else if (eligible && hasClaimed) {
-    navigate("/already-claimed");
+    navigate("/airdrop-confirmed");
   } else if (!eligible) {
     navigate("/non-eligible");
   }
@@ -82,6 +84,7 @@ export const Main: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isToggleChecked, setIsToggleChecked] = useState(false);
   const [_github, setGithub] = useAtom(githubAtom);
+  const [_, setConfirmation] = useAtom(confirmationAtom);
   const navigate = useNavigate();
 
   const url = window.location.href;
@@ -100,7 +103,14 @@ export const Main: React.FC = () => {
             hasClaimed: response.has_claimed,
             type: "github",
           });
+        } else if (response.eligible && response.has_claimed) {
+          setConfirmation({
+            confirmed: true,
+            address: response.airdrop_address as string,
+            amount: response.amount,
+          });
         }
+
         navigatePostCheck(navigate, response.eligible, response.has_claimed);
       })();
     }

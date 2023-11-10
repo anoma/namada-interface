@@ -20,7 +20,9 @@ export const NonEligible: React.FC = () => {
       </EligibilitySectionWrapper>
 
       <AnotherWays>
-        <Heading level={"h2"}>Try another way !!!TODO!!!</Heading>
+        <Heading level={"h2"} size={"2xl"}>
+          Try another way !!!TODO!!!
+        </Heading>
         <AnotherWaysButtons>
           <Button variant={ButtonVariant.Contained} onClick={() => {}}>
             Github

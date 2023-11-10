@@ -8,7 +8,7 @@ import {
 import { TSEligibilityContainer } from "./App.components";
 import { useState } from "react";
 import { useAtom } from "jotai";
-import { githubAtom } from "./state";
+import { confirmationAtom, githubAtom } from "./state";
 import { useNavigate } from "react-router-dom";
 import { navigatePostCheck } from "./Main";
 
@@ -16,6 +16,7 @@ type TSClaim = {
   eligible: boolean;
   amount: number;
   has_claimed: boolean;
+  airdrop_address?: string;
   nonce: string;
 };
 
@@ -36,7 +37,8 @@ export const TSEligibility: React.FC = () => {
     "47c873cc46fa202996e2a2084aa67c9f7bd03bb149c37c51398579050573cebf"
   );
 
-  const [_, setClaimState] = useAtom(githubAtom);
+  const [_claim, setClaimState] = useAtom(githubAtom);
+  const [_conf, setConfirmation] = useAtom(confirmationAtom);
 
   return (
     <TSEligibilityContainer>
@@ -80,6 +82,12 @@ export const TSEligibility: React.FC = () => {
               type: "ts",
               nonce: response.nonce,
               publicKey,
+            });
+          } else if (response.eligible && response.has_claimed) {
+            setConfirmation({
+              confirmed: true,
+              address: response.airdrop_address as string,
+              amount: response.amount,
             });
           }
           navigatePostCheck(navigate, response.eligible, response.has_claimed);
