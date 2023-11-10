@@ -68,8 +68,4 @@ export type ConfirmationState = {
   amount: number;
 };
 
-export const confirmationAtom = atom<ConfirmationState>({
-  confirmed: false,
-  address: "",
-  amount: 0,
-});
+export const confirmationAtom = atom<ConfirmationState | null>(null);
