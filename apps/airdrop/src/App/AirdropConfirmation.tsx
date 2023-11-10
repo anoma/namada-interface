@@ -32,7 +32,9 @@ export const AirdropConfirmation: React.FC = () => {
           <b>Genesis Account:</b>
         </p>
         <p>{confirmation.address}</p>
-        <Heading level={"h4"}>Minimum NAM:</Heading>
+        <Heading level={"h4"} size={"xl"}>
+          Minimum NAM:
+        </Heading>
         <Heading level={"h1"}>{confirmation.amount}</Heading>
       </AirdropConfirmationSection>
     </AirdropConfirmationContainer>
