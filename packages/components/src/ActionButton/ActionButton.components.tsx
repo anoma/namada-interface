@@ -8,6 +8,7 @@ import {
 } from "@namada/utils";
 import React from "react";
 import styled from "styled-components";
+import { motion } from "framer-motion";
 
 type ButtonProps = {
   forwardedAs: keyof JSX.IntrinsicElements;
@@ -23,12 +24,32 @@ const Button = ({
   return React.createElement(forwardedAs, props, children);
 };
 
+export const ButtonHover = styled(motion.i)`
+  background-color: black;
+  display: block;
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  transform-origin: center center;
+  transform: translateY(100%);
+  transition: all var(--ease-out-circ) 0.45s;
+  width: 100%;
+`;
+
+export const ButtonText = styled.span`
+  color: currentColor;
+  height: 500%;
+  position: relative;
+  z-index: 10;
+`;
+
 export const ButtonContainer = styled(Button)<{
   variant: ThemeColor;
   size: ButtonSize;
 }>`
-  all: unset;
   align-items: center;
+  all: unset;
   background-color: ${(props) => color(props.variant, "main")(props)};
   border-radius: ${borderRadius("md")};
   box-sizing: border-box;
@@ -39,21 +60,30 @@ export const ButtonContainer = styled(Button)<{
   font-weight: 500;
   justify-content: center;
   min-height: 2em;
-  user-select: none;
+  overflow: hidden;
   padding: 0.75em ${spacement(6)};
   position: relative;
   text-align: center;
+  user-select: none;
   width: 100%;
-  transition: all 100ms ease-out;
+  transition: color 80ms ease-out, border 450ms ease-out;
 
-  &:not([disabled]):active {
+  &:hover:not(:disabled) {
+    color: ${(props) => color(props.variant, "main")(props)};
+  }
+
+  &:not(:disabled):active {
     top: ${spacement("px")};
   }
 
-  &[disabled] {
+  &:disabled {
     background-color: ${color("utility1", "main50")};
     color: ${color("utility3", "white")};
-    opacity: 0.25;
     cursor: auto;
+    opacity: 0.25;
+  }
+
+  &:hover:not(:disabled) ${ButtonHover} {
+    transform: translateY(0);
   }
 `;

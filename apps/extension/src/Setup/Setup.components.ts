@@ -4,7 +4,7 @@ import { color, fontSize, spacement } from "@namada/utils";
 
 export const Subtitle = styled.p`
   color: ${color("utility2", "main")};
-  font-size: ${fontSize("xl")};
+  font-size: ${fontSize("base")};
   margin: ${spacement(1)} auto;
   max-width: 90%;
   text-align: center;
