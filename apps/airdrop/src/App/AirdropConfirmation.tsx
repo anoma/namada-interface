@@ -10,6 +10,10 @@ import {
 export const AirdropConfirmation: React.FC = () => {
   const [confirmation] = useAtom(confirmationAtom);
 
+  if (confirmation === null) {
+    return <></>;
+  }
+
   return (
     <AirdropConfirmationContainer>
       <AirdropConfirmationHeader></AirdropConfirmationHeader>
