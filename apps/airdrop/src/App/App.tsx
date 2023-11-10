@@ -11,17 +11,17 @@ import { Route, Routes, useNavigate, Navigate } from "react-router-dom";
 import { Main } from "./Main";
 import { AirdropConfirmation } from "./AirdropConfirmation";
 import { Button, ButtonVariant } from "@namada/components";
-import { TSEligibility } from "./TSEligibility";
 import { NonEligible } from "./NonEligible";
-import { confirmationAtom, githubAtom } from "./state";
+import { confirmationAtom, claimAtom } from "./state";
 import { ClaimConfirmation } from "./Claim/ClaimConfirmation";
 import { ClaimInfo } from "./Claim/ClaimInfo";
 import { Claim } from "./Claim";
+import { TrustedSetup } from "./TrustedSetup";
 
 export const App: React.FC = () => {
   const initialColorMode = "dark";
   const [colorMode, _] = useState<ColorMode>(initialColorMode);
-  const [eligibilityState] = useAtom(githubAtom);
+  const [claimState] = useAtom(claimAtom);
   const [confirmationState] = useAtom(confirmationAtom);
   const theme = getTheme(colorMode);
   const navigate = useNavigate();
@@ -47,7 +47,7 @@ export const App: React.FC = () => {
           <Route
             path={`/claim`}
             element={
-              !!eligibilityState ? (
+              !!claimState ? (
                 <Claim></Claim>
               ) : (
                 <Navigate to="/" replace={true} />
@@ -57,7 +57,7 @@ export const App: React.FC = () => {
             <Route path={`info`} element={<ClaimInfo />} />
             <Route path={`confirmation`} element={<ClaimConfirmation />} />
           </Route>
-          <Route path={`/check-ts-eligibility`} element={<TSEligibility />} />
+          <Route path={`/trusted-setup`} element={<TrustedSetup />} />
           <Route
             path={`/airdrop-confirmed`}
             element={

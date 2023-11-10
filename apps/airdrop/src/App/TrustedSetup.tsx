@@ -8,9 +8,9 @@ import {
 import { TSEligibilityContainer } from "./App.components";
 import { useState } from "react";
 import { useAtom } from "jotai";
-import { confirmationAtom, githubAtom } from "./state";
+import { confirmationAtom, claimAtom } from "./state";
 import { useNavigate } from "react-router-dom";
-import { navigatePostCheck } from "./Main";
+import { navigatePostCheck } from "./utils";
 
 type TSClaim = {
   eligible: boolean;
@@ -30,11 +30,11 @@ const checkClaim = async (publicKey: string): Promise<TSClaim> => {
   return response.json();
 };
 
-export const TSEligibility: React.FC = () => {
+export const TrustedSetup: React.FC = () => {
   const navigate = useNavigate();
   const [publicKey, setPublicKey] = useState("");
 
-  const [_claim, setClaimState] = useAtom(githubAtom);
+  const [_claim, setClaimState] = useAtom(claimAtom);
   const [_conf, setConfirmation] = useAtom(confirmationAtom);
 
   return (
