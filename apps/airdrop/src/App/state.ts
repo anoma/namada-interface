@@ -1,26 +1,11 @@
 import { atom } from "jotai";
-import { Reducer } from "react";
 
-export const DEFAULT_STATE: State = {
-  namadaAddress: localStorage.getItem("namada_address") || "",
-};
-
-export type State = {
-  namadaAddress: string;
-};
-
-export type Action = { type: "set_namada_address"; payload: string };
-
-export const reducer: Reducer<State, Action> = (
-  _state: State,
-  action: Action
-): State => {
-  if (action.type === "set_namada_address") {
-    return {
-      namadaAddress: action.payload,
-    };
-  }
-  throw Error("Unknown action.");
+// Types
+export type ClaimResponse = {
+  eligible: boolean;
+  amount: number;
+  confirmed: boolean;
+  airdrop_address?: string;
 };
 
 export type Signature = {
@@ -28,6 +13,7 @@ export type Signature = {
   pubKey: { type: string; value: string };
 };
 
+// State
 export type KeplrClaimType = "cosmos" | "osmosis" | "stargaze";
 export type ClaimType = "github" | "ts" | KeplrClaimType;
 
@@ -59,13 +45,11 @@ export type TSState = {
 };
 
 export type CommonState = GithubState | KeplrState | TSState;
-
-export const githubAtom = atom<CommonState | null>(null);
+export const claimAtom = atom<CommonState | null>(null);
 
 export type ConfirmationState = {
   confirmed: boolean;
   address: string;
   amount: number;
 };
-
 export const confirmationAtom = atom<ConfirmationState | null>(null);

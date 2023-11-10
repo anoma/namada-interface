@@ -4,19 +4,17 @@ import "./index.css";
 import { App } from "./App";
 import { BrowserRouter } from "react-router-dom";
 import { IntegrationsContext } from "@namada/hooks";
-import { Keplr, Namada } from "@namada/integrations";
+import { Namada } from "@namada/integrations";
 import namada from "@namada/chains/src/chains/namada";
-import cosmos from "@namada/chains/src/chains/cosmos";
 
 const { REACT_APP_NAMADA_CHAIN_ID: namadaChainId = "namadaChainId" } =
   process.env;
 
+//We just use this for Namada
 const integrations = {
   [namadaChainId]: new Namada(namada),
-  ["cosmoshub-4"]: new Keplr(cosmos),
-  ["osmosis-1"]: new Keplr(cosmos),
 };
-//TODO: move to shares
+
 export const IntegrationsProvider: React.FC = (props): JSX.Element => {
   return (
     <IntegrationsContext.Provider value={integrations}>

@@ -16,11 +16,11 @@ import {
   TOSToggle,
 } from "./App.components";
 import { useEffect, useState } from "react";
-import { NavigateFunction, useNavigate } from "react-router-dom";
-import { KeplrClaimType, confirmationAtom, githubAtom } from "./state";
+import { useNavigate } from "react-router-dom";
+import { KeplrClaimType, confirmationAtom, claimAtom } from "./state";
 import { useAtom } from "jotai";
+import { navigatePostCheck } from "./utils";
 
-//TODO: move chainIds to const / create claimType -> chainId map
 const { REACT_APP_REDIRECT_URI: redirectUrl = "" } = process.env;
 
 type GithubClaim = {
@@ -65,27 +65,11 @@ const checkClaim = async (
   return response.json();
 };
 
-//TODO: move to shared
-export const navigatePostCheck = (
-  navigate: NavigateFunction,
-  eligible: boolean,
-  hasClaimed: boolean,
-  replace = false
-): void => {
-  if (eligible && !hasClaimed) {
-    navigate("/claim/info", { replace });
-  } else if (eligible && hasClaimed) {
-    navigate("/airdrop-confirmed", { replace });
-  } else if (!eligible) {
-    navigate("/non-eligible", { replace });
-  }
-};
-
 export const Main: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isToggleChecked, setIsToggleChecked] = useState(false);
-  const [_github, setGithub] = useAtom(githubAtom);
-  const [_, setConfirmation] = useAtom(confirmationAtom);
+  const [_cl, setClaimState] = useAtom(claimAtom);
+  const [_co, setConfirmation] = useAtom(confirmationAtom);
   const navigate = useNavigate();
 
   const url = window.location.href;
@@ -97,7 +81,7 @@ export const Main: React.FC = () => {
         const code = url.split("?code=")[1];
         const response = await checkGithubClaim(code);
         if (response.eligible && !response.has_claimed) {
-          setGithub({
+          setClaimState({
             eligible: response.eligible,
             amount: response.amount,
             githubToken: response.github_token as string,
@@ -141,7 +125,7 @@ export const Main: React.FC = () => {
         address,
         response.nonce
       );
-      setGithub({
+      setClaimState({
         eligible: response.eligible,
         amount: response.amount,
         hasClaimed: response.has_claimed,
@@ -208,7 +192,7 @@ export const Main: React.FC = () => {
           </Button>
           <Button
             variant={ButtonVariant.Contained}
-            onClick={() => navigate("/check-ts-eligibility")}
+            onClick={() => navigate("/trusted-setup")}
           >
             Namada Trusted Setup
           </Button>

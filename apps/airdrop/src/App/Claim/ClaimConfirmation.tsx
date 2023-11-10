@@ -6,7 +6,8 @@ import {
   KeplrState,
   TSState,
   confirmationAtom,
-  githubAtom,
+  claimAtom,
+  ClaimResponse,
 } from "../state";
 import {
   Button,
@@ -26,7 +27,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useIntegrationConnection } from "@namada/hooks";
-import { ClaimResponse } from "../types";
 
 const { REACT_APP_NAMADA_CHAIN_ID: namadaChainId = "namadaChainId" } =
   process.env;
@@ -117,8 +117,8 @@ const claim = (
 };
 
 export const ClaimConfirmation: React.FC = () => {
-  const [github] = useAtom(githubAtom);
-  const [_confirmation, setConfirmation] = useAtom(confirmationAtom);
+  const [claimState] = useAtom(claimAtom);
+  const [_confirmationState, setConfirmation] = useAtom(confirmationAtom);
   const [airdropAddress, setNamadaAddress] = useState<string>("");
   const [tsSignature, setTsSignature] = useState<string>("");
   const [isToggleChecked, setIsToggleChecked] = useState(false);
@@ -151,22 +151,21 @@ export const ClaimConfirmation: React.FC = () => {
   return (
     <ClaimsSection>
       <Heading level={"h1"}>Claim NAM</Heading>
-      {github && github.type === "ts" && (
+      {claimState?.type === "ts" && (
         <ClaimsSectionSignature>
           <p>Generate a signature with your Trusted Setup keys</p>
           <p>Use this nonce in the CLI tool (Copy and paste this nonce)</p>
 
           <AirdropAddress>
-            {/*TODO: should be disabled*/}
             <Input
               variant={InputVariants.Text}
-              value={(github as TSState).nonce}
+              value={(claimState as TSState).nonce}
               label="Nonce"
               onChange={() => {}}
             />
             <Button
               variant={ButtonVariant.Small}
-              onClick={() => handleNonceButton((github as TSState).nonce)}
+              onClick={() => handleNonceButton((claimState as TSState).nonce)}
             >
               Copy
             </Button>
@@ -211,10 +210,10 @@ export const ClaimConfirmation: React.FC = () => {
       <Button
         variant={ButtonVariant.Contained}
         onClick={async () => {
-          if (!github) {
-            throw new Error("TODO");
+          if (!claimState) {
+            throw new Error("Claim state is not set");
           }
-          const res = await claim(github, airdropAddress, tsSignature);
+          const res = await claim(claimState, airdropAddress, tsSignature);
 
           setConfirmation({
             confirmed: res.confirmed,

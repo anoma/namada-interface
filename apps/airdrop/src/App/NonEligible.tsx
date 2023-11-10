@@ -21,7 +21,7 @@ export const NonEligible: React.FC = () => {
 
       <AnotherWays>
         <Heading level={"h2"} size={"2xl"}>
-          Try another way !!!TODO!!!
+          Try another way
         </Heading>
         <AnotherWaysButtons>
           <Button variant={ButtonVariant.Contained} onClick={() => {}}>

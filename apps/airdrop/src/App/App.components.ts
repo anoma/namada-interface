@@ -196,7 +196,6 @@ export const ClaimsSectionSignature = styled.div``;
 
 export const GithubFooter = styled.div``;
 
-// TODO: rename to sth more generic like InputWIthButton idk
 export const AirdropAddress = styled.div`
   display: flex;
   flex-direction: row;
