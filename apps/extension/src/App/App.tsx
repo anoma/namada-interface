@@ -1,6 +1,5 @@
 import { Alert, Container } from "@namada/components";
 import { formatRouterPath, getTheme } from "@namada/utils";
-import { useAccounts } from "hooks/useAccount";
 import { useSystemLock } from "hooks/useSystemLock";
 import { matchPath, useLocation } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
@@ -8,6 +7,8 @@ import { AppContent } from "./AppContent";
 import { AppHeader } from "./Common/AppHeader";
 import { Login } from "./Login";
 import { AccountManagementRoute, LoadingStatus, TopLevelRoute } from "./types";
+import { useContext } from "react";
+import { AccountContext } from "context";
 
 export const App: React.FC = () => {
   const theme = getTheme("dark");
@@ -16,13 +17,9 @@ export const App: React.FC = () => {
   const { isLocked, unlock, lock } = useSystemLock();
   const {
     accounts,
-    parentAccounts,
     status: accountLoadingStatus,
-    activeAccountId,
-    changeActiveAccountId,
     error,
-    remove: removeAccount,
-  } = useAccounts();
+  } = useContext(AccountContext);
 
   const displayReturnButton = (): boolean => {
     const setupRoute = formatRouterPath([TopLevelRoute.Setup]);
@@ -59,16 +56,7 @@ export const App: React.FC = () => {
           </Alert>
         )}
         {isLocked && userHasAccounts && <Login onLogin={unlock} />}
-        {shouldDisplayAppContent && (
-          <AppContent
-            accounts={accounts}
-            parentAccounts={parentAccounts}
-            activeAccountId={activeAccountId}
-            onChangeActiveAccount={changeActiveAccountId}
-            onDeleteAccount={removeAccount}
-            onLockApp={lock}
-          />
-        )}
+        {shouldDisplayAppContent && <AppContent onLockApp={lock} />}
       </Container>
     </ThemeProvider>
   );

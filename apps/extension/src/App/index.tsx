@@ -3,13 +3,16 @@ import ReactDOM from "react-dom";
 import { HashRouter } from "react-router-dom";
 import { RequesterProvider } from "services";
 import { App } from "./App";
+import { AccountContextWrapper } from "context";
 
 export default ((): void => {
   ReactDOM.render(
     <React.StrictMode>
       <HashRouter>
         <RequesterProvider>
-          <App />
+          <AccountContextWrapper>
+            <App />
+          </AccountContextWrapper>
         </RequesterProvider>
       </HashRouter>
     </React.StrictMode>,

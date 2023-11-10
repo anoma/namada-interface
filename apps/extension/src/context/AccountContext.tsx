@@ -1,17 +1,22 @@
-import { LoadingStatus } from "App/types";
-import { useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
+
 import { DerivedAccount } from "@namada/types";
-import { Ports } from "router";
-import { useRequester } from "./useRequester";
-import { QueryAccountsMsg } from "provider";
+import { LoadingStatus } from "App/types";
 import {
   DeleteAccountMsg,
   GetActiveAccountMsg,
   ParentAccount,
   SetActiveAccountMsg,
 } from "background/keyring";
+import { useRequester } from "hooks/useRequester";
+import { QueryAccountsMsg } from "provider";
+import { Ports } from "router";
 
-type UseAccountHookOutput = {
+type AccountContextProps = {
+  children: JSX.Element;
+};
+
+type AccountContextType = {
   accounts: DerivedAccount[];
   parentAccounts: DerivedAccount[];
   activeAccountId: string | undefined;
@@ -25,7 +30,28 @@ type UseAccountHookOutput = {
   ) => void;
 };
 
-export const useAccounts = (): UseAccountHookOutput => {
+// This initializer
+const createAccountContext = (): AccountContextType => ({
+  accounts: [],
+  parentAccounts: [],
+  activeAccountId: undefined,
+  error: "",
+  status: undefined,
+  remove: async (_accountId: string) => {},
+  fetchAll: async () => [],
+  changeActiveAccountId: (
+    _accountId: string,
+    _accountType: ParentAccount
+  ) => {},
+});
+
+export const AccountContext = createContext<AccountContextType>(
+  createAccountContext()
+);
+
+export const AccountContextWrapper = ({
+  children,
+}: AccountContextProps): JSX.Element => {
   const requester = useRequester();
   const [accounts, setAccounts] = useState<DerivedAccount[]>([]);
   const [parentAccounts, setParentAccounts] = useState<DerivedAccount[]>([]);
@@ -96,14 +122,20 @@ export const useAccounts = (): UseAccountHookOutput => {
     setParentAccounts(accounts.filter((account) => !account.parentId));
   }, [accounts]);
 
-  return {
-    accounts,
-    parentAccounts,
-    activeAccountId,
-    status,
-    error,
-    fetchAll,
-    changeActiveAccountId,
-    remove,
-  };
+  return (
+    <AccountContext.Provider
+      value={{
+        accounts,
+        parentAccounts,
+        activeAccountId,
+        status,
+        error,
+        remove,
+        fetchAll,
+        changeActiveAccountId,
+      }}
+    >
+      {children}
+    </AccountContext.Provider>
+  );
 };

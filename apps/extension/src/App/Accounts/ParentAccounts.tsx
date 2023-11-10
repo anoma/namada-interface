@@ -1,4 +1,4 @@
-import React from "react";
+import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import browser from "webextension-polyfill";
 
@@ -14,28 +14,23 @@ import {
 import { DerivedAccount } from "@namada/types";
 import { formatRouterPath } from "@namada/utils";
 import { ParentAccount } from "background/keyring";
+import { AccountContext } from "context";
 import { AccountManagementRoute, TopLevelRoute } from "../types";
 import { SettingsHeader } from "./ParentAccounts.components";
 
 type ParentAccountsProps = {
-  activeAccountId: string;
-  parentAccounts: DerivedAccount[];
-  onChangeActiveAccount: (
-    accountId: string,
-    accountType: ParentAccount
-  ) => void;
   onLockApp: () => void;
 };
 
 /**
  * Represents the extension's settings page.
  */
-export const ParentAccounts: React.FC<ParentAccountsProps> = ({
-  activeAccountId,
+export const ParentAccounts = ({
   onLockApp,
-  parentAccounts,
-  onChangeActiveAccount,
-}) => {
+}: ParentAccountsProps): JSX.Element => {
+  const { activeAccountId, parentAccounts, changeActiveAccountId } =
+    useContext(AccountContext);
+
   const navigate = useNavigate();
   const goToSetupPage = (): void => {
     browser.tabs.create({
@@ -90,7 +85,7 @@ export const ParentAccounts: React.FC<ParentAccountsProps> = ({
               onDelete={() => goToDeletePage(account)}
               onViewAccount={() => goToViewAccount(account)}
               onSelectAccount={() => {
-                onChangeActiveAccount(
+                changeActiveAccountId(
                   account.id,
                   account.type as ParentAccount
                 );

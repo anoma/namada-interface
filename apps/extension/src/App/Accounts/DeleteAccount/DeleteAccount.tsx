@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 
 import {
   ActionButton,
@@ -18,6 +18,7 @@ import { CheckPasswordMsg } from "background/vault";
 import { useRequester } from "hooks/useRequester";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Ports } from "router";
+import { AccountContext } from "context";
 
 enum Status {
   Unsubmitted,
@@ -26,18 +27,15 @@ enum Status {
   Failed,
 }
 
-export type Props = {
-  onDelete: (accountId: string) => void;
-};
-
 export type DeleteAccountLocationState = {
   account?: DerivedAccount;
 };
 
-export const DeleteAccount: React.FC<Props> = ({ onDelete }) => {
+export const DeleteAccount = (): JSX.Element => {
   // TODO: When state is not passed, query by accountId
   const { state }: { state: DeleteAccountLocationState } = useLocation();
   const { accountId = "" } = useParams();
+  const { remove: onRemoveAccount } = useContext(AccountContext);
 
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<Status>(Status.Unsubmitted);
@@ -71,7 +69,7 @@ export const DeleteAccount: React.FC<Props> = ({ onDelete }) => {
           return;
         }
 
-        await onDelete(accountId);
+        await onRemoveAccount(accountId);
       } catch (error) {
         setLoadingState("");
         setErrorMessage(`${error}`);
