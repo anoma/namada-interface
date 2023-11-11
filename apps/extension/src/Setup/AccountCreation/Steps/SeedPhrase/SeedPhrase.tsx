@@ -1,8 +1,14 @@
 import React, { useEffect, useState } from "react";
 
-import { ActionButton, Heading, RadioGroup, Stack } from "@namada/components";
+import {
+  ActionButton,
+  Heading,
+  RadioGroup,
+  Stack,
+  SeedPhraseInstructions,
+} from "@namada/components";
 import { copyToClipboard } from "@namada/utils";
-import { SeedPhraseInstructions, SeedPhraseList } from "Setup/Common";
+import { SeedPhraseList } from "Setup/Common";
 import { HeaderContainer } from "Setup/Setup.components";
 import { AccountDetails } from "Setup/types";
 import { GenerateMnemonicMsg } from "background/keyring";
@@ -49,7 +55,7 @@ const SeedPhrase: React.FC<Props> = (props) => {
         </Heading>
       </HeaderContainer>
 
-      <Stack gap={6}>
+      <Stack gap={8}>
         <RadioGroup
           id="mnemonicLength"
           groupLabel="Number of seeds"
@@ -76,16 +82,15 @@ const SeedPhrase: React.FC<Props> = (props) => {
           </CopyToClipboard>
         </Stack>
         <SeedPhraseInstructions />
+        <ActionButton
+          disabled={isSubmitButtonDisabled}
+          onClick={() => {
+            onConfirm(seedPhrase);
+          }}
+        >
+          Next
+        </ActionButton>
       </Stack>
-
-      <ActionButton
-        disabled={isSubmitButtonDisabled}
-        onClick={() => {
-          onConfirm(seedPhrase);
-        }}
-      >
-        Next
-      </ActionButton>
     </>
   );
 };

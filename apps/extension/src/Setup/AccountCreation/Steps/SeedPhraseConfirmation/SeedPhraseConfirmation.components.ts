@@ -10,7 +10,3 @@ export const VerifyPanelContainer = styled.div`
   padding: ${spacement(4)} ${spacement(17)} ${spacement(7)};
   grid-gap: ${spacement(9)};
 `;
-
-export const Footer = styled.footer`
-  margin-top: ${spacement(14)};
-`;

@@ -7,7 +7,6 @@ export const WarningPanel = styled.aside`
   border-radius: ${borderRadius("md")};
   display: flex;
   justify-content: center;
-  margin-bottom: ${spacement(2.5)};
   padding: ${spacement(14)};
   width: 100%;
 `;
