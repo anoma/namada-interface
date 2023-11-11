@@ -11,6 +11,7 @@ import {
 import { useRequester } from "hooks/useRequester";
 import { QueryAccountsMsg } from "provider";
 import { Ports } from "router";
+import { useVaultContext } from "./VaultContext";
 
 type AccountContextProps = {
   children: JSX.Element;
@@ -57,6 +58,8 @@ export const AccountContextWrapper = ({
   children,
 }: AccountContextProps): JSX.Element => {
   const requester = useRequester();
+  const { isLocked } = useVaultContext();
+
   const [accounts, setAccounts] = useState<DerivedAccount[]>([]);
   const [parentAccounts, setParentAccounts] = useState<DerivedAccount[]>([]);
   const [activeAccountId, setActiveAccountId] = useState<string | undefined>();
@@ -130,9 +133,11 @@ export const AccountContextWrapper = ({
   };
 
   useEffect(() => {
-    fetchAll();
-    fetchActiveAccountId();
-  }, []);
+    if (!isLocked) {
+      fetchAll();
+      fetchActiveAccountId();
+    }
+  }, [isLocked]);
 
   useEffect(() => {
     setParentAccounts(accounts.filter((account) => !account.parentId));

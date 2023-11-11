@@ -3,7 +3,7 @@ import { Route, Routes, useNavigate } from "react-router-dom";
 
 import { Alert, Stack } from "@namada/components";
 import { DerivedAccount } from "@namada/types";
-import { useAccountContext } from "context";
+import { useAccountContext, useVaultContext } from "context";
 import { useQuery } from "hooks";
 import { useRequester } from "hooks/useRequester";
 import {
@@ -25,7 +25,8 @@ const STORE_DURABILITY_INFO =
  To fix this issue, please navigate to "about:config" and set "dom.indexedDB.experimental" to true.';
 
 export const AppContent = (): JSX.Element => {
-  const { accounts, activeAccountId } = useAccountContext();
+  const { accounts, status: accountLoadingStatus } = useAccountContext();
+  const { passwordInitialized } = useVaultContext();
 
   const query = useQuery();
   const redirect = query.get("redirect");
@@ -86,8 +87,13 @@ export const AppContent = (): JSX.Element => {
   }, []);
 
   useEffect(() => {
-    navigate(getStartPage(accounts));
-  }, [accounts, activeAccountId]);
+    if (
+      !passwordInitialized ||
+      accountLoadingStatus === LoadingStatus.Completed
+    ) {
+      navigate(getStartPage(accounts));
+    }
+  }, [accounts, passwordInitialized, accountLoadingStatus]);
 
   useEffect(() => {
     (async () => {

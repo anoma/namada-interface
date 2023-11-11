@@ -24,7 +24,7 @@ type VaultContextType = {
     oldPassword: string,
     newPassword: string
   ) => Promise<Result<null, ResetPasswordError>>;
-  hasPasswordInitialized: () => Promise<boolean>;
+  passwordInitialized: boolean | undefined;
 };
 
 // Create this initialize function using VaultContext Types
@@ -36,7 +36,7 @@ const createVaultContext = (): VaultContextType => {
     isLocked: true,
     changePassword: async (_oldPassword: string, _newPassword: string) =>
       Result.ok(null),
-    hasPasswordInitialized: async () => false,
+    passwordInitialized: undefined,
   };
 };
 
@@ -52,7 +52,10 @@ export const VaultContextWrapper = ({
   children,
 }: VaultContextWrapperProps): JSX.Element => {
   const requester = useRequester();
-  const [locked, setLocked] = useState(false);
+  const [locked, setLocked] = useState(true);
+  const [passwordInitialized, setPasswordInitialized] = useState<
+    undefined | boolean
+  >();
 
   const unlock = async (password: string): Promise<boolean> => {
     const unlocked = await requester.sendMessage(
@@ -78,10 +81,12 @@ export const VaultContextWrapper = ({
     );
   };
 
-  const hasPasswordInitialized = async (): Promise<boolean> => {
-    return await requester.sendMessage(
-      Ports.Background,
-      new CheckPasswordInitializedMsg()
+  const hasPasswordInitialized = async (): Promise<void> => {
+    setPasswordInitialized(
+      await requester.sendMessage(
+        Ports.Background,
+        new CheckPasswordInitializedMsg()
+      )
     );
   };
 
@@ -107,6 +112,7 @@ export const VaultContextWrapper = ({
   });
 
   useEffect(() => {
+    hasPasswordInitialized();
     queryIsLocked();
   }, []);
 
@@ -117,7 +123,7 @@ export const VaultContextWrapper = ({
         unlock,
         isLocked: locked,
         checkPassword,
-        hasPasswordInitialized,
+        passwordInitialized,
         changePassword,
       }}
     >

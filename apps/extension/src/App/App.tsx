@@ -1,26 +1,18 @@
-import { Alert, Container } from "@namada/components";
+import { Container } from "@namada/components";
 import { getTheme } from "@namada/utils";
-import { AccountContext } from "context";
 import { useVaultContext } from "context/VaultContext";
-import { useContext } from "react";
 import { matchPath, useLocation } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 import { AppContent } from "./AppContent";
 import { AppHeader } from "./Common/AppHeader";
 import { Login } from "./Login";
-import { LoadingStatus } from "./types";
 import routes from "./routes";
 
 export const App: React.FC = () => {
   const theme = getTheme("dark");
   const location = useLocation();
 
-  const { isLocked, unlock } = useVaultContext();
-  const {
-    accounts,
-    status: accountLoadingStatus,
-    error,
-  } = useContext(AccountContext);
+  const { isLocked, unlock, passwordInitialized } = useVaultContext();
 
   const displayReturnButton = (): boolean => {
     const setupRoute = routes.setup();
@@ -33,13 +25,10 @@ export const App: React.FC = () => {
     );
   };
 
-  const accountLoadingComplete =
-    accountLoadingStatus === LoadingStatus.Completed;
+  const shouldLock = passwordInitialized && isLocked;
 
-  const userHasAccounts = accountLoadingComplete && accounts.length > 0;
-
-  const shouldDisplayAppContent =
-    (accountLoadingComplete && !userHasAccounts) || isLocked === false;
+  if (passwordInitialized === undefined) return null;
+  console.log(">>", passwordInitialized, isLocked, shouldLock, shouldLock);
 
   return (
     <ThemeProvider theme={theme}>
@@ -47,13 +36,7 @@ export const App: React.FC = () => {
         size="popup"
         header={<AppHeader returnButton={displayReturnButton()} />}
       >
-        {error && (
-          <Alert title="Error" type="error">
-            {error}
-          </Alert>
-        )}
-        {isLocked && userHasAccounts && <Login onLogin={unlock} />}
-        {shouldDisplayAppContent && <AppContent />}
+        {shouldLock ? <Login onLogin={unlock} /> : <AppContent />}
       </Container>
     </ThemeProvider>
   );
