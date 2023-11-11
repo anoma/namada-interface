@@ -12,10 +12,9 @@ import {
   Text,
 } from "@namada/components";
 import { DerivedAccount } from "@namada/types";
-import { formatRouterPath } from "@namada/utils";
+import routes from "App/routes";
 import { ParentAccount } from "background/keyring";
 import { AccountContext } from "context";
-import { AccountManagementRoute, TopLevelRoute } from "../types";
 import { SettingsHeader } from "./ParentAccounts.components";
 
 type ParentAccountsProps = {
@@ -28,10 +27,10 @@ type ParentAccountsProps = {
 export const ParentAccounts = ({
   onLockApp,
 }: ParentAccountsProps): JSX.Element => {
+  const navigate = useNavigate();
   const { activeAccountId, parentAccounts, changeActiveAccountId } =
     useContext(AccountContext);
 
-  const navigate = useNavigate();
   const goToSetupPage = (): void => {
     browser.tabs.create({
       url: browser.runtime.getURL("setup.html"),
@@ -39,29 +38,15 @@ export const ParentAccounts = ({
   };
 
   const goToViewAccount = (account: DerivedAccount): void => {
-    navigate(
-      formatRouterPath([
-        TopLevelRoute.Accounts,
-        AccountManagementRoute.ViewAccount.replace(
-          ":accountId",
-          account.id
-        ).replace(":type", account.type),
-      ])
-    );
+    navigate(routes.viewAccount(account.id));
   };
 
   const goToDeletePage = (account: DerivedAccount): void => {
-    navigate(
-      formatRouterPath([
-        TopLevelRoute.Accounts,
-        AccountManagementRoute.DeleteAccount.replace(":accountId", account.id),
-      ]),
-      { state: { account } }
-    );
+    navigate(routes.deleteAccount(account.id), { state: { account } });
   };
 
   const goToConnectedSites = (): void => {
-    navigate(formatRouterPath([TopLevelRoute.ConnectedSites]));
+    navigate(routes.connectedSites());
   };
 
   return (
@@ -100,7 +85,10 @@ export const ParentAccounts = ({
         >
           View Connected Sites
         </ActionButton>
-        <ActionButton onClick={() => navigate("/change-password")} size="sm">
+        <ActionButton
+          onClick={() => navigate(routes.changePassword())}
+          size="sm"
+        >
           Change password
         </ActionButton>
         <LinkButton onClick={onLockApp} size="sm">

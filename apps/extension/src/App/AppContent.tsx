@@ -1,9 +1,8 @@
 import { useContext, useEffect, useState } from "react";
-import { Outlet, Route, Routes, useNavigate } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 
 import { Alert, Stack } from "@namada/components";
 import { DerivedAccount } from "@namada/types";
-import { formatRouterPath } from "@namada/utils";
 import { AccountContext } from "context";
 import { useQuery } from "hooks";
 import { useRequester } from "hooks/useRequester";
@@ -18,7 +17,8 @@ import { ParentAccounts } from "./Accounts/ParentAccounts";
 import { ConnectedSites } from "./ConnectedSites";
 import { ChangePassword } from "./Settings/ChangePassword";
 import { Setup } from "./Setup";
-import { AccountManagementRoute, LoadingStatus, TopLevelRoute } from "./types";
+import { LoadingStatus } from "./types";
+import routes from "./routes";
 
 const STORE_DURABILITY_INFO =
   'Store is not durable. This might cause problems when persisting data on disk.\
@@ -74,14 +74,7 @@ export const AppContent = ({ onLockApp }: AppContentParams): JSX.Element => {
   };
 
   const getStartPage = (accounts: DerivedAccount[]): string => {
-    if (accounts.length === 0) {
-      return formatRouterPath([TopLevelRoute.Setup]);
-    } else {
-      return formatRouterPath([
-        TopLevelRoute.Accounts,
-        AccountManagementRoute.ViewAccounts,
-      ]);
-    }
+    return accounts.length === 0 ? routes.setup() : routes.viewAccountList();
   };
 
   useEffect(() => {
@@ -96,6 +89,7 @@ export const AppContent = ({ onLockApp }: AppContentParams): JSX.Element => {
   }, []);
 
   useEffect(() => {
+    console.log(">>>", getStartPage(accounts));
     navigate(getStartPage(accounts));
   }, [accounts, activeAccountId]);
 
@@ -122,13 +116,10 @@ export const AppContent = ({ onLockApp }: AppContentParams): JSX.Element => {
       )}
 
       <Routes>
-        <Route path={TopLevelRoute.Setup} element={<Setup />} />
+        <Route path={routes.setup()} element={<Setup />} />
+        <Route path={routes.connectedSites()} element={<ConnectedSites />} />
         <Route
-          path={TopLevelRoute.ConnectedSites}
-          element={<ConnectedSites />}
-        />
-        <Route
-          path={TopLevelRoute.ChangePassword}
+          path={routes.changePassword()}
           element={
             <ChangePassword
               onComplete={() => navigate(getStartPage(accounts))}
@@ -136,22 +127,14 @@ export const AppContent = ({ onLockApp }: AppContentParams): JSX.Element => {
           }
         />
         {/* Routes that depend on a parent account existing in storage */}
-        {activeAccountId && (
+        {accounts.length > 0 && (
           <>
-            <Route path={TopLevelRoute.Accounts} element={<Outlet />}>
-              <Route
-                path={AccountManagementRoute.ViewAccounts}
-                element={<ParentAccounts onLockApp={onLockApp} />}
-              />
-              <Route
-                path={AccountManagementRoute.DeleteAccount}
-                element={<DeleteAccount />}
-              />
-              <Route
-                path={AccountManagementRoute.ViewAccount}
-                element={<ViewAccount />}
-              />
-            </Route>
+            <Route path={routes.deleteAccount()} element={<DeleteAccount />} />
+            <Route path={routes.viewAccount()} element={<ViewAccount />} />
+            <Route
+              path={routes.viewAccountList()}
+              element={<ParentAccounts onLockApp={onLockApp} />}
+            />
           </>
         )}
       </Routes>

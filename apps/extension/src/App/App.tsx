@@ -1,14 +1,15 @@
 import { Alert, Container } from "@namada/components";
-import { formatRouterPath, getTheme } from "@namada/utils";
+import { getTheme } from "@namada/utils";
+import { AccountContext } from "context";
 import { useSystemLock } from "hooks/useSystemLock";
+import { useContext } from "react";
 import { matchPath, useLocation } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 import { AppContent } from "./AppContent";
 import { AppHeader } from "./Common/AppHeader";
 import { Login } from "./Login";
-import { AccountManagementRoute, LoadingStatus, TopLevelRoute } from "./types";
-import { useContext } from "react";
-import { AccountContext } from "context";
+import routes from "./routes";
+import { LoadingStatus } from "./types";
 
 export const App: React.FC = () => {
   const theme = getTheme("dark");
@@ -22,12 +23,8 @@ export const App: React.FC = () => {
   } = useContext(AccountContext);
 
   const displayReturnButton = (): boolean => {
-    const setupRoute = formatRouterPath([TopLevelRoute.Setup]);
-    const indexRoute = formatRouterPath([
-      TopLevelRoute.Accounts,
-      AccountManagementRoute.ViewAccounts,
-    ]);
-
+    const setupRoute = routes.setup();
+    const indexRoute = routes.viewAccountList();
     return Boolean(
       !isLocked &&
         isLocked !== undefined &&

@@ -6,8 +6,7 @@ import {
   ViewKeys,
 } from "@namada/components";
 import { AccountType, DerivedAccount } from "@namada/types";
-import { formatRouterPath } from "@namada/utils";
-import { AccountManagementRoute, TopLevelRoute } from "App/types";
+import routes from "App/routes";
 import { AccountContext } from "context";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -48,12 +47,7 @@ export const ViewAccount = (): JSX.Element => {
   }, [accountId]);
 
   if (!accountId) {
-    navigate(
-      formatRouterPath([
-        TopLevelRoute.Accounts,
-        AccountManagementRoute.ViewAccounts,
-      ])
-    );
+    navigate(routes.viewAccount());
   }
 
   return (

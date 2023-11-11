@@ -1,5 +1,13 @@
 import { useCallback, useContext, useEffect, useState } from "react";
 
+import { AccountType, DerivedAccount } from "@namada/types";
+import { CheckPasswordMsg } from "background/vault";
+import { AccountContext } from "context";
+import { useRequester } from "hooks/useRequester";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { Ports } from "router";
+import routes from "App/routes";
+
 import {
   ActionButton,
   Alert,
@@ -11,14 +19,6 @@ import {
   Stack,
   Text,
 } from "@namada/components";
-import { AccountType, DerivedAccount } from "@namada/types";
-import { formatRouterPath } from "@namada/utils";
-import { AccountManagementRoute, TopLevelRoute } from "App/types";
-import { CheckPasswordMsg } from "background/vault";
-import { useRequester } from "hooks/useRequester";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { Ports } from "router";
-import { AccountContext } from "context";
 
 enum Status {
   Unsubmitted,
@@ -81,12 +81,7 @@ export const DeleteAccount = (): JSX.Element => {
 
   useEffect(() => {
     if (!accountId || !state.account) {
-      navigate(
-        formatRouterPath([
-          TopLevelRoute.Accounts,
-          AccountManagementRoute.ViewAccounts,
-        ])
-      );
+      navigate(routes.viewAccountList());
     }
   }, [accountId, state]);
 
