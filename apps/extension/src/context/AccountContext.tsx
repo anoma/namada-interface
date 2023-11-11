@@ -118,7 +118,7 @@ export const AccountContextWrapper = ({
   };
 
   const revealMnemonic = async (accountId: string): Promise<string> => {
-    return requester.sendMessage(
+    return await requester.sendMessage(
       Ports.Background,
       new RevealAccountMnemonicMsg(accountId)
     );

@@ -87,6 +87,10 @@ export class KeyRingService {
     return this._keyRing.validateMnemonic(phrase);
   }
 
+  async revealAccountMnemonic(accountId: string): Promise<string> {
+    return await this._keyRing.revealMnemonic(accountId);
+  }
+
   async saveMnemonic(
     words: string[],
     alias: string

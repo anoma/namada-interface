@@ -65,6 +65,7 @@ export const ParentAccounts = (): JSX.Element => {
               key={`key-listitem-${account.id}`}
               as="li"
               alias={account.alias}
+              type={account.type}
               isMainKey={activeAccountId === account.id}
               onRename={() => {}}
               onDelete={() => goToDeletePage(account)}

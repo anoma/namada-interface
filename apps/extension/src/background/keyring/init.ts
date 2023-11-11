@@ -13,6 +13,7 @@ import {
   DeleteAccountMsg,
   ValidateMnemonicMsg,
   AddLedgerAccountMsg,
+  RevealAccountMnemonicMsg,
 } from "./messages";
 import {
   QueryAccountsMsg,
@@ -44,6 +45,7 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(ValidateMnemonicMsg);
   router.registerMessage(CheckDurabilityMsg);
   router.registerMessage(AddLedgerAccountMsg);
+  router.registerMessage(RevealAccountMnemonicMsg);
 
   router.addHandler(ROUTE, getHandler(service));
 }

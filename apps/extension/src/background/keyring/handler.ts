@@ -15,6 +15,7 @@ import {
   GetActiveAccountMsg,
   QueryParentAccountsMsg,
   QueryPublicKeyMsg,
+  RevealAccountMnemonicMsg,
   SaveMnemonicMsg,
   ScanAccountsMsg,
   SetActiveAccountMsg,
@@ -32,6 +33,11 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleGenerateMnemonicMsg(service)(
           env,
           msg as GenerateMnemonicMsg
+        );
+      case RevealAccountMnemonicMsg:
+        return handleRevealAccountMnemonicMsg(service)(
+          env,
+          msg as RevealAccountMnemonicMsg
         );
       case ValidateMnemonicMsg:
         return handleValidateMnemonicMsg(service)(
@@ -127,6 +133,14 @@ const handleGenerateMnemonicMsg: (
 ) => InternalHandler<GenerateMnemonicMsg> = (service) => {
   return async (_, msg) => {
     return await service.generateMnemonic(msg.size);
+  };
+};
+
+const handleRevealAccountMnemonicMsg: (
+  service: KeyRingService
+) => InternalHandler<RevealAccountMnemonicMsg> = (service) => {
+  return async (_, msg) => {
+    return await service.revealAccountMnemonic(msg.accountId);
   };
 };
 

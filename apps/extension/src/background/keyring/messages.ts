@@ -20,6 +20,7 @@ enum MessageType {
   DeleteAccount = "delete-account",
   ValidateMnemonic = "validate-mnemonic",
   AddLedgerAccount = "add-ledger-account",
+  RevealAccountMnemonic = "reveal-account-mnemonic",
 }
 
 export class QueryPublicKeyMsg extends Message<string | undefined> {
@@ -65,6 +66,30 @@ export class GenerateMnemonicMsg extends Message<string[]> {
 
   type(): string {
     return GenerateMnemonicMsg.type();
+  }
+}
+
+export class RevealAccountMnemonicMsg extends Message<string> {
+  public static type(): MessageType {
+    return MessageType.RevealAccountMnemonic;
+  }
+
+  constructor(public readonly accountId: string) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.accountId) {
+      throw new Error("Account id is invalid or was not provided");
+    }
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return RevealAccountMnemonicMsg.type();
   }
 }
 

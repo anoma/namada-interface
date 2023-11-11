@@ -148,6 +148,27 @@ export class KeyRing {
     return accountStore;
   }
 
+  public async revealMnemonic(accountId: string): Promise<string> {
+    const account = await this.vaultService.findOneOrFail<AccountStore>(
+      KEYSTORE_KEY,
+      "id",
+      accountId
+    );
+
+    if (account.public.type !== AccountType.Mnemonic) {
+      throw new Error("Account should have be created using a mnemonic test.");
+    }
+
+    const sensitiveData =
+      await this.vaultService.reveal<SensitiveAccountStoreData>(account);
+
+    if (!sensitiveData) {
+      return "";
+    }
+
+    return sensitiveData.text;
+  }
+
   // Store validated mnemonic
   public async storeMnemonic(
     mnemonic: string[],

@@ -26,3 +26,4 @@ export * from "./Text";
 export * from "./Loading";
 export * from "./ViewKeys";
 export * from "./LinkButton";
+export * from "./SeedPhraseInstructions";

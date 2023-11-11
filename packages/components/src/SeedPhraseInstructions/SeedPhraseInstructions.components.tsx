@@ -5,7 +5,6 @@ export const InstructionPanel = styled.article`
   background-color: ${color("utility1", "main75")};
   border-radius: ${borderRadius("md")};
   padding: ${spacement(8)} ${spacement(11)};
-  margin-bottom: ${spacement(8)};
 `;
 
 export const WarningTip = styled.p`
