@@ -415,6 +415,13 @@ export class KeyRingService {
     return await this._keyRing.deleteAccount(accountId);
   }
 
+  async renameAccount(
+    accountId: string,
+    alias: string
+  ): Promise<DerivedAccount> {
+    return await this._keyRing.renameAccount(accountId, alias);
+  }
+
   async fetchAndStoreMaspParams(): Promise<void> {
     await Sdk.fetch_and_store_masp_params();
   }

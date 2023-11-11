@@ -21,6 +21,7 @@ enum MessageType {
   ValidateMnemonic = "validate-mnemonic",
   AddLedgerAccount = "add-ledger-account",
   RevealAccountMnemonic = "reveal-account-mnemonic",
+  RenameAccount = "rename-account",
 }
 
 export class QueryPublicKeyMsg extends Message<string | undefined> {
@@ -79,9 +80,7 @@ export class RevealAccountMnemonicMsg extends Message<string> {
   }
 
   validate(): void {
-    if (!this.accountId) {
-      throw new Error("Account id is invalid or was not provided");
-    }
+    return;
   }
 
   route(): string {
@@ -112,6 +111,33 @@ export class ValidateMnemonicMsg extends Message<boolean> {
 
   type(): string {
     return ValidateMnemonicMsg.type();
+  }
+}
+
+export class RenameAccountMsg extends Message<DerivedAccount> {
+  public static type(): MessageType {
+    return MessageType.RenameAccount;
+  }
+
+  constructor(
+    public readonly accountId: string,
+    public readonly alias: string
+  ) {
+    super();
+  }
+
+  validate(): void {
+    if (this.alias.length === 0) {
+      throw new Error("Invalid account name");
+    }
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return RenameAccountMsg.type();
   }
 }
 

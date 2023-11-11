@@ -28,7 +28,6 @@ export const App: React.FC = () => {
   const shouldLock = passwordInitialized && isLocked;
 
   if (passwordInitialized === undefined) return null;
-  console.log(">>", passwordInitialized, isLocked, shouldLock, shouldLock);
 
   return (
     <ThemeProvider theme={theme}>

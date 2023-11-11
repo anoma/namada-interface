@@ -14,6 +14,7 @@ import {
   ValidateMnemonicMsg,
   AddLedgerAccountMsg,
   RevealAccountMnemonicMsg,
+  RenameAccountMsg,
 } from "./messages";
 import {
   QueryAccountsMsg,
@@ -46,6 +47,7 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(CheckDurabilityMsg);
   router.registerMessage(AddLedgerAccountMsg);
   router.registerMessage(RevealAccountMnemonicMsg);
+  router.registerMessage(RenameAccountMsg);
 
   router.addHandler(ROUTE, getHandler(service));
 }

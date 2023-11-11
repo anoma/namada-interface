@@ -49,6 +49,10 @@ export const ParentAccounts = (): JSX.Element => {
     navigate(routes.viewAccountMnemonic(account.id));
   };
 
+  const goToRenameAccount = (account: DerivedAccount): void => {
+    navigate(routes.renameAccount(account.id), { state: { account } });
+  };
+
   return (
     <Stack gap={GapPatterns.TitleContent}>
       <Heading>Namada Keys</Heading>
@@ -67,7 +71,7 @@ export const ParentAccounts = (): JSX.Element => {
               alias={account.alias}
               type={account.type}
               isMainKey={activeAccountId === account.id}
-              onRename={() => {}}
+              onRename={() => goToRenameAccount(account)}
               onDelete={() => goToDeletePage(account)}
               onViewAccount={() => goToViewAccount(account)}
               onViewRecoveryPhrase={() => goToViewRecoveryPhrase(account)}

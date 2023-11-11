@@ -716,6 +716,20 @@ export class KeyRing {
     }
   }
 
+  async renameAccount(
+    accountId: string,
+    alias: string
+  ): Promise<DerivedAccount> {
+    return await this.vaultService.update<DerivedAccount>(
+      KEYSTORE_KEY,
+      "id",
+      accountId,
+      {
+        alias,
+      }
+    );
+  }
+
   async deleteAccount(
     accountId: string
   ): Promise<Result<null, DeleteAccountError>> {

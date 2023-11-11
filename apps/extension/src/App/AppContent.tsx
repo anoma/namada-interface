@@ -12,7 +12,12 @@ import {
   HasMaspParamsMsg,
 } from "provider/messages";
 import { Ports } from "router";
-import { DeleteAccount, ViewAccount, ViewMnemonic } from "./Accounts";
+import {
+  DeleteAccount,
+  RenameAccount,
+  ViewAccount,
+  ViewMnemonic,
+} from "./Accounts";
 import { ParentAccounts } from "./Accounts/ParentAccounts";
 import { ConnectedSites } from "./ConnectedSites";
 import { ChangePassword } from "./Settings/ChangePassword";
@@ -133,6 +138,7 @@ export const AppContent = (): JSX.Element => {
           <>
             <Route path={routes.deleteAccount()} element={<DeleteAccount />} />
             <Route path={routes.viewAccount()} element={<ViewAccount />} />
+            <Route path={routes.renameAccount()} element={<RenameAccount />} />
             <Route
               path={routes.viewAccountMnemonic()}
               element={<ViewMnemonic />}

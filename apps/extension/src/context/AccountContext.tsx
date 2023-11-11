@@ -5,6 +5,7 @@ import {
   DeleteAccountMsg,
   GetActiveAccountMsg,
   ParentAccount,
+  RenameAccountMsg,
   RevealAccountMnemonicMsg,
   SetActiveAccountMsg,
 } from "background/keyring";
@@ -23,6 +24,10 @@ type AccountContextType = {
   activeAccountId: string | undefined;
   error: string;
   status: LoadingStatus | undefined;
+  rename: (
+    accountId: string,
+    alias: string
+  ) => Promise<DerivedAccount | undefined>;
   remove: (accountId: string) => Promise<void>;
   fetchAll: () => Promise<DerivedAccount[]>;
   getById: (accountId: string) => DerivedAccount | undefined;
@@ -43,6 +48,7 @@ const createAccountContext = (): AccountContextType => ({
   error: "",
   status: undefined,
   remove: async (_accountId: string) => {},
+  rename: async (_id: string, _alias: string) => undefined,
   fetchAll: async () => [],
   changeActiveAccountId: (
     _accountId: string,
@@ -109,6 +115,26 @@ export const AccountContextWrapper = ({
     await fetchAll();
   };
 
+  const rename = async (
+    accountId: string,
+    alias: string
+  ): Promise<DerivedAccount> => {
+    const account = await requester.sendMessage(
+      Ports.Background,
+      new RenameAccountMsg(accountId, alias)
+    );
+
+    const idx = accounts.findIndex((acc) => acc.id === account.id);
+    if (idx === -1) {
+      throw new Error("Account not found");
+    }
+
+    const newAccounts = [...accounts];
+    newAccounts[idx].alias = alias;
+    setAccounts(newAccounts);
+    return account;
+  };
+
   const changeActiveAccountId = (
     accountId: string,
     accountType: ParentAccount
@@ -156,6 +182,7 @@ export const AccountContextWrapper = ({
         getById,
         changeActiveAccountId,
         revealMnemonic,
+        rename,
       }}
     >
       {children}

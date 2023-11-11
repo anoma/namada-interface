@@ -20,6 +20,7 @@ export const KeyListItem = ({
   isMainKey,
   type,
   onDelete,
+  onRename,
   onViewAccount,
   onSelectAccount,
   onViewRecoveryPhrase,
@@ -40,12 +41,12 @@ export const KeyListItem = ({
             label: "View Keys",
             onClick: onViewAccount,
           },
-          // {
-          //   label: "Change key name",
-          //   onClick: onRename,
-          // },
           {
-            label: "Delete keys",
+            label: "Rename",
+            onClick: onRename,
+          },
+          {
+            label: "Delete",
             onClick: onDelete,
           },
           {

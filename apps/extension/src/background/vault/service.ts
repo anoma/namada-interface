@@ -135,6 +135,29 @@ export class VaultService {
     return entry;
   }
 
+  protected async findIndexOrFail<P>(
+    key: string,
+    prop: keyof P,
+    value: string
+  ): Promise<number> {
+    const storedData = await this.getStoreOrFail();
+    if (!storedData.data.hasOwnProperty(key)) {
+      throw new Error("Database key is not valid. Value provided: " + key);
+    }
+
+    const output = storedData.data[key].findIndex((entry) => {
+      const props = entry.public as P;
+      if (!prop) return false;
+      return props[prop] === value;
+    });
+
+    if (output === -1) {
+      throw new Error("Vault entry has not been found");
+    }
+
+    return output;
+  }
+
   protected async find<P>(
     key: string,
     prop?: keyof P,
@@ -191,6 +214,20 @@ export class VaultService {
       throw new Error("No results have been found on Vault");
     }
     return result[0];
+  }
+
+  public async update<P>(
+    key: string,
+    prop: string,
+    value: string,
+    newProps: Partial<P>
+  ): Promise<P> {
+    const accountIdx = await this.findIndexOrFail(key, prop, value);
+    const storedData = await this.getStoreOrFail();
+    const vault = storedData.data[key][accountIdx] as Vault<P>;
+    vault.public = { ...vault.public, ...newProps };
+    await this.vaultStore.set(VAULT_KEY, storedData);
+    return vault.public;
   }
 
   public async remove<P>(
