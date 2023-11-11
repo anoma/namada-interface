@@ -26,14 +26,18 @@ export const App: React.FC = () => {
   };
 
   const shouldLock = passwordInitialized && isLocked;
-
   if (passwordInitialized === undefined) return null;
 
   return (
     <ThemeProvider theme={theme}>
       <Container
         size="popup"
-        header={<AppHeader returnButton={displayReturnButton()} />}
+        header={
+          <AppHeader
+            settingsButton={!isLocked}
+            returnButton={displayReturnButton()}
+          />
+        }
       >
         {shouldLock ? <Login onLogin={unlock} /> : <AppContent />}
       </Container>

@@ -7,7 +7,6 @@ import {
   GapPatterns,
   Heading,
   KeyListItem,
-  LinkButton,
   Stack,
   Text,
 } from "@namada/components";
@@ -15,8 +14,8 @@ import { DerivedAccount } from "@namada/types";
 import routes from "App/routes";
 import { ParentAccount } from "background/keyring";
 import { AccountContext } from "context";
-import { SettingsHeader } from "./ParentAccounts.components";
 import { useVaultContext } from "context/VaultContext";
+import { SettingsHeader } from "./ParentAccounts.components";
 
 /**
  * Represents the extension's settings page.
@@ -39,10 +38,6 @@ export const ParentAccounts = (): JSX.Element => {
 
   const goToDeletePage = (account: DerivedAccount): void => {
     navigate(routes.deleteAccount(account.id), { state: { account } });
-  };
-
-  const goToConnectedSites = (): void => {
-    navigate(routes.connectedSites());
   };
 
   const goToViewRecoveryPhrase = (account: DerivedAccount): void => {
@@ -84,22 +79,9 @@ export const ParentAccounts = (): JSX.Element => {
             />
           ))}
         </Stack>
-        <ActionButton
-          onClick={goToConnectedSites}
-          variant="secondary"
-          size="sm"
-        >
-          View Connected Sites
-        </ActionButton>
-        <ActionButton
-          onClick={() => navigate(routes.changePassword())}
-          size="sm"
-        >
-          Change password
-        </ActionButton>
-        <LinkButton onClick={() => lock()} size="sm">
+        <ActionButton onClick={() => lock()} variant="secondary" size="sm">
           Lock Wallet
-        </LinkButton>
+        </ActionButton>
       </Stack>
     </Stack>
   );
