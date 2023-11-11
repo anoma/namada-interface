@@ -1,11 +1,11 @@
-import { createContext, useEffect, useState } from "react";
-
+import { createContext, useContext, useEffect, useState } from "react";
 import { DerivedAccount } from "@namada/types";
 import { LoadingStatus } from "App/types";
 import {
   DeleteAccountMsg,
   GetActiveAccountMsg,
   ParentAccount,
+  RevealAccountMnemonicMsg,
   SetActiveAccountMsg,
 } from "background/keyring";
 import { useRequester } from "hooks/useRequester";
@@ -24,6 +24,8 @@ type AccountContextType = {
   status: LoadingStatus | undefined;
   remove: (accountId: string) => Promise<void>;
   fetchAll: () => Promise<DerivedAccount[]>;
+  getById: (accountId: string) => DerivedAccount | undefined;
+  revealMnemonic: (accountId: string) => Promise<string>;
   changeActiveAccountId: (
     accountId: string,
     accountType: ParentAccount
@@ -34,7 +36,9 @@ type AccountContextType = {
 const createAccountContext = (): AccountContextType => ({
   accounts: [],
   parentAccounts: [],
+  getById: (_accountId: string) => undefined,
   activeAccountId: undefined,
+  revealMnemonic: async (_accountId: string) => "",
   error: "",
   status: undefined,
   remove: async (_accountId: string) => {},
@@ -113,6 +117,18 @@ export const AccountContextWrapper = ({
     );
   };
 
+  const revealMnemonic = async (accountId: string): Promise<string> => {
+    return requester.sendMessage(
+      Ports.Background,
+      new RevealAccountMnemonicMsg(accountId)
+    );
+  };
+
+  const getById = (accountId: string): undefined | DerivedAccount => {
+    if (accounts.length === 0) return undefined;
+    return accounts.find((account) => account.id === accountId);
+  };
+
   useEffect(() => {
     fetchAll();
     fetchActiveAccountId();
@@ -132,10 +148,16 @@ export const AccountContextWrapper = ({
         error,
         remove,
         fetchAll,
+        getById,
         changeActiveAccountId,
+        revealMnemonic,
       }}
     >
       {children}
     </AccountContext.Provider>
   );
+};
+
+export const useAccountContext = (): AccountContextType => {
+  return useContext(AccountContext);
 };

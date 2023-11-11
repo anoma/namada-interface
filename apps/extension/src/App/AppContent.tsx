@@ -1,9 +1,9 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 
 import { Alert, Stack } from "@namada/components";
 import { DerivedAccount } from "@namada/types";
-import { AccountContext } from "context";
+import { useAccountContext } from "context";
 import { useQuery } from "hooks";
 import { useRequester } from "hooks/useRequester";
 import {
@@ -17,19 +17,16 @@ import { ParentAccounts } from "./Accounts/ParentAccounts";
 import { ConnectedSites } from "./ConnectedSites";
 import { ChangePassword } from "./Settings/ChangePassword";
 import { Setup } from "./Setup";
-import { LoadingStatus } from "./types";
 import routes from "./routes";
+import { LoadingStatus } from "./types";
 
 const STORE_DURABILITY_INFO =
   'Store is not durable. This might cause problems when persisting data on disk.\
  To fix this issue, please navigate to "about:config" and set "dom.indexedDB.experimental" to true.';
 
-type AppContentParams = {
-  onLockApp: () => void;
-};
+export const AppContent = (): JSX.Element => {
+  const { accounts, activeAccountId } = useAccountContext();
 
-export const AppContent = ({ onLockApp }: AppContentParams): JSX.Element => {
-  const { accounts, activeAccountId } = useContext(AccountContext);
   const query = useQuery();
   const redirect = query.get("redirect");
   const navigate = useNavigate();
@@ -89,7 +86,6 @@ export const AppContent = ({ onLockApp }: AppContentParams): JSX.Element => {
   }, []);
 
   useEffect(() => {
-    console.log(">>>", getStartPage(accounts));
     navigate(getStartPage(accounts));
   }, [accounts, activeAccountId]);
 
@@ -133,7 +129,7 @@ export const AppContent = ({ onLockApp }: AppContentParams): JSX.Element => {
             <Route path={routes.viewAccount()} element={<ViewAccount />} />
             <Route
               path={routes.viewAccountList()}
-              element={<ParentAccounts onLockApp={onLockApp} />}
+              element={<ParentAccounts />}
             />
           </>
         )}

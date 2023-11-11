@@ -16,18 +16,14 @@ import routes from "App/routes";
 import { ParentAccount } from "background/keyring";
 import { AccountContext } from "context";
 import { SettingsHeader } from "./ParentAccounts.components";
-
-type ParentAccountsProps = {
-  onLockApp: () => void;
-};
+import { useVaultContext } from "context/VaultContext";
 
 /**
  * Represents the extension's settings page.
  */
-export const ParentAccounts = ({
-  onLockApp,
-}: ParentAccountsProps): JSX.Element => {
+export const ParentAccounts = (): JSX.Element => {
   const navigate = useNavigate();
+  const { lock } = useVaultContext();
   const { activeAccountId, parentAccounts, changeActiveAccountId } =
     useContext(AccountContext);
 
@@ -47,6 +43,10 @@ export const ParentAccounts = ({
 
   const goToConnectedSites = (): void => {
     navigate(routes.connectedSites());
+  };
+
+  const goToViewRecoveryPhrase = (account: DerivedAccount): void => {
+    navigate(routes.viewAccountMnemonic(account.id));
   };
 
   return (
@@ -69,6 +69,7 @@ export const ParentAccounts = ({
               onRename={() => {}}
               onDelete={() => goToDeletePage(account)}
               onViewAccount={() => goToViewAccount(account)}
+              onViewRecoveryPhrase={() => goToViewRecoveryPhrase(account)}
               onSelectAccount={() => {
                 changeActiveAccountId(
                   account.id,
@@ -91,7 +92,7 @@ export const ParentAccounts = ({
         >
           Change password
         </ActionButton>
-        <LinkButton onClick={onLockApp} size="sm">
+        <LinkButton onClick={() => lock()} size="sm">
           Lock Wallet
         </LinkButton>
       </Stack>

@@ -1,21 +1,21 @@
 import { Alert, Container } from "@namada/components";
 import { getTheme } from "@namada/utils";
 import { AccountContext } from "context";
-import { useSystemLock } from "hooks/useSystemLock";
+import { useVaultContext } from "context/VaultContext";
 import { useContext } from "react";
 import { matchPath, useLocation } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 import { AppContent } from "./AppContent";
 import { AppHeader } from "./Common/AppHeader";
 import { Login } from "./Login";
-import routes from "./routes";
 import { LoadingStatus } from "./types";
+import routes from "./routes";
 
 export const App: React.FC = () => {
   const theme = getTheme("dark");
   const location = useLocation();
 
-  const { isLocked, unlock, lock } = useSystemLock();
+  const { isLocked, unlock } = useVaultContext();
   const {
     accounts,
     status: accountLoadingStatus,
@@ -53,7 +53,7 @@ export const App: React.FC = () => {
           </Alert>
         )}
         {isLocked && userHasAccounts && <Login onLogin={unlock} />}
-        {shouldDisplayAppContent && <AppContent onLockApp={lock} />}
+        {shouldDisplayAppContent && <AppContent />}
       </Container>
     </ThemeProvider>
   );
