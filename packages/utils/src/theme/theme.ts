@@ -173,6 +173,7 @@ export type FontSize = {
   "3xl": string;
   "4xl": string;
   "5xl": string;
+  "6xl": string;
 };
 
 export type ColorMode = "light" | "dark";
@@ -413,6 +414,8 @@ const baseFontSizes: FontSize = {
   "3xl": "2rem",
   "4xl": "2.25rem",
   "5xl": "2.85rem",
+  // TODO: fix this
+  "6xl": "4rem",
 };
 
 const containerSizes: ContainerSize = {

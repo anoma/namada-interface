@@ -5,14 +5,19 @@ import {
   Heading,
   Modal,
   Toggle,
+  Text,
+  LinkButton,
+  Stack,
 } from "@namada/components";
 import {
+  Divider,
   KeplrButtonContainer,
   MainContainer,
   MainFooter,
   MainHeader,
   MainModal,
   MainSection,
+  MainSectionButton,
   MainSectionTime,
   TOSToggle,
 } from "./App.components";
@@ -156,38 +161,59 @@ export const Main: React.FC = () => {
 
   return (
     <MainContainer>
-      <MainHeader>
-        <Heading level={"h1"}>
-          No Privacy
-          <br />
-          Without Public Goods
-        </Heading>
-      </MainHeader>
       <MainSection>
-        <MainSectionTime>Time left to claim:</MainSectionTime>
-        <MainSectionTime>
-          <Countdown endDate={new Date("Nov 14, 2023 13:00:00")} />
-        </MainSectionTime>
-        <Button
-          variant={ButtonVariant.Contained}
-          onClick={() => {
-            setIsModalOpen(true);
-            setKeplr((window as KeplrWindow)?.keplr);
-          }}
-        >
-          Check NAM eligibility
-        </Button>
-        <Button variant={ButtonVariant.Contained} disabled={true}>
-          Read annoucement
-        </Button>
+        <Stack gap={2}>
+          <MainHeader>
+            <Heading level={"h1"} size={"6xl"}>
+              <b>
+                No<span> Privacy</span>
+                <br />
+                Without
+                <br />
+                Public Goods
+              </b>
+            </Heading>
+          </MainHeader>
+          <Stack gap={0.5}>
+            <Text>
+              <b>TIME LEFT TO CLAIM:</b>
+            </Text>
+            <Text fontSize="2xl">
+              <b>
+                <Countdown endDate={new Date("Nov 14, 2023 13:00:00")} />
+              </b>
+            </Text>
+          </Stack>
+
+          <Stack gap={0.5}>
+            <MainSectionButton>
+              <Button
+                variant={ButtonVariant.Contained}
+                onClick={() => {
+                  setIsModalOpen(true);
+                  setKeplr((window as KeplrWindow)?.keplr);
+                }}
+              >
+                <b>Check NAM eligibility</b>
+              </Button>
+            </MainSectionButton>
+            <LinkButton themeColor="utility2">
+              <b>Read the annoucement</b>
+            </LinkButton>
+          </Stack>
+        </Stack>
       </MainSection>
       <MainFooter>
-        <Heading level={"h1"}>Namada RPGF Drop</Heading>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris semper
-          tempor ante eu ullamcorper. Morbi fringilla gravida mi in cursus.
-          Donec libero velit, vulputate vel nunc sed, pretium rhoncus quam.
-        </p>
+        <Divider />
+        <Stack gap={4}>
+          <Text fontSize={"3xl"}>Namada RPGF Drop</Text>
+          <Text>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris
+            semper tempor ante eu ullamcorper. Morbi fringilla gravida mi in
+            cursus. Donec libero velit, vulputate vel nunc sed, pretium rhoncus
+            quam.
+          </Text>
+        </Stack>
       </MainFooter>
       <Modal
         isOpen={isModalOpen}

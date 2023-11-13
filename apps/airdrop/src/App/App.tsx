@@ -6,11 +6,18 @@ import {
   AppContainer,
   AppContainerHeader,
   GlobalStyles,
+  Logo,
 } from "App/App.components";
 import { Route, Routes, useNavigate, Navigate } from "react-router-dom";
 import { Main } from "./Main";
 import { AirdropConfirmation } from "./AirdropConfirmation";
-import { Button, ButtonVariant } from "@namada/components";
+import {
+  Button,
+  ButtonVariant,
+  ImageName,
+  Image,
+  LinkButton,
+} from "@namada/components";
 import { NonEligible } from "./NonEligible";
 import { confirmationAtom, claimAtom } from "./state";
 import { ClaimConfirmation } from "./Claim/ClaimConfirmation";
@@ -19,7 +26,7 @@ import { Claim } from "./Claim";
 import { TrustedSetup } from "./TrustedSetup";
 
 export const App: React.FC = () => {
-  const initialColorMode = "dark";
+  const initialColorMode = "light";
   const [colorMode, _] = useState<ColorMode>(initialColorMode);
   const [claimState] = useAtom(claimAtom);
   const [confirmationState] = useAtom(confirmationAtom);
@@ -33,7 +40,7 @@ export const App: React.FC = () => {
       <AppContainer>
         <AppContainerHeader>
           <Button
-            style={isRoot ? { visibility: "hidden" } : {}}
+            style={isRoot ? { display: "none" } : {}}
             variant={ButtonVariant.Small}
             onClick={() => {
               navigate("/");
@@ -41,6 +48,14 @@ export const App: React.FC = () => {
           >
             Start over
           </Button>
+          <Logo>
+            <Image
+              imageName={ImageName.Logo}
+              styleOverrides={{ width: "240px" }}
+              forceLightMode={true}
+            />
+          </Logo>
+          <LinkButton themeColor="utility2">Terms of service</LinkButton>
         </AppContainerHeader>
         <Routes>
           <Route path={`/`} element={<Main />} />

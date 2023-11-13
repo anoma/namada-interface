@@ -1,11 +1,9 @@
 import styled, { createGlobalStyle } from "styled-components";
-import { ColorMode, DesignConfiguration } from "@namada/utils";
+import { ColorMode, DesignConfiguration, spacement } from "@namada/utils";
 
 type GlobalStyleProps = {
   colorMode: ColorMode;
 };
-
-const topSectionHeight = "164px";
 
 enum ComponentColor {
   BorderColor,
@@ -36,29 +34,37 @@ const getColor = (
 // on whether the user is logged in
 export const GlobalStyles = createGlobalStyle<GlobalStyleProps>`
   html, body {
-    background-color: ${(props) => props.theme.colors.utility1.main};
+    background-color: ${(props) => props.theme.colors.primary.main};
     transition: background-color 0.5s ease;
   }
 `;
 export const AppContainer = styled.div`
   display: flex;
-  align-items: center;
   flex-direction: column;
   height: 100vh;
   width: 800px;
   margin: 0 auto;
-  background-color: ${(props) => props.theme.colors.utility1.main};
   transition: all 0.3s linear;
   box-sizing: border-box;
 `;
 
 export const AppContainerHeader = styled.div`
+  display: flex;
   align-self: flex-start;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 20px;
 
   & > button {
     margin: 10px 0 0 0;
   }
+  & a {
+    color: ${(props) => props.theme.colors.utility2.main};
+    text-decoration: none;
+  }
 `;
+
+export const Logo = styled.div``;
 
 // Common.components
 export const Breadcrumb = styled.div`
@@ -74,29 +80,53 @@ export const Breadcrumb = styled.div`
 // Main.components
 export const MainContainer = styled.div`
   width: 100%;
+  display: flex;
+  flex-direction: column;
 `;
+
 export const MainHeader = styled.div`
-  text-align: center;
+  span {
+    color: ${(props) => props.theme.colors.primary.main};
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+      1px 1px 0 #000;
+  }
 `;
 
 export const MainSection = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
   box-sizing: border-box;
   border: 1px solid ${(props) => props.theme.colors.utility2.main20};
-  display: grid;
-  grid-template-columns: auto auto;
-  gap: 20px;
-  padding: 20px;
   margin-top: 40px;
+  width: 770px;
+  height: 770px;
+  border-radius: 50%;
+  border: ${spacement(8)} solid ${(props) => props.theme.colors.utility3.black};
+  text-align: center;
 `;
 
 export const MainSectionTime = styled.div`
   color: ${(props) => props.theme.colors.utility2.main};
-  text-align: center;
+`;
+
+export const MainSectionButton = styled.div`
+  align-self: center;
+`;
+
+export const Divider = styled.div`
+  width: 190px;
+  align-self: center;
+  border-bottom: 1px solid ${(props) => props.theme.colors.utility2.main};
 `;
 
 export const MainFooter = styled.div`
-  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-top: ${spacement(10)};
   color: ${(props) => props.theme.colors.utility2.main};
+  text-align: center;
 `;
 
 export const MainModal = styled.div`
