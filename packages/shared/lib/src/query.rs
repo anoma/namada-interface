@@ -237,9 +237,12 @@ impl Query {
     ) -> Result<Vec<(Address, token::Amount)>, JsError> {
         //TODO: Move hardcoded tokens somewhere else
         let tokens: HashSet<Address> = HashSet::from([
-            Address::from_str("tnam1q99c37u38grkdcc2qze0hz4zjjd8zr3yucd3mzgz")?,
-            Address::from_str("tnam1qx6k4wau5t6m8g2hjq55fje2ynpvh5t27s8p3p0l")?,
-            Address::from_str("tnam1qyr9vd8ltunq72qc7pk58v7jdsedt4mggqqpxs03")?,
+            // NAM
+            Address::from_str("tnam1qyytnlley9h2mw5pjzsp862uuqhc2l0h5uqx397y")?,
+            // DOT
+            Address::from_str("tnam1qyrsnajxyn660ukm0zwacfrt3mff9c4vvuzrrpnx")?,
+            // ETH
+            Address::from_str("tnam1q8r6dc0kh2xuxzjy75cgt4tfqchf4k8cguuvxkuh")?,
         ]);
 
         let mut result = vec![];
