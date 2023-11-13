@@ -3,6 +3,7 @@ import {
   ExtensionKVStore,
   IndexedDBKVStore,
   MemoryKVStore,
+  SessionKVStore,
 } from "@namada/storage";
 import { defaultChainId, chains, ProxyMappings } from "@namada/chains";
 import { init as initCrypto } from "@namada/crypto/src/init";
@@ -33,6 +34,7 @@ import { LedgerService, init as initLedger } from "./ledger";
 import { VaultService, init as initVault } from "./vault";
 
 const store = new IndexedDBKVStore(KVPrefix.IndexedDB);
+const sessionStore = new SessionKVStore(KVPrefix.SessionStorage);
 const utilityStore = new IndexedDBKVStore<UtilityStore>(KVPrefix.Utility);
 // TODO: For now we will be running two stores side by side
 const sdkStore = new IndexedDBKVStore(KVPrefix.SDK);
@@ -99,7 +101,12 @@ const init = new Promise<void>(async (resolve) => {
     requester
   );
 
-  const vaultService = new VaultService(store, cryptoMemory, broadcaster);
+  const vaultService = new VaultService(
+    store,
+    sessionStore,
+    cryptoMemory,
+    broadcaster
+  );
   const chainsService = new ChainsService(store, [chains[defaultChainId]]);
   const keyRingService = new KeyRingService(
     vaultService,

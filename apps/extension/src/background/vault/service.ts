@@ -4,6 +4,7 @@ import {
   CryptoRecord,
   PrimitiveType,
   ResetPasswordError,
+  SessionPassword,
   Vault,
   VaultStore,
   VaultStoreData,
@@ -19,6 +20,7 @@ export class VaultService {
 
   public constructor(
     protected vaultStore: KVStore<VaultStore>,
+    protected sessionStore: KVStore<SessionPassword>,
     protected readonly cryptoMemory: WebAssembly.Memory,
     protected readonly broadcaster?: ExtensionBroadcaster
   ) {
@@ -48,45 +50,45 @@ export class VaultService {
     return Object.keys(store.data[key] || {}).length;
   }
 
-  public isLocked(): boolean {
-    return this.password === undefined;
+  public async isLocked(): Promise<boolean> {
+    const password = await this.sessionStore.get("password");
+    return !password;
   }
 
-  public assertIsUnlocked(): void {
-    if (this.isLocked()) {
+  public async assertIsUnlocked(): Promise<void> {
+    if (await this.isLocked()) {
       throw new Error("Extension is locked");
     }
   }
 
   public async lock(): Promise<void> {
-    this.setPassword(undefined);
+    await this.setPassword(undefined);
     if (this.broadcaster) {
-      this.broadcaster.lockExtension();
+      await this.broadcaster.lockExtension();
     }
   }
 
   public async unlock(password: string): Promise<boolean> {
     if (await this.checkPassword(password)) {
-      this.setPassword(password);
+      await this.setPassword(password);
       return true;
     }
     return false;
   }
 
-  protected setPassword(password: string | undefined): void {
-    this.password = password;
+  protected async setPassword(password: string | undefined): Promise<void> {
+    this.sessionStore.set("password", password || "");
   }
 
-  protected getPassword(): string {
-    this.assertIsUnlocked();
-    return this.password || "";
+  protected async getPassword(): Promise<string> {
+    await this.assertIsUnlocked();
+    return (await this.sessionStore.get("password")) || "";
   }
 
   // TODO: I think we shouldn't expose the password like this, but it's required
   // for SDK methods. Use cautiously.
-  public UNSAFE_getPassword(): string {
-    this.assertIsUnlocked();
-    return this.password || "";
+  public async UNSAFE_getPassword(): Promise<string> {
+    return await this.getPassword();
   }
 
   public async checkPassword(password: string): Promise<boolean> {
@@ -106,7 +108,7 @@ export class VaultService {
   }
 
   public async getStoreData(): Promise<VaultStore | undefined> {
-    return this.vaultStore.get(VAULT_KEY);
+    return await this.vaultStore.get(VAULT_KEY);
   }
 
   public async getStoreOrFail(): Promise<VaultStore> {
@@ -122,7 +124,7 @@ export class VaultService {
     publicData: P,
     sensitiveData?: T
   ): Promise<Vault<P>> {
-    this.assertIsUnlocked();
+    await this.assertIsUnlocked();
     const entry = await this.createVaultEntry<P, T>(publicData, sensitiveData);
     const storedData = await this.getStoreOrFail();
 
@@ -246,7 +248,7 @@ export class VaultService {
     }) as Vault<P>[];
 
     storedData.data[key] = newStore;
-    this.vaultStore.set(VAULT_KEY, storedData);
+    await this.vaultStore.set(VAULT_KEY, storedData);
     return newStore;
   }
 
@@ -262,13 +264,13 @@ export class VaultService {
   }
 
   public async reveal<S>(entry: Vault): Promise<S | undefined> {
-    this.assertIsUnlocked();
+    await this.assertIsUnlocked();
     if (!entry.sensitive) return;
 
     try {
       const decryptedJson = await crypto.decrypt(
         entry.sensitive,
-        this.getPassword(),
+        await this.getPassword(),
         this.cryptoMemory
       );
       return JSON.parse(decryptedJson) as S;
@@ -308,7 +310,7 @@ export class VaultService {
         password: this.getEncryptedPassword(newPassword),
         data: { ...newStore },
       });
-      this.setPassword(newPassword);
+      await this.setPassword(newPassword);
       return Result.ok(null);
     } catch (error) {
       throw error;
@@ -318,11 +320,14 @@ export class VaultService {
   protected async createVaultEntry<P, T>(
     publicData: P,
     sensitiveData?: T,
-    password = this.getPassword()
+    password?: string
   ): Promise<Vault<P>> {
     let encryptedData;
     if (sensitiveData) {
-      encryptedData = crypto.encrypt(JSON.stringify(sensitiveData), password);
+      encryptedData = crypto.encrypt(
+        JSON.stringify(sensitiveData),
+        password ?? (await this.getPassword())
+      );
     }
     return {
       public: { ...publicData },
