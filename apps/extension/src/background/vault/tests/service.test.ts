@@ -28,13 +28,18 @@ describe("Testing untouched Vault Service", () => {
   });
 
   it("Should lock and unlock extension properly", async () => {
+    // Should be unlocked after password creation
+    expect(await service.isLocked()).toBeFalsy();
+
     await service.lock();
     expect(await service.isLocked()).toBeTruthy();
     await expect(service.assertIsUnlocked()).rejects.toThrow();
     await service.unlock(password);
     expect(await service.isLocked()).toBeFalsy();
     expect(await service.checkPassword(password)).toBeTruthy();
-    expect(await service.UNSAFE_getPassword()).toEqual(password);
+    expect(await service.UNSAFE_getPassword()).toEqual(
+      await service.hashPassword(password)
+    );
   });
 
   it("Should encrypt and decrypt message correctly", async () => {

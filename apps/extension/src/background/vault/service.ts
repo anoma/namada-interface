@@ -11,13 +11,12 @@ import {
 } from "./types";
 import { Result } from "@namada/utils";
 import { ExtensionBroadcaster } from "extension";
+import { sha256 } from "js-sha256";
 
 export const VAULT_KEY = "vault";
 const crypto = new Crypto();
 
 export class VaultService {
-  private password: string | undefined;
-
   public constructor(
     protected vaultStore: KVStore<VaultStore>,
     protected sessionStore: KVStore<SessionPassword>,
@@ -42,7 +41,7 @@ export class VaultService {
 
   public async passwordInitialized(): Promise<boolean> {
     const store = await this.getStoreData();
-    return store?.password !== undefined;
+    return !!store?.password;
   }
 
   public async getLength(key: string): Promise<number> {
@@ -51,8 +50,9 @@ export class VaultService {
   }
 
   public async isLocked(): Promise<boolean> {
-    const password = await this.sessionStore.get("password");
-    return !password;
+    const password = await this.getPassword();
+    const isInitialized = await this.passwordInitialized();
+    return !password && isInitialized;
   }
 
   public async assertIsUnlocked(): Promise<void> {
@@ -76,12 +76,21 @@ export class VaultService {
     return false;
   }
 
+  public hashPassword = async (password: string): Promise<string> => {
+    const hash = sha256.create();
+    hash.update(password);
+    return hash.toString();
+  };
+
   protected async setPassword(password: string | undefined): Promise<void> {
-    this.sessionStore.set("password", password || "");
+    if (!password) {
+      this.sessionStore.set("password", "");
+      return;
+    }
+    this.sessionStore.set("password", await this.hashPassword(password));
   }
 
   protected async getPassword(): Promise<string> {
-    await this.assertIsUnlocked();
     return (await this.sessionStore.get("password")) || "";
   }
 
@@ -98,7 +107,11 @@ export class VaultService {
     }
 
     try {
-      crypto.decrypt(store.password, password, this.cryptoMemory);
+      crypto.decrypt(
+        store.password,
+        await this.hashPassword(password),
+        this.cryptoMemory
+      );
       return true;
     } catch (error) {
       console.warn(error);
@@ -257,10 +270,16 @@ export class VaultService {
       throw new Error("Password already set");
     }
     await this.vaultStore.set(VAULT_KEY, {
-      password: this.getEncryptedPassword(password),
+      password: await this.getEncryptedPassword(password),
       data: {},
     });
-    await this.unlock(password);
+
+    const isUnlocked = await this.unlock(password);
+    if (!isUnlocked) {
+      throw new Error(
+        "Not possible to unlock the vault after creating the password"
+      );
+    }
   }
 
   public async reveal<S>(entry: Vault): Promise<S | undefined> {
@@ -307,7 +326,7 @@ export class VaultService {
       }
 
       await this.vaultStore.set(VAULT_KEY, {
-        password: this.getEncryptedPassword(newPassword),
+        password: await this.getEncryptedPassword(newPassword),
         data: { ...newStore },
       });
       await this.setPassword(newPassword);
@@ -326,7 +345,7 @@ export class VaultService {
     if (sensitiveData) {
       encryptedData = crypto.encrypt(
         JSON.stringify(sensitiveData),
-        password ?? (await this.getPassword())
+        password ? await this.hashPassword(password) : await this.getPassword()
       );
     }
     return {
@@ -335,7 +354,10 @@ export class VaultService {
     };
   }
 
-  protected getEncryptedPassword(password: string): CryptoRecord {
-    return crypto.encryptAuthKey(password, password);
+  protected async getEncryptedPassword(
+    password: string
+  ): Promise<CryptoRecord> {
+    const hashedPassword = await this.hashPassword(password);
+    return crypto.encryptAuthKey(hashedPassword, hashedPassword);
   }
 }

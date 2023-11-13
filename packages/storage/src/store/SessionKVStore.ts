@@ -6,7 +6,7 @@ export class SessionKVStore<T> implements KVStore<T[]> {
 
   public async get<T = unknown>(key: string): Promise<T | undefined> {
     const obj = await browser.storage.session.get(this.prefix());
-    return obj[key] ?? undefined;
+    return obj[this.prefix()][key] ?? undefined;
   }
 
   public async set<T = unknown>(key: string, data: T | null): Promise<void> {

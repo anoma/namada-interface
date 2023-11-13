@@ -46,7 +46,9 @@ const plugins = [
       MANIFEST_BASE_PATH,
       MANIFEST_BASE_VERSION_PATH,
       MANIFEST_PATH,
-      ...(NODE_ENV === "development" && TARGET === "firefox" ? [MANIFEST_V2_DEV_ONLY_PATH] : [])
+      ...(NODE_ENV === "development" && TARGET === "firefox"
+        ? [MANIFEST_V2_DEV_ONLY_PATH]
+        : []),
     ],
     output: {
       fileName: "./manifest.json",
@@ -80,7 +82,10 @@ if (NODE_ENV === "development") {
 module.exports = {
   mode: NODE_ENV,
   target: "web",
-  devtool: NODE_ENV === "development" && TARGET === "firefox" ? "eval-source-map" : false,
+  devtool:
+    NODE_ENV === "development" && TARGET === "firefox"
+      ? "eval-source-map"
+      : false,
   entry: {
     content: "./src/content",
     background: "./src/background",
@@ -160,7 +165,7 @@ module.exports = {
     hints: "warning",
     maxAssetSize: 200000,
     maxEntrypointSize: 400000,
-    assetFilter: function(assetFilename) {
+    assetFilter: function (assetFilename) {
       assetFilename.endsWith(".wasm");
     },
   },
