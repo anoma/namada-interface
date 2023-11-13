@@ -108,6 +108,19 @@ export const MainModal = styled.div`
     margin: 10px 0;
   }
 `;
+
+export const KeplrButtonContainer = styled.div`
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  color: ${(props) => props.theme.colors.utility2.main};
+  text-align: center;
+
+  & > button {
+    margin: 10px 0;
+  }
+`;
+
 export const TOSToggle = styled.div`
   display: flex;
   color: ${(props) => props.theme.colors.utility2.main};

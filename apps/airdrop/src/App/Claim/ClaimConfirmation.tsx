@@ -149,6 +149,8 @@ export const ClaimConfirmation: React.FC = () => {
     await navigator.clipboard.writeText(nonce);
   };
 
+  const isNamadaConnected = namada?.detect();
+
   const navigate = useNavigate();
   return (
     <ClaimsSection>
@@ -192,7 +194,16 @@ export const ClaimConfirmation: React.FC = () => {
           onChange={(e) => setNamadaAddress(e.target.value)}
           label="Namada airdrop address"
         />
-        <Button variant={ButtonVariant.Small} onClick={handleImportButton}>
+        <Button
+          disabled={!isNamadaConnected}
+          tooltip={
+            isNamadaConnected
+              ? ""
+              : "To import please install the Namada extension using the link below and try again."
+          }
+          variant={ButtonVariant.Small}
+          onClick={handleImportButton}
+        >
           {airdropAddress ? "Clear" : "Import"}
         </Button>
       </AirdropAddress>

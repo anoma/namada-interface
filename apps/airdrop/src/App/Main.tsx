@@ -1,4 +1,4 @@
-import { Window as KeplrWindow } from "@keplr-wallet/types";
+import { Window as KeplrWindow, Keplr } from "@keplr-wallet/types";
 import {
   Button,
   ButtonVariant,
@@ -7,6 +7,7 @@ import {
   Toggle,
 } from "@namada/components";
 import {
+  KeplrButtonContainer,
   MainContainer,
   MainFooter,
   MainHeader,
@@ -67,8 +68,9 @@ const checkClaim = async (
 };
 
 export const Main: React.FC = () => {
+  const [keplr, setKeplr] = useState<Keplr | undefined>();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isToggleChecked, setIsToggleChecked] = useState(false);
+  const [isTOSAccepted, setIsTOSAccepted] = useState(false);
   const [_cl, setClaimState] = useAtom(claimAtom);
   const [_co, setConfirmation] = useAtom(confirmationAtom);
   const navigate = useNavigate();
@@ -111,32 +113,45 @@ export const Main: React.FC = () => {
     type: KeplrClaimType,
     chainId: string
   ): Promise<void> => {
-    const keplr = (window as KeplrWindow).keplr;
     if (!keplr) {
-      //TODO: proper handling
-      throw new Error("Keplr extension not installed");
-    }
-    await keplr.enable(chainId);
+      handleKeplrDownload();
+    } else {
+      //This is a fallback in case someone removed Keplr and did not refresh the website
+      //THIS SHOULD NOT HAPPEN OFTEN!!!
+      try {
+        await keplr.enable(chainId);
+      } catch (e) {
+        alert("Please install Keplr extension and refresh the website");
+      }
 
-    const { bech32Address: address } = await keplr.getKey(chainId);
-    const response = await checkClaim(address, type);
-    if (response.eligible && !response.has_claimed) {
-      const signature = await keplr?.signArbitrary(
-        chainId,
-        address,
-        response.nonce
-      );
-      setClaimState({
-        eligible: response.eligible,
-        amount: response.amount,
-        hasClaimed: response.has_claimed,
-        type,
-        signature: { ...signature, pubKey: signature.pub_key },
-        address,
-        nonce: response.nonce,
-      });
+      const { bech32Address: address } = await keplr.getKey(chainId);
+      const response = await checkClaim(address, type);
+      if (response.eligible && !response.has_claimed) {
+        const signature = await keplr?.signArbitrary(
+          chainId,
+          address,
+          response.nonce
+        );
+        setClaimState({
+          eligible: response.eligible,
+          amount: response.amount,
+          hasClaimed: response.has_claimed,
+          type,
+          signature: { ...signature, pubKey: signature.pub_key },
+          address,
+          nonce: response.nonce,
+        });
+      }
+      navigatePostCheck(navigate, response.eligible, response.has_claimed);
     }
-    navigatePostCheck(navigate, response.eligible, response.has_claimed);
+  };
+
+  const handleKeplrDownload = (): void => {
+    window.open(
+      "https://www.keplr.app/download",
+      "_blank",
+      "noopener,noreferrer"
+    );
   };
 
   return (
@@ -157,6 +172,7 @@ export const Main: React.FC = () => {
           variant={ButtonVariant.Contained}
           onClick={() => {
             setIsModalOpen(true);
+            setKeplr((window as KeplrWindow)?.keplr);
           }}
         >
           Check NAM eligibility
@@ -181,6 +197,7 @@ export const Main: React.FC = () => {
         <MainModal>
           <Button
             variant={ButtonVariant.Contained}
+            disabled={!isTOSAccepted}
             onClick={() => {
               window.open(
                 `https://github.com/login/oauth/authorize?client_id=Iv1.dbd15f7e1b50c0d7&redirect_uri=${redirectUrl}`,
@@ -190,34 +207,62 @@ export const Main: React.FC = () => {
           >
             Github
           </Button>
-          <Button disabled={true} variant={ButtonVariant.Contained}>
+          <Button
+            disabled={true || !isTOSAccepted}
+            variant={ButtonVariant.Contained}
+          >
             Ethereum Wallet
           </Button>
           <Button
+            disabled={!isTOSAccepted}
             variant={ButtonVariant.Contained}
             onClick={() => navigate("/trusted-setup")}
           >
             Namada Trusted Setup
           </Button>
-          <Button
-            variant={ButtonVariant.Contained}
-            onClick={() => handleKeplrConnection("cosmos", "cosmoshub-4")}
-          >
-            Cosmos Wallet
-          </Button>
-          <Button
-            variant={ButtonVariant.Contained}
-            onClick={() => handleKeplrConnection("osmosis", "osmosis-1")}
-          >
-            Osmosis Wallet
-          </Button>
-          <Button disabled={true} variant={ButtonVariant.Contained}>
-            Stargaze Wallet
-          </Button>
+          {keplr && (
+            <>
+              <Button
+                disabled={!isTOSAccepted}
+                variant={ButtonVariant.Contained}
+                onClick={() => handleKeplrConnection("cosmos", "cosmoshub-4")}
+              >
+                Cosmos Wallet
+              </Button>
+              <Button
+                disabled={!isTOSAccepted}
+                variant={ButtonVariant.Contained}
+                onClick={() => handleKeplrConnection("osmosis", "osmosis-1")}
+              >
+                Osmosis Wallet
+              </Button>
+              <Button
+                disabled={true || !isTOSAccepted}
+                variant={ButtonVariant.Contained}
+              >
+                Stargaze Wallet
+              </Button>
+            </>
+          )}
+          {!keplr && (
+            <KeplrButtonContainer>
+              <Button
+                variant={ButtonVariant.Contained}
+                onClick={handleKeplrDownload}
+              >
+                Download Keplr to use Cosmos/Osmosis/Stargaze Wallet
+              </Button>
+              <span style={{ color: "white" }}>
+                <b>NOTE: </b>Make sure to restart website after installing Keplr
+                extension
+              </span>
+            </KeplrButtonContainer>
+          )}
+
           <TOSToggle>
             <Toggle
-              checked={isToggleChecked}
-              onClick={() => setIsToggleChecked(!isToggleChecked)}
+              checked={isTOSAccepted}
+              onClick={() => setIsTOSAccepted(!isTOSAccepted)}
             />
             You agree to the Terms of Service and are not in the US or any other
             prohibited jurisdiction

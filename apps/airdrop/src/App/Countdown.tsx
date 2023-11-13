@@ -35,6 +35,10 @@ export const Countdown: React.FC<Props> = ({ endDate }) => {
         setNow(new Date().getTime());
       }
     }, 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
   return (
