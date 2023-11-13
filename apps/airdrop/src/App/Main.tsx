@@ -20,6 +20,7 @@ import { useNavigate } from "react-router-dom";
 import { KeplrClaimType, confirmationAtom, claimAtom } from "./state";
 import { useAtom } from "jotai";
 import { navigatePostCheck } from "./utils";
+import { Countdown } from "./Countdown";
 
 const {
   REACT_APP_REDIRECT_URI: redirectUrl = "",
@@ -149,7 +150,9 @@ export const Main: React.FC = () => {
       </MainHeader>
       <MainSection>
         <MainSectionTime>Time left to claim:</MainSectionTime>
-        <MainSectionTime>XXD : XXH : XXM</MainSectionTime>
+        <MainSectionTime>
+          <Countdown endDate={new Date("Nov 14, 2023 13:00:00")} />
+        </MainSectionTime>
         <Button
           variant={ButtonVariant.Contained}
           onClick={() => {
