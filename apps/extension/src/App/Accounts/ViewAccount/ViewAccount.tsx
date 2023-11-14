@@ -23,27 +23,33 @@ export const ViewAccount = (): JSX.Element => {
   const [shieldedAddress, setShieldedAddress] = useState("");
   const navigate = useNavigate();
 
-  const searchAccounts = (accountId: string): void => {
-    accountStore.forEach((account) => {
-      if (account.id === accountId) {
-        setParentAccount(account);
-        setTransparentAddress(account.address);
-        return;
-      }
+  const searchParentAccount = (
+    accountId: string
+  ): DerivedAccount | undefined => {
+    if (!accountId) return;
+    return accountStore.find((account) => account.id === accountId);
+  };
 
-      if (account.parentId !== accountId) {
-        return;
-      }
-
-      if (account.type === AccountType.ShieldedKeys) {
-        setShieldedAddress(account.address);
-        return;
-      }
-    });
+  const searchShieldedKey = (accountId: string): DerivedAccount | undefined => {
+    if (!accountId) return;
+    return accountStore.find(
+      (account) =>
+        account.parentId === accountId &&
+        account.type === AccountType.ShieldedKeys
+    );
   };
 
   useEffect(() => {
-    accountId && searchAccounts(accountId);
+    const parentAccount = searchParentAccount(accountId);
+    if (parentAccount) {
+      setParentAccount(parentAccount);
+      setTransparentAddress(parentAccount?.address);
+    }
+
+    const shieldedKey = searchShieldedKey(accountId);
+    if (shieldedKey) {
+      setShieldedAddress(shieldedKey.address);
+    }
   }, [accountId]);
 
   if (!accountId) {
