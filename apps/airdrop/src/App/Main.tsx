@@ -18,7 +18,6 @@ import {
   MainModal,
   MainSection,
   MainSectionButton,
-  MainSectionTime,
   TOSToggle,
 } from "./App.components";
 import { useEffect, useState } from "react";
@@ -53,6 +52,9 @@ type KeplrClaim = {
 const checkGithubClaim = async (code: string): Promise<GithubClaim> => {
   const response = await fetch(`${backendUrl}/api/v1/airdrop/github/${code}`, {
     method: "GET",
+    headers: {
+      "x-airdrop-secret": "header",
+    },
   });
   const json = await response.json();
 
@@ -67,6 +69,9 @@ const checkClaim = async (
     `${backendUrl}/api/v1/airdrop/${type}/${address}`,
     {
       method: "GET",
+      headers: {
+        "x-airdrop-secret": "header",
+      },
     }
   );
   return response.json();
@@ -263,8 +268,9 @@ export const Main: React.FC = () => {
                 Osmosis Wallet
               </Button>
               <Button
-                disabled={true || !isTOSAccepted}
+                disabled={!isTOSAccepted}
                 variant={ButtonVariant.Contained}
+                onClick={() => handleKeplrConnection("badkids", "stargaze-1")}
               >
                 Stargaze Wallet
               </Button>

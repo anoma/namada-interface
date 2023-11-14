@@ -8,6 +8,7 @@ import {
   confirmationAtom,
   claimAtom,
   ClaimResponse,
+  KEPLR_CLAIMS,
 } from "../state";
 import {
   Button,
@@ -57,7 +58,10 @@ const claimWithKeplr = async (
 ): Promise<ClaimResponse> => {
   const response = await fetch(`${backendUrl}/api/v1/airdrop/${type}`, {
     method: "POST",
-    headers: new Headers({ "content-type": "application/json" }),
+    headers: new Headers({
+      "content-type": "application/json",
+      "x-airdrop-secret": "header",
+    }),
     body: JSON.stringify({
       signer_address,
       signer_public_key,
@@ -102,7 +106,7 @@ const claim = (
   } else if (type === "ts") {
     const { publicKey, nonce } = state as TSState;
     return claimWithTS(publicKey, tsSignature, airdropAddress, nonce);
-  } else if (["cosmos", "osmosis", "stargate"].includes(type)) {
+  } else if (KEPLR_CLAIMS.includes(type)) {
     const { signature, address, nonce } = state as KeplrState;
     return claimWithKeplr(
       type,
