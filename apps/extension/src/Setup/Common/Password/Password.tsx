@@ -49,20 +49,21 @@ const Password = ({ onValidPassword }: PasswordProps): JSX.Element => {
     }
   };
 
+  const displayError = zxcvbnFeedback.warning
+    ? zxcvbnFeedback.warning
+    : zxcvbnFeedback.suggestions.map((suggestion: string, index: number) => (
+        <InputFeedback key={`input-feedback-${index}`}>
+          {suggestion}
+        </InputFeedback>
+      ));
+
   return (
     <>
       <Input
         label="Create Extension Password"
         variant={InputVariants.Password}
         value={password}
-        error={zxcvbnFeedback.warning}
-        hint={zxcvbnFeedback.suggestions.map(
-          (suggestion: string, index: number) => (
-            <InputFeedback key={`input-feedback-${index}`}>
-              {suggestion}
-            </InputFeedback>
-          )
-        )}
+        error={displayError}
         placeholder="At least 8 characters"
         onChange={(e) => setPassword(e.target.value)}
         onBlur={() => {
