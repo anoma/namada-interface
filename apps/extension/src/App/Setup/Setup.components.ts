@@ -6,4 +6,5 @@ export const SetupContainer = styled.div`
   flex-direction: column;
   flex: 1;
   justify-content: space-between;
+  min-height: 300px;
 `;

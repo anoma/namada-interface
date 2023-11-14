@@ -21,6 +21,7 @@ export enum KVPrefix {
   Utility = "Namada::Utility",
   ConnectedTabs = "Namada::ConnectedTabs",
   RevealedPK = "Namada::RevealedPK",
+  SessionStorage = "Namada::SessionStorage",
 }
 
 export enum KVKeys {

@@ -24,6 +24,9 @@ export enum IconName {
   Warning,
   Checked,
   ThreeDotsVertical,
+  TwitterX,
+  Discord,
+  QuestionMark,
 }
 
 export enum IconSize {

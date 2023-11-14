@@ -4,8 +4,9 @@ import {
   Icon,
   IconName,
   IconSize,
+  Stack,
+  SeedPhraseInstructions,
 } from "@namada/components";
-import { SeedPhraseInstructions } from "Setup/Common";
 import { HeaderContainer } from "Setup/Setup.components";
 import {
   IconContainer,
@@ -27,22 +28,25 @@ const SeedPhraseWarning = ({
           New Seed Phrase
         </Heading>
       </HeaderContainer>
-      <WarningPanel>
-        <IconContainer>
-          <Icon
-            iconName={IconName.Warning}
-            iconSize={IconSize.Full}
-            strokeColorOverride="transparent"
-          />
-        </IconContainer>
-      </WarningPanel>
-
-      <SeedPhraseInstructions />
-      <PageFooter>
-        <ActionButton onClick={onComplete}>
-          I understood, show my phrase
-        </ActionButton>
-      </PageFooter>
+      <Stack gap={3}>
+        <WarningPanel>
+          <IconContainer>
+            <Icon
+              iconName={IconName.Warning}
+              iconSize={IconSize.Full}
+              strokeColorOverride="transparent"
+            />
+          </IconContainer>
+        </WarningPanel>
+        <Stack gap={8}>
+          <SeedPhraseInstructions />
+          <PageFooter>
+            <ActionButton onClick={onComplete}>
+              I understood, show my phrase
+            </ActionButton>
+          </PageFooter>
+        </Stack>
+      </Stack>
     </>
   );
 };

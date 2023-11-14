@@ -1,26 +1,18 @@
-import { Alert, Container } from "@namada/components";
+import { Container } from "@namada/components";
 import { getTheme } from "@namada/utils";
-import { AccountContext } from "context";
-import { useSystemLock } from "hooks/useSystemLock";
-import { useContext } from "react";
+import { useVaultContext } from "context/VaultContext";
 import { matchPath, useLocation } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 import { AppContent } from "./AppContent";
 import { AppHeader } from "./Common/AppHeader";
 import { Login } from "./Login";
 import routes from "./routes";
-import { LoadingStatus } from "./types";
 
 export const App: React.FC = () => {
   const theme = getTheme("dark");
   const location = useLocation();
 
-  const { isLocked, unlock, lock } = useSystemLock();
-  const {
-    accounts,
-    status: accountLoadingStatus,
-    error,
-  } = useContext(AccountContext);
+  const { isLocked, unlock, passwordInitialized } = useVaultContext();
 
   const displayReturnButton = (): boolean => {
     const setupRoute = routes.setup();
@@ -33,27 +25,21 @@ export const App: React.FC = () => {
     );
   };
 
-  const accountLoadingComplete =
-    accountLoadingStatus === LoadingStatus.Completed;
-
-  const userHasAccounts = accountLoadingComplete && accounts.length > 0;
-
-  const shouldDisplayAppContent =
-    (accountLoadingComplete && !userHasAccounts) || isLocked === false;
+  const shouldLock = passwordInitialized && isLocked;
+  if (passwordInitialized === undefined) return null;
 
   return (
     <ThemeProvider theme={theme}>
       <Container
         size="popup"
-        header={<AppHeader returnButton={displayReturnButton()} />}
+        header={
+          <AppHeader
+            settingsButton={!isLocked}
+            returnButton={displayReturnButton()}
+          />
+        }
       >
-        {error && (
-          <Alert title="Error" type="error">
-            {error}
-          </Alert>
-        )}
-        {isLocked && userHasAccounts && <Login onLogin={unlock} />}
-        {shouldDisplayAppContent && <AppContent onLockApp={lock} />}
+        {shouldLock ? <Login onLogin={unlock} /> : <AppContent />}
       </Container>
     </ThemeProvider>
   );

@@ -7,7 +7,6 @@ import {
   GapPatterns,
   Heading,
   KeyListItem,
-  LinkButton,
   Stack,
   Text,
 } from "@namada/components";
@@ -15,19 +14,15 @@ import { DerivedAccount } from "@namada/types";
 import routes from "App/routes";
 import { ParentAccount } from "background/keyring";
 import { AccountContext } from "context";
+import { useVaultContext } from "context/VaultContext";
 import { SettingsHeader } from "./ParentAccounts.components";
-
-type ParentAccountsProps = {
-  onLockApp: () => void;
-};
 
 /**
  * Represents the extension's settings page.
  */
-export const ParentAccounts = ({
-  onLockApp,
-}: ParentAccountsProps): JSX.Element => {
+export const ParentAccounts = (): JSX.Element => {
   const navigate = useNavigate();
+  const { lock } = useVaultContext();
   const { activeAccountId, parentAccounts, changeActiveAccountId } =
     useContext(AccountContext);
 
@@ -45,8 +40,12 @@ export const ParentAccounts = ({
     navigate(routes.deleteAccount(account.id), { state: { account } });
   };
 
-  const goToConnectedSites = (): void => {
-    navigate(routes.connectedSites());
+  const goToViewRecoveryPhrase = (account: DerivedAccount): void => {
+    navigate(routes.viewAccountMnemonic(account.id));
+  };
+
+  const goToRenameAccount = (account: DerivedAccount): void => {
+    navigate(routes.renameAccount(account.id), { state: { account } });
   };
 
   return (
@@ -65,10 +64,12 @@ export const ParentAccounts = ({
               key={`key-listitem-${account.id}`}
               as="li"
               alias={account.alias}
+              type={account.type}
               isMainKey={activeAccountId === account.id}
-              onRename={() => {}}
+              onRename={() => goToRenameAccount(account)}
               onDelete={() => goToDeletePage(account)}
               onViewAccount={() => goToViewAccount(account)}
+              onViewRecoveryPhrase={() => goToViewRecoveryPhrase(account)}
               onSelectAccount={() => {
                 changeActiveAccountId(
                   account.id,
@@ -78,22 +79,9 @@ export const ParentAccounts = ({
             />
           ))}
         </Stack>
-        <ActionButton
-          onClick={goToConnectedSites}
-          variant="secondary"
-          size="sm"
-        >
-          View Connected Sites
-        </ActionButton>
-        <ActionButton
-          onClick={() => navigate(routes.changePassword())}
-          size="sm"
-        >
-          Change password
-        </ActionButton>
-        <LinkButton onClick={onLockApp} size="sm">
+        <ActionButton onClick={() => lock()} variant="secondary" size="sm">
           Lock Wallet
-        </LinkButton>
+        </ActionButton>
       </Stack>
     </Stack>
   );

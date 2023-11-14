@@ -1,7 +1,7 @@
 import { KVPrefix } from "router";
 import { KVStoreMock } from "test/init";
 import { VaultService } from "../service";
-import { VaultStore } from "../types";
+import { SessionPassword, VaultStore } from "../types";
 import { Result } from "@namada/utils";
 
 /* eslint-disable @typescript-eslint/no-var-requires */
@@ -20,24 +20,33 @@ describe("Testing untouched Vault Service", () => {
 
   beforeEach(async () => {
     const iDBStore = new KVStoreMock<VaultStore>(KVPrefix.IndexedDB);
-    service = new VaultService(iDBStore, cryptoMemory);
+    const sessionStore = new KVStoreMock<SessionPassword>(
+      KVPrefix.SessionStorage
+    );
+    service = new VaultService(iDBStore, sessionStore, cryptoMemory);
     await service.createPassword(password);
   });
 
   it("Should lock and unlock extension properly", async () => {
+    // Should be unlocked after password creation
+    expect(await service.isLocked()).toBeFalsy();
+
     await service.lock();
-    expect(service.isLocked()).toBeTruthy();
-    expect(() => service.assertIsUnlocked()).toThrow();
+    expect(await service.isLocked()).toBeTruthy();
+    await expect(service.assertIsUnlocked()).rejects.toThrow();
     await service.unlock(password);
-    expect(service.isLocked()).toBeFalsy();
+    expect(await service.isLocked()).toBeFalsy();
     expect(await service.checkPassword(password)).toBeTruthy();
+    expect(await service.UNSAFE_getPassword()).toEqual(
+      await service.hashPassword(password)
+    );
   });
 
   it("Should encrypt and decrypt message correctly", async () => {
     const publicData = "public data";
     const sensitiveData = secretText;
 
-    service.assertIsUnlocked();
+    await service.assertIsUnlocked();
     await service.add<VaultPublicValue, VaultSensitiveValue>(
       keyString,
       {
@@ -76,7 +85,7 @@ describe("Testing untouched Vault Service", () => {
   };
 
   it("Should manage data correctly", async () => {
-    service.assertIsUnlocked();
+    await service.assertIsUnlocked();
     const data = await addFakeData();
 
     expect(await service.getLength(keyString)).toBe(data.length);
@@ -105,7 +114,7 @@ describe("Testing untouched Vault Service", () => {
   });
 
   it("Should re-encrypt data correctly", async () => {
-    service.assertIsUnlocked();
+    await service.assertIsUnlocked();
     await addFakeData();
 
     const newPassword = "321bar";

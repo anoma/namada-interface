@@ -1,3 +1,6 @@
+import React, { useState } from "react";
+import zxcvbn from "zxcvbn";
+
 import {
   ActionButton,
   Alert,
@@ -7,12 +10,8 @@ import {
   InputVariants,
   Stack,
 } from "@namada/components";
-import React, { useState } from "react";
-import zxcvbn from "zxcvbn";
-
-import { ResetPasswordError, ResetPasswordMsg } from "background/vault";
-import { useRequester } from "hooks/useRequester";
-import { Ports } from "router";
+import { ResetPasswordError } from "background/vault";
+import { useVaultContext } from "context";
 
 enum Status {
   Unsubmitted,
@@ -28,12 +27,12 @@ type ResetPasswordProps = {
 export const ChangePassword = ({
   onComplete,
 }: ResetPasswordProps): JSX.Element => {
-  const requester = useRequester();
-  const [currentPassword, setCurrentPassword] = useState("");
+  const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [status, setStatus] = useState<Status>(Status.Unsubmitted);
   const [errorMessage, setErrorMessage] = useState("");
+  const { changePassword } = useVaultContext();
   const { feedback } = zxcvbn(newPassword);
 
   const hasFeedback =
@@ -42,7 +41,7 @@ export const ChangePassword = ({
 
   const shouldDisableSubmit =
     status === Status.Pending ||
-    !currentPassword ||
+    !oldPassword ||
     !newPassword ||
     !match ||
     (process.env.NODE_ENV !== "development" && hasFeedback);
@@ -53,11 +52,7 @@ export const ChangePassword = ({
     setErrorMessage("");
 
     try {
-      const result = await requester.sendMessage(
-        Ports.Background,
-        new ResetPasswordMsg(currentPassword, newPassword)
-      );
-
+      const result = await changePassword(oldPassword, newPassword);
       if (result.ok) {
         setStatus(Status.Complete);
         onComplete();
@@ -85,8 +80,8 @@ export const ChangePassword = ({
           label="Current password"
           variant={InputVariants.Password}
           type="password"
-          value={currentPassword}
-          onChange={(e) => setCurrentPassword(e.target.value)}
+          value={oldPassword}
+          onChange={(e) => setOldPassword(e.target.value)}
         />
         <Input
           label="New Password"

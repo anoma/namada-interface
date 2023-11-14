@@ -148,12 +148,33 @@ export class KeyRing {
     return accountStore;
   }
 
+  public async revealMnemonic(accountId: string): Promise<string> {
+    const account = await this.vaultService.findOneOrFail<AccountStore>(
+      KEYSTORE_KEY,
+      "id",
+      accountId
+    );
+
+    if (account.public.type !== AccountType.Mnemonic) {
+      throw new Error("Account should have be created using a mnemonic test.");
+    }
+
+    const sensitiveData =
+      await this.vaultService.reveal<SensitiveAccountStoreData>(account);
+
+    if (!sensitiveData) {
+      return "";
+    }
+
+    return sensitiveData.text;
+  }
+
   // Store validated mnemonic
   public async storeMnemonic(
     mnemonic: string[],
     alias: string
   ): Promise<AccountStore | false> {
-    this.vaultService.assertIsUnlocked();
+    await this.vaultService.assertIsUnlocked();
     const phrase = mnemonic.join(" ");
     try {
       const mnemonic = Mnemonic.from_phrase(phrase);
@@ -205,7 +226,7 @@ export class KeyRing {
       this.sdk.clear_storage();
       await this.addSecretKey(
         sk,
-        this.vaultService.UNSAFE_getPassword(),
+        await this.vaultService.UNSAFE_getPassword(),
         alias,
         id
       );
@@ -452,7 +473,7 @@ export class KeyRing {
     type: AccountType,
     alias: string
   ): Promise<DerivedAccount> {
-    this.vaultService.assertIsUnlocked();
+    await this.vaultService.assertIsUnlocked();
 
     if (type !== AccountType.PrivateKey && type !== AccountType.ShieldedKeys) {
       throw new Error("Unsupported account type");
@@ -480,7 +501,7 @@ export class KeyRing {
 
     await addSecretFn(
       info.text,
-      this.vaultService.UNSAFE_getPassword(),
+      await this.vaultService.UNSAFE_getPassword(),
       alias,
       parentId
     );
@@ -558,12 +579,12 @@ export class KeyRing {
   }
 
   async submitBond(bondMsg: Uint8Array, txMsg: Uint8Array): Promise<void> {
-    this.vaultService.assertIsUnlocked();
+    await this.vaultService.assertIsUnlocked();
     try {
       const builtTx = await this.sdk.build_bond(
         bondMsg,
         txMsg,
-        this.vaultService.UNSAFE_getPassword()
+        await this.vaultService.UNSAFE_getPassword()
       );
       const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
@@ -573,12 +594,12 @@ export class KeyRing {
   }
 
   async submitUnbond(unbondMsg: Uint8Array, txMsg: Uint8Array): Promise<void> {
-    this.vaultService.assertIsUnlocked();
+    await this.vaultService.assertIsUnlocked();
     try {
       const builtTx = await this.sdk.build_unbond(
         unbondMsg,
         txMsg,
-        this.vaultService.UNSAFE_getPassword()
+        await this.vaultService.UNSAFE_getPassword()
       );
       const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
@@ -591,12 +612,12 @@ export class KeyRing {
     withdrawMsg: Uint8Array,
     txMsg: Uint8Array
   ): Promise<void> {
-    this.vaultService.assertIsUnlocked();
+    await this.vaultService.assertIsUnlocked();
     try {
       const builtTx = await this.sdk.build_withdraw(
         withdrawMsg,
         txMsg,
-        this.vaultService.UNSAFE_getPassword()
+        await this.vaultService.UNSAFE_getPassword()
       );
       const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
@@ -609,12 +630,12 @@ export class KeyRing {
     voteProposalMsg: Uint8Array,
     txMsg: Uint8Array
   ): Promise<void> {
-    this.vaultService.assertIsUnlocked();
+    await this.vaultService.assertIsUnlocked();
     try {
       const builtTx = await this.sdk.build_vote_proposal(
         voteProposalMsg,
         txMsg,
-        this.vaultService.UNSAFE_getPassword()
+        await this.vaultService.UNSAFE_getPassword()
       );
       const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
@@ -627,7 +648,7 @@ export class KeyRing {
     transferMsg: Uint8Array,
     submit: (password: string, xsk?: string) => Promise<void>
   ): Promise<void> {
-    this.vaultService.assertIsUnlocked();
+    await this.vaultService.assertIsUnlocked();
 
     // We need to get the source address in case it is shielded one, so we can
     // decrypt the extended spending key for a transfer.
@@ -656,19 +677,22 @@ export class KeyRing {
         ? JSON.parse(sensitiveProps.text).spendingKey
         : undefined;
 
-    await submit(this.vaultService.UNSAFE_getPassword(), extendedSpendingKey);
+    await submit(
+      await this.vaultService.UNSAFE_getPassword(),
+      extendedSpendingKey
+    );
   }
 
   async submitIbcTransfer(
     ibcTransferMsg: Uint8Array,
     txMsg: Uint8Array
   ): Promise<void> {
-    this.vaultService.assertIsUnlocked();
+    await this.vaultService.assertIsUnlocked();
     try {
       const builtTx = await this.sdk.build_ibc_transfer(
         ibcTransferMsg,
         txMsg,
-        this.vaultService.UNSAFE_getPassword()
+        await this.vaultService.UNSAFE_getPassword()
       );
       const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
@@ -681,18 +705,32 @@ export class KeyRing {
     ethBridgeTransferMsg: Uint8Array,
     txMsg: Uint8Array
   ): Promise<void> {
-    this.vaultService.assertIsUnlocked();
+    await this.vaultService.assertIsUnlocked();
     try {
       const builtTx = await this.sdk.build_eth_bridge_transfer(
         ethBridgeTransferMsg,
         txMsg,
-        this.vaultService.UNSAFE_getPassword()
+        await this.vaultService.UNSAFE_getPassword()
       );
       const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
     } catch (e) {
       throw new Error(`Could not submit submit_eth_bridge_transfer tx: ${e}`);
     }
+  }
+
+  async renameAccount(
+    accountId: string,
+    alias: string
+  ): Promise<DerivedAccount> {
+    return await this.vaultService.update<DerivedAccount>(
+      KEYSTORE_KEY,
+      "id",
+      accountId,
+      {
+        alias,
+      }
+    );
   }
 
   async deleteAccount(

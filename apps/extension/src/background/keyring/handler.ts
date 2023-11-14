@@ -15,11 +15,13 @@ import {
   GetActiveAccountMsg,
   QueryParentAccountsMsg,
   QueryPublicKeyMsg,
+  RevealAccountMnemonicMsg,
   SaveMnemonicMsg,
   ScanAccountsMsg,
   SetActiveAccountMsg,
   TransferCompletedEvent,
   ValidateMnemonicMsg,
+  RenameAccountMsg,
 } from "./messages";
 import { KeyRingService } from "./service";
 
@@ -32,6 +34,11 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleGenerateMnemonicMsg(service)(
           env,
           msg as GenerateMnemonicMsg
+        );
+      case RevealAccountMnemonicMsg:
+        return handleRevealAccountMnemonicMsg(service)(
+          env,
+          msg as RevealAccountMnemonicMsg
         );
       case ValidateMnemonicMsg:
         return handleValidateMnemonicMsg(service)(
@@ -73,6 +80,8 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
           env,
           msg as TransferCompletedEvent
         );
+      case RenameAccountMsg:
+        return handleRenameAccountMsg(service)(env, msg as RenameAccountMsg);
       case DeleteAccountMsg:
         return handleDeleteAccountMsg(service)(env, msg as DeleteAccountMsg);
       case FetchAndStoreMaspParamsMsg:
@@ -130,6 +139,14 @@ const handleGenerateMnemonicMsg: (
   };
 };
 
+const handleRevealAccountMnemonicMsg: (
+  service: KeyRingService
+) => InternalHandler<RevealAccountMnemonicMsg> = (service) => {
+  return async (_, msg) => {
+    return await service.revealAccountMnemonic(msg.accountId);
+  };
+};
+
 const handleValidateMnemonicMsg: (
   service: KeyRingService
 ) => InternalHandler<ValidateMnemonicMsg> = (service) => {
@@ -147,6 +164,15 @@ const handleSaveMnemonicMsg: (
       return await service.saveMnemonic(words, alias);
     }
     return false;
+  };
+};
+
+const handleRenameAccountMsg: (
+  service: KeyRingService
+) => InternalHandler<RenameAccountMsg> = (service) => {
+  return async (_, msg) => {
+    const { accountId, alias } = msg;
+    return await service.renameAccount(accountId, alias);
   };
 };
 
