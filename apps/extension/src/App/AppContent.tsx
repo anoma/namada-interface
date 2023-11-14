@@ -123,6 +123,7 @@ export const AppContent = (): JSX.Element => {
       )}
 
       <Routes>
+        <Route path={"/"} element={<></>} />
         <Route path={routes.setup()} element={<Setup />} />
         <Route path={routes.connectedSites()} element={<ConnectedSites />} />
         <Route
