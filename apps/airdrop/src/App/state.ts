@@ -14,7 +14,8 @@ export type Signature = {
 };
 
 // State
-export type KeplrClaimType = "cosmos" | "osmosis" | "stargaze";
+export const KEPLR_CLAIMS = ["cosmos", "osmosis", "badkids"] as const;
+export type KeplrClaimType = (typeof KEPLR_CLAIMS)[number];
 export type ClaimType = "github" | "ts" | KeplrClaimType;
 
 export type GithubState = {
