@@ -27,13 +27,16 @@ export const ContainerHeader = ({
       )}
       {totalSteps > 0 && (
         <>
-          <ReturnIcon onClick={() => navigate(-1)}>
-            <Icon
-              strokeColorOverride="currentColor"
-              fillColorOverride="currentColor"
-              iconName={IconName.ArrowLeft}
-            />
-          </ReturnIcon>
+          {/* Don't show return button in the last step */}
+          {currentStep < totalSteps && (
+            <ReturnIcon onClick={() => navigate(-1)}>
+              <Icon
+                strokeColorOverride="currentColor"
+                fillColorOverride="currentColor"
+                iconName={IconName.ArrowLeft}
+              />
+            </ReturnIcon>
+          )}
           <ProgressIndicator
             keyName="setup"
             totalSteps={totalSteps}
