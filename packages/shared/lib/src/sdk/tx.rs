@@ -8,8 +8,8 @@ use namada::{
         address::Address,
         chain::ChainId,
         ethereum_events::EthAddress,
-        key::common::PublicKey as PK,
-        key::ed25519::PublicKey,
+        // key::common::PublicKey as PK,
+        // key::ed25519::PublicKey,
         masp::{ExtendedSpendingKey, PaymentAddress, TransferSource, TransferTarget},
         token::{Amount, DenominatedAmount, NATIVE_MAX_DECIMAL_PLACES},
         transaction::GasLimit,
@@ -24,7 +24,6 @@ pub struct TxMsg {
     gas_limit: String,
     chain_id: String,
     public_key: Option<String>,
-    signer: Option<String>,
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -50,7 +49,7 @@ pub fn bond_tx_args(
     bond_msg: &[u8],
     tx_msg: &[u8],
     password: Option<String>,
-) -> Result<(args::Bond, Option<Address>), JsError> {
+) -> Result<args::Bond, JsError> {
     let bond_msg = SubmitBondMsg::try_from_slice(bond_msg)?;
 
     let SubmitBondMsg {
@@ -64,7 +63,7 @@ pub fn bond_tx_args(
     let native_token = Address::from_str(&native_token)?;
     let validator = Address::from_str(&validator)?;
     let amount = Amount::from_str(&amount, NATIVE_MAX_DECIMAL_PLACES)?;
-    let (tx, faucet_signer) = tx_msg_into_args(tx_msg, password)?;
+    let tx = tx_msg_into_args(tx_msg, password)?;
 
     let args = args::Bond {
         tx,
@@ -75,7 +74,7 @@ pub fn bond_tx_args(
         tx_code_path: PathBuf::from("tx_bond.wasm"),
     };
 
-    Ok((args, faucet_signer))
+    Ok(args)
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -100,7 +99,7 @@ pub fn unbond_tx_args(
     unbond_msg: &[u8],
     tx_msg: &[u8],
     password: Option<String>,
-) -> Result<(args::Unbond, Option<Address>), JsError> {
+) -> Result<args::Unbond, JsError> {
     let unbond_msg = SubmitUnbondMsg::try_from_slice(unbond_msg)?;
 
     let SubmitUnbondMsg {
@@ -113,7 +112,7 @@ pub fn unbond_tx_args(
     let validator = Address::from_str(&validator)?;
 
     let amount = Amount::from_str(&amount, NATIVE_MAX_DECIMAL_PLACES)?;
-    let (tx, faucet_signer) = tx_msg_into_args(tx_msg, password)?;
+    let tx = tx_msg_into_args(tx_msg, password)?;
 
     let args = args::Unbond {
         tx,
@@ -123,7 +122,7 @@ pub fn unbond_tx_args(
         tx_code_path: PathBuf::from("tx_unbond.wasm"),
     };
 
-    Ok((args, faucet_signer))
+    Ok(args)
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -147,14 +146,14 @@ pub fn withdraw_tx_args(
     withdraw_msg: &[u8],
     tx_msg: &[u8],
     password: Option<String>,
-) -> Result<(args::Withdraw, Option<Address>), JsError> {
+) -> Result<args::Withdraw, JsError> {
     let withdraw_msg = SubmitWithdrawMsg::try_from_slice(withdraw_msg)?;
 
     let SubmitWithdrawMsg { source, validator } = withdraw_msg;
 
     let source = Address::from_str(&source)?;
     let validator = Address::from_str(&validator)?;
-    let (tx, faucet_signer) = tx_msg_into_args(tx_msg, password)?;
+    let tx = tx_msg_into_args(tx_msg, password)?;
 
     let args = args::Withdraw {
         tx,
@@ -163,7 +162,7 @@ pub fn withdraw_tx_args(
         tx_code_path: PathBuf::from("tx_withdraw.wasm"),
     };
 
-    Ok((args, faucet_signer))
+    Ok(args)
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -188,7 +187,7 @@ pub fn vote_proposal_tx_args(
     vote_proposal_msg: &[u8],
     tx_msg: &[u8],
     password: Option<String>,
-) -> Result<(args::VoteProposal, Option<Address>), JsError> {
+) -> Result<args::VoteProposal, JsError> {
     let vote_proposal_msg = SubmitVoteProposalMsg::try_from_slice(vote_proposal_msg)?;
 
     let SubmitVoteProposalMsg {
@@ -196,7 +195,7 @@ pub fn vote_proposal_tx_args(
         proposal_id,
         vote,
     } = vote_proposal_msg;
-    let (tx, faucet_signer) = tx_msg_into_args(tx_msg, password)?;
+    let tx = tx_msg_into_args(tx_msg, password)?;
     let voter = Address::from_str(&signer)?;
 
     let args = args::VoteProposal {
@@ -209,7 +208,7 @@ pub fn vote_proposal_tx_args(
         tx_code_path: PathBuf::from("tx_vote_proposal.wasm"),
     };
 
-    Ok((args, faucet_signer))
+    Ok(args)
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -237,7 +236,7 @@ pub fn transfer_tx_args(
     tx_msg: &[u8],
     password: Option<String>,
     xsk: Option<String>,
-) -> Result<(args::TxTransfer, Option<Address>), JsError> {
+) -> Result<args::TxTransfer, JsError> {
     let transfer_msg = SubmitTransferMsg::try_from_slice(transfer_msg)?;
     let SubmitTransferMsg {
         source,
@@ -275,7 +274,7 @@ pub fn transfer_tx_args(
     let token = Address::from_str(&token)?;
     let denom_amount = DenominatedAmount::from_str(&amount).expect("Amount to be valid.");
     let amount = InputAmount::Unvalidated(denom_amount);
-    let (tx, faucet_signer) = tx_msg_into_args(tx_msg, password)?;
+    let tx = tx_msg_into_args(tx_msg, password)?;
 
     let args = args::TxTransfer {
         tx,
@@ -287,7 +286,7 @@ pub fn transfer_tx_args(
         tx_code_path: PathBuf::from("tx_transfer.wasm"),
     };
 
-    Ok((args, faucet_signer))
+    Ok(args)
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -317,7 +316,7 @@ pub fn ibc_transfer_tx_args(
     ibc_transfer_msg: &[u8],
     tx_msg: &[u8],
     password: Option<String>,
-) -> Result<(args::TxIbcTransfer, Option<Address>), JsError> {
+) -> Result<args::TxIbcTransfer, JsError> {
     let ibc_transfer_msg = SubmitIbcTransferMsg::try_from_slice(ibc_transfer_msg)?;
     let SubmitIbcTransferMsg {
         source,
@@ -336,7 +335,7 @@ pub fn ibc_transfer_tx_args(
     let amount = InputAmount::Unvalidated(denom_amount);
     let port_id = PortId::from_str(&port_id).expect("Port id to be valid");
     let channel_id = ChannelId::from_str(&channel_id).expect("Channel id to be valid");
-    let (tx, faucet_signer) = tx_msg_into_args(tx_msg, password)?;
+    let tx = tx_msg_into_args(tx_msg, password)?;
 
     let args = args::TxIbcTransfer {
         tx,
@@ -352,7 +351,7 @@ pub fn ibc_transfer_tx_args(
         tx_code_path: PathBuf::from("tx_ibc.wasm"),
     };
 
-    Ok((args, faucet_signer))
+    Ok(args)
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -371,7 +370,7 @@ pub fn eth_bridge_transfer_tx_args(
     eth_bridge_transfer_msg: &[u8],
     tx_msg: &[u8],
     password: Option<String>,
-) -> Result<(args::EthereumBridgePool, Option<Address>), JsError> {
+) -> Result<args::EthereumBridgePool, JsError> {
     let eth_bridge_transfer_msg =
         SubmitEthBridgeTransferMsg::try_from_slice(eth_bridge_transfer_msg)?;
     let SubmitEthBridgeTransferMsg {
@@ -385,7 +384,7 @@ pub fn eth_bridge_transfer_tx_args(
         fee_token,
     } = eth_bridge_transfer_msg;
 
-    let (tx, faucet_signer) = tx_msg_into_args(tx_msg, password)?;
+    let tx = tx_msg_into_args(tx_msg, password)?;
     let asset = EthAddress::from_str(&asset).map_err(|e| JsError::new(&format!("{}", e)))?;
     let recipient =
         EthAddress::from_str(&recipient).map_err(|e| JsError::new(&format!("{}", e)))?;
@@ -411,11 +410,11 @@ pub fn eth_bridge_transfer_tx_args(
         code_path,
     };
 
-    Ok((args, faucet_signer))
+    Ok(args)
 }
 
 pub fn tx_args_from_slice(tx_msg_bytes: &[u8]) -> Result<args::Tx, JsError> {
-    let (args, _) = tx_msg_into_args(tx_msg_bytes, None)?;
+    let args = tx_msg_into_args(tx_msg_bytes, None)?;
 
     Ok(args)
 }
@@ -431,18 +430,14 @@ pub fn tx_args_from_slice(tx_msg_bytes: &[u8]) -> Result<args::Tx, JsError> {
 /// # Errors
 ///
 /// Returns JsError if token address is invalid.
-fn tx_msg_into_args(
-    tx_msg: &[u8],
-    password: Option<String>,
-) -> Result<(args::Tx, Option<Address>), JsError> {
+fn tx_msg_into_args(tx_msg: &[u8], password: Option<String>) -> Result<args::Tx, JsError> {
     let tx_msg = TxMsg::try_from_slice(tx_msg)?;
     let TxMsg {
         token,
         fee_amount,
         gas_limit,
         chain_id,
-        public_key,
-        signer,
+        public_key: _,
     } = tx_msg;
 
     let token = Address::from_str(&token)?;
@@ -452,14 +447,13 @@ fn tx_msg_into_args(
     let fee_input_amount = InputAmount::Unvalidated(fee_amount);
 
     let password = password.map(|pwd| zeroize::Zeroizing::new(pwd));
-    let public_key = match public_key {
-        Some(v) => {
-            let pk = PublicKey::from_str(&v)?;
-            Some(PK::Ed25519(pk))
-        }
-        _ => None,
-    };
-    let signer = signer.map(|v| Address::from_str(&v).ok()).flatten();
+    // let public_key = match public_key {
+    //     Some(v) => {
+    //         let pk = PublicKey::from_str(&v)?;
+    //         Some(PK::Ed25519(pk))
+    //     }
+    //     _ => None,
+    // };
 
     let args = args::Tx {
         dry_run: false,
@@ -482,9 +476,10 @@ fn tx_msg_into_args(
         signatures: vec![],
         signing_keys: vec![],
         tx_reveal_code_path: PathBuf::from("tx_reveal_pk.wasm"),
-        verification_key: public_key,
+        use_device: false,
+        verification_key: None,
         password,
     };
 
-    Ok((args, signer))
+    Ok(args)
 }

@@ -24,13 +24,12 @@ gloo-utils = { version = "0.1.5", features = ["serde"] }
 js-sys = "0.3.60"
 masp_primitives = { git = "https://github.com/anoma/masp", rev = "77e009626f3f52fe83c81ec6ee38fc2547d38da3" }
 masp_proofs = { git = "https://github.com/anoma/masp", rev = "77e009626f3f52fe83c81ec6ee38fc2547d38da3", default-features = false, features = ["local-prover"] }
-# namada = { git = "https://github.com/anoma/namada", version = "0.25.0", default-features = false, features = ["abciplus", "namada-sdk"] }
-namada = { git = "https://github.com/anoma/namada", rev = "3b632b0261175e90d08e60a37e5b531deb9d8aed", default-features = false, features = ["abciplus", "namada-sdk"] }
+namada = { git = "https://github.com/anoma/namada", version = "0.26.0", default-features = false, features = ["namada-sdk"] }
 proc-macro2 = "1.0.60"
 prost = "0.9.0"
 prost-types = "0.9.0"
 rand = "0.8.5"
-serde = "1.0.144"
+serde = "^1.0.181"
 serde_json = "1.0"
 thiserror = "^1"
 wasm-bindgen = "0.2.86"

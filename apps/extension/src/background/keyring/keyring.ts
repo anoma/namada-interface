@@ -1,5 +1,3 @@
-import BigNumber from "bignumber.js";
-
 import { deserialize } from "@dao-xyz/borsh";
 
 import { chains } from "@namada/chains";
@@ -75,7 +73,7 @@ export class KeyRing {
     protected readonly sdk: Sdk,
     protected readonly query: Query,
     protected readonly cryptoMemory: WebAssembly.Memory
-  ) { }
+  ) {}
 
   public get status(): KeyRingStatus {
     return this._status;
@@ -312,58 +310,58 @@ export class KeyRing {
     };
   }
 
-  private async *getAddressWithBalance(
-    seed: VecU8Pointer,
-    parentId: string,
-    type: AccountType
-  ): AsyncGenerator<
-    {
-      path: Bip44Path;
-      info: DerivedAccountInfo;
-    },
-    void,
-    void
-  > {
-    let index = 0;
-    let emptyBalanceCount = 0;
-    const deriveFn = (
-      type === AccountType.PrivateKey
-        ? this.deriveTransparentAccount
-        : this.deriveShieldedAccount
-    ).bind(this);
-
-    const get = async (
-      index: number
-    ): Promise<{
-      path: Bip44Path;
-      info: DerivedAccountInfo;
-      balances: [string, string][];
-    }> => {
-      // Cloning the seed, otherwise it gets zeroized in deriveTransparentAccount
-      const seedClone = seed.clone();
-      const path = { account: 0, change: 0, index };
-      const accountInfo = deriveFn(seedClone, path, parentId);
-      const balances: [string, string][] = await this.query.query_balance(
-        accountInfo.owner
-      );
-
-      return { path, info: accountInfo, balances };
-    };
-
-    while (index < 999999999 && emptyBalanceCount < 20) {
-      const { path, info, balances } = await get(index++);
-      const hasBalance = balances.some(([, value]) => {
-        return !new BigNumber(value).isZero();
-      });
-
-      if (hasBalance) {
-        emptyBalanceCount = 0;
-        yield { path, info };
-      } else {
-        emptyBalanceCount++;
-      }
-    }
-  }
+  // private async *getAddressWithBalance(
+  //   seed: VecU8Pointer,
+  //   parentId: string,
+  //   type: AccountType
+  // ): AsyncGenerator<
+  //   {
+  //     path: Bip44Path;
+  //     info: DerivedAccountInfo;
+  //   },
+  //   void,
+  //   void
+  // > {
+  //   let index = 0;
+  //   let emptyBalanceCount = 0;
+  //   const deriveFn = (
+  //     type === AccountType.PrivateKey
+  //       ? this.deriveTransparentAccount
+  //       : this.deriveShieldedAccount
+  //   ).bind(this);
+  //
+  //   const get = async (
+  //     index: number
+  //   ): Promise<{
+  //     path: Bip44Path;
+  //     info: DerivedAccountInfo;
+  //     balances: [string, string][];
+  //   }> => {
+  //     // Cloning the seed, otherwise it gets zeroized in deriveTransparentAccount
+  //     const seedClone = seed.clone();
+  //     const path = { account: 0, change: 0, index };
+  //     const accountInfo = deriveFn(seedClone, path, parentId);
+  //     const balances: [string, string][] = await this.query.query_balance(
+  //       accountInfo.owner
+  //     );
+  //
+  //     return { path, info: accountInfo, balances };
+  //   };
+  //
+  //   while (index < 999999999 && emptyBalanceCount < 20) {
+  //     const { path, info, balances } = await get(index++);
+  //     const hasBalance = balances.some(([, value]) => {
+  //       return !new BigNumber(value).isZero();
+  //     });
+  //
+  //     if (hasBalance) {
+  //       emptyBalanceCount = 0;
+  //       yield { path, info };
+  //     } else {
+  //       emptyBalanceCount++;
+  //     }
+  //   }
+  // }
 
   public async scanAddresses(): Promise<void> {
     // if (!this._password) {

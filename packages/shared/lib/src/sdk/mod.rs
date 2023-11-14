@@ -10,21 +10,19 @@ use borsh::BorshDeserialize;
 use namada::ledger::eth_bridge::bridge_pool::build_bridge_pool_tx;
 use namada::namada_sdk::masp::ShieldedContext;
 use namada::namada_sdk::rpc::query_epoch;
-use namada::namada_sdk::signing::{sign_tx, SigningTxData};
+use namada::namada_sdk::signing::{default_sign, sign_tx, SigningTxData};
 use namada::namada_sdk::tx::{
     build_bond, build_ibc_transfer, build_reveal_pk, build_transfer, build_unbond,
     build_vote_proposal, build_withdraw, is_reveal_pk_needed, process_tx,
 };
 
+use self::io::WebIo;
+use self::wallet::BrowserWalletUtils;
 use namada::namada_sdk::wallet::{Store, Wallet};
 use namada::namada_sdk::{Namada, NamadaImpl};
 use namada::types::address::Address;
 use namada::{proto::Tx, types::key::common::PublicKey};
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
-
-use self::io::WebIo;
-use self::wallet::BrowserWalletUtils;
-
 pub mod io;
 pub mod masp;
 mod signature;
@@ -48,7 +46,6 @@ pub enum TxType {
 pub struct BuiltTx {
     tx: Tx,
     signing_data: SigningTxData,
-    is_faucet_transfer: bool,
 }
 
 #[wasm_bindgen]
@@ -146,7 +143,6 @@ impl Sdk {
         let BuiltTx {
             mut tx,
             signing_data,
-            is_faucet_transfer,
         } = built_tx;
 
         let mut args = tx::tx_args_from_slice(tx_msg)?;
@@ -168,13 +164,10 @@ impl Sdk {
 
         let address = Address::from(pk);
         let namada = self.get_namada();
-        let mut wallet = namada.wallet_mut().await;
 
-        let reveal_pk_tx_bytes = if !is_faucet_transfer
-            && is_reveal_pk_needed(namada.client(), &address, false).await?
-        {
+        let reveal_pk_tx_bytes = if is_reveal_pk_needed(namada.client(), &address, false).await? {
             let (mut tx, _, _) = build_reveal_pk(&namada, &args, &pk).await?;
-            sign_tx(&mut wallet, &args, &mut tx, signing_data.clone())?;
+            sign_tx(&namada, &args, &mut tx, signing_data.clone(), default_sign).await?;
 
             borsh::to_vec(&tx)?
         } else {
@@ -182,7 +175,7 @@ impl Sdk {
         };
 
         // Sign tx
-        sign_tx(&mut wallet, &args, &mut tx, signing_data.clone())?;
+        sign_tx(&namada, &args, &mut tx, signing_data.clone(), default_sign).await?;
 
         to_js_result((borsh::to_vec(&tx)?, reveal_pk_tx_bytes))
     }
@@ -297,16 +290,12 @@ impl Sdk {
         xsk: Option<String>,
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let (mut args, faucet_signer) = tx::transfer_tx_args(transfer_msg, tx_msg, password, xsk)?;
+        let mut args = tx::transfer_tx_args(transfer_msg, tx_msg, password, xsk)?;
 
         let namada = self.get_namada();
         let (tx, signing_data, _) = build_transfer(&namada, &mut args).await?;
 
-        Ok(BuiltTx {
-            tx,
-            signing_data,
-            is_faucet_transfer: faucet_signer.is_some(),
-        })
+        Ok(BuiltTx { tx, signing_data })
     }
 
     pub async fn build_ibc_transfer(
@@ -316,16 +305,12 @@ impl Sdk {
         password: Option<String>,
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let (args, faucet_signer) = tx::ibc_transfer_tx_args(ibc_transfer_msg, tx_msg, password)?;
+        let args = tx::ibc_transfer_tx_args(ibc_transfer_msg, tx_msg, password)?;
 
         let namada = self.get_namada();
         let (tx, signing_data, _) = build_ibc_transfer(&namada, &args).await?;
 
-        Ok(BuiltTx {
-            tx,
-            signing_data,
-            is_faucet_transfer: faucet_signer.is_some(),
-        })
+        Ok(BuiltTx { tx, signing_data })
     }
 
     pub async fn build_eth_bridge_transfer(
@@ -335,17 +320,12 @@ impl Sdk {
         password: Option<String>,
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let (args, faucet_signer) =
-            tx::eth_bridge_transfer_tx_args(eth_bridge_transfer_msg, tx_msg, password)?;
+        let args = tx::eth_bridge_transfer_tx_args(eth_bridge_transfer_msg, tx_msg, password)?;
 
         let namada = self.get_namada();
         let (tx, signing_data, _) = build_bridge_pool_tx(&namada, args.clone()).await?;
 
-        Ok(BuiltTx {
-            tx,
-            signing_data,
-            is_faucet_transfer: faucet_signer.is_some(),
-        })
+        Ok(BuiltTx { tx, signing_data })
     }
 
     pub async fn build_vote_proposal(
@@ -355,7 +335,7 @@ impl Sdk {
         password: Option<String>,
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let (args, faucet_signer) = tx::vote_proposal_tx_args(vote_proposal_msg, tx_msg, password)?;
+        let args = tx::vote_proposal_tx_args(vote_proposal_msg, tx_msg, password)?;
         let epoch = query_epoch(&self.client).await?;
         let namada = self.get_namada();
 
@@ -363,11 +343,7 @@ impl Sdk {
             .await
             .map_err(JsError::from)?;
 
-        Ok(BuiltTx {
-            tx,
-            signing_data,
-            is_faucet_transfer: faucet_signer.is_some(),
-        })
+        Ok(BuiltTx { tx, signing_data })
     }
 
     pub async fn build_bond(
@@ -377,16 +353,12 @@ impl Sdk {
         password: Option<String>,
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let (args, faucet_signer) = tx::bond_tx_args(bond_msg, tx_msg, password)?;
+        let args = tx::bond_tx_args(bond_msg, tx_msg, password)?;
 
         let namada = self.get_namada();
         let (tx, signing_data, _) = build_bond(&namada, &args).await?;
 
-        Ok(BuiltTx {
-            tx,
-            signing_data,
-            is_faucet_transfer: faucet_signer.is_some(),
-        })
+        Ok(BuiltTx { tx, signing_data })
     }
 
     pub async fn build_unbond(
@@ -396,16 +368,12 @@ impl Sdk {
         password: Option<String>,
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let (args, faucet_signer) = tx::unbond_tx_args(unbond_msg, tx_msg, password)?;
+        let args = tx::unbond_tx_args(unbond_msg, tx_msg, password)?;
 
         let namada = self.get_namada();
         let (tx, signing_data, _, _) = build_unbond(&namada, &args).await?;
 
-        Ok(BuiltTx {
-            tx,
-            signing_data,
-            is_faucet_transfer: faucet_signer.is_some(),
-        })
+        Ok(BuiltTx { tx, signing_data })
     }
 
     pub async fn build_withdraw(
@@ -415,16 +383,12 @@ impl Sdk {
         password: Option<String>,
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let (args, faucet_signer) = tx::withdraw_tx_args(withdraw_msg, tx_msg, password)?;
+        let args = tx::withdraw_tx_args(withdraw_msg, tx_msg, password)?;
 
         let namada = self.get_namada();
         let (tx, signing_data, _) = build_withdraw(&namada, &args).await?;
 
-        Ok(BuiltTx {
-            tx,
-            signing_data,
-            is_faucet_transfer: faucet_signer.is_some(),
-        })
+        Ok(BuiltTx { tx, signing_data })
     }
 
     async fn build_reveal_pk(&mut self, tx_msg: &[u8], _gas_payer: String) -> Result<Tx, JsError> {

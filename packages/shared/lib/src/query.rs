@@ -471,6 +471,7 @@ impl Query {
                 let is_yay = match vote.data {
                     StorageProposalVote::Yay(_) => true,
                     StorageProposalVote::Nay => false,
+                    StorageProposalVote::Abstain => false,
                 };
                 (vote.delegator, is_yay)
             })
