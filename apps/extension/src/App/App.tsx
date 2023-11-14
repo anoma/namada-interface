@@ -5,6 +5,7 @@ import { matchPath, useLocation } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 import { AppContent } from "./AppContent";
 import { AppHeader } from "./Common/AppHeader";
+import { GlobalStyle } from "./Common/GlobalStyles";
 import { Login } from "./Login";
 import routes from "./routes";
 
@@ -30,6 +31,7 @@ export const App: React.FC = () => {
 
   return (
     <ThemeProvider theme={theme}>
+      <GlobalStyle />
       <Container
         size="popup"
         header={
