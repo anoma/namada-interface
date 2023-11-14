@@ -22,6 +22,9 @@ import { ReactComponent as Warning } from "./assets/warning.svg";
 import { ReactComponent as ArrowLeft } from "./assets/arrow-left.svg";
 import { ReactComponent as Checked } from "./assets/checked.svg";
 import { ReactComponent as ThreeDotsVertical } from "./assets/three-dots-vertical.svg";
+import { ReactComponent as Discord } from "./assets/discord.svg";
+import { ReactComponent as TwitterX } from "./assets/twitter.svg";
+import { ReactComponent as QuestionMark } from "./assets/question.svg";
 
 import { IconName, IconSize } from "./types";
 import { IconContainer, StyledIcon } from "./icon.components";
@@ -62,6 +65,9 @@ const icons: Record<IconName, ComponentType> = {
   [IconName.Warning]: Warning,
   [IconName.Checked]: Checked,
   [IconName.ThreeDotsVertical]: ThreeDotsVertical,
+  [IconName.Discord]: Discord,
+  [IconName.TwitterX]: TwitterX,
+  [IconName.QuestionMark]: QuestionMark,
 };
 
 /**

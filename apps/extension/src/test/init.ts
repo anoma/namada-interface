@@ -20,7 +20,12 @@ import {
   init as initKeyRing,
 } from "../background/keyring";
 
-import { KeyStore, VaultService, VaultStore } from "background/vault";
+import {
+  KeyStore,
+  SessionPassword,
+  VaultService,
+  VaultStore,
+} from "background/vault";
 
 import {
   ApprovalsService,
@@ -70,6 +75,9 @@ export const init = async (): Promise<{
 }> => {
   const messenger = new ExtensionMessengerMock();
   const iDBStore = new KVStoreMock<DBType>(KVPrefix.IndexedDB);
+  const sessionStore = new KVStoreMock<SessionPassword>(
+    KVPrefix.SessionStorage
+  );
   const sdkStore = new KVStoreMock<Record<string, string>>(KVPrefix.SDK);
   const extStore = new KVStoreMock<number>(KVPrefix.IndexedDB);
   const utilityStore = new KVStoreMock<UtilityStore>(KVPrefix.Utility);
@@ -111,6 +119,7 @@ export const init = async (): Promise<{
 
   const vaultService = new VaultService(
     iDBStore as KVStore<KeyStore[]>,
+    sessionStore,
     cryptoMemory
   );
 

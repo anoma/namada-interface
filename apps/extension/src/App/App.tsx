@@ -1,36 +1,23 @@
-import { Alert, Container } from "@namada/components";
-import { formatRouterPath, getTheme } from "@namada/utils";
-import { useAccounts } from "hooks/useAccount";
-import { useSystemLock } from "hooks/useSystemLock";
+import { Container } from "@namada/components";
+import { getTheme } from "@namada/utils";
+import { useVaultContext } from "context/VaultContext";
 import { matchPath, useLocation } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 import { AppContent } from "./AppContent";
 import { AppHeader } from "./Common/AppHeader";
+import { GlobalStyle } from "./Common/GlobalStyles";
 import { Login } from "./Login";
-import { AccountManagementRoute, LoadingStatus, TopLevelRoute } from "./types";
+import routes from "./routes";
 
 export const App: React.FC = () => {
   const theme = getTheme("dark");
   const location = useLocation();
 
-  const { isLocked, unlock, lock } = useSystemLock();
-  const {
-    accounts,
-    parentAccounts,
-    status: accountLoadingStatus,
-    activeAccountId,
-    changeActiveAccountId,
-    error,
-    remove: removeAccount,
-  } = useAccounts();
+  const { isLocked, unlock, passwordInitialized } = useVaultContext();
 
   const displayReturnButton = (): boolean => {
-    const setupRoute = formatRouterPath([TopLevelRoute.Setup]);
-    const indexRoute = formatRouterPath([
-      TopLevelRoute.Accounts,
-      AccountManagementRoute.ViewAccounts,
-    ]);
-
+    const setupRoute = routes.setup();
+    const indexRoute = routes.viewAccountList();
     return Boolean(
       !isLocked &&
         isLocked !== undefined &&
@@ -39,36 +26,22 @@ export const App: React.FC = () => {
     );
   };
 
-  const accountLoadingComplete =
-    accountLoadingStatus === LoadingStatus.Completed;
-
-  const userHasAccounts = accountLoadingComplete && accounts.length > 0;
-
-  const shouldDisplayAppContent =
-    (accountLoadingComplete && !userHasAccounts) || isLocked === false;
+  const shouldLock = passwordInitialized && isLocked;
+  if (passwordInitialized === undefined) return null;
 
   return (
     <ThemeProvider theme={theme}>
+      <GlobalStyle />
       <Container
         size="popup"
-        header={<AppHeader returnButton={displayReturnButton()} />}
-      >
-        {error && (
-          <Alert title="Error" type="error">
-            {error}
-          </Alert>
-        )}
-        {isLocked && userHasAccounts && <Login onLogin={unlock} />}
-        {shouldDisplayAppContent && (
-          <AppContent
-            accounts={accounts}
-            parentAccounts={parentAccounts}
-            activeAccountId={activeAccountId}
-            onChangeActiveAccount={changeActiveAccountId}
-            onDeleteAccount={removeAccount}
-            onLockApp={lock}
+        header={
+          <AppHeader
+            settingsButton={!isLocked}
+            returnButton={displayReturnButton()}
           />
-        )}
+        }
+      >
+        {shouldLock ? <Login onLogin={unlock} /> : <AppContent />}
       </Container>
     </ThemeProvider>
   );

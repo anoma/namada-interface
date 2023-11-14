@@ -50,3 +50,5 @@ export type PrimitiveType = string | number | boolean;
 export interface KeyStore<T = Argon2Params> extends AccountStore {
   crypto: CryptoRecord<T>;
 }
+
+export type SessionPassword = string;

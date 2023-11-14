@@ -87,6 +87,10 @@ export class KeyRingService {
     return this._keyRing.validateMnemonic(phrase);
   }
 
+  async revealAccountMnemonic(accountId: string): Promise<string> {
+    return await this._keyRing.revealMnemonic(accountId);
+  }
+
   async saveMnemonic(
     words: string[],
     alias: string
@@ -409,6 +413,13 @@ export class KeyRingService {
     accountId: string
   ): Promise<Result<null, DeleteAccountError>> {
     return await this._keyRing.deleteAccount(accountId);
+  }
+
+  async renameAccount(
+    accountId: string,
+    alias: string
+  ): Promise<DerivedAccount> {
+    return await this._keyRing.renameAccount(accountId, alias);
   }
 
   async fetchAndStoreMaspParams(): Promise<void> {

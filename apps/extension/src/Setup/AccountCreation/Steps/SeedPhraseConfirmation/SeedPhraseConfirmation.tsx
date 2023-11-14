@@ -1,16 +1,19 @@
 import { useEffect, useState } from "react";
 
-import { ActionButton, Heading, Input, Stack } from "@namada/components";
-import { Password, AccountAlias } from "Setup/Common";
-import { Form, HeaderContainer, Subtitle } from "Setup/Setup.components";
-import { AccountDetails } from "Setup/types";
 import {
-  Footer,
-  VerifyPanelContainer,
-} from "./SeedPhraseConfirmation.components";
-import { useNavigate } from "react-router-dom";
+  ActionButton,
+  GapPatterns,
+  Heading,
+  Input,
+  Stack,
+} from "@namada/components";
 import { formatRouterPath } from "@namada/utils";
 import { TopLevelRoute } from "App/types";
+import { AccountAlias, Password } from "Setup/Common";
+import { HeaderContainer, Subtitle } from "Setup/Setup.components";
+import { AccountDetails } from "Setup/types";
+import { useNavigate } from "react-router-dom";
+import { VerifyPanelContainer } from "./SeedPhraseConfirmation.components";
 
 type SeedPhraseConfirmationProps = {
   seedPhrase: string[];
@@ -98,8 +101,8 @@ const SeedPhraseConfirmation = (
         </Heading>
         <Subtitle>fill out the words according to their numbers</Subtitle>
       </HeaderContainer>
-      <Form onSubmit={onSubmitForm}>
-        <Stack gap={5}>
+      <Stack gap={8} as="form" onSubmit={onSubmitForm}>
+        <Stack gap={GapPatterns.FormFields}>
           <VerifyPanelContainer>
             <Input
               label={`Word #${index1ToConfirm + 1}`}
@@ -135,10 +138,8 @@ const SeedPhraseConfirmation = (
           <AccountAlias value={accountName} onChange={setAccountName} />
           {passwordRequired && <Password onValidPassword={setPassword} />}
         </Stack>
-        <Footer>
-          <ActionButton disabled={notVerified}>Next</ActionButton>
-        </Footer>
-      </Form>
+        <ActionButton disabled={notVerified}>Next</ActionButton>
+      </Stack>
     </>
   );
 };

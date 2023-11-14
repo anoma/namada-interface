@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import { Outlet, Route, Routes, useNavigate } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 
 import { Alert, Stack } from "@namada/components";
 import { DerivedAccount } from "@namada/types";
-import { formatRouterPath } from "@namada/utils";
-import { ParentAccount } from "background/keyring";
+import { useAccountContext, useVaultContext } from "context";
 import { useQuery } from "hooks";
 import { useRequester } from "hooks/useRequester";
 import {
@@ -13,37 +12,27 @@ import {
   HasMaspParamsMsg,
 } from "provider/messages";
 import { Ports } from "router";
-import { DeleteAccount, ViewAccount } from "./Accounts";
+import {
+  DeleteAccount,
+  RenameAccount,
+  ViewAccount,
+  ViewMnemonic,
+} from "./Accounts";
 import { ParentAccounts } from "./Accounts/ParentAccounts";
-import { ChangePassword } from "./Settings/ChangePassword";
 import { ConnectedSites } from "./ConnectedSites";
+import { ChangePassword } from "./Settings/ChangePassword";
 import { Setup } from "./Setup";
-import { AccountManagementRoute, LoadingStatus, TopLevelRoute } from "./types";
+import routes from "./routes";
+import { LoadingStatus } from "./types";
 
 const STORE_DURABILITY_INFO =
   'Store is not durable. This might cause problems when persisting data on disk.\
  To fix this issue, please navigate to "about:config" and set "dom.indexedDB.experimental" to true.';
 
-type AppContentParams = {
-  onLockApp: () => void;
-  accounts: DerivedAccount[];
-  parentAccounts: DerivedAccount[];
-  activeAccountId: string | undefined;
-  onDeleteAccount: (accountId: string) => Promise<void>;
-  onChangeActiveAccount: (
-    accountId: string,
-    accountType: ParentAccount
-  ) => void;
-};
+export const AppContent = (): JSX.Element => {
+  const { accounts, status: accountLoadingStatus } = useAccountContext();
+  const { passwordInitialized } = useVaultContext();
 
-export const AppContent = ({
-  onLockApp,
-  accounts,
-  parentAccounts,
-  activeAccountId,
-  onDeleteAccount,
-  onChangeActiveAccount,
-}: AppContentParams): JSX.Element => {
   const query = useQuery();
   const redirect = query.get("redirect");
   const navigate = useNavigate();
@@ -88,14 +77,7 @@ export const AppContent = ({
   };
 
   const getStartPage = (accounts: DerivedAccount[]): string => {
-    if (accounts.length === 0) {
-      return formatRouterPath([TopLevelRoute.Setup]);
-    } else {
-      return formatRouterPath([
-        TopLevelRoute.Accounts,
-        AccountManagementRoute.ViewAccounts,
-      ]);
-    }
+    return accounts.length === 0 ? routes.setup() : routes.viewAccountList();
   };
 
   useEffect(() => {
@@ -110,8 +92,13 @@ export const AppContent = ({
   }, []);
 
   useEffect(() => {
-    navigate(getStartPage(accounts));
-  }, [accounts, activeAccountId]);
+    if (
+      !passwordInitialized ||
+      accountLoadingStatus === LoadingStatus.Completed
+    ) {
+      navigate(getStartPage(accounts));
+    }
+  }, [accounts, passwordInitialized, accountLoadingStatus]);
 
   useEffect(() => {
     (async () => {
@@ -136,45 +123,31 @@ export const AppContent = ({
       )}
 
       <Routes>
-        <Route path={TopLevelRoute.Setup} element={<Setup />} />
+        <Route path={"/"} element={<></>} />
+        <Route path={routes.setup()} element={<Setup />} />
+        <Route path={routes.connectedSites()} element={<ConnectedSites />} />
         <Route
-          path={TopLevelRoute.ConnectedSites}
-          element={<ConnectedSites />}
-        />
-
-        <Route
-          path={TopLevelRoute.ChangePassword}
+          path={routes.changePassword()}
           element={
             <ChangePassword
               onComplete={() => navigate(getStartPage(accounts))}
             />
           }
         />
-
         {/* Routes that depend on a parent account existing in storage */}
-        {activeAccountId && (
+        {accounts.length > 0 && (
           <>
-            <Route path={TopLevelRoute.Accounts} element={<Outlet />}>
-              <Route
-                path={AccountManagementRoute.ViewAccounts}
-                element={
-                  <ParentAccounts
-                    parentAccounts={parentAccounts}
-                    activeAccountId={activeAccountId}
-                    onLockApp={onLockApp}
-                    onChangeActiveAccount={onChangeActiveAccount}
-                  />
-                }
-              />
-              <Route
-                path={AccountManagementRoute.DeleteAccount}
-                element={<DeleteAccount onDelete={onDeleteAccount} />}
-              />
-              <Route
-                path={AccountManagementRoute.ViewAccount}
-                element={<ViewAccount />}
-              />
-            </Route>
+            <Route path={routes.deleteAccount()} element={<DeleteAccount />} />
+            <Route path={routes.viewAccount()} element={<ViewAccount />} />
+            <Route path={routes.renameAccount()} element={<RenameAccount />} />
+            <Route
+              path={routes.viewAccountMnemonic()}
+              element={<ViewMnemonic />}
+            />
+            <Route
+              path={routes.viewAccountList()}
+              element={<ParentAccounts />}
+            />
           </>
         )}
       </Routes>

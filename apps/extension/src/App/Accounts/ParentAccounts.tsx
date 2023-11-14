@@ -1,4 +1,4 @@
-import React from "react";
+import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import browser from "webextension-polyfill";
 
@@ -7,36 +7,25 @@ import {
   GapPatterns,
   Heading,
   KeyListItem,
-  LinkButton,
   Stack,
   Text,
 } from "@namada/components";
 import { DerivedAccount } from "@namada/types";
-import { formatRouterPath } from "@namada/utils";
+import routes from "App/routes";
 import { ParentAccount } from "background/keyring";
-import { AccountManagementRoute, TopLevelRoute } from "../types";
+import { AccountContext } from "context";
+import { useVaultContext } from "context/VaultContext";
 import { SettingsHeader } from "./ParentAccounts.components";
-
-type ParentAccountsProps = {
-  activeAccountId: string;
-  parentAccounts: DerivedAccount[];
-  onChangeActiveAccount: (
-    accountId: string,
-    accountType: ParentAccount
-  ) => void;
-  onLockApp: () => void;
-};
 
 /**
  * Represents the extension's settings page.
  */
-export const ParentAccounts: React.FC<ParentAccountsProps> = ({
-  activeAccountId,
-  onLockApp,
-  parentAccounts,
-  onChangeActiveAccount,
-}) => {
+export const ParentAccounts = (): JSX.Element => {
   const navigate = useNavigate();
+  const { lock } = useVaultContext();
+  const { activeAccountId, parentAccounts, changeActiveAccountId } =
+    useContext(AccountContext);
+
   const goToSetupPage = (): void => {
     browser.tabs.create({
       url: browser.runtime.getURL("setup.html"),
@@ -44,29 +33,19 @@ export const ParentAccounts: React.FC<ParentAccountsProps> = ({
   };
 
   const goToViewAccount = (account: DerivedAccount): void => {
-    navigate(
-      formatRouterPath([
-        TopLevelRoute.Accounts,
-        AccountManagementRoute.ViewAccount.replace(
-          ":accountId",
-          account.id
-        ).replace(":type", account.type),
-      ])
-    );
+    navigate(routes.viewAccount(account.id));
   };
 
   const goToDeletePage = (account: DerivedAccount): void => {
-    navigate(
-      formatRouterPath([
-        TopLevelRoute.Accounts,
-        AccountManagementRoute.DeleteAccount.replace(":accountId", account.id),
-      ]),
-      { state: { account } }
-    );
+    navigate(routes.deleteAccount(account.id), { state: { account } });
   };
 
-  const goToConnectedSites = (): void => {
-    navigate(formatRouterPath([TopLevelRoute.ConnectedSites]));
+  const goToViewRecoveryPhrase = (account: DerivedAccount): void => {
+    navigate(routes.viewAccountMnemonic(account.id));
+  };
+
+  const goToRenameAccount = (account: DerivedAccount): void => {
+    navigate(routes.renameAccount(account.id), { state: { account } });
   };
 
   return (
@@ -85,12 +64,14 @@ export const ParentAccounts: React.FC<ParentAccountsProps> = ({
               key={`key-listitem-${account.id}`}
               as="li"
               alias={account.alias}
+              type={account.type}
               isMainKey={activeAccountId === account.id}
-              onRename={() => {}}
+              onRename={() => goToRenameAccount(account)}
               onDelete={() => goToDeletePage(account)}
               onViewAccount={() => goToViewAccount(account)}
+              onViewRecoveryPhrase={() => goToViewRecoveryPhrase(account)}
               onSelectAccount={() => {
-                onChangeActiveAccount(
+                changeActiveAccountId(
                   account.id,
                   account.type as ParentAccount
                 );
@@ -98,19 +79,9 @@ export const ParentAccounts: React.FC<ParentAccountsProps> = ({
             />
           ))}
         </Stack>
-        <ActionButton
-          onClick={goToConnectedSites}
-          variant="secondary"
-          size="sm"
-        >
-          View Connected Sites
-        </ActionButton>
-        <ActionButton onClick={() => navigate("/change-password")} size="sm">
-          Change password
-        </ActionButton>
-        <LinkButton onClick={onLockApp} size="sm">
+        <ActionButton onClick={() => lock()} variant="secondary" size="sm">
           Lock Wallet
-        </LinkButton>
+        </ActionButton>
       </Stack>
     </Stack>
   );

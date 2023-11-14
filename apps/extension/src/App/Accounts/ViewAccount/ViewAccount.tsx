@@ -1,99 +1,64 @@
 import {
-  Alert,
   GapPatterns,
   Heading,
   LinkButton,
-  Loading,
   Stack,
   ViewKeys,
 } from "@namada/components";
 import { AccountType, DerivedAccount } from "@namada/types";
-import { formatRouterPath } from "@namada/utils";
-import { AccountManagementRoute, TopLevelRoute } from "App/types";
-import { ParentAccount } from "background/keyring";
-import { useRequester } from "hooks/useRequester";
-import { QueryAccountsMsg } from "provider";
-import { useEffect, useState } from "react";
+import routes from "App/routes";
+import { AccountContext } from "context";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Ports } from "router";
 
 type ViewAccountUrlParams = {
   accountId: string;
-  type?: ParentAccount;
 };
 
 export const ViewAccount = (): JSX.Element => {
   const { accountId = "" } = useParams<ViewAccountUrlParams>();
-  const [loadingStatus, setLoadingStatus] = useState("");
-  const [accounts, setAccounts] = useState<DerivedAccount[]>([]);
+  const { accounts: accountStore } = useContext(AccountContext);
   const [parentAccount, setParentAccount] = useState<DerivedAccount>();
   const [transparentAddress, setTransparentAddress] = useState("");
   const [shieldedAddress, setShieldedAddress] = useState("");
-  const [error, setError] = useState("");
-
   const navigate = useNavigate();
-  const requester = useRequester();
 
-  const fetchAccounts = async (accountId: string): Promise<void> => {
-    setLoadingStatus("Loading...");
-    try {
-      const accounts = await requester.sendMessage(
-        Ports.Background,
-        new QueryAccountsMsg({ accountId })
-      );
-      setAccounts(accounts);
+  const searchParentAccount = (
+    accountId: string
+  ): DerivedAccount | undefined => {
+    if (!accountId) return;
+    return accountStore.find((account) => account.id === accountId);
+  };
 
-      const parentAccount = accounts.find((account) => !account.parentId);
-      setParentAccount(parentAccount);
-
-      accounts.forEach((account) => {
-        if (
-          account.type === AccountType.Mnemonic ||
-          account.type === AccountType.Ledger
-        ) {
-          setTransparentAddress(account.address);
-        }
-
-        if (account.type === AccountType.ShieldedKeys) {
-          setShieldedAddress(account.address);
-        }
-      });
-    } catch (e) {
-      console.error(e);
-      setError(`An error occurred while loading extension: ${e}`);
-    }
-
-    setLoadingStatus("");
+  const searchShieldedKey = (accountId: string): DerivedAccount | undefined => {
+    if (!accountId) return;
+    return accountStore.find(
+      (account) =>
+        account.parentId === accountId &&
+        account.type === AccountType.ShieldedKeys
+    );
   };
 
   useEffect(() => {
-    accountId && fetchAccounts(accountId);
+    const parentAccount = searchParentAccount(accountId);
+    if (parentAccount) {
+      setParentAccount(parentAccount);
+      setTransparentAddress(parentAccount?.address);
+    }
+
+    const shieldedKey = searchShieldedKey(accountId);
+    if (shieldedKey) {
+      setShieldedAddress(shieldedKey.address);
+    }
   }, [accountId]);
 
   if (!accountId) {
-    navigate(
-      formatRouterPath([
-        TopLevelRoute.Accounts,
-        AccountManagementRoute.ViewAccounts,
-      ])
-    );
+    navigate(routes.viewAccount());
   }
 
   return (
     <>
-      <Loading
-        status={loadingStatus}
-        visible={!!loadingStatus}
-        variant="full"
-      />
-
-      {error && (
-        <Alert type="error" title="Error!">
-          {error}
-        </Alert>
-      )}
-
-      {!loadingStatus && !error && parentAccount && accounts.length > 0 && (
+      {parentAccount && (
         <Stack gap={GapPatterns.TitleContent}>
           <Heading>{parentAccount.alias}</Heading>
           <ViewKeys
