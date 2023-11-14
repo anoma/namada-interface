@@ -1,16 +1,12 @@
 import { Container } from "@namada/components";
-import { getTheme } from "@namada/utils";
 import { useVaultContext } from "context/VaultContext";
 import { matchPath, useLocation } from "react-router-dom";
-import { ThemeProvider } from "styled-components";
 import { AppContent } from "./AppContent";
 import { AppHeader } from "./Common/AppHeader";
-import { GlobalStyle } from "./Common/GlobalStyles";
 import { Login } from "./Login";
 import routes from "./routes";
 
 export const App: React.FC = () => {
-  const theme = getTheme("dark");
   const location = useLocation();
 
   const { isLocked, unlock, passwordInitialized } = useVaultContext();
@@ -30,19 +26,16 @@ export const App: React.FC = () => {
   if (passwordInitialized === undefined) return null;
 
   return (
-    <ThemeProvider theme={theme}>
-      <GlobalStyle />
-      <Container
-        size="popup"
-        header={
-          <AppHeader
-            settingsButton={!isLocked}
-            returnButton={displayReturnButton()}
-          />
-        }
-      >
-        {shouldLock ? <Login onLogin={unlock} /> : <AppContent />}
-      </Container>
-    </ThemeProvider>
+    <Container
+      size="popup"
+      header={
+        <AppHeader
+          settingsButton={!isLocked}
+          returnButton={displayReturnButton()}
+        />
+      }
+    >
+      {shouldLock ? <Login onLogin={unlock} /> : <AppContent />}
+    </Container>
   );
 };

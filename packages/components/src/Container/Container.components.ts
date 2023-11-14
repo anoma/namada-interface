@@ -1,6 +1,15 @@
 import { container, spacement, color, borderRadius } from "@namada/utils";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { ContainerSize } from "@namada/utils";
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+`;
 
 export const Page = styled.div<{ isPopup: boolean }>`
   align-items: ${(props) => (props.isPopup ? "stretch" : "center")};
@@ -32,6 +41,7 @@ export const ContainerWrapper = styled.section<{ maxW: keyof ContainerSize }>`
 export const ContainerBody = styled.div`
   padding: ${spacement(6)} ${spacement(7)} ${spacement(8)};
   flex: 1;
+  animation: ${fadeIn} var(--ease-out-expo) 1s;
 
   @media (min-width: 480px) {
     padding: ${spacement(8)} ${spacement(10)};

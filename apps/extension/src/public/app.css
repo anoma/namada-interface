@@ -27,6 +27,9 @@ body,
 html {
   margin: 0;
   padding: 0;
+  min-width: 380px;
+  min-height: 420px;
+  background-color: #292929;
 }
 
 ::selection {
