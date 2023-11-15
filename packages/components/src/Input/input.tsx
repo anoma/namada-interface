@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import { Icon, IconName, ContentMasker } from "@namada/components";
-import { copyToClipboard } from "@namada/utils";
+
 import { ComponentProps, InputProps, InputVariants } from "./types";
 import {
   ErrorTooltip,
@@ -12,6 +12,7 @@ import {
   LabelWrapper,
   TextInput,
 } from "./input.components";
+import { CopyToClipboardControl } from "./CopyToClipboardControl/CopyToClipboardControl";
 
 type Props = ComponentProps & InputProps & { variant?: InputVariants };
 
@@ -26,6 +27,7 @@ export const Input = ({
   ...props
 }: Props): JSX.Element => {
   const [passwordShown, setPasswordShown] = useState(false);
+
   const togglePasswordShown = (): void => setPasswordShown(!passwordShown);
 
   let inputElement: InputProps = {};
@@ -54,16 +56,7 @@ export const Input = ({
         ...props,
         readOnly: true,
       };
-
-      icon = (
-        <IconContainer
-          role="button"
-          aria-labelledby="Copy to clipboard"
-          onClick={() => copyToClipboard(props.value?.toString() || "")}
-        >
-          <Icon iconName={IconName.Copy} />
-        </IconContainer>
-      );
+      icon = <CopyToClipboardControl value={props.value?.toString() || ""} />;
       break;
 
     case InputVariants.PasswordOnBlur:
