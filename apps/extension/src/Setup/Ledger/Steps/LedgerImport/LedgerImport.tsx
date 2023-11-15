@@ -9,6 +9,7 @@ import { formatRouterPath } from "@namada/utils";
 import { AccountAlias, Password } from "Setup/Common";
 import { LedgerConnectRoute, TopLevelRoute } from "Setup/types";
 import { AddLedgerAccountMsg } from "background/keyring";
+import { CreatePasswordMsg } from "background/vault";
 import { useRequester } from "hooks/useRequester";
 import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -49,6 +50,18 @@ export const LedgerImport = ({
       try {
         e.preventDefault();
         setLoading(true);
+
+        if (passwordRequired && !password) {
+          throw new Error("Password is required and it was not provided");
+        }
+
+        if (passwordRequired) {
+          await requester.sendMessage<CreatePasswordMsg>(
+            Ports.Background,
+            new CreatePasswordMsg(password || "")
+          );
+        }
+
         const account = await requester.sendMessage(
           Ports.Background,
           new AddLedgerAccountMsg(
