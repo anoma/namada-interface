@@ -41,7 +41,7 @@ export class VaultService {
 
   public async passwordInitialized(): Promise<boolean> {
     const store = await this.getStoreData();
-    return !!store?.password;
+    return !!(store && store.password);
   }
 
   public async getLength(key: string): Promise<number> {
