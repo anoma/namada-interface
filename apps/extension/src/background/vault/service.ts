@@ -32,11 +32,15 @@ export class VaultService {
   private async initialize(): Promise<void> {
     const vault = await this.vaultStore.get(VAULT_KEY);
     if (!vault) {
-      await this.vaultStore.set(VAULT_KEY, {
-        password: undefined,
-        data: {},
-      });
+      this.reset();
     }
+  }
+
+  private async reset(): Promise<void> {
+    await this.vaultStore.set(VAULT_KEY, {
+      password: undefined,
+      data: {},
+    });
   }
 
   public async passwordInitialized(): Promise<boolean> {
@@ -56,7 +60,7 @@ export class VaultService {
   }
 
   public async logout(): Promise<void> {
-    await this.vaultStore.set(VAULT_KEY, null);
+    await this.reset();
     await this.setPassword(undefined);
   }
 
