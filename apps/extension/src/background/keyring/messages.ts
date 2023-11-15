@@ -8,7 +8,9 @@ import {
   DeleteAccountError,
   MnemonicValidationResponse,
   ParentAccount,
+  AccountSecret,
 } from "./types";
+import { validatePrivateKey } from "utils";
 
 enum MessageType {
   QueryPublicKey = "query-public-key",
@@ -18,7 +20,7 @@ enum MessageType {
   GenerateMnemonic = "generate-mnemonic",
   GetActiveAccount = "get-active-account",
   QueryParentAccounts = "query-parent-accounts",
-  SaveMnemonic = "save-mnemonic",
+  SaveAccountSecret = "save-account-secret",
   ScanAccounts = "scan-accounts",
   SetActiveAccount = "set-active-account",
   TransferCompletedEvent = "transfer-completed-event",
@@ -146,25 +148,41 @@ export class RenameAccountMsg extends Message<DerivedAccount> {
   }
 }
 
-export class SaveMnemonicMsg extends Message<AccountStore | false> {
+export class SaveAccountSecretMsg extends Message<AccountStore | false> {
   public static type(): MessageType {
-    return MessageType.SaveMnemonic;
+    return MessageType.SaveAccountSecret;
   }
 
-  constructor(public readonly words: string[], public readonly alias: string) {
+  constructor(
+    public readonly accountSecret: AccountSecret,
+    public readonly alias: string
+  ) {
     super();
   }
 
   validate(): void {
-    if (!this.words) {
-      throw new Error("A wordlist is required to save a mnemonic!");
+    if (!this.accountSecret) {
+      throw new Error("A wordlist or private key is required!");
     }
 
-    if (
-      this.words.length !== PhraseSize.N12 &&
-      this.words.length !== PhraseSize.N24
-    ) {
-      throw new Error("Invalid wordlist length! Not a valid mnemonic.");
+    switch (this.accountSecret.t) {
+      case "Mnemonic":
+        if (
+          this.accountSecret.seedPhrase.length !== PhraseSize.N12 &&
+          this.accountSecret.seedPhrase.length !== PhraseSize.N24
+        ) {
+          throw new Error("Invalid wordlist length! Not a valid mnemonic.");
+        }
+        break;
+
+      case "PrivateKey":
+        if (!validatePrivateKey(this.accountSecret.privateKey).ok) {
+          throw new Error("Invalid private key!");
+        }
+        break;
+
+      default:
+        throw new Error("Unknown account secret type");
     }
   }
 
@@ -173,7 +191,7 @@ export class SaveMnemonicMsg extends Message<AccountStore | false> {
   }
 
   type(): string {
-    return SaveMnemonicMsg.type();
+    return SaveAccountSecretMsg.type();
   }
 }
 

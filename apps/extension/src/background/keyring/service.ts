@@ -28,6 +28,7 @@ import {
   ParentAccount,
   TabStore,
   UtilityStore,
+  AccountSecret,
 } from "./types";
 import { syncTabs, updateTabStorage } from "./utils";
 
@@ -92,11 +93,11 @@ export class KeyRingService {
     return await this._keyRing.revealMnemonic(accountId);
   }
 
-  async saveMnemonic(
-    words: string[],
+  async saveAccountSecret(
+    accountSecret: AccountSecret,
     alias: string
   ): Promise<AccountStore | false> {
-    const results = await this._keyRing.storeMnemonic(words, alias);
+    const results = await this._keyRing.storeAccountSecret(accountSecret, alias);
     this.broadcaster.updateAccounts();
     return results;
   }

@@ -3,6 +3,7 @@ import browser from "webextension-polyfill";
 
 import { ISignature } from "@namada/ledger-namada";
 import { Message, SignatureMsgValue, TxMsgValue, TxProps } from "@namada/types";
+import { Result } from "@namada/utils";
 
 /**
  * Query the current extension tab and close it
@@ -69,3 +70,17 @@ export const validateProps = <T>(object: T, props: (keyof T)[]): void => {
     }
   });
 };
+
+const PRIVATE_KEY_MAX_LENGTH = 64;
+
+export type PrivateKeyError =
+ | { t: "TooLong", maxLength: number }
+ | { t: "BadCharacter" };
+
+// Very basic private key validation
+export const validatePrivateKey = (privateKey: string): Result<null, PrivateKeyError> =>
+  privateKey.length > PRIVATE_KEY_MAX_LENGTH ?
+    Result.err({ t: "TooLong", maxLength: PRIVATE_KEY_MAX_LENGTH }) :
+  !/^[0-9a-f]*$/.test(privateKey) ?
+    Result.err({ t: "BadCharacter" }) :
+  Result.ok(null);

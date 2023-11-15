@@ -16,7 +16,7 @@ import {
   QueryParentAccountsMsg,
   QueryPublicKeyMsg,
   RevealAccountMnemonicMsg,
-  SaveMnemonicMsg,
+  SaveAccountSecretMsg,
   ScanAccountsMsg,
   SetActiveAccountMsg,
   TransferCompletedEvent,
@@ -45,8 +45,8 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
           env,
           msg as ValidateMnemonicMsg
         );
-      case SaveMnemonicMsg:
-        return handleSaveMnemonicMsg(service)(env, msg as SaveMnemonicMsg);
+      case SaveAccountSecretMsg:
+        return handleSaveAccountSecretMsg(service)(env, msg as SaveAccountSecretMsg);
       case ScanAccountsMsg:
         return handleScanAccountsMsg(service)(env, msg as ScanAccountsMsg);
       case DeriveAccountMsg:
@@ -155,13 +155,13 @@ const handleValidateMnemonicMsg: (
   };
 };
 
-const handleSaveMnemonicMsg: (
+const handleSaveAccountSecretMsg: (
   service: KeyRingService
-) => InternalHandler<SaveMnemonicMsg> = (service) => {
+) => InternalHandler<SaveAccountSecretMsg> = (service) => {
   return async (_, msg) => {
-    const { words, alias } = msg;
-    if (words) {
-      return await service.saveMnemonic(words, alias);
+    const { accountSecret, alias } = msg;
+    if (accountSecret) {
+      return await service.saveAccountSecret(accountSecret, alias);
     }
     return false;
   };

@@ -35,9 +35,10 @@ import {
   MnemonicValidationResponse,
   SensitiveAccountStoreData,
   UtilityStore,
+  AccountSecret,
 } from "./types";
 
-import { Result, makeBip44PathArray } from "@namada/utils";
+import { Result, makeBip44PathArray, assertNever } from "@namada/utils";
 
 import { VaultService } from "background/vault";
 import { generateId } from "utils";
@@ -176,27 +177,54 @@ export class KeyRing {
     return sensitiveData.text;
   }
 
-  // Store validated mnemonic
-  public async storeMnemonic(
-    mnemonic: string[],
+  // Store validated mnemonic or private key
+  public async storeAccountSecret(
+    accountSecret: AccountSecret,
     alias: string
   ): Promise<AccountStore | false> {
     await this.vaultService.assertIsUnlocked();
-    const phrase = mnemonic.join(" ");
+
+    const path = { account: 0, change: 0, index: 0 };
+
     try {
-      const mnemonic = Mnemonic.from_phrase(phrase);
-      const seed = mnemonic.to_seed();
-      const { coinType } = chains[this.chainId].bip44;
-      const path = {
-        account: 0,
-        change: 0,
-        index: 0,
-      };
-      const bip44Path = makeBip44PathArray(coinType, path);
-      const hdWallet = new HDWallet(seed);
-      const key = hdWallet.derive(new Uint32Array(bip44Path));
-      const privateKeyStringPtr = key.to_hex();
-      const sk = readStringPointer(privateKeyStringPtr, this.cryptoMemory);
+      const { sk, text, accountType } = ((): {
+        sk: string,
+        text: string,
+        accountType: AccountType
+      } => {
+        switch (accountSecret.t) {
+          case "Mnemonic":
+            const phrase = accountSecret.seedPhrase.join(" ");
+            const mnemonic = Mnemonic.from_phrase(phrase);
+            const seed = mnemonic.to_seed();
+            const { coinType } = chains[this.chainId].bip44;
+            const bip44Path = makeBip44PathArray(coinType, path);
+            const hdWallet = new HDWallet(seed);
+            const key = hdWallet.derive(new Uint32Array(bip44Path));
+            const privateKeyStringPtr = key.to_hex();
+            const sk = readStringPointer(privateKeyStringPtr, this.cryptoMemory);
+
+            mnemonic.free();
+            hdWallet.free();
+            key.free();
+            privateKeyStringPtr.free();
+
+            return { sk, text: phrase, accountType: AccountType.Mnemonic };
+
+          case "PrivateKey":
+            const { privateKey } = accountSecret;
+
+            return {
+              sk: privateKey,
+              text: privateKey,
+              accountType: AccountType.PrivateKey
+            };
+
+          default:
+            return assertNever(accountSecret);
+        }
+      })();
+
       const addr = new Address(sk);
       const address = addr.implicit();
       const publicKey = addr.public();
@@ -206,14 +234,9 @@ export class KeyRing {
       // Generate unique ID for new parent account:
       const id = generateId(
         UUID_NAMESPACE,
-        phrase,
+        text,
         await this.vaultService.getLength(KEYSTORE_KEY)
       );
-
-      mnemonic.free();
-      hdWallet.free();
-      key.free();
-      privateKeyStringPtr.free();
 
       const accountStore: AccountStore = {
         id,
@@ -223,9 +246,9 @@ export class KeyRing {
         chainId,
         path,
         publicKey,
-        type: AccountType.Mnemonic,
+        type: accountType,
       };
-      const sensitiveData: SensitiveAccountStoreData = { text: phrase };
+      const sensitiveData: SensitiveAccountStoreData = { text };
       await this.vaultService.add<AccountStore, SensitiveAccountStoreData>(
         KEYSTORE_KEY,
         accountStore,
