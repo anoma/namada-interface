@@ -18,7 +18,7 @@ const SeedPhraseInstructions = (): JSX.Element => {
       <WarningTip>
         <WarningSummary>Back up the phrase safely</WarningSummary>
         You will never be able to restore your account without your recovery
-        phrase
+        phrase.
       </WarningTip>
     </InstructionPanel>
   );
