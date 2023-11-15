@@ -2,6 +2,7 @@ import React, { useCallback, useState } from "react";
 
 import {
   ActionButton,
+  Alert,
   Heading,
   Input,
   InputVariants,
@@ -36,6 +37,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
   const [mnemonicType, setMnemonicType] = useState<MnemonicTypes>(
     MnemonicTypes.TwelveWords
   );
+  const [mnemonicError, setMnemonicError] = useState<string>();
 
   const mnemonicsRange = Array.from(Array(LONG_PHRASE_COUNT).keys()).map(
     () => ""
@@ -62,9 +64,10 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
     }
   })();
 
-  const isSubmitButtonDisabled = mnemonicType === MnemonicTypes.PrivateKey
-    ? privateKey === "" || privateKeyError !== ""
-    : mnemonics.slice(0, mnemonicType).some((mnemonic) => !mnemonic);
+  const isSubmitButtonDisabled =
+    mnemonicType === MnemonicTypes.PrivateKey
+      ? privateKey === "" || privateKeyError !== ""
+      : mnemonics.slice(0, mnemonicType).some((mnemonic) => !mnemonic);
 
   const onPaste = useCallback(
     (index: number, e: React.ClipboardEvent<HTMLInputElement>) => {
@@ -120,17 +123,18 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
     } else {
       const actualMnemonics = mnemonics.slice(0, mnemonicType);
       const phrase = actualMnemonics.join(" ");
-      const isValid = await requester.sendMessage<ValidateMnemonicMsg>(
-        Ports.Background,
-        new ValidateMnemonicMsg(phrase)
-      );
+      const { isValid, error } =
+        await requester.sendMessage<ValidateMnemonicMsg>(
+          Ports.Background,
+          new ValidateMnemonicMsg(phrase)
+        );
       if (isValid) {
+        setMnemonicError(undefined);
         onConfirm({ t: "Mnemonic", seedPhrase: actualMnemonics });
       } else {
-        alert("Invalid mnemonic");
+        setMnemonicError(error);
       }
     }
-
   }, [mnemonics, mnemonicType, privateKey]);
 
   return (
@@ -140,6 +144,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
           Import Account
         </Heading>
       </HeaderContainer>
+
       <InstructionList>
         <Instruction>
           Enter your recovery phrase in the right order without capitalisation,
@@ -156,6 +161,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
         }}
       >
         <Stack direction="vertical" gap={6}>
+          {mnemonicError && <Alert type={"error"}>{mnemonicError}</Alert>}
           <RadioGroup
             id="mnemonicLength"
             groupLabel="Number of seeds"

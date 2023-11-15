@@ -24,6 +24,7 @@ import {
   AccountStore,
   ActiveAccountStore,
   DeleteAccountError,
+  MnemonicValidationResponse,
   ParentAccount,
   TabStore,
   UtilityStore,
@@ -84,7 +85,7 @@ export class KeyRingService {
     return await this._keyRing.generateMnemonic(size);
   }
 
-  validateMnemonic(phrase: string): boolean {
+  validateMnemonic(phrase: string): MnemonicValidationResponse {
     return this._keyRing.validateMnemonic(phrase);
   }
 
