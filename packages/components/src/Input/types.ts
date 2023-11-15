@@ -11,7 +11,7 @@ export enum InputVariants {
 
 export type ComponentProps = {
   label?: string | React.ReactNode;
-  error?: string;
+  error?: string | React.ReactNode;
   sensitive?: boolean;
   hint?: string | React.ReactNode;
   theme?: ThemeColor;

@@ -88,8 +88,7 @@ export const ChangePassword = ({
           variant={InputVariants.Password}
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
-          hint={feedback.suggestions.join(" ")}
-          error={feedback.warning}
+          error={feedback.warning || feedback.suggestions.join(" ")}
         />
         <Input
           label="Confirm new password"
