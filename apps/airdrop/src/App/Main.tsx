@@ -26,7 +26,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { KeplrClaimType, confirmationAtom, claimAtom } from "./state";
 import { useAtom } from "jotai";
-import { navigatePostCheck } from "./utils";
+import { airdropFetch, navigatePostCheck } from "./utils";
 import { Countdown } from "./Countdown";
 
 const {
@@ -48,7 +48,7 @@ type GithubClaim = {
   eligibilities: string[];
 };
 
-type KeplrClaim = {
+type Claim = {
   eligible: boolean;
   amount: number;
   has_claimed: boolean;
@@ -57,12 +57,12 @@ type KeplrClaim = {
 };
 
 const checkGithubClaim = async (code: string): Promise<GithubClaim> => {
-  const response = await fetch(`${backendUrl}/api/v1/airdrop/github/${code}`, {
-    method: "GET",
-    headers: {
-      "x-airdrop-secret": "header",
-    },
-  });
+  const response = await airdropFetch(
+    `${backendUrl}/api/v1/airdrop/github/${code}`,
+    {
+      method: "GET",
+    }
+  );
   const json = await response.json();
 
   return json;
@@ -71,14 +71,11 @@ const checkGithubClaim = async (code: string): Promise<GithubClaim> => {
 const checkClaim = async (
   address: string,
   type: KeplrClaimType | "gitcoin"
-): Promise<KeplrClaim> => {
-  const response = await fetch(
+): Promise<Claim> => {
+  const response = await airdropFetch(
     `${backendUrl}/api/v1/airdrop/${type}/${address}`,
     {
       method: "GET",
-      headers: {
-        "x-airdrop-secret": "header",
-      },
     }
   );
   return response.json();
