@@ -55,6 +55,11 @@ export class VaultService {
     return !password && isInitialized;
   }
 
+  public async logout(): Promise<void> {
+    await this.vaultStore.set(VAULT_KEY, null);
+    await this.setPassword(undefined);
+  }
+
   public async assertIsUnlocked(): Promise<void> {
     if (await this.isLocked()) {
       throw new Error("Extension is locked");

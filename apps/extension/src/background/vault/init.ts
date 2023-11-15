@@ -9,6 +9,7 @@ import {
   UnlockVaultMsg,
   CheckPasswordInitializedMsg,
   CreatePasswordMsg,
+  LogoutMsg,
 } from "./messages";
 import { VaultService } from "./service";
 
@@ -20,5 +21,6 @@ export function init(router: Router, service: VaultService): void {
   router.registerMessage(UnlockVaultMsg);
   router.registerMessage(CheckPasswordInitializedMsg);
   router.registerMessage(CreatePasswordMsg);
+  router.registerMessage(LogoutMsg);
   router.addHandler(ROUTE, getHandler(service));
 }

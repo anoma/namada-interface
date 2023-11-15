@@ -64,7 +64,7 @@ export const AccountContextWrapper = ({
   children,
 }: AccountContextProps): JSX.Element => {
   const requester = useRequester();
-  const { isLocked } = useVaultContext();
+  const { isLocked, logout } = useVaultContext();
 
   const [accounts, setAccounts] = useState<DerivedAccount[]>([]);
   const [parentAccounts, setParentAccounts] = useState<DerivedAccount[]>([]);
@@ -105,11 +105,18 @@ export const AccountContextWrapper = ({
       new DeleteAccountMsg(accountId)
     );
 
-    if (accountId === activeAccountId && parentAccounts.length > 0) {
+    // parentAccounts not updated yet
+    if (accountId === activeAccountId && parentAccounts.length > 1) {
       await changeActiveAccountId(
         parentAccounts[0].id,
         parentAccounts[0].type as ParentAccount
       );
+    }
+
+    if (parentAccounts.length <= 1) {
+      await logout();
+      setParentAccounts([]);
+      return;
     }
 
     await fetchAll();
