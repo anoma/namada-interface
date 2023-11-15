@@ -10,7 +10,7 @@ import { useState } from "react";
 import { useAtom } from "jotai";
 import { confirmationAtom, claimAtom } from "./state";
 import { useNavigate } from "react-router-dom";
-import { navigatePostCheck } from "./utils";
+import { airdropFetch, navigatePostCheck } from "./utils";
 
 type TSClaim = {
   eligible: boolean;
@@ -23,9 +23,12 @@ type TSClaim = {
 const { AIRDROP_BACKEND_SERVICE_URL: backendUrl = "" } = process.env;
 
 const checkClaim = async (publicKey: string): Promise<TSClaim> => {
-  const response = await fetch(`${backendUrl}/api/v1/airdrop/ts/${publicKey}`, {
-    method: "GET",
-  });
+  const response = await airdropFetch(
+    `${backendUrl}/api/v1/airdrop/ts/${publicKey}`,
+    {
+      method: "GET",
+    }
+  );
   return response.json();
 };
 

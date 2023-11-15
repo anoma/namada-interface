@@ -29,6 +29,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useIntegrationConnection } from "@namada/hooks";
+import { airdropFetch } from "App/utils";
 
 const {
   REACT_APP_NAMADA_CHAIN_ID: namadaChainId = "namadaChainId",
@@ -39,7 +40,7 @@ const claimWithGithub = async (
   access_token: string,
   airdrop_address: string
 ): Promise<ClaimResponse> => {
-  const response = await fetch(`${backendUrl}/api/v1/airdrop/github`, {
+  const response = await airdropFetch(`${backendUrl}/api/v1/airdrop/github`, {
     method: "POST",
     headers: new Headers({ "content-type": "application/json" }),
     body: JSON.stringify({ access_token, airdrop_address }),
@@ -57,11 +58,10 @@ const claimWithKeplr = async (
   airdrop_address: string,
   message: string
 ): Promise<ClaimResponse> => {
-  const response = await fetch(`${backendUrl}/api/v1/airdrop/${type}`, {
+  const response = await airdropFetch(`${backendUrl}/api/v1/airdrop/${type}`, {
     method: "POST",
     headers: new Headers({
       "content-type": "application/json",
-      "x-airdrop-secret": "header",
     }),
     body: JSON.stringify({
       signer_address,
@@ -82,12 +82,10 @@ const claimWithGitcoin = async (
   signature: string,
   airdrop_address: string
 ): Promise<ClaimResponse> => {
-  console.log(signer_address, message, signature, airdrop_address);
-  const response = await fetch(`${backendUrl}/api/v1/airdrop/gitcoin`, {
+  const response = await airdropFetch(`${backendUrl}/api/v1/airdrop/gitcoin`, {
     method: "POST",
     headers: new Headers({
       "content-type": "application/json",
-      "x-airdrop-secret": "header",
     }),
     body: JSON.stringify({
       signer_address,
@@ -106,7 +104,7 @@ const claimWithTS = async (
   airdrop_address: string,
   message: string
 ): Promise<ClaimResponse> => {
-  const response = await fetch(`${backendUrl}/api/v1/airdrop/ts`, {
+  const response = await airdropFetch(`${backendUrl}/api/v1/airdrop/ts`, {
     method: "POST",
     headers: new Headers({ "content-type": "application/json" }),
     body: JSON.stringify({
