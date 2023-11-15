@@ -11,6 +11,7 @@ enum MessageType {
   UnlockKeyRing = "unlock-keyring",
   PasswordInitialized = "password-initialized",
   CreatePassword = "create-password",
+  Logout = "logout",
 }
 export class CheckPasswordInitializedMsg extends Message<boolean> {
   public static type(): MessageType {
@@ -31,6 +32,28 @@ export class CheckPasswordInitializedMsg extends Message<boolean> {
 
   type(): string {
     return CheckPasswordInitializedMsg.type();
+  }
+}
+
+export class LogoutMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.Logout;
+  }
+
+  constructor() {
+    super();
+  }
+
+  validate(): void {
+    return;
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return LogoutMsg.type();
   }
 }
 

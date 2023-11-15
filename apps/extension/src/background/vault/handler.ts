@@ -7,6 +7,7 @@ import {
   UnlockVaultMsg,
   CheckPasswordInitializedMsg,
   CreatePasswordMsg,
+  LogoutMsg,
 } from "./messages";
 
 import { VaultService } from "./service";
@@ -19,6 +20,9 @@ export const getHandler: (service: VaultService) => Handler = (service) => {
 
       case LockVaultMsg:
         return handleLockVaultMsg(service)(env, msg as LockVaultMsg);
+
+      case LogoutMsg:
+        return handleLogoutMsg(service)(env, msg as LockVaultMsg);
 
       case UnlockVaultMsg:
         return handleUnlockVaultMsg(service)(env, msg as UnlockVaultMsg);
@@ -81,6 +85,14 @@ const handleResetPasswordMsg: (
 ) => InternalHandler<ResetPasswordMsg> = (service) => {
   return async (_, msg) => {
     return await service.resetPassword(msg.currentPassword, msg.newPassword);
+  };
+};
+
+const handleLogoutMsg: (service: VaultService) => InternalHandler<LogoutMsg> = (
+  service
+) => {
+  return async (_) => {
+    return await service.logout();
   };
 };
 

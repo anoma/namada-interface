@@ -6,6 +6,7 @@ import {
   CheckPasswordInitializedMsg,
   CheckPasswordMsg,
   LockVaultMsg,
+  LogoutMsg,
   ResetPasswordError,
   ResetPasswordMsg,
   UnlockVaultMsg,
@@ -13,11 +14,14 @@ import {
 import { useRequester } from "hooks/useRequester";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { Ports } from "router";
+import { useNavigate } from "react-router-dom";
+import routes from "App/routes";
 
 // Add types here
 type VaultContextType = {
   lock: () => Promise<void>;
   unlock: (password: string) => Promise<boolean>;
+  logout: () => Promise<void>;
   checkPassword: (password: string) => Promise<boolean>;
   isLocked: boolean;
   changePassword: (
@@ -32,6 +36,7 @@ const createVaultContext = (): VaultContextType => {
   return {
     lock: async () => {},
     unlock: async (_password: string) => false,
+    logout: async () => {},
     checkPassword: async (_password: string) => false,
     isLocked: true,
     changePassword: async (_oldPassword: string, _newPassword: string) =>
@@ -52,6 +57,7 @@ export const VaultContextWrapper = ({
   children,
 }: VaultContextWrapperProps): JSX.Element => {
   const requester = useRequester();
+  const navigate = useNavigate();
   const [locked, setLocked] = useState(true);
   const [passwordInitialized, setPasswordInitialized] = useState<
     undefined | boolean
@@ -72,6 +78,13 @@ export const VaultContextWrapper = ({
   const lock = async (): Promise<void> => {
     await requester.sendMessage(Ports.Background, new LockVaultMsg());
     setLocked(true);
+  };
+
+  const logout = async (): Promise<void> => {
+    await requester.sendMessage(Ports.Background, new LogoutMsg());
+    setPasswordInitialized(false);
+    setLocked(true);
+    navigate(routes.setup());
   };
 
   const checkPassword = async (password: string): Promise<boolean> => {
@@ -125,6 +138,7 @@ export const VaultContextWrapper = ({
         checkPassword,
         passwordInitialized,
         changePassword,
+        logout,
       }}
     >
       {children}

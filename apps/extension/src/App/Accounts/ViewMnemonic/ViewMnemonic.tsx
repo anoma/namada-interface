@@ -97,6 +97,7 @@ export const ViewMnemonic = (): JSX.Element => {
             readOnly={true}
             value={mnemonic}
             sensitive
+            rows={mnemonic.split(" ").length === 12 ? 3 : 5}
           />
           <LinkButton onClick={() => navigate(-1)}>Back</LinkButton>
         </Stack>
