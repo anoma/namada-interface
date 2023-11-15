@@ -8,15 +8,17 @@ import {
   RadioGroup,
   Stack,
 } from "@namada/components";
+import { assertNever } from "@namada/utils";
 import { SeedPhraseList } from "Setup/Common";
 import { HeaderContainer } from "Setup/Setup.components";
-import { ValidateMnemonicMsg } from "background/keyring";
+import { ValidateMnemonicMsg, AccountSecret } from "background/keyring";
 import { Ports } from "router";
 import { Instruction, InstructionList } from "./SeedPhraseImport.components";
 import { useRequester } from "hooks/useRequester";
+import { validatePrivateKey } from "utils";
 
 type Props = {
-  onConfirm: (seedPhraseAsArray: string[]) => void;
+  onConfirm: (accountSecret: AccountSecret) => void;
 };
 
 const SHORT_PHRASE_COUNT = 12;
@@ -43,7 +45,26 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
     Array.from(mnemonicsRange)
   );
 
-  const isSubmitButtonDisabled = mnemonics.some((mnemonic) => !mnemonic);
+  const privateKeyError = (() => {
+    const validation = validatePrivateKey(privateKey);
+    if (validation.ok) {
+      return "";
+    } else {
+      switch (validation.error.t) {
+        case "TooLong":
+          return `Private key must be no more than
+             ${validation.error.maxLength} characters long`;
+        case "BadCharacter":
+          return "Private key may only contain characters 0-9, a-f";
+        default:
+          return assertNever(validation.error);
+      }
+    }
+  })();
+
+  const isSubmitButtonDisabled = mnemonicType === MnemonicTypes.PrivateKey
+    ? privateKey === "" || privateKeyError !== ""
+    : mnemonics.slice(0, mnemonicType).some((mnemonic) => !mnemonic);
 
   const onPaste = useCallback(
     (index: number, e: React.ClipboardEvent<HTMLInputElement>) => {
@@ -94,21 +115,23 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
 
   const onSubmit = useCallback(async () => {
     if (mnemonicType === MnemonicTypes.PrivateKey) {
-      return;
+      // TODO: validate here
+      onConfirm({ t: "PrivateKey", privateKey });
+    } else {
+      const actualMnemonics = mnemonics.slice(0, mnemonicType);
+      const phrase = actualMnemonics.join(" ");
+      const isValid = await requester.sendMessage<ValidateMnemonicMsg>(
+        Ports.Background,
+        new ValidateMnemonicMsg(phrase)
+      );
+      if (isValid) {
+        onConfirm({ t: "Mnemonic", seedPhrase: actualMnemonics });
+      } else {
+        alert("Invalid mnemonic");
+      }
     }
 
-    const actualMnemonics = mnemonics.slice(0, mnemonicType);
-    const phrase = actualMnemonics.join(" ");
-    const isValid = await requester.sendMessage<ValidateMnemonicMsg>(
-      Ports.Background,
-      new ValidateMnemonicMsg(phrase)
-    );
-    if (isValid) {
-      onConfirm(actualMnemonics);
-    } else {
-      alert("Invalid mnemonic");
-    }
-  }, [mnemonics]);
+  }, [mnemonics, mnemonicType, privateKey]);
 
   return (
     <>
@@ -168,6 +191,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
               value={privateKey}
               placeholder="Enter your private key"
               onChange={(e) => setPrivateKey(e.target.value)}
+              error={privateKeyError}
             />
           )}
         </Stack>

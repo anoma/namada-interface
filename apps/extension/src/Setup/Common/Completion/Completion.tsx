@@ -9,14 +9,15 @@ import {
   ViewKeys,
 } from "@namada/components";
 import { AccountType } from "@namada/types";
-import { formatRouterPath } from "@namada/utils";
+import { formatRouterPath, assertNever } from "@namada/utils";
 import { HeaderContainer, Subtitle } from "Setup/Setup.components";
 import { TopLevelRoute } from "Setup/types";
 import {
   AccountStore,
   DeriveAccountMsg,
-  SaveMnemonicMsg,
+  SaveAccountSecretMsg,
   ScanAccountsMsg,
+  AccountSecret
 } from "background/keyring";
 import { useRequester } from "hooks/useRequester";
 import { useNavigate } from "react-router-dom";
@@ -25,7 +26,7 @@ import { CreatePasswordMsg } from "background/vault";
 
 type Props = {
   alias: string;
-  mnemonic: string[];
+  accountSecret?: AccountSecret;
   scanAccounts: boolean;
   pageTitle: string;
   pageSubtitle: string;
@@ -42,7 +43,7 @@ enum Status {
 const Completion: React.FC<Props> = (props) => {
   const {
     alias,
-    mnemonic,
+    accountSecret,
     password,
     scanAccounts,
     pageTitle,
@@ -56,7 +57,7 @@ const Completion: React.FC<Props> = (props) => {
   const [transparentAccountAddress, setTransparentAccountAddress] =
     useState<string>("");
   const [shieldedAccountAddress, setShieldedAccountAddress] =
-    useState<string>("");
+    useState<string>(); // undefined for private key accounts
 
   const requester = useRequester();
   const navigate = useNavigate();
@@ -69,12 +70,11 @@ const Completion: React.FC<Props> = (props) => {
   };
 
   useEffect(() => {
-    if (!alias || !mnemonic || (passwordRequired && !password)) {
+    if (!alias || !accountSecret || (passwordRequired && !password)) {
       navigate(formatRouterPath([TopLevelRoute.Start]));
+      return;
     }
-  }, []);
 
-  useEffect(() => {
     const saveMnemonic = async (): Promise<void> => {
       try {
         setStatusInfo("Setting a password for the extension.");
@@ -90,25 +90,36 @@ const Completion: React.FC<Props> = (props) => {
           );
         }
 
-        setStatusInfo("Encrypting and storing mnemonic.");
-        const account = (await requester.sendMessage<SaveMnemonicMsg>(
+        const prettyAccountSecret =
+          accountSecret.t === "Mnemonic" ? "mnemonic" :
+          accountSecret.t === "PrivateKey" ? "private key" :
+          assertNever(accountSecret);
+
+        setStatusInfo(`Encrypting and storing ${prettyAccountSecret}.`);
+        const account = (await requester.sendMessage<SaveAccountSecretMsg>(
           Ports.Background,
-          new SaveMnemonicMsg(mnemonic, alias)
+          new SaveAccountSecretMsg(accountSecret, alias)
         )) as AccountStore;
+
+        if (!account) {
+          throw new Error("Background returned failure when creating account");
+        }
 
         setPublicKeyAddress(account.publicKey ?? "");
         setTransparentAccountAddress(account.address);
 
-        setStatusInfo("Generating Shielded Account");
-        const shieldedAccount = await requester.sendMessage<DeriveAccountMsg>(
-          Ports.Background,
-          new DeriveAccountMsg(
-            account.path,
-            AccountType.ShieldedKeys,
-            account.alias
-          )
-        );
-        setShieldedAccountAddress(shieldedAccount.address);
+        if (accountSecret.t !== "PrivateKey") {
+          setStatusInfo("Generating Shielded Account");
+          const shieldedAccount = await requester.sendMessage<DeriveAccountMsg>(
+            Ports.Background,
+            new DeriveAccountMsg(
+              account.path,
+              AccountType.ShieldedKeys,
+              account.alias
+            )
+          );
+          setShieldedAccountAddress(shieldedAccount.address);
+        }
 
         if (scanAccounts) {
           setStatusInfo("Scanning accounts.");
@@ -126,7 +137,7 @@ const Completion: React.FC<Props> = (props) => {
       }
     };
     saveMnemonic();
-  }, [alias, mnemonic, password, scanAccounts]);
+  }, []);
 
   return (
     <>

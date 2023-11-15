@@ -8,9 +8,10 @@ import { useNavigate } from "react-router-dom";
 import { formatRouterPath } from "@namada/utils";
 import { TopLevelRoute } from "App/types";
 import { Footer } from "./SeedPhraseSetup.components";
+import { AccountSecret } from "background/keyring";
 
 type SeedPhraseSetupProps = {
-  seedPhrase?: string[];
+  accountSecret?: AccountSecret;
   accountCreationDetails?: AccountDetails;
   onConfirm: (accountCreationDetails: AccountDetails) => void;
   passwordRequired: boolean | undefined;
@@ -18,20 +19,18 @@ type SeedPhraseSetupProps = {
 
 export const SeedPhraseSetup = (props: SeedPhraseSetupProps): JSX.Element => {
   const navigate = useNavigate();
-  const { seedPhrase, accountCreationDetails, onConfirm, passwordRequired } =
+  const { accountSecret, accountCreationDetails, onConfirm, passwordRequired } =
     props;
 
   const [password, setPassword] = useState<string | undefined>();
   const [accountName, setAccountName] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const seedPhraseLength = seedPhrase ? seedPhrase.length : 0;
   const notVerified = (passwordRequired && !password) || !accountName;
 
   useEffect(() => {
-    if (seedPhraseLength === 0) {
+    if (!accountSecret) {
       navigate(formatRouterPath([TopLevelRoute.AddAccount]));
-      return;
     }
   }, []);
 

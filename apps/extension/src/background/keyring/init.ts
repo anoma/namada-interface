@@ -3,7 +3,7 @@ import {
   DeriveAccountMsg,
   QueryPublicKeyMsg,
   GenerateMnemonicMsg,
-  SaveMnemonicMsg,
+  SaveAccountSecretMsg,
   ScanAccountsMsg,
   SetActiveAccountMsg,
   GetActiveAccountMsg,
@@ -36,7 +36,7 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(QueryAccountsMsg);
   router.registerMessage(QueryBalancesMsg);
   router.registerMessage(QueryParentAccountsMsg);
-  router.registerMessage(SaveMnemonicMsg);
+  router.registerMessage(SaveAccountSecretMsg);
   router.registerMessage(ScanAccountsMsg);
   router.registerMessage(SetActiveAccountMsg);
   router.registerMessage(TransferCompletedEvent);
