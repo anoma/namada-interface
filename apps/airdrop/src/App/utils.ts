@@ -6,6 +6,7 @@ export const navigatePostCheck = (
   hasClaimed: boolean,
   replace = false
 ): void => {
+  console.log("navigatePostCheck", eligible, hasClaimed);
   if (eligible && !hasClaimed) {
     navigate("/claim/info", { replace });
   } else if (eligible && hasClaimed) {
