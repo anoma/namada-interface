@@ -27,6 +27,10 @@ const copyPatterns = [
     to: "./assets/[name].css",
   },
   {
+    from: "./src/public/icons/*.png",
+    to: "./assets/icons/[name].png",
+  },
+  {
     from: "./src/background/offscreen/offscreen.html",
     to: "./offscreen.html",
   },
