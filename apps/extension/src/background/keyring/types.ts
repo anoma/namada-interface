@@ -52,3 +52,8 @@ export enum DeleteAccountError {
   BadPassword,
   KeyStoreError,
 }
+
+export type MnemonicValidationResponse = {
+  isValid: boolean;
+  error?: string;
+};

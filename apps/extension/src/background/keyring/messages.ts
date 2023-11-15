@@ -3,7 +3,12 @@ import { AccountType, Bip44Path, DerivedAccount } from "@namada/types";
 import { Result } from "@namada/utils";
 import { Message } from "router";
 import { ROUTE } from "./constants";
-import { AccountStore, DeleteAccountError, ParentAccount } from "./types";
+import {
+  AccountStore,
+  DeleteAccountError,
+  MnemonicValidationResponse,
+  ParentAccount,
+} from "./types";
 
 enum MessageType {
   QueryPublicKey = "query-public-key",
@@ -92,7 +97,7 @@ export class RevealAccountMnemonicMsg extends Message<string> {
   }
 }
 
-export class ValidateMnemonicMsg extends Message<boolean> {
+export class ValidateMnemonicMsg extends Message<MnemonicValidationResponse> {
   public static type(): MessageType {
     return MessageType.ValidateMnemonic;
   }
@@ -223,7 +228,7 @@ export class ScanAccountsMsg extends Message<void> {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  validate(): void {}
+  validate(): void { }
 
   route(): string {
     return ROUTE;
