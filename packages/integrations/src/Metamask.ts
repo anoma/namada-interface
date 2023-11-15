@@ -8,7 +8,7 @@ import {
   Chain,
   MetamaskEvents,
   TokenBalance,
-  Tokens,
+  // Tokens,
 } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
 import { BridgeProps, Integration } from "./types/Integration";
@@ -27,7 +27,7 @@ type MetamaskWindow = Window &
 
 class Metamask implements Integration<Account, unknown> {
   private _ethereum: MetaMaskInpageProvider | undefined;
-  constructor(public readonly chain: Chain) {}
+  constructor(public readonly chain: Chain) { }
 
   private init(): void {
     if ((<MetamaskWindow>window).ethereum) {
@@ -121,19 +121,20 @@ class Metamask implements Integration<Account, unknown> {
   public async queryBalances(owner: string): Promise<TokenBalance[]> {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const ethBalance = await provider.getBalance(owner);
-    const signer = await provider.getSigner(owner);
+    // TODO: Re-enable the following when we Erc20 tokens are fully supported:
+    // const signer = await provider.getSigner(owner);
 
-    const erc = new ethers.Contract(
-      //TODO: fix after we support add support for any kind of Erc20 token
-      Tokens["TESTERC20"].nativeAddress as string,
-      erc20Abi,
-      signer
-    );
-    const testErc20Balance: bigint = await erc.balanceOf(signer.address);
+    // const erc = new ethers.Contract(
+    //   //TODO: fix after we support add support for any kind of Erc20 token
+    //   Tokens["TESTERC20"].nativeAddress as string,
+    //   erc20Abi,
+    //   signer
+    // );
+    // const testErc20Balance: bigint = await erc.balanceOf(signer.address);
 
     return [
       { token: "ETH", amount: String(ethBalance) || "0" },
-      { token: "TESTERC20", amount: String(testErc20Balance) || "0" },
+      // { token: "TESTERC20", amount: String(testErc20Balance) || "0" },
     ];
   }
 }

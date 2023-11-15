@@ -1,4 +1,4 @@
-export const PAYMENT_ADDRESS_PREFIX = "patest1";
+export const PAYMENT_ADDRESS_PREFIX = "znam1";
 export const PAYMENT_ADDRESS_LENGTH = 82;
-export const ESTABLISHED_ADDRESS_PREFIX = "atest1";
-export const ESTABLISHED_ADDRESS_LENGTH = 84;
+export const ESTABLISHED_ADDRESS_PREFIX = "tnam1";
+export const ESTABLISHED_ADDRESS_LENGTH = 45;

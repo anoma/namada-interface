@@ -1,19 +1,28 @@
+use borsh::BorshDeserialize;
 use namada::types::{
     address,
     key::{
         self,
         common::{PublicKey, SecretKey},
-        RefTo,
+        PublicKeyHash, RefTo,
     },
 };
 use std::str::FromStr;
 use wasm_bindgen::prelude::*;
 
+/// Helper function to bech32 encode a public key from bytes
+#[wasm_bindgen]
+pub fn public_key_to_bech32(bytes: Vec<u8>) -> Result<String, JsError> {
+    let public_key = PublicKey::try_from_slice(&bytes)?;
+
+    Ok(public_key.to_string())
+}
+
 #[wasm_bindgen]
 pub struct Address {
     implicit: address::Address,
-    private: SecretKey,
     public: PublicKey,
+    hash: PublicKeyHash,
 }
 
 #[wasm_bindgen]
@@ -27,12 +36,13 @@ impl Address {
 
         #[allow(clippy::useless_conversion)]
         let public = PublicKey::from(private.ref_to());
+        let hash = PublicKeyHash::from(&public);
         let implicit = address::Address::Implicit(address::ImplicitAddress::from(&public));
 
         Address {
             implicit,
-            private,
             public,
+            hash,
         }
     }
 
@@ -44,8 +54,8 @@ impl Address {
         self.public.to_string()
     }
 
-    pub fn private(&self) -> String {
-        self.private.to_string()
+    pub fn hash(&self) -> String {
+        self.hash.to_string()
     }
 }
 
@@ -60,10 +70,7 @@ mod tests {
         let address = Address::new(secret);
         let implicit = address.implicit();
 
-        assert_eq!(
-            implicit,
-            "atest1d9khqw36x5cnvvjpgfzyxsjpgfqnqwf5xpq5zv34gvunswp4g3znww2yxqursdpnxdz5yw2ypna253"
-        );
+        assert_eq!(implicit, "tnam1qpgk927uh2aqjs92yhycsh08n5yggvltn5nk92zp");
         assert_eq!(implicit.len(), address::ADDRESS_LEN);
     }
 
@@ -73,24 +80,22 @@ mod tests {
             String::from("1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93");
         let address = Address::new(secret);
         let public = address.public();
-        let pad = "00";
 
         assert_eq!(
             public,
-            "pktest1qzm68sfdcryvwj9tqaf9kuq3y2ugh4u0vqx8vdpdyle9uhujg3xdurhznu9"
+            "tpknam1qzm68sfdcryvwj9tqaf9kuq3y2ugh4u0vqx8vdpdyle9uhujg3xduf408cn"
         );
-        assert_eq!(public.len(), pad.len() + 64);
+        assert_eq!(public.len(), 66);
     }
 
     #[test]
-    fn can_return_correct_secret_key() {
+    fn can_return_correct_public_key_hash() {
         let secret =
             String::from("1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93");
         let address = Address::new(secret.clone());
-        let private = address.private();
-        let pad = "00";
+        let hash = address.hash();
 
-        assert_eq!(format!("{}{}", pad, secret), private);
-        assert_eq!(private.len(), pad.len() + 64);
+        assert_eq!("5162ABDCBABA0940AA25C9885DE79D088433EB9D", hash);
+        assert_eq!(hash.len(), 40);
     }
 }

@@ -8,10 +8,11 @@ use wasm_bindgen_futures::JsFuture;
 use web_sys::Response;
 
 use namada::ledger::queries::{Client, EncodedResponseQuery};
-use namada::tendermint::abci::Code;
-use namada::tendermint_rpc::{Response as RpcResponse, SimpleRequest};
+use namada::tendermint::{self, abci::Code};
+use namada::tendermint_rpc::{
+    error::Error as TendermintRpcError, Response as RpcResponse, SimpleRequest,
+};
 use namada::types::storage::BlockHeight;
-use namada::{tendermint, tendermint_rpc::error::Error as TendermintRpcError};
 
 #[wasm_bindgen(module = "/src/rpc_client.js")]
 extern "C" {
@@ -128,7 +129,7 @@ impl Client for HttpClient {
     /// # Arguments
     ///
     /// * `request` - request type to be performed. Check `Client` trait for avaialble requests.
-    async fn perform<R>(&self, request: R) -> Result<R::Response, TendermintRpcError>
+    async fn perform<R>(&self, request: R) -> Result<R::Output, TendermintRpcError>
     where
         R: SimpleRequest,
     {
@@ -147,6 +148,6 @@ impl Client for HttpClient {
             .expect("JS object to be serializable")
             .into();
 
-        R::Response::from_string(&response_json)
+        Ok(R::Response::from_string(&response_json).unwrap().into())
     }
 }

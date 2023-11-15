@@ -54,14 +54,6 @@ const assetIconByToken: Record<TokenType, { light: string; dark: string }> = {
     light: AssetEthereumEther,
     dark: AssetEthereumEther,
   },
-  ["TESTERC20"]: {
-    light: AssetEthereumEther,
-    dark: AssetEthereumEther,
-  },
-  ["NUTTESTERC20"]: {
-    light: AssetEthereumEther,
-    dark: AssetEthereumEther,
-  },
   ["ATOM"]: {
     light: AssetCosmosAtom,
     dark: AssetCosmosAtom,
@@ -204,7 +196,8 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
                             <TokenIcon
                               src={getAssetIconByTheme(token as TokenType)}
                             />
-                            {amount.toString()} {Tokens[token as TokenType].symbol}
+                            {amount.toString()}{" "}
+                            {Tokens[token as TokenType].symbol}
                           </TokenBalance>
                         );
                       })}

@@ -108,7 +108,7 @@ const findNextIndex = (
   accounts
     .filter((account) => account.type === accountType)
     .forEach((account) => {
-      const { index = 0 } = account.path;
+      const { index } = account.path;
       maxIndex = index + 1;
     });
 
@@ -402,9 +402,8 @@ const AddAccount: React.FC<Props> = ({
 
             <Bip44Path>
               Derivation path:{" "}
-              <span>{`${parentDerivationPath}${
-                isTransparent ? `${change}/` : ""
-              }${index}`}</span>
+              <span>{`${parentDerivationPath}${isTransparent ? `${change}/` : ""
+                }${index}`}</span>
             </Bip44Path>
             <FormValidationMsg>{validation}</FormValidationMsg>
           </AddAccountForm>

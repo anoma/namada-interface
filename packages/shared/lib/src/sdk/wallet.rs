@@ -1,8 +1,7 @@
 use std::str::FromStr;
 
-use masp_primitives::zip32::ExtendedFullViewingKey;
 use namada::{
-    namada_sdk::wallet::{alias::Alias, Store, StoredKeypair, Wallet, WalletIo, WalletStorage},
+    namada_sdk::wallet::{alias::Alias, Store, Wallet, WalletIo, WalletStorage},
     types::{
         address::{Address, ImplicitAddress},
         key::{self, common::SecretKey, PublicKeyHash, RefTo},
@@ -79,20 +78,19 @@ pub fn add_key(
     let sk = SecretKey::Ed25519(sk);
     let pkh: PublicKeyHash = PublicKeyHash::from(&sk.ref_to());
     let password = password.map(|pwd| zeroize::Zeroizing::new(pwd));
-    let (keypair_to_store, _raw_keypair) = StoredKeypair::new(sk, password);
     let address = Address::Implicit(ImplicitAddress(pkh.clone()));
     let alias: Alias = alias.unwrap_or_else(|| pkh.clone().into()).into();
 
     if wallet
         .store_mut()
-        .insert_keypair::<BrowserWalletUtils>(alias.clone(), keypair_to_store, pkh, false)
-        .is_none()
-    {
-        panic!("Action cancelled, no changes persisted.");
-    }
-    if wallet
-        .store_mut()
-        .insert_address::<BrowserWalletUtils>(alias.clone(), address, false)
+        .insert_keypair::<BrowserWalletUtils>(
+            alias.clone(),
+            sk,
+            password,
+            Some(address.clone()),
+            None,
+            false,
+        )
         .is_none()
     {
         panic!("Action cancelled, no changes persisted.");
@@ -116,14 +114,12 @@ pub fn add_spending_key(
     alias: &str,
 ) {
     let xsk = ExtendedSpendingKey::from_str(xsk).expect("XSK deserialization failed.");
-    let viewkey = ExtendedFullViewingKey::from(&xsk.into()).into();
     let password = password.map(|pwd| zeroize::Zeroizing::new(pwd));
-    let (spendkey_to_store, _raw_spendkey) = StoredKeypair::new(xsk, password);
     let alias = Alias::from(alias);
 
     if wallet
         .store_mut()
-        .insert_spending_key::<BrowserWalletUtils>(alias.clone(), spendkey_to_store, viewkey, false)
+        .insert_spending_key::<BrowserWalletUtils>(alias.clone(), xsk, password, false)
         .is_none()
     {
         panic!("Action cancelled, no changes persisted.");

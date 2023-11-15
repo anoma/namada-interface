@@ -101,7 +101,7 @@ const TokenSend = (): JSX.Element => {
   let defaultTab = 0;
 
   // Load the correct form if coming from URL in QR code:
-  if (target && target.startsWith("atest")) {
+  if (target && target.startsWith("tnam")) {
     defaultTab = 1;
   }
 
@@ -112,13 +112,13 @@ const TokenSend = (): JSX.Element => {
 
   const handleTokenChange =
     (selectAccountFn: (accId: string) => void) =>
-    (e: React.ChangeEvent<HTMLSelectElement>): void => {
-      const { value } = e.target;
-      const [accountId, tokenSymbol] = value.split("|");
+      (e: React.ChangeEvent<HTMLSelectElement>): void => {
+        const { value } = e.target;
+        const [accountId, tokenSymbol] = value.split("|");
 
-      selectAccountFn(accountId);
-      setToken(tokenSymbol as TokenType);
-    };
+        selectAccountFn(accountId);
+        setToken(tokenSymbol as TokenType);
+      };
 
   return (
     <TokenSendContainer>
@@ -153,7 +153,7 @@ const TokenSend = (): JSX.Element => {
                   address={selectedShieldedAccountAddress}
                   tokenType={token}
                   defaultTarget={
-                    target?.startsWith("patest") ? target : undefined
+                    target?.startsWith("znam") ? target : undefined
                   }
                 />
               )}
@@ -181,7 +181,7 @@ const TokenSend = (): JSX.Element => {
                   address={selectedTransparentAccountAddress}
                   tokenType={token}
                   defaultTarget={
-                    target?.startsWith("atest") ? target : undefined
+                    target?.startsWith("tnam") ? target : undefined
                   }
                 />
               )}

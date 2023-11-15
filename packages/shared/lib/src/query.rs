@@ -17,12 +17,7 @@ use namada::namada_sdk::rpc::{
 };
 use namada::proof_of_stake::Epoch;
 use namada::types::eth_bridge_pool::TransferToEthereum;
-use namada::types::{
-    address::Address,
-    masp::ExtendedViewingKey,
-    token::{self},
-    uint::I256,
-};
+use namada::types::{address::Address, masp::ExtendedViewingKey, token, uint::I256};
 use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 use wasm_bindgen::prelude::*;
@@ -240,19 +235,15 @@ impl Query {
         &self,
         owner: Address,
     ) -> Result<Vec<(Address, token::Amount)>, JsError> {
-        //TODO: Move hardoced tokens somewhere else
-        let tokens: HashSet<Address> = HashSet::from([Address::from_str(
-            "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5",
-        )?, Address::from_str(
-            "atest1v4ehgw36gfryydj9g3p5zv3kg9znyd358ycnzsfcggc5gvecgc6ygs2rxv6ry3zpg4zrwdfeumqcz9",
-        )?, Address::from_str(
-            "atest1v4ehgw36xqmr2d3nx3ryvd2xxgmrq33j8qcns33sxezrgv6zxdzrydjrxveygd2yxumrsdpsf9jc2p",
-        )?, Address::from_str(
-            "atest1v46xsw368psnwwf3xcerqeryxcervvpsxuukye3cxsukgce4x5mrwctyvvekvvnxv33nxvfc0kmacx",
-        )?,
-        Address::from_str(
-            "atest1de6hgw368pqnwwf3xcerqeryxcervvpsxuu5y33cxsu5gce4x5mrwc2ygve5vvjxv3pnxvfcq8rzzq",
-        )?]);
+        //TODO: Move hardcoded tokens somewhere else
+        let tokens: HashSet<Address> = HashSet::from([
+            // NAM
+            Address::from_str("tnam1qyytnlley9h2mw5pjzsp862uuqhc2l0h5uqx397y")?,
+            // DOT
+            Address::from_str("tnam1qyrsnajxyn660ukm0zwacfrt3mff9c4vvuzrrpnx")?,
+            // ETH
+            Address::from_str("tnam1q8r6dc0kh2xuxzjy75cgt4tfqchf4k8cguuvxkuh")?,
+        ]);
 
         let mut result = vec![];
         for token in tokens {
@@ -480,6 +471,7 @@ impl Query {
                 let is_yay = match vote.data {
                     StorageProposalVote::Yay(_) => true,
                     StorageProposalVote::Nay => false,
+                    StorageProposalVote::Abstain => false,
                 };
                 (vote.delegator, is_yay)
             })

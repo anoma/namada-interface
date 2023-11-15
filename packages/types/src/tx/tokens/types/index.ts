@@ -1,8 +1,4 @@
-import {
-  registeredCoinTypes,
-  RegisteredCoinType,
-  RegisteredCoinSymbol,
-} from "slip44";
+import { registeredCoinTypes, RegisteredCoinType } from "slip44";
 
 export type TokenInfo = {
   symbol: string;
@@ -17,37 +13,15 @@ export type TokenInfo = {
 };
 
 // Declare symbols for tokens we support:
-export const Symbols = [
-  "NAM",
-  "ATOM",
-  "ETH",
-  "TESTERC20",
-  "NUTTESTERC20",
-] as const;
+export const Symbols = ["NAM", "ATOM", "ETH"] as const;
 
-export type TokenType = (typeof Symbols)[number];
+export type TokenType = typeof Symbols[number];
 type Tokens = Record<TokenType, TokenInfo>;
-
-const nuterc20 = [
-  -999,
-  -999,
-  "NUTTESTERC20" as RegisteredCoinSymbol,
-  "NUTtesterc20",
-] as RegisteredCoinType;
-
-const erc20 = [
-  -999,
-  -999,
-  "TESTERC20" as RegisteredCoinSymbol,
-  "testerc20",
-] as RegisteredCoinType;
 
 const supportedCoinTypes: RegisteredCoinType[] = [
   ...registeredCoinTypes.filter(([, , symbol]) => {
     return Symbols.indexOf(`${symbol as TokenType}`) > -1;
   }),
-  erc20,
-  nuterc20,
 ];
 
 export const Tokens = supportedCoinTypes.reduce(
@@ -70,34 +44,23 @@ export const Tokens = supportedCoinTypes.reduce(
 
 // Map a few test addresses for now:
 Tokens["NAM"] = {
-  type: 123456,
-  path: 2147483651,
-  symbol: "NAM",
-  coin: "Namada",
+  ...Tokens["NAM"],
   url: "https://namada.net",
-  address:
-    "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5",
+  address: "tnam1qyytnlley9h2mw5pjzsp862uuqhc2l0h5uqx397y",
 };
 
-Tokens["ATOM"].address =
-  "atest1v4ehgw36gfryydj9g3p5zv3kg9znyd358ycnzsfcggc5gvecgc6ygs2rxv6ry3zpg4zrwdfeumqcz9";
-Tokens["ATOM"].coinGeckoId = "cosmos";
+// TODO: We don't have a address for this. The address for DOT
+// from the dev & e2e genesis is being used here:
+Tokens["ATOM"] = {
+  ...Tokens["ATOM"],
+  address: "tnam1qyrsnajxyn660ukm0zwacfrt3mff9c4vvuzrrpnx",
+  coinGeckoId: "cosmos",
+};
 
-Tokens["ETH"].address =
-  "atest1v4ehgw36xqmr2d3nx3ryvd2xxgmrq33j8qcns33sxezrgv6zxdzrydjrxveygd2yxumrsdpsf9jc2p";
-Tokens["ETH"].coinGeckoId = "ethereum";
-
-Tokens["TESTERC20"].address =
-  "atest1v46xsw368psnwwf3xcerqeryxcervvpsxuukye3cxsukgce4x5mrwctyvvekvvnxv33nxvfc0kmacx";
-Tokens["TESTERC20"].nativeAddress =
-  "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318";
-Tokens["TESTERC20"].coinGeckoId = "testerc20";
-
-Tokens["NUTTESTERC20"].address =
-  "atest1de6hgw368psnwwf3xcerqeryxcervvpsxuukye3cxsukgce4x5mrwctyvvekvvnxv33nxvfcmh3pul";
-Tokens["NUTTESTERC20"].nativeAddress =
-  "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318";
-Tokens["NUTTESTERC20"].isNut = true;
-Tokens["NUTTESTERC20"].coinGeckoId = "NUTtesterc20";
+Tokens["ETH"] = {
+  ...Tokens["ETH"],
+  address: "tnam1q8r6dc0kh2xuxzjy75cgt4tfqchf4k8cguuvxkuh",
+  coinGeckoId: "ethereum",
+};
 
 export type TokenBalance = { token: TokenType; amount: string };
