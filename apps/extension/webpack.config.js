@@ -27,6 +27,10 @@ const copyPatterns = [
     to: "./assets/[name].css",
   },
   {
+    from: "./src/public/fonts/*",
+    to: "./assets/fonts/[name][ext]",
+  },
+  {
     from: "./src/public/icons/*.png",
     to: "./assets/icons/[name].png",
   },
