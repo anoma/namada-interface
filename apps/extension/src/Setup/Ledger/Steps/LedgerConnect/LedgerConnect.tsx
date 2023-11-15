@@ -37,9 +37,15 @@ export const LedgerConnect: React.FC = () => {
       }
 
       const { address, publicKey } = await ledger.getAddressAndPublicKey();
+
       navigate(
         formatRouterPath([TopLevelRoute.Ledger, LedgerConnectRoute.Import]),
-        { state: { address, publicKey } }
+        {
+          state: {
+            address,
+            publicKey,
+          },
+        }
       );
     } catch (e) {
       handleError(e);

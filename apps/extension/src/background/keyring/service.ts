@@ -1,7 +1,7 @@
-import { fromBase64 } from "@cosmjs/encoding";
+import { fromBase64, fromHex } from "@cosmjs/encoding";
 
 import { PhraseSize } from "@namada/crypto";
-import { Query, Sdk, TxType } from "@namada/shared";
+import { public_key_to_bech32, Query, Sdk, TxType } from "@namada/shared";
 import { IndexedDBKVStore, KVStore } from "@namada/storage";
 import { AccountType, Bip44Path, DerivedAccount } from "@namada/types";
 import { Result } from "@namada/utils";
@@ -107,10 +107,12 @@ export class KeyRingService {
     bip44Path: Bip44Path,
     parentId?: string
   ): Promise<AccountStore | false> {
+    const publicKeyBytes = fromHex(publicKey);
+    const bech32PublicKey = public_key_to_bech32(publicKeyBytes);
     return await this._keyRing.storeLedger(
       alias,
       address,
-      publicKey,
+      bech32PublicKey,
       bip44Path,
       parentId
     );
