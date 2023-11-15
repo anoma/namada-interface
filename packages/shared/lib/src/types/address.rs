@@ -1,3 +1,4 @@
+use borsh::BorshDeserialize;
 use namada::types::{
     address,
     key::{
@@ -8,6 +9,14 @@ use namada::types::{
 };
 use std::str::FromStr;
 use wasm_bindgen::prelude::*;
+
+/// Helper function to bech32 encode a public key from bytes
+#[wasm_bindgen]
+pub fn public_key_to_bech32(bytes: Vec<u8>) -> Result<String, JsError> {
+    let public_key = PublicKey::try_from_slice(&bytes)?;
+
+    Ok(public_key.to_string())
+}
 
 #[wasm_bindgen]
 pub struct Address {

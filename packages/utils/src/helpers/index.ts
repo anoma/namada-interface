@@ -189,7 +189,7 @@ export const makeBip44Path = (
   bip44Path: Bip44Path
 ): string => {
   const { account, change, index } = bip44Path;
-  return `m/44'/${coinType}'/${account}'/${change}/${index}`;
+  return `m/44'/${coinType}'/${account}'/${change}'/${index}'`;
 };
 
 /**

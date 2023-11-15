@@ -11,6 +11,7 @@ import {
 } from "@namada/ledger-namada";
 import { defaultChainId, chains } from "@namada/chains";
 import { makeBip44Path } from "@namada/utils";
+import { toHex } from "@cosmjs/encoding";
 
 const namadaChain = chains[defaultChainId];
 const { coinType } = namadaChain.bip44;
@@ -30,7 +31,7 @@ export const DEFAULT_LEDGER_BIP44_PATH = makeBip44Path(coinType, {
 });
 
 export class Ledger {
-  constructor(public readonly namadaApp: NamadaApp | undefined = undefined) {}
+  constructor(public readonly namadaApp: NamadaApp | undefined = undefined) { }
 
   /**
    * Returns an initialized Ledger class instance with initialized Transport
@@ -85,7 +86,7 @@ export class Ledger {
       // Return address as bech32-encoded string
       address: address.toString(),
       // Return public key as hex-encoded string
-      publicKey: publicKey.toString("hex").substring(2),
+      publicKey: toHex(publicKey),
     };
   }
 

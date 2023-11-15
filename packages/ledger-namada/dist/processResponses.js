@@ -19,7 +19,6 @@ exports.processGetAddrResponse = exports.getSignatureResponse = void 0;
 const common_1 = require("./common");
 const config_1 = require("./config");
 function getSignatureResponse(response) {
-    console.log('Processing get signature response');
     // App sign response: [ pubkey(33) | raw_salt(8) | raw_signature(65) | wrapper_salt(8) | wrapper_signature(65) |
     // raw_indices_len(1) | wrapper_indices_len(1) | indices(wrapper_indices_len) ]
     let offset = 0;
@@ -53,7 +52,6 @@ function getSignatureResponse(response) {
 }
 exports.getSignatureResponse = getSignatureResponse;
 function processGetAddrResponse(response) {
-    console.log('Processing get address response');
     const errorCodeData = response.subarray(-2);
     const returnCode = errorCodeData[0] * 256 + errorCodeData[1];
     const publicKey = Buffer.from(response.subarray(0, config_1.PK_LEN_PLUS_TAG));
