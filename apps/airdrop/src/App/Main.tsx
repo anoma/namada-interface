@@ -1,4 +1,6 @@
 import { Window as KeplrWindow, Keplr } from "@keplr-wallet/types";
+import { ethers } from "ethers";
+import { type MetaMaskInpageProvider } from "@metamask/providers";
 import {
   Button,
   ButtonVariant,
@@ -32,6 +34,11 @@ const {
   AIRDROP_BACKEND_SERVICE_URL: backendUrl = "",
 } = process.env;
 
+type MetamaskWindow = Window &
+  typeof globalThis & {
+    ethereum: MetaMaskInpageProvider;
+  };
+
 type GithubClaim = {
   eligible: boolean;
   amount: number;
@@ -63,7 +70,7 @@ const checkGithubClaim = async (code: string): Promise<GithubClaim> => {
 
 const checkClaim = async (
   address: string,
-  type: KeplrClaimType
+  type: KeplrClaimType | "gitcoin"
 ): Promise<KeplrClaim> => {
   const response = await fetch(
     `${backendUrl}/api/v1/airdrop/${type}/${address}`,
@@ -79,6 +86,9 @@ const checkClaim = async (
 
 export const Main: React.FC = () => {
   const [keplr, setKeplr] = useState<Keplr | undefined>();
+  const [metamask, setMetamask] = useState<
+    MetaMaskInpageProvider | undefined
+  >();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isTOSAccepted, setIsTOSAccepted] = useState(false);
   const [_cl, setClaimState] = useAtom(claimAtom);
@@ -124,10 +134,8 @@ export const Main: React.FC = () => {
     chainId: string
   ): Promise<void> => {
     if (!keplr) {
-      handleKeplrDownload();
+      handleExtensionDownload("https://www.keplr.app/download");
     } else {
-      //This is a fallback in case someone removed Keplr and did not refresh the website
-      //THIS SHOULD NOT HAPPEN OFTEN!!!
       try {
         await keplr.enable(chainId);
       } catch (e) {
@@ -151,17 +159,70 @@ export const Main: React.FC = () => {
           address,
           nonce: response.nonce,
         });
+      } else if (response.eligible && response.has_claimed) {
+        setConfirmation({
+          confirmed: true,
+          address: response.airdrop_address as string,
+          amount: response.amount,
+        });
       }
+
       navigatePostCheck(navigate, response.eligible, response.has_claimed);
     }
   };
 
-  const handleKeplrDownload = (): void => {
-    window.open(
-      "https://www.keplr.app/download",
-      "_blank",
-      "noopener,noreferrer"
-    );
+  const handleMetamaskConnection = async (chainId: string): Promise<void> => {
+    if (!metamask) {
+      handleExtensionDownload("https://metamask.io/download/");
+    } else {
+      await metamask.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId }],
+      });
+
+      const addresses = await metamask.request<string[]>({
+        method: "eth_requestAccounts",
+      });
+
+      if (!addresses || !addresses[0]) {
+        throw new Error("No address found");
+      }
+      const address = addresses[0];
+      const response = await checkClaim(address, "gitcoin");
+
+      if (response.eligible && !response.has_claimed) {
+        const signature = await metamask.request<string>({
+          method: "personal_sign",
+          params: [response.nonce, address],
+        });
+
+        if (!signature) {
+          throw new Error("Can't sign message");
+        }
+
+        setClaimState({
+          eligible: response.eligible,
+          amount: response.amount,
+          hasClaimed: response.has_claimed,
+          signature,
+          address,
+          nonce: response.nonce,
+          type: "gitcoin",
+        });
+      } else if (response.eligible && response.has_claimed) {
+        setConfirmation({
+          confirmed: true,
+          address: response.airdrop_address as string,
+          amount: response.amount,
+        });
+      }
+
+      navigatePostCheck(navigate, response.eligible, response.has_claimed);
+    }
+  };
+
+  const handleExtensionDownload = (url: string): void => {
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -197,6 +258,7 @@ export const Main: React.FC = () => {
                 onClick={() => {
                   setIsModalOpen(true);
                   setKeplr((window as KeplrWindow)?.keplr);
+                  setMetamask((window as MetamaskWindow)?.ethereum);
                 }}
               >
                 <b>Check NAM eligibility</b>
@@ -238,12 +300,31 @@ export const Main: React.FC = () => {
           >
             Github
           </Button>
-          <Button
-            disabled={true || !isTOSAccepted}
-            variant={ButtonVariant.Contained}
-          >
-            Ethereum Wallet
-          </Button>
+          {metamask && (
+            <Button
+              disabled={!isTOSAccepted}
+              variant={ButtonVariant.Contained}
+              onClick={() => handleMetamaskConnection("0x1")}
+            >
+              Gitcoin Wallet
+            </Button>
+          )}
+          {!metamask && (
+            <>
+              <Button
+                variant={ButtonVariant.Contained}
+                onClick={() =>
+                  handleExtensionDownload("https://metamask.io/download/")
+                }
+              >
+                Download Metamask to use Gitcoin Wallet
+              </Button>
+              <span style={{ color: "white" }}>
+                <b>NOTE: </b>Make sure to restart website after installing
+                Metamask extension
+              </span>
+            </>
+          )}
           <Button
             disabled={!isTOSAccepted}
             variant={ButtonVariant.Contained}
@@ -280,7 +361,9 @@ export const Main: React.FC = () => {
             <KeplrButtonContainer>
               <Button
                 variant={ButtonVariant.Contained}
-                onClick={handleKeplrDownload}
+                onClick={() =>
+                  handleExtensionDownload("https://www.keplr.app/download")
+                }
               >
                 Download Keplr to use Cosmos/Osmosis/Stargaze Wallet
               </Button>

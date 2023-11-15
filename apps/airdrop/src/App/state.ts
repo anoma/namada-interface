@@ -16,7 +16,7 @@ export type Signature = {
 // State
 export const KEPLR_CLAIMS = ["cosmos", "osmosis", "badkids"] as const;
 export type KeplrClaimType = (typeof KEPLR_CLAIMS)[number];
-export type ClaimType = "github" | "ts" | KeplrClaimType;
+export type ClaimType = "github" | "ts" | "gitcoin" | KeplrClaimType;
 
 export type GithubState = {
   eligible: boolean;
@@ -45,7 +45,17 @@ export type TSState = {
   publicKey: string;
 };
 
-export type CommonState = GithubState | KeplrState | TSState;
+export type GitcoinState = {
+  eligible: boolean;
+  amount: number;
+  hasClaimed: boolean;
+  signature: string;
+  address: string;
+  nonce: string;
+  type: ClaimType;
+};
+
+export type CommonState = GithubState | KeplrState | TSState | GitcoinState;
 export const claimAtom = atom<CommonState | null>(null);
 
 export type ConfirmationState = {

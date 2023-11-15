@@ -9,6 +9,7 @@ import {
   claimAtom,
   ClaimResponse,
   KEPLR_CLAIMS,
+  GitcoinState,
 } from "../state";
 import {
   Button,
@@ -75,6 +76,30 @@ const claimWithKeplr = async (
   return response.json();
 };
 
+const claimWithGitcoin = async (
+  signer_address: string,
+  message: string,
+  signature: string,
+  airdrop_address: string
+): Promise<ClaimResponse> => {
+  console.log(signer_address, message, signature, airdrop_address);
+  const response = await fetch(`${backendUrl}/api/v1/airdrop/gitcoin`, {
+    method: "POST",
+    headers: new Headers({
+      "content-type": "application/json",
+      "x-airdrop-secret": "header",
+    }),
+    body: JSON.stringify({
+      signer_address,
+      message,
+      signature,
+      airdrop_address,
+    }),
+  });
+
+  return response.json();
+};
+
 const claimWithTS = async (
   signer_public_key: string,
   signature: string,
@@ -106,6 +131,9 @@ const claim = (
   } else if (type === "ts") {
     const { publicKey, nonce } = state as TSState;
     return claimWithTS(publicKey, tsSignature, airdropAddress, nonce);
+  } else if (type === "gitcoin") {
+    const { signature, address, nonce } = state as GitcoinState;
+    return claimWithGitcoin(address, nonce, signature, airdropAddress);
   } else if (KEPLR_CLAIMS.includes(type)) {
     const { signature, address, nonce } = state as KeplrState;
     return claimWithKeplr(
