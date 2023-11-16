@@ -17,11 +17,11 @@ const namadaChain = chains[defaultChainId];
 const { coinType } = namadaChain.bip44;
 
 export const initLedgerUSBTransport = async (): Promise<Transport> => {
-  return await TransportHID.create();
+  return await TransportUSB.create();
 };
 
 export const initLedgerHIDTransport = async (): Promise<Transport> => {
-  return await TransportUSB.create();
+  return await TransportHID.create();
 };
 
 export const DEFAULT_LEDGER_BIP44_PATH = makeBip44Path(coinType, {
@@ -31,7 +31,7 @@ export const DEFAULT_LEDGER_BIP44_PATH = makeBip44Path(coinType, {
 });
 
 export class Ledger {
-  constructor(public readonly namadaApp: NamadaApp | undefined = undefined) { }
+  constructor(public readonly namadaApp: NamadaApp | undefined = undefined) {}
 
   /**
    * Returns an initialized Ledger class instance with initialized Transport

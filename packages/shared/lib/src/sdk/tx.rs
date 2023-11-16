@@ -8,8 +8,7 @@ use namada::{
         address::Address,
         chain::ChainId,
         ethereum_events::EthAddress,
-        // key::common::PublicKey as PK,
-        // key::ed25519::PublicKey,
+        key::common::PublicKey,
         masp::{ExtendedSpendingKey, PaymentAddress, TransferSource, TransferTarget},
         token::{Amount, DenominatedAmount, NATIVE_MAX_DECIMAL_PLACES},
         transaction::GasLimit,
@@ -437,7 +436,7 @@ fn tx_msg_into_args(tx_msg: &[u8], password: Option<String>) -> Result<args::Tx,
         fee_amount,
         gas_limit,
         chain_id,
-        public_key: _,
+        public_key,
     } = tx_msg;
 
     let token = Address::from_str(&token)?;
@@ -447,13 +446,13 @@ fn tx_msg_into_args(tx_msg: &[u8], password: Option<String>) -> Result<args::Tx,
     let fee_input_amount = InputAmount::Unvalidated(fee_amount);
 
     let password = password.map(|pwd| zeroize::Zeroizing::new(pwd));
-    // let public_key = match public_key {
-    //     Some(v) => {
-    //         let pk = PublicKey::from_str(&v)?;
-    //         Some(PK::Ed25519(pk))
-    //     }
-    //     _ => None,
-    // };
+    let public_key = match public_key {
+        Some(v) => {
+            let pk = PublicKey::from_str(&v)?;
+            Some(pk)
+        }
+        _ => None,
+    };
 
     let args = args::Tx {
         dry_run: false,
@@ -477,7 +476,7 @@ fn tx_msg_into_args(tx_msg: &[u8], password: Option<String>) -> Result<args::Tx,
         signing_keys: vec![],
         tx_reveal_code_path: PathBuf::from("tx_reveal_pk.wasm"),
         use_device: false,
-        verification_key: None,
+        verification_key: public_key,
         password,
     };
 
