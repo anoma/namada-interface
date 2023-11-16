@@ -6,21 +6,21 @@
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
+      "matches": ["*://rpgfdrop.namada.net/*"],
       "js": ["content.namada.js"]
     }
   ],
   "action": {
     "default_popup": "popup.html"
   },
-  "permissions": ["storage", "notifications", "identity", "offscreen"],
+  "permissions": ["storage"],
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
   },
   "web_accessible_resources": [
     {
       "resources": ["injected.namada.js", "assets/app.css"],
-      "matches": ["<all_urls>"]
+      "matches": ["*://rpgfdrop.namada.net/*"]
     }
   ],
   "icons": {
