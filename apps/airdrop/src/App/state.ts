@@ -24,6 +24,8 @@ export type GithubState = {
   hasClaimed: boolean;
   type: ClaimType;
   githubToken: string;
+  githubUsername: string;
+  eligibilities: string[];
 };
 
 export type KeplrState = {
@@ -40,7 +42,7 @@ export type TSState = {
   eligible: boolean;
   amount: number;
   hasClaimed: boolean;
-  type: ClaimType;
+  type: "ts";
   nonce: string;
   publicKey: string;
 };

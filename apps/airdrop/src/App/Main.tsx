@@ -65,6 +65,7 @@ type GithubClaim = {
   has_claimed: boolean;
   airdrop_address?: string;
   eligibilities: string[];
+  github_username?: string;
 };
 
 type Claim = {
@@ -133,7 +134,9 @@ export const Main: React.FC = () => {
             eligible: claim.eligible,
             amount: claim.amount,
             githubToken: claim.github_token as string,
+            githubUsername: claim.github_username as string,
             hasClaimed: claim.has_claimed,
+            eligibilities: claim.eligibilities,
             type: "github",
           });
         } else if (claim.eligible && claim.has_claimed) {
