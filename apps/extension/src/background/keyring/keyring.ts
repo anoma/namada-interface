@@ -32,6 +32,7 @@ import {
   ActiveAccountStore,
   DeleteAccountError,
   KeyRingStatus,
+  MnemonicValidationResponse,
   SensitiveAccountStoreData,
   UtilityStore,
   AccountSecret,
@@ -74,7 +75,7 @@ export class KeyRing {
     protected readonly sdk: Sdk,
     protected readonly query: Query,
     protected readonly cryptoMemory: WebAssembly.Memory
-  ) {}
+  ) { }
 
   public get status(): KeyRingStatus {
     return this._status;
@@ -97,8 +98,16 @@ export class KeyRing {
     }
   }
 
-  public validateMnemonic(phrase: string): boolean {
-    return Mnemonic.validate(phrase);
+  public validateMnemonic(phrase: string): MnemonicValidationResponse {
+    const isValid = Mnemonic.validate(phrase);
+
+    try {
+      Mnemonic.from_phrase(phrase);
+    } catch (e) {
+      return { isValid, error: `${e}` };
+    }
+
+    return { isValid };
   }
 
   // Return new mnemonic to client for validation

@@ -2,8 +2,15 @@ use crate::crypto::pointer_types::{
     new_vec_string_pointer, StringPointer, VecStringPointer, VecU8Pointer,
 };
 use bip39::{Language, Mnemonic as M, MnemonicType, Seed};
+use thiserror::Error;
 use wasm_bindgen::prelude::*;
 use zeroize::Zeroize;
+
+#[derive(Debug, Error)]
+pub enum Bip39Error {
+    #[error("Invalid phrase")]
+    InvalidPhrase,
+}
 
 #[wasm_bindgen]
 #[derive(Copy, Clone)]
@@ -36,13 +43,10 @@ impl Mnemonic {
     }
 
     pub fn from_phrase(mut phrase: String) -> Result<Mnemonic, String> {
-        if Mnemonic::validate(&phrase) == false {
-            phrase.zeroize();
-            return Err(String::from("Invalid mnemonic phrase!"));
-        }
+        let mnemonic = M::from_phrase(&phrase, Language::English)
+            .map_err(|e| format!("{}: {:?}", Bip39Error::InvalidPhrase, e))?;
 
-        let mnemonic =
-            M::from_phrase(&phrase, Language::English).map_err(|_| "Invalid mnemonic phrase!")?;
+        phrase.zeroize();
 
         Ok(Mnemonic { mnemonic })
     }

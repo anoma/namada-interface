@@ -7,7 +7,8 @@ import {
   AccountStore,
   DeleteAccountError,
   ParentAccount,
-  AccountSecret
+  AccountSecret,
+  MnemonicValidationResponse,
 } from "./types";
 import { validatePrivateKey } from "utils";
 
@@ -98,7 +99,7 @@ export class RevealAccountMnemonicMsg extends Message<string> {
   }
 }
 
-export class ValidateMnemonicMsg extends Message<boolean> {
+export class ValidateMnemonicMsg extends Message<MnemonicValidationResponse> {
   public static type(): MessageType {
     return MessageType.ValidateMnemonic;
   }
