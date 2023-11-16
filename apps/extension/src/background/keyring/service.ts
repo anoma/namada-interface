@@ -94,8 +94,7 @@ export class KeyRingService {
     alias: string,
     address: string,
     publicKey: string,
-    bip44Path: Bip44Path,
-    parentId?: string
+    bip44Path: Bip44Path
   ): Promise<AccountStore | false> {
     const publicKeyBytes = fromHex(publicKey);
     const bech32PublicKey = public_key_to_bech32(publicKeyBytes);
@@ -111,8 +110,7 @@ export class KeyRingService {
       alias,
       address,
       bech32PublicKey,
-      bip44Path,
-      parentId
+      bip44Path
     );
   }
 
