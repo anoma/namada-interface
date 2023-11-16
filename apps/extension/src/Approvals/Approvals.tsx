@@ -2,7 +2,7 @@ import React from "react"; // useState
 import { Routes, Route } from "react-router-dom";
 
 import { Container } from "@namada/components";
-import { TxType } from "@namada/shared";
+// import { TxType } from "@namada/shared";
 
 import { ApproveConnection } from "./ApproveConnection";
 import { TopLevelRoute } from "Approvals/types";
@@ -17,13 +17,13 @@ export enum Status {
   Failed,
 }
 
-export type ApprovalDetails = {
-  source: string;
-  msgId: string;
-  txType: TxType;
-  publicKey?: string;
-  target?: string;
-};
+// export type ApprovalDetails = {
+//   source: string;
+//   msgId: string;
+//   txType: TxType;
+//   publicKey?: string;
+//   target?: string;
+// };
 
 export const Approvals: React.FC = () => {
   // const [details, setDetails] = useState<ApprovalDetails>();
