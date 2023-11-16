@@ -52,3 +52,7 @@ export enum DeleteAccountError {
   BadPassword,
   KeyStoreError,
 }
+
+type Mnemonic = { t: "Mnemonic", seedPhrase: string[] };
+type PrivateKey = { t: "PrivateKey", privateKey: string };
+export type AccountSecret = Mnemonic | PrivateKey;

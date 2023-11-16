@@ -10,6 +10,7 @@ import { ThemeProvider } from "styled-components";
 
 import { Container, LifecycleExecutionWrapper } from "@namada/components";
 import { formatRouterPath, getTheme } from "@namada/utils";
+import { AccountSecret } from "background/keyring";
 import { AnimatePresence } from "framer-motion";
 import { SeedPhrase, SeedPhraseConfirmation } from "./AccountCreation/Steps";
 import { Completion, ContainerHeader } from "./Common";
@@ -63,10 +64,14 @@ export const Setup: React.FC = () => {
     useState<AccountDetails>({
       alias: "",
     });
-  const [seedPhrase, setSeedPhrase] = useState<string[]>();
-  const [selectedSeedPhrase, setSelectedSeedPhrase] = useState<string[]>([]);
+  const [accountSecret, setAccountSecret] = useState<AccountSecret>();
+  const [selectedAccountSecret, setSelectedAccountSecret] = useState<AccountSecret>();
   const [currentStep, setCurrentStep] = useState(0);
   const [totalSteps, setTotalSteps] = useState(0);
+
+  const seedPhrase = accountSecret?.t === "Mnemonic"
+    ? accountSecret.seedPhrase
+    : undefined;
 
   const goToStep = (step: number) => () => setCurrentStep(step);
 
@@ -125,7 +130,7 @@ export const Setup: React.FC = () => {
                         accountCreationDetails={accountCreationDetails}
                         defaultSeedPhrase={seedPhrase}
                         onConfirm={(seedPhrase: string[]) => {
-                          setSeedPhrase(seedPhrase);
+                          setAccountSecret({ t: "Mnemonic", seedPhrase });
                           navigate(
                             formatRouterPath([
                               TopLevelRoute.AccountCreation,
@@ -147,15 +152,17 @@ export const Setup: React.FC = () => {
                         passwordRequired={!passwordInitialized}
                         onConfirm={(accountCreationDetails: AccountDetails) => {
                           if (!seedPhrase?.length) {
-                            formatRouterPath([
-                              TopLevelRoute.AccountCreation,
-                              AccountCreationRoute.SeedPhraseConfirmation,
-                            ]);
+                            navigate(
+                              formatRouterPath([
+                                TopLevelRoute.AccountCreation,
+                                AccountCreationRoute.SeedPhraseConfirmation,
+                              ])
+                            );
                             return;
                           }
                           setAccountCreationDetails(accountCreationDetails);
-                          setSelectedSeedPhrase(Array.from(seedPhrase));
-                          setSeedPhrase(undefined);
+                          setSelectedAccountSecret({ t: "Mnemonic", seedPhrase });
+                          setAccountSecret(undefined); // this also sets seedPhrase to undefined
                           navigate(
                             formatRouterPath([
                               TopLevelRoute.AccountCreation,
@@ -176,7 +183,7 @@ export const Setup: React.FC = () => {
                         pageTitle="Namada Keys Created"
                         pageSubtitle="Here are the accounts generated from your keys"
                         alias={accountCreationDetails.alias || ""}
-                        mnemonic={selectedSeedPhrase || []}
+                        accountSecret={selectedAccountSecret}
                         password={accountCreationDetails.password || ""}
                         scanAccounts={false}
                       />
@@ -199,8 +206,8 @@ export const Setup: React.FC = () => {
                   element={
                     <LifecycleExecutionWrapper onLoad={goToStep(1)}>
                       <SeedPhraseImport
-                        onConfirm={(seedPhrase: string[]) => {
-                          setSeedPhrase(seedPhrase);
+                        onConfirm={(accountSecret: AccountSecret) => {
+                          setAccountSecret(accountSecret);
                           navigate(
                             formatRouterPath([
                               TopLevelRoute.ImportAccount,
@@ -219,9 +226,9 @@ export const Setup: React.FC = () => {
                       <SeedPhraseSetup
                         passwordRequired={!passwordInitialized}
                         accountCreationDetails={accountCreationDetails}
-                        seedPhrase={seedPhrase}
+                        accountSecret={accountSecret}
                         onConfirm={(accountCreationDetails: AccountDetails) => {
-                          if (!seedPhrase) {
+                          if (!accountSecret) {
                             navigate(
                               formatRouterPath([
                                 TopLevelRoute.ImportAccount,
@@ -231,7 +238,7 @@ export const Setup: React.FC = () => {
                             return;
                           }
 
-                          setSelectedSeedPhrase(Array.from(seedPhrase));
+                          setSelectedAccountSecret(accountSecret);
                           setAccountCreationDetails(accountCreationDetails);
                           navigate(
                             formatRouterPath([
@@ -253,7 +260,7 @@ export const Setup: React.FC = () => {
                         pageTitle="Namada Keys Imported"
                         pageSubtitle="Here are the accounts generated from your keys"
                         alias={accountCreationDetails.alias || ""}
-                        mnemonic={selectedSeedPhrase || []}
+                        accountSecret={selectedAccountSecret}
                         password={accountCreationDetails.password || ""}
                         scanAccounts={false}
                       />
