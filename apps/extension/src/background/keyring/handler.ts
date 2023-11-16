@@ -1,26 +1,26 @@
 import {
   CheckDurabilityMsg,
-  FetchAndStoreMaspParamsMsg,
-  HasMaspParamsMsg,
+  //   FetchAndStoreMaspParamsMsg,
+  //   HasMaspParamsMsg,
   QueryAccountsMsg,
-  QueryBalancesMsg,
   QueryDefaultAccountMsg,
+  //   QueryBalancesMsg,
 } from "provider/messages";
 import { Env, Handler, InternalHandler, Message } from "router";
 import {
   AddLedgerAccountMsg,
-  CloseOffscreenDocumentMsg,
+  //   CloseOffscreenDocumentMsg,
   DeleteAccountMsg,
   DeriveAccountMsg,
   GenerateMnemonicMsg,
   GetActiveAccountMsg,
   QueryParentAccountsMsg,
-  QueryPublicKeyMsg,
+  //   QueryPublicKeyMsg,
   RevealAccountMnemonicMsg,
   SaveAccountSecretMsg,
-  ScanAccountsMsg,
+  //   ScanAccountsMsg,
   SetActiveAccountMsg,
-  TransferCompletedEvent,
+  //   TransferCompletedEvent,
   ValidateMnemonicMsg,
   RenameAccountMsg,
 } from "./messages";
@@ -29,8 +29,8 @@ import { KeyRingService } from "./service";
 export const getHandler: (service: KeyRingService) => Handler = (service) => {
   return (env: Env, msg: Message<unknown>) => {
     switch (msg.constructor) {
-      case QueryPublicKeyMsg:
-        return handleQueryPublicKey(service)(env, msg as QueryPublicKeyMsg);
+      //       case QueryPublicKeyMsg:
+      //         return handleQueryPublicKey(service)(env, msg as QueryPublicKeyMsg);
       case GenerateMnemonicMsg:
         return handleGenerateMnemonicMsg(service)(
           env,
@@ -51,14 +51,14 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
           env,
           msg as SaveAccountSecretMsg
         );
-      case ScanAccountsMsg:
-        return handleScanAccountsMsg(service)(env, msg as ScanAccountsMsg);
+      //       case ScanAccountsMsg:
+      //         return handleScanAccountsMsg(service)(env, msg as ScanAccountsMsg);
       case DeriveAccountMsg:
         return handleDeriveAccountMsg(service)(env, msg as DeriveAccountMsg);
       case QueryAccountsMsg:
         return handleQueryAccountsMsg(service)(env, msg as QueryAccountsMsg);
-      case QueryBalancesMsg:
-        return handleQueryBalancesMsg(service)(env, msg as QueryBalancesMsg);
+      //       case QueryBalancesMsg:
+      //         return handleQueryBalancesMsg(service)(env, msg as QueryBalancesMsg);
       case SetActiveAccountMsg:
         return handleSetActiveAccountMsg(service)(
           env,
@@ -79,27 +79,27 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
           env,
           msg as QueryParentAccountsMsg
         );
-      case CloseOffscreenDocumentMsg:
-        return handleCloseOffscreenDocumentMsg(service)(
-          env,
-          msg as CloseOffscreenDocumentMsg
-        );
-      case TransferCompletedEvent:
-        return handleTransferCompletedEvent(service)(
-          env,
-          msg as TransferCompletedEvent
-        );
+      //       case CloseOffscreenDocumentMsg:
+      //         return handleCloseOffscreenDocumentMsg(service)(
+      //           env,
+      //           msg as CloseOffscreenDocumentMsg
+      //         );
+      //       case TransferCompletedEvent:
+      //         return handleTransferCompletedEvent(service)(
+      //           env,
+      //           msg as TransferCompletedEvent
+      //         );
       case RenameAccountMsg:
         return handleRenameAccountMsg(service)(env, msg as RenameAccountMsg);
       case DeleteAccountMsg:
         return handleDeleteAccountMsg(service)(env, msg as DeleteAccountMsg);
-      case FetchAndStoreMaspParamsMsg:
-        return handleFetchAndStoreMaspParamsMsg(service)(
-          env,
-          msg as FetchAndStoreMaspParamsMsg
-        );
-      case HasMaspParamsMsg:
-        return handleHasMaspParamsMsg(service)(env, msg as HasMaspParamsMsg);
+      //       case FetchAndStoreMaspParamsMsg:
+      //         return handleFetchAndStoreMaspParamsMsg(service)(
+      //           env,
+      //           msg as FetchAndStoreMaspParamsMsg
+      //         );
+      //       case HasMaspParamsMsg:
+      //         return handleHasMaspParamsMsg(service)(env, msg as HasMaspParamsMsg);
       case CheckDurabilityMsg:
         return handleCheckDurabilityMsg(service)(
           env,
@@ -131,14 +131,14 @@ const handleAddLedgerAccountMsg: (
   };
 };
 
-const handleQueryPublicKey: (
-  service: KeyRingService
-) => InternalHandler<QueryPublicKeyMsg> = (service) => {
-  return async (_, msg) => {
-    const { address } = msg;
-    return await service.queryPublicKey(address);
-  };
-};
+// const handleQueryPublicKey: (
+//   service: KeyRingService
+// ) => InternalHandler<QueryPublicKeyMsg> = (service) => {
+//   return async (_, msg) => {
+//     const { address } = msg;
+//     return await service.queryPublicKey(address);
+//   };
+// };
 
 const handleGenerateMnemonicMsg: (
   service: KeyRingService
@@ -185,13 +185,13 @@ const handleRenameAccountMsg: (
   };
 };
 
-const handleScanAccountsMsg: (
-  service: KeyRingService
-) => InternalHandler<ScanAccountsMsg> = (service) => {
-  return async () => {
-    await service.scanAccounts();
-  };
-};
+// const handleScanAccountsMsg: (
+//   service: KeyRingService
+// ) => InternalHandler<ScanAccountsMsg> = (service) => {
+//   return async () => {
+//     await service.scanAccounts();
+//   };
+// };
 
 const handleDeriveAccountMsg: (
   service: KeyRingService
@@ -225,13 +225,13 @@ const handleQueryDefaultAccountMsg: (
   };
 };
 
-const handleQueryBalancesMsg: (
-  service: KeyRingService
-) => InternalHandler<QueryBalancesMsg> = (service) => {
-  return async (_, msg) => {
-    return await service.queryBalances(msg.owner);
-  };
-};
+// const handleQueryBalancesMsg: (
+//   service: KeyRingService
+// ) => InternalHandler<QueryBalancesMsg> = (service) => {
+//   return async (_, msg) => {
+//     return await service.queryBalances(msg.owner);
+//   };
+// };
 
 const handleQueryParentAccountsMsg: (
   service: KeyRingService
@@ -258,22 +258,22 @@ const handleGetActiveAccountMsg: (
   };
 };
 
-const handleTransferCompletedEvent: (
-  service: KeyRingService
-) => InternalHandler<TransferCompletedEvent> = (service) => {
-  return async (_, msg) => {
-    const { msgId, success, payload } = msg;
-    return await service.handleTransferCompleted(msgId, success, payload);
-  };
-};
-
-const handleCloseOffscreenDocumentMsg: (
-  service: KeyRingService
-) => InternalHandler<CloseOffscreenDocumentMsg> = (service) => {
-  return async () => {
-    return await service.closeOffscreenDocument();
-  };
-};
+// const handleTransferCompletedEvent: (
+//   service: KeyRingService
+// ) => InternalHandler<TransferCompletedEvent> = (service) => {
+//   return async (_, msg) => {
+//     const { msgId, success, payload } = msg;
+//     return await service.handleTransferCompleted(msgId, success, payload);
+//   };
+// };
+//
+// const handleCloseOffscreenDocumentMsg: (
+//   service: KeyRingService
+// ) => InternalHandler<CloseOffscreenDocumentMsg> = (service) => {
+//   return async () => {
+//     return await service.closeOffscreenDocument();
+//   };
+// };
 
 const handleDeleteAccountMsg: (
   service: KeyRingService
@@ -283,21 +283,21 @@ const handleDeleteAccountMsg: (
   };
 };
 
-const handleFetchAndStoreMaspParamsMsg: (
-  service: KeyRingService
-) => InternalHandler<FetchAndStoreMaspParamsMsg> = (service) => {
-  return async (_, _msg) => {
-    return await service.fetchAndStoreMaspParams();
-  };
-};
-
-const handleHasMaspParamsMsg: (
-  service: KeyRingService
-) => InternalHandler<HasMaspParamsMsg> = (service) => {
-  return async (_, _msg) => {
-    return await service.hasMaspParams();
-  };
-};
+// const handleFetchAndStoreMaspParamsMsg: (
+//   service: KeyRingService
+// ) => InternalHandler<FetchAndStoreMaspParamsMsg> = (service) => {
+//   return async (_, _msg) => {
+//     return await service.fetchAndStoreMaspParams();
+//   };
+// };
+//
+// const handleHasMaspParamsMsg: (
+//   service: KeyRingService
+// ) => InternalHandler<HasMaspParamsMsg> = (service) => {
+//   return async (_, _msg) => {
+//     return await service.hasMaspParams();
+//   };
+// };
 
 const handleCheckDurabilityMsg: (
   service: KeyRingService

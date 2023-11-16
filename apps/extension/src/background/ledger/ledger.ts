@@ -5,9 +5,9 @@ import Transport from "@ledgerhq/hw-transport";
 import {
   NamadaApp,
   ResponseAppInfo,
-  ResponseSign,
+  //   ResponseSign,
   ResponseVersion,
-  LedgerError,
+  //   LedgerError,
 } from "@namada/ledger-namada";
 import { defaultChainId, chains } from "@namada/chains";
 import { makeBip44Path } from "@namada/utils";
@@ -70,25 +70,25 @@ export class Ledger {
   /**
    * Get address and public key associated with optional path, otherwise, use default path
    */
-  public async getAddressAndPublicKey(
-    bip44Path?: string
-  ): Promise<{ address: string; publicKey: string }> {
-    if (!this.namadaApp) {
-      throw new Error("NamadaApp is not initialized!");
-    }
-
-    const path = bip44Path || DEFAULT_LEDGER_BIP44_PATH;
-    const { address, publicKey } = await this.namadaApp.getAddressAndPubKey(
-      path
-    );
-
-    return {
-      // Return address as bech32-encoded string
-      address: address.toString(),
-      // Return public key as hex-encoded string
-      publicKey: toHex(publicKey),
-    };
-  }
+  // public async getAddressAndPublicKey(
+  //   bip44Path?: string
+  // ): Promise<{ address: string; publicKey: string }> {
+  //   if (!this.namadaApp) {
+  //     throw new Error("NamadaApp is not initialized!");
+  //   }
+  //
+  //   const path = bip44Path || DEFAULT_LEDGER_BIP44_PATH;
+  //   const { address, publicKey } = await this.namadaApp.getAddressAndPubKey(
+  //     path
+  //   );
+  //
+  //   return {
+  //     // Return address as bech32-encoded string
+  //     address: address.toString(),
+  //     // Return public key as hex-encoded string
+  //     publicKey: toHex(publicKey),
+  //   };
+  // }
 
   public async showAddressAndPublicKey(
     bip44Path?: string
@@ -123,29 +123,29 @@ export class Ledger {
    *
    * @returns {ResponseSign}
    */
-  public async sign(tx: Uint8Array, bip44Path?: string): Promise<ResponseSign> {
-    if (!this.namadaApp) {
-      throw new Error("NamadaApp is not initialized!");
-    }
-    const buffer = Buffer.from(tx);
-    const path = bip44Path || DEFAULT_LEDGER_BIP44_PATH;
-
-    return await this.namadaApp.sign(path, buffer);
-  }
-
-  /**
-   * Query status to determine if device has thrown an error
-   */
-  public async queryErrors(): Promise<string> {
-    const {
-      info: { returnCode, errorMessage },
-    } = await this.status();
-
-    if (returnCode !== LedgerError.NoErrors) {
-      return errorMessage;
-    }
-    return "";
-  }
+  // public async sign(tx: Uint8Array, bip44Path?: string): Promise<ResponseSign> {
+  //   if (!this.namadaApp) {
+  //     throw new Error("NamadaApp is not initialized!");
+  //   }
+  //   const buffer = Buffer.from(tx);
+  //   const path = bip44Path || DEFAULT_LEDGER_BIP44_PATH;
+  //
+  //   return await this.namadaApp.sign(path, buffer);
+  // }
+  //
+  // /**
+  //  * Query status to determine if device has thrown an error
+  //  */
+  // public async queryErrors(): Promise<string> {
+  //   const {
+  //     info: { returnCode, errorMessage },
+  //   } = await this.status();
+  //
+  //   if (returnCode !== LedgerError.NoErrors) {
+  //     return errorMessage;
+  //   }
+  //   return "";
+  // }
 
   /**
    * Close the initialized transport, which may be needed if Ledger needs to be reinitialized due to error state

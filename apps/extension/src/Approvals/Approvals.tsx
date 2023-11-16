@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react"; // useState
 import { Routes, Route } from "react-router-dom";
 
 import { Container } from "@namada/components";
@@ -6,9 +6,9 @@ import { TxType } from "@namada/shared";
 
 import { ApproveConnection } from "./ApproveConnection";
 import { TopLevelRoute } from "Approvals/types";
-import { ConfirmLedgerTx } from "./ApproveTx/ConfirmLedgerTx";
-import { ConfirmTx } from "./ApproveTx/ConfirmTx";
-import { ApproveTx } from "./ApproveTx/ApproveTx";
+// import { ConfirmLedgerTx } from "./ApproveTx/ConfirmLedgerTx";
+// import { ConfirmTx } from "./ApproveTx/ConfirmTx";
+// import { ApproveTx } from "./ApproveTx/ApproveTx";
 import { AppHeader } from "App/Common/AppHeader";
 
 export enum Status {
@@ -26,7 +26,7 @@ export type ApprovalDetails = {
 };
 
 export const Approvals: React.FC = () => {
-  const [details, setDetails] = useState<ApprovalDetails>();
+  // const [details, setDetails] = useState<ApprovalDetails>();
 
   return (
     <Container
@@ -40,18 +40,18 @@ export const Approvals: React.FC = () => {
       }
     >
       <Routes>
-        <Route
-          path={`${TopLevelRoute.ApproveTx}/:type`}
-          element={<ApproveTx setDetails={setDetails} />}
-        />
-        <Route
-          path={TopLevelRoute.ConfirmTx}
-          element={<ConfirmTx details={details} />}
-        />
-        <Route
-          path={TopLevelRoute.ConfirmLedgerTx}
-          element={<ConfirmLedgerTx details={details} />}
-        />
+        {/* <Route */}
+        {/*   path={`${TopLevelRoute.ApproveTx}/:type`} */}
+        {/*   element={<ApproveTx setDetails={setDetails} />} */}
+        {/* /> */}
+        {/* <Route */}
+        {/*   path={TopLevelRoute.ConfirmTx} */}
+        {/*   element={<ConfirmTx details={details} />} */}
+        {/* /> */}
+        {/* <Route */}
+        {/*   path={TopLevelRoute.ConfirmLedgerTx} */}
+        {/*   element={<ConfirmLedgerTx details={details} />} */}
+        {/* /> */}
         <Route
           path={TopLevelRoute.ApproveConnection}
           element={<ApproveConnection />}
