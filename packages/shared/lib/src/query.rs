@@ -234,16 +234,15 @@ impl Query {
     async fn query_transparent_balance(
         &self,
         owner: Address,
+        tokens: Box<[JsValue]>,
     ) -> Result<Vec<(Address, token::Amount)>, JsError> {
-        //TODO: Move hardcoded tokens somewhere else
-        let tokens: HashSet<Address> = HashSet::from([
-            // NAM
-            Address::from_str("tnam1q9mjvqd45u7w54kee2aquugtv7vn7h3xrcrau7xy")?,
-            // DOT
-            Address::from_str("tnam1q9dg4r9uteahgx7qyc2h8crq3lg7zrxdduwyrss4")?,
-            // ETH
-            Address::from_str("tnam1q9anasrx0gqeuxrc22a0uefe82kw08avhcasevng")?,
-        ]);
+        let tokens: Vec<Address> = tokens
+            .into_iter()
+            .map(|address| {
+                let address_str = &(address.as_string().unwrap()[..]);
+                Address::from_str(address_str).unwrap()
+            })
+            .collect();
 
         let mut result = vec![];
         for token in tokens {
@@ -287,9 +286,13 @@ impl Query {
         Ok(Self::get_decoded_balance(decoded_balance))
     }
 
-    pub async fn query_balance(&self, owner: String) -> Result<JsValue, JsError> {
+    pub async fn query_balance(
+        &self,
+        owner: String,
+        tokens: Box<[JsValue]>,
+    ) -> Result<JsValue, JsError> {
         let result = match Address::from_str(&owner) {
-            Ok(addr) => self.query_transparent_balance(addr).await,
+            Ok(addr) => self.query_transparent_balance(addr, tokens).await,
             Err(e1) => match ExtendedViewingKey::from_str(&owner) {
                 Ok(xvk) => self.query_shielded_balance(xvk).await,
                 Err(e2) => return Err(JsError::new(&format!("{} {}", e1, e2))),

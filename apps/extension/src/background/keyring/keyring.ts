@@ -30,6 +30,7 @@ import {
   SubmitUnbondMsgValue,
   SubmitVoteProposalMsgValue,
   SubmitWithdrawMsgValue,
+  Tokens,
   TransferMsgValue,
 } from "@namada/types";
 
@@ -82,7 +83,7 @@ export class KeyRing {
     protected readonly sdk: Sdk,
     protected readonly query: Query,
     protected readonly cryptoMemory: WebAssembly.Memory
-  ) {}
+  ) { }
 
   public get status(): KeyRingStatus {
     return this._status;
@@ -855,8 +856,12 @@ export class KeyRing {
   async queryBalances(
     owner: string
   ): Promise<{ token: string; amount: string }[]> {
+    const tokenAddresses: string[] = Object.values(Tokens)
+      .filter((token) => token.address)
+      .map(({ address }) => address);
+
     try {
-      return (await this.query.query_balance(owner)).map(
+      return (await this.query.query_balance(owner, tokenAddresses)).map(
         ([token, amount]: [string, string]) => {
           return {
             token,

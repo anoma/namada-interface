@@ -28,8 +28,9 @@ import {
 // Import PNG images assets
 import AssetNamadaNamLight from "./assets/asset-namada-nam-light.png";
 import AssetNamadaNamDark from "./assets/asset-namada-nam-dark.png";
-import AssetCosmosAtom from "./assets/asset-cosmos-atom.png";
 import AssetEthereumEther from "./assets/asset-ethereum-ether.png";
+import AssetBitcoin from "./assets/asset-bitcoin-btc.png";
+import AssetPolkadot from "./assets/asset-polkadot-dot.png";
 
 import { useAppDispatch, useAppSelector } from "store";
 import { AccountsState, Balance } from "slices/accounts";
@@ -52,9 +53,25 @@ const assetIconByToken: Record<TokenType, { light: string; dark: string }> = {
     light: AssetEthereumEther,
     dark: AssetEthereumEther,
   },
-  ["ATOM"]: {
-    light: AssetCosmosAtom,
-    dark: AssetCosmosAtom,
+  ["BTC"]: {
+    light: AssetBitcoin,
+    dark: AssetBitcoin,
+  },
+  ["DOT"]: {
+    light: AssetPolkadot,
+    dark: AssetPolkadot
+  },
+  ["SCH"]: {
+    light: AssetNamadaNamLight,
+    dark: AssetNamadaNamDark,
+  },
+  ["APF"]: {
+    light: AssetNamadaNamLight,
+    dark: AssetNamadaNamDark,
+  },
+  ["KAR"]: {
+    light: AssetNamadaNamLight,
+    dark: AssetNamadaNamDark,
   },
 };
 
@@ -90,6 +107,7 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
 
   const balanceToFiat = (balance: Balance): BigNumber => {
     return Object.entries(balance).reduce((acc, [token, value]) => {
+
       return acc.plus(
         rates[token] && rates[token][fiatCurrency]
           ? value.multipliedBy(rates[token][fiatCurrency].rate)
@@ -170,6 +188,7 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
                           ? 1
                           : -1;
                       })
+                      .filter(([_, amount]) => amount.isGreaterThan(0))
                       .map(([token, amount]) => {
                         return (
                           <TokenBalance key={`${address}-${token}`}>

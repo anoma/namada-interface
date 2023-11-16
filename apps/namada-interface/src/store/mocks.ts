@@ -1,8 +1,8 @@
 import BigNumber from "bignumber.js";
 
 import { AccountType } from "@namada/types";
-import { RootState } from "./store";
 import { StakingOrUnstakingState } from "slices/StakingAndGovernance";
+import { RootState } from "./store";
 
 export const mockAppState: RootState = {
   accounts: {
@@ -18,7 +18,7 @@ export const mockAppState: RootState = {
           },
           balance: {
             NAM: new BigNumber(1000),
-            ATOM: new BigNumber(1000),
+            DOT: new BigNumber(1000),
             ETH: new BigNumber(1000),
           },
         },
@@ -34,7 +34,7 @@ export const mockAppState: RootState = {
           },
           balance: {
             NAM: new BigNumber(1000),
-            ATOM: new BigNumber(1000),
+            DOT: new BigNumber(1000),
             ETH: new BigNumber(1000),
           },
         },
@@ -51,7 +51,7 @@ export const mockAppState: RootState = {
 
           balance: {
             NAM: new BigNumber(1000),
-            ATOM: new BigNumber(1000),
+            DOT: new BigNumber(1000),
             ETH: new BigNumber(1000),
           },
         },
