@@ -1,5 +1,4 @@
 import { Window as KeplrWindow, Keplr } from "@keplr-wallet/types";
-import { ethers } from "ethers";
 import { type MetaMaskInpageProvider } from "@metamask/providers";
 import {
   Button,
@@ -26,7 +25,12 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { KeplrClaimType, confirmationAtom, claimAtom } from "./state";
 import { useAtom } from "jotai";
-import { airdropFetch, navigatePostCheck } from "./utils";
+import {
+  AirdropResponse,
+  airdropFetch,
+  navigatePostCheck,
+  toast,
+} from "./utils";
 import { Countdown } from "./Countdown";
 
 const {
@@ -56,29 +60,21 @@ type Claim = {
   nonce: string;
 };
 
-const checkGithubClaim = async (code: string): Promise<GithubClaim> => {
-  const response = await airdropFetch(
-    `${backendUrl}/api/v1/airdrop/github/${code}`,
-    {
-      method: "GET",
-    }
-  );
-  const json = await response.json();
-
-  return json;
+const checkGithubClaim = async (
+  code: string
+): Promise<AirdropResponse<GithubClaim>> => {
+  return airdropFetch(`${backendUrl}/api/v1/airdrop/github/${code}`, {
+    method: "GET",
+  });
 };
 
 const checkClaim = async (
   address: string,
   type: KeplrClaimType | "gitcoin"
-): Promise<Claim> => {
-  const response = await airdropFetch(
-    `${backendUrl}/api/v1/airdrop/${type}/${address}`,
-    {
-      method: "GET",
-    }
-  );
-  return response.json();
+): Promise<AirdropResponse<Claim>> => {
+  return airdropFetch(`${backendUrl}/api/v1/airdrop/${type}/${address}`, {
+    method: "GET",
+  });
 };
 
 export const Main: React.FC = () => {
@@ -99,33 +95,46 @@ export const Main: React.FC = () => {
     if (hasCode) {
       (async () => {
         const code = url.split("?code=")[1];
-        const response = await checkGithubClaim(code);
-        if (response.eligible && !response.has_claimed) {
+        let response: AirdropResponse<GithubClaim> | undefined;
+        //TODO: generic error handling
+        try {
+          response = await checkGithubClaim(code);
+        } catch (e) {
+          console.error(e);
+          navigate("/", { replace: true });
+        }
+
+        if (!response) {
+          toast("Something went wrong, please try again later");
+          return;
+        } else if (!response.ok) {
+          toast(response.result.message);
+          return;
+        }
+        const claim = response.result;
+
+        if (claim.eligible && !claim.has_claimed) {
           setClaimState({
-            eligible: response.eligible,
-            amount: response.amount,
-            githubToken: response.github_token as string,
-            hasClaimed: response.has_claimed,
+            eligible: claim.eligible,
+            amount: claim.amount,
+            githubToken: claim.github_token as string,
+            hasClaimed: claim.has_claimed,
             type: "github",
           });
-        } else if (response.eligible && response.has_claimed) {
+        } else if (claim.eligible && claim.has_claimed) {
           setConfirmation({
             confirmed: true,
-            address: response.airdrop_address as string,
-            amount: response.amount,
+            address: claim.airdrop_address as string,
+            amount: claim.amount,
           });
         }
 
-        navigatePostCheck(
-          navigate,
-          response.eligible,
-          response.has_claimed,
-          true
-        );
+        navigatePostCheck(navigate, claim.eligible, claim.has_claimed, true);
       })();
     }
   }, []);
 
+  //TODO: useCallback
   const handleKeplrConnection = async (
     type: KeplrClaimType,
     chainId: string
@@ -140,34 +149,51 @@ export const Main: React.FC = () => {
       }
 
       const { bech32Address: address } = await keplr.getKey(chainId);
-      const response = await checkClaim(address, type);
-      if (response.eligible && !response.has_claimed) {
+
+      let response: AirdropResponse<Claim> | undefined;
+      try {
+        response = await checkClaim(address, type);
+      } catch (e) {
+        console.error(e);
+      }
+
+      if (!response) {
+        toast("Something went wrong, please try again later");
+        return;
+      } else if (!response.ok) {
+        toast(response.result.message);
+        return;
+      }
+      const claim = response.result;
+
+      if (claim.eligible && !claim.has_claimed) {
         const signature = await keplr?.signArbitrary(
           chainId,
           address,
-          response.nonce
+          claim.nonce
         );
         setClaimState({
-          eligible: response.eligible,
-          amount: response.amount,
-          hasClaimed: response.has_claimed,
+          eligible: claim.eligible,
+          amount: claim.amount,
+          hasClaimed: claim.has_claimed,
           type,
           signature: { ...signature, pubKey: signature.pub_key },
           address,
-          nonce: response.nonce,
+          nonce: claim.nonce,
         });
-      } else if (response.eligible && response.has_claimed) {
+      } else if (claim.eligible && claim.has_claimed) {
         setConfirmation({
           confirmed: true,
-          address: response.airdrop_address as string,
-          amount: response.amount,
+          address: claim.airdrop_address as string,
+          amount: claim.amount,
         });
       }
 
-      navigatePostCheck(navigate, response.eligible, response.has_claimed);
+      navigatePostCheck(navigate, claim.eligible, claim.has_claimed);
     }
   };
 
+  //TODO: useCallback
   const handleMetamaskConnection = async (chainId: string): Promise<void> => {
     if (!metamask) {
       handleExtensionDownload("https://metamask.io/download/");
@@ -185,12 +211,26 @@ export const Main: React.FC = () => {
         throw new Error("No address found");
       }
       const address = addresses[0];
-      const response = await checkClaim(address, "gitcoin");
 
-      if (response.eligible && !response.has_claimed) {
+      let response: AirdropResponse<Claim> | undefined;
+      try {
+        response = await checkClaim(address, "gitcoin");
+      } catch (e) {
+        console.error(e);
+      }
+      if (!response) {
+        toast("Something went wrong, please try again later");
+        return;
+      } else if (!response.ok) {
+        toast(response.result.message);
+        return;
+      }
+      const { result } = response;
+
+      if (result.eligible && !result.has_claimed) {
         const signature = await metamask.request<string>({
           method: "personal_sign",
-          params: [response.nonce, address],
+          params: [result.nonce, address],
         });
 
         if (!signature) {
@@ -198,23 +238,23 @@ export const Main: React.FC = () => {
         }
 
         setClaimState({
-          eligible: response.eligible,
-          amount: response.amount,
-          hasClaimed: response.has_claimed,
+          eligible: result.eligible,
+          amount: result.amount,
+          hasClaimed: result.has_claimed,
           signature,
           address,
-          nonce: response.nonce,
+          nonce: result.nonce,
           type: "gitcoin",
         });
-      } else if (response.eligible && response.has_claimed) {
+      } else if (result.eligible && result.has_claimed) {
         setConfirmation({
           confirmed: true,
-          address: response.airdrop_address as string,
-          amount: response.amount,
+          address: result.airdrop_address as string,
+          amount: result.amount,
         });
       }
 
-      navigatePostCheck(navigate, response.eligible, response.has_claimed);
+      navigatePostCheck(navigate, result.eligible, result.has_claimed);
     }
   };
 

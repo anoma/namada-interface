@@ -10,7 +10,12 @@ import { useState } from "react";
 import { useAtom } from "jotai";
 import { confirmationAtom, claimAtom } from "./state";
 import { useNavigate } from "react-router-dom";
-import { airdropFetch, navigatePostCheck } from "./utils";
+import {
+  AirdropResponse,
+  airdropFetch,
+  navigatePostCheck,
+  toast,
+} from "./utils";
 
 type TSClaim = {
   eligible: boolean;
@@ -22,14 +27,12 @@ type TSClaim = {
 
 const { AIRDROP_BACKEND_SERVICE_URL: backendUrl = "" } = process.env;
 
-const checkClaim = async (publicKey: string): Promise<TSClaim> => {
-  const response = await airdropFetch(
-    `${backendUrl}/api/v1/airdrop/ts/${publicKey}`,
-    {
-      method: "GET",
-    }
-  );
-  return response.json();
+const checkClaim = async (
+  publicKey: string
+): Promise<AirdropResponse<TSClaim>> => {
+  return airdropFetch(`${backendUrl}/api/v1/airdrop/ts/${publicKey}`, {
+    method: "GET",
+  });
 };
 
 export const TrustedSetup: React.FC = () => {
@@ -72,24 +75,40 @@ export const TrustedSetup: React.FC = () => {
       <Button
         variant={ButtonVariant.Contained}
         onClick={async () => {
-          const response = await checkClaim(publicKey);
-          if (response.eligible && !response.has_claimed) {
+          let response: AirdropResponse<TSClaim> | undefined;
+
+          try {
+            response = await checkClaim(publicKey);
+          } catch (e) {
+            console.error(e);
+          }
+
+          if (!response) {
+            toast("Something went wrong, please try again later");
+            return;
+          } else if (!response.ok) {
+            toast(response.result.message);
+            return;
+          }
+          const { result } = response;
+
+          if (result.eligible && !result.has_claimed) {
             setClaimState({
-              eligible: response.eligible,
-              amount: response.amount,
-              hasClaimed: response.has_claimed,
+              eligible: result.eligible,
+              amount: result.amount,
+              hasClaimed: result.has_claimed,
               type: "ts",
-              nonce: response.nonce,
+              nonce: result.nonce,
               publicKey,
             });
-          } else if (response.eligible && response.has_claimed) {
+          } else if (result.eligible && result.has_claimed) {
             setConfirmation({
               confirmed: true,
-              address: response.airdrop_address as string,
-              amount: response.amount,
+              address: result.airdrop_address as string,
+              amount: result.amount,
             });
           }
-          navigatePostCheck(navigate, response.eligible, response.has_claimed);
+          navigatePostCheck(navigate, result.eligible, result.has_claimed);
         }}
       >
         Check Eligibility
