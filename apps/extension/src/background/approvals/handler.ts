@@ -1,25 +1,25 @@
 import { Handler, Env, Message, InternalHandler } from "router";
 import { ApprovalsService } from "./service";
-import { ApproveTxMsg, ApproveConnectInterfaceMsg } from "provider";
+import { /* ApproveTxMsg, */ ApproveConnectInterfaceMsg } from "provider";
 import {
-  RejectTxMsg,
+//   RejectTxMsg,
   ConnectInterfaceResponseMsg,
   RevokeConnectionMsg,
-  SubmitApprovedTxMsg,
+//   SubmitApprovedTxMsg,
 } from "./messages";
 
 export const getHandler: (service: ApprovalsService) => Handler = (service) => {
   return (env: Env, msg: Message<unknown>) => {
     switch (msg.constructor) {
-      case ApproveTxMsg:
-        return handleApproveTxMsg(service)(env, msg as ApproveTxMsg);
-      case RejectTxMsg:
-        return handleRejectTxMsg(service)(env, msg as RejectTxMsg);
-      case SubmitApprovedTxMsg:
-        return handleSubmitApprovedTxMsg(service)(
-          env,
-          msg as SubmitApprovedTxMsg
-        );
+//       case ApproveTxMsg:
+//         return handleApproveTxMsg(service)(env, msg as ApproveTxMsg);
+//       case RejectTxMsg:
+//         return handleRejectTxMsg(service)(env, msg as RejectTxMsg);
+//       case SubmitApprovedTxMsg:
+//         return handleSubmitApprovedTxMsg(service)(
+//           env,
+//           msg as SubmitApprovedTxMsg
+//         );
       case ApproveConnectInterfaceMsg:
         return handleApproveConnectInterfaceMsg(service)(
           env,
@@ -41,29 +41,29 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
   };
 };
 
-const handleApproveTxMsg: (
-  service: ApprovalsService
-) => InternalHandler<ApproveTxMsg> = (service) => {
-  return async (_, { txType, specificMsg, txMsg, accountType }) => {
-    return await service.approveTx(txType, specificMsg, txMsg, accountType);
-  };
-};
-
-const handleRejectTxMsg: (
-  service: ApprovalsService
-) => InternalHandler<RejectTxMsg> = (service) => {
-  return async (_, { msgId }) => {
-    return await service.rejectTx(msgId);
-  };
-};
-
-const handleSubmitApprovedTxMsg: (
-  service: ApprovalsService
-) => InternalHandler<SubmitApprovedTxMsg> = (service) => {
-  return async (_, { msgId, password }) => {
-    return await service.submitTx(msgId, password);
-  };
-};
+// const handleApproveTxMsg: (
+//   service: ApprovalsService
+// ) => InternalHandler<ApproveTxMsg> = (service) => {
+//   return async (_, { txType, specificMsg, txMsg, accountType }) => {
+//     return await service.approveTx(txType, specificMsg, txMsg, accountType);
+//   };
+// };
+//
+// const handleRejectTxMsg: (
+//   service: ApprovalsService
+// ) => InternalHandler<RejectTxMsg> = (service) => {
+//   return async (_, { msgId }) => {
+//     return await service.rejectTx(msgId);
+//   };
+// };
+//
+// const handleSubmitApprovedTxMsg: (
+//   service: ApprovalsService
+// ) => InternalHandler<SubmitApprovedTxMsg> = (service) => {
+//   return async (_, { msgId, password }) => {
+//     return await service.submitTx(msgId, password);
+//   };
+// };
 
 const handleApproveConnectInterfaceMsg: (
   service: ApprovalsService

@@ -1,5 +1,5 @@
 import { StoredRecord } from "@namada/storage";
-import { AccountType, Bip44Path, DerivedAccount } from "@namada/types";
+import { AccountType, Bip44Path, /* DerivedAccount */ } from "@namada/types";
 import { CryptoRecord } from "background/vault";
 
 export interface AccountStore extends StoredRecord {
@@ -13,11 +13,11 @@ export interface AccountStore extends StoredRecord {
   type: AccountType;
 }
 
-export type AccountState = DerivedAccount & {
-  parentId: string;
-  private: Uint8Array;
-  public: Uint8Array;
-};
+// export type AccountState = DerivedAccount & {
+//   parentId: string;
+//   private: Uint8Array;
+//   public: Uint8Array;
+// };
 
 export enum KeyRingStatus {
   NotLoaded,
@@ -38,16 +38,16 @@ export type ActiveAccountStore = {
   type: ParentAccount;
 };
 
-export type DurablityStore = {
-  isDurable: string;
-};
+// export type DurablityStore = {
+//   isDurable: string;
+// };
 
 export type SensitiveAccountStoreData = { text: string };
 
 export type UtilityStore = ActiveAccountStore | { [id: string]: CryptoRecord };
 
-export type RevealedPKStore = { [id: string]: string };
-
+// export type RevealedPKStore = { [id: string]: string };
+//
 export enum DeleteAccountError {
   BadPassword,
   KeyStoreError,

@@ -25,11 +25,11 @@ const namada: Chain = {
   bridgeType: [BridgeType.IBC, BridgeType.Ethereum],
   rpc: isProxied ? ProxyMappings["namada"] : rpc,
   chainId,
-  currency: {
-    token: "Nam",
-    symbol: "NAM",
-    gasPriceStep: { low: 0.01, average: 0.025, high: 0.03 },
-  },
+//   currency: {
+//     token: "Nam",
+//     symbol: "NAM",
+//     gasPriceStep: { low: 0.01, average: 0.025, high: 0.03 },
+//   },
   extension: Extensions["namada"],
   ibc: {
     portId: "transfer",

@@ -103,11 +103,11 @@ export class VaultService {
     return (await this.sessionStore.get("password")) || "";
   }
 
-  // TODO: I think we shouldn't expose the password like this, but it's required
-  // for SDK methods. Use cautiously.
-  public async UNSAFE_getPassword(): Promise<string> {
-    return await this.getPassword();
-  }
+//   // TODO: I think we shouldn't expose the password like this, but it's required
+//   // for SDK methods. Use cautiously.
+//   public async UNSAFE_getPassword(): Promise<string> {
+//     return await this.getPassword();
+//   }
 
   public async checkPassword(password: string): Promise<boolean> {
     const store = await this.getStoreOrFail();

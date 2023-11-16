@@ -1,66 +1,66 @@
 import { Message } from "router";
 import { ROUTE } from "./constants";
-import { SupportedTx } from "@namada/types";
+// import { SupportedTx } from "@namada/types";
 
-import { validateProps } from "utils";
+// import { validateProps } from "utils";
 
 enum MessageType {
-  RejectTx = "reject-tx",
-  SubmitApprovedTx = "submit-approved-tx",
+//   RejectTx = "reject-tx",
+//   SubmitApprovedTx = "submit-approved-tx",
   ConnectInterfaceResponse = "connect-interface-response",
   RevokeConnection = "revoke-connection",
 }
 
-export class RejectTxMsg extends Message<void> {
-  public static type(): MessageType {
-    return MessageType.RejectTx;
-  }
-
-  constructor(public readonly msgId: string) {
-    super();
-  }
-
-  validate(): void {
-    if (!this.msgId) {
-      throw new Error("msgId must not be empty!");
-    }
-    return;
-  }
-
-  route(): string {
-    return ROUTE;
-  }
-
-  type(): string {
-    return RejectTxMsg.type();
-  }
-}
-
-export class SubmitApprovedTxMsg extends Message<void> {
-  public static type(): MessageType {
-    return MessageType.SubmitApprovedTx;
-  }
-
-  constructor(
-    public readonly txType: SupportedTx,
-    public readonly msgId: string,
-    public readonly password: string
-  ) {
-    super();
-  }
-
-  validate(): void {
-    validateProps(this, ["txType", "msgId", "password"]);
-  }
-
-  route(): string {
-    return ROUTE;
-  }
-
-  type(): string {
-    return SubmitApprovedTxMsg.type();
-  }
-}
+// export class RejectTxMsg extends Message<void> {
+//   public static type(): MessageType {
+//     return MessageType.RejectTx;
+//   }
+//
+//   constructor(public readonly msgId: string) {
+//     super();
+//   }
+//
+//   validate(): void {
+//     if (!this.msgId) {
+//       throw new Error("msgId must not be empty!");
+//     }
+//     return;
+//   }
+//
+//   route(): string {
+//     return ROUTE;
+//   }
+//
+//   type(): string {
+//     return RejectTxMsg.type();
+//   }
+// }
+//
+// export class SubmitApprovedTxMsg extends Message<void> {
+//   public static type(): MessageType {
+//     return MessageType.SubmitApprovedTx;
+//   }
+//
+//   constructor(
+//     public readonly txType: SupportedTx,
+//     public readonly msgId: string,
+//     public readonly password: string
+//   ) {
+//     super();
+//   }
+//
+//   validate(): void {
+//     validateProps(this, ["txType", "msgId", "password"]);
+//   }
+//
+//   route(): string {
+//     return ROUTE;
+//   }
+//
+//   type(): string {
+//     return SubmitApprovedTxMsg.type();
+//   }
+// }
 
 export class ConnectInterfaceResponseMsg extends Message<void> {
   public static type(): MessageType {

@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react";
+import { /* useEffect, */ useState } from "react";
 
 import { ActionButton, Heading, Stack } from "@namada/components";
 import { AccountAlias, Password } from "Setup/Common";
 import { Form, HeaderContainer } from "Setup/Setup.components";
 import { AccountDetails } from "Setup/types";
-import { useNavigate } from "react-router-dom";
-import { formatRouterPath } from "@namada/utils";
-import { TopLevelRoute } from "App/types";
+// import { useNavigate } from "react-router-dom";
+// import { formatRouterPath } from "@namada/utils";
+// import { TopLevelRoute } from "App/types";
 import { Footer } from "./SeedPhraseSetup.components";
 import { AccountSecret } from "background/keyring";
 
@@ -18,8 +18,8 @@ type SeedPhraseSetupProps = {
 };
 
 export const SeedPhraseSetup = (props: SeedPhraseSetupProps): JSX.Element => {
-  const navigate = useNavigate();
-  const { accountSecret, accountCreationDetails, onConfirm, passwordRequired } =
+  // const navigate = useNavigate();
+  const { /* accountSecret, */ accountCreationDetails, onConfirm, passwordRequired } =
     props;
 
   const [password, setPassword] = useState<string | undefined>();
@@ -28,11 +28,11 @@ export const SeedPhraseSetup = (props: SeedPhraseSetupProps): JSX.Element => {
 
   const notVerified = (passwordRequired && !password) || !accountName;
 
-  useEffect(() => {
-    if (!accountSecret) {
-      navigate(formatRouterPath([TopLevelRoute.AddAccount]));
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (!accountSecret) {
+  //     navigate(formatRouterPath([TopLevelRoute.AddAccount]));
+  //   }
+  // }, []);
 
   const onSubmitForm = (e: React.FormEvent): void => {
     e.preventDefault();

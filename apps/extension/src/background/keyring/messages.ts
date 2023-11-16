@@ -13,17 +13,17 @@ import {
 import { validatePrivateKey } from "utils";
 
 enum MessageType {
-  QueryPublicKey = "query-public-key",
-  CloseOffscreenDocument = "close-offscreen-document",
+//   QueryPublicKey = "query-public-key",
+//   CloseOffscreenDocument = "close-offscreen-document",
   DeriveAccount = "derive-account",
-  DeriveShieldedAccount = "derive-shielded-account",
+//   DeriveShieldedAccount = "derive-shielded-account",
   GenerateMnemonic = "generate-mnemonic",
   GetActiveAccount = "get-active-account",
   QueryParentAccounts = "query-parent-accounts",
   SaveAccountSecret = "save-account-secret",
-  ScanAccounts = "scan-accounts",
+//   ScanAccounts = "scan-accounts",
   SetActiveAccount = "set-active-account",
-  TransferCompletedEvent = "transfer-completed-event",
+//   TransferCompletedEvent = "transfer-completed-event",
   DeleteAccount = "delete-account",
   ValidateMnemonic = "validate-mnemonic",
   AddLedgerAccount = "add-ledger-account",
@@ -31,29 +31,29 @@ enum MessageType {
   RenameAccount = "rename-account",
 }
 
-export class QueryPublicKeyMsg extends Message<string | undefined> {
-  public static type(): MessageType {
-    return MessageType.QueryPublicKey;
-  }
-
-  constructor(public readonly address: string) {
-    super();
-  }
-
-  validate(): void {
-    if (!this.address) {
-      throw new Error("address not set");
-    }
-  }
-
-  route(): string {
-    return ROUTE;
-  }
-
-  type(): string {
-    return QueryPublicKeyMsg.type();
-  }
-}
+// export class QueryPublicKeyMsg extends Message<string | undefined> {
+//   public static type(): MessageType {
+//     return MessageType.QueryPublicKey;
+//   }
+//
+//   constructor(public readonly address: string) {
+//     super();
+//   }
+//
+//   validate(): void {
+//     if (!this.address) {
+//       throw new Error("address not set");
+//     }
+//   }
+//
+//   route(): string {
+//     return ROUTE;
+//   }
+//
+//   type(): string {
+//     return QueryPublicKeyMsg.type();
+//   }
+// }
 
 export class GenerateMnemonicMsg extends Message<string[]> {
   public static type(): MessageType {
@@ -236,26 +236,26 @@ export class AddLedgerAccountMsg extends Message<AccountStore | false> {
     return AddLedgerAccountMsg.type();
   }
 }
-export class ScanAccountsMsg extends Message<void> {
-  public static type(): MessageType {
-    return MessageType.ScanAccounts;
-  }
-
-  constructor() {
-    super();
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  validate(): void { }
-
-  route(): string {
-    return ROUTE;
-  }
-
-  type(): string {
-    return ScanAccountsMsg.type();
-  }
-}
+// export class ScanAccountsMsg extends Message<void> {
+//   public static type(): MessageType {
+//     return MessageType.ScanAccounts;
+//   }
+//
+//   constructor() {
+//     super();
+//   }
+//
+//   // eslint-disable-next-line @typescript-eslint/no-empty-function
+//   validate(): void { }
+//
+//   route(): string {
+//     return ROUTE;
+//   }
+//
+//   type(): string {
+//     return ScanAccountsMsg.type();
+//   }
+// }
 
 export class DeriveAccountMsg extends Message<DerivedAccount> {
   public static type(): MessageType {
@@ -375,55 +375,55 @@ export class QueryParentAccountsMsg extends Message<DerivedAccount[]> {
   }
 }
 
-export class CloseOffscreenDocumentMsg extends Message<void> {
-  public static type(): MessageType {
-    return MessageType.CloseOffscreenDocument;
-  }
-
-  constructor() {
-    super();
-  }
-
-  validate(): void {
-    return;
-  }
-
-  route(): string {
-    return ROUTE;
-  }
-
-  type(): string {
-    return CloseOffscreenDocumentMsg.type();
-  }
-}
-
-export class TransferCompletedEvent extends Message<void> {
-  public static type(): MessageType {
-    return MessageType.TransferCompletedEvent;
-  }
-
-  constructor(
-    public readonly success: boolean,
-    public readonly msgId: string,
-    public readonly payload?: string
-  ) {
-    super();
-  }
-
-  validate(): void {
-    if (this.success === undefined) {
-      throw new Error("Success is undefined");
-    }
-  }
-
-  route(): string {
-    return ROUTE;
-  }
-
-  type(): string {
-    return TransferCompletedEvent.type();
-  }
-}
+// export class CloseOffscreenDocumentMsg extends Message<void> {
+//   public static type(): MessageType {
+//     return MessageType.CloseOffscreenDocument;
+//   }
+//
+//   constructor() {
+//     super();
+//   }
+//
+//   validate(): void {
+//     return;
+//   }
+//
+//   route(): string {
+//     return ROUTE;
+//   }
+//
+//   type(): string {
+//     return CloseOffscreenDocumentMsg.type();
+//   }
+// }
+//
+// export class TransferCompletedEvent extends Message<void> {
+//   public static type(): MessageType {
+//     return MessageType.TransferCompletedEvent;
+//   }
+//
+//   constructor(
+//     public readonly success: boolean,
+//     public readonly msgId: string,
+//     public readonly payload?: string
+//   ) {
+//     super();
+//   }
+//
+//   validate(): void {
+//     if (this.success === undefined) {
+//       throw new Error("Success is undefined");
+//     }
+//   }
+//
+//   route(): string {
+//     return ROUTE;
+//   }
+//
+//   type(): string {
+//     return TransferCompletedEvent.type();
+//   }
+// }
 
 export class DeleteAccountMsg extends Message<
   Result<null, DeleteAccountError>

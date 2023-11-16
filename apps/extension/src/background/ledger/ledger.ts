@@ -5,9 +5,9 @@ import Transport from "@ledgerhq/hw-transport";
 import {
   NamadaApp,
   ResponseAppInfo,
-  ResponseSign,
+//   ResponseSign,
   ResponseVersion,
-  LedgerError,
+//   LedgerError,
 } from "@namada/ledger-namada";
 import { defaultChainId, chains } from "@namada/chains";
 import { makeBip44Path } from "@namada/utils";
@@ -90,38 +90,38 @@ export class Ledger {
     };
   }
 
-  /**
-   * Sign tx bytes with the key associated with provided (or default) path
-   *
-   * @async
-   * @param {Uint8Array} tx - tx data blob to sign
-   * @param {string} bip44Path (optional) - Bip44 path for signing account
-   *
-   * @returns {ResponseSign}
-   */
-  public async sign(tx: Uint8Array, bip44Path?: string): Promise<ResponseSign> {
-    if (!this.namadaApp) {
-      throw new Error("NamadaApp is not initialized!");
-    }
-    const buffer = Buffer.from(tx);
-    const path = bip44Path || DEFAULT_LEDGER_BIP44_PATH;
-
-    return await this.namadaApp.sign(path, buffer);
-  }
-
-  /**
-   * Query status to determine if device has thrown an error
-   */
-  public async queryErrors(): Promise<string> {
-    const {
-      info: { returnCode, errorMessage },
-    } = await this.status();
-
-    if (returnCode !== LedgerError.NoErrors) {
-      return errorMessage;
-    }
-    return "";
-  }
+//   /**
+//    * Sign tx bytes with the key associated with provided (or default) path
+//    *
+//    * @async
+//    * @param {Uint8Array} tx - tx data blob to sign
+//    * @param {string} bip44Path (optional) - Bip44 path for signing account
+//    *
+//    * @returns {ResponseSign}
+//    */
+//   public async sign(tx: Uint8Array, bip44Path?: string): Promise<ResponseSign> {
+//     if (!this.namadaApp) {
+//       throw new Error("NamadaApp is not initialized!");
+//     }
+//     const buffer = Buffer.from(tx);
+//     const path = bip44Path || DEFAULT_LEDGER_BIP44_PATH;
+//
+//     return await this.namadaApp.sign(path, buffer);
+//   }
+//
+//   /**
+//    * Query status to determine if device has thrown an error
+//    */
+//   public async queryErrors(): Promise<string> {
+//     const {
+//       info: { returnCode, errorMessage },
+//     } = await this.status();
+//
+//     if (returnCode !== LedgerError.NoErrors) {
+//       return errorMessage;
+//     }
+//     return "";
+//   }
 
   /**
    * Close the initialized transport, which may be needed if Ledger needs to be reinitialized due to error state

@@ -136,33 +136,33 @@ jobs:
       - name: Rustup add target
         run: rustup target add wasm32-unknown-unknown
 
-      - name: build the site
-        working-directory: ./apps/namada-interface
-        run: yarn build
-        env:
-          REACT_APP_NAMADA_ALIAS: "Namada Devnet"
-          REACT_APP_NAMADA_CHAIN_ID: "internal-devnet-6be.86067e06a5"
-          REACT_APP_NAMADA_URL: "https://proxy.heliax.click/internal-devnet-6be.86067e06a5"
-      - name: Deploy to Netlify
-        uses: nwtgck/actions-netlify@v1.2.3
-        with:
-          publish-dir: "./apps/namada-interface/build"
-          production-branch: main
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: "deploy ${{ github.event.number }} at creating a PR"
-          alias: pull-request-${{ github.event.number }}
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_ACCESS_TOKEN_WALLET_PREVIEW }}
-          NETLIFY_SITE_ID: 1f548c68-c620-4522-97e0-0d85c08366fb
-          # namada.me
-          # NETLIFY_SITE_ID: 2380782e-9b20-477a-bc27-b4e9d05e16f3
+      # - name: build the site
+      #   working-directory: ./apps/namada-interface
+      #   run: yarn build
+      #   env:
+      #     REACT_APP_NAMADA_ALIAS: "Namada Devnet"
+      #     REACT_APP_NAMADA_CHAIN_ID: "internal-devnet-6be.86067e06a5"
+      #     REACT_APP_NAMADA_URL: "https://proxy.heliax.click/internal-devnet-6be.86067e06a5"
+      # - name: Deploy to Netlify
+      #   uses: nwtgck/actions-netlify@v1.2.3
+      #   with:
+      #     publish-dir: "./apps/namada-interface/build"
+      #     production-branch: main
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     deploy-message: "deploy ${{ github.event.number }} at creating a PR"
+      #     alias: pull-request-${{ github.event.number }}
+      #   env:
+      #     NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_ACCESS_TOKEN_WALLET_PREVIEW }}
+      #     NETLIFY_SITE_ID: 1f548c68-c620-4522-97e0-0d85c08366fb
+      #     # namada.me
+      #     # NETLIFY_SITE_ID: 2380782e-9b20-477a-bc27-b4e9d05e16f3
 
-      - name: Slack Notification
-        run: |
-          curl --header "Content-Type: application/json" \
-          --request POST \
-          --data '{"message":"New deployment for a PR\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
-          ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
+      # - name: Slack Notification
+      #   run: |
+      #     curl --header "Content-Type: application/json" \
+      #     --request POST \
+      #     --data '{"message":"New deployment for a PR\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
+      #     ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
   E2E-tests:
     needs: build
     timeout-minutes: 60
