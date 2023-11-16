@@ -121,6 +121,7 @@ export const Main: React.FC = () => {
             githubToken: claim.github_token as string,
             githubUsername: claim.github_username as string,
             hasClaimed: claim.has_claimed,
+            eligibilities: claim.eligibilities,
             type: "github",
           });
         } else if (claim.eligible && claim.has_claimed) {

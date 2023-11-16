@@ -25,6 +25,7 @@ export type GithubState = {
   type: ClaimType;
   githubToken: string;
   githubUsername: string;
+  eligibilities: string[];
 };
 
 export type KeplrState = {
