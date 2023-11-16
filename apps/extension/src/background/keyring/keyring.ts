@@ -73,7 +73,7 @@ export class KeyRing {
 
   constructor(
     protected readonly vaultService: VaultService,
-    protected readonly sdkStore: KVStore<Record<string, string>>,
+    protected readonly sdkStore: KVStore<string>,
     protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly extensionStore: KVStore<number>,
     protected readonly sdk: Sdk,
@@ -98,7 +98,7 @@ export class KeyRing {
     // To sync sdk wallet with DB
     const sdkData = await this.sdkStore.get(SDK_KEY);
     if (sdkData) {
-      this.sdk.decode(new TextEncoder().encode(sdkData[id]));
+      this.sdk.decode(new TextEncoder().encode(sdkData));
     }
   }
 
@@ -151,8 +151,8 @@ export class KeyRing {
     );
 
     // Prepare SDK store
-    this.sdk.clear_storage();
-    await this.initSdkStore(id);
+    // this.sdk.clear_storage();
+    // await this.initSdkStore();
     await this.setActiveAccount(id, AccountType.Ledger);
     return accountStore;
   }
@@ -266,8 +266,7 @@ export class KeyRing {
     await this.addSecretKey(
       sk,
       await this.vaultService.UNSAFE_getPassword(),
-      alias,
-      id
+      alias
     );
     await this.setActiveAccount(id, AccountType.Mnemonic);
     return accountStore;
@@ -545,8 +544,7 @@ export class KeyRing {
     await addSecretFn(
       info.text,
       await this.vaultService.UNSAFE_getPassword(),
-      alias,
-      parentId
+      alias
     );
 
     return derivedAccount;
@@ -812,18 +810,19 @@ export class KeyRing {
     }
 
     // remove account from sdk store
-    const records = await this.sdkStore.get(SDK_KEY);
-    if (records) {
-      const updatedRecords = Object.keys(records).reduce((acc, recordId) => {
-        if (accountIds.indexOf(recordId) >= 0) return acc;
-        return {
-          ...acc,
-          [recordId]: records[recordId],
-        };
-      }, {});
-
-      await this.sdkStore.set(SDK_KEY, updatedRecords);
-    }
+    // const records = await this.sdkStore.get(SDK_KEY);
+    // if (records) {
+    //   const updatedRecords = Object.keys(records).reduce((acc, recordId) => {
+    //     if (accountIds.indexOf(recordId) >= 0) return acc;
+    //     return {
+    //       ...acc,
+    //       [recordId]: records[recordId],
+    //     };
+    //   }, {});
+    //
+    //   await this.sdkStore.set(SDK_KEY, updatedRecords);
+    // await this.sdkStore.remove
+    // }
 
     return Result.ok(null);
   }
@@ -849,37 +848,30 @@ export class KeyRing {
   private async addSecretKey(
     secretKey: string,
     password: string,
-    alias: string,
-    activeAccountId: string
+    alias: string
   ): Promise<void> {
     this.sdk.add_key(secretKey, password, alias);
-    await this.initSdkStore(activeAccountId);
+    await this.initSdkStore();
   }
 
-  public async initSdkStore(activeAccountId: string): Promise<void> {
-    const store = (await this.sdkStore.get(SDK_KEY)) || {};
-
-    this.sdkStore.set(SDK_KEY, {
-      ...store,
-      [activeAccountId]: new TextDecoder().decode(this.sdk.encode()),
-    });
+  public async initSdkStore(): Promise<void> {
+    this.sdkStore.set(SDK_KEY, new TextDecoder().decode(this.sdk.encode()));
   }
 
   private async addSpendingKey(
     text: string,
     password: string,
-    alias: string,
-    activeAccountId: string
+    alias: string
   ): Promise<void> {
     const { spendingKey } = JSON.parse(text);
 
     this.sdk.add_spending_key(spendingKey, password, alias);
-    const store = (await this.sdkStore.get(SDK_KEY)) || {};
-
-    //TODO: reuse logic from addSecretKey, potentially use Object.assign instead of rest spread operator
-    this.sdkStore.set(SDK_KEY, {
-      ...store,
-      [activeAccountId]: new TextDecoder().decode(this.sdk.encode()),
-    });
+    // const store = (await this.sdkStore.get(SDK_KEY)) || {};
+    //
+    // //TODO: reuse logic from addSecretKey, potentially use Object.assign instead of rest spread operator
+    // this.sdkStore.set(SDK_KEY, {
+    //   ...store,
+    //   [activeAccountId]: new TextDecoder().decode(this.sdk.encode()),
+    // });
   }
 }
