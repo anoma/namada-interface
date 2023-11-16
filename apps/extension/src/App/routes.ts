@@ -1,5 +1,5 @@
 export default {
-  approveTx: (): string => `/tx`,
+//   approveTx: (): string => `/tx`,
   login: (): string => `/login`,
   approveConnection: (): string => `/connection`,
   setup: (): string => `/setup`,

@@ -16,7 +16,7 @@ import {
   AccountStore,
   DeriveAccountMsg,
   SaveAccountSecretMsg,
-  ScanAccountsMsg,
+//   ScanAccountsMsg,
   AccountSecret
 } from "background/keyring";
 import { useRequester } from "hooks/useRequester";
@@ -27,7 +27,7 @@ import { CreatePasswordMsg } from "background/vault";
 type Props = {
   alias: string;
   accountSecret?: AccountSecret;
-  scanAccounts: boolean;
+//   scanAccounts: boolean;
   pageTitle: string;
   pageSubtitle: string;
   password?: string;
@@ -45,7 +45,7 @@ const Completion: React.FC<Props> = (props) => {
     alias,
     accountSecret,
     password,
-    scanAccounts,
+//     scanAccounts,
     pageTitle,
     pageSubtitle,
     passwordRequired,
@@ -121,13 +121,13 @@ const Completion: React.FC<Props> = (props) => {
           setShieldedAccountAddress(shieldedAccount.address);
         }
 
-        if (scanAccounts) {
-          setStatusInfo("Scanning accounts.");
-          await requester.sendMessage<ScanAccountsMsg>(
-            Ports.Background,
-            new ScanAccountsMsg()
-          );
-        }
+//         if (scanAccounts) {
+//           setStatusInfo("Scanning accounts.");
+//           await requester.sendMessage<ScanAccountsMsg>(
+//             Ports.Background,
+//             new ScanAccountsMsg()
+//           );
+//         }
         setMnemonicStatus(Status.Completed);
         setStatusInfo("Done!");
       } catch (e) {

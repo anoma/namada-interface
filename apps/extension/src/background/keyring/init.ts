@@ -1,15 +1,15 @@
 import { Router } from "router";
 import {
   DeriveAccountMsg,
-  QueryPublicKeyMsg,
+  //   QueryPublicKeyMsg,
   GenerateMnemonicMsg,
   SaveAccountSecretMsg,
-  ScanAccountsMsg,
+  //   ScanAccountsMsg,
   SetActiveAccountMsg,
   GetActiveAccountMsg,
   QueryParentAccountsMsg,
-  TransferCompletedEvent,
-  CloseOffscreenDocumentMsg,
+  //   TransferCompletedEvent,
+  //   CloseOffscreenDocumentMsg,
   DeleteAccountMsg,
   ValidateMnemonicMsg,
   AddLedgerAccountMsg,
@@ -19,9 +19,9 @@ import {
 import {
   QueryAccountsMsg,
   QueryDefaultAccountMsg,
-  QueryBalancesMsg,
-  FetchAndStoreMaspParamsMsg,
-  HasMaspParamsMsg,
+  //   QueryBalancesMsg,
+  //   FetchAndStoreMaspParamsMsg,
+  //   HasMaspParamsMsg,
   CheckDurabilityMsg,
 } from "provider/messages";
 import { ROUTE } from "./constants";
@@ -29,22 +29,22 @@ import { getHandler } from "./handler";
 import { KeyRingService } from "./service";
 
 export function init(router: Router, service: KeyRingService): void {
-  router.registerMessage(QueryPublicKeyMsg);
-  router.registerMessage(CloseOffscreenDocumentMsg);
+  //   router.registerMessage(QueryPublicKeyMsg);
+  //   router.registerMessage(CloseOffscreenDocumentMsg);
   router.registerMessage(DeriveAccountMsg);
   router.registerMessage(GenerateMnemonicMsg);
   router.registerMessage(GetActiveAccountMsg);
   router.registerMessage(QueryAccountsMsg);
   router.registerMessage(QueryDefaultAccountMsg);
-  router.registerMessage(QueryBalancesMsg);
+  //   router.registerMessage(QueryBalancesMsg);
   router.registerMessage(QueryParentAccountsMsg);
   router.registerMessage(SaveAccountSecretMsg);
-  router.registerMessage(ScanAccountsMsg);
+  //   router.registerMessage(ScanAccountsMsg);
   router.registerMessage(SetActiveAccountMsg);
-  router.registerMessage(TransferCompletedEvent);
+  //   router.registerMessage(TransferCompletedEvent);
   router.registerMessage(DeleteAccountMsg);
-  router.registerMessage(FetchAndStoreMaspParamsMsg);
-  router.registerMessage(HasMaspParamsMsg);
+  //   router.registerMessage(FetchAndStoreMaspParamsMsg);
+  //   router.registerMessage(HasMaspParamsMsg);
   router.registerMessage(ValidateMnemonicMsg);
   router.registerMessage(CheckDurabilityMsg);
   router.registerMessage(AddLedgerAccountMsg);

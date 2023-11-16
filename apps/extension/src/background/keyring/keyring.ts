@@ -1,4 +1,4 @@
-import { deserialize } from "@dao-xyz/borsh";
+// import { deserialize } from "@dao-xyz/borsh";
 
 import { chains } from "@namada/chains";
 import {
@@ -16,15 +16,15 @@ import {
   ExtendedSpendingKey,
   ExtendedViewingKey,
   PaymentAddress,
-  Query,
-  Sdk,
+//   Query,
+//   Sdk,
 } from "@namada/shared";
 import { KVStore } from "@namada/storage";
 import {
   AccountType,
   Bip44Path,
   DerivedAccount,
-  TransferMsgValue,
+  //   TransferMsgValue,
 } from "@namada/types";
 
 import {
@@ -43,13 +43,13 @@ import { Result, makeBip44PathArray, assertNever } from "@namada/utils";
 import { VaultService } from "background/vault";
 import { generateId } from "utils";
 
-const { REACT_APP_NAMADA_FAUCET_ADDRESS: faucetAddress } = process.env;
+// const { REACT_APP_NAMADA_FAUCET_ADDRESS: faucetAddress } = process.env;
 
 // Generated UUID namespace for uuid v5
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
 
 export const KEYSTORE_KEY = "key-store";
-export const SDK_KEY = "sdk-store";
+// export const SDK_KEY = "sdk-store";
 export const PARENT_ACCOUNT_ID_KEY = "parent-account-id";
 export const AUTHKEY_KEY = "auth-key-store";
 
@@ -68,12 +68,12 @@ export class KeyRing {
 
   constructor(
     protected readonly vaultService: VaultService,
-    protected readonly sdkStore: KVStore<Record<string, string>>,
+//     protected readonly sdkStore: KVStore<Record<string, string>>,
     protected readonly utilityStore: KVStore<UtilityStore>,
-    protected readonly extensionStore: KVStore<number>,
+    //     protected readonly extensionStore: KVStore<number>,
     protected readonly chainId: string,
-    protected readonly sdk: Sdk,
-    protected readonly query: Query,
+    //     protected readonly sdk: Sdk,
+    //     protected readonly query: Query,
     protected readonly cryptoMemory: WebAssembly.Memory
   ) {}
 
@@ -91,11 +91,11 @@ export class KeyRing {
   ): Promise<void> {
     await this.utilityStore.set(PARENT_ACCOUNT_ID_KEY, { id, type });
 
-    // To sync sdk wallet with DB
-    const sdkData = await this.sdkStore.get(SDK_KEY);
-    if (sdkData) {
-      this.sdk.decode(new TextEncoder().encode(sdkData[id]));
-    }
+//     // To sync sdk wallet with DB
+//     const sdkData = await this.sdkStore.get(SDK_KEY);
+//     if (sdkData) {
+//       this.sdk.decode(new TextEncoder().encode(sdkData[id]));
+//     }
   }
 
   public validateMnemonic(phrase: string): MnemonicValidationResponse {
@@ -149,10 +149,10 @@ export class KeyRing {
       { text: "" }
     );
 
-    // Prepare SDK store
-    this.sdk.clear_storage();
-    await this.initSdkStore(id);
-    await this.setActiveAccount(parentId || id, AccountType.Ledger);
+//    // Prepare SDK store
+//    this.sdk.clear_storage();
+//    await this.initSdkStore(id);
+//    await this.setActiveAccount(parentId || id, AccountType.Ledger);
     return accountStore;
   }
 
@@ -258,15 +258,15 @@ export class KeyRing {
         sensitiveData
       );
 
-      // When we are adding new top level account we have to clear the storage
-      // to prevent adding top level secret key to existing keys
-      this.sdk.clear_storage();
-      await this.addSecretKey(
-        sk,
-        await this.vaultService.UNSAFE_getPassword(),
-        alias,
-        id
-      );
+//       // When we are adding new top level account we have to clear the storage
+//       // to prevent adding top level secret key to existing keys
+//       this.sdk.clear_storage();
+//       await this.addSecretKey(
+//         sk,
+//         await this.vaultService.UNSAFE_getPassword(),
+//         alias,
+//         id
+//       );
       await this.setActiveAccount(id, AccountType.Mnemonic);
       return accountStore;
     } catch (e) {
@@ -398,7 +398,7 @@ export class KeyRing {
   //   }
   // }
 
-  public async scanAddresses(): Promise<void> {
+//   public async scanAddresses(): Promise<void> {
     // if (!this._password) {
     //   throw new Error("No password is set!");
     // }
@@ -438,7 +438,7 @@ export class KeyRing {
     //   await this.addSpendingKey(info.text, this._password, alias, parentId);
     // }
     // seed.free();
-  }
+//   }
 
   private async getParentSeed(): Promise<{
     parentId: string;
@@ -532,16 +532,16 @@ export class KeyRing {
       info
     );
 
-    const addSecretFn = (
-      type === AccountType.PrivateKey ? this.addSecretKey : this.addSpendingKey
-    ).bind(this);
-
-    await addSecretFn(
-      info.text,
-      await this.vaultService.UNSAFE_getPassword(),
-      alias,
-      parentId
-    );
+//     const addSecretFn = (
+//       type === AccountType.PrivateKey ? this.addSecretKey : this.addSpendingKey
+//     ).bind(this);
+//
+//     await addSecretFn(
+//       info.text,
+//       await this.vaultService.UNSAFE_getPassword(),
+//       alias,
+//       parentId
+//     );
 
     return derivedAccount;
   }
@@ -624,146 +624,146 @@ export class KeyRing {
     return accounts.map((account) => account.public as AccountStore);
   }
 
-  async submitBond(bondMsg: Uint8Array, txMsg: Uint8Array): Promise<void> {
-    await this.vaultService.assertIsUnlocked();
-    try {
-      const builtTx = await this.sdk.build_bond(
-        bondMsg,
-        txMsg,
-        await this.vaultService.UNSAFE_getPassword()
-      );
-      const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
-      await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
-    } catch (e) {
-      throw new Error(`Could not submit bond tx: ${e}`);
-    }
-  }
-
-  async submitUnbond(unbondMsg: Uint8Array, txMsg: Uint8Array): Promise<void> {
-    await this.vaultService.assertIsUnlocked();
-    try {
-      const builtTx = await this.sdk.build_unbond(
-        unbondMsg,
-        txMsg,
-        await this.vaultService.UNSAFE_getPassword()
-      );
-      const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
-      await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
-    } catch (e) {
-      throw new Error(`Could not submit unbond tx: ${e}`);
-    }
-  }
-
-  async submitWithdraw(
-    withdrawMsg: Uint8Array,
-    txMsg: Uint8Array
-  ): Promise<void> {
-    await this.vaultService.assertIsUnlocked();
-    try {
-      const builtTx = await this.sdk.build_withdraw(
-        withdrawMsg,
-        txMsg,
-        await this.vaultService.UNSAFE_getPassword()
-      );
-      const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
-      await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
-    } catch (e) {
-      throw new Error(`Could not submit withdraw tx: ${e}`);
-    }
-  }
-
-  async submitVoteProposal(
-    voteProposalMsg: Uint8Array,
-    txMsg: Uint8Array
-  ): Promise<void> {
-    await this.vaultService.assertIsUnlocked();
-    try {
-      const builtTx = await this.sdk.build_vote_proposal(
-        voteProposalMsg,
-        txMsg,
-        await this.vaultService.UNSAFE_getPassword()
-      );
-      const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
-      await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
-    } catch (e) {
-      throw new Error(`Could not submit vote proposal tx: ${e}`);
-    }
-  }
-
-  async submitTransfer(
-    transferMsg: Uint8Array,
-    submit: (password: string, xsk?: string) => Promise<void>
-  ): Promise<void> {
-    await this.vaultService.assertIsUnlocked();
-
-    // We need to get the source address in case it is shielded one, so we can
-    // decrypt the extended spending key for a transfer.
-    const { source, target } = deserialize(
-      Buffer.from(transferMsg),
-      TransferMsgValue
-    );
-
-    const signerAddress = source === faucetAddress ? target : source;
-    const account = await this.vaultService.findOneOrFail<AccountStore>(
-      KEYSTORE_KEY,
-      "address",
-      signerAddress
-    );
-    const sensitiveProps =
-      await this.vaultService.reveal<SensitiveAccountStoreData>(account);
-
-    if (!sensitiveProps) {
-      throw new Error("Error decrypting AccountStore data");
-    }
-
-    // For shielded accounts we need to return the spending key as well.
-    // TODO: check if this .spendingKey is working
-    const extendedSpendingKey =
-      account.public.type === AccountType.ShieldedKeys
-        ? JSON.parse(sensitiveProps.text).spendingKey
-        : undefined;
-
-    await submit(
-      await this.vaultService.UNSAFE_getPassword(),
-      extendedSpendingKey
-    );
-  }
-
-  async submitIbcTransfer(
-    ibcTransferMsg: Uint8Array,
-    txMsg: Uint8Array
-  ): Promise<void> {
-    await this.vaultService.assertIsUnlocked();
-    try {
-      const builtTx = await this.sdk.build_ibc_transfer(
-        ibcTransferMsg,
-        txMsg,
-        await this.vaultService.UNSAFE_getPassword()
-      );
-      const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
-      await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
-    } catch (e) {
-      throw new Error(`Could not submit ibc transfer tx: ${e}`);
-    }
-  }
-
-  async submitEthBridgeTransfer(
-    ethBridgeTransferMsg: Uint8Array,
-    txMsg: Uint8Array
-  ): Promise<void> {
-    await this.vaultService.assertIsUnlocked();
-    try {
-      const builtTx = await this.sdk.build_eth_bridge_transfer(
-        ethBridgeTransferMsg,
-        txMsg,
-        await this.vaultService.UNSAFE_getPassword()
-      );
-      const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
-      await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
-    } catch (e) {
-      throw new Error(`Could not submit submit_eth_bridge_transfer tx: ${e}`);
-    }
-  }
+//   async submitBond(bondMsg: Uint8Array, txMsg: Uint8Array): Promise<void> {
+//     await this.vaultService.assertIsUnlocked();
+//     try {
+//       const builtTx = await this.sdk.build_bond(
+//         bondMsg,
+//         txMsg,
+//         await this.vaultService.UNSAFE_getPassword()
+//       );
+//       const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
+//       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
+//     } catch (e) {
+//       throw new Error(`Could not submit bond tx: ${e}`);
+//     }
+//   }
+//
+//   async submitUnbond(unbondMsg: Uint8Array, txMsg: Uint8Array): Promise<void> {
+//     await this.vaultService.assertIsUnlocked();
+//     try {
+//       const builtTx = await this.sdk.build_unbond(
+//         unbondMsg,
+//         txMsg,
+//         await this.vaultService.UNSAFE_getPassword()
+//       );
+//       const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
+//       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
+//     } catch (e) {
+//       throw new Error(`Could not submit unbond tx: ${e}`);
+//     }
+//   }
+//
+//   async submitWithdraw(
+//     withdrawMsg: Uint8Array,
+//     txMsg: Uint8Array
+//   ): Promise<void> {
+//     await this.vaultService.assertIsUnlocked();
+//     try {
+//       const builtTx = await this.sdk.build_withdraw(
+//         withdrawMsg,
+//         txMsg,
+//         await this.vaultService.UNSAFE_getPassword()
+//       );
+//       const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
+//       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
+//     } catch (e) {
+//       throw new Error(`Could not submit withdraw tx: ${e}`);
+//     }
+//   }
+//
+//   async submitVoteProposal(
+//     voteProposalMsg: Uint8Array,
+//     txMsg: Uint8Array
+//   ): Promise<void> {
+//     await this.vaultService.assertIsUnlocked();
+//     try {
+//       const builtTx = await this.sdk.build_vote_proposal(
+//         voteProposalMsg,
+//         txMsg,
+//         await this.vaultService.UNSAFE_getPassword()
+//       );
+//       const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
+//       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
+//     } catch (e) {
+//       throw new Error(`Could not submit vote proposal tx: ${e}`);
+//     }
+//   }
+//
+//   async submitTransfer(
+//     transferMsg: Uint8Array,
+//     submit: (password: string, xsk?: string) => Promise<void>
+//   ): Promise<void> {
+//     await this.vaultService.assertIsUnlocked();
+//
+//     // We need to get the source address in case it is shielded one, so we can
+//     // decrypt the extended spending key for a transfer.
+//     const { source, target } = deserialize(
+//       Buffer.from(transferMsg),
+//       TransferMsgValue
+//     );
+//
+//     const signerAddress = source === faucetAddress ? target : source;
+//     const account = await this.vaultService.findOneOrFail<AccountStore>(
+//       KEYSTORE_KEY,
+//       "address",
+//       signerAddress
+//     );
+//     const sensitiveProps =
+//       await this.vaultService.reveal<SensitiveAccountStoreData>(account);
+//
+//     if (!sensitiveProps) {
+//       throw new Error("Error decrypting AccountStore data");
+//     }
+//
+//     // For shielded accounts we need to return the spending key as well.
+//     // TODO: check if this .spendingKey is working
+//     const extendedSpendingKey =
+//       account.public.type === AccountType.ShieldedKeys
+//         ? JSON.parse(sensitiveProps.text).spendingKey
+//         : undefined;
+//
+//     await submit(
+//       await this.vaultService.UNSAFE_getPassword(),
+//       extendedSpendingKey
+//     );
+//   }
+//
+//   async submitIbcTransfer(
+//     ibcTransferMsg: Uint8Array,
+//     txMsg: Uint8Array
+//   ): Promise<void> {
+//     await this.vaultService.assertIsUnlocked();
+//     try {
+//       const builtTx = await this.sdk.build_ibc_transfer(
+//         ibcTransferMsg,
+//         txMsg,
+//         await this.vaultService.UNSAFE_getPassword()
+//       );
+//       const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
+//       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
+//     } catch (e) {
+//       throw new Error(`Could not submit ibc transfer tx: ${e}`);
+//     }
+//   }
+//
+//   async submitEthBridgeTransfer(
+//     ethBridgeTransferMsg: Uint8Array,
+//     txMsg: Uint8Array
+//   ): Promise<void> {
+//     await this.vaultService.assertIsUnlocked();
+//     try {
+//       const builtTx = await this.sdk.build_eth_bridge_transfer(
+//         ethBridgeTransferMsg,
+//         txMsg,
+//         await this.vaultService.UNSAFE_getPassword()
+//       );
+//       const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
+//       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
+//     } catch (e) {
+//       throw new Error(`Could not submit submit_eth_bridge_transfer tx: ${e}`);
+//     }
+//   }
 
   async renameAccount(
     accountId: string,
@@ -799,75 +799,75 @@ export class KeyRing {
         (await this.vaultService.remove<AccountStore>(KEYSTORE_KEY, "id", id));
     }
 
-    // remove account from sdk store
-    const records = await this.sdkStore.get(SDK_KEY);
-    if (records) {
-      const updatedRecords = Object.keys(records).reduce((acc, recordId) => {
-        if (accountIds.indexOf(recordId) >= 0) return acc;
-        return {
-          ...acc,
-          [recordId]: records[recordId],
-        };
-      }, {});
-
-      await this.sdkStore.set(SDK_KEY, updatedRecords);
-    }
+//     // remove account from sdk store
+//     const records = await this.sdkStore.get(SDK_KEY);
+//     if (records) {
+//       const updatedRecords = Object.keys(records).reduce((acc, recordId) => {
+//         if (accountIds.indexOf(recordId) >= 0) return acc;
+//         return {
+//           ...acc,
+//           [recordId]: records[recordId],
+//         };
+//       }, {});
+//
+//       await this.sdkStore.set(SDK_KEY, updatedRecords);
+//     }
 
     return Result.ok(null);
   }
 
-  async queryBalances(
-    owner: string
-  ): Promise<{ token: string; amount: string }[]> {
-    try {
-      return (await this.query.query_balance(owner)).map(
-        ([token, amount]: [string, string]) => {
-          return {
-            token,
-            amount,
-          };
-        }
-      );
-    } catch (e) {
-      console.error(e);
-      return [];
-    }
-  }
-
-  private async addSecretKey(
-    secretKey: string,
-    password: string,
-    alias: string,
-    activeAccountId: string
-  ): Promise<void> {
-    this.sdk.add_key(secretKey, password, alias);
-    await this.initSdkStore(activeAccountId);
-  }
-
-  public async initSdkStore(activeAccountId: string): Promise<void> {
-    const store = (await this.sdkStore.get(SDK_KEY)) || {};
-
-    this.sdkStore.set(SDK_KEY, {
-      ...store,
-      [activeAccountId]: new TextDecoder().decode(this.sdk.encode()),
-    });
-  }
-
-  private async addSpendingKey(
-    text: string,
-    password: string,
-    alias: string,
-    activeAccountId: string
-  ): Promise<void> {
-    const { spendingKey } = JSON.parse(text);
-
-    this.sdk.add_spending_key(spendingKey, password, alias);
-    const store = (await this.sdkStore.get(SDK_KEY)) || {};
-
-    //TODO: reuse logic from addSecretKey, potentially use Object.assign instead of rest spread operator
-    this.sdkStore.set(SDK_KEY, {
-      ...store,
-      [activeAccountId]: new TextDecoder().decode(this.sdk.encode()),
-    });
-  }
+  //   async queryBalances(
+  //     owner: string
+  //   ): Promise<{ token: string; amount: string }[]> {
+  //     try {
+  //       return (await this.query.query_balance(owner)).map(
+  //         ([token, amount]: [string, string]) => {
+  //           return {
+  //             token,
+  //             amount,
+  //           };
+  //         }
+  //       );
+  //     } catch (e) {
+  //       console.error(e);
+  //       return [];
+  //     }
+  //   }
+  //
+  //   private async addSecretKey(
+  //     secretKey: string,
+  //     password: string,
+  //     alias: string,
+  //     activeAccountId: string
+  //   ): Promise<void> {
+  //     this.sdk.add_key(secretKey, password, alias);
+  //     await this.initSdkStore(activeAccountId);
+  //   }
+  //
+  //   public async initSdkStore(activeAccountId: string): Promise<void> {
+  //     const store = (await this.sdkStore.get(SDK_KEY)) || {};
+  //
+  //     this.sdkStore.set(SDK_KEY, {
+  //       ...store,
+  //       [activeAccountId]: new TextDecoder().decode(this.sdk.encode()),
+  //     });
+  //   }
+  //
+  //   private async addSpendingKey(
+  //     text: string,
+  //     password: string,
+  //     alias: string,
+  //     activeAccountId: string
+  //   ): Promise<void> {
+  //     const { spendingKey } = JSON.parse(text);
+  //
+  //     this.sdk.add_spending_key(spendingKey, password, alias);
+  //     const store = (await this.sdkStore.get(SDK_KEY)) || {};
+  //
+  //     //TODO: reuse logic from addSecretKey, potentially use Object.assign instead of rest spread operator
+  //     this.sdkStore.set(SDK_KEY, {
+  //       ...store,
+  //       [activeAccountId]: new TextDecoder().decode(this.sdk.encode()),
+  //     });
+  //   }
 }

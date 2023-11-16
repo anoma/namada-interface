@@ -6,10 +6,10 @@ export enum TopLevelRoute {
   // Connection approval
   ApproveConnection = "/approve-connection",
 
-  // Transaction approval
-  ApproveTx = "/approve-tx",
-  ConfirmTx = "/confirm-tx",
-  ConfirmLedgerTx = "/confirm-ledger-tx",
+//   // Transaction approval
+//   ApproveTx = "/approve-tx",
+//   ConfirmTx = "/confirm-tx",
+//   ConfirmLedgerTx = "/confirm-ledger-tx",
 }
 
 export type ApproveMsg = new (msgId: string, password: string) => unknown &

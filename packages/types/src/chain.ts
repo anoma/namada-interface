@@ -1,19 +1,19 @@
-import { TokenType } from "./tx";
-
+// import { TokenType } from "./tx";
+//
 const {
   // Load extension download URL from env
   REACT_APP_EXTENSION_URL: extensionUrl,
 } = process.env;
 
-export type Currency = {
-  token: string;
-  symbol: TokenType;
-  gasPriceStep?: {
-    low: number;
-    average: number;
-    high: number;
-  };
-};
+// export type Currency = {
+//   token: string;
+//   symbol: TokenType;
+//   gasPriceStep?: {
+//     low: number;
+//     average: number;
+//     high: number;
+//   };
+// };
 
 export enum BridgeType {
   IBC = "ibc",
@@ -57,7 +57,7 @@ export type Chain = {
   };
   bridgeType: BridgeType[];
   chainId: string;
-  currency: Currency;
+//   currency: Currency;
   extension: ExtensionInfo;
   rpc: string;
   ibc?: {

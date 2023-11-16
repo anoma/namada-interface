@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { /* useState */ } from "react";
 import { ThemeProvider } from "styled-components";
 import { Routes, Route } from "react-router-dom";
 
 import { getTheme } from "@namada/utils";
-import { TxType } from "@namada/shared";
+// import { TxType } from "@namada/shared";
 
 import {
   AppContainer,
@@ -14,27 +14,27 @@ import {
 } from "./Approvals.components";
 import { ApproveConnection } from "./ApproveConnection";
 import { TopLevelRoute } from "Approvals/types";
-import { ConfirmLedgerTx } from "./ApproveTx/ConfirmLedgerTx";
-import { ConfirmTx } from "./ApproveTx/ConfirmTx";
-import { ApproveTx } from "./ApproveTx/ApproveTx";
-
-export enum Status {
-  Completed,
-  Pending,
-  Failed,
-}
-
-export type ApprovalDetails = {
-  source: string;
-  msgId: string;
-  txType: TxType;
-  publicKey?: string;
-  target?: string;
-};
+// import { ConfirmLedgerTx } from "./ApproveTx/ConfirmLedgerTx";
+// import { ConfirmTx } from "./ApproveTx/ConfirmTx";
+// import { ApproveTx } from "./ApproveTx/ApproveTx";
+//
+// export enum Status {
+//   Completed,
+//   Pending,
+//   Failed,
+// }
+//
+// export type ApprovalDetails = {
+//   source: string;
+//   msgId: string;
+//   txType: TxType;
+//   publicKey?: string;
+//   target?: string;
+// };
 
 export const Approvals: React.FC = () => {
   const theme = getTheme("dark");
-  const [details, setDetails] = useState<ApprovalDetails>();
+//   const [details, setDetails] = useState<ApprovalDetails>();
 
   return (
     <ThemeProvider theme={theme}>
@@ -45,18 +45,20 @@ export const Approvals: React.FC = () => {
             <Heading>Namada Browser Extension</Heading>
           </TopSection>
           <Routes>
-            <Route
-              path={`${TopLevelRoute.ApproveTx}/:type`}
-              element={<ApproveTx setDetails={setDetails} />}
-            />
-            <Route
-              path={TopLevelRoute.ConfirmTx}
-              element={<ConfirmTx details={details} />}
-            />
-            <Route
-              path={TopLevelRoute.ConfirmLedgerTx}
-              element={<ConfirmLedgerTx details={details} />}
-            />
+            {
+//             <Route
+//               path={`${TopLevelRoute.ApproveTx}/:type`}
+//               element={<ApproveTx setDetails={setDetails} />}
+//             />
+//             <Route
+//               path={TopLevelRoute.ConfirmTx}
+//               element={<ConfirmTx details={details} />}
+//             />
+//             <Route
+//               path={TopLevelRoute.ConfirmLedgerTx}
+//               element={<ConfirmLedgerTx details={details} />}
+//             />
+            }
             <Route
               path={TopLevelRoute.ApproveConnection}
               element={<ApproveConnection />}

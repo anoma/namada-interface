@@ -115,6 +115,7 @@ jobs:
           ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
 
   build-interface:
+    if: false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
