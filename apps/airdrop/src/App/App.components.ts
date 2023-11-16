@@ -37,6 +37,20 @@ export const GlobalStyles = createGlobalStyle<GlobalStyleProps>`
     background-color: ${(props) => props.theme.colors.primary.main};
     transition: background-color 0.5s ease;
   }
+
+.toast-enter-active {
+  z-index: 9999;
+}
+
+.failure-toast {
+  min-width: 200px;
+  padding: 10px 20px;
+  border-radius: 5px;
+  background-color: ${(props) => props.theme.colors.utility3.highAttention};
+  box-shadow: 0 0 7px rgba(211, 47, 47, 0.5);
+  color: #fff;
+  text-align: center;
+}
 `;
 export const AppContainer = styled.div`
   display: flex;

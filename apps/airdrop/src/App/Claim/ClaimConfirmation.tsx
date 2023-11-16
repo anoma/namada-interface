@@ -29,7 +29,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useIntegrationConnection } from "@namada/hooks";
-import { airdropFetch } from "App/utils";
+import { AirdropResponse, airdropFetch, toast } from "App/utils";
 
 const {
   REACT_APP_NAMADA_CHAIN_ID: namadaChainId = "namadaChainId",
@@ -39,14 +39,12 @@ const {
 const claimWithGithub = async (
   access_token: string,
   airdrop_address: string
-): Promise<ClaimResponse> => {
-  const response = await airdropFetch(`${backendUrl}/api/v1/airdrop/github`, {
+): Promise<AirdropResponse<ClaimResponse>> => {
+  return airdropFetch(`${backendUrl}/api/v1/airdrop/github`, {
     method: "POST",
     headers: new Headers({ "content-type": "application/json" }),
     body: JSON.stringify({ access_token, airdrop_address }),
   });
-
-  return response.json();
 };
 
 const claimWithKeplr = async (
@@ -57,8 +55,8 @@ const claimWithKeplr = async (
   signature: string,
   airdrop_address: string,
   message: string
-): Promise<ClaimResponse> => {
-  const response = await airdropFetch(`${backendUrl}/api/v1/airdrop/${type}`, {
+): Promise<AirdropResponse<ClaimResponse>> => {
+  return airdropFetch(`${backendUrl}/api/v1/airdrop/${type}`, {
     method: "POST",
     headers: new Headers({
       "content-type": "application/json",
@@ -72,8 +70,6 @@ const claimWithKeplr = async (
       message,
     }),
   });
-
-  return response.json();
 };
 
 const claimWithGitcoin = async (
@@ -81,8 +77,8 @@ const claimWithGitcoin = async (
   message: string,
   signature: string,
   airdrop_address: string
-): Promise<ClaimResponse> => {
-  const response = await airdropFetch(`${backendUrl}/api/v1/airdrop/gitcoin`, {
+): Promise<AirdropResponse<ClaimResponse>> => {
+  return airdropFetch(`${backendUrl}/api/v1/airdrop/gitcoin`, {
     method: "POST",
     headers: new Headers({
       "content-type": "application/json",
@@ -94,8 +90,6 @@ const claimWithGitcoin = async (
       airdrop_address,
     }),
   });
-
-  return response.json();
 };
 
 const claimWithTS = async (
@@ -103,8 +97,8 @@ const claimWithTS = async (
   signature: string,
   airdrop_address: string,
   message: string
-): Promise<ClaimResponse> => {
-  const response = await airdropFetch(`${backendUrl}/api/v1/airdrop/ts`, {
+): Promise<AirdropResponse<ClaimResponse>> => {
+  return airdropFetch(`${backendUrl}/api/v1/airdrop/ts`, {
     method: "POST",
     headers: new Headers({ "content-type": "application/json" }),
     body: JSON.stringify({
@@ -114,14 +108,13 @@ const claimWithTS = async (
       message,
     }),
   });
-  return response.json();
 };
 
 const claim = (
   state: CommonState,
   airdropAddress: string,
   tsSignature: string
-): Promise<ClaimResponse> => {
+): Promise<AirdropResponse<ClaimResponse>> => {
   const { type } = state;
   if (type === "github") {
     const { githubToken } = state as GithubState;
@@ -256,12 +249,27 @@ export const ClaimConfirmation: React.FC = () => {
           if (!claimState) {
             throw new Error("Claim state is not set");
           }
-          const res = await claim(claimState, airdropAddress, tsSignature);
+          let response: AirdropResponse<ClaimResponse> | undefined;
+
+          try {
+            response = await claim(claimState, airdropAddress, tsSignature);
+          } catch (e) {
+            console.error(e);
+          }
+
+          if (!response) {
+            toast("Something went wrong, please try again later");
+            return;
+          } else if (!response.ok) {
+            toast(response.result.message);
+            return;
+          }
+          const { result } = response;
 
           setConfirmation({
-            confirmed: res.confirmed,
-            address: res.airdrop_address || "",
-            amount: res.amount,
+            confirmed: result.confirmed,
+            address: result.airdrop_address || "",
+            amount: result.amount,
           });
           navigate("/airdrop-confirmed");
         }}

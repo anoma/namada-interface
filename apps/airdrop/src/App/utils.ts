@@ -1,9 +1,11 @@
+import _toast, { Toast } from "react-simple-toasts";
 import { NavigateFunction } from "react-router-dom";
 
 const { NODE_ENV, AIRDROP_AUTH_SECRET = "header" } = process.env;
 const AUTH_HEADER =
   NODE_ENV === "development"
-    ? { "x-airdrop-secret": AIRDROP_AUTH_SECRET }
+    ? // NODE_ENV === "production"
+      { "x-airdrop-secret": AIRDROP_AUTH_SECRET }
     : null;
 
 export const navigatePostCheck = (
@@ -21,14 +23,28 @@ export const navigatePostCheck = (
   }
 };
 
-export const airdropFetch = (
+type AirdropResponseErr = { message: string; code: number };
+export type AirdropResponse<T> =
+  | { ok: true; result: T }
+  | { ok: false; result: AirdropResponseErr };
+
+export const airdropFetch = async <T>(
   input: RequestInfo | URL,
   init?: RequestInit
-): Promise<Response> => {
+): Promise<AirdropResponse<T>> => {
   const requestInit = init || {};
   const initHeaders = requestInit.headers || {};
-  return fetch(input, {
+
+  const response = await fetch(input, {
     ...init,
     headers: { ...initHeaders, ...AUTH_HEADER },
   });
+  const result = await response.json();
+
+  return response.ok ? { ok: true, result } : { ok: false, result };
 };
+
+export const toast = (msg: string): Toast =>
+  _toast(msg, {
+    className: "failure-toast",
+  });
