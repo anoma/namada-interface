@@ -50,6 +50,7 @@ type GithubClaim = {
   has_claimed: boolean;
   airdrop_address?: string;
   eligibilities: string[];
+  github_username?: string;
 };
 
 type Claim = {
@@ -118,6 +119,7 @@ export const Main: React.FC = () => {
             eligible: claim.eligible,
             amount: claim.amount,
             githubToken: claim.github_token as string,
+            githubUsername: claim.github_username as string,
             hasClaimed: claim.has_claimed,
             type: "github",
           });
@@ -283,7 +285,7 @@ export const Main: React.FC = () => {
             </Text>
             <Text fontSize="2xl">
               <b>
-                <Countdown endDate={new Date("Nov 14, 2023 13:00:00")} />
+                <Countdown endDate={new Date("Nov 20, 2023 00:00:00")} />
               </b>
             </Text>
           </Stack>
