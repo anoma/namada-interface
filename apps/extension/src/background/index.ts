@@ -25,9 +25,7 @@ import {
   KeyRingService,
   init as initKeyRing,
   SDK_KEY,
-  PARENT_ACCOUNT_ID_KEY,
   UtilityStore,
-  ActiveAccountStore,
 } from "./keyring";
 import { LedgerService, init as initLedger } from "./ledger";
 import { VaultService, init as initVault } from "./vault";
@@ -80,15 +78,10 @@ const init = new Promise<void>(async (resolve) => {
   const sdk = new Sdk(NamadaRpcEndpoint);
   const query = new Query(NamadaRpcEndpoint);
 
-  const sdkData: Record<string, string> | undefined = await sdkStore.get(
-    SDK_KEY
-  );
-  const activeAccount = await utilityStore.get<ActiveAccountStore>(
-    PARENT_ACCOUNT_ID_KEY
-  );
+  const sdkData: string | undefined = await sdkStore.get(SDK_KEY);
 
-  if (sdkData && Object.keys(sdkData).length > 0 && activeAccount) {
-    const data = new TextEncoder().encode(sdkData[activeAccount.id]);
+  if (sdkData) {
+    const data = new TextEncoder().encode(sdkData);
     sdk.decode(data);
   }
 

@@ -40,7 +40,7 @@ pub fn encode(wallet: &Wallet<BrowserWalletUtils>) -> Vec<u8> {
     wallet.store().encode()
 }
 
-/// Decodes wallet data and assings it in the Sdk.
+/// Decodes wallet data and assigns it in the Sdk.
 /// Returns new Wallet instance if data can be deserialized.
 ///
 /// # Arguments
@@ -57,7 +57,7 @@ pub fn decode(data: Vec<u8>) -> Result<Wallet<BrowserWalletUtils>, JsError> {
 }
 
 /// Adds keypair and the address to the wallet.
-/// It's needed because we create addresses without using the Sdk.
+/// It's needed because we create accounts without using the Sdk.
 /// Panics if inserting keypair or address is impossible.
 ///
 /// # Arguments
