@@ -1,7 +1,7 @@
 // Lists of repos that are eligible for the NAM airdrop.
 // NOTE: Case insensitive, call .toLowerCase() on the repo name before checking.
 
-export const ineterchainPGAndEarlyShieldedEcosystem = new Set([
+export const interchainPGAndEarlyShieldedEcosystem = new Set([
   "agoric/agoric-sdk",
   "althea-net/althea-l1/graphs/contributors",
   "anoma/namada-testnets",
@@ -292,3 +292,9 @@ export const zCashRDRust = new Set([
   "hhanh00/zwallet",
   "free2z/zuu",
 ]);
+
+export const map = {
+  interchain: interchainPGAndEarlyShieldedEcosystem,
+  zkp: ZKPCryptographyPrivacyPreserving,
+  zcash: zCashRDRust,
+};
