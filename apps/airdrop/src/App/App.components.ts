@@ -1,33 +1,8 @@
 import styled, { createGlobalStyle } from "styled-components";
-import { ColorMode, DesignConfiguration, spacement } from "@namada/utils";
+import { ColorMode, color, spacement } from "@namada/utils";
 
 type GlobalStyleProps = {
   colorMode: ColorMode;
-};
-
-enum ComponentColor {
-  BorderColor,
-  BackgroundColor,
-}
-
-const getColor = (
-  color: ComponentColor,
-  theme: DesignConfiguration
-): string => {
-  const { colorMode } = theme.themeConfigurations;
-
-  const colorMap: Record<ColorMode, Record<ComponentColor, string>> = {
-    light: {
-      [ComponentColor.BorderColor]: theme.colors.utility2.main20,
-      [ComponentColor.BackgroundColor]: theme.colors.utility1.main,
-    },
-    dark: {
-      [ComponentColor.BorderColor]: "transparent",
-      [ComponentColor.BackgroundColor]: theme.colors.utility1.main80,
-    },
-  };
-
-  return colorMap[colorMode][color];
 };
 
 // Set global styles for themed control of background color based
@@ -63,17 +38,21 @@ export const AppContainer = styled.div`
 `;
 
 export const AppContainerHeader = styled.div`
-  display: flex;
   align-self: flex-start;
+  display: flex;
   justify-content: space-between;
-  width: 100%;
   margin-top: 20px;
+  padding: ${spacement(2)} ${spacement(12)};
+  position: relative;
+  width: 100%;
+  z-index: 100;
 
   & > button {
     margin: 10px 0 0 0;
   }
+
   & a {
-    color: ${(props) => props.theme.colors.utility2.main};
+    color: ${color("utility2", "main")};
     text-decoration: none;
   }
 `;
@@ -92,17 +71,25 @@ export const Breadcrumb = styled.div`
 `;
 
 // Main.components
-export const MainContainer = styled.div`
+export const MainContainer = styled.div<{ blurred: boolean }>`
   width: 100%;
+  transition: all 500ms var(--ease-out-circ);
+  filter: blur(${(props) => (props.blurred ? "10px" : "0px")});
   display: flex;
   flex-direction: column;
+  position: relative;
 `;
 
 export const MainHeader = styled.div`
-  span {
-    color: ${(props) => props.theme.colors.primary.main};
+  margin-top: ${spacement(12)};
+  h1 {
+    line-height: 1em;
     text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
       1px 1px 0 #000;
+  }
+
+  span {
+    color: ${(props) => props.theme.colors.primary.main};
   }
 `;
 
@@ -110,14 +97,71 @@ export const MainSection = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: ${color("primary", "main")};
   box-sizing: border-box;
   border: 1px solid ${(props) => props.theme.colors.utility2.main20};
-  margin-top: 40px;
-  width: 770px;
-  height: 770px;
+  width: 620px;
+  height: 620px;
+  margin: ${spacement(12)} auto 0;
   border-radius: 50%;
-  border: ${spacement(8)} solid ${(props) => props.theme.colors.utility3.black};
+  border: ${spacement(6)} solid ${color("utility3", "black")};
   text-align: center;
+  position: relative;
+  z-index: 20;
+`;
+
+export const CallToActionStack = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${spacement(1)};
+  margin: 0 auto;
+  max-width: 320px;
+  button {
+    font-weight: 700;
+    margin-top: ${spacement(1.5)};
+  }
+`;
+
+export const MainTopSection = styled.section`
+  position: relative;
+  padding-bottom: ${spacement(24)};
+  max-width: 100%;
+  overflow: hidden;
+`;
+
+export const PoolContainer = styled.div`
+  position: absolute;
+  z-index: 10;
+  bottom: 0;
+  left: calc(50% - 605px);
+
+  svg {
+    display: block;
+  }
+`;
+
+export const PoolTopLayerContainer = styled.div`
+  position: absolute;
+  z-index: 30;
+  bottom: -89px;
+  left: calc(50% - 378px);
+  pointer-events: none;
+`;
+
+export const ObjectsContainer = styled.div`
+  height: 100%;
+  left: 0;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 40;
+`;
+
+export const IconContainer = styled.i<{ top: number; left: number }>`
+  position: absolute;
+  left: calc(50% + ${(props) => props.left}px);
+  top: calc(50% + ${(props) => props.top}px);
 `;
 
 export const MainSectionTime = styled.div`
@@ -135,49 +179,54 @@ export const Divider = styled.div`
 `;
 
 export const MainFooter = styled.div`
+  color: ${color("utility2", "main")};
   display: flex;
   flex-direction: column;
-  width: 100%;
-  margin-top: ${spacement(10)};
-  color: ${(props) => props.theme.colors.utility2.main};
+  margin: ${spacement(18)} auto ${spacement(36)};
+  max-width: 720px;
   text-align: center;
+  width: 100%;
 `;
 
 export const MainModal = styled.div`
   display: flex;
   flex-direction: column;
-  width: 100%;
   padding: 20px;
+  width: 100%;
   & > button {
     margin: 10px 0;
+  }
+`;
+
+export const ModalButtonContainer = styled.div`
+  text-align: center;
+
+  & > button {
+    margin-bottom: ${spacement(1.5)};
   }
 `;
 
 export const KeplrButtonContainer = styled.div`
-  display: flex;
-  width: 100%;
-  flex-direction: column;
   color: ${(props) => props.theme.colors.utility2.main};
+  display: flex;
+  flex-direction: column;
   text-align: center;
+  width: 100%;
 
   & > button {
     margin: 10px 0;
   }
 `;
 
-export const TOSToggle = styled.div`
-  display: flex;
-  color: ${(props) => props.theme.colors.utility2.main};
-  gap: 10px;
+export const TOSToggle = styled.label`
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: ${spacement(8)} auto;
   align-items: center;
-  margin-top: 20px;
-  & > button {
-    min-width: 45px;
-  }
-
-  & > span {
-    cursor: pointer;
-  }
+  color: ${color("primary", "main")};
+  gap: ${spacement(2)};
+  margin-top: ${spacement(5)};
+  padding: ${spacement(2)} ${spacement(4)};
 `;
 
 //Eligibility.components

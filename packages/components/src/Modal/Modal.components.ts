@@ -7,6 +7,7 @@ export const ModalContainer = styled.div`
   width: 100%;
   background-color: ${(props) => props.theme.colors.utility1.main80};
 `;
+
 export const ModalHeader = styled.div`
   display: flex;
   justify-content: center;

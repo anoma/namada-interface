@@ -10,6 +10,7 @@ type ActionButtonProps<HtmlTag extends keyof JSX.IntrinsicElements> = {
   as?: HtmlTag;
   variant?: ThemeColor;
   size?: ButtonSize;
+  outlined?: boolean;
 } & React.ComponentPropsWithoutRef<HtmlTag>;
 
 export const ActionButton = ({
@@ -17,10 +18,17 @@ export const ActionButton = ({
   variant = "primary",
   size = "xl",
   as = "button",
+  outlined = false,
   ...props
 }: ActionButtonProps<keyof JSX.IntrinsicElements>): JSX.Element => {
   return (
-    <ButtonContainer size={size} variant={variant} as={as} {...props}>
+    <ButtonContainer
+      outlined={outlined}
+      size={size}
+      variant={variant}
+      as={as}
+      {...props}
+    >
       <ButtonText>{children}</ButtonText>
       <ButtonHover />
     </ButtonContainer>

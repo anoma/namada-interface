@@ -42,8 +42,8 @@ export const Countdown: React.FC<Props> = ({ endDate }) => {
   }, []);
 
   return (
-    <span>
+    <strong>
       {format(days)}D : {format(hours)}H : {format(minutes)}M
-    </span>
+    </strong>
   );
 };
