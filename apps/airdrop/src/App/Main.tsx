@@ -1,17 +1,22 @@
-import { Window as KeplrWindow, Keplr } from "@keplr-wallet/types";
+import { Keplr, Window as KeplrWindow } from "@keplr-wallet/types";
 import { type MetaMaskInpageProvider } from "@metamask/providers";
 import {
-  Button,
+  ActionButton,
   ButtonVariant,
+  Checkbox,
   Heading,
-  Modal,
-  Toggle,
-  Text,
   LinkButton,
   Stack,
+  Text,
+  Toggle,
 } from "@namada/components";
+import { useAtom } from "jotai";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Modal } from "./Common/Modal";
 import {
-  Divider,
+  CallToActionStack,
+  IconContainer,
   KeplrButtonContainer,
   MainContainer,
   MainFooter,
@@ -19,19 +24,29 @@ import {
   MainModal,
   MainSection,
   MainSectionButton,
+  MainTopSection,
+  ModalButtonContainer,
+  ObjectsContainer,
+  PoolContainer,
+  PoolTopLayerContainer,
   TOSToggle,
 } from "./App.components";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { KeplrClaimType, confirmationAtom, claimAtom } from "./state";
-import { useAtom } from "jotai";
+import { Countdown } from "./Countdown";
+import { KeplrClaimType, claimAtom, confirmationAtom } from "./state";
 import {
   AirdropResponse,
   airdropFetch,
   navigatePostCheck,
   toast,
 } from "./utils";
-import { Countdown } from "./Countdown";
+import { PoolSvg } from "./Graphics/Pool";
+import { PoolTopLayer } from "./Graphics/PoolTopLayer";
+import { PageFooter } from "./Common/PageFooter";
+import { BookSvg } from "./Graphics/Book";
+import { EyeSvg } from "./Graphics/Eye";
+import { HiveSvg } from "./Graphics/Hive";
+import { ShieldSvg } from "./Graphics/Shield";
+import { RustSvg } from "./Graphics/Rust";
 
 const {
   REACT_APP_REDIRECT_URI: redirectUrl = "",
@@ -82,7 +97,7 @@ export const Main: React.FC = () => {
   const [metamask, setMetamask] = useState<
     MetaMaskInpageProvider | undefined
   >();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(true);
   const [isTOSAccepted, setIsTOSAccepted] = useState(false);
   const [_cl, setClaimState] = useAtom(claimAtom);
   const [_co, setConfirmation] = useAtom(confirmationAtom);
@@ -263,70 +278,100 @@ export const Main: React.FC = () => {
   };
 
   return (
-    <MainContainer>
-      <MainSection>
-        <Stack gap={2}>
-          <MainHeader>
-            <Heading level={"h1"} size={"6xl"}>
-              <b>
-                No<span> Privacy</span>
-                <br />
-                Without
-                <br />
-                Public Goods
-              </b>
-            </Heading>
-          </MainHeader>
-          <Stack gap={0.5}>
-            <Text>
-              <b>TIME LEFT TO CLAIM:</b>
-            </Text>
-            <Text fontSize="2xl">
-              <b>
-                <Countdown endDate={new Date("Nov 14, 2023 13:00:00")} />
-              </b>
-            </Text>
-          </Stack>
+    <>
+      <MainContainer blurred={isModalOpen}>
+        <MainTopSection>
+          <MainSection>
+            <Stack gap={6}>
+              <MainHeader>
+                <Heading uppercase level={"h1"} size={"7xl"}>
+                  No<span> Privacy</span>
+                  <br />
+                  Without
+                  <br />
+                  Public Goods
+                </Heading>
+              </MainHeader>
+              <CallToActionStack>
+                <Text fontSize="xl">TIME LEFT TO CLAIM:</Text>
+                <Text fontSize="2xl">
+                  <Countdown endDate={new Date("Nov 14, 2023 13:00:00")} />
+                </Text>
+                <ActionButton
+                  variant="secondary"
+                  onClick={() => {
+                    setIsModalOpen(true);
+                    setKeplr((window as KeplrWindow)?.keplr);
+                    setMetamask((window as MetamaskWindow)?.ethereum);
+                  }}
+                >
+                  Check NAM eligibility
+                </ActionButton>
+              </CallToActionStack>
+              <Stack gap={0.5}>
+                <MainSectionButton></MainSectionButton>
+                <LinkButton themeColor="utility2">
+                  <b>Read the annoucement</b>
+                </LinkButton>
+              </Stack>
+            </Stack>
+          </MainSection>
+          <PoolContainer>
+            <PoolSvg />
+          </PoolContainer>
+          <PoolTopLayerContainer>
+            <PoolTopLayer />
+          </PoolTopLayerContainer>
+          <ObjectsContainer>
+            <IconContainer left={-430} top={-200}>
+              <BookSvg />
+            </IconContainer>
 
-          <Stack gap={0.5}>
-            <MainSectionButton>
-              <Button
-                variant={ButtonVariant.Contained}
-                onClick={() => {
-                  setIsModalOpen(true);
-                  setKeplr((window as KeplrWindow)?.keplr);
-                  setMetamask((window as MetamaskWindow)?.ethereum);
-                }}
-              >
-                <b>Check NAM eligibility</b>
-              </Button>
-            </MainSectionButton>
-            <LinkButton themeColor="utility2">
-              <b>Read the annoucement</b>
-            </LinkButton>
+            <IconContainer left={-550} top={0}>
+              <EyeSvg />
+            </IconContainer>
+
+            <IconContainer left={280} top={-300}>
+              <HiveSvg />
+            </IconContainer>
+
+            <IconContainer left={420} top={-100}>
+              <ShieldSvg />
+            </IconContainer>
+
+            <IconContainer left={320} top={80}>
+              <RustSvg />
+            </IconContainer>
+          </ObjectsContainer>
+        </MainTopSection>
+        <MainFooter>
+          <Stack gap={6}>
+            <Text fontSize={"3xl"}>Namada RPGF Drop</Text>
+            <Text>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris
+              semper tempor ante eu ullamcorper. Morbi fringilla gravida mi in
+              cursus. Donec libero velit, vulputate vel nunc sed, pretium
+              rhoncus quam.
+            </Text>
+            <Text>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris
+              semper tempor ante eu ullamcorper. Morbi fringilla gravida mi in
+              cursus. Donec libero velit, vulputate vel nunc sed, pretium
+              rhoncus quam.
+            </Text>
           </Stack>
-        </Stack>
-      </MainSection>
-      <MainFooter>
-        <Divider />
-        <Stack gap={4}>
-          <Text fontSize={"3xl"}>Namada RPGF Drop</Text>
-          <Text>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris
-            semper tempor ante eu ullamcorper. Morbi fringilla gravida mi in
-            cursus. Donec libero velit, vulputate vel nunc sed, pretium rhoncus
-            quam.
-          </Text>
-        </Stack>
-      </MainFooter>
+        </MainFooter>
+        <PageFooter />
+      </MainContainer>
       <Modal
         isOpen={isModalOpen}
         title="Check eligibility with:"
-        onBackdropClick={() => setIsModalOpen(false)}
+        onClose={() => setIsModalOpen(false)}
       >
-        <MainModal>
-          <Button
-            variant={ButtonVariant.Contained}
+        <Stack gap={4}>
+          <ActionButton
+            outlined
+            variant="primary"
             disabled={!isTOSAccepted}
             onClick={() => {
               window.open(
@@ -336,91 +381,105 @@ export const Main: React.FC = () => {
             }}
           >
             Github
-          </Button>
+          </ActionButton>
+
           {metamask && (
-            <Button
+            <ActionButton
+              outlined
               disabled={!isTOSAccepted}
-              variant={ButtonVariant.Contained}
+              variant="primary"
               onClick={() => handleMetamaskConnection("0x1")}
             >
               Gitcoin Wallet
-            </Button>
+            </ActionButton>
           )}
+
           {!metamask && (
-            <>
-              <Button
-                variant={ButtonVariant.Contained}
+            <ModalButtonContainer>
+              <ActionButton
+                outlined
+                variant="primary"
                 onClick={() =>
                   handleExtensionDownload("https://metamask.io/download/")
                 }
               >
                 Download Metamask to use Gitcoin Wallet
-              </Button>
-              <span style={{ color: "white" }}>
-                <b>NOTE: </b>Make sure to restart website after installing
-                Metamask extension
-              </span>
-            </>
+              </ActionButton>
+              <Text themeColor="utility1" fontSize="xs">
+                NOTE: Make sure to restart website after installing Metamask
+                extension
+              </Text>
+            </ModalButtonContainer>
           )}
-          <Button
+
+          <ActionButton
+            outlined
             disabled={!isTOSAccepted}
-            variant={ButtonVariant.Contained}
+            variant="primary"
             onClick={() => navigate("/trusted-setup")}
           >
             Namada Trusted Setup
-          </Button>
+          </ActionButton>
+
           {keplr && (
             <>
-              <Button
+              <ActionButton
+                outlined
                 disabled={!isTOSAccepted}
-                variant={ButtonVariant.Contained}
+                variant="primary"
                 onClick={() => handleKeplrConnection("cosmos", "cosmoshub-4")}
               >
                 Cosmos Wallet
-              </Button>
-              <Button
+              </ActionButton>
+
+              <ActionButton
+                outlined
                 disabled={!isTOSAccepted}
-                variant={ButtonVariant.Contained}
+                variant="primary"
                 onClick={() => handleKeplrConnection("osmosis", "osmosis-1")}
               >
                 Osmosis Wallet
-              </Button>
-              <Button
+              </ActionButton>
+
+              <ActionButton
+                outlined
                 disabled={!isTOSAccepted}
-                variant={ButtonVariant.Contained}
+                variant="primary"
                 onClick={() => handleKeplrConnection("badkids", "stargaze-1")}
               >
                 Stargaze Wallet
-              </Button>
+              </ActionButton>
             </>
           )}
+
           {!keplr && (
-            <KeplrButtonContainer>
-              <Button
-                variant={ButtonVariant.Contained}
+            <ModalButtonContainer>
+              <ActionButton
+                outlined
+                variant="primary"
                 onClick={() =>
                   handleExtensionDownload("https://www.keplr.app/download")
                 }
               >
                 Download Keplr to use Cosmos/Osmosis/Stargaze Wallet
-              </Button>
-              <span style={{ color: "white" }}>
-                <b>NOTE: </b>Make sure to restart website after installing Keplr
+              </ActionButton>
+              <Text themeColor="utility1" fontSize="xs">
+                NOTE: Make sure to restart website after installing Keplr
                 extension
-              </span>
-            </KeplrButtonContainer>
+              </Text>
+            </ModalButtonContainer>
           )}
 
           <TOSToggle>
-            <Toggle
+            <Checkbox
               checked={isTOSAccepted}
-              onClick={() => setIsTOSAccepted(!isTOSAccepted)}
+              onChange={() => setIsTOSAccepted(!isTOSAccepted)}
             />
             You agree to the Terms of Service and are not in the US or any other
             prohibited jurisdiction
           </TOSToggle>
-        </MainModal>
+        </Stack>
       </Modal>
-    </MainContainer>
+    </>
   );
 };
