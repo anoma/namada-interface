@@ -82,6 +82,9 @@ jobs:
         with:
           cache-name: unit-tests-wasm
 
+      - name: Install yarn dependencies
+        uses: ./.github/actions/yarn-cache
+
       - name: Install protoc
         run: sudo apt-get install -y protobuf-compiler
 

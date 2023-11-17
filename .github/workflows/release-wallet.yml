@@ -141,9 +141,6 @@ jobs:
       - name: Install protoc
         run: sudo apt-get install -y protobuf-compiler
 
-      - name: Install web-ext
-        run: yarn global add node-gyp && yarn global add web-ext
-
       - name: Build WASM dependencies
         working-directory: ./apps/extension
         run: yarn wasm:build
@@ -186,9 +183,6 @@ jobs:
 
       - name: Install protoc
         run: sudo apt-get install -y protobuf-compiler
-
-      - name: Install web-ext
-        run: yarn global add node-gyp && yarn global add web-ext
 
       - name: Build WASM dependencies
         working-directory: ./apps/extension

@@ -33,5 +33,6 @@
   "devDependencies": {
     "stream-browserify": "^3.0.0",
     "wsrun": "^5.2.4"
-  }
+  },
+  "packageManager": "yarn@4.0.2"
 }
