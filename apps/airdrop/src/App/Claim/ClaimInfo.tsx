@@ -10,12 +10,11 @@ import { EligibilitySection } from "App/App.components";
 import { useAtom } from "jotai";
 import {
   CommonState,
-  GitcoinState,
   GithubState,
   KEPLR_CLAIMS,
-  KeplrState,
-  TSState,
+  Label,
   claimAtom,
+  labelAtom,
 } from "../state";
 import {
   ZKPCryptographyPrivacyPreserving,
@@ -63,9 +62,17 @@ const EligibleText = ({
   return <Text>{selected ? <b>{children} ✓</b> : children}</Text>;
 };
 
+const labelTextMap: Record<Label["type"], string> = {
+  address: "Wallet address",
+  publicKey: "Public key",
+  username: "Github username",
+  unknown: "",
+};
+
 export const ClaimInfo: React.FC = () => {
   const navigate = useNavigate();
   const [claimState] = useAtom(claimAtom);
+  const [label] = useAtom(labelAtom);
   if (!claimState) return null;
   const eligibilities = new Set(eligibleFor(claimState));
 
@@ -77,25 +84,9 @@ export const ClaimInfo: React.FC = () => {
           <p>Congrats, you are eligible for the Namada RPGF Drop!</p>
         </span>
         <Stack gap={2}>
-          {claimState.type === "ts" && (
+          {label && (
             <span>
-              <b>Public Key:</b> {(claimState as TSState).publicKey}
-            </span>
-          )}
-          {claimState.type === "gitcoin" && (
-            <span>
-              <b>Wallet address:</b> {(claimState as GitcoinState).address}
-            </span>
-          )}
-          {claimState.type === "github" && (
-            <span>
-              <b>Github Username</b>{" "}
-              {(claimState as GithubState).githubUsername}
-            </span>
-          )}
-          {(KEPLR_CLAIMS as readonly string[]).includes(claimState.type) && (
-            <span>
-              <b>Wallet address:</b> {(claimState as KeplrState).address}
+              <b>{labelTextMap[label.type]}</b> {label.value}
             </span>
           )}
 

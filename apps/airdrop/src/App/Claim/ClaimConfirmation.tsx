@@ -117,16 +117,16 @@ const claim = (
 ): Promise<AirdropResponse<ClaimResponse>> => {
   const { type } = state;
   if (type === "github") {
-    const { githubToken } = state as GithubState;
+    const { githubToken } = state;
     return claimWithGithub(githubToken, airdropAddress);
   } else if (type === "ts") {
-    const { publicKey, nonce } = state as TSState;
+    const { publicKey, nonce } = state;
     return claimWithTS(publicKey, tsSignature, airdropAddress, nonce);
   } else if (type === "gitcoin") {
-    const { signature, address, nonce } = state as GitcoinState;
+    const { signature, address, nonce } = state;
     return claimWithGitcoin(address, nonce, signature, airdropAddress);
   } else if (KEPLR_CLAIMS.includes(type)) {
-    const { signature, address, nonce } = state as KeplrState;
+    const { signature, address, nonce } = state;
     return claimWithKeplr(
       type,
       address,
