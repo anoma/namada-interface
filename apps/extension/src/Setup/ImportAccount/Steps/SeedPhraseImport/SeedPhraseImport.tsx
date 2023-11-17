@@ -16,7 +16,7 @@ import { ValidateMnemonicMsg, AccountSecret } from "background/keyring";
 import { Ports } from "router";
 import { Instruction, InstructionList } from "./SeedPhraseImport.components";
 import { useRequester } from "hooks/useRequester";
-import { validatePrivateKey } from "utils";
+import { filterPrivateKeyPrefix, validatePrivateKey } from "utils";
 
 type Props = {
   onConfirm: (accountSecret: AccountSecret) => void;
@@ -48,7 +48,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
   );
 
   const privateKeyError = (() => {
-    const validation = validatePrivateKey(privateKey);
+    const validation = validatePrivateKey(filterPrivateKeyPrefix(privateKey));
     if (validation.ok) {
       return "";
     } else {
@@ -119,7 +119,10 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
   const onSubmit = useCallback(async () => {
     if (mnemonicType === MnemonicTypes.PrivateKey) {
       // TODO: validate here
-      onConfirm({ t: "PrivateKey", privateKey });
+      onConfirm({
+        t: "PrivateKey",
+        privateKey: filterPrivateKeyPrefix(privateKey),
+      });
     } else {
       const actualMnemonics = mnemonics.slice(0, mnemonicType);
       const phrase = actualMnemonics.join(" ");
