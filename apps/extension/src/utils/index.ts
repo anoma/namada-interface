@@ -74,13 +74,19 @@ export const validateProps = <T>(object: T, props: (keyof T)[]): void => {
 const PRIVATE_KEY_MAX_LENGTH = 64;
 
 export type PrivateKeyError =
- | { t: "TooLong", maxLength: number }
- | { t: "BadCharacter" };
+  | { t: "TooLong"; maxLength: number }
+  | { t: "BadCharacter" };
 
 // Very basic private key validation
-export const validatePrivateKey = (privateKey: string): Result<null, PrivateKeyError> =>
-  privateKey.length > PRIVATE_KEY_MAX_LENGTH ?
-    Result.err({ t: "TooLong", maxLength: PRIVATE_KEY_MAX_LENGTH }) :
-  !/^[0-9a-f]*$/.test(privateKey) ?
-    Result.err({ t: "BadCharacter" }) :
-  Result.ok(null);
+export const validatePrivateKey = (
+  privateKey: string
+): Result<null, PrivateKeyError> =>
+  privateKey.length > PRIVATE_KEY_MAX_LENGTH
+    ? Result.err({ t: "TooLong", maxLength: PRIVATE_KEY_MAX_LENGTH })
+    : !/^[0-9a-f]*$/.test(privateKey)
+      ? Result.err({ t: "BadCharacter" })
+      : Result.ok(null);
+
+// Remove prefix from private key, which may be present when exporting keys from CLI
+export const filterPrivateKeyPrefix = (privateKey: string): string =>
+  privateKey.replace(/^00/, "");
