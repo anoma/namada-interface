@@ -18,26 +18,32 @@ import { ClaimInfo } from "./Claim/ClaimInfo";
 import { Main } from "./Main";
 import { NonEligible } from "./NonEligible";
 import { TrustedSetup } from "./TrustedSetup";
-import { claimAtom, confirmationAtom } from "./state";
+import { claimAtom, confirmationAtom, labelAtom } from "./state";
 
 export const App: React.FC = () => {
   const initialColorMode = "light";
   const [colorMode, _] = useState<ColorMode>(initialColorMode);
-  const [claimState] = useAtom(claimAtom);
-  const [confirmationState] = useAtom(confirmationAtom);
+  const [claimState, setClaimState] = useAtom(claimAtom);
+  const [label] = useAtom(labelAtom);
+  const [confirmationState, setConfirmationState] = useAtom(confirmationAtom);
   const theme = getTheme(colorMode);
   const navigate = useNavigate();
-  const isRoot = window.location.pathname === "/";
+  const { pathname } = window.location;
+  const showStartOver = pathname === "/non-eligible";
+  const showLogout =
+    pathname.includes("/claim") || pathname.includes("/airdrop-confirmed");
 
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyles colorMode={colorMode} />
       <AppContainerHeader>
         <Button
-          style={isRoot ? { display: "none" } : {}}
+          style={showStartOver ? {} : { display: "none" }}
           variant={ButtonVariant.Small}
           onClick={() => {
             navigate("/");
+            setClaimState(null);
+            setConfirmationState(null);
           }}
         >
           Start over
@@ -50,6 +56,17 @@ export const App: React.FC = () => {
           />
         </Logo>
         <LinkButton themeColor="utility2">Terms of service</LinkButton>
+        <Button
+          style={showLogout ? {} : { display: "none" }}
+          variant={ButtonVariant.Small}
+          onClick={() => {
+            navigate("/");
+            setClaimState(null);
+            setConfirmationState(null);
+          }}
+        >
+          {label?.value.substring(0, 8)} <b>{"↦"}</b>
+        </Button>
       </AppContainerHeader>
       <Routes>
         <Route path={`/`} element={<Main />} />

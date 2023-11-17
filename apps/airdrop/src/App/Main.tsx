@@ -2,13 +2,11 @@ import { Keplr, Window as KeplrWindow } from "@keplr-wallet/types";
 import { type MetaMaskInpageProvider } from "@metamask/providers";
 import {
   ActionButton,
-  ButtonVariant,
   Checkbox,
   Heading,
   LinkButton,
   Stack,
   Text,
-  Toggle,
 } from "@namada/components";
 import { useAtom } from "jotai";
 import { useEffect, useState } from "react";
@@ -17,11 +15,9 @@ import { Modal } from "./Common/Modal";
 import {
   CallToActionStack,
   IconContainer,
-  KeplrButtonContainer,
   MainContainer,
   MainFooter,
   MainHeader,
-  MainModal,
   MainSection,
   MainSectionButton,
   MainTopSection,
@@ -98,7 +94,7 @@ export const Main: React.FC = () => {
   const [metamask, setMetamask] = useState<
     MetaMaskInpageProvider | undefined
   >();
-  const [isModalOpen, setIsModalOpen] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isTOSAccepted, setIsTOSAccepted] = useState(false);
   const [_cl, setClaimState] = useAtom(claimAtom);
   const [_co, setConfirmation] = useAtom(confirmationAtom);
