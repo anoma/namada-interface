@@ -18,6 +18,7 @@ import {
 } from "./messages";
 import {
   QueryAccountsMsg,
+  QueryDefaultAccountMsg,
   QueryBalancesMsg,
   FetchAndStoreMaspParamsMsg,
   HasMaspParamsMsg,
@@ -34,6 +35,7 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(GenerateMnemonicMsg);
   router.registerMessage(GetActiveAccountMsg);
   router.registerMessage(QueryAccountsMsg);
+  router.registerMessage(QueryDefaultAccountMsg);
   router.registerMessage(QueryBalancesMsg);
   router.registerMessage(QueryParentAccountsMsg);
   router.registerMessage(SaveAccountSecretMsg);

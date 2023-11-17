@@ -17,13 +17,14 @@ import {
   HasMaspParamsMsg,
   CheckDurabilityMsg,
   QueryBalancesMsg,
+  QueryDefaultAccountMsg,
 } from "./messages";
 
 export class Namada implements INamada {
   constructor(
     private readonly _version: string,
     protected readonly requester?: MessageRequester
-  ) {}
+  ) { }
 
   public async connect(chainId: string): Promise<void> {
     return await this.requester?.sendMessage(
@@ -55,6 +56,12 @@ export class Namada implements INamada {
     );
   }
 
+  public async defaultAccount(): Promise<DerivedAccount | undefined> {
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new QueryDefaultAccountMsg()
+    );
+  }
   public async fetchAndStoreMaspParams(): Promise<void> {
     return await this.requester?.sendMessage(
       Ports.Background,

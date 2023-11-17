@@ -9,7 +9,7 @@ import { InjectedProxy } from "./InjectedProxy";
 import { Signer } from "./Signer";
 
 export class InjectedNamada implements INamada {
-  constructor(private readonly _version: string) {}
+  constructor(private readonly _version: string) { }
 
   public async connect(chainId: string): Promise<void> {
     return await InjectedProxy.requestMethod<string, void>("connect", chainId);
@@ -33,6 +33,13 @@ export class InjectedNamada implements INamada {
   public async accounts(chainId: string): Promise<DerivedAccount[]> {
     return await InjectedProxy.requestMethod<string, DerivedAccount[]>(
       "accounts",
+      chainId
+    );
+  }
+
+  public async defaultAccount(chainId: string): Promise<DerivedAccount> {
+    return await InjectedProxy.requestMethod<string, DerivedAccount>(
+      "defaultAccount",
       chainId
     );
   }

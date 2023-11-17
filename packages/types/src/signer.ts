@@ -12,6 +12,7 @@ import {
 
 export interface Signer {
   accounts: () => Promise<Account[] | undefined>;
+  defaultAccount: () => Promise<Account | undefined>;
   submitBond(
     args: SubmitBondProps,
     txArgs: TxProps,

@@ -75,7 +75,7 @@ export class KeyRing {
     protected readonly sdk: Sdk,
     protected readonly query: Query,
     protected readonly cryptoMemory: WebAssembly.Memory
-  ) { }
+  ) {}
 
   public get status(): KeyRingStatus {
     return this._status;
@@ -188,9 +188,9 @@ export class KeyRing {
 
     try {
       const { sk, text, accountType } = ((): {
-        sk: string,
-        text: string,
-        accountType: AccountType
+        sk: string;
+        text: string;
+        accountType: AccountType;
       } => {
         switch (accountSecret.t) {
           case "Mnemonic":
@@ -202,7 +202,10 @@ export class KeyRing {
             const hdWallet = new HDWallet(seed);
             const key = hdWallet.derive(new Uint32Array(bip44Path));
             const privateKeyStringPtr = key.to_hex();
-            const sk = readStringPointer(privateKeyStringPtr, this.cryptoMemory);
+            const sk = readStringPointer(
+              privateKeyStringPtr,
+              this.cryptoMemory
+            );
 
             mnemonic.free();
             hdWallet.free();
@@ -217,7 +220,7 @@ export class KeyRing {
             return {
               sk: privateKey,
               text: privateKey,
-              accountType: AccountType.PrivateKey
+              accountType: AccountType.PrivateKey,
             };
 
           default:
@@ -573,6 +576,15 @@ export class KeyRing {
     }
 
     return [];
+  }
+
+  public async queryDefaultAccount(): Promise<DerivedAccount | undefined> {
+    const accounts = await this.queryAllAccounts();
+    const activeAccount = await this.getActiveAccount();
+
+    if (activeAccount) {
+      return accounts.find((acc) => acc.id === activeAccount.id);
+    }
   }
 
   public async queryAccountByPublicKey(
