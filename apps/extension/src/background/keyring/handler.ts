@@ -4,6 +4,7 @@ import {
   HasMaspParamsMsg,
   QueryAccountsMsg,
   QueryBalancesMsg,
+  QueryDefaultAccountMsg,
 } from "provider/messages";
 import { Env, Handler, InternalHandler, Message } from "router";
 import {
@@ -46,7 +47,10 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
           msg as ValidateMnemonicMsg
         );
       case SaveAccountSecretMsg:
-        return handleSaveAccountSecretMsg(service)(env, msg as SaveAccountSecretMsg);
+        return handleSaveAccountSecretMsg(service)(
+          env,
+          msg as SaveAccountSecretMsg
+        );
       case ScanAccountsMsg:
         return handleScanAccountsMsg(service)(env, msg as ScanAccountsMsg);
       case DeriveAccountMsg:
@@ -64,6 +68,11 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
         return handleGetActiveAccountMsg(service)(
           env,
           msg as GetActiveAccountMsg
+        );
+      case QueryDefaultAccountMsg:
+        return handleQueryDefaultAccountMsg(service)(
+          env,
+          msg as QueryDefaultAccountMsg
         );
       case QueryParentAccountsMsg:
         return handleQueryParentAccountsMsg(service)(
@@ -205,6 +214,14 @@ const handleQueryAccountsMsg: (
         : await service.queryAccounts();
 
     return output;
+  };
+};
+
+const handleQueryDefaultAccountMsg: (
+  service: KeyRingService
+) => InternalHandler<QueryDefaultAccountMsg> = (service) => {
+  return async () => {
+    return await service.queryDefaultAccount();
   };
 };
 

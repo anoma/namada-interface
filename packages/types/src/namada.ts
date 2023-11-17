@@ -13,6 +13,7 @@ export type TxMsgProps = {
 export interface Namada {
   connect(chainId: string): Promise<void>;
   accounts(chainId: string): Promise<DerivedAccount[] | undefined>;
+  defaultAccount(chainId: string): Promise<DerivedAccount | undefined>;
   balances(
     owner: string
   ): Promise<{ token: string; amount: string }[] | undefined>;

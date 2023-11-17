@@ -43,6 +43,11 @@ export default class Namada implements Integration<Account, Signer> {
     return await signer?.accounts();
   }
 
+  public async defaultAccount(): Promise<Account | undefined> {
+    const signer = this._namada?.getSigner(this.chain.chainId);
+    return await signer?.defaultAccount();
+  }
+
   public signer(): Signer | undefined {
     return this._namada?.getSigner(this.chain.chainId);
   }
@@ -53,9 +58,17 @@ export default class Namada implements Integration<Account, Signer> {
   ): Promise<void> {
     const signer = this._namada?.getSigner(this.chain.chainId);
     if (props.ibcProps) {
-      return await signer?.submitIbcTransfer(props.ibcProps, props.txProps, type);
+      return await signer?.submitIbcTransfer(
+        props.ibcProps,
+        props.txProps,
+        type
+      );
     } else if (props.bridgeProps) {
-      return await signer?.submitEthBridgeTransfer(props.bridgeProps, props.txProps, type);
+      return await signer?.submitEthBridgeTransfer(
+        props.bridgeProps,
+        props.txProps,
+        type
+      );
     }
 
     return Promise.reject("Invalid bridge transfer props!");

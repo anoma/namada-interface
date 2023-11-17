@@ -17,6 +17,7 @@ enum Route {
 enum MessageType {
   ApproveConnectInterface = "approve-connect-interface",
   QueryAccounts = "query-accounts",
+  QueryDefaultAccount = "query-default-account",
   ApproveTx = "approve-tx",
   QueryBalances = "query-balances",
   SubmitIbcTransfer = "submit-ibc-transfer",
@@ -183,6 +184,30 @@ export class QueryBalancesMsg extends Message<
 
   type(): string {
     return QueryBalancesMsg.type();
+  }
+}
+
+export class QueryDefaultAccountMsg extends Message<
+  DerivedAccount | undefined
+> {
+  public static type(): MessageType {
+    return MessageType.QueryDefaultAccount;
+  }
+
+  constructor() {
+    super();
+  }
+
+  validate(): void {
+    return;
+  }
+
+  route(): string {
+    return Route.KeyRing;
+  }
+
+  type(): string {
+    return QueryDefaultAccountMsg.type();
   }
 }
 

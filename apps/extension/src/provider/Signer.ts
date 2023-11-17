@@ -30,7 +30,7 @@ export class Signer implements ISigner {
   constructor(
     protected readonly chainId: string,
     private readonly _namada: Namada
-  ) {}
+  ) { }
 
   public async accounts(): Promise<Account[] | undefined> {
     return (await this._namada.accounts(this.chainId))?.map(
@@ -45,6 +45,22 @@ export class Signer implements ISigner {
     );
   }
 
+  public async defaultAccount(): Promise<Account | undefined> {
+    const account = await this._namada.defaultAccount(this.chainId);
+
+    if (account) {
+      const { alias, address, chainId, type, publicKey } = account;
+
+      return {
+        alias,
+        address,
+        chainId,
+        type,
+        publicKey,
+        isShielded: type === AccountType.ShieldedKeys,
+      };
+    }
+  }
   private async submitTx<T extends Schema, Args>(
     txType: SupportedTx,
     constructor: new (args: Args) => T,
