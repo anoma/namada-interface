@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install yarn dependencies
         uses: ./.github/actions/yarn-cache
@@ -75,7 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Restore Rust cache
         uses: ./.github/actions/rust-cache
@@ -118,7 +118,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install yarn dependencies
         uses: ./.github/actions/yarn-cache
@@ -254,7 +254,7 @@ jobs:
       run:
         working-directory: ./apps/namada-interface
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install yarn dependencies
         uses: ./.github/actions/yarn-cache
