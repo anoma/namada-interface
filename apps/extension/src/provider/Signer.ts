@@ -20,11 +20,10 @@ import {
   TxProps,
   TxMsgValue,
   Schema,
-  SupportedTx,
   SubmitVoteProposalProps,
   SubmitVoteProposalMsgValue,
 } from "@namada/types";
-import { TxType } from "@namada/shared";
+import { TxType, SupportedTx } from "@namada/shared";
 
 export class Signer implements ISigner {
   constructor(

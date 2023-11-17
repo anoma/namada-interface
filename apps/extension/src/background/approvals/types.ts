@@ -1,5 +1,9 @@
-import { SupportedTx } from "@namada/types";
+import { SupportedTx } from "@namada/shared";
 
 export type ApprovedOriginsStore = string[];
 
-export type TxStore = { txType: SupportedTx, txMsg: string, specificMsg: string };
+export type TxStore = {
+  txType: SupportedTx;
+  txMsg: string;
+  specificMsg: string;
+};

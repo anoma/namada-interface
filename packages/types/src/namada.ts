@@ -1,10 +1,11 @@
-import { SupportedTx } from "@namada/types";
 import { AccountType, DerivedAccount } from "./account";
 import { Chain } from "./chain";
 import { Signer } from "./signer";
 
 export type TxMsgProps = {
-  txType: SupportedTx;
+  //TODO: use SupportedTx
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  txType: any;
   specificMsg: string;
   txMsg: string;
   type: AccountType;

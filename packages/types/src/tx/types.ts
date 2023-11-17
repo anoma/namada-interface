@@ -1,6 +1,5 @@
 import BigNumber from "bignumber.js";
 import { TokenInfo } from "./tokens";
-import { TxType } from "@namada/shared";
 
 import {
   TxMsgValue,
@@ -12,17 +11,6 @@ import {
   SignatureMsgValue,
   SubmitVoteProposalMsgValue,
 } from "./schema";
-
-export type SupportedTx = Extract<
-  TxType,
-  | TxType.Bond
-  | TxType.Unbond
-  | TxType.Transfer
-  | TxType.IBCTransfer
-  | TxType.EthBridgeTransfer
-  | TxType.Withdraw
-  | TxType.VoteProposal
->;
 
 // TODO: These could probably be removed altogether, but maybe they're useful to
 // distinguish between values created as plain object literals and values

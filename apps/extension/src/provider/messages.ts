@@ -1,4 +1,5 @@
-import { AccountType, Chain, DerivedAccount, SupportedTx } from "@namada/types";
+import { AccountType, Chain, DerivedAccount } from "@namada/types";
+import { SupportedTx } from "@namada/shared";
 import { Message } from "router";
 import { validateProps } from "utils";
 

@@ -1,6 +1,6 @@
 import { deserialize } from "@dao-xyz/borsh";
 
-import { Query as RustQuery } from "./shared/shared";
+import { Query as RustQuery, TxType } from "./shared/shared";
 import { Proposal, Proposals } from "./borsh-schemas";
 export * from "./shared/shared";
 export * from "./types";
@@ -27,19 +27,19 @@ const promiseWithTimeout =
     fn: (...args: U) => Promise<T>,
     opts?: TimeoutOpts
   ) =>
-    (...args: U): Promise<T> => {
-      const { timeout, error } = { ...DEFAULT_OPTS, ...opts };
+  (...args: U): Promise<T> => {
+    const { timeout, error } = { ...DEFAULT_OPTS, ...opts };
 
-      return new Promise(async (resolve, reject) => {
-        const t = setTimeout(() => {
-          reject(error(timeout));
-        }, timeout);
+    return new Promise(async (resolve, reject) => {
+      const t = setTimeout(() => {
+        reject(error(timeout));
+      }, timeout);
 
-        const res = await fn(...args);
-        clearTimeout(t);
-        resolve(res);
-      });
-    };
+      const res = await fn(...args);
+      clearTimeout(t);
+      resolve(res);
+    });
+  };
 
 //Fallbacks for rust panics
 export class Query extends RustQuery {
@@ -66,5 +66,16 @@ export class Query extends RustQuery {
     super.get_total_delegations.bind(this)
   );
 }
+
+export type SupportedTx = Extract<
+  TxType,
+  | TxType.Bond
+  | TxType.Unbond
+  | TxType.Transfer
+  | TxType.IBCTransfer
+  | TxType.EthBridgeTransfer
+  | TxType.Withdraw
+  | TxType.VoteProposal
+>;
 
 export * from "./types";
