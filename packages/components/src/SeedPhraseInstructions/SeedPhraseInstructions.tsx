@@ -12,7 +12,7 @@ const SeedPhraseInstructions = (): JSX.Element => {
           DO NOT share your seed phrase with ANYONE
         </WarningSummary>
         Anyone with your seed phrase can have full control over your assets.
-        Stay vigilant against phising attacks at all times.
+        Stay vigilant against phishing attacks at all times.
       </WarningTip>
 
       <WarningTip>

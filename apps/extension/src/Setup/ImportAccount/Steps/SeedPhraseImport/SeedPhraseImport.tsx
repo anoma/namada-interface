@@ -147,7 +147,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
 
       <InstructionList>
         <Instruction>
-          Enter your recovery phrase in the right order without capitalisation,
+          Enter your recovery phrase in the right order without capitalization,
           punctuation symbols or spaces.
         </Instruction>
         <Instruction>Or copy and paste your entire phrase. </Instruction>
