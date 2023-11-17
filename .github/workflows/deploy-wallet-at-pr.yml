@@ -114,7 +114,7 @@ jobs:
           --data '{"message":"Unit tests failed ⛔️ \n \n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n \nReview\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
           ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
 
-  build:
+  build-interface:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -166,8 +166,88 @@ jobs:
           --request POST \
           --data '{"message":"New deployment for a PR\nhttps://pull-request-${{ github.event.number }}--wallet-development-heliax-dev.netlify.app\n \nthe PR\nhttps://github.com/anoma/namada-interface/pull/${{ github.event.number }}"}' \
           ${{ secrets.SLACK_WEBHOOK_WALLET_PR }}
+
+  build-extension-chrome:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install yarn dependencies
+        uses: ./.github/actions/yarn-cache
+
+      - name: Restore Rust cache
+        uses: ./.github/actions/rust-cache
+        with:
+          cache-name: build
+
+      - name: Install protoc
+        run: sudo apt-get install -y protobuf-compiler
+
+      - name: Build WASM dependencies
+        working-directory: ./apps/extension
+        run: yarn wasm:build
+
+      - name: Build the extension
+        working-directory: ./apps/extension
+        run: yarn build:chrome
+
+      # GitHub actions zips artifacts so we need to unzip the built extension to
+      # avoid a double zip
+      - name: Prepare artifact
+        id: prepare-artifact
+        working-directory: ./apps/extension/build/chrome
+        run: |
+          mkdir artifact
+          unzip -d artifact namada_extension-*.zip
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: namada-extension-chrome
+          path: ./apps/extension/build/chrome/artifact/*
+
+  build-extension-firefox:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install yarn dependencies
+        uses: ./.github/actions/yarn-cache
+
+      - name: Restore Rust cache
+        uses: ./.github/actions/rust-cache
+        with:
+          cache-name: build
+
+      - name: Install protoc
+        run: sudo apt-get install -y protobuf-compiler
+
+      - name: Build WASM dependencies
+        working-directory: ./apps/extension
+        run: yarn wasm:build
+
+      - name: Build the extension
+        working-directory: ./apps/extension
+        run: yarn build:firefox
+
+      # GitHub actions zips artifacts so we need to unzip the built extension to
+      # avoid a double zip
+      - name: Prepare artifact
+        id: prepare-artifact
+        working-directory: ./apps/extension/build/firefox
+        run: |
+          mkdir artifact
+          unzip -d artifact namada_extension-*.zip
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: namada-extension-firefox
+          path: ./apps/extension/build/firefox/artifact/*
+
   E2E-tests:
-    needs: build
+    needs:
+      [build-interface, build-extension-chrome]
     timeout-minutes: 60
     runs-on: ubuntu-latest
     defaults:
