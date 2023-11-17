@@ -6,16 +6,15 @@
   "repository": "https://github.com/anoma/namada-interface/",
   "author": "Heliax AG <hello@heliax.dev>",
   "license": "MIT",
-  "private": false,
   "scripts": {
     "lint": "eslint src --ext .ts",
     "lint:fix": "yarn lint -- --fix",
     "lint:ci": "yarn lint --max-warnings 0"
   },
   "dependencies": {
+    "@dao-xyz/borsh": "^5.1.5",
     "@namada/ledger-namada": "0.0.1",
     "bn.js": "^5.2.1",
-    "@dao-xyz/borsh": "^5.1.5",
     "slip44": "^3.0.11",
     "typescript": "^5.1.3"
   },

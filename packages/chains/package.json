@@ -6,10 +6,9 @@
   "repository": "https://github.com/anoma/namada-interface",
   "author": "Heliax AG <hello@heliax.dev>",
   "license": "MIT",
-  "private": false,
   "dependencies": {
-    "typescript": "^5.1.3",
-    "@namada/types": "0.1.0"
+    "@namada/types": "0.1.0",
+    "typescript": "^5.1.3"
   },
   "devDependencies": {
     "eslint-import-resolver-typescript": "^3.5.2"

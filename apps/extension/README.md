@@ -5,9 +5,6 @@ This is the Namada Browser Extension project.
 ## Usage
 
 ```bash
-# Install web-ext globally (this bundles Firefox extensions into a `.zip` file):
-yarn global add web-ext
-
 # Build wasm dependencies
 yarn wasm:build # This needs to be run initially to ensure wasm dependencies are available
 

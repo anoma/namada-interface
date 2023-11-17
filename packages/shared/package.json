@@ -6,7 +6,6 @@
   "repository": "https://github.com/anoma/namada-interface/",
   "author": "Heliax Dev <info@heliax.dev>",
   "license": "MIT",
-  "private": false,
   "scripts": {
     "wasm:build": "./scripts/build.sh --release",
     "wasm:build:dev": "./scripts/build.sh",
