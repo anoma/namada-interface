@@ -12,7 +12,7 @@ import {
 } from "@namada/components";
 import { LedgerError } from "@namada/ledger-namada";
 import { formatRouterPath } from "@namada/utils";
-import { initLedgerHIDTransport, Ledger as LedgerApp } from "background/ledger";
+import { Ledger as LedgerApp } from "background/ledger";
 import { LedgerConnectRoute, TopLevelRoute } from "Setup/types";
 import {
   ButtonContainer,
@@ -24,9 +24,11 @@ import {
 export const LedgerConnect: React.FC = () => {
   const navigate = useNavigate();
   const [error, setError] = useState<string>();
+  const [isLedgerConnecting, setIsLedgerConnecting] = useState(false);
   const [ledger, setLedger] = useState<LedgerApp>();
 
   const queryLedger = async (ledger: LedgerApp): Promise<void> => {
+    setError(undefined);
     try {
       const {
         version: { errorMessage, returnCode },
@@ -36,7 +38,11 @@ export const LedgerConnect: React.FC = () => {
         throw new Error(errorMessage);
       }
 
-      const { address, publicKey } = await ledger.getAddressAndPublicKey();
+      setIsLedgerConnecting(true);
+
+      const { address, publicKey } = await ledger.showAddressAndPublicKey();
+
+      setIsLedgerConnecting(false);
 
       navigate(
         formatRouterPath([TopLevelRoute.Ledger, LedgerConnectRoute.Import]),
@@ -48,6 +54,7 @@ export const LedgerConnect: React.FC = () => {
         }
       );
     } catch (e) {
+      setIsLedgerConnecting(false);
       handleError(e);
     } finally {
       await ledger.closeTransport();
@@ -84,19 +91,6 @@ export const LedgerConnect: React.FC = () => {
     setError(`${e}`);
   };
 
-  /**
-   * Connect using HID transport
-   */
-  const _handleConnectHID = async (): Promise<void> => {
-    const transport = await initLedgerHIDTransport();
-    try {
-      const ledger = await LedgerApp.init(transport);
-      queryLedger(ledger);
-    } catch (e) {
-      setError(`${e}`);
-    }
-  };
-
   return (
     <>
       <Stack gap={12}>
@@ -109,6 +103,9 @@ export const LedgerConnect: React.FC = () => {
             <Alert title="Error" type="error">
               {error}
             </Alert>
+          )}
+          {isLedgerConnecting && (
+            <Alert type="warning">Review on your Ledger</Alert>
           )}
           <LedgerListItem active={!ledger} complete={!!ledger}>
             <LedgerIcon>
@@ -148,7 +145,7 @@ export const LedgerConnect: React.FC = () => {
               <Text>Open the Namada App on your ledger device</Text>
               <ButtonContainer>
                 <ActionButton
-                  disabled={!ledger}
+                  disabled={!ledger || isLedgerConnecting}
                   size="xs"
                   onClick={() => connectNamadaApp()}
                 >

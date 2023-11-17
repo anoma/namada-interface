@@ -90,6 +90,30 @@ export class Ledger {
     };
   }
 
+  public async showAddressAndPublicKey(
+    bip44Path?: string
+  ): Promise<{ address: string; publicKey: string }> {
+    if (!this.namadaApp) {
+      throw new Error("NamadaApp is not initialized!");
+    }
+
+    const path = bip44Path || DEFAULT_LEDGER_BIP44_PATH;
+
+    try {
+      const { address, publicKey } = await this.namadaApp.showAddressAndPubKey(
+        path
+      );
+
+      return {
+        // Return address as bech32-encoded string
+        address: address.toString(),
+        // Return public key as hex-encoded string
+        publicKey: toHex(publicKey),
+      };
+    } catch (e) {
+      throw new Error("Connect Ledger rejected by user");
+    }
+  }
   /**
    * Sign tx bytes with the key associated with provided (or default) path
    *
