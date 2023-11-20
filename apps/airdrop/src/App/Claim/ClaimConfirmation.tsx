@@ -39,7 +39,7 @@ const claimWithGithub = async (
 ): Promise<AirdropResponse<ClaimResponse>> => {
   return airdropFetch(`${backendUrl}/api/v1/airdrop/github`, {
     method: "POST",
-    headers: new Headers({ "content-type": "application/json" }),
+    headers: { "content-type": "application/json" },
     body: JSON.stringify({ access_token, airdrop_address }),
   });
 };
@@ -55,9 +55,9 @@ const claimWithKeplr = async (
 ): Promise<AirdropResponse<ClaimResponse>> => {
   return airdropFetch(`${backendUrl}/api/v1/airdrop/${type}`, {
     method: "POST",
-    headers: new Headers({
+    headers: {
       "content-type": "application/json",
-    }),
+    },
     body: JSON.stringify({
       signer_address,
       signer_public_key,
@@ -77,9 +77,9 @@ const claimWithGitcoin = async (
 ): Promise<AirdropResponse<ClaimResponse>> => {
   return airdropFetch(`${backendUrl}/api/v1/airdrop/gitcoin`, {
     method: "POST",
-    headers: new Headers({
+    headers: {
       "content-type": "application/json",
-    }),
+    },
     body: JSON.stringify({
       signer_address,
       message,
@@ -97,7 +97,7 @@ const claimWithTS = async (
 ): Promise<AirdropResponse<ClaimResponse>> => {
   return airdropFetch(`${backendUrl}/api/v1/airdrop/ts`, {
     method: "POST",
-    headers: new Headers({ "content-type": "application/json" }),
+    headers: { "content-type": "application/json" },
     body: JSON.stringify({
       signer_public_key,
       signature,
