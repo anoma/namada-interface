@@ -1,15 +1,12 @@
 import { useAtom } from "jotai";
 import {
   CommonState,
-  GithubState,
   KeplrClaimType,
-  KeplrState,
   TSState,
   confirmationAtom,
   claimAtom,
   ClaimResponse,
   KEPLR_CLAIMS,
-  GitcoinState,
 } from "../state";
 import {
   Button,
@@ -28,12 +25,12 @@ import {
 } from "../App.components";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { useIntegrationConnection } from "@namada/hooks";
 import { AirdropResponse, airdropFetch, toast } from "App/utils";
+import { WindowWithNamada } from "@namada/types";
 
 const {
-  REACT_APP_NAMADA_CHAIN_ID: namadaChainId = "namadaChainId",
   AIRDROP_BACKEND_SERVICE_URL: backendUrl = "",
+  REACT_APP_NAMADA_CHAIN_ID: namadaChainId = "",
 } = process.env;
 
 const claimWithGithub = async (
@@ -142,29 +139,33 @@ const claim = (
 };
 
 export const ClaimConfirmation: React.FC = () => {
+  const namada = (window as WindowWithNamada)?.namada;
   const [claimState] = useAtom(claimAtom);
+  const navigate = useNavigate();
   const [_confirmationState, setConfirmation] = useAtom(confirmationAtom);
   const [airdropAddress, setNamadaAddress] = useState<string>("");
   const [tsSignature, setTsSignature] = useState<string>("");
   const [isToggleChecked, setIsToggleChecked] = useState(false);
 
-  const [namada, _, withNamadaConnection] =
-    useIntegrationConnection(namadaChainId);
-
   const handleImportButton = async (): Promise<void> => {
     if (airdropAddress === "") {
-      withNamadaConnection(async () => {
-        const accounts = await namada?.accounts();
-        if (accounts && accounts.length > 0) {
-          const address = accounts[0].address;
-          setNamadaAddress(address);
-        }
-      });
+      try {
+        await namada.connect(namadaChainId);
+      } catch (e) {
+        toast(`Something went wrong: ${e}`);
+        return;
+      }
+      const defaultAccount = await namada.defaultAccount(namadaChainId);
+      if (defaultAccount) {
+        const address = defaultAccount.address;
+        setNamadaAddress(address);
+      }
     } else {
       setNamadaAddress("");
     }
   };
 
+  //TODO: reuse exisiting one
   const handleDownloadExtension = (url: string): void => {
     window.open(url, "_blank", "noopener,noreferrer");
   };
@@ -172,9 +173,6 @@ export const ClaimConfirmation: React.FC = () => {
     await navigator.clipboard.writeText(nonce);
   };
 
-  const isNamadaConnected = namada?.detect();
-
-  const navigate = useNavigate();
   return (
     <ClaimsSection>
       <Heading level={"h1"}>Claim NAM</Heading>
@@ -218,9 +216,9 @@ export const ClaimConfirmation: React.FC = () => {
           label="Namada airdrop address"
         />
         <Button
-          disabled={!isNamadaConnected}
+          disabled={!namada}
           tooltip={
-            isNamadaConnected
+            namada
               ? ""
               : "To import please install the Namada extension using the link below and try again."
           }
