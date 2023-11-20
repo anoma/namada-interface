@@ -6313,6 +6313,44 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@namada/airdrop@workspace:apps/airdrop":
+  version: 0.0.0-use.local
+  resolution: "@namada/airdrop@workspace:apps/airdrop"
+  dependencies:
+    "@babel/plugin-transform-modules-commonjs": "npm:^7.20.11"
+    "@cosmjs/encoding": "npm:^0.29.0"
+    "@keplr-wallet/types": "npm:^0.10.19"
+    "@namada/components": "npm:0.1.0"
+    "@namada/hooks": "npm:0.1.0"
+    "@namada/utils": "npm:0.1.0"
+    "@svgr/webpack": "npm:^6.3.1"
+    "@types/dompurify": "npm:^3.0.2"
+    "@types/node-forge": "npm:^1.3.6"
+    "@types/react": "npm:^17.0.39"
+    "@types/react-dom": "npm:^17.0.11"
+    "@types/styled-components": "npm:^5.1.26"
+    bech32: "npm:^2.0.0"
+    buffer: "npm:^6.0.3"
+    dompurify: "npm:^3.0.2"
+    dotenv: "npm:^16.0.3"
+    eslint-import-resolver-typescript: "npm:^3.5.0"
+    jotai: "npm:^2.5.1"
+    local-cors-proxy: "npm:^1.1.0"
+    node-forge: "npm:^1.3.1"
+    react: "npm:^17.0.2"
+    react-dom: "npm:^17.0.2"
+    react-router-dom: "npm:^6.0.0"
+    react-simple-toasts: "npm:^5.10.0"
+    styled-components: "npm:^5.3.5"
+    ts-loader: "npm:^9.3.1"
+    ts-node: "npm:^10.9.1"
+    typescript: "npm:^5.1.3"
+    typescript-plugin-styled-components: "npm:^2.0.0"
+    webpack-cli: "npm:^4.10.0"
+    webpack-dev-server: "npm:^4.11.1"
+  languageName: unknown
+  linkType: soft
+
 "@namada/chains@npm:0.1.0, @namada/chains@workspace:packages/chains":
   version: 0.0.0-use.local
   resolution: "@namada/chains@workspace:packages/chains"
@@ -20820,6 +20858,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jotai@npm:^2.5.1":
+  version: 2.5.1
+  resolution: "jotai@npm:2.5.1"
+  peerDependencies:
+    "@types/react": ">=17.0.0"
+    react: ">=17.0.0"
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    react:
+      optional: true
+  checksum: af2c86e16e4dd4baad31e8ad5127db8ee07712a6f852c86049f915efc71c6a099661f28a910ecef2e7da0b7868f74477712161e3717d050c1131bd521754c562
+  languageName: node
+  linkType: hard
+
 "js-crypto-env@npm:^0.3.2":
   version: 0.3.2
   resolution: "js-crypto-env@npm:0.3.2"
@@ -25198,6 +25251,16 @@ __metadata:
   bin:
     react-scripts: bin/react-scripts.js
   checksum: 7fb82563704d38f28c6a8ccf3ed67e5bbbae6e56703ea261285fd4520af6ef7606c2351e062c0b86c638c2bb3acf2b2cca8ba1b659b9cde0ffa4dc13f3f41c75
+  languageName: node
+  linkType: hard
+
+"react-simple-toasts@npm:^5.10.0":
+  version: 5.10.0
+  resolution: "react-simple-toasts@npm:5.10.0"
+  peerDependencies:
+    react: ">=16.8.0"
+    react-dom: ">=16.8.0"
+  checksum: 6753ad84b33215b0cbfdce046458fe9a94f7892edf74983a52f5ec08ae5973c97e9ed1423c74d51563fd168743f5675cd3a397b7fa6e0ca0d8822f082946703f
   languageName: node
   linkType: hard
 
