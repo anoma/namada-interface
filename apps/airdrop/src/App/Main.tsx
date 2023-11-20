@@ -47,6 +47,7 @@ import { RustSvg } from "./Graphics/Rust";
 const {
   REACT_APP_REDIRECT_URI: redirectUrl = "",
   AIRDROP_BACKEND_SERVICE_URL: backendUrl = "",
+  REACT_APP_GITHUB_CLIENT_ID: githubClientId = "",
 } = process.env;
 
 type MetamaskWindow = Window &
@@ -374,7 +375,7 @@ export const Main: React.FC = () => {
             disabled={!isTOSAccepted}
             onClick={() => {
               window.open(
-                `https://github.com/login/oauth/authorize?client_id=Iv1.dbd15f7e1b50c0d7&redirect_uri=${redirectUrl}`,
+                `https://github.com/login/oauth/authorize?client_id=${githubClientId}&redirect_uri=${redirectUrl}`,
                 "_self"
               );
             }}
