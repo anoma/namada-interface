@@ -89,4 +89,6 @@ export const validatePrivateKey = (
 
 // Remove prefix from private key, which may be present when exporting keys from CLI
 export const filterPrivateKeyPrefix = (privateKey: string): string =>
-  privateKey.replace(/^00/, "");
+  privateKey.length === PRIVATE_KEY_MAX_LENGTH + 2
+    ? privateKey.replace(/^00/, "")
+    : privateKey;
