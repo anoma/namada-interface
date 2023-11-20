@@ -1,5 +1,5 @@
 import styled, { createGlobalStyle } from "styled-components";
-import { ColorMode, color, spacement } from "@namada/utils";
+import { ColorMode, borderRadius, color, spacement } from "@namada/utils";
 
 type GlobalStyleProps = {
   colorMode: ColorMode;
@@ -280,7 +280,10 @@ export const ClaimsSection = styled.div`
 `;
 
 export const AnotherWays = styled.div`
-  margin-top: 30px;
+  margin: 30px;
+  background-color: ${(props) => props.theme.colors.utility2.main};
+  padding: 20px;
+  border-radius: ${borderRadius("md")};
 
   & > h2 {
     text-align: left;

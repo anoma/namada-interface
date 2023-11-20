@@ -8,7 +8,6 @@ import {
   Stack,
   Text,
 } from "@namada/components";
-import { useAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Modal } from "./Common/Modal";
@@ -28,13 +27,6 @@ import {
   TOSToggle,
 } from "./App.components";
 import { Countdown } from "./Countdown";
-import { KeplrClaimType, claimAtom, confirmationAtom } from "./state";
-import {
-  AirdropResponse,
-  airdropFetch,
-  navigatePostCheck,
-  toast,
-} from "./utils";
 import { PoolSvg } from "./Graphics/Pool";
 import { PoolTopLayer } from "./Graphics/PoolTopLayer";
 import { PageFooter } from "./Common/PageFooter";
@@ -43,239 +35,41 @@ import { EyeSvg } from "./Graphics/Eye";
 import { HiveSvg } from "./Graphics/Hive";
 import { ShieldSvg } from "./Graphics/Shield";
 import { RustSvg } from "./Graphics/Rust";
+import { MetamaskWindow } from "./types";
+import {
+  //TODO: rename to useExtensionDownload
+  handleExtensionDownload,
+  useGithubHandler,
+  useKeplrHandler,
+  useMetamaskHandler,
+} from "./hooks";
 
 const {
   REACT_APP_REDIRECT_URI: redirectUrl = "",
-  AIRDROP_BACKEND_SERVICE_URL: backendUrl = "",
   REACT_APP_GITHUB_CLIENT_ID: githubClientId = "",
 } = process.env;
 
-type MetamaskWindow = Window &
-  typeof globalThis & {
-    ethereum: MetaMaskInpageProvider;
-  };
-
-type GithubClaim = {
-  eligible: boolean;
-  amount: number;
-  github_token?: string;
-  has_claimed: boolean;
-  airdrop_address?: string;
-  eligibilities: string[];
-  github_username?: string;
-};
-
-type Claim = {
-  eligible: boolean;
-  amount: number;
-  has_claimed: boolean;
-  airdrop_address?: string;
-  nonce: string;
-};
-
-const checkGithubClaim = async (
-  code: string
-): Promise<AirdropResponse<GithubClaim>> => {
-  return airdropFetch(`${backendUrl}/api/v1/airdrop/github/${code}`, {
-    method: "GET",
-  });
-};
-
-const checkClaim = async (
-  address: string,
-  type: KeplrClaimType | "gitcoin"
-): Promise<AirdropResponse<Claim>> => {
-  return airdropFetch(`${backendUrl}/api/v1/airdrop/${type}/${address}`, {
-    method: "GET",
-  });
-};
-
 export const Main: React.FC = () => {
   const [keplr, setKeplr] = useState<Keplr | undefined>();
-  const [metamask, setMetamask] = useState<
-    MetaMaskInpageProvider | undefined
-  >();
+  const [metamask, setMetamask] = useState<MetaMaskInpageProvider>();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isTOSAccepted, setIsTOSAccepted] = useState(false);
-  const [_cl, setClaimState] = useAtom(claimAtom);
-  const [_co, setConfirmation] = useAtom(confirmationAtom);
   const navigate = useNavigate();
+  const metamaskHandler = useMetamaskHandler("0x1", metamask);
+  const cosmosHandler = useKeplrHandler("cosmoshub-4", "cosmos", keplr);
+  const osmosisHandler = useKeplrHandler("osmosis-1", "osmosis", keplr);
+  const stargazeHandler = useKeplrHandler("stargaze-1", "badkids", keplr);
+  const githubHandler = useGithubHandler();
 
   const url = window.location.href;
   const hasCode = url.includes("?code=");
 
   useEffect(() => {
     if (hasCode) {
-      (async () => {
-        const code = url.split("?code=")[1];
-        let response: AirdropResponse<GithubClaim> | undefined;
-        //TODO: generic error handling
-        try {
-          response = await checkGithubClaim(code);
-        } catch (e) {
-          console.error(e);
-          navigate("/", { replace: true });
-        }
-
-        if (!response) {
-          toast("Something went wrong, please try again later");
-          return;
-        } else if (!response.ok) {
-          toast(response.result.message);
-          return;
-        }
-        const claim = response.result;
-
-        if (claim.eligible && !claim.has_claimed) {
-          setClaimState({
-            eligible: claim.eligible,
-            amount: claim.amount,
-            githubToken: claim.github_token as string,
-            githubUsername: claim.github_username as string,
-            hasClaimed: claim.has_claimed,
-            eligibilities: claim.eligibilities,
-            type: "github",
-          });
-        } else if (claim.eligible && claim.has_claimed) {
-          setConfirmation({
-            confirmed: true,
-            address: claim.airdrop_address as string,
-            amount: claim.amount,
-          });
-        }
-
-        navigatePostCheck(navigate, claim.eligible, claim.has_claimed, true);
-      })();
+      const code = url.split("?code=")[1];
+      githubHandler(code);
     }
   }, []);
-
-  //TODO: useCallback
-  const handleKeplrConnection = async (
-    type: KeplrClaimType,
-    chainId: string
-  ): Promise<void> => {
-    if (!keplr) {
-      handleExtensionDownload("https://www.keplr.app/download");
-    } else {
-      try {
-        await keplr.enable(chainId);
-      } catch (e) {
-        alert("Please install Keplr extension and refresh the website");
-      }
-
-      const { bech32Address: address } = await keplr.getKey(chainId);
-
-      let response: AirdropResponse<Claim> | undefined;
-      try {
-        response = await checkClaim(address, type);
-      } catch (e) {
-        console.error(e);
-      }
-
-      if (!response) {
-        toast("Something went wrong, please try again later");
-        return;
-      } else if (!response.ok) {
-        toast(response.result.message);
-        return;
-      }
-      const claim = response.result;
-
-      if (claim.eligible && !claim.has_claimed) {
-        const signature = await keplr?.signArbitrary(
-          chainId,
-          address,
-          claim.nonce
-        );
-        setClaimState({
-          eligible: claim.eligible,
-          amount: claim.amount,
-          hasClaimed: claim.has_claimed,
-          type,
-          signature: { ...signature, pubKey: signature.pub_key },
-          address,
-          nonce: claim.nonce,
-        });
-      } else if (claim.eligible && claim.has_claimed) {
-        setConfirmation({
-          confirmed: true,
-          address: claim.airdrop_address as string,
-          amount: claim.amount,
-        });
-      }
-
-      navigatePostCheck(navigate, claim.eligible, claim.has_claimed);
-    }
-  };
-
-  //TODO: useCallback
-  const handleMetamaskConnection = async (chainId: string): Promise<void> => {
-    if (!metamask) {
-      handleExtensionDownload("https://metamask.io/download/");
-    } else {
-      await metamask.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId }],
-      });
-
-      const addresses = await metamask.request<string[]>({
-        method: "eth_requestAccounts",
-      });
-
-      if (!addresses || !addresses[0]) {
-        throw new Error("No address found");
-      }
-      const address = addresses[0];
-
-      let response: AirdropResponse<Claim> | undefined;
-      try {
-        response = await checkClaim(address, "gitcoin");
-      } catch (e) {
-        console.error(e);
-      }
-      if (!response) {
-        toast("Something went wrong, please try again later");
-        return;
-      } else if (!response.ok) {
-        toast(response.result.message);
-        return;
-      }
-      const { result } = response;
-
-      if (result.eligible && !result.has_claimed) {
-        const signature = await metamask.request<string>({
-          method: "personal_sign",
-          params: [result.nonce, address],
-        });
-
-        if (!signature) {
-          throw new Error("Can't sign message");
-        }
-
-        setClaimState({
-          eligible: result.eligible,
-          amount: result.amount,
-          hasClaimed: result.has_claimed,
-          signature,
-          address,
-          nonce: result.nonce,
-          type: "gitcoin",
-        });
-      } else if (result.eligible && result.has_claimed) {
-        setConfirmation({
-          confirmed: true,
-          address: result.airdrop_address as string,
-          amount: result.amount,
-        });
-      }
-
-      navigatePostCheck(navigate, result.eligible, result.has_claimed);
-    }
-  };
-
-  const handleExtensionDownload = (url: string): void => {
-    window.open(url, "_blank", "noopener,noreferrer");
-  };
 
   return (
     <>
@@ -388,7 +182,7 @@ export const Main: React.FC = () => {
               outlined
               disabled={!isTOSAccepted}
               variant="primary"
-              onClick={() => handleMetamaskConnection("0x1")}
+              onClick={metamaskHandler}
             >
               Gitcoin Wallet
             </ActionButton>
@@ -427,7 +221,7 @@ export const Main: React.FC = () => {
                 outlined
                 disabled={!isTOSAccepted}
                 variant="primary"
-                onClick={() => handleKeplrConnection("cosmos", "cosmoshub-4")}
+                onClick={cosmosHandler}
               >
                 Cosmos Wallet
               </ActionButton>
@@ -436,7 +230,7 @@ export const Main: React.FC = () => {
                 outlined
                 disabled={!isTOSAccepted}
                 variant="primary"
-                onClick={() => handleKeplrConnection("osmosis", "osmosis-1")}
+                onClick={osmosisHandler}
               >
                 Osmosis Wallet
               </ActionButton>
@@ -445,7 +239,7 @@ export const Main: React.FC = () => {
                 outlined
                 disabled={!isTOSAccepted}
                 variant="primary"
-                onClick={() => handleKeplrConnection("badkids", "stargaze-1")}
+                onClick={stargazeHandler}
               >
                 Stargaze Wallet
               </ActionButton>

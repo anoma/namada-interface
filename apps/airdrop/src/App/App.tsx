@@ -29,7 +29,8 @@ export const App: React.FC = () => {
   const theme = getTheme(colorMode);
   const navigate = useNavigate();
   const { pathname } = window.location;
-  const showStartOver = pathname === "/non-eligible";
+  const showStartOver =
+    pathname === "/non-eligible" || pathname === "/trusted-setup";
   const showLogout =
     pathname.includes("/claim") || pathname.includes("/airdrop-confirmed");
 
@@ -73,7 +74,7 @@ export const App: React.FC = () => {
         <Route
           path={`/claim`}
           element={
-            !!claimState ? <Claim></Claim> : <Navigate to="/" replace={true} />
+            !!claimState ? <Claim /> : <Navigate to="/" replace={true} />
           }
         >
           <Route path={`info`} element={<ClaimInfo />} />
