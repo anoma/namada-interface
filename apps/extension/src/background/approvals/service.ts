@@ -320,7 +320,11 @@ export class ApprovalsService {
 
     if (allowConnection) {
       await addApprovedOrigin(this.approvedOriginsStore, interfaceOrigin);
-      await this.keyRingService.connect(interfaceTabId, chainId);
+      try {
+        await this.keyRingService.connect(interfaceTabId, chainId);
+      } catch (e) {
+        resolvers.reject(e);
+      }
       resolvers.resolve();
     } else {
       resolvers.reject();
@@ -338,7 +342,7 @@ export class ApprovalsService {
   private _launchApprovalWindow = (url: string): Promise<Windows.Window> => {
     return browser.windows.create({
       url,
-      width: 415,
+      width: 396,
       height: 510,
       type: "popup",
     });
