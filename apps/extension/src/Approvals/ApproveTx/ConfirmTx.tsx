@@ -13,7 +13,6 @@ import { SupportedTx } from "@namada/types";
 
 import { ApprovalDetails, Status } from "Approvals/Approvals";
 import {
-  ApprovalContainer,
   ButtonContainer,
   InfoHeader,
   InfoLoader,
@@ -90,7 +89,7 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
   }, [status]);
 
   return (
-    <ApprovalContainer>
+    <>
       {status === Status.Pending && (
         <InfoHeader>
           <InfoLoader />
@@ -131,6 +130,6 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
           </ButtonContainer>
         </>
       )}
-    </ApprovalContainer>
+    </>
   );
 };
