@@ -11,7 +11,7 @@
     "start:proxy": "node ./scripts/startProxy.js",
     "dev": "NODE_ENV=development && yarn start",
     "dev:proxy": "REACT_APP_PROXY=true; ./scripts/start-proxy.sh; yarn dev",
-    "build": "NODE_ENV=production && webpack",
+    "build": "NODE_ENV=production && webpack-cli",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "yarn lint -- --fix"
   },
