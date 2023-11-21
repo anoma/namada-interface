@@ -147,21 +147,9 @@ export const useKeplrHandler = (
       }
       const claim = response.result;
 
+      let signature;
       if (claim.eligible && !claim.has_claimed) {
-        const signature = await keplr?.signArbitrary(
-          chainId,
-          address,
-          claim.nonce
-        );
-        setClaim({
-          eligible: claim.eligible,
-          amount: claim.amount,
-          hasClaimed: claim.has_claimed,
-          type,
-          signature: { ...signature, pubKey: signature.pub_key },
-          address,
-          nonce: claim.nonce,
-        });
+        signature = await keplr?.signArbitrary(chainId, address, claim.nonce);
       } else if (claim.eligible && claim.has_claimed) {
         setConfirmation({
           confirmed: true,
@@ -169,6 +157,18 @@ export const useKeplrHandler = (
           amount: claim.amount,
         });
       }
+
+      setClaim({
+        eligible: claim.eligible,
+        amount: claim.amount,
+        hasClaimed: claim.has_claimed,
+        type,
+        signature: signature
+          ? { ...signature, pubKey: signature.pub_key }
+          : undefined,
+        address,
+        nonce: claim.nonce,
+      });
 
       navigatePostCheck(navigate, claim.eligible, claim.has_claimed);
     }
@@ -201,17 +201,17 @@ export const useGithubHandler = (): ((code: string) => Promise<void>) => {
     }
     const claim = response.result;
 
-    if (claim.eligible && !claim.has_claimed) {
-      setClaim({
-        eligible: claim.eligible,
-        amount: claim.amount,
-        githubToken: claim.github_token as string,
-        githubUsername: claim.github_username as string,
-        hasClaimed: claim.has_claimed,
-        eligibilities: claim.eligibilities,
-        type: "github",
-      });
-    } else if (claim.eligible && claim.has_claimed) {
+    setClaim({
+      eligible: claim.eligible,
+      amount: claim.amount,
+      githubToken: claim.github_token,
+      githubUsername: claim.github_username as string,
+      hasClaimed: claim.has_claimed,
+      eligibilities: claim.eligibilities,
+      type: "github",
+    });
+
+    if (claim.eligible && claim.has_claimed) {
       setConfirmation({
         confirmed: true,
         address: claim.airdrop_address as string,

@@ -14,9 +14,8 @@ import {
   SubmitWithdrawMsgValue,
   TransferMsgValue,
   TxMsgValue,
-  SupportedTx,
 } from "@namada/types";
-import { TxType } from "@namada/shared";
+import { TxType, SupportedTx } from "@namada/shared";
 import { KVStore } from "@namada/storage";
 
 import { KeyRingService, TabStore } from "background/keyring";

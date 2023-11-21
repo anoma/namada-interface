@@ -1,5 +1,16 @@
 import { TxType } from "./shared/shared";
 
+export type SupportedTx = Extract<
+  TxType,
+  | TxType.Bond
+  | TxType.Unbond
+  | TxType.Transfer
+  | TxType.IBCTransfer
+  | TxType.EthBridgeTransfer
+  | TxType.Withdraw
+  | TxType.VoteProposal
+>;
+
 export type TxLabel =
   | "Bond"
   | "Unbond"

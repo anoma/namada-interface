@@ -12,7 +12,7 @@ export type GithubClaim = {
   has_claimed: boolean;
   airdrop_address?: string;
   eligibilities: string[];
-  github_username?: string;
+  github_username: string;
 };
 
 export type Claim = {

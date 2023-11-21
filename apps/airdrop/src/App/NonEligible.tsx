@@ -24,6 +24,8 @@ import {
   useMetamaskHandler,
 } from "./hooks";
 import { useNavigate } from "react-router-dom";
+import { useAtom } from "jotai";
+import { labelAtom } from "./state";
 
 const {
   REACT_APP_REDIRECT_URI: redirectUrl = "",
@@ -39,6 +41,7 @@ export const NonEligible: React.FC = () => {
   const cosmosHandler = useKeplrHandler("cosmoshub-4", "cosmos", keplr);
   const osmosisHandler = useKeplrHandler("osmosis-1", "osmosis", keplr);
   const stargazeHandler = useKeplrHandler("stargaze-1", "badkids", keplr);
+  const [label] = useAtom(labelAtom);
   const navigate = useNavigate();
 
   return (
@@ -47,7 +50,11 @@ export const NonEligible: React.FC = () => {
         <EligibilitySection>
           <span>
             <Heading level={"h1"}>You are not eligible</Heading>
-            <p>{"Sorry, you're not elibile for the RPGF Drop."}</p>
+            <p>
+              {"Sorry, you're not elibile for the RPGF Drop"}
+              <br />
+              {"with the"}{" "}
+            </p>
           </span>
         </EligibilitySection>
       </EligibilitySectionWrapper>

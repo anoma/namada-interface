@@ -7,6 +7,7 @@ import {
   claimAtom,
   ClaimResponse,
   KEPLR_CLAIMS,
+  Signature,
 } from "../state";
 import {
   Button,
@@ -115,7 +116,8 @@ const claim = (
   const { type } = state;
   if (type === "github") {
     const { githubToken } = state;
-    return claimWithGithub(githubToken, airdropAddress);
+    //TODO: as string
+    return claimWithGithub(githubToken as string, airdropAddress);
   } else if (type === "ts") {
     const { publicKey, nonce } = state;
     return claimWithTS(publicKey, tsSignature, airdropAddress, nonce);
@@ -124,12 +126,14 @@ const claim = (
     return claimWithGitcoin(address, nonce, signature, airdropAddress);
   } else if (KEPLR_CLAIMS.includes(type)) {
     const { signature, address, nonce } = state;
+    //TODO: as signature
+    const sig = signature as Signature;
     return claimWithKeplr(
       type,
       address,
-      signature.pubKey.value,
-      signature.pubKey.type,
-      signature.signature,
+      sig.pubKey.value,
+      sig.pubKey.type,
+      sig.signature,
       airdropAddress,
       nonce
     );
@@ -155,6 +159,13 @@ export const ClaimConfirmation: React.FC = () => {
         toast(`Something went wrong: ${e}`);
         return;
       }
+      //TODO: check if we have accounts - needed becasue defaultAccount returns nothing(swallows processing)
+      const accounts = await namada.accounts(namadaChainId);
+      if (accounts?.length === 0) {
+        toast(`Please create an account in the Namada extension first.`);
+        return;
+      }
+
       const defaultAccount = await namada.defaultAccount(namadaChainId);
       if (defaultAccount) {
         const address = defaultAccount.address;

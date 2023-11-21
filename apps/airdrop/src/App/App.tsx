@@ -18,21 +18,17 @@ import { ClaimInfo } from "./Claim/ClaimInfo";
 import { Main } from "./Main";
 import { NonEligible } from "./NonEligible";
 import { TrustedSetup } from "./TrustedSetup";
-import { claimAtom, confirmationAtom, labelAtom } from "./state";
+import { claimAtom, confirmationAtom } from "./state";
 
 export const App: React.FC = () => {
   const initialColorMode = "light";
   const [colorMode, _] = useState<ColorMode>(initialColorMode);
   const [claimState, setClaimState] = useAtom(claimAtom);
-  const [label] = useAtom(labelAtom);
   const [confirmationState, setConfirmationState] = useAtom(confirmationAtom);
   const theme = getTheme(colorMode);
   const navigate = useNavigate();
   const { pathname } = window.location;
-  const showStartOver =
-    pathname === "/non-eligible" || pathname === "/trusted-setup";
-  const showLogout =
-    pathname.includes("/claim") || pathname.includes("/airdrop-confirmed");
+  const showStartOver = pathname !== "/";
 
   return (
     <ThemeProvider theme={theme}>
@@ -57,17 +53,6 @@ export const App: React.FC = () => {
           />
         </Logo>
         <LinkButton themeColor="utility2">Terms of service</LinkButton>
-        <Button
-          style={showLogout ? {} : { display: "none" }}
-          variant={ButtonVariant.Small}
-          onClick={() => {
-            navigate("/");
-            setClaimState(null);
-            setConfirmationState(null);
-          }}
-        >
-          {label?.value.substring(0, 8)} <b>{"↦"}</b>
-        </Button>
       </AppContainerHeader>
       <Routes>
         <Route path={`/`} element={<Main />} />
@@ -91,7 +76,12 @@ export const App: React.FC = () => {
             )
           }
         />
-        <Route path={`/non-eligible`} element={<NonEligible />} />
+        <Route
+          path={`/non-eligible`}
+          element={
+            !!claimState ? <NonEligible /> : <Navigate to="/" replace={true} />
+          }
+        />
       </Routes>
     </ThemeProvider>
   );

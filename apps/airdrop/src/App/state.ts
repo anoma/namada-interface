@@ -23,7 +23,7 @@ export type GithubState = {
   amount: number;
   hasClaimed: boolean;
   type: "github";
-  githubToken: string;
+  githubToken?: string;
   githubUsername: string;
   eligibilities: string[];
 };
@@ -33,7 +33,7 @@ export type KeplrState = {
   amount: number;
   hasClaimed: boolean;
   type: KeplrClaimType;
-  signature: Signature;
+  signature?: Signature;
   address: string;
   nonce: string;
 };
@@ -86,3 +86,12 @@ export type ConfirmationState = {
   amount: number;
 };
 export const confirmationAtom = atom<ConfirmationState | null>(null);
+
+// export type NonEligibleGithubState = {
+
+// }
+
+// export type NonEligibleState = {
+
+// }
+// export const nonEligibleAtom = atom<NonEligibleState | null>(null);
