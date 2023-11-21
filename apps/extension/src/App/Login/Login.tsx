@@ -39,7 +39,7 @@ export const Login = ({ onLogin }: LoginProps): JSX.Element => {
 
   let errorMessage = "";
   if (status === Status.Failed) {
-    errorMessage = "An error has occurred";
+    errorMessage = "An error has occurred Rlrasdasd";
   }
 
   if (status === Status.InvalidPassword) {
