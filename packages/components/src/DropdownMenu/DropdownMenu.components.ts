@@ -7,7 +7,7 @@ export const DropdownMenuContainer = styled.div`
 
 export const OpenDropdownIcon = styled.i`
   cursor: pointer;
-  color: ${color("primary", "main")};
+  color: currentColor;
 `;
 
 export const Dropdown = styled.ul<{ align: string }>`

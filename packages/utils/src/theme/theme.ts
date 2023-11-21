@@ -344,8 +344,8 @@ const placeholderThemeColors: Colors = {
 
 const placeholderBorderRadius: BorderRadius = {
   sm: "8px",
-  md: "12px",
-  lg: "18px",
+  md: "10px",
+  lg: "16px",
   full: "100%",
   mainContainer: "8px",
   textField: "8px",
@@ -354,7 +354,7 @@ const placeholderBorderRadius: BorderRadius = {
 
 const namadaBorderRadius: BorderRadius = {
   sm: "5px",
-  md: "15px",
+  md: "10px",
   lg: "18px",
   full: "100%",
   mainContainer: "24px",

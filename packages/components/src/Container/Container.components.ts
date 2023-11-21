@@ -49,8 +49,8 @@ export const ContainerBody = styled.div`
 `;
 
 export const Header = styled.header`
-  border-bottom: 1px solid ${color("utility3", "black")};
-  padding: ${spacement(4)} 0;
+  border-bottom: 2px solid ${color("utility3", "black")};
+  padding: ${spacement(5)} 0;
   position: relative;
 `;
 

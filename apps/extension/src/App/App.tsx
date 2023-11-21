@@ -30,7 +30,10 @@ export const App: React.FC = () => {
       size="popup"
       header={
         <AppHeader
-          settingsButton={!isLocked}
+          settingsButton={!isLocked && passwordInitialized}
+          lockButton={
+            !isLocked && passwordInitialized && !displayReturnButton()
+          }
           returnButton={displayReturnButton()}
         />
       }

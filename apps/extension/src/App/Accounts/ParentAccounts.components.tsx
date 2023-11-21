@@ -9,4 +9,5 @@ export const SettingsHeader = styled.nav`
   display: grid;
   grid-template-columns: auto ${spacement(30)};
   align-items: end;
+  margin-top: ${spacement(4)};
 `;

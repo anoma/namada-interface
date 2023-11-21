@@ -23,9 +23,20 @@ export const HeaderStyles = css`
 
 export const HeaderContainer = styled.header``;
 
+export const LockContainer = styled.span`
+  ${HeaderStyles}
+  color: ${color("primary", "main")};
+  left: ${spacement(7)};
+
+  &:hover {
+    color: ${color("secondary", "main")};
+  }
+`;
+
 export const SettingsButton = styled.span`
   ${HeaderStyles}
-  right: ${spacement(4)};
+  color: ${color("primary", "main")};
+  right: ${spacement(7)};
 
   &:hover {
     color: ${color("secondary", "main")};
@@ -34,9 +45,10 @@ export const SettingsButton = styled.span`
 
 export const ReturnIcon = styled.span`
   ${HeaderStyles}
-  left: ${spacement(4)};
+  color: ${color("primary", "main")};
+  left: ${spacement(7)};
 
   &:hover {
-    color: ${color("utility1", "main20")};
+    color: ${color("secondary", "main")};
   }
 `;

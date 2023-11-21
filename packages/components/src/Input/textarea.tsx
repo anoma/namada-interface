@@ -22,12 +22,7 @@ export const Textarea = ({
   ...props
 }: Props): JSX.Element => {
   const field = (
-    <TextAreaInput
-      rows={rows}
-      error={!!error}
-      inputTheme={sensitive ? undefined : theme}
-      {...props}
-    />
+    <TextAreaInput rows={rows} error={!!error} inputTheme={theme} {...props} />
   );
 
   return (

@@ -50,7 +50,6 @@ export const ParentAccounts = (): JSX.Element => {
 
   return (
     <Stack gap={GapPatterns.TitleContent}>
-      <Heading>Namada Keys</Heading>
       <Stack gap={4}>
         <SettingsHeader>
           <Text>Set default keys</Text>
@@ -58,7 +57,7 @@ export const ParentAccounts = (): JSX.Element => {
             Add keys
           </ActionButton>
         </SettingsHeader>
-        <Stack as="ul" gap={4}>
+        <Stack as="ul" gap={3}>
           {[...parentAccounts].reverse().map((account) => (
             <KeyListItem
               key={`key-listitem-${account.id}`}
@@ -79,9 +78,6 @@ export const ParentAccounts = (): JSX.Element => {
             />
           ))}
         </Stack>
-        <ActionButton onClick={() => lock()} variant="secondary" size="sm">
-          Lock Wallet
-        </ActionButton>
       </Stack>
     </Stack>
   );
