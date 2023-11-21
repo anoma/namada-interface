@@ -6,7 +6,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["*://rpgfdrop.namada.net/*"],
+      "matches": ["*"],
       "js": ["content.namada.js"]
     }
   ],
@@ -20,7 +20,7 @@
   "web_accessible_resources": [
     {
       "resources": ["injected.namada.js", "assets/app.css"],
-      "matches": ["*://rpgfdrop.namada.net/*"]
+      "matches": ["*"]
     }
   ],
   "icons": {
