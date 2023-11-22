@@ -20,7 +20,8 @@ export const Page = styled.div<{ isPopup: boolean }>`
   min-height: ${(props) => (props.isPopup ? "320px" : "100vh")};
   padding-bottom: ${(props) => (props.isPopup ? 0 : spacement(7)(props))};
   padding-top: ${(props) => (props.isPopup ? 0 : spacement(7)(props))};
-  width: ${(props) => (props.isPopup ? "380px" : "auto")};
+  width: ${(props) => (props.isPopup ? "100%" : "auto")};
+  min-height: 100svh;
 `;
 
 export const ContainerWrapper = styled.section<{ maxW: keyof ContainerSize }>`
@@ -35,6 +36,7 @@ export const ContainerWrapper = styled.section<{ maxW: keyof ContainerSize }>`
   flex-direction: column;
   flex-grow: 0;
   max-width: 100%;
+  overflow: hidden;
   transition: all 100ms ease-out;
 `;
 
@@ -49,8 +51,8 @@ export const ContainerBody = styled.div`
 `;
 
 export const Header = styled.header`
-  border-bottom: 1px solid ${color("utility3", "black")};
-  padding: ${spacement(4)} 0;
+  border-bottom: 2px solid ${color("utility3", "black")};
+  padding: ${spacement(5)} 0;
   position: relative;
 `;
 

@@ -52,10 +52,18 @@ export const RenameAccount = (): JSX.Element => {
   }, [accountId]);
 
   return (
-    <Stack gap={GapPatterns.TitleContent}>
-      <Heading>Rename Key</Heading>
+    <Stack
+      as="form"
+      gap={GapPatterns.TitleContent}
+      onSubmit={handleSubmit}
+      full
+    >
+      <Heading size="2xl" uppercase>
+        Rename Key
+      </Heading>
+
       {account && (
-        <Stack as="form" gap={GapPatterns.FormFields} onSubmit={handleSubmit}>
+        <Stack full gap={GapPatterns.FormFields}>
           <Input readOnly label="Current name" value={account.alias} />
           <Input
             autoFocus
@@ -65,9 +73,10 @@ export const RenameAccount = (): JSX.Element => {
             onChange={(e) => setAlias(e.target.value)}
             error={error}
           />
-          <ActionButton>Rename</ActionButton>
         </Stack>
       )}
+
+      {account && <ActionButton>Rename</ActionButton>}
     </Stack>
   );
 };

@@ -111,7 +111,7 @@ export const AppContent = (): JSX.Element => {
   }, []);
 
   return (
-    <Stack gap={6}>
+    <Stack full gap={6}>
       {isDurable === false && (
         <Alert type="warning">{STORE_DURABILITY_INFO}</Alert>
       )}

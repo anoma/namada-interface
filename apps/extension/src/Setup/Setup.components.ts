@@ -18,7 +18,8 @@ export const MotionContainer = styled(motion.div)`
 
 export const HeaderContainer = styled.hgroup`
   color: ${color("utility2", "main")};
-  margin-bottom: ${spacement(7)};
+  margin-bottom: ${spacement(6)};
+  margin-top: -${spacement(2)};
   text-align: center;
 `;
 

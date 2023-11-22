@@ -145,6 +145,7 @@ const Completion: React.FC<Props> = (props) => {
     <>
       <Loading
         status={statusInfo}
+        imageUrl="/assets/images/loading.gif"
         visible={mnemonicStatus === Status.Pending}
       />
       {mnemonicStatus === Status.Failed && (

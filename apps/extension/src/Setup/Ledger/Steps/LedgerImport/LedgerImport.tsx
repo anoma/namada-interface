@@ -94,7 +94,12 @@ export const LedgerImport = ({
 
   return (
     <>
-      <Loading status="Importing Keys..." variant="full" visible={loading} />
+      <Loading
+        imageUrl="/assets/images/loading.gif"
+        status="Importing Keys..."
+        variant="full"
+        visible={loading}
+      />
       <Stack gap={12}>
         <Heading uppercase level="h1" size="3xl">
           Import your Keys from Ledger HW

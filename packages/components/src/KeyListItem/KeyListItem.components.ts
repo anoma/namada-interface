@@ -1,18 +1,27 @@
-import { borderRadius, color, fontSize, spacement } from "@namada/utils";
+import { borderRadius, color, spacement } from "@namada/utils";
 import styled from "styled-components";
 
-export const ItemContainer = styled.div`
+export const DropdownContainer = styled.div``;
+
+export const CheckboxContainer = styled.div``;
+
+export const ItemContainer = styled.div<{ selected: boolean }>`
   align-items: center;
   background: ${color("utility1", "main")};
-  border: 1px solid ${color("primary", "main")};
+  border: 1px solid
+    ${(props) =>
+      props.selected ? color("primary", "main")(props) : "currentColor"};
   border-radius: ${borderRadius("md")};
-  color: ${color("utility2", "main")};
+  color: ${(props) =>
+    props.selected
+      ? color("primary", "main")(props)
+      : color("utility2", "main")(props)};
   display: grid;
-  font-size: ${fontSize("xl")};
+  font-size: 18px;
   font-weight: 500;
   grid-gap: ${spacement(8)};
   grid-template-columns: ${spacement(7)} auto ${spacement(2)};
-  padding: ${spacement(6)} ${spacement(5)};
+  padding: ${spacement(5)} ${spacement(5)};
 `;
 
 export const Alias = styled.label``;
