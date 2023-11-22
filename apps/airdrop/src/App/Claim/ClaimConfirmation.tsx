@@ -25,9 +25,9 @@ import {
   TOSToggle,
 } from "../App.components";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { AirdropResponse, airdropFetch, toast } from "App/utils";
-import { WindowWithNamada } from "@namada/types";
+import { DerivedAccount, WindowWithNamada } from "@namada/types";
 
 const {
   AIRDROP_BACKEND_SERVICE_URL: backendUrl = "",
@@ -148,33 +148,28 @@ export const ClaimConfirmation: React.FC = () => {
   const navigate = useNavigate();
   const [_confirmationState, setConfirmation] = useAtom(confirmationAtom);
   const [airdropAddress, setNamadaAddress] = useState<string>("");
+  const [airdropPubKey, setAirdropPubKey] = useState<string>("");
   const [tsSignature, setTsSignature] = useState<string>("");
   const [isToggleChecked, setIsToggleChecked] = useState(false);
 
-  const handleImportButton = async (): Promise<void> => {
-    if (airdropAddress === "") {
-      try {
-        await namada.connect(namadaChainId);
-      } catch (e) {
-        toast(`Something went wrong: ${e}`);
-        return;
-      }
-      //TODO: check if we have accounts - needed becasue defaultAccount returns nothing(swallows processing)
-      const accounts = await namada.accounts(namadaChainId);
-      if (accounts?.length === 0) {
-        toast(`Please create an account in the Namada extension first.`);
-        return;
-      }
-
-      const defaultAccount = await namada.defaultAccount(namadaChainId);
-      if (defaultAccount) {
-        const address = defaultAccount.address;
-        setNamadaAddress(address);
-      }
-    } else {
-      setNamadaAddress("");
+  const handleImport = useCallback(async (): Promise<
+    DerivedAccount | undefined
+  > => {
+    try {
+      await namada.connect(namadaChainId);
+    } catch (e) {
+      toast(`Something went wrong: ${e}`);
+      return;
     }
-  };
+    //Check if we have accounts - needed becasue defaultAccount returns nothing(swallows processing)
+    const accounts = await namada.accounts(namadaChainId);
+    if (accounts?.length === 0) {
+      toast(`Please create an account in the Namada extension first.`);
+      return;
+    }
+
+    return namada.defaultAccount(namadaChainId);
+  }, [namada]);
 
   //TODO: reuse exisiting one
   const handleDownloadExtension = (url: string): void => {
@@ -222,6 +217,33 @@ export const ClaimConfirmation: React.FC = () => {
       <AirdropAddress>
         <Input
           variant={InputVariants.Text}
+          value={airdropPubKey}
+          onChange={(e) => setAirdropPubKey(e.target.value)}
+          label="Namada public key"
+        />
+        <Button
+          disabled={!namada}
+          tooltip={
+            namada
+              ? ""
+              : "To import please install the Namada extension using the link below and try again."
+          }
+          variant={ButtonVariant.Small}
+          onClick={async () => {
+            if (!airdropPubKey) {
+              const account = await handleImport();
+              setAirdropPubKey(account?.publicKey || "");
+            } else {
+              setAirdropPubKey("");
+            }
+          }}
+        >
+          {airdropPubKey ? "Clear" : "Import"}
+        </Button>
+      </AirdropAddress>
+      <AirdropAddress>
+        <Input
+          variant={InputVariants.Text}
           value={airdropAddress}
           onChange={(e) => setNamadaAddress(e.target.value)}
           label="Namada airdrop address"
@@ -234,7 +256,14 @@ export const ClaimConfirmation: React.FC = () => {
               : "To import please install the Namada extension using the link below and try again."
           }
           variant={ButtonVariant.Small}
-          onClick={handleImportButton}
+          onClick={async () => {
+            if (!airdropAddress) {
+              const account = await handleImport();
+              setNamadaAddress(account?.address || "");
+            } else {
+              setNamadaAddress("");
+            }
+          }}
         >
           {airdropAddress ? "Clear" : "Import"}
         </Button>
