@@ -2602,8 +2602,8 @@ checksum = "e5ce46fe64a9d73be07dcbe690a38ce1b293be448fd8ce1e6c1b8062c9f72c6a"
 
 [[package]]
 name = "namada"
-version = "0.26.0"
-source = "git+https://github.com/anoma/namada#e89a5a9214d40d367ee000699c98748544aa3d00"
+version = "0.27.0"
+source = "git+https://github.com/anoma/namada#47c887c501c47f15929221c3858220d51731962b"
 dependencies = [
  "async-trait",
  "bimap",
@@ -2652,8 +2652,8 @@ dependencies = [
 
 [[package]]
 name = "namada_core"
-version = "0.26.0"
-source = "git+https://github.com/anoma/namada#e89a5a9214d40d367ee000699c98748544aa3d00"
+version = "0.27.0"
+source = "git+https://github.com/anoma/namada#47c887c501c47f15929221c3858220d51731962b"
 dependencies = [
  "ark-bls12-381",
  "ark-serialize",
@@ -2703,8 +2703,8 @@ dependencies = [
 
 [[package]]
 name = "namada_ethereum_bridge"
-version = "0.26.0"
-source = "git+https://github.com/anoma/namada#e89a5a9214d40d367ee000699c98748544aa3d00"
+version = "0.27.0"
+source = "git+https://github.com/anoma/namada#47c887c501c47f15929221c3858220d51731962b"
 dependencies = [
  "borsh",
  "borsh-ext",
@@ -2725,8 +2725,8 @@ dependencies = [
 
 [[package]]
 name = "namada_macros"
-version = "0.26.0"
-source = "git+https://github.com/anoma/namada#e89a5a9214d40d367ee000699c98748544aa3d00"
+version = "0.27.0"
+source = "git+https://github.com/anoma/namada#47c887c501c47f15929221c3858220d51731962b"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2735,8 +2735,8 @@ dependencies = [
 
 [[package]]
 name = "namada_proof_of_stake"
-version = "0.26.0"
-source = "git+https://github.com/anoma/namada#e89a5a9214d40d367ee000699c98748544aa3d00"
+version = "0.27.0"
+source = "git+https://github.com/anoma/namada#47c887c501c47f15929221c3858220d51731962b"
 dependencies = [
  "borsh",
  "data-encoding",
@@ -2749,8 +2749,8 @@ dependencies = [
 
 [[package]]
 name = "namada_sdk"
-version = "0.26.0"
-source = "git+https://github.com/anoma/namada#e89a5a9214d40d367ee000699c98748544aa3d00"
+version = "0.27.0"
+source = "git+https://github.com/anoma/namada#47c887c501c47f15929221c3858220d51731962b"
 dependencies = [
  "async-trait",
  "bimap",
