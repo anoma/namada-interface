@@ -147,8 +147,12 @@ export const ClaimConfirmation: React.FC = () => {
   const [claimState] = useAtom(claimAtom);
   const navigate = useNavigate();
   const [_confirmationState, setConfirmation] = useAtom(confirmationAtom);
-  const [airdropAddress, setNamadaAddress] = useState<string>("");
-  const [airdropPubKey, setAirdropPubKey] = useState<string>("");
+  const [airdropAddress, setNamadaAddress] = useState<string>(
+    localStorage.getItem("airdropAddress") || ""
+  );
+  const [airdropPubKey, setAirdropPubKey] = useState<string>(
+    localStorage.getItem("airdropPubKey") || ""
+  );
   const [tsSignature, setTsSignature] = useState<string>("");
   const [isToggleChecked, setIsToggleChecked] = useState(false);
 
@@ -232,9 +236,12 @@ export const ClaimConfirmation: React.FC = () => {
           onClick={async () => {
             if (!airdropPubKey) {
               const account = await handleImport();
-              setAirdropPubKey(account?.publicKey || "");
+              const publicKey = account?.publicKey || "";
+              setAirdropPubKey(publicKey);
+              localStorage.setItem("airdropPubKey", publicKey);
             } else {
               setAirdropPubKey("");
+              localStorage.removeItem("airdropPubKey");
             }
           }}
         >
@@ -259,9 +266,12 @@ export const ClaimConfirmation: React.FC = () => {
           onClick={async () => {
             if (!airdropAddress) {
               const account = await handleImport();
-              setNamadaAddress(account?.address || "");
+              const address = account?.address || "";
+              setNamadaAddress(address);
+              localStorage.setItem("airdropAddress", address);
             } else {
               setNamadaAddress("");
+              localStorage.removeItem("airdropAddress");
             }
           }}
         >
