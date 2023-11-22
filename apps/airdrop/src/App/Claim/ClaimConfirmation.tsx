@@ -36,12 +36,13 @@ const {
 
 const claimWithGithub = async (
   access_token: string,
-  airdrop_address: string
+  airdrop_address: string,
+  airdrop_public_key: string
 ): Promise<AirdropResponse<ClaimResponse>> => {
   return airdropFetch(`${backendUrl}/api/v1/airdrop/github`, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ access_token, airdrop_address }),
+    body: JSON.stringify({ access_token, airdrop_address, airdrop_public_key }),
   });
 };
 
@@ -52,6 +53,7 @@ const claimWithKeplr = async (
   signer_public_key_type: string,
   signature: string,
   airdrop_address: string,
+  airdrop_public_key: string,
   message: string
 ): Promise<AirdropResponse<ClaimResponse>> => {
   return airdropFetch(`${backendUrl}/api/v1/airdrop/${type}`, {
@@ -65,6 +67,7 @@ const claimWithKeplr = async (
       signer_public_key_type,
       signature,
       airdrop_address,
+      airdrop_public_key,
       message,
     }),
   });
@@ -74,7 +77,8 @@ const claimWithGitcoin = async (
   signer_address: string,
   message: string,
   signature: string,
-  airdrop_address: string
+  airdrop_address: string,
+  airdrop_public_key: string
 ): Promise<AirdropResponse<ClaimResponse>> => {
   return airdropFetch(`${backendUrl}/api/v1/airdrop/gitcoin`, {
     method: "POST",
@@ -86,6 +90,7 @@ const claimWithGitcoin = async (
       message,
       signature,
       airdrop_address,
+      airdrop_public_key,
     }),
   });
 };
@@ -94,6 +99,7 @@ const claimWithTS = async (
   signer_public_key: string,
   signature: string,
   airdrop_address: string,
+  airdrop_public_key: string,
   message: string
 ): Promise<AirdropResponse<ClaimResponse>> => {
   return airdropFetch(`${backendUrl}/api/v1/airdrop/ts`, {
@@ -103,6 +109,7 @@ const claimWithTS = async (
       signer_public_key,
       signature,
       airdrop_address,
+      airdrop_public_key,
       message,
     }),
   });
@@ -111,19 +118,36 @@ const claimWithTS = async (
 const claim = (
   state: CommonState,
   airdropAddress: string,
+  airdropPubKey: string,
   tsSignature: string
 ): Promise<AirdropResponse<ClaimResponse>> => {
   const { type } = state;
   if (type === "github") {
     const { githubToken } = state;
     //TODO: as string
-    return claimWithGithub(githubToken as string, airdropAddress);
+    return claimWithGithub(
+      githubToken as string,
+      airdropAddress,
+      airdropPubKey
+    );
   } else if (type === "ts") {
     const { publicKey, nonce } = state;
-    return claimWithTS(publicKey, tsSignature, airdropAddress, nonce);
+    return claimWithTS(
+      publicKey,
+      tsSignature,
+      airdropAddress,
+      airdropPubKey,
+      nonce
+    );
   } else if (type === "gitcoin") {
     const { signature, address, nonce } = state;
-    return claimWithGitcoin(address, nonce, signature, airdropAddress);
+    return claimWithGitcoin(
+      address,
+      nonce,
+      signature,
+      airdropAddress,
+      airdropPubKey
+    );
   } else if (KEPLR_CLAIMS.includes(type)) {
     const { signature, address, nonce } = state;
     //TODO: as signature
@@ -135,6 +159,7 @@ const claim = (
       sig.pubKey.type,
       sig.signature,
       airdropAddress,
+      airdropPubKey,
       nonce
     );
   } else {
@@ -300,7 +325,12 @@ export const ClaimConfirmation: React.FC = () => {
           let response: AirdropResponse<ClaimResponse> | undefined;
 
           try {
-            response = await claim(claimState, airdropAddress, tsSignature);
+            response = await claim(
+              claimState,
+              airdropAddress,
+              airdropPubKey,
+              tsSignature
+            );
           } catch (e) {
             console.error(e);
           }

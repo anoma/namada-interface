@@ -35,6 +35,34 @@ const checkClaim = async (
   });
 };
 
+//TODO: move to types
+export type ClaimCategory =
+  | "Github"
+  | "CosmosWallet"
+  | "OsmosisWallet"
+  | "StargazeWallet"
+  | "TrustedSetup"
+  | "EthereumWallet";
+
+type AllClaims = {
+  address: string;
+  claims: {
+    token: number;
+    value: string;
+    eligible_for: string[];
+    category: ClaimCategory;
+  }[];
+};
+
+//TODO: maybe a hook?
+export const getAllClaims = async (
+  address: string
+): Promise<AirdropResponse<AllClaims>> => {
+  return airdropFetch(`${backendUrl}/api/v1/claim/${address}`, {
+    method: "GET",
+  });
+};
+
 export const useMetamaskHandler = (
   chainId: string,
   metamask?: MetaMaskInpageProvider

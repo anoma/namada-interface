@@ -85,7 +85,7 @@ export const NonEligible: React.FC = () => {
               variant="primary"
               onClick={metamaskHandler}
             >
-              Gitcoin Wallet
+              Ethereum Wallet
             </ActionButton>
           )}
 
@@ -98,7 +98,7 @@ export const NonEligible: React.FC = () => {
                   handleExtensionDownload("https://metamask.io/download/")
                 }
               >
-                Download Metamask to use Gitcoin Wallet
+                Download Metamask to use Ethereum Wallet
               </ActionButton>
               <Text themeColor="utility1" fontSize="xs">
                 NOTE: Make sure to restart website after installing Metamask
