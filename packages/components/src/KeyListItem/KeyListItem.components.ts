@@ -1,4 +1,4 @@
-import { borderRadius, color, fontSize, spacement } from "@namada/utils";
+import { borderRadius, color, spacement } from "@namada/utils";
 import styled from "styled-components";
 
 export const DropdownContainer = styled.div``;

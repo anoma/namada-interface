@@ -49,7 +49,9 @@ const ConnectedSites: React.FC = ({}) => {
 
   return (
     <Stack gap={6}>
-      <Heading>Connected Sites</Heading>
+      <Heading size="2xl" uppercase>
+        Connected Sites
+      </Heading>
       {connectedSites && connectedSites.length === 0 && (
         <Alert type="info">No connected sites found.</Alert>
       )}

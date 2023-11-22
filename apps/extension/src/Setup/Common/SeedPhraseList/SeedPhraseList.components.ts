@@ -17,7 +17,7 @@ export const SeedListItem = styled.li`
   font-size: ${fontSize("base")};
   font-weight: 300;
   list-style-position: inside;
-  padding: ${spacement(5)} ${spacement(2.5)};
+  padding: ${spacement(4)} ${spacement(2.5)};
   position: relative;
 `;
 
@@ -26,7 +26,7 @@ export const Word = styled.span`
   font-weight: 700;
   left: ${spacement(12)};
   position: absolute;
-  top: 1.2em;
+  top: 1em;
   user-select: none;
 `;
 
@@ -39,6 +39,8 @@ export const WordInput = styled.span`
 
   input {
     background-color: transparent;
+    padding-top: ${spacement(4)};
+    padding-bottom: ${spacement(4)};
     padding-left: ${spacement(10)};
   }
 `;

@@ -14,15 +14,13 @@ import { DerivedAccount } from "@namada/types";
 import routes from "App/routes";
 import { ParentAccount } from "background/keyring";
 import { AccountContext } from "context";
-import { useVaultContext } from "context/VaultContext";
-import { SettingsHeader } from "./ParentAccounts.components";
+import { ButtonContainer, SettingsHeader } from "./ParentAccounts.components";
 
 /**
  * Represents the extension's settings page.
  */
 export const ParentAccounts = (): JSX.Element => {
   const navigate = useNavigate();
-  const { lock } = useVaultContext();
   const { activeAccountId, parentAccounts, changeActiveAccountId } =
     useContext(AccountContext);
 
@@ -50,20 +48,28 @@ export const ParentAccounts = (): JSX.Element => {
 
   return (
     <Stack gap={GapPatterns.TitleContent}>
+      <Heading size="2xl" uppercase>
+        Keys Management
+      </Heading>
       <Stack gap={4}>
         <SettingsHeader>
           <Text>Set default keys</Text>
-          <ActionButton size="sm" onClick={goToSetupPage}>
-            Add keys
-          </ActionButton>
+          <ButtonContainer>
+            <ActionButton size="xs" onClick={goToSetupPage}>
+              Add keys
+            </ActionButton>
+          </ButtonContainer>
         </SettingsHeader>
         <Stack as="ul" gap={3}>
-          {[...parentAccounts].reverse().map((account) => (
+          {[...parentAccounts].reverse().map((account, idx) => (
             <KeyListItem
               key={`key-listitem-${account.id}`}
               as="li"
               alias={account.alias}
               type={account.type}
+              dropdownPosition={
+                idx > 2 && idx > parentAccounts.length - 4 ? "bottom" : "top"
+              }
               isMainKey={activeAccountId === account.id}
               onRename={() => goToRenameAccount(account)}
               onDelete={() => goToDeletePage(account)}

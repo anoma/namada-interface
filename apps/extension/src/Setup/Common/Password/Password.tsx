@@ -63,7 +63,7 @@ const Password = ({ onValidPassword }: PasswordProps): JSX.Element => {
         label="Create Extension Password"
         variant={InputVariants.Password}
         value={password}
-        error={displayError}
+        error={password.length > 0 ? displayError : ""}
         placeholder="At least 8 characters"
         onChange={(e) => setPassword(e.target.value)}
         onBlur={() => {

@@ -17,6 +17,7 @@ type KeyListItemProps = {
   onViewAccount: () => void;
   onSelectAccount: () => void;
   onViewRecoveryPhrase: () => void;
+  dropdownPosition?: "top" | "bottom";
 };
 
 export const KeyListItem = ({
@@ -29,6 +30,7 @@ export const KeyListItem = ({
   onViewAccount,
   onSelectAccount,
   onViewRecoveryPhrase,
+  dropdownPosition = "top",
 }: KeyListItemProps): JSX.Element => {
   return (
     <ItemContainer as={as} selected={isMainKey}>
@@ -40,6 +42,7 @@ export const KeyListItem = ({
         <DropdownMenu
           id={alias}
           align="right"
+          position={dropdownPosition}
           items={[
             {
               label: "Set default account",
@@ -58,7 +61,7 @@ export const KeyListItem = ({
               onClick: onDelete,
             },
             {
-              label: "View Recovery Phrase",
+              label: "View Seed Phrase",
               onClick:
                 type === AccountType.Mnemonic
                   ? onViewRecoveryPhrase

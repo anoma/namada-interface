@@ -9,8 +9,10 @@ import {
 } from "./input.components";
 
 import { ComponentProps, TextareaProps } from "./types";
+import { CopyToClipboardControl } from "./CopyToClipboardControl/CopyToClipboardControl";
 
-type Props = ComponentProps & TextareaProps & { rows?: number };
+type Props = ComponentProps &
+  TextareaProps & { rows?: number; copyToClipboard?: boolean };
 
 export const Textarea = ({
   label,
@@ -19,6 +21,7 @@ export const Textarea = ({
   theme,
   rows = 3,
   sensitive = false,
+  copyToClipboard = false,
   ...props
 }: Props): JSX.Element => {
   const field = (
@@ -34,6 +37,8 @@ export const Textarea = ({
         ) : (
           field
         )}
+
+        {copyToClipboard && <CopyToClipboardControl value={props.value + ""} />}
       </InputWrapper>
       {<ErrorTooltip>{error}</ErrorTooltip>}
       {<HintTooltip>{hint}</HintTooltip>}

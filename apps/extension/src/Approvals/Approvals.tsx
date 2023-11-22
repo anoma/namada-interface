@@ -31,7 +31,13 @@ export const Approvals: React.FC = () => {
   return (
     <Container
       size="popup"
-      header={<AppHeader returnButton={false} settingsButton={false} />}
+      header={
+        <AppHeader
+          lockButton={false}
+          returnButton={false}
+          settingsButton={false}
+        />
+      }
     >
       <Routes>
         <Route

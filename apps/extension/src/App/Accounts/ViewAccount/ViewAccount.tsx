@@ -1,7 +1,7 @@
 import {
+  ActionButton,
   GapPatterns,
   Heading,
-  LinkButton,
   Stack,
   ViewKeys,
 } from "@namada/components";
@@ -59,15 +59,21 @@ export const ViewAccount = (): JSX.Element => {
   return (
     <>
       {parentAccount && (
-        <Stack gap={GapPatterns.TitleContent}>
-          <Heading>{parentAccount.alias}</Heading>
-          <ViewKeys
-            publicKeyAddress={parentAccount.publicKey ?? ""}
-            transparentAccountAddress={transparentAddress}
-            shieldedAccountAddress={shieldedAddress}
-          />
-          <LinkButton onClick={() => navigate(-1)}>Back</LinkButton>
-        </Stack>
+        <>
+          <Stack full gap={GapPatterns.TitleContent}>
+            <Heading size="2xl" uppercase>
+              {parentAccount.alias}
+            </Heading>
+            <ViewKeys
+              publicKeyAddress={parentAccount.publicKey ?? ""}
+              transparentAccountAddress={transparentAddress}
+              shieldedAccountAddress={shieldedAddress}
+            />
+          </Stack>
+          <ActionButton size="sm" onClick={() => navigate(-1)}>
+            Back
+          </ActionButton>
+        </>
       )}
     </>
   );

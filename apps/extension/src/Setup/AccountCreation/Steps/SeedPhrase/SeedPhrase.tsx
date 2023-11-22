@@ -55,7 +55,7 @@ const SeedPhrase: React.FC<Props> = (props) => {
         </Heading>
       </HeaderContainer>
 
-      <Stack gap={8}>
+      <Stack gap={4}>
         <RadioGroup
           id="mnemonicLength"
           groupLabel="Number of seeds"

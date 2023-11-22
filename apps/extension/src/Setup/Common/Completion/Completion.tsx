@@ -17,7 +17,7 @@ import {
   DeriveAccountMsg,
   SaveAccountSecretMsg,
   ScanAccountsMsg,
-  AccountSecret
+  AccountSecret,
 } from "background/keyring";
 import { useRequester } from "hooks/useRequester";
 import { useNavigate } from "react-router-dom";
@@ -91,9 +91,11 @@ const Completion: React.FC<Props> = (props) => {
         }
 
         const prettyAccountSecret =
-          accountSecret.t === "Mnemonic" ? "mnemonic" :
-          accountSecret.t === "PrivateKey" ? "private key" :
-          assertNever(accountSecret);
+          accountSecret.t === "Mnemonic"
+            ? "mnemonic"
+            : accountSecret.t === "PrivateKey"
+            ? "private key"
+            : assertNever(accountSecret);
 
         setStatusInfo(`Encrypting and storing ${prettyAccountSecret}.`);
         const account = (await requester.sendMessage<SaveAccountSecretMsg>(
@@ -143,6 +145,7 @@ const Completion: React.FC<Props> = (props) => {
     <>
       <Loading
         status={statusInfo}
+        imageUrl="/assets/images/loading.gif"
         visible={mnemonicStatus === Status.Pending}
       />
       {mnemonicStatus === Status.Failed && (

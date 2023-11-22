@@ -1,4 +1,4 @@
-import { spacement } from "@namada/utils";
+import { fontSize, spacement } from "@namada/utils";
 import styled from "styled-components";
 
 export const SettingsContainer = styled.section`
@@ -6,8 +6,16 @@ export const SettingsContainer = styled.section`
 `;
 
 export const SettingsHeader = styled.nav`
-  display: grid;
-  grid-template-columns: auto ${spacement(30)};
   align-items: end;
-  margin-top: ${spacement(4)};
+  display: grid;
+  grid-template-columns: auto min-content;
+`;
+
+export const ButtonContainer = styled.div`
+  align-self: end;
+  width: ${spacement(24)};
+  button {
+    font-size: ${fontSize("sm")};
+    padding: 0.5em 0.25em;
+  }
 `;

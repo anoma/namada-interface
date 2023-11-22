@@ -1,4 +1,4 @@
-import { borderRadius, color, spacement } from "@namada/utils";
+import { borderRadius, color, fontSize, spacement } from "@namada/utils";
 import styled from "styled-components";
 
 export const WarningPanel = styled.aside`
@@ -14,6 +14,10 @@ export const WarningPanel = styled.aside`
 export const IconContainer = styled.div`
   max-width: ${spacement(32)};
   margin: 0 auto;
+`;
+
+export const InstructionsContainer = styled.div`
+  font-size: ${fontSize("base")};
 `;
 
 export const PageFooter = styled.footer``;

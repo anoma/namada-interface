@@ -1,4 +1,4 @@
-import { Icon, IconName, Image, ImageName } from "@namada/components";
+import { Icon, IconName, IconSize, Image, ImageName } from "@namada/components";
 import { useVaultContext } from "context";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -32,6 +32,7 @@ export const AppHeader = ({
         {returnButton && (
           <ReturnIcon onClick={() => navigate(-1)}>
             <Icon
+              iconSize={IconSize.Full}
               strokeColorOverride="currentColor"
               fillColorOverride="currentColor"
               iconName={IconName.ArrowLeft}
@@ -42,7 +43,8 @@ export const AppHeader = ({
         {lockButton && (
           <LockContainer onClick={() => lock()}>
             <Icon
-              strokeColorOverride="currentColor"
+              iconSize={IconSize.Full}
+              strokeColorOverride="none"
               fillColorOverride="currentColor"
               iconName={IconName.Lock}
             />
@@ -56,6 +58,7 @@ export const AppHeader = ({
         {settingsButton && (
           <SettingsButton onClick={() => setOpen(true)}>
             <Icon
+              iconSize={IconSize.Full}
               fillColorOverride="currentColor"
               strokeColorOverride="currentColor"
               iconName={IconName.Settings}

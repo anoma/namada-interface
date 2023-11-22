@@ -37,7 +37,10 @@ export const AlertTitle = styled.strong`
   display: block;
   font-weight: 700;
   text-transform: uppercase;
+  font-size: ${fontSize("sm")};
   margin-bottom: ${spacement(2)};
 `;
 
-export const AlertContent = styled.div``;
+export const AlertContent = styled.div`
+  font-size: 13px;
+`;
