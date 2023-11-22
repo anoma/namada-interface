@@ -94,8 +94,8 @@ const Completion: React.FC<Props> = (props) => {
           accountSecret.t === "Mnemonic"
             ? "mnemonic"
             : accountSecret.t === "PrivateKey"
-            ? "private key"
-            : assertNever(accountSecret);
+              ? "private key"
+              : assertNever(accountSecret);
 
         setStatusInfo(`Encrypting and storing ${prettyAccountSecret}.`);
         const account = (await requester.sendMessage<SaveAccountSecretMsg>(
@@ -133,7 +133,7 @@ const Completion: React.FC<Props> = (props) => {
         setMnemonicStatus(Status.Completed);
         setStatusInfo("Done!");
       } catch (e) {
-        setStatusInfo((s) => `Failed while "${s}"`);
+        setStatusInfo((s) => `Failed while "${s}". ${e}`);
         console.error(e);
         setMnemonicStatus(Status.Failed);
       }

@@ -1,4 +1,4 @@
-import { color, spacement } from "@namada/utils";
+import { color, fontSize, spacement } from "@namada/utils";
 import styled from "styled-components";
 
 export const CopyToClipboard = styled.a`
@@ -12,4 +12,8 @@ export const CopyToClipboard = styled.a`
   &:active {
     top: ${spacement("px")};
   }
+`;
+
+export const InstructionsContainer = styled.div`
+  font-size: ${fontSize("sm")};
 `;

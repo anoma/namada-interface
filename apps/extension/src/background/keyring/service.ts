@@ -4,7 +4,7 @@ import { PhraseSize } from "@namada/crypto";
 import { public_key_to_bech32, Query, Sdk, TxType } from "@namada/shared";
 import { IndexedDBKVStore, KVStore } from "@namada/storage";
 import { AccountType, Bip44Path, DerivedAccount } from "@namada/types";
-import { Result } from "@namada/utils";
+import { Result, truncateInMiddle } from "@namada/utils";
 
 import {
   createOffscreenWithTxWorker,
@@ -96,7 +96,7 @@ export class KeyRingService {
   async saveAccountSecret(
     accountSecret: AccountSecret,
     alias: string
-  ): Promise<AccountStore | false> {
+  ): Promise<AccountStore> {
     const results = await this._keyRing.storeAccountSecret(
       accountSecret,
       alias
@@ -114,6 +114,14 @@ export class KeyRingService {
   ): Promise<AccountStore | false> {
     const publicKeyBytes = fromHex(publicKey);
     const bech32PublicKey = public_key_to_bech32(publicKeyBytes);
+
+    const account = await this._keyRing.queryAccountByAddress(address);
+    if (account) {
+      throw new Error(
+        `Keys for ${truncateInMiddle(address, 5, 8)} already imported!`
+      );
+    }
+
     return await this._keyRing.storeLedger(
       alias,
       address,

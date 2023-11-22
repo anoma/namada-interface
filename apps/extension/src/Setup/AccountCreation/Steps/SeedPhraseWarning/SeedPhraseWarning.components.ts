@@ -17,7 +17,7 @@ export const IconContainer = styled.div`
 `;
 
 export const InstructionsContainer = styled.div`
-  font-size: ${fontSize("base")};
+  font-size: ${fontSize("sm")};
 `;
 
 export const PageFooter = styled.footer``;
