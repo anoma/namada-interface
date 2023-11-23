@@ -1,4 +1,5 @@
 import {
+  BorderRadius,
   FontSize,
   ThemeColor,
   borderRadius,
@@ -31,7 +32,7 @@ export const ButtonHover = styled(motion.i)`
   position: absolute;
   top: 0;
   transform-origin: center center;
-  transform: translateY(100%);
+  transform: translateY(calc(100% + 2px));
   transition: all var(--ease-out-circ) 0.45s;
   width: 100%;
 `;
@@ -47,6 +48,7 @@ export const ButtonContainer = styled(Button)<{
   variant: ThemeColor;
   size: ButtonSize;
   outlined: boolean;
+  borderRadius: keyof BorderRadius;
 }>`
   align-items: center;
   all: unset;
@@ -65,7 +67,7 @@ export const ButtonContainer = styled(Button)<{
     return "";
   }};
 
-  border-radius: ${borderRadius("md")};
+  border-radius: ${(props) => borderRadius(props.borderRadius)(props)};
   box-sizing: border-box;
 
   color: ${(props) => {

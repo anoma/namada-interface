@@ -17,6 +17,10 @@ const copyPatterns = [
     to: "./assets/[name].png",
   },
   {
+    from: "./public/images/*",
+    to: "./assets/images/[name][ext]",
+  },
+  {
     from: "./public/manifest.json",
     to: "./manifest.json",
   },

@@ -52,7 +52,9 @@ export const App: React.FC = () => {
             forceLightMode={true}
           />
         </Logo>
-        <LinkButton themeColor="utility2">Terms of service</LinkButton>
+        <LinkButton underline={false} themeColor="utility2">
+          Terms of service
+        </LinkButton>
       </AppContainerHeader>
       <Routes>
         <Route path={`/`} element={<Main />} />

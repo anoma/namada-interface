@@ -12,7 +12,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Modal } from "./Common/Modal";
 import {
+  ButtonContainer,
   CallToActionStack,
+  EligibilityPanel,
+  GlobalStyles,
   IconContainer,
   MainContainer,
   MainFooter,
@@ -24,17 +27,15 @@ import {
   ObjectsContainer,
   PoolContainer,
   PoolTopLayerContainer,
+  SmallWarning,
   TOSToggle,
 } from "./App.components";
 import { Countdown } from "./Countdown";
 import { PoolSvg } from "./Graphics/Pool";
 import { PoolTopLayer } from "./Graphics/PoolTopLayer";
 import { PageFooter } from "./Common/PageFooter";
-import { BookSvg } from "./Graphics/Book";
 import { EyeSvg } from "./Graphics/Eye";
 import { HiveSvg } from "./Graphics/Hive";
-import { ShieldSvg } from "./Graphics/Shield";
-import { RustSvg } from "./Graphics/Rust";
 import { MetamaskWindow } from "./types";
 import {
   //TODO: rename to useExtensionDownload
@@ -43,6 +44,11 @@ import {
   useKeplrHandler,
   useMetamaskHandler,
 } from "./hooks";
+import { BallSVg } from "./Graphics/Ball";
+import { WireSvg } from "./Graphics/Wire";
+import { Bars2Svg } from "./Graphics/Bars2";
+import { Bars1Svg } from "./Graphics/Bars1";
+import { ZeroOneSvg } from "./Graphics/ZeroOne";
 
 const {
   REACT_APP_REDIRECT_URI: redirectUrl = "",
@@ -74,9 +80,10 @@ export const Main: React.FC = () => {
   return (
     <>
       <MainContainer blurred={isModalOpen}>
+        <GlobalStyles colorMode="light" />
         <MainTopSection>
           <MainSection>
-            <Stack gap={6}>
+            <Stack gap={4}>
               <MainHeader>
                 <Heading uppercase level={"h1"} size={"7xl"}>
                   No<span> Privacy</span>
@@ -87,21 +94,33 @@ export const Main: React.FC = () => {
                 </Heading>
               </MainHeader>
               <CallToActionStack>
-                <Text fontSize="xl">TIME LEFT TO CLAIM:</Text>
-                <Text fontSize="2xl">
-                  <Countdown endDate={new Date("Nov 14, 2023 13:00:00")} />
-                </Text>
-                <ActionButton
-                  variant="secondary"
-                  onClick={() => {
-                    setIsModalOpen(true);
-                    setKeplr((window as KeplrWindow)?.keplr);
-                    setMetamask((window as MetamaskWindow)?.ethereum);
-                  }}
-                >
-                  Check NAM eligibility
-                </ActionButton>
+                <Stack gap={1}>
+                  <Text fontSize="xl">TIME LEFT TO CLAIM:</Text>
+                  <Text fontSize="2xl">
+                    <Countdown endDate={new Date("Nov 14, 2023 13:00:00")} />
+                  </Text>
+                </Stack>
+                <ButtonContainer>
+                  <ActionButton
+                    variant="secondary"
+                    size="sm"
+                    borderRadius="sm"
+                    onClick={() => {
+                      setIsModalOpen(true);
+                      setKeplr((window as KeplrWindow)?.keplr);
+                      setMetamask((window as MetamaskWindow)?.ethereum);
+                    }}
+                  >
+                    Check NAM eligibility
+                  </ActionButton>
+                </ButtonContainer>
               </CallToActionStack>
+              <SmallWarning>
+                Please check you are claiming using the following URL:
+                <div>
+                  <strong>https://rpgfdrop.namada.net</strong>
+                </div>
+              </SmallWarning>
               <Stack gap={0.5}>
                 <MainSectionButton></MainSectionButton>
                 <LinkButton themeColor="utility2">
@@ -117,24 +136,26 @@ export const Main: React.FC = () => {
             <PoolTopLayer />
           </PoolTopLayerContainer>
           <ObjectsContainer>
-            <IconContainer left={-430} top={-200}>
-              <BookSvg />
+            <IconContainer left={-310} top={-320}>
+              <BallSVg />
             </IconContainer>
-
-            <IconContainer left={-550} top={0}>
-              <EyeSvg />
-            </IconContainer>
-
-            <IconContainer left={280} top={-300}>
+            <IconContainer left={255} top={-330}>
               <HiveSvg />
             </IconContainer>
-
-            <IconContainer left={420} top={-100}>
-              <ShieldSvg />
+            <IconContainer left={-425} top={-225}>
+              <WireSvg />
             </IconContainer>
-
-            <IconContainer left={320} top={80}>
-              <RustSvg />
+            <IconContainer left={380} top={-235}>
+              <Bars2Svg />
+            </IconContainer>
+            <IconContainer left={-540} top={-15}>
+              <Bars1Svg />
+            </IconContainer>
+            <IconContainer left={350} top={-75}>
+              <ZeroOneSvg />
+            </IconContainer>
+            <IconContainer left={305} top={10}>
+              <EyeSvg />
             </IconContainer>
           </ObjectsContainer>
         </MainTopSection>
@@ -162,117 +183,119 @@ export const Main: React.FC = () => {
         title="Check eligibility with:"
         onClose={() => setIsModalOpen(false)}
       >
-        <Stack gap={4}>
-          <ActionButton
-            outlined
-            variant="primary"
-            disabled={!isTOSAccepted}
-            onClick={() => {
-              window.open(
-                `https://github.com/login/oauth/authorize?client_id=${githubClientId}&redirect_uri=${redirectUrl}`,
-                "_self"
-              );
-            }}
-          >
-            Github
-          </ActionButton>
+        <EligibilityPanel>
+          <Stack gap={3}>
+            <ActionButton
+              outlined
+              variant="primary"
+              disabled={!isTOSAccepted}
+              onClick={() => {
+                window.open(
+                  `https://github.com/login/oauth/authorize?client_id=${githubClientId}&redirect_uri=${redirectUrl}`,
+                  "_self"
+                );
+              }}
+            >
+              Github
+            </ActionButton>
 
-          {metamask && (
+            {metamask && (
+              <ActionButton
+                outlined
+                disabled={!isTOSAccepted}
+                variant="primary"
+                onClick={metamaskHandler}
+              >
+                Ethereum Wallet
+              </ActionButton>
+            )}
+
+            {!metamask && (
+              <ModalButtonContainer>
+                <ActionButton
+                  outlined
+                  variant="primary"
+                  onClick={() =>
+                    handleExtensionDownload("https://metamask.io/download/")
+                  }
+                >
+                  Download Metamask to use Ethereum Wallet
+                </ActionButton>
+                <Text themeColor="utility1" fontSize="xs">
+                  NOTE: Make sure to restart website after installing Metamask
+                  extension
+                </Text>
+              </ModalButtonContainer>
+            )}
+
             <ActionButton
               outlined
               disabled={!isTOSAccepted}
               variant="primary"
-              onClick={metamaskHandler}
+              onClick={() => navigate("/trusted-setup")}
             >
-              Ethereum Wallet
+              Namada Trusted Setup
             </ActionButton>
-          )}
 
-          {!metamask && (
-            <ModalButtonContainer>
-              <ActionButton
-                outlined
-                variant="primary"
-                onClick={() =>
-                  handleExtensionDownload("https://metamask.io/download/")
-                }
-              >
-                Download Metamask to use Ethereum Wallet
-              </ActionButton>
-              <Text themeColor="utility1" fontSize="xs">
-                NOTE: Make sure to restart website after installing Metamask
-                extension
-              </Text>
-            </ModalButtonContainer>
-          )}
+            {keplr && (
+              <>
+                <ActionButton
+                  outlined
+                  disabled={!isTOSAccepted}
+                  variant="primary"
+                  onClick={cosmosHandler}
+                >
+                  Cosmos Wallet
+                </ActionButton>
 
-          <ActionButton
-            outlined
-            disabled={!isTOSAccepted}
-            variant="primary"
-            onClick={() => navigate("/trusted-setup")}
-          >
-            Namada Trusted Setup
-          </ActionButton>
+                <ActionButton
+                  outlined
+                  disabled={!isTOSAccepted}
+                  variant="primary"
+                  onClick={osmosisHandler}
+                >
+                  Osmosis Wallet
+                </ActionButton>
 
-          {keplr && (
-            <>
-              <ActionButton
-                outlined
-                disabled={!isTOSAccepted}
-                variant="primary"
-                onClick={cosmosHandler}
-              >
-                Cosmos Wallet
-              </ActionButton>
+                <ActionButton
+                  outlined
+                  disabled={!isTOSAccepted}
+                  variant="primary"
+                  onClick={stargazeHandler}
+                >
+                  Stargaze Wallet
+                </ActionButton>
+              </>
+            )}
 
-              <ActionButton
-                outlined
-                disabled={!isTOSAccepted}
-                variant="primary"
-                onClick={osmosisHandler}
-              >
-                Osmosis Wallet
-              </ActionButton>
+            {!keplr && (
+              <ModalButtonContainer>
+                <ActionButton
+                  outlined
+                  variant="primary"
+                  onClick={() =>
+                    handleExtensionDownload("https://www.keplr.app/download")
+                  }
+                >
+                  Download Keplr to use Cosmos/Osmosis/Stargaze Wallet
+                </ActionButton>
+                <Text themeColor="utility1" fontSize="xs">
+                  NOTE: Make sure to restart website after installing Keplr
+                  extension
+                </Text>
+              </ModalButtonContainer>
+            )}
 
-              <ActionButton
-                outlined
-                disabled={!isTOSAccepted}
-                variant="primary"
-                onClick={stargazeHandler}
-              >
-                Stargaze Wallet
-              </ActionButton>
-            </>
-          )}
-
-          {!keplr && (
-            <ModalButtonContainer>
-              <ActionButton
-                outlined
-                variant="primary"
-                onClick={() =>
-                  handleExtensionDownload("https://www.keplr.app/download")
-                }
-              >
-                Download Keplr to use Cosmos/Osmosis/Stargaze Wallet
-              </ActionButton>
-              <Text themeColor="utility1" fontSize="xs">
-                NOTE: Make sure to restart website after installing Keplr
-                extension
-              </Text>
-            </ModalButtonContainer>
-          )}
-
-          <TOSToggle>
-            <Checkbox
-              checked={isTOSAccepted}
-              onChange={() => setIsTOSAccepted(!isTOSAccepted)}
-            />
-            You agree to the Terms of Service and are not in the US or any other
-            prohibited jurisdiction
-          </TOSToggle>
-        </Stack>
+            <TOSToggle>
+              <Checkbox
+                checked={isTOSAccepted}
+                onChange={() => setIsTOSAccepted(!isTOSAccepted)}
+              />
+              You agree to the Terms of Service and are not in the US or any
+              other prohibited jurisdiction
+            </TOSToggle>
+          </Stack>
+        </EligibilityPanel>
       </Modal>
     </>
   );

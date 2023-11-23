@@ -1,5 +1,11 @@
 import styled, { createGlobalStyle } from "styled-components";
-import { ColorMode, borderRadius, color, spacement } from "@namada/utils";
+import {
+  ColorMode,
+  borderRadius,
+  color,
+  fontSize,
+  spacement,
+} from "@namada/utils";
 
 type GlobalStyleProps = {
   colorMode: ColorMode;
@@ -8,10 +14,17 @@ type GlobalStyleProps = {
 // Set global styles for themed control of background color based
 // on whether the user is logged in
 export const GlobalStyles = createGlobalStyle<GlobalStyleProps>`
-  html, body {
-    background-color: ${(props) => props.theme.colors.primary.main};
-    transition: background-color 0.5s ease;
-  }
+html, body {
+  background-color: ${color("primary", "main")};
+  transition: background-color 0.5s ease;
+}
+
+body {
+  background-image: url(/images/background.svg);
+  background-repeat: repeat;
+  background-size: 100px 100px;
+  background-position-y: 20px;
+}
 
 .toast-enter-active {
   z-index: 9999;
@@ -27,6 +40,7 @@ export const GlobalStyles = createGlobalStyle<GlobalStyleProps>`
   text-align: center;
 }
 `;
+
 export const AppContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -103,6 +117,7 @@ export const MainSection = styled.div`
   width: 620px;
   height: 620px;
   margin: ${spacement(12)} auto 0;
+  background: ${color("primary", "main")};
   border-radius: 50%;
   border: ${spacement(6)} solid ${color("utility3", "black")};
   text-align: center;
@@ -110,16 +125,26 @@ export const MainSection = styled.div`
   z-index: 20;
 `;
 
+export const ButtonContainer = styled.div`
+  max-width: 280px;
+  margin: 0 auto;
+`;
+
 export const CallToActionStack = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${spacement(1)};
   margin: 0 auto;
-  max-width: 320px;
+  max-width: 360px;
+
   button {
     font-weight: 700;
     margin-top: ${spacement(1.5)};
   }
+`;
+
+export const SmallWarning = styled.div`
+  font-size: 12px;
 `;
 
 export const MainTopSection = styled.section`
@@ -155,7 +180,12 @@ export const ObjectsContainer = styled.div`
   position: absolute;
   top: 0;
   width: 100%;
-  z-index: 40;
+  z-index: 0;
+`;
+
+export const EligibilityPanel = styled.div`
+  max-width: 405px;
+  margin: 0 auto;
 `;
 
 export const IconContainer = styled.i<{ top: number; left: number }>`
@@ -222,11 +252,11 @@ export const TOSToggle = styled.label`
   cursor: pointer;
   display: grid;
   grid-template-columns: ${spacement(8)} auto;
-  align-items: center;
+  align-items: start;
+  font-size: ${fontSize("sm")};
   color: ${color("primary", "main")};
   gap: ${spacement(2)};
   margin-top: ${spacement(5)};
-  padding: ${spacement(2)} ${spacement(4)};
 `;
 
 //Eligibility.components
