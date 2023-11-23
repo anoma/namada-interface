@@ -49,6 +49,12 @@ import { WireSvg } from "./Graphics/Wire";
 import { Bars2Svg } from "./Graphics/Bars2";
 import { Bars1Svg } from "./Graphics/Bars1";
 import { ZeroOneSvg } from "./Graphics/ZeroOne";
+import { GithubIcon } from "./Icons/GithubIcon";
+import { EthereumIcon } from "./Icons/EthereumIcon";
+import { TrustedSetupIcon } from "./Icons/TrustedSetupIcon";
+import { StargazerIcon } from "./Icons/StargazerIcon";
+import { OsmosisIcon } from "./Icons/OsmosisIcon";
+import { CosmosIcon } from "./Icons/CosmosIcon";
 
 const {
   REACT_APP_REDIRECT_URI: redirectUrl = "",
@@ -189,6 +195,7 @@ export const Main: React.FC = () => {
               outlined
               variant="primary"
               disabled={!isTOSAccepted}
+              icon={<GithubIcon />}
               onClick={() => {
                 window.open(
                   `https://github.com/login/oauth/authorize?client_id=${githubClientId}&redirect_uri=${redirectUrl}`,
@@ -205,6 +212,7 @@ export const Main: React.FC = () => {
                 disabled={!isTOSAccepted}
                 variant="primary"
                 onClick={metamaskHandler}
+                icon={<EthereumIcon />}
               >
                 Ethereum Wallet
               </ActionButton>
@@ -232,6 +240,7 @@ export const Main: React.FC = () => {
               outlined
               disabled={!isTOSAccepted}
               variant="primary"
+              icon={<TrustedSetupIcon />}
               onClick={() => navigate("/trusted-setup")}
             >
               Namada Trusted Setup
@@ -244,6 +253,7 @@ export const Main: React.FC = () => {
                   disabled={!isTOSAccepted}
                   variant="primary"
                   onClick={cosmosHandler}
+                  icon={<CosmosIcon />}
                 >
                   Cosmos Wallet
                 </ActionButton>
@@ -253,6 +263,7 @@ export const Main: React.FC = () => {
                   disabled={!isTOSAccepted}
                   variant="primary"
                   onClick={osmosisHandler}
+                  icon={<OsmosisIcon />}
                 >
                   Osmosis Wallet
                 </ActionButton>
@@ -262,6 +273,7 @@ export const Main: React.FC = () => {
                   disabled={!isTOSAccepted}
                   variant="primary"
                   onClick={stargazeHandler}
+                  icon={<StargazerIcon />}
                 >
                   Stargaze Wallet
                 </ActionButton>

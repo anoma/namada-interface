@@ -50,9 +50,7 @@ export const ButtonContainer = styled(Button)<{
   outlined: boolean;
   borderRadius: keyof BorderRadius;
 }>`
-  align-items: center;
   all: unset;
-
   background-color: ${(props) => {
     if (props.outlined) {
       return "transparent";
@@ -67,9 +65,6 @@ export const ButtonContainer = styled(Button)<{
     return "";
   }};
 
-  border-radius: ${(props) => borderRadius(props.borderRadius)(props)};
-  box-sizing: border-box;
-
   color: ${(props) => {
     if (props.outlined) {
       return color(props.variant, "main")(props);
@@ -77,6 +72,9 @@ export const ButtonContainer = styled(Button)<{
     return color(props.variant, "main20")(props);
   }};
 
+  align-items: center;
+  border-radius: ${(props) => borderRadius(props.borderRadius)(props)};
+  box-sizing: border-box;
   cursor: pointer;
   display: flex;
   font-size: ${(props) => fontSize(props.size)(props)};
@@ -87,9 +85,9 @@ export const ButtonContainer = styled(Button)<{
   padding: 0.75em ${spacement(6)};
   position: relative;
   text-align: center;
+  transition: color 80ms ease-out, border 450ms ease-out;
   user-select: none;
   width: 100%;
-  transition: color 80ms ease-out, border 450ms ease-out;
 
   &:hover:not(:disabled) {
     color: ${(props) => {
@@ -133,4 +131,16 @@ export const ButtonContainer = styled(Button)<{
   &:hover:not(:disabled) ${ButtonHover} {
     transform: translateY(0);
   }
+`;
+
+export const ButtonIcon = styled.i`
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  left: ${spacement(3)};
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: ${spacement(6)};
+  z-index: 40;
 `;

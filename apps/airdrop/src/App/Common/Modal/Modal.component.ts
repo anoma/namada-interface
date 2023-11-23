@@ -17,6 +17,7 @@ export const ModalContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 4px solid ${color("primary", "main")};
   border-radius: 50%;
   min-height: 732px;
   box-sizing: content-box;

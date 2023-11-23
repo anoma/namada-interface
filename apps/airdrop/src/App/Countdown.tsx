@@ -25,11 +25,11 @@ const getDifference = (milliDiff: number): Difference => ({
 export const Countdown: React.FC<Props> = ({ endDate }) => {
   const [now, setNow] = useState<number>(new Date().getTime());
   const { days, hours, minutes } = getDifference(endDate.getTime() - now);
+  const expired = new Date().getTime() >= endDate.getTime();
 
   useEffect(() => {
     const interval = setInterval(function () {
-      const now = new Date().getTime();
-      if (now >= endDate.getTime()) {
+      if (expired) {
         clearInterval(interval);
       } else {
         setNow(new Date().getTime());
@@ -43,7 +43,9 @@ export const Countdown: React.FC<Props> = ({ endDate }) => {
 
   return (
     <strong>
-      {format(days)}D : {format(hours)}H : {format(minutes)}M
+      {expired
+        ? "00D : 00M : 00M"
+        : `${format(days)}D : ${format(hours)}H : ${format(minutes)}M`}
     </strong>
   );
 };

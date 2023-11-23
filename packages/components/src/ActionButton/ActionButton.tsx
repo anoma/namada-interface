@@ -2,6 +2,7 @@ import { BorderRadius, ThemeColor } from "@namada/utils";
 import {
   ButtonContainer,
   ButtonHover,
+  ButtonIcon,
   ButtonSize,
   ButtonText,
 } from "./ActionButton.components";
@@ -12,6 +13,7 @@ type ActionButtonProps<HtmlTag extends keyof JSX.IntrinsicElements> = {
   size?: ButtonSize;
   outlined?: boolean;
   borderRadius?: keyof BorderRadius;
+  icon?: React.ReactNode;
 } & React.ComponentPropsWithoutRef<HtmlTag>;
 
 export const ActionButton = ({
@@ -21,6 +23,7 @@ export const ActionButton = ({
   borderRadius = "md",
   as = "button",
   outlined = false,
+  icon,
   ...props
 }: ActionButtonProps<keyof JSX.IntrinsicElements>): JSX.Element => {
   return (
@@ -32,6 +35,7 @@ export const ActionButton = ({
       as={as}
       {...props}
     >
+      {icon && <ButtonIcon>{icon}</ButtonIcon>}
       <ButtonText>{children}</ButtonText>
       <ButtonHover />
     </ButtonContainer>
