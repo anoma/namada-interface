@@ -26,7 +26,12 @@ import {
 } from "../App.components";
 import { useNavigate } from "react-router-dom";
 import { useCallback, useState } from "react";
-import { AirdropResponse, airdropFetch, toast } from "App/utils";
+import {
+  AirdropResponse,
+  airdropFetch,
+  bech32mValidation,
+  toast,
+} from "App/utils";
 import { DerivedAccount, WindowWithNamada } from "@namada/types";
 
 const {
@@ -209,6 +214,9 @@ export const ClaimConfirmation: React.FC = () => {
     await navigator.clipboard.writeText(nonce);
   };
 
+  const airdropAddressValid = bech32mValidation("tnam", airdropAddress);
+  const airdropPubKeyValid = bech32mValidation("tpknam", airdropPubKey);
+
   return (
     <ClaimsSection>
       <Heading level={"h1"}>Claim NAM</Heading>
@@ -248,6 +256,7 @@ export const ClaimConfirmation: React.FC = () => {
         <Input
           variant={InputVariants.Text}
           value={airdropPubKey}
+          error={!airdropPubKeyValid}
           onChange={(e) => setAirdropPubKey(e.target.value)}
           label="Namada public key"
         />
@@ -278,6 +287,7 @@ export const ClaimConfirmation: React.FC = () => {
         <Input
           variant={InputVariants.Text}
           value={airdropAddress}
+          error={!airdropAddressValid}
           onChange={(e) => setNamadaAddress(e.target.value)}
           label="Namada airdrop address"
         />
@@ -352,7 +362,7 @@ export const ClaimConfirmation: React.FC = () => {
           });
           navigate("/airdrop-confirmed");
         }}
-        disabled={airdropAddress === "" || !isToggleChecked}
+        disabled={!airdropAddressValid || !airdropPubKey || !isToggleChecked}
       >
         Claim NAM
       </Button>
