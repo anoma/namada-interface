@@ -6318,7 +6318,6 @@ __metadata:
   resolution: "@namada/airdrop@workspace:apps/airdrop"
   dependencies:
     "@babel/plugin-transform-modules-commonjs": "npm:^7.20.11"
-    "@cosmjs/encoding": "npm:^0.29.0"
     "@keplr-wallet/types": "npm:^0.10.19"
     "@namada/components": "npm:0.1.0"
     "@namada/hooks": "npm:0.1.0"

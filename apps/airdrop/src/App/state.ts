@@ -8,7 +8,7 @@ export type ClaimResponse = {
   airdrop_address?: string;
 };
 
-export type Signature = {
+export type KeplrSignature = {
   signature: string;
   pubKey: { type: string; value: string };
 };
@@ -33,7 +33,7 @@ export type KeplrState = {
   amount: number;
   hasClaimed: boolean;
   type: KeplrClaimType;
-  signature?: Signature;
+  signature?: KeplrSignature;
   address: string;
   nonce: string;
 };
@@ -51,7 +51,7 @@ export type GitcoinState = {
   eligible: boolean;
   amount: number;
   hasClaimed: boolean;
-  signature: string;
+  signature?: string;
   address: string;
   nonce: string;
   type: "gitcoin";
@@ -86,12 +86,3 @@ export type ConfirmationState = {
   amount: number;
 };
 export const confirmationAtom = atom<ConfirmationState | null>(null);
-
-// export type NonEligibleGithubState = {
-
-// }
-
-// export type NonEligibleState = {
-
-// }
-// export const nonEligibleAtom = atom<NonEligibleState | null>(null);

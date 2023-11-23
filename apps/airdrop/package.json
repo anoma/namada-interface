@@ -17,7 +17,6 @@
     "lint:fix": "yarn lint -- --fix"
   },
   "dependencies": {
-    "@cosmjs/encoding": "^0.29.0",
     "@namada/components": "0.1.0",
     "@namada/hooks": "0.1.0",
     "@namada/utils": "0.1.0",

@@ -1,5 +1,7 @@
+import { bech32m } from "bech32";
 import _toast, { Toast } from "react-simple-toasts";
 import { NavigateFunction } from "react-router-dom";
+import { Label } from "./state";
 
 const { NODE_ENV, AIRDROP_AUTH_SECRET = "header" } = process.env;
 const AUTH_HEADER =
@@ -48,3 +50,22 @@ export const toast = (msg: string): Toast =>
   _toast(msg, {
     className: "failure-toast",
   });
+
+export const labelTextMap: Record<Label["type"], string> = {
+  address: "Wallet address",
+  publicKey: "Public key",
+  username: "Github username",
+  unknown: "",
+};
+
+export const bech32mValidation = (
+  expectedPrefix: string,
+  value: string
+): boolean => {
+  try {
+    const { prefix } = bech32m.decode(value);
+    return prefix === expectedPrefix;
+  } catch (e) {
+    return false;
+  }
+};

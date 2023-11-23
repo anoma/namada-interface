@@ -104,8 +104,9 @@ export const useMetamaskHandler = (
       }
       const { result } = response;
 
+      let signature;
       if (result.eligible && !result.has_claimed) {
-        const signature = await metamask.request<string>({
+        signature = await metamask.request<string>({
           method: "personal_sign",
           params: [result.nonce, address],
         });
@@ -113,16 +114,6 @@ export const useMetamaskHandler = (
         if (!signature) {
           throw new Error("Can't sign message");
         }
-
-        setClaim({
-          eligible: result.eligible,
-          amount: result.amount,
-          hasClaimed: result.has_claimed,
-          signature,
-          address,
-          nonce: result.nonce,
-          type: "gitcoin" as const,
-        });
       } else if (result.eligible && result.has_claimed) {
         setConfirmation({
           confirmed: true,
@@ -130,6 +121,16 @@ export const useMetamaskHandler = (
           amount: result.amount,
         });
       }
+
+      setClaim({
+        eligible: result.eligible,
+        amount: result.amount,
+        hasClaimed: result.has_claimed,
+        signature,
+        address,
+        nonce: result.nonce,
+        type: "gitcoin" as const,
+      });
 
       navigatePostCheck(navigate, result.eligible, result.has_claimed);
     }
@@ -229,16 +230,6 @@ export const useGithubHandler = (): ((code: string) => Promise<void>) => {
     }
     const claim = response.result;
 
-    setClaim({
-      eligible: claim.eligible,
-      amount: claim.amount,
-      githubToken: claim.github_token,
-      githubUsername: claim.github_username as string,
-      hasClaimed: claim.has_claimed,
-      eligibilities: claim.eligibilities,
-      type: "github",
-    });
-
     if (claim.eligible && claim.has_claimed) {
       setConfirmation({
         confirmed: true,
@@ -246,6 +237,16 @@ export const useGithubHandler = (): ((code: string) => Promise<void>) => {
         amount: claim.amount,
       });
     }
+
+    setClaim({
+      eligible: claim.eligible,
+      amount: claim.amount,
+      githubToken: claim.github_token,
+      githubUsername: claim.github_username,
+      hasClaimed: claim.has_claimed,
+      eligibilities: claim.eligibilities,
+      type: "github",
+    });
 
     navigatePostCheck(navigate, claim.eligible, claim.has_claimed, true);
   }, []);

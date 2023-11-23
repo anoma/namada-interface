@@ -8,6 +8,7 @@ import {
 } from "./App.components";
 import { useEffect, useState } from "react";
 import { ClaimCategory, getAllClaims } from "./hooks";
+import { AnotherWays } from "./AnotherWays";
 
 const categoryAccountTypeMap: Record<ClaimCategory, string> = {
   Github: "Github",
@@ -18,9 +19,29 @@ const categoryAccountTypeMap: Record<ClaimCategory, string> = {
   EthereumWallet: "EthereumWallet",
 };
 
+const getCategory = (
+  category: ClaimCategory,
+  eligibleFor: string[]
+): string => {
+  if (category === "Github") {
+    return eligibleFor.join(", ");
+  } else if (
+    ["CosmosWallet", "OsmosisWallet", "StargazeWallet"].includes(category)
+  ) {
+    return "Early shielded Community";
+  } else if (category === "TrustedSetup") {
+    return "Namada Trusted Setup";
+  } else if (category === "EthereumWallet") {
+    return "Gitcoin Donors of Privacy, ZK tech, and Crypto Advocacy";
+  } else {
+    return "";
+  }
+};
+
 type Breakdown = {
   accountType: string;
   source: string;
+  category: string;
   minNam: number;
 };
 
@@ -46,11 +67,11 @@ export const AirdropConfirmation: React.FC = () => {
           return {
             accountType: categoryAccountTypeMap[claim.category],
             source: claim.value,
+            category: getCategory(claim.category, claim.eligible_for),
             minNam: claim.token,
           };
         });
         setBreakdown(breakdown);
-        console.log(breakdown);
       }
     })();
   }, []);
@@ -88,10 +109,12 @@ export const AirdropConfirmation: React.FC = () => {
       <div>
         {breakdown.map((claim, index) => (
           <div key={index}>
-            {index + 1} - {claim.accountType} - {claim.source} - {claim.minNam}
+            {index + 1} - {claim.accountType} - {claim.source} -{" "}
+            {claim.category} - {claim.minNam}
           </div>
         ))}
       </div>
+      <AnotherWays />
     </AirdropConfirmationContainer>
   );
 };

@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import {
   AirdropResponse,
   airdropFetch,
+  bech32mValidation,
   navigatePostCheck,
   toast,
 } from "./utils";
@@ -42,6 +43,8 @@ export const TrustedSetup: React.FC = () => {
   const [_claim, setClaimState] = useAtom(claimAtom);
   const [_conf, setConfirmation] = useAtom(confirmationAtom);
 
+  const pubKeyValid = bech32mValidation("tpknam", publicKey);
+
   return (
     <TSEligibilityContainer>
       <Heading level={"h1"}>
@@ -67,6 +70,7 @@ export const TrustedSetup: React.FC = () => {
 
       <Input
         variant={InputVariants.Text}
+        error={!pubKeyValid}
         value={publicKey}
         onChange={(e) => setPublicKey(e.target.value)}
         label="Trusted Setup Public Key"
@@ -74,6 +78,7 @@ export const TrustedSetup: React.FC = () => {
 
       <Button
         variant={ButtonVariant.Contained}
+        disabled={!pubKeyValid}
         onClick={async () => {
           let response: AirdropResponse<TSClaim> | undefined;
 
@@ -92,22 +97,23 @@ export const TrustedSetup: React.FC = () => {
           }
           const { result } = response;
 
-          if (result.eligible && !result.has_claimed) {
-            setClaimState({
-              eligible: result.eligible,
-              amount: result.amount,
-              hasClaimed: result.has_claimed,
-              type: "ts",
-              nonce: result.nonce,
-              publicKey,
-            });
-          } else if (result.eligible && result.has_claimed) {
+          if (result.eligible && result.has_claimed) {
             setConfirmation({
               confirmed: true,
               address: result.airdrop_address as string,
               amount: result.amount,
             });
           }
+
+          setClaimState({
+            eligible: result.eligible,
+            amount: result.amount,
+            hasClaimed: result.has_claimed,
+            type: "ts",
+            nonce: result.nonce,
+            publicKey,
+          });
+
           navigatePostCheck(navigate, result.eligible, result.has_claimed);
         }}
       >

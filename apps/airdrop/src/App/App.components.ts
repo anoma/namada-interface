@@ -309,7 +309,7 @@ export const ClaimsSection = styled.div`
   }
 `;
 
-export const AnotherWays = styled.div`
+export const AnotherWaysContainer = styled.div`
   margin: 30px;
   background-color: ${(props) => props.theme.colors.utility2.main};
   padding: 20px;
