@@ -21,6 +21,7 @@ import {
   interchainPGAndEarlyShieldedEcosystem,
   zCashRDRust,
 } from "App/eligibilityMap";
+import { labelTextMap } from "App/utils";
 
 //TODO: cleanup this whole component
 const eligibleFor = (state: CommonState): string[] => {
@@ -62,13 +63,6 @@ const EligibleText = ({
   return <Text>{selected ? <b>{children} ✓</b> : children}</Text>;
 };
 
-const labelTextMap: Record<Label["type"], string> = {
-  address: "Wallet address",
-  publicKey: "Public key",
-  username: "Github username",
-  unknown: "",
-};
-
 export const ClaimInfo: React.FC = () => {
   const navigate = useNavigate();
   const [claimState] = useAtom(claimAtom);
@@ -86,7 +80,7 @@ export const ClaimInfo: React.FC = () => {
         <Stack gap={2}>
           {label && (
             <span>
-              <b>{labelTextMap[label.type]}</b> {label.value}
+              <b>{labelTextMap[label.type]}:</b> {label.value}
             </span>
           )}
 

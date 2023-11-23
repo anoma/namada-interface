@@ -7,7 +7,7 @@ import {
   claimAtom,
   ClaimResponse,
   KEPLR_CLAIMS,
-  Signature,
+  KeplrSignature,
 } from "../state";
 import {
   Button,
@@ -144,14 +144,15 @@ const claim = (
     return claimWithGitcoin(
       address,
       nonce,
-      signature,
+      //TODO: as string
+      signature as string,
       airdropAddress,
       airdropPubKey
     );
   } else if (KEPLR_CLAIMS.includes(type)) {
     const { signature, address, nonce } = state;
     //TODO: as signature
-    const sig = signature as Signature;
+    const sig = signature as KeplrSignature;
     return claimWithKeplr(
       type,
       address,

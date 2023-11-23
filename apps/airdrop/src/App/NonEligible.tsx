@@ -7,6 +7,7 @@ import {
 import { useAtom } from "jotai";
 import { labelAtom } from "./state";
 import { AnotherWays } from "./AnotherWays";
+import { labelTextMap } from "./utils";
 
 export const NonEligible: React.FC = () => {
   const [label] = useAtom(labelAtom);
@@ -20,7 +21,11 @@ export const NonEligible: React.FC = () => {
             <p>
               {"Sorry, you're not elibile for the RPGF Drop"}
               <br />
-              {"with the"}{" "}
+              {label && (
+                <span>
+                  <b>{labelTextMap[label.type]}:</b> {label.value}
+                </span>
+              )}
             </p>
           </span>
         </EligibilitySection>

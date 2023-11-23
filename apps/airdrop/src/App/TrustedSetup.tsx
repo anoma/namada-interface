@@ -92,22 +92,23 @@ export const TrustedSetup: React.FC = () => {
           }
           const { result } = response;
 
-          if (result.eligible && !result.has_claimed) {
-            setClaimState({
-              eligible: result.eligible,
-              amount: result.amount,
-              hasClaimed: result.has_claimed,
-              type: "ts",
-              nonce: result.nonce,
-              publicKey,
-            });
-          } else if (result.eligible && result.has_claimed) {
+          if (result.eligible && result.has_claimed) {
             setConfirmation({
               confirmed: true,
               address: result.airdrop_address as string,
               amount: result.amount,
             });
           }
+
+          setClaimState({
+            eligible: result.eligible,
+            amount: result.amount,
+            hasClaimed: result.has_claimed,
+            type: "ts",
+            nonce: result.nonce,
+            publicKey,
+          });
+
           navigatePostCheck(navigate, result.eligible, result.has_claimed);
         }}
       >

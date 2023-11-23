@@ -1,5 +1,6 @@
 import _toast, { Toast } from "react-simple-toasts";
 import { NavigateFunction } from "react-router-dom";
+import { Label } from "./state";
 
 const { NODE_ENV, AIRDROP_AUTH_SECRET = "header" } = process.env;
 const AUTH_HEADER =
@@ -48,3 +49,10 @@ export const toast = (msg: string): Toast =>
   _toast(msg, {
     className: "failure-toast",
   });
+
+export const labelTextMap: Record<Label["type"], string> = {
+  address: "Wallet address",
+  publicKey: "Public key",
+  username: "Github username",
+  unknown: "",
+};
