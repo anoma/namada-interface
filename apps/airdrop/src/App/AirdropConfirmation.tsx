@@ -21,7 +21,7 @@ const categoryAccountTypeMap: Record<ClaimCategory, string> = {
 };
 
 const githubCategoryMap: Record<GithubEligibility, string> = {
-  zkp: "Interchain PGs & Early Shielded Ecosystem",
+  zkp: "ZKPs, Cryptography PGs, Privacy Research & Learning",
   zcash: "Zcash R&D & Rust Developer Ecosystem",
   interchain: "Interchain PGs & Early Shielded Ecosystem",
 };
