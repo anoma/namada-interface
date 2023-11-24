@@ -1,7 +1,6 @@
 // Lists of repos that are eligible for the NAM airdrop.
 // NOTE: Case insensitive, call .toLowerCase() on the repo name before checking.
-
-export const interchainPGAndEarlyShieldedEcosystem = new Set([
+export const interchain = new Set([
   "agoric/agoric-sdk",
   "althea-net/althea-l1/graphs/contributors",
   "anoma/namada-testnets",
@@ -62,7 +61,7 @@ export const interchainPGAndEarlyShieldedEcosystem = new Set([
   "iqlusioninc/tmkms",
 ]);
 
-export const ZKPCryptographyPrivacyPreserving = new Set([
+export const zkp = new Set([
   "matter-labs/awesome-zero-knowledge-proofs",
   "minaprotocol/mina",
   "consensys/gnark",
@@ -177,7 +176,7 @@ export const ZKPCryptographyPrivacyPreserving = new Set([
   "waku-org",
 ]);
 
-export const zCashRDRust = new Set([
+export const zcash = new Set([
   "assert-rs/assert_cmd",
   "murarth/assert_matches",
   "debris/base58",
@@ -293,8 +292,25 @@ export const zCashRDRust = new Set([
   "free2z/zuu",
 ]);
 
-export const map = {
-  interchain: interchainPGAndEarlyShieldedEcosystem,
-  zkp: ZKPCryptographyPrivacyPreserving,
-  zcash: zCashRDRust,
+export type GithubEligibility = "interchain" | "zkp" | "zcash";
+
+const identityMap: Record<GithubEligibility, GithubEligibility> = {
+  interchain: "interchain",
+  zkp: "zkp",
+  zcash: "zcash",
+};
+
+export const mapEligibility = (
+  eligibility: string,
+  map: Record<GithubEligibility, string> = identityMap
+): string => {
+  const el = eligibility.toLowerCase();
+
+  return interchain.has(el)
+    ? map.interchain
+    : zkp.has(el)
+    ? map.zkp
+    : zcash.has(el)
+    ? map.zcash
+    : "";
 };

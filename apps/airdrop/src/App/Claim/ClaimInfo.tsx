@@ -16,12 +16,8 @@ import {
   claimAtom,
   labelAtom,
 } from "../state";
-import {
-  ZKPCryptographyPrivacyPreserving,
-  interchainPGAndEarlyShieldedEcosystem,
-  zCashRDRust,
-} from "App/eligibilityMap";
 import { labelTextMap } from "App/utils";
+import { mapEligibility } from "App/eligibilityMap";
 
 //TODO: cleanup this whole component
 const eligibleFor = (state: CommonState): string[] => {
@@ -36,17 +32,7 @@ const eligibleFor = (state: CommonState): string[] => {
   } else if (type === "github") {
     const eligibilities = (state as GithubState).eligibilities;
     return eligibilities
-      .map((eligibility) => {
-        const el = eligibility.toLowerCase();
-
-        return interchainPGAndEarlyShieldedEcosystem.has(el)
-          ? "interchain"
-          : ZKPCryptographyPrivacyPreserving.has(el)
-          ? "zkp"
-          : zCashRDRust.has(el)
-          ? "zcash-rd-rust"
-          : "";
-      })
+      .map((e) => mapEligibility(e))
       .filter((eligibility) => eligibility !== "");
   } else {
     throw new Error("Invalid claim type");

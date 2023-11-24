@@ -329,6 +329,11 @@ export const AnotherWaysButtons = styled.div`
   & > button {
     margin: 0;
   }
+
+  /* TODO: temporary workaround for text height*/
+  & > button > span {
+    height: auto;
+  }
 `;
 
 export const ClaimsSectionSignature = styled.div``;
