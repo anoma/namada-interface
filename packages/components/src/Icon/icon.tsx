@@ -38,6 +38,8 @@ export type ImageProps = {
   strokeColorOverride?: string;
   // for certain icons we might want to override the fill
   fillColorOverride?: string;
+  // to wrap Icon in styled component
+  className?: string;
 };
 
 // dark theme icons
@@ -81,10 +83,11 @@ export const Icon = (props: ImageProps): JSX.Element => {
     iconSize = IconSize.M,
     strokeColorOverride,
     fillColorOverride,
+    className,
   } = props;
   const ImageByName = icons[iconName];
   return (
-    <IconContainer>
+    <IconContainer className={className}>
       <StyledIcon
         as={ImageByName}
         $iconSize={iconSize}
