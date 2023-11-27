@@ -1,7 +1,7 @@
 {
   "browser_specific_settings": {
     "gecko": {
-      "strict_min_version": "115"
+      "strict_min_version": "115.0"
     }
   }
 }
