@@ -3,19 +3,33 @@ const { resolve } = require("path");
 const CopyPlugin = require("copy-webpack-plugin");
 const MergeJsonWebpackPlugin = require("merge-jsons-webpack-plugin");
 const ExtensionReloader = require("webpack-extension-reloader");
+const RemovePlugin = require('remove-files-webpack-plugin');
 const createStyledComponentsTransformer =
   require("typescript-plugin-styled-components").default;
+const packageJson = require("./package.json");
 
 // Load .env from namada-interface:
 require("dotenv").config({ path: "../namada-interface/.env" });
 
 const { NODE_ENV, TARGET } = process.env;
 
+const OUTPUT_PATH = resolve(__dirname, `./build/${TARGET}`);
+
 const MANIFEST_VERSION = TARGET === "firefox" ? "v2" : "v3";
 const MANIFEST_BASE_PATH = `./src/manifest/_base.json`;
 const MANIFEST_BASE_VERSION_PATH = `./src/manifest/${MANIFEST_VERSION}/_base.json`;
 const MANIFEST_PATH = `./src/manifest/${MANIFEST_VERSION}/${TARGET}.json`;
 const MANIFEST_V2_DEV_ONLY_PATH = `./src/manifest/v2/_devOnly.json`;
+const GENERATED_MANIFEST = "generatedManifest.json";
+
+// Sets manifest.json fields at build time
+function generateManifest(buffer) {
+  const manifest = JSON.parse(buffer.toString());
+
+  manifest.version = packageJson.version;
+
+  return JSON.stringify(manifest, null, 2);
+}
 
 const copyPatterns = [
   {
@@ -47,6 +61,11 @@ const copyPatterns = [
     from: "../../node_modules/webextension-polyfill/dist/browser-polyfill.js.map",
     to: "./browser-polyfill.js.map",
   },
+  {
+    from: MANIFEST_BASE_PATH,
+    to: GENERATED_MANIFEST,
+    transform: generateManifest
+  }
 ];
 
 const plugins = [
@@ -55,7 +74,7 @@ const plugins = [
   }),
   new MergeJsonWebpackPlugin({
     files: [
-      MANIFEST_BASE_PATH,
+      GENERATED_MANIFEST,
       MANIFEST_BASE_VERSION_PATH,
       MANIFEST_PATH,
       ...(NODE_ENV === "development" && TARGET === "firefox"
@@ -75,6 +94,12 @@ const plugins = [
       env: JSON.stringify(process.env),
     },
   }),
+  new RemovePlugin({
+    after: {
+      include: [`${OUTPUT_PATH}/${GENERATED_MANIFEST}`],
+      log: false
+    },
+  })
 ];
 
 if (NODE_ENV === "development") {
@@ -111,7 +136,7 @@ module.exports = {
   },
   output: {
     publicPath: "",
-    path: resolve(__dirname, `./build/${TARGET}`),
+    path: OUTPUT_PATH,
     filename: "[name].namada.js",
   },
   module: {

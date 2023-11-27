@@ -10,7 +10,6 @@ import {
 } from "extension";
 import { KVPrefix, Ports } from "router/types";
 import { initEvents } from "./events";
-import manifest from "manifest/_base.json";
 import { ExtensionKVStore } from "@namada/storage";
 
 const extensionStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
@@ -33,8 +32,9 @@ const approvedOriginsStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
 const init = new Promise<void>(async (resolve) => {
   // Start proxying messages from Namada to InjectedNamada
   const routerId = await getNamadaRouterId(extensionStore);
+  const packageVersion = process.env.npm_package_version || "";
   Proxy.start(
-    new Namada(manifest.version, new ExtensionRequester(messenger, routerId)),
+    new Namada(packageVersion, new ExtensionRequester(messenger, routerId)),
     approvedOriginsStore
   );
   resolve();
