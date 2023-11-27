@@ -287,6 +287,24 @@ export const EligibilitySection = styled.div`
   }
 `;
 
+export const EligibilityCriteria = styled.div`
+  padding: 20px;
+  background-color: ${(props) => props.theme.colors.utility2.main};
+`;
+
+export const EligibiltyTitle = styled.div`
+  display: flex;
+  flexdirection: row;
+  gap: 20px;
+`;
+
+export const EligibiltyList = styled.ul`
+  margin: 0;
+  & > li {
+    padding: 5px 0;
+  }
+`;
+
 export const ClaimsSection = styled.div`
   display: flex;
   flex-direction: column;
@@ -318,6 +336,11 @@ export const AnotherWaysButtons = styled.div`
 
   & > button {
     margin: 0;
+  }
+
+  /* TODO: temporary workaround for text height*/
+  & > button > span {
+    height: auto;
   }
 `;
 

@@ -15,6 +15,12 @@ import {
   useMetamaskHandler,
 } from "./hooks";
 import { useNavigate } from "react-router-dom";
+import { GithubIcon } from "./Icons/GithubIcon";
+import { EthereumIcon } from "./Icons/EthereumIcon";
+import { TrustedSetupIcon } from "./Icons/TrustedSetupIcon";
+import { CosmosIcon } from "./Icons/CosmosIcon";
+import { OsmosisIcon } from "./Icons/OsmosisIcon";
+import { StargazerIcon } from "./Icons/StargazerIcon";
 
 const {
   REACT_APP_REDIRECT_URI: redirectUrl = "",
@@ -41,6 +47,7 @@ export const AnotherWays: React.FC = () => {
         <ActionButton
           outlined
           variant="primary"
+          icon={<GithubIcon />}
           disabled={!isTOSAccepted}
           onClick={() => {
             window.open(
@@ -58,6 +65,7 @@ export const AnotherWays: React.FC = () => {
             disabled={!isTOSAccepted}
             variant="primary"
             onClick={metamaskHandler}
+            icon={<EthereumIcon />}
           >
             Ethereum Wallet
           </ActionButton>
@@ -85,6 +93,7 @@ export const AnotherWays: React.FC = () => {
           outlined
           disabled={!isTOSAccepted}
           variant="primary"
+          icon={<TrustedSetupIcon />}
           onClick={() => navigate("/trusted-setup")}
         >
           Namada Trusted Setup
@@ -96,6 +105,7 @@ export const AnotherWays: React.FC = () => {
               outlined
               disabled={!isTOSAccepted}
               variant="primary"
+              icon={<CosmosIcon />}
               onClick={cosmosHandler}
             >
               Cosmos Wallet
@@ -105,6 +115,7 @@ export const AnotherWays: React.FC = () => {
               outlined
               disabled={!isTOSAccepted}
               variant="primary"
+              icon={<OsmosisIcon />}
               onClick={osmosisHandler}
             >
               Osmosis Wallet
@@ -114,6 +125,7 @@ export const AnotherWays: React.FC = () => {
               outlined
               disabled={!isTOSAccepted}
               variant="primary"
+              icon={<StargazerIcon />}
               onClick={stargazeHandler}
             >
               Stargaze Wallet

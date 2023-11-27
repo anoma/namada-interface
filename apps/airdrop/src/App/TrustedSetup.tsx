@@ -13,7 +13,6 @@ import { useNavigate } from "react-router-dom";
 import {
   AirdropResponse,
   airdropFetch,
-  bech32mValidation,
   navigatePostCheck,
   toast,
 } from "./utils";
@@ -43,8 +42,6 @@ export const TrustedSetup: React.FC = () => {
   const [_claim, setClaimState] = useAtom(claimAtom);
   const [_conf, setConfirmation] = useAtom(confirmationAtom);
 
-  const pubKeyValid = bech32mValidation("tpknam", publicKey);
-
   return (
     <TSEligibilityContainer>
       <Heading level={"h1"}>
@@ -70,7 +67,6 @@ export const TrustedSetup: React.FC = () => {
 
       <Input
         variant={InputVariants.Text}
-        error={!pubKeyValid}
         value={publicKey}
         onChange={(e) => setPublicKey(e.target.value)}
         label="Trusted Setup Public Key"
@@ -78,7 +74,7 @@ export const TrustedSetup: React.FC = () => {
 
       <Button
         variant={ButtonVariant.Contained}
-        disabled={!pubKeyValid}
+        disabled={!publicKey}
         onClick={async () => {
           let response: AirdropResponse<TSClaim> | undefined;
 

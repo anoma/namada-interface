@@ -9,8 +9,6 @@ import {
   Text,
 } from "@namada/components";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Modal } from "./Common/Modal";
 import {
   ButtonContainer,
   CallToActionStack,
@@ -30,39 +28,31 @@ import {
   SmallWarning,
   TOSToggle,
 } from "./App.components";
-import { Countdown } from "./Countdown";
-import { PoolSvg } from "./Graphics/Pool";
-import { PoolTopLayer } from "./Graphics/PoolTopLayer";
+import { GithubButton } from "./Buttons/GithubButton";
+import { MetamaskButton } from "./Buttons/MetamaskButton";
+import { TrustedSetupButton } from "./Buttons/TrustedSetupButton";
+import { Modal } from "./Common/Modal";
 import { PageFooter } from "./Common/PageFooter";
+import { Countdown } from "./Countdown";
+import { BallSVg } from "./Graphics/Ball";
+import { Bars1Svg } from "./Graphics/Bars1";
+import { Bars2Svg } from "./Graphics/Bars2";
 import { EyeSvg } from "./Graphics/Eye";
 import { HiveSvg } from "./Graphics/Hive";
-import { MetamaskWindow } from "./types";
+import { PoolSvg } from "./Graphics/Pool";
+import { PoolTopLayer } from "./Graphics/PoolTopLayer";
+import { WireSvg } from "./Graphics/Wire";
+import { ZeroOneSvg } from "./Graphics/ZeroOne";
+import { CosmosIcon } from "./Icons/CosmosIcon";
+import { OsmosisIcon } from "./Icons/OsmosisIcon";
+import { StargazerIcon } from "./Icons/StargazerIcon";
 import {
   //TODO: rename to useExtensionDownload
   handleExtensionDownload,
   useGithubHandler,
   useKeplrHandler,
-  useMetamaskHandler,
 } from "./hooks";
-import { BallSVg } from "./Graphics/Ball";
-import { WireSvg } from "./Graphics/Wire";
-import { Bars2Svg } from "./Graphics/Bars2";
-import { Bars1Svg } from "./Graphics/Bars1";
-import { ZeroOneSvg } from "./Graphics/ZeroOne";
-import { GithubIcon } from "./Icons/GithubIcon";
-import { EthereumIcon } from "./Icons/EthereumIcon";
-import { TrustedSetupIcon } from "./Icons/TrustedSetupIcon";
-import { StargazerIcon } from "./Icons/StargazerIcon";
-import { OsmosisIcon } from "./Icons/OsmosisIcon";
-import { CosmosIcon } from "./Icons/CosmosIcon";
-import { GithubButton } from "./Buttons/GithubButton";
-import { MetamaskButton } from "./Buttons/MetamaskButton";
-import { TrustedSetupButton } from "./Buttons/TrustedSetupButton";
-
-const {
-  REACT_APP_REDIRECT_URI: redirectUrl = "",
-  REACT_APP_GITHUB_CLIENT_ID: githubClientId = "",
-} = process.env;
+import { MetamaskWindow } from "./types";
 
 export const Main: React.FC = () => {
   const [keplr, setKeplr] = useState<Keplr | undefined>();

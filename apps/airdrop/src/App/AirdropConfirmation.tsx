@@ -9,6 +9,7 @@ import {
 import { useEffect, useState } from "react";
 import { ClaimCategory, getAllClaims } from "./hooks";
 import { AnotherWays } from "./AnotherWays";
+import { GithubEligibility, mapEligibility } from "./eligibilityMap";
 
 const categoryAccountTypeMap: Record<ClaimCategory, string> = {
   Github: "Github",
@@ -19,12 +20,18 @@ const categoryAccountTypeMap: Record<ClaimCategory, string> = {
   EthereumWallet: "EthereumWallet",
 };
 
+const githubCategoryMap: Record<GithubEligibility, string> = {
+  zkp: "ZKPs, Cryptography PGs, Privacy Research & Learning",
+  zcash: "Zcash R&D & Rust Developer Ecosystem",
+  interchain: "Interchain PGs & Early Shielded Ecosystem",
+};
+
 const getCategory = (
   category: ClaimCategory,
   eligibleFor: string[]
 ): string => {
   if (category === "Github") {
-    return eligibleFor.join(", ");
+    return mapEligibility(eligibleFor.pop() || "", githubCategoryMap);
   } else if (
     ["CosmosWallet", "OsmosisWallet", "StargazeWallet"].includes(category)
   ) {

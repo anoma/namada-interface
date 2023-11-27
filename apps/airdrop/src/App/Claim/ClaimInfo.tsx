@@ -2,11 +2,7 @@ import { Stack } from "@namada/components";
 import { EligibilitySection } from "App/App.components";
 import { EligibilityCriteria } from "App/Common/EligibilityCriteria";
 import { YouAreEligible } from "App/Common/YouAreEligible";
-import {
-  ZKPCryptographyPrivacyPreserving,
-  interchainPGAndEarlyShieldedEcosystem,
-  zCashRDRust,
-} from "App/eligibilityMap";
+import { mapEligibility } from "App/eligibilityMap";
 import { labelTextMap } from "App/utils";
 import { useAtom } from "jotai";
 import { useNavigate } from "react-router-dom";
@@ -31,17 +27,7 @@ const eligibleFor = (state: CommonState): string[] => {
   } else if (type === "github") {
     const eligibilities = (state as GithubState).eligibilities;
     return eligibilities
-      .map((eligibility) => {
-        const el = eligibility.toLowerCase();
-
-        return interchainPGAndEarlyShieldedEcosystem.has(el)
-          ? "interchain"
-          : ZKPCryptographyPrivacyPreserving.has(el)
-          ? "zkp"
-          : zCashRDRust.has(el)
-          ? "zcash-rd-rust"
-          : "";
-      })
+      .map((e) => mapEligibility(e))
       .filter((eligibility) => eligibility !== "");
   } else {
     throw new Error("Invalid claim type");
