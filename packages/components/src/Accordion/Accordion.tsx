@@ -1,13 +1,13 @@
+import { Icon, IconName, IconSize } from "@namada/components";
 import { ThemeColor } from "@namada/utils";
+import { useState } from "react";
 import {
   AccordionContainer,
   AccordionContentContainer,
   AccordionTitle,
-  AccordionTitleChevron,
   AccordionTitleContainer,
+  AccordionTitleIndicator,
 } from "./Accordion.components";
-import { IconName } from "../Icon";
-import { useState } from "react";
 
 type AccordionProps<HtmlTag extends keyof JSX.IntrinsicElements> = {
   as?: HtmlTag;
@@ -29,14 +29,19 @@ export const Accordion = ({
   return (
     <AccordionContainer solid={solid} variant={variant} as={as} {...props}>
       <AccordionTitleContainer
+        hoverColor="primary"
         onClick={() => {
           setOpened(!opened);
         }}
       >
         <AccordionTitle>{title}</AccordionTitle>
-        <AccordionTitleChevron
-          iconName={opened ? IconName.ChevronUp : IconName.ChevronDown}
-        />
+        <AccordionTitleIndicator open={opened}>
+          <Icon
+            strokeColorOverride="currentColor"
+            iconName={IconName.ChevronDown}
+            iconSize={IconSize.S}
+          />
+        </AccordionTitleIndicator>
       </AccordionTitleContainer>
       {opened && (
         <AccordionContentContainer>{children}</AccordionContentContainer>

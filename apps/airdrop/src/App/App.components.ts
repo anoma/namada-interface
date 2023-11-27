@@ -259,6 +259,10 @@ export const TOSToggle = styled.label`
   color: ${color("primary", "main")};
   gap: ${spacement(2)};
   margin-top: ${spacement(5)};
+
+  > span {
+    margin-top: 0.25em;
+  }
 `;
 
 //Eligibility.components
@@ -293,14 +297,10 @@ export const EligibilityCriteria = styled.div`
   background-color: ${(props) => props.theme.colors.utility2.main};
 `;
 
-export const EligibiltyTitle = styled.div`
-  display: flex;
-  flexdirection: row;
-  gap: 20px;
-`;
-
 export const EligibiltyList = styled.ul`
-  margin: 0;
+  margin: ${spacement(2)} 0 ${spacement(4)};
+  padding: 0 0 0 ${spacement(5)};
+
   & > li {
     padding: 5px 0;
   }
@@ -322,8 +322,7 @@ export const AnotherWaysContainer = styled.div`
   border-radius: ${borderRadius("md")};
   background-color: ${color("utility2", "main")};
   border: 1px solid ${color("primary", "main")};
-  margin: 30px;
-  padding: 20px;
+  padding: ${spacement(5)} ${spacement(5)} ${spacement(7)};
 
   & > h2 {
     text-align: left;
@@ -331,13 +330,18 @@ export const AnotherWaysContainer = styled.div`
 `;
 
 export const AnotherWaysButtons = styled.div`
-  margin-top: 20px;
+  column-gap: ${spacement(1)};
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 20px;
+  margin-bottom: ${spacement(6)};
+  margin-top: 20px;
+  row-gap: ${spacement(6)};
 
   & > button {
     margin: 0;
+    font-size: ${fontSize("base")};
+    padding-top: ${spacement(4)};
+    padding-bottom: ${spacement(4)};
   }
 
   /* TODO: temporary workaround for text height*/

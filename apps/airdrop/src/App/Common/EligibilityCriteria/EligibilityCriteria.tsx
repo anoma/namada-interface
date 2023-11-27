@@ -1,6 +1,16 @@
-import { Accordion, Heading, Icon, IconName, Stack } from "@namada/components";
-import { EligibiltyList, EligibiltyTitle } from "App/App.components";
-import { EligibilityCriteriaContainer } from "./EligibilityCriteria.components";
+import {
+  Accordion,
+  Heading,
+  Icon,
+  IconName,
+  IconSize,
+  Stack,
+} from "@namada/components";
+import { EligibiltyList } from "App/App.components";
+import {
+  CheckedIconContainer,
+  EligibiltyTitle,
+} from "./EligibilityCriteria.components";
 
 type EligibilityCriteriaProps = {
   eligibilities: Set<string>;
@@ -20,7 +30,13 @@ const EligibilityAccordion = ({
     title={
       <EligibiltyTitle>
         {selected && (
-          <Icon iconName={IconName.Checked} strokeColorOverride="black" />
+          <CheckedIconContainer>
+            <Icon
+              iconName={IconName.Checked}
+              strokeColorOverride="currentColor"
+              iconSize={IconSize.S}
+            />
+          </CheckedIconContainer>
         )}
         {title}
       </EligibiltyTitle>
@@ -34,11 +50,11 @@ export const EligibilityCriteria = ({
   eligibilities,
 }: EligibilityCriteriaProps): JSX.Element => {
   return (
-    <EligibilityCriteriaContainer>
+    <Stack gap={4}>
+      <Heading textAlign="left" level={"h2"} themeColor={"primary"}>
+        Eligibility criteria
+      </Heading>
       <Stack gap={2}>
-        <Heading level={"h2"} themeColor={"primary"}>
-          Eligibility criteria
-        </Heading>
         <EligibilityAccordion
           selected={eligibilities.has("zcash")}
           title="Zcash R&D & Rust Developer Ecosystem"
@@ -105,7 +121,7 @@ export const EligibilityCriteria = ({
           <EligibiltyList>
             <li>
               Voters / donors of ZK Tech, privacy, and Crypto Advocacy projects
-              on Gitcoin’s GR rounds
+              on Gitcoin&apos;s GR rounds
             </li>
           </EligibiltyList>
         </EligibilityAccordion>
@@ -120,6 +136,6 @@ export const EligibilityCriteria = ({
           </EligibiltyList>
         </EligibilityAccordion>
       </Stack>
-    </EligibilityCriteriaContainer>
+    </Stack>
   );
 };

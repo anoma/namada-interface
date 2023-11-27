@@ -11,13 +11,35 @@ import styled from "styled-components";
 export const AccordionTitle = styled.div``;
 export const AccordionTitleChevron = styled(Icon)``;
 
-export const AccordionTitleContainer = styled.div`
+export const AccordionTitleIndicator = styled.i<{ open: boolean }>`
+  align-items: center;
+  border-radius: 100%;
+  border: 2px solid currentColor;
+  display: flex;
+  height: 35px;
+  justify-content: center;
+  transition: all 200ms var(--ease-out-quart);
+  width: 35px;
+  transform: ${(props) => (props.open ? "rotateZ(180deg)" : "")};
+
+  & > div {
+    position: relative;
+    top: 1px;
+  }
+`;
+
+export const AccordionTitleContainer = styled.div<{ hoverColor: ThemeColor }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75em ${spacement(6)};
+  padding: 1em ${spacement(6)};
   width: 100%;
   cursor: pointer;
+
+  &:hover ${AccordionTitleIndicator} {
+    background-color: ${(props) => color(props.hoverColor, "main")(props)};
+    color: ${(props) => color(props.hoverColor, "main20")(props)};
+  }
 `;
 
 export const AccordionContentContainer = styled.div`
@@ -45,7 +67,7 @@ export const AccordionContainer = styled.div<{
     return `1px solid ${color(props.variant, "main")(props)}`;
   }};
 
-  border-radius: ${borderRadius("sm")};
+  border-radius: ${borderRadius("md")};
   box-sizing: border-box;
 
   color: ${(props) => {
@@ -71,46 +93,3 @@ export const AccordionContainer = styled.div<{
     }};
   }
 `;
-
-// &:hover:not(:disabled) {
-//   color: ${(props) => {
-//     if (props.outlined) {
-//       return color(props.variant, "main20")(props);
-//     }
-//     return color(props.variant, "main")(props);
-//   }};
-// }
-
-// &:not(:disabled):active {
-//   top: ${spacement("px")};
-// }
-
-// &:disabled {
-//   background-color: ${(props) => {
-//     if (!props.outlined) {
-//       return color("utility1", "main50");
-//     }
-//   }};
-
-//   color: ${(props) => {
-//     if (!props.outlined) {
-//       return color("utility3", "white");
-//     }
-//   }};
-
-//   cursor: auto;
-//   opacity: 0.25;
-// }
-
-// ${ButtonHover} {
-//   background-color: ${(props) => {
-//     if (props.outlined) {
-//       return color("primary", "main")(props);
-//     }
-//     return "black";
-//   }};
-// }
-
-// &:hover:not(:disabled) ${ButtonHover} {
-//   transform: translateY(0);
-// }

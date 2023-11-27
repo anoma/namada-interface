@@ -28,6 +28,10 @@ export const YouAreEligibleMessage = styled.div`
   & > p {
     text-wrap: balance;
   }
+
+  & > h1 {
+    font-weight: 500;
+  }
 `;
 
 export const WalletOrAddressContainer = styled.div`
@@ -36,6 +40,7 @@ export const WalletOrAddressContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${spacement(4)};
+  width: 100%;
 `;
 
 export const Panel = styled.div`

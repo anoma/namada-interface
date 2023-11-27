@@ -63,7 +63,11 @@ export const App: React.FC = () => {
         <Route
           path={`/claim`}
           element={
-            !!claimState ? <Claim /> : <Navigate to="/" replace={true} />
+            true || !!claimState ? (
+              <Claim />
+            ) : (
+              <Navigate to="/" replace={true} />
+            )
           }
         >
           <Route path={`info`} element={<ClaimInfo />} />
@@ -83,11 +87,7 @@ export const App: React.FC = () => {
         <Route
           path={`/non-eligible`}
           element={
-            true || !!claimState ? (
-              <NonEligible />
-            ) : (
-              <Navigate to="/" replace={true} />
-            )
+            !!claimState ? <NonEligible /> : <Navigate to="/" replace={true} />
           }
         />
       </Routes>

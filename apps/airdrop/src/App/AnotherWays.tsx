@@ -96,7 +96,7 @@ export const AnotherWays: React.FC = () => {
           icon={<TrustedSetupIcon />}
           onClick={() => navigate("/trusted-setup")}
         >
-          Namada Trusted Setup
+          Trusted Setup
         </ActionButton>
 
         {keplr && (
@@ -150,16 +150,17 @@ export const AnotherWays: React.FC = () => {
             </Text>
           </ModalButtonContainer>
         )}
-
-        <TOSToggle>
-          <Checkbox
-            checked={isTOSAccepted}
-            onChange={() => setIsTOSAccepted(!isTOSAccepted)}
-          />
+      </AnotherWaysButtons>
+      <TOSToggle>
+        <Checkbox
+          checked={isTOSAccepted}
+          onChange={() => setIsTOSAccepted(!isTOSAccepted)}
+        />
+        <span>
           You agree to the Terms of Service and are not in the US or any other
           prohibited jurisdiction
-        </TOSToggle>
-      </AnotherWaysButtons>
+        </span>
+      </TOSToggle>
     </AnotherWaysContainer>
   );
 };

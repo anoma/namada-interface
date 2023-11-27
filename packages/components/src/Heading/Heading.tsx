@@ -9,6 +9,7 @@ type HeadingProps = {
   uppercase?: boolean;
   children: React.ReactNode;
   className?: string;
+  textAlign?: "left" | "right" | "center";
 };
 
 export const Heading = ({
@@ -18,6 +19,7 @@ export const Heading = ({
   children,
   uppercase,
   className,
+  textAlign = "center",
 }: HeadingProps): JSX.Element => {
   return (
     <BaseHeading
@@ -26,6 +28,7 @@ export const Heading = ({
       as={level}
       size={size}
       themeColor={themeColor}
+      textAlign={textAlign}
     >
       {children}
     </BaseHeading>

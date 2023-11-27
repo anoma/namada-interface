@@ -38,11 +38,12 @@ export const ClaimInfo: React.FC = () => {
   const navigate = useNavigate();
   const [claimState] = useAtom(claimAtom);
   const [label] = useAtom(labelAtom);
+
   if (!claimState) return null;
   const eligibilities = new Set(eligibleFor(claimState));
 
   return (
-    <Stack gap={6}>
+    <Stack gap={8}>
       <EligibilitySection>
         <YouAreEligible
           title={label ? labelTextMap[label.type] : ""}

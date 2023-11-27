@@ -15,7 +15,12 @@ export const InstallExtensionPanel = (): JSX.Element => {
         Install the Namada Browser extension or use the Namada CLI to create
         your NAM keys to submit for the genesis block proposal
       </InstallExtensionContent>
-      <ActionButton size="sm" borderRadius="sm" variant="utility2">
+      <ActionButton
+        size="sm"
+        borderRadius="sm"
+        variant="utility2"
+        hoverColor="secondary"
+      >
         Install Extension
       </ActionButton>
     </InstallExtensionContainer>
