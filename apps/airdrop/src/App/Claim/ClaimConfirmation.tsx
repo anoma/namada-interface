@@ -358,6 +358,7 @@ export const ClaimConfirmation: React.FC = () => {
           setConfirmation({
             confirmed: result.confirmed,
             address: result.airdrop_address || "",
+            publicKey: result.airdrop_public_key || "",
             amount: result.amount,
           });
           navigate("/airdrop-confirmed");

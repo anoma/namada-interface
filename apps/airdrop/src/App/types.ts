@@ -11,6 +11,7 @@ export type GithubClaim = {
   github_token?: string;
   has_claimed: boolean;
   airdrop_address?: string;
+  airdrop_public_key?: string;
   eligibilities: string[];
   github_username: string;
 };
@@ -20,5 +21,6 @@ export type Claim = {
   amount: number;
   has_claimed: boolean;
   airdrop_address?: string;
+  airdrop_public_key?: string;
   nonce: string;
 };

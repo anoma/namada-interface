@@ -118,6 +118,7 @@ export const useMetamaskHandler = (
         setConfirmation({
           confirmed: true,
           address: result.airdrop_address as string,
+          publicKey: result.airdrop_public_key as string,
           amount: result.amount,
         });
       }
@@ -183,6 +184,7 @@ export const useKeplrHandler = (
         setConfirmation({
           confirmed: true,
           address: claim.airdrop_address as string,
+          publicKey: claim.airdrop_public_key as string,
           amount: claim.amount,
         });
       }
@@ -234,6 +236,7 @@ export const useGithubHandler = (): ((code: string) => Promise<void>) => {
       setConfirmation({
         confirmed: true,
         address: claim.airdrop_address as string,
+        publicKey: claim.airdrop_public_key as string,
         amount: claim.amount,
       });
     }

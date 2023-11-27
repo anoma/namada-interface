@@ -6,6 +6,7 @@ export type ClaimResponse = {
   amount: number;
   confirmed: boolean;
   airdrop_address?: string;
+  airdrop_public_key?: string;
 };
 
 export type KeplrSignature = {
@@ -83,6 +84,7 @@ export const labelAtom = atom<Label | undefined>((get) => {
 export type ConfirmationState = {
   confirmed: boolean;
   address: string;
+  publicKey: string;
   amount: number;
 };
 export const confirmationAtom = atom<ConfirmationState | null>(null);

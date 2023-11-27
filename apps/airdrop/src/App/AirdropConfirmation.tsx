@@ -1,15 +1,30 @@
-import { Heading } from "@namada/components";
+import { Heading, LinkButton, Stack, Text } from "@namada/components";
 import { useAtom } from "jotai";
 import { confirmationAtom } from "./state";
 import {
+  AirdropBreakdownSection,
   AirdropConfirmationContainer,
-  AirdropConfirmationHeader,
+  AirdropConfirmationHeading,
   AirdropConfirmationSection,
+  IconContainer,
+  MainSection,
+  ObjectsContainer,
+  PoolContainer,
+  PoolTopLayerContainer,
 } from "./App.components";
 import { useEffect, useState } from "react";
 import { ClaimCategory, getAllClaims } from "./hooks";
 import { AnotherWays } from "./AnotherWays";
 import { GithubEligibility, mapEligibility } from "./eligibilityMap";
+import { PoolSvg } from "./Graphics/Pool";
+import { PoolTopLayer } from "./Graphics/PoolTopLayer";
+import { BallSVg } from "./Graphics/Ball";
+import { HiveSvg } from "./Graphics/Hive";
+import { WireSvg } from "./Graphics/Wire";
+import { Bars2Svg } from "./Graphics/Bars2";
+import { Bars1Svg } from "./Graphics/Bars1";
+import { ZeroOneSvg } from "./Graphics/ZeroOne";
+import { EyeSvg } from "./Graphics/Eye";
 
 const categoryAccountTypeMap: Record<ClaimCategory, string> = {
   Github: "Github",
@@ -85,42 +100,98 @@ export const AirdropConfirmation: React.FC = () => {
 
   return (
     <AirdropConfirmationContainer>
-      <AirdropConfirmationHeader></AirdropConfirmationHeader>
-      <AirdropConfirmationSection>
-        <Heading level={"h1"}>
-          Namada Genesis
-          <br />
-          Account Submitted
-        </Heading>
-        <p>
-          NAM will be available diretly in your wallet at Namada Mainnet launch,
-          <br />
-          subject to the Terms of Service.
-        </p>
-        <p>
-          <b>Genesis Account:</b>
-        </p>
-        <p>{confirmation.address}</p>
+      <MainSection>
+        <AirdropConfirmationSection>
+          <Stack gap={5}>
+            <Stack gap={2}>
+              <AirdropConfirmationHeading level={"h1"} size={"6xl"}>
+                Namada
+                <br />
+                Genesis account
+                <br />
+                submitted
+              </AirdropConfirmationHeading>
+              <Text>
+                NAM will be available diretly in your wallet
+                <br /> at Namada Mainnet launch, subject to the
+                <br />{" "}
+                <LinkButton themeColor="utility2">
+                  <b>terms of Service</b>
+                </LinkButton>
+              </Text>
+            </Stack>
+            <Stack gap={1}>
+              <Heading level={"h4"} size={"base"}>
+                Genesis public key:
+              </Heading>
+              <Text fontSize={"sm"}>
+                <b>{confirmation.publicKey}</b>
+              </Text>
+              <Heading level={"h4"} size={"base"}>
+                Genesis transparent account:
+              </Heading>
+              <Text fontSize={"sm"}>
+                <b>{confirmation.address}</b>
+              </Text>
+            </Stack>
+
+            <Stack gap={"px"}>
+              <Heading level={"h4"} size={"xl"}>
+                Minimum NAM claimed
+              </Heading>
+              <Text fontSize={"5xl"}>{confirmation.amount}</Text>
+            </Stack>
+          </Stack>
+        </AirdropConfirmationSection>
+      </MainSection>
+
+      <PoolContainer>
+        <PoolSvg />
+      </PoolContainer>
+      <PoolTopLayerContainer>
+        <PoolTopLayer />
+      </PoolTopLayerContainer>
+      <ObjectsContainer>
+        <IconContainer left={-310} top={50}>
+          <BallSVg />
+        </IconContainer>
+        <IconContainer left={255} top={40}>
+          <HiveSvg />
+        </IconContainer>
+        <IconContainer left={-425} top={156}>
+          <WireSvg />
+        </IconContainer>
+        <IconContainer left={380} top={150}>
+          <Bars2Svg />
+        </IconContainer>
+        <IconContainer left={-540} top={380}>
+          <Bars1Svg />
+        </IconContainer>
+        <IconContainer left={350} top={306}>
+          <ZeroOneSvg />
+        </IconContainer>
+        <IconContainer left={305} top={377}>
+          <EyeSvg />
+        </IconContainer>
+      </ObjectsContainer>
+
+      <AirdropBreakdownSection>
         <Heading level={"h4"} size={"xl"}>
-          Minimum NAM:
+          Total minimum NAM across all claims
         </Heading>
-        <Heading level={"h1"}>{confirmation.amount}</Heading>
-      </AirdropConfirmationSection>
-      <Heading level={"h4"} size={"xl"}>
-        Total minimum NAM across all claims
-      </Heading>
-      <Heading level={"h4"}>{totalMinNam}</Heading>
-      <Heading level={"h4"} size={"xl"}>
-        <b>Breakdown of all claims made with the genesis account above</b>
-      </Heading>
-      <div>
-        {breakdown.map((claim, index) => (
-          <div key={index}>
-            {index + 1} - {claim.accountType} - {claim.source} -{" "}
-            {claim.category} - {claim.minNam}
-          </div>
-        ))}
-      </div>
+        <Heading level={"h4"}>{totalMinNam}</Heading>
+        <Heading level={"h4"} size={"xl"}>
+          <b>Breakdown of all claims made with the genesis account above</b>
+        </Heading>
+        <div>
+          {breakdown.map((claim, index) => (
+            <div key={index}>
+              {index + 1} - {claim.accountType} - {claim.source} -{" "}
+              {claim.category} - {claim.minNam}
+            </div>
+          ))}
+        </div>
+      </AirdropBreakdownSection>
       <AnotherWays />
     </AirdropConfirmationContainer>
   );

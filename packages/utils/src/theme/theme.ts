@@ -415,7 +415,7 @@ const baseFontSizes: FontSize = {
   "3xl": "2rem",
   "4xl": "2.25rem",
   "5xl": "2.85rem",
-  "6xl": "3.25",
+  "6xl": "3.25rem",
   "7xl": "4rem",
 };
 

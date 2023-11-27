@@ -8,6 +8,7 @@ type HeadingProps = {
   themeColor?: ThemeColor;
   uppercase?: boolean;
   children: React.ReactNode;
+  className?: string;
 };
 
 export const Heading = ({
@@ -16,9 +17,11 @@ export const Heading = ({
   themeColor = "utility2",
   children,
   uppercase,
+  className,
 }: HeadingProps): JSX.Element => {
   return (
     <BaseHeading
+      className={className}
       uppercase={uppercase}
       as={level}
       size={size}

@@ -133,25 +133,25 @@ export const Main: React.FC = () => {
             <PoolTopLayer />
           </PoolTopLayerContainer>
           <ObjectsContainer>
-            <IconContainer left={-310} top={-320}>
+            <IconContainer left={-310} top={50}>
               <BallSVg />
             </IconContainer>
-            <IconContainer left={255} top={-330}>
+            <IconContainer left={255} top={40}>
               <HiveSvg />
             </IconContainer>
-            <IconContainer left={-425} top={-225}>
+            <IconContainer left={-425} top={156}>
               <WireSvg />
             </IconContainer>
-            <IconContainer left={380} top={-235}>
+            <IconContainer left={380} top={150}>
               <Bars2Svg />
             </IconContainer>
-            <IconContainer left={-540} top={-15}>
+            <IconContainer left={-540} top={380}>
               <Bars1Svg />
             </IconContainer>
-            <IconContainer left={350} top={-75}>
+            <IconContainer left={350} top={306}>
               <ZeroOneSvg />
             </IconContainer>
-            <IconContainer left={305} top={10}>
+            <IconContainer left={305} top={377}>
               <EyeSvg />
             </IconContainer>
           </ObjectsContainer>

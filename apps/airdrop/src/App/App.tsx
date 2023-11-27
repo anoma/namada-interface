@@ -30,7 +30,7 @@ export const App: React.FC = () => {
   const { pathname } = window.location;
 
   const showStartOver = pathname !== "/";
-  const darkMode = pathname !== "/";
+  const darkMode = pathname !== "/" && pathname !== "/airdrop-confirmed";
 
   return (
     <ThemeProvider theme={theme}>

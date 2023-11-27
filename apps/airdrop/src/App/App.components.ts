@@ -6,6 +6,7 @@ import {
   fontSize,
   spacement,
 } from "@namada/utils";
+import { Heading } from "@namada/components";
 
 type GlobalStyleProps = {
   colorMode: ColorMode;
@@ -158,7 +159,7 @@ export const MainTopSection = styled.section`
 export const PoolContainer = styled.div`
   position: absolute;
   z-index: 10;
-  bottom: 0;
+  top: 504px;
   left: calc(50% - 605px);
 
   svg {
@@ -169,7 +170,7 @@ export const PoolContainer = styled.div`
 export const PoolTopLayerContainer = styled.div`
   position: absolute;
   z-index: 30;
-  bottom: -89px;
+  top: 10px;
   left: calc(50% - 378px);
   pointer-events: none;
 `;
@@ -192,7 +193,7 @@ export const EligibilityPanel = styled.div`
 export const IconContainer = styled.i<{ top: number; left: number }>`
   position: absolute;
   left: calc(50% + ${(props) => props.left}px);
-  top: calc(50% + ${(props) => props.top}px);
+  top: ${(props) => props.top}px;
 `;
 
 export const MainSectionTime = styled.div`
@@ -319,6 +320,7 @@ export const ClaimsSection = styled.div`
 
 export const AnotherWaysContainer = styled.div`
   border-radius: ${borderRadius("md")};
+  background-color: ${color("utility2", "main")};
   border: 1px solid ${color("primary", "main")};
   margin: 30px;
   padding: 20px;
@@ -371,18 +373,23 @@ export const ExtensionInfo = styled.div`
 `;
 
 // AirdropConfirmation.components
-export const AirdropConfirmationContainer = styled.div``;
+export const AirdropConfirmationContainer = styled.div`
+  position: relative;
+  display: flex;
+  flex-direction: column;
+`;
 
-export const AirdropConfirmationHeader = styled.div`
-  margin-top: 20px;
-  & > button {
-    margin: 0;
-  }
+export const AirdropConfirmationHeading = styled(Heading)`
+  line-height: 1em;
 `;
 
 export const AirdropConfirmationSection = styled.div`
   text-align: center;
   color: ${(props) => props.theme.colors.utility2.main};
+`;
+
+export const AirdropBreakdownSection = styled.div`
+  margin-top: ${spacement(26)};
 `;
 
 // TSEligibility.components

@@ -22,6 +22,7 @@ type TSClaim = {
   amount: number;
   has_claimed: boolean;
   airdrop_address?: string;
+  airdrop_public_key?: string;
   nonce: string;
 };
 
@@ -97,6 +98,7 @@ export const TrustedSetup: React.FC = () => {
             setConfirmation({
               confirmed: true,
               address: result.airdrop_address as string,
+              publicKey: result.airdrop_public_key as string,
               amount: result.amount,
             });
           }
