@@ -10,6 +10,7 @@ import {
 type ActionButtonProps<HtmlTag extends keyof JSX.IntrinsicElements> = {
   as?: HtmlTag;
   variant?: ThemeColor;
+  hoverColor?: ThemeColor;
   size?: ButtonSize;
   outlined?: boolean;
   borderRadius?: keyof BorderRadius;
@@ -17,18 +18,20 @@ type ActionButtonProps<HtmlTag extends keyof JSX.IntrinsicElements> = {
 } & React.ComponentPropsWithoutRef<HtmlTag>;
 
 export const ActionButton = ({
-  children,
+  as = "button",
   variant = "primary",
   size = "xl",
   borderRadius = "md",
-  as = "button",
   outlined = false,
+  hoverColor,
   icon,
+  children,
   ...props
 }: ActionButtonProps<keyof JSX.IntrinsicElements>): JSX.Element => {
   return (
     <ButtonContainer
       outlined={outlined}
+      hoverColor={hoverColor}
       borderRadius={borderRadius}
       size={size}
       variant={variant}

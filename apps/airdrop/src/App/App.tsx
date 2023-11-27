@@ -28,11 +28,13 @@ export const App: React.FC = () => {
   const theme = getTheme(colorMode);
   const navigate = useNavigate();
   const { pathname } = window.location;
+
   const showStartOver = pathname !== "/";
+  const darkMode = pathname !== "/";
 
   return (
     <ThemeProvider theme={theme}>
-      <GlobalStyles colorMode={colorMode} />
+      <GlobalStyles colorMode={darkMode ? "dark" : colorMode} />
       <AppContainerHeader>
         <Button
           style={showStartOver ? {} : { display: "none" }}
@@ -81,7 +83,11 @@ export const App: React.FC = () => {
         <Route
           path={`/non-eligible`}
           element={
-            !!claimState ? <NonEligible /> : <Navigate to="/" replace={true} />
+            true || !!claimState ? (
+              <NonEligible />
+            ) : (
+              <Navigate to="/" replace={true} />
+            )
           }
         />
       </Routes>

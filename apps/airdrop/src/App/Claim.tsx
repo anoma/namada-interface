@@ -1,12 +1,8 @@
+import { Stack } from "@namada/components";
 import { Outlet, useLocation } from "react-router-dom";
-import {
-  Breadcrumb,
-  EligibilityContainer,
-  EligibilitySectionWrapper,
-  GithubBreadcrumb,
-  GithubFooter,
-  GithubHeader,
-} from "./App.components";
+import { EligibilityHeader, EligibilitySectionWrapper } from "./App.components";
+import { BreadcrumbStatus } from "./Common/BreadcrumbStatus";
+import { SidebarPage } from "./Layouts/SidebarPage";
 
 export const Claim: React.FC = () => {
   const location = useLocation();
@@ -14,21 +10,20 @@ export const Claim: React.FC = () => {
   const path = pathname.split("/").pop();
 
   return (
-    <EligibilityContainer>
-      <GithubHeader>
-        <GithubBreadcrumb>
-          <Breadcrumb className={path === "info" ? "active" : ""}>
-            1. Eligibility
-          </Breadcrumb>
-          <Breadcrumb className={path === "confirmation" ? "active" : ""}>
-            2. Claim
-          </Breadcrumb>
-        </GithubBreadcrumb>
-      </GithubHeader>
+    <SidebarPage>
+      <EligibilityHeader>
+        <Stack gap={6} direction="horizontal">
+          <BreadcrumbStatus active={path === "info"} accepted={true}>
+            Eligibility
+          </BreadcrumbStatus>
+          <BreadcrumbStatus active={path === "confirmation"}>
+            Claim
+          </BreadcrumbStatus>
+        </Stack>
+      </EligibilityHeader>
       <EligibilitySectionWrapper>
         <Outlet />
       </EligibilitySectionWrapper>
-      <GithubFooter></GithubFooter>
-    </EligibilityContainer>
+    </SidebarPage>
   );
 };

@@ -25,6 +25,7 @@ import { ReactComponent as ThreeDotsVertical } from "./assets/three-dots-vertica
 import { ReactComponent as Discord } from "./assets/discord.svg";
 import { ReactComponent as TwitterX } from "./assets/twitter.svg";
 import { ReactComponent as QuestionMark } from "./assets/question.svg";
+import { ReactComponent as Close } from "./assets/close.svg";
 
 import { IconName, IconSize } from "./types";
 import { IconContainer, StyledIcon } from "./icon.components";
@@ -68,6 +69,7 @@ const icons: Record<IconName, ComponentType> = {
   [IconName.Discord]: Discord,
   [IconName.TwitterX]: TwitterX,
   [IconName.QuestionMark]: QuestionMark,
+  [IconName.Close]: Close,
 };
 
 /**

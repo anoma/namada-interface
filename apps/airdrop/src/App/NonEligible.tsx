@@ -1,36 +1,49 @@
-import { Heading } from "@namada/components";
-import {
-  EligibilityContainer,
-  EligibilitySection,
-  EligibilitySectionWrapper,
-} from "./App.components";
+import { Heading, Stack } from "@namada/components";
 import { useAtom } from "jotai";
-import { labelAtom } from "./state";
 import { AnotherWays } from "./AnotherWays";
+import { EligibilityHeader, EligibilitySectionWrapper } from "./App.components";
+import { WalletAddress } from "./Common/WalletAddress";
+import { NonEligibleIcon } from "./Icons/NonEligibleIcon";
+import { SidebarPage } from "./Layouts/SidebarPage";
+import { NonEligiblePanel } from "./NonEligible.components";
+import { labelAtom } from "./state";
 import { labelTextMap } from "./utils";
+import { BreadcrumbStatus } from "./Common/BreadcrumbStatus";
 
 export const NonEligible: React.FC = () => {
   const [label] = useAtom(labelAtom);
 
   return (
-    <EligibilityContainer>
+    <SidebarPage>
+      <EligibilityHeader>
+        <Stack gap={6} direction="horizontal">
+          <BreadcrumbStatus active={true} rejected={true}>
+            Eligibility
+          </BreadcrumbStatus>
+          <BreadcrumbStatus active={false}>Claim</BreadcrumbStatus>
+        </Stack>
+      </EligibilityHeader>
       <EligibilitySectionWrapper>
-        <EligibilitySection>
-          <span>
-            <Heading level={"h1"}>You are not eligible</Heading>
-            <p>
-              {"Sorry, you're not elibile for the RPGF Drop"}
-              <br />
-              {label && (
-                <span>
-                  <b>{labelTextMap[label.type]}:</b> {label.value}
-                </span>
-              )}
-            </p>
-          </span>
-        </EligibilitySection>
+        <NonEligiblePanel>
+          <NonEligibleIcon />
+          <article>
+            <Stack gap={2} as="header">
+              <Heading themeColor="primary" level="h1" size="5xl">
+                Account is <strong>not</strong> eligible
+              </Heading>
+              <p>Sorry you are not eligible for the RPGF Drop</p>
+            </Stack>
+            <hr />
+            {label && (
+              <>
+                <div>{labelTextMap[label.type]}</div>
+                <WalletAddress>{label.value}</WalletAddress>
+              </>
+            )}
+          </article>
+        </NonEligiblePanel>
+        <AnotherWays />
       </EligibilitySectionWrapper>
-      <AnotherWays />
-    </EligibilityContainer>
+    </SidebarPage>
   );
 };

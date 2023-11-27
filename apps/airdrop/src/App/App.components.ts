@@ -14,12 +14,13 @@ type GlobalStyleProps = {
 // Set global styles for themed control of background color based
 // on whether the user is logged in
 export const GlobalStyles = createGlobalStyle<GlobalStyleProps>`
-html, body {
-  background-color: ${color("primary", "main")};
-  transition: background-color 0.5s ease;
-}
 
 body {
+  background-color: ${(props) =>
+    props.colorMode === "dark"
+      ? color("utility2", "main")(props)
+      : color("primary", "main")(props)};
+
   background-image: url(/images/background.svg);
   background-repeat: repeat;
   background-size: 100px 100px;
@@ -260,27 +261,14 @@ export const TOSToggle = styled.label`
 `;
 
 //Eligibility.components
-export const EligibilityContainer = styled.div`
-  margin-top: 20px;
-  width: 100%;
-`;
-
-export const GithubHeader = styled.div`
-  & > button {
-    margin: 0;
-  }
-`;
-
-export const GithubBreadcrumb = styled.div`
-  display: flex;
-  gap: 10px;
-  margin-top: 40px;
+export const EligibilityHeader = styled.header`
+  border-bottom: 1px solid ${color("primary", "main40")};
+  padding: ${spacement(4)} ${spacement(5)};
 `;
 
 export const EligibilitySectionWrapper = styled.div`
   box-sizing: border-box;
-  border: 1px solid ${(props) => props.theme.colors.utility2.main20};
-  padding: 20px;
+  padding: ${spacement(5)} ${spacement(8)};
 `;
 
 export const EligibilitySection = styled.div`
@@ -288,6 +276,8 @@ export const EligibilitySection = styled.div`
   gap: 20px;
   color: ${(props) => props.theme.colors.utility2.main};
   justify-content: space-between;
+  flex-direction: column;
+
   & h1 {
     text-align: left;
   }
@@ -310,10 +300,10 @@ export const ClaimsSection = styled.div`
 `;
 
 export const AnotherWaysContainer = styled.div`
-  margin: 30px;
-  background-color: ${(props) => props.theme.colors.utility2.main};
-  padding: 20px;
   border-radius: ${borderRadius("md")};
+  border: 1px solid ${color("primary", "main")};
+  margin: 30px;
+  padding: 20px;
 
   & > h2 {
     text-align: left;

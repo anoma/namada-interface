@@ -27,6 +27,7 @@ export enum IconName {
   TwitterX,
   Discord,
   QuestionMark,
+  Close,
 }
 
 export enum IconSize {

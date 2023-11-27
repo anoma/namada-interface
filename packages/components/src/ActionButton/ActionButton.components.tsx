@@ -7,6 +7,7 @@ import {
   fontSize,
   spacement,
 } from "@namada/utils";
+
 import React from "react";
 import styled from "styled-components";
 import { motion } from "framer-motion";
@@ -46,6 +47,7 @@ export const ButtonText = styled.span`
 
 export const ButtonContainer = styled(Button)<{
   variant: ThemeColor;
+  hoverColor?: ThemeColor;
   size: ButtonSize;
   outlined: boolean;
   borderRadius: keyof BorderRadius;
@@ -69,6 +71,7 @@ export const ButtonContainer = styled(Button)<{
     if (props.outlined) {
       return color(props.variant, "main")(props);
     }
+
     return color(props.variant, "main20")(props);
   }};
 
@@ -94,6 +97,11 @@ export const ButtonContainer = styled(Button)<{
       if (props.outlined) {
         return color(props.variant, "main20")(props);
       }
+
+      if (props.hoverColor) {
+        return color(props.hoverColor, "main20")(props);
+      }
+
       return color(props.variant, "main")(props);
     }};
   }
@@ -124,6 +132,11 @@ export const ButtonContainer = styled(Button)<{
       if (props.outlined) {
         return color("primary", "main")(props);
       }
+
+      if (props.hoverColor) {
+        return color(props.hoverColor, "main")(props);
+      }
+
       return "black";
     }};
   }

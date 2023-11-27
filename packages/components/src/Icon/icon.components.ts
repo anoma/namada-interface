@@ -28,7 +28,7 @@ export const StyledIcon = styled.div<{
   // if fill is passed in we use it
   ${(props) =>
     props.$fillColorOverride
-      ? `path, circle {
+      ? `path, circle, rect {
           fill: ${props.$fillColorOverride};}`
       : ``}
 `;

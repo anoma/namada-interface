@@ -55,6 +55,9 @@ import { TrustedSetupIcon } from "./Icons/TrustedSetupIcon";
 import { StargazerIcon } from "./Icons/StargazerIcon";
 import { OsmosisIcon } from "./Icons/OsmosisIcon";
 import { CosmosIcon } from "./Icons/CosmosIcon";
+import { GithubButton } from "./Buttons/GithubButton";
+import { MetamaskButton } from "./Buttons/MetamaskButton";
+import { TrustedSetupButton } from "./Buttons/TrustedSetupButton";
 
 const {
   REACT_APP_REDIRECT_URI: redirectUrl = "",
@@ -66,8 +69,6 @@ export const Main: React.FC = () => {
   const [metamask, setMetamask] = useState<MetaMaskInpageProvider>();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isTOSAccepted, setIsTOSAccepted] = useState(false);
-  const navigate = useNavigate();
-  const metamaskHandler = useMetamaskHandler("0x1", metamask);
   const cosmosHandler = useKeplrHandler("cosmoshub-4", "cosmos", keplr);
   const osmosisHandler = useKeplrHandler("osmosis-1", "osmosis", keplr);
   const stargazeHandler = useKeplrHandler("stargaze-1", "badkids", keplr);
@@ -191,32 +192,8 @@ export const Main: React.FC = () => {
       >
         <EligibilityPanel>
           <Stack gap={3}>
-            <ActionButton
-              outlined
-              variant="primary"
-              disabled={!isTOSAccepted}
-              icon={<GithubIcon />}
-              onClick={() => {
-                window.open(
-                  `https://github.com/login/oauth/authorize?client_id=${githubClientId}&redirect_uri=${redirectUrl}`,
-                  "_self"
-                );
-              }}
-            >
-              Github
-            </ActionButton>
-
-            {metamask && (
-              <ActionButton
-                outlined
-                disabled={!isTOSAccepted}
-                variant="primary"
-                onClick={metamaskHandler}
-                icon={<EthereumIcon />}
-              >
-                Ethereum Wallet
-              </ActionButton>
-            )}
+            <GithubButton disabled={!isTOSAccepted} />
+            <MetamaskButton disabled={!isTOSAccepted} />
 
             {!metamask && (
               <ModalButtonContainer>
@@ -236,16 +213,7 @@ export const Main: React.FC = () => {
               </ModalButtonContainer>
             )}
 
-            <ActionButton
-              outlined
-              disabled={!isTOSAccepted}
-              variant="primary"
-              icon={<TrustedSetupIcon />}
-              onClick={() => navigate("/trusted-setup")}
-            >
-              Namada Trusted Setup
-            </ActionButton>
-
+            <TrustedSetupButton disabled={!isTOSAccepted} />
             {keplr && (
               <>
                 <ActionButton

@@ -1,27 +1,22 @@
-import { useNavigate } from "react-router-dom";
-import {
-  Button,
-  ButtonVariant,
-  Heading,
-  Stack,
-  Text,
-} from "@namada/components";
+import { Stack } from "@namada/components";
 import { EligibilitySection } from "App/App.components";
-import { useAtom } from "jotai";
-import {
-  CommonState,
-  GithubState,
-  KEPLR_CLAIMS,
-  Label,
-  claimAtom,
-  labelAtom,
-} from "../state";
+import { EligibilityCriteria } from "App/Common/EligibilityCriteria";
+import { YouAreEligible } from "App/Common/YouAreEligible";
 import {
   ZKPCryptographyPrivacyPreserving,
   interchainPGAndEarlyShieldedEcosystem,
   zCashRDRust,
 } from "App/eligibilityMap";
 import { labelTextMap } from "App/utils";
+import { useAtom } from "jotai";
+import { useNavigate } from "react-router-dom";
+import {
+  CommonState,
+  GithubState,
+  KEPLR_CLAIMS,
+  claimAtom,
+  labelAtom,
+} from "../state";
 
 //TODO: cleanup this whole component
 const eligibleFor = (state: CommonState): string[] => {
@@ -53,16 +48,6 @@ const eligibleFor = (state: CommonState): string[] => {
   }
 };
 
-const EligibleText = ({
-  selected,
-  children,
-}: {
-  selected: boolean;
-  children: React.ReactNode;
-}): JSX.Element => {
-  return <Text>{selected ? <b>{children} ✓</b> : children}</Text>;
-};
-
 export const ClaimInfo: React.FC = () => {
   const navigate = useNavigate();
   const [claimState] = useAtom(claimAtom);
@@ -71,48 +56,15 @@ export const ClaimInfo: React.FC = () => {
   const eligibilities = new Set(eligibleFor(claimState));
 
   return (
-    <Stack gap={4}>
+    <Stack gap={6}>
       <EligibilitySection>
-        <span>
-          <Heading level={"h1"}>You are eligible</Heading>
-          <p>Congrats, you are eligible for the Namada RPGF Drop!</p>
-        </span>
-        <Stack gap={2}>
-          {label && (
-            <span>
-              <b>{labelTextMap[label.type]}:</b> {label.value}
-            </span>
-          )}
-
-          <Button
-            variant={ButtonVariant.Contained}
-            onClick={() => {
-              navigate("/claim/confirmation");
-            }}
-          >
-            Claim NAM
-          </Button>
-        </Stack>
+        <YouAreEligible
+          title={label ? labelTextMap[label.type] : ""}
+          accountOrWallet={label ? label.value : ""}
+          onClaim={() => navigate("/claim/confirmation")}
+        />
       </EligibilitySection>
-      <Heading level={"h2"}>Eligibility criteria</Heading>
-      <EligibleText selected={eligibilities.has("zcash-rd-rust")}>
-        Zcash R&D & Rust Developer Ecosystem
-      </EligibleText>
-      <EligibleText selected={eligibilities.has("zkp")}>
-        ZKPs, Cryptography PGs, Privacy Research & Learning
-      </EligibleText>
-      <EligibleText selected={eligibilities.has("interchain")}>
-        Interchain PGs & Early Shielded Ecosystem
-      </EligibleText>
-      <EligibleText selected={eligibilities.has("early-shielded-community")}>
-        Early Shielded Community
-      </EligibleText>
-      <EligibleText selected={eligibilities.has("gitcoin")}>
-        Gitcoin Donors of Privacy, ZK tech, and Crypto Advocacy
-      </EligibleText>
-      <EligibleText selected={eligibilities.has("ts")}>
-        Namada Trusted Setup Participants
-      </EligibleText>
+      <EligibilityCriteria eligibilities={eligibilities} />
     </Stack>
   );
 };
