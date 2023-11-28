@@ -91,7 +91,7 @@ export const Input = ({
   );
 
   return (
-    <Label>
+    <Label className={props.className}>
       {label && <LabelWrapper>{label}</LabelWrapper>}
       <InputWrapper>
         {sensitive ? (

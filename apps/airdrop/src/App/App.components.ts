@@ -6,7 +6,7 @@ import {
   fontSize,
   spacement,
 } from "@namada/utils";
-import { Heading } from "@namada/components";
+import { Accordion, Heading, Input } from "@namada/components";
 
 type GlobalStyleProps = {
   colorMode: ColorMode;
@@ -342,6 +342,52 @@ export const AirdropConfirmationContainer = styled.div`
   flex-direction: column;
 `;
 
+export const AirdropConfirmationMainSection = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: ${color("primary", "main")};
+  box-sizing: border-box;
+  border: 1px solid ${(props) => props.theme.colors.utility1.main20};
+  width: 720px;
+  height: 720px;
+  margin: ${spacement(12)} auto 0;
+  background: ${color("primary", "main")};
+  border-radius: 50%;
+  border: ${spacement(8)} solid ${color("utility3", "black")};
+  text-align: center;
+  position: relative;
+  z-index: 20;
+`;
+
+export const AirdropConfirmationPool = styled(PoolContainer)`
+  top: 540px;
+`;
+export const AirdropConfirmationPoolTop = styled(PoolTopLayerContainer)`
+  top: 46px;
+  z-index: 10;
+`;
+
+export const AirdropConfirmationInput = styled(Input)`
+  color: ${color("utility1", "main")};
+  & input {
+    background-color: ${color("primary", "main")};
+    border: 1px solid ${color("utility1", "main")};
+    padding-top: ${spacement(3)};
+    padding-bottom: ${spacement(3)};
+  }
+  & rect,
+  path {
+    stroke: ${color("utility1", "main")};
+    fill: ${color("primary", "main")};
+  }
+`;
+
+export const AirdropConfirmationAccordion = styled(Accordion)`
+  margin-top: ${spacement(6)};
+  border: 1px solid ${color("utility1", "main")};
+`;
+
 export const AirdropConfirmationHeading = styled(Heading)`
   line-height: 1em;
 `;
@@ -352,7 +398,51 @@ export const AirdropConfirmationSection = styled.div`
 `;
 
 export const AirdropBreakdownSection = styled.div`
-  margin-top: ${spacement(26)};
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 1140px;
+  align-self: center;
+  margin-top: ${spacement(14)};
+`;
+
+export const AnotherWaysSection = styled.div`
+  width: 100%;
+  max-width: 1140px;
+  align-self: center;
+  margin-top: ${spacement(10)};
+`;
+
+export const Table = styled.div`
+  display: flex;
+  gap: ${spacement(2)};
+  flex-direction: column;
+  width: 100%;
+  font-size: ${fontSize("sm")};
+`;
+export const TableHeader = styled.div`
+  display: flex;
+  align-items: center;
+  padding: ${spacement(4)} ${spacement(6)};
+  background-color: ${color("utility1", "main")};
+  color: ${color("primary", "main")};
+  border-radius: ${borderRadius("sm")};
+`;
+
+export const TableRow = styled.div<{ height?: string }>`
+  display: flex;
+  align-items: center;
+  padding: 0 ${spacement(6)};
+  border: 1px solid ${color("utility1", "main")};
+  border-radius: ${borderRadius("sm")};
+  height: ${(props) => props.height || "auto"};
+`;
+export const TableCell = styled.div<{
+  width: string;
+  align?: "left" | "right" | "center";
+}>`
+  width: ${(props) => props.width};
+  text-align: ${(props) => props.align || "left"};
 `;
 
 // TSEligibility.components

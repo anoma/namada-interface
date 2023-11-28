@@ -58,7 +58,7 @@ type AllClaims = {
 export const getAllClaims = async (
   address: string
 ): Promise<AirdropResponse<AllClaims>> => {
-  return airdropFetch(`${backendUrl}/api/v1/claim/${address}`, {
+  return airdropFetch(`${backendUrl}/api/v1/claimed/${address}`, {
     method: "GET",
   });
 };

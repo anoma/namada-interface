@@ -1,16 +1,30 @@
-import { Heading, LinkButton, Stack, Text } from "@namada/components";
+import {
+  Heading,
+  InputVariants,
+  LinkButton,
+  Stack,
+  Text,
+} from "@namada/components";
 import { useAtom } from "jotai";
 import { confirmationAtom } from "./state";
 import {
   AirdropBreakdownSection,
+  AirdropConfirmationAccordion,
   AirdropConfirmationContainer,
   AirdropConfirmationHeading,
+  AirdropConfirmationInput,
+  AirdropConfirmationMainSection,
+  AirdropConfirmationPool,
+  AirdropConfirmationPoolTop,
   AirdropConfirmationSection,
+  AnotherWaysSection,
+  GlobalStyles,
   IconContainer,
-  MainSection,
   ObjectsContainer,
-  PoolContainer,
-  PoolTopLayerContainer,
+  Table,
+  TableCell,
+  TableHeader,
+  TableRow,
 } from "./App.components";
 import { useEffect, useState } from "react";
 import { ClaimCategory, getAllClaims } from "./hooks";
@@ -36,9 +50,9 @@ const categoryAccountTypeMap: Record<ClaimCategory, string> = {
 };
 
 const githubCategoryMap: Record<GithubEligibility, string> = {
-  zkp: "ZKPs, Cryptography PGs, Privacy Research & Learning",
+  zkp: "ZKPs, Cryptography Public Goods, Privacy Research & Learning Resources",
   zcash: "Zcash R&D & Rust Developer Ecosystem",
-  interchain: "Interchain PGs & Early Shielded Ecosystem",
+  interchain: "Interchain Public Goods & Early Shielded Ecosystem",
 };
 
 const getCategory = (
@@ -100,57 +114,63 @@ export const AirdropConfirmation: React.FC = () => {
 
   return (
     <AirdropConfirmationContainer>
-      <MainSection>
+      <GlobalStyles colorMode="light" />
+      <AirdropConfirmationMainSection>
         <AirdropConfirmationSection>
           <Stack gap={5}>
             <Stack gap={2}>
-              <AirdropConfirmationHeading level={"h1"} size={"6xl"}>
+              {/* TODO: already submitted */}
+              <AirdropConfirmationHeading
+                level={"h1"}
+                size={"6xl"}
+                themeColor={"utility1"}
+              >
                 Namada
                 <br />
                 Genesis account
                 <br />
                 submitted
               </AirdropConfirmationHeading>
-              <Text>
+              <Text themeColor={"utility1"}>
                 NAM will be available diretly in your wallet
                 <br /> at Namada Mainnet launch, subject to the
                 <br />{" "}
-                <LinkButton themeColor="utility2">
+                <LinkButton themeColor="utility1">
                   <b>terms of Service</b>
                 </LinkButton>
               </Text>
             </Stack>
-            <Stack gap={1}>
-              <Heading level={"h4"} size={"base"}>
-                Genesis public key:
-              </Heading>
-              <Text fontSize={"sm"}>
-                <b>{confirmation.publicKey}</b>
-              </Text>
-              <Heading level={"h4"} size={"base"}>
-                Genesis transparent account:
-              </Heading>
-              <Text fontSize={"sm"}>
-                <b>{confirmation.address}</b>
-              </Text>
+            <Stack gap={3}>
+              <AirdropConfirmationInput
+                label="Your transparent public key:"
+                variant={InputVariants.ReadOnlyCopy}
+                value={confirmation.publicKey}
+              />
+              <AirdropConfirmationInput
+                label="Your transparent account:"
+                variant={InputVariants.ReadOnlyCopy}
+                value={confirmation.publicKey}
+              />
             </Stack>
 
             <Stack gap={"px"}>
-              <Heading level={"h4"} size={"xl"}>
+              <Heading themeColor={"utility1"} level={"h4"} size={"xl"}>
                 Minimum NAM claimed
               </Heading>
-              <Text fontSize={"5xl"}>{confirmation.amount}</Text>
+              <Text themeColor={"utility1"} fontSize={"6xl"}>
+                {confirmation.amount}
+              </Text>
             </Stack>
           </Stack>
         </AirdropConfirmationSection>
-      </MainSection>
+      </AirdropConfirmationMainSection>
 
-      <PoolContainer>
+      <AirdropConfirmationPool>
         <PoolSvg />
-      </PoolContainer>
-      <PoolTopLayerContainer>
+      </AirdropConfirmationPool>
+      <AirdropConfirmationPoolTop>
         <PoolTopLayer />
-      </PoolTopLayerContainer>
+      </AirdropConfirmationPoolTop>
       <ObjectsContainer>
         <IconContainer left={-310} top={50}>
           <BallSVg />
@@ -176,23 +196,59 @@ export const AirdropConfirmation: React.FC = () => {
       </ObjectsContainer>
 
       <AirdropBreakdownSection>
-        <Heading level={"h4"} size={"xl"}>
+        <Heading themeColor={"utility1"} level={"h4"} size={"xl"}>
           Total minimum NAM across all claims
         </Heading>
-        <Heading level={"h4"}>{totalMinNam}</Heading>
-        <Heading level={"h4"} size={"xl"}>
-          <b>Breakdown of all claims made with the genesis account above</b>
+        <Heading themeColor={"utility1"} size={"6xl"}>
+          {totalMinNam}
         </Heading>
-        <div>
-          {breakdown.map((claim, index) => (
-            <div key={index}>
-              {index + 1} - {claim.accountType} - {claim.source} -{" "}
-              {claim.category} - {claim.minNam}
-            </div>
-          ))}
-        </div>
+        <AirdropConfirmationAccordion
+          title={
+            <Text themeColor={"utility1"} fontSize={"xl"}>
+              <b>Breakdown of all claims made with the genesis account above</b>
+            </Text>
+          }
+          solid={true}
+        >
+          <Table>
+            <TableHeader>
+              <TableCell width="50px">Claim</TableCell>
+              <TableCell width="200px" align="center">
+                Account Type
+              </TableCell>
+              <TableCell width="calc(100% - 540px)" align="center">
+                Accout/Address
+              </TableCell>
+              <TableCell width="190px" align="center">
+                Category
+              </TableCell>
+              <TableCell width="100px" align="right">
+                Min NAM
+              </TableCell>
+            </TableHeader>
+            {breakdown.map((claim, index) => (
+              <TableRow height="62px" key={index}>
+                <TableCell width="50px">{index + 1}</TableCell>
+                <TableCell width="200px" align="center">
+                  {claim.accountType}
+                </TableCell>
+                <TableCell width="calc(100% - 540px)" align="center">
+                  {claim.source}
+                </TableCell>
+                <TableCell width="190px" align="center">
+                  {claim.category}
+                </TableCell>
+                <TableCell width="100px" align="right">
+                  {claim.minNam}
+                </TableCell>
+              </TableRow>
+            ))}
+          </Table>
+        </AirdropConfirmationAccordion>
       </AirdropBreakdownSection>
-      <AnotherWays />
+      <AnotherWaysSection>
+        <AnotherWays />
+      </AnotherWaysSection>
     </AirdropConfirmationContainer>
   );
 };
