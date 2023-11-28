@@ -590,9 +590,7 @@ export class KeyRing {
     const accounts = await this.queryAllAccounts();
     const activeAccount = await this.getActiveAccount();
 
-    if (activeAccount) {
-      return accounts.find((acc) => acc.id === activeAccount.id);
-    }
+    return accounts.find((acc) => acc.id === activeAccount?.id);
   }
 
   public async queryAccountByPublicKey(

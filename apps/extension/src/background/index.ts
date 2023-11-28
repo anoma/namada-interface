@@ -102,7 +102,6 @@ const init = new Promise<void>(async (resolve) => {
     cryptoMemory,
     broadcaster
   );
-  // const chainsService = new ChainsService(store, [chains[defaultChainId]]);
   const keyRingService = new KeyRingService(
     vaultService,
     sdkStore,
@@ -137,7 +136,6 @@ const init = new Promise<void>(async (resolve) => {
 
   // Initialize messages and handlers
   initApprovals(router, approvalsService);
-  // initChains(router, chainsService);
   initKeyRing(router, keyRingService);
   initLedger(router, ledgerService);
   initVault(router, vaultService);

@@ -10,7 +10,6 @@ const TAB_STORE_PREFIX = "tabs";
  *
  * @param {TabStore[]} connectedTabsStore
  * @param {ExtensionRequester} requester
- * @param {string} chainId
  *
  * @return Promise<TabStore[]>
  */

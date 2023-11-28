@@ -316,9 +316,9 @@ export class ApprovalsService {
     }
 
     if (allowConnection) {
-      await addApprovedOrigin(this.approvedOriginsStore, interfaceOrigin);
       try {
         await this.keyRingService.connect(interfaceTabId);
+        await addApprovedOrigin(this.approvedOriginsStore, interfaceOrigin);
       } catch (e) {
         resolvers.reject(e);
       }

@@ -25,16 +25,17 @@ import {
   SubmitVoteProposalMsgValue,
 } from "@namada/types";
 import { TxType } from "@namada/shared";
+import { defaultChainId } from "@namada/chains";
 
 export class Signer implements ISigner {
   constructor(private readonly _namada: Namada) { }
 
   public async accounts(): Promise<Account[] | undefined> {
     return (await this._namada.accounts())?.map(
-      ({ alias, address, chainId, type, publicKey }) => ({
+      ({ alias, address, type, publicKey }) => ({
         alias,
         address,
-        chainId,
+        chainId: defaultChainId,
         type,
         publicKey,
         isShielded: type === AccountType.ShieldedKeys,
@@ -46,12 +47,12 @@ export class Signer implements ISigner {
     const account = await this._namada.defaultAccount();
 
     if (account) {
-      const { alias, address, chainId, type, publicKey } = account;
+      const { alias, address, type, publicKey } = account;
 
       return {
         alias,
         address,
-        chainId,
+        chainId: defaultChainId,
         type,
         publicKey,
         isShielded: type === AccountType.ShieldedKeys,
