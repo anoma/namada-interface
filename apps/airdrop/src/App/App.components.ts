@@ -382,6 +382,11 @@ export const AirdropConfirmationInput = styled(Input)`
     padding-top: ${spacement(3)};
     padding-bottom: ${spacement(3)};
   }
+
+  & input:focus {
+    border: 1px solid ${color("utility1", "main")};
+  }
+
   & rect,
   path {
     stroke: ${color("utility1", "main")};
@@ -486,5 +491,56 @@ export const TSEligibilityContainer = styled.div`
   color: ${(props) => props.theme.colors.utility2.main};
   & > button {
     margin: 10px 0 0 0;
+  }
+`;
+
+// Mobile
+//
+export const MobileContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+export const MobileMainSection = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: ${color("primary", "main")};
+  box-sizing: border-box;
+  border: 1px solid ${(props) => props.theme.colors.utility1.main20};
+  width: 620px;
+  height: 620px;
+  top: calc(50% - 310px);
+  left: calc(50% - 310px);
+  background: ${color("primary", "main")};
+  border-radius: 50%;
+  border: ${spacement(6)} solid ${color("utility3", "black")};
+  text-align: center;
+  position: fixed;
+  z-index: 20;
+
+  @media (max-width: 767px) {
+    position: relative;
+    width: 500px;
+    height: 500px;
+    top: 0;
+    left: 0;
+
+    & h1 {
+      font-size: ${fontSize("6xl")};
+    }
+  }
+`;
+
+export const MobileLogo = styled.div`
+  display: flex;
+  gap: ${spacement(4)};
+  margin-top: ${spacement(4)};
+
+  @media (max-width: 767px) {
+    margin-bottom: ${spacement(10)};
+    flex-direction: column;
+    align-items: center;
   }
 `;

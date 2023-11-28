@@ -19,6 +19,8 @@ import { Main } from "./Main";
 import { NonEligible } from "./NonEligible";
 import { TrustedSetup } from "./TrustedSetup";
 import { claimAtom, confirmationAtom } from "./state";
+import { BrowserView, MobileView } from "react-device-detect";
+import { MainMobile } from "./MainMobile";
 
 export const App: React.FC = () => {
   const [claimState, setClaimState] = useAtom(claimAtom);
@@ -28,71 +30,76 @@ export const App: React.FC = () => {
   const { pathname } = window.location;
 
   const showStartOver = pathname !== "/";
-  const darkMode = pathname !== "/" && pathname !== "/airdrop-confirmed";
 
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyles colorMode="dark" />
-      <AppContainerHeader>
-        <Button
-          style={showStartOver ? {} : { display: "none" }}
-          variant={ButtonVariant.Small}
-          onClick={() => {
-            navigate("/");
-            setClaimState(null);
-            setConfirmationState(null);
-          }}
-        >
-          Start over
-        </Button>
-        <Logo>
-          <Image
-            imageName={ImageName.Logo}
-            styleOverrides={{ width: "240px" }}
-            forceLightMode={true}
+      <BrowserView>
+        <AppContainerHeader>
+          <Button
+            style={showStartOver ? {} : { display: "none" }}
+            variant={ButtonVariant.Small}
+            onClick={() => {
+              navigate("/");
+              setClaimState(null);
+              setConfirmationState(null);
+            }}
+          >
+            Start over
+          </Button>
+          <Logo>
+            <Image
+              imageName={ImageName.Logo}
+              styleOverrides={{ width: "240px" }}
+              forceLightMode={true}
+            />
+          </Logo>
+          <LinkButton underline={false} themeColor="utility1">
+            Terms of service
+          </LinkButton>
+        </AppContainerHeader>
+        <Routes>
+          <Route path={`/`} element={<Main />} />
+          <Route
+            path={`/claim`}
+            element={
+              true || !!claimState ? (
+                <Claim />
+              ) : (
+                <Navigate to="/" replace={true} />
+              )
+            }
+          >
+            <Route path={`info`} element={<ClaimInfo />} />
+            <Route path={`confirmation`} element={<ClaimConfirmation />} />
+          </Route>
+          <Route path={`/trusted-setup`} element={<TrustedSetup />} />
+          <Route
+            path={`/airdrop-confirmed`}
+            element={
+              !!confirmationState ? (
+                <AirdropConfirmation />
+              ) : (
+                <Navigate to="/" replace={true} />
+              )
+            }
           />
-        </Logo>
-        <LinkButton underline={false} themeColor="utility1">
-          Terms of service
-        </LinkButton>
-      </AppContainerHeader>
-      <Routes>
-        <Route path={`/`} element={<Main />} />
-        <Route
-          path={`/claim`}
-          element={
-            true || !!claimState ? (
-              <Claim />
-            ) : (
-              <Navigate to="/" replace={true} />
-            )
-          }
-        >
-          <Route path={`info`} element={<ClaimInfo />} />
-          <Route path={`confirmation`} element={<ClaimConfirmation />} />
-        </Route>
-        <Route path={`/trusted-setup`} element={<TrustedSetup />} />
-        <Route
-          path={`/airdrop-confirmed`}
-          element={
-            !!confirmationState ? (
-              <AirdropConfirmation />
-            ) : (
-              <Navigate to="/" replace={true} />
-            )
-          }
-        />
-        <Route
-          path={`/non-eligible`}
-          element={
-            true || !!claimState ? (
-              <NonEligible />
-            ) : (
-              <Navigate to="/" replace={true} />
-            )
-          }
-        />
-      </Routes>
+          <Route
+            path={`/non-eligible`}
+            element={
+              true || !!claimState ? (
+                <NonEligible />
+              ) : (
+                <Navigate to="/" replace={true} />
+              )
+            }
+          />
+        </Routes>
+      </BrowserView>
+      <MobileView>
+        <GlobalStyles colorMode="light" />
+        <MainMobile />
+      </MobileView>
     </ThemeProvider>
   );
 };

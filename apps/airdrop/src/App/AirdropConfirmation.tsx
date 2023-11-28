@@ -119,7 +119,6 @@ export const AirdropConfirmation: React.FC = () => {
         <AirdropConfirmationSection>
           <Stack gap={5}>
             <Stack gap={2}>
-              {/* TODO: already submitted */}
               <AirdropConfirmationHeading
                 level={"h1"}
                 size={"6xl"}
@@ -142,14 +141,14 @@ export const AirdropConfirmation: React.FC = () => {
             </Stack>
             <Stack gap={3}>
               <AirdropConfirmationInput
-                label="Your transparent public key:"
+                label="Genesis public key:"
                 variant={InputVariants.ReadOnlyCopy}
                 value={confirmation.publicKey}
               />
               <AirdropConfirmationInput
-                label="Your transparent account:"
+                label="Genesis transparent account:"
                 variant={InputVariants.ReadOnlyCopy}
-                value={confirmation.publicKey}
+                value={confirmation.address}
               />
             </Stack>
 
@@ -254,7 +253,7 @@ export const AirdropConfirmation: React.FC = () => {
       <AnotherWaysSection>
         <AnotherWays />
       </AnotherWaysSection>
-      {/* lazy people margin */}
+      {/* lazy person margin */}
       <div style={{ height: "150px" }} />
       <PageFooter />
     </AirdropConfirmationContainer>

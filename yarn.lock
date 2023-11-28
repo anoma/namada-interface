@@ -6337,6 +6337,7 @@ __metadata:
     local-cors-proxy: "npm:^1.1.0"
     node-forge: "npm:^1.3.1"
     react: "npm:^17.0.2"
+    react-device-detect: "npm:^2.2.3"
     react-dom: "npm:^17.0.2"
     react-router-dom: "npm:^6.0.0"
     react-simple-toasts: "npm:^5.10.0"
@@ -25046,6 +25047,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-device-detect@npm:^2.2.3":
+  version: 2.2.3
+  resolution: "react-device-detect@npm:2.2.3"
+  dependencies:
+    ua-parser-js: "npm:^1.0.33"
+  peerDependencies:
+    react: ">= 0.14.0"
+    react-dom: ">= 0.14.0"
+  checksum: 396bbeeab0cb21da084c67434d204c9cf502fad6c683903313084d3f6487950a36a34f9bf67ccf5c1772a1bb5b79a2a4403fcfe6b51d93877db4c2d9f3a3a925
+  languageName: node
+  linkType: hard
+
 "react-dom@npm:^17.0.2":
   version: 17.0.2
   resolution: "react-dom@npm:17.0.2"
@@ -28442,6 +28455,13 @@ __metadata:
   version: 4.0.0
   resolution: "typical@npm:4.0.0"
   checksum: f300b198fb9fe743859b75ec761d53c382723dc178bbce4957d9cb754f2878a44ce17dc0b6a5156c52be1065449271f63754ba594dac225b80ce3aa39f9241ed
+  languageName: node
+  linkType: hard
+
+"ua-parser-js@npm:^1.0.33":
+  version: 1.0.37
+  resolution: "ua-parser-js@npm:1.0.37"
+  checksum: dac8cf82a55b2e097bd2286954e01454c4cfcf23c9d9b56961ce94bda3cec5a38ca536e6e84c20a4000a9d4b4a4abcbd98ec634ccebe21be36595ea3069126e4
   languageName: node
   linkType: hard
 
