@@ -6,14 +6,27 @@ import { Heading } from "@namada/components";
 
 import {
   AppContainer,
+  BackgroundImage,
   Banner,
   BannerContents,
   BottomSection,
   ContentContainer,
+  FaucetContainer,
   GlobalStyles,
   TopSection,
 } from "App/App.components";
 import { FaucetForm } from "App/Faucet";
+
+// for some reason my ide thinks the file does not exist
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import dotsBackground from "../../public/dots-background.png";
+import { CardsContainer } from "./Card.components";
+import { CallToActionCard } from "./CallToActionCard";
+import { Faq } from "./Faq";
+
+const runFullNodeUrl = "https://docs.namada.net/operators/validators";
+const becomeBuilderUrl = "https://docs.namada.net/operators/ledger";
 
 export const App: React.FC = () => {
   const initialColorMode = "dark";
@@ -69,13 +82,32 @@ export const App: React.FC = () => {
         </Banner>
       )}
       <AppContainer>
-        <TopSection>
-          <Heading level="h1">Namada Faucet</Heading>
-        </TopSection>
+        <BackgroundImage src={dotsBackground} />
         <ContentContainer>
-          <FaucetForm isTestnetLive={isTestnetLive} />
+          <TopSection>
+            <Heading uppercase themeColor="utility1" size="5xl" level="h1">
+              Namada Faucet
+            </Heading>
+          </TopSection>
+          <FaucetContainer>
+            <FaucetForm isTestnetLive={isTestnetLive} />
+          </FaucetContainer>
+          <BottomSection>
+            <CardsContainer>
+              <CallToActionCard
+                description="Integrate Namada into applications or extend its capabilities"
+                title="RUN A FULL NODE"
+                href={runFullNodeUrl}
+              />
+              <CallToActionCard
+                description="Integrate Namada into applications or extend its capabilities"
+                title="BECOME A BUILDER"
+                href={becomeBuilderUrl}
+              />
+            </CardsContainer>
+            <Faq />
+          </BottomSection>
         </ContentContainer>
-        <BottomSection />
       </AppContainer>
     </ThemeProvider>
   );

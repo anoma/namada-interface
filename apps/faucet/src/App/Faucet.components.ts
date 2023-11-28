@@ -4,7 +4,7 @@ export const FaucetFormContainer = styled.div`
   flex-direction: column;
   justify-content: start;
   align-items: center;
-  margin: 48px;
+  padding: 48px 40px;
 `;
 
 export const InputContainer = styled.div`
@@ -16,7 +16,7 @@ export const ButtonContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin: 36px 0;
+  margin: 24px 0 0 0;
 `;
 
 export const PreFormatted = styled.pre`
