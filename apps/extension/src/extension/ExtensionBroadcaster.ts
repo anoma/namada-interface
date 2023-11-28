@@ -18,7 +18,7 @@ export class ExtensionBroadcaster {
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
     protected readonly chainId: string,
     protected readonly requester: ExtensionRequester
-  ) {}
+  ) { }
 
   async startTx(msgId: string, txType: TxType): Promise<void> {
     await this.sendMsgToTabs(new TxStartedEvent(this.chainId, msgId, txType));
@@ -59,11 +59,7 @@ export class ExtensionBroadcaster {
    * Query all existing tabs, and send provided message to each
    */
   async sendMsgToTabs(msg: Message<unknown>): Promise<void> {
-    const tabs = await syncTabs(
-      this.connectedTabsStore,
-      this.requester,
-      this.chainId
-    );
+    const tabs = await syncTabs(this.connectedTabsStore, this.requester);
 
     try {
       tabs?.forEach(({ tabId }: TabStore) => {

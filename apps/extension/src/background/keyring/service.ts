@@ -62,23 +62,11 @@ export class KeyRingService {
   }
 
   // Track connected tabs by ID
-  async connect(senderTabId: number, chainId: string): Promise<void> {
+  async connect(senderTabId: number): Promise<void> {
     // Validate chainId, if valid, append tab unless it already exists
-    if (chainId === this.chainId) {
-      const tabs = await syncTabs(
-        this.connectedTabsStore,
-        this.requester,
-        this.chainId
-      );
+    const tabs = await syncTabs(this.connectedTabsStore, this.requester);
 
-      return await updateTabStorage(
-        senderTabId,
-        tabs,
-        this.connectedTabsStore,
-        this.chainId
-      );
-    }
-    throw new Error("Connect: Invalid chainId");
+    return await updateTabStorage(senderTabId, tabs, this.connectedTabsStore);
   }
 
   async generateMnemonic(size?: PhraseSize): Promise<string[]> {

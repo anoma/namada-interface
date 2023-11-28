@@ -52,7 +52,7 @@ export class ApprovalsService {
     protected readonly keyRingService: KeyRingService,
     protected readonly ledgerService: LedgerService,
     protected readonly vaultService: VaultService
-  ) {}
+  ) { }
 
   async approveTx(
     txType: SupportedTx,
@@ -73,18 +73,18 @@ export class ApprovalsService {
       txType === TxType.Bond
         ? ApprovalsService.getParamsBond
         : txType === TxType.Unbond
-        ? ApprovalsService.getParamsUnbond
-        : txType === TxType.Withdraw
-        ? ApprovalsService.getParamsWithdraw
-        : txType === TxType.Transfer
-        ? ApprovalsService.getParamsTransfer
-        : txType === TxType.IBCTransfer
-        ? ApprovalsService.getParamsIbcTransfer
-        : txType === TxType.EthBridgeTransfer
-        ? ApprovalsService.getParamsEthBridgeTransfer
-        : txType === TxType.VoteProposal
-        ? ApprovalsService.getParamsVoteProposal
-        : assertNever(txType);
+          ? ApprovalsService.getParamsUnbond
+          : txType === TxType.Withdraw
+            ? ApprovalsService.getParamsWithdraw
+            : txType === TxType.Transfer
+              ? ApprovalsService.getParamsTransfer
+              : txType === TxType.IBCTransfer
+                ? ApprovalsService.getParamsIbcTransfer
+                : txType === TxType.EthBridgeTransfer
+                  ? ApprovalsService.getParamsEthBridgeTransfer
+                  : txType === TxType.VoteProposal
+                    ? ApprovalsService.getParamsVoteProposal
+                    : assertNever(txType);
 
     const baseUrl = `${browser.runtime.getURL(
       "approvals.html"
@@ -252,18 +252,18 @@ export class ApprovalsService {
       txType === TxType.Bond
         ? this.keyRingService.submitBond
         : txType === TxType.Unbond
-        ? this.keyRingService.submitUnbond
-        : txType === TxType.Transfer
-        ? this.keyRingService.submitTransfer
-        : txType === TxType.IBCTransfer
-        ? this.keyRingService.submitIbcTransfer
-        : txType === TxType.EthBridgeTransfer
-        ? this.keyRingService.submitEthBridgeTransfer
-        : txType === TxType.Withdraw
-        ? this.keyRingService.submitWithdraw
-        : txType === TxType.VoteProposal
-        ? this.keyRingService.submitVoteProposal
-        : assertNever(txType);
+          ? this.keyRingService.submitUnbond
+          : txType === TxType.Transfer
+            ? this.keyRingService.submitTransfer
+            : txType === TxType.IBCTransfer
+              ? this.keyRingService.submitIbcTransfer
+              : txType === TxType.EthBridgeTransfer
+                ? this.keyRingService.submitEthBridgeTransfer
+                : txType === TxType.Withdraw
+                  ? this.keyRingService.submitWithdraw
+                  : txType === TxType.VoteProposal
+                    ? this.keyRingService.submitVoteProposal
+                    : assertNever(txType);
 
     await submitFn.call(this.keyRingService, specificMsg, txMsg, msgId);
 
@@ -272,7 +272,6 @@ export class ApprovalsService {
 
   async approveConnection(
     interfaceTabId: number,
-    chainId: string,
     interfaceOrigin: string
   ): Promise<void> {
     const baseUrl = `${browser.runtime.getURL(
@@ -281,7 +280,6 @@ export class ApprovalsService {
 
     const url = paramsToUrl(baseUrl, {
       interfaceTabId: interfaceTabId.toString(),
-      chainId,
       interfaceOrigin,
     });
 
@@ -308,7 +306,6 @@ export class ApprovalsService {
 
   async approveConnectionResponse(
     interfaceTabId: number,
-    chainId: string,
     interfaceOrigin: string,
     allowConnection: boolean,
     popupTabId: number
@@ -321,7 +318,7 @@ export class ApprovalsService {
     if (allowConnection) {
       await addApprovedOrigin(this.approvedOriginsStore, interfaceOrigin);
       try {
-        await this.keyRingService.connect(interfaceTabId, chainId);
+        await this.keyRingService.connect(interfaceTabId);
       } catch (e) {
         resolvers.reject(e);
       }
