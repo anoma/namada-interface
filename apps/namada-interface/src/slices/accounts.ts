@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import BigNumber from "bignumber.js";
 
 import { Account as AccountDetails, TokenType } from "@namada/types";
-import { chains } from "@namada/chains";
+import { chains, defaultChainId } from "@namada/chains";
 import { getIntegration } from "@namada/hooks";
 
 import { RootState } from "store";
@@ -44,7 +44,7 @@ export const fetchBalances = createAsyncThunk<
 >(
   `${ACCOUNTS_ACTIONS_BASE}/${AccountsThunkActions.FetchBalance}`,
   async (_, thunkApi) => {
-    const { chainId } = thunkApi.getState().settings;
+    const { chainId = defaultChainId } = thunkApi.getState().settings;
     const integration = getIntegration(chainId);
     const accounts: Account[] = Object.values(
       thunkApi.getState().accounts.derived[chainId]
@@ -52,7 +52,7 @@ export const fetchBalances = createAsyncThunk<
 
     const balances = await Promise.all(
       accounts.map(async ({ details }) => {
-        const { chainId, address } = details;
+        const { chainId = defaultChainId, address } = details;
 
         const results = await integration.queryBalances(address);
 
@@ -77,11 +77,17 @@ const accountsSlice = createSlice({
       const accounts = action.payload;
 
       // Remove old accounts under this chainId if present:
-      state.derived[accounts[0].chainId] = {};
+      state.derived[accounts[0].chainId || defaultChainId] = {};
 
       accounts.forEach((account) => {
-        const { address, alias, isShielded, chainId, type, publicKey } =
-          account;
+        const {
+          address,
+          alias,
+          isShielded,
+          chainId = defaultChainId,
+          type,
+          publicKey,
+        } = account;
         const currencySymbol = chains[chainId].currency.symbol;
         if (!state.derived[chainId]) {
           state.derived[chainId] = {};

@@ -33,6 +33,7 @@ import { parseTarget } from "./TokenSend";
 import { SettingsState } from "slices/settings";
 import { TopLevelRoute } from "App/types";
 import { TransferType, TxTransferArgs } from "../types";
+import { defaultChainId } from "@namada/chains";
 
 enum ComponentColor {
   GasButtonBorder,
@@ -63,13 +64,13 @@ export const submitTransferTransaction = async (
   txTransferArgs: TxTransferArgs
 ): Promise<void> => {
   const {
-    account: { address, chainId, publicKey, type },
+    account: { address, publicKey, type },
     amount,
     faucet,
     target,
     token,
   } = txTransferArgs;
-  const integration = getIntegration(chainId);
+  const integration = getIntegration(defaultChainId);
   const signer = integration.signer() as Signer;
 
   const transferArgs = {
@@ -84,7 +85,7 @@ export const submitTransferTransaction = async (
     token: Tokens.NAM.address || "",
     feeAmount: new BigNumber(0),
     gasLimit: new BigNumber(20_000),
-    chainId,
+    chainId: defaultChainId,
     publicKey: publicKey,
     signer: faucet ? target : undefined,
   };

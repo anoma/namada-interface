@@ -38,6 +38,7 @@ export class Namada implements INamada {
       new QueryDefaultAccountMsg()
     );
   }
+
   public async fetchAndStoreMaspParams(): Promise<void> {
     return await this.requester?.sendMessage(
       Ports.Background,

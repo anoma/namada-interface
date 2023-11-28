@@ -5,7 +5,6 @@ import { CryptoRecord } from "background/vault";
 export interface AccountStore extends StoredRecord {
   alias: string;
   address: string;
-  chainId: string;
   owner: string;
   publicKey?: string;
   path: Bip44Path;

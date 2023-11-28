@@ -19,7 +19,7 @@ export enum AccountType {
 export type DerivedAccount = {
   id: string;
   address: string;
-  chainId: string;
+  chainId?: string;
   owner?: string;
   publicKey?: string;
   alias: string;
