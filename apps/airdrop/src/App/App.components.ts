@@ -19,7 +19,7 @@ export const GlobalStyles = createGlobalStyle<GlobalStyleProps>`
 body {
   background-color: ${(props) =>
     props.colorMode === "dark"
-      ? color("utility2", "main")(props)
+      ? color("utility1", "main")(props)
       : color("primary", "main")(props)};
 
   background-image: url(/images/background.svg);
@@ -68,7 +68,7 @@ export const AppContainerHeader = styled.div`
   }
 
   & a {
-    color: ${color("utility2", "main")};
+    color: ${color("utility1", "main")};
     text-decoration: none;
   }
 `;
@@ -115,7 +115,7 @@ export const MainSection = styled.div`
   justify-content: center;
   background-color: ${color("primary", "main")};
   box-sizing: border-box;
-  border: 1px solid ${(props) => props.theme.colors.utility2.main20};
+  border: 1px solid ${(props) => props.theme.colors.utility1.main20};
   width: 620px;
   height: 620px;
   margin: ${spacement(12)} auto 0;
@@ -211,7 +211,7 @@ export const Divider = styled.div`
 `;
 
 export const MainFooter = styled.div`
-  color: ${color("utility2", "main")};
+  color: ${color("utility1", "main")};
   display: flex;
   flex-direction: column;
   margin: ${spacement(18)} auto ${spacement(36)};
@@ -250,21 +250,6 @@ export const KeplrButtonContainer = styled.div`
   }
 `;
 
-export const TOSToggle = styled.label`
-  cursor: pointer;
-  display: grid;
-  grid-template-columns: ${spacement(8)} auto;
-  align-items: start;
-  font-size: ${fontSize("sm")};
-  color: ${color("primary", "main")};
-  gap: ${spacement(2)};
-  margin-top: ${spacement(5)};
-
-  > span {
-    margin-top: 0.25em;
-  }
-`;
-
 //Eligibility.components
 export const EligibilityHeader = styled.header`
   border-bottom: 1px solid ${color("primary", "main40")};
@@ -279,7 +264,7 @@ export const EligibilitySectionWrapper = styled.div`
 export const EligibilitySection = styled.div`
   display: flex;
   gap: 20px;
-  color: ${(props) => props.theme.colors.utility2.main};
+  color: ${(props) => props.theme.colors.utility1.main};
   justify-content: space-between;
   flex-direction: column;
 
@@ -306,21 +291,9 @@ export const EligibiltyList = styled.ul`
   }
 `;
 
-export const ClaimsSection = styled.div`
-  display: flex;
-  flex-direction: column;
-
-  color: ${(props) => props.theme.colors.utility2.main};
-  & > button {
-    margin-top: 10px;
-    width: 200px;
-    align-self: center;
-  }
-`;
-
 export const AnotherWaysContainer = styled.div`
   border-radius: ${borderRadius("md")};
-  background-color: ${color("utility2", "main")};
+  background-color: ${color("utility1", "main")};
   border: 1px solid ${color("primary", "main")};
   padding: ${spacement(5)} ${spacement(5)} ${spacement(7)};
 
@@ -354,26 +327,12 @@ export const ClaimsSectionSignature = styled.div``;
 
 export const GithubFooter = styled.div``;
 
-export const AirdropAddress = styled.div`
-  display: flex;
-  flex-direction: row;
-
-  & > label {
-    flex: 1;
-  }
-
-  & > button {
-    width: 80px;
-    align-self: flex-end;
-    padding: 10px;
-  }
-`;
-
 export const ExtensionInfo = styled.div`
   margin-top: 20px;
   padding: 20px;
+  border-radius: ${borderRadius("lg")};
   box-sizing: border-box;
-  border: 1px solid ${(props) => props.theme.colors.utility2.main20};
+  border: 1px solid ${color("primary", "main")};
 `;
 
 // AirdropConfirmation.components

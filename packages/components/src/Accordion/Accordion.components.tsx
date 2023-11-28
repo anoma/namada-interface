@@ -72,7 +72,7 @@ export const AccordionContainer = styled.div<{
 
   color: ${(props) => {
     if (props.solid) {
-      return color("utility2", "main")(props);
+      return color("utility1", "main")(props);
     }
     return color(props.variant, "main")(props);
   }};

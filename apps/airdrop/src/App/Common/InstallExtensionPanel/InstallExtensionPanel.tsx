@@ -2,27 +2,35 @@ import { ActionButton } from "@namada/components";
 import {
   InstallExtensionContainer,
   InstallExtensionContent,
+  InstallExtensionContentWrapper,
   InstallExtensionTitle,
 } from "./InstallExtensionPanel.components";
 
-export const InstallExtensionPanel = (): JSX.Element => {
+type InstallExtensionPanelProps = {
+  children: React.ReactNode;
+  size?: "large" | "small";
+};
+
+export const InstallExtensionPanel = ({
+  size = "small",
+  children,
+}: InstallExtensionPanelProps): JSX.Element => {
   return (
-    <InstallExtensionContainer>
+    <InstallExtensionContainer size={size}>
       <InstallExtensionTitle>
         Don&apos;t have Namada address yet?
       </InstallExtensionTitle>
-      <InstallExtensionContent>
-        Install the Namada Browser extension or use the Namada CLI to create
-        your NAM keys to submit for the genesis block proposal
-      </InstallExtensionContent>
-      <ActionButton
-        size="sm"
-        borderRadius="sm"
-        variant="utility2"
-        hoverColor="secondary"
-      >
-        Install Extension
-      </ActionButton>
+      <InstallExtensionContentWrapper>
+        <InstallExtensionContent>{children}</InstallExtensionContent>
+        <ActionButton
+          size="sm"
+          borderRadius="sm"
+          variant="utility1"
+          hoverColor="secondary"
+        >
+          Install Extension
+        </ActionButton>
+      </InstallExtensionContentWrapper>
     </InstallExtensionContainer>
   );
 };

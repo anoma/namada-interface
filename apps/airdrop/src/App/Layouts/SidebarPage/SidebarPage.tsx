@@ -1,6 +1,7 @@
 import { ExternalPageIcon } from "App/Icons/ExternalPageIcon";
 import {
   IconWrap,
+  MainContainer,
   MainContent,
   SidebarPageGrid,
   SidebarTitle,
@@ -16,9 +17,13 @@ import { InstallExtensionPanel } from "App/Common/InstallExtensionPanel";
 
 type SidebarPageProps = {
   children: React.ReactNode;
+  displayInstructions?: boolean;
 };
 
-export const SidebarPage = ({ children }: SidebarPageProps): JSX.Element => {
+export const SidebarPage = ({
+  children,
+  displayInstructions,
+}: SidebarPageProps): JSX.Element => {
   return (
     <SidebarPageGrid>
       <aside>
@@ -84,9 +89,31 @@ export const SidebarPage = ({ children }: SidebarPageProps): JSX.Element => {
             </TermsLinkWrapperWithIcon>
           </SocialListItem>
         </SocialList>
-        <InstallExtensionPanel />
+        <InstallExtensionPanel>
+          Install the Namada Browser extension or use the Namada CLI to create
+          your NAM keys to submit for the genesis block proposal
+        </InstallExtensionPanel>
       </aside>
-      <MainContent>{children}</MainContent>
+      <MainContainer>
+        <MainContent>{children}</MainContent>
+        {displayInstructions && (
+          <InstallExtensionPanel size="large">
+            Install the Namada Browser extension or use the Namada CLI to create
+            your NAM keys and add the public key to Namada genesis block
+            proposal using “Claim NAM” button above
+          </InstallExtensionPanel>
+        )}
+        {/* <ExtensionInfo>
+          <ul>
+            <li>Make sure you back up your seed phrase in a safe place</li>
+            <li>
+              No one from Heliax, Anoma Foundation, or anyone else will be able
+              to recover your seed phrase if you lose it.
+            </li>
+            <li>We will never ask you for your private key or seed phrase.</li>
+          </ul>
+        </ExtensionInfo> */}
+      </MainContainer>
     </SidebarPageGrid>
   );
 };

@@ -1,26 +1,24 @@
 import { Window as KeplrWindow } from "@keplr-wallet/types";
-import { ActionButton, Checkbox, Heading, Text } from "@namada/components";
+import { ActionButton, Heading, Text } from "@namada/components";
+import { useNavigate } from "react-router-dom";
 import {
   AnotherWaysButtons,
   AnotherWaysContainer,
   ModalButtonContainer,
-  TOSToggle,
 } from "./App.components";
-import { useState } from "react";
-import { MetamaskWindow } from "./types";
+import { CosmosIcon } from "./Icons/CosmosIcon";
+import { EthereumIcon } from "./Icons/EthereumIcon";
+import { GithubIcon } from "./Icons/GithubIcon";
+import { OsmosisIcon } from "./Icons/OsmosisIcon";
+import { StargazerIcon } from "./Icons/StargazerIcon";
+import { TrustedSetupIcon } from "./Icons/TrustedSetupIcon";
 import {
   //TODO: rename to useExtensionDownload
   handleExtensionDownload,
   useKeplrHandler,
   useMetamaskHandler,
 } from "./hooks";
-import { useNavigate } from "react-router-dom";
-import { GithubIcon } from "./Icons/GithubIcon";
-import { EthereumIcon } from "./Icons/EthereumIcon";
-import { TrustedSetupIcon } from "./Icons/TrustedSetupIcon";
-import { CosmosIcon } from "./Icons/CosmosIcon";
-import { OsmosisIcon } from "./Icons/OsmosisIcon";
-import { StargazerIcon } from "./Icons/StargazerIcon";
+import { MetamaskWindow } from "./types";
 
 const {
   REACT_APP_REDIRECT_URI: redirectUrl = "",
@@ -28,10 +26,8 @@ const {
 } = process.env;
 
 export const AnotherWays: React.FC = () => {
-  const [isTOSAccepted, setIsTOSAccepted] = useState(false);
   const keplr = (window as KeplrWindow)?.keplr;
   const metamask = (window as MetamaskWindow)?.ethereum;
-
   const metamaskHandler = useMetamaskHandler("0x1", metamask);
   const cosmosHandler = useKeplrHandler("cosmoshub-4", "cosmos", keplr);
   const osmosisHandler = useKeplrHandler("osmosis-1", "osmosis", keplr);
@@ -48,7 +44,6 @@ export const AnotherWays: React.FC = () => {
           outlined
           variant="primary"
           icon={<GithubIcon />}
-          disabled={!isTOSAccepted}
           onClick={() => {
             window.open(
               `https://github.com/login/oauth/authorize?client_id=${githubClientId}&redirect_uri=${redirectUrl}`,
@@ -62,7 +57,6 @@ export const AnotherWays: React.FC = () => {
         {metamask && (
           <ActionButton
             outlined
-            disabled={!isTOSAccepted}
             variant="primary"
             onClick={metamaskHandler}
             icon={<EthereumIcon />}
@@ -91,7 +85,6 @@ export const AnotherWays: React.FC = () => {
 
         <ActionButton
           outlined
-          disabled={!isTOSAccepted}
           variant="primary"
           icon={<TrustedSetupIcon />}
           onClick={() => navigate("/trusted-setup")}
@@ -103,7 +96,6 @@ export const AnotherWays: React.FC = () => {
           <>
             <ActionButton
               outlined
-              disabled={!isTOSAccepted}
               variant="primary"
               icon={<CosmosIcon />}
               onClick={cosmosHandler}
@@ -113,7 +105,6 @@ export const AnotherWays: React.FC = () => {
 
             <ActionButton
               outlined
-              disabled={!isTOSAccepted}
               variant="primary"
               icon={<OsmosisIcon />}
               onClick={osmosisHandler}
@@ -123,7 +114,6 @@ export const AnotherWays: React.FC = () => {
 
             <ActionButton
               outlined
-              disabled={!isTOSAccepted}
               variant="primary"
               icon={<StargazerIcon />}
               onClick={stargazeHandler}
@@ -151,16 +141,6 @@ export const AnotherWays: React.FC = () => {
           </ModalButtonContainer>
         )}
       </AnotherWaysButtons>
-      <TOSToggle>
-        <Checkbox
-          checked={isTOSAccepted}
-          onChange={() => setIsTOSAccepted(!isTOSAccepted)}
-        />
-        <span>
-          You agree to the Terms of Service and are not in the US or any other
-          prohibited jurisdiction
-        </span>
-      </TOSToggle>
     </AnotherWaysContainer>
   );
 };

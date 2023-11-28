@@ -2,7 +2,6 @@ import { Keplr, Window as KeplrWindow } from "@keplr-wallet/types";
 import { type MetaMaskInpageProvider } from "@metamask/providers";
 import {
   ActionButton,
-  Checkbox,
   Heading,
   LinkButton,
   Stack,
@@ -26,11 +25,11 @@ import {
   PoolContainer,
   PoolTopLayerContainer,
   SmallWarning,
-  TOSToggle,
 } from "./App.components";
 import { GithubButton } from "./Buttons/GithubButton";
 import { MetamaskButton } from "./Buttons/MetamaskButton";
 import { TrustedSetupButton } from "./Buttons/TrustedSetupButton";
+import { AcceptTermsCheckbox } from "./Common/AcceptTermsCheckbox";
 import { Modal } from "./Common/Modal";
 import { PageFooter } from "./Common/PageFooter";
 import { Countdown } from "./Countdown";
@@ -82,7 +81,12 @@ export const Main: React.FC = () => {
           <MainSection>
             <Stack gap={4}>
               <MainHeader>
-                <Heading uppercase level={"h1"} size={"7xl"}>
+                <Heading
+                  themeColor="utility1"
+                  uppercase
+                  level={"h1"}
+                  size={"7xl"}
+                >
                   No<span> Privacy</span>
                   <br />
                   Without
@@ -92,8 +96,10 @@ export const Main: React.FC = () => {
               </MainHeader>
               <CallToActionStack>
                 <Stack gap={1}>
-                  <Text fontSize="xl">TIME LEFT TO CLAIM:</Text>
-                  <Text fontSize="2xl">
+                  <Text themeColor="utility1" fontSize="xl">
+                    TIME LEFT TO CLAIM:
+                  </Text>
+                  <Text themeColor="utility1" fontSize="2xl">
                     <Countdown endDate={new Date("Nov 14, 2023 13:00:00")} />
                   </Text>
                 </Stack>
@@ -120,7 +126,7 @@ export const Main: React.FC = () => {
               </SmallWarning>
               <Stack gap={0.5}>
                 <MainSectionButton></MainSectionButton>
-                <LinkButton themeColor="utility2">
+                <LinkButton themeColor="utility1">
                   <b>Read the annoucement</b>
                 </LinkButton>
               </Stack>
@@ -158,14 +164,21 @@ export const Main: React.FC = () => {
         </MainTopSection>
         <MainFooter>
           <Stack gap={6}>
-            <Text fontSize={"3xl"}>Namada RPGF Drop</Text>
-            <Text>
+            <Heading
+              themeColor="utility1"
+              size={"3xl"}
+              level="h2"
+              fontWeight="400"
+            >
+              Namada RPGF Drop
+            </Heading>
+            <Text themeColor="utility1" fontWeight="400">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris
               semper tempor ante eu ullamcorper. Morbi fringilla gravida mi in
               cursus. Donec libero velit, vulputate vel nunc sed, pretium
               rhoncus quam.
             </Text>
-            <Text>
+            <Text themeColor="utility1" fontWeight="400">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris
               semper tempor ante eu ullamcorper. Morbi fringilla gravida mi in
               cursus. Donec libero velit, vulputate vel nunc sed, pretium
@@ -215,7 +228,6 @@ export const Main: React.FC = () => {
                 >
                   Cosmos Wallet
                 </ActionButton>
-
                 <ActionButton
                   outlined
                   disabled={!isTOSAccepted}
@@ -256,14 +268,10 @@ export const Main: React.FC = () => {
               </ModalButtonContainer>
             )}
 
-            <TOSToggle>
-              <Checkbox
-                checked={isTOSAccepted}
-                onChange={() => setIsTOSAccepted(!isTOSAccepted)}
-              />
-              You agree to the Terms of Service and are not in the US or any
-              other prohibited jurisdiction
-            </TOSToggle>
+            <AcceptTermsCheckbox
+              checked={isTOSAccepted}
+              onChange={() => setIsTOSAccepted(!isTOSAccepted)}
+            />
           </Stack>
         </EligibilityPanel>
       </Modal>

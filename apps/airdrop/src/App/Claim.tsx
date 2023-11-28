@@ -10,10 +10,13 @@ export const Claim: React.FC = () => {
   const path = pathname.split("/").pop();
 
   return (
-    <SidebarPage>
+    <SidebarPage displayInstructions={path === "confirmation"}>
       <EligibilityHeader>
         <Stack gap={6} direction="horizontal">
-          <BreadcrumbStatus active={path === "info"} accepted={true}>
+          <BreadcrumbStatus
+            active={path === "info" || path === "confirmation"}
+            accepted={true}
+          >
             Eligibility
           </BreadcrumbStatus>
           <BreadcrumbStatus active={path === "confirmation"}>

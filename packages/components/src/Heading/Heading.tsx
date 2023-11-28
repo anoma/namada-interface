@@ -1,6 +1,7 @@
 import { FontSize, ThemeColor } from "@namada/utils";
 import { BaseHeading } from "./heading.components";
 import { HeadingLevel } from "./types";
+import { FontWeight, TextAlignment } from "../types";
 
 type HeadingProps = {
   level?: HeadingLevel;
@@ -9,7 +10,8 @@ type HeadingProps = {
   uppercase?: boolean;
   children: React.ReactNode;
   className?: string;
-  textAlign?: "left" | "right" | "center";
+  textAlign?: TextAlignment;
+  fontWeight?: FontWeight;
 };
 
 export const Heading = ({
@@ -20,6 +22,7 @@ export const Heading = ({
   uppercase,
   className,
   textAlign = "center",
+  fontWeight = "500",
 }: HeadingProps): JSX.Element => {
   return (
     <BaseHeading
@@ -29,6 +32,7 @@ export const Heading = ({
       size={size}
       themeColor={themeColor}
       textAlign={textAlign}
+      fontWeight={fontWeight}
     >
       {children}
     </BaseHeading>

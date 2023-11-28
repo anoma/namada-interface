@@ -5,10 +5,10 @@ import {
   ImageName,
   LinkButton,
 } from "@namada/components";
-import { ColorMode, getTheme } from "@namada/utils";
+import { getTheme } from "@namada/utils";
 import { AppContainerHeader, GlobalStyles, Logo } from "App/App.components";
 import { useAtom } from "jotai";
-import React, { useState } from "react";
+import React from "react";
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 import { AirdropConfirmation } from "./AirdropConfirmation";
@@ -21,11 +21,9 @@ import { TrustedSetup } from "./TrustedSetup";
 import { claimAtom, confirmationAtom } from "./state";
 
 export const App: React.FC = () => {
-  const initialColorMode = "light";
-  const [colorMode, _] = useState<ColorMode>(initialColorMode);
   const [claimState, setClaimState] = useAtom(claimAtom);
   const [confirmationState, setConfirmationState] = useAtom(confirmationAtom);
-  const theme = getTheme(colorMode);
+  const theme = getTheme("dark");
   const navigate = useNavigate();
   const { pathname } = window.location;
 
@@ -34,7 +32,7 @@ export const App: React.FC = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <GlobalStyles colorMode={darkMode ? "dark" : colorMode} />
+      <GlobalStyles colorMode="dark" />
       <AppContainerHeader>
         <Button
           style={showStartOver ? {} : { display: "none" }}
@@ -54,7 +52,7 @@ export const App: React.FC = () => {
             forceLightMode={true}
           />
         </Logo>
-        <LinkButton underline={false} themeColor="utility2">
+        <LinkButton underline={false} themeColor="utility1">
           Terms of service
         </LinkButton>
       </AppContainerHeader>
@@ -87,7 +85,11 @@ export const App: React.FC = () => {
         <Route
           path={`/non-eligible`}
           element={
-            !!claimState ? <NonEligible /> : <Navigate to="/" replace={true} />
+            true || !!claimState ? (
+              <NonEligible />
+            ) : (
+              <Navigate to="/" replace={true} />
+            )
           }
         />
       </Routes>

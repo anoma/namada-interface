@@ -26,7 +26,7 @@ export const YouAreEligible = ({
         <IconContainer>
           <CheckedIcon />
         </IconContainer>
-        <Heading size="4xl" level="h1">
+        <Heading size="4xl" level="h1" themeColor="utility1">
           You are Eligible
         </Heading>
         <p>Congrats you are eligible for the Namada RPGF Drop!</p>

@@ -57,7 +57,11 @@ export const SocialListItem = styled.li`
 `;
 
 export const MainContent = styled.article`
-  max-width: 880px;
   border: 1px solid ${color("primary", "main40")};
   border-radius: ${borderRadius("lg")};
+  margin-bottom: ${spacement(16)};
+`;
+
+export const MainContainer = styled.div`
+  max-width: 880px;
 `;
