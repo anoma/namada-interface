@@ -14,17 +14,18 @@ import {
   AirdropConfirmationHeading,
   AirdropConfirmationInput,
   AirdropConfirmationMainSection,
+  AirdropConfirmationObjectsContainer,
   AirdropConfirmationPool,
   AirdropConfirmationPoolTop,
   AirdropConfirmationSection,
   AnotherWaysSection,
   GlobalStyles,
   IconContainer,
-  ObjectsContainer,
   Table,
   TableCell,
   TableHeader,
   TableRow,
+  Warning,
 } from "./App.components";
 import { useEffect, useState } from "react";
 import { ClaimCategory, getAllClaims } from "./hooks";
@@ -32,13 +33,12 @@ import { AnotherWays } from "./AnotherWays";
 import { GithubEligibility, mapEligibility } from "./eligibilityMap";
 import { PoolSvg } from "./Graphics/Pool";
 import { PoolTopLayer } from "./Graphics/PoolTopLayer";
-import { BallSVg } from "./Graphics/Ball";
-import { HiveSvg } from "./Graphics/Hive";
 import { WireSvg } from "./Graphics/Wire";
 import { Bars2Svg } from "./Graphics/Bars2";
 import { Bars1Svg } from "./Graphics/Bars1";
-import { ZeroOneSvg } from "./Graphics/ZeroOne";
 import { EyeSvg } from "./Graphics/Eye";
+import { WarningIcon } from "./Icons/WarningIcon";
+import { PageFooter } from "./Common/PageFooter";
 
 const categoryAccountTypeMap: Record<ClaimCategory, string> = {
   Github: "Github",
@@ -165,35 +165,39 @@ export const AirdropConfirmation: React.FC = () => {
         </AirdropConfirmationSection>
       </AirdropConfirmationMainSection>
 
+      {/* TODO: move to shared component */}
+      <Warning width={"255px"} top={"80px"} left={"calc(50% - 565px)"}>
+        <WarningIcon />
+        <ul>
+          <li>Make sure you back up your seed phrase in a safe place</li>
+          <li>
+            No one from Heliax, Anoma Foundation or anyone else will be able to
+            recover your seed phrase if you lose it.
+          </li>
+          <li>We will never ask you for your private key or seed phrase</li>
+        </ul>
+      </Warning>
+
       <AirdropConfirmationPool>
         <PoolSvg />
       </AirdropConfirmationPool>
       <AirdropConfirmationPoolTop>
         <PoolTopLayer />
       </AirdropConfirmationPoolTop>
-      <ObjectsContainer>
-        <IconContainer left={-310} top={50}>
-          <BallSVg />
-        </IconContainer>
-        <IconContainer left={255} top={40}>
-          <HiveSvg />
-        </IconContainer>
-        <IconContainer left={-425} top={156}>
+      <AirdropConfirmationObjectsContainer>
+        <IconContainer left={230} top={-50}>
           <WireSvg />
         </IconContainer>
-        <IconContainer left={380} top={150}>
+        <IconContainer left={415} top={210}>
           <Bars2Svg />
         </IconContainer>
         <IconContainer left={-540} top={380}>
           <Bars1Svg />
         </IconContainer>
-        <IconContainer left={350} top={306}>
-          <ZeroOneSvg />
-        </IconContainer>
-        <IconContainer left={305} top={377}>
+        <IconContainer left={350} top={400}>
           <EyeSvg />
         </IconContainer>
-      </ObjectsContainer>
+      </AirdropConfirmationObjectsContainer>
 
       <AirdropBreakdownSection>
         <Heading themeColor={"utility1"} level={"h4"} size={"xl"}>
@@ -210,6 +214,7 @@ export const AirdropConfirmation: React.FC = () => {
           }
           solid={true}
         >
+          {/* TODO: move to shared component, add scroll */}
           <Table>
             <TableHeader>
               <TableCell width="50px">Claim</TableCell>
@@ -249,6 +254,9 @@ export const AirdropConfirmation: React.FC = () => {
       <AnotherWaysSection>
         <AnotherWays />
       </AnotherWaysSection>
+      {/* lazy people margin */}
+      <div style={{ height: "150px" }} />
+      <PageFooter />
     </AirdropConfirmationContainer>
   );
 };

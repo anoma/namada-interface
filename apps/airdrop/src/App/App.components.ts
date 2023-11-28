@@ -363,9 +363,15 @@ export const AirdropConfirmationMainSection = styled.div`
 export const AirdropConfirmationPool = styled(PoolContainer)`
   top: 540px;
 `;
+
 export const AirdropConfirmationPoolTop = styled(PoolTopLayerContainer)`
   top: 46px;
   z-index: 10;
+`;
+
+export const AirdropConfirmationObjectsContainer = styled(ObjectsContainer)`
+  top: 60px;
+  height: calc(100% - 60px);
 `;
 
 export const AirdropConfirmationInput = styled(Input)`
@@ -443,6 +449,34 @@ export const TableCell = styled.div<{
 }>`
   width: ${(props) => props.width};
   text-align: ${(props) => props.align || "left"};
+`;
+
+export const Warning = styled.div<{
+  width?: string;
+  top: string;
+  left: string;
+}>`
+  z-index: 20;
+  width: ${(props) => props.width || "auto"};
+  position: absolute;
+  top: ${(props) => props.top};
+  left: ${(props) => props.left};
+  display: flex;
+  flex-direction: column;
+  border-radius: ${borderRadius("md")};
+  padding: ${spacement(5)} ${spacement(2)};
+  align-items: center;
+  color: ${color("primary", "main")};
+  background-color: ${color("utility1", "main")};
+
+  & ul {
+    padding-left: ${spacement(5)};
+    margin: 0;
+
+  & li {
+    padding: ${spacement(2)} 0;
+    fontsize: ${fontSize("sm")};
+  }
 `;
 
 // TSEligibility.components
