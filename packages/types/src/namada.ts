@@ -1,6 +1,5 @@
 import { SupportedTx } from "@namada/types";
 import { AccountType, DerivedAccount } from "./account";
-import { Chain } from "./chain";
 import { Signer } from "./signer";
 
 export type TxMsgProps = {
@@ -11,15 +10,12 @@ export type TxMsgProps = {
 };
 
 export interface Namada {
-  connect(chainId: string): Promise<void>;
-  accounts(chainId: string): Promise<DerivedAccount[] | undefined>;
-  defaultAccount(chainId: string): Promise<DerivedAccount | undefined>;
+  connect(): Promise<void>;
+  accounts(): Promise<DerivedAccount[] | undefined>;
+  defaultAccount(): Promise<DerivedAccount | undefined>;
   balances(
     owner: string
   ): Promise<{ token: string; amount: string }[] | undefined>;
-  suggestChain(chainConfig: Chain): Promise<void>;
-  chain: (chainId: string) => Promise<Chain | undefined>;
-  chains: () => Promise<Chain[] | undefined>;
   submitTx: (props: TxMsgProps) => Promise<void>;
   version: () => string;
 }
@@ -27,6 +23,6 @@ export interface Namada {
 export type WindowWithNamada = Window &
   typeof globalThis & {
     namada: Namada & {
-      getSigner: (chainId: string) => Signer;
+      getSigner: () => Signer;
     };
   };

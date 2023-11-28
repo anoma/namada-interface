@@ -27,13 +27,10 @@ import {
 import { TxType } from "@namada/shared";
 
 export class Signer implements ISigner {
-  constructor(
-    protected readonly chainId: string,
-    private readonly _namada: Namada
-  ) { }
+  constructor(private readonly _namada: Namada) { }
 
   public async accounts(): Promise<Account[] | undefined> {
-    return (await this._namada.accounts(this.chainId))?.map(
+    return (await this._namada.accounts())?.map(
       ({ alias, address, chainId, type, publicKey }) => ({
         alias,
         address,
@@ -46,7 +43,7 @@ export class Signer implements ISigner {
   }
 
   public async defaultAccount(): Promise<Account | undefined> {
-    const account = await this._namada.defaultAccount(this.chainId);
+    const account = await this._namada.defaultAccount();
 
     if (account) {
       const { alias, address, chainId, type, publicKey } = account;

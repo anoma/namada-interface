@@ -16,12 +16,11 @@ import { Message, Ports } from "router";
 export class ExtensionBroadcaster {
   constructor(
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
-    protected readonly chainId: string,
     protected readonly requester: ExtensionRequester
   ) { }
 
   async startTx(msgId: string, txType: TxType): Promise<void> {
-    await this.sendMsgToTabs(new TxStartedEvent(this.chainId, msgId, txType));
+    await this.sendMsgToTabs(new TxStartedEvent(msgId, txType));
   }
 
   async completeTx(
@@ -31,24 +30,24 @@ export class ExtensionBroadcaster {
     payload?: string
   ): Promise<void> {
     await this.sendMsgToTabs(
-      new TxCompletedEvent(this.chainId, msgId, txType, success, payload)
+      new TxCompletedEvent(msgId, txType, success, payload)
     );
   }
 
   async updateBalance(): Promise<void> {
-    await this.sendMsgToTabs(new UpdatedBalancesEventMsg(this.chainId));
+    await this.sendMsgToTabs(new UpdatedBalancesEventMsg());
   }
 
   async updateStaking(): Promise<void> {
-    await this.sendMsgToTabs(new UpdatedStakingEventMsg(this.chainId));
+    await this.sendMsgToTabs(new UpdatedStakingEventMsg());
   }
 
   async updateAccounts(): Promise<void> {
-    await this.sendMsgToTabs(new AccountChangedEventMsg(this.chainId));
+    await this.sendMsgToTabs(new AccountChangedEventMsg());
   }
 
   async updateProposals(): Promise<void> {
-    await this.sendMsgToTabs(new ProposalsUpdatedEventMsg(this.chainId));
+    await this.sendMsgToTabs(new ProposalsUpdatedEventMsg());
   }
 
   async lockExtension(): Promise<void> {

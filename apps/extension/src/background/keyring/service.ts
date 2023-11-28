@@ -42,7 +42,6 @@ export class KeyRingService {
     protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
     protected readonly extensionStore: KVStore<number>,
-    protected readonly chainId: string,
     protected readonly sdk: Sdk,
     protected readonly query: Query,
     protected readonly cryptoMemory: WebAssembly.Memory,
@@ -54,7 +53,6 @@ export class KeyRingService {
       sdkStore,
       utilityStore,
       extensionStore,
-      chainId,
       sdk,
       query,
       cryptoMemory
@@ -63,7 +61,6 @@ export class KeyRingService {
 
   // Track connected tabs by ID
   async connect(senderTabId: number): Promise<void> {
-    // Validate chainId, if valid, append tab unless it already exists
     const tabs = await syncTabs(this.connectedTabsStore, this.requester);
 
     return await updateTabStorage(senderTabId, tabs, this.connectedTabsStore);

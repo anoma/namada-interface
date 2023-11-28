@@ -1,9 +1,7 @@
-import { chains } from "@namada/chains";
 import { Query, Sdk } from "@namada/shared";
 import { KVStore } from "@namada/storage";
 import { Chain } from "@namada/types";
 
-import { ChainsService, init as initChains } from "background/chains";
 import {
   ExtensionBroadcaster,
   ExtensionMessengerMock,
@@ -40,12 +38,11 @@ import { Namada } from "provider";
 // __wasm is not exported in crypto.d.ts so need to use require instead of import
 /* eslint-disable @typescript-eslint/no-var-requires */
 const cryptoMemory = require("@namada/crypto").__wasm.memory;
-const chainId = "namada-75a7e12.69483d59a9fb174";
 
 export class KVStoreMock<T> implements KVStore<T> {
   private storage: { [key: string]: T | null } = {};
 
-  constructor(readonly _prefix: string) {}
+  constructor(readonly _prefix: string) { }
 
   get<U extends T>(key: string): Promise<U | undefined> {
     return new Promise((resolve) => {
@@ -69,7 +66,6 @@ export const init = async (): Promise<{
   iDBStore: KVStoreMock<DBType>;
   extStore: KVStoreMock<number>;
   utilityStore: KVStoreMock<UtilityStore>;
-  chainsService: ChainsService;
   keyRingService: KeyRingService;
   vaultService: VaultService;
 }> => {
@@ -91,11 +87,7 @@ export const init = async (): Promise<{
   const namadaRouterId = await getNamadaRouterId(extStore);
   const requester = new ExtensionRequester(messenger, namadaRouterId);
   const txStore = new KVStoreMock<TxStore>(KVPrefix.LocalStorage);
-  const broadcaster = new ExtensionBroadcaster(
-    connectedTabsStore,
-    chainId,
-    requester
-  );
+  const broadcaster = new ExtensionBroadcaster(connectedTabsStore, requester);
 
   const router = new ExtensionRouter(
     () => ({
@@ -112,11 +104,6 @@ export const init = async (): Promise<{
   const sdk = new Sdk("");
   const query = new Query("");
 
-  const chainsService = new ChainsService(
-    iDBStore as KVStore<Chain[]>,
-    Object.values(chains)
-  );
-
   const vaultService = new VaultService(
     iDBStore as KVStore<KeyStore[]>,
     sessionStore,
@@ -129,7 +116,6 @@ export const init = async (): Promise<{
     utilityStore,
     connectedTabsStore,
     extStore,
-    chainId,
     sdk,
     query,
     cryptoMemory,
@@ -144,7 +130,6 @@ export const init = async (): Promise<{
     connectedTabsStore,
     txStore,
     revealedPKStore,
-    chainId,
     sdk,
     requester,
     broadcaster
@@ -161,7 +146,6 @@ export const init = async (): Promise<{
 
   const init = new Promise<void>(async (resolve) => {
     // Initialize messages and handlers
-    initChains(router, chainsService);
     initKeyRing(router, keyRingService);
     initApprovals(router, approvalsService);
     resolve();
@@ -177,7 +161,6 @@ export const init = async (): Promise<{
     iDBStore,
     extStore,
     utilityStore,
-    chainsService,
     keyRingService,
     vaultService,
   };
