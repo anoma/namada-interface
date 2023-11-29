@@ -17,7 +17,7 @@ export const GithubButton = ({ disabled }: ButtonProps): JSX.Element => {
       onClick={() => {
         window.open(
           `https://github.com/login/oauth/authorize?client_id=${githubClientId}&redirect_uri=${redirectUrl}`,
-          "_blank"
+          "_self"
         );
       }}
     >
