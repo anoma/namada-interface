@@ -9,7 +9,7 @@ const createStyledComponentsTransformer =
 const packageJson = require("./package.json");
 
 // Load .env from namada-interface:
-require("dotenv").config({ path: "../namada-interface/.env" });
+const { parsed: dotEnvVars } = require("dotenv").config({ path: "../namada-interface/.env" });
 
 const { NODE_ENV, TARGET } = process.env;
 
@@ -91,7 +91,12 @@ const plugins = [
   // Provide environment variables to extension:
   new webpack.DefinePlugin({
     process: {
-      env: JSON.stringify(process.env),
+      env: JSON.stringify({
+        ...dotEnvVars,
+        NODE_ENV: process.env.NODE_ENV,
+        TARGET: process.env.TARGET,
+        npm_package_version: process.env.npm_package_version
+      }),
     },
   }),
   new RemovePlugin({
