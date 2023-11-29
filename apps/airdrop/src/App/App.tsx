@@ -13,6 +13,8 @@ import { Main } from "./Main";
 import { NonEligible } from "./NonEligible";
 import { TrustedSetup } from "./TrustedSetup";
 import { claimAtom, confirmationAtom } from "./state";
+import { BrowserView, MobileView } from "react-device-detect";
+import { MainMobile } from "./MainMobile";
 
 export const App: React.FC = () => {
   const [claimState] = useAtom(claimAtom);
@@ -23,40 +25,50 @@ export const App: React.FC = () => {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyles colorMode="dark" />
-      <PageHeader
-        showStartOver={pathname !== "/"}
-        showTermsOfService={pathname === "/"}
-        yellowLogo={pathname !== "/"}
-      />
-      <Routes>
-        <Route path={`/`} element={<Main />} />
-        <Route
-          path={`/claim`}
-          element={
-            !!claimState ? <Claim /> : <Navigate to="/" replace={true} />
-          }
-        >
-          <Route path={`info`} element={<ClaimInfo />} />
-          <Route path={`confirmation`} element={<ClaimConfirmation />} />
-        </Route>
-        <Route path={`/trusted-setup`} element={<TrustedSetup />} />
-        <Route
-          path={`/airdrop-confirmed`}
-          element={
-            !!confirmationState ? (
-              <AirdropConfirmation />
-            ) : (
-              <Navigate to="/" replace={true} />
-            )
-          }
+      <BrowserView>
+        <PageHeader
+          showStartOver={pathname !== "/"}
+          showTermsOfService={pathname === "/"}
+          yellowLogo={pathname !== "/"}
         />
-        <Route
-          path={`/non-eligible`}
-          element={
-            !!claimState ? <NonEligible /> : <Navigate to="/" replace={true} />
-          }
-        />
-      </Routes>
+        <Routes>
+          <Route path={`/`} element={<Main />} />
+          <Route
+            path={`/claim`}
+            element={
+              !!claimState ? <Claim /> : <Navigate to="/" replace={true} />
+            }
+          >
+            <Route path={`info`} element={<ClaimInfo />} />
+            <Route path={`confirmation`} element={<ClaimConfirmation />} />
+          </Route>
+          <Route path={`/trusted-setup`} element={<TrustedSetup />} />
+          <Route
+            path={`/airdrop-confirmed`}
+            element={
+              !!confirmationState ? (
+                <AirdropConfirmation />
+              ) : (
+                <Navigate to="/" replace={true} />
+              )
+            }
+          />
+          <Route
+            path={`/non-eligible`}
+            element={
+              !!claimState ? (
+                <NonEligible />
+              ) : (
+                <Navigate to="/" replace={true} />
+              )
+            }
+          />
+        </Routes>
+      </BrowserView>
+      <MobileView>
+        <GlobalStyles colorMode="light" />
+        <MainMobile />
+      </MobileView>
     </ThemeProvider>
   );
 };
