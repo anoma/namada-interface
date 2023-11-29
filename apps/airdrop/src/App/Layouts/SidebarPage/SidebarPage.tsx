@@ -1,5 +1,6 @@
 import { ExternalPageIcon } from "App/Icons/ExternalPageIcon";
 import {
+  ExtensionSecurityInfo,
   IconWrap,
   MainContainer,
   MainContent,
@@ -14,6 +15,8 @@ import { DiscordIcon } from "App/Icons/DiscordIcon";
 import { TwitterXIcon } from "App/Icons/TwitterXIcon";
 import { GlobeIcon } from "App/Icons/GlobeIcon";
 import { InstallExtensionPanel } from "App/Common/InstallExtensionPanel";
+import { Stack } from "@namada/components";
+import { WarningIcon } from "App/Icons/WarningIcon";
 
 type SidebarPageProps = {
   children: React.ReactNode;
@@ -97,22 +100,27 @@ export const SidebarPage = ({
       <MainContainer>
         <MainContent>{children}</MainContent>
         {displayInstructions && (
-          <InstallExtensionPanel size="large">
-            Install the Namada Browser extension or use the Namada CLI to create
-            your NAM keys and add the public key to Namada genesis block
-            proposal using “Claim NAM” button above
-          </InstallExtensionPanel>
+          <Stack gap={5}>
+            <InstallExtensionPanel size="large">
+              Install the Namada Browser extension or use the Namada CLI to
+              create your NAM keys and add the public key to Namada genesis
+              block proposal using “Claim NAM” button above
+            </InstallExtensionPanel>
+            <ExtensionSecurityInfo>
+              <WarningIcon />
+              <ul>
+                <li>Make sure you back up your seed phrase in a safe place</li>
+                <li>
+                  No one from Heliax, Anoma Foundation, or anyone else will be
+                  able to recover your seed phrase if you lose it.
+                </li>
+                <li>
+                  We will never ask you for your private key or seed phrase.
+                </li>
+              </ul>
+            </ExtensionSecurityInfo>
+          </Stack>
         )}
-        {/* <ExtensionInfo>
-          <ul>
-            <li>Make sure you back up your seed phrase in a safe place</li>
-            <li>
-              No one from Heliax, Anoma Foundation, or anyone else will be able
-              to recover your seed phrase if you lose it.
-            </li>
-            <li>We will never ask you for your private key or seed phrase.</li>
-          </ul>
-        </ExtensionInfo> */}
       </MainContainer>
     </SidebarPageGrid>
   );

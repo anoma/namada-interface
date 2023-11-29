@@ -1,71 +1,39 @@
-import {
-  Button,
-  ButtonVariant,
-  Image,
-  ImageName,
-  LinkButton,
-} from "@namada/components";
 import { getTheme } from "@namada/utils";
-import { AppContainerHeader, GlobalStyles, Logo } from "App/App.components";
+import { GlobalStyles } from "App/App.components";
 import { useAtom } from "jotai";
 import React from "react";
-import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 import { AirdropConfirmation } from "./AirdropConfirmation";
 import { Claim } from "./Claim";
 import { ClaimConfirmation } from "./Claim/ClaimConfirmation";
 import { ClaimInfo } from "./Claim/ClaimInfo";
+import { PageHeader } from "./Common/PageHeader";
 import { Main } from "./Main";
 import { NonEligible } from "./NonEligible";
 import { TrustedSetup } from "./TrustedSetup";
 import { claimAtom, confirmationAtom } from "./state";
 
 export const App: React.FC = () => {
-  const [claimState, setClaimState] = useAtom(claimAtom);
-  const [confirmationState, setConfirmationState] = useAtom(confirmationAtom);
+  const [claimState] = useAtom(claimAtom);
+  const [confirmationState] = useAtom(confirmationAtom);
   const theme = getTheme("dark");
-  const navigate = useNavigate();
-  const { pathname } = window.location;
-
-  const showStartOver = pathname !== "/";
-  const darkMode = pathname !== "/" && pathname !== "/airdrop-confirmed";
+  const { pathname } = useLocation();
 
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyles colorMode="dark" />
-      <AppContainerHeader>
-        <Button
-          style={showStartOver ? {} : { display: "none" }}
-          variant={ButtonVariant.Small}
-          onClick={() => {
-            navigate("/");
-            setClaimState(null);
-            setConfirmationState(null);
-          }}
-        >
-          Start over
-        </Button>
-        <Logo>
-          <Image
-            imageName={ImageName.Logo}
-            styleOverrides={{ width: "240px" }}
-            forceLightMode={true}
-          />
-        </Logo>
-        <LinkButton underline={false} themeColor="utility1">
-          Terms of service
-        </LinkButton>
-      </AppContainerHeader>
+      <PageHeader
+        showStartOver={pathname !== "/"}
+        showTermsOfService={pathname === "/"}
+        yellowLogo={pathname !== "/"}
+      />
       <Routes>
         <Route path={`/`} element={<Main />} />
         <Route
           path={`/claim`}
           element={
-            true || !!claimState ? (
-              <Claim />
-            ) : (
-              <Navigate to="/" replace={true} />
-            )
+            !!claimState ? <Claim /> : <Navigate to="/" replace={true} />
           }
         >
           <Route path={`info`} element={<ClaimInfo />} />
@@ -85,11 +53,7 @@ export const App: React.FC = () => {
         <Route
           path={`/non-eligible`}
           element={
-            true || !!claimState ? (
-              <NonEligible />
-            ) : (
-              <Navigate to="/" replace={true} />
-            )
+            !!claimState ? <NonEligible /> : <Navigate to="/" replace={true} />
           }
         />
       </Routes>

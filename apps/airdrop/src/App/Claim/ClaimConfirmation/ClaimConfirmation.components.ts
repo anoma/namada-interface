@@ -1,4 +1,4 @@
-import { borderRadius, color, spacement } from "@namada/utils";
+import { borderRadius, color, fontSize, spacement } from "@namada/utils";
 import styled from "styled-components";
 
 export const ClaimsSection = styled.div`
@@ -48,4 +48,37 @@ export const InputActionButton = styled.span`
 
 export const ButtonContainer = styled.footer`
   margin: ${spacement(12)} 0;
+`;
+
+export const NonceContainer = styled.div`
+  align-items: center;
+  display: grid;
+  gap: ${spacement(4)};
+  grid-template-columns: 60% 40%;
+
+  input {
+    background-color: ${color("utility1", "main80")};
+    color: ${color("primary", "main")};
+    padding-top: ${spacement(3)};
+    padding-bottom: ${spacement(3)};
+  }
+`;
+
+export const PasteSignatureContainer = styled.div`
+  label {
+    color: ${color("primary", "main")};
+    font-weight: 400;
+  }
+`;
+
+export const StepHeader = styled.header`
+  margin-bottom: ${spacement(4)};
+`;
+
+export const ClaimBadge = styled.span`
+  background: ${color("utility1", "main")};
+  border-radius: 24px;
+  color: ${color("primary", "main")};
+  font-size: ${fontSize("base")};
+  padding: ${spacement(1)} ${spacement(4)};
 `;

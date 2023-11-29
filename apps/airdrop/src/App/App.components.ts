@@ -258,7 +258,7 @@ export const EligibilityHeader = styled.header`
 
 export const EligibilitySectionWrapper = styled.div`
   box-sizing: border-box;
-  padding: ${spacement(5)} ${spacement(8)};
+  padding: ${spacement(8)};
 `;
 
 export const EligibilitySection = styled.div`
@@ -487,4 +487,56 @@ export const TSEligibilityContainer = styled.div`
   & > button {
     margin: 10px 0 0 0;
   }
+`;
+
+export const TrustedSetupList = styled.ol`
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: ${spacement(5)};
+`;
+
+export const TrustedSetupHeader = styled.header`
+  font-size: 18px;
+  max-width: 75%;
+`;
+
+export const TrustedSetupListItem = styled.li`
+  border-radius: ${borderRadius("md")};
+  border: 1px solid ${color("primary", "main")};
+  color: ${color("primary", "main")};
+  font-size: 18px;
+  list-style: none;
+  padding: ${spacement(6)};
+
+  i {
+    font-size: 22px;
+  }
+
+  a {
+    color: currentColor;
+    font-weight: 700;
+    text-decoration: none;
+    transition: color 150ms ease-out;
+
+    &:hover {
+      color: ${color("secondary", "main")};
+    }
+  }
+`;
+
+export const CheckEligibilityContainer = styled.div`
+  padding: ${spacement(6)} ${spacement(7)};
+
+  input::placeholder {
+      color: ${color("primary", "main40")};
+    }
+  }
+`;
+
+export const CheckEligibilityButton = styled.div`
+  position: absolute;
+  right: ${spacement(6)};
+  top: ${spacement(3)};
 `;

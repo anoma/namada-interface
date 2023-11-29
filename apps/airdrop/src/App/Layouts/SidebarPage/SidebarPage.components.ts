@@ -5,7 +5,7 @@ export const SidebarPageGrid = styled.div`
   display: grid;
   grid-template-columns: ${spacement(55)} auto;
   gap: ${spacement(10)};
-  padding: 0 ${spacement(5)};
+  padding: 0 ${spacement(5)} ${spacement(12)};
   margin-top: ${spacement(10)};
 `;
 
@@ -59,9 +59,27 @@ export const SocialListItem = styled.li`
 export const MainContent = styled.article`
   border: 1px solid ${color("primary", "main40")};
   border-radius: ${borderRadius("lg")};
-  margin-bottom: ${spacement(16)};
+  margin-bottom: ${spacement(12)};
 `;
 
 export const MainContainer = styled.div`
   max-width: 880px;
+`;
+
+export const ExtensionSecurityInfo = styled.div`
+  border: 1px solid ${color("primary", "main")};
+  border-radius: ${borderRadius("lg")};
+  color: ${color("primary", "main")};
+  display: flex;
+  align-items: center;
+  padding: ${spacement(1)} ${spacement(24)};
+  gap: ${spacement(4)};
+
+  svg {
+    width: ${spacement(24)};
+  }
+
+  li {
+    margin-bottom: 0.5em;
+  }
 `;

@@ -1,11 +1,5 @@
 export const WarningIcon = (): JSX.Element => (
-  <svg
-    width="60"
-    height="52"
-    viewBox="0 0 60 52"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
+  <svg viewBox="0 0 60 52" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
       d="M26.1206 2.39231C27.9103 -0.707586 32.3846 -0.707595 34.1744 2.3923L58.7383 44.9383C60.528 48.0382 58.2909 51.9131 54.7114 51.9131H5.58354C2.0041 51.9131 -0.23307 48.0382 1.55665 44.9383L26.1206 2.39231Z"
       fill="#FFF500"

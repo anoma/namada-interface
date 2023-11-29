@@ -25,6 +25,7 @@ export const LinkButtonContainer = styled.div<{
 
   a {
     text-decoration: none;
+    color: currentColor;
   }
 
   button,

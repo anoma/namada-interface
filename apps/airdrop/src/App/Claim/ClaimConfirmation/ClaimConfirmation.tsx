@@ -1,7 +1,5 @@
 import {
   ActionButton,
-  Button,
-  ButtonVariant,
   Heading,
   Input,
   InputVariants,
@@ -34,12 +32,17 @@ import {
 
 import { AcceptTermsCheckbox } from "App/Common/AcceptTermsCheckbox";
 import { BigNuclearClaimButton } from "App/Common/BigNuclearClaimButton";
+import { StepIndicator } from "App/Common/StepIndicator";
 import {
   ButtonContainer,
+  ClaimBadge,
   ClaimHeading,
   ClaimSectionContainer,
   ClaimsSection,
   InputActionButton,
+  NonceContainer,
+  PasteSignatureContainer,
+  StepHeader,
   TermsContainer,
 } from "./ClaimConfirmation.components";
 
@@ -215,14 +218,6 @@ export const ClaimConfirmation: React.FC = () => {
     return namada.defaultAccount(namadaChainId);
   }, [namada]);
 
-  //TODO: reuse exisiting one
-  const handleDownloadExtension = (url: string): void => {
-    window.open(url, "_blank", "noopener,noreferrer");
-  };
-  const handleNonceButton = async (nonce: string): Promise<void> => {
-    await navigator.clipboard.writeText(nonce);
-  };
-
   const airdropAddressValid = bech32mValidation("tnam", airdropAddress);
   const airdropPubKeyValid = bech32mValidation("tpknam", airdropPubKey);
 
@@ -289,6 +284,8 @@ export const ClaimConfirmation: React.FC = () => {
     ? ""
     : "To import please install the Namada extension using the link below and try again.";
 
+  const isTrustedSetup = claimState?.type === "ts";
+
   return (
     <>
       <ClaimsSection>
@@ -299,91 +296,107 @@ export const ClaimConfirmation: React.FC = () => {
             size="5xl"
             themeColor="utility1"
           >
-            Claim NAM
+            <Stack
+              gap={4}
+              direction="horizontal"
+              style={{ alignItems: "center" }}
+            >
+              Claim NAM
+              {isTrustedSetup && <ClaimBadge>Trusted Setup</ClaimBadge>}
+            </Stack>
           </Heading>
         </ClaimHeading>
         <Stack gap={7}>
-          {claimState?.type === "ts" && (
-            <ClaimsSectionSignature>
-              <Text>Generate a signature with yo ur Trusted Setup keys</Text>
-              <Text>
-                Use this nonce in the CLI tool (Copy and paste this nonce)
-              </Text>
-              <div>
-                <Input
-                  variant={InputVariants.Text}
-                  value={(claimState as TSState).nonce}
-                  label="Nonce"
-                  hint={importButtonsTooltip}
-                  onChange={() => {}}
-                />
-                <Button
-                  variant={ButtonVariant.Small}
-                  onClick={() =>
-                    handleNonceButton((claimState as TSState).nonce)
-                  }
-                >
-                  Copy
-                </Button>
-              </div>
-              <p>Paste the signature generated in the clipboard</p>
-              <Input
-                variant={InputVariants.Text}
-                value={tsSignature}
-                hint={importButtonsTooltip}
-                onChange={(e) => setTsSignature(e.target.value)}
-                label="Trusted setup signature"
-              />
-            </ClaimsSectionSignature>
+          {isTrustedSetup && (
+            <ClaimSectionContainer>
+              <ClaimsSectionSignature>
+                <Stack gap={5}>
+                  <div>
+                    <StepHeader>
+                      <Text themeColor="primary" fontSize="xl">
+                        <StepIndicator>1</StepIndicator>
+                        Generate a signature with your Trusted Setup keys
+                      </Text>
+                    </StepHeader>
+                    <Text themeColor="primary">
+                      Use this nonce in the CLI tool (Copy and paste this nonce)
+                    </Text>
+                  </div>
+                  <NonceContainer>
+                    <Input
+                      theme="primary"
+                      variant={InputVariants.ReadOnlyCopy}
+                      value={(claimState as TSState).nonce}
+                      onChange={() => {}}
+                    />
+                    <Text themeColor="primary" fontSize="sm">
+                      (Copy and paste this nonce)
+                    </Text>
+                  </NonceContainer>
+                  <PasteSignatureContainer>
+                    <Input
+                      theme="primary"
+                      variant={InputVariants.Text}
+                      value={tsSignature}
+                      hint={importButtonsTooltip}
+                      onChange={(e) => setTsSignature(e.target.value)}
+                      label="Paste the signature generated in the CLI"
+                      placeholder="Enter the signature generated in your CLI"
+                    />
+                  </PasteSignatureContainer>
+                </Stack>
+              </ClaimsSectionSignature>
+            </ClaimSectionContainer>
           )}
 
           <ClaimSectionContainer>
-            <Stack gap={1}>
+            <Stack gap={3}>
               <Text themeColor="primary" fontSize="xl">
+                {isTrustedSetup && <StepIndicator>2</StepIndicator>}
                 Submit your Namada public key to be included in the genesis
                 proposal
               </Text>
-              <Input
-                theme={airdropPubKeyValid ? "secondary" : "primary"}
-                variant={InputVariants.Text}
-                value={airdropPubKey}
-                error={airdropPubKey.length > 0 && !airdropPubKeyValid}
-                onChange={(e) => setAirdropPubKey(e.target.value)}
-                placeholder="Enter your Namada public key"
-              >
-                <InputActionButton>
-                  <ActionButton
-                    disabled={!namada}
-                    size="sm"
-                    variant="primary"
-                    onClick={importPublicKey}
-                  >
-                    {airdropPubKey ? "Clear" : "Import from extension"}
-                  </ActionButton>
-                </InputActionButton>
-              </Input>
-
-              <Input
-                variant={InputVariants.Text}
-                value={airdropAddress}
-                theme={airdropAddressValid ? "secondary" : "primary"}
-                error={airdropAddress.length > 0 && !airdropAddressValid}
-                onChange={(e) => setNamadaAddress(e.target.value)}
-                placeholder="Enter your Namada transparent address"
-              >
-                <InputActionButton>
-                  <ActionButton
-                    disabled={!namada}
-                    size="sm"
-                    variant="primary"
-                    onClick={importAirdropAddress}
-                  >
-                    {airdropAddress ? "Clear" : "Import from extension"}
-                  </ActionButton>
-                </InputActionButton>
-              </Input>
+              <Stack gap={1}>
+                <Input
+                  theme={airdropPubKeyValid ? "secondary" : "primary"}
+                  variant={InputVariants.Text}
+                  value={airdropPubKey}
+                  error={airdropPubKey.length > 0 && !airdropPubKeyValid}
+                  onChange={(e) => setAirdropPubKey(e.target.value)}
+                  placeholder="Enter your Namada public key"
+                >
+                  <InputActionButton>
+                    <ActionButton
+                      disabled={!namada}
+                      size="sm"
+                      variant="primary"
+                      onClick={importPublicKey}
+                    >
+                      {airdropPubKey ? "Clear" : "Import from extension"}
+                    </ActionButton>
+                  </InputActionButton>
+                </Input>
+                <Input
+                  variant={InputVariants.Text}
+                  value={airdropAddress}
+                  theme={airdropAddressValid ? "secondary" : "primary"}
+                  error={airdropAddress.length > 0 && !airdropAddressValid}
+                  onChange={(e) => setNamadaAddress(e.target.value)}
+                  placeholder="Enter your Namada transparent address"
+                >
+                  <InputActionButton>
+                    <ActionButton
+                      disabled={!namada}
+                      size="sm"
+                      variant="primary"
+                      onClick={importAirdropAddress}
+                    >
+                      {airdropAddress ? "Clear" : "Import from extension"}
+                    </ActionButton>
+                  </InputActionButton>
+                </Input>
+              </Stack>
             </Stack>
-
             <TermsContainer>
               <AcceptTermsCheckbox
                 checked={isToggleChecked}
