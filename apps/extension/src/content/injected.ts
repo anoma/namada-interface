@@ -2,8 +2,6 @@
 // webpack bundle webextension-polyfill, which causes a runtime crash
 import { InjectedNamada } from "provider/InjectedNamada";
 
-import manifest from "manifest/_base.json";
-
 declare global {
   // NOTE: var is required to extend globalThis
   // eslint-disable-next-line
@@ -20,4 +18,6 @@ export function init(namada: InjectedNamada): void {
   }
 }
 
-init(new InjectedNamada(manifest.version));
+const packageVersion = process.env.npm_package_version || "";
+
+init(new InjectedNamada(packageVersion));
