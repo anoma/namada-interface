@@ -21,6 +21,7 @@ import {
   MainSectionButton,
   MainTopSection,
   ModalButtonContainer,
+  ModalButtonText,
   ObjectsContainer,
   PoolContainer,
   PoolTopLayerContainer,
@@ -202,6 +203,7 @@ export const Main: React.FC = () => {
               <ModalButtonContainer>
                 <ActionButton
                   outlined
+                  disabled={!isTOSAccepted}
                   variant="primary"
                   onClick={() =>
                     handleExtensionDownload("https://metamask.io/download/")
@@ -209,10 +211,14 @@ export const Main: React.FC = () => {
                 >
                   Download Metamask to use Ethereum Wallet
                 </ActionButton>
-                <Text themeColor="utility1" fontSize="xs">
+                <ModalButtonText
+                  disabled={!isTOSAccepted}
+                  themeColor="primary"
+                  fontSize="xs"
+                >
                   NOTE: Make sure to restart website after installing Metamask
                   extension
-                </Text>
+                </ModalButtonText>
               </ModalButtonContainer>
             )}
 
@@ -254,6 +260,7 @@ export const Main: React.FC = () => {
               <ModalButtonContainer>
                 <ActionButton
                   outlined
+                  disabled={!isTOSAccepted}
                   variant="primary"
                   onClick={() =>
                     handleExtensionDownload("https://www.keplr.app/download")
@@ -261,10 +268,14 @@ export const Main: React.FC = () => {
                 >
                   Download Keplr to use Cosmos/Osmosis/Stargaze Wallet
                 </ActionButton>
-                <Text themeColor="utility1" fontSize="xs">
+                <ModalButtonText
+                  disabled={!isTOSAccepted}
+                  themeColor="primary"
+                  fontSize="xs"
+                >
                   NOTE: Make sure to restart website after installing Keplr
                   extension
-                </Text>
+                </ModalButtonText>
               </ModalButtonContainer>
             )}
 

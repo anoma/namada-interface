@@ -42,7 +42,7 @@ export const NonEligible: React.FC = () => {
             )}
           </article>
         </NonEligiblePanel>
-        <AnotherWays />
+        <AnotherWays title="Try another way" />
       </EligibilitySectionWrapper>
     </SidebarPage>
   );

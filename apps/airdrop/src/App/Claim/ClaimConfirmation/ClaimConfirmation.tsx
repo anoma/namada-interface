@@ -366,9 +366,15 @@ export const ClaimConfirmation: React.FC = () => {
                   onChange={(e) => setAirdropPubKey(e.target.value)}
                   placeholder="Enter your Namada public key"
                 >
-                  <InputActionButton>
+                  <InputActionButton
+                    title={
+                      !namada && !airdropAddress
+                        ? "Please download the Namada extension first"
+                        : ""
+                    }
+                  >
                     <ActionButton
-                      disabled={!namada}
+                      disabled={!namada && !airdropPubKey}
                       size="sm"
                       variant="primary"
                       onClick={importPublicKey}
@@ -385,9 +391,15 @@ export const ClaimConfirmation: React.FC = () => {
                   onChange={(e) => setNamadaAddress(e.target.value)}
                   placeholder="Enter your Namada transparent address"
                 >
-                  <InputActionButton>
+                  <InputActionButton
+                    title={
+                      !namada && !airdropAddress
+                        ? "Please download the Namada extension first"
+                        : ""
+                    }
+                  >
                     <ActionButton
-                      disabled={!namada}
+                      disabled={!namada && !airdropAddress}
                       size="sm"
                       variant="primary"
                       onClick={importAirdropAddress}

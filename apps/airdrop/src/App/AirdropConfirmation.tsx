@@ -251,7 +251,7 @@ export const AirdropConfirmation: React.FC = () => {
         </AirdropConfirmationAccordion>
       </AirdropBreakdownSection>
       <AnotherWaysSection>
-        <AnotherWays />
+        <AnotherWays title="Try another claim" />
       </AnotherWaysSection>
       {/* lazy person margin */}
       <div style={{ height: "150px" }} />

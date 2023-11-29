@@ -6,7 +6,7 @@ import {
   fontSize,
   spacement,
 } from "@namada/utils";
-import { Accordion, Heading, Input } from "@namada/components";
+import { Accordion, Heading, Input, Text, TextProps } from "@namada/components";
 
 type GlobalStyleProps = {
   colorMode: ColorMode;
@@ -236,6 +236,13 @@ export const ModalButtonContainer = styled.div`
   & > button {
     margin-bottom: ${spacement(1.5)};
   }
+`;
+
+export const ModalButtonText = styled(Text)<{ disabled: boolean } & TextProps>`
+  color: ${(props) =>
+    props.theme.colors[props.themeColor || "primary"][
+      props.disabled ? "main20" : "main"
+    ]};
 `;
 
 export const KeplrButtonContainer = styled.div`

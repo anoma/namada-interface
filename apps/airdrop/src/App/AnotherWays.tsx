@@ -1,10 +1,11 @@
 import { Window as KeplrWindow } from "@keplr-wallet/types";
-import { ActionButton, Heading, Text } from "@namada/components";
+import { ActionButton, Heading } from "@namada/components";
 import { useNavigate } from "react-router-dom";
 import {
   AnotherWaysButtons,
   AnotherWaysContainer,
   ModalButtonContainer,
+  ModalButtonText,
 } from "./App.components";
 import { CosmosIcon } from "./Icons/CosmosIcon";
 import { EthereumIcon } from "./Icons/EthereumIcon";
@@ -25,7 +26,11 @@ const {
   REACT_APP_GITHUB_CLIENT_ID: githubClientId = "",
 } = process.env;
 
-export const AnotherWays: React.FC = () => {
+type AnotherWaysProps = {
+  title: string;
+};
+
+export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
   const keplr = (window as KeplrWindow)?.keplr;
   const metamask = (window as MetamaskWindow)?.ethereum;
   const metamaskHandler = useMetamaskHandler("0x1", metamask);
@@ -37,7 +42,7 @@ export const AnotherWays: React.FC = () => {
   return (
     <AnotherWaysContainer>
       <Heading themeColor="primary" level={"h2"} size={"2xl"}>
-        Try another way
+        {props.title}
       </Heading>
       <AnotherWaysButtons>
         <ActionButton
@@ -76,10 +81,14 @@ export const AnotherWays: React.FC = () => {
             >
               Download Metamask to use Ethereum Wallet
             </ActionButton>
-            <Text themeColor="utility1" fontSize="xs">
+            <ModalButtonText
+              disabled={false}
+              themeColor="primary"
+              fontSize="xs"
+            >
               NOTE: Make sure to restart website after installing Metamask
               extension
-            </Text>
+            </ModalButtonText>
           </ModalButtonContainer>
         )}
 
@@ -134,10 +143,14 @@ export const AnotherWays: React.FC = () => {
             >
               Download Keplr to use Cosmos/Osmosis/Stargaze Wallet
             </ActionButton>
-            <Text themeColor="utility1" fontSize="xs">
+            <ModalButtonText
+              disabled={false}
+              themeColor="primary"
+              fontSize="xs"
+            >
               NOTE: Make sure to restart website after installing Keplr
               extension
-            </Text>
+            </ModalButtonText>
           </ModalButtonContainer>
         )}
       </AnotherWaysButtons>
