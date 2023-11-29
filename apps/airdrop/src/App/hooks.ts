@@ -156,7 +156,8 @@ export const useKeplrHandler = (
       try {
         await keplr.enable(chainId);
       } catch (e) {
-        alert("Please install Keplr extension and refresh the website");
+        toast("Please allow Keplr to connect to this website");
+        return;
       }
 
       const { bech32Address: address } = await keplr.getKey(chainId);

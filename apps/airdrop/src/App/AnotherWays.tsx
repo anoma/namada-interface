@@ -20,6 +20,8 @@ import {
   useMetamaskHandler,
 } from "./hooks";
 import { MetamaskWindow } from "./types";
+import { AcceptTermsCheckbox } from "./Common/AcceptTermsCheckbox";
+import { useState } from "react";
 
 const {
   REACT_APP_REDIRECT_URI: redirectUrl = "",
@@ -31,6 +33,7 @@ type AnotherWaysProps = {
 };
 
 export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
+  const [isTOSAccepted, setIsTOSAccepted] = useState(false);
   const keplr = (window as KeplrWindow)?.keplr;
   const metamask = (window as MetamaskWindow)?.ethereum;
   const metamaskHandler = useMetamaskHandler("0x1", metamask);
@@ -48,6 +51,7 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
       <AnotherWaysButtons columns={columns}>
         <ActionButton
           outlined
+          disabled={!isTOSAccepted}
           variant="primary"
           icon={<GithubIcon />}
           onClick={() => {
@@ -63,6 +67,7 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
         {metamask && (
           <ActionButton
             outlined
+            disabled={!isTOSAccepted}
             variant="primary"
             onClick={metamaskHandler}
             icon={<EthereumIcon />}
@@ -73,6 +78,7 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
 
         <ActionButton
           outlined
+          disabled={!isTOSAccepted}
           variant="primary"
           icon={<TrustedSetupIcon />}
           onClick={() => navigate("/trusted-setup")}
@@ -84,6 +90,7 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
           <>
             <ActionButton
               outlined
+              disabled={!isTOSAccepted}
               variant="primary"
               icon={<CosmosIcon />}
               onClick={cosmosHandler}
@@ -93,6 +100,7 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
 
             <ActionButton
               outlined
+              disabled={!isTOSAccepted}
               variant="primary"
               icon={<OsmosisIcon />}
               onClick={osmosisHandler}
@@ -102,6 +110,7 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
 
             <ActionButton
               outlined
+              disabled={!isTOSAccepted}
               variant="primary"
               icon={<StargazerIcon />}
               onClick={stargazeHandler}
@@ -115,6 +124,7 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
           <ModalButtonContainer>
             <ActionButton
               outlined
+              disabled={!isTOSAccepted}
               variant="primary"
               onClick={() =>
                 handleExtensionDownload("https://metamask.io/download/")
@@ -123,7 +133,7 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
               Download Metamask to use Ethereum Wallet
             </ActionButton>
             <ModalButtonText
-              disabled={false}
+              disabled={!isTOSAccepted}
               themeColor="primary"
               fontSize="xs"
             >
@@ -137,6 +147,7 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
           <ModalButtonContainer>
             <ActionButton
               outlined
+              disabled={!isTOSAccepted}
               variant="primary"
               onClick={() =>
                 handleExtensionDownload("https://www.keplr.app/download")
@@ -145,7 +156,7 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
               Download Keplr to use Cosmos/Osmosis/Stargaze Wallet
             </ActionButton>
             <ModalButtonText
-              disabled={false}
+              disabled={!isTOSAccepted}
               themeColor="primary"
               fontSize="xs"
             >
@@ -155,6 +166,11 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
           </ModalButtonContainer>
         )}
       </AnotherWaysButtons>
+
+      <AcceptTermsCheckbox
+        checked={isTOSAccepted}
+        onChange={() => setIsTOSAccepted(!isTOSAccepted)}
+      />
     </AnotherWaysContainer>
   );
 };
