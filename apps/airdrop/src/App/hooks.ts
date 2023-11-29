@@ -180,6 +180,8 @@ export const useKeplrHandler = (
 
       let signature;
       if (claim.eligible && !claim.has_claimed) {
+        //We need to give some time to Keplr to enable itself, otherwise it will fail first time after enabling
+        await new Promise((resolve) => setTimeout(resolve, 500));
         signature = await keplr?.signArbitrary(chainId, address, claim.nonce);
       } else if (claim.eligible && claim.has_claimed) {
         setConfirmation({
