@@ -10,6 +10,7 @@ type LoadingProps = {
   visible?: boolean;
   imageUrl?: string;
   variant?: "full" | "contained";
+  className?: string;
 };
 
 export const Loading = ({
@@ -17,9 +18,10 @@ export const Loading = ({
   visible = true,
   imageUrl = "",
   variant = "contained",
+  className,
 }: LoadingProps): JSX.Element => {
   return (
-    <LoadingContainer variant={variant} visible={visible}>
+    <LoadingContainer className={className} variant={variant} visible={visible}>
       <LoadingPanel>
         <LoadingHeader>{status}</LoadingHeader>
         {imageUrl && <LoadingImage src={imageUrl} alt="Loading..." />}

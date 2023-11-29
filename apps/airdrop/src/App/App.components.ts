@@ -6,7 +6,14 @@ import {
   fontSize,
   spacement,
 } from "@namada/utils";
-import { Accordion, Heading, Input, Text, TextProps } from "@namada/components";
+import {
+  Accordion,
+  Heading,
+  Input,
+  Loading,
+  Text,
+  TextProps,
+} from "@namada/components";
 
 type GlobalStyleProps = {
   colorMode: ColorMode;
@@ -183,6 +190,14 @@ export const ObjectsContainer = styled.div`
   top: 0;
   width: 100%;
   z-index: 0;
+`;
+
+export const GithubLoading = styled(Loading)`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 `;
 
 export const EligibilityPanel = styled.div`
