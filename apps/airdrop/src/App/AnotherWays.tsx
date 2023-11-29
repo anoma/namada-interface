@@ -38,13 +38,14 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
   const osmosisHandler = useKeplrHandler("osmosis-1", "osmosis", keplr);
   const stargazeHandler = useKeplrHandler("stargaze-1", "badkids", keplr);
   const navigate = useNavigate();
+  const columns = !metamask && !keplr ? "1fr 1fr" : "1fr 1fr 1fr";
 
   return (
     <AnotherWaysContainer>
       <Heading themeColor="primary" level={"h2"} size={"2xl"}>
         {props.title}
       </Heading>
-      <AnotherWaysButtons>
+      <AnotherWaysButtons columns={columns}>
         <ActionButton
           outlined
           variant="primary"
@@ -68,28 +69,6 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
           >
             Ethereum Wallet
           </ActionButton>
-        )}
-
-        {!metamask && (
-          <ModalButtonContainer>
-            <ActionButton
-              outlined
-              variant="primary"
-              onClick={() =>
-                handleExtensionDownload("https://metamask.io/download/")
-              }
-            >
-              Download Metamask to use Ethereum Wallet
-            </ActionButton>
-            <ModalButtonText
-              disabled={false}
-              themeColor="primary"
-              fontSize="xs"
-            >
-              NOTE: Make sure to restart website after installing Metamask
-              extension
-            </ModalButtonText>
-          </ModalButtonContainer>
         )}
 
         <ActionButton
@@ -130,6 +109,28 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
               Stargaze Wallet
             </ActionButton>
           </>
+        )}
+
+        {!metamask && (
+          <ModalButtonContainer>
+            <ActionButton
+              outlined
+              variant="primary"
+              onClick={() =>
+                handleExtensionDownload("https://metamask.io/download/")
+              }
+            >
+              Download Metamask to use Ethereum Wallet
+            </ActionButton>
+            <ModalButtonText
+              disabled={false}
+              themeColor="primary"
+              fontSize="xs"
+            >
+              NOTE: Make sure to restart website after installing Metamask
+              extension
+            </ModalButtonText>
+          </ModalButtonContainer>
         )}
 
         {!keplr && (

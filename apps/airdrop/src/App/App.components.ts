@@ -299,20 +299,16 @@ export const EligibiltyList = styled.ul`
 `;
 
 export const AnotherWaysContainer = styled.div`
-  border-radius: ${borderRadius("md")};
-  background-color: ${color("utility1", "main")};
-  border: 1px solid ${color("primary", "main")};
-  padding: ${spacement(5)} ${spacement(5)} ${spacement(7)};
-
   & > h2 {
     text-align: left;
   }
 `;
 
-export const AnotherWaysButtons = styled.div`
+export const AnotherWaysButtons = styled.div<{ columns?: string }>`
   column-gap: ${spacement(1)};
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  align-items: start;
+  grid-template-columns: ${(props) => props.columns || "1fr 1fr 1fr"};
   margin-bottom: ${spacement(6)};
   margin-top: 20px;
   row-gap: ${spacement(6)};
@@ -429,6 +425,10 @@ export const AnotherWaysSection = styled.div`
   max-width: 1140px;
   align-self: center;
   margin-top: ${spacement(10)};
+  border-radius: ${borderRadius("md")};
+  background-color: ${color("utility1", "main")};
+  border: 1px solid ${color("primary", "main")};
+  padding: ${spacement(5)} ${spacement(35)} ${spacement(7)};
 `;
 
 export const Table = styled.div`
