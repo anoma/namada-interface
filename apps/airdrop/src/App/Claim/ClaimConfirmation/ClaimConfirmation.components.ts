@@ -27,10 +27,12 @@ export const ClaimHeading = styled.header`
   }
 `;
 
-export const ClaimSectionContainer = styled.section`
+export const ClaimSectionContainer = styled.section<{ active: boolean }>`
   padding: ${spacement(8)} ${spacement(9)};
   border-radius: ${borderRadius("md")};
   border: 1px solid ${color("primary", "main")};
+  opacity: ${(props) => (props.active ? 1 : 0.25)};
+  transition: 120ms ease-out opacity;
 `;
 
 export const TermsContainer = styled.footer`

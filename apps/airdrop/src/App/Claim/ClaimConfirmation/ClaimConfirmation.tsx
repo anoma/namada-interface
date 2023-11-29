@@ -308,7 +308,7 @@ export const ClaimConfirmation: React.FC = () => {
         </ClaimHeading>
         <Stack gap={7}>
           {isTrustedSetup && (
-            <ClaimSectionContainer>
+            <ClaimSectionContainer active={true}>
               <ClaimsSectionSignature>
                 <Stack gap={5}>
                   <div>
@@ -349,7 +349,7 @@ export const ClaimConfirmation: React.FC = () => {
             </ClaimSectionContainer>
           )}
 
-          <ClaimSectionContainer>
+          <ClaimSectionContainer active={true}>
             <Stack gap={3}>
               <Text themeColor="primary" fontSize="xl">
                 {isTrustedSetup && <StepIndicator>2</StepIndicator>}
