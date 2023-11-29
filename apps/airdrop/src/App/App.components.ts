@@ -461,6 +461,8 @@ export const TableCell = styled.div<{
 }>`
   width: ${(props) => props.width};
   text-align: ${(props) => props.align || "left"};
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 export const Warning = styled.div<{
