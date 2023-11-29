@@ -29,7 +29,7 @@ export const App: React.FC = () => {
         <PageHeader
           showStartOver={pathname !== "/"}
           showTermsOfService={pathname === "/"}
-          yellowLogo={pathname !== "/"}
+          yellowLogo={pathname !== "/" && pathname !== "/airdrop-confirmed"}
         />
         <Routes>
           <Route path={`/`} element={<Main />} />

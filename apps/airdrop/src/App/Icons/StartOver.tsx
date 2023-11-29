@@ -1,6 +1,9 @@
-export const StartOver = (): JSX.Element => {
+export const StartOver = ({
+  className,
+}: React.ComponentPropsWithoutRef<"svg">): JSX.Element => {
   return (
     <svg
+      className={className}
       width="19"
       height="22"
       viewBox="0 0 19 22"

@@ -1,9 +1,12 @@
 import { Image, ImageName, Stack } from "@namada/components";
-import { StartOver } from "App/Icons/StartOver";
 import { useAtom } from "jotai";
 import { useNavigate } from "react-router-dom";
 import { claimAtom, confirmationAtom } from "../../state";
-import { PageHeaderContainer, PageHeaderLink } from "./PageHeader.components";
+import {
+  PageHeaderContainer,
+  PageHeaderLink,
+  PageHeaderStartOver,
+} from "./PageHeader.components";
 
 type PageHeaderProps = {
   showStartOver: boolean;
@@ -52,7 +55,10 @@ export const PageHeader = ({
             setConfirmationState(null);
           }}
         >
-          <StartOver /> <span>Start over</span>
+          <PageHeaderStartOver
+            themeColor={yellowLogo ? "primary" : "utility1"}
+          />{" "}
+          <span>Start over</span>
         </PageHeaderLink>
       )}
 

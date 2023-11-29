@@ -1,4 +1,5 @@
 import { ThemeColor, color, spacement } from "@namada/utils";
+import { StartOver } from "App/Icons/StartOver";
 import styled from "styled-components";
 
 export const PageHeaderContainer = styled.header<{ themeColor: ThemeColor }>`
@@ -17,4 +18,12 @@ export const PageHeaderLink = styled.a`
   gap: ${spacement(4)};
   cursor: pointer;
   text-decoration: none;
+`;
+
+export const PageHeaderStartOver = styled(StartOver)<{
+  themeColor: ThemeColor;
+}>`
+  & path {
+    fill: ${(props) => color(props.themeColor, "main")};
+  }
 `;
