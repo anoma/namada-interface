@@ -285,6 +285,7 @@ export const ClaimConfirmation: React.FC = () => {
     : "To import please install the Namada extension using the link below and try again.";
 
   const isTrustedSetup = claimState?.type === "ts";
+  const isClaimSectionActive = !isTrustedSetup || !!tsSignature;
 
   return (
     <>
@@ -349,7 +350,7 @@ export const ClaimConfirmation: React.FC = () => {
             </ClaimSectionContainer>
           )}
 
-          <ClaimSectionContainer active={true}>
+          <ClaimSectionContainer active={isClaimSectionActive}>
             <Stack gap={3}>
               <Text themeColor="primary" fontSize="xl">
                 {isTrustedSetup && <StepIndicator>2</StepIndicator>}

@@ -1,3 +1,4 @@
+import { browserName } from "react-device-detect";
 import { ActionButton } from "@namada/components";
 import {
   InstallExtensionContainer,
@@ -5,6 +6,8 @@ import {
   InstallExtensionContentWrapper,
   InstallExtensionTitle,
 } from "./InstallExtensionPanel.components";
+import { handleExtensionDownload } from "App/hooks";
+import { useCallback } from "react";
 
 type InstallExtensionPanelProps = {
   children: React.ReactNode;
@@ -15,6 +18,14 @@ export const InstallExtensionPanel = ({
   size = "small",
   children,
 }: InstallExtensionPanelProps): JSX.Element => {
+  const handleDownload = useCallback(() => {
+    const url =
+      browserName === "Firefox"
+        ? "https://addons.mozilla.org/en-US/firefox/addon/namada-extension/"
+        : "https://chrome.google.com/webstore/detail/namada-extension/hnebcbhjpeejiclgbohcijljcnjdofek";
+
+    handleExtensionDownload(url);
+  }, []);
   return (
     <InstallExtensionContainer size={size}>
       <InstallExtensionTitle>
@@ -27,6 +38,7 @@ export const InstallExtensionPanel = ({
           borderRadius="sm"
           variant="utility1"
           hoverColor="secondary"
+          onClick={handleDownload}
         >
           Install Extension
         </ActionButton>
