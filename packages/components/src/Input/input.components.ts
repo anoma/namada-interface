@@ -78,7 +78,7 @@ const commonStyles = css<FieldProps>`
 
 export const Label = styled.label`
   color: ${color("utility2", "main")};
-  font-size: ${fontSize("base")};
+  font-size: ${fontSize("sm")};
   font-weight: 500;
 
   & > p {

@@ -6,37 +6,40 @@ export const LogoContainer = styled.div`
   margin: 0 auto;
 `;
 
-export const HeaderStyles = css`
+export const HeaderIconStyles = css`
   align-items: center;
-  color: ${color("utility1", "main")};
+  color: ${color("primary", "main")};
   cursor: pointer;
   display: flex;
   height: 100%;
   position: absolute;
   top: 0;
   transition: color 150ms ease-out;
+  width: ${spacement(5)};
 
   &:active {
     top: ${spacement("px")};
   }
-`;
-
-export const HeaderContainer = styled.header``;
-
-export const SettingsButton = styled.span`
-  ${HeaderStyles}
-  right: ${spacement(4)};
 
   &:hover {
     color: ${color("secondary", "main")};
   }
 `;
 
-export const ReturnIcon = styled.span`
-  ${HeaderStyles}
-  left: ${spacement(4)};
+export const HeaderContainer = styled.header``;
 
-  &:hover {
-    color: ${color("utility1", "main20")};
-  }
+export const LockContainer = styled.span`
+  ${HeaderIconStyles}
+  width: 18px;
+  left: ${spacement(7)};
+`;
+
+export const SettingsButton = styled.span`
+  ${HeaderIconStyles}
+  right: ${spacement(7)};
+`;
+
+export const ReturnIcon = styled.span`
+  ${HeaderIconStyles}
+  left: ${spacement(7)};
 `;

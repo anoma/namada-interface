@@ -4,10 +4,13 @@ import {
   ActionButton,
   GapPatterns,
   Heading,
+  Image,
+  ImageName,
   Input,
   InputVariants,
   Stack,
 } from "@namada/components";
+import { LogoContainer } from "./Login.components";
 
 enum Status {
   InvalidPassword,
@@ -47,11 +50,26 @@ export const Login = ({ onLogin }: LoginProps): JSX.Element => {
   }
 
   return (
-    <Stack gap={GapPatterns.TitleContent}>
-      <Heading>Please type in your password to unlock</Heading>
-      <Stack gap={GapPatterns.FormFields} as="form" onSubmit={handleSubmit}>
+    <Stack
+      as="form"
+      gap={GapPatterns.TitleContent}
+      onSubmit={handleSubmit}
+      full
+    >
+      <LogoContainer>
+        <Image
+          styleOverrides={{
+            flex: 1,
+            width: "100%",
+            maxWidth: "60%",
+            margin: "0 auto",
+          }}
+          imageName={ImageName.LogoMinimal}
+        />
+      </LogoContainer>
+      <Stack gap={2} full>
+        <Heading size="xl">Enter your password to unlock</Heading>
         <Input
-          label="Enter your password"
           autoFocus={true}
           placeholder="Password"
           variant={InputVariants.Password}
@@ -60,12 +78,12 @@ export const Login = ({ onLogin }: LoginProps): JSX.Element => {
           onChange={(e) => setPassword(e.target.value)}
           error={errorMessage}
         />
-        <ActionButton
-          disabled={status === Status.Pending || !(password.length > 0)}
-        >
-          Unlock
-        </ActionButton>
       </Stack>
+      <ActionButton
+        disabled={status === Status.Pending || !(password.length > 0)}
+      >
+        Unlock
+      </ActionButton>
     </Stack>
   );
 };

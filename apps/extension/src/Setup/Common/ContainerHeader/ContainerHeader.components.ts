@@ -8,7 +8,7 @@ export const LogoContainer = styled.div`
 
 export const ReturnIcon = styled.span`
   align-items: center;
-  color: ${color("utility1", "main")};
+  color: ${color("primary", "main")};
   cursor: pointer;
   display: flex;
   height: 100%;
@@ -18,7 +18,7 @@ export const ReturnIcon = styled.span`
   transition: color 150ms ease-out;
 
   &:hover {
-    color: ${color("utility1", "main20")};
+    color: ${color("secondary", "main")};
   }
 
   &:active {

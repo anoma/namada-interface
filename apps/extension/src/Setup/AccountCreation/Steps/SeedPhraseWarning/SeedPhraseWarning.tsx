@@ -10,6 +10,7 @@ import {
 import { HeaderContainer } from "Setup/Setup.components";
 import {
   IconContainer,
+  InstructionsContainer,
   PageFooter,
   WarningPanel,
 } from "./SeedPhraseWarning.components";
@@ -39,7 +40,9 @@ const SeedPhraseWarning = ({
           </IconContainer>
         </WarningPanel>
         <Stack gap={8}>
-          <SeedPhraseInstructions />
+          <InstructionsContainer>
+            <SeedPhraseInstructions />
+          </InstructionsContainer>
           <PageFooter>
             <ActionButton onClick={onComplete}>
               I understood, show my phrase

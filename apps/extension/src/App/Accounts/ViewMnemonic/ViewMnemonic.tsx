@@ -5,7 +5,6 @@ import {
   Heading,
   Input,
   InputVariants,
-  LinkButton,
   SeedPhraseInstructions,
   Stack,
   Textarea,
@@ -16,6 +15,7 @@ import { useAccountContext } from "context";
 import { useVaultContext } from "context/VaultContext";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { InstructionsContainer } from "./ViewMnemonic.components";
 
 type ViewMnemonicParamsType = {
   accountId: string;
@@ -69,38 +69,54 @@ export const ViewMnemonic = (): JSX.Element => {
   }, [accountId]);
 
   return (
-    <Stack gap={GapPatterns.TitleContent}>
-      <Heading>View Recovery Phrase</Heading>
+    <Stack
+      full
+      as="form"
+      gap={GapPatterns.TitleContent}
+      onSubmit={handleSubmit}
+    >
+      <Heading size="2xl" uppercase>
+        View Seed Phrase
+      </Heading>
 
       {!passwordChecked && (
-        <Stack as="form" gap={GapPatterns.FormFields} onSubmit={handleSubmit}>
-          <Alert type="info">
-            Please provide your password in order to view your recovery phrase
-          </Alert>
-          <Input
-            variant={InputVariants.Password}
-            label="Password"
-            placeholder="Password"
-            error={passwordError}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+        <>
+          <Stack full gap={GapPatterns.FormFields}>
+            <Alert type="info">
+              Please provide your password in order to view your seed phrase
+            </Alert>
+            <Input
+              autoFocus
+              variant={InputVariants.Password}
+              label="Password"
+              placeholder="Password"
+              error={passwordError}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </Stack>
           <ActionButton disabled={!password}>Proceed</ActionButton>
-        </Stack>
+        </>
       )}
 
       {passwordChecked && (
-        <Stack gap={GapPatterns.FormFields}>
-          <SeedPhraseInstructions />
-          <Textarea
-            theme="secondary"
-            readOnly={true}
-            value={mnemonic}
-            sensitive
-            rows={mnemonic.split(" ").length === 12 ? 3 : 5}
-          />
-          <LinkButton onClick={() => navigate(-1)}>Back</LinkButton>
-        </Stack>
+        <>
+          <Stack full gap={1}>
+            <InstructionsContainer>
+              <SeedPhraseInstructions />
+            </InstructionsContainer>
+            <Textarea
+              theme="secondary"
+              readOnly={true}
+              value={mnemonic}
+              sensitive
+              rows={mnemonic.split(" ").length === 24 ? 5 : 3}
+            />
+          </Stack>
+          <ActionButton size="sm" onClick={() => navigate(-1)}>
+            Back
+          </ActionButton>
+        </>
       )}
     </Stack>
   );

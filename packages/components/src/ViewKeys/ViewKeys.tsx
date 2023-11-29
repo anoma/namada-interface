@@ -1,11 +1,5 @@
-import {
-  ActionButton,
-  GapPatterns,
-  Input,
-  InputVariants,
-  Stack,
-  Textarea,
-} from "@namada/components";
+import { ActionButton, GapPatterns, Input, Stack } from "@namada/components";
+import { InputVariants } from "../Input/types";
 import {
   DownloadPanel,
   WarningPanel,
@@ -28,8 +22,8 @@ export const ViewKeys = ({
   footer,
 }: ViewKeysProps): JSX.Element => {
   return (
-    <Stack as="section" gap={GapPatterns.FormFields}>
-      <Stack gap={4}>
+    <Stack as="section" gap={GapPatterns.TitleContent}>
+      <Stack gap={GapPatterns.FormFields}>
         {transparentAccountAddress && (
           <Input
             label="Your Transparent Address"
@@ -47,12 +41,12 @@ export const ViewKeys = ({
           />
         )}
         {shieldedAccountAddress && (
-          <Textarea
+          <Input
             label="Your Shielded Address"
+            variant={InputVariants.ReadOnlyCopy}
             readOnly={true}
             value={shieldedAccountAddress}
             theme={"secondary"}
-            sensitive={true}
           />
         )}
         {viewingKeys && (

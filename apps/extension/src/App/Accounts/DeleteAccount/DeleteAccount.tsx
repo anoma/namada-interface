@@ -87,30 +87,45 @@ export const DeleteAccount = (): JSX.Element => {
 
   return (
     <>
-      <Stack as="form" onSubmit={handleSubmit} gap={GapPatterns.TitleContent}>
-        <Stack as="header" gap={4}>
-          <Heading>Delete Keys</Heading>
-          <Alert type="warning" title="Alert!">
-            Make sure that you&apos;ve backed up your recovery phrase and
-            private key.
-          </Alert>
+      <Stack
+        as="form"
+        onSubmit={handleSubmit}
+        gap={GapPatterns.TitleContent}
+        full
+      >
+        <Stack gap={GapPatterns.TitleContent} full>
+          <Stack as="header" gap={4}>
+            <Heading size="2xl" uppercase>
+              Delete Keys
+            </Heading>
+            <Alert type="warning" title="Alert!">
+              Make sure that you&apos;ve backed up your seed phrase and private
+              key.
+            </Alert>
+          </Stack>
+          <Text>
+            After deletion, you will be required to import your seed phrase to
+            restore your access to it
+          </Text>
+          <Input
+            autoFocus
+            label="Password"
+            variant={InputVariants.Password}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            error={errorMessage}
+          />
         </Stack>
-        <Text>
-          After deletion, you will be required to import your seed phrase to
-          restore your access to it
-        </Text>
-        <Input
-          label="Password"
-          variant={InputVariants.Password}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          error={errorMessage}
-        />
         <ActionButton disabled={shouldDisableSubmit}>
           Delete Account
         </ActionButton>
       </Stack>
-      <Loading variant="full" status={loadingState} visible={!!loadingState} />
+      <Loading
+        imageUrl="/assets/images/loading.gif"
+        variant="full"
+        status={loadingState}
+        visible={!!loadingState}
+      />
     </>
   );
 };

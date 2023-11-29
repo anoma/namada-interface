@@ -4,6 +4,9 @@ import { createGlobalStyle } from "styled-components";
 export const GlobalStyle = createGlobalStyle`
   body {
     background-color: ${color("utility1", "main70")};
+    min-width: 360px;
+    height: 600px;
+    overflow-x: hidden;
   }
 
   body::-webkit-scrollbar {

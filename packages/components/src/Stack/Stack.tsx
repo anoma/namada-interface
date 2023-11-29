@@ -6,6 +6,7 @@ type StackProps<T extends keyof JSX.IntrinsicElements> = {
   gap: keyof Sizing;
   direction?: "vertical" | "horizontal";
   as?: T;
+  full?: boolean;
 };
 
 export enum GapPatterns {
@@ -17,10 +18,17 @@ export const Stack = <T extends keyof JSX.IntrinsicElements>({
   children,
   gap = 4,
   direction = "vertical",
+  full = false,
   ...props
 }: StackProps<T> & React.ComponentPropsWithoutRef<T>): JSX.Element => {
   return (
-    <StackContainer as={props.as} gap={gap} direction={direction} {...props}>
+    <StackContainer
+      as={props.as}
+      gap={gap}
+      direction={direction}
+      full={full}
+      {...props}
+    >
       {children}
     </StackContainer>
   );

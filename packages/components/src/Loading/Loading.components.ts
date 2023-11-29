@@ -26,7 +26,7 @@ export const LoadingPanel = styled.div`
   gap: ${spacement(10)};
   height: 100%;
   left: 0;
-  padding: ${spacement(24)};
+  padding: ${spacement(24)} ${spacement(12)};
   position: absolute;
   top: 0;
   width: 100%;
@@ -47,4 +47,10 @@ export const LoadingHeader = styled.header`
     background-color: ${color("utility1", "main")};
     color: ${color("primary", "main")};
   }
+`;
+
+export const LoadingImage = styled.img`
+  display: block;
+  max-width: 240px;
+  margin: 0 auto;
 `;
