@@ -493,6 +493,10 @@ export const Warning = styled.div<{
   }
 `;
 
+export const WarningIconContainer = styled.div`
+  width: 60px;
+`;
+
 // TSEligibility.components
 //
 export const TSEligibilityContainer = styled.div`

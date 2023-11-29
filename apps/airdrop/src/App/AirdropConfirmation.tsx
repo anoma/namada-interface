@@ -26,6 +26,7 @@ import {
   TableHeader,
   TableRow,
   Warning,
+  WarningIconContainer,
 } from "./App.components";
 import { useEffect, useState } from "react";
 import { ClaimCategory, getAllClaims } from "./hooks";
@@ -166,7 +167,9 @@ export const AirdropConfirmation: React.FC = () => {
 
       {/* TODO: move to shared component */}
       <Warning width={"255px"} top={"80px"} left={"calc(50% - 565px)"}>
-        <WarningIcon />
+        <WarningIconContainer>
+          <WarningIcon />
+        </WarningIconContainer>
         <ul>
           <li>Make sure you back up your seed phrase in a safe place</li>
           <li>
