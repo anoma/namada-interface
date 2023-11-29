@@ -23,4 +23,9 @@ export const NonEligiblePanel = styled.div`
     border-color: ${color("primary", "main")};
     margin: ${spacement(5)} 0;
   }
+
+  article {
+    width: 100%;
+    overflow: hidden;
+  }
 `;
