@@ -53,7 +53,7 @@ module.exports = {
   target: "web",
   devtool: "eval-source-map",
   entry: {
-    faucet: "./src",
+    ["airdrop-website"]: "./src",
   },
   output: {
     publicPath: "/",
