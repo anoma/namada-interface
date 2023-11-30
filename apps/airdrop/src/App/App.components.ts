@@ -469,7 +469,7 @@ export const TableRow = styled.div<{ height?: string }>`
   border: 1px solid ${color("utility1", "main")};
   border-radius: ${borderRadius("sm")};
   min-height: ${(props) => props.height || "auto"};
-  padding: ${spacement(2)} ${spacement(6)};
+  padding: 0 ${spacement(6)};
 `;
 export const TableCell = styled.div<{
   width: string;
