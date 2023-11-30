@@ -533,12 +533,15 @@ export const TSEligibilityContainer = styled.div`
 //
 export const MobileContainer = styled.div`
   display: flex;
+  position: relative;
   flex-direction: column;
   align-items: center;
+  overflow-x: hidden;
 `;
 
 export const MobileMainSection = styled.div`
   display: flex;
+  position: fixed;
   align-items: center;
   justify-content: center;
   background-color: ${color("primary", "main")};
@@ -552,7 +555,6 @@ export const MobileMainSection = styled.div`
   border-radius: 50%;
   border: ${spacement(6)} solid ${color("utility3", "black")};
   text-align: center;
-  position: fixed;
   z-index: 20;
 
   @media (max-width: 767px) {
@@ -561,6 +563,7 @@ export const MobileMainSection = styled.div`
     height: 500px;
     top: 0;
     left: 0;
+    margin-bottom: 150px;
 
     & h1 {
       font-size: ${fontSize("6xl")};

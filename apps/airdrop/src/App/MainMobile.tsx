@@ -1,8 +1,6 @@
 import { Heading, Stack, Text, Image, ImageName } from "@namada/components";
 import {
-  Logo,
   MainHeader,
-  MainSection,
   MobileContainer,
   MobileLogo,
   MobileMainSection,
