@@ -4,7 +4,7 @@ import styled from "styled-components";
 export const SidebarPageGrid = styled.div`
   display: grid;
   justify-content: center;
-  grid-template-columns: ${spacement(55)} auto;
+  grid-template-columns: ${spacement(55)} minmax(0, 880px);
   gap: ${spacement(10)};
   padding: 0 ${spacement(5)} ${spacement(12)};
   margin-top: ${spacement(10)};
@@ -65,9 +65,7 @@ export const MainContent = styled.article`
   margin-bottom: ${spacement(12)};
 `;
 
-export const MainContainer = styled.div`
-  max-width: 880px;
-`;
+export const MainContainer = styled.div``;
 
 export const ExtensionSecurityInfo = styled.div`
   border: 1px solid ${color("primary", "main")};
