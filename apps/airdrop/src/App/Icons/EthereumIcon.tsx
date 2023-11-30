@@ -1,54 +1,10 @@
 export const EthereumIcon = (): JSX.Element => (
-  <svg
-    width="29"
-    height="19"
-    viewBox="0 0 29 19"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <rect
-      x="0.743652"
-      y="0.231934"
-      width="27.5063"
-      height="18.2027"
-      rx="5"
+  <svg viewBox="0 0 63 63" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M62.4736 31.0908C62.4736 48.2676 48.5498 62.1914 31.373 62.1914C14.1963 62.1914 0.272461 48.2676 0.272461 31.0908C0.272461 13.9141 14.1963 -0.00976562 31.373 -0.00976562C48.5498 -0.00976562 62.4736 13.9141 62.4736 31.0908ZM18.1084 30.5908L30.8379 9.375V24.8408L18.1084 30.5908ZM31.9082 9.375L44.6377 30.5908L31.9082 24.8408V9.375ZM30.8379 25.832L17.9102 31.7412L30.8379 39.4336V25.832ZM44.8359 31.7412L31.9082 25.832V39.4336L44.8359 31.7412ZM31.8691 42.4561L44.4404 35.0801L31.8691 52.8066V42.4561ZM18.2666 35.0801L30.8379 42.4561V52.8066L18.2666 35.0801Z"
       fill="currentColor"
-    />
-    <path
-      d="M14.4909 11.8958V1.86426L14.5295 1.73878L19.2605 9.23696L14.5134 11.9172L14.4909 11.8958Z"
-      fill="black"
-      stroke="currentColor"
-      strokeWidth="0.2"
-    />
-    <path
-      d="M14.3979 11.8694L9.73534 9.23696L14.3979 1.84735V7.14362V11.8694Z"
-      fill="black"
-      stroke="currentColor"
-      strokeWidth="0.2"
-    />
-    <path
-      d="M14.5375 16.5395V13.0349L14.5623 13.006L19.0425 10.4793L14.5375 16.5395Z"
-      fill="black"
-      stroke="currentColor"
-      strokeWidth="0.2"
-    />
-    <path
-      d="M9.95613 10.4794L14.3979 12.9859V16.4581L9.95613 10.4794Z"
-      fill="black"
-      stroke="currentColor"
-      strokeWidth="0.2"
-    />
-    <path
-      d="M14.5978 7.29599L19.1768 9.28405L14.5978 11.8694V7.29599Z"
-      fill="#141414"
-      stroke="currentColor"
-      strokeWidth="0.2"
-    />
-    <path
-      d="M14.3979 7.29599V11.8694L9.81886 9.28405L14.3979 7.29599Z"
-      fill="black"
-      stroke="currentColor"
-      strokeWidth="0.2"
     />
   </svg>
 );
