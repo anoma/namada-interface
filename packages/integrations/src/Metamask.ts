@@ -27,7 +27,7 @@ type MetamaskWindow = Window &
 
 class Metamask implements Integration<Account, unknown> {
   private _ethereum: MetaMaskInpageProvider | undefined;
-  constructor(public readonly chain: Chain) { }
+  constructor(public readonly chain: Chain) {}
 
   private init(): void {
     if ((<MetamaskWindow>window).ethereum) {
@@ -136,19 +136,6 @@ class Metamask implements Integration<Account, unknown> {
       { token: "ETH", amount: String(ethBalance) || "0" },
       // { token: "TESTERC20", amount: String(testErc20Balance) || "0" },
     ];
-  }
-
-  public async signArbitrary(
-    chainId: string,
-    signer: string,
-    data: string
-  ): Promise<{ signature: string; pub_key: { type: string; value: string } }> {
-    if (!this._ethereum) {
-      throw Error("Metamask not found");
-    }
-    console.log(chainId, signer, data);
-
-    return { signature: "test", pub_key: { type: "test", value: "test" } };
   }
 }
 

@@ -1,7 +1,5 @@
 import {
   ActionButton,
-  Button,
-  ButtonVariant,
   Heading,
   Input,
   InputVariants,

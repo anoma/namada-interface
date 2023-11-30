@@ -48,12 +48,14 @@ const plugins = [
   }),
 ];
 
+const devtool = NODE_ENV === "production" ? {} : { devtool: "eval-source-map" };
+
 module.exports = {
+  ...devtool,
   mode: NODE_ENV,
   target: "web",
-  devtool: "eval-source-map",
   entry: {
-    faucet: "./src",
+    ["airdrop-website"]: "./src",
   },
   output: {
     publicPath: "/",
