@@ -1,4 +1,4 @@
-name: Deploy wallet preview to netlify at PR and pushes to it
+name: Build interface and caches at push to main
 on:
   push:
     branches:
@@ -64,6 +64,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Install yarn dependencies
+        uses: ./.github/actions/yarn-cache
+
       - name: Restore Rust cache
         uses: ./.github/actions/rust-cache
         with:
@@ -85,6 +88,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Install yarn dependencies
+        uses: ./.github/actions/yarn-cache
 
       - name: Restore Rust cache
         uses: ./.github/actions/rust-cache

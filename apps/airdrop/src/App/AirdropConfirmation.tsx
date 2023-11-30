@@ -26,6 +26,7 @@ import {
   TableHeader,
   TableRow,
   Warning,
+  WarningIconContainer,
 } from "./App.components";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ClaimCategory, getAllClaims } from "./hooks";
@@ -86,34 +87,7 @@ export const AirdropConfirmation: React.FC = () => {
   const iconsContainerRef = useRef<HTMLDivElement>(null);
   const [confirmation] = useAtom(confirmationAtom);
   const [totalMinNam, setTotalMinNam] = useState<number>();
-  // const [breakdown, setBreakdown] = useState<Breakdown[]>([]);
-  const [breakdown, setBreakdown] = useState<Breakdown[]>([
-    {
-      accountType: "Github",
-      source: "mateuszjasiuk",
-      category:
-        "ZKPs, Cryptography Public Goods, Privacy Research & Learning Resources",
-      minNam: 8547,
-    },
-    {
-      accountType: "Github",
-      source: "mateuszjasiuk",
-      category: "Interchain Public Goods & Early Shielded Ecosystem",
-      minNam: 8547,
-    },
-    {
-      accountType: "Github",
-      source: "mateuszjasiuk",
-      category: "Zcash R&D & Rust Developer Ecosystem",
-      minNam: 333,
-    },
-    {
-      accountType: "Cosmos Wallet",
-      source: "cosmos1tgzgr9rvj4y8vqryppf5wu6r9quxuc7lskhh0g",
-      category: "Early shielded Community",
-      minNam: 15,
-    },
-  ]);
+  const [breakdown, setBreakdown] = useState<Breakdown[]>([]);
 
   if (confirmation === null) {
     throw new Error("Confirmation state is empty!");

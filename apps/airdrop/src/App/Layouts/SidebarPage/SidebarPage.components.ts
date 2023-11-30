@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 export const SidebarPageGrid = styled.div`
   display: grid;
+  justify-content: center;
   grid-template-columns: ${spacement(55)} auto;
   gap: ${spacement(10)};
   padding: 0 ${spacement(5)} ${spacement(12)};

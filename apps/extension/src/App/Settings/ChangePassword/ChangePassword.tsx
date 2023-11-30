@@ -73,9 +73,16 @@ export const ChangePassword = ({
   };
 
   return (
-    <Stack gap={GapPatterns.TitleContent}>
-      <Heading>Change Password</Heading>
-      <Stack as="form" gap={GapPatterns.FormFields} onSubmit={handleSubmit}>
+    <Stack
+      as="form"
+      gap={GapPatterns.TitleContent}
+      onSubmit={handleSubmit}
+      full
+    >
+      <Heading uppercase size="2xl">
+        Change Password
+      </Heading>
+      <Stack full gap={GapPatterns.FormFields}>
         <Input
           label="Current password"
           variant={InputVariants.Password}
@@ -88,7 +95,11 @@ export const ChangePassword = ({
           variant={InputVariants.Password}
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
-          error={feedback.warning || feedback.suggestions.join(" ")}
+          error={
+            newPassword.length > 0
+              ? feedback.warning || feedback.suggestions.join(" ")
+              : ""
+          }
         />
         <Input
           label="Confirm new password"
@@ -102,8 +113,8 @@ export const ChangePassword = ({
           }
         />
         {errorMessage && <Alert type="error">{errorMessage}</Alert>}
-        <ActionButton disabled={shouldDisableSubmit}>Confirm</ActionButton>
       </Stack>
+      <ActionButton disabled={shouldDisableSubmit}>Confirm</ActionButton>
     </Stack>
   );
 };

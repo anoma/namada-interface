@@ -41,17 +41,24 @@ const Password = ({ onValidPassword }: PasswordProps): JSX.Element => {
     }
   }, [password, passwordMatch, zxcvbnFeedback]);
 
-  const verifyPasswordMatch = (): void => {
-    if (passwordMatch !== "" && password !== passwordMatch) {
+  const verifyPasswordMatch = (toVerify: string): void => {
+    if (passwordMatch !== "" && password !== toVerify) {
       setPasswordMatchFeedback("Passwords are not matching");
     } else {
       setPasswordMatchFeedback("");
     }
   };
 
+  const checkPasswordErrors = (password: string): void => {
+    const { feedback } = zxcvbn(password);
+    setZxcvbnFeedback(feedback);
+    verifyPasswordMatch(password);
+  };
+
   const displayError = zxcvbnFeedback.warning
     ? zxcvbnFeedback.warning
-    : zxcvbnFeedback.suggestions.map((suggestion: string, index: number) => (
+    : zxcvbnFeedback.suggestions.length > 0 &&
+      zxcvbnFeedback.suggestions.map((suggestion: string, index: number) => (
         <InputFeedback key={`input-feedback-${index}`}>
           {suggestion}
         </InputFeedback>
@@ -63,13 +70,14 @@ const Password = ({ onValidPassword }: PasswordProps): JSX.Element => {
         label="Create Extension Password"
         variant={InputVariants.Password}
         value={password}
-        error={displayError}
+        error={password.length > 0 ? displayError : ""}
         placeholder="At least 8 characters"
-        onChange={(e) => setPassword(e.target.value)}
+        onChange={(e) => {
+          setPassword(e.target.value);
+          checkPasswordErrors(e.target.value);
+        }}
         onBlur={() => {
-          const { feedback } = zxcvbn(password);
-          setZxcvbnFeedback(feedback);
-          verifyPasswordMatch();
+          checkPasswordErrors(password);
         }}
       />
 
@@ -81,9 +89,10 @@ const Password = ({ onValidPassword }: PasswordProps): JSX.Element => {
         error={passwordMatchFeedback}
         onChange={(event) => {
           setPasswordMatch(event.target.value);
+          verifyPasswordMatch(event.target.value);
         }}
         onBlur={() => {
-          verifyPasswordMatch();
+          verifyPasswordMatch(password);
         }}
       />
     </>

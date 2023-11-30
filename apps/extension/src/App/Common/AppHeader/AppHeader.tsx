@@ -1,25 +1,30 @@
-import { Icon, IconName, Image, ImageName } from "@namada/components";
+import { Icon, IconName, IconSize, Image, ImageName } from "@namada/components";
+import { useVaultContext } from "context";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppHeaderNavigation } from "../AppHeaderNavigation";
 import {
   HeaderContainer,
+  LockContainer,
   LogoContainer,
   ReturnIcon,
   SettingsButton,
 } from "./AppHeader.components";
-import { useState } from "react";
 
 type AppHeaderProps = {
   returnButton: boolean;
   settingsButton: boolean;
+  lockButton: boolean;
 };
 
 export const AppHeader = ({
   returnButton,
   settingsButton,
+  lockButton,
 }: AppHeaderProps): JSX.Element => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const { lock } = useVaultContext();
 
   return (
     <>
@@ -27,18 +32,33 @@ export const AppHeader = ({
         {returnButton && (
           <ReturnIcon onClick={() => navigate(-1)}>
             <Icon
+              iconSize={IconSize.Full}
               strokeColorOverride="currentColor"
               fillColorOverride="currentColor"
               iconName={IconName.ArrowLeft}
             />
           </ReturnIcon>
         )}
+
+        {lockButton && (
+          <LockContainer onClick={() => lock()}>
+            <Icon
+              iconSize={IconSize.Full}
+              strokeColorOverride="none"
+              fillColorOverride="currentColor"
+              iconName={IconName.Lock}
+            />
+          </LockContainer>
+        )}
+
         <LogoContainer>
           <Image imageName={ImageName.Logo} />
         </LogoContainer>
+
         {settingsButton && (
           <SettingsButton onClick={() => setOpen(true)}>
             <Icon
+              iconSize={IconSize.Full}
               fillColorOverride="currentColor"
               strokeColorOverride="currentColor"
               iconName={IconName.Settings}

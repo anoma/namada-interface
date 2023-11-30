@@ -16,6 +16,7 @@ import { Ports } from "router";
 
 import { CopyToClipboard } from "./SeedPhrase.components";
 import { useRequester } from "hooks/useRequester";
+import { InstructionsContainer } from "App/Accounts/ViewMnemonic/ViewMnemonic.components";
 
 type Props = {
   // go to next screen
@@ -55,7 +56,7 @@ const SeedPhrase: React.FC<Props> = (props) => {
         </Heading>
       </HeaderContainer>
 
-      <Stack gap={8}>
+      <Stack gap={4}>
         <RadioGroup
           id="mnemonicLength"
           groupLabel="Number of seeds"
@@ -81,7 +82,9 @@ const SeedPhrase: React.FC<Props> = (props) => {
             Copy to clipboard
           </CopyToClipboard>
         </Stack>
-        <SeedPhraseInstructions />
+        <InstructionsContainer>
+          <SeedPhraseInstructions />
+        </InstructionsContainer>
         <ActionButton
           disabled={isSubmitButtonDisabled}
           onClick={() => {

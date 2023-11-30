@@ -7,10 +7,13 @@ export const DropdownMenuContainer = styled.div`
 
 export const OpenDropdownIcon = styled.i`
   cursor: pointer;
-  color: ${color("primary", "main")};
+  color: currentColor;
 `;
 
-export const Dropdown = styled.ul<{ align: string }>`
+export const Dropdown = styled.ul<{
+  align: string;
+  position: "top" | "bottom";
+}>`
   background-color: ${color("utility1", "main70")};
   border: 1px solid #363636;
   border-radius: ${borderRadius("md")};
@@ -21,7 +24,8 @@ export const Dropdown = styled.ul<{ align: string }>`
   position: absolute;
   right: -${spacement(2)};
   text-align: ${(props) => props.align};
-  top: -${spacement(2)};
+  top: -${(props) => (props.position === "top" ? spacement(2)(props) : "")};
+  bottom: -${(props) => (props.position === "bottom" ? spacement(2)(props) : "")};
   width: ${spacement(55)};
   z-index: 20;
 `;

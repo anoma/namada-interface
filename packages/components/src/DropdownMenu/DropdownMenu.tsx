@@ -19,15 +19,18 @@ type DropdownMenuProps = {
   id: string;
   items: DropdownMenuItem[];
   align: "left" | "center" | "right";
+  position?: "top" | "bottom";
 };
 
 export const DropdownMenu = ({
   id,
   align,
+  position = "top",
   items,
 }: DropdownMenuProps): JSX.Element => {
   const [isOpen, setOpen] = useState(false);
   const overlayRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const close = (): void => {
     setOpen(false);
@@ -50,7 +53,7 @@ export const DropdownMenu = ({
 
   return (
     <>
-      <DropdownMenuContainer>
+      <DropdownMenuContainer ref={containerRef}>
         <OpenDropdownIcon onClick={() => setOpen(true)}>
           <Icon
             iconName={IconName.ThreeDotsVertical}
@@ -59,7 +62,7 @@ export const DropdownMenu = ({
         </OpenDropdownIcon>
 
         {isOpen && (
-          <Dropdown align={align}>
+          <Dropdown align={align} position={position}>
             {items.map((item, index) => (
               <DropdownItem
                 key={`dropdown-item-${id}-${index}`}

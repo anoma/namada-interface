@@ -9,10 +9,7 @@ import { useSanitizedParams } from "@namada/hooks";
 
 import { useQuery } from "hooks";
 import { Address } from "App/Accounts/AccountListing.components";
-import {
-  ApprovalContainer,
-  ButtonContainer,
-} from "Approvals/Approvals.components";
+import { ButtonContainer } from "Approvals/Approvals.components";
 import { TopLevelRoute } from "Approvals/types";
 import { Ports } from "router";
 import { RejectTxMsg } from "background/approvals";
@@ -81,7 +78,7 @@ export const ApproveTx: React.FC<Props> = ({ setDetails }) => {
   }, [msgId]);
 
   return (
-    <ApprovalContainer>
+    <>
       <p>
         Approve this <strong>{TxTypeLabel[txType as TxType]}</strong>{" "}
         transaction?
@@ -112,6 +109,6 @@ export const ApproveTx: React.FC<Props> = ({ setDetails }) => {
           Reject
         </Button>
       </ButtonContainer>
-    </ApprovalContainer>
+    </>
   );
 };

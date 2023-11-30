@@ -9,7 +9,7 @@ type CheckboxProps = React.ComponentPropsWithRef<"input">;
 
 export const Checkbox = ({ ...props }: CheckboxProps): JSX.Element => {
   return (
-    <CheckboxContainer>
+    <CheckboxContainer checked={props.checked || false}>
       <CheckboxInput type="checkbox" {...props} />
       <CheckboxControl>
         <Icon

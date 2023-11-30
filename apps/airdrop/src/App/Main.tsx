@@ -13,6 +13,7 @@ import {
   ButtonContainer,
   CallToActionStack,
   EligibilityPanel,
+  GithubLoading,
   GlobalStyles,
   IconContainer,
   MainContainer,
@@ -57,10 +58,13 @@ import {
 import { MetamaskWindow } from "./types";
 
 export const Main: React.FC = () => {
+  const url = window.location.href;
+  const hasCode = url.includes("?code=");
   const [keplr, setKeplr] = useState<Keplr | undefined>();
   const [metamask, setMetamask] = useState<MetaMaskInpageProvider>();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isTOSAccepted, setIsTOSAccepted] = useState(false);
+  const [isGithubFetching, setIsGithubFetching] = useState(hasCode);
   const cosmosHandler = useKeplrHandler("cosmoshub-4", "cosmos", keplr);
   const osmosisHandler = useKeplrHandler("osmosis-1", "osmosis", keplr);
   const stargazeHandler = useKeplrHandler("stargaze-1", "badkids", keplr);
@@ -68,13 +72,15 @@ export const Main: React.FC = () => {
   const objectContainerRef = useRef<HTMLDivElement>(null);
   const mainSectionRef = useRef<HTMLDivElement>(null);
 
-  const url = window.location.href;
-  const hasCode = url.includes("?code=");
-
   useEffect(() => {
-    if (hasCode) {
+    const fetch = async (): Promise<void> => {
       const code = url.split("?code=")[1];
-      githubHandler(code);
+      await githubHandler(code);
+      setIsGithubFetching(false);
+    };
+
+    if (hasCode) {
+      fetch();
     }
   }, []);
 
@@ -349,6 +355,13 @@ export const Main: React.FC = () => {
           </Stack>
         </EligibilityPanel>
       </Modal>
+
+      <GithubLoading
+        visible={isGithubFetching}
+        variant="full"
+        status={"Please wait, we are checking the GitHub claim"}
+        imageUrl="/images/loading.gif"
+      />
     </>
   );
 };

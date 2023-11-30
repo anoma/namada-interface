@@ -33,8 +33,7 @@ type AnotherWaysProps = {
 };
 
 export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
-  const [termsAccepted, setTermsAccepted] = useState(false);
-
+  const [isTOSAccepted, setIsTOSAccepted] = useState(false);
   const keplr = (window as KeplrWindow)?.keplr;
   const metamask = (window as MetamaskWindow)?.ethereum;
   const metamaskHandler = useMetamaskHandler("0x1", metamask);
@@ -42,16 +41,17 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
   const osmosisHandler = useKeplrHandler("osmosis-1", "osmosis", keplr);
   const stargazeHandler = useKeplrHandler("stargaze-1", "badkids", keplr);
   const navigate = useNavigate();
+  const columns = !metamask && !keplr ? "1fr 1fr" : "1fr 1fr 1fr";
 
   return (
     <AnotherWaysContainer>
       <Heading themeColor="primary" level={"h2"} size={"2xl"}>
         {props.title}
       </Heading>
-      <AnotherWaysButtons>
+      <AnotherWaysButtons columns={columns}>
         <ActionButton
-          disabled={!termsAccepted}
           outlined
+          disabled={!isTOSAccepted}
           variant="primary"
           icon={<GithubIcon />}
           onClick={() => {
@@ -66,8 +66,8 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
 
         {metamask && (
           <ActionButton
-            disabled={!termsAccepted}
             outlined
+            disabled={!isTOSAccepted}
             variant="primary"
             onClick={metamaskHandler}
             icon={<EthereumIcon />}
@@ -76,32 +76,9 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
           </ActionButton>
         )}
 
-        {!metamask && (
-          <ModalButtonContainer>
-            <ActionButton
-              disabled={!termsAccepted}
-              outlined
-              variant="primary"
-              onClick={() =>
-                handleExtensionDownload("https://metamask.io/download/")
-              }
-            >
-              Download Metamask to use Ethereum Wallet
-            </ActionButton>
-            <ModalButtonText
-              disabled={false}
-              themeColor="primary"
-              fontSize="xs"
-            >
-              NOTE: Make sure to restart website after installing Metamask
-              extension
-            </ModalButtonText>
-          </ModalButtonContainer>
-        )}
-
         <ActionButton
-          disabled={!termsAccepted}
           outlined
+          disabled={!isTOSAccepted}
           variant="primary"
           icon={<TrustedSetupIcon />}
           onClick={() => navigate("/trusted-setup")}
@@ -112,8 +89,8 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
         {keplr && (
           <>
             <ActionButton
-              disabled={!termsAccepted}
               outlined
+              disabled={!isTOSAccepted}
               variant="primary"
               icon={<CosmosIcon />}
               onClick={cosmosHandler}
@@ -122,8 +99,8 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
             </ActionButton>
 
             <ActionButton
-              disabled={!termsAccepted}
               outlined
+              disabled={!isTOSAccepted}
               variant="primary"
               icon={<OsmosisIcon />}
               onClick={osmosisHandler}
@@ -132,8 +109,8 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
             </ActionButton>
 
             <ActionButton
-              disabled={!termsAccepted}
               outlined
+              disabled={!isTOSAccepted}
               variant="primary"
               icon={<StargazerIcon />}
               onClick={stargazeHandler}
@@ -143,11 +120,34 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
           </>
         )}
 
+        {!metamask && (
+          <ModalButtonContainer>
+            <ActionButton
+              outlined
+              disabled={!isTOSAccepted}
+              variant="primary"
+              onClick={() =>
+                handleExtensionDownload("https://metamask.io/download/")
+              }
+            >
+              Download Metamask to use Ethereum Wallet
+            </ActionButton>
+            <ModalButtonText
+              disabled={!isTOSAccepted}
+              themeColor="primary"
+              fontSize="xs"
+            >
+              NOTE: Make sure to restart website after installing Metamask
+              extension
+            </ModalButtonText>
+          </ModalButtonContainer>
+        )}
+
         {!keplr && (
           <ModalButtonContainer>
             <ActionButton
-              disabled={!termsAccepted}
               outlined
+              disabled={!isTOSAccepted}
               variant="primary"
               onClick={() =>
                 handleExtensionDownload("https://www.keplr.app/download")
@@ -156,7 +156,7 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
               Download Keplr to use Cosmos/Osmosis/Stargaze Wallet
             </ActionButton>
             <ModalButtonText
-              disabled={false}
+              disabled={!isTOSAccepted}
               themeColor="primary"
               fontSize="xs"
             >
@@ -166,9 +166,10 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
           </ModalButtonContainer>
         )}
       </AnotherWaysButtons>
+
       <AcceptTermsCheckbox
-        checked={termsAccepted}
-        onChange={() => setTermsAccepted(!termsAccepted)}
+        checked={isTOSAccepted}
+        onChange={() => setIsTOSAccepted(!isTOSAccepted)}
       />
     </AnotherWaysContainer>
   );

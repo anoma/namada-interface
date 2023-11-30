@@ -1,5 +1,10 @@
 import { Checkbox, DropdownMenu } from "@namada/components";
-import { Alias, ItemContainer } from "./KeyListItem.components";
+import {
+  Alias,
+  CheckboxContainer,
+  DropdownContainer,
+  ItemContainer,
+} from "./KeyListItem.components";
 import { AccountType } from "@namada/types";
 
 type KeyListItemProps = {
@@ -12,6 +17,7 @@ type KeyListItemProps = {
   onViewAccount: () => void;
   onSelectAccount: () => void;
   onViewRecoveryPhrase: () => void;
+  dropdownPosition?: "top" | "bottom";
 };
 
 export const KeyListItem = ({
@@ -24,38 +30,46 @@ export const KeyListItem = ({
   onViewAccount,
   onSelectAccount,
   onViewRecoveryPhrase,
+  dropdownPosition = "top",
 }: KeyListItemProps): JSX.Element => {
   return (
-    <ItemContainer as={as}>
-      <Checkbox onChange={() => onSelectAccount()} checked={isMainKey} />
+    <ItemContainer as={as} selected={isMainKey}>
+      <CheckboxContainer>
+        <Checkbox onChange={() => onSelectAccount()} checked={isMainKey} />
+      </CheckboxContainer>
       <Alias>{alias}</Alias>
-      <DropdownMenu
-        id={alias}
-        align="right"
-        items={[
-          {
-            label: "Set default account",
-            onClick: !isMainKey ? onSelectAccount : undefined,
-          },
-          {
-            label: "View Keys",
-            onClick: onViewAccount,
-          },
-          {
-            label: "Rename",
-            onClick: onRename,
-          },
-          {
-            label: "Delete",
-            onClick: onDelete,
-          },
-          {
-            label: "View Recovery Phrase",
-            onClick:
-              type === AccountType.Mnemonic ? onViewRecoveryPhrase : undefined,
-          },
-        ]}
-      />
+      <DropdownContainer>
+        <DropdownMenu
+          id={alias}
+          align="right"
+          position={dropdownPosition}
+          items={[
+            {
+              label: "Set default account",
+              onClick: !isMainKey ? onSelectAccount : undefined,
+            },
+            {
+              label: "View Keys",
+              onClick: onViewAccount,
+            },
+            {
+              label: "Rename",
+              onClick: onRename,
+            },
+            {
+              label: "Delete",
+              onClick: onDelete,
+            },
+            {
+              label: "View Seed Phrase",
+              onClick:
+                type === AccountType.Mnemonic
+                  ? onViewRecoveryPhrase
+                  : undefined,
+            },
+          ]}
+        />
+      </DropdownContainer>
     </ItemContainer>
   );
 };

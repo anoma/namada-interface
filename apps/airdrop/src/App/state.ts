@@ -87,11 +87,4 @@ export type ConfirmationState = {
   publicKey: string;
   amount: number;
 };
-//export const confirmationAtom = atom<ConfirmationState | null>(null);
-export const confirmationAtom = atom<ConfirmationState | null>({
-  confirmed: true,
-  address: "tnam1qrjhfsayrll8avk8c9zghpx3jhnded2sdu6rf42r",
-  publicKey:
-    "tpknam1qpq46e5fa3tv5e8v0w2eey2tzyqe0lf5td7ndpaca39kd8pvsv8x5y0z5jr",
-  amount: 15,
-});
+export const confirmationAtom = atom<ConfirmationState | null>(null);

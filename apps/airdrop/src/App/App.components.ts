@@ -6,7 +6,14 @@ import {
   fontSize,
   spacement,
 } from "@namada/utils";
-import { Accordion, Heading, Input, Text, TextProps } from "@namada/components";
+import {
+  Accordion,
+  Heading,
+  Input,
+  Loading,
+  Text,
+  TextProps,
+} from "@namada/components";
 
 type GlobalStyleProps = {
   colorMode: ColorMode;
@@ -185,6 +192,14 @@ export const ObjectsContainer = styled.div`
   z-index: 0;
 `;
 
+export const GithubLoading = styled(Loading)`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+`;
+
 export const EligibilityPanel = styled.div`
   max-width: 405px;
   margin: 0 auto;
@@ -309,10 +324,11 @@ export const AnotherWaysContainer = styled.div`
   }
 `;
 
-export const AnotherWaysButtons = styled.div`
+export const AnotherWaysButtons = styled.div<{ columns?: string }>`
   column-gap: ${spacement(1)};
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  align-items: start;
+  grid-template-columns: ${(props) => props.columns || "1fr 1fr 1fr"};
   margin-bottom: ${spacement(6)};
   margin-top: 20px;
   row-gap: ${spacement(6)};
@@ -429,6 +445,10 @@ export const AnotherWaysSection = styled.div`
   max-width: 1140px;
   align-self: center;
   margin-top: ${spacement(10)};
+  border-radius: ${borderRadius("md")};
+  background-color: ${color("utility1", "main")};
+  border: 1px solid ${color("primary", "main")};
+  padding: ${spacement(5)} ${spacement(35)} ${spacement(7)};
 `;
 
 export const Table = styled.div`
@@ -497,6 +517,10 @@ export const Warning = styled.div<{
     padding: ${spacement(2)} 0;
     fontsize: ${fontSize("sm")};
   }
+`;
+
+export const WarningIconContainer = styled.div`
+  width: 60px;
 `;
 
 // TSEligibility.components
