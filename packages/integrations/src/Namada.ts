@@ -94,17 +94,4 @@ export default class Namada implements Integration<Account, Signer> {
 
     return tokenBalances;
   }
-
-  public async signArbitrary(
-    chainId: string,
-    signer: string,
-    data: string
-  ): Promise<{ signature: string; pub_key: { type: string; value: string } }> {
-    if (!this._namada) {
-      throw Error("Namada not found");
-    }
-    console.log(chainId, signer, data);
-
-    return { signature: "test", pub_key: { type: "test", value: "test" } };
-  }
 }

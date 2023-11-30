@@ -216,18 +216,6 @@ class Keplr implements Integration<Account, OfflineSigner> {
         };
       });
   }
-
-  public async signArbitrary(
-    chainId: string,
-    signer: string,
-    data: string
-  ): Promise<{ signature: string; pub_key: { type: string; value: string } }> {
-    if (!this._keplr) {
-      throw Error("Keplr not found");
-    }
-
-    return this._keplr.signArbitrary(chainId, signer, data);
-  }
 }
 
 export default Keplr;

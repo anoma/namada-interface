@@ -13,8 +13,9 @@
     "dev:remote": "NODE_ENV=production && yarn start",
     "dev:proxy": "REACT_APP_PROXY=true; ./scripts/start-proxy.sh; yarn dev",
     "build": "NODE_ENV=production && webpack-cli",
-    "lint": "eslint src --ext .ts,.tsx",
-    "lint:fix": "yarn lint -- --fix"
+    "lint": "npx eslint src --ext .ts,.tsx",
+    "lint:ci": "npx yarn lint --max-warnings 0",
+    "lint:fix": "npx yarn lint -- --fix"
   },
   "dependencies": {
     "@namada/components": "0.1.0",

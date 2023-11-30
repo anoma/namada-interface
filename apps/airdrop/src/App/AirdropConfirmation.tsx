@@ -26,7 +26,6 @@ import {
   TableHeader,
   TableRow,
   Warning,
-  WarningIconContainer,
 } from "./App.components";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ClaimCategory, getAllClaims } from "./hooks";
