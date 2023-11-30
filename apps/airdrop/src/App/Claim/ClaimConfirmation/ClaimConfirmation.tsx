@@ -385,6 +385,7 @@ export const ClaimConfirmation: React.FC = () => {
                       disabled={!namada && !airdropPubKey}
                       size="sm"
                       variant="primary"
+                      hoverColor="secondary"
                       onClick={importPublicKey}
                     >
                       {airdropPubKey ? "Clear" : "Import from extension"}
@@ -418,6 +419,7 @@ export const ClaimConfirmation: React.FC = () => {
                       disabled={!namada && !airdropAddress}
                       size="sm"
                       variant="primary"
+                      hoverColor="secondary"
                       onClick={importAirdropAddress}
                     >
                       {airdropAddress ? "Clear" : "Import from extension"}
