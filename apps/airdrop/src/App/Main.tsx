@@ -71,6 +71,8 @@ export const Main: React.FC = () => {
   const githubHandler = useGithubHandler();
   const objectContainerRef = useRef<HTMLDivElement>(null);
   const mainSectionRef = useRef<HTMLDivElement>(null);
+  const endDate = new Date("Dec 30, 2023 13:00:00");
+  const isOngoing = new Date().getTime() <= endDate.getTime();
 
   useEffect(() => {
     const fetch = async (): Promise<void> => {
@@ -145,58 +147,66 @@ export const Main: React.FC = () => {
         <GlobalStyles colorMode="light" />
         <MainTopSection ref={mainSectionRef}>
           <MainSection>
-            <Stack gap={4}>
-              <MainHeader className="main-title">
-                <Heading
-                  themeColor="utility1"
-                  uppercase
-                  level={"h1"}
-                  size={"7xl"}
-                >
-                  No<span> Privacy</span>
-                  <br />
-                  Without
-                  <br />
-                  Public Goods
-                </Heading>
-              </MainHeader>
-              <CallToActionStack className="call-to-action">
-                <Stack gap={1}>
-                  <Text themeColor="utility1" fontSize="xl">
-                    TIME LEFT TO CLAIM:
-                  </Text>
-                  <Text themeColor="utility1" fontSize="2xl">
-                    <Countdown endDate={new Date("Nov 14, 2023 13:00:00")} />
-                  </Text>
-                </Stack>
-                <ButtonContainer>
-                  <ActionButton
-                    variant="secondary"
-                    size="sm"
-                    borderRadius="sm"
-                    onClick={() => {
-                      setIsModalOpen(true);
-                      setKeplr((window as KeplrWindow)?.keplr);
-                      setMetamask((window as MetamaskWindow)?.ethereum);
-                    }}
+            {isOngoing ? (
+              <Stack gap={4}>
+                <MainHeader className="main-title">
+                  <Heading
+                    themeColor="utility1"
+                    uppercase
+                    level={"h1"}
+                    size={"7xl"}
                   >
-                    Check NAM eligibility
-                  </ActionButton>
-                </ButtonContainer>
-              </CallToActionStack>
-              <SmallWarning className="warning">
-                Please check you are claiming using the following URL:
-                <div>
-                  <strong>https://rpgfdrop.namada.net</strong>
-                </div>
-              </SmallWarning>
-              <Stack gap={0.5} className="announcement">
-                <MainSectionButton></MainSectionButton>
-                <LinkButton themeColor="utility1">
-                  <b>Read the annoucement</b>
-                </LinkButton>
+                    No<span> Privacy</span>
+                    <br />
+                    Without
+                    <br />
+                    Public Goods
+                  </Heading>
+                </MainHeader>
+                <CallToActionStack className="call-to-action">
+                  <Stack gap={1}>
+                    <Text themeColor="utility1" fontSize="xl">
+                      TIME LEFT TO CLAIM:
+                    </Text>
+                    <Text themeColor="utility1" fontSize="2xl">
+                      <Countdown endDate={new Date(endDate)} />
+                    </Text>
+                  </Stack>
+                  <ButtonContainer>
+                    <ActionButton
+                      variant="secondary"
+                      size="sm"
+                      borderRadius="sm"
+                      onClick={() => {
+                        setIsModalOpen(true);
+                        setKeplr((window as KeplrWindow)?.keplr);
+                        setMetamask((window as MetamaskWindow)?.ethereum);
+                      }}
+                    >
+                      Check NAM eligibility
+                    </ActionButton>
+                  </ButtonContainer>
+                </CallToActionStack>
+                <SmallWarning className="warning">
+                  Please check you are claiming using the following URL:
+                  <div>
+                    <strong>https://rpgfdrop.namada.net</strong>
+                  </div>
+                </SmallWarning>
+                <Stack gap={0.5} className="announcement">
+                  <MainSectionButton></MainSectionButton>
+                  <LinkButton themeColor="utility1">
+                    <b>Read the annoucement</b>
+                  </LinkButton>
+                </Stack>
               </Stack>
-            </Stack>
+            ) : (
+              <Heading themeColor="utility1" level={"h1"} size={"6xl"}>
+                RPGF Drop
+                <br /> claiming is now
+                <br /> closed
+              </Heading>
+            )}
           </MainSection>
           <PoolContainer>
             <PoolSvg />
