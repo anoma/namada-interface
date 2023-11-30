@@ -27,14 +27,7 @@ export const PageHeader = ({
     <PageHeaderContainer themeColor={yellowLogo ? "primary" : "utility1"}>
       {showStartOver && <span />}
 
-      <Stack
-        as="a"
-        gap={6}
-        direction="horizontal"
-        href="https://namada.net"
-        target="_blank"
-        rel="nofollow noreferrer"
-      >
+      <Stack as="a" gap={6} direction="horizontal">
         <Image
           imageName={ImageName.LogoMinimal}
           styleOverrides={{ width: "50px" }}
