@@ -126,8 +126,12 @@ export const TrustedSetup: React.FC = () => {
             <TrustedSetupListItem>
               <StepIndicator>1</StepIndicator>
               Get the CLI tool from{" "}
-              <a href="https://github.com/anoma/namada-trusted-setup-signer">
-                https://github.com/anoma/namada-trusted-setup-signer
+              <a
+                href="https://github.com/anoma/namada-trusted-setup-claimer"
+                target="_blank"
+                rel="nofollow noreferrer"
+              >
+                https://github.com/anoma/namada-trusted-setup-claimer
               </a>
             </TrustedSetupListItem>
             <TrustedSetupListItem>

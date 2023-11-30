@@ -51,6 +51,7 @@ import { ZeroOneSvg } from "./Graphics/ZeroOne";
 import { iconsOnMouseMovement } from "./animations";
 import { useGithubHandler } from "./hooks";
 import { MetamaskWindow } from "./types";
+import { CommunityFooter } from "./Common/CommunityFooter";
 
 export const Main: React.FC = () => {
   const url = window.location.href;

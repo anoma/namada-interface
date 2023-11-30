@@ -40,6 +40,7 @@ import { EyeSvg } from "./Graphics/Eye";
 import { WarningIcon } from "./Icons/WarningIcon";
 import { PageFooter } from "./Common/PageFooter";
 import { iconsOnMouseMovement } from "./animations";
+import { CommunityFooter } from "./Common/CommunityFooter";
 
 const categoryAccountTypeMap: Record<ClaimCategory, string> = {
   Github: "Github",
@@ -262,6 +263,7 @@ export const AirdropConfirmation: React.FC = () => {
       <AnotherWaysSection>
         <AnotherWays title="Try another claim" />
       </AnotherWaysSection>
+      <CommunityFooter />
       <PageFooter />
     </AirdropConfirmationContainer>
   );

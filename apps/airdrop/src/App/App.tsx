@@ -56,7 +56,7 @@ export const App: React.FC = () => {
           <Route
             path={`/non-eligible`}
             element={
-              true || !!claimState ? (
+              !!claimState ? (
                 <NonEligible />
               ) : (
                 <Navigate to="/" replace={true} />
