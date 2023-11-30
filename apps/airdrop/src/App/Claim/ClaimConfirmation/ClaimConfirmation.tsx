@@ -219,17 +219,26 @@ export const ClaimConfirmation: React.FC = () => {
   }, [namada]);
 
   const airdropAddressValid = bech32mValidation("tnam", airdropAddress);
+  if (airdropAddressValid) {
+    localStorage.setItem("airdropAddress", airdropAddress);
+  } else if (airdropAddress === "") {
+    localStorage.removeItem("airdropAddress");
+  }
+
   const airdropPubKeyValid = bech32mValidation("tpknam", airdropPubKey);
+  if (airdropPubKey) {
+    localStorage.setItem("airdropPubKey", airdropPubKey);
+  } else if (airdropPubKey === "") {
+    localStorage.removeItem("airdropPubKey");
+  }
 
   const importPublicKey = async (): Promise<void> => {
     if (!airdropPubKey) {
       const account = await handleImport();
       const publicKey = account?.publicKey || "";
       setAirdropPubKey(publicKey);
-      localStorage.setItem("airdropPubKey", publicKey);
     } else {
       setAirdropPubKey("");
-      localStorage.removeItem("airdropPubKey");
     }
   };
 
@@ -238,10 +247,8 @@ export const ClaimConfirmation: React.FC = () => {
       const account = await handleImport();
       const address = account?.address || "";
       setAirdropAddress(address);
-      localStorage.setItem("airdropAddress", address);
     } else {
       setAirdropAddress("");
-      localStorage.removeItem("airdropAddress");
     }
   };
 
@@ -370,7 +377,6 @@ export const ClaimConfirmation: React.FC = () => {
                   onChange={(e) => {
                     const { value: publicKey } = e.target;
                     setAirdropPubKey(publicKey);
-                    localStorage.setItem("airdropPubKey", publicKey);
                   }}
                   placeholder="Enter your Namada public key"
                 >
@@ -404,7 +410,6 @@ export const ClaimConfirmation: React.FC = () => {
                   onChange={(e) => {
                     const { value: airdropAddress } = e.target;
                     setAirdropAddress(airdropAddress);
-                    localStorage.setItem("airdropAddress", airdropAddress);
                   }}
                   placeholder="Enter your Namada transparent address"
                 >
@@ -430,6 +435,7 @@ export const ClaimConfirmation: React.FC = () => {
             </Stack>
             <TermsContainer>
               <AcceptTermsCheckbox
+                disabled={!airdropAddressValid || !airdropPubKeyValid}
                 checked={isToggleChecked}
                 onChange={() => setIsToggleChecked(!isToggleChecked)}
               />
