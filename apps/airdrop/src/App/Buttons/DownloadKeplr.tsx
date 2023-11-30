@@ -2,15 +2,17 @@ import { ActionButton } from "@namada/components";
 import { ModalButtonContainer, ModalButtonText } from "App/App.components";
 import { ButtonProps } from "./types";
 import { handleExtensionDownload } from "App/hooks";
+import { DownloadIcon } from "App/Icons/DownloadIcon";
 
 export const DownloadKeplr = ({ disabled }: ButtonProps): JSX.Element => {
   return (
     <ModalButtonContainer>
       <ActionButton
         outlined
-        disabled={!disabled}
+        disabled={disabled}
         variant="primary"
         style={{ paddingLeft: "40px", paddingRight: "40px" }}
+        icon={<DownloadIcon />}
         onClick={() =>
           handleExtensionDownload("https://www.keplr.app/download")
         }
