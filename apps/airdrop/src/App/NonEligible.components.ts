@@ -1,5 +1,6 @@
 import { color, spacement } from "@namada/utils";
 import styled from "styled-components";
+import { AnotherWays } from "./AnotherWays";
 
 export const NonEligiblePanel = styled.div`
   color: ${color("primary", "main")};
@@ -28,4 +29,8 @@ export const NonEligiblePanel = styled.div`
     width: 100%;
     overflow: hidden;
   }
+`;
+
+export const NonEligibleAnotherWays = styled(AnotherWays)`
+  padding: ${spacement(9)} ${spacement(9)} ${spacement(10)};
 `;

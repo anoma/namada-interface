@@ -5,7 +5,10 @@ import { EligibilityHeader, EligibilitySectionWrapper } from "./App.components";
 import { WalletAddress } from "./Common/WalletAddress";
 import { NonEligibleIcon } from "./Icons/NonEligibleIcon";
 import { SidebarPage } from "./Layouts/SidebarPage";
-import { NonEligiblePanel } from "./NonEligible.components";
+import {
+  NonEligibleAnotherWays,
+  NonEligiblePanel,
+} from "./NonEligible.components";
 import { labelAtom } from "./state";
 import { labelTextMap } from "./utils";
 import { BreadcrumbStatus } from "./Common/BreadcrumbStatus";
@@ -42,7 +45,7 @@ export const NonEligible: React.FC = () => {
             )}
           </article>
         </NonEligiblePanel>
-        <AnotherWays title="Try another way" />
+        <NonEligibleAnotherWays title="Try another way" />
       </EligibilitySectionWrapper>
     </SidebarPage>
   );

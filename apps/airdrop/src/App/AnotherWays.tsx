@@ -30,6 +30,7 @@ const {
 
 type AnotherWaysProps = {
   title: string;
+  className?: string;
 };
 
 export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
@@ -44,7 +45,7 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
   const columns = !metamask && !keplr ? "1fr 1fr" : "1fr 1fr 1fr";
 
   return (
-    <AnotherWaysContainer>
+    <AnotherWaysContainer className={props.className}>
       <Heading themeColor="primary" level={"h2"} size={"2xl"}>
         {props.title}
       </Heading>

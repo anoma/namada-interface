@@ -444,11 +444,7 @@ export const AnotherWaysSection = styled.div`
   width: 100%;
   max-width: 1140px;
   align-self: center;
-  margin-top: ${spacement(10)};
-  border-radius: ${borderRadius("md")};
-  background-color: ${color("utility1", "main")};
-  border: 1px solid ${color("primary", "main")};
-  padding: ${spacement(5)} ${spacement(35)} ${spacement(7)};
+  margin: ${spacement(10)} 0;
 `;
 
 export const Table = styled.div`
