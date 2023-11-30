@@ -247,6 +247,7 @@ export const MainModal = styled.div`
 
 export const ModalButtonContainer = styled.div`
   text-align: center;
+  grid-column: span 3;
 
   & > button {
     margin-bottom: ${spacement(1.5)};

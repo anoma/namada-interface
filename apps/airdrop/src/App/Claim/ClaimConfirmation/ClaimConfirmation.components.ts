@@ -33,6 +33,10 @@ export const ClaimSectionContainer = styled.section<{ active: boolean }>`
   border: 1px solid ${color("primary", "main")};
   opacity: ${(props) => (props.active ? 1 : 0.25)};
   transition: 120ms ease-out opacity;
+
+  label {
+    color: ${color("primary", "main")};
+  }
 `;
 
 export const TermsContainer = styled.footer`

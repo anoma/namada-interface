@@ -3,7 +3,7 @@ import { ButtonProps } from "./types";
 import { TrustedSetupIcon } from "App/Icons/TrustedSetupIcon";
 import { useNavigate } from "react-router-dom";
 
-export const TrustedSetupButton = ({ disabled }: ButtonProps) => {
+export const TrustedSetupButton = ({ disabled }: ButtonProps): JSX.Element => {
   const navigate = useNavigate();
   return (
     <ActionButton
@@ -13,7 +13,7 @@ export const TrustedSetupButton = ({ disabled }: ButtonProps) => {
       icon={<TrustedSetupIcon />}
       onClick={() => navigate("/trusted-setup")}
     >
-      Namada Trusted Setup
+      Trusted Setup
     </ActionButton>
   );
 };

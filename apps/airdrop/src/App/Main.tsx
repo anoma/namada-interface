@@ -22,15 +22,18 @@ import {
   MainSection,
   MainSectionButton,
   MainTopSection,
-  ModalButtonContainer,
-  ModalButtonText,
   ObjectsContainer,
   PoolContainer,
   PoolTopLayerContainer,
   SmallWarning,
 } from "./App.components";
+import { CosmosButton } from "./Buttons/CosmosButton";
+import { DownloadKeplr } from "./Buttons/DownloadKeplr";
+import { DownloadMetamask } from "./Buttons/DownloadMetamask";
 import { GithubButton } from "./Buttons/GithubButton";
 import { MetamaskButton } from "./Buttons/MetamaskButton";
+import { OsmosisButton } from "./Buttons/OsmosisButton";
+import { StargazerButton } from "./Buttons/StargazerButton";
 import { TrustedSetupButton } from "./Buttons/TrustedSetupButton";
 import { AcceptTermsCheckbox } from "./Common/AcceptTermsCheckbox";
 import { Modal } from "./Common/Modal";
@@ -45,16 +48,8 @@ import { PoolSvg } from "./Graphics/Pool";
 import { PoolTopLayer } from "./Graphics/PoolTopLayer";
 import { WireSvg } from "./Graphics/Wire";
 import { ZeroOneSvg } from "./Graphics/ZeroOne";
-import { CosmosIcon } from "./Icons/CosmosIcon";
-import { OsmosisIcon } from "./Icons/OsmosisIcon";
-import { StargazerIcon } from "./Icons/StargazerIcon";
 import { iconsOnMouseMovement } from "./animations";
-import {
-  //TODO: rename to useExtensionDownload
-  handleExtensionDownload,
-  useGithubHandler,
-  useKeplrHandler,
-} from "./hooks";
+import { useGithubHandler } from "./hooks";
 import { MetamaskWindow } from "./types";
 
 export const Main: React.FC = () => {
@@ -65,9 +60,7 @@ export const Main: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isTOSAccepted, setIsTOSAccepted] = useState(false);
   const [isGithubFetching, setIsGithubFetching] = useState(hasCode);
-  const cosmosHandler = useKeplrHandler("cosmoshub-4", "cosmos", keplr);
-  const osmosisHandler = useKeplrHandler("osmosis-1", "osmosis", keplr);
-  const stargazeHandler = useKeplrHandler("stargaze-1", "badkids", keplr);
+
   const githubHandler = useGithubHandler();
   const objectContainerRef = useRef<HTMLDivElement>(null);
   const mainSectionRef = useRef<HTMLDivElement>(null);
@@ -89,6 +82,7 @@ export const Main: React.FC = () => {
   useLayoutEffect(() => {
     gsap.context(() => {
       const tl = gsap.timeline();
+
       tl.set(
         ["svg", ".main-title", ".warning", ".announcement", ".call-to-action"],
         { opacity: 0 }
@@ -101,7 +95,6 @@ export const Main: React.FC = () => {
       );
 
       tl.addLabel("titleDisplayed");
-
       tl.to(
         ".main-title",
         { y: "-=75", duration: 0.5, ease: Expo.easeOut },
@@ -277,86 +270,16 @@ export const Main: React.FC = () => {
             <Stack gap={3}>
               <GithubButton disabled={!isTOSAccepted} />
               <MetamaskButton disabled={!isTOSAccepted} />
-
-              {!metamask && (
-                <ModalButtonContainer>
-                  <ActionButton
-                    outlined
-                    disabled={!isTOSAccepted}
-                    variant="primary"
-                    onClick={() =>
-                      handleExtensionDownload("https://metamask.io/download/")
-                    }
-                  >
-                    Download Metamask to use Ethereum Wallet
-                  </ActionButton>
-                  <ModalButtonText
-                    disabled={!isTOSAccepted}
-                    themeColor="primary"
-                    fontSize="xs"
-                  >
-                    NOTE: Make sure to restart website after installing Metamask
-                    extension
-                  </ModalButtonText>
-                </ModalButtonContainer>
-              )}
-
               <TrustedSetupButton disabled={!isTOSAccepted} />
               {keplr && (
                 <>
-                  <ActionButton
-                    outlined
-                    disabled={!isTOSAccepted}
-                    variant="primary"
-                    onClick={cosmosHandler}
-                    icon={<CosmosIcon />}
-                  >
-                    Cosmos Wallet
-                  </ActionButton>
-                  <ActionButton
-                    outlined
-                    disabled={!isTOSAccepted}
-                    variant="primary"
-                    onClick={osmosisHandler}
-                    icon={<OsmosisIcon />}
-                  >
-                    Osmosis Wallet
-                  </ActionButton>
-
-                  <ActionButton
-                    outlined
-                    disabled={!isTOSAccepted}
-                    variant="primary"
-                    onClick={stargazeHandler}
-                    icon={<StargazerIcon />}
-                  >
-                    Stargaze Wallet
-                  </ActionButton>
+                  <CosmosButton disabled={!isTOSAccepted} />
+                  <OsmosisButton disabled={!isTOSAccepted} />
+                  <StargazerButton disabled={!isTOSAccepted} />
                 </>
               )}
-
-              {!keplr && (
-                <ModalButtonContainer>
-                  <ActionButton
-                    outlined
-                    disabled={!isTOSAccepted}
-                    variant="primary"
-                    onClick={() =>
-                      handleExtensionDownload("https://www.keplr.app/download")
-                    }
-                  >
-                    Download Keplr to use Cosmos/Osmosis/Stargaze Wallet
-                  </ActionButton>
-                  <ModalButtonText
-                    disabled={!isTOSAccepted}
-                    themeColor="primary"
-                    fontSize="xs"
-                  >
-                    NOTE: Make sure to restart website after installing Keplr
-                    extension
-                  </ModalButtonText>
-                </ModalButtonContainer>
-              )}
+              {!metamask && <DownloadMetamask disabled={!isTOSAccepted} />}
+              {!keplr && <DownloadKeplr disabled={!isTOSAccepted} />}
             </Stack>
             <AcceptTermsCheckbox
               checked={isTOSAccepted}
@@ -365,7 +288,6 @@ export const Main: React.FC = () => {
           </Stack>
         </EligibilityPanel>
       </Modal>
-
       <GithubLoading
         visible={isGithubFetching}
         variant="full"

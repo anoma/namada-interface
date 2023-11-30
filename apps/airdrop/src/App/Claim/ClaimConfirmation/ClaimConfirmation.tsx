@@ -326,15 +326,13 @@ export const ClaimConfirmation: React.FC = () => {
                         Generate a signature with your Trusted Setup keys
                       </Text>
                     </StepHeader>
-                    <Text themeColor="primary">
-                      Use this nonce in the CLI tool (Copy and paste this nonce)
-                    </Text>
                   </div>
                   <NonceContainer>
                     <Input
                       theme="primary"
                       variant={InputVariants.ReadOnlyCopy}
                       value={(claimState as TSState).nonce}
+                      label="Use this nonce in the CLI tool (Copy and paste this nonce)"
                       onChange={() => {}}
                     />
                     <Text themeColor="primary" fontSize="sm">
@@ -358,13 +356,13 @@ export const ClaimConfirmation: React.FC = () => {
           )}
 
           <ClaimSectionContainer active={isClaimSectionActive}>
-            <Stack gap={3}>
+            <Stack gap={6}>
               <Text themeColor="primary" fontSize="xl">
                 {isTrustedSetup && <StepIndicator>2</StepIndicator>}
                 Submit your Namada public key to be included in the genesis
                 proposal
               </Text>
-              <Stack gap={1}>
+              <Stack gap={4}>
                 <Input
                   theme={airdropPubKeyValid ? "secondary" : "primary"}
                   variant={InputVariants.Text}
@@ -378,6 +376,7 @@ export const ClaimConfirmation: React.FC = () => {
                     const { value: publicKey } = e.target;
                     setAirdropPubKey(publicKey);
                   }}
+                  label="Namada public key"
                   placeholder="Enter your Namada public key"
                 >
                   <InputActionButton
@@ -402,6 +401,7 @@ export const ClaimConfirmation: React.FC = () => {
                   variant={InputVariants.Text}
                   value={airdropAddress}
                   theme={airdropAddressValid ? "secondary" : "primary"}
+                  label="Namada transparent address"
                   error={
                     airdropAddress.length > 0 && !airdropAddressValid
                       ? "Invalid transparent address. Make sure you're providing an address starting with the 'tnam' prefix."
