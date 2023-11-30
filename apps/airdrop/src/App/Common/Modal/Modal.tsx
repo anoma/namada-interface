@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import {
   ModalCloseIcon,
   ModalContainer,
@@ -7,6 +7,7 @@ import {
   ModalHeader,
   ModalOverlay,
 } from "./Modal.component";
+import gsap, { Expo } from "gsap";
 
 type ModalProps = {
   title: string;
@@ -21,6 +22,28 @@ export const Modal = ({
   title,
   children,
 }: ModalProps): JSX.Element => {
+  const modalContainerRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    if (!isOpen) return;
+
+    gsap.context(() => {
+      const tl = gsap.timeline();
+      tl.fromTo(
+        ".container-wrapper",
+        { scale: 0 },
+        { scale: 1, duration: 0.25, ease: Expo.easeOut }
+      );
+
+      tl.fromTo(
+        ".content-wrapper",
+        { opacity: 0 },
+        { opacity: 1, ease: Expo.easeOut },
+        "-=0.15"
+      );
+    }, [modalContainerRef]);
+  }, [isOpen]);
+
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent): void => {
       if (e.key == "Escape") {
@@ -33,6 +56,7 @@ export const Modal = ({
       document.removeEventListener("keydown", onKeyDown);
     };
   }, []);
+
   if (!isOpen) {
     return <></>;
   }
@@ -40,15 +64,17 @@ export const Modal = ({
   return (
     <>
       <ModalOverlay onClick={onClose} />
-      <ModalContainer>
-        <ModalContentWrapper>
-          <ModalHeader>
-            <span>{title}</span>
-            <ModalCloseIcon onClick={onClose}>&#x2715;</ModalCloseIcon>
-          </ModalHeader>
-          <ModalContent>{children}</ModalContent>
-        </ModalContentWrapper>
-      </ModalContainer>
+      <div ref={modalContainerRef}>
+        <ModalContainer className="container-wrapper">
+          <ModalContentWrapper className="content-wrapper">
+            <ModalHeader>
+              <span>{title}</span>
+              <ModalCloseIcon onClick={onClose}>&#x2715;</ModalCloseIcon>
+            </ModalHeader>
+            <ModalContent>{children}</ModalContent>
+          </ModalContentWrapper>
+        </ModalContainer>
+      </div>
     </>
   );
 };

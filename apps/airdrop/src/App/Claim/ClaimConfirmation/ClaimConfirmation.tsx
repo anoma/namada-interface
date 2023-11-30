@@ -362,7 +362,11 @@ export const ClaimConfirmation: React.FC = () => {
                   theme={airdropPubKeyValid ? "secondary" : "primary"}
                   variant={InputVariants.Text}
                   value={airdropPubKey}
-                  error={airdropPubKey.length > 0 && !airdropPubKeyValid}
+                  error={
+                    airdropPubKey.length > 0 && !airdropPubKeyValid
+                      ? "This public key is not valid"
+                      : ""
+                  }
                   onChange={(e) => setAirdropPubKey(e.target.value)}
                   placeholder="Enter your Namada public key"
                 >
@@ -387,7 +391,11 @@ export const ClaimConfirmation: React.FC = () => {
                   variant={InputVariants.Text}
                   value={airdropAddress}
                   theme={airdropAddressValid ? "secondary" : "primary"}
-                  error={airdropAddress.length > 0 && !airdropAddressValid}
+                  error={
+                    airdropAddress.length > 0 && !airdropAddressValid
+                      ? "Invalid transparent address. Make sure you're providing an address starting with the 'tnam' prefix."
+                      : ""
+                  }
                   onChange={(e) => setNamadaAddress(e.target.value)}
                   placeholder="Enter your Namada transparent address"
                 >

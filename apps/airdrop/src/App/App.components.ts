@@ -153,7 +153,6 @@ export const MainTopSection = styled.section`
   position: relative;
   padding-bottom: ${spacement(24)};
   max-width: 100%;
-  overflow: hidden;
 `;
 
 export const PoolContainer = styled.div`
@@ -173,6 +172,7 @@ export const PoolTopLayerContainer = styled.div`
   top: 10px;
   left: calc(50% - 378px);
   pointer-events: none;
+  overflow: visible;
 `;
 
 export const ObjectsContainer = styled.div`
@@ -302,7 +302,7 @@ export const AnotherWaysContainer = styled.div`
   border-radius: ${borderRadius("md")};
   background-color: ${color("utility1", "main")};
   border: 1px solid ${color("primary", "main")};
-  padding: ${spacement(5)} ${spacement(5)} ${spacement(7)};
+  padding: ${spacement(9)} ${spacement(24)} ${spacement(10)};
 
   & > h2 {
     text-align: left;
@@ -421,7 +421,7 @@ export const AirdropBreakdownSection = styled.div`
   width: 100%;
   max-width: 1140px;
   align-self: center;
-  margin-top: ${spacement(14)};
+  margin-top: ${spacement(17)};
 `;
 
 export const AnotherWaysSection = styled.div`
@@ -450,10 +450,10 @@ export const TableHeader = styled.div`
 export const TableRow = styled.div<{ height?: string }>`
   display: flex;
   align-items: center;
-  padding: 0 ${spacement(6)};
   border: 1px solid ${color("utility1", "main")};
   border-radius: ${borderRadius("sm")};
-  height: ${(props) => props.height || "auto"};
+  min-height: ${(props) => props.height || "auto"};
+  padding: ${spacement(2)} ${spacement(6)};
 `;
 export const TableCell = styled.div<{
   width: string;
@@ -476,12 +476,18 @@ export const Warning = styled.div<{
   top: ${(props) => props.top};
   left: ${(props) => props.left};
   display: flex;
+  font-size: ${fontSize("sm")};
   flex-direction: column;
   border-radius: ${borderRadius("md")};
   padding: ${spacement(5)} ${spacement(2)};
   align-items: center;
   color: ${color("primary", "main")};
   background-color: ${color("utility1", "main")};
+
+  & > svg {
+    max-width: 60px;
+    margin: 0 auto ${spacement(2)};
+  }
 
   & ul {
     padding-left: ${spacement(5)};
@@ -563,8 +569,12 @@ export const TrustedSetupList = styled.ol`
 `;
 
 export const TrustedSetupHeader = styled.header`
-  font-size: 18px;
   max-width: 75%;
+
+  p {
+    font-size: 18px;
+    margin-top: ${spacement(2)};
+  }
 `;
 
 export const TrustedSetupListItem = styled.li`

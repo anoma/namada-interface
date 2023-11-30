@@ -7,7 +7,8 @@ import {
   Stack,
   Text,
 } from "@namada/components";
-import { useEffect, useState } from "react";
+import { Expo, Quint, gsap } from "gsap";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   ButtonContainer,
   CallToActionStack,
@@ -46,6 +47,7 @@ import { ZeroOneSvg } from "./Graphics/ZeroOne";
 import { CosmosIcon } from "./Icons/CosmosIcon";
 import { OsmosisIcon } from "./Icons/OsmosisIcon";
 import { StargazerIcon } from "./Icons/StargazerIcon";
+import { iconsOnMouseMovement } from "./animations";
 import {
   //TODO: rename to useExtensionDownload
   handleExtensionDownload,
@@ -63,6 +65,8 @@ export const Main: React.FC = () => {
   const osmosisHandler = useKeplrHandler("osmosis-1", "osmosis", keplr);
   const stargazeHandler = useKeplrHandler("stargaze-1", "badkids", keplr);
   const githubHandler = useGithubHandler();
+  const objectContainerRef = useRef<HTMLDivElement>(null);
+  const mainSectionRef = useRef<HTMLDivElement>(null);
 
   const url = window.location.href;
   const hasCode = url.includes("?code=");
@@ -74,14 +78,69 @@ export const Main: React.FC = () => {
     }
   }, []);
 
+  useLayoutEffect(() => {
+    gsap.context(() => {
+      const tl = gsap.timeline();
+      tl.set(
+        ["svg", ".main-title", ".warning", ".announcement", ".call-to-action"],
+        { opacity: 0 }
+      );
+
+      tl.fromTo(
+        ".main-title",
+        { y: "+=90", opacity: 0, scale: 0.75 },
+        { y: "-=15", opacity: 1, scale: 1, duration: 0.65, ease: Quint.easeOut }
+      );
+
+      tl.addLabel("titleDisplayed");
+
+      tl.to(
+        ".main-title",
+        { y: "-=75", duration: 0.5, ease: Expo.easeOut },
+        "titleDisplayed"
+      );
+
+      tl.to(
+        [".call-to-action", ".warning", ".announcement", "svg"],
+        {
+          opacity: 1,
+          duration: 0.75,
+          ease: Expo.easeOut,
+          stagger: 0.075,
+        },
+        "titleDisplayed"
+      );
+
+      tl.fromTo(
+        ".objects-container i",
+        {
+          y: `+=${window.innerHeight}`,
+        },
+        {
+          y: 0,
+          stagger: 0.1,
+          duration: 2,
+          ease: Expo.easeOut,
+          overwrite: true,
+        },
+        "titleDisplayed"
+      );
+    }, mainSectionRef);
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!objectContainerRef.current) return;
+    iconsOnMouseMovement(objectContainerRef.current || []);
+  }, []);
+
   return (
     <>
       <MainContainer blurred={isModalOpen}>
         <GlobalStyles colorMode="light" />
-        <MainTopSection>
+        <MainTopSection ref={mainSectionRef}>
           <MainSection>
             <Stack gap={4}>
-              <MainHeader>
+              <MainHeader className="main-title">
                 <Heading
                   themeColor="utility1"
                   uppercase
@@ -95,7 +154,7 @@ export const Main: React.FC = () => {
                   Public Goods
                 </Heading>
               </MainHeader>
-              <CallToActionStack>
+              <CallToActionStack className="call-to-action">
                 <Stack gap={1}>
                   <Text themeColor="utility1" fontSize="xl">
                     TIME LEFT TO CLAIM:
@@ -119,13 +178,13 @@ export const Main: React.FC = () => {
                   </ActionButton>
                 </ButtonContainer>
               </CallToActionStack>
-              <SmallWarning>
+              <SmallWarning className="warning">
                 Please check you are claiming using the following URL:
                 <div>
                   <strong>https://rpgfdrop.namada.net</strong>
                 </div>
               </SmallWarning>
-              <Stack gap={0.5}>
+              <Stack gap={0.5} className="announcement">
                 <MainSectionButton></MainSectionButton>
                 <LinkButton themeColor="utility1">
                   <b>Read the annoucement</b>
@@ -139,7 +198,10 @@ export const Main: React.FC = () => {
           <PoolTopLayerContainer>
             <PoolTopLayer />
           </PoolTopLayerContainer>
-          <ObjectsContainer>
+          <ObjectsContainer
+            className="objects-container"
+            ref={objectContainerRef}
+          >
             <IconContainer left={-310} top={50}>
               <BallSVg />
             </IconContainer>
@@ -195,90 +257,91 @@ export const Main: React.FC = () => {
         onClose={() => setIsModalOpen(false)}
       >
         <EligibilityPanel>
-          <Stack gap={3}>
-            <GithubButton disabled={!isTOSAccepted} />
-            <MetamaskButton disabled={!isTOSAccepted} />
+          <Stack gap={6}>
+            <Stack gap={3}>
+              <GithubButton disabled={!isTOSAccepted} />
+              <MetamaskButton disabled={!isTOSAccepted} />
 
-            {!metamask && (
-              <ModalButtonContainer>
-                <ActionButton
-                  outlined
-                  disabled={!isTOSAccepted}
-                  variant="primary"
-                  onClick={() =>
-                    handleExtensionDownload("https://metamask.io/download/")
-                  }
-                >
-                  Download Metamask to use Ethereum Wallet
-                </ActionButton>
-                <ModalButtonText
-                  disabled={!isTOSAccepted}
-                  themeColor="primary"
-                  fontSize="xs"
-                >
-                  NOTE: Make sure to restart website after installing Metamask
-                  extension
-                </ModalButtonText>
-              </ModalButtonContainer>
-            )}
+              {!metamask && (
+                <ModalButtonContainer>
+                  <ActionButton
+                    outlined
+                    disabled={!isTOSAccepted}
+                    variant="primary"
+                    onClick={() =>
+                      handleExtensionDownload("https://metamask.io/download/")
+                    }
+                  >
+                    Download Metamask to use Ethereum Wallet
+                  </ActionButton>
+                  <ModalButtonText
+                    disabled={!isTOSAccepted}
+                    themeColor="primary"
+                    fontSize="xs"
+                  >
+                    NOTE: Make sure to restart website after installing Metamask
+                    extension
+                  </ModalButtonText>
+                </ModalButtonContainer>
+              )}
 
-            <TrustedSetupButton disabled={!isTOSAccepted} />
-            {keplr && (
-              <>
-                <ActionButton
-                  outlined
-                  disabled={!isTOSAccepted}
-                  variant="primary"
-                  onClick={cosmosHandler}
-                  icon={<CosmosIcon />}
-                >
-                  Cosmos Wallet
-                </ActionButton>
-                <ActionButton
-                  outlined
-                  disabled={!isTOSAccepted}
-                  variant="primary"
-                  onClick={osmosisHandler}
-                  icon={<OsmosisIcon />}
-                >
-                  Osmosis Wallet
-                </ActionButton>
+              <TrustedSetupButton disabled={!isTOSAccepted} />
+              {keplr && (
+                <>
+                  <ActionButton
+                    outlined
+                    disabled={!isTOSAccepted}
+                    variant="primary"
+                    onClick={cosmosHandler}
+                    icon={<CosmosIcon />}
+                  >
+                    Cosmos Wallet
+                  </ActionButton>
+                  <ActionButton
+                    outlined
+                    disabled={!isTOSAccepted}
+                    variant="primary"
+                    onClick={osmosisHandler}
+                    icon={<OsmosisIcon />}
+                  >
+                    Osmosis Wallet
+                  </ActionButton>
 
-                <ActionButton
-                  outlined
-                  disabled={!isTOSAccepted}
-                  variant="primary"
-                  onClick={stargazeHandler}
-                  icon={<StargazerIcon />}
-                >
-                  Stargaze Wallet
-                </ActionButton>
-              </>
-            )}
+                  <ActionButton
+                    outlined
+                    disabled={!isTOSAccepted}
+                    variant="primary"
+                    onClick={stargazeHandler}
+                    icon={<StargazerIcon />}
+                  >
+                    Stargaze Wallet
+                  </ActionButton>
+                </>
+              )}
 
-            {!keplr && (
-              <ModalButtonContainer>
-                <ActionButton
-                  outlined
-                  disabled={!isTOSAccepted}
-                  variant="primary"
-                  onClick={() =>
-                    handleExtensionDownload("https://www.keplr.app/download")
-                  }
-                >
-                  Download Keplr to use Cosmos/Osmosis/Stargaze Wallet
-                </ActionButton>
-                <ModalButtonText
-                  disabled={!isTOSAccepted}
-                  themeColor="primary"
-                  fontSize="xs"
-                >
-                  NOTE: Make sure to restart website after installing Keplr
-                  extension
-                </ModalButtonText>
-              </ModalButtonContainer>
-            )}
-
+              {!keplr && (
+                <ModalButtonContainer>
+                  <ActionButton
+                    outlined
+                    disabled={!isTOSAccepted}
+                    variant="primary"
+                    onClick={() =>
+                      handleExtensionDownload("https://www.keplr.app/download")
+                    }
+                  >
+                    Download Keplr to use Cosmos/Osmosis/Stargaze Wallet
+                  </ActionButton>
+                  <ModalButtonText
+                    disabled={!isTOSAccepted}
+                    themeColor="primary"
+                    fontSize="xs"
+                  >
+                    NOTE: Make sure to restart website after installing Keplr
+                    extension
+                  </ModalButtonText>
+                </ModalButtonContainer>
+              )}
+            </Stack>
             <AcceptTermsCheckbox
               checked={isTOSAccepted}
               onChange={() => setIsTOSAccepted(!isTOSAccepted)}

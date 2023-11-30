@@ -27,7 +27,7 @@ import {
   TableRow,
   Warning,
 } from "./App.components";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ClaimCategory, getAllClaims } from "./hooks";
 import { AnotherWays } from "./AnotherWays";
 import { GithubEligibility, mapEligibility } from "./eligibilityMap";
@@ -39,6 +39,7 @@ import { Bars1Svg } from "./Graphics/Bars1";
 import { EyeSvg } from "./Graphics/Eye";
 import { WarningIcon } from "./Icons/WarningIcon";
 import { PageFooter } from "./Common/PageFooter";
+import { iconsOnMouseMovement } from "./animations";
 
 const categoryAccountTypeMap: Record<ClaimCategory, string> = {
   Github: "Github",
@@ -82,9 +83,37 @@ type Breakdown = {
 };
 
 export const AirdropConfirmation: React.FC = () => {
+  const iconsContainerRef = useRef<HTMLDivElement>(null);
   const [confirmation] = useAtom(confirmationAtom);
   const [totalMinNam, setTotalMinNam] = useState<number>();
-  const [breakdown, setBreakdown] = useState<Breakdown[]>([]);
+  // const [breakdown, setBreakdown] = useState<Breakdown[]>([]);
+  const [breakdown, setBreakdown] = useState<Breakdown[]>([
+    {
+      accountType: "Github",
+      source: "mateuszjasiuk",
+      category:
+        "ZKPs, Cryptography Public Goods, Privacy Research & Learning Resources",
+      minNam: 8547,
+    },
+    {
+      accountType: "Github",
+      source: "mateuszjasiuk",
+      category: "Interchain Public Goods & Early Shielded Ecosystem",
+      minNam: 8547,
+    },
+    {
+      accountType: "Github",
+      source: "mateuszjasiuk",
+      category: "Zcash R&D & Rust Developer Ecosystem",
+      minNam: 333,
+    },
+    {
+      accountType: "Cosmos Wallet",
+      source: "cosmos1tgzgr9rvj4y8vqryppf5wu6r9quxuc7lskhh0g",
+      category: "Early shielded Community",
+      minNam: 15,
+    },
+  ]);
 
   if (confirmation === null) {
     throw new Error("Confirmation state is empty!");
@@ -110,6 +139,11 @@ export const AirdropConfirmation: React.FC = () => {
         setBreakdown(breakdown);
       }
     })();
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!iconsContainerRef.current) return;
+    return iconsOnMouseMovement(iconsContainerRef.current);
   }, []);
 
   return (
@@ -165,7 +199,7 @@ export const AirdropConfirmation: React.FC = () => {
       </AirdropConfirmationMainSection>
 
       {/* TODO: move to shared component */}
-      <Warning width={"255px"} top={"80px"} left={"calc(50% - 565px)"}>
+      <Warning width={"255px"} top={"80px"} left={"calc(50% - 640px)"}>
         <WarningIcon />
         <ul>
           <li>Make sure you back up your seed phrase in a safe place</li>
@@ -180,23 +214,25 @@ export const AirdropConfirmation: React.FC = () => {
       <AirdropConfirmationPool>
         <PoolSvg />
       </AirdropConfirmationPool>
-      <AirdropConfirmationPoolTop>
-        <PoolTopLayer />
-      </AirdropConfirmationPoolTop>
-      <AirdropConfirmationObjectsContainer>
-        <IconContainer left={230} top={-50}>
-          <WireSvg />
-        </IconContainer>
-        <IconContainer left={415} top={210}>
-          <Bars2Svg />
-        </IconContainer>
-        <IconContainer left={-540} top={380}>
-          <Bars1Svg />
-        </IconContainer>
-        <IconContainer left={350} top={400}>
-          <EyeSvg />
-        </IconContainer>
-      </AirdropConfirmationObjectsContainer>
+      <div ref={iconsContainerRef}>
+        <AirdropConfirmationPoolTop>
+          <PoolTopLayer />
+        </AirdropConfirmationPoolTop>
+        <AirdropConfirmationObjectsContainer>
+          <IconContainer left={230} top={-50}>
+            <WireSvg />
+          </IconContainer>
+          <IconContainer left={415} top={210}>
+            <Bars2Svg />
+          </IconContainer>
+          <IconContainer left={-540} top={380}>
+            <Bars1Svg />
+          </IconContainer>
+          <IconContainer left={350} top={400}>
+            <EyeSvg />
+          </IconContainer>
+        </AirdropConfirmationObjectsContainer>
+      </div>
 
       <AirdropBreakdownSection>
         <Heading themeColor={"utility1"} level={"h4"} size={"xl"}>
@@ -253,8 +289,6 @@ export const AirdropConfirmation: React.FC = () => {
       <AnotherWaysSection>
         <AnotherWays title="Try another claim" />
       </AnotherWaysSection>
-      {/* lazy person margin */}
-      <div style={{ height: "150px" }} />
       <PageFooter />
     </AirdropConfirmationContainer>
   );

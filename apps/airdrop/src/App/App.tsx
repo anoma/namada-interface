@@ -46,7 +46,7 @@ export const App: React.FC = () => {
           <Route
             path={`/airdrop-confirmed`}
             element={
-              !!confirmationState ? (
+              true || !!confirmationState ? (
                 <AirdropConfirmation />
               ) : (
                 <Navigate to="/" replace={true} />

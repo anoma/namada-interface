@@ -44,7 +44,6 @@ export const InputActionButton = styled.span`
   right: ${spacement(4)};
   top: 50%;
   transform: translateY(-50%);
-  width: 220px;
   z-index: 100;
 `;
 

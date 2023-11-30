@@ -7,6 +7,8 @@ export const SidebarPageGrid = styled.div`
   gap: ${spacement(10)};
   padding: 0 ${spacement(5)} ${spacement(12)};
   margin-top: ${spacement(10)};
+  margin-left: -260px;
+  justify-content: center;
 `;
 
 export const SidebarTitle = styled.h3`

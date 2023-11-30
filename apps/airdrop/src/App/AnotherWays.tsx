@@ -20,6 +20,8 @@ import {
   useMetamaskHandler,
 } from "./hooks";
 import { MetamaskWindow } from "./types";
+import { AcceptTermsCheckbox } from "./Common/AcceptTermsCheckbox";
+import { useState } from "react";
 
 const {
   REACT_APP_REDIRECT_URI: redirectUrl = "",
@@ -31,6 +33,8 @@ type AnotherWaysProps = {
 };
 
 export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
+  const [termsAccepted, setTermsAccepted] = useState(false);
+
   const keplr = (window as KeplrWindow)?.keplr;
   const metamask = (window as MetamaskWindow)?.ethereum;
   const metamaskHandler = useMetamaskHandler("0x1", metamask);
@@ -46,6 +50,7 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
       </Heading>
       <AnotherWaysButtons>
         <ActionButton
+          disabled={!termsAccepted}
           outlined
           variant="primary"
           icon={<GithubIcon />}
@@ -61,6 +66,7 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
 
         {metamask && (
           <ActionButton
+            disabled={!termsAccepted}
             outlined
             variant="primary"
             onClick={metamaskHandler}
@@ -73,6 +79,7 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
         {!metamask && (
           <ModalButtonContainer>
             <ActionButton
+              disabled={!termsAccepted}
               outlined
               variant="primary"
               onClick={() =>
@@ -93,6 +100,7 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
         )}
 
         <ActionButton
+          disabled={!termsAccepted}
           outlined
           variant="primary"
           icon={<TrustedSetupIcon />}
@@ -104,6 +112,7 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
         {keplr && (
           <>
             <ActionButton
+              disabled={!termsAccepted}
               outlined
               variant="primary"
               icon={<CosmosIcon />}
@@ -113,6 +122,7 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
             </ActionButton>
 
             <ActionButton
+              disabled={!termsAccepted}
               outlined
               variant="primary"
               icon={<OsmosisIcon />}
@@ -122,6 +132,7 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
             </ActionButton>
 
             <ActionButton
+              disabled={!termsAccepted}
               outlined
               variant="primary"
               icon={<StargazerIcon />}
@@ -135,6 +146,7 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
         {!keplr && (
           <ModalButtonContainer>
             <ActionButton
+              disabled={!termsAccepted}
               outlined
               variant="primary"
               onClick={() =>
@@ -154,6 +166,10 @@ export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
           </ModalButtonContainer>
         )}
       </AnotherWaysButtons>
+      <AcceptTermsCheckbox
+        checked={termsAccepted}
+        onChange={() => setTermsAccepted(!termsAccepted)}
+      />
     </AnotherWaysContainer>
   );
 };

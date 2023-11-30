@@ -16,6 +16,7 @@ import {
   CheckEligibilityContainer,
   EligibilityHeader,
   EligibilitySectionWrapper,
+  TrustedSetupHeader,
   TrustedSetupList,
   TrustedSetupListItem,
 } from "./App.components";
@@ -108,18 +109,20 @@ export const TrustedSetup: React.FC = () => {
       <EligibilitySectionWrapper>
         <Stack gap={12}>
           <Stack gap={3}>
-            <Heading
-              level={"h1"}
-              size="5xl"
-              themeColor="primary"
-              textAlign="left"
-            >
-              Check Eligibility for Trusted Setup Participants
-            </Heading>
-            <Text themeColor="primary">
-              If you contributed to the Namada Trusted Setup, you can use this
-              tool to prove your contribution and check eligibility.
-            </Text>
+            <TrustedSetupHeader>
+              <Heading
+                level={"h1"}
+                size="5xl"
+                themeColor="primary"
+                textAlign="left"
+              >
+                Check Eligibility for Trusted Setup Participants
+              </Heading>
+              <Text themeColor="primary">
+                If you contributed to the Namada Trusted Setup, you can use this
+                tool to prove your contribution and check eligibility.
+              </Text>
+            </TrustedSetupHeader>
           </Stack>
           <TrustedSetupList>
             <TrustedSetupListItem>

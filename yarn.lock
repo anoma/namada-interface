@@ -6333,6 +6333,7 @@ __metadata:
     dompurify: "npm:^3.0.2"
     dotenv: "npm:^16.0.3"
     eslint-import-resolver-typescript: "npm:^3.5.0"
+    gsap: "npm:^3.12.2"
     jotai: "npm:^2.5.1"
     local-cors-proxy: "npm:^1.1.0"
     node-forge: "npm:^1.3.1"
@@ -16265,6 +16266,13 @@ __metadata:
   version: 1.3.0
   resolution: "growly@npm:1.3.0"
   checksum: 3043bd5c064e87f89e8c9b66894ed09fd882c7fa645621a543b45b72f040c7241e25061207a858ab191be2fbdac34795ff57c2a40962b154a6b2908a5e509252
+  languageName: node
+  linkType: hard
+
+"gsap@npm:^3.12.2":
+  version: 3.12.2
+  resolution: "gsap@npm:3.12.2"
+  checksum: 46f3c63065806e7690fd43b0f2097ffd0def663db4f03bf935eac3246bbbbf3189f41e56a51243f493ad087be1d73f58723cbcdbe76b69d6e7cd74d749514cbb
   languageName: node
   linkType: hard
 
