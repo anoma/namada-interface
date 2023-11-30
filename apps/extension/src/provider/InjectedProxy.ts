@@ -20,7 +20,7 @@ export class InjectedProxy {
     window.postMessage(message, window.location.origin);
   }
 
-  static requestMethod<T, U>(method: ProxyMethod, args: T): Promise<U> {
+  static requestMethod<T, U>(method: ProxyMethod, args?: T): Promise<U> {
     const bytes = new Uint8Array(8);
     const id: string = Array.from(crypto.getRandomValues(bytes))
       .map((value) => {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import BigNumber from "bignumber.js";
 
-import { chains } from "@namada/chains";
+import { chains, defaultChainId } from "@namada/chains";
 import {
   Account as AccountType,
   BridgeType,
@@ -53,7 +53,7 @@ export const submitIbcTransfer = async (
     portId,
     channelId,
   } = ibcArgs;
-  const integration = getIntegration(chainId);
+  const integration = getIntegration(chainId || defaultChainId);
 
   await integration.submitBridgeTransfer(
     {
@@ -70,7 +70,7 @@ export const submitIbcTransfer = async (
         feeAmount: new BigNumber(0),
         gasLimit: new BigNumber(20_000),
         publicKey,
-        chainId,
+        chainId: chainId || defaultChainId,
       },
     },
     type
@@ -155,9 +155,8 @@ const IBCTransfer = (): JSX.Element => {
         }
         return {
           value: `${address}|${tokenType}`,
-          label: `${alias !== "Namada" ? alias + " - " : ""}${
-            Tokens[tokenType as TokenType].coin
-          } (${amount} ${tokenType})`,
+          label: `${alias !== "Namada" ? alias + " - " : ""}${Tokens[tokenType as TokenType].coin
+            } (${amount} ${tokenType})`,
         };
       });
     }
@@ -412,9 +411,9 @@ const IBCTransfer = (): JSX.Element => {
                   currentExtensionAttachStatus === "attached"
                     ? handleConnectExtension
                     : handleDownloadExtension.bind(
-                        null,
-                        destinationChain.extension.url
-                      )
+                      null,
+                      destinationChain.extension.url
+                    )
                 }
                 loading={
                   currentExtensionAttachStatus === "pending" ||
@@ -427,7 +426,7 @@ const IBCTransfer = (): JSX.Element => {
                 }
               >
                 {currentExtensionAttachStatus === "attached" ||
-                currentExtensionAttachStatus === "pending"
+                  currentExtensionAttachStatus === "pending"
                   ? `Load accounts from ${extensionAlias} Extension`
                   : "Click to download the extension"}
               </Button>

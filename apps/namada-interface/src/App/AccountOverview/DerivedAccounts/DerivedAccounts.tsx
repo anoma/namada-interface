@@ -5,7 +5,6 @@ import BigNumber from "bignumber.js";
 import { chains, defaultChainId } from "@namada/chains";
 import { TokenType, Tokens } from "@namada/types";
 import { formatCurrency } from "@namada/utils";
-import { Modal } from "@namada/components";
 
 import {
   DerivedAccountsContainer,
@@ -37,7 +36,6 @@ import { AccountsState, Balance } from "slices/accounts";
 import { CoinsState, fetchConversionRates } from "slices/coins";
 import { SettingsState } from "slices/settings";
 import Config from "config";
-import { FaucetTransferForm } from "./FaucetTransferForm";
 
 const { REACT_APP_NAMADA_FAUCET_ADDRESS: faucetAddress } = process.env;
 
@@ -119,30 +117,12 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
 
   const toggleModal = (): void => setIsModalOpen(!isModalOpen);
 
-  const activeAccount =
-    activeAccountAddress &&
-    accounts.find((account) => account.details.address === activeAccountAddress)
-      ?.details;
-
   return (
     <DerivedAccountsContainer>
       {accounts.length === 0 && (
         <NoTokens>
           <p>You have no token balances to display on {alias}!</p>
         </NoTokens>
-      )}
-      {faucetAddress && chainId === defaultChainId && (
-        <Modal isOpen={isModalOpen} onBackdropClick={toggleModal}>
-          <div>
-            {activeAccount && (
-              <FaucetTransferForm
-                account={activeAccount}
-                faucetAddress={faucetAddress}
-                cancelCallback={() => setIsModalOpen(false)}
-              />
-            )}
-          </div>
-        </Modal>
       )}
       <DerivedAccountsList>
         {accounts

@@ -69,7 +69,6 @@ export class ConnectInterfaceResponseMsg extends Message<void> {
 
   constructor(
     public readonly interfaceTabId: number,
-    public readonly chainId: string,
     public readonly interfaceOrigin: string,
     public readonly allowConnection: boolean
   ) {
@@ -79,10 +78,6 @@ export class ConnectInterfaceResponseMsg extends Message<void> {
   validate(): void {
     if (!this.interfaceTabId) {
       throw new Error("interfaceTabId not set");
-    }
-
-    if (!this.chainId) {
-      throw new Error("chain ID not set");
     }
 
     if (!this.interfaceOrigin) {

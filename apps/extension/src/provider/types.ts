@@ -14,7 +14,7 @@ export interface ProxyRequest<T = any> {
   type: ProxyRequestTypes;
   id: string;
   method: ProxyMethod;
-  args: T;
+  args?: T;
 }
 
 export interface ProxyRequestResponse {
