@@ -190,7 +190,7 @@ export const ClaimConfirmation: React.FC = () => {
   const navigate = useNavigate();
   const [claimState] = useAtom(claimAtom);
   const [_confirmationState, setConfirmation] = useAtom(confirmationAtom);
-  const [airdropAddress, setNamadaAddress] = useState<string>(
+  const [airdropAddress, setAirdropAddress] = useState<string>(
     localStorage.getItem("airdropAddress") || ""
   );
   const [airdropPubKey, setAirdropPubKey] = useState<string>(
@@ -237,10 +237,10 @@ export const ClaimConfirmation: React.FC = () => {
     if (!airdropAddress) {
       const account = await handleImport();
       const address = account?.address || "";
-      setNamadaAddress(address);
+      setAirdropAddress(address);
       localStorage.setItem("airdropAddress", address);
     } else {
-      setNamadaAddress("");
+      setAirdropAddress("");
       localStorage.removeItem("airdropAddress");
     }
   };
@@ -367,7 +367,11 @@ export const ClaimConfirmation: React.FC = () => {
                       ? "This public key is not valid"
                       : ""
                   }
-                  onChange={(e) => setAirdropPubKey(e.target.value)}
+                  onChange={(e) => {
+                    const { value: publicKey } = e.target;
+                    setAirdropPubKey(publicKey);
+                    localStorage.setItem("airdropPubKey", publicKey);
+                  }}
                   placeholder="Enter your Namada public key"
                 >
                   <InputActionButton
@@ -396,7 +400,11 @@ export const ClaimConfirmation: React.FC = () => {
                       ? "Invalid transparent address. Make sure you're providing an address starting with the 'tnam' prefix."
                       : ""
                   }
-                  onChange={(e) => setNamadaAddress(e.target.value)}
+                  onChange={(e) => {
+                    const { value: airdropAddress } = e.target;
+                    setAirdropAddress(airdropAddress);
+                    localStorage.setItem("airdropAddress", airdropAddress);
+                  }}
                   placeholder="Enter your Namada transparent address"
                 >
                   <InputActionButton

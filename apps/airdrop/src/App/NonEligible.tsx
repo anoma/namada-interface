@@ -1,6 +1,5 @@
 import { Heading, Stack } from "@namada/components";
 import { useAtom } from "jotai";
-import { AnotherWays } from "./AnotherWays";
 import { EligibilityHeader, EligibilitySectionWrapper } from "./App.components";
 import { WalletAddress } from "./Common/WalletAddress";
 import { NonEligibleIcon } from "./Icons/NonEligibleIcon";
