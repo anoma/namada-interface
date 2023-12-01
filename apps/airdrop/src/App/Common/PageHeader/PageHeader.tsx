@@ -7,20 +7,26 @@ import {
   PageHeaderContainer,
   PageHeaderLink,
   PageHeaderStartOver,
+  TermsOfServiceButton,
 } from "./PageHeader.components";
 import { WarningIcon } from "App/Icons/WarningIcon";
 import { useLayoutEffect, useRef } from "react";
 import gsap from "gsap";
+import { ExternalPageIcon } from "App/Icons/ExternalPageIcon";
 
 type PageHeaderProps = {
   showStartOver: boolean;
   showTermsOfService: boolean;
+  showDomainWarning: boolean;
+  showBackToClaim: boolean;
   yellowLogo: boolean;
 };
 
 export const PageHeader = ({
   showStartOver,
   showTermsOfService,
+  showDomainWarning,
+  showBackToClaim,
   yellowLogo,
 }: PageHeaderProps): JSX.Element => {
   const headerRef = useRef<HTMLDivElement>(null);
@@ -59,13 +65,15 @@ export const PageHeader = ({
         />
       </Stack>
 
-      <DomainWarning className="domain-warning">
-        <i>
-          <WarningIcon />
-        </i>
-        NOTE: The only way to claim is via:{" "}
-        <strong>https://rpgfdrop.namada.net</strong>
-      </DomainWarning>
+      {showDomainWarning && (
+        <DomainWarning className="domain-warning">
+          <i>
+            <WarningIcon />
+          </i>
+          NOTE: The only way to claim is via:{" "}
+          <strong>https://rpgfdrop.namada.net</strong>
+        </DomainWarning>
+      )}
 
       {showStartOver && (
         <PageHeaderLink
@@ -82,8 +90,27 @@ export const PageHeader = ({
         </PageHeaderLink>
       )}
 
+      {showBackToClaim && (
+        <PageHeaderLink
+          onClick={() => {
+            navigate("/");
+          }}
+        >
+          <TermsOfServiceButton>
+            Back to Claim
+            <i>
+              <ExternalPageIcon />
+            </i>
+          </TermsOfServiceButton>
+        </PageHeaderLink>
+      )}
+
       {showTermsOfService && (
-        <PageHeaderLink href="#" target="_blank" rel="noreferrer nofollow">
+        <PageHeaderLink
+          onClick={() => navigate("/terms-of-service")}
+          target="_blank"
+          rel="noreferrer nofollow"
+        >
           Terms of Service
         </PageHeaderLink>
       )}

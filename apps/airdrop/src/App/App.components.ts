@@ -51,6 +51,12 @@ body {
 }
 `;
 
+export const TermsOfServiceGlobalStyles = createGlobalStyle`
+body {
+  background: white;
+}
+`;
+
 export const AppContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -105,7 +111,7 @@ export const MainContainer = styled.div<{ blurred: boolean }>`
 `;
 
 export const MainHeader = styled.div`
-  margin-top: ${spacement(12)};
+  margin-top: ${spacement(8)};
   h1 {
     line-height: 1em;
     text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
@@ -245,6 +251,61 @@ export const ContentBoxWrapper = styled.section`
   display: flex;
   flex-direction: column;
   gap: ${spacement(8)};
+`;
+
+export const TermsOfServiceContainer = styled.article`
+  max-width: 780px;
+  margin: ${spacement(18)} auto ${spacement(36)};
+  line-height: 1.66;
+
+  p {
+    margin: 1.75em 0;
+  }
+
+  ul,
+  ol {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+
+    ul,
+    ol {
+      margin-left: 2em;
+      list-style: disc;
+    }
+  }
+
+  a {
+    color: ${color("utility1", "main")};
+
+    &:hover {
+      color: ${color("secondary", "main")};
+    }
+  }
+
+  li {
+    padding: 0;
+    margin: 0;
+  }
+`;
+
+export const TermsOfServiceFooter = styled.div`
+  display: inline-block;
+  margin-top: ${spacement(5)};
+
+  button {
+    font-size: 13px;
+    padding: 0.25em 2.5em;
+
+    span {
+      align-items: center;
+    }
+
+    span > i {
+      width: 16px;
+      line-height: 0;
+    }
+  }
 `;
 
 export const ContentBox = styled.div`

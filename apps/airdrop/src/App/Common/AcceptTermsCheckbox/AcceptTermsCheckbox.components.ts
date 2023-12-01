@@ -11,6 +11,10 @@ export const TOSToggle = styled.label<{ disabled?: boolean }>`
   pointer-events: ${(props) => (props.disabled ? "none" : "auto")};
   gap: ${spacement(2)};
 
+  a {
+    color: currentColor;
+  }
+
   > span {
     margin-top: 0.25em;
   }

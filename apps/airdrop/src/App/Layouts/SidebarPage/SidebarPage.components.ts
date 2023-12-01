@@ -4,13 +4,16 @@ import styled from "styled-components";
 
 export const SidebarPageGrid = styled.div`
   display: grid;
-  justify-content: center;
   grid-template-columns: ${spacement(55)} minmax(0, 880px);
   gap: ${spacement(10)};
   padding: 0 ${spacement(5)} ${spacement(12)};
   margin-top: ${spacement(10)};
-  margin-left: -260px;
   justify-content: center;
+
+  @media screen and (min-width: 1440px) {
+    justify-content: center;
+    margin-left: -260px;
+  }
 `;
 
 export const SidebarTitle = styled.h3`

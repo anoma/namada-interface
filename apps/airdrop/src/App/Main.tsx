@@ -4,7 +4,6 @@ import { ActionButton, Heading, Stack, Text } from "@namada/components";
 import { Expo, Quint, gsap } from "gsap";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
-  AirdropConfirmationWarning,
   ButtonContainer,
   CallToActionStack,
   ContentBox,
@@ -45,11 +44,10 @@ import { PoolTopLayer } from "./Graphics/PoolTopLayer";
 import { WireSvg } from "./Graphics/Wire";
 import { ZeroOneSvg } from "./Graphics/ZeroOne";
 import { ExternalPageIcon } from "./Icons/ExternalPageIcon";
+import { WarningIcon } from "./Icons/WarningIcon";
 import { iconsOnMouseMovement } from "./animations";
 import { useGithubHandler } from "./hooks";
 import { MetamaskWindow } from "./types";
-import { WarningIcon } from "./Icons/WarningIcon";
-import { WarningList } from "./Common/Warning";
 
 export const Main: React.FC = () => {
   const url = window.location.href;
@@ -89,14 +87,14 @@ export const Main: React.FC = () => {
 
       tl.fromTo(
         ".main-title",
-        { y: "+=90", opacity: 0, scale: 0.75 },
+        { y: "+=60", opacity: 0, scale: 0.75 },
         { y: "-=15", opacity: 1, scale: 1, duration: 0.65, ease: Quint.easeOut }
       );
 
       tl.addLabel("titleDisplayed");
       tl.to(
         ".main-title",
-        { y: "-=75", duration: 0.5, ease: Expo.easeOut },
+        { y: "-=45", duration: 0.5, ease: Expo.easeOut },
         "titleDisplayed"
       );
 

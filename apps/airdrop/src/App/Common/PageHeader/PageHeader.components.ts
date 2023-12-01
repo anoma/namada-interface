@@ -59,3 +59,14 @@ export const DomainWarning = styled.div`
     top: auto;
   }
 `;
+
+export const TermsOfServiceButton = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${spacement(4)};
+
+  & > i {
+    line-height: 0;
+    width: 20px;
+  }
+`;

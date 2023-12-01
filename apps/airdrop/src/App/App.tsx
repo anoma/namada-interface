@@ -15,6 +15,7 @@ import { TrustedSetup } from "./TrustedSetup";
 import { claimAtom, confirmationAtom } from "./state";
 import { BrowserView, MobileView } from "react-device-detect";
 import { MainMobile } from "./MainMobile";
+import { TermsOfService } from "./TermsOfService";
 
 export const App: React.FC = () => {
   const [claimState] = useAtom(claimAtom);
@@ -27,9 +28,15 @@ export const App: React.FC = () => {
       <GlobalStyles colorMode="dark" />
       <BrowserView>
         <PageHeader
-          showStartOver={pathname !== "/"}
+          showStartOver={pathname !== "/" && pathname !== "/terms-of-service"}
           showTermsOfService={pathname === "/"}
-          yellowLogo={pathname !== "/" && pathname !== "/airdrop-confirmed"}
+          showDomainWarning={pathname === "/"}
+          showBackToClaim={pathname === "/terms-of-service"}
+          yellowLogo={
+            pathname !== "/" &&
+            pathname !== "/airdrop-confirmed" &&
+            pathname !== "/terms-of-service"
+          }
         />
         <Routes>
           <Route path={`/`} element={<Main />} />
@@ -63,6 +70,7 @@ export const App: React.FC = () => {
               )
             }
           />
+          <Route path={`/terms-of-service`} element={<TermsOfService />} />
         </Routes>
       </BrowserView>
       <MobileView>
