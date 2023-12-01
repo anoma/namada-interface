@@ -24,19 +24,19 @@ export const ViewKeys = ({
   return (
     <Stack as="section" gap={GapPatterns.TitleContent}>
       <Stack gap={GapPatterns.FormFields}>
-        {transparentAccountAddress && (
-          <Input
-            label="Your Transparent Address"
-            variant={InputVariants.ReadOnlyCopy}
-            value={transparentAccountAddress}
-            theme={"primary"}
-          />
-        )}
         {publicKeyAddress && (
           <Input
             label="Public Key"
             variant={InputVariants.ReadOnlyCopy}
             value={publicKeyAddress}
+            theme={"primary"}
+          />
+        )}
+        {transparentAccountAddress && (
+          <Input
+            label="Your Transparent Address"
+            variant={InputVariants.ReadOnlyCopy}
+            value={transparentAccountAddress}
             theme={"primary"}
           />
         )}
