@@ -91,6 +91,11 @@ export const AirdropConfirmation: React.FC = () => {
   const [totalMinNam, setTotalMinNam] = useState<number>();
   const [breakdown, setBreakdown] = useState<Breakdown[]>([]);
 
+  // We want to scroll to the top of the page when the component is mounted
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   if (confirmation === null) {
     throw new Error("Confirmation state is empty!");
   }
