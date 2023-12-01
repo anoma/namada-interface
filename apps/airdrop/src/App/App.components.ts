@@ -136,8 +136,14 @@ export const MainSection = styled.div`
 `;
 
 export const ButtonContainer = styled.div`
-  max-width: 280px;
+  width: 300px;
   margin: 0 auto;
+
+  button {
+    font-size: ${fontSize("base")};
+    padding: ${spacement(4)} ${spacement(8)};
+    width: 100%;
+  }
 `;
 
 export const CallToActionStack = styled.div`
@@ -233,13 +239,23 @@ export const Divider = styled.div`
   border-bottom: 1px solid ${(props) => props.theme.colors.utility2.main};
 `;
 
-export const MainFooter = styled.div`
+export const ContentBoxWrapper = styled.section`
+  max-width: 780px;
+  margin: ${spacement(18)} auto ${spacement(36)};
+  display: flex;
+  flex-direction: column;
+  gap: ${spacement(8)};
+`;
+
+export const ContentBox = styled.div`
+  background-color: ${color("primary", "main")};
+  border: 1px solid black;
+  border-radius: ${borderRadius("md")};
   color: ${color("utility1", "main")};
   display: flex;
   flex-direction: column;
-  margin: ${spacement(18)} auto ${spacement(36)};
-  max-width: 720px;
-  text-align: center;
+  max-width: 780px;
+  padding: ${spacement(10)} ${spacement(20)} ${spacement(12)};
   width: 100%;
 
   p {
@@ -247,12 +263,11 @@ export const MainFooter = styled.div`
   }
 
   ul {
-    margin: 0;
+    margin: 0 0 0 ${spacement(4)};
     padding: 0;
   }
 
   li {
-    list-style: none;
     margin-bottom: ${spacement(3)};
   }
 `;
@@ -361,6 +376,37 @@ export const AnotherWaysButtons = styled.div<{ columns?: string }>`
     font-size: ${fontSize("base")};
     padding-top: ${spacement(4)};
     padding-bottom: ${spacement(4)};
+  }
+`;
+
+export const SmallButton = styled.div`
+  text-align: center;
+  button {
+    display: inline-flex;
+    width: auto;
+    font-size: 14px;
+    padding: 0.35em 1.25em;
+    align-items: center;
+  }
+
+  button:hover {
+    color: ${color("primary", "main")}!important;
+    border-color: black;
+  }
+
+  button > span {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .external-icon {
+    width: ${spacement(4)};
+    display: inline-block;
+    line-height: 0;
+    vertical-align: middle;
+    margin-left: ${spacement(1)};
+    position: relative;
+    top: 1px;
   }
 `;
 
@@ -497,6 +543,17 @@ export const TableCell = styled.div<{
   text-align: ${(props) => props.align || "left"};
   overflow: hidden;
   text-overflow: ellipsis;
+`;
+
+export const MainPageWarning = styled(Warning)<WarningProps>`
+  width: 100%;
+  padding: ${spacement(7)} ${spacement(12)};
+  gap: ${spacement(4)};
+  border-radius: ${borderRadius("md")};
+
+  li {
+    margin-bottom: 1em;
+  }
 `;
 
 export const AirdropConfirmationWarning = styled(Warning)<

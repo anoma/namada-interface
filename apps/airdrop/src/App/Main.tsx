@@ -1,32 +1,27 @@
 import { Keplr, Window as KeplrWindow } from "@keplr-wallet/types";
 import { type MetaMaskInpageProvider } from "@metamask/providers";
-import {
-  ActionButton,
-  Heading,
-  LinkButton,
-  Stack,
-  Text,
-} from "@namada/components";
+import { ActionButton, Heading, Stack, Text } from "@namada/components";
 import { Expo, Quint, gsap } from "gsap";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
+  AirdropConfirmationWarning,
   ButtonContainer,
   CallToActionStack,
+  ContentBox,
+  ContentBoxWrapper,
   EligibilityPanel,
   GithubLoading,
   GlobalStyles,
   IconContainer,
   MainContainer,
-  MainFooter,
   MainHeader,
+  MainPageWarning,
   MainSection,
-  MainSectionButton,
   MainTopSection,
   ObjectsContainer,
   PoolContainer,
   PoolTopLayerContainer,
-  RPGFUrl,
-  SmallWarning,
+  SmallButton,
 } from "./App.components";
 import { CosmosButton } from "./Buttons/CosmosButton";
 import { DownloadKeplr } from "./Buttons/DownloadKeplr";
@@ -49,9 +44,12 @@ import { PoolSvg } from "./Graphics/Pool";
 import { PoolTopLayer } from "./Graphics/PoolTopLayer";
 import { WireSvg } from "./Graphics/Wire";
 import { ZeroOneSvg } from "./Graphics/ZeroOne";
+import { ExternalPageIcon } from "./Icons/ExternalPageIcon";
 import { iconsOnMouseMovement } from "./animations";
 import { useGithubHandler } from "./hooks";
 import { MetamaskWindow } from "./types";
+import { WarningIcon } from "./Icons/WarningIcon";
+import { WarningList } from "./Common/Warning";
 
 export const Main: React.FC = () => {
   const url = window.location.href;
@@ -169,8 +167,7 @@ export const Main: React.FC = () => {
                   <ButtonContainer>
                     <ActionButton
                       variant="secondary"
-                      size="sm"
-                      borderRadius="sm"
+                      borderRadius="md"
                       onClick={() => {
                         setIsModalOpen(true);
                         setKeplr((window as KeplrWindow)?.keplr);
@@ -180,18 +177,21 @@ export const Main: React.FC = () => {
                       Check NAM eligibility
                     </ActionButton>
                   </ButtonContainer>
+                  <SmallButton>
+                    <ActionButton
+                      size="xs"
+                      variant="utility1"
+                      outlined
+                      hoverColor="utility1"
+                      borderRadius="sm"
+                    >
+                      Read annoucement
+                      <i className="external-icon">
+                        <ExternalPageIcon />
+                      </i>
+                    </ActionButton>
+                  </SmallButton>
                 </CallToActionStack>
-                <SmallWarning className="warning">
-                  Please check you are claiming using the following URL:
-                  <br />
-                  <RPGFUrl>https://rpgfdrop.namada.net</RPGFUrl>
-                </SmallWarning>
-                <Stack gap={0.5} className="announcement">
-                  <MainSectionButton></MainSectionButton>
-                  <LinkButton themeColor="utility1">
-                    <b>Read the annoucement</b>
-                  </LinkButton>
-                </Stack>
               </Stack>
             ) : (
               <Heading themeColor="utility1" level={"h1"} size={"6xl"}>
@@ -234,40 +234,41 @@ export const Main: React.FC = () => {
             </IconContainer>
           </ObjectsContainer>
         </MainTopSection>
-        <MainFooter>
-          <Stack gap={6}>
-            <Heading
-              themeColor="utility1"
-              size={"3xl"}
-              level="h2"
-              fontWeight="400"
-            >
-              Namada RPGF Drop
-            </Heading>
-            <Text themeColor="utility1" fontWeight="400">
-              With the PGF stewards and on-chain PGF features, Namada is a
-              large-scale experiment on on-chain mechanisms that can sustainably
-              fund public goods, especially those that are often under-produced
-              or underfunded. What&apos;s more, the Namada protocol itself is a
-              public good that is built on top of many other public goods.
-              Namada wouldn&apos;t exist without the research and development of
-              cryptographic primitives including zero-knowledge proofs, tooling,
-              learning resources, and other contributions from the communities
-              across the Zcash, Rust, ZKP, interchain, and public goods funding
-              ecosystems.
-            </Text>
-            <Text themeColor="utility1" fontWeight="400">
-              To acknowledge and thank all these communities for building and
-              funding public goods, we invite 7,094 researchers and developers,
-              191,715 on-chain accounts and Bad Kids, and 2510 contributors in
-              the Trusted Setup to participate in the Namada RPGF Drop &mdash;
-              and join the Namada community as network stakeholders from
-              inception.
-            </Text>
-
-            <Heading themeColor="utility1" size="2xl">
-              Remember
-            </Heading>
+        <ContentBoxWrapper>
+          <ContentBox>
+            <Stack gap={6}>
+              <Heading
+                themeColor="utility1"
+                size={"3xl"}
+                level="h2"
+                fontWeight="400"
+                textAlign="left"
+              >
+                Namada RPGF Drop
+              </Heading>
+              <Text themeColor="utility1" fontWeight="400">
+                With the PGF stewards and on-chain PGF features, Namada is a
+                large-scale experiment on on-chain mechanisms that can
+                sustainably fund public goods, especially those that are often
+                under-produced or underfunded. What&apos;s more, the Namada
+                protocol itself is a public good that is built on top of many
+                other public goods. Namada wouldn&apos;t exist without the
+                research and development of cryptographic primitives including
+                zero-knowledge proofs, tooling, learning resources, and other
+                contributions from the communities across the Zcash, Rust, ZKP,
+                interchain, and public goods funding ecosystems.
+              </Text>
+              <Text themeColor="utility1" fontWeight="400">
+                To acknowledge and thank all these communities for building and
+                funding public goods, we invite 7,094 researchers and
+                developers, 191,715 on-chain accounts and Bad Kids, and 2510
+                contributors in the Trusted Setup to participate in the Namada
+                RPGF Drop &mdash; and join the Namada community as network
+                stakeholders from inception.
+              </Text>
+            </Stack>
+          </ContentBox>
+          <MainPageWarning icon={<WarningIcon />} iconWidth={"90px"}>
             <ul>
               <li>
                 The <strong>only</strong> way to participate in the Namada RPGF
@@ -285,8 +286,8 @@ export const Main: React.FC = () => {
                 <strong>to transfer any tokens</strong> from any wallet
               </li>
             </ul>
-          </Stack>
-        </MainFooter>
+          </MainPageWarning>
+        </ContentBoxWrapper>
         <PageFooter />
       </MainContainer>
       <Modal

@@ -130,7 +130,7 @@ export const ButtonContainer = styled(Button)<{
   ${ButtonHover} {
     background-color: ${(props) => {
       if (props.outlined) {
-        return color("primary", "main")(props);
+        return color(props.hoverColor || "primary", "main")(props);
       }
 
       if (props.hoverColor) {
