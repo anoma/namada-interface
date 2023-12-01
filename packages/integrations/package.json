@@ -17,9 +17,15 @@
     "lint:ci": "yarn lint --max-warnings 0"
   },
   "devDependencies": {
+    "@namada/eslint-config": "workspace:^",
     "@types/jest": "^28.1.8",
     "@types/node": "^18.7.13",
+    "eslint": "^8.49.0",
+    "eslint-config-prettier": "^8.8.0",
     "eslint-import-resolver-typescript": "^3.5.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-react": "^7.33.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "jest": "^28.1.3",
     "jest-mock-extended": "^3.0.3",
     "ts-jest": "^28.0.8",
