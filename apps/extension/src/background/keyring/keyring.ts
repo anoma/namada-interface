@@ -1,6 +1,6 @@
 import { deserialize } from "@dao-xyz/borsh";
 
-import { chains } from "@namada/chains";
+import { chains, defaultChainId } from "@namada/chains";
 import {
   HDWallet,
   Mnemonic,
@@ -76,11 +76,10 @@ export class KeyRing {
     protected readonly sdkStore: KVStore<Record<string, string>>,
     protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly extensionStore: KVStore<number>,
-    protected readonly chainId: string,
     protected readonly sdk: Sdk,
     protected readonly query: Query,
     protected readonly cryptoMemory: WebAssembly.Memory
-  ) {}
+  ) { }
 
   public get status(): KeyRingStatus {
     return this._status;
@@ -143,7 +142,6 @@ export class KeyRing {
       address,
       publicKey,
       owner: address,
-      chainId: this.chainId,
       path: bip44Path,
       type: AccountType.Ledger,
       parentId,
@@ -201,7 +199,7 @@ export class KeyRing {
           const phrase = accountSecret.seedPhrase.join(" ");
           const mnemonic = Mnemonic.from_phrase(phrase);
           const seed = mnemonic.to_seed();
-          const { coinType } = chains[this.chainId].bip44;
+          const { coinType } = chains[defaultChainId].bip44;
           const bip44Path = makeBip44PathArray(coinType, path);
           const hdWallet = new HDWallet(seed);
           const key = hdWallet.derive(new Uint32Array(bip44Path));
@@ -241,8 +239,6 @@ export class KeyRing {
       );
     }
 
-    const { chainId } = this;
-
     // Generate unique ID for new parent account:
     const id = generateId(
       UUID_NAMESPACE,
@@ -255,7 +251,6 @@ export class KeyRing {
       alias,
       address,
       owner: address,
-      chainId,
       path,
       publicKey,
       type: accountType,
@@ -285,7 +280,7 @@ export class KeyRing {
     path: Bip44Path,
     parentId: string
   ): DerivedAccountInfo {
-    const { coinType } = chains[this.chainId].bip44;
+    const { coinType } = chains[defaultChainId].bip44;
     const derivationPath = makeBip44PathArray(coinType, path);
     const hdWallet = new HDWallet(seed);
     const key = hdWallet.derive(new Uint32Array(derivationPath));
@@ -496,7 +491,6 @@ export class KeyRing {
       id,
       address,
       alias,
-      chainId: this.chainId,
       parentId,
       path,
       type,
@@ -596,9 +590,7 @@ export class KeyRing {
     const accounts = await this.queryAllAccounts();
     const activeAccount = await this.getActiveAccount();
 
-    if (activeAccount) {
-      return accounts.find((acc) => acc.id === activeAccount.id);
-    }
+    return accounts.find((acc) => acc.id === activeAccount?.id);
   }
 
   public async queryAccountByPublicKey(

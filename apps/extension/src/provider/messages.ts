@@ -42,14 +42,12 @@ export class ApproveConnectInterfaceMsg extends Message<void> {
     return MessageType.ApproveConnectInterface;
   }
 
-  constructor(public readonly chainId: string) {
+  constructor() {
     super();
   }
 
   validate(): void {
-    if (!this.chainId) {
-      throw new Error("chain ID not set");
-    }
+    return;
   }
 
   route(): string {

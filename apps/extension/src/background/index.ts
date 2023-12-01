@@ -5,7 +5,7 @@ import {
   MemoryKVStore,
   SessionKVStore,
 } from "@namada/storage";
-import { defaultChainId, chains, ProxyMappings } from "@namada/chains";
+import { ProxyMappings } from "@namada/chains";
 import { init as initCrypto } from "@namada/crypto/src/init";
 import { init as initShared } from "@namada/shared/src/init";
 import { Query, Sdk } from "@namada/shared";
@@ -21,7 +21,6 @@ import {
 } from "extension";
 import { Ports, KVPrefix } from "router";
 import { ApprovalsService, init as initApprovals } from "./approvals";
-import { ChainsService, init as initChains } from "./chains";
 import {
   KeyRingService,
   init as initKeyRing,
@@ -95,11 +94,7 @@ const init = new Promise<void>(async (resolve) => {
 
   const routerId = await getNamadaRouterId(extensionStore);
   const requester = new ExtensionRequester(messenger, routerId);
-  const broadcaster = new ExtensionBroadcaster(
-    connectedTabsStore,
-    defaultChainId,
-    requester
-  );
+  const broadcaster = new ExtensionBroadcaster(connectedTabsStore, requester);
 
   const vaultService = new VaultService(
     store,
@@ -107,14 +102,12 @@ const init = new Promise<void>(async (resolve) => {
     cryptoMemory,
     broadcaster
   );
-  const chainsService = new ChainsService(store, [chains[defaultChainId]]);
   const keyRingService = new KeyRingService(
     vaultService,
     sdkStore,
     utilityStore,
     connectedTabsStore,
     extensionStore,
-    defaultChainId,
     sdk,
     query,
     cryptoMemory,
@@ -128,7 +121,6 @@ const init = new Promise<void>(async (resolve) => {
     connectedTabsStore,
     txStore,
     revealedPKStore,
-    defaultChainId,
     sdk,
     requester,
     broadcaster
@@ -144,7 +136,6 @@ const init = new Promise<void>(async (resolve) => {
 
   // Initialize messages and handlers
   initApprovals(router, approvalsService);
-  initChains(router, chainsService);
   initKeyRing(router, keyRingService);
   initLedger(router, ledgerService);
   initVault(router, vaultService);

@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Chain, Namada } from "@namada/types";
+import { Namada } from "@namada/types";
 
-import { chains as defaultChains } from "@namada/chains";
 import {
   KEYSTORE_KEY,
   PARENT_ACCOUNT_ID_KEY,
@@ -10,9 +9,8 @@ import {
 } from "background/keyring";
 import { VAULT_KEY, VaultService, VaultStore } from "background/vault";
 import * as utils from "extension/utils";
-import { KVKeys } from "router";
 import { DBType, KVStoreMock, init } from "test/init";
-import { ACTIVE_ACCOUNT, chain, keyStore, password } from "./data.mock";
+import { ACTIVE_ACCOUNT, keyStore, password } from "./data.mock";
 
 // Needed for now as utils import webextension-polyfill directly
 jest.mock("webextension-polyfill", () => ({}));
@@ -38,20 +36,6 @@ describe("Namada", () => {
     vaultService.lock();
   });
 
-  it("should return chain by chainId", async () => {
-    iDBStore.set(KVKeys.Chains, [chain]);
-    const storedChain = await namada.chain(chain.chainId);
-
-    expect(storedChain).toEqual(chain);
-  });
-
-  it("should return all chains", async () => {
-    iDBStore.set(KVKeys.Chains, [chain]);
-    const storedChains = await namada.chains();
-
-    expect(storedChains).toEqual([...Object.values(defaultChains), chain]);
-  });
-
   it("should return all accounts", async () => {
     const store: VaultStore = {
       password: undefined,
@@ -63,15 +47,8 @@ describe("Namada", () => {
     iDBStore.set(VAULT_KEY, store);
     utilityStore.set(PARENT_ACCOUNT_ID_KEY, ACTIVE_ACCOUNT);
     const storedKeyStore = keyStore.map((store) => store.public);
-    const storedAccounts = await namada.accounts(chain.chainId);
+    const storedAccounts = await namada.accounts();
     console.log(storedAccounts);
     expect(storedAccounts).toEqual(storedKeyStore);
-  });
-
-  it("should add a chain configuration", async () => {
-    await namada.suggestChain(chain);
-
-    const chains = (await iDBStore.get("chains")) as Chain[];
-    expect(chains?.pop()).toEqual(chain);
   });
 });

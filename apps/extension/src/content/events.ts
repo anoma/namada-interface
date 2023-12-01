@@ -12,14 +12,12 @@ export class AccountChangedEventMsg extends Message<void> {
     return Events.AccountChanged;
   }
 
-  constructor(public readonly chainId: string) {
+  constructor() {
     super();
   }
 
   validate(): void {
-    if (!this.chainId) {
-      throw new Error("chainId must not be empty");
-    }
+    return;
   }
 
   route(): string {
@@ -36,14 +34,12 @@ export class UpdatedBalancesEventMsg extends Message<void> {
     return Events.UpdatedBalances;
   }
 
-  constructor(public readonly chainId: string) {
+  constructor() {
     super();
   }
 
   validate(): void {
-    if (!this.chainId) {
-      throw new Error("chainId must not be empty");
-    }
+    return;
   }
 
   route(): string {
@@ -60,14 +56,12 @@ export class UpdatedStakingEventMsg extends Message<void> {
     return Events.UpdatedStaking;
   }
 
-  constructor(public readonly chainId: string) {
+  constructor() {
     super();
   }
 
   validate(): void {
-    if (!this.chainId) {
-      throw new Error("chainId must not be empty");
-    }
+    return;
   }
 
   route(): string {
@@ -84,19 +78,11 @@ export class TxStartedEvent extends Message<void> {
     return Events.TxStarted;
   }
 
-  constructor(
-    public readonly chainId: string,
-    public readonly msgId: string,
-    public readonly txType: TxType
-  ) {
+  constructor(public readonly msgId: string, public readonly txType: TxType) {
     super();
   }
 
   validate(): void {
-    if (!this.chainId) {
-      throw new Error("chainId must not be empty");
-    }
-
     if (!this.msgId) {
       throw new Error("msgId should not be empty");
     }
@@ -121,7 +107,6 @@ export class TxCompletedEvent extends Message<void> {
   }
 
   constructor(
-    public readonly chainId: string,
     public readonly msgId: string,
     public readonly txType: TxType,
     public readonly success?: boolean,
@@ -131,10 +116,6 @@ export class TxCompletedEvent extends Message<void> {
   }
 
   validate(): void {
-    if (!this.chainId) {
-      throw new Error("chainId must not be empty");
-    }
-
     if (!this.msgId) {
       throw new Error("msgId should not be empty");
     }
@@ -158,14 +139,12 @@ export class ProposalsUpdatedEventMsg extends Message<void> {
     return Events.ProposalsUpdated;
   }
 
-  constructor(public readonly chainId: string) {
+  constructor() {
     super();
   }
 
   validate(): void {
-    if (!this.chainId) {
-      throw new Error("chainId must not be empty");
-    }
+    return;
   }
 
   route(): string {
@@ -186,7 +165,7 @@ export class VaultLockedEventMsg extends Message<void> {
     super();
   }
 
-  validate(): void {}
+  validate(): void { }
 
   route(): string {
     return Routes.InteractionForeground;
@@ -214,11 +193,9 @@ export function initEvents(router: Router): void {
 
     switch (msg.constructor) {
       case AccountChangedEventMsg:
-        if ((msg as AccountChangedEventMsg).chainId) {
-          window.dispatchEvent(
-            new CustomEvent(Events.AccountChanged, { detail: clonedMsg })
-          );
-        }
+        window.dispatchEvent(
+          new CustomEvent(Events.AccountChanged, { detail: clonedMsg })
+        );
         break;
       case TxStartedEvent:
         window.dispatchEvent(

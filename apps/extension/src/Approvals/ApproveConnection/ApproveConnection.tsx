@@ -10,16 +10,14 @@ export const ApproveConnection: React.FC = () => {
   const requester = useRequester();
   const params = useQuery();
   const interfaceOrigin = params.get("interfaceOrigin");
-  const chainId = params.get("chainId");
   const interfaceTabId = params.get("interfaceTabId");
 
   const handleResponse = (allowConnection: boolean): void => {
-    if (interfaceTabId && chainId && interfaceOrigin) {
+    if (interfaceTabId && interfaceOrigin) {
       requester.sendMessage(
         Ports.Background,
         new ConnectInterfaceResponseMsg(
           parseInt(interfaceTabId),
-          chainId,
           interfaceOrigin,
           allowConnection
         )

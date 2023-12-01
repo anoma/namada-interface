@@ -271,7 +271,6 @@ export class ApprovalsService {
 
   async approveConnection(
     interfaceTabId: number,
-    chainId: string,
     interfaceOrigin: string
   ): Promise<void> {
     const baseUrl = `${browser.runtime.getURL(
@@ -280,7 +279,6 @@ export class ApprovalsService {
 
     const url = paramsToUrl(baseUrl, {
       interfaceTabId: interfaceTabId.toString(),
-      chainId,
       interfaceOrigin,
     });
 
@@ -307,7 +305,6 @@ export class ApprovalsService {
 
   async approveConnectionResponse(
     interfaceTabId: number,
-    chainId: string,
     interfaceOrigin: string,
     allowConnection: boolean,
     popupTabId: number
@@ -319,7 +316,7 @@ export class ApprovalsService {
 
     if (allowConnection) {
       try {
-        await this.keyRingService.connect(interfaceTabId, chainId);
+        await this.keyRingService.connect(interfaceTabId);
         await addApprovedOrigin(this.approvedOriginsStore, interfaceOrigin);
       } catch (e) {
         resolvers.reject(e);
