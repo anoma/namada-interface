@@ -1,3 +1,4 @@
+import { ExternalPageIcon } from "App/Icons/ExternalPageIcon";
 import {
   PageFooterContainer,
   PageFooterContent,
@@ -14,6 +15,9 @@ export const PageFooter = (): JSX.Element => {
           rel="nofollow noreferrer"
         >
           The Namada Vision
+          <i className="external-icon">
+            <ExternalPageIcon />
+          </i>
         </a>
       </PageFooterContent>
     </PageFooterContainer>

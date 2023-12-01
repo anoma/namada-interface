@@ -48,6 +48,7 @@ import { WarningIcon } from "./Icons/WarningIcon";
 import { iconsOnMouseMovement } from "./animations";
 import { useGithubHandler } from "./hooks";
 import { MetamaskWindow } from "./types";
+import { CubeSvg } from "./Graphics/Cube";
 
 export const Main: React.FC = () => {
   const url = window.location.href;
@@ -229,6 +230,9 @@ export const Main: React.FC = () => {
             </IconContainer>
             <IconContainer left={305} top={377}>
               <EyeSvg />
+            </IconContainer>
+            <IconContainer left={220} top={620} style={{ zIndex: 100 }}>
+              <CubeSvg />
             </IconContainer>
           </ObjectsContainer>
         </MainTopSection>

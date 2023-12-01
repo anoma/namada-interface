@@ -1,5 +1,9 @@
 import { Image, ImageName, Stack } from "@namada/components";
+import { ExternalPageIcon } from "App/Icons/ExternalPageIcon";
+import { WarningIcon } from "App/Icons/WarningIcon";
+import gsap from "gsap";
 import { useAtom } from "jotai";
+import { useLayoutEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { claimAtom, confirmationAtom } from "../../state";
 import {
@@ -9,10 +13,6 @@ import {
   PageHeaderStartOver,
   TermsOfServiceButton,
 } from "./PageHeader.components";
-import { WarningIcon } from "App/Icons/WarningIcon";
-import { useLayoutEffect, useRef } from "react";
-import gsap from "gsap";
-import { ExternalPageIcon } from "App/Icons/ExternalPageIcon";
 
 type PageHeaderProps = {
   showStartOver: boolean;

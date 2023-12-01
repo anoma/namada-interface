@@ -22,9 +22,17 @@ export const PageFooterContent = styled.div`
     color: inherit;
     text-decoration: none;
     transition: color 100ms ease-out;
+    display: inline-flex;
+    align-items: center;
 
     &:hover {
       color: ${color("secondary", "main")};
     }
+  }
+
+  .external-icon {
+    width: 36px;
+    line-height: 0;
+    display: inline-block;
   }
 `;

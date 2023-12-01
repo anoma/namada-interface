@@ -39,6 +39,7 @@ export const DomainWarning = styled.div`
   transform: translateX(-50%);
   background-color: ${color("primary", "main")};
   top: ${spacement(28)};
+  z-index: 100;
 
   i {
     display: inline-block;
