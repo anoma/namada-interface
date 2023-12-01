@@ -11,9 +11,26 @@ import {
 import { labelAtom } from "./state";
 import { labelTextMap } from "./utils";
 import { BreadcrumbStatus } from "./Common/BreadcrumbStatus";
+import { useLayoutEffect, useRef } from "react";
+import gsap, { Bounce } from "gsap";
 
 export const NonEligible: React.FC = () => {
+  const contentRef = useRef<HTMLDivElement>(null);
+
   const [label] = useAtom(labelAtom);
+
+  useLayoutEffect(() => {
+    gsap.context(() => {
+      const tl = gsap.timeline();
+      tl.fromTo(
+        "svg",
+        { scale: 0 },
+        { scale: 1, ease: Bounce.easeOut, duration: 0.5 }
+      );
+
+      tl.fromTo("article", { opacity: 0 }, { opacity: 1 }, "-=0.25");
+    }, [contentRef]);
+  }, []);
 
   return (
     <SidebarPage>
@@ -25,7 +42,7 @@ export const NonEligible: React.FC = () => {
           <BreadcrumbStatus active={false}>Claim</BreadcrumbStatus>
         </Stack>
       </EligibilityHeader>
-      <EligibilitySectionWrapper>
+      <EligibilitySectionWrapper ref={contentRef}>
         <NonEligiblePanel>
           <NonEligibleIcon />
           <article>
