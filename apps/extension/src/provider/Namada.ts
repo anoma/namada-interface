@@ -1,17 +1,9 @@
-import {
-  Namada as INamada,
-  Chain,
-  DerivedAccount,
-  TxMsgProps,
-} from "@namada/types";
+import { Namada as INamada, DerivedAccount, TxMsgProps } from "@namada/types";
 import { Ports, MessageRequester } from "router";
 
 import {
   ApproveTxMsg,
   ApproveConnectInterfaceMsg,
-  GetChainMsg,
-  GetChainsMsg,
-  SuggestChainMsg,
   QueryAccountsMsg,
   FetchAndStoreMaspParamsMsg,
   HasMaspParamsMsg,
@@ -26,42 +18,31 @@ export class Namada implements INamada {
     protected readonly requester?: MessageRequester
   ) {}
 
-  public async connect(chainId: string): Promise<void> {
+  public async connect(_chainId?: string): Promise<void> {
     return await this.requester?.sendMessage(
       Ports.Background,
-      new ApproveConnectInterfaceMsg(chainId)
-    );
-  }
-
-  public async chain(chainId: string): Promise<Chain | undefined> {
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new GetChainMsg(chainId)
-    );
-  }
-
-  public async chains(): Promise<Chain[] | undefined> {
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new GetChainsMsg()
+      new ApproveConnectInterfaceMsg()
     );
   }
 
   public async accounts(
-    chainId: string
+    _chainId?: string
   ): Promise<DerivedAccount[] | undefined> {
     return await this.requester?.sendMessage(
       Ports.Background,
-      new QueryAccountsMsg({ chainId })
+      new QueryAccountsMsg()
     );
   }
 
-  public async defaultAccount(): Promise<DerivedAccount | undefined> {
+  public async defaultAccount(
+    _chainId?: string
+  ): Promise<DerivedAccount | undefined> {
     return await this.requester?.sendMessage(
       Ports.Background,
       new QueryDefaultAccountMsg()
     );
   }
+
   public async fetchAndStoreMaspParams(): Promise<void> {
     return await this.requester?.sendMessage(
       Ports.Background,
@@ -89,13 +70,6 @@ export class Namada implements INamada {
     return await this.requester?.sendMessage(
       Ports.Background,
       new QueryBalancesMsg(owner)
-    );
-  }
-
-  public async suggestChain(chain: Chain): Promise<void> {
-    return await this.requester?.sendMessage(
-      Ports.Background,
-      new SuggestChainMsg(chain)
     );
   }
 

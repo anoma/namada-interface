@@ -33,30 +33,31 @@ export default class Namada implements Integration<Account, Signer> {
     return !!this._namada;
   }
 
-  public async connect(): Promise<void> {
-    this._init();
-    await this._namada?.connect(this.chain.chainId);
+  public async connect(chainId?: string): Promise<void> {
+    await this._namada?.connect(chainId);
   }
 
-  public async accounts(): Promise<readonly Account[] | undefined> {
-    const signer = this._namada?.getSigner(this.chain.chainId);
-    return await signer?.accounts();
+  public async accounts(
+    chainId?: string
+  ): Promise<readonly Account[] | undefined> {
+    const signer = this._namada?.getSigner();
+    return await signer?.accounts(chainId);
   }
 
-  public async defaultAccount(): Promise<Account | undefined> {
-    const signer = this._namada?.getSigner(this.chain.chainId);
-    return await signer?.defaultAccount();
+  public async defaultAccount(chainId?: string): Promise<Account | undefined> {
+    const signer = this._namada?.getSigner();
+    return await signer?.defaultAccount(chainId);
   }
 
   public signer(): Signer | undefined {
-    return this._namada?.getSigner(this.chain.chainId);
+    return this._namada?.getSigner();
   }
 
   public async submitBridgeTransfer(
     props: BridgeProps,
     type: AccountType
   ): Promise<void> {
-    const signer = this._namada?.getSigner(this.chain.chainId);
+    const signer = this._namada?.getSigner();
     if (props.ibcProps) {
       return await signer?.submitIbcTransfer(
         props.ibcProps,

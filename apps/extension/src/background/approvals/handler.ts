@@ -68,8 +68,8 @@ const handleSubmitApprovedTxMsg: (
 const handleApproveConnectInterfaceMsg: (
   service: ApprovalsService
 ) => InternalHandler<ApproveConnectInterfaceMsg> = (service) => {
-  return async ({ senderTabId: interfaceTabId }, { chainId, origin }) => {
-    return await service.approveConnection(interfaceTabId, chainId, origin);
+  return async ({ senderTabId: interfaceTabId }, { origin }) => {
+    return await service.approveConnection(interfaceTabId, origin);
   };
 };
 
@@ -78,11 +78,10 @@ const handleConnectInterfaceResponseMsg: (
 ) => InternalHandler<ConnectInterfaceResponseMsg> = (service) => {
   return async (
     { senderTabId: popupTabId },
-    { interfaceTabId, chainId, interfaceOrigin, allowConnection }
+    { interfaceTabId, interfaceOrigin, allowConnection }
   ) => {
     return await service.approveConnectionResponse(
       interfaceTabId,
-      chainId,
       interfaceOrigin,
       allowConnection,
       popupTabId

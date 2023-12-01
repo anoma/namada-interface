@@ -52,7 +52,7 @@ export const fetchBalances = createAsyncThunk<
 
     const balances = await Promise.all(
       accounts.map(async ({ details }) => {
-        const { chainId, address } = details;
+        const { address, chainId } = details;
 
         const results = await integration.queryBalances(address);
 
@@ -77,7 +77,9 @@ const accountsSlice = createSlice({
       const accounts = action.payload;
 
       // Remove old accounts under this chainId if present:
-      state.derived[accounts[0].chainId] = {};
+      if (accounts[0] && state.derived[accounts[0].chainId]) {
+        state.derived[accounts[0].chainId] = {};
+      }
 
       accounts.forEach((account) => {
         const { address, alias, isShielded, chainId, type, publicKey } =
@@ -118,7 +120,11 @@ const accountsSlice = createSlice({
       ) => {
         action.payload.forEach((account) => {
           const { chainId, address, balance } = account;
-          state.derived[chainId][address].balance = balance;
+          if (state.derived[chainId][address]?.balance) {
+            state.derived[chainId][address].balance = balance;
+          } else {
+            delete state.derived[chainId][address];
+          }
         });
       }
     );

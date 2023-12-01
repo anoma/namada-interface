@@ -18,7 +18,6 @@ export enum AccountType {
 
 export type DerivedAccount = {
   id: string;
-  chainId: string;
   address: string;
   owner?: string;
   publicKey?: string;
@@ -30,7 +29,8 @@ export type DerivedAccount = {
 
 export type Account = Pick<
   DerivedAccount,
-  "address" | "alias" | "chainId" | "type" | "publicKey"
+  "address" | "alias" | "type" | "publicKey"
 > & {
+  chainId: string;
   isShielded: boolean;
 };

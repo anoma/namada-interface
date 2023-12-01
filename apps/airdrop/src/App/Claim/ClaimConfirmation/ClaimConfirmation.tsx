@@ -7,7 +7,7 @@ import {
   Text,
 } from "@namada/components";
 import { DerivedAccount, WindowWithNamada } from "@namada/types";
-import { AirdropResponse, bech32mValidation, toast } from "App/utils";
+import { AirdropResponse, ToastMessage, toast } from "App/utils";
 import { useAtom } from "jotai";
 import { useCallback, useLayoutEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -45,6 +45,7 @@ import {
   claimWithKeplr,
   claimWithTrustedSetup,
 } from "App/claimService";
+import { bech32mValidation } from "@namada/utils";
 
 const { REACT_APP_NAMADA_CHAIN_ID: namadaChainId = "" } = process.env;
 
@@ -118,7 +119,7 @@ export const ClaimConfirmation: React.FC = () => {
     try {
       await namada.connect(namadaChainId);
     } catch (e) {
-      toast(`Something went wrong: ${e}`);
+      toast(ToastMessage.SOMETHING_WENT_WRONG_WITH_ERR(e));
       return;
     }
     //Check if we have accounts - needed becasue defaultAccount returns nothing(swallows processing)
@@ -193,13 +194,13 @@ export const ClaimConfirmation: React.FC = () => {
     }
 
     if (!response) {
-      toast("Something went wrong, please try again later");
+      toast(ToastMessage.SOMETHING_WENT_WRONG);
       return;
     } else if (!response.ok) {
-      toast(`Something went wrong: ${response.result.message}`);
+      toast(ToastMessage.SOMETHING_WENT_WRONG_WITH_ERR(response.error.message));
       return;
     }
-    const { result } = response;
+    const { value: result } = response;
 
     setConfirmation({
       confirmed: result.confirmed,

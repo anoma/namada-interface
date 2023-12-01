@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { KeplrClaimType, claimAtom, confirmationAtom } from "./state";
 import {
   AirdropResponse,
+  ToastMessage,
   handleExtensionDownload,
   navigatePostCheck,
   toast,
@@ -46,13 +47,15 @@ export const useMetamaskHandler = (
         console.error(e);
       }
       if (!response) {
-        toast("Something went wrong, please try again later");
+        toast(ToastMessage.SOMETHING_WENT_WRONG);
         return;
       } else if (!response.ok) {
-        toast(`Something went wrong: ${response.result.message}`);
+        toast(
+          ToastMessage.SOMETHING_WENT_WRONG_WITH_ERR(response.error.message)
+        );
         return;
       }
-      const { result } = response;
+      const { value: result } = response;
 
       let signature;
       if (result.eligible && !result.has_claimed) {
@@ -120,13 +123,15 @@ export const useKeplrHandler = (
       }
 
       if (!response) {
-        toast("Something went wrong, please try again later");
+        toast(ToastMessage.SOMETHING_WENT_WRONG);
         return;
       } else if (!response.ok) {
-        toast(`Something went wrong: ${response.result.message}`);
+        toast(
+          ToastMessage.SOMETHING_WENT_WRONG_WITH_ERR(response.error.message)
+        );
         return;
       }
-      const claim = response.result;
+      const claim = response.value;
 
       let signature;
       if (claim.eligible && !claim.has_claimed) {
@@ -171,19 +176,18 @@ export const useGithubHandler = (): ((code: string) => Promise<void>) => {
     try {
       response = await checkGithubClaim(code);
     } catch (e) {
-      console.error(e);
-      toast(`Something went wrong, please try again later. Error: ${e}`);
+      toast(ToastMessage.SOMETHING_WENT_WRONG_WITH_ERR(e));
       navigate("/", { replace: true });
     }
 
     if (!response) {
-      toast("Something went wrong, please try again later");
+      toast(ToastMessage.SOMETHING_WENT_WRONG);
       return;
     } else if (!response.ok) {
-      toast(`Something went wrong: ${response.result.message}`);
+      toast(ToastMessage.SOMETHING_WENT_WRONG_WITH_ERR(response.error.message));
       return;
     }
-    const claim = response.result;
+    const claim = response.value;
 
     if (claim.eligible && claim.has_claimed) {
       setConfirmation({

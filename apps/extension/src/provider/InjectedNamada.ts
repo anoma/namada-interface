@@ -1,5 +1,4 @@
 import {
-  Chain,
   DerivedAccount,
   Namada as INamada,
   Signer as ISigner,
@@ -11,36 +10,19 @@ import { Signer } from "./Signer";
 export class InjectedNamada implements INamada {
   constructor(private readonly _version: string) {}
 
-  public async connect(chainId: string): Promise<void> {
-    return await InjectedProxy.requestMethod<string, void>("connect", chainId);
+  public async connect(): Promise<void> {
+    return await InjectedProxy.requestMethod<string, void>("connect");
   }
 
-  public async chain(chainId: string): Promise<Chain | undefined> {
-    return InjectedProxy.requestMethod<string, Chain>("chain", chainId);
-  }
-
-  public async chains(): Promise<Chain[]> {
-    return await InjectedProxy.requestMethod<void, Chain[]>(
-      "chains",
-      undefined
-    );
-  }
-
-  public async suggestChain(chain: Chain): Promise<void> {
-    await InjectedProxy.requestMethod<Chain, void>("suggestChain", chain);
-  }
-
-  public async accounts(chainId: string): Promise<DerivedAccount[]> {
+  public async accounts(): Promise<DerivedAccount[]> {
     return await InjectedProxy.requestMethod<string, DerivedAccount[]>(
-      "accounts",
-      chainId
+      "accounts"
     );
   }
 
-  public async defaultAccount(chainId: string): Promise<DerivedAccount> {
+  public async defaultAccount(): Promise<DerivedAccount> {
     return await InjectedProxy.requestMethod<string, DerivedAccount>(
-      "defaultAccount",
-      chainId
+      "defaultAccount"
     );
   }
 
@@ -53,8 +35,8 @@ export class InjectedNamada implements INamada {
     >("balances", owner);
   }
 
-  public getSigner(chainId: string): ISigner | undefined {
-    return new Signer(chainId, this);
+  public getSigner(): ISigner | undefined {
+    return new Signer(this);
   }
 
   public async submitTx(props: TxMsgProps): Promise<void> {

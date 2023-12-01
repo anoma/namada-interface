@@ -21,7 +21,6 @@
     "@namada/components": "0.1.0",
     "@namada/hooks": "0.1.0",
     "@namada/utils": "0.1.0",
-    "bech32": "^2.0.0",
     "buffer": "^6.0.3",
     "dompurify": "^3.0.2",
     "gsap": "^3.12.2",

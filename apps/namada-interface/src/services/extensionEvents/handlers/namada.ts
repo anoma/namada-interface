@@ -1,6 +1,5 @@
 import { Dispatch } from "react";
 
-import { chains } from "@namada/chains";
 import { Namada } from "@namada/integrations";
 import { TxType, TxTypeLabel } from "@namada/shared";
 
@@ -10,17 +9,11 @@ import { fetchValidators } from "slices/StakingAndGovernance/actions";
 import { fetchProposals } from "slices/proposals";
 
 export const NamadaAccountChangedHandler =
-  (dispatch: Dispatch<unknown>, integration: Namada) =>
-  async (event: CustomEventInit) => {
-    const chainId = event.detail?.chainId;
-    const chain = chains[chainId];
+  (dispatch: Dispatch<unknown>, integration: Namada) => async () => {
+    const accounts = (await integration.accounts()) || [];
 
-    if (chain.extension.id === "namada") {
-      const accounts = (await integration.accounts()) || [];
-
-      dispatch(addAccounts(accounts));
-      dispatch(fetchBalances());
-    }
+    dispatch(addAccounts(accounts));
+    dispatch(fetchBalances());
   };
 
 export const NamadaProposalsUpdatedHandler =

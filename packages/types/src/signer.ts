@@ -11,8 +11,8 @@ import {
 } from "./tx";
 
 export interface Signer {
-  accounts: () => Promise<Account[] | undefined>;
-  defaultAccount: () => Promise<Account | undefined>;
+  accounts: (chainId?: string) => Promise<Account[] | undefined>;
+  defaultAccount: (chainId?: string) => Promise<Account | undefined>;
   submitBond(
     args: SubmitBondProps,
     txArgs: TxProps,

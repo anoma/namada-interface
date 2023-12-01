@@ -1,4 +1,4 @@
-import { bech32m } from "bech32";
+import { Result } from "@namada/utils";
 import _toast, { Toast } from "react-simple-toasts";
 import { NavigateFunction } from "react-router-dom";
 import { Label } from "./state";
@@ -26,9 +26,7 @@ export const navigatePostCheck = (
 };
 
 type AirdropResponseErr = { message: string; code: number };
-export type AirdropResponse<T> =
-  | { ok: true; result: T }
-  | { ok: false; result: AirdropResponseErr };
+export type AirdropResponse<T> = Result<T, AirdropResponseErr>;
 
 export const airdropFetch = async <T>(
   input: RequestInfo | URL,
@@ -43,7 +41,9 @@ export const airdropFetch = async <T>(
   });
   const result = await response.json();
 
-  return response.ok ? { ok: true, result } : { ok: false, result };
+  return response.ok
+    ? { ok: true, value: result }
+    : { ok: false, error: result };
 };
 
 export const toast = (msg: string): Toast =>
@@ -58,18 +58,12 @@ export const labelTextMap: Record<Label["type"], string> = {
   unknown: "",
 };
 
-export const bech32mValidation = (
-  expectedPrefix: string,
-  value: string
-): boolean => {
-  try {
-    const { prefix } = bech32m.decode(value);
-    return prefix === expectedPrefix;
-  } catch (e) {
-    return false;
-  }
-};
-
 export const handleExtensionDownload = (url: string): void => {
   window.open(url, "_blank", "noopener,noreferrer");
+};
+
+export const ToastMessage = {
+  SOMETHING_WENT_WRONG: "Something went wrong, please try again later",
+  SOMETHING_WENT_WRONG_WITH_ERR: (err: unknown) =>
+    `Something went wrong: ${err}`,
 };

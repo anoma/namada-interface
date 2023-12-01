@@ -3,22 +3,22 @@ import { KVStore } from "@namada/storage";
 import { TabStore } from "./types";
 import { ExtensionRequester } from "extension";
 
+const TAB_STORE_PREFIX = "tabs";
+
 /**
  * Utility to sync tabs in storage with currently available tabs in browser
  *
  * @param {TabStore[]} connectedTabsStore
  * @param {ExtensionRequester} requester
- * @param {string} chainId
  *
  * @return Promise<TabStore[]>
  */
 export const syncTabs = async (
   connectedTabsStore: KVStore<TabStore[]>,
-  requester: ExtensionRequester,
-  chainId: string
+  requester: ExtensionRequester
 ): Promise<TabStore[]> => {
   const tabs = await requester.queryBrowserTabIds();
-  const storedTabs = (await connectedTabsStore.get(chainId)) || [];
+  const storedTabs = (await connectedTabsStore.get(TAB_STORE_PREFIX)) || [];
   const currentTabs: TabStore[] = [];
 
   storedTabs?.forEach((tab: TabStore) => {
@@ -27,7 +27,7 @@ export const syncTabs = async (
     }
   });
 
-  await connectedTabsStore.set(chainId, currentTabs);
+  await connectedTabsStore.set(TAB_STORE_PREFIX, currentTabs);
 
   return currentTabs;
 };
@@ -44,8 +44,7 @@ export const syncTabs = async (
 export const updateTabStorage = async (
   senderTabId: number,
   tabs: TabStore[],
-  connectedTabsStore: KVStore<TabStore[]>,
-  chainId: string
+  connectedTabsStore: KVStore<TabStore[]>
 ): Promise<void> => {
   const tabIndex = tabs.findIndex((tab) => tab.tabId === senderTabId);
 
@@ -59,5 +58,5 @@ export const updateTabStorage = async (
       timestamp: Date.now(),
     });
   }
-  return await connectedTabsStore.set(chainId, tabs);
+  return await connectedTabsStore.set(TAB_STORE_PREFIX, tabs);
 };

@@ -21,7 +21,12 @@ import {
 import { BreadcrumbStatus } from "./Common/BreadcrumbStatus";
 import { SidebarPage } from "./Layouts/SidebarPage";
 import { claimAtom, confirmationAtom } from "./state";
-import { AirdropResponse, navigatePostCheck, toast } from "./utils";
+import {
+  AirdropResponse,
+  ToastMessage,
+  navigatePostCheck,
+  toast,
+} from "./utils";
 import { StepIndicator } from "./Common/StepIndicator";
 import { TSClaim } from "./types";
 import { checkTrustedSetupClaim } from "./claimService";
@@ -43,13 +48,13 @@ export const TrustedSetup: React.FC = () => {
     }
 
     if (!response) {
-      toast("Something went wrong, please try again later");
+      toast(ToastMessage.SOMETHING_WENT_WRONG);
       return;
     } else if (!response.ok) {
-      toast(`Something went wrong: ${response.result.message}`);
+      toast(ToastMessage.SOMETHING_WENT_WRONG_WITH_ERR(response.error.message));
       return;
     }
-    const { result } = response;
+    const { value: result } = response;
 
     if (result.eligible && result.has_claimed) {
       setConfirmation({

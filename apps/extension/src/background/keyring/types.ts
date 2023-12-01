@@ -6,7 +6,6 @@ export interface AccountStore extends StoredRecord {
   alias: string;
   address: string;
   owner: string;
-  chainId: string;
   publicKey?: string;
   path: Bip44Path;
   parentId?: string;
