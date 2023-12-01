@@ -1,20 +1,10 @@
 import { atom } from "jotai";
 
-// Types
-export type ClaimResponse = {
-  eligible: boolean;
-  amount: number;
-  confirmed: boolean;
-  airdrop_address?: string;
-  airdrop_public_key?: string;
-};
-
 export type KeplrSignature = {
   signature: string;
   pubKey: { type: string; value: string };
 };
 
-// State
 export const KEPLR_CLAIMS = ["cosmos", "osmosis", "badkids"] as const;
 export type KeplrClaimType = (typeof KEPLR_CLAIMS)[number];
 export type ClaimType = "github" | "ts" | "gitcoin" | KeplrClaimType;

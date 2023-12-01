@@ -5,7 +5,7 @@ import {
   InstallExtensionContentWrapper,
   InstallExtensionTitle,
 } from "./InstallExtensionPanel.components";
-import { handleExtensionDownload } from "App/hooks";
+import { handleExtensionDownload } from "App/utils";
 
 type InstallExtensionPanelProps = {
   children: React.ReactNode;

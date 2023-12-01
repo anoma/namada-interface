@@ -5,63 +5,13 @@ import { useNavigate } from "react-router-dom";
 import { KeplrClaimType, claimAtom, confirmationAtom } from "./state";
 import {
   AirdropResponse,
-  airdropFetch,
+  handleExtensionDownload,
   navigatePostCheck,
   toast,
 } from "./utils";
-import { Claim, GithubClaim } from "./types";
+import { ExtensionClaim, GithubClaim } from "./types";
 import { Keplr } from "@keplr-wallet/types";
-
-const { AIRDROP_BACKEND_SERVICE_URL: backendUrl = "" } = process.env;
-
-export const handleExtensionDownload = (url: string): void => {
-  window.open(url, "_blank", "noopener,noreferrer");
-};
-
-const checkGithubClaim = async (
-  code: string
-): Promise<AirdropResponse<GithubClaim>> => {
-  return airdropFetch(`${backendUrl}/api/v1/airdrop/github/${code}`, {
-    method: "GET",
-  });
-};
-
-const checkClaim = async (
-  address: string,
-  type: KeplrClaimType | "gitcoin"
-): Promise<AirdropResponse<Claim>> => {
-  return airdropFetch(`${backendUrl}/api/v1/airdrop/${type}/${address}`, {
-    method: "GET",
-  });
-};
-
-//TODO: move to types
-export type ClaimCategory =
-  | "Github"
-  | "CosmosWallet"
-  | "OsmosisWallet"
-  | "StargazeWallet"
-  | "TrustedSetup"
-  | "EthereumWallet";
-
-type AllClaims = {
-  address: string;
-  claims: {
-    token: number;
-    value: string;
-    eligible_for: string[];
-    category: ClaimCategory;
-  }[];
-};
-
-//TODO: maybe a hook?
-export const getAllClaims = async (
-  address: string
-): Promise<AirdropResponse<AllClaims>> => {
-  return airdropFetch(`${backendUrl}/api/v1/claimed/${address}`, {
-    method: "GET",
-  });
-};
+import { checkExtensionClaim, checkGithubClaim } from "./claimService";
 
 export const useMetamaskHandler = (
   chainId: string,
@@ -89,9 +39,9 @@ export const useMetamaskHandler = (
       }
       const address = addresses[0];
 
-      let response: AirdropResponse<Claim> | undefined;
+      let response: AirdropResponse<ExtensionClaim> | undefined;
       try {
-        response = await checkClaim(address, "gitcoin");
+        response = await checkExtensionClaim(address, "gitcoin");
       } catch (e) {
         console.error(e);
       }
@@ -162,9 +112,9 @@ export const useKeplrHandler = (
 
       const { bech32Address: address } = await keplr.getKey(chainId);
 
-      let response: AirdropResponse<Claim> | undefined;
+      let response: AirdropResponse<ExtensionClaim> | undefined;
       try {
-        response = await checkClaim(address, type);
+        response = await checkExtensionClaim(address, type);
       } catch (e) {
         console.error(e);
       }
@@ -218,11 +168,11 @@ export const useGithubHandler = (): ((code: string) => Promise<void>) => {
 
   const handleGithub = useCallback(async (code: string) => {
     let response: AirdropResponse<GithubClaim> | undefined;
-    //TODO: generic error handling
     try {
       response = await checkGithubClaim(code);
     } catch (e) {
       console.error(e);
+      toast(`Something went wrong, please try again later, e: ${e}`);
       navigate("/", { replace: true });
     }
 

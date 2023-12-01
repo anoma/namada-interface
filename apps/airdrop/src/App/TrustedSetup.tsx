@@ -21,32 +21,10 @@ import {
 import { BreadcrumbStatus } from "./Common/BreadcrumbStatus";
 import { SidebarPage } from "./Layouts/SidebarPage";
 import { claimAtom, confirmationAtom } from "./state";
-import {
-  AirdropResponse,
-  airdropFetch,
-  navigatePostCheck,
-  toast,
-} from "./utils";
+import { AirdropResponse, navigatePostCheck, toast } from "./utils";
 import { StepIndicator } from "./Common/StepIndicator";
-
-type TSClaim = {
-  eligible: boolean;
-  amount: number;
-  has_claimed: boolean;
-  airdrop_address?: string;
-  airdrop_public_key?: string;
-  nonce: string;
-};
-
-const { AIRDROP_BACKEND_SERVICE_URL: backendUrl = "" } = process.env;
-
-const checkClaim = async (
-  publicKey: string
-): Promise<AirdropResponse<TSClaim>> => {
-  return airdropFetch(`${backendUrl}/api/v1/airdrop/ts/${publicKey}`, {
-    method: "GET",
-  });
-};
+import { TSClaim } from "./types";
+import { checkTrustedSetupClaim } from "./claimService";
 
 export const TrustedSetup: React.FC = () => {
   const navigate = useNavigate();
@@ -59,7 +37,7 @@ export const TrustedSetup: React.FC = () => {
     let response: AirdropResponse<TSClaim> | undefined;
 
     try {
-      response = await checkClaim(publicKey);
+      response = await checkTrustedSetupClaim(publicKey);
     } catch (e) {
       console.error(e);
     }

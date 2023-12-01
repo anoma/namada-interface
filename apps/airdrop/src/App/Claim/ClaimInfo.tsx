@@ -3,18 +3,11 @@ import { EligibilitySection } from "App/App.components";
 import { EligibilityCriteria } from "App/Common/EligibilityCriteria";
 import { YouAreEligible } from "App/Common/YouAreEligible";
 import { mapEligibility } from "App/eligibilityMap";
-import { labelTextMap } from "App/utils";
+import { labelTextMap, toast } from "App/utils";
 import { useAtom } from "jotai";
 import { useNavigate } from "react-router-dom";
-import {
-  CommonState,
-  GithubState,
-  KEPLR_CLAIMS,
-  claimAtom,
-  labelAtom,
-} from "../state";
+import { CommonState, KEPLR_CLAIMS, claimAtom, labelAtom } from "../state";
 
-//TODO: cleanup this whole component
 const eligibleFor = (state: CommonState): string[] => {
   const { type } = state;
 
@@ -25,7 +18,7 @@ const eligibleFor = (state: CommonState): string[] => {
   } else if ((KEPLR_CLAIMS as readonly string[]).includes(type)) {
     return ["early-shielded-community"];
   } else if (type === "github") {
-    const eligibilities = (state as GithubState).eligibilities;
+    const eligibilities = state.eligibilities;
     return eligibilities
       .map((e) => mapEligibility(e))
       .filter((eligibility) => eligibility !== "");
@@ -39,7 +32,10 @@ export const ClaimInfo: React.FC = () => {
   const [claimState] = useAtom(claimAtom);
   const [label] = useAtom(labelAtom);
 
-  if (!claimState) return null;
+  if (!claimState) {
+    toast("Claim state is empty!");
+    return null;
+  }
   const eligibilities = new Set(eligibleFor(claimState));
 
   return (

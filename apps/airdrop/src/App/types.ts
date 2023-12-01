@@ -16,11 +16,46 @@ export type GithubClaim = {
   github_username: string;
 };
 
-export type Claim = {
+export type ExtensionClaim = {
   eligible: boolean;
   amount: number;
   has_claimed: boolean;
   airdrop_address?: string;
   airdrop_public_key?: string;
   nonce: string;
+};
+
+export type TSClaim = {
+  eligible: boolean;
+  amount: number;
+  has_claimed: boolean;
+  airdrop_address?: string;
+  airdrop_public_key?: string;
+  nonce: string;
+};
+
+export type ClaimCategory =
+  | "Github"
+  | "CosmosWallet"
+  | "OsmosisWallet"
+  | "StargazeWallet"
+  | "TrustedSetup"
+  | "EthereumWallet";
+
+export type AllClaims = {
+  address: string;
+  claims: {
+    token: number;
+    value: string;
+    eligible_for: string[];
+    category: ClaimCategory;
+  }[];
+};
+
+export type ClaimResponse = {
+  eligible: boolean;
+  amount: number;
+  confirmed: boolean;
+  airdrop_address?: string;
+  airdrop_public_key?: string;
 };

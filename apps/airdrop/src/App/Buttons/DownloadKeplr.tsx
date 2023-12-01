@@ -1,8 +1,8 @@
 import { ActionButton } from "@namada/components";
 import { ModalButtonContainer, ModalButtonText } from "App/App.components";
 import { ButtonProps } from "./types";
-import { handleExtensionDownload } from "App/hooks";
 import { DownloadIcon } from "App/Icons/DownloadIcon";
+import { handleExtensionDownload } from "App/utils";
 
 export const DownloadKeplr = ({ disabled }: ButtonProps): JSX.Element => {
   return (

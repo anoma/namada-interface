@@ -21,7 +21,6 @@ const getDifference = (milliDiff: number): Difference => ({
   minutes: Math.ceil((milliDiff / 1000 / 60) % 60),
 });
 
-//TODO: Move to shared components
 export const Countdown: React.FC<Props> = ({ endDate }) => {
   const [now, setNow] = useState<number>(new Date().getTime());
   const { days, hours, minutes } = getDifference(endDate.getTime() - now);

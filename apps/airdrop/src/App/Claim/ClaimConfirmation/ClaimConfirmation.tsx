@@ -7,12 +7,7 @@ import {
   Text,
 } from "@namada/components";
 import { DerivedAccount, WindowWithNamada } from "@namada/types";
-import {
-  AirdropResponse,
-  airdropFetch,
-  bech32mValidation,
-  toast,
-} from "App/utils";
+import { AirdropResponse, bech32mValidation, toast } from "App/utils";
 import { useAtom } from "jotai";
 import { useCallback, useLayoutEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -20,10 +15,8 @@ import { useNavigate } from "react-router-dom";
 import { ClaimsSectionSignature } from "../../App.components";
 
 import {
-  ClaimResponse,
   CommonState,
   KEPLR_CLAIMS,
-  KeplrClaimType,
   KeplrSignature,
   TSState,
   claimAtom,
@@ -44,96 +37,16 @@ import {
   PasteSignatureContainer,
   StepHeader,
   TermsContainer,
-  Transition,
 } from "./ClaimConfirmation.components";
-import gsap from "gsap";
-import { Expo } from "gsap";
+import { ClaimResponse } from "App/types";
+import {
+  claimWithGitcoin,
+  claimWithGithub,
+  claimWithKeplr,
+  claimWithTrustedSetup,
+} from "App/claimService";
 
-const {
-  AIRDROP_BACKEND_SERVICE_URL: backendUrl = "",
-  REACT_APP_NAMADA_CHAIN_ID: namadaChainId = "",
-} = process.env;
-
-const claimWithGithub = async (
-  access_token: string,
-  airdrop_address: string,
-  airdrop_public_key: string
-): Promise<AirdropResponse<ClaimResponse>> => {
-  return airdropFetch(`${backendUrl}/api/v1/airdrop/github`, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ access_token, airdrop_address, airdrop_public_key }),
-  });
-};
-
-const claimWithKeplr = async (
-  type: KeplrClaimType,
-  signer_address: string,
-  signer_public_key: string,
-  signer_public_key_type: string,
-  signature: string,
-  airdrop_address: string,
-  airdrop_public_key: string,
-  message: string
-): Promise<AirdropResponse<ClaimResponse>> => {
-  return airdropFetch(`${backendUrl}/api/v1/airdrop/${type}`, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      signer_address,
-      signer_public_key,
-      signer_public_key_type,
-      signature,
-      airdrop_address,
-      airdrop_public_key,
-      message,
-    }),
-  });
-};
-
-const claimWithGitcoin = async (
-  signer_address: string,
-  message: string,
-  signature: string,
-  airdrop_address: string,
-  airdrop_public_key: string
-): Promise<AirdropResponse<ClaimResponse>> => {
-  return airdropFetch(`${backendUrl}/api/v1/airdrop/gitcoin`, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      signer_address,
-      message,
-      signature,
-      airdrop_address,
-      airdrop_public_key,
-    }),
-  });
-};
-
-const claimWithTS = async (
-  signer_public_key: string,
-  signature: string,
-  airdrop_address: string,
-  airdrop_public_key: string,
-  message: string
-): Promise<AirdropResponse<ClaimResponse>> => {
-  return airdropFetch(`${backendUrl}/api/v1/airdrop/ts`, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      signer_public_key,
-      signature,
-      airdrop_address,
-      airdrop_public_key,
-      message,
-    }),
-  });
-};
+const { REACT_APP_NAMADA_CHAIN_ID: namadaChainId = "" } = process.env;
 
 const claim = (
   state: CommonState,
@@ -144,7 +57,6 @@ const claim = (
   const { type } = state;
   if (type === "github") {
     const { githubToken } = state;
-    //TODO: as string
     return claimWithGithub(
       githubToken as string,
       airdropAddress,
@@ -152,7 +64,7 @@ const claim = (
     );
   } else if (type === "ts") {
     const { publicKey, nonce } = state;
-    return claimWithTS(
+    return claimWithTrustedSetup(
       publicKey,
       tsSignature,
       airdropAddress,
@@ -164,14 +76,12 @@ const claim = (
     return claimWithGitcoin(
       address,
       nonce,
-      //TODO: as string
       signature as string,
       airdropAddress,
       airdropPubKey
     );
   } else if (KEPLR_CLAIMS.includes(type)) {
     const { signature, address, nonce } = state;
-    //TODO: as signature
     const sig = signature as KeplrSignature;
     return claimWithKeplr(
       type,

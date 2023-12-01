@@ -362,11 +362,6 @@ export const AnotherWaysButtons = styled.div<{ columns?: string }>`
     padding-top: ${spacement(4)};
     padding-bottom: ${spacement(4)};
   }
-
-  /* TODO: temporary workaround for text height*/
-  & > button > span {
-    height: auto;
-  }
 `;
 
 export const ClaimsSectionSignature = styled.div``;

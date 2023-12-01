@@ -69,3 +69,7 @@ export const bech32mValidation = (
     return false;
   }
 };
+
+export const handleExtensionDownload = (url: string): void => {
+  window.open(url, "_blank", "noopener,noreferrer");
+};

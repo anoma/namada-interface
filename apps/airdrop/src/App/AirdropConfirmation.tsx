@@ -28,7 +28,6 @@ import {
   TableRow,
 } from "./App.components";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { ClaimCategory, getAllClaims } from "./hooks";
 import { AnotherWays } from "./AnotherWays";
 import { GithubEligibility, mapEligibility } from "./eligibilityMap";
 import { PoolSvg } from "./Graphics/Pool";
@@ -42,6 +41,8 @@ import { PageFooter } from "./Common/PageFooter";
 import { iconsOnMouseMovement } from "./animations";
 import { CommunityFooter } from "./Common/CommunityFooter";
 import { WarningList } from "./Common/Warning";
+import { ClaimCategory } from "./types";
+import { getAllClaims } from "./claimService";
 
 const categoryAccountTypeMap: Record<ClaimCategory, string> = {
   Github: "Github",
