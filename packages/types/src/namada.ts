@@ -10,7 +10,7 @@ export type TxMsgProps = {
 };
 
 export interface Namada {
-  connect(): Promise<void>;
+  connect(chainId?: string): Promise<void>;
   accounts(): Promise<DerivedAccount[] | undefined>;
   defaultAccount(): Promise<DerivedAccount | undefined>;
   balances(
