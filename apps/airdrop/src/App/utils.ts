@@ -74,3 +74,9 @@ export const bech32mValidation = (
 export const handleExtensionDownload = (url: string): void => {
   window.open(url, "_blank", "noopener,noreferrer");
 };
+
+export const ToastMessage = {
+  SOMETHING_WENT_WRONG: "Something went wrong, please try again later",
+  SOMETHING_WENT_WRONG_WITH_ERR: (err: unknown) =>
+    `Something went wrong: ${err}`,
+};
