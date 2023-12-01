@@ -25,14 +25,18 @@ export class Namada implements INamada {
     );
   }
 
-  public async accounts(): Promise<DerivedAccount[] | undefined> {
+  public async accounts(
+    _chainId?: string
+  ): Promise<DerivedAccount[] | undefined> {
     return await this.requester?.sendMessage(
       Ports.Background,
       new QueryAccountsMsg()
     );
   }
 
-  public async defaultAccount(): Promise<DerivedAccount | undefined> {
+  public async defaultAccount(
+    _chainId?: string
+  ): Promise<DerivedAccount | undefined> {
     return await this.requester?.sendMessage(
       Ports.Background,
       new QueryDefaultAccountMsg()
