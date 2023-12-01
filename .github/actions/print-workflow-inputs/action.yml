@@ -1,0 +1,17 @@
+name: Print workflow inputs
+description: Prints workflow inputs to the GitHub run summary
+
+runs:
+  using: composite
+  steps:
+    - name: Print workflow inputs
+      shell: node {0}
+      run: |
+        const fs = require("fs");
+        const json = JSON.parse(process.env.JSON_INPUTS);
+        const concatenated = Object.entries(json)
+          .map(([key, value]) => `${key}: ${value}`)
+          .join("\n");
+        fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, concatenated);
+      env:
+        JSON_INPUTS: ${{ toJSON(github.event.inputs) }}
