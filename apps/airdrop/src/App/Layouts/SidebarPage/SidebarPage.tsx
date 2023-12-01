@@ -32,7 +32,7 @@ export const SidebarPage = ({
     <SidebarPageGrid>
       <aside>
         <SidebarTitle>
-          <TermsLinkWrapper href="/terms-of-service">
+          <TermsLinkWrapper href="/terms-of-service" target="_blank">
             Terms of Service{" "}
             <IconWrap>
               <ExternalPageIcon />
