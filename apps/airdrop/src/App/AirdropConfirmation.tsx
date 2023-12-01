@@ -54,9 +54,9 @@ const categoryAccountTypeMap: Record<ClaimCategory, string> = {
 };
 
 const githubCategoryMap: Record<GithubEligibility, string> = {
-  zkp: "ZKPs, Cryptography Public Goods, Privacy Research & Learning Resources",
+  zkp: "ZKPs, Cryptography PGs, Privacy Research, & Learning Resources",
   zcash: "Zcash R&D & Rust Developer Ecosystem",
-  interchain: "Interchain Public Goods & Early Shielded Ecosystem",
+  interchain: "Interchain PGs, Shielded Ecosystem, PGF Mechanism R&D",
 };
 
 const getCategory = (
@@ -68,11 +68,11 @@ const getCategory = (
   } else if (
     ["CosmosWallet", "OsmosisWallet", "StargazeWallet"].includes(category)
   ) {
-    return "Early shielded Community";
+    return "Shielded Community";
   } else if (category === "TrustedSetup") {
-    return "Namada Trusted Setup";
+    return "Namada Trusted Setup Participants";
   } else if (category === "EthereumWallet") {
-    return "Gitcoin Donors of Privacy, ZK tech, and Crypto Advocacy";
+    return "Gitcoin Donors of ZK Tech and Crypto Advocacy";
   } else {
     return "";
   }
@@ -167,7 +167,6 @@ export const AirdropConfirmation: React.FC = () => {
                 value={confirmation.address}
               />
             </Stack>
-
             <Stack gap={"px"}>
               <Heading themeColor={"utility1"} level={"h4"} size={"xl"}>
                 Minimum NAM claimed
