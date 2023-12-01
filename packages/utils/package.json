@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@cosmjs/json-rpc": "^0.27.1",
+    "bech32": "^2.0.0",
     "bs58": "^5.0.0",
     "crypto-js": "^4.1.1",
     "luxon": "^3.0.1",

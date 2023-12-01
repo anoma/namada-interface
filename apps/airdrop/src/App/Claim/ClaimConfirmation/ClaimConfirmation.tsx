@@ -7,12 +7,7 @@ import {
   Text,
 } from "@namada/components";
 import { DerivedAccount, WindowWithNamada } from "@namada/types";
-import {
-  AirdropResponse,
-  ToastMessage,
-  bech32mValidation,
-  toast,
-} from "App/utils";
+import { AirdropResponse, ToastMessage, toast } from "App/utils";
 import { useAtom } from "jotai";
 import { useCallback, useLayoutEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -50,6 +45,7 @@ import {
   claimWithKeplr,
   claimWithTrustedSetup,
 } from "App/claimService";
+import { bech32mValidation } from "@namada/utils";
 
 const { REACT_APP_NAMADA_CHAIN_ID: namadaChainId = "" } = process.env;
 

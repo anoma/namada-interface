@@ -1,5 +1,4 @@
 import { Result } from "@namada/utils";
-import { bech32m } from "bech32";
 import _toast, { Toast } from "react-simple-toasts";
 import { NavigateFunction } from "react-router-dom";
 import { Label } from "./state";
@@ -57,18 +56,6 @@ export const labelTextMap: Record<Label["type"], string> = {
   publicKey: "Public key",
   username: "Github username",
   unknown: "",
-};
-
-export const bech32mValidation = (
-  expectedPrefix: string,
-  value: string
-): boolean => {
-  try {
-    const { prefix } = bech32m.decode(value);
-    return prefix === expectedPrefix;
-  } catch (e) {
-    return false;
-  }
 };
 
 export const handleExtensionDownload = (url: string): void => {
