@@ -14,7 +14,7 @@ import {
   toast,
 } from "App/utils";
 import { useAtom } from "jotai";
-import { useCallback, useState } from "react";
+import { useCallback, useLayoutEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { ClaimsSectionSignature } from "../../App.components";
@@ -44,7 +44,10 @@ import {
   PasteSignatureContainer,
   StepHeader,
   TermsContainer,
+  Transition,
 } from "./ClaimConfirmation.components";
+import gsap from "gsap";
+import { Expo } from "gsap";
 
 const {
   AIRDROP_BACKEND_SERVICE_URL: backendUrl = "",
@@ -217,6 +220,16 @@ export const ClaimConfirmation: React.FC = () => {
 
     return namada.defaultAccount(namadaChainId);
   }, [namada]);
+
+  useLayoutEffect(() => {
+    // const tl = gsap.timeline();
+    // tl.fromTo("body", { x: "-=20" }, { x: "+=20", repeat: 40, duration: 0.05 });
+    // tl.fromTo(
+    //   ".pageTransition",
+    //   { scale: 0 },
+    //   { scale: 1, duration: 0.25, ease: Expo.easeOut }
+    // );
+  }, []);
 
   const airdropAddressValid = bech32mValidation("tnam", airdropAddress);
   if (airdropAddressValid) {
@@ -451,6 +464,7 @@ export const ClaimConfirmation: React.FC = () => {
           onClick={onClickClaim}
         />
       </ButtonContainer>
+      {/* <Transition className="page-transition" /> */}
     </>
   );
 };

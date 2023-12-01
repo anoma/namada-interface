@@ -156,6 +156,13 @@ export const SmallWarning = styled.div`
   font-size: 12px;
 `;
 
+export const RPGFUrl = styled.strong`
+  font-size: 1.15em;
+  background-color: ${color("secondary", "main")};
+  display: inline-block;
+  padding: 0.1em 0.25em;
+`;
+
 export const MainTopSection = styled.section`
   position: relative;
   padding-bottom: ${spacement(24)};
@@ -233,6 +240,20 @@ export const MainFooter = styled.div`
   max-width: 720px;
   text-align: center;
   width: 100%;
+
+  p {
+    line-height: 1.5;
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+  }
+
+  li {
+    list-style: none;
+    margin-bottom: ${spacement(3)};
+  }
 `;
 
 export const MainModal = styled.div`

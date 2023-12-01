@@ -140,14 +140,14 @@ export const TrustedSetup: React.FC = () => {
             </TrustedSetupListItem>
             <TrustedSetupListItem>
               <StepIndicator>3</StepIndicator>
-              Paste the Public Key from your Trusted Setup Participation
+              Paste the Public Key derived from the seed phrase you created when
+              you participated in Namada&apos;s Trusted Setup
               <CheckEligibilityContainer>
                 <Input
                   variant={InputVariants.Text}
                   value={publicKey}
                   theme="primary"
-                  placeholder="Enter your Namada transparent account
-                  "
+                  placeholder="Enter your public key"
                   onChange={(e) => setPublicKey(e.target.value)}
                 >
                   <CheckEligibilityButton>

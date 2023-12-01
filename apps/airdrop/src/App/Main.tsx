@@ -25,6 +25,7 @@ import {
   ObjectsContainer,
   PoolContainer,
   PoolTopLayerContainer,
+  RPGFUrl,
   SmallWarning,
 } from "./App.components";
 import { CosmosButton } from "./Buttons/CosmosButton";
@@ -51,7 +52,6 @@ import { ZeroOneSvg } from "./Graphics/ZeroOne";
 import { iconsOnMouseMovement } from "./animations";
 import { useGithubHandler } from "./hooks";
 import { MetamaskWindow } from "./types";
-import { CommunityFooter } from "./Common/CommunityFooter";
 
 export const Main: React.FC = () => {
   const url = window.location.href;
@@ -183,9 +183,8 @@ export const Main: React.FC = () => {
                 </CallToActionStack>
                 <SmallWarning className="warning">
                   Please check you are claiming using the following URL:
-                  <div>
-                    <strong>https://rpgfdrop.namada.net</strong>
-                  </div>
+                  <br />
+                  <RPGFUrl>https://rpgfdrop.namada.net</RPGFUrl>
                 </SmallWarning>
                 <Stack gap={0.5} className="announcement">
                   <MainSectionButton></MainSectionButton>
@@ -246,17 +245,46 @@ export const Main: React.FC = () => {
               Namada RPGF Drop
             </Heading>
             <Text themeColor="utility1" fontWeight="400">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris
-              semper tempor ante eu ullamcorper. Morbi fringilla gravida mi in
-              cursus. Donec libero velit, vulputate vel nunc sed, pretium
-              rhoncus quam.
+              With the PGF stewards and on-chain PGF features, Namada is a
+              large-scale experiment on on-chain mechanisms that can sustainably
+              fund public goods, especially those that are often under-produced
+              or underfunded. What&apos;s more, the Namada protocol itself is a
+              public good that is built on top of many other public goods.
+              Namada wouldn&apos;t exist without the research and development of
+              cryptographic primitives including zero-knowledge proofs, tooling,
+              learning resources, and other contributions from the communities
+              across the Zcash, Rust, ZKP, interchain, and public goods funding
+              ecosystems.
             </Text>
             <Text themeColor="utility1" fontWeight="400">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris
-              semper tempor ante eu ullamcorper. Morbi fringilla gravida mi in
-              cursus. Donec libero velit, vulputate vel nunc sed, pretium
-              rhoncus quam.
+              To acknowledge and thank all these communities for building and
+              funding public goods, we invite 7,094 researchers and developers,
+              191,715 on-chain accounts and Bad Kids, and 2510 contributors in
+              the Trusted Setup to participate in the Namada RPGF Drop &mdash;
+              and join the Namada community as network stakeholders from
+              inception.
             </Text>
+
+            <Heading themeColor="utility1" size="2xl">
+              Remember
+            </Heading>
+            <ul>
+              <li>
+                The <strong>only</strong> way to participate in the Namada RPGF
+                drop is <strong>via rpgfdrop.namada.net</strong>
+              </li>
+              <li>
+                <strong>rpgfdrop.namada.net</strong> will never ask you to
+                submit any <strong>seed phrase, private key</strong> or{" "}
+                <strong>to transfer any tokens</strong> from any wallet
+              </li>
+              <li>
+                Members of the Anoma Foundation, Heliax, or Namada community
+                will <strong>never ask you</strong> to submit any{" "}
+                <strong>seed phrase, private key</strong>, nor{" "}
+                <strong>to transfer any tokens</strong> from any wallet
+              </li>
+            </ul>
           </Stack>
         </MainFooter>
         <PageFooter />

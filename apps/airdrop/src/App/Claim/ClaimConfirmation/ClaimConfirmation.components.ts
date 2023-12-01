@@ -87,3 +87,15 @@ export const ClaimBadge = styled.span`
   font-size: ${fontSize("base")};
   padding: ${spacement(1)} ${spacement(4)};
 `;
+
+export const Transition = styled.div`
+  width: 150vw;
+  height 150vw;
+  position: fixed;
+  top: -25%;
+  left: -25%;
+  background: ${color("primary", "main")};
+  border-radius: 100%;
+  z-index: 1000;
+
+`;

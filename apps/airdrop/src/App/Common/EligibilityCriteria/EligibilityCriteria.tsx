@@ -74,54 +74,66 @@ export const EligibilityCriteria = ({
         </EligibilityAccordion>
         <EligibilityAccordion
           selected={eligibilities.has("zkp")}
-          title="ZKPs, Cryptography Public Goods, Privacy Research, & Learning Resources"
+          title="ZKPs, Cryptography PGs, Privacy Research, & Learning Resources"
         >
           <EligibiltyList>
             <li>
               Public contributors to ZK protocols, proving systems, cryptography
-              public goods
+            </li>
+            <li>
+              Public contributors to decentralised privacy-preserving protocols
             </li>
             <li>
               Public contributors to ZK learning resources and privacy in Web3
               research
             </li>
             <li>
-              Category creators and contributors to the categories zk-s[nt]arks,
-              Cryptography, and Privacy categories on ethresear.ch
+              Users of ethresear.ch and contributors to the categories{" "}
+              <strong>zk-s[nt]arks</strong>, <strong>Cryptography</strong>, and{" "}
+              <strong>Privacy</strong>
             </li>
           </EligibiltyList>
         </EligibilityAccordion>
         <EligibilityAccordion
           selected={eligibilities.has("interchain")}
-          title="Interchain Public Goods & Early Shielded Ecosystem"
+          title="Interchain PGs, Shielded Ecosystem, PGF Mechanism R&D"
         >
           <EligibiltyList>
             <li>
               Public contributors to consensus, interoperability, bridge
               designs, and proof-of-stake research and development
             </li>
-            <li>Public contributors to early app-chains</li>
+            <li>
+              Public contributors to interchain applications and appchains
+            </li>
+            <li>
+              Public contributors to interchain and interoperability protocol
+              design, infrastructure, and tooling
+            </li>
+            <li>
+              Public contributors to research and development of decentralized
+              public goods funding mechanisms
+            </li>
           </EligibiltyList>
         </EligibilityAccordion>
         <EligibilityAccordion
           selected={eligibilities.has("early-shielded-community")}
-          title="Early Shielded Community"
+          title="Shielded Community"
         >
           <EligibiltyList>
-            <li>Cosmos</li>
-            <li>Osmosis</li>
-            <li>Stargaze</li>
+            <li>Stakers of Cosmos</li>
+            <li>Stakers of Osmosis</li>
             <li>BadKids</li>
           </EligibiltyList>
         </EligibilityAccordion>
         <EligibilityAccordion
           selected={eligibilities.has("gitcoin")}
-          title="Donors of ZK Tech, Privacy, and Crypto Advocacy"
+          title="Gitcoin Donors of ZK Tech and Crypto Advocacy"
         >
           <EligibiltyList>
             <li>
-              Voters / donors of ZK Tech, privacy, and Crypto Advocacy projects
-              on Gitcoin&apos;s GR rounds
+              Voters/donors of ZK Tech and Crypto Advocacy projects on
+              Gitcoin&apos;s GR rounds
             </li>
           </EligibiltyList>
         </EligibilityAccordion>
@@ -131,7 +143,7 @@ export const EligibilityCriteria = ({
         >
           <EligibiltyList>
             <li>
-              Contributors to the Namada Trusted Setup ceremony (Nov-Dec 2022)
+              Participants in the Namada Trusted Setup Ceremony (Nov-Dec 2022)
             </li>
           </EligibiltyList>
         </EligibilityAccordion>
