@@ -113,7 +113,7 @@ export const AirdropConfirmation: React.FC = () => {
         setBreakdown(breakdown);
       }
     })();
-  }, []);
+  }, [confirmation.address]);
 
   useLayoutEffect(() => {
     if (!iconsContainerRef.current) return;
@@ -217,7 +217,7 @@ export const AirdropConfirmation: React.FC = () => {
           Total minimum NAM across all claims
         </Heading>
         <Heading themeColor={"utility1"} size={"6xl"}>
-          {totalMinNam}
+          {totalMinNam || "-"}
         </Heading>
         <AirdropConfirmationAccordion
           title={
