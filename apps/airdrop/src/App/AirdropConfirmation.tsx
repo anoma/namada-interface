@@ -223,7 +223,6 @@ export const AirdropConfirmation: React.FC = () => {
           }
           solid={true}
         >
-          {/* TODO: move to shared component, add scroll */}
           <Table>
             <TableHeader>
               <TableCell width="50px">Claim</TableCell>
