@@ -50,7 +50,7 @@ const categoryAccountTypeMap: Record<ClaimCategory, string> = {
   OsmosisWallet: "Osmosis Wallet",
   StargazeWallet: "Stargaze Wallet",
   TrustedSetup: "Namada Trusted Setup Public Key",
-  EthereumWallet: "EthereumWallet",
+  EthereumWallet: "Ethereum Wallet",
 };
 
 const githubCategoryMap: Record<GithubEligibility, string> = {
@@ -149,7 +149,7 @@ export const AirdropConfirmation: React.FC = () => {
                 NAM will be available diretly in your wallet
                 <br /> at Namada Mainnet launch, subject to the
                 <br />{" "}
-                <LinkButton themeColor="utility1">
+                <LinkButton href="/terms-of-service" themeColor="utility1">
                   <b>terms of Service</b>
                 </LinkButton>
               </Text>

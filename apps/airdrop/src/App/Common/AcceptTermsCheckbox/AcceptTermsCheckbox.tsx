@@ -16,8 +16,8 @@ export const AcceptTermsCheckbox = ({
     <TOSToggle disabled={disabled}>
       <Checkbox disabled={disabled} checked={checked} onChange={onChange} />
       <span>
-        You agree to the Terms of Service and are not in the US or any other
-        prohibited jurisdiction
+        You agree to the <a href="/terms-of-service">Terms of Service</a> and
+        are not in the US or any other prohibited jurisdiction
       </span>
     </TOSToggle>
   );

@@ -17,7 +17,7 @@ export const navigatePostCheck = (
   replace = false
 ): void => {
   if (eligible && !hasClaimed) {
-    navigate("/claim/info", { replace });
+    navigate("/claim/eligible", { replace });
   } else if (eligible && hasClaimed) {
     navigate("/airdrop-confirmed", { replace });
   } else if (!eligible) {

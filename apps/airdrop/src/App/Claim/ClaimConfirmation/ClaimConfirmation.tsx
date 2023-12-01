@@ -283,7 +283,7 @@ export const ClaimConfirmation: React.FC = () => {
               <Text themeColor="primary" fontSize="xl">
                 {isTrustedSetup && <StepIndicator>2</StepIndicator>}
                 Submit your Namada public key to be included in the genesis
-                proposal
+                block proposal
               </Text>
               <Stack gap={4}>
                 <Input
@@ -292,7 +292,7 @@ export const ClaimConfirmation: React.FC = () => {
                   value={airdropPubKey}
                   error={
                     airdropPubKey.length > 0 && !airdropPubKeyValid
-                      ? "This public key is not valid"
+                      ? "Invalid public key. Make sure you're providing a Namada public key starting with the `tpknam1` prefix."
                       : ""
                   }
                   onChange={(e) => {
@@ -300,7 +300,7 @@ export const ClaimConfirmation: React.FC = () => {
                     setAirdropPubKey(publicKey);
                   }}
                   label="Namada public key"
-                  placeholder="Enter your Namada public key"
+                  placeholder="Enter your Namada public key (tpknam1…)"
                 >
                   <InputActionButton
                     title={
@@ -325,16 +325,16 @@ export const ClaimConfirmation: React.FC = () => {
                   value={airdropAddress}
                   theme={airdropAddressValid ? "secondary" : "primary"}
                   label="Namada transparent address"
+                  placeholder="Enter your Namada transparent address (tnam1…)"
                   error={
                     airdropAddress.length > 0 && !airdropAddressValid
-                      ? "Invalid transparent address. Make sure you're providing an address starting with the 'tnam' prefix."
+                      ? "Invalid transparent address. Make sure you're providing an address starting with the 'tnam1' prefix."
                       : ""
                   }
                   onChange={(e) => {
                     const { value: airdropAddress } = e.target;
                     setAirdropAddress(airdropAddress);
                   }}
-                  placeholder="Enter your Namada transparent address"
                 >
                   <InputActionButton
                     title={

@@ -39,7 +39,7 @@ export const App: React.FC = () => {
               !!claimState ? <Claim /> : <Navigate to="/" replace={true} />
             }
           >
-            <Route path={`info`} element={<ClaimInfo />} />
+            <Route path={`eligible`} element={<ClaimInfo />} />
             <Route path={`confirmation`} element={<ClaimConfirmation />} />
           </Route>
           <Route path={`/trusted-setup`} element={<TrustedSetup />} />

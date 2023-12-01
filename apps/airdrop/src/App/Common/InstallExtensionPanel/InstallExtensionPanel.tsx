@@ -19,7 +19,7 @@ export const InstallExtensionPanel = ({
   return (
     <InstallExtensionContainer size={size}>
       <InstallExtensionTitle>
-        Don&apos;t have Namada address yet?
+        Don&apos;t have a Namada address yet?
       </InstallExtensionTitle>
       <InstallExtensionContentWrapper>
         <InstallExtensionContent>{children}</InstallExtensionContent>
