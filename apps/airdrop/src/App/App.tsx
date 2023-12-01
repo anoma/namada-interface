@@ -1,7 +1,7 @@
 import { getTheme } from "@namada/utils";
 import { GlobalStyles } from "App/App.components";
 import { useAtom } from "jotai";
-import React from "react";
+import React, { useEffect } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 import { AirdropConfirmation } from "./AirdropConfirmation";
@@ -22,6 +22,10 @@ export const App: React.FC = () => {
   const [confirmationState] = useAtom(confirmationAtom);
   const theme = getTheme("dark");
   const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
 
   return (
     <ThemeProvider theme={theme}>
