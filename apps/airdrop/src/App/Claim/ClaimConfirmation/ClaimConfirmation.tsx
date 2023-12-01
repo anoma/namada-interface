@@ -259,9 +259,6 @@ export const ClaimConfirmation: React.FC = () => {
                       label="Use this nonce in the CLI tool (Copy and paste this nonce)"
                       onChange={() => {}}
                     />
-                    <Text themeColor="primary" fontSize="sm">
-                      (Copy and paste this nonce)
-                    </Text>
                   </NonceContainer>
                   <PasteSignatureContainer>
                     <Input

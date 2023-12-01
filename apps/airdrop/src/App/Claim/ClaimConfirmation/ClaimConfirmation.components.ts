@@ -56,16 +56,9 @@ export const ButtonContainer = styled.footer`
 `;
 
 export const NonceContainer = styled.div`
-  align-items: center;
-  display: grid;
-  gap: ${spacement(4)};
-  grid-template-columns: 60% 40%;
-
   input {
     background-color: ${color("utility1", "main80")};
     color: ${color("primary", "main")};
-    padding-top: ${spacement(3)};
-    padding-bottom: ${spacement(3)};
   }
 `;
 
