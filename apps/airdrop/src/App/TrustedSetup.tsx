@@ -46,10 +46,10 @@ export const TrustedSetup: React.FC = () => {
       toast("Something went wrong, please try again later");
       return;
     } else if (!response.ok) {
-      toast(`Something went wrong: ${response.result.message}`);
+      toast(`Something went wrong: ${response.error.message}`);
       return;
     }
-    const { result } = response;
+    const { value: result } = response;
 
     if (result.eligible && result.has_claimed) {
       setConfirmation({

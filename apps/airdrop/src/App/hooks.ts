@@ -49,10 +49,10 @@ export const useMetamaskHandler = (
         toast("Something went wrong, please try again later");
         return;
       } else if (!response.ok) {
-        toast(`Something went wrong: ${response.result.message}`);
+        toast(`Something went wrong: ${response.error.message}`);
         return;
       }
-      const { result } = response;
+      const { value: result } = response;
 
       let signature;
       if (result.eligible && !result.has_claimed) {
@@ -123,10 +123,10 @@ export const useKeplrHandler = (
         toast("Something went wrong, please try again later");
         return;
       } else if (!response.ok) {
-        toast(`Something went wrong: ${response.result.message}`);
+        toast(`Something went wrong: ${response.error.message}`);
         return;
       }
-      const claim = response.result;
+      const claim = response.value;
 
       let signature;
       if (claim.eligible && !claim.has_claimed) {
@@ -180,10 +180,10 @@ export const useGithubHandler = (): ((code: string) => Promise<void>) => {
       toast("Something went wrong, please try again later");
       return;
     } else if (!response.ok) {
-      toast(`Something went wrong: ${response.result.message}`);
+      toast(`Something went wrong: ${response.error.message}`);
       return;
     }
-    const claim = response.result;
+    const claim = response.value;
 
     if (claim.eligible && claim.has_claimed) {
       setConfirmation({

@@ -1,3 +1,4 @@
+import { Result } from "@namada/utils";
 import { bech32m } from "bech32";
 import _toast, { Toast } from "react-simple-toasts";
 import { NavigateFunction } from "react-router-dom";
@@ -26,9 +27,7 @@ export const navigatePostCheck = (
 };
 
 type AirdropResponseErr = { message: string; code: number };
-export type AirdropResponse<T> =
-  | { ok: true; result: T }
-  | { ok: false; result: AirdropResponseErr };
+export type AirdropResponse<T> = Result<T, AirdropResponseErr>;
 
 export const airdropFetch = async <T>(
   input: RequestInfo | URL,
@@ -43,7 +42,9 @@ export const airdropFetch = async <T>(
   });
   const result = await response.json();
 
-  return response.ok ? { ok: true, result } : { ok: false, result };
+  return response.ok
+    ? { ok: true, value: result }
+    : { ok: false, error: result };
 };
 
 export const toast = (msg: string): Toast =>

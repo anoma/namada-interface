@@ -102,8 +102,9 @@ export const AirdropConfirmation: React.FC = () => {
 
   useEffect(() => {
     (async () => {
-      const { ok, result } = await getAllClaims(confirmation.address);
-      if (ok) {
+      const response = await getAllClaims(confirmation.address);
+      if (response.ok) {
+        const result = response.value;
         const totalMinNam = result.claims.reduce((acc, curr) => {
           return acc + curr.token;
         }, 0);
