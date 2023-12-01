@@ -46,7 +46,7 @@ export const TrustedSetup: React.FC = () => {
       toast("Something went wrong, please try again later");
       return;
     } else if (!response.ok) {
-      toast(response.result.message);
+      toast(`Something went wrong: ${response.result.message}`);
       return;
     }
     const { result } = response;

@@ -49,7 +49,7 @@ export const useMetamaskHandler = (
         toast("Something went wrong, please try again later");
         return;
       } else if (!response.ok) {
-        toast(response.result.message);
+        toast(`Something went wrong: ${response.result.message}`);
         return;
       }
       const { result } = response;
@@ -123,7 +123,7 @@ export const useKeplrHandler = (
         toast("Something went wrong, please try again later");
         return;
       } else if (!response.ok) {
-        toast(response.result.message);
+        toast(`Something went wrong: ${response.result.message}`);
         return;
       }
       const claim = response.result;
@@ -172,7 +172,7 @@ export const useGithubHandler = (): ((code: string) => Promise<void>) => {
       response = await checkGithubClaim(code);
     } catch (e) {
       console.error(e);
-      toast(`Something went wrong, please try again later, e: ${e}`);
+      toast(`Something went wrong, please try again later. Error: ${e}`);
       navigate("/", { replace: true });
     }
 
@@ -180,7 +180,7 @@ export const useGithubHandler = (): ((code: string) => Promise<void>) => {
       toast("Something went wrong, please try again later");
       return;
     } else if (!response.ok) {
-      toast(response.result.message);
+      toast(`Something went wrong: ${response.result.message}`);
       return;
     }
     const claim = response.result;
