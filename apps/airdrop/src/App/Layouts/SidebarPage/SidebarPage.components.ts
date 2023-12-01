@@ -1,4 +1,5 @@
 import { borderRadius, color, fontSize, spacement } from "@namada/utils";
+import { Warning } from "../../Common/Warning";
 import styled from "styled-components";
 
 export const SidebarPageGrid = styled.div`
@@ -67,20 +68,9 @@ export const MainContent = styled.article`
 
 export const MainContainer = styled.div``;
 
-export const ExtensionSecurityInfo = styled.div`
+export const ExtensionSecurityWarning = styled(Warning)`
+  padding: ${spacement(5)} ${spacement(22)};
+  gap: ${spacement(5)};
   border: 1px solid ${color("primary", "main")};
-  border-radius: ${borderRadius("lg")};
-  color: ${color("primary", "main")};
-  display: flex;
-  align-items: center;
-  padding: ${spacement(1)} ${spacement(24)};
-  gap: ${spacement(4)};
-
-  svg {
-    width: ${spacement(24)};
-  }
-
-  li {
-    margin-bottom: 0.5em;
-  }
+  line-height: 1.5;
 `;

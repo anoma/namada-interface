@@ -1,6 +1,6 @@
 import { ExternalPageIcon } from "App/Icons/ExternalPageIcon";
 import {
-  ExtensionSecurityInfo,
+  ExtensionSecurityWarning,
   IconWrap,
   MainContainer,
   MainContent,
@@ -17,6 +17,7 @@ import { GlobeIcon } from "App/Icons/GlobeIcon";
 import { InstallExtensionPanel } from "App/Common/InstallExtensionPanel";
 import { Stack } from "@namada/components";
 import { WarningIcon } from "App/Icons/WarningIcon";
+import { WarningList } from "App/Common/Warning";
 
 type SidebarPageProps = {
   children: React.ReactNode;
@@ -106,21 +107,13 @@ export const SidebarPage = ({
               create your NAM keys and add the public key to Namada genesis
               block proposal using “Claim NAM” button above
             </InstallExtensionPanel>
-            <ExtensionSecurityInfo>
-              <WarningIcon />
-              <ul>
-                <li>Make sure you back up your seed phrase in a safe place</li>
-                <li>
-                  No one from the Anoma Foundation, Heliax, or anyone else will
-                  be able to recover your seed phrase if you lose it
-                </li>
-                <li>
-                  Members of the Anoma Foundation, Heliax, or Namada community
-                  will never ask you to submit any seed phrase, private key, nor
-                  to transfer any tokens from any wallet
-                </li>
-              </ul>
-            </ExtensionSecurityInfo>
+            <ExtensionSecurityWarning
+              icon={<WarningIcon />}
+              iconWidth={"60px"}
+              orientation={"horizontal"}
+            >
+              <WarningList />
+            </ExtensionSecurityWarning>
           </Stack>
         )}
       </MainContainer>

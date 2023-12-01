@@ -14,6 +14,7 @@ import {
   Text,
   TextProps,
 } from "@namada/components";
+import { Warning, WarningProps } from "./Common/Warning";
 
 type GlobalStyleProps = {
   colorMode: ColorMode;
@@ -503,29 +504,20 @@ export const TableCell = styled.div<{
   text-overflow: ellipsis;
 `;
 
-export const Warning = styled.div<{
-  width?: string;
-  top: string;
-  left: string;
-}>`
+export const AirdropConfirmationWarning = styled(Warning)<
+  WarningProps & {
+    width: string;
+    top: string;
+    left: string;
+  }
+>`
   z-index: 20;
-  width: ${(props) => props.width || "auto"};
   position: absolute;
+  padding: ${spacement(5)} ${spacement(2)};
+  width: ${(props) => props.width};
   top: ${(props) => props.top};
   left: ${(props) => props.left};
-  display: flex;
   font-size: ${fontSize("sm")};
-  flex-direction: column;
-  border-radius: ${borderRadius("md")};
-  padding: ${spacement(5)} ${spacement(2)};
-  align-items: center;
-  color: ${color("primary", "main")};
-  background-color: ${color("utility1", "main")};
-
-  & > svg {
-    max-width: 60px;
-    margin: 0 auto ${spacement(2)};
-  }
 
   & ul {
     padding-left: ${spacement(5)};
@@ -535,10 +527,11 @@ export const Warning = styled.div<{
     padding: ${spacement(2)} 0;
     fontsize: ${fontSize("sm")};
   }
-`;
 
-export const WarningIconContainer = styled.div`
-  width: 60px;
+  & svg {
+    max-width: 60px;
+    margin: 0 auto ${spacement(2)};
+  }
 `;
 
 // TSEligibility.components

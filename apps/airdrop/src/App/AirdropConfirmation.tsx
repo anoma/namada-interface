@@ -18,6 +18,7 @@ import {
   AirdropConfirmationPool,
   AirdropConfirmationPoolTop,
   AirdropConfirmationSection,
+  AirdropConfirmationWarning,
   AnotherWaysSection,
   GlobalStyles,
   IconContainer,
@@ -25,7 +26,6 @@ import {
   TableCell,
   TableHeader,
   TableRow,
-  Warning,
 } from "./App.components";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ClaimCategory, getAllClaims } from "./hooks";
@@ -41,6 +41,7 @@ import { WarningIcon } from "./Icons/WarningIcon";
 import { PageFooter } from "./Common/PageFooter";
 import { iconsOnMouseMovement } from "./animations";
 import { CommunityFooter } from "./Common/CommunityFooter";
+import { WarningList } from "./Common/Warning";
 
 const categoryAccountTypeMap: Record<ClaimCategory, string> = {
   Github: "Github",
@@ -172,22 +173,16 @@ export const AirdropConfirmation: React.FC = () => {
         </AirdropConfirmationSection>
       </AirdropConfirmationMainSection>
 
-      {/* TODO: move to shared component */}
-      <Warning width={"255px"} top={"80px"} left={"calc(50% - 640px)"}>
-        <WarningIcon />
-        <ul>
-          <li>Make sure you back up your seed phrase in a safe place</li>
-          <li>
-            No one from the Anoma Foundation, Heliax, or anyone else will be
-            able to recover your seed phrase if you lose it
-          </li>
-          <li>
-            Members of the Anoma Foundation, Heliax, or Namada community will
-            never ask you to submit any seed phrase, private key, nor to
-            transfer any tokens from any wallet
-          </li>
-        </ul>
-      </Warning>
+      <AirdropConfirmationWarning
+        width={"255px"}
+        top={"80px"}
+        left={"calc(50% - 640px)"}
+        icon={<WarningIcon />}
+        iconWidth={"60px"}
+        orientation={"vertical"}
+      >
+        <WarningList />
+      </AirdropConfirmationWarning>
 
       <AirdropConfirmationPool>
         <PoolSvg />
