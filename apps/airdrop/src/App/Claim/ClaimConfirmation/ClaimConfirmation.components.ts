@@ -1,3 +1,4 @@
+import { Input } from "@namada/components";
 import { borderRadius, color, fontSize, spacement } from "@namada/utils";
 import styled from "styled-components";
 
@@ -36,6 +37,12 @@ export const ClaimSectionContainer = styled.section<{ active: boolean }>`
 
   label {
     color: ${color("primary", "main")};
+  }
+`;
+
+export const ClaimInputWrapper = styled.div`
+  & input {
+    padding-right: ${spacement(26)};
   }
 `;
 

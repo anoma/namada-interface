@@ -30,6 +30,7 @@ import {
   ButtonContainer,
   ClaimBadge,
   ClaimHeading,
+  ClaimInputWrapper,
   ClaimSectionContainer,
   ClaimsSection,
   InputActionButton,
@@ -251,7 +252,7 @@ export const ClaimConfirmation: React.FC = () => {
                       </Text>
                     </StepHeader>
                   </div>
-                  <NonceContainer>
+                  <NonceContainer title={(claimState as TSState).nonce}>
                     <Input
                       theme="primary"
                       variant={InputVariants.ReadOnlyCopy}
@@ -260,7 +261,7 @@ export const ClaimConfirmation: React.FC = () => {
                       onChange={() => {}}
                     />
                   </NonceContainer>
-                  <PasteSignatureContainer>
+                  <PasteSignatureContainer title={tsSignature}>
                     <Input
                       theme="primary"
                       variant={InputVariants.Text}
@@ -284,74 +285,78 @@ export const ClaimConfirmation: React.FC = () => {
                 block proposal
               </Text>
               <Stack gap={4}>
-                <Input
-                  theme={airdropPubKeyValid ? "secondary" : "primary"}
-                  variant={InputVariants.Text}
-                  value={airdropPubKey}
-                  error={
-                    airdropPubKey.length > 0 && !airdropPubKeyValid
-                      ? "Invalid public key. Make sure you're providing a Namada public key starting with the `tpknam1` prefix."
-                      : ""
-                  }
-                  onChange={(e) => {
-                    const { value: publicKey } = e.target;
-                    setAirdropPubKey(publicKey);
-                  }}
-                  label="Namada public key"
-                  placeholder="Enter your Namada public key (tpknam1…)"
-                >
-                  <InputActionButton
-                    title={
-                      !namada && !airdropAddress
-                        ? "Please download the Namada extension first"
+                <ClaimInputWrapper title={airdropPubKey}>
+                  <Input
+                    theme={airdropPubKeyValid ? "secondary" : "primary"}
+                    variant={InputVariants.Text}
+                    value={airdropPubKey}
+                    error={
+                      airdropPubKey.length > 0 && !airdropPubKeyValid
+                        ? "Invalid public key. Make sure you're providing a Namada public key starting with the `tpknam1` prefix."
                         : ""
                     }
+                    onChange={(e) => {
+                      const { value: publicKey } = e.target;
+                      setAirdropPubKey(publicKey);
+                    }}
+                    label="Namada public key"
+                    placeholder="Enter your Namada public key (tpknam1…)"
                   >
-                    <ActionButton
-                      disabled={!namada && !airdropPubKey}
-                      size="sm"
-                      variant="primary"
-                      hoverColor="secondary"
-                      onClick={importPublicKey}
+                    <InputActionButton
+                      title={
+                        !namada && !airdropAddress
+                          ? "Please download the Namada extension first"
+                          : ""
+                      }
                     >
-                      {airdropPubKey ? "Clear" : "Import from extension"}
-                    </ActionButton>
-                  </InputActionButton>
-                </Input>
-                <Input
-                  variant={InputVariants.Text}
-                  value={airdropAddress}
-                  theme={airdropAddressValid ? "secondary" : "primary"}
-                  label="Namada transparent address"
-                  placeholder="Enter your Namada transparent address (tnam1…)"
-                  error={
-                    airdropAddress.length > 0 && !airdropAddressValid
-                      ? "Invalid transparent address. Make sure you're providing an address starting with the 'tnam1' prefix."
-                      : ""
-                  }
-                  onChange={(e) => {
-                    const { value: airdropAddress } = e.target;
-                    setAirdropAddress(airdropAddress);
-                  }}
-                >
-                  <InputActionButton
-                    title={
-                      !namada && !airdropAddress
-                        ? "Please download the Namada extension first"
+                      <ActionButton
+                        disabled={!namada && !airdropPubKey}
+                        size="sm"
+                        variant="primary"
+                        hoverColor="secondary"
+                        onClick={importPublicKey}
+                      >
+                        {airdropPubKey ? "Clear" : "Import from extension"}
+                      </ActionButton>
+                    </InputActionButton>
+                  </Input>
+                </ClaimInputWrapper>
+                <ClaimInputWrapper title={airdropAddress}>
+                  <Input
+                    variant={InputVariants.Text}
+                    value={airdropAddress}
+                    theme={airdropAddressValid ? "secondary" : "primary"}
+                    label="Namada transparent address"
+                    placeholder="Enter your Namada transparent address (tnam1…)"
+                    error={
+                      airdropAddress.length > 0 && !airdropAddressValid
+                        ? "Invalid transparent address. Make sure you're providing an address starting with the 'tnam1' prefix."
                         : ""
                     }
+                    onChange={(e) => {
+                      const { value: airdropAddress } = e.target;
+                      setAirdropAddress(airdropAddress);
+                    }}
                   >
-                    <ActionButton
-                      disabled={!namada && !airdropAddress}
-                      size="sm"
-                      variant="primary"
-                      hoverColor="secondary"
-                      onClick={importAirdropAddress}
+                    <InputActionButton
+                      title={
+                        !namada && !airdropAddress
+                          ? "Please download the Namada extension first"
+                          : ""
+                      }
                     >
-                      {airdropAddress ? "Clear" : "Import from extension"}
-                    </ActionButton>
-                  </InputActionButton>
-                </Input>
+                      <ActionButton
+                        disabled={!namada && !airdropAddress}
+                        size="sm"
+                        variant="primary"
+                        hoverColor="secondary"
+                        onClick={importAirdropAddress}
+                      >
+                        {airdropAddress ? "Clear" : "Import from extension"}
+                      </ActionButton>
+                    </InputActionButton>
+                  </Input>
+                </ClaimInputWrapper>
               </Stack>
             </Stack>
             <TermsContainer>

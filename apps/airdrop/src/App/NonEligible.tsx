@@ -56,7 +56,7 @@ export const NonEligible: React.FC = () => {
             {label && (
               <>
                 <div>{labelTextMap[label.type]}</div>
-                <WalletAddress>{label.value}</WalletAddress>
+                <WalletAddress value={label.value} />
               </>
             )}
           </article>
