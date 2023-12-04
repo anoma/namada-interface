@@ -16,6 +16,7 @@ export type ComponentProps = {
   hint?: string | React.ReactNode;
   theme?: ThemeColor;
   hideIcon?: boolean;
+  children?: React.ReactNode;
 };
 
 export type InputProps = React.ComponentPropsWithoutRef<"input">;

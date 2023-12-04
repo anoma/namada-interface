@@ -14,9 +14,8 @@ import {
   SubmitWithdrawMsgValue,
   TransferMsgValue,
   TxMsgValue,
-  SupportedTx,
 } from "@namada/types";
-import { TxType } from "@namada/shared";
+import { TxType, SupportedTx } from "@namada/shared";
 import { KVStore } from "@namada/storage";
 
 import { KeyRingService, TabStore } from "background/keyring";
@@ -52,7 +51,7 @@ export class ApprovalsService {
     protected readonly keyRingService: KeyRingService,
     protected readonly ledgerService: LedgerService,
     protected readonly vaultService: VaultService
-  ) { }
+  ) {}
 
   async approveTx(
     txType: SupportedTx,
@@ -73,18 +72,18 @@ export class ApprovalsService {
       txType === TxType.Bond
         ? ApprovalsService.getParamsBond
         : txType === TxType.Unbond
-          ? ApprovalsService.getParamsUnbond
-          : txType === TxType.Withdraw
-            ? ApprovalsService.getParamsWithdraw
-            : txType === TxType.Transfer
-              ? ApprovalsService.getParamsTransfer
-              : txType === TxType.IBCTransfer
-                ? ApprovalsService.getParamsIbcTransfer
-                : txType === TxType.EthBridgeTransfer
-                  ? ApprovalsService.getParamsEthBridgeTransfer
-                  : txType === TxType.VoteProposal
-                    ? ApprovalsService.getParamsVoteProposal
-                    : assertNever(txType);
+        ? ApprovalsService.getParamsUnbond
+        : txType === TxType.Withdraw
+        ? ApprovalsService.getParamsWithdraw
+        : txType === TxType.Transfer
+        ? ApprovalsService.getParamsTransfer
+        : txType === TxType.IBCTransfer
+        ? ApprovalsService.getParamsIbcTransfer
+        : txType === TxType.EthBridgeTransfer
+        ? ApprovalsService.getParamsEthBridgeTransfer
+        : txType === TxType.VoteProposal
+        ? ApprovalsService.getParamsVoteProposal
+        : assertNever(txType);
 
     const baseUrl = `${browser.runtime.getURL(
       "approvals.html"
@@ -252,18 +251,18 @@ export class ApprovalsService {
       txType === TxType.Bond
         ? this.keyRingService.submitBond
         : txType === TxType.Unbond
-          ? this.keyRingService.submitUnbond
-          : txType === TxType.Transfer
-            ? this.keyRingService.submitTransfer
-            : txType === TxType.IBCTransfer
-              ? this.keyRingService.submitIbcTransfer
-              : txType === TxType.EthBridgeTransfer
-                ? this.keyRingService.submitEthBridgeTransfer
-                : txType === TxType.Withdraw
-                  ? this.keyRingService.submitWithdraw
-                  : txType === TxType.VoteProposal
-                    ? this.keyRingService.submitVoteProposal
-                    : assertNever(txType);
+        ? this.keyRingService.submitUnbond
+        : txType === TxType.Transfer
+        ? this.keyRingService.submitTransfer
+        : txType === TxType.IBCTransfer
+        ? this.keyRingService.submitIbcTransfer
+        : txType === TxType.EthBridgeTransfer
+        ? this.keyRingService.submitEthBridgeTransfer
+        : txType === TxType.Withdraw
+        ? this.keyRingService.submitWithdraw
+        : txType === TxType.VoteProposal
+        ? this.keyRingService.submitVoteProposal
+        : assertNever(txType);
 
     await submitFn.call(this.keyRingService, specificMsg, txMsg, msgId);
 

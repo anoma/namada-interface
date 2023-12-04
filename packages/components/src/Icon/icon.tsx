@@ -25,6 +25,7 @@ import { ReactComponent as ThreeDotsVertical } from "./assets/three-dots-vertica
 import { ReactComponent as Discord } from "./assets/discord.svg";
 import { ReactComponent as TwitterX } from "./assets/twitter.svg";
 import { ReactComponent as QuestionMark } from "./assets/question.svg";
+import { ReactComponent as Close } from "./assets/close.svg";
 
 import { IconName, IconSize } from "./types";
 import { IconContainer, StyledIcon } from "./icon.components";
@@ -38,6 +39,8 @@ export type ImageProps = {
   strokeColorOverride?: string;
   // for certain icons we might want to override the fill
   fillColorOverride?: string;
+  // to wrap Icon in styled component
+  className?: string;
 };
 
 // dark theme icons
@@ -68,6 +71,7 @@ const icons: Record<IconName, ComponentType> = {
   [IconName.Discord]: Discord,
   [IconName.TwitterX]: TwitterX,
   [IconName.QuestionMark]: QuestionMark,
+  [IconName.Close]: Close,
 };
 
 /**
@@ -81,10 +85,11 @@ export const Icon = (props: ImageProps): JSX.Element => {
     iconSize = IconSize.M,
     strokeColorOverride,
     fillColorOverride,
+    className,
   } = props;
   const ImageByName = icons[iconName];
   return (
-    <IconContainer>
+    <IconContainer className={className}>
       <StyledIcon
         as={ImageByName}
         $iconSize={iconSize}

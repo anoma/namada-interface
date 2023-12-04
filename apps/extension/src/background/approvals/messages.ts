@@ -1,6 +1,6 @@
 import { Message } from "router";
 import { ROUTE } from "./constants";
-import { SupportedTx } from "@namada/types";
+import { SupportedTx } from "@namada/shared";
 
 import { validateProps } from "utils";
 

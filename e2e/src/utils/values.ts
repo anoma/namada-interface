@@ -1,3 +1,4 @@
+// column banana aunt acquire dolphin fruit fever rent dawn divert book amateur
 export const mnemonic = [
   "column",
   "banana",

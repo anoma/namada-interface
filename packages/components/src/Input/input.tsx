@@ -24,6 +24,7 @@ export const Input = ({
   theme,
   hideIcon = false,
   sensitive = false,
+  children,
   ...props
 }: Props): JSX.Element => {
   const [passwordShown, setPasswordShown] = useState(false);
@@ -90,7 +91,7 @@ export const Input = ({
   );
 
   return (
-    <Label>
+    <Label className={props.className}>
       {label && <LabelWrapper>{label}</LabelWrapper>}
       <InputWrapper>
         {sensitive ? (
@@ -99,6 +100,7 @@ export const Input = ({
           field
         )}
         {!hideIcon && icon}
+        {children}
       </InputWrapper>
       {<ErrorTooltip>{error}</ErrorTooltip>}
       {<HintTooltip>{hint}</HintTooltip>}

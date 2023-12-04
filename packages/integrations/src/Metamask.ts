@@ -27,7 +27,7 @@ type MetamaskWindow = Window &
 
 class Metamask implements Integration<Account, unknown> {
   private _ethereum: MetaMaskInpageProvider | undefined;
-  constructor(public readonly chain: Chain) { }
+  constructor(public readonly chain: Chain) {}
 
   private init(): void {
     if ((<MetamaskWindow>window).ethereum) {

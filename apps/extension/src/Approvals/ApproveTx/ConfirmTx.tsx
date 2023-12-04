@@ -9,7 +9,7 @@ import {
 } from "@namada/components";
 import { shortenAddress } from "@namada/utils";
 import { TxType, TxTypeLabel } from "@namada/shared";
-import { SupportedTx } from "@namada/types";
+import { SupportedTx } from "@namada/shared";
 
 import { ApprovalDetails, Status } from "Approvals/Approvals";
 import {

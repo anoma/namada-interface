@@ -173,6 +173,8 @@ export type FontSize = {
   "3xl": string;
   "4xl": string;
   "5xl": string;
+  "6xl": string;
+  "7xl": string;
 };
 
 export type ColorMode = "light" | "dark";
@@ -252,10 +254,10 @@ const namadaLightColors: Colors = {
   },
   secondary: {
     main: "#11DFDF",
-    main80: "#41E5E5",
-    main60: "#70ECEC",
-    main40: "#A0F2F2",
-    main20: "#CFF9F9",
+    main80: "#11DFDF",
+    main60: "#0DABAB",
+    main40: "#097777",
+    main20: "#054343",
   },
   tertiary: {
     main: "#11DFDF",
@@ -409,10 +411,12 @@ const baseFontSizes: FontSize = {
   sm: "0.9rem",
   base: "1rem",
   xl: "1.15rem",
-  "2xl": "1.33rem",
+  "2xl": "1.5rem",
   "3xl": "2rem",
   "4xl": "2.25rem",
   "5xl": "2.85rem",
+  "6xl": "3.25rem",
+  "7xl": "4rem",
 };
 
 const containerSizes: ContainerSize = {

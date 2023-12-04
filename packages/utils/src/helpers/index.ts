@@ -1,3 +1,4 @@
+import { bech32m } from "bech32";
 import { JsonRpcRequest } from "@cosmjs/json-rpc";
 import { DateTime } from "luxon";
 import BigNumber from "bignumber.js";
@@ -256,5 +257,24 @@ export const isEmptyObject = (object: Record<string, unknown>): boolean => {
 export const copyToClipboard = (value: string): void => {
   if (typeof navigator !== "undefined") {
     navigator.clipboard.writeText(value);
+  }
+};
+
+/**
+  Checks if a string is a valid bech32m address with the expected prefix
+ *
+ * @param {string} expectedPrefix
+ * @param {string} value
+ * @returns {string}
+ */
+export const bech32mValidation = (
+  expectedPrefix: string,
+  value: string
+): boolean => {
+  try {
+    const { prefix } = bech32m.decode(value);
+    return prefix === expectedPrefix;
+  } catch (e) {
+    return false;
   }
 };

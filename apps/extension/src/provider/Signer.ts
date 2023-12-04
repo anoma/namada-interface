@@ -20,15 +20,14 @@ import {
   TxProps,
   TxMsgValue,
   Schema,
-  SupportedTx,
   SubmitVoteProposalProps,
   SubmitVoteProposalMsgValue,
 } from "@namada/types";
-import { TxType } from "@namada/shared";
+import { TxType, SupportedTx } from "@namada/shared";
 import { defaultChainId } from "@namada/chains";
 
 export class Signer implements ISigner {
-  constructor(private readonly _namada: Namada) { }
+  constructor(private readonly _namada: Namada) {}
 
   public async accounts(): Promise<Account[] | undefined> {
     return (await this._namada.accounts())?.map(

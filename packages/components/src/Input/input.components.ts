@@ -10,6 +10,7 @@ import {
 
 type FieldProps = {
   inputTheme?: ThemeColor;
+  transparent?: boolean;
   hasIcon?: boolean;
   error: boolean;
 };
