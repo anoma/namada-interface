@@ -7,7 +7,7 @@ use crate::{
     utils::{set_panic_hook, to_bytes},
 };
 use borsh::BorshDeserialize;
-use namada::ledger::eth_bridge::bridge_pool::build_bridge_pool_tx;
+use namada::ledger::{eth_bridge::bridge_pool::build_bridge_pool_tx, pos::common::SecretKey};
 use namada::namada_sdk::masp::ShieldedContext;
 use namada::namada_sdk::rpc::query_epoch;
 use namada::namada_sdk::signing::{default_sign, sign_tx, SigningTxData};
@@ -139,13 +139,23 @@ impl Sdk {
         wallet::add_spending_key(&mut self.wallet, xsk, password, alias)
     }
 
-    pub async fn sign_tx(&mut self, built_tx: BuiltTx, tx_msg: &[u8]) -> Result<JsValue, JsError> {
+    pub async fn sign_tx(
+        &mut self,
+        built_tx: BuiltTx,
+        tx_msg: &[u8],
+        secret: String,
+    ) -> Result<JsValue, JsError> {
         let BuiltTx {
             mut tx,
             signing_data,
         } = built_tx;
 
         let mut args = tx::tx_args_from_slice(tx_msg)?;
+
+        // Append signing key to args, appending prefix to support encoding
+        let signing_key = SecretKey::from_str(&format!("{}{}", "00", secret))?;
+        args.signing_keys = vec![signing_key];
+
         // We only support one signer(for now)
         let pk = &signing_data
             .public_keys
