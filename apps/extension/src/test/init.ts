@@ -42,7 +42,7 @@ const cryptoMemory = require("@namada/crypto").__wasm.memory;
 export class KVStoreMock<T> implements KVStore<T> {
   private storage: { [key: string]: T | null } = {};
 
-  constructor(readonly _prefix: string) { }
+  constructor(readonly _prefix: string) {}
 
   get<U extends T>(key: string): Promise<U | undefined> {
     return new Promise((resolve) => {
@@ -74,7 +74,6 @@ export const init = async (): Promise<{
   const sessionStore = new KVStoreMock<SessionPassword>(
     KVPrefix.SessionStorage
   );
-  const sdkStore = new KVStoreMock<Record<string, string>>(KVPrefix.SDK);
   const extStore = new KVStoreMock<number>(KVPrefix.IndexedDB);
   const utilityStore = new KVStoreMock<UtilityStore>(KVPrefix.Utility);
   const connectedTabsStore = new KVStoreMock<TabStore[]>(
@@ -112,7 +111,6 @@ export const init = async (): Promise<{
 
   const keyRingService = new KeyRingService(
     vaultService,
-    sdkStore,
     utilityStore,
     connectedTabsStore,
     extStore,
@@ -126,7 +124,6 @@ export const init = async (): Promise<{
   const ledgerService = new LedgerService(
     keyRingService,
     iDBStore as KVStore<AccountStore[]>,
-    sdkStore,
     connectedTabsStore,
     txStore,
     revealedPKStore,

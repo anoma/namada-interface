@@ -116,25 +116,6 @@ impl Sdk {
         Ok(())
     }
 
-    pub fn encode(&self) -> Vec<u8> {
-        wallet::encode(&self.wallet)
-    }
-
-    pub fn decode(&mut self, data: Vec<u8>) -> Result<(), JsError> {
-        let wallet = wallet::decode(data)?;
-        self.wallet = wallet;
-        Ok(())
-    }
-
-    pub fn clear_storage(&mut self) -> Result<(), JsError> {
-        self.wallet = Wallet::new(BrowserWalletUtils {}, Store::default());
-        Ok(())
-    }
-
-    pub fn add_key(&mut self, private_key: &str, password: Option<String>, alias: Option<String>) {
-        wallet::add_key(&mut self.wallet, private_key, password, alias)
-    }
-
     pub fn add_spending_key(&mut self, xsk: &str, password: Option<String>, alias: &str) {
         wallet::add_spending_key(&mut self.wallet, xsk, password, alias)
     }
