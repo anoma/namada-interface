@@ -7,11 +7,9 @@ type Props = {
   children: React.ReactNode;
 };
 export const FaqDropdown: React.FC<Props> = ({ children, title }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isInitial, setIsInitial] = useState(true);
+  const [isOpen, setIsOpen] = useState<boolean | null>(null);
 
   const handleToggle = (): void => {
-    setIsInitial(false);
     setIsOpen((prevIsOpen) => !prevIsOpen);
   };
 
@@ -21,10 +19,10 @@ export const FaqDropdown: React.FC<Props> = ({ children, title }) => {
         <DropDownTitleText>
           {title}
         </DropDownTitleText>
-        <PlusIcon src={plusIcon} isOpen={isOpen} isInitial={isInitial} />
+        <PlusIcon src={plusIcon} isOpen={isOpen} />
       </DropDownTitle>
 
-      <FaqDropdownContent isOpen={isOpen} isInitial={isInitial}>{children}</FaqDropdownContent>
+      <FaqDropdownContent isOpen={isOpen}>{children}</FaqDropdownContent>
        
     </FaqDropdownContainer>
   );

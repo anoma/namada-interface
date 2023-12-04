@@ -38,10 +38,10 @@ const collapse = keyframes`
     max-height: 0;
   }
 `;
-export const FaqDropdownContent = styled.div<{ isOpen: boolean, isInitial: boolean }>`
+export const FaqDropdownContent = styled.div<{ isOpen: boolean | null }>`
   overflow: hidden; /* Ensure content doesn't overflow during animation */
   margin-top: 8px;
-  ${({ isOpen, isInitial }) => {
+  ${({ isOpen }) => {
     const toggleAnimation = isOpen ? 
     css`
       max-height: 200px;
@@ -50,7 +50,7 @@ export const FaqDropdownContent = styled.div<{ isOpen: boolean, isInitial: boole
       max-height: 0px;
       animation: ${collapse} 0.35s ease-out;
     `;
-    return isInitial ? css`max-height: 0px;` : toggleAnimation
+    return isOpen === null ? css`max-height: 0px;` : toggleAnimation
   }}  
 `;
 
@@ -100,12 +100,12 @@ const reverseRotateAnimation = keyframes`
   to {
     transform: rotate(0deg);
   }`
-export const PlusIcon = styled.img<{ isOpen: boolean; isInitial: boolean }>`
+export const PlusIcon = styled.img<{ isOpen: boolean | null}>`
   width: 24px;
-  ${({ isOpen, isInitial }) => {
+  ${({ isOpen }) => {
     const rotateAnimationCss = isOpen 
     ? css`animation: ${rotateAnimation} 0.2s ease-in-out forwards;` : css`animation: ${reverseRotateAnimation} 0.2s ease-in-out forwards;`;
-    return isInitial ? '': rotateAnimationCss;
+    return isOpen === null  ? '': rotateAnimationCss;
   }}`;
 
 
