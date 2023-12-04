@@ -1,4 +1,3 @@
-import { Input } from "@namada/components";
 import { borderRadius, color, fontSize, spacement } from "@namada/utils";
 import styled from "styled-components";
 
