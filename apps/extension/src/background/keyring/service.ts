@@ -38,7 +38,6 @@ export class KeyRingService {
   constructor(
     //protected readonly kvStore: KVStore<KeyStore[]>,
     protected readonly vaultService: VaultService,
-    protected readonly sdkStore: KVStore<Record<string, string>>,
     protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
     protected readonly extensionStore: KVStore<number>,
@@ -50,7 +49,6 @@ export class KeyRingService {
   ) {
     this._keyRing = new KeyRing(
       vaultService,
-      sdkStore,
       utilityStore,
       extensionStore,
       sdk,
@@ -441,10 +439,6 @@ export class KeyRingService {
       address
     );
     return this._keyRing.queryBalances(account.public.owner);
-  }
-
-  async initSdkStore(): Promise<void> {
-    return await this._keyRing.initSdkStore();
   }
 
   async queryPublicKey(address: string): Promise<string | undefined> {

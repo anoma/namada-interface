@@ -1,9 +1,7 @@
 import { defaultChainId, chains } from "@namada/chains";
 import { Sdk } from "@namada/shared";
 import { init as initShared } from "@namada/shared/src/init";
-import { IndexedDBKVStore } from "@namada/storage";
 import { fromBase64 } from "@cosmjs/encoding";
-import { KVPrefix } from "router";
 import {
   INIT_MSG,
   SubmitTransferMessageData,
@@ -11,27 +9,11 @@ import {
   TRANSFER_SUCCESSFUL_MSG,
   WEB_WORKER_ERROR_MSG,
 } from "./types";
-import { ActiveAccountStore } from "background/keyring";
 
 (async function init() {
   await initShared();
-  const sdkStore = new IndexedDBKVStore(KVPrefix.SDK);
-  const utilityStore = new IndexedDBKVStore(KVPrefix.Utility);
   const sdk = new Sdk(chains[defaultChainId].rpc);
   await sdk.load_masp_params();
-
-  //TODO: import sdk-store and parent-account-id keys - can't import from the keyring
-  const sdkData: Record<string, string> | undefined = await sdkStore.get(
-    "sdk-store"
-  );
-  const activeAccount = await utilityStore.get<ActiveAccountStore>(
-    "parent-account-id"
-  );
-
-  if (sdkData && activeAccount) {
-    const data = new TextEncoder().encode(sdkData[activeAccount.id]);
-    sdk.decode(data);
-  }
 
   addEventListener(
     "message",

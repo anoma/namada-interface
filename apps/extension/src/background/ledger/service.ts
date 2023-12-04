@@ -19,14 +19,13 @@ export class LedgerService {
   constructor(
     protected readonly keyringService: KeyRingService,
     protected readonly kvStore: KVStore<AccountStore[]>,
-    protected readonly sdkStore: KVStore<Record<string, string>>,
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
     protected readonly txStore: KVStore<TxStore>,
     protected readonly revealedPKStore: KVStore<string[]>,
     protected readonly sdk: Sdk,
     protected readonly requester: ExtensionRequester,
     protected readonly broadcaster: ExtensionBroadcaster
-  ) { }
+  ) {}
 
   async getRevealPKBytes(
     txMsg: string
