@@ -21,12 +21,7 @@ import {
 } from "extension";
 import { Ports, KVPrefix } from "router";
 import { ApprovalsService, init as initApprovals } from "./approvals";
-import {
-  KeyRingService,
-  init as initKeyRing,
-  SDK_KEY,
-  UtilityStore,
-} from "./keyring";
+import { KeyRingService, init as initKeyRing, UtilityStore } from "./keyring";
 import { LedgerService, init as initLedger } from "./ledger";
 import { VaultService, init as initVault } from "./vault";
 
@@ -34,7 +29,6 @@ const store = new IndexedDBKVStore(KVPrefix.IndexedDB);
 const sessionStore = new SessionKVStore(KVPrefix.SessionStorage);
 const utilityStore = new IndexedDBKVStore<UtilityStore>(KVPrefix.Utility);
 // TODO: For now we will be running two stores side by side
-const sdkStore = new IndexedDBKVStore(KVPrefix.SDK);
 const extensionStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
   get: browser.storage.local.get,
   set: browser.storage.local.set,
@@ -78,13 +72,6 @@ const init = new Promise<void>(async (resolve) => {
   const sdk = new Sdk(NamadaRpcEndpoint);
   const query = new Query(NamadaRpcEndpoint);
 
-  const sdkData: string | undefined = await sdkStore.get(SDK_KEY);
-
-  if (sdkData) {
-    const data = new TextEncoder().encode(sdkData);
-    sdk.decode(data);
-  }
-
   const routerId = await getNamadaRouterId(extensionStore);
   const requester = new ExtensionRequester(messenger, routerId);
   const broadcaster = new ExtensionBroadcaster(connectedTabsStore, requester);
@@ -97,7 +84,6 @@ const init = new Promise<void>(async (resolve) => {
   );
   const keyRingService = new KeyRingService(
     vaultService,
-    sdkStore,
     utilityStore,
     connectedTabsStore,
     extensionStore,
@@ -110,7 +96,6 @@ const init = new Promise<void>(async (resolve) => {
   const ledgerService = new LedgerService(
     keyRingService,
     store,
-    sdkStore,
     connectedTabsStore,
     txStore,
     revealedPKStore,

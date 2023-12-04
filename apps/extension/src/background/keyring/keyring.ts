@@ -24,8 +24,11 @@ import {
   AccountType,
   Bip44Path,
   DerivedAccount,
+  EthBridgeTransferMsgValue,
+  IbcTransferMsgValue,
   SubmitBondMsgValue,
   SubmitUnbondMsgValue,
+  SubmitVoteProposalMsgValue,
   SubmitWithdrawMsgValue,
   TransferMsgValue,
 } from "@namada/types";
@@ -55,7 +58,6 @@ import { generateId } from "utils";
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
 
 export const KEYSTORE_KEY = "key-store";
-export const SDK_KEY = "sdk-store";
 export const PARENT_ACCOUNT_ID_KEY = "parent-account-id";
 export const AUTHKEY_KEY = "auth-key-store";
 
@@ -74,7 +76,6 @@ export class KeyRing {
 
   constructor(
     protected readonly vaultService: VaultService,
-    protected readonly sdkStore: KVStore<string>,
     protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly extensionStore: KVStore<number>,
     protected readonly sdk: Sdk,
@@ -95,12 +96,6 @@ export class KeyRing {
     type: AccountType.Mnemonic | AccountType.Ledger
   ): Promise<void> {
     await this.utilityStore.set(PARENT_ACCOUNT_ID_KEY, { id, type });
-
-    // To sync sdk wallet with DB
-    const sdkData = await this.sdkStore.get(SDK_KEY);
-    if (sdkData) {
-      this.sdk.decode(new TextEncoder().encode(sdkData));
-    }
   }
 
   public validateMnemonic(phrase: string): MnemonicValidationResponse {
@@ -151,9 +146,6 @@ export class KeyRing {
       { text: "" }
     );
 
-    // Prepare SDK store
-    // this.sdk.clear_storage();
-    // await this.initSdkStore();
     await this.setActiveAccount(id, AccountType.Ledger);
     return accountStore;
   }
@@ -259,15 +251,6 @@ export class KeyRing {
       KEYSTORE_KEY,
       accountStore,
       sensitiveData
-    );
-
-    // When we are adding new top level account we have to clear the storage
-    // to prevent adding top level secret key to existing keys
-    this.sdk.clear_storage();
-    await this.addSecretKey(
-      sk,
-      await this.vaultService.UNSAFE_getPassword(),
-      alias
     );
     await this.setActiveAccount(id, AccountType.Mnemonic);
     return accountStore;
@@ -537,17 +520,6 @@ export class KeyRing {
       alias,
       info
     );
-
-    const addSecretFn = (
-      type === AccountType.PrivateKey ? this.addSecretKey : this.addSpendingKey
-    ).bind(this);
-
-    await addSecretFn(
-      info.text,
-      await this.vaultService.UNSAFE_getPassword(),
-      alias
-    );
-
     return derivedAccount;
   }
 
@@ -759,10 +731,16 @@ export class KeyRing {
         txMsg,
         await this.vaultService.UNSAFE_getPassword()
       );
+      const { signer } = deserialize(
+        Buffer.from(voteProposalMsg),
+        SubmitVoteProposalMsgValue
+      );
+      const secret = await this.getSigningKey(signer);
+
       const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(
         builtTx,
         txMsg,
-        "TODO"
+        secret
       );
       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
     } catch (e) {
@@ -812,10 +790,16 @@ export class KeyRing {
         txMsg,
         await this.vaultService.UNSAFE_getPassword()
       );
+      const { source } = deserialize(
+        Buffer.from(ibcTransferMsg),
+        IbcTransferMsgValue
+      );
+      const secret = await this.getSigningKey(source);
+
       const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(
         builtTx,
         txMsg,
-        "TODO"
+        secret
       );
       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
     } catch (e) {
@@ -834,10 +818,16 @@ export class KeyRing {
         txMsg,
         await this.vaultService.UNSAFE_getPassword()
       );
+      const { sender } = deserialize(
+        Buffer.from(ethBridgeTransferMsg),
+        EthBridgeTransferMsgValue
+      );
+      const secret = await this.getSigningKey(sender);
+
       const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(
         builtTx,
         txMsg,
-        "TODO"
+        secret
       );
       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
     } catch (e) {
@@ -879,21 +869,6 @@ export class KeyRing {
         (await this.vaultService.remove<AccountStore>(KEYSTORE_KEY, "id", id));
     }
 
-    // remove account from sdk store
-    // const records = await this.sdkStore.get(SDK_KEY);
-    // if (records) {
-    //   const updatedRecords = Object.keys(records).reduce((acc, recordId) => {
-    //     if (accountIds.indexOf(recordId) >= 0) return acc;
-    //     return {
-    //       ...acc,
-    //       [recordId]: records[recordId],
-    //     };
-    //   }, {});
-    //
-    //   await this.sdkStore.set(SDK_KEY, updatedRecords);
-    // await this.sdkStore.remove
-    // }
-
     return Result.ok(null);
   }
 
@@ -913,35 +888,5 @@ export class KeyRing {
       console.error(e);
       return [];
     }
-  }
-
-  private async addSecretKey(
-    secretKey: string,
-    password: string,
-    alias: string
-  ): Promise<void> {
-    this.sdk.add_key(secretKey, password, alias);
-    await this.initSdkStore();
-  }
-
-  public async initSdkStore(): Promise<void> {
-    this.sdkStore.set(SDK_KEY, new TextDecoder().decode(this.sdk.encode()));
-  }
-
-  private async addSpendingKey(
-    text: string,
-    password: string,
-    alias: string
-  ): Promise<void> {
-    const { spendingKey } = JSON.parse(text);
-
-    this.sdk.add_spending_key(spendingKey, password, alias);
-    // const store = (await this.sdkStore.get(SDK_KEY)) || {};
-    //
-    // //TODO: reuse logic from addSecretKey, potentially use Object.assign instead of rest spread operator
-    // this.sdkStore.set(SDK_KEY, {
-    //   ...store,
-    //   [activeAccountId]: new TextDecoder().decode(this.sdk.encode()),
-    // });
   }
 }
