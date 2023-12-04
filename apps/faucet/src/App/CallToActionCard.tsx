@@ -7,8 +7,9 @@ import {
   LeftBorder,
   RightBorder,
   TopBorder,
+  CardDescription,
+  CardHeading
 } from "./Card.components";
-import { Text } from "@namada/components";
 import InclineArrowYellow from "../../public/incline-arrow-yellow.svg";
 import InclineArrowBlack from "../../public/incline-arrow-black.svg";
 
@@ -32,16 +33,14 @@ export const CallToActionCard: React.FC<Props> = ({
   };
 
   return (
-    <CardContainer href={href} onMouseEnter={onHover} onMouseLeave={onLeave}>
+    <CardContainer href={href} onMouseEnter={onHover} onMouseLeave={onLeave} target="_blank">
       <TopBorder />
       <RightBorder />
       <BottomBorder />
       <LeftBorder />
-      <Text themeColor="utility1">{description}</Text>
+      <CardDescription>{description}</CardDescription>
       <CallToActionContainer>
-        <Text fontSize="2xl" themeColor="utility1">
-          {title}
-        </Text>
+        <CardHeading>{title}</CardHeading>
         <InclineArrowIcon
           src={isHovered ? InclineArrowYellow : InclineArrowBlack}
         />

@@ -4,7 +4,11 @@ export const FaucetFormContainer = styled.div`
   flex-direction: column;
   justify-content: start;
   align-items: center;
-  padding: 48px 40px;
+  padding: 32px 40px;
+
+  @media screen and (max-width: 860px) {
+    padding: 32px 24px;
+  }
 `;
 
 export const InputContainer = styled.div`
@@ -16,7 +20,7 @@ export const ButtonContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin: 24px 0 0 0;
+  margin: 13px 0 0 0;
 `;
 
 export const PreFormatted = styled.pre`

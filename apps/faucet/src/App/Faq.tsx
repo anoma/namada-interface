@@ -17,13 +17,14 @@ export const Faq: React.FC = () => {
         <Text themeColor="utility1" fontSize="base">
           To request funds, simply enter your wallet address and hit “Get
           Testnet Tokens”.
-          <div style={{ marginTop: "16px" }}>
-            See the{" "}
-            <FaqUrl href={becomeValidatorUrl}>
-              {'"Generating a validator account"'}
-            </FaqUrl>{" "}
-            section if you need to create a new address.
-          </div>
+        </Text>
+        <div style={{ marginTop: '16px' }}></div>
+        <Text themeColor="utility1" fontSize="base">
+          See the{" \""}
+          <FaqUrl href={becomeValidatorUrl}>
+            {'Generating a validator account'}
+          </FaqUrl>{"\" "}
+          section if you need to create a new address.
         </Text>
       </FaqDropdown>
       <FaqDropdown title="How can I use these tokens?">
@@ -39,11 +40,12 @@ export const Faq: React.FC = () => {
         <Text themeColor="utility1" fontSize="base">
           The time required to receive test tokens may vary. It depends on the
           speed of the blocks in the current chain.
-          <div style={{ marginTop: "16px" }}>
-            If more than a few hours have passed and you still have not received
-            your tokens, please email us at{" "}
-            <FaqUrl href={namadaDiscord}>{"Discord!"}</FaqUrl>
-          </div>
+        </Text>
+        <div style={{ marginTop: '16px' }}></div>
+        <Text themeColor="utility1" fontSize="base" >
+          If more than a few hours have passed and you still have not received
+          your tokens, please email us at{" "}
+          <FaqUrl href={namadaDiscord}>{"Discord!"}</FaqUrl>
         </Text>
       </FaqDropdown>
       <FaqDropdown title="What if the faucet doesn't work?">

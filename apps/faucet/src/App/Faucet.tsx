@@ -143,7 +143,6 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
     <FaucetFormContainer>
       <InputContainer>
         <Input
-          placeholder="atest..."
           variant={InputVariants.Text}
           label="Target Address"
           value={targetAddress}
@@ -201,6 +200,10 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
         <Button
           style={{
             backgroundColor: theme.colors.secondary.main,
+            fontSize: '1.25rem',
+            lineHeight: '1.6',
+            padding: '0.6em 2.5em',
+            margin: 0
           }}
           variant={ButtonVariant.Contained}
           onClick={handleSubmit}

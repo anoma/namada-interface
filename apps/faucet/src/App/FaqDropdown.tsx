@@ -1,29 +1,31 @@
-import React, { useState } from "react";
-import { FaqDropdownContainer, FaqDropdownContent } from "./Faq.components";
-import { Text } from "@namada/components";
+import React, { useState, useEffect } from "react";
+import { FaqDropdownContainer, FaqDropdownContent, PlusIcon, DropDownTitle, DropDownTitleText } from "./Faq.components";
+import plusIcon from '../../public/plus-icon.svg'
 
 type Props = {
   title: string;
   children: React.ReactNode;
 };
 export const FaqDropdown: React.FC<Props> = ({ children, title }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isInitial, setIsInitial] = useState(true);
 
-  const onExpand = (): void => {
-    setIsExpanded(true);
-  };
-
-  const onCollapse = (): void => {
-    setIsExpanded(false);
+  const handleToggle = (): void => {
+    setIsInitial(false);
+    setIsOpen((prevIsOpen) => !prevIsOpen);
   };
 
   return (
-    <FaqDropdownContainer onClick={isExpanded ? onCollapse : onExpand}>
-      <Text themeColor="utility1" fontSize="2xl">
-        {title}
-      </Text>
+    <FaqDropdownContainer onClick={handleToggle}>
+      <DropDownTitle>
+        <DropDownTitleText>
+          {title}
+        </DropDownTitleText>
+        <PlusIcon src={plusIcon} isOpen={isOpen} isInitial={isInitial} />
+      </DropDownTitle>
 
-      <FaqDropdownContent isOpen={isExpanded}>{children}</FaqDropdownContent>
+      <FaqDropdownContent isOpen={isOpen} isInitial={isInitial}>{children}</FaqDropdownContent>
+       
     </FaqDropdownContainer>
   );
 };

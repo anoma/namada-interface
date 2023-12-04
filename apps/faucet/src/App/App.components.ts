@@ -36,6 +36,8 @@ export const GlobalStyles = createGlobalStyle<GlobalStyleProps>`
   html, body {
     background-color: ${(props) => props.theme.colors.utility1.main};
     transition: background-color 0.5s ease;
+    min-width: fit-content;
+    position: relative;
   }
 `;
 export const AppContainer = styled.div`
@@ -50,7 +52,7 @@ export const AppContainer = styled.div`
   box-sizing: border-box;
 
   @media screen and (max-width: 860px) {
-    padding: 0 36px;
+    padding: 0 32px;
     min-width: 480px;
   }
 `;
@@ -60,6 +62,7 @@ export const TopSection = styled.section`
   justify-content: center;
   align-items: flex-start;
   width: 100%;
+  margin-bottom: 24px;
 `;
 
 export const BottomSection = styled.section`
@@ -104,13 +107,17 @@ export const BannerContents = styled.div`
   margin: 0 20px;
 `;
 
-export const BackgroundImage = styled.img`
+export const BackgroundImage = styled.div<{
+  imageUrl: string;
+}>`
   position: absolute;
   width: 100%;
-  height: auto;
+  height: 425px;
   top: 0;
   left: 0;
   z-index: 0;
+  background-image: url(${(props) => props.imageUrl});
+  background-size: 120px;
 `;
 
 export const ContentContainer = styled.div`
@@ -125,4 +132,7 @@ export const ContentContainer = styled.div`
   margin-bottom: 24px;
   background-color: ${(props) => props.theme.colors.primary.main};
   z-index: 1;
+  @media screen and (max-width: 860px) {
+    padding: 0 16px;
+  }
 `;
