@@ -39,9 +39,16 @@ import { ActiveAccountStore } from "background/keyring";
       try {
         const txMsg = fromBase64(data.txMsg);
         const builtTx = await sdk.build_transfer(
-          fromBase64(data.transferMsg), txMsg, data.password, data.xsk
+          fromBase64(data.transferMsg),
+          txMsg,
+          data.password,
+          data.secret
         );
-        const [txBytes, revealPkTxBytes] = await sdk.sign_tx(builtTx, txMsg);
+        const [txBytes, revealPkTxBytes] = await sdk.sign_tx(
+          builtTx,
+          txMsg,
+          data.secret
+        );
         await sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
 
         postMessage({ msgName: TRANSFER_SUCCESSFUL_MSG });
@@ -56,10 +63,10 @@ import { ActiveAccountStore } from "background/keyring";
   );
 
   postMessage({ msgName: INIT_MSG });
-})().catch(error => {
+})().catch((error) => {
   const { message, stack } = error;
   postMessage({
     msgName: WEB_WORKER_ERROR_MSG,
-    payload: { message, stack }
+    payload: { message, stack },
   });
 });

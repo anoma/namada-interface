@@ -24,6 +24,9 @@ import {
   AccountType,
   Bip44Path,
   DerivedAccount,
+  SubmitBondMsgValue,
+  SubmitUnbondMsgValue,
+  SubmitWithdrawMsgValue,
   TransferMsgValue,
 } from "@namada/types";
 
@@ -47,8 +50,6 @@ import {
 
 import { VaultService } from "background/vault";
 import { generateId } from "utils";
-
-const { NAMADA_INTERFACE_NAMADA_FAUCET_ADDRESS: faucetAddress } = process.env;
 
 // Generated UUID namespace for uuid v5
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
@@ -626,6 +627,45 @@ export class KeyRing {
     return accounts.map((account) => account.public as AccountStore);
   }
 
+  private async getSigningKey(address: string): Promise<string> {
+    const account = await this.vaultService.findOne<AccountStore>(
+      KEYSTORE_KEY,
+      "address",
+      address
+    );
+    if (!account) {
+      throw new Error(`Account for ${address} not found!`);
+    }
+    const accountStore = (await this.queryAllAccounts()).find(
+      (account) => account.address === address
+    );
+
+    if (!accountStore) {
+      throw new Error(`Account for ${address} not found!`);
+    }
+    const { path } = accountStore;
+    const { coinType } = chains[defaultChainId].bip44;
+    const bip44Path = makeBip44PathArray(coinType, path);
+
+    const sensitiveProps =
+      await this.vaultService.reveal<SensitiveAccountStoreData>(account);
+    if (!sensitiveProps) {
+      throw new Error(`Signing keys for ${address} not found!`);
+    }
+    const { text: phrase } = sensitiveProps;
+    const mnemonic = Mnemonic.from_phrase(phrase);
+    const seed = mnemonic.to_seed();
+    const hdWallet = new HDWallet(seed);
+    const key = hdWallet.derive(new Uint32Array(bip44Path));
+    const privateKeyStringPtr = key.to_hex();
+    const privateKey = readStringPointer(
+      privateKeyStringPtr,
+      this.cryptoMemory
+    );
+
+    return privateKey;
+  }
+
   async submitBond(bondMsg: Uint8Array, txMsg: Uint8Array): Promise<void> {
     await this.vaultService.assertIsUnlocked();
     try {
@@ -634,7 +674,13 @@ export class KeyRing {
         txMsg,
         await this.vaultService.UNSAFE_getPassword()
       );
-      const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
+      const { source } = deserialize(Buffer.from(bondMsg), SubmitBondMsgValue);
+      const secret = await this.getSigningKey(source);
+      const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(
+        builtTx,
+        txMsg,
+        secret
+      );
       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
     } catch (e) {
       throw new Error(`Could not submit bond tx: ${e}`);
@@ -657,7 +703,17 @@ export class KeyRing {
         txMsg,
         await this.vaultService.UNSAFE_getPassword()
       );
-      const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
+      const { source } = deserialize(
+        Buffer.from(unbondMsg),
+        SubmitUnbondMsgValue
+      );
+      const secret = await this.getSigningKey(source);
+      const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(
+        builtTx,
+        txMsg,
+        secret
+      );
+
       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
     } catch (e) {
       throw new Error(`Could not submit unbond tx: ${e}`);
@@ -675,7 +731,17 @@ export class KeyRing {
         txMsg,
         await this.vaultService.UNSAFE_getPassword()
       );
-      const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
+      const { source } = deserialize(
+        Buffer.from(withdrawMsg),
+        SubmitWithdrawMsgValue
+      );
+      const secret = await this.getSigningKey(source);
+
+      const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(
+        builtTx,
+        txMsg,
+        secret
+      );
       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
     } catch (e) {
       throw new Error(`Could not submit withdraw tx: ${e}`);
@@ -693,7 +759,11 @@ export class KeyRing {
         txMsg,
         await this.vaultService.UNSAFE_getPassword()
       );
-      const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
+      const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(
+        builtTx,
+        txMsg,
+        "TODO"
+      );
       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
     } catch (e) {
       throw new Error(`Could not submit vote proposal tx: ${e}`);
@@ -702,22 +772,17 @@ export class KeyRing {
 
   async submitTransfer(
     transferMsg: Uint8Array,
-    submit: (password: string, xsk?: string) => Promise<void>
+    submit: (password: string, secret: string) => Promise<void>
   ): Promise<void> {
     await this.vaultService.assertIsUnlocked();
 
-    // We need to get the source address in case it is shielded one, so we can
-    // decrypt the extended spending key for a transfer.
-    const { source, target } = deserialize(
-      Buffer.from(transferMsg),
-      TransferMsgValue
-    );
+    // We need to get the source address to find either the private key or spending key
+    const { source } = deserialize(Buffer.from(transferMsg), TransferMsgValue);
 
-    const signerAddress = source === faucetAddress ? target : source;
     const account = await this.vaultService.findOneOrFail<AccountStore>(
       KEYSTORE_KEY,
       "address",
-      signerAddress
+      source
     );
     const sensitiveProps =
       await this.vaultService.reveal<SensitiveAccountStoreData>(account);
@@ -726,17 +791,14 @@ export class KeyRing {
       throw new Error("Error decrypting AccountStore data");
     }
 
-    // For shielded accounts we need to return the spending key as well.
-    // TODO: check if this .spendingKey is working
-    const extendedSpendingKey =
+    const signingKey =
       account.public.type === AccountType.ShieldedKeys
-        ? JSON.parse(sensitiveProps.text).spendingKey
-        : undefined;
+        ? // For shielded accounts we need to return the spending key
+        JSON.parse(sensitiveProps.text).spendingKey
+        : // Otherwise, return the decrypted key
+        await this.getSigningKey(source);
 
-    await submit(
-      await this.vaultService.UNSAFE_getPassword(),
-      extendedSpendingKey
-    );
+    await submit(await this.vaultService.UNSAFE_getPassword(), signingKey);
   }
 
   async submitIbcTransfer(
@@ -750,7 +812,11 @@ export class KeyRing {
         txMsg,
         await this.vaultService.UNSAFE_getPassword()
       );
-      const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
+      const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(
+        builtTx,
+        txMsg,
+        "TODO"
+      );
       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
     } catch (e) {
       throw new Error(`Could not submit ibc transfer tx: ${e}`);
@@ -768,7 +834,11 @@ export class KeyRing {
         txMsg,
         await this.vaultService.UNSAFE_getPassword()
       );
-      const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
+      const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(
+        builtTx,
+        txMsg,
+        "TODO"
+      );
       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
     } catch (e) {
       throw new Error(`Could not submit submit_eth_bridge_transfer tx: ${e}`);
