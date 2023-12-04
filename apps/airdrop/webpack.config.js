@@ -4,7 +4,9 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 
 // Load environment variables
-require("dotenv").config({ path: resolve(__dirname, ".env") });
+const { parsed: dotEnvVars } = require("dotenv").config({
+  path: resolve(__dirname, ".env"),
+});
 
 const { NODE_ENV } = process.env;
 
@@ -43,7 +45,10 @@ const plugins = [
   // Provide environment variables to interface:
   new webpack.DefinePlugin({
     process: {
-      env: JSON.stringify(process.env),
+      env: JSON.stringify({
+        ...dotEnvVars,
+        NODE_ENV: process.env.NODE_ENV,
+      }),
     },
   }),
 ];
