@@ -752,8 +752,6 @@ export const TrustedSetupListItem = styled.li`
 `;
 
 export const TrustedSetupInputWrapper = styled.div`
-  overflow: hidden;
-
   & input {
     padding-right: ${spacement(50)};
   }
