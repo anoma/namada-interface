@@ -15,6 +15,7 @@ import {
   EligibilityHeader,
   EligibilitySectionWrapper,
   TrustedSetupHeader,
+  TrustedSetupInputWrapper,
   TrustedSetupList,
   TrustedSetupListItem,
 } from "./App.components";
@@ -126,24 +127,27 @@ export const TrustedSetup: React.FC = () => {
               Paste the Public Key derived from the seed phrase you created when
               you participated in Namada&apos;s Trusted Setup
               <CheckEligibilityContainer>
-                <Input
-                  variant={InputVariants.Text}
-                  value={publicKey}
-                  theme="primary"
-                  placeholder="Enter your public key"
-                  onChange={(e) => setPublicKey(e.target.value)}
-                >
-                  <CheckEligibilityButton>
-                    <ActionButton
-                      variant="primary"
-                      size="sm"
-                      disabled={!publicKey}
-                      onClick={onCheckEligibility}
-                    >
-                      Check Eligibility
-                    </ActionButton>
-                  </CheckEligibilityButton>
-                </Input>
+                <TrustedSetupInputWrapper>
+                  <Input
+                    hint={publicKey ? `Public Key: ${publicKey}` : ""}
+                    variant={InputVariants.Text}
+                    value={publicKey}
+                    theme="primary"
+                    placeholder="Enter your public key"
+                    onChange={(e) => setPublicKey(e.target.value)}
+                  >
+                    <CheckEligibilityButton>
+                      <ActionButton
+                        variant="primary"
+                        size="sm"
+                        disabled={!publicKey}
+                        onClick={onCheckEligibility}
+                      >
+                        Check Eligibility
+                      </ActionButton>
+                    </CheckEligibilityButton>
+                  </Input>
+                </TrustedSetupInputWrapper>
               </CheckEligibilityContainer>
             </TrustedSetupListItem>
           </TrustedSetupList>

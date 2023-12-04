@@ -69,7 +69,7 @@ export const YouAreEligible = ({
         <WalletOrAddressContainer>
           <Stack gap={1}>
             <span>{title}:</span>
-            <WalletAddress>{accountOrWallet}</WalletAddress>
+            <WalletAddress value={accountOrWallet} />
           </Stack>
           <ActionButton
             onClick={onClaim}

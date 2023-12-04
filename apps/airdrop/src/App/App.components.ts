@@ -751,6 +751,14 @@ export const TrustedSetupListItem = styled.li`
   }
 `;
 
+export const TrustedSetupInputWrapper = styled.div`
+  overflow: hidden;
+
+  & input {
+    padding-right: ${spacement(50)};
+  }
+`;
+
 export const CheckEligibilityContainer = styled.div`
   padding: ${spacement(6)} ${spacement(7)};
 
