@@ -5,8 +5,6 @@ type GlobalStyleProps = {
   colorMode: ColorMode;
 };
 
-const topSectionHeight = "164px";
-
 enum ComponentColor {
   BorderColor,
   BackgroundColor,
@@ -25,7 +23,7 @@ const getColor = (
     },
     dark: {
       [ComponentColor.BorderColor]: "transparent",
-      [ComponentColor.BackgroundColor]: theme.colors.utility1.main80,
+      [ComponentColor.BackgroundColor]: theme.colors.utility3.black,
     },
   };
 
@@ -38,6 +36,8 @@ export const GlobalStyles = createGlobalStyle<GlobalStyleProps>`
   html, body {
     background-color: ${(props) => props.theme.colors.utility1.main};
     transition: background-color 0.5s ease;
+    min-width: fit-content;
+    position: relative;
   }
 `;
 export const AppContainer = styled.div`
@@ -45,14 +45,14 @@ export const AppContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
   width: 100%;
-  background-color: ${(props) => props.theme.colors.utility1.main};
+  background-color: ${(props) => props.theme.colors.primary.main};
   transition: all 0.3s linear;
   box-sizing: border-box;
 
   @media screen and (max-width: 860px) {
-    padding: 0 36px;
+    padding: 0 32px;
     min-width: 480px;
   }
 `;
@@ -61,19 +61,19 @@ export const TopSection = styled.section`
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  height: ${topSectionHeight};
   width: 100%;
+  margin-bottom: 24px;
 `;
 
 export const BottomSection = styled.section`
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  height: calc(100% - ${topSectionHeight});
   width: 100%;
 `;
 
-export const ContentContainer = styled.div`
+export const FaucetContainer = styled.div`
   flex-direction: column;
   justify-content: start;
   align-items: center;
@@ -83,12 +83,7 @@ export const ContentContainer = styled.div`
   border: 1px solid
     ${(props) => getColor(ComponentColor.BorderColor, props.theme)};
 
-  padding: 0;
-  min-height: 620px;
-  width: 100%;
-  max-width: 762px;
   border-radius: ${(props) => props.theme.borderRadius.mainContainer};
-  overflow-x: hidden;
   transition: background-color 0.3s linear;
 `;
 
@@ -110,4 +105,34 @@ export const BannerContents = styled.div`
   max-width: 762px;
   padding: 8px 0;
   margin: 0 20px;
+`;
+
+export const BackgroundImage = styled.div<{
+  imageUrl: string;
+}>`
+  position: absolute;
+  width: 100%;
+  height: 425px;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  background-image: url(${(props) => props.imageUrl});
+  background-size: 120px;
+`;
+
+export const ContentContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 762px;
+  padding: 0 20px;
+  box-sizing: border-box;
+  margin-top: 24px;
+  margin-bottom: 24px;
+  background-color: ${(props) => props.theme.colors.primary.main};
+  z-index: 1;
+  @media screen and (max-width: 860px) {
+    padding: 0 16px;
+  }
 `;

@@ -24,6 +24,7 @@ import {
   requestChallenge,
   requestTransfer,
 } from "utils";
+import { useTheme } from "styled-components";
 
 const DEFAULT_URL = "http://localhost:5000";
 const DEFAULT_ENDPOINT = "/api/v1/faucet";
@@ -50,16 +51,17 @@ type Props = {
 };
 
 export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
+  const theme = useTheme();
   const [targetAddress, setTargetAddress] = useState<string>();
   const [tokenAddress, setTokenAddress] = useState(TokenData[0].value);
-  const [amount, setAmount] = useState(0);
+  const [amount, setAmount] = useState<number | undefined>(undefined);
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState(Status.Completed);
   const [statusText, setStatusText] = useState<string>();
   const [responseDetails, setResponseDetails] = useState<TransferResponse>();
 
   const handleSubmit = useCallback(async () => {
-    if (!targetAddress) {
+    if (!targetAddress || !amount) {
       return;
     }
 
@@ -159,6 +161,7 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
 
       <InputContainer>
         <Input
+          placeholder={`From 1 to ${faucetLimit}`}
           variant={InputVariants.Number}
           label="Amount"
           value={amount}
@@ -172,7 +175,7 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
             }
           }}
           error={
-            amount > parseInt(faucetLimit)
+            (amount || 0) > parseInt(faucetLimit)
               ? `Amount must be less than or equal to ${faucetLimit}`
               : ""
           }
@@ -195,11 +198,18 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
 
       <ButtonContainer>
         <Button
+          style={{
+            backgroundColor: theme.colors.secondary.main,
+            fontSize: '1.25rem',
+            lineHeight: '1.6',
+            padding: '0.6em 2.5em',
+            margin: 0
+          }}
           variant={ButtonVariant.Contained}
           onClick={handleSubmit}
           disabled={
-            amount === 0 ||
-            amount > parseInt(faucetLimit) ||
+            !amount ||
+            (amount || 0) > parseInt(faucetLimit) ||
             !targetAddress ||
             status === Status.Pending ||
             !isTestnetLive
