@@ -10,7 +10,7 @@ import {
   Stack,
   Text,
 } from "@namada/components";
-import { LedgerError } from "@namada/ledger-namada";
+import { LedgerError } from "@zondax/ledger-namada";
 import { formatRouterPath } from "@namada/utils";
 import { Ledger as LedgerApp } from "background/ledger";
 import { LedgerConnectRoute, TopLevelRoute } from "Setup/types";

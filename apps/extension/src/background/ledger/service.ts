@@ -2,7 +2,7 @@ import { fromBase64 } from "@cosmjs/encoding";
 import { deserialize } from "@dao-xyz/borsh";
 
 import { chains, defaultChainId } from "@namada/chains";
-import { ResponseSign } from "@namada/ledger-namada";
+import { ResponseSign } from "@zondax/ledger-namada";
 import { Sdk, TxType } from "@namada/shared";
 import { KVStore } from "@namada/storage";
 import { AccountType, TxMsgValue } from "@namada/types";

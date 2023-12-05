@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { toBase64 } from "@cosmjs/encoding";
 import BigNumber from "bignumber.js";
 
-import { LedgerError } from "@namada/ledger-namada";
+import { LedgerError } from "@zondax/ledger-namada";
 import { Button, ButtonVariant } from "@namada/components";
 import { defaultChainId as chainId } from "@namada/chains";
 import { TxType, TxTypeLabel } from "@namada/shared";
