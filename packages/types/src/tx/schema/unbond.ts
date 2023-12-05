@@ -2,7 +2,6 @@
 import BigNumber from "bignumber.js";
 import { field } from "@dao-xyz/borsh";
 import { BigNumberSerializer } from "./utils";
-import { TxMsgValue } from "./tx";
 import { SubmitUnbondProps } from "../types";
 
 export class SubmitUnbondMsgValue {

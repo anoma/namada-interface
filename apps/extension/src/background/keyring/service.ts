@@ -248,7 +248,6 @@ export class KeyRingService {
     transferMsg: string,
     txMsg: string,
     msgId: string,
-    password: string,
     secret: string
   ): Promise<void> {
     const offscreenDocumentPath = "offscreen.html";
@@ -262,7 +261,7 @@ export class KeyRingService {
       type: SUBMIT_TRANSFER_MSG_TYPE,
       target: OFFSCREEN_TARGET,
       routerId,
-      data: { transferMsg, txMsg, msgId, password, secret },
+      data: { transferMsg, txMsg, msgId, secret },
     });
 
     if (result?.error) {
@@ -276,7 +275,6 @@ export class KeyRingService {
     transferMsg: string,
     txMsg: string,
     msgId: string,
-    password: string,
     secret: string
   ): Promise<void> {
     initSubmitTransferWebWorker(
@@ -284,7 +282,6 @@ export class KeyRingService {
         transferMsg,
         txMsg,
         msgId,
-        password,
         secret,
       },
       this.handleTransferCompleted.bind(this)
@@ -307,12 +304,12 @@ export class KeyRingService {
     msgId: string
   ): Promise<void> {
     // Passing submit handler simplifies worker code when using Firefox
-    const submit = async (password: string, secret: string): Promise<void> => {
+    const submit = async (secret: string): Promise<void> => {
       const { TARGET } = process.env;
       if (TARGET === "chrome") {
-        this.submitTransferChrome(transferMsg, txMsg, msgId, password, secret);
+        this.submitTransferChrome(transferMsg, txMsg, msgId, secret);
       } else if (TARGET === "firefox") {
-        this.submitTransferFirefox(transferMsg, txMsg, msgId, password, secret);
+        this.submitTransferFirefox(transferMsg, txMsg, msgId, secret);
       } else {
         console.warn(
           "Submitting transfers is not supported with your browser."

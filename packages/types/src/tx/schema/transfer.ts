@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import BigNumber from "bignumber.js";
-import { field, option } from "@dao-xyz/borsh";
-import { TxMsgValue } from "./tx";
+import { field } from "@dao-xyz/borsh";
 import { BigNumberSerializer } from "./utils";
 import { TransferProps } from "../types";
 
