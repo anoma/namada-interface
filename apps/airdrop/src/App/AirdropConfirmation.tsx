@@ -92,11 +92,7 @@ export const AirdropConfirmation: React.FC = () => {
   const [confirmation] = useAtom(confirmationAtom);
   const [totalMinNam, setTotalMinNam] = useState<number>();
   const [breakdown, setBreakdown] = useState<Breakdown[]>([]);
-
-  // We want to scroll to the top of the page when the component is mounted
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+  const [TOSReset, setTOSReset] = useState(false);
 
   if (confirmation === null) {
     throw new Error("Confirmation state is empty!");
@@ -125,10 +121,16 @@ export const AirdropConfirmation: React.FC = () => {
     })();
   }, [confirmation.address]);
 
+  // We want to scroll to the top of the page and reset checkbox when confirmation state changes
+  useEffect(() => {
+    setTOSReset(!TOSReset);
+    window.scrollTo(0, 0);
+  }, [confirmation]);
+
   useLayoutEffect(() => {
     if (!iconsContainerRef.current) return;
     return iconsOnMouseMovement(iconsContainerRef.current);
-  }, []);
+  }, [confirmation]);
 
   useLayoutEffect(() => {
     gsap.context(() => {
@@ -164,7 +166,7 @@ export const AirdropConfirmation: React.FC = () => {
         delay: 2,
       });
     }, [containerRef.current]);
-  }, []);
+  }, [confirmation]);
 
   useLayoutEffect(() => {
     gsap.context(() => {
@@ -188,7 +190,7 @@ export const AirdropConfirmation: React.FC = () => {
         "-=0.95"
       );
     }, [containerRef.current]);
-  }, []);
+  }, [confirmation]);
 
   return (
     <AirdropConfirmationContainer ref={containerRef}>
@@ -332,7 +334,7 @@ export const AirdropConfirmation: React.FC = () => {
         </AirdropConfirmationAccordion>
       </AirdropBreakdownSection>
       <AnotherWaysSection>
-        <AnotherWays title="Try another claim" />
+        <AnotherWays reset={TOSReset} title="Try another claim" />
       </AnotherWaysSection>
       <CommunityFooter />
       <PageFooter />
