@@ -202,6 +202,7 @@ export const zkp = new Set([
   "zeroknowledgefm/starks",
   "waku-org/nwaku",
   "waku-org/go-waku",
+  "ethresearch",
 ]);
 
 export const zcash = new Set([
