@@ -183,6 +183,13 @@ export const Main: React.FC = () => {
                       outlined
                       hoverColor="utility1"
                       borderRadius="sm"
+                      onClick={() => {
+                        window.open(
+                          "https://namada.net/blog/the-namada-rpgf-drop-is-live/",
+                          "_blank",
+                          "noopener,noreferrer"
+                        );
+                      }}
                     >
                       Read annoucement
                       <i className="external-icon">
