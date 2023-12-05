@@ -2,6 +2,7 @@ const webpack = require("webpack");
 const { resolve, join } = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
+const { getProcessEnv } = require("@namada/config/webpack.js");
 
 // Load environment variables
 require("dotenv").config({ path: resolve(__dirname, ".env") });
@@ -39,7 +40,10 @@ const plugins = [
   // Provide environment variables to interface:
   new webpack.DefinePlugin({
     process: {
-      env: JSON.stringify(process.env),
+      env: JSON.stringify(getProcessEnv(
+        "NAMADA_INTERFACE",
+        ["TARGET", "NODE_ENV", "npm_package_version"]
+      )),
     },
   }),
 ];

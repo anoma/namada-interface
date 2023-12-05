@@ -7,6 +7,7 @@ const RemovePlugin = require('remove-files-webpack-plugin');
 const createStyledComponentsTransformer =
   require("typescript-plugin-styled-components").default;
 const packageJson = require("./package.json");
+const { getProcessEnv } = require("@namada/config/webpack.js");
 
 // Load .env from namada-interface:
 require("dotenv").config({ path: "../namada-interface/.env" });
@@ -91,7 +92,10 @@ const plugins = [
   // Provide environment variables to extension:
   new webpack.DefinePlugin({
     process: {
-      env: JSON.stringify(process.env),
+      env: JSON.stringify(getProcessEnv(
+        "NAMADA_INTERFACE",
+        ["TARGET", "NODE_ENV", "npm_package_version"]
+      )),
     },
   }),
   new RemovePlugin({
