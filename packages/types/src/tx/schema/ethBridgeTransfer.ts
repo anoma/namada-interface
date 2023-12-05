@@ -3,7 +3,6 @@ import BigNumber from "bignumber.js";
 import { field, option } from "@dao-xyz/borsh";
 import { BigNumberSerializer } from "./utils";
 import { BridgeTransferProps } from "../types";
-import { TxMsgValue } from "./tx";
 
 export class EthBridgeTransferMsgValue {
   @field({ type: "bool" })

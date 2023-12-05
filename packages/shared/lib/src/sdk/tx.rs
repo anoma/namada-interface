@@ -38,17 +38,12 @@ pub struct SubmitBondMsg {
 /// # Arguments
 ///
 /// * `tx_msg` - Borsh serialized tx_msg.
-/// * `password` - Password used for storage decryption.
 ///
 /// # Errors
 ///
 /// Returns JsError if the tx_msg can't be deserialized or
 /// Rust structs can't be created.
-pub fn bond_tx_args(
-    bond_msg: &[u8],
-    tx_msg: &[u8],
-    password: Option<String>,
-) -> Result<args::Bond, JsError> {
+pub fn bond_tx_args(bond_msg: &[u8], tx_msg: &[u8]) -> Result<args::Bond, JsError> {
     let bond_msg = SubmitBondMsg::try_from_slice(bond_msg)?;
 
     let SubmitBondMsg {
@@ -62,7 +57,7 @@ pub fn bond_tx_args(
     let native_token = Address::from_str(&native_token)?;
     let validator = Address::from_str(&validator)?;
     let amount = Amount::from_str(&amount, NATIVE_MAX_DECIMAL_PLACES)?;
-    let tx = tx_msg_into_args(tx_msg, password)?;
+    let tx = tx_msg_into_args(tx_msg)?;
 
     let args = args::Bond {
         tx,
@@ -88,17 +83,12 @@ pub struct SubmitUnbondMsg {
 /// # Arguments
 ///
 /// * `tx_msg` - Borsh serialized tx_msg.
-/// * `password` - Password used for storage decryption.
 ///
 /// # Errors
 ///
 /// Returns JsError if the tx_msg can't be deserialized or
 /// Rust structs can't be created.
-pub fn unbond_tx_args(
-    unbond_msg: &[u8],
-    tx_msg: &[u8],
-    password: Option<String>,
-) -> Result<args::Unbond, JsError> {
+pub fn unbond_tx_args(unbond_msg: &[u8], tx_msg: &[u8]) -> Result<args::Unbond, JsError> {
     let unbond_msg = SubmitUnbondMsg::try_from_slice(unbond_msg)?;
 
     let SubmitUnbondMsg {
@@ -111,7 +101,7 @@ pub fn unbond_tx_args(
     let validator = Address::from_str(&validator)?;
 
     let amount = Amount::from_str(&amount, NATIVE_MAX_DECIMAL_PLACES)?;
-    let tx = tx_msg_into_args(tx_msg, password)?;
+    let tx = tx_msg_into_args(tx_msg)?;
 
     let args = args::Unbond {
         tx,
@@ -135,24 +125,19 @@ pub struct SubmitWithdrawMsg {
 /// # Arguments
 ///
 /// * `tx_msg` - Borsh serialized tx_msg.
-/// * `password` - Password used for storage decryption.
 ///
 /// # Errors
 ///
 /// Returns JsError if the tx_msg can't be deserialized or
 /// Rust structs can't be created.
-pub fn withdraw_tx_args(
-    withdraw_msg: &[u8],
-    tx_msg: &[u8],
-    password: Option<String>,
-) -> Result<args::Withdraw, JsError> {
+pub fn withdraw_tx_args(withdraw_msg: &[u8], tx_msg: &[u8]) -> Result<args::Withdraw, JsError> {
     let withdraw_msg = SubmitWithdrawMsg::try_from_slice(withdraw_msg)?;
 
     let SubmitWithdrawMsg { source, validator } = withdraw_msg;
 
     let source = Address::from_str(&source)?;
     let validator = Address::from_str(&validator)?;
-    let tx = tx_msg_into_args(tx_msg, password)?;
+    let tx = tx_msg_into_args(tx_msg)?;
 
     let args = args::Withdraw {
         tx,
@@ -176,7 +161,6 @@ pub struct SubmitVoteProposalMsg {
 /// # Arguments
 ///
 /// * `tx_msg` - Borsh serialized tx_msg.
-/// * `password` - Password used for storage decryption.
 ///
 /// # Errors
 ///
@@ -185,7 +169,6 @@ pub struct SubmitVoteProposalMsg {
 pub fn vote_proposal_tx_args(
     vote_proposal_msg: &[u8],
     tx_msg: &[u8],
-    password: Option<String>,
 ) -> Result<args::VoteProposal, JsError> {
     let vote_proposal_msg = SubmitVoteProposalMsg::try_from_slice(vote_proposal_msg)?;
 
@@ -194,7 +177,7 @@ pub fn vote_proposal_tx_args(
         proposal_id,
         vote,
     } = vote_proposal_msg;
-    let tx = tx_msg_into_args(tx_msg, password)?;
+    let tx = tx_msg_into_args(tx_msg)?;
     let voter = Address::from_str(&signer)?;
 
     let args = args::VoteProposal {
@@ -224,7 +207,6 @@ pub struct SubmitTransferMsg {
 /// # Arguments
 ///
 /// * `tx_msg` - Borsh serialized tx_msg.
-/// * `password` - Password used for storage decryption.
 ///
 /// # Errors
 ///
@@ -233,7 +215,6 @@ pub struct SubmitTransferMsg {
 pub fn transfer_tx_args(
     transfer_msg: &[u8],
     tx_msg: &[u8],
-    password: Option<String>,
     xsk: Option<String>,
 ) -> Result<args::TxTransfer, JsError> {
     let transfer_msg = SubmitTransferMsg::try_from_slice(transfer_msg)?;
@@ -273,7 +254,7 @@ pub fn transfer_tx_args(
     let token = Address::from_str(&token)?;
     let denom_amount = DenominatedAmount::from_str(&amount).expect("Amount to be valid.");
     let amount = InputAmount::Unvalidated(denom_amount);
-    let tx = tx_msg_into_args(tx_msg, password)?;
+    let tx = tx_msg_into_args(tx_msg)?;
 
     let args = args::TxTransfer {
         tx,
@@ -305,7 +286,6 @@ pub struct SubmitIbcTransferMsg {
 /// # Arguments
 ///
 /// * `tx_msg` - Borsh serialized tx_msg.
-/// * `password` - Password used for storage decryption.
 ///
 /// # Errors
 ///
@@ -314,7 +294,6 @@ pub struct SubmitIbcTransferMsg {
 pub fn ibc_transfer_tx_args(
     ibc_transfer_msg: &[u8],
     tx_msg: &[u8],
-    password: Option<String>,
 ) -> Result<args::TxIbcTransfer, JsError> {
     let ibc_transfer_msg = SubmitIbcTransferMsg::try_from_slice(ibc_transfer_msg)?;
     let SubmitIbcTransferMsg {
@@ -334,7 +313,7 @@ pub fn ibc_transfer_tx_args(
     let amount = InputAmount::Unvalidated(denom_amount);
     let port_id = PortId::from_str(&port_id).expect("Port id to be valid");
     let channel_id = ChannelId::from_str(&channel_id).expect("Channel id to be valid");
-    let tx = tx_msg_into_args(tx_msg, password)?;
+    let tx = tx_msg_into_args(tx_msg)?;
 
     let args = args::TxIbcTransfer {
         tx,
@@ -368,7 +347,6 @@ pub struct SubmitEthBridgeTransferMsg {
 pub fn eth_bridge_transfer_tx_args(
     eth_bridge_transfer_msg: &[u8],
     tx_msg: &[u8],
-    password: Option<String>,
 ) -> Result<args::EthereumBridgePool, JsError> {
     let eth_bridge_transfer_msg =
         SubmitEthBridgeTransferMsg::try_from_slice(eth_bridge_transfer_msg)?;
@@ -383,7 +361,7 @@ pub fn eth_bridge_transfer_tx_args(
         fee_token,
     } = eth_bridge_transfer_msg;
 
-    let tx = tx_msg_into_args(tx_msg, password)?;
+    let tx = tx_msg_into_args(tx_msg)?;
     let asset = EthAddress::from_str(&asset).map_err(|e| JsError::new(&format!("{}", e)))?;
     let recipient =
         EthAddress::from_str(&recipient).map_err(|e| JsError::new(&format!("{}", e)))?;
@@ -413,7 +391,7 @@ pub fn eth_bridge_transfer_tx_args(
 }
 
 pub fn tx_args_from_slice(tx_msg_bytes: &[u8]) -> Result<args::Tx, JsError> {
-    let args = tx_msg_into_args(tx_msg_bytes, None)?;
+    let args = tx_msg_into_args(tx_msg_bytes)?;
 
     Ok(args)
 }
@@ -424,12 +402,11 @@ pub fn tx_args_from_slice(tx_msg_bytes: &[u8]) -> Result<args::Tx, JsError> {
 /// # Arguments
 ///
 /// * `tx_msg` - Borsh serialized tx_msg.
-/// * `password` - Password used for storage decryption.
 ///
 /// # Errors
 ///
 /// Returns JsError if token address is invalid.
-fn tx_msg_into_args(tx_msg: &[u8], password: Option<String>) -> Result<args::Tx, JsError> {
+fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
     let tx_msg = TxMsg::try_from_slice(tx_msg)?;
     let TxMsg {
         token,
@@ -445,7 +422,6 @@ fn tx_msg_into_args(tx_msg: &[u8], password: Option<String>) -> Result<args::Tx,
         .expect(format!("Fee amount has to be valid. Received {}", fee_amount).as_str());
     let fee_input_amount = InputAmount::Unvalidated(fee_amount);
 
-    let password = password.map(|pwd| zeroize::Zeroizing::new(pwd));
     let public_key = match public_key {
         Some(v) => {
             let pk = PublicKey::from_str(&v)?;
@@ -477,7 +453,7 @@ fn tx_msg_into_args(tx_msg: &[u8], password: Option<String>) -> Result<args::Tx,
         tx_reveal_code_path: PathBuf::from("tx_reveal_pk.wasm"),
         use_device: false,
         verification_key: public_key,
-        password,
+        password: None,
     };
 
     Ok(args)

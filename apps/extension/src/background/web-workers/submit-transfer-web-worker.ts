@@ -23,7 +23,6 @@ import {
         const builtTx = await sdk.build_transfer(
           fromBase64(data.transferMsg),
           txMsg,
-          data.password,
           data.secret
         );
         const [txBytes, revealPkTxBytes] = await sdk.sign_tx(
