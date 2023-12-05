@@ -43,8 +43,8 @@ async function init() {
 }
 
 init();
-
 ```
+
 [ [Table of Contents](#table-of-contents) ]
 
 ## Transaction requirements
@@ -167,7 +167,7 @@ import {
   ResponseSign,
   ResponseVersion,
   LedgerError,
-} from "@namada/ledger-namada";
+} from "@zondax/ledger-namada";
 
 // Import Ledger transports
 import TransportUSB from "@ledgerhq/hw-transport-webusb";
@@ -177,9 +177,10 @@ const RPC_URL = "http://127.0.0.1:26657";
 
 // For this example, let's use the following Ledger account:
 const account = {
-    alias: "My Ledger Account",
-    address: "atest1d9khqw36g3ryxd29xgmrjsjr89znsse5g5cn2wpsgs6nqv33xguryw2p89znsd2rxqcnzvehcnyzxw",
-    path: "m/44'/877'/0'/0/0",
+  alias: "My Ledger Account",
+  address:
+    "atest1d9khqw36g3ryxd29xgmrjsjr89znsse5g5cn2wpsgs6nqv33xguryw2p89znsd2rxqcnzvehcnyzxw",
+  path: "m/44'/877'/0'/0/0",
 };
 
 async function myApp(): Promise<void> {
@@ -190,12 +191,12 @@ async function myApp(): Promise<void> {
   // Initialize Ledger transport and Namada ledger app
   // NOTE: A class exists in the extension which simplifies the handling of the Ledger, which will
   // be moved to a public package in the future. Following is the manual process:
-  const transport = await TransportUSB.create()
+  const transport = await TransportUSB.create();
   const namadaApp = new NamadaApp(transport);
   const ledger = new Ledger(namadaApp);
 
   if (!ledger) {
-      throw new Error("Ledger initialization failed!");
+    throw new Error("Ledger initialization failed!");
   }
 
   const {
@@ -208,7 +209,7 @@ async function myApp(): Promise<void> {
     throw new Error(errorMessage);
   }
 
-  // Query public key from Ledger 
+  // Query public key from Ledger
   const { address } = ledger.getAddressAndPubKey(account.path);
   account.publicKey = address.toString();
 
@@ -217,19 +218,20 @@ async function myApp(): Promise<void> {
 
   const transferMsg = createTransfer({
     source: account.address,
-    target: "atest1d9khqw36xcmyzve3gvmrqdfexdz5zd2rxu6nv3zp8ym5zwfcgyeygv2x8pzrz3fcgscngs3nchvahj",
+    target:
+      "atest1d9khqw36xcmyzve3gvmrqdfexdz5zd2rxu6nv3zp8ym5zwfcgyeygv2x8pzrz3fcgscngs3nchvahj",
     token: tokenAddress,
     amount: new BigNumber(1.234),
     nativeToken: "NAM",
     // NOTE: tx must adhere to the TxProps type
     tx: {
-        token: tokenAddress,
-        feeAmount: new BigNumber(100),
-        gasLimit: new BigNumber(200),
-        chainId: "namada-devnet.95bcc8eaf0f39f1d3fa27629",
-        // Public key is required for Ledger tx!
-        publicKey: account.publicKey,
-    }
+      token: tokenAddress,
+      feeAmount: new BigNumber(100),
+      gasLimit: new BigNumber(200),
+      chainId: "namada-devnet.95bcc8eaf0f39f1d3fa27629",
+      // Public key is required for Ledger tx!
+      publicKey: account.publicKey,
+    },
   });
 
   try {
@@ -241,7 +243,13 @@ async function myApp(): Promise<void> {
     // NOTE: A helper utility `encodeSignature` exists in the extension utils - this
     // will be moved to a public package in the future. The following is how we encode a signature
     // manually
-    const { pubkey, raw_indices, raw_signature, wrapper_indices, wrapper_signature } = response;
+    const {
+      pubkey,
+      raw_indices,
+      raw_signature,
+      wrapper_indices,
+      wrapper_signature,
+    } = response;
 
     // Due to how data is serialized on the Ledger, we have to coerce the types to
     // get the correct data for now:
@@ -262,7 +270,8 @@ async function myApp(): Promise<void> {
     const sig = msg.encode(value);
 
     // Finally, submit the tx along with the encoded signatures to the SDK for signing and broadcasting
-    await sdk.submit_signed_tx(tx, sig)
+    await sdk
+      .submit_signed_tx(tx, sig)
       .then(() => console.log("Successfully submitted tx"))
       .catch((e) => console.error(`An error occured: ${e}`));
   } catch (e) {
@@ -293,8 +302,10 @@ async function init() {
 
   // Query is now ready to use
 
-  const ownerAddress = "atest1d9khqw36g3ryxd29xgmrjsjr89znsse5g5cn2wpsgs6nqv33xguryw2p89znsd2rxqcnzvehcnyzxw";
-  const tokenAddress = "atest1d9khqw36xcmyzve3gvmrqdfexdz5zd2rxu6nv3zp8ym5zwfcgyeygv2x8pzrz3fcgscngs3nchvahj";
+  const ownerAddress =
+    "atest1d9khqw36g3ryxd29xgmrjsjr89znsse5g5cn2wpsgs6nqv33xguryw2p89znsd2rxqcnzvehcnyzxw";
+  const tokenAddress =
+    "atest1d9khqw36xcmyzve3gvmrqdfexdz5zd2rxu6nv3zp8ym5zwfcgyeygv2x8pzrz3fcgscngs3nchvahj";
 
   // Balance query
   // NOTE: `query_balance` contains logic to determine whether this is a "transparent" or "shielded" balance query. The API is simply this:
@@ -324,4 +335,3 @@ An overview of interacting with the Extension API (which is exposed to interface
 This API is preferred if your goal is only to integrate an application with the extension, and not interact directly with the SDK.
 
 [ [Table of Contents](#table-of-contents) ]
-
