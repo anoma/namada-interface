@@ -31,7 +31,7 @@ async function fetchAndStore(params) {
 
 async function fetchParams(params) {
   const path =
-    process.env.MASP_PARAMS_PATH ||
+    process.env.NAMADA_INTERFACE_MASP_PARAMS_PATH ||
     "https://github.com/anoma/masp-mpc/releases/download/namada-trusted-setup/";
 
   return fetch(`${path}${params}`)

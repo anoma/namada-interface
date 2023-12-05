@@ -168,8 +168,8 @@ To build and run the chain locally, you will need to clone <http://github.com/an
    with the actual chain ID from above):
 
    ```bash
-   REACT_APP_NAMADA_CHAIN_ID={CHAIN_ID}
-   REACT_APP_NAMADA_URL=http://127.0.0.1:27657/
+   NAMADA_INTERFACE_NAMADA_CHAIN_ID={CHAIN_ID}
+   NAMADA_INTERFACE_NAMADA_URL=http://127.0.0.1:27657/
    ```
 
 ### Extension

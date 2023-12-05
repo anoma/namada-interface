@@ -2,8 +2,8 @@ const { exec } = require("child_process");
 require("dotenv").config();
 
 const {
-  AIRDROP_BACKEND_SERVICE_URL: apiUrl = "http://localhost:5000",
-  REACT_APP_PROXY_PORT: proxyPort = "9000",
+  NAMADA_INTERFACE_AIRDROP_BACKEND_SERVICE_URL: apiUrl = "http://localhost:5000",
+  NAMADA_INTERFACE_PROXY_PORT: proxyPort = "9000",
 } = process.env;
 
 const lcpCommand = `lcp --proxyUrl ${apiUrl} --port ${proxyPort}`;

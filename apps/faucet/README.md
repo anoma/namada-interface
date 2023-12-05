@@ -25,11 +25,11 @@ As an example, if all you want to override the the API url and faucet limit, you
 
 ```bash
 # Faucet API Endpoint override
-REACT_APP_FAUCET_API_URL=http://127.0.0.1:5000
-REACT_APP_FAUCET_API_ENDPOINT=/api/v1/faucet
+NAMADA_INTERFACE_FAUCET_API_URL=http://127.0.0.1:5000
+NAMADA_INTERFACE_FAUCET_API_ENDPOINT=/api/v1/faucet
 
 # Faucet limit, as defined in genesis toml
-REACT_APP_FAUCET_LIMIT=1000
+NAMADA_INTERFACE_FAUCET_LIMIT=1000
 ```
 
 Each token address used in this form may be overridden via values specified in `.env` (see [.env.sample](./.env.sample)).
@@ -57,7 +57,7 @@ you can launch the local CORS proxy via the following:
 yarn dev:proxy
 ```
 
-This will proxy the `REACT_APP_FAUCET_API_URL` (or default URL if this is unspecified) via a Node server, which should resolve the issue.
+This will proxy the `NAMADA_INTERFACE_FAUCET_API_URL` (or default URL if this is unspecified) via a Node server, which should resolve the issue.
 
 [ [Table of Contents](#table-of-contents) ]
 

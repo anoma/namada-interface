@@ -23,10 +23,10 @@ As an example, if all you want to override the API url and a GitHub app ID, you 
 
 ```bash
 # Faucet API Endpoint override
-AIRDROP_BACKEND_SERVICE_URL=http://localhost:5000
+NAMADA_INTERFACE_AIRDROP_BACKEND_SERVICE_URL=http://localhost:5000
 
 # Github app ID override
-REACT_APP_GITHUB_CLIENT_ID=Iv1.dbd15f7e1b50c0d7
+NAMADA_INTERFACE_GITHUB_CLIENT_ID=Iv1.dbd15f7e1b50c0d7
 ```
 
 Each token address used in this form may be overridden via values specified in `.env` (see [.env.sample](./.env.sample)).
@@ -54,7 +54,7 @@ you can launch the local CORS proxy via the following:
 yarn dev:proxy
 ```
 
-This will proxy the `AIRDROP_BACKEND_SERVICE_URL` (or default URL if this is unspecified) via a Node server, which should resolve the issue.
+This will proxy the `NAMADA_INTERFACE_AIRDROP_BACKEND_SERVICE_URL` (or default URL if this is unspecified) via a Node server, which should resolve the issue.
 
 [ [Table of Contents](#table-of-contents) ]
 

@@ -49,7 +49,7 @@ import {
   TermsContainer,
 } from "./ClaimConfirmation.components";
 
-const { REACT_APP_NAMADA_CHAIN_ID: namadaChainId = "" } = process.env;
+const { NAMADA_INTERFACE_NAMADA_CHAIN_ID: namadaChainId = "" } = process.env;
 
 const claim = (
   state: CommonState,

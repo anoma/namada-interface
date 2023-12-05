@@ -30,11 +30,11 @@ const DEFAULT_ENDPOINT = "/api/v1/faucet";
 const DEFAULT_FAUCET_LIMIT = "1000";
 
 const {
-  REACT_APP_FAUCET_API_URL: faucetApiUrl = DEFAULT_URL,
-  REACT_APP_FAUCET_API_ENDPOINT: faucetApiEndpoint = DEFAULT_ENDPOINT,
-  REACT_APP_FAUCET_LIMIT: faucetLimit = DEFAULT_FAUCET_LIMIT,
-  REACT_APP_PROXY: isProxied,
-  REACT_APP_PROXY_PORT: proxyPort = 9000,
+  NAMADA_INTERFACE_FAUCET_API_URL: faucetApiUrl = DEFAULT_URL,
+  NAMADA_INTERFACE_FAUCET_API_ENDPOINT: faucetApiEndpoint = DEFAULT_ENDPOINT,
+  NAMADA_INTERFACE_FAUCET_LIMIT: faucetLimit = DEFAULT_FAUCET_LIMIT,
+  NAMADA_INTERFACE_PROXY: isProxied,
+  NAMADA_INTERFACE_PROXY_PORT: proxyPort = 9000,
 } = process.env;
 
 const apiUrl = isProxied ? `http://localhost:${proxyPort}/proxy` : faucetApiUrl;

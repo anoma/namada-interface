@@ -17,9 +17,9 @@ import { createTransform } from "redux-persist";
 import { SettingsState } from "slices/settings";
 import { chains, defaultChainId } from "@namada/chains";
 
-const { REACT_APP_LOCAL, NODE_ENV } = process.env;
+const { NAMADA_INTERFACE_LOCAL, NODE_ENV } = process.env;
 const POSTFIX =
-  NODE_ENV === "development" ? (REACT_APP_LOCAL ? "-local" : "-dev") : "";
+  NODE_ENV === "development" ? (NAMADA_INTERFACE_LOCAL ? "-local" : "-dev") : "";
 
 const ChainIdTransform = createTransform(
   (inboundState: SettingsState) => {

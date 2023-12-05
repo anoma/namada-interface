@@ -17,7 +17,7 @@ import { erc20Abi, ethereumBridgeAbi } from "./abi";
 const MULTIPLE_WALLETS = "Multiple wallets installed!";
 const CANT_FETCH_ACCOUNTS = "Can't fetch accounts!";
 const {
-  CONTRACT_ADDR_ETH_BRIDGE = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+  NAMADA_INTERFACE_CONTRACT_ADDR_ETH_BRIDGE = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
 } = process.env;
 
 type MetamaskWindow = Window &
@@ -107,7 +107,7 @@ class Metamask implements Integration<Account, unknown> {
 
     const erc = new ethers.Contract(asset, erc20Abi, signer);
     const bridge = new ethers.Contract(
-      CONTRACT_ADDR_ETH_BRIDGE,
+      NAMADA_INTERFACE_CONTRACT_ADDR_ETH_BRIDGE,
       ethereumBridgeAbi,
       signer
     );

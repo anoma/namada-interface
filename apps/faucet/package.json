@@ -10,7 +10,7 @@
     "start": "webpack-dev-server",
     "start:proxy": "node ./scripts/startProxy.js",
     "dev": "NODE_ENV=development yarn start",
-    "dev:proxy": "./scripts/start-proxy.sh; REACT_APP_PROXY=true yarn dev",
+    "dev:proxy": "./scripts/start-proxy.sh; NAMADA_INTERFACE_PROXY=true yarn dev",
     "build": "NODE_ENV=production webpack-cli",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "yarn lint -- --fix"

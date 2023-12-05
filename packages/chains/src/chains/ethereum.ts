@@ -6,10 +6,10 @@ const DEFAULT_CHAIN_ID = "0x5";
 const DEFAULT_RPC = "https://eth-goerli.g.alchemy.com/v2/";
 
 const {
-  REACT_APP_PROXY: isProxied,
-  REACT_APP_ETH_ALIAS: alias = DEFAULT_ALIAS,
-  REACT_APP_ETH_CHAIN_ID: chainId = DEFAULT_CHAIN_ID,
-  REACT_APP_ETH_URL: rpc = DEFAULT_RPC,
+  NAMADA_INTERFACE_PROXY: isProxied,
+  NAMADA_INTERFACE_ETH_ALIAS: alias = DEFAULT_ALIAS,
+  NAMADA_INTERFACE_ETH_CHAIN_ID: chainId = DEFAULT_CHAIN_ID,
+  NAMADA_INTERFACE_ETH_URL: rpc = DEFAULT_RPC,
 } = process.env;
 
 const ethereum: Chain = {

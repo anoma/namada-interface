@@ -57,11 +57,11 @@ const txStore = new MemoryKVStore(KVPrefix.Memory);
 
 const DEFAULT_URL =
   "https://d3brk13lbhxfdb.cloudfront.net/qc-testnet-5.1.025a61165acd05e";
-const { REACT_APP_PROXY, REACT_APP_NAMADA_URL = DEFAULT_URL } = process.env;
+const { NAMADA_INTERFACE_PROXY, NAMADA_INTERFACE_NAMADA_URL = DEFAULT_URL } = process.env;
 
-const NamadaRpcEndpoint = REACT_APP_PROXY
+const NamadaRpcEndpoint = NAMADA_INTERFACE_PROXY
   ? ProxyMappings["namada"]
-  : REACT_APP_NAMADA_URL;
+  : NAMADA_INTERFACE_NAMADA_URL;
 
 const messenger = new ExtensionMessenger();
 const router = new ExtensionRouter(

@@ -11,7 +11,7 @@
     "start:proxy": "node ./scripts/startProxy.js",
     "dev": "NODE_ENV=development && yarn start",
     "dev:remote": "NODE_ENV=production && yarn start",
-    "dev:proxy": "REACT_APP_PROXY=true; ./scripts/start-proxy.sh; yarn dev",
+    "dev:proxy": "NAMADA_INTERFACE_PROXY=true; ./scripts/start-proxy.sh; yarn dev",
     "build": "NODE_ENV=production && webpack-cli",
     "lint": "npx eslint src --ext .ts,.tsx",
     "lint:ci": "npx yarn lint --max-warnings 0",

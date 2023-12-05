@@ -22,13 +22,13 @@ export const FaucetTokens: Record<FaucetToken, string> = {
  * Overrides specified in environment
  */
 const {
-  REACT_APP_TOKEN_NAM: tokenNam = FaucetTokens.NAM,
-  REACT_APP_TOKEN_BTC: tokenBtc = FaucetTokens.BTC,
-  REACT_APP_TOKEN_ETH: tokenEth = FaucetTokens.ETH,
-  REACT_APP_TOKEN_DOT: tokenDot = FaucetTokens.DOT,
-  REACT_APP_TOKEN_SCHNITZEL: tokenSchnitzel = FaucetTokens.Schnitzel,
-  REACT_APP_TOKEN_APFEL: tokenApfel = FaucetTokens.Apfel,
-  REACT_APP_TOKEN_KARTOFFEL: tokenKartoffel = FaucetTokens.Kartoffel,
+  NAMADA_INTERFACE_TOKEN_NAM: tokenNam = FaucetTokens.NAM,
+  NAMADA_INTERFACE_TOKEN_BTC: tokenBtc = FaucetTokens.BTC,
+  NAMADA_INTERFACE_TOKEN_ETH: tokenEth = FaucetTokens.ETH,
+  NAMADA_INTERFACE_TOKEN_DOT: tokenDot = FaucetTokens.DOT,
+  NAMADA_INTERFACE_TOKEN_SCHNITZEL: tokenSchnitzel = FaucetTokens.Schnitzel,
+  NAMADA_INTERFACE_TOKEN_APFEL: tokenApfel = FaucetTokens.Apfel,
+  NAMADA_INTERFACE_TOKEN_KARTOFFEL: tokenKartoffel = FaucetTokens.Kartoffel,
 } = process.env;
 
 /**

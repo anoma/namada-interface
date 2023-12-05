@@ -3,8 +3,8 @@ import { GithubIcon } from "App/Icons/GithubIcon";
 import { ButtonProps } from "./types";
 
 const {
-  REACT_APP_REDIRECT_URI: redirectUrl = "",
-  REACT_APP_GITHUB_CLIENT_ID: githubClientId = "",
+  NAMADA_INTERFACE_REDIRECT_URI: redirectUrl = "",
+  NAMADA_INTERFACE_GITHUB_CLIENT_ID: githubClientId = "",
 } = process.env;
 
 export const GithubButton = ({ disabled }: ButtonProps): JSX.Element => {

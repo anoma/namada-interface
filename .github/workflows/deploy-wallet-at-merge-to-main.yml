@@ -35,9 +35,9 @@ jobs:
         working-directory: ./apps/namada-interface
         run: yarn build
         env:
-          REACT_APP_NAMADA_ALIAS: "Namada Devnet"
-          REACT_APP_NAMADA_CHAIN_ID: "internal-devnet-6be.86067e06a5"
-          REACT_APP_NAMADA_URL: "https://proxy.heliax.click/internal-devnet-6be.86067e06a5"
+          NAMADA_INTERFACE_NAMADA_ALIAS: "Namada Devnet"
+          NAMADA_INTERFACE_NAMADA_CHAIN_ID: "internal-devnet-6be.86067e06a5"
+          NAMADA_INTERFACE_NAMADA_URL: "https://proxy.heliax.click/internal-devnet-6be.86067e06a5"
 
       - name: Deploy to Netlify
         if: false

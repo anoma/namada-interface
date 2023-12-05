@@ -24,7 +24,7 @@ import { closeCurrentTab } from "utils";
 import { FetchAndStoreMaspParamsMsg, HasMaspParamsMsg } from "provider";
 import { SubmitApprovedTxMsg } from "background/approvals";
 
-const { REACT_APP_NAMADA_FAUCET_ADDRESS: faucetAddress } = process.env;
+const { NAMADA_INTERFACE_NAMADA_FAUCET_ADDRESS: faucetAddress } = process.env;
 
 type Props = {
   details?: ApprovalDetails;

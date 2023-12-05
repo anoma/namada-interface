@@ -21,7 +21,7 @@ import { submitTransferTransaction } from "App/Token/TokenSend/TokenSendForm";
 import BigNumber from "bignumber.js";
 import { defaultChainId } from "@namada/chains";
 
-const { REACT_APP_NAMADA_FAUCET_LIMIT: faucetLimit = "1000" } = process.env;
+const { NAMADA_INTERFACE_NAMADA_FAUCET_LIMIT: faucetLimit = "1000" } = process.env;
 
 type Props = {
   account: Account;

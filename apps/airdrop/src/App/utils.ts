@@ -5,11 +5,11 @@ import { NavigateFunction } from "react-router-dom";
 import { Label } from "./state";
 import { MaybeOtherEVMWindow } from "./types";
 
-const { NODE_ENV, AIRDROP_AUTH_SECRET = "header" } = process.env;
+const { NODE_ENV, NAMADA_INTERFACE_AIRDROP_AUTH_SECRET = "header" } = process.env;
 const AUTH_HEADER =
   NODE_ENV === "development"
     ? // NODE_ENV === "production"
-      { "x-airdrop-secret": AIRDROP_AUTH_SECRET }
+      { "x-airdrop-secret": NAMADA_INTERFACE_AIRDROP_AUTH_SECRET }
     : null;
 
 export const navigatePostCheck = (

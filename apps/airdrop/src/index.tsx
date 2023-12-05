@@ -7,7 +7,7 @@ import { IntegrationsContext } from "@namada/hooks";
 import { Namada } from "@namada/integrations";
 import namada from "@namada/chains/src/chains/namada";
 
-const { REACT_APP_NAMADA_CHAIN_ID: namadaChainId = "namadaChainId" } =
+const { NAMADA_INTERFACE_NAMADA_CHAIN_ID: namadaChainId = "namadaChainId" } =
   process.env;
 
 //We just use this for Namada

@@ -6,10 +6,10 @@ const DEFAULT_CHAIN_ID = "cosmoshub-4";
 const DEFAULT_RPC = "https://api.cosmos.network/";
 
 const {
-  REACT_APP_PROXY: isProxied,
-  REACT_APP_COSMOS_ALIAS: alias = DEFAULT_ALIAS,
-  REACT_APP_COSMOS_CHAIN_ID: chainId = DEFAULT_CHAIN_ID,
-  REACT_APP_COSMOS_URL: rpc = DEFAULT_RPC,
+  NAMADA_INTERFACE_PROXY: isProxied,
+  NAMADA_INTERFACE_COSMOS_ALIAS: alias = DEFAULT_ALIAS,
+  NAMADA_INTERFACE_COSMOS_CHAIN_ID: chainId = DEFAULT_CHAIN_ID,
+  NAMADA_INTERFACE_COSMOS_URL: rpc = DEFAULT_RPC,
 } = process.env;
 
 const cosmos: Chain = {

@@ -8,7 +8,7 @@ import {
 } from "./types";
 import { AirdropResponse, airdropFetch } from "./utils";
 
-const { AIRDROP_BACKEND_SERVICE_URL: backendUrl = "" } = process.env;
+const { NAMADA_INTERFACE_AIRDROP_BACKEND_SERVICE_URL: backendUrl = "" } = process.env;
 
 const AirdropApiPath = {
   V1: `/api/v1/airdrop`,

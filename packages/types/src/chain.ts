@@ -2,7 +2,7 @@ import { TokenType } from "./tx";
 
 const {
   // Load extension download URL from env
-  REACT_APP_EXTENSION_URL: extensionUrl,
+  NAMADA_INTERFACE_EXTENSION_URL: extensionUrl,
 } = process.env;
 
 export type Currency = {

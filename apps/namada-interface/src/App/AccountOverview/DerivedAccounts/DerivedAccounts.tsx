@@ -37,7 +37,7 @@ import { CoinsState, fetchConversionRates } from "slices/coins";
 import { SettingsState } from "slices/settings";
 import Config from "config";
 
-const { REACT_APP_NAMADA_FAUCET_ADDRESS: faucetAddress } = process.env;
+const { NAMADA_INTERFACE_NAMADA_FAUCET_ADDRESS: faucetAddress } = process.env;
 
 type Props = {
   setTotal: (total: BigNumber) => void;

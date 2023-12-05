@@ -48,7 +48,7 @@ import {
 import { VaultService } from "background/vault";
 import { generateId } from "utils";
 
-const { REACT_APP_NAMADA_FAUCET_ADDRESS: faucetAddress } = process.env;
+const { NAMADA_INTERFACE_NAMADA_FAUCET_ADDRESS: faucetAddress } = process.env;
 
 // Generated UUID namespace for uuid v5
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";

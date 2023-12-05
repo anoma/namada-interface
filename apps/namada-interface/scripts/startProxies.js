@@ -2,28 +2,28 @@ const { exec } = require("child_process");
 require("dotenv").config();
 
 const {
-  REACT_APP_NAMADA_ALIAS = "Namada",
-  REACT_APP_NAMADA_URL,
-  REACT_APP_COSMOS_ALIAS = "Cosmos",
-  REACT_APP_COSMOS_URL,
-  REACT_APP_ETH_ALIAS = "Ethereum",
-  REACT_APP_ETH_URL,
+  NAMADA_INTERFACE_NAMADA_ALIAS = "Namada",
+  NAMADA_INTERFACE_NAMADA_URL,
+  NAMADA_INTERFACE_COSMOS_ALIAS = "Cosmos",
+  NAMADA_INTERFACE_COSMOS_URL,
+  NAMADA_INTERFACE_ETH_ALIAS = "Ethereum",
+  NAMADA_INTERFACE_ETH_URL,
 } = process.env;
 
 const proxyConfigs = [
   {
-    alias: REACT_APP_NAMADA_ALIAS,
-    url: REACT_APP_NAMADA_URL,
+    alias: NAMADA_INTERFACE_NAMADA_ALIAS,
+    url: NAMADA_INTERFACE_NAMADA_URL,
     proxyPort: 8010,
   },
   {
-    alias: REACT_APP_COSMOS_ALIAS,
-    url: REACT_APP_COSMOS_URL,
+    alias: NAMADA_INTERFACE_COSMOS_ALIAS,
+    url: NAMADA_INTERFACE_COSMOS_URL,
     proxyPort: 8011,
   },
   {
-    alias: REACT_APP_ETH_ALIAS,
-    url: REACT_APP_ETH_URL,
+    alias: NAMADA_INTERFACE_ETH_ALIAS,
+    url: NAMADA_INTERFACE_ETH_URL,
     proxyPort: 8012,
   },
 ];
