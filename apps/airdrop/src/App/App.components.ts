@@ -634,7 +634,7 @@ export const AirdropConfirmationWarning = styled(Warning)<
 
   & ul {
     padding-left: ${spacement(5)};
-    margin: 0;
+    margin: ${spacement(2)} 0 0;
 
   & li {
     padding: ${spacement(2)} 0;

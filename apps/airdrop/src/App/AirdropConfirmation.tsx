@@ -5,8 +5,10 @@ import {
   Stack,
   Text,
 } from "@namada/components";
+import gsap, { Expo, Quint } from "gsap";
 import { useAtom } from "jotai";
-import { confirmationAtom } from "./state";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { AnotherWays } from "./AnotherWays";
 import {
   AirdropBreakdownSection,
   AirdropConfirmationAccordion,
@@ -27,23 +29,21 @@ import {
   TableHeader,
   TableRow,
 } from "./App.components";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { AnotherWays } from "./AnotherWays";
-import { GithubEligibility, mapEligibility } from "./eligibilityMap";
+import { CommunityFooter } from "./Common/CommunityFooter";
+import { PageFooter } from "./Common/PageFooter";
+import { WarningList } from "./Common/Warning";
+import { Bars1Svg } from "./Graphics/Bars1";
+import { Bars2Svg } from "./Graphics/Bars2";
+import { EyeSvg } from "./Graphics/Eye";
 import { PoolSvg } from "./Graphics/Pool";
 import { PoolTopLayer } from "./Graphics/PoolTopLayer";
 import { WireSvg } from "./Graphics/Wire";
-import { Bars2Svg } from "./Graphics/Bars2";
-import { Bars1Svg } from "./Graphics/Bars1";
-import { EyeSvg } from "./Graphics/Eye";
 import { WarningIcon } from "./Icons/WarningIcon";
-import { PageFooter } from "./Common/PageFooter";
 import { iconsOnMouseMovement } from "./animations";
-import { CommunityFooter } from "./Common/CommunityFooter";
-import { WarningList } from "./Common/Warning";
-import { ClaimCategory } from "./types";
 import { getAllClaims } from "./claimService";
-import gsap, { Expo, Quint } from "gsap";
+import { GithubEligibility, mapEligibility } from "./eligibilityMap";
+import { confirmationAtom } from "./state";
+import { ClaimCategory } from "./types";
 
 const categoryAccountTypeMap: Record<ClaimCategory, string> = {
   Github: "Github",
@@ -163,7 +163,7 @@ export const AirdropConfirmation: React.FC = () => {
         yoyo: true,
         repeat: 10,
         duration: 0.025,
-        delay: 2,
+        delay: 4,
       });
     }, [containerRef.current]);
   }, [confirmation]);
@@ -172,15 +172,22 @@ export const AirdropConfirmation: React.FC = () => {
     gsap.context(() => {
       const tl = gsap.timeline();
       tl.fromTo(
+        ".circle-section",
+        { scale: 0 },
+        { scale: 1, duration: 1.5, ease: Expo.easeOut }
+      );
+
+      tl.fromTo(
         ".main-header",
         { y: "+=150", opacity: 0, scale: 0.75 },
-        { opacity: 1, duration: 1, scale: 1, ease: Quint.easeOut }
+        { opacity: 1, duration: 1, scale: 1, ease: Quint.easeOut },
+        "-=0.9"
       );
 
       tl.to(
         ".main-header",
         { y: 0, duration: 1.25, ease: Expo.easeOut },
-        "-=0.5"
+        "-=0.375"
       );
 
       tl.fromTo(
@@ -195,7 +202,7 @@ export const AirdropConfirmation: React.FC = () => {
   return (
     <AirdropConfirmationContainer ref={containerRef}>
       <GlobalStyles colorMode="light" />
-      <AirdropConfirmationMainSection>
+      <AirdropConfirmationMainSection className="circle-section">
         <AirdropConfirmationSection>
           <Stack gap={5}>
             <Stack gap={2}>
