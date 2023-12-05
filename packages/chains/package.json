@@ -11,7 +11,7 @@
     "typescript": "^5.1.3"
   },
   "devDependencies": {
-    "@namada/eslint-config": "workspace:^",
+    "@namada/config": "workspace:^",
     "eslint": "^8.49.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-import-resolver-typescript": "^3.5.2",

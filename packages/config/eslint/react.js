@@ -5,7 +5,7 @@ module.exports = {
   },
   "extends": [
     "plugin:react/recommended",
-    "@namada/eslint-config",
+    require.resolve("./index.js"),
   ],
   "parserOptions": {
     "ecmaFeatures": {

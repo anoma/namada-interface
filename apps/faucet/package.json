@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "@babel/plugin-transform-modules-commonjs": "^7.20.11",
-    "@namada/eslint-config": "workspace:^",
+    "@namada/config": "workspace:^",
     "@svgr/webpack": "^6.3.1",
     "@types/dompurify": "^3.0.2",
     "@types/node-forge": "^1.3.6",

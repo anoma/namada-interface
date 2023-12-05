@@ -72,7 +72,7 @@
     ]
   },
   "devDependencies": {
-    "@namada/eslint-config": "workspace:^",
+    "@namada/config": "workspace:^",
     "@playwright/test": "^1.24.1",
     "@svgr/webpack": "^6.5.1",
     "@testing-library/jest-dom": "^5.16.2",

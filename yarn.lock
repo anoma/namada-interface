@@ -6379,7 +6379,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@namada/chains@workspace:packages/chains"
   dependencies:
-    "@namada/eslint-config": "workspace:^"
+    "@namada/config": "workspace:^"
     "@namada/types": "npm:0.1.0"
     eslint: "npm:^8.49.0"
     eslint-config-prettier: "npm:^8.8.0"
@@ -6395,7 +6395,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@namada/components@workspace:packages/components"
   dependencies:
-    "@namada/eslint-config": "workspace:^"
+    "@namada/config": "workspace:^"
     "@namada/utils": "npm:0.1.0"
     "@types/react": "npm:^17.0.39"
     "@types/styled-components": "npm:^5.1.26"
@@ -6407,6 +6407,18 @@ __metadata:
     react: "npm:^17.0.2"
     styled-components: "npm:^5.3.5"
     typescript: "npm:^5.1.3"
+  languageName: unknown
+  linkType: soft
+
+"@namada/config@workspace:^, @namada/config@workspace:packages/config":
+  version: 0.0.0-use.local
+  resolution: "@namada/config@workspace:packages/config"
+  peerDependencies:
+    eslint: ^8.49.0
+    eslint-config-prettier: ^8.8.0
+    eslint-plugin-import: ^2.27.5
+    eslint-plugin-react: ^7.33.0
+    eslint-plugin-react-hooks: ^4.6.0
   languageName: unknown
   linkType: soft
 
@@ -6425,18 +6437,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@namada/eslint-config@workspace:^, @namada/eslint-config@workspace:packages/eslint-config":
-  version: 0.0.0-use.local
-  resolution: "@namada/eslint-config@workspace:packages/eslint-config"
-  peerDependencies:
-    eslint: ^8.49.0
-    eslint-config-prettier: ^8.8.0
-    eslint-plugin-import: ^2.27.5
-    eslint-plugin-react: ^7.33.0
-    eslint-plugin-react-hooks: ^4.6.0
-  languageName: unknown
-  linkType: soft
-
 "@namada/extension@workspace:apps/extension":
   version: 0.0.0-use.local
   resolution: "@namada/extension@workspace:apps/extension"
@@ -6449,8 +6449,8 @@ __metadata:
     "@ledgerhq/hw-transport-webusb": "npm:^6.27.14"
     "@namada/chains": "npm:0.1.0"
     "@namada/components": "npm:0.1.0"
+    "@namada/config": "workspace:^"
     "@namada/crypto": "npm:0.1.0"
-    "@namada/eslint-config": "workspace:^"
     "@namada/ledger-namada": "npm:0.0.1"
     "@namada/shared": "npm:0.1.0"
     "@namada/storage": "npm:0.1.0"
@@ -6515,7 +6515,7 @@ __metadata:
     "@babel/plugin-transform-modules-commonjs": "npm:^7.20.11"
     "@cosmjs/encoding": "npm:^0.29.0"
     "@namada/components": "npm:0.1.0"
-    "@namada/eslint-config": "workspace:^"
+    "@namada/config": "workspace:^"
     "@namada/utils": "npm:0.1.0"
     "@svgr/webpack": "npm:^6.3.1"
     "@types/dompurify": "npm:^3.0.2"
@@ -6553,7 +6553,7 @@ __metadata:
   resolution: "@namada/hooks@workspace:packages/hooks"
   dependencies:
     "@namada/chains": "npm:0.1.0"
-    "@namada/eslint-config": "workspace:^"
+    "@namada/config": "workspace:^"
     "@namada/integrations": "npm:0.1.0"
     "@namada/types": "npm:0.1.0"
     "@namada/utils": "npm:0.1.0"
@@ -6578,7 +6578,7 @@ __metadata:
     "@keplr-wallet/types": "npm:^0.10.19"
     "@metamask/providers": "npm:^10.2.1"
     "@metamask/sdk": "npm:^0.1.0"
-    "@namada/eslint-config": "workspace:^"
+    "@namada/config": "workspace:^"
     "@namada/types": "npm:0.1.0"
     "@namada/utils": "npm:0.1.0"
     "@types/jest": "npm:^28.1.8"
@@ -6626,7 +6626,7 @@ __metadata:
   resolution: "@namada/namada-interface@workspace:apps/namada-interface"
   dependencies:
     "@namada/components": "npm:0.1.0"
-    "@namada/eslint-config": "workspace:^"
+    "@namada/config": "workspace:^"
     "@namada/hooks": "npm:0.1.0"
     "@namada/integrations": "npm:0.1.0"
     "@namada/utils": "npm:0.1.0"
@@ -6715,7 +6715,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@namada/storage@workspace:packages/storage"
   dependencies:
-    "@namada/eslint-config": "workspace:^"
+    "@namada/config": "workspace:^"
     "@types/firefox-webext-browser": "npm:^94.0.1"
     "@types/jest": "npm:^29.0.0"
     eslint: "npm:^8.49.0"
@@ -6735,7 +6735,7 @@ __metadata:
   resolution: "@namada/types@workspace:packages/types"
   dependencies:
     "@dao-xyz/borsh": "npm:^5.1.5"
-    "@namada/eslint-config": "workspace:^"
+    "@namada/config": "workspace:^"
     "@namada/ledger-namada": "npm:0.0.1"
     "@types/bn.js": "npm:^5.1.1"
     bn.js: "npm:^5.2.1"
@@ -6755,7 +6755,7 @@ __metadata:
   resolution: "@namada/utils@workspace:packages/utils"
   dependencies:
     "@cosmjs/json-rpc": "npm:^0.27.1"
-    "@namada/eslint-config": "workspace:^"
+    "@namada/config": "workspace:^"
     "@types/bs58": "npm:^4.0.1"
     "@types/crypto-js": "npm:^4.1.1"
     "@types/jest": "npm:^28.1.8"

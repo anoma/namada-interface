@@ -1,5 +1,5 @@
 {
-  "name": "@namada/eslint-config",
+  "name": "@namada/config",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
