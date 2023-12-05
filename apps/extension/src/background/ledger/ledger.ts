@@ -8,7 +8,7 @@ import {
   ResponseSign,
   ResponseVersion,
   LedgerError,
-} from "@namada/ledger-namada";
+} from "@zondax/ledger-namada";
 import { defaultChainId, chains } from "@namada/chains";
 import { makeBip44Path } from "@namada/utils";
 import { toHex } from "@cosmjs/encoding";
