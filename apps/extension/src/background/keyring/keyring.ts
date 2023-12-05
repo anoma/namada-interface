@@ -641,11 +641,7 @@ export class KeyRing {
   async submitBond(bondMsg: Uint8Array, txMsg: Uint8Array): Promise<void> {
     await this.vaultService.assertIsUnlocked();
     try {
-      const builtTx = await this.sdk.build_bond(
-        bondMsg,
-        txMsg,
-        await this.vaultService.UNSAFE_getPassword()
-      );
+      const builtTx = await this.sdk.build_bond(bondMsg, txMsg);
       const { source } = deserialize(Buffer.from(bondMsg), SubmitBondMsgValue);
       const secret = await this.getSigningKey(source);
       const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(
@@ -670,11 +666,7 @@ export class KeyRing {
   async submitUnbond(unbondMsg: Uint8Array, txMsg: Uint8Array): Promise<void> {
     await this.vaultService.assertIsUnlocked();
     try {
-      const builtTx = await this.sdk.build_unbond(
-        unbondMsg,
-        txMsg,
-        await this.vaultService.UNSAFE_getPassword()
-      );
+      const builtTx = await this.sdk.build_unbond(unbondMsg, txMsg);
       const { source } = deserialize(
         Buffer.from(unbondMsg),
         SubmitUnbondMsgValue
@@ -698,11 +690,7 @@ export class KeyRing {
   ): Promise<void> {
     await this.vaultService.assertIsUnlocked();
     try {
-      const builtTx = await this.sdk.build_withdraw(
-        withdrawMsg,
-        txMsg,
-        await this.vaultService.UNSAFE_getPassword()
-      );
+      const builtTx = await this.sdk.build_withdraw(withdrawMsg, txMsg);
       const { source } = deserialize(
         Buffer.from(withdrawMsg),
         SubmitWithdrawMsgValue
@@ -728,8 +716,7 @@ export class KeyRing {
     try {
       const builtTx = await this.sdk.build_vote_proposal(
         voteProposalMsg,
-        txMsg,
-        await this.vaultService.UNSAFE_getPassword()
+        txMsg
       );
       const { signer } = deserialize(
         Buffer.from(voteProposalMsg),
@@ -750,7 +737,7 @@ export class KeyRing {
 
   async submitTransfer(
     transferMsg: Uint8Array,
-    submit: (password: string, secret: string) => Promise<void>
+    submit: (secret: string) => Promise<void>
   ): Promise<void> {
     await this.vaultService.assertIsUnlocked();
 
@@ -776,7 +763,7 @@ export class KeyRing {
         : // Otherwise, return the decrypted key
           await this.getSigningKey(source);
 
-    await submit(await this.vaultService.UNSAFE_getPassword(), signingKey);
+    await submit(signingKey);
   }
 
   async submitIbcTransfer(
@@ -785,11 +772,7 @@ export class KeyRing {
   ): Promise<void> {
     await this.vaultService.assertIsUnlocked();
     try {
-      const builtTx = await this.sdk.build_ibc_transfer(
-        ibcTransferMsg,
-        txMsg,
-        await this.vaultService.UNSAFE_getPassword()
-      );
+      const builtTx = await this.sdk.build_ibc_transfer(ibcTransferMsg, txMsg);
       const { source } = deserialize(
         Buffer.from(ibcTransferMsg),
         IbcTransferMsgValue
@@ -815,8 +798,7 @@ export class KeyRing {
     try {
       const builtTx = await this.sdk.build_eth_bridge_transfer(
         ethBridgeTransferMsg,
-        txMsg,
-        await this.vaultService.UNSAFE_getPassword()
+        txMsg
       );
       const { sender } = deserialize(
         Buffer.from(ethBridgeTransferMsg),

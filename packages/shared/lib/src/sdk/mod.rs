@@ -84,7 +84,7 @@ impl Sdk {
             &mut self.shielded_ctx,
             &WebIo,
             //NAM address
-            Address::from_str("tnam1q99c37u38grkdcc2qze0hz4zjjd8zr3yucd3mzgz").unwrap(),
+            Address::from_str("tnam1qxuqn53dtcckynnm35n8s27cftxcqym7gvesjrp9").unwrap(),
         )
     }
 
@@ -114,10 +114,6 @@ impl Sdk {
         self.shielded_ctx = WebShieldedUtils::new(spend, output, convert);
 
         Ok(())
-    }
-
-    pub fn add_spending_key(&mut self, xsk: &str, password: Option<String>, alias: &str) {
-        wallet::add_spending_key(&mut self.wallet, xsk, password, alias)
     }
 
     pub async fn sign_tx(
@@ -201,38 +197,38 @@ impl Sdk {
     ) -> Result<JsValue, JsError> {
         let tx = match tx_type {
             TxType::Bond => {
-                self.build_bond(specific_msg, tx_msg, None, Some(gas_payer))
+                self.build_bond(specific_msg, tx_msg, Some(gas_payer))
                     .await?
                     .tx
             }
             TxType::Unbond => {
-                self.build_unbond(specific_msg, tx_msg, None, Some(gas_payer))
+                self.build_unbond(specific_msg, tx_msg, Some(gas_payer))
                     .await?
                     .tx
             }
             TxType::Withdraw => {
-                self.build_withdraw(specific_msg, tx_msg, None, Some(gas_payer))
+                self.build_withdraw(specific_msg, tx_msg, Some(gas_payer))
                     .await?
                     .tx
             }
             TxType::Transfer => {
-                self.build_transfer(specific_msg, tx_msg, None, None, Some(gas_payer))
+                self.build_transfer(specific_msg, tx_msg, None, Some(gas_payer))
                     .await?
                     .tx
             }
             TxType::IBCTransfer => {
-                self.build_ibc_transfer(specific_msg, tx_msg, None, Some(gas_payer))
+                self.build_ibc_transfer(specific_msg, tx_msg, Some(gas_payer))
                     .await?
                     .tx
             }
             TxType::EthBridgeTransfer => {
-                self.build_eth_bridge_transfer(specific_msg, tx_msg, None, Some(gas_payer))
+                self.build_eth_bridge_transfer(specific_msg, tx_msg, Some(gas_payer))
                     .await?
                     .tx
             }
             TxType::RevealPK => self.build_reveal_pk(tx_msg, gas_payer).await?,
             TxType::VoteProposal => {
-                self.build_vote_proposal(specific_msg, tx_msg, None, Some(gas_payer))
+                self.build_vote_proposal(specific_msg, tx_msg, Some(gas_payer))
                     .await?
                     .tx
             }
@@ -277,11 +273,10 @@ impl Sdk {
         &mut self,
         transfer_msg: &[u8],
         tx_msg: &[u8],
-        password: Option<String>,
         xsk: Option<String>,
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let mut args = tx::transfer_tx_args(transfer_msg, tx_msg, password, xsk)?;
+        let mut args = tx::transfer_tx_args(transfer_msg, tx_msg, xsk)?;
 
         let namada = self.get_namada();
         let (tx, signing_data, _) = build_transfer(&namada, &mut args).await?;
@@ -293,10 +288,9 @@ impl Sdk {
         &mut self,
         ibc_transfer_msg: &[u8],
         tx_msg: &[u8],
-        password: Option<String>,
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let args = tx::ibc_transfer_tx_args(ibc_transfer_msg, tx_msg, password)?;
+        let args = tx::ibc_transfer_tx_args(ibc_transfer_msg, tx_msg)?;
 
         let namada = self.get_namada();
         let (tx, signing_data, _) = build_ibc_transfer(&namada, &args).await?;
@@ -308,10 +302,9 @@ impl Sdk {
         &mut self,
         eth_bridge_transfer_msg: &[u8],
         tx_msg: &[u8],
-        password: Option<String>,
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let args = tx::eth_bridge_transfer_tx_args(eth_bridge_transfer_msg, tx_msg, password)?;
+        let args = tx::eth_bridge_transfer_tx_args(eth_bridge_transfer_msg, tx_msg)?;
 
         let namada = self.get_namada();
         let (tx, signing_data, _) = build_bridge_pool_tx(&namada, args.clone()).await?;
@@ -323,10 +316,9 @@ impl Sdk {
         &mut self,
         vote_proposal_msg: &[u8],
         tx_msg: &[u8],
-        password: Option<String>,
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let args = tx::vote_proposal_tx_args(vote_proposal_msg, tx_msg, password)?;
+        let args = tx::vote_proposal_tx_args(vote_proposal_msg, tx_msg)?;
         let epoch = query_epoch(&self.client).await?;
         let namada = self.get_namada();
 
@@ -341,10 +333,9 @@ impl Sdk {
         &mut self,
         bond_msg: &[u8],
         tx_msg: &[u8],
-        password: Option<String>,
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let args = tx::bond_tx_args(bond_msg, tx_msg, password)?;
+        let args = tx::bond_tx_args(bond_msg, tx_msg)?;
 
         let namada = self.get_namada();
         let (tx, signing_data, _) = build_bond(&namada, &args).await?;
@@ -356,10 +347,9 @@ impl Sdk {
         &mut self,
         unbond_msg: &[u8],
         tx_msg: &[u8],
-        password: Option<String>,
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let args = tx::unbond_tx_args(unbond_msg, tx_msg, password)?;
+        let args = tx::unbond_tx_args(unbond_msg, tx_msg)?;
 
         let namada = self.get_namada();
         let (tx, signing_data, _, _) = build_unbond(&namada, &args).await?;
@@ -371,10 +361,9 @@ impl Sdk {
         &mut self,
         withdraw_msg: &[u8],
         tx_msg: &[u8],
-        password: Option<String>,
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
-        let args = tx::withdraw_tx_args(withdraw_msg, tx_msg, password)?;
+        let args = tx::withdraw_tx_args(withdraw_msg, tx_msg)?;
 
         let namada = self.get_namada();
         let (tx, signing_data, _) = build_withdraw(&namada, &args).await?;
