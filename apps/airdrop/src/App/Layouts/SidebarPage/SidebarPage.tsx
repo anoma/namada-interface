@@ -41,7 +41,11 @@ export const SidebarPage = ({
         </SidebarTitle>
         <SocialList>
           <SocialListItem>
-            <TermsLinkWrapper href="#">
+            <TermsLinkWrapper
+              href="https://namada.net/blog/the-namada-rpgf-drop-is-live/"
+              target="_blank"
+              rel="nofollow noreferrer"
+            >
               Announcement{" "}
               <IconWrap>
                 <ExternalPageIcon />
