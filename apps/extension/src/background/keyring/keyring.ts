@@ -81,7 +81,7 @@ export class KeyRing {
     protected readonly sdk: Sdk,
     protected readonly query: Query,
     protected readonly cryptoMemory: WebAssembly.Memory
-  ) { }
+  ) {}
 
   public get status(): KeyRingStatus {
     return this._status;
@@ -322,7 +322,7 @@ export class KeyRing {
       address,
       id,
       owner: viewingKey,
-      text: JSON.stringify({ spendingKey, viewingKey }),
+      text: spendingKey,
     };
   }
 
@@ -772,9 +772,9 @@ export class KeyRing {
     const signingKey =
       account.public.type === AccountType.ShieldedKeys
         ? // For shielded accounts we need to return the spending key
-        JSON.parse(sensitiveProps.text).spendingKey
+          sensitiveProps.text
         : // Otherwise, return the decrypted key
-        await this.getSigningKey(source);
+          await this.getSigningKey(source);
 
     await submit(await this.vaultService.UNSAFE_getPassword(), signingKey);
   }
