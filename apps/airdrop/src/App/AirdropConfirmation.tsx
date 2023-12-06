@@ -109,6 +109,7 @@ export const AirdropConfirmation: React.FC = () => {
         }, 0);
         setTotalMinNam(totalMinNam);
 
+        // We do this because we want to group 'ethresearch` under the ZKP category
         const breakdown = Object.values(
           groupBy(result.claims, (c) => `${c.category}-${c.value}`)
         )
@@ -125,7 +126,7 @@ export const AirdropConfirmation: React.FC = () => {
             const breakdownReduced = Object.values(
               groupBy(breakdown, "category")
             ).map((v) =>
-              v.reduce((acc, curr) => ({
+              (v || []).reduce((acc, curr) => ({
                 ...acc,
                 minNam: acc.minNam + curr.minNam,
               }))
