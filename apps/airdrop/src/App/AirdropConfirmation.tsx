@@ -5,8 +5,10 @@ import {
   Stack,
   Text,
 } from "@namada/components";
+import gsap, { Expo, Quint } from "gsap";
 import { useAtom } from "jotai";
-import { confirmationAtom } from "./state";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { AnotherWays } from "./AnotherWays";
 import {
   AirdropBreakdownSection,
   AirdropConfirmationAccordion,
@@ -27,22 +29,21 @@ import {
   TableHeader,
   TableRow,
 } from "./App.components";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { AnotherWays } from "./AnotherWays";
-import { GithubEligibility, mapEligibility } from "./eligibilityMap";
+import { CommunityFooter } from "./Common/CommunityFooter";
+import { PageFooter } from "./Common/PageFooter";
+import { WarningList } from "./Common/Warning";
+import { Bars1Svg } from "./Graphics/Bars1";
+import { Bars2Svg } from "./Graphics/Bars2";
+import { EyeSvg } from "./Graphics/Eye";
 import { PoolSvg } from "./Graphics/Pool";
 import { PoolTopLayer } from "./Graphics/PoolTopLayer";
 import { WireSvg } from "./Graphics/Wire";
-import { Bars2Svg } from "./Graphics/Bars2";
-import { Bars1Svg } from "./Graphics/Bars1";
-import { EyeSvg } from "./Graphics/Eye";
 import { WarningIcon } from "./Icons/WarningIcon";
-import { PageFooter } from "./Common/PageFooter";
 import { iconsOnMouseMovement } from "./animations";
-import { CommunityFooter } from "./Common/CommunityFooter";
-import { WarningList } from "./Common/Warning";
-import { ClaimCategory } from "./types";
 import { getAllClaims } from "./claimService";
+import { GithubEligibility, mapEligibility } from "./eligibilityMap";
+import { confirmationAtom } from "./state";
+import { ClaimCategory } from "./types";
 
 const categoryAccountTypeMap: Record<ClaimCategory, string> = {
   Github: "Github",
@@ -87,14 +88,11 @@ type Breakdown = {
 
 export const AirdropConfirmation: React.FC = () => {
   const iconsContainerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [confirmation] = useAtom(confirmationAtom);
   const [totalMinNam, setTotalMinNam] = useState<number>();
   const [breakdown, setBreakdown] = useState<Breakdown[]>([]);
-
-  // We want to scroll to the top of the page when the component is mounted
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+  const [TOSReset, setTOSReset] = useState(false);
 
   if (confirmation === null) {
     throw new Error("Confirmation state is empty!");
@@ -123,19 +121,93 @@ export const AirdropConfirmation: React.FC = () => {
     })();
   }, [confirmation.address]);
 
+  // We want to scroll to the top of the page and reset checkbox when confirmation state changes
+  useEffect(() => {
+    setTOSReset(!TOSReset);
+    window.scrollTo(0, 0);
+  }, [confirmation]);
+
   useLayoutEffect(() => {
     if (!iconsContainerRef.current) return;
     return iconsOnMouseMovement(iconsContainerRef.current);
-  }, []);
+  }, [confirmation]);
+
+  useLayoutEffect(() => {
+    gsap.context(() => {
+      gsap.fromTo(
+        ".objects-container i",
+        {
+          y: `+=${window.innerHeight}`,
+          scale: 0.75,
+        },
+        {
+          scale: 1,
+          y: 0,
+          stagger: 0.1,
+          duration: 2.5,
+          ease: Expo.easeOut,
+          overwrite: true,
+        }
+      );
+
+      gsap.fromTo(
+        ".airdrop-warning",
+        {
+          opacity: 0,
+        },
+        { opacity: 1, duration: 1.25, ease: Expo.easeOut }
+      );
+
+      gsap.to(".airdrop-warning", {
+        x: "-=5",
+        yoyo: true,
+        repeat: 10,
+        duration: 0.025,
+        delay: 4,
+      });
+    }, [containerRef.current]);
+  }, [confirmation]);
+
+  useLayoutEffect(() => {
+    gsap.context(() => {
+      const tl = gsap.timeline();
+      tl.fromTo(
+        ".circle-section",
+        { scale: 0 },
+        { scale: 1, duration: 1.5, ease: Expo.easeOut }
+      );
+
+      tl.fromTo(
+        ".main-header",
+        { y: "+=150", opacity: 0, scale: 0.75 },
+        { opacity: 1, duration: 1, scale: 1, ease: Quint.easeOut },
+        "-=0.9"
+      );
+
+      tl.to(
+        ".main-header",
+        { y: 0, duration: 1.25, ease: Expo.easeOut },
+        "-=0.375"
+      );
+
+      tl.fromTo(
+        ".fade-in",
+        { opacity: 0, y: "+=15" },
+        { opacity: 1, y: 0, duration: 1.5, stagger: 0.025, ease: Expo.easeOut },
+        "-=0.95"
+      );
+    }, [containerRef.current]);
+  }, [confirmation]);
 
   return (
-    <AirdropConfirmationContainer>
+    <AirdropConfirmationContainer ref={containerRef}>
       <GlobalStyles colorMode="light" />
-      <AirdropConfirmationMainSection>
+      <AirdropConfirmationMainSection className="circle-section">
         <AirdropConfirmationSection>
           <Stack gap={5}>
             <Stack gap={2}>
               <AirdropConfirmationHeading
+                className="main-header"
                 level={"h1"}
                 size={"6xl"}
                 themeColor={"utility1"}
@@ -146,7 +218,7 @@ export const AirdropConfirmation: React.FC = () => {
                 <br />
                 submitted
               </AirdropConfirmationHeading>
-              <Text themeColor={"utility1"}>
+              <Text className="fade-in" themeColor={"utility1"}>
                 NAM will be available diretly in your wallet
                 <br /> at Namada Mainnet launch, subject to the
                 <br />{" "}
@@ -157,17 +229,19 @@ export const AirdropConfirmation: React.FC = () => {
             </Stack>
             <Stack gap={3}>
               <AirdropConfirmationInput
+                className="fade-in"
                 label="Genesis public key:"
                 variant={InputVariants.ReadOnlyCopy}
                 value={confirmation.publicKey}
               />
               <AirdropConfirmationInput
+                className="fade-in"
                 label="Genesis transparent account:"
                 variant={InputVariants.ReadOnlyCopy}
                 value={confirmation.address}
               />
             </Stack>
-            <Stack gap={"px"}>
+            <Stack gap={"px"} className="fade-in">
               <Heading themeColor={"utility1"} level={"h4"} size={"xl"}>
                 Minimum NAM claimed
               </Heading>
@@ -180,6 +254,7 @@ export const AirdropConfirmation: React.FC = () => {
       </AirdropConfirmationMainSection>
 
       <AirdropConfirmationWarning
+        className="airdrop-warning"
         width={"255px"}
         top={"80px"}
         left={"calc(50% - 640px)"}
@@ -193,11 +268,12 @@ export const AirdropConfirmation: React.FC = () => {
       <AirdropConfirmationPool>
         <PoolSvg />
       </AirdropConfirmationPool>
+
       <div ref={iconsContainerRef}>
         <AirdropConfirmationPoolTop>
           <PoolTopLayer />
         </AirdropConfirmationPoolTop>
-        <AirdropConfirmationObjectsContainer>
+        <AirdropConfirmationObjectsContainer className="objects-container">
           <IconContainer left={230} top={-50}>
             <WireSvg />
           </IconContainer>
@@ -265,7 +341,7 @@ export const AirdropConfirmation: React.FC = () => {
         </AirdropConfirmationAccordion>
       </AirdropBreakdownSection>
       <AnotherWaysSection>
-        <AnotherWays title="Try another claim" />
+        <AnotherWays reset={TOSReset} title="Try another claim" />
       </AnotherWaysSection>
       <CommunityFooter />
       <PageFooter />

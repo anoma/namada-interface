@@ -127,9 +127,7 @@ export const TrustedSetup: React.FC = () => {
               Paste the Public Key derived from the seed phrase you created when
               you participated in Namada&apos;s Trusted Setup
               <CheckEligibilityContainer>
-                <TrustedSetupInputWrapper
-                  title={publicKey ? `Public Key: ${publicKey}` : ""}
-                >
+                <TrustedSetupInputWrapper title={publicKey}>
                   <Input
                     variant={InputVariants.Text}
                     value={publicKey}
