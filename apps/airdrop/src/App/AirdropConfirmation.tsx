@@ -243,7 +243,7 @@ export const AirdropConfirmation: React.FC = () => {
                 <br /> at Namada Mainnet launch, subject to the
                 <br />{" "}
                 <LinkButton href="/terms-of-service" themeColor="utility1">
-                  <b>terms of Service</b>
+                  <b>Terms of Service</b>
                 </LinkButton>
               </Text>
             </Stack>
