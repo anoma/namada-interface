@@ -18,7 +18,7 @@ export const AcceptTermsCheckbox = ({
       <span>
         You agree to the{" "}
         <a href="/terms-and-conditions" target="_blank">
-          Terms & Conditions
+          Terms and Conditions
         </a>{" "}
         and are not in the US or any other prohibited jurisdiction
       </span>

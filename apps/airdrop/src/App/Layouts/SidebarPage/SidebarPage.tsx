@@ -33,7 +33,7 @@ export const SidebarPage = ({
       <aside>
         <SidebarTitle>
           <TermsLinkWrapper href="/terms-and-conditions" target="_blank">
-            Terms & Conditions{" "}
+            Terms and Conditions{" "}
             <IconWrap>
               <ExternalPageIcon />
             </IconWrap>

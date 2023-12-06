@@ -250,7 +250,7 @@ export const AirdropConfirmation: React.FC = () => {
                   target="_blank"
                   rel="noreferrer nofollow"
                 >
-                  <b>Terms & Conditions</b>
+                  <b>Terms and Conditions</b>
                 </LinkButton>
               </Text>
             </Stack>
