@@ -107,11 +107,11 @@ export const PageHeader = ({
 
       {showTermsOfService && (
         <PageHeaderLink
-          onClick={() => navigate("/terms-of-service")}
+          href="/terms-and-conditions"
           target="_blank"
           rel="noreferrer nofollow"
         >
-          Terms of Service
+          Terms & Conditions
         </PageHeaderLink>
       )}
     </PageHeaderContainer>

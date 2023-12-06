@@ -241,10 +241,16 @@ export const AirdropConfirmation: React.FC = () => {
               </AirdropConfirmationHeading>
               <Text className="fade-in" themeColor={"utility1"}>
                 NAM will be available directly in your wallet
-                <br /> at Namada Mainnet launch, subject to the
-                <br />{" "}
-                <LinkButton href="/terms-of-service" themeColor="utility1">
-                  <b>Terms of Service</b>
+                <br /> in the Namada mainnet genesis block proposal
+                <br /> made by the Anoma Foundation, subject to the
+                <br />
+                <LinkButton
+                  href="/terms-and-conditions"
+                  themeColor="utility1"
+                  target="_blank"
+                  rel="noreferrer nofollow"
+                >
+                  <b>Terms & Conditions</b>
                 </LinkButton>
               </Text>
             </Stack>

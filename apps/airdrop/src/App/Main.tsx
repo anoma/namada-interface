@@ -191,7 +191,7 @@ export const Main: React.FC = () => {
                         );
                       }}
                     >
-                      Read annoucement
+                      Read announcement
                       <i className="external-icon">
                         <ExternalPageIcon />
                       </i>
@@ -331,7 +331,7 @@ export const Main: React.FC = () => {
         visible={isGithubFetching}
         variant="full"
         status={"Please wait, we are checking the GitHub claim"}
-        imageUrl="/images/loading.gif"
+        imageUrl="/assets/images/loading.gif"
       />
     </>
   );

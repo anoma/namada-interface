@@ -32,14 +32,16 @@ export const App: React.FC = () => {
       <GlobalStyles colorMode="dark" />
       <BrowserView>
         <PageHeader
-          showStartOver={pathname !== "/" && pathname !== "/terms-of-service"}
+          showStartOver={
+            pathname !== "/" && pathname !== "/terms-and-conditions"
+          }
           showTermsOfService={pathname === "/"}
           showDomainWarning={pathname === "/"}
-          showBackToClaim={pathname === "/terms-of-service"}
+          showBackToClaim={pathname === "/terms-and-conditions"}
           yellowLogo={
             pathname !== "/" &&
             pathname !== "/claim-confirmed" &&
-            pathname !== "/terms-of-service"
+            pathname !== "/terms-and-conditions"
           }
         />
         <Routes>
@@ -74,7 +76,8 @@ export const App: React.FC = () => {
               )
             }
           />
-          <Route path={`/terms-of-service`} element={<TermsOfService />} />
+          <Route path={`/terms-and-conditions`} element={<TermsOfService />} />
+          <Route path="*" element={<Navigate to="/" replace={true} />}></Route>
         </Routes>
       </BrowserView>
       <MobileView>
