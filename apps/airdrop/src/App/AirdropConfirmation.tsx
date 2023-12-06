@@ -219,7 +219,7 @@ export const AirdropConfirmation: React.FC = () => {
                 submitted
               </AirdropConfirmationHeading>
               <Text className="fade-in" themeColor={"utility1"}>
-                NAM will be available diretly in your wallet
+                NAM will be available directly in your wallet
                 <br /> at Namada Mainnet launch, subject to the
                 <br />{" "}
                 <LinkButton href="/terms-of-service" themeColor="utility1">
@@ -311,7 +311,7 @@ export const AirdropConfirmation: React.FC = () => {
                 Account Type
               </TableCell>
               <TableCell width="calc(100% - 540px)" align="center">
-                Accout/Address
+                Account/Address
               </TableCell>
               <TableCell width="190px" align="center">
                 Category
