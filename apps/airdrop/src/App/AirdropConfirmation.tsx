@@ -1,3 +1,4 @@
+import groupBy from "lodash.groupby";
 import {
   Heading,
   InputVariants,
@@ -108,14 +109,32 @@ export const AirdropConfirmation: React.FC = () => {
         }, 0);
         setTotalMinNam(totalMinNam);
 
-        const breakdown = result.claims.map((claim) => {
-          return {
-            accountType: categoryAccountTypeMap[claim.category],
-            source: claim.value,
-            category: getCategory(claim.category, claim.eligible_for),
-            minNam: claim.token,
-          };
-        });
+        const breakdown = Object.values(
+          groupBy(result.claims, (c) => `${c.category}-${c.value}`)
+        )
+          .map((claims) => {
+            const breakdown = claims.map((claim) => {
+              return {
+                accountType: categoryAccountTypeMap[claim.category],
+                source: claim.value,
+                category: getCategory(claim.category, claim.eligible_for),
+                minNam: claim.token,
+              };
+            });
+
+            const breakdownReduced = Object.values(
+              groupBy(breakdown, "category")
+            ).map((v) =>
+              v.reduce((acc, curr) => ({
+                ...acc,
+                minNam: acc.minNam + curr.minNam,
+              }))
+            );
+
+            return breakdownReduced;
+          })
+          .flat();
+
         setBreakdown(breakdown);
       }
     })();

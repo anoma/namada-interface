@@ -6369,6 +6369,7 @@ __metadata:
     "@namada/utils": "npm:0.1.0"
     "@svgr/webpack": "npm:^6.3.1"
     "@types/dompurify": "npm:^3.0.2"
+    "@types/lodash.groupby": "npm:^4.6.9"
     "@types/node-forge": "npm:^1.3.6"
     "@types/react": "npm:^17.0.39"
     "@types/react-dom": "npm:^17.0.11"
@@ -6380,6 +6381,7 @@ __metadata:
     gsap: "npm:^3.12.2"
     jotai: "npm:^2.5.1"
     local-cors-proxy: "npm:^1.1.0"
+    lodash.groupby: "npm:^4.6.0"
     node-forge: "npm:^1.3.1"
     react: "npm:^17.0.2"
     react-device-detect: "npm:^2.2.3"
@@ -8252,6 +8254,22 @@ __metadata:
   dependencies:
     "@types/node": "npm:*"
   checksum: 10fa1af0f62e5c839f24123db88365e1b56a377667729201831d4b6ff0a729eb64d99aeed166398e02dd49a24aff6270b234b34f4e1eb09f0dda1f6f26686646
+  languageName: node
+  linkType: hard
+
+"@types/lodash.groupby@npm:^4.6.9":
+  version: 4.6.9
+  resolution: "@types/lodash.groupby@npm:4.6.9"
+  dependencies:
+    "@types/lodash": "npm:*"
+  checksum: 1302531f76da99cc8f1bbd486a8c7048a833352b12c39eb5b2ded01173dd5fff76f2c7ace04f08b51c55840271170f1cfbffe4e454dde8597c3ee996e70d4e11
+  languageName: node
+  linkType: hard
+
+"@types/lodash@npm:*":
+  version: 4.14.202
+  resolution: "@types/lodash@npm:4.14.202"
+  checksum: 6064d43c8f454170841bd67c8266cc9069d9e570a72ca63f06bceb484cb4a3ee60c9c1f305c1b9e3a87826049fd41124b8ef265c4dd08b00f6766609c7fe9973
   languageName: node
   linkType: hard
 
@@ -21928,6 +21946,13 @@ __metadata:
   version: 4.0.8
   resolution: "lodash.debounce@npm:4.0.8"
   checksum: 762998a63e095412b6099b8290903e0a8ddcb353ac6e2e0f2d7e7d03abd4275fe3c689d88960eb90b0dde4f177554d51a690f22a343932ecbc50a5d111849987
+  languageName: node
+  linkType: hard
+
+"lodash.groupby@npm:^4.6.0":
+  version: 4.6.0
+  resolution: "lodash.groupby@npm:4.6.0"
+  checksum: 3d136cad438ad6c3a078984ef60e057a3498b1312aa3621b00246ecb99e8f2c4d447e2815460db7a0b661a4fe4e2eeee96c84cb661a824bad04b6cf1f7bc6e9b
   languageName: node
   linkType: hard
 
