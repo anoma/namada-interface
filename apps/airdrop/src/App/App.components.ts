@@ -30,7 +30,7 @@ body {
       ? color("utility1", "main")(props)
       : color("primary", "main")(props)};
 
-  background-image: url(/images/background.svg);
+  background-image: url(/assets/images/background.svg);
   background-repeat: repeat;
   background-size: 100px 100px;
   background-position-y: 20px;

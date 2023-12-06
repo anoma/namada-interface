@@ -17,8 +17,8 @@ export const AcceptTermsCheckbox = ({
       <Checkbox disabled={disabled} checked={checked} onChange={onChange} />
       <span>
         You agree to the{" "}
-        <a href="/terms-of-service" target="_blank">
-          Terms of Service
+        <a href="/terms-and-conditions" target="_blank">
+          Terms & Conditions
         </a>{" "}
         and are not in the US or any other prohibited jurisdiction
       </span>
