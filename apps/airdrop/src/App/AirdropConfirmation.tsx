@@ -1,3 +1,4 @@
+import groupBy from "lodash.groupby";
 import {
   Heading,
   InputVariants,
@@ -108,14 +109,33 @@ export const AirdropConfirmation: React.FC = () => {
         }, 0);
         setTotalMinNam(totalMinNam);
 
-        const breakdown = result.claims.map((claim) => {
-          return {
-            accountType: categoryAccountTypeMap[claim.category],
-            source: claim.value,
-            category: getCategory(claim.category, claim.eligible_for),
-            minNam: claim.token,
-          };
-        });
+        // We do this because we want to group 'ethresearch` under the ZKP category
+        const breakdown = Object.values(
+          groupBy(result.claims, (c) => `${c.category}-${c.value}`)
+        )
+          .map((claims) => {
+            const breakdown = claims.map((claim) => {
+              return {
+                accountType: categoryAccountTypeMap[claim.category],
+                source: claim.value,
+                category: getCategory(claim.category, claim.eligible_for),
+                minNam: claim.token,
+              };
+            });
+
+            const breakdownReduced = Object.values(
+              groupBy(breakdown, "category")
+            ).map((v) =>
+              (v || []).reduce((acc, curr) => ({
+                ...acc,
+                minNam: acc.minNam + curr.minNam,
+              }))
+            );
+
+            return breakdownReduced;
+          })
+          .flat();
+
         setBreakdown(breakdown);
       }
     })();
@@ -219,7 +239,7 @@ export const AirdropConfirmation: React.FC = () => {
                 submitted
               </AirdropConfirmationHeading>
               <Text className="fade-in" themeColor={"utility1"}>
-                NAM will be available diretly in your wallet
+                NAM will be available directly in your wallet
                 <br /> at Namada Mainnet launch, subject to the
                 <br />{" "}
                 <LinkButton href="/terms-of-service" themeColor="utility1">
@@ -311,7 +331,7 @@ export const AirdropConfirmation: React.FC = () => {
                 Account Type
               </TableCell>
               <TableCell width="calc(100% - 540px)" align="center">
-                Accout/Address
+                Account/Address
               </TableCell>
               <TableCell width="190px" align="center">
                 Category
