@@ -19,7 +19,7 @@ export const navigatePostCheck = (
   if (eligible && !hasClaimed) {
     navigate("/claim/eligible", { replace });
   } else if (eligible && hasClaimed) {
-    navigate("/airdrop-confirmed", { replace });
+    navigate("/claim-confirmed", { replace });
   } else if (!eligible) {
     navigate("/non-eligible", { replace });
   }
