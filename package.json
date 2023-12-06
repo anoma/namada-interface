@@ -31,6 +31,8 @@
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
+    "eslint-plugin-prettier": "^5.0.1",
+    "prettier": "^3.1.0",
     "stream-browserify": "^3.0.0",
     "wsrun": "^5.2.4"
   },
