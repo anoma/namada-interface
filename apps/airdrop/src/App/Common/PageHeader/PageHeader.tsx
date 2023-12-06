@@ -111,7 +111,7 @@ export const PageHeader = ({
           target="_blank"
           rel="noreferrer nofollow"
         >
-          Terms & Conditions
+          Terms and Conditions
         </PageHeaderLink>
       )}
     </PageHeaderContainer>
