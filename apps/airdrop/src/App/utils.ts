@@ -67,3 +67,7 @@ export const ToastMessage = {
   SOMETHING_WENT_WRONG_WITH_ERR: (err: unknown) =>
     `Something went wrong: ${err}`,
 };
+
+export const formatAmount = (amount: number): number => {
+  return Math.floor(amount * 100) / 100;
+};
