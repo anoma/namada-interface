@@ -20,7 +20,6 @@ export const ClaimHeading = styled.header`
   padding: ${spacement(4)} ${spacement(6)};
   background: ${color("primary", "main")};
   border-radius: ${borderRadius("md")};
-  margin-bottom: ${spacement(5)};
 
   h1 {
     font-weight: 500 !important;
@@ -57,8 +56,8 @@ export const InputActionButton = styled.span`
   z-index: 100;
 `;
 
-export const ButtonContainer = styled.footer`
-  margin: ${spacement(12)} 0;
+export const ButtonContainer = styled.div`
+  margin: ${spacement(5)} 0 ${spacement(8)};
 `;
 
 export const NonceContainer = styled.div`

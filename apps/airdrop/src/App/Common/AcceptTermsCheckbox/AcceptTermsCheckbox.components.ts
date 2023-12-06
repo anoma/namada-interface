@@ -19,3 +19,18 @@ export const TOSToggle = styled.label<{ disabled?: boolean }>`
     margin-top: 0.25em;
   }
 `;
+
+export const TOSFullTerms = styled.div`
+  margin-top: ${spacement(1)};
+
+  ul {
+    margin: ${spacement(4)} 0 0 ${spacement(4)};
+    padding: 0;
+  }
+
+  li {
+    font-size: 12px;
+    line-height: 1.5;
+    margin-bottom: ${spacement(3)};
+  }
+`;
