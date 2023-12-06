@@ -11,13 +11,14 @@ import {
 import { labelAtom } from "./state";
 import { labelTextMap } from "./utils";
 import { BreadcrumbStatus } from "./Common/BreadcrumbStatus";
-import { useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import gsap, { Bounce } from "gsap";
 
 export const NonEligible: React.FC = () => {
   const contentRef = useRef<HTMLDivElement>(null);
 
   const [label] = useAtom(labelAtom);
+  const [TOSReset, setTOSReset] = useState(false);
 
   useLayoutEffect(() => {
     gsap.context(() => {
@@ -30,7 +31,12 @@ export const NonEligible: React.FC = () => {
 
       tl.fromTo("article", { opacity: 0 }, { opacity: 1 }, "-=0.25");
     }, [contentRef]);
-  }, []);
+  }, [label]);
+
+  useEffect(() => {
+    setTOSReset(!TOSReset);
+    window.scrollTo(0, 0);
+  }, [label]);
 
   return (
     <SidebarPage>
@@ -61,7 +67,7 @@ export const NonEligible: React.FC = () => {
             )}
           </article>
         </NonEligiblePanel>
-        <NonEligibleAnotherWays title="Try another way" />
+        <NonEligibleAnotherWays reset={TOSReset} title="Try another way" />
       </EligibilitySectionWrapper>
     </SidebarPage>
   );
