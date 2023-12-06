@@ -45,6 +45,7 @@ import { getAllClaims } from "./claimService";
 import { GithubEligibility, mapEligibility } from "./eligibilityMap";
 import { confirmationAtom } from "./state";
 import { ClaimCategory } from "./types";
+import { formatAmount } from "./utils";
 
 const categoryAccountTypeMap: Record<ClaimCategory, string> = {
   Github: "Github",
@@ -243,7 +244,7 @@ export const AirdropConfirmation: React.FC = () => {
                 <br /> at Namada Mainnet launch, subject to the
                 <br />{" "}
                 <LinkButton href="/terms-of-service" themeColor="utility1">
-                  <b>terms of Service</b>
+                  <b>Terms of Service</b>
                 </LinkButton>
               </Text>
             </Stack>
@@ -266,7 +267,7 @@ export const AirdropConfirmation: React.FC = () => {
                 Minimum NAM claimed
               </Heading>
               <Text themeColor={"utility1"} fontSize={"6xl"}>
-                {confirmation.amount}
+                {formatAmount(confirmation.amount)}
               </Text>
             </Stack>
           </Stack>
@@ -314,7 +315,7 @@ export const AirdropConfirmation: React.FC = () => {
           Total minimum NAM across all claims
         </Heading>
         <Heading themeColor={"utility1"} size={"6xl"}>
-          {totalMinNam || "-"}
+          {totalMinNam ? formatAmount(totalMinNam) : "-"}
         </Heading>
         <AirdropConfirmationAccordion
           title={
@@ -353,7 +354,7 @@ export const AirdropConfirmation: React.FC = () => {
                   {claim.category}
                 </TableCell>
                 <TableCell width="100px" align="right">
-                  {claim.minNam}
+                  {formatAmount(claim.minNam)}
                 </TableCell>
               </TableRow>
             ))}

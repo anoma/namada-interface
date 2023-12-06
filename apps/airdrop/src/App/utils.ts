@@ -19,7 +19,7 @@ export const navigatePostCheck = (
   if (eligible && !hasClaimed) {
     navigate("/claim/eligible", { replace });
   } else if (eligible && hasClaimed) {
-    navigate("/airdrop-confirmed", { replace });
+    navigate("/claim-confirmed", { replace });
   } else if (!eligible) {
     navigate("/non-eligible", { replace });
   }
@@ -66,4 +66,8 @@ export const ToastMessage = {
   SOMETHING_WENT_WRONG: "Something went wrong, please try again later",
   SOMETHING_WENT_WRONG_WITH_ERR: (err: unknown) =>
     `Something went wrong: ${err}`,
+};
+
+export const formatAmount = (amount: number): number => {
+  return Math.floor(amount * 100) / 100;
 };

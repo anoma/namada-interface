@@ -38,7 +38,7 @@ export const App: React.FC = () => {
           showBackToClaim={pathname === "/terms-of-service"}
           yellowLogo={
             pathname !== "/" &&
-            pathname !== "/airdrop-confirmed" &&
+            pathname !== "/claim-confirmed" &&
             pathname !== "/terms-of-service"
           }
         />
@@ -55,7 +55,7 @@ export const App: React.FC = () => {
           </Route>
           <Route path={`/trusted-setup`} element={<TrustedSetup />} />
           <Route
-            path={`/airdrop-confirmed`}
+            path={`/claim-confirmed`}
             element={
               !!confirmationState ? (
                 <AirdropConfirmation />

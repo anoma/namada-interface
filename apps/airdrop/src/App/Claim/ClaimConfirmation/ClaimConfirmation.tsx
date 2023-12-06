@@ -209,7 +209,7 @@ export const ClaimConfirmation: React.FC = () => {
       publicKey: result.airdrop_public_key || "",
       amount: result.amount,
     });
-    navigate("/airdrop-confirmed");
+    navigate("/claim-confirmed");
   };
 
   const importButtonsTooltip = namada
