@@ -217,10 +217,6 @@ export const ClaimConfirmation: React.FC = () => {
     navigate("/claim-confirmed");
   };
 
-  const importButtonsTooltip = namada
-    ? ""
-    : "To import please install the Namada extension using the link below and try again.";
-
   return (
     <>
       <ClaimsSection>
@@ -271,7 +267,6 @@ export const ClaimConfirmation: React.FC = () => {
                       theme="primary"
                       variant={InputVariants.Text}
                       value={tsSignature}
-                      hint={importButtonsTooltip}
                       onChange={(e) => setTsSignature(e.target.value)}
                       label="Paste the signature generated in the CLI"
                       placeholder="Enter the signature generated in your CLI"
