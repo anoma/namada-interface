@@ -382,11 +382,11 @@ export const TermsOfService = (): JSX.Element => {
           Foundation Privacy Policy. The current version of the Privacy Policy
           is available at{" "}
           <a
-            href="https://anoma.foundation/privacy-policy"
+            href="https://anoma.foundation/privacy-notice"
             target="_blank"
             rel="noopener noreferrer"
           >
-            https://anoma.foundation/privacy-policy
+            https://anoma.foundation/privacy-notice
           </a>
           .
         </p>
