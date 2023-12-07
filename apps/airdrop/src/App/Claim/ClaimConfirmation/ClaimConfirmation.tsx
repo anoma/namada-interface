@@ -116,11 +116,10 @@ export const ClaimConfirmation: React.FC = () => {
   const [isToggleChecked, setIsToggleChecked] = useState(false);
 
   const isTrustedSetup = claimState?.type === "ts";
-  const isClaimSectionActive = !isTrustedSetup || !!tsSignature;
   const airdropAddressValid = bech32mValidation("tnam", airdropAddress);
   const airdropPubKeyValid = bech32mValidation("tpknam", airdropPubKey);
 
-  const isTopFormValid = Boolean(isTrustedSetup ? tsSignature : true);
+  const isTopFormValid = Boolean(!isTrustedSetup || tsSignature);
   const isBottomFormValid = Boolean(
     airdropAddressValid && airdropPubKeyValid && isToggleChecked
   );
@@ -283,7 +282,7 @@ export const ClaimConfirmation: React.FC = () => {
             </ClaimSectionContainer>
           )}
 
-          <ClaimSectionContainer active={isClaimSectionActive}>
+          <ClaimSectionContainer active={isTopFormValid}>
             <Stack gap={6}>
               <Text themeColor="primary" fontSize="xl">
                 {isTrustedSetup && <StepIndicator>2</StepIndicator>}
