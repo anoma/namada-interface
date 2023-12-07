@@ -42,6 +42,7 @@ import {
   SensitiveAccountStoreData,
   UtilityStore,
   AccountSecret,
+  SigningKey,
 } from "./types";
 
 import {
@@ -599,6 +600,9 @@ export class KeyRing {
     return accounts.map((account) => account.public as AccountStore);
   }
 
+  /**
+   * For provided address, return associated private key
+   */
   private async getSigningKey(address: string): Promise<string> {
     const account = await this.vaultService.findOne<AccountStore>(
       KEYSTORE_KEY,
@@ -622,7 +626,7 @@ export class KeyRing {
     const sensitiveProps =
       await this.vaultService.reveal<SensitiveAccountStoreData>(account);
     if (!sensitiveProps) {
-      throw new Error(`Signing keys for ${address} not found!`);
+      throw new Error(`Signing key for ${address} not found!`);
     }
     const { text: phrase } = sensitiveProps;
     const mnemonic = Mnemonic.from_phrase(phrase);
@@ -737,7 +741,7 @@ export class KeyRing {
 
   async submitTransfer(
     transferMsg: Uint8Array,
-    submit: (secret: string) => Promise<void>
+    submit: (signingKey: SigningKey) => Promise<void>
   ): Promise<void> {
     await this.vaultService.assertIsUnlocked();
 
@@ -756,14 +760,14 @@ export class KeyRing {
       throw new Error("Error decrypting AccountStore data");
     }
 
-    const signingKey =
-      account.public.type === AccountType.ShieldedKeys
-        ? // For shielded accounts we need to return the spending key
-          sensitiveProps.text
-        : // Otherwise, return the decrypted key
-          await this.getSigningKey(source);
-
-    await submit(signingKey);
+    if (account.public.type === AccountType.ShieldedKeys) {
+      const xsk = sensitiveProps.text;
+      // Append xsk to SDK wallet instance
+      this.sdk.add_spending_key(xsk, account.public.id);
+      await submit({ xsk });
+    } else {
+      await submit({ pk: await this.getSigningKey(source) });
+    }
   }
 
   async submitIbcTransfer(

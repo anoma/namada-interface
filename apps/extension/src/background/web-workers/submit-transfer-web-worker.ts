@@ -20,15 +20,16 @@ import {
     async ({ data }: { data: SubmitTransferMessageData }) => {
       try {
         const txMsg = fromBase64(data.txMsg);
+        const { pk, xsk } = data.signingKey;
         const builtTx = await sdk.build_transfer(
           fromBase64(data.transferMsg),
           txMsg,
-          data.secret
+          xsk
         );
         const [txBytes, revealPkTxBytes] = await sdk.sign_tx(
           builtTx,
           txMsg,
-          data.secret
+          pk
         );
         await sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
 
