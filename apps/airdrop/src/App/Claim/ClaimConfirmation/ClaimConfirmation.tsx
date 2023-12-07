@@ -118,10 +118,13 @@ export const ClaimConfirmation: React.FC = () => {
   const isTrustedSetup = claimState?.type === "ts";
   const isClaimSectionActive = !isTrustedSetup || !!tsSignature;
   const airdropAddressValid = bech32mValidation("tnam", airdropAddress);
+  const airdropPubKeyValid = bech32mValidation("tpknam", airdropPubKey);
 
-  const isValidForm = Boolean(
-    airdropAddressValid && airdropPubKey && isToggleChecked
+  const isTopFormValid = Boolean(isTrustedSetup ? tsSignature : true);
+  const isBottomFormValid = Boolean(
+    airdropAddressValid && airdropPubKeyValid && isToggleChecked
   );
+  const isValidForm = Boolean(isTopFormValid && isBottomFormValid);
 
   const handleImport = useCallback(async (): Promise<
     DerivedAccount | undefined
@@ -154,7 +157,6 @@ export const ClaimConfirmation: React.FC = () => {
     localStorage.removeItem("airdropAddress");
   }
 
-  const airdropPubKeyValid = bech32mValidation("tpknam", airdropPubKey);
   if (airdropPubKey) {
     localStorage.setItem("airdropPubKey", airdropPubKey);
   } else if (airdropPubKey === "") {
