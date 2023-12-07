@@ -262,16 +262,23 @@ export const TermsOfServiceContainer = styled.article`
     margin: 1.75em 0;
   }
 
+  h2 {
+    margin-bottom: ${spacement(2)};
+    font-size: ${fontSize('xl')};
+
+    & + p {
+      margin-top: 0;
+    }
+  }
+
   ul,
   ol {
-    padding: 0;
     margin: 0;
-    list-style: none;
+    padding: 0 0 0 ${spacement(12)};
+    list-style: disc;
 
-    ul,
-    ol {
-      margin-left: 2em;
-      list-style: disc;
+    li {
+      margin-bottom: ${spacement(3)}
     }
   }
 

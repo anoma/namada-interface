@@ -9,7 +9,7 @@ import {
 import { DerivedAccount, WindowWithNamada } from "@namada/types";
 import { AirdropResponse, ToastMessage, toast } from "App/utils";
 import { useAtom } from "jotai";
-import { useCallback, useLayoutEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { ClaimsSectionSignature } from "../../App.components";
@@ -23,9 +23,18 @@ import {
   confirmationAtom,
 } from "../../state";
 
+import { bech32mValidation } from "@namada/utils";
 import { AcceptTermsCheckbox } from "App/Common/AcceptTermsCheckbox";
 import { BigNuclearClaimButton } from "App/Common/BigNuclearClaimButton";
 import { StepIndicator } from "App/Common/StepIndicator";
+import {
+  claimWithGitcoin,
+  claimWithGithub,
+  claimWithKeplr,
+  claimWithTrustedSetup,
+} from "App/claimService";
+import { ClaimResponse } from "App/types";
+import gsap from "gsap";
 import {
   ButtonContainer,
   ClaimBadge,
@@ -39,14 +48,6 @@ import {
   StepHeader,
   TermsContainer,
 } from "./ClaimConfirmation.components";
-import { ClaimResponse } from "App/types";
-import {
-  claimWithGitcoin,
-  claimWithGithub,
-  claimWithKeplr,
-  claimWithTrustedSetup,
-} from "App/claimService";
-import { bech32mValidation } from "@namada/utils";
 
 const { REACT_APP_NAMADA_CHAIN_ID: namadaChainId = "" } = process.env;
 
@@ -114,6 +115,16 @@ export const ClaimConfirmation: React.FC = () => {
   const [tsSignature, setTsSignature] = useState<string>("");
   const [isToggleChecked, setIsToggleChecked] = useState(false);
 
+  const isTrustedSetup = claimState?.type === "ts";
+  const airdropAddressValid = bech32mValidation("tnam", airdropAddress);
+  const airdropPubKeyValid = bech32mValidation("tpknam", airdropPubKey);
+
+  const isTopFormValid = Boolean(!isTrustedSetup || tsSignature);
+  const isBottomFormValid = Boolean(
+    airdropAddressValid && airdropPubKeyValid && isToggleChecked
+  );
+  const isValidForm = Boolean(isTopFormValid && isBottomFormValid);
+
   const handleImport = useCallback(async (): Promise<
     DerivedAccount | undefined
   > => {
@@ -133,24 +144,18 @@ export const ClaimConfirmation: React.FC = () => {
     return namada.defaultAccount(namadaChainId);
   }, [namada]);
 
-  useLayoutEffect(() => {
-    // const tl = gsap.timeline();
-    // tl.fromTo("body", { x: "-=20" }, { x: "+=20", repeat: 40, duration: 0.05 });
-    // tl.fromTo(
-    //   ".pageTransition",
-    //   { scale: 0 },
-    //   { scale: 1, duration: 0.25, ease: Expo.easeOut }
-    // );
-  }, []);
+  useEffect(() => {
+    if (isValidForm) {
+      gsap.to(window, { duration: 0.25, scrollTo: 0 });
+    }
+  }, [isValidForm]);
 
-  const airdropAddressValid = bech32mValidation("tnam", airdropAddress);
   if (airdropAddressValid) {
     localStorage.setItem("airdropAddress", airdropAddress);
   } else if (airdropAddress === "") {
     localStorage.removeItem("airdropAddress");
   }
 
-  const airdropPubKeyValid = bech32mValidation("tpknam", airdropPubKey);
   if (airdropPubKey) {
     localStorage.setItem("airdropPubKey", airdropPubKey);
   } else if (airdropPubKey === "") {
@@ -212,13 +217,6 @@ export const ClaimConfirmation: React.FC = () => {
     navigate("/claim-confirmed");
   };
 
-  const importButtonsTooltip = namada
-    ? ""
-    : "To import please install the Namada extension using the link below and try again.";
-
-  const isTrustedSetup = claimState?.type === "ts";
-  const isClaimSectionActive = !isTrustedSetup || !!tsSignature;
-
   return (
     <>
       <ClaimsSection>
@@ -239,6 +237,9 @@ export const ClaimConfirmation: React.FC = () => {
             </Stack>
           </Heading>
         </ClaimHeading>
+        <ButtonContainer>
+          <BigNuclearClaimButton valid={isValidForm} onClick={onClickClaim} />
+        </ButtonContainer>
         <Stack gap={7}>
           {isTrustedSetup && (
             <ClaimSectionContainer active={true}>
@@ -266,7 +267,6 @@ export const ClaimConfirmation: React.FC = () => {
                       theme="primary"
                       variant={InputVariants.Text}
                       value={tsSignature}
-                      hint={importButtonsTooltip}
                       onChange={(e) => setTsSignature(e.target.value)}
                       label="Paste the signature generated in the CLI"
                       placeholder="Enter the signature generated in your CLI"
@@ -277,7 +277,7 @@ export const ClaimConfirmation: React.FC = () => {
             </ClaimSectionContainer>
           )}
 
-          <ClaimSectionContainer active={isClaimSectionActive}>
+          <ClaimSectionContainer active={isTopFormValid}>
             <Stack gap={6}>
               <Text themeColor="primary" fontSize="xl">
                 {isTrustedSetup && <StepIndicator>2</StepIndicator>}
@@ -304,8 +304,8 @@ export const ClaimConfirmation: React.FC = () => {
                   >
                     <InputActionButton
                       title={
-                        !namada && !airdropAddress
-                          ? "Please download the Namada extension first"
+                        !namada && !airdropPubKey
+                          ? "Please install the Namada extension and hard refresh the website"
                           : ""
                       }
                     >
@@ -341,7 +341,7 @@ export const ClaimConfirmation: React.FC = () => {
                     <InputActionButton
                       title={
                         !namada && !airdropAddress
-                          ? "Please download the Namada extension first"
+                          ? "Please install the Namada extension and hard refresh the website"
                           : ""
                       }
                     >
@@ -362,6 +362,7 @@ export const ClaimConfirmation: React.FC = () => {
             <TermsContainer>
               <AcceptTermsCheckbox
                 disabled={!airdropAddressValid || !airdropPubKeyValid}
+                fullVersion={true}
                 checked={isToggleChecked}
                 onChange={() => setIsToggleChecked(!isToggleChecked)}
               />
@@ -369,14 +370,7 @@ export const ClaimConfirmation: React.FC = () => {
           </ClaimSectionContainer>
         </Stack>
       </ClaimsSection>
-      <ButtonContainer>
-        <BigNuclearClaimButton
-          valid={Boolean(
-            airdropAddressValid && airdropPubKey && isToggleChecked
-          )}
-          onClick={onClickClaim}
-        />
-      </ButtonContainer>
+
       {/* <Transition className="page-transition" /> */}
     </>
   );

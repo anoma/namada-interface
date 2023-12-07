@@ -16,6 +16,10 @@ import { claimAtom, confirmationAtom } from "./state";
 import { BrowserView, MobileView } from "react-device-detect";
 import { MainMobile } from "./MainMobile";
 import { TermsOfService } from "./TermsOfService";
+import gsap from "gsap";
+import ScrollToPlugin from "gsap/dist/ScrollToPlugin";
+
+gsap.registerPlugin(ScrollToPlugin);
 
 export const App: React.FC = () => {
   const [claimState] = useAtom(claimAtom);
