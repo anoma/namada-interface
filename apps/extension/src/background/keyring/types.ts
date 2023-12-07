@@ -60,3 +60,8 @@ export type MnemonicValidationResponse = {
   isValid: boolean;
   error?: string;
 };
+
+export type SigningKey = {
+  pk?: string;
+  xsk?: string;
+};

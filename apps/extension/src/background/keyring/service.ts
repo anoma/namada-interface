@@ -29,6 +29,7 @@ import {
   TabStore,
   UtilityStore,
   AccountSecret,
+  SigningKey,
 } from "./types";
 import { syncTabs, updateTabStorage } from "./utils";
 
@@ -248,7 +249,7 @@ export class KeyRingService {
     transferMsg: string,
     txMsg: string,
     msgId: string,
-    secret: string
+    signingKey: SigningKey
   ): Promise<void> {
     const offscreenDocumentPath = "offscreen.html";
     const routerId = await getNamadaRouterId(this.extensionStore);
@@ -261,7 +262,7 @@ export class KeyRingService {
       type: SUBMIT_TRANSFER_MSG_TYPE,
       target: OFFSCREEN_TARGET,
       routerId,
-      data: { transferMsg, txMsg, msgId, secret },
+      data: { transferMsg, txMsg, msgId, signingKey },
     });
 
     if (result?.error) {
@@ -275,14 +276,14 @@ export class KeyRingService {
     transferMsg: string,
     txMsg: string,
     msgId: string,
-    secret: string
+    signingKey: SigningKey
   ): Promise<void> {
     initSubmitTransferWebWorker(
       {
         transferMsg,
         txMsg,
         msgId,
-        secret,
+        signingKey,
       },
       this.handleTransferCompleted.bind(this)
     );
@@ -304,12 +305,12 @@ export class KeyRingService {
     msgId: string
   ): Promise<void> {
     // Passing submit handler simplifies worker code when using Firefox
-    const submit = async (secret: string): Promise<void> => {
+    const submit = async (signingKey: SigningKey): Promise<void> => {
       const { TARGET } = process.env;
       if (TARGET === "chrome") {
-        this.submitTransferChrome(transferMsg, txMsg, msgId, secret);
+        this.submitTransferChrome(transferMsg, txMsg, msgId, signingKey);
       } else if (TARGET === "firefox") {
-        this.submitTransferFirefox(transferMsg, txMsg, msgId, secret);
+        this.submitTransferFirefox(transferMsg, txMsg, msgId, signingKey);
       } else {
         console.warn(
           "Submitting transfers is not supported with your browser."

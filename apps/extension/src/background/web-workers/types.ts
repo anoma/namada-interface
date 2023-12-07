@@ -1,3 +1,5 @@
+import { SigningKey } from "background/keyring";
+
 export type SubmitTransferMessage = {
   type: string;
   target: string;
@@ -9,7 +11,7 @@ export type SubmitTransferMessageData = {
   transferMsg: string;
   txMsg: string;
   msgId: string;
-  secret: string;
+  signingKey: SigningKey;
 };
 
 export const INIT_MSG = "init";

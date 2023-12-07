@@ -116,11 +116,15 @@ impl Sdk {
         Ok(())
     }
 
+    pub fn add_spending_key(&mut self, xsk: &str, alias: &str) {
+        wallet::add_spending_key(&mut self.wallet, xsk, alias)
+    }
+
     pub async fn sign_tx(
         &mut self,
         built_tx: BuiltTx,
         tx_msg: &[u8],
-        secret: String,
+        signing_key: Option<String>,
     ) -> Result<JsValue, JsError> {
         let BuiltTx {
             mut tx,
@@ -129,9 +133,11 @@ impl Sdk {
 
         let mut args = tx::tx_args_from_slice(tx_msg)?;
 
-        // Append signing key to args, appending prefix to support encoding
-        let signing_key = SecretKey::from_str(&format!("{}{}", "00", secret))?;
-        args.signing_keys = vec![signing_key];
+        // Append signing key to args if provided, and append prefix to support encoding
+        if signing_key.is_some() {
+            let signing_key = SecretKey::from_str(&format!("{}{}", "00", signing_key.unwrap()))?;
+            args.signing_keys = vec![signing_key];
+        }
 
         // We only support one signer(for now)
         let pk = &signing_data
