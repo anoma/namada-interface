@@ -304,8 +304,8 @@ export const ClaimConfirmation: React.FC = () => {
                   >
                     <InputActionButton
                       title={
-                        !namada && !airdropAddress
-                          ? "Please download the Namada extension first"
+                        !namada && !airdropPubKey
+                          ? "Please install the Namada extension and hard refresh the website"
                           : ""
                       }
                     >
@@ -341,7 +341,7 @@ export const ClaimConfirmation: React.FC = () => {
                     <InputActionButton
                       title={
                         !namada && !airdropAddress
-                          ? "Please download the Namada extension first"
+                          ? "Please install the Namada extension and hard refresh the website"
                           : ""
                       }
                     >
