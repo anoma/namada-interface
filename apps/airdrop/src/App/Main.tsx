@@ -47,8 +47,8 @@ import { ExternalPageIcon } from "./Icons/ExternalPageIcon";
 import { WarningIcon } from "./Icons/WarningIcon";
 import { iconsOnMouseMovement } from "./animations";
 import { useGithubHandler } from "./hooks";
-import { MetamaskWindow } from "./types";
 import { CubeSvg } from "./Graphics/Cube";
+import { getMetamask } from "./utils";
 
 export const Main: React.FC = () => {
   const url = window.location.href;
@@ -170,7 +170,7 @@ export const Main: React.FC = () => {
                       onClick={() => {
                         setIsModalOpen(true);
                         setKeplr((window as KeplrWindow)?.keplr);
-                        setMetamask((window as MetamaskWindow)?.ethereum);
+                        setMetamask(getMetamask());
                       }}
                     >
                       Check NAM eligibility

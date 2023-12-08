@@ -11,7 +11,7 @@ import { OsmosisButton } from "./Buttons/OsmosisButton";
 import { StargazerButton } from "./Buttons/StargazerButton";
 import { TrustedSetupButton } from "./Buttons/TrustedSetupButton";
 import { AcceptTermsCheckbox } from "./Common/AcceptTermsCheckbox";
-import { MetamaskWindow } from "./types";
+import { getMetamask } from "./utils";
 
 type AnotherWaysProps = {
   title: string;
@@ -22,7 +22,7 @@ type AnotherWaysProps = {
 export const AnotherWays: React.FC<AnotherWaysProps> = (props) => {
   const [isTOSAccepted, setIsTOSAccepted] = useState(false);
   const keplr = (window as KeplrWindow)?.keplr;
-  const metamask = (window as MetamaskWindow)?.ethereum;
+  const metamask = getMetamask();
   const columns = !metamask && !keplr ? "1fr 1fr" : "1fr 1fr 1fr";
 
   useEffect(() => {

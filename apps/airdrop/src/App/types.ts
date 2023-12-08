@@ -1,9 +1,16 @@
 import { type MetaMaskInpageProvider } from "@metamask/providers";
 
-export type MetamaskWindow = Window &
+type MetamaskWindow = Window &
   typeof globalThis & {
     ethereum: MetaMaskInpageProvider;
   };
+
+export type MaybeOtherEVMWindow = MetamaskWindow & {
+  ethereum: MetaMaskInpageProvider & {
+    isRabby?: () => boolean;
+    isEnkrypt?: () => boolean;
+  };
+};
 
 export type GithubClaim = {
   eligible: boolean;
