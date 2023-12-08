@@ -21,7 +21,11 @@ export const AcceptTermsCheckbox = ({
       {!fullVersion && (
         <span>
           You hereby acknowledge and confirm the{" "}
-          <a href="/terms-and-conditions" target="_blank">
+          <a
+            href="/terms-and-conditions"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Terms and Conditions
           </a>{" "}
           and agree to be bound by them.
