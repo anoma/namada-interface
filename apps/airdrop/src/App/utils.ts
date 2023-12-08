@@ -78,7 +78,7 @@ export const getMetamask = (): MetaMaskInpageProvider | undefined => {
   const provider = (window as MaybeOtherEVMWindow).ethereum;
 
   if (
-    provider.isMetaMask &&
+    provider?.isMetaMask &&
     !Boolean(provider.isRabby) &&
     !Boolean(provider.isEnkrypt)
   ) {
