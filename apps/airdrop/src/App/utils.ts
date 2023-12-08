@@ -1,7 +1,9 @@
+import { type MetaMaskInpageProvider } from "@metamask/providers";
 import { Result } from "@namada/utils";
 import _toast, { Toast } from "react-simple-toasts";
 import { NavigateFunction } from "react-router-dom";
 import { Label } from "./state";
+import { MaybeOtherEVMWindow } from "./types";
 
 const { NODE_ENV, AIRDROP_AUTH_SECRET = "header" } = process.env;
 const AUTH_HEADER =
@@ -70,4 +72,16 @@ export const ToastMessage = {
 
 export const formatAmount = (amount: number): number => {
   return Math.floor(amount * 100) / 100;
+};
+
+export const getMetamask = (): MetaMaskInpageProvider | undefined => {
+  const provider = (window as MaybeOtherEVMWindow).ethereum;
+
+  if (
+    provider.isMetaMask &&
+    !Boolean(provider.isRabby) &&
+    !Boolean(provider.isEnkrypt)
+  ) {
+    return provider;
+  }
 };

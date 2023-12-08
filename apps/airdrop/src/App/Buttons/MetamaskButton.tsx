@@ -2,13 +2,13 @@ import { ActionButton } from "@namada/components";
 import { ButtonProps } from "./types";
 import { EthereumIcon } from "App/Icons/EthereumIcon";
 import { useMetamaskHandler } from "App/hooks";
-import { MetamaskWindow } from "App/types";
+import { getMetamask } from "App/utils";
 
 export const MetamaskButton = ({ disabled }: ButtonProps): JSX.Element => {
-  const metamask = (window as MetamaskWindow)?.ethereum;
-  const metamaskHandler = useMetamaskHandler("0x1", metamask);
+  const metamask = getMetamask();
 
   if (!metamask) return <></>;
+  const metamaskHandler = useMetamaskHandler("0x1", metamask);
 
   return (
     <ActionButton

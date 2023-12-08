@@ -203,8 +203,23 @@ export const ClaimConfirmation: React.FC = () => {
       toast(ToastMessage.SOMETHING_WENT_WRONG);
       return;
     } else if (!response.ok) {
-      toast(ToastMessage.SOMETHING_WENT_WRONG_WITH_ERR(response.error.message));
-      return;
+      // Backup for unexpected extensions pretending to be metamask
+      if (
+        response.error.message.includes("signature") &&
+        claimState.type === "gitcoin"
+      ) {
+        toast(
+          ToastMessage.SOMETHING_WENT_WRONG_WITH_ERR(
+            "Invalid signature. Please make sure you are using the Metamask extension."
+          )
+        );
+        return;
+      } else {
+        toast(
+          ToastMessage.SOMETHING_WENT_WRONG_WITH_ERR(response.error.message)
+        );
+        return;
+      }
     }
     const { value: result } = response;
 
