@@ -323,7 +323,7 @@ export class KeyRing {
       address,
       id,
       owner: viewingKey,
-      text: spendingKey,
+      text: JSON.stringify({ spendingKey }),
     };
   }
 
@@ -647,11 +647,11 @@ export class KeyRing {
     try {
       const builtTx = await this.sdk.build_bond(bondMsg, txMsg);
       const { source } = deserialize(Buffer.from(bondMsg), SubmitBondMsgValue);
-      const secret = await this.getSigningKey(source);
+      const signingKey = await this.getSigningKey(source);
       const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(
         builtTx,
         txMsg,
-        secret
+        signingKey
       );
       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
     } catch (e) {
@@ -675,11 +675,11 @@ export class KeyRing {
         Buffer.from(unbondMsg),
         SubmitUnbondMsgValue
       );
-      const secret = await this.getSigningKey(source);
+      const signingKey = await this.getSigningKey(source);
       const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(
         builtTx,
         txMsg,
-        secret
+        signingKey
       );
 
       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
@@ -699,12 +699,12 @@ export class KeyRing {
         Buffer.from(withdrawMsg),
         SubmitWithdrawMsgValue
       );
-      const secret = await this.getSigningKey(source);
+      const signingKey = await this.getSigningKey(source);
 
       const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(
         builtTx,
         txMsg,
-        secret
+        signingKey
       );
       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
     } catch (e) {
@@ -726,12 +726,12 @@ export class KeyRing {
         Buffer.from(voteProposalMsg),
         SubmitVoteProposalMsgValue
       );
-      const secret = await this.getSigningKey(signer);
+      const signingKey = await this.getSigningKey(signer);
 
       const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(
         builtTx,
         txMsg,
-        secret
+        signingKey
       );
       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
     } catch (e) {
@@ -761,7 +761,7 @@ export class KeyRing {
     }
 
     if (account.public.type === AccountType.ShieldedKeys) {
-      const xsk = sensitiveProps.text;
+      const xsk = JSON.parse(sensitiveProps.text).spendingKey;
       // Append xsk to SDK wallet instance
       this.sdk.add_spending_key(xsk, account.public.id);
       await submit({ xsk });
@@ -781,12 +781,12 @@ export class KeyRing {
         Buffer.from(ibcTransferMsg),
         IbcTransferMsgValue
       );
-      const secret = await this.getSigningKey(source);
+      const signingKey = await this.getSigningKey(source);
 
       const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(
         builtTx,
         txMsg,
-        secret
+        signingKey
       );
       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
     } catch (e) {
@@ -808,12 +808,12 @@ export class KeyRing {
         Buffer.from(ethBridgeTransferMsg),
         EthBridgeTransferMsgValue
       );
-      const secret = await this.getSigningKey(sender);
+      const signingKey = await this.getSigningKey(sender);
 
       const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(
         builtTx,
         txMsg,
-        secret
+        signingKey
       );
       await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
     } catch (e) {
