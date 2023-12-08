@@ -6,9 +6,9 @@ import { getMetamask } from "App/utils";
 
 export const MetamaskButton = ({ disabled }: ButtonProps): JSX.Element => {
   const metamask = getMetamask();
+  const metamaskHandler = useMetamaskHandler("0x1", metamask);
 
   if (!metamask) return <></>;
-  const metamaskHandler = useMetamaskHandler("0x1", metamask);
 
   return (
     <ActionButton
