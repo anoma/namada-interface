@@ -1,3 +1,5 @@
+import "./tailwind.css";
+
 export * from "./Accordion";
 export * from "./Button";
 export * from "./Heading";
