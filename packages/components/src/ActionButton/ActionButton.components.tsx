@@ -10,7 +10,6 @@ import {
 
 import React from "react";
 import styled from "styled-components";
-import { motion } from "framer-motion";
 
 type ButtonProps = {
   forwardedAs: keyof JSX.IntrinsicElements;
@@ -25,18 +24,6 @@ const Button = ({
 }: ButtonProps): JSX.Element => {
   return React.createElement(forwardedAs, props, children);
 };
-
-export const ButtonHover = styled(motion.i)`
-  display: block;
-  height: 100%;
-  left: 0;
-  position: absolute;
-  top: 0;
-  transform-origin: center center;
-  transform: translateY(calc(100% + 2px));
-  transition: all var(--ease-out-circ) 0.45s;
-  width: 100%;
-`;
 
 export const ButtonText = styled.span`
   color: currentColor;
@@ -53,12 +40,30 @@ export const ButtonContainer = styled(Button)<{
   borderRadius: keyof BorderRadius;
 }>`
   all: unset;
-  background-color: ${(props) => {
+  background-image: ${(props) => {
     if (props.outlined) {
-      return "transparent";
+      // main color is transparent, filler color is yellow
+      return `linear-gradient(transparent 50%, ${color(
+        props.hoverColor || "primary",
+        "main"
+      )(props)} 50%)`;
     }
-    return color(props.variant, "main")(props);
+
+    if (props.hoverColor) {
+      // main color is yellow, filler color is {hoverColor}
+      return `linear-gradient(${color(
+        props.variant,
+        "main"
+      )(props)} 50%, ${color(props.hoverColor, "main")(props)} 50%)`;
+    }
+
+     // main color is yellow, filler color is black
+    return `linear-gradient(${color(
+      props.variant,
+      "main"
+    )(props)} 50%, black 50%)`;
   }};
+  background-size: 100% 220%;
 
   border: ${(props) => {
     if (props.outlined) {
@@ -91,8 +96,10 @@ export const ButtonContainer = styled(Button)<{
   transition: color 80ms ease-out, border 450ms ease-out;
   user-select: none;
   width: 100%;
+  transition: background-position 250ms ease-in-out, color 250ms ease-in-out;
 
   &:hover:not(:disabled) {
+    background-position: 0 100%;
     color: ${(props) => {
       if (props.outlined) {
         return color(props.variant, "main20")(props);
@@ -125,24 +132,6 @@ export const ButtonContainer = styled(Button)<{
 
     cursor: auto;
     opacity: 0.25;
-  }
-
-  ${ButtonHover} {
-    background-color: ${(props) => {
-      if (props.outlined) {
-        return color(props.hoverColor || "primary", "main")(props);
-      }
-
-      if (props.hoverColor) {
-        return color(props.hoverColor, "main")(props);
-      }
-
-      return "black";
-    }};
-  }
-
-  &:hover:not(:disabled) ${ButtonHover} {
-    transform: translateY(0);
   }
 `;
 

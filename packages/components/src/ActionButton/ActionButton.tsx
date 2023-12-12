@@ -1,7 +1,6 @@
 import { BorderRadius, ThemeColor } from "@namada/utils";
 import {
   ButtonContainer,
-  ButtonHover,
   ButtonIcon,
   ButtonSize,
   ButtonText,
@@ -40,7 +39,6 @@ export const ActionButton = ({
     >
       {icon && <ButtonIcon>{icon}</ButtonIcon>}
       <ButtonText>{children}</ButtonText>
-      <ButtonHover />
     </ButtonContainer>
   );
 };
