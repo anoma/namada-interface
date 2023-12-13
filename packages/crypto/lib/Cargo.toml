@@ -15,14 +15,13 @@ aes-gcm = "0.10.1"
 argon2 = "0.4.1"
 base64 = "0.13.0"
 bip32 = { version = "0.4.0", features = ["bip39"] }
-borsh = {version = "1.0.0-alpha.4", features = ["schema", "derive"]}
-borsh-ext = {tag = "v1.0.0-alpha.4", git = "https://github.com/heliaxdev/borsh-ext"}
-ed25519-dalek = {version = "1.0.1", default-features = false, features = ["rand", "u64_backend"]}
-getrandom = {version = "0.2.3", features = ["js"]}
+borsh = {version = "1.2.0", features = ["unstable__schema", "derive"]}
+borsh-ext = { git = "https://github.com/heliaxdev/borsh-ext", tag = "v1.2.0" }
+getrandom = { version = "0.2.7", features = ["js"] }
 gloo-utils = { version = "0.1.5", features = ["serde"] }
 hex = "0.4.3"
 js-sys = "0.3.60"
-masp_primitives = { git = "https://github.com/anoma/masp", rev = "77e009626f3f52fe83c81ec6ee38fc2547d38da3" }
+masp_primitives = { git = "https://github.com/anoma/masp", tag = "v1.0.0" }
 orion = "0.16.0"
 password-hash = "0.4.2"
 serde = { version = "1.0.145", features = ["derive"] }
@@ -39,7 +38,7 @@ wasm-bindgen-test = "0.3.13"
 # https://doc.rust-lang.org/cargo/reference/profiles.html
 [profile.release]
 lto = true
-opt-level = "s"
+opt-level = "z"
 
 [profile.dev]
 opt-level = "s"
@@ -47,7 +46,7 @@ opt-level = "s"
 # wasm-pack sepcific configuration
 [package.metadata.wasm-pack.profile.release]
 # https://docs.rs/wasm-opt/latest/wasm_opt/
-wasm-opt = ['-Os']
+wasm-opt = ['-Oz']
 
 [package.metadata.wasm-pack.profile.dev]
 wasm-opt = false

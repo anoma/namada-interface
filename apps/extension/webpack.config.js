@@ -72,6 +72,7 @@ const copyPatterns = [
 ];
 
 const plugins = [
+  //TODO: for dev only
   new BundleAnalyzerPlugin(),
   new CopyPlugin({
     patterns: copyPatterns,
@@ -95,10 +96,13 @@ const plugins = [
   // Provide environment variables to extension:
   new webpack.DefinePlugin({
     process: {
-      env: JSON.stringify(getProcessEnv(
-        "NAMADA_INTERFACE",
-        ["TARGET", "NODE_ENV", "npm_package_version"]
-      )),
+      env: JSON.stringify(
+        getProcessEnv("NAMADA_INTERFACE", [
+          "TARGET",
+          "NODE_ENV",
+          "npm_package_version",
+        ])
+      ),
     },
   }),
   new RemovePlugin({

@@ -6073,11 +6073,13 @@ __metadata:
     fake-indexeddb: "npm:^4.0.1"
     file-loader: "npm:^6.2.0"
     framer-motion: "npm:6.2.4"
+    html-webpack-plugin: "npm:^5.5.4"
     jest: "npm:^29.0.1"
     jest-environment-jsdom: "npm:^29.3.1"
     js-sha256: "npm:^0.10.1"
     leb128: "npm:^0.0.5"
     merge-jsons-webpack-plugin: "npm:^2.0.1"
+    mini-css-extract-plugin: "npm:^2.7.6"
     mockzilla: "npm:^0.14.0"
     react: "npm:^17.0.2"
     react-dom: "npm:^17.0.2"
@@ -6147,7 +6149,6 @@ __metadata:
   dependencies:
     "@namada/chains": "npm:0.1.0"
     "@namada/config": "workspace:^"
-    "@namada/integrations": "npm:0.1.0"
     "@namada/types": "npm:0.1.0"
     "@namada/utils": "npm:0.1.0"
     "@types/react": "npm:^17.0.39"
@@ -16081,6 +16082,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"html-webpack-plugin@npm:^5.5.4":
+  version: 5.5.4
+  resolution: "html-webpack-plugin@npm:5.5.4"
+  dependencies:
+    "@types/html-minifier-terser": "npm:^6.0.0"
+    html-minifier-terser: "npm:^6.0.2"
+    lodash: "npm:^4.17.21"
+    pretty-error: "npm:^4.0.0"
+    tapable: "npm:^2.0.0"
+  peerDependencies:
+    webpack: ^5.20.0
+  checksum: fd7b9882a7b44b78711d3489fd571308372a915924c2e619ad8a08d9100a17ae8899a3d3bb1934c326d45bf942330a693206088ba80f292dd6574d9e33c67a43
+  languageName: node
+  linkType: hard
+
 "htmlparser2@npm:^6.1.0":
   version: 6.1.0
   resolution: "htmlparser2@npm:6.1.0"
@@ -21110,6 +21126,17 @@ __metadata:
   peerDependencies:
     webpack: ^5.0.0
   checksum: 1d13b97d03cbcc083bbda474b5f18777664168ddd9aba186b3e9f31709205bdf263dded907af4fc82bce0ab88ba8cbee4778a2d6c6b24fca8d82a227afa90dc9
+  languageName: node
+  linkType: hard
+
+"mini-css-extract-plugin@npm:^2.7.6":
+  version: 2.7.6
+  resolution: "mini-css-extract-plugin@npm:2.7.6"
+  dependencies:
+    schema-utils: "npm:^4.0.0"
+  peerDependencies:
+    webpack: ^5.0.0
+  checksum: 4862da928f52c18b37daa52d548c9f2a1ac65c900a48b63f7faa3354d8cfcd21618c049696559e73e2e27fc12d46748e6a490e0b885e54276429607d0d08c156
   languageName: node
   linkType: hard
 
