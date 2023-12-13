@@ -1,7 +1,7 @@
-const {
-  // Load extension download URL from env
-  NAMADA_INTERFACE_EXTENSION_URL: extensionUrl,
-} = process.env;
+// const {
+//   // Load extension download URL from env
+//   REACT_APP_EXTENSION_URL: extensionUrl,
+// } = process.env;
 
 export type Currency = {
   token: string;
@@ -33,7 +33,7 @@ export const Extensions: Record<ExtensionKey, ExtensionInfo> = {
     alias: "Namada",
     id: "namada",
     // TODO: Update to most recent release
-    url: extensionUrl || "https://namada.me",
+    url: "https://namada.me",
   },
   keplr: {
     alias: "Keplr",
