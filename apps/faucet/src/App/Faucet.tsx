@@ -1,6 +1,3 @@
-import React, { useCallback, useState } from "react";
-import { sanitize } from "dompurify";
-import { bech32m } from "bech32";
 import {
   Button,
   ButtonVariant,
@@ -8,7 +5,18 @@ import {
   InputVariants,
   Select,
 } from "@namada/components";
+import { bech32m } from "bech32";
+import { sanitize } from "dompurify";
+import React, { useCallback, useContext, useState } from "react";
 
+import { TokenData } from "config";
+import { useTheme } from "styled-components";
+import {
+  TransferResponse,
+  computePowSolution,
+  requestChallenge,
+  requestTransfer,
+} from "utils";
 import {
   ButtonContainer,
   FaucetFormContainer,
@@ -17,28 +25,8 @@ import {
   InputContainer,
   PreFormatted,
 } from "./Faucet.components";
-import { TokenData } from "config";
-import {
-  TransferResponse,
-  computePowSolution,
-  requestChallenge,
-  requestTransfer,
-} from "utils";
-import { useTheme } from "styled-components";
 
-const DEFAULT_URL = "http://localhost:5000";
-const DEFAULT_ENDPOINT = "/api/v1/faucet";
-const DEFAULT_FAUCET_LIMIT = "1000";
-
-const {
-  NAMADA_INTERFACE_FAUCET_API_URL: faucetApiUrl = DEFAULT_URL,
-  NAMADA_INTERFACE_FAUCET_API_ENDPOINT: faucetApiEndpoint = DEFAULT_ENDPOINT,
-  NAMADA_INTERFACE_FAUCET_LIMIT: faucetLimit = DEFAULT_FAUCET_LIMIT,
-  NAMADA_INTERFACE_PROXY: isProxied,
-  NAMADA_INTERFACE_PROXY_PORT: proxyPort = 9000,
-} = process.env;
-
-const apiUrl = isProxied ? `http://localhost:${proxyPort}/proxy` : faucetApiUrl;
+import { SettingsContext } from "./App";
 
 enum Status {
   Pending,
@@ -52,6 +40,7 @@ type Props = {
 
 export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
   const theme = useTheme();
+  const { url, limit } = useContext(SettingsContext);
   const [targetAddress, setTargetAddress] = useState<string>();
   const [tokenAddress, setTokenAddress] = useState(TokenData[0].value);
   const [amount, setAmount] = useState<number | undefined>(undefined);
@@ -84,8 +73,6 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
 
     setStatus(Status.Pending);
     setStatusText(undefined);
-
-    const url = `${apiUrl}${faucetApiEndpoint}`;
 
     try {
       const { challenge, tag } = await requestChallenge(url).catch((e) => {
@@ -161,7 +148,7 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
 
       <InputContainer>
         <Input
-          placeholder={`From 1 to ${faucetLimit}`}
+          placeholder={`From 1 to ${limit}`}
           variant={InputVariants.Number}
           label="Amount"
           value={amount}
@@ -175,8 +162,8 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
             }
           }}
           error={
-            (amount || 0) > parseInt(faucetLimit)
-              ? `Amount must be less than or equal to ${faucetLimit}`
+            (amount || 0) > limit
+              ? `Amount must be less than or equal to ${limit}`
               : ""
           }
         />
@@ -200,16 +187,16 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
         <Button
           style={{
             backgroundColor: theme.colors.secondary.main,
-            fontSize: '1.25rem',
-            lineHeight: '1.6',
-            padding: '0.6em 2.5em',
-            margin: 0
+            fontSize: "1.25rem",
+            lineHeight: "1.6",
+            padding: "0.6em 2.5em",
+            margin: 0,
           }}
           variant={ButtonVariant.Contained}
           onClick={handleSubmit}
           disabled={
             !amount ||
-            (amount || 0) > parseInt(faucetLimit) ||
+            (amount || 0) > limit ||
             !targetAddress ||
             status === Status.Pending ||
             !isTestnetLive

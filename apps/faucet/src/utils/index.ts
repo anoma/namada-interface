@@ -6,6 +6,39 @@ type ChallengeResponse = {
   tag: string;
 };
 
+type SettingsResponse = {
+  difficulty: number;
+  chain_id: string;
+  start_at: number;
+  tokens_alias_to_address: Record<string, string>;
+};
+
+/**
+ * Request faucet settings
+ */
+export const requestSettings = async (
+  url: string
+): Promise<SettingsResponse> => {
+  console.log("REQUEST SETTINGS", url);
+  return await fetch(new URL(`${url}/setting`), {
+    method: "GET",
+  })
+    .then((response) => {
+      if (response.ok) {
+        return response.json();
+      }
+      const reader = response?.body?.getReader();
+      return reader
+        ?.read()
+        .then(({ value }) =>
+          Promise.reject(JSON.parse(new TextDecoder().decode(value)))
+        );
+    })
+    .catch((e) => {
+      console.error(e);
+      return Promise.reject(e);
+    });
+};
 /**
  * Request challenge from endpoint url
  *
