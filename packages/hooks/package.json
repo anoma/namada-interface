@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "@namada/chains": "0.1.0",
-    "@namada/integrations": "0.1.0",
     "@namada/types": "0.1.0",
     "@namada/utils": "0.1.0",
     "react": "^17.0.2",

@@ -13,7 +13,7 @@ import {
   Input,
   InputVariants,
 } from "@namada/components";
-import { getIntegration } from "@namada/hooks";
+import { getIntegration } from "@namada/integrations";
 import { Signer, TokenType, Tokens } from "@namada/types";
 import { ColorMode, DesignConfiguration } from "@namada/utils";
 

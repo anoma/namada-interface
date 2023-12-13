@@ -6,8 +6,14 @@ import {
   defaultCosmosChainId,
   defaultEthereumChainId,
 } from "@namada/chains";
-import { Namada, Keplr, Metamask } from "@namada/integrations";
-import { useEventListenerOnce, useIntegration } from "@namada/hooks";
+import {
+  Namada,
+  Keplr,
+  Metamask,
+  useIntegration,
+  MetamaskWindow,
+} from "@namada/integrations";
+import { useEventListenerOnce } from "@namada/hooks";
 
 import { useAppDispatch } from "store";
 import {
@@ -69,13 +75,14 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
     metamaskAccountChangedHandler,
     false,
     (event, handler) => {
-      if (window.ethereum) {
-        window.ethereum.on(event, handler);
+      if ((window as MetamaskWindow).ethereum) {
+        //TODO: fix as
+        (window as MetamaskWindow).ethereum.on(event, handler as () => unknown);
       }
     },
     (event, handler) => {
-      if (window.ethereum) {
-        window.ethereum.removeListener(event, handler);
+      if ((window as MetamaskWindow).ethereum) {
+        (window as MetamaskWindow).ethereum.removeListener(event, handler);
       }
     }
   );

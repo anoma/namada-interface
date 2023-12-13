@@ -4,7 +4,7 @@ import BigNumber from "bignumber.js";
 import { Query } from "@namada/shared";
 import { Signer, Tokens } from "@namada/types";
 import { chains, defaultChainId as chainId } from "@namada/chains";
-import { getIntegration } from "@namada/hooks";
+import { getIntegration } from "@namada/integrations";
 
 import {
   FETCH_VALIDATORS,

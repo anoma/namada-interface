@@ -4,7 +4,7 @@ import * as O from "fp-ts/Option";
 
 import { defaultChainId as chainId, chains } from "@namada/chains";
 import { Select } from "@namada/components";
-import { getIntegration } from "@namada/hooks";
+import { getIntegration } from "@namada/integrations";
 import { Query } from "@namada/shared";
 import { AccountType, Signer, Tokens } from "@namada/types";
 import { shortenAddress } from "@namada/utils";

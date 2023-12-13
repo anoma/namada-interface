@@ -3,7 +3,8 @@ import { Route, Routes, useNavigate } from "react-router-dom";
 import { RootState, useAppDispatch, useAppSelector } from "store";
 
 import { defaultChainId as chainId } from "@namada/chains";
-import { useIntegrationConnection, useSanitizedLocation } from "@namada/hooks";
+import { useSanitizedLocation } from "@namada/hooks";
+import { useIntegrationConnection } from "@namada/integrations";
 import { Staking } from "App/Staking";
 import {
   StakingAndGovernanceSubRoute,

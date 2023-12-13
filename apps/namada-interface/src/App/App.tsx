@@ -26,7 +26,10 @@ import { persistor, store, useAppDispatch, useAppSelector } from "store";
 import { Toasts } from "App/Toast";
 import { SettingsState } from "slices/settings";
 import { chains, defaultChainId as chainId } from "@namada/chains";
-import { useIntegration, useUntilIntegrationAttached } from "@namada/hooks";
+import {
+  useIntegration,
+  useUntilIntegrationAttached,
+} from "@namada/integrations";
 import { Outlet } from "react-router-dom";
 import { addAccounts, fetchBalances } from "slices/accounts";
 import { Account } from "@namada/types";
