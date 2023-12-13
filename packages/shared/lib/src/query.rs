@@ -238,11 +238,11 @@ impl Query {
         //TODO: Move hardcoded tokens somewhere else
         let tokens: HashSet<Address> = HashSet::from([
             // NAM
-            Address::from_str("tnam1qxuqn53dtcckynnm35n8s27cftxcqym7gvesjrp9")?,
+            Address::from_str("tnam1q9mjvqd45u7w54kee2aquugtv7vn7h3xrcrau7xy")?,
             // DOT
-            Address::from_str("tnam1qy67tz9xlutanq0mzj2jjvf4ldw7f43dgcfe6hyd")?,
+            Address::from_str("tnam1q9dg4r9uteahgx7qyc2h8crq3lg7zrxdduwyrss4")?,
             // ETH
-            Address::from_str("tnam1qxp8e9hqtcwpxsmene9ht97el0gh2s6m9slwv09s")?,
+            Address::from_str("tnam1q9anasrx0gqeuxrc22a0uefe82kw08avhcasevng")?,
         ]);
 
         let mut result = vec![];
