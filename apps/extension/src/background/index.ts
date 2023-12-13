@@ -7,7 +7,6 @@ import {
 } from "@namada/storage";
 import { ProxyMappings } from "@namada/chains";
 import { init as initCrypto } from "@namada/crypto/src/init";
-import { init as initShared } from "@namada/shared/src/init";
 import { Query, Sdk } from "@namada/shared";
 
 import {
@@ -49,7 +48,8 @@ const txStore = new MemoryKVStore(KVPrefix.Memory);
 
 const DEFAULT_URL =
   "https://d3brk13lbhxfdb.cloudfront.net/qc-testnet-5.1.025a61165acd05e";
-const { NAMADA_INTERFACE_PROXY, NAMADA_INTERFACE_NAMADA_URL = DEFAULT_URL } = process.env;
+const { NAMADA_INTERFACE_PROXY, NAMADA_INTERFACE_NAMADA_URL = DEFAULT_URL } =
+  process.env;
 
 const NamadaRpcEndpoint = NAMADA_INTERFACE_PROXY
   ? ProxyMappings["namada"]
@@ -66,6 +66,11 @@ router.addGuard(ExtensionGuards.checkOriginIsValid);
 router.addGuard(ExtensionGuards.checkMessageIsInternal);
 
 const init = new Promise<void>(async (resolve) => {
+  const { init: initShared } = await import("@namada/shared/src/init").then(
+    ({ init }) => ({
+      init,
+    })
+  );
   const { memory: cryptoMemory } = await initCrypto();
 
   await initShared();
