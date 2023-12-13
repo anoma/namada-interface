@@ -1,8 +1,8 @@
 use std::{path::PathBuf, str::FromStr};
 
 use borsh::{BorshDeserialize, BorshSerialize};
+use namada::core::ibc::core::host::types::identifiers::{ChannelId, PortId};
 use namada::{
-    ibc::core::ics24_host::identifier::{ChannelId, PortId},
     namada_sdk::args::{self, InputAmount},
     types::{
         address::Address,
@@ -430,6 +430,11 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         _ => None,
     };
 
+    let siginig_keys: Vec<PublicKey> = match public_key {
+        Some(v) => vec![v.clone()],
+        _ => vec![],
+    };
+
     let args = args::Tx {
         dry_run: false,
         dry_run_wrapper: false,
@@ -449,10 +454,9 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         expiration: None,
         chain_id: Some(ChainId(String::from(chain_id))),
         signatures: vec![],
-        signing_keys: vec![],
+        signing_keys: siginig_keys,
         tx_reveal_code_path: PathBuf::from("tx_reveal_pk.wasm"),
         use_device: false,
-        verification_key: public_key,
         password: None,
     };
 
