@@ -4,13 +4,12 @@ import { ThemeContext } from "styled-components";
 import { ImageName } from "./types";
 import { ImageContainer, StyledImage } from "./image.components";
 
-import { ReactComponent as LogoDark } from "./assets/logo-dark.svg";
-import { ReactComponent as LogoLight } from "./assets/logo-light.svg";
-import { ReactComponent as LogoMinimalDark } from "./assets/logo-minimal-dark.svg";
-import { ReactComponent as LogoMinimalLight } from "./assets/logo-minimal-light.svg";
-import { ReactComponent as SuccessImageDark } from "./assets/success-image.svg";
-import { ReactComponent as SuccessImageLight } from "./assets/success-image.svg";
-import { ReactComponent as LedgerImage } from "./assets/ledger.svg";
+import { LogoDark } from "./assets/LogoDark";
+import { LogoLight } from "./assets/LogoLight";
+import { LogoMinimalDark } from "./assets/LogoMinimalDark";
+import { LogoMinimalLight } from "./assets/LogoMinimalLight";
+import { SuccessImage } from "./assets/SuccessImage";
+import { LedgerLogo } from "./assets/LedgerLogo";
 
 export interface ImageProps {
   imageName: ImageName;
@@ -23,16 +22,16 @@ export interface ImageProps {
 const imagesDark: Record<ImageName, ComponentType> = {
   [ImageName.Logo]: LogoDark,
   [ImageName.LogoMinimal]: LogoMinimalDark,
-  [ImageName.SuccessImage]: SuccessImageDark,
-  [ImageName.Ledger]: LedgerImage,
+  [ImageName.SuccessImage]: SuccessImage,
+  [ImageName.Ledger]: LedgerLogo,
 };
 
 // light theme images
 const imagesLight: Record<ImageName, ComponentType> = {
   [ImageName.Logo]: LogoLight,
   [ImageName.LogoMinimal]: LogoMinimalLight,
-  [ImageName.SuccessImage]: SuccessImageLight,
-  [ImageName.Ledger]: LedgerImage,
+  [ImageName.SuccessImage]: SuccessImage,
+  [ImageName.Ledger]: LedgerLogo,
 };
 
 // gives the images based on color mode
