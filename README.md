@@ -56,6 +56,9 @@ yarn
 
 # Install web-ext
 yarn global add web-ext
+
+# Initialize Husky
+yarn prepare
 ```
 
 ### macOS
@@ -93,6 +96,9 @@ yarn
 
 # Install web-ext
 yarn global add web-ext
+
+# Initialize Husky
+yarn prepare
 ```
 
 Finally, update your shell environment (e.g., in `~/.zshrc`) to set the following variables:
@@ -257,4 +263,3 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ```
-
