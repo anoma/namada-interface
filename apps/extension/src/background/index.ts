@@ -7,6 +7,7 @@ import {
 } from "@namada/storage";
 import { ProxyMappings } from "@namada/chains";
 import { init as initCrypto } from "@namada/crypto/src/init";
+import { init as initShared } from "@namada/shared/src/init";
 import { Query, Sdk } from "@namada/shared";
 
 import {
@@ -66,11 +67,6 @@ router.addGuard(ExtensionGuards.checkOriginIsValid);
 router.addGuard(ExtensionGuards.checkMessageIsInternal);
 
 const init = new Promise<void>(async (resolve) => {
-  const { init: initShared } = await import("@namada/shared/src/init").then(
-    ({ init }) => ({
-      init,
-    })
-  );
   const { memory: cryptoMemory } = await initCrypto();
 
   await initShared();
