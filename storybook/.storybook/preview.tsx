@@ -1,8 +1,7 @@
 import type { Preview } from "@storybook/react";
-import { getTheme } from "@namada/utils";
-import { ThemeProvider } from "styled-components";
-import React from "react";
 import { StoryWrapper } from "../src/StoryWrapper";
+
+import "../src/styles/tailwind-output.css";
 
 const preview: Preview = {
   decorators: [
