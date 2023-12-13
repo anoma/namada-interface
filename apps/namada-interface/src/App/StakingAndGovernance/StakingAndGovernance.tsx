@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useAppDispatch, useAppSelector, RootState } from "store";
 import { Routes, Route, useNavigate } from "react-router-dom";
 
-import { useIntegrationConnection } from "@namada/hooks";
+import { useIntegrationConnection } from "@namada/integrations";
 import { Staking } from "App/Staking";
 import { PublicGoodsFunding } from "App/PublicGoodsFunding";
 import { StakingAndGovernanceContainer } from "./StakingAndGovernance.components";

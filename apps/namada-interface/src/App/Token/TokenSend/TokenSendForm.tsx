@@ -4,7 +4,6 @@ import { ThemeContext } from "styled-components";
 import QrReader from "react-qr-reader";
 import BigNumber from "bignumber.js";
 
-import { getIntegration } from "@namada/hooks";
 import { Signer, Tokens, TokenType } from "@namada/types";
 import { ColorMode, DesignConfiguration } from "@namada/utils";
 import {
@@ -34,6 +33,7 @@ import { SettingsState } from "slices/settings";
 import { TopLevelRoute } from "App/types";
 import { TransferType, TxTransferArgs } from "../types";
 import { defaultChainId } from "@namada/chains";
+import { getIntegration } from "@namada/integrations";
 
 enum ComponentColor {
   GasButtonBorder,

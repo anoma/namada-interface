@@ -1,9 +1,11 @@
+const BundleAnalyzerPlugin =
+  require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const webpack = require("webpack");
 const { resolve } = require("path");
 const CopyPlugin = require("copy-webpack-plugin");
 const MergeJsonWebpackPlugin = require("merge-jsons-webpack-plugin");
 const ExtensionReloader = require("webpack-extension-reloader");
-const RemovePlugin = require('remove-files-webpack-plugin');
+const RemovePlugin = require("remove-files-webpack-plugin");
 const createStyledComponentsTransformer =
   require("typescript-plugin-styled-components").default;
 const packageJson = require("./package.json");
@@ -65,11 +67,12 @@ const copyPatterns = [
   {
     from: MANIFEST_BASE_PATH,
     to: GENERATED_MANIFEST,
-    transform: generateManifest
-  }
+    transform: generateManifest,
+  },
 ];
 
 const plugins = [
+  new BundleAnalyzerPlugin(),
   new CopyPlugin({
     patterns: copyPatterns,
   }),
@@ -101,9 +104,9 @@ const plugins = [
   new RemovePlugin({
     after: {
       include: [`${OUTPUT_PATH}/${GENERATED_MANIFEST}`],
-      log: false
+      log: false,
     },
-  })
+  }),
 ];
 
 if (NODE_ENV === "development") {

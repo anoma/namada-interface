@@ -22,7 +22,7 @@ import {
 } from "./EthereumBridge.components";
 import { useState } from "react";
 import BigNumber from "bignumber.js";
-import { getIntegration } from "@namada/hooks";
+import { getIntegration } from "@namada/integrations";
 
 const SUPPORTED_TOKENS = ["TESTERC20", "NUTTESTERC20"];
 type FormFields = "recipient" | "amount" | "feeAmount";

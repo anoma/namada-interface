@@ -1,5 +1,4 @@
 import { type MetaMaskInpageProvider } from "@metamask/providers";
-import MetaMaskSDK from "@metamask/sdk";
 import { ethers } from "ethers";
 
 import {
@@ -20,7 +19,7 @@ const {
   NAMADA_INTERFACE_CONTRACT_ADDR_ETH_BRIDGE = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
 } = process.env;
 
-type MetamaskWindow = Window &
+export type MetamaskWindow = Window &
   typeof globalThis & {
     ethereum: MetaMaskInpageProvider;
   };
@@ -30,10 +29,8 @@ class Metamask implements Integration<Account, unknown> {
   constructor(public readonly chain: Chain) {}
 
   private init(): void {
-    if ((<MetamaskWindow>window).ethereum) {
-      const MMSDK = new MetaMaskSDK();
-      const provider = MMSDK.getProvider();
-
+    const provider = (<MetamaskWindow>window).ethereum;
+    if (provider) {
       this._ethereum = provider;
     }
   }
@@ -96,7 +93,9 @@ class Metamask implements Integration<Account, unknown> {
     const { sender, recipient, amount, asset } = props.bridgeProps;
     //TODO: check this shit
     const amountNumber = amount?.toNumber() || 0;
-    const provider = new ethers.BrowserProvider(window.ethereum);
+    const provider = new ethers.BrowserProvider(
+      (window as MetamaskWindow).ethereum
+    );
     const signer = await provider.getSigner(sender);
 
     const tx = {
@@ -119,7 +118,9 @@ class Metamask implements Integration<Account, unknown> {
   }
 
   public async queryBalances(owner: string): Promise<TokenBalance[]> {
-    const provider = new ethers.BrowserProvider(window.ethereum);
+    const provider = new ethers.BrowserProvider(
+      (window as MetamaskWindow).ethereum
+    );
     const ethBalance = await provider.getBalance(owner);
     // TODO: Re-enable the following when we Erc20 tokens are fully supported:
     // const signer = await provider.getSigner(owner);

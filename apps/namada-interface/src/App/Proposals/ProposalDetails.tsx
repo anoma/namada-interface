@@ -7,7 +7,7 @@ import { chains } from "@namada/chains";
 import { Query } from "@namada/shared";
 import { AccountType, Signer, Tokens } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
-import { getIntegration } from "@namada/hooks";
+import { getIntegration } from "@namada/integrations";
 
 import { useAppSelector } from "store";
 

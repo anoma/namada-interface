@@ -26,7 +26,7 @@ import {
   getIntegration,
   useIntegrationConnection,
   useUntilIntegrationAttached,
-} from "@namada/hooks";
+} from "@namada/integrations";
 import { useAppDispatch, useAppSelector } from "store";
 import { Account, AccountsState, addAccounts } from "slices/accounts";
 import { addChannel, ChannelsState } from "slices/channels";
@@ -155,8 +155,9 @@ const IBCTransfer = (): JSX.Element => {
         }
         return {
           value: `${address}|${tokenType}`,
-          label: `${alias !== "Namada" ? alias + " - " : ""}${Tokens[tokenType as TokenType].coin
-            } (${amount} ${tokenType})`,
+          label: `${alias !== "Namada" ? alias + " - " : ""}${
+            Tokens[tokenType as TokenType].coin
+          } (${amount} ${tokenType})`,
         };
       });
     }
@@ -411,9 +412,9 @@ const IBCTransfer = (): JSX.Element => {
                   currentExtensionAttachStatus === "attached"
                     ? handleConnectExtension
                     : handleDownloadExtension.bind(
-                      null,
-                      destinationChain.extension.url
-                    )
+                        null,
+                        destinationChain.extension.url
+                      )
                 }
                 loading={
                   currentExtensionAttachStatus === "pending" ||
@@ -426,7 +427,7 @@ const IBCTransfer = (): JSX.Element => {
                 }
               >
                 {currentExtensionAttachStatus === "attached" ||
-                  currentExtensionAttachStatus === "pending"
+                currentExtensionAttachStatus === "pending"
                   ? `Load accounts from ${extensionAlias} Extension`
                   : "Click to download the extension"}
               </Button>
