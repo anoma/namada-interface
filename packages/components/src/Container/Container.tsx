@@ -5,8 +5,6 @@ import {
   Header,
   Page,
 } from "./Container.components";
-import { useLayoutEffect } from "react";
-import { useLocation } from "react-router-dom";
 
 type ContainerProps = {
   children: React.ReactNode;
@@ -16,11 +14,6 @@ type ContainerProps = {
 };
 
 export const Container = (props: ContainerProps): JSX.Element => {
-  const location = useLocation();
-  useLayoutEffect(() => {
-    window.scrollTo(0, 0);
-  }, [location]);
-
   return (
     <Page isPopup={props.size === "popup"}>
       <ContainerWrapper maxW={props.size || "md"}>
