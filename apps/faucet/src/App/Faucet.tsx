@@ -7,7 +7,7 @@ import {
 } from "@namada/components";
 import { bech32m } from "bech32";
 import { sanitize } from "dompurify";
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 
 import { TokenData } from "config";
 import { useTheme } from "styled-components";
@@ -40,17 +40,23 @@ type Props = {
 
 export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
   const theme = useTheme();
-  const { url, limit } = useContext(SettingsContext);
+  const { url, limit, tokens } = useContext(SettingsContext);
   const [targetAddress, setTargetAddress] = useState<string>();
-  const [tokenAddress, setTokenAddress] = useState(TokenData[0].value);
+  const [tokenAddress, setTokenAddress] = useState<string>();
   const [amount, setAmount] = useState<number | undefined>(undefined);
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState(Status.Completed);
   const [statusText, setStatusText] = useState<string>();
   const [responseDetails, setResponseDetails] = useState<TransferResponse>();
 
+  useEffect(() => {
+    if (tokens?.NAM) {
+      setTokenAddress(tokens.NAM);
+    }
+  }, [tokens]);
+
   const handleSubmit = useCallback(async () => {
-    if (!targetAddress || !amount) {
+    if (!targetAddress || !amount || !tokenAddress) {
       return;
     }
 
@@ -195,6 +201,7 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
           variant={ButtonVariant.Contained}
           onClick={handleSubmit}
           disabled={
+            !tokenAddress ||
             !amount ||
             (amount || 0) > limit ||
             !targetAddress ||

@@ -71,7 +71,6 @@ export const App: React.FC = () => {
       } = await requestSettings(url).catch((e) => {
         throw new Error(`Error requesting settings: ${e}`);
       });
-      console.log("Settings", { difficulty, startsAt, tokens });
       setSettings({
         difficulty,
         startsAt,
@@ -116,7 +115,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     if (settings) {
       const { startsAt } = settings;
-      console.log("Start at", { startsAt, isTestnetLive });
+      console.log("TODO: Start at", { startsAt, isTestnetLive });
       // TODO
       setIsTestnetLive(false);
     }
