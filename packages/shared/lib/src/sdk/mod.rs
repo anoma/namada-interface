@@ -1,5 +1,7 @@
 use std::str::FromStr;
 
+use self::io::WebIo;
+use self::wallet::BrowserWalletUtils;
 use crate::rpc_client::HttpClient;
 use crate::utils::to_js_result;
 use crate::{
@@ -15,13 +17,10 @@ use namada::namada_sdk::tx::{
     build_bond, build_ibc_transfer, build_reveal_pk, build_transfer, build_unbond,
     build_vote_proposal, build_withdraw, is_reveal_pk_needed, process_tx,
 };
-
-use self::io::WebIo;
-use self::wallet::BrowserWalletUtils;
 use namada::namada_sdk::wallet::{Store, Wallet};
 use namada::namada_sdk::{Namada, NamadaImpl};
+use namada::proto::Tx;
 use namada::types::address::Address;
-use namada::{proto::Tx, types::key::common::PublicKey};
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 pub mod io;
 pub mod masp;
@@ -58,9 +57,7 @@ impl BuiltTx {
 /// Represents the Sdk public API.
 #[wasm_bindgen]
 pub struct Sdk {
-    client: HttpClient,
-    wallet: Wallet<wallet::BrowserWalletUtils>,
-    shielded_ctx: ShieldedContext<masp::WebShieldedUtils>,
+    namada: NamadaImpl<HttpClient, BrowserWalletUtils, WebShieldedUtils, WebIo>,
 }
 
 #[wasm_bindgen]
@@ -70,22 +67,21 @@ impl Sdk {
     #[wasm_bindgen(constructor)]
     pub fn new(url: String) -> Self {
         set_panic_hook();
-        Sdk {
-            client: HttpClient::new(url),
-            wallet: Wallet::new(BrowserWalletUtils {}, Store::default()),
-            shielded_ctx: ShieldedContext::default(),
-        }
-    }
+        let client: HttpClient = HttpClient::new(url);
+        let wallet: Wallet<wallet::BrowserWalletUtils> =
+            Wallet::new(BrowserWalletUtils {}, Store::default());
+        let shielded_ctx: ShieldedContext<masp::WebShieldedUtils> = ShieldedContext::default();
 
-    fn get_namada(&mut self) -> impl Namada {
-        NamadaImpl::native_new(
-            &self.client,
-            &mut self.wallet,
-            &mut self.shielded_ctx,
-            &WebIo,
+        let namada = NamadaImpl::native_new(
+            client,
+            wallet,
+            shielded_ctx,
+            WebIo,
             //NAM address
             Address::from_str("tnam1qxuqn53dtcckynnm35n8s27cftxcqym7gvesjrp9").unwrap(),
-        )
+        );
+
+        Sdk { namada }
     }
 
     pub async fn has_masp_params() -> Result<JsValue, JsValue> {
@@ -111,13 +107,15 @@ impl Sdk {
         // We are making sure that there are no more params left
         assert_eq!(params_bytes.next(), None);
 
-        self.shielded_ctx = WebShieldedUtils::new(spend, output, convert);
+        let mut shielded = self.namada.shielded_mut().await;
+        *shielded = WebShieldedUtils::new(spend, output, convert);
 
         Ok(())
     }
 
-    pub fn add_spending_key(&mut self, xsk: &str, alias: &str) {
-        wallet::add_spending_key(&mut self.wallet, xsk, alias)
+    pub async fn add_spending_key(&mut self, xsk: &str, alias: &str) {
+        let mut wallet = self.namada.wallet_mut().await;
+        wallet::add_spending_key(&mut wallet, xsk, alias)
     }
 
     pub async fn sign_tx(
@@ -136,6 +134,7 @@ impl Sdk {
         // Append signing key to args if provided, and append prefix to support encoding
         if signing_key.is_some() {
             let signing_key = SecretKey::from_str(&format!("{}{}", "00", signing_key.unwrap()))?;
+            let signing_key = signing_key.to_public();
             args.signing_keys = vec![signing_key];
         }
 
@@ -147,28 +146,36 @@ impl Sdk {
             .nth(0)
             .expect("No public key provided");
 
-        // TODO: this is a workaround so it is possible to sign reveal_pk tx
-        // ideally we want to always pass the verification_key/signing keys in the tx_msg
-        let vk = match args.verification_key {
-            Some(vk) => vk,
-            None => pk.clone(),
-        };
-        args.verification_key = Some(vk);
-
         let address = Address::from(pk);
-        let namada = self.get_namada();
 
-        let reveal_pk_tx_bytes = if is_reveal_pk_needed(namada.client(), &address, false).await? {
-            let (mut tx, _, _) = build_reveal_pk(&namada, &args, &pk).await?;
-            sign_tx(&namada, &args, &mut tx, signing_data.clone(), default_sign).await?;
+        let reveal_pk_tx_bytes =
+            if is_reveal_pk_needed(self.namada.client(), &address, false).await? {
+                let (mut tx, _, _) = build_reveal_pk(&self.namada, &args, &pk).await?;
+                sign_tx(
+                    &self.namada.wallet_lock(),
+                    &args,
+                    &mut tx,
+                    signing_data.clone(),
+                    default_sign,
+                    (),
+                )
+                .await?;
 
-            borsh::to_vec(&tx)?
-        } else {
-            vec![]
-        };
+                borsh::to_vec(&tx)?
+            } else {
+                vec![]
+            };
 
         // Sign tx
-        sign_tx(&namada, &args, &mut tx, signing_data.clone(), default_sign).await?;
+        sign_tx(
+            &self.namada.wallet_lock(),
+            &args,
+            &mut tx,
+            signing_data.clone(),
+            default_sign,
+            (),
+        )
+        .await?;
 
         to_js_result((borsh::to_vec(&tx)?, reveal_pk_tx_bytes))
     }
@@ -180,15 +187,14 @@ impl Sdk {
         reveal_pk_tx_bytes: &[u8],
     ) -> Result<(), JsError> {
         let args = tx::tx_args_from_slice(tx_msg)?;
-        let namada = self.get_namada();
 
         if reveal_pk_tx_bytes.is_empty() == false {
             let reveal_pk_tx = Tx::try_from_slice(reveal_pk_tx_bytes)?;
-            process_tx(&namada, &args, reveal_pk_tx).await?;
+            process_tx(&self.namada, &args, reveal_pk_tx).await?;
         }
 
         let tx = Tx::try_from_slice(tx_bytes)?;
-        process_tx(&namada, &args, tx).await?;
+        process_tx(&self.namada, &args, tx).await?;
 
         Ok(())
     }
@@ -283,9 +289,7 @@ impl Sdk {
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
         let mut args = tx::transfer_tx_args(transfer_msg, tx_msg, xsk)?;
-
-        let namada = self.get_namada();
-        let (tx, signing_data, _) = build_transfer(&namada, &mut args).await?;
+        let (tx, signing_data, _) = build_transfer(&self.namada, &mut args).await?;
 
         Ok(BuiltTx { tx, signing_data })
     }
@@ -297,9 +301,7 @@ impl Sdk {
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
         let args = tx::ibc_transfer_tx_args(ibc_transfer_msg, tx_msg)?;
-
-        let namada = self.get_namada();
-        let (tx, signing_data, _) = build_ibc_transfer(&namada, &args).await?;
+        let (tx, signing_data, _) = build_ibc_transfer(&self.namada, &args).await?;
 
         Ok(BuiltTx { tx, signing_data })
     }
@@ -311,9 +313,7 @@ impl Sdk {
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
         let args = tx::eth_bridge_transfer_tx_args(eth_bridge_transfer_msg, tx_msg)?;
-
-        let namada = self.get_namada();
-        let (tx, signing_data, _) = build_bridge_pool_tx(&namada, args.clone()).await?;
+        let (tx, signing_data, _) = build_bridge_pool_tx(&self.namada, args.clone()).await?;
 
         Ok(BuiltTx { tx, signing_data })
     }
@@ -325,10 +325,9 @@ impl Sdk {
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
         let args = tx::vote_proposal_tx_args(vote_proposal_msg, tx_msg)?;
-        let epoch = query_epoch(&self.client).await?;
-        let namada = self.get_namada();
+        let epoch = query_epoch(self.namada.client()).await?;
 
-        let (tx, signing_data, _) = build_vote_proposal(&namada, &args, epoch)
+        let (tx, signing_data, _) = build_vote_proposal(&self.namada, &args, epoch)
             .await
             .map_err(JsError::from)?;
 
@@ -342,9 +341,7 @@ impl Sdk {
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
         let args = tx::bond_tx_args(bond_msg, tx_msg)?;
-
-        let namada = self.get_namada();
-        let (tx, signing_data, _) = build_bond(&namada, &args).await?;
+        let (tx, signing_data, _) = build_bond(&self.namada, &args).await?;
 
         Ok(BuiltTx { tx, signing_data })
     }
@@ -356,9 +353,7 @@ impl Sdk {
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
         let args = tx::unbond_tx_args(unbond_msg, tx_msg)?;
-
-        let namada = self.get_namada();
-        let (tx, signing_data, _, _) = build_unbond(&namada, &args).await?;
+        let (tx, signing_data, _, _) = build_unbond(&self.namada, &args).await?;
 
         Ok(BuiltTx { tx, signing_data })
     }
@@ -370,28 +365,15 @@ impl Sdk {
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
         let args = tx::withdraw_tx_args(withdraw_msg, tx_msg)?;
-
-        let namada = self.get_namada();
-        let (tx, signing_data, _) = build_withdraw(&namada, &args).await?;
+        let (tx, signing_data, _) = build_withdraw(&self.namada, &args).await?;
 
         Ok(BuiltTx { tx, signing_data })
     }
 
     async fn build_reveal_pk(&mut self, tx_msg: &[u8], _gas_payer: String) -> Result<Tx, JsError> {
         let args = tx::tx_args_from_slice(tx_msg)?;
-
-        let public_key = match args.verification_key.clone() {
-            Some(v) => PublicKey::from(v),
-            _ => {
-                return Err(JsError::new(
-                    "verification_key is required in this context!",
-                ))
-            }
-        };
-
-        let namada = self.get_namada();
-
-        let (reveal_pk, _, _) = build_reveal_pk(&namada, &args.clone(), &public_key).await?;
+        let public_key = args.signing_keys[0].clone();
+        let (reveal_pk, _, _) = build_reveal_pk(&self.namada, &args.clone(), &public_key).await?;
 
         Ok(reveal_pk)
     }

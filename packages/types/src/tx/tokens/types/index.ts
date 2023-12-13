@@ -15,7 +15,7 @@ export type TokenInfo = {
 // Declare symbols for tokens we support:
 export const Symbols = ["NAM", "ATOM", "ETH"] as const;
 
-export type TokenType = (typeof Symbols)[number];
+export type TokenType = typeof Symbols[number];
 type Tokens = Record<TokenType, TokenInfo>;
 
 const supportedCoinTypes: RegisteredCoinType[] = [
@@ -46,20 +46,20 @@ export const Tokens = supportedCoinTypes.reduce(
 Tokens["NAM"] = {
   ...Tokens["NAM"],
   url: "https://namada.net",
-  address: "tnam1qxuqn53dtcckynnm35n8s27cftxcqym7gvesjrp9",
+  address: "tnam1q9mjvqd45u7w54kee2aquugtv7vn7h3xrcrau7xy",
 };
 
 // TODO: We don't have a address for this. The address for DOT
 // from the dev & e2e genesis is being used here:
 Tokens["ATOM"] = {
   ...Tokens["ATOM"],
-  address: "tnam1qy67tz9xlutanq0mzj2jjvf4ldw7f43dgcfe6hyd",
+  address: "tnam1q9dg4r9uteahgx7qyc2h8crq3lg7zrxdduwyrss4",
   coinGeckoId: "cosmos",
 };
 
 Tokens["ETH"] = {
   ...Tokens["ETH"],
-  address: "tnam1qxp8e9hqtcwpxsmene9ht97el0gh2s6m9slwv09s",
+  address: "tnam1q9anasrx0gqeuxrc22a0uefe82kw08avhcasevng",
   coinGeckoId: "ethereum",
 };
 
