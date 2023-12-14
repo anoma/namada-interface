@@ -9,10 +9,11 @@ use crate::{
     utils::{set_panic_hook, to_bytes},
 };
 use borsh::BorshDeserialize;
+use js_sys::Uint8Array;
 use namada::ledger::{eth_bridge::bridge_pool::build_bridge_pool_tx, pos::common::SecretKey};
 use namada::namada_sdk::masp::ShieldedContext;
 use namada::namada_sdk::rpc::query_epoch;
-use namada::namada_sdk::signing::{sign_tx, SigningTxData};
+use namada::namada_sdk::signing::SigningTxData;
 use namada::namada_sdk::tx::{
     build_bond, build_ibc_transfer, build_reveal_pk, build_transfer, build_unbond,
     build_vote_proposal, build_withdraw, is_reveal_pk_needed, process_tx,
@@ -336,6 +337,27 @@ impl Sdk {
             build_reveal_pk(&self.namada, &args.clone(), &public_key).await?;
 
         Ok(BuiltTx { tx, signing_data })
+    }
+
+    // Helper function to reveal public key
+    pub async fn reveal_pk(&mut self, signing_key: String, tx_msg: &[u8]) -> Result<(), JsError> {
+        let args = tx::tx_args_from_slice(tx_msg)?;
+        let pk = &args
+            .signing_keys
+            .clone()
+            .into_iter()
+            .nth(0)
+            .expect("No public key provided");
+        let address = Address::from(pk);
+
+        if is_reveal_pk_needed(self.namada.client(), &address, false).await? {
+            let built_tx = self.build_reveal_pk(tx_msg, String::from("")).await?;
+            // Conversion from JsValue so we can use self.sign_tx
+            let tx_bytes = Uint8Array::new(&self.sign_tx(built_tx, signing_key).await?).to_vec();
+            self.process_tx(&tx_bytes, tx_msg).await?;
+        }
+
+        Ok(())
     }
 }
 

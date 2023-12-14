@@ -22,12 +22,8 @@ import {
         const txMsg = fromBase64(data.txMsg);
         const { pk, xsk } = data.signingKey;
 
-        const builtRevealPkTx = await sdk.build_reveal_pk(txMsg, "");
-        const builtRevealPkTxBytes = await sdk.sign_tx(
-          builtRevealPkTx,
-          pk as string
-        );
-        await sdk.process_tx(builtRevealPkTxBytes, txMsg);
+        //TODO: make pk mandatory and rename to secretKey
+        await sdk.reveal_pk(pk as string, txMsg);
 
         const builtTx = await sdk.build_transfer(
           fromBase64(data.transferMsg),
