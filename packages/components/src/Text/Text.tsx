@@ -1,7 +1,7 @@
 import { FontSize, ThemeColor } from "@namada/utils";
 import React from "react";
-import { TextParagraph } from "./Text.components";
 import { FontWeight } from "../types";
+import { TextParagraph } from "./Text.components";
 
 export type TextProps = {
   children: React.ReactNode;
