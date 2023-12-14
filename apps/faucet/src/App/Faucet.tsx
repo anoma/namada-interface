@@ -161,7 +161,7 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
       <InputContainer>
         <Input
           variant={InputVariants.Text}
-          label="Token address (defaults to NAM)"
+          label="Token Address (defaults to NAM)"
           value={tokenAddress}
           onFocus={handleFocus}
           onChange={(e) => setTokenAddress(e.target.value)}

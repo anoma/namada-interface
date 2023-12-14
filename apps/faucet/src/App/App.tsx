@@ -72,10 +72,21 @@ export const App: React.FC = () => {
       } = await requestSettings(url).catch((e) => {
         throw new Error(`Error requesting settings: ${e}`);
       });
+      const startDateString = new Date(startsAt * 1000).toLocaleString(
+        "en-gb",
+        {
+          timeZone: "UTC",
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+          hour: "numeric",
+          minute: "numeric",
+        }
+      );
       setSettings({
         difficulty,
         startsAt,
-        startsAtText: new Date(startsAt * 1000).toUTCString(),
+        startsAtText: `${startDateString} UTC`,
         tokens,
       });
     })();
