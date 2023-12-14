@@ -129,13 +129,20 @@ impl Sdk {
             signing_data,
         } = built_tx;
 
-        let mut args = tx::tx_args_from_slice(tx_msg)?;
+        let args = tx::tx_args_from_slice(tx_msg)?;
 
         // Append signing key to args if provided, and append prefix to support encoding
         if signing_key.is_some() {
             let signing_key = SecretKey::from_str(&format!("{}{}", "00", signing_key.unwrap()))?;
-            let signing_key = signing_key.to_public();
-            args.signing_keys = vec![signing_key];
+            let mut wallet = self.namada.wallet_mut().await;
+            wallet.insert_keypair(
+                "".to_string(),
+                false,
+                signing_key,
+                None,
+                signing_data.clone().owner,
+                None,
+            )?;
         }
 
         // We only support one signer(for now)
