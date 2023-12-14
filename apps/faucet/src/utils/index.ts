@@ -19,7 +19,6 @@ type SettingsResponse = {
 export const requestSettings = async (
   url: string
 ): Promise<SettingsResponse> => {
-  console.log("REQUEST SETTINGS", url);
   return await fetch(new URL(`${url}/setting`), {
     method: "GET",
   })

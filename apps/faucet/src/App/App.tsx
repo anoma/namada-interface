@@ -48,18 +48,20 @@ type Settings = {
   startsAtText?: string;
 };
 
-type AppSettings = Settings & {
+type AppContext = Settings & {
   limit: number;
   url: string;
+  settingsError?: string;
 };
 
-export const SettingsContext = createContext<AppSettings>({ limit, url });
+export const AppContext = createContext<AppContext>({ limit, url });
 
 export const App: React.FC = () => {
   const initialColorMode = "dark";
   const [colorMode, _] = useState<ColorMode>(initialColorMode);
   const [isTestnetLive, setIsTestnetLive] = useState(true);
   const [settings, setSettings] = useState<Settings>();
+  const [settingsError, setSettingsError] = useState<string>();
   const theme = getTheme(colorMode);
 
   useEffect(() => {
@@ -70,7 +72,11 @@ export const App: React.FC = () => {
         start_at: startsAt,
         tokens_alias_to_address: tokens,
       } = await requestSettings(url).catch((e) => {
-        throw new Error(`Error requesting settings: ${e}`);
+        const {
+          errors: { message },
+        } = e;
+        setSettingsError(`Error requesting settings: ${message.join(" ")}`);
+        throw new Error(e);
       });
       const startDateString = new Date(startsAt * 1000).toLocaleString(
         "en-gb",
@@ -110,8 +116,9 @@ export const App: React.FC = () => {
   }, [settings]);
 
   return (
-    <SettingsContext.Provider
+    <AppContext.Provider
       value={{
+        settingsError,
         limit,
         url,
         ...settings,
@@ -156,6 +163,6 @@ export const App: React.FC = () => {
           </ContentContainer>
         </AppContainer>
       </ThemeProvider>
-    </SettingsContext.Provider>
+    </AppContext.Provider>
   );
 };

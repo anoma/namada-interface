@@ -24,7 +24,7 @@ import {
   PreFormatted,
 } from "./Faucet.components";
 
-import { SettingsContext } from "./App";
+import { AppContext } from "./App";
 
 enum Status {
   Pending,
@@ -38,7 +38,8 @@ type Props = {
 
 export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
   const theme = useTheme();
-  const { difficulty, limit, tokens, url } = useContext(SettingsContext);
+  const { difficulty, settingsError, limit, tokens, url } =
+    useContext(AppContext);
   const [targetAddress, setTargetAddress] = useState<string>();
   const [tokenAddress, setTokenAddress] = useState<string>();
   const [amount, setAmount] = useState<number | undefined>(undefined);
@@ -204,6 +205,7 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
         </FormStatus>
       )}
       {status === Status.Error && <FormError>{error}</FormError>}
+      {settingsError && <FormError>{settingsError}</FormError>}
 
       <ButtonContainer>
         <Button
