@@ -21,20 +21,28 @@ import {
       try {
         const txMsg = fromBase64(data.txMsg);
         const { pk, xsk } = data.signingKey;
+
+        const builtRevealPkTx = await sdk.build_reveal_pk(txMsg, "");
+        const builtRevealPkTxBytes = await sdk.sign_tx(
+          builtRevealPkTx,
+          pk as string
+        );
+        await sdk.process_tx(builtRevealPkTxBytes, txMsg);
+
         const builtTx = await sdk.build_transfer(
           fromBase64(data.transferMsg),
           txMsg,
           xsk
         );
-        const [txBytes, revealPkTxBytes] = await sdk.sign_tx(
+        const txBytes = await sdk.sign_tx(
           builtTx,
-          txMsg,
-          pk
+          pk as string
         );
-        await sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
+        await sdk.process_tx(txBytes, txMsg);
 
         postMessage({ msgName: TRANSFER_SUCCESSFUL_MSG });
       } catch (error) {
+        console.error(error);
         postMessage({
           msgName: TRANSFER_FAILED_MSG,
           payload: error instanceof Error ? error.message : error,
