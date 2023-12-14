@@ -129,26 +129,11 @@ impl Sdk {
             signing_data,
         } = built_tx;
 
-        let mut args = tx::tx_args_from_slice(tx_msg)?;
+        let args = tx::tx_args_from_slice(tx_msg)?;
 
         // Append signing key to args if provided, and append prefix to support encoding
         if signing_key.is_some() {
             let signing_key = SecretKey::from_str(&format!("{}{}", "00", signing_key.unwrap()))?;
-
-            let public_key = signing_key.to_public();
-            args.signing_keys = vec![public_key];
-
-            let signatures = tx.compute_section_signature(
-                &[signing_key.clone()],
-                &signing_data.clone().account_public_keys_map.unwrap(),
-                None
-            );
-
-            args.signatures = signatures
-                .iter()
-                .map(|s| serde_json::to_vec(&s.serialize()).unwrap())
-                .collect::<Vec<_>>();
-
             let mut wallet = self.namada.wallet_mut().await;
             wallet.insert_keypair(
                 "".to_string(),
