@@ -9,10 +9,11 @@ use crate::{
     utils::{set_panic_hook, to_bytes},
 };
 use borsh::BorshDeserialize;
+use js_sys::Uint8Array;
 use namada::ledger::{eth_bridge::bridge_pool::build_bridge_pool_tx, pos::common::SecretKey};
 use namada::namada_sdk::masp::ShieldedContext;
 use namada::namada_sdk::rpc::query_epoch;
-use namada::namada_sdk::signing::{default_sign, sign_tx, SigningTxData};
+use namada::namada_sdk::signing::SigningTxData;
 use namada::namada_sdk::tx::{
     build_bond, build_ibc_transfer, build_reveal_pk, build_transfer, build_unbond,
     build_vote_proposal, build_withdraw, is_reveal_pk_needed, process_tx,
@@ -121,84 +122,32 @@ impl Sdk {
     pub async fn sign_tx(
         &mut self,
         built_tx: BuiltTx,
-        tx_msg: &[u8],
-        signing_key: Option<String>,
+        signing_key: String,
     ) -> Result<JsValue, JsError> {
         let BuiltTx {
             mut tx,
             signing_data,
         } = built_tx;
 
-        let args = tx::tx_args_from_slice(tx_msg)?;
+        let signing_key = SecretKey::from_str(&format!("{}{}", "00", signing_key))?;
+        let signing_keys = vec![signing_key.clone()];
 
-        // Append signing key to args if provided, and append prefix to support encoding
-        if signing_key.is_some() {
-            let signing_key = SecretKey::from_str(&format!("{}{}", "00", signing_key.unwrap()))?;
-            let mut wallet = self.namada.wallet_mut().await;
-            wallet.insert_keypair(
-                "".to_string(),
-                false,
-                signing_key,
-                None,
-                signing_data.clone().owner,
-                None,
-            )?;
+        if let Some(account_public_keys_map) = signing_data.account_public_keys_map.clone() {
+            // Sign the raw header
+            tx.sign_raw(
+                signing_keys,
+                account_public_keys_map,
+                signing_data.owner.clone(),
+            );
         }
+        // Sign the fee header
+        tx.sign_wrapper(signing_key);
 
-        // We only support one signer(for now)
-        let pk = &signing_data
-            .public_keys
-            .clone()
-            .into_iter()
-            .nth(0)
-            .expect("No public key provided");
-
-        let address = Address::from(pk);
-
-        let reveal_pk_tx_bytes =
-            if is_reveal_pk_needed(self.namada.client(), &address, false).await? {
-                let (mut tx, _, _) = build_reveal_pk(&self.namada, &args, &pk).await?;
-                sign_tx(
-                    &self.namada.wallet_lock(),
-                    &args,
-                    &mut tx,
-                    signing_data.clone(),
-                    default_sign,
-                    (),
-                )
-                .await?;
-
-                borsh::to_vec(&tx)?
-            } else {
-                vec![]
-            };
-
-        // Sign tx
-        sign_tx(
-            &self.namada.wallet_lock(),
-            &args,
-            &mut tx,
-            signing_data.clone(),
-            default_sign,
-            (),
-        )
-        .await?;
-
-        to_js_result((borsh::to_vec(&tx)?, reveal_pk_tx_bytes))
+        to_js_result(borsh::to_vec(&tx)?)
     }
 
-    pub async fn process_tx(
-        &mut self,
-        tx_bytes: &[u8],
-        tx_msg: &[u8],
-        reveal_pk_tx_bytes: &[u8],
-    ) -> Result<(), JsError> {
+    pub async fn process_tx(&mut self, tx_bytes: &[u8], tx_msg: &[u8]) -> Result<(), JsError> {
         let args = tx::tx_args_from_slice(tx_msg)?;
-
-        if reveal_pk_tx_bytes.is_empty() == false {
-            let reveal_pk_tx = Tx::try_from_slice(reveal_pk_tx_bytes)?;
-            process_tx(&self.namada, &args, reveal_pk_tx).await?;
-        }
 
         let tx = Tx::try_from_slice(tx_bytes)?;
         process_tx(&self.namada, &args, tx).await?;
@@ -245,7 +194,7 @@ impl Sdk {
                     .await?
                     .tx
             }
-            TxType::RevealPK => self.build_reveal_pk(tx_msg, gas_payer).await?,
+            TxType::RevealPK => self.build_reveal_pk(tx_msg, gas_payer).await?.tx,
             TxType::VoteProposal => {
                 self.build_vote_proposal(specific_msg, tx_msg, Some(gas_payer))
                     .await?
@@ -377,12 +326,38 @@ impl Sdk {
         Ok(BuiltTx { tx, signing_data })
     }
 
-    async fn build_reveal_pk(&mut self, tx_msg: &[u8], _gas_payer: String) -> Result<Tx, JsError> {
+    pub async fn build_reveal_pk(
+        &mut self,
+        tx_msg: &[u8],
+        _gas_payer: String,
+    ) -> Result<BuiltTx, JsError> {
         let args = tx::tx_args_from_slice(tx_msg)?;
         let public_key = args.signing_keys[0].clone();
-        let (reveal_pk, _, _) = build_reveal_pk(&self.namada, &args.clone(), &public_key).await?;
+        let (tx, signing_data, _) =
+            build_reveal_pk(&self.namada, &args.clone(), &public_key).await?;
 
-        Ok(reveal_pk)
+        Ok(BuiltTx { tx, signing_data })
+    }
+
+    // Helper function to reveal public key
+    pub async fn reveal_pk(&mut self, signing_key: String, tx_msg: &[u8]) -> Result<(), JsError> {
+        let args = tx::tx_args_from_slice(tx_msg)?;
+        let pk = &args
+            .signing_keys
+            .clone()
+            .into_iter()
+            .nth(0)
+            .expect("No public key provided");
+        let address = Address::from(pk);
+
+        if is_reveal_pk_needed(self.namada.client(), &address, false).await? {
+            let built_tx = self.build_reveal_pk(tx_msg, String::from("")).await?;
+            // Conversion from JsValue so we can use self.sign_tx
+            let tx_bytes = Uint8Array::new(&self.sign_tx(built_tx, signing_key).await?).to_vec();
+            self.process_tx(&tx_bytes, tx_msg).await?;
+        }
+
+        Ok(())
     }
 }
 

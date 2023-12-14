@@ -93,7 +93,6 @@ export class LedgerService {
       await this.sdk.process_tx(
         signedTxBytes,
         fromBase64(txMsg),
-        new Uint8Array()
       );
     } catch (e) {
       console.warn(e);
@@ -133,7 +132,6 @@ export class LedgerService {
       await this.sdk.process_tx(
         signedTxBytes,
         fromBase64(txMsg),
-        new Uint8Array()
       );
 
       // Clear pending tx if successful
