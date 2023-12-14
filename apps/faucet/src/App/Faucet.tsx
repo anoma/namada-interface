@@ -3,13 +3,11 @@ import {
   ButtonVariant,
   Input,
   InputVariants,
-  Select,
 } from "@namada/components";
 import { bech32m } from "bech32";
 import { sanitize } from "dompurify";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 
-import { TokenData } from "config";
 import { useTheme } from "styled-components";
 import {
   TransferResponse,
@@ -40,7 +38,7 @@ type Props = {
 
 export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
   const theme = useTheme();
-  const { url, limit, tokens } = useContext(SettingsContext);
+  const { difficulty, limit, tokens, url } = useContext(SettingsContext);
   const [targetAddress, setTargetAddress] = useState<string>();
   const [tokenAddress, setTokenAddress] = useState<string>();
   const [amount, setAmount] = useState<number | undefined>(undefined);
@@ -55,8 +53,25 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
     }
   }, [tokens]);
 
+  const isFormValid = (): boolean => {
+    return (
+      Boolean(tokenAddress) &&
+      Boolean(amount) &&
+      (amount || 0) <= limit &&
+      Boolean(targetAddress) &&
+      status !== Status.Pending &&
+      isTestnetLive
+    );
+  };
+
   const handleSubmit = useCallback(async () => {
-    if (!targetAddress || !amount || !tokenAddress) {
+    if (
+      !targetAddress ||
+      !amount ||
+      !tokenAddress ||
+      typeof difficulty === "undefined"
+    ) {
+      console.error("Please provide the required values!");
       return;
     }
 
@@ -85,7 +100,6 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
         throw new Error(`Error requesting challenge: ${e}`);
       });
 
-      const difficulty = 2;
       const solution = computePowSolution(challenge, difficulty);
 
       if (!solution) {
@@ -139,15 +153,17 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
           variant={InputVariants.Text}
           label="Target Address"
           value={targetAddress}
+          onFocus={handleFocus}
           onChange={(e) => setTargetAddress(e.target.value)}
         />
       </InputContainer>
 
       <InputContainer>
-        <Select
-          label="Token"
-          data={TokenData}
+        <Input
+          variant={InputVariants.Text}
+          label="Token address (defaults to NAM)"
           value={tokenAddress}
+          onFocus={handleFocus}
           onChange={(e) => setTokenAddress(e.target.value)}
         />
       </InputContainer>
@@ -200,14 +216,7 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
           }}
           variant={ButtonVariant.Contained}
           onClick={handleSubmit}
-          disabled={
-            !tokenAddress ||
-            !amount ||
-            (amount || 0) > limit ||
-            !targetAddress ||
-            status === Status.Pending ||
-            !isTestnetLive
-          }
+          disabled={!isFormValid()}
         >
           Get Testnet Tokens
         </Button>
