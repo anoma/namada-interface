@@ -45,6 +45,7 @@ type Settings = {
   difficulty?: number;
   tokens?: Record<string, string>;
   startsAt?: number;
+  startsAtText?: string;
 };
 
 type AppSettings = Settings & {
@@ -74,50 +75,26 @@ export const App: React.FC = () => {
       setSettings({
         difficulty,
         startsAt,
+        startsAtText: new Date(startsAt * 1000).toUTCString(),
         tokens,
       });
     })();
-    // Logic to determine if testnet has gone live
-    // const launchDate = {
-    //   year: 2023,
-    //   monthIndex: 9,
-    //   dayOfMonth: 5,
-    //   hour: 17,
-    //   minutes: 0,
-    // };
-    //
-    // const liveDate = new Date(
-    //   Date.UTC(
-    //     launchDate.year,
-    //     launchDate.monthIndex,
-    //     launchDate.dayOfMonth,
-    //     launchDate.hour,
-    //     launchDate.minutes
-    //   )
-    // ).getTime();
-    //
-    // const now = new Date();
-    // const nowUTC = Date.UTC(
-    //   now.getUTCFullYear(),
-    //   now.getUTCMonth(),
-    //   now.getUTCDate(),
-    //   now.getUTCHours(),
-    //   now.getUTCMinutes()
-    // );
-    //
-    // if (nowUTC < liveDate) {
-    //   setIsTestnetLive(false);
-    // } else {
-    //   setIsTestnetLive(true);
-    // }
   }, []);
 
   useEffect(() => {
     if (settings) {
       const { startsAt } = settings;
-      console.log("TODO: Start at", { startsAt, isTestnetLive });
-      // TODO
-      setIsTestnetLive(false);
+      const now = new Date();
+      const nowUTC = Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate(),
+        now.getUTCHours(),
+        now.getUTCMinutes()
+      );
+      if (startsAt && nowUTC < startsAt * 1000) {
+        setIsTestnetLive(false);
+      }
     }
   }, [settings]);
 
@@ -131,10 +108,10 @@ export const App: React.FC = () => {
     >
       <ThemeProvider theme={theme}>
         <GlobalStyles colorMode={colorMode} />
-        {!isTestnetLive && (
+        {!isTestnetLive && settings?.startsAtText && (
           <Banner>
             <BannerContents>
-              Testnet will go live 5 October 2023 17:00 UTC! Faucet is disabled
+              Testnet will go live {settings.startsAtText}! Faucet is disabled
               until then.
             </BannerContents>
           </Banner>
