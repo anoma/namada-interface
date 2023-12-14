@@ -23,7 +23,6 @@ export * from "./Select";
 export * from "./Stack";
 export * from "./Table";
 export * from "./TabsGroup";
-export * from "./Text";
 export * from "./Toggle";
 export * from "./Tooltip";
 export * from "./ViewKeys";
