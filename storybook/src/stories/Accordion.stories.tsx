@@ -16,10 +16,24 @@ export default {
 
 type Story = StoryObj<typeof Accordion>;
 
-export const NormalAccordion: Story = {
+export const DefaultAccordion: Story = {
   args: {
     title: "Default Title",
     children: "This is the default content",
     color: "primary",
+  },
+};
+
+export const SecondaryAccordion: Story = {
+  args: {
+    ...DefaultAccordion.args,
+    color: "secondary",
+  },
+};
+
+export const NeutralAccordion: Story = {
+  args: {
+    ...DefaultAccordion.args,
+    color: "neutral",
   },
 };
