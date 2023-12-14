@@ -11,7 +11,6 @@ const container = tv({
     header: "border-b-2 border-black relative py-5 relative",
     body: "pt-6 px-7 pb-8 flex-1 animate-fade-in sm:px-8 sm:pt-10 sm:pb-12",
   },
-
   variants: {
     size: {
       popup: {
