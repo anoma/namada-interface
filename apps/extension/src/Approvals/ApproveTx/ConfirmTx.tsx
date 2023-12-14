@@ -2,27 +2,27 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import {
-  Button,
-  ButtonVariant,
+  ActionButton,
+  Alert,
   Input,
   InputVariants,
+  Stack,
 } from "@namada/components";
+import { SupportedTx, TxType, TxTypeLabel } from "@namada/shared";
 import { shortenAddress } from "@namada/utils";
-import { TxType, TxTypeLabel } from "@namada/shared";
-import { SupportedTx } from "@namada/shared";
 
+import { Address } from "App/Accounts/AccountListing.components";
 import { ApprovalDetails, Status } from "Approvals/Approvals";
 import {
   ButtonContainer,
   InfoHeader,
   InfoLoader,
 } from "Approvals/Approvals.components";
-import { Ports } from "router";
-import { useRequester } from "hooks/useRequester";
-import { Address } from "App/Accounts/AccountListing.components";
-import { closeCurrentTab } from "utils";
-import { FetchAndStoreMaspParamsMsg, HasMaspParamsMsg } from "provider";
 import { SubmitApprovedTxMsg } from "background/approvals";
+import { useRequester } from "hooks/useRequester";
+import { FetchAndStoreMaspParamsMsg, HasMaspParamsMsg } from "provider";
+import { Ports } from "router";
+import { closeCurrentTab } from "utils";
 
 const { NAMADA_INTERFACE_NAMADA_FAUCET_ADDRESS: faucetAddress } = process.env;
 
@@ -89,47 +89,40 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
   }, [status]);
 
   return (
-    <>
+    <Stack gap={4}>
       {status === Status.Pending && (
-        <InfoHeader>
-          <InfoLoader />
-          <p>{statusInfo}</p>
-        </InfoHeader>
+        <Alert type="info">
+          <InfoHeader>
+            <InfoLoader />
+            <p>{statusInfo}</p>
+          </InfoHeader>
+        </Alert>
       )}
       {status === Status.Failed && (
-        <p>
+        <Alert type="error">
           {error}
           <br />
           Try again
-        </p>
+        </Alert>
       )}
       {status !== (Status.Pending || Status.Completed) && signerAddress && (
         <>
-          <div>
+          <Alert type="warning">
             Decrypt keys for <Address>{shortenAddress(signerAddress)}</Address>
-          </div>
+          </Alert>
           <Input
             variant={InputVariants.Password}
             label={"Password"}
             onChange={(e) => setPassword(e.target.value)}
           />
           <ButtonContainer>
-            <Button
-              onClick={handleApproveTx}
-              disabled={!password}
-              variant={ButtonVariant.Contained}
-            >
+            <ActionButton onClick={handleApproveTx} disabled={!password}>
               Authenticate
-            </Button>
-            <Button
-              onClick={() => navigate(-1)}
-              variant={ButtonVariant.Contained}
-            >
-              Back
-            </Button>
+            </ActionButton>
+            <ActionButton onClick={() => navigate(-1)}>Back</ActionButton>
           </ButtonContainer>
         </>
       )}
-    </>
+    </Stack>
   );
 };

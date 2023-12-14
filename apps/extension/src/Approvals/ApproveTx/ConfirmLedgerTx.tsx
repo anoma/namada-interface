@@ -1,13 +1,20 @@
-import { useCallback, useEffect, useState } from "react";
 import { toBase64 } from "@cosmjs/encoding";
 import BigNumber from "bignumber.js";
+import { useCallback, useEffect, useState } from "react";
 
-import { LedgerError } from "@zondax/ledger-namada";
-import { Button, ButtonVariant } from "@namada/components";
 import { defaultChainId as chainId } from "@namada/chains";
+import { ActionButton, Alert, Stack } from "@namada/components";
 import { TxType, TxTypeLabel } from "@namada/shared";
-import { Message, Tokens, TxProps, TxMsgValue } from "@namada/types";
+import { Message, Tokens, TxMsgValue, TxProps } from "@namada/types";
+import { LedgerError } from "@zondax/ledger-namada";
 
+import { ApprovalDetails, Status } from "Approvals/Approvals";
+import {
+  ButtonContainer,
+  InfoHeader,
+  InfoLoader,
+} from "Approvals/Approvals.components";
+import { QueryPublicKeyMsg } from "background/keyring";
 import {
   GetRevealPKBytesMsg,
   GetTxBytesMsg,
@@ -17,13 +24,9 @@ import {
   SubmitSignedRevealPKMsg,
   SubmitSignedTxMsg,
 } from "background/ledger";
-import { QueryPublicKeyMsg } from "background/keyring";
+import { useRequester } from "hooks/useRequester";
 import { Ports } from "router";
 import { closeCurrentTab } from "utils";
-import { useRequester } from "hooks/useRequester";
-import { ApprovalDetails, Status } from "Approvals/Approvals";
-import { ButtonContainer, ErrorMessage } from "Approvals/Approvals.components";
-import { InfoHeader, InfoLoader } from "Approvals/Approvals.components";
 
 type Props = {
   details?: ApprovalDetails;
@@ -238,30 +241,32 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
   }, [source, publicKey]);
 
   return (
-    <>
+    <Stack gap={12}>
+      {status !== Status.Pending && status !== Status.Completed && (
+        <Alert type="warning">
+          Make sure your Ledger is unlocked, and click &quot;Submit&quot;
+        </Alert>
+      )}
       {status === Status.Failed && (
-        <ErrorMessage>
+        <Alert type="error">
           {error}
           <br />
           Try again
-        </ErrorMessage>
+        </Alert>
       )}
       {status === Status.Pending && (
-        <InfoHeader>
-          <InfoLoader />
-          {statusInfo}
-        </InfoHeader>
+        <Alert type="info">
+          <InfoHeader>
+            <InfoLoader />
+            {statusInfo}
+          </InfoHeader>
+        </Alert>
       )}
       {status !== Status.Pending && status !== Status.Completed && (
-        <>
-          <p>Make sure your Ledger is unlocked, and click &quot;Submit&quot;</p>
-          <ButtonContainer>
-            <Button variant={ButtonVariant.Contained} onClick={handleSubmitTx}>
-              Submit
-            </Button>
-          </ButtonContainer>
-        </>
+        <ButtonContainer>
+          <ActionButton onClick={handleSubmitTx}>Submit</ActionButton>
+        </ButtonContainer>
       )}
-    </>
+    </Stack>
   );
 };
