@@ -86,6 +86,21 @@ module.exports = {
         "out-back": "cubic-bezier(0.175, 0.885, 0.32, 1.275)",
         "in-out-back": "cubic-bezier(0.68, -0.55, 0.265, 1.55)",
       },
+
+      animation: {
+        "fade-in": "fadeIn var(--ease-out-expo) 1s",
+      },
+
+      keyframes: {
+        fadeIn: {
+          from: {
+            opacity: 0,
+          },
+          to: {
+            opacity: 1,
+          },
+        },
+      },
     },
   },
   plugins: [],
