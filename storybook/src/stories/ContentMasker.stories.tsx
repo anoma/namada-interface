@@ -12,13 +12,7 @@ type Story = StoryObj<typeof ContentMasker>;
 export const Primary: Story = {
   args: {
     color: "primary",
-    children: (
-      <p>
-        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Eum officiis
-        magnam et vel, non nam harum eligendi, dolores rerum error provident.
-        Dolore ullam natus commodi quaerat labore nostrum voluptate repellat.
-      </p>
-    ),
+    children: `Lorem ipsum dolor, sit amet consectetur adipisicing elit. Eum officiis magnam et vel, non nam harum eligendi, dolores rerum error provident. Dolore ullam natus commodi quaerat labore nostrum voluptate repellat.`,
   },
 };
 
