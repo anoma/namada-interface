@@ -48,7 +48,7 @@ import { ClaimCategory } from "./types";
 import { formatAmount } from "./utils";
 
 const categoryAccountTypeMap: Record<ClaimCategory, string> = {
-  Github: "Github",
+  Github: "GitHub",
   CosmosWallet: "Cosmos Wallet",
   OsmosisWallet: "Osmosis Wallet",
   StargazeWallet: "Stargaze Wallet",
