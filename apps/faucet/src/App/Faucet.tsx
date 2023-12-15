@@ -1,10 +1,10 @@
 import {
+  Alert,
   Button,
   ButtonVariant,
   Input,
   InputVariants,
 } from "@namada/components";
-import { bech32m } from "bech32";
 import { sanitize } from "dompurify";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 
@@ -18,12 +18,12 @@ import {
 import {
   ButtonContainer,
   FaucetFormContainer,
-  FormError,
   FormStatus,
   InputContainer,
   PreFormatted,
 } from "./Faucet.components";
 
+import { bech32mValidation } from "@namada/utils";
 import { AppContext } from "./App";
 
 enum Status {
@@ -35,6 +35,8 @@ enum Status {
 type Props = {
   isTestnetLive: boolean;
 };
+
+const bech32mPrefix = "tnam";
 
 export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
   const theme = useTheme();
@@ -54,16 +56,14 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
     }
   }, [tokens]);
 
-  const isFormValid = (): boolean => {
-    return (
-      Boolean(tokenAddress) &&
-      Boolean(amount) &&
-      (amount || 0) <= limit &&
-      Boolean(targetAddress) &&
-      status !== Status.Pending &&
-      isTestnetLive
-    );
-  };
+  const isFormValid: boolean =
+    Boolean(tokenAddress) &&
+    Boolean(amount) &&
+    (amount || 0) <= limit &&
+    Boolean(targetAddress) &&
+    status !== Status.Pending &&
+    typeof difficulty !== "undefined" &&
+    isTestnetLive;
 
   const handleSubmit = useCallback(async () => {
     if (
@@ -76,8 +76,15 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
       return;
     }
 
-    // Validate target input
+    // Validate target and token inputs
     const sanitizedTarget = sanitize(targetAddress);
+    const sanitizedToken = sanitize(tokenAddress);
+
+    if (!sanitizedToken) {
+      setStatus(Status.Error);
+      setError("Invalid token address!");
+      return;
+    }
 
     if (!sanitizedTarget) {
       setStatus(Status.Error);
@@ -85,14 +92,17 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
       return;
     }
 
-    try {
-      bech32m.decode(sanitizedTarget);
-    } catch (e) {
-      setError("Invalid bech32 address!");
+    if (!bech32mValidation(bech32mPrefix, sanitizedTarget)) {
+      setError("Invalid bech32m address for target!");
       setStatus(Status.Error);
       return;
     }
 
+    if (!bech32mValidation(bech32mPrefix, sanitizedToken)) {
+      setError("Invalid bech32m address for token address!");
+      setStatus(Status.Error);
+      return;
+    }
     setStatus(Status.Pending);
     setStatusText(undefined);
 
@@ -101,7 +111,7 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
         throw new Error(`Error requesting challenge: ${e}`);
       });
 
-      const solution = computePowSolution(challenge, difficulty);
+      const solution = computePowSolution(challenge, difficulty || 0);
 
       if (!solution) {
         throw new Error("A solution was not computed!");
@@ -113,7 +123,7 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
         challenge,
         transfer: {
           target: sanitizedTarget,
-          token: tokenAddress,
+          token: sanitizedToken,
           amount: amount * 1_000_000,
         },
       };
@@ -149,6 +159,7 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
 
   return (
     <FaucetFormContainer>
+      {settingsError && <Alert type="error">{settingsError}</Alert>}
       <InputContainer>
         <Input
           variant={InputVariants.Text}
@@ -194,8 +205,12 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
 
       {status !== Status.Error && (
         <FormStatus>
-          {status === Status.Pending && "Processing faucet transfer..."}
-          {status === Status.Completed && statusText}
+          {status === Status.Pending && (
+            <Alert type="warning">Processing faucet transfer...</Alert>
+          )}
+          {status === Status.Completed && (
+            <Alert type="info">{statusText}</Alert>
+          )}
 
           {responseDetails && status !== Status.Pending && (
             <PreFormatted>
@@ -204,8 +219,7 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
           )}
         </FormStatus>
       )}
-      {status === Status.Error && <FormError>{error}</FormError>}
-      {settingsError && <FormError>{settingsError}</FormError>}
+      {status === Status.Error && <Alert type="error">{error}</Alert>}
 
       <ButtonContainer>
         <Button
@@ -218,7 +232,7 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
           }}
           variant={ButtonVariant.Contained}
           onClick={handleSubmit}
-          disabled={!isFormValid()}
+          disabled={!isFormValid}
         >
           Get Testnet Tokens
         </Button>

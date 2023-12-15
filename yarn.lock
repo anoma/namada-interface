@@ -6523,7 +6523,6 @@ __metadata:
     "@types/react": "npm:^17.0.39"
     "@types/react-dom": "npm:^17.0.11"
     "@types/styled-components": "npm:^5.1.26"
-    bech32: "npm:^2.0.0"
     buffer: "npm:^6.0.3"
     dompurify: "npm:^3.0.2"
     dotenv: "npm:^16.0.3"

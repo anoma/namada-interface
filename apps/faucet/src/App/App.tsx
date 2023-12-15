@@ -65,36 +65,38 @@ export const App: React.FC = () => {
   const theme = getTheme(colorMode);
 
   useEffect(() => {
-    // Fetch settings
+    // Fetch settings from faucet API
     (async () => {
-      const {
-        difficulty,
-        start_at: startsAt,
-        tokens_alias_to_address: tokens,
-      } = await requestSettings(url).catch((e) => {
+      try {
         const {
-          errors: { message },
-        } = e;
-        setSettingsError(`Error requesting settings: ${message.join(" ")}`);
-        throw new Error(e);
-      });
-      const startDateString = new Date(startsAt * 1000).toLocaleString(
-        "en-gb",
-        {
-          timeZone: "UTC",
-          month: "long",
-          day: "numeric",
-          year: "numeric",
-          hour: "numeric",
-          minute: "numeric",
-        }
-      );
-      setSettings({
-        difficulty,
-        startsAt,
-        startsAtText: `${startDateString} UTC`,
-        tokens,
-      });
+          difficulty,
+          start_at: startsAt,
+          tokens_alias_to_address: tokens,
+        } = await requestSettings(url).catch((e) => {
+          const message = e.errors?.message;
+          setSettingsError(`Error requesting settings: ${message?.join(" ")}`);
+          throw new Error(e);
+        });
+        const startDateString = new Date(startsAt * 1000).toLocaleString(
+          "en-gb",
+          {
+            timeZone: "UTC",
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+          }
+        );
+        setSettings({
+          difficulty,
+          startsAt,
+          startsAtText: `${startDateString} UTC`,
+          tokens,
+        });
+      } catch (e) {
+        setSettingsError(`Failed to load settings! ${e}`);
+      }
     })();
   }, []);
 
