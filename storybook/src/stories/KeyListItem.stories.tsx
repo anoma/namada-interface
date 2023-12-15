@@ -24,7 +24,7 @@ type Story = StoryObj<typeof KeyListItem>;
 
 export const Default: Story = {
   args: {
-    htmlLabel: "div",
+    as: "div",
     alias: "Lorem Ipsum Dolor Sit",
     type: AccountType.Mnemonic,
     dropdownPosition: "top",
