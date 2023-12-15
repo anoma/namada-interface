@@ -1,5 +1,3 @@
-import React from "react";
-
 export const LogoLight = (): JSX.Element => {
   return (
     <svg

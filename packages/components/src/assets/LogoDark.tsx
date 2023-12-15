@@ -1,5 +1,3 @@
-import React from "react";
-
 export const LogoDark = (): JSX.Element => {
   return (
     <svg
