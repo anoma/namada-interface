@@ -1,17 +1,33 @@
-import {
-  LoadingContainer,
-  LoadingHeader,
-  LoadingImage,
-  LoadingPanel,
-} from "./Loading.components";
+import { tv, type VariantProps } from "tailwind-variants";
+
+const loading = tv({
+  slots: {
+    container:
+      "block h-full w-full min-h-[50vh] transition-opacity duration-150",
+    panel:
+      "flex flex-col items-center bg-yellow gap-10 absolute top-0 left-0 h-full w-full py-24 px-12 z-50",
+    header:
+      "flex items-end text-2xl font-medium min-h-[2.5em] text-center uppercase text-balance",
+    image: "block max-w-[240px] mx-auto",
+  },
+  variants: {
+    visible: {
+      false: {
+        container: "opacity-0 pointer-events-none static",
+      },
+    },
+    variant: {
+      contained: {},
+      full: { container: "absolute left-0 top-0" },
+    },
+  },
+});
 
 type LoadingProps = {
   status: string;
-  visible?: boolean;
   imageUrl?: string;
-  variant?: "full" | "contained";
   className?: string;
-};
+} & VariantProps<typeof loading>;
 
 export const Loading = ({
   status,
@@ -20,14 +36,18 @@ export const Loading = ({
   variant = "contained",
   className,
 }: LoadingProps): JSX.Element => {
+  const { container, panel, header, image } = loading({ variant, visible });
+
   return (
-    <LoadingContainer className={className} variant={variant} visible={visible}>
-      <LoadingPanel>
-        <LoadingHeader>{status}</LoadingHeader>
-        {imageUrl && <LoadingImage src={imageUrl} alt="Loading..." />}
+    <div className={container({ class: className })}>
+      <div className={panel()}>
+        <header className={header()}>{status}</header>
+        {imageUrl && (
+          <img src={imageUrl} alt="Loading..." className={image()} />
+        )}
         {!imageUrl && (
           <svg
-            width="80%"
+            className="w-[80%] max-w-[500px]"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 373 320"
           >
@@ -43,7 +63,7 @@ export const Loading = ({
             <path d="M349.408 172.245c13.029 0 23.592-10.557 23.592-23.58 0-13.022-10.563-23.579-23.592-23.579-13.03 0-23.593 10.557-23.593 23.579 0 13.023 10.563 23.58 23.593 23.58Z" />
           </svg>
         )}
-      </LoadingPanel>
-    </LoadingContainer>
+      </div>
+    </div>
   );
 };
