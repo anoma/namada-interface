@@ -49,4 +49,8 @@ code {
   .text-balance {
     text-wrap: balance;
   }
+
+  .unset {
+    all: unset;
+  }
 }

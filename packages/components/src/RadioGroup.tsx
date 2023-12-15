@@ -1,13 +1,23 @@
+import clsx from "clsx";
 import { useEffect, useRef, useState } from "react";
-import {
-  ActiveIndicator,
-  RadioElement,
-  RadioElementContainer,
-  RadioGroupContainer,
-  RadioGroupWrapper,
-  RadioLabel,
-  RadioText,
-} from "./RadioGroup.components";
+import { tv } from "tailwind-variants";
+
+const radioGroup = tv({
+  slots: {
+    wrapper:
+      "inline-flex bg-black rounded-[60px] p-0.5 overflow-hidden mx-auto",
+    fieldset: "flex relative w-full h-full",
+    container: "flex text-neutral-600 min-w-30 text-center",
+    label:
+      "cursor-pointer text-sm font-bold px-6 py-2 relative w-full select-none active:top-px",
+    input: "unset [&:checked+span]:text-white",
+    text: "relative transition-color duration-100 ease-out z-10 select-none",
+    indicator: clsx(
+      "bg-neutral-800 rounded-[58px] h-full absolute top-0 transition-all",
+      "duration-100 ease-out"
+    ),
+  },
+});
 
 type RadioElement = {
   text: string;
@@ -35,6 +45,9 @@ export const RadioGroup = ({
   const panelRef = useRef<HTMLFieldSetElement>(null);
   const initialSelectedRadio = useRef<HTMLInputElement | null>(null);
 
+  const { wrapper, fieldset, container, label, input, text, indicator } =
+    radioGroup();
+
   useEffect(() => {
     if (!initialSelectedRadio.current) return;
     updateIndicatorPosition(initialSelectedRadio.current);
@@ -56,16 +69,19 @@ export const RadioGroup = ({
   };
 
   return (
-    <RadioGroupWrapper>
-      <RadioGroupContainer
+    <div className={wrapper()}>
+      <fieldset
+        className={fieldset()}
         role="radiogroup"
         aria-labelledby={groupLabel}
         ref={panelRef}
       >
         {options.map((option, idx) => (
-          <RadioElementContainer key={`radio-${id}-${option.value}`}>
-            <RadioLabel>
-              <RadioElement
+          <div key={`radio-${id}-${option.value}`} className={container()}>
+            <label className={label()}>
+              <input
+                className={input()}
+                type="radio"
                 name={id}
                 value={option.value.toString()}
                 defaultChecked={value ? option.value === value : idx === 0}
@@ -78,15 +94,18 @@ export const RadioGroup = ({
                   _onChange(e.currentTarget, option.value.toString())
                 }
               />
-              <RadioText>{option.text}</RadioText>
-            </RadioLabel>
-          </RadioElementContainer>
+              <span className={text()}>{option.text}</span>
+            </label>
+          </div>
         ))}
-        <ActiveIndicator
-          left={activeIndicatorPosition}
-          width={activeIndicatorWidth}
+        <span
+          className={indicator()}
+          style={{
+            left: activeIndicatorPosition,
+            width: activeIndicatorWidth,
+          }}
         />
-      </RadioGroupContainer>
-    </RadioGroupWrapper>
+      </fieldset>
+    </div>
   );
 };
