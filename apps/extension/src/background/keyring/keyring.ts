@@ -34,21 +34,21 @@ import {
 } from "@namada/types";
 
 import {
+  AccountSecret,
   AccountStore,
   ActiveAccountStore,
   DeleteAccountError,
   KeyRingStatus,
   MnemonicValidationResponse,
   SensitiveAccountStoreData,
-  UtilityStore,
-  AccountSecret,
   SigningKey,
+  UtilityStore,
 } from "./types";
 
 import {
   Result,
-  makeBip44PathArray,
   assertNever,
+  makeBip44PathArray,
   truncateInMiddle,
 } from "@namada/utils";
 
@@ -82,7 +82,7 @@ export class KeyRing {
     protected readonly sdk: Sdk,
     protected readonly query: Query,
     protected readonly cryptoMemory: WebAssembly.Memory
-  ) {}
+  ) { }
 
   public get status(): KeyRingStatus {
     return this._status;
@@ -525,9 +525,8 @@ export class KeyRing {
   }
 
   public async queryAllAccounts(): Promise<DerivedAccount[]> {
-    const accounts = await this.vaultService.findAll<AccountStore>(
-      KEYSTORE_KEY
-    );
+    const accounts =
+      await this.vaultService.findAll<AccountStore>(KEYSTORE_KEY);
     return accounts.map((entry) => entry.public as AccountStore);
   }
 
@@ -651,10 +650,7 @@ export class KeyRing {
       await this.sdk.reveal_pk(signingKey, txMsg);
 
       const builtTx = await this.sdk.build_bond(bondMsg, txMsg);
-      const txBytes = await this.sdk.sign_tx(
-        builtTx,
-        signingKey
-      );
+      const txBytes = await this.sdk.sign_tx(builtTx, signingKey);
       await this.sdk.process_tx(txBytes, txMsg);
     } catch (e) {
       throw new Error(`Could not submit bond tx: ${e}`);
@@ -681,10 +677,7 @@ export class KeyRing {
       await this.sdk.reveal_pk(signingKey, txMsg);
 
       const builtTx = await this.sdk.build_unbond(unbondMsg, txMsg);
-      const txBytes = await this.sdk.sign_tx(
-        builtTx,
-        signingKey
-      );
+      const txBytes = await this.sdk.sign_tx(builtTx, signingKey);
       await this.sdk.process_tx(txBytes, txMsg);
     } catch (e) {
       throw new Error(`Could not submit unbond tx: ${e}`);
@@ -706,10 +699,7 @@ export class KeyRing {
       await this.sdk.reveal_pk(signingKey, txMsg);
 
       const builtTx = await this.sdk.build_withdraw(withdrawMsg, txMsg);
-      const txBytes = await this.sdk.sign_tx(
-        builtTx,
-        signingKey
-      );
+      const txBytes = await this.sdk.sign_tx(builtTx, signingKey);
       await this.sdk.process_tx(txBytes, txMsg);
     } catch (e) {
       throw new Error(`Could not submit withdraw tx: ${e}`);
@@ -735,11 +725,7 @@ export class KeyRing {
         txMsg
       );
 
-      const txBytes = await this.sdk.sign_tx(
-        builtTx,
-        signingKey
-      );
-      console.log("process tx");
+      const txBytes = await this.sdk.sign_tx(builtTx, signingKey);
       await this.sdk.process_tx(txBytes, txMsg);
     } catch (e) {
       throw new Error(`Could not submit vote proposal tx: ${e}`);
@@ -792,10 +778,7 @@ export class KeyRing {
       await this.sdk.reveal_pk(signingKey, txMsg);
 
       const builtTx = await this.sdk.build_ibc_transfer(ibcTransferMsg, txMsg);
-      const txBytes = await this.sdk.sign_tx(
-        builtTx,
-        signingKey
-      );
+      const txBytes = await this.sdk.sign_tx(builtTx, signingKey);
       await this.sdk.process_tx(txBytes, txMsg);
     } catch (e) {
       throw new Error(`Could not submit ibc transfer tx: ${e}`);
@@ -820,10 +803,7 @@ export class KeyRing {
         ethBridgeTransferMsg,
         txMsg
       );
-      const txBytes = await this.sdk.sign_tx(
-        builtTx,
-        signingKey
-      );
+      const txBytes = await this.sdk.sign_tx(builtTx, signingKey);
       await this.sdk.process_tx(txBytes, txMsg);
     } catch (e) {
       throw new Error(`Could not submit submit_eth_bridge_transfer tx: ${e}`);
