@@ -92,14 +92,13 @@ const actionButtonHover = tv({
 type ActionButtonBaseProps = VariantProps<typeof actionButton>;
 type ActionButtonHoverBaseProps = VariantProps<typeof actionButtonHover>;
 export type ActionButtonProps<HtmlTag extends keyof React.ReactHTML> = {
-  htmlTag?: HtmlTag;
+  as?: HtmlTag;
   icon?: React.ReactNode;
 } & React.ComponentPropsWithoutRef<HtmlTag> &
   ActionButtonBaseProps &
   ActionButtonHoverBaseProps;
 
 export const ActionButton = ({
-  htmlTag = "button",
   icon,
   children,
   className,
@@ -112,7 +111,7 @@ export const ActionButton = ({
   ...props
 }: ActionButtonProps<keyof React.ReactHTML>): JSX.Element => {
   return createElement(
-    htmlTag,
+    props.as || "button",
     {
       className: actionButton({
         class: className,

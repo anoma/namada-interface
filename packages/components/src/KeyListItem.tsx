@@ -6,7 +6,7 @@ import { createElement } from "react";
 import { tv } from "tailwind-variants";
 
 type KeyListItemProps = {
-  htmlLabel: keyof React.ReactHTML;
+  as: keyof React.ReactHTML;
   alias: string;
   type: AccountType;
   isMainKey: boolean;
@@ -31,7 +31,6 @@ const keyListItem = tv({
 });
 
 export const KeyListItem = ({
-  htmlLabel = "div",
   alias,
   isMainKey,
   type,
@@ -41,9 +40,10 @@ export const KeyListItem = ({
   onSelectAccount,
   onViewRecoveryPhrase,
   dropdownPosition = "top",
+  ...props
 }: KeyListItemProps): JSX.Element => {
   return createElement(
-    htmlLabel,
+    props.as,
     { className: keyListItem({ selected: isMainKey }) },
     <>
       <div>
