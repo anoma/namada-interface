@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { ContentMasker, Icon, IconName } from "@namada/components";
+import { ContentMasker, Icon } from "@namada/components";
 
 import { CopyToClipboardControl } from "./CopyToClipboardControl/CopyToClipboardControl";
 import {
@@ -49,7 +49,7 @@ export const Input = ({
           aria-labelledby={passwordShown ? "Hide password" : "Display password"}
           onClick={() => togglePasswordShown()}
         >
-          <Icon iconName={passwordShown ? IconName.Eye : IconName.EyeHidden} />
+          <Icon name={passwordShown ? "Eye" : "EyeHidden"} />
         </IconContainer>
       );
       break;
@@ -86,7 +86,7 @@ export const Input = ({
   const field = (
     <TextInput
       error={!!error}
-      inputTheme={sensitive ? undefined : theme}
+      // inputTheme={sensitive ? undefined : theme}
       hasIcon={!!icon}
       {...inputElement}
     />
@@ -97,7 +97,7 @@ export const Input = ({
       {label && <LabelWrapper>{label}</LabelWrapper>}
       <InputWrapper>
         {sensitive ? (
-          <ContentMasker themeColor={theme}>{field}</ContentMasker>
+          <ContentMasker color={theme}>{field}</ContentMasker>
         ) : (
           field
         )}

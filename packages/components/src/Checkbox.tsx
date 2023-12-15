@@ -1,17 +1,17 @@
-import { Icon, IconName, IconSize } from "@namada/components";
+import { Icon } from "@namada/components";
 import clsx from "clsx";
 import { tv, type VariantProps } from "tailwind-variants";
 
 const checkbox = tv({
   slots: {
     label: clsx(
-      "group bg-black rounded-sm border border-yellow cursor-pointer",
+      "group bg-black rounded-sm border border-current cursor-pointer",
       "inline-flex h-6 p-0.5 relative w-6 active:top-px",
-      "[&_svg]:w-full [&_svg]:stroke-yellow"
+      "[&_svg]:w-full"
     ),
     checkbox: "absolute invisible",
     control: clsx(
-      "inline-flex w-full items-center bg-black text-current justify-center",
+      "inline-flex w-full items-center text-current justify-center",
       "opacity-0 transition-opacity duration-150 group-hover:opacity-50"
     ),
   },
@@ -30,21 +30,23 @@ const checkbox = tv({
 type CheckboxProps = React.ComponentPropsWithRef<"input"> &
   VariantProps<typeof checkbox>;
 
-export const Checkbox = ({ ...props }: CheckboxProps): JSX.Element => {
-  const checkboxClasses = checkbox({ checked: props.checked });
+export const Checkbox = ({
+  className,
+  ...props
+}: CheckboxProps): JSX.Element => {
+  const checkboxClasses = checkbox({
+    checked: props.checked,
+  });
+
   return (
-    <label className={checkboxClasses.label()}>
+    <label className={checkboxClasses.label({ class: className })}>
       <input
         className={checkboxClasses.checkbox()}
         type="checkbox"
         {...props}
       />
       <i className={checkboxClasses.control()}>
-        <Icon
-          strokeColorOverride="currentColor"
-          iconName={IconName.Checked}
-          iconSize={IconSize.Full}
-        />
+        <Icon name="Checked" size="full" />
       </i>
     </label>
   );

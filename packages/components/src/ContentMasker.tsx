@@ -1,4 +1,4 @@
-import { Icon, IconName, IconSize } from "@namada/components";
+import { Icon } from "@namada/components";
 import clsx from "clsx";
 import { tv, type VariantProps } from "tailwind-variants";
 
@@ -42,11 +42,7 @@ export const ContentMasker = (props: ContentMaskerProps): JSX.Element => {
     <div className={base()}>
       <div className={blurred()}>{props.children}</div>
       <i className={icon()}>
-        <Icon
-          strokeColorOverride="currentColor"
-          iconName={IconName.EyeHidden}
-          iconSize={IconSize.Full}
-        />
+        <Icon name="EyeHidden" size="full" />
       </i>
     </div>
   );

@@ -1,5 +1,3 @@
-import { ThemeColor } from "@namada/utils";
-
 export enum InputVariants {
   Password,
   PasswordOnBlur,
@@ -14,7 +12,7 @@ export type ComponentProps = {
   error?: string | React.ReactNode;
   sensitive?: boolean;
   hint?: string | React.ReactNode;
-  theme?: ThemeColor;
+  theme?: "primary" | "secondary" | "neutral";
   hideIcon?: boolean;
   children?: React.ReactNode;
 };

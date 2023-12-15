@@ -52,7 +52,7 @@ export const ViewKeys = ({
         {viewingKeys && (
           <DownloadPanel>
             Viewing keys of shielded account
-            <ActionButton size="base" variant="secondary">
+            <ActionButton size="md" color="secondary">
               Download
             </ActionButton>
           </DownloadPanel>

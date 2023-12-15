@@ -1,8 +1,8 @@
-import { Icon, IconName } from "@namada/components";
+import { Icon } from "@namada/components";
 import { copyToClipboard } from "@namada/utils";
-import { IconContainer } from "../input.components";
-import { useState } from "react";
 import { motion } from "framer-motion";
+import { useState } from "react";
+import { IconContainer } from "../input.components";
 
 type CopyToClipboardControlIcon = {
   value: string;
@@ -40,10 +40,10 @@ export const CopyToClipboardControl = ({
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}
         >
-          <Icon iconName={IconName.Checked} />
+          <Icon name="Checked" />
         </motion.div>
       ) : (
-        <Icon iconName={IconName.Copy} />
+        <Icon name="Copy" />
       )}
     </IconContainer>
   );

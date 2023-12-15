@@ -1,4 +1,4 @@
-import { Icon, IconName, IconSize } from "@namada/components";
+import { Icon } from "@namada/components";
 import clsx from "clsx";
 import { createElement, useState } from "react";
 import { tv } from "tailwind-variants";
@@ -68,11 +68,7 @@ export const Accordion = ({
       <header className={header()} onClick={() => setOpen(!open)}>
         {createElement(headingLevel, {}, title)}
         <i className={indicator()}>
-          <Icon
-            strokeColorOverride="currentColor"
-            iconName={IconName.ChevronDown}
-            iconSize={IconSize.S}
-          />
+          <Icon name="ChevronDown" size="sm" />
         </i>
       </header>
       {open && <div className={content()}>{children}</div>}

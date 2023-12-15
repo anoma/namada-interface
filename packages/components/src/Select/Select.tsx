@@ -1,5 +1,5 @@
 import React from "react";
-import { Icon, IconName } from "../Icon";
+import { Icon } from "../Icon";
 import { Label, StyledSelect, StyledSelectWrapper } from "./Select.components";
 
 export type Option<T> = {
@@ -35,7 +35,7 @@ function Select<T>({
             </option>
           ))}
         </StyledSelect>
-        <Icon iconName={IconName.ChevronDown} />
+        <Icon name="ChevronDown" />
       </StyledSelectWrapper>
     </Label>
   );

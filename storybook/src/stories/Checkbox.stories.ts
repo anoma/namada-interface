@@ -11,6 +11,7 @@ type Story = StoryObj<typeof Checkbox>;
 
 export const Default: Story = {
   args: {
+    className: "text-cyan",
     checked: true,
   },
 };

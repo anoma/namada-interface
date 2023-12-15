@@ -1,10 +1,10 @@
 import { useContext } from "react";
-import { Button, ButtonVariant } from "../Button";
 import { ThemeContext } from "styled-components";
-import { Icon, IconName } from "../Icon";
+import { ActionButton } from "../ActionButton";
+import { Icon } from "../Icon";
 import {
-  NavigationContainerContainer,
   MainRow,
+  NavigationContainerContainer,
 } from "./NavigationContainer.components";
 
 type NavigationContainerProps = {
@@ -32,26 +32,15 @@ export const NavigationContainer = (
 ): React.ReactElement => {
   const { children, onBackButtonClick } = props;
   const themeContext = useContext(ThemeContext);
-  const backButtonIconStrokeColor =
-    themeContext.themeConfigurations.colorMode === "light"
-      ? themeContext.colors.utility2.main80
-      : "black";
 
   const noButton = typeof onBackButtonClick === "undefined";
   return (
     <NavigationContainerContainer>
       <MainRow center={noButton}>
         {onBackButtonClick && (
-          <Button
-            onClick={onBackButtonClick}
-            variant={ButtonVariant.Outlined}
-            style={{ marginLeft: "0" }}
-          >
-            <Icon
-              iconName={IconName.ChevronLeft}
-              strokeColorOverride={backButtonIconStrokeColor}
-            />
-          </Button>
+          <ActionButton onClick={onBackButtonClick} style={{ marginLeft: "0" }}>
+            <Icon name="ChevronLeft" />
+          </ActionButton>
         )}
 
         {children}

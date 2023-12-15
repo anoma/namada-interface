@@ -1,4 +1,4 @@
-import { Icon, IconName } from "@namada/components";
+import { Icon } from "@namada/components";
 import clsx from "clsx";
 import { useState } from "react";
 import { tv, type VariantProps } from "tailwind-variants";
@@ -90,10 +90,7 @@ export const DropdownMenu = (props: DropdownMenuProps): JSX.Element => {
     <>
       <div className={base()}>
         <i className={icon()} onClick={() => setOpen(true)}>
-          <Icon
-            iconName={IconName.ThreeDotsVertical}
-            fillColorOverride="currentColor"
-          />
+          <Icon name="ThreeDotsVertical" fill={true} />
         </i>
         {isOpen && (
           <ul className={list()}>
