@@ -2961,8 +2961,8 @@ checksum = "e5ce46fe64a9d73be07dcbe690a38ce1b293be448fd8ce1e6c1b8062c9f72c6a"
 
 [[package]]
 name = "namada"
-version = "0.28.0"
-source = "git+https://github.com/anoma/namada#9562c1602be0c7a9e40cc486cc673203b6737a98"
+version = "0.28.1"
+source = "git+https://github.com/anoma/namada#468d3d3bcadd2bd11760855d2bbfcc0b4ce27e14"
 dependencies = [
  "async-trait",
  "bimap",
@@ -3012,8 +3012,8 @@ dependencies = [
 
 [[package]]
 name = "namada_core"
-version = "0.28.0"
-source = "git+https://github.com/anoma/namada#9562c1602be0c7a9e40cc486cc673203b6737a98"
+version = "0.28.1"
+source = "git+https://github.com/anoma/namada#468d3d3bcadd2bd11760855d2bbfcc0b4ce27e14"
 dependencies = [
  "ark-bls12-381",
  "ark-serialize",
@@ -3062,8 +3062,8 @@ dependencies = [
 
 [[package]]
 name = "namada_ethereum_bridge"
-version = "0.28.0"
-source = "git+https://github.com/anoma/namada#9562c1602be0c7a9e40cc486cc673203b6737a98"
+version = "0.28.1"
+source = "git+https://github.com/anoma/namada#468d3d3bcadd2bd11760855d2bbfcc0b4ce27e14"
 dependencies = [
  "borsh",
  "borsh-ext",
@@ -3084,8 +3084,8 @@ dependencies = [
 
 [[package]]
 name = "namada_macros"
-version = "0.28.0"
-source = "git+https://github.com/anoma/namada#9562c1602be0c7a9e40cc486cc673203b6737a98"
+version = "0.28.1"
+source = "git+https://github.com/anoma/namada#468d3d3bcadd2bd11760855d2bbfcc0b4ce27e14"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3094,8 +3094,8 @@ dependencies = [
 
 [[package]]
 name = "namada_proof_of_stake"
-version = "0.28.0"
-source = "git+https://github.com/anoma/namada#9562c1602be0c7a9e40cc486cc673203b6737a98"
+version = "0.28.1"
+source = "git+https://github.com/anoma/namada#468d3d3bcadd2bd11760855d2bbfcc0b4ce27e14"
 dependencies = [
  "borsh",
  "data-encoding",
@@ -3109,8 +3109,8 @@ dependencies = [
 
 [[package]]
 name = "namada_sdk"
-version = "0.28.0"
-source = "git+https://github.com/anoma/namada#9562c1602be0c7a9e40cc486cc673203b6737a98"
+version = "0.28.1"
+source = "git+https://github.com/anoma/namada#468d3d3bcadd2bd11760855d2bbfcc0b4ce27e14"
 dependencies = [
  "async-trait",
  "bimap",
@@ -3123,6 +3123,7 @@ dependencies = [
  "ethers",
  "futures",
  "itertools 0.10.5",
+ "lazy_static",
  "masp_primitives",
  "masp_proofs",
  "namada_core",
@@ -3358,7 +3359,7 @@ version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6c11e44798ad209ccdd91fc192f0526a369a01234f7373e1b141c96d7cee4f0e"
 dependencies = [
- "proc-macro-crate 1.3.1",
+ "proc-macro-crate 2.0.1",
  "proc-macro2",
  "quote",
  "syn 2.0.39",

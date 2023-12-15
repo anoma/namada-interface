@@ -21,15 +21,15 @@ import {
 } from "extension";
 import { KeyRing, KEYSTORE_KEY } from "./keyring";
 import {
+  AccountSecret,
   AccountStore,
   ActiveAccountStore,
   DeleteAccountError,
   MnemonicValidationResponse,
   ParentAccount,
+  SigningKey,
   TabStore,
   UtilityStore,
-  AccountSecret,
-  SigningKey,
 } from "./types";
 import { syncTabs, updateTabStorage } from "./utils";
 
@@ -105,12 +105,15 @@ export class KeyRingService {
       );
     }
 
-    return await this._keyRing.storeLedger(
+    const response = await this._keyRing.storeLedger(
       alias,
       address,
       bech32PublicKey,
       bip44Path
     );
+
+    await this.broadcaster.updateAccounts();
+    return response;
   }
 
   async scanAccounts(): Promise<void> {
