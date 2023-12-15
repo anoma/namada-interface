@@ -25,4 +25,3 @@ export * from "./TabsGroup";
 export * from "./Toggle";
 export * from "./Tooltip";
 export * from "./ViewKeys";
-export * from "./WordChip";
