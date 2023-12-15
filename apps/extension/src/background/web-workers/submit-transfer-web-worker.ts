@@ -1,7 +1,7 @@
-import { defaultChainId, chains } from "@namada/chains";
+import { fromBase64 } from "@cosmjs/encoding";
+import { chains, defaultChainId } from "@namada/chains";
 import { Sdk } from "@namada/shared";
 import { init as initShared } from "@namada/shared/src/init";
-import { fromBase64 } from "@cosmjs/encoding";
 import {
   INIT_MSG,
   SubmitTransferMessageData,
@@ -20,20 +20,17 @@ import {
     async ({ data }: { data: SubmitTransferMessageData }) => {
       try {
         const txMsg = fromBase64(data.txMsg);
-        const { pk, xsk } = data.signingKey;
+        const { privateKey, xsk } = data.signingKey;
 
         //TODO: make pk mandatory and rename to secretKey
-        await sdk.reveal_pk(pk as string, txMsg);
+        await sdk.reveal_pk(privateKey as string, txMsg);
 
         const builtTx = await sdk.build_transfer(
           fromBase64(data.transferMsg),
           txMsg,
           xsk
         );
-        const txBytes = await sdk.sign_tx(
-          builtTx,
-          pk as string
-        );
+        const txBytes = await sdk.sign_tx(builtTx, privateKey as string);
         await sdk.process_tx(txBytes, txMsg);
 
         postMessage({ msgName: TRANSFER_SUCCESSFUL_MSG });

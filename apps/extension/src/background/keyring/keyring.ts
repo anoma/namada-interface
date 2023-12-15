@@ -82,7 +82,7 @@ export class KeyRing {
     protected readonly sdk: Sdk,
     protected readonly query: Query,
     protected readonly cryptoMemory: WebAssembly.Memory
-  ) { }
+  ) {}
 
   public get status(): KeyRingStatus {
     return this._status;
@@ -638,6 +638,11 @@ export class KeyRing {
       this.cryptoMemory
     );
 
+    mnemonic.free();
+    hdWallet.free();
+    key.free();
+    privateKeyStringPtr.free();
+
     return privateKey;
   }
 
@@ -759,7 +764,7 @@ export class KeyRing {
       this.sdk.add_spending_key(xsk, account.public.id);
       await submit({ xsk });
     } else {
-      await submit({ pk: await this.getSigningKey(source) });
+      await submit({ privateKey: await this.getSigningKey(source) });
     }
   }
 

@@ -62,6 +62,6 @@ export type MnemonicValidationResponse = {
 };
 
 export type SigningKey = {
-  pk?: string;
+  privateKey?: string;
   xsk?: string;
 };
