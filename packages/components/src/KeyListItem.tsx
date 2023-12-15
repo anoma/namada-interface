@@ -43,7 +43,7 @@ export const KeyListItem = ({
   ...props
 }: KeyListItemProps): JSX.Element => {
   return createElement(
-    props.as,
+    props.as || "div",
     { className: keyListItem({ selected: isMainKey }) },
     <>
       <div>
