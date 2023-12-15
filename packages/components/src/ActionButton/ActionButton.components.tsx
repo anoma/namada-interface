@@ -8,9 +8,9 @@ import {
   spacement,
 } from "@namada/utils";
 
+import { motion } from "framer-motion";
 import React from "react";
 import styled from "styled-components";
-import { motion } from "framer-motion";
 
 type ButtonProps = {
   forwardedAs: keyof JSX.IntrinsicElements;
@@ -40,12 +40,12 @@ export const ButtonHover = styled(motion.i)`
 
 export const ButtonText = styled.span`
   color: currentColor;
-  height: 500%;
+  height: 100%;
   position: relative;
   z-index: 10;
 `;
 
-export const ButtonContainer = styled(Button)<{
+export const ButtonContainer = styled(Button) <{
   variant: ThemeColor;
   hoverColor?: ThemeColor;
   size: ButtonSize;
@@ -88,22 +88,24 @@ export const ButtonContainer = styled(Button)<{
   padding: 0.75em ${spacement(6)};
   position: relative;
   text-align: center;
-  transition: color 80ms ease-out, border 450ms ease-out;
+  transition:
+    color 80ms ease-out,
+    border 450ms ease-out;
   user-select: none;
   width: 100%;
 
   &:hover:not(:disabled) {
     color: ${(props) => {
-      if (props.outlined) {
-        return color(props.variant, "main20")(props);
-      }
+    if (props.outlined) {
+      return color(props.variant, "main20")(props);
+    }
 
-      if (props.hoverColor) {
-        return color(props.hoverColor, "main20")(props);
-      }
+    if (props.hoverColor) {
+      return color(props.hoverColor, "main20")(props);
+    }
 
-      return color(props.variant, "main")(props);
-    }};
+    return color(props.variant, "main")(props);
+  }};
   }
 
   &:not(:disabled):active {
@@ -112,16 +114,16 @@ export const ButtonContainer = styled(Button)<{
 
   &:disabled {
     background-color: ${(props) => {
-      if (!props.outlined) {
-        return color("utility1", "main50");
-      }
-    }};
+    if (!props.outlined) {
+      return color("utility1", "main50");
+    }
+  }};
 
     color: ${(props) => {
-      if (!props.outlined) {
-        return color("utility3", "white");
-      }
-    }};
+    if (!props.outlined) {
+      return color("utility3", "white");
+    }
+  }};
 
     cursor: auto;
     opacity: 0.25;
@@ -129,16 +131,16 @@ export const ButtonContainer = styled(Button)<{
 
   ${ButtonHover} {
     background-color: ${(props) => {
-      if (props.outlined) {
-        return color(props.hoverColor || "primary", "main")(props);
-      }
+    if (props.outlined) {
+      return color(props.hoverColor || "primary", "main")(props);
+    }
 
-      if (props.hoverColor) {
-        return color(props.hoverColor, "main")(props);
-      }
+    if (props.hoverColor) {
+      return color(props.hoverColor, "main")(props);
+    }
 
-      return "black";
-    }};
+    return "black";
+  }};
   }
 
   &:hover:not(:disabled) ${ButtonHover} {

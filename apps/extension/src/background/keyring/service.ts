@@ -21,14 +21,15 @@ import {
 } from "extension";
 import { KeyRing, KEYSTORE_KEY } from "./keyring";
 import {
+  AccountSecret,
   AccountStore,
   ActiveAccountStore,
   DeleteAccountError,
   MnemonicValidationResponse,
   ParentAccount,
+  SigningKey,
   TabStore,
   UtilityStore,
-  AccountSecret,
 } from "./types";
 import { syncTabs, updateTabStorage } from "./utils";
 
@@ -38,7 +39,6 @@ export class KeyRingService {
   constructor(
     //protected readonly kvStore: KVStore<KeyStore[]>,
     protected readonly vaultService: VaultService,
-    protected readonly sdkStore: KVStore<Record<string, string>>,
     protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
     protected readonly extensionStore: KVStore<number>,
@@ -50,7 +50,6 @@ export class KeyRingService {
   ) {
     this._keyRing = new KeyRing(
       vaultService,
-      sdkStore,
       utilityStore,
       extensionStore,
       sdk,
@@ -94,8 +93,7 @@ export class KeyRingService {
     alias: string,
     address: string,
     publicKey: string,
-    bip44Path: Bip44Path,
-    parentId?: string
+    bip44Path: Bip44Path
   ): Promise<AccountStore | false> {
     const publicKeyBytes = fromHex(publicKey);
     const bech32PublicKey = public_key_to_bech32(publicKeyBytes);
@@ -107,13 +105,15 @@ export class KeyRingService {
       );
     }
 
-    return await this._keyRing.storeLedger(
+    const response = await this._keyRing.storeLedger(
       alias,
       address,
       bech32PublicKey,
-      bip44Path,
-      parentId
+      bip44Path
     );
+
+    await this.broadcaster.updateAccounts();
+    return response;
   }
 
   async scanAccounts(): Promise<void> {
@@ -252,8 +252,7 @@ export class KeyRingService {
     transferMsg: string,
     txMsg: string,
     msgId: string,
-    password: string,
-    xsk?: string
+    signingKey: SigningKey
   ): Promise<void> {
     const offscreenDocumentPath = "offscreen.html";
     const routerId = await getNamadaRouterId(this.extensionStore);
@@ -266,7 +265,7 @@ export class KeyRingService {
       type: SUBMIT_TRANSFER_MSG_TYPE,
       target: OFFSCREEN_TARGET,
       routerId,
-      data: { transferMsg, txMsg, msgId, password, xsk },
+      data: { transferMsg, txMsg, msgId, signingKey },
     });
 
     if (result?.error) {
@@ -280,16 +279,14 @@ export class KeyRingService {
     transferMsg: string,
     txMsg: string,
     msgId: string,
-    password: string,
-    xsk?: string
+    signingKey: SigningKey
   ): Promise<void> {
     initSubmitTransferWebWorker(
       {
         transferMsg,
         txMsg,
         msgId,
-        password,
-        xsk,
+        signingKey,
       },
       this.handleTransferCompleted.bind(this)
     );
@@ -311,12 +308,12 @@ export class KeyRingService {
     msgId: string
   ): Promise<void> {
     // Passing submit handler simplifies worker code when using Firefox
-    const submit = async (password: string, xsk?: string): Promise<void> => {
+    const submit = async (signingKey: SigningKey): Promise<void> => {
       const { TARGET } = process.env;
       if (TARGET === "chrome") {
-        this.submitTransferChrome(transferMsg, txMsg, msgId, password, xsk);
+        this.submitTransferChrome(transferMsg, txMsg, msgId, signingKey);
       } else if (TARGET === "firefox") {
-        this.submitTransferFirefox(transferMsg, txMsg, msgId, password, xsk);
+        this.submitTransferFirefox(transferMsg, txMsg, msgId, signingKey);
       } else {
         console.warn(
           "Submitting transfers is not supported with your browser."
@@ -443,10 +440,6 @@ export class KeyRingService {
       address
     );
     return this._keyRing.queryBalances(account.public.owner);
-  }
-
-  async initSdkStore(activeAccountId: string): Promise<void> {
-    return await this._keyRing.initSdkStore(activeAccountId);
   }
 
   async queryPublicKey(address: string): Promise<string | undefined> {

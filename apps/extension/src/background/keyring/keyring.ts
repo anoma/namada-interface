@@ -24,37 +24,41 @@ import {
   AccountType,
   Bip44Path,
   DerivedAccount,
+  EthBridgeTransferMsgValue,
+  IbcTransferMsgValue,
+  SubmitBondMsgValue,
+  SubmitUnbondMsgValue,
+  SubmitVoteProposalMsgValue,
+  SubmitWithdrawMsgValue,
   TransferMsgValue,
 } from "@namada/types";
 
 import {
+  AccountSecret,
   AccountStore,
   ActiveAccountStore,
   DeleteAccountError,
   KeyRingStatus,
   MnemonicValidationResponse,
   SensitiveAccountStoreData,
+  SigningKey,
   UtilityStore,
-  AccountSecret,
 } from "./types";
 
 import {
   Result,
-  makeBip44PathArray,
   assertNever,
+  makeBip44PathArray,
   truncateInMiddle,
 } from "@namada/utils";
 
 import { VaultService } from "background/vault";
 import { generateId } from "utils";
 
-const { NAMADA_INTERFACE_NAMADA_FAUCET_ADDRESS: faucetAddress } = process.env;
-
 // Generated UUID namespace for uuid v5
 const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
 
 export const KEYSTORE_KEY = "key-store";
-export const SDK_KEY = "sdk-store";
 export const PARENT_ACCOUNT_ID_KEY = "parent-account-id";
 export const AUTHKEY_KEY = "auth-key-store";
 
@@ -73,13 +77,12 @@ export class KeyRing {
 
   constructor(
     protected readonly vaultService: VaultService,
-    protected readonly sdkStore: KVStore<Record<string, string>>,
     protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly extensionStore: KVStore<number>,
     protected readonly sdk: Sdk,
     protected readonly query: Query,
     protected readonly cryptoMemory: WebAssembly.Memory
-  ) { }
+  ) {}
 
   public get status(): KeyRingStatus {
     return this._status;
@@ -94,12 +97,6 @@ export class KeyRing {
     type: AccountType.Mnemonic | AccountType.Ledger
   ): Promise<void> {
     await this.utilityStore.set(PARENT_ACCOUNT_ID_KEY, { id, type });
-
-    // To sync sdk wallet with DB
-    const sdkData = await this.sdkStore.get(SDK_KEY);
-    if (sdkData) {
-      this.sdk.decode(new TextEncoder().encode(sdkData[id]));
-    }
   }
 
   public validateMnemonic(phrase: string): MnemonicValidationResponse {
@@ -132,8 +129,7 @@ export class KeyRing {
     alias: string,
     address: string,
     publicKey: string,
-    bip44Path: Bip44Path,
-    parentId?: string
+    bip44Path: Bip44Path
   ): Promise<AccountStore | false> {
     const id = generateId(UUID_NAMESPACE, alias, address);
     const accountStore: AccountStore = {
@@ -144,7 +140,6 @@ export class KeyRing {
       owner: address,
       path: bip44Path,
       type: AccountType.Ledger,
-      parentId,
     };
     await this.vaultService.add<AccountStore, SensitiveAccountStoreData>(
       KEYSTORE_KEY,
@@ -152,10 +147,7 @@ export class KeyRing {
       { text: "" }
     );
 
-    // Prepare SDK store
-    this.sdk.clear_storage();
-    await this.initSdkStore(id);
-    await this.setActiveAccount(parentId || id, AccountType.Ledger);
+    await this.setActiveAccount(id, AccountType.Ledger);
     return accountStore;
   }
 
@@ -261,16 +253,6 @@ export class KeyRing {
       accountStore,
       sensitiveData
     );
-
-    // When we are adding new top level account we have to clear the storage
-    // to prevent adding top level secret key to existing keys
-    this.sdk.clear_storage();
-    await this.addSecretKey(
-      sk,
-      await this.vaultService.UNSAFE_getPassword(),
-      alias,
-      id
-    );
     await this.setActiveAccount(id, AccountType.Mnemonic);
     return accountStore;
   }
@@ -341,7 +323,7 @@ export class KeyRing {
       address,
       id,
       owner: viewingKey,
-      text: JSON.stringify({ spendingKey, viewingKey }),
+      text: JSON.stringify({ spendingKey }),
     };
   }
 
@@ -539,25 +521,12 @@ export class KeyRing {
       alias,
       info
     );
-
-    const addSecretFn = (
-      type === AccountType.PrivateKey ? this.addSecretKey : this.addSpendingKey
-    ).bind(this);
-
-    await addSecretFn(
-      info.text,
-      await this.vaultService.UNSAFE_getPassword(),
-      alias,
-      parentId
-    );
-
     return derivedAccount;
   }
 
   public async queryAllAccounts(): Promise<DerivedAccount[]> {
-    const accounts = await this.vaultService.findAll<AccountStore>(
-      KEYSTORE_KEY
-    );
+    const accounts =
+      await this.vaultService.findAll<AccountStore>(KEYSTORE_KEY);
     return accounts.map((entry) => entry.public as AccountStore);
   }
 
@@ -630,16 +599,64 @@ export class KeyRing {
     return accounts.map((account) => account.public as AccountStore);
   }
 
+  /**
+   * For provided address, return associated private key
+   */
+  private async getSigningKey(address: string): Promise<string> {
+    const account = await this.vaultService.findOne<AccountStore>(
+      KEYSTORE_KEY,
+      "address",
+      address
+    );
+    if (!account) {
+      throw new Error(`Account for ${address} not found!`);
+    }
+    const accountStore = (await this.queryAllAccounts()).find(
+      (account) => account.address === address
+    );
+
+    if (!accountStore) {
+      throw new Error(`Account for ${address} not found!`);
+    }
+    const { path } = accountStore;
+    const { coinType } = chains[defaultChainId].bip44;
+    const bip44Path = makeBip44PathArray(coinType, path);
+
+    const sensitiveProps =
+      await this.vaultService.reveal<SensitiveAccountStoreData>(account);
+    if (!sensitiveProps) {
+      throw new Error(`Signing key for ${address} not found!`);
+    }
+    const { text: phrase } = sensitiveProps;
+    const mnemonic = Mnemonic.from_phrase(phrase);
+    const seed = mnemonic.to_seed();
+    const hdWallet = new HDWallet(seed);
+    const key = hdWallet.derive(new Uint32Array(bip44Path));
+    const privateKeyStringPtr = key.to_hex();
+    const privateKey = readStringPointer(
+      privateKeyStringPtr,
+      this.cryptoMemory
+    );
+
+    mnemonic.free();
+    hdWallet.free();
+    key.free();
+    privateKeyStringPtr.free();
+
+    return privateKey;
+  }
+
   async submitBond(bondMsg: Uint8Array, txMsg: Uint8Array): Promise<void> {
     await this.vaultService.assertIsUnlocked();
     try {
-      const builtTx = await this.sdk.build_bond(
-        bondMsg,
-        txMsg,
-        await this.vaultService.UNSAFE_getPassword()
-      );
-      const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
-      await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
+      const { source } = deserialize(Buffer.from(bondMsg), SubmitBondMsgValue);
+      const signingKey = await this.getSigningKey(source);
+
+      await this.sdk.reveal_pk(signingKey, txMsg);
+
+      const builtTx = await this.sdk.build_bond(bondMsg, txMsg);
+      const txBytes = await this.sdk.sign_tx(builtTx, signingKey);
+      await this.sdk.process_tx(txBytes, txMsg);
     } catch (e) {
       throw new Error(`Could not submit bond tx: ${e}`);
     }
@@ -656,13 +673,17 @@ export class KeyRing {
   async submitUnbond(unbondMsg: Uint8Array, txMsg: Uint8Array): Promise<void> {
     await this.vaultService.assertIsUnlocked();
     try {
-      const builtTx = await this.sdk.build_unbond(
-        unbondMsg,
-        txMsg,
-        await this.vaultService.UNSAFE_getPassword()
+      const { source } = deserialize(
+        Buffer.from(unbondMsg),
+        SubmitUnbondMsgValue
       );
-      const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
-      await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
+      const signingKey = await this.getSigningKey(source);
+
+      await this.sdk.reveal_pk(signingKey, txMsg);
+
+      const builtTx = await this.sdk.build_unbond(unbondMsg, txMsg);
+      const txBytes = await this.sdk.sign_tx(builtTx, signingKey);
+      await this.sdk.process_tx(txBytes, txMsg);
     } catch (e) {
       throw new Error(`Could not submit unbond tx: ${e}`);
     }
@@ -674,13 +695,17 @@ export class KeyRing {
   ): Promise<void> {
     await this.vaultService.assertIsUnlocked();
     try {
-      const builtTx = await this.sdk.build_withdraw(
-        withdrawMsg,
-        txMsg,
-        await this.vaultService.UNSAFE_getPassword()
+      const { source } = deserialize(
+        Buffer.from(withdrawMsg),
+        SubmitWithdrawMsgValue
       );
-      const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
-      await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
+      const signingKey = await this.getSigningKey(source);
+
+      await this.sdk.reveal_pk(signingKey, txMsg);
+
+      const builtTx = await this.sdk.build_withdraw(withdrawMsg, txMsg);
+      const txBytes = await this.sdk.sign_tx(builtTx, signingKey);
+      await this.sdk.process_tx(txBytes, txMsg);
     } catch (e) {
       throw new Error(`Could not submit withdraw tx: ${e}`);
     }
@@ -692,13 +717,21 @@ export class KeyRing {
   ): Promise<void> {
     await this.vaultService.assertIsUnlocked();
     try {
+      const { signer } = deserialize(
+        Buffer.from(voteProposalMsg),
+        SubmitVoteProposalMsgValue
+      );
+      const signingKey = await this.getSigningKey(signer);
+
+      await this.sdk.reveal_pk(signingKey, txMsg);
+
       const builtTx = await this.sdk.build_vote_proposal(
         voteProposalMsg,
-        txMsg,
-        await this.vaultService.UNSAFE_getPassword()
+        txMsg
       );
-      const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
-      await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
+
+      const txBytes = await this.sdk.sign_tx(builtTx, signingKey);
+      await this.sdk.process_tx(txBytes, txMsg);
     } catch (e) {
       throw new Error(`Could not submit vote proposal tx: ${e}`);
     }
@@ -706,22 +739,17 @@ export class KeyRing {
 
   async submitTransfer(
     transferMsg: Uint8Array,
-    submit: (password: string, xsk?: string) => Promise<void>
+    submit: (signingKey: SigningKey) => Promise<void>
   ): Promise<void> {
     await this.vaultService.assertIsUnlocked();
 
-    // We need to get the source address in case it is shielded one, so we can
-    // decrypt the extended spending key for a transfer.
-    const { source, target } = deserialize(
-      Buffer.from(transferMsg),
-      TransferMsgValue
-    );
+    // We need to get the source address to find either the private key or spending key
+    const { source } = deserialize(Buffer.from(transferMsg), TransferMsgValue);
 
-    const signerAddress = source === faucetAddress ? target : source;
     const account = await this.vaultService.findOneOrFail<AccountStore>(
       KEYSTORE_KEY,
       "address",
-      signerAddress
+      source
     );
     const sensitiveProps =
       await this.vaultService.reveal<SensitiveAccountStoreData>(account);
@@ -730,17 +758,14 @@ export class KeyRing {
       throw new Error("Error decrypting AccountStore data");
     }
 
-    // For shielded accounts we need to return the spending key as well.
-    // TODO: check if this .spendingKey is working
-    const extendedSpendingKey =
-      account.public.type === AccountType.ShieldedKeys
-        ? JSON.parse(sensitiveProps.text).spendingKey
-        : undefined;
-
-    await submit(
-      await this.vaultService.UNSAFE_getPassword(),
-      extendedSpendingKey
-    );
+    if (account.public.type === AccountType.ShieldedKeys) {
+      const xsk = JSON.parse(sensitiveProps.text).spendingKey;
+      // Append xsk to SDK wallet instance
+      this.sdk.add_spending_key(xsk, account.public.id);
+      await submit({ xsk });
+    } else {
+      await submit({ privateKey: await this.getSigningKey(source) });
+    }
   }
 
   async submitIbcTransfer(
@@ -749,13 +774,17 @@ export class KeyRing {
   ): Promise<void> {
     await this.vaultService.assertIsUnlocked();
     try {
-      const builtTx = await this.sdk.build_ibc_transfer(
-        ibcTransferMsg,
-        txMsg,
-        await this.vaultService.UNSAFE_getPassword()
+      const { source } = deserialize(
+        Buffer.from(ibcTransferMsg),
+        IbcTransferMsgValue
       );
-      const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
-      await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
+      const signingKey = await this.getSigningKey(source);
+
+      await this.sdk.reveal_pk(signingKey, txMsg);
+
+      const builtTx = await this.sdk.build_ibc_transfer(ibcTransferMsg, txMsg);
+      const txBytes = await this.sdk.sign_tx(builtTx, signingKey);
+      await this.sdk.process_tx(txBytes, txMsg);
     } catch (e) {
       throw new Error(`Could not submit ibc transfer tx: ${e}`);
     }
@@ -767,13 +796,20 @@ export class KeyRing {
   ): Promise<void> {
     await this.vaultService.assertIsUnlocked();
     try {
+      const { sender } = deserialize(
+        Buffer.from(ethBridgeTransferMsg),
+        EthBridgeTransferMsgValue
+      );
+      const signingKey = await this.getSigningKey(sender);
+
+      await this.sdk.reveal_pk(signingKey, txMsg);
+
       const builtTx = await this.sdk.build_eth_bridge_transfer(
         ethBridgeTransferMsg,
-        txMsg,
-        await this.vaultService.UNSAFE_getPassword()
+        txMsg
       );
-      const [txBytes, revealPkTxBytes] = await this.sdk.sign_tx(builtTx, txMsg);
-      await this.sdk.process_tx(txBytes, txMsg, revealPkTxBytes);
+      const txBytes = await this.sdk.sign_tx(builtTx, signingKey);
+      await this.sdk.process_tx(txBytes, txMsg);
     } catch (e) {
       throw new Error(`Could not submit submit_eth_bridge_transfer tx: ${e}`);
     }
@@ -813,20 +849,6 @@ export class KeyRing {
         (await this.vaultService.remove<AccountStore>(KEYSTORE_KEY, "id", id));
     }
 
-    // remove account from sdk store
-    const records = await this.sdkStore.get(SDK_KEY);
-    if (records) {
-      const updatedRecords = Object.keys(records).reduce((acc, recordId) => {
-        if (accountIds.indexOf(recordId) >= 0) return acc;
-        return {
-          ...acc,
-          [recordId]: records[recordId],
-        };
-      }, {});
-
-      await this.sdkStore.set(SDK_KEY, updatedRecords);
-    }
-
     return Result.ok(null);
   }
 
@@ -846,42 +868,5 @@ export class KeyRing {
       console.error(e);
       return [];
     }
-  }
-
-  private async addSecretKey(
-    secretKey: string,
-    password: string,
-    alias: string,
-    activeAccountId: string
-  ): Promise<void> {
-    this.sdk.add_key(secretKey, password, alias);
-    await this.initSdkStore(activeAccountId);
-  }
-
-  public async initSdkStore(activeAccountId: string): Promise<void> {
-    const store = (await this.sdkStore.get(SDK_KEY)) || {};
-
-    this.sdkStore.set(SDK_KEY, {
-      ...store,
-      [activeAccountId]: new TextDecoder().decode(this.sdk.encode()),
-    });
-  }
-
-  private async addSpendingKey(
-    text: string,
-    password: string,
-    alias: string,
-    activeAccountId: string
-  ): Promise<void> {
-    const { spendingKey } = JSON.parse(text);
-
-    this.sdk.add_spending_key(spendingKey, password, alias);
-    const store = (await this.sdkStore.get(SDK_KEY)) || {};
-
-    //TODO: reuse logic from addSecretKey, potentially use Object.assign instead of rest spread operator
-    this.sdkStore.set(SDK_KEY, {
-      ...store,
-      [activeAccountId]: new TextDecoder().decode(this.sdk.encode()),
-    });
   }
 }

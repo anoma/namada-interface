@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { field } from "@dao-xyz/borsh";
-import { TxMsgValue } from "./tx";
 import { SubmitWithdrawProps } from "../types";
 
 export class SubmitWithdrawMsgValue {

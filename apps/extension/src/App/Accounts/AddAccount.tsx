@@ -11,7 +11,7 @@ import {
 import { AccountType, DerivedAccount } from "@namada/types";
 import { chains, defaultChainId } from "@namada/chains";
 import { makeBip44Path } from "@namada/utils";
-import { LedgerError } from "@namada/ledger-namada";
+import { LedgerError } from "@zondax/ledger-namada";
 
 import { ExtensionRequester } from "extension";
 import { Ports } from "router";
@@ -402,8 +402,9 @@ const AddAccount: React.FC<Props> = ({
 
             <Bip44Path>
               Derivation path:{" "}
-              <span>{`${parentDerivationPath}${isTransparent ? `${change}/` : ""
-                }${index}`}</span>
+              <span>{`${parentDerivationPath}${
+                isTransparent ? `${change}/` : ""
+              }${index}`}</span>
             </Bip44Path>
             <FormValidationMsg>{validation}</FormValidationMsg>
           </AddAccountForm>

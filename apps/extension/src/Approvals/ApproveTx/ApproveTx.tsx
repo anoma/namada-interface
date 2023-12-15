@@ -1,21 +1,21 @@
-import { useNavigate } from "react-router-dom";
 import { useCallback, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-import { Button, ButtonVariant } from "@namada/components";
-import { shortenAddress } from "@namada/utils";
-import { AccountType, Tokens } from "@namada/types";
-import { TxType, TxTypeLabel } from "@namada/shared";
+import { ActionButton, Alert, Stack, Text } from "@namada/components";
 import { useSanitizedParams } from "@namada/hooks";
+import { TxType, TxTypeLabel } from "@namada/shared";
+import { AccountType, Tokens } from "@namada/types";
+import { shortenAddress } from "@namada/utils";
 
-import { useQuery } from "hooks";
 import { Address } from "App/Accounts/AccountListing.components";
+import { ApprovalDetails } from "Approvals/Approvals";
 import { ButtonContainer } from "Approvals/Approvals.components";
 import { TopLevelRoute } from "Approvals/types";
-import { Ports } from "router";
 import { RejectTxMsg } from "background/approvals";
+import { useQuery } from "hooks";
 import { useRequester } from "hooks/useRequester";
+import { Ports } from "router";
 import { closeCurrentTab } from "utils";
-import { ApprovalDetails } from "Approvals/Approvals";
 
 type Props = {
   setDetails: (details: ApprovalDetails) => void;
@@ -78,37 +78,35 @@ export const ApproveTx: React.FC<Props> = ({ setDetails }) => {
   }, [msgId]);
 
   return (
-    <>
-      <p>
-        Approve this <strong>{TxTypeLabel[txType as TxType]}</strong>{" "}
-        transaction?
-      </p>
+    <Stack gap={4}>
+      <Alert type="warning">
+        Approve this {accountType === AccountType.Ledger ? "Ledger " : ""}
+        <strong>{TxTypeLabel[txType as TxType]}</strong> transaction?
+      </Alert>
       {source && (
-        <>
-          <p>Source:&nbsp;</p>
-          <Address>{shortenAddress(source)}</Address>
-        </>
+        <Text fontSize="xs">
+          Source: <Address>{shortenAddress(source)}</Address>
+        </Text>
       )}
       {target && (
-        <>
-          <p>Target:&nbsp;</p>
+        <Text fontSize="xs">
+          Target:
           <Address>{shortenAddress(target)}</Address>
-        </>
+        </Text>
       )}
       {amount && (
-        <p>
+        <Text fontSize="xs">
           Amount: {amount} {tokenType}
-        </p>
+        </Text>
       )}
-      {validator && <p>Validator: {shortenAddress(validator)}</p>}
+      {validator && (
+        <Text fontSize="xs">Validator: {shortenAddress(validator)}</Text>
+      )}
+
       <ButtonContainer>
-        <Button onClick={handleApproveClick} variant={ButtonVariant.Contained}>
-          Approve
-        </Button>
-        <Button onClick={handleReject} variant={ButtonVariant.Contained}>
-          Reject
-        </Button>
+        <ActionButton onClick={handleApproveClick}>Approve</ActionButton>
+        <ActionButton onClick={handleReject}>Reject</ActionButton>
       </ButtonContainer>
-    </>
+    </Stack>
   );
 };

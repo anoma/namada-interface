@@ -2,7 +2,6 @@
 import BigNumber from "bignumber.js";
 import { field, option } from "@dao-xyz/borsh";
 import { BigNumberSerializer } from "./utils";
-import { TxMsgValue } from "./tx";
 import { IbcTransferProps } from "../types";
 
 export class IbcTransferMsgValue {
@@ -32,6 +31,6 @@ export class IbcTransferMsgValue {
 
   constructor(data: IbcTransferProps) {
     Object.assign(this, data);
-    this.token = data.token.address
+    this.token = data.token.address;
   }
 }

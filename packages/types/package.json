@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "@dao-xyz/borsh": "^5.1.5",
-    "@namada/ledger-namada": "0.0.1",
     "bn.js": "^5.2.1",
     "slip44": "^3.0.11",
     "typescript": "^5.1.3"

@@ -46,20 +46,20 @@ export const Tokens = supportedCoinTypes.reduce(
 Tokens["NAM"] = {
   ...Tokens["NAM"],
   url: "https://namada.net",
-  address: "tnam1qyytnlley9h2mw5pjzsp862uuqhc2l0h5uqx397y",
+  address: "tnam1q9mjvqd45u7w54kee2aquugtv7vn7h3xrcrau7xy",
 };
 
 // TODO: We don't have a address for this. The address for DOT
 // from the dev & e2e genesis is being used here:
 Tokens["ATOM"] = {
   ...Tokens["ATOM"],
-  address: "tnam1qyrsnajxyn660ukm0zwacfrt3mff9c4vvuzrrpnx",
+  address: "tnam1q9dg4r9uteahgx7qyc2h8crq3lg7zrxdduwyrss4",
   coinGeckoId: "cosmos",
 };
 
 Tokens["ETH"] = {
   ...Tokens["ETH"],
-  address: "tnam1q8r6dc0kh2xuxzjy75cgt4tfqchf4k8cguuvxkuh",
+  address: "tnam1q9anasrx0gqeuxrc22a0uefe82kw08avhcasevng",
   coinGeckoId: "ethereum",
 };
 

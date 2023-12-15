@@ -2,7 +2,7 @@ import { fromBase64 } from "@cosmjs/encoding";
 import { deserialize } from "@dao-xyz/borsh";
 
 import { chains, defaultChainId } from "@namada/chains";
-import { ResponseSign } from "@namada/ledger-namada";
+import { ResponseSign } from "@zondax/ledger-namada";
 import { Sdk, TxType } from "@namada/shared";
 import { KVStore } from "@namada/storage";
 import { AccountType, TxMsgValue } from "@namada/types";
@@ -19,14 +19,13 @@ export class LedgerService {
   constructor(
     protected readonly keyringService: KeyRingService,
     protected readonly kvStore: KVStore<AccountStore[]>,
-    protected readonly sdkStore: KVStore<Record<string, string>>,
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
     protected readonly txStore: KVStore<TxStore>,
     protected readonly revealedPKStore: KVStore<string[]>,
     protected readonly sdk: Sdk,
     protected readonly requester: ExtensionRequester,
     protected readonly broadcaster: ExtensionBroadcaster
-  ) { }
+  ) {}
 
   async getRevealPKBytes(
     txMsg: string
@@ -94,7 +93,6 @@ export class LedgerService {
       await this.sdk.process_tx(
         signedTxBytes,
         fromBase64(txMsg),
-        new Uint8Array()
       );
     } catch (e) {
       console.warn(e);
@@ -134,7 +132,6 @@ export class LedgerService {
       await this.sdk.process_tx(
         signedTxBytes,
         fromBase64(txMsg),
-        new Uint8Array()
       );
 
       // Clear pending tx if successful
