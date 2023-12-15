@@ -1,0 +1,83 @@
+import { Checkbox, DropdownMenu } from "@namada/components";
+
+import { AccountType } from "@namada/types";
+import clsx from "clsx";
+import { createElement } from "react";
+import { tv } from "tailwind-variants";
+
+type KeyListItemProps = {
+  htmlLabel: keyof React.ReactHTML;
+  alias: string;
+  type: AccountType;
+  isMainKey: boolean;
+  onRename: () => void;
+  onDelete: () => void;
+  onViewAccount: () => void;
+  onSelectAccount: () => void;
+  onViewRecoveryPhrase: () => void;
+  dropdownPosition?: "top" | "bottom";
+};
+
+const keyListItem = tv({
+  base: clsx(
+    "flex items-center bg-black border border-current rounded-md text-white",
+    "grid text-[18px] font-medium gap-8 grid-cols-[42px_auto_8px] p-5"
+  ),
+  variants: {
+    selected: {
+      true: "text-yellow",
+    },
+  },
+});
+
+export const KeyListItem = ({
+  htmlLabel = "div",
+  alias,
+  isMainKey,
+  type,
+  onDelete,
+  onRename,
+  onViewAccount,
+  onSelectAccount,
+  onViewRecoveryPhrase,
+  dropdownPosition = "top",
+}: KeyListItemProps): JSX.Element => {
+  return createElement(
+    htmlLabel,
+    { className: keyListItem({ selected: isMainKey }) },
+    <>
+      <div>
+        <Checkbox onChange={() => onSelectAccount()} checked={isMainKey} />
+      </div>
+      <label>{alias}</label>
+      <DropdownMenu
+        id={alias}
+        align="right"
+        position={dropdownPosition}
+        items={[
+          {
+            label: "Set default account",
+            onClick: !isMainKey ? onSelectAccount : undefined,
+          },
+          {
+            label: "View Keys",
+            onClick: onViewAccount,
+          },
+          {
+            label: "Rename",
+            onClick: onRename,
+          },
+          {
+            label: "Delete",
+            onClick: onDelete,
+          },
+          {
+            label: "View Seed Phrase",
+            onClick:
+              type === AccountType.Mnemonic ? onViewRecoveryPhrase : undefined,
+          },
+        ]}
+      />
+    </>
+  );
+};

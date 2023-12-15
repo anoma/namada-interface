@@ -6,7 +6,7 @@ import { tv, type VariantProps } from "tailwind-variants";
 const dropdownMenu = tv({
   slots: {
     base: "relative w-2",
-    icon: "cursor-pointer [&_circle]:fill-current block",
+    icon: "flex w-full items-center cursor-pointer [&_circle]:fill-current",
     list: clsx(
       "bg-neutral-800 rounded-md border border-neutral-400 pb-7 overflow-hidden",
       "absolute -right-2 w-58 z-20"
@@ -89,9 +89,9 @@ export const DropdownMenu = (props: DropdownMenuProps): JSX.Element => {
   return (
     <>
       <div className={base()}>
-        <i className={icon()} onClick={() => setOpen(true)}>
+        <span className={icon()} onClick={() => setOpen(true)}>
           <Icon name="ThreeDotsVertical" fill={true} />
-        </i>
+        </span>
         {isOpen && (
           <ul className={list()}>
             {props.items.map((item, index) => (
