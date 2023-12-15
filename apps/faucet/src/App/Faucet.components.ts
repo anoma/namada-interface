@@ -31,13 +31,6 @@ export const PreFormatted = styled.pre`
   overflow-x: scroll;
 `;
 
-export const FormError = styled.div`
-  font-family: "Space Grotesk", sans-serif;
-  color: ${(props) => props.theme.colors.utility3.highAttention};
-  font-size: 12px;
-  padding: 0 0 8px;
-`;
-
 export const FormStatus = styled.div`
   font-family: "Space Grotesk", sans-serif;
   color: white;

@@ -1,44 +1,30 @@
-import React, { useCallback, useState } from "react";
-import { sanitize } from "dompurify";
-import { bech32m } from "bech32";
 import {
+  Alert,
   Button,
   ButtonVariant,
   Input,
   InputVariants,
-  Select,
 } from "@namada/components";
+import { sanitize } from "dompurify";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 
-import {
-  ButtonContainer,
-  FaucetFormContainer,
-  FormError,
-  FormStatus,
-  InputContainer,
-  PreFormatted,
-} from "./Faucet.components";
-import { TokenData } from "config";
+import { useTheme } from "styled-components";
 import {
   TransferResponse,
   computePowSolution,
   requestChallenge,
   requestTransfer,
 } from "utils";
-import { useTheme } from "styled-components";
+import {
+  ButtonContainer,
+  FaucetFormContainer,
+  FormStatus,
+  InputContainer,
+  PreFormatted,
+} from "./Faucet.components";
 
-const DEFAULT_URL = "http://localhost:5000";
-const DEFAULT_ENDPOINT = "/api/v1/faucet";
-const DEFAULT_FAUCET_LIMIT = "1000";
-
-const {
-  NAMADA_INTERFACE_FAUCET_API_URL: faucetApiUrl = DEFAULT_URL,
-  NAMADA_INTERFACE_FAUCET_API_ENDPOINT: faucetApiEndpoint = DEFAULT_ENDPOINT,
-  NAMADA_INTERFACE_FAUCET_LIMIT: faucetLimit = DEFAULT_FAUCET_LIMIT,
-  NAMADA_INTERFACE_PROXY: isProxied,
-  NAMADA_INTERFACE_PROXY_PORT: proxyPort = 9000,
-} = process.env;
-
-const apiUrl = isProxied ? `http://localhost:${proxyPort}/proxy` : faucetApiUrl;
+import { bech32mValidation } from "@namada/utils";
+import { AppContext } from "./App";
 
 enum Status {
   Pending,
@@ -50,23 +36,55 @@ type Props = {
   isTestnetLive: boolean;
 };
 
+const bech32mPrefix = "tnam";
+
 export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
   const theme = useTheme();
+  const { difficulty, settingsError, limit, tokens, url } =
+    useContext(AppContext);
   const [targetAddress, setTargetAddress] = useState<string>();
-  const [tokenAddress, setTokenAddress] = useState(TokenData[0].value);
+  const [tokenAddress, setTokenAddress] = useState<string>();
   const [amount, setAmount] = useState<number | undefined>(undefined);
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState(Status.Completed);
   const [statusText, setStatusText] = useState<string>();
   const [responseDetails, setResponseDetails] = useState<TransferResponse>();
 
+  useEffect(() => {
+    if (tokens?.NAM) {
+      setTokenAddress(tokens.NAM);
+    }
+  }, [tokens]);
+
+  const isFormValid: boolean =
+    Boolean(tokenAddress) &&
+    Boolean(amount) &&
+    (amount || 0) <= limit &&
+    Boolean(targetAddress) &&
+    status !== Status.Pending &&
+    typeof difficulty !== "undefined" &&
+    isTestnetLive;
+
   const handleSubmit = useCallback(async () => {
-    if (!targetAddress || !amount) {
+    if (
+      !targetAddress ||
+      !amount ||
+      !tokenAddress ||
+      typeof difficulty === "undefined"
+    ) {
+      console.error("Please provide the required values!");
       return;
     }
 
-    // Validate target input
+    // Validate target and token inputs
     const sanitizedTarget = sanitize(targetAddress);
+    const sanitizedToken = sanitize(tokenAddress);
+
+    if (!sanitizedToken) {
+      setStatus(Status.Error);
+      setError("Invalid token address!");
+      return;
+    }
 
     if (!sanitizedTarget) {
       setStatus(Status.Error);
@@ -74,26 +92,26 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
       return;
     }
 
-    try {
-      bech32m.decode(sanitizedTarget);
-    } catch (e) {
-      setError("Invalid bech32 address!");
+    if (!bech32mValidation(bech32mPrefix, sanitizedTarget)) {
+      setError("Invalid bech32m address for target!");
       setStatus(Status.Error);
       return;
     }
 
+    if (!bech32mValidation(bech32mPrefix, sanitizedToken)) {
+      setError("Invalid bech32m address for token address!");
+      setStatus(Status.Error);
+      return;
+    }
     setStatus(Status.Pending);
     setStatusText(undefined);
-
-    const url = `${apiUrl}${faucetApiEndpoint}`;
 
     try {
       const { challenge, tag } = await requestChallenge(url).catch((e) => {
         throw new Error(`Error requesting challenge: ${e}`);
       });
 
-      const difficulty = 2;
-      const solution = computePowSolution(challenge, difficulty);
+      const solution = computePowSolution(challenge, difficulty || 0);
 
       if (!solution) {
         throw new Error("A solution was not computed!");
@@ -105,7 +123,7 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
         challenge,
         transfer: {
           target: sanitizedTarget,
-          token: tokenAddress,
+          token: sanitizedToken,
           amount: amount * 1_000_000,
         },
       };
@@ -141,27 +159,30 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
 
   return (
     <FaucetFormContainer>
+      {settingsError && <Alert type="error">{settingsError}</Alert>}
       <InputContainer>
         <Input
           variant={InputVariants.Text}
           label="Target Address"
           value={targetAddress}
+          onFocus={handleFocus}
           onChange={(e) => setTargetAddress(e.target.value)}
         />
       </InputContainer>
 
       <InputContainer>
-        <Select
-          label="Token"
-          data={TokenData}
+        <Input
+          variant={InputVariants.Text}
+          label="Token Address (defaults to NAM)"
           value={tokenAddress}
+          onFocus={handleFocus}
           onChange={(e) => setTokenAddress(e.target.value)}
         />
       </InputContainer>
 
       <InputContainer>
         <Input
-          placeholder={`From 1 to ${faucetLimit}`}
+          placeholder={`From 1 to ${limit}`}
           variant={InputVariants.Number}
           label="Amount"
           value={amount}
@@ -175,8 +196,8 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
             }
           }}
           error={
-            (amount || 0) > parseInt(faucetLimit)
-              ? `Amount must be less than or equal to ${faucetLimit}`
+            (amount || 0) > limit
+              ? `Amount must be less than or equal to ${limit}`
               : ""
           }
         />
@@ -184,8 +205,12 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
 
       {status !== Status.Error && (
         <FormStatus>
-          {status === Status.Pending && "Processing faucet transfer..."}
-          {status === Status.Completed && statusText}
+          {status === Status.Pending && (
+            <Alert type="warning">Processing faucet transfer...</Alert>
+          )}
+          {status === Status.Completed && (
+            <Alert type="info">{statusText}</Alert>
+          )}
 
           {responseDetails && status !== Status.Pending && (
             <PreFormatted>
@@ -194,26 +219,20 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
           )}
         </FormStatus>
       )}
-      {status === Status.Error && <FormError>{error}</FormError>}
+      {status === Status.Error && <Alert type="error">{error}</Alert>}
 
       <ButtonContainer>
         <Button
           style={{
             backgroundColor: theme.colors.secondary.main,
-            fontSize: '1.25rem',
-            lineHeight: '1.6',
-            padding: '0.6em 2.5em',
-            margin: 0
+            fontSize: "1.25rem",
+            lineHeight: "1.6",
+            padding: "0.6em 2.5em",
+            margin: 0,
           }}
           variant={ButtonVariant.Contained}
           onClick={handleSubmit}
-          disabled={
-            !amount ||
-            (amount || 0) > parseInt(faucetLimit) ||
-            !targetAddress ||
-            status === Status.Pending ||
-            !isTestnetLive
-          }
+          disabled={!isFormValid}
         >
           Get Testnet Tokens
         </Button>
