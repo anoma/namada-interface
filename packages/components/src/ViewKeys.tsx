@@ -1,10 +1,12 @@
-import { ActionButton, GapPatterns, Input, Stack } from "@namada/components";
-import { InputVariants } from "../Input/types";
 import {
-  DownloadPanel,
-  WarningPanel,
-  WarningPanelTitle,
-} from "./ViewKeys.components";
+  ActionButton,
+  GapPatterns,
+  Input,
+  InputVariants,
+  Stack,
+} from "@namada/components";
+
+import clsx from "clsx";
 
 type ViewKeysProps = {
   publicKeyAddress?: string;
@@ -50,28 +52,32 @@ export const ViewKeys = ({
           />
         )}
         {viewingKeys && (
-          <DownloadPanel>
+          <div className="text-white flex flex-col text-base font-medium gap-3 text-center">
             Viewing keys of shielded account
             <ActionButton size="md" color="secondary">
               Download
             </ActionButton>
-          </DownloadPanel>
+          </div>
         )}
       </Stack>
       {(viewingKeys || footer) && (
         <Stack as="footer" gap={4}>
           {viewingKeys && (
-            <WarningPanel>
-              <WarningPanelTitle>
+            <aside
+              className={clsx(
+                "bg-neutral-900 rounded-md text-white font-medium text-base leading-[1.25] px-8 py-5"
+              )}
+            >
+              <strong className="block font-bold text-yellow mb-2 uppercase">
                 BEFORE SHARING YOUR VIEWING KEYS
-              </WarningPanelTitle>
+              </strong>
               <p>
                 Note that ANYONE with your viewing keys can see the assets,
                 transaction value, memo field and receiver address of all
                 transactions received by or sent by the corresponding shielded
                 account.
               </p>
-            </WarningPanel>
+            </aside>
           )}
           {footer}
         </Stack>

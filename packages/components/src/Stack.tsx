@@ -41,7 +41,7 @@ export const Stack = <T extends keyof JSX.IntrinsicElements>({
   ...props
 }: StackProps<T> & React.ComponentPropsWithoutRef<T>): JSX.Element => {
   return createElement(
-    props.as as keyof React.ReactHTML,
+    (props.as as keyof React.ReactHTML) || "div",
     {
       className: stack({ direction, full, class: className }),
       style: { gap: calculateGap(gap) },
