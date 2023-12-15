@@ -9,20 +9,20 @@ import {
   ViewKeys,
 } from "@namada/components";
 import { AccountType } from "@namada/types";
-import { formatRouterPath, assertNever } from "@namada/utils";
+import { assertNever, formatRouterPath } from "@namada/utils";
 import { HeaderContainer, Subtitle } from "Setup/Setup.components";
 import { TopLevelRoute } from "Setup/types";
 import {
+  AccountSecret,
   AccountStore,
   DeriveAccountMsg,
   SaveAccountSecretMsg,
   ScanAccountsMsg,
-  AccountSecret,
 } from "background/keyring";
+import { CreatePasswordMsg } from "background/vault";
 import { useRequester } from "hooks/useRequester";
 import { useNavigate } from "react-router-dom";
 import { Ports } from "router";
-import { CreatePasswordMsg } from "background/vault";
 
 type Props = {
   alias: string;
@@ -164,7 +164,10 @@ const Completion: React.FC<Props> = (props) => {
             transparentAccountAddress={transparentAccountAddress}
             shieldedAccountAddress={shieldedAccountAddress}
             footer={
-              <ActionButton onClick={closeCurrentTab}>
+              <ActionButton
+                data-testid="setup-close-page-btn"
+                onClick={closeCurrentTab}
+              >
                 Close this page
               </ActionButton>
             }

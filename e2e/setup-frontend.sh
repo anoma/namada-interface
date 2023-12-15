@@ -1,5 +1,5 @@
 #!/bin/bash -x
-CHAIN_ID="dev-test.000000000000000000000"
+CHAIN_ID="localnet.000000000000000000000"
 
 # Run the extension
 cd ../apps/extension && \
@@ -9,7 +9,7 @@ cd ../apps/extension && \
     export NAMADA_INTERFACE_MASP_PARAMS_PATH=http://localhost:8080/assets/; \
     export NAMADA_INTERFACE_NAMADA_CHAIN_ID=${CHAIN_ID}; \
     export NAMADA_INTERFACE_NAMADA_URL=http://localhost:27657 && \
-    npx webpack --watch &
+    webpack-cli --watch &
 
 # Run the interface
 cd ../namada-interface && \
@@ -18,7 +18,7 @@ cd ../namada-interface && \
     export NAMADA_INTERFACE_MASP_PARAMS_PATH=http://localhost:8080/assets/; \
     export NAMADA_INTERFACE_NAMADA_CHAIN_ID=${CHAIN_ID}; \
     export NAMADA_INTERFACE_NAMADA_URL=http://localhost:27657 && \
-    npx webpack --watch &
+    webpack-cli --watch &
 
 cd ../../e2e
 

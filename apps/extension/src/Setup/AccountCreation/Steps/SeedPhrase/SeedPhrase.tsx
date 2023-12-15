@@ -4,8 +4,8 @@ import {
   ActionButton,
   Heading,
   RadioGroup,
-  Stack,
   SeedPhraseInstructions,
+  Stack,
 } from "@namada/components";
 import { copyToClipboard } from "@namada/utils";
 import { SeedPhraseList } from "Setup/Common";
@@ -14,9 +14,9 @@ import { AccountDetails } from "Setup/types";
 import { GenerateMnemonicMsg } from "background/keyring";
 import { Ports } from "router";
 
-import { CopyToClipboard } from "./SeedPhrase.components";
-import { useRequester } from "hooks/useRequester";
 import { InstructionsContainer } from "App/Accounts/ViewMnemonic/ViewMnemonic.components";
+import { useRequester } from "hooks/useRequester";
+import { CopyToClipboard } from "./SeedPhrase.components";
 
 type Props = {
   // go to next screen
@@ -73,6 +73,7 @@ const SeedPhrase: React.FC<Props> = (props) => {
             words={seedPhrase}
           />
           <CopyToClipboard
+            data-testid="setup-copy-to-clipboard-button"
             onClick={(e) => {
               e.preventDefault();
               copyToClipboard(seedPhrase.join(" "));
@@ -86,6 +87,7 @@ const SeedPhrase: React.FC<Props> = (props) => {
           <SeedPhraseInstructions />
         </InstructionsContainer>
         <ActionButton
+          data-testid="setup-go-to-verification-button"
           disabled={isSubmitButtonDisabled}
           onClick={() => {
             onConfirm(seedPhrase);

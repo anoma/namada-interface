@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 
-import { Icon, IconName, ContentMasker } from "@namada/components";
+import { ContentMasker, Icon, IconName } from "@namada/components";
 
-import { ComponentProps, InputProps, InputVariants } from "./types";
+import { CopyToClipboardControl } from "./CopyToClipboardControl/CopyToClipboardControl";
 import {
   ErrorTooltip,
   HintTooltip,
@@ -12,9 +12,10 @@ import {
   LabelWrapper,
   TextInput,
 } from "./input.components";
-import { CopyToClipboardControl } from "./CopyToClipboardControl/CopyToClipboardControl";
+import { ComponentProps, InputProps, InputVariants } from "./types";
 
-type Props = ComponentProps & InputProps & { variant?: InputVariants };
+type Props = ComponentProps &
+  InputProps & { variant?: InputVariants; "data-testid"?: string };
 
 export const Input = ({
   variant = InputVariants.Text,
@@ -25,6 +26,7 @@ export const Input = ({
   hideIcon = false,
   sensitive = false,
   children,
+  "data-testid": dataTestId,
   ...props
 }: Props): JSX.Element => {
   const [passwordShown, setPasswordShown] = useState(false);
@@ -91,7 +93,7 @@ export const Input = ({
   );
 
   return (
-    <Label className={props.className}>
+    <Label data-testid={dataTestId} className={props.className}>
       {label && <LabelWrapper>{label}</LabelWrapper>}
       <InputWrapper>
         {sensitive ? (

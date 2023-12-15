@@ -16,6 +16,7 @@ const Setup: React.FC = () => {
         imageName={ImageName.LogoMinimal}
       />
       <ActionButton
+        data-testid="setup-init-button"
         onClick={() => {
           browser.tabs.create({
             url: browser.runtime.getURL("setup.html"),
