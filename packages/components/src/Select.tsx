@@ -59,4 +59,4 @@ function Select<T>({
   );
 }
 
-export default Select;
+export { Select };

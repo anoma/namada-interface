@@ -1,5 +1,5 @@
 import { TableContainer, TableElement } from "./Table.components";
-import { TableConfigurations, RowBase, ColumnDefinition } from "./types";
+import { ColumnDefinition, RowBase, TableConfigurations } from "./types";
 
 export type Props<RowType extends RowBase, Callbacks> = {
   title: string;

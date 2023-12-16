@@ -2,14 +2,15 @@ import { Icon } from "@namada/components";
 import { copyToClipboard } from "@namada/utils";
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { IconContainer } from "../input.components";
 
 type CopyToClipboardControlIcon = {
   value: string;
+  className?: string;
 };
 
 export const CopyToClipboardControl = ({
   value,
+  className,
 }: CopyToClipboardControlIcon): JSX.Element => {
   const [copied, setCopied] = useState(false);
 
@@ -29,7 +30,8 @@ export const CopyToClipboardControl = ({
   };
 
   return (
-    <IconContainer
+    <div
+      className={className}
       role="button"
       aria-labelledby="Copy to clipboard"
       onClick={onClick}
@@ -45,6 +47,6 @@ export const CopyToClipboardControl = ({
       ) : (
         <Icon name="Copy" />
       )}
-    </IconContainer>
+    </div>
   );
 };

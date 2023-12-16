@@ -4,6 +4,7 @@ export * from "./Alert";
 export * from "./Checkbox";
 export * from "./Container";
 export * from "./ContentMasker";
+export * from "./CopyToClipboardControl";
 export * from "./DropdownMenu";
 export * from "./Heading";
 export * from "./Icon";

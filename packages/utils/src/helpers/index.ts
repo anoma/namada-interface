@@ -1,12 +1,12 @@
-import { bech32m } from "bech32";
 import { JsonRpcRequest } from "@cosmjs/json-rpc";
-import { DateTime } from "luxon";
-import BigNumber from "bignumber.js";
 import {
   Bip44Path,
   JsonCompatibleArray,
   JsonCompatibleDictionary,
 } from "@namada/types";
+import { bech32m } from "bech32";
+import BigNumber from "bignumber.js";
+import { DateTime } from "luxon";
 
 const MICRO_FACTOR = 1000000; // 1,000,000
 
@@ -212,9 +212,12 @@ export const makeBip44PathArray = (
  * Pick object parameters
  */
 export function pick<T, K extends keyof T>(obj: T, ...keys: K[]): Pick<T, K> {
-  return keys.reduce((acc, val) => {
-    return (acc[val] = obj[val]), acc;
-  }, {} as Pick<T, K>);
+  return keys.reduce(
+    (acc, val) => {
+      return (acc[val] = obj[val]), acc;
+    },
+    {} as Pick<T, K>
+  );
 }
 
 /**
@@ -276,5 +279,15 @@ export const bech32mValidation = (
     return prefix === expectedPrefix;
   } catch (e) {
     return false;
+  }
+};
+
+export const matchMapFn = (
+  key: string,
+  objMap: Record<string, () => void>
+): void => {
+  if (objMap.hasOwnProperty(key)) {
+    objMap[key]();
+    return;
   }
 };

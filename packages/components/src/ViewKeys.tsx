@@ -1,10 +1,4 @@
-import {
-  ActionButton,
-  GapPatterns,
-  Input,
-  InputVariants,
-  Stack,
-} from "@namada/components";
+import { ActionButton, GapPatterns, Input, Stack } from "@namada/components";
 
 import clsx from "clsx";
 
@@ -29,7 +23,7 @@ export const ViewKeys = ({
         {transparentAccountAddress && (
           <Input
             label="Your Transparent Address"
-            variant={InputVariants.ReadOnlyCopy}
+            variant="ReadOnlyCopy"
             value={transparentAccountAddress}
             theme={"primary"}
           />
@@ -37,7 +31,7 @@ export const ViewKeys = ({
         {publicKeyAddress && (
           <Input
             label="Public Key"
-            variant={InputVariants.ReadOnlyCopy}
+            variant="ReadOnlyCopy"
             value={publicKeyAddress}
             theme={"primary"}
           />
@@ -45,7 +39,7 @@ export const ViewKeys = ({
         {shieldedAccountAddress && (
           <Input
             label="Your Shielded Address"
-            variant={InputVariants.ReadOnlyCopy}
+            variant="ReadOnlyCopy"
             readOnly={true}
             value={shieldedAccountAddress}
             theme={"secondary"}
