@@ -2,8 +2,6 @@ import {
   ActionButton,
   Heading,
   Icon,
-  IconName,
-  IconSize,
   SeedPhraseInstructions,
   Stack,
 } from "@namada/components";
@@ -25,18 +23,14 @@ const SeedPhraseWarning = ({
   return (
     <>
       <HeaderContainer>
-        <Heading uppercase level="h1" size="3xl">
+        <Heading className="uppercase text-3xl" level="h1">
           New Seed Phrase
         </Heading>
       </HeaderContainer>
       <Stack gap={3}>
         <WarningPanel>
           <IconContainer>
-            <Icon
-              iconName={IconName.Warning}
-              iconSize={IconSize.Full}
-              strokeColorOverride="transparent"
-            />
+            <Icon name="Warning" size="full" />
           </IconContainer>
         </WarningPanel>
         <Stack gap={8}>

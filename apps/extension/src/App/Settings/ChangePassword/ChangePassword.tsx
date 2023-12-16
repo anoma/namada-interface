@@ -7,7 +7,6 @@ import {
   GapPatterns,
   Heading,
   Input,
-  InputVariants,
   Stack,
 } from "@namada/components";
 import { ResetPasswordError } from "background/vault";
@@ -79,20 +78,18 @@ export const ChangePassword = ({
       onSubmit={handleSubmit}
       full
     >
-      <Heading uppercase size="2xl">
-        Change Password
-      </Heading>
+      <Heading className="uppercase text-2xl">Change Password</Heading>
       <Stack full gap={GapPatterns.FormFields}>
         <Input
           label="Current password"
-          variant={InputVariants.Password}
+          variant="Password"
           type="password"
           value={oldPassword}
           onChange={(e) => setOldPassword(e.target.value)}
         />
         <Input
           label="New Password"
-          variant={InputVariants.Password}
+          variant="Password"
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
           error={
@@ -103,7 +100,7 @@ export const ChangePassword = ({
         />
         <Input
           label="Confirm new password"
-          variant={InputVariants.Password}
+          variant="Password"
           value={confirmNewPassword}
           onChange={(e) => setConfirmNewPassword(e.target.value)}
           error={

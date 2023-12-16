@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-import { Icon, IconName } from "@namada/components";
+import { Icon } from "@namada/components";
 import { AccountType, Bip44Path, DerivedAccount } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
 
@@ -8,13 +8,13 @@ import { TopLevelRoute } from "App/types";
 import {
   AccountListingContainer,
   Address,
-  Buttons,
-  Details,
   Alias,
-  DerivationPath,
   Button,
-  ParentAlias,
+  Buttons,
+  DerivationPath,
   DerivationPathContainer,
+  Details,
+  ParentAlias,
 } from "./AccountListing.components";
 
 type Props = {
@@ -53,8 +53,9 @@ const formatDerivationPath = (
   type: AccountType
 ): string =>
   isChildAccount
-    ? `/${account}'/${type !== AccountType.Mnemonic ? `${change}/` : ""
-    }${index}`
+    ? `/${account}'/${
+        type !== AccountType.Mnemonic ? `${change}/` : ""
+      }${index}`
     : "";
 
 const AccountListing = ({ account, parentAlias }: Props): JSX.Element => {
@@ -82,7 +83,7 @@ const AccountListing = ({ account, parentAlias }: Props): JSX.Element => {
               navigate(TopLevelRoute.AddAccount);
             }}
           >
-            <Icon iconName={IconName.Plus} />
+            <Icon name="PlusCircle" />
           </Button>
         )}
         <Button
@@ -92,7 +93,7 @@ const AccountListing = ({ account, parentAlias }: Props): JSX.Element => {
           }}
           href="#"
         >
-          <Icon iconName={IconName.Copy} />
+          <Icon name="Copy" />
         </Button>
       </Buttons>
     </AccountListingContainer>

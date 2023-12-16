@@ -1,28 +1,27 @@
-import { useState, useCallback, useEffect } from "react";
 import BigNumber from "bignumber.js";
+import { useCallback, useEffect, useState } from "react";
 
 import {
-  Table,
-  TableLink,
-  TableConfigurations,
   Input,
-  InputVariants,
+  Table,
+  TableConfigurations,
+  TableLink,
 } from "@namada/components";
-import { formatPercentage, assertNever, truncateInMiddle } from "@namada/utils";
 import { useDebounce } from "@namada/hooks";
+import { assertNever, formatPercentage, truncateInMiddle } from "@namada/utils";
 
 import {
   StakingAndGovernanceState,
   Validator,
 } from "slices/StakingAndGovernance";
+import { fetchTotalBonds } from "slices/StakingAndGovernance/actions";
 import { useAppDispatch, useAppSelector } from "store";
+import { ValidatorsCallbacks } from "../StakingOverview";
 import {
   AllValidatorsSearchBar,
   AllValidatorsSubheadingContainer,
   Paginator,
 } from "./AllValidatorsTable.components";
-import { ValidatorsCallbacks } from "../StakingOverview";
-import { fetchTotalBonds } from "slices/StakingAndGovernance/actions";
 
 const ITEMS_PER_PAGE = 25;
 
@@ -102,15 +101,15 @@ const sortValidators = (sort: Sort, validators: Validator[]): Validator[] => {
     sort.column === AllValidatorsColumn.Validator
       ? (a, b) => a.name.localeCompare(b.name)
       : sort.column === AllValidatorsColumn.VotingPower
-      ? (a, b) =>
-          !a.votingPower || !b.votingPower
-            ? 0
-            : a.votingPower.isLessThan(b.votingPower)
-            ? -1
-            : 1
-      : sort.column === AllValidatorsColumn.Commission
-      ? (a, b) => (a.commission.isLessThan(b.commission) ? -1 : 1)
-      : assertNever(sort.column);
+        ? (a, b) =>
+            !a.votingPower || !b.votingPower
+              ? 0
+              : a.votingPower.isLessThan(b.votingPower)
+                ? -1
+                : 1
+        : sort.column === AllValidatorsColumn.Commission
+          ? (a, b) => (a.commission.isLessThan(b.commission) ? -1 : 1)
+          : assertNever(sort.column);
 
   const cloned = validators.slice();
   cloned.sort((a, b) => direction * ascendingSortFn(a, b));
@@ -225,7 +224,6 @@ export const AllValidatorsTable: React.FC<{
             <Input
               label={""}
               placeholder="Search validators"
-              variant={InputVariants.Text}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />

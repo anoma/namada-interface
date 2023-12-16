@@ -7,7 +7,6 @@ import { ActionButton, Alert, Stack } from "@namada/components";
 import { TxType, TxTypeLabel } from "@namada/shared";
 import { Message, Tokens, TxMsgValue, TxProps } from "@namada/types";
 import { LedgerError } from "@zondax/ledger-namada";
-
 import { ApprovalDetails, Status } from "Approvals/Approvals";
 import {
   ButtonContainer,
@@ -263,9 +262,12 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
         </Alert>
       )}
       {status !== Status.Pending && status !== Status.Completed && (
-        <ButtonContainer>
-          <ActionButton onClick={handleSubmitTx}>Submit</ActionButton>
-        </ButtonContainer>
+        <>
+          <p>Make sure your Ledger is unlocked, and click &quot;Submit&quot;</p>
+          <ButtonContainer>
+            <ActionButton onClick={handleSubmitTx}>Submit</ActionButton>
+          </ButtonContainer>
+        </>
       )}
     </Stack>
   );

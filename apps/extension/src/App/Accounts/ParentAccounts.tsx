@@ -48,9 +48,7 @@ export const ParentAccounts = (): JSX.Element => {
 
   return (
     <Stack gap={GapPatterns.TitleContent}>
-      <Heading size="2xl" uppercase>
-        Keys Management
-      </Heading>
+      <Heading className="text-2xl uppercase">Keys Management</Heading>
       <Stack gap={4}>
         <SettingsHeader>
           <Text>Set default keys</Text>

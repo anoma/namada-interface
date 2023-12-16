@@ -96,7 +96,7 @@ const SeedPhraseConfirmation = (
   return (
     <>
       <HeaderContainer>
-        <Heading uppercase level="h1" size="3xl">
+        <Heading className="uppercase text-3xl" level="h1">
           Verify your seed phrase
         </Heading>
         <Subtitle>fill out the words according to their numbers</Subtitle>

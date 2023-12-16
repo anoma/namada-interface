@@ -27,7 +27,7 @@ export const LedgerConfirmation: React.FC = () => {
   return (
     <>
       <HeaderContainer>
-        <Heading uppercase level="h1" size="3xl">
+        <Heading className="uppercase text-3xl" level="h1">
           Namada Keys Imported
         </Heading>
         <Text>Here are the accounts generated from your keys</Text>

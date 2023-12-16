@@ -1,4 +1,7 @@
-import { Icon, IconName, Stack } from "@namada/components";
+import { Icon, Stack } from "@namada/components";
+import routes from "App/routes";
+import { useVaultContext } from "context";
+import { useNavigate } from "react-router-dom";
 import {
   CloseNavigationIcon,
   Footer,
@@ -8,9 +11,6 @@ import {
   NavigationPanel,
   NavigationPanelOverlay,
 } from "./AppHeaderNavigation.components";
-import { useNavigate } from "react-router-dom";
-import routes from "App/routes";
-import { useVaultContext } from "context";
 
 type AppHeaderNavigationProps = {
   open: boolean;
@@ -60,20 +60,14 @@ export const AppHeaderNavigation = ({
                 target="_blank"
                 rel="noreferrer nofollow"
               >
-                <Icon
-                  fillColorOverride="currentColor"
-                  iconName={IconName.Discord}
-                />
+                <Icon fill name="Discord" />
               </IconContainer>
               <IconContainer
                 href="https://twitter.com/namada"
                 target="_blank"
                 rel="noreferrer nofollow"
               >
-                <Icon
-                  fillColorOverride="currentColor"
-                  iconName={IconName.TwitterX}
-                />
+                <Icon fill name="TwitterX" />
               </IconContainer>
             </Stack>
             <IconContainer
@@ -81,10 +75,7 @@ export const AppHeaderNavigation = ({
               target="_blank"
               rel="noreferrer nofollow"
             >
-              <Icon
-                fillColorOverride="currentColor"
-                iconName={IconName.QuestionMark}
-              />
+              <Icon fill name="QuestionMark" />
             </IconContainer>
           </Footer>
         </NavigationContainer>

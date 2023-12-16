@@ -51,7 +51,7 @@ const SeedPhrase: React.FC<Props> = (props) => {
     <>
       {/* header */}
       <HeaderContainer>
-        <Heading uppercase level="h1" size="3xl">
+        <Heading className="text-3xl uppercase" level="h1">
           New Seed Phrase
         </Heading>
       </HeaderContainer>

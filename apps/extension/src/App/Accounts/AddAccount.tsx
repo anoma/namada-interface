@@ -1,21 +1,19 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import {
-  Button,
-  ButtonVariant,
-  Input,
-  InputVariants,
-  Toggle,
-} from "@namada/components";
-import { AccountType, DerivedAccount } from "@namada/types";
 import { chains, defaultChainId } from "@namada/chains";
+import { ActionButton, Input, Toggle } from "@namada/components";
+import { LedgerError } from "@namada/ledger-namada";
+import { AccountType, DerivedAccount } from "@namada/types";
 import { makeBip44Path } from "@namada/utils";
-import { LedgerError } from "@zondax/ledger-namada";
 
+import { TopLevelRoute } from "App/types";
+import { AddLedgerAccountMsg, DeriveAccountMsg } from "background/keyring";
+import { Ledger } from "background/ledger";
 import { ExtensionRequester } from "extension";
+import { useAuth } from "hooks";
+import { isKeyChainLocked, redirectToLogin } from "hooks/useAuth";
 import { Ports } from "router";
-import { DeriveAccountMsg } from "background/keyring";
 import {
   AddAccountContainer,
   AddAccountForm,
@@ -31,11 +29,6 @@ import {
   Label,
   ShieldedToggleContainer,
 } from "./AddAccount.components";
-import { TopLevelRoute } from "App/types";
-import { useAuth } from "hooks";
-import { Ledger } from "background/ledger";
-import { AddLedgerAccountMsg } from "background/keyring";
-import { isKeyChainLocked, redirectToLogin } from "hooks/useAuth";
 
 type Props = {
   accounts: DerivedAccount[];
@@ -251,9 +244,8 @@ const AddAccount: React.FC<Props> = ({
         throw new Error(errorMessage);
       }
 
-      const { address, publicKey } = await ledger.getAddressAndPublicKey(
-        bip44PathString
-      );
+      const { address, publicKey } =
+        await ledger.getAddressAndPublicKey(bip44PathString);
 
       // TODO: provide a password for ledger
       return await requester.sendMessage(
@@ -346,7 +338,6 @@ const AddAccount: React.FC<Props> = ({
           >
             <InputContainer>
               <Input
-                variant={InputVariants.Text}
                 label="Alias"
                 autoFocus={true}
                 value={alias}
@@ -413,21 +404,17 @@ const AddAccount: React.FC<Props> = ({
           )}
           {formStatus === Status.Failed && <FormError>{formError}</FormError>}
           <ButtonsContainer>
-            <Button
-              variant={ButtonVariant.Contained}
-              onClick={() => navigate(TopLevelRoute.Accounts)}
-            >
+            <ActionButton onClick={() => navigate(TopLevelRoute.Accounts)}>
               Back
-            </Button>
-            <Button
-              variant={ButtonVariant.Contained}
+            </ActionButton>
+            <ActionButton
               disabled={
                 !isFormValid || formStatus === Status.Pending || alias === ""
               }
               onClick={handleAccountAdd}
             >
               Add
-            </Button>
+            </ActionButton>
           </ButtonsContainer>
         </>
       )}

@@ -1,23 +1,23 @@
-import { useEffect, useContext, useCallback } from "react";
 import { AnimatePresence } from "framer-motion";
+import { useCallback, useContext, useEffect } from "react";
 
-import { Icon, IconName } from "@namada/components";
+import { Icon } from "@namada/components";
 
-import { useAppSelector, useAppDispatch } from "store";
-import { ThemeContext } from "styled-components";
-import { actions, ToastTimeoutType } from "slices/notifications";
 import type {
-  ToastId,
   Toast as NotificationToast,
   NotificationsState,
+  ToastId,
 } from "slices/notifications";
+import { ToastTimeoutType, actions } from "slices/notifications";
+import { useAppDispatch, useAppSelector } from "store";
+import { ThemeContext } from "styled-components";
 import {
   CloseToastButton,
-  Wrapper,
-  Content,
   Container,
-  Title,
+  Content,
   Message,
+  Title,
+  Wrapper,
 } from "./toast.components";
 
 export const Toasts = (): JSX.Element => {
@@ -86,7 +86,7 @@ export const Toast = ({
       <CloseToastButton onClick={() => onClose(id)}>
         <Icon
           strokeColorOverride={themeContext.colors.utility3.black}
-          iconName={IconName.ChevronRight}
+          name="ChevronRight"
         />
       </CloseToastButton>
     </Wrapper>

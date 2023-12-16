@@ -1,12 +1,6 @@
-import {
-  Icon,
-  IconName,
-  Image,
-  ImageName,
-  ProgressIndicator,
-} from "@namada/components";
-import { LogoContainer, ReturnIcon } from "./ContainerHeader.components";
+import { Icon, Image, ProgressIndicator } from "@namada/components";
 import { useNavigate } from "react-router-dom";
+import { LogoContainer, ReturnIcon } from "./ContainerHeader.components";
 
 type ContainerHeaderProps = {
   totalSteps: number;
@@ -22,7 +16,7 @@ export const ContainerHeader = ({
     <>
       {totalSteps === 0 && (
         <LogoContainer>
-          <Image imageName={ImageName.Logo} />
+          <Image imageName="Logo" />
         </LogoContainer>
       )}
       {totalSteps > 0 && (
@@ -30,11 +24,7 @@ export const ContainerHeader = ({
           {/* Don't show return button in the last step */}
           {currentStep < totalSteps && (
             <ReturnIcon onClick={() => navigate(-1)}>
-              <Icon
-                strokeColorOverride="currentColor"
-                fillColorOverride="currentColor"
-                iconName={IconName.ArrowLeft}
-              />
+              <Icon fill name="ArrowLeft" />
             </ReturnIcon>
           )}
           <ProgressIndicator

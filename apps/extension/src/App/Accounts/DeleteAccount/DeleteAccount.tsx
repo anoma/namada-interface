@@ -1,12 +1,12 @@
 import { useCallback, useContext, useEffect, useState } from "react";
 
 import { AccountType, DerivedAccount } from "@namada/types";
+import routes from "App/routes";
 import { CheckPasswordMsg } from "background/vault";
 import { AccountContext } from "context";
 import { useRequester } from "hooks/useRequester";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Ports } from "router";
-import routes from "App/routes";
 
 import {
   ActionButton,
@@ -14,7 +14,6 @@ import {
   GapPatterns,
   Heading,
   Input,
-  InputVariants,
   Loading,
   Stack,
   Text,
@@ -95,9 +94,7 @@ export const DeleteAccount = (): JSX.Element => {
       >
         <Stack gap={GapPatterns.TitleContent} full>
           <Stack as="header" gap={4}>
-            <Heading size="2xl" uppercase>
-              Delete Keys
-            </Heading>
+            <Heading className="text-2xl uppercase">Delete Keys</Heading>
             <Alert type="warning" title="Alert!">
               Make sure that you&apos;ve backed up your seed phrase and private
               key.
@@ -110,7 +107,7 @@ export const DeleteAccount = (): JSX.Element => {
           <Input
             autoFocus
             label="Password"
-            variant={InputVariants.Password}
+            variant="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             error={errorMessage}

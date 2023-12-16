@@ -1,4 +1,4 @@
-import { ContentMasker, Input, InputVariants } from "@namada/components";
+import { ContentMasker, Input } from "@namada/components";
 import {
   SeedList,
   SeedListItem,
@@ -29,7 +29,7 @@ export const SeedPhraseList = ({
             <WordInput>
               <Input
                 label=""
-                variant={InputVariants.PasswordOnBlur}
+                variant="PasswordOnBlur"
                 hideIcon={true}
                 onChange={(e) => onChange(idx, e.target.value)}
                 onPaste={(e) => onPaste && onPaste(idx, e)}

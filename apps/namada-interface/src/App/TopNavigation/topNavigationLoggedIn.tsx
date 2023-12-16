@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-import { Icon, IconName, Toggle } from "@namada/components";
+import { Icon, Toggle } from "@namada/components";
 import { ColorMode } from "@namada/utils";
 
 import { TopLevelRoute } from "App/types";
@@ -29,7 +29,7 @@ const TopNavigationLoggedIn = (props: Props): JSX.Element => {
               navigate(`${TopLevelRoute.SettingsWalletSettings}`);
             }}
           >
-            <Icon iconName={IconName.Settings} />
+            <Icon name="Settings" />
           </SettingsButton>
           <ColorModeContainer>
             <Toggle

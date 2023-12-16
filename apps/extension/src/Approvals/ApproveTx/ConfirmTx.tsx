@@ -1,16 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import {
-  ActionButton,
-  Alert,
-  Input,
-  InputVariants,
-  Stack,
-} from "@namada/components";
+import { ActionButton, Alert, Input, Stack } from "@namada/components";
 import { SupportedTx, TxType, TxTypeLabel } from "@namada/shared";
 import { shortenAddress } from "@namada/utils";
-
 import { Address } from "App/Accounts/AccountListing.components";
 import { ApprovalDetails, Status } from "Approvals/Approvals";
 import {
@@ -111,7 +104,7 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
             Decrypt keys for <Address>{shortenAddress(signerAddress)}</Address>
           </Alert>
           <Input
-            variant={InputVariants.Password}
+            variant="Password"
             label={"Password"}
             onChange={(e) => setPassword(e.target.value)}
           />

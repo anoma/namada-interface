@@ -1,13 +1,7 @@
-import groupBy from "lodash.groupby";
-import {
-  Heading,
-  InputVariants,
-  LinkButton,
-  Stack,
-  Text,
-} from "@namada/components";
+import { Heading, LinkButton, Stack, Text } from "@namada/components";
 import gsap, { Expo, Quint } from "gsap";
 import { useAtom } from "jotai";
+import groupBy from "lodash.groupby";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { AnotherWays } from "./AnotherWays";
 import {
@@ -258,13 +252,13 @@ export const AirdropConfirmation: React.FC = () => {
               <AirdropConfirmationInput
                 className="fade-in"
                 label="Genesis public key:"
-                variant={InputVariants.ReadOnlyCopy}
+                variant="ReadOnlyCopy"
                 value={confirmation.publicKey}
               />
               <AirdropConfirmationInput
                 className="fade-in"
                 label="Genesis transparent account:"
-                variant={InputVariants.ReadOnlyCopy}
+                variant="ReadOnlyCopy"
                 value={confirmation.address}
               />
             </Stack>

@@ -1,10 +1,4 @@
-import {
-  Alert,
-  Button,
-  ButtonVariant,
-  Input,
-  InputVariants,
-} from "@namada/components";
+import { ActionButton, Alert, Input } from "@namada/components";
 import { sanitize } from "dompurify";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 
@@ -162,7 +156,6 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
       {settingsError && <Alert type="error">{settingsError}</Alert>}
       <InputContainer>
         <Input
-          variant={InputVariants.Text}
           label="Target Address"
           value={targetAddress}
           onFocus={handleFocus}
@@ -172,7 +165,6 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
 
       <InputContainer>
         <Input
-          variant={InputVariants.Text}
           label="Token Address (defaults to NAM)"
           value={tokenAddress}
           onFocus={handleFocus}
@@ -183,7 +175,7 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
       <InputContainer>
         <Input
           placeholder={`From 1 to ${limit}`}
-          variant={InputVariants.Number}
+          type="number"
           label="Amount"
           value={amount}
           min={0}
@@ -222,7 +214,7 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
       {status === Status.Error && <Alert type="error">{error}</Alert>}
 
       <ButtonContainer>
-        <Button
+        <ActionButton
           style={{
             backgroundColor: theme.colors.secondary.main,
             fontSize: "1.25rem",
@@ -230,12 +222,11 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
             padding: "0.6em 2.5em",
             margin: 0,
           }}
-          variant={ButtonVariant.Contained}
           onClick={handleSubmit}
           disabled={!isFormValid}
         >
           Get Testnet Tokens
-        </Button>
+        </ActionButton>
       </ButtonContainer>
     </FaucetFormContainer>
   );

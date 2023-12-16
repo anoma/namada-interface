@@ -1,20 +1,19 @@
-import { useNavigate } from "react-router-dom";
 import {
   Button,
   ButtonVariant,
   Heading,
   Icon,
-  IconName,
   NavigationContainer,
 } from "@namada/components";
+import { useNavigate } from "react-router-dom";
 
-import { TopLevelRoute } from "./types";
 import {
+  ButtonsContainer,
   NotFoundContainer,
   NotFoundContent,
-  ButtonsContainer,
 } from "./NotFound.components";
 import { BackButton } from "./Token/TokenSend/TokenSendForm.components";
+import { TopLevelRoute } from "./types";
 
 const NotFound = (): JSX.Element => {
   const navigate = useNavigate();
@@ -34,7 +33,7 @@ const NotFound = (): JSX.Element => {
       </NotFoundContent>
       <ButtonsContainer>
         <BackButton onClick={() => navigate(TopLevelRoute.Wallet)}>
-          <Icon iconName={IconName.ChevronLeft} />
+          <Icon name="ChevronLeft" />
         </BackButton>
       </ButtonsContainer>
     </NotFoundContainer>

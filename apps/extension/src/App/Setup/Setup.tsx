@@ -1,4 +1,4 @@
-import { ActionButton, Image, ImageName } from "@namada/components";
+import { ActionButton, Image } from "@namada/components";
 import React from "react";
 import browser from "webextension-polyfill";
 import { SetupContainer } from "./Setup.components";
@@ -13,7 +13,7 @@ const Setup: React.FC = () => {
           maxWidth: "50%",
           margin: "0 auto",
         }}
-        imageName={ImageName.LogoMinimal}
+        imageName="LogoMinimal"
       />
       <ActionButton
         data-testid="setup-init-button"

@@ -6,7 +6,6 @@ import { useAppDispatch, useAppSelector } from "store";
 import {
   Heading,
   Icon,
-  IconName,
   NavigationContainer,
   Option,
   Select,
@@ -52,7 +51,7 @@ export const SettingsWalletSettings = (): JSX.Element => {
               <div>
                 Fiat Currency
                 <Tooltip
-                  anchor={<Icon iconName={IconName.Info} />}
+                  anchor={<Icon name="Info" />}
                   tooltipText="Fiat currency in which balances may be displayed."
                 />
               </div>
@@ -68,7 +67,7 @@ export const SettingsWalletSettings = (): JSX.Element => {
             navigate(-1);
           }}
         >
-          <Icon iconName={IconName.ChevronLeft} />
+          <Icon name="ChevronLeft" />
         </BackButton>
       </ButtonsContainer>
     </SettingsWalletSettingsContainer>

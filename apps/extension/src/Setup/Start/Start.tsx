@@ -1,13 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-import {
-  ActionButton,
-  Heading,
-  Image,
-  ImageName,
-  Stack,
-} from "@namada/components";
+import { ActionButton, Heading, Image, Stack } from "@namada/components";
 import { formatRouterPath } from "@namada/utils";
 
 import {
@@ -25,11 +19,11 @@ const Start: React.FC = () => {
   return (
     <>
       <LogoContainer>
-        <Image imageName={ImageName.LogoMinimal} />
+        <Image imageName="LogoMinimal" />
       </LogoContainer>
 
       <HeaderContainer>
-        <Heading uppercase size="xl" level="h1">
+        <Heading className="uppercase text-xl" level="h1">
           Your Keys to Multichain Privacy
         </Heading>
       </HeaderContainer>

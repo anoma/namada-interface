@@ -1,11 +1,4 @@
-import {
-  ActionButton,
-  Heading,
-  Input,
-  InputVariants,
-  Stack,
-  Text,
-} from "@namada/components";
+import { ActionButton, Heading, Input, Stack, Text } from "@namada/components";
 import { DerivedAccount, WindowWithNamada } from "@namada/types";
 import { AirdropResponse, ToastMessage, toast } from "App/utils";
 import { useAtom } from "jotai";
@@ -271,7 +264,7 @@ export const ClaimConfirmation: React.FC = () => {
                   <NonceContainer title={(claimState as TSState).nonce}>
                     <Input
                       theme="primary"
-                      variant={InputVariants.ReadOnlyCopy}
+                      variant="ReadOnlyCopy"
                       value={(claimState as TSState).nonce}
                       label="Use this nonce in the CLI tool (Copy and paste this nonce)"
                       onChange={() => {}}
@@ -280,7 +273,6 @@ export const ClaimConfirmation: React.FC = () => {
                   <PasteSignatureContainer title={tsSignature}>
                     <Input
                       theme="primary"
-                      variant={InputVariants.Text}
                       value={tsSignature}
                       onChange={(e) => setTsSignature(e.target.value)}
                       label="Paste the signature generated in the CLI"
@@ -303,7 +295,6 @@ export const ClaimConfirmation: React.FC = () => {
                 <ClaimInputWrapper title={airdropPubKey}>
                   <Input
                     theme={airdropPubKeyValid ? "secondary" : "primary"}
-                    variant={InputVariants.Text}
                     value={airdropPubKey}
                     error={
                       airdropPubKey.length > 0 && !airdropPubKeyValid
@@ -338,7 +329,6 @@ export const ClaimConfirmation: React.FC = () => {
                 </ClaimInputWrapper>
                 <ClaimInputWrapper title={airdropAddress}>
                   <Input
-                    variant={InputVariants.Text}
                     value={airdropAddress}
                     theme={airdropAddressValid ? "secondary" : "primary"}
                     label="Namada transparent address"

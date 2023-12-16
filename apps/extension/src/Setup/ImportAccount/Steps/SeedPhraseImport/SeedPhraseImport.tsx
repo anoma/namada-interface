@@ -5,18 +5,17 @@ import {
   Alert,
   Heading,
   Input,
-  InputVariants,
   RadioGroup,
   Stack,
 } from "@namada/components";
 import { assertNever } from "@namada/utils";
 import { SeedPhraseList } from "Setup/Common";
 import { HeaderContainer } from "Setup/Setup.components";
-import { ValidateMnemonicMsg, AccountSecret } from "background/keyring";
-import { Ports } from "router";
-import { Instruction, InstructionList } from "./SeedPhraseImport.components";
+import { AccountSecret, ValidateMnemonicMsg } from "background/keyring";
 import { useRequester } from "hooks/useRequester";
+import { Ports } from "router";
 import { filterPrivateKeyPrefix, validatePrivateKey } from "utils";
+import { Instruction, InstructionList } from "./SeedPhraseImport.components";
 
 type Props = {
   onConfirm: (accountSecret: AccountSecret) => void;
@@ -143,7 +142,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
   return (
     <>
       <HeaderContainer>
-        <Heading uppercase level="h1" size="3xl">
+        <Heading className="uppercase text-3xl" level="h1">
           Import Account
         </Heading>
       </HeaderContainer>
@@ -196,7 +195,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
           {mnemonicType === MnemonicTypes.PrivateKey && (
             <Input
               label="Private key"
-              variant={InputVariants.PasswordOnBlur}
+              variant="PasswordOnBlur"
               value={privateKey}
               placeholder="Enter your private key"
               onChange={(e) => setPrivateKey(e.target.value)}

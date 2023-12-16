@@ -5,9 +5,7 @@ import {
   GapPatterns,
   Heading,
   Image,
-  ImageName,
   Input,
-  InputVariants,
   Stack,
 } from "@namada/components";
 import { LogoContainer } from "./Login.components";
@@ -64,15 +62,15 @@ export const Login = ({ onLogin }: LoginProps): JSX.Element => {
             maxWidth: "60%",
             margin: "0 auto",
           }}
-          imageName={ImageName.LogoMinimal}
+          imageName="LogoMinimal"
         />
       </LogoContainer>
       <Stack gap={2} full>
-        <Heading size="xl">Enter your password to unlock</Heading>
+        <Heading className="text-xl">Enter your password to unlock</Heading>
         <Input
           autoFocus={true}
           placeholder="Password"
-          variant={InputVariants.Password}
+          variant="Password"
           value={password}
           disabled={status === Status.Pending}
           onChange={(e) => setPassword(e.target.value)}

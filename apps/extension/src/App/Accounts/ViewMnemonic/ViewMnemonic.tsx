@@ -4,10 +4,8 @@ import {
   GapPatterns,
   Heading,
   Input,
-  InputVariants,
   SeedPhraseInstructions,
   Stack,
-  Textarea,
 } from "@namada/components";
 import { DerivedAccount } from "@namada/types";
 import routes from "App/routes";
@@ -75,9 +73,7 @@ export const ViewMnemonic = (): JSX.Element => {
       gap={GapPatterns.TitleContent}
       onSubmit={handleSubmit}
     >
-      <Heading size="2xl" uppercase>
-        View Seed Phrase
-      </Heading>
+      <Heading className="text-2xl uppercase">View Seed Phrase</Heading>
 
       {!passwordChecked && (
         <>
@@ -87,7 +83,7 @@ export const ViewMnemonic = (): JSX.Element => {
             </Alert>
             <Input
               autoFocus
-              variant={InputVariants.Password}
+              variant="Password"
               label="Password"
               placeholder="Password"
               error={passwordError}
@@ -105,7 +101,8 @@ export const ViewMnemonic = (): JSX.Element => {
             <InstructionsContainer>
               <SeedPhraseInstructions />
             </InstructionsContainer>
-            <Textarea
+            <Input
+              variant="Textarea"
               theme="secondary"
               readOnly={true}
               value={mnemonic}

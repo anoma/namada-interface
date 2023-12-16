@@ -6,14 +6,13 @@ import {
   Alert,
   Heading,
   Image,
-  ImageName,
   Stack,
   Text,
 } from "@namada/components";
 import { LedgerError } from "@zondax/ledger-namada";
 import { formatRouterPath } from "@namada/utils";
-import { Ledger as LedgerApp } from "background/ledger";
 import { LedgerConnectRoute, TopLevelRoute } from "Setup/types";
+import { Ledger as LedgerApp } from "background/ledger";
 import {
   ButtonContainer,
   LedgerIcon,
@@ -94,7 +93,7 @@ export const LedgerConnect: React.FC = () => {
   return (
     <>
       <Stack gap={12}>
-        <Heading uppercase level="h1" size="3xl">
+        <Heading className="uppercase text-3xl" level="h1">
           Connect Your Ledger HW
         </Heading>
 
@@ -109,13 +108,10 @@ export const LedgerConnect: React.FC = () => {
           )}
           <LedgerListItem active={!ledger} complete={!!ledger}>
             <LedgerIcon>
-              <Image
-                styleOverrides={{ width: "100%" }}
-                imageName={ImageName.Ledger}
-              />
+              <Image styleOverrides={{ width: "100%" }} imageName="Ledger" />
             </LedgerIcon>
             <LedgerItemContainer>
-              <Heading level="h2" size="sm" themeColor="primary">
+              <Heading level="h2" className="text-sm text-yellow">
                 Step 1
               </Heading>
               <Text>Connect and unlock your ledger Hardware Wallet</Text>
@@ -135,11 +131,11 @@ export const LedgerConnect: React.FC = () => {
             <LedgerIcon>
               <Image
                 styleOverrides={{ width: "100%" }}
-                imageName={ImageName.LogoMinimal}
+                imageName="LogoMinimal"
               />
             </LedgerIcon>
             <LedgerItemContainer>
-              <Heading level="h2" size="sm" themeColor="primary">
+              <Heading className="text-yellow text-sm" level="h2">
                 Step 2
               </Heading>
               <Text>Open the Namada App on your ledger device</Text>

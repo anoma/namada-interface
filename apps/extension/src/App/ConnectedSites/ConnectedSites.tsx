@@ -1,21 +1,21 @@
-import browser from "webextension-polyfill";
-import { useState, useEffect, useCallback } from "react";
 import { ExtensionKVStore } from "@namada/storage";
+import { useCallback, useEffect, useState } from "react";
+import browser from "webextension-polyfill";
 
+import { Alert, Heading, Stack } from "@namada/components";
 import {
-  ConnectedSitesList,
-  ConnectedSiteListItemContainer,
-  ConnectedSiteDetails,
-  ConnectedSiteSideButton,
-} from "./ConnectedSites.components";
-import { Ports, KVPrefix } from "router";
-import {
-  ApprovedOriginsStore,
   APPROVED_ORIGINS_KEY,
+  ApprovedOriginsStore,
   RevokeConnectionMsg,
 } from "background/approvals";
 import { useRequester } from "hooks/useRequester";
-import { Alert, Heading, Stack } from "@namada/components";
+import { KVPrefix, Ports } from "router";
+import {
+  ConnectedSiteDetails,
+  ConnectedSiteListItemContainer,
+  ConnectedSiteSideButton,
+  ConnectedSitesList,
+} from "./ConnectedSites.components";
 
 const approvedOriginsStore = new ExtensionKVStore<ApprovedOriginsStore>(
   KVPrefix.LocalStorage,
@@ -49,9 +49,7 @@ const ConnectedSites: React.FC = ({}) => {
 
   return (
     <Stack gap={6}>
-      <Heading size="2xl" uppercase>
-        Connected Sites
-      </Heading>
+      <Heading className="text-2xl uppercase">Connected Sites</Heading>
       {connectedSites && connectedSites.length === 0 && (
         <Alert type="info">No connected sites found.</Alert>
       )}

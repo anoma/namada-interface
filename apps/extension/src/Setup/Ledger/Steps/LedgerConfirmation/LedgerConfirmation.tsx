@@ -1,12 +1,10 @@
-import React from "react";
-
 import { ActionButton, Heading, Text, ViewKeys } from "@namada/components";
+import { DerivedAccount } from "@namada/types";
 import { formatRouterPath } from "@namada/utils";
 import { HeaderContainer } from "Setup/Setup.components";
 import { LedgerConnectRoute, TopLevelRoute } from "Setup/types";
 import { useLocation, useNavigate } from "react-router-dom";
 import { closeCurrentTab } from "utils";
-import { DerivedAccount } from "@namada/types";
 
 export const LedgerConfirmation = (): JSX.Element => {
   const navigate = useNavigate();
@@ -23,7 +21,7 @@ export const LedgerConfirmation = (): JSX.Element => {
   return (
     <>
       <HeaderContainer>
-        <Heading uppercase level="h1" size="3xl">
+        <Heading className="uppercase text-3xl" level="h1">
           Namada Keys Imported
         </Heading>
         <Text>Here are the accounts generated from your keys</Text>

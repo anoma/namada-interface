@@ -78,7 +78,7 @@ export const Setup: React.FC = () => {
   return (
     <ThemeProvider theme={theme}>
       <Container
-        size="md"
+        size="base"
         header={
           <ContainerHeader currentStep={currentStep} totalSteps={totalSteps} />
         }

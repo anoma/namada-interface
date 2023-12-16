@@ -1,11 +1,4 @@
-import {
-  ActionButton,
-  Heading,
-  Input,
-  InputVariants,
-  Stack,
-  Text,
-} from "@namada/components";
+import { ActionButton, Heading, Input, Stack, Text } from "@namada/components";
 import { useAtom } from "jotai";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -20,17 +13,17 @@ import {
   TrustedSetupListItem,
 } from "./App.components";
 import { BreadcrumbStatus } from "./Common/BreadcrumbStatus";
+import { StepIndicator } from "./Common/StepIndicator";
 import { SidebarPage } from "./Layouts/SidebarPage";
+import { checkTrustedSetupClaim } from "./claimService";
 import { claimAtom, confirmationAtom } from "./state";
+import { TSClaim } from "./types";
 import {
   AirdropResponse,
   ToastMessage,
   navigatePostCheck,
   toast,
 } from "./utils";
-import { StepIndicator } from "./Common/StepIndicator";
-import { TSClaim } from "./types";
-import { checkTrustedSetupClaim } from "./claimService";
 
 export const TrustedSetup: React.FC = () => {
   const navigate = useNavigate();
@@ -129,7 +122,6 @@ export const TrustedSetup: React.FC = () => {
               <CheckEligibilityContainer>
                 <TrustedSetupInputWrapper title={publicKey}>
                   <Input
-                    variant={InputVariants.Text}
                     value={publicKey}
                     theme="primary"
                     placeholder="Enter your public key"

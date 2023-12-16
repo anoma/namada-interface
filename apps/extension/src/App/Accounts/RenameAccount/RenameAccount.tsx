@@ -1,15 +1,15 @@
 import {
-  Input,
+  ActionButton,
   GapPatterns,
   Heading,
+  Input,
   Stack,
-  ActionButton,
 } from "@namada/components";
+import { DerivedAccount } from "@namada/types";
 import routes from "App/routes";
+import { useAccountContext } from "context";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { DerivedAccount } from "@namada/types";
-import { useAccountContext } from "context";
 
 type RenameAccountParamsType = {
   accountId: string;
@@ -58,9 +58,7 @@ export const RenameAccount = (): JSX.Element => {
       onSubmit={handleSubmit}
       full
     >
-      <Heading size="2xl" uppercase>
-        Rename Key
-      </Heading>
+      <Heading className="text-2xl uppercase">Rename Key</Heading>
 
       {account && (
         <Stack full gap={GapPatterns.FormFields}>

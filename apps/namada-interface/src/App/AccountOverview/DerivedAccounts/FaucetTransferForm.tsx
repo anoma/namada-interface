@@ -5,23 +5,23 @@ import {
   ButtonVariant,
   Heading,
   Input,
-  InputVariants,
   Select,
 } from "@namada/components";
 import { Account, Symbols, TokenType, Tokens } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
 
+import { defaultChainId } from "@namada/chains";
+import { submitTransferTransaction } from "App/Token/TokenSend/TokenSendForm";
+import { InputContainer } from "App/Token/TokenSend/TokenSendForm.components";
+import BigNumber from "bignumber.js";
 import {
   FaucetButtonsContainer,
   FaucetTransferContainer,
   FaucetTransferContent,
 } from "./FaucetTransferForm.components";
-import { InputContainer } from "App/Token/TokenSend/TokenSendForm.components";
-import { submitTransferTransaction } from "App/Token/TokenSend/TokenSendForm";
-import BigNumber from "bignumber.js";
-import { defaultChainId } from "@namada/chains";
 
-const { NAMADA_INTERFACE_NAMADA_FAUCET_LIMIT: faucetLimit = "1000" } = process.env;
+const { NAMADA_INTERFACE_NAMADA_FAUCET_LIMIT: faucetLimit = "1000" } =
+  process.env;
 
 type Props = {
   account: Account;
@@ -91,7 +91,7 @@ export const FaucetTransferForm = ({
         </InputContainer>
         <InputContainer>
           <Input
-            variant={InputVariants.Number}
+            type="number"
             label={"Amount"}
             value={amount.toString()}
             onChange={(e) => {

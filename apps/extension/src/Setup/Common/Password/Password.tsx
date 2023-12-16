@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import zxcvbn from "zxcvbn";
 
-import { Input, InputVariants } from "@namada/components";
+import { Input } from "@namada/components";
 import { InputFeedback } from "./Password.components";
 
 // the data of this form
@@ -73,7 +73,7 @@ const Password = ({
       <Input
         data-testid={dataTestId}
         label="Create Extension Password"
-        variant={InputVariants.Password}
+        variant="Password"
         value={password}
         error={password.length > 0 ? displayError : ""}
         placeholder="At least 8 characters"
@@ -90,7 +90,7 @@ const Password = ({
         data-testid={dataTestId}
         label="Confirm Extension Password"
         placeholder="At least 8 characters"
-        variant={InputVariants.Password}
+        variant="Password"
         value={passwordMatch}
         error={passwordMatchFeedback}
         onChange={(event) => {

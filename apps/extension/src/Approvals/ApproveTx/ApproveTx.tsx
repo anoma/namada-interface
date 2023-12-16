@@ -6,7 +6,6 @@ import { useSanitizedParams } from "@namada/hooks";
 import { TxType, TxTypeLabel } from "@namada/shared";
 import { AccountType, Tokens } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
-
 import { Address } from "App/Accounts/AccountListing.components";
 import { ApprovalDetails } from "Approvals/Approvals";
 import { ButtonContainer } from "Approvals/Approvals.components";
@@ -84,23 +83,23 @@ export const ApproveTx: React.FC<Props> = ({ setDetails }) => {
         <strong>{TxTypeLabel[txType as TxType]}</strong> transaction?
       </Alert>
       {source && (
-        <Text fontSize="xs">
+        <Text className="text-xs">
           Source: <Address>{shortenAddress(source)}</Address>
         </Text>
       )}
       {target && (
-        <Text fontSize="xs">
+        <Text className="text-xs">
           Target:
           <Address>{shortenAddress(target)}</Address>
         </Text>
       )}
       {amount && (
-        <Text fontSize="xs">
+        <Text className="text-xs">
           Amount: {amount} {tokenType}
         </Text>
       )}
       {validator && (
-        <Text fontSize="xs">Validator: {shortenAddress(validator)}</Text>
+        <Text className="text-xs">Validator: {shortenAddress(validator)}</Text>
       )}
 
       <ButtonContainer>

@@ -19,7 +19,10 @@ const alert = tv({
 });
 
 type AlertBaseProps = VariantProps<typeof alert>;
-type AlertProps = { title: string; children: React.ReactNode } & AlertBaseProps;
+type AlertProps = {
+  title?: string;
+  children: React.ReactNode;
+} & AlertBaseProps;
 
 export const Alert = ({
   title,
