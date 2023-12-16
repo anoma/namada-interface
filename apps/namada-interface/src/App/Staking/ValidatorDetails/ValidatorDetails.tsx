@@ -1,32 +1,31 @@
-import { Outlet } from "react-router-dom";
 import BigNumber from "bignumber.js";
+import { Outlet } from "react-router-dom";
 
 import {
-  truncateInMiddle,
-  formatPercentage,
-  showMaybeNam,
-} from "@namada/utils";
-import {
-  Button,
-  ButtonVariant,
+  ActionButton,
+  KeyValueData,
   Table,
   TableConfigurations,
-  KeyValueData,
   TableLink,
 } from "@namada/components";
+import {
+  formatPercentage,
+  showMaybeNam,
+  truncateInMiddle,
+} from "@namada/utils";
 
 import {
-  ValidatorDetailsContainer,
-  StakeButtonContainer,
-  MyStakingContainer,
-} from "./ValidatorDetails.components";
-import {
-  Validator,
   StakingPosition,
+  Validator,
   postNewWithdraw,
 } from "slices/StakingAndGovernance";
+import { RootState, useAppDispatch, useAppSelector } from "store";
 import { ModalState } from "../Staking";
-import { useAppSelector, RootState, useAppDispatch } from "store";
+import {
+  MyStakingContainer,
+  StakeButtonContainer,
+  ValidatorDetailsContainer,
+} from "./ValidatorDetails.components";
 
 const validatorDetailsConfigurations: TableConfigurations<KeyValueData, never> =
   {
@@ -177,15 +176,14 @@ export const ValidatorDetails = (props: Props): JSX.Element => {
         data={validatorDetailsData}
       />
       <StakeButtonContainer>
-        <Button
+        <ActionButton
           onClick={() => {
             setModalState(ModalState.NewBonding);
           }}
-          variant={ButtonVariant.Contained}
           style={{ marginLeft: "0" }}
         >
           Stake
-        </Button>
+        </ActionButton>
       </StakeButtonContainer>
 
       <MyStakingContainer>

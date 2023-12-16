@@ -1,6 +1,5 @@
 import {
-  Button,
-  ButtonVariant,
+  ActionButton,
   Heading,
   Icon,
   NavigationContainer,
@@ -27,9 +26,9 @@ const NotFound = (): JSX.Element => {
       </NavigationContainer>
       <NotFoundContent>
         <Heading level="h1">Page not found.</Heading>
-        <Button onClick={handleWalletClick} variant={ButtonVariant.Contained}>
+        <ActionButton onClick={handleWalletClick}>
           Return to wallet
-        </Button>
+        </ActionButton>
       </NotFoundContent>
       <ButtonsContainer>
         <BackButton onClick={() => navigate(TopLevelRoute.Wallet)}>

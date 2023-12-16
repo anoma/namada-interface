@@ -1,5 +1,3 @@
-import { useContext } from "react";
-import { ThemeContext } from "styled-components";
 import { ActionButton } from "../ActionButton";
 import { Icon } from "../Icon";
 import {
@@ -31,8 +29,6 @@ export const NavigationContainer = (
   props: NavigationContainerProps
 ): React.ReactElement => {
   const { children, onBackButtonClick } = props;
-  const themeContext = useContext(ThemeContext);
-
   const noButton = typeof onBackButtonClick === "undefined";
   return (
     <NavigationContainerContainer>

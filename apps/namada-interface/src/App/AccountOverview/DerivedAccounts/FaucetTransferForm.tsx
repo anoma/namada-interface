@@ -1,12 +1,6 @@
 import { useCallback, useState } from "react";
 
-import {
-  Button,
-  ButtonVariant,
-  Heading,
-  Input,
-  Select,
-} from "@namada/components";
+import { ActionButton, Heading, Input, Select } from "@namada/components";
 import { Account, Symbols, TokenType, Tokens } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
 
@@ -103,20 +97,14 @@ export const FaucetTransferForm = ({
           />
         </InputContainer>
         <FaucetButtonsContainer>
-          <Button
-            variant={ButtonVariant.Contained}
+          <ActionButton
             disabled={!isAmountValid(amount)}
             onClick={handleSubmit}
           >
             Submit
-          </Button>
+          </ActionButton>
           {cancelCallback && (
-            <Button
-              variant={ButtonVariant.Contained}
-              onClick={() => cancelCallback()}
-            >
-              Cancel
-            </Button>
+            <ActionButton onClick={() => cancelCallback()}>Cancel</ActionButton>
           )}
         </FaucetButtonsContainer>
       </FaucetTransferContent>

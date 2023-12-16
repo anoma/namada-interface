@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { TopLevelRoute } from "App/types";
 
 import {
-  Button,
-  ButtonVariant,
+  ActionButton,
   Heading,
   Icon,
   NavigationContainer,
@@ -31,13 +30,12 @@ export const Settings = (): JSX.Element => {
 
       <SettingsContent>
         {/* wallet settings */}
-        <Button
+        <ActionButton
           onClick={() => navigate(TopLevelRoute.SettingsWalletSettings)}
-          variant={ButtonVariant.Contained}
           style={{ minWidth: "50%" }}
         >
           Wallet Settings
-        </Button>
+        </ActionButton>
       </SettingsContent>
       <ButtonsContainer>
         <BackButton onClick={() => navigate(TopLevelRoute.Wallet)}>

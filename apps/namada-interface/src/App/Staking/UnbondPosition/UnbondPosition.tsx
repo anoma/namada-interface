@@ -1,20 +1,19 @@
-import { useState } from "react";
 import BigNumber from "bignumber.js";
+import { useState } from "react";
 
 import {
-  Button,
-  ButtonVariant,
+  ActionButton,
+  KeyValueData,
   Table,
   TableConfigurations,
-  KeyValueData,
 } from "@namada/components";
 
+import { useSanitizedParams } from "@namada/hooks";
 import {
-  StakingPosition,
   ChangeInStakingPosition,
+  StakingPosition,
 } from "slices/StakingAndGovernance";
 import { UnstakePositionContainer } from "./UnbondPosition.components";
-import { useSanitizedParams } from "@namada/hooks";
 
 // keys for the table that we want to act upon in table configuration
 const AMOUNT_TO_UNBOND_KEY = "Amount to unbond";
@@ -75,7 +74,9 @@ export const UnbondPosition = (props: Props): JSX.Element => {
     (pos) => pos.owner === owner
   );
 
-  const stakedAmount = new BigNumber(currentBondingPosition?.stakedAmount || "0");
+  const stakedAmount = new BigNumber(
+    currentBondingPosition?.stakedAmount || "0"
+  );
 
   // storing the bonding amount input value locally here as string
   // we threat them as strings except below in validation
@@ -101,7 +102,8 @@ export const UnbondPosition = (props: Props): JSX.Element => {
 
   // if the input value is incorrect we display an error
   const isEntryIncorrect =
-    (amountToBondOrUnbond !== "" && amountToUnstakeAsNumber.isLessThanOrEqualTo(0)) ||
+    (amountToBondOrUnbond !== "" &&
+      amountToUnstakeAsNumber.isLessThanOrEqualTo(0)) ||
     remainsBonded.isLessThan(0) ||
     amountToUnstakeAsNumber.isNaN();
 
@@ -144,8 +146,7 @@ export const UnbondPosition = (props: Props): JSX.Element => {
       />
 
       {/* confirm and cancel buttons */}
-      <Button
-        variant={ButtonVariant.Contained}
+      <ActionButton
         onClick={() => {
           const changeInStakingPosition: ChangeInStakingPosition = {
             amount: amountToUnstakeAsNumber,
@@ -157,16 +158,15 @@ export const UnbondPosition = (props: Props): JSX.Element => {
         disabled={isEntryIncorrectOrEmpty}
       >
         Confirm
-      </Button>
-      <Button
-        variant={ButtonVariant.Contained}
+      </ActionButton>
+      <ActionButton
         onClick={() => {
           cancelUnbonding();
         }}
         style={{ backgroundColor: "lightgrey", color: "black" }}
       >
         Cancel
-      </Button>
+      </ActionButton>
     </UnstakePositionContainer>
   );
 };

@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 
 import { chains, defaultChainId } from "@namada/chains";
 import { ActionButton, Input, Toggle } from "@namada/components";
-import { LedgerError } from "@namada/ledger-namada";
 import { AccountType, DerivedAccount } from "@namada/types";
 import { makeBip44Path } from "@namada/utils";
+import { LedgerError } from "@zondax/ledger-namada";
 
 import { TopLevelRoute } from "App/types";
 import { AddLedgerAccountMsg, DeriveAccountMsg } from "background/keyring";

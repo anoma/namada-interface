@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-import { Icon } from "@namada/components";
+import { ActionButton, Icon } from "@namada/components";
 import { AccountType, Bip44Path, DerivedAccount } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
 
@@ -9,7 +9,6 @@ import {
   AccountListingContainer,
   Address,
   Alias,
-  Button,
   Buttons,
   DerivationPath,
   DerivationPathContainer,
@@ -78,23 +77,23 @@ const AccountListing = ({ account, parentAlias }: Props): JSX.Element => {
       </Details>
       <Buttons>
         {(type === AccountType.Mnemonic || isLedgerParent) && (
-          <Button
+          <ActionButton
             onClick={() => {
               navigate(TopLevelRoute.AddAccount);
             }}
           >
             <Icon name="PlusCircle" />
-          </Button>
+          </ActionButton>
         )}
-        <Button
-          onClick={(e) => {
+        <ActionButton
+          onClick={(e: React.MouseEvent) => {
             e.preventDefault();
             textToClipboard(address);
           }}
           href="#"
         >
           <Icon name="Copy" />
-        </Button>
+        </ActionButton>
       </Buttons>
     </AccountListingContainer>
   );

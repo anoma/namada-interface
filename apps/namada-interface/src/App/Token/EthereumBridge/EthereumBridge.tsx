@@ -4,7 +4,6 @@ import {
   Option,
   Select,
 } from "@namada/components";
-
 import { chains, defaultChainId as chainId } from "@namada/chains";
 import { TokenType, Tokens } from "@namada/types";
 import BigNumber from "bignumber.js";
