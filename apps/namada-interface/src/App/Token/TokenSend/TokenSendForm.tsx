@@ -177,6 +177,20 @@ const TokenSendForm = (
 
   const { details, balance } = derivedAccounts[address];
   const isShieldedSource = details.isShielded;
+
+  let account = details;
+
+  //TODO: workaround so that we can send from shielded to transparent
+  if (isShieldedSource) {
+    const accounts = Object.values(derivedAccounts);
+    const acc = accounts.find((account) => !account.details.isShielded);
+
+    account = {
+      ...details,
+      publicKey: acc?.details.publicKey,
+    };
+  }
+
   const token = Tokens[tokenType];
 
   const isFormInvalid = getIsFormInvalid(
@@ -253,7 +267,7 @@ const TokenSendForm = (
     if ((isShieldedTarget && target) || (target && token.address)) {
       submitTransferTransaction({
         chainId,
-        account: details,
+        account,
         target,
         amount,
         token: tokenType,

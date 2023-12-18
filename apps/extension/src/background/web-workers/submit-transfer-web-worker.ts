@@ -22,8 +22,9 @@ import {
         const txMsg = fromBase64(data.txMsg);
         const { privateKey, xsk } = data.signingKey;
 
-        //TODO: make pk mandatory and rename to secretKey
-        await sdk.reveal_pk(privateKey as string, txMsg);
+        if (!xsk) {
+          await sdk.reveal_pk(privateKey as string, txMsg);
+        }
 
         const builtTx = await sdk.build_transfer(
           fromBase64(data.transferMsg),
