@@ -107,7 +107,7 @@ const TokenSend = (): JSX.Element => {
 
   const [activeTab, setActiveTab] = useState(tabs[defaultTab]);
   const [token, setToken] = useState<TokenType>(
-    chains[chainId].currency.symbol
+    chains[chainId].currency.symbol as TokenType
   );
 
   const handleTokenChange =

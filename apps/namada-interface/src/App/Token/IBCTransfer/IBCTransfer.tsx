@@ -288,7 +288,7 @@ const IBCTransfer = (): JSX.Element => {
 
   const isAmountValid = (amount: BigNumber, balance: BigNumber): boolean =>
     amount.isLessThan(
-      token === "ATOM" ? balance.multipliedBy(1_000_000) : balance
+      token === "DOT" ? balance.multipliedBy(1_000_000) : balance
     );
 
   const validateForm = (): boolean => {

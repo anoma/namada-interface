@@ -1,5 +1,3 @@
-import { TokenType } from "./tx";
-
 const {
   // Load extension download URL from env
   NAMADA_INTERFACE_EXTENSION_URL: extensionUrl,
@@ -7,7 +5,7 @@ const {
 
 export type Currency = {
   token: string;
-  symbol: TokenType;
+  symbol: string;
   gasPriceStep?: {
     low: number;
     average: number;
