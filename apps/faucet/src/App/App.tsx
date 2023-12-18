@@ -44,7 +44,7 @@ const becomeBuilderUrl = "https://docs.namada.net/integrating-with-namada";
 type Settings = {
   difficulty?: number;
   tokens?: Record<string, string>;
-  startsAt?: number;
+  startsAt: number;
   startsAtText?: string;
 };
 
@@ -54,44 +54,70 @@ type AppContext = Settings & {
   settingsError?: string;
 };
 
-export const AppContext = createContext<AppContext>({ limit, url });
+const START_TIME_UTC = 1702918800;
+const START_TIME_TEXT = new Date(START_TIME_UTC * 1000).toLocaleString(
+  "en-gb",
+  {
+    timeZone: "UTC",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+  }
+);
+
+const defaults = {
+  startsAt: START_TIME_UTC,
+  startsAtText: `${START_TIME_TEXT} UTC`,
+};
+
+export const AppContext = createContext<AppContext>({
+  ...defaults,
+  limit,
+  url,
+});
 
 export const App: React.FC = () => {
   const initialColorMode = "dark";
   const [colorMode, _] = useState<ColorMode>(initialColorMode);
   const [isTestnetLive, setIsTestnetLive] = useState(true);
-  const [settings, setSettings] = useState<Settings>();
+  const [settings, setSettings] = useState<Settings>({
+    ...defaults,
+  });
   const [settingsError, setSettingsError] = useState<string>();
   const theme = getTheme(colorMode);
 
   useEffect(() => {
+    const { startsAt } = settings;
+    const now = new Date();
+    const nowUTC = Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate(),
+      now.getUTCHours(),
+      now.getUTCMinutes()
+    );
+    const startsAtToMilliseconds = startsAt * 1000;
+    if (nowUTC < startsAtToMilliseconds) {
+      setIsTestnetLive(false);
+    }
+
     // Fetch settings from faucet API
     (async () => {
       try {
-        const {
-          difficulty,
-          start_at: startsAt,
-          tokens_alias_to_address: tokens,
-        } = await requestSettings(url).catch((e) => {
-          const message = e.errors?.message;
-          setSettingsError(`Error requesting settings: ${message?.join(" ")}`);
-          throw new Error(e);
-        });
-        const startDateString = new Date(startsAt * 1000).toLocaleString(
-          "en-gb",
-          {
-            timeZone: "UTC",
-            month: "long",
-            day: "numeric",
-            year: "numeric",
-            hour: "numeric",
-            minute: "numeric",
-          }
-        );
+        const { difficulty, tokens_alias_to_address: tokens } =
+          await requestSettings(url).catch((e) => {
+            const message = e.errors?.message;
+            setSettingsError(
+              `Error requesting settings: ${message?.join(" ")}`
+            );
+            throw new Error(e);
+          });
+        // Append difficulty level and tokens to settings
         setSettings({
+          ...settings,
           difficulty,
-          startsAt,
-          startsAtText: `${startDateString} UTC`,
           tokens,
         });
       } catch (e) {
@@ -99,23 +125,6 @@ export const App: React.FC = () => {
       }
     })();
   }, []);
-
-  useEffect(() => {
-    if (settings) {
-      const { startsAt } = settings;
-      const now = new Date();
-      const nowUTC = Date.UTC(
-        now.getUTCFullYear(),
-        now.getUTCMonth(),
-        now.getUTCDate(),
-        now.getUTCHours(),
-        now.getUTCMinutes()
-      );
-      if (startsAt && nowUTC < startsAt * 1000) {
-        setIsTestnetLive(false);
-      }
-    }
-  }, [settings]);
 
   return (
     <AppContext.Provider
