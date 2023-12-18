@@ -1,12 +1,9 @@
-import { useEffect, useState, useContext, CSSProperties } from "react";
+import BigNumber from "bignumber.js";
+import { CSSProperties, useContext, useEffect, useState } from "react";
+import QrReader from "react-qr-reader";
 import { useNavigate } from "react-router-dom";
 import { ThemeContext } from "styled-components";
-import QrReader from "react-qr-reader";
-import BigNumber from "bignumber.js";
 
-import { getIntegration } from "@namada/hooks";
-import { Signer, Tokens, TokenType } from "@namada/types";
-import { ColorMode, DesignConfiguration } from "@namada/utils";
 import {
   Button,
   ButtonVariant,
@@ -15,11 +12,19 @@ import {
   Input,
   InputVariants,
 } from "@namada/components";
+import { getIntegration } from "@namada/hooks";
+import { Signer, TokenType, Tokens } from "@namada/types";
+import { ColorMode, DesignConfiguration } from "@namada/utils";
 
 import { AccountsState } from "slices/accounts";
 import { CoinsState } from "slices/coins";
 import { useAppSelector } from "store";
 
+import { defaultChainId } from "@namada/chains";
+import { TopLevelRoute } from "App/types";
+import { SettingsState } from "slices/settings";
+import { TransferType, TxTransferArgs } from "../types";
+import { parseTarget } from "./TokenSend";
 import {
   BackButton,
   ButtonsContainer,
@@ -29,11 +34,6 @@ import {
   QrReaderError,
   TokenSendFormContainer,
 } from "./TokenSendForm.components";
-import { parseTarget } from "./TokenSend";
-import { SettingsState } from "slices/settings";
-import { TopLevelRoute } from "App/types";
-import { TransferType, TxTransferArgs } from "../types";
-import { defaultChainId } from "@namada/chains";
 
 enum ComponentColor {
   GasButtonBorder,
@@ -129,10 +129,12 @@ const getIsFormInvalid = (
  * gives the description above submit button to make it move obvious for the user
  * that the transfer might be a shielding/unshielding transfer
  */
-const AccountSourceTargetDescription = (props: {
-  isShieldedSource: boolean;
-  isShieldedTarget: boolean;
-}): React.ReactElement => {
+const AccountSourceTargetDescription = (
+  props: {
+    isShieldedSource: boolean;
+    isShieldedTarget: boolean;
+  }
+): React.ReactElement => {
   const { isShieldedSource, isShieldedTarget } = props;
   const source = isShieldedSource ? <b>Shielded</b> : <b>Transparent</b>;
   const target = isShieldedTarget ? <b>Shielded</b> : <b>Transparent</b>;
@@ -143,11 +145,9 @@ const AccountSourceTargetDescription = (props: {
   );
 };
 
-const TokenSendForm = ({
-  address,
-  tokenType,
-  defaultTarget,
-}: Props): JSX.Element => {
+const TokenSendForm = (
+  { address, tokenType, defaultTarget }: Props
+): JSX.Element => {
   const navigate = useNavigate();
   const themeContext = useContext(ThemeContext);
   const [target, setTarget] = useState<string | undefined>(defaultTarget);
@@ -177,6 +177,20 @@ const TokenSendForm = ({
 
   const { details, balance } = derivedAccounts[address];
   const isShieldedSource = details.isShielded;
+
+  let account = details;
+
+  //TODO: workaround so that we can send from shielded to transparent
+  if (isShieldedSource) {
+    const accounts = Object.values(derivedAccounts);
+    const acc = accounts.find((account) => !account.details.isShielded);
+
+    account = {
+      ...details,
+      publicKey: acc?.details.publicKey,
+    };
+  }
+
   const token = Tokens[tokenType];
 
   const isFormInvalid = getIsFormInvalid(
@@ -253,7 +267,7 @@ const TokenSendForm = ({
     if ((isShieldedTarget && target) || (target && token.address)) {
       submitTransferTransaction({
         chainId,
-        account: details,
+        account,
         target,
         amount,
         token: tokenType,
