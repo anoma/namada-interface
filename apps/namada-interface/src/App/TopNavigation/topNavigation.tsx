@@ -1,63 +1,65 @@
-import React, { useState, useContext } from "react";
+import React, { useContext, useState } from "react";
+import { Location, NavigateFunction, useNavigate } from "react-router-dom";
 import { ThemeContext } from "styled-components";
-import { useNavigate, NavigateFunction, Location } from "react-router-dom";
 
-import { ColorMode } from "@namada/utils";
 import { chains } from "@namada/chains";
-import { Chain } from "@namada/types";
 import {
   Icon,
   IconName,
   Image,
   ImageName,
-  Toggle,
   Select,
+  Toggle,
 } from "@namada/components";
 import { useSanitizedLocation } from "@namada/hooks";
+import { Chain } from "@namada/types";
+import { ColorMode } from "@namada/utils";
 
+import {
+  StakingAndGovernanceSubRoute,
+  TopLevelRoute,
+  locationToStakingAndGovernanceSubRoute,
+  locationToTopLevelRoute,
+} from "App/types";
+import { SettingsState, setChainId } from "slices/settings";
 import { useAppDispatch, useAppSelector } from "store";
 import { AppStore } from "store/store";
 import {
-  TopLevelRoute,
-  StakingAndGovernanceSubRoute,
-  locationToTopLevelRoute,
-  locationToStakingAndGovernanceSubRoute,
-} from "App/types";
-import {
-  TopNavigationContainer,
+  ColorModeContainer,
   LeftSection,
-  MiddleSection,
-  RightSection,
+  LogoContainer,
+  MenuButton,
+  MenuCloseButton,
   MenuItem,
   MenuItemForSecondRow,
   MenuItemSubComponent,
   MenuItemTextContainer,
-  ColorModeContainer,
-  LogoContainer,
-  OnlyInSmall,
+  MiddleSection,
+  MobileMenu,
+  MobileMenuHeader,
+  MobileMenuList,
+  MobileMenuListItem,
   OnlyInMedium,
+  OnlyInSmall,
+  RightSection,
+  SubMenuContainer,
+  TopNavigationContainer,
   TopNavigationContainerRow,
   TopNavigationContainerSecondRow,
   TopNavigationSecondRowInnerContainer,
-  MenuButton,
-  MobileMenu,
-  MobileMenuList,
-  MobileMenuListItem,
-  MobileMenuHeader,
-  MenuCloseButton,
-  SubMenuContainer,
 } from "./topNavigation.components";
-import { setChainId, SettingsState } from "slices/settings";
 import TopNavigationLoggedIn from "./topNavigationLoggedIn";
 
 /**
  * this is rendered in one of 2 places depending of the screen size
  */
-const TopNavigationMenuItems = (props: {
-  navigate: NavigateFunction;
-  location: Location;
-  setColorMode: (mode: ColorMode) => void;
-}): React.ReactElement => {
+const TopNavigationMenuItems = (
+  props: {
+    navigate: NavigateFunction;
+    location: Location;
+    setColorMode: (mode: ColorMode) => void;
+  }
+): React.ReactElement => {
   const { navigate } = props;
   const topLevelPath = `/${location.pathname.split("/")[1]}`;
   return (
@@ -79,7 +81,7 @@ const TopNavigationMenuItems = (props: {
         }}
         isSelected={location.pathname === TopLevelRoute.Bridge}
       >
-        <MenuItemTextContainer>Bridge</MenuItemTextContainer>
+        <MenuItemTextContainer>IBC</MenuItemTextContainer>
       </MenuItem>
 
       {/* Staking */}
@@ -342,7 +344,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
                 }}
                 isSelected={topLevelRoute === TopLevelRoute.Bridge}
               >
-                Bridge
+                IBC
               </MenuItem>
             </MobileMenuListItem>
             <MobileMenuListItem>
