@@ -137,7 +137,6 @@ module.exports = {
       ? "eval-source-map"
       : false,
   entry: {
-    shared: "../../packages/shared/src/init.ts",
     content: "./src/content",
     background: "./src/background",
     popup: "./src/App",
