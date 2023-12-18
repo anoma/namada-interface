@@ -40,10 +40,13 @@ const plugins = [
   // Provide environment variables to interface:
   new webpack.DefinePlugin({
     process: {
-      env: JSON.stringify(getProcessEnv(
-        "NAMADA_INTERFACE",
-        ["TARGET", "NODE_ENV", "npm_package_version"]
-      )),
+      env: JSON.stringify(
+        getProcessEnv("NAMADA_INTERFACE", [
+          "TARGET",
+          "NODE_ENV",
+          "npm_package_version",
+        ])
+      ),
     },
   }),
 ];

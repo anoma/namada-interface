@@ -7,11 +7,10 @@ import {
   Chain,
   MetamaskEvents,
   TokenBalance,
-  // Tokens,
 } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
-import { BridgeProps, Integration } from "./types/Integration";
 import { erc20Abi, ethereumBridgeAbi } from "./abi";
+import { BridgeProps, Integration } from "./types/Integration";
 
 const MULTIPLE_WALLETS = "Multiple wallets installed!";
 const CANT_FETCH_ACCOUNTS = "Can't fetch accounts!";
@@ -24,12 +23,18 @@ export type MetamaskWindow = Window &
     ethereum: MetaMaskInpageProvider;
   };
 
+declare global {
+  interface Window {
+    ethereum?: MetaMaskInpageProvider;
+  }
+}
+
 class Metamask implements Integration<Account, unknown> {
   private _ethereum: MetaMaskInpageProvider | undefined;
   constructor(public readonly chain: Chain) {}
 
   private init(): void {
-    const provider = (<MetamaskWindow>window).ethereum;
+    const provider = window.ethereum;
     if (provider) {
       this._ethereum = provider;
     }
@@ -37,7 +42,7 @@ class Metamask implements Integration<Account, unknown> {
 
   detect(): boolean {
     this.init();
-    const ethereum = (<MetamaskWindow>window).ethereum;
+    const ethereum = window.ethereum;
 
     return ethereum?.isMetaMask ?? false;
   }
@@ -69,7 +74,7 @@ class Metamask implements Integration<Account, unknown> {
   }
 
   async connect(): Promise<void> {
-    if ((window as MetamaskWindow).ethereum === this._ethereum) {
+    if (window.ethereum === this._ethereum) {
       await this.syncChainId();
     } else {
       Promise.reject(MULTIPLE_WALLETS);
@@ -118,9 +123,11 @@ class Metamask implements Integration<Account, unknown> {
   }
 
   public async queryBalances(owner: string): Promise<TokenBalance[]> {
-    const provider = new ethers.BrowserProvider(
-      (window as MetamaskWindow).ethereum
-    );
+    if (!window.ethereum) {
+      throw Error("Etherum provider not found");
+    }
+
+    const provider = new ethers.BrowserProvider(window.ethereum);
     const ethBalance = await provider.getBalance(owner);
     // TODO: Re-enable the following when we Erc20 tokens are fully supported:
     // const signer = await provider.getSigner(owner);

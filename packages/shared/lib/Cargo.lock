@@ -586,11 +586,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4e3c5919066adf22df73762e50cffcde3a758f2a848b113b586d1f86728b673b"
 dependencies = [
  "iana-time-zone",
- "js-sys",
  "num-integer",
  "num-traits",
- "time 0.1.45",
- "wasm-bindgen",
  "winapi",
 ]
 
@@ -2443,7 +2440,7 @@ dependencies = [
  "prost 0.12.1",
  "serde",
  "tendermint",
- "time 0.3.21",
+ "time",
 ]
 
 [[package]]
@@ -3858,16 +3855,6 @@ dependencies = [
 
 [[package]]
 name = "prost"
-version = "0.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "444879275cb4fd84958b1a1d5420d15e6fcf7c235fe47f053c9c2a80aceb6001"
-dependencies = [
- "bytes",
- "prost-derive 0.9.0",
-]
-
-[[package]]
-name = "prost"
 version = "0.11.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b82eaa1d779e9a4bc1c3217db8ffbeabaae1dca241bf70183242128d48681cd"
@@ -3910,19 +3897,6 @@ dependencies = [
 
 [[package]]
 name = "prost-derive"
-version = "0.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f9cc1a3263e07e0bf68e96268f37665207b49560d98739662cdfaae215c720fe"
-dependencies = [
- "anyhow",
- "itertools 0.10.5",
- "proc-macro2",
- "quote",
- "syn 1.0.109",
-]
-
-[[package]]
-name = "prost-derive"
 version = "0.11.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e5d2d8d10f3c6ded6da8b05b5fb3b8a5082514344d56c9f871412d29b4e075b4"
@@ -3945,16 +3919,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.39",
-]
-
-[[package]]
-name = "prost-types"
-version = "0.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "534b7a0e836e3c482d2693070f982e39e7611da9695d4d1f5a4b186b51faef0a"
-dependencies = [
- "bytes",
- "prost 0.9.0",
 ]
 
 [[package]]
@@ -4649,7 +4613,6 @@ dependencies = [
  "async-trait",
  "borsh",
  "borsh-ext",
- "chrono",
  "console_error_panic_hook",
  "getrandom 0.2.9",
  "gloo-utils",
@@ -4657,9 +4620,6 @@ dependencies = [
  "masp_primitives",
  "masp_proofs",
  "namada",
- "proc-macro2",
- "prost 0.9.0",
- "prost-types 0.9.0",
  "rand 0.8.5",
  "serde",
  "serde_json",
@@ -4947,7 +4907,7 @@ dependencies = [
  "subtle 2.4.1",
  "subtle-encoding",
  "tendermint-proto",
- "time 0.3.21",
+ "time",
  "zeroize",
 ]
 
@@ -4975,7 +4935,7 @@ dependencies = [
  "flex-error",
  "serde",
  "tendermint",
- "time 0.3.21",
+ "time",
 ]
 
 [[package]]
@@ -4993,7 +4953,7 @@ dependencies = [
  "serde",
  "serde_bytes",
  "subtle-encoding",
- "time 0.3.21",
+ "time",
 ]
 
 [[package]]
@@ -5018,7 +4978,7 @@ dependencies = [
  "tendermint-config",
  "tendermint-proto",
  "thiserror",
- "time 0.3.21",
+ "time",
  "url",
  "uuid",
  "walkdir",
@@ -5053,17 +5013,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.39",
-]
-
-[[package]]
-name = "time"
-version = "0.1.45"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1b797afad3f312d1c66a56d11d0316f916356d11bd158fbc6ca6389ff6bf805a"
-dependencies = [
- "libc",
- "wasi 0.10.0+wasi-snapshot-preview1",
- "winapi",
 ]
 
 [[package]]
@@ -5510,12 +5459,6 @@ checksum = "cccddf32554fecc6acb585f82a32a72e28b48f8c4c1883ddfeeeaa96f7d8e519"
 
 [[package]]
 name = "wasi"
-version = "0.10.0+wasi-snapshot-preview1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1a143597ca7c7793eff794def352d41792a93c481eb1042423ff7ff72ba2c31f"
-
-[[package]]
-name = "wasi"
 version = "0.11.0+wasi-snapshot-preview1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9c8d87e72b64a3b4db28d11ce29237c246188f4f51057d65a7eab63b7987e423"
@@ -5914,7 +5857,7 @@ dependencies = [
  "hmac 0.12.1",
  "pbkdf2 0.11.0",
  "sha1",
- "time 0.3.21",
+ "time",
  "zstd",
 ]
 

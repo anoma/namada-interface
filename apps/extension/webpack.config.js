@@ -14,7 +14,7 @@ const { getProcessEnv } = require("@namada/config/webpack.js");
 // Load .env from namada-interface:
 require("dotenv").config({ path: "../namada-interface/.env" });
 
-const { NODE_ENV, TARGET } = process.env;
+const { NODE_ENV, TARGET, BUNDLE_ANALYZE } = process.env;
 
 const OUTPUT_PATH = resolve(__dirname, `./build/${TARGET}`);
 
@@ -71,9 +71,11 @@ const copyPatterns = [
   },
 ];
 
+const analyzePlugins =
+  BUNDLE_ANALYZE === "true" ? [new BundleAnalyzerPlugin()] : [];
+
 const plugins = [
-  //TODO: for dev only
-  new BundleAnalyzerPlugin(),
+  ...analyzePlugins,
   new CopyPlugin({
     patterns: copyPatterns,
   }),
@@ -135,6 +137,7 @@ module.exports = {
       ? "eval-source-map"
       : false,
   entry: {
+    shared: "../../packages/shared/src/init.ts",
     content: "./src/content",
     background: "./src/background",
     popup: "./src/App",

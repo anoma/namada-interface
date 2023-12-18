@@ -1,31 +1,25 @@
 import { createContext } from "react";
 
-import { Events, KeplrEvents, MetamaskEvents } from "@namada/types";
 import {
   defaultChainId,
   defaultCosmosChainId,
   defaultEthereumChainId,
 } from "@namada/chains";
-import {
-  Namada,
-  Keplr,
-  Metamask,
-  useIntegration,
-  MetamaskWindow,
-} from "@namada/integrations";
 import { useEventListenerOnce } from "@namada/hooks";
+import { Keplr, Metamask, Namada, useIntegration } from "@namada/integrations";
+import { Events, KeplrEvents, MetamaskEvents } from "@namada/types";
 
 import { useAppDispatch } from "store";
 import {
   KeplrAccountChangedHandler,
   MetamaskAccountChangedHandler,
+  MetamaskBridgeTransferCompletedHandler,
   NamadaAccountChangedHandler,
-  NamadaTxStartedHandler,
+  NamadaProposalsUpdatedHandler,
   NamadaTxCompletedHandler,
+  NamadaTxStartedHandler,
   NamadaUpdatedBalancesHandler,
   NamadaUpdatedStakingHandler,
-  MetamaskBridgeTransferCompletedHandler,
-  NamadaProposalsUpdatedHandler,
 } from "./handlers";
 
 export const ExtensionEventsContext = createContext({});
@@ -75,14 +69,14 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
     metamaskAccountChangedHandler,
     false,
     (event, handler) => {
-      if ((window as MetamaskWindow).ethereum) {
+      if (window.ethereum) {
         //TODO: fix as
-        (window as MetamaskWindow).ethereum.on(event, handler as () => unknown);
+        window.ethereum.on(event, handler as () => unknown);
       }
     },
     (event, handler) => {
-      if ((window as MetamaskWindow).ethereum) {
-        (window as MetamaskWindow).ethereum.removeListener(event, handler);
+      if (window.ethereum) {
+        window.ethereum.removeListener(event, handler);
       }
     }
   );
