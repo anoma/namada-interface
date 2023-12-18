@@ -32,7 +32,7 @@ export const ButtonText = styled.span`
   z-index: 10;
 `;
 
-export const ButtonContainer = styled(Button)<{
+export const ButtonContainer = styled(Button) <{
   variant: ThemeColor;
   hoverColor?: ThemeColor;
   size: ButtonSize;
@@ -41,6 +41,13 @@ export const ButtonContainer = styled(Button)<{
 }>`
   all: unset;
   background-image: ${(props) => {
+    if (props.disabled && !props.outlined) {
+      return `linear-gradient(${color(
+        "utility1",
+        "main50"
+      )(props)} 50%, ${color("utility1", "main50")(props)} 50%)`;
+    }
+
     if (props.outlined) {
       // main color is transparent, filler color is yellow
       return `linear-gradient(transparent 50%, ${color(
@@ -57,7 +64,7 @@ export const ButtonContainer = styled(Button)<{
       )(props)} 50%, ${color(props.hoverColor, "main")(props)} 50%)`;
     }
 
-     // main color is yellow, filler color is black
+    // main color is yellow, filler color is black
     return `linear-gradient(${color(
       props.variant,
       "main"
@@ -96,21 +103,22 @@ export const ButtonContainer = styled(Button)<{
   transition: color 80ms ease-out, border 450ms ease-out;
   user-select: none;
   width: 100%;
-  transition: background-position 250ms ease-in-out, color 250ms ease-in-out;
+  transition: background-position var(--ease-out-circ) 0.45s,
+    color var(--ease-out-circ) 0.45s;
 
   &:hover:not(:disabled) {
     background-position: 0 100%;
     color: ${(props) => {
-      if (props.outlined) {
-        return color(props.variant, "main20")(props);
-      }
+    if (props.outlined) {
+      return color(props.variant, "main20")(props);
+    }
 
-      if (props.hoverColor) {
-        return color(props.hoverColor, "main20")(props);
-      }
+    if (props.hoverColor) {
+      return color(props.hoverColor, "main20")(props);
+    }
 
-      return color(props.variant, "main")(props);
-    }};
+    return color(props.variant, "main")(props);
+  }};
   }
 
   &:not(:disabled):active {
@@ -118,17 +126,11 @@ export const ButtonContainer = styled(Button)<{
   }
 
   &:disabled {
-    background-color: ${(props) => {
-      if (!props.outlined) {
-        return color("utility1", "main50");
-      }
-    }};
-
     color: ${(props) => {
-      if (!props.outlined) {
-        return color("utility3", "white");
-      }
-    }};
+    if (!props.outlined) {
+      return color("utility3", "white");
+    }
+  }};
 
     cursor: auto;
     opacity: 0.25;
