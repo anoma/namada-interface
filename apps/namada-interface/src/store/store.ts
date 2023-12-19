@@ -1,35 +1,34 @@
 import { Action, configureStore, ThunkAction } from "@reduxjs/toolkit";
+import { LocalStorageKeys } from "App/types";
 import { combineReducers } from "redux";
-import thunk from "redux-thunk";
-import { persistReducer, persistStore } from "redux-persist";
+import { createTransform, persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
+import thunk from "redux-thunk";
 import {
   accountsReducer,
-  settingsReducer,
   channelsReducer,
   coinsReducer,
   notificationsReducer,
   proposalsReducers,
+  settingsReducer,
   stakingAndGovernanceReducers,
 } from "slices";
-import { LocalStorageKeys } from "App/types";
-import { createTransform } from "redux-persist";
 import { SettingsState } from "slices/settings";
-import { chains, defaultChainId } from "@namada/chains";
 
 const { NAMADA_INTERFACE_LOCAL, NODE_ENV } = process.env;
 const POSTFIX =
-  NODE_ENV === "development" ? (NAMADA_INTERFACE_LOCAL ? "-local" : "-dev") : "";
+  NODE_ENV === "development"
+    ? NAMADA_INTERFACE_LOCAL
+      ? "-local"
+      : "-dev"
+    : "";
 
 const ChainIdTransform = createTransform(
   (inboundState: SettingsState) => {
     return inboundState;
   },
   (outboundState: SettingsState) => {
-    const savedChainId = outboundState.chainId;
-    const chainId = savedChainId in chains ? savedChainId : defaultChainId;
-
-    return { ...outboundState, chainId };
+    return outboundState;
   },
   { whitelist: ["settings"] }
 );
@@ -72,4 +71,4 @@ export type AppThunk<ReturnType = void> = ThunkAction<
 >;
 export type AppDispatch = ReturnType<AppStore["dispatch"]>;
 
-export { store, persistor };
+export { persistor, store };

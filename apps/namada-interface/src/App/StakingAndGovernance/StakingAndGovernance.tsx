@@ -1,26 +1,24 @@
 import { useEffect } from "react";
-import { useAppDispatch, useAppSelector, RootState } from "store";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
+import { RootState, useAppDispatch, useAppSelector } from "store";
 
-import { useIntegrationConnection } from "@namada/hooks";
+import { defaultChainId as chainId } from "@namada/chains";
+import { useIntegrationConnection, useSanitizedLocation } from "@namada/hooks";
 import { Staking } from "App/Staking";
-import { PublicGoodsFunding } from "App/PublicGoodsFunding";
-import { StakingAndGovernanceContainer } from "./StakingAndGovernance.components";
 import {
-  TopLevelRoute,
   StakingAndGovernanceSubRoute,
+  TopLevelRoute,
   locationToStakingAndGovernanceSubRoute,
 } from "App/types";
-import { useSanitizedLocation } from "@namada/hooks";
+import { StakingAndGovernanceContainer } from "./StakingAndGovernance.components";
 
 import {
-  fetchValidators,
+  ChangeInStakingPosition,
   fetchValidatorDetails,
+  fetchValidators,
   postNewBonding as postNewBondingAction,
   postNewUnbonding as postNewUnbondingAction,
-  ChangeInStakingPosition,
 } from "slices/StakingAndGovernance";
-import { SettingsState } from "slices/settings";
 import { AccountsState } from "slices/accounts";
 
 export type { ChangeInStakingPosition };
@@ -35,7 +33,6 @@ export const StakingAndGovernance = (): JSX.Element => {
   const stakingAndGovernance = useAppSelector(
     (state: RootState) => state.stakingAndGovernance
   );
-  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const derivedAccounts = useAppSelector<AccountsState>(
     (state: RootState) => state.accounts
   ).derived[chainId];
@@ -104,10 +101,6 @@ export const StakingAndGovernance = (): JSX.Element => {
               postNewUnbonding={postNewUnbonding}
             />
           }
-        />
-        <Route
-          path={StakingAndGovernanceSubRoute.PublicGoodsFunding}
-          element={<PublicGoodsFunding />}
         />
       </Routes>
     </StakingAndGovernanceContainer>

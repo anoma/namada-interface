@@ -6,14 +6,13 @@ import {
   Button,
   ButtonVariant,
 } from "@namada/components";
-import { chains } from "@namada/chains";
+import { chains, defaultChainId as chainId } from "@namada/chains";
 import { useAppSelector } from "store";
 import {
   ButtonsContainer,
   InputContainer,
 } from "../TokenSend/TokenSendForm.components";
 import { Account, AccountsState } from "slices/accounts";
-import { SettingsState } from "slices/settings";
 import { TokenType, Tokens } from "@namada/types";
 import {
   FeeSection,
@@ -39,16 +38,14 @@ const toTokenData = (
       .filter(filterFn)
       .map(([tokenType, amount]) => ({
         value: `${address}|${tokenType}|${amount}`,
-        label: `${alias !== "Namada" ? alias + " - " : ""}${
-          Tokens[tokenType as TokenType].coin
-        } (${amount} ${tokenType})`,
+        label: `${alias !== "Namada" ? alias + " - " : ""}${Tokens[tokenType as TokenType].coin
+          } (${amount} ${tokenType})`,
       }));
   });
 };
 
 export const EthereumBridge = (): JSX.Element => {
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
-  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState<BigNumber>(new BigNumber(0));
   const [feeAmount, setFeeAmount] = useState<BigNumber>(new BigNumber(0));

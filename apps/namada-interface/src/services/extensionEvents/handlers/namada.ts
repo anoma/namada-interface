@@ -3,9 +3,9 @@ import { Dispatch } from "react";
 import { Namada } from "@namada/integrations";
 import { TxType, TxTypeLabel } from "@namada/shared";
 
+import { fetchValidators } from "slices/StakingAndGovernance/actions";
 import { addAccounts, fetchBalances } from "slices/accounts";
 import { actions as notificationsActions } from "slices/notifications";
-import { fetchValidators } from "slices/StakingAndGovernance/actions";
 import { fetchProposals } from "slices/proposals";
 
 export const NamadaAccountChangedHandler =
@@ -45,6 +45,9 @@ export const NamadaTxStartedHandler =
 export const NamadaTxCompletedHandler =
   (dispatch: Dispatch<unknown>) => async (event: CustomEventInit) => {
     const { msgId, txType, success, payload } = event.detail;
+    if (payload) {
+      console.warn(`${txType} failed:`, payload);
+    }
     dispatch(
       notificationsActions.txCompletedToast({
         id: msgId,

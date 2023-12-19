@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 
 import { Account, AccountsState } from "slices/accounts";
-import { SettingsState } from "slices/settings";
 import { TransferType } from "App/Token/types";
 import { useAppSelector } from "store";
 
@@ -16,6 +15,7 @@ import {
 } from "@namada/components";
 import TokenSendForm from "./TokenSendForm";
 import { useSanitizedParams } from "@namada/hooks";
+import { chains, defaultChainId as chainId } from "@namada/chains";
 
 import { TokenSendContainer, TokenSendContent } from "./TokenSend.components";
 import {
@@ -24,7 +24,6 @@ import {
   ESTABLISHED_ADDRESS_LENGTH,
   ESTABLISHED_ADDRESS_PREFIX,
 } from "./types";
-import { chains } from "@namada/chains";
 
 export const parseTarget = (target: string): TransferType | undefined => {
   if (
@@ -52,7 +51,9 @@ const accountsWithBalanceIntoSelectData = (
 ): Option<string>[] =>
   accountsWithBalance.flatMap(({ details, balance }) =>
     Object.entries(balance)
-      .filter(([tokenType]) => !Tokens[tokenType as TokenType].isNut)
+      .filter(([tokenType, balance]) =>
+        !Tokens[tokenType as TokenType].isNut
+        && balance.isGreaterThan(0))
       .map(([tokenType, amount]) => ({
         value: `${details.address}|${tokenType}`,
         label: `${details.alias} ${amount} (${tokenType})`,
@@ -61,7 +62,6 @@ const accountsWithBalanceIntoSelectData = (
 
 const TokenSend = (): JSX.Element => {
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
-  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const { target } = useSanitizedParams<Params>();
 
   const accounts = Object.values(derived[chainId]);

@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import BigNumber from "bignumber.js";
 
 import { Account as AccountDetails, TokenType } from "@namada/types";
-import { chains } from "@namada/chains";
+import { chains, defaultChainId as chainId } from "@namada/chains";
 import { getIntegration } from "@namada/hooks";
 
 import { RootState } from "store";
@@ -44,7 +44,6 @@ export const fetchBalances = createAsyncThunk<
 >(
   `${ACCOUNTS_ACTIONS_BASE}/${AccountsThunkActions.FetchBalance}`,
   async (_, thunkApi) => {
-    const { chainId } = thunkApi.getState().settings;
     const integration = getIntegration(chainId);
     const accounts: Account[] = Object.values(
       thunkApi.getState().accounts.derived[chainId]

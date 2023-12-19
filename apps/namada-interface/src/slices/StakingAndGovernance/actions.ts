@@ -3,7 +3,7 @@ import BigNumber from "bignumber.js";
 
 import { Query } from "@namada/shared";
 import { Signer, Tokens } from "@namada/types";
-import { chains } from "@namada/chains";
+import { chains, defaultChainId as chainId } from "@namada/chains";
 import { getIntegration } from "@namada/hooks";
 
 import {
@@ -48,9 +48,9 @@ const toMyValidators = (
     index == -1
       ? (arr: MyValidators[]) => arr
       : (arr: MyValidators[], idx: number) => [
-          ...arr.slice(0, idx),
-          ...arr.slice(idx + 1),
-        ];
+        ...arr.slice(0, idx),
+        ...arr.slice(idx + 1),
+      ];
 
   const stakedAmount = new BigNumber(stake).plus(
     new BigNumber(v?.stakedAmount || 0)
@@ -113,8 +113,7 @@ export const fetchTotalBonds = createAsyncThunk<
   { address: string; totalBonds: number },
   string,
   { state: RootState }
->(FETCH_TOTAL_BONDS, async (address: string, thunkApi) => {
-  const { chainId } = thunkApi.getState().settings;
+>(FETCH_TOTAL_BONDS, async (address: string) => {
   const { rpc } = chains[chainId];
   const query = new Query(rpc);
   const result = await query.query_total_bonds(address);
@@ -127,7 +126,6 @@ export const fetchValidators = createAsyncThunk<
   void,
   { state: RootState }
 >(FETCH_VALIDATORS, async (_, thunkApi) => {
-  const { chainId } = thunkApi.getState().settings;
   const { rpc } = chains[chainId];
 
   const query = new Query(rpc);
@@ -166,7 +164,6 @@ export const fetchMyValidators = createAsyncThunk<
   { state: RootState }
 >(FETCH_MY_VALIDATORS, async (_, thunkApi) => {
   try {
-    const { chainId } = thunkApi.getState().settings;
     const { rpc } = chains[chainId];
 
     const accounts: Account[] = Object.values(
@@ -193,7 +190,6 @@ export const fetchMyStakingPositions = createAsyncThunk<
   { state: RootState }
 >(FETCH_MY_STAKING_POSITIONS, async (_, thunkApi) => {
   try {
-    const { chainId } = thunkApi.getState().settings;
     const { rpc } = chains[chainId];
 
     const accounts: Account[] = Object.values(
@@ -219,8 +215,7 @@ export const fetchEpoch = createAsyncThunk<
   { epoch: BigNumber },
   void,
   { state: RootState }
->(FETCH_EPOCH, async (_, thunkApi) => {
-  const { chainId } = thunkApi.getState().settings;
+>(FETCH_EPOCH, async () => {
   const { rpc } = chains[chainId];
 
   const query = new Query(rpc);
@@ -240,7 +235,6 @@ export const postNewBonding = createAsyncThunk<
   ChangeInStakingPosition,
   { state: RootState }
 >(POST_NEW_STAKING, async (change, thunkApi) => {
-  const { chainId } = thunkApi.getState().settings;
   const { derived } = thunkApi.getState().accounts;
   const integration = getIntegration(chainId);
   const signer = integration.signer() as Signer;
@@ -276,7 +270,6 @@ export const postNewUnbonding = createAsyncThunk<
   ChangeInStakingPosition,
   { state: RootState }
 >(POST_UNSTAKING, async (change, thunkApi) => {
-  const { chainId } = thunkApi.getState().settings;
   const { derived } = thunkApi.getState().accounts;
   const integration = getIntegration(chainId);
   const signer = integration.signer() as Signer;
@@ -307,7 +300,6 @@ export const postNewWithdraw = createAsyncThunk<
   { owner: string; validatorId: string },
   { state: RootState }
 >(POST_UNSTAKING, async ({ owner, validatorId }, thunkApi) => {
-  const { chainId } = thunkApi.getState().settings;
   const { derived } = thunkApi.getState().accounts;
   const integration = getIntegration(chainId);
   const signer = integration.signer() as Signer;

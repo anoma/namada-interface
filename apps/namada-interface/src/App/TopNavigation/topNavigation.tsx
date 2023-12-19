@@ -2,17 +2,8 @@ import React, { useContext, useState } from "react";
 import { Location, NavigateFunction, useNavigate } from "react-router-dom";
 import { ThemeContext } from "styled-components";
 
-import { chains } from "@namada/chains";
-import {
-  Icon,
-  IconName,
-  Image,
-  ImageName,
-  Select,
-  Toggle,
-} from "@namada/components";
+import { Icon, IconName, Image, ImageName, Toggle } from "@namada/components";
 import { useSanitizedLocation } from "@namada/hooks";
-import { Chain } from "@namada/types";
 import { ColorMode } from "@namada/utils";
 
 import {
@@ -21,8 +12,6 @@ import {
   locationToStakingAndGovernanceSubRoute,
   locationToTopLevelRoute,
 } from "App/types";
-import { SettingsState, setChainId } from "slices/settings";
-import { useAppDispatch, useAppSelector } from "store";
 import { AppStore } from "store/store";
 import {
   ColorModeContainer,
@@ -31,7 +20,6 @@ import {
   MenuButton,
   MenuCloseButton,
   MenuItem,
-  MenuItemForSecondRow,
   MenuItemSubComponent,
   MenuItemTextContainer,
   MiddleSection,
@@ -42,11 +30,9 @@ import {
   OnlyInMedium,
   OnlyInSmall,
   RightSection,
-  SubMenuContainer,
   TopNavigationContainer,
   TopNavigationContainerRow,
   TopNavigationContainerSecondRow,
-  TopNavigationSecondRowInnerContainer,
 } from "./topNavigation.components";
 import TopNavigationLoggedIn from "./topNavigationLoggedIn";
 
@@ -104,83 +90,6 @@ const TopNavigationMenuItems = (
         <MenuItemTextContainer>Proposals</MenuItemTextContainer>
       </MenuItem>
     </>
-  );
-};
-
-type SecondMenuRowProps = {
-  location: Location;
-  navigate: NavigateFunction;
-  toggleColorMode: () => void;
-  setColorMode: (mode: ColorMode) => void;
-};
-
-const SecondMenuRow = (props: SecondMenuRowProps): React.ReactElement => {
-  const dispatch = useAppDispatch();
-  const { navigate, location } = props;
-  const topLevelRoute = locationToTopLevelRoute(location);
-  const stakingAndGovernanceSubRoute =
-    locationToStakingAndGovernanceSubRoute(location);
-  const isSubMenuContentVisible =
-    topLevelRoute === TopLevelRoute.StakingAndGovernance;
-  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
-
-  // callback func for select component
-  const handleNetworkSelect = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ): void => {
-    const { value } = event.target;
-    dispatch(setChainId(value));
-  };
-
-  // transform for select component
-  const networks = Object.values(chains).map(({ chainId, alias }: Chain) => ({
-    label: alias,
-    value: chainId,
-  }));
-
-  return (
-    <TopNavigationSecondRowInnerContainer
-      spaceBetween={isSubMenuContentVisible}
-    >
-      {isSubMenuContentVisible && (
-        <SubMenuContainer>
-          <MenuItemForSecondRow
-            onClick={() => {
-              navigate(
-                `${TopLevelRoute.StakingAndGovernance}${StakingAndGovernanceSubRoute.Staking}`
-              );
-            }}
-            isSelected={
-              stakingAndGovernanceSubRoute ===
-              StakingAndGovernanceSubRoute.Staking
-            }
-          >
-            Staking
-          </MenuItemForSecondRow>
-          <MenuItemForSecondRow
-            onClick={() => {
-              navigate(
-                `${TopLevelRoute.StakingAndGovernance}${StakingAndGovernanceSubRoute.PublicGoodsFunding}`
-              );
-            }}
-            isSelected={
-              stakingAndGovernanceSubRoute ===
-              StakingAndGovernanceSubRoute.PublicGoodsFunding
-            }
-          >
-            Public Goods Funding
-          </MenuItemForSecondRow>
-        </SubMenuContainer>
-      )}
-
-      <RightSection>
-        <Select
-          value={chainId}
-          data={networks}
-          onChange={handleNetworkSelect}
-        />
-      </RightSection>
-    </TopNavigationSecondRowInnerContainer>
   );
 };
 
@@ -242,14 +151,6 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
             )}
           </RightSection>
         </TopNavigationContainerRow>
-
-        {/* sub menu */}
-        <SecondMenuRow
-          location={location}
-          navigate={navigate}
-          toggleColorMode={toggleColorMode}
-          setColorMode={setColorMode}
-        />
       </OnlyInMedium>
 
       {/* mobile size */}

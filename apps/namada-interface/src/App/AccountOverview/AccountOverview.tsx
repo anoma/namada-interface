@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BigNumber from "bignumber.js";
 
-import { chains } from "@namada/chains";
+import { chains, defaultChainId as chainId } from "@namada/chains";
 import {
   useIntegrationConnection,
   useUntilIntegrationAttached,
@@ -48,7 +48,7 @@ export const AccountOverview = (): JSX.Element => {
 
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
 
-  const { chainId, fiatCurrency } = useAppSelector<SettingsState>(
+  const { fiatCurrency } = useAppSelector<SettingsState>(
     (state) => state.settings
   );
 
@@ -96,9 +96,8 @@ export const AccountOverview = (): JSX.Element => {
       <AccountOverviewContent>
         <HeadingContainer>
           <div>
-            <Heading level="h1">Your wallet</Heading>
             <TotalHeading>
-              <Heading level="h2">Total Balance</Heading>
+              <Heading level="h2">Wallet</Heading>
             </TotalHeading>
           </div>
           <TotalContainer>
@@ -154,7 +153,7 @@ export const AccountOverview = (): JSX.Element => {
                 }
               >
                 {currentExtensionAttachStatus === "attached" ||
-                currentExtensionAttachStatus === "pending"
+                  currentExtensionAttachStatus === "pending"
                   ? `Connect to ${extensionAlias} Extension`
                   : "Click to download the extension"}
               </Button>

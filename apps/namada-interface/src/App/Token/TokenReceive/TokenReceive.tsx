@@ -1,8 +1,7 @@
+import { useQRCode } from "next-qrcode";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQRCode } from "next-qrcode";
 
-import { formatRoute } from "@namada/utils";
 import {
   Heading,
   Icon,
@@ -10,36 +9,35 @@ import {
   NavigationContainer,
   Select,
 } from "@namada/components";
+import { formatRoute } from "@namada/utils";
 
-import {
-  CanvasContainer,
-  TokenReceiveContainer,
-  ButtonsContainer,
-  TokenReceiveContent,
-  Address,
-} from "./TokenReceive.components";
-import { BackButton } from "../TokenSend/TokenSendForm.components";
+import { defaultChainId } from "@namada/chains";
 import { TopLevelRoute } from "App/types";
 import { AccountsState } from "slices/accounts";
-import { SettingsState } from "slices/settings";
 import { useAppSelector } from "store";
+import { BackButton } from "../TokenSend/TokenSendForm.components";
+import {
+  Address,
+  ButtonsContainer,
+  CanvasContainer,
+  TokenReceiveContainer,
+  TokenReceiveContent,
+} from "./TokenReceive.components";
 
 const TokenReceive = (): JSX.Element => {
   const { Canvas } = useQRCode();
   const navigate = useNavigate();
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
-  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const [selectedAccountAddress, setSelectedAccountAddress] = useState<
     string | undefined
   >();
 
-  const accounts = Object.values(derived[chainId]);
+  const accounts = Object.values(derived[defaultChainId]);
 
   const accountsData = accounts.map(({ details }) => ({
     value: details.address,
-    label: `${details.alias} - ${
-      details.isShielded ? "Shielded" : "Transparent"
-    }`,
+    label: `${details.alias} - ${details.isShielded ? "Shielded" : "Transparent"
+      }`,
   }));
 
   useEffect(() => {
@@ -52,7 +50,7 @@ const TokenReceive = (): JSX.Element => {
     if (accountsData[0]) {
       setSelectedAccountAddress(accountsData[0].value);
     }
-  }, [chainId]);
+  }, []);
 
   const { protocol, host } = window.location;
 

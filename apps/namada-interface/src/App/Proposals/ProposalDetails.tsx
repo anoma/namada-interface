@@ -1,32 +1,31 @@
-import * as O from "fp-ts/Option";
-import * as A from "fp-ts/Array";
 import BigNumber from "bignumber.js";
+import * as A from "fp-ts/Array";
+import * as O from "fp-ts/Option";
 
+import { defaultChainId as chainId, chains } from "@namada/chains";
 import { Select } from "@namada/components";
-import { chains } from "@namada/chains";
+import { getIntegration } from "@namada/hooks";
 import { Query } from "@namada/shared";
 import { AccountType, Signer, Tokens } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
-import { getIntegration } from "@namada/hooks";
 
 import { useAppSelector } from "store";
 
+import { pipe } from "fp-ts/lib/function";
+import { useCallback, useEffect, useState } from "react";
+import { AccountsState } from "slices/accounts";
+import { Proposal } from "slices/proposals";
 import {
   ProposalCardVoteButton,
-  ProposalDetailsContainer,
   ProposalDetailsAddresses,
   ProposalDetailsAddressesHeader,
   ProposalDetailsButtons,
+  ProposalDetailsContainer,
   ProposalDetailsContent,
-  ProposalDetailsContentSubHeader,
-  ProposalDetailsContentParagraph,
   ProposalDetailsContentMainHeader,
+  ProposalDetailsContentParagraph,
+  ProposalDetailsContentSubHeader,
 } from "./Proposals.components";
-import { useCallback, useEffect, useState } from "react";
-import { SettingsState } from "slices/settings";
-import { AccountsState } from "slices/accounts";
-import { Proposal } from "slices/proposals";
-import { pipe } from "fp-ts/lib/function";
 
 export type ProposalDetailsProps = {
   open: boolean;
@@ -46,7 +45,6 @@ const EXPECTED_CONTENT_FIELDS = [
 export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
   const { onClose, maybeProposal } = props;
 
-  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const addresses = Object.keys(derived[chainId]);
 

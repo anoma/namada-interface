@@ -1,35 +1,25 @@
-import { useNavigate } from "react-router-dom";
-import { chains } from "@namada/chains";
-import { Chain } from "@namada/types";
-
-import { setFiatCurrency, setChainId, SettingsState } from "slices/settings";
-import { useAppDispatch, useAppSelector } from "store";
 import { Currencies } from "currencies";
+import { useNavigate } from "react-router-dom";
+import { setFiatCurrency } from "slices/settings";
+import { useAppDispatch, useAppSelector } from "store";
 
-import { SettingsWalletSettingsContainer } from "./SettingsWalletSettings.components";
 import {
-  NavigationContainer,
   Heading,
-  Tooltip,
   Icon,
   IconName,
-  Select,
+  NavigationContainer,
   Option,
+  Select,
+  Tooltip,
 } from "@namada/components";
 import { InputContainer } from "App/AccountOverview/AccountOverview.components";
 import { BackButton } from "App/Token/TokenSend/TokenSendForm.components";
 import { ButtonsContainer, SettingsContent } from "../Settings.components";
+import { SettingsWalletSettingsContainer } from "./SettingsWalletSettings.components";
 
 export const SettingsWalletSettings = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-
-  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
-
-  const networks = Object.values(chains).map(({ chainId, alias }: Chain) => ({
-    label: alias,
-    value: chainId,
-  }));
 
   const currencies: Option<string>[] = Currencies.map((currency) => ({
     value: currency.currency,
@@ -46,14 +36,6 @@ export const SettingsWalletSettings = (): JSX.Element => {
     const { value } = e.target;
 
     dispatch(setFiatCurrency(value));
-  };
-
-  const handleNetworkSelect = (
-    e: React.ChangeEvent<HTMLSelectElement>
-  ): void => {
-    const { value } = e.target;
-
-    dispatch(setChainId(value));
   };
 
   return (
@@ -78,23 +60,6 @@ export const SettingsWalletSettings = (): JSX.Element => {
             value={currentCurrency}
             onChange={handleCurrencySelect}
           ></Select>
-        </InputContainer>
-
-        <InputContainer>
-          <Select
-            label={
-              <div>
-                Network
-                <Tooltip
-                  anchor={<Icon iconName={IconName.Info} />}
-                  tooltipText="Default network from which accounts will be derived."
-                />
-              </div>
-            }
-            value={chainId}
-            data={networks}
-            onChange={handleNetworkSelect}
-          />
         </InputContainer>
       </SettingsContent>
       <ButtonsContainer>

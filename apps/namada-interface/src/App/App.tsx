@@ -25,7 +25,7 @@ import {
 import { persistor, store, useAppDispatch, useAppSelector } from "store";
 import { Toasts } from "App/Toast";
 import { SettingsState } from "slices/settings";
-import { chains } from "@namada/chains";
+import { chains, defaultChainId as chainId } from "@namada/chains";
 import { useIntegration, useUntilIntegrationAttached } from "@namada/hooks";
 import { Outlet } from "react-router-dom";
 import { addAccounts, fetchBalances } from "slices/accounts";
@@ -61,7 +61,7 @@ function App(): JSX.Element {
     setColorMode((currentMode) => (currentMode === "dark" ? "light" : "dark"));
   };
 
-  const { chainId, connectedChains } = useAppSelector<SettingsState>(
+  const { connectedChains } = useAppSelector<SettingsState>(
     (state) => state.settings
   );
   const chain = chains[chainId];
@@ -97,24 +97,24 @@ function App(): JSX.Element {
         <GlobalStyles colorMode={colorMode} />
         {(currentExtensionAttachStatus === "attached" ||
           currentExtensionAttachStatus === "detached") && (
-          <AppContainer data-testid="AppContainer">
-            <TopSection>
-              <TopNavigation
-                colorMode={colorMode}
-                toggleColorMode={toggleColorMode}
-                setColorMode={setColorMode}
-                store={store}
-              />
-            </TopSection>
-            <BottomSection>
-              <AnimatePresence exitBeforeEnter>
-                <ContentContainer>
-                  <Outlet />
-                </ContentContainer>
-              </AnimatePresence>
-            </BottomSection>
-          </AppContainer>
-        )}
+            <AppContainer data-testid="AppContainer">
+              <TopSection>
+                <TopNavigation
+                  colorMode={colorMode}
+                  toggleColorMode={toggleColorMode}
+                  setColorMode={setColorMode}
+                  store={store}
+                />
+              </TopSection>
+              <BottomSection>
+                <AnimatePresence exitBeforeEnter>
+                  <ContentContainer>
+                    <Outlet />
+                  </ContentContainer>
+                </AnimatePresence>
+              </BottomSection>
+            </AppContainer>
+          )}
         {currentExtensionAttachStatus === "pending" && <AppLoader />}
       </PersistGate>
     </ThemeProvider>
