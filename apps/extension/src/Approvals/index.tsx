@@ -4,9 +4,9 @@ import { HashRouter } from "react-router-dom";
 
 import { getTheme } from "@namada/utils";
 import { RequesterProvider } from "services";
-import { Approvals } from "./Approvals";
 import { ThemeProvider } from "styled-components";
-import { GlobalStyle } from "App/Common/GlobalStyles";
+import "../global.css";
+import { Approvals } from "./Approvals";
 
 export default ((): void => {
   const theme = getTheme("dark");
@@ -15,8 +15,6 @@ export default ((): void => {
       <HashRouter>
         <RequesterProvider>
           <ThemeProvider theme={theme}>
-            <GlobalStyle />
-
             <Approvals />
           </ThemeProvider>
         </RequesterProvider>

@@ -8,28 +8,23 @@ import {
 } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 
-import { Container, LifecycleExecutionWrapper } from "@namada/components";
-import { formatRouterPath, getTheme } from "@namada/utils";
+import {
+  Container,
+  LifecycleExecutionWrapper as Wrapper,
+} from "@namada/components";
+import { getTheme } from "@namada/utils";
 import { AccountSecret } from "background/keyring";
-import { AnimatePresence } from "framer-motion";
-import { SeedPhrase, SeedPhraseConfirmation } from "./AccountCreation/Steps";
-import { Completion, ContainerHeader } from "./Common";
-import { SeedPhraseImport } from "./ImportAccount";
-import { LedgerConfirmation, LedgerConnect, LedgerImport } from "./Ledger";
-import { MotionContainer } from "./Setup.components";
-import { Start } from "./Start";
-
+import { AnimatePresence, motion } from "framer-motion";
 import { useCloseTabOnExtensionLock } from "hooks/useCloseTabOnExtensionLock";
 import { usePasswordInitialized } from "hooks/usePasswordInitialized";
-import { SeedPhraseWarning } from "./AccountCreation/Steps/SeedPhraseWarning";
-import { SeedPhraseSetup } from "./ImportAccount";
-import {
-  AccountCreationRoute,
-  AccountDetails,
-  AccountImportRoute,
-  LedgerConnectRoute,
-  TopLevelRoute,
-} from "./types";
+import { SeedPhrase, SeedPhraseConfirmation } from "./AccountCreation";
+import { SeedPhraseWarning } from "./AccountCreation/SeedPhraseWarning";
+import { Completion, ContainerHeader } from "./Common";
+import { SeedPhraseImport, SeedPhraseSetup } from "./ImportAccount";
+import { LedgerConfirmation, LedgerConnect, LedgerImport } from "./Ledger";
+import { Start } from "./Start";
+import routes from "./routes";
+import { AccountDetails } from "./types";
 
 type AnimatedTransitionProps = {
   elementKey: string;
@@ -42,14 +37,15 @@ type AnimatedTransitionProps = {
 const AnimatedTransition: React.FC<AnimatedTransitionProps> = (props) => {
   const { children, elementKey } = props;
   return (
-    <MotionContainer
+    <motion.div
+      className="h-full"
       key={elementKey}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
       {children}
-    </MotionContainer>
+    </motion.div>
   );
 };
 
@@ -88,76 +84,60 @@ export const Setup: React.FC = () => {
             <Routes>
               {/* Index */}
               <Route
-                path={formatRouterPath([TopLevelRoute.Start])}
+                path={routes.start()}
                 element={
-                  <LifecycleExecutionWrapper onLoad={() => setTotalSteps(0)}>
+                  <Wrapper onLoad={() => setTotalSteps(0)}>
                     <Start />
-                  </LifecycleExecutionWrapper>
+                  </Wrapper>
                 }
               />
 
               {/* Create New Keys */}
               <Route
-                path={`/${TopLevelRoute.AccountCreation}`}
                 element={
-                  <LifecycleExecutionWrapper onLoad={() => setTotalSteps(4)}>
+                  <Wrapper onLoad={() => setTotalSteps(4)}>
                     <Outlet />
-                  </LifecycleExecutionWrapper>
+                  </Wrapper>
                 }
               >
                 <Route
-                  path={AccountCreationRoute.SeedPhraseWarning}
+                  path={routes.accountCreationWarning()}
                   element={
-                    <LifecycleExecutionWrapper onLoad={goToStep(1)}>
+                    <Wrapper onLoad={goToStep(1)}>
                       <SeedPhraseWarning
                         onComplete={() => {
-                          navigate(
-                            formatRouterPath([
-                              TopLevelRoute.AccountCreation,
-                              AccountCreationRoute.SeedPhrase,
-                            ])
-                          );
+                          navigate(routes.accountCreationSeed());
                         }}
                       />
-                    </LifecycleExecutionWrapper>
+                    </Wrapper>
                   }
                 />
                 <Route
-                  path={AccountCreationRoute.SeedPhrase}
+                  path={routes.accountCreationSeed()}
                   element={
-                    <LifecycleExecutionWrapper onLoad={goToStep(2)}>
+                    <Wrapper onLoad={goToStep(2)}>
                       <SeedPhrase
                         accountCreationDetails={accountCreationDetails}
                         defaultSeedPhrase={seedPhrase}
                         onConfirm={(seedPhrase: string[]) => {
                           setAccountSecret({ t: "Mnemonic", seedPhrase });
-                          navigate(
-                            formatRouterPath([
-                              TopLevelRoute.AccountCreation,
-                              AccountCreationRoute.SeedPhraseConfirmation,
-                            ])
-                          );
+                          navigate(routes.accountCreationConfirm());
                         }}
                       />
-                    </LifecycleExecutionWrapper>
+                    </Wrapper>
                   }
                 />
                 <Route
-                  path={AccountCreationRoute.SeedPhraseConfirmation}
+                  path={routes.accountCreationConfirm()}
                   element={
-                    <LifecycleExecutionWrapper onLoad={goToStep(3)}>
+                    <Wrapper onLoad={goToStep(3)}>
                       <SeedPhraseConfirmation
                         accountCreationDetails={accountCreationDetails}
                         seedPhrase={seedPhrase || []}
                         passwordRequired={!passwordInitialized}
                         onConfirm={(accountCreationDetails: AccountDetails) => {
                           if (!seedPhrase?.length) {
-                            navigate(
-                              formatRouterPath([
-                                TopLevelRoute.AccountCreation,
-                                AccountCreationRoute.SeedPhraseConfirmation,
-                              ])
-                            );
+                            navigate(routes.accountCreationConfirm());
                             return;
                           }
                           setAccountCreationDetails(accountCreationDetails);
@@ -166,21 +146,16 @@ export const Setup: React.FC = () => {
                             seedPhrase,
                           });
                           setAccountSecret(undefined); // this also sets seedPhrase to undefined
-                          navigate(
-                            formatRouterPath([
-                              TopLevelRoute.AccountCreation,
-                              AccountCreationRoute.Completion,
-                            ])
-                          );
+                          navigate(routes.accountCreationComplete());
                         }}
                       />
-                    </LifecycleExecutionWrapper>
+                    </Wrapper>
                   }
                 />
                 <Route
-                  path={AccountCreationRoute.Completion}
+                  path={routes.accountCreationComplete()}
                   element={
-                    <LifecycleExecutionWrapper onLoad={goToStep(4)}>
+                    <Wrapper onLoad={goToStep(4)}>
                       <Completion
                         passwordRequired={!passwordInitialized}
                         pageTitle="Namada Keys Created"
@@ -190,74 +165,57 @@ export const Setup: React.FC = () => {
                         password={accountCreationDetails.password || ""}
                         scanAccounts={false}
                       />
-                    </LifecycleExecutionWrapper>
+                    </Wrapper>
                   }
                 />
               </Route>
 
               {/* Import Existing Keys */}
               <Route
-                path={`/${TopLevelRoute.ImportAccount}`}
                 element={
-                  <LifecycleExecutionWrapper onLoad={() => setTotalSteps(3)}>
+                  <Wrapper onLoad={() => setTotalSteps(3)}>
                     <Outlet />
-                  </LifecycleExecutionWrapper>
+                  </Wrapper>
                 }
               >
                 <Route
-                  path={AccountImportRoute.SeedPhrase}
+                  path={routes.accountImportSeed()}
                   element={
-                    <LifecycleExecutionWrapper onLoad={goToStep(1)}>
+                    <Wrapper onLoad={goToStep(1)}>
                       <SeedPhraseImport
                         onConfirm={(accountSecret: AccountSecret) => {
                           setAccountSecret(accountSecret);
-                          navigate(
-                            formatRouterPath([
-                              TopLevelRoute.ImportAccount,
-                              AccountImportRoute.Password,
-                            ])
-                          );
+                          navigate(routes.accountImportPassword());
                         }}
                       />
-                    </LifecycleExecutionWrapper>
+                    </Wrapper>
                   }
                 />
                 <Route
-                  path={AccountImportRoute.Password}
+                  path={routes.accountImportPassword()}
                   element={
-                    <LifecycleExecutionWrapper onLoad={goToStep(2)}>
+                    <Wrapper onLoad={goToStep(2)}>
                       <SeedPhraseSetup
                         passwordRequired={!passwordInitialized}
                         accountCreationDetails={accountCreationDetails}
                         accountSecret={accountSecret}
                         onConfirm={(accountCreationDetails: AccountDetails) => {
                           if (!accountSecret) {
-                            navigate(
-                              formatRouterPath([
-                                TopLevelRoute.ImportAccount,
-                                AccountImportRoute.SeedPhrase,
-                              ])
-                            );
+                            navigate(routes.accountImportSeed());
                             return;
                           }
-
                           setSelectedAccountSecret(accountSecret);
                           setAccountCreationDetails(accountCreationDetails);
-                          navigate(
-                            formatRouterPath([
-                              TopLevelRoute.ImportAccount,
-                              AccountImportRoute.Completion,
-                            ])
-                          );
+                          navigate(routes.accountImportComplete());
                         }}
                       />
-                    </LifecycleExecutionWrapper>
+                    </Wrapper>
                   }
                 />
                 <Route
-                  path={AccountImportRoute.Completion}
+                  path={routes.accountImportComplete()}
                   element={
-                    <LifecycleExecutionWrapper onLoad={goToStep(3)}>
+                    <Wrapper onLoad={goToStep(3)}>
                       <Completion
                         passwordRequired={!passwordInitialized}
                         pageTitle="Namada Keys Imported"
@@ -267,42 +225,41 @@ export const Setup: React.FC = () => {
                         password={accountCreationDetails.password || ""}
                         scanAccounts={false}
                       />
-                    </LifecycleExecutionWrapper>
+                    </Wrapper>
                   }
                 />
               </Route>
 
               {/* Connect to Ledger */}
               <Route
-                path={`/${TopLevelRoute.Ledger}`}
                 element={
-                  <LifecycleExecutionWrapper onLoad={() => setTotalSteps(3)}>
+                  <Wrapper onLoad={() => setTotalSteps(3)}>
                     <Outlet />
-                  </LifecycleExecutionWrapper>
+                  </Wrapper>
                 }
               >
                 <Route
-                  path={`${LedgerConnectRoute.Connect}`}
+                  path={routes.ledgerConnect()}
                   element={
-                    <LifecycleExecutionWrapper onLoad={() => setCurrentStep(1)}>
+                    <Wrapper onLoad={() => setCurrentStep(1)}>
                       <LedgerConnect />
-                    </LifecycleExecutionWrapper>
+                    </Wrapper>
                   }
                 />
                 <Route
-                  path={`${LedgerConnectRoute.Import}`}
+                  path={routes.ledgerImport()}
                   element={
-                    <LifecycleExecutionWrapper onLoad={() => setCurrentStep(2)}>
+                    <Wrapper onLoad={() => setCurrentStep(2)}>
                       <LedgerImport passwordRequired={!passwordInitialized} />
-                    </LifecycleExecutionWrapper>
+                    </Wrapper>
                   }
                 />
                 <Route
-                  path={`${LedgerConnectRoute.Completion}`}
+                  path={routes.ledgerComplete()}
                   element={
-                    <LifecycleExecutionWrapper onLoad={() => setCurrentStep(3)}>
+                    <Wrapper onLoad={() => setCurrentStep(3)}>
                       <LedgerConfirmation />
-                    </LifecycleExecutionWrapper>
+                    </Wrapper>
                   }
                 />
               </Route>

@@ -13,7 +13,7 @@ const loading = tv({
   variants: {
     visible: {
       false: {
-        container: "opacity-0 pointer-events-none static",
+        container: "opacity-0 pointer-events-none absolute",
       },
     },
     variant: {

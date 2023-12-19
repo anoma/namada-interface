@@ -9,12 +9,12 @@ const container = tv({
       "overflow-hidden transition-all duration-100 ease-out min-w-[540px]"
     ),
     header: "border-b-2 border-black relative py-5 relative",
-    body: "pt-6 px-7 pb-8 flex-1 animate-fade-in sm:px-8 sm:pt-10 sm:pb-12",
+    body: "pt-6 px-7 pb-8 flex-1 animate-fade-in sm:px-8 sm:py-8",
   },
   variants: {
     size: {
       popup: {
-        base: "items-stretch min-h-[320px] py-0 w-full",
+        base: "items-stretch py-0 w-full",
         wrapper: "rounded-none min-h-[320px] min-w-full",
       },
       base: {},

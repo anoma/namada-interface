@@ -65,7 +65,7 @@ const iconClasses = tv({
       sm: "w-4",
       md: "w-6",
       lg: "w-9",
-      full: "w-full",
+      full: "w-full [&_svg]:w-full",
     },
     fill: {
       true: "[&_path]:fill-current [&_rect]:fill-current [&_circle]:fill-current",

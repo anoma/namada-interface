@@ -8,7 +8,7 @@
     "watch:storybook": "storybook dev -p 6006",
     "build:tailwind": "npx tailwindcss -i ./src/tailwind-input.css -o ./src/styles/tailwind-output.css",
     "storybook": "concurrently 'yarn:watch:*'",
-    "build-storybook": "build:tailwind && storybook build"
+    "build-storybook": "yarn build:tailwind && storybook build"
   },
   "dependencies": {
     "@emotion/react": "^11.11.1",

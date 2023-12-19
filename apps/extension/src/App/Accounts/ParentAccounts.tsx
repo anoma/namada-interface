@@ -8,13 +8,11 @@ import {
   Heading,
   KeyListItem,
   Stack,
-  Text,
 } from "@namada/components";
 import { DerivedAccount } from "@namada/types";
 import routes from "App/routes";
 import { ParentAccount } from "background/keyring";
 import { AccountContext } from "context";
-import { ButtonContainer, SettingsHeader } from "./ParentAccounts.components";
 
 /**
  * Represents the extension's settings page.
@@ -48,16 +46,18 @@ export const ParentAccounts = (): JSX.Element => {
 
   return (
     <Stack gap={GapPatterns.TitleContent}>
-      <Heading className="text-2xl uppercase">Keys Management</Heading>
+      <Heading className="text-2xl uppercase text-center text-white">
+        Keys Management
+      </Heading>
       <Stack gap={4}>
-        <SettingsHeader>
-          <Text>Set default keys</Text>
-          <ButtonContainer>
+        <nav className="grid items-end grid-cols-[auto_min-content]">
+          <p className="text-white font-medium text-base">Set default keys</p>
+          <div className="w-24">
             <ActionButton size="xs" onClick={goToSetupPage}>
               Add keys
             </ActionButton>
-          </ButtonContainer>
-        </SettingsHeader>
+          </div>
+        </nav>
         <Stack as="ul" gap={3}>
           {[...parentAccounts].reverse().map((account, idx) => (
             <KeyListItem

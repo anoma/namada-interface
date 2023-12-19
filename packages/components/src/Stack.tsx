@@ -45,6 +45,7 @@ export const Stack = <T extends keyof JSX.IntrinsicElements>({
     {
       className: stack({ direction, full, class: className }),
       style: { gap: calculateGap(gap) },
+      ...props,
     },
     children
   );

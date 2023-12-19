@@ -2,7 +2,7 @@ import { createElement } from "react";
 import { tv } from "tailwind-variants";
 
 const heading = tv({
-  base: "m-0 p-0 text-balance",
+  base: "m-0 p-0 text-balance font-medium",
   variants: {},
 });
 

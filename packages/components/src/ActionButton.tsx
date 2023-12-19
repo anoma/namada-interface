@@ -19,8 +19,8 @@ const actionButton = tv({
     size: {
       xs: "px-4 py-1.5 text-sm",
       sm: "px-6 py-2.5 text-sm",
-      md: "px-8 py-3 text-md",
-      lg: "px-8 py-3.5 text-lg",
+      md: "px-8 py-3 text-base",
+      lg: "px-8 py-3 text-lg",
       xl: "px-10 py-5 text-xl",
     },
 
@@ -35,7 +35,10 @@ const actionButton = tv({
     },
 
     disabled: {
-      true: "bg-gray-500 cursor-auto opacity-25 hover:text-black active:top-0",
+      true: clsx(
+        "bg-neutral-500 text-neutral-100 cursor-auto opacity-25",
+        "hover:text-neutral-100 active:top-0"
+      ),
     },
   },
 
@@ -121,6 +124,7 @@ export const ActionButton = ({
         outlined,
         disabled,
       }),
+      disabled,
       ...props,
     },
     <>

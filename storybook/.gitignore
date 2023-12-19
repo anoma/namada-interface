@@ -23,4 +23,5 @@ dist-ssr
 *.sln
 *.sw?
 
+storybook-static
 src/styles/tailwind-output.css
