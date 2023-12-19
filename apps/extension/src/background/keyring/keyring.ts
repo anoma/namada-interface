@@ -83,7 +83,7 @@ export class KeyRing {
     protected readonly sdk: Sdk,
     protected readonly query: Query,
     protected readonly cryptoMemory: WebAssembly.Memory
-  ) { }
+  ) {}
 
   public get status(): KeyRingStatus {
     return this._status;
@@ -763,7 +763,25 @@ export class KeyRing {
       const xsk = JSON.parse(sensitiveProps.text).spendingKey;
       // Append xsk to SDK wallet instance
       this.sdk.add_spending_key(xsk, account.public.id);
-      await submit({ xsk });
+
+      // Use transparent account as the signing key
+      const transparentAccount = await this.vaultService.findOne<AccountStore>(
+        KEYSTORE_KEY,
+        "id",
+        account.public.parentId
+      );
+      if (transparentAccount === null) {
+        throw new Error("Transparent account not found");
+      }
+      const transparentAddress = transparentAccount.public.address;
+      if (!transparentAddress) {
+        throw new Error("No address found on transparent account");
+      }
+
+      await submit({
+        xsk,
+        privateKey: await this.getSigningKey(transparentAddress),
+      });
     } else {
       await submit({ privateKey: await this.getSigningKey(source) });
     }
