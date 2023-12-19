@@ -13,7 +13,7 @@ use js_sys::Uint8Array;
 use namada::ledger::{eth_bridge::bridge_pool::build_bridge_pool_tx, pos::common::SecretKey};
 use namada::namada_sdk::masp::ShieldedContext;
 use namada::namada_sdk::rpc::query_epoch;
-use namada::namada_sdk::signing::SigningTxData;
+use namada::namada_sdk::signing::{find_key_by_pk, SigningTxData};
 use namada::namada_sdk::tx::{
     build_bond, build_ibc_transfer, build_reveal_pk, build_transfer, build_unbond,
     build_vote_proposal, build_withdraw, is_reveal_pk_needed, process_tx,
@@ -21,7 +21,7 @@ use namada::namada_sdk::tx::{
 use namada::namada_sdk::wallet::{Store, Wallet};
 use namada::namada_sdk::{Namada, NamadaImpl};
 use namada::proto::Tx;
-use namada::types::address::Address;
+use namada::types::address::{masp_tx_key, Address};
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 pub mod io;
 pub mod masp;
@@ -122,14 +122,20 @@ impl Sdk {
     pub async fn sign_tx(
         &mut self,
         built_tx: BuiltTx,
-        signing_key: String,
+        tx_msg: &[u8],
+        private_key: Option<String>,
     ) -> Result<JsValue, JsError> {
+        let args = tx::tx_args_from_slice(tx_msg)?;
         let BuiltTx {
             mut tx,
             signing_data,
         } = built_tx;
 
-        let signing_key = SecretKey::from_str(&format!("{}{}", "00", signing_key))?;
+        let signing_key = match private_key {
+            Some(private_key) => SecretKey::from_str(&format!("{}{}", "00", private_key))?,
+            None => masp_tx_key(),
+        };
+
         let signing_keys = vec![signing_key.clone()];
 
         if let Some(account_public_keys_map) = signing_data.account_public_keys_map.clone() {
@@ -140,8 +146,16 @@ impl Sdk {
                 signing_data.owner.clone(),
             );
         }
+
+        let key = {
+            // Lock the wallet just long enough to extract a key from it without
+            // interfering with the sign closure call
+            let mut wallet = self.namada.wallet_mut().await;
+            find_key_by_pk(&mut *wallet, &args, &signing_data.fee_payer)
+        }
+        .unwrap_or(signing_key);
         // Sign the fee header
-        tx.sign_wrapper(signing_key);
+        tx.sign_wrapper(key);
 
         to_js_result(borsh::to_vec(&tx)?)
     }
@@ -353,7 +367,8 @@ impl Sdk {
         if is_reveal_pk_needed(self.namada.client(), &address, false).await? {
             let built_tx = self.build_reveal_pk(tx_msg, String::from("")).await?;
             // Conversion from JsValue so we can use self.sign_tx
-            let tx_bytes = Uint8Array::new(&self.sign_tx(built_tx, signing_key).await?).to_vec();
+            let tx_bytes =
+                Uint8Array::new(&self.sign_tx(built_tx, tx_msg, Some(signing_key)).await?).to_vec();
             self.process_tx(&tx_bytes, tx_msg).await?;
         }
 

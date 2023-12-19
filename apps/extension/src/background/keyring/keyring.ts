@@ -656,7 +656,7 @@ export class KeyRing {
       await this.sdk.reveal_pk(signingKey, txMsg);
 
       const builtTx = await this.sdk.build_bond(bondMsg, txMsg);
-      const txBytes = await this.sdk.sign_tx(builtTx, signingKey);
+      const txBytes = await this.sdk.sign_tx(builtTx, txMsg, signingKey);
       await this.sdk.process_tx(txBytes, txMsg);
     } catch (e) {
       throw new Error(`Could not submit bond tx: ${e}`);
@@ -683,7 +683,7 @@ export class KeyRing {
       await this.sdk.reveal_pk(signingKey, txMsg);
 
       const builtTx = await this.sdk.build_unbond(unbondMsg, txMsg);
-      const txBytes = await this.sdk.sign_tx(builtTx, signingKey);
+      const txBytes = await this.sdk.sign_tx(builtTx, txMsg, signingKey);
       await this.sdk.process_tx(txBytes, txMsg);
     } catch (e) {
       throw new Error(`Could not submit unbond tx: ${e}`);
@@ -705,7 +705,7 @@ export class KeyRing {
       await this.sdk.reveal_pk(signingKey, txMsg);
 
       const builtTx = await this.sdk.build_withdraw(withdrawMsg, txMsg);
-      const txBytes = await this.sdk.sign_tx(builtTx, signingKey);
+      const txBytes = await this.sdk.sign_tx(builtTx, txMsg, signingKey);
       await this.sdk.process_tx(txBytes, txMsg);
     } catch (e) {
       throw new Error(`Could not submit withdraw tx: ${e}`);
@@ -731,7 +731,7 @@ export class KeyRing {
         txMsg
       );
 
-      const txBytes = await this.sdk.sign_tx(builtTx, signingKey);
+      const txBytes = await this.sdk.sign_tx(builtTx, txMsg, signingKey);
       await this.sdk.process_tx(txBytes, txMsg);
     } catch (e) {
       throw new Error(`Could not submit vote proposal tx: ${e}`);
@@ -780,7 +780,7 @@ export class KeyRing {
 
       await submit({
         xsk,
-        privateKey: await this.getSigningKey(transparentAddress),
+        // privateKey: await this.getSigningKey(transparentAddress),
       });
     } else {
       await submit({ privateKey: await this.getSigningKey(source) });
@@ -802,7 +802,7 @@ export class KeyRing {
       await this.sdk.reveal_pk(signingKey, txMsg);
 
       const builtTx = await this.sdk.build_ibc_transfer(ibcTransferMsg, txMsg);
-      const txBytes = await this.sdk.sign_tx(builtTx, signingKey);
+      const txBytes = await this.sdk.sign_tx(builtTx, txMsg, signingKey);
       await this.sdk.process_tx(txBytes, txMsg);
     } catch (e) {
       throw new Error(`Could not submit ibc transfer tx: ${e}`);
@@ -827,7 +827,7 @@ export class KeyRing {
         ethBridgeTransferMsg,
         txMsg
       );
-      const txBytes = await this.sdk.sign_tx(builtTx, signingKey);
+      const txBytes = await this.sdk.sign_tx(builtTx, txMsg, signingKey);
       await this.sdk.process_tx(txBytes, txMsg);
     } catch (e) {
       throw new Error(`Could not submit submit_eth_bridge_transfer tx: ${e}`);

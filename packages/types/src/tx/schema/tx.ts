@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import BigNumber from "bignumber.js";
 import { field, option } from "@dao-xyz/borsh";
-import { BigNumberSerializer } from "./utils";
+import BigNumber from "bignumber.js";
 import { TxProps } from "../types";
+import { BigNumberSerializer } from "./utils";
 
 export class TxMsgValue {
   @field({ type: "string" })
@@ -19,6 +19,12 @@ export class TxMsgValue {
 
   @field({ type: option("string") })
   publicKey?: string;
+
+  @field({ type: option("bool") })
+  disposableSigningKey?: boolean;
+
+  @field({ type: option("string") })
+  feeUnshield?: string;
 
   constructor(data: TxProps) {
     Object.assign(this, data);

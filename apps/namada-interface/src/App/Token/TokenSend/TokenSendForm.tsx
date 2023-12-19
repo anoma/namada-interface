@@ -69,6 +69,7 @@ export const submitTransferTransaction = async (
     faucet,
     target,
     token,
+    disposableSigningKey,
   } = txTransferArgs;
   const integration = getIntegration(chainId);
   const signer = integration.signer() as Signer;
@@ -88,6 +89,7 @@ export const submitTransferTransaction = async (
     chainId,
     publicKey: publicKey,
     signer: faucet ? target : undefined,
+    disposableSigningKey,
   };
 
   await signer.submitTransfer(transferArgs, txArgs, type);
@@ -178,19 +180,6 @@ const TokenSendForm = (
   const { details, balance } = derivedAccounts[address];
   const isShieldedSource = details.isShielded;
 
-  let account = details;
-
-  //TODO: workaround so that we can send from shielded to transparent
-  if (isShieldedSource) {
-    const accounts = Object.values(derivedAccounts);
-    const acc = accounts.find((account) => !account.details.isShielded);
-
-    account = {
-      ...details,
-      publicKey: acc?.details.publicKey,
-    };
-  }
-
   const token = Tokens[tokenType];
 
   const isFormInvalid = getIsFormInvalid(
@@ -267,11 +256,12 @@ const TokenSendForm = (
     if ((isShieldedTarget && target) || (target && token.address)) {
       submitTransferTransaction({
         chainId,
-        account,
+        account: details,
         target,
         amount,
         token: tokenType,
         feeAmount: new BigNumber(gasFee),
+        disposableSigningKey: isShieldedSource,
       });
     }
   };
