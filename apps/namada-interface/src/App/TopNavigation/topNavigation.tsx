@@ -1,6 +1,5 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { Location, NavigateFunction, useNavigate } from "react-router-dom";
-import { ThemeContext } from "styled-components";
 
 import { Icon, Image, Toggle } from "@namada/components";
 import { useSanitizedLocation } from "@namada/hooks";
@@ -105,7 +104,6 @@ type TopNavigationProps = {
 function TopNavigation(props: TopNavigationProps): JSX.Element {
   const { colorMode, toggleColorMode, setColorMode, store } = props;
   const navigate = useNavigate();
-  const themeContext = useContext(ThemeContext);
   const [showMenu, setShowMenu] = useState(false);
   const location = useSanitizedLocation();
   const topLevelRoute = locationToTopLevelRoute(location);

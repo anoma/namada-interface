@@ -1,5 +1,5 @@
 import { AnimatePresence } from "framer-motion";
-import { useCallback, useContext, useEffect } from "react";
+import { useCallback, useEffect } from "react";
 
 import { Icon } from "@namada/components";
 
@@ -10,7 +10,6 @@ import type {
 } from "slices/notifications";
 import { ToastTimeoutType, actions } from "slices/notifications";
 import { useAppDispatch, useAppSelector } from "store";
-import { ThemeContext } from "styled-components";
 import {
   CloseToastButton,
   Container,
@@ -61,7 +60,6 @@ export const Toast = ({
   toast,
   onClose,
 }: ToastProps): JSX.Element => {
-  const themeContext = useContext(ThemeContext);
   const timeout = toast.timeout;
 
   useEffect(() => {
@@ -84,10 +82,7 @@ export const Toast = ({
         <Message title={toast.message}>{toast.message}</Message>
       </Content>
       <CloseToastButton onClick={() => onClose(id)}>
-        <Icon
-          strokeColorOverride={themeContext.colors.utility3.black}
-          name="ChevronRight"
-        />
+        <Icon name="ChevronRight" />
       </CloseToastButton>
     </Wrapper>
   );
