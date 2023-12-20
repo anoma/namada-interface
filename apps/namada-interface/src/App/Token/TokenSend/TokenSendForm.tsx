@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { ThemeContext } from "styled-components";
 
 import { defaultChainId } from "@namada/chains";
-import { ActionButton, Icon, Input } from "@namada/components";
+import { AmountInput, ActionButton, Icon, Input } from "@namada/components";
 import { getIntegration } from "@namada/integrations";
 import { Chain, Signer, TokenType, Tokens } from "@namada/types";
 import { ColorMode, DesignConfiguration } from "@namada/utils";
@@ -106,12 +106,13 @@ type Props = {
  */
 const getIsFormInvalid = (
   target: string | undefined,
-  amount: BigNumber,
+  amount: BigNumber | undefined,
   balance: BigNumber,
   isTargetValid: boolean
 ): boolean => {
   return (
     target === "" ||
+    amount === undefined ||
     amount.isNaN() ||
     amount.isGreaterThan(balance) ||
     amount.isEqualTo(0) ||
@@ -123,12 +124,10 @@ const getIsFormInvalid = (
  * gives the description above submit button to make it move obvious for the user
  * that the transfer might be a shielding/unshielding transfer
  */
-const AccountSourceTargetDescription = (
-  props: {
-    isShieldedSource: boolean;
-    isShieldedTarget: boolean;
-  }
-): React.ReactElement => {
+const AccountSourceTargetDescription = (props: {
+  isShieldedSource: boolean;
+  isShieldedTarget: boolean;
+}): React.ReactElement => {
   const { isShieldedSource, isShieldedTarget } = props;
   const source = isShieldedSource ? <b>Shielded</b> : <b>Transparent</b>;
   const target = isShieldedTarget ? <b>Shielded</b> : <b>Transparent</b>;
@@ -139,14 +138,16 @@ const AccountSourceTargetDescription = (
   );
 };
 
-const TokenSendForm = (
-  { address, tokenType, defaultTarget }: Props
-): JSX.Element => {
+const TokenSendForm = ({
+  address,
+  tokenType,
+  defaultTarget,
+}: Props): JSX.Element => {
   const navigate = useNavigate();
   const themeContext = useContext(ThemeContext);
   const chain = useAppSelector<Chain>((state) => state.chain.config);
   const [target, setTarget] = useState<string | undefined>(defaultTarget);
-  const [amount, setAmount] = useState<BigNumber>(new BigNumber(0));
+  const [amount, setAmount] = useState<BigNumber | undefined>(new BigNumber(0));
 
   const [isTargetValid, setIsTargetValid] = useState(true);
   const [isShieldedTarget, setIsShieldedTarget] = useState(false);
@@ -246,6 +247,10 @@ const TokenSendForm = (
   }, [target]);
 
   const handleOnSendClick = (): void => {
+    if (!amount || amount.isNaN()) {
+      return;
+    }
+
     if ((isShieldedTarget && target) || (target && token.address)) {
       submitTransferTransaction({
         account: details,
@@ -334,16 +339,13 @@ const TokenSendForm = (
           )}
         </InputContainer>
         <InputContainer>
-          <Input
-            type="number"
-            label={"Amount"}
-            value={amount.toString()}
-            onChange={(e) => {
-              const { value } = e.target;
-              setAmount(new BigNumber(`${value}`));
-            }}
+          <AmountInput
+            label="Amount"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            min={0}
             onFocus={handleFocus}
-            error={isAmountValid(address, tokenType, amount, target)}
+            error={amount && isAmountValid(address, tokenType, amount, target)}
           />
         </InputContainer>
         <InputContainer>{accountSourceTargetDescription}</InputContainer>

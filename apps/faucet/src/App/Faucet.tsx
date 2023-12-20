@@ -1,4 +1,5 @@
-import { ActionButton, Alert, Input } from "@namada/components";
+import { AmountInput, ActionButton, Alert, Input } from "@namada/components";
+import BigNumber from "bignumber.js";
 import { sanitize } from "dompurify";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 
@@ -173,22 +174,16 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
       </InputContainer>
 
       <InputContainer>
-        <Input
+        <AmountInput
           placeholder={`From 1 to ${limit}`}
-          type="number"
           label="Amount"
-          value={amount}
+          value={amount === undefined ? undefined : new BigNumber(amount)}
           min={0}
-          step={0.001}
+          maxDecimalPlaces={3}
           onFocus={handleFocus}
-          onChange={(e) => {
-            const { value } = e.target;
-            if (value && /^\d*(\.\d{0,3})?$/.test(value)) {
-              return setAmount(parseFloat(value));
-            }
-          }}
+          onChange={(e) => setAmount(e.target.value?.toNumber())}
           error={
-            (amount || 0) > limit
+            amount && amount > limit
               ? `Amount must be less than or equal to ${limit}`
               : ""
           }

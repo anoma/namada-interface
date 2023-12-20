@@ -1,6 +1,7 @@
 export * from "./Accordion";
 export * from "./ActionButton";
 export * from "./Alert";
+export * from "./AmountInput";
 export * from "./Checkbox";
 export * from "./Container";
 export * from "./ContentMasker";
