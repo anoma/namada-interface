@@ -761,9 +761,6 @@ export class KeyRing {
 
     if (account.public.type === AccountType.ShieldedKeys) {
       const xsk = JSON.parse(sensitiveProps.text).spendingKey;
-      //TODO: verify if this is still needed
-      // Append xsk to SDK wallet instance
-      this.sdk.add_spending_key(xsk, account.public.id);
 
       await submit({
         xsk,

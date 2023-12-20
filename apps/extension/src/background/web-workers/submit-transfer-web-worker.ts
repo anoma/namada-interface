@@ -24,7 +24,7 @@ import {
         const { privateKey, xsk } = data.signingKey;
         let txMsg = fromBase64(data.txMsg);
 
-        // For transparent transactions wehave to reveal the public key.
+        // For transparent transactions we have to reveal the public key.
         if (privateKey) {
           await sdk.reveal_pk(privateKey, txMsg);
           // For transfers from masp source we unshield to pay the fee.
