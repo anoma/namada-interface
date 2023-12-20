@@ -6,7 +6,7 @@ const contentMasker = tv({
   slots: {
     base: "group w-full relative overflow-hidden border border-transparent rounded-md",
     blurred:
-      "flex blur-sm transition-all duration-500 ease-out hover:blur-none p-2",
+      "flex blur-sm transition-all duration-500 ease-out hover:blur-none",
     icon: clsx(
       "flex h-[45%] w-full justify-center left-1/2 max-w-[88px] w-full",
       "pointer-events-none absolute top-1/2 -translate-y-1/2 -translate-x-1/2",
@@ -22,11 +22,9 @@ const contentMasker = tv({
       },
       secondary: {
         base: "border-cyan",
-        icon: "[&_path]:stroke-cyan",
       },
       neutral: {
         base: "border-black",
-        icon: "[&_path]:stroke-black",
       },
     },
   },

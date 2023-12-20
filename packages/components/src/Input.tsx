@@ -43,9 +43,7 @@ const inputClassList = tv({
       },
     },
     isSensitive: {
-      true: {
-        field: "-mx-2 -my-1",
-      },
+      true: {},
     },
     theme: {
       primary: { field: "border-yellow" },
@@ -142,7 +140,7 @@ export const Input = ({
     hasHint: !!hint,
     hasIcon: iconMap.hasOwnProperty(variant),
     isSensitive: sensitive,
-    theme: sensitive ? "neutral" : theme,
+    theme: theme || "neutral",
   });
 
   matchMapFn(variant.toString(), iconMap);

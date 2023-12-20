@@ -1,8 +1,5 @@
 module.exports = {
   theme: {
-    fontFamily: {
-      sans: ["Graphik", "sans-serif"],
-    },
     extend: {
       colors: {
         yellow: {

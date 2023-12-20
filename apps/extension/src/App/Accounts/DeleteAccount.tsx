@@ -4,12 +4,12 @@ import {
   ActionButton,
   Alert,
   GapPatterns,
-  Heading,
   Input,
   Loading,
   Stack,
 } from "@namada/components";
 import { AccountType, DerivedAccount } from "@namada/types";
+import { PageHeader } from "App/Common";
 import routes from "App/routes";
 import { CheckPasswordMsg } from "background/vault";
 import { AccountContext } from "context";
@@ -92,9 +92,7 @@ export const DeleteAccount = (): JSX.Element => {
       >
         <Stack gap={GapPatterns.TitleContent} full>
           <Stack as="header" gap={4}>
-            <Heading className="text-2xl uppercase text-center text-white">
-              Delete Keys
-            </Heading>
+            <PageHeader title="Delete Keys" />
             <Alert type="warning" title="Alert!">
               Make sure that you&apos;ve backed up your seed phrase and private
               key.

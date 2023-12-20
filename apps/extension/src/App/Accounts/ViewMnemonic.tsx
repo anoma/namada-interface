@@ -2,12 +2,12 @@ import {
   ActionButton,
   Alert,
   GapPatterns,
-  Heading,
   Input,
   SeedPhraseInstructions,
   Stack,
 } from "@namada/components";
 import { DerivedAccount } from "@namada/types";
+import { PageHeader } from "App/Common";
 import routes from "App/routes";
 import { useAccountContext } from "context";
 import { useVaultContext } from "context/VaultContext";
@@ -72,10 +72,7 @@ export const ViewMnemonic = (): JSX.Element => {
       gap={GapPatterns.TitleContent}
       onSubmit={handleSubmit}
     >
-      <Heading className="text-2xl uppercase text-center text-white">
-        View Seed Phrase
-      </Heading>
-
+      <PageHeader title="View Seed Phrase" />
       {!passwordChecked && (
         <>
           <Stack full gap={GapPatterns.FormFields}>

@@ -2,7 +2,8 @@ import { ExtensionKVStore } from "@namada/storage";
 import { useCallback, useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 
-import { Alert, Heading, Stack } from "@namada/components";
+import { Alert, Stack } from "@namada/components";
+import { PageHeader } from "App/Common";
 import {
   APPROVED_ORIGINS_KEY,
   ApprovedOriginsStore,
@@ -44,9 +45,7 @@ export const ConnectedSites: React.FC = ({}) => {
 
   return (
     <Stack gap={6}>
-      <Heading className="text-2xl uppercase text-center text-white">
-        Connected Sites
-      </Heading>
+      <PageHeader title="Connected Sites" />
       {connectedSites && connectedSites.length === 0 && (
         <Alert type="info">No connected sites found.</Alert>
       )}

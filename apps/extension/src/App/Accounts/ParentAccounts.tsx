@@ -5,11 +5,11 @@ import browser from "webextension-polyfill";
 import {
   ActionButton,
   GapPatterns,
-  Heading,
   KeyListItem,
   Stack,
 } from "@namada/components";
 import { DerivedAccount } from "@namada/types";
+import { PageHeader } from "App/Common";
 import routes from "App/routes";
 import { ParentAccount } from "background/keyring";
 import { AccountContext } from "context";
@@ -46,9 +46,7 @@ export const ParentAccounts = (): JSX.Element => {
 
   return (
     <Stack gap={GapPatterns.TitleContent}>
-      <Heading className="text-2xl uppercase text-center text-white">
-        Keys Management
-      </Heading>
+      <PageHeader title="Keys Management" />
       <Stack gap={4}>
         <nav className="grid items-end grid-cols-[auto_min-content]">
           <p className="text-white font-medium text-base">Set default keys</p>

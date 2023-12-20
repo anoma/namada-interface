@@ -1,11 +1,6 @@
-import {
-  ActionButton,
-  GapPatterns,
-  Heading,
-  Stack,
-  ViewKeys,
-} from "@namada/components";
+import { ActionButton, GapPatterns, Stack, ViewKeys } from "@namada/components";
 import { AccountType, DerivedAccount } from "@namada/types";
+import { PageHeader } from "App/Common";
 import routes from "App/routes";
 import { AccountContext } from "context";
 import { useContext, useEffect, useState } from "react";
@@ -61,9 +56,7 @@ export const ViewAccount = (): JSX.Element => {
       {parentAccount && (
         <>
           <Stack full gap={GapPatterns.TitleContent}>
-            <Heading className="text-2xl uppercase text-center text-white">
-              {parentAccount.alias}
-            </Heading>
+            <PageHeader title={parentAccount.alias} />
             <ViewKeys
               publicKeyAddress={parentAccount.publicKey ?? ""}
               transparentAccountAddress={transparentAddress}
