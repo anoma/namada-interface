@@ -1,10 +1,9 @@
 import { ActionButton, Alert, Stack } from "@namada/components";
-import { ButtonContainer } from "Approvals/Approvals.components";
+import { ConnectInterfaceResponseMsg } from "background/approvals";
 import { useQuery } from "hooks";
+import { useRequester } from "hooks/useRequester";
 import { Ports } from "router";
 import { closeCurrentTab } from "utils";
-import { useRequester } from "hooks/useRequester";
-import { ConnectInterfaceResponseMsg } from "background/approvals";
 
 export const ApproveConnection: React.FC = () => {
   const requester = useRequester();
@@ -31,14 +30,14 @@ export const ApproveConnection: React.FC = () => {
       <Alert type="warning">
         Approve connection for <strong>{interfaceOrigin}</strong>?
       </Alert>
-      <ButtonContainer>
+      <Stack gap={3} direction="horizontal">
         <ActionButton onClick={() => handleResponse(true)}>
           Approve
         </ActionButton>
         <ActionButton onClick={() => handleResponse(false)}>
           Reject
         </ActionButton>
-      </ButtonContainer>
+      </Stack>
     </Stack>
   );
 };

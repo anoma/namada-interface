@@ -58,8 +58,9 @@ export const RenameAccount = (): JSX.Element => {
       onSubmit={handleSubmit}
       full
     >
-      <Heading className="text-2xl uppercase">Rename Key</Heading>
-
+      <Heading className="text-2xl uppercase text-center text-white">
+        Rename Key
+      </Heading>
       {account && (
         <Stack full gap={GapPatterns.FormFields}>
           <Input readOnly label="Current name" value={account.alias} />
@@ -73,8 +74,7 @@ export const RenameAccount = (): JSX.Element => {
           />
         </Stack>
       )}
-
-      {account && <ActionButton>Rename</ActionButton>}
+      {account && <ActionButton size="lg">Rename</ActionButton>}
     </Stack>
   );
 };

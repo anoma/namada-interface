@@ -6,9 +6,7 @@ import { useSanitizedParams } from "@namada/hooks";
 import { TxType, TxTypeLabel } from "@namada/shared";
 import { AccountType, Tokens } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
-import { Address } from "App/Accounts/AccountListing.components";
 import { ApprovalDetails } from "Approvals/Approvals";
-import { ButtonContainer } from "Approvals/Approvals.components";
 import { TopLevelRoute } from "Approvals/types";
 import { RejectTxMsg } from "background/approvals";
 import { useQuery } from "hooks";
@@ -84,13 +82,13 @@ export const ApproveTx: React.FC<Props> = ({ setDetails }) => {
       </Alert>
       {source && (
         <Text className="text-xs">
-          Source: <Address>{shortenAddress(source)}</Address>
+          Source: <strong>{shortenAddress(source)}</strong>
         </Text>
       )}
       {target && (
         <Text className="text-xs">
           Target:
-          <Address>{shortenAddress(target)}</Address>
+          <strong>{shortenAddress(target)}</strong>
         </Text>
       )}
       {amount && (
@@ -102,10 +100,10 @@ export const ApproveTx: React.FC<Props> = ({ setDetails }) => {
         <Text className="text-xs">Validator: {shortenAddress(validator)}</Text>
       )}
 
-      <ButtonContainer>
+      <Stack gap={3} direction="horizontal">
         <ActionButton onClick={handleApproveClick}>Approve</ActionButton>
         <ActionButton onClick={handleReject}>Reject</ActionButton>
-      </ButtonContainer>
+      </Stack>
     </Stack>
   );
 };

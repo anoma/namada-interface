@@ -1,13 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from "react";
 
-import { AccountType, DerivedAccount } from "@namada/types";
-import routes from "App/routes";
-import { CheckPasswordMsg } from "background/vault";
-import { AccountContext } from "context";
-import { useRequester } from "hooks/useRequester";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { Ports } from "router";
-
 import {
   ActionButton,
   Alert,
@@ -16,8 +8,14 @@ import {
   Input,
   Loading,
   Stack,
-  Text,
 } from "@namada/components";
+import { AccountType, DerivedAccount } from "@namada/types";
+import routes from "App/routes";
+import { CheckPasswordMsg } from "background/vault";
+import { AccountContext } from "context";
+import { useRequester } from "hooks/useRequester";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { Ports } from "router";
 
 enum Status {
   Unsubmitted,
@@ -94,16 +92,18 @@ export const DeleteAccount = (): JSX.Element => {
       >
         <Stack gap={GapPatterns.TitleContent} full>
           <Stack as="header" gap={4}>
-            <Heading className="text-2xl uppercase">Delete Keys</Heading>
+            <Heading className="text-2xl uppercase text-center text-white">
+              Delete Keys
+            </Heading>
             <Alert type="warning" title="Alert!">
               Make sure that you&apos;ve backed up your seed phrase and private
               key.
             </Alert>
           </Stack>
-          <Text>
+          <p className="text-white leading-5 text-base font-medium">
             After deletion, you will be required to import your seed phrase to
             restore your access to it
-          </Text>
+          </p>
           <Input
             autoFocus
             label="Password"
@@ -113,7 +113,7 @@ export const DeleteAccount = (): JSX.Element => {
             error={errorMessage}
           />
         </Stack>
-        <ActionButton disabled={shouldDisableSubmit}>
+        <ActionButton size="lg" disabled={shouldDisableSubmit}>
           Delete Account
         </ActionButton>
       </Stack>

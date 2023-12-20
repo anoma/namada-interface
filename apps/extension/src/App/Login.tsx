@@ -8,7 +8,6 @@ import {
   Input,
   Stack,
 } from "@namada/components";
-import { LogoContainer } from "./Login.components";
 
 enum Status {
   InvalidPassword,
@@ -54,7 +53,7 @@ export const Login = ({ onLogin }: LoginProps): JSX.Element => {
       onSubmit={handleSubmit}
       full
     >
-      <LogoContainer>
+      <div className="mt-6 mb-2">
         <Image
           styleOverrides={{
             flex: 1,
@@ -64,9 +63,11 @@ export const Login = ({ onLogin }: LoginProps): JSX.Element => {
           }}
           imageName="LogoMinimal"
         />
-      </LogoContainer>
+      </div>
       <Stack gap={2} full>
-        <Heading className="text-xl">Enter your password to unlock</Heading>
+        <Heading className="text-lg text-center text-white">
+          Enter your password to unlock
+        </Heading>
         <Input
           autoFocus={true}
           placeholder="Password"
@@ -79,6 +80,7 @@ export const Login = ({ onLogin }: LoginProps): JSX.Element => {
       </Stack>
       <ActionButton
         disabled={status === Status.Pending || !(password.length > 0)}
+        size="lg"
       >
         Unlock
       </ActionButton>

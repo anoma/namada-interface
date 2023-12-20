@@ -78,7 +78,9 @@ export const ChangePassword = ({
       onSubmit={handleSubmit}
       full
     >
-      <Heading className="uppercase text-2xl">Change Password</Heading>
+      <Heading className="uppercase text-2xl text-center text-white">
+        Change Password
+      </Heading>
       <Stack full gap={GapPatterns.FormFields}>
         <Input
           label="Current password"
@@ -111,7 +113,9 @@ export const ChangePassword = ({
         />
         {errorMessage && <Alert type="error">{errorMessage}</Alert>}
       </Stack>
-      <ActionButton disabled={shouldDisableSubmit}>Confirm</ActionButton>
+      <ActionButton size="lg" disabled={shouldDisableSubmit}>
+        Confirm
+      </ActionButton>
     </Stack>
   );
 };

@@ -61,7 +61,7 @@ export const ViewAccount = (): JSX.Element => {
       {parentAccount && (
         <>
           <Stack full gap={GapPatterns.TitleContent}>
-            <Heading className="text-2xl uppercase">
+            <Heading className="text-2xl uppercase text-center text-white">
               {parentAccount.alias}
             </Heading>
             <ViewKeys

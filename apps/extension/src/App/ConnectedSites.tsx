@@ -8,14 +8,9 @@ import {
   ApprovedOriginsStore,
   RevokeConnectionMsg,
 } from "background/approvals";
+import clsx from "clsx";
 import { useRequester } from "hooks/useRequester";
 import { KVPrefix, Ports } from "router";
-import {
-  ConnectedSiteDetails,
-  ConnectedSiteListItemContainer,
-  ConnectedSiteSideButton,
-  ConnectedSitesList,
-} from "./ConnectedSites.components";
 
 const approvedOriginsStore = new ExtensionKVStore<ApprovedOriginsStore>(
   KVPrefix.LocalStorage,
@@ -25,7 +20,7 @@ const approvedOriginsStore = new ExtensionKVStore<ApprovedOriginsStore>(
   }
 );
 
-const ConnectedSites: React.FC = ({}) => {
+export const ConnectedSites: React.FC = ({}) => {
   const [connectedSites, setConnectedSites] = useState<ApprovedOriginsStore>();
   const requester = useRequester();
 
@@ -49,24 +44,37 @@ const ConnectedSites: React.FC = ({}) => {
 
   return (
     <Stack gap={6}>
-      <Heading className="text-2xl uppercase">Connected Sites</Heading>
+      <Heading className="text-2xl uppercase text-center text-white">
+        Connected Sites
+      </Heading>
       {connectedSites && connectedSites.length === 0 && (
         <Alert type="info">No connected sites found.</Alert>
       )}
 
-      <ConnectedSitesList>
+      <ul className="mb-2">
         {connectedSites &&
           connectedSites.map((site, i) => (
-            <ConnectedSiteListItemContainer key={i}>
-              <ConnectedSiteDetails>{site}</ConnectedSiteDetails>
-              <ConnectedSiteSideButton
+            <li key={i} className="my-1 flex">
+              <div
+                className={clsx(
+                  "flex w-[90%] bg-black text-xs text-neutral-200 border border-black",
+                  "rounded-sm p-2"
+                )}
+              >
+                {site}
+              </div>
+              <div
+                className={clsx(
+                  "flex w-[10%] bg-black text-xs text-neutral-200 border border-black",
+                  'rounded-sm p-2 cursor-pointer text-center before:content("x")',
+                  "before:translate-x-1/2 before:translate-y-1/2",
+                  "hover:text-black hover:bg-white"
+                )}
                 onClick={() => handleRevokeConnection(site)}
               />
-            </ConnectedSiteListItemContainer>
+            </li>
           ))}
-      </ConnectedSitesList>
+      </ul>
     </Stack>
   );
 };
-
-export default ConnectedSites;

@@ -8,11 +8,6 @@ import { TxType, TxTypeLabel } from "@namada/shared";
 import { Message, Tokens, TxMsgValue, TxProps } from "@namada/types";
 import { LedgerError } from "@zondax/ledger-namada";
 import { ApprovalDetails, Status } from "Approvals/Approvals";
-import {
-  ButtonContainer,
-  InfoHeader,
-  InfoLoader,
-} from "Approvals/Approvals.components";
 import { QueryPublicKeyMsg } from "background/keyring";
 import {
   GetRevealPKBytesMsg,
@@ -253,20 +248,13 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
           Try again
         </Alert>
       )}
-      {status === Status.Pending && (
-        <Alert type="info">
-          <InfoHeader>
-            <InfoLoader />
-            {statusInfo}
-          </InfoHeader>
-        </Alert>
-      )}
+      {status === Status.Pending && <Alert type="info">{statusInfo}</Alert>}
       {status !== Status.Pending && status !== Status.Completed && (
         <>
           <p>Make sure your Ledger is unlocked, and click &quot;Submit&quot;</p>
-          <ButtonContainer>
+          <div className="flex">
             <ActionButton onClick={handleSubmitTx}>Submit</ActionButton>
-          </ButtonContainer>
+          </div>
         </>
       )}
     </Stack>

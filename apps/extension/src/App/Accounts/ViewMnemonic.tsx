@@ -13,7 +13,6 @@ import { useAccountContext } from "context";
 import { useVaultContext } from "context/VaultContext";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { InstructionsContainer } from "./ViewMnemonic.components";
 
 type ViewMnemonicParamsType = {
   accountId: string;
@@ -73,7 +72,9 @@ export const ViewMnemonic = (): JSX.Element => {
       gap={GapPatterns.TitleContent}
       onSubmit={handleSubmit}
     >
-      <Heading className="text-2xl uppercase">View Seed Phrase</Heading>
+      <Heading className="text-2xl uppercase text-center text-white">
+        View Seed Phrase
+      </Heading>
 
       {!passwordChecked && (
         <>
@@ -98,9 +99,9 @@ export const ViewMnemonic = (): JSX.Element => {
       {passwordChecked && (
         <>
           <Stack full gap={1}>
-            <InstructionsContainer>
+            <div className="text-sm -mt-1.5">
               <SeedPhraseInstructions />
-            </InstructionsContainer>
+            </div>
             <Input
               variant="Textarea"
               theme="secondary"
