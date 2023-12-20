@@ -28,7 +28,7 @@
     "@typescript-eslint/eslint-plugin": "^6.13.0",
     "@typescript-eslint/parser": "^6.13.0",
     "eslint": "^8.49.0",
-    "git-commit-msg-linter": "^5.0.4",
+    "git-commit-msg-linter": "^5.0.6",
     "husky": "^8.0.3",
     "jsdoc-to-markdown": "^8.0.1",
     "lint-staged": "^15.2.0",
