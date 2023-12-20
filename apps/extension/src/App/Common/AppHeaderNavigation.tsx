@@ -1,7 +1,9 @@
-import { Icon, Stack } from "@namada/components";
+import { Stack } from "@namada/components";
 import routes from "App/routes";
 import clsx from "clsx";
 import { useVaultContext } from "context";
+import { FaDiscord, FaXTwitter } from "react-icons/fa6";
+import { GoQuestion } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 
 type AppHeaderNavigationProps = {
@@ -74,7 +76,7 @@ export const AppHeaderNavigation = ({
               Lock Wallet
             </li>
           </Stack>
-          <footer className="flex items-center justify-between">
+          <footer className="flex items-center justify-between text-yellow-950 text-2xl">
             <Stack
               as="ul"
               gap={4}
@@ -84,10 +86,10 @@ export const AppHeaderNavigation = ({
               <a
                 href="https://discord.com/invite/namada"
                 target="_blank"
-                className="transition-colors hover:text-cyan"
+                className="transition-colors text-[1.15em] hover:text-cyan"
                 rel="noreferrer nofollow"
               >
-                <Icon fill name="Discord" />
+                <FaDiscord />
               </a>
               <a
                 href="https://twitter.com/namada"
@@ -95,7 +97,7 @@ export const AppHeaderNavigation = ({
                 className="transition-colors hover:text-cyan"
                 rel="noreferrer nofollow"
               >
-                <Icon fill name="TwitterX" />
+                <FaXTwitter />
               </a>
             </Stack>
             <a
@@ -104,7 +106,7 @@ export const AppHeaderNavigation = ({
               className="transition-colors hover:text-cyan"
               rel="noreferrer nofollow"
             >
-              <Icon fill name="QuestionMark" />
+              <GoQuestion />
             </a>
           </footer>
         </div>

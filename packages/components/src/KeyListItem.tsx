@@ -21,7 +21,7 @@ type KeyListItemProps = {
 const keyListItem = tv({
   base: clsx(
     "flex items-center bg-black border border-current rounded-md text-white",
-    "grid text-[18px] font-medium gap-8 grid-cols-[24px_auto_8px] p-5"
+    "grid text-[18px] font-medium gap-8 grid-cols-[24px_auto_16px] p-5"
   ),
   variants: {
     selected: {

@@ -1,6 +1,6 @@
-import { Icon } from "@namada/components";
 import clsx from "clsx";
 import { createElement, useState } from "react";
+import { GoChevronDown } from "react-icons/go";
 import { tv } from "tailwind-variants";
 
 const accordion = tv({
@@ -14,7 +14,7 @@ const accordion = tv({
       `transition-all duration-200 ease-out-quart`
     ),
     indicator: clsx(
-      `flex items-center justify-center rounded-full border-[2px] border-current`,
+      `flex items-center justify-center rounded-full border border-current`,
       `h-9 w-9 transition-all duration-200 ease-out-quart`
     ),
     content: `px-6 py-[0.75em] w-full`,
@@ -68,7 +68,7 @@ export const Accordion = ({
       <header className={header()} onClick={() => setOpen(!open)}>
         {createElement(headingLevel, {}, title)}
         <i className={indicator()}>
-          <Icon name="ChevronDown" size="sm" />
+          <GoChevronDown />
         </i>
       </header>
       {open && <div className={content()}>{children}</div>}

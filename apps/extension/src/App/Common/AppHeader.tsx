@@ -1,7 +1,8 @@
-import { Icon, Image } from "@namada/components";
+import { Image } from "@namada/components";
 import clsx from "clsx";
 import { useVaultContext } from "context";
 import { useState } from "react";
+import { GoArrowLeft, GoGear, GoUnlock } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 import { AppHeaderNavigation } from "./AppHeaderNavigation";
 
@@ -21,28 +22,28 @@ export const AppHeader = ({
   const { lock } = useVaultContext();
 
   const iconsClassList = clsx(
-    "flex h-full absolute items-center text-yellow cursor-pointer",
-    "top-0 transition-colors ease-out w-5 active:top-px hover:text-cyan"
+    "flex h-full absolute items-center text-yellow cursor-pointer text-[22px]",
+    "top-0 transition-colors ease-out active:top-px hover:text-cyan"
   );
 
   return (
     <>
       <header>
         {returnButton && (
-          <span
+          <i
             className={clsx(iconsClassList, "left-7")}
             onClick={() => navigate(-1)}
           >
-            <Icon size="full" fill name="ArrowLeft" />
-          </span>
+            <GoArrowLeft />
+          </i>
         )}
 
         {lockButton && (
           <span
-            className={clsx(iconsClassList, "w-[18px] left-7")}
+            className={clsx(iconsClassList, "left-7")}
             onClick={() => lock()}
           >
-            <Icon size="full" fill name="Lock" />
+            <GoUnlock />
           </span>
         )}
 
@@ -51,12 +52,12 @@ export const AppHeader = ({
         </div>
 
         {settingsButton && (
-          <span
+          <i
             className={clsx(iconsClassList, "right-7")}
             onClick={() => setOpen(true)}
           >
-            <Icon size="full" fill name="Settings" />
-          </span>
+            <GoGear />
+          </i>
         )}
         <AppHeaderNavigation onClose={() => setOpen(false)} open={open} />
       </header>

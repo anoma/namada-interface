@@ -2,12 +2,9 @@ import clsx from "clsx";
 import React, { createElement, useState } from "react";
 import { tv } from "tailwind-variants";
 
-import {
-  ContentMasker,
-  CopyToClipboardControl,
-  Icon,
-} from "@namada/components";
+import { ContentMasker, CopyToClipboardControl } from "@namada/components";
 import { matchMapFn } from "@namada/utils";
+import { GoEye, GoEyeClosed } from "react-icons/go";
 
 const inputClassList = tv({
   slots: {
@@ -22,7 +19,10 @@ const inputClassList = tv({
     labelText: "pl-1.5",
     error: "text-red-500 hidden text-xs font-normal pl-1.5",
     inputWrapper: "flex mt-2 mb-1 relative",
-    icon: "flex items-center cursor-pointer h-full absolute right-4 top-0 text-yellow [&_path]:stroke-yellow [&_rect]:stroke-yellow",
+    icon: clsx(
+      "flex items-center cursor-pointer h-full absolute right-4 top-0 text-2xl",
+      "text-yellow [&_path]:stroke-yellow [&_rect]:stroke-yellow"
+    ),
     hint: "text-neutral-300 hidden text-xs font-light pl-1.5",
   },
   variants: {
@@ -104,7 +104,7 @@ export const Input = ({
           aria-labelledby={passwordShown ? "Hide password" : "Display password"}
           onClick={() => setPasswordShown(!passwordShown)}
         >
-          <Icon name={passwordShown ? "Eye" : "EyeHidden"} />
+          {passwordShown ? <GoEye /> : <GoEyeClosed />}
         </span>
       );
     },

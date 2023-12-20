@@ -1,5 +1,5 @@
-import { Icon } from "@namada/components";
 import clsx from "clsx";
+import { GoCheck } from "react-icons/go";
 import { tv, type VariantProps } from "tailwind-variants";
 
 const checkbox = tv({
@@ -46,7 +46,7 @@ export const Checkbox = ({
         {...props}
       />
       <i className={checkboxClasses.control()}>
-        <Icon name="Checked" size="full" />
+        <GoCheck />
       </i>
     </label>
   );
