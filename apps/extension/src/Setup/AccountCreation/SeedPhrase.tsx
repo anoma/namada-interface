@@ -45,12 +45,12 @@ export const SeedPhrase: React.FC<Props> = (props) => {
 
   return (
     <>
-      <hgroup className="text-white mb-6 -mt-2 text-center">
+      <hgroup className="text-white mb-5 -mt-2 text-center">
         <Heading className="text-3xl uppercase" level="h1">
           New Seed Phrase
         </Heading>
       </hgroup>
-      <Stack gap={5}>
+      <Stack gap={6}>
         <RadioGroup
           id="mnemonicLength"
           groupLabel="Number of seeds"
@@ -61,7 +61,7 @@ export const SeedPhrase: React.FC<Props> = (props) => {
           ]}
           onChange={(value) => setMnemonicLength(Number(value))}
         />
-        <Stack gap={0} className="-mt-3">
+        <Stack gap={1.5} className="-mt-3">
           <SeedPhraseList
             columns={mnemonicLength === 24 ? 4 : 3}
             words={seedPhrase}

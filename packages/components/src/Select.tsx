@@ -1,6 +1,6 @@
-import { Icon } from "@namada/components";
 import clsx from "clsx";
 import React from "react";
+import { GoArrowDown } from "react-icons/go";
 import { tv } from "tailwind-variants";
 
 export type Option<T> = {
@@ -53,7 +53,9 @@ function Select<T>({
             </option>
           ))}
         </select>
-        <Icon name="ChevronDown" />
+        <i className="text-[20px] text-yellow">
+          <GoArrowDown />
+        </i>
       </div>
     </label>
   );

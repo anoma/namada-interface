@@ -1,5 +1,4 @@
-import { ActionButton } from "../ActionButton";
-import { Icon } from "../Icon";
+import { GoArrowLeft } from "react-icons/go";
 import {
   MainRow,
   NavigationContainerContainer,
@@ -34,9 +33,13 @@ export const NavigationContainer = (
     <NavigationContainerContainer>
       <MainRow center={noButton}>
         {onBackButtonClick && (
-          <ActionButton onClick={onBackButtonClick} style={{ marginLeft: "0" }}>
-            <Icon name="ChevronLeft" />
-          </ActionButton>
+          <i
+            className="cursor-pointer text-yellow text-[22px]"
+            onClick={onBackButtonClick}
+            style={{ marginLeft: "0" }}
+          >
+            <GoArrowLeft />
+          </i>
         )}
 
         {children}

@@ -1,5 +1,6 @@
-import { Icon, Image, ProgressIndicator } from "@namada/components";
+import { Image, ProgressIndicator } from "@namada/components";
 import clsx from "clsx";
+import { GoArrowLeft } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 
 type ContainerHeaderProps = {
@@ -26,11 +27,11 @@ export const ContainerHeader = ({
             <span
               className={clsx(
                 "flex absolute items-center text-yellow cursor-pointer h-full left-4",
-                "top-0 transition-colors hover:text-cyan active:top-px"
+                "top-0 text-[22px] transition-colors hover:text-cyan active:top-px"
               )}
               onClick={() => navigate(-1)}
             >
-              <Icon fill name="ArrowLeft" />
+              <GoArrowLeft />
             </span>
           )}
           <ProgressIndicator

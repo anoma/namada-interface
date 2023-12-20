@@ -1,10 +1,10 @@
 import {
   ActionButton,
   Heading,
-  Icon,
   SeedPhraseInstructions,
   Stack,
 } from "@namada/components";
+import { GoAlert } from "react-icons/go";
 
 type SeedPhraseWarningProps = {
   onComplete: () => void;
@@ -22,8 +22,8 @@ export const SeedPhraseWarning = ({
       </hgroup>
       <Stack gap={3}>
         <aside className="flex items-center bg-black rounded-md justify-center p-14 w-full">
-          <div className="w-32 mx-auto">
-            <Icon name="Warning" size="full" />
+          <div className="flex justify-center w-32 mx-auto text-yellow text-[75px]">
+            <GoAlert />
           </div>
         </aside>
         <Stack gap={8}>

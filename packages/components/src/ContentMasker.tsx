@@ -4,7 +4,7 @@ import { tv, type VariantProps } from "tailwind-variants";
 
 const contentMasker = tv({
   slots: {
-    base: "group w-full relative overflow-hidden border border-transparent rounded-md",
+    base: "group w-full relative border border-transparent rounded-md",
     blurred:
       "flex blur-sm transition-all duration-500 ease-out hover:blur-none",
     icon: clsx(
