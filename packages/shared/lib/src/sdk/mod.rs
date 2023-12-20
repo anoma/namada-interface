@@ -125,16 +125,18 @@ impl Sdk {
         tx_msg: &[u8],
         private_key: Option<String>,
     ) -> Result<JsValue, JsError> {
+        let signing_key = match private_key {
+            Some(private_key) => SecretKey::from_str(&format!("{}{}", "00", private_key))?,
+            // If no private key is provided, we assume masp source and use the masp_tx_key
+            None => masp_tx_key(),
+        };
+
         let args = tx::tx_args_from_slice(tx_msg)?;
+
         let BuiltTx {
             mut tx,
             signing_data,
         } = built_tx;
-
-        let signing_key = match private_key {
-            Some(private_key) => SecretKey::from_str(&format!("{}{}", "00", private_key))?,
-            None => masp_tx_key(),
-        };
 
         let signing_keys = vec![signing_key.clone()];
 
@@ -147,13 +149,14 @@ impl Sdk {
             );
         }
 
+        // For shielded transactions, we need to sign the wrapper with the fee payer key which
+        // is the private key of disposable account. Otherwise we sign with passed signer.
         let key = {
-            // Lock the wallet just long enough to extract a key from it without
-            // interfering with the sign closure call
             let mut wallet = self.namada.wallet_mut().await;
             find_key_by_pk(&mut *wallet, &args, &signing_data.fee_payer)
         }
         .unwrap_or(signing_key);
+
         // Sign the fee header
         tx.sign_wrapper(key);
 

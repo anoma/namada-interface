@@ -21,28 +21,27 @@ import {
     "message",
     async ({ data }: { data: SubmitTransferMessageData }) => {
       try {
-        const txMsg = fromBase64(data.txMsg);
-
         const { privateKey, xsk } = data.signingKey;
+        let txMsg = fromBase64(data.txMsg);
 
-        if (!xsk) {
-          await sdk.reveal_pk(privateKey as string, txMsg);
-        }
-
-        let www = txMsg;
-        if (xsk) {
-          const asd = deserialize(Buffer.from(txMsg), TxMsgValue);
-          asd.feeUnshield = xsk;
-          www = serialize(asd);
+        // For transparent transactions wehave to reveal the public key.
+        if (privateKey) {
+          await sdk.reveal_pk(privateKey, txMsg);
+          // For transfers from masp source we unshield to pay the fee.
+          // Because of that we have to pass spending key.
+        } else if (xsk) {
+          const deserializedTxMsg = deserialize(Buffer.from(txMsg), TxMsgValue);
+          deserializedTxMsg.feeUnshield = xsk;
+          txMsg = serialize(deserializedTxMsg);
         }
 
         const builtTx = await sdk.build_transfer(
           fromBase64(data.transferMsg),
-          www,
+          txMsg,
           xsk
         );
-        const txBytes = await sdk.sign_tx(builtTx, www, privateKey);
-        await sdk.process_tx(txBytes, www);
+        const txBytes = await sdk.sign_tx(builtTx, txMsg, privateKey);
+        await sdk.process_tx(txBytes, txMsg);
 
         postMessage({ msgName: TRANSFER_SUCCESSFUL_MSG });
       } catch (error) {

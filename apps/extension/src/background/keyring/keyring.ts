@@ -761,26 +761,12 @@ export class KeyRing {
 
     if (account.public.type === AccountType.ShieldedKeys) {
       const xsk = JSON.parse(sensitiveProps.text).spendingKey;
+      //TODO: verify if this is still needed
       // Append xsk to SDK wallet instance
       this.sdk.add_spending_key(xsk, account.public.id);
 
-      // Use transparent account as the signing key
-      const transparentAccount = await this.vaultService.findOne<AccountStore>(
-        KEYSTORE_KEY,
-        "id",
-        account.public.parentId
-      );
-      if (transparentAccount === null) {
-        throw new Error("Transparent account not found");
-      }
-      const transparentAddress = transparentAccount.public.address;
-      if (!transparentAddress) {
-        throw new Error("No address found on transparent account");
-      }
-
       await submit({
         xsk,
-        // privateKey: await this.getSigningKey(transparentAddress),
       });
     } else {
       await submit({ privateKey: await this.getSigningKey(source) });
