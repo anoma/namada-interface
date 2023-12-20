@@ -3,7 +3,7 @@ import { tv, type VariantProps } from "tailwind-variants";
 const alert = tv({
   slots: {
     base: "border border-current rounded-md text-base font-normal px-4 py-5",
-    title: "font-bold block uppercase text-sm mb-2",
+    title: "font-bold block uppercase text-sm mb-1.5",
   },
   variants: {
     type: {
@@ -33,7 +33,7 @@ export const Alert = ({
   return (
     <div className={alertClass.base()} role="dialog" aria-labelledby={title}>
       {title && <strong className={alertClass.title()}>{title}</strong>}
-      <div className="text-sm leading-[1.25em]">{children}</div>
+      <div className="text-sm leading-[1.15em]">{children}</div>
     </div>
   );
 };

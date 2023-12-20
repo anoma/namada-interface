@@ -11,7 +11,7 @@ const contentMasker = tv({
       "flex h-[45%] w-full justify-center left-1/2 max-w-[88px] w-full",
       "pointer-events-none absolute top-1/2 -translate-y-1/2 -translate-x-1/2",
       "transition-opacity duration-100 ease-out",
-      "[&_path]:stroke-yellow group-hover:opacity-0"
+      "[&_path]:stroke-yellow [&_svg]:max-h-full group-hover:opacity-0"
     ),
   },
 

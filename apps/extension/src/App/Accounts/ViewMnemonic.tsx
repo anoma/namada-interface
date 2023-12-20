@@ -66,13 +66,9 @@ export const ViewMnemonic = (): JSX.Element => {
   }, [accountId]);
 
   return (
-    <Stack
-      full
-      as="form"
-      gap={GapPatterns.TitleContent}
-      onSubmit={handleSubmit}
-    >
+    <Stack full as="form" gap={4} onSubmit={handleSubmit}>
       <PageHeader title="View Seed Phrase" />
+
       {!passwordChecked && (
         <>
           <Stack full gap={GapPatterns.FormFields}>
