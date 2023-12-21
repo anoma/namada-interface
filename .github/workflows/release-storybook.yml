@@ -40,4 +40,4 @@ jobs:
           deploy-message: "Storybook Deployed"
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_ACCESS_TOKEN_WALLET_PREVIEW }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_FAUCET_SITE_ID }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_STORYBOOK_SITE_ID }}
