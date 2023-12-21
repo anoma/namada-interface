@@ -6,13 +6,11 @@ import {
   useLocation,
   useNavigate,
 } from "react-router-dom";
-import { ThemeProvider } from "styled-components";
 
 import {
   Container,
   LifecycleExecutionWrapper as Wrapper,
 } from "@namada/components";
-import { getTheme } from "@namada/utils";
 import { AccountSecret } from "background/keyring";
 import { AnimatePresence, motion } from "framer-motion";
 import { useCloseTabOnExtensionLock } from "hooks/useCloseTabOnExtensionLock";
@@ -53,7 +51,6 @@ export const Setup: React.FC = () => {
   useCloseTabOnExtensionLock();
 
   const passwordInitialized = usePasswordInitialized();
-  const theme = getTheme("dark");
   const navigate = useNavigate();
   const location = useLocation();
   const [accountCreationDetails, setAccountCreationDetails] =
@@ -72,201 +69,199 @@ export const Setup: React.FC = () => {
   const goToStep = (step: number) => () => setCurrentStep(step);
 
   return (
-    <ThemeProvider theme={theme}>
-      <Container
-        size="base"
-        header={
-          <ContainerHeader currentStep={currentStep} totalSteps={totalSteps} />
-        }
-      >
-        <AnimatePresence>
-          <AnimatedTransition elementKey={location.pathname}>
-            <Routes>
-              {/* Index */}
+    <Container
+      size="base"
+      header={
+        <ContainerHeader currentStep={currentStep} totalSteps={totalSteps} />
+      }
+    >
+      <AnimatePresence>
+        <AnimatedTransition elementKey={location.pathname}>
+          <Routes>
+            {/* Index */}
+            <Route
+              path={routes.start()}
+              element={
+                <Wrapper onLoad={() => setTotalSteps(0)}>
+                  <Start />
+                </Wrapper>
+              }
+            />
+
+            {/* Create New Keys */}
+            <Route
+              element={
+                <Wrapper onLoad={() => setTotalSteps(4)}>
+                  <Outlet />
+                </Wrapper>
+              }
+            >
               <Route
-                path={routes.start()}
+                path={routes.accountCreationWarning()}
                 element={
-                  <Wrapper onLoad={() => setTotalSteps(0)}>
-                    <Start />
+                  <Wrapper onLoad={goToStep(1)}>
+                    <SeedPhraseWarning
+                      onComplete={() => {
+                        navigate(routes.accountCreationSeed());
+                      }}
+                    />
                   </Wrapper>
                 }
               />
-
-              {/* Create New Keys */}
               <Route
+                path={routes.accountCreationSeed()}
                 element={
-                  <Wrapper onLoad={() => setTotalSteps(4)}>
-                    <Outlet />
+                  <Wrapper onLoad={goToStep(2)}>
+                    <SeedPhrase
+                      accountCreationDetails={accountCreationDetails}
+                      defaultSeedPhrase={seedPhrase}
+                      onConfirm={(seedPhrase: string[]) => {
+                        setAccountSecret({ t: "Mnemonic", seedPhrase });
+                        navigate(routes.accountCreationConfirm());
+                      }}
+                    />
                   </Wrapper>
                 }
-              >
-                <Route
-                  path={routes.accountCreationWarning()}
-                  element={
-                    <Wrapper onLoad={goToStep(1)}>
-                      <SeedPhraseWarning
-                        onComplete={() => {
-                          navigate(routes.accountCreationSeed());
-                        }}
-                      />
-                    </Wrapper>
-                  }
-                />
-                <Route
-                  path={routes.accountCreationSeed()}
-                  element={
-                    <Wrapper onLoad={goToStep(2)}>
-                      <SeedPhrase
-                        accountCreationDetails={accountCreationDetails}
-                        defaultSeedPhrase={seedPhrase}
-                        onConfirm={(seedPhrase: string[]) => {
-                          setAccountSecret({ t: "Mnemonic", seedPhrase });
+              />
+              <Route
+                path={routes.accountCreationConfirm()}
+                element={
+                  <Wrapper onLoad={goToStep(3)}>
+                    <SeedPhraseConfirmation
+                      accountCreationDetails={accountCreationDetails}
+                      seedPhrase={seedPhrase || []}
+                      passwordRequired={!passwordInitialized}
+                      onConfirm={(accountCreationDetails: AccountDetails) => {
+                        if (!seedPhrase?.length) {
                           navigate(routes.accountCreationConfirm());
-                        }}
-                      />
-                    </Wrapper>
-                  }
-                />
-                <Route
-                  path={routes.accountCreationConfirm()}
-                  element={
-                    <Wrapper onLoad={goToStep(3)}>
-                      <SeedPhraseConfirmation
-                        accountCreationDetails={accountCreationDetails}
-                        seedPhrase={seedPhrase || []}
-                        passwordRequired={!passwordInitialized}
-                        onConfirm={(accountCreationDetails: AccountDetails) => {
-                          if (!seedPhrase?.length) {
-                            navigate(routes.accountCreationConfirm());
-                            return;
-                          }
-                          setAccountCreationDetails(accountCreationDetails);
-                          setSelectedAccountSecret({
-                            t: "Mnemonic",
-                            seedPhrase,
-                          });
-                          setAccountSecret(undefined); // this also sets seedPhrase to undefined
-                          navigate(routes.accountCreationComplete());
-                        }}
-                      />
-                    </Wrapper>
-                  }
-                />
-                <Route
-                  path={routes.accountCreationComplete()}
-                  element={
-                    <Wrapper onLoad={goToStep(4)}>
-                      <Completion
-                        passwordRequired={!passwordInitialized}
-                        pageTitle="Namada Keys Created"
-                        pageSubtitle="Here are the accounts generated from your keys"
-                        alias={accountCreationDetails.alias || ""}
-                        accountSecret={selectedAccountSecret}
-                        password={accountCreationDetails.password || ""}
-                        scanAccounts={false}
-                      />
-                    </Wrapper>
-                  }
-                />
-              </Route>
-
-              {/* Import Existing Keys */}
-              <Route
-                element={
-                  <Wrapper onLoad={() => setTotalSteps(3)}>
-                    <Outlet />
+                          return;
+                        }
+                        setAccountCreationDetails(accountCreationDetails);
+                        setSelectedAccountSecret({
+                          t: "Mnemonic",
+                          seedPhrase,
+                        });
+                        setAccountSecret(undefined); // this also sets seedPhrase to undefined
+                        navigate(routes.accountCreationComplete());
+                      }}
+                    />
                   </Wrapper>
                 }
-              >
-                <Route
-                  path={routes.accountImportSeed()}
-                  element={
-                    <Wrapper onLoad={goToStep(1)}>
-                      <SeedPhraseImport
-                        onConfirm={(accountSecret: AccountSecret) => {
-                          setAccountSecret(accountSecret);
-                          navigate(routes.accountImportPassword());
-                        }}
-                      />
-                    </Wrapper>
-                  }
-                />
-                <Route
-                  path={routes.accountImportPassword()}
-                  element={
-                    <Wrapper onLoad={goToStep(2)}>
-                      <SeedPhraseSetup
-                        passwordRequired={!passwordInitialized}
-                        accountCreationDetails={accountCreationDetails}
-                        accountSecret={accountSecret}
-                        onConfirm={(accountCreationDetails: AccountDetails) => {
-                          if (!accountSecret) {
-                            navigate(routes.accountImportSeed());
-                            return;
-                          }
-                          setSelectedAccountSecret(accountSecret);
-                          setAccountCreationDetails(accountCreationDetails);
-                          navigate(routes.accountImportComplete());
-                        }}
-                      />
-                    </Wrapper>
-                  }
-                />
-                <Route
-                  path={routes.accountImportComplete()}
-                  element={
-                    <Wrapper onLoad={goToStep(3)}>
-                      <Completion
-                        passwordRequired={!passwordInitialized}
-                        pageTitle="Namada Keys Imported"
-                        pageSubtitle="Here are the accounts generated from your keys"
-                        alias={accountCreationDetails.alias || ""}
-                        accountSecret={selectedAccountSecret}
-                        password={accountCreationDetails.password || ""}
-                        scanAccounts={false}
-                      />
-                    </Wrapper>
-                  }
-                />
-              </Route>
-
-              {/* Connect to Ledger */}
+              />
               <Route
+                path={routes.accountCreationComplete()}
                 element={
-                  <Wrapper onLoad={() => setTotalSteps(3)}>
-                    <Outlet />
+                  <Wrapper onLoad={goToStep(4)}>
+                    <Completion
+                      passwordRequired={!passwordInitialized}
+                      pageTitle="Namada Keys Created"
+                      pageSubtitle="Here are the accounts generated from your keys"
+                      alias={accountCreationDetails.alias || ""}
+                      accountSecret={selectedAccountSecret}
+                      password={accountCreationDetails.password || ""}
+                      scanAccounts={false}
+                    />
                   </Wrapper>
                 }
-              >
-                <Route
-                  path={routes.ledgerConnect()}
-                  element={
-                    <Wrapper onLoad={() => setCurrentStep(1)}>
-                      <LedgerConnect />
-                    </Wrapper>
-                  }
-                />
-                <Route
-                  path={routes.ledgerImport()}
-                  element={
-                    <Wrapper onLoad={() => setCurrentStep(2)}>
-                      <LedgerImport passwordRequired={!passwordInitialized} />
-                    </Wrapper>
-                  }
-                />
-                <Route
-                  path={routes.ledgerComplete()}
-                  element={
-                    <Wrapper onLoad={() => setCurrentStep(3)}>
-                      <LedgerConfirmation />
-                    </Wrapper>
-                  }
-                />
-              </Route>
-            </Routes>
-          </AnimatedTransition>
-        </AnimatePresence>
-      </Container>
-    </ThemeProvider>
+              />
+            </Route>
+
+            {/* Import Existing Keys */}
+            <Route
+              element={
+                <Wrapper onLoad={() => setTotalSteps(3)}>
+                  <Outlet />
+                </Wrapper>
+              }
+            >
+              <Route
+                path={routes.accountImportSeed()}
+                element={
+                  <Wrapper onLoad={goToStep(1)}>
+                    <SeedPhraseImport
+                      onConfirm={(accountSecret: AccountSecret) => {
+                        setAccountSecret(accountSecret);
+                        navigate(routes.accountImportPassword());
+                      }}
+                    />
+                  </Wrapper>
+                }
+              />
+              <Route
+                path={routes.accountImportPassword()}
+                element={
+                  <Wrapper onLoad={goToStep(2)}>
+                    <SeedPhraseSetup
+                      passwordRequired={!passwordInitialized}
+                      accountCreationDetails={accountCreationDetails}
+                      accountSecret={accountSecret}
+                      onConfirm={(accountCreationDetails: AccountDetails) => {
+                        if (!accountSecret) {
+                          navigate(routes.accountImportSeed());
+                          return;
+                        }
+                        setSelectedAccountSecret(accountSecret);
+                        setAccountCreationDetails(accountCreationDetails);
+                        navigate(routes.accountImportComplete());
+                      }}
+                    />
+                  </Wrapper>
+                }
+              />
+              <Route
+                path={routes.accountImportComplete()}
+                element={
+                  <Wrapper onLoad={goToStep(3)}>
+                    <Completion
+                      passwordRequired={!passwordInitialized}
+                      pageTitle="Namada Keys Imported"
+                      pageSubtitle="Here are the accounts generated from your keys"
+                      alias={accountCreationDetails.alias || ""}
+                      accountSecret={selectedAccountSecret}
+                      password={accountCreationDetails.password || ""}
+                      scanAccounts={false}
+                    />
+                  </Wrapper>
+                }
+              />
+            </Route>
+
+            {/* Connect to Ledger */}
+            <Route
+              element={
+                <Wrapper onLoad={() => setTotalSteps(3)}>
+                  <Outlet />
+                </Wrapper>
+              }
+            >
+              <Route
+                path={routes.ledgerConnect()}
+                element={
+                  <Wrapper onLoad={() => setCurrentStep(1)}>
+                    <LedgerConnect />
+                  </Wrapper>
+                }
+              />
+              <Route
+                path={routes.ledgerImport()}
+                element={
+                  <Wrapper onLoad={() => setCurrentStep(2)}>
+                    <LedgerImport passwordRequired={!passwordInitialized} />
+                  </Wrapper>
+                }
+              />
+              <Route
+                path={routes.ledgerComplete()}
+                element={
+                  <Wrapper onLoad={() => setCurrentStep(3)}>
+                    <LedgerConfirmation />
+                  </Wrapper>
+                }
+              />
+            </Route>
+          </Routes>
+        </AnimatedTransition>
+      </AnimatePresence>
+    </Container>
   );
 };
