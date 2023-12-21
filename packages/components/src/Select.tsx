@@ -14,7 +14,7 @@ const selectClassList = tv({
     wrapper: "relative flex justify-end items-center w-full py-3 text-yellow",
     select: clsx(
       "unset w-full py-[0.875em] px-[1em] rounded-lg absolute left-0 bg-neutral-800",
-      "h-8 pr-2 pl-4 cursor-pointer"
+      "h-12 mt-2 pr-2 pl-4 cursor-pointer"
     ),
   },
 });
