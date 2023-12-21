@@ -7,7 +7,9 @@ import { RequesterProvider } from "services";
 import { ThemeProvider } from "styled-components";
 import { Approvals } from "./Approvals";
 
+import "@namada/components/src/base.css";
 import "../global.css";
+import "../tailwind.css";
 
 export default ((): void => {
   const theme = getTheme("dark");
