@@ -7,8 +7,6 @@ const MergeJsonWebpackPlugin = require("merge-jsons-webpack-plugin");
 const ExtensionReloader = require("webpack-extension-reloader");
 const RemovePlugin = require("remove-files-webpack-plugin");
 const packageJson = require("./package.json");
-const createStyledComponentsTransformer =
-  require("typescript-plugin-styled-components").default;
 const { getProcessEnv } = require("@namada/config/webpack.js");
 
 // Load .env from namada-interface:
@@ -165,17 +163,7 @@ module.exports = {
         test: /\.tsx?$/,
         loader: "ts-loader",
         exclude: /node_modules/,
-        options: {
-          getCustomTransformers: (program) => ({
-            before: [
-              createStyledComponentsTransformer(program, {
-                setComponentId: true,
-                setDisplayName: true,
-                minify: true,
-              }),
-            ],
-          }),
-        },
+        options: {},
       },
       {
         test: /\.css$/i,
