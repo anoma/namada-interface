@@ -34,11 +34,11 @@ export const minDenomByToken = (token: CosmosTokenType): string => {
   return tokenDenom ? tokenDenom[0] : "";
 };
 
-const supportedCoinTypes: RegisteredCoinType[] = [
-  ...registeredCoinTypes.filter(([, , symbol]) => {
-    return CosmosSymbols.indexOf(`${symbol as CosmosTokenType}`) > -1;
-  }),
-];
+const supportedCoinTypes: RegisteredCoinType[] = registeredCoinTypes.filter(
+  ([, , symbol]) => {
+    return CosmosSymbols.includes(`${symbol as CosmosTokenType}`);
+  }
+);
 
 export const CosmosTokens = supportedCoinTypes.reduce(
   (tokens: CosmosTokens, coinType: RegisteredCoinType) => {

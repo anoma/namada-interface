@@ -45,7 +45,7 @@ export const NamadaTxStartedHandler =
 export const NamadaTxCompletedHandler =
   (dispatch: Dispatch<unknown>) => async (event: CustomEventInit) => {
     const { msgId, txType, success, payload } = event.detail;
-    if (payload) {
+    if (!success) {
       console.warn(`${txType} failed:`, payload);
     }
     dispatch(
