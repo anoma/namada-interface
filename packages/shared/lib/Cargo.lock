@@ -586,8 +586,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4e3c5919066adf22df73762e50cffcde3a758f2a848b113b586d1f86728b673b"
 dependencies = [
  "iana-time-zone",
+ "js-sys",
  "num-integer",
  "num-traits",
+ "time 0.1.45",
+ "wasm-bindgen",
  "winapi",
 ]
 
@@ -2440,7 +2443,7 @@ dependencies = [
  "prost 0.12.1",
  "serde",
  "tendermint",
- "time",
+ "time 0.3.21",
 ]
 
 [[package]]
@@ -4613,6 +4616,7 @@ dependencies = [
  "async-trait",
  "borsh",
  "borsh-ext",
+ "chrono",
  "console_error_panic_hook",
  "getrandom 0.2.9",
  "gloo-utils",
@@ -4907,7 +4911,7 @@ dependencies = [
  "subtle 2.4.1",
  "subtle-encoding",
  "tendermint-proto",
- "time",
+ "time 0.3.21",
  "zeroize",
 ]
 
@@ -4935,7 +4939,7 @@ dependencies = [
  "flex-error",
  "serde",
  "tendermint",
- "time",
+ "time 0.3.21",
 ]
 
 [[package]]
@@ -4953,7 +4957,7 @@ dependencies = [
  "serde",
  "serde_bytes",
  "subtle-encoding",
- "time",
+ "time 0.3.21",
 ]
 
 [[package]]
@@ -4978,7 +4982,7 @@ dependencies = [
  "tendermint-config",
  "tendermint-proto",
  "thiserror",
- "time",
+ "time 0.3.21",
  "url",
  "uuid",
  "walkdir",
@@ -5013,6 +5017,17 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.39",
+]
+
+[[package]]
+name = "time"
+version = "0.1.45"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1b797afad3f312d1c66a56d11d0316f916356d11bd158fbc6ca6389ff6bf805a"
+dependencies = [
+ "libc",
+ "wasi 0.10.0+wasi-snapshot-preview1",
+ "winapi",
 ]
 
 [[package]]
@@ -5459,6 +5474,12 @@ checksum = "cccddf32554fecc6acb585f82a32a72e28b48f8c4c1883ddfeeeaa96f7d8e519"
 
 [[package]]
 name = "wasi"
+version = "0.10.0+wasi-snapshot-preview1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1a143597ca7c7793eff794def352d41792a93c481eb1042423ff7ff72ba2c31f"
+
+[[package]]
+name = "wasi"
 version = "0.11.0+wasi-snapshot-preview1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9c8d87e72b64a3b4db28d11ce29237c246188f4f51057d65a7eab63b7987e423"
@@ -5857,7 +5878,7 @@ dependencies = [
  "hmac 0.12.1",
  "pbkdf2 0.11.0",
  "sha1",
- "time",
+ "time 0.3.21",
  "zstd",
 ]
 

@@ -18,6 +18,7 @@ async-trait = {version = "0.1.51"}
 tiny-bip39 = "0.8.2"
 borsh = {version = "1.2.0", features = ["unstable__schema", "derive"]}
 borsh-ext = { git = "https://github.com/heliaxdev/borsh-ext", tag = "v1.2.0" }
+chrono = "0.4.22"
 getrandom = { version = "0.2.7", features = ["js"] }
 gloo-utils = { version = "0.1.5", features = ["serde"] }
 js-sys = "0.3.60"
@@ -51,15 +52,13 @@ wasm-bindgen-test = "0.3.13"
 # https://doc.rust-lang.org/cargo/reference/profiles.html
 [profile.release]
 lto = true
-opt-level = "z"
 
 [profile.dev]
-opt-level = "s"
 
 # wasm-pack specific configuration
 [package.metadata.wasm-pack.profile.release]
 # https://docs.rs/wasm-opt/latest/wasm_opt/
-wasm-opt = ['-Oz']
+wasm-opt = ['-O4']
 
 [package.metadata.wasm-pack.profile.dev]
 wasm-opt = false

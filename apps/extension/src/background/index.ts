@@ -67,9 +67,15 @@ router.addGuard(ExtensionGuards.checkOriginIsValid);
 router.addGuard(ExtensionGuards.checkMessageIsInternal);
 
 const init = new Promise<void>(async (resolve) => {
-  const { memory: cryptoMemory } = await initCrypto();
+  const cryptoWasm = await fetch("crypto.namada.wasm").then((wasm) =>
+    wasm.arrayBuffer()
+  );
+  const { memory: cryptoMemory } = await initCrypto(cryptoWasm);
 
-  await initShared();
+  const sharedWasm = await fetch("shared.namada.wasm").then((wasm) =>
+    wasm.arrayBuffer()
+  );
+  await initShared(sharedWasm);
   const sdk = new Sdk(NamadaRpcEndpoint);
   const query = new Query(NamadaRpcEndpoint);
 
