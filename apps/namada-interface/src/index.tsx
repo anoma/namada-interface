@@ -6,8 +6,10 @@ import { RouterProvider } from "react-router-dom";
 import { ExtensionEventsProvider, IntegrationsProvider } from "services";
 import { store } from "store/store";
 import { getRouter } from "./App/AppRoutes";
-import "./index.css";
 import reportWebVitals from "./reportWebVitals";
+
+import "@namada/components/src/base.css";
+import "./tailwind.css";
 
 ReactDOM.render(
   <React.StrictMode>
