@@ -1,63 +1,51 @@
-import React, { useState, useContext } from "react";
+import React, { useContext, useState } from "react";
+import { Location, NavigateFunction, useNavigate } from "react-router-dom";
 import { ThemeContext } from "styled-components";
-import { useNavigate, NavigateFunction, Location } from "react-router-dom";
 
-import { ColorMode } from "@namada/utils";
-import { chains } from "@namada/chains";
-import { Chain } from "@namada/types";
-import {
-  Icon,
-  IconName,
-  Image,
-  ImageName,
-  Toggle,
-  Select,
-} from "@namada/components";
+import { Icon, IconName, Image, ImageName, Toggle } from "@namada/components";
 import { useSanitizedLocation } from "@namada/hooks";
+import { ColorMode } from "@namada/utils";
 
-import { useAppDispatch, useAppSelector } from "store";
+import {
+  StakingAndGovernanceSubRoute,
+  TopLevelRoute,
+  locationToStakingAndGovernanceSubRoute,
+  locationToTopLevelRoute,
+} from "App/types";
 import { AppStore } from "store/store";
 import {
-  TopLevelRoute,
-  StakingAndGovernanceSubRoute,
-  locationToTopLevelRoute,
-  locationToStakingAndGovernanceSubRoute,
-} from "App/types";
-import {
-  TopNavigationContainer,
+  ColorModeContainer,
   LeftSection,
-  MiddleSection,
-  RightSection,
+  LogoContainer,
+  MenuButton,
+  MenuCloseButton,
   MenuItem,
-  MenuItemForSecondRow,
   MenuItemSubComponent,
   MenuItemTextContainer,
-  ColorModeContainer,
-  LogoContainer,
-  OnlyInSmall,
-  OnlyInMedium,
-  TopNavigationContainerRow,
-  TopNavigationContainerSecondRow,
-  TopNavigationSecondRowInnerContainer,
-  MenuButton,
+  MiddleSection,
   MobileMenu,
+  MobileMenuHeader,
   MobileMenuList,
   MobileMenuListItem,
-  MobileMenuHeader,
-  MenuCloseButton,
-  SubMenuContainer,
+  OnlyInMedium,
+  OnlyInSmall,
+  RightSection,
+  TopNavigationContainer,
+  TopNavigationContainerRow,
+  TopNavigationContainerSecondRow,
 } from "./topNavigation.components";
-import { setChainId, SettingsState } from "slices/settings";
 import TopNavigationLoggedIn from "./topNavigationLoggedIn";
 
 /**
  * this is rendered in one of 2 places depending of the screen size
  */
-const TopNavigationMenuItems = (props: {
-  navigate: NavigateFunction;
-  location: Location;
-  setColorMode: (mode: ColorMode) => void;
-}): React.ReactElement => {
+const TopNavigationMenuItems = (
+  props: {
+    navigate: NavigateFunction;
+    location: Location;
+    setColorMode: (mode: ColorMode) => void;
+  }
+): React.ReactElement => {
   const { navigate } = props;
   const topLevelPath = `/${location.pathname.split("/")[1]}`;
   return (
@@ -79,7 +67,7 @@ const TopNavigationMenuItems = (props: {
         }}
         isSelected={location.pathname === TopLevelRoute.Bridge}
       >
-        <MenuItemTextContainer>Bridge</MenuItemTextContainer>
+        <MenuItemTextContainer>IBC</MenuItemTextContainer>
       </MenuItem>
 
       {/* Staking */}
@@ -102,83 +90,6 @@ const TopNavigationMenuItems = (props: {
         <MenuItemTextContainer>Proposals</MenuItemTextContainer>
       </MenuItem>
     </>
-  );
-};
-
-type SecondMenuRowProps = {
-  location: Location;
-  navigate: NavigateFunction;
-  toggleColorMode: () => void;
-  setColorMode: (mode: ColorMode) => void;
-};
-
-const SecondMenuRow = (props: SecondMenuRowProps): React.ReactElement => {
-  const dispatch = useAppDispatch();
-  const { navigate, location } = props;
-  const topLevelRoute = locationToTopLevelRoute(location);
-  const stakingAndGovernanceSubRoute =
-    locationToStakingAndGovernanceSubRoute(location);
-  const isSubMenuContentVisible =
-    topLevelRoute === TopLevelRoute.StakingAndGovernance;
-  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
-
-  // callback func for select component
-  const handleNetworkSelect = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ): void => {
-    const { value } = event.target;
-    dispatch(setChainId(value));
-  };
-
-  // transform for select component
-  const networks = Object.values(chains).map(({ chainId, alias }: Chain) => ({
-    label: alias,
-    value: chainId,
-  }));
-
-  return (
-    <TopNavigationSecondRowInnerContainer
-      spaceBetween={isSubMenuContentVisible}
-    >
-      {isSubMenuContentVisible && (
-        <SubMenuContainer>
-          <MenuItemForSecondRow
-            onClick={() => {
-              navigate(
-                `${TopLevelRoute.StakingAndGovernance}${StakingAndGovernanceSubRoute.Staking}`
-              );
-            }}
-            isSelected={
-              stakingAndGovernanceSubRoute ===
-              StakingAndGovernanceSubRoute.Staking
-            }
-          >
-            Staking
-          </MenuItemForSecondRow>
-          <MenuItemForSecondRow
-            onClick={() => {
-              navigate(
-                `${TopLevelRoute.StakingAndGovernance}${StakingAndGovernanceSubRoute.PublicGoodsFunding}`
-              );
-            }}
-            isSelected={
-              stakingAndGovernanceSubRoute ===
-              StakingAndGovernanceSubRoute.PublicGoodsFunding
-            }
-          >
-            Public Goods Funding
-          </MenuItemForSecondRow>
-        </SubMenuContainer>
-      )}
-
-      <RightSection>
-        <Select
-          value={chainId}
-          data={networks}
-          onChange={handleNetworkSelect}
-        />
-      </RightSection>
-    </TopNavigationSecondRowInnerContainer>
   );
 };
 
@@ -240,14 +151,6 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
             )}
           </RightSection>
         </TopNavigationContainerRow>
-
-        {/* sub menu */}
-        <SecondMenuRow
-          location={location}
-          navigate={navigate}
-          toggleColorMode={toggleColorMode}
-          setColorMode={setColorMode}
-        />
       </OnlyInMedium>
 
       {/* mobile size */}
@@ -342,7 +245,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
                 }}
                 isSelected={topLevelRoute === TopLevelRoute.Bridge}
               >
-                Bridge
+                IBC
               </MenuItem>
             </MobileMenuListItem>
             <MobileMenuListItem>

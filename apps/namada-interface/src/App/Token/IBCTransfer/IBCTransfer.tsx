@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import BigNumber from "bignumber.js";
 
 import { chains, defaultChainId } from "@namada/chains";
@@ -6,12 +6,15 @@ import {
   Account as AccountType,
   BridgeType,
   Chain,
+  CosmosTokens,
+  CosmosTokenType,
   ExtensionKey,
   Extensions,
   Tokens,
   TokenType,
 } from "@namada/types";
 import {
+  Alert,
   Button,
   ButtonVariant,
   Icon,
@@ -30,7 +33,7 @@ import {
 import { useAppDispatch, useAppSelector } from "store";
 import { Account, AccountsState, addAccounts } from "slices/accounts";
 import { addChannel, ChannelsState } from "slices/channels";
-import { setIsConnected, SettingsState } from "slices/settings";
+import { setIsConnected } from "slices/settings";
 
 import {
   ButtonsContainer,
@@ -53,9 +56,9 @@ export const submitIbcTransfer = async (
     portId,
     channelId,
   } = ibcArgs;
-  const integration = getIntegration(chainId || defaultChainId);
+  const integration = getIntegration(chainId);
 
-  await integration.submitBridgeTransfer(
+  return await integration.submitBridgeTransfer(
     {
       ibcProps: {
         source: address,
@@ -79,9 +82,10 @@ export const submitIbcTransfer = async (
 
 const IBCTransfer = (): JSX.Element => {
   const dispatch = useAppDispatch();
-  const { chainId } = useAppSelector<SettingsState>((state) => state.settings);
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
+  const [error, setError] = useState<string>();
   const [currentBalance, setCurrentBalance] = useState(new BigNumber(0));
+  const [chainId, setChainId] = useState(defaultChainId)
   const { channelsByChain = {} } = useAppSelector<ChannelsState>(
     (state) => state.channels
   );
@@ -98,19 +102,20 @@ const IBCTransfer = (): JSX.Element => {
     (chain: Chain) => chain.chainId !== chainId
   );
 
-  const sourceChain = chains[bridgedChains[0]?.chainId] || null;
-  const [selectedChainId, setSelectedChainId] = useState(
-    sourceChain ? sourceChain.chainId : ""
-  );
-  const destinationChain = chains[selectedChainId];
+  const sourceChain = chains[chainId] || null;
+  const [selectedChainId, setSelectedChainId] = useState(defaultChainId);
+  const destinationChain = bridgedChains[0];
 
   const selectDestinationChainData = bridgedChains.map((chain) => ({
     value: chain.chainId,
     label: chain.alias,
   }));
 
-  const [integration, isConnectingToExtension, withConnection] =
+  const [destinationIntegration, isDestinationConnectingToExtension, withDestinationConnection] =
     useIntegrationConnection(destinationChain.chainId);
+
+  const [sourceIntegration, isSourceConnectingToExtension, withSourceConnection] =
+    useIntegrationConnection(sourceChain.chainId);
 
   const [amount, setAmount] = useState<BigNumber>(new BigNumber(0));
   const [selectedChannelId, setSelectedChannelId] = useState("");
@@ -123,10 +128,11 @@ const IBCTransfer = (): JSX.Element => {
   >([]);
 
   const [sourceAccount, setSourceAccount] = useState<Account>();
-  const [token, setToken] = useState<TokenType>();
+  const [token, setToken] = useState<TokenType>(chains[defaultChainId].currency.symbol as TokenType);
 
   const chain = chains[chainId];
-  const extensionAlias = Extensions[destinationChain.extension.id].alias;
+  const sourceExtensionAlias = Extensions[sourceChain.extension.id].alias;
+  const destinationExtensionAlias = Extensions[destinationChain.extension.id].alias;
 
   const extensionAttachStatus = useUntilIntegrationAttached(chain);
   const currentExtensionAttachStatus =
@@ -144,21 +150,19 @@ const IBCTransfer = (): JSX.Element => {
 
   const accounts = Object.values(derived[chainId]);
   const sourceAccounts = accounts.filter(({ details }) => !details.isShielded);
+
   const tokenData: Option<string>[] = sourceAccounts.flatMap(
-    ({ balance, details }) => {
+    ({ details, balance }) => {
       const { address, alias } = details;
 
-      return Object.entries(balance).map(([tokenType, amount]) => {
-        // If token isn't set, set it now
-        if (!token && tokenType) {
-          setToken(tokenType as TokenType);
-        }
-        return {
-          value: `${address}|${tokenType}`,
-          label: `${alias !== "Namada" ? alias + " - " : ""}${Tokens[tokenType as TokenType].coin
-            } (${amount} ${tokenType})`,
-        };
-      });
+      return Object.entries(balance)
+        .filter(([_, amount]) => amount.isGreaterThan(0))
+        .map(([tokenType, amount]) => {
+          return {
+            value: `${address}|${tokenType}`,
+            label: `${alias} (${tokenType}): ${amount}`,
+          };
+        });
     }
   );
 
@@ -170,7 +174,8 @@ const IBCTransfer = (): JSX.Element => {
 
   useEffect(() => {
     if (sourceAccount && token) {
-      setCurrentBalance(sourceAccount.balance[token] || new BigNumber(0));
+      setCurrentBalance(sourceAccount.balance[token as TokenType] || new BigNumber(0));
+      setToken(token)
     }
   }, [sourceAccount, token]);
 
@@ -217,6 +222,20 @@ const IBCTransfer = (): JSX.Element => {
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
 
+  // transform for select component
+  const networks = Object.values(chains).map(({ chainId, alias }: Chain) => ({
+    label: alias,
+    value: chainId,
+  }));
+
+  const handleNetworkSelect = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ): void => {
+    const { value: chainId } = event.target;
+    setChainId(chainId)
+    setToken(chains[chainId].currency.symbol as TokenType)
+  };
+
   const { portId = "transfer" } = sourceChain.ibc || {};
   const handleAddChannel = (): void => {
     if (channelId) {
@@ -246,23 +265,50 @@ const IBCTransfer = (): JSX.Element => {
   };
 
   const handleSubmit = (): void => {
+    setError(undefined)
+    const tokens = sourceChain.chainId === defaultChainId ? Tokens : CosmosTokens;
     if (sourceAccount && token) {
       submitIbcTransfer({
         account: sourceAccount.details,
-        token: Tokens[token as TokenType],
+        token: tokens[token as TokenType & CosmosTokenType],
         amount,
         chainId,
         target: recipient,
         channelId: selectedChannelId,
         portId,
-      });
+      }).catch((e) => {
+        setError(`${e}`)
+      })
     }
   };
 
-  const handleConnectExtension = async (): Promise<void> => {
-    withConnection(
+  const handleConnectSourceExtension = useCallback(async (): Promise<void> => {
+    withSourceConnection(
       async () => {
-        const accounts = await integration?.accounts();
+        const accounts = await sourceIntegration?.accounts();
+        if (accounts) {
+          dispatch(addAccounts(accounts as AccountType[]));
+          dispatch(setIsConnected(chain.chainId));
+        }
+
+        setIsExtensionConnected({
+          ...isExtensionConnected,
+          [chain.extension.id]: true,
+        });
+      },
+      async () => {
+        setIsExtensionConnected({
+          ...isExtensionConnected,
+          [chain.extension.id]: false,
+        });
+      }
+    );
+  }, [chain]);
+
+  const handleConnectDestinationExtension = useCallback(async (): Promise<void> => {
+    withDestinationConnection(
+      async () => {
+        const accounts = await destinationIntegration?.accounts();
         if (accounts) {
           dispatch(addAccounts(accounts as AccountType[]));
           dispatch(setIsConnected(chainId));
@@ -280,7 +326,7 @@ const IBCTransfer = (): JSX.Element => {
         });
       }
     );
-  };
+  }, [chain]);
 
   const handleDownloadExtension = (url: string): void => {
     window.open(url, "_blank", "noopener,noreferrer");
@@ -328,14 +374,57 @@ const IBCTransfer = (): JSX.Element => {
     <IBCTransferFormContainer>
       {sourceChain && (
         <>
+          {error && <Alert type="error">{error}</Alert>}
           <InputContainer>
             <Select
-              data={tokenData}
-              value={`${sourceAccount?.details?.address}|${token}`}
-              label="Token"
-              onChange={handleTokenChange}
+              value={chainId}
+              data={networks}
+              label="Source chain"
+              onChange={handleNetworkSelect}
             />
           </InputContainer>
+          {!isExtensionConnected[sourceChain.extension.id] &&
+            sourceAccounts.length === 0 && (
+              <Button
+                variant={ButtonVariant.Contained}
+                onClick={
+                  currentExtensionAttachStatus === "attached"
+                    ? handleConnectSourceExtension
+                    : handleDownloadExtension.bind(
+                      null,
+                      destinationChain.extension.url
+                    )
+                }
+                loading={
+                  currentExtensionAttachStatus === "pending" ||
+                  isSourceConnectingToExtension
+                }
+                style={
+                  currentExtensionAttachStatus === "pending"
+                    ? { color: "transparent" }
+                    : {}
+                }
+              >
+                {currentExtensionAttachStatus === "attached" ||
+                  currentExtensionAttachStatus === "pending"
+                  ? `Load accounts from ${sourceExtensionAlias} Extension`
+                  : "Click to download the extension"}
+              </Button>
+            )}
+
+          {tokenData.length > 0
+            ? <InputContainer>
+              <Select
+                data={tokenData}
+                value={`${sourceAccount?.details?.address}|${token}`}
+                label="Token"
+                onChange={handleTokenChange}
+              />
+            </InputContainer>
+            : sourceAccounts.length > 0
+              ? <Alert type="warning">You have no token balances</Alert>
+              : null
+          }
 
           <InputContainer>
             <Select<string>
@@ -409,7 +498,7 @@ const IBCTransfer = (): JSX.Element => {
                 variant={ButtonVariant.Contained}
                 onClick={
                   currentExtensionAttachStatus === "attached"
-                    ? handleConnectExtension
+                    ? handleConnectDestinationExtension
                     : handleDownloadExtension.bind(
                       null,
                       destinationChain.extension.url
@@ -417,7 +506,7 @@ const IBCTransfer = (): JSX.Element => {
                 }
                 loading={
                   currentExtensionAttachStatus === "pending" ||
-                  isConnectingToExtension
+                  isDestinationConnectingToExtension
                 }
                 style={
                   currentExtensionAttachStatus === "pending"
@@ -427,7 +516,7 @@ const IBCTransfer = (): JSX.Element => {
               >
                 {currentExtensionAttachStatus === "attached" ||
                   currentExtensionAttachStatus === "pending"
-                  ? `Load accounts from ${extensionAlias} Extension`
+                  ? `Load accounts from ${destinationExtensionAlias} Extension`
                   : "Click to download the extension"}
               </Button>
             )}

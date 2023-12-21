@@ -1,15 +1,15 @@
-import {
-  Keplr as IKeplr,
-  Key,
-  Window as KeplrWindow,
-} from "@keplr-wallet/types";
+import { Coin } from "@cosmjs/launchpad";
 import { AccountData, coin, coins } from "@cosmjs/proto-signing";
 import {
-  StargateClient,
   SigningStargateClient,
   SigningStargateClientOptions,
+  StargateClient,
 } from "@cosmjs/stargate";
-import { Coin } from "@cosmjs/launchpad";
+import {
+  Keplr as IKeplr,
+  Window as KeplrWindow,
+  Key,
+} from "@keplr-wallet/types";
 // import Long from "long";
 import BigNumber from "bignumber.js";
 
@@ -46,7 +46,7 @@ class Keplr implements Integration<Account, OfflineSigner> {
    * override keplr instance for testing
    * @param chain
    */
-  constructor(public readonly chain: Chain) {}
+  constructor(public readonly chain: Chain) { }
 
   private init(): void {
     if (!this._keplr) {
@@ -151,36 +151,36 @@ class Keplr implements Integration<Account, OfflineSigner> {
       } = props.ibcProps;
       const { feeAmount } = props.txProps;
 
+      const minDenom = minDenomByToken(token.symbol as CosmosTokenType);
       const client = await SigningStargateClient.connectWithSigner(
         this.chain.rpc,
         this.signer(),
         defaultSigningClientOptions
-      );
+      ).catch((e) => Promise.reject(e));
 
       const fee = {
-        amount: coins(feeAmount.toString(), "uatom"),
+        amount: coins(feeAmount.toString(), minDenom),
         gas: "222000",
       };
 
-      const response = await client.sendIbcTokens(
-        source,
-        receiver,
-        coin(
-          amount.toString(),
-          minDenomByToken(token.symbol as CosmosTokenType)
-        ),
-        portId,
-        channelId,
-        // TODO: Should we enable timeout height versus timestamp?
-        // {
-        //   revisionHeight: Long.fromNumber(0),
-        //   revisionNumber: Long.fromNumber(0),
-        // },
-        undefined, // timeout height
-        Math.floor(Date.now() / 1000) + 60, // timeout timestamp
-        fee,
-        `${this.chain.alias} (${this.chain.chainId})->Namada`
-      );
+      const response = await client
+        .sendIbcTokens(
+          source,
+          receiver,
+          coin(amount.toString(), minDenom),
+          portId,
+          channelId,
+          // TODO: Should we enable timeout height versus timestamp?
+          // {
+          //   revisionHeight: Long.fromNumber(0),
+          //   revisionNumber: Long.fromNumber(0),
+          // },
+          undefined, // timeout height
+          Math.floor(Date.now() / 1000) + 60, // timeout timestamp
+          fee,
+          `${this.chain.alias} (${this.chain.chainId})->Namada`
+        )
+        .catch((e) => Promise.reject(e));
 
       if (response.code !== 0) {
         console.error("Transaction failed:", { response });

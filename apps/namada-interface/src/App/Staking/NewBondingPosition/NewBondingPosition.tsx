@@ -13,7 +13,6 @@ import {
   TableConfigurations,
   KeyValueData,
 } from "@namada/components";
-import { truncateInMiddle } from "@namada/utils";
 import {
   StakingPosition,
   ChangeInStakingPosition,
@@ -57,10 +56,12 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
   const { accounts, currentBondingPositions, confirmBonding, cancelBonding } =
     props;
 
-  const selectOptions = accounts.map(({ details: { address } }) => ({
-    value: address,
-    label: truncateInMiddle(address, 9, 9),
-  }));
+  const selectOptions = accounts
+    .filter((acc) => !acc.details.isShielded)
+    .map(({ details: { address, alias } }) => ({
+      value: address,
+      label: alias,
+    }));
 
   const [currentAccount, setCurrentAccount] = useState<Account>(accounts[0]);
   const currentAddress = currentAccount?.details.address;
@@ -150,7 +151,7 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
       <BondingAddressSelect
         data={selectOptions}
         value={currentAddress}
-        label="Address"
+        label="Account"
         onChange={handleAddressChange}
       />
 
