@@ -5,24 +5,15 @@ import { useNavigate } from "react-router-dom";
 import { ThemeContext } from "styled-components";
 
 import { defaultChainId as chainId } from "@namada/chains";
-import {
-  Button,
-  ButtonVariant,
-  Icon,
-  IconName,
-  Input,
-  InputVariants,
-} from "@namada/components";
+import { ActionButton, Icon, Input } from "@namada/components";
 import { getIntegration } from "@namada/integrations";
 import { Signer, TokenType, Tokens } from "@namada/types";
 import { ColorMode, DesignConfiguration } from "@namada/utils";
-
+import { TopLevelRoute } from "App/types";
 import { AccountsState } from "slices/accounts";
 import { CoinsState } from "slices/coins";
-import { useAppSelector } from "store";
-
-import { TopLevelRoute } from "App/types";
 import { SettingsState } from "slices/settings";
+import { useAppSelector } from "store";
 import { TransferType, TxTransferArgs } from "../types";
 import { parseTarget } from "./TokenSend";
 import {
@@ -321,7 +312,6 @@ const TokenSendForm = (
       <TokenSendFormContainer>
         <InputContainer>
           <Input
-            variant={InputVariants.Text}
             label={"Recipient"}
             onChange={(e) => {
               const { value } = e.target;
@@ -343,7 +333,7 @@ const TokenSendForm = (
         </InputContainer>
         <InputContainer>
           <Input
-            variant={InputVariants.Number}
+            type="number"
             label={"Amount"}
             value={amount.toString()}
             onChange={(e) => {
@@ -357,8 +347,8 @@ const TokenSendForm = (
         <InputContainer>{accountSourceTargetDescription}</InputContainer>
 
         <GasButtonsContainer>
-          <Button
-            variant={ButtonVariant.Outlined}
+          <ActionButton
+            outlined
             onClick={() => setGasFee(GasFee.Low)}
             style={
               gasFee === GasFee.Low
@@ -374,9 +364,9 @@ const TokenSendForm = (
               <br />
               &lt; {gasFees[GasFee.Low].fiat.toString()} {fiatCurrency}
             </p>
-          </Button>
-          <Button
-            variant={ButtonVariant.Outlined}
+          </ActionButton>
+          <ActionButton
+            outlined
             onClick={() => setGasFee(GasFee.Medium)}
             style={
               gasFee === GasFee.Medium
@@ -391,9 +381,9 @@ const TokenSendForm = (
               <br />
               &lt; {gasFees[GasFee.Medium].fiat.toString()} {fiatCurrency}
             </p>
-          </Button>
-          <Button
-            variant={ButtonVariant.Outlined}
+          </ActionButton>
+          <ActionButton
+            outlined
             onClick={() => setGasFee(GasFee.High)}
             style={
               gasFee === GasFee.High
@@ -408,21 +398,17 @@ const TokenSendForm = (
               <br />
               &lt; {gasFees[GasFee.High].fiat.toString()} {fiatCurrency}
             </p>
-          </Button>
+          </ActionButton>
         </GasButtonsContainer>
       </TokenSendFormContainer>
 
       <ButtonsContainer>
         <BackButton onClick={() => navigate(TopLevelRoute.Wallet)}>
-          <Icon iconName={IconName.ChevronLeft} />
+          <Icon name="ChevronLeft" />
         </BackButton>
-        <Button
-          variant={ButtonVariant.Contained}
-          disabled={isFormInvalid}
-          onClick={handleOnSendClick}
-        >
+        <ActionButton disabled={isFormInvalid} onClick={handleOnSendClick}>
           Continue
-        </Button>
+        </ActionButton>
       </ButtonsContainer>
     </>
   );

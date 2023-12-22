@@ -1,15 +1,12 @@
 import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { ActionButton, Alert, Stack, Text } from "@namada/components";
+import { ActionButton, Alert, Stack } from "@namada/components";
 import { useSanitizedParams } from "@namada/hooks";
 import { TxType, TxTypeLabel } from "@namada/shared";
 import { AccountType, Tokens } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
-
-import { Address } from "App/Accounts/AccountListing.components";
 import { ApprovalDetails } from "Approvals/Approvals";
-import { ButtonContainer } from "Approvals/Approvals.components";
 import { TopLevelRoute } from "Approvals/types";
 import { RejectTxMsg } from "background/approvals";
 import { useQuery } from "hooks";
@@ -78,35 +75,36 @@ export const ApproveTx: React.FC<Props> = ({ setDetails }) => {
   }, [msgId]);
 
   return (
-    <Stack gap={4}>
+    <Stack className="text-white" gap={4}>
       <Alert type="warning">
         Approve this {accountType === AccountType.Ledger ? "Ledger " : ""}
         <strong>{TxTypeLabel[txType as TxType]}</strong> transaction?
       </Alert>
-      {source && (
-        <Text fontSize="xs">
-          Source: <Address>{shortenAddress(source)}</Address>
-        </Text>
-      )}
-      {target && (
-        <Text fontSize="xs">
-          Target:
-          <Address>{shortenAddress(target)}</Address>
-        </Text>
-      )}
-      {amount && (
-        <Text fontSize="xs">
-          Amount: {amount} {tokenType}
-        </Text>
-      )}
-      {validator && (
-        <Text fontSize="xs">Validator: {shortenAddress(validator)}</Text>
-      )}
-
-      <ButtonContainer>
+      <Stack gap={2}>
+        {source && (
+          <p className="text-xs">
+            Source: <strong>{shortenAddress(source)}</strong>
+          </p>
+        )}
+        {target && (
+          <p className="text-xs">
+            Target:
+            <strong>{shortenAddress(target)}</strong>
+          </p>
+        )}
+        {amount && (
+          <p className="text-xs">
+            Amount: {amount} {tokenType}
+          </p>
+        )}
+        {validator && (
+          <p className="text-xs">Validator: {shortenAddress(validator)}</p>
+        )}
+      </Stack>
+      <Stack gap={3} direction="horizontal">
         <ActionButton onClick={handleApproveClick}>Approve</ActionButton>
         <ActionButton onClick={handleReject}>Reject</ActionButton>
-      </ButtonContainer>
+      </Stack>
     </Stack>
   );
 };

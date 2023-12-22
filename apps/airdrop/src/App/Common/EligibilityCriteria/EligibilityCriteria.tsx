@@ -1,11 +1,4 @@
-import {
-  Accordion,
-  Heading,
-  Icon,
-  IconName,
-  IconSize,
-  Stack,
-} from "@namada/components";
+import { Accordion, Heading, Icon, Stack } from "@namada/components";
 import { EligibiltyList } from "App/App.components";
 import {
   CheckedIconContainer,
@@ -31,11 +24,7 @@ const EligibilityAccordion = ({
       <EligibiltyTitle>
         {selected && (
           <CheckedIconContainer>
-            <Icon
-              iconName={IconName.Checked}
-              strokeColorOverride="currentColor"
-              iconSize={IconSize.S}
-            />
+            <Icon name="Checked" size="sm" />
           </CheckedIconContainer>
         )}
         {title}

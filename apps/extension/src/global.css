@@ -1,0 +1,19 @@
+body {
+  @apply bg-neutral-800;
+  min-width: 360px;
+  height: 600px;
+  overflow-x: hidden;
+}
+
+body::-webkit-scrollbar {
+  width: 0.25rem;
+}
+
+body::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 6px black;
+}
+
+body::-webkit-scrollbar-thumb {
+  @apply bg-neutral-500;
+  outline: 0;
+}

@@ -1,20 +1,18 @@
-import { useNavigate } from "react-router-dom";
 import {
-  Button,
-  ButtonVariant,
+  ActionButton,
   Heading,
   Icon,
-  IconName,
   NavigationContainer,
 } from "@namada/components";
+import { useNavigate } from "react-router-dom";
 
-import { TopLevelRoute } from "./types";
 import {
+  ButtonsContainer,
   NotFoundContainer,
   NotFoundContent,
-  ButtonsContainer,
 } from "./NotFound.components";
 import { BackButton } from "./Token/TokenSend/TokenSendForm.components";
+import { TopLevelRoute } from "./types";
 
 const NotFound = (): JSX.Element => {
   const navigate = useNavigate();
@@ -28,13 +26,13 @@ const NotFound = (): JSX.Element => {
       </NavigationContainer>
       <NotFoundContent>
         <Heading level="h1">Page not found.</Heading>
-        <Button onClick={handleWalletClick} variant={ButtonVariant.Contained}>
+        <ActionButton onClick={handleWalletClick}>
           Return to wallet
-        </Button>
+        </ActionButton>
       </NotFoundContent>
       <ButtonsContainer>
         <BackButton onClick={() => navigate(TopLevelRoute.Wallet)}>
-          <Icon iconName={IconName.ChevronLeft} />
+          <Icon name="ChevronLeft" />
         </BackButton>
       </ButtonsContainer>
     </NotFoundContainer>

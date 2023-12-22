@@ -10,21 +10,17 @@ import {
   CosmosTokenType,
   ExtensionKey,
   Extensions,
-  Tokens,
   TokenType,
+  Tokens,
 } from "@namada/types";
 import {
   Alert,
-  Button,
-  ButtonVariant,
+  ActionButton,
   Icon,
-  IconName,
   Input,
-  InputVariants,
   Option,
   Select,
 } from "@namada/components";
-
 import {
   getIntegration,
   useIntegrationConnection,
@@ -32,18 +28,18 @@ import {
 } from "@namada/integrations";
 import { useAppDispatch, useAppSelector } from "store";
 import { Account, AccountsState, addAccounts } from "slices/accounts";
-import { addChannel, ChannelsState } from "slices/channels";
+import { ChannelsState, addChannel } from "slices/channels";
 import { setIsConnected } from "slices/settings";
 
 import {
   ButtonsContainer,
   InputContainer,
 } from "../TokenSend/TokenSendForm.components";
+import { TxIbcTransferArgs } from "../types";
 import {
   AddChannelButton,
   IBCTransferFormContainer,
 } from "./IBCTransfer.components";
-import { TxIbcTransferArgs } from "../types";
 
 export const submitIbcTransfer = async (
   ibcArgs: TxIbcTransferArgs
@@ -111,10 +107,10 @@ const IBCTransfer = (): JSX.Element => {
     label: chain.alias,
   }));
 
-  const [destinationIntegration, isDestinationConnectingToExtension, withDestinationConnection] =
+  const [destinationIntegration, _isDestinationConnectingToExtension, withDestinationConnection] =
     useIntegrationConnection(destinationChain.chainId);
 
-  const [sourceIntegration, isSourceConnectingToExtension, withSourceConnection] =
+  const [sourceIntegration, _isSourceConnectingToExtension, withSourceConnection] =
     useIntegrationConnection(sourceChain.chainId);
 
   const [amount, setAmount] = useState<BigNumber>(new BigNumber(0));
@@ -385,8 +381,7 @@ const IBCTransfer = (): JSX.Element => {
           </InputContainer>
           {!isExtensionConnected[sourceChain.extension.id] &&
             sourceAccounts.length === 0 && (
-              <Button
-                variant={ButtonVariant.Contained}
+              <ActionButton
                 onClick={
                   currentExtensionAttachStatus === "attached"
                     ? handleConnectSourceExtension
@@ -394,10 +389,6 @@ const IBCTransfer = (): JSX.Element => {
                       null,
                       destinationChain.extension.url
                     )
-                }
-                loading={
-                  currentExtensionAttachStatus === "pending" ||
-                  isSourceConnectingToExtension
                 }
                 style={
                   currentExtensionAttachStatus === "pending"
@@ -409,7 +400,7 @@ const IBCTransfer = (): JSX.Element => {
                   currentExtensionAttachStatus === "pending"
                   ? `Load accounts from ${sourceExtensionAlias} Extension`
                   : "Click to download the extension"}
-              </Button>
+              </ActionButton>
             )}
 
           {tokenData.length > 0
@@ -450,7 +441,7 @@ const IBCTransfer = (): JSX.Element => {
 
               {!showAddChannelForm && (
                 <AddChannelButton onClick={() => setShowAddChannelForm(true)}>
-                  <Icon iconName={IconName.Plus} />
+                  <Icon name="PlusCircle" />
                   <span>Add IBC Transfer Channel</span>
                 </AddChannelButton>
               )}
@@ -461,7 +452,6 @@ const IBCTransfer = (): JSX.Element => {
             showAddChannelForm && (
               <InputContainer>
                 <Input
-                  variant={InputVariants.Text}
                   label="Add Channel ID"
                   value={channelId}
                   onChange={(e) => {
@@ -475,27 +465,24 @@ const IBCTransfer = (): JSX.Element => {
                       : undefined
                   }
                 />
-                <Button
-                  variant={ButtonVariant.Contained}
+                <ActionButton
                   style={{ width: 160 }}
                   onClick={handleAddChannel}
                   disabled={!channelId}
                 >
                   Add
-                </Button>
-                <Button
-                  variant={ButtonVariant.Contained}
+                </ActionButton>
+                <ActionButton
                   style={{ width: 160 }}
                   onClick={() => setShowAddChannelForm(false)}
                 >
                   Cancel
-                </Button>
+                </ActionButton>
               </InputContainer>
             )}
           {!isExtensionConnected[chain.extension.id] &&
             destinationAccounts.length === 0 && (
-              <Button
-                variant={ButtonVariant.Contained}
+              <ActionButton
                 onClick={
                   currentExtensionAttachStatus === "attached"
                     ? handleConnectDestinationExtension
@@ -503,10 +490,6 @@ const IBCTransfer = (): JSX.Element => {
                         null,
                         destinationChain.extension.url
                       )
-                }
-                loading={
-                  currentExtensionAttachStatus === "pending" ||
-                  isDestinationConnectingToExtension
                 }
                 style={
                   currentExtensionAttachStatus === "pending"
@@ -518,7 +501,7 @@ const IBCTransfer = (): JSX.Element => {
                   currentExtensionAttachStatus === "pending"
                   ? `Load accounts from ${destinationExtensionAlias} Extension`
                   : "Click to download the extension"}
-              </Button>
+              </ActionButton>
             )}
 
           <InputContainer>
@@ -532,7 +515,6 @@ const IBCTransfer = (): JSX.Element => {
             )}
             {destinationAccounts.length === 0 && (
               <Input
-                variant={InputVariants.Text}
                 label="Recipient"
                 value={recipient}
                 onChange={(e) => setRecipient(e.target.value)}
@@ -542,7 +524,7 @@ const IBCTransfer = (): JSX.Element => {
 
           <InputContainer>
             <Input
-              variant={InputVariants.Number}
+              type="number"
               label={"Amount"}
               value={amount.toString()}
               onChange={(e) => {
@@ -559,13 +541,12 @@ const IBCTransfer = (): JSX.Element => {
           </InputContainer>
 
           <ButtonsContainer>
-            <Button
-              variant={ButtonVariant.Contained}
+            <ActionButton
               disabled={!isFormValid}
               onClick={handleSubmit}
             >
               Submit
-            </Button>
+            </ActionButton>
           </ButtonsContainer>
         </>
       )}

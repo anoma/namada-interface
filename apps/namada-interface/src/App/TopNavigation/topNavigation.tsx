@@ -1,11 +1,9 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { Location, NavigateFunction, useNavigate } from "react-router-dom";
-import { ThemeContext } from "styled-components";
 
-import { Icon, IconName, Image, ImageName, Toggle } from "@namada/components";
+import { Icon, Image, Toggle } from "@namada/components";
 import { useSanitizedLocation } from "@namada/hooks";
 import { ColorMode } from "@namada/utils";
-
 import {
   StakingAndGovernanceSubRoute,
   TopLevelRoute,
@@ -106,7 +104,6 @@ type TopNavigationProps = {
 function TopNavigation(props: TopNavigationProps): JSX.Element {
   const { colorMode, toggleColorMode, setColorMode, store } = props;
   const navigate = useNavigate();
-  const themeContext = useContext(ThemeContext);
   const [showMenu, setShowMenu] = useState(false);
   const location = useSanitizedLocation();
   const topLevelRoute = locationToTopLevelRoute(location);
@@ -125,7 +122,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
               }}
             >
               <Image
-                imageName={ImageName.Logo}
+                imageName="Logo"
                 styleOverrides={{ maxWidth: "200px" }}
                 forceLightMode={true}
               />
@@ -159,11 +156,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
           &nbsp;
           <LeftSection>
             <MenuButton onClick={() => setShowMenu(true)}>
-              <Icon
-                iconName={IconName.Menu}
-                strokeColorOverride={themeContext.colors.primary.main60}
-                fillColorOverride={themeContext.colors.primary.main60}
-              />
+              <Icon name="Menu" />
             </MenuButton>
           </LeftSection>
           <MiddleSection>
@@ -172,10 +165,7 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
                 navigate(TopLevelRoute.Wallet);
               }}
             >
-              <Image
-                imageName={ImageName.Logo}
-                styleOverrides={{ maxWidth: "200px" }}
-              />
+              <Image imageName="Logo" styleOverrides={{ maxWidth: "200px" }} />
             </LogoContainer>
           </MiddleSection>
           <RightSection>
@@ -200,20 +190,14 @@ function TopNavigation(props: TopNavigationProps): JSX.Element {
         <MobileMenu className={showMenu ? "active" : ""}>
           <MobileMenuHeader>
             <MenuCloseButton onClick={() => setShowMenu(false)}>
-              <Icon
-                iconName={IconName.ChevronLeft}
-                strokeColorOverride={themeContext.colors.utility2.main60}
-              />
+              <Icon name="ChevronLeft" />
             </MenuCloseButton>
             <LogoContainer
               onClick={() => {
                 navigate(TopLevelRoute.Wallet);
               }}
             >
-              <Image
-                imageName={ImageName.Logo}
-                styleOverrides={{ maxWidth: "200px" }}
-              />
+              <Image imageName="Logo" styleOverrides={{ maxWidth: "200px" }} />
             </LogoContainer>
             <ColorModeContainer>
               {topLevelRoute !== TopLevelRoute.StakingAndGovernance && (

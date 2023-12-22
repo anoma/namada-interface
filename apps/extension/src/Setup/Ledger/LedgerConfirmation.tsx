@@ -1,40 +1,29 @@
-import React from "react";
-
-import { ActionButton, Heading, Text, ViewKeys } from "@namada/components";
+import { ActionButton, ViewKeys } from "@namada/components";
 import { DerivedAccount } from "@namada/types";
-import { formatRouterPath } from "@namada/utils";
-import { HeaderContainer } from "Setup/Setup.components";
-import { LedgerConnectRoute, TopLevelRoute } from "Setup/types";
+import { PageHeader } from "Setup/Common";
+import routes from "Setup/routes";
 import { useLocation, useNavigate } from "react-router-dom";
 import { closeCurrentTab } from "utils";
 
-type LedgerConfirmationStateProps = {
-  account: DerivedAccount;
-};
-
-export const LedgerConfirmation: React.FC = () => {
+export const LedgerConfirmation = (): JSX.Element => {
   const navigate = useNavigate();
   const location = useLocation();
-  const locationState = location.state as LedgerConfirmationStateProps;
 
-  if (!locationState || !locationState.account) {
-    navigate(
-      formatRouterPath([TopLevelRoute.Ledger, LedgerConnectRoute.Connect])
-    );
-    return null;
+  if (!location.state || !location.state.account) {
+    navigate(routes.ledgerConnect());
+    return <></>;
   }
 
+  const account = location.state.account as DerivedAccount;
   return (
     <>
-      <HeaderContainer>
-        <Heading uppercase level="h1" size="3xl">
-          Namada Keys Imported
-        </Heading>
-        <Text>Here are the accounts generated from your keys</Text>
-      </HeaderContainer>
+      <PageHeader
+        title="Namada Keys Imported"
+        subtitle="Here are the accounts generated from your keys"
+      />
       <ViewKeys
-        publicKeyAddress={locationState.account.publicKey}
-        transparentAccountAddress={locationState.account.address}
+        publicKeyAddress={account.publicKey}
+        transparentAccountAddress={account.address}
         footer={
           <ActionButton onClick={closeCurrentTab}>Close this page</ActionButton>
         }

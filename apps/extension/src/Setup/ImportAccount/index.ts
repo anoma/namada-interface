@@ -1,2 +1,2 @@
-export * from "./Steps/SeedPhraseImport";
-export * from "./Steps/SeedPhraseSetup";
+export * from "./SeedPhraseImport";
+export * from "./SeedPhraseSetup";

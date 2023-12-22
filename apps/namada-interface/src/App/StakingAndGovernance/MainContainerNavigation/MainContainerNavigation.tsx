@@ -1,10 +1,10 @@
-import { Icon, IconName } from "@namada/components";
+import { Icon } from "@namada/components";
 import {
-  MainContainerNavigationContainer,
   BackButtonContainer,
-  TitleContainer,
+  MainContainerNavigationContainer,
   MainTitle,
   SecondaryTitle,
+  TitleContainer,
 } from "./MainContainerNavigation.components";
 
 type Props = {
@@ -22,7 +22,7 @@ const getRenderedTitle = (breadcrumbs: string[]): JSX.Element => {
   return (
     <>
       <SecondaryTitle>{breadcrumbs[breadcrumbs.length - 2]}</SecondaryTitle>
-      <Icon iconName={IconName.ChevronRight} strokeColorOverride="black" />
+      <Icon name="ChevronRight" />
       <MainTitle>{breadcrumbs[breadcrumbs.length - 1]}</MainTitle>
     </>
   );
@@ -45,7 +45,7 @@ export const MainContainerNavigation = (props: Props): JSX.Element => {
       >
         {isBackButtonVisible && (
           <>
-            <Icon iconName={IconName.ChevronLeft} />
+            <Icon name="ChevronLeft" />
             <span>Back</span>
           </>
         )}

@@ -1,26 +1,25 @@
 import {
-  Select,
-  Option,
+  ActionButton,
   Input,
-  InputVariants,
-  Button,
-  ButtonVariant,
+  Option,
+  Select,
 } from "@namada/components";
 import { chains, defaultChainId as chainId } from "@namada/chains";
+import { TokenType, Tokens } from "@namada/types";
+import BigNumber from "bignumber.js";
+import { useState } from "react";
+import { Account, AccountsState } from "slices/accounts";
 import { useAppSelector } from "store";
 import {
   ButtonsContainer,
   InputContainer,
 } from "../TokenSend/TokenSendForm.components";
-import { Account, AccountsState } from "slices/accounts";
-import { TokenType, Tokens } from "@namada/types";
+
 import {
   FeeSection,
   FormContainer,
   GeneralSection,
 } from "./EthereumBridge.components";
-import { useState } from "react";
-import BigNumber from "bignumber.js";
 import { getIntegration } from "@namada/integrations";
 
 const SUPPORTED_TOKENS = ["TESTERC20", "NUTTESTERC20"];
@@ -128,7 +127,6 @@ export const EthereumBridge = (): JSX.Element => {
 
           <InputContainer>
             <Input
-              variant={InputVariants.Text}
               label="Recipient"
               value={recipient}
               onChange={(e) => {
@@ -145,7 +143,7 @@ export const EthereumBridge = (): JSX.Element => {
 
           <InputContainer>
             <Input
-              variant={InputVariants.Number}
+              type="number"
               label="Amount"
               value={amount.toString()}
               onChange={(e) => {
@@ -177,7 +175,7 @@ export const EthereumBridge = (): JSX.Element => {
 
             <InputContainer>
               <Input
-                variant={InputVariants.Number}
+                type="number"
                 label="Fee Amount"
                 value={feeAmount.toString()}
                 onChange={(e) => {
@@ -196,13 +194,12 @@ export const EthereumBridge = (): JSX.Element => {
         )}
 
         <ButtonsContainer>
-          <Button
-            variant={ButtonVariant.Contained}
+          <ActionButton
             onClick={handleSubmit}
             disabled={!isValid}
           >
             Submit
-          </Button>
+          </ActionButton>
         </ButtonsContainer>
       </FormContainer>
     </>

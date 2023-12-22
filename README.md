@@ -242,6 +242,26 @@ yarn lint:fix
 
 TBA
 
+### Storybook
+
+Storybook provides a documentation for UI components. Within `/storybook` folder, you can install and run it using the following commands:
+
+```bash
+# Install packages
+yarn
+
+# Run Storybook interface
+yarn storybook
+```
+
+To generate a static build, you can run
+
+```bash
+yarn storybook-build
+```
+
+The generated output will be available at `/storybook/storybook-static` folder.
+
 ## License
 
 Unless explicitly stated otherwise all files in this repository are licensed under the Apache License 2.0.

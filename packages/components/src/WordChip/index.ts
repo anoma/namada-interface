@@ -1,1 +1,0 @@
-export { WordChip } from "./wordchip";

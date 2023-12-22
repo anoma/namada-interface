@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { ActionButton } from "@namada/components";
 import { MainContainerNavigation } from "App/StakingAndGovernance/MainContainerNavigation";
+import { useState } from "react";
 import { PublicGoodsFundingContainer } from "./PublicGoodsFunding.components";
-import { Button, ButtonVariant } from "@namada/components";
 
 const initialTitle = "Public Goods Funding";
 
@@ -15,14 +15,13 @@ export const PublicGoodsFunding = (): JSX.Element => {
         navigateBack={() => setBreadcrumb([initialTitle])}
       />
       {breadcrumb.length === 1 && (
-        <Button
-          variant={ButtonVariant.Contained}
+        <ActionButton
           onClick={() => {
             setBreadcrumb([initialTitle, "Continuous Funding"]);
           }}
         >
           Navigate
-        </Button>
+        </ActionButton>
       )}
     </PublicGoodsFundingContainer>
   );

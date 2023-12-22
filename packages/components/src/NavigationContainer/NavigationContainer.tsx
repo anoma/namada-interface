@@ -1,10 +1,7 @@
-import { useContext } from "react";
-import { Button, ButtonVariant } from "../Button";
-import { ThemeContext } from "styled-components";
-import { Icon, IconName } from "../Icon";
+import { GoArrowLeft } from "react-icons/go";
 import {
-  NavigationContainerContainer,
   MainRow,
+  NavigationContainerContainer,
 } from "./NavigationContainer.components";
 
 type NavigationContainerProps = {
@@ -31,27 +28,18 @@ export const NavigationContainer = (
   props: NavigationContainerProps
 ): React.ReactElement => {
   const { children, onBackButtonClick } = props;
-  const themeContext = useContext(ThemeContext);
-  const backButtonIconStrokeColor =
-    themeContext.themeConfigurations.colorMode === "light"
-      ? themeContext.colors.utility2.main80
-      : "black";
-
   const noButton = typeof onBackButtonClick === "undefined";
   return (
     <NavigationContainerContainer>
       <MainRow center={noButton}>
         {onBackButtonClick && (
-          <Button
+          <i
+            className="cursor-pointer text-yellow text-[22px]"
             onClick={onBackButtonClick}
-            variant={ButtonVariant.Outlined}
             style={{ marginLeft: "0" }}
           >
-            <Icon
-              iconName={IconName.ChevronLeft}
-              strokeColorOverride={backButtonIconStrokeColor}
-            />
-          </Button>
+            <GoArrowLeft />
+          </i>
         )}
 
         {children}

@@ -1,23 +1,22 @@
-import { useState } from "react";
 import BigNumber from "bignumber.js";
+import { useState } from "react";
 
 import {
-  BondingPositionContainer,
-  BondingAmountInputContainer,
-  BondingAddressSelect,
-  NewBondingTable,
-} from "./NewBondingPosition.components";
-import {
-  Button,
-  ButtonVariant,
-  TableConfigurations,
+  ActionButton,
   KeyValueData,
+  TableConfigurations,
 } from "@namada/components";
 import {
-  StakingPosition,
   ChangeInStakingPosition,
+  StakingPosition,
 } from "slices/StakingAndGovernance";
 import { Account } from "slices/accounts";
+import {
+  BondingAddressSelect,
+  BondingAmountInputContainer,
+  BondingPositionContainer,
+  NewBondingTable,
+} from "./NewBondingPosition.components";
 
 const REMAINS_BONDED_KEY = "Remains bonded";
 
@@ -163,8 +162,7 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
       />
 
       {/* confirmation and cancel */}
-      <Button
-        variant={ButtonVariant.Contained}
+      <ActionButton
         onClick={() => {
           const changeInStakingPosition: ChangeInStakingPosition = {
             amount: amountToBondNumber,
@@ -176,16 +174,15 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
         disabled={isEntryIncorrectOrEmpty}
       >
         Confirm
-      </Button>
-      <Button
-        variant={ButtonVariant.Contained}
+      </ActionButton>
+      <ActionButton
         onClick={() => {
           cancelBonding();
         }}
         style={{ backgroundColor: "lightgrey", color: "black" }}
       >
         Cancel
-      </Button>
+      </ActionButton>
     </BondingPositionContainer>
   );
 };

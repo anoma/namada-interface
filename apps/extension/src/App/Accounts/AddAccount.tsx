@@ -1,41 +1,19 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import {
-  Button,
-  ButtonVariant,
-  Input,
-  InputVariants,
-  Toggle,
-} from "@namada/components";
-import { AccountType, DerivedAccount } from "@namada/types";
 import { chains, defaultChainId } from "@namada/chains";
+import { ActionButton, Input, Toggle } from "@namada/components";
+import { AccountType, DerivedAccount } from "@namada/types";
 import { makeBip44Path } from "@namada/utils";
 import { LedgerError } from "@zondax/ledger-namada";
 
-import { ExtensionRequester } from "extension";
-import { Ports } from "router";
-import { DeriveAccountMsg } from "background/keyring";
-import {
-  AddAccountContainer,
-  AddAccountForm,
-  Bip44Input,
-  Bip44Path,
-  Bip44PathContainer,
-  Bip44PathDelimiter,
-  ButtonsContainer,
-  FormError,
-  FormStatus,
-  FormValidationMsg,
-  InputContainer,
-  Label,
-  ShieldedToggleContainer,
-} from "./AddAccount.components";
 import { TopLevelRoute } from "App/types";
-import { useAuth } from "hooks";
+import { AddLedgerAccountMsg, DeriveAccountMsg } from "background/keyring";
 import { Ledger } from "background/ledger";
-import { AddLedgerAccountMsg } from "background/keyring";
+import { ExtensionRequester } from "extension";
+import { useAuth } from "hooks";
 import { isKeyChainLocked, redirectToLogin } from "hooks/useAuth";
+import { Ports } from "router";
 
 type Props = {
   accounts: DerivedAccount[];
@@ -251,9 +229,8 @@ const AddAccount: React.FC<Props> = ({
         throw new Error(errorMessage);
       }
 
-      const { address, publicKey } = await ledger.getAddressAndPublicKey(
-        bip44PathString
-      );
+      const { address, publicKey } =
+        await ledger.getAddressAndPublicKey(bip44PathString);
 
       // TODO: provide a password for ledger
       return await requester.sendMessage(
@@ -334,19 +311,19 @@ const AddAccount: React.FC<Props> = ({
     : `${zip32Prefix}'/${coinType}'/${parentAccountIndex}'/`;
 
   return (
-    <AddAccountContainer>
+    <div className="flex flex-col w-full px-3">
       {!(parentAccountType === AccountType.Mnemonic && isLocked) && (
         <>
-          <AddAccountForm
+          <div
+            className="mb-2 [&_input]:w-[92%]"
             onKeyDown={(e) => {
               if (e.key === "Enter" && isFormValid) {
                 handleAccountAdd();
               }
             }}
           >
-            <InputContainer>
+            <div className="my-3">
               <Input
-                variant={InputVariants.Text}
                 label="Alias"
                 autoFocus={true}
                 value={alias}
@@ -356,17 +333,19 @@ const AddAccount: React.FC<Props> = ({
                   validateAlias(accounts, value);
                 }}
               />
-            </InputContainer>
-            <InputContainer>
-              <Label>
+            </div>
+
+            <div className="my-3">
+              <label className="text-base font-medium text-neutral-300">
                 <p>HD Derivation Path</p>
-                <Bip44PathContainer>
-                  <Bip44PathDelimiter>
+                <div className="flex w-full justify-start items-center">
+                  <span className="h-px px-1 text-xs text-neutral-300">
                     {parentDerivationPath}
-                  </Bip44PathDelimiter>
+                  </span>
+
                   {isTransparent && (
                     <>
-                      <Bip44Input
+                      <Input
                         type="number"
                         min="0"
                         max="1"
@@ -374,64 +353,70 @@ const AddAccount: React.FC<Props> = ({
                         onChange={(e) => handleNumericChange(e, setChange)}
                         onFocus={handleFocus}
                       />
-                      <Bip44PathDelimiter>/</Bip44PathDelimiter>
+                      <i>/</i>
                     </>
                   )}
-                  <Bip44Input
+
+                  <Input
                     type="number"
                     min="0"
                     value={index}
                     onChange={(e) => handleNumericChange(e, setIndex)}
                     onFocus={handleFocus}
                   />
-                </Bip44PathContainer>
-              </Label>
-            </InputContainer>
+                </div>
+              </label>
+            </div>
+
             {parentAccountType !== AccountType.Ledger && (
-              <InputContainer>
-                <ShieldedToggleContainer>
+              <div className="my-3">
+                <div className="flex justify-end items-center pt-1 w-full">
                   <span>Transparent&nbsp;</span>
                   <Toggle
                     onClick={() => setIsTransparent(!isTransparent)}
                     checked={isTransparent}
                   />
                   <span>&nbsp;Shielded</span>
-                </ShieldedToggleContainer>
-              </InputContainer>
+                </div>
+              </div>
             )}
 
-            <Bip44Path>
+            <div className="text-sm text-neutral-400">
               Derivation path:{" "}
               <span>{`${parentDerivationPath}${
                 isTransparent ? `${change}/` : ""
               }${index}`}</span>
-            </Bip44Path>
-            <FormValidationMsg>{validation}</FormValidationMsg>
-          </AddAccountForm>
+            </div>
+
+            <div className="text-xs py-1 text-red-500">{validation}</div>
+          </div>
+
           {formStatus === Status.Pending && (
-            <FormStatus>Submitting new account...</FormStatus>
+            <div className="text-sm pb-2 text-white">
+              Submitting new account...
+            </div>
           )}
-          {formStatus === Status.Failed && <FormError>{formError}</FormError>}
-          <ButtonsContainer>
-            <Button
-              variant={ButtonVariant.Contained}
-              onClick={() => navigate(TopLevelRoute.Accounts)}
-            >
+
+          {formStatus === Status.Failed && (
+            <div className="text-xs mb-2 text-red-500">{formError}</div>
+          )}
+
+          <div className="flex [&_button]:flex-1">
+            <ActionButton onClick={() => navigate(TopLevelRoute.Accounts)}>
               Back
-            </Button>
-            <Button
-              variant={ButtonVariant.Contained}
+            </ActionButton>
+            <ActionButton
               disabled={
                 !isFormValid || formStatus === Status.Pending || alias === ""
               }
               onClick={handleAccountAdd}
             >
               Add
-            </Button>
-          </ButtonsContainer>
+            </ActionButton>
+          </div>
         </>
       )}
-    </AddAccountContainer>
+    </div>
   );
 };
 

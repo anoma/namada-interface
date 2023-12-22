@@ -6,8 +6,6 @@ const CopyPlugin = require("copy-webpack-plugin");
 const MergeJsonWebpackPlugin = require("merge-jsons-webpack-plugin");
 const ExtensionReloader = require("webpack-extension-reloader");
 const RemovePlugin = require("remove-files-webpack-plugin");
-const createStyledComponentsTransformer =
-  require("typescript-plugin-styled-components").default;
 const packageJson = require("./package.json");
 const { getProcessEnv } = require("@namada/config/webpack.js");
 
@@ -17,7 +15,6 @@ require("dotenv").config({ path: "../namada-interface/.env" });
 const { NODE_ENV, TARGET, BUNDLE_ANALYZE } = process.env;
 
 const OUTPUT_PATH = resolve(__dirname, `./build/${TARGET}`);
-
 const MANIFEST_VERSION = TARGET === "firefox" ? "v2" : "v3";
 const MANIFEST_BASE_PATH = `./src/manifest/_base.json`;
 const MANIFEST_BASE_VERSION_PATH = `./src/manifest/${MANIFEST_VERSION}/_base.json`;
@@ -166,17 +163,11 @@ module.exports = {
         test: /\.tsx?$/,
         loader: "ts-loader",
         exclude: /node_modules/,
-        options: {
-          getCustomTransformers: (program) => ({
-            before: [
-              createStyledComponentsTransformer(program, {
-                setComponentId: true,
-                setDisplayName: true,
-                minify: true,
-              }),
-            ],
-          }),
-        },
+        options: {},
+      },
+      {
+        test: /\.css$/i,
+        use: ["style-loader", "css-loader", "postcss-loader"],
       },
       {
         test: /\.svg$/,

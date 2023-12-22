@@ -1,0 +1,43 @@
+name: Deploy Storybook
+on:
+  workflow_dispatch:
+    inputs:
+      REF:
+        required: true
+        type: string
+        default: "main"
+env:
+  CI: false
+jobs:
+  deploy-storybook:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.REF }}
+
+      - name: Print workflow inputs
+        uses: ./.github/actions/print-workflow-inputs
+
+      - name: Install yarn dependencies
+        uses: ./.github/actions/yarn-cache
+
+      - name: Install Storybook dependencies
+        working-directory: ./storybook
+        run: yarn
+
+      - name: Build Storybook
+        working-directory: ./storybook
+        run: yarn build-storybook
+
+      - name: Deploy Storybook to Netlify
+        uses: nwtgck/actions-netlify@v1.2.3
+        with:
+          publish-dir: ./storybook/storybook-static
+          production-deploy: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Storybook Deployed"
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_ACCESS_TOKEN_WALLET_PREVIEW }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_STORYBOOK_SITE_ID }}

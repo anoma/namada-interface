@@ -1,23 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import {
-  ActionButton,
-  Alert,
-  Input,
-  InputVariants,
-  Stack,
-} from "@namada/components";
+import { ActionButton, Alert, Input, Stack } from "@namada/components";
 import { SupportedTx, TxType, TxTypeLabel } from "@namada/shared";
 import { shortenAddress } from "@namada/utils";
-
-import { Address } from "App/Accounts/AccountListing.components";
 import { ApprovalDetails, Status } from "Approvals/Approvals";
-import {
-  ButtonContainer,
-  InfoHeader,
-  InfoLoader,
-} from "Approvals/Approvals.components";
 import { SubmitApprovedTxMsg } from "background/approvals";
 import { useRequester } from "hooks/useRequester";
 import { FetchAndStoreMaspParamsMsg, HasMaspParamsMsg } from "provider";
@@ -90,14 +77,7 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
 
   return (
     <Stack gap={4}>
-      {status === Status.Pending && (
-        <Alert type="info">
-          <InfoHeader>
-            <InfoLoader />
-            <p>{statusInfo}</p>
-          </InfoHeader>
-        </Alert>
-      )}
+      {status === Status.Pending && <Alert type="info">{statusInfo}</Alert>}
       {status === Status.Failed && (
         <Alert type="error">
           {error}
@@ -108,19 +88,20 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
       {status !== (Status.Pending || Status.Completed) && signerAddress && (
         <>
           <Alert type="warning">
-            Decrypt keys for <Address>{shortenAddress(signerAddress)}</Address>
+            Decrypt keys for{" "}
+            <strong className="text-xs">{shortenAddress(signerAddress)}</strong>
           </Alert>
           <Input
-            variant={InputVariants.Password}
+            variant="Password"
             label={"Password"}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <ButtonContainer>
+          <Stack gap={3} direction="horizontal">
             <ActionButton onClick={handleApproveTx} disabled={!password}>
               Authenticate
             </ActionButton>
             <ActionButton onClick={() => navigate(-1)}>Back</ActionButton>
-          </ButtonContainer>
+          </Stack>
         </>
       )}
     </Stack>

@@ -1,4 +1,4 @@
-import { Image, ImageName, Stack } from "@namada/components";
+import { Image, Stack } from "@namada/components";
 import { ExternalPageIcon } from "App/Icons/ExternalPageIcon";
 import { WarningIcon } from "App/Icons/WarningIcon";
 import gsap from "gsap";
@@ -54,12 +54,12 @@ export const PageHeader = ({
 
       <Stack as="a" gap={6} direction="horizontal">
         <Image
-          imageName={ImageName.LogoMinimal}
+          imageName="LogoMinimal"
           styleOverrides={{ width: "50px" }}
           forceLightMode={!yellowLogo}
         />
         <Image
-          imageName={ImageName.Logo}
+          imageName="Logo"
           styleOverrides={{ width: "180px" }}
           forceLightMode={!yellowLogo}
         />

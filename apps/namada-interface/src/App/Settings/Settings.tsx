@@ -3,19 +3,17 @@ import { useNavigate } from "react-router-dom";
 import { TopLevelRoute } from "App/types";
 
 import {
-  Button,
-  ButtonVariant,
+  ActionButton,
   Heading,
   Icon,
-  IconName,
   NavigationContainer,
 } from "@namada/components";
+import { BackButton } from "App/Token/TokenSend/TokenSendForm.components";
 import {
+  ButtonsContainer,
   SettingsContainer,
   SettingsContent,
-  ButtonsContainer,
 } from "./Settings.components";
-import { BackButton } from "App/Token/TokenSend/TokenSendForm.components";
 
 /**
  * This is the root component for Settings, it contains further screens that are
@@ -32,17 +30,16 @@ export const Settings = (): JSX.Element => {
 
       <SettingsContent>
         {/* wallet settings */}
-        <Button
+        <ActionButton
           onClick={() => navigate(TopLevelRoute.SettingsWalletSettings)}
-          variant={ButtonVariant.Contained}
           style={{ minWidth: "50%" }}
         >
           Wallet Settings
-        </Button>
+        </ActionButton>
       </SettingsContent>
       <ButtonsContainer>
         <BackButton onClick={() => navigate(TopLevelRoute.Wallet)}>
-          <Icon iconName={IconName.ChevronLeft} />
+          <Icon name="ChevronLeft" />
         </BackButton>
       </ButtonsContainer>
     </SettingsContainer>

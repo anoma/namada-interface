@@ -1,21 +1,19 @@
+import BigNumber from "bignumber.js";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import BigNumber from "bignumber.js";
 
 import { chains, defaultChainId as chainId } from "@namada/chains";
+import { ActionButton, Heading } from "@namada/components";
 import {
   useIntegrationConnection,
   useUntilIntegrationAttached,
 } from "@namada/integrations";
 import { Account, ExtensionKey, Extensions } from "@namada/types";
 import { formatCurrency } from "@namada/utils";
-import { Button, ButtonVariant, Heading } from "@namada/components";
-
-import { useAppSelector, useAppDispatch } from "store";
-import { AccountsState, addAccounts, fetchBalances } from "slices/accounts";
-import { setIsConnected, SettingsState } from "slices/settings";
 import { TopLevelRoute } from "App/types";
-import { DerivedAccounts } from "./DerivedAccounts";
+import { AccountsState, addAccounts, fetchBalances } from "slices/accounts";
+import { SettingsState, setIsConnected } from "slices/settings";
+import { useAppDispatch, useAppSelector } from "store";
 import {
   AccountOverviewContainer,
   AccountOverviewContent,
@@ -29,6 +27,7 @@ import {
   TotalContainer,
   TotalHeading,
 } from "./AccountOverview.components";
+import { DerivedAccounts } from "./DerivedAccounts";
 
 //TODO: move to utils when we have one
 const isEmptyObject = (object: Record<string, unknown>): boolean => {
@@ -115,18 +114,14 @@ export const AccountOverview = (): JSX.Element => {
         {!isEmptyObject(derived[chainId]) ? (
           <ButtonsContainer>
             <ButtonsWrapper>
-              <Button
-                variant={ButtonVariant.Contained}
-                onClick={() => navigate(TopLevelRoute.TokenSend)}
-              >
+              <ActionButton onClick={() => navigate(TopLevelRoute.TokenSend)}>
                 Send
-              </Button>
-              <Button
-                variant={ButtonVariant.Contained}
+              </ActionButton>
+              <ActionButton
                 onClick={() => navigate(TopLevelRoute.TokenReceive)}
               >
                 Receive
-              </Button>
+              </ActionButton>
             </ButtonsWrapper>
           </ButtonsContainer>
         ) : (
@@ -135,19 +130,15 @@ export const AccountOverview = (): JSX.Element => {
         {isEmptyObject(derived[chainId]) && (
           <NoAccountsContainer>
             {!isExtensionConnected[chain.extension.id] && (
-              <Button
-                variant={ButtonVariant.Contained}
+              <ActionButton
                 onClick={
                   currentExtensionAttachStatus === "attached"
                     ? handleConnectExtension
                     : handleDownloadExtension.bind(null, chain.extension.url)
                 }
-                loading={
+                style={
                   currentExtensionAttachStatus === "pending" ||
                   isConnectingToExtension
-                }
-                style={
-                  currentExtensionAttachStatus === "pending"
                     ? { color: "transparent" }
                     : {}
                 }
@@ -156,7 +147,7 @@ export const AccountOverview = (): JSX.Element => {
                   currentExtensionAttachStatus === "pending"
                   ? `Connect to ${extensionAlias} Extension`
                   : "Click to download the extension"}
-              </Button>
+              </ActionButton>
             )}
           </NoAccountsContainer>
         )}

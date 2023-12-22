@@ -4,9 +4,12 @@ import { HashRouter } from "react-router-dom";
 
 import { getTheme } from "@namada/utils";
 import { RequesterProvider } from "services";
-import { Approvals } from "./Approvals";
 import { ThemeProvider } from "styled-components";
-import { GlobalStyle } from "App/Common/GlobalStyles";
+import { Approvals } from "./Approvals";
+
+import "@namada/components/src/base.css";
+import "../global.css";
+import "../tailwind.css";
 
 export default ((): void => {
   const theme = getTheme("dark");
@@ -15,8 +18,6 @@ export default ((): void => {
       <HashRouter>
         <RequesterProvider>
           <ThemeProvider theme={theme}>
-            <GlobalStyle />
-
             <Approvals />
           </ThemeProvider>
         </RequesterProvider>

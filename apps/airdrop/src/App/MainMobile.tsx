@@ -1,4 +1,4 @@
-import { Heading, Stack, Text, Image, ImageName } from "@namada/components";
+import { Heading, Image, Stack, Text } from "@namada/components";
 import {
   MainHeader,
   MobileContainer,
@@ -14,7 +14,7 @@ export const MainMobile: React.FC = () => {
       <MobileLogo>
         <NamadaIcon />
         <Image
-          imageName={ImageName.Logo}
+          imageName="Logo"
           styleOverrides={{ width: "240px" }}
           forceLightMode={true}
         />

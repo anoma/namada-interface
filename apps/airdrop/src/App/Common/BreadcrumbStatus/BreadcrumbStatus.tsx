@@ -1,4 +1,4 @@
-import { Icon, IconName, IconSize } from "@namada/components";
+import { Icon } from "@namada/components";
 import {
   BreadcrumbStatusContainer,
   BreadcrumbStatusIndicator,
@@ -21,19 +21,9 @@ export const BreadcrumbStatus = ({
     <BreadcrumbStatusContainer active={active}>
       <BreadcrumbStatusIndicator>
         {accepted && (
-          <Icon
-            iconName={IconName.Checked}
-            strokeColorOverride="black"
-            iconSize={IconSize.S}
-          />
+          <Icon name="Checked" strokeColorOverride="black" size="sm" />
         )}
-        {rejected && (
-          <Icon
-            iconName={IconName.Close}
-            fillColorOverride="black"
-            iconSize={IconSize.S}
-          />
-        )}
+        {rejected && <Icon name="Close" fillColorOverride="black" size="sm" />}
       </BreadcrumbStatusIndicator>
       {children}
     </BreadcrumbStatusContainer>

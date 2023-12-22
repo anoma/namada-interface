@@ -1,18 +1,10 @@
+import { defaultChainId } from "@namada/chains";
+import { Heading, Icon, NavigationContainer, Select } from "@namada/components";
+import { formatRoute } from "@namada/utils";
+import { TopLevelRoute } from "App/types";
 import { useQRCode } from "next-qrcode";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-import {
-  Heading,
-  Icon,
-  IconName,
-  NavigationContainer,
-  Select,
-} from "@namada/components";
-import { formatRoute } from "@namada/utils";
-
-import { defaultChainId } from "@namada/chains";
-import { TopLevelRoute } from "App/types";
 import { AccountsState } from "slices/accounts";
 import { useAppSelector } from "store";
 import { BackButton } from "../TokenSend/TokenSendForm.components";
@@ -36,8 +28,9 @@ const TokenReceive = (): JSX.Element => {
 
   const accountsData = accounts.map(({ details }) => ({
     value: details.address,
-    label: `${details.alias} - ${details.isShielded ? "Shielded" : "Transparent"
-      }`,
+    label: `${details.alias} - ${
+      details.isShielded ? "Shielded" : "Transparent"
+    }`,
   }));
 
   useEffect(() => {
@@ -97,7 +90,7 @@ const TokenReceive = (): JSX.Element => {
       </TokenReceiveContent>
       <ButtonsContainer>
         <BackButton onClick={() => navigate(TopLevelRoute.Wallet)}>
-          <Icon iconName={IconName.ChevronLeft} />
+          <Icon name="ChevronLeft" />
         </BackButton>
       </ButtonsContainer>
     </TokenReceiveContainer>
