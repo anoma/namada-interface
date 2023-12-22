@@ -21,6 +21,7 @@ export const SeedPhraseList = ({
   const list = (
     <ol
       className={clsx("grid gap-2 min-h-[240px]")}
+      data-testid="setup-seed-phrase-list"
       style={{ gridTemplateColumns: `repeat(${columns}, 148px)` }}
     >
       {words.map((word, idx) => (

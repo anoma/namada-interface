@@ -76,6 +76,7 @@ type InputProps = {
   children?: React.ReactNode;
   variant?: InputVariants;
   rows?: number;
+  "data-testid"?: string;
 } & React.ComponentPropsWithoutRef<"input">;
 
 export const Input = ({
@@ -89,6 +90,7 @@ export const Input = ({
   children,
   rows = 3,
   className,
+  "data-testid": dataTestId,
   ...props
 }: InputProps): JSX.Element => {
   const [passwordShown, setPasswordShown] = useState(false);
@@ -152,7 +154,10 @@ export const Input = ({
   const element = createElement(htmlTag, { ...inputElement }, elementChildren);
 
   return (
-    <label className={classes.label({ class: className })}>
+    <label
+      data-testid={dataTestId}
+      className={classes.label({ class: className })}
+    >
       {label && <span className={classes.labelText()}>{label}</span>}
       <div className={classes.inputWrapper()}>
         {sensitive ? (
