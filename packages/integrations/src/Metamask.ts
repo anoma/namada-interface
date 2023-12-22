@@ -1,5 +1,4 @@
 import { type MetaMaskInpageProvider } from "@metamask/providers";
-import MetaMaskSDK from "@metamask/sdk";
 import { ethers } from "ethers";
 
 import {
@@ -8,11 +7,10 @@ import {
   Chain,
   MetamaskEvents,
   TokenBalance,
-  // Tokens,
 } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
-import { BridgeProps, Integration } from "./types/Integration";
 import { erc20Abi, ethereumBridgeAbi } from "./abi";
+import { BridgeProps, Integration } from "./types/Integration";
 
 const MULTIPLE_WALLETS = "Multiple wallets installed!";
 const CANT_FETCH_ACCOUNTS = "Can't fetch accounts!";
@@ -20,27 +18,31 @@ const {
   NAMADA_INTERFACE_CONTRACT_ADDR_ETH_BRIDGE = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
 } = process.env;
 
-type MetamaskWindow = Window &
+export type MetamaskWindow = Window &
   typeof globalThis & {
     ethereum: MetaMaskInpageProvider;
   };
+
+declare global {
+  interface Window {
+    ethereum?: MetaMaskInpageProvider;
+  }
+}
 
 class Metamask implements Integration<Account, unknown> {
   private _ethereum: MetaMaskInpageProvider | undefined;
   constructor(public readonly chain: Chain) {}
 
   private init(): void {
-    if ((<MetamaskWindow>window).ethereum) {
-      const MMSDK = new MetaMaskSDK();
-      const provider = MMSDK.getProvider();
-
+    const provider = window.ethereum;
+    if (provider) {
       this._ethereum = provider;
     }
   }
 
   detect(): boolean {
     this.init();
-    const ethereum = (<MetamaskWindow>window).ethereum;
+    const ethereum = window.ethereum;
 
     return ethereum?.isMetaMask ?? false;
   }
@@ -72,7 +74,7 @@ class Metamask implements Integration<Account, unknown> {
   }
 
   async connect(): Promise<void> {
-    if ((window as MetamaskWindow).ethereum === this._ethereum) {
+    if (window.ethereum === this._ethereum) {
       await this.syncChainId();
     } else {
       Promise.reject(MULTIPLE_WALLETS);
@@ -96,7 +98,9 @@ class Metamask implements Integration<Account, unknown> {
     const { sender, recipient, amount, asset } = props.bridgeProps;
     //TODO: check this shit
     const amountNumber = amount?.toNumber() || 0;
-    const provider = new ethers.BrowserProvider(window.ethereum);
+    const provider = new ethers.BrowserProvider(
+      (window as MetamaskWindow).ethereum
+    );
     const signer = await provider.getSigner(sender);
 
     const tx = {
@@ -119,6 +123,10 @@ class Metamask implements Integration<Account, unknown> {
   }
 
   public async queryBalances(owner: string): Promise<TokenBalance[]> {
+    if (!window.ethereum) {
+      throw Error("Etherum provider not found");
+    }
+
     const provider = new ethers.BrowserProvider(window.ethereum);
     const ethBalance = await provider.getBalance(owner);
     // TODO: Re-enable the following when we Erc20 tokens are fully supported:

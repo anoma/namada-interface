@@ -1,13 +1,13 @@
+import { init as initShared } from "@namada/shared/src/init-inline";
 import React from "react";
 import ReactDOM from "react-dom";
+import { Provider } from "react-redux";
 import { RouterProvider } from "react-router-dom";
-import reportWebVitals from "./reportWebVitals";
-import { init as initShared } from "@namada/shared/src/init";
-import "./index.css";
+import { ExtensionEventsProvider, IntegrationsProvider } from "services";
 import { store } from "store/store";
 import { getRouter } from "./App/AppRoutes";
-import { ExtensionEventsProvider, IntegrationsProvider } from "services";
-import { Provider } from "react-redux";
+import "./index.css";
+import reportWebVitals from "./reportWebVitals";
 
 ReactDOM.render(
   <React.StrictMode>

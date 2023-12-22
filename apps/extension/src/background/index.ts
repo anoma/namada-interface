@@ -1,27 +1,27 @@
-import browser from "webextension-polyfill";
+import { ProxyMappings } from "@namada/chains";
+import { init as initCrypto } from "@namada/crypto/src/init";
+import { Query, Sdk } from "@namada/shared";
+import { init as initShared } from "@namada/shared/src/init";
 import {
   ExtensionKVStore,
   IndexedDBKVStore,
   MemoryKVStore,
   SessionKVStore,
 } from "@namada/storage";
-import { ProxyMappings } from "@namada/chains";
-import { init as initCrypto } from "@namada/crypto/src/init";
-import { init as initShared } from "@namada/shared/src/init";
-import { Query, Sdk } from "@namada/shared";
+import browser from "webextension-polyfill";
 
 import {
-  ExtensionBroadcaster,
-  ExtensionRouter,
-  ExtensionGuards,
   ContentScriptEnv,
+  ExtensionBroadcaster,
+  ExtensionGuards,
   ExtensionMessenger,
   ExtensionRequester,
+  ExtensionRouter,
   getNamadaRouterId,
 } from "extension";
-import { Ports, KVPrefix } from "router";
+import { KVPrefix, Ports } from "router";
 import { ApprovalsService, init as initApprovals } from "./approvals";
-import { KeyRingService, init as initKeyRing, UtilityStore } from "./keyring";
+import { KeyRingService, UtilityStore, init as initKeyRing } from "./keyring";
 import { LedgerService, init as initLedger } from "./ledger";
 import { VaultService, init as initVault } from "./vault";
 
@@ -49,7 +49,8 @@ const txStore = new MemoryKVStore(KVPrefix.Memory);
 
 const DEFAULT_URL =
   "https://d3brk13lbhxfdb.cloudfront.net/qc-testnet-5.1.025a61165acd05e";
-const { NAMADA_INTERFACE_PROXY, NAMADA_INTERFACE_NAMADA_URL = DEFAULT_URL } = process.env;
+const { NAMADA_INTERFACE_PROXY, NAMADA_INTERFACE_NAMADA_URL = DEFAULT_URL } =
+  process.env;
 
 const NamadaRpcEndpoint = NAMADA_INTERFACE_PROXY
   ? ProxyMappings["namada"]
@@ -66,9 +67,15 @@ router.addGuard(ExtensionGuards.checkOriginIsValid);
 router.addGuard(ExtensionGuards.checkMessageIsInternal);
 
 const init = new Promise<void>(async (resolve) => {
-  const { memory: cryptoMemory } = await initCrypto();
+  const cryptoWasm = await fetch("crypto.namada.wasm").then((wasm) =>
+    wasm.arrayBuffer()
+  );
+  const { memory: cryptoMemory } = await initCrypto(cryptoWasm);
 
-  await initShared();
+  const sharedWasm = await fetch("shared.namada.wasm").then((wasm) =>
+    wasm.arrayBuffer()
+  );
+  await initShared(sharedWasm);
   const sdk = new Sdk(NamadaRpcEndpoint);
   const query = new Query(NamadaRpcEndpoint);
 

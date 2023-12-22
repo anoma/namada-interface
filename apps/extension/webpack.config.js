@@ -1,9 +1,11 @@
+const BundleAnalyzerPlugin =
+  require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const webpack = require("webpack");
 const { resolve } = require("path");
 const CopyPlugin = require("copy-webpack-plugin");
 const MergeJsonWebpackPlugin = require("merge-jsons-webpack-plugin");
 const ExtensionReloader = require("webpack-extension-reloader");
-const RemovePlugin = require('remove-files-webpack-plugin');
+const RemovePlugin = require("remove-files-webpack-plugin");
 const createStyledComponentsTransformer =
   require("typescript-plugin-styled-components").default;
 const packageJson = require("./package.json");
@@ -12,7 +14,7 @@ const { getProcessEnv } = require("@namada/config/webpack.js");
 // Load .env from namada-interface:
 require("dotenv").config({ path: "../namada-interface/.env" });
 
-const { NODE_ENV, TARGET } = process.env;
+const { NODE_ENV, TARGET, BUNDLE_ANALYZE } = process.env;
 
 const OUTPUT_PATH = resolve(__dirname, `./build/${TARGET}`);
 
@@ -33,6 +35,14 @@ function generateManifest(buffer) {
 }
 
 const copyPatterns = [
+  {
+    from: "../../packages/shared/src/shared/shared_bg.wasm",
+    to: "./shared.namada.wasm",
+  },
+  {
+    from: "../../packages/crypto/src/crypto/crypto_bg.wasm",
+    to: "./crypto.namada.wasm",
+  },
   {
     from: "./src/public/*.html",
     to: "./[name].html",
@@ -65,11 +75,15 @@ const copyPatterns = [
   {
     from: MANIFEST_BASE_PATH,
     to: GENERATED_MANIFEST,
-    transform: generateManifest
-  }
+    transform: generateManifest,
+  },
 ];
 
+const analyzePlugins =
+  BUNDLE_ANALYZE === "true" ? [new BundleAnalyzerPlugin()] : [];
+
 const plugins = [
+  ...analyzePlugins,
   new CopyPlugin({
     patterns: copyPatterns,
   }),
@@ -92,18 +106,21 @@ const plugins = [
   // Provide environment variables to extension:
   new webpack.DefinePlugin({
     process: {
-      env: JSON.stringify(getProcessEnv(
-        "NAMADA_INTERFACE",
-        ["TARGET", "NODE_ENV", "npm_package_version"]
-      )),
+      env: JSON.stringify(
+        getProcessEnv("NAMADA_INTERFACE", [
+          "TARGET",
+          "NODE_ENV",
+          "npm_package_version",
+        ])
+      ),
     },
   }),
   new RemovePlugin({
     after: {
       include: [`${OUTPUT_PATH}/${GENERATED_MANIFEST}`],
-      log: false
+      log: false,
     },
-  })
+  }),
 ];
 
 if (NODE_ENV === "development") {
@@ -160,11 +177,6 @@ module.exports = {
             ],
           }),
         },
-      },
-      {
-        test: /\.wasm$/,
-        type: "asset/inline",
-        exclude: /node_modules/,
       },
       {
         test: /\.svg$/,

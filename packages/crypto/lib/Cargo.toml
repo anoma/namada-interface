@@ -17,7 +17,6 @@ base64 = "0.13.0"
 bip32 = { version = "0.4.0", features = ["bip39"] }
 borsh = {version = "1.2.0", features = ["unstable__schema", "derive"]}
 borsh-ext = { git = "https://github.com/heliaxdev/borsh-ext", tag = "v1.2.0" }
-ed25519-dalek = {version = "1.0.1", default-features = false, features = ["rand", "u64_backend"]}
 getrandom = {version = "0.2.3", features = ["js"]}
 gloo-utils = { version = "0.1.5", features = ["serde"] }
 hex = "0.4.3"
@@ -39,10 +38,8 @@ wasm-bindgen-test = "0.3.13"
 # https://doc.rust-lang.org/cargo/reference/profiles.html
 [profile.release]
 lto = true
-opt-level = "s"
 
 [profile.dev]
-opt-level = "s"
 
 # wasm-pack sepcific configuration
 [package.metadata.wasm-pack.profile.release]

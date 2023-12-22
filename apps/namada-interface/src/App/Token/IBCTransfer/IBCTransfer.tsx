@@ -29,7 +29,7 @@ import {
   getIntegration,
   useIntegrationConnection,
   useUntilIntegrationAttached,
-} from "@namada/hooks";
+} from "@namada/integrations";
 import { useAppDispatch, useAppSelector } from "store";
 import { Account, AccountsState, addAccounts } from "slices/accounts";
 import { addChannel, ChannelsState } from "slices/channels";
@@ -500,9 +500,9 @@ const IBCTransfer = (): JSX.Element => {
                   currentExtensionAttachStatus === "attached"
                     ? handleConnectDestinationExtension
                     : handleDownloadExtension.bind(
-                      null,
-                      destinationChain.extension.url
-                    )
+                        null,
+                        destinationChain.extension.url
+                      )
                 }
                 loading={
                   currentExtensionAttachStatus === "pending" ||

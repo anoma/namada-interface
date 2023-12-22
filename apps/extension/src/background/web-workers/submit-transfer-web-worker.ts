@@ -11,7 +11,10 @@ import {
 } from "./types";
 
 (async function init() {
-  await initShared();
+  const sharedWasm = await fetch("shared.namada.wasm").then((wasm) =>
+    wasm.arrayBuffer()
+  );
+  await initShared(sharedWasm);
   const sdk = new Sdk(chains[defaultChainId].rpc);
   await sdk.load_masp_params();
 

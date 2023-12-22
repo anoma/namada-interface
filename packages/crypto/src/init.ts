@@ -1,4 +1,4 @@
-import initWasm, { InitOutput } from "./crypto/crypto";
-import wasm from "./crypto/crypto_bg.wasm";
+import initWasm, { InitInput, InitOutput } from "./crypto/crypto";
 
-export const init: () => Promise<InitOutput> = async () => await initWasm(wasm);
+export const init: (wasm: InitInput) => Promise<InitOutput> = async (wasm) =>
+  await initWasm(wasm);

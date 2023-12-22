@@ -6,7 +6,7 @@ import { chains, defaultChainId as chainId } from "@namada/chains";
 import {
   useIntegrationConnection,
   useUntilIntegrationAttached,
-} from "@namada/hooks";
+} from "@namada/integrations";
 import { Account, ExtensionKey, Extensions } from "@namada/types";
 import { formatCurrency } from "@namada/utils";
 import { Button, ButtonVariant, Heading } from "@namada/components";
