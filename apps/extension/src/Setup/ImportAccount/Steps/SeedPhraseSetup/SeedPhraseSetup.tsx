@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 
 import { ActionButton, Heading, Stack } from "@namada/components";
+import { formatRouterPath } from "@namada/utils";
+import { TopLevelRoute } from "App/types";
 import { AccountAlias, Password } from "Setup/Common";
 import { Form, HeaderContainer } from "Setup/Setup.components";
 import { AccountDetails } from "Setup/types";
-import { useNavigate } from "react-router-dom";
-import { formatRouterPath } from "@namada/utils";
-import { TopLevelRoute } from "App/types";
-import { Footer } from "./SeedPhraseSetup.components";
 import { AccountSecret } from "background/keyring";
+import { useNavigate } from "react-router-dom";
+import { Footer } from "./SeedPhraseSetup.components";
 
 type SeedPhraseSetupProps = {
   accountSecret?: AccountSecret;

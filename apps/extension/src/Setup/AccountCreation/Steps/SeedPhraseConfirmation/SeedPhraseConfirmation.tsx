@@ -105,6 +105,7 @@ const SeedPhraseConfirmation = (
         <Stack gap={GapPatterns.FormFields}>
           <VerifyPanelContainer>
             <Input
+              data-testid="setup-seed-phrase-verification-1-input"
               label={`Word #${index1ToConfirm + 1}`}
               value={verificationInput1}
               error={index1Error}
@@ -120,6 +121,7 @@ const SeedPhraseConfirmation = (
               }}
             />
             <Input
+              data-testid="setup-seed-phrase-verification-2-input"
               label={`Word #${index2ToConfirm + 1}`}
               value={verificationInput2}
               error={index2Error}
@@ -135,10 +137,24 @@ const SeedPhraseConfirmation = (
               }}
             />
           </VerifyPanelContainer>
-          <AccountAlias value={accountName} onChange={setAccountName} />
-          {passwordRequired && <Password onValidPassword={setPassword} />}
+          <AccountAlias
+            data-testid="setup-seed-phrase-alias-input"
+            value={accountName}
+            onChange={setAccountName}
+          />
+          {passwordRequired && (
+            <Password
+              data-testid="setup-seed-phrase-pwd-input"
+              onValidPassword={setPassword}
+            />
+          )}
         </Stack>
-        <ActionButton disabled={notVerified}>Next</ActionButton>
+        <ActionButton
+          data-testid="setup-seed-phrase-verification-next-btn"
+          disabled={notVerified}
+        >
+          Next
+        </ActionButton>
       </Stack>
     </>
   );

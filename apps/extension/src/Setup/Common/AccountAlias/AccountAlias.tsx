@@ -4,10 +4,12 @@ import { useState } from "react";
 type AccountAliasProps = {
   value: string;
   onChange: (value: string) => void;
+  "data-testid"?: string;
 };
 
 export const AccountAlias = ({
   value,
+  "data-testid": dataTestId,
   onChange,
 }: AccountAliasProps): JSX.Element => {
   const [keysNameError, setKeysNameError] = useState("");
@@ -22,6 +24,7 @@ export const AccountAlias = ({
 
   return (
     <Input
+      data-testid={dataTestId}
       label="Account Name"
       value={value}
       onChange={(e) => onChange(e.target.value)}

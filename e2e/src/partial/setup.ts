@@ -1,12 +1,11 @@
 import * as puppeteer from "puppeteer";
 
 import {
+  allowClipboardRead,
   openInterface,
   openSetup,
-  waitForXpath,
-  $x,
   pasteValueInto,
-  allowClipboardRead,
+  waitForXpath,
 } from "../utils/helpers";
 import { mnemonic, pwdOrAlias } from "../utils/values";
 
@@ -73,40 +72,31 @@ export const createAccount = async (
   await openSetup(browser, page);
   await allowClipboardRead(page);
 
-  // Check H1
-  const setupH1 = await page.$eval("h1", (e) => e.innerText);
-  expect(setupH1).toEqual("Create Your Account");
-
   // Click on create account
   (
-    await waitForXpath<HTMLButtonElement>(
-      page,
-      "//button[contains(., 'Create an account')]"
-    )
-  ).click();
+    await page.waitForSelector("[data-testid='setup-create-keys-button']")
+  )?.click();
+
+  await page.waitForNavigation();
+
+  // Click on show phrase
+  (
+    await page.waitForSelector("[data-testid='setup-show-phrase-button']")
+  )?.click();
+
   await page.waitForNavigation();
 
   // Copy mnemonic
   (
-    await waitForXpath<HTMLButtonElement>(
-      page,
-      "//a[contains(., 'Copy to clipboard')]"
-    )
-  ).click();
+    await page.waitForSelector("[data-testid='setup-copy-to-clipboard-button']")
+  )?.click();
 
   // Wait for clipboard to be filled
   await new Promise((r) => setTimeout(r, 500));
 
-  const wordsHtml = await $x<HTMLDivElement>(
-    page,
-    "//div[starts-with(@class, 'SeedPhraseCard-')]"
-  );
-
-  const words = await Promise.all(
-    wordsHtml.map((w) =>
-      // Evaluate and remove indexes
-      w.evaluate((ew) => ew.innerText.replace(/\d+\s/g, ""))
-    )
+  const words = await page.$$eval(
+    "[data-testid='setup-seed-phrase-list'] li",
+    (els) => els.map((el) => el.textContent as string)
   );
 
   expect(await page.evaluate(() => navigator.clipboard.readText())).toEqual(
@@ -115,49 +105,60 @@ export const createAccount = async (
 
   // Continue to verification
   (
-    await waitForXpath<HTMLButtonElement>(
-      page,
-      "//button[contains(., 'I wrote down my mnemonic')]"
+    await page.waitForSelector(
+      "[data-testid='setup-go-to-verification-button']"
     )
-  ).click();
+  )?.click();
   await page.waitForNavigation();
 
   // Verify mnemonic
-  const wordNo = (
-    await (
-      await waitForXpath<HTMLButtonElement>(
-        page,
-        "//label[contains(., 'Word')]"
-      )
-    ).evaluate((e) => e.innerText)
-  ).replace("Word #", "");
-  const input = await page.$("input");
-  await input?.type(words[Number(wordNo) - 1]);
+  const input1 = await page.$(
+    "[data-testid='setup-seed-phrase-verification-1-input']"
+  );
 
-  // Verify
-  (
-    await waitForXpath<HTMLButtonElement>(
-      page,
-      "//button[contains(., 'Verify')]"
-    )
-  ).click();
-  await page.waitForNavigation();
+  const input2 = await page.$(
+    "[data-testid='setup-seed-phrase-verification-2-input']"
+  );
 
-  // Fill account info
-  const pwdInputs = await page.$$("input");
+  const word1Number = (await input1?.evaluate((el) => el.textContent))?.replace(
+    "Word #",
+    ""
+  );
+
+  const word2Number = (await input2?.evaluate((el) => el.textContent))?.replace(
+    "Word #",
+    ""
+  );
+
+  await (await input1?.$("input"))?.type(words[Number(word1Number) - 1]);
+  await (await input2?.$("input"))?.type(words[Number(word2Number) - 1]);
+
+  // Fill alias and pwd
+  const aliasInput = await page.$(
+    "[data-testid='setup-seed-phrase-alias-input']"
+  );
+  await aliasInput?.type(pwdOrAlias);
+
+  const pwdInputs = await page.$$(
+    "[data-testid='setup-seed-phrase-pwd-input']"
+  );
+
   for await (const input of pwdInputs) {
     await input.type(pwdOrAlias);
   }
 
-  // Click on create account
   (
-    await waitForXpath<HTMLButtonElement>(
-      page,
-      "//button[contains(., 'Create an Account')]"
+    await page.waitForSelector(
+      "[data-testid='setup-seed-phrase-verification-next-btn']"
     )
-  ).click();
+  )?.click();
+
   await page.waitForNavigation();
 
-  // Wait for setup completion
-  await page.waitForXPath("//p[contains(., 'Setup is complete')]");
+  const closePageBtn = await page.waitForSelector(
+    "[data-testid='setup-close-page-btn']",
+    {}
+  );
+
+  expect(closePageBtn).not.toBeNull();
 };

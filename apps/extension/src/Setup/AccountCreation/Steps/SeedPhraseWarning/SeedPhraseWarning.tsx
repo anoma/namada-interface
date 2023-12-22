@@ -4,8 +4,8 @@ import {
   Icon,
   IconName,
   IconSize,
-  Stack,
   SeedPhraseInstructions,
+  Stack,
 } from "@namada/components";
 import { HeaderContainer } from "Setup/Setup.components";
 import {
@@ -44,7 +44,10 @@ const SeedPhraseWarning = ({
             <SeedPhraseInstructions />
           </InstructionsContainer>
           <PageFooter>
-            <ActionButton onClick={onComplete}>
+            <ActionButton
+              data-testid="setup-show-phrase-button"
+              onClick={onComplete}
+            >
               I understood, show my phrase
             </ActionButton>
           </PageFooter>

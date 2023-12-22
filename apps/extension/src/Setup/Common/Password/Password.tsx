@@ -7,6 +7,7 @@ import { InputFeedback } from "./Password.components";
 // the data of this form
 type PasswordProps = {
   onValidPassword: (password: string | undefined) => void;
+  "data-testid"?: string;
 };
 
 const validatePassword = (
@@ -19,7 +20,10 @@ const validatePassword = (
     : warning === "" && suggestions.length === 0 && password === passwordMatch;
 };
 
-const Password = ({ onValidPassword }: PasswordProps): JSX.Element => {
+const Password = ({
+  onValidPassword,
+  "data-testid": dataTestId,
+}: PasswordProps): JSX.Element => {
   // we store passwords locally as we would not like to pass them in
   // when the user switches between the screens
   const [password, setPassword] = useState("");
@@ -67,6 +71,7 @@ const Password = ({ onValidPassword }: PasswordProps): JSX.Element => {
   return (
     <>
       <Input
+        data-testid={dataTestId}
         label="Create Extension Password"
         variant={InputVariants.Password}
         value={password}
@@ -82,6 +87,7 @@ const Password = ({ onValidPassword }: PasswordProps): JSX.Element => {
       />
 
       <Input
+        data-testid={dataTestId}
         label="Confirm Extension Password"
         placeholder="At least 8 characters"
         variant={InputVariants.Password}

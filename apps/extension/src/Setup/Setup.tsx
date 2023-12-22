@@ -65,13 +65,13 @@ export const Setup: React.FC = () => {
       alias: "",
     });
   const [accountSecret, setAccountSecret] = useState<AccountSecret>();
-  const [selectedAccountSecret, setSelectedAccountSecret] = useState<AccountSecret>();
+  const [selectedAccountSecret, setSelectedAccountSecret] =
+    useState<AccountSecret>();
   const [currentStep, setCurrentStep] = useState(0);
   const [totalSteps, setTotalSteps] = useState(0);
 
-  const seedPhrase = accountSecret?.t === "Mnemonic"
-    ? accountSecret.seedPhrase
-    : undefined;
+  const seedPhrase =
+    accountSecret?.t === "Mnemonic" ? accountSecret.seedPhrase : undefined;
 
   const goToStep = (step: number) => () => setCurrentStep(step);
 
@@ -161,7 +161,10 @@ export const Setup: React.FC = () => {
                             return;
                           }
                           setAccountCreationDetails(accountCreationDetails);
-                          setSelectedAccountSecret({ t: "Mnemonic", seedPhrase });
+                          setSelectedAccountSecret({
+                            t: "Mnemonic",
+                            seedPhrase,
+                          });
                           setAccountSecret(undefined); // this also sets seedPhrase to undefined
                           navigate(
                             formatRouterPath([

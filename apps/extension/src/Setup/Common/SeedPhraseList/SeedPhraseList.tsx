@@ -22,7 +22,7 @@ export const SeedPhraseList = ({
   sensitive = true,
 }: SeedPhraseListProps): JSX.Element => {
   const list = (
-    <SeedList columns={columns}>
+    <SeedList data-testid="setup-seed-phrase-list" columns={columns}>
       {words.map((word, idx) => (
         <SeedListItem key={`seed-phrase-list-${idx}`}>
           {onChange ? (

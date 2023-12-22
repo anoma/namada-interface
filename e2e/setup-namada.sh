@@ -1,6 +1,6 @@
 #!/bin/bash -x
 
-VERSION="v0.24.0"
+VERSION="v0.28.1"
 CURRENT_VERSION=""
 NAMADA_DIR=".namada"
 NAMADA_BASE_DIR=".namada/basedir"
@@ -41,7 +41,7 @@ if [ "$CURRENT_VERSION" != "$VERSION" ]; then
     # Download wasms
     CHECKSUMS="${NAMADA_DIR}/checksums.json"
     WASM=""
-    S3="https://namada-wasm-master.s3.eu-west-1.amazonaws.com"
+    ARTIFACTS_URL="https://artifacts.heliax.click/namada-wasm"
 
     rm -rf "${NAMADA_DIR}/wasm"
     mkdir "${NAMADA_DIR}/wasm"
@@ -49,7 +49,7 @@ if [ "$CURRENT_VERSION" != "$VERSION" ]; then
     while read -r line; 
     do
         WASM=$(echo "$line" | sed -E "s/\".+\":[[:space:]]\"//g" | sed -E "s/\".*//g");
-        curl "${S3}/${WASM}" --output "${NAMADA_DIR}/wasm/${WASM}"
+        curl "${ARTIFACTS_URL}/${WASM}" --output "${NAMADA_DIR}/wasm/${WASM}"
 
     done < "$CHECKSUMS"
 
@@ -60,12 +60,13 @@ fi
 # Clear the basedir
 rm -rf $NAMADA_BASE_DIR
 
+CHAIN_PREFIX="localnet"
+
 "${NAMADA_DIR}/namadac" --base-dir $NAMADA_BASE_DIR utils init-network \
-    --chain-prefix dev-test \
-    --wasm-checksums-path "${NAMADA_DIR}/checksums.json" \
-    --genesis-path genesis.toml \
-    --dont-archive \
-    --unsafe-dont-encrypt
+    --chain-prefix $CHAIN_PREFIX \
+    --genesis-time "2023-01-01T00:00:00Z" \
+    --templates-path genesis/localnet \
+    --wasm-checksums-path "${NAMADA_DIR}/checksums.json"
 
 CONFIG="${NAMADA_BASE_DIR}/global-config.toml"
 CHAIN_ID=""
@@ -77,25 +78,31 @@ do
 
 done < "$CONFIG"
 
+NAMADA_NETWORK_CONFIGS_DIR=. "${NAMADA_DIR}/namadac" --base-dir "${NAMADA_BASE_DIR}/validator" utils join-network \
+    --chain-id $CHAIN_ID \
+    --genesis-validator validator-0 \
+    --pre-genesis-path genesis/localnet/src/pre-genesis/validator-0 \
+    --dont-prefetch-wasm
+
 # Copy wasms
-cp -f ${NAMADA_DIR}/wasm/*.wasm ${NAMADA_BASE_DIR}/${CHAIN_ID}/setup/validator-0/.namada/${CHAIN_ID}/wasm/
+cp -f ${NAMADA_DIR}/wasm/*.wasm ${NAMADA_BASE_DIR}/validator/${CHAIN_ID}/wasm/
 cp -f ${NAMADA_DIR}/wasm/*.wasm ${NAMADA_BASE_DIR}/${CHAIN_ID}/wasm/
 
 echo "Replacing CHAIN_ID: $CHAIN_ID"
 # Override envs - so we do not have to rebuild extension and app
 if [[ $OS == "Darwin" ]]; then
-    LC_ALL=C find ../apps/extension/build/chrome -type f -name "*.js" -exec sed -i "" -E "s/dev-test\..{21}/$CHAIN_ID/g" {} +
-    LC_ALL=C find ../apps/namada-interface/build -type f -name "*.js" -exec sed -i "" -E "s/dev-test\..{21}/$CHAIN_ID/g" {} +
+    LC_ALL=C find ../apps/extension/build/chrome -type f -name "*.js" -exec sed -i "" -E "s/${CHAIN_PREFIX}\..{21}/$CHAIN_ID/g" {} +
+    LC_ALL=C find ../apps/namada-interface/build -type f -name "*.js" -exec sed -i "" -E "s/${CHAIN_PREFIX}\..{21}/$CHAIN_ID/g" {} +
 else
-    find ../apps/extension/build/chrome -type f -name "*.js" -exec sed -i -E "s/dev-test\..{21}/$CHAIN_ID/g" {} +
-    find ../apps/namada-interface/build -type f -name "*.js" -exec sed -i -E "s/dev-test\..{21}/$CHAIN_ID/g" {} +
+    find ../apps/extension/build/chrome -type f -name "*.js" -exec sed -i -E "s/${CHAIN_PREFIX}\..{21}/$CHAIN_ID/g" {} +
+    find ../apps/namada-interface/build -type f -name "*.js" -exec sed -i -E "s/${CHAIN_PREFIX}\..{21}/$CHAIN_ID/g" {} +
 fi
+
+echo "Removing archive"
+rm -f "${CHAIN_ID}.tar.gz"
 
 echo "Fixing CORS"
 find ${NAMADA_BASE_DIR} -type f -name "config.toml" -exec sed -i -E "s/cors_allowed_origins[[:space:]]=[[:space:]]\[\]/cors_allowed_origins = [\"*\"]/g" {} +
 
 echo "Moving MASP params"
 cp ${NAMADA_DIR}/masp-*.params ../apps/namada-interface/build/assets
-
-echo "Moving wallet"
-cp ${NAMADA_BASE_DIR}/${CHAIN_ID}/setup/other/wallet.toml ${NAMADA_BASE_DIR}/${CHAIN_ID}

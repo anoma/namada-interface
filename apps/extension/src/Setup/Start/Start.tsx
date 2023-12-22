@@ -36,6 +36,7 @@ const Start: React.FC = () => {
 
       <Stack as="div" direction="vertical" gap={4}>
         <ActionButton
+          data-testid="setup-create-keys-button"
           onClick={() =>
             navigate(
               formatRouterPath([

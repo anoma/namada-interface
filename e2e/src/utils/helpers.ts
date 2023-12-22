@@ -2,8 +2,8 @@ import * as puppeteer from "puppeteer";
 import terminate from "terminate/promise";
 
 import { ChildProcess, exec } from "child_process";
-import util from "node:util";
 import nodePath from "node:path";
+import util from "node:util";
 
 // promisify exec
 const execPromise = util.promisify(exec);
