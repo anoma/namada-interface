@@ -88,7 +88,8 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
       {status !== (Status.Pending || Status.Completed) && signerAddress && (
         <>
           <Alert type="warning">
-            Decrypt keys for <strong>{shortenAddress(signerAddress)}</strong>
+            Decrypt keys for{" "}
+            <strong className="text-xs">{shortenAddress(signerAddress)}</strong>
           </Alert>
           <Input
             variant="Password"
