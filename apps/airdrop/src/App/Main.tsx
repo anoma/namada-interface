@@ -62,7 +62,7 @@ export const Main: React.FC = () => {
   const githubHandler = useGithubHandler();
   const objectContainerRef = useRef<HTMLDivElement>(null);
   const mainSectionRef = useRef<HTMLDivElement>(null);
-  const endDate = new Date(Date.UTC(2023, 11, 28, 9, 0, 0));
+  const endDate = new Date(Date.UTC(2024, 0, 12, 9, 0, 0));
   const isOngoing = new Date().getTime() <= endDate.getTime();
 
   useEffect(() => {
