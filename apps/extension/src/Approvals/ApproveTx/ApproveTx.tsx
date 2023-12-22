@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { ActionButton, Alert, Stack, Text } from "@namada/components";
+import { ActionButton, Alert, Stack } from "@namada/components";
 import { useSanitizedParams } from "@namada/hooks";
 import { TxType, TxTypeLabel } from "@namada/shared";
 import { AccountType, Tokens } from "@namada/types";
@@ -75,31 +75,32 @@ export const ApproveTx: React.FC<Props> = ({ setDetails }) => {
   }, [msgId]);
 
   return (
-    <Stack gap={4}>
+    <Stack className="text-white" gap={4}>
       <Alert type="warning">
         Approve this {accountType === AccountType.Ledger ? "Ledger " : ""}
         <strong>{TxTypeLabel[txType as TxType]}</strong> transaction?
       </Alert>
-      {source && (
-        <Text className="text-xs">
-          Source: <strong>{shortenAddress(source)}</strong>
-        </Text>
-      )}
-      {target && (
-        <Text className="text-xs">
-          Target:
-          <strong>{shortenAddress(target)}</strong>
-        </Text>
-      )}
-      {amount && (
-        <Text className="text-xs">
-          Amount: {amount} {tokenType}
-        </Text>
-      )}
-      {validator && (
-        <Text className="text-xs">Validator: {shortenAddress(validator)}</Text>
-      )}
-
+      <Stack gap={2}>
+        {source && (
+          <p className="text-xs">
+            Source: <strong>{shortenAddress(source)}</strong>
+          </p>
+        )}
+        {target && (
+          <p className="text-xs">
+            Target:
+            <strong>{shortenAddress(target)}</strong>
+          </p>
+        )}
+        {amount && (
+          <p className="text-xs">
+            Amount: {amount} {tokenType}
+          </p>
+        )}
+        {validator && (
+          <p className="text-xs">Validator: {shortenAddress(validator)}</p>
+        )}
+      </Stack>
       <Stack gap={3} direction="horizontal">
         <ActionButton onClick={handleApproveClick}>Approve</ActionButton>
         <ActionButton onClick={handleReject}>Reject</ActionButton>

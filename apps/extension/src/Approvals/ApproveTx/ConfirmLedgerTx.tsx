@@ -251,7 +251,9 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
       {status === Status.Pending && <Alert type="info">{statusInfo}</Alert>}
       {status !== Status.Pending && status !== Status.Completed && (
         <>
-          <p>Make sure your Ledger is unlocked, and click &quot;Submit&quot;</p>
+          <p className="text-white">
+            Make sure your Ledger is unlocked, and click &quot;Submit&quot;
+          </p>
           <div className="flex">
             <ActionButton onClick={handleSubmitTx}>Submit</ActionButton>
           </div>
