@@ -83,7 +83,7 @@ export class KeyRing {
     protected readonly sdk: Sdk,
     protected readonly query: Query,
     protected readonly cryptoMemory: WebAssembly.Memory
-  ) { }
+  ) {}
 
   public get status(): KeyRingStatus {
     return this._status;
@@ -656,7 +656,7 @@ export class KeyRing {
       await this.sdk.reveal_pk(signingKey, txMsg);
 
       const builtTx = await this.sdk.build_bond(bondMsg, txMsg);
-      const txBytes = await this.sdk.sign_tx(builtTx, signingKey);
+      const txBytes = await this.sdk.sign_tx(builtTx, txMsg, signingKey);
       await this.sdk.process_tx(txBytes, txMsg);
     } catch (e) {
       throw new Error(`Could not submit bond tx: ${e}`);
@@ -683,7 +683,7 @@ export class KeyRing {
       await this.sdk.reveal_pk(signingKey, txMsg);
 
       const builtTx = await this.sdk.build_unbond(unbondMsg, txMsg);
-      const txBytes = await this.sdk.sign_tx(builtTx, signingKey);
+      const txBytes = await this.sdk.sign_tx(builtTx, txMsg, signingKey);
       await this.sdk.process_tx(txBytes, txMsg);
     } catch (e) {
       throw new Error(`Could not submit unbond tx: ${e}`);
@@ -705,7 +705,7 @@ export class KeyRing {
       await this.sdk.reveal_pk(signingKey, txMsg);
 
       const builtTx = await this.sdk.build_withdraw(withdrawMsg, txMsg);
-      const txBytes = await this.sdk.sign_tx(builtTx, signingKey);
+      const txBytes = await this.sdk.sign_tx(builtTx, txMsg, signingKey);
       await this.sdk.process_tx(txBytes, txMsg);
     } catch (e) {
       throw new Error(`Could not submit withdraw tx: ${e}`);
@@ -731,7 +731,7 @@ export class KeyRing {
         txMsg
       );
 
-      const txBytes = await this.sdk.sign_tx(builtTx, signingKey);
+      const txBytes = await this.sdk.sign_tx(builtTx, txMsg, signingKey);
       await this.sdk.process_tx(txBytes, txMsg);
     } catch (e) {
       throw new Error(`Could not submit vote proposal tx: ${e}`);
@@ -761,9 +761,10 @@ export class KeyRing {
 
     if (account.public.type === AccountType.ShieldedKeys) {
       const xsk = JSON.parse(sensitiveProps.text).spendingKey;
-      // Append xsk to SDK wallet instance
-      this.sdk.add_spending_key(xsk, account.public.id);
-      await submit({ xsk });
+
+      await submit({
+        xsk,
+      });
     } else {
       await submit({ privateKey: await this.getSigningKey(source) });
     }
@@ -784,7 +785,7 @@ export class KeyRing {
       await this.sdk.reveal_pk(signingKey, txMsg);
 
       const builtTx = await this.sdk.build_ibc_transfer(ibcTransferMsg, txMsg);
-      const txBytes = await this.sdk.sign_tx(builtTx, signingKey);
+      const txBytes = await this.sdk.sign_tx(builtTx, txMsg, signingKey);
       await this.sdk.process_tx(txBytes, txMsg);
     } catch (e) {
       throw new Error(`Could not submit ibc transfer tx: ${e}`);
@@ -809,7 +810,7 @@ export class KeyRing {
         ethBridgeTransferMsg,
         txMsg
       );
-      const txBytes = await this.sdk.sign_tx(builtTx, signingKey);
+      const txBytes = await this.sdk.sign_tx(builtTx, txMsg, signingKey);
       await this.sdk.process_tx(txBytes, txMsg);
     } catch (e) {
       throw new Error(`Could not submit submit_eth_bridge_transfer tx: ${e}`);

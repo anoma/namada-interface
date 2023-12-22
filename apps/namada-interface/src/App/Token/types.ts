@@ -41,6 +41,7 @@ type TxArgs = {
   memo?: string;
   feeAmount?: BigNumber;
   gasLimit?: BigNumber;
+  disposableSigningKey?: boolean;
 };
 
 export type TxTransferArgs = TxArgs & {
@@ -51,5 +52,5 @@ export type TxIbcTransferArgs = Omit<TxArgs, "token"> & {
   chainId: string;
   channelId: string;
   portId: string;
-  token: TokenInfo
+  token: TokenInfo;
 };

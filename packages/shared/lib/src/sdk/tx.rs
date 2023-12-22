@@ -23,6 +23,8 @@ pub struct TxMsg {
     gas_limit: String,
     chain_id: String,
     public_key: Option<String>,
+    disposable_signing_key: Option<bool>,
+    fee_unshield: Option<String>,
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -414,6 +416,8 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         gas_limit,
         chain_id,
         public_key,
+        disposable_signing_key,
+        fee_unshield,
     } = tx_msg;
 
     let token = Address::from_str(&token)?;
@@ -430,15 +434,23 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         _ => None,
     };
 
+    let disposable_signing_key = disposable_signing_key.unwrap_or(false);
     let siginig_keys: Vec<PublicKey> = match public_key {
         Some(v) => vec![v.clone()],
         _ => vec![],
     };
 
+    let fee_unshield = match fee_unshield {
+        Some(v) => Some(TransferSource::ExtendedSpendingKey(
+            ExtendedSpendingKey::from_str(&v)?,
+        )),
+        _ => None,
+    };
+
     let args = args::Tx {
         dry_run: false,
         dry_run_wrapper: false,
-        disposable_signing_key: false,
+        disposable_signing_key,
         dump_tx: false,
         force: false,
         broadcast_only: false,
@@ -447,7 +459,7 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         initialized_account_alias: None,
         fee_amount: Some(fee_input_amount),
         fee_token: token.clone(),
-        fee_unshield: None,
+        fee_unshield,
         gas_limit: GasLimit::from_str(&gas_limit).expect("Gas limit to be valid"),
         wrapper_fee_payer: None,
         output_folder: None,

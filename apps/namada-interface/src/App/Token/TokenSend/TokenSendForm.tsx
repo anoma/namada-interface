@@ -69,6 +69,7 @@ export const submitTransferTransaction = async (
     faucet,
     target,
     token,
+    disposableSigningKey,
   } = txTransferArgs;
   const integration = getIntegration(chainId);
   const signer = integration.signer() as Signer;
@@ -88,6 +89,7 @@ export const submitTransferTransaction = async (
     chainId,
     publicKey: publicKey,
     signer: faucet ? target : undefined,
+    disposableSigningKey,
   };
 
   await signer.submitTransfer(transferArgs, txArgs, type);
@@ -177,6 +179,7 @@ const TokenSendForm = (
 
   const { details, balance } = derivedAccounts[address];
   const isShieldedSource = details.isShielded;
+
   const token = Tokens[tokenType];
 
   const isFormInvalid = getIsFormInvalid(
@@ -258,6 +261,7 @@ const TokenSendForm = (
         amount,
         token: tokenType,
         feeAmount: new BigNumber(gasFee),
+        disposableSigningKey: isShieldedSource,
       });
     }
   };
