@@ -220,9 +220,7 @@ export const ClaimConfirmation: React.FC = () => {
       confirmed: result.confirmed,
       address: result.airdrop_address || "",
       publicKey: result.airdrop_public_key || "",
-      amount: ["cosmos", "osmosis"].includes(claimState.type)
-        ? 15
-        : result.amount,
+      amount: result.amount,
     });
     navigate("/claim-confirmed");
   };
