@@ -215,7 +215,9 @@ export const ClaimConfirmation: React.FC = () => {
       }
     }
     const { value: result } = response;
-
+    if (KEPLR_CLAIMS.includes(claimState.type)) {
+      result.amount = 15
+    }
     setConfirmation({
       confirmed: result.confirmed,
       address: result.airdrop_address || "",
