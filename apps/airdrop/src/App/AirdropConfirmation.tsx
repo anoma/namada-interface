@@ -110,11 +110,16 @@ export const AirdropConfirmation: React.FC = () => {
         )
           .map((claims) => {
             const breakdown = claims.map((claim) => {
+              const minNam = ["CosmosWallet", "OsmosisWallet"].includes(
+                claim.category
+              )
+                ? 15
+                : claim.token;
               return {
                 accountType: categoryAccountTypeMap[claim.category],
                 source: claim.value,
                 category: getCategory(claim.category, claim.eligible_for),
-                minNam: claim.token,
+                minNam,
               };
             });
 
