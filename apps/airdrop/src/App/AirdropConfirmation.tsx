@@ -106,7 +106,12 @@ export const AirdropConfirmation: React.FC = () => {
       if (response.ok) {
         const result = response.value;
         const totalMinNam = result.claims.reduce((acc, curr) => {
-          return acc + curr.token;
+          const value = ["CosmosWallet", "OsmosisWallet"].includes(
+            curr.category
+          )
+            ? 15
+            : curr.token;
+          return acc + value;
         }, 0);
         setTotalMinNam(totalMinNam);
 

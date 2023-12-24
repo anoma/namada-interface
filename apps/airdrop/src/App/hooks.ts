@@ -143,7 +143,7 @@ export const useKeplrHandler = (
           confirmed: true,
           address: claim.airdrop_address as string,
           publicKey: claim.airdrop_public_key as string,
-          amount: claim.amount,
+          amount: ["cosmos", "osmosis"].includes(type) ? 15 : claim.amount,
         });
       }
 
