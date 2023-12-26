@@ -28,6 +28,7 @@ export const App: React.FC = () => {
   return (
     <Container
       size="popup"
+      className="max-w-[380px]"
       header={
         <AppHeader
           settingsButton={!isLocked && passwordInitialized}
