@@ -23,7 +23,6 @@ export class ExtensionRouter extends Router {
       throw new Error("Empty port");
     }
 
-    console.info(`Listening on port ${port}`);
     this.port = port;
     this.messenger.addListener(async (message, sender) =>
       initPromise.then(() => this.onMessage(message, sender))
