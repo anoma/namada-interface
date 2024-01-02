@@ -1,6 +1,6 @@
 import * as puppeteer from "puppeteer";
 import { targetPage, waitForXpath } from "../utils/helpers";
-import { pwdOrAlias } from "../utils/values";
+import { pwd } from "../utils/values";
 
 export const approveConnection = async (
   browser: puppeteer.Browser,
@@ -46,7 +46,7 @@ export const approveTransaction = async (
     )
   ).click();
 
-  (await approvalsPage.$("input"))?.type(pwdOrAlias);
+  (await approvalsPage.$("input"))?.type(pwd);
 
   // Click approve auth button
   (

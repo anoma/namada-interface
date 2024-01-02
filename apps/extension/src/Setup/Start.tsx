@@ -27,6 +27,7 @@ export const Start: React.FC = () => {
         </ActionButton>
         <ActionButton
           size="lg"
+          data-testid="setup-import-keys-button"
           onClick={() => navigate(routes.accountImportSeed())}
         >
           Import existing keys

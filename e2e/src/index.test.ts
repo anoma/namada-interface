@@ -14,21 +14,15 @@ import {
 import {
   initProposal,
   launchPuppeteer,
+  openInterface,
   openPopup,
   pasteValueInto,
   setupNamada,
   startNamada,
   stopNamada,
-  waitForInputValue,
   waitForXpath,
 } from "./utils/helpers";
-import {
-  address0Alias,
-  address1,
-  ethAddress0,
-  shieldedAddress0,
-  shieldedAddress0Alias,
-} from "./utils/values";
+import { address1, ethAddress0, shieldedAddress0 } from "./utils/values";
 
 jest.setTimeout(240000);
 
@@ -75,98 +69,21 @@ describe("Namada", () => {
   });
 
   describe("account", () => {
-    test("create account & derive transparent address", async () => {
+    test("create account & derive addresses", async () => {
       await createAccount(browser, page);
     });
 
-    test.skip("create account & derive transparent address", async () => {
-      await createAccount(browser, page);
-
-      // Check if address was added
-      openPopup(browser, page);
-      await page.waitForNavigation();
-
-      const addresses = await page.$$("li[class*='AccountsListItem']");
-
-      expect(addresses.length).toEqual(1);
-
-      // Click to derive new address
-      await page.$eval(
-        "div[class*='AccountListingContainer-'] a[class*='Button']",
-        (e) => e.click()
-      );
-
-      // Derive new address
-      const input = await page.$("input");
-      input?.type(address0Alias);
-      await waitForInputValue(page, input, address0Alias);
-
-      (
-        await waitForXpath<HTMLButtonElement>(
-          page,
-          "//button[contains(., 'Add')]"
-        )
-      ).click();
-
-      // Check if address was added
-      await page.waitForSelector("ul[class*='AccountsList']");
-      const itemsLength = await page.$$eval(
-        "li[class*='AccountsListItem']",
-        (e) => e.length
-      );
-
-      expect(itemsLength).toEqual(2);
-    });
-
-    test.skip("create account & derive shielded address", async () => {
-      await createAccount(browser, page);
-
-      // Check if address was added
-      openPopup(browser, page);
-      await page.waitForNavigation();
-
-      const addresses = await page.$$("li[class*='AccountsListItem']");
-
-      expect(addresses.length).toEqual(1);
-
-      // Click to derive new address
-      await page.$eval(
-        "div[class*='AccountListingContainer-'] a[class*='Button']",
-        (e) => e.click()
-      );
-
-      // Input text and wait
-      const input = await page.$("input");
-      input?.type(shieldedAddress0Alias);
-      await waitForInputValue(page, input, shieldedAddress0Alias);
-
-      // Switch to shielded
-      page.$eval("button[data-testid='Toggle']", (e) => e.click());
-
-      // Derive new address
-      (
-        await waitForXpath<HTMLButtonElement>(
-          page,
-          "//button[contains(., 'Add')]"
-        )
-      ).click();
-
-      // Check if address was added
-      await page.waitForSelector("ul[class*='AccountsList']");
-      const itemsLength = await page.$$eval(
-        "li[class*='AccountsListItem']",
-        (e) => e.length
-      );
-
-      expect(itemsLength).toEqual(2);
+    test("import account & derive addresses", async () => {
+      await importAccount(browser, page);
     });
   });
 
-  describe.skip("transfer", () => {
+  describe("transfer", () => {
     test("transparent->transparent", async () => {
       const nam = startNamada(namRefs);
 
       await importAccount(browser, page);
+      await openInterface(page);
       await approveConnection(browser, page);
 
       await transferFromTransparent(browser, page, {
@@ -180,6 +97,7 @@ describe("Namada", () => {
       const nam = startNamada(namRefs);
 
       await importAccount(browser, page);
+      await openInterface(page);
       await approveConnection(browser, page);
 
       await transferFromTransparent(browser, page, {

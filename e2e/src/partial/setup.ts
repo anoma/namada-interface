@@ -2,12 +2,10 @@ import * as puppeteer from "puppeteer";
 
 import {
   allowClipboardRead,
-  openInterface,
   openSetup,
   pasteValueInto,
-  waitForXpath,
 } from "../utils/helpers";
-import { mnemonic, pwdOrAlias } from "../utils/values";
+import { alias0, mnemonic0, pwd } from "../utils/values";
 
 export const importAccount = async (
   browser: puppeteer.Browser,
@@ -15,54 +13,51 @@ export const importAccount = async (
 ): Promise<void> => {
   await openSetup(browser, page);
 
-  // Check H1
-  const setupH1 = await page.$eval("h1", (e) => e.innerText);
-  expect(setupH1).toEqual("Create Your Account");
-
   // Click on import account
   (
-    await waitForXpath<HTMLButtonElement>(
-      page,
-      "//button[contains(., 'Import an account')]"
-    )
-  ).click();
+    await page.waitForSelector("[data-testid='setup-import-keys-button']")
+  )?.click();
   await page.waitForNavigation();
 
-  // Check H1
-  const mnemonicH1 = await page.$eval("h1", (e) => e.innerText);
-  expect(mnemonicH1).toEqual("Import Account");
-
-  const wordInputs = await page.$$("input");
+  const wordInputs = await page.$$(
+    "[data-testid='setup-seed-phrase-list'] input"
+  );
 
   // Fill mnemonic
-  await pasteValueInto(page, wordInputs[5], mnemonic.join(" "));
+  await pasteValueInto(page, wordInputs[5], mnemonic0.join(" "));
 
-  // Click on import account
+  // Click on import button
   (
-    await waitForXpath<HTMLButtonElement>(
-      page,
-      "//button[contains(., 'Import')]"
+    await page.waitForSelector(
+      "[data-testid='setup-import-keys-import-button']"
     )
-  ).click();
+  )?.click();
   await page.waitForNavigation();
 
-  const pwdInputs = await page.$$("input");
+  // Fill alias and pwd
+  await (
+    await page.$("[data-testid='setup-import-keys-alias-input']")
+  )?.type(alias0);
+
+  const pwdInputs = await page.$$(
+    "[data-testid='setup-import-keys-pwd-input']"
+  );
   for await (const input of pwdInputs) {
-    await input.type(pwdOrAlias);
+    await input.type(pwd);
   }
 
-  // Click on create account
+  // Click on next button
   (
-    await waitForXpath<HTMLButtonElement>(
-      page,
-      "//button[contains(., 'Create an Account')]"
-    )
-  ).click();
+    await page.waitForSelector("[data-testid='setup-import-keys-next-button']")
+  )?.click();
   await page.waitForNavigation();
 
-  // Wait for setup completion and open the interface
-  await page.waitForXPath("//p[contains(., 'Setup is complete')]");
-  await openInterface(page);
+  // Wait for close page button
+  const closePageBtn = await page.waitForSelector(
+    "[data-testid='setup-close-page-btn']",
+    {}
+  );
+  expect(closePageBtn).not.toBeNull();
 };
 
 export const createAccount = async (
@@ -137,14 +132,14 @@ export const createAccount = async (
   const aliasInput = await page.$(
     "[data-testid='setup-seed-phrase-alias-input']"
   );
-  await aliasInput?.type(pwdOrAlias);
+  await aliasInput?.type(alias0);
 
   const pwdInputs = await page.$$(
     "[data-testid='setup-seed-phrase-pwd-input']"
   );
 
   for await (const input of pwdInputs) {
-    await input.type(pwdOrAlias);
+    await input.type(pwd);
   }
 
   (

@@ -48,11 +48,25 @@ export const SeedPhraseSetup = (props: SeedPhraseSetupProps): JSX.Element => {
       <PageHeader title="Set up your imported keys" />
       <form onSubmit={onSubmitForm}>
         <Stack gap={5}>
-          <AccountAlias value={accountName} onChange={setAccountName} />
-          {passwordRequired && <Password onValidPassword={setPassword} />}
+          <AccountAlias
+            data-testid="setup-import-keys-alias-input"
+            value={accountName}
+            onChange={setAccountName}
+          />
+          {passwordRequired && (
+            <Password
+              data-testid="setup-import-keys-pwd-input"
+              onValidPassword={setPassword}
+            />
+          )}
         </Stack>
         <footer className="mt-14">
-          <ActionButton disabled={notVerified}>Next</ActionButton>
+          <ActionButton
+            data-testid="setup-import-keys-next-button"
+            disabled={notVerified}
+          >
+            Next
+          </ActionButton>
         </footer>
       </form>
     </>
