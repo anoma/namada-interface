@@ -155,6 +155,7 @@ module.exports = {
   output: {
     publicPath: "",
     path: OUTPUT_PATH,
+    //TODO: this might lead to problems with caching
     filename: "[name].namada.js",
   },
   module: {
@@ -214,4 +215,8 @@ module.exports = {
     },
   },
   plugins,
+  stats: {
+    // We want to ignore wasm-bindgen-rayon circular dependency warning
+    warningsFilter: [/dependency between chunks.+wasm-bindgen-rayon/],
+  },
 };

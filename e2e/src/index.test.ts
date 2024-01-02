@@ -9,6 +9,7 @@ import {
   approveTransaction,
   createAccount,
   importAccount,
+  transferFromShielded,
   transferFromTransparent,
 } from "./partial";
 import {
@@ -22,7 +23,13 @@ import {
   stopNamada,
   waitForXpath,
 } from "./utils/helpers";
-import { address1, ethAddress0, shieldedAddress0 } from "./utils/values";
+import {
+  address0,
+  address1,
+  ethAddress0,
+  shieldedAddress0,
+  shieldedAddress1,
+} from "./utils/values";
 
 jest.setTimeout(240000);
 
@@ -88,6 +95,7 @@ describe("Namada", () => {
 
       await transferFromTransparent(browser, page, {
         targetAddress: address1,
+        amount: "1000",
       });
 
       await stopNamada(nam);
@@ -102,6 +110,50 @@ describe("Namada", () => {
 
       await transferFromTransparent(browser, page, {
         targetAddress: shieldedAddress0,
+        amount: "1000",
+      });
+
+      await stopNamada(nam);
+    });
+
+    test("shielded->transparent", async () => {
+      const nam = startNamada(namRefs);
+
+      await importAccount(browser, page);
+      await openInterface(page);
+      await approveConnection(browser, page);
+
+      await transferFromTransparent(browser, page, {
+        targetAddress: shieldedAddress0,
+        amount: "1000",
+      });
+
+      await openInterface(page);
+      await transferFromShielded(browser, page, {
+        targetAddress: address0,
+        amount: "10",
+        transferTimeout: 120000,
+      });
+
+      await stopNamada(nam);
+    });
+
+    test("shielded->shielded", async () => {
+      const nam = startNamada(namRefs);
+
+      await importAccount(browser, page);
+      await openInterface(page);
+      await approveConnection(browser, page);
+
+      await transferFromTransparent(browser, page, {
+        targetAddress: shieldedAddress0,
+        amount: "1000",
+      });
+
+      await openInterface(page);
+      await transferFromShielded(browser, page, {
+        targetAddress: shieldedAddress1,
+        amount: "10",
         transferTimeout: 120000,
       });
 

@@ -13,4 +13,4 @@ do
 done < "$CONFIG"
 
 # Start the chain
-NAMADA_LOG=debug "${NAMADA_DIR}/namadan" --chain-id ${CHAIN_ID} --base-dir ${NAMADA_BASE_DIR}/validator ledger
+"${NAMADA_DIR}/namadan" --chain-id ${CHAIN_ID} --base-dir ${NAMADA_BASE_DIR}/validator ledger
