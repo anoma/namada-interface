@@ -37,10 +37,6 @@ const copyPatterns = [
     to: "./shared.namada.wasm",
   },
   {
-    from: "../../packages/shared/src/shared/mt/shared_bg.wasm",
-    to: "./shared-mt.namada.wasm",
-  },
-  {
     from: "../../packages/crypto/src/crypto/crypto_bg.wasm",
     to: "./crypto.namada.wasm",
   },

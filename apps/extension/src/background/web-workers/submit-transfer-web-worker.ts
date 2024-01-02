@@ -1,8 +1,8 @@
 import { fromBase64 } from "@cosmjs/encoding";
 import { deserialize, serialize } from "@dao-xyz/borsh";
 import { chains, defaultChainId } from "@namada/chains";
-import { init as initShared } from "@namada/shared/src/init-mt";
-import { Sdk } from "@namada/shared/src/shared/mt";
+import { Sdk } from "@namada/shared";
+import { initMulticore as initShared } from "@namada/shared/src/init";
 import { TxMsgValue } from "@namada/types";
 import {
   INIT_MSG,
@@ -13,7 +13,7 @@ import {
 } from "./types";
 
 (async function init() {
-  const sharedWasm = await fetch("shared-mt.namada.wasm").then((wasm) =>
+  const sharedWasm = await fetch("shared.namada.wasm").then((wasm) =>
     wasm.arrayBuffer()
   );
   await initShared(sharedWasm);
