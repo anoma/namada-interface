@@ -37,6 +37,10 @@ const copyPatterns = [
     to: "./shared.namada.wasm",
   },
   {
+    from: "../../packages/shared/src/shared/mt/shared_bg.wasm",
+    to: "./shared-mt.namada.wasm",
+  },
+  {
     from: "../../packages/crypto/src/crypto/crypto_bg.wasm",
     to: "./crypto.namada.wasm",
   },
@@ -136,7 +140,7 @@ if (NODE_ENV === "development") {
 
 module.exports = {
   mode: NODE_ENV,
-  target: "web",
+  target: "webworker",
   devtool:
     NODE_ENV === "development" && TARGET === "firefox"
       ? "eval-source-map"
