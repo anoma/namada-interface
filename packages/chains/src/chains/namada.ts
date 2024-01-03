@@ -2,9 +2,8 @@ import { BridgeType, Chain, Extensions } from "@namada/types";
 import { ProxyMappings } from "../types";
 
 const DEFAULT_ALIAS = "Namada Testnet";
-const DEFAULT_CHAIN_ID = "qc-testnet-5.1.025a61165acd05e";
-const DEFAULT_RPC =
-  "https://d3brk13lbhxfdb.cloudfront.net/qc-testnet-5.1.025a61165acd05e";
+const DEFAULT_CHAIN_ID = "public-testnet-15.0dacadb8d663";
+const DEFAULT_RPC = "https://proxy.heliax.click/public-testnet-15.0dacadb8d663";
 const DEFAULT_BECH32_PREFIX = "tnam";
 
 const {

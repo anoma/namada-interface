@@ -1,11 +1,9 @@
-import { fromBase64 } from "@cosmjs/encoding";
-import { deserialize } from "@dao-xyz/borsh";
-import BigNumber from "bignumber.js";
-import { v4 as uuid } from "uuid";
 import browser, { Windows } from "webextension-polyfill";
+import { fromBase64 } from "@cosmjs/encoding";
+import { v4 as uuid } from "uuid";
+import BigNumber from "bignumber.js";
+import { deserialize } from "@dao-xyz/borsh";
 
-import { SupportedTx, TxType } from "@namada/shared";
-import { KVStore } from "@namada/storage";
 import {
   AccountType,
   EthBridgeTransferMsgValue,
@@ -17,18 +15,20 @@ import {
   TransferMsgValue,
   TxMsgValue,
 } from "@namada/types";
+import { TxType, SupportedTx } from "@namada/shared";
+import { KVStore } from "@namada/storage";
 
-import { assertNever, paramsToUrl } from "@namada/utils";
 import { KeyRingService, TabStore } from "background/keyring";
 import { LedgerService } from "background/ledger";
+import { paramsToUrl, assertNever } from "@namada/utils";
 
-import { VaultService } from "background/vault";
 import { ApprovedOriginsStore, TxStore } from "./types";
 import {
-  APPROVED_ORIGINS_KEY,
   addApprovedOrigin,
   removeApprovedOrigin,
+  APPROVED_ORIGINS_KEY,
 } from "./utils";
+import { VaultService } from "background/vault";
 
 type GetParams = (
   specificMsg: Uint8Array,
@@ -72,18 +72,18 @@ export class ApprovalsService {
       txType === TxType.Bond
         ? ApprovalsService.getParamsBond
         : txType === TxType.Unbond
-          ? ApprovalsService.getParamsUnbond
-          : txType === TxType.Withdraw
-            ? ApprovalsService.getParamsWithdraw
-            : txType === TxType.Transfer
-              ? ApprovalsService.getParamsTransfer
-              : txType === TxType.IBCTransfer
-                ? ApprovalsService.getParamsIbcTransfer
-                : txType === TxType.EthBridgeTransfer
-                  ? ApprovalsService.getParamsEthBridgeTransfer
-                  : txType === TxType.VoteProposal
-                    ? ApprovalsService.getParamsVoteProposal
-                    : assertNever(txType);
+        ? ApprovalsService.getParamsUnbond
+        : txType === TxType.Withdraw
+        ? ApprovalsService.getParamsWithdraw
+        : txType === TxType.Transfer
+        ? ApprovalsService.getParamsTransfer
+        : txType === TxType.IBCTransfer
+        ? ApprovalsService.getParamsIbcTransfer
+        : txType === TxType.EthBridgeTransfer
+        ? ApprovalsService.getParamsEthBridgeTransfer
+        : txType === TxType.VoteProposal
+        ? ApprovalsService.getParamsVoteProposal
+        : assertNever(txType);
 
     const baseUrl = `${browser.runtime.getURL(
       "approvals.html"
@@ -251,18 +251,18 @@ export class ApprovalsService {
       txType === TxType.Bond
         ? this.keyRingService.submitBond
         : txType === TxType.Unbond
-          ? this.keyRingService.submitUnbond
-          : txType === TxType.Transfer
-            ? this.keyRingService.submitTransfer
-            : txType === TxType.IBCTransfer
-              ? this.keyRingService.submitIbcTransfer
-              : txType === TxType.EthBridgeTransfer
-                ? this.keyRingService.submitEthBridgeTransfer
-                : txType === TxType.Withdraw
-                  ? this.keyRingService.submitWithdraw
-                  : txType === TxType.VoteProposal
-                    ? this.keyRingService.submitVoteProposal
-                    : assertNever(txType);
+        ? this.keyRingService.submitUnbond
+        : txType === TxType.Transfer
+        ? this.keyRingService.submitTransfer
+        : txType === TxType.IBCTransfer
+        ? this.keyRingService.submitIbcTransfer
+        : txType === TxType.EthBridgeTransfer
+        ? this.keyRingService.submitEthBridgeTransfer
+        : txType === TxType.Withdraw
+        ? this.keyRingService.submitWithdraw
+        : txType === TxType.VoteProposal
+        ? this.keyRingService.submitVoteProposal
+        : assertNever(txType);
 
     await submitFn.call(this.keyRingService, specificMsg, txMsg, msgId);
 
@@ -270,11 +270,9 @@ export class ApprovalsService {
   }
 
   async approveConnection(
-    chainId: string,
     interfaceTabId: number,
     interfaceOrigin: string
   ): Promise<void> {
-    console.log("CHAIN ID", chainId);
     const baseUrl = `${browser.runtime.getURL(
       "approvals.html"
     )}#/approve-connection`;

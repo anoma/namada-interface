@@ -10,8 +10,8 @@ import { Signer } from "./Signer";
 export class InjectedNamada implements INamada {
   constructor(private readonly _version: string) {}
 
-  public async connect(chainId: string): Promise<void> {
-    return await InjectedProxy.requestMethod<string, void>("connect", chainId);
+  public async connect(): Promise<void> {
+    return await InjectedProxy.requestMethod<string, void>("connect");
   }
 
   public async accounts(): Promise<DerivedAccount[]> {

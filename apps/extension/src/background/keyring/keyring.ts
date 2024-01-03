@@ -63,6 +63,8 @@ export const KEYSTORE_KEY = "key-store";
 export const PARENT_ACCOUNT_ID_KEY = "parent-account-id";
 export const AUTHKEY_KEY = "auth-key-store";
 
+const { NAMADA_INTERFACE_NAMADA_URL: rpcEndpoint } = process.env;
+
 type DerivedAccountInfo = {
   address: string;
   id: string;
@@ -75,15 +77,31 @@ type DerivedAccountInfo = {
  */
 export class KeyRing {
   private _status: KeyRingStatus = KeyRingStatus.Empty;
+  private _sdk: Sdk | undefined = undefined;
+  private _query: Query | undefined = undefined;
 
   constructor(
     protected readonly vaultService: VaultService,
     protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly extensionStore: KVStore<number>,
-    protected readonly sdk: Sdk,
-    protected readonly query: Query,
     protected readonly cryptoMemory: WebAssembly.Memory
   ) {}
+
+  private async _getSdk(): Promise<Sdk> {
+    if (!this._sdk) {
+      // TODO: Use stored RPC instead of default:
+      this._sdk = new Sdk(rpcEndpoint || "");
+    }
+    return this._sdk;
+  }
+
+  private async _getQuery(): Promise<Query> {
+    if (!this._query) {
+      // TODO: Use stored RPC instead of default:
+      this._query = new Query(rpcEndpoint || "");
+    }
+    return this._query;
+  }
 
   public get status(): KeyRingStatus {
     return this._status;
@@ -652,12 +670,12 @@ export class KeyRing {
     try {
       const { source } = deserialize(Buffer.from(bondMsg), SubmitBondMsgValue);
       const signingKey = await this.getSigningKey(source);
+      const sdk = await this._getSdk();
+      await sdk.reveal_pk(signingKey, txMsg);
 
-      await this.sdk.reveal_pk(signingKey, txMsg);
-
-      const builtTx = await this.sdk.build_bond(bondMsg, txMsg);
-      const txBytes = await this.sdk.sign_tx(builtTx, txMsg, signingKey);
-      await this.sdk.process_tx(txBytes, txMsg);
+      const builtTx = await sdk.build_bond(bondMsg, txMsg);
+      const txBytes = await sdk.sign_tx(builtTx, txMsg, signingKey);
+      await sdk.process_tx(txBytes, txMsg);
     } catch (e) {
       throw new Error(`Could not submit bond tx: ${e}`);
     }
@@ -673,6 +691,7 @@ export class KeyRing {
 
   async submitUnbond(unbondMsg: Uint8Array, txMsg: Uint8Array): Promise<void> {
     await this.vaultService.assertIsUnlocked();
+    const sdk = await this._getSdk();
     try {
       const { source } = deserialize(
         Buffer.from(unbondMsg),
@@ -680,11 +699,11 @@ export class KeyRing {
       );
       const signingKey = await this.getSigningKey(source);
 
-      await this.sdk.reveal_pk(signingKey, txMsg);
+      await sdk.reveal_pk(signingKey, txMsg);
 
-      const builtTx = await this.sdk.build_unbond(unbondMsg, txMsg);
-      const txBytes = await this.sdk.sign_tx(builtTx, txMsg, signingKey);
-      await this.sdk.process_tx(txBytes, txMsg);
+      const builtTx = await sdk.build_unbond(unbondMsg, txMsg);
+      const txBytes = await sdk.sign_tx(builtTx, txMsg, signingKey);
+      await sdk.process_tx(txBytes, txMsg);
     } catch (e) {
       throw new Error(`Could not submit unbond tx: ${e}`);
     }
@@ -695,6 +714,7 @@ export class KeyRing {
     txMsg: Uint8Array
   ): Promise<void> {
     await this.vaultService.assertIsUnlocked();
+    const sdk = await this._getSdk();
     try {
       const { source } = deserialize(
         Buffer.from(withdrawMsg),
@@ -702,11 +722,11 @@ export class KeyRing {
       );
       const signingKey = await this.getSigningKey(source);
 
-      await this.sdk.reveal_pk(signingKey, txMsg);
+      await sdk.reveal_pk(signingKey, txMsg);
 
-      const builtTx = await this.sdk.build_withdraw(withdrawMsg, txMsg);
-      const txBytes = await this.sdk.sign_tx(builtTx, txMsg, signingKey);
-      await this.sdk.process_tx(txBytes, txMsg);
+      const builtTx = await sdk.build_withdraw(withdrawMsg, txMsg);
+      const txBytes = await sdk.sign_tx(builtTx, txMsg, signingKey);
+      await sdk.process_tx(txBytes, txMsg);
     } catch (e) {
       throw new Error(`Could not submit withdraw tx: ${e}`);
     }
@@ -717,6 +737,7 @@ export class KeyRing {
     txMsg: Uint8Array
   ): Promise<void> {
     await this.vaultService.assertIsUnlocked();
+    const sdk = await this._getSdk();
     try {
       const { signer } = deserialize(
         Buffer.from(voteProposalMsg),
@@ -724,15 +745,12 @@ export class KeyRing {
       );
       const signingKey = await this.getSigningKey(signer);
 
-      await this.sdk.reveal_pk(signingKey, txMsg);
+      await sdk.reveal_pk(signingKey, txMsg);
 
-      const builtTx = await this.sdk.build_vote_proposal(
-        voteProposalMsg,
-        txMsg
-      );
+      const builtTx = await sdk.build_vote_proposal(voteProposalMsg, txMsg);
 
-      const txBytes = await this.sdk.sign_tx(builtTx, txMsg, signingKey);
-      await this.sdk.process_tx(txBytes, txMsg);
+      const txBytes = await sdk.sign_tx(builtTx, txMsg, signingKey);
+      await sdk.process_tx(txBytes, txMsg);
     } catch (e) {
       throw new Error(`Could not submit vote proposal tx: ${e}`);
     }
@@ -775,6 +793,7 @@ export class KeyRing {
     txMsg: Uint8Array
   ): Promise<void> {
     await this.vaultService.assertIsUnlocked();
+    const sdk = await this._getSdk();
     try {
       const { source } = deserialize(
         Buffer.from(ibcTransferMsg),
@@ -782,11 +801,11 @@ export class KeyRing {
       );
       const signingKey = await this.getSigningKey(source);
 
-      await this.sdk.reveal_pk(signingKey, txMsg);
+      await sdk.reveal_pk(signingKey, txMsg);
 
-      const builtTx = await this.sdk.build_ibc_transfer(ibcTransferMsg, txMsg);
-      const txBytes = await this.sdk.sign_tx(builtTx, txMsg, signingKey);
-      await this.sdk.process_tx(txBytes, txMsg);
+      const builtTx = await sdk.build_ibc_transfer(ibcTransferMsg, txMsg);
+      const txBytes = await sdk.sign_tx(builtTx, txMsg, signingKey);
+      await sdk.process_tx(txBytes, txMsg);
     } catch (e) {
       throw new Error(`Could not submit ibc transfer tx: ${e}`);
     }
@@ -797,6 +816,7 @@ export class KeyRing {
     txMsg: Uint8Array
   ): Promise<void> {
     await this.vaultService.assertIsUnlocked();
+    const sdk = await this._getSdk();
     try {
       const { sender } = deserialize(
         Buffer.from(ethBridgeTransferMsg),
@@ -804,14 +824,14 @@ export class KeyRing {
       );
       const signingKey = await this.getSigningKey(sender);
 
-      await this.sdk.reveal_pk(signingKey, txMsg);
+      await sdk.reveal_pk(signingKey, txMsg);
 
-      const builtTx = await this.sdk.build_eth_bridge_transfer(
+      const builtTx = await sdk.build_eth_bridge_transfer(
         ethBridgeTransferMsg,
         txMsg
       );
-      const txBytes = await this.sdk.sign_tx(builtTx, txMsg, signingKey);
-      await this.sdk.process_tx(txBytes, txMsg);
+      const txBytes = await sdk.sign_tx(builtTx, txMsg, signingKey);
+      await sdk.process_tx(txBytes, txMsg);
     } catch (e) {
       throw new Error(`Could not submit submit_eth_bridge_transfer tx: ${e}`);
     }
@@ -857,12 +877,13 @@ export class KeyRing {
   async queryBalances(
     owner: string
   ): Promise<{ token: string; amount: string }[]> {
+    const query = await this._getQuery();
     const tokenAddresses: string[] = Object.values(Tokens)
       .filter((token) => token.address)
       .map(({ address }) => address);
 
     try {
-      return (await this.query.query_balance(owner, tokenAddresses)).map(
+      return (await query.query_balance(owner, tokenAddresses)).map(
         ([token, amount]: [string, string]) => {
           return {
             token,
@@ -874,5 +895,10 @@ export class KeyRing {
       console.error(e);
       return [];
     }
+  }
+
+  async queryPublicKey(address: string): Promise<string | undefined> {
+    const query = await this._getQuery();
+    return await query.query_public_key(address);
   }
 }

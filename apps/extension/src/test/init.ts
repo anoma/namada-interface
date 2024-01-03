@@ -1,4 +1,4 @@
-import { Query, Sdk } from "@namada/shared";
+import { Sdk } from "@namada/shared";
 import { KVStore } from "@namada/storage";
 import { Chain } from "@namada/types";
 
@@ -101,7 +101,6 @@ export const init = async (): Promise<{
   );
 
   const sdk = new Sdk("");
-  const query = new Query("");
 
   const vaultService = new VaultService(
     iDBStore as KVStore<KeyStore[]>,
@@ -114,8 +113,6 @@ export const init = async (): Promise<{
     utilityStore,
     connectedTabsStore,
     extStore,
-    sdk,
-    query,
     cryptoMemory,
     requester,
     broadcaster

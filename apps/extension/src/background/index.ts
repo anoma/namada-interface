@@ -1,6 +1,6 @@
 import { ProxyMappings } from "@namada/chains";
 import { init as initCrypto } from "@namada/crypto/src/init";
-import { Query, Sdk } from "@namada/shared";
+import { Sdk } from "@namada/shared";
 import { init as initShared } from "@namada/shared/src/init";
 import {
   ExtensionKVStore,
@@ -21,6 +21,7 @@ import {
 } from "extension";
 import { KVPrefix, Ports } from "router";
 import { ApprovalsService, init as initApprovals } from "./approvals";
+import { ChainsService, init as initChains } from "./chains";
 import { KeyRingService, UtilityStore, init as initKeyRing } from "./keyring";
 import { LedgerService, init as initLedger } from "./ledger";
 import { VaultService, init as initVault } from "./vault";
@@ -77,7 +78,6 @@ const init = new Promise<void>(async (resolve) => {
   );
   await initShared(sharedWasm);
   const sdk = new Sdk(NamadaRpcEndpoint);
-  const query = new Query(NamadaRpcEndpoint);
 
   const routerId = await getNamadaRouterId(extensionStore);
   const requester = new ExtensionRequester(messenger, routerId);
@@ -89,13 +89,12 @@ const init = new Promise<void>(async (resolve) => {
     cryptoMemory,
     broadcaster
   );
+  const chainsService = new ChainsService(store);
   const keyRingService = new KeyRingService(
     vaultService,
     utilityStore,
     connectedTabsStore,
     extensionStore,
-    sdk,
-    query,
     cryptoMemory,
     requester,
     broadcaster
@@ -121,10 +120,10 @@ const init = new Promise<void>(async (resolve) => {
 
   // Initialize messages and handlers
   initApprovals(router, approvalsService);
+  initChains(router, chainsService);
   initKeyRing(router, keyRingService);
   initLedger(router, ledgerService);
   initVault(router, vaultService);
-
   resolve();
 });
 

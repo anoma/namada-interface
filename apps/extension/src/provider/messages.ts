@@ -26,7 +26,6 @@ enum MessageType {
   EncodeRevealPublicKey = "encode-reveal-public-key",
   GetChain = "get-chain",
   GetChains = "get-chains",
-  SuggestChain = "suggest-chain",
   FetchAndStoreMaspParams = "fetch-and-store-masp-params",
   HasMaspParams = "has-masp-params",
   ApproveEthBridgeTransfer = "approve-eth-bridge-transfer",
@@ -42,15 +41,12 @@ export class ApproveConnectInterfaceMsg extends Message<void> {
     return MessageType.ApproveConnectInterface;
   }
 
-  constructor(public readonly chainId: string) {
+  constructor() {
     super();
   }
 
   validate(): void {
-    if (!this.chainId) {
-      console.error("No chain ID in ApproveConnectInterfaceMsg!");
-      // throw new Error("Chain ID was not provided and is required!");
-    }
+    return;
   }
 
   route(): string {
@@ -59,30 +55,6 @@ export class ApproveConnectInterfaceMsg extends Message<void> {
 
   type(): string {
     return ApproveConnectInterfaceMsg.type();
-  }
-}
-
-export class SuggestChainMsg extends Message<void> {
-  public static type(): MessageType {
-    return MessageType.SuggestChain;
-  }
-
-  constructor(public readonly chain: Chain) {
-    super();
-  }
-
-  validate(): void {
-    if (!this.chain) {
-      throw new Error("chain config not set");
-    }
-  }
-
-  route(): string {
-    return Route.Chains;
-  }
-
-  type(): MessageType {
-    return SuggestChainMsg.type();
   }
 }
 

@@ -7,9 +7,9 @@ import {
 } from "react";
 
 import { chains } from "@namada/chains";
-import { useUntil } from "@namada/hooks";
-import { Keplr, Metamask, Namada } from "@namada/integrations";
+import { Namada, Keplr, Metamask } from "@namada/integrations";
 import { Chain, ExtensionKey } from "@namada/types";
+import { useUntil } from "@namada/hooks";
 
 type Integration = typeof Namada | typeof Keplr | typeof Metamask;
 type ChainId = string;
@@ -66,7 +66,7 @@ export const useIntegrationConnection = <TSuccess, TFail>(
 ): [
   InstanceType<Integration>,
   boolean,
-  ExtensionConnection<TSuccess, TFail>,
+  ExtensionConnection<TSuccess, TFail>
 ] => {
   const integration = useIntegration(chainId);
   const [isConnectingToExtension, setIsConnectingToExtension] = useState(false);
@@ -76,7 +76,7 @@ export const useIntegrationConnection = <TSuccess, TFail>(
       setIsConnectingToExtension(true);
       try {
         if (integration?.detect()) {
-          await integration?.connect(chainId);
+          await integration?.connect();
           await onSuccess();
         }
       } catch (e) {
