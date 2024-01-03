@@ -1,13 +1,13 @@
-import { Namada as INamada, DerivedAccount, TxMsgProps } from "@namada/types";
-import { Ports, MessageRequester } from "router";
+import { DerivedAccount, Namada as INamada, TxMsgProps } from "@namada/types";
+import { MessageRequester, Ports } from "router";
 
 import {
-  ApproveTxMsg,
   ApproveConnectInterfaceMsg,
-  QueryAccountsMsg,
+  ApproveTxMsg,
+  CheckDurabilityMsg,
   FetchAndStoreMaspParamsMsg,
   HasMaspParamsMsg,
-  CheckDurabilityMsg,
+  QueryAccountsMsg,
   QueryBalancesMsg,
   QueryDefaultAccountMsg,
 } from "./messages";
@@ -18,14 +18,15 @@ export class Namada implements INamada {
     protected readonly requester?: MessageRequester
   ) {}
 
-  public async connect(_chainId?: string): Promise<void> {
+  public async connect(chainId: string): Promise<void> {
     return await this.requester?.sendMessage(
       Ports.Background,
-      new ApproveConnectInterfaceMsg()
+      new ApproveConnectInterfaceMsg(chainId)
     );
   }
 
   public async accounts(
+    // TODO: This argument should be removed in the future!
     _chainId?: string
   ): Promise<DerivedAccount[] | undefined> {
     return await this.requester?.sendMessage(
@@ -35,6 +36,7 @@ export class Namada implements INamada {
   }
 
   public async defaultAccount(
+    // TODO: This argument should be removed in the future!
     _chainId?: string
   ): Promise<DerivedAccount | undefined> {
     return await this.requester?.sendMessage(

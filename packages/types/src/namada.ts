@@ -11,7 +11,7 @@ export type TxMsgProps = {
 };
 
 export interface Namada {
-  connect(chainId?: string): Promise<void>;
+  connect(chainId: string): Promise<void>;
   accounts(chainId?: string): Promise<DerivedAccount[] | undefined>;
   defaultAccount(chainId?: string): Promise<DerivedAccount | undefined>;
   balances(

@@ -1,13 +1,13 @@
 import {
   Account,
-  Namada as INamada,
-  Chain,
-  Signer,
-  Tokens,
-  TokenType,
-  TokenBalance,
-  WindowWithNamada,
   AccountType,
+  Chain,
+  Namada as INamada,
+  Signer,
+  TokenBalance,
+  TokenType,
+  Tokens,
+  WindowWithNamada,
 } from "@namada/types";
 import BigNumber from "bignumber.js";
 
@@ -33,7 +33,7 @@ export default class Namada implements Integration<Account, Signer> {
     return !!this._namada;
   }
 
-  public async connect(chainId?: string): Promise<void> {
+  public async connect(chainId: string): Promise<void> {
     await this._namada?.connect(chainId);
   }
 
