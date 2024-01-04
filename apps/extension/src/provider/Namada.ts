@@ -1,4 +1,9 @@
-import { DerivedAccount, Namada as INamada, TxMsgProps } from "@namada/types";
+import {
+  Chain,
+  DerivedAccount,
+  Namada as INamada,
+  TxMsgProps,
+} from "@namada/types";
 import { MessageRequester, Ports } from "router";
 
 import {
@@ -6,6 +11,7 @@ import {
   ApproveTxMsg,
   CheckDurabilityMsg,
   FetchAndStoreMaspParamsMsg,
+  GetChainMsg,
   HasMaspParamsMsg,
   QueryAccountsMsg,
   QueryBalancesMsg,
@@ -49,6 +55,13 @@ export class Namada implements INamada {
     return await this.requester?.sendMessage(
       Ports.Background,
       new FetchAndStoreMaspParamsMsg()
+    );
+  }
+
+  public async getChain(): Promise<Chain | undefined> {
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new GetChainMsg()
     );
   }
 

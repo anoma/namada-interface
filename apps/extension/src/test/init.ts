@@ -1,4 +1,3 @@
-import { Sdk } from "@namada/shared";
 import { KVStore } from "@namada/storage";
 import { Chain } from "@namada/types";
 
@@ -33,6 +32,7 @@ import {
 } from "../background/approvals";
 
 import { LedgerService } from "background/ledger";
+import { SdkService } from "background/sdk";
 import { Namada } from "provider";
 
 // __wasm is not exported in crypto.d.ts so need to use require instead of import
@@ -42,7 +42,7 @@ const cryptoMemory = require("@namada/crypto").__wasm.memory;
 export class KVStoreMock<T> implements KVStore<T> {
   private storage: { [key: string]: T | null } = {};
 
-  constructor(readonly _prefix: string) {}
+  constructor(readonly _prefix: string) { }
 
   get<U extends T>(key: string): Promise<U | undefined> {
     return new Promise((resolve) => {
@@ -86,6 +86,7 @@ export const init = async (): Promise<{
   const namadaRouterId = await getNamadaRouterId(extStore);
   const requester = new ExtensionRequester(messenger, namadaRouterId);
   const txStore = new KVStoreMock<TxStore>(KVPrefix.LocalStorage);
+  const chainStore = new KVStoreMock<Chain>(KVPrefix.LocalStorage);
   const broadcaster = new ExtensionBroadcaster(connectedTabsStore, requester);
 
   const router = new ExtensionRouter(
@@ -100,16 +101,16 @@ export const init = async (): Promise<{
     extStore
   );
 
-  const sdk = new Sdk("");
-
   const vaultService = new VaultService(
     iDBStore as KVStore<KeyStore[]>,
     sessionStore,
     cryptoMemory
   );
+  const sdkService = new SdkService(chainStore);
 
   const keyRingService = new KeyRingService(
     vaultService,
+    sdkService,
     utilityStore,
     connectedTabsStore,
     extStore,
@@ -120,11 +121,11 @@ export const init = async (): Promise<{
 
   const ledgerService = new LedgerService(
     keyRingService,
+    sdkService,
     iDBStore as KVStore<AccountStore[]>,
     connectedTabsStore,
     txStore,
     revealedPKStore,
-    sdk,
     requester,
     broadcaster
   );

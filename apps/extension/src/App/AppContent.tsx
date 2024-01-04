@@ -19,8 +19,7 @@ import {
   ViewMnemonic,
 } from "./Accounts";
 import { ParentAccounts } from "./Accounts/ParentAccounts";
-import { ConnectedSites } from "./ConnectedSites";
-import { ChangePassword } from "./Settings/ChangePassword";
+import { ChangePassword, ConnectedSites, Network } from "./Settings";
 import { Setup } from "./Setup";
 import routes from "./routes";
 import { LoadingStatus } from "./types";
@@ -134,6 +133,7 @@ export const AppContent = (): JSX.Element => {
             />
           }
         />
+        <Route path={routes.network()} element={<Network />} />
         {/* Routes that depend on a parent account existing in storage */}
         {accounts.length > 0 && (
           <>

@@ -138,7 +138,7 @@ export const AccountOverview = (): JSX.Element => {
                 }
                 style={
                   currentExtensionAttachStatus === "pending" ||
-                    isConnectingToExtension
+                  isConnectingToExtension
                     ? { color: "transparent" }
                     : {}
                 }

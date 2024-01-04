@@ -1,4 +1,5 @@
 import {
+  Chain,
   DerivedAccount,
   Namada as INamada,
   Signer as ISigner,
@@ -33,6 +34,10 @@ export class InjectedNamada implements INamada {
       string,
       { token: string; amount: string }[]
     >("balances", owner);
+  }
+
+  public async getChain(): Promise<Chain | undefined> {
+    return await InjectedProxy.requestMethod<void, Chain>("getChain");
   }
 
   public getSigner(): ISigner | undefined {

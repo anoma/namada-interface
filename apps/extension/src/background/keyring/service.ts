@@ -12,6 +12,7 @@ import {
   OFFSCREEN_TARGET,
   SUBMIT_TRANSFER_MSG_TYPE,
 } from "background/offscreen";
+import { SdkService } from "background/sdk/service";
 import { VaultService } from "background/vault";
 import { init as initSubmitTransferWebWorker } from "background/web-workers";
 import {
@@ -38,6 +39,7 @@ export class KeyRingService {
 
   constructor(
     protected readonly vaultService: VaultService,
+    protected readonly sdkService: SdkService,
     protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
     protected readonly extensionStore: KVStore<number>,
@@ -47,6 +49,7 @@ export class KeyRingService {
   ) {
     this._keyRing = new KeyRing(
       vaultService,
+      sdkService,
       utilityStore,
       extensionStore,
       cryptoMemory

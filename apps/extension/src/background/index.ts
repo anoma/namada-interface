@@ -24,6 +24,7 @@ import { ApprovalsService, init as initApprovals } from "./approvals";
 import { ChainsService, init as initChains } from "./chains";
 import { KeyRingService, UtilityStore, init as initKeyRing } from "./keyring";
 import { LedgerService, init as initLedger } from "./ledger";
+import { SdkService } from "./sdk/service";
 import { VaultService, init as initVault } from "./vault";
 
 const store = new IndexedDBKVStore(KVPrefix.IndexedDB);
@@ -39,6 +40,10 @@ const connectedTabsStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
   set: browser.storage.local.set,
 });
 const approvedOriginsStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
+  get: browser.storage.local.get,
+  set: browser.storage.local.set,
+});
+const chainStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
   get: browser.storage.local.get,
   set: browser.storage.local.set,
 });
@@ -89,9 +94,11 @@ const init = new Promise<void>(async (resolve) => {
     cryptoMemory,
     broadcaster
   );
-  const chainsService = new ChainsService(store);
+  const sdkService = new SdkService(chainStore);
+  const chainsService = new ChainsService(chainStore);
   const keyRingService = new KeyRingService(
     vaultService,
+    sdkService,
     utilityStore,
     connectedTabsStore,
     extensionStore,
@@ -101,11 +108,11 @@ const init = new Promise<void>(async (resolve) => {
   );
   const ledgerService = new LedgerService(
     keyRingService,
+    sdkService,
     store,
     connectedTabsStore,
     txStore,
     revealedPKStore,
-    sdk,
     requester,
     broadcaster
   );

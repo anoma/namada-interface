@@ -5,7 +5,7 @@ export default {
   setup: (): string => `/setup`,
   changePassword: (): string => `/change-password`,
   connectedSites: (): string => `/connected-sites`,
-
+  network: (): string => `/network`,
   viewAccountList: () => `/accounts/view`,
   viewAccountMnemonic: (accountId: string = ":accountId") =>
     `/accounts/mnemonic/${accountId}`,

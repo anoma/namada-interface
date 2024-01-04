@@ -101,6 +101,10 @@ class Keplr implements Integration<Account, OfflineSigner> {
     return Promise.reject(KEPLR_NOT_FOUND);
   }
 
+  public async getChain(): Promise<Chain> {
+    return this.chain;
+  }
+
   /**
    * Get key from Keplr for current chain
    * @returns {Promise<boolean>}

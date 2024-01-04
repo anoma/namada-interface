@@ -72,6 +72,12 @@ export const AppHeaderNavigation = ({
             >
               Connected Sites
             </li>
+            <li
+              className={listItemClassList}
+              onClick={() => goTo(routes.network)}
+            >
+              Network
+            </li>
             <li className={listItemClassList} onClick={onLock}>
               Lock Wallet
             </li>

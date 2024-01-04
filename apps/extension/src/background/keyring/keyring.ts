@@ -16,8 +16,6 @@ import {
   ExtendedSpendingKey,
   ExtendedViewingKey,
   PaymentAddress,
-  Query,
-  Sdk,
 } from "@namada/shared";
 import { KVStore } from "@namada/storage";
 import {
@@ -33,6 +31,12 @@ import {
   Tokens,
   TransferMsgValue,
 } from "@namada/types";
+import {
+  Result,
+  assertNever,
+  makeBip44PathArray,
+  truncateInMiddle,
+} from "@namada/utils";
 
 import {
   AccountSecret,
@@ -46,13 +50,7 @@ import {
   UtilityStore,
 } from "./types";
 
-import {
-  Result,
-  assertNever,
-  makeBip44PathArray,
-  truncateInMiddle,
-} from "@namada/utils";
-
+import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
 import { generateId } from "utils";
 
@@ -62,8 +60,6 @@ const UUID_NAMESPACE = "9bfceade-37fe-11ed-acc0-a3da3461b38c";
 export const KEYSTORE_KEY = "key-store";
 export const PARENT_ACCOUNT_ID_KEY = "parent-account-id";
 export const AUTHKEY_KEY = "auth-key-store";
-
-const { NAMADA_INTERFACE_NAMADA_URL: rpcEndpoint } = process.env;
 
 type DerivedAccountInfo = {
   address: string;
@@ -77,31 +73,14 @@ type DerivedAccountInfo = {
  */
 export class KeyRing {
   private _status: KeyRingStatus = KeyRingStatus.Empty;
-  private _sdk: Sdk | undefined = undefined;
-  private _query: Query | undefined = undefined;
 
   constructor(
     protected readonly vaultService: VaultService,
+    protected readonly sdkService: SdkService,
     protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly extensionStore: KVStore<number>,
     protected readonly cryptoMemory: WebAssembly.Memory
-  ) {}
-
-  private async _getSdk(): Promise<Sdk> {
-    if (!this._sdk) {
-      // TODO: Use stored RPC instead of default:
-      this._sdk = new Sdk(rpcEndpoint || "");
-    }
-    return this._sdk;
-  }
-
-  private async _getQuery(): Promise<Query> {
-    if (!this._query) {
-      // TODO: Use stored RPC instead of default:
-      this._query = new Query(rpcEndpoint || "");
-    }
-    return this._query;
-  }
+  ) { }
 
   public get status(): KeyRingStatus {
     return this._status;
@@ -670,7 +649,7 @@ export class KeyRing {
     try {
       const { source } = deserialize(Buffer.from(bondMsg), SubmitBondMsgValue);
       const signingKey = await this.getSigningKey(source);
-      const sdk = await this._getSdk();
+      const sdk = await this.sdkService.getSdk();
       await sdk.reveal_pk(signingKey, txMsg);
 
       const builtTx = await sdk.build_bond(bondMsg, txMsg);
@@ -691,7 +670,7 @@ export class KeyRing {
 
   async submitUnbond(unbondMsg: Uint8Array, txMsg: Uint8Array): Promise<void> {
     await this.vaultService.assertIsUnlocked();
-    const sdk = await this._getSdk();
+    const sdk = await this.sdkService.getSdk();
     try {
       const { source } = deserialize(
         Buffer.from(unbondMsg),
@@ -714,7 +693,7 @@ export class KeyRing {
     txMsg: Uint8Array
   ): Promise<void> {
     await this.vaultService.assertIsUnlocked();
-    const sdk = await this._getSdk();
+    const sdk = await this.sdkService.getSdk();
     try {
       const { source } = deserialize(
         Buffer.from(withdrawMsg),
@@ -737,7 +716,7 @@ export class KeyRing {
     txMsg: Uint8Array
   ): Promise<void> {
     await this.vaultService.assertIsUnlocked();
-    const sdk = await this._getSdk();
+    const sdk = await this.sdkService.getSdk();
     try {
       const { signer } = deserialize(
         Buffer.from(voteProposalMsg),
@@ -793,7 +772,7 @@ export class KeyRing {
     txMsg: Uint8Array
   ): Promise<void> {
     await this.vaultService.assertIsUnlocked();
-    const sdk = await this._getSdk();
+    const sdk = await this.sdkService.getSdk();
     try {
       const { source } = deserialize(
         Buffer.from(ibcTransferMsg),
@@ -816,7 +795,7 @@ export class KeyRing {
     txMsg: Uint8Array
   ): Promise<void> {
     await this.vaultService.assertIsUnlocked();
-    const sdk = await this._getSdk();
+    const sdk = await this.sdkService.getSdk();
     try {
       const { sender } = deserialize(
         Buffer.from(ethBridgeTransferMsg),
@@ -877,7 +856,7 @@ export class KeyRing {
   async queryBalances(
     owner: string
   ): Promise<{ token: string; amount: string }[]> {
-    const query = await this._getQuery();
+    const query = await this.sdkService.getQuery();
     const tokenAddresses: string[] = Object.values(Tokens)
       .filter((token) => token.address)
       .map(({ address }) => address);
@@ -898,7 +877,7 @@ export class KeyRing {
   }
 
   async queryPublicKey(address: string): Promise<string | undefined> {
-    const query = await this._getQuery();
+    const query = await this.sdkService.getQuery();
     return await query.query_public_key(address);
   }
 }
