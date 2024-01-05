@@ -16,7 +16,7 @@ export const closeCurrentTab = async (): Promise<void> => {
 };
 
 /**
- * Construct unique uuid (v5), passing in an arbitray number of arguments.
+ * Construct unique uuid (v5), passing in an arbitrary number of arguments.
  * This could be a unique parameter of the object receiving the id,
  * or an index based on the number of existing objects in a hierarchy.
  */

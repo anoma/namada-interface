@@ -6,7 +6,7 @@ export * from "./shared/shared";
 export * from "./types";
 
 type TimeoutOpts = {
-  // Timeout in miliseconds
+  // Timeout in milliseconds
   timeout?: number;
   // Error message
   error?: (timeout: number) => string;

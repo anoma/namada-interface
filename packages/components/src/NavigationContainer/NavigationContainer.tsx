@@ -13,7 +13,7 @@ type NavigationContainerProps = {
 };
 
 /**
- * This is a generic compoment that has only one purpose, to be the header/navigation row in the
+ * This is a generic component that has only one purpose, to be the header/navigation row in the
  * container displaying the page content. Likely we should include this with a new component that
  * packs more functionality once the designs are more final:
  *   * this header

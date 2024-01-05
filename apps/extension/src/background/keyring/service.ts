@@ -298,7 +298,7 @@ export class KeyRingService {
    * @param {string} txMsg - borsh serialized transfer transaction
    * @param {string} msgId - id of a tx if originating from approval process
    * @throws {Error} - if unable to submit transfer
-   * @returns {Promise<void>} - resolves when transfer is successfull (resolves for failed VPs)
+   * @returns {Promise<void>} - resolves when transfer is successful (resolves for failed VPs)
    */
   async submitTransfer(
     transferMsg: string,

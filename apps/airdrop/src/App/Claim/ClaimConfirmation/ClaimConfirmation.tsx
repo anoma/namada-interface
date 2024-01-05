@@ -127,7 +127,7 @@ export const ClaimConfirmation: React.FC = () => {
       toast(ToastMessage.SOMETHING_WENT_WRONG_WITH_ERR(e));
       return;
     }
-    //Check if we have accounts - needed becasue defaultAccount returns nothing(swallows processing)
+    //Check if we have accounts - needed because defaultAccount returns nothing(swallows processing)
     const accounts = await namada.accounts(namadaChainId);
     if (accounts?.length === 0) {
       toast(`Please create an account in the Namada extension first.`);

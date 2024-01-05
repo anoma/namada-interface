@@ -88,7 +88,7 @@ impl Client for HttpClient {
     ///
     /// * `path` - path of the resource in the storage.
     /// * `data` - query params in the form of bytearray.
-    /// * `height` - height of the specific blockchain block that we are quering information from.
+    /// * `height` - height of the specific blockchain block that we are querying information from.
     ///              0 means the latest block.
     /// * `prove` - include proofs of the transactions inclusion in the block
     async fn request(
@@ -124,11 +124,11 @@ impl Client for HttpClient {
         }
     }
 
-    /// Performas request using fetch API. Maps returned JS object to the `RpcResponse` struct.
+    /// Performs request using fetch API. Maps returned JS object to the `RpcResponse` struct.
     ///
     /// # Arguments
     ///
-    /// * `request` - request type to be performed. Check `Client` trait for avaialble requests.
+    /// * `request` - request type to be performed. Check `Client` trait for available requests.
     async fn perform<R>(&self, request: R) -> Result<R::Output, TendermintRpcError>
     where
         R: SimpleRequest,

@@ -22,7 +22,7 @@ More information on the various aspects of the extension can be found at the fol
 - [Architecture](./architecture.md)
 - [Integration with web applications](./integration.md)
 - [Interfaces](./interface.md)
-- [Key Managment](./key-management.md)
+- [Key Management](./key-management.md)
 - [Security](./security.md)
 - [Session management](./session.md)
 - [Storage](./storage.md)

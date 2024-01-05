@@ -115,7 +115,7 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
     // Open ledger transport
     const txLabel = TxTypeLabel[txType as TxType];
 
-    // Constuct tx bytes from SDK
+    // Construct tx bytes from SDK
     if (!txType) {
       throw new Error("txType was not provided!");
     }

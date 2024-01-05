@@ -30,7 +30,7 @@ This package is simply various React components that are shared between `namada-
 The cryptography functions used by the browser extension are defined here within the Rust source. This package includes the build necessary to initialize
 and run the Wasm output in a web application.
 
-Aside from `wasm-bindgen` bindings for Rust crypography libraries, this package includes the following files:
+Aside from `wasm-bindgen` bindings for Rust cryptography libraries, this package includes the following files:
 
 - `bip32.rs` - Exports functionality for key-derivation using BIP32 & BIP44 derivation paths
 - `bip39.rs` - Exports support for generating Mnemonic Seeds
@@ -38,14 +38,14 @@ Aside from `wasm-bindgen` bindings for Rust crypography libraries, this package 
 
 ## integrations
 
-This package introduces an `Intergration` interface, which wraps the APIs of various extensions to expose a
+This package introduces an `Integration` interface, which wraps the APIs of various extensions to expose a
 single API to the interface. Currently, this supports integrations with Keplr, Metamask, and the Namada browser extension.
 
 ## rpc
 
 The `rpc` package is primarily a legacy package that extended the `HttpClient` and `WebsocketClient` from `cosmjs`, adding the necessary
 queries for interacting with Namada. This may be removed in the future, as we are now using an RPC client built in Rust. For submitting IBC transactions
-to a Cosmos-based source chain, we can simply re-use the RPC client from `cosmjs`.
+to a Cosmos-based source chain, we can simply reuse the RPC client from `cosmjs`.
 
 ## shared
 

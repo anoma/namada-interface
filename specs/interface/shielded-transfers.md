@@ -54,7 +54,7 @@ This process can be further optimized:
 
 The feature set and logic between the CLI and the web client should be the same. There are however a few differences in how they work, they are listed here:
 
-- When optimizing the shielded interaction. We need to fetch and persist the existing shielded transfers in the client. For this the CLI is using the file system of the operating system while the web client will either have to store that data directly to the persistance mechanism of the browser (localhost or indexedDB) or to those through a virtual filesystem that seems compliant to WASI interface.
+- When optimizing the shielded interaction. We need to fetch and persist the existing shielded transfers in the client. For this the CLI is using the file system of the operating system while the web client will either have to store that data directly to the persistence mechanism of the browser (localhost or indexedDB) or to those through a virtual filesystem that seems compliant to WASI interface.
 - In the current state the network calls will have to happen from the TypeScript code outside of the Rust and WASM. So any function calls to the shielded transfer related code in Rust must accept arrays of byte arrays that contains the newly fetched shielded transfers.
 - There are limitations to the system calls when querying the CPU core count in the web client, so the sub dependencies of MASP using Rayon will be limited.
 

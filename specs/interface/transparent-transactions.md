@@ -130,7 +130,7 @@ transaction::WrapperTx::new(
 )
 ```
 
-**NOTE** Here we can directly invoke `WrapperTx::new`, so we only need to concern ourselves with convering the JavaScript-provided values into the appropriate types.
+**NOTE** Here we can directly invoke `WrapperTx::new`, so we only need to concern ourselves with converting the JavaScript-provided values into the appropriate types.
 
 _In namada CLI:_
 https://github.com/anoma/namada/blob/f6e78278608aaef253617885bb7ef95a50057268/apps/src/lib/client/tx.rs#L687-L696

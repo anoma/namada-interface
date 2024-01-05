@@ -12,7 +12,7 @@ The process roughly looks like this:
 
 ## Origin validation
 
-When the `postMessage` API is being used, we check that the origin matches. This validation is necessary to avoid cross-domain messages from occuring.
+When the `postMessage` API is being used, we check that the origin matches. This validation is necessary to avoid cross-domain messages from occurring.
 
 In addition, we also implement [https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_scripts#connection-based_messaging](connection-based messaging)
 when communicating between the web client and the content scripts. This requires that we establish a "port" over which we post messages.

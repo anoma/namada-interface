@@ -25,7 +25,7 @@ Package containing extension and web interface e2e tests.
   - starts namada with the current chain id 
 
 ### Writing tests
-If you wrtie a test that needs namada running you have to consider few things:
+If you write a test that needs namada running you have to consider few things:
 - you need to setup namada **before** puppeteer loads the extension. Otherwise there would be a chain id mismatch and things like transfers will not work. 
 - you need to be sure that there is only one test using namada running at the same time. The reason is the same as above. This is something that can change in future. We need to figure out how many instances of namada we want to run at the same time.
 - make sure that you stop namada process after test(s) are done

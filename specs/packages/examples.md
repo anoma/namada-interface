@@ -51,7 +51,7 @@ init();
 
 The `@namada/types` package contains the [schema](https://github.com/anoma/namada-interface/tree/main/packages/types/src/tx/schema) necessary to serialize transaction data
 before submitting it with the SDK. This serialization is performed by the [@dao-xyz/borsh](https://github.com/dao-xyz/borsh-ts) package. To serialize these values, you need
-to provide the required properites as defined in [types.ts](https://github.com/anoma/namada-interface/blob/main/packages/types/src/tx/types.ts). Following is an example of how
+to provide the required properties as defined in [types.ts](https://github.com/anoma/namada-interface/blob/main/packages/types/src/tx/types.ts). Following is an example of how
 to serialize a `Transfer` transaction using `borsh-ts`:
 
 ```ts
@@ -273,7 +273,7 @@ async function myApp(): Promise<void> {
     await sdk
       .submit_signed_tx(tx, sig)
       .then(() => console.log("Successfully submitted tx"))
-      .catch((e) => console.error(`An error occured: ${e}`));
+      .catch((e) => console.error(`An error occurred: ${e}`));
   } catch (e) {
     console.error(`Ledger signing failed: ${e}`);
   }

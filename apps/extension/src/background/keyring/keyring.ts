@@ -69,7 +69,7 @@ type DerivedAccountInfo = {
 };
 
 /**
- * Keyring stores keys in persisted backround.
+ * Keyring stores keys in persisted background.
  */
 export class KeyRing {
   private _status: KeyRingStatus = KeyRingStatus.Empty;

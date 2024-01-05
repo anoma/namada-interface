@@ -34,7 +34,7 @@ cargo run test
 
 ### HDWallet
 
-This provids BIP32 Key Derivation, to which we can pass BIP32 or BIP44 paths:
+This provides BIP32 Key Derivation, to which we can pass BIP32 or BIP44 paths:
 
 ```rust
 let mnemonic = Mnemonic::new(PhraseSize::Twelve)?;

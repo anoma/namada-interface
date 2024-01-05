@@ -42,7 +42,7 @@ lto = true
 [profile.dev]
 opt-level = "s"
 
-# wasm-pack sepcific configuration
+# wasm-pack specific configuration
 [package.metadata.wasm-pack.profile.release]
 # https://docs.rs/wasm-opt/latest/wasm_opt/
 wasm-opt = ['-O4']

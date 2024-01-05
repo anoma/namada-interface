@@ -7,7 +7,7 @@ fn read(question: Option<&str>) -> std::io::Result<String> {
             let question = question.unwrap_or("Input: ");
             let input = w
                 .prompt_with_message(question)
-                .expect("Prompt to be deifned");
+                .expect("Prompt to be defined");
 
             input.ok_or(std::io::Error::new(
                 std::io::ErrorKind::Other,

@@ -71,7 +71,7 @@ const validateAliasInUse = (
  * Validates if alias is required
  *
  * @param {string} alias - alias of the new address
- * @returns {boolean} retursn true when alias is valid
+ * @returns {boolean} returns true when alias is valid
  */
 const validateAliasIsRequired = (alias: string): boolean => {
   return alias !== "";
