@@ -1,6 +1,4 @@
-import { ProxyMappings } from "@namada/chains";
 import { init as initCrypto } from "@namada/crypto/src/init";
-import { Sdk } from "@namada/shared";
 import { init as initShared } from "@namada/shared/src/init";
 import {
   ExtensionKVStore,
@@ -53,15 +51,6 @@ const revealedPKStore = new ExtensionKVStore(KVPrefix.RevealedPK, {
 });
 const txStore = new MemoryKVStore(KVPrefix.Memory);
 
-const DEFAULT_URL =
-  "https://d3brk13lbhxfdb.cloudfront.net/qc-testnet-5.1.025a61165acd05e";
-const { NAMADA_INTERFACE_PROXY, NAMADA_INTERFACE_NAMADA_URL = DEFAULT_URL } =
-  process.env;
-
-const NamadaRpcEndpoint = NAMADA_INTERFACE_PROXY
-  ? ProxyMappings["namada"]
-  : NAMADA_INTERFACE_NAMADA_URL;
-
 const messenger = new ExtensionMessenger();
 const router = new ExtensionRouter(
   ContentScriptEnv.produceEnv,
@@ -82,7 +71,6 @@ const init = new Promise<void>(async (resolve) => {
     wasm.arrayBuffer()
   );
   await initShared(sharedWasm);
-  const sdk = new Sdk(NamadaRpcEndpoint);
 
   const routerId = await getNamadaRouterId(extensionStore);
   const requester = new ExtensionRequester(messenger, routerId);
@@ -95,7 +83,7 @@ const init = new Promise<void>(async (resolve) => {
     broadcaster
   );
   const sdkService = new SdkService(chainStore);
-  const chainsService = new ChainsService(chainStore);
+  const chainsService = new ChainsService(chainStore, broadcaster);
   const keyRingService = new KeyRingService(
     vaultService,
     sdkService,

@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { useState, useEffect } from "react";
+import { useState, useEffect, createContext } from "react";
 import { createBrowserHistory } from "history";
 import { AnimatePresence } from "framer-motion";
 import { ThemeProvider } from "styled-components";
@@ -25,15 +25,16 @@ import {
 import { persistor, store, useAppDispatch, useAppSelector } from "store";
 import { Toasts } from "App/Toast";
 import { SettingsState } from "slices/settings";
-import { chains, defaultChainId as chainId } from "@namada/chains";
+import { chains, defaultChainId } from "@namada/chains";
 import {
   useIntegration,
   useUntilIntegrationAttached,
 } from "@namada/integrations";
 import { Outlet } from "react-router-dom";
 import { addAccounts, fetchBalances } from "slices/accounts";
-import { Account } from "@namada/types";
+import { Account, Chain } from "@namada/types";
 
+export const ChainContext = createContext<Chain | null>(null);
 export const history = createBrowserHistory({ window });
 
 export const AnimatedTransition = (props: {
@@ -58,6 +59,7 @@ function App(): JSX.Element {
   const dispatch = useAppDispatch();
   const initialColorMode = loadColorMode();
   const [colorMode, setColorMode] = useState<ColorMode>(initialColorMode);
+  const [chain, setChain] = useState<Chain | null>(null);
   const theme = getTheme(colorMode);
 
   const toggleColorMode = (): void => {
@@ -67,15 +69,15 @@ function App(): JSX.Element {
   const { connectedChains } = useAppSelector<SettingsState>(
     (state) => state.settings
   );
-  const chain = chains[chainId];
+  const defaultChain = chains[defaultChainId];
 
-  const integration = useIntegration(chainId);
+  const integration = useIntegration(defaultChainId);
 
   useEffect(() => storeColorMode(colorMode), [colorMode]);
 
-  const extensionAttachStatus = useUntilIntegrationAttached(chain);
+  const extensionAttachStatus = useUntilIntegrationAttached(defaultChain);
   const currentExtensionAttachStatus =
-    extensionAttachStatus[chain.extension.id];
+    extensionAttachStatus[defaultChain.extension.id];
 
   useEffect(() => {
     const fetchAccounts = async (): Promise<void> => {
@@ -87,39 +89,52 @@ function App(): JSX.Element {
     };
     if (
       currentExtensionAttachStatus === "attached" &&
-      connectedChains.includes(chainId)
+      connectedChains.includes(defaultChainId)
     ) {
       fetchAccounts();
     }
   });
 
+  useEffect(() => {
+    (async () => {
+      if (currentExtensionAttachStatus === "attached") {
+        const chain = await integration.getChain();
+        if (chain) {
+          setChain(chain);
+        }
+      }
+    })()
+  }, [currentExtensionAttachStatus])
+
   return (
     <ThemeProvider theme={theme}>
-      <PersistGate loading={null} persistor={persistor}>
-        <Toasts />
-        <GlobalStyles colorMode={colorMode} />
-        {(currentExtensionAttachStatus === "attached" ||
-          currentExtensionAttachStatus === "detached") && (
-            <AppContainer data-testid="AppContainer">
-              <TopSection>
-                <TopNavigation
-                  colorMode={colorMode}
-                  toggleColorMode={toggleColorMode}
-                  setColorMode={setColorMode}
-                  store={store}
-                />
-              </TopSection>
-              <BottomSection>
-                <AnimatePresence exitBeforeEnter>
-                  <ContentContainer>
-                    <Outlet />
-                  </ContentContainer>
-                </AnimatePresence>
-              </BottomSection>
-            </AppContainer>
-          )}
-        {currentExtensionAttachStatus === "pending" && <AppLoader />}
-      </PersistGate>
+      <ChainContext.Provider value={chain}>
+        <PersistGate loading={null} persistor={persistor}>
+          <Toasts />
+          <GlobalStyles colorMode={colorMode} />
+          {(currentExtensionAttachStatus === "attached" ||
+            currentExtensionAttachStatus === "detached") && (
+              <AppContainer data-testid="AppContainer">
+                <TopSection>
+                  <TopNavigation
+                    colorMode={colorMode}
+                    toggleColorMode={toggleColorMode}
+                    setColorMode={setColorMode}
+                    store={store}
+                  />
+                </TopSection>
+                <BottomSection>
+                  <AnimatePresence exitBeforeEnter>
+                    <ContentContainer>
+                      <Outlet />
+                    </ContentContainer>
+                  </AnimatePresence>
+                </BottomSection>
+              </AppContainer>
+            )}
+          {currentExtensionAttachStatus === "pending" && <AppLoader />}
+        </PersistGate>
+      </ChainContext.Provider>
     </ThemeProvider>
   );
 }

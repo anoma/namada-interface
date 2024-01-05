@@ -4,10 +4,10 @@ import QrReader from "react-qr-reader";
 import { useNavigate } from "react-router-dom";
 import { ThemeContext } from "styled-components";
 
-import { defaultChainId as chainId } from "@namada/chains";
+import { defaultChainId } from "@namada/chains";
 import { ActionButton, Icon, Input } from "@namada/components";
 import { getIntegration } from "@namada/integrations";
-import { Signer, TokenType, Tokens } from "@namada/types";
+import { Chain, Signer, TokenType, Tokens } from "@namada/types";
 import { ColorMode, DesignConfiguration } from "@namada/utils";
 import { TopLevelRoute } from "App/types";
 import { AccountsState } from "slices/accounts";
@@ -57,12 +57,13 @@ export const submitTransferTransaction = async (
   const {
     account: { address, publicKey, type },
     amount,
+    chainId,
     faucet,
     target,
     token,
     disposableSigningKey,
   } = txTransferArgs;
-  const integration = getIntegration(chainId);
+  const integration = getIntegration(defaultChainId);
   const signer = integration.signer() as Signer;
 
   const transferArgs = {
@@ -90,6 +91,7 @@ type Props = {
   address: string;
   defaultTarget?: string;
   tokenType: TokenType;
+  chain: Chain;
 };
 
 /**
@@ -139,7 +141,7 @@ const AccountSourceTargetDescription = (
 };
 
 const TokenSendForm = (
-  { address, tokenType, defaultTarget }: Props
+  { address, chain, tokenType, defaultTarget }: Props
 ): JSX.Element => {
   const navigate = useNavigate();
   const themeContext = useContext(ThemeContext);
@@ -166,7 +168,7 @@ const TokenSendForm = (
   );
   const { rates } = useAppSelector<CoinsState>((state) => state.coins);
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
-  const derivedAccounts = derived[chainId];
+  const derivedAccounts = derived[defaultChainId];
 
   const { details, balance } = derivedAccounts[address];
   const isShieldedSource = details.isShielded;
@@ -246,8 +248,8 @@ const TokenSendForm = (
   const handleOnSendClick = (): void => {
     if ((isShieldedTarget && target) || (target && token.address)) {
       submitTransferTransaction({
-        chainId,
         account: details,
+        chainId: chain.chainId,
         target,
         amount,
         token: tokenType,

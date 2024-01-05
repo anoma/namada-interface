@@ -16,6 +16,12 @@ export const NamadaAccountChangedHandler =
     dispatch(fetchBalances());
   };
 
+export const NamadaNetworkChangedHandler =
+  (_dispatch: Dispatch<unknown>, _integration: Namada) => async () => {
+    // TODO: Fetch new chain from extension
+    // const chain = await integration.getChain();
+  };
+
 export const NamadaProposalsUpdatedHandler =
   (dispatch: Dispatch<unknown>) => async () => {
     dispatch(fetchProposals());

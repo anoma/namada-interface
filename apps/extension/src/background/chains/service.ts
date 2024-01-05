@@ -1,11 +1,15 @@
 import { chains, defaultChainId } from "@namada/chains";
 import { KVStore } from "@namada/storage";
 import { Chain } from "@namada/types";
+import { ExtensionBroadcaster } from "extension";
 
 export const CHAINS_KEY = "chains";
 
 export class ChainsService {
-  constructor(protected readonly chainsStore: KVStore<Chain>) { }
+  constructor(
+    protected readonly chainsStore: KVStore<Chain>,
+    protected readonly broadcaster: ExtensionBroadcaster
+  ) {}
 
   async getChain(): Promise<Chain | undefined> {
     const chain = await this.chainsStore.get(CHAINS_KEY);
@@ -23,10 +27,11 @@ export class ChainsService {
     if (!chain) {
       throw new Error("No chain found!");
     }
-    return await this.chainsStore.set(CHAINS_KEY, {
+    await this.chainsStore.set(CHAINS_KEY, {
       ...chain,
       chainId,
       rpc: url,
     });
+    this.broadcaster.updateNetwork();
   }
 }

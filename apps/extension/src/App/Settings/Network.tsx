@@ -1,3 +1,5 @@
+import { sanitize } from "dompurify";
+
 import {
   ActionButton,
   Alert,
@@ -6,6 +8,7 @@ import {
   Input,
   Stack,
 } from "@namada/components";
+import { isUrlValid } from "@namada/utils";
 import { UpdateChainMsg } from "background/chains";
 import { useRequester } from "hooks/useRequester";
 import { GetChainMsg } from "provider";
@@ -53,21 +56,33 @@ export const Network = (): JSX.Element => {
       e.preventDefault();
       setStatus(Status.Pending);
       setErrorMessage("");
+      const sanitizedChainId = sanitize(chainId);
+      const sanitizedUrl = sanitize(url);
 
-      if (!chainId || !url) {
+      // Validate sanitized chain ID
+      if (!sanitizedChainId) {
+        setErrorMessage("Invalid chain ID!");
+        setStatus(Status.Failed);
+        return;
+      }
+
+      // Validate sanitized URL
+      const isValidUrl = isUrlValid(sanitizedUrl);
+      if (!isValidUrl) {
+        setErrorMessage("Invalid URL!");
+        setStatus(Status.Failed);
         return;
       }
 
       try {
         await requester.sendMessage(
           Ports.Background,
-          new UpdateChainMsg(chainId, url)
+          new UpdateChainMsg(sanitizedChainId, sanitizedUrl)
         );
+        setStatus(Status.Complete);
       } catch (err) {
         setStatus(Status.Failed);
         setErrorMessage(`${err}`);
-      } finally {
-        setStatus(Status.Complete);
       }
     },
     [chainId, url]
@@ -90,14 +105,14 @@ export const Network = (): JSX.Element => {
           type="text"
           value={chainId}
           onChange={(e) => setChainId(e.target.value)}
-          error={chainId && chainId.length === 0 ? "URL is required!" : ""}
+          error={chainId.length === 0 ? "URL is required!" : ""}
         />
         <Input
           label="URL"
           variant="Text"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          error={url && url.length === 0 ? "URL is required!" : ""}
+          error={url.length === 0 ? "URL is required!" : ""}
         />
         {errorMessage && <Alert type="error">{errorMessage}</Alert>}
         {status === Status.Complete && (
