@@ -5,6 +5,7 @@ import { TxType, TxTypeLabel } from "@namada/shared";
 
 import { fetchValidators } from "slices/StakingAndGovernance/actions";
 import { addAccounts, fetchBalances } from "slices/accounts";
+import { setChain } from "slices/chain";
 import { actions as notificationsActions } from "slices/notifications";
 import { fetchProposals } from "slices/proposals";
 
@@ -17,9 +18,12 @@ export const NamadaAccountChangedHandler =
   };
 
 export const NamadaNetworkChangedHandler =
-  (_dispatch: Dispatch<unknown>, _integration: Namada) => async () => {
-    // TODO: Fetch new chain from extension
-    // const chain = await integration.getChain();
+  (dispatch: Dispatch<unknown>, integration: Namada) => async () => {
+    const chain = await integration.getChain();
+    if (chain) {
+      dispatch(setChain(chain));
+      dispatch(fetchBalances());
+    }
   };
 
 export const NamadaProposalsUpdatedHandler =

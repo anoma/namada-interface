@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { useState, useEffect, createContext } from "react";
+import { useState, useEffect } from "react";
 import { createBrowserHistory } from "history";
 import { AnimatePresence } from "framer-motion";
 import { ThemeProvider } from "styled-components";
@@ -32,9 +32,9 @@ import {
 } from "@namada/integrations";
 import { Outlet } from "react-router-dom";
 import { addAccounts, fetchBalances } from "slices/accounts";
-import { Account, Chain } from "@namada/types";
+import { Account } from "@namada/types";
+import { setChain } from "slices/chain";
 
-export const ChainContext = createContext<Chain | null>(null);
 export const history = createBrowserHistory({ window });
 
 export const AnimatedTransition = (props: {
@@ -59,7 +59,6 @@ function App(): JSX.Element {
   const dispatch = useAppDispatch();
   const initialColorMode = loadColorMode();
   const [colorMode, setColorMode] = useState<ColorMode>(initialColorMode);
-  const [chain, setChain] = useState<Chain | null>(null);
   const theme = getTheme(colorMode);
 
   const toggleColorMode = (): void => {
@@ -100,7 +99,7 @@ function App(): JSX.Element {
       if (currentExtensionAttachStatus === "attached") {
         const chain = await integration.getChain();
         if (chain) {
-          setChain(chain);
+          dispatch(setChain(chain));
         }
       }
     })()
@@ -108,33 +107,31 @@ function App(): JSX.Element {
 
   return (
     <ThemeProvider theme={theme}>
-      <ChainContext.Provider value={chain}>
-        <PersistGate loading={null} persistor={persistor}>
-          <Toasts />
-          <GlobalStyles colorMode={colorMode} />
-          {(currentExtensionAttachStatus === "attached" ||
-            currentExtensionAttachStatus === "detached") && (
-              <AppContainer data-testid="AppContainer">
-                <TopSection>
-                  <TopNavigation
-                    colorMode={colorMode}
-                    toggleColorMode={toggleColorMode}
-                    setColorMode={setColorMode}
-                    store={store}
-                  />
-                </TopSection>
-                <BottomSection>
-                  <AnimatePresence exitBeforeEnter>
-                    <ContentContainer>
-                      <Outlet />
-                    </ContentContainer>
-                  </AnimatePresence>
-                </BottomSection>
-              </AppContainer>
-            )}
-          {currentExtensionAttachStatus === "pending" && <AppLoader />}
-        </PersistGate>
-      </ChainContext.Provider>
+      <PersistGate loading={null} persistor={persistor}>
+        <Toasts />
+        <GlobalStyles colorMode={colorMode} />
+        {(currentExtensionAttachStatus === "attached" ||
+          currentExtensionAttachStatus === "detached") && (
+            <AppContainer data-testid="AppContainer">
+              <TopSection>
+                <TopNavigation
+                  colorMode={colorMode}
+                  toggleColorMode={toggleColorMode}
+                  setColorMode={setColorMode}
+                  store={store}
+                />
+              </TopSection>
+              <BottomSection>
+                <AnimatePresence exitBeforeEnter>
+                  <ContentContainer>
+                    <Outlet />
+                  </ContentContainer>
+                </AnimatePresence>
+              </BottomSection>
+            </AppContainer>
+          )}
+        {currentExtensionAttachStatus === "pending" && <AppLoader />}
+      </PersistGate>
     </ThemeProvider>
   );
 }

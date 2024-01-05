@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Account, AccountsState } from "slices/accounts";
 import { TransferType } from "App/Token/types";
@@ -24,7 +24,6 @@ import {
   ESTABLISHED_ADDRESS_LENGTH,
   ESTABLISHED_ADDRESS_PREFIX,
 } from "./types";
-import { ChainContext } from "App/App";
 
 export const parseTarget = (target: string): TransferType | undefined => {
   if (
@@ -62,7 +61,6 @@ const accountsWithBalanceIntoSelectData = (
   );
 
 const TokenSend = (): JSX.Element => {
-  const chain = useContext(ChainContext);
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const { target } = useSanitizedParams<Params>();
 
@@ -150,10 +148,9 @@ const TokenSend = (): JSX.Element => {
                 label="Token"
                 onChange={handleTokenChange(setSelectedShieldedAccountAddress)}
               />
-              {chain && selectedShieldedAccountAddress && (
+              {selectedShieldedAccountAddress && (
                 <TokenSendForm
                   address={selectedShieldedAccountAddress}
-                  chain={chain}
                   tokenType={token}
                   defaultTarget={
                     target?.startsWith("znam") ? target : undefined
@@ -179,10 +176,9 @@ const TokenSend = (): JSX.Element => {
                   setSelectedTransparentAccountAddress
                 )}
               />
-              {chain && selectedTransparentAccountAddress && (
+              {selectedTransparentAccountAddress && (
                 <TokenSendForm
                   address={selectedTransparentAccountAddress}
-                  chain={chain}
                   tokenType={token}
                   defaultTarget={
                     target?.startsWith("tnam") ? target : undefined

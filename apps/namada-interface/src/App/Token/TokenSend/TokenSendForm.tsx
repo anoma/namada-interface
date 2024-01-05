@@ -91,7 +91,6 @@ type Props = {
   address: string;
   defaultTarget?: string;
   tokenType: TokenType;
-  chain: Chain;
 };
 
 /**
@@ -141,10 +140,11 @@ const AccountSourceTargetDescription = (
 };
 
 const TokenSendForm = (
-  { address, chain, tokenType, defaultTarget }: Props
+  { address, tokenType, defaultTarget }: Props
 ): JSX.Element => {
   const navigate = useNavigate();
   const themeContext = useContext(ThemeContext);
+  const chain = useAppSelector<Chain>((state) => state.chain.config);
   const [target, setTarget] = useState<string | undefined>(defaultTarget);
   const [amount, setAmount] = useState<BigNumber>(new BigNumber(0));
 

@@ -1,5 +1,6 @@
 import BigNumber from "bignumber.js";
 
+import { chains, defaultChainId } from "@namada/chains";
 import { AccountType } from "@namada/types";
 import { StakingOrUnstakingState } from "slices/StakingAndGovernance";
 import { RootState } from "./store";
@@ -48,7 +49,6 @@ export const mockAppState: RootState = {
             type: AccountType.PrivateKey,
             isShielded: false,
           },
-
           balance: {
             NAM: new BigNumber(1000),
             DOT: new BigNumber(1000),
@@ -58,6 +58,7 @@ export const mockAppState: RootState = {
       },
     },
   },
+  chain: { config: chains[defaultChainId] },
   channels: {
     channelsByChain: {
       "namada-test.1e670ba91369ec891fc": {
