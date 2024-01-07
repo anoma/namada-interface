@@ -1,5 +1,5 @@
 use gloo_utils::format::JsValueSerdeExt;
-use js_sys::{Uint8Array, JSON};
+use js_sys::Uint8Array;
 use serde::Serialize;
 use std::fmt::Debug;
 use wasm_bindgen::prelude::*;
@@ -23,12 +23,6 @@ pub fn console_log_any<T: Debug>(string: &T) {
 pub fn to_bytes(u_int_8_array: JsValue) -> Vec<u8> {
     let array = Uint8Array::new(&u_int_8_array);
     array.to_vec()
-}
-
-pub fn to_io_error(js_value: JsValue) -> std::io::Error {
-    let e = JSON::stringify(&js_value).expect("Error to be serializable");
-    let e_str: String = e.into();
-    std::io::Error::new(std::io::ErrorKind::Other, e_str)
 }
 
 /// Maps a result to a JsValue using Serde and Error into a JsError

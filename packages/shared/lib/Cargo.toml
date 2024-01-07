@@ -12,7 +12,7 @@ crate-type = ["cdylib", "rlib"]
 
 [features]
 dev = []
-parallel = ["wasm-bindgen-rayon"] 
+multicore = ["wasm-bindgen-rayon"] 
 
 [dependencies]
 async-trait = {version = "0.1.51"}

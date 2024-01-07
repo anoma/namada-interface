@@ -67,7 +67,7 @@ module.exports = {
   output: {
     publicPath: "/",
     path: resolve(__dirname, `./build/`),
-    filename: "[name].namada.js",
+    filename: "[name].bundle.js",
   },
   module: {
     rules: [
