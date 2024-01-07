@@ -286,7 +286,7 @@ impl Sdk {
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
         let args = tx::eth_bridge_transfer_tx_args(eth_bridge_transfer_msg, tx_msg)?;
-        let (tx, signing_data, _) = build_bridge_pool_tx(&self.namada, args.clone()).await?;
+        let (tx, signing_data) = build_bridge_pool_tx(&self.namada, args.clone()).await?;
 
         Ok(BuiltTx { tx, signing_data })
     }
@@ -300,7 +300,7 @@ impl Sdk {
         let args = tx::vote_proposal_tx_args(vote_proposal_msg, tx_msg)?;
         let epoch = query_epoch(self.namada.client()).await?;
 
-        let (tx, signing_data, _) = build_vote_proposal(&self.namada, &args, epoch)
+        let (tx, signing_data) = build_vote_proposal(&self.namada, &args, epoch)
             .await
             .map_err(JsError::from)?;
 
@@ -314,7 +314,7 @@ impl Sdk {
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
         let args = tx::bond_tx_args(bond_msg, tx_msg)?;
-        let (tx, signing_data, _) = build_bond(&self.namada, &args).await?;
+        let (tx, signing_data) = build_bond(&self.namada, &args).await?;
 
         Ok(BuiltTx { tx, signing_data })
     }
@@ -326,7 +326,7 @@ impl Sdk {
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
         let args = tx::unbond_tx_args(unbond_msg, tx_msg)?;
-        let (tx, signing_data, _, _) = build_unbond(&self.namada, &args).await?;
+        let (tx, signing_data, _) = build_unbond(&self.namada, &args).await?;
 
         Ok(BuiltTx { tx, signing_data })
     }
@@ -338,7 +338,7 @@ impl Sdk {
         _gas_payer: Option<String>,
     ) -> Result<BuiltTx, JsError> {
         let args = tx::withdraw_tx_args(withdraw_msg, tx_msg)?;
-        let (tx, signing_data, _) = build_withdraw(&self.namada, &args).await?;
+        let (tx, signing_data) = build_withdraw(&self.namada, &args).await?;
 
         Ok(BuiltTx { tx, signing_data })
     }
@@ -350,8 +350,7 @@ impl Sdk {
     ) -> Result<BuiltTx, JsError> {
         let args = tx::tx_args_from_slice(tx_msg)?;
         let public_key = args.signing_keys[0].clone();
-        let (tx, signing_data, _) =
-            build_reveal_pk(&self.namada, &args.clone(), &public_key).await?;
+        let (tx, signing_data) = build_reveal_pk(&self.namada, &args.clone(), &public_key).await?;
 
         Ok(BuiltTx { tx, signing_data })
     }

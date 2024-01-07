@@ -309,7 +309,8 @@ pub fn ibc_transfer_tx_args(
         timeout_sec_offset,
     } = ibc_transfer_msg;
 
-    let source = Address::from_str(&source)?;
+    let source_address = Address::from_str(&source)?;
+    let source = TransferSource::Address(source_address);
     let token = Address::from_str(&token)?;
     let denom_amount = DenominatedAmount::from_str(&amount).expect("Amount to be valid.");
     let amount = InputAmount::Unvalidated(denom_amount);
