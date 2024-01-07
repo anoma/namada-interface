@@ -72,6 +72,10 @@ liveness_window_check = 100
 # The minimum required activity of consensus validators, in percentage, over 
 # the `liveness_window_check`
 liveness_threshold = "0.9"
+# The P gain factor in the Proof of Stake rewards controller
+rewards_gain_p = "0.25"
+# The D gain factor in the Proof of Stake rewards controller
+rewards_gain_d = "0.25"
 
 # Governance parameters.
 [gov_params]
