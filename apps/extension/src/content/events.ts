@@ -1,7 +1,7 @@
 import { Events } from "@namada/types";
 
-import { Message, Router, Routes } from "../router";
 import { TxType } from "@namada/shared";
+import { Message, Router, Routes } from "../router";
 
 // Used by Firefox to copy the object from the content script scope to the
 // page script scope.
@@ -51,6 +51,28 @@ export class UpdatedBalancesEventMsg extends Message<void> {
   }
 }
 
+export class NetworkChangedEventMsg extends Message<void> {
+  public static type(): Events {
+    return Events.NetworkChanged;
+  }
+
+  constructor() {
+    super();
+  }
+
+  validate(): void {
+    return;
+  }
+
+  route(): string {
+    return Routes.InteractionForeground;
+  }
+
+  type(): string {
+    return NetworkChangedEventMsg.type();
+  }
+}
+
 export class UpdatedStakingEventMsg extends Message<void> {
   public static type(): Events {
     return Events.UpdatedStaking;
@@ -78,7 +100,10 @@ export class TxStartedEvent extends Message<void> {
     return Events.TxStarted;
   }
 
-  constructor(public readonly msgId: string, public readonly txType: TxType) {
+  constructor(
+    public readonly msgId: string,
+    public readonly txType: TxType
+  ) {
     super();
   }
 
@@ -165,7 +190,7 @@ export class VaultLockedEventMsg extends Message<void> {
     super();
   }
 
-  validate(): void { }
+  validate(): void {}
 
   route(): string {
     return Routes.InteractionForeground;
@@ -178,6 +203,7 @@ export class VaultLockedEventMsg extends Message<void> {
 
 export function initEvents(router: Router): void {
   router.registerMessage(AccountChangedEventMsg);
+  router.registerMessage(NetworkChangedEventMsg);
   router.registerMessage(UpdatedBalancesEventMsg);
   router.registerMessage(UpdatedStakingEventMsg);
   router.registerMessage(ProposalsUpdatedEventMsg);
@@ -196,6 +222,9 @@ export function initEvents(router: Router): void {
         window.dispatchEvent(
           new CustomEvent(Events.AccountChanged, { detail: clonedMsg })
         );
+        break;
+      case NetworkChangedEventMsg:
+        window.dispatchEvent(new CustomEvent(Events.NetworkChanged));
         break;
       case TxStartedEvent:
         window.dispatchEvent(

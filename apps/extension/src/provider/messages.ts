@@ -26,7 +26,6 @@ enum MessageType {
   EncodeRevealPublicKey = "encode-reveal-public-key",
   GetChain = "get-chain",
   GetChains = "get-chains",
-  SuggestChain = "suggest-chain",
   FetchAndStoreMaspParams = "fetch-and-store-masp-params",
   HasMaspParams = "has-masp-params",
   ApproveEthBridgeTransfer = "approve-eth-bridge-transfer",
@@ -59,66 +58,16 @@ export class ApproveConnectInterfaceMsg extends Message<void> {
   }
 }
 
-export class SuggestChainMsg extends Message<void> {
+export class GetChainMsg extends Message<Chain | undefined> {
   public static type(): MessageType {
-    return MessageType.SuggestChain;
-  }
-
-  constructor(public readonly chain: Chain) {
-    super();
-  }
-
-  validate(): void {
-    if (!this.chain) {
-      throw new Error("chain config not set");
-    }
-  }
-
-  route(): string {
-    return Route.Chains;
-  }
-
-  type(): MessageType {
-    return SuggestChainMsg.type();
-  }
-}
-
-export class GetChainsMsg extends Message<Chain[]> {
-  public static type(): MessageType {
-    return MessageType.GetChains;
+    return MessageType.GetChain;
   }
 
   constructor() {
     super();
   }
 
-  validate(): void {
-    return;
-  }
-
-  route(): string {
-    return Route.Chains;
-  }
-
-  type(): string {
-    return GetChainsMsg.type();
-  }
-}
-
-export class GetChainMsg extends Message<Chain> {
-  public static type(): MessageType {
-    return MessageType.GetChain;
-  }
-
-  constructor(public readonly chainId: string) {
-    super();
-  }
-
-  validate(): void {
-    if (!this.chainId) {
-      throw new Error("Chain ID not provided!");
-    }
-  }
+  validate(): void { }
 
   route(): string {
     return Route.Chains;

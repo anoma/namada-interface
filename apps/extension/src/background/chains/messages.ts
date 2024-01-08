@@ -1,24 +1,28 @@
-import { Chain } from "@namada/types";
 import { Message } from "router";
 import { ROUTE } from "./constants";
 
 enum MessageType {
-  RemoveChain = "remove-chain",
-  Connect = "connect",
+  UpdateChain = "update-chain",
 }
 
-export class RemoveChainMsg extends Message<Chain[]> {
+export class UpdateChainMsg extends Message<void> {
   public static type(): MessageType {
-    return MessageType.RemoveChain;
+    return MessageType.UpdateChain;
   }
 
-  constructor(public readonly chainId: string) {
+  constructor(
+    public readonly chainId: string,
+    public readonly url: string
+  ) {
     super();
   }
 
   validate(): void {
     if (!this.chainId) {
       throw new Error("Chain ID not provided!");
+    }
+    if (!this.url) {
+      throw new Error("URL not provided!");
     }
   }
 
@@ -27,6 +31,6 @@ export class RemoveChainMsg extends Message<Chain[]> {
   }
 
   type(): string {
-    return RemoveChainMsg.type();
+    return UpdateChainMsg.type();
   }
 }

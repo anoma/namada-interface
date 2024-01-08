@@ -31,7 +31,7 @@ declare global {
 
 class Metamask implements Integration<Account, unknown> {
   private _ethereum: MetaMaskInpageProvider | undefined;
-  constructor(public readonly chain: Chain) {}
+  constructor(public readonly chain: Chain) { }
 
   private init(): void {
     const provider = window.ethereum;
@@ -79,6 +79,10 @@ class Metamask implements Integration<Account, unknown> {
     } else {
       Promise.reject(MULTIPLE_WALLETS);
     }
+  }
+
+  public async getChain(): Promise<Chain> {
+    return this.chain;
   }
 
   private async syncChainId(): Promise<void> {

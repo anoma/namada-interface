@@ -1,4 +1,5 @@
 import { AccountType, DerivedAccount } from "./account";
+import { Chain } from "./chain";
 import { Signer } from "./signer";
 
 export type TxMsgProps = {
@@ -11,13 +12,14 @@ export type TxMsgProps = {
 };
 
 export interface Namada {
-  connect(chainId?: string): Promise<void>;
   accounts(chainId?: string): Promise<DerivedAccount[] | undefined>;
-  defaultAccount(chainId?: string): Promise<DerivedAccount | undefined>;
   balances(
     owner: string
   ): Promise<{ token: string; amount: string }[] | undefined>;
+  connect(chainId?: string): Promise<void>;
+  defaultAccount(chainId?: string): Promise<DerivedAccount | undefined>;
   submitTx: (props: TxMsgProps) => Promise<void>;
+  getChain: () => Promise<Chain | undefined>;
   version: () => string;
 }
 

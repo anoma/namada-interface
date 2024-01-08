@@ -3,6 +3,7 @@ import { KVStore } from "@namada/storage";
 import { TabStore, syncTabs } from "background/keyring";
 import {
   AccountChangedEventMsg,
+  NetworkChangedEventMsg,
   ProposalsUpdatedEventMsg,
   TxCompletedEvent,
   TxStartedEvent,
@@ -17,7 +18,7 @@ export class ExtensionBroadcaster {
   constructor(
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
     protected readonly requester: ExtensionRequester
-  ) { }
+  ) {}
 
   async startTx(msgId: string, txType: TxType): Promise<void> {
     await this.sendMsgToTabs(new TxStartedEvent(msgId, txType));
@@ -44,6 +45,10 @@ export class ExtensionBroadcaster {
 
   async updateAccounts(): Promise<void> {
     await this.sendMsgToTabs(new AccountChangedEventMsg());
+  }
+
+  async updateNetwork(): Promise<void> {
+    await this.sendMsgToTabs(new NetworkChangedEventMsg());
   }
 
   async updateProposals(): Promise<void> {

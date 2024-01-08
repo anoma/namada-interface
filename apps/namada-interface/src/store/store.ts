@@ -6,6 +6,7 @@ import storage from "redux-persist/lib/storage";
 import thunk from "redux-thunk";
 import {
   accountsReducer,
+  chainReducer,
   channelsReducer,
   coinsReducer,
   notificationsReducer,
@@ -35,6 +36,7 @@ const ChainIdTransform = createTransform(
 
 const reducers = combineReducers({
   accounts: accountsReducer || {},
+  chain: chainReducer,
   channels: channelsReducer,
   settings: settingsReducer,
   coins: coinsReducer,
@@ -47,7 +49,7 @@ const persistConfig = {
   key: `${LocalStorageKeys.Persist}${POSTFIX}`,
   storage,
   // Only persist data in whitelist:
-  whitelist: ["settings", "channels"],
+  whitelist: ["settings", "chain", "channels"],
   transforms: [ChainIdTransform],
 };
 

@@ -15,6 +15,7 @@ import {
   MetamaskAccountChangedHandler,
   MetamaskBridgeTransferCompletedHandler,
   NamadaAccountChangedHandler,
+  NamadaNetworkChangedHandler,
   NamadaProposalsUpdatedHandler,
   NamadaTxCompletedHandler,
   NamadaTxStartedHandler,
@@ -32,6 +33,10 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
 
   // Instantiate handlers:
   const namadaAccountChangedHandler = NamadaAccountChangedHandler(
+    dispatch,
+    namadaIntegration as Namada
+  );
+  const namadaNetworkChangedHandler = NamadaNetworkChangedHandler(
     dispatch,
     namadaIntegration as Namada
   );
@@ -58,6 +63,7 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
 
   // Register handlers:
   useEventListenerOnce(Events.AccountChanged, namadaAccountChangedHandler);
+  useEventListenerOnce(Events.NetworkChanged, namadaNetworkChangedHandler);
   useEventListenerOnce(Events.UpdatedBalances, namadaUpdatedBalancesHandler);
   useEventListenerOnce(Events.UpdatedStaking, namadaUpdatedStakingHandler);
   useEventListenerOnce(Events.TxStarted, namadaTxStartedHandler);

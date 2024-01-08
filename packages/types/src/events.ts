@@ -3,6 +3,7 @@
 // Namada extension events
 export enum Events {
   AccountChanged = "namada-account-changed",
+  NetworkChanged = "namada-network-changed",
   TxStarted = "namada-tx-started",
   TxCompleted = "namada-tx-completed",
   UpdatedBalances = "namada-updated-balances",

@@ -1,7 +1,7 @@
 import { fromBase64, fromHex } from "@cosmjs/encoding";
 
 import { PhraseSize } from "@namada/crypto";
-import { public_key_to_bech32, Query, Sdk, TxType } from "@namada/shared";
+import { public_key_to_bech32, Sdk, TxType } from "@namada/shared";
 import { IndexedDBKVStore, KVStore } from "@namada/storage";
 import { AccountType, Bip44Path, DerivedAccount } from "@namada/types";
 import { Result, truncateInMiddle } from "@namada/utils";
@@ -12,6 +12,7 @@ import {
   OFFSCREEN_TARGET,
   SUBMIT_TRANSFER_MSG_TYPE,
 } from "background/offscreen";
+import { SdkService } from "background/sdk/service";
 import { VaultService } from "background/vault";
 import { init as initSubmitTransferWebWorker } from "background/web-workers";
 import {
@@ -37,23 +38,20 @@ export class KeyRingService {
   private _keyRing: KeyRing;
 
   constructor(
-    //protected readonly kvStore: KVStore<KeyStore[]>,
     protected readonly vaultService: VaultService,
+    protected readonly sdkService: SdkService,
     protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
     protected readonly extensionStore: KVStore<number>,
-    protected readonly sdk: Sdk,
-    protected readonly query: Query,
     protected readonly cryptoMemory: WebAssembly.Memory,
     protected readonly requester: ExtensionRequester,
     protected readonly broadcaster: ExtensionBroadcaster
   ) {
     this._keyRing = new KeyRing(
       vaultService,
+      sdkService,
       utilityStore,
       extensionStore,
-      sdk,
-      query,
       cryptoMemory
     );
   }
@@ -443,7 +441,7 @@ export class KeyRingService {
   }
 
   async queryPublicKey(address: string): Promise<string | undefined> {
-    return await this.query.query_public_key(address);
+    return await this._keyRing.queryPublicKey(address);
   }
 
   async checkDurability(): Promise<boolean> {

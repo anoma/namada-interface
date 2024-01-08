@@ -1,13 +1,13 @@
 import {
   Account,
-  Namada as INamada,
-  Chain,
-  Signer,
-  Tokens,
-  TokenType,
-  TokenBalance,
-  WindowWithNamada,
   AccountType,
+  Chain,
+  Namada as INamada,
+  Signer,
+  TokenBalance,
+  TokenType,
+  Tokens,
+  WindowWithNamada,
 } from "@namada/types";
 import BigNumber from "bignumber.js";
 
@@ -16,7 +16,7 @@ import { BridgeProps, Integration } from "./types/Integration";
 export default class Namada implements Integration<Account, Signer> {
   private _namada: WindowWithNamada["namada"] | undefined;
 
-  constructor(public readonly chain: Chain) {}
+  constructor(public readonly chain: Chain) { }
 
   public get instance(): INamada | undefined {
     return this._namada;
@@ -35,6 +35,10 @@ export default class Namada implements Integration<Account, Signer> {
 
   public async connect(chainId?: string): Promise<void> {
     await this._namada?.connect(chainId);
+  }
+
+  public async getChain(): Promise<Chain | undefined> {
+    return await this._namada?.getChain();
   }
 
   public async accounts(

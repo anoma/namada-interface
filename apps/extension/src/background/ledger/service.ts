@@ -2,13 +2,14 @@ import { fromBase64 } from "@cosmjs/encoding";
 import { deserialize } from "@dao-xyz/borsh";
 
 import { chains, defaultChainId } from "@namada/chains";
-import { ResponseSign } from "@zondax/ledger-namada";
-import { Sdk, TxType } from "@namada/shared";
+import { TxType } from "@namada/shared";
 import { KVStore } from "@namada/storage";
 import { AccountType, TxMsgValue } from "@namada/types";
 import { makeBip44Path } from "@namada/utils";
+import { ResponseSign } from "@zondax/ledger-namada";
 import { TxStore } from "background/approvals";
 import { AccountStore, KeyRingService, TabStore } from "background/keyring";
+import { SdkService } from "background/sdk";
 import { ExtensionBroadcaster, ExtensionRequester } from "extension";
 import { encodeSignature } from "utils";
 
@@ -18,14 +19,14 @@ const REVEALED_PK_STORE = "revealed-pk-store";
 export class LedgerService {
   constructor(
     protected readonly keyringService: KeyRingService,
+    protected readonly sdkService: SdkService,
     protected readonly kvStore: KVStore<AccountStore[]>,
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
     protected readonly txStore: KVStore<TxStore>,
     protected readonly revealedPKStore: KVStore<string[]>,
-    protected readonly sdk: Sdk,
     protected readonly requester: ExtensionRequester,
     protected readonly broadcaster: ExtensionBroadcaster
-  ) {}
+  ) { }
 
   async getRevealPKBytes(
     txMsg: string
@@ -44,9 +45,8 @@ export class LedgerService {
       }
 
       // Query account from Ledger storage to determine path for signer
-      const account = await this.keyringService.findParentByPublicKey(
-        publicKey
-      );
+      const account =
+        await this.keyringService.findParentByPublicKey(publicKey);
 
       if (!account) {
         throw new Error(`Ledger account not found for ${publicKey}`);
@@ -56,7 +56,8 @@ export class LedgerService {
         throw new Error(`Returned Account is not a Ledger`);
       }
 
-      const bytes = await this.sdk.build_tx(
+      const sdk = await this.sdkService.getSdk();
+      const bytes = await sdk.build_tx(
         TxType.RevealPK,
         new Uint8Array(), // TODO: this is a dummy value. Is there a cleaner way?
         fromBase64(txMsg),
@@ -86,14 +87,9 @@ export class LedgerService {
       // Serialize signatures
       const sig = encodeSignature(signature);
 
-      const signedTxBytes = await this.sdk.append_signature(
-        fromBase64(bytes),
-        sig
-      );
-      await this.sdk.process_tx(
-        signedTxBytes,
-        fromBase64(txMsg),
-      );
+      const sdk = await this.sdkService.getSdk();
+      const signedTxBytes = await sdk.append_signature(fromBase64(bytes), sig);
+      await sdk.process_tx(signedTxBytes, fromBase64(txMsg));
     } catch (e) {
       console.warn(e);
     }
@@ -123,16 +119,10 @@ export class LedgerService {
     const sig = encodeSignature(signature);
 
     await this.broadcaster.startTx(msgId, txType);
-
+    const sdk = await this.sdkService.getSdk();
     try {
-      const signedTxBytes = await this.sdk.append_signature(
-        fromBase64(bytes),
-        sig
-      );
-      await this.sdk.process_tx(
-        signedTxBytes,
-        fromBase64(txMsg),
-      );
+      const signedTxBytes = await sdk.append_signature(fromBase64(bytes), sig);
+      await sdk.process_tx(signedTxBytes, fromBase64(txMsg));
 
       // Clear pending tx if successful
       await this.txStore.set(msgId, null);
@@ -182,7 +172,8 @@ export class LedgerService {
         throw new Error(`Ledger account not found for ${address}`);
       }
 
-      const bytes = await this.sdk.build_tx(
+      const sdk = await this.sdkService.getSdk();
+      const bytes = await sdk.build_tx(
         txType,
         fromBase64(specificMsg),
         fromBase64(txMsg),

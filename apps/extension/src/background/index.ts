@@ -1,6 +1,4 @@
-import { ProxyMappings } from "@namada/chains";
 import { init as initCrypto } from "@namada/crypto/src/init";
-import { Query, Sdk } from "@namada/shared";
 import { init as initShared } from "@namada/shared/src/init";
 import {
   ExtensionKVStore,
@@ -21,8 +19,10 @@ import {
 } from "extension";
 import { KVPrefix, Ports } from "router";
 import { ApprovalsService, init as initApprovals } from "./approvals";
+import { ChainsService, init as initChains } from "./chains";
 import { KeyRingService, UtilityStore, init as initKeyRing } from "./keyring";
 import { LedgerService, init as initLedger } from "./ledger";
+import { SdkService } from "./sdk/service";
 import { VaultService, init as initVault } from "./vault";
 
 const store = new IndexedDBKVStore(KVPrefix.IndexedDB);
@@ -41,20 +41,15 @@ const approvedOriginsStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
   get: browser.storage.local.get,
   set: browser.storage.local.set,
 });
+const chainStore = new ExtensionKVStore(KVPrefix.LocalStorage, {
+  get: browser.storage.local.get,
+  set: browser.storage.local.set,
+});
 const revealedPKStore = new ExtensionKVStore(KVPrefix.RevealedPK, {
   get: browser.storage.local.get,
   set: browser.storage.local.set,
 });
 const txStore = new MemoryKVStore(KVPrefix.Memory);
-
-const DEFAULT_URL =
-  "https://d3brk13lbhxfdb.cloudfront.net/qc-testnet-5.1.025a61165acd05e";
-const { NAMADA_INTERFACE_PROXY, NAMADA_INTERFACE_NAMADA_URL = DEFAULT_URL } =
-  process.env;
-
-const NamadaRpcEndpoint = NAMADA_INTERFACE_PROXY
-  ? ProxyMappings["namada"]
-  : NAMADA_INTERFACE_NAMADA_URL;
 
 const messenger = new ExtensionMessenger();
 const router = new ExtensionRouter(
@@ -76,8 +71,6 @@ const init = new Promise<void>(async (resolve) => {
     wasm.arrayBuffer()
   );
   await initShared(sharedWasm);
-  const sdk = new Sdk(NamadaRpcEndpoint);
-  const query = new Query(NamadaRpcEndpoint);
 
   const routerId = await getNamadaRouterId(extensionStore);
   const requester = new ExtensionRequester(messenger, routerId);
@@ -89,24 +82,25 @@ const init = new Promise<void>(async (resolve) => {
     cryptoMemory,
     broadcaster
   );
+  const sdkService = new SdkService(chainStore);
+  const chainsService = new ChainsService(chainStore, broadcaster);
   const keyRingService = new KeyRingService(
     vaultService,
+    sdkService,
     utilityStore,
     connectedTabsStore,
     extensionStore,
-    sdk,
-    query,
     cryptoMemory,
     requester,
     broadcaster
   );
   const ledgerService = new LedgerService(
     keyRingService,
+    sdkService,
     store,
     connectedTabsStore,
     txStore,
     revealedPKStore,
-    sdk,
     requester,
     broadcaster
   );
@@ -121,10 +115,10 @@ const init = new Promise<void>(async (resolve) => {
 
   // Initialize messages and handlers
   initApprovals(router, approvalsService);
+  initChains(router, chainsService);
   initKeyRing(router, keyRingService);
   initLedger(router, ledgerService);
   initVault(router, vaultService);
-
   resolve();
 });
 

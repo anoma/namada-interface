@@ -291,3 +291,18 @@ export const matchMapFn = (
     return;
   }
 };
+
+/**
+ * Check that an input url is valid
+ *
+ * @param {string} url
+ * @returns {boolean}
+ */
+export const isUrlValid = (url: string): boolean => {
+  try {
+    const newUrl = new URL(url);
+    return newUrl.protocol === "http:" || newUrl.protocol === "https:";
+  } catch (err) {
+    return false;
+  }
+};
