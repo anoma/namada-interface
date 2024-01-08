@@ -4,6 +4,7 @@ import BigNumber from "bignumber.js";
 
 import { truncateInMiddle } from "@namada/utils";
 import { Modal } from "@namada/components";
+import { useSanitizedLocation } from "@namada/hooks";
 
 import { MainContainerNavigation } from "App/StakingAndGovernance/MainContainerNavigation";
 import { StakingContainer } from "./Staking.components";
@@ -18,7 +19,6 @@ import {
 import { NewBondingPosition } from "./NewBondingPosition";
 import { UnbondPosition } from "./UnbondPosition";
 import { Account } from "slices/accounts";
-import { useSanitizedLocation } from "@namada/hooks";
 
 const initialTitle = "Staking";
 
