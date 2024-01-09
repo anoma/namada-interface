@@ -1,12 +1,12 @@
-import { Handler, Env, Message, InternalHandler } from "router";
-import { ApprovalsService } from "./service";
-import { ApproveTxMsg, ApproveConnectInterfaceMsg } from "provider";
+import { ApproveConnectInterfaceMsg, ApproveTxMsg } from "provider";
+import { Env, Handler, InternalHandler, Message } from "router";
 import {
-  RejectTxMsg,
   ConnectInterfaceResponseMsg,
+  RejectTxMsg,
   RevokeConnectionMsg,
   SubmitApprovedTxMsg,
 } from "./messages";
+import { ApprovalsService } from "./service";
 
 export const getHandler: (service: ApprovalsService) => Handler = (service) => {
   return (env: Env, msg: Message<unknown>) => {
@@ -60,8 +60,8 @@ const handleRejectTxMsg: (
 const handleSubmitApprovedTxMsg: (
   service: ApprovalsService
 ) => InternalHandler<SubmitApprovedTxMsg> = (service) => {
-  return async (_, { msgId, password }) => {
-    return await service.submitTx(msgId, password);
+  return async (_, { msgId }) => {
+    return await service.submitTx(msgId);
   };
 };
 
