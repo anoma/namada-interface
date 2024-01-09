@@ -6,20 +6,18 @@ import { SupportedTx, TxType, TxTypeLabel } from "@namada/shared";
 import { shortenAddress } from "@namada/utils";
 import { ApprovalDetails, Status } from "Approvals/Approvals";
 import { SubmitApprovedTxMsg } from "background/approvals";
+import { UnlockVaultMsg } from "background/vault";
 import { useRequester } from "hooks/useRequester";
 import { FetchAndStoreMaspParamsMsg, HasMaspParamsMsg } from "provider";
 import { Ports } from "router";
 import { closeCurrentTab } from "utils";
-
-const { NAMADA_INTERFACE_NAMADA_FAUCET_ADDRESS: faucetAddress } = process.env;
 
 type Props = {
   details?: ApprovalDetails;
 };
 
 export const ConfirmTx: React.FC<Props> = ({ details }) => {
-  const { source, msgId, txType, target } = details || {};
-  const signerAddress = source === faucetAddress && target ? target : source;
+  const { source, msgId, txType } = details || {};
 
   const navigate = useNavigate();
   const requester = useRequester();
@@ -37,6 +35,15 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
     try {
       if (!msgId) {
         throw new Error("msgId was not provided!");
+      }
+
+      const isAuthenticated = await requester.sendMessage(
+        Ports.Background,
+        new UnlockVaultMsg(password)
+      );
+
+      if (!isAuthenticated) {
+        throw new Error("Invalid password!");
       }
 
       const hasMaspParams = await requester.sendMessage(
@@ -57,10 +64,14 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
         }
       }
 
-      requester.sendMessage(
-        Ports.Background,
-        new SubmitApprovedTxMsg(txType as SupportedTx, msgId, password)
-      );
+      requester
+        .sendMessage(
+          Ports.Background,
+          new SubmitApprovedTxMsg(txType as SupportedTx, msgId)
+        )
+        .catch((e) => {
+          throw new Error(e);
+        });
       setStatus(Status.Completed);
     } catch (e) {
       console.info(e);
@@ -85,11 +96,11 @@ export const ConfirmTx: React.FC<Props> = ({ details }) => {
           Try again
         </Alert>
       )}
-      {status !== (Status.Pending || Status.Completed) && signerAddress && (
+      {status !== (Status.Pending || Status.Completed) && source && (
         <>
           <Alert type="warning">
             Decrypt keys for{" "}
-            <strong className="text-xs">{shortenAddress(signerAddress)}</strong>
+            <strong className="text-xs">{shortenAddress(source)}</strong>
           </Alert>
           <Input
             variant="Password"

@@ -1,6 +1,6 @@
+import { SupportedTx } from "@namada/shared";
 import { Message } from "router";
 import { ROUTE } from "./constants";
-import { SupportedTx } from "@namada/shared";
 
 import { validateProps } from "utils";
 
@@ -43,14 +43,13 @@ export class SubmitApprovedTxMsg extends Message<void> {
 
   constructor(
     public readonly txType: SupportedTx,
-    public readonly msgId: string,
-    public readonly password: string
+    public readonly msgId: string
   ) {
     super();
   }
 
   validate(): void {
-    validateProps(this, ["txType", "msgId", "password"]);
+    validateProps(this, ["txType", "msgId"]);
   }
 
   route(): string {
