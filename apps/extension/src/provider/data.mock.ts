@@ -14,6 +14,7 @@ export const ACTIVE_ACCOUNT: ActiveAccountStore = {
 };
 
 export const chain: Chain = {
+  id: "namada",
   alias: "Namada Testnet",
   bech32Prefix: "atest",
   bip44: {

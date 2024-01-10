@@ -15,6 +15,7 @@ const {
 } = process.env;
 
 const namada: Chain = {
+  id: "namada",
   alias,
   bech32Prefix,
   bip44: {

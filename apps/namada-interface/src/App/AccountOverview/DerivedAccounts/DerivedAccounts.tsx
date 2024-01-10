@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { ThemeContext } from "styled-components";
 import BigNumber from "bignumber.js";
 
-import { chains, defaultChainId as chainId } from "@namada/chains";
+import { chains } from "@namada/chains";
 import { TokenType, Tokens } from "@namada/types";
 import { formatCurrency } from "@namada/utils";
 
@@ -85,10 +85,10 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
     (state) => state.coins
   );
   const { api } = Config;
-  const chain = chains[chainId];
+  const chain = chains.namada;
   const { alias } = chain || {};
 
-  const accounts = Object.values(derived[chainId]);
+  const accounts = derived[chain.id] ? Object.values(derived[chain.id]) : [];
   const { colorMode } = themeContext.themeConfigurations;
 
   const getAssetIconByTheme = (symbol: TokenType): string => {
@@ -118,7 +118,7 @@ const DerivedAccounts = ({ setTotal }: Props): JSX.Element => {
     }, new BigNumber(0));
     setTotal(total);
     setActiveAccountAddress(accounts[0]?.details.address);
-  }, [derived[chainId], chainId]);
+  }, [derived[chain.id]]);
 
   useEffect(() => {
     const currentTimestamp = Math.floor(Date.now() / 1000);

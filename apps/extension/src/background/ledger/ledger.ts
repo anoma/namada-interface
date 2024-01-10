@@ -1,20 +1,19 @@
-import TransportUSB from "@ledgerhq/hw-transport-webusb";
-import TransportHID from "@ledgerhq/hw-transport-webhid";
 import Transport from "@ledgerhq/hw-transport";
+import TransportHID from "@ledgerhq/hw-transport-webhid";
+import TransportUSB from "@ledgerhq/hw-transport-webusb";
 
+import { toHex } from "@cosmjs/encoding";
+import { chains } from "@namada/chains";
+import { makeBip44Path } from "@namada/utils";
 import {
+  LedgerError,
   NamadaApp,
   ResponseAppInfo,
   ResponseSign,
   ResponseVersion,
-  LedgerError,
 } from "@zondax/ledger-namada";
-import { defaultChainId, chains } from "@namada/chains";
-import { makeBip44Path } from "@namada/utils";
-import { toHex } from "@cosmjs/encoding";
 
-const namadaChain = chains[defaultChainId];
-const { coinType } = namadaChain.bip44;
+const { coinType } = chains.namada.bip44;
 
 export const initLedgerUSBTransport = async (): Promise<Transport> => {
   return await TransportUSB.create();
@@ -31,7 +30,7 @@ export const DEFAULT_LEDGER_BIP44_PATH = makeBip44Path(coinType, {
 });
 
 export class Ledger {
-  constructor(public readonly namadaApp: NamadaApp | undefined = undefined) {}
+  constructor(public readonly namadaApp: NamadaApp | undefined = undefined) { }
 
   /**
    * Returns an initialized Ledger class instance with initialized Transport
@@ -78,9 +77,8 @@ export class Ledger {
     }
 
     const path = bip44Path || DEFAULT_LEDGER_BIP44_PATH;
-    const { address, publicKey } = await this.namadaApp.getAddressAndPubKey(
-      path
-    );
+    const { address, publicKey } =
+      await this.namadaApp.getAddressAndPubKey(path);
 
     return {
       // Return address as bech32-encoded string
@@ -100,9 +98,8 @@ export class Ledger {
     const path = bip44Path || DEFAULT_LEDGER_BIP44_PATH;
 
     try {
-      const { address, publicKey } = await this.namadaApp.showAddressAndPubKey(
-        path
-      );
+      const { address, publicKey } =
+        await this.namadaApp.showAddressAndPubKey(path);
 
       return {
         // Return address as bech32-encoded string

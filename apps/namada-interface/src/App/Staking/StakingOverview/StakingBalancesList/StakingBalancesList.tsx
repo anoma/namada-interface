@@ -1,4 +1,4 @@
-import { defaultChainId } from "@namada/chains";
+import { chains } from "@namada/chains";
 import { mapUndefined, showMaybeNam } from "@namada/utils";
 import BigNumber from "bignumber.js";
 import { RootState, useAppSelector } from "store";
@@ -43,7 +43,7 @@ const selectStakingTotals = (state: RootState): Totals | undefined => {
 
 const selectTotalNamBalance = (state: RootState): BigNumber => {
   const { derived } = state.accounts;
-  const accounts = Object.values(derived[defaultChainId]);
+  const accounts = Object.values(derived[chains.namada.id]);
 
   return accounts.reduce((acc, curr) => {
     return acc.plus(curr.balance["NAM"] ?? new BigNumber(0));

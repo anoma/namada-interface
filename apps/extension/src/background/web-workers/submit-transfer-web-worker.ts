@@ -1,6 +1,6 @@
 import { fromBase64 } from "@cosmjs/encoding";
 import { deserialize, serialize } from "@dao-xyz/borsh";
-import { chains, defaultChainId } from "@namada/chains";
+import { chains } from "@namada/chains";
 import { Sdk } from "@namada/shared";
 import { initMulticore as initShared } from "@namada/shared/src/init";
 import { TxMsgValue } from "@namada/types";
@@ -17,7 +17,7 @@ import {
     wasm.arrayBuffer()
   );
   await initShared(sharedWasm);
-  const sdk = new Sdk(chains[defaultChainId].rpc);
+  const sdk = new Sdk(chains.namada.rpc);
   await sdk.load_masp_params();
 
   addEventListener(

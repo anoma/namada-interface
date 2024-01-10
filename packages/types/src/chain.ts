@@ -1,8 +1,3 @@
-// const {
-//   // Load extension download URL from env
-//   REACT_APP_EXTENSION_URL: extensionUrl,
-// } = process.env;
-
 export type Currency = {
   token: string;
   symbol: string;
@@ -20,6 +15,9 @@ export enum BridgeType {
 
 // Define keys for supported extensions
 export type ExtensionKey = "namada" | "keplr" | "metamask";
+
+// Define keys for supported chains
+export type ChainKey = "namada" | "cosmos" | "ethereum";
 
 export type ExtensionInfo = {
   alias: string;
@@ -48,6 +46,7 @@ export const Extensions: Record<ExtensionKey, ExtensionInfo> = {
 };
 
 export type Chain = {
+  id: ChainKey;
   alias: string;
   bech32Prefix: string;
   bip44: {

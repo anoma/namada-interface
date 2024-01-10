@@ -1,4 +1,4 @@
-import { chains, defaultChainId } from "@namada/chains";
+import { chains } from "@namada/chains";
 import { Query } from "@namada/shared";
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import BigNumber from "bignumber.js";
@@ -35,7 +35,7 @@ export const fetchProposals = createAsyncThunk<
   void,
   { state: RootState }
 >(`${PROPOSALS_ACTIONS_BASE}/${ProposalsActions.FetchProposals}`, async () => {
-  const { rpc } = chains[defaultChainId];
+  const { rpc } = chains.namada;
   const query = new Query(rpc);
   let proposals: Proposal[] = [];
 

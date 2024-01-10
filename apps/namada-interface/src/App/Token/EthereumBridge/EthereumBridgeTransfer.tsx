@@ -11,11 +11,10 @@ import {
 
 type EthereumBridgeTransfersProps = {
   accounts: Account[];
-  chainId: string;
 };
 
 export const EthereumBridgeTransfers = (
-  { accounts, chainId }: EthereumBridgeTransfersProps
+  { accounts }: EthereumBridgeTransfersProps
 ): JSX.Element => {
   const [pendingTransfers, setPendingTransfers] = useState<
     TransferToEthereum[]
@@ -24,8 +23,7 @@ export const EthereumBridgeTransfers = (
 
   useEffect(() => {
     (async () => {
-      const { rpc } = chains[chainId];
-      const query = new Query(rpc);
+      const query = new Query(chains.namada.rpc);
       const addresses = accounts.map(({ details }) => details.address);
       const bridgePool: TransferToEthereum[] =
         await query.query_signed_bridge_pool(addresses);

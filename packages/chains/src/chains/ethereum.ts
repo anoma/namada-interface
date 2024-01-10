@@ -13,6 +13,7 @@ const {
 } = process.env;
 
 const ethereum: Chain = {
+  id: "ethereum",
   alias,
   bech32Prefix: "eth",
   bip44: {

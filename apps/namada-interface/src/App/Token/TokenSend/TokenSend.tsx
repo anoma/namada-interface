@@ -5,7 +5,6 @@ import { TransferType } from "App/Token/types";
 import { Account, AccountsState } from "slices/accounts";
 import { useAppSelector } from "store";
 
-import { defaultChainId as chainId, chains } from "@namada/chains";
 import {
   Heading,
   NavigationContainer,
@@ -18,6 +17,7 @@ import { useSanitizedParams } from "@namada/hooks";
 import { Query } from "@namada/shared";
 import { TokenType, Tokens } from "@namada/types";
 import TokenSendForm from "./TokenSendForm";
+import { chains } from "@namada/chains";
 
 import { TokenSendContainer, TokenSendContent } from "./TokenSend.components";
 import {
@@ -67,7 +67,7 @@ const TokenSend = (): JSX.Element => {
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const { target } = useSanitizedParams<Params>();
 
-  const accounts = Object.values(derived[chainId]);
+  const accounts = Object.values(derived[chains.namada.id]);
 
   const shieldedAccountsWithBalance = accounts.filter(
     ({ details }) => details.isShielded
@@ -98,7 +98,7 @@ const TokenSend = (): JSX.Element => {
     setSelectedTransparentAccountAddress(
       transparentAccountsWithBalance?.[0]?.details.address
     );
-  }, [derived[chainId]]);
+  }, [derived[chains.namada.id]]);
 
   const tabs = ["Shielded", "Transparent"];
   let defaultTab = 0;
@@ -110,24 +110,24 @@ const TokenSend = (): JSX.Element => {
 
   const [activeTab, setActiveTab] = useState(tabs[defaultTab]);
   const [token, setToken] = useState<TokenType>(
-    chains[chainId].currency.symbol as TokenType
+    chains.namada.currency.symbol as TokenType
   );
 
   const handleTokenChange =
     (selectAccountFn: (accId: string) => void) =>
-    (e: React.ChangeEvent<HTMLSelectElement>): void => {
-      const { value } = e.target;
-      const [accountId, tokenSymbol] = value.split("|");
+      (e: React.ChangeEvent<HTMLSelectElement>): void => {
+        const { value } = e.target;
+        const [accountId, tokenSymbol] = value.split("|");
 
-      selectAccountFn(accountId);
-      setToken(tokenSymbol as TokenType);
-    };
+        selectAccountFn(accountId);
+        setToken(tokenSymbol as TokenType);
+      };
 
   const [minimumGasPrice, setMinimumGasPrice] = useState<BigNumber>();
 
   useEffect(() => {
     (async () => {
-      const { rpc } = chains[chainId];
+      const { rpc } = chains.namada;
       const query = new Query(rpc);
       const result = (await query.query_gas_costs()) as [string, string][];
 

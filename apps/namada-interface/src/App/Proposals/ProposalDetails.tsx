@@ -46,7 +46,7 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
   const { onClose, maybeProposal } = props;
 
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
-  const addresses = Object.keys(derived[chainId]);
+  const addresses = Object.keys(derived[chains.namada.id]);
 
   const [activeProposalVotes, setActiveProposalVotes] = useState<
     Map<string, boolean>
@@ -72,7 +72,7 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
   const vote = useCallback(
     async (vote: boolean) => {
       const voteStr = vote ? "yay" : "nay";
-      const integration = getIntegration(chainId);
+      const integration = getIntegration(chains.namada.id);
       const signer = integration.signer() as Signer;
 
       if (O.isNone(maybeProposal)) {
@@ -104,7 +104,7 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
 
   useEffect(() => {
     const fetchData = async (proposal: Proposal): Promise<void> => {
-      const { rpc } = chains[chainId];
+      const { rpc } = chains.namada;
       const query = new Query(rpc);
       try {
         const votes = await query.delegators_votes(BigInt(proposal.id));

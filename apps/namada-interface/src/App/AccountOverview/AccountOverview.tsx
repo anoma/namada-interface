@@ -2,7 +2,7 @@ import BigNumber from "bignumber.js";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { chains, defaultChainId as chainId } from "@namada/chains";
+import { chains } from "@namada/chains";
 import { ActionButton, Heading } from "@namada/components";
 import {
   useIntegrationConnection,
@@ -31,10 +31,11 @@ import { DerivedAccounts } from "./DerivedAccounts";
 
 //TODO: move to utils when we have one
 const isEmptyObject = (object: Record<string, unknown>): boolean => {
-  return Object.keys(object).length === 0;
+  return object ? Object.keys(object).length === 0 : true;
 };
 
 export const AccountOverview = (): JSX.Element => {
+  const { chainId } = chains.namada;
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [isExtensionConnected, setIsExtensionConnected] = useState<
@@ -46,14 +47,13 @@ export const AccountOverview = (): JSX.Element => {
   });
 
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
-
   const { fiatCurrency } = useAppSelector<SettingsState>(
     (state) => state.settings
   );
 
   const [integration, isConnectingToExtension, withConnection] =
-    useIntegrationConnection(chainId);
-  const chain = chains[chainId];
+    useIntegrationConnection(chains.namada.id);
+  const chain = chains.namada;
   const extensionAlias = Extensions[chain.extension.id].alias;
 
   const extensionAttachStatus = useUntilIntegrationAttached(chain);
@@ -100,7 +100,7 @@ export const AccountOverview = (): JSX.Element => {
             </TotalHeading>
           </div>
           <TotalContainer>
-            {!isEmptyObject(derived[chainId]) && (
+            {!isEmptyObject(derived[chain.id]) && (
               <TotalAmount>
                 <TotalAmountFiat>{fiatCurrency}</TotalAmountFiat>
                 <TotalAmountValue>
@@ -111,7 +111,7 @@ export const AccountOverview = (): JSX.Element => {
           </TotalContainer>
         </HeadingContainer>
 
-        {!isEmptyObject(derived[chainId]) ? (
+        {!isEmptyObject(derived[chain.id]) ? (
           <ButtonsContainer>
             <ButtonsWrapper>
               <ActionButton onClick={() => navigate(TopLevelRoute.TokenSend)}>
@@ -127,7 +127,7 @@ export const AccountOverview = (): JSX.Element => {
         ) : (
           <div />
         )}
-        {isEmptyObject(derived[chainId]) && (
+        {isEmptyObject(derived[chain.id]) && (
           <NoAccountsContainer>
             {!isExtensionConnected[chain.extension.id] && (
               <ActionButton
@@ -138,7 +138,7 @@ export const AccountOverview = (): JSX.Element => {
                 }
                 style={
                   currentExtensionAttachStatus === "pending" ||
-                  isConnectingToExtension
+                    isConnectingToExtension
                     ? { color: "transparent" }
                     : {}
                 }

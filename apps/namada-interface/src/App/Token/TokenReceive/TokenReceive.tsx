@@ -1,4 +1,4 @@
-import { defaultChainId } from "@namada/chains";
+import { chains } from "@namada/chains";
 import { Heading, Icon, NavigationContainer, Select } from "@namada/components";
 import { formatRoute } from "@namada/utils";
 import { TopLevelRoute } from "App/types";
@@ -24,13 +24,12 @@ const TokenReceive = (): JSX.Element => {
     string | undefined
   >();
 
-  const accounts = Object.values(derived[defaultChainId]);
+  const accounts = Object.values(derived[chains.namada.id]);
 
   const accountsData = accounts.map(({ details }) => ({
     value: details.address,
-    label: `${details.alias} - ${
-      details.isShielded ? "Shielded" : "Transparent"
-    }`,
+    label: `${details.alias} - ${details.isShielded ? "Shielded" : "Transparent"
+      }`,
   }));
 
   useEffect(() => {

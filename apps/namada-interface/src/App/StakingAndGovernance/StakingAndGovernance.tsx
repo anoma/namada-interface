@@ -32,17 +32,16 @@ export const StakingAndGovernance = (): JSX.Element => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const chain = useAppSelector<Chain>((state: RootState) => state.chain.config);
-  const { chainId } = chain;
+  const { id } = chain;
   const stakingAndGovernance = useAppSelector(
     (state: RootState) => state.stakingAndGovernance
   );
   const derivedAccounts = useAppSelector<AccountsState>(
     (state: RootState) => state.accounts
-  ).derived[chainId];
+  ).derived[id];
 
   const accounts = Object.values(derivedAccounts);
-  const [_integration, _status, withConnection] =
-    useIntegrationConnection(chainId);
+  const [_integration, _status, withConnection] = useIntegrationConnection(id);
 
   const { validators, selectedValidatorId, myStakingPositions } =
     stakingAndGovernance;

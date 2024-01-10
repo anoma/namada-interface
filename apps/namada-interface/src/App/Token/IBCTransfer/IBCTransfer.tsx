@@ -98,7 +98,7 @@ const IBCTransfer = (): JSX.Element => {
     (chain: Chain) => chain.chainId !== chainId
   );
 
-  const sourceChain = chains[chainId] || null;
+  const sourceChain = chains.namada || null;
   const [selectedChainId, setSelectedChainId] = useState(defaultChainId);
   const destinationChain = bridgedChains[0];
 
@@ -108,10 +108,10 @@ const IBCTransfer = (): JSX.Element => {
   }));
 
   const [destinationIntegration, _isDestinationConnectingToExtension, withDestinationConnection] =
-    useIntegrationConnection(destinationChain.chainId);
+    useIntegrationConnection(destinationChain.id);
 
   const [sourceIntegration, _isSourceConnectingToExtension, withSourceConnection] =
-    useIntegrationConnection(sourceChain.chainId);
+    useIntegrationConnection(sourceChain.id);
 
   const [amount, setAmount] = useState<BigNumber>(new BigNumber(0));
   const [selectedChannelId, setSelectedChannelId] = useState("");
@@ -124,9 +124,9 @@ const IBCTransfer = (): JSX.Element => {
   >([]);
 
   const [sourceAccount, setSourceAccount] = useState<Account>();
-  const [token, setToken] = useState<TokenType>(chains[defaultChainId].currency.symbol as TokenType);
+  const [token, setToken] = useState<TokenType>(chains.namada.currency.symbol as TokenType);
 
-  const chain = chains[chainId];
+  const chain: Chain = Object.values(chains).find((chain: Chain) => chain.chainId === chainId) || chains.namada;
   const sourceExtensionAlias = Extensions[sourceChain.extension.id].alias;
   const destinationExtensionAlias = Extensions[destinationChain.extension.id].alias;
 
@@ -144,7 +144,7 @@ const IBCTransfer = (): JSX.Element => {
     label: channel,
   }));
 
-  const accounts = Object.values(derived[chainId]);
+  const accounts = Object.values(derived[chain.id]);
   const sourceAccounts = accounts.filter(({ details }) => !details.isShielded);
 
   const tokenData: Option<string>[] = sourceAccounts.flatMap(
@@ -176,7 +176,10 @@ const IBCTransfer = (): JSX.Element => {
   }, [sourceAccount, token]);
 
   useEffect(() => {
-    const destinationAccounts = Object.values(derived[selectedChainId]).filter(
+    const chain = Object.values(chains).find((chain) => chain.chainId === selectedChainId);
+    if (!chain) return;
+
+    const destinationAccounts = Object.values(derived[chain.id]).filter(
       (account) => !account.details.isShielded
     );
     setDestinationAccounts(destinationAccounts);
@@ -229,7 +232,7 @@ const IBCTransfer = (): JSX.Element => {
   ): void => {
     const { value: chainId } = event.target;
     setChainId(chainId)
-    setToken(chains[chainId].currency.symbol as TokenType)
+    setToken(chain.currency.symbol as TokenType)
   };
 
   const { portId = "transfer" } = sourceChain.ibc || {};
@@ -487,9 +490,9 @@ const IBCTransfer = (): JSX.Element => {
                   currentExtensionAttachStatus === "attached"
                     ? handleConnectDestinationExtension
                     : handleDownloadExtension.bind(
-                        null,
-                        destinationChain.extension.url
-                      )
+                      null,
+                      destinationChain.extension.url
+                    )
                 }
                 style={
                   currentExtensionAttachStatus === "pending"

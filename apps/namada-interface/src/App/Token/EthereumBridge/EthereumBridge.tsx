@@ -4,7 +4,7 @@ import {
   Option,
   Select,
 } from "@namada/components";
-import { chains, defaultChainId as chainId } from "@namada/chains";
+import { chains } from "@namada/chains";
 import { TokenType, Tokens } from "@namada/types";
 import BigNumber from "bignumber.js";
 import { useState } from "react";
@@ -49,7 +49,7 @@ export const EthereumBridge = (): JSX.Element => {
   const [amount, setAmount] = useState<BigNumber>(new BigNumber(0));
   const [feeAmount, setFeeAmount] = useState<BigNumber>(new BigNumber(0));
 
-  const accounts = Object.values(derived[chainId]).filter(
+  const accounts = Object.values(derived[chains.namada.id]).filter(
     ({ details }) => !details.isShielded
   );
 
@@ -75,7 +75,7 @@ export const EthereumBridge = (): JSX.Element => {
       (account) => account?.details?.address === accountId
     ) as Account;
 
-    const integration = getIntegration(chainId);
+    const integration = getIntegration(chains.namada.id);
     await integration.submitBridgeTransfer(
       {
         bridgeProps: {
@@ -92,14 +92,14 @@ export const EthereumBridge = (): JSX.Element => {
           feeAmount: new BigNumber(0),
           gasLimit: new BigNumber(20_000),
           publicKey: account.details.publicKey,
-          chainId,
+          chainId: chains.namada.chainId,
         },
       },
       account.details.type
     );
   };
 
-  const extensionKey = chains[chainId].extension.id;
+  const extensionKey = chains.namada.extension.id;
 
   // Validate form
   const recipientValid = recipient.length > 0;

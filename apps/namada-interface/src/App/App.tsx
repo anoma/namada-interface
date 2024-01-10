@@ -68,9 +68,9 @@ function App(): JSX.Element {
   const { connectedChains } = useAppSelector<SettingsState>(
     (state) => state.settings
   );
-  const defaultChain = chains[defaultChainId];
+  const defaultChain = chains.namada;
 
-  const integration = useIntegration(defaultChainId);
+  const integration = useIntegration(defaultChain.id);
 
   useEffect(() => storeColorMode(colorMode), [colorMode]);
 
