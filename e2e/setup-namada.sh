@@ -5,6 +5,16 @@ CURRENT_VERSION=""
 NAMADA_DIR=".namada"
 NAMADA_BASE_DIR=".namada/basedir"
 OS="Linux"
+PARAMETERS="default_parameters.toml"
+
+if [ -z "$1" ]; then
+    echo "Using default genesis parameters"
+else
+    PARAMETERS=$1
+    echo "Using genesis parameters: ${PARAMETERS}"
+fi
+
+cp -f "genesis/parameters/${PARAMETERS}" genesis/localnet/parameters.toml
 
 if [[ $OSTYPE == "darwin"* ]]; then
     OS="Darwin"

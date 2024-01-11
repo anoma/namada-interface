@@ -40,7 +40,6 @@ describe("Namada", () => {
   const namRefs = new Set<ChildProcess>();
 
   beforeEach(async function () {
-    await setupNamada();
     browser = await launchPuppeteer();
     [page] = await browser.pages();
   });
@@ -86,9 +85,18 @@ describe("Namada", () => {
   });
 
   describe("transfer", () => {
-    test("transparent->transparent", async () => {
-      const nam = startNamada(namRefs);
+    let nam: ChildProcess;
 
+    beforeEach(async function () {
+      await setupNamada();
+      nam = startNamada(namRefs);
+    });
+
+    afterEach(async function () {
+      await stopNamada(nam);
+    });
+
+    test("transparent->transparent", async () => {
       await importAccount(browser, page);
       await openInterface(page);
       await approveConnection(browser, page);
@@ -97,13 +105,9 @@ describe("Namada", () => {
         targetAddress: address1,
         amount: "1000",
       });
-
-      await stopNamada(nam);
     });
 
     test("transparent->shielded", async () => {
-      const nam = startNamada(namRefs);
-
       await importAccount(browser, page);
       await openInterface(page);
       await approveConnection(browser, page);
@@ -112,13 +116,9 @@ describe("Namada", () => {
         targetAddress: shieldedAddress0,
         amount: "1000",
       });
-
-      await stopNamada(nam);
     });
 
     test("shielded->transparent", async () => {
-      const nam = startNamada(namRefs);
-
       await importAccount(browser, page);
       await openInterface(page);
       await approveConnection(browser, page);
@@ -134,13 +134,9 @@ describe("Namada", () => {
         amount: "10",
         transferTimeout: 120000,
       });
-
-      await stopNamada(nam);
     });
 
     test("shielded->shielded", async () => {
-      const nam = startNamada(namRefs);
-
       await importAccount(browser, page);
       await openInterface(page);
       await approveConnection(browser, page);
@@ -156,8 +152,131 @@ describe("Namada", () => {
         amount: "10",
         transferTimeout: 120000,
       });
+    });
+  });
 
+  describe.skip("staking", () => {
+    let nam: ChildProcess;
+
+    beforeEach(async function () {
+      await setupNamada("pos_parameters.toml");
+      nam = startNamada(namRefs);
+    });
+
+    afterEach(async function () {
       await stopNamada(nam);
+    });
+
+    test("bond->unbond->withdraw", async () => {
+      await importAccount(browser, page);
+      await openInterface(page);
+      await approveConnection(browser, page);
+
+      // Click on staking button
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Staking')]"
+        )
+      ).click();
+
+      // Click on validator
+      (
+        await waitForXpath<HTMLSpanElement>(page, "//span[contains(., 'tnam')]")
+      ).click();
+
+      // Click on stake button
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Stake')]"
+        )
+      ).click();
+
+      // Type staking amount
+      const [stakeInput] = await page.$$("input");
+      await stakeInput.type("100");
+
+      // Click confirm
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Confirm')]"
+        )
+      ).click();
+
+      await approveTransaction(browser);
+
+      // Wait for success toast
+      await page.waitForXPath("//div[contains(., 'Transaction completed!')]");
+
+      // Click on unstake
+      (
+        await waitForXpath<HTMLSpanElement>(
+          page,
+          "//span[contains(., 'unstake')]"
+        )
+      ).click();
+
+      await page.waitForNavigation();
+      const [unstakeInput] = await page.$$("input");
+      await unstakeInput.type("100");
+
+      // Click confirm
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Confirm')]"
+        )
+      ).click();
+
+      await approveTransaction(browser);
+
+      // Wait for success toast
+      await page.waitForXPath("//div[contains(., 'Transaction completed!')]");
+
+      // Wait for new epoch
+      page.on("dialog", async (dialog) => {
+        await new Promise((resolve) => setTimeout(resolve, 60000));
+        await dialog.accept();
+      });
+
+      await page.evaluate(() =>
+        alert(
+          'E2E info: We need to wait a minute before we can withdraw funds :|\n[do not touch "Ok" :), this window will close automatically]'
+        )
+      );
+
+      // Click on send button
+      (
+        await waitForXpath<HTMLButtonElement>(
+          page,
+          "//button[contains(., 'Staking')]"
+        )
+      ).click();
+      await page.waitForNavigation();
+
+      // Click on validator
+      (
+        await waitForXpath<HTMLSpanElement>(page, "//span[contains(., 'tnam')]")
+      ).click();
+
+      // Click on withdraw
+      (
+        await waitForXpath<HTMLSpanElement>(
+          page,
+          "//span[contains(., 'withdraw')]"
+        )
+      ).click();
+
+      await approveTransaction(browser);
+
+      // Wait for success toast
+      const withdrawCompletedToast = await page.waitForXPath(
+        "//div[contains(., 'Transaction completed!')]"
+      );
+
+      expect(withdrawCompletedToast).toBeDefined();
     });
   });
 
@@ -166,6 +285,7 @@ describe("Namada", () => {
     test("add to bridge pool", async () => {
       const nam = startNamada(namRefs);
       await importAccount(browser, page);
+      await openInterface(page);
       await approveConnection(browser, page);
 
       // Click on staking button
@@ -213,142 +333,8 @@ describe("Namada", () => {
         "//div[contains(., 'Transaction completed!')]"
       );
 
+      await stopNamada(nam);
       expect(toast).toBeDefined();
-
-      await stopNamada(nam);
-    });
-  });
-
-  describe.skip("staking", () => {
-    test("bond -> unbond -> withdraw", async () => {
-      jest.setTimeout(360000);
-
-      const nam = startNamada(namRefs);
-
-      await importAccount(browser, page);
-      await approveConnection(browser, page);
-
-      // Click on staking button
-      (
-        await waitForXpath<HTMLButtonElement>(
-          page,
-          "//button[contains(., 'Staking')]"
-        )
-      ).click();
-
-      // Click on validator
-      (
-        await waitForXpath<HTMLSpanElement>(
-          page,
-          "//span[contains(., 'atest1v4')]"
-        )
-      ).click();
-
-      // Click on stake button
-      (
-        await waitForXpath<HTMLButtonElement>(
-          page,
-          "//button[contains(., 'Stake')]"
-        )
-      ).click();
-
-      // Type staking amount
-      const [stakeInput] = await page.$$("input");
-      await stakeInput.type("100");
-
-      // Click confirm
-      (
-        await waitForXpath<HTMLButtonElement>(
-          page,
-          "//button[contains(., 'Confirm')]"
-        )
-      ).click();
-
-      await approveTransaction(browser);
-
-      // Wait for success toast
-      const bondCompletedToast = await page.waitForXPath(
-        "//div[contains(., 'Transaction completed!')]"
-      );
-
-      expect(bondCompletedToast).toBeDefined();
-
-      // Click on unstake
-      (
-        await waitForXpath<HTMLSpanElement>(
-          page,
-          "//span[contains(., 'unstake')]"
-        )
-      ).click();
-
-      await page.waitForNavigation();
-      const [unstakeInput] = await page.$$("input");
-      await unstakeInput.type("100");
-
-      // Click confirm
-      (
-        await waitForXpath<HTMLButtonElement>(
-          page,
-          "//button[contains(., 'Confirm')]"
-        )
-      ).click();
-
-      await approveTransaction(browser);
-
-      // Wait for success toast
-      const unbondCompletedToast = await page.waitForXPath(
-        "//div[contains(., 'Transaction completed!')]"
-      );
-
-      expect(unbondCompletedToast).toBeDefined();
-
-      // Wait for new epoch
-      page.on("dialog", async (dialog) => {
-        await new Promise((resolve) => setTimeout(resolve, 70000));
-        await dialog.accept();
-      });
-
-      await page.evaluate(() =>
-        alert(
-          'E2E info: We need to wait a minute before we can withdraw funds :|\n[do not touch "Ok" :), this window will close automatically]'
-        )
-      );
-
-      // Click on send button
-      (
-        await waitForXpath<HTMLButtonElement>(
-          page,
-          "//button[contains(., 'Staking')]"
-        )
-      ).click();
-      await page.waitForNavigation();
-
-      // Click on validator
-      (
-        await waitForXpath<HTMLSpanElement>(
-          page,
-          "//span[contains(., 'atest1v4')]"
-        )
-      ).click();
-
-      // Click on withdraw
-      (
-        await waitForXpath<HTMLSpanElement>(
-          page,
-          "//span[contains(., 'withdraw')]"
-        )
-      ).click();
-
-      await approveTransaction(browser);
-
-      // Wait for success toast
-      const withdrawCompletedToast = await page.waitForXPath(
-        "//div[contains(., 'Transaction completed!')]"
-      );
-
-      expect(withdrawCompletedToast).toBeDefined();
-
-      await stopNamada(nam);
     });
   });
 
@@ -455,9 +441,8 @@ describe("Namada", () => {
         "//div[contains(., 'Transaction completed!')]"
       );
 
-      expect(nayCompletedToast).toBeDefined();
-
       await stopNamada(nam);
+      expect(nayCompletedToast).toBeDefined();
     });
   });
 });

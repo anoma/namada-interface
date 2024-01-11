@@ -106,9 +106,9 @@ export const startNamada = (namRefs: Set<ChildProcess>): ChildProcess => {
   return nam;
 };
 
-export const setupNamada = async (): Promise<void> => {
+export const setupNamada = async (parametersFile = ""): Promise<void> => {
   const { stderr, stdout } = await execPromise(
-    `bash ${process.cwd()}/setup-namada.sh`
+    `bash ${process.cwd()}/setup-namada.sh ${parametersFile}`
   );
   if (NAMADA_LOG) {
     if (stdout) {

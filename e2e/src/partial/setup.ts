@@ -29,7 +29,7 @@ export const importAccount = async (
   // Click on import button
   (
     await page.waitForSelector(
-      "[data-testid='setup-import-keys-import-button']"
+      "[data-testid='setup-import-keys-import-button']:not(:disabled)"
     )
   )?.click();
   await page.waitForNavigation();
