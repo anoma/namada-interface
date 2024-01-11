@@ -1,6 +1,5 @@
 import BigNumber from "bignumber.js";
 import { CSSProperties, useContext, useEffect, useState } from "react";
-import QrReader from "react-qr-reader";
 import { useNavigate } from "react-router-dom";
 import { ThemeContext } from "styled-components";
 
@@ -21,8 +20,6 @@ import {
   ButtonsContainer,
   GasButtonsContainer,
   InputContainer,
-  QrReaderContainer,
-  QrReaderError,
   TokenSendFormContainer,
 } from "./TokenSendForm.components";
 
@@ -151,8 +148,6 @@ const TokenSendForm = ({
 
   const [isTargetValid, setIsTargetValid] = useState(true);
   const [isShieldedTarget, setIsShieldedTarget] = useState(false);
-  const [showQrReader, setShowQrReader] = useState(false);
-  const [qrCodeError, setQrCodeError] = useState<string>();
 
   // TODO: This will likely be calculated per token, as any one of these numbers
   // will be difference for each token specified:
@@ -264,22 +259,6 @@ const TokenSendForm = ({
     }
   };
 
-  const handleOnScan = (data: string | null): void => {
-    if (data && data.match(/\/token\/send/)) {
-      const parts = data.split("/");
-      const target = parts.pop();
-      const token = parts.pop();
-
-      if (token !== tokenType) {
-        setQrCodeError("Invalid token for target address!");
-        return;
-      }
-      setQrCodeError(undefined);
-      setTarget(target);
-      setShowQrReader(false);
-    }
-  };
-
   // if the transfer target is not TransferType.Shielded we perform the validation logic
   const isAmountValid = (
     address: string,
@@ -327,16 +306,6 @@ const TokenSendForm = ({
             value={target}
             error={isTargetValid ? undefined : "Target is invalid"}
           />
-
-          {showQrReader && (
-            <QrReaderContainer>
-              {qrCodeError && <QrReaderError>{qrCodeError}</QrReaderError>}
-              <QrReader
-                onScan={handleOnScan}
-                onError={(e: string) => setQrCodeError(e)}
-              />
-            </QrReaderContainer>
-          )}
         </InputContainer>
         <InputContainer>
           <AmountInput

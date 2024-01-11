@@ -47,14 +47,6 @@ export const InputWithButtonContainer = styled.div`
   }
 `;
 
-export const QrReaderContainer = styled.div`
-  padding-top: 20px;
-`;
-
-export const QrReaderError = styled.p`
-  color: ${(props) => props.theme.colors.utility3.error};
-`;
-
 export const GasButtonsContainer = styled.div`
   display: flex;
   flex-direction: row;
