@@ -22,26 +22,27 @@ const channelsSlice = createSlice({
     addChannel: (
       state,
       action: PayloadAction<{
-        chainId: string;
+        sourceChainKey: string;
         channelId: string;
-        destinationChainId: string;
+        destinationChainKey: string;
       }>
     ) => {
-      const { chainId, channelId, destinationChainId } = action.payload;
+      const { sourceChainKey, channelId, destinationChainKey } = action.payload;
 
-      if (!state.channelsByChain[chainId]) {
-        state.channelsByChain[chainId] = {};
+      if (!state.channelsByChain[sourceChainKey]) {
+        state.channelsByChain[sourceChainKey] = {};
       }
 
-      if (!state.channelsByChain[chainId][destinationChainId]) {
-        state.channelsByChain[chainId][destinationChainId] = [];
+      if (!state.channelsByChain[sourceChainKey][destinationChainKey]) {
+        state.channelsByChain[sourceChainKey][destinationChainKey] = [];
       }
 
-      const channels = state.channelsByChain[chainId][destinationChainId];
+      const channels =
+        state.channelsByChain[sourceChainKey][destinationChainKey];
 
       if (channels.indexOf(channelId) === -1) {
         channels.push(channelId);
-        state.channelsByChain[chainId][destinationChainId] = channels;
+        state.channelsByChain[sourceChainKey][destinationChainKey] = channels;
       }
     },
   },

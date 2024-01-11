@@ -22,7 +22,7 @@ const SW_TTL = 20000;
   // sent using sendResponse; false otherwise.
   function handleMessages(
     submitTransferMessage: SubmitTransferMessage,
-    sender: unknown,
+    _sender: unknown,
     sendResponse: (response?: unknown) => void
   ): boolean {
     const { data, type, routerId, target } = submitTransferMessage;

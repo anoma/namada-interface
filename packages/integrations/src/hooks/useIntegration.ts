@@ -13,7 +13,7 @@ import { Chain, ChainKey, ExtensionKey } from "@namada/types";
 
 type Integration = typeof Namada | typeof Keplr | typeof Metamask;
 type ChainId = string;
-type IntegrationsMap = Record<ChainKey, Integration>;
+type IntegrationsMap = Record<ExtensionKey, Integration>;
 export type Integrations = Record<ChainId, InstanceType<Integration>>;
 type ExtensionConnection<T, U> = (
   onSuccess: () => T,
@@ -22,17 +22,17 @@ type ExtensionConnection<T, U> = (
 
 const extensionMap: IntegrationsMap = {
   namada: Namada,
-  cosmos: Keplr,
-  ethereum: Metamask,
+  keplr: Keplr,
+  metamask: Metamask,
 };
 
 export const integrations = Object.entries(chains).reduce(
-  (acc, [id, chain]) => {
+  (acc, [chainKey, chain]) => {
     const extensionId = chain.extension.id;
 
     if (Object.keys(extensionMap).includes(extensionId)) {
-      const Ext = extensionMap[extensionId as ChainKey];
-      acc[id] = new Ext(chain);
+      const Ext = extensionMap[extensionId];
+      acc[chainKey] = new Ext(chain);
     }
 
     return acc;
@@ -45,11 +45,13 @@ export const IntegrationsContext = createContext<Integrations>({});
 /**
  * Hook for accessing integration by ChainIndex.
  *
- * @param {ChainIndex} idx - Index of chain integration
+ * @param {ChainIndex} chainKey - Index of chain integration
  * @returns {InstanceType<Integration>} Integration API
  */
-export const useIntegration = (idx: ChainKey): InstanceType<Integration> => {
-  return useContext(IntegrationsContext)[idx];
+export const useIntegration = (
+  chainKey: ChainKey
+): InstanceType<Integration> => {
+  return useContext(IntegrationsContext)[chainKey];
 };
 
 /**
@@ -57,18 +59,18 @@ export const useIntegration = (idx: ChainKey): InstanceType<Integration> => {
  *
  * @template TSuccess - Success return type.
  * @template TFail - Fail return type.
- * @param {string} idx - Index of a chain integration
+ * @param {ChainKey} chainKey - Index of a chain integration
  * @returns {[InstanceType<Integration>, boolean, ExtensionConnection<TSuccess, TFail>]}
  * Tuple of integration, connection status and connection function.
  */
 export const useIntegrationConnection = <TSuccess, TFail>(
-  idx: ChainKey
+  chainKey: ChainKey
 ): [
     InstanceType<Integration>,
     boolean,
     ExtensionConnection<TSuccess, TFail>,
   ] => {
-  const integration = useIntegration(idx);
+  const integration = useIntegration(chainKey);
   const [isConnectingToExtension, setIsConnectingToExtension] = useState(false);
 
   const connect: ExtensionConnection<TSuccess, TFail> = useCallback(
@@ -86,7 +88,7 @@ export const useIntegrationConnection = <TSuccess, TFail>(
       }
       setIsConnectingToExtension(false);
     },
-    [idx]
+    [chainKey]
   );
 
   return [integration, isConnectingToExtension, connect];
@@ -137,7 +139,7 @@ export const useUntilIntegrationAttached = (chain: Chain): AttachStatusMap => {
 /**
  * Returns integrations map. To be used outside react components.
  *
- * @returns {[Integrations]} Map of chainId -> Integration.
+ * @returns {[Integrations]} Map of chainKey -> Integration.
  */
 export const getIntegrations = (): Integrations => {
   return integrations;
@@ -146,9 +148,11 @@ export const getIntegrations = (): Integrations => {
 /**
  * Returns integration by chainId. To be used outside react components.
  *
- * @param {ChainId} chainId - Id of the chain as a string.
+ * @param {Chainkey} chainKey - Key of the chain
  * @returns {InstanceType<Integration>} Integration API
  */
-export const getIntegration = (chainId: ChainId): InstanceType<Integration> => {
-  return integrations[chainId];
+export const getIntegration = (
+  chainKey: ChainKey
+): InstanceType<Integration> => {
+  return integrations[chainKey];
 };
