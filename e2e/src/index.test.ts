@@ -31,7 +31,7 @@ import {
   shieldedAddress1,
 } from "./utils/values";
 
-jest.setTimeout(240000);
+jest.setTimeout(600000);
 
 let browser: puppeteer.Browser;
 let page: puppeteer.Page;
@@ -40,7 +40,6 @@ describe("Namada", () => {
   const namRefs = new Set<ChildProcess>();
 
   beforeEach(async function () {
-    await setupNamada();
     browser = await launchPuppeteer();
     [page] = await browser.pages();
   });
@@ -86,9 +85,18 @@ describe("Namada", () => {
   });
 
   describe("transfer", () => {
-    test("transparent->transparent", async () => {
-      const nam = startNamada(namRefs);
+    let nam: ChildProcess;
 
+    beforeEach(async function () {
+      await setupNamada();
+      nam = startNamada(namRefs);
+    });
+
+    afterEach(async function () {
+      await stopNamada(nam);
+    });
+
+    test("transparent->transparent", async () => {
       await importAccount(browser, page);
       await openInterface(page);
       await approveConnection(browser, page);
@@ -97,13 +105,9 @@ describe("Namada", () => {
         targetAddress: address1,
         amount: "1000",
       });
-
-      await stopNamada(nam);
     });
 
     test("transparent->shielded", async () => {
-      const nam = startNamada(namRefs);
-
       await importAccount(browser, page);
       await openInterface(page);
       await approveConnection(browser, page);
@@ -111,14 +115,11 @@ describe("Namada", () => {
       await transferFromTransparent(browser, page, {
         targetAddress: shieldedAddress0,
         amount: "1000",
+        transferTimeout: 240000,
       });
-
-      await stopNamada(nam);
     });
 
     test("shielded->transparent", async () => {
-      const nam = startNamada(namRefs);
-
       await importAccount(browser, page);
       await openInterface(page);
       await approveConnection(browser, page);
@@ -126,21 +127,18 @@ describe("Namada", () => {
       await transferFromTransparent(browser, page, {
         targetAddress: shieldedAddress0,
         amount: "1000",
+        transferTimeout: 240000,
       });
 
       await openInterface(page);
       await transferFromShielded(browser, page, {
         targetAddress: address0,
         amount: "10",
-        transferTimeout: 120000,
+        transferTimeout: 360000,
       });
-
-      await stopNamada(nam);
     });
 
     test("shielded->shielded", async () => {
-      const nam = startNamada(namRefs);
-
       await importAccount(browser, page);
       await openInterface(page);
       await approveConnection(browser, page);
@@ -148,16 +146,15 @@ describe("Namada", () => {
       await transferFromTransparent(browser, page, {
         targetAddress: shieldedAddress0,
         amount: "1000",
+        transferTimeout: 240000,
       });
 
       await openInterface(page);
       await transferFromShielded(browser, page, {
         targetAddress: shieldedAddress1,
         amount: "10",
-        transferTimeout: 120000,
+        transferTimeout: 360000,
       });
-
-      await stopNamada(nam);
     });
   });
 

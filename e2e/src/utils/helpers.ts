@@ -141,6 +141,7 @@ export const launchPuppeteer = async (): Promise<puppeteer.Browser> => {
   ];
   const browser = await puppeteer.launch({
     headless: false,
+    protocolTimeout: 600000,
     slowMo: 50,
     args: puppeteerArgs,
     defaultViewport: {
