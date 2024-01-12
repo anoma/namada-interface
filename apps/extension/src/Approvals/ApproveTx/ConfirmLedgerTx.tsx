@@ -2,7 +2,6 @@ import { toBase64 } from "@cosmjs/encoding";
 import BigNumber from "bignumber.js";
 import { useCallback, useEffect, useState } from "react";
 
-import { defaultChainId as chainId } from "@namada/chains";
 import { ActionButton, Alert, Stack } from "@namada/components";
 import { TxType, TxTypeLabel } from "@namada/shared";
 import { Message, Tokens, TxMsgValue, TxProps } from "@namada/types";
@@ -19,6 +18,7 @@ import {
   SubmitSignedTxMsg,
 } from "background/ledger";
 import { useRequester } from "hooks/useRequester";
+import { GetChainMsg } from "provider";
 import { Ports } from "router";
 import { closeCurrentTab } from "utils";
 
@@ -44,11 +44,16 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
       "Public key not found! Review and approve reveal pk on your Ledger"
     );
 
+    const chain = await requester.sendMessage(
+      Ports.Background,
+      new GetChainMsg()
+    );
+
     const txArgs: TxProps = {
       token: Tokens.NAM.address || "",
       feeAmount: new BigNumber(0),
       gasLimit: new BigNumber(20_000),
-      chainId,
+      chainId: chain.chainId,
       publicKey,
     };
 

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import BigNumber from "bignumber.js";
 
-import { chains, defaultChainId } from "@namada/chains";
+import { chains } from "@namada/chains";
 import {
   Account as AccountType,
   BridgeType,
@@ -118,7 +118,11 @@ const IBCTransfer = (): JSX.Element => {
     useIntegrationConnection(destinationChain.id);
 
   const [amount, setAmount] = useState<BigNumber>(new BigNumber(0));
-  const [selectedChannelId, setSelectedChannelId] = useState("");
+  // TODO: Clean this up:
+  const defaultChannelId = channelsByChain[sourceChain.id]
+    && channelsByChain[sourceChain.id][destinationChain.id].length > 0
+    ? channelsByChain[sourceChain.id][destinationChain.id][0] : ""
+  const [selectedChannelId, setSelectedChannelId] = useState(defaultChannelId);
   const [showAddChannelForm, setShowAddChannelForm] = useState(false);
   const [channelId, setChannelId] = useState<string>();
   const [recipient, setRecipient] = useState("");
@@ -206,17 +210,6 @@ const IBCTransfer = (): JSX.Element => {
     }
   }, [sourceChainId]);
 
-  useEffect(() => {
-    // Set a default selectedChannelId if none are selected, but channels are available
-    if (destinationChainId && !selectedChannelId) {
-      const chains = channelsByChain[sourceChainId] || {};
-      const channels = chains[destinationChainId] || [];
-      if (channels && channels.length > 0) {
-        setSelectedChannelId(channels[channels.length - 1]);
-      }
-    }
-  }, [destinationChainId, channelsByChain]);
-
   const handleFocus = (e: React.ChangeEvent<HTMLInputElement>): void =>
     e.target.select();
 
@@ -266,7 +259,7 @@ const IBCTransfer = (): JSX.Element => {
 
   const handleSubmit = (): void => {
     setError(undefined)
-    const tokens = sourceChain.chainId === defaultChainId ? Tokens : CosmosTokens;
+    const tokens = sourceChain.id === "namada" ? Tokens : CosmosTokens;
     if (sourceAccount && token) {
       submitIbcTransfer(sourceChain.id, {
         account: sourceAccount.details,
@@ -288,7 +281,7 @@ const IBCTransfer = (): JSX.Element => {
         const accounts = await sourceIntegration?.accounts();
         if (accounts) {
           dispatch(addAccounts(accounts as AccountType[]));
-          dispatch(setIsConnected(sourceChain.chainId));
+          dispatch(setIsConnected(sourceChain.id));
         }
 
         setIsExtensionConnected({
@@ -311,18 +304,18 @@ const IBCTransfer = (): JSX.Element => {
         const accounts = await destinationIntegration?.accounts();
         if (accounts) {
           dispatch(addAccounts(accounts as AccountType[]));
-          dispatch(setIsConnected(sourceChainId));
+          dispatch(setIsConnected(destinationChain.id));
         }
 
         setIsExtensionConnected({
           ...isExtensionConnected,
-          [sourceChain.extension.id]: true,
+          [destinationChain.extension.id]: true,
         });
       },
       async () => {
         setIsExtensionConnected({
           ...isExtensionConnected,
-          [sourceChain.extension.id]: false,
+          [destinationChain.extension.id]: false,
         });
       }
     );
@@ -484,7 +477,7 @@ const IBCTransfer = (): JSX.Element => {
                 </ActionButton>
               </InputContainer>
             )}
-          {!isExtensionConnected[sourceChain.extension.id] &&
+          {!isExtensionConnected[destinationChain.extension.id] &&
             destinationAccounts.length === 0 && (
               <ActionButton
                 onClick={

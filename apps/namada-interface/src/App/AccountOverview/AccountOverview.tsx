@@ -8,7 +8,7 @@ import {
   useIntegrationConnection,
   useUntilIntegrationAttached,
 } from "@namada/integrations";
-import { Account, ExtensionKey, Extensions } from "@namada/types";
+import { Account, Chain, ExtensionKey, Extensions } from "@namada/types";
 import { formatCurrency } from "@namada/utils";
 import { TopLevelRoute } from "App/types";
 import { AccountsState, addAccounts, fetchBalances } from "slices/accounts";
@@ -35,9 +35,9 @@ const isEmptyObject = (object: Record<string, unknown>): boolean => {
 };
 
 export const AccountOverview = (): JSX.Element => {
-  const { chainId } = chains.namada;
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const chain = useAppSelector<Chain>((state) => state.chain.config);
   const [isExtensionConnected, setIsExtensionConnected] = useState<
     Record<ExtensionKey, boolean>
   >({
@@ -53,7 +53,6 @@ export const AccountOverview = (): JSX.Element => {
 
   const [integration, isConnectingToExtension, withConnection] =
     useIntegrationConnection(chains.namada.id);
-  const chain = chains.namada;
   const extensionAlias = Extensions[chain.extension.id].alias;
 
   const extensionAttachStatus = useUntilIntegrationAttached(chain);
@@ -73,7 +72,7 @@ export const AccountOverview = (): JSX.Element => {
         if (accounts) {
           dispatch(addAccounts(accounts as Account[]));
           dispatch(fetchBalances());
-          dispatch(setIsConnected(chainId));
+          dispatch(setIsConnected(chain.id));
         }
 
         setIsExtensionConnected({

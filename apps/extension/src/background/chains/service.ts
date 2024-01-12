@@ -11,7 +11,7 @@ export class ChainsService {
     protected readonly broadcaster: ExtensionBroadcaster
   ) { }
 
-  async getChain(): Promise<Chain | undefined> {
+  async getChain(): Promise<Chain> {
     const chain = await this.chainsStore.get(CHAINS_KEY);
     if (!chain) {
       // Initialize default chain in storage

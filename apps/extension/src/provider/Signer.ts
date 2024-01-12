@@ -1,5 +1,5 @@
 import { toBase64 } from "@cosmjs/encoding";
-import { defaultChainId } from "@namada/chains";
+import { chains } from "@namada/chains";
 import { SupportedTx, TxType } from "@namada/shared";
 import {
   Account,
@@ -28,14 +28,14 @@ import {
 } from "@namada/types";
 
 export class Signer implements ISigner {
-  constructor(private readonly _namada: Namada) { }
+  constructor(private readonly _namada: Namada) {}
 
   public async accounts(): Promise<Account[] | undefined> {
     return (await this._namada.accounts())?.map(
       ({ alias, address, type, publicKey }) => ({
         alias,
         address,
-        chainId: defaultChainId,
+        chainId: chains.namada.chainId,
         type,
         publicKey,
         isShielded: type === AccountType.ShieldedKeys,
@@ -52,7 +52,7 @@ export class Signer implements ISigner {
       return {
         alias,
         address,
-        chainId: defaultChainId,
+        chainId: chains.namada.chainId,
         type,
         publicKey,
         isShielded: type === AccountType.ShieldedKeys,
@@ -195,5 +195,5 @@ export class Signer implements ISigner {
       txArgs,
       type
     );
-  }
+}
 }

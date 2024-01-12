@@ -1,3 +1,4 @@
+import { ChainKey } from "@namada/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 const SETTINGS_ACTIONS_BASE = "settings";
@@ -19,7 +20,7 @@ const settingsSlice = createSlice({
     setFiatCurrency: (state, action: PayloadAction<string>) => {
       state.fiatCurrency = action.payload;
     },
-    setIsConnected: (state, action: PayloadAction<string>) => {
+    setIsConnected: (state, action: PayloadAction<ChainKey>) => {
       state.connectedChains = state.connectedChains.includes(action.payload)
         ? state.connectedChains
         : [...state.connectedChains, action.payload];

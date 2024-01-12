@@ -2,7 +2,7 @@ import BigNumber from "bignumber.js";
 import * as A from "fp-ts/Array";
 import * as O from "fp-ts/Option";
 
-import { defaultChainId as chainId, chains } from "@namada/chains";
+import { chains } from "@namada/chains";
 import { Select } from "@namada/components";
 import { getIntegration } from "@namada/integrations";
 import { Query } from "@namada/shared";
@@ -94,7 +94,7 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
           token: Tokens.NAM.address || "",
           feeAmount: new BigNumber(0),
           gasLimit: new BigNumber(20_000),
-          chainId,
+          chainId: chains.namada.chainId,
         },
         AccountType.Mnemonic
       );
