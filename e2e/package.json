@@ -13,6 +13,7 @@
     "lint:ci": "yarn lint --max-warnings 0",
     "setup": "./setup-frontend.sh",
     "test": "jest --runInBand",
+    "test:logs": "NAMADA_LOG=true jest --runInBand",
     "test:watch": "jest --watch --runInBand"
   },
   "dependencies": {

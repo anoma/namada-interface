@@ -186,7 +186,7 @@ jobs:
 
       - name: Build WASM dependencies
         working-directory: ./apps/extension
-        run: yarn wasm:build
+        run: yarn wasm:build:multicore
 
       - name: Build the extension
         working-directory: ./apps/extension

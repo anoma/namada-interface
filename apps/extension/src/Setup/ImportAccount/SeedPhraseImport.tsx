@@ -199,7 +199,12 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
             />
           )}
         </Stack>
-        <ActionButton disabled={isSubmitButtonDisabled}>Import</ActionButton>
+        <ActionButton
+          data-testid="setup-import-keys-import-button"
+          disabled={isSubmitButtonDisabled}
+        >
+          Import
+        </ActionButton>
       </Stack>
     </>
   );

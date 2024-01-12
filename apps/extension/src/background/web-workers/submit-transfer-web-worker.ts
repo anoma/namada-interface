@@ -2,7 +2,7 @@ import { fromBase64 } from "@cosmjs/encoding";
 import { deserialize, serialize } from "@dao-xyz/borsh";
 import { chains, defaultChainId } from "@namada/chains";
 import { Sdk } from "@namada/shared";
-import { init as initShared } from "@namada/shared/src/init";
+import { initMulticore as initShared } from "@namada/shared/src/init";
 import { TxMsgValue } from "@namada/types";
 import {
   INIT_MSG,

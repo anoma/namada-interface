@@ -40,6 +40,7 @@ wasm-bindgen-test = "0.3.13"
 lto = true
 
 [profile.dev]
+opt-level = "s"
 
 # wasm-pack sepcific configuration
 [package.metadata.wasm-pack.profile.release]

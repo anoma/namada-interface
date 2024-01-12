@@ -1,12 +1,16 @@
 use async_trait::async_trait;
 use borsh::{BorshDeserialize, BorshSerialize};
+use gloo_utils::format::JsValueSerdeExt;
 use masp_proofs::prover::LocalTxProver;
 use namada::namada_sdk::masp::{ShieldedContext, ShieldedUtils};
-use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
+use rexie::{Error, ObjectStore, Rexie, TransactionMode};
+use wasm_bindgen::JsValue;
 
-use crate::utils::{to_bytes, to_io_error};
+use crate::utils::to_bytes;
 
-const SHIELDED_CONTEXT: &str = "shielded-context";
+const DB_PREFIX: &str = "Namada::MASP";
+const SHIELDED_CONTEXT_TABLE: &str = "ShieldedContext";
+const SHIELDED_CONTEXT_KEY: &str = "shielded-context";
 
 #[derive(Default, Debug, BorshSerialize, BorshDeserialize, Clone)]
 pub struct WebShieldedUtils {
@@ -26,10 +30,52 @@ impl WebShieldedUtils {
             output_param_bytes,
             convert_param_bytes,
         };
+
         ShieldedContext {
             utils,
             ..Default::default()
         }
+    }
+
+    fn to_io_err(e: Error) -> std::io::Error {
+        std::io::Error::new(std::io::ErrorKind::Other, e.to_string())
+    }
+
+    pub async fn build_database() -> Result<Rexie, Error> {
+        let rexie = Rexie::builder(DB_PREFIX)
+            .version(1)
+            .add_object_store(ObjectStore::new(SHIELDED_CONTEXT_TABLE))
+            .build()
+            .await?;
+
+        Ok(rexie)
+    }
+
+    pub async fn set_context(rexie: &Rexie, context: JsValue) -> Result<(), Error> {
+        //TODO: add readwriteflush
+        let transaction =
+            rexie.transaction(&[SHIELDED_CONTEXT_TABLE], TransactionMode::ReadWrite)?;
+
+        let context_store = transaction.store(SHIELDED_CONTEXT_TABLE)?;
+
+        context_store
+            .put(&context, Some(&JsValue::from_str(SHIELDED_CONTEXT_KEY)))
+            .await?;
+
+        Ok(())
+    }
+
+    async fn get_context(rexie: &Rexie) -> Result<JsValue, Error> {
+        let transaction =
+            rexie.transaction(&[SHIELDED_CONTEXT_TABLE], TransactionMode::ReadOnly)?;
+
+        let context_store = transaction.store(SHIELDED_CONTEXT_TABLE)?;
+
+        let context = context_store
+            .get(&JsValue::from_str(SHIELDED_CONTEXT_KEY))
+            .await?;
+
+        Ok(context)
     }
 }
 
@@ -44,7 +90,8 @@ impl ShieldedUtils for WebShieldedUtils {
     }
 
     async fn load<U: ShieldedUtils>(&self, ctx: &mut ShieldedContext<U>) -> std::io::Result<()> {
-        let stored_ctx = get(SHIELDED_CONTEXT).await.map_err(|e| to_io_error(e))?;
+        let db = Self::build_database().await.map_err(Self::to_io_err)?;
+        let stored_ctx = Self::get_context(&db).await.map_err(Self::to_io_err)?;
         let stored_ctx_bytes = to_bytes(stored_ctx);
 
         *ctx = ShieldedContext {
@@ -59,19 +106,12 @@ impl ShieldedUtils for WebShieldedUtils {
         let mut bytes = Vec::new();
         ctx.serialize(&mut bytes)
             .expect("cannot serialize shielded context");
-        set(SHIELDED_CONTEXT, bytes)
+        let db = Self::build_database().await.map_err(Self::to_io_err)?;
+
+        Self::set_context(&db, JsValue::from_serde(&bytes).unwrap())
             .await
-            .map_err(|e| to_io_error(e))?;
+            .map_err(Self::to_io_err)?;
 
         Ok(())
     }
-}
-
-#[wasm_bindgen(module = "/src/sdk/mod.js")]
-extern "C" {
-    #[wasm_bindgen(catch, js_name = "get")]
-    async fn get(params: &str) -> Result<JsValue, JsValue>;
-
-    #[wasm_bindgen(catch, js_name = "set")]
-    async fn set(params: &str, data: Vec<u8>) -> Result<JsValue, JsValue>;
 }

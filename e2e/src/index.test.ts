@@ -9,28 +9,29 @@ import {
   approveTransaction,
   createAccount,
   importAccount,
+  transferFromShielded,
   transferFromTransparent,
 } from "./partial";
 import {
   initProposal,
   launchPuppeteer,
+  openInterface,
   openPopup,
   pasteValueInto,
   setupNamada,
   startNamada,
   stopNamada,
-  waitForInputValue,
   waitForXpath,
 } from "./utils/helpers";
 import {
-  address0Alias,
+  address0,
   address1,
   ethAddress0,
   shieldedAddress0,
-  shieldedAddress0Alias,
+  shieldedAddress1,
 } from "./utils/values";
 
-jest.setTimeout(240000);
+jest.setTimeout(600000);
 
 let browser: puppeteer.Browser;
 let page: puppeteer.Page;
@@ -39,7 +40,6 @@ describe("Namada", () => {
   const namRefs = new Set<ChildProcess>();
 
   beforeEach(async function () {
-    await setupNamada();
     browser = await launchPuppeteer();
     [page] = await browser.pages();
   });
@@ -75,119 +75,86 @@ describe("Namada", () => {
   });
 
   describe("account", () => {
-    test("create account & derive transparent address", async () => {
+    test("create account & derive addresses", async () => {
       await createAccount(browser, page);
     });
 
-    test.skip("create account & derive transparent address", async () => {
-      await createAccount(browser, page);
-
-      // Check if address was added
-      openPopup(browser, page);
-      await page.waitForNavigation();
-
-      const addresses = await page.$$("li[class*='AccountsListItem']");
-
-      expect(addresses.length).toEqual(1);
-
-      // Click to derive new address
-      await page.$eval(
-        "div[class*='AccountListingContainer-'] a[class*='Button']",
-        (e) => e.click()
-      );
-
-      // Derive new address
-      const input = await page.$("input");
-      input?.type(address0Alias);
-      await waitForInputValue(page, input, address0Alias);
-
-      (
-        await waitForXpath<HTMLButtonElement>(
-          page,
-          "//button[contains(., 'Add')]"
-        )
-      ).click();
-
-      // Check if address was added
-      await page.waitForSelector("ul[class*='AccountsList']");
-      const itemsLength = await page.$$eval(
-        "li[class*='AccountsListItem']",
-        (e) => e.length
-      );
-
-      expect(itemsLength).toEqual(2);
-    });
-
-    test.skip("create account & derive shielded address", async () => {
-      await createAccount(browser, page);
-
-      // Check if address was added
-      openPopup(browser, page);
-      await page.waitForNavigation();
-
-      const addresses = await page.$$("li[class*='AccountsListItem']");
-
-      expect(addresses.length).toEqual(1);
-
-      // Click to derive new address
-      await page.$eval(
-        "div[class*='AccountListingContainer-'] a[class*='Button']",
-        (e) => e.click()
-      );
-
-      // Input text and wait
-      const input = await page.$("input");
-      input?.type(shieldedAddress0Alias);
-      await waitForInputValue(page, input, shieldedAddress0Alias);
-
-      // Switch to shielded
-      page.$eval("button[data-testid='Toggle']", (e) => e.click());
-
-      // Derive new address
-      (
-        await waitForXpath<HTMLButtonElement>(
-          page,
-          "//button[contains(., 'Add')]"
-        )
-      ).click();
-
-      // Check if address was added
-      await page.waitForSelector("ul[class*='AccountsList']");
-      const itemsLength = await page.$$eval(
-        "li[class*='AccountsListItem']",
-        (e) => e.length
-      );
-
-      expect(itemsLength).toEqual(2);
+    test("import account & derive addresses", async () => {
+      await importAccount(browser, page);
     });
   });
 
-  describe.skip("transfer", () => {
-    test("transparent->transparent", async () => {
-      const nam = startNamada(namRefs);
+  describe("transfer", () => {
+    let nam: ChildProcess;
 
+    beforeEach(async function () {
+      await setupNamada();
+      nam = startNamada(namRefs);
+    });
+
+    afterEach(async function () {
+      await stopNamada(nam);
+    });
+
+    test("transparent->transparent", async () => {
       await importAccount(browser, page);
+      await openInterface(page);
       await approveConnection(browser, page);
 
       await transferFromTransparent(browser, page, {
         targetAddress: address1,
+        amount: "1000",
       });
-
-      await stopNamada(nam);
     });
 
     test("transparent->shielded", async () => {
-      const nam = startNamada(namRefs);
-
       await importAccount(browser, page);
+      await openInterface(page);
       await approveConnection(browser, page);
 
       await transferFromTransparent(browser, page, {
         targetAddress: shieldedAddress0,
-        transferTimeout: 120000,
+        amount: "1000",
+        transferTimeout: 240000,
+      });
+    });
+
+    test("shielded->transparent", async () => {
+      await importAccount(browser, page);
+      await openInterface(page);
+      await approveConnection(browser, page);
+
+      await transferFromTransparent(browser, page, {
+        targetAddress: shieldedAddress0,
+        amount: "1000",
+        transferTimeout: 240000,
       });
 
-      await stopNamada(nam);
+      await openInterface(page);
+      await transferFromShielded(browser, page, {
+        targetAddress: address0,
+        amount: "10",
+        transferTimeout: 360000,
+      });
+    });
+
+    test("shielded->shielded", async () => {
+      await importAccount(browser, page);
+      await openInterface(page);
+      await approveConnection(browser, page);
+
+      await transferFromTransparent(browser, page, {
+        targetAddress: shieldedAddress0,
+        amount: "1000",
+        transferTimeout: 240000,
+      });
+
+      await openInterface(page);
+      await transferFromShielded(browser, page, {
+        targetAddress: shieldedAddress1,
+        amount: "10",
+        transferTimeout: 360000,
+      });
     });
   });
 

@@ -1,3 +1,5 @@
+const BundleAnalyzerPlugin =
+  require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const webpack = require("webpack");
 const { resolve, join } = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
@@ -7,7 +9,7 @@ const { getProcessEnv } = require("@namada/config/webpack.js");
 // Load environment variables
 require("dotenv").config({ path: resolve(__dirname, ".env") });
 
-const { NODE_ENV } = process.env;
+const { NODE_ENV, BUNDLE_ANALYZE } = process.env;
 
 const createStyledComponentsTransformer =
   require("typescript-plugin-styled-components").default;
@@ -27,7 +29,11 @@ const copyPatterns = [
   },
 ];
 
+const analyzePlugins =
+  BUNDLE_ANALYZE === "true" ? [new BundleAnalyzerPlugin()] : [];
+
 const plugins = [
+  ...analyzePlugins,
   new CopyPlugin({
     patterns: copyPatterns,
   }),
@@ -159,5 +165,9 @@ module.exports = {
     compress: false,
     port: 3000,
     historyApiFallback: true,
+  },
+  stats: {
+    // We want to ignore wasm-bindgen-rayon circular dependency warning
+    warningsFilter: [/dependency between chunks.+wasm-bindgen-rayon/],
   },
 };

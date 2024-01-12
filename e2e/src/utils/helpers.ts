@@ -5,6 +5,8 @@ import { ChildProcess, exec } from "child_process";
 import nodePath from "node:path";
 import util from "node:util";
 
+const { NAMADA_LOG = false } = process.env;
+
 // promisify exec
 const execPromise = util.promisify(exec);
 
@@ -83,16 +85,43 @@ export const openSetup = async (
 
 export const startNamada = (namRefs: Set<ChildProcess>): ChildProcess => {
   const nam = exec(`sh ${process.cwd()}/start-namada.sh`);
+
+  if (NAMADA_LOG) {
+    if (nam.stdout) {
+      nam.stdout.setEncoding("utf8");
+      nam.stdout.on("data", function (data) {
+        console.log(data);
+      });
+    }
+
+    if (nam.stderr) {
+      nam.stderr.setEncoding("utf8");
+      nam.stderr.on("data", function (data) {
+        console.error(data);
+      });
+    }
+  }
+
   namRefs.add(nam);
   return nam;
 };
 
 export const setupNamada = async (): Promise<void> => {
-  await execPromise(`sh ${process.cwd()}/setup-namada.sh`);
+  const { stderr, stdout } = await execPromise(
+    `bash ${process.cwd()}/setup-namada.sh`
+  );
+  if (NAMADA_LOG) {
+    if (stdout) {
+      console.log("Setup Namada Log:", stdout);
+    }
+    if (stderr) {
+      console.error("Setup Namada Error:", stderr);
+    }
+  }
 };
 
 export const initProposal = async (): Promise<void> => {
-  await execPromise(`sh ${process.cwd()}/init-proposal.sh`);
+  await execPromise(`bash ${process.cwd()}/init-proposal.sh`);
 };
 
 export const stopNamada = async (namada: ChildProcess): Promise<void> => {
@@ -112,6 +141,7 @@ export const launchPuppeteer = async (): Promise<puppeteer.Browser> => {
   ];
   const browser = await puppeteer.launch({
     headless: false,
+    protocolTimeout: 600000,
     slowMo: 50,
     args: puppeteerArgs,
     defaultViewport: {
