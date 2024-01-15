@@ -1,4 +1,4 @@
-const { spawn } = require("child_process");
+const { spawnSync, exec } = require("child_process");
 
 const args = process.argv.filter((arg) => arg.match(/--\w+/));
 const strippedArgs = new Set(args.map((arg) => arg.replace("--", "")));
@@ -20,7 +20,7 @@ if (!isRelease) {
   profile = "--dev";
 }
 
-spawn(
+const { status } = spawnSync(
   "wasm-pack",
   [
     "build",
@@ -44,3 +44,10 @@ spawn(
     }),
   }
 );
+
+if (status !== 0) {
+  process.exit(status);
+}
+
+// Remove the .gitignore so we can publish generated files
+exec(`rm -rf ${__dirname}/../src/shared/.gitignore`);

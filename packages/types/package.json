@@ -7,6 +7,8 @@
   "author": "Heliax AG <hello@heliax.dev>",
   "license": "MIT",
   "scripts": {
+    "release": "release-it --verbose",
+    "release:dry-run": "release-it --verbose --dry-run",
     "lint": "eslint src --ext .ts",
     "lint:fix": "yarn lint -- --fix",
     "lint:ci": "yarn lint --max-warnings 0"
@@ -25,6 +27,14 @@
     "eslint-import-resolver-typescript": "^3.5.1",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-react": "^7.33.0",
-    "eslint-plugin-react-hooks": "^4.6.0"
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "release-it": "^17.0.1"
+  },
+  "files": [
+    "src/**/*.{js,ts}"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
   }
 }
