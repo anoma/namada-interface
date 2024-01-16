@@ -1,6 +1,15 @@
-import { field, vec } from "@dao-xyz/borsh";
+import { BinaryReader, BinaryWriter, field, vec } from "@dao-xyz/borsh";
 import BigNumber from "bignumber.js";
-import { BigNumberSerializer } from "@namada/types";
+
+export const BigNumberSerializer = {
+  serialize: (value: BigNumber, writer: BinaryWriter) => {
+    writer.string(value.toString());
+  },
+  deserialize: (reader: BinaryReader): BigNumber => {
+    const valueString = reader.string();
+    return new BigNumber(valueString);
+  },
+};
 
 export class Proposal {
   @field({ type: "string" })

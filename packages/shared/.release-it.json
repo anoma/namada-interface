@@ -1,0 +1,8 @@
+{
+  "git": {
+    "tagName": "shared-${version}",
+    "commitMessage": "chore: release shared v${version}",
+    "changelog": false,
+    "tagAnnotation": "Release shared ${version}"
+  }
+}
