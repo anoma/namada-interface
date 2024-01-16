@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { chains } from "@namada/chains";
-import { ActionButton, Heading } from "@namada/components";
+import { ActionButton, Heading, Stack } from "@namada/components";
 import {
   useIntegrationConnection,
   useUntilIntegrationAttached,
@@ -17,8 +17,6 @@ import { useAppDispatch, useAppSelector } from "store";
 import {
   AccountOverviewContainer,
   AccountOverviewContent,
-  ButtonsContainer,
-  ButtonsWrapper,
   HeadingContainer,
   NoAccountsContainer,
   TotalAmount,
@@ -111,18 +109,16 @@ export const AccountOverview = (): JSX.Element => {
         </HeadingContainer>
 
         {!isEmptyObject(derived[chain.id]) ? (
-          <ButtonsContainer>
-            <ButtonsWrapper>
-              <ActionButton onClick={() => navigate(TopLevelRoute.TokenSend)}>
-                Send
-              </ActionButton>
-              <ActionButton
-                onClick={() => navigate(TopLevelRoute.TokenReceive)}
-              >
-                Receive
-              </ActionButton>
-            </ButtonsWrapper>
-          </ButtonsContainer>
+          <Stack direction="horizontal" gap={8}>
+            <ActionButton onClick={() => navigate(TopLevelRoute.TokenSend)}>
+              Send
+            </ActionButton>
+            <ActionButton
+              onClick={() => navigate(TopLevelRoute.TokenReceive)}
+            >
+              Receive
+            </ActionButton>
+          </Stack>
         ) : (
           <div />
         )}

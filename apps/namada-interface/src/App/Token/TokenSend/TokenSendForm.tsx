@@ -8,6 +8,7 @@ import { getIntegration } from "@namada/integrations";
 import { Query } from "@namada/shared";
 import { Chain, Signer, TokenType, Tokens } from "@namada/types";
 import { mapUndefined } from "@namada/utils";
+
 import { TopLevelRoute } from "App/types";
 import { AccountsState } from "slices/accounts";
 import { useAppSelector } from "store";
@@ -47,9 +48,9 @@ export const submitTransferTransaction = async (
   const transferArgs = {
     source: faucet || address,
     target,
-    token: Tokens[token].address || Tokens.NAM.address || "",
+    token: Tokens[token].address,
     amount,
-    nativeToken: Tokens.NAM.address || "",
+    nativeToken: Tokens.NAM.address,
   };
 
   const txArgs = {

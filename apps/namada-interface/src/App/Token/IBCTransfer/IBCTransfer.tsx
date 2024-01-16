@@ -21,6 +21,7 @@ import {
   Input,
   Option,
   Select,
+  Stack,
 } from "@namada/components";
 import {
   getIntegration,
@@ -358,6 +359,7 @@ const IBCTransfer = (): JSX.Element => {
     currentBalance,
     destinationChain,
     recipient,
+    sourceChainId,
     destinationChainId,
     selectedChannelId,
     sourceAccount,
@@ -447,7 +449,7 @@ const IBCTransfer = (): JSX.Element => {
 
           {destinationChain.bridgeType.indexOf(BridgeType.IBC) > -1 &&
             showAddChannelForm && (
-              <InputContainer>
+              <Stack direction="vertical" gap={8} style={{ marginBottom: 20 }}>
                 <Input
                   label="Add Channel ID"
                   value={channelId}
@@ -457,25 +459,26 @@ const IBCTransfer = (): JSX.Element => {
                   }}
                   onFocus={handleFocus}
                   error={
-                    channels.indexOf(`${channelId}`) > -1
+                    channels.includes(`${channelId}`)
                       ? "Channel exists!"
                       : undefined
                   }
                 />
-                <ActionButton
-                  style={{ width: 160 }}
-                  onClick={handleAddChannel}
-                  disabled={!channelId}
-                >
-                  Add
-                </ActionButton>
-                <ActionButton
-                  style={{ width: 160 }}
-                  onClick={() => setShowAddChannelForm(false)}
-                >
-                  Cancel
-                </ActionButton>
-              </InputContainer>
+                <Stack direction="horizontal" gap={6} >
+                  <ActionButton
+                    onClick={handleAddChannel}
+                    disabled={!channelId}
+                  >
+                    Add
+                  </ActionButton>
+                  <ActionButton
+                    onClick={() => setShowAddChannelForm(false)}
+                  >
+                    Cancel
+                  </ActionButton>
+                </Stack>
+
+              </Stack>
             )}
           {!isExtensionConnected[destinationChain.extension.id] &&
             destinationAccounts.length === 0 && (
@@ -546,8 +549,9 @@ const IBCTransfer = (): JSX.Element => {
             </ActionButton>
           </ButtonsContainer>
         </>
-      )}
-    </IBCTransferFormContainer>
+      )
+      }
+    </IBCTransferFormContainer >
   );
 };
 
