@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "allowSyntheticDefaultImports": true,
     "baseUrl": "./src",
+    "rootDir": "./src",
+    "outDir": "./dist/",
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
@@ -10,14 +11,14 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "module": "esnext",
     "moduleResolution": "node",
-    "noEmit": true,
     "noFallthroughCasesInSwitch": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
     "target": "es2015",
-    "types": ["node", "jest"]
+    "types": ["node", "jest"],
+    "declaration": true
   },
-  "include": ["src"],
+  "include": ["./src"],
   "typeRoots": ["./node_modules/@types", "./src/types"]
 }

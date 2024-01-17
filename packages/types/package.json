@@ -2,19 +2,22 @@
   "name": "@namada/types",
   "version": "0.1.0",
   "description": "Types related to the Namada Extension",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "repository": "https://github.com/anoma/namada-interface/",
   "author": "Heliax AG <hello@heliax.dev>",
   "license": "MIT",
   "scripts": {
-    "release": "release-it --verbose",
-    "release:dry-run": "release-it --verbose --dry-run",
+    "prepublish": "rimraf ./dist && tsc --build",
+    "release": "yarn prepublish && release-it --verbose",
+    "release:dry-run": "yarn prepublish && release-it --verbose --dry-run",
     "lint": "eslint src --ext .ts",
     "lint:fix": "yarn lint -- --fix",
     "lint:ci": "yarn lint --max-warnings 0"
   },
   "dependencies": {
     "@dao-xyz/borsh": "^5.1.5",
+    "bignumber.js": "^9.1.1",
     "bn.js": "^5.2.1",
     "slip44": "^3.0.11",
     "typescript": "^5.1.3"
@@ -29,10 +32,11 @@
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-react": "^7.33.0",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "release-it": "^17.0.1"
+    "release-it": "^17.0.1",
+    "rimraf": "^5.0.5"
   },
   "files": [
-    "src/**/*.{js,ts}"
+    "dist"
   ],
   "publishConfig": {
     "registry": "https://registry.npmjs.org",

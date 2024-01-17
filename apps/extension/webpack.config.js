@@ -1,5 +1,6 @@
 const BundleAnalyzerPlugin =
   require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
+const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const webpack = require("webpack");
 const { resolve } = require("path");
 const CopyPlugin = require("copy-webpack-plugin");
@@ -205,6 +206,11 @@ module.exports = {
       buffer: require.resolve("buffer/"),
       crypto: false,
     },
+    plugins: [
+      new TsconfigPathsPlugin({
+        configFile: "tsconfig.json",
+      }),
+    ],
   },
   performance: {
     hints: "warning",

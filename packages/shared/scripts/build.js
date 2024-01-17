@@ -1,21 +1,43 @@
+const { parseArgs } = require("node:util");
 const { spawnSync, exec } = require("child_process");
 
-const args = process.argv.filter((arg) => arg.match(/--\w+/));
-const strippedArgs = new Set(args.map((arg) => arg.replace("--", "")));
+const argsOptions = {
+  multicore: {
+    type: "boolean",
+    short: "m",
+  },
+  release: {
+    type: "boolean",
+    short: "r",
+  },
+  outDir: {
+    type: "string",
+    short: "o",
+  },
+};
+const {
+  multicore,
+  release,
+  outDir = "/../src/shared",
+} = parseArgs({
+  args: process.argv.slice(2),
+  options: argsOptions,
+}).values;
 
-const isRelease = strippedArgs.has("release");
-const isMulticore = strippedArgs.has("multicore");
-const mode = isRelease ? "release" : "development";
-const multicore = isMulticore ? "on" : "off";
-let profile = "--release";
+const mode = release ? "release" : "development";
+const multicoreLabel = multicore ? "on" : "off";
 
-console.log(`Building \"shared\" in ${mode} mode. Multicore is ${multicore}.`);
+console.log(
+  `Building \"shared\" in ${mode} mode. Multicore is ${multicoreLabel}.`
+);
 
 const features = [];
-if (isMulticore) {
+let profile = "--release";
+
+if (multicore) {
   features.push("multicore");
 }
-if (!isRelease) {
+if (!release) {
   features.push("dev");
   profile = "--dev";
 }
@@ -29,14 +51,14 @@ const { status } = spawnSync(
     `--target`,
     `web`,
     `--out-dir`,
-    `${__dirname}/../src/shared`,
+    `${__dirname}${outDir}`,
     `--`,
     features.length > 0 ? ["--features", features.join(",")].flat() : [],
-    isMulticore ? [`-Z`, `build-std=panic_abort,std`] : [],
+    multicore ? [`-Z`, `build-std=panic_abort,std`] : [],
   ].flat(),
   {
     stdio: "inherit",
-    ...(isMulticore && {
+    ...(multicore && {
       env: {
         ...process.env,
         RUSTFLAGS: "-C target-feature=+atomics,+bulk-memory,+mutable-globals",
@@ -50,4 +72,4 @@ if (status !== 0) {
 }
 
 // Remove the .gitignore so we can publish generated files
-exec(`rm -rf ${__dirname}/../src/shared/.gitignore`);
+exec(`rm -rf ${__dirname}${outDir}/.gitignore`);
