@@ -21,8 +21,6 @@
     "@cosmjs/encoding": "^0.27.1",
     "@cosmjs/json-rpc": "^0.27.1",
     "@cosmjs/tendermint-rpc": "^0.27.1",
-    "@dao-xyz/borsh": "^5.1.5",
-    "bn.js": "^5.2.0",
     "bs58": "^5.0.0",
     "buffer": "^6.0.3",
     "typescript": "^5.1.3",
