@@ -380,6 +380,21 @@ impl Sdk {
 
         Ok(())
     }
+
+    // Sign arbitrary data with the provided signing key
+    // TODO: Use function from SDK when it is available
+    pub async fn sign_arbitrary(
+        &self,
+        signing_key: String,
+        data: String,
+    ) -> Result<JsValue, JsError> {
+        to_js_result((
+            // Hash
+            String::from(format!("TODO: hash for data: {}", &data)),
+            // Signature
+            String::from(format!("TODO: signature for signing_key: {}", &signing_key)),
+        ))
+    }
 }
 
 #[wasm_bindgen(module = "/src/sdk/mod.js")]

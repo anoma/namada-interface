@@ -1,30 +1,31 @@
 import { toBase64 } from "@cosmjs/encoding";
+import { defaultChainId } from "@namada/chains";
+import { SupportedTx, TxType } from "@namada/shared";
 import {
   Account,
-  Namada,
+  AccountType,
+  BridgeTransferProps,
+  EthBridgeTransferMsgValue,
+  Signer as ISigner,
   IbcTransferMsgValue,
   IbcTransferProps,
   Message,
-  Signer as ISigner,
+  Namada,
+  Schema,
+  SignatureResponse,
+  SubmitBondMsgValue,
+  SubmitBondProps,
+  SubmitUnbondMsgValue,
+  SubmitUnbondProps,
+  SubmitVoteProposalMsgValue,
+  SubmitVoteProposalProps,
+  SubmitWithdrawMsgValue,
+  SubmitWithdrawProps,
   TransferMsgValue,
   TransferProps,
-  AccountType,
-  SubmitBondProps,
-  SubmitBondMsgValue,
-  SubmitUnbondProps,
-  SubmitUnbondMsgValue,
-  SubmitWithdrawProps,
-  SubmitWithdrawMsgValue,
-  BridgeTransferProps,
-  EthBridgeTransferMsgValue,
-  TxProps,
   TxMsgValue,
-  Schema,
-  SubmitVoteProposalProps,
-  SubmitVoteProposalMsgValue,
+  TxProps,
 } from "@namada/types";
-import { TxType, SupportedTx } from "@namada/shared";
-import { defaultChainId } from "@namada/chains";
 
 export class Signer implements ISigner {
   constructor(private readonly _namada: Namada) {}
@@ -58,6 +59,14 @@ export class Signer implements ISigner {
       };
     }
   }
+
+  public async sign(
+    signer: string,
+    data: string
+  ): Promise<SignatureResponse | undefined> {
+    return await this._namada.sign({ signer, data });
+  }
+
   private async submitTx<T extends Schema, Args>(
     txType: SupportedTx,
     constructor: new (args: Args) => T,

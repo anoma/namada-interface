@@ -3,7 +3,12 @@ import { fromBase64, fromHex } from "@cosmjs/encoding";
 import { PhraseSize } from "@namada/crypto";
 import { public_key_to_bech32, Sdk, TxType } from "@namada/shared";
 import { IndexedDBKVStore, KVStore } from "@namada/storage";
-import { AccountType, Bip44Path, DerivedAccount } from "@namada/types";
+import {
+  AccountType,
+  Bip44Path,
+  DerivedAccount,
+  SignatureResponse,
+} from "@namada/types";
 import { Result, truncateInMiddle } from "@namada/utils";
 
 import {
@@ -446,5 +451,12 @@ export class KeyRingService {
 
   async checkDurability(): Promise<boolean> {
     return await IndexedDBKVStore.durabilityCheck();
+  }
+
+  async signArbitrary(
+    signer: string,
+    data: string
+  ): Promise<SignatureResponse | undefined> {
+    return await this._keyRing.signArbitrary(signer, data);
   }
 }

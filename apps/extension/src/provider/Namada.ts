@@ -2,6 +2,8 @@ import {
   Chain,
   DerivedAccount,
   Namada as INamada,
+  SignArbitraryProps,
+  SignatureResponse,
   TxMsgProps,
 } from "@namada/types";
 import { MessageRequester, Ports } from "router";
@@ -16,6 +18,7 @@ import {
   QueryAccountsMsg,
   QueryBalancesMsg,
   QueryDefaultAccountMsg,
+  SignArbitraryMsg,
 } from "./messages";
 
 export class Namada implements INamada {
@@ -48,6 +51,16 @@ export class Namada implements INamada {
     return await this.requester?.sendMessage(
       Ports.Background,
       new QueryDefaultAccountMsg()
+    );
+  }
+
+  public async sign(
+    props: SignArbitraryProps
+  ): Promise<SignatureResponse | undefined> {
+    const { signer, data } = props;
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new SignArbitraryMsg(signer, data)
     );
   }
 

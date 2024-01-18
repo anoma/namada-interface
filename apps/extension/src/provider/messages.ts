@@ -1,5 +1,10 @@
 import { SupportedTx } from "@namada/shared";
-import { AccountType, Chain, DerivedAccount } from "@namada/types";
+import {
+  AccountType,
+  Chain,
+  DerivedAccount,
+  SignatureResponse,
+} from "@namada/types";
 import { Message } from "router";
 import { validateProps } from "utils";
 
@@ -30,6 +35,7 @@ enum MessageType {
   HasMaspParams = "has-masp-params",
   ApproveEthBridgeTransfer = "approve-eth-bridge-transfer",
   CheckDurability = "check-durability",
+  SignArbitrary = "sign-arbitrary",
 }
 
 /**
@@ -67,7 +73,7 @@ export class GetChainMsg extends Message<Chain | undefined> {
     super();
   }
 
-  validate(): void { }
+  validate(): void {}
 
   route(): string {
     return Route.Chains;
@@ -234,5 +240,35 @@ export class CheckDurabilityMsg extends Message<boolean> {
 
   type(): string {
     return CheckDurabilityMsg.type();
+  }
+}
+
+export class SignArbitraryMsg extends Message<SignatureResponse | undefined> {
+  public static type(): MessageType {
+    return MessageType.SignArbitrary;
+  }
+
+  constructor(
+    public readonly signer: string,
+    public readonly data: string
+  ) {
+    super();
+  }
+
+  validate(): void {
+    if (!this.signer) {
+      throw new Error("A signer address is required!");
+    }
+    if (!this.data) {
+      throw new Error("Signing data is required!");
+    }
+  }
+
+  route(): string {
+    return Route.KeyRing;
+  }
+
+  type(): string {
+    return SignArbitraryMsg.type();
   }
 }

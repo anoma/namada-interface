@@ -24,6 +24,7 @@ import {
   DerivedAccount,
   EthBridgeTransferMsgValue,
   IbcTransferMsgValue,
+  SignatureResponse,
   SubmitBondMsgValue,
   SubmitUnbondMsgValue,
   SubmitVoteProposalMsgValue,
@@ -883,5 +884,18 @@ export class KeyRing {
   async queryPublicKey(address: string): Promise<string | undefined> {
     const query = await this.sdkService.getQuery();
     return await query.query_public_key(address);
+  }
+
+  async signArbitrary(
+    signer: string,
+    data: string
+  ): Promise<SignatureResponse | undefined> {
+    await this.vaultService.assertIsUnlocked();
+
+    const key = await this.getSigningKey(signer);
+    const sdk = await this.sdkService.getSdk();
+    const [hash, signature] = await sdk.sign_arbitrary(key, data);
+
+    return { hash, signature };
   }
 }
