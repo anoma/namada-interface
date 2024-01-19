@@ -1,16 +1,21 @@
 import type { Config } from "@jest/types";
+import { pathsToModuleNameMapper } from "ts-jest";
+import { compilerOptions as rootCompilerOptions } from "../../tsconfig.base.json";
 
 const config: Config.InitialOptions = {
   verbose: true,
-  preset: "ts-jest",
   transform: {
     "^.+\\.ts$": "ts-jest",
     "^.+\\.js$": "babel-jest",
   },
-  moduleDirectories: ['node_modules', 'src'],
+  moduleDirectories: ["node_modules", "src"],
   transformIgnorePatterns: ["__mocks__"],
   setupFilesAfterEnv: ["./src/setupTests.ts"],
-  testEnvironment: "jsdom"
+  testEnvironment: "jsdom",
+
+  moduleNameMapper: pathsToModuleNameMapper(rootCompilerOptions.paths, {
+    prefix: "<rootDir>/src",
+  }),
 };
 
 export default config;

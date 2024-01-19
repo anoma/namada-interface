@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "@namada/shared": ["../../../packages/shared/src"],
+      "@namada/shared/*": ["../../../packages/shared/src/*"],
+      "@namada/types": ["../../../packages/types/src"],
+      "@namada/types/*": ["../../../packages/types/src/*"]
+    }
+  }
+}

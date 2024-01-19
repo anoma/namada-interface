@@ -1,23 +1,22 @@
+import { chains } from "@namada/chains";
 import { Query, TransferToEthereum } from "@namada/shared";
+import { shortenAddress } from "@namada/utils";
 import { useEffect, useState } from "react";
+import { Account } from "slices/accounts";
 import {
   TransferCol,
   TransferRow,
   TransfersContainer,
 } from "./EthereumBridgeTransfers.components";
-import { shortenAddress } from "@namada/utils";
-import { chains } from "@namada/chains";
-import { Account } from "slices/accounts";
 
 type EthereumBridgeTransfersProps = {
   accounts: Account[];
   chainId: string;
 };
 
-export const EthereumBridgeTransfers = ({
-  accounts,
-  chainId,
-}: EthereumBridgeTransfersProps): JSX.Element => {
+export const EthereumBridgeTransfers = (
+  { accounts, chainId }: EthereumBridgeTransfersProps
+): JSX.Element => {
   const [pendingTransfers, setPendingTransfers] = useState<
     TransferToEthereum[]
   >([]);
