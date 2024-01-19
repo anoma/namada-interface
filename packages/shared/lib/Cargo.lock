@@ -2966,8 +2966,8 @@ checksum = "e5ce46fe64a9d73be07dcbe690a38ce1b293be448fd8ce1e6c1b8062c9f72c6a"
 
 [[package]]
 name = "namada"
-version = "0.28.1"
-source = "git+https://github.com/anoma/namada#468d3d3bcadd2bd11760855d2bbfcc0b4ce27e14"
+version = "0.30.0"
+source = "git+https://github.com/anoma/namada#b951476b421e41d52eb7937a6543e9d675ade888"
 dependencies = [
  "async-trait",
  "bimap",
@@ -3017,8 +3017,8 @@ dependencies = [
 
 [[package]]
 name = "namada_core"
-version = "0.28.1"
-source = "git+https://github.com/anoma/namada#468d3d3bcadd2bd11760855d2bbfcc0b4ce27e14"
+version = "0.30.0"
+source = "git+https://github.com/anoma/namada#b951476b421e41d52eb7937a6543e9d675ade888"
 dependencies = [
  "ark-bls12-381",
  "ark-serialize",
@@ -3041,6 +3041,7 @@ dependencies = [
  "k256",
  "masp_primitives",
  "namada_macros",
+ "num-derive",
  "num-integer",
  "num-rational 0.4.1",
  "num-traits",
@@ -3067,8 +3068,8 @@ dependencies = [
 
 [[package]]
 name = "namada_ethereum_bridge"
-version = "0.28.1"
-source = "git+https://github.com/anoma/namada#468d3d3bcadd2bd11760855d2bbfcc0b4ce27e14"
+version = "0.30.0"
+source = "git+https://github.com/anoma/namada#b951476b421e41d52eb7937a6543e9d675ade888"
 dependencies = [
  "borsh",
  "borsh-ext",
@@ -3084,13 +3085,14 @@ dependencies = [
  "tendermint",
  "tendermint-proto",
  "tendermint-rpc",
+ "thiserror",
  "tracing",
 ]
 
 [[package]]
 name = "namada_macros"
-version = "0.28.1"
-source = "git+https://github.com/anoma/namada#468d3d3bcadd2bd11760855d2bbfcc0b4ce27e14"
+version = "0.30.0"
+source = "git+https://github.com/anoma/namada#b951476b421e41d52eb7937a6543e9d675ade888"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3099,8 +3101,8 @@ dependencies = [
 
 [[package]]
 name = "namada_proof_of_stake"
-version = "0.28.1"
-source = "git+https://github.com/anoma/namada#468d3d3bcadd2bd11760855d2bbfcc0b4ce27e14"
+version = "0.30.0"
+source = "git+https://github.com/anoma/namada#b951476b421e41d52eb7937a6543e9d675ade888"
 dependencies = [
  "borsh",
  "data-encoding",
@@ -3114,8 +3116,8 @@ dependencies = [
 
 [[package]]
 name = "namada_sdk"
-version = "0.28.1"
-source = "git+https://github.com/anoma/namada#468d3d3bcadd2bd11760855d2bbfcc0b4ce27e14"
+version = "0.30.0"
+source = "git+https://github.com/anoma/namada#b951476b421e41d52eb7937a6543e9d675ade888"
 dependencies = [
  "async-trait",
  "bimap",

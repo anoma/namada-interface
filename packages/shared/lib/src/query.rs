@@ -4,7 +4,7 @@ use masp_primitives::transaction::components::I128Sum;
 use masp_primitives::zip32::ExtendedFullViewingKey;
 use namada::core::ledger::governance::storage::keys as governance_storage;
 use namada::core::ledger::governance::storage::proposal::ProposalType;
-use namada::core::ledger::governance::storage::vote::StorageProposalVote;
+use namada::core::ledger::governance::storage::vote::ProposalVote;
 use namada::core::ledger::governance::utils::{
     compute_proposal_result, ProposalVotes, TallyVote, VotePower,
 };
@@ -472,9 +472,9 @@ impl Query {
             .into_iter()
             .map(|vote| {
                 let is_yay = match vote.data {
-                    StorageProposalVote::Yay(_) => true,
-                    StorageProposalVote::Nay => false,
-                    StorageProposalVote::Abstain => false,
+                    ProposalVote::Yay => true,
+                    ProposalVote::Nay => false,
+                    ProposalVote::Abstain => false,
                 };
                 (vote.delegator, is_yay)
             })
