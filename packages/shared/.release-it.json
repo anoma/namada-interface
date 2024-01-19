@@ -4,5 +4,8 @@
     "commitMessage": "chore: release shared v${version}",
     "changelog": false,
     "tagAnnotation": "Release shared ${version}"
+  },
+  "npm": {
+    "versionArgs": ["--workspaces-update=false"]
   }
 }
