@@ -1,5 +1,5 @@
 const { parseArgs } = require("node:util");
-const { spawnSync, exec } = require("child_process");
+const { spawnSync, execSync } = require("child_process");
 
 const argsOptions = {
   multicore: {
@@ -10,16 +10,8 @@ const argsOptions = {
     type: "boolean",
     short: "r",
   },
-  outDir: {
-    type: "string",
-    short: "o",
-  },
 };
-const {
-  multicore,
-  release,
-  outDir = "/../src/shared",
-} = parseArgs({
+const { multicore, release } = parseArgs({
   args: process.argv.slice(2),
   options: argsOptions,
 }).values;
@@ -42,6 +34,9 @@ if (!release) {
   profile = "--dev";
 }
 
+const outDir = `${__dirname}/../src/shared`;
+
+execSync(`rm -rf ${outDir}}`);
 const { status } = spawnSync(
   "wasm-pack",
   [
@@ -51,7 +46,7 @@ const { status } = spawnSync(
     `--target`,
     `web`,
     `--out-dir`,
-    `${__dirname}${outDir}`,
+    outDir,
     `--`,
     features.length > 0 ? ["--features", features.join(",")].flat() : [],
     multicore ? [`-Z`, `build-std=panic_abort,std`] : [],
@@ -71,5 +66,10 @@ if (status !== 0) {
   process.exit(status);
 }
 
+execSync("mkdir dist && mkdir dist/shared");
+
 // Remove the .gitignore so we can publish generated files
-exec(`rm -rf ${__dirname}${outDir}/.gitignore`);
+execSync(`rm -rf ${outDir}.gitignore`);
+
+// Manually copy wasms to dist
+execSync(`cp -r ${outDir}/*.wasm ${__dirname}/../dist/shared`);
