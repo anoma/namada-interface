@@ -20,6 +20,8 @@ use namada::namada_sdk::wallet::{Store, Wallet};
 use namada::namada_sdk::{Namada, NamadaImpl};
 use namada::proto::Tx;
 use namada::types::address::Address;
+use namada::types::hash::Hash;
+use namada::types::key::{ed25519, SigScheme};
 use std::str::FromStr;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 pub mod io;
@@ -388,11 +390,17 @@ impl Sdk {
         signing_key: String,
         data: String,
     ) -> Result<JsValue, JsError> {
+        let hash = Hash::sha256(&data);
+        let secret = ed25519::SecretKey::from_str(&signing_key)?;
+        let signature: ed25519::Signature = ed25519::SigScheme::sign(&secret, &hash);
+
+        let sig_bytes: &[u8] = &signature.0.to_bytes();
+
         to_js_result((
             // Hash
-            String::from(format!("TODO: hash for data: {}", &data)),
+            &hash.to_string().to_lowercase(),
             // Signature
-            String::from(format!("TODO: signature for signing_key: {}", &signing_key)),
+            &sig_bytes,
         ))
     }
 }

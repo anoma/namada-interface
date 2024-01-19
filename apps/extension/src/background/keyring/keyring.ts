@@ -51,6 +51,7 @@ import {
   UtilityStore,
 } from "./types";
 
+import { toHex } from "@cosmjs/encoding";
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
 import { generateId } from "utils";
@@ -81,7 +82,7 @@ export class KeyRing {
     protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly extensionStore: KVStore<number>,
     protected readonly cryptoMemory: WebAssembly.Memory
-  ) {}
+  ) { }
 
   public get status(): KeyRingStatus {
     return this._status;
@@ -896,6 +897,6 @@ export class KeyRing {
     const sdk = await this.sdkService.getSdk();
     const [hash, signature] = await sdk.sign_arbitrary(key, data);
 
-    return { hash, signature };
+    return { hash, signature: toHex(signature) };
   }
 }
