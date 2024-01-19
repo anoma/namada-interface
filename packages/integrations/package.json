@@ -37,7 +37,7 @@
     "@cosmjs/stargate": "^0.29.5",
     "@keplr-wallet/types": "^0.10.19",
     "@metamask/providers": "^10.2.1",
-    "@namada/types": "0.1.0",
+    "@namada/types": "0.1.1",
     "@namada/utils": "0.1.0"
   }
 }
