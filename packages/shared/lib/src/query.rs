@@ -17,8 +17,14 @@ use namada::namada_sdk::rpc::{
 };
 use namada::proof_of_stake::Epoch;
 use namada::types::eth_bridge_pool::TransferToEthereum;
-use namada::types::{address::Address, masp::ExtendedViewingKey, token, uint::I256};
-use std::collections::{HashMap, HashSet};
+use namada::types::{
+    address::Address,
+    masp::ExtendedViewingKey,
+    token::{self},
+    uint::I256,
+};
+use namada::ledger::parameters::storage;
+use std::collections::{HashMap, HashSet, BTreeMap};
 use std::str::FromStr;
 use wasm_bindgen::prelude::*;
 
@@ -481,6 +487,24 @@ impl Query {
             .collect();
 
         to_js_result(res)
+    }
+
+    pub async fn query_gas_costs(&self) -> Result<JsValue, JsError> {
+        let key = storage::get_gas_cost_key();
+        let gas_cost_table = query_storage_value::<
+            HttpClient,
+            BTreeMap<Address, token::Amount>,
+        >(&self.client, &key)
+        .await
+        .expect("Parameter should be defined.");
+
+        let mut result: Vec<(String, String)> = Vec::new();
+
+        for (token, gas_cost) in gas_cost_table {
+            result.push((token.to_string(), gas_cost.to_string_native()));
+        }
+
+        to_js_result(result)
     }
 }
 
