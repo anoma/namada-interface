@@ -1,11 +1,13 @@
 {
   "git": {
-    "tagName": "types-${version}",
-    "commitMessage": "chore: release types v${version}",
-    "changelog": false,
-    "tagAnnotation": "Release types ${version}"
+    "commit": false,
+    "tag": false,
+    "push": false,
+    "requireCleanWorkingDir": false,
+    "changelog": false
   },
   "npm": {
+    "publish": false,
     "versionArgs": ["--workspaces-update=false"]
   },
   "plugins": {
@@ -13,8 +15,10 @@
       "preset": {
         "name": "conventionalcommits"
       },
-      "commit-path": "packages/types",
-      "infile": "CHANGELOG.md"
+      "infile": "CHANGELOG.md",
+      "gitRawCommitsOpts": {
+        "path": "."
+      }
     }
   }
 }

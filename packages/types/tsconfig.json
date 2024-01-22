@@ -3,8 +3,7 @@
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "baseUrl": "./src",
-    "rootDir": "./src",
-    "outDir": "./dist/",
+    "declaration": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
@@ -13,13 +12,12 @@
     "module": "esnext",
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
+    "outDir": "./dist",
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
     "target": "es5",
-    "types": ["node"],
-    "declaration": true,
-    "outDir": "./dist"
+    "types": ["node"]
   },
   "include": ["src"]
 }

@@ -20,4 +20,6 @@ else
     exit 1
 fi
 
+rm -rf dist && mkdir dist && mkdir dist/crypto
+
 wasm-pack build $SCRIPT_DIR/../lib $profile --target web --out-dir $SCRIPT_DIR/../src/crypto
