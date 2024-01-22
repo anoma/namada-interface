@@ -3,18 +3,21 @@
     "tagName": "shared-${version}",
     "commitMessage": "chore: release shared v${version}",
     "changelog": false,
-    "tagAnnotation": "Release shared ${version}"
+    "tagAnnotation": "Release shared ${version}",
+    "tagArgs": ["-f"]
   },
   "npm": {
     "versionArgs": ["--workspaces-update=false"]
   },
-
   "plugins": {
     "@release-it/conventional-changelog": {
       "preset": {
         "name": "conventionalcommits"
       },
-      "infile": "CHANGELOG.md"
+      "infile": "CHANGELOG.md",
+      "gitRawCommitsOpts": {
+        "path": "."
+      }
     }
   }
 }

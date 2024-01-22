@@ -3,18 +3,22 @@
     "tagName": "types-${version}",
     "commitMessage": "chore: release types v${version}",
     "changelog": false,
-    "tagAnnotation": "Release types ${version}"
+    "tagAnnotation": "Release types ${version}",
+    "tagArgs": ["-f"]
   },
   "npm": {
-    "versionArgs": ["--workspaces-update=false"]
+    "versionArgs": ["--workspaces-update=false"],
+    "publish": false
   },
   "plugins": {
     "@release-it/conventional-changelog": {
       "preset": {
         "name": "conventionalcommits"
       },
-      "commit-path": "packages/types",
-      "infile": "CHANGELOG.md"
+      "infile": "CHANGELOG.md",
+      "gitRawCommitsOpts": {
+        "path": "."
+      }
     }
   }
 }
