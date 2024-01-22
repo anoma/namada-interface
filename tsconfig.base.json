@@ -3,8 +3,24 @@
     "paths": {
       "@namada/shared": ["../../../packages/shared/src"],
       "@namada/shared/*": ["../../../packages/shared/src/*"],
+
       "@namada/types": ["../../../packages/types/src"],
-      "@namada/types/*": ["../../../packages/types/src/*"]
+      "@namada/types/*": ["../../../packages/types/src/*"],
+
+      "@namada/chains": ["../../../packages/chains/src"],
+      "@namada/chains/*": ["../../../packages/chains/src/*"],
+
+      "@namada/components": ["../../../packages/components/src"],
+      "@namada/components/*": ["../../../packages/components/src/*"],
+
+      "@namada/crypto": ["../../../packages/crypto/src"],
+      "@namada/crypto/*": ["../../../packages/crypto/src/*"],
+
+      "@namada/storage": ["../../../packages/storage/src"],
+      "@namada/storage/*": ["../../../packages/storage/src/*"],
+
+      "@namada/utils": ["../../../packages/utils/src"],
+      "@namada/utils/*": ["../../../packages/utils/src/*"]
     }
   }
 }

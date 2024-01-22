@@ -19,6 +19,12 @@
       "gitRawCommitsOpts": {
         "path": "."
       }
+    },
+    "@release-it/bumper": {
+      "out": {
+        "file": "package.json",
+        "path": ["dependencies.@namada/types"]
+      }
     }
   }
 }
