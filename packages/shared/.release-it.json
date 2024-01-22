@@ -8,6 +8,7 @@
   "npm": {
     "versionArgs": ["--workspaces-update=false"]
   },
+
   "plugins": {
     "@release-it/conventional-changelog": {
       "preset": {
