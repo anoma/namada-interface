@@ -7,5 +7,14 @@
   },
   "npm": {
     "versionArgs": ["--workspaces-update=false"]
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "preset": {
+        "name": "conventionalcommits"
+      },
+      "commit-path": "packages/types",
+      "infile": "CHANGELOG.md"
+    }
   }
 }
