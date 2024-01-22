@@ -8,7 +8,7 @@
   "author": "Heliax Dev <info@heliax.dev>",
   "license": "MIT",
   "scripts": {
-    "prepublish": "rimraf ./dist && yarn wasm:build && tsc --build",
+    "prepublish": "yarn wasm:build && tsc --build",
     "release": "yarn prepublish && release-it --verbose",
     "release:dry-run": "yarn prepublish && release-it --verbose --dry-run",
     "wasm:build": "node ./scripts/build.js --release",

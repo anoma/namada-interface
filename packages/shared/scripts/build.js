@@ -19,6 +19,8 @@ const { multicore, release } = parseArgs({
 const mode = release ? "release" : "development";
 const multicoreLabel = multicore ? "on" : "off";
 
+execSync("rm -rf dist");
+
 console.log(
   `Building \"shared\" in ${mode} mode. Multicore is ${multicoreLabel}.`
 );
