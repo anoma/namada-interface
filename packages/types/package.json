@@ -25,6 +25,7 @@
   "devDependencies": {
     "@babel/preset-env": "^7.23.8",
     "@namada/config": "workspace:^",
+    "@release-it/conventional-changelog": "^8.0.1",
     "@types/bn.js": "^5.1.1",
     "eslint": "^8.49.0",
     "eslint-config-prettier": "^8.8.0",
