@@ -80,7 +80,7 @@ export class KeyRing {
     protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly extensionStore: KVStore<number>,
     protected readonly cryptoMemory: WebAssembly.Memory
-  ) { }
+  ) {}
 
   public get status(): KeyRingStatus {
     return this._status;
@@ -625,21 +625,25 @@ export class KeyRing {
     if (!sensitiveProps) {
       throw new Error(`Signing key for ${address} not found!`);
     }
-    const { text: phrase } = sensitiveProps;
-    const mnemonic = Mnemonic.from_phrase(phrase);
-    const seed = mnemonic.to_seed();
-    const hdWallet = new HDWallet(seed);
-    const key = hdWallet.derive(new Uint32Array(bip44Path));
-    const privateKeyStringPtr = key.to_hex();
-    const privateKey = readStringPointer(
-      privateKeyStringPtr,
-      this.cryptoMemory
-    );
+    const { text: secret } = sensitiveProps;
 
-    mnemonic.free();
-    hdWallet.free();
-    key.free();
-    privateKeyStringPtr.free();
+    let privateKey: string;
+
+    if (account.public.type === AccountType.PrivateKey) {
+      privateKey = secret;
+    } else {
+      const mnemonic = Mnemonic.from_phrase(secret);
+      const seed = mnemonic.to_seed();
+      const hdWallet = new HDWallet(seed);
+      const key = hdWallet.derive(new Uint32Array(bip44Path));
+      const privateKeyStringPtr = key.to_hex();
+      privateKey = readStringPointer(privateKeyStringPtr, this.cryptoMemory);
+
+      mnemonic.free();
+      hdWallet.free();
+      key.free();
+      privateKeyStringPtr.free();
+    }
 
     return privateKey;
   }
