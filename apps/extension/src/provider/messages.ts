@@ -35,7 +35,7 @@ enum MessageType {
   HasMaspParams = "has-masp-params",
   ApproveEthBridgeTransfer = "approve-eth-bridge-transfer",
   CheckDurability = "check-durability",
-  SignArbitrary = "sign-arbitrary",
+  ApproveSignArbitrary = "approve-sign-arbitrary",
 }
 
 /**
@@ -243,9 +243,9 @@ export class CheckDurabilityMsg extends Message<boolean> {
   }
 }
 
-export class SignArbitraryMsg extends Message<SignatureResponse | undefined> {
+export class ApproveSignArbitraryMsg extends Message<SignatureResponse> {
   public static type(): MessageType {
-    return MessageType.SignArbitrary;
+    return MessageType.ApproveSignArbitrary;
   }
 
   constructor(
@@ -265,10 +265,10 @@ export class SignArbitraryMsg extends Message<SignatureResponse | undefined> {
   }
 
   route(): string {
-    return Route.KeyRing;
+    return Route.Approvals;
   }
 
   type(): string {
-    return SignArbitraryMsg.type();
+    return ApproveSignArbitraryMsg.type();
   }
 }

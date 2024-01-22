@@ -10,6 +10,7 @@ import { MessageRequester, Ports } from "router";
 
 import {
   ApproveConnectInterfaceMsg,
+  ApproveSignArbitraryMsg,
   ApproveTxMsg,
   CheckDurabilityMsg,
   FetchAndStoreMaspParamsMsg,
@@ -18,7 +19,6 @@ import {
   QueryAccountsMsg,
   QueryBalancesMsg,
   QueryDefaultAccountMsg,
-  SignArbitraryMsg,
 } from "./messages";
 
 export class Namada implements INamada {
@@ -60,7 +60,7 @@ export class Namada implements INamada {
     const { signer, data } = props;
     return await this.requester?.sendMessage(
       Ports.Background,
-      new SignArbitraryMsg(signer, data)
+      new ApproveSignArbitraryMsg(signer, data)
     );
   }
 

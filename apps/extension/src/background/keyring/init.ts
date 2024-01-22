@@ -5,7 +5,6 @@ import {
   QueryAccountsMsg,
   QueryBalancesMsg,
   QueryDefaultAccountMsg,
-  SignArbitraryMsg,
 } from "provider/messages";
 import { Router } from "router";
 import { ROUTE } from "./constants";
@@ -51,7 +50,6 @@ export function init(router: Router, service: KeyRingService): void {
   router.registerMessage(AddLedgerAccountMsg);
   router.registerMessage(RevealAccountMnemonicMsg);
   router.registerMessage(RenameAccountMsg);
-  router.registerMessage(SignArbitraryMsg);
 
   router.addHandler(ROUTE, getHandler(service));
 }
