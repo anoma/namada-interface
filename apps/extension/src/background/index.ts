@@ -82,8 +82,8 @@ const init = new Promise<void>(async (resolve) => {
     cryptoMemory,
     broadcaster
   );
-  const sdkService = new SdkService(chainStore);
   const chainsService = new ChainsService(chainStore, broadcaster);
+  const sdkService = new SdkService(chainsService);
   const keyRingService = new KeyRingService(
     vaultService,
     sdkService,

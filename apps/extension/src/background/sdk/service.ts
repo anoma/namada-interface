@@ -1,14 +1,12 @@
 import { Query, Sdk } from "@namada/shared";
-import { KVStore } from "@namada/storage";
-import { Chain } from "@namada/types";
-import { CHAINS_KEY } from "background/chains";
+import { ChainsService } from "background/chains";
 
 export class SdkService {
-  constructor(protected readonly chainStore: KVStore<Chain>) { }
+  constructor(protected readonly chainsService: ChainsService) {}
 
   private async _getRpc(): Promise<string> {
     // Pull chain config from store, as the RPC value may have changed:
-    const chain = await this.chainStore.get(CHAINS_KEY);
+    const chain = await this.chainsService.getChain();
 
     if (!chain) {
       throw new Error("No chain found!");
