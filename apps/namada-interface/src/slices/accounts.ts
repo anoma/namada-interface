@@ -1,9 +1,9 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import BigNumber from "bignumber.js";
 
-import { Account as AccountDetails, TokenType } from "@namada/types";
-import { chains, defaultChainId as chainId } from "@namada/chains";
+import { defaultChainId as chainId, chains } from "@namada/chains";
 import { getIntegration } from "@namada/integrations";
+import { Account as AccountDetails, TokenType } from "@namada/types";
 
 import { RootState } from "store";
 
@@ -28,43 +28,46 @@ const INITIAL_STATE = {
 };
 
 enum AccountsThunkActions {
+  FetchBalances = "fetchBalances",
   FetchBalance = "fetchBalance",
 }
 
 const initialState: AccountsState = INITIAL_STATE;
 
-export const fetchBalances = createAsyncThunk<
-  {
-    chainId: string;
-    address: string;
-    balance: Balance;
-  }[],
-  void,
-  { state: RootState }
->(
-  `${ACCOUNTS_ACTIONS_BASE}/${AccountsThunkActions.FetchBalance}`,
+export const fetchBalances = createAsyncThunk<void, void, { state: RootState }>(
+  `${ACCOUNTS_ACTIONS_BASE}/${AccountsThunkActions.FetchBalances}`,
   async (_, thunkApi) => {
-    const integration = getIntegration(chainId);
     const accounts: Account[] = Object.values(
       thunkApi.getState().accounts.derived[chainId]
     );
 
-    const balances = await Promise.all(
-      accounts.map(async ({ details }) => {
-        const { address, chainId } = details;
+    accounts.forEach((account) => thunkApi.dispatch(fetchBalance(account)));
+  }
+);
 
-        const results = await integration.queryBalances(address);
+export const fetchBalance = createAsyncThunk<
+  {
+    chainId: string;
+    address: string;
+    balance: Balance;
+  },
+  Account,
+  { state: RootState }
+>(
+  `${ACCOUNTS_ACTIONS_BASE}/${AccountsThunkActions.FetchBalance}`,
+  async (account) => {
+    const integration = getIntegration(chainId);
 
-        const balance = results.reduce(
-          (acc, curr) => ({ ...acc, [curr.token]: new BigNumber(curr.amount) }),
-          {} as Balance
-        );
+    const { address, chainId: accountChainId } = account.details;
 
-        return { chainId, address, balance };
-      })
+    const results = await integration.queryBalances(address);
+
+    const balance = results.reduce(
+      (acc, curr) => ({ ...acc, [curr.token]: new BigNumber(curr.amount) }),
+      {} as Balance
     );
 
-    return balances;
+    return { chainId: accountChainId, address, balance };
   }
 );
 
@@ -106,25 +109,21 @@ const accountsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(
-      fetchBalances.fulfilled,
+      fetchBalance.fulfilled,
       (
         state,
-        action: PayloadAction<
-          {
-            chainId: string;
-            address: string;
-            balance: Balance;
-          }[]
-        >
+        action: PayloadAction<{
+          chainId: string;
+          address: string;
+          balance: Balance;
+        }>
       ) => {
-        action.payload.forEach((account) => {
-          const { chainId, address, balance } = account;
-          if (state.derived[chainId][address]?.balance) {
-            state.derived[chainId][address].balance = balance;
-          } else {
-            delete state.derived[chainId][address];
-          }
-        });
+        const { chainId, address, balance } = action.payload;
+        if (state.derived[chainId][address]?.balance) {
+          state.derived[chainId][address].balance = balance;
+        } else {
+          delete state.derived[chainId][address];
+        }
       }
     );
   },
