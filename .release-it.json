@@ -1,6 +1,10 @@
 {
   "git": {
-    "requireCleanWorkingDir": false
+    "requireCleanWorkingDir": false,
+    "tagName": "namada-${version}",
+    "commitMessage": "chore: release v${version}",
+    "tagAnnotation": "Release  ${version}",
+    "changelog": false
   },
   "npm": {
     "publish": false
