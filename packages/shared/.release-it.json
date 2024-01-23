@@ -4,9 +4,11 @@
     "commitMessage": "chore: release shared v${version}",
     "changelog": false,
     "tagAnnotation": "Release shared ${version}",
-    "tagArgs": ["-f"]
+    "tagArgs": ["-f"],
+    "requireCleanWorkingDir": false
   },
   "npm": {
+    "publish": false,
     "versionArgs": ["--workspaces-update=false"]
   },
   "plugins": {

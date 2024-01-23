@@ -1,0 +1,8 @@
+{
+  "git": {
+    "requireCleanWorkingDir": false
+  },
+  "npm": {
+    "publish": false
+  }
+}

@@ -5670,7 +5670,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@iarna/toml@npm:2.2.5":
+"@iarna/toml@npm:2.2.5, @iarna/toml@npm:^2.2.5":
   version: 2.2.5
   resolution: "@iarna/toml@npm:2.2.5"
   checksum: d095381ad4554aca233b7cf5a91f243ef619e5e15efd3157bc640feac320545450d14b394aebbf6f02a2047437ced778ae598d5879a995441ab7b6c0b2c2f201
@@ -8367,6 +8367,23 @@ __metadata:
     react-redux:
       optional: true
   checksum: ad23c9cb9d9156c100732fa81b134126db2eeb1decc8f993b93e8c39f4696af90431d4abdc2d6cf7cf32da880c1a848caae87d088e9bc29f047d15805e37f311
+  languageName: node
+  linkType: hard
+
+"@release-it/bumper@npm:^6.0.1":
+  version: 6.0.1
+  resolution: "@release-it/bumper@npm:6.0.1"
+  dependencies:
+    "@iarna/toml": "npm:^2.2.5"
+    detect-indent: "npm:7.0.1"
+    fast-glob: "npm:^3.3.2"
+    ini: "npm:^4.1.1"
+    js-yaml: "npm:^4.1.0"
+    lodash-es: "npm:^4.17.21"
+    semver: "npm:^7.3.7"
+  peerDependencies:
+    release-it: ^17.0.0
+  checksum: 4b6abc03fb5925c1a4222774dc80d1cc38125e7ff3af5f274b4ab91cfe47875fb529fb2ea8fb64dedafb44223fef9667eea4dd1420a17fcce002092ed7916e53
   languageName: node
   linkType: hard
 
@@ -14997,6 +15014,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"detect-indent@npm:7.0.1":
+  version: 7.0.1
+  resolution: "detect-indent@npm:7.0.1"
+  checksum: 47b6e3e3dda603c386e73b129f3e84844ae59bc2615f5072becf3cc02eab400bed5a4e6379c49d0b18cf630e80c2b07e87e0038b777addbc6ef793ad77dd05bc
+  languageName: node
+  linkType: hard
+
 "detect-newline@npm:^3.0.0":
   version: 3.1.0
   resolution: "detect-newline@npm:3.1.0"
@@ -19217,6 +19241,13 @@ __metadata:
   version: 1.3.8
   resolution: "ini@npm:1.3.8"
   checksum: ec93838d2328b619532e4f1ff05df7909760b6f66d9c9e2ded11e5c1897d6f2f9980c54dd638f88654b00919ce31e827040631eab0a3969e4d1abefa0719516a
+  languageName: node
+  linkType: hard
+
+"ini@npm:^4.1.1":
+  version: 4.1.1
+  resolution: "ini@npm:4.1.1"
+  checksum: 7fddc8dfd3e63567d4fdd5d999d1bf8a8487f1479d0b34a1d01f28d391a9228d261e19abc38e1a6a1ceb3400c727204fce05725d5eb598dfcf2077a1e3afe211
   languageName: node
   linkType: hard
 
@@ -23776,6 +23807,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lodash-es@npm:^4.17.21":
+  version: 4.17.21
+  resolution: "lodash-es@npm:4.17.21"
+  checksum: fb407355f7e6cd523a9383e76e6b455321f0f153a6c9625e21a8827d10c54c2a2341bd2ae8d034358b60e07325e1330c14c224ff582d04612a46a4f0479ff2f2
+  languageName: node
+  linkType: hard
+
 "lodash.camelcase@npm:^4.3.0":
   version: 4.3.0
   resolution: "lodash.camelcase@npm:4.3.0"
@@ -24629,6 +24667,8 @@ __metadata:
     "@cosmjs/encoding": "npm:^0.27.1"
     "@cosmjs/json-rpc": "npm:^0.27.1"
     "@cosmjs/tendermint-rpc": "npm:^0.27.1"
+    "@release-it/bumper": "npm:^6.0.1"
+    "@release-it/conventional-changelog": "npm:^8.0.1"
     "@typescript-eslint/eslint-plugin": "npm:^6.13.0"
     "@typescript-eslint/parser": "npm:^6.13.0"
     bs58: "npm:^5.0.0"
@@ -24639,6 +24679,7 @@ __metadata:
     lint-staged: "npm:^15.2.0"
     prettier: "npm:^3.1.0"
     prettier-plugin-organize-imports: "npm:^3.2.4"
+    release-it: "npm:^17.0.1"
     stream-browserify: "npm:^3.0.0"
     typescript: "npm:^5.1.3"
     web-vitals: "npm:^2.1.4"

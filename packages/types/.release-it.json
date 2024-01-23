@@ -1,12 +1,12 @@
 {
   "git": {
-    "tagName": "types-${version}",
-    "commitMessage": "chore: release types v${version}",
-    "changelog": false,
-    "tagAnnotation": "Release types ${version}",
-    "tagArgs": ["-f"]
+    "commit": false,
+    "tag": false,
+    "push": false,
+    "requireCleanWorkingDir": false
   },
   "npm": {
+    "publish": false,
     "versionArgs": ["--workspaces-update=false"]
   },
   "plugins": {

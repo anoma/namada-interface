@@ -1,6 +1,6 @@
 {
   "name": "@namada/shared",
-  "version": "0.1.3",
+  "version": "0.3.0",
   "description": "Namada shared functionality",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,7 +9,7 @@
   "license": "MIT",
   "scripts": {
     "prepublish": "yarn wasm:build && tsc --build",
-    "release": "yarn prepublish && release-it --verbose",
+    "release": "yarn prepublish && release-it --verbose --ci",
     "release:dry-run": "yarn prepublish && release-it --verbose --dry-run",
     "wasm:build": "node ./scripts/build.js --release",
     "wasm:build:multicore": "node ./scripts/build.js --release --multicore",
