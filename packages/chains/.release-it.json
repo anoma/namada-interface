@@ -4,6 +4,7 @@
     "tag": false,
     "push": false,
     "requireCleanWorkingDir": false,
+    "requireCommits": true,
     "changelog": false
   },
   "npm": {
