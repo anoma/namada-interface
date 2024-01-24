@@ -9,8 +9,7 @@
   "license": "MIT",
   "scripts": {
     "prepublish": "npx rimraf ./dist && tsc --build",
-    "release": "/bin/sh -c 'if [ \"$(git-raw-commits --from $(git describe --tags --abbrev=0) --to HEAD --path .)\" != \"\" ]; then yarn release!; else echo 'KAPPA'; fi;'",
-    "release!": "yarn prepublish && release-it --verbose",
+    "release": "yarn prepublish && release-it --verbose",
     "release:dry-run": "yarn prepublish && release-it --verbose --dry-run",
     "lint": "eslint src --ext .ts",
     "lint:fix": "yarn lint -- --fix",

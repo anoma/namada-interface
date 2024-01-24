@@ -9,8 +9,7 @@
   "license": "MIT",
   "scripts": {
     "prepublish": "yarn wasm:build && tsc --build",
-    "release": "/bin/sh -c 'if [ \"$(git-raw-commits --from $(git describe --tags --abbrev=0) --to HEAD --path .)\" != \"\" ]; then yarn release!; else echo 'KAPPA'; fi;'",
-    "release!": "yarn prepublish && release-it --verbose",
+    "release": "yarn prepublish && release-it --verbose",
     "release:dry-run": "yarn prepublish && release-it --verbose --dry-run",
     "wasm:build": "./scripts/build.sh --release",
     "wasm:build:dev": "./scripts/build.sh",
