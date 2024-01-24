@@ -48,7 +48,7 @@ export const fetchBalances = createAsyncThunk<void, void, { state: RootState }>(
 
 export const fetchBalance = createAsyncThunk<
   {
-    chainId: string;
+    chainKey: ChainKey;
     address: string;
     balance: Balance;
   },
@@ -57,18 +57,15 @@ export const fetchBalance = createAsyncThunk<
 >(
   `${ACCOUNTS_ACTIONS_BASE}/${AccountsThunkActions.FetchBalance}`,
   async (account) => {
-    const integration = getIntegration(chains.namada.id);
-
-    const { address, chainId: accountChainId } = account.details;
-
+    const { address, chainKey } = account.details;
+    const integration = getIntegration(chainKey);
     const results = await integration.queryBalances(address);
-
     const balance = results.reduce(
       (acc, curr) => ({ ...acc, [curr.token]: new BigNumber(curr.amount) }),
       {} as Balance
     );
 
-    return { chainId: accountChainId, address, balance };
+    return { chainKey, address, balance };
   }
 );
 
@@ -79,26 +76,22 @@ const accountsSlice = createSlice({
     addAccounts: (state, action: PayloadAction<readonly AccountDetails[]>) => {
       const accounts = action.payload;
 
-      const { chainId } = accounts[0] || "";
-      const chain = Object.values(chains).find((chain) => chain.chainId === chainId);
+      const id = accounts[0]?.chainKey || chains.namada.id;
 
-      if (!chain) {
-        return;
-      }
-      // Remove old accounts under this chainId if present:
-      if (state.derived[chain.id]) {
-        state.derived[chain.id] = {};
+      // Remove old accounts under this chain config id if present:
+      if (state.derived[id]) {
+        state.derived[id] = {};
       }
 
       accounts.forEach((account) => {
-        const { address, alias, isShielded, chainId, type, publicKey } =
+        const { address, alias, isShielded, chainId, type, publicKey, chainKey } =
           account;
         const currencySymbol = chains.namada.currency.symbol;
-        if (!state.derived[chain.id]) {
-          state.derived[chain.id] = {};
+        if (!state.derived[id]) {
+          state.derived[id] = {};
         }
 
-        state.derived[chain.id][address] = {
+        state.derived[id][address] = {
           details: {
             address,
             alias,
@@ -106,6 +99,7 @@ const accountsSlice = createSlice({
             type,
             publicKey,
             isShielded,
+            chainKey,
           },
           balance: {
             [currencySymbol]: new BigNumber(0),
@@ -120,17 +114,16 @@ const accountsSlice = createSlice({
       (
         state,
         action: PayloadAction<{
-          chainId: string;
+          chainKey: ChainKey;
           address: string;
           balance: Balance;
         }>
       ) => {
-        const { id } = chains.namada
-        const { address, balance } = action.payload;
-        if (state.derived[id][address]?.balance) {
-          state.derived[id][address].balance = balance;
+        const { address, balance, chainKey } = action.payload;
+        if (state.derived[chainKey][address]?.balance) {
+          state.derived[chainKey][address].balance = balance;
         } else {
-          delete state.derived[id][address];
+          delete state.derived[chainKey][address];
         }
 
       }

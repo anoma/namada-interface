@@ -1,3 +1,5 @@
+import { ChainKey } from "./chain";
+
 export type Bip44Path = {
   account: number;
   change: number;
@@ -33,4 +35,5 @@ export type Account = Pick<
 > & {
   chainId: string;
   isShielded: boolean;
+  chainKey: ChainKey;
 };

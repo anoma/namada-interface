@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { mock } from "jest-mock-extended";
 
+import { Keplr as IKeplr, Key } from "@keplr-wallet/types";
 import { AccountType, Chain } from "@namada/types";
-import { Key, Keplr as IKeplr } from "@keplr-wallet/types";
 
-import Keplr from "./Keplr";
 import {
   AccountData,
   OfflineDirectSigner,
   OfflineSigner,
 } from "@cosmjs/proto-signing";
+import Keplr from "./Keplr";
 
 /**
  * Mock Chain configuration data
@@ -133,6 +133,7 @@ describe("Keplr class", () => {
         address: a,
         type: AccountType.PrivateKey,
         isShielded: false,
+        chainKey: mockChain.id,
       }))
     );
   });

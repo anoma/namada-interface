@@ -16,6 +16,7 @@ export const mockAppState: RootState = {
             address: "tnam1q8gpzlamqksqjagt2xs3p6tnfcldy0fcd53fs4jh",
             isShielded: false,
             type: AccountType.PrivateKey,
+            chainKey: "namada",
           },
           balance: {
             NAM: new BigNumber(1000),

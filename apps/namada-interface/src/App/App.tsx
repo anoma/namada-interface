@@ -91,7 +91,7 @@ function App(): JSX.Element {
     ) {
       fetchAccounts();
     }
-  });
+  }, [chain]);
 
   useEffect(() => {
     (async () => {

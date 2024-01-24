@@ -64,6 +64,7 @@ class Metamask implements Integration<Account, unknown> {
       chainId: this.chain.chainId,
       type: AccountType.PrivateKey,
       isShielded: false,
+      chainKey: this.chain.id,
     }));
 
     return accounts;
