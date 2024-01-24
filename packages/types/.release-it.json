@@ -4,7 +4,8 @@
     "tag": false,
     "push": false,
     "requireCleanWorkingDir": false,
-    "changelog": false
+    "tagName": "namada-",
+    "tagMatch": "namada-*"
   },
   "npm": {
     "publish": false,
@@ -13,7 +14,7 @@
   "plugins": {
     "@release-it/conventional-changelog": {
       "preset": {
-        "name": "conventionalcommits"
+        "name": "angular"
       },
       "infile": "CHANGELOG.md",
       "gitRawCommitsOpts": {

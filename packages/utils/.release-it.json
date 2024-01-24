@@ -4,7 +4,9 @@
     "tag": false,
     "push": false,
     "requireCleanWorkingDir": false,
-    "changelog": false
+    "changelog": false,
+    "tagName": "namada-",
+    "tagMatch": "namada-*"
   },
   "npm": {
     "publish": false,
