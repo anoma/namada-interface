@@ -53,7 +53,7 @@ export class ApprovalsService {
     protected readonly keyRingService: KeyRingService,
     protected readonly ledgerService: LedgerService,
     protected readonly vaultService: VaultService
-  ) {}
+  ) { }
 
   async approveSignature(
     signer: string,
@@ -107,7 +107,6 @@ export class ApprovalsService {
     } catch (e) {
       resolvers.reject(e);
     }
-    resolvers.resolve();
 
     await this._clearPendingSignature(msgId);
   }

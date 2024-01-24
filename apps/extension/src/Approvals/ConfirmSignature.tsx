@@ -47,7 +47,7 @@ export const ConfirmSignature: React.FC<Props> = ({ details }) => {
       await requester
         .sendMessage(
           Ports.Background,
-          new SubmitApprovedSignatureMsg(signer, msgId)
+          new SubmitApprovedSignatureMsg(msgId, signer)
         )
         .catch((e) => {
           throw new Error(e);

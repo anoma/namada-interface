@@ -82,7 +82,7 @@ export class KeyRing {
     protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly extensionStore: KVStore<number>,
     protected readonly cryptoMemory: WebAssembly.Memory
-  ) {}
+  ) { }
 
   public get status(): KeyRingStatus {
     return this._status;
@@ -890,7 +890,7 @@ export class KeyRing {
   async signArbitrary(
     signer: string,
     data: string
-  ): Promise<SignatureResponse | undefined> {
+  ): Promise<SignatureResponse> {
     await this.vaultService.assertIsUnlocked();
 
     const key = await this.getSigningKey(signer);

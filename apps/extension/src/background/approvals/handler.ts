@@ -139,6 +139,6 @@ const handleSubmitApprovedSignatureMsg: (
   service: ApprovalsService
 ) => InternalHandler<SubmitApprovedSignatureMsg> = (service) => {
   return async ({ senderTabId: popupTabId }, { msgId, signer }) => {
-    return await service.submitSignature(popupTabId, signer, msgId);
+    return await service.submitSignature(popupTabId, msgId, signer);
   };
 };

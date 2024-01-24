@@ -28,7 +28,7 @@ import {
 } from "@namada/types";
 
 export class Signer implements ISigner {
-  constructor(private readonly _namada: Namada) {}
+  constructor(private readonly _namada: Namada) { }
 
   public async accounts(): Promise<Account[] | undefined> {
     return (await this._namada.accounts())?.map(
