@@ -4,8 +4,8 @@
     "tag": false,
     "push": false,
     "requireCleanWorkingDir": false,
-    "requireCommits": true,
-    "changelog": false
+    "tagName": "namada-",
+    "tagMatch": "namada-*"
   },
   "npm": {
     "publish": false,
@@ -20,12 +20,9 @@
       "gitRawCommitsOpts": {
         "path": "."
       }
-    },
-    "@release-it/bumper": {
-      "out": {
-        "file": "package.json",
-        "path": ["dependencies.@namada/types"]
-      }
     }
+  },
+  "hooks": {
+    "after:bump": "in=\"$(cat ../types/package.json | jq '.version')\" && out=\"$(jq '.dependencies.\"@namada/types\" = '$in'' package.json)\" && echo \"$out\" > package.json"
   }
 }

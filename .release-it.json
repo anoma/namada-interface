@@ -2,6 +2,7 @@
   "git": {
     "requireCleanWorkingDir": false,
     "tagName": "namada-${version}",
+    "tagArgs": "--force",
     "commitMessage": "chore: release v${version}",
     "tagAnnotation": "Release  ${version}",
     "changelog": false
