@@ -10,6 +10,7 @@ import {
   AccountType,
   EthBridgeTransferMsgValue,
   IbcTransferMsgValue,
+  SignatureResponse,
   SubmitBondMsgValue,
   SubmitUnbondMsgValue,
   SubmitVoteProposalMsgValue,
@@ -46,12 +47,80 @@ export class ApprovalsService {
 
   constructor(
     protected readonly txStore: KVStore<TxStore>,
+    protected readonly dataStore: KVStore<string>,
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
     protected readonly approvedOriginsStore: KVStore<ApprovedOriginsStore>,
     protected readonly keyRingService: KeyRingService,
     protected readonly ledgerService: LedgerService,
     protected readonly vaultService: VaultService
   ) { }
+
+  async approveSignature(
+    signer: string,
+    data: string
+  ): Promise<SignatureResponse> {
+    const msgId = uuid();
+
+    await this.dataStore.set(msgId, data);
+    const baseUrl = `${browser.runtime.getURL(
+      "approvals.html"
+    )}#/approve-signature/${signer}`;
+
+    const url = paramsToUrl(baseUrl, {
+      msgId,
+    });
+    const approvalWindow = await this._launchApprovalWindow(url);
+    const popupTabId = approvalWindow.tabs?.[0]?.id;
+
+    if (!popupTabId) {
+      throw new Error("no popup tab ID");
+    }
+
+    if (popupTabId in this.resolverMap) {
+      throw new Error(`tab ID ${popupTabId} already exists in promise map`);
+    }
+
+    return await new Promise((resolve, reject) => {
+      this.resolverMap[popupTabId] = { resolve, reject };
+    });
+  }
+
+  async submitSignature(
+    popupTabId: number,
+    msgId: string,
+    signer: string
+  ): Promise<void> {
+    const data = await this.dataStore.get(msgId);
+    const resolvers = this.resolverMap[popupTabId];
+
+    if (!resolvers) {
+      throw new Error(`no resolvers found for tab ID ${popupTabId}`);
+    }
+
+    if (!data) {
+      throw new Error(`Signing data for ${msgId} not found!`);
+    }
+
+    try {
+      const signature = await this.keyRingService.signArbitrary(signer, data);
+      resolvers.resolve(signature);
+    } catch (e) {
+      resolvers.reject(e);
+    }
+
+    await this._clearPendingSignature(msgId);
+  }
+
+  async rejectSignature(popupTabId: number, msgId: string): Promise<void> {
+    const resolvers = this.resolverMap[popupTabId];
+
+    if (!resolvers) {
+      throw new Error(`no resolvers found for tab ID ${popupTabId}`);
+    }
+
+    await this._clearPendingSignature(msgId);
+    resolvers.reject();
+  }
 
   async approveTx(
     txType: SupportedTx,
@@ -331,6 +400,10 @@ export class ApprovalsService {
 
   private async _clearPendingTx(msgId: string): Promise<void> {
     return await this.txStore.set(msgId, null);
+  }
+
+  private async _clearPendingSignature(msgId: string): Promise<void> {
+    return await this.dataStore.set(msgId, null);
   }
 
   private _launchApprovalWindow = (url: string): Promise<Windows.Window> => {

@@ -20,6 +20,8 @@ use namada::namada_sdk::wallet::{Store, Wallet};
 use namada::namada_sdk::{Namada, NamadaImpl};
 use namada::proto::Tx;
 use namada::types::address::Address;
+use namada::types::hash::Hash;
+use namada::types::key::{ed25519, SigScheme};
 use std::str::FromStr;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 pub mod io;
@@ -379,6 +381,27 @@ impl Sdk {
         }
 
         Ok(())
+    }
+
+    // Sign arbitrary data with the provided signing key
+    // TODO: Use function from SDK when it is available
+    pub async fn sign_arbitrary(
+        &self,
+        signing_key: String,
+        data: String,
+    ) -> Result<JsValue, JsError> {
+        let hash = Hash::sha256(&data);
+        let secret = ed25519::SecretKey::from_str(&signing_key)?;
+        let signature: ed25519::Signature = ed25519::SigScheme::sign(&secret, &hash);
+
+        let sig_bytes: &[u8] = &signature.0.to_bytes();
+
+        to_js_result((
+            // Hash
+            &hash.to_string().to_lowercase(),
+            // Signature
+            &sig_bytes,
+        ))
     }
 }
 

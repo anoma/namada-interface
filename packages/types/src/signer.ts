@@ -10,9 +10,18 @@ import {
   TxProps,
 } from "./tx";
 
+export type SignatureResponse = {
+  hash: string;
+  signature: string;
+};
+
 export interface Signer {
   accounts: (chainId?: string) => Promise<Account[] | undefined>;
   defaultAccount: (chainId?: string) => Promise<Account | undefined>;
+  sign: (
+    signer: string,
+    data: string
+  ) => Promise<SignatureResponse | undefined>;
   submitBond(
     args: SubmitBondProps,
     txArgs: TxProps,

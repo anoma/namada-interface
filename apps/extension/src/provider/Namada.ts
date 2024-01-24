@@ -2,12 +2,15 @@ import {
   Chain,
   DerivedAccount,
   Namada as INamada,
+  SignArbitraryProps,
+  SignatureResponse,
   TxMsgProps,
 } from "@namada/types";
 import { MessageRequester, Ports } from "router";
 
 import {
   ApproveConnectInterfaceMsg,
+  ApproveSignArbitraryMsg,
   ApproveTxMsg,
   CheckDurabilityMsg,
   FetchAndStoreMaspParamsMsg,
@@ -22,7 +25,7 @@ export class Namada implements INamada {
   constructor(
     private readonly _version: string,
     protected readonly requester?: MessageRequester
-  ) {}
+  ) { }
 
   public async connect(): Promise<void> {
     return await this.requester?.sendMessage(
@@ -48,6 +51,16 @@ export class Namada implements INamada {
     return await this.requester?.sendMessage(
       Ports.Background,
       new QueryDefaultAccountMsg()
+    );
+  }
+
+  public async sign(
+    props: SignArbitraryProps
+  ): Promise<SignatureResponse | undefined> {
+    const { signer, data } = props;
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new ApproveSignArbitraryMsg(signer, data)
     );
   }
 

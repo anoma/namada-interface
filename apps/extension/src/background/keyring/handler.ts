@@ -16,13 +16,13 @@ import {
   GetActiveAccountMsg,
   QueryParentAccountsMsg,
   QueryPublicKeyMsg,
+  RenameAccountMsg,
   RevealAccountMnemonicMsg,
   SaveAccountSecretMsg,
   ScanAccountsMsg,
   SetActiveAccountMsg,
   TransferCompletedEvent,
   ValidateMnemonicMsg,
-  RenameAccountMsg,
 } from "./messages";
 import { KeyRingService } from "./service";
 

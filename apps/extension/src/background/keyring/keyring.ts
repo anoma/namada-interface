@@ -24,6 +24,7 @@ import {
   DerivedAccount,
   EthBridgeTransferMsgValue,
   IbcTransferMsgValue,
+  SignatureResponse,
   SubmitBondMsgValue,
   SubmitUnbondMsgValue,
   SubmitVoteProposalMsgValue,
@@ -50,6 +51,7 @@ import {
   UtilityStore,
 } from "./types";
 
+import { toHex } from "@cosmjs/encoding";
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
 import { generateId } from "utils";
@@ -80,7 +82,7 @@ export class KeyRing {
     protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly extensionStore: KVStore<number>,
     protected readonly cryptoMemory: WebAssembly.Memory
-  ) {}
+  ) { }
 
   public get status(): KeyRingStatus {
     return this._status;
@@ -883,5 +885,18 @@ export class KeyRing {
   async queryPublicKey(address: string): Promise<string | undefined> {
     const query = await this.sdkService.getQuery();
     return await query.query_public_key(address);
+  }
+
+  async signArbitrary(
+    signer: string,
+    data: string
+  ): Promise<SignatureResponse> {
+    await this.vaultService.assertIsUnlocked();
+
+    const key = await this.getSigningKey(signer);
+    const sdk = await this.sdkService.getSdk();
+    const [hash, signature] = await sdk.sign_arbitrary(key, data);
+
+    return { hash, signature: toHex(signature) };
   }
 }

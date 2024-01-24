@@ -3,6 +3,8 @@ import {
   DerivedAccount,
   Namada as INamada,
   Signer as ISigner,
+  SignArbitraryProps,
+  SignatureResponse,
   TxMsgProps,
 } from "@namada/types";
 import { InjectedProxy } from "./InjectedProxy";
@@ -25,6 +27,15 @@ export class InjectedNamada implements INamada {
     return await InjectedProxy.requestMethod<string, DerivedAccount>(
       "defaultAccount"
     );
+  }
+
+  public async sign(
+    props: SignArbitraryProps
+  ): Promise<SignatureResponse | undefined> {
+    return await InjectedProxy.requestMethod<
+      SignArbitraryProps,
+      SignatureResponse | undefined
+    >("sign", props);
   }
 
   public async balances(

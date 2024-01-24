@@ -1,31 +1,31 @@
-import { Router } from "router";
 import {
+  CheckDurabilityMsg,
+  FetchAndStoreMaspParamsMsg,
+  HasMaspParamsMsg,
+  QueryAccountsMsg,
+  QueryBalancesMsg,
+  QueryDefaultAccountMsg,
+} from "provider/messages";
+import { Router } from "router";
+import { ROUTE } from "./constants";
+import { getHandler } from "./handler";
+import {
+  AddLedgerAccountMsg,
+  CloseOffscreenDocumentMsg,
+  DeleteAccountMsg,
   DeriveAccountMsg,
-  QueryPublicKeyMsg,
   GenerateMnemonicMsg,
+  GetActiveAccountMsg,
+  QueryParentAccountsMsg,
+  QueryPublicKeyMsg,
+  RenameAccountMsg,
+  RevealAccountMnemonicMsg,
   SaveAccountSecretMsg,
   ScanAccountsMsg,
   SetActiveAccountMsg,
-  GetActiveAccountMsg,
-  QueryParentAccountsMsg,
   TransferCompletedEvent,
-  CloseOffscreenDocumentMsg,
-  DeleteAccountMsg,
   ValidateMnemonicMsg,
-  AddLedgerAccountMsg,
-  RevealAccountMnemonicMsg,
-  RenameAccountMsg,
 } from "./messages";
-import {
-  QueryAccountsMsg,
-  QueryDefaultAccountMsg,
-  QueryBalancesMsg,
-  FetchAndStoreMaspParamsMsg,
-  HasMaspParamsMsg,
-  CheckDurabilityMsg,
-} from "provider/messages";
-import { ROUTE } from "./constants";
-import { getHandler } from "./handler";
 import { KeyRingService } from "./service";
 
 export function init(router: Router, service: KeyRingService): void {

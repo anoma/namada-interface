@@ -10,7 +10,13 @@ export enum TopLevelRoute {
   ApproveTx = "/approve-tx",
   ConfirmTx = "/confirm-tx",
   ConfirmLedgerTx = "/confirm-ledger-tx",
+
+  // Signing approval
+  ApproveSignature = "/approve-signature",
+  ConfirmSignature = "/confirm-signature",
 }
 
-export type ApproveMsg = new (msgId: string, password: string) => unknown &
-  Message<void>;
+export type ApproveMsg = new (
+  msgId: string,
+  password: string
+) => unknown & Message<void>;

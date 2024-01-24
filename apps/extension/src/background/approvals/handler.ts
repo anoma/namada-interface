@@ -1,9 +1,15 @@
-import { ApproveConnectInterfaceMsg, ApproveTxMsg } from "provider";
+import {
+  ApproveConnectInterfaceMsg,
+  ApproveSignArbitraryMsg,
+  ApproveTxMsg,
+} from "provider";
 import { Env, Handler, InternalHandler, Message } from "router";
 import {
   ConnectInterfaceResponseMsg,
+  RejectSignatureMsg,
   RejectTxMsg,
   RevokeConnectionMsg,
+  SubmitApprovedSignatureMsg,
   SubmitApprovedTxMsg,
 } from "./messages";
 import { ApprovalsService } from "./service";
@@ -35,6 +41,22 @@ export const getHandler: (service: ApprovalsService) => Handler = (service) => {
           env,
           msg as RevokeConnectionMsg
         );
+      case ApproveSignArbitraryMsg:
+        return handleApproveSignArbitraryMsg(service)(
+          env,
+          msg as ApproveSignArbitraryMsg
+        );
+      case RejectSignatureMsg:
+        return handleRejectSignatureMsg(service)(
+          env,
+          msg as RejectSignatureMsg
+        );
+      case SubmitApprovedSignatureMsg:
+        return handleSubmitApprovedSignatureMsg(service)(
+          env,
+          msg as SubmitApprovedSignatureMsg
+        );
+
       default:
         throw new Error("Unknown msg type");
     }
@@ -94,5 +116,29 @@ const handleRevokeConnectionMsg: (
 ) => InternalHandler<RevokeConnectionMsg> = (service) => {
   return async (_, { originToRevoke }) => {
     return await service.revokeConnection(originToRevoke);
+  };
+};
+
+const handleApproveSignArbitraryMsg: (
+  service: ApprovalsService
+) => InternalHandler<ApproveSignArbitraryMsg> = (service) => {
+  return async (_, { signer, data }) => {
+    return await service.approveSignature(signer, data);
+  };
+};
+
+const handleRejectSignatureMsg: (
+  service: ApprovalsService
+) => InternalHandler<RejectSignatureMsg> = (service) => {
+  return async ({ senderTabId: popupTabId }, { msgId }) => {
+    return await service.rejectSignature(popupTabId, msgId);
+  };
+};
+
+const handleSubmitApprovedSignatureMsg: (
+  service: ApprovalsService
+) => InternalHandler<SubmitApprovedSignatureMsg> = (service) => {
+  return async ({ senderTabId: popupTabId }, { msgId, signer }) => {
+    return await service.submitSignature(popupTabId, msgId, signer);
   };
 };
