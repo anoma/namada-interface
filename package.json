@@ -20,7 +20,6 @@
     "prepare": "husky install"
   },
   "devDependencies": {
-    "@release-it/bumper": "^6.0.1",
     "@release-it/conventional-changelog": "^8.0.1",
     "@typescript-eslint/eslint-plugin": "^6.13.0",
     "@typescript-eslint/parser": "^6.13.0",
