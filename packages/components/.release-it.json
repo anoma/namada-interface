@@ -21,10 +21,7 @@
       }
     }
   },
-  "@release-it/bumper": {
-    "out": {
-      "file": "package.json",
-      "path": ["dependencies.@namada/utils"]
-    }
+  "hooks": {
+    "after:bump": "in=\"$(cat ../utils/package.json | jq '.version')\" && out=\"$(jq '.dependencies.\"@namada/utils\" = '$in'' package.json)\" && echo \"$out\" > package.json"
   }
 }
