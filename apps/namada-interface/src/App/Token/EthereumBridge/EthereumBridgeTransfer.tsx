@@ -1,8 +1,9 @@
-import { chains } from "@namada/chains";
 import { Query, TransferToEthereum } from "@namada/shared";
+import { Chain } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
 import { useEffect, useState } from "react";
 import { Account } from "slices/accounts";
+import { useAppSelector } from "store";
 import {
   TransferCol,
   TransferRow,
@@ -11,12 +12,12 @@ import {
 
 type EthereumBridgeTransfersProps = {
   accounts: Account[];
-  chainId: string;
 };
 
 export const EthereumBridgeTransfers = (
-  { accounts, chainId }: EthereumBridgeTransfersProps
+  { accounts }: EthereumBridgeTransfersProps
 ): JSX.Element => {
+  const { rpc } = useAppSelector<Chain>((state) => state.chain.config);
   const [pendingTransfers, setPendingTransfers] = useState<
     TransferToEthereum[]
   >([]);
@@ -24,7 +25,6 @@ export const EthereumBridgeTransfers = (
 
   useEffect(() => {
     (async () => {
-      const { rpc } = chains[chainId];
       const query = new Query(rpc);
       const addresses = accounts.map(({ details }) => details.address);
       const bridgePool: TransferToEthereum[] =

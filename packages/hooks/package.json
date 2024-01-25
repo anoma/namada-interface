@@ -1,6 +1,6 @@
 {
   "name": "@namada/hooks",
-  "version": "0.1.0",
+  "version": "0.2.1",
   "description": "A collection of React hooks",
   "main": "src/index.ts",
   "repository": "https://github.com/anoma/namada-interface",
@@ -12,9 +12,9 @@
     "lint:ci": "yarn lint --max-warnings 0"
   },
   "dependencies": {
-    "@namada/chains": "0.1.0",
-    "@namada/types": "0.1.0",
-    "@namada/utils": "0.1.0",
+    "@namada/chains": "0.2.1",
+    "@namada/types": "0.2.1",
+    "@namada/utils": "0.2.1",
     "react": "^17.0.2",
     "typescript": "^5.1.3"
   },

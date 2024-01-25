@@ -1,6 +1,5 @@
 import { fromBase64 } from "@cosmjs/encoding";
 import { deserialize, serialize } from "@dao-xyz/borsh";
-import { chains, defaultChainId } from "@namada/chains";
 import { Sdk } from "@namada/shared";
 import { initMulticore as initShared } from "@namada/shared/src/init";
 import { TxMsgValue } from "@namada/types";
@@ -17,16 +16,19 @@ import {
     wasm.arrayBuffer()
   );
   await initShared(sharedWasm);
-  const sdk = new Sdk(chains[defaultChainId].rpc);
-  await sdk.load_masp_params();
 
   addEventListener(
     "message",
     async ({ data }: { data: SubmitTransferMessageData }) => {
       try {
-        const { privateKey, xsk } = data.signingKey;
+        const {
+          signingKey: { privateKey, xsk },
+          rpc,
+        } = data;
         let txMsg = fromBase64(data.txMsg);
 
+        const sdk = new Sdk(rpc);
+        await sdk.load_masp_params();
         // For transparent transactions we have to reveal the public key.
         if (privateKey) {
           await sdk.reveal_pk(privateKey, txMsg);

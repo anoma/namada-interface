@@ -1,4 +1,3 @@
-import { chains, defaultChainId } from "@namada/chains";
 import { Query } from "@namada/shared";
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import BigNumber from "bignumber.js";
@@ -34,24 +33,27 @@ export const fetchProposals = createAsyncThunk<
   Proposal[],
   void,
   { state: RootState }
->(`${PROPOSALS_ACTIONS_BASE}/${ProposalsActions.FetchProposals}`, async () => {
-  const { rpc } = chains[defaultChainId];
-  const query = new Query(rpc);
-  let proposals: Proposal[] = [];
+>(
+  `${PROPOSALS_ACTIONS_BASE}/${ProposalsActions.FetchProposals}`,
+  async (_, thunkApi) => {
+    const { rpc } = thunkApi.getState().chain.config;
+    const query = new Query(rpc);
+    let proposals: Proposal[] = [];
 
-  try {
-    const sdkProposals = await query.queryProposals();
+    try {
+      const sdkProposals = await query.queryProposals();
 
-    proposals = sdkProposals.map((proposal) => ({
-      ...proposal,
-      content: JSON.parse(proposal.contentJSON) as Record<string, string>,
-    }));
-  } catch (e) {
-    console.error(e);
+      proposals = sdkProposals.map((proposal) => ({
+        ...proposal,
+        content: JSON.parse(proposal.contentJSON) as Record<string, string>,
+      }));
+    } catch (e) {
+      console.error(e);
+    }
+
+    return proposals;
   }
-
-  return proposals;
-});
+);
 
 const proposalsSlice = createSlice({
   name: PROPOSALS_ACTIONS_BASE,

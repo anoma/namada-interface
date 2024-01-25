@@ -1,5 +1,5 @@
+import { ColorMode, DesignConfiguration } from "@namada/utils";
 import styled from "styled-components";
-import { DesignConfiguration, ColorMode } from "@namada/utils";
 
 enum ComponentColor {
   TabLabelActive,
@@ -71,22 +71,6 @@ export const InputContainer = styled.div`
 
   pre {
     background-color: ${(props) => props.theme.colors.utility1.main70};
-  }
-`;
-
-export const ButtonsContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-`;
-
-export const ButtonsWrapper = styled.div`
-  display: flex;
-  width: 70%;
-
-  & > button {
-    flex: 1;
-    padding: 8px;
   }
 `;
 

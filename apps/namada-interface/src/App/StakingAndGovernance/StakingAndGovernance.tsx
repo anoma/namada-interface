@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { RootState, useAppDispatch, useAppSelector } from "store";
 
-import { defaultChainId as chainId } from "@namada/chains";
 import { useSanitizedLocation } from "@namada/hooks";
 import { useIntegrationConnection } from "@namada/integrations";
 import { Staking } from "App/Staking";
@@ -13,6 +12,7 @@ import {
 } from "App/types";
 import { StakingAndGovernanceContainer } from "./StakingAndGovernance.components";
 
+import { Chain } from "@namada/types";
 import {
   ChangeInStakingPosition,
   fetchValidatorDetails,
@@ -31,16 +31,17 @@ export const StakingAndGovernance = (): JSX.Element => {
   const location = useSanitizedLocation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const chain = useAppSelector<Chain>((state: RootState) => state.chain.config);
+  const { id } = chain;
   const stakingAndGovernance = useAppSelector(
     (state: RootState) => state.stakingAndGovernance
   );
   const derivedAccounts = useAppSelector<AccountsState>(
     (state: RootState) => state.accounts
-  ).derived[chainId];
+  ).derived[id];
 
   const accounts = Object.values(derivedAccounts);
-  const [_integration, _status, withConnection] =
-    useIntegrationConnection(chainId);
+  const [_integration, _status, withConnection] = useIntegrationConnection(id);
 
   const { validators, selectedValidatorId, myStakingPositions } =
     stakingAndGovernance;

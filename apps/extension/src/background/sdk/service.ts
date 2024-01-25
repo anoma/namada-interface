@@ -4,7 +4,7 @@ import { ChainsService } from "background/chains";
 export class SdkService {
   constructor(protected readonly chainsService: ChainsService) {}
 
-  private async _getRpc(): Promise<string> {
+  public async getRpc(): Promise<string> {
     // Pull chain config from store, as the RPC value may have changed:
     const chain = await this.chainsService.getChain();
 
@@ -16,12 +16,12 @@ export class SdkService {
   }
 
   async getSdk(): Promise<Sdk> {
-    const rpc = await this._getRpc();
+    const rpc = await this.getRpc();
     return new Sdk(rpc);
   }
 
   async getQuery(): Promise<Query> {
-    const rpc = await this._getRpc();
+    const rpc = await this.getRpc();
     return new Query(rpc);
   }
 }

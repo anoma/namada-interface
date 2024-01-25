@@ -3,7 +3,7 @@ import BigNumber from "bignumber.js";
 
 import { Query } from "@namada/shared";
 import { Signer, Tokens } from "@namada/types";
-import { chains, defaultChainId as chainId } from "@namada/chains";
+import { chains } from "@namada/chains";
 import { getIntegration } from "@namada/integrations";
 
 import {
@@ -113,8 +113,8 @@ export const fetchTotalBonds = createAsyncThunk<
   { address: string; totalBonds: number },
   string,
   { state: RootState }
->(FETCH_TOTAL_BONDS, async (address: string) => {
-  const { rpc } = chains[chainId];
+>(FETCH_TOTAL_BONDS, async (address: string, thunkApi) => {
+  const { rpc } = thunkApi.getState().chain.config;
   const query = new Query(rpc);
   const result = await query.query_total_bonds(address);
 
@@ -126,7 +126,7 @@ export const fetchValidators = createAsyncThunk<
   void,
   { state: RootState }
 >(FETCH_VALIDATORS, async (_, thunkApi) => {
-  const { rpc } = chains[chainId];
+  const { rpc } = thunkApi.getState().chain.config;
 
   const query = new Query(rpc);
   const queryResult = (await query.query_all_validator_addresses()) as string[];
@@ -164,10 +164,10 @@ export const fetchMyValidators = createAsyncThunk<
   { state: RootState }
 >(FETCH_MY_VALIDATORS, async (_, thunkApi) => {
   try {
-    const { rpc } = chains[chainId];
+    const { rpc, id } = thunkApi.getState().chain.config;
 
     const accounts: Account[] = Object.values(
-      thunkApi.getState().accounts.derived[chainId]
+      thunkApi.getState().accounts.derived[id]
     );
     const addresses = accounts
       .filter(({ details }) => !details.isShielded)
@@ -190,10 +190,10 @@ export const fetchMyStakingPositions = createAsyncThunk<
   { state: RootState }
 >(FETCH_MY_STAKING_POSITIONS, async (_, thunkApi) => {
   try {
-    const { rpc } = chains[chainId];
+    const { id, rpc } = thunkApi.getState().chain.config;
 
     const accounts: Account[] = Object.values(
-      thunkApi.getState().accounts.derived[chainId]
+      thunkApi.getState().accounts.derived[id]
     );
     const addresses = accounts
       .filter(({ details }) => !details.isShielded)
@@ -215,8 +215,8 @@ export const fetchEpoch = createAsyncThunk<
   { epoch: BigNumber },
   void,
   { state: RootState }
->(FETCH_EPOCH, async () => {
-  const { rpc } = chains[chainId];
+>(FETCH_EPOCH, async (_, thunkApi) => {
+  const { rpc } = thunkApi.getState().chain.config;
 
   const query = new Query(rpc);
   const epochString = await query.query_epoch();
@@ -236,10 +236,11 @@ export const postNewBonding = createAsyncThunk<
   { state: RootState }
 >(POST_NEW_STAKING, async (change, thunkApi) => {
   const { derived } = thunkApi.getState().accounts;
-  const integration = getIntegration(chainId);
+  const integration = getIntegration(chains.namada.id);
   const signer = integration.signer() as Signer;
   const { owner: source, validatorId: validator, amount } = change;
-  const account = derived[chainId][source];
+  const { id, chainId } = chains.namada;
+  const account = derived[id][source];
   const { type, publicKey } = account.details;
 
   await signer.submitBond(
@@ -271,12 +272,13 @@ export const postNewUnbonding = createAsyncThunk<
   { state: RootState }
 >(POST_UNSTAKING, async (change, thunkApi) => {
   const { derived } = thunkApi.getState().accounts;
-  const integration = getIntegration(chainId);
+  const { chainId, id } = chains.namada
+  const integration = getIntegration(id);
   const signer = integration.signer() as Signer;
   const { owner: source, validatorId: validator, amount } = change;
   const {
     details: { type, publicKey },
-  } = derived[chainId][source];
+  } = derived[id][source];
 
   await signer.submitUnbond(
     {
@@ -301,11 +303,12 @@ export const postNewWithdraw = createAsyncThunk<
   { state: RootState }
 >(POST_UNSTAKING, async ({ owner, validatorId }, thunkApi) => {
   const { derived } = thunkApi.getState().accounts;
-  const integration = getIntegration(chainId);
+  const { id, chainId } = chains.namada
+  const integration = getIntegration(id);
   const signer = integration.signer() as Signer;
   const {
     details: { type, publicKey },
-  } = derived[chainId][owner];
+  } = derived[id][owner];
 
   await signer.submitWithdraw(
     {

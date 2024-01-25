@@ -2,11 +2,11 @@ import BigNumber from "bignumber.js";
 import * as A from "fp-ts/Array";
 import * as O from "fp-ts/Option";
 
-import { defaultChainId as chainId, chains } from "@namada/chains";
+import { chains } from "@namada/chains";
 import { Select } from "@namada/components";
 import { getIntegration } from "@namada/integrations";
 import { Query } from "@namada/shared";
-import { AccountType, Signer, Tokens } from "@namada/types";
+import { AccountType, Chain, Signer, Tokens } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
 
 import { useAppSelector } from "store";
@@ -46,7 +46,8 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
   const { onClose, maybeProposal } = props;
 
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
-  const addresses = Object.keys(derived[chainId]);
+  const { rpc } = useAppSelector<Chain>((state) => state.chain.config);
+  const addresses = Object.keys(derived[chains.namada.id]);
 
   const [activeProposalVotes, setActiveProposalVotes] = useState<
     Map<string, boolean>
@@ -72,7 +73,7 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
   const vote = useCallback(
     async (vote: boolean) => {
       const voteStr = vote ? "yay" : "nay";
-      const integration = getIntegration(chainId);
+      const integration = getIntegration(chains.namada.id);
       const signer = integration.signer() as Signer;
 
       if (O.isNone(maybeProposal)) {
@@ -94,7 +95,7 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
           token: Tokens.NAM.address || "",
           feeAmount: new BigNumber(0),
           gasLimit: new BigNumber(20_000),
-          chainId,
+          chainId: chains.namada.chainId,
         },
         AccountType.Mnemonic
       );
@@ -104,7 +105,6 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
 
   useEffect(() => {
     const fetchData = async (proposal: Proposal): Promise<void> => {
-      const { rpc } = chains[chainId];
       const query = new Query(rpc);
       try {
         const votes = await query.delegators_votes(BigInt(proposal.id));

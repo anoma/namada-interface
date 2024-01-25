@@ -25,14 +25,13 @@ import {
 import { persistor, store, useAppDispatch, useAppSelector } from "store";
 import { Toasts } from "App/Toast";
 import { SettingsState } from "slices/settings";
-import { chains, defaultChainId } from "@namada/chains";
 import {
   useIntegration,
   useUntilIntegrationAttached,
 } from "@namada/integrations";
 import { Outlet } from "react-router-dom";
 import { addAccounts, fetchBalances } from "slices/accounts";
-import { Account } from "@namada/types";
+import { Account, Chain } from "@namada/types";
 import { setChain } from "slices/chain";
 
 export const history = createBrowserHistory({ window });
@@ -65,18 +64,18 @@ function App(): JSX.Element {
     setColorMode((currentMode) => (currentMode === "dark" ? "light" : "dark"));
   };
 
+  const chain = useAppSelector<Chain>((state) => state.chain.config);
   const { connectedChains } = useAppSelector<SettingsState>(
     (state) => state.settings
   );
-  const defaultChain = chains[defaultChainId];
 
-  const integration = useIntegration(defaultChainId);
+  const integration = useIntegration(chain.id);
 
   useEffect(() => storeColorMode(colorMode), [colorMode]);
 
-  const extensionAttachStatus = useUntilIntegrationAttached(defaultChain);
+  const extensionAttachStatus = useUntilIntegrationAttached(chain);
   const currentExtensionAttachStatus =
-    extensionAttachStatus[defaultChain.extension.id];
+    extensionAttachStatus[chain.extension.id];
 
   useEffect(() => {
     const fetchAccounts = async (): Promise<void> => {
@@ -88,11 +87,11 @@ function App(): JSX.Element {
     };
     if (
       currentExtensionAttachStatus === "attached" &&
-      connectedChains.includes(defaultChainId)
+      connectedChains.includes(chain.id)
     ) {
       fetchAccounts();
     }
-  });
+  }, [chain]);
 
   useEffect(() => {
     (async () => {

@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js";
 
-import { chains, defaultChainId } from "@namada/chains";
+import { chains } from "@namada/chains";
 import { AccountType } from "@namada/types";
 import { StakingOrUnstakingState } from "slices/StakingAndGovernance";
 import { RootState } from "./store";
@@ -8,7 +8,7 @@ import { RootState } from "./store";
 export const mockAppState: RootState = {
   accounts: {
     derived: {
-      "namada-masp-1.5.32ccad5356012a7": {
+      namada: {
         tnam1q8gpzlamqksqjagt2xs3p6tnfcldy0fcd53fs4jh: {
           details: {
             chainId: "namada-masp-1.5.32ccad5356012a7",
@@ -16,6 +16,7 @@ export const mockAppState: RootState = {
             address: "tnam1q8gpzlamqksqjagt2xs3p6tnfcldy0fcd53fs4jh",
             isShielded: false,
             type: AccountType.PrivateKey,
+            chainKey: "namada",
           },
           balance: {
             NAM: new BigNumber(1000),
@@ -24,41 +25,11 @@ export const mockAppState: RootState = {
           },
         },
       },
-      "namada-test.1e670ba91369ec891fc": {
-        "39UL18": {
-          details: {
-            chainId: "namada-test.1e670ba91369ec891fc",
-            alias: "Namada",
-            address: "tnam1qz4sdx5jlh909j44uz46pf29ty0ztftfzc98s8dx",
-            type: AccountType.PrivateKey,
-            isShielded: false,
-          },
-          balance: {
-            NAM: new BigNumber(1000),
-            DOT: new BigNumber(1000),
-            ETH: new BigNumber(1000),
-          },
-        },
-      },
-      "namada-test.89060614ce340f4baae": {
-        "2MLGVA": {
-          details: {
-            chainId: "namada-test.89060614ce340f4baae",
-            alias: "Namada",
-            address: "L1qDtV8TRwYLSHdMDW518hgRw9nWnRjFTenkcBYNJruyYoLjaj8F",
-            type: AccountType.PrivateKey,
-            isShielded: false,
-          },
-          balance: {
-            NAM: new BigNumber(1000),
-            DOT: new BigNumber(1000),
-            ETH: new BigNumber(1000),
-          },
-        },
-      },
+      cosmos: {},
+      ethereum: {},
     },
   },
-  chain: { config: chains[defaultChainId] },
+  chain: { config: chains.namada },
   channels: {
     channelsByChain: {
       "namada-test.1e670ba91369ec891fc": {

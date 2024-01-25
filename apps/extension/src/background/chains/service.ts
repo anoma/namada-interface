@@ -1,4 +1,4 @@
-import { chains, defaultChainId } from "@namada/chains";
+import { chains } from "@namada/chains";
 import { KVStore } from "@namada/storage";
 import { Chain } from "@namada/types";
 import { ExtensionBroadcaster } from "extension";
@@ -9,13 +9,13 @@ export class ChainsService {
   constructor(
     protected readonly chainsStore: KVStore<Chain>,
     protected readonly broadcaster: ExtensionBroadcaster
-  ) {}
+  ) { }
 
-  async getChain(): Promise<Chain | undefined> {
+  async getChain(): Promise<Chain> {
     const chain = await this.chainsStore.get(CHAINS_KEY);
     if (!chain) {
       // Initialize default chain in storage
-      const defaultChain = chains[defaultChainId];
+      const defaultChain = chains.namada;
       await this.chainsStore.set(CHAINS_KEY, defaultChain);
       return defaultChain;
     }

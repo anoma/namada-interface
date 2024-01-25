@@ -1,6 +1,6 @@
 {
   "name": "@namada/integrations",
-  "version": "0.1.0",
+  "version": "0.2.1",
   "description": "Namada Wallet third-party integrations",
   "main": "src/index.ts",
   "repository": "https://github.com/anoma/namada-interface",
@@ -37,7 +37,7 @@
     "@cosmjs/stargate": "^0.29.5",
     "@keplr-wallet/types": "^0.10.19",
     "@metamask/providers": "^10.2.1",
-    "@namada/types": "0.1.0",
-    "@namada/utils": "0.1.0"
+    "@namada/types": "0.2.1",
+    "@namada/utils": "0.2.1"
   }
 }

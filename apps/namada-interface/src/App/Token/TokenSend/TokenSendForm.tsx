@@ -2,12 +2,13 @@ import BigNumber from "bignumber.js";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { chains, defaultChainId } from "@namada/chains";
+import { chains } from "@namada/chains";
 import { ActionButton, AmountInput, Icon, Input } from "@namada/components";
 import { getIntegration } from "@namada/integrations";
 import { Query } from "@namada/shared";
 import { Chain, Signer, TokenType, Tokens } from "@namada/types";
 import { mapUndefined } from "@namada/utils";
+
 import { TopLevelRoute } from "App/types";
 import { AccountsState } from "slices/accounts";
 import { useAppSelector } from "store";
@@ -41,15 +42,15 @@ export const submitTransferTransaction = async (
     return;
   }
 
-  const integration = getIntegration(defaultChainId);
+  const integration = getIntegration(chains.namada.id);
   const signer = integration.signer() as Signer;
 
   const transferArgs = {
     source: faucet || address,
     target,
-    token: Tokens[token].address || Tokens.NAM.address || "",
+    token: Tokens[token].address,
     amount,
-    nativeToken: Tokens.NAM.address || "",
+    nativeToken: Tokens.NAM.address,
   };
 
   const txArgs = {
@@ -103,10 +104,12 @@ const getIsFormInvalid = (
  * gives the description above submit button to make it move obvious for the user
  * that the transfer might be a shielding/unshielding transfer
  */
-const AccountSourceTargetDescription = (props: {
-  isShieldedSource: boolean;
-  isShieldedTarget: boolean;
-}): React.ReactElement => {
+const AccountSourceTargetDescription = (
+  props: {
+    isShieldedSource: boolean;
+    isShieldedTarget: boolean;
+  }
+): React.ReactElement => {
   const { isShieldedSource, isShieldedTarget } = props;
   const source = isShieldedSource ? <b>Shielded</b> : <b>Transparent</b>;
   const target = isShieldedTarget ? <b>Shielded</b> : <b>Transparent</b>;
@@ -148,7 +151,7 @@ const TokenSendForm = ({
   );
 
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
-  const derivedAccounts = derived[defaultChainId];
+  const derivedAccounts = derived[chains.namada.id];
 
   const { details, balance } = derivedAccounts[address];
   const isShieldedSource = details.isShielded;
@@ -213,8 +216,7 @@ const TokenSendForm = ({
       if (isShieldedSource) {
         setIsRevealPkNeeded(false);
       } else {
-        const { rpc } = chains[defaultChainId];
-        const query = new Query(rpc);
+        const query = new Query(chain.rpc);
         const result = await query.query_public_key(address);
 
         setIsRevealPkNeeded(!result);

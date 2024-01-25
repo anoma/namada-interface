@@ -133,6 +133,7 @@ class Keplr implements Integration<Account, OfflineSigner> {
           address: account.address,
           type: AccountType.PrivateKey,
           isShielded: false,
+          chainKey: this.chain.id,
         })
       );
     }

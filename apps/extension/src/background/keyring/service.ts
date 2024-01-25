@@ -259,6 +259,7 @@ export class KeyRingService {
   ): Promise<void> {
     const offscreenDocumentPath = "offscreen.html";
     const routerId = await getNamadaRouterId(this.extensionStore);
+    const rpc = await this.sdkService.getRpc();
 
     if (!(await hasOffscreenDocument(offscreenDocumentPath))) {
       await createOffscreenWithTxWorker(offscreenDocumentPath);
@@ -268,7 +269,7 @@ export class KeyRingService {
       type: SUBMIT_TRANSFER_MSG_TYPE,
       target: OFFSCREEN_TARGET,
       routerId,
-      data: { transferMsg, txMsg, msgId, signingKey },
+      data: { transferMsg, txMsg, msgId, signingKey, rpc },
     });
 
     if (result?.error) {
@@ -284,12 +285,14 @@ export class KeyRingService {
     msgId: string,
     signingKey: SigningKey
   ): Promise<void> {
+    const rpc = await this.sdkService.getRpc();
     initSubmitTransferWebWorker(
       {
         transferMsg,
         txMsg,
         msgId,
         signingKey,
+        rpc,
       },
       this.handleTransferCompleted.bind(this)
     );

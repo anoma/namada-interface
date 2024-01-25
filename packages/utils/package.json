@@ -1,6 +1,6 @@
 {
   "name": "@namada/utils",
-  "version": "0.1.0",
+  "version": "0.2.1",
   "description": "Namada Wallet Utilities",
   "main": "src/index.ts",
   "repository": "https://github.com/anoma/namada-interface/",

@@ -1,5 +1,5 @@
 import { toBase64 } from "@cosmjs/encoding";
-import { defaultChainId } from "@namada/chains";
+import { chains } from "@namada/chains";
 import { SupportedTx, TxType } from "@namada/shared";
 import {
   Account,
@@ -35,10 +35,11 @@ export class Signer implements ISigner {
       ({ alias, address, type, publicKey }) => ({
         alias,
         address,
-        chainId: defaultChainId,
+        chainId: chains.namada.chainId,
         type,
         publicKey,
         isShielded: type === AccountType.ShieldedKeys,
+        chainKey: "namada",
       })
     );
   }
@@ -52,10 +53,11 @@ export class Signer implements ISigner {
       return {
         alias,
         address,
-        chainId: defaultChainId,
+        chainId: chains.namada.chainId,
         type,
         publicKey,
         isShielded: type === AccountType.ShieldedKeys,
+        chainKey: "namada",
       };
     }
   }

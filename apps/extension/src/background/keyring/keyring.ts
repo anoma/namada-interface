@@ -1,6 +1,6 @@
 import { deserialize } from "@dao-xyz/borsh";
 
-import { chains, defaultChainId } from "@namada/chains";
+import { chains } from "@namada/chains";
 import {
   HDWallet,
   Mnemonic,
@@ -191,7 +191,7 @@ export class KeyRing {
           const phrase = accountSecret.seedPhrase.join(" ");
           const mnemonic = Mnemonic.from_phrase(phrase);
           const seed = mnemonic.to_seed();
-          const { coinType } = chains[defaultChainId].bip44;
+          const { coinType } = chains.namada.bip44;
           const bip44Path = makeBip44PathArray(coinType, path);
           const hdWallet = new HDWallet(seed);
           const key = hdWallet.derive(new Uint32Array(bip44Path));
@@ -262,7 +262,7 @@ export class KeyRing {
     path: Bip44Path,
     parentId: string
   ): DerivedAccountInfo {
-    const { coinType } = chains[defaultChainId].bip44;
+    const { coinType } = chains.namada.bip44;
     const derivationPath = makeBip44PathArray(coinType, path);
     const hdWallet = new HDWallet(seed);
     const key = hdWallet.derive(new Uint32Array(derivationPath));
@@ -619,7 +619,7 @@ export class KeyRing {
       throw new Error(`Account for ${address} not found!`);
     }
     const { path } = accountStore;
-    const { coinType } = chains[defaultChainId].bip44;
+    const { coinType } = chains.namada.bip44;
     const bip44Path = makeBip44PathArray(coinType, path);
 
     const sensitiveProps =

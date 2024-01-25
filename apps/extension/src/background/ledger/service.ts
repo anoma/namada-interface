@@ -1,7 +1,7 @@
 import { fromBase64 } from "@cosmjs/encoding";
 import { deserialize } from "@dao-xyz/borsh";
 
-import { chains, defaultChainId } from "@namada/chains";
+import { chains } from "@namada/chains";
 import { TxType } from "@namada/shared";
 import { KVStore } from "@namada/storage";
 import { AccountType, TxMsgValue } from "@namada/types";
@@ -31,7 +31,7 @@ export class LedgerService {
   async getRevealPKBytes(
     txMsg: string
   ): Promise<{ bytes: Uint8Array; path: string }> {
-    const { coinType } = chains[defaultChainId].bip44;
+    const { coinType } = chains.namada.bip44;
 
     try {
       // Deserialize txMsg to retrieve source
@@ -154,7 +154,7 @@ export class LedgerService {
 
     const { txMsg, specificMsg } = storeResult;
 
-    const { coinType } = chains[defaultChainId].bip44;
+    const { coinType } = chains.namada.bip44;
 
     try {
       // Query account from Ledger storage to determine path for signer

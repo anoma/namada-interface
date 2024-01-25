@@ -66,7 +66,7 @@ if (status !== 0) {
   process.exit(status);
 }
 
-execSync("mkdir dist && mkdir dist/shared");
+execSync("rm -rf dist && mkdir dist && mkdir dist/shared");
 
 // Remove the .gitignore so we can publish generated files
 execSync(`rm -rf ${outDir}.gitignore`);

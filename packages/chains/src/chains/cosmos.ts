@@ -13,6 +13,7 @@ const {
 } = process.env;
 
 const cosmos: Chain = {
+  id: "cosmos",
   alias,
   bech32Prefix: "cosmos",
   bip44: {

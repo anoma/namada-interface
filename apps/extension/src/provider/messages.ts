@@ -64,7 +64,7 @@ export class ApproveConnectInterfaceMsg extends Message<void> {
   }
 }
 
-export class GetChainMsg extends Message<Chain | undefined> {
+export class GetChainMsg extends Message<Chain> {
   public static type(): MessageType {
     return MessageType.GetChain;
   }

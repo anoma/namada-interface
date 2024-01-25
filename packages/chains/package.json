@@ -1,13 +1,13 @@
 {
   "name": "@namada/chains",
-  "version": "0.1.0",
+  "version": "0.2.1",
   "description": "Chain configurations for Namada",
   "main": "src/index.ts",
   "repository": "https://github.com/anoma/namada-interface",
   "author": "Heliax AG <hello@heliax.dev>",
   "license": "MIT",
   "dependencies": {
-    "@namada/types": "0.1.0",
+    "@namada/types": "0.2.1",
     "typescript": "^5.1.3"
   },
   "devDependencies": {

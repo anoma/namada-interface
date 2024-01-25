@@ -1,10 +1,5 @@
 import { createContext } from "react";
 
-import {
-  defaultChainId,
-  defaultCosmosChainId,
-  defaultEthereumChainId,
-} from "@namada/chains";
 import { useEventListenerOnce } from "@namada/hooks";
 import { Keplr, Metamask, Namada, useIntegration } from "@namada/integrations";
 import { Events, KeplrEvents, MetamaskEvents } from "@namada/types";
@@ -27,9 +22,9 @@ export const ExtensionEventsContext = createContext({});
 
 export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
   const dispatch = useAppDispatch();
-  const namadaIntegration = useIntegration(defaultChainId);
-  const keplrIntegration = useIntegration(defaultCosmosChainId);
-  const metamaskIntegration = useIntegration(defaultEthereumChainId);
+  const namadaIntegration = useIntegration("namada");
+  const keplrIntegration = useIntegration("cosmos");
+  const metamaskIntegration = useIntegration("ethereum");
 
   // Instantiate handlers:
   const namadaAccountChangedHandler = NamadaAccountChangedHandler(

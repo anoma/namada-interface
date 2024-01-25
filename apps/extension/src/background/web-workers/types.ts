@@ -12,6 +12,7 @@ export type SubmitTransferMessageData = {
   txMsg: string;
   msgId: string;
   signingKey: SigningKey;
+  rpc: string;
 };
 
 export const INIT_MSG = "init";
