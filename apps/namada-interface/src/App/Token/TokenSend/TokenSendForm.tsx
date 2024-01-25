@@ -216,8 +216,7 @@ const TokenSendForm = ({
       if (isShieldedSource) {
         setIsRevealPkNeeded(false);
       } else {
-        const { rpc } = chains.namada;
-        const query = new Query(rpc);
+        const query = new Query(chain.rpc);
         const result = await query.query_public_key(address);
 
         setIsRevealPkNeeded(!result);

@@ -6,7 +6,7 @@ import { chains } from "@namada/chains";
 import { Select } from "@namada/components";
 import { getIntegration } from "@namada/integrations";
 import { Query } from "@namada/shared";
-import { AccountType, Signer, Tokens } from "@namada/types";
+import { AccountType, Chain, Signer, Tokens } from "@namada/types";
 import { shortenAddress } from "@namada/utils";
 
 import { useAppSelector } from "store";
@@ -46,6 +46,7 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
   const { onClose, maybeProposal } = props;
 
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
+  const { rpc } = useAppSelector<Chain>((state) => state.chain.config);
   const addresses = Object.keys(derived[chains.namada.id]);
 
   const [activeProposalVotes, setActiveProposalVotes] = useState<
@@ -104,7 +105,6 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
 
   useEffect(() => {
     const fetchData = async (proposal: Proposal): Promise<void> => {
-      const { rpc } = chains.namada;
       const query = new Query(rpc);
       try {
         const votes = await query.delegators_votes(BigInt(proposal.id));

@@ -113,8 +113,8 @@ export const fetchTotalBonds = createAsyncThunk<
   { address: string; totalBonds: number },
   string,
   { state: RootState }
->(FETCH_TOTAL_BONDS, async (address: string) => {
-  const { rpc } = chains.namada;
+>(FETCH_TOTAL_BONDS, async (address: string, thunkApi) => {
+  const { rpc } = thunkApi.getState().chain.config;
   const query = new Query(rpc);
   const result = await query.query_total_bonds(address);
 
@@ -126,7 +126,7 @@ export const fetchValidators = createAsyncThunk<
   void,
   { state: RootState }
 >(FETCH_VALIDATORS, async (_, thunkApi) => {
-  const { rpc } = chains.namada;
+  const { rpc } = thunkApi.getState().chain.config;
 
   const query = new Query(rpc);
   const queryResult = (await query.query_all_validator_addresses()) as string[];
@@ -164,7 +164,7 @@ export const fetchMyValidators = createAsyncThunk<
   { state: RootState }
 >(FETCH_MY_VALIDATORS, async (_, thunkApi) => {
   try {
-    const { rpc, id } = chains.namada;
+    const { rpc, id } = thunkApi.getState().chain.config;
 
     const accounts: Account[] = Object.values(
       thunkApi.getState().accounts.derived[id]
@@ -190,7 +190,7 @@ export const fetchMyStakingPositions = createAsyncThunk<
   { state: RootState }
 >(FETCH_MY_STAKING_POSITIONS, async (_, thunkApi) => {
   try {
-    const { id, rpc } = chains.namada;
+    const { id, rpc } = thunkApi.getState().chain.config;
 
     const accounts: Account[] = Object.values(
       thunkApi.getState().accounts.derived[id]
@@ -215,8 +215,8 @@ export const fetchEpoch = createAsyncThunk<
   { epoch: BigNumber },
   void,
   { state: RootState }
->(FETCH_EPOCH, async () => {
-  const { rpc } = chains.namada;
+>(FETCH_EPOCH, async (_, thunkApi) => {
+  const { rpc } = thunkApi.getState().chain.config;
 
   const query = new Query(rpc);
   const epochString = await query.query_epoch();

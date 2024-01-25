@@ -15,7 +15,7 @@ import {
 } from "@namada/components";
 import { useSanitizedParams } from "@namada/hooks";
 import { Query } from "@namada/shared";
-import { TokenType, Tokens } from "@namada/types";
+import { Chain, TokenType, Tokens } from "@namada/types";
 import TokenSendForm from "./TokenSendForm";
 import { chains } from "@namada/chains";
 
@@ -65,6 +65,7 @@ const accountsWithBalanceIntoSelectData = (
 
 const TokenSend = (): JSX.Element => {
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
+  const { rpc } = useAppSelector<Chain>((state) => state.chain.config);
   const { target } = useSanitizedParams<Params>();
 
   const accounts = Object.values(derived[chains.namada.id]);
@@ -127,7 +128,6 @@ const TokenSend = (): JSX.Element => {
 
   useEffect(() => {
     (async () => {
-      const { rpc } = chains.namada;
       const query = new Query(rpc);
       const result = (await query.query_gas_costs()) as [string, string][];
 
