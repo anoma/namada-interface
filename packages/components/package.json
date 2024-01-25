@@ -8,6 +8,7 @@
   "author": "Heliax Dev <info@heliax.dev>",
   "license": "MIT",
   "scripts": {
+    "bump": "yarn workspace namada run bump --target packages/components",
     "prepublish": "npx rimraf ./dist && tsc --build",
     "release": "yarn prepublish && release-it --verbose",
     "release:dry-run": "yarn prepublish && release-it --verbose --dry-run",

@@ -8,6 +8,7 @@
     "e2e"
   ],
   "scripts": {
+    "bump": "node ./scripts/bump.js",
     "release": "yarn workspaces foreach -Avt --exclude namada run release && release-it",
     "release:dry-run": "yarn workspaces foreach -Avt --exclude namada run release:dry-run && release-it --dry-run",
     "wasm:build-test": "./scripts/build-test.sh",
