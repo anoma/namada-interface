@@ -20,5 +20,10 @@
         "path": "."
       }
     }
+  },
+  "hooks": {
+    "after:bump": [
+      "yarn bump -p chains -p components -p crypto -p shared -p storage -p types -p utils"
+    ]
   }
 }

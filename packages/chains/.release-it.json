@@ -4,8 +4,7 @@
     "tag": false,
     "push": false,
     "requireCleanWorkingDir": false,
-    "tagName": "namada-",
-    "tagMatch": "namada-*"
+    "tagName": "namada-${version}"
   },
   "npm": {
     "publish": false,
@@ -23,6 +22,6 @@
     }
   },
   "hooks": {
-    "after:bump": "in=\"$(cat ../types/package.json | jq '.version')\" && out=\"$(jq '.dependencies.\"@namada/types\" = '$in'' package.json)\" && echo \"$out\" > package.json"
+    "after:bump": ["yarn bump -p types"]
   }
 }

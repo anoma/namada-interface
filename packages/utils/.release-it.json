@@ -5,8 +5,7 @@
     "push": false,
     "requireCleanWorkingDir": false,
     "changelog": false,
-    "tagName": "namada-",
-    "tagMatch": "namada-*"
+    "tagName": "namada-${version}"
   },
   "npm": {
     "publish": false,
