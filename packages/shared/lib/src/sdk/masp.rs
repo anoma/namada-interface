@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use borsh::{BorshDeserialize, BorshSerialize};
 use gloo_utils::format::JsValueSerdeExt;
 use masp_proofs::prover::LocalTxProver;
-use namada::namada_sdk::masp::{ShieldedContext, ShieldedUtils};
+use namada::sdk::masp::{ShieldedContext, ShieldedUtils};
 use rexie::{Error, ObjectStore, Rexie, TransactionMode};
 use wasm_bindgen::JsValue;
 

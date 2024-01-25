@@ -1,7 +1,8 @@
 use borsh::{BorshDeserialize, BorshSerialize};
 use namada::{
     ledger::pos::common::Signature,
-    proto::{CompressedSignature, Section, Signer, Tx},
+    proto::Tx,
+    tx::{CompressedSignature, Section, Signer},
     types::key::common::PublicKey,
 };
 use std::collections::BTreeMap;
