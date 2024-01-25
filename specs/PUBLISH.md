@@ -24,7 +24,7 @@ The outcome is:
 
 - new changelog entry for every package(no changelog for root of the monorepo)
 - new version for every package(packages can have different versions)
-- one tag for every package
+- one tag for all packages
 
 ## Testing
 
