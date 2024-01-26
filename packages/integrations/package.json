@@ -44,7 +44,7 @@
     "@keplr-wallet/types": "^0.10.19",
     "@metamask/providers": "^10.2.1",
     "@namada/types": "0.2.1",
-    "@namada/utils": "0.2.1"
+    "@namada/utils": "0.2.1",
     "typescript": "^5.1.3"
   },
   "files": [
