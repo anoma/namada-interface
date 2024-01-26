@@ -9,16 +9,16 @@ use crate::{
 use borsh::BorshDeserialize;
 use js_sys::Uint8Array;
 use namada::ledger::{eth_bridge::bridge_pool::build_bridge_pool_tx, pos::common::SecretKey};
-use namada::namada_sdk::masp::ShieldedContext;
-use namada::namada_sdk::rpc::query_epoch;
-use namada::namada_sdk::signing::{find_key_by_pk, SigningTxData};
-use namada::namada_sdk::tx::{
+use namada::sdk::masp::ShieldedContext;
+use namada::sdk::rpc::query_epoch;
+use namada::sdk::signing::{find_key_by_pk, SigningTxData};
+use namada::sdk::tx::{
     build_bond, build_ibc_transfer, build_reveal_pk, build_transfer, build_unbond,
     build_vote_proposal, build_withdraw, is_reveal_pk_needed, process_tx,
 };
-use namada::namada_sdk::wallet::{Store, Wallet};
-use namada::namada_sdk::{Namada, NamadaImpl};
-use namada::proto::Tx;
+use namada::sdk::wallet::{Store, Wallet};
+use namada::sdk::{Namada, NamadaImpl};
+use namada::tx::Tx;
 use namada::types::address::Address;
 use namada::types::hash::Hash;
 use namada::types::key::{ed25519, SigScheme};

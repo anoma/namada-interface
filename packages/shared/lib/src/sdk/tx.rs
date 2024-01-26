@@ -2,8 +2,9 @@ use std::{path::PathBuf, str::FromStr};
 
 use borsh::{BorshDeserialize, BorshSerialize};
 use namada::core::ibc::core::host::types::identifiers::{ChannelId, PortId};
+use namada::tx::data::GasLimit;
 use namada::{
-    namada_sdk::args::{self, InputAmount},
+    sdk::args::{self, InputAmount},
     types::{
         address::Address,
         chain::ChainId,
@@ -11,7 +12,6 @@ use namada::{
         key::common::PublicKey,
         masp::{ExtendedSpendingKey, PaymentAddress, TransferSource, TransferTarget},
         token::{Amount, DenominatedAmount, NATIVE_MAX_DECIMAL_PLACES},
-        transaction::GasLimit,
     },
 };
 use wasm_bindgen::JsError;

@@ -1,21 +1,19 @@
 use borsh::BorshSerialize;
 use js_sys::Uint8Array;
-use masp_primitives::transaction::components::I128Sum;
+use masp_primitives::transaction::components::{I128Sum, ValueSum};
 use masp_primitives::zip32::ExtendedFullViewingKey;
-use namada::core::ledger::governance::storage::keys as governance_storage;
-use namada::core::ledger::governance::storage::proposal::ProposalType;
-use namada::core::ledger::governance::storage::vote::ProposalVote;
-use namada::core::ledger::governance::utils::{
-    compute_proposal_result, ProposalVotes, TallyVote, VotePower,
-};
+use namada::governance::storage::keys as governance_storage;
+use namada::governance::utils::{compute_proposal_result, ProposalVotes, TallyVote, VotePower};
+use namada::governance::{ProposalType, ProposalVote};
 use namada::ledger::eth_bridge::bridge_pool::query_signed_bridge_pool;
+use namada::ledger::parameters::storage;
 use namada::ledger::queries::RPC;
-use namada::namada_sdk::masp::ShieldedContext;
-use namada::namada_sdk::rpc::{
+use namada::proof_of_stake::Epoch;
+use namada::sdk::masp::ShieldedContext;
+use namada::sdk::rpc::{
     format_denominated_amount, get_public_key_at, get_token_balance, get_total_staked_tokens,
     query_epoch, query_proposal_by_id, query_proposal_votes, query_storage_value,
 };
-use namada::proof_of_stake::Epoch;
 use namada::types::eth_bridge_pool::TransferToEthereum;
 use namada::types::{
     address::Address,
@@ -23,8 +21,7 @@ use namada::types::{
     token::{self},
     uint::I256,
 };
-use namada::ledger::parameters::storage;
-use std::collections::{HashMap, HashSet, BTreeMap};
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::str::FromStr;
 use wasm_bindgen::prelude::*;
 
@@ -154,17 +151,14 @@ impl Query {
     }
 
     fn get_decoded_balance(
-        decoded_balance: HashMap<Address, I256>,
+        decoded_balance: ValueSum<Address, I256>,
     ) -> Vec<(Address, token::Amount)> {
         let mut result = Vec::new();
 
-        decoded_balance
-            .iter()
-            .into_iter()
-            .for_each(|(token_address, change)| {
-                let amount = token::Amount::from_change(*change);
-                result.push((token_address.clone(), amount));
-            });
+        for (token_addr, amount) in decoded_balance.components() {
+            let amount = token::Amount::from_change(*amount);
+            result.push((token_addr.clone(), amount));
+        }
 
         result
     }
@@ -286,7 +280,7 @@ impl Query {
             .await?
             .expect("context should contain viewing key");
         let decoded_balance = shielded
-            .decode_amount(&self.client, I128Sum::from(balance), epoch)
+            .decode_combine_sum_to_epoch(&self.client, I128Sum::from(balance), epoch)
             .await;
 
         Ok(Self::get_decoded_balance(decoded_balance))
@@ -491,12 +485,10 @@ impl Query {
 
     pub async fn query_gas_costs(&self) -> Result<JsValue, JsError> {
         let key = storage::get_gas_cost_key();
-        let gas_cost_table = query_storage_value::<
-            HttpClient,
-            BTreeMap<Address, token::Amount>,
-        >(&self.client, &key)
-        .await
-        .expect("Parameter should be defined.");
+        let gas_cost_table =
+            query_storage_value::<HttpClient, BTreeMap<Address, token::Amount>>(&self.client, &key)
+                .await
+                .expect("Parameter should be defined.");
 
         let mut result: Vec<(String, String)> = Vec::new();
 

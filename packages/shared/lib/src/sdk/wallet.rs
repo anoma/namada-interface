@@ -1,5 +1,5 @@
 use namada::{
-    namada_sdk::wallet::{alias::Alias, Wallet, WalletIo, WalletStorage},
+    sdk::wallet::{alias::Alias, Wallet, WalletIo, WalletStorage},
     types::masp::ExtendedSpendingKey,
 };
 use rand::rngs::OsRng;
@@ -14,17 +14,11 @@ impl WalletIo for BrowserWalletUtils {
 
 //TODO: check if we need to impl those
 impl WalletStorage for BrowserWalletUtils {
-    fn save<U>(
-        &self,
-        _wallet: &Wallet<U>,
-    ) -> Result<(), namada::namada_sdk::wallet::LoadStoreError> {
+    fn save<U>(&self, _wallet: &Wallet<U>) -> Result<(), namada::sdk::wallet::LoadStoreError> {
         todo!()
     }
 
-    fn load<U>(
-        &self,
-        _wallet: &mut Wallet<U>,
-    ) -> Result<(), namada::namada_sdk::wallet::LoadStoreError> {
+    fn load<U>(&self, _wallet: &mut Wallet<U>) -> Result<(), namada::sdk::wallet::LoadStoreError> {
         todo!()
     }
 }
