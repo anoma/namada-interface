@@ -58,8 +58,8 @@ export const SeedPhraseConfirmation = (
     let index2 = getRandomIndex();
     while (index1 === index2) index2 = getRandomIndex();
 
-    setIndex1ToConfirm(index1);
-    setIndex2ToConfirm(index2);
+    setIndex1ToConfirm(Math.min(index1, index2));
+    setIndex2ToConfirm(Math.max(index1, index2));
   }, []);
 
   const verifyWord = (
