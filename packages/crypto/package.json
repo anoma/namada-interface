@@ -1,6 +1,6 @@
 {
   "name": "@namada/crypto",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Crypto functions related to Namada",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

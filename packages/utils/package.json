@@ -1,6 +1,6 @@
 {
   "name": "@namada/utils",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Namada Wallet Utilities",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
