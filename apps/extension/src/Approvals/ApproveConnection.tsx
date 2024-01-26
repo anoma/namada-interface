@@ -11,9 +11,9 @@ export const ApproveConnection: React.FC = () => {
   const interfaceOrigin = params.get("interfaceOrigin");
   const interfaceTabId = params.get("interfaceTabId");
 
-  const handleResponse = (allowConnection: boolean): void => {
+  const handleResponse = async (allowConnection: boolean): Promise<void> => {
     if (interfaceTabId && interfaceOrigin) {
-      requester.sendMessage(
+      await requester.sendMessage(
         Ports.Background,
         new ConnectInterfaceResponseMsg(
           parseInt(interfaceTabId),
