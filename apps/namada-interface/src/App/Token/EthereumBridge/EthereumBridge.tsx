@@ -5,7 +5,7 @@ import {
   Select,
 } from "@namada/components";
 import { chains } from "@namada/chains";
-import { TokenType, Tokens } from "@namada/types";
+import { Chain, TokenType, Tokens } from "@namada/types";
 import BigNumber from "bignumber.js";
 import { useState } from "react";
 import { Account, AccountsState } from "slices/accounts";
@@ -45,6 +45,7 @@ const toTokenData = (
 
 export const EthereumBridge = (): JSX.Element => {
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
+  const { id, chainId } = useAppSelector<Chain>((state) => state.chain.config);
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState<BigNumber>(new BigNumber(0));
   const [feeAmount, setFeeAmount] = useState<BigNumber>(new BigNumber(0));
@@ -75,7 +76,7 @@ export const EthereumBridge = (): JSX.Element => {
       (account) => account?.details?.address === accountId
     ) as Account;
 
-    const integration = getIntegration(chains.namada.id);
+    const integration = getIntegration(id);
     await integration.submitBridgeTransfer(
       {
         bridgeProps: {
@@ -92,7 +93,7 @@ export const EthereumBridge = (): JSX.Element => {
           feeAmount: new BigNumber(0),
           gasLimit: new BigNumber(20_000),
           publicKey: account.details.publicKey,
-          chainId: chains.namada.chainId,
+          chainId,
         },
       },
       account.details.type
