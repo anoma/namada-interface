@@ -51,7 +51,7 @@ export const RadioGroup = ({
   useEffect(() => {
     if (!initialSelectedRadio.current) return;
     updateIndicatorPosition(initialSelectedRadio.current);
-  }, []);
+  }, [value]);
 
   const updateIndicatorPosition = (radioButton: HTMLInputElement): void => {
     if (!radioButton.parentElement || !panelRef.current) return;
@@ -84,7 +84,7 @@ export const RadioGroup = ({
                 type="radio"
                 name={id}
                 value={option.value.toString()}
-                defaultChecked={value ? option.value === value : idx === 0}
+                checked={value ? option.value === value : idx === 0}
                 ref={(ref) =>
                   option.value === value || (!value && idx === 0)
                     ? (initialSelectedRadio.current = ref)
