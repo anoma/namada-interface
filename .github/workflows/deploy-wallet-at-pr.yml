@@ -4,13 +4,7 @@ on:
     paths:
       - "apps/namada-interface/**"
       - "apps/extension/**"
-      - "packages/integrations/**"
-      - "packages/rpc/**"
-      - "packages/shared/**"
-      - "packages/tx/**"
-      - "packages/utils/**"
-      - "packages/wallet/**"
-      - "packages/wasm/**"
+      - "packages/**"
       - ".github/workflows/**"
 
 env:
