@@ -21,7 +21,7 @@ export const RequesterProvider = ({
   children,
 }: {
   children: React.ReactNode;
-}) => {
+}): JSX.Element => {
   const [requester, setRequester] = useState<ExtensionRequester>();
 
   useEffect(() => {
