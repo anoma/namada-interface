@@ -105,7 +105,7 @@ export const Network = (): JSX.Element => {
           type="text"
           value={chainId}
           onChange={(e) => setChainId(e.target.value)}
-          error={chainId.length === 0 ? "URL is required!" : ""}
+          error={chainId.length === 0 ? "Chain ID required!" : ""}
         />
         <Input
           label="URL"

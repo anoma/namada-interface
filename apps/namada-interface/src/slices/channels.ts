@@ -3,7 +3,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 export type Channel = string;
 
 type ChannelsByChain = {
-  [chainId: string]: Record<string, Channel[]>;
+  [chainKey: string]: Record<string, Channel[]>;
 };
 
 export type ChannelsState = {
