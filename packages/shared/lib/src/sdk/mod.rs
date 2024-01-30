@@ -6,8 +6,9 @@ use crate::{
     sdk::masp::WebShieldedUtils,
     utils::{set_panic_hook, to_bytes},
 };
-use borsh::BorshDeserialize;
 use js_sys::Uint8Array;
+use namada::core::borsh::BorshDeserialize;
+use namada::core::borsh::BorshSerializeExt;
 use namada::ledger::{eth_bridge::bridge_pool::build_bridge_pool_tx, pos::common::SecretKey};
 use namada::sdk::masp::ShieldedContext;
 use namada::sdk::rpc::query_epoch;
@@ -391,10 +392,12 @@ impl Sdk {
         data: String,
     ) -> Result<JsValue, JsError> {
         let hash = Hash::sha256(&data);
+        // TODO: SecretKey & SigScheme should be imported from key::common, but that is currently
+        // referring to the wrong import (e.g., pos::common)
         let secret = ed25519::SecretKey::from_str(&signing_key)?;
         let signature: ed25519::Signature = ed25519::SigScheme::sign(&secret, &hash);
 
-        let sig_bytes: &[u8] = &signature.0.to_bytes();
+        let sig_bytes = signature.serialize_to_vec();
 
         to_js_result((
             // Hash
