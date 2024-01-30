@@ -2,13 +2,18 @@
   "name": "@namada/integrations",
   "version": "0.2.1",
   "description": "Namada Wallet third-party integrations",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "repository": "https://github.com/anoma/namada-interface",
   "author": "Heliax Dev <info@heliax.dev>",
   "license": "MIT",
   "private": true,
   "scripts": {
-    "wasm:build": "../../scripts/build-test.sh",
+    "bump": "yarn workspace namada run bump --target packages/integrations",
+    "prepublish": "npx rimraf ./dist && tsc --build",
+    "release": "yarn prepublish && release-it --verbose --ci",
+    "release:dry-run": "yarn prepublish && release-it --verbose --dry-run --ci",
+    "release:no-npm": "yarn prepublish && release-it --verbose --no-npm.publish --ci",
     "test": "yarn wasm:build && jest",
     "test:watch": "yarn wasm:build && jest --watchAll",
     "test:ci": "jest",
@@ -28,6 +33,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "jest": "^28.1.3",
     "jest-mock-extended": "^3.0.3",
+    "rimraf": "^5.0.5",
     "ts-jest": "^28.0.8",
     "ts-node": "^10.9.1"
   },
@@ -38,6 +44,14 @@
     "@keplr-wallet/types": "^0.10.19",
     "@metamask/providers": "^10.2.1",
     "@namada/types": "0.2.1",
-    "@namada/utils": "0.2.1"
+    "@namada/utils": "0.2.1",
+    "typescript": "^5.1.3"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
   }
 }

@@ -9,8 +9,9 @@
   "license": "MIT",
   "scripts": {
     "prepublish": "rimraf ./dist && tsc --build",
-    "release": "yarn prepublish && release-it --verbose",
-    "release:dry-run": "yarn prepublish && release-it --verbose --dry-run",
+    "release": "yarn prepublish && release-it --verbose --ci",
+    "release:dry-run": "yarn prepublish && release-it --verbose --dry-run --ci",
+    "release:no-npm": "yarn prepublish && release-it --verbose --no-npm.publish",
     "lint": "eslint src --ext .ts",
     "lint:fix": "yarn lint -- --fix",
     "lint:ci": "yarn lint --max-warnings 0"
@@ -25,6 +26,7 @@
   "devDependencies": {
     "@babel/preset-env": "^7.23.8",
     "@namada/config": "workspace:^",
+    "@release-it/conventional-changelog": "^8.0.1",
     "@types/bn.js": "^5.1.1",
     "eslint": "^8.49.0",
     "eslint-config-prettier": "^8.8.0",

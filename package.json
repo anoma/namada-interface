@@ -8,6 +8,10 @@
     "e2e"
   ],
   "scripts": {
+    "bump": "node ./scripts/bump.js",
+    "release": "yarn workspaces foreach -Avt --exclude namada run release && release-it --ci",
+    "release:no-npm": "yarn workspaces foreach -Avt --exclude namada run release:no-npm && release-it",
+    "release:dry-run": "yarn workspaces foreach -Avt --exclude namada run release:dry-run && release-it --dry-run --ci",
     "wasm:build-test": "./scripts/build-test.sh",
     "test": "wsrun --serial --exclude-missing -c test",
     "test:ci": "wsrun --serial --exclude-missing -c test:ci",
@@ -17,16 +21,8 @@
     "lint:ci": "wsrun -l --exclude-missing -c lint:ci",
     "prepare": "husky install"
   },
-  "dependencies": {
-    "@cosmjs/encoding": "^0.27.1",
-    "@cosmjs/json-rpc": "^0.27.1",
-    "@cosmjs/tendermint-rpc": "^0.27.1",
-    "bs58": "^5.0.0",
-    "buffer": "^6.0.3",
-    "typescript": "^5.1.3",
-    "web-vitals": "^2.1.4"
-  },
   "devDependencies": {
+    "@release-it/conventional-changelog": "^8.0.1",
     "@typescript-eslint/eslint-plugin": "^6.13.0",
     "@typescript-eslint/parser": "^6.13.0",
     "eslint": "^8.49.0",
@@ -35,8 +31,9 @@
     "lint-staged": "^15.2.0",
     "prettier": "^3.1.0",
     "prettier-plugin-organize-imports": "^3.2.4",
+    "release-it": "^17.0.1",
+    "rimraf": "^5.0.5",
     "stream-browserify": "^3.0.0",
-    "typescript": "^5.1.3",
     "wsrun": "^5.2.4"
   },
   "packageManager": "yarn@4.0.2"

@@ -16,8 +16,8 @@
     "noFallthroughCasesInSwitch": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "strict": true,
     "sourceMap": true,
+    "strict": true,
     "target": "es2015"
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],

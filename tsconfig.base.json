@@ -1,10 +1,32 @@
 {
   "compilerOptions": {
     "paths": {
+      "@namada/chains": ["../../../packages/chains/src"],
+      "@namada/chains/*": ["../../../packages/chains/src/*"],
+
+      "@namada/components": ["../../../packages/components/src"],
+      "@namada/components/*": ["../../../packages/components/src/*"],
+
+      "@namada/crypto": ["../../../packages/crypto/src"],
+      "@namada/crypto/*": ["../../../packages/crypto/src/*"],
+
+      "@namada/hooks": ["../../../packages/hooks/src"],
+      "@namada/hooks/*": ["../../../packages/hooks/src/*"],
+
+      "@namada/integrations": ["../../../packages/integrations/src"],
+      "@namada/integrations/*": ["../../../packages/integrations/src/*"],
+
       "@namada/shared": ["../../../packages/shared/src"],
       "@namada/shared/*": ["../../../packages/shared/src/*"],
+
+      "@namada/storage": ["../../../packages/storage/src"],
+      "@namada/storage/*": ["../../../packages/storage/src/*"],
+
       "@namada/types": ["../../../packages/types/src"],
-      "@namada/types/*": ["../../../packages/types/src/*"]
+      "@namada/types/*": ["../../../packages/types/src/*"],
+
+      "@namada/utils": ["../../../packages/utils/src"],
+      "@namada/utils/*": ["../../../packages/utils/src/*"]
     }
   }
 }

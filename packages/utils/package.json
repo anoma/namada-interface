@@ -2,11 +2,16 @@
   "name": "@namada/utils",
   "version": "0.2.1",
   "description": "Namada Wallet Utilities",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "repository": "https://github.com/anoma/namada-interface/",
   "author": "Heliax Dev <info@heliax.dev>",
   "license": "MIT",
   "scripts": {
+    "prepublish": "npx rimraf ./dist && tsc --build",
+    "release": "yarn prepublish && release-it --verbose --ci",
+    "release:dry-run": "yarn prepublish && release-it --verbose --dry-run --ci",
+    "release:no-npm": "yarn prepublish && release-it --verbose --no-npm.publish --ci",
     "lint": "eslint src --ext .ts",
     "lint:fix": "yarn lint -- --fix",
     "lint:ci": "yarn lint --max-warnings 0"
@@ -36,5 +41,12 @@
     "eslint-plugin-react": "^7.33.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "typescript": "^5.1.3"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
   }
 }

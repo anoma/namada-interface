@@ -2,11 +2,16 @@
   "name": "@namada/crypto",
   "version": "0.2.1",
   "description": "Crypto functions related to Namada",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "repository": "https://github.com/anoma/namada-interface/",
   "author": "Heliax Dev <info@heliax.dev>",
   "license": "MIT",
   "scripts": {
+    "prepublish": "yarn wasm:build && tsc --build",
+    "release": "yarn prepublish && release-it --verbose --ci",
+    "release:dry-run": "yarn prepublish && release-it --verbose --dry-run --ci",
+    "release:no-npm": "yarn prepublish && release-it --verbose --no-npm.publish --ci",
     "wasm:build": "./scripts/build.sh --release",
     "wasm:build:dev": "./scripts/build.sh",
     "wasm:build:node": "./scripts/build-test.sh",
@@ -28,5 +33,12 @@
     "ts-jest": "^29.0.1",
     "ts-node": "^10.9.1",
     "wasm-pack": "^0.12.1"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
   }
 }

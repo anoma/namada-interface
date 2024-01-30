@@ -7,6 +7,10 @@
   "license": "MIT",
   "private": true,
   "scripts": {
+    "bump": "yarn workspace namada run bump --target apps/extension",
+    "release": "release-it --verbose --ci",
+    "release:dry-run": "release-it --verbose --dry-run --ci",
+    "release:no-npm": "release-it --verbose --no-npm.publish --ci",
     "watch": "webpack-cli --watch",
     "clean": "rimraf ./build",
     "clean:chrome": "rimraf ./build/chrome",

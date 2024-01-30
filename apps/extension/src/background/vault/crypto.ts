@@ -6,8 +6,8 @@ import {
   Rng,
   Salt,
   VecU8Pointer,
+  readVecU8Pointer,
 } from "@namada/crypto";
-import { readVecU8Pointer } from "@namada/crypto/src/utils";
 import { Argon2Config } from "config";
 import { CryptoRecord, KdfType } from "./types";
 
