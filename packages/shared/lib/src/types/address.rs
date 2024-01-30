@@ -1,4 +1,4 @@
-use borsh::BorshDeserialize;
+use namada::core::borsh::BorshDeserialize;
 use namada::types::{
     address,
     key::{

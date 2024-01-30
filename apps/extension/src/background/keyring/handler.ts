@@ -5,6 +5,7 @@ import {
   QueryAccountsMsg,
   QueryBalancesMsg,
   QueryDefaultAccountMsg,
+  VerifyArbitraryMsg,
 } from "provider/messages";
 import { Env, Handler, InternalHandler, Message } from "router";
 import {
@@ -110,6 +111,8 @@ export const getHandler: (service: KeyRingService) => Handler = (service) => {
           env,
           msg as AddLedgerAccountMsg
         );
+      case VerifyArbitraryMsg:
+        return handleVerifyAbitraryMsg(service)(env, msg as VerifyArbitraryMsg);
       default:
         throw new Error("Unknown msg type");
     }
@@ -298,5 +301,13 @@ const handleCheckDurabilityMsg: (
 ) => InternalHandler<CheckDurabilityMsg> = (service) => {
   return async (_, _msg) => {
     return await service.checkDurability();
+  };
+};
+
+const handleVerifyAbitraryMsg: (
+  service: KeyRingService
+) => InternalHandler<VerifyArbitraryMsg> = (service) => {
+  return async (_, { publicKey, hash, signature }) => {
+    return await service.verifyArbitrary(publicKey, hash, signature);
   };
 };

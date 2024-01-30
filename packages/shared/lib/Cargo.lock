@@ -4456,12 +4456,11 @@ name = "shared"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "borsh",
- "borsh-ext",
  "chrono",
  "console_error_panic_hook",
  "getrandom 0.2.9",
  "gloo-utils",
+ "hex",
  "js-sys",
  "masp_primitives",
  "masp_proofs",

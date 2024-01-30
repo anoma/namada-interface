@@ -52,7 +52,6 @@ import {
   UtilityStore,
 } from "./types";
 
-import { toHex } from "@cosmjs/encoding";
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
 import { generateId } from "utils";
@@ -915,8 +914,8 @@ export class KeyRing {
 
     const key = await this.getSigningKey(signer);
     const sdk = await this.sdkService.getSdk();
-    const [hash, signature] = await sdk.sign_arbitrary(key, data);
+    const [hash, signature] = sdk.sign_arbitrary(key, data);
 
-    return { hash, signature: toHex(signature) };
+    return { hash, signature };
   }
 }

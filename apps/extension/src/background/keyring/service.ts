@@ -462,4 +462,14 @@ export class KeyRingService {
   ): Promise<SignatureResponse | undefined> {
     return await this._keyRing.signArbitrary(signer, data);
   }
+
+  async verifyArbitrary(
+    publicKey: string,
+    hash: string,
+    signature: string
+  ): Promise<void> {
+    const sdk = await this.sdkService.getSdk();
+
+    return sdk.verify_arbitrary(publicKey, hash, signature);
+  }
 }

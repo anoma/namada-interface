@@ -1,6 +1,6 @@
 use std::{path::PathBuf, str::FromStr};
 
-use borsh::{BorshDeserialize, BorshSerialize};
+use namada::core::borsh::{BorshDeserialize, BorshSerialize};
 use namada::core::ibc::core::host::types::identifiers::{ChannelId, PortId};
 use namada::tx::data::GasLimit;
 use namada::{
@@ -18,6 +18,7 @@ use tendermint_config::net::Address as TendermintAddress;
 use wasm_bindgen::JsError;
 
 #[derive(BorshSerialize, BorshDeserialize)]
+#[borsh(crate = "namada::core::borsh")]
 pub struct TxMsg {
     token: String,
     fee_amount: String,
@@ -29,6 +30,7 @@ pub struct TxMsg {
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
+#[borsh(crate = "namada::core::borsh")]
 pub struct SubmitBondMsg {
     source: String,
     validator: String,
@@ -73,6 +75,7 @@ pub fn bond_tx_args(bond_msg: &[u8], tx_msg: &[u8]) -> Result<args::Bond, JsErro
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
+#[borsh(crate = "namada::core::borsh")]
 pub struct SubmitUnbondMsg {
     source: String,
     validator: String,
@@ -116,6 +119,7 @@ pub fn unbond_tx_args(unbond_msg: &[u8], tx_msg: &[u8]) -> Result<args::Unbond, 
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
+#[borsh(crate = "namada::core::borsh")]
 pub struct SubmitWithdrawMsg {
     source: String,
     validator: String,
@@ -151,6 +155,7 @@ pub fn withdraw_tx_args(withdraw_msg: &[u8], tx_msg: &[u8]) -> Result<args::With
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
+#[borsh(crate = "namada::core::borsh")]
 pub struct SubmitVoteProposalMsg {
     signer: String,
     proposal_id: u64,
@@ -195,6 +200,7 @@ pub fn vote_proposal_tx_args(
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
+#[borsh(crate = "namada::core::borsh")]
 pub struct SubmitTransferMsg {
     source: String,
     target: String,
@@ -269,6 +275,7 @@ pub fn transfer_tx_args(
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
+#[borsh(crate = "namada::core::borsh")]
 pub struct SubmitIbcTransferMsg {
     source: String,
     receiver: String,
@@ -333,6 +340,7 @@ pub fn ibc_transfer_tx_args(
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
+#[borsh(crate = "namada::core::borsh")]
 pub struct SubmitEthBridgeTransferMsg {
     nut: bool,
     asset: String,

@@ -1,13 +1,13 @@
-use borsh::{BorshDeserialize, BorshSerialize};
+use namada::core::borsh::{BorshDeserialize, BorshSerialize};
 use namada::{
-    ledger::pos::common::Signature,
     tx::{CompressedSignature, Section, Signer, Tx},
-    types::key::common::PublicKey,
+    types::key::common::{PublicKey, Signature},
 };
 use std::collections::BTreeMap;
 use wasm_bindgen::JsError;
 
 #[derive(BorshSerialize, BorshDeserialize)]
+#[borsh(crate = "namada::core::borsh")]
 pub struct SignatureMsg {
     pub pubkey: Vec<u8>,
     pub raw_indices: Vec<u8>,

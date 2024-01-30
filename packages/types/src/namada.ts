@@ -16,6 +16,12 @@ export type SignArbitraryProps = {
   data: string;
 };
 
+export type VerifyArbitraryProps = {
+  publicKey: string;
+  hash: string;
+  signature: string;
+};
+
 export interface Namada {
   accounts(chainId?: string): Promise<DerivedAccount[] | undefined>;
   balances(
@@ -24,6 +30,7 @@ export interface Namada {
   connect(chainId?: string): Promise<void>;
   defaultAccount(chainId?: string): Promise<DerivedAccount | undefined>;
   sign(props: SignArbitraryProps): Promise<SignatureResponse | undefined>;
+  verify(props: VerifyArbitraryProps): Promise<void>;
   submitTx: (props: TxMsgProps) => Promise<void>;
   getChain: () => Promise<Chain | undefined>;
   version: () => string;
