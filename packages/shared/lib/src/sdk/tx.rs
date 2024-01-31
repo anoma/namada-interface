@@ -14,6 +14,7 @@ use namada::{
         token::{Amount, DenominatedAmount, NATIVE_MAX_DECIMAL_PLACES},
     },
 };
+use tendermint_config::net::Address as TendermintAddress;
 use wasm_bindgen::JsError;
 
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -49,14 +50,13 @@ pub fn bond_tx_args(bond_msg: &[u8], tx_msg: &[u8]) -> Result<args::Bond, JsErro
     let bond_msg = SubmitBondMsg::try_from_slice(bond_msg)?;
 
     let SubmitBondMsg {
-        native_token,
         source,
         validator,
+        native_token: _native_token,
         amount,
     } = bond_msg;
 
     let source = Address::from_str(&source)?;
-    let native_token = Address::from_str(&native_token)?;
     let validator = Address::from_str(&validator)?;
     let amount = Amount::from_str(&amount, NATIVE_MAX_DECIMAL_PLACES)?;
     let tx = tx_msg_into_args(tx_msg)?;
@@ -66,7 +66,6 @@ pub fn bond_tx_args(bond_msg: &[u8], tx_msg: &[u8]) -> Result<args::Bond, JsErro
         validator,
         amount,
         source: Some(source),
-        native_token,
         tx_code_path: PathBuf::from("tx_bond.wasm"),
     };
 
@@ -225,7 +224,7 @@ pub fn transfer_tx_args(
         target,
         token,
         amount,
-        native_token,
+        native_token: _native_token,
     } = transfer_msg;
 
     let source = match Address::from_str(&source) {
@@ -252,7 +251,6 @@ pub fn transfer_tx_args(
         },
     }?;
 
-    let native_token = Address::from_str(&native_token)?;
     let token = Address::from_str(&token)?;
     let denom_amount = DenominatedAmount::from_str(&amount).expect("Amount to be valid.");
     let amount = InputAmount::Unvalidated(denom_amount);
@@ -264,7 +262,6 @@ pub fn transfer_tx_args(
         target,
         token,
         amount,
-        native_token,
         tx_code_path: PathBuf::from("tx_transfer.wasm"),
     };
 
@@ -448,6 +445,10 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         _ => None,
     };
 
+    // Ledger address is not used in the SDK.
+    // We can leave it as whatever as long as it's valid url.
+    let ledger_address = TendermintAddress::from_str("notinuse:13337").unwrap();
+
     let args = args::Tx {
         dry_run: false,
         dry_run_wrapper: false,
@@ -455,7 +456,7 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         dump_tx: false,
         force: false,
         broadcast_only: false,
-        ledger_address: (),
+        ledger_address,
         wallet_alias_force: false,
         initialized_account_alias: None,
         fee_amount: Some(fee_input_amount),

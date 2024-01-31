@@ -1,6 +1,7 @@
 use borsh::BorshSerialize;
 use js_sys::Uint8Array;
-use masp_primitives::transaction::components::{I128Sum, ValueSum};
+use masp_primitives::asset_type::AssetType;
+use masp_primitives::transaction::components::ValueSum;
 use masp_primitives::zip32::ExtendedFullViewingKey;
 use namada::governance::storage::keys as governance_storage;
 use namada::governance::utils::{compute_proposal_result, ProposalVotes, TallyVote, VotePower};
@@ -151,11 +152,11 @@ impl Query {
     }
 
     fn get_decoded_balance(
-        decoded_balance: ValueSum<Address, I256>,
+        decoded_balance: (ValueSum<Address, I256>, ValueSum<AssetType, i128>),
     ) -> Vec<(Address, token::Amount)> {
         let mut result = Vec::new();
 
-        for (token_addr, amount) in decoded_balance.components() {
+        for (token_addr, amount) in decoded_balance.0.components() {
             let amount = token::Amount::from_change(*amount);
             result.push((token_addr.clone(), amount));
         }
@@ -280,7 +281,7 @@ impl Query {
             .await?
             .expect("context should contain viewing key");
         let decoded_balance = shielded
-            .decode_combine_sum_to_epoch(&self.client, I128Sum::from(balance), epoch)
+            .decode_combine_sum_to_epoch(&self.client, balance, epoch)
             .await;
 
         Ok(Self::get_decoded_balance(decoded_balance))
