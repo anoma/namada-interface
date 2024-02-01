@@ -18,9 +18,6 @@
     "@namada/types": "0.2.1",
     "typescript": "^5.1.3"
   },
-  "devDependencies": {
-    "@types/node": "^20.11.10"
-  },
   "files": [
     "dist"
   ],
