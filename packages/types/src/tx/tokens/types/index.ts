@@ -55,24 +55,24 @@ export const Tokens = supportedCoinTypes.reduce(
 Tokens["NAM"] = {
   ...Tokens["NAM"],
   url: "https://namada.net",
-  address: "tnam1q9mjvqd45u7w54kee2aquugtv7vn7h3xrcrau7xy",
+  address: "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
 };
 
 Tokens["DOT"] = {
   ...Tokens["DOT"],
-  address: "tnam1q9dg4r9uteahgx7qyc2h8crq3lg7zrxdduwyrss4",
+  address: "tnam1qyfl072lhaazfj05m7ydz8cr57zdygk375jxjfwx",
   coinGeckoId: "polkadot",
 };
 
 Tokens["ETH"] = {
   ...Tokens["ETH"],
-  address: "tnam1q9anasrx0gqeuxrc22a0uefe82kw08avhcasevng",
+  address: "tnam1qxvnvm2t9xpceu8rup0n6espxyj2ke36yv4dw6q5",
   coinGeckoId: "ethereum",
 };
 
 Tokens["BTC"] = {
   ...Tokens["BTC"],
-  address: "tnam1qxwpxk3t4rwwshuwudkj9j2565gey088753n4ska",
+  address: "tnam1qy8qgxlcteehlk70sn8wx2pdlavtayp38vvrnkhq",
   coinGeckoId: "bitcoin",
 };
 
@@ -80,21 +80,21 @@ Tokens["SCH"] = {
   ...Tokens["SCH"],
   coin: "Schnitzel",
   symbol: "SCH",
-  address: "tnam1q9u0qaas5dc7h56ezwsmcurdt7h5ksv7csel5lm9",
+  address: "tnam1q9f5yynt5qfxe28ae78xxp7wcgj50fn4syetyrj6",
 };
 
 Tokens["APF"] = {
   ...Tokens["APF"],
   coin: "Apfel",
   symbol: "APF",
-  address: "tnam1qxv8l458h02uf56g5s3zx7g36uqc5fn0hy208d8d",
+  address: "tnam1qyvfwdkz8zgs9n3qn9xhp8scyf8crrxwuq26r6gy",
 };
 
 Tokens["KAR"] = {
   ...Tokens["KAR"],
   coin: "Kartoffel",
   symbol: "KAR",
-  address: "tnam1qxajrany4v37lpvxcsqxjax8sxvuc3zszu7gr406",
+  address: "tnam1qyx93z5ma43jjmvl0xhwz4rzn05t697f3vfv8yuj",
 };
 
 export type TokenBalance = { token: TokenType; amount: string };

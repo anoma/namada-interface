@@ -39,7 +39,7 @@ pub fn add_spending_key(wallet: &mut Wallet<BrowserWalletUtils>, xsk: &str, alia
     // xsk is decrypted outside of this wallet instance, so we specify None below
     if wallet
         .store_mut()
-        .insert_spending_key::<BrowserWalletUtils>(alias.clone(), xsk, None, false)
+        .insert_spending_key::<BrowserWalletUtils>(alias.clone(), xsk, None, None, false)
         .is_none()
     {
         panic!("Action cancelled, no changes persisted.");
