@@ -3,9 +3,12 @@ import React, { useCallback, useState } from "react";
 import {
   ActionButton,
   Alert,
+  Icon,
   Input,
+  LinkButton,
   RadioGroup,
   Stack,
+  Text,
 } from "@namada/components";
 import { assertNever } from "@namada/utils";
 import { PageHeader, SeedPhraseList } from "Setup/Common";
@@ -30,6 +33,8 @@ enum MnemonicTypes {
 export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
   const requester = useRequester();
   const [privateKey, setPrivateKey] = useState("");
+  const [passphrase, setPassphrase] = useState("");
+  const [showPassphrase, setShowPassphrase] = useState(false);
   const [mnemonicType, setMnemonicType] = useState<MnemonicTypes>(
     MnemonicTypes.TwelveWords
   );
@@ -129,12 +134,31 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
         );
       if (isValid) {
         setMnemonicError(undefined);
-        onConfirm({ t: "Mnemonic", seedPhrase: actualMnemonics });
+        console.log("passphrase", passphrase);
+        onConfirm({ t: "Mnemonic", seedPhrase: actualMnemonics, passphrase });
       } else {
         setMnemonicError(error);
       }
     }
-  }, [mnemonics, mnemonicType, privateKey]);
+  }, [mnemonics, mnemonicType, privateKey, passphrase, showPassphrase]);
+
+  const onPassphraseChange = useCallback(
+    (value: string) => {
+      setPassphrase(value);
+    },
+    [passphrase]
+  );
+
+  const onShowPassphraseChange = useCallback(
+    (e) => {
+      e.preventDefault();
+      if (!showPassphrase) {
+        setPassphrase("");
+      }
+      setShowPassphrase(!showPassphrase);
+    },
+    [showPassphrase]
+  );
 
   return (
     <>
@@ -152,7 +176,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
       </Stack>
       <Stack
         as="form"
-        gap={14}
+        gap={6}
         onSubmit={(e) => {
           e.preventDefault();
           onSubmit();
@@ -165,7 +189,10 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
             groupLabel="Number of seeds"
             value={mnemonicType.toString()}
             options={[
-              { text: "12 words", value: MnemonicTypes.TwelveWords.toString() },
+              {
+                text: "12 words",
+                value: MnemonicTypes.TwelveWords.toString(),
+              },
               {
                 text: "24 words",
                 value: MnemonicTypes.TwentyFourWords.toString(),
@@ -175,7 +202,13 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
                 value: MnemonicTypes.PrivateKey.toString(),
               },
             ]}
-            onChange={(value: string) => setMnemonicType(Number(value))}
+            onChange={(value: string) => {
+              if (Number(value) === MnemonicTypes.PrivateKey) {
+                setShowPassphrase(false);
+                setPassphrase("");
+              }
+              setMnemonicType(Number(value));
+            }}
           />
 
           {mnemonicType !== MnemonicTypes.PrivateKey && (
@@ -190,6 +223,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
 
           {mnemonicType === MnemonicTypes.PrivateKey && (
             <Input
+              className="w-full"
               label="Private key"
               variant="PasswordOnBlur"
               value={privateKey}
@@ -199,13 +233,72 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
             />
           )}
         </Stack>
-        <ActionButton
-          data-testid="setup-import-keys-import-button"
-          disabled={isSubmitButtonDisabled}
-        >
-          Import
-        </ActionButton>
+        <Stack direction="vertical" gap={4}>
+          {showPassphrase && (
+            <div className="relative">
+              <div onClick={onShowPassphraseChange}>
+                <Icon
+                  size="sm"
+                  className="absolute top-4 right-4 text-white cursor-pointer"
+                  name="X"
+                />
+              </div>
+              <Alert type={"warning"} title={"Please note"}>
+                <Stack gap={2}>
+                  <Text className="text-white leading-6">
+                    This import option is <b>only</b> for users who have created
+                    a Namada account using the CLI with a{" "}
+                    <b>BIP39 passphrase</b>. Do not input your Namada extension
+                    password.
+                  </Text>
+                  <Input
+                    label="Enter your passphrase"
+                    placeholder="Optional passphrase for your seed phrase."
+                    hideIcon={true}
+                    onChange={(e) => onPassphraseChange(e.target.value)}
+                    value={passphrase}
+                  />
+                </Stack>
+              </Alert>
+            </div>
+          )}
+          {!showPassphrase && (
+            <LinkButton
+              className="text-xs !text-neutral-400"
+              onClick={onShowPassphraseChange}
+            >
+              Import with BIP39 Passphrase
+            </LinkButton>
+          )}
+          <ActionButton
+            data-testid="setup-import-keys-import-button"
+            disabled={isSubmitButtonDisabled}
+          >
+            Import
+          </ActionButton>
+        </Stack>
       </Stack>
     </>
   );
 };
+
+//             {mnemonicType !== MnemonicTypes.PrivateKey && (
+//               <Stack
+//                 className="absolute right-0 top-[10px] place-items-center"
+//                 direction="horizontal"
+//                 gap={1}
+//               >
+//                 <Text
+//                   className={`text-[10px] my-0 ${
+//                     showPassphrase ? "text-white" : "text-neutral-600"
+//                   }`}
+//                 >
+//                   Passphrase
+//                 </Text>
+//                 <ToggleButton
+//                   label="Passphrase"
+//                   checked={showPassphrase}
+//                   onChange={onShowPassphraseChange}
+//                 />
+//               </Stack>
+//             )}

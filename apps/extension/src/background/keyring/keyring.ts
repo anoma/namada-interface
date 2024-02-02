@@ -6,6 +6,7 @@ import {
   Mnemonic,
   PhraseSize,
   ShieldedHDWallet,
+  StringPointer,
   VecU8Pointer,
   readStringPointer,
   readVecStringPointer,
@@ -82,7 +83,7 @@ export class KeyRing {
     protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly extensionStore: KVStore<number>,
     protected readonly cryptoMemory: WebAssembly.Memory
-  ) { }
+  ) {}
 
   public get status(): KeyRingStatus {
     return this._status;
@@ -190,7 +191,9 @@ export class KeyRing {
         case "Mnemonic":
           const phrase = accountSecret.seedPhrase.join(" ");
           const mnemonic = Mnemonic.from_phrase(phrase);
-          const seed = mnemonic.to_seed();
+          const passphrase = new StringPointer(accountSecret.passphrase);
+          //TODO: does not work
+          const seed = mnemonic.to_seed(passphrase);
           const { coinType } = chains.namada.bip44;
           const bip44Path = makeBip44PathArray(coinType, path);
           const hdWallet = new HDWallet(seed);

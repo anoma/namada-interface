@@ -52,7 +52,7 @@ export enum DeleteAccountError {
   KeyStoreError,
 }
 
-type Mnemonic = { t: "Mnemonic"; seedPhrase: string[] };
+type Mnemonic = { t: "Mnemonic"; seedPhrase: string[]; passphrase: string };
 type PrivateKey = { t: "PrivateKey"; privateKey: string };
 export type AccountSecret = Mnemonic | PrivateKey;
 

@@ -27,6 +27,7 @@ import { ThreeDotsVertical } from "./assets/ThreeDotsVertical";
 import { ThumbsUp } from "./assets/ThumbsUp";
 import { TwitterX } from "./assets/TwitterX";
 import { Warning } from "./assets/Warning";
+import { X } from "./assets/X";
 
 export const icons = {
   HelpCircle,
@@ -50,6 +51,7 @@ export const icons = {
   Menu,
   Copy,
   Warning,
+  X,
   Checked,
   ThreeDotsVertical,
   Discord,
