@@ -26,6 +26,9 @@ export class TxMsgValue {
   @field({ type: option("string") })
   feeUnshield?: string;
 
+  @field({ type: option("string") })
+  memo?: string;
+
   constructor(data: TxProps) {
     Object.assign(this, data);
   }

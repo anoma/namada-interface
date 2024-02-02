@@ -27,6 +27,7 @@ pub struct TxMsg {
     public_key: Option<String>,
     disposable_signing_key: Option<bool>,
     fee_unshield: Option<String>,
+    memo: Option<String>,
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -424,6 +425,7 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         public_key,
         disposable_signing_key,
         fee_unshield,
+        memo,
     } = tx_msg;
 
     let token = Address::from_str(&token)?;
@@ -450,6 +452,11 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         Some(v) => Some(TransferSource::ExtendedSpendingKey(
             ExtendedSpendingKey::from_str(&v)?,
         )),
+        _ => None,
+    };
+
+    let memo = match memo {
+        Some(v) => Some(v.as_bytes().to_vec()),
         _ => None,
     };
 
@@ -480,7 +487,7 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         tx_reveal_code_path: PathBuf::from("tx_reveal_pk.wasm"),
         use_device: false,
         password: None,
-        memo: None,
+        memo,
     };
 
     Ok(args)
