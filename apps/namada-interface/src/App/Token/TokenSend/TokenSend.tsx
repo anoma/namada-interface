@@ -131,7 +131,7 @@ const TokenSend = (): JSX.Element => {
       const query = new Query(rpc);
       const result = (await query.query_gas_costs()) as [string, string][];
 
-      const namCost = result.find(([token]) => token === Tokens.NAM.address);
+      const namCost = result.find(([token]) => token === Tokens.NAAN.address);
 
       if (!namCost) {
         throw new Error("Error querying minimum gas price");

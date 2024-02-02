@@ -50,7 +50,7 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
     );
 
     const txArgs: TxProps = {
-      token: Tokens.NAM.address || "",
+      token: Tokens.NAAN.address || "",
       feeAmount: new BigNumber(0),
       gasLimit: new BigNumber(20_000),
       chainId: chain.chainId,

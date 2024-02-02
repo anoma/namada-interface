@@ -50,11 +50,11 @@ export const submitTransferTransaction = async (
     target,
     token: Tokens[token].address,
     amount,
-    nativeToken: Tokens.NAM.address,
+    nativeToken: Tokens.NAAN.address,
   };
 
   const txArgs = {
-    token: Tokens.NAM.address || "",
+    token: Tokens.NAAN.address || "",
     feeAmount,
     gasLimit,
     chainId,

@@ -26,8 +26,8 @@ const namada: Chain = {
   rpc: isProxied ? ProxyMappings["namada"] : rpc,
   chainId,
   currency: {
-    token: "Nam",
-    symbol: "NAM",
+    token: "Naan",
+    symbol: "NAAN",
     gasPriceStep: { low: 0.01, average: 0.025, high: 0.03 },
   },
   extension: Extensions["namada"],

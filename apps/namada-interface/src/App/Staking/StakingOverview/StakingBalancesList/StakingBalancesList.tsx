@@ -46,7 +46,7 @@ const selectTotalNamBalance = (state: RootState): BigNumber => {
   const accounts = Object.values(derived[chains.namada.id]);
 
   return accounts.reduce((acc, curr) => {
-    return acc.plus(curr.balance["NAM"] ?? new BigNumber(0));
+    return acc.plus(curr.balance["NAAN"] ?? new BigNumber(0));
   }, new BigNumber(0));
 };
 
@@ -63,7 +63,7 @@ export const StakingBalancesList: React.FC = () => {
     <StakingBalances>
       <StakingBalancesLabel>Available for bonding</StakingBalancesLabel>
       <StakingBalancesValue>
-        NAM {availableForBonding.toString()}
+        NAAN {availableForBonding.toString()}
       </StakingBalancesValue>
 
       <StakingBalancesLabel>Total Bonded</StakingBalancesLabel>

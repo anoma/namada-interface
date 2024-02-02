@@ -92,7 +92,7 @@ export const ProposalDetails = (props: ProposalDetailsProps): JSX.Element => {
           proposalId: BigInt(proposal.id),
         },
         {
-          token: Tokens.NAM.address || "",
+          token: Tokens.NAAN.address || "",
           feeAmount: new BigNumber(0),
           gasLimit: new BigNumber(20_000),
           chainId: chains.namada.chainId,

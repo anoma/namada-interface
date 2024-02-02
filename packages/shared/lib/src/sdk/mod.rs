@@ -81,7 +81,7 @@ impl Sdk {
             shielded_ctx,
             WebIo,
             //NAM address
-            Address::from_str("tnam1qxuqn53dtcckynnm35n8s27cftxcqym7gvesjrp9").unwrap(),
+            Address::from_str("tnam1qxvg64psvhwumv3mwrrjfcz0h3t3274hwggyzcee").unwrap(),
         );
 
         Sdk { namada }

@@ -15,6 +15,7 @@ export type TokenInfo = {
 // Declare symbols for tokens we support:
 // TODO: This will need to be refactored for mainnet!
 export const Symbols = [
+  "NAAN",
   "NAM",
   "BTC",
   "DOT",
@@ -52,6 +53,12 @@ export const Tokens = supportedCoinTypes.reduce(
 );
 
 // Map a few test addresses for now:
+Tokens["NAAN"] = {
+  ...Tokens["NAAN"],
+  url: "https://namada.net",
+  symbol: "NAAN",
+  address: "tnam1qxvg64psvhwumv3mwrrjfcz0h3t3274hwggyzcee",
+};
 Tokens["NAM"] = {
   ...Tokens["NAM"],
   url: "https://namada.net",

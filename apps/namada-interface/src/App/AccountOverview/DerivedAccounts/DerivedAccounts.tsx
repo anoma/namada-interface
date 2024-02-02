@@ -42,6 +42,10 @@ type Props = {
 };
 
 const assetIconByToken: Record<TokenType, { light: string; dark: string }> = {
+  ["NAAN"]: {
+    light: AssetNamadaNamLight,
+    dark: AssetNamadaNamDark,
+  },
   ["NAM"]: {
     light: AssetNamadaNamLight,
     dark: AssetNamadaNamDark,

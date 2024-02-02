@@ -68,7 +68,7 @@ export const submitIbcTransfer = async (
         channelId,
       },
       txProps: {
-        token: Tokens.NAM.address || "",
+        token: Tokens.NAAN.address || "",
         feeAmount: new BigNumber(0),
         gasLimit: new BigNumber(20_000),
         publicKey,

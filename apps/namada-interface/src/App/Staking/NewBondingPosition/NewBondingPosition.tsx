@@ -72,7 +72,7 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
     currentBondingPosition?.stakedAmount || "0"
   );
   const currentNAMBalance: BigNumber =
-    currentAccount.balance["NAM"] || new BigNumber(0);
+    currentAccount.balance["NAAN"] || new BigNumber(0);
 
   const handleAddressChange = (
     e: React.ChangeEvent<HTMLSelectElement>
