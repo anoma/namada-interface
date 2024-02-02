@@ -1,4 +1,4 @@
-import { AmountInput, ActionButton, Alert, Input } from "@namada/components";
+import { ActionButton, Alert, AmountInput, Input } from "@namada/components";
 import BigNumber from "bignumber.js";
 import { sanitize } from "dompurify";
 import React, { useCallback, useContext, useEffect, useState } from "react";
@@ -211,12 +211,14 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
       <ButtonContainer>
         <ActionButton
           style={{
-            backgroundColor: theme.colors.secondary.main,
             fontSize: "1.25rem",
             lineHeight: "1.6",
             padding: "0.6em 2.5em",
             margin: 0,
           }}
+          className={`max-w-fit ${!isFormValid && "opacity-50"}`}
+          color="secondary"
+          borderRadius="lg"
           onClick={handleSubmit}
           disabled={!isFormValid}
         >
