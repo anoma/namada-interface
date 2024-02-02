@@ -13,15 +13,11 @@ use namada::proof_of_stake::Epoch;
 use namada::sdk::masp::ShieldedContext;
 use namada::sdk::rpc::{
     format_denominated_amount, get_public_key_at, get_token_balance, get_total_staked_tokens,
-    query_epoch, query_proposal_by_id, query_proposal_votes, query_storage_value,
+    query_epoch, query_native_token, query_proposal_by_id, query_proposal_votes,
+    query_storage_value,
 };
 use namada::types::eth_bridge_pool::TransferToEthereum;
-use namada::types::{
-    address::Address,
-    masp::ExtendedViewingKey,
-    token::{self},
-    uint::I256,
-};
+use namada::types::{address::Address, masp::ExtendedViewingKey, token, uint::I256};
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::str::FromStr;
 use wasm_bindgen::prelude::*;
@@ -498,6 +494,11 @@ impl Query {
         }
 
         to_js_result(result)
+    }
+
+    pub async fn query_native_token(&self) -> Result<JsValue, JsError> {
+        let address = query_native_token(&self.client).await?;
+        to_js_result(address)
     }
 }
 

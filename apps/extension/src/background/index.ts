@@ -88,6 +88,7 @@ const init = new Promise<void>(async (resolve) => {
   const keyRingService = new KeyRingService(
     vaultService,
     sdkService,
+    chainsService,
     utilityStore,
     connectedTabsStore,
     extensionStore,

@@ -22,10 +22,15 @@ export type VerifyArbitraryProps = {
   signature: string;
 };
 
+export type BalancesProps = {
+  owner: string;
+  tokens: string[];
+};
+
 export interface Namada {
   accounts(chainId?: string): Promise<DerivedAccount[] | undefined>;
   balances(
-    owner: string
+    props: BalancesProps
   ): Promise<{ token: string; amount: string }[] | undefined>;
   connect(chainId?: string): Promise<void>;
   defaultAccount(chainId?: string): Promise<DerivedAccount | undefined>;

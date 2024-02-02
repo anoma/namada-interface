@@ -1,5 +1,6 @@
 export type Currency = {
   token: string;
+  address?: string;
   symbol: string;
   gasPriceStep?: {
     low: number;

@@ -225,8 +225,8 @@ const handleQueryDefaultAccountMsg: (
 const handleQueryBalancesMsg: (
   service: KeyRingService
 ) => InternalHandler<QueryBalancesMsg> = (service) => {
-  return async (_, msg) => {
-    return await service.queryBalances(msg.owner);
+  return async (_, { owner, tokens }) => {
+    return await service.queryBalances(owner, tokens);
   };
 };
 

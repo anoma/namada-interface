@@ -74,7 +74,7 @@ export class GetChainMsg extends Message<Chain> {
     super();
   }
 
-  validate(): void {}
+  validate(): void { }
 
   route(): string {
     return Route.Chains;
@@ -125,12 +125,15 @@ export class QueryBalancesMsg extends Message<
     return MessageType.QueryBalances;
   }
 
-  constructor(public readonly owner: string) {
+  constructor(
+    public readonly owner: string,
+    public readonly tokens: string[]
+  ) {
     super();
   }
 
   validate(): void {
-    return;
+    validateProps(this, ["owner", "tokens"]);
   }
 
   route(): string {

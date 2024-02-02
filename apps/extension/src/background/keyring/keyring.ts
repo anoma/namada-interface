@@ -30,7 +30,6 @@ import {
   SubmitUnbondMsgValue,
   SubmitVoteProposalMsgValue,
   SubmitWithdrawMsgValue,
-  Tokens,
   TransferMsgValue,
 } from "@namada/types";
 import {
@@ -879,15 +878,13 @@ export class KeyRing {
   }
 
   async queryBalances(
-    owner: string
+    owner: string,
+    tokens: string[]
   ): Promise<{ token: string; amount: string }[]> {
     const query = await this.sdkService.getQuery();
-    const tokenAddresses: string[] = Object.values(Tokens)
-      .filter((token) => token.address)
-      .map(({ address }) => address);
 
     try {
-      return (await query.query_balance(owner, tokenAddresses)).map(
+      return (await query.query_balance(owner, tokens)).map(
         ([token, amount]: [string, string]) => {
           return {
             token,

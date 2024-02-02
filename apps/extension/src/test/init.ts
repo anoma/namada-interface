@@ -43,7 +43,7 @@ const cryptoMemory = require("@namada/crypto").__wasm.memory;
 export class KVStoreMock<T> implements KVStore<T> {
   private storage: { [key: string]: T | null } = {};
 
-  constructor(readonly _prefix: string) {}
+  constructor(readonly _prefix: string) { }
 
   get<U extends T>(key: string): Promise<U | undefined> {
     return new Promise((resolve) => {
@@ -114,6 +114,7 @@ export const init = async (): Promise<{
   const keyRingService = new KeyRingService(
     vaultService,
     sdkService,
+    chainsService,
     utilityStore,
     connectedTabsStore,
     extStore,

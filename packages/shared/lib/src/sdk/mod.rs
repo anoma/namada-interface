@@ -69,7 +69,7 @@ pub struct Sdk {
 /// For more details, navigate to the corresponding modules.
 impl Sdk {
     #[wasm_bindgen(constructor)]
-    pub fn new(url: String) -> Self {
+    pub fn new(url: String, native_token: String) -> Self {
         set_panic_hook();
         let client: HttpClient = HttpClient::new(url);
         let wallet: Wallet<wallet::BrowserWalletUtils> =
@@ -82,7 +82,7 @@ impl Sdk {
             shielded_ctx,
             WebIo,
             //NAM address
-            Address::from_str("tnam1qxuqn53dtcckynnm35n8s27cftxcqym7gvesjrp9").unwrap(),
+            Address::from_str(&native_token).unwrap(),
         );
 
         Sdk { namada }
