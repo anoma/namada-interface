@@ -36,6 +36,7 @@ export const submitTransferTransaction = async (
     disposableSigningKey,
     feeAmount,
     gasLimit,
+    memo,
   } = txTransferArgs;
 
   if (!feeAmount || !gasLimit) {
@@ -61,6 +62,7 @@ export const submitTransferTransaction = async (
     publicKey: publicKey,
     signer: faucet ? target : undefined,
     disposableSigningKey,
+    memo,
   };
 
   await signer.submitTransfer(transferArgs, txArgs, type);
@@ -130,6 +132,7 @@ const TokenSendForm = ({
   const chain = useAppSelector<Chain>((state) => state.chain.config);
   const [target, setTarget] = useState<string | undefined>(defaultTarget);
   const [amount, setAmount] = useState<BigNumber | undefined>(new BigNumber(0));
+  const [memo, setMemo] = useState("")
 
   const [isTargetValid, setIsTargetValid] = useState(true);
   const [isShieldedTarget, setIsShieldedTarget] = useState(false);
@@ -239,6 +242,7 @@ const TokenSendForm = ({
         feeAmount: gasPrice,
         gasLimit,
         disposableSigningKey: isShieldedSource,
+        memo,
       });
     }
   };
@@ -297,6 +301,9 @@ const TokenSendForm = ({
           >
             Max
           </ActionButton>
+        </InputContainer>
+        <InputContainer>
+          <Input type="text" label="Memo" value={memo} onChange={(e) => setMemo(e.target.value)} />
         </InputContainer>
         <InputContainer>{accountSourceTargetDescription}</InputContainer>
 
