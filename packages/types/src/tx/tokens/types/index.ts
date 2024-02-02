@@ -61,6 +61,7 @@ Tokens["NAM"] = {
   ...Tokens["NAM"],
   url: "https://namada.net",
   address: nativeToken,
+  symbol: "Naan",
 };
 
 Tokens["DOT"] = {

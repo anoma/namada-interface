@@ -3,6 +3,7 @@ import { useState } from "react";
 
 import {
   ActionButton,
+  Input,
   KeyValueData,
   TableConfigurations,
 } from "@namada/components";
@@ -63,6 +64,7 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
     }));
 
   const [currentAccount, setCurrentAccount] = useState<Account>(accounts[0]);
+  const [memo, setMemo] = useState<string>();
   const currentAddress = currentAccount?.details.address;
 
   const currentBondingPosition = currentBondingPositions.find(
@@ -147,6 +149,10 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
         />
       </BondingAmountInputContainer>
 
+      <BondingAmountInputContainer>
+        <Input type="text" value={memo} onChange={(e) => setMemo(e.target.value)} label="Memo" />
+      </BondingAmountInputContainer>
+
       <BondingAddressSelect
         data={selectOptions}
         value={currentAddress}
@@ -168,6 +174,7 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
             amount: amountToBondNumber,
             owner: currentAddress,
             validatorId: currentBondingPositions[0].validatorId,
+            memo,
           };
           confirmBonding(changeInStakingPosition);
         }}

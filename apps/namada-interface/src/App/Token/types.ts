@@ -42,6 +42,7 @@ type TxArgs = {
   feeAmount?: BigNumber;
   gasLimit?: BigNumber;
   disposableSigningKey?: boolean;
+  nativeToken: string;
 };
 
 export type TxTransferArgs = TxArgs & {

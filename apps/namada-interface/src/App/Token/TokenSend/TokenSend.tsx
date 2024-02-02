@@ -59,7 +59,7 @@ const accountsWithBalanceIntoSelectData = (
       )
       .map(([tokenType, amount]) => ({
         value: `${details.address}|${tokenType}`,
-        label: `${details.alias} ${amount} (${tokenType})`,
+        label: `${details.alias} ${amount} (${Tokens[tokenType as TokenType].symbol})`,
       }))
   );
 
