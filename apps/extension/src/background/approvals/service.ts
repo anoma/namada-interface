@@ -186,6 +186,7 @@ export class ApprovalsService {
       tokenAddress,
       amount: amount.toString(),
       publicKey,
+      nativeToken: txDetails.token,
     };
   };
 

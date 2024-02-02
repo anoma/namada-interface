@@ -1,7 +1,7 @@
 import { v5 as uuid } from "uuid";
 import browser from "webextension-polyfill";
 
-import { ISignature } from "@zondax/ledger-namada";
+import { ISignature } from "@namada/ledger-namada";
 import { Message, SignatureMsgValue, TxMsgValue, TxProps } from "@namada/types";
 import { Result } from "@namada/utils";
 
@@ -84,8 +84,8 @@ export const validatePrivateKey = (
   privateKey.length > PRIVATE_KEY_MAX_LENGTH
     ? Result.err({ t: "TooLong", maxLength: PRIVATE_KEY_MAX_LENGTH })
     : !/^[0-9a-f]*$/.test(privateKey)
-    ? Result.err({ t: "BadCharacter" })
-    : Result.ok(null);
+      ? Result.err({ t: "BadCharacter" })
+      : Result.ok(null);
 
 // Remove prefix from private key, which may be present when exporting keys from CLI
 export const filterPrivateKeyPrefix = (privateKey: string): string =>

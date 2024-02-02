@@ -1,0 +1,77 @@
+{
+  "name": "@namada/ledger-namada",
+  "author": "Zondax AG",
+  "license": "Apache-2.0",
+  "version": "0.2.1",
+  "description": "Node API for the Namada App (Ledger Nano S/X/S+)",
+  "main": "./dist/index.js",
+  "typings": "./dist/index.d.ts",
+  "types": "./dist/index.d.ts",
+  "homepage": "https://github.com/zondax/ledger-namada",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zondax/ledger-namada.git"
+  },
+  "keywords": [
+    "Zondax",
+    "Ledger",
+    "Javascript",
+    "Namada"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "copy-files": "copyfiles -u 0 src/**/*.proto dist/",
+    "test:integration": "yarn build && jest -t 'Integration'",
+    "test:key-derivation": "yarn build && jest -t 'KeyDerivation'",
+    "supported": "ts-node src/cmd/cli.ts supported",
+    "linter": "eslint --max-warnings 0 .",
+    "linter:fix": "yarn linter --fix",
+    "format": "prettier -w ."
+  },
+  "bugs": {
+    "url": "https://github.com/zondax/ledger-namada/issues"
+  },
+  "dependencies": {
+    "@ledgerhq/hw-transport": "^6.30.1"
+  },
+  "devDependencies": {
+    "@types/ledgerhq__hw-transport": "^4.21.8",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "bip32": "^4.0.0",
+    "bip39": "^3.1.0",
+    "core-js": "^3.34.0",
+    "crypto-js": "4.2.0",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-jest": "^27.6.0",
+    "eslint-plugin-prettier": "^5.1.0",
+    "jest": "^29.7.0",
+    "leb128": "^0.0.5",
+    "prettier": "^3.1.1",
+    "secp256k1": "^5.0.0",
+    "typescript": "^5.3.3"
+  },
+  "moduleDirectories": [
+    "node_modules",
+    "dist"
+  ],
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ],
+  "files": [
+    "dist/*",
+    "LICENSE",
+    "yarn.lock"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

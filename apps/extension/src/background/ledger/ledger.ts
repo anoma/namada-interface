@@ -4,14 +4,14 @@ import TransportUSB from "@ledgerhq/hw-transport-webusb";
 
 import { toHex } from "@cosmjs/encoding";
 import { chains } from "@namada/chains";
-import { makeBip44Path } from "@namada/utils";
 import {
   LedgerError,
   NamadaApp,
   ResponseAppInfo,
   ResponseSign,
   ResponseVersion,
-} from "@zondax/ledger-namada";
+} from "@namada/ledger-namada";
+import { makeBip44Path } from "@namada/utils";
 
 const { coinType } = chains.namada.bip44;
 

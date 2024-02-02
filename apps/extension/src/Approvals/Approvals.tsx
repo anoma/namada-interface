@@ -25,6 +25,7 @@ export type ApprovalDetails = {
   txType: TxType;
   publicKey?: string;
   target?: string;
+  nativeToken?: string;
 };
 
 export type SignatureDetails = {

@@ -16,6 +16,9 @@
       "@namada/integrations": ["../../../packages/integrations/src"],
       "@namada/integrations/*": ["../../../packages/integrations/src/*"],
 
+      "@namada/ledger-namada": ["../../../packages/ledger-namada/src"],
+      "@namada/ledger-namada/*": ["../../../packages/ledger-namada/src/*"],
+
       "@namada/shared": ["../../../packages/shared/src"],
       "@namada/shared/*": ["../../../packages/shared/src/*"],
 
