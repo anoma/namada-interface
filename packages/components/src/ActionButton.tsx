@@ -19,14 +19,14 @@ const actionButton = tv({
     size: {
       xs: "px-4 py-1.5 text-sm",
       sm: "px-6 py-2.5 text-sm",
-      md: "px-8 py-3 text-base",
-      lg: "px-8 py-3 text-lg",
+      md: "px-8 py-[0.825em] text-lg",
+      lg: "px-8 py-4 text-lg", // TODO: Check new sizes for lg buttons
       xl: "px-10 py-5 text-xl",
     },
 
     borderRadius: {
       sm: "rounded-sm",
-      md: "rounded-md",
+      md: "rounded-lg",
       lg: "rounded-lg",
     },
 
