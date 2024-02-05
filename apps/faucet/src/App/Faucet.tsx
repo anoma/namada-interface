@@ -1,9 +1,14 @@
-import { ActionButton, Alert, AmountInput, Input } from "@namada/components";
+import {
+  ActionButton,
+  Alert,
+  AmountInput,
+  Input,
+  Select,
+} from "@namada/components";
 import BigNumber from "bignumber.js";
 import { sanitize } from "dompurify";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 
-import { useTheme } from "styled-components";
 import {
   TransferResponse,
   computePowSolution,
@@ -18,6 +23,7 @@ import {
   PreFormatted,
 } from "./Faucet.components";
 
+import { Account } from "@namada/types";
 import { bech32mValidation } from "@namada/utils";
 import { AppContext } from "./App";
 
@@ -28,13 +34,13 @@ enum Status {
 }
 
 type Props = {
+  accounts: Account[];
   isTestnetLive: boolean;
 };
 
 const bech32mPrefix = "tnam";
 
-export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
-  const theme = useTheme();
+export const FaucetForm: React.FC<Props> = ({ accounts, isTestnetLive }) => {
   const { difficulty, settingsError, limit, tokens, url } =
     useContext(AppContext);
   const [targetAddress, setTargetAddress] = useState<string>();
@@ -44,6 +50,11 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
   const [status, setStatus] = useState(Status.Completed);
   const [statusText, setStatusText] = useState<string>();
   const [responseDetails, setResponseDetails] = useState<TransferResponse>();
+
+  const accountsSelectData = accounts.map((account) => ({
+    label: account.alias,
+    value: account.address,
+  }));
 
   useEffect(() => {
     if (tokens?.NAM) {
@@ -156,10 +167,10 @@ export const FaucetForm: React.FC<Props> = ({ isTestnetLive }) => {
     <FaucetFormContainer>
       {settingsError && <Alert type="error">{settingsError}</Alert>}
       <InputContainer>
-        <Input
-          label="Target Address"
+        <Select
+          data={accountsSelectData}
           value={targetAddress}
-          onFocus={handleFocus}
+          label="Account"
           onChange={(e) => setTargetAddress(e.target.value)}
         />
       </InputContainer>
