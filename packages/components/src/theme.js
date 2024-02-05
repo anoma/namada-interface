@@ -2,6 +2,14 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        success: "#15DD89",
+        intermediate: "#F48708",
+        fail: "#DD1539",
+        white: "#fff",
+        black: "#141414",
+        gray: "#292929",
+        rblack: "#000000",
+
         yellow: {
           DEFAULT: "#FFFF00",
           50: "#FFFFB8",
@@ -51,7 +59,7 @@ module.exports = {
         none: "0",
         sm: "5px",
         md: "10px",
-        lg: "18px",
+        lg: "15px",
         full: "100%",
         mainContainer: "24px",
         textField: "8px",

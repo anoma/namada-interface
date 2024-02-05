@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": "./src",
     "target": "ESNext",
     "useDefineForClassFields": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
@@ -16,7 +17,10 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "paths": {
-      "@namada/components": ["../packages/components/src/*"]
+      "@namada/components": ["../../packages/components/src"],
+      "@namada/components/*": ["../../packages/components/src/*"],
+      "@namada/types": ["../../packages/types/src"],
+      "@namada/types/*": ["../../packages/types/src/*"]
     }
   },
   "include": ["src"],

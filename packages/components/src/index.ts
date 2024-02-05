@@ -17,6 +17,7 @@ export * from "./LinkButton";
 export * from "./Loading";
 export * from "./Modal";
 export * from "./NavigationContainer";
+export * from "./Panel";
 export * from "./ProgressIndicator";
 export * from "./RadioGroup";
 export * from "./SeedPhraseInstructions";
