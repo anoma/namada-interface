@@ -281,24 +281,3 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
     </>
   );
 };
-
-//             {mnemonicType !== MnemonicTypes.PrivateKey && (
-//               <Stack
-//                 className="absolute right-0 top-[10px] place-items-center"
-//                 direction="horizontal"
-//                 gap={1}
-//               >
-//                 <Text
-//                   className={`text-[10px] my-0 ${
-//                     showPassphrase ? "text-white" : "text-neutral-600"
-//                   }`}
-//                 >
-//                   Passphrase
-//                 </Text>
-//                 <ToggleButton
-//                   label="Passphrase"
-//                   checked={showPassphrase}
-//                   onChange={onShowPassphraseChange}
-//                 />
-//               </Stack>
-//             )}
