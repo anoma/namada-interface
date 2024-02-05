@@ -6,7 +6,11 @@ type Props = {
   label: string;
 };
 
-export const ToggleButton = ({ checked, onChange, label }: Props) => {
+export const ToggleButton = ({
+  checked,
+  onChange,
+  label,
+}: Props): JSX.Element => {
   return (
     <div
       className={clsx(
