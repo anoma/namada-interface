@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useEffect, useState } from "react";
 import { ThemeProvider } from "styled-components";
 
-import { ActionButton, Heading } from "@namada/components";
+import { ActionButton, Alert, Heading } from "@namada/components";
 import { Namada } from "@namada/integrations";
 import { ColorMode, getTheme } from "@namada/utils";
 
@@ -19,6 +19,7 @@ import {
 import { FaucetForm } from "App/Faucet";
 
 import { chains } from "@namada/chains";
+import { useUntil } from "@namada/hooks";
 import { Account } from "@namada/types";
 import { requestSettings } from "utils";
 import dotsBackground from "../../public/bg-dots.svg";
@@ -81,12 +82,21 @@ export const AppContext = createContext<AppContext>({
   url,
 });
 
+enum ExtensionAttachStatus {
+  PendingDetection,
+  NotInstalled,
+  Installed,
+}
+
 export const App: React.FC = () => {
   const initialColorMode = "dark";
   const chain = chains.namada;
+  const integration = new Namada(chain);
+  const [extensionAttachStatus, setExtensionAttachStatus] = useState(
+    ExtensionAttachStatus.PendingDetection
+  );
   const [isExtensionConnected, setIsExtensionConnected] = useState(false);
   const [accounts, setAccounts] = useState<Account[]>([]);
-  const [integration, setIntegration] = useState<Namada>();
   const [colorMode, _] = useState<ColorMode>(initialColorMode);
   const [isTestnetLive, setIsTestnetLive] = useState(true);
   const [settings, setSettings] = useState<Settings>({
@@ -95,10 +105,19 @@ export const App: React.FC = () => {
   const [settingsError, setSettingsError] = useState<string>();
   const theme = getTheme(colorMode);
 
-  useEffect(() => {
-    // Instantiate integration
-    setIntegration(new Namada(chain));
-  }, []);
+  useUntil(
+    {
+      predFn: async () => Promise.resolve(integration.detect()),
+      onSuccess: () => {
+        setExtensionAttachStatus(ExtensionAttachStatus.Installed);
+      },
+      onFail: () => {
+        setExtensionAttachStatus(ExtensionAttachStatus.NotInstalled);
+      },
+    },
+    { tries: 5, ms: 300 },
+    [integration]
+  );
 
   useEffect(() => {
     const { startsAt } = settings;
@@ -137,10 +156,6 @@ export const App: React.FC = () => {
       }
     })();
   }, []);
-
-  // const handleDownloadExtension = (url: string): void => {
-  //   window.open(url, "_blank", "noopener,noreferrer");
-  // };
 
   const handleConnectExtensionClick = useCallback(async (): Promise<void> => {
     if (integration) {
@@ -190,17 +205,26 @@ export const App: React.FC = () => {
                 Namada Faucet
               </Heading>
             </TopSection>
-            {isExtensionConnected ? (
-              <FaucetContainer>
+            <FaucetContainer>
+              {extensionAttachStatus ===
+                ExtensionAttachStatus.PendingDetection && (
+                  <p>Detecting extension...</p>
+                )}
+              {extensionAttachStatus === ExtensionAttachStatus.NotInstalled && (
+                <Alert type="error">You must download the extension!</Alert>
+              )}
+              {isExtensionConnected && (
                 <FaucetForm isTestnetLive={isTestnetLive} accounts={accounts} />
-              </FaucetContainer>
-            ) : (
-              <div>
-                <ActionButton onClick={handleConnectExtensionClick}>
-                  Connect to Namada Extension
-                </ActionButton>
-              </div>
-            )}
+              )}
+              {extensionAttachStatus === ExtensionAttachStatus.Installed &&
+                !isExtensionConnected && (
+                  <div>
+                    <ActionButton onClick={handleConnectExtensionClick}>
+                      Connect to Namada Extension
+                    </ActionButton>
+                  </div>
+                )}
+            </FaucetContainer>
             <BottomSection>
               <CardsContainer>
                 <CallToActionCard
