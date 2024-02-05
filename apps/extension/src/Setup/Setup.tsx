@@ -72,7 +72,9 @@ export const Setup: React.FC = () => {
     <Container
       size="base"
       header={
-        <ContainerHeader currentStep={currentStep} totalSteps={totalSteps} />
+        totalSteps > 0 && (
+          <ContainerHeader currentStep={currentStep} totalSteps={totalSteps} />
+        )
       }
     >
       <AnimatePresence>
