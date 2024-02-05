@@ -460,9 +460,14 @@ export class KeyRing {
         );
       }
 
-      const mnemonic = Mnemonic.from_phrase(sensitiveData.text);
-      const passphrase = new StringPointer(sensitiveData.passphrase);
-      const seed = mnemonic.to_seed(passphrase);
+      const { text, passphrase } = sensitiveData;
+
+      const mnemonic = Mnemonic.from_phrase(text);
+      const passphrasePtr = passphrase
+        ? new StringPointer(passphrase)
+        : undefined;
+
+      const seed = mnemonic.to_seed(passphrasePtr);
       mnemonic.free();
       return { parentId, seed };
     } catch (e) {
@@ -645,7 +650,11 @@ export class KeyRing {
       privateKey = secret;
     } else {
       const mnemonic = Mnemonic.from_phrase(secret);
-      const passphrasePtr = new StringPointer(passphrase);
+      const passphrasePtr =
+        typeof passphrase === "string"
+          ? new StringPointer(passphrase)
+          : undefined;
+
       const seed = mnemonic.to_seed(passphrasePtr);
       const hdWallet = new HDWallet(seed);
       const key = hdWallet.derive(new Uint32Array(bip44Path));

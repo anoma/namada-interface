@@ -41,7 +41,7 @@ export type DurablityStore = {
   isDurable: string;
 };
 
-export type SensitiveAccountStoreData = { text: string; passphrase: string };
+export type SensitiveAccountStoreData = { text: string; passphrase?: string };
 
 export type UtilityStore = ActiveAccountStore | { [id: string]: CryptoRecord };
 
