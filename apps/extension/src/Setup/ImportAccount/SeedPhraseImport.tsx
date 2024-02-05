@@ -134,7 +134,6 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
         );
       if (isValid) {
         setMnemonicError(undefined);
-        console.log("passphrase", passphrase);
         onConfirm({ t: "Mnemonic", seedPhrase: actualMnemonics, passphrase });
       } else {
         setMnemonicError(error);
@@ -252,6 +251,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
                     password.
                   </Text>
                   <Input
+                    data-testid="setup-import-keys-passphrase-input"
                     label="Enter your passphrase"
                     placeholder="Optional passphrase for your seed phrase."
                     hideIcon={true}
@@ -264,6 +264,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
           )}
           {!showPassphrase && (
             <LinkButton
+              data-testid="setup-import-keys-use-passphrase-button"
               className="text-xs !text-neutral-400"
               onClick={onShowPassphraseChange}
             >

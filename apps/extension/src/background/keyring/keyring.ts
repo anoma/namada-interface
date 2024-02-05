@@ -228,8 +228,6 @@ export class KeyRing {
       }
     })();
 
-    console.log("Storing account secret");
-
     const addr = new Address(sk);
     const address = addr.implicit();
     const publicKey = addr.public();
