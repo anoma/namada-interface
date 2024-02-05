@@ -1,6 +1,6 @@
-import styled, { css, keyframes } from "styled-components";
 import { Text } from "@namada/components";
 import React from "react";
+import styled, { css, keyframes } from "styled-components";
 
 export const FaqContainer = styled.div`
   display: flex;
@@ -42,16 +42,21 @@ export const FaqDropdownContent = styled.div<{ isOpen: boolean | null }>`
   overflow: hidden; /* Ensure content doesn't overflow during animation */
   margin-top: 8px;
   ${({ isOpen }) => {
-    const toggleAnimation = isOpen ? 
-    css`
-      max-height: 200px;
-      animation: ${expand} 0.35s ease-out;
-    `: css`
-      max-height: 0px;
-      animation: ${collapse} 0.35s ease-out;
-    `;
-    return isOpen === null ? css`max-height: 0px;` : toggleAnimation
-  }}  
+    const toggleAnimation = isOpen
+      ? css`
+          max-height: 200px;
+          animation: ${expand} 0.35s ease-out;
+        `
+      : css`
+          max-height: 0px;
+          animation: ${collapse} 0.35s ease-out;
+        `;
+    return isOpen === null
+      ? css`
+          max-height: 0px;
+        `
+      : toggleAnimation;
+  }}
 `;
 
 export const DropDownTitle = styled.div`
@@ -63,13 +68,15 @@ export const DropDownTitle = styled.div`
 
 export const DropDownTitleText: React.FC = ({ children }) => {
   return (
-    <div style={{
-      maxWidth: '90%',
-    }}>
-      <Text themeColor="utility1" fontSize="2xl">{children}</Text>
+    <div
+      style={{
+        maxWidth: "90%",
+      }}
+    >
+      <Text className="text-black text-2xl my-0">{children}</Text>
     </div>
-  )
-}
+  );
+};
 
 const FaqUrlStyle = styled.a`
   color: ${(props) => props.theme.colors.utility3.black};
@@ -78,12 +85,11 @@ const FaqUrlStyle = styled.a`
   }
 `;
 
-interface FaqUrlProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {  
-}
+interface FaqUrlProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {}
 export const FaqUrl: React.FC<FaqUrlProps> = ({ ...props }) => {
   // prevent onClick from bubbling up to parent
   return <FaqUrlStyle onClick={(e) => e.stopPropagation()} {...props} />;
-}
+};
 
 const rotateAnimation = keyframes`
   from {
@@ -91,7 +97,7 @@ const rotateAnimation = keyframes`
   }
   to {
     transform: rotate(45deg);
-  }`
+  }`;
 
 const reverseRotateAnimation = keyframes`
   from {
@@ -99,13 +105,17 @@ const reverseRotateAnimation = keyframes`
   }
   to {
     transform: rotate(0deg);
-  }`
-export const PlusIcon = styled.img<{ isOpen: boolean | null}>`
+  }`;
+export const PlusIcon = styled.img<{ isOpen: boolean | null }>`
   width: 24px;
   ${({ isOpen }) => {
-    const rotateAnimationCss = isOpen 
-    ? css`animation: ${rotateAnimation} 0.2s ease-in-out forwards;` : css`animation: ${reverseRotateAnimation} 0.2s ease-in-out forwards;`;
-    return isOpen === null  ? '': rotateAnimationCss;
-  }}`;
-
-
+    const rotateAnimationCss = isOpen
+      ? css`
+          animation: ${rotateAnimation} 0.2s ease-in-out forwards;
+        `
+      : css`
+          animation: ${reverseRotateAnimation} 0.2s ease-in-out forwards;
+        `;
+    return isOpen === null ? "" : rotateAnimationCss;
+  }}
+`;

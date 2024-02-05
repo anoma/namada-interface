@@ -1,5 +1,6 @@
 const webpack = require("webpack");
 const { resolve, join } = require("path");
+const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const { getProcessEnv } = require("@namada/config/webpack.js");
@@ -40,10 +41,13 @@ const plugins = [
   // Provide environment variables to interface:
   new webpack.DefinePlugin({
     process: {
-      env: JSON.stringify(getProcessEnv(
-        "NAMADA_INTERFACE",
-        ["TARGET", "NODE_ENV", "npm_package_version"]
-      )),
+      env: JSON.stringify(
+        getProcessEnv("NAMADA_INTERFACE", [
+          "TARGET",
+          "NODE_ENV",
+          "npm_package_version",
+        ])
+      ),
     },
   }),
 ];
@@ -81,7 +85,7 @@ module.exports = {
       },
       {
         test: /\.css$/i,
-        use: ["style-loader", "css-loader"],
+        use: ["style-loader", "css-loader", "postcss-loader"],
       },
       {
         test: /\.png$/i,
@@ -131,6 +135,11 @@ module.exports = {
       buffer: require.resolve("buffer/"),
       crypto: require.resolve("crypto-browserify"),
     },
+    plugins: [
+      new TsconfigPathsPlugin({
+        configFile: "tsconfig.json",
+      }),
+    ],
   },
   performance: {
     hints: false,

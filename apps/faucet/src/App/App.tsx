@@ -149,7 +149,7 @@ export const App: React.FC = () => {
         <AppContainer>
           <ContentContainer>
             <TopSection>
-              <Heading uppercase themeColor="utility1" size="5xl" level="h1">
+              <Heading className="uppercase text-black text-5xl" level="h1">
                 Namada Faucet
               </Heading>
             </TopSection>

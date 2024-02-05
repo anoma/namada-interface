@@ -1,17 +1,17 @@
 import React, { useState } from "react";
+import InclineArrowBlack from "../../public/incline-arrow-black.svg";
+import InclineArrowYellow from "../../public/incline-arrow-yellow.svg";
 import {
   BottomBorder,
   CallToActionContainer,
   CardContainer,
+  CardDescription,
+  CardHeading,
   InclineArrowIcon,
   LeftBorder,
   RightBorder,
   TopBorder,
-  CardDescription,
-  CardHeading
 } from "./Card.components";
-import InclineArrowYellow from "../../public/incline-arrow-yellow.svg";
-import InclineArrowBlack from "../../public/incline-arrow-black.svg";
 
 type Props = {
   description: string;
@@ -33,13 +33,18 @@ export const CallToActionCard: React.FC<Props> = ({
   };
 
   return (
-    <CardContainer href={href} onMouseEnter={onHover} onMouseLeave={onLeave} target="_blank">
+    <CardContainer
+      href={href}
+      onMouseEnter={onHover}
+      onMouseLeave={onLeave}
+      target="_blank"
+    >
       <TopBorder />
       <RightBorder />
       <BottomBorder />
       <LeftBorder />
       <CardDescription>{description}</CardDescription>
-      <CallToActionContainer>
+      <CallToActionContainer className="mt-9">
         <CardHeading>{title}</CardHeading>
         <InclineArrowIcon
           src={isHovered ? InclineArrowYellow : InclineArrowBlack}

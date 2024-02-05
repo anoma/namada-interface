@@ -1,6 +1,12 @@
 import React, { useState } from "react";
-import { FaqDropdownContainer, FaqDropdownContent, PlusIcon, DropDownTitle, DropDownTitleText } from "./Faq.components";
-import plusIcon from '../../public/plus-icon.svg'
+import plusIcon from "../../public/plus-icon.svg";
+import {
+  DropDownTitle,
+  DropDownTitleText,
+  FaqDropdownContainer,
+  FaqDropdownContent,
+  PlusIcon,
+} from "./Faq.components";
 
 type Props = {
   title: string;
@@ -16,14 +22,11 @@ export const FaqDropdown: React.FC<Props> = ({ children, title }) => {
   return (
     <FaqDropdownContainer onClick={handleToggle}>
       <DropDownTitle>
-        <DropDownTitleText>
-          {title}
-        </DropDownTitleText>
+        <DropDownTitleText>{title}</DropDownTitleText>
         <PlusIcon src={plusIcon} isOpen={isOpen} />
       </DropDownTitle>
 
       <FaqDropdownContent isOpen={isOpen}>{children}</FaqDropdownContent>
-       
     </FaqDropdownContainer>
   );
 };
