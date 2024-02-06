@@ -28,7 +28,7 @@ import {
 } from "@namada/types";
 
 export class Signer implements ISigner {
-  constructor(private readonly _namada: Namada) { }
+  constructor(private readonly _namada: Namada) {}
 
   public async accounts(): Promise<Account[] | undefined> {
     return (await this._namada.accounts())?.map(
@@ -67,6 +67,14 @@ export class Signer implements ISigner {
     data: string
   ): Promise<SignatureResponse | undefined> {
     return await this._namada.sign({ signer, data });
+  }
+
+  public async verify(
+    publicKey: string,
+    hash: string,
+    signature: string
+  ): Promise<void> {
+    return await this._namada.verify({ publicKey, hash, signature });
   }
 
   private async submitTx<T extends Schema, Args>(

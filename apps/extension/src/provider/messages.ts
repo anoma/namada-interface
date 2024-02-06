@@ -36,6 +36,7 @@ enum MessageType {
   ApproveEthBridgeTransfer = "approve-eth-bridge-transfer",
   CheckDurability = "check-durability",
   ApproveSignArbitrary = "approve-sign-arbitrary",
+  VerifyArbitrary = "verify-arbitrary",
 }
 
 /**
@@ -270,5 +271,31 @@ export class ApproveSignArbitraryMsg extends Message<SignatureResponse> {
 
   type(): string {
     return ApproveSignArbitraryMsg.type();
+  }
+}
+
+export class VerifyArbitraryMsg extends Message<void> {
+  public static type(): MessageType {
+    return MessageType.VerifyArbitrary;
+  }
+
+  constructor(
+    public readonly publicKey: string,
+    public readonly hash: string,
+    public readonly signature: string
+  ) {
+    super();
+  }
+
+  validate(): void {
+    validateProps(this, ["publicKey", "hash", "signature"]);
+  }
+
+  route(): string {
+    return Route.KeyRing;
+  }
+
+  type(): string {
+    return VerifyArbitraryMsg.type();
   }
 }

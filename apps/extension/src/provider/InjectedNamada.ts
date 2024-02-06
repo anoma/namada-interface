@@ -6,6 +6,7 @@ import {
   SignArbitraryProps,
   SignatureResponse,
   TxMsgProps,
+  VerifyArbitraryProps,
 } from "@namada/types";
 import { InjectedProxy } from "./InjectedProxy";
 import { Signer } from "./Signer";
@@ -36,6 +37,13 @@ export class InjectedNamada implements INamada {
       SignArbitraryProps,
       SignatureResponse | undefined
     >("sign", props);
+  }
+
+  public async verify(props: VerifyArbitraryProps): Promise<void> {
+    return await InjectedProxy.requestMethod<VerifyArbitraryProps, void>(
+      "verify",
+      props
+    );
   }
 
   public async balances(

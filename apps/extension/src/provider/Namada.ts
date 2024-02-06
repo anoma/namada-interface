@@ -5,6 +5,7 @@ import {
   SignArbitraryProps,
   SignatureResponse,
   TxMsgProps,
+  VerifyArbitraryProps,
 } from "@namada/types";
 import { MessageRequester, Ports } from "router";
 
@@ -19,6 +20,7 @@ import {
   QueryAccountsMsg,
   QueryBalancesMsg,
   QueryDefaultAccountMsg,
+  VerifyArbitraryMsg,
 } from "./messages";
 
 export class Namada implements INamada {
@@ -61,6 +63,14 @@ export class Namada implements INamada {
     return await this.requester?.sendMessage(
       Ports.Background,
       new ApproveSignArbitraryMsg(signer, data)
+    );
+  }
+
+  public async verify(props: VerifyArbitraryProps): Promise<void> {
+    const { publicKey, hash, signature } = props;
+    return await this.requester?.sendMessage(
+      Ports.Background,
+      new VerifyArbitraryMsg(publicKey, hash, signature)
     );
   }
 

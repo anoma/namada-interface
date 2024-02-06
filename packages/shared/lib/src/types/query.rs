@@ -1,6 +1,7 @@
-use borsh::BorshSerialize;
+use namada::core::borsh::BorshSerialize;
 
 #[derive(BorshSerialize)]
+#[borsh(crate = "namada::core::borsh")]
 pub struct ProposalInfo {
     pub id: String,
     pub proposal_type: String,

@@ -1,8 +1,8 @@
-use borsh::BorshSerialize;
 use js_sys::Uint8Array;
 use masp_primitives::asset_type::AssetType;
 use masp_primitives::transaction::components::ValueSum;
 use masp_primitives::zip32::ExtendedFullViewingKey;
+use namada::core::borsh::BorshSerialize;
 use namada::governance::storage::keys as governance_storage;
 use namada::governance::utils::{compute_proposal_result, ProposalVotes, TallyVote, VotePower};
 use namada::governance::{ProposalType, ProposalVote};

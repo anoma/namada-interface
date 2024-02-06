@@ -22,6 +22,7 @@ export interface Signer {
     signer: string,
     data: string
   ) => Promise<SignatureResponse | undefined>;
+  verify: (publicKey: string, hash: string, signature: string) => Promise<void>;
   submitBond(
     args: SubmitBondProps,
     txArgs: TxProps,

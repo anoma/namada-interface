@@ -7,9 +7,8 @@ use crate::{
     utils::{set_panic_hook, to_bytes},
 };
 use js_sys::Uint8Array;
-use namada::core::borsh::BorshDeserialize;
-use namada::core::borsh::BorshSerializeExt;
-use namada::ledger::{eth_bridge::bridge_pool::build_bridge_pool_tx, pos::common::SecretKey};
+use namada::core::borsh::{self, BorshDeserialize};
+use namada::ledger::eth_bridge::bridge_pool::build_bridge_pool_tx;
 use namada::sdk::masp::ShieldedContext;
 use namada::sdk::rpc::query_epoch;
 use namada::sdk::signing::{find_key_by_pk, SigningTxData};
@@ -22,9 +21,11 @@ use namada::sdk::{Namada, NamadaImpl};
 use namada::tx::Tx;
 use namada::types::address::Address;
 use namada::types::hash::Hash;
-use namada::types::key::{ed25519, SigScheme};
+use namada::types::key::{common, ed25519, SigScheme};
+use namada::types::string_encoding::Format;
 use std::str::FromStr;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
+
 pub mod io;
 pub mod masp;
 mod signature;
@@ -135,7 +136,9 @@ impl Sdk {
         } = built_tx;
 
         let signing_keys = match private_key.clone() {
-            Some(private_key) => vec![SecretKey::from_str(&format!("{}{}", "00", private_key))?],
+            Some(private_key) => vec![common::SecretKey::Ed25519(ed25519::SecretKey::from_str(
+                &private_key,
+            )?)],
             // If no private key is provided, we assume masp source and return empty vec
             None => vec![],
         };
@@ -385,26 +388,28 @@ impl Sdk {
     }
 
     // Sign arbitrary data with the provided signing key
-    // TODO: Use function from SDK when it is available
-    pub async fn sign_arbitrary(
-        &self,
-        signing_key: String,
-        data: String,
-    ) -> Result<JsValue, JsError> {
+    pub fn sign_arbitrary(&self, signing_key: String, data: String) -> Result<JsValue, JsError> {
         let hash = Hash::sha256(&data);
-        // TODO: SecretKey & SigScheme should be imported from key::common, but that is currently
-        // referring to the wrong import (e.g., pos::common)
-        let secret = ed25519::SecretKey::from_str(&signing_key)?;
-        let signature: ed25519::Signature = ed25519::SigScheme::sign(&secret, &hash);
+        let secret = common::SecretKey::Ed25519(ed25519::SecretKey::from_str(&signing_key)?);
+        let signature = common::SigScheme::sign(&secret, &hash);
+        let sig_bytes = signature.to_bytes();
 
-        let sig_bytes = signature.serialize_to_vec();
+        to_js_result((hash.to_string().to_lowercase(), hex::encode(sig_bytes)))
+    }
 
-        to_js_result((
-            // Hash
-            &hash.to_string().to_lowercase(),
-            // Signature
-            &sig_bytes,
-        ))
+    // Verify signed arbitrary data
+    pub fn verify_arbitrary(
+        &self,
+        public_key: String,
+        signed_hash: String,
+        signature: String,
+    ) -> Result<JsValue, JsError> {
+        let public_key = common::PublicKey::from_str(&public_key)?;
+        let sig = common::Signature::try_from_slice(&hex::decode(&signature)?)?;
+        let signed_hash = Hash::from_str(&signed_hash)?;
+        let result = common::SigScheme::verify_signature(&public_key, &signed_hash, &sig)?;
+
+        to_js_result(result)
     }
 }
 
