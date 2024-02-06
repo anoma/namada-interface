@@ -142,7 +142,9 @@ export const Completion: React.FC<Props> = (props) => {
         visible={mnemonicStatus === Status.Pending}
       />
       {mnemonicStatus === Status.Failed && (
-        <Alert type="error">{statusInfo}</Alert>
+        <Alert data-testid="setup-error-alert" type="error">
+          {statusInfo}
+        </Alert>
       )}
       {mnemonicStatus === Status.Completed && (
         <>

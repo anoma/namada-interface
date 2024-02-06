@@ -116,7 +116,11 @@ export const Setup: React.FC = () => {
                       accountCreationDetails={accountCreationDetails}
                       defaultSeedPhrase={seedPhrase}
                       onConfirm={(seedPhrase: string[]) => {
-                        setAccountSecret({ t: "Mnemonic", seedPhrase });
+                        setAccountSecret({
+                          t: "Mnemonic",
+                          seedPhrase,
+                          passphrase: "",
+                        });
                         navigate(routes.accountCreationConfirm());
                       }}
                     />
@@ -140,6 +144,7 @@ export const Setup: React.FC = () => {
                         setSelectedAccountSecret({
                           t: "Mnemonic",
                           seedPhrase,
+                          passphrase: "",
                         });
                         setAccountSecret(undefined); // this also sets seedPhrase to undefined
                         navigate(routes.accountCreationComplete());

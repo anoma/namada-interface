@@ -45,6 +45,8 @@ export const mnemonic2 = [
 export const pwd = "pwd";
 export const alias0 = "Alias0";
 export const alias1 = "Alias1";
+export const passphrase0 = "";
+export const passphrase1 = "passphrase1";
 
 export const address0 = "tnam1qqshvryx9pngpk7mmzpzkjkm6klelgusuvmkc0uz";
 export const address1 = "tnam1qz4sdx5jlh909j44uz46pf29ty0ztftfzc98s8dx";

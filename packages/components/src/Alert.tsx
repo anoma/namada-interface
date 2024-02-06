@@ -22,16 +22,23 @@ type AlertBaseProps = VariantProps<typeof alert>;
 type AlertProps = {
   title?: string;
   children: React.ReactNode;
+  "data-testid"?: string;
 } & AlertBaseProps;
 
 export const Alert = ({
   title,
   children,
+  "data-testid": dataTestId,
   ...props
 }: AlertProps): JSX.Element => {
   const alertClass = alert(props);
   return (
-    <div className={alertClass.base()} role="dialog" aria-labelledby={title}>
+    <div
+      data-testid={dataTestId}
+      className={alertClass.base()}
+      role="dialog"
+      aria-labelledby={title}
+    >
       {title && <strong className={alertClass.title()}>{title}</strong>}
       <div className="text-sm leading-[1.15em]">{children}</div>
     </div>

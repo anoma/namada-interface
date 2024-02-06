@@ -9,7 +9,8 @@ import { alias0, mnemonic0, pwd } from "../utils/values";
 
 export const importAccount = async (
   browser: puppeteer.Browser,
-  page: puppeteer.Page
+  page: puppeteer.Page,
+  options?: { passphrase?: string }
 ): Promise<void> => {
   await openSetup(browser, page);
 
@@ -25,6 +26,21 @@ export const importAccount = async (
 
   // Fill mnemonic
   await pasteValueInto(page, wordInputs[5], mnemonic0.join(" "));
+
+  const passphrase = options?.passphrase;
+  if (typeof passphrase === "string") {
+    // Click on import with passphrase button
+    await (
+      await page.waitForSelector(
+        "[data-testid='setup-import-keys-use-passphrase-button']"
+      )
+    )?.click();
+
+    // Fill passphrase
+    await (
+      await page.$("[data-testid='setup-import-keys-passphrase-input']")
+    )?.type(passphrase);
+  }
 
   // Click on import button
   (
@@ -51,13 +67,6 @@ export const importAccount = async (
     await page.waitForSelector("[data-testid='setup-import-keys-next-button']")
   )?.click();
   await page.waitForNavigation();
-
-  // Wait for close page button
-  const closePageBtn = await page.waitForSelector(
-    "[data-testid='setup-close-page-btn']",
-    {}
-  );
-  expect(closePageBtn).not.toBeNull();
 };
 
 export const createAccount = async (

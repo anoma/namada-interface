@@ -27,6 +27,8 @@ import {
   address0,
   address1,
   ethAddress0,
+  passphrase0,
+  passphrase1,
   shieldedAddress0,
   shieldedAddress1,
 } from "./utils/values";
@@ -81,6 +83,31 @@ describe("Namada", () => {
 
     test("import account & derive addresses", async () => {
       await importAccount(browser, page);
+      // Wait for close page button
+      const closePageBtn = await page.waitForSelector(
+        "[data-testid='setup-close-page-btn']",
+        {}
+      );
+      expect(closePageBtn).not.toBeNull();
+    });
+
+    test("import accounts with passphrases", async () => {
+      await importAccount(browser, page, { passphrase: passphrase0 });
+      await importAccount(browser, page, { passphrase: passphrase1 });
+
+      // Wait for close page button
+      const closePageBtn = await page.waitForSelector(
+        "[data-testid='setup-close-page-btn']"
+      );
+      expect(closePageBtn).not.toBeNull();
+
+      await importAccount(browser, page, { passphrase: passphrase1 });
+
+      // Wait for alert
+      const errorAlert = await page.waitForSelector(
+        "[data-testid='setup-error-alert']"
+      );
+      expect(errorAlert).not.toBeNull();
     });
   });
 
