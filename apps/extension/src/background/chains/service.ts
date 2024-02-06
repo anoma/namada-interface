@@ -27,8 +27,12 @@ export class ChainsService {
       } = defaultChain;
       if (!address) {
         const query = new Query(defaultChain.rpc);
-        const nativeToken = await query.query_native_token();
-        defaultChain.currency.address = nativeToken || tokenAddress;
+        try {
+          const nativeToken = await query.query_native_token();
+          defaultChain.currency.address = nativeToken || tokenAddress;
+        } catch (e) {
+          console.warn(`Chain is not reachable: ${e}`);
+        }
       }
 
       await this.chainsStore.set(CHAINS_KEY, defaultChain);
