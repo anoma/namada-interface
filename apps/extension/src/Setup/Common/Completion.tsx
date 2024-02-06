@@ -21,8 +21,6 @@ type Props = {
   alias: string;
   accountSecret?: AccountSecret;
   scanAccounts: boolean;
-  pageTitle: string;
-  pageSubtitle: string;
   password?: string;
   passwordRequired: boolean | undefined;
 };
@@ -34,15 +32,8 @@ enum Status {
 }
 
 export const Completion: React.FC<Props> = (props) => {
-  const {
-    alias,
-    accountSecret,
-    password,
-    scanAccounts,
-    pageTitle,
-    pageSubtitle,
-    passwordRequired,
-  } = props;
+  const { alias, accountSecret, password, scanAccounts, passwordRequired } =
+    props;
 
   const [mnemonicStatus, setMnemonicStatus] = useState<Status>(Status.Pending);
   const [statusInfo, setStatusInfo] = useState<string>("");

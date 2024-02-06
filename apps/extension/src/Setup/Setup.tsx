@@ -194,7 +194,7 @@ export const Setup: React.FC = () => {
               <Route
                 path={routes.accountImportSeed()}
                 element={
-                  <Wrapper onLoad={setCurrentPage("", 1)}>
+                  <Wrapper onLoad={setCurrentPage("Import Account", 1)}>
                     <SeedPhraseImport
                       onConfirm={(accountSecret: AccountSecret) => {
                         setAccountSecret(accountSecret);
@@ -207,7 +207,9 @@ export const Setup: React.FC = () => {
               <Route
                 path={routes.accountImportPassword()}
                 element={
-                  <Wrapper onLoad={setCurrentPage("", 2)}>
+                  <Wrapper
+                    onLoad={setCurrentPage("Set Up Your Imported Keys", 2)}
+                  >
                     <SeedPhraseSetup
                       passwordRequired={!passwordInitialized}
                       accountCreationDetails={accountCreationDetails}
@@ -228,10 +230,9 @@ export const Setup: React.FC = () => {
               <Route
                 path={routes.accountImportComplete()}
                 element={
-                  <Wrapper onLoad={setCurrentPage("", 3)}>
+                  <Wrapper onLoad={setCurrentPage("Namada Keys Imported", 3)}>
                     <Completion
                       passwordRequired={!passwordInitialized}
-                      pageTitle="Namada Keys Imported"
                       pageSubtitle="Here are the accounts generated from your keys"
                       alias={accountCreationDetails.alias || ""}
                       accountSecret={selectedAccountSecret}

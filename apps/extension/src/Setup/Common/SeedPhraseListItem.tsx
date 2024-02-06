@@ -24,12 +24,17 @@ export const SeedPhraseListItem = ({
       {onChange ? (
         <span
           className={clsx(
-            "absolute left-0 -top-2 w-full h-full",
-            "[&_input]:bg-transparent [&_input]:pt-4 [&_input]:pb-4 [&_input]:pl-10"
+            "flex items-center absolute left-0 top-0 w-full h-full",
+            "[&_input]:bg-transparent [&_input]:border-0",
+            "[&_input]:pt-4 [&_input]:pb-3 [&_input]:pl-7"
           )}
         >
+          <i className="absolute left-2 not-italic pointer-events-none">
+            {idx + 1}
+          </i>
           <Input
             label=""
+            className="-mt-2"
             variant="PasswordOnBlur"
             hideIcon={true}
             onChange={(e) => onChange(idx, e.target.value)}

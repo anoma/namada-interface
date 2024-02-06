@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { ActionButton, Stack } from "@namada/components";
-import { AccountAlias, PageHeader, Password } from "Setup/Common";
+import { AccountAlias, Password } from "Setup/Common";
 import { AccountDetails } from "Setup/types";
 import { AccountSecret } from "background/keyring";
 import { useNavigate } from "react-router-dom";
@@ -45,7 +45,6 @@ export const SeedPhraseSetup = (props: SeedPhraseSetupProps): JSX.Element => {
 
   return (
     <>
-      <PageHeader title="Set up your imported keys" />
       <form onSubmit={onSubmitForm}>
         <Stack gap={5}>
           <AccountAlias

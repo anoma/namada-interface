@@ -11,7 +11,7 @@ import {
   Text,
 } from "@namada/components";
 import { assertNever } from "@namada/utils";
-import { PageHeader, SeedPhraseList } from "Setup/Common";
+import { SeedPhraseList } from "Setup/Common";
 import { AccountSecret, ValidateMnemonicMsg } from "background/keyring";
 import { useRequester } from "hooks/useRequester";
 import { Ports } from "router";
@@ -161,11 +161,10 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
 
   return (
     <>
-      <PageHeader title="Import Account" />
       <Stack
         as="ul"
         gap={1}
-        className="text-base list-disc mb-12 px-6 text-white font-medium"
+        className="text-sm list-disc mb-8 px-6 text-white font-medium"
       >
         <li>
           Enter your seed phrase in the right order without capitalization,
@@ -181,7 +180,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
           onSubmit();
         }}
       >
-        <Stack direction="vertical" gap={6}>
+        <Stack direction="vertical" gap={3}>
           {mnemonicError && <Alert type={"error"}>{mnemonicError}</Alert>}
           <RadioGroup
             id="mnemonicLength"
