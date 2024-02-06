@@ -195,6 +195,18 @@ export const makeBip44Path = (
 };
 
 /**
+ * Return a properly formatted Sapling path
+ *
+ * @param {number} coinType - SLIP-044 Coin designation
+ * @param {number} account - numbered from index 
+ in sequentially increasing manner. Defined as in BIP 44
+ * @returns {string}
+ */
+export const makeSaplingPath = (coinType: number, account: number): string => {
+  return `m/32'/${coinType}'/${account}'`;
+};
+
+/**
  * Return a properly formatted BIP-044 path array
  *
  * @param {number} coinType - SLIP-044 Coin designation
@@ -207,6 +219,21 @@ export const makeBip44PathArray = (
 ): Uint32Array => {
   const { account, change, index } = path;
   return new Uint32Array([44, coinType, account, change, index]);
+};
+
+/**
+ * Return a properly formatted Sapling path array
+ *
+ * @param {number} coinType - SLIP-044 Coin designation
+ * @param {number} account - numbered from index 
+ in sequentially increasing manner. Defined as in BIP 44
+ * @returns {string}
+ */
+export const makeSaplingPathArray = (
+  coinType: number,
+  account: number
+): Uint32Array => {
+  return new Uint32Array([32, coinType, account]);
 };
 
 /**

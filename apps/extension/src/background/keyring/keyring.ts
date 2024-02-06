@@ -36,6 +36,7 @@ import {
   Result,
   assertNever,
   makeBip44PathArray,
+  makeSaplingPathArray,
   truncateInMiddle,
 } from "@namada/utils";
 
@@ -315,23 +316,19 @@ export class KeyRing {
   ): DerivedAccountInfo {
     const { index } = path;
     const id = generateId(UUID_NAMESPACE, "shielded-account", parentId, index);
+    const derivationPath = makeSaplingPathArray(877, path.account);
     const zip32 = new ShieldedHDWallet(seed);
-    const account = zip32.derive_to_serialized_keys(index);
-
-    // Retrieve serialized types from wasm
-    const xsk = account.xsk();
-    const xfvk = account.xfvk();
-    const payment_address = account.payment_address();
+    const keys = zip32.derive(derivationPath);
 
     // Deserialize and encode keys and address
-    const extendedSpendingKey = new ExtendedSpendingKey(xsk);
-    const extendedViewingKey = new ExtendedViewingKey(xfvk);
-    const address = new PaymentAddress(payment_address).encode();
+    const extendedSpendingKey = new ExtendedSpendingKey(keys.xsk());
+    const extendedViewingKey = new ExtendedViewingKey(keys.xfvk());
+    const address = new PaymentAddress(keys.payment_address()).encode();
     const spendingKey = extendedSpendingKey.encode();
     const viewingKey = extendedViewingKey.encode();
 
     zip32.free();
-    account.free();
+    keys.free();
     extendedViewingKey.free();
     extendedSpendingKey.free();
 

@@ -89,13 +89,18 @@ export const DropdownMenu = (props: DropdownMenuProps): JSX.Element => {
   return (
     <>
       <div className={base()}>
-        <span className={icon()} onClick={() => setOpen(true)}>
+        <span
+          data-testid="dropdown-menu"
+          className={icon()}
+          onClick={() => setOpen(true)}
+        >
           <BsThreeDotsVertical />
         </span>
         {isOpen && (
           <ul className={list()}>
             {props.items.map((item, index) => (
               <li
+                data-testid="dropdown-menu-item"
                 key={`dropdown-item-${props.id}-${index}`}
                 className={itemClassList({ disabled: !item.onClick })}
                 onClick={item.onClick && handleClick(item.onClick)}
