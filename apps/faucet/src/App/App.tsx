@@ -14,6 +14,7 @@ import {
   ContentContainer,
   FaucetContainer,
   GlobalStyles,
+  InfoContainer,
   TopSection,
 } from "App/App.components";
 import { FaucetForm } from "App/Faucet";
@@ -206,17 +207,21 @@ export const App: React.FC = () => {
         <AppContainer>
           <ContentContainer>
             <TopSection>
-              <Heading className="uppercase text-black text-5xl" level="h1">
-                Namada Faucet
+              <Heading className="uppercase text-black text-4xl" level="h1">
+                Namada Shielded Expedition Faucet
               </Heading>
             </TopSection>
             <FaucetContainer>
               {extensionAttachStatus ===
                 ExtensionAttachStatus.PendingDetection && (
-                <p>Detecting extension...</p>
+                <InfoContainer>
+                  <Alert type="info">Detecting extension...</Alert>
+                </InfoContainer>
               )}
               {extensionAttachStatus === ExtensionAttachStatus.NotInstalled && (
-                <Alert type="error">You must download the extension!</Alert>
+                <InfoContainer>
+                  <Alert type="error">You must download the extension!</Alert>
+                </InfoContainer>
               )}
               {isExtensionConnected && (
                 <FaucetForm
@@ -227,11 +232,11 @@ export const App: React.FC = () => {
               )}
               {extensionAttachStatus === ExtensionAttachStatus.Installed &&
                 !isExtensionConnected && (
-                  <div>
+                  <InfoContainer>
                     <ActionButton onClick={handleConnectExtensionClick}>
                       Connect to Namada Extension
                     </ActionButton>
-                  </div>
+                  </InfoContainer>
                 )}
             </FaucetContainer>
             <BottomSection>
