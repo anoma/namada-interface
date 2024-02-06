@@ -7770,6 +7770,8 @@ __metadata:
     html-webpack-plugin: "npm:^5.5.0"
     jest: "npm:^29.4.1"
     jest-fetch-mock: "npm:^3.0.3"
+    jotai: "npm:^2.6.3"
+    jotai-redux: "npm:^0.2.1"
     local-cors-proxy: "npm:^1.1.0"
     next-qrcode: "npm:^2.0.0"
     path: "npm:^0.12.7"
@@ -22989,6 +22991,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jotai-redux@npm:^0.2.1":
+  version: 0.2.1
+  resolution: "jotai-redux@npm:0.2.1"
+  peerDependencies:
+    jotai: ">=1.11.0"
+  checksum: 36c4696fa7c983b10f125e3851267c74b8a728cf766bfb8bcb16d75ed74068fc52b2a1f08ae280293b5a40556db80d7ac5e6472fbdc1adbff754137d1ccfb8fa
+  languageName: node
+  linkType: hard
+
 "jotai@npm:^2.5.1":
   version: 2.5.1
   resolution: "jotai@npm:2.5.1"
@@ -23001,6 +23012,21 @@ __metadata:
     react:
       optional: true
   checksum: af2c86e16e4dd4baad31e8ad5127db8ee07712a6f852c86049f915efc71c6a099661f28a910ecef2e7da0b7868f74477712161e3717d050c1131bd521754c562
+  languageName: node
+  linkType: hard
+
+"jotai@npm:^2.6.3":
+  version: 2.6.4
+  resolution: "jotai@npm:2.6.4"
+  peerDependencies:
+    "@types/react": ">=17.0.0"
+    react: ">=17.0.0"
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    react:
+      optional: true
+  checksum: 2cda03cccff7f6509d5733412194543634dc496a01a88da4e81d6bf1c46c27383833e8bd9462ecbcd4b745316b54edf5aa403b42c098900561cc08a0f5fcaa54
   languageName: node
   linkType: hard
 

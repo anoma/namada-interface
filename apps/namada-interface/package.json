@@ -20,6 +20,8 @@
     "ethers": "^6.7.1",
     "fp-ts": "^2.16.1",
     "framer-motion": "^6.2.8",
+    "jotai": "^2.6.3",
+    "jotai-redux": "^0.2.1",
     "next-qrcode": "^2.0.0",
     "path": "^0.12.7",
     "react": "^17.0.2",

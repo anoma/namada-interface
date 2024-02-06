@@ -8,13 +8,14 @@ import {
   accountsReducer,
   chainReducer,
   channelsReducer,
-  coinsReducer,
   notificationsReducer,
   proposalsReducers,
   settingsReducer,
   stakingAndGovernanceReducers,
 } from "slices";
 import { SettingsState } from "slices/settings";
+
+import { atomWithStore } from "jotai-redux";
 
 const { NAMADA_INTERFACE_LOCAL, NODE_ENV } = process.env;
 const POSTFIX =
@@ -39,7 +40,6 @@ const reducers = combineReducers({
   chain: chainReducer,
   channels: channelsReducer,
   settings: settingsReducer,
-  coins: coinsReducer,
   notifications: notificationsReducer,
   stakingAndGovernance: stakingAndGovernanceReducers,
   proposals: proposalsReducers,
@@ -73,4 +73,6 @@ export type AppThunk<ReturnType = void> = ThunkAction<
 >;
 export type AppDispatch = ReturnType<AppStore["dispatch"]>;
 
-export { persistor, store };
+const reduxStoreAtom = atomWithStore(store);
+
+export { persistor, reduxStoreAtom, store };

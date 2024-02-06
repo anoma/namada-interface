@@ -12,7 +12,7 @@ import { Account, Chain, ExtensionKey, Extensions } from "@namada/types";
 import { formatCurrency } from "@namada/utils";
 import { TopLevelRoute } from "App/types";
 import { AccountsState, addAccounts, fetchBalances } from "slices/accounts";
-import { SettingsState, setIsConnected } from "slices/settings";
+import { setIsConnected } from "slices/settings";
 import { useAppDispatch, useAppSelector } from "store";
 import {
   AccountOverviewContainer,
@@ -27,10 +27,33 @@ import {
 } from "./AccountOverview.components";
 import { DerivedAccounts } from "./DerivedAccounts";
 
+import { atom, useAtomValue, useSetAtom } from "jotai";
+import { loadable } from "jotai/utils";
+import { accountsAtom, balancesAtom } from "slices/accounts";
+import { balanceToFiatAtom } from "slices/coins";
+import { fiatCurrencyAtom } from "slices/settings";
+
 //TODO: move to utils when we have one
 const isEmptyObject = (object: Record<string, unknown>): boolean => {
   return object ? Object.keys(object).length === 0 : true;
 };
+
+const totalBalanceAtom = atom(async (get) => {
+  const accounts = await get(accountsAtom);
+  const balances = get(balancesAtom);
+  const balanceToFiat = await get(balanceToFiatAtom);
+  const fiatCurrency = get(fiatCurrencyAtom);
+
+  return accounts.reduce((acc, account) => {
+    const balance = balances[account.address];
+
+    if (typeof balance === "undefined") {
+      return acc;
+    } else {
+      return acc.plus(balanceToFiat(balance, fiatCurrency));
+    }
+  }, new BigNumber(0));
+});
 
 export const AccountOverview = (): JSX.Element => {
   const navigate = useNavigate();
@@ -44,10 +67,12 @@ export const AccountOverview = (): JSX.Element => {
     metamask: false,
   });
 
+  const refreshAccounts = useSetAtom(accountsAtom);
+  const refreshBalances = useSetAtom(balancesAtom);
+
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
-  const { fiatCurrency } = useAppSelector<SettingsState>(
-    (state) => state.settings
-  );
+
+  const fiatCurrency = useAtomValue(fiatCurrencyAtom);
 
   const [integration, isConnectingToExtension, withConnection] =
     useIntegrationConnection(chains.namada.id);
@@ -57,7 +82,12 @@ export const AccountOverview = (): JSX.Element => {
   const currentExtensionAttachStatus =
     extensionAttachStatus[chain.extension.id];
 
-  const [total, setTotal] = useState(new BigNumber(0));
+  const total = useAtomValue(loadable(totalBalanceAtom));
+
+  const totalDisplayString = formatCurrency(
+    fiatCurrency,
+    total.state === "hasData" ? total.data : new BigNumber(0)
+  );
 
   const handleDownloadExtension = (url: string): void => {
     window.open(url, "_blank", "noopener,noreferrer");
@@ -66,6 +96,10 @@ export const AccountOverview = (): JSX.Element => {
   const handleConnectExtension = async (): Promise<void> => {
     withConnection(
       async () => {
+        // jotai
+        refreshAccounts();
+        refreshBalances();
+
         const accounts = await integration?.accounts();
         if (accounts) {
           dispatch(addAccounts(accounts as Account[]));
@@ -100,9 +134,7 @@ export const AccountOverview = (): JSX.Element => {
             {!isEmptyObject(derived[chain.id]) && (
               <TotalAmount>
                 <TotalAmountFiat>{fiatCurrency}</TotalAmountFiat>
-                <TotalAmountValue>
-                  {formatCurrency(fiatCurrency, total)}
-                </TotalAmountValue>
+                <TotalAmountValue>{totalDisplayString}</TotalAmountValue>
               </TotalAmount>
             )}
           </TotalContainer>
@@ -113,9 +145,7 @@ export const AccountOverview = (): JSX.Element => {
             <ActionButton onClick={() => navigate(TopLevelRoute.TokenSend)}>
               Send
             </ActionButton>
-            <ActionButton
-              onClick={() => navigate(TopLevelRoute.TokenReceive)}
-            >
+            <ActionButton onClick={() => navigate(TopLevelRoute.TokenReceive)}>
               Receive
             </ActionButton>
           </Stack>
@@ -133,20 +163,20 @@ export const AccountOverview = (): JSX.Element => {
                 }
                 style={
                   currentExtensionAttachStatus === "pending" ||
-                    isConnectingToExtension
+                  isConnectingToExtension
                     ? { color: "transparent" }
                     : {}
                 }
               >
                 {currentExtensionAttachStatus === "attached" ||
-                  currentExtensionAttachStatus === "pending"
+                currentExtensionAttachStatus === "pending"
                   ? `Connect to ${extensionAlias} Extension`
                   : "Click to download the extension"}
               </ActionButton>
             )}
           </NoAccountsContainer>
         )}
-        <DerivedAccounts setTotal={setTotal} />
+        <DerivedAccounts />
       </AccountOverviewContent>
     </AccountOverviewContainer>
   );

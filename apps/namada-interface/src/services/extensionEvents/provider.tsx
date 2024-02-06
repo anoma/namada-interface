@@ -18,6 +18,10 @@ import {
   NamadaUpdatedStakingHandler,
 } from "./handlers";
 
+import { useSetAtom } from "jotai";
+import { accountsAtom } from "slices/accounts";
+import { chainAtom } from "slices/chain";
+
 export const ExtensionEventsContext = createContext({});
 
 export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
@@ -26,14 +30,19 @@ export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
   const keplrIntegration = useIntegration("cosmos");
   const metamaskIntegration = useIntegration("ethereum");
 
+  const refreshAccounts = useSetAtom(accountsAtom);
+  const refreshChain = useSetAtom(chainAtom);
+
   // Instantiate handlers:
   const namadaAccountChangedHandler = NamadaAccountChangedHandler(
     dispatch,
-    namadaIntegration as Namada
+    namadaIntegration as Namada,
+    refreshAccounts
   );
   const namadaNetworkChangedHandler = NamadaNetworkChangedHandler(
     dispatch,
-    namadaIntegration as Namada
+    namadaIntegration as Namada,
+    refreshChain
   );
   const namadaTxStartedHandler = NamadaTxStartedHandler(dispatch);
   const namadaTxCompletedHandler = NamadaTxCompletedHandler(dispatch);

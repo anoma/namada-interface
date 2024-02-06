@@ -1,5 +1,8 @@
 import { ChainKey } from "@namada/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { reduxStoreAtom } from "store";
+
+import { atom } from "jotai";
 
 const SETTINGS_ACTIONS_BASE = "settings";
 
@@ -33,3 +36,9 @@ const { actions, reducer } = settingsSlice;
 export const { setFiatCurrency, setIsConnected } = actions;
 
 export default reducer;
+
+const fiatCurrencyAtom = atom(
+  (get) => get(reduxStoreAtom).settings.fiatCurrency
+);
+
+export { fiatCurrencyAtom };

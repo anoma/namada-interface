@@ -1,15 +1,17 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import BigNumber from "bignumber.js";
+import { atom } from "jotai";
 
-import { Account as AccountDetails, ChainKey, TokenType } from "@namada/types";
 import { chains } from "@namada/chains";
 import { getIntegration } from "@namada/integrations";
+import { Account as AccountDetails, ChainKey, TokenType } from "@namada/types";
 
+import { chainAtom } from "slices/chain";
 import { RootState } from "store";
 
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
-  tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+    tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
 } = process.env;
 
 type Address = string;
@@ -29,7 +31,7 @@ const INITIAL_STATE = {
     namada: {},
     cosmos: {},
     ethereum: {},
-  }
+  },
 };
 
 enum AccountsThunkActions {
@@ -42,7 +44,7 @@ const initialState: AccountsState = INITIAL_STATE;
 export const fetchBalances = createAsyncThunk<void, void, { state: RootState }>(
   `${ACCOUNTS_ACTIONS_BASE}/${AccountsThunkActions.FetchBalances}`,
   async (_, thunkApi) => {
-    const { id } = chains.namada
+    const { id } = chains.namada;
     const accounts: Account[] = Object.values(
       thunkApi.getState().accounts.derived[id]
     );
@@ -63,9 +65,13 @@ export const fetchBalance = createAsyncThunk<
   `${ACCOUNTS_ACTIONS_BASE}/${AccountsThunkActions.FetchBalance}`,
   async (account, thunkApi) => {
     const { address, chainKey } = account.details;
-    const { currency: { address: nativeToken } } = thunkApi.getState().chain.config;
+    const {
+      currency: { address: nativeToken },
+    } = thunkApi.getState().chain.config;
     const integration = getIntegration(chainKey);
-    const results = await integration.queryBalances(address, [nativeToken || tokenAddress]);
+    const results = await integration.queryBalances(address, [
+      nativeToken || tokenAddress,
+    ]);
     const balance = results.reduce(
       (acc, curr) => ({ ...acc, [curr.token]: new BigNumber(curr.amount) }),
       {} as Balance
@@ -90,8 +96,15 @@ const accountsSlice = createSlice({
       }
 
       accounts.forEach((account) => {
-        const { address, alias, isShielded, chainId, type, publicKey, chainKey } =
-          account;
+        const {
+          address,
+          alias,
+          isShielded,
+          chainId,
+          type,
+          publicKey,
+          chainKey,
+        } = account;
         const currencySymbol = chains.namada.currency.symbol;
         if (!state.derived[id]) {
           state.derived[id] = {};
@@ -131,7 +144,6 @@ const accountsSlice = createSlice({
         } else {
           delete state.derived[chainKey][address];
         }
-
       }
     );
   },
@@ -141,3 +153,63 @@ const { actions, reducer } = accountsSlice;
 
 export const { addAccounts } = actions;
 export default reducer;
+
+////////////////////////////////////////////////////////////////////////////////
+// JOTAI
+////////////////////////////////////////////////////////////////////////////////
+
+const accountsAtom = (() => {
+  const base = atom(new Promise<readonly AccountDetails[]>(() => {}));
+
+  return atom(
+    (get) => get(base),
+    async (_get, set) => {
+      const accounts = (async () => {
+        const namada = getIntegration("namada");
+        const result = await namada.accounts();
+        if (typeof result === "undefined") {
+          throw new Error("accounts was undefined!");
+        }
+        return result;
+      })();
+
+      set(base, accounts);
+    }
+  );
+})();
+
+const balancesAtom = (() => {
+  const base = atom<Record<Address, Balance>>({});
+
+  return atom(
+    (get) => get(base),
+    async (get, set) => {
+      const accounts = await get(accountsAtom);
+      const namada = getIntegration("namada");
+
+      const {
+        currency: { address: nativeToken },
+      } = get(chainAtom);
+
+      // TODO: should we be throwing away old balances here?
+      const balances = get(base);
+
+      accounts.forEach(async (account) => {
+        const result = await namada.queryBalances(account.address, [
+          nativeToken || tokenAddress,
+        ]);
+        const balance = result.reduce(
+          (acc, curr) => ({ ...acc, [curr.token]: new BigNumber(curr.amount) }),
+          {} as Balance
+        );
+        balances[account.address] = balance;
+        set(
+          base,
+          { ...balances } // object clone ensures jotai realises object has changed
+        );
+      });
+    }
+  );
+})();
+
+export { accountsAtom, balancesAtom };

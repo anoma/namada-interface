@@ -1,38 +1,42 @@
 /* eslint-disable max-len */
-import { useState, useEffect } from "react";
-import { createBrowserHistory } from "history";
 import { AnimatePresence } from "framer-motion";
-import { ThemeProvider } from "styled-components";
+import { createBrowserHistory } from "history";
+import { useEffect, useState } from "react";
 import { PersistGate } from "redux-persist/integration/react";
+import { ThemeProvider } from "styled-components";
 
 import {
+  ColorMode,
   getTheme,
   loadColorMode,
   storeColorMode,
-  ColorMode,
 } from "@namada/utils";
 
-import { TopNavigation } from "./TopNavigation";
-import {
-  AppContainer,
-  TopSection,
-  BottomSection,
-  MotionContainer,
-  GlobalStyles,
-  ContentContainer,
-  AppLoader,
-} from "./App.components";
-import { persistor, store, useAppDispatch, useAppSelector } from "store";
-import { Toasts } from "App/Toast";
-import { SettingsState } from "slices/settings";
 import {
   useIntegration,
   useUntilIntegrationAttached,
 } from "@namada/integrations";
+import { Account } from "@namada/types";
+import { Toasts } from "App/Toast";
 import { Outlet } from "react-router-dom";
 import { addAccounts, fetchBalances } from "slices/accounts";
-import { Account, Chain } from "@namada/types";
 import { setChain } from "slices/chain";
+import { SettingsState } from "slices/settings";
+import { persistor, store, useAppDispatch, useAppSelector } from "store";
+import {
+  AppContainer,
+  AppLoader,
+  BottomSection,
+  ContentContainer,
+  GlobalStyles,
+  MotionContainer,
+  TopSection,
+} from "./App.components";
+import { TopNavigation } from "./TopNavigation";
+
+import { useAtom, useSetAtom } from "jotai";
+import { accountsAtom, balancesAtom } from "slices/accounts";
+import { chainAtom } from "slices/chain";
 
 export const history = createBrowserHistory({ window });
 
@@ -64,7 +68,10 @@ function App(): JSX.Element {
     setColorMode((currentMode) => (currentMode === "dark" ? "light" : "dark"));
   };
 
-  const chain = useAppSelector<Chain>((state) => state.chain.config);
+  const [chain, refreshChain] = useAtom(chainAtom);
+  const refreshAccounts = useSetAtom(accountsAtom);
+  const refreshBalances = useSetAtom(balancesAtom);
+
   const { connectedChains } = useAppSelector<SettingsState>(
     (state) => state.settings
   );
@@ -79,6 +86,10 @@ function App(): JSX.Element {
 
   useEffect(() => {
     const fetchAccounts = async (): Promise<void> => {
+      // jotai
+      refreshAccounts();
+      refreshBalances();
+
       const accounts = await integration?.accounts();
       if (accounts) {
         dispatch(addAccounts(accounts as Account[]));
@@ -96,13 +107,16 @@ function App(): JSX.Element {
   useEffect(() => {
     (async () => {
       if (currentExtensionAttachStatus === "attached") {
+        // jotai
+        refreshChain();
+
         const chain = await integration.getChain();
         if (chain) {
           dispatch(setChain(chain));
         }
       }
-    })()
-  }, [currentExtensionAttachStatus])
+    })();
+  }, [currentExtensionAttachStatus]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -111,24 +125,24 @@ function App(): JSX.Element {
         <GlobalStyles colorMode={colorMode} />
         {(currentExtensionAttachStatus === "attached" ||
           currentExtensionAttachStatus === "detached") && (
-            <AppContainer data-testid="AppContainer">
-              <TopSection>
-                <TopNavigation
-                  colorMode={colorMode}
-                  toggleColorMode={toggleColorMode}
-                  setColorMode={setColorMode}
-                  store={store}
-                />
-              </TopSection>
-              <BottomSection>
-                <AnimatePresence exitBeforeEnter>
-                  <ContentContainer>
-                    <Outlet />
-                  </ContentContainer>
-                </AnimatePresence>
-              </BottomSection>
-            </AppContainer>
-          )}
+          <AppContainer data-testid="AppContainer">
+            <TopSection>
+              <TopNavigation
+                colorMode={colorMode}
+                toggleColorMode={toggleColorMode}
+                setColorMode={setColorMode}
+                store={store}
+              />
+            </TopSection>
+            <BottomSection>
+              <AnimatePresence exitBeforeEnter>
+                <ContentContainer>
+                  <Outlet />
+                </ContentContainer>
+              </AnimatePresence>
+            </BottomSection>
+          </AppContainer>
+        )}
         {currentExtensionAttachStatus === "pending" && <AppLoader />}
       </PersistGate>
     </ThemeProvider>

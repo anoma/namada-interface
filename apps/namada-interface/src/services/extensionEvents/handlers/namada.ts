@@ -10,7 +10,14 @@ import { actions as notificationsActions } from "slices/notifications";
 import { fetchProposals } from "slices/proposals";
 
 export const NamadaAccountChangedHandler =
-  (dispatch: Dispatch<unknown>, integration: Namada) => async () => {
+  (
+    dispatch: Dispatch<unknown>,
+    integration: Namada,
+    refreshAccounts: () => Promise<void>
+  ) =>
+  async () => {
+    refreshAccounts();
+
     const accounts = (await integration.accounts()) || [];
 
     dispatch(addAccounts(accounts));
@@ -18,7 +25,14 @@ export const NamadaAccountChangedHandler =
   };
 
 export const NamadaNetworkChangedHandler =
-  (dispatch: Dispatch<unknown>, integration: Namada) => async () => {
+  (
+    dispatch: Dispatch<unknown>,
+    integration: Namada,
+    refreshChain: () => Promise<void>
+  ) =>
+  async () => {
+    refreshChain();
+
     const chain = await integration.getChain();
     if (chain) {
       dispatch(setChain(chain));
