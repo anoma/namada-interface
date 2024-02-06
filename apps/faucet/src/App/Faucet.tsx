@@ -18,7 +18,7 @@ import {
   computePowSolution,
   requestChallenge,
   requestTransfer,
-} from "utils";
+} from "../utils";
 import { AppContext } from "./App";
 import {
   ButtonContainer,
@@ -61,20 +61,6 @@ export const FaucetForm: React.FC<Props> = ({
     label: `${alias} - ${shortenAddress(address)}`,
     value: address,
   }));
-
-  useEffect(() => {
-    // TEST - REMOVE!
-    (async () => {
-      if (targetAddress && integration) {
-        const signer = integration?.signer();
-
-        if (signer) {
-          const sig = await signer.sign(targetAddress, "Arbitrary data!");
-          console.log("signature", sig);
-        }
-      }
-    })();
-  }, [targetAddress]);
 
   useEffect(() => {
     if (tokens?.NAM) {
@@ -133,9 +119,17 @@ export const FaucetForm: React.FC<Props> = ({
     setStatusText(undefined);
 
     try {
-      const { challenge, tag } = await requestChallenge(url).catch((e) => {
-        throw new Error(`Error requesting challenge: ${e}`);
-      });
+      const publicKey =
+        accounts.find((account) => account.address === targetAddress)
+          ?.publicKey || "";
+
+      const { challenge, tag } =
+        (await requestChallenge(url, publicKey).catch((e) => {
+          throw new Error(`Error requesting challenge: ${e}`);
+        })) || {};
+      if (!tag || !challenge) {
+        throw new Error("WTF");
+      }
 
       const solution = computePowSolution(challenge, difficulty || 0);
 
@@ -143,10 +137,22 @@ export const FaucetForm: React.FC<Props> = ({
         throw new Error("A solution was not computed!");
       }
 
+      const signer = integration.signer();
+      if (!signer) {
+        throw new Error("signer not defined");
+      }
+
+      const sig = await signer.sign(targetAddress, challenge);
+      if (!sig) {
+        throw new Error("sig not defined");
+      }
+
       const submitData = {
         solution,
         tag,
         challenge,
+        player_id: publicKey,
+        challenge_signature: sig.signature,
         transfer: {
           target: sanitizedTarget,
           token: sanitizedToken,

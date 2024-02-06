@@ -45,17 +45,22 @@ export const requestSettings = async (
  * @returns Object
  */
 export const requestChallenge = async (
-  url: string
-): Promise<ChallengeResponse> => {
-  const response = await fetch(new URL(url), {
+  url: string,
+  publicKey: string
+): Promise<ChallengeResponse | undefined> => {
+  const response = await fetch(new URL(`${url}/challenge/${publicKey}`), {
     method: "GET",
   })
     .then((response) => {
       if (response.ok) {
         return response.json() as Promise<ChallengeResponse>;
       }
-      console.warn(response);
-      return Promise.reject(response);
+      const reader = response?.body?.getReader();
+      return reader
+        ?.read()
+        .then(({ value }) =>
+          Promise.reject(JSON.parse(new TextDecoder().decode(value)))
+        );
     })
     .catch((e) => {
       console.error(e);
@@ -75,7 +80,9 @@ export type Data = {
   solution: string;
   tag: string;
   challenge: unknown;
+  challenge_signature: string;
   transfer: TransferDetails;
+  player_id: string;
 };
 
 export type TransferResponse = {
