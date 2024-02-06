@@ -20,7 +20,7 @@ import { FaucetForm } from "App/Faucet";
 
 import { chains } from "@namada/chains";
 import { useUntil } from "@namada/hooks";
-import { Account } from "@namada/types";
+import { Account, AccountType } from "@namada/types";
 import { requestSettings } from "utils";
 import dotsBackground from "../../public/bg-dots.svg";
 import { CallToActionCard } from "./CallToActionCard";
@@ -169,7 +169,12 @@ export const App: React.FC = () => {
         await integration.connect();
         const accounts = await integration.accounts();
         if (accounts) {
-          setAccounts(accounts.filter((account) => !account.isShielded));
+          setAccounts(
+            accounts.filter(
+              (account) =>
+                !account.isShielded && account.type !== AccountType.Ledger
+            )
+          );
         }
         setIsExtensionConnected(true);
       } catch (e) {
@@ -208,13 +213,17 @@ export const App: React.FC = () => {
             <FaucetContainer>
               {extensionAttachStatus ===
                 ExtensionAttachStatus.PendingDetection && (
-                  <p>Detecting extension...</p>
-                )}
+                <p>Detecting extension...</p>
+              )}
               {extensionAttachStatus === ExtensionAttachStatus.NotInstalled && (
                 <Alert type="error">You must download the extension!</Alert>
               )}
               {isExtensionConnected && (
-                <FaucetForm isTestnetLive={isTestnetLive} accounts={accounts} />
+                <FaucetForm
+                  isTestnetLive={isTestnetLive}
+                  accounts={accounts}
+                  integration={integration}
+                />
               )}
               {extensionAttachStatus === ExtensionAttachStatus.Installed &&
                 !isExtensionConnected && (

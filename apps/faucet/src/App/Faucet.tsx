@@ -1,3 +1,7 @@
+import BigNumber from "bignumber.js";
+import { sanitize } from "dompurify";
+import React, { useCallback, useContext, useEffect, useState } from "react";
+
 import {
   ActionButton,
   Alert,
@@ -5,9 +9,9 @@ import {
   Input,
   Select,
 } from "@namada/components";
-import BigNumber from "bignumber.js";
-import { sanitize } from "dompurify";
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import { Namada } from "@namada/integrations";
+import { Account } from "@namada/types";
+import { bech32mValidation, shortenAddress } from "@namada/utils";
 
 import {
   TransferResponse,
@@ -15,6 +19,7 @@ import {
   requestChallenge,
   requestTransfer,
 } from "utils";
+import { AppContext } from "./App";
 import {
   ButtonContainer,
   FaucetFormContainer,
@@ -22,10 +27,6 @@ import {
   InputContainer,
   PreFormatted,
 } from "./Faucet.components";
-
-import { Account } from "@namada/types";
-import { bech32mValidation } from "@namada/utils";
-import { AppContext } from "./App";
 
 enum Status {
   Pending,
@@ -35,12 +36,17 @@ enum Status {
 
 type Props = {
   accounts: Account[];
+  integration: Namada;
   isTestnetLive: boolean;
 };
 
 const bech32mPrefix = "tnam";
 
-export const FaucetForm: React.FC<Props> = ({ accounts, isTestnetLive }) => {
+export const FaucetForm: React.FC<Props> = ({
+  accounts,
+  integration,
+  isTestnetLive,
+}) => {
   const { difficulty, settingsError, limit, tokens, url } =
     useContext(AppContext);
   const [targetAddress, setTargetAddress] = useState<string>();
@@ -51,10 +57,24 @@ export const FaucetForm: React.FC<Props> = ({ accounts, isTestnetLive }) => {
   const [statusText, setStatusText] = useState<string>();
   const [responseDetails, setResponseDetails] = useState<TransferResponse>();
 
-  const accountsSelectData = accounts.map((account) => ({
-    label: account.alias,
-    value: account.address,
+  const accountsSelectData = accounts.map(({ alias, address }) => ({
+    label: `${alias} - ${shortenAddress(address)}`,
+    value: address,
   }));
+
+  useEffect(() => {
+    // TEST - REMOVE!
+    (async () => {
+      if (targetAddress && integration) {
+        const signer = integration?.signer();
+
+        if (signer) {
+          const sig = await signer.sign(targetAddress, "Arbitrary data!");
+          console.log("signature", sig);
+        }
+      }
+    })();
+  }, [targetAddress]);
 
   useEffect(() => {
     if (tokens?.NAM) {
@@ -167,12 +187,16 @@ export const FaucetForm: React.FC<Props> = ({ accounts, isTestnetLive }) => {
     <FaucetFormContainer>
       {settingsError && <Alert type="error">{settingsError}</Alert>}
       <InputContainer>
-        <Select
-          data={accountsSelectData}
-          value={targetAddress}
-          label="Account"
-          onChange={(e) => setTargetAddress(e.target.value)}
-        />
+        {accounts.length > 0 ? (
+          <Select
+            data={accountsSelectData}
+            value={targetAddress}
+            label="Account"
+            onChange={(e) => setTargetAddress(e.target.value)}
+          />
+        ) : (
+          <div>You have no signing accounts! Create keys in the extension!</div>
+        )}
       </InputContainer>
 
       <InputContainer>
