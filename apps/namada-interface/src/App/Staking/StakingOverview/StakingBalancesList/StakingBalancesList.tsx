@@ -1,4 +1,5 @@
 import { chains } from "@namada/chains";
+import { Tokens } from "@namada/types";
 import { mapUndefined, showMaybeNam } from "@namada/utils";
 import BigNumber from "bignumber.js";
 import { RootState, useAppSelector } from "store";
@@ -63,7 +64,7 @@ export const StakingBalancesList: React.FC = () => {
     <StakingBalances>
       <StakingBalancesLabel>Available for bonding</StakingBalancesLabel>
       <StakingBalancesValue>
-        NAM {availableForBonding.toString()}
+        {Tokens.NAM.symbol} {availableForBonding.toString()}
       </StakingBalancesValue>
 
       <StakingBalancesLabel>Total Bonded</StakingBalancesLabel>

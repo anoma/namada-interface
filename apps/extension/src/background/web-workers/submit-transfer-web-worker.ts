@@ -24,10 +24,11 @@ import {
         const {
           signingKey: { privateKey, xsk },
           rpc,
+          nativeToken,
         } = data;
         let txMsg = fromBase64(data.txMsg);
 
-        const sdk = new Sdk(rpc);
+        const sdk = new Sdk(rpc, nativeToken);
         await sdk.load_masp_params();
         // For transparent transactions we have to reveal the public key.
         if (privateKey) {

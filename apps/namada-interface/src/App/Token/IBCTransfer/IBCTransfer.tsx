@@ -43,6 +43,11 @@ import {
   IBCTransferFormContainer,
 } from "./IBCTransfer.components";
 
+const {
+  NAMADA_INTERFACE_NAMADA_TOKEN:
+  tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+} = process.env;
+
 export const submitIbcTransfer = async (
   chainKey: ChainKey,
   ibcArgs: TxIbcTransferArgs
@@ -54,6 +59,7 @@ export const submitIbcTransfer = async (
     amount,
     portId,
     channelId,
+    nativeToken,
   } = ibcArgs;
   const integration = getIntegration(chainKey);
 
@@ -68,7 +74,7 @@ export const submitIbcTransfer = async (
         channelId,
       },
       txProps: {
-        token: Tokens.NAM.address || "",
+        token: nativeToken || tokenAddress,
         feeAmount: new BigNumber(0),
         gasLimit: new BigNumber(20_000),
         publicKey,
@@ -82,6 +88,8 @@ export const submitIbcTransfer = async (
 const IBCTransfer = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
+  const chain = useAppSelector<Chain>((state) => state.chain.config);
+  const [memo, setMemo] = useState<string>();
   const [error, setError] = useState<string>();
   const [currentBalance, setCurrentBalance] = useState(new BigNumber(0));
   const { channelsByChain = {} } = useAppSelector<ChannelsState>(
@@ -161,7 +169,7 @@ const IBCTransfer = (): JSX.Element => {
         .map(([tokenType, amount]) => {
           return {
             value: `${address}|${tokenType}`,
-            label: `${alias} (${tokenType}): ${amount}`,
+            label: `${alias} (${Tokens[tokenType as TokenType].symbol}): ${amount}`,
           };
         });
     }
@@ -270,6 +278,8 @@ const IBCTransfer = (): JSX.Element => {
         target: recipient,
         channelId: selectedChannelId,
         portId,
+        nativeToken: chain.currency.address || tokenAddress,
+        memo,
       }).catch((e) => {
         setError(`${e}`)
       })
@@ -538,6 +548,10 @@ const IBCTransfer = (): JSX.Element => {
                   : "Invalid amount!"
               }
             />
+          </InputContainer>
+
+          <InputContainer>
+            <Input type="text" value={memo} onChange={(e) => setMemo(e.target.value)} label="Memo" />
           </InputContainer>
 
           <ButtonsContainer>

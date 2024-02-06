@@ -83,6 +83,7 @@ export type ChangeInStakingPosition = {
   validatorId: ValidatorId;
   owner: string;
   amount: BigNumber;
+  memo?: string;
 };
 
 export type StakingAndGovernanceState = {

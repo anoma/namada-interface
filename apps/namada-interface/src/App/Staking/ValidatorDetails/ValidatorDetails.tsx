@@ -28,29 +28,29 @@ import {
 } from "./ValidatorDetails.components";
 
 const validatorDetailsConfigurations: TableConfigurations<KeyValueData, never> =
-  {
-    rowRenderer: (rowData: KeyValueData) => {
-      // we have to figure if this is the row for validator homepage, hench an anchor
-      const linkOrText = /^https?:/.test(rowData.value) ? (
-        <a href={rowData.value} target="_blank" rel="noopener noreferrer">
-          {rowData.value}
-        </a>
-      ) : (
-        <span>{rowData.value}</span>
-      );
+{
+  rowRenderer: (rowData: KeyValueData) => {
+    // we have to figure if this is the row for validator homepage, hench an anchor
+    const linkOrText = /^https?:/.test(rowData.value) ? (
+      <a href={rowData.value} target="_blank" rel="noopener noreferrer">
+        {rowData.value}
+      </a>
+    ) : (
+      <span>{rowData.value}</span>
+    );
 
-      return (
-        <>
-          <td style={{ display: "flex" }}>{rowData.key}</td>
-          <td>{linkOrText}</td>
-        </>
-      );
-    },
-    columns: [
-      { uuid: "1", columnLabel: "", width: "30%" },
-      { uuid: "2", columnLabel: "", width: "70%" },
-    ],
-  };
+    return (
+      <>
+        <td style={{ display: "flex" }}>{rowData.key}</td>
+        <td>{linkOrText}</td>
+      </>
+    );
+  },
+  columns: [
+    { uuid: "1", columnLabel: "", width: "30%" },
+    { uuid: "2", columnLabel: "", width: "70%" },
+  ],
+};
 
 const getMyStakingWithValidatorConfigurations = (
   setModalState: React.Dispatch<React.SetStateAction<ModalState>>,

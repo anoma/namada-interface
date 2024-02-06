@@ -1,4 +1,5 @@
 import {
+  BalancesProps,
   Chain,
   DerivedAccount,
   Namada as INamada,
@@ -103,11 +104,12 @@ export class Namada implements INamada {
   }
 
   public async balances(
-    owner: string
+    props: BalancesProps
   ): Promise<{ token: string; amount: string }[] | undefined> {
+    const { owner, tokens } = props;
     return await this.requester?.sendMessage(
       Ports.Background,
-      new QueryBalancesMsg(owner)
+      new QueryBalancesMsg(owner, tokens)
     );
   }
 

@@ -1,5 +1,10 @@
 import { RegisteredCoinType, registeredCoinTypes } from "slip44";
 
+const {
+  NAMADA_INTERFACE_NAMADA_TOKEN:
+  nativeToken = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+} = process.env;
+
 export type TokenInfo = {
   symbol: string;
   type: number;
@@ -55,7 +60,8 @@ export const Tokens = supportedCoinTypes.reduce(
 Tokens["NAM"] = {
   ...Tokens["NAM"],
   url: "https://namada.net",
-  address: "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+  address: nativeToken,
+  symbol: "Naan",
 };
 
 Tokens["DOT"] = {

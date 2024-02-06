@@ -3,6 +3,7 @@ import {
   Bip44Path,
   JsonCompatibleArray,
   JsonCompatibleDictionary,
+  Tokens,
 } from "@namada/types";
 import { bech32m } from "bech32";
 import BigNumber from "bignumber.js";
@@ -251,7 +252,8 @@ export const mapUndefined = <A, B>(
 ): B | undefined => (a === undefined ? undefined : f(a));
 
 export const showMaybeNam = (maybeNam: BigNumber | undefined): string =>
-  mapUndefined((nam) => `NAM ${nam.toString()}`, maybeNam) ?? "-";
+  mapUndefined((nam) => `${Tokens.NAM.symbol} ${nam.toString()}`, maybeNam) ??
+  "-";
 
 export const isEmptyObject = (object: Record<string, unknown>): boolean => {
   return Object.keys(object).length === 0;

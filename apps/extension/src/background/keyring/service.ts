@@ -11,6 +11,7 @@ import {
 } from "@namada/types";
 import { Result, truncateInMiddle } from "@namada/utils";
 
+import { ChainsService } from "background/chains";
 import {
   createOffscreenWithTxWorker,
   hasOffscreenDocument,
@@ -39,12 +40,18 @@ import {
 } from "./types";
 import { syncTabs, updateTabStorage } from "./utils";
 
+const {
+  NAMADA_INTERFACE_NAMADA_TOKEN:
+  tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+} = process.env;
+
 export class KeyRingService {
   private _keyRing: KeyRing;
 
   constructor(
     protected readonly vaultService: VaultService,
     protected readonly sdkService: SdkService,
+    protected readonly chainsService: ChainsService,
     protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly connectedTabsStore: KVStore<TabStore[]>,
     protected readonly extensionStore: KVStore<number>,
@@ -260,6 +267,9 @@ export class KeyRingService {
     const offscreenDocumentPath = "offscreen.html";
     const routerId = await getNamadaRouterId(this.extensionStore);
     const rpc = await this.sdkService.getRpc();
+    const {
+      currency: { address: nativeToken = tokenAddress },
+    } = await this.chainsService.getChain();
 
     if (!(await hasOffscreenDocument(offscreenDocumentPath))) {
       await createOffscreenWithTxWorker(offscreenDocumentPath);
@@ -269,7 +279,7 @@ export class KeyRingService {
       type: SUBMIT_TRANSFER_MSG_TYPE,
       target: OFFSCREEN_TARGET,
       routerId,
-      data: { transferMsg, txMsg, msgId, signingKey, rpc },
+      data: { transferMsg, txMsg, msgId, signingKey, rpc, nativeToken },
     });
 
     if (result?.error) {
@@ -286,6 +296,10 @@ export class KeyRingService {
     signingKey: SigningKey
   ): Promise<void> {
     const rpc = await this.sdkService.getRpc();
+    const {
+      currency: { address: nativeToken = tokenAddress },
+    } = await this.chainsService.getChain();
+
     initSubmitTransferWebWorker(
       {
         transferMsg,
@@ -293,6 +307,7 @@ export class KeyRingService {
         msgId,
         signingKey,
         rpc,
+        nativeToken,
       },
       this.handleTransferCompleted.bind(this)
     );
@@ -438,14 +453,15 @@ export class KeyRingService {
   }
 
   async queryBalances(
-    address: string
+    owner: string,
+    tokens: string[]
   ): Promise<{ token: string; amount: string }[]> {
     const account = await this.vaultService.findOneOrFail<AccountStore>(
       KEYSTORE_KEY,
       "address",
-      address
+      owner
     );
-    return this._keyRing.queryBalances(account.public.owner);
+    return this._keyRing.queryBalances(account.public.owner, tokens);
   }
 
   async queryPublicKey(address: string): Promise<string | undefined> {

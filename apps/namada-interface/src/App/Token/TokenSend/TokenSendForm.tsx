@@ -21,6 +21,11 @@ import {
   TokenSendFormContainer,
 } from "./TokenSendForm.components";
 
+const {
+  NAMADA_INTERFACE_NAMADA_TOKEN:
+  tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+} = process.env;
+
 const GAS_LIMIT = new BigNumber(20_000);
 
 export const submitTransferTransaction = async (
@@ -30,12 +35,13 @@ export const submitTransferTransaction = async (
     account: { address, publicKey, type },
     amount,
     chainId,
-    faucet,
     target,
-    token,
+    token: _, // TODO: Re-enable
     disposableSigningKey,
     feeAmount,
     gasLimit,
+    memo,
+    nativeToken,
   } = txTransferArgs;
 
   if (!feeAmount || !gasLimit) {
@@ -46,21 +52,23 @@ export const submitTransferTransaction = async (
   const signer = integration.signer() as Signer;
 
   const transferArgs = {
-    source: faucet || address,
+    source: address,
     target,
-    token: Tokens[token].address,
+    token: nativeToken, // TODO: Update to support other tokens again!
     amount,
-    nativeToken: Tokens.NAM.address,
+    nativeToken,
   };
 
   const txArgs = {
-    token: Tokens.NAM.address || "",
+    token: nativeToken, // TODO: Update to support other tokens again!
+    nativeToken,
     feeAmount,
     gasLimit,
     chainId,
     publicKey: publicKey,
-    signer: faucet ? target : undefined,
+    signer: undefined,
     disposableSigningKey,
+    memo,
   };
 
   await signer.submitTransfer(transferArgs, txArgs, type);
@@ -130,6 +138,7 @@ const TokenSendForm = ({
   const chain = useAppSelector<Chain>((state) => state.chain.config);
   const [target, setTarget] = useState<string | undefined>(defaultTarget);
   const [amount, setAmount] = useState<BigNumber | undefined>(new BigNumber(0));
+  const [memo, setMemo] = useState<string>()
 
   const [isTargetValid, setIsTargetValid] = useState(true);
   const [isShieldedTarget, setIsShieldedTarget] = useState(false);
@@ -239,6 +248,8 @@ const TokenSendForm = ({
         feeAmount: gasPrice,
         gasLimit,
         disposableSigningKey: isShieldedSource,
+        memo,
+        nativeToken: chain.currency.address || tokenAddress
       });
     }
   };
@@ -298,9 +309,11 @@ const TokenSendForm = ({
             Max
           </ActionButton>
         </InputContainer>
+        <InputContainer>
+          <Input type="text" label="Memo" value={memo} onChange={(e) => setMemo(e.target.value)} />
+        </InputContainer>
         <InputContainer>{accountSourceTargetDescription}</InputContainer>
-
-        <p>Gas fee: {totalGasFee?.toString()} NAM</p>
+        <p>Gas fee: {totalGasFee?.toString()} {Tokens.NAM.symbol}</p>
       </TokenSendFormContainer>
 
       <ButtonsContainer>

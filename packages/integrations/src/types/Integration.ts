@@ -23,5 +23,5 @@ export interface Integration<T, S> {
     props: BridgeProps,
     type: AccountType
   ) => Promise<void>;
-  queryBalances: (owner: string) => Promise<TokenBalance[]>;
+  queryBalances: (owner: string, tokens?: string[]) => Promise<TokenBalance[]>;
 }

@@ -2,7 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import BigNumber from "bignumber.js";
 
 import { Query } from "@namada/shared";
-import { Signer, Tokens } from "@namada/types";
+import { Signer } from "@namada/types";
 import { chains } from "@namada/chains";
 import { getIntegration } from "@namada/integrations";
 
@@ -23,6 +23,11 @@ import {
 } from "./types";
 import { RootState } from "store";
 import { Account } from "slices/accounts";
+
+const {
+  NAMADA_INTERFACE_NAMADA_TOKEN:
+  tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+} = process.env;
 
 const toValidator = (address: string): Validator => ({
   uuid: address,
@@ -236,10 +241,10 @@ export const postNewBonding = createAsyncThunk<
   { state: RootState }
 >(POST_NEW_STAKING, async (change, thunkApi) => {
   const { derived } = thunkApi.getState().accounts;
-  const { id, chainId } = thunkApi.getState().chain.config;
+  const { id, chainId, currency: { address: nativeToken } } = thunkApi.getState().chain.config;
   const integration = getIntegration(chains.namada.id);
   const signer = integration.signer() as Signer;
-  const { owner: source, validatorId: validator, amount } = change;
+  const { owner: source, validatorId: validator, amount, memo } = change;
   const account = derived[id][source];
   const { type, publicKey } = account.details;
 
@@ -248,14 +253,15 @@ export const postNewBonding = createAsyncThunk<
       source,
       validator,
       amount: new BigNumber(amount),
-      nativeToken: Tokens.NAM.address || "",
+      nativeToken: nativeToken || tokenAddress,
     },
     {
-      token: Tokens.NAM.address || "",
+      token: nativeToken || tokenAddress,
       feeAmount: new BigNumber(0),
       gasLimit: new BigNumber(20_000),
       chainId,
       publicKey,
+      memo
     },
     type
   );
@@ -272,11 +278,11 @@ export const postNewUnbonding = createAsyncThunk<
   { state: RootState }
 >(POST_UNSTAKING, async (change, thunkApi) => {
   const { derived } = thunkApi.getState().accounts;
-  const { id, chainId } = thunkApi.getState().chain.config;
+  const { id, chainId, currency: { address: nativeToken } } = thunkApi.getState().chain.config;
 
   const integration = getIntegration(id);
   const signer = integration.signer() as Signer;
-  const { owner: source, validatorId: validator, amount } = change;
+  const { owner: source, validatorId: validator, amount, memo } = change;
   const {
     details: { type, publicKey },
   } = derived[id][source];
@@ -288,11 +294,12 @@ export const postNewUnbonding = createAsyncThunk<
       amount: new BigNumber(amount),
     },
     {
-      token: Tokens.NAM.address || "",
+      token: nativeToken || tokenAddress,
       feeAmount: new BigNumber(0),
       gasLimit: new BigNumber(20_000),
       chainId,
       publicKey,
+      memo
     },
     type
   );
@@ -304,7 +311,7 @@ export const postNewWithdraw = createAsyncThunk<
   { state: RootState }
 >(POST_UNSTAKING, async ({ owner, validatorId }, thunkApi) => {
   const { derived } = thunkApi.getState().accounts;
-  const { id, chainId } = thunkApi.getState().chain.config;
+  const { id, chainId, currency: { address: nativeToken } } = thunkApi.getState().chain.config;
 
   const integration = getIntegration(id);
   const signer = integration.signer() as Signer;
@@ -318,7 +325,7 @@ export const postNewWithdraw = createAsyncThunk<
       validator: validatorId,
     },
     {
-      token: Tokens.NAM.address || "",
+      token: nativeToken || tokenAddress,
       feeAmount: new BigNumber(0),
       gasLimit: new BigNumber(20_000),
       chainId,

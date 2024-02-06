@@ -3,6 +3,7 @@ import { useState } from "react";
 
 import {
   ActionButton,
+  Input,
   KeyValueData,
   Table,
   TableConfigurations,
@@ -68,6 +69,7 @@ type Props = {
 
 // contains data and controls to unbond
 export const UnbondPosition = (props: Props): JSX.Element => {
+  const [memo, setMemo] = useState<string>();
   const { owner } = useSanitizedParams();
   const { currentBondingPositions, confirmUnbonding, cancelUnbonding } = props;
   const currentBondingPosition = currentBondingPositions.find(
@@ -144,7 +146,7 @@ export const UnbondPosition = (props: Props): JSX.Element => {
         tableConfigurations={unbondingDetailsConfigurationsWithCallbacks}
         data={unbondingSummary}
       />
-
+      <Input type="text" value={memo} onChange={(e) => setMemo(e.target.value)} label="Memo" />
       {/* confirm and cancel buttons */}
       <ActionButton
         onClick={() => {
@@ -152,6 +154,7 @@ export const UnbondPosition = (props: Props): JSX.Element => {
             amount: amountToUnstakeAsNumber,
             owner: owner as string,
             validatorId: currentBondingPositions[0].validatorId,
+            memo,
           };
           confirmUnbonding(changeInStakingPosition);
         }}

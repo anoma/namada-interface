@@ -3,8 +3,9 @@ import { useState } from "react";
 
 import {
   ActionButton,
-  KeyValueData,
-  TableConfigurations,
+  Input,
+  Stack,
+  Text,
 } from "@namada/components";
 import {
   ChangeInStakingPosition,
@@ -13,33 +14,9 @@ import {
 import { Account } from "slices/accounts";
 import {
   BondingAddressSelect,
-  BondingAmountInputContainer,
-  BondingPositionContainer,
-  NewBondingTable,
 } from "./NewBondingPosition.components";
 
 const REMAINS_BONDED_KEY = "Remains bonded";
-
-// configuration for the summary table that represents all the data in this view
-const bondingDetailsConfigurations: TableConfigurations<KeyValueData, never> = {
-  rowRenderer: (rowData: KeyValueData) => {
-    // if this is the last row we style it bold
-    const styleForRemainsBondedRow =
-      rowData.key === REMAINS_BONDED_KEY ? { fontWeight: "bold" } : {};
-    return (
-      <>
-        <td style={{ display: "flex", ...styleForRemainsBondedRow }}>
-          {rowData.key}
-        </td>
-        <td style={styleForRemainsBondedRow}>{rowData.value}</td>
-      </>
-    );
-  },
-  columns: [
-    { uuid: "1", columnLabel: "", width: "30%" },
-    { uuid: "2", columnLabel: "", width: "70%" },
-  ],
-};
 
 type Props = {
   accounts: Account[];
@@ -63,6 +40,7 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
     }));
 
   const [currentAccount, setCurrentAccount] = useState<Account>(accounts[0]);
+  const [memo, setMemo] = useState<string>();
   const currentAddress = currentAccount?.details.address;
 
   const currentBondingPosition = currentBondingPositions.find(
@@ -136,53 +114,56 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
   ];
 
   return (
-    <BondingPositionContainer>
+    <div style={{ width: "100%", margin: "0 20px" }}>
       {/* input field */}
-      <BondingAmountInputContainer>
-        Value
-        <input
-          onChange={(event) => {
-            setAmountToBond(event.target.value);
+      <Stack gap={2} direction="vertical">
+        <BondingAddressSelect
+          data={selectOptions}
+          value={currentAddress}
+          label="Account"
+          onChange={handleAddressChange}
+        />
+
+        <Input
+          type="text"
+          value={amountToBond}
+          label="Amount"
+          onChange={(e) => {
+            setAmountToBond(e.target.value);
           }}
         />
-      </BondingAmountInputContainer>
 
-      <BondingAddressSelect
-        data={selectOptions}
-        value={currentAddress}
-        label="Account"
-        onChange={handleAddressChange}
-      />
+        <Input type="text" value={memo} onChange={(e) => setMemo(e.target.value)} label="Memo" />
 
-      {/* summary table */}
-      <NewBondingTable
-        title="Summary"
-        tableConfigurations={bondingDetailsConfigurations}
-        data={bondingSummary}
-      />
+        <div>
+          {bondingSummary.map(({ key, value }, i) => <Text style={{ color: "white" }} key={i}>{key}: {value}</Text>)}
+        </div>
 
-      {/* confirmation and cancel */}
-      <ActionButton
-        onClick={() => {
-          const changeInStakingPosition: ChangeInStakingPosition = {
-            amount: amountToBondNumber,
-            owner: currentAddress,
-            validatorId: currentBondingPositions[0].validatorId,
-          };
-          confirmBonding(changeInStakingPosition);
-        }}
-        disabled={isEntryIncorrectOrEmpty}
-      >
-        Confirm
-      </ActionButton>
-      <ActionButton
-        onClick={() => {
-          cancelBonding();
-        }}
-        style={{ backgroundColor: "lightgrey", color: "black" }}
-      >
-        Cancel
-      </ActionButton>
-    </BondingPositionContainer>
+        {/* confirmation and cancel */}
+        <ActionButton
+          onClick={() => {
+            const changeInStakingPosition: ChangeInStakingPosition = {
+              amount: amountToBondNumber,
+              owner: currentAddress,
+              validatorId: currentBondingPositions[0].validatorId,
+              memo,
+            };
+            confirmBonding(changeInStakingPosition);
+          }}
+          disabled={isEntryIncorrectOrEmpty}
+        >
+          Confirm
+        </ActionButton>
+        <ActionButton
+          onClick={() => {
+            cancelBonding();
+          }}
+          style={{ backgroundColor: "lightgrey", color: "black" }}
+        >
+          Cancel
+        </ActionButton>
+
+      </Stack>
+    </div>
   );
 };

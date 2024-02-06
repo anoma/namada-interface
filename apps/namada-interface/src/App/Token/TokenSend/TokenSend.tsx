@@ -59,13 +59,13 @@ const accountsWithBalanceIntoSelectData = (
       )
       .map(([tokenType, amount]) => ({
         value: `${details.address}|${tokenType}`,
-        label: `${details.alias} ${amount} (${tokenType})`,
+        label: `${details.alias} ${amount} (${Tokens[tokenType as TokenType].symbol})`,
       }))
   );
 
 const TokenSend = (): JSX.Element => {
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
-  const { rpc } = useAppSelector<Chain>((state) => state.chain.config);
+  const { rpc, currency: { address: nativeToken } } = useAppSelector<Chain>((state) => state.chain.config);
   const { target } = useSanitizedParams<Params>();
 
   const accounts = Object.values(derived[chains.namada.id]);
@@ -131,7 +131,7 @@ const TokenSend = (): JSX.Element => {
       const query = new Query(rpc);
       const result = (await query.query_gas_costs()) as [string, string][];
 
-      const namCost = result.find(([token]) => token === Tokens.NAM.address);
+      const namCost = result.find(([token]) => token === nativeToken);
 
       if (!namCost) {
         throw new Error("Error querying minimum gas price");

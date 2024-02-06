@@ -7,6 +7,11 @@ import { getIntegration } from "@namada/integrations";
 
 import { RootState } from "store";
 
+const {
+  NAMADA_INTERFACE_NAMADA_TOKEN:
+  tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+} = process.env;
+
 type Address = string;
 type Details = AccountDetails;
 
@@ -56,10 +61,11 @@ export const fetchBalance = createAsyncThunk<
   { state: RootState }
 >(
   `${ACCOUNTS_ACTIONS_BASE}/${AccountsThunkActions.FetchBalance}`,
-  async (account) => {
+  async (account, thunkApi) => {
     const { address, chainKey } = account.details;
+    const { currency: { address: nativeToken } } = thunkApi.getState().chain.config;
     const integration = getIntegration(chainKey);
-    const results = await integration.queryBalances(address);
+    const results = await integration.queryBalances(address, [nativeToken || tokenAddress]);
     const balance = results.reduce(
       (acc, curr) => ({ ...acc, [curr.token]: new BigNumber(curr.amount) }),
       {} as Balance

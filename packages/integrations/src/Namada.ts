@@ -5,8 +5,6 @@ import {
   Namada as INamada,
   Signer,
   TokenBalance,
-  TokenType,
-  Tokens,
   WindowWithNamada,
 } from "@namada/types";
 import BigNumber from "bignumber.js";
@@ -79,24 +77,15 @@ export default class Namada implements Integration<Account, Signer> {
     return Promise.reject("Invalid bridge transfer props!");
   }
 
-  public async queryBalances(owner: string): Promise<TokenBalance[]> {
-    const balance = (await this._namada?.balances(owner)) || [];
-    const tokenBalances = Object.keys(Tokens).map((tokenType: string) => {
-      const { address: tokenAddress = "" } = Tokens[tokenType as TokenType];
-      const amount =
-        balance.find(({ token }) => token === tokenAddress)?.amount ||
-        new BigNumber(0);
+  public async queryBalances(
+    owner: string,
+    tokens: string[] = []
+  ): Promise<TokenBalance[]> {
+    const balances = (await this._namada?.balances({ owner, tokens })) || [];
 
-      // TODO: Implement balance fetching via SDK
-      return {
-        token: tokenType as TokenType,
-        // BigNumber is converted to string because BigNumber methods are lost
-        // when a BigNumber is sent using postMessage.
-        // See https://github.com/MikeMcl/bignumber.js/issues/245.
-        amount: amount.toString(),
-      };
-    });
-
-    return tokenBalances;
+    return balances.map((balance) => ({
+      token: "NAM",
+      amount: balance.amount.toString() || new BigNumber(0).toString(),
+    }));
   }
 }
