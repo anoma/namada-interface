@@ -121,7 +121,7 @@ export const Setup: React.FC = () => {
               <Route
                 path={routes.accountCreationSeed()}
                 element={
-                  <Wrapper onLoad={setCurrentPage("New seed phrase", 2)}>
+                  <Wrapper onLoad={setCurrentPage("New Seed Phrase", 2)}>
                     <SeedPhrase
                       accountCreationDetails={accountCreationDetails}
                       defaultSeedPhrase={seedPhrase}

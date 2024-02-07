@@ -18,7 +18,7 @@ const container = tv({
         wrapper: "rounded-none min-h-[320px] min-w-full basis-[min-content] ",
       },
       base: {
-        wrapper: "w-[540px] min-h-[600px]",
+        wrapper: "w-[540px] min-h-[600px] pb-10",
       },
     },
   },

@@ -43,7 +43,7 @@ export const SeedPhraseWarning = ({
           className={clsx({ "pointer-events-none opacity-50": countdown > 0 })}
           onClick={onComplete}
         >
-          I understood, show my phrase {countdown > 0 && `[${countdown}]`}
+          I understood, show my phrase {countdown > 0 && `[ ${countdown} ]`}
         </ActionButton>
       </footer>
     </>

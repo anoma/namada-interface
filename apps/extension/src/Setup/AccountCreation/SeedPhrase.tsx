@@ -1,8 +1,6 @@
-import React, { useEffect, useState } from "react";
-
 import {
   ActionButton,
-  Heading,
+  FeedbackButton,
   RadioGroup,
   SeedPhraseInstructions,
   Stack,
@@ -12,6 +10,7 @@ import { SeedPhraseList } from "Setup/Common";
 import { AccountDetails } from "Setup/types";
 import { GenerateMnemonicMsg } from "background/keyring";
 import { useRequester } from "hooks/useRequester";
+import React, { useEffect, useState } from "react";
 import { Ports } from "router";
 
 type Props = {
@@ -45,11 +44,6 @@ export const SeedPhrase: React.FC<Props> = (props) => {
 
   return (
     <>
-      <hgroup className="text-white mb-5 -mt-2 text-center">
-        <Heading className="text-3xl uppercase" level="h1">
-          New Seed Phrase
-        </Heading>
-      </hgroup>
       <Stack gap={6}>
         <RadioGroup
           id="mnemonicLength"
@@ -66,16 +60,16 @@ export const SeedPhrase: React.FC<Props> = (props) => {
             columns={mnemonicLength === 24 ? 4 : 3}
             words={seedPhrase}
           />
-          <button
-            data-testid="setup-copy-to-clipboard-button"
-            className="text-yellow my-2 relative text-center underline active:top-px"
-            onClick={(e) => {
-              e.preventDefault();
+          <FeedbackButton
+            className="text-center mx-auto block"
+            successMessage="Copied to clipboard"
+            errorMessage="Error trying to copy"
+            onAction={() => {
               copyToClipboard(seedPhrase.join(" "));
             }}
           >
-            Copy to clipboard
-          </button>
+            Copy to Clipboard
+          </FeedbackButton>
         </Stack>
         <div className="-mt-2.5 text-sm">
           <SeedPhraseInstructions />
