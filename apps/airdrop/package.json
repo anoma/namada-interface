@@ -40,7 +40,6 @@
     "@babel/core": "^7.23.9",
     "@babel/plugin-transform-modules-commonjs": "^7.23.3",
     "@keplr-wallet/types": "^0.10.19",
-    "@namada/config": "workspace:^",
     "@svgr/webpack": "^8.1.0",
     "@types/dompurify": "^3.0.2",
     "@types/lodash.groupby": "^4.6.9",
