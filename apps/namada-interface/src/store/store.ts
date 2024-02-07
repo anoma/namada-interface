@@ -49,7 +49,7 @@ const persistConfig = {
   key: `${LocalStorageKeys.Persist}${POSTFIX}`,
   storage,
   // Only persist data in whitelist:
-  whitelist: ["settings", "chain", "channels"],
+  whitelist: ["settings", "channels"],
   transforms: [ChainIdTransform],
 };
 
