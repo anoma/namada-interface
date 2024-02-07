@@ -1,12 +1,6 @@
 import { useEffect, useState } from "react";
 
-import {
-  ActionButton,
-  GapPatterns,
-  Heading,
-  Input,
-  Stack,
-} from "@namada/components";
+import { ActionButton, GapPatterns, Input, Stack } from "@namada/components";
 import { formatRouterPath } from "@namada/utils";
 import { TopLevelRoute } from "App/types";
 import { AccountAlias, Password } from "Setup/Common";
@@ -94,14 +88,14 @@ export const SeedPhraseConfirmation = (
 
   return (
     <>
-      <hgroup className="text-white mb-6 -mt-2 text-center">
-        <Heading className="uppercase text-3xl" level="h1">
-          Verify your seed phrase
-        </Heading>
-        <p className="text-white text-base my-1 mx-auto max-w-[90%] text-center font-medium">
-          fill out the words according to their numbers
-        </p>
-      </hgroup>
+      <p
+        className={clsx(
+          "text-white text-base -mt-2 mb-8",
+          "mx-auto max-w-[90%] text-center font-medium"
+        )}
+      >
+        fill out the words according to their numbers
+      </p>
       <Stack gap={8} as="form" onSubmit={onSubmitForm}>
         <Stack gap={GapPatterns.FormFields}>
           <div

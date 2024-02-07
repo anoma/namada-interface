@@ -15,7 +15,6 @@ import { CreatePasswordMsg } from "background/vault";
 import { useRequester } from "hooks/useRequester";
 import { useNavigate } from "react-router-dom";
 import { Ports } from "router";
-import { PageHeader } from "./PageHeader";
 
 type Props = {
   alias: string;
@@ -139,7 +138,9 @@ export const Completion: React.FC<Props> = (props) => {
       )}
       {mnemonicStatus === Status.Completed && (
         <>
-          <PageHeader title={pageTitle} subtitle={pageSubtitle} />
+          <p className="text-white text-center text-base w-full -mt-3 mb-8">
+            Here are the accounts generated from your keys
+          </p>
           <ViewKeys
             publicKeyAddress={publicKeyAddress}
             transparentAccountAddress={transparentAccountAddress}

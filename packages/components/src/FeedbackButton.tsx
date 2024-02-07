@@ -62,12 +62,12 @@ export const FeedbackButton = ({
           <motion.div
             initial={{
               opacity: 0,
-              rotateX: "90deg",
               translateX: "-50%",
-              translateY: "-50%",
+              translateY: "0",
             }}
             key={feedbackKey}
-            animate={{ opacity: 1, rotateX: 0 }}
+            animate={{ opacity: 1, translateY: "-50%" }}
+            transition={{ duration: 0.25 }}
             exit={{ opacity: 0 }}
             onAnimationComplete={() => {
               if (timeoutRef.current) clearTimeout(timeoutRef.current);

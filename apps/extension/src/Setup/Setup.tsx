@@ -168,7 +168,7 @@ export const Setup: React.FC = () => {
               <Route
                 path={routes.accountCreationComplete()}
                 element={
-                  <Wrapper onLoad={setCurrentPage("Create your account", 4)}>
+                  <Wrapper onLoad={setCurrentPage("Namada Keys Created", 4)}>
                     <Completion
                       passwordRequired={!passwordInitialized}
                       pageTitle="Namada Keys Created"

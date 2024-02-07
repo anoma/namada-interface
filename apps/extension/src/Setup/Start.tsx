@@ -14,7 +14,7 @@ import routes from "./routes";
 export const Start: React.FC = () => {
   const navigate = useNavigate();
   return (
-    <div className="py-10">
+    <div className="pt-10">
       <div className="max-w-[230px] mx-auto mb-9">
         <Image imageName="LogoMinimal" />
       </div>
