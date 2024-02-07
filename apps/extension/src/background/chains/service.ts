@@ -31,7 +31,7 @@ export class ChainsService {
           const nativeToken = await query.query_native_token();
           defaultChain.currency.address = nativeToken || tokenAddress;
         } catch (e) {
-          console.warn(`Chain is not reachable: ${e}`);
+          console.warn(`Chain is unreachable: ${e}`);
         }
       }
 
@@ -46,15 +46,17 @@ export class ChainsService {
     if (!chain) {
       throw new Error("No chain found!");
     }
-    let {
-      currency: { address },
-    } = chain;
+
+    // If query fails, leave address undefined so it will be caught when chain is available
+    let address: string | undefined;
 
     // Attempt to fetch native token, fallback to env
-    if (!address) {
+    try {
       const query = new Query(chain.rpc);
       const nativeToken = await query.query_native_token();
       address = nativeToken || tokenAddress;
+    } catch (e) {
+      console.warn(`Chain is unreachable: ${e}`);
     }
 
     await this.chainsStore.set(CHAINS_KEY, {
