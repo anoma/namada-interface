@@ -17,8 +17,8 @@ export const SeedPhraseListItem = ({
   return (
     <li
       className={clsx(
-        "relative bg-black rounded-sm text-neutral-500 text-base font-light",
-        "list-inside list-decimal px-2.5 py-4"
+        "relative bg-black rounded-sm text-neutral-500 text-sm font-light",
+        "px-1 py-3 h-[48px]"
       )}
     >
       {onChange ? (
@@ -45,10 +45,10 @@ export const SeedPhraseListItem = ({
       ) : (
         <span
           className={clsx(
-            "absolute text-white font-bold left-12 top-[1em] select-none"
+            "absolute text-white font-light left-2.5 top-[1em] select-none"
           )}
         >
-          {word}
+          {idx + 1} <span className="font-bold">{word}</span>
         </span>
       )}
     </li>

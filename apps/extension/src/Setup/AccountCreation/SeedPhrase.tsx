@@ -44,7 +44,7 @@ export const SeedPhrase: React.FC<Props> = (props) => {
 
   return (
     <>
-      <Stack gap={6}>
+      <Stack gap={5}>
         <RadioGroup
           id="mnemonicLength"
           groupLabel="Number of seeds"
@@ -55,7 +55,7 @@ export const SeedPhrase: React.FC<Props> = (props) => {
           ]}
           onChange={(value) => setMnemonicLength(Number(value))}
         />
-        <Stack gap={1.5} className="-mt-3">
+        <Stack gap={3}>
           <SeedPhraseList
             columns={mnemonicLength === 24 ? 4 : 3}
             words={seedPhrase}
@@ -70,19 +70,19 @@ export const SeedPhrase: React.FC<Props> = (props) => {
           >
             Copy to Clipboard
           </FeedbackButton>
+          <div className="text-sm">
+            <SeedPhraseInstructions />
+          </div>
+          <ActionButton
+            data-testid="setup-go-to-verification-button"
+            disabled={isSubmitButtonDisabled}
+            onClick={() => {
+              onConfirm(seedPhrase);
+            }}
+          >
+            Next
+          </ActionButton>
         </Stack>
-        <div className="-mt-2.5 text-sm">
-          <SeedPhraseInstructions />
-        </div>
-        <ActionButton
-          data-testid="setup-go-to-verification-button"
-          disabled={isSubmitButtonDisabled}
-          onClick={() => {
-            onConfirm(seedPhrase);
-          }}
-        >
-          Next
-        </ActionButton>
       </Stack>
     </>
   );
