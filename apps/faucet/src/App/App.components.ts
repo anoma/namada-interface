@@ -1,5 +1,5 @@
-import styled, { createGlobalStyle } from "styled-components";
 import { ColorMode, DesignConfiguration } from "@namada/utils";
+import styled, { createGlobalStyle } from "styled-components";
 
 type GlobalStyleProps = {
   colorMode: ColorMode;
@@ -118,6 +118,10 @@ export const BackgroundImage = styled.div<{
   z-index: 0;
   background-image: url(${(props) => props.imageUrl});
   background-size: 120px;
+`;
+
+export const InfoContainer = styled.div`
+  margin: 40px 20px;
 `;
 
 export const ContentContainer = styled.div`

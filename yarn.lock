@@ -7639,6 +7639,8 @@ __metadata:
     "@cosmjs/encoding": "npm:^0.29.0"
     "@namada/components": "npm:0.2.1"
     "@namada/config": "workspace:^"
+    "@namada/hooks": "npm:0.2.1"
+    "@namada/integrations": "npm:0.2.1"
     "@namada/utils": "npm:0.2.1"
     "@svgr/webpack": "npm:^6.3.1"
     "@types/dompurify": "npm:^3.0.2"
