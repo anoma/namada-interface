@@ -7,6 +7,10 @@
   "license": "MIT",
   "private": true,
   "scripts": {
+    "bump": "yarn workspace namada run bump --target apps/faucet",
+    "release": "release-it --verbose --ci",
+    "release:dry-run": "release-it --verbose --dry-run --ci",
+    "release:no-npm": "release-it --verbose --no-npm.publish --ci",
     "start": "webpack-dev-server",
     "start:proxy": "node ./scripts/startProxy.js",
     "dev": "NODE_ENV=development yarn start",

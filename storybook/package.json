@@ -4,6 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "bump": "yarn workspace namada run bump --target storybook",
+    "release": "release-it --verbose --ci",
+    "release:dry-run": "release-it --verbose --dry-run --ci",
+    "release:no-npm": "release-it --verbose --no-npm.publish --ci",
     "watch:tailwind": "npx tailwindcss -i ./src/tailwind-input.css -o ./src/styles/tailwind-output.css --watch",
     "watch:storybook": "storybook dev -p 6006",
     "build:tailwind": "npx tailwindcss -i ./src/tailwind-input.css -o ./src/styles/tailwind-output.css",
