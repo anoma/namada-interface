@@ -133,7 +133,7 @@ export const FaucetForm: React.FC<Props> = ({
           }
         )) || {};
       if (!tag || !challenge) {
-        throw new Error("WTF");
+        throw new Error("Request challenge did not return a valid response");
       }
 
       const solution = computePowSolution(challenge, difficulty || 0);
