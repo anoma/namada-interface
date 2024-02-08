@@ -2,7 +2,7 @@ import { RegisteredCoinType, registeredCoinTypes } from "slip44";
 
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
-  nativeToken = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+    nativeToken = "tnam1q8ctk7tr337f85dw69q0rsrggasxjjf5jq2s2wph",
 } = process.env;
 
 export type TokenInfo = {

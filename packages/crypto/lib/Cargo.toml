@@ -21,7 +21,7 @@ getrandom = {version = "0.2.3", features = ["js"]}
 gloo-utils = { version = "0.1.5", features = ["serde"] }
 hex = "0.4.3"
 js-sys = "0.3.60"
-masp_primitives = { git = "https://github.com/anoma/masp", tag = "v1.0.0" }
+masp_primitives = { git = "https://github.com/anoma/masp", tag = "v1.1.0" }
 orion = "0.16.0"
 password-hash = "0.4.2"
 serde = { version = "1.0.145", features = ["derive"] }

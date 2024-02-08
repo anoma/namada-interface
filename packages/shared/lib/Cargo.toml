@@ -23,7 +23,7 @@ gloo-utils = { version = "0.1.5", features = ["serde"] }
 js-sys = "0.3.60"
 masp_primitives = { git = "https://github.com/anoma/masp", tag = "v1.1.0" }
 masp_proofs = { git = "https://github.com/anoma/masp", tag = "v1.1.0", default-features = false, features = ["local-prover"] }
-namada = { git = "https://github.com/anoma/namada", version = "0.31.0", default-features = false, features = ["namada-sdk"] }
+namada = { git = "https://github.com/anoma/namada", version = "0.31.1", default-features = false, features = ["namada-sdk"] }
 rand = "0.8.5"
 rexie = "0.5"
 serde = "^1.0.181"
