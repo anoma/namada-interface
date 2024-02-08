@@ -262,7 +262,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
               </Alert>
             </div>
           )}
-          {!showPassphrase && (
+          {!showPassphrase && mnemonicType !== MnemonicTypes.PrivateKey && (
             <LinkButton
               data-testid="setup-import-keys-use-passphrase-button"
               className="text-xs !text-neutral-400"
