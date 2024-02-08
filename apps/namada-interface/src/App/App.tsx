@@ -1,6 +1,7 @@
 /* eslint-disable max-len */
 import { AnimatePresence } from "framer-motion";
 import { createBrowserHistory } from "history";
+import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { PersistGate } from "redux-persist/integration/react";
 import { ThemeProvider } from "styled-components";
@@ -22,7 +23,13 @@ import { Outlet } from "react-router-dom";
 import { addAccounts, fetchBalances } from "slices/accounts";
 import { setChain } from "slices/chain";
 import { SettingsState } from "slices/settings";
-import { persistor, store, useAppDispatch, useAppSelector } from "store";
+import {
+  persistor,
+  reduxStoreAtom,
+  store,
+  useAppDispatch,
+  useAppSelector,
+} from "store";
 import {
   AppContainer,
   AppLoader,
@@ -34,9 +41,9 @@ import {
 } from "./App.components";
 import { TopNavigation } from "./TopNavigation";
 
-import { useAtom, useSetAtom } from "jotai";
 import { accountsAtom, balancesAtom } from "slices/accounts";
 import { chainAtom } from "slices/chain";
+import { minimumGasPriceAtom } from "slices/fees";
 
 export const history = createBrowserHistory({ window });
 
@@ -58,6 +65,10 @@ export const AnimatedTransition = (props: {
   );
 };
 
+// TODO: can be moved to slices/notifications once redux is removed
+// Defining it there currently causes a unit test error related to redux-persist
+const toastsAtom = atom((get) => get(reduxStoreAtom).notifications.toasts);
+
 function App(): JSX.Element {
   const dispatch = useAppDispatch();
   const initialColorMode = loadColorMode();
@@ -71,6 +82,7 @@ function App(): JSX.Element {
   const [chain, refreshChain] = useAtom(chainAtom);
   const refreshAccounts = useSetAtom(accountsAtom);
   const refreshBalances = useSetAtom(balancesAtom);
+  const refreshMinimumGasPrice = useSetAtom(minimumGasPriceAtom);
 
   const { connectedChains } = useAppSelector<SettingsState>(
     (state) => state.settings
@@ -101,6 +113,7 @@ function App(): JSX.Element {
       connectedChains.includes(chain.id)
     ) {
       fetchAccounts();
+      refreshMinimumGasPrice();
     }
   }, [chain]);
 
@@ -117,6 +130,12 @@ function App(): JSX.Element {
       }
     })();
   }, [currentExtensionAttachStatus]);
+
+  const toasts = useAtomValue(toastsAtom);
+  useEffect(() => {
+    // TODO: this could be more conservative about how often it fetches balances
+    refreshBalances();
+  }, [toasts]);
 
   return (
     <ThemeProvider theme={theme}>

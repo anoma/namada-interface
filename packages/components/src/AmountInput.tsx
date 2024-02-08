@@ -9,10 +9,15 @@ type BigNumberElement = Omit<HTMLInputElement, "value"> & {
   value?: BigNumber;
 };
 
-type Props = Omit<ComponentProps<typeof Input>, "value" | "onChange"> & {
+type Props = Omit<
+  ComponentProps<typeof Input>,
+  "value" | "onChange" | "min" | "max"
+> & {
   value?: BigNumber;
   onChange?: ChangeEventHandler<BigNumberElement>;
   maxDecimalPlaces?: number;
+  min?: string | number | BigNumber;
+  max?: string | number | BigNumber;
 };
 
 type ValidationError =

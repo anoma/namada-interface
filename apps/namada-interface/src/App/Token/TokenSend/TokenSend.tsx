@@ -1,10 +1,13 @@
-import BigNumber from "bignumber.js";
+import { useAtomValue } from "jotai";
+import { loadable } from "jotai/utils";
 import { useEffect, useState } from "react";
 
 import { TransferType } from "App/Token/types";
 import { Account, AccountsState } from "slices/accounts";
+import { isRevealPkNeededAtom, minimumGasPriceAtom } from "slices/fees";
 import { useAppSelector } from "store";
 
+import { chains } from "@namada/chains";
 import {
   Heading,
   NavigationContainer,
@@ -14,10 +17,8 @@ import {
   TabsGroup,
 } from "@namada/components";
 import { useSanitizedParams } from "@namada/hooks";
-import { Query } from "@namada/shared";
-import { Chain, TokenType, Tokens } from "@namada/types";
+import { TokenType, Tokens } from "@namada/types";
 import TokenSendForm from "./TokenSendForm";
-import { chains } from "@namada/chains";
 
 import { TokenSendContainer, TokenSendContent } from "./TokenSend.components";
 import {
@@ -55,13 +56,14 @@ const accountsWithBalanceIntoSelectData = (
     Object.entries(balance)
       .map(([tokenType, amount]) => ({
         value: `${details.address}|${tokenType}`,
-        label: `${details.alias} ${amount} (${Tokens[tokenType as TokenType].symbol})`,
+        label: `${details.alias} ${amount} (${
+          Tokens[tokenType as TokenType].symbol
+        })`,
       }))
   );
 
 const TokenSend = (): JSX.Element => {
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
-  const { rpc, currency: { address: nativeToken } } = useAppSelector<Chain>((state) => state.chain.config);
   const { target } = useSanitizedParams<Params>();
 
   const accounts = Object.values(derived[chains.namada.id]);
@@ -113,30 +115,18 @@ const TokenSend = (): JSX.Element => {
 
   const handleTokenChange =
     (selectAccountFn: (accId: string) => void) =>
-      (e: React.ChangeEvent<HTMLSelectElement>): void => {
-        const { value } = e.target;
-        const [accountId, tokenSymbol] = value.split("|");
+    (e: React.ChangeEvent<HTMLSelectElement>): void => {
+      const { value } = e.target;
+      const [accountId, tokenSymbol] = value.split("|");
 
-        selectAccountFn(accountId);
-        setToken(tokenSymbol as TokenType);
-      };
+      selectAccountFn(accountId);
+      setToken(tokenSymbol as TokenType);
+    };
 
-  const [minimumGasPrice, setMinimumGasPrice] = useState<BigNumber>();
-
-  useEffect(() => {
-    (async () => {
-      const query = new Query(rpc);
-      const result = (await query.query_gas_costs()) as [string, string][];
-
-      const namCost = result.find(([token]) => token === nativeToken);
-
-      if (!namCost) {
-        throw new Error("Error querying minimum gas price");
-      }
-
-      setMinimumGasPrice(new BigNumber(namCost[1]));
-    })();
-  }, []);
+  const minimumGasPrice = useAtomValue(loadable(minimumGasPriceAtom));
+  const isRevealPkNeeded = useAtomValue(loadable(isRevealPkNeededAtom));
+  const loadablesReady =
+    minimumGasPrice.state === "hasData" && isRevealPkNeeded.state === "hasData";
 
   return (
     <TokenSendContainer>
@@ -158,7 +148,7 @@ const TokenSend = (): JSX.Element => {
 
       {activeTab === "Shielded" && (
         <TokenSendContent>
-          {shieldedTokenData.length > 0 && minimumGasPrice ? (
+          {shieldedTokenData.length > 0 && loadablesReady ? (
             <>
               <Select
                 data={shieldedTokenData}
@@ -173,7 +163,8 @@ const TokenSend = (): JSX.Element => {
                   defaultTarget={
                     target?.startsWith("znam") ? target : undefined
                   }
-                  minimumGasPrice={minimumGasPrice}
+                  minimumGasPrice={minimumGasPrice.data}
+                  isRevealPkNeededFn={isRevealPkNeeded.data}
                 />
               )}
             </>
@@ -185,7 +176,7 @@ const TokenSend = (): JSX.Element => {
 
       {activeTab === "Transparent" && (
         <TokenSendContent>
-          {transparentTokenData.length > 0 && minimumGasPrice ? (
+          {transparentTokenData.length > 0 && loadablesReady ? (
             <>
               <Select
                 data={transparentTokenData}
@@ -202,7 +193,8 @@ const TokenSend = (): JSX.Element => {
                   defaultTarget={
                     target?.startsWith("tnam") ? target : undefined
                   }
-                  minimumGasPrice={minimumGasPrice}
+                  minimumGasPrice={minimumGasPrice.data}
+                  isRevealPkNeededFn={isRevealPkNeeded.data}
                 />
               )}
             </>

@@ -1,20 +1,20 @@
 import {
-  PayloadAction,
-  isPending,
-  isFulfilled,
-  isRejected,
   Action,
-  isAsyncThunkAction,
   ActionReducerMapBuilder,
+  PayloadAction,
+  isAsyncThunkAction,
+  isFulfilled,
+  isPending,
+  isRejected,
 } from "@reduxjs/toolkit";
 
+import { TxLabel } from "@namada/shared";
 import {
   CreateToastPayload,
-  ToastId,
   NotificationsState,
+  ToastId,
   ToastTimeout,
 } from "./types";
-import { TxLabel } from "@namada/shared";
 
 export const DEFAULT_TIMEOUT = 2000;
 export const THUNK_MATCH_REGEXP = /^.*(?=\/(pending|fulfilled|rejected)$)/;

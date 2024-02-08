@@ -19,6 +19,7 @@ import {
   Validator,
   postNewWithdraw,
 } from "slices/StakingAndGovernance";
+import { GAS_LIMIT } from "slices/fees";
 import { RootState, useAppDispatch, useAppSelector } from "store";
 import { ModalState } from "../Staking";
 import {
@@ -28,29 +29,29 @@ import {
 } from "./ValidatorDetails.components";
 
 const validatorDetailsConfigurations: TableConfigurations<KeyValueData, never> =
-{
-  rowRenderer: (rowData: KeyValueData) => {
-    // we have to figure if this is the row for validator homepage, hench an anchor
-    const linkOrText = /^https?:/.test(rowData.value) ? (
-      <a href={rowData.value} target="_blank" rel="noopener noreferrer">
-        {rowData.value}
-      </a>
-    ) : (
-      <span>{rowData.value}</span>
-    );
+  {
+    rowRenderer: (rowData: KeyValueData) => {
+      // we have to figure if this is the row for validator homepage, hench an anchor
+      const linkOrText = /^https?:/.test(rowData.value) ? (
+        <a href={rowData.value} target="_blank" rel="noopener noreferrer">
+          {rowData.value}
+        </a>
+      ) : (
+        <span>{rowData.value}</span>
+      );
 
-    return (
-      <>
-        <td style={{ display: "flex" }}>{rowData.key}</td>
-        <td>{linkOrText}</td>
-      </>
-    );
-  },
-  columns: [
-    { uuid: "1", columnLabel: "", width: "30%" },
-    { uuid: "2", columnLabel: "", width: "70%" },
-  ],
-};
+      return (
+        <>
+          <td style={{ display: "flex" }}>{rowData.key}</td>
+          <td>{linkOrText}</td>
+        </>
+      );
+    },
+    columns: [
+      { uuid: "1", columnLabel: "", width: "30%" },
+      { uuid: "2", columnLabel: "", width: "70%" },
+    ],
+  };
 
 const getMyStakingWithValidatorConfigurations = (
   setModalState: React.Dispatch<React.SetStateAction<ModalState>>,
@@ -118,6 +119,7 @@ type Props = {
   stakingPositionsWithSelectedValidator?: StakingPosition[];
   setModalState: React.Dispatch<React.SetStateAction<ModalState>>;
   navigateToUnbonding: (validatorId: string, owner: string) => void;
+  minimumGasPrice: BigNumber;
 };
 
 // this turns the Validator object to rows that are passed to the table
@@ -148,6 +150,7 @@ export const ValidatorDetails = (props: Props): JSX.Element => {
     setModalState,
     navigateToUnbonding,
     stakingPositionsWithSelectedValidator = [],
+    minimumGasPrice,
   } = props;
 
   const epoch = useAppSelector(
@@ -156,7 +159,14 @@ export const ValidatorDetails = (props: Props): JSX.Element => {
 
   const dispatch = useAppDispatch();
   const dispatchWithdraw = (validatorId: string, owner: string): void => {
-    dispatch(postNewWithdraw({ validatorId, owner }));
+    dispatch(
+      postNewWithdraw({
+        validatorId,
+        owner,
+        gasPrice: minimumGasPrice,
+        gasLimit: GAS_LIMIT,
+      })
+    );
   };
 
   const validatorDetailsData = validatorToDataRows(validator);

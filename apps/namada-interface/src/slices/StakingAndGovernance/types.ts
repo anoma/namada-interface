@@ -83,6 +83,8 @@ export type ChangeInStakingPosition = {
   owner: string;
   amount: BigNumber;
   memo?: string;
+  gasPrice: BigNumber;
+  gasLimit: BigNumber;
 };
 
 export type StakingAndGovernanceState = {

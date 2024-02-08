@@ -1,32 +1,32 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import BigNumber from "bignumber.js";
 
-import { Query } from "@namada/shared";
-import { Signer } from "@namada/types";
 import { chains } from "@namada/chains";
 import { getIntegration } from "@namada/integrations";
+import { Query } from "@namada/shared";
+import { Signer } from "@namada/types";
 
+import { Account } from "slices/accounts";
+import { RootState } from "store";
 import {
+  ChangeInStakingPosition,
+  FETCH_EPOCH,
+  FETCH_MY_STAKING_POSITIONS,
+  FETCH_MY_VALIDATORS,
+  FETCH_TOTAL_BONDS,
   FETCH_VALIDATORS,
   FETCH_VALIDATOR_DETAILS,
-  FETCH_TOTAL_BONDS,
-  FETCH_MY_VALIDATORS,
-  FETCH_MY_STAKING_POSITIONS,
-  FETCH_EPOCH,
+  MyValidators,
   POST_NEW_STAKING,
   POST_UNSTAKING,
+  StakingPosition,
   Validator,
   ValidatorDetailsPayload,
-  MyValidators,
-  StakingPosition,
-  ChangeInStakingPosition,
 } from "./types";
-import { RootState } from "store";
-import { Account } from "slices/accounts";
 
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
-  tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+    tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
 } = process.env;
 
 const toValidator = (address: string): Validator => ({
@@ -44,7 +44,7 @@ const toMyValidators = (
     string,
     string,
     string,
-    string
+    string,
   ]
 ): MyValidators[] => {
   const index = acc.findIndex((myValidator) => myValidator.uuid === validator);
@@ -53,9 +53,9 @@ const toMyValidators = (
     index == -1
       ? (arr: MyValidators[]) => arr
       : (arr: MyValidators[], idx: number) => [
-        ...arr.slice(0, idx),
-        ...arr.slice(idx + 1),
-      ];
+          ...arr.slice(0, idx),
+          ...arr.slice(idx + 1),
+        ];
 
   const stakedAmount = new BigNumber(stake).plus(
     new BigNumber(v?.stakedAmount || 0)
@@ -86,7 +86,7 @@ const toBond = ([owner, validator, amount, startEpoch]: [
   string,
   string,
   string,
-  string
+  string,
 ]): StakingPosition => {
   return {
     uuid: owner + validator + startEpoch,
@@ -103,7 +103,7 @@ const toUnbond = ([owner, validator, amount, startEpoch, withdrawableEpoch]: [
   string,
   string,
   string,
-  string
+  string,
 ]): StakingPosition => {
   const bond = toBond([owner, validator, amount, startEpoch]);
 
@@ -241,10 +241,21 @@ export const postNewBonding = createAsyncThunk<
   { state: RootState }
 >(POST_NEW_STAKING, async (change, thunkApi) => {
   const { derived } = thunkApi.getState().accounts;
-  const { id, chainId, currency: { address: nativeToken } } = thunkApi.getState().chain.config;
+  const {
+    id,
+    chainId,
+    currency: { address: nativeToken },
+  } = thunkApi.getState().chain.config;
   const integration = getIntegration(chains.namada.id);
   const signer = integration.signer() as Signer;
-  const { owner: source, validatorId: validator, amount, memo } = change;
+  const {
+    owner: source,
+    validatorId: validator,
+    amount,
+    memo,
+    gasLimit,
+    gasPrice,
+  } = change;
   const account = derived[id][source];
   const { type, publicKey } = account.details;
 
@@ -257,11 +268,11 @@ export const postNewBonding = createAsyncThunk<
     },
     {
       token: nativeToken || tokenAddress,
-      feeAmount: new BigNumber(0),
-      gasLimit: new BigNumber(20_000),
+      feeAmount: gasPrice,
+      gasLimit,
       chainId,
       publicKey,
-      memo
+      memo,
     },
     type
   );
@@ -278,11 +289,22 @@ export const postNewUnbonding = createAsyncThunk<
   { state: RootState }
 >(POST_UNSTAKING, async (change, thunkApi) => {
   const { derived } = thunkApi.getState().accounts;
-  const { id, chainId, currency: { address: nativeToken } } = thunkApi.getState().chain.config;
+  const {
+    id,
+    chainId,
+    currency: { address: nativeToken },
+  } = thunkApi.getState().chain.config;
 
   const integration = getIntegration(id);
   const signer = integration.signer() as Signer;
-  const { owner: source, validatorId: validator, amount, memo } = change;
+  const {
+    owner: source,
+    validatorId: validator,
+    amount,
+    memo,
+    gasPrice,
+    gasLimit,
+  } = change;
   const {
     details: { type, publicKey },
   } = derived[id][source];
@@ -295,11 +317,11 @@ export const postNewUnbonding = createAsyncThunk<
     },
     {
       token: nativeToken || tokenAddress,
-      feeAmount: new BigNumber(0),
-      gasLimit: new BigNumber(20_000),
+      feeAmount: gasPrice,
+      gasLimit,
       chainId,
       publicKey,
-      memo
+      memo,
     },
     type
   );
@@ -307,30 +329,42 @@ export const postNewUnbonding = createAsyncThunk<
 
 export const postNewWithdraw = createAsyncThunk<
   void,
-  { owner: string; validatorId: string },
+  {
+    owner: string;
+    validatorId: string;
+    gasPrice: BigNumber;
+    gasLimit: BigNumber;
+  },
   { state: RootState }
->(POST_UNSTAKING, async ({ owner, validatorId }, thunkApi) => {
-  const { derived } = thunkApi.getState().accounts;
-  const { id, chainId, currency: { address: nativeToken } } = thunkApi.getState().chain.config;
-
-  const integration = getIntegration(id);
-  const signer = integration.signer() as Signer;
-  const {
-    details: { type, publicKey },
-  } = derived[id][owner];
-
-  await signer.submitWithdraw(
-    {
-      source: owner,
-      validator: validatorId,
-    },
-    {
-      token: nativeToken || tokenAddress,
-      feeAmount: new BigNumber(0),
-      gasLimit: new BigNumber(20_000),
+>(
+  POST_UNSTAKING,
+  async ({ owner, validatorId, gasPrice, gasLimit }, thunkApi) => {
+    const { derived } = thunkApi.getState().accounts;
+    const {
+      id,
       chainId,
-      publicKey,
-    },
-    type
-  );
-});
+      currency: { address: nativeToken },
+    } = thunkApi.getState().chain.config;
+
+    const integration = getIntegration(id);
+    const signer = integration.signer() as Signer;
+    const {
+      details: { type, publicKey },
+    } = derived[id][owner];
+
+    await signer.submitWithdraw(
+      {
+        source: owner,
+        validator: validatorId,
+      },
+      {
+        token: nativeToken || tokenAddress,
+        feeAmount: gasPrice,
+        gasLimit,
+        chainId,
+        publicKey,
+      },
+      type
+    );
+  }
+);

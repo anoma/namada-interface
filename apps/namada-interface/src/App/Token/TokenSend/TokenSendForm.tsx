@@ -5,12 +5,11 @@ import { useNavigate } from "react-router-dom";
 import { chains } from "@namada/chains";
 import { ActionButton, AmountInput, Icon, Input } from "@namada/components";
 import { getIntegration } from "@namada/integrations";
-import { Query } from "@namada/shared";
 import { Chain, Signer, TokenType, Tokens } from "@namada/types";
-import { mapUndefined } from "@namada/utils";
 
 import { TopLevelRoute } from "App/types";
 import { AccountsState } from "slices/accounts";
+import { GAS_LIMIT } from "slices/fees";
 import { useAppSelector } from "store";
 import { TransferType, TxTransferArgs } from "../types";
 import { parseTarget } from "./TokenSend";
@@ -23,10 +22,8 @@ import {
 
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
-  tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+    tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
 } = process.env;
-
-const GAS_LIMIT = new BigNumber(20_000);
 
 export const submitTransferTransaction = async (
   txTransferArgs: TxTransferArgs
@@ -79,6 +76,7 @@ type Props = {
   defaultTarget?: string;
   tokenType: TokenType;
   minimumGasPrice: BigNumber;
+  isRevealPkNeededFn: (address: string) => boolean;
 };
 
 /**
@@ -112,12 +110,10 @@ const getIsFormInvalid = (
  * gives the description above submit button to make it move obvious for the user
  * that the transfer might be a shielding/unshielding transfer
  */
-const AccountSourceTargetDescription = (
-  props: {
-    isShieldedSource: boolean;
-    isShieldedTarget: boolean;
-  }
-): React.ReactElement => {
+const AccountSourceTargetDescription = (props: {
+  isShieldedSource: boolean;
+  isShieldedTarget: boolean;
+}): React.ReactElement => {
   const { isShieldedSource, isShieldedTarget } = props;
   const source = isShieldedSource ? <b>Shielded</b> : <b>Transparent</b>;
   const target = isShieldedTarget ? <b>Shielded</b> : <b>Transparent</b>;
@@ -133,31 +129,16 @@ const TokenSendForm = ({
   tokenType,
   defaultTarget,
   minimumGasPrice,
+  isRevealPkNeededFn,
 }: Props): JSX.Element => {
   const navigate = useNavigate();
   const chain = useAppSelector<Chain>((state) => state.chain.config);
   const [target, setTarget] = useState<string | undefined>(defaultTarget);
   const [amount, setAmount] = useState<BigNumber | undefined>(new BigNumber(0));
-  const [memo, setMemo] = useState<string>()
+  const [memo, setMemo] = useState<string>();
 
   const [isTargetValid, setIsTargetValid] = useState(true);
   const [isShieldedTarget, setIsShieldedTarget] = useState(false);
-
-  const [isRevealPkNeeded, setIsRevealPkNeeded] = useState<
-    boolean | undefined
-  >();
-
-  // TODO: Expecting that these could be set by the user in the future
-  const gasPrice = minimumGasPrice;
-  const gasLimit = GAS_LIMIT;
-
-  const singleTransferFee = gasPrice.multipliedBy(gasLimit);
-
-  const totalGasFee = mapUndefined(
-    (needed) =>
-      needed ? singleTransferFee.multipliedBy(2) : singleTransferFee,
-    isRevealPkNeeded
-  );
 
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
   const derivedAccounts = derived[chains.namada.id];
@@ -167,10 +148,19 @@ const TokenSendForm = ({
 
   const token = Tokens[tokenType];
 
-  const availableBalance = mapUndefined(
-    (fee) => balance[tokenType]?.minus(fee),
-    totalGasFee
-  );
+  // TODO: Expecting that these could be set by the user in the future
+  const gasPrice = minimumGasPrice;
+  const gasLimit = GAS_LIMIT;
+
+  const singleTransferFee = gasPrice.multipliedBy(gasLimit);
+
+  const isRevealPkNeeded = !isShieldedSource && isRevealPkNeededFn(address);
+
+  const totalGasFee = isRevealPkNeeded
+    ? singleTransferFee.multipliedBy(2)
+    : singleTransferFee;
+
+  const availableBalance = balance[tokenType]?.minus(totalGasFee);
 
   const isFormInvalid = getIsFormInvalid(
     target,
@@ -218,21 +208,6 @@ const TokenSendForm = ({
     })();
   }, [target]);
 
-  useEffect(() => {
-    (async () => {
-      setIsRevealPkNeeded(undefined);
-
-      if (isShieldedSource) {
-        setIsRevealPkNeeded(false);
-      } else {
-        const query = new Query(chain.rpc);
-        const result = await query.query_public_key(address);
-
-        setIsRevealPkNeeded(!result);
-      }
-    })();
-  }, [address]);
-
   const handleOnSendClick = (): void => {
     if (!amount || amount.isNaN() || totalGasFee === undefined) {
       return;
@@ -249,7 +224,7 @@ const TokenSendForm = ({
         gasLimit,
         disposableSigningKey: isShieldedSource,
         memo,
-        nativeToken: chain.currency.address || tokenAddress
+        nativeToken: chain.currency.address || tokenAddress,
       });
     }
   };
@@ -310,10 +285,17 @@ const TokenSendForm = ({
           </ActionButton>
         </InputContainer>
         <InputContainer>
-          <Input type="text" label="Memo" value={memo} onChange={(e) => setMemo(e.target.value)} />
+          <Input
+            type="text"
+            label="Memo"
+            value={memo}
+            onChange={(e) => setMemo(e.target.value)}
+          />
         </InputContainer>
         <InputContainer>{accountSourceTargetDescription}</InputContainer>
-        <p>Gas fee: {totalGasFee?.toString()} {Tokens.NAM.symbol}</p>
+        <p>
+          Gas fee: {totalGasFee?.toString()} {Tokens.NAM.symbol}
+        </p>
       </TokenSendFormContainer>
 
       <ButtonsContainer>

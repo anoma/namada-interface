@@ -14,6 +14,7 @@ import {
   ChangeInStakingPosition,
   StakingPosition,
 } from "slices/StakingAndGovernance";
+import { GAS_LIMIT } from "slices/fees";
 import { UnstakePositionContainer } from "./UnbondPosition.components";
 
 // keys for the table that we want to act upon in table configuration
@@ -36,7 +37,7 @@ const unbondingDetailsConfigurations: TableConfigurations<
     const valueOrInput =
       rowData.key === AMOUNT_TO_UNBOND_KEY ? (
         <td>
-          <input
+          <Input
             onChange={(event) => {
               callbacks?.setAmountToUnstake(event.target.value);
             }}
@@ -65,13 +66,19 @@ type Props = {
   currentBondingPositions: StakingPosition[];
   confirmUnbonding: (changeInStakingPosition: ChangeInStakingPosition) => void;
   cancelUnbonding: () => void;
+  minimumGasPrice: BigNumber;
 };
 
 // contains data and controls to unbond
 export const UnbondPosition = (props: Props): JSX.Element => {
   const [memo, setMemo] = useState<string>();
   const { owner } = useSanitizedParams();
-  const { currentBondingPositions, confirmUnbonding, cancelUnbonding } = props;
+  const {
+    currentBondingPositions,
+    confirmUnbonding,
+    cancelUnbonding,
+    minimumGasPrice,
+  } = props;
   const currentBondingPosition = currentBondingPositions.find(
     (pos) => pos.owner === owner
   );
@@ -79,6 +86,11 @@ export const UnbondPosition = (props: Props): JSX.Element => {
   const stakedAmount = new BigNumber(
     currentBondingPosition?.stakedAmount || "0"
   );
+
+  const gasLimit = GAS_LIMIT;
+  const gasPrice = minimumGasPrice;
+
+  const gasFee = gasLimit.multipliedBy(gasPrice);
 
   // storing the bonding amount input value locally here as string
   // we threat them as strings except below in validation
@@ -136,6 +148,11 @@ export const UnbondPosition = (props: Props): JSX.Element => {
       key: "Remains bonded",
       value: remainsBondedToDisplay,
     },
+    {
+      uuid: "4",
+      key: "Gas fee",
+      value: gasFee.toString(),
+    },
   ];
 
   return (
@@ -146,7 +163,12 @@ export const UnbondPosition = (props: Props): JSX.Element => {
         tableConfigurations={unbondingDetailsConfigurationsWithCallbacks}
         data={unbondingSummary}
       />
-      <Input type="text" value={memo} onChange={(e) => setMemo(e.target.value)} label="Memo" />
+      <Input
+        type="text"
+        value={memo}
+        onChange={(e) => setMemo(e.target.value)}
+        label="Memo"
+      />
       {/* confirm and cancel buttons */}
       <ActionButton
         onClick={() => {
@@ -155,6 +177,8 @@ export const UnbondPosition = (props: Props): JSX.Element => {
             owner: owner as string,
             validatorId: currentBondingPositions[0].validatorId,
             memo,
+            gasLimit,
+            gasPrice,
           };
           confirmUnbonding(changeInStakingPosition);
         }}
@@ -162,14 +186,7 @@ export const UnbondPosition = (props: Props): JSX.Element => {
       >
         Confirm
       </ActionButton>
-      <ActionButton
-        onClick={() => {
-          cancelUnbonding();
-        }}
-        style={{ backgroundColor: "lightgrey", color: "black" }}
-      >
-        Cancel
-      </ActionButton>
+      <ActionButton onClick={cancelUnbonding}>Cancel</ActionButton>
     </UnstakePositionContainer>
   );
 };

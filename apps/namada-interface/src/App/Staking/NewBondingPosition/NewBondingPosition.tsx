@@ -3,6 +3,8 @@ import { useState } from "react";
 
 import {
   ActionButton,
+  Alert,
+  AmountInput,
   Input,
   Stack,
   Text,
@@ -12,9 +14,8 @@ import {
   StakingPosition,
 } from "slices/StakingAndGovernance";
 import { Account } from "slices/accounts";
-import {
-  BondingAddressSelect,
-} from "./NewBondingPosition.components";
+import { GAS_LIMIT } from "slices/fees";
+import { BondingAddressSelect } from "./NewBondingPosition.components";
 
 const REMAINS_BONDED_KEY = "Remains bonded";
 
@@ -25,12 +26,20 @@ type Props = {
   confirmBonding: (changeInStakingPosition: ChangeInStakingPosition) => void;
   // called when the user cancels bonding
   cancelBonding: () => void;
+  minimumGasPrice: BigNumber;
+  isRevealPkNeeded: (address: string) => boolean;
 };
 
 // contains everything what the user needs for bonding funds
 export const NewBondingPosition = (props: Props): JSX.Element => {
-  const { accounts, currentBondingPositions, confirmBonding, cancelBonding } =
-    props;
+  const {
+    accounts,
+    currentBondingPositions,
+    confirmBonding,
+    cancelBonding,
+    minimumGasPrice,
+    isRevealPkNeeded,
+  } = props;
 
   const selectOptions = accounts
     .filter((acc) => !acc.details.isShielded)
@@ -43,14 +52,39 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
   const [memo, setMemo] = useState<string>();
   const currentAddress = currentAccount?.details.address;
 
-  const currentBondingPosition = currentBondingPositions.find(
-    (pos) => pos.owner === currentAccount?.details.address
-  );
-  const stakedAmount: BigNumber = new BigNumber(
-    currentBondingPosition?.stakedAmount || "0"
-  );
+  const stakedAmount = currentBondingPositions
+    .filter((pos) => pos.owner === currentAddress)
+    .reduce((acc, current) => acc.plus(current.stakedAmount), new BigNumber(0));
+
   const currentNAMBalance: BigNumber =
     currentAccount.balance["NAM"] || new BigNumber(0);
+
+  // TODO: Expecting that these could be set by the user in the future
+  const gasPrice = minimumGasPrice;
+  const gasLimit = GAS_LIMIT;
+
+  const singleTransferFee = gasPrice.multipliedBy(gasLimit);
+
+  // gas fee for bonding tx and reveal PK tx (if needed)
+  const bondingGasFee = isRevealPkNeeded(currentAddress)
+    ? singleTransferFee.multipliedBy(2)
+    : singleTransferFee;
+
+  // gas fee for bonding tx and reveal PK tx (if needed) plus expected unbond and
+  // withdraw gas fees in the future
+  const expectedTotalGasFee = bondingGasFee.plus(
+    singleTransferFee.multipliedBy(2)
+  );
+
+  const realAvailableBalance = BigNumber.maximum(
+    currentNAMBalance.minus(bondingGasFee),
+    0
+  );
+
+  const safeAvailableBalance = BigNumber.maximum(
+    currentNAMBalance.minus(expectedTotalGasFee),
+    0
+  );
 
   const handleAddressChange = (
     e: React.ChangeEvent<HTMLSelectElement>
@@ -64,29 +98,21 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
     }
   };
 
-  // storing the unbonding input value locally here as string
-  // we threat them as strings except below in validation
-  // might have to change later to numbers
-  const [amountToBond, setAmountToBond] = useState("");
+  const [amountToBond, setAmountToBond] = useState<BigNumber | undefined>();
 
-  // unbonding amount and displayed value with a very naive validation
-  // TODO (https://github.com/anoma/namada-interface/issues/4#issuecomment-1260564499)
-  // do proper validation as part of input
-  const amountToBondNumber = new BigNumber(amountToBond);
+  const showGasFeeWarning =
+    typeof amountToBond !== "undefined" &&
+    amountToBond.isGreaterThan(safeAvailableBalance) &&
+    amountToBond.isLessThanOrEqualTo(realAvailableBalance);
 
-  // if this is the case, we display error message
-  const isEntryIncorrect =
-    (amountToBond !== "" && amountToBondNumber.isLessThanOrEqualTo(0)) ||
-    amountToBondNumber.isGreaterThan(currentNAMBalance) ||
-    amountToBondNumber.isNaN();
-
-  // if incorrect or empty value we disable the button
-  const isEntryIncorrectOrEmpty = isEntryIncorrect || amountToBond === "";
+  const isFormInvalid =
+    typeof amountToBond === "undefined" || amountToBond.isEqualTo(0);
 
   // we convey this with an object that can be used
-  const remainsBondedToDisplay = isEntryIncorrect
-    ? `The bonding amount can be more than 0 and at most ${currentNAMBalance}`
-    : `${stakedAmount.plus(amountToBondNumber).toString()}`;
+  const remainsBondedToDisplay =
+    typeof amountToBond === "undefined"
+      ? ""
+      : stakedAmount.plus(amountToBond).toString();
 
   // data for the table
   const bondingSummary = [
@@ -96,22 +122,31 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
       value: `${currentNAMBalance}`,
     },
     {
-      uuid: "2",
+      uuid: "1",
+      key: "Expected gas fee",
+      value: `${expectedTotalGasFee}`,
+    },
+    {
+      uuid: "3",
       key: "Bonded amount",
       value: String(stakedAmount),
     },
     {
-      uuid: "3",
+      uuid: "4",
       key: "Amount to bond",
-      value: amountToBond,
+      value: amountToBond?.toString(),
       hint: "stake",
     },
     {
-      uuid: "4",
+      uuid: "5",
       key: REMAINS_BONDED_KEY,
       value: remainsBondedToDisplay,
     },
   ];
+
+  const handleMaxButtonClick = (): void => {
+    setAmountToBond(safeAvailableBalance);
+  };
 
   return (
     <div style={{ width: "100%", margin: "0 20px" }}>
@@ -124,45 +159,60 @@ export const NewBondingPosition = (props: Props): JSX.Element => {
           onChange={handleAddressChange}
         />
 
-        <Input
-          type="text"
-          value={amountToBond}
+        <AmountInput
           label="Amount"
-          onChange={(e) => {
-            setAmountToBond(e.target.value);
-          }}
+          value={amountToBond}
+          onChange={(e) => setAmountToBond(e.target.value)}
+          min={0}
+          max={realAvailableBalance}
         />
 
-        <Input type="text" value={memo} onChange={(e) => setMemo(e.target.value)} label="Memo" />
+        {showGasFeeWarning && (
+          <Alert type="warning" title="Warning!">
+            We recommend leaving at least {expectedTotalGasFee.toString()} in
+            your account to allow for future unbond and withdraw transactions.
+          </Alert>
+        )}
+
+        <ActionButton onClick={handleMaxButtonClick}>Max</ActionButton>
+
+        <Input
+          type="text"
+          value={memo}
+          onChange={(e) => setMemo(e.target.value)}
+          label="Memo"
+        />
 
         <div>
-          {bondingSummary.map(({ key, value }, i) => <Text style={{ color: "white" }} key={i}>{key}: {value}</Text>)}
+          {bondingSummary.map(({ key, value }, i) => (
+            <Text className="text-white" key={i}>
+              {key}: {value}
+            </Text>
+          ))}
         </div>
 
         {/* confirmation and cancel */}
         <ActionButton
           onClick={() => {
+            if (typeof amountToBond === "undefined") {
+              return;
+            }
+
             const changeInStakingPosition: ChangeInStakingPosition = {
-              amount: amountToBondNumber,
+              amount: amountToBond,
               owner: currentAddress,
               validatorId: currentBondingPositions[0].validatorId,
               memo,
+              gasPrice,
+              gasLimit,
             };
             confirmBonding(changeInStakingPosition);
           }}
-          disabled={isEntryIncorrectOrEmpty}
+          disabled={isFormInvalid}
         >
           Confirm
         </ActionButton>
-        <ActionButton
-          onClick={() => {
-            cancelBonding();
-          }}
-          style={{ backgroundColor: "lightgrey", color: "black" }}
-        >
-          Cancel
-        </ActionButton>
-
+        <ActionButton onClick={cancelBonding}>Cancel</ActionButton>
       </Stack>
     </div>
   );
