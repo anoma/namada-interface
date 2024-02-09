@@ -4,68 +4,61 @@ import { KVStore } from "@namada/storage";
 import { Chain } from "@namada/types";
 import { ExtensionBroadcaster } from "extension";
 
-const {
-  NAMADA_INTERFACE_NAMADA_TOKEN:
-  tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
-} = process.env;
-
 export const CHAINS_KEY = "chains";
 
 export class ChainsService {
   constructor(
     protected readonly chainsStore: KVStore<Chain>,
     protected readonly broadcaster: ExtensionBroadcaster
-  ) { }
+  ) {
+    this._initChain();
+  }
+
+  private async _queryNativeToken(chain: Chain): Promise<Chain> {
+    const query = new Query(chain.rpc);
+    try {
+      const nativeToken = await query.query_native_token();
+      if (nativeToken) {
+        chain.currency.address = nativeToken;
+      }
+    } catch (e) {
+      console.warn(`Chain is unreachable: ${e}`);
+    }
+
+    await this.chainsStore.set(CHAINS_KEY, chain);
+    return chain;
+  }
+
+  private async _initChain(): Promise<void> {
+    // Initialize default chain in storage
+    const chain = (await this.chainsStore.get(CHAINS_KEY)) || chains.namada;
+    // Default chain config does not have a token address, so we query:
+    if (!chain.currency.address) {
+      this._queryNativeToken(chain);
+    }
+  }
 
   async getChain(): Promise<Chain> {
-    const chain = await this.chainsStore.get(CHAINS_KEY);
-    if (!chain) {
-      // Initialize default chain in storage
-      const defaultChain = chains.namada;
-      const {
-        currency: { address },
-      } = defaultChain;
-      if (!address) {
-        const query = new Query(defaultChain.rpc);
-        try {
-          const nativeToken = await query.query_native_token();
-          defaultChain.currency.address = nativeToken || tokenAddress;
-        } catch (e) {
-          console.warn(`Chain is not reachable: ${e}`);
-        }
-      }
-
-      await this.chainsStore.set(CHAINS_KEY, defaultChain);
-      return defaultChain;
+    let chain = (await this.chainsStore.get(CHAINS_KEY)) || chains.namada;
+    // If a previous query for native token failed, attempt again:
+    if (!chain.currency.address) {
+      chain = await this._queryNativeToken(chain);
     }
     return chain;
   }
 
   async updateChain(chainId: string, url: string): Promise<void> {
-    const chain = await this.getChain();
+    let chain = await this.getChain();
     if (!chain) {
       throw new Error("No chain found!");
     }
-    let {
-      currency: { address },
-    } = chain;
-
-    // Attempt to fetch native token, fallback to env
-    if (!address) {
-      const query = new Query(chain.rpc);
-      const nativeToken = await query.query_native_token();
-      address = nativeToken || tokenAddress;
-    }
-
-    await this.chainsStore.set(CHAINS_KEY, {
+    // Update RPC & Chain ID, then query for native token
+    chain = {
       ...chain,
       chainId,
       rpc: url,
-      currency: {
-        ...chain.currency,
-        address,
-      },
-    });
+    };
+    await this.chainsStore.set(CHAINS_KEY, await this._queryNativeToken(chain));
     this.broadcaster.updateNetwork();
   }
 }
