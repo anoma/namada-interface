@@ -132,15 +132,8 @@ export const FaucetForm: React.FC<Props> = ({
             throw new Error(`${code} - ${message}`);
           }
         )) || {};
-      if (!tag || !challenge) {
-        throw new Error("Request challenge did not return a valid response");
-      }
 
       const solution = computePowSolution(challenge, difficulty || 0);
-
-      if (!solution) {
-        throw new Error("A solution was not computed!");
-      }
 
       const signer = integration.signer();
       if (!signer) {

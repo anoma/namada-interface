@@ -1,26 +1,20 @@
 import { fromHex, toHex } from "@cosmjs/encoding";
 import { sha256 } from "node-forge";
-
-type ChallengeResponse = {
-  challenge: string;
-  tag: string;
-};
-
-type SettingsResponse = {
-  difficulty: number;
-  chain_id: string;
-  start_at: number;
-  tokens_alias_to_address: Record<string, string>;
-};
-
+import {
+  ChallengeResponse,
+  Data,
+  SettingsResponse,
+  TransferResponse,
+} from "./types";
 /**
- * Request faucet settings
+ * Wrapper for fetch requests to handle ReadableStream response when errors are received from API
  */
-export const requestSettings = async (
-  url: string
-): Promise<SettingsResponse> => {
-  return await fetch(new URL(`${url}/setting`), {
-    method: "GET",
+export async function request<T = unknown>(
+  url: string,
+  options: RequestInit = { method: "GET" }
+): Promise<T> {
+  return (await fetch(new URL(url), {
+    ...options,
   })
     .then((response) => {
       if (response.ok) {
@@ -29,15 +23,25 @@ export const requestSettings = async (
       const reader = response?.body?.getReader();
       return reader
         ?.read()
-        .then(({ value }) =>
-          Promise.reject(JSON.parse(new TextDecoder().decode(value)))
+        .then((data) =>
+          Promise.reject(JSON.parse(new TextDecoder().decode(data.value)))
         );
     })
     .catch((e) => {
       console.error(e);
       return Promise.reject(e);
-    });
+    })) as T;
+}
+
+/**
+ * Request faucet settings
+ */
+export const requestSettings = async (
+  url: string
+): Promise<SettingsResponse> => {
+  return request(`${url}/setting`);
 };
+
 /**
  * Request challenge from endpoint url
  *
@@ -47,49 +51,8 @@ export const requestSettings = async (
 export const requestChallenge = async (
   url: string,
   publicKey: string
-): Promise<ChallengeResponse | undefined> => {
-  const response = await fetch(new URL(`${url}/challenge/${publicKey}`), {
-    method: "GET",
-  })
-    .then((response) => {
-      if (response.ok) {
-        return response.json() as Promise<ChallengeResponse>;
-      }
-      const reader = response?.body?.getReader();
-      return reader
-        ?.read()
-        .then(({ value }) =>
-          Promise.reject(JSON.parse(new TextDecoder().decode(value)))
-        );
-    })
-    .catch((e) => {
-      console.error(e);
-      return Promise.reject(e);
-    });
-
-  return response;
-};
-
-export type TransferDetails = {
-  target: string;
-  token: string;
-  amount: number;
-};
-
-export type Data = {
-  solution: string;
-  tag: string;
-  challenge: unknown;
-  challenge_signature: string;
-  transfer: TransferDetails;
-  player_id: string;
-};
-
-export type TransferResponse = {
-  amount: number;
-  sent: boolean;
-  target: string;
-  token: string;
+): Promise<ChallengeResponse> => {
+  return request(`${url}/challenge/${publicKey}`);
 };
 
 /**
@@ -103,28 +66,13 @@ export const requestTransfer = async (
   url: string,
   data: Data
 ): Promise<TransferResponse> => {
-  return await fetch(new URL(url), {
+  return request(url, {
     method: "POST",
     body: JSON.stringify(data),
     headers: {
       "Content-Type": "application/json",
     },
-  })
-    .then((response) => {
-      if (response.ok) {
-        return response.json();
-      }
-      // Handle ReadableStream
-      const reader = response?.body?.getReader();
-      return reader
-        ?.read()
-        .then(({ value }) =>
-          Promise.reject(JSON.parse(new TextDecoder().decode(value)))
-        );
-    })
-    .catch((e) => {
-      return Promise.reject(e);
-    });
+  });
 };
 
 /**
@@ -171,7 +119,7 @@ export const getSolutionBytes = (int: number): Uint8Array => {
 export const computePowSolution = (
   challenge: string,
   difficulty: number
-): string | undefined => {
+): string => {
   let i = 0;
   let solution: string = "";
 
@@ -202,3 +150,5 @@ export const computePowSolution = (
   }
   return solution;
 };
+
+export * from "./types";
