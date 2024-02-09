@@ -192,44 +192,24 @@ impl Sdk {
     ) -> Result<JsValue, JsError> {
         let tx = match tx_type {
             TxType::Bond => {
-                let mut tx = self
-                    .build_bond(specific_msg, tx_msg, Some(gas_payer))
+                self.build_bond(specific_msg, tx_msg, Some(gas_payer))
                     .await?
-                    .tx;
-                // TODO: Remove this! This is only for testing current version of Ledger.
-                // This will replace sections like "memo" with their hash
-                Tx::wallet_filter(&mut tx);
-                tx
+                    .tx
             }
             TxType::Unbond => {
-                let mut tx = self
-                    .build_unbond(specific_msg, tx_msg, Some(gas_payer))
+                self.build_unbond(specific_msg, tx_msg, Some(gas_payer))
                     .await?
-                    .tx;
-                // TODO: Remove this! This is only for testing current version of Ledger.
-                // This will replace sections like "memo" with their hash
-                Tx::wallet_filter(&mut tx);
-                tx
+                    .tx
             }
             TxType::Withdraw => {
-                let mut tx = self
-                    .build_withdraw(specific_msg, tx_msg, Some(gas_payer))
+                self.build_withdraw(specific_msg, tx_msg, Some(gas_payer))
                     .await?
-                    .tx;
-                // TODO: Remove this! This is only for testing current version of Ledger.
-                // This will replace sections like "memo" with their hash
-                Tx::wallet_filter(&mut tx);
-                tx
+                    .tx
             }
             TxType::Transfer => {
-                let mut tx = self
-                    .build_transfer(specific_msg, tx_msg, None, Some(gas_payer))
+                self.build_transfer(specific_msg, tx_msg, None, Some(gas_payer))
                     .await?
-                    .tx;
-                // TODO: Remove this! This is only for testing current version of Ledger.
-                // This will replace sections like "memo" with their hash
-                Tx::wallet_filter(&mut tx);
-                tx
+                    .tx
             }
             TxType::IBCTransfer => {
                 self.build_ibc_transfer(specific_msg, tx_msg, Some(gas_payer))

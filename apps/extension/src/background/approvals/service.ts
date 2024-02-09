@@ -178,7 +178,7 @@ export class ApprovalsService {
     } = specificDetails;
     const amount = new BigNumber(amountBN.toString());
 
-    const { publicKey = "" } = txDetails;
+    const { publicKey = "", token: nativeToken } = txDetails;
 
     return {
       source,
@@ -186,7 +186,7 @@ export class ApprovalsService {
       tokenAddress,
       amount: amount.toString(),
       publicKey,
-      nativeToken: txDetails.token,
+      nativeToken,
     };
   };
 
@@ -201,7 +201,7 @@ export class ApprovalsService {
     } = specificDetails;
     const amount = new BigNumber(amountBN.toString());
 
-    const { publicKey = "" } = txDetails;
+    const { publicKey = "", token: nativeToken } = txDetails;
 
     return {
       source,
@@ -209,6 +209,7 @@ export class ApprovalsService {
       tokenAddress,
       amount: amount.toString(),
       publicKey,
+      nativeToken,
     };
   };
 
@@ -222,7 +223,7 @@ export class ApprovalsService {
       amount,
     } = specificDetails;
 
-    const { publicKey = "" } = txDetails;
+    const { publicKey = "", token: nativeToken } = txDetails;
 
     return {
       source,
@@ -230,6 +231,7 @@ export class ApprovalsService {
       tokenAddress,
       amount: amount.toString(),
       publicKey,
+      nativeToken,
     };
   };
 
@@ -250,6 +252,7 @@ export class ApprovalsService {
       tokenAddress,
       amount: amount.toString(),
       publicKey,
+      nativeToken: tokenAddress,
     };
   };
 
@@ -259,12 +262,13 @@ export class ApprovalsService {
     const { source, amount: amountBN } = specificDetails;
     const amount = new BigNumber(amountBN.toString());
 
-    const { publicKey = "" } = txDetails;
+    const { publicKey = "", token: nativeToken } = txDetails;
 
     return {
       source,
       amount: amount.toString(),
       publicKey,
+      nativeToken,
     };
   };
 
@@ -273,12 +277,13 @@ export class ApprovalsService {
 
     const { source, validator } = specificDetails;
 
-    const { publicKey = "" } = txDetails;
+    const { publicKey = "", token: nativeToken } = txDetails;
 
     return {
       source,
       validator,
       publicKey,
+      nativeToken,
     };
   };
 
@@ -290,12 +295,13 @@ export class ApprovalsService {
 
     const { signer } = specificDetails;
 
-    const { publicKey = "" } = txDetails;
+    const { publicKey = "", token: nativeToken } = txDetails;
 
     //TODO: check this
     return {
       source: signer,
       publicKey,
+      nativeToken,
     };
   };
 

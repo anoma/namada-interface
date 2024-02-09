@@ -1,9 +1,9 @@
 import { v5 as uuid } from "uuid";
 import browser from "webextension-polyfill";
 
-import { ISignature } from "@namada/ledger-namada";
 import { Message, SignatureMsgValue, TxMsgValue, TxProps } from "@namada/types";
 import { Result } from "@namada/utils";
+import { ISignature } from "@zondax/ledger-namada";
 
 /**
  * Query the current extension tab and close it
