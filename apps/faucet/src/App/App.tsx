@@ -22,7 +22,7 @@ import { FaucetForm } from "App/Faucet";
 import { chains } from "@namada/chains";
 import { useUntil } from "@namada/hooks";
 import { Account, AccountType } from "@namada/types";
-import { requestSettings } from "utils";
+import { API } from "utils";
 import dotsBackground from "../../public/bg-dots.svg";
 import { CallToActionCard } from "./CallToActionCard";
 import { CardsContainer } from "./Card.components";
@@ -42,6 +42,7 @@ const {
 
 const apiUrl = isProxied ? `http://localhost:${proxyPort}/proxy` : faucetApiUrl;
 const url = `${apiUrl}${faucetApiEndpoint}`;
+const api = new API(url);
 const limit = parseInt(faucetLimit);
 const runFullNodeUrl = "https://docs.namada.net/operators/ledger";
 const becomeBuilderUrl = "https://docs.namada.net/integrating-with-namada";
@@ -57,6 +58,7 @@ type AppContext = Settings & {
   limit: number;
   url: string;
   settingsError?: string;
+  api: API;
 };
 
 const START_TIME_UTC = 1702918800;
@@ -81,6 +83,7 @@ export const AppContext = createContext<AppContext>({
   ...defaults,
   limit,
   url,
+  api,
 });
 
 enum ExtensionAttachStatus {
@@ -138,8 +141,9 @@ export const App: React.FC = () => {
     // Fetch settings from faucet API
     (async () => {
       try {
-        const { difficulty, tokens_alias_to_address: tokens } =
-          await requestSettings(url).catch((e) => {
+        const { difficulty, tokens_alias_to_address: tokens } = await api
+          .settings()
+          .catch((e) => {
             const message = e.errors?.message;
             setSettingsError(
               `Error requesting settings: ${message?.join(" ")}`
@@ -190,6 +194,7 @@ export const App: React.FC = () => {
         settingsError,
         limit,
         url,
+        api,
         ...settings,
       }}
     >
@@ -225,9 +230,9 @@ export const App: React.FC = () => {
               )}
               {isExtensionConnected && (
                 <FaucetForm
-                  isTestnetLive={isTestnetLive}
                   accounts={accounts}
                   integration={integration}
+                  isTestnetLive={isTestnetLive}
                 />
               )}
               {extensionAttachStatus === ExtensionAttachStatus.Installed &&
