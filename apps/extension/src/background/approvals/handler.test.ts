@@ -36,7 +36,7 @@ describe.only("approvals handler", () => {
     jest.clearAllMocks();
   });
 
-  it("it call proper handlers", () => {
+  test("handlers switch", () => {
     const service: jest.Mocked<ApprovalsService> = createMockInstance(
       ApprovalsService as any
     );

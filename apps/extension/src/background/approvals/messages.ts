@@ -4,7 +4,7 @@ import { ROUTE } from "./constants";
 
 import { validateProps } from "utils";
 
-enum MessageType {
+export enum MessageType {
   SubmitApprovedTx = "submit-approved-tx",
   RejectTx = "reject-tx",
   SubmitApprovedSignature = "submit-approved-signature",
@@ -127,12 +127,16 @@ export class ConnectInterfaceResponseMsg extends Message<void> {
   }
 
   validate(): void {
-    if (!this.interfaceTabId) {
+    if (typeof this.interfaceTabId === "undefined") {
       throw new Error("interfaceTabId not set");
     }
 
     if (!this.interfaceOrigin) {
       throw new Error("interfaceOrigin not set");
+    }
+
+    if (typeof this.allowConnection === "undefined") {
+      throw new Error("allowConnection not set");
     }
   }
 
@@ -155,7 +159,7 @@ export class RevokeConnectionMsg extends Message<void> {
   }
 
   validate(): void {
-    if (!this.originToRevoke) {
+    if (typeof this.originToRevoke === "undefined") {
       throw new Error("originToRevoke not set");
     }
   }
