@@ -83,12 +83,6 @@ describe("Namada", () => {
 
     test("import account & derive addresses", async () => {
       await importAccount(browser, page);
-      // Wait for close page button
-      const closePageBtn = await page.waitForSelector(
-        "[data-testid='setup-close-page-btn']",
-        {}
-      );
-      expect(closePageBtn).not.toBeNull();
     });
 
     test("import accounts with passphrases", async () => {
@@ -101,7 +95,10 @@ describe("Namada", () => {
       );
       expect(closePageBtn).not.toBeNull();
 
-      await importAccount(browser, page, { passphrase: passphrase1 });
+      await importAccount(browser, page, {
+        passphrase: passphrase1,
+        skipExpect: true,
+      });
 
       // Wait for alert
       const errorAlert = await page.waitForSelector(

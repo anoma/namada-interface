@@ -1,5 +1,4 @@
 import * as puppeteer from "puppeteer";
-
 import {
   allowClipboardRead,
   openSetup,
@@ -10,7 +9,7 @@ import { alias0, mnemonic0, pwd } from "../utils/values";
 export const importAccount = async (
   browser: puppeteer.Browser,
   page: puppeteer.Page,
-  options?: { passphrase?: string }
+  options?: { passphrase?: string; skipExpect?: boolean }
 ): Promise<void> => {
   await openSetup(browser, page);
 
@@ -67,6 +66,14 @@ export const importAccount = async (
     await page.waitForSelector("[data-testid='setup-import-keys-next-button']")
   )?.click();
   await page.waitForNavigation();
+
+  if (!options?.skipExpect) {
+    const closePageBtn = await page.waitForSelector(
+      "[data-testid='setup-close-page-btn']",
+      {}
+    );
+    expect(closePageBtn).not.toBeNull();
+  }
 };
 
 export const createAccount = async (
