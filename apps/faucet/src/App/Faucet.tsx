@@ -13,12 +13,7 @@ import { Namada } from "@namada/integrations";
 import { Account } from "@namada/types";
 import { bech32mValidation, shortenAddress } from "@namada/utils";
 
-import {
-  TransferResponse,
-  computePowSolution,
-  requestChallenge,
-  requestTransfer,
-} from "../utils";
+import { TransferResponse, computePowSolution } from "../utils";
 import { AppContext } from "./App";
 import { InfoContainer } from "./App.components";
 import {
@@ -48,7 +43,7 @@ export const FaucetForm: React.FC<Props> = ({
   integration,
   isTestnetLive,
 }) => {
-  const { difficulty, settingsError, limit, tokens, url } =
+  const { api, difficulty, settingsError, limit, tokens } =
     useContext(AppContext);
 
   const accountLookup = accounts.reduce(
@@ -58,7 +53,6 @@ export const FaucetForm: React.FC<Props> = ({
     },
     {} as Record<string, Account>
   );
-
   const [account, setAccount] = useState<Account>(accounts[0]);
   const [tokenAddress, setTokenAddress] = useState<string>();
   const [amount, setAmount] = useState<number | undefined>(undefined);
@@ -126,21 +120,13 @@ export const FaucetForm: React.FC<Props> = ({
         throw new Error("Account does not have a public key!");
       }
 
-      const { challenge, tag } =
-        (await requestChallenge(url, account.publicKey).catch(
-          ({ message, code }) => {
-            throw new Error(`${code} - ${message}`);
-          }
-        )) || {};
-      if (!tag || !challenge) {
-        throw new Error("Request challenge did not return a valid response");
-      }
+      const { challenge, tag } = await api
+        .challenge(account.publicKey)
+        .catch(({ message, code }) => {
+          throw new Error(`Unable to request challenge: ${code} - ${message}`);
+        });
 
       const solution = computePowSolution(challenge, difficulty || 0);
-
-      if (!solution) {
-        throw new Error("A solution was not computed!");
-      }
 
       const signer = integration.signer();
       if (!signer) {
@@ -165,10 +151,10 @@ export const FaucetForm: React.FC<Props> = ({
         },
       };
 
-      const response = await requestTransfer(url, submitData).catch((e) => {
+      const response = await api.submitTransfer(submitData).catch((e) => {
         console.info(e);
         const { code, message } = e;
-        throw new Error(`Unable to request transfer: ${code} ${message}`);
+        throw new Error(`Unable to submit transfer: ${code} ${message}`);
       });
 
       if (response.sent) {
