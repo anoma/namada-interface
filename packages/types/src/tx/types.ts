@@ -1,15 +1,15 @@
 import BigNumber from "bignumber.js";
-import { TokenInfo } from "./tokens";
+import { TokenInfo } from "../tokens";
 
 import {
-  TxMsgValue,
-  SubmitBondMsgValue,
-  SubmitUnbondMsgValue,
-  SubmitWithdrawMsgValue,
-  TransferMsgValue,
   EthBridgeTransferMsgValue,
   SignatureMsgValue,
+  SubmitBondMsgValue,
+  SubmitUnbondMsgValue,
   SubmitVoteProposalMsgValue,
+  SubmitWithdrawMsgValue,
+  TransferMsgValue,
+  TxMsgValue,
 } from "./schema";
 
 // TODO: These could probably be removed altogether, but maybe they're useful to

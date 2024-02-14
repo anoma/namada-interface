@@ -6,13 +6,13 @@ import {
   Account as AccountType,
   BridgeType,
   Chain,
-  CosmosTokens,
   CosmosTokenType,
   ExtensionKey,
   Extensions,
   TokenType,
   Tokens,
   ChainKey,
+  CosmosTokens,
 } from "@namada/types";
 import {
   Alert,

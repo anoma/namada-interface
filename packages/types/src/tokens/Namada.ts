@@ -1,36 +1,12 @@
 import { RegisteredCoinType, registeredCoinTypes } from "slip44";
+import { Symbols, TokenLookup, TokenType } from "./types";
+
+// Define default Namada tokens and assign SLIP-044 attributes
 
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
     nativeToken = "tnam1q8ctk7tr337f85dw69q0rsrggasxjjf5jq2s2wph",
 } = process.env;
-
-export type TokenInfo = {
-  symbol: string;
-  type: number;
-  path: number;
-  coin: string;
-  url: string;
-  address: string;
-  nativeAddress?: string;
-  isNut?: boolean;
-  coinGeckoId?: string;
-};
-
-// Declare symbols for tokens we support:
-// TODO: This will need to be refactored for mainnet!
-export const Symbols = [
-  "NAM",
-  "BTC",
-  "DOT",
-  "ETH",
-  "SCH",
-  "APF",
-  "KAR",
-] as const;
-
-export type TokenType = (typeof Symbols)[number];
-type Tokens = Record<TokenType, TokenInfo>;
 
 const supportedCoinTypes: RegisteredCoinType[] = [
   ...registeredCoinTypes.filter(([, , symbol]) => {
@@ -39,7 +15,7 @@ const supportedCoinTypes: RegisteredCoinType[] = [
 ];
 
 export const Tokens = supportedCoinTypes.reduce(
-  (tokens: Tokens, coinType: RegisteredCoinType) => {
+  (tokens: TokenLookup, coinType: RegisteredCoinType) => {
     const [type, path, symbol = "", coin, url = ""] = coinType;
 
     tokens[`${symbol as TokenType}`] = {
@@ -53,7 +29,7 @@ export const Tokens = supportedCoinTypes.reduce(
 
     return tokens;
   },
-  {} as Tokens
+  {} as TokenLookup
 );
 
 // Map a few test addresses for now:

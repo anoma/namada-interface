@@ -1,13 +1,12 @@
 import { RegisteredCoinType, registeredCoinTypes } from "slip44";
-import { TokenInfo } from "./types";
+import {
+  CosmosMinDenom,
+  CosmosSymbols,
+  CosmosTokenLookup,
+  CosmosTokenType,
+} from "./types";
 
-export type CosmosMinDenom = "uatom" | "uosmo";
-
-// Tokens in Cosmos ecosystem
-export const CosmosSymbols = ["ATOM", "OSMO"] as const;
-
-export type CosmosTokenType = (typeof CosmosSymbols)[number];
-type CosmosTokens = Record<CosmosTokenType, TokenInfo>;
+// Define tokens and helpers for Cosmos ecosystem
 
 // TODO: As Cosmos tokens are added to our TokenType, map corresponding denom from Keplr config
 // See: https://github.com/chainapsis/keplr-wallet/blob/master/packages/extension/src/config.ts for all values in Keplr
@@ -41,7 +40,7 @@ const supportedCoinTypes: RegisteredCoinType[] = registeredCoinTypes.filter(
 );
 
 export const CosmosTokens = supportedCoinTypes.reduce(
-  (tokens: CosmosTokens, coinType: RegisteredCoinType) => {
+  (tokens: CosmosTokenLookup, coinType: RegisteredCoinType) => {
     const [type, path, symbol = "", coin, url = ""] = coinType;
 
     tokens[`${symbol as CosmosTokenType}`] = {
@@ -55,7 +54,7 @@ export const CosmosTokens = supportedCoinTypes.reduce(
 
     return tokens;
   },
-  {} as CosmosTokens
+  {} as CosmosTokenLookup
 );
 
 CosmosTokens["ATOM"].coinGeckoId = "cosmos";
