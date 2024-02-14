@@ -1,7 +1,9 @@
 import { RegisteredCoinType, registeredCoinTypes } from "slip44";
 import { Symbols, TokenLookup, TokenType } from "./types";
 
-// Define default Namada tokens and assign SLIP-044 attributes
+/**
+ * Define default Namada tokens and assign SLIP-044 attributes
+ */
 
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
@@ -37,6 +39,7 @@ Tokens["NAM"] = {
   ...Tokens["NAM"],
   url: "https://namada.net",
   address: nativeToken,
+  // Symbol for SE. Set to "NAM" for mainnet
   symbol: "Naan",
 };
 

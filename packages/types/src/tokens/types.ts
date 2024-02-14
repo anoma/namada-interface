@@ -25,7 +25,52 @@ export type TokenType = (typeof Symbols)[number];
 export type TokenLookup = Record<TokenType, TokenInfo>;
 
 // Tokens in Cosmos ecosystem
-export const CosmosSymbols = ["ATOM", "OSMO"] as const;
-export type CosmosMinDenom = "uatom" | "uosmo";
+export const CosmosSymbols = [
+  "ATOM",
+  "OSMO",
+  "ION",
+  "SCRT",
+  "AKT",
+  "CRO",
+  "CTK",
+  "IRIS",
+  "REGEN",
+  "XPRT",
+  "DVPN",
+  "BOOT",
+  "JUNO",
+  "STARS",
+  "AXL",
+  "SOMM",
+  "UMEE",
+  "GRAV",
+  "STRD",
+  "EVMOS",
+  "INJ",
+] as const;
+
+export type CosmosMinDenom =
+  | "uatom"
+  | "uosmo"
+  | "uion"
+  | "uscrt"
+  | "uakt"
+  | "basecro"
+  | "uctk"
+  | "uiris"
+  | "uregen"
+  | "uxprt"
+  | "udvpn"
+  | "boot"
+  | "ujuno"
+  | "ustars"
+  | "uaxl"
+  | "usomm"
+  | "uumee"
+  | "ugraviton"
+  | "ustrd"
+  | "aevmos"
+  | "inj";
+
 export type CosmosTokenType = (typeof CosmosSymbols)[number];
 export type CosmosTokenLookup = Record<CosmosTokenType, TokenInfo>;

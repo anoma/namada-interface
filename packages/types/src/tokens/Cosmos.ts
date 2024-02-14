@@ -6,14 +6,35 @@ import {
   CosmosTokenType,
 } from "./types";
 
-// Define tokens and helpers for Cosmos ecosystem
+/**
+ * Define tokens and helpers for Cosmos ecosystem
+ */
 
-// TODO: As Cosmos tokens are added to our TokenType, map corresponding denom from Keplr config
-// See: https://github.com/chainapsis/keplr-wallet/blob/master/packages/extension/src/config.ts for all values in Keplr
+// See: https://github.com/chainapsis/keplr-wallet/blob/master/packages/extension/src/config.ts
+// for all values in Keplr
 type CosmosDenom = [CosmosMinDenom, CosmosTokenType];
 const CosmosTokenDenoms: CosmosDenom[] = [
   ["uatom", "ATOM"],
   ["uosmo", "OSMO"],
+  ["uion", "ION"],
+  ["uscrt", "SCRT"],
+  ["uakt", "AKT"],
+  ["basecro", "CRO"],
+  ["uctk", "CTK"],
+  ["uiris", "IRIS"],
+  ["uregen", "REGEN"],
+  ["uxprt", "XPRT"],
+  ["udvpn", "DVPN"],
+  ["boot", "BOOT"],
+  ["ujuno", "JUNO"],
+  ["ustars", "STARS"],
+  ["uaxl", "AXL"],
+  ["usomm", "SOMM"],
+  ["uumee", "UMEE"],
+  ["ugraviton", "GRAV"],
+  ["ustrd", "STRD"],
+  ["aevmos", "EVMOS"],
+  ["inj", "INJ"],
 ];
 
 const tokenDenomLookup = (
@@ -62,7 +83,7 @@ CosmosTokens["ATOM"].coinGeckoId = "cosmos";
 CosmosTokens["OSMO"] = {
   symbol: "OSMO",
   type: 0,
-  path: 0,
+  path: 118,
   coin: "Osmo",
   url: "https://osmosis.zone/",
   address: "",
