@@ -149,7 +149,7 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
   );
 
   const onShowPassphraseChange = useCallback(
-    (e) => {
+    (e: React.MouseEvent) => {
       e.preventDefault();
       if (!showPassphrase) {
         setPassphrase("");

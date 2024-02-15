@@ -75,7 +75,7 @@ const TokenReceive = (): JSX.Element => {
                 options={{
                   type: "image/jpeg",
                   quality: 0.3,
-                  level: "M",
+                  errorCorrectionLevel: "M",
                   color: {
                     dark: "#222",
                     light: "#eee",

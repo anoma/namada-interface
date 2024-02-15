@@ -12,9 +12,6 @@ import * as utils from "extension/utils";
 import { DBType, KVStoreMock, init } from "test/init";
 import { ACTIVE_ACCOUNT, keyStore, password } from "./data.mock";
 
-// Needed for now as utils import webextension-polyfill directly
-jest.mock("webextension-polyfill", () => ({}));
-
 describe("Namada", () => {
   let namada: Namada;
   let iDBStore: KVStoreMock<DBType>;
