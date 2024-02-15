@@ -41,7 +41,6 @@ export const mockAppState: RootState = {
     },
   },
   settings: {
-    fiatCurrency: "USD",
     connectedChains: [],
   },
   stakingAndGovernance: {
