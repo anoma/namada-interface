@@ -1,6 +1,6 @@
 import { IntegrationsContext, integrations } from "@namada/integrations";
 
-export const IntegrationsProvider: React.FC = (props): JSX.Element => {
+export const IntegrationsProvider = (props: {children: React.ReactNode}): JSX.Element => {
   return (
     <IntegrationsContext.Provider value={integrations}>
       {props.children}

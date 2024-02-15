@@ -66,7 +66,7 @@ export const DropDownTitle = styled.div`
   align-items: start;
 `;
 
-export const DropDownTitleText: React.FC = ({ children }) => {
+export const DropDownTitleText = ({ children }: {children: React.ReactNode}): JSX.Element => {
   return (
     <div
       style={{

@@ -1,13 +1,13 @@
-import browser from "webextension-polyfill";
 import { createContext, useEffect, useState } from "react";
+import browser from "webextension-polyfill";
 
 import { ExtensionKVStore } from "@namada/storage";
-import { KVPrefix } from "router";
 import {
   ExtensionMessenger,
   ExtensionRequester,
   getNamadaRouterId,
 } from "extension";
+import { KVPrefix } from "router";
 
 const store = new ExtensionKVStore(KVPrefix.LocalStorage, {
   get: browser.storage.local.get,
@@ -17,7 +17,11 @@ const messenger = new ExtensionMessenger();
 
 export const RequesterContext = createContext<ExtensionRequester | null>(null);
 
-export const RequesterProvider: React.FC = ({ children }) => {
+export const RequesterProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}): JSX.Element => {
   const [requester, setRequester] = useState<ExtensionRequester>();
 
   useEffect(() => {

@@ -67,7 +67,7 @@ const copyPatterns = [
   },
   // browser-polyfill expects a source-map
   {
-    from: "../../node_modules/webextension-polyfill/dist/browser-polyfill.js.map",
+    from: "node_modules/webextension-polyfill/dist/browser-polyfill.js.map",
     to: "./browser-polyfill.js.map",
   },
   {
