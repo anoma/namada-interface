@@ -33,6 +33,6 @@ export type TransferResponse = {
 };
 
 export type ErrorResponse = {
-  code: string;
+  code: number;
   message: string;
 };
