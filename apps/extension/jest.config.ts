@@ -13,12 +13,9 @@ const config: Config.InitialOptions = {
   setupFilesAfterEnv: ["./src/setupTests.ts"],
   testEnvironment: "jsdom",
 
-  moduleNameMapper: {
-    ...pathsToModuleNameMapper(rootCompilerOptions.paths, {
-      prefix: "<rootDir>/src",
-    }),
-    "^webextension-polyfill$": "<rootDir>/src/test/fake-browser.ts",
-  },
+  moduleNameMapper: pathsToModuleNameMapper(rootCompilerOptions.paths, {
+    prefix: "<rootDir>/src",
+  }),
 };
 
 export default config;

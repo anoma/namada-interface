@@ -1,11 +1,12 @@
-import { Result } from "@namada/utils";
 import { KVPrefix } from "router";
 import { KVStoreMock } from "test/init";
 import { VaultService } from "../service";
 import { SessionPassword, VaultStore } from "../types";
+import { Result } from "@namada/utils";
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 const cryptoMemory = require("@namada/crypto").__wasm.memory;
+jest.mock("webextension-polyfill", () => ({}));
 
 type VaultPublicValue = { foo: string };
 type VaultPublicObj = { id: string; value: string };

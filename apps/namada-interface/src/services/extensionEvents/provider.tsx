@@ -24,7 +24,7 @@ import { chainAtom } from "slices/chain";
 
 export const ExtensionEventsContext = createContext({});
 
-export const ExtensionEventsProvider = (props: {children: React.ReactNode}): JSX.Element => {
+export const ExtensionEventsProvider: React.FC = (props): JSX.Element => {
   const dispatch = useAppDispatch();
   const namadaIntegration = useIntegration("namada");
   const keplrIntegration = useIntegration("cosmos");

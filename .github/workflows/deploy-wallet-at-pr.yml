@@ -239,36 +239,6 @@ jobs:
           name: namada-extension-firefox
           path: ./apps/extension/build/firefox/artifact/*
 
-  build-faucet:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Install yarn dependencies
-        uses: ./.github/actions/yarn-cache
-
-      - name: Build the faucet
-        working-directory: ./apps/faucet
-        run: yarn build
-        env:
-          NAMADA_INTERFACE_FAUCET_API_URL: "http://127.0.0.1:5000"
-          NAMADA_INTERFACE_FAUCET_API_ENDPOINT: "/api/v1/faucet"
-          NAMADA_INTERFACE_FAUCET_LIMIT: 1000
-
-  build-storybook:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Install yarn dependencies
-        uses: ./.github/actions/yarn-cache
-
-      - name: Build the storybook
-        working-directory: ./storybook
-        run: yarn build-storybook
-
   E2E-tests:
     needs:
       [build-interface, build-extension-chrome]
