@@ -35,12 +35,17 @@ export class API {
           return response.json();
         }
         const reader = response?.body?.getReader();
-        const errors = reader
-          ?.read()
-          .then(
-            (data): Promise<ErrorResponse> =>
-              Promise.reject(JSON.parse(new TextDecoder().decode(data.value)))
-          );
+        const errors = reader?.read().then((data): Promise<ErrorResponse> => {
+          const response = JSON.parse(
+            new TextDecoder().decode(data.value)
+          ) as ErrorResponse;
+          // If code 429 is received on any request, rate limiting is blocking
+          // requests from this this IP, so provide a specific message:
+          if (response.code === 429) {
+            response.message = "Too many requests! Try again in one hour.";
+          }
+          return Promise.reject(response);
+        });
         if (!errors) {
           throw new Error("Unable to parse error response");
         }
