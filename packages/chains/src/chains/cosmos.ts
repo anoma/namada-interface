@@ -1,20 +1,18 @@
 import { BridgeType, Chain, Extensions } from "@namada/types";
 import { ProxyMappings } from "../types";
 
-const DEFAULT_ALIAS = "Cosmos Hub";
 const DEFAULT_CHAIN_ID = "cosmoshub-4";
 const DEFAULT_RPC = "https://api.cosmos.network/";
 
 const {
   NAMADA_INTERFACE_PROXY: isProxied,
-  NAMADA_INTERFACE_COSMOS_ALIAS: alias = DEFAULT_ALIAS,
   NAMADA_INTERFACE_COSMOS_CHAIN_ID: chainId = DEFAULT_CHAIN_ID,
   NAMADA_INTERFACE_COSMOS_URL: rpc = DEFAULT_RPC,
 } = process.env;
 
 const cosmos: Chain = {
   id: "cosmos",
-  alias,
+  alias: "Cosmos Hub",
   bech32Prefix: "cosmos",
   bip44: {
     coinType: 118,

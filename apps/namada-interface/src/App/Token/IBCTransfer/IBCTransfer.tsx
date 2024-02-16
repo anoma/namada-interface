@@ -167,19 +167,14 @@ const IBCTransfer = (): JSX.Element => {
       return Object.entries(balance)
         .filter(([_, amount]) => amount.isGreaterThan(0))
         .map(([tokenType, amount]) => {
+          const symbol = Tokens[tokenType as TokenType].symbol;
           return {
             value: `${address}|${tokenType}`,
-            label: `${alias} (${Tokens[tokenType as TokenType].symbol}): ${amount}`,
+            label: `${alias} (${symbol}): ${amount}`,
           };
         });
     }
   );
-
-  useEffect(() => {
-    if (sourceAccounts.length > 0) {
-      setSourceAccount(sourceAccounts[0]);
-    }
-  }, [sourceAccounts]);
 
   useEffect(() => {
     if (sourceAccount && token) {
@@ -257,13 +252,13 @@ const IBCTransfer = (): JSX.Element => {
   const handleTokenChange = (e: React.ChangeEvent<HTMLSelectElement>): void => {
     const { value } = e.target;
 
-    const [accountId, tokenSymbol] = value.split("|");
+    const [accountId, tokenType] = value.split("|");
     const account = sourceAccounts.find(
       (account) => account?.details?.address === accountId
     ) as Account;
 
     setSourceAccount(account);
-    setToken(tokenSymbol as TokenType);
+    setToken(tokenType as TokenType);
   };
 
   const handleSubmit = (): void => {
