@@ -107,7 +107,7 @@ const DerivedAccounts = (): JSX.Element => {
           .map((account) => {
             const { alias, address, isShielded } = account;
             const balance = balances[address];
-            const nativeBalance = typeof balance === "undefined" ? "-" : (balance?.[symbol]?.toString() || "0");
+            const nativeBalance = typeof balance === "undefined" ? "-" : (balance[symbol]?.toString() || "0");
 
             return (
               <DerivedAccountItem key={address}>
@@ -126,7 +126,7 @@ const DerivedAccounts = (): JSX.Element => {
                   </DerivedAccountInfo>
                   <div className="flex items-center">
                     <span className="text-white">
-                      {Tokens[symbol].symbol} {nativeBalance?.toString()} 
+                      {Tokens[symbol].symbol} {nativeBalance} 
                     </span>
                   </div>
                 </DerivedAccountContainer>
