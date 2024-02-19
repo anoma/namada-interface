@@ -1,8 +1,9 @@
+import { twMerge } from "tailwind-merge";
 import { tv, type VariantProps } from "tailwind-variants";
 
 const alert = tv({
   slots: {
-    base: "border border-current rounded-md text-base font-normal px-4 py-5",
+    base: "border border-current rounded-lg text-base font-normal px-4 py-5",
     title: "font-bold block uppercase text-sm mb-1.5",
   },
   variants: {
@@ -23,7 +24,8 @@ type AlertProps = {
   title?: string;
   children: React.ReactNode;
   "data-testid"?: string;
-} & AlertBaseProps;
+} & AlertBaseProps &
+  React.ComponentPropsWithoutRef<"div">;
 
 export const Alert = ({
   title,
@@ -31,11 +33,11 @@ export const Alert = ({
   "data-testid": dataTestId,
   ...props
 }: AlertProps): JSX.Element => {
-  const alertClass = alert(props);
+  const alertClass = alert({ type: props.type });
   return (
     <div
       data-testid={dataTestId}
-      className={alertClass.base()}
+      className={twMerge(alertClass.base(), props.className)}
       role="dialog"
       aria-labelledby={title}
     >

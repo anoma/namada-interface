@@ -2,14 +2,20 @@ import clsx from "clsx";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-import { ActionButton, Heading, Image, Stack } from "@namada/components";
+import {
+  ActionButton,
+  Heading,
+  Image,
+  LinkButton,
+  Stack,
+} from "@namada/components";
 import routes from "./routes";
 
 export const Start: React.FC = () => {
   const navigate = useNavigate();
   return (
-    <>
-      <div className="max-w-[230px] mt-0 mx-auto mb-9">
+    <div className="py-10">
+      <div className="max-w-[230px] mx-auto mb-9">
         <Image imageName="LogoMinimal" />
       </div>
       <Heading
@@ -22,26 +28,28 @@ export const Start: React.FC = () => {
       </Heading>
       <Stack as="div" direction="vertical" gap={2}>
         <ActionButton
-          size="md"
+          size="lg"
           data-testid="setup-create-keys-button"
           onClick={() => navigate(routes.accountCreationWarning())}
         >
           Create new keys
         </ActionButton>
         <ActionButton
-          size="md"
+          size="lg"
+          outlined
           data-testid="setup-import-keys-button"
           onClick={() => navigate(routes.accountImportSeed())}
         >
           Import existing keys
         </ActionButton>
-        <ActionButton
-          size="md"
+        <LinkButton
+          className="py-3"
+          color="white"
           onClick={() => navigate(routes.ledgerConnect())}
         >
-          Connect to Ledger Hardware Wallet
-        </ActionButton>
+          Connect Hardware Wallet
+        </LinkButton>
       </Stack>
-    </>
+    </div>
   );
 };

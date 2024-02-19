@@ -62,18 +62,26 @@ export const Setup: React.FC = () => {
     useState<AccountSecret>();
   const [currentStep, setCurrentStep] = useState(0);
   const [totalSteps, setTotalSteps] = useState(0);
+  const [currentPageTitle, setCurrentPageTitle] = useState("");
 
   const seedPhrase =
     accountSecret?.t === "Mnemonic" ? accountSecret.seedPhrase : undefined;
 
-  const goToStep = (step: number) => () => setCurrentStep(step);
+  const setCurrentPage = (pageTitle: string, step: number) => () => {
+    setCurrentStep(step);
+    setCurrentPageTitle(pageTitle);
+  };
 
   return (
     <Container
       size="base"
       header={
         totalSteps > 0 && (
-          <ContainerHeader currentStep={currentStep} totalSteps={totalSteps} />
+          <ContainerHeader
+            pageTitle={currentPageTitle}
+            currentStep={currentStep}
+            totalSteps={totalSteps}
+          />
         )
       }
     >
@@ -101,7 +109,7 @@ export const Setup: React.FC = () => {
               <Route
                 path={routes.accountCreationWarning()}
                 element={
-                  <Wrapper onLoad={goToStep(1)}>
+                  <Wrapper onLoad={setCurrentPage("New Seed Phrase", 1)}>
                     <SeedPhraseWarning
                       onComplete={() => {
                         navigate(routes.accountCreationSeed());
@@ -113,7 +121,7 @@ export const Setup: React.FC = () => {
               <Route
                 path={routes.accountCreationSeed()}
                 element={
-                  <Wrapper onLoad={goToStep(2)}>
+                  <Wrapper onLoad={setCurrentPage("New seed phrase", 2)}>
                     <SeedPhrase
                       accountCreationDetails={accountCreationDetails}
                       defaultSeedPhrase={seedPhrase}
@@ -132,7 +140,9 @@ export const Setup: React.FC = () => {
               <Route
                 path={routes.accountCreationConfirm()}
                 element={
-                  <Wrapper onLoad={goToStep(3)}>
+                  <Wrapper
+                    onLoad={setCurrentPage("Verify your seed phrase", 3)}
+                  >
                     <SeedPhraseConfirmation
                       accountCreationDetails={accountCreationDetails}
                       seedPhrase={seedPhrase || []}
@@ -158,7 +168,7 @@ export const Setup: React.FC = () => {
               <Route
                 path={routes.accountCreationComplete()}
                 element={
-                  <Wrapper onLoad={goToStep(4)}>
+                  <Wrapper onLoad={setCurrentPage("Create your account", 4)}>
                     <Completion
                       passwordRequired={!passwordInitialized}
                       pageTitle="Namada Keys Created"
@@ -184,7 +194,7 @@ export const Setup: React.FC = () => {
               <Route
                 path={routes.accountImportSeed()}
                 element={
-                  <Wrapper onLoad={goToStep(1)}>
+                  <Wrapper onLoad={setCurrentPage("", 1)}>
                     <SeedPhraseImport
                       onConfirm={(accountSecret: AccountSecret) => {
                         setAccountSecret(accountSecret);
@@ -197,7 +207,7 @@ export const Setup: React.FC = () => {
               <Route
                 path={routes.accountImportPassword()}
                 element={
-                  <Wrapper onLoad={goToStep(2)}>
+                  <Wrapper onLoad={setCurrentPage("", 2)}>
                     <SeedPhraseSetup
                       passwordRequired={!passwordInitialized}
                       accountCreationDetails={accountCreationDetails}
@@ -218,7 +228,7 @@ export const Setup: React.FC = () => {
               <Route
                 path={routes.accountImportComplete()}
                 element={
-                  <Wrapper onLoad={goToStep(3)}>
+                  <Wrapper onLoad={setCurrentPage("", 3)}>
                     <Completion
                       passwordRequired={!passwordInitialized}
                       pageTitle="Namada Keys Imported"
@@ -244,7 +254,7 @@ export const Setup: React.FC = () => {
               <Route
                 path={routes.ledgerConnect()}
                 element={
-                  <Wrapper onLoad={() => setCurrentStep(1)}>
+                  <Wrapper onLoad={setCurrentPage("", 1)}>
                     <LedgerConnect />
                   </Wrapper>
                 }
@@ -252,7 +262,7 @@ export const Setup: React.FC = () => {
               <Route
                 path={routes.ledgerImport()}
                 element={
-                  <Wrapper onLoad={() => setCurrentStep(2)}>
+                  <Wrapper onLoad={setCurrentPage("", 2)}>
                     <LedgerImport passwordRequired={!passwordInitialized} />
                   </Wrapper>
                 }
@@ -260,7 +270,7 @@ export const Setup: React.FC = () => {
               <Route
                 path={routes.ledgerComplete()}
                 element={
-                  <Wrapper onLoad={() => setCurrentStep(3)}>
+                  <Wrapper onLoad={setCurrentPage("", 3)}>
                     <LedgerConfirmation />
                   </Wrapper>
                 }
