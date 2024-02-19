@@ -1,4 +1,3 @@
-import BigNumber from "bignumber.js";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -8,8 +7,7 @@ import {
   useIntegrationConnection,
   useUntilIntegrationAttached,
 } from "@namada/integrations";
-import { Account, Chain, ExtensionKey, Extensions } from "@namada/types";
-import { formatCurrency } from "@namada/utils";
+import { Account, Chain, ExtensionKey, Extensions, TokenType, Tokens } from "@namada/types";
 import { TopLevelRoute } from "App/types";
 import { AccountsState, addAccounts, fetchBalances } from "slices/accounts";
 import { setIsConnected } from "slices/settings";
@@ -27,33 +25,14 @@ import {
 } from "./AccountOverview.components";
 import { DerivedAccounts } from "./DerivedAccounts";
 
-import { atom, useAtomValue, useSetAtom } from "jotai";
-import { loadable } from "jotai/utils";
+import { useAtomValue, useSetAtom } from "jotai";
 import { accountsAtom, balancesAtom } from "slices/accounts";
-import { balanceToFiatAtom } from "slices/coins";
-import { fiatCurrencyAtom } from "slices/settings";
+import BigNumber from "bignumber.js";
 
 //TODO: move to utils when we have one
 const isEmptyObject = (object: Record<string, unknown>): boolean => {
   return object ? Object.keys(object).length === 0 : true;
 };
-
-const totalBalanceAtom = atom(async (get) => {
-  const accounts = await get(accountsAtom);
-  const balances = get(balancesAtom);
-  const balanceToFiat = await get(balanceToFiatAtom);
-  const fiatCurrency = get(fiatCurrencyAtom);
-
-  return accounts.reduce((acc, account) => {
-    const balance = balances[account.address];
-
-    if (typeof balance === "undefined") {
-      return acc;
-    } else {
-      return acc.plus(balanceToFiat(balance, fiatCurrency));
-    }
-  }, new BigNumber(0));
-});
 
 export const AccountOverview = (): JSX.Element => {
   const navigate = useNavigate();
@@ -72,8 +51,6 @@ export const AccountOverview = (): JSX.Element => {
 
   const { derived } = useAppSelector<AccountsState>((state) => state.accounts);
 
-  const fiatCurrency = useAtomValue(fiatCurrencyAtom);
-
   const [integration, isConnectingToExtension, withConnection] =
     useIntegrationConnection(chains.namada.id);
   const extensionAlias = Extensions[chain.extension.id].alias;
@@ -82,16 +59,14 @@ export const AccountOverview = (): JSX.Element => {
   const currentExtensionAttachStatus =
     extensionAttachStatus[chain.extension.id];
 
-  const total = useAtomValue(loadable(totalBalanceAtom));
-
-  const totalDisplayString = formatCurrency(
-    fiatCurrency,
-    total.state === "hasData" ? total.data : new BigNumber(0)
-  );
-
   const handleDownloadExtension = (url: string): void => {
     window.open(url, "_blank", "noopener,noreferrer");
   };
+
+  const balances = useAtomValue(balancesAtom);
+  const totalNativeBalance = Object.values(balances).reduce((acc, balance) => {
+    return acc.plus(balance[chain.currency.symbol as TokenType] || BigNumber(0));
+  }, BigNumber(0));
 
   const handleConnectExtension = async (): Promise<void> => {
     withConnection(
@@ -133,8 +108,8 @@ export const AccountOverview = (): JSX.Element => {
           <TotalContainer>
             {!isEmptyObject(derived[chain.id]) && (
               <TotalAmount>
-                <TotalAmountFiat>{fiatCurrency}</TotalAmountFiat>
-                <TotalAmountValue>{totalDisplayString}</TotalAmountValue>
+                <TotalAmountFiat>{Tokens[chain.currency.symbol as TokenType].symbol}</TotalAmountFiat>
+                <TotalAmountValue>{totalNativeBalance.toString()}</TotalAmountValue>
               </TotalAmount>
             )}
           </TotalContainer>

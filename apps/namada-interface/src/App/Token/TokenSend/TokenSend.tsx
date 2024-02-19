@@ -53,10 +53,6 @@ const accountsWithBalanceIntoSelectData = (
 ): Option<string>[] =>
   accountsWithBalance.flatMap(({ details, balance }) =>
     Object.entries(balance)
-      .filter(
-        ([tokenType, balance]) =>
-          !Tokens[tokenType as TokenType].isNut && balance.isGreaterThan(0)
-      )
       .map(([tokenType, amount]) => ({
         value: `${details.address}|${tokenType}`,
         label: `${details.alias} ${amount} (${Tokens[tokenType as TokenType].symbol})`,
@@ -72,10 +68,11 @@ const TokenSend = (): JSX.Element => {
 
   const shieldedAccountsWithBalance = accounts.filter(
     ({ details }) => details.isShielded
-  );
+  ).filter(({ balance }) => Object.values(balance).some((amount) => amount.isGreaterThan(0)));
+
   const transparentAccountsWithBalance = accounts.filter(
     ({ details }) => !details.isShielded
-  );
+  ).filter(({ balance }) => Object.values(balance).some((amount) => amount.isGreaterThan(0)));
 
   const shieldedTokenData = accountsWithBalanceIntoSelectData(
     shieldedAccountsWithBalance

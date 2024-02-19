@@ -1,30 +1,26 @@
 import BigNumber from "bignumber.js";
 
-import { Validator, StakingPosition, MyBalanceEntry } from "./types";
+import { MyBalanceEntry, StakingPosition, Validator } from "./types";
 export const myBalancesData: MyBalanceEntry[] = [
   {
     uuid: "1",
     key: "Total Balance",
     baseCurrency: "NAM 33.00",
-    fiatCurrency: "EUR 33.00",
   },
   {
     uuid: "2",
     key: "Total Bonded",
     baseCurrency: "NAM 10.00",
-    fiatCurrency: "EUR 10.00",
   },
   {
     uuid: "3",
     key: "Pending Rewards",
     baseCurrency: "NAM 23.00",
-    fiatCurrency: "EUR 23.00",
   },
   {
     uuid: "4",
     key: "Available for Bonding",
     baseCurrency: "NAM 10.00",
-    fiatCurrency: "EUR 10.00",
   },
 ];
 

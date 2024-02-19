@@ -3,11 +3,9 @@ import { ThemeContext } from "styled-components";
 
 import { chains } from "@namada/chains";
 import { TokenType, Tokens } from "@namada/types";
-import { formatCurrency } from "@namada/utils";
 
 import {
   DerivedAccountAlias,
-  DerivedAccountBalance,
   DerivedAccountContainer,
   DerivedAccountInfo,
   DerivedAccountItem,
@@ -30,12 +28,7 @@ import AssetNamadaNamDark from "./assets/asset-namada-nam-dark.png";
 import AssetNamadaNamLight from "./assets/asset-namada-nam-light.png";
 import AssetPolkadot from "./assets/asset-polkadot-dot.png";
 
-import { Balance } from "slices/accounts";
-import { balanceToFiatAtom, coinsAtom } from "slices/coins";
-import { SettingsState } from "slices/settings";
-import { useAppSelector } from "store";
-
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue } from "jotai";
 import { loadable } from "jotai/utils";
 import { accountsAtom, balancesAtom } from "slices/accounts";
 
@@ -70,23 +63,6 @@ const assetIconByToken: Record<TokenType, { light: string; dark: string }> = {
   },
 };
 
-const FiatBalanceDisplay: React.FC<{
-  balance?: Balance;
-}> = ({ balance }) => {
-  const { fiatCurrency } = useAppSelector<SettingsState>(
-    (state) => state.settings
-  );
-
-  const balanceToFiat = useAtomValue(loadable(balanceToFiatAtom));
-
-  const displayString =
-    typeof balance !== "undefined" && balanceToFiat.state === "hasData"
-      ? formatCurrency(fiatCurrency, balanceToFiat.data(balance, fiatCurrency))
-      : `${fiatCurrency} -`;
-
-  return <DerivedAccountBalance>{displayString}</DerivedAccountBalance>;
-};
-
 const DerivedAccounts = (): JSX.Element => {
   const accountsLoadable = useAtomValue(loadable(accountsAtom));
   const accounts =
@@ -96,8 +72,6 @@ const DerivedAccounts = (): JSX.Element => {
 
   const themeContext = useContext(ThemeContext);
   const [activeAccountAddress, setActiveAccountAddress] = useState("");
-
-  const fetchConversionRates = useSetAtom(coinsAtom);
 
   const chain = chains.namada;
   const { alias } = chain || {};
@@ -118,9 +92,7 @@ const DerivedAccounts = (): JSX.Element => {
     setActiveAccountAddress(accounts[0]?.address);
   }, [accounts]);
 
-  useEffect(() => {
-    fetchConversionRates();
-  }, []);
+  const symbol = chain.currency.symbol as TokenType;
 
   return (
     <DerivedAccountsContainer>
@@ -135,6 +107,7 @@ const DerivedAccounts = (): JSX.Element => {
           .map((account) => {
             const { alias, address, isShielded } = account;
             const balance = balances[address];
+            const nativeBalance = typeof balance === "undefined" ? "-" : (balance[symbol]?.toString() || "0");
 
             return (
               <DerivedAccountItem key={address}>
@@ -151,7 +124,11 @@ const DerivedAccounts = (): JSX.Element => {
                       )}
                     </DerivedAccountType>
                   </DerivedAccountInfo>
-                  <FiatBalanceDisplay balance={balance} />
+                  <div className="flex items-center">
+                    <span className="text-white">
+                      {Tokens[symbol].symbol} {nativeBalance} 
+                    </span>
+                  </div>
                 </DerivedAccountContainer>
                 {balance && (
                   <TokenTotals

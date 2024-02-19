@@ -63,7 +63,6 @@ export type MyValidators = Unique & {
 export type MyBalanceEntry = Unique & {
   key: string;
   baseCurrency: string;
-  fiatCurrency: string;
 };
 
 // PLACEHOLDER
