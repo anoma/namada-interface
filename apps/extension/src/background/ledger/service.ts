@@ -1,12 +1,12 @@
 import { fromBase64 } from "@cosmjs/encoding";
 import { deserialize } from "@dao-xyz/borsh";
+import { ResponseSign } from "@zondax/ledger-namada";
 
 import { chains } from "@namada/chains";
 import { TxType } from "@namada/shared";
 import { KVStore } from "@namada/storage";
 import { AccountType, TxMsgValue } from "@namada/types";
 import { makeBip44Path } from "@namada/utils";
-import { ResponseSign } from "@zondax/ledger-namada";
 import { TxStore } from "background/approvals";
 import { AccountStore, KeyRingService, TabStore } from "background/keyring";
 import { SdkService } from "background/sdk";
@@ -26,7 +26,7 @@ export class LedgerService {
     protected readonly revealedPKStore: KVStore<string[]>,
     protected readonly requester: ExtensionRequester,
     protected readonly broadcaster: ExtensionBroadcaster
-  ) { }
+  ) {}
 
   async getRevealPKBytes(
     txMsg: string

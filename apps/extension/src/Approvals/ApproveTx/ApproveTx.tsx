@@ -35,11 +35,12 @@ export const ApproveTx: React.FC<Props> = ({ setDetails }) => {
     validator,
     tokenAddress,
     publicKey,
+    nativeToken,
   } = query.getAll();
 
   const tokenType =
     Object.values(Tokens).find((token) => token.address === tokenAddress)
-      ?.symbol || "";
+      ?.symbol || "NAM";
 
   useEffect(() => {
     if (source && txType && msgId) {
@@ -49,6 +50,7 @@ export const ApproveTx: React.FC<Props> = ({ setDetails }) => {
         msgId,
         publicKey,
         target,
+        nativeToken,
       });
     }
   }, [source, publicKey, txType, target, msgId]);

@@ -1,8 +1,8 @@
+import { LedgerError } from "@zondax/ledger-namada";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Alert, Image, Stack } from "@namada/components";
-import { LedgerError } from "@zondax/ledger-namada";
 import { LedgerStep, PageHeader } from "Setup/Common";
 import routes from "Setup/routes";
 import { Ledger as LedgerApp } from "background/ledger";

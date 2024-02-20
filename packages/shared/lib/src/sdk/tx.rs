@@ -455,14 +455,11 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         _ => None,
     };
 
-    let memo = match memo {
-        Some(v) => Some(v.as_bytes().to_vec()),
-        _ => None,
-    };
-
     // Ledger address is not used in the SDK.
     // We can leave it as whatever as long as it's valid url.
     let ledger_address = TendermintAddress::from_str("notinuse:13337").unwrap();
+
+    let memo = memo.map(|v| v.as_bytes().to_vec());
 
     let args = args::Tx {
         dry_run: false,

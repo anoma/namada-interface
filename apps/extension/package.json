@@ -47,7 +47,7 @@
     "@namada/storage": "0.2.1",
     "@namada/types": "0.2.1",
     "@namada/utils": "0.2.1",
-    "@zondax/ledger-namada": "^0.0.3",
+    "@zondax/ledger-namada": "^0.0.4",
     "bignumber.js": "^9.1.1",
     "buffer": "^6.0.3",
     "dompurify": "^3.0.2",

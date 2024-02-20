@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { ActionButton, Alert, Stack } from "@namada/components";
 import { TxType, TxTypeLabel } from "@namada/shared";
-import { Message, Tokens, TxMsgValue, TxProps } from "@namada/types";
+import { Message, TxMsgValue, TxProps } from "@namada/types";
 import { LedgerError } from "@zondax/ledger-namada";
 import { ApprovalDetails, Status } from "Approvals/Approvals";
 import { QueryPublicKeyMsg } from "background/keyring";
@@ -31,7 +31,7 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState<Status>();
   const [statusInfo, setStatusInfo] = useState("");
-  const { source, msgId, publicKey, txType } = details || {};
+  const { source, msgId, publicKey, txType, nativeToken } = details || {};
 
   useEffect(() => {
     if (status === Status.Completed) {
@@ -49,8 +49,12 @@ export const ConfirmLedgerTx: React.FC<Props> = ({ details }) => {
       new GetChainMsg()
     );
 
+    if (!nativeToken) {
+      throw new Error("Native token is required!");
+    }
+
     const txArgs: TxProps = {
-      token: Tokens.NAM.address || "",
+      token: nativeToken,
       feeAmount: new BigNumber(0),
       gasLimit: new BigNumber(20_000),
       chainId: chain.chainId,

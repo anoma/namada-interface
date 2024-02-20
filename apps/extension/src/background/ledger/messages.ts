@@ -1,5 +1,5 @@
-import { ResponseSign } from "@zondax/ledger-namada";
 import { TxType } from "@namada/shared";
+import { ResponseSign } from "@zondax/ledger-namada";
 import { Message } from "router";
 import { ROUTE } from "./constants";
 

@@ -1,3 +1,4 @@
+import { LedgerError } from "@zondax/ledger-namada";
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -5,7 +6,6 @@ import { chains } from "@namada/chains";
 import { ActionButton, Input, Toggle } from "@namada/components";
 import { AccountType, DerivedAccount } from "@namada/types";
 import { makeBip44Path } from "@namada/utils";
-import { LedgerError } from "@zondax/ledger-namada";
 
 import { TopLevelRoute } from "App/types";
 import { AddLedgerAccountMsg, DeriveAccountMsg } from "background/keyring";
@@ -383,8 +383,9 @@ const AddAccount: React.FC<Props> = ({
 
             <div className="text-sm text-neutral-400">
               Derivation path:{" "}
-              <span>{`${parentDerivationPath}${isTransparent ? `${change}/` : ""
-                }${index}`}</span>
+              <span>{`${parentDerivationPath}${
+                isTransparent ? `${change}/` : ""
+              }${index}`}</span>
             </div>
 
             <div className="text-xs py-1 text-red-500">{validation}</div>

@@ -7374,6 +7374,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ledgerhq/hw-transport@npm:^6.30.3":
+  version: 6.30.3
+  resolution: "@ledgerhq/hw-transport@npm:6.30.3"
+  dependencies:
+    "@ledgerhq/devices": "npm:^8.2.0"
+    "@ledgerhq/errors": "npm:^6.16.1"
+    "@ledgerhq/logs": "npm:^6.12.0"
+    events: "npm:^3.3.0"
+  checksum: e50b9f99d6127b641d293d33b5141f55e59a8a14afb231e7d5c696e234a210ca94a6573a442548384ac4afa315b60b9c3ff7cff29f3df5e00f9cb59385801d70
+  languageName: node
+  linkType: hard
+
 "@ledgerhq/logs@npm:^6.12.0":
   version: 6.12.0
   resolution: "@ledgerhq/logs@npm:6.12.0"
@@ -7583,7 +7595,7 @@ __metadata:
     "@types/uuid": "npm:^8.3.4"
     "@types/webextension-polyfill": "npm:^0.10.6"
     "@types/zxcvbn": "npm:^4.4.1"
-    "@zondax/ledger-namada": "npm:^0.0.3"
+    "@zondax/ledger-namada": "npm:^0.0.4"
     bignumber.js: "npm:^9.1.1"
     buffer: "npm:^6.0.3"
     copy-webpack-plugin: "npm:^11.0.0"
@@ -10722,12 +10734,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@zondax/ledger-namada@npm:^0.0.3":
-  version: 0.0.3
-  resolution: "@zondax/ledger-namada@npm:0.0.3"
+"@zondax/ledger-namada@npm:^0.0.4":
+  version: 0.0.4
+  resolution: "@zondax/ledger-namada@npm:0.0.4"
   dependencies:
-    "@ledgerhq/hw-transport": "npm:^6.30.0"
-  checksum: 8f6a630d2ce6d4998980c8a33e3e8235ad7869ed1dfe18c700e919ce1233937133706348812bf633854f77593b05753f266b4516bfc4421009d83fb7dafc5f56
+    "@ledgerhq/hw-transport": "npm:^6.30.3"
+  checksum: c0302c84ac82309af4844c147d94fbe2b3c4b84f37d0f50fe3dc8b2b3068bd672fbe46a053633a77cac08ca94d109867de303c9a8bda357284b0e429ded512e3
   languageName: node
   linkType: hard
 
