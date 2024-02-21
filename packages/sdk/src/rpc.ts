@@ -1,4 +1,5 @@
 import { Query as QueryWasm, Sdk as SdkWasm } from "@namada/shared";
+import { SignedTx } from "tx/types";
 
 /**
  * Rpc - API for executing RPC requests with Namada
@@ -48,10 +49,8 @@ export class Rpc {
   /**
    * Broadcast a Tx to the ledger
    */
-  async broadcastTx(
-    txBytes: Uint8Array,
-    serializedTxMsg: Uint8Array
-  ): Promise<void> {
-    await this.sdk.process_tx(txBytes, serializedTxMsg);
+  async broadcastTx(signedTx: SignedTx): Promise<void> {
+    const { txMsg, tx } = signedTx;
+    await this.sdk.process_tx(tx, txMsg);
   }
 }

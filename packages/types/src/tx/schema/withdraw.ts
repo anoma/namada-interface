@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { field } from "@dao-xyz/borsh";
-import { SubmitWithdrawProps } from "../types";
+import { WithdrawProps } from "../types";
 
-export class SubmitWithdrawMsgValue {
+export class WithdrawMsgValue {
   @field({ type: "string" })
   source!: string;
 
   @field({ type: "string" })
   validator!: string;
 
-  constructor(data: SubmitWithdrawProps) {
+  constructor(data: WithdrawProps) {
     Object.assign(this, data);
   }
 }

@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { field } from "@dao-xyz/borsh";
-import { SubmitVoteProposalProps } from "../types";
+import { VoteProposalProps } from "../types";
 
-export class SubmitVoteProposalMsgValue {
+export class VoteProposalMsgValue {
   @field({ type: "string" })
   signer!: string;
 
@@ -12,7 +12,7 @@ export class SubmitVoteProposalMsgValue {
   @field({ type: "string" })
   vote!: string;
 
-  constructor(data: SubmitVoteProposalProps) {
+  constructor(data: VoteProposalProps) {
     Object.assign(this, data);
   }
 }

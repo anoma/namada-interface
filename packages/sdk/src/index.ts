@@ -1,3 +1,3 @@
-export * from "./query";
+export * from "./rpc";
 export * from "./sdk";
-export * from "./types";
+export * from "./tx";
