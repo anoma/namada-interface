@@ -38,7 +38,10 @@ export const ContainerHeader = ({
       </div>
       {pageTitle && (
         <hgroup className="mt-3 mb-4">
-          <Heading level="h2" className="text-xl text-white text-center">
+          <Heading
+            level="h2"
+            className="max-w-[70%] text-xl text-white mx-auto text-center leading-[1.25]"
+          >
             {pageTitle}
           </Heading>
         </hgroup>

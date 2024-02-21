@@ -1,24 +1,22 @@
-import React, { useCallback, useState } from "react";
-
 import {
   ActionButton,
   Alert,
-  Icon,
   Input,
   LinkButton,
   RadioGroup,
   Stack,
-  Text,
 } from "@namada/components";
 import { assertNever } from "@namada/utils";
 import { SeedPhraseList } from "Setup/Common";
 import { AccountSecret, ValidateMnemonicMsg } from "background/keyring";
+import clsx from "clsx";
 import { useRequester } from "hooks/useRequester";
+import React, { useCallback, useState } from "react";
 import { Ports } from "router";
 import { filterPrivateKeyPrefix, validatePrivateKey } from "utils";
 
 type Props = {
-  onConfirm: (accountSecret: AccountSecret) => void;
+  onConfirm: (accountSecret: AccountSecret, usePassphrase: boolean) => void;
 };
 
 const SHORT_PHRASE_COUNT = 12;
@@ -32,9 +30,8 @@ enum MnemonicTypes {
 
 export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
   const requester = useRequester();
+  const [usePassphrase, setUsePassphrase] = useState(false);
   const [privateKey, setPrivateKey] = useState("");
-  const [passphrase, setPassphrase] = useState("");
-  const [showPassphrase, setShowPassphrase] = useState(false);
   const [mnemonicType, setMnemonicType] = useState<MnemonicTypes>(
     MnemonicTypes.TwelveWords
   );
@@ -120,10 +117,13 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
   const onSubmit = useCallback(async () => {
     if (mnemonicType === MnemonicTypes.PrivateKey) {
       // TODO: validate here
-      onConfirm({
-        t: "PrivateKey",
-        privateKey: filterPrivateKeyPrefix(privateKey),
-      });
+      onConfirm(
+        {
+          t: "PrivateKey",
+          privateKey: filterPrivateKeyPrefix(privateKey),
+        },
+        false
+      );
     } else {
       const actualMnemonics = mnemonics.slice(0, mnemonicType);
       const phrase = actualMnemonics.join(" ");
@@ -134,30 +134,19 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
         );
       if (isValid) {
         setMnemonicError(undefined);
-        onConfirm({ t: "Mnemonic", seedPhrase: actualMnemonics, passphrase });
+        onConfirm(
+          {
+            t: "Mnemonic",
+            seedPhrase: actualMnemonics,
+            passphrase: "",
+          },
+          usePassphrase
+        );
       } else {
         setMnemonicError(error);
       }
     }
-  }, [mnemonics, mnemonicType, privateKey, passphrase, showPassphrase]);
-
-  const onPassphraseChange = useCallback(
-    (value: string) => {
-      setPassphrase(value);
-    },
-    [passphrase]
-  );
-
-  const onShowPassphraseChange = useCallback(
-    (e) => {
-      e.preventDefault();
-      if (!showPassphrase) {
-        setPassphrase("");
-      }
-      setShowPassphrase(!showPassphrase);
-    },
-    [showPassphrase]
-  );
+  }, [mnemonics, mnemonicType, privateKey, usePassphrase]);
 
   return (
     <>
@@ -174,13 +163,14 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
       </Stack>
       <Stack
         as="form"
+        className="min-h-[400px]"
         gap={6}
         onSubmit={(e) => {
           e.preventDefault();
           onSubmit();
         }}
       >
-        <Stack direction="vertical" gap={3}>
+        <Stack className="flex-1" direction="vertical" gap={3}>
           {mnemonicError && <Alert type={"error"}>{mnemonicError}</Alert>}
           <RadioGroup
             id="mnemonicLength"
@@ -201,10 +191,6 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
               },
             ]}
             onChange={(value: string) => {
-              if (Number(value) === MnemonicTypes.PrivateKey) {
-                setShowPassphrase(false);
-                setPassphrase("");
-              }
               setMnemonicType(Number(value));
             }}
           />
@@ -231,51 +217,31 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
             />
           )}
         </Stack>
-        <Stack direction="vertical" gap={4}>
-          {showPassphrase && (
-            <div className="relative">
-              <div onClick={onShowPassphraseChange}>
-                <Icon
-                  size="sm"
-                  className="absolute top-4 right-4 text-white cursor-pointer"
-                  name="X"
-                />
-              </div>
-              <Alert type={"warning"} title={"Please note"}>
-                <Stack gap={2}>
-                  <Text className="text-white leading-6">
-                    This import option is <b>only</b> for users who have created
-                    a Namada account using the CLI with a{" "}
-                    <b>BIP39 passphrase</b>. Do not input your Namada extension
-                    password.
-                  </Text>
-                  <Input
-                    data-testid="setup-import-keys-passphrase-input"
-                    label="Enter your passphrase"
-                    placeholder="Optional passphrase for your seed phrase."
-                    hideIcon={true}
-                    onChange={(e) => onPassphraseChange(e.target.value)}
-                    value={passphrase}
-                  />
-                </Stack>
-              </Alert>
-            </div>
-          )}
-          {!showPassphrase && mnemonicType !== MnemonicTypes.PrivateKey && (
+        <Stack direction="vertical" gap={5}>
+          <ActionButton
+            size="lg"
+            data-testid="setup-import-keys-import-button"
+            disabled={isSubmitButtonDisabled}
+          >
+            Next
+          </ActionButton>
+          {mnemonicType !== MnemonicTypes.PrivateKey && (
             <LinkButton
+              type="submit"
+              // @ts-expect-error not having an href props converts this component to a button
+              disabled={isSubmitButtonDisabled}
               data-testid="setup-import-keys-use-passphrase-button"
-              className="text-xs !text-neutral-400"
-              onClick={onShowPassphraseChange}
+              className={clsx("text-xs !text-neutral-400", {
+                "cursor-not-allowed": isSubmitButtonDisabled,
+              })}
+              onClick={() => {
+                if (isSubmitButtonDisabled) return;
+                setUsePassphrase(true);
+              }}
             >
               Import with BIP39 Passphrase
             </LinkButton>
           )}
-          <ActionButton
-            data-testid="setup-import-keys-import-button"
-            disabled={isSubmitButtonDisabled}
-          >
-            Import
-          </ActionButton>
         </Stack>
       </Stack>
     </>

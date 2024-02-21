@@ -7,7 +7,6 @@ import {
 } from "@namada/components";
 import { copyToClipboard } from "@namada/utils";
 import { SeedPhraseList } from "Setup/Common";
-import { AccountDetails } from "Setup/types";
 import { GenerateMnemonicMsg } from "background/keyring";
 import { useRequester } from "hooks/useRequester";
 import React, { useEffect, useState } from "react";
@@ -16,9 +15,6 @@ import { Ports } from "router";
 type Props = {
   // go to next screen
   onConfirm: (seedPhraseAsArray: string[]) => void;
-  // depending if first load this might or might not be available
-  accountCreationDetails?: AccountDetails;
-  // depending if first load this might or might not be available
   defaultSeedPhrase?: string[];
 };
 
@@ -74,6 +70,7 @@ export const SeedPhrase: React.FC<Props> = (props) => {
             <SeedPhraseInstructions />
           </div>
           <ActionButton
+            size="lg"
             data-testid="setup-go-to-verification-button"
             disabled={isSubmitButtonDisabled}
             onClick={() => {

@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { ActionButton, GapPatterns, Input, Stack } from "@namada/components";
-import { formatRouterPath } from "@namada/utils";
-import { TopLevelRoute } from "App/types";
-import { AccountAlias, Password } from "Setup/Common";
+import routes from "Setup/routes";
 import { AccountDetails } from "Setup/types";
 import clsx from "clsx";
 import { useNavigate } from "react-router-dom";
@@ -12,15 +10,14 @@ type SeedPhraseConfirmationProps = {
   seedPhrase: string[];
   passwordRequired: boolean | undefined;
   accountCreationDetails?: AccountDetails;
-  onConfirm: (accountCreationDetails: AccountDetails) => void;
+  onConfirm: () => void;
 };
 
 export const SeedPhraseConfirmation = (
   props: SeedPhraseConfirmationProps
 ): JSX.Element => {
   const navigate = useNavigate();
-  const { seedPhrase, passwordRequired, accountCreationDetails, onConfirm } =
-    props;
+  const { seedPhrase } = props;
 
   const [verificationInput1, setVerificationInput1] = useState("");
   const [index1ToConfirm, setIndex1ToConfirm] = useState(-1);
@@ -28,23 +25,19 @@ export const SeedPhraseConfirmation = (
   const [verificationInput2, setVerificationInput2] = useState("");
   const [index2ToConfirm, setIndex2ToConfirm] = useState(-1);
   const [index2Error, setIndex2Error] = useState("");
-  const [password, setPassword] = useState<string | undefined>();
-  const [accountName, setAccountName] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const seedPhraseLength = seedPhrase.length;
   const notVerified =
     verificationInput1 !== seedPhrase[index1ToConfirm] ||
-    verificationInput2 !== seedPhrase[index2ToConfirm] ||
-    (passwordRequired && !password) ||
-    !accountName;
+    verificationInput2 !== seedPhrase[index2ToConfirm];
 
   const getRandomIndex = (): number =>
     Math.floor(Math.random() * seedPhraseLength);
 
   useEffect(() => {
     if (seedPhraseLength === 0) {
-      navigate(formatRouterPath([TopLevelRoute.Setup]));
+      navigate(routes.start());
       return;
     }
 
@@ -70,6 +63,7 @@ export const SeedPhraseConfirmation = (
       stateErrorFn(`Word doesn't match`);
       return;
     }
+
     stateErrorFn("");
   };
 
@@ -78,12 +72,7 @@ export const SeedPhraseConfirmation = (
     if (notVerified || isSubmitting) return;
 
     setIsSubmitting(true);
-    const accountCreationDetailsToSubmit: AccountDetails = {
-      ...accountCreationDetails,
-      alias: accountName,
-      password,
-    };
-    onConfirm(accountCreationDetailsToSubmit);
+    props.onConfirm();
   };
 
   return (
@@ -96,59 +85,51 @@ export const SeedPhraseConfirmation = (
       >
         fill out the words according to their numbers
       </p>
-      <Stack gap={8} as="form" onSubmit={onSubmitForm}>
-        <Stack gap={GapPatterns.FormFields}>
-          <div
-            className={clsx(
-              "bg-[#212121] grid grid-cols-2 justify-center rounded-md pt-4 px-17 pb-7 gap-9"
-            )}
-          >
-            <Input
-              data-testid="setup-seed-phrase-verification-1-input"
-              label={`Word #${index1ToConfirm + 1}`}
-              value={verificationInput1}
-              error={index1Error}
-              onBlur={() => {
-                verifyWord(
-                  seedPhrase[index1ToConfirm],
-                  verificationInput1,
-                  setIndex1Error
-                );
-              }}
-              onChange={(event) => {
-                setVerificationInput1(event.target.value);
-              }}
-            />
-            <Input
-              data-testid="setup-seed-phrase-verification-2-input"
-              label={`Word #${index2ToConfirm + 1}`}
-              value={verificationInput2}
-              error={index2Error}
-              onBlur={() => {
-                verifyWord(
-                  seedPhrase[index2ToConfirm],
-                  verificationInput2,
-                  setIndex2Error
-                );
-              }}
-              onChange={(event) => {
-                setVerificationInput2(event.target.value);
-              }}
-            />
-          </div>
-          <AccountAlias
-            data-testid="setup-seed-phrase-alias-input"
-            value={accountName}
-            onChange={setAccountName}
+      <Stack
+        className="flex-1 justify-between h-[415px]"
+        gap={8}
+        as="form"
+        onSubmit={onSubmitForm}
+      >
+        <Stack
+          gap={GapPatterns.FormFields}
+          className="[&_label]:!text-sm justify-center flex-1"
+        >
+          <Input
+            data-testd="setup-seed-phrase-verification-1-input"
+            label={`Word #${index1ToConfirm + 1}`}
+            value={verificationInput1}
+            error={index1Error}
+            onBlur={() => {
+              verifyWord(
+                seedPhrase[index1ToConfirm],
+                verificationInput1,
+                setIndex1Error
+              );
+            }}
+            onChange={(event) => {
+              setVerificationInput1(event.target.value);
+            }}
           />
-          {passwordRequired && (
-            <Password
-              data-testid="setup-seed-phrase-pwd-input"
-              onValidPassword={setPassword}
-            />
-          )}
+          <Input
+            data-testid="setup-seed-phrase-verification-2-input"
+            label={`Word #${index2ToConfirm + 1}`}
+            value={verificationInput2}
+            error={index2Error}
+            onBlur={() => {
+              verifyWord(
+                seedPhrase[index2ToConfirm],
+                verificationInput2,
+                setIndex2Error
+              );
+            }}
+            onChange={(event) => {
+              setVerificationInput2(event.target.value);
+            }}
+          />
         </Stack>
         <ActionButton
+          size="lg"
           data-testid="setup-seed-phrase-verification-next-btn"
           disabled={notVerified}
         >

@@ -23,7 +23,7 @@ export const LedgerStep = ({
   return (
     <li
       className={clsx(
-        "grid items-center border rounded-md gap-5 grid-cols-[128px_auto]",
+        "grid items-center border rounded-lg gap-5 grid-cols-[128px_auto]",
         "p-4 transition-all duration-100",
         {
           "border-yellow": active,
@@ -35,14 +35,17 @@ export const LedgerStep = ({
     >
       <i
         className={clsx(
-          "flex items-center bg-[#212121] rounded-md",
+          "flex items-center bg-black rounded-lg",
           "h-30 justify-center py-4 px-9 w-full"
         )}
       >
         {image}
       </i>
       <Stack gap={1}>
-        <Heading level="h2" className="text-sm text-yellow font-medium">
+        <Heading
+          level="h2"
+          className="text-base uppercase text-yellow font-medium"
+        >
           {title}
         </Heading>
         <p className="font-medium text-white text-base">{text}</p>

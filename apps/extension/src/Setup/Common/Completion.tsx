@@ -147,6 +147,7 @@ export const Completion: React.FC<Props> = (props) => {
             shieldedAccountAddress={shieldedAccountAddress}
             footer={
               <ActionButton
+                size="lg"
                 data-testid="setup-close-page-btn"
                 onClick={closeCurrentTab}
               >

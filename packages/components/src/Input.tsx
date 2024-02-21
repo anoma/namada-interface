@@ -49,7 +49,7 @@ const inputClassList = tv({
       primary: { field: "border-yellow" },
       secondary: { field: "border-cyan" },
       neutral: {
-        field: "border-neutral-500 focus:border-yellow active:border-yellow",
+        field: "border-transparent focus:border-yellow active:border-yellow",
       },
     },
   },
