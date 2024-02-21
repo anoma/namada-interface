@@ -26,6 +26,7 @@ import {
   ExtensionRequester,
   getNamadaRouterId,
 } from "extension";
+import { AccountEntity } from "../../entities";
 import { KeyRing, KEYSTORE_KEY } from "./keyring";
 import {
   AccountSecret,
@@ -39,14 +40,16 @@ import {
   UtilityStore,
 } from "./types";
 import { syncTabs, updateTabStorage } from "./utils";
+import { KeyringVaultService } from "./vault-service";
 
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
-  tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+    tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
 } = process.env;
 
 export class KeyRingService {
   private _keyRing: KeyRing;
+  private keyRingVaultService: KeyringVaultService;
 
   constructor(
     protected readonly vaultService: VaultService,
@@ -59,6 +62,8 @@ export class KeyRingService {
     protected readonly requester: ExtensionRequester,
     protected readonly broadcaster: ExtensionBroadcaster
   ) {
+    this.keyRingVaultService = new KeyringVaultService(vaultService);
+
     this._keyRing = new KeyRing(
       vaultService,
       sdkService,
@@ -170,8 +175,8 @@ export class KeyRingService {
   }
 
   async findByAddress(address: string): Promise<DerivedAccount | null> {
-    const account = await this.vaultService.findOne<DerivedAccount>(
-      KEYSTORE_KEY,
+    const account = await this.keyRingVaultService.findOne(
+      AccountEntity,
       "address",
       address
     );
@@ -456,12 +461,15 @@ export class KeyRingService {
     owner: string,
     tokens: string[]
   ): Promise<{ token: string; amount: string }[]> {
-    const account = await this.vaultService.findOneOrFail<AccountStore>(
-      KEYSTORE_KEY,
+    //TODO: use findOneOrFail
+    const account = await this.keyRingVaultService.findOne(
+      AccountEntity,
       "address",
       owner
     );
-    return this._keyRing.queryBalances(account.public.owner, tokens);
+    console.log("account", account);
+    //TODO: remove !
+    return this._keyRing.queryBalances(account!.public.owner, tokens);
   }
 
   async queryPublicKey(address: string): Promise<string | undefined> {

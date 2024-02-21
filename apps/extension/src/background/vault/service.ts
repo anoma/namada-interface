@@ -1,4 +1,7 @@
 import { KVStore } from "@namada/storage";
+import { Result } from "@namada/utils";
+import { ExtensionBroadcaster } from "extension";
+import { sha256 } from "js-sha256";
 import { Crypto } from "./crypto";
 import {
   CryptoRecord,
@@ -9,9 +12,6 @@ import {
   VaultStore,
   VaultStoreData,
 } from "./types";
-import { Result } from "@namada/utils";
-import { ExtensionBroadcaster } from "extension";
-import { sha256 } from "js-sha256";
 
 export const VAULT_KEY = "vault";
 const crypto = new Crypto();
@@ -29,8 +29,12 @@ export class VaultService {
 
   private migrate(): void {}
 
+  private async getStoreData(): Promise<VaultStore | undefined> {
+    return await this.vaultStore.get(VAULT_KEY);
+  }
+
   private async initialize(): Promise<void> {
-    const vault = await this.vaultStore.get(VAULT_KEY);
+    const vault = await this.getStoreData();
     if (!vault) {
       this.reset();
     }
@@ -129,10 +133,6 @@ export class VaultService {
     return false;
   }
 
-  public async getStoreData(): Promise<VaultStore | undefined> {
-    return await this.vaultStore.get(VAULT_KEY);
-  }
-
   public async getStoreOrFail(): Promise<VaultStore> {
     const storedData = await this.getStoreData();
     if (!storedData) {
@@ -153,6 +153,11 @@ export class VaultService {
     if (!Array.isArray(storedData.data[key])) {
       storedData.data[key] = [];
     }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (entry.public as any).test = "asdasd";
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (entry.public as any).alias = 123;
 
     storedData.data[key].push(entry);
     this.vaultStore.set(VAULT_KEY, storedData);

@@ -19304,6 +19304,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"io-ts@npm:^2.2.21":
+  version: 2.2.21
+  resolution: "io-ts@npm:2.2.21"
+  peerDependencies:
+    fp-ts: ^2.5.0
+  checksum: 4e59e2135c26ced17f9c357c554486e716ac4c75d9bf69164702f66d41400e165786b0d653263bcd2afb4dee947bff4eb7869899ec810050ef067307764f6c32
+  languageName: node
+  linkType: hard
+
 "ip@npm:^1.1.0":
   version: 1.1.5
   resolution: "ip@npm:1.1.5"
@@ -24656,6 +24665,7 @@ __metadata:
     eslint: "npm:^8.49.0"
     git-commit-msg-linter: "npm:^5.0.4"
     husky: "npm:^8.0.3"
+    io-ts: "npm:^2.2.21"
     lint-staged: "npm:^15.2.0"
     prettier: "npm:^3.1.0"
     prettier-plugin-organize-imports: "npm:^3.2.4"
