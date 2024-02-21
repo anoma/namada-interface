@@ -77,6 +77,7 @@ type InputProps = {
   variant?: InputVariants;
   rows?: number;
   "data-testid"?: string;
+  textToCopy?: string;
 } & React.ComponentPropsWithoutRef<"input">;
 
 export const Input = ({
@@ -90,6 +91,7 @@ export const Input = ({
   children,
   rows = 3,
   className,
+  textToCopy,
   "data-testid": dataTestId,
   ...props
 }: InputProps): JSX.Element => {
@@ -114,7 +116,7 @@ export const Input = ({
       icon = (
         <CopyToClipboardControl
           className={classes.icon()}
-          value={props.value?.toString() || ""}
+          value={textToCopy || props.value?.toString() || ""}
         />
       );
     },

@@ -1,5 +1,6 @@
 import { ActionButton, GapPatterns, Input, Stack } from "@namada/components";
 
+import { shortenAddress } from "@namada/utils";
 import clsx from "clsx";
 
 type ViewKeysProps = {
@@ -24,7 +25,8 @@ export const ViewKeys = ({
           <Input
             label="Your Transparent Address"
             variant="ReadOnlyCopy"
-            value={transparentAccountAddress}
+            value={shortenAddress(transparentAccountAddress, 16)}
+            textToCopy={transparentAccountAddress}
             theme={"primary"}
           />
         )}
@@ -32,7 +34,8 @@ export const ViewKeys = ({
           <Input
             label="Public Key"
             variant="ReadOnlyCopy"
-            value={publicKeyAddress}
+            value={shortenAddress(publicKeyAddress, 16)}
+            textToCopy={publicKeyAddress}
             theme={"primary"}
           />
         )}
@@ -41,7 +44,8 @@ export const ViewKeys = ({
             label="Your Shielded Address"
             variant="ReadOnlyCopy"
             readOnly={true}
-            value={shieldedAccountAddress}
+            value={shortenAddress(shieldedAccountAddress, 16)}
+            textToCopy={shieldedAccountAddress}
             theme={"secondary"}
           />
         )}
