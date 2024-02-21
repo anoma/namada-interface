@@ -8,15 +8,15 @@ import { SupportedTx, TxType } from "@namada/shared";
 import { KVStore } from "@namada/storage";
 import {
   AccountType,
+  BondMsgValue,
   EthBridgeTransferMsgValue,
   IbcTransferMsgValue,
   SignatureResponse,
-  SubmitBondMsgValue,
-  SubmitUnbondMsgValue,
-  SubmitVoteProposalMsgValue,
-  SubmitWithdrawMsgValue,
   TransferMsgValue,
   TxMsgValue,
+  UnbondMsgValue,
+  VoteProposalMsgValue,
+  WithdrawMsgValue,
 } from "@namada/types";
 
 import { assertNever, paramsToUrl } from "@namada/utils";
@@ -237,7 +237,7 @@ export class ApprovalsService {
   };
 
   static getParamsBond: GetParams = (specificMsg, txDetails) => {
-    const specificDetails = deserialize(specificMsg, SubmitBondMsgValue);
+    const specificDetails = deserialize(specificMsg, BondMsgValue);
 
     const {
       source,
@@ -258,7 +258,7 @@ export class ApprovalsService {
   };
 
   static getParamsUnbond: GetParams = (specificMsg, txDetails) => {
-    const specificDetails = deserialize(specificMsg, SubmitUnbondMsgValue);
+    const specificDetails = deserialize(specificMsg, UnbondMsgValue);
 
     const { source, amount: amountBN } = specificDetails;
     const amount = new BigNumber(amountBN.toString());
@@ -274,7 +274,7 @@ export class ApprovalsService {
   };
 
   static getParamsWithdraw: GetParams = (specificMsg, txDetails) => {
-    const specificDetails = deserialize(specificMsg, SubmitWithdrawMsgValue);
+    const specificDetails = deserialize(specificMsg, WithdrawMsgValue);
 
     const { source, validator } = specificDetails;
 
@@ -289,10 +289,7 @@ export class ApprovalsService {
   };
 
   static getParamsVoteProposal: GetParams = (specificMsg, txDetails) => {
-    const specificDetails = deserialize(
-      specificMsg,
-      SubmitVoteProposalMsgValue
-    );
+    const specificDetails = deserialize(specificMsg, VoteProposalMsgValue);
 
     const { signer } = specificDetails;
 

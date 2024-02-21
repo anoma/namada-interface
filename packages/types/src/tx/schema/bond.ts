@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import BigNumber from "bignumber.js";
 import { field } from "@dao-xyz/borsh";
+import BigNumber from "bignumber.js";
+import { BondProps } from "../types";
 import { BigNumberSerializer } from "./utils";
-import { SubmitBondProps } from "../types";
 
-export class SubmitBondMsgValue {
+export class BondMsgValue {
   @field({ type: "string" })
   source!: string;
 
@@ -17,7 +17,7 @@ export class SubmitBondMsgValue {
   @field({ type: "string" })
   nativeToken!: string;
 
-  constructor(data: SubmitBondProps) {
+  constructor(data: BondProps) {
     Object.assign(this, data);
   }
 }

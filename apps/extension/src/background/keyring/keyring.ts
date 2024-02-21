@@ -22,15 +22,15 @@ import { KVStore } from "@namada/storage";
 import {
   AccountType,
   Bip44Path,
+  BondMsgValue,
   DerivedAccount,
   EthBridgeTransferMsgValue,
   IbcTransferMsgValue,
   SignatureResponse,
-  SubmitBondMsgValue,
-  SubmitUnbondMsgValue,
-  SubmitVoteProposalMsgValue,
-  SubmitWithdrawMsgValue,
   TransferMsgValue,
+  UnbondMsgValue,
+  VoteProposalMsgValue,
+  WithdrawMsgValue,
 } from "@namada/types";
 import {
   Result,
@@ -81,7 +81,7 @@ export class KeyRing {
     protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly extensionStore: KVStore<number>,
     protected readonly cryptoMemory: WebAssembly.Memory
-  ) {}
+  ) { }
 
   public get status(): KeyRingStatus {
     return this._status;
@@ -671,7 +671,7 @@ export class KeyRing {
   async submitBond(bondMsg: Uint8Array, txMsg: Uint8Array): Promise<void> {
     await this.vaultService.assertIsUnlocked();
     try {
-      const { source } = deserialize(Buffer.from(bondMsg), SubmitBondMsgValue);
+      const { source } = deserialize(Buffer.from(bondMsg), BondMsgValue);
       const signingKey = await this.getSigningKey(source);
       const sdk = await this.sdkService.getSdk();
       await sdk.reveal_pk(signingKey, txMsg);
@@ -696,10 +696,7 @@ export class KeyRing {
     await this.vaultService.assertIsUnlocked();
     const sdk = await this.sdkService.getSdk();
     try {
-      const { source } = deserialize(
-        Buffer.from(unbondMsg),
-        SubmitUnbondMsgValue
-      );
+      const { source } = deserialize(Buffer.from(unbondMsg), UnbondMsgValue);
       const signingKey = await this.getSigningKey(source);
 
       await sdk.reveal_pk(signingKey, txMsg);
@@ -721,7 +718,7 @@ export class KeyRing {
     try {
       const { source } = deserialize(
         Buffer.from(withdrawMsg),
-        SubmitWithdrawMsgValue
+        WithdrawMsgValue
       );
       const signingKey = await this.getSigningKey(source);
 
@@ -744,7 +741,7 @@ export class KeyRing {
     try {
       const { signer } = deserialize(
         Buffer.from(voteProposalMsg),
-        SubmitVoteProposalMsgValue
+        VoteProposalMsgValue
       );
       const signingKey = await this.getSigningKey(signer);
 
