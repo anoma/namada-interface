@@ -1,5 +1,8 @@
+import { init as initCrypto } from "@namada/crypto/src/init";
 import { Query as QueryWasm, Sdk as SdkWasm } from "@namada/shared";
-import { init } from "@namada/shared/src/init";
+import { init as initShared } from "@namada/shared/src/init";
+import { Keys } from "keys";
+import { Mnemonic } from "mnemonic";
 import { Rpc } from "rpc";
 import { Tx } from "tx";
 
@@ -12,9 +15,10 @@ export class Sdk {
   constructor(
     protected readonly sdk: SdkWasm,
     protected readonly query: QueryWasm,
+    protected readonly cryptoMemory: WebAssembly.Memory,
     protected readonly url: string,
     protected readonly nativeToken: string
-  ) {}
+  ) { }
 
   /**
    * Returns an initialized Sdk class
@@ -29,7 +33,13 @@ export class Sdk {
     const sharedWasm = await fetch("shared.namada.wasm").then((wasm) =>
       wasm.arrayBuffer()
     );
-    await init(sharedWasm);
+    await initShared(sharedWasm);
+
+    // Load and initialize crypto wasm
+    const cryptoWasm = await fetch("crypto.namada.wasm").then((wasm) =>
+      wasm.arrayBuffer()
+    );
+    const { memory: cryptoMemory } = await initCrypto(cryptoWasm);
 
     // Instantiate QueryWasm
     const query = new QueryWasm(url);
@@ -53,7 +63,7 @@ export class Sdk {
 
     // Instantiate SdkWasm
     const sdk = new SdkWasm(url, nativeToken);
-    return new Sdk(sdk, query, url, nativeToken);
+    return new Sdk(sdk, query, cryptoMemory, url, nativeToken);
   }
 
   /**
@@ -67,7 +77,21 @@ export class Sdk {
    * Return initialized Tx class
    */
   getTx(): Tx {
-    return new Tx(this.sdk, this.query);
+    return new Tx(this.sdk);
+  }
+
+  /**
+   * Return initialized Mnemonic class
+   */
+  getMnemonic(): Mnemonic {
+    return new Mnemonic(this.cryptoMemory);
+  }
+
+  /**
+   * Return initialized Keys class
+   */
+  getKeys(): Keys {
+    return new Keys(this.cryptoMemory);
   }
 
   /**
@@ -82,5 +106,19 @@ export class Sdk {
    */
   get tx(): Tx {
     return this.getTx();
+  }
+
+  /**
+   * Define mnemonic getter to use with destructuring assignment
+   */
+  get mnemonic(): Mnemonic {
+    return this.getMnemonic();
+  }
+
+  /**
+   * Define keys getter to use with destructuring assignment
+   */
+  get keys(): Keys {
+    return this.getKeys();
   }
 }

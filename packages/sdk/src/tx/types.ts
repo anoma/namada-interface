@@ -8,10 +8,13 @@ export class EncodedTx {
     // Serialized TxMsg
     public readonly txMsg: Uint8Array,
     // Built Tx
-    public readonly tx: BuiltTx
-  ) {}
+    public readonly tx: BuiltTx,
+    // Tx hash
+    public readonly hash?: string
+  ) { }
 
-  // Return serialized tx bytes for external signing
+  // Return serialized tx bytes for external signing. This will clear
+  // the BuiltTx struct instance from wasm memory, then return the bytes.
   toBytes(): Uint8Array {
     const bytes = new Uint8Array(this.tx.tx_bytes());
     this.free();
@@ -33,5 +36,5 @@ export class SignedTx {
     public readonly txMsg: Uint8Array,
     // Built Tx
     public readonly tx: Uint8Array
-  ) {}
+  ) { }
 }

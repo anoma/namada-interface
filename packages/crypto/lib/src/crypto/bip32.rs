@@ -63,6 +63,15 @@ impl HDWallet {
         Ok(HDWallet { seed })
     }
 
+    pub fn from_seed(seed: Vec<u8>) -> Result<HDWallet, String> {
+        let seed: [u8; 64] = match seed.try_into() {
+            Ok(seed) => seed,
+            Err(err) => return Err(format!("{}: {:?}", HDWalletError::InvalidSeed, err)),
+        };
+
+        Ok(HDWallet { seed })
+    }
+
     /// Derive account from a seed and a path
     pub fn derive(&self, path: Vec<u32>) -> Result<Key, String> {
         let key = slip10_ed25519::derive_ed25519_private_key(&self.seed, &path);
