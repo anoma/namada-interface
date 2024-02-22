@@ -93,6 +93,19 @@ impl ShieldedHDWallet {
         Ok(ShieldedHDWallet { xsk_m, xfvk_m })
     }
 
+    pub fn from_seed(seed: Vec<u8>) -> Result<ShieldedHDWallet, String> {
+        let mut seed: [u8; SEED_SIZE] = match seed.try_into() {
+            Ok(bytes) => bytes,
+            Err(err) => return Err(format!("{}: {:?}", Zip32Error::InvalidSeedSize, err)),
+        };
+
+        let xsk_m = ExtendedSpendingKey::master(&seed);
+        seed.zeroize();
+        let xfvk_m = ExtendedFullViewingKey::from(&xsk_m);
+
+        Ok(ShieldedHDWallet { xsk_m, xfvk_m })
+    }
+
     pub fn derive_to_serialized_keys(&self, index: u32) -> Result<Serialized, String> {
         let c_index = ChildIndex::NonHardened(index);
         let child_sk = self.xsk_m.derive_child(c_index);

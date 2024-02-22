@@ -1,4 +1,4 @@
-import { Query as QueryWasm, Sdk as SdkWasm, TxType } from "@namada/shared";
+import { Sdk as SdkWasm, TxType } from "@namada/shared";
 import {
   BondMsgValue,
   BondProps,
@@ -15,26 +15,33 @@ import {
 import { EncodedTx, SignedTx } from "tx/types";
 
 export class Tx {
-  constructor(
-    protected readonly sdk: SdkWasm,
-    protected readonly query: QueryWasm
-  ) {}
+  constructor(protected readonly sdk: SdkWasm) { }
 
-  async encodeTx(
+  /**
+   * Build a transaction
+   *
+   * @param {TxType} txType
+   * @param {Uint8Array} encodedSpecificTx
+   * @param {Uint8Array} encodedTx
+   *
+   * @return {EncodedTx}
+   */
+  async buildTx(
     txType: TxType,
     encodedSpecificTx: Uint8Array,
-    encodedTxMsg: Uint8Array,
+    encodedTx: Uint8Array,
     gasPayer: string
   ): Promise<EncodedTx> {
     const tx = await this.sdk.build_tx(
       txType,
       encodedSpecificTx,
-      encodedTxMsg,
+      encodedTx,
       gasPayer
     );
 
-    return new EncodedTx(encodedTxMsg, tx);
+    return new EncodedTx(encodedTx, tx);
   }
+
   /**
    * Build Transfer Tx
    *
@@ -52,15 +59,15 @@ export class Tx {
     const txMsg = new Message<TxMsgValue>();
     const transferMsg = new Message<TransferMsgValue>();
 
-    const encodedTxMsg = txMsg.encode(new TxMsgValue(txProps));
-    const encodedTransferMsg = transferMsg.encode(
+    const encodedTx = txMsg.encode(new TxMsgValue(txProps));
+    const encodedTransfer = transferMsg.encode(
       new TransferMsgValue(transferProps)
     );
 
-    return await this.encodeTx(
+    return await this.buildTx(
       TxType.Transfer,
-      encodedTransferMsg,
-      encodedTxMsg,
+      encodedTransfer,
+      encodedTx,
       gasPayer
     );
   }
@@ -75,12 +82,12 @@ export class Tx {
    */
   async buildRevealPk(txProps: TxProps, publicKey: string): Promise<EncodedTx> {
     const txMsg = new Message<TxMsgValue>();
-    const encodedTxMsg = txMsg.encode(new TxMsgValue(txProps));
+    const encodedTx = txMsg.encode(new TxMsgValue(txProps));
 
-    return await this.encodeTx(
+    return await this.buildTx(
       TxType.RevealPK,
       new Uint8Array(),
-      encodedTxMsg,
+      encodedTx,
       publicKey
     );
   }
@@ -102,15 +109,10 @@ export class Tx {
     const txMsg = new Message<TxMsgValue>();
     const bondMsg = new Message<BondMsgValue>();
 
-    const encodedTxMsg = txMsg.encode(new TxMsgValue(txProps));
-    const encodedBondMsg = bondMsg.encode(new BondMsgValue(bondProps));
+    const encodedTx = txMsg.encode(new TxMsgValue(txProps));
+    const encodedBond = bondMsg.encode(new BondMsgValue(bondProps));
 
-    return await this.encodeTx(
-      TxType.Bond,
-      encodedBondMsg,
-      encodedTxMsg,
-      gasPayer
-    );
+    return await this.buildTx(TxType.Bond, encodedBond, encodedTx, gasPayer);
   }
 
   /**
@@ -130,13 +132,13 @@ export class Tx {
     const txMsg = new Message<TxMsgValue>();
     const bondMsg = new Message<UnbondMsgValue>();
 
-    const encodedTxMsg = txMsg.encode(new TxMsgValue(txProps));
-    const encodedUnbondMsg = bondMsg.encode(new UnbondMsgValue(unbondProps));
+    const encodedTx = txMsg.encode(new TxMsgValue(txProps));
+    const encodedUnbond = bondMsg.encode(new UnbondMsgValue(unbondProps));
 
-    return await this.encodeTx(
+    return await this.buildTx(
       TxType.Unbond,
-      encodedUnbondMsg,
-      encodedTxMsg,
+      encodedUnbond,
+      encodedTx,
       gasPayer
     );
   }
@@ -158,18 +160,12 @@ export class Tx {
     const txMsg = new Message<TxMsgValue>();
     const bondMsg = new Message<WithdrawProps>();
 
-    const encodedTxMsg = txMsg.encode(new TxMsgValue(txProps));
-    const encodedWithdrawMsg = bondMsg.encode(
-      new WithdrawMsgValue(withdrawProps)
-    );
+    const encodedTx = txMsg.encode(new TxMsgValue(txProps));
+    const encodedWithdraw = bondMsg.encode(new WithdrawMsgValue(withdrawProps));
 
-    return this.encodeTx(
-      TxType.Withdraw,
-      encodedWithdrawMsg,
-      encodedTxMsg,
-      gasPayer
-    );
+    return this.buildTx(TxType.Withdraw, encodedWithdraw, encodedTx, gasPayer);
   }
+
   /**
    * Sign tx
    *

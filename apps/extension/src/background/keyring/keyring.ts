@@ -300,13 +300,13 @@ export class KeyRing {
   }
 
   public deriveShieldedAccount(
-    seed: VecU8Pointer,
+    seedPtr: VecU8Pointer,
     path: Bip44Path,
     parentId: string
   ): DerivedAccountInfo {
     const { index } = path;
     const id = generateId(UUID_NAMESPACE, "shielded-account", parentId, index);
-    const zip32 = new ShieldedHDWallet(seed);
+    const zip32 = new ShieldedHDWallet(seedPtr);
     const account = zip32.derive_to_serialized_keys(index);
 
     // Retrieve serialized types from wasm
