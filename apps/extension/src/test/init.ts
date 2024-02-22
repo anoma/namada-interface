@@ -10,7 +10,6 @@ import {
 } from "extension";
 import { KVPrefix, Ports } from "router";
 import {
-  AccountStore,
   KeyRingService,
   UtilityStore,
   init as initKeyRing,
@@ -30,6 +29,8 @@ import {
 } from "../background/approvals";
 
 import { LocalStorage } from "background/LocalStorage";
+import { RevealedPKStorage } from "background/RevealPKStorage";
+import { VaultStorage } from "background/VaultStorage";
 import { ChainsService } from "background/chains";
 import { LedgerService } from "background/ledger";
 import { SdkService } from "background/sdk";
@@ -63,21 +64,23 @@ export type DBType = Chain[] | KeyStore[] | VaultStore;
 
 export const init = async (): Promise<{
   namada: Namada;
-  iDBStore: KVStoreMock<DBType>;
+  vaultStorage: VaultStorage;
   extStore: KVStoreMock<number>;
   utilityStore: KVStoreMock<UtilityStore>;
   keyRingService: KeyRingService;
   vaultService: VaultService;
 }> => {
   const messenger = new ExtensionMessengerMock();
-  const iDBStore = new KVStoreMock<DBType>(KVPrefix.IndexedDB);
   const sessionStore = new KVStoreMock<SessionPassword>(
     KVPrefix.SessionStorage
   );
   const extStore = new KVStoreMock<number>(KVPrefix.IndexedDB);
   const utilityStore = new KVStoreMock<UtilityStore>(KVPrefix.Utility);
   const localStorage = new LocalStorage(new KVStoreMock(KVPrefix.LocalStorage));
-  const revealedPKStore = new KVStoreMock<string[]>(KVPrefix.RevealedPK);
+  const revealedPKStore = new RevealedPKStorage(
+    new KVStoreMock(KVPrefix.RevealedPK)
+  );
+  const vaultStorage = new VaultStorage(new KVStoreMock(KVPrefix.IndexedDB));
   const namadaRouterId = await getNamadaRouterId(localStorage);
   const requester = new ExtensionRequester(messenger, namadaRouterId);
   const txStore = new KVStoreMock<TxStore>(KVPrefix.LocalStorage);
@@ -97,7 +100,7 @@ export const init = async (): Promise<{
   );
 
   const vaultService = new VaultService(
-    iDBStore as KVStore<KeyStore[]>,
+    vaultStorage,
     sessionStore,
     cryptoMemory
   );
@@ -118,7 +121,7 @@ export const init = async (): Promise<{
   const ledgerService = new LedgerService(
     keyRingService,
     sdkService,
-    iDBStore as KVStore<AccountStore[]>,
+    vaultStorage,
     txStore,
     revealedPKStore,
     requester,
@@ -149,7 +152,7 @@ export const init = async (): Promise<{
 
   return {
     namada,
-    iDBStore,
+    vaultStorage,
     extStore,
     utilityStore,
     keyRingService,

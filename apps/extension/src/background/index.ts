@@ -19,6 +19,8 @@ import {
 } from "extension";
 import { KVPrefix, Ports } from "router";
 import { LocalStorage } from "./LocalStorage";
+import { RevealedPKStorage } from "./RevealPKStorage";
+import { VaultStorage } from "./VaultStorage";
 import { ApprovalsService, init as initApprovals } from "./approvals";
 import { ChainsService, init as initChains } from "./chains";
 import { KeyRingService, UtilityStore, init as initKeyRing } from "./keyring";
@@ -26,18 +28,20 @@ import { LedgerService, init as initLedger } from "./ledger";
 import { SdkService } from "./sdk/service";
 import { VaultService, init as initVault } from "./vault";
 
-const store = new IndexedDBKVStore(KVPrefix.IndexedDB);
-const sessionStore = new SessionKVStore(KVPrefix.SessionStorage);
-const utilityStore = new IndexedDBKVStore<UtilityStore>(KVPrefix.Utility);
-// TODO: For now we will be running two stores side by side
+// Extension storages
 const localStorage = new LocalStorage(
   new ExtensionKVStore(KVPrefix.LocalStorage, browser.storage.local)
 );
+const revealedPKStorege = new RevealedPKStorage(
+  new ExtensionKVStore(KVPrefix.RevealedPK, browser.storage.local)
+);
 
-const revealedPKStore = new ExtensionKVStore(KVPrefix.RevealedPK, {
-  get: browser.storage.local.get,
-  set: browser.storage.local.set,
-});
+//IDB storages
+const store = new VaultStorage(new IndexedDBKVStore(KVPrefix.IndexedDB));
+const utilityStore = new IndexedDBKVStore<UtilityStore>(KVPrefix.Utility);
+
+// Memory/transient storages
+const sessionStore = new SessionKVStore(KVPrefix.SessionStorage);
 const txStore = new MemoryKVStore(KVPrefix.Memory);
 const dataStore = new MemoryKVStore(KVPrefix.Memory);
 
@@ -89,7 +93,7 @@ const init = new Promise<void>(async (resolve) => {
     sdkService,
     store,
     txStore,
-    revealedPKStore,
+    revealedPKStorege,
     requester,
     broadcaster
   );

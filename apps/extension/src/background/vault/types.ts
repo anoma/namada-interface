@@ -1,3 +1,4 @@
+import { VaultTypes } from "background/VaultStorage";
 import { AccountStore } from "background/keyring";
 
 export enum ResetPasswordError {
@@ -33,8 +34,8 @@ export type CryptoRecord<T = Argon2Params> = {
   };
 };
 
-export type Vault<T = unknown> = {
-  public: T;
+export type Vault = {
+  public: VaultTypes;
   sensitive?: CryptoRecord;
 };
 

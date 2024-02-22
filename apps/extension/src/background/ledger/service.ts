@@ -7,22 +7,23 @@ import { TxType } from "@namada/shared";
 import { KVStore } from "@namada/storage";
 import { AccountType, TxMsgValue } from "@namada/types";
 import { makeBip44Path } from "@namada/utils";
+import { RevealedPKStorage } from "background/RevealPKStorage";
+import { VaultStorage } from "background/VaultStorage";
 import { TxStore } from "background/approvals";
-import { AccountStore, KeyRingService } from "background/keyring";
+import { KeyRingService } from "background/keyring";
 import { SdkService } from "background/sdk";
 import { ExtensionBroadcaster, ExtensionRequester } from "extension";
 import { encodeSignature } from "utils";
 
 export const LEDGERSTORE_KEY = "ledger-store";
-const REVEALED_PK_STORE = "revealed-pk-store";
 
 export class LedgerService {
   constructor(
     protected readonly keyringService: KeyRingService,
     protected readonly sdkService: SdkService,
-    protected readonly kvStore: KVStore<AccountStore[]>,
+    protected readonly vaultStorage: VaultStorage,
     protected readonly txStore: KVStore<TxStore>,
-    protected readonly revealedPKStore: KVStore<string[]>,
+    protected readonly revealedPKStorage: RevealedPKStorage,
     protected readonly requester: ExtensionRequester,
     protected readonly broadcaster: ExtensionBroadcaster
   ) {}
@@ -188,15 +189,11 @@ export class LedgerService {
   }
 
   async queryStoredRevealedPK(publicKey: string): Promise<boolean> {
-    const pks = await this.revealedPKStore.get(REVEALED_PK_STORE);
+    const pks = await this.revealedPKStorage.getRevealedPKs();
     return pks?.includes(publicKey) || false;
   }
 
   async storeRevealedPK(publicKey: string): Promise<void> {
-    const pks = (await this.revealedPKStore.get(REVEALED_PK_STORE)) || [];
-    if (!pks.includes(publicKey)) {
-      pks.push(publicKey);
-    }
-    await this.revealedPKStore.set(REVEALED_PK_STORE, pks);
+    this.revealedPKStorage.addRevealedPK(publicKey);
   }
 }

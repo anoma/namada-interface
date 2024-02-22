@@ -1,14 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Result } from "@namada/utils";
+import { VaultStorage } from "background/VaultStorage";
 import { KVPrefix } from "router";
 import { KVStoreMock } from "test/init";
 import { VaultService } from "../service";
-import { SessionPassword, VaultStore } from "../types";
-import { Result } from "@namada/utils";
+import { SessionPassword } from "../types";
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 const cryptoMemory = require("@namada/crypto").__wasm.memory;
 jest.mock("webextension-polyfill", () => ({}));
 
-type VaultPublicValue = { foo: string };
 type VaultPublicObj = { id: string; value: string };
 type VaultSensitiveValue = { bar: string };
 
@@ -19,11 +20,11 @@ describe("Testing untouched Vault Service", () => {
   const secretText = "secret";
 
   beforeEach(async () => {
-    const iDBStore = new KVStoreMock<VaultStore>(KVPrefix.IndexedDB);
+    const vaultStorage = new VaultStorage(new KVStoreMock(KVPrefix.IndexedDB));
     const sessionStore = new KVStoreMock<SessionPassword>(
       KVPrefix.SessionStorage
     );
-    service = new VaultService(iDBStore, sessionStore, cryptoMemory);
+    service = new VaultService(vaultStorage, sessionStore, cryptoMemory);
     await service.createPassword(password);
   });
 
@@ -47,17 +48,17 @@ describe("Testing untouched Vault Service", () => {
     const sensitiveData = secretText;
 
     await service.assertIsUnlocked();
-    await service.add<VaultPublicValue, VaultSensitiveValue>(
+    await service.add<VaultSensitiveValue>(
       keyString,
       {
         foo: publicData,
-      },
+      } as any,
       { bar: sensitiveData }
     );
 
-    const vaultData = await service.findOneOrFail<VaultPublicValue>(
+    const vaultData = await service.findOneOrFail(
       keyString,
-      "foo",
+      "foo" as any,
       publicData
     );
 
@@ -74,9 +75,9 @@ describe("Testing untouched Vault Service", () => {
     ];
 
     for (const obj of data) {
-      await service.add<VaultPublicObj, VaultSensitiveValue>(
+      await service.add<VaultSensitiveValue>(
         keyString,
-        obj,
+        obj as any,
         sensitiveData
       );
     }

@@ -158,7 +158,7 @@ export class KeyRingService {
   async findParentByPublicKey(
     publicKey: string
   ): Promise<DerivedAccount | null> {
-    const accounts = await this.vaultService.findAll<DerivedAccount>(
+    const accounts = await this.vaultService.findAll(
       KEYSTORE_KEY,
       "publicKey",
       publicKey
@@ -168,7 +168,7 @@ export class KeyRingService {
   }
 
   async findByAddress(address: string): Promise<DerivedAccount | null> {
-    const account = await this.vaultService.findOne<DerivedAccount>(
+    const account = await this.vaultService.findOne(
       KEYSTORE_KEY,
       "address",
       address
@@ -454,7 +454,7 @@ export class KeyRingService {
     owner: string,
     tokens: string[]
   ): Promise<{ token: string; amount: string }[]> {
-    const account = await this.vaultService.findOneOrFail<AccountStore>(
+    const account = await this.vaultService.findOneOrFail(
       KEYSTORE_KEY,
       "address",
       owner

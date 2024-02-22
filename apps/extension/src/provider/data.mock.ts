@@ -1,10 +1,4 @@
-import {
-  AccountType,
-  BridgeType,
-  Chain,
-  DerivedAccount,
-  Extensions,
-} from "@namada/types";
+import { AccountType, BridgeType, Chain, Extensions } from "@namada/types";
 import { ActiveAccountStore } from "background/keyring";
 import { KdfType, Vault } from "background/vault";
 
@@ -33,7 +27,7 @@ export const chain: Chain = {
   },
 };
 
-export const keyStore: Vault<DerivedAccount>[] = [
+export const keyStore: Vault[] = [
   {
     public: {
       alias: "Parent Account",
