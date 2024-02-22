@@ -79,7 +79,6 @@ export class KeyRing {
     protected readonly vaultService: VaultService,
     protected readonly sdkService: SdkService,
     protected readonly utilityStore: KVStore<UtilityStore>,
-    protected readonly extensionStore: KVStore<number>,
     protected readonly cryptoMemory: WebAssembly.Memory
   ) {}
 

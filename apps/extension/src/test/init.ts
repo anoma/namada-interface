@@ -12,7 +12,6 @@ import { KVPrefix, Ports } from "router";
 import {
   AccountStore,
   KeyRingService,
-  TabStore,
   UtilityStore,
   init as initKeyRing,
 } from "../background/keyring";
@@ -26,11 +25,11 @@ import {
 
 import {
   ApprovalsService,
-  ApprovedOriginsStore,
   TxStore,
   init as initApprovals,
 } from "../background/approvals";
 
+import { LocalStorage } from "background/LocalStorage";
 import { ChainsService } from "background/chains";
 import { LedgerService } from "background/ledger";
 import { SdkService } from "background/sdk";
@@ -77,19 +76,13 @@ export const init = async (): Promise<{
   );
   const extStore = new KVStoreMock<number>(KVPrefix.IndexedDB);
   const utilityStore = new KVStoreMock<UtilityStore>(KVPrefix.Utility);
-  const connectedTabsStore = new KVStoreMock<TabStore[]>(
-    KVPrefix.ConnectedTabs
-  );
-  const approvedOriginsStore = new KVStoreMock<ApprovedOriginsStore>(
-    KVPrefix.LocalStorage
-  );
+  const localStorage = new LocalStorage(new KVStoreMock(KVPrefix.LocalStorage));
   const revealedPKStore = new KVStoreMock<string[]>(KVPrefix.RevealedPK);
-  const namadaRouterId = await getNamadaRouterId(extStore);
+  const namadaRouterId = await getNamadaRouterId(localStorage);
   const requester = new ExtensionRequester(messenger, namadaRouterId);
   const txStore = new KVStoreMock<TxStore>(KVPrefix.LocalStorage);
   const dataStore = new KVStoreMock<string>(KVPrefix.LocalStorage);
-  const chainStore = new KVStoreMock<Chain>(KVPrefix.LocalStorage);
-  const broadcaster = new ExtensionBroadcaster(connectedTabsStore, requester);
+  const broadcaster = new ExtensionBroadcaster(localStorage, requester);
 
   const router = new ExtensionRouter(
     () => ({
@@ -100,7 +93,7 @@ export const init = async (): Promise<{
       },
     }),
     messenger,
-    extStore
+    localStorage
   );
 
   const vaultService = new VaultService(
@@ -108,7 +101,7 @@ export const init = async (): Promise<{
     sessionStore,
     cryptoMemory
   );
-  const chainsService = new ChainsService(chainStore, broadcaster);
+  const chainsService = new ChainsService(localStorage, broadcaster);
   const sdkService = new SdkService(chainsService);
 
   const keyRingService = new KeyRingService(
@@ -116,8 +109,7 @@ export const init = async (): Promise<{
     sdkService,
     chainsService,
     utilityStore,
-    connectedTabsStore,
-    extStore,
+    localStorage,
     cryptoMemory,
     requester,
     broadcaster
@@ -127,7 +119,6 @@ export const init = async (): Promise<{
     keyRingService,
     sdkService,
     iDBStore as KVStore<AccountStore[]>,
-    connectedTabsStore,
     txStore,
     revealedPKStore,
     requester,
@@ -137,8 +128,7 @@ export const init = async (): Promise<{
   const approvalsService = new ApprovalsService(
     txStore,
     dataStore,
-    connectedTabsStore,
-    approvedOriginsStore,
+    localStorage,
     keyRingService,
     ledgerService,
     vaultService,

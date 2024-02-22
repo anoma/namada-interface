@@ -8,7 +8,7 @@ import { KVStore } from "@namada/storage";
 import { AccountType, TxMsgValue } from "@namada/types";
 import { makeBip44Path } from "@namada/utils";
 import { TxStore } from "background/approvals";
-import { AccountStore, KeyRingService, TabStore } from "background/keyring";
+import { AccountStore, KeyRingService } from "background/keyring";
 import { SdkService } from "background/sdk";
 import { ExtensionBroadcaster, ExtensionRequester } from "extension";
 import { encodeSignature } from "utils";
@@ -21,7 +21,6 @@ export class LedgerService {
     protected readonly keyringService: KeyRingService,
     protected readonly sdkService: SdkService,
     protected readonly kvStore: KVStore<AccountStore[]>,
-    protected readonly connectedTabsStore: KVStore<TabStore[]>,
     protected readonly txStore: KVStore<TxStore>,
     protected readonly revealedPKStore: KVStore<string[]>,
     protected readonly requester: ExtensionRequester,

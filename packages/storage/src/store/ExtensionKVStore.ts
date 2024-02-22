@@ -1,7 +1,7 @@
 /* import browser from "webextension-polyfill"; */
 import { KVStore, KVStoreProvider } from "./types";
 
-export class ExtensionKVStore<T> implements KVStore<T[]> {
+export class ExtensionKVStore<T> implements KVStore<T> {
   constructor(
     protected readonly _prefix: string,
     protected readonly provider: KVStoreProvider

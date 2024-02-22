@@ -12,6 +12,7 @@ import {
 import { Result, truncateInMiddle } from "@namada/utils";
 
 import { ChainsService } from "background/chains";
+import { LocalStorage } from "background/LocalStorage";
 import {
   createOffscreenWithTxWorker,
   hasOffscreenDocument,
@@ -35,14 +36,13 @@ import {
   MnemonicValidationResponse,
   ParentAccount,
   SigningKey,
-  TabStore,
   UtilityStore,
 } from "./types";
 import { syncTabs, updateTabStorage } from "./utils";
 
 const {
   NAMADA_INTERFACE_NAMADA_TOKEN:
-  tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
+    tokenAddress = "tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e",
 } = process.env;
 
 export class KeyRingService {
@@ -53,8 +53,7 @@ export class KeyRingService {
     protected readonly sdkService: SdkService,
     protected readonly chainsService: ChainsService,
     protected readonly utilityStore: KVStore<UtilityStore>,
-    protected readonly connectedTabsStore: KVStore<TabStore[]>,
-    protected readonly extensionStore: KVStore<number>,
+    protected readonly localStorage: LocalStorage,
     protected readonly cryptoMemory: WebAssembly.Memory,
     protected readonly requester: ExtensionRequester,
     protected readonly broadcaster: ExtensionBroadcaster
@@ -63,16 +62,15 @@ export class KeyRingService {
       vaultService,
       sdkService,
       utilityStore,
-      extensionStore,
       cryptoMemory
     );
   }
 
   // Track connected tabs by ID
   async connect(senderTabId: number): Promise<void> {
-    const tabs = await syncTabs(this.connectedTabsStore, this.requester);
+    const tabs = await syncTabs(this.localStorage, this.requester);
 
-    return await updateTabStorage(senderTabId, tabs, this.connectedTabsStore);
+    return await updateTabStorage(senderTabId, tabs, this.localStorage);
   }
 
   async generateMnemonic(size?: PhraseSize): Promise<string[]> {
@@ -265,7 +263,7 @@ export class KeyRingService {
     signingKey: SigningKey
   ): Promise<void> {
     const offscreenDocumentPath = "offscreen.html";
-    const routerId = await getNamadaRouterId(this.extensionStore);
+    const routerId = await getNamadaRouterId(this.localStorage);
     const rpc = await this.sdkService.getRpc();
     const {
       currency: { address: nativeToken = tokenAddress },

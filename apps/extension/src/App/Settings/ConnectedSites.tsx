@@ -5,8 +5,8 @@ import browser from "webextension-polyfill";
 
 import { Alert, Stack } from "@namada/components";
 import { PageHeader } from "App/Common";
+import { LocalStorage } from "background/LocalStorage";
 import {
-  APPROVED_ORIGINS_KEY,
   ApprovedOriginsStore,
   RevokeConnectionMsg,
 } from "background/approvals";
@@ -14,12 +14,11 @@ import { useRequester } from "hooks/useRequester";
 import { GoX } from "react-icons/go";
 import { KVPrefix, Ports } from "router";
 
-const approvedOriginsStore = new ExtensionKVStore<ApprovedOriginsStore>(
-  KVPrefix.LocalStorage,
-  {
+const localStorage = new LocalStorage(
+  new ExtensionKVStore<ApprovedOriginsStore>(KVPrefix.LocalStorage, {
     get: browser.storage.local.get,
     set: browser.storage.local.set,
-  }
+  })
 );
 
 export const ConnectedSites: React.FC = ({}) => {
@@ -27,8 +26,8 @@ export const ConnectedSites: React.FC = ({}) => {
   const requester = useRequester();
 
   const fetchConnectedSites = useCallback(() => {
-    approvedOriginsStore
-      .get(APPROVED_ORIGINS_KEY)
+    localStorage
+      .getApprovedOrigins()
       .then((origins) =>
         setConnectedSites((origins as ApprovedOriginsStore) || [])
       );

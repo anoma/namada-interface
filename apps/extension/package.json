@@ -52,6 +52,7 @@
     "buffer": "^6.0.3",
     "dompurify": "^3.0.2",
     "framer-motion": "6.2.4",
+    "io-ts": "^2.2.21",
     "js-sha256": "^0.10.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
