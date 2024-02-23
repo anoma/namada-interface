@@ -90,8 +90,11 @@ export class LocalStorage {
 
   async getChain(): Promise<ChainType | undefined> {
     //TODO: as string
-    const data = await this.provider.get(schemasMap.get(Chain) as string);
-    const decodedData = Chain.decode(data);
+
+    const data = await this.provider.get(schemasMap.get(Chain)!);
+
+    const Schema = t.union([Chain, t.undefined]);
+    const decodedData = Schema.decode(data);
 
     if (E.isLeft(decodedData)) {
       throw new Error("Chain is not valid");
@@ -146,9 +149,11 @@ export class LocalStorage {
   async getRouterId(): Promise<NamadaExtensionRouterIdType | undefined> {
     //TODO: as string
     const data = await this.provider.get(
-      schemasMap.get(NamadaExtensionRouterId) as string
+      schemasMap.get(NamadaExtensionRouterId)!
     );
-    const decodedData = NamadaExtensionRouterId.decode(data);
+
+    const Schema = t.union([NamadaExtensionRouterId, t.undefined]);
+    const decodedData = Schema.decode(data);
 
     if (E.isLeft(decodedData)) {
       throw new Error("Chain is not valid");
@@ -160,19 +165,17 @@ export class LocalStorage {
   async setRouterId(id: NamadaExtensionRouterIdType): Promise<void> {
     //TODO: encoed before set?
     //TODO: as string
-    await this.provider.set(
-      schemasMap.get(NamadaExtensionRouterId) as string,
-      id
-    );
+    await this.provider.set(schemasMap.get(NamadaExtensionRouterId)!, id);
   }
 
   async getTabs(): Promise<TabsType | undefined> {
     //TODO: as string
     const data = await this.provider.get(schemasMap.get(Tabs) as string);
-    const decodedData = Tabs.decode(data);
+    const Schema = t.union([Tabs, t.undefined]);
+    const decodedData = Schema.decode(data);
 
     if (E.isLeft(decodedData)) {
-      throw new Error("Chain is not valid");
+      throw new Error("Tabs are not valid");
     }
 
     return decodedData.right;

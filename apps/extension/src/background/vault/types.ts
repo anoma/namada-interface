@@ -34,12 +34,12 @@ export type CryptoRecord<T = Argon2Params> = {
   };
 };
 
-export type Vault = {
-  public: VaultTypes;
+export type Vault<T extends VaultTypes> = {
+  public: T;
   sensitive?: CryptoRecord;
 };
 
-export type VaultStoreData = Record<string, Vault[]>;
+export type VaultStoreData = Record<string, Vault<VaultTypes>[]>;
 
 export type VaultStore = {
   password: CryptoRecord | undefined;

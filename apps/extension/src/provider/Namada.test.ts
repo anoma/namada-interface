@@ -3,12 +3,8 @@
 import { Namada } from "@namada/types";
 
 import { VaultStorage } from "background/VaultStorage";
-import {
-  KEYSTORE_KEY,
-  PARENT_ACCOUNT_ID_KEY,
-  UtilityStore,
-} from "background/keyring";
-import { VaultService, VaultStore } from "background/vault";
+import { PARENT_ACCOUNT_ID_KEY, UtilityStore } from "background/keyring";
+import { VaultService } from "background/vault";
 import * as utils from "extension/utils";
 import { KVStoreMock, init } from "test/init";
 import { ACTIVE_ACCOUNT, keyStore, password } from "./data.mock";
@@ -38,10 +34,10 @@ describe("Namada", () => {
   });
 
   it("should return all accounts", async () => {
-    const store: VaultStore = {
+    const store = {
       password: undefined,
       data: {
-        [KEYSTORE_KEY]: keyStore,
+        "key-store": keyStore,
       },
     };
 

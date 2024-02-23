@@ -21,13 +21,14 @@ import {
 } from "background/offscreen";
 import { SdkService } from "background/sdk/service";
 import { VaultService } from "background/vault";
+import { KeyStore } from "background/VaultStorage";
 import { init as initSubmitTransferWebWorker } from "background/web-workers";
 import {
   ExtensionBroadcaster,
   ExtensionRequester,
   getNamadaRouterId,
 } from "extension";
-import { KeyRing, KEYSTORE_KEY } from "./keyring";
+import { KeyRing } from "./keyring";
 import {
   AccountSecret,
   AccountStore,
@@ -159,7 +160,7 @@ export class KeyRingService {
     publicKey: string
   ): Promise<DerivedAccount | null> {
     const accounts = await this.vaultService.findAll(
-      KEYSTORE_KEY,
+      KeyStore,
       "publicKey",
       publicKey
     );
@@ -169,7 +170,7 @@ export class KeyRingService {
 
   async findByAddress(address: string): Promise<DerivedAccount | null> {
     const account = await this.vaultService.findOne(
-      KEYSTORE_KEY,
+      KeyStore,
       "address",
       address
     );
@@ -455,7 +456,7 @@ export class KeyRingService {
     tokens: string[]
   ): Promise<{ token: string; amount: string }[]> {
     const account = await this.vaultService.findOneOrFail(
-      KEYSTORE_KEY,
+      KeyStore,
       "address",
       owner
     );
