@@ -2,29 +2,38 @@ import { Sdk as SdkWasm, TxType } from "@namada/shared";
 import {
   BondMsgValue,
   BondProps,
+  EthBridgeTransferMsgValue,
+  EthBridgeTransferProps,
+  IbcTransferMsgValue,
+  IbcTransferProps,
   Message,
+  SignatureMsgValue,
   TransferMsgValue,
   TransferProps,
   TxMsgValue,
   TxProps,
   UnbondMsgValue,
   UnbondProps,
+  VoteProposalMsgValue,
+  VoteProposalProps,
   WithdrawMsgValue,
   WithdrawProps,
 } from "@namada/types";
+import { ResponseSign } from "@zondax/ledger-namada";
 import { EncodedTx, SignedTx } from "tx/types";
 
+/**
+ * SDK functionality related to transactions
+ */
 export class Tx {
-  constructor(protected readonly sdk: SdkWasm) { }
+  constructor(protected readonly sdk: SdkWasm) {}
 
   /**
    * Build a transaction
-   *
    * @param {TxType} txType
    * @param {Uint8Array} encodedSpecificTx
    * @param {Uint8Array} encodedTx
-   *
-   * @return {EncodedTx}
+   * @returns {EncodedTx}
    */
   async buildTx(
     txType: TxType,
@@ -44,12 +53,10 @@ export class Tx {
 
   /**
    * Build Transfer Tx
-   *
    * @param {TxProps} txProps
    * @param {TransferProps} transferProps
    * @param {string} gasPayer
-   *
-   * @return {EncodedTx}
+   * @returns {EncodedTx}
    */
   async buildTransfer(
     txProps: TxProps,
@@ -74,11 +81,9 @@ export class Tx {
 
   /**
    * Build RevealPK Tx
-   *
    * @param {TxProps} txProps
    * @param {string} publicKey
-   *
-   * @return {EncodedTx}
+   * @returns {EncodedTx}
    */
   async buildRevealPk(txProps: TxProps, publicKey: string): Promise<EncodedTx> {
     const txMsg = new Message<TxMsgValue>();
@@ -94,12 +99,10 @@ export class Tx {
 
   /**
    * Build Bond Tx
-   *
    * @param {TxProps} txProps
    * @param {BondProps} bondProps
    * @param {string} gasPayer
-   *
-   * @return {EncodedTx}
+   * @returns {EncodedTx}
    */
   async buildBond(
     txProps: TxProps,
@@ -117,12 +120,10 @@ export class Tx {
 
   /**
    * Build Unbond Tx
-   *
    * @param {TxProps} txProps
    * @param {UnbondProps} unbondProps
    * @param {string} gasPayer
-   *
-   * @return {EncodedTx}
+   * @returns {EncodedTx}
    */
   async buildUnbond(
     txProps: TxProps,
@@ -145,12 +146,10 @@ export class Tx {
 
   /**
    * Build Withdraw Tx
-   *
    * @param {TxProps} txProps
    * @param {WithdrawProps} withdrawProps
    * @param {string} gasPayer
-   *
-   * @return {EncodedTx}
+   * @returns {EncodedTx}
    */
   async buildWithdraw(
     txProps: TxProps,
@@ -167,12 +166,94 @@ export class Tx {
   }
 
   /**
-   * Sign tx
-   *
+   * Build Ibc Transfer Tx
+   * @param {TxProps} txProps
+   * @param {IbcTransferProps} ibcTransferProps
+   * @param {string} gasPayer
+   * @returns {EncodedTx}
+   */
+  async buildIbcTransfer(
+    txProps: TxProps,
+    ibcTransferProps: IbcTransferProps,
+    gasPayer: string
+  ): Promise<EncodedTx> {
+    const txMsg = new Message<TxMsgValue>();
+    const ibcTransferMsg = new Message<IbcTransferProps>();
+
+    const encodedTx = txMsg.encode(new TxMsgValue(txProps));
+    const encodedIbcTransfer = ibcTransferMsg.encode(
+      new IbcTransferMsgValue(ibcTransferProps)
+    );
+
+    return this.buildTx(
+      TxType.IBCTransfer,
+      encodedIbcTransfer,
+      encodedTx,
+      gasPayer
+    );
+  }
+
+  /**
+   * Build Ethereum Bridge Transfer Tx
+   * @param {TxProps} txProps
+   * @param {EthBridgeTransferProps} ethBridgeTransferProps
+   * @param {string} gasPayer
+   * @returns {EncodedTx}
+   */
+  async buildEthBridgeTransfer(
+    txProps: TxProps,
+    ethBridgeTransferProps: EthBridgeTransferProps,
+    gasPayer: string
+  ): Promise<EncodedTx> {
+    const txMsg = new Message<TxMsgValue>();
+    const ethBridgeTransferMsg = new Message<EthBridgeTransferProps>();
+
+    const encodedTx = txMsg.encode(new TxMsgValue(txProps));
+    const encodedEthBridgeTransfer = ethBridgeTransferMsg.encode(
+      new EthBridgeTransferMsgValue(ethBridgeTransferProps)
+    );
+
+    return this.buildTx(
+      TxType.EthBridgeTransfer,
+      encodedEthBridgeTransfer,
+      encodedTx,
+      gasPayer
+    );
+  }
+
+  /**
+   * Built Vote Proposal Tx
+   * @param {TxProps} txProps
+   * @param {VoteProposalProps} voteProposalProps
+   * @param {string} gasPayer
+   * @returns {EncodedTx}
+   */
+  async buildVoteProposal(
+    txProps: TxProps,
+    voteProposalProps: VoteProposalProps,
+    gasPayer: string
+  ): Promise<EncodedTx> {
+    const txMsg = new Message<TxMsgValue>();
+    const voteProposalMsg = new Message<VoteProposalProps>();
+
+    const encodedTx = txMsg.encode(new TxMsgValue(txProps));
+    const encodedVoteProposal = voteProposalMsg.encode(
+      new VoteProposalMsgValue(voteProposalProps)
+    );
+
+    return this.buildTx(
+      TxType.VoteProposal,
+      encodedVoteProposal,
+      encodedTx,
+      gasPayer
+    );
+  }
+
+  /**
+   * Sign transaction
    * @param {EncodedTx} encodedTx
    * @param {string} signingKey
-   *
-   * @return {EncodedTx}
+   * @returns {EncodedTx}
    */
   async signTx(encodedTx: EncodedTx, signingKey: string): Promise<SignedTx> {
     const { tx, txMsg } = encodedTx;
@@ -182,5 +263,47 @@ export class Tx {
     encodedTx.free();
 
     return new SignedTx(txMsg, signedTx);
+  }
+
+  /**
+   * Append signature for transactions signed by Ledger Hardware Wallet
+   * @param {Uint8Array} txBytes - Serialized transaction
+   * @param {ResponseSign} ledgerSignatureResponse - Serialized signature as returned from Ledger
+   * @returns {Uint8Array} - Serialized Tx bytes with signature appended
+   */
+  appendSignature(
+    txBytes: Uint8Array,
+    ledgerSignatureResponse: ResponseSign
+  ): Uint8Array {
+    const ledgerSignature = ledgerSignatureResponse.signature;
+    if (!ledgerSignature) {
+      throw new Error("Signature was not returned from Ledger!");
+    }
+
+    const {
+      pubkey,
+      raw_indices,
+      raw_signature,
+      wrapper_indices,
+      wrapper_signature,
+    } = ledgerSignature;
+
+    // Construct props from ledgerSignature
+    /* eslint-disable */
+    const props = {
+      pubkey: new Uint8Array((pubkey as any).data),
+      rawIndices: new Uint8Array((raw_indices as any).data),
+      rawSignature: new Uint8Array((raw_signature as any).data),
+      wrapperIndices: new Uint8Array((wrapper_indices as any).data),
+      wrapperSignature: new Uint8Array((wrapper_signature as any).data),
+    };
+    /* eslint-enable */
+
+    // Serialize signature
+    const value = new SignatureMsgValue(props);
+    const msg = new Message<SignatureMsgValue>();
+    const encodedSignature = msg.encode(value);
+
+    return this.sdk.append_signature(txBytes, encodedSignature);
   }
 }

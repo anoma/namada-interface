@@ -12,11 +12,10 @@ export class Rpc {
 
   /**
    * Query balances from chain
-   *
+   * @async
    * @param {string} owner
    * @param {string[]} tokens
-   *
-   * @return {string[][]} [address][amount]
+   * @returns {string[][]} [address][amount]
    */
   async queryBalance(owner: string, tokens: string[]): Promise<string[][]> {
     return await this.query.query_balance(owner, tokens);
@@ -24,7 +23,8 @@ export class Rpc {
 
   /**
    * Query native token from chain
-   * @return {string}
+   * @async
+   * @returns {string}
    */
   async queryNativeToken(): Promise<string> {
     return await this.query.query_native_token();
@@ -32,7 +32,8 @@ export class Rpc {
 
   /**
    * Query public key
-   * @return {string}
+   * @async
+   * @returns {string}
    */
   async queryPublicKey(owner: string): Promise<string> {
     return await this.query.query_public_key(owner);
@@ -40,7 +41,8 @@ export class Rpc {
 
   /**
    * Query all validator addresses
-   * @return {string[]}
+   * @async
+   * @returns {string[]}
    */
   async queryAllValidators(): Promise<string[]> {
     return await this.query.query_all_validator_addresses();
@@ -48,6 +50,9 @@ export class Rpc {
 
   /**
    * Broadcast a Tx to the ledger
+   * @async
+   * @param {SignedTx} signedTx - Transaction with signature
+   * @returns {void}
    */
   async broadcastTx(signedTx: SignedTx): Promise<void> {
     const { txMsg, tx } = signedTx;

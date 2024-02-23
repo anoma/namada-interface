@@ -156,7 +156,7 @@ class Keplr implements Integration<Account, OfflineSigner> {
       } = props.ibcProps;
       const { feeAmount } = props.txProps;
 
-      const minDenom = minDenomByToken(token.symbol as CosmosTokenType);
+      const minDenom = minDenomByToken(token as CosmosTokenType);
       const client = await SigningStargateClient.connectWithSigner(
         this.chain.rpc,
         this.signer(),

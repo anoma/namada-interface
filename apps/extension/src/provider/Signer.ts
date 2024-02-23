@@ -6,8 +6,8 @@ import {
   AccountType,
   BondMsgValue,
   BondProps,
-  BridgeTransferProps,
   EthBridgeTransferMsgValue,
+  EthBridgeTransferProps,
   Signer as ISigner,
   IbcTransferMsgValue,
   IbcTransferProps,
@@ -182,7 +182,7 @@ export class Signer implements ISigner {
    * Submit an eth bridge transfer
    */
   public async submitEthBridgeTransfer(
-    args: BridgeTransferProps,
+    args: EthBridgeTransferProps,
     txArgs: TxProps,
     type: AccountType
   ): Promise<void> {

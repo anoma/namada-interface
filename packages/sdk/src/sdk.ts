@@ -1,9 +1,12 @@
+import Transport from "@ledgerhq/hw-transport";
 import { init as initCrypto } from "@namada/crypto/src/init";
 import { Query as QueryWasm, Sdk as SdkWasm } from "@namada/shared";
 import { init as initShared } from "@namada/shared/src/init";
 import { Keys } from "keys";
+import { Ledger } from "ledger";
 import { Mnemonic } from "mnemonic";
 import { Rpc } from "rpc";
+import { Signing } from "signing";
 import { Tx } from "tx";
 
 /**
@@ -16,17 +19,16 @@ export class Sdk {
     protected readonly sdk: SdkWasm,
     protected readonly query: QueryWasm,
     protected readonly cryptoMemory: WebAssembly.Memory,
-    protected readonly url: string,
-    protected readonly nativeToken: string
-  ) { }
+    public readonly url: string,
+    public readonly nativeToken: string
+  ) {}
 
   /**
    * Returns an initialized Sdk class
-   *
+   * @async
    * @param {string} url - RPC url for use with SDK
    * @param {string} token - Native token of the target chain, if not provided, an attempt to query it will be made
-   *
-   * @return {Sdk}
+   * @return {Sdk} Instance of initialized Sdk class
    */
   async init(url: string, token?: string): Promise<Sdk> {
     // Load and initialize shared wasm
@@ -52,13 +54,9 @@ export class Sdk {
         const result = await query.query_native_token();
         nativeToken = result;
       } catch (e) {
-        throw new Error("Unable to Query native token!");
+        // Raise exception if query is required but native token cannot be determined
+        throw new Error(`Unable to Query native token! ${e}`);
       }
-    }
-
-    if (!nativeToken) {
-      // Inform user to provide token
-      throw new Error("Query token must be provided!");
     }
 
     // Instantiate SdkWasm
@@ -68,6 +66,7 @@ export class Sdk {
 
   /**
    * Return initialized Rpc class
+   * @return {Rpc} Namada RPC client
    */
   getRpc(): Rpc {
     return new Rpc(this.sdk, this.query);
@@ -75,6 +74,7 @@ export class Sdk {
 
   /**
    * Return initialized Tx class
+   * @return {Tx} Tx-related functionality
    */
   getTx(): Tx {
     return new Tx(this.sdk);
@@ -82,6 +82,7 @@ export class Sdk {
 
   /**
    * Return initialized Mnemonic class
+   * @return {Mnemonic}
    */
   getMnemonic(): Mnemonic {
     return new Mnemonic(this.cryptoMemory);
@@ -89,13 +90,33 @@ export class Sdk {
 
   /**
    * Return initialized Keys class
+   * @return {Keys}
    */
   getKeys(): Keys {
     return new Keys(this.cryptoMemory);
   }
 
   /**
+   * Return initialized Signing class
+   * @return {Signing} Non-Tx signing functionality
+   */
+  getSigning(): Signing {
+    return new Signing(this.sdk);
+  }
+
+  /**
+   * Intialize Ledger class for use with NamadaApp
+   * @async
+   * @param {Transport} transport (optional) - Will default to USB transport if not specified
+   * @return {Ledger} Class for interacting with NamadaApp for Ledger Hardware Wallets
+   */
+  async initLedger(transport?: Transport): Promise<Ledger> {
+    return await Ledger.init(transport);
+  }
+
+  /**
    * Define rpc getter to use with destructuring assignment
+   * @return {Rpc}
    */
   get rpc(): Rpc {
     return this.getRpc();
@@ -103,6 +124,7 @@ export class Sdk {
 
   /**
    * Define tx getter to use with destructuring assignment
+   * @return {Tx}
    */
   get tx(): Tx {
     return this.getTx();
@@ -110,6 +132,7 @@ export class Sdk {
 
   /**
    * Define mnemonic getter to use with destructuring assignment
+   * @return {Mnemonic}
    */
   get mnemonic(): Mnemonic {
     return this.getMnemonic();
@@ -117,8 +140,17 @@ export class Sdk {
 
   /**
    * Define keys getter to use with destructuring assignment
+   * @return {Keys}
    */
   get keys(): Keys {
     return this.getKeys();
+  }
+
+  /**
+   * Define signing getter to use with destructuring assignment
+   * @return {Signing}
+   */
+  get signing(): Signing {
+    return this.getSigning();
   }
 }
