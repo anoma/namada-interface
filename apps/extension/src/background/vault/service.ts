@@ -1,21 +1,13 @@
 import { KVStore } from "@namada/storage";
 import { Result } from "@namada/utils";
-import {
-  Keys,
-  Schemas,
-  VaultStorage,
-  VaultTypes,
-} from "background/VaultStorage";
+import { Keys, VaultStorage } from "background/VaultStorage";
 import { ExtensionBroadcaster } from "extension";
-import * as t from "io-ts";
 import { sha256 } from "js-sha256";
 import { Crypto } from "./crypto";
 import {
   CryptoRecord,
-  PrimitiveType,
   ResetPasswordError,
   SessionPassword,
-  Vault,
   VaultStoreData,
 } from "./types";
 
@@ -36,20 +28,14 @@ export class VaultService {
   private migrate(): void {}
 
   private async initialize(): Promise<void> {
-    const exists = await this.vaultStorage.exists();
-    if (!exists) {
-      this.reset();
+    const storage = await this.vaultStorage.get();
+    if (!storage) {
+      await this.vaultStorage.reset();
     }
   }
 
-  private async reset(): Promise<void> {
-    await this.vaultStorage.reset();
-  }
-
   public async passwordInitialized(): Promise<boolean> {
-    //TODO: improve so we do not "get" two times
-    const store =
-      (await this.vaultStorage.exists()) && (await this.vaultStorage.get());
+    const store = await this.vaultStorage.get();
     return !!(store && store.password);
   }
 
@@ -65,7 +51,7 @@ export class VaultService {
   }
 
   public async logout(): Promise<void> {
-    await this.reset();
+    await this.vaultStorage.reset();
     await this.setPassword(undefined);
   }
 
@@ -134,130 +120,6 @@ export class VaultService {
     return false;
   }
 
-  public async add<T, S extends Schemas>(
-    schema: S,
-    publicData: t.TypeOf<S>,
-    sensitiveData?: T
-  ): Promise<Vault<t.TypeOf<S>>> {
-    await this.assertIsUnlocked();
-    const entry = await this.createVaultEntry<T, S>(publicData, sensitiveData);
-
-    this.vaultStorage.addSpecific(schema, entry);
-
-    return entry;
-  }
-
-  protected async findIndexOrFail<S extends Schemas>(
-    schema: S,
-    prop: keyof t.TypeOf<S>,
-    value: string
-  ): Promise<number> {
-    const storedData = await this.vaultStorage.getSpecificOrFail(schema);
-
-    const output = storedData.findIndex((entry) => {
-      const props = entry.public;
-      if (!prop) return false;
-      return props[prop] === value;
-    });
-
-    if (output === -1) {
-      throw new Error("Vault entry has not been found");
-    }
-
-    return output;
-  }
-
-  protected async find<S extends Schemas>(
-    schema: S,
-    prop?: keyof t.TypeOf<S>,
-    value?: PrimitiveType
-  ): Promise<Vault<t.TypeOf<S>>[]> {
-    const storedData = await this.vaultStorage.getSpecific(schema);
-    //TODO: as string
-    if (!storedData) {
-      return [];
-    }
-
-    return storedData.filter((entry) => {
-      const props = entry.public;
-      if (!prop) return true;
-      return props[prop] === value;
-    });
-  }
-
-  public async findOne<S extends Schemas>(
-    schema: S,
-    prop?: keyof t.TypeOf<S>,
-    value?: PrimitiveType
-  ): Promise<Vault<t.TypeOf<S>> | null> {
-    const result = await this.find(schema, prop, value);
-    return result.length > 0 ? result[0] : null;
-  }
-
-  public async findAll<S extends Schemas>(
-    schema: S,
-    prop?: keyof t.TypeOf<S>,
-    value?: PrimitiveType
-  ): Promise<Vault<t.TypeOf<S>>[]> {
-    return await this.find(schema, prop, value);
-  }
-
-  public async findAllOrFail<S extends Schemas>(
-    schema: S,
-    prop?: keyof t.TypeOf<S>,
-    value?: PrimitiveType
-  ): Promise<Vault<t.TypeOf<S>>[]> {
-    const result = await this.findAll(schema, prop, value);
-    if (result.length === 0) {
-      throw new Error("No results have been found on Vault");
-    }
-    return result;
-  }
-
-  public async findOneOrFail<S extends Schemas>(
-    schema: S,
-    prop?: keyof t.TypeOf<S>,
-    value?: PrimitiveType
-  ): Promise<Vault<t.TypeOf<S>>> {
-    const result = await this.find(schema, prop, value);
-    if (result.length === 0) {
-      throw new Error("No results have been found on Vault");
-    }
-    return result[0];
-  }
-
-  public async update<S extends Schemas>(
-    schema: S,
-    prop: keyof t.TypeOf<S>,
-    value: string,
-    newProps: Partial<VaultTypes>
-  ): Promise<t.TypeOf<S>> {
-    const accountIdx = await this.findIndexOrFail(schema, prop, value);
-    const storedData = await this.vaultStorage.getSpecificOrFail(schema);
-    const vault = storedData[accountIdx];
-    vault.public = { ...vault.public, ...newProps };
-    await this.vaultStorage.setSpecific(schema, storedData);
-
-    return vault.public;
-  }
-
-  public async remove<S extends Schemas>(
-    schema: S,
-    prop: keyof VaultTypes,
-    value: PrimitiveType
-  ): Promise<Vault<t.TypeOf<S>>[]> {
-    const storedData = (await this.vaultStorage.getSpecific(schema)) || [];
-
-    const newStore = storedData.filter((entry) => {
-      const props = entry.public;
-      return props[prop] !== value;
-    });
-
-    this.vaultStorage.setSpecific(schema, newStore);
-
-    return newStore;
-  }
-
   public async createPassword(password: string): Promise<void> {
     if (await this.passwordInitialized()) {
       throw new Error("Password already set");
@@ -277,15 +139,13 @@ export class VaultService {
     }
   }
 
-  public async reveal<T, S extends Schemas>(
-    entry: Vault<t.TypeOf<S>>
-  ): Promise<T | undefined> {
+  public async reveal<T>(sensitive?: CryptoRecord): Promise<T | undefined> {
     await this.assertIsUnlocked();
-    if (!entry.sensitive) return;
+    if (!sensitive) return;
 
     try {
       const decryptedJson = crypto.decrypt(
-        entry.sensitive,
+        sensitive,
         await this.getPassword(),
         this.cryptoMemory
       );
@@ -312,14 +172,15 @@ export class VaultService {
       for (const key of Object.keys(data) as Array<keyof typeof data>) {
         newStore[key] = [];
         for (const vault of storedData.data[key]) {
-          const sensitiveInfo = await this.reveal(vault);
-          newStore[key].push(
-            await this.createVaultEntry(
-              vault.public,
-              sensitiveInfo,
-              newPassword
-            )
+          const sensitiveInfo = await this.reveal(vault.sensitive);
+          const newSensitive = await this.encryptSensitiveData(
+            sensitiveInfo,
+            newPassword
           );
+          newStore[key].push({
+            public: vault.public,
+            sensitive: newSensitive,
+          });
         }
       }
 
@@ -336,22 +197,14 @@ export class VaultService {
     }
   }
 
-  protected async createVaultEntry<T, S extends Schemas>(
-    publicData: t.TypeOf<S>,
-    sensitiveData?: T,
-    password?: string
-  ): Promise<Vault<t.TypeOf<S>>> {
-    let encryptedData;
-    if (sensitiveData) {
-      encryptedData = crypto.encrypt(
-        JSON.stringify(sensitiveData),
-        password ? await this.hashPassword(password) : await this.getPassword()
-      );
-    }
-    return {
-      public: { ...publicData },
-      sensitive: { ...encryptedData } as CryptoRecord,
-    };
+  protected async encryptSensitiveData<T>(
+    sensitiveData: T,
+    password: string
+  ): Promise<CryptoRecord> {
+    const pwd = password
+      ? await this.hashPassword(password)
+      : await this.getPassword();
+    return crypto.encrypt(JSON.stringify(sensitiveData), pwd);
   }
 
   protected async getEncryptedPassword(

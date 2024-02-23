@@ -37,7 +37,7 @@ const revealedPKStorege = new RevealedPKStorage(
 );
 
 //IDB storages
-const store = new VaultStorage(new IndexedDBKVStore(KVPrefix.IndexedDB));
+const vaultStorage = new VaultStorage(new IndexedDBKVStore(KVPrefix.IndexedDB));
 const utilityStore = new IndexedDBKVStore<UtilityStore>(KVPrefix.Utility);
 
 // Memory/transient storages
@@ -71,7 +71,7 @@ const init = new Promise<void>(async (resolve) => {
   const broadcaster = new ExtensionBroadcaster(localStorage, requester);
 
   const vaultService = new VaultService(
-    store,
+    vaultStorage,
     sessionStore,
     cryptoMemory,
     broadcaster
@@ -84,6 +84,7 @@ const init = new Promise<void>(async (resolve) => {
     chainsService,
     utilityStore,
     localStorage,
+    vaultStorage,
     cryptoMemory,
     requester,
     broadcaster
@@ -91,7 +92,7 @@ const init = new Promise<void>(async (resolve) => {
   const ledgerService = new LedgerService(
     keyRingService,
     sdkService,
-    store,
+    vaultStorage,
     txStore,
     revealedPKStorege,
     requester,

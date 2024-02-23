@@ -21,7 +21,7 @@ import {
 } from "background/offscreen";
 import { SdkService } from "background/sdk/service";
 import { VaultService } from "background/vault";
-import { KeyStore } from "background/VaultStorage";
+import { KeyStore, VaultStorage } from "background/VaultStorage";
 import { init as initSubmitTransferWebWorker } from "background/web-workers";
 import {
   ExtensionBroadcaster,
@@ -55,12 +55,14 @@ export class KeyRingService {
     protected readonly chainsService: ChainsService,
     protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly localStorage: LocalStorage,
+    protected readonly vaultStorage: VaultStorage,
     protected readonly cryptoMemory: WebAssembly.Memory,
     protected readonly requester: ExtensionRequester,
     protected readonly broadcaster: ExtensionBroadcaster
   ) {
     this._keyRing = new KeyRing(
       vaultService,
+      vaultStorage,
       sdkService,
       utilityStore,
       cryptoMemory
@@ -159,7 +161,7 @@ export class KeyRingService {
   async findParentByPublicKey(
     publicKey: string
   ): Promise<DerivedAccount | null> {
-    const accounts = await this.vaultService.findAll(
+    const accounts = await this.vaultStorage.findAll(
       KeyStore,
       "publicKey",
       publicKey
@@ -169,7 +171,7 @@ export class KeyRingService {
   }
 
   async findByAddress(address: string): Promise<DerivedAccount | null> {
-    const account = await this.vaultService.findOne(
+    const account = await this.vaultStorage.findOne(
       KeyStore,
       "address",
       address
@@ -455,7 +457,7 @@ export class KeyRingService {
     owner: string,
     tokens: string[]
   ): Promise<{ token: string; amount: string }[]> {
-    const account = await this.vaultService.findOneOrFail(
+    const account = await this.vaultStorage.findOneOrFail(
       KeyStore,
       "address",
       owner

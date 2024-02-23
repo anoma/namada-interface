@@ -113,6 +113,7 @@ export const init = async (): Promise<{
     chainsService,
     utilityStore,
     localStorage,
+    vaultStorage,
     cryptoMemory,
     requester,
     broadcaster

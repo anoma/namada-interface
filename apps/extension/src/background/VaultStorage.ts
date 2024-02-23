@@ -2,6 +2,7 @@
 import { KVStore } from "@namada/storage";
 import * as E from "fp-ts/Either";
 import * as t from "io-ts";
+import { CryptoRecord, PrimitiveType } from "./vault";
 
 enum AccountType {
   Mnemonic = "mnemonic",
@@ -36,16 +37,6 @@ export const KeyStore = t.exact(
   ])
 );
 
-export type KeyStoreType = t.TypeOf<typeof KeyStore>;
-export type VaultTypes = KeyStoreType;
-
-const schemas = [KeyStore];
-export type Schemas = (typeof schemas)[number];
-
-const keys = ["key-store"] as const;
-export type Keys = (typeof keys)[number];
-export const schemasMap = new Map<Schemas, Keys>([[KeyStore, "key-store"]]);
-
 const Vault = t.type({
   //TODO: any for time being
   password: t.any,
@@ -63,69 +54,32 @@ const Vault = t.type({
     )
   ),
 });
+
+export type KeyStoreType = t.TypeOf<typeof KeyStore>;
+export type VaultTypes = KeyStoreType;
+
+const schemas = [KeyStore];
+export type Schemas = (typeof schemas)[number];
+
+const keys = ["key-store"] as const;
+export type Keys = (typeof keys)[number];
+export const schemasMap = new Map<Schemas, Keys>([[KeyStore, "key-store"]]);
 type VaultType = t.TypeOf<typeof Vault>;
 
 export class VaultStorage {
   constructor(private readonly provider: KVStore<unknown>) {}
 
-  async getSpecific<S extends Schemas>(
-    schema: S
-  ): Promise<{ public: t.TypeOf<S>; sensitive?: any }[] | undefined> {
-    const storage = await this.provider.get<VaultType>("vault");
-    //TODO: as string
-    const key = schemasMap.get(schema)!;
-    const data = storage?.data[key];
+  public validate(data: unknown): VaultType {
+    const decodedData = Vault.decode(data);
 
-    return data;
-  }
-
-  async getSpecificOrFail<S extends Schemas>(
-    schema: S
-  ): Promise<{ public: t.TypeOf<S>; sensitive?: any }[]> {
-    const storage = await this.provider.get<VaultType>("vault");
-    //TODO: as string
-    const key = schemasMap.get(schema)!;
-    const data = storage?.data[key];
-
-    if (!data) {
-      throw new Error("TODO");
+    if (E.isLeft(decodedData)) {
+      throw new Error("Vault validation failed");
     }
 
-    return data;
+    return decodedData.right;
   }
 
-  async setSpecific<S extends Schemas>(
-    schema: S,
-    data: { public: t.TypeOf<S>; sensitive?: any }[]
-  ): Promise<void> {
-    const storage = await this.provider.get<VaultType>("vault");
-    //TODO: as string
-    const key = schemasMap.get(schema)!;
-    if (!storage) {
-      throw new Error("TODO");
-    }
-    storage.data[key] = data;
-    this.set(storage);
-  }
-
-  async addSpecific<S extends Schemas>(
-    schema: S,
-    //TODO: any for time being
-    data: { public: t.TypeOf<S>; sensitive?: any }
-  ): Promise<void> {
-    const storage = await this.provider.get<VaultType>("vault");
-    //TODO: as string
-    const key = schemasMap.get(schema)!;
-    if (!storage) {
-      throw new Error("TODO");
-    }
-    const currentData = storage.data[key] || [];
-    currentData.push(data);
-    storage.data[key] = currentData;
-    this.set(storage);
-  }
-
-  async get(): Promise<VaultType | undefined> {
+  public async get(): Promise<VaultType | undefined> {
     const data = await this.provider.get("vault");
     const Schema = t.union([Vault, t.undefined]);
     const decoded = Schema.decode(data);
@@ -145,30 +99,182 @@ export class VaultStorage {
     return storedData;
   }
 
-  async set(data: VaultType): Promise<void> {
+  public async findOne<S extends Schemas>(
+    schema: S,
+    prop?: keyof t.TypeOf<S>,
+    value?: PrimitiveType
+  ): Promise<{ public: t.TypeOf<S>; sensitive?: CryptoRecord } | null> {
+    const result = await this.find(schema, prop, value);
+    return result.length > 0 ? result[0] : null;
+  }
+
+  public async findOneOrFail<S extends Schemas>(
+    schema: S,
+    prop?: keyof t.TypeOf<S>,
+    value?: PrimitiveType
+  ): Promise<{ public: t.TypeOf<S>; sensitive?: CryptoRecord }> {
+    const result = await this.find(schema, prop, value);
+    if (result.length === 0) {
+      throw new Error("No results have been found on Vault");
+    }
+    return result[0];
+  }
+
+  public async findAll<S extends Schemas>(
+    schema: S,
+    prop?: keyof t.TypeOf<S>,
+    value?: PrimitiveType
+  ): Promise<{ public: t.TypeOf<S>; sensitive?: CryptoRecord }[]> {
+    return await this.find(schema, prop, value);
+  }
+
+  public async findAllOrFail<S extends Schemas>(
+    schema: S,
+    prop?: keyof t.TypeOf<S>,
+    value?: PrimitiveType
+  ): Promise<{ public: t.TypeOf<S>; sensitive?: CryptoRecord }[]> {
+    const result = await this.findAll(schema, prop, value);
+    if (result.length === 0) {
+      throw new Error("No results have been found on Vault");
+    }
+    return result;
+  }
+
+  public async set(data: VaultType): Promise<void> {
     await this.provider.set("vault", data);
   }
 
-  async exists(): Promise<boolean> {
-    const vault = await this.get();
-    return !!vault;
+  public async add<S extends Schemas>(
+    schema: S,
+    //TODO: any for time being
+    data: { public: t.TypeOf<S>; sensitive?: any }
+  ): Promise<void> {
+    const storage = await this.provider.get<VaultType>("vault");
+    //TODO: as string
+    const key = schemasMap.get(schema)!;
+    if (!storage) {
+      throw new Error("TODO");
+    }
+    const currentData = storage.data[key] || [];
+    currentData.push(data);
+    storage.data[key] = currentData;
+    this.set(storage);
   }
 
-  async reset(): Promise<void> {
+  public async update<S extends Schemas>(
+    schema: S,
+    prop: keyof t.TypeOf<S>,
+    value: string,
+    newProps: Partial<VaultTypes>
+  ): Promise<t.TypeOf<S>> {
+    const accountIdx = await this.findIndexOrFail(schema, prop, value);
+    const storedData = await this.getSpecificOrFail(schema);
+    const vault = storedData[accountIdx];
+    vault.public = { ...vault.public, ...newProps };
+    await this.setSpecific(schema, storedData);
+
+    return vault.public;
+  }
+
+  public async remove<S extends Schemas>(
+    schema: S,
+    prop: keyof VaultTypes,
+    value: PrimitiveType
+  ): Promise<{ public: t.TypeOf<S> }[]> {
+    const storedData = (await this.getSpecific(schema)) || [];
+
+    const newStore = storedData.filter((entry) => {
+      const props = entry.public;
+      return props[prop] !== value;
+    });
+
+    this.setSpecific(schema, newStore);
+
+    return newStore;
+  }
+
+  public async reset(): Promise<void> {
     await this.provider.set("vault", {
       password: undefined,
       data: {},
     });
   }
 
-  validate(data: unknown): VaultType {
-    console.log("V", data);
-    const decodedData = Vault.decode(data);
+  private async getSpecific<S extends Schemas>(
+    schema: S
+  ): Promise<{ public: t.TypeOf<S>; sensitive?: any }[] | undefined> {
+    const storage = await this.provider.get<VaultType>("vault");
+    //TODO: as string
+    const key = schemasMap.get(schema)!;
+    const data = storage?.data[key];
 
-    if (E.isLeft(decodedData)) {
-      throw new Error("Vault validation failed");
+    return data;
+  }
+
+  private async getSpecificOrFail<S extends Schemas>(
+    schema: S
+  ): Promise<{ public: t.TypeOf<S>; sensitive?: any }[]> {
+    const storage = await this.provider.get<VaultType>("vault");
+    //TODO: as string
+    const key = schemasMap.get(schema)!;
+    const data = storage?.data[key];
+
+    if (!data) {
+      throw new Error("TODO");
     }
 
-    return decodedData.right;
+    return data;
+  }
+
+  private async setSpecific<S extends Schemas>(
+    schema: S,
+    data: { public: t.TypeOf<S>; sensitive?: any }[]
+  ): Promise<void> {
+    const storage = await this.provider.get<VaultType>("vault");
+    //TODO: as string
+    const key = schemasMap.get(schema)!;
+    if (!storage) {
+      throw new Error("TODO");
+    }
+    storage.data[key] = data;
+    this.set(storage);
+  }
+
+  private async findIndexOrFail<S extends Schemas>(
+    schema: S,
+    prop: keyof t.TypeOf<S>,
+    value: string
+  ): Promise<number> {
+    const storedData = await this.getSpecificOrFail(schema);
+
+    const output = storedData.findIndex((entry) => {
+      const props = entry.public;
+      if (!prop) return false;
+      return props[prop] === value;
+    });
+
+    if (output === -1) {
+      throw new Error("Vault entry has not been found");
+    }
+
+    return output;
+  }
+
+  private async find<S extends Schemas>(
+    schema: S,
+    prop?: keyof t.TypeOf<S>,
+    value?: PrimitiveType
+  ): Promise<{ public: t.TypeOf<S>; sensitive?: CryptoRecord }[]> {
+    const storedData = await this.getSpecific(schema);
+    //TODO: as string
+    if (!storedData) {
+      return [];
+    }
+
+    return storedData.filter((entry) => {
+      const props = entry.public;
+      if (!prop) return true;
+      return props[prop] === value;
+    });
   }
 }

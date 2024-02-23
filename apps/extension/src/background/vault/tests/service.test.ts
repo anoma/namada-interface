@@ -28,16 +28,17 @@ const getKeyStore = (id: string, alias: string): KeyStoreType => ({
 
 describe("Testing untouched Vault Service", () => {
   let service: VaultService;
+  let storage: VaultStorage;
   const keyString = "key-store";
   const password = "123foo";
   const secretText = "secret";
 
   beforeEach(async () => {
-    const vaultStorage = new VaultStorage(new KVStoreMock(KVPrefix.IndexedDB));
+    storage = new VaultStorage(new KVStoreMock(KVPrefix.IndexedDB));
     const sessionStore = new KVStoreMock<SessionPassword>(
       KVPrefix.SessionStorage
     );
-    service = new VaultService(vaultStorage, sessionStore, cryptoMemory);
+    service = new VaultService(storage, sessionStore, cryptoMemory);
     await service.createPassword(password);
   });
 
@@ -61,22 +62,19 @@ describe("Testing untouched Vault Service", () => {
     const publicData = getKeyStore("id", "alias");
 
     await service.assertIsUnlocked();
-    await service.add<VaultSensitiveValue, typeof KeyStore>(
-      KeyStore,
-      publicData,
-      {
-        bar: sensitiveData,
-      }
-    );
+    await storage.add(KeyStore, {
+      public: publicData,
+      sensitive: { bar: sensitiveData },
+    });
 
-    const vaultData = await service.findOneOrFail(
+    const vaultData = await storage.findOneOrFail(
       KeyStore,
       "alias",
       publicData.alias
     );
 
-    const output = await service.reveal<VaultSensitiveValue, typeof KeyStore>(
-      vaultData
+    const output = await service.reveal<VaultSensitiveValue>(
+      vaultData.sensitive
     );
     expect(output?.bar).toEqual(sensitiveData);
   });
@@ -90,11 +88,7 @@ describe("Testing untouched Vault Service", () => {
     ].map((obj) => getKeyStore(obj.id, obj.alias));
 
     for (const obj of data) {
-      await service.add<VaultSensitiveValue, typeof KeyStore>(
-        KeyStore,
-        obj,
-        sensitiveData
-      );
+      await storage.add(KeyStore, { public: obj, sensitive: sensitiveData });
     }
 
     return data;
@@ -105,27 +99,27 @@ describe("Testing untouched Vault Service", () => {
     const data = await addFakeData();
 
     expect(await service.getLength(keyString)).toBe(data.length);
-    expect(await service.findOne(KeyStore, "id", "key0")).toHaveProperty(
+    expect(await storage.findOne(KeyStore, "id", "key0")).toHaveProperty(
       "public.alias",
       "value0"
     );
-    expect(await service.findOne(KeyStore, "id", "key1")).toHaveProperty(
+    expect(await storage.findOne(KeyStore, "id", "key1")).toHaveProperty(
       "public.alias",
       "value1"
     );
-    expect(await service.findOneOrFail(KeyStore, "id", "key0")).toHaveProperty(
+    expect(await storage.findOneOrFail(KeyStore, "id", "key0")).toHaveProperty(
       "public.alias",
       "value0"
     );
 
-    expect(await service.findOne(KeyStore, "id", "ops")).toBeNull();
-    expect(await service.findAll(KeyStore)).toHaveLength(3);
+    expect(await storage.findOne(KeyStore, "id", "ops")).toBeNull();
+    expect(await storage.findAll(KeyStore)).toHaveLength(3);
 
-    const query1 = await service.findAll(KeyStore, "id", "key1");
+    const query1 = await storage.findAll(KeyStore, "id", "key1");
     expect(query1).toHaveLength(1);
     expect(query1[0]).toHaveProperty("public.alias", "value1");
 
-    const query2 = await service.findAllOrFail(KeyStore, "id", "key1");
+    const query2 = await storage.findAllOrFail(KeyStore, "id", "key1");
     expect(query2).toHaveLength(1);
   });
 
@@ -139,12 +133,12 @@ describe("Testing untouched Vault Service", () => {
 
     await service.lock();
     expect(await service.unlock(newPassword)).toBeTruthy();
-    const data = await service.findAll(KeyStore);
+    const data = await storage.findAll(KeyStore);
     expect(data).toHaveLength(3);
 
     for (const obj of data) {
       expect(
-        await service.reveal<VaultSensitiveValue, typeof KeyStore>(obj)
+        await service.reveal<VaultSensitiveValue>(obj.sensitive)
       ).toHaveProperty("bar", secretText);
     }
   });
