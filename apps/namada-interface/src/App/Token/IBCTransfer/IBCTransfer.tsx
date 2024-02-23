@@ -68,7 +68,7 @@ export const submitIbcTransfer = async (
       ibcProps: {
         source: address,
         receiver: target,
-        token,
+        token: token.address,
         amount,
         portId,
         channelId,

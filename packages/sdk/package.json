@@ -18,12 +18,17 @@
     "wasm:build:node": "./scripts/build-node.sh"
   },
   "dependencies": {
+    "@cosmjs/encoding": "^0.29.0",
     "@dao-xyz/borsh": "^5.1.5",
+    "@ledgerhq/hw-transport": "^6.30.0",
+    "@ledgerhq/hw-transport-webhid": "^6.28.0",
+    "@ledgerhq/hw-transport-webusb": "^6.28.0",
     "@namada/chains": "0.2.1",
     "@namada/crypto": "0.2.1",
     "@namada/shared": "0.2.1",
     "@namada/types": "0.2.1",
     "@namada/utils": "0.2.1",
+    "@zondax/ledger-namada": "^0.0.4",
     "bignumber.js": "^9.1.1",
     "bn.js": "^5.2.0",
     "typescript": "^5.1.3"

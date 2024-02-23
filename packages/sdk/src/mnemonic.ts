@@ -7,14 +7,13 @@ import {
 } from "@namada/crypto";
 
 export class Mnemonic {
-  constructor(protected readonly cryptoMemory: WebAssembly.Memory) { }
+  constructor(protected readonly cryptoMemory: WebAssembly.Memory) {}
 
   /**
    * Generate a new 12 or 24 word mnemonic
-   *
+   * @async
    * @param {PhraseSize} size
-   *
-   * @return {string[]}
+   * @returns {string[]}
    */
   async generate(size: PhraseSize = PhraseSize.N12): Promise<string[]> {
     const mnemonic = new MnemonicWasm(size);
@@ -30,9 +29,9 @@ export class Mnemonic {
 
   /**
    * Convert mnemonic to seed bytes
-   *
    * @param {string} phrase
    * @param {string} passphrase (Optional - Bip39 passphrase)
+   * @returns {Uint8Array}
    */
   toSeed(phrase: string, passphrase?: string): Uint8Array {
     const mnemonic = MnemonicWasm.from_phrase(phrase);
@@ -49,9 +48,7 @@ export class Mnemonic {
   /**
    * Validate a mnemonic string, raise an exception providing reason
    * for failure
-   *
    * @param {string} phrase
-   *
    * @return {boolean}
    */
   validateMnemonic(phrase: string): boolean {

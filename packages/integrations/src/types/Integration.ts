@@ -1,7 +1,7 @@
 import {
   AccountType,
-  BridgeTransferProps,
   Chain,
+  EthBridgeTransferProps,
   IbcTransferProps,
   TokenBalance,
   TxProps,
@@ -9,7 +9,7 @@ import {
 
 export type BridgeProps = {
   ibcProps?: IbcTransferProps;
-  bridgeProps?: BridgeTransferProps;
+  bridgeProps?: EthBridgeTransferProps;
   txProps: TxProps;
 };
 

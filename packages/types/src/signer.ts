@@ -1,7 +1,7 @@
 import { Account, AccountType } from "./account";
 import {
   BondProps,
-  BridgeTransferProps,
+  EthBridgeTransferProps,
   IbcTransferProps,
   TransferProps,
   TxProps,
@@ -54,7 +54,7 @@ export interface Signer {
     type: AccountType
   ): Promise<void>;
   submitEthBridgeTransfer(
-    args: BridgeTransferProps,
+    args: EthBridgeTransferProps,
     txArgs: TxProps,
     type: AccountType
   ): Promise<void>;
