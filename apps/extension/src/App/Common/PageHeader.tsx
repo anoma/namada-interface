@@ -5,9 +5,5 @@ type PageHeaderProps = {
 };
 
 export const PageHeader = ({ title }: PageHeaderProps): JSX.Element => {
-  return (
-    <Heading className="text-xl uppercase text-center text-white">
-      {title}
-    </Heading>
-  );
+  return <Heading className="text-xl text-center text-white">{title}</Heading>;
 };

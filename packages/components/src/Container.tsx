@@ -8,14 +8,16 @@ const container = tv({
       "bg-neutral-800 rounded-lg relative flex flex-col grow-0 max-w-full",
       "px-10 overflow-hidden transition-all duration-100 ease-out"
     ),
-    header: "relative pt-5 relative",
+    header: "relative pt-5",
     body: "flex-1 animate-fade-in",
   },
   variants: {
     size: {
       popup: {
         base: "items-stretch py-0 w-full",
-        wrapper: "rounded-none min-h-[320px] min-w-full basis-[min-content] ",
+        header: "absolute top-0 w-full left-0 h-17",
+        wrapper:
+          "rounded-none min-h-[320px] min-w-full basis-[min-content] px-5",
       },
       base: {
         wrapper: "w-[540px] min-h-[600px] pb-10",

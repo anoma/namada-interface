@@ -5,20 +5,21 @@ import { tv, type VariantProps } from "tailwind-variants";
 const checkbox = tv({
   slots: {
     label: clsx(
-      "group bg-black rounded-sm border border-current cursor-pointer",
-      "inline-flex h-6 p-0.5 relative w-6 active:top-px",
+      "group bg-gray rounded-sm border border-black cursor-pointer",
+      "inline-flex h-7 relative w-7 active:top-px",
       "[&_svg]:w-full"
     ),
     checkbox: "absolute invisible",
     control: clsx(
       "inline-flex w-full items-center text-current justify-center",
-      "opacity-0 transition-opacity duration-150 group-hover:opacity-50"
+      "opacity-0 text-xl transition-opacity duration-150 group-hover:opacity-50"
     ),
   },
   variants: {
     checked: {
       true: {
         control: "opacity-100",
+        label: "bg-black border-yellow",
       },
       false: {
         label: "opacity-50",

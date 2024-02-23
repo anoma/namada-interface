@@ -19,7 +19,11 @@ export const ViewKeys = ({
   footer,
 }: ViewKeysProps): JSX.Element => {
   return (
-    <Stack as="section" gap={GapPatterns.TitleContent}>
+    <Stack
+      className="flex-1 justify-center"
+      as="section"
+      gap={GapPatterns.TitleContent}
+    >
       <Stack gap={GapPatterns.FormFields}>
         {transparentAccountAddress && (
           <Input

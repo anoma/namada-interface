@@ -46,13 +46,12 @@ export const ParentAccounts = (): JSX.Element => {
 
   return (
     <Stack gap={GapPatterns.TitleContent}>
-      <PageHeader title="Keys Management" />
-
+      <PageHeader title="Select Account" />
       <Stack gap={4}>
         <nav className="grid items-end grid-cols-[auto_min-content]">
-          <p className="text-white font-medium text-base">Set default keys</p>
+          <p className="text-white font-medium text-xs">Set default keys</p>
           <div className="w-24">
-            <ActionButton size="xs" onClick={goToSetupPage}>
+            <ActionButton borderRadius="md" size="xs" onClick={goToSetupPage}>
               Add keys
             </ActionButton>
           </div>

@@ -5,10 +5,10 @@ import {
   ActionButton,
   Alert,
   GapPatterns,
-  Heading,
   Input,
   Stack,
 } from "@namada/components";
+import { PageHeader } from "App/Common";
 import { ResetPasswordError } from "background/vault";
 import { useVaultContext } from "context";
 
@@ -78,10 +78,8 @@ export const ChangePassword = ({
       onSubmit={handleSubmit}
       full
     >
-      <Heading className="uppercase text-2xl text-center text-white">
-        Change Password
-      </Heading>
-      <Stack full gap={GapPatterns.FormFields}>
+      <PageHeader title="Change Password" />
+      <Stack className="justify-center" full gap={GapPatterns.FormFields}>
         <Input
           label="Current password"
           variant="Password"
