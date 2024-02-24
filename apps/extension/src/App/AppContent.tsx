@@ -12,6 +12,7 @@ import {
   HasMaspParamsMsg,
 } from "provider/messages";
 import { Ports } from "router";
+import { openSetupTab } from "utils";
 import {
   DeleteAccount,
   RenameAccount,
@@ -92,9 +93,14 @@ export const AppContent = (): JSX.Element => {
 
   useEffect(() => {
     if (
-      !passwordInitialized ||
+      !passwordInitialized &&
       accountLoadingStatus === LoadingStatus.Completed
     ) {
+      openSetupTab();
+      return;
+    }
+
+    if (accountLoadingStatus === LoadingStatus.Completed) {
       navigate(getStartPage(accounts));
     }
   }, [accounts, passwordInitialized, accountLoadingStatus]);

@@ -1,6 +1,5 @@
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import browser from "webextension-polyfill";
 
 import {
   ActionButton,
@@ -13,6 +12,7 @@ import { PageHeader } from "App/Common";
 import routes from "App/routes";
 import { ParentAccount } from "background/keyring";
 import { AccountContext } from "context";
+import { openSetupTab } from "utils";
 
 /**
  * Represents the extension's settings page.
@@ -23,9 +23,7 @@ export const ParentAccounts = (): JSX.Element => {
     useContext(AccountContext);
 
   const goToSetupPage = (): void => {
-    browser.tabs.create({
-      url: browser.runtime.getURL("setup.html"),
-    });
+    openSetupTab();
   };
 
   const goToViewAccount = (account: DerivedAccount): void => {

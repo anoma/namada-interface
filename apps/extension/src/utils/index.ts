@@ -15,6 +15,12 @@ export const closeCurrentTab = async (): Promise<void> => {
   }
 };
 
+export const openSetupTab = (): void => {
+  browser.tabs.create({
+    url: browser.runtime.getURL("setup.html"),
+  });
+};
+
 /**
  * Construct unique uuid (v5), passing in an arbitrary number of arguments.
  * This could be a unique parameter of the object receiving the id,
