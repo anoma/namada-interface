@@ -1,4 +1,4 @@
-import { ActionButton, ViewKeys } from "@namada/components";
+import { ActionButton, Stack, ViewKeys } from "@namada/components";
 import { DerivedAccount } from "@namada/types";
 import routes from "Setup/routes";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -15,17 +15,17 @@ export const LedgerConfirmation = (): JSX.Element => {
 
   const account = location.state.account as DerivedAccount;
   return (
-    <>
+    <Stack gap={4} className="h-[470px]">
       <p className="text-white text-center text-base w-full -mt-3 mb-8">
         Here are the accounts generated from your keys
       </p>
       <ViewKeys
         publicKeyAddress={account.publicKey}
         transparentAccountAddress={account.address}
-        footer={
-          <ActionButton onClick={closeCurrentTab}>Close this page</ActionButton>
-        }
       />
-    </>
+      <ActionButton size="lg" onClick={closeCurrentTab}>
+        Close this page
+      </ActionButton>
+    </Stack>
   );
 };
