@@ -9,7 +9,6 @@ export default {
 
   accountImportSeed: () => "/account-import/seed",
   accountImportCreate: () => "/account-import/create",
-  accountImportWithPassword: () => "/account-import/bip39-password",
   accountImportComplete: () => "/account-import/complete",
 
   ledgerConnect: () => "/ledger/connect",

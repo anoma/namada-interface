@@ -1,3 +1,5 @@
+import React, { useCallback, useState } from "react";
+
 import {
   ActionButton,
   Alert,
@@ -9,14 +11,13 @@ import {
 import { assertNever } from "@namada/utils";
 import { SeedPhraseList } from "Setup/Common";
 import { AccountSecret, ValidateMnemonicMsg } from "background/keyring";
-import clsx from "clsx";
 import { useRequester } from "hooks/useRequester";
-import React, { useCallback, useState } from "react";
+import { GoX } from "react-icons/go";
 import { Ports } from "router";
 import { filterPrivateKeyPrefix, validatePrivateKey } from "utils";
 
 type Props = {
-  onConfirm: (accountSecret: AccountSecret, usePassphrase: boolean) => void;
+  onConfirm: (accountSecret: AccountSecret) => void;
 };
 
 const SHORT_PHRASE_COUNT = 12;
@@ -30,8 +31,9 @@ enum MnemonicTypes {
 
 export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
   const requester = useRequester();
-  const [usePassphrase, setUsePassphrase] = useState(false);
   const [privateKey, setPrivateKey] = useState("");
+  const [passphrase, setPassphrase] = useState("");
+  const [showPassphrase, setShowPassphrase] = useState(false);
   const [mnemonicType, setMnemonicType] = useState<MnemonicTypes>(
     MnemonicTypes.TwelveWords
   );
@@ -117,13 +119,10 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
   const onSubmit = useCallback(async () => {
     if (mnemonicType === MnemonicTypes.PrivateKey) {
       // TODO: validate here
-      onConfirm(
-        {
-          t: "PrivateKey",
-          privateKey: filterPrivateKeyPrefix(privateKey),
-        },
-        false
-      );
+      onConfirm({
+        t: "PrivateKey",
+        privateKey: filterPrivateKeyPrefix(privateKey),
+      });
     } else {
       const actualMnemonics = mnemonics.slice(0, mnemonicType);
       const phrase = actualMnemonics.join(" ");
@@ -134,43 +133,53 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
         );
       if (isValid) {
         setMnemonicError(undefined);
-        onConfirm(
-          {
-            t: "Mnemonic",
-            seedPhrase: actualMnemonics,
-            passphrase: "",
-          },
-          usePassphrase
-        );
+        onConfirm({ t: "Mnemonic", seedPhrase: actualMnemonics, passphrase });
       } else {
         setMnemonicError(error);
       }
     }
-  }, [mnemonics, mnemonicType, privateKey, usePassphrase]);
+  }, [mnemonics, mnemonicType, privateKey, passphrase, showPassphrase]);
+
+  const onPassphraseChange = useCallback(
+    (value: string) => {
+      setPassphrase(value);
+    },
+    [passphrase]
+  );
+
+  const onShowPassphraseChange = useCallback(
+    (e) => {
+      e.preventDefault();
+      if (!showPassphrase) {
+        setPassphrase("");
+      }
+      setShowPassphrase(!showPassphrase);
+    },
+    [showPassphrase]
+  );
 
   return (
     <>
       <Stack
         as="ul"
         gap={1}
-        className="text-sm list-disc mb-8 px-6 text-white font-medium"
+        className="text-sm list-disc mb-5 px-6 text-white font-medium"
       >
         <li>
-          Enter your seed phrase in the right order without capitalization,
+          Enter your seed phrase in the right order without capitalisation,
           punctuation symbols or spaces.
         </li>
         <li>Or copy and paste your entire phrase. </li>
       </Stack>
       <Stack
         as="form"
-        className="min-h-[400px]"
-        gap={6}
+        gap={3}
         onSubmit={(e) => {
           e.preventDefault();
           onSubmit();
         }}
       >
-        <Stack className="flex-1" direction="vertical" gap={3}>
+        <Stack direction="vertical" gap={2.5}>
           {mnemonicError && <Alert type={"error"}>{mnemonicError}</Alert>}
           <RadioGroup
             id="mnemonicLength"
@@ -191,6 +200,10 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
               },
             ]}
             onChange={(value: string) => {
+              if (Number(value) === MnemonicTypes.PrivateKey) {
+                setShowPassphrase(false);
+                setPassphrase("");
+              }
               setMnemonicType(Number(value));
             }}
           />
@@ -217,7 +230,43 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
             />
           )}
         </Stack>
-        <Stack direction="vertical" gap={5}>
+        <Stack direction="vertical" gap={4}>
+          {showPassphrase && (
+            <div className="relative">
+              <div onClick={onShowPassphraseChange}>
+                <i className="block text-lg absolute top-5 right-4 text-white cursor-pointer">
+                  <GoX />
+                </i>
+              </div>
+              <Alert type={"warning"} title={"Please note"} className="mb-3">
+                <Stack gap={6}>
+                  <p className="text-[13px] leading-[1.25] text-white">
+                    This import option is only users who have created a Namada
+                    account using the Namada protocol CLI v.0.17.0 or older, and
+                    used a BIP39 passphrase. Do not input your Namada extension
+                    password
+                  </p>
+                  <Input
+                    data-testid="setup-import-keys-passphrase-input"
+                    label="Enter your passphrase"
+                    placeholder="Optional passphrase for your seed phrase."
+                    hideIcon={true}
+                    onChange={(e) => onPassphraseChange(e.target.value)}
+                    value={passphrase}
+                  />
+                </Stack>
+              </Alert>
+            </div>
+          )}
+          {!showPassphrase && mnemonicType !== MnemonicTypes.PrivateKey && (
+            <LinkButton
+              data-testid="setup-import-keys-use-passphrase-button"
+              className="text-xs !text-neutral-400"
+              onClick={onShowPassphraseChange}
+            >
+              Import with BIP39 Passphrase
+            </LinkButton>
+          )}
           <ActionButton
             size="lg"
             data-testid="setup-import-keys-import-button"
@@ -225,23 +274,6 @@ export const SeedPhraseImport: React.FC<Props> = ({ onConfirm }) => {
           >
             Next
           </ActionButton>
-          {mnemonicType !== MnemonicTypes.PrivateKey && (
-            <LinkButton
-              type="submit"
-              // @ts-expect-error not having an href props converts this component to a button
-              disabled={isSubmitButtonDisabled}
-              data-testid="setup-import-keys-use-passphrase-button"
-              className={clsx("text-xs !text-neutral-400", {
-                "cursor-not-allowed": isSubmitButtonDisabled,
-              })}
-              onClick={() => {
-                if (isSubmitButtonDisabled) return;
-                setUsePassphrase(true);
-              }}
-            >
-              Import with BIP39 Passphrase
-            </LinkButton>
-          )}
         </Stack>
       </Stack>
     </>

@@ -20,7 +20,6 @@ import { SeedPhraseWarning } from "./AccountCreation/SeedPhraseWarning";
 import { Completion, ContainerHeader } from "./Common";
 import CreateKeyForm from "./Common/CreateKeyForm";
 import { SeedPhraseImport } from "./ImportAccount";
-import ImportPassphrase from "./ImportAccount/ImportPassphrase";
 import { LedgerConfirmation, LedgerConnect, LedgerImport } from "./Ledger";
 import { Start } from "./Start";
 import routes from "./routes";
@@ -223,42 +222,7 @@ export const Setup: React.FC = () => {
                 element={
                   <Wrapper onLoad={setCurrentPage("Import Existing Keys", 1)}>
                     <SeedPhraseImport
-                      onConfirm={(
-                        accountSecret: AccountSecret,
-                        usePassphrase: boolean
-                      ) => {
-                        setAccountSecret(accountSecret);
-
-                        // If user wants to use a passphrase, redirect to another page
-                        if (usePassphrase) {
-                          navigate(routes.accountImportWithPassword());
-                          return;
-                        }
-
-                        navigate(routes.accountImportCreate());
-                      }}
-                    />
-                  </Wrapper>
-                }
-              />
-
-              {/* Import Existing Keys > BIP39 Passphrase */}
-              <Route
-                path={routes.accountImportWithPassword()}
-                element={
-                  <Wrapper
-                    onLoad={setCurrentPage(
-                      "Import Existing Keys (Passphrase)",
-                      1
-                    )}
-                  >
-                    <ImportPassphrase
-                      accountSecret={accountSecret}
-                      onConfirm={(accountSecret: AccountSecret): void => {
-                        if (!accountSecret) {
-                          navigate(routes.accountImportSeed());
-                          return;
-                        }
+                      onConfirm={(accountSecret: AccountSecret) => {
                         setAccountSecret(accountSecret);
                         navigate(routes.accountImportCreate());
                       }}
