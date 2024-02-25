@@ -1,4 +1,5 @@
-import { ActionButton, Alert, Stack } from "@namada/components";
+import { ActionButton, Alert, GapPatterns, Stack } from "@namada/components";
+import { PageHeader } from "App/Common";
 import { ConnectInterfaceResponseMsg } from "background/approvals";
 import { useQuery } from "hooks";
 import { useRequester } from "hooks/useRequester";
@@ -26,17 +27,24 @@ export const ApproveConnection: React.FC = () => {
   };
 
   return (
-    <Stack gap={12}>
-      <Alert type="warning">
-        Approve connection for <strong>{interfaceOrigin}</strong>?
-      </Alert>
-      <Stack gap={3} direction="horizontal">
-        <ActionButton onClick={() => handleResponse(true)}>
-          Approve
-        </ActionButton>
-        <ActionButton onClick={() => handleResponse(false)}>
-          Reject
-        </ActionButton>
+    <Stack full gap={GapPatterns.TitleContent} className="pt-4 pb-8">
+      <PageHeader title="Approve Request" />
+      <Stack full className="justify-between" gap={12}>
+        <Alert type="warning">
+          Approve connection for <strong>{interfaceOrigin}</strong>?
+        </Alert>
+        <Stack gap={2}>
+          <ActionButton borderRadius="sm" onClick={() => handleResponse(true)}>
+            Approve
+          </ActionButton>
+          <ActionButton
+            borderRadius="sm"
+            outlined
+            onClick={() => handleResponse(false)}
+          >
+            Reject
+          </ActionButton>
+        </Stack>
       </Stack>
     </Stack>
   );
