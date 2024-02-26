@@ -4,5 +4,13 @@ export * from "sdk";
 
 // Export types
 export type { Address, ShieldedKeys, TransparentKeys } from "keys";
-export type { Bonds, Delegation, Unbonds } from "rpc";
+export type {
+  Balance,
+  Bonds,
+  DelegationTotals,
+  DelegatorsVotes,
+  StakingPositions,
+  StakingTotals,
+  Unbonds,
+} from "rpc";
 export type { EncodedTx, SignedTx } from "tx";
