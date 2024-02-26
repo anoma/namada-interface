@@ -95,7 +95,7 @@ export const DeleteAccount = (): JSX.Element => {
         <Stack className="flex-1 justify-center" gap={4} full>
           <Stack as="header" gap={4}>
             <Alert type="warning" title="Alert!">
-              <p>
+              <p className="mb-4">
                 Make sure that you&apos;ve backed up your seed phrase and
                 private key.
               </p>

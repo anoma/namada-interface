@@ -77,7 +77,7 @@ type InputProps = {
   variant?: InputVariants;
   rows?: number;
   "data-testid"?: string;
-  textToCopy?: string;
+  valueToDisplay?: string;
 } & React.ComponentPropsWithoutRef<"input">;
 
 export const Input = ({
@@ -91,7 +91,7 @@ export const Input = ({
   children,
   rows = 3,
   className,
-  textToCopy,
+  valueToDisplay,
   "data-testid": dataTestId,
   ...props
 }: InputProps): JSX.Element => {
@@ -116,7 +116,7 @@ export const Input = ({
       icon = (
         <CopyToClipboardControl
           className={classes.icon()}
-          value={textToCopy || props.value?.toString() || ""}
+          value={props.value?.toString() || ""}
         />
       );
     },
@@ -150,6 +150,10 @@ export const Input = ({
   matchMapFn(variant.toString(), iconMap);
   matchMapFn(variant.toString(), inputElementMap);
   inputElement["className"] = classes.field();
+
+  if (inputElement.hasOwnProperty("readOnly")) {
+    inputElement["value"] = valueToDisplay || props.value || "";
+  }
 
   const htmlTag = variant === "Textarea" ? "textarea" : "input";
   const elementChildren = variant === "Textarea" ? props.value : null;

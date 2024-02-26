@@ -29,8 +29,8 @@ export const ViewKeys = ({
           <Input
             label="Your Transparent Address"
             variant="ReadOnlyCopy"
-            value={shortenAddress(transparentAccountAddress, 16)}
-            textToCopy={transparentAccountAddress}
+            valueToDisplay={shortenAddress(transparentAccountAddress, 16)}
+            value={transparentAccountAddress}
             theme={"primary"}
           />
         )}
@@ -38,8 +38,8 @@ export const ViewKeys = ({
           <Input
             label="Public Key"
             variant="ReadOnlyCopy"
-            value={shortenAddress(publicKeyAddress, 16)}
-            textToCopy={publicKeyAddress}
+            valueToDisplay={shortenAddress(publicKeyAddress, 16)}
+            value={publicKeyAddress}
             theme={"primary"}
           />
         )}
@@ -48,8 +48,8 @@ export const ViewKeys = ({
             label="Your Shielded Address"
             variant="ReadOnlyCopy"
             readOnly={true}
-            value={shortenAddress(shieldedAccountAddress, 16)}
-            textToCopy={shieldedAccountAddress}
+            valueToDisplay={shortenAddress(shieldedAccountAddress, 16)}
+            value={shieldedAccountAddress}
             theme={"secondary"}
           />
         )}
