@@ -197,9 +197,9 @@ export class VaultService {
     }
   }
 
-  protected async encryptSensitiveData<T>(
+  public async encryptSensitiveData<T>(
     sensitiveData: T,
-    password: string
+    password?: string
   ): Promise<CryptoRecord> {
     const pwd = password
       ? await this.hashPassword(password)

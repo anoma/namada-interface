@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { KVStore } from "@namada/storage";
 import * as E from "fp-ts/Either";
 import * as t from "io-ts";
@@ -146,8 +145,7 @@ export class VaultStorage {
 
   public async add<S extends Schemas>(
     schema: S,
-    //TODO: any for time being
-    data: { public: t.TypeOf<S>; sensitive?: any }
+    data: { public: t.TypeOf<S>; sensitive: CryptoRecord }
   ): Promise<void> {
     const storage = await this.provider.get<VaultType>("vault");
     //TODO: as string
@@ -202,7 +200,7 @@ export class VaultStorage {
 
   private async getSpecific<S extends Schemas>(
     schema: S
-  ): Promise<{ public: t.TypeOf<S>; sensitive?: any }[] | undefined> {
+  ): Promise<{ public: t.TypeOf<S>; sensitive?: CryptoRecord }[] | undefined> {
     const storage = await this.provider.get<VaultType>("vault");
     //TODO: as string
     const key = schemasMap.get(schema)!;
@@ -213,7 +211,7 @@ export class VaultStorage {
 
   private async getSpecificOrFail<S extends Schemas>(
     schema: S
-  ): Promise<{ public: t.TypeOf<S>; sensitive?: any }[]> {
+  ): Promise<{ public: t.TypeOf<S>; sensitive?: CryptoRecord }[]> {
     const storage = await this.provider.get<VaultType>("vault");
     //TODO: as string
     const key = schemasMap.get(schema)!;
@@ -228,7 +226,7 @@ export class VaultStorage {
 
   private async setSpecific<S extends Schemas>(
     schema: S,
-    data: { public: t.TypeOf<S>; sensitive?: any }[]
+    data: { public: t.TypeOf<S>; sensitive?: CryptoRecord }[]
   ): Promise<void> {
     const storage = await this.provider.get<VaultType>("vault");
     //TODO: as string

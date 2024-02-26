@@ -141,12 +141,15 @@ export class KeyRing {
       path: bip44Path,
       type: AccountType.Ledger,
     };
+
+    //TODO: add encryption to "add" function?
+    const sensitive = await this.vaultService.encryptSensitiveData({
+      text: "",
+      passphrase: "",
+    });
     await this.vaultStorage.add(KeyStore, {
       public: accountStore,
-      sensitive: {
-        text: "",
-        passphrase: "",
-      },
+      sensitive,
     });
 
     await this.setActiveAccount(id, AccountType.Ledger);
@@ -260,9 +263,12 @@ export class KeyRing {
       type: accountType,
     };
     const sensitiveData: SensitiveAccountStoreData = { text, passphrase };
+    const sensitive =
+      await this.vaultService.encryptSensitiveData(sensitiveData);
+
     await this.vaultStorage.add(KeyStore, {
       public: accountStore,
-      sensitive: sensitiveData,
+      sensitive,
     });
     await this.setActiveAccount(id, AccountType.Mnemonic);
     return accountStore;
@@ -495,9 +501,13 @@ export class KeyRing {
       type,
       owner,
     };
+    const sensitive = await this.vaultService.encryptSensitiveData({
+      text,
+      passphrase: "",
+    });
     this.vaultStorage.add(KeyStore, {
       public: { ...account, owner },
-      sensitive: { text, passphrase: "" },
+      sensitive,
     });
     return account;
   }

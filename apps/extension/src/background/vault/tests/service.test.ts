@@ -60,11 +60,17 @@ describe("Testing untouched Vault Service", () => {
   it("Should encrypt and decrypt message correctly", async () => {
     const sensitiveData = secretText;
     const publicData = getKeyStore("id", "alias");
+    const sensitive = await service.encryptSensitiveData<VaultSensitiveValue>(
+      {
+        bar: sensitiveData,
+      },
+      password
+    );
 
     await service.assertIsUnlocked();
     await storage.add(KeyStore, {
       public: publicData,
-      sensitive: { bar: sensitiveData },
+      sensitive,
     });
 
     const vaultData = await storage.findOneOrFail(
@@ -87,8 +93,13 @@ describe("Testing untouched Vault Service", () => {
       { id: "key2", alias: "value2" },
     ].map((obj) => getKeyStore(obj.id, obj.alias));
 
+    const sensitive = await service.encryptSensitiveData<VaultSensitiveValue>(
+      sensitiveData,
+      password
+    );
+
     for (const obj of data) {
-      await storage.add(KeyStore, { public: obj, sensitive: sensitiveData });
+      await storage.add(KeyStore, { public: obj, sensitive });
     }
 
     return data;
