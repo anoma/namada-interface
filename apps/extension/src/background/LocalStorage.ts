@@ -1,6 +1,7 @@
 import { KVStore } from "@namada/storage";
 import * as E from "fp-ts/Either";
 import * as t from "io-ts";
+import { ExtStorage } from "./Storage";
 
 enum BridgeType {
   IBC = "ibc",
@@ -77,21 +78,28 @@ const schemas = [
   Tabs,
 ];
 type Schemas = (typeof schemas)[number];
+const keys = [
+  "chains",
+  "namadaExtensionApprovedOrigins",
+  "namadaExtensionRouterId",
+  "tabs",
+] as const;
+export type Keys = (typeof keys)[number];
 
-const schemasMap = new Map<Schemas, string>([
+const schemasMap = new Map<Schemas, Keys>([
   [Chain, "chains"],
   [NamadaExtensionApprovedOrigins, "namadaExtensionApprovedOrigins"],
   [NamadaExtensionRouterId, "namadaExtensionRouterId"],
   [Tabs, "tabs"],
 ]);
 
-export class LocalStorage {
-  constructor(private readonly provider: KVStore<SchemasTypes>) {}
+export class LocalStorage extends ExtStorage {
+  constructor(provider: KVStore<SchemasTypes>) {
+    super(provider);
+  }
 
   async getChain(): Promise<ChainType | undefined> {
-    //TODO: as string
-
-    const data = await this.provider.get(schemasMap.get(Chain)!);
+    const data = await this.getRaw(this.getKey(Chain));
 
     const Schema = t.union([Chain, t.undefined]);
     const decodedData = Schema.decode(data);
@@ -105,15 +113,14 @@ export class LocalStorage {
 
   async setChain(chain: ChainType): Promise<void> {
     //TODO: encoed before set?
-    //TODO: as string
-    await this.provider.set(schemasMap.get(Chain) as string, chain);
+    await this.setRaw(this.getKey(Chain), chain);
   }
 
   async getApprovedOrigins(): Promise<
     NamadaExtensionApprovedOriginsType | undefined
   > {
     //TODO: as string
-    const data = await this.provider.get(
+    const data = await this.getRaw(
       schemasMap.get(NamadaExtensionApprovedOrigins) as string
     );
     const decodedData = NamadaExtensionApprovedOrigins.decode(data);
@@ -130,10 +137,7 @@ export class LocalStorage {
   ): Promise<void> {
     //TODO: encoed before set?
     //TODO: as string
-    await this.provider.set(
-      schemasMap.get(NamadaExtensionApprovedOrigins) as string,
-      origins
-    );
+    await this.setRaw(this.getKey(NamadaExtensionApprovedOrigins), origins);
   }
 
   async addApprovedOrigin(originToAdd: string): Promise<void> {
@@ -148,9 +152,7 @@ export class LocalStorage {
 
   async getRouterId(): Promise<NamadaExtensionRouterIdType | undefined> {
     //TODO: as string
-    const data = await this.provider.get(
-      schemasMap.get(NamadaExtensionRouterId)!
-    );
+    const data = await this.getRaw(schemasMap.get(NamadaExtensionRouterId)!);
 
     const Schema = t.union([NamadaExtensionRouterId, t.undefined]);
     const decodedData = Schema.decode(data);
@@ -164,13 +166,11 @@ export class LocalStorage {
 
   async setRouterId(id: NamadaExtensionRouterIdType): Promise<void> {
     //TODO: encoed before set?
-    //TODO: as string
-    await this.provider.set(schemasMap.get(NamadaExtensionRouterId)!, id);
+    await this.setRaw(this.getKey(NamadaExtensionRouterId), id);
   }
 
   async getTabs(): Promise<TabsType | undefined> {
-    //TODO: as string
-    const data = await this.provider.get(schemasMap.get(Tabs) as string);
+    const data = await this.getRaw(this.getKey(Tabs));
     const Schema = t.union([Tabs, t.undefined]);
     const decodedData = Schema.decode(data);
 
@@ -182,6 +182,15 @@ export class LocalStorage {
   }
 
   async setTabs(tabs: TabsType): Promise<void> {
-    await this.provider.set(schemasMap.get(Tabs) as string, tabs);
+    await this.setRaw(this.getKey(Tabs), tabs);
+  }
+
+  private getKey<S extends Schemas>(schema: S): Keys {
+    const key = schemasMap.get(schema);
+    if (!key) {
+      throw new Error(`Could not find key for schema: ${schema}`);
+    }
+
+    return key;
   }
 }

@@ -1,6 +1,7 @@
 import { KVStore } from "@namada/storage";
 import * as E from "fp-ts/Either";
 import * as t from "io-ts";
+import { ExtStorage } from "./Storage";
 import { CryptoRecord, PrimitiveType } from "./vault";
 
 enum AccountType {
@@ -65,8 +66,10 @@ export type Keys = (typeof keys)[number];
 export const schemasMap = new Map<Schemas, Keys>([[KeyStore, "key-store"]]);
 type VaultType = t.TypeOf<typeof Vault>;
 
-export class VaultStorage {
-  constructor(private readonly provider: KVStore<unknown>) {}
+export class VaultStorage extends ExtStorage {
+  constructor(provider: KVStore<unknown>) {
+    super(provider);
+  }
 
   public validate(data: unknown): VaultType {
     const decodedData = Vault.decode(data);
@@ -79,7 +82,7 @@ export class VaultStorage {
   }
 
   public async get(): Promise<VaultType | undefined> {
-    const data = await this.provider.get("vault");
+    const data = await this.getRaw("vault");
     const Schema = t.union([Vault, t.undefined]);
     const decoded = Schema.decode(data);
 
@@ -140,14 +143,14 @@ export class VaultStorage {
   }
 
   public async set(data: VaultType): Promise<void> {
-    await this.provider.set("vault", data);
+    await this.setRaw("vault", data);
   }
 
   public async add<S extends Schemas>(
     schema: S,
     data: { public: t.TypeOf<S>; sensitive: CryptoRecord }
   ): Promise<void> {
-    const storage = await this.provider.get<VaultType>("vault");
+    const storage = await this.getRaw<VaultType>("vault");
     if (!storage) {
       throw new Error("Vault store data has not been initialized");
     }
@@ -192,7 +195,7 @@ export class VaultStorage {
   }
 
   public async reset(): Promise<void> {
-    await this.provider.set("vault", {
+    await this.setRaw("vault", {
       password: undefined,
       data: {},
     });
@@ -201,7 +204,7 @@ export class VaultStorage {
   private async getSpecific<S extends Schemas>(
     schema: S
   ): Promise<{ public: t.TypeOf<S>; sensitive?: CryptoRecord }[] | undefined> {
-    const storage = await this.provider.get<VaultType>("vault");
+    const storage = await this.getRaw<VaultType>("vault");
     const key = this.getKey(schema);
     const data = storage?.data[key];
 
@@ -211,7 +214,7 @@ export class VaultStorage {
   private async getSpecificOrFail<S extends Schemas>(
     schema: S
   ): Promise<{ public: t.TypeOf<S>; sensitive?: CryptoRecord }[]> {
-    const storage = await this.provider.get<VaultType>("vault");
+    const storage = await this.getRaw<VaultType>("vault");
     const key = this.getKey(schema);
     const data = storage?.data[key];
 
@@ -226,7 +229,7 @@ export class VaultStorage {
     schema: S,
     data: { public: t.TypeOf<S>; sensitive?: CryptoRecord }[]
   ): Promise<void> {
-    const storage = await this.provider.get<VaultType>("vault");
+    const storage = await this.getRaw<VaultType>("vault");
     if (!storage) {
       throw new Error("Vault store data has not been initialized");
     }
