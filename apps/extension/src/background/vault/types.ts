@@ -1,5 +1,4 @@
 import { VaultTypes } from "background/VaultStorage";
-import { AccountStore } from "background/keyring";
 
 export enum ResetPasswordError {
   BadPassword,
@@ -41,15 +40,6 @@ export type Vault<T extends VaultTypes> = {
 
 export type VaultStoreData = Record<string, Vault<VaultTypes>[]>;
 
-export type VaultStore = {
-  password: CryptoRecord | undefined;
-  data: VaultStoreData;
-};
-
 export type PrimitiveType = string | number | boolean;
-
-export interface KeyStore<T = Argon2Params> extends AccountStore {
-  crypto: CryptoRecord<T>;
-}
 
 export type SessionPassword = string;

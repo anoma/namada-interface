@@ -1,5 +1,4 @@
 import { KVStore } from "@namada/storage";
-import { Chain } from "@namada/types";
 
 import {
   ExtensionBroadcaster,
@@ -15,12 +14,7 @@ import {
   init as initKeyRing,
 } from "../background/keyring";
 
-import {
-  KeyStore,
-  SessionPassword,
-  VaultService,
-  VaultStore,
-} from "background/vault";
+import { SessionPassword, VaultService } from "background/vault";
 
 import {
   ApprovalsService,
@@ -59,8 +53,6 @@ export class KVStoreMock<T> implements KVStore<T> {
     return this._prefix;
   }
 }
-
-export type DBType = Chain[] | KeyStore[] | VaultStore;
 
 export const init = async (): Promise<{
   namada: Namada;
