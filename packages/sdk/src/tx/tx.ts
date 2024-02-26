@@ -26,6 +26,9 @@ import { EncodedTx, SignedTx } from "tx/types";
  * SDK functionality related to transactions
  */
 export class Tx {
+  /**
+   * @param {SdkWasm} sdk - Instance of Sdk struct from wasm lib
+   */
   constructor(protected readonly sdk: SdkWasm) {}
 
   /**
@@ -275,8 +278,8 @@ export class Tx {
     txBytes: Uint8Array,
     ledgerSignatureResponse: ResponseSign
   ): Uint8Array {
-    const ledgerSignature = ledgerSignatureResponse.signature;
-    if (!ledgerSignature) {
+    const { signature } = ledgerSignatureResponse;
+    if (!signature) {
       throw new Error("Signature was not returned from Ledger!");
     }
 
@@ -286,7 +289,7 @@ export class Tx {
       raw_signature,
       wrapper_indices,
       wrapper_signature,
-    } = ledgerSignature;
+    } = signature;
 
     // Construct props from ledgerSignature
     /* eslint-disable */

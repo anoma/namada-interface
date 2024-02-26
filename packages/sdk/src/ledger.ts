@@ -49,12 +49,15 @@ export const DEFAULT_LEDGER_BIP44_PATH = makeBip44Path(coinType, {
  * Functionality for interacting with NamadaApp for Ledger Hardware Wallets
  */
 export class Ledger {
-  constructor(public readonly namadaApp: NamadaApp | undefined = undefined) {}
+  /**
+   * @param {NamadaApp} namadaApp - Inititalized NamadaApp class from Zondax package
+   */
+  constructor(public readonly namadaApp: NamadaApp) {}
 
   /**
    * Initialize and return Ledger class instance with initialized Transport
    * @async
-   * @param {Transport} transport (optional)
+   * @param {Transport} [transport] Ledger transport
    * @returns {Ledger}
    */
   static async init(transport?: Transport): Promise<Ledger> {
@@ -92,7 +95,7 @@ export class Ledger {
    * Get address and public key associated with optional path, otherwise, use default path
    * Throw exception if app is not initialized.
    * @async
-   * @param {string} bip44Path
+   * @param {string} [bip44Path] Bip44 path for deriving key
    * @returns {AddressAndPublicKey}
    */
   public async getAddressAndPublicKey(
@@ -118,7 +121,7 @@ export class Ledger {
    * Prompt user to get address and public key associated with optional path, otherwise, use default path.
    * Throw exception if app is not initialized.
    * @async
-   * @param {string} bip44Path
+   * @param {string} [bip44Path] Bip44 path for deriving key
    * @returns {AddressAndPublicKey}
    */
   public async showAddressAndPublicKey(
@@ -146,11 +149,11 @@ export class Ledger {
   }
 
   /**
-   * Sign tx bytes with the key associated with provided (or default) path.
+   * Sign tx bytes with the key associated with the provided (or default) path.
    * Throw exception if app is not initialized.
    * @async
    * @param {Uint8Array} tx - tx data blob to sign
-   * @param {string} bip44Path (optional) - Bip44 path for signing account
+   * @param {string} [bip44Path] Bip44 path for signing account
    * @returns {ResponseSign}
    */
   public async sign(tx: Uint8Array, bip44Path?: string): Promise<ResponseSign> {
@@ -182,7 +185,6 @@ export class Ledger {
 
   /**
    * Close the initialized transport, which may be needed if Ledger needs to be reinitialized due to error state
-   *
    * @async
    * @returns {void}
    */
