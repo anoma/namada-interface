@@ -9,7 +9,7 @@ export type Address = {
 /**
  * Public and private keypair with address
  */
-export type Keypair = {
+export type TransparentKeys = {
   privateKey: string;
 } & Address;
 

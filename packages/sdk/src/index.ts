@@ -3,5 +3,6 @@ export * from "ledger";
 export * from "sdk";
 
 // Export types
-export type { Address, Keypair, ShieldedKeys } from "keys";
+export type { Address, ShieldedKeys, TransparentKeys } from "keys";
+export type { Bonds, Delegation, Unbonds } from "rpc";
 export type { EncodedTx, SignedTx } from "tx";
