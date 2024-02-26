@@ -2,9 +2,13 @@ import { Query as QueryWasm, Sdk as SdkWasm } from "@namada/shared";
 import { SignedTx } from "tx/types";
 
 /**
- * Rpc - API for executing RPC requests with Namada
+ * API for executing RPC requests with Namada
  */
 export class Rpc {
+  /**
+   * @param {SdkWasm} sdk - Instance of Sdk struct from wasm lib
+   * @param {QueryWasm} query - Instance of Query struct from wasm lib
+   */
   constructor(
     protected readonly sdk: SdkWasm,
     protected readonly query: QueryWasm
@@ -42,7 +46,7 @@ export class Rpc {
   /**
    * Query all validator addresses
    * @async
-   * @returns {string[]}
+   * @returns {string[]} All validator addresses
    */
   async queryAllValidators(): Promise<string[]> {
     return await this.query.query_all_validator_addresses();

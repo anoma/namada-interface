@@ -10,11 +10,16 @@ import { Signing } from "signing";
 import { Tx } from "tx";
 
 /**
- * Sdk
- *
  * API for interacting with Namada SDK
  */
 export class Sdk {
+  /**
+   * @param {SdkWasm} sdk - Instance of Sdk struct from wasm lib
+   * @param {QueryWasm} query - Instance of Query struct from wasm lib
+   * @param {WebAssembly.Memory} cryptoMemory - Memory accessor for crypto lib
+   * @param {string} url - RPC url
+   * @param {string} nativeToken - Address of chain's native token
+   */
   constructor(
     protected readonly sdk: SdkWasm,
     protected readonly query: QueryWasm,
@@ -27,7 +32,7 @@ export class Sdk {
    * Returns an initialized Sdk class
    * @async
    * @param {string} url - RPC url for use with SDK
-   * @param {string} token - Native token of the target chain, if not provided, an attempt to query it will be made
+   * @param {string} [token] - Native token of the target chain, if not provided, an attempt to query it will be made
    * @return {Sdk} Instance of initialized Sdk class
    */
   async init(url: string, token?: string): Promise<Sdk> {
@@ -107,7 +112,7 @@ export class Sdk {
   /**
    * Intialize Ledger class for use with NamadaApp
    * @async
-   * @param {Transport} transport (optional) - Will default to USB transport if not specified
+   * @param {Transport} [transport] - Will default to USB transport if not specified
    * @return {Ledger} Class for interacting with NamadaApp for Ledger Hardware Wallets
    */
   async initLedger(transport?: Transport): Promise<Ledger> {

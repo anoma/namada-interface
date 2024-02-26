@@ -23,14 +23,15 @@ const DEFAULT_PATH: Bip44Path = {
 };
 
 export class Keys {
-  constructor(protected readonly cryptoMemory: WebAssembly.Memory) { }
+  /**
+   * @param {WebAssembly.Memory} cryptoMemory - Memory accessor for crypto lib
+   */
+  constructor(protected readonly cryptoMemory: WebAssembly.Memory) {}
 
   /**
    * Get address and public key from private key
-   *
    * @param {string} privateKey
-   *
-   * @return {Address}
+   * @returns {Address}
    */
   getAddress(privateKey: string): Address {
     const addr = new AddressWasm(privateKey);
@@ -45,10 +46,8 @@ export class Keys {
 
   /**
    * Get keypair from private key
-   *
    * @param {string} privateKey
-   *
-   * @return {Keypair}
+   * @returns {Keypair}
    */
   fromPrivateKey(privateKey: string): Keypair {
     return {
@@ -59,12 +58,10 @@ export class Keys {
 
   /**
    * Derive keypair and address from a mnemonic and path
-   *
-   * @param {string} phrase
-   * @param {Bip44Path} path (optional)
-   * @param {string} passphrase (optional) - Bip39 passphrase
-   *
-   * @return {Keypair}
+   * @param {string} phrase - Mnemonic phrase
+   * @param {Bip44Path} [path={account: 0, change: 0, index: 0}] - Bip44 path object
+   * @param {string} [passphrase] - Bip39 passphrase
+   * @returns {Keypair}
    */
   deriveFromMnemonic(
     phrase: string,
@@ -76,8 +73,8 @@ export class Keys {
       typeof passphrase === "string"
         ? new StringPointer(passphrase)
         : undefined;
-    const seed = mnemonic.to_seed(passphrasePtr);
-    const hdWallet = new HDWallet(seed);
+    const seedPtr = mnemonic.to_seed(passphrasePtr);
+    const hdWallet = new HDWallet(seedPtr);
     const bip44Path = makeBip44PathArray(chains.namada.bip44.coinType, path);
     const key = hdWallet.derive(new Uint32Array(bip44Path));
     const privateKeyStringPtr = key.to_hex();
@@ -99,11 +96,9 @@ export class Keys {
 
   /**
    * Derive keypair and address from a seed and path
-   *
    * @param {Uint8Array} seed
-   * @param {Bip44Path} path (optional)
-   *
-   * @return {Key}
+   * @param {Bip44Path} [path={account: 0, change: 0, index: 0}] - Bip44 path object
+   * @returns {Key}
    */
   deriveFromSeed(seed: Uint8Array, path: Bip44Path = DEFAULT_PATH): Keypair {
     const hdWallet = HDWallet.from_seed(seed);
@@ -127,11 +122,9 @@ export class Keys {
 
   /**
    * Derive shielded keys and address from a seed and path
-   *
    * @param {Uint8Array} seed
-   * @param {Bip44Path} path (optional)
-   *
-   * @return {ShieldedKeys}
+   * @param {Bip44Path} [path={account: 0, change: 0, index: 0}] - Bip44 path object
+   * @returns {ShieldedKeys}
    */
   deriveShielded(seed: Uint8Array, path: Bip44Path): ShieldedKeys {
     const { index } = path;
@@ -141,12 +134,12 @@ export class Keys {
     // Retrieve serialized types from wasm
     const xsk = account.xsk();
     const xfvk = account.xfvk();
-    const payment_address = account.payment_address();
+    const paymentAddress = account.payment_address();
 
     // Deserialize and encode keys and address
     const extendedSpendingKey = new ExtendedSpendingKey(xsk);
     const extendedViewingKey = new ExtendedViewingKey(xfvk);
-    const address = new PaymentAddress(payment_address).encode();
+    const address = new PaymentAddress(paymentAddress).encode();
     const spendingKey = extendedSpendingKey.encode();
     const viewingKey = extendedViewingKey.encode();
 
