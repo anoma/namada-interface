@@ -1,8 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { ActionButton, Alert, Input, Stack } from "@namada/components";
+import {
+  ActionButton,
+  Alert,
+  GapPatterns,
+  Input,
+  Stack,
+} from "@namada/components";
 import { shortenAddress } from "@namada/utils";
+import { PageHeader } from "App/Common";
 import { SignatureDetails, Status } from "Approvals/Approvals";
 import { SubmitApprovedSignatureMsg } from "background/approvals";
 import { UnlockVaultMsg } from "background/vault";
@@ -66,8 +73,20 @@ export const ConfirmSignature: React.FC<Props> = ({ details }) => {
     }
   }, [status]);
 
+  const onSubmit = (e: React.FormEvent): void => {
+    e.preventDefault();
+    handleApproveSignature();
+  };
+
   return (
-    <Stack gap={4}>
+    <Stack
+      as="form"
+      onSubmit={onSubmit}
+      full
+      gap={GapPatterns.TitleContent}
+      className="pt-4 pb-8"
+    >
+      <PageHeader title="Confirm Signature" />
       {status === Status.Pending && <Alert type="info">{statusInfo}</Alert>}
       {status === Status.Failed && (
         <Alert type="error">
@@ -78,20 +97,28 @@ export const ConfirmSignature: React.FC<Props> = ({ details }) => {
       )}
       {status !== (Status.Pending || Status.Completed) && signer && (
         <>
-          <Alert type="warning">
-            Decrypt keys for{" "}
-            <strong className="text-xs">{shortenAddress(signer)}</strong>
-          </Alert>
-          <Input
-            variant="Password"
-            label={"Password"}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <Stack gap={3} direction="horizontal">
-            <ActionButton onClick={handleApproveSignature} disabled={!password}>
+          <Stack full gap={4}>
+            <Alert type="warning">
+              Decrypt keys for{" "}
+              <strong className="text-xs">{shortenAddress(signer)}</strong>
+            </Alert>
+            <Input
+              variant="Password"
+              label={"Password"}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </Stack>
+          <Stack gap={3}>
+            <ActionButton borderRadius="sm" type="submit" disabled={!password}>
               Authenticate
             </ActionButton>
-            <ActionButton onClick={() => navigate(-1)}>Back</ActionButton>
+            <ActionButton
+              borderRadius="sm"
+              outlined
+              onClick={() => navigate(-1)}
+            >
+              Back
+            </ActionButton>
           </Stack>
         </>
       )}

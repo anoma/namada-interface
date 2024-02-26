@@ -1,9 +1,10 @@
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { ActionButton, Alert, Stack } from "@namada/components";
+import { ActionButton, Alert, GapPatterns, Stack } from "@namada/components";
 import { useSanitizedParams } from "@namada/hooks";
 import { shortenAddress } from "@namada/utils";
+import { PageHeader } from "App/Common";
 import { SignatureDetails } from "Approvals/Approvals";
 import { TopLevelRoute } from "Approvals/types";
 import { RejectSignatureMsg } from "background/approvals";
@@ -48,23 +49,29 @@ export const ApproveSignature: React.FC<Props> = ({ setSignatureDetails }) => {
   }, []);
 
   return (
-    <Stack className="text-white" gap={4}>
+    <Stack full gap={GapPatterns.TitleContent} className="text-white pt-4 pb-8">
+      <PageHeader title="Approve Signature Request" />
+
       {signer && (
         <Alert type="warning">
           Approve this signature request for account{" "}
           {shortenAddress(signer, 24)}?
         </Alert>
       )}
-      <Stack gap={2}>
+      <Stack full gap={2}>
         {signer && (
           <p className="text-xs">
             Signer: <strong>{shortenAddress(signer)}</strong>
           </p>
         )}
       </Stack>
-      <Stack gap={3} direction="horizontal">
-        <ActionButton onClick={handleApproveClick}>Approve</ActionButton>
-        <ActionButton onClick={handleReject}>Reject</ActionButton>
+      <Stack gap={2}>
+        <ActionButton borderRadius="sm" onClick={handleApproveClick}>
+          Approve
+        </ActionButton>
+        <ActionButton borderRadius="sm" outlined onClick={handleReject}>
+          Reject
+        </ActionButton>
       </Stack>
     </Stack>
   );
