@@ -14,7 +14,7 @@ import {
 } from "@namada/shared";
 import { Bip44Path } from "@namada/types";
 import { makeBip44PathArray } from "@namada/utils";
-import { Address, Keypair, ShieldedKeys } from "keys/types";
+import { Address, ShieldedKeys, TransparentKeys } from "keys/types";
 
 const DEFAULT_PATH: Bip44Path = {
   account: 0,
@@ -45,11 +45,11 @@ export class Keys {
   }
 
   /**
-   * Get keypair from private key
+   * Get transparent keys and address from private key
    * @param {string} privateKey
-   * @returns {Keypair}
+   * @returns {TransparentKeys}
    */
-  fromPrivateKey(privateKey: string): Keypair {
+  fromPrivateKey(privateKey: string): TransparentKeys {
     return {
       ...this.getAddress(privateKey),
       privateKey,
@@ -57,17 +57,17 @@ export class Keys {
   }
 
   /**
-   * Derive keypair and address from a mnemonic and path
+   * Derive transparent keys and address from a mnemonic and path
    * @param {string} phrase - Mnemonic phrase
    * @param {Bip44Path} [path={account: 0, change: 0, index: 0}] - Bip44 path object
    * @param {string} [passphrase] - Bip39 passphrase
-   * @returns {Keypair}
+   * @returns {TransparentKeys}
    */
   deriveFromMnemonic(
     phrase: string,
     path: Bip44Path = DEFAULT_PATH,
     passphrase?: string
-  ): Keypair {
+  ): TransparentKeys {
     const mnemonic = MnemonicWasm.from_phrase(phrase);
     const passphrasePtr =
       typeof passphrase === "string"
@@ -83,6 +83,7 @@ export class Keys {
       this.cryptoMemory
     );
 
+    // Clear wasm resources from memory
     mnemonic.free();
     hdWallet.free();
     key.free();
@@ -95,12 +96,15 @@ export class Keys {
   }
 
   /**
-   * Derive keypair and address from a seed and path
+   * Derive transparent keys and address from a seed and path
    * @param {Uint8Array} seed
    * @param {Bip44Path} [path={account: 0, change: 0, index: 0}] - Bip44 path object
    * @returns {Key}
    */
-  deriveFromSeed(seed: Uint8Array, path: Bip44Path = DEFAULT_PATH): Keypair {
+  deriveFromSeed(
+    seed: Uint8Array,
+    path: Bip44Path = DEFAULT_PATH
+  ): TransparentKeys {
     const hdWallet = HDWallet.from_seed(seed);
     const bip44Path = makeBip44PathArray(chains.namada.bip44.coinType, path);
     const key = hdWallet.derive(new Uint32Array(bip44Path));
@@ -110,6 +114,7 @@ export class Keys {
       this.cryptoMemory
     );
 
+    // Clear wasm resources from memory
     hdWallet.free();
     key.free();
     privateKeyStringPtr.free();
@@ -143,6 +148,7 @@ export class Keys {
     const spendingKey = extendedSpendingKey.encode();
     const viewingKey = extendedViewingKey.encode();
 
+    // Clear wasm resources from memory
     zip32.free();
     account.free();
     extendedViewingKey.free();

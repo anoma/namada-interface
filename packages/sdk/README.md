@@ -43,7 +43,7 @@ async function init(): Promise<void> {
     const signedTx = tx.signTx(transfer, "<signing key">);
 
     // Broadcast the signed transfer to the ledger
-    await rpc.broadcastTx(signedTx).catch((e) => console.error(`Unable to broadcast: ${e}`));
+    await rpc.broadcastTx(signedTx).catch((e) => console.error(`Unable to broadcast Tx: ${e}`));
 }
 
 init();
