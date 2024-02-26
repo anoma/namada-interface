@@ -110,19 +110,17 @@ export class LocalStorage extends ExtStorage {
   }
 
   async setChain(chain: ChainType): Promise<void> {
-    //TODO: encoed before set?
     await this.setRaw(this.getKey(Chain), chain);
   }
 
   async getApprovedOrigins(): Promise<
     NamadaExtensionApprovedOriginsType | undefined
   > {
-    //TODO: as string
     const data = await this.getRaw(this.getKey(NamadaExtensionApprovedOrigins));
     const decodedData = NamadaExtensionApprovedOrigins.decode(data);
 
     if (E.isLeft(decodedData)) {
-      throw new Error("Chain is not valid");
+      throw new Error("Approved Origins are not valid");
     }
 
     return decodedData.right;
@@ -131,7 +129,6 @@ export class LocalStorage extends ExtStorage {
   async setApprovedOrigins(
     origins: NamadaExtensionApprovedOriginsType
   ): Promise<void> {
-    //TODO: encoed before set?
     await this.setRaw(this.getKey(NamadaExtensionApprovedOrigins), origins);
   }
 
@@ -152,14 +149,13 @@ export class LocalStorage extends ExtStorage {
     const decodedData = Schema.decode(data);
 
     if (E.isLeft(decodedData)) {
-      throw new Error("Chain is not valid");
+      throw new Error("RouterId is not valid");
     }
 
     return decodedData.right;
   }
 
   async setRouterId(id: NamadaExtensionRouterIdType): Promise<void> {
-    //TODO: encoed before set?
     await this.setRaw(this.getKey(NamadaExtensionRouterId), id);
   }
 

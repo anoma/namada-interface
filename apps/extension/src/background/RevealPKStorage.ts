@@ -24,14 +24,13 @@ export class RevealedPKStorage extends ExtStorage {
     const decodedData = PKs.decode(data);
 
     if (E.isLeft(decodedData)) {
-      throw new Error("Chain is not valid");
+      throw new Error("RevealPK is not valid");
     }
 
     return decodedData.right;
   }
 
   async setRevealedPKs(publicKeys: string[]): Promise<void> {
-    //TODO: encoed before set?
     await this.setRaw(this.getKey(PKs), publicKeys);
   }
 
