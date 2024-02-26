@@ -2,10 +2,10 @@
 
 import { Namada } from "@namada/types";
 
-import { VaultStorage } from "background/VaultStorage";
 import { PARENT_ACCOUNT_ID_KEY, UtilityStore } from "background/keyring";
 import { VaultService } from "background/vault";
 import * as utils from "extension/utils";
+import { VaultStorage } from "storage";
 import { KVStoreMock, init } from "test/init";
 import { ACTIVE_ACCOUNT, keyStore, password } from "./data.mock";
 

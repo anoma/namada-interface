@@ -22,13 +22,11 @@ import {
   init as initApprovals,
 } from "../background/approvals";
 
-import { LocalStorage } from "background/LocalStorage";
-import { RevealedPKStorage } from "background/RevealPKStorage";
-import { VaultStorage } from "background/VaultStorage";
 import { ChainsService } from "background/chains";
 import { LedgerService } from "background/ledger";
 import { SdkService } from "background/sdk";
 import { Namada } from "provider";
+import { LocalStorage, RevealedPKStorage, VaultStorage } from "storage";
 
 // __wasm is not exported in crypto.d.ts so need to use require instead of import
 /* eslint-disable @typescript-eslint/no-var-requires */

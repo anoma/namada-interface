@@ -18,9 +18,7 @@ import {
   getNamadaRouterId,
 } from "extension";
 import { KVPrefix, Ports } from "router";
-import { LocalStorage } from "./LocalStorage";
-import { RevealedPKStorage } from "./RevealPKStorage";
-import { VaultStorage } from "./VaultStorage";
+import { LocalStorage, RevealedPKStorage, VaultStorage } from "storage";
 import { ApprovalsService, init as initApprovals } from "./approvals";
 import { ChainsService, init as initChains } from "./chains";
 import { KeyRingService, UtilityStore, init as initKeyRing } from "./keyring";

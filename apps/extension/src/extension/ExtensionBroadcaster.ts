@@ -1,5 +1,4 @@
 import { TxType } from "@namada/shared";
-import { LocalStorage } from "background/LocalStorage";
 import { TabStore, syncTabs } from "background/keyring";
 import {
   AccountChangedEventMsg,
@@ -14,6 +13,7 @@ import {
 } from "content/events";
 import { ExtensionRequester } from "extension";
 import { Message, Ports } from "router";
+import { LocalStorage } from "storage";
 
 export class ExtensionBroadcaster {
   constructor(

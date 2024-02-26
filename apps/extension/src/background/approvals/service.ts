@@ -23,9 +23,9 @@ import { assertNever, paramsToUrl } from "@namada/utils";
 import { KeyRingService } from "background/keyring";
 import { LedgerService } from "background/ledger";
 
-import { LocalStorage } from "background/LocalStorage";
 import { VaultService } from "background/vault";
 import { ExtensionBroadcaster } from "extension";
+import { LocalStorage } from "storage";
 import { TxStore } from "./types";
 
 type GetParams = (

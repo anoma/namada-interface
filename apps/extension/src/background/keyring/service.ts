@@ -12,7 +12,6 @@ import {
 import { Result, truncateInMiddle } from "@namada/utils";
 
 import { ChainsService } from "background/chains";
-import { LocalStorage } from "background/LocalStorage";
 import {
   createOffscreenWithTxWorker,
   hasOffscreenDocument,
@@ -21,13 +20,13 @@ import {
 } from "background/offscreen";
 import { SdkService } from "background/sdk/service";
 import { VaultService } from "background/vault";
-import { KeyStore, VaultStorage } from "background/VaultStorage";
 import { init as initSubmitTransferWebWorker } from "background/web-workers";
 import {
   ExtensionBroadcaster,
   ExtensionRequester,
   getNamadaRouterId,
 } from "extension";
+import { KeyStore, LocalStorage, VaultStorage } from "storage";
 import { KeyRing } from "./keyring";
 import {
   AccountSecret,

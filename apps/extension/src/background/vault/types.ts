@@ -1,5 +1,3 @@
-import { VaultTypes } from "background/VaultStorage";
-
 export enum ResetPasswordError {
   BadPassword,
   KeyStoreError,
@@ -33,13 +31,11 @@ export type CryptoRecord<T = Argon2Params> = {
   };
 };
 
-export type Vault<T extends VaultTypes> = {
+export type Vault<T = unknown> = {
   public: T;
   sensitive?: CryptoRecord;
 };
 
-export type VaultStoreData = Record<string, Vault<VaultTypes>[]>;
-
-export type PrimitiveType = string | number | boolean;
+export type VaultStoreData = Record<string, Vault[]>;
 
 export type SessionPassword = string;

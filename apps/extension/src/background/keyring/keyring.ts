@@ -51,9 +51,9 @@ import {
   UtilityStore,
 } from "./types";
 
-import { KeyStore, VaultStorage } from "background/VaultStorage";
 import { SdkService } from "background/sdk";
 import { VaultService } from "background/vault";
+import { KeyStore, VaultStorage } from "storage";
 import { generateId } from "utils";
 
 // Generated UUID namespace for uuid v5

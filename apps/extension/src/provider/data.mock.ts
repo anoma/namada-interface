@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { AccountType, BridgeType, Chain, Extensions } from "@namada/types";
-import { VaultTypes } from "background/VaultStorage";
 import { ActiveAccountStore } from "background/keyring";
 import { KdfType, Vault } from "background/vault";
+import { VaultTypes } from "storage";
 
 export const ACTIVE_ACCOUNT: ActiveAccountStore = {
   id: "324bfe0e-cb19-5f1a-9630-9daaaecadabe",

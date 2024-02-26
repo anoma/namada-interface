@@ -70,7 +70,7 @@ type LocalStorageTypes =
   | NamadaExtensionRouterIdType
   | TabsType;
 
-type Schemas =
+type LocalStorageSchemas =
   | typeof Chain
   | typeof NamadaExtensionApprovedOrigins
   | typeof NamadaExtensionRouterId
@@ -82,9 +82,9 @@ const keys = [
   "namadaExtensionRouterId",
   "tabs",
 ] as const;
-export type Keys = (typeof keys)[number];
+export type LocalStorageKeys = (typeof keys)[number];
 
-const schemasMap = new Map<Schemas, Keys>([
+const schemasMap = new Map<LocalStorageSchemas, LocalStorageKeys>([
   [Chain, "chains"],
   [NamadaExtensionApprovedOrigins, "namadaExtensionApprovedOrigins"],
   [NamadaExtensionRouterId, "namadaExtensionRouterId"],
@@ -117,7 +117,9 @@ export class LocalStorage extends ExtStorage {
     NamadaExtensionApprovedOriginsType | undefined
   > {
     const data = await this.getRaw(this.getKey(NamadaExtensionApprovedOrigins));
-    const decodedData = NamadaExtensionApprovedOrigins.decode(data);
+
+    const Schema = t.union([NamadaExtensionApprovedOrigins, t.undefined]);
+    const decodedData = Schema.decode(data);
 
     if (E.isLeft(decodedData)) {
       throw new Error("Approved Origins are not valid");
@@ -175,7 +177,7 @@ export class LocalStorage extends ExtStorage {
     await this.setRaw(this.getKey(Tabs), tabs);
   }
 
-  private getKey<S extends Schemas>(schema: S): Keys {
+  private getKey<S extends LocalStorageSchemas>(schema: S): LocalStorageKeys {
     const key = schemasMap.get(schema);
     if (!key) {
       throw new Error(`Could not find key for schema: ${schema}`);

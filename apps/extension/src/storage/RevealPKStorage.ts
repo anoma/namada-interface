@@ -5,14 +5,16 @@ import { ExtStorage } from "./Storage";
 
 const PKs = t.array(t.string);
 
-type Schemas = typeof PKs;
+type RevealPKSchemas = typeof PKs;
 
 type SchemasTypes = t.TypeOf<typeof PKs>;
 
 const keys = ["revealed-pk-store"];
-type Keys = (typeof keys)[number];
+type RevealPKKeys = (typeof keys)[number];
 
-const schemasMap = new Map<Schemas, string>([[PKs, "revealed-pk-store"]]);
+const schemasMap = new Map<RevealPKSchemas, string>([
+  [PKs, "revealed-pk-store"],
+]);
 
 export class RevealedPKStorage extends ExtStorage {
   constructor(provider: KVStore<SchemasTypes>) {
@@ -42,7 +44,7 @@ export class RevealedPKStorage extends ExtStorage {
     this.setRevealedPKs(data);
   }
 
-  private getKey<S extends Schemas>(schema: S): Keys {
+  private getKey<S extends RevealPKSchemas>(schema: S): RevealPKKeys {
     const key = schemasMap.get(schema);
     if (!key) {
       throw new Error(`Could not find key for schema: ${schema}`);

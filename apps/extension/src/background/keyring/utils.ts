@@ -1,5 +1,5 @@
-import { LocalStorage } from "background/LocalStorage";
 import { ExtensionRequester } from "extension";
+import { LocalStorage } from "storage";
 import { TabStore } from "./types";
 
 /**

@@ -1,5 +1,5 @@
-import { LocalStorage } from "background/LocalStorage";
 import { Env, MessageSender } from "router/types";
+import { LocalStorage } from "storage";
 import browser from "webextension-polyfill";
 
 const NO_TAB_ID = -2;

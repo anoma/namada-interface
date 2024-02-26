@@ -1,5 +1,4 @@
 import { ExtensionKVStore } from "@namada/storage";
-import { LocalStorage } from "background/LocalStorage";
 import {
   ContentScriptEnv,
   ContentScriptGuards,
@@ -10,6 +9,7 @@ import {
 } from "extension";
 import { Namada, Proxy } from "provider";
 import { KVPrefix, Ports } from "router/types";
+import { LocalStorage } from "storage";
 import browser from "webextension-polyfill";
 import { initEvents } from "./events";
 

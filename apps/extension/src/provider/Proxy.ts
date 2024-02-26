@@ -1,4 +1,4 @@
-import { LocalStorage } from "background/LocalStorage";
+import { LocalStorage } from "storage";
 import { Namada } from "./Namada";
 import { ProxyRequest, ProxyRequestResponse, ProxyRequestTypes } from "./types";
 

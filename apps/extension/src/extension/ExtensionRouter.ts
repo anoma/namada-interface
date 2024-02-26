@@ -1,4 +1,3 @@
-import { LocalStorage } from "background/LocalStorage";
 import {
   EnvProducer,
   MessageSender,
@@ -6,6 +5,7 @@ import {
   RoutedMessage,
   Router,
 } from "router";
+import { LocalStorage } from "storage";
 import { Messenger } from "./ExtensionMessenger";
 import { getNamadaRouterId } from "./utils";
 

@@ -1,8 +1,8 @@
 import { KVStore } from "@namada/storage";
 import { Result } from "@namada/utils";
-import { Keys, VaultStorage } from "background/VaultStorage";
 import { ExtensionBroadcaster } from "extension";
 import { sha256 } from "js-sha256";
+import { VaultKeys as Keys, VaultStorage } from "storage";
 import { Crypto } from "./crypto";
 import {
   CryptoRecord,

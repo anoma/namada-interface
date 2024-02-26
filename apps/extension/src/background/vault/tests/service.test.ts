@@ -1,7 +1,7 @@
 import { AccountType } from "@namada/types";
 import { Result } from "@namada/utils";
-import { KeyStore, KeyStoreType, VaultStorage } from "background/VaultStorage";
 import { KVPrefix } from "router";
+import { KeyStore, KeyStoreType, VaultStorage } from "storage";
 import { KVStoreMock } from "test/init";
 import { VaultService } from "../service";
 import { SessionPassword } from "../types";

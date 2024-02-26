@@ -5,7 +5,6 @@ import browser from "webextension-polyfill";
 
 import { Alert, Stack } from "@namada/components";
 import { PageHeader } from "App/Common";
-import { LocalStorage } from "background/LocalStorage";
 import {
   ApprovedOriginsStore,
   RevokeConnectionMsg,
@@ -13,6 +12,7 @@ import {
 import { useRequester } from "hooks/useRequester";
 import { GoX } from "react-icons/go";
 import { KVPrefix, Ports } from "router";
+import { LocalStorage } from "storage";
 
 const localStorage = new LocalStorage(
   new ExtensionKVStore<ApprovedOriginsStore>(KVPrefix.LocalStorage, {

@@ -7,12 +7,11 @@ import { TxType } from "@namada/shared";
 import { KVStore } from "@namada/storage";
 import { AccountType, TxMsgValue } from "@namada/types";
 import { makeBip44Path } from "@namada/utils";
-import { RevealedPKStorage } from "background/RevealPKStorage";
-import { VaultStorage } from "background/VaultStorage";
 import { TxStore } from "background/approvals";
 import { KeyRingService } from "background/keyring";
 import { SdkService } from "background/sdk";
 import { ExtensionBroadcaster, ExtensionRequester } from "extension";
+import { RevealedPKStorage, VaultStorage } from "storage";
 import { encodeSignature } from "utils";
 
 export const LEDGERSTORE_KEY = "ledger-store";

@@ -1,8 +1,8 @@
 import { chains } from "@namada/chains";
 import { Query } from "@namada/shared";
 import { Chain } from "@namada/types";
-import { LocalStorage } from "background/LocalStorage";
 import { ExtensionBroadcaster } from "extension";
+import { LocalStorage } from "storage";
 
 export const CHAINS_KEY = "chains";
 

@@ -2,13 +2,13 @@ import { createContext, useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 
 import { ExtensionKVStore } from "@namada/storage";
-import { LocalStorage } from "background/LocalStorage";
 import {
   ExtensionMessenger,
   ExtensionRequester,
   getNamadaRouterId,
 } from "extension";
 import { KVPrefix } from "router";
+import { LocalStorage } from "storage";
 
 const localStorage = new LocalStorage(
   new ExtensionKVStore(KVPrefix.LocalStorage, {
