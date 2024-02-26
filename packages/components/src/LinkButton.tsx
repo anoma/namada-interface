@@ -17,6 +17,12 @@ const linkButton = tv({
       neutral: "text-black",
       white: "text-white",
     },
+    hoverColor: {
+      primary: "hover:text-yellow",
+      secondary: "hover:text-cyan",
+      neutral: "",
+      white: "hover:text-white",
+    },
     underline: {
       true: "[&_a]:border-current",
     },
@@ -34,10 +40,11 @@ export const LinkButton = ({
   underline,
   color,
   children,
+  hoverColor = "neutral",
   ...props
 }: LinkButtonProps): JSX.Element => {
   return (
-    <div className={linkButton({ color, underline })}>
+    <div className={linkButton({ color, underline, hoverColor })}>
       {createElement(props.href ? "a" : "button", { ...props }, children)}
     </div>
   );

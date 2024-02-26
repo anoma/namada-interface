@@ -19,10 +19,14 @@ export const SeedPhraseConfirmation = (
   const navigate = useNavigate();
   const { seedPhrase } = props;
 
-  const [verificationInput1, setVerificationInput1] = useState("");
+  const [verificationInput1, setVerificationInput1] = useState<string | null>(
+    null
+  );
   const [index1ToConfirm, setIndex1ToConfirm] = useState(-1);
   const [index1Error, setIndex1Error] = useState("");
-  const [verificationInput2, setVerificationInput2] = useState("");
+  const [verificationInput2, setVerificationInput2] = useState<string | null>(
+    null
+  );
   const [index2ToConfirm, setIndex2ToConfirm] = useState(-1);
   const [index2Error, setIndex2Error] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -98,33 +102,33 @@ export const SeedPhraseConfirmation = (
           <Input
             data-testd="setup-seed-phrase-verification-1-input"
             label={`Word #${index1ToConfirm + 1}`}
-            value={verificationInput1}
+            value={verificationInput1 || ""}
             error={index1Error}
-            onBlur={() => {
-              verifyWord(
-                seedPhrase[index1ToConfirm],
-                verificationInput1,
-                setIndex1Error
-              );
-            }}
             onChange={(event) => {
               setVerificationInput1(event.target.value);
+              if (verificationInput1 !== null) {
+                verifyWord(
+                  seedPhrase[index1ToConfirm],
+                  event.target.value,
+                  setIndex1Error
+                );
+              }
             }}
           />
           <Input
             data-testid="setup-seed-phrase-verification-2-input"
             label={`Word #${index2ToConfirm + 1}`}
-            value={verificationInput2}
+            value={verificationInput2 || ""}
             error={index2Error}
-            onBlur={() => {
-              verifyWord(
-                seedPhrase[index2ToConfirm],
-                verificationInput2,
-                setIndex2Error
-              );
-            }}
             onChange={(event) => {
               setVerificationInput2(event.target.value);
+              if (verificationInput2) {
+                verifyWord(
+                  seedPhrase[index2ToConfirm],
+                  event.target.value,
+                  setIndex2Error
+                );
+              }
             }}
           />
         </Stack>

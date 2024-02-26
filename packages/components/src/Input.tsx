@@ -15,7 +15,7 @@ const inputClassList = tv({
       "hover:placeholder:opacity-70 focus:placeholder:opacity-0 select:bg-neutral-600",
       "[&[readonly]]:select-none [&[readonly]]:pointer-events-none"
     ),
-    label: "text-white text-base font-medium [&_p]:pb-1",
+    label: "text-white text-sm font-medium [&_p]:pb-1",
     labelText: "pl-1.5",
     error: "text-red-500 hidden text-xs font-normal pl-1.5",
     inputWrapper: "flex mt-2 mb-1 relative",
