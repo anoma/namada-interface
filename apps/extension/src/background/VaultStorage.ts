@@ -4,6 +4,40 @@ import * as t from "io-ts";
 import { ExtStorage } from "./Storage";
 import { CryptoRecord, PrimitiveType } from "./vault";
 
+const Uint8ArrayCodec = new t.Type<Uint8Array, Uint8Array, unknown>(
+  "Uint8Array",
+  (u): u is Uint8Array => u instanceof Uint8Array,
+  (u, c) => {
+    try {
+      const a = Array.from(u as Uint8Array);
+      return t.success(Uint8Array.from(a));
+    } catch (e) {
+      return t.failure(u, c);
+    }
+  },
+  t.identity
+);
+
+enum KdfType {
+  Argon2 = "argon2",
+  Scrypt = "scrypt",
+}
+
+export const Sensitive = t.type({
+  cipher: t.type({
+    type: t.literal("aes-256-gcm"),
+    iv: Uint8ArrayCodec,
+    text: Uint8ArrayCodec,
+  }),
+  kdf: t.type({
+    type: t.keyof({
+      [KdfType.Argon2]: null,
+      [KdfType.Scrypt]: null,
+    }),
+    params: t.any,
+  }),
+});
+
 enum AccountType {
   Mnemonic = "mnemonic",
   PrivateKey = "private-key",
@@ -36,6 +70,7 @@ export const KeyStore = t.exact(
     }),
   ])
 );
+export type KeyStoreType = t.TypeOf<typeof KeyStore>;
 
 const Vault = t.type({
   //TODO: any for time being
@@ -48,23 +83,22 @@ const Vault = t.type({
           public: KeyStore,
         }),
         t.partial({
-          sensitive: t.any,
+          sensitive: Sensitive,
         }),
       ])
     )
   ),
 });
+type VaultType = t.TypeOf<typeof Vault>;
 
-export type KeyStoreType = t.TypeOf<typeof KeyStore>;
 export type VaultTypes = KeyStoreType;
 
-const schemas = [KeyStore];
-export type Schemas = (typeof schemas)[number];
+export type Schemas = typeof KeyStore;
 
 const keys = ["key-store"] as const;
 export type Keys = (typeof keys)[number];
+
 export const schemasMap = new Map<Schemas, Keys>([[KeyStore, "key-store"]]);
-type VaultType = t.TypeOf<typeof Vault>;
 
 export class VaultStorage extends ExtStorage {
   constructor(provider: KVStore<unknown>) {

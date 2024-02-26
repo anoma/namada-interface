@@ -4,8 +4,9 @@ import * as t from "io-ts";
 import { ExtStorage } from "./Storage";
 
 const PKs = t.array(t.string);
-const schemas = [PKs];
-type Schemas = (typeof schemas)[number];
+
+type Schemas = typeof PKs;
+
 type SchemasTypes = t.TypeOf<typeof PKs>;
 
 const keys = ["revealed-pk-store"];

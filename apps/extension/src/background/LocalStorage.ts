@@ -51,7 +51,6 @@ const Chain = t.intersection([
     }),
   }),
 ]);
-
 type ChainType = t.TypeOf<typeof Chain>;
 
 const NamadaExtensionApprovedOrigins = t.array(t.string);
@@ -65,19 +64,18 @@ type NamadaExtensionRouterIdType = t.TypeOf<typeof NamadaExtensionRouterId>;
 const Tabs = t.array(t.type({ tabId: t.number, timestamp: t.number }));
 type TabsType = t.TypeOf<typeof Tabs>;
 
-type SchemasTypes =
+type LocalStorageTypes =
   | ChainType
   | NamadaExtensionApprovedOriginsType
   | NamadaExtensionRouterIdType
   | TabsType;
 
-const schemas = [
-  Chain,
-  NamadaExtensionApprovedOrigins,
-  NamadaExtensionRouterId,
-  Tabs,
-];
-type Schemas = (typeof schemas)[number];
+type Schemas =
+  | typeof Chain
+  | typeof NamadaExtensionApprovedOrigins
+  | typeof NamadaExtensionRouterId
+  | typeof Tabs;
+
 const keys = [
   "chains",
   "namadaExtensionApprovedOrigins",
@@ -94,7 +92,7 @@ const schemasMap = new Map<Schemas, Keys>([
 ]);
 
 export class LocalStorage extends ExtStorage {
-  constructor(provider: KVStore<SchemasTypes>) {
+  constructor(provider: KVStore<LocalStorageTypes>) {
     super(provider);
   }
 
@@ -120,9 +118,7 @@ export class LocalStorage extends ExtStorage {
     NamadaExtensionApprovedOriginsType | undefined
   > {
     //TODO: as string
-    const data = await this.getRaw(
-      schemasMap.get(NamadaExtensionApprovedOrigins) as string
-    );
+    const data = await this.getRaw(this.getKey(NamadaExtensionApprovedOrigins));
     const decodedData = NamadaExtensionApprovedOrigins.decode(data);
 
     if (E.isLeft(decodedData)) {
@@ -136,7 +132,6 @@ export class LocalStorage extends ExtStorage {
     origins: NamadaExtensionApprovedOriginsType
   ): Promise<void> {
     //TODO: encoed before set?
-    //TODO: as string
     await this.setRaw(this.getKey(NamadaExtensionApprovedOrigins), origins);
   }
 
@@ -151,8 +146,7 @@ export class LocalStorage extends ExtStorage {
   }
 
   async getRouterId(): Promise<NamadaExtensionRouterIdType | undefined> {
-    //TODO: as string
-    const data = await this.getRaw(schemasMap.get(NamadaExtensionRouterId)!);
+    const data = await this.getRaw(this.getKey(NamadaExtensionRouterId));
 
     const Schema = t.union([NamadaExtensionRouterId, t.undefined]);
     const decodedData = Schema.decode(data);
