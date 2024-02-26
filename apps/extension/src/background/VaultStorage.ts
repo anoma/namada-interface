@@ -148,11 +148,11 @@ export class VaultStorage {
     data: { public: t.TypeOf<S>; sensitive: CryptoRecord }
   ): Promise<void> {
     const storage = await this.provider.get<VaultType>("vault");
-    //TODO: as string
-    const key = schemasMap.get(schema)!;
     if (!storage) {
-      throw new Error("TODO");
+      throw new Error("Vault store data has not been initialized");
     }
+    const key = this.getKey(schema);
+
     const currentData = storage.data[key] || [];
     currentData.push(data);
     storage.data[key] = currentData;
@@ -202,8 +202,7 @@ export class VaultStorage {
     schema: S
   ): Promise<{ public: t.TypeOf<S>; sensitive?: CryptoRecord }[] | undefined> {
     const storage = await this.provider.get<VaultType>("vault");
-    //TODO: as string
-    const key = schemasMap.get(schema)!;
+    const key = this.getKey(schema);
     const data = storage?.data[key];
 
     return data;
@@ -213,8 +212,7 @@ export class VaultStorage {
     schema: S
   ): Promise<{ public: t.TypeOf<S>; sensitive?: CryptoRecord }[]> {
     const storage = await this.provider.get<VaultType>("vault");
-    //TODO: as string
-    const key = schemasMap.get(schema)!;
+    const key = this.getKey(schema);
     const data = storage?.data[key];
 
     if (!data) {
@@ -229,11 +227,10 @@ export class VaultStorage {
     data: { public: t.TypeOf<S>; sensitive?: CryptoRecord }[]
   ): Promise<void> {
     const storage = await this.provider.get<VaultType>("vault");
-    //TODO: as string
-    const key = schemasMap.get(schema)!;
     if (!storage) {
-      throw new Error("TODO");
+      throw new Error("Vault store data has not been initialized");
     }
+    const key = this.getKey(schema);
     storage.data[key] = data;
     this.set(storage);
   }
@@ -274,5 +271,14 @@ export class VaultStorage {
       if (!prop) return true;
       return props[prop] === value;
     });
+  }
+
+  private getKey<S extends Schemas>(schema: S): Keys {
+    const key = schemasMap.get(schema);
+    if (!key) {
+      throw new Error(`Could not find key for schema: ${schema}`);
+    }
+
+    return key;
   }
 }
