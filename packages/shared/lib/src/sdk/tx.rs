@@ -441,7 +441,7 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
     };
 
     let disposable_signing_key = disposable_signing_key.unwrap_or(false);
-    let siginig_keys: Vec<PublicKey> = match public_key {
+    let signing_keys: Vec<PublicKey> = match public_key {
         Some(v) => vec![v.clone()],
         _ => vec![],
     };
@@ -478,7 +478,7 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
         expiration: None,
         chain_id: Some(ChainId(String::from(chain_id))),
         signatures: vec![],
-        signing_keys: siginig_keys,
+        signing_keys,
         tx_reveal_code_path: PathBuf::from("tx_reveal_pk.wasm"),
         use_device: false,
         password: None,

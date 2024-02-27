@@ -14,7 +14,7 @@ import {
 } from "@namada/shared";
 import { Bip44Path } from "@namada/types";
 import { makeBip44PathArray } from "@namada/utils";
-import { Address, ShieldedKeys, TransparentKeys } from "keys/types";
+import { Address, ShieldedKeys, TransparentKeys } from "./types";
 
 const DEFAULT_PATH: Bip44Path = {
   account: 0,
@@ -26,7 +26,7 @@ export class Keys {
   /**
    * @param {WebAssembly.Memory} cryptoMemory - Memory accessor for crypto lib
    */
-  constructor(protected readonly cryptoMemory: WebAssembly.Memory) {}
+  constructor(protected readonly cryptoMemory: WebAssembly.Memory) { }
 
   /**
    * Get address and public key from private key

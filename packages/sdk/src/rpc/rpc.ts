@@ -1,12 +1,13 @@
+import { deserialize } from "@dao-xyz/borsh";
 import {
+  Proposal,
+  Proposals,
   Query as QueryWasm,
   Sdk as SdkWasm,
   TransferToEthereum,
 } from "@namada/shared";
-import { SignedTx } from "tx/types";
 
-import { deserialize } from "@dao-xyz/borsh";
-import { Proposal, Proposals } from "@namada/shared/src/borsh-schemas";
+import { SignedTx } from "../tx/types";
 import {
   Balance,
   BondsResponse,
@@ -17,7 +18,7 @@ import {
   StakingTotals,
   StakingTotalsResponse,
   UnbondsResponse,
-} from "rpc/types";
+} from "./types";
 
 /**
  * API for executing RPC requests with Namada
@@ -30,7 +31,7 @@ export class Rpc {
   constructor(
     protected readonly sdk: SdkWasm,
     protected readonly query: QueryWasm
-  ) {}
+  ) { }
 
   /**
    * Query balances from chain
@@ -59,9 +60,9 @@ export class Rpc {
    * @param {string} address
    * @returns {string|null} String of public key if found
    */
-  async queryPublicKey(address: string): Promise<string | null> {
+  async queryPublicKey(address: string): Promise<string | undefined> {
     const pk = await this.query.query_public_key(address);
-    return pk || null;
+    return pk;
   }
 
   /**

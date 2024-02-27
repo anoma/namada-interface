@@ -27,19 +27,19 @@ const promiseWithTimeout =
     fn: (...args: U) => Promise<T>,
     opts?: TimeoutOpts
   ) =>
-  (...args: U): Promise<T> => {
-    const { timeout, error } = { ...DEFAULT_OPTS, ...opts };
+    (...args: U): Promise<T> => {
+      const { timeout, error } = { ...DEFAULT_OPTS, ...opts };
 
-    return new Promise(async (resolve, reject) => {
-      const t = setTimeout(() => {
-        reject(error(timeout));
-      }, timeout);
+      return new Promise(async (resolve, reject) => {
+        const t = setTimeout(() => {
+          reject(error(timeout));
+        }, timeout);
 
-      const res = await fn(...args);
-      clearTimeout(t);
-      resolve(res);
-    });
-  };
+        const res = await fn(...args);
+        clearTimeout(t);
+        resolve(res);
+      });
+    };
 
 //Fallbacks for rust panics
 export class Query extends RustQuery {
@@ -68,3 +68,4 @@ export class Query extends RustQuery {
 }
 
 export * from "./types";
+export { Proposal, Proposals };

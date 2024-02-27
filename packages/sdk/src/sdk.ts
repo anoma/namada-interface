@@ -1,13 +1,12 @@
 import Transport from "@ledgerhq/hw-transport";
-import { init as initCrypto } from "@namada/crypto/src/init";
 import { Query as QueryWasm, Sdk as SdkWasm } from "@namada/shared";
-import { init as initShared } from "@namada/shared/src/init";
-import { Keys } from "keys";
-import { Ledger } from "ledger";
-import { Mnemonic } from "mnemonic";
-import { Rpc } from "rpc";
-import { Signing } from "signing";
-import { Tx } from "tx";
+import { Keys } from "./keys";
+import { Ledger } from "./ledger";
+import { Masp } from "./masp";
+import { Mnemonic } from "./mnemonic";
+import { Rpc } from "./rpc";
+import { Signing } from "./signing";
+import { Tx } from "./tx";
 
 /**
  * API for interacting with Namada SDK
@@ -26,49 +25,7 @@ export class Sdk {
     protected readonly cryptoMemory: WebAssembly.Memory,
     public readonly url: string,
     public readonly nativeToken: string
-  ) {}
-
-  /**
-   * Returns an initialized Sdk class
-   * @async
-   * @param {string} url - RPC url for use with SDK
-   * @param {string} [token] - Native token of the target chain, if not provided, an attempt to query it will be made
-   * @return {Sdk} Instance of initialized Sdk class
-   */
-  async init(url: string, token?: string): Promise<Sdk> {
-    // Load and initialize shared wasm
-    const sharedWasm = await fetch("shared.namada.wasm").then((wasm) =>
-      wasm.arrayBuffer()
-    );
-    await initShared(sharedWasm);
-
-    // Load and initialize crypto wasm
-    const cryptoWasm = await fetch("crypto.namada.wasm").then((wasm) =>
-      wasm.arrayBuffer()
-    );
-    const { memory: cryptoMemory } = await initCrypto(cryptoWasm);
-
-    // Instantiate QueryWasm
-    const query = new QueryWasm(url);
-
-    let nativeToken: string = "";
-
-    // Token not provided, make an attempt to query it
-    if (!token) {
-      try {
-        const result = await query.query_native_token();
-        nativeToken = result;
-      } catch (e) {
-        // Raise exception if query is required but native token cannot be determined
-        throw new Error(`Unable to Query native token! ${e}`);
-      }
-    }
-
-    // Instantiate SdkWasm
-    const sdk = new SdkWasm(url, nativeToken);
-    return new Sdk(sdk, query, cryptoMemory, url, nativeToken);
-  }
-
+  ) { }
   /**
    * Return initialized Rpc class
    * @return {Rpc} Namada RPC client
@@ -107,6 +64,14 @@ export class Sdk {
    */
   getSigning(): Signing {
     return new Signing(this.sdk);
+  }
+
+  /**
+   * Return initialized Masp class
+   * @return {Masp} Masp utilities for handling params
+   */
+  getMasp(): Masp {
+    return new Masp(this.sdk);
   }
 
   /**
@@ -157,5 +122,13 @@ export class Sdk {
    */
   get signing(): Signing {
     return this.getSigning();
+  }
+
+  /**
+   * Define signing getter to use with destructuring assignment
+   * @return {Signing}
+   */
+  get masp(): Masp {
+    return this.getMasp();
   }
 }

@@ -52,7 +52,7 @@ export class Ledger {
   /**
    * @param {NamadaApp} namadaApp - Inititalized NamadaApp class from Zondax package
    */
-  constructor(public readonly namadaApp: NamadaApp) {}
+  constructor(public readonly namadaApp: NamadaApp) { }
 
   /**
    * Initialize and return Ledger class instance with initialized Transport
@@ -95,17 +95,16 @@ export class Ledger {
    * Get address and public key associated with optional path, otherwise, use default path
    * Throw exception if app is not initialized.
    * @async
-   * @param {string} [bip44Path] Bip44 path for deriving key
+   * @param {string} [path] Bip44 path for deriving key
    * @returns {AddressAndPublicKey}
    */
   public async getAddressAndPublicKey(
-    bip44Path?: string
+    path: string = DEFAULT_LEDGER_BIP44_PATH
   ): Promise<AddressAndPublicKey> {
     if (!this.namadaApp) {
       throw new Error("NamadaApp is not initialized!");
     }
 
-    const path = bip44Path || DEFAULT_LEDGER_BIP44_PATH;
     const { address, publicKey } =
       await this.namadaApp.getAddressAndPubKey(path);
 
@@ -121,17 +120,15 @@ export class Ledger {
    * Prompt user to get address and public key associated with optional path, otherwise, use default path.
    * Throw exception if app is not initialized.
    * @async
-   * @param {string} [bip44Path] Bip44 path for deriving key
+   * @param {string} [path] Bip44 path for deriving key
    * @returns {AddressAndPublicKey}
    */
   public async showAddressAndPublicKey(
-    bip44Path?: string
+    path: string = DEFAULT_LEDGER_BIP44_PATH
   ): Promise<AddressAndPublicKey> {
     if (!this.namadaApp) {
       throw new Error("NamadaApp is not initialized!");
     }
-
-    const path = bip44Path || DEFAULT_LEDGER_BIP44_PATH;
 
     try {
       const { address, publicKey } =
@@ -153,15 +150,17 @@ export class Ledger {
    * Throw exception if app is not initialized.
    * @async
    * @param {Uint8Array} tx - tx data blob to sign
-   * @param {string} [bip44Path] Bip44 path for signing account
+   * @param {string} [path] Bip44 path for signing account
    * @returns {ResponseSign}
    */
-  public async sign(tx: Uint8Array, bip44Path?: string): Promise<ResponseSign> {
+  public async sign(
+    tx: Uint8Array,
+    path: string = DEFAULT_LEDGER_BIP44_PATH
+  ): Promise<ResponseSign> {
     if (!this.namadaApp) {
       throw new Error("NamadaApp is not initialized!");
     }
     const buffer = Buffer.from(tx);
-    const path = bip44Path || DEFAULT_LEDGER_BIP44_PATH;
 
     return await this.namadaApp.sign(path, buffer);
   }
@@ -185,6 +184,7 @@ export class Ledger {
 
   /**
    * Close the initialized transport, which may be needed if Ledger needs to be reinitialized due to error state
+   * Throw exception if app is not initialized.
    * @async
    * @returns {void}
    */

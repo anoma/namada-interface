@@ -38,7 +38,6 @@ export const generateId = (
 };
 
 /**
- * TODO: This will be handled by @namada/sdk - so this may be removed once integrated!
  * Convert ISignature into serialized and encoded signature
  */
 export const encodeSignature = (sig: ISignature): Uint8Array => {

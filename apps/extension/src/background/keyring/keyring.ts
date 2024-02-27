@@ -82,7 +82,7 @@ export class KeyRing {
     protected readonly sdkService: SdkService,
     protected readonly utilityStore: KVStore<UtilityStore>,
     protected readonly cryptoMemory: WebAssembly.Memory
-  ) { }
+  ) {}
 
   public get status(): KeyRingStatus {
     return this._status;
@@ -309,13 +309,13 @@ export class KeyRing {
   }
 
   public deriveShieldedAccount(
-    seedPtr: VecU8Pointer,
+    seed: VecU8Pointer,
     path: Bip44Path,
     parentId: string
   ): DerivedAccountInfo {
     const { index } = path;
     const id = generateId(UUID_NAMESPACE, "shielded-account", parentId, index);
-    const zip32 = new ShieldedHDWallet(seedPtr);
+    const zip32 = new ShieldedHDWallet(seed);
     const account = zip32.derive_to_serialized_keys(index);
 
     // Retrieve serialized types from wasm
