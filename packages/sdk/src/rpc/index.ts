@@ -1,2 +1,2 @@
-export * from "rpc/rpc";
-export * from "rpc/types";
+export * from "./rpc";
+export * from "./types";

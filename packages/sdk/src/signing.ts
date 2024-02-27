@@ -1,11 +1,10 @@
 import { Sdk as SdkWasm } from "@namada/shared";
-import { SignatureResponse } from "@namada/types";
 
 /**
  * Non-Tx signing functions
  */
 export class Signing {
-  constructor(protected readonly sdk: SdkWasm) {}
+  constructor(protected readonly sdk: SdkWasm) { }
 
   /**
    * Sign arbitrary data
@@ -13,7 +12,7 @@ export class Signing {
    * @param {string} data
    * @return {SignatureResponse}
    */
-  signArbitrary(signingKey: string, data: string): SignatureResponse {
+  signArbitrary(signingKey: string, data: string): [string, string] {
     return this.sdk.sign_arbitrary(signingKey, data);
   }
 

@@ -28,7 +28,7 @@ import {
 } from "@namada/types";
 
 export class Signer implements ISigner {
-  constructor(private readonly _namada: Namada) { }
+  constructor(private readonly _namada: Namada) {}
 
   public async accounts(): Promise<Account[] | undefined> {
     return (await this._namada.accounts())?.map(
@@ -101,7 +101,7 @@ export class Signer implements ISigner {
   }
 
   /**
-   * Submit a bond transaction
+   * Submit bond transaction
    */
   public async submitBond(
     args: BondProps,
@@ -112,7 +112,7 @@ export class Signer implements ISigner {
   }
 
   /**
-   * Submit a unbond transaction
+   * Submit unbond transaction
    */
   public async submitUnbond(
     args: UnbondProps,
@@ -123,7 +123,7 @@ export class Signer implements ISigner {
   }
 
   /**
-   * Submit a withdraw transaction
+   * Submit withdraw transaction
    */
   public async submitWithdraw(
     args: WithdrawProps,
@@ -134,7 +134,7 @@ export class Signer implements ISigner {
   }
 
   /**
-   * Submit a vote proposal transaction
+   * Submit vote proposal transaction
    */
   public async submitVoteProposal(
     args: VoteProposalProps,

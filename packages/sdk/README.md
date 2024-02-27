@@ -48,3 +48,5 @@ async function init(): Promise<void> {
 
 init();
 ```
+
+For more information, read the [Specs](./docs/specs.md) or the [API](./docs/api.md) documentation.

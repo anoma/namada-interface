@@ -66,4 +66,4 @@ export type GasCosts = [[string, string]];
  * Balance
  * [[tokenAddress, amount]]
  */
-export type Balance = [[string, number]];
+export type Balance = [[string, string]];

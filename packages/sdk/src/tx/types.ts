@@ -8,12 +8,10 @@ export class EncodedTx {
    * Create an EncodedTx class
    * @param {Uint8Array} txMsg - Borsh-serialized transaction
    * @param {BuiltTx} tx - Specific tx struct instance
-   * @param {hash} [hash] - Tx hash (TODO: This should be required, but needs to be implemented)
    */
   constructor(
     public readonly txMsg: Uint8Array,
-    public readonly tx: BuiltTx,
-    public readonly hash?: string
+    public readonly tx: BuiltTx
   ) {}
 
   /**
@@ -39,6 +37,10 @@ export class EncodedTx {
  * Wrap results of tx signing to simplify passing between Sdk functions
  */
 export class SignedTx {
+  /**
+   * @param {Uint8Array} txMsg - Serialized tx msg bytes
+   * @param {Uint8Array} tx - Serialized tx bytes
+   */
   constructor(
     // Serialized TxMsg
     public readonly txMsg: Uint8Array,
