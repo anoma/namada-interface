@@ -9,7 +9,7 @@ import {
   GoGear,
   GoUnlock,
 } from "react-icons/go";
-import { Colour } from "./Colour";
+import { Color } from "./Color";
 import { Section } from "./Section";
 
 export const CheatSheet = (): JSX.Element => {
@@ -26,27 +26,27 @@ export const CheatSheet = (): JSX.Element => {
       </Section>
       <Section title="Main colours">
         <Stack as="ul" gap={8} direction="horizontal">
-          <Colour className="bg-black" rgb="#141414" />
-          <Colour className="bg-yellow" rgb="#FFFF00" textDark />
-          <Colour className="bg-gray border border-white" rgb="#292929" />
-          <Colour className="bg-white" rgb="#FFFFFF" textDark />
+          <Color className="bg-black" rgb="#141414" />
+          <Color className="bg-yellow" rgb="#FFFF00" textDark />
+          <Color className="bg-gray border border-white" rgb="#292929" />
+          <Color className="bg-white" rgb="#FFFFFF" textDark />
         </Stack>
       </Section>
       <Section title="Secondary">
         <Stack as="ul" gap={8} direction="horizontal">
-          <Colour
+          <Color
             className="bg-cyan"
             rgb="#00FFFF"
             textDark
             description="Shielded features"
           />
-          <Colour className="bg-success" rgb="#15DD89" description="Success" />
-          <Colour
+          <Color className="bg-success" rgb="#15DD89" description="Success" />
+          <Color
             className="bg-intermediate"
             rgb="#F48708"
             description="Intermediate"
           />
-          <Colour className="bg-fail" rgb="#DD1539" description="Fail" />
+          <Color className="bg-fail" rgb="#DD1539" description="Fail" />
         </Stack>
       </Section>
       <Section title="Icons">

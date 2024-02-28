@@ -1,19 +1,19 @@
 import clsx from "clsx";
 import { twMerge } from "tailwind-merge";
 
-type ColourProps = {
+type ColorProps = {
   className: string;
   rgb: string;
   textDark?: boolean;
   description?: string;
 };
 
-export const Colour = ({
+export const Color = ({
   className,
   rgb,
   textDark,
   description,
-}: ColourProps): JSX.Element => {
+}: ColorProps): JSX.Element => {
   return (
     <div className="w-23">
       <i
