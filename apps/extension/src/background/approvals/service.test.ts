@@ -260,6 +260,7 @@ describe.only("approvals service", () => {
         tokenAddress: transferMsgValue.token,
         amount: transferMsgValue.amount.toString(),
         publicKey: txMsgValue.publicKey,
+        nativeToken: transferMsgValue.token,
       });
     });
   });
@@ -305,6 +306,7 @@ describe.only("approvals service", () => {
         tokenAddress: transferMsgValue.token,
         amount: transferMsgValue.amount.toString(),
         publicKey: txMsgValue.publicKey,
+        nativeToken: txMsgValue.token,
       });
     });
   });
@@ -342,6 +344,7 @@ describe.only("approvals service", () => {
         tokenAddress: transferMsgValue.asset,
         amount: transferMsgValue.amount.toString(),
         publicKey: txMsgValue.publicKey,
+        nativeToken: txMsgValue.token,
       });
     });
   });
@@ -375,6 +378,7 @@ describe.only("approvals service", () => {
         tokenAddress: bondMsgValue.nativeToken,
         amount: bondMsgValue.amount.toString(),
         publicKey: txMsgValue.publicKey,
+        nativeToken: bondMsgValue.nativeToken,
       });
     });
   });
@@ -406,6 +410,7 @@ describe.only("approvals service", () => {
         source: unbondMsgValue.source,
         amount: unbondMsgValue.amount.toString(),
         publicKey: txMsgValue.publicKey,
+        nativeToken: txMsgValue.token,
       });
     });
   });
@@ -436,6 +441,7 @@ describe.only("approvals service", () => {
         source: withdrawMsgValue.source,
         validator: withdrawMsgValue.validator,
         publicKey: txMsgValue.publicKey,
+        nativeToken: txMsgValue.token,
       });
     });
   });
@@ -466,6 +472,7 @@ describe.only("approvals service", () => {
       expect(params).toEqual({
         source: voteProposalMsgValue.signer,
         publicKey: txMsgValue.publicKey,
+        nativeToken: txMsgValue.token,
       });
     });
   });
