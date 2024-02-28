@@ -2,19 +2,17 @@ use std::{path::PathBuf, str::FromStr};
 
 use namada::core::borsh::{BorshDeserialize, BorshSerialize};
 use namada::core::ibc::core::host::types::identifiers::{ChannelId, PortId};
+use namada::tendermint_rpc;
 use namada::tx::data::GasLimit;
 use namada::{
+    address::Address,
+    chain::ChainId,
+    ethereum_events::EthAddress,
+    key::common::PublicKey,
+    masp::{ExtendedSpendingKey, PaymentAddress, TransferSource, TransferTarget},
     sdk::args::{self, InputAmount},
-    types::{
-        address::Address,
-        chain::ChainId,
-        ethereum_events::EthAddress,
-        key::common::PublicKey,
-        masp::{ExtendedSpendingKey, PaymentAddress, TransferSource, TransferTarget},
-        token::{Amount, DenominatedAmount, NATIVE_MAX_DECIMAL_PLACES},
-    },
+    token::{Amount, DenominatedAmount, NATIVE_MAX_DECIMAL_PLACES},
 };
-use tendermint_config::net::Address as TendermintAddress;
 use wasm_bindgen::JsError;
 
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -457,7 +455,7 @@ fn tx_msg_into_args(tx_msg: &[u8]) -> Result<args::Tx, JsError> {
 
     // Ledger address is not used in the SDK.
     // We can leave it as whatever as long as it's valid url.
-    let ledger_address = TendermintAddress::from_str("notinuse:13337").unwrap();
+    let ledger_address = tendermint_rpc::Url::from_str("http://notinuse:13337").unwrap();
 
     let memo = memo.map(|v| v.as_bytes().to_vec());
 

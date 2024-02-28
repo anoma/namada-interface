@@ -1,4 +1,4 @@
-use namada::types::io::Io;
+use namada::io::Io;
 use wasm_bindgen::JsValue;
 
 fn read(question: Option<&str>) -> std::io::Result<String> {

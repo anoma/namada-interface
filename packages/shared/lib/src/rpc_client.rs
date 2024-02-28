@@ -1,4 +1,5 @@
 use js_sys::JSON::stringify;
+use namada::storage::BlockHeight;
 use std::fmt::Debug;
 use std::fmt::Display;
 use thiserror::Error;
@@ -12,7 +13,6 @@ use namada::tendermint::{self, abci::Code};
 use namada::tendermint_rpc::{
     error::Error as TendermintRpcError, Response as RpcResponse, SimpleRequest,
 };
-use namada::types::storage::BlockHeight;
 
 #[wasm_bindgen(module = "/src/rpc_client.js")]
 extern "C" {

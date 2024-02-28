@@ -7,7 +7,10 @@ use crate::{
     utils::{set_panic_hook, to_bytes},
 };
 use js_sys::Uint8Array;
+use namada::address::Address;
 use namada::core::borsh::{self, BorshDeserialize};
+use namada::hash::Hash;
+use namada::key::{common, ed25519, SigScheme};
 use namada::ledger::eth_bridge::bridge_pool::build_bridge_pool_tx;
 use namada::sdk::masp::ShieldedContext;
 use namada::sdk::rpc::query_epoch;
@@ -18,11 +21,8 @@ use namada::sdk::tx::{
 };
 use namada::sdk::wallet::{Store, Wallet};
 use namada::sdk::{Namada, NamadaImpl};
+use namada::string_encoding::Format;
 use namada::tx::Tx;
-use namada::types::address::Address;
-use namada::types::hash::Hash;
-use namada::types::key::{common, ed25519, SigScheme};
-use namada::types::string_encoding::Format;
 use std::str::FromStr;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 
@@ -112,7 +112,7 @@ impl Sdk {
         assert_eq!(params_bytes.next(), None);
 
         let mut shielded = self.namada.shielded_mut().await;
-        *shielded = WebShieldedUtils::new(spend, output, convert);
+        *shielded = WebShieldedUtils::new(spend, output, convert).await?;
 
         Ok(())
     }

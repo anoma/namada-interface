@@ -1,5 +1,5 @@
 use namada::core::borsh::BorshDeserialize;
-use namada::types::{
+use namada::{
     address,
     key::{
         self,

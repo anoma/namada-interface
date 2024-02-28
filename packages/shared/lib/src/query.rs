@@ -1,23 +1,26 @@
 use js_sys::Uint8Array;
-use masp_primitives::asset_type::AssetType;
-use masp_primitives::transaction::components::ValueSum;
-use masp_primitives::zip32::ExtendedFullViewingKey;
+use namada::address::Address;
 use namada::core::borsh::BorshSerialize;
+use namada::eth_bridge_pool::TransferToEthereum;
 use namada::governance::storage::keys as governance_storage;
 use namada::governance::utils::{compute_proposal_result, ProposalVotes, TallyVote, VotePower};
 use namada::governance::{ProposalType, ProposalVote};
 use namada::ledger::eth_bridge::bridge_pool::query_signed_bridge_pool;
 use namada::ledger::parameters::storage;
 use namada::ledger::queries::RPC;
+use namada::masp::ExtendedViewingKey;
 use namada::proof_of_stake::Epoch;
-use namada::sdk::masp::ShieldedContext;
+use namada::sdk::masp::{DefaultLogger, ShieldedContext};
+use namada::sdk::masp_primitives::asset_type::AssetType;
+use namada::sdk::masp_primitives::transaction::components::ValueSum;
+use namada::sdk::masp_primitives::zip32::ExtendedFullViewingKey;
 use namada::sdk::rpc::{
     format_denominated_amount, get_public_key_at, get_token_balance, get_total_staked_tokens,
     query_epoch, query_native_token, query_proposal_by_id, query_proposal_votes,
     query_storage_value,
 };
-use namada::types::eth_bridge_pool::TransferToEthereum;
-use namada::types::{address::Address, masp::ExtendedViewingKey, token, uint::I256};
+use namada::token;
+use namada::uint::I256;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::str::FromStr;
 use wasm_bindgen::prelude::*;
@@ -260,27 +263,49 @@ impl Query {
         xvk: ExtendedViewingKey,
     ) -> Result<Vec<(Address, token::Amount)>, JsError> {
         let viewing_key = ExtendedFullViewingKey::from(xvk).fvk.vk;
+
         // We are recreating shielded context to avoid multiple mutable borrows
         let mut shielded: ShieldedContext<masp::WebShieldedUtils> = ShieldedContext::default();
 
-        let _ = shielded.load();
-        let fvks: Vec<_> = vec![xvk]
-            .iter()
-            .map(|fvk| ExtendedFullViewingKey::from(*fvk).fvk.vk)
-            .collect();
+        let _ = shielded.load().await;
+        // TODO: pass supported asset types
+        let _ = shielded
+            .precompute_asset_types(
+                &self.client,
+                vec![&Address::from_str("tnam1qxgfw7myv4dh0qna4hq0xdg6lx77fzl7dcem8h7e").unwrap()],
+            )
+            .await;
 
-        shielded.fetch(&self.client, &[], &fvks).await?;
+        let _ = shielded.save().await;
+
+        shielded
+            .fetch(
+                &self.client,
+                &DefaultLogger::new(&WebIo),
+                None,
+                1,
+                &[],
+                &[viewing_key],
+            )
+            .await?;
 
         let epoch = query_epoch(&self.client).await?;
         let balance = shielded
             .compute_exchanged_balance(&self.client, &WebIo, &viewing_key, epoch)
-            .await?
-            .expect("context should contain viewing key");
-        let decoded_balance = shielded
-            .decode_combine_sum_to_epoch(&self.client, balance, epoch)
-            .await;
+            .await?;
 
-        Ok(Self::get_decoded_balance(decoded_balance))
+        let res = match balance {
+            Some(balance) => {
+                let decoded_balance = shielded
+                    .decode_combine_sum_to_epoch(&self.client, balance, epoch)
+                    .await;
+
+                Self::get_decoded_balance(decoded_balance)
+            }
+            None => vec![],
+        };
+
+        Ok(res)
     }
 
     pub async fn query_balance(
